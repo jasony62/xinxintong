@@ -19,6 +19,9 @@ class remark_model extends \TMS_MODEL {
 			if (property_exists($oRemark, 'like_log')) {
 				$oRemark->like_log = empty($oRemark->like_log) ? new \stdClass : json_decode($oRemark->like_log);
 			}
+			if (property_exists($oRemark, 'dislike_log')) {
+				$oRemark->dislike_log = empty($oRemark->dislike_log) ? new \stdClass : json_decode($oRemark->dislike_log);
+			}
 			if (property_exists($oRemark, 'agreed_log')) {
 				$oRemark->agreed_log = empty($oRemark->agreed_log) ? new \stdClass : json_decode($oRemark->agreed_log);
 			}

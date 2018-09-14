@@ -2055,6 +2055,32 @@ class event_model extends \TMS_MODEL {
 		$this->_logEvent($oApp, $oRemark->rid, $oRemark->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 	}
 	/**
+	 * 留言点踩
+	 */
+	public function dislikeRemark($oApp, $oRemark, $oOperator) {
+		$oOperatorData = $this->_doDislikeRemark($oApp, $oRemark, $oOperator);
+		$oOwnerData = $this->_getDislikeRemark($oApp, $oRemark, $oOperator);
+
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRemark->id;
+		$oTarget->type = 'remark';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::DoDislikeRemarkEventName;
+		$oEvent->op = 'Y';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		$oEvent->coin = isset($oOperatorData->user_total_coin) ? $oOperatorData->user_total_coin : 0;
+		//
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = (object) ['uid' => $oRemark->userid];
+		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
+
+		$this->_logEvent($oApp, $oRemark->rid, $oRemark->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
+	}
+	/**
 	 * 留言点赞
 	 */
 	private function _doLikeRemark($oApp, $oRemark, $oOperator) {
@@ -2073,6 +2099,31 @@ class event_model extends \TMS_MODEL {
 		$oUpdatedUsrData = new \stdClass;
 		$oUpdatedUsrData->last_do_like_remark_at = $eventAt;
 		$oUpdatedUsrData->do_like_remark_num = 1;
+		$oUpdatedUsrData->modify_log = $oNewModifyLog;
+
+		$this->_updateUsrData($oApp, $oRemark->rid, false, $oOperator, $oUpdatedUsrData);
+
+		return $oUpdatedUsrData;
+	}
+	/**
+	 * 留言点踩
+	 */
+	private function _doDislikeRemark($oApp, $oRemark, $oOperator) {
+		$operatorId = $this->_getOperatorId($oOperator);
+		$eventAt = time();
+		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
+
+		/* 记录修改日志 */
+		$oNewModifyLog = new \stdClass;
+		$oNewModifyLog->userid = $operatorId;
+		$oNewModifyLog->at = $eventAt;
+		$oNewModifyLog->op = self::DoDislikeRemarkEventName . '_Y';
+		$oNewModifyLog->args = (object) ['id' => $oRemark->id];
+
+		/* 更新的数据 */
+		$oUpdatedUsrData = new \stdClass;
+		$oUpdatedUsrData->last_do_dislike_remark_at = $eventAt;
+		$oUpdatedUsrData->do_dislike_remark_num = 1;
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 
 		$this->_updateUsrData($oApp, $oRemark->rid, false, $oOperator, $oUpdatedUsrData);
@@ -2115,6 +2166,41 @@ class event_model extends \TMS_MODEL {
 		return $oUpdatedUsrData;
 	}
 	/**
+	 * 留言被反对
+	 */
+	private function _getDislikeRemark($oApp, $oRemark, $oOperator) {
+		$operatorId = $this->_getOperatorId($oOperator);
+		$eventAt = time();
+		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
+
+		/* 记录修改日志 */
+		$oNewModifyLog = new \stdClass;
+		$oNewModifyLog->userid = $oRemark->userid;
+		$oNewModifyLog->at = $eventAt;
+		$oNewModifyLog->op = self::GetDislikeRemarkEventName . '_Y';
+		$oNewModifyLog->args = (object) ['id' => $oRemark->id, 'operator' => $operatorId];
+
+		/* 更新的数据 */
+		$oUpdatedUsrData = new \stdClass;
+		$oUpdatedUsrData->last_dislike_remark_at = $eventAt;
+		$oUpdatedUsrData->dislike_remark_num = 1;
+		$oUpdatedUsrData->modify_log = $oNewModifyLog;
+		$aCoinResult = $modelUsr->awardCoin($oApp, $oRemark->userid, $oRemark->rid, self::GetDislikeRemarkEventName);
+		if (!empty($aCoinResult[1])) {
+			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
+		}
+
+		$oUser = (object) ['uid' => $oRemark->userid];
+
+		$this->_updateUsrData($oApp, $oRemark->rid, true, $oUser, $oUpdatedUsrData);
+		// 如果日志插入失败需要重新增加
+		if ($aCoinResult[0] === false && !empty($aCoinResult[1])) {
+			$modelUsr->awardCoin($oApp, $oRemark->userid, $oRemark->rid, self::GetDislikeRemarkEventName);
+		}
+
+		return $oUpdatedUsrData;
+	}
+	/**
 	 * 撤销发起对留言点赞
 	 */
 	public function undoLikeRemark($oApp, $oRemark, $oOperator) {
@@ -2146,6 +2232,37 @@ class event_model extends \TMS_MODEL {
 		);
 	}
 	/**
+	 * 撤销发起对留言点踩
+	 */
+	public function undoDislikeRemark($oApp, $oRemark, $oOperator) {
+		$this->_undoDislikeRemark($oApp, $oRemark, $oOperator);
+		$this->_undoGetDislikeRemark($oApp, $oRemark, $oOperator);
+
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRemark->id;
+		$oTarget->type = 'remark';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::DoDislikeRemarkEventName;
+		$oEvent->op = 'N';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		//
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = (object) ['uid' => $oRemark->userid];
+
+		$oLog = $this->_logEvent($oApp, $oRemark->rid, $oRemark->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
+
+		/* 更新被撤销的事件 */
+		$this->update(
+			'xxt_enroll_log',
+			['undo_event_id' => $oLog->id],
+			['target_id' => $oRemark->id, 'target_type' => 'remark', 'event_name' => self::DoDislikeEventName, 'event_op' => 'Y', 'undo_event_id' => 0]
+		);
+	}
+	/**
 	 * 撤销发起对留言点赞
 	 */
 	private function _undoLikeRemark($oApp, $oRemark, $oOperator) {
@@ -2162,6 +2279,29 @@ class event_model extends \TMS_MODEL {
 		/* 更新的数据 */
 		$oUpdatedUsrData = new \stdClass;
 		$oUpdatedUsrData->do_like_remark_num = -1;
+		$oUpdatedUsrData->modify_log = $oNewModifyLog;
+
+		$this->_updateUsrData($oApp, $oRemark->rid, true, $oOperator, $oUpdatedUsrData);
+
+		return $oUpdatedUsrData;
+	}
+	/**
+	 * 撤销发起对留言点踩
+	 */
+	private function _undoDislikeRemark($oApp, $oRemark, $oOperator) {
+		$operatorId = $this->_getOperatorId($oOperator);
+		$eventAt = time();
+
+		/* 记录修改日志 */
+		$oNewModifyLog = new \stdClass;
+		$oNewModifyLog->userid = $operatorId;
+		$oNewModifyLog->at = $eventAt;
+		$oNewModifyLog->op = self::DoDislikeRemarkEventName . '_N';
+		$oNewModifyLog->args = (object) ['id' => $oRemark->id];
+
+		/* 更新的数据 */
+		$oUpdatedUsrData = new \stdClass;
+		$oUpdatedUsrData->do_dislike_remark_num = -1;
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 
 		$this->_updateUsrData($oApp, $oRemark->rid, true, $oOperator, $oUpdatedUsrData);
@@ -2194,6 +2334,50 @@ class event_model extends \TMS_MODEL {
 			for ($i = count($oEnlUsrRnd->modify_log) - 1; $i >= 0; $i--) {
 				$oLog = $oEnlUsrRnd->modify_log[$i];
 				if ($oLog->op === self::GetLikeRemarkEventName . '_Y') {
+					if (isset($oLog->args->id) && isset($oLog->args->operator)) {
+						if ($oLog->args->id === $oRemark->id && $oLog->args->operator === $operatorId) {
+							if (!empty($oLog->coin)) {
+								$oUpdatedUsrData->user_total_coin = -1 * (int) $oLog->coin;
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		$oUser = (object) ['uid' => $oRemark->userid];
+
+		$this->_updateUsrData($oApp, $oRemark->rid, true, $oUser, $oUpdatedUsrData);
+
+		return $oUpdatedUsrData;
+	}
+	/**
+	 * 撤销留言被点踩
+	 */
+	private function _undoGetDislikeRemark($oApp, $oRemark, $oOperator) {
+		$operatorId = $this->_getOperatorId($oOperator);
+		$eventAt = time();
+		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
+
+		/* 记录修改日志 */
+		$oNewModifyLog = new \stdClass;
+		$oNewModifyLog->userid = $oRemark->userid;
+		$oNewModifyLog->at = $eventAt;
+		$oNewModifyLog->op = self::GetDislikeRemarkEventName . '_N';
+		$oNewModifyLog->args = (object) ['id' => $oRemark->id, 'operator' => $operatorId];
+
+		/* 更新的数据 */
+		$oUpdatedUsrData = new \stdClass;
+		$oUpdatedUsrData->dislike_remark_num = -1;
+		$oUpdatedUsrData->modify_log = $oNewModifyLog;
+
+		$oEnlUsrRnd = $modelUsr->byId($oApp, $oRemark->userid, ['fields' => 'id,modify_log', 'rid' => $oRemark->rid]);
+		/* 撤销获得的积分 */
+		if ($oEnlUsrRnd && count($oEnlUsrRnd->modify_log)) {
+			for ($i = count($oEnlUsrRnd->modify_log) - 1; $i >= 0; $i--) {
+				$oLog = $oEnlUsrRnd->modify_log[$i];
+				if ($oLog->op === self::GetDislikeRemarkEventName . '_Y') {
 					if (isset($oLog->args->id) && isset($oLog->args->operator)) {
 						if ($oLog->args->id === $oRemark->id && $oLog->args->operator === $operatorId) {
 							if (!empty($oLog->coin)) {

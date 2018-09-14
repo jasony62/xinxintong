@@ -551,6 +551,61 @@ class remark extends base {
 		return new \ResponseData(['like_log' => $oLikeLog, 'like_num' => $likeNum]);
 	}
 	/**
+	 * 反对登记记录中的某一个留言
+	 *
+	 * @param string $remark remark'id
+	 *
+	 */
+	public function dislike_action($remark) {
+		$modelRem = $this->model('matter\enroll\remark');
+		$oRemark = $modelRem->byId($remark, ['fields' => 'id,aid,rid,enroll_key,userid,dislike_log']);
+		if (false === $oRemark) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelEnl = $this->model('matter\enroll');
+		$oApp = $modelEnl->byId($oRemark->aid, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		$oDislikeLog = $oRemark->dislike_log;
+
+		$oUser = $this->getUser($oApp);
+		/* 检查是否满足给评论点赞的条件 */
+		if (!isset($oApp->entryRule->exclude_action) || $oApp->entryRule->exclude_action->like != "Y") {
+			$checkEntryRule = $this->checkEntryRule($oApp, false, $oUser);
+			if ($checkEntryRule[0] === false) {
+				return new \ResponseError($checkEntryRule[1]);
+			}
+		}
+
+		if (isset($oDislikeLog->{$oUser->uid})) {
+			unset($oDislikeLog->{$oUser->uid});
+			$incDislikeNum = -1;
+		} else {
+			$oDislikeLog->{$oUser->uid} = time();
+			$incDislikeNum = 1;
+		}
+		$dislikeNum = count(get_object_vars($oDislikeLog));
+
+		$modelRem->update(
+			'xxt_enroll_record_remark',
+			['dislike_log' => json_encode($oDislikeLog), 'dislike_num' => $dislikeNum],
+			['id' => $oRemark->id]
+		);
+
+		$modelEnlEvt = $this->model('matter\enroll\event');
+		if ($incDislikeNum > 0) {
+			/* 发起点赞 */
+			$modelEnlEvt->dislikeRemark($oApp, $oRemark, $oUser);
+		} else {
+			/* 撤销发起点赞 */
+			$modelEnlEvt->undoDislikeRemark($oApp, $oRemark, $oUser);
+		}
+
+		return new \ResponseData(['dislike_log' => $oDislikeLog, 'dislike_num' => $dislikeNum]);
+	}
+	/**
 	 * 组长对留言表态
 	 */
 	public function agree_action($remark, $value = '') {

@@ -2331,7 +2331,7 @@ class event_model extends \TMS_MODEL {
 		$oEnlUsrRnd = $modelUsr->byId($oApp, $oRemark->userid, ['fields' => 'id,modify_log', 'rid' => $oRemark->rid]);
 		/* 撤销获得的积分 */
 		if ($oEnlUsrRnd && count($oEnlUsrRnd->modify_log)) {
-			for ($i = count($oEnlUsrRnd->modify_log) - 1; $i >= 0; $i--) {
+			for ($i = 0; $i < count($oEnlUsrRnd->modify_log); $i++) {
 				$oLog = $oEnlUsrRnd->modify_log[$i];
 				if ($oLog->op === self::GetLikeRemarkEventName . '_Y') {
 					if (isset($oLog->args->id) && isset($oLog->args->operator)) {
@@ -2375,7 +2375,7 @@ class event_model extends \TMS_MODEL {
 		$oEnlUsrRnd = $modelUsr->byId($oApp, $oRemark->userid, ['fields' => 'id,modify_log', 'rid' => $oRemark->rid]);
 		/* 撤销获得的积分 */
 		if ($oEnlUsrRnd && count($oEnlUsrRnd->modify_log)) {
-			for ($i = count($oEnlUsrRnd->modify_log) - 1; $i >= 0; $i--) {
+			for ($i = 0; $i < count($oEnlUsrRnd->modify_log); $i++) {
 				$oLog = $oEnlUsrRnd->modify_log[$i];
 				if ($oLog->op === self::GetDislikeRemarkEventName . '_Y') {
 					if (isset($oLog->args->id) && isset($oLog->args->operator)) {

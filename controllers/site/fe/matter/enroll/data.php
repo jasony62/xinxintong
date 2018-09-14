@@ -101,7 +101,7 @@ class data extends base {
 			$oSchemas->{$dataSchema->id} = $dataSchema;
 		}
 
-		$fields = 'id,state,userid,group_id,nickname,schema_id,multitext_seq,submit_at,agreed,value,supplement,like_num,like_log,remark_num,tag,score';
+		$fields = 'id,state,userid,group_id,nickname,schema_id,multitext_seq,submit_at,agreed,value,supplement,like_num,like_log,remark_num,tag,score,dislike_num,dislike_log';
 		$modelRecDat = $this->model('matter\enroll\data');
 		if (empty($data)) {
 			$oRecData = $modelRecDat->byRecord($ek, ['schema' => $schema, 'fields' => $fields]);

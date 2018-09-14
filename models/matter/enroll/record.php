@@ -663,7 +663,7 @@ class record_model extends record_base {
 
 		// 查询参数
 		$q = [
-			'id,enroll_key,rid,enroll_at,userid,group_id,nickname,wx_openid,yx_openid,qy_openid,headimgurl,verified,comment,data,score,supplement,agreed,like_num,like_log,remark_num,favor_num',
+			'id,enroll_key,rid,enroll_at,userid,group_id,nickname,wx_openid,yx_openid,qy_openid,headimgurl,verified,comment,data,score,supplement,agreed,like_num,like_log,remark_num,favor_num,dislike_num,dislike_log',
 			"xxt_enroll_record r",
 			$w,
 		];

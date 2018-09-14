@@ -107,7 +107,7 @@ class remark extends base {
 
 		$modelRem = $this->model('matter\enroll\remark');
 		$aOptions = [
-			'fields' => 'id,seq_in_record,seq_in_data,userid,group_id,userid,nickname,data_id,remark_id,create_at,modify_at,content,agreed,remark_num,like_num,like_log,as_cowork_id',
+			'fields' => 'id,seq_in_record,seq_in_data,userid,group_id,userid,nickname,data_id,remark_id,create_at,modify_at,content,agreed,remark_num,like_num,like_log,as_cowork_id,dislike_num,dislike_log',
 		];
 		if (!empty($data)) {
 			$aOptions['data_id'] = $data;

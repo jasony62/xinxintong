@@ -136,7 +136,7 @@ define(['frame'], function(ngApp) {
                 function renewScoreByRound(i) {
                     var oRound;
                     if (i < rounds.length) {
-                        srvEnrollApp.renewScore(rounds[i]).then(function() {
+                        srvEnrollApp.renewScore(rounds[i].rid).then(function() {
                             renewScoreByRound(++i);
                         });
                     } else {

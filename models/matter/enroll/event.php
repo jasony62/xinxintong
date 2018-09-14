@@ -920,6 +920,32 @@ class event_model extends \TMS_MODEL {
 		$this->_logEvent($oApp, $oRecData->rid, $oRecData->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
 	}
 	/**
+	 * 反对填写记录数据
+	 */
+	public function dislikeRecData($oApp, $oRecData, $oOperator) {
+		$oOperatorData = $this->_doDislikeRecOrData($oApp, $oRecData, $oOperator, 'record.data');
+		$oOwnerData = $this->_getDislikeRecOrData($oApp, $oRecData, $oOperator, 'record.data');
+
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRecData->id;
+		$oTarget->type = 'record.data';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::DoDislikeEventName;
+		$oEvent->op = 'Y';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		$oEvent->coin = isset($oOperatorData->user_total_coin) ? $oOperatorData->user_total_coin : 0;
+		//
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
+		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
+
+		$this->_logEvent($oApp, $oRecData->rid, $oRecData->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
+	}
+	/**
 	 * 赞同填写协作记录数据
 	 */
 	public function likeCowork($oApp, $oRecData, $oOperator) {
@@ -934,6 +960,32 @@ class event_model extends \TMS_MODEL {
 		//
 		$oEvent = new \stdClass;
 		$oEvent->name = self::DoLikeCoworkEventName;
+		$oEvent->op = 'Y';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		$oEvent->coin = isset($oOperatorData->user_total_coin) ? $oOperatorData->user_total_coin : 0;
+		//
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
+		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
+
+		$this->_logEvent($oApp, $oRecData->rid, $oRecData->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
+	}
+	/**
+	 * 反对填写协作记录数据
+	 */
+	public function dislikeCowork($oApp, $oRecData, $oOperator) {
+		$oOperatorData = $this->_doDislikeCowork($oApp, $oRecData, $oOperator);
+		$oOwnerData = $this->_getDislikeCowork($oApp, $oRecData, $oOperator);
+
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRecData->id;
+		$oTarget->type = 'cowork';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::DoDislikeCoworkEventName;
 		$oEvent->op = 'Y';
 		$oEvent->at = $eventAt;
 		$oEvent->user = $oOperator;
@@ -1014,6 +1066,31 @@ class event_model extends \TMS_MODEL {
 		$oUpdatedUsrData = new \stdClass;
 		$oUpdatedUsrData->last_do_like_cowork_at = $eventAt;
 		$oUpdatedUsrData->do_like_cowork_num = 1;
+		$oUpdatedUsrData->modify_log = $oNewModifyLog;
+
+		$this->_updateUsrData($oApp, $oRecOrData->rid, false, $oOperator, $oUpdatedUsrData);
+
+		return $oUpdatedUsrData;
+	}
+	/**
+	 *
+	 */
+	private function _doDislikeCowork($oApp, $oRecOrData, $oOperator) {
+		$operatorId = $this->_getOperatorId($oOperator);
+		$eventAt = time();
+		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
+
+		/* 记录修改日志 */
+		$oNewModifyLog = new \stdClass;
+		$oNewModifyLog->userid = $operatorId;
+		$oNewModifyLog->at = $eventAt;
+		$oNewModifyLog->op = self::DoDislikeCoworkEventName . '_Y';
+		$oNewModifyLog->args = (object) ['id' => $oRecOrData->id];
+
+		/* 更新的数据 */
+		$oUpdatedUsrData = new \stdClass;
+		$oUpdatedUsrData->last_do_dislike_cowork_at = $eventAt;
+		$oUpdatedUsrData->do_dislike_cowork_num = 1;
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 
 		$this->_updateUsrData($oApp, $oRecOrData->rid, false, $oOperator, $oUpdatedUsrData);
@@ -1123,6 +1200,40 @@ class event_model extends \TMS_MODEL {
 		return $oUpdatedUsrData;
 	}
 	/**
+	 * 填写记录或数据被反对
+	 */
+	private function _getDislikeCowork($oApp, $oRecOrData, $oOperator) {
+		$operatorId = $this->_getOperatorId($oOperator);
+		$eventAt = time();
+		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
+
+		/* 记录修改日志 */
+		$oNewModifyLog = new \stdClass;
+		$oNewModifyLog->userid = $oRecOrData->userid;
+		$oNewModifyLog->at = $eventAt;
+		$oNewModifyLog->op = self::GetDislikeCoworkEventName . '_Y';
+		$oNewModifyLog->args = (object) ['id' => $oRecOrData->id, 'operator' => $operatorId];
+
+		/* 更新的数据 */
+		$oUpdatedUsrData = new \stdClass;
+		$oUpdatedUsrData->last_dislike_cowork_at = $eventAt;
+		$oUpdatedUsrData->dislike_cowork_num = 1;
+		$oUpdatedUsrData->modify_log = $oNewModifyLog;
+		$aCoinResult = $modelUsr->awardCoin($oApp, $oRecOrData->userid, $oRecOrData->rid, self::GetDislikeCoworkEventName);
+		if (!empty($aCoinResult[1])) {
+			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
+		}
+		$oUser = (object) ['uid' => $oRecOrData->userid];
+
+		$this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData);
+		// 如果日志插入失败需要重新增加
+		if ($aCoinResult[0] === false && !empty($aCoinResult[1])) {
+			$modelUsr->awardCoin($oApp, $oRecOrData->userid, $oRecOrData->rid, self::GetDislikeCoworkEventName);
+		}
+
+		return $oUpdatedUsrData;
+	}
+	/**
 	 * 撤销填写记录点赞
 	 */
 	public function undoLikeRecord($oApp, $oRecord, $oOperator) {
@@ -1216,6 +1327,37 @@ class event_model extends \TMS_MODEL {
 		);
 	}
 	/**
+	 * 撤销填写数据反对
+	 */
+	public function undoDislikeRecData($oApp, $oRecData, $oOperator) {
+		$this->_undoDislikeRecOrData($oApp, $oRecData, $oOperator, 'record.data');
+		$this->_undoGetDislikeRecOrData($oApp, $oRecData, $oOperator, 'record.data');
+
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRecData->id;
+		$oTarget->type = 'record.data';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::DoDislikeEventName;
+		$oEvent->op = 'N';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		//
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
+
+		$oLog = $this->_logEvent($oApp, $oRecData->rid, $oRecData->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
+
+		/* 更新被撤销的事件 */
+		$this->update(
+			'xxt_enroll_log',
+			['undo_event_id' => $oLog->id],
+			['target_id' => $oRecData->id, 'target_type' => 'record.data', 'event_name' => self::DoDislikeEventName, 'event_op' => 'Y', 'undo_event_id' => 0]
+		);
+	}
+	/**
 	 * 撤销填写数据点赞
 	 */
 	public function undoLikeCowork($oApp, $oCowork, $oOperator) {
@@ -1244,6 +1386,37 @@ class event_model extends \TMS_MODEL {
 			'xxt_enroll_log',
 			['undo_event_id' => $oLog->id],
 			['target_id' => $oCowork->id, 'target_type' => 'cowork', 'event_name' => self::DoLikeEventName, 'event_op' => 'Y', 'undo_event_id' => 0]
+		);
+	}
+	/**
+	 * 撤销填写数据反对
+	 */
+	public function undoDislikeCowork($oApp, $oCowork, $oOperator) {
+		$this->_undoDislikeCowork($oApp, $oCowork, $oOperator);
+		$this->_undoGetDislikeCowork($oApp, $oCowork, $oOperator);
+
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oCowork->id;
+		$oTarget->type = 'cowork';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::DoDislikeCoworkEventName;
+		$oEvent->op = 'N';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		//
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = (object) ['uid' => $oCowork->userid];
+
+		$oLog = $this->_logEvent($oApp, $oCowork->rid, $oCowork->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
+
+		/* 更新被撤销的事件 */
+		$this->update(
+			'xxt_enroll_log',
+			['undo_event_id' => $oLog->id],
+			['target_id' => $oCowork->id, 'target_type' => 'cowork', 'event_name' => self::DoDislikeEventName, 'event_op' => 'Y', 'undo_event_id' => 0]
 		);
 	}
 	/**
@@ -1450,6 +1623,78 @@ class event_model extends \TMS_MODEL {
 					$aResult['last_do_like_cowork_at'] = 0;
 				} else if (!empty($oLastestModifyLog->at)) {
 					$aResult['last_do_like_cowork_at'] = $oLastestModifyLog->at;
+				}
+			}
+			if (empty($aResult)) {
+				return false;
+			}
+			return (object) $aResult;
+		};
+
+		$this->_updateUsrData($oApp, $oRecOrData->rid, true, $oOperator, $oUpdatedUsrData, $fnRollback, $fnRollback, $fnRollback);
+
+		return $oUpdatedUsrData;
+	}
+	/**
+	 * 撤销反对操作
+	 */
+	private function _undoDislikeCowork($oApp, $oRecOrData, $oOperator) {
+		$operatorId = $this->_getOperatorId($oOperator);
+
+		/* 记录修改日志 */
+		$oNewModifyLog = new \stdClass;
+		$oNewModifyLog->userid = $operatorId;
+		$oNewModifyLog->at = time();
+		$oNewModifyLog->op = self::DoDislikeCoworkEventName . '_N';
+		$oNewModifyLog->args = (object) ['id' => $oRecOrData->id];
+
+		/* 更新的数据 */
+		$oUpdatedUsrData = new \stdClass;
+		$oUpdatedUsrData->do_dislike_cowork_num = -1;
+		$oUpdatedUsrData->modify_log = $oNewModifyLog;
+
+		/* 日志回退函数 */
+		$fnRollback = function ($oUserData) use ($oRecOrData) {
+			$aResult = []; // 要更新的数据
+			if ($oUserData && count($oUserData->modify_log)) {
+				$oLastestModifyLog = null; // 最近一次事件日志
+				$oBeforeModifyLog = null; // 操作指定对象对应的事件日志
+				$aRollbackLogs = []; // 插销操作日志
+				foreach ($oUserData->modify_log as $oLog) {
+					if ($oLog->op === self::DoDislikeCoworkEventName . '_Y') {
+						if (isset($oLog->args->id)) {
+							/* 检查是否是已经撤销的操作 */
+							$bRollbacked = false;
+							foreach ($aRollbackLogs as $oRollbackLog) {
+								if ($oLog->args->id === $oRollbackLog->args->id) {
+									$bRollbacked = true;
+									break;
+								}
+							}
+							if ($bRollbacked) {
+								continue;
+							}
+							/* 和撤销的操作同类型的最近发生的操作的日志，除了撤销的操作本身 */
+							$oLastestModifyLog = $oLog;
+							/* 由撤销的操作产生的日志 */
+							if (empty($oBeforeModifyLog)) {
+								if ($oLog->args->id === $oRecOrData->id) {
+									$oBeforeModifyLog = $oLog;
+								}
+							}
+							if (isset($oBeforeModifyLog) && $oLastestModifyLog !== $oBeforeModifyLog) {
+								break;
+							}
+						}
+					} else if ($oLog->op === self::DoDislikeCoworkEventName . '_N') {
+						$aRollbackLogs[] = $oLog;
+					}
+				}
+				/* 最后一次事件发生时间 */
+				if ($oBeforeModifyLog === $oLastestModifyLog) {
+					$aResult['last_do_dislike_cowork_at'] = 0;
+				} else if (!empty($oLastestModifyLog->at)) {
+					$aResult['last_do_dislike_cowork_at'] = $oLastestModifyLog->at;
 				}
 			}
 			if (empty($aResult)) {
@@ -1688,6 +1933,86 @@ class event_model extends \TMS_MODEL {
 					$aResult['last_like_cowork_at'] = 0;
 				} else if (!empty($oLastestModifyLog->at)) {
 					$aResult['last_like_cowork_at'] = $oLastestModifyLog->at;
+				}
+			}
+			if (empty($aResult)) {
+				return false;
+			}
+			return (object) $aResult;
+		};
+
+		$oUser = (object) ['uid' => $oRecOrData->userid];
+
+		$this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData, $fnRollback, $fnRollback, $fnRollback);
+
+		return $oUpdatedUsrData;
+	}
+	/**
+	 * 取消被点赞
+	 * 取消获得的积分
+	 */
+	private function _undoGetDislikeCowork($oApp, $oRecOrData, $oOperator) {
+		$operatorId = $this->_getOperatorId($oOperator);
+		$eventAt = time();
+
+		/* 记录修改日志 */
+		$oNewModifyLog = new \stdClass;
+		$oNewModifyLog->userid = $oRecOrData->userid;
+		$oNewModifyLog->at = $eventAt;
+		$oNewModifyLog->op = self::GetDislikeCoworkEventName . '_N';
+		$oNewModifyLog->args = (object) ['id' => $oRecOrData->id, 'operator' => $operatorId];
+
+		/* 更新的数据 */
+		$oUpdatedUsrData = new \stdClass;
+		$oUpdatedUsrData->dislike_cowork_num = -1;
+		$oUpdatedUsrData->modify_log = $oNewModifyLog;
+
+		/* 日志回退函数 */
+		$fnRollback = function ($oUserData) use ($oRecOrData, $operatorId) {
+			$aResult = []; // 要更新的数据
+			if ($oUserData && count($oUserData->modify_log)) {
+				$oLastestModifyLog = null; // 最近一次事件日志
+				$oBeforeModifyLog = null; // 操作指定对象对应的事件日志
+				$aRollbackLogs = []; // 插销操作日志
+				foreach ($oUserData->modify_log as $oLog) {
+					if ($oLog->op === self::GetDislikeCoworkEventName . '_Y') {
+						if (isset($oLog->args->id) && isset($oLog->args->operator)) {
+							/* 检查是否是已经撤销的操作 */
+							$bRollbacked = false;
+							foreach ($aRollbackLogs as $oRollbackLog) {
+								if ($oLog->args->id === $oRollbackLog->args->id && $oLog->args->operator === $oRollbackLog->args->operator) {
+									$bRollbacked = true;
+									break;
+								}
+							}
+							if ($bRollbacked) {
+								continue;
+							}
+							/* 和撤销的操作同类型的最近发生的操作的日志，除了撤销的操作本身 */
+							$oLastestModifyLog = $oLog;
+							/* 由撤销的操作产生的日志 */
+							if (empty($oBeforeModifyLog)) {
+								if ($oLog->args->id === $oRecOrData->id && $oLog->args->operator === $operatorId) {
+									$oBeforeModifyLog = $oLog;
+								}
+							}
+							if (isset($oBeforeModifyLog) && $oLastestModifyLog !== $oBeforeModifyLog) {
+								break;
+							}
+						}
+					} else if ($oLog->op === self::GetDislikeCoworkEventName . '_N') {
+						$aRollbackLogs[] = $oLog;
+					}
+				}
+				/* 回退积分奖励 */
+				if (!empty($oBeforeModifyLog->coin)) {
+					$aResult['user_total_coin'] = (-1) * (int) $oBeforeModifyLog->coin;
+				}
+				/* 最后一次事件发生时间 */
+				if ($oBeforeModifyLog === $oLastestModifyLog) {
+					$aResult['last_dislike_cowork_at'] = 0;
+				} else if (!empty($oLastestModifyLog->at)) {
+					$aResult['last_dislike_cowork_at'] = $oLastestModifyLog->at;
 				}
 			}
 			if (empty($aResult)) {

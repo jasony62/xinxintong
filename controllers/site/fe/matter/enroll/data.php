@@ -510,4 +510,97 @@ class data extends base {
 
 		return new \ResponseData($aResult);
 	}
+	/**
+	 * 反对登记记录中的某一个题
+	 *
+	 * @param string $ek
+	 * @param string $schema
+	 * @param int $data xxt_enroll_record_data 的id
+	 *
+	 */
+	public function dislike_action($data) {
+		if (empty($data)) {
+			return new \ResponseError('参数错误：未指定被留言内容ID');
+		}
+		$modelData = $this->model('matter\enroll\data');
+		$oRecData = $modelData->byId($data, ['fields' => 'id,aid,rid,enroll_key,schema_id,dislike_log,userid,multitext_seq,dislike_num']);
+		if (false === $oRecData) {
+			return new \ObjectNotFoundError('（1）指定的对象不存在或不可用');
+		}
+
+		$oApp = $this->model('matter\enroll')->byId($oRecData->aid, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError('（2）指定的对象不存在或不可用');
+		}
+
+		$oUser = $this->getUser($oApp);
+		/* 检查是否满足给答案点赞/点踩的条件 */
+		if (!isset($oApp->entryRule->exclude_action) || $oApp->entryRule->exclude_action->like != "Y") {
+			$checkEntryRule = $this->checkEntryRule($oApp, false, $oUser);
+			if ($checkEntryRule[0] === false) {
+				return new \ResponseError($checkEntryRule[1]);
+			}
+		}
+
+		$oRecord = $this->model('matter\enroll\record')->byId($oRecData->enroll_key, ['cascaded' => 'N', 'fields' => 'id,state,dislike_data_num']);
+		if (false === $oRecord || $oRecord->state !== '1') {
+			return new \ObjectNotFoundError('（3）指定的对象不存在或不可用');
+		}
+
+		/* 数据项的题目 */
+		$oDataSchema = null;
+		foreach ($oApp->dataSchemas as $dataSchema) {
+			if ($dataSchema->id === $oRecData->schema_id) {
+				$oDataSchema = $dataSchema;
+				break;
+			}
+		}
+		if (empty($oDataSchema)) {
+			return new \ObjectNotFoundError('（4）指定的对象不存在或不可用');
+		}
+
+		$oDislikeLog = $oRecData->dislike_log;
+		if (isset($oDislikeLog->{$oUser->uid})) {
+			unset($oDislikeLog->{$oUser->uid});
+			$incDislikeNum = -1;
+		} else {
+			$oDislikeLog->{$oUser->uid} = time();
+			$incDislikeNum = 1;
+		}
+		$dislikeNum = $oRecData->dislike_num + $incDislikeNum;
+		$modelData->update(
+			'xxt_enroll_record_data',
+			['dislike_log' => json_encode($oDislikeLog), 'dislike_num' => $dislikeNum],
+			['id' => $oRecData->id]
+		);
+
+		$modelData->update(
+			'xxt_enroll_record',
+			['dislike_data_num' => $oRecord->dislike_data_num + $incDislikeNum],
+			['id' => $oRecord->id]
+		);
+
+		$modelEnlEvt = $this->model('matter\enroll\event');
+		if ($incDislikeNum > 0) {
+			/* 发起点赞 */
+			if (isset($oDataSchema->cowork) && $oDataSchema->cowork === 'Y') {
+				$modelEnlEvt->dislikeCowork($oApp, $oRecData, $oUser);
+			} else {
+				$modelEnlEvt->dislikeRecData($oApp, $oRecData, $oUser);
+			}
+		} else {
+			/* 撤销点赞 */
+			if (isset($oDataSchema->cowork) && $oDataSchema->cowork === 'Y') {
+				$modelEnlEvt->undoDislikeCowork($oApp, $oRecData, $oUser);
+			} else {
+				$modelEnlEvt->undoDislikeRecData($oApp, $oRecData, $oUser);
+			}
+		}
+
+		$aResult = [];
+		$aResult['dislike_log'] = $oDislikeLog;
+		$aResult['dislike_num'] = $dislikeNum;
+
+		return new \ResponseData($aResult);
+	}
 }

@@ -894,6 +894,9 @@ class data_model extends entity_model {
 			if (property_exists($oRecData, 'like_log')) {
 				$oRecData->like_log = empty($oRecData->like_log) ? new \stdClass : json_decode($oRecData->like_log);
 			}
+			if (property_exists($oRecData, 'dislike_log')) {
+				$oRecData->dislike_log = empty($oRecData->dislike_log) ? new \stdClass : json_decode($oRecData->dislike_log);
+			}
 			if (property_exists($oRecData, 'agreed_log')) {
 				$oRecData->agreed_log = empty($oRecData->agreed_log) ? new \stdClass : json_decode($oRecData->agreed_log);
 			}

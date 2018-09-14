@@ -130,7 +130,7 @@ define(['frame'], function(ngApp) {
             srvEnrollRecord.exportImage();
         };
         $scope.renewScore = function() {
-            srvEnlRnd.list().then(function(oResult) {
+            srvEnlRnd.list(false, 1, 999).then(function(oResult) {
                 var rounds = oResult.rounds;
 
                 function renewScoreByRound(i) {

@@ -530,7 +530,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         }
                     }
                 },
-                list: function(checkRid) {
+                list: function(checkRid, pageAt, pageSize) {
                     var defer = $q.defer(),
                         url;
                     if (_rounds === undefined) {
@@ -538,8 +538,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     }
                     if (_oPage === undefined) {
                         _oPage = {
-                            at: 1,
-                            size: 10,
+                            at: pageAt || 1,
+                            size: pageSize || 10,
                             j: function() {
                                 return 'page=' + this.at + '&size=' + this.size;
                             }

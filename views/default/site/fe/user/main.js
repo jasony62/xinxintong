@@ -2,6 +2,27 @@ define(['require', 'angular'], function(require, angular) {
     'use strict';
     var siteId = location.search.match('site=(.*)')[1];
     var ngApp = angular.module('app', ['http.ui.xxt']);
+    ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
+        return {
+            restrict: 'A',
+            controller: ['$scope', '$timeout', 'http2', function($scope, $timeout, http2) {
+                $scope.changeHeadImg = function(from) {
+                    window.xxt.image.choose($q.defer(), from).then(function(imgs) {
+                        var imgUrl = imgs[0].imgSrc,
+                            data = {};
+                        data.headImgUrl = imgUrl;
+                        http2.post('/rest/site/fe/user/changeHeadImg?site=' + siteId, data).then(function(rsp) {
+                            alert('修改成功');
+                        })
+                        $timeout(function() {
+                            var eleImg = document.querySelector('img');
+                            eleImg.setAttribute('src', imgUrl);
+                        });
+                    });
+                }
+            }]
+        }
+    }]);
     ngApp.service('userService', ['http2', '$q', function(http2, $q) {
         var _baseUrl = '/rest/site/fe/user',
             _user;
@@ -57,6 +78,7 @@ define(['require', 'angular'], function(require, angular) {
                 $scope.userSetting = !$scope.userSetting;
             }
         };
+
         $scope.changeNickname = function() {
             var data = {};
             data.nickname = $scope.user.nickname;

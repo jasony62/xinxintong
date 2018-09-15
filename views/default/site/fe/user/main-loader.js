@@ -19,6 +19,7 @@ window.loading = {
                 "angular": "/static/js/angular.min",
                 "angular-sanitize": "/static/js/angular-sanitize.min",
                 "xxt-http": "/asset/js/xxt.ui.http",
+                "xxt-image": "/asset/js/xxt.ui.image"
             },
             shim: {
                 "angular": {
@@ -35,7 +36,9 @@ window.loading = {
         require(['angular'], function(angular) {
             require(['angular-sanitize'], function() {
                 require(['xxt-http'], function() {
-                    require(['main']);
+                    require(['xxt-image'], function() {
+                        require(['main']);
+                    });
                 });
             });
         });

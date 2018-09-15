@@ -67,7 +67,8 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
         return false;
     }
-    var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oMocker;
+    var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oMocker, _oHistoryRecords, localStorageValues;
+    localStorageValues = localStorage.getItem("xxt.search.historys"); // 读取localstorage中的搜索历史
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = { at: 1, size: 12, total: 0 };
     $scope.filter = _oFilter = {}; // 过滤条件
@@ -76,6 +77,13 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.repos = []; // 分享的记录
     $scope.reposLoading = false;
+    $scope.flag = false;
+    $scope.historyRecords = _oHistoryRecords = localStorageValues ? JSON.parse(localStorageValues) : [];
+    $scope.chooseHistoryRecord = function(record) {
+        _oCriteria.keyword = record;
+        $scope.recordList(1);
+        $scope.flag = false;
+    }
     $scope.recordList = function(pageAt) {
         var url, deferred;
         deferred = $q.defer();
@@ -90,6 +98,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             url += '&role=' + _oMocker.role;
         }
         $scope.reposLoading = true;
+        $scope.flag = false;
         http2.post(url, _oCriteria).then(function(result) {
             _oPage.total = result.data.total;
             if (result.data.records) {
@@ -100,6 +109,13 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                     oRecord._canAgree = fnCanAgreeRecord(oRecord, $scope.user);
                     $scope.repos.push(oRecord);
                 });
+            }
+            if(_oCriteria.keyword && _oHistoryRecords.indexOf(_oCriteria.keyword) == -1) {
+                if(_oHistoryRecords.length >= 5) {
+                    _oHistoryRecords.shift(0);
+                }
+                _oHistoryRecords.push(_oCriteria.keyword);
+                localStorage.setItem('xxt.search.historys', JSON.stringify(_oHistoryRecords));
             }
             $timeout(function() {
                 var imgs;
@@ -423,9 +439,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         });
         /* 设置页面分享信息 */
         $scope.setSnsShare(null, null, { target_type: 'repos', target_id: _oApp.id });
-        /*页面阅读日志*/
+        /* 页面阅读日志 */
         $scope.logAccess({ target_type: 'repos', target_id: _oApp.id });
-        /*设置页面操作*/
+        /* 设置页面操作 */
         $scope.appActs = {};
         /* 允许添加记录 */
         if (_oApp.actionRule && _oApp.actionRule.record && _oApp.actionRule.record.submit && _oApp.actionRule.record.submit.pre && _oApp.actionRule.record.submit.pre.editor) {

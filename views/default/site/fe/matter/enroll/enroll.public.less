@@ -44,9 +44,7 @@ button.option {
         .caret {
             margin-left: 4px;
         }
-
     }
-
 }
 
 .tms-nav-target {
@@ -61,9 +59,7 @@ button.option {
             vertical-align: middle;
             margin-left: 4px;
         }
-
     }
-
 }
 
 #advCriteria {
@@ -94,7 +90,36 @@ button.option {
     .dir.active {
         background-color: #ddd;
     }
+}
 
+#filterCriteria {
+    position: relative;
+
+    .history-panel {
+        width: 100%;
+        padding-left: 0;
+        margin-bottom: 0;
+        list-style: none;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-top: none;
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+        position: absolute;
+        z-index: 3;
+
+        .history-item {
+            color: #000;
+            font: 14px arial;
+            line-height: 22px;
+            padding: 5px 12px;
+            cursor: default;
+            box-sizing: content-box;
+        }
+
+        .history-item:hover {
+            background-color: #f0f0f0;
+        }
+    }
 }
 
 #filterQuick {
@@ -107,7 +132,6 @@ button.option {
     &>* {
         display: inline-block;
     }
-
 }
 
 #filterTip {
@@ -121,13 +145,11 @@ button.option {
         .close {
             margin-left: 4px;
         }
-
     }
 
     &>*+* {
         margin-left: 4px;
     }
-
 }
 
 .record {
@@ -143,27 +165,24 @@ button.option {
         blockquote {
             .schema+.schema {
                 margin-top: 8px;
-                padding-top:8px;
-                border-top:1px dashed #ddd;
+                padding-top: 8px;
+                border-top: 1px dashed #ddd;
             }
 
             .schema>div+div {
                 margin-top: 4px;
             }
-
         }
 
         .datetime {
             font-size: .8em;
         }
-
     }
 
     .tags {
         &>button+button {
             margin-left: 4px;
         }
-
     }
 
     .remarks {
@@ -189,7 +208,6 @@ button.option {
             .top-bar>:first-child {
                 flex: 1;
             }
-
         }
 
         .remark+.remark {
@@ -203,9 +221,7 @@ button.option {
         &.round:before {
             content: '轮次留言';
         }
-
     }
-
 }
 
 .top-bar {
@@ -228,7 +244,6 @@ button.option {
     &>*+* {
         padding-left: 8px;
     }
-
 }
 
 .data-title:before {
@@ -254,7 +269,6 @@ button.option {
         .like {
             color: @brand-primary;
         }
-
     }
 
     &>:first-child {
@@ -274,9 +288,7 @@ button.option {
         button {
             border: 0;
         }
-
     }
-
 }
 
 .tag {
@@ -307,7 +319,6 @@ button.option {
     &>:last-child {
         margin-left: 4px;
     }
-
 }
 
 .navbar.site-navbar-tab {
@@ -321,16 +332,16 @@ button.option {
         &>li {
             float: left;
         }
-
     }
 
     .navbar-btn {
         margin: 0;
     }
-
 }
 
-#record, #cowork, #remarks {
+#record,
+#cowork,
+#remarks {
     padding: 16px;
     background: #fff;
 }
@@ -347,14 +358,14 @@ button.option {
             left: auto;
             min-width: auto;
         }
-
     }
 
     .data blockquote>div+div {
         margin-top: 8px;
     }
 
-    .tags, .assocs {
+    .tags,
+    .assocs {
         margin-top: 8px;
     }
 
@@ -362,7 +373,6 @@ button.option {
         &>button+button {
             margin-left: 4px;
         }
-
     }
 
     .assocs>div {
@@ -378,9 +388,7 @@ button.option {
         .assoc-text {
             cursor: pointer;
         }
-
     }
-
 }
 
 #cowork {
@@ -397,7 +405,6 @@ button.option {
     .blink {
         background: #d9edf7;
     }
-
 }
 
 #remarks {
@@ -439,7 +446,6 @@ button.option {
         &>* {
             margin: 1em 0 .2em;
         }
-
     }
 
     .blink {
@@ -449,7 +455,6 @@ button.option {
     .form-control {
         border-radius: 0;
     }
-
 }
 
 .modal-edit-topic {
@@ -457,7 +462,6 @@ button.option {
         padding-left: 0;
         padding-right: 0;
     }
-
 }
 
 .tms-editor {
@@ -482,9 +486,7 @@ button.option {
             width: 100%;
             border: 0;
         }
-
     }
-
 }
 
 @media screen and (max-width:768px) {
@@ -509,26 +511,24 @@ button.option {
                 margin: 0 -1px;
                 border-radius: 0;
             }
-
         }
-
     }
 
     .app {
-        .records.col-xs-12, .tags.col-xs-12, .topics.col-xs-12 {
+        .records.col-xs-12,
+        .tags.col-xs-12,
+        .topics.col-xs-12 {
             padding: 0;
         }
-
     }
 
     #filterCriteria {
         margin-left: -1px;
         margin-right: -1px;
 
-        .form-control, .input-group-btn .btn {
+        .form-control,
+        .input-group-btn .btn {
             border-radius: 0;
         }
-
     }
-
 }

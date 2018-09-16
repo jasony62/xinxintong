@@ -35,7 +35,7 @@
         <div id='enroll' class='container'>
             <form name='enroll' novalidate dynamic-html="page.html">
             </form>
-            <div g-if="app.appRound">
+            <div g-if="app.appRound&&app.appRound.start_at>0&&app.appRound.end_at>0">
                 <div class='text-center help-block'>
                     <span ng-bind="app.appRound.title"></span>
                     <span ng-if="app.appRound.start_at>0"> / {{app.appRound.start_at*1000|date:'MM.dd HH:mm'}}</span>

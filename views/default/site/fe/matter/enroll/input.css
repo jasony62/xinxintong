@@ -113,6 +113,22 @@ div[wrap=url]>.form-control {
 }
 
 /* default form style*/
+form[name=enroll] {
+	counter-reset: inputIndex
+}
+
+div[wrap=input] {
+	counter-increment: inputIndex;
+}
+
+div[wrap=input]:before {
+	content: counter(inputIndex);
+	padding: 0 .25em;
+	border: 1px solid #ccc;
+	border-radius: 50%;
+	margin-right: .5em;
+}
+
 div[wrap].wrap-splitline {
 	padding-bottom: 0.5em;
 	border-bottom: 1px solid #fff;
@@ -132,8 +148,10 @@ div[wrap].wrap-inline>label {
 }
 
 div[wrap=input]>label:after {
-	content: '*';
+	content: '【必填】';
 	color: red;
+	font-size: 50%;
+	vertical-align: text-top;
 }
 
 div[wrap=matter]>span {

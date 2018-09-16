@@ -121,7 +121,7 @@ div[wrap=input] {
 	counter-increment: inputIndex;
 }
 
-div[wrap=input]:before {
+div[wrap=input]>label:before {
 	content: counter(inputIndex);
 	padding: 0 .25em;
 	border: 1px solid #ccc;

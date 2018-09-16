@@ -147,7 +147,7 @@ div[wrap].wrap-inline>label {
 	text-overflow: ellipsis;
 }
 
-div[wrap=input]>label:after {
+div[wrap=input].required>label:after {
 	content: '【必填】';
 	color: red;
 	font-size: 50%;

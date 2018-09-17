@@ -1133,7 +1133,7 @@ controller('ctrlStat', ['$scope', 'http2', '$uibModal', '$compile', function($sc
  */
 service('srvTimerNotice', ['$rootScope', '$q', 'http2', function($rootScope, $q, http2) {
     function fnDbToLocal(oDb, oLocal) {
-        ['pattern', 'task_expire_at', 'enabled', 'notweekend'].forEach(function(prop) {
+        ['pattern', 'task_expire_at', 'task_model', 'enabled', 'notweekend'].forEach(function(prop) {
             oLocal.task[prop] = oDb[prop];
         });
         ['min', 'hour', 'wday', 'mday', 'mon', 'left_count'].forEach(function(prop) {
@@ -1163,6 +1163,7 @@ service('srvTimerNotice', ['$rootScope', '$q', 'http2', function($rootScope, $q,
     var $scope, oWatcher; // 监控数据的变化情况
     $scope = $rootScope.$new(true);
     $scope.watcher = oWatcher = {};
+    var fnBeforeSaves = []; // 保存数据前进行处理
     /* 添加定时任务 */
     this.add = function(oMatter, timers, model, oArgs) {
         var oConfig;
@@ -1179,10 +1180,30 @@ service('srvTimerNotice', ['$rootScope', '$q', 'http2', function($rootScope, $q,
     };
     /* 保存定时任务设置 */
     this.save = function(oTimer) {
-        http2.post('/rest/pl/fe/matter/timer/update?id=' + oTimer.id, oTimer.task, function(rsp) {
-            fnDbToLocal(rsp.data, oTimer);
-            oTimer.modified = false;
-        });
+        if (fnBeforeSaves.length) {
+            function fnOne(i) {
+                if (i < fnBeforeSaves.length) {
+                    fnBeforeSaves[i](oTimer).then(function() {
+                        fnOne(++i);
+                    });
+                } else {
+                    http2.post('/rest/pl/fe/matter/timer/update?id=' + oTimer.id, oTimer.task, function(rsp) {
+                        fnDbToLocal(rsp.data, oTimer);
+                        oTimer.modified = false;
+                    });
+                }
+            }
+            fnOne(0);
+        } else {
+            http2.post('/rest/pl/fe/matter/timer/update?id=' + oTimer.id, oTimer.task, function(rsp) {
+                fnDbToLocal(rsp.data, oTimer);
+                oTimer.modified = false;
+            });
+        }
+    };
+    /* 保存前进行处理 */
+    this.onBeforeSave = function(fnHandler) {
+        fnBeforeSaves.push(fnHandler);
     };
     /* 删除定时任务 */
     this.del = function(timers, index) {

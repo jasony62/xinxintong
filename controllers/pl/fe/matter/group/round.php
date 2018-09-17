@@ -20,12 +20,15 @@ class round extends \pl\fe\matter\base {
 	 * @param string $cascade 返回的结果中包含哪些级联。逗号分隔的字符串。支持：playerCount
 	 *
 	 */
-	public function list_action($app, $cascade = '') {
+	public function list_action($app, $cascade = '', $roundType = 'T') {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
-		$aOptions = ['cascade' => $cascade];
+		$aOptions = [
+			'cascade' => $cascade,
+			'round_type' => $roundType,
+		];
 		$rounds = $this->model('matter\group\round')->byApp($app, $aOptions);
 
 		return new \ResponseData($rounds);

@@ -7,22 +7,34 @@ class account_model extends TMS_MODEL {
 	const TABLE_AG = 'account_in_group';
 	const DEFAULT_GROUP = 1; // 初级用户
 	/**
+	 * 用户账号信息
 	 *
-	 *
-	 * $param string $uid
+	 * @param string $uid
 	 *
 	 * return
 	 */
-	public function byId($uid, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'uid,nickname,email,password,salt';
+	public function byId($uid, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : 'uid,nickname,email,password,salt';
 		$q = [
 			$fields,
 			'account',
 			["uid" => $uid],
 		];
-		$act = $this->query_obj_ss($q);
+		$oAccount = $this->query_obj_ss($q);
+		if ($oAccount) {
+			if (!empty($aOptions['cascaded'])) {
+				if (in_array('group', $aOptions['cascaded'])) {
+					$q = [
+						'*',
+						'account_group ag',
+						"exists(select 1 from account_in_group aig where ag.group_id=aig.group_id and aig.account_uid='{$uid}')",
+					];
+					$oAccount->group = $this->query_obj_ss($q);
+				}
+			}
+		}
 
-		return $act;
+		return $oAccount;
 	}
 	/**
 	 *
@@ -243,7 +255,7 @@ class account_model extends TMS_MODEL {
 	 */
 	public function getGroup($gid = null) {
 		$q = array(
-			'g.group_id,g.group_name,g.asdefault,g.p_mpgroup_create,g.p_mp_create,g.p_mp_permission,g.p_platform_manage,p_create_site,count(i.account_uid) account_count',
+			'g.group_id,g.group_name,g.asdefault,g.view_name,g.p_mpgroup_create,g.p_mp_create,g.p_mp_permission,g.p_platform_manage,p_create_site,count(i.account_uid) account_count',
 			'account_group g left join account_in_group i on g.group_id=i.group_id',
 		);
 		if (empty($gid)) {

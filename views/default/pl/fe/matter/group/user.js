@@ -2,7 +2,7 @@ define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlUser', ['$scope', '$q', '$uibModal', 'http2', 'noticebox', 'cstApp', 'srvGroupApp', 'srvGroupRound', 'srvGroupPlayer', 'srvMemberPicker', function($scope, $q, $uibModal, http2, noticebox, cstApp, srvGroupApp, srvGroupRound, srvGroupPlayer, srvMemberPicker) {
         $scope.syncByApp = function(data) {
             srvGroupApp.syncByApp().then(function(count) {
-                $scope.list();
+                $scope.list('round');
             });
         };
         $scope.chooseAppUser = function() {
@@ -38,7 +38,7 @@ define(['frame'], function(ngApp) {
             } else if (_oCriteria[arg].round_id === 'pending') {
                 srvGroupPlayer.list(false, arg);
             } else {
-                srvGroupPlayer.list(_oCriteria[arg]);
+                srvGroupPlayer.list(_oCriteria[arg], arg);
             }
         };
         $scope.editPlayer = function(player) {
@@ -78,16 +78,16 @@ define(['frame'], function(ngApp) {
                 $scope.rows.reset();
             }
         };
-        $scope.quitGroup = function(players) {
-            if ($scope.activeRound && players.length) {
-                srvGroupPlayer.quitGroup($scope.activeRound, players).then(function() {
+        $scope.quitGroup = function(users) {
+            if (users.length) {
+                srvGroupPlayer.quitGroup(users).then(function() {
                     $scope.rows.reset();
                 });
             }
         };
-        $scope.joinGroup = function(round, players) {
-            if (round && players.length) {
-                srvGroupPlayer.joinGroup(round, players).then(function() {
+        $scope.joinGroup = function(oRound, users) {
+            if (users.length && oRound) {
+                srvGroupPlayer.joinGroup(oRound, users).then(function() {
                     $scope.rows.reset();
                 });
             }

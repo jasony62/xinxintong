@@ -68,22 +68,10 @@ class record extends main_base {
 		$modelRec = $this->model('matter\enroll\record');
 		$oResult = $modelRec->byApp($oEnrollApp, $aOptions, $oCriteria);
 		if (!empty($oResult->records)) {
-			$remarkables = [];
 			$bRequireScore = false;
 			foreach ($oEnrollApp->dynaDataSchemas as $oSchema) {
-				if (isset($oSchema->remarkable) && $oSchema->remarkable === 'Y') {
-					$remarkables[] = $oSchema->id;
-				}
 				if (isset($oSchema->requireScore) && $oSchema->requireScore == 'Y') {
 					$bRequireScore = true;
-				}
-			}
-			if (count($remarkables)) {
-				foreach ($oResult->records as $oRec) {
-					$modelRem = $this->model('matter\enroll\data');
-					$oRecordData = $modelRem->byRecord($oRec->enroll_key, ['schema' => $remarkables]);
-					$oRec->verbose = new \stdClass;
-					$oRec->verbose->data = $oRecordData;
 				}
 			}
 			if ($bRequireScore) {
@@ -178,7 +166,7 @@ class record extends main_base {
 	/**
 	 * 更新指定活动下所有记录的得分
 	 */
-	public function renewScore_action($app) {
+	public function renewScore_action($app, $rid = null) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -198,6 +186,9 @@ class record extends main_base {
 		$modelRecData = $this->model('matter\enroll\data');
 		$renewCount = 0;
 		$q = ['id,enroll_key,data,score', 'xxt_enroll_record', ['aid' => $oApp->id]];
+		if (!empty($rid)) {
+			$q[2]['rid'] = $rid;
+		}
 		$records = $modelApp->query_objs_ss($q);
 		foreach ($records as $oRecord) {
 			if (!empty($oRecord->data)) {
@@ -1649,23 +1640,6 @@ class record extends main_base {
 			die('导出数据为空');
 		}
 
-		if (!empty($oResult->records)) {
-			$remarkables = [];
-			foreach ($oApp->dataSchemas as $oSchema) {
-				if (isset($oSchema->remarkable) && $oSchema->remarkable === 'Y') {
-					$remarkables[] = $oSchema->id;
-				}
-			}
-			if (count($remarkables)) {
-				foreach ($oResult->records as &$oRec) {
-					$modelRem = $this->model('matter\enroll\data');
-					$oRecordData = $modelRem->byRecord($oRec->enroll_key, ['schema' => $remarkables]);
-					$oRec->verbose = new \stdClass;
-					$oRec->verbose->data = $oRecordData;
-				}
-			}
-		}
-
 		// 是否需要分组信息
 		$bRequireGroup = empty($oApp->group_app_id) && isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && !empty($oApp->entryRule->group->id);
 
@@ -1720,9 +1694,6 @@ class record extends main_base {
 				$aScoreSum[$columnNum4] = $oSchema->id;
 				$bRequireScore = true;
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '得分');
-			}
-			if (isset($remarkables) && in_array($oSchema->id, $remarkables)) {
-				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '留言数');
 			}
 		}
 		if ($bRequireNickname) {
@@ -1787,9 +1758,11 @@ class record extends main_base {
 				switch ($oSchema->type) {
 				case 'single':
 					$cellValue = '';
-					foreach ($oSchema->ops as $op) {
-						if ($op->v === $v) {
-							$cellValue = $op->l;
+					if (!empty($oSchema->ops)) {
+						foreach ($oSchema->ops as $op) {
+							if ($op->v === $v) {
+								$cellValue = $op->l;
+							}
 						}
 					}
 					if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
@@ -1803,12 +1776,14 @@ class record extends main_base {
 					break;
 				case 'multiple':
 					$labels = [];
-					$v = explode(',', $v);
-					foreach ($v as $oneV) {
-						foreach ($oSchema->ops as $op) {
-							if ($op->v === $oneV) {
-								$labels[] = $op->l;
-								break;
+					if (!empty($oSchema->ops)) {
+						$v = explode(',', $v);
+						foreach ($v as $oneV) {
+							foreach ($oSchema->ops as $op) {
+								if ($op->v === $oneV) {
+									$labels[] = $op->l;
+									break;
+								}
 							}
 						}
 					}
@@ -1824,9 +1799,11 @@ class record extends main_base {
 					break;
 				case 'score':
 					$labels = [];
-					foreach ($oSchema->ops as $op) {
-						if (isset($v->{$op->v})) {
-							$labels[] = $op->l . ':' . $v->{$op->v};
+					if (!empty($oSchema->ops)) {
+						foreach ($oSchema->ops as $op) {
+							if (isset($v->{$op->v})) {
+								$labels[] = $op->l . ':' . $v->{$op->v};
+							}
 						}
 					}
 					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, implode(' / ', $labels));
@@ -1892,19 +1869,6 @@ class record extends main_base {
 				if ((isset($oSchema->requireScore) && $oSchema->requireScore === 'Y')) {
 					$cellScore = empty($oRecScore->{$oSchema->id}) ? 0 : $oRecScore->{$oSchema->id};
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $cellScore, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
-				}
-				// 留言数
-				if (isset($remarkables) && in_array($oSchema->id, $remarkables)) {
-					if (isset($oVerbose->{$oSchema->id})) {
-						$remark_num = $oVerbose->{$oSchema->id}->remark_num;
-					} else {
-						$remark_num = 0;
-					}
-					$two = $i + $columnNum3;
-					$col = ($two - $one >= 2) ? ($two - 1) : $two;
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($col, $rowIndex, $remark_num, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
-					$i++;
-					$columnNum3++;
 				}
 				$i++;
 			}

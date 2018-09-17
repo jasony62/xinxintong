@@ -1,11 +1,11 @@
 <?php
 namespace pl\fe\matter\enroll;
 
-require_once dirname(dirname(__FILE__)) . '/base.php';
+require_once dirname(__FILE__) . '/main_base.php';
 /*
  *
  */
-class stat extends \pl\fe\matter\base {
+class stat extends main_base {
 	/**
 	 * 图表的宽度
 	 */
@@ -14,18 +14,6 @@ class stat extends \pl\fe\matter\base {
 	 * 图表的高度
 	 */
 	const GRAPH_HEIGHT = 300;
-	/**
-	 * 返回视图
-	 */
-	public function index_action($id) {
-		$access = $this->accessControlUser('enroll', $id);
-		if ($access[0] === false) {
-			die($access[1]);
-		}
-
-		\TPL::output('/pl/fe/matter/enroll/frame');
-		exit;
-	}
 	/**
 	 * 统计登记信息
 	 *

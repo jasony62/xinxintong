@@ -4,9 +4,6 @@ define(['frame'], function(ngApp) {
      * app setting controller
      */
     ngApp.provider.controller('ctrlDetail', ['$scope', 'http2', 'mediagallery', 'srvWallApp', '$uibModal', 'srvTag', 'srvSite', 'cstApp', function($scope, http2, mediagallery, srvWallApp, $uibModal, srvTag, srvSite, cstApp) {
-        (function() {
-            new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
-        })();
         $scope.$parent.subView = 'detail';
         $scope.matterTypes = cstApp.matterTypes;
         $scope.tagMatter = function(subType) {

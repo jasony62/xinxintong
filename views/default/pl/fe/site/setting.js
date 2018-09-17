@@ -169,9 +169,6 @@ define(['require'], function(require) {
         // });
     }]);
     ngApp.controller('ctrlBasic', ['$scope', function($scope) {
-        (function() {
-            var text2Clipboard = new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
-        })();
         $scope.homeURL = location.protocol + '//' + location.host + '/rest/site/home?site=' + $scope.siteId;
     }]);
     ngApp.controller('ctrlMschema', ['$scope', 'http2', '$http', '$uibModal', 'MemberSchema', function($scope, http2, $http, $uibModal, MemberSchema) {

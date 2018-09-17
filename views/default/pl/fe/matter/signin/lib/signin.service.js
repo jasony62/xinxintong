@@ -580,10 +580,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         backdrop: 'static',
                         controller: ['$scope', '$timeout', '$uibModalInstance', function($scope2, $timeout, $mi) {
                             var popover = {
-                                    title: round.title,
-                                    url: appUrl + '&round=' + round.rid,
-                                },
-                                zeroClipboard;
+                                title: round.title,
+                                url: appUrl + '&round=' + round.rid,
+                            };
 
                             popover.qrcode = '/rest/site/fe/matter/signin/qrcode?site=' + siteId + '&url=' + encodeURIComponent(popover.url);
                             $scope2.popover = popover;
@@ -618,9 +617,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                     });
                                 }
                             }
-                            $timeout(function() {
-                                new ZeroClipboard(document.querySelector('#copyURL'));
-                            });
                             $scope2.cancel = function() {
                                 $mi.dismiss();
                             };

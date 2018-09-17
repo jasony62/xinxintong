@@ -9,9 +9,9 @@
         <div class="panel-body">
             <div class='input-group'>
                 <input class='form-control' readonly value="{{entry.url}}">
-                    <span class='input-group-btn'>
-                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
-                    </span>
+                <div class='input-group-btn'>
+                    <a class='btn btn-default' ng-href="{{entry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                </div>
             </div>
         </div>
     </div>
@@ -27,9 +27,9 @@
         <div class="panel-body">
             <div class='input-group'>
                 <input class='form-control' readonly value="{{opUrl}}">
-                    <span class='input-group-btn'>
-                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opUrl}}">复制</button>
-                    </span>
+                <div class='input-group-btn'>
+                    <a class='btn btn-default' ng-href="{{opUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                </div>
             </div>
         </div>
     </div>
@@ -39,7 +39,7 @@
         <button class='btn btn-block btn-default' ng-click="stop()">停止</button>
     </div>
     <div class='tile'>
-        <a href="/rest/pl/fe/matter/lottery/result?site={{siteId}}&id={{id}}">抽奖结果</a>    
+        <a href="/rest/pl/fe/matter/lottery/result?site={{siteId}}&id={{id}}">抽奖结果</a>
     </div>
     <div class='tile'>
         <div class='form-group'>

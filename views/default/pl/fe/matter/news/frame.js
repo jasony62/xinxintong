@@ -158,9 +158,6 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'srvSite', '$uibModal', 'srv
         }
         updateMatters();
     });
-    (function() {
-        new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
-    })();
     $scope.tagMatter = function(subType) {
         var oTags = $scope.oTag;
         srvTag._tagMatter($scope.editing, oTags, subType);

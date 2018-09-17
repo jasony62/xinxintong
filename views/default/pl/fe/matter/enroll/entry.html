@@ -5,7 +5,6 @@
                 <label>进入活动链接</label>
                 <div class='pl-input-group'>
                     <div class='form-control pl-line' ng-bind="entry.url"></div>
-                    <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
                     <a class='btn btn-default' ng-href="{{entry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                 </div>
             </div>
@@ -163,7 +162,6 @@
                     <label>汇总结果分享链接</label>
                     <div class='pl-input-group'>
                         <div class='form-control pl-line' ng-bind="opEntry.url"></div>
-                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opEntry.url}}">复制</button>
                         <a class='btn btn-default' ng-href="{{opEntry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                     </div>
                 </div>
@@ -184,7 +182,6 @@
                     <label>统计报告分享链接</label>
                     <div class='pl-input-group'>
                         <div class='form-control pl-line' ng-bind="rpEntry.url"></div>
-                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{rpEntry.url}}">复制</button>
                         <a class='btn btn-default' ng-href="{{rpEntry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                     </div>
                 </div>
@@ -259,6 +256,10 @@
             <div>
                 <button class='btn btn-default' ng-click="srvTimer.add(app,timers,'remind',{page:'',receiver:{scope:'enroll'}})">添加定时发送规则</button>
             </div>
+            <div ng-if="timers.length">
+                <hr>
+                <a href ng-click="switchTo('notice')">查看通知发送日志</a>
+            </div>
         </div>
     </div>
     <div id='report' class='panel panel-default' ng-controller="ctrlReport">
@@ -312,6 +313,10 @@
             <div>
                 <hr>
                 <button class='btn btn-default' ng-click="srvTimer.add(app,timers,'report',{page:'console'})">添加定时发送规则</button>
+            </div>
+            <div ng-if="timers.length">
+                <hr>
+                <a href ng-click="switchTo('notice')">查看通知发送日志</a>
             </div>
         </div>
     </div>

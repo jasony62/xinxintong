@@ -30,7 +30,7 @@
             </td>
             <td>{{p.round_title}}</td>
             <td ng-if="bRequireNickname">{{p.nickname}}</td>
-            <td>{{p.is_leader==='Y'?'组长':(p.is_leader==='S'?'超级用户':'')}}</td>
+            <td>{{p.is_leader==='Y'?'组长':(p.is_leader==='S'?'超级用户':'组员')}}</td>
             <td ng-repeat="schema in app._schemasById" ng-switch on="schema.type">
                 <span ng-switch-when="image">
                     <img ng-repeat="img in p._data[schema.id]" ng-src='{{img}}' />
@@ -41,10 +41,10 @@
                 </span>
                 <span ng-switch-default ng-bind-html="p._data[schema.id]"></span>
             </td>
+            <td ng-if="app.tags.length">{{p.tags}}</td>
             <td ng-if="roleRounds.length">
                 <div ng-repeat="title in p.role_round_titles">{{title}}</div>
             </td>
-            <td ng-if="app.tags.length">{{p.tags}}</td>
             <td>{{p.comment}}</td>
             <td>
                 <button class='btn btn-xs btn-danger' ng-click='removePlayer(p)'>

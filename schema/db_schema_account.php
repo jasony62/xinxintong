@@ -1,6 +1,9 @@
 <?php
 require_once '../db.php';
-// platform account
+$sqls = [];
+/**
+ * 平台注册账号
+ */
 $sql = "create table if not exists account (";
 $sql .= "uid varchar(40) not null comment '用户的UID'";
 $sql .= ",from_siteid varchar(32) not null default '' comment '从哪个团队发起的注册id'";
@@ -26,51 +29,46 @@ $sql .= ",coin_week int not null default 0"; // 虚拟货币周增量
 $sql .= ",coin_month int not null default 0"; // 虚拟货币月增量
 $sql .= ",coin_year int not null default 0"; // 虚拟货币年增量
 $sql .= ",primary key (uid)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
-}
-// account group and group's permissions.
-$sql = 'CREATE TABLE IF NOT EXISTS `account_group` (
-    `group_id` int NOT NULL COMMENT \'用户组的 ID\',
-    `group_name` varchar(50) NOT NULL COMMENT \'用户组名\',
-    `asdefault` tinyint not null default 0 comment \'作为缺省用户组\',
-    `p_mpgroup_create` tinyint not null default 0 comment \'创建公众号群\',
-    `p_mp_create` tinyint not null default 0 comment \'创建公众号\',
-    `p_mp_permission` tinyint not null default 0 comment \'设置公众号权限\',
-    `p_platform_manage` tinyint  not null default 0 comment \'平台管理\',
-    `p_create_site` tinyint  not null default 0 comment \'创建团队\',
-    PRIMARY KEY (`group_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8';
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
-}
-// relation of acount and group.
-$sql = 'CREATE TABLE IF NOT EXISTS `account_in_group` (
-    `account_uid` varchar(40) NOT NULL COMMENT \'用户的 ID\',
-    `group_id` int NOT NULL COMMENT \'用户组的 ID\',
-    PRIMARY KEY (`account_uid`,`group_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8';
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
-}
+$sqls[] = $sql;
+/**
+ * 平台注册账号用户组
+ */
+$sql = "create table if not exists account_group (";
+$sql .= "group_id int NOT NULL COMMENT '用户组的 ID'";
+$sql .= ",group_name varchar(50) NOT NULL COMMENT '用户组名'";
+$sql .= ",asdefault tinyint not null default 0 comment '作为缺省用户组'";
+$sql .= ",p_mpgroup_create tinyint not null default 0 comment '创建公众号群'";
+$sql .= ",p_mp_create tinyint not null default 0 comment '创建公众号'";
+$sql .= ",p_mp_permission tinyint not null default 0 comment '设置公众号权限'";
+$sql .= ",p_platform_manage tinyint  not null default 0 comment '平台管理'";
+$sql .= ",p_create_site tinyint not null default 0 comment '创建团队'";
+$sql .= ",view_name varchar(10) not null default 'default'";
+$sql .= ",primary key (group_id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+$sqls[] = $sql;
+/**
+ * 平台注册账号用户和用户组对应关系
+ */
+$sql = "create table if not exists account_in_group (";
+$sql .= "account_uid varchar(40) NOT NULL COMMENT '用户的 ID'";
+$sql .= ",group_id int NOT NULL COMMENT '用户组的 ID'";
+$sql .= ",primary key (`account_uid`,`group_id`)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+$sqls[] = $sql;
+/**
+ * 素材置顶表 make matter top
+ */
+$sql = "create table if not exists xxt_account_topmatter (";
+$sql .= "id int(11) unsigned NOT NULL AUTO_INCREMENT";
+$sql .= ",siteid varchar(32) NOT NULL";
+$sql .= ",userid varchar(32) NOT NULL COMMENT '置顶操作的用户'";
+$sql .= ",top enum('0','1') NOT NULL DEFAULT '0' COMMENT '置顶'";
+$sql .= ",top_at int(11) NOT NULL COMMENT '置顶时间'";
+$sql .= ",matter_id varchar(40) NOT NULL";
+$sql .= ",matter_type varchar(20) NOT NULL";
+$sql .= ",matter_title varchar(70) NOT NULL";
+$sql .= ",primary key (id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+$sqls[] = $sql;
 
-//素材置顶表 make matter top
-$sqls[] = "CREATE TABLE `xxt_account_topmatter` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `siteid` varchar(32) NOT NULL,
-  `userid` varchar(32) NOT NULL COMMENT '置顶操作的用户',
-  `top` enum('0','1') NOT NULL DEFAULT '0' COMMENT '置顶',
-  `top_at` int(11) NOT NULL COMMENT '置顶时间',
-  `matter_id` varchar(40) NOT NULL,
-  `matter_type` varchar(20) NOT NULL,
-  `matter_title` varchar(70) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='素材置顶表';
-";
-
+/* 执行sql */
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {
 		header('HTTP/1.0 500 Internal Server Error');

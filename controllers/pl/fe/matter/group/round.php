@@ -38,6 +38,12 @@ class round extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$modelApp = $this->model('matter\group');
+		$oApp = $modelApp->byId($app);
+		if (false === $oApp && $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
 		$oPosted = $this->getPostJson();
 		$aNewRound = [
 			'aid' => $app,
@@ -45,10 +51,11 @@ class round extends \pl\fe\matter\base {
 			'create_at' => time(),
 			'title' => empty($oPosted->title) ? '新分组' : $oPosted->title,
 			'times' => 1,
+			'round_type' => empty($oPosted->round_type) ? 'T' : (in_array($oPosted->round_type, ['T', 'R']) ? $oPosted->round_type : 'T'),
 			'targets' => '',
 		];
 
-		$this->model()->insert('xxt_group_round', $aNewRound, false);
+		$modelApp->insert('xxt_group_round', $aNewRound, false);
 
 		return new \ResponseData($aNewRound);
 	}

@@ -320,7 +320,7 @@ class main extends base {
 			$assocGroupAppId = (isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && !empty($oApp->entryRule->group->id)) ? $oApp->entryRule->group->id : $oApp->group_app_id;
 			/* 获得的分组信息 */
 			$modelGrpRnd = $this->model('matter\group\round');
-			$groups = $modelGrpRnd->byApp($assocGroupAppId, ['fields' => "round_id,title"]);
+			$groups = $modelGrpRnd->byApp($assocGroupAppId, ['fields' => "round_id,title,round_type"]);
 			$params['groups'] = $groups;
 			/* 用户所属分组 */
 			$modelGrpUsr = $this->model('matter\group\player');

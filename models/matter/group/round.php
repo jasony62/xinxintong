@@ -41,16 +41,20 @@ class round_model extends \TMS_MODEL {
 	 * @param string $app
 	 * @param array $aOptions
 	 */
-	public function &byApp($appId, $aOptions = array()) {
+	public function &byApp($appId, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$roundType = isset($aOptions['round_type']) ? $aOptions['round_type'] : 'T';
 		$cascade = isset($aOptions['cascade']) ? $aOptions['cascade'] : '';
 		$cascade = explode(',', $cascade);
 
 		$q = [
 			$fields,
 			'xxt_group_round',
-			"aid='$appId'",
+			['aid' => $appId],
 		];
+		if (!empty($roundType)) {
+			$q[2]['round_type'] = $roundType;
+		}
 		$rounds = $this->query_objs_ss($q);
 		/* 获得指定的级联数据 */
 		if (count($rounds) && count($cascade)) {

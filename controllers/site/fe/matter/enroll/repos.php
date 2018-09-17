@@ -40,12 +40,10 @@ class repos extends base {
 									if ($oAssocOp->v === $oOptGroup->assocOp->v) {
 										if (!isset($oAssocOp->childrenDir)) {
 											$oAssocOp->childrenDir = [];
-											$oAssocOp->childrenDirNum = 0;
 										}
 										foreach ($oSchema->ops as $oOp) {
 											if (isset($oOp->g) && $oOp->g === $oOptGroup->i) {
 												$oAssocOp->childrenDir[] = (object) ['schema_id' => $oSchema->id, 'op' => $oOp];
-												$oAssocOp->childrenDirNum++;
 											}
 										}
 										break;

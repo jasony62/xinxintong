@@ -101,20 +101,28 @@ class main extends \site\fe\base {
 	 * 修改用户头像信息
 	 * 只有注册过用户才能修改？？？
 	 */
-	public function changeHeadImg_action() {
+	public function changeHeadImg_action($site) {
 		$data = $this->getPostJson();
-		if (empty($data->headImgUrl)) {
+		if (empty($data->imgSrc)) {
 			return new \ResponseError('头像地址不能为空');
 		}
-
+		
 		$user = $this->who;
-
-		/* 更新注册用户信息 */
-		$modelWay = $this->model('site\fe\way');
+		$avatar = new \stdClass;
+		$avatar->imgSrc = $data->imgSrc;
+		$avatar->imgType = 'avatar';
+		$avatar->creatorId = $user->uid;
+		
+		$store = $this->model('fs/user', $site, 'avatar');
+		$rst = $store->storeImg($avatar);
+		if (false === $rst[0]) {
+			return new \ResponseError($rst[1]);
+		}
+		$headImgUrl = $rst[1];
 		/* 更新站点用户信息 */
 		$modelUsr = $this->model('site\user\account');
 		if ($account = $modelUsr->byId($user->uid)) {
-			$modelUsr->changeHeadImgUrl($this->siteId, $account->uid, $data->headImgUrl);
+			$modelUsr->changeHeadImgUrl($site, $account->uid, $headImgUrl);
 		}
 
 		return new \ResponseData('ok');

@@ -138,7 +138,7 @@ class user_model extends \TMS_MODEL {
 		$oNewUsr->aid = $oApp->id;
 		$oNewUsr->userid = $oUser->uid;
 		$oNewUsr->group_id = empty($oUser->group_id) ? '' : $oUser->group_id;
-		$oNewUsr->nickname = $this->escape($oUser->nickname);
+		$oNewUsr->nickname = empty($oUser->nickname) ? '' : $this->escape($oUser->nickname);
 
 		foreach ($data as $k => $v) {
 			switch ($k) {

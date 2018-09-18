@@ -234,7 +234,9 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
             dealData: function(player) {
                 var role_round_titles = [];
                 player.role_rounds.forEach(function(roundId) {
-                    role_round_titles.push(_oApp._roundsById[roundId].title);
+                    if (_oApp._roundsById[roundId]) {
+                        role_round_titles.push(_oApp._roundsById[roundId].title);
+                    }
                 });
                 player.role_round_titles = role_round_titles;
             }

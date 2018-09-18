@@ -775,4 +775,44 @@ class enroll_model extends enroll_base {
 
 		return $oTemplateConfig;
 	}
+	/**
+	 * 清理属性noticeConfig
+	 */
+	public function purifyNoticeConfig($oApp, $oNoticeConfig) {
+		$oPurified = new \stdClass;
+		if (!empty($oNoticeConfig)) {
+			/* 提交记录提醒 */
+			if (isset($oNoticeConfig->submit)) {
+				$oSubmit = $oNoticeConfig->submit;
+				$oPurified->submit = new \stdClass;
+				if (empty($oSubmit->page) || !in_array($oSubmit->page, ['cowork'])) {
+					return [false, '没有指定可用的通知页面'];
+				}
+				if (empty($oSubmit->receiver->scope) || !is_array($oSubmit->receiver->scope)) {
+					return [false, '没有指定接收通知的用户范围'];
+				}
+				foreach ($oSubmit->receiver->scope as $scope) {
+					if (!in_array($scope, ['leader', 'group'])) {
+						return [false, '没有指定可用的接收通知用户范围'];
+					}
+				}
+				if (in_array('group', $oSubmit->receiver->scope)) {
+					if (empty($oSubmit->receiver->group)) {
+						return [false, '没有指定接收通知的分组活动'];
+					}
+					if (empty($oSubmit->receiver->group->id)) {
+						return [false, '没有指定接收通知的分组活动'];
+					}
+				} else {
+					unset($oSubmit->receiver->group);
+				}
+
+				$oPurified->submit->valid = !empty($oNoticeConfig->submit->valid);
+				$oPurified->submit->page = $oNoticeConfig->submit->page;
+				$oPurified->submit->receiver = $oNoticeConfig->submit->receiver;
+			}
+		}
+
+		return [true, $oPurified];
+	}
 }

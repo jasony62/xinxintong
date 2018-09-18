@@ -211,26 +211,22 @@
     <div class='panel panel-default' ng-controller="ctrlEventRemind">
         <div class='panel-body'>
             <div class='form-group'>
-                <p><i class="glyphicon glyphicon-bell"></i> 事件提醒</p>
+                <p><i class="glyphicon glyphicon-bell"></i> 事件提醒【用户提交填写记录】</p>
             </div>
             <hr>
-            <div class='checkbox'>
-                <label class='checkbox-inline'>
-                    <input type='checkbox' ng-model="config.submit.valid">用户提交填写记录时通知</label>
-            </div>
-            <div class='form-group' ng-if="config.submit.valid">
+            <div class='form-group'>
                 <label class='radio-inline'>
                     <input type='radio' value="cowork" ng-model="config.submit.page">讨论页</label>
-                <label class='radio-inline'>
-                    <input type='radio' value="repos" ng-model="config.submit.page" )>共享页</label>
             </div>
-            <div class='form-group' ng-if="config.submit.valid">
-                <div tms-array-checkbox model="config.submit.receiver.scope">
-                    <label class='checkbox-inline'>
-                        <input type='checkbox' value='leader'>组长
+            <div tms-array-checkbox model="config.submit.receiver.scope">
+                <div class='checkbox' ng-if="app.entryRule.group.id">
+                    <label>
+                        <input type='checkbox' value='leader'>用户在分组活动【<span ng-bind="app.entryRule.group.title"></span>】所属分组的组长
                     </label>
+                </div>
+                <div class='checkbox'>
                     <label class='checkbox-inline'>
-                        <input type='checkbox' value='group'><span>分组活动</span>&nbsp;<a ng-if="config.submit.receiver.scope&&config.submit.receiver.scope.indexOf('group')!==-1" ng-click="assignGroup(config.submit.receiver)">指定</a>
+                        <input type='checkbox' value='group'><span>指定分组活动和分组</span>&nbsp;<a ng-if="config.submit.receiver.scope&&config.submit.receiver.scope.indexOf('group')!==-1" ng-click="assignGroup(config.submit.receiver)">指定</a>
                     </label>
                 </div>
             </div>
@@ -245,7 +241,12 @@
                 </div>
             </div>
             <hr>
-            <button class='btn' ng-class="{ 'btn-default':!modified, 'btn-success':modified} " ng-disabled="!modified " ng-click="save() ">保存</button>
+            <div class='form-inline'>
+                <div class='checkbox'>
+                    <input type='checkbox' bs-switch data-on-text="启用" data-off-text="停用" ng-model="config.submit.valid">
+                </div>
+                <button class='btn' ng-class="{ 'btn-default':!modified, 'btn-success':modified} " ng-disabled="!modified " ng-click="save() ">保存</button>
+            </div>
         </div>
     </div>
     <div class="panel panel-default ">

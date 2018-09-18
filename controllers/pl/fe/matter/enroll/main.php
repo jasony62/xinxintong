@@ -461,7 +461,12 @@ class main extends main_base {
 				$oUpdated->scenario_config = $modelApp->escape($modelApp->toJson($val));
 				break;
 			case 'notifyConfig':
-				$oUpdated->notify_config = $modelApp->escape($modelApp->toJson($val));
+				$oPurifyResult = $modelApp->purifyNoticeConfig($oApp, $val);
+				if (false === $oPurifyResult[0]) {
+					return new \ResponseError($oPurifyResult[1]);
+				}
+				$oUpdated->notify_config = $modelApp->escape($modelApp->toJson($oPurifyResult[1]));
+				$oApp->notifyConfig = $oPurifyResult[1];
 				break;
 			case 'rpConfig':
 				$oUpdated->rp_config = $modelApp->escape($modelApp->toJson($val));

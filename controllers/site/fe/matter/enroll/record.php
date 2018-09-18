@@ -458,7 +458,7 @@ class record extends base {
 	 */
 	private function _notifyReceivers($oApp, $oRecord) {
 		/* 通知接收人 */
-		$receivers = $this->model('matter\enroll\user')->getEventReceivers($oApp, $oRecord, $oApp->notifyConfig->submit);
+		$receivers = $this->model('matter\enroll\user')->getSubmitReceivers($oApp, $oRecord, $oApp->notifyConfig->submit);
 		if (empty($receivers)) {
 			return false;
 		}

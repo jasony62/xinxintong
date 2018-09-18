@@ -254,6 +254,47 @@
             </div>
         </div>
     </div>
+    <div class='panel panel-default' ng-controller="ctrlEventRemind">
+        <div class='panel-body'>
+            <div class='form-group'>
+                <p><i class="glyphicon glyphicon-bell"></i> 事件提醒【用户提交评论】</p>
+            </div>
+            <hr>
+            <div class='form-group'>
+                <label class='radio-inline'>
+                    <input type='radio' value="cowork" ng-model="config.remark.page">讨论页</label>
+            </div>
+            <div tms-array-checkbox model="config.remark.receiver.scope">
+                <div class='checkbox'>
+                    <label>
+                        <input type='checkbox' value='related'>被评论内容（记录和内容）的提交人
+                    </label>
+                </div>
+                <div class='checkbox'>
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' value='group'><span>指定分组活动和分组</span>&nbsp;<a ng-if="config.remark.receiver.scope&&config.remark.receiver.scope.indexOf('group')!==-1" ng-click="assignGroup(config.remark.receiver)">指定</a>
+                    </label>
+                </div>
+            </div>
+            <div class='form-group' ng-if="config.remark.receiver.scope&&config.remark.receiver.scope.indexOf('group')!==-1">
+                <div class='row'>
+                    <div class='col-md-7'>
+                        <input class='form-control' title="{{config.remark.receiver.group.title}}" value="{{config.remark.receiver.group.title}}" readonly>
+                    </div>
+                    <div class='col-md-5'>
+                        <input class='form-control' title="{{config.remark.receiver.group.round.title}}" value="{{config.remark.receiver.group.round.title}}" readonly>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class='form-inline'>
+                <div class='checkbox'>
+                    <input type='checkbox' bs-switch data-on-text="启用" data-off-text="停用" ng-model="config.remark.valid">
+                </div>
+                <button class='btn' ng-class="{ 'btn-default':!modified, 'btn-success':modified} " ng-disabled="!modified " ng-click="save() ">保存</button>
+            </div>
+        </div>
+    </div>
     <div class="panel panel-default ">
         <div class="panel-body ">
             <div ng-controller="ctrlOpUrl ">

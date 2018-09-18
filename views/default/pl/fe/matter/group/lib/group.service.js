@@ -662,10 +662,10 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
             }
         }
     }]
-}).controller('ctrlGroupEditor', ['$scope', '$uibModalInstance', '$sce', 'player', 'tmsSchema', 'srvGroupApp', 'srvGroupRound', 'srvGroupPlayer', function($scope, $mi, $sce, player, tmsSchema, srvGroupApp, srvGroupRound, srvGroupPlayer) {
+}).controller('ctrlGroupEditor', ['$scope', '$uibModalInstance', '$sce', 'player', 'tmsSchema', 'srvGroupApp', 'tkGroupRnd', 'srvGroupPlayer', function($scope, $mi, $sce, player, tmsSchema, srvGroupApp, tkGroupRnd, srvGroupPlayer) {
     srvGroupApp.get().then(function(oApp) {
         $scope.app = oApp;
-        srvGroupRound.list().then(function(rounds) {
+        tkGroupRnd.list(oApp).then(function(rounds) {
             $scope.teamRounds = [];
             $scope.roleRounds = [];
             rounds.forEach(function(oRound) {

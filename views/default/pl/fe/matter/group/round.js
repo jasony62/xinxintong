@@ -32,7 +32,7 @@ define(['frame'], function(ngApp) {
                 templateUrl: 'targetEditor.html',
                 resolve: {
                     schemas: function() {
-                        return angular.copy($scope.app.data_schemas);
+                        return angular.copy($scope.app.dataSchemas);
                     }
                 },
                 controller: ['$uibModalInstance', '$scope', 'schemas', function($mi, $scope, schemas) {

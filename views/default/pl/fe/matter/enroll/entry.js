@@ -152,7 +152,7 @@ define(['frame', 'groupService'], function(ngApp) {
                             } else if (oArgs.receiver.scope === 'mschema') {
                                 delete oArgs.receiver.app;
                             } else if (oArgs.receiver.scope === 'group') {
-                                if (oTimer._temp.group && !oTimer._temp.group.auto) {
+                                if (oTimer._temp && oTimer._temp.group && !oTimer._temp.group.auto) {
                                     oArgs.receiver.app = oTimer._temp.group;
                                 }
                             }
@@ -169,7 +169,7 @@ define(['frame', 'groupService'], function(ngApp) {
                 if (oResult.app) {
                     oGrpApp = { id: oResult.app.id, title: oResult.app.title };
                     if (oResult.round) {
-                        oGrpApp.round = { id: oResult.round.id, title: oResult.round.title };
+                        oGrpApp.round = { id: oResult.round.round_id, title: oResult.round.title };
                     }
                     $parse('_temp.group').assign(oTimer, oGrpApp);
                     oTimer.modified = true;

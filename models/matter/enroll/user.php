@@ -800,4 +800,51 @@ class user_model extends \TMS_MODEL {
 
 		return [true, $deductCoin];
 	}
+	/**
+	 * 接收事件通知的接收人
+	 */
+	public function getEventReceivers($oApp, $oRecord, $oRule) {
+		if (empty($oRule->receiver->scope) || !is_array($oRule->receiver->scope)) {
+			return false;
+		}
+		$model = $this->model();
+		if (in_array('group', $oRule->receiver->scope) && !empty($oRule->receiver->group->id)) {
+			$q = [
+				'distinct userid',
+				'xxt_group_player',
+				['state' => 1, 'aid' => $oRule->receiver->group->id, 'userid' => (object) ['op' => '<>', 'pat' => $oRecord->userid]],
+			];
+			if (!empty($oRule->receiver->group->round->id)) {
+				$q[2]['round_id'] = $oRule->receiver->group->round->id;
+			}
+			$receivers = $model->query_objs_ss($q);
+		}
+		if (in_array('leader', $oRule->receiver->scope) && !empty($oRecord->userid)) {
+			if (isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && !empty($oApp->entryRule->group->id)) {
+				$q = [
+					'round_id',
+					'xxt_group_player',
+					['state' => 1, 'aid' => $oApp->entryRule->group->id, 'userid' => $oRecord->userid],
+				];
+				$oUserRounds = $model->query_objs_ss($q);
+				if (!empty($oUserRounds)) {
+					$q = [
+						'distinct userid',
+						'xxt_group_player',
+						['state' => 1, 'aid' => $oApp->entryRule->group->id, 'round_id' => $oUserRounds[0]->round_id, 'is_leader' => 'Y', 'userid' => (object) ['op' => '<>', 'pat' => $oRecord->userid]],
+					];
+					if (empty($receivers)) {
+						$receivers = $model->query_objs_ss($q);
+					} else {
+						$leaders = $model->query_objs_ss($q);
+						if (!empty($leaders)) {
+							$receivers = array_merge($receivers, $leaders);
+						}
+					}
+				}
+			}
+		}
+
+		return isset($receivers) ? $receivers : false;
+	}
 }

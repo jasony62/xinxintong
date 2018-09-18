@@ -268,7 +268,7 @@ class record extends base {
 
 		/* 通知登记活动事件接收人 */
 		if (isset($oEnrollApp->notifyConfig->submit->valid) && $oEnrollApp->notifyConfig->submit->valid === true) {
-			$this->_notifyReceivers($oEnrollApp, $ek);
+			$this->_notifyReceivers($oEnrollApp, $oRecord);
 		}
 
 		return new \ResponseData($ek);
@@ -456,70 +456,38 @@ class record extends base {
 	 * @param string $ek
 	 *
 	 */
-	private function _notifyReceivers($oApp, $ek) {
-		$receivers = $this->model('matter\enroll\receiver')->byApp($oApp->siteid, $oApp->id);
-		if (count($receivers) === 0) {
-			return false;
-		}
-		/* 指定的提醒模板消息参数 */
-		$params = new \stdClass;
-		$oNotice = $this->model('site\notice')->byName($oApp->siteid, 'site.enroll.submit', ['onlySite' => false]);
-		if ($oNotice === false) {
-			return false;
-		}
-		$tmplConfig = $this->model('matter\tmplmsg\config')->byId($oNotice->tmplmsg_config_id, ['cascaded' => 'Y']);
-		if (!isset($tmplConfig->tmplmsg)) {
+	private function _notifyReceivers($oApp, $oRecord) {
+		/* 通知接收人 */
+		$receivers = $this->model('matter\enroll\user')->getEventReceivers($oApp, $oRecord, $oApp->notifyConfig->submit);
+		if (empty($receivers)) {
 			return false;
 		}
 
 		// 指定的提醒页名称，默认为讨论页
 		$page = empty($oApp->notifyConfig->submit->page) ? 'cowork' : $oApp->notifyConfig->submit->page;
 		switch ($page) {
-		case 'console':
-			/* 获得活动的管理员链接 */
-			$appURL = $this->model('matter\enroll')->getOpUrl($oApp->siteid, $oApp->id);
-			$modelQurl = $this->model('q\url');
-			$noticeURL = $modelQurl->urlByUrl($oApp->siteid, $appURL);
-			break;
 		case 'repos':
 			$noticeURL = $oApp->entryUrl . '&page=repos';
 			break;
 		default:
-			$noticeURL = $oApp->entryUrl . '&ek=' . $ek . '&page=cowork';
+			$noticeURL = $oApp->entryUrl . '&ek=' . $oRecord->enroll_key . '&page=cowork';
 		}
 
-		foreach ($tmplConfig->tmplmsg->params as $param) {
-			if (!isset($tmplConfig->mapping->{$param->pname})) {
-				continue;
-			}
-			$mapping = $tmplConfig->mapping->{$param->pname};
-			if (isset($mapping->src)) {
-				if ($mapping->src === 'matter') {
-					if (isset($oApp->{$mapping->id})) {
-						$value = $oApp->{$mapping->id};
-					} else if ($mapping->id === 'event_at') {
-						$value = date('Y-m-d H:i:s');
-					}
-				} else if ($mapping->src === 'text') {
-					$value = $mapping->name;
-				}
-			}
-			$params->{$param->pname} = isset($value) ? $value : '';
-		}
-		$noticeURL && $params->url = $noticeURL;
+		$noticeName = 'site.enroll.submit';
 
-		/* 发送消息 */
-		foreach ($receivers as &$receiver) {
-			if (!empty($receiver->sns_user)) {
-				$snsUser = json_decode($receiver->sns_user);
-				if (isset($snsUser->src) && isset($snsUser->openid)) {
-					$receiver->{$snsUser->src . '_openid'} = $snsUser->openid;
-				}
-			}
+		/*获取模板消息id*/
+		$oTmpConfig = $this->model('matter\tmplmsg\config')->getTmplConfig($oApp, $noticeName, ['onlySite' => false, 'noticeURL' => $noticeURL]);
+		if ($oTmpConfig[0] === false) {
+			return false;
 		}
+		$oTmpConfig = $oTmpConfig[1];
 
-		$modelTmplBat = $this->model('matter\tmplmsg\plbatch');
-		$modelTmplBat->send($oApp->siteid, $tmplConfig->msgid, $receivers, $params, ['event_name' => 'site.enroll.submit', 'send_from' => 'enroll:' . $oApp->id . ':' . $ek]);
+		$modelTmplBat = $this->model('matter\tmplmsg\batch');
+		$oCreator = new \stdClass;
+		$oCreator->uid = $noticeName;
+		$oCreator->name = 'system';
+		$oCreator->src = 'pl';
+		$modelTmplBat->send($oApp->siteid, $oTmpConfig->tmplmsgId, $oCreator, $receivers, $oTmpConfig->oParams, ['send_from' => $oApp->type . ':' . $oApp->id]);
 
 		return true;
 	}

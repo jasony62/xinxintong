@@ -59,10 +59,9 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                         _oApp.tags = (!_oApp.tags || _oApp.tags.length === 0) ? [] : _oApp.tags.split(',');
                         try {
                             _oApp.group_rule = _oApp.group_rule && _oApp.group_rule.length ? JSON.parse(_oApp.group_rule) : {};
-                            _oApp.data_schemas = _oApp.data_schemas && _oApp.data_schemas.length ? JSON.parse(_oApp.data_schemas) : [];
-                            _oApp.data_schemas.forEach(function(schema) {
-                                if (schema.type !== 'html') {
-                                    schemasById[schema.id] = schema;
+                            _oApp.dataSchemas.forEach(function(oSchema) {
+                                if (oSchema.type !== 'html') {
+                                    schemasById[oSchema.id] = oSchema;
                                 }
                             });
                             _oApp.rounds.forEach(function(round) {
@@ -253,7 +252,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
             cached: function() {
                 return _rounds;
             },
-            list: function() {
+            list: function(roundType) {
                 var defer = $q.defer(),
                     url;
 
@@ -262,6 +261,11 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                 } else {
                     _rounds = [];
                     url = '/rest/pl/fe/matter/group/round/list?site=' + _siteId + '&app=' + _appId + '&cascade=playerCount';
+                    if (!roundType) {
+                        url += '&roundType=';
+                    } else if (/T|R/.test(roundType)) {
+                        url += '&roundType=' + roundType;
+                    }
                     http2.get(url, function(rsp) {
                         var rounds = rsp.data;
                         rounds.forEach(function(oRound) {

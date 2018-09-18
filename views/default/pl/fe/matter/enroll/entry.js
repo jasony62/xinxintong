@@ -35,14 +35,6 @@ define(['frame', 'groupService'], function(ngApp) {
                 oTimer.task.task_expire_at = data.value;
             }
         });
-        /* 页面内导航 */
-        $('#entry-view').height($('#pl-layout-main').height());
-        $('#entry-view').scrollspy({ target: '#entryScrollspy' });
-        $('#entryScrollspy>ul').affix({
-            offset: {
-                top: 0
-            }
-        });
     }]);
     ngApp.provider.controller('ctrlOpUrl', ['$scope', 'srvQuickEntry', 'srvEnrollApp', function($scope, srvQuickEntry, srvEnrollApp) {
         var targetUrl, host, opEntry;
@@ -132,8 +124,10 @@ define(['frame', 'groupService'], function(ngApp) {
             srvQuickEntry.update(rpEntry.code, { can_favor: rpEntry.can_favor });
         };
     }]);
-    ngApp.provider.controller('ctrlEvent', ['$scope', 'srvEnrollApp', function($scope, srvEnrollApp) {}]);
-    ngApp.provider.controller('ctrlRemind', ['$scope', '$parse', '$q', 'srvEnrollApp', 'tkGroupApp', function($scope, $parse, $q, srvEnrollApp, tkGroupApp) {
+    /**
+     * 任务提醒
+     */
+    ngApp.provider.controller('ctrlTaskRemind', ['$scope', '$parse', '$q', 'srvEnrollApp', 'tkGroupApp', function($scope, $parse, $q, srvEnrollApp, tkGroupApp) {
         function fnGetEntryRuleMschema() {
             var oAppEntryRule = $scope.app.entryRule;
             if (oAppEntryRule.scope && oAppEntryRule.scope.member === 'Y') {
@@ -206,6 +200,40 @@ define(['frame', 'groupService'], function(ngApp) {
                 }
                 $scope.timers = timers;
             });
+        });
+    }]);
+    /**
+     * 事件提醒
+     */
+    ngApp.provider.controller('ctrlEventRemind', ['$scope', '$parse', 'srvEnrollApp', 'tkGroupApp', function($scope, $parse, srvEnlApp, tkGroupApp) {
+        var _oConfig;
+        $scope.modified = false;
+        $scope.config = null;
+        $scope.assignGroup = function(oRule) {
+            tkGroupApp.choose($scope.app).then(function(oResult) {
+                var oGrpApp;
+                if (oResult.app) {
+                    oGrpApp = { id: oResult.app.id, title: oResult.app.title };
+                    if (oResult.round) {
+                        oGrpApp.round = { id: oResult.round.id, title: oResult.round.title };
+                    }
+                    $parse('group').assign(oRule, oGrpApp);
+                }
+            });
+        };
+        $scope.save = function() {
+            $scope.app.notifyConfig = _oConfig;
+            $scope.update('notifyConfig').then(function() {
+                $scope.modified = false;
+            });
+        };
+        srvEnlApp.get().then(function(oApp) {
+            $scope.config = _oConfig = angular.copy($scope.app.notifyConfig);
+            $scope.$watch('config', function(oNewConfig, oOldConfig) {
+                if (oNewConfig && oNewConfig !== oOldConfig) {
+                    $scope.modified = true;
+                }
+            }, true);
         });
     }]);
 });

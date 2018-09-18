@@ -153,7 +153,7 @@ define(['frame', 'groupService'], function(ngApp) {
                                 delete oArgs.receiver.app;
                             } else if (oArgs.receiver.scope === 'group') {
                                 if (oTimer._temp.group && !oTimer._temp.group.auto) {
-                                    oArgs.receiver.app = oPending.group;
+                                    oArgs.receiver.app = oTimer._temp.group;
                                 }
                             }
                         }
@@ -163,7 +163,7 @@ define(['frame', 'groupService'], function(ngApp) {
             }
             return defer.promise;
         });
-        $scope.assignGroup = function(oRule) {
+        $scope.assignGroup = function(oTimer) {
             tkGroupApp.choose($scope.app).then(function(oResult) {
                 var oGrpApp;
                 if (oResult.app) {
@@ -171,7 +171,8 @@ define(['frame', 'groupService'], function(ngApp) {
                     if (oResult.round) {
                         oGrpApp.round = { id: oResult.round.id, title: oResult.round.title };
                     }
-                    $parse('_temp.group').assign(oRule, oGrpApp);
+                    $parse('_temp.group').assign(oTimer, oGrpApp);
+                    oTimer.modified = true;
                 }
             });
         };

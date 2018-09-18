@@ -180,7 +180,7 @@
                     <label class='radio-inline'>
                         <input type='radio' value='mschema' ng-model="timer.task.task_arguments.receiver.scope" ng-change="defaultReceiver(timer)">通讯录</label>
                     <label class='radio-inline'>
-                        <input type='radio' value='group' ng-model="timer.task.task_arguments.receiver.scope" ng-change="defaultReceiver(timer)"><span>分组活动</span>&nbsp;<a ng-if="timer.task.task_arguments.receiver.scope==='group'" ng-click="assignGroup(timer.task.task_arguments.receiver)">指定</a></label>
+                        <input type='radio' value='group' ng-model="timer.task.task_arguments.receiver.scope" ng-change="defaultReceiver(timer)"><span>分组活动</span>&nbsp;<a ng-if="timer.task.task_arguments.receiver.scope==='group'" ng-click="assignGroup(timer)">指定</a></label>
                 </div>
                 <div class='form-group' ng-if="timer.task.task_arguments.receiver.scope==='mschema'">
                     <input class='form-control' title="{{timer._temp.mschema.title}}" value="{{timer._temp.mschema.title}}" readonly>
@@ -188,10 +188,10 @@
                 <div class='form-group' ng-if="timer.task.task_arguments.receiver.scope==='group'">
                     <div class='row'>
                         <div class='col-md-7'>
-                            <input class='form-control' title="{{timer.task.task_arguments.receiver.app.title||timer._temp.group.title}}" value="{{timer.task.task_arguments.receiver.app.title||timer._temp.group.title}}" readonly>
+                            <input class='form-control' title="{{timer._temp.group.title||timer.task.task_arguments.receiver.app.title}}" value="{{timer._temp.group.title||timer.task.task_arguments.receiver.app.title}}" readonly>
                         </div>
                         <div class='col-md-5'>
-                            <input class='form-control' title="{{timer.task.task_arguments.receiver.app.round.title||timer._temp.group.round.title}}" value="{{timer.task.task_arguments.receiver.app.round.title||timer._temp.group.round.title}}" readonly>
+                            <input class='form-control' title="{{timer._temp.group.round.title||timer.task.task_arguments.receiver.app.round.title}}" value="{{timer._temp.group.round.title||timer.task.task_arguments.receiver.app.round.title}}" readonly>
                         </div>
                     </div>
                 </div>

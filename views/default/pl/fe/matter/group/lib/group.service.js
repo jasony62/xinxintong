@@ -76,7 +76,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                     url = '/rest/pl/fe/matter/group/get?site=' + _siteId + '&app=' + _appId;
                     http2.get(url, function(rsp) {
                         var schemasById = {};
-                        
+
                         _oApp = rsp.data;
                         _oApp.tags = (!_oApp.tags || _oApp.tags.length === 0) ? [] : _oApp.tags.split(',');
                         try {

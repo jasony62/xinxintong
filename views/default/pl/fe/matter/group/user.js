@@ -145,29 +145,27 @@ define(['frame'], function(ngApp) {
             round: { round_id: 'all' },
             roleRound: { round_id: 'all' }
         };
-        $scope.$watch('app', function(oApp) {
-            if (oApp) {
-                if (oApp.assignedNickname) {
-                    $scope.bRequireNickname = oApp.assignedNickname.valid !== 'Y' || !oApp.assignedNickname.schema;
-                }
-                srvGroupPlayer.init(players).then(function() {
-                    $scope.list('round');
-                    $scope.tableReady = 'Y';
-                });
+        srvGroupApp.get().then(function(oApp) {
+            if (oApp.assignedNickname) {
+                $scope.bRequireNickname = oApp.assignedNickname.valid !== 'Y' || !oApp.assignedNickname.schema;
             }
-        });
-        srvGroupRound.list().then(function(rounds) {
             $scope.teamRounds = [];
             $scope.roleRounds = [];
-            rounds.forEach(function(oRound) {
-                switch (oRound.round_type) {
-                    case 'T':
-                        $scope.teamRounds.push(oRound);
-                        break;
-                    case 'R':
-                        $scope.roleRounds.push(oRound);
-                        break;
-                }
+            if (oApp._roundsById) {
+                angular.forEach(oApp._roundsById, function(oRound) {
+                    switch (oRound.round_type) {
+                        case 'T':
+                            $scope.teamRounds.push(oRound);
+                            break;
+                        case 'R':
+                            $scope.roleRounds.push(oRound);
+                            break;
+                    }
+                });
+            }
+            srvGroupPlayer.init(players).then(function() {
+                $scope.list('round');
+                $scope.tableReady = 'Y';
             });
         });
     }]);

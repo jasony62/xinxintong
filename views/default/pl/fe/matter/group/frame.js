@@ -92,7 +92,7 @@ define(['require'], function() {
             srvQuickEntryProvider.setSiteId(siteId);
         })();
     }]);
-    ngApp.controller('ctrlApp', ['$scope', 'cstApp', 'srvSite', 'srvGroupApp', '$location', function($scope, cstApp, srvSite, srvGroupApp, $location) {
+    ngApp.controller('ctrlApp', ['$scope', 'cstApp', 'srvSite', 'srvGroupApp', 'tkGroupRnd', '$location', function($scope, cstApp, srvSite, srvGroupApp, tkGroupRnd, $location) {
         $scope.cstApp = cstApp;
         $scope.opened = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {

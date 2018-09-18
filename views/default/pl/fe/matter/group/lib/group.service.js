@@ -33,13 +33,35 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
             backdrop: 'static'
         }).result;
     };
+}]).service('tkGroupRnd', ['$q', 'http2', function($q, http2) {
+    this.list = function(oApp, roundType) {
+        var defer = $q.defer(),
+            url;
+
+        url = '/rest/pl/fe/matter/group/round/list?site=' + oApp.siteid + '&app=' + oApp.id + '&cascade=playerCount';
+        if (!roundType) {
+            url += '&roundType=';
+        } else if (/T|R/.test(roundType)) {
+            url += '&roundType=' + roundType;
+        }
+        http2.get(url, function(rsp) {
+            var rounds = rsp.data;
+            rounds.forEach(function(oRound) {
+                oRound.extattrs = (oRound.extattrs && oRound.extattrs.length) ? JSON.parse(oRound.extattrs) : {};
+                oRound.targets = (!oRound.targets || oRound.targets.length === 0) ? [] : JSON.parse(oRound.targets);
+            });
+            defer.resolve(rounds);
+        });
+
+        return defer.promise;
+    };
 }]).provider('srvGroupApp', function() {
     var _siteId, _appId, _oApp;
     this.config = function(siteId, appId) {
         _siteId = siteId;
         _appId = appId;
     };
-    this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'srvSite', function($q, $uibModal, http2, noticebox, srvSite) {
+    this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'srvSite', 'tkGroupRnd', function($q, $uibModal, http2, noticebox, srvSite, tkGroupRnd) {
         return {
             cached: function() {
                 return _oApp;
@@ -53,8 +75,8 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                 } else {
                     url = '/rest/pl/fe/matter/group/get?site=' + _siteId + '&app=' + _appId;
                     http2.get(url, function(rsp) {
-                        var url, schemasById = {},
-                            roundsById = {};
+                        var schemasById = {};
+                        
                         _oApp = rsp.data;
                         _oApp.tags = (!_oApp.tags || _oApp.tags.length === 0) ? [] : _oApp.tags.split(',');
                         try {
@@ -64,24 +86,28 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                                     schemasById[oSchema.id] = oSchema;
                                 }
                             });
-                            _oApp.rounds.forEach(function(round) {
-                                roundsById[round.round_id] = round;
-                            });
                             _oApp._schemasById = schemasById;
-                            _oApp._roundsById = roundsById;
                         } catch (e) {
                             console.error('error', e);
                         }
                         _oApp.opUrl = location.protocol + '//' + location.host + '/rest/site/op/matter/group?site=' + _siteId + '&app=' + _appId;
-                        if (_oApp.page_code_id == 0 && _oApp.scenario.length) {
-                            url = '/rest/pl/fe/matter/group/page/create?site=' + _siteId + '&app=' + _appId + '&scenario=' + _oApp.scenario;
-                            http2.get(url, function(rsp) {
-                                _oApp.page_code_id = rsp.data;
-                                defer.resolve(_oApp);
+
+                        tkGroupRnd.list(_oApp).then(function(rounds) {
+                            var roundsById = {};
+                            rounds.forEach(function(round) {
+                                roundsById[round.round_id] = round;
                             });
-                        } else {
-                            defer.resolve(_oApp);
-                        }
+                            _oApp._roundsById = roundsById;
+                            if (_oApp.page_code_id == 0 && _oApp.scenario.length) {
+                                var url = '/rest/pl/fe/matter/group/page/create?site=' + _siteId + '&app=' + _appId + '&scenario=' + _oApp.scenario;
+                                http2.get(url, function(rsp) {
+                                    _oApp.page_code_id = rsp.data;
+                                    defer.resolve(_oApp);
+                                });
+                            } else {
+                                defer.resolve(_oApp);
+                            }
+                        });
                     });
                 }
 

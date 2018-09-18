@@ -12,11 +12,10 @@ define(['require', 'angular'], function(require, angular) {
                             data = {};
                         data.headImgUrl = imgUrl;
                         http2.post('/rest/site/fe/user/changeHeadImg?site=' + siteId, data).then(function(rsp) {
-                            alert('修改成功');
-                        })
-                        $timeout(function() {
-                            var eleImg = document.querySelector('img');
-                            eleImg.setAttribute('src', imgUrl);
+                            if (rsp.data.err_code == 0) {
+                                var eleImg = document.querySelector('img');
+                                eleImg.setAttribute('src', imgUrl);
+                            }
                         });
                     });
                 }

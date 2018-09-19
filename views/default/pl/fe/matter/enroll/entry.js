@@ -210,6 +210,16 @@ define(['frame', 'groupService'], function(ngApp) {
         var _oConfig;
         $scope.modified = false;
         $scope.config = null;
+        $scope.initConfig = function(eventName) {
+            _oConfig[eventName] = { valid: false, page: 'cowork', receiver: { scope: [] } };
+            switch (eventName) {
+                case 'submit':
+                    break;
+                case 'remark':
+                    _oConfig[eventName].receiver.scope.push('related');
+                    break;
+            }
+        };
         $scope.assignGroup = function(oRule) {
             tkGroupApp.choose($scope.app).then(function(oResult) {
                 var oGrpApp;

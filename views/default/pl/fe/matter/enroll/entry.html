@@ -219,38 +219,43 @@
                 <p><i class="glyphicon glyphicon-bell"></i> 事件提醒【用户提交填写记录】</p>
             </div>
             <hr>
-            <div class='form-group'>
-                <label class='radio-inline'>
-                    <input type='radio' value="cowork" ng-model="config.submit.page">讨论页</label>
-            </div>
-            <div tms-array-checkbox model="config.submit.receiver.scope">
-                <div class='checkbox' ng-if="app.entryRule.group.id">
-                    <label>
-                        <input type='checkbox' value='leader'>用户在分组活动【<span ng-bind="app.entryRule.group.title"></span>】所属分组的组长
-                    </label>
+            <div ng-if="config.submit">
+                <div class='form-group'>
+                    <label class='radio-inline'>
+                        <input type='radio' value="cowork" ng-model="config.submit.page">讨论页</label>
                 </div>
-                <div class='checkbox'>
-                    <label class='checkbox-inline'>
-                        <input type='checkbox' value='group'><span>指定分组活动和分组</span>&nbsp;<a ng-if="config.submit.receiver.scope&&config.submit.receiver.scope.indexOf('group')!==-1" ng-click="assignGroup(config.submit.receiver)">指定</a>
-                    </label>
-                </div>
-            </div>
-            <div class='form-group' ng-if="config.submit.receiver.scope&&config.submit.receiver.scope.indexOf('group')!==-1">
-                <div class='row'>
-                    <div class='col-md-7'>
-                        <input class='form-control' title="{{config.submit.receiver.group.title}}" value="{{config.submit.receiver.group.title}}" readonly>
+                <div tms-array-checkbox model="config.submit.receiver.scope">
+                    <div class='checkbox' ng-if="app.entryRule.group.id">
+                        <label>
+                            <input type='checkbox' value='leader'>用户在分组活动【<span ng-bind="app.entryRule.group.title"></span>】所属分组的组长
+                        </label>
                     </div>
-                    <div class='col-md-5'>
-                        <input class='form-control' title="{{config.submit.receiver.group.round.title}}" value="{{config.submit.receiver.group.round.title}}" readonly>
+                    <div class='checkbox'>
+                        <label class='checkbox-inline'>
+                            <input type='checkbox' value='group'><span>指定分组活动和分组</span>&nbsp;<a ng-if="config.submit.receiver.scope&&config.submit.receiver.scope.indexOf('group')!==-1" ng-click="assignGroup(config.submit.receiver)">指定</a>
+                        </label>
                     </div>
                 </div>
-            </div>
-            <hr>
-            <div class='form-inline'>
-                <div class='checkbox'>
-                    <input type='checkbox' bs-switch data-on-text="启用" data-off-text="停用" ng-model="config.submit.valid">
+                <div class='form-group' ng-if="config.submit.receiver.scope&&config.submit.receiver.scope.indexOf('group')!==-1">
+                    <div class='row'>
+                        <div class='col-md-7'>
+                            <input class='form-control' title="{{config.submit.receiver.group.title}}" value="{{config.submit.receiver.group.title}}" readonly>
+                        </div>
+                        <div class='col-md-5'>
+                            <input class='form-control' title="{{config.submit.receiver.group.round.title}}" value="{{config.submit.receiver.group.round.title}}" readonly>
+                        </div>
+                    </div>
                 </div>
-                <button class='btn' ng-class="{ 'btn-default':!modified, 'btn-success':modified} " ng-disabled="!modified " ng-click="save() ">保存</button>
+                <hr>
+                <div class='form-inline'>
+                    <div class='checkbox'>
+                        <input type='checkbox' bs-switch data-on-text="启用" data-off-text="停用" ng-model="config.submit.valid">
+                    </div>
+                    <button class='btn' ng-class="{'btn-default':!modified, 'btn-success':modified}" ng-disabled="!modified" ng-click="save()">保存</button>
+                </div>
+            </div>
+            <div ng-if="!config.submit">
+                <button class='btn btn-default' ng-click="initConfig('submit')">设置提醒规则</button>
             </div>
         </div>
     </div>
@@ -260,38 +265,43 @@
                 <p><i class="glyphicon glyphicon-bell"></i> 事件提醒【用户提交评论】</p>
             </div>
             <hr>
-            <div class='form-group'>
-                <label class='radio-inline'>
-                    <input type='radio' value="cowork" ng-model="config.remark.page">讨论页</label>
-            </div>
-            <div tms-array-checkbox model="config.remark.receiver.scope">
-                <div class='checkbox'>
-                    <label>
-                        <input type='checkbox' value='related'>被评论内容（记录和内容）的提交人
-                    </label>
+            <div ng-if="config.remark">
+                <div class='form-group'>
+                    <label class='radio-inline'>
+                        <input type='radio' value="cowork" ng-model="config.remark.page">讨论页</label>
                 </div>
-                <div class='checkbox'>
-                    <label class='checkbox-inline'>
-                        <input type='checkbox' value='group'><span>指定分组活动和分组</span>&nbsp;<a ng-if="config.remark.receiver.scope&&config.remark.receiver.scope.indexOf('group')!==-1" ng-click="assignGroup(config.remark.receiver)">指定</a>
-                    </label>
-                </div>
-            </div>
-            <div class='form-group' ng-if="config.remark.receiver.scope&&config.remark.receiver.scope.indexOf('group')!==-1">
-                <div class='row'>
-                    <div class='col-md-7'>
-                        <input class='form-control' title="{{config.remark.receiver.group.title}}" value="{{config.remark.receiver.group.title}}" readonly>
+                <div tms-array-checkbox model="config.remark.receiver.scope">
+                    <div class='checkbox'>
+                        <label>
+                            <input type='checkbox' value='related'>被评论内容（记录和内容）的提交人
+                        </label>
                     </div>
-                    <div class='col-md-5'>
-                        <input class='form-control' title="{{config.remark.receiver.group.round.title}}" value="{{config.remark.receiver.group.round.title}}" readonly>
+                    <div class='checkbox'>
+                        <label class='checkbox-inline'>
+                            <input type='checkbox' value='group'><span>指定分组活动和分组</span>&nbsp;<a ng-if="config.remark.receiver.scope&&config.remark.receiver.scope.indexOf('group')!==-1" ng-click="assignGroup(config.remark.receiver)">指定</a>
+                        </label>
                     </div>
                 </div>
-            </div>
-            <hr>
-            <div class='form-inline'>
-                <div class='checkbox'>
-                    <input type='checkbox' bs-switch data-on-text="启用" data-off-text="停用" ng-model="config.remark.valid">
+                <div class='form-group' ng-if="config.remark.receiver.scope&&config.remark.receiver.scope.indexOf('group')!==-1">
+                    <div class='row'>
+                        <div class='col-md-7'>
+                            <input class='form-control' title="{{config.remark.receiver.group.title}}" value="{{config.remark.receiver.group.title}}" readonly>
+                        </div>
+                        <div class='col-md-5'>
+                            <input class='form-control' title="{{config.remark.receiver.group.round.title}}" value="{{config.remark.receiver.group.round.title}}" readonly>
+                        </div>
+                    </div>
                 </div>
-                <button class='btn' ng-class="{'btn-default':!modified, 'btn-success':modified} " ng-disabled="!modified" ng-click="save()">保存</button>
+                <hr>
+                <div class='form-inline'>
+                    <div class='checkbox'>
+                        <input type='checkbox' bs-switch data-on-text="启用" data-off-text="停用" ng-model="config.remark.valid">
+                    </div>
+                    <button class='btn' ng-class="{'btn-default':!modified, 'btn-success':modified}" ng-disabled="!modified" ng-click="save()">保存</button>
+                </div>
+            </div>
+            <div ng-if="!config.remark">
+                <button class='btn btn-default' ng-click="initConfig('remark')">设置提醒规则</button>
             </div>
         </div>
     </div>
@@ -302,7 +312,7 @@
                     <label>汇总结果分享链接</label>
                     <div class='pl-input-group'>
                         <div class='form-control pl-line' ng-bind="opEntry.url "></div>
-                        <a class='btn btn-default' ng-href="{{opEntry.url}} " target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                        <a class='btn btn-default' ng-href="{{opEntry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                     </div>
                 </div>
                 <div class='form-group'>
@@ -322,7 +332,7 @@
                     <label>统计报告分享链接</label>
                     <div class='pl-input-group'>
                         <div class='form-control pl-line' ng-bind="rpEntry.url "></div>
-                        <a class='btn btn-default' ng-href="{{rpEntry.url}} " target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                        <a class='btn btn-default' ng-href="{{rpEntry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                     </div>
                 </div>
                 <div class='form-group'>
@@ -373,7 +383,7 @@
                                 <span class='glyphicon glyphicon-picture'></span>选择图片</button>
                         </div>
                         <div style='position:relative' ng-if="app.pic!='' " ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
-                            <img name='pic' ng-src="{{app.pic}} " width='180px' />
+                            <img name='pic' ng-src="{{app.pic}}" width='180px' />
                             <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
                                 <span class='glyphicon glyphicon-picture'></span>
                             </button>

@@ -548,6 +548,10 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                             }
                             break;
                     }
+                    /* 必填题目 */
+                    if (oSchema.required && oSchema.required === 'Y') {
+                        domSchema.classList.add('schema-required');
+                    }
                 }
             }
         });

@@ -56,18 +56,18 @@ define(['frame'], function(ngApp) {
         });
     }]);
     ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'http2', 'srvSite', function($scope, $uibModal, http2, srvSite) {
-        var oEntryRule;
+        var _oEntryRule;
         $scope.rule = {};
         $scope.changeUserScope = function() {
-            switch (oEntryRule.scope) {
+            switch (_oEntryRule.scope) {
                 case 'member':
-                    oEntryRule.member === undefined && (oEntryRule.member = {});
+                    _oEntryRule.member === undefined && (_oEntryRule.member = {});
                     break;
                 case 'sns':
-                    oEntryRule.sns === undefined && (oEntryRule.sns = {});
+                    _oEntryRule.sns === undefined && (_oEntryRule.sns = {});
                     Object.keys($scope.sns).forEach(function(snsName) {
-                        if (oEntryRule.sns[snsName] === undefined) {
-                            oEntryRule.sns[snsName] = { entry: 'Y' };
+                        if (_oEntryRule.sns[snsName] === undefined) {
+                            _oEntryRule.sns[snsName] = { entry: 'Y' };
                         }
                     });
                     break;
@@ -81,8 +81,9 @@ define(['frame'], function(ngApp) {
                 if (result && result.chosen) {
                     chosen = result.chosen;
                     $scope.mschemasById[chosen.id] = chosen;
-                    if (!oEntryRule.member[chosen.id]) {
-                        oEntryRule.member[chosen.id] = { entry: '' };
+                    _oEntryRule.member === undefined && (_oEntryRule.member = {});
+                    if (!_oEntryRule.member[chosen.id]) {
+                        _oEntryRule.member[chosen.id] = { entry: '' };
                         $scope.update('entry_rule');
                     }
                 }
@@ -96,8 +97,8 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.removeMschema = function(mschemaId) {
-            if (oEntryRule.member[mschemaId]) {
-                delete oEntryRule.member[mschemaId];
+            if (_oEntryRule.member[mschemaId]) {
+                delete _oEntryRule.member[mschemaId];
                 $scope.update('entry_rule');
             }
         };
@@ -107,7 +108,7 @@ define(['frame'], function(ngApp) {
         });
         $scope.$watch('mission', function(oMission) {
             if (!oMission) return;
-            $scope.rule = oEntryRule = oMission.entry_rule;
+            $scope.rule = _oEntryRule = oMission.entry_rule;
             srvSite.memberSchemaList(oMission).then(function(aMemberSchemas) {
                 $scope.memberSchemas = aMemberSchemas;
                 $scope.mschemasById = {};

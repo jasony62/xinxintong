@@ -20,12 +20,15 @@ class round extends \pl\fe\matter\base {
 	 * @param string $cascade 返回的结果中包含哪些级联。逗号分隔的字符串。支持：playerCount
 	 *
 	 */
-	public function list_action($app, $cascade = '') {
+	public function list_action($app, $cascade = '', $roundType = 'T') {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
-		$aOptions = ['cascade' => $cascade];
+		$aOptions = [
+			'cascade' => $cascade,
+			'round_type' => $roundType,
+		];
 		$rounds = $this->model('matter\group\round')->byApp($app, $aOptions);
 
 		return new \ResponseData($rounds);
@@ -38,6 +41,12 @@ class round extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$modelApp = $this->model('matter\group');
+		$oApp = $modelApp->byId($app);
+		if (false === $oApp && $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
 		$oPosted = $this->getPostJson();
 		$aNewRound = [
 			'aid' => $app,
@@ -45,10 +54,11 @@ class round extends \pl\fe\matter\base {
 			'create_at' => time(),
 			'title' => empty($oPosted->title) ? '新分组' : $oPosted->title,
 			'times' => 1,
+			'round_type' => empty($oPosted->round_type) ? 'T' : (in_array($oPosted->round_type, ['T', 'R']) ? $oPosted->round_type : 'T'),
 			'targets' => '',
 		];
 
-		$this->model()->insert('xxt_group_round', $aNewRound, false);
+		$modelApp->insert('xxt_group_round', $aNewRound, false);
 
 		return new \ResponseData($aNewRound);
 	}

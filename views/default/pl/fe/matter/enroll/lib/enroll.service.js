@@ -162,6 +162,20 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
     /**
      * app
      */
+    ngModule.service('tkEnrollApp', ['$q', 'http2', function($q, http2) {
+        function _fnMakeApiUrl(oApp, action) {
+            var url;
+            url = '/rest/pl/fe/matter/enroll/' + action + '?site=' + oApp.siteid + '&app=' + oApp.id;
+            return url;
+        }
+        this.update = function(oApp, oModifiedData) {
+            var defer = $q.defer();
+            http2.post(_fnMakeApiUrl(oApp, 'update'), oModifiedData, function(rsp) {
+                defer.resolve(rsp.data);
+            });
+            return defer.promise;
+        };
+    }]);
     ngModule.provider('srvEnrollApp', function() {
         function _fnMapAssocEnrollApp(oApp) {
             var enrollDataSchemas = [];

@@ -1,11 +1,67 @@
 angular.module('service.group', ['ui.bootstrap', 'ui.xxt']).
-provider('srvGroupApp', function() {
+service('tkGroupApp', ['$uibModal', function($uibModal) {
+    this.choose = function(oMatter) {
+        return $uibModal.open({
+            templateUrl: '/views/default/pl/fe/matter/enroll/component/chooseGroupApp.html?_=1',
+            controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
+                $scope2.app = oMatter;
+                $scope2.data = {
+                    app: null,
+                    round: null
+                };
+                oMatter.mission && ($scope2.data.sameMission = 'Y');
+                $scope2.cancel = function() {
+                    $mi.dismiss();
+                };
+                $scope2.ok = function() {
+                    $mi.close($scope2.data);
+                };
+                $scope2.$watch('data.app', function(oGrpApp) {
+                    if (oGrpApp) {
+                        var url = '/rest/pl/fe/matter/group/round/list?app=' + oGrpApp.id + '&roundType=';
+                        http2.get(url, function(rsp) {
+                            $scope2.rounds = rsp.data;
+                        });
+                    }
+                });
+                var url = '/rest/pl/fe/matter/group/list?site=' + oMatter.siteid + '&size=999';
+                oMatter.mission && (url += '&mission=' + oMatter.mission.id);
+                http2.get(url, function(rsp) {
+                    $scope2.apps = rsp.data.apps;
+                });
+            }],
+            backdrop: 'static'
+        }).result;
+    };
+}]).service('tkGroupRnd', ['$q', 'http2', function($q, http2) {
+    this.list = function(oApp, roundType) {
+        var defer = $q.defer(),
+            url;
+
+        url = '/rest/pl/fe/matter/group/round/list?site=' + oApp.siteid + '&app=' + oApp.id + '&cascade=playerCount';
+        if (!roundType) {
+            url += '&roundType=';
+        } else if (/T|R/.test(roundType)) {
+            url += '&roundType=' + roundType;
+        }
+        http2.get(url, function(rsp) {
+            var rounds = rsp.data;
+            rounds.forEach(function(oRound) {
+                oRound.extattrs = (oRound.extattrs && oRound.extattrs.length) ? JSON.parse(oRound.extattrs) : {};
+                oRound.targets = (!oRound.targets || oRound.targets.length === 0) ? [] : JSON.parse(oRound.targets);
+            });
+            defer.resolve(rounds);
+        });
+
+        return defer.promise;
+    };
+}]).provider('srvGroupApp', function() {
     var _siteId, _appId, _oApp;
     this.config = function(siteId, appId) {
         _siteId = siteId;
         _appId = appId;
     };
-    this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'srvSite', function($q, $uibModal, http2, noticebox, srvSite) {
+    this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'srvSite', 'tkGroupRnd', function($q, $uibModal, http2, noticebox, srvSite, tkGroupRnd) {
         return {
             cached: function() {
                 return _oApp;
@@ -19,36 +75,39 @@ provider('srvGroupApp', function() {
                 } else {
                     url = '/rest/pl/fe/matter/group/get?site=' + _siteId + '&app=' + _appId;
                     http2.get(url, function(rsp) {
-                        var url, schemasById = {},
-                            roundsById = {};
+                        var schemasById = {};
+
                         _oApp = rsp.data;
                         _oApp.tags = (!_oApp.tags || _oApp.tags.length === 0) ? [] : _oApp.tags.split(',');
                         try {
                             _oApp.group_rule = _oApp.group_rule && _oApp.group_rule.length ? JSON.parse(_oApp.group_rule) : {};
-                            _oApp.data_schemas = _oApp.data_schemas && _oApp.data_schemas.length ? JSON.parse(_oApp.data_schemas) : [];
-                            _oApp.data_schemas.forEach(function(schema) {
-                                if (schema.type !== 'html') {
-                                    schemasById[schema.id] = schema;
+                            _oApp.dataSchemas.forEach(function(oSchema) {
+                                if (oSchema.type !== 'html') {
+                                    schemasById[oSchema.id] = oSchema;
                                 }
                             });
-                            _oApp.rounds.forEach(function(round) {
-                                roundsById[round.round_id] = round;
-                            });
                             _oApp._schemasById = schemasById;
-                            _oApp._roundsById = roundsById;
                         } catch (e) {
                             console.error('error', e);
                         }
                         _oApp.opUrl = location.protocol + '//' + location.host + '/rest/site/op/matter/group?site=' + _siteId + '&app=' + _appId;
-                        if (_oApp.page_code_id == 0 && _oApp.scenario.length) {
-                            url = '/rest/pl/fe/matter/group/page/create?site=' + _siteId + '&app=' + _appId + '&scenario=' + _oApp.scenario;
-                            http2.get(url, function(rsp) {
-                                _oApp.page_code_id = rsp.data;
-                                defer.resolve(_oApp);
+
+                        tkGroupRnd.list(_oApp).then(function(rounds) {
+                            var roundsById = {};
+                            rounds.forEach(function(round) {
+                                roundsById[round.round_id] = round;
                             });
-                        } else {
-                            defer.resolve(_oApp);
-                        }
+                            _oApp._roundsById = roundsById;
+                            if (_oApp.page_code_id == 0 && _oApp.scenario.length) {
+                                var url = '/rest/pl/fe/matter/group/page/create?site=' + _siteId + '&app=' + _appId + '&scenario=' + _oApp.scenario;
+                                http2.get(url, function(rsp) {
+                                    _oApp.page_code_id = rsp.data;
+                                    defer.resolve(_oApp);
+                                });
+                            } else {
+                                defer.resolve(_oApp);
+                            }
+                        });
                     });
                 }
 
@@ -200,7 +259,9 @@ provider('srvGroupApp', function() {
             dealData: function(player) {
                 var role_round_titles = [];
                 player.role_rounds.forEach(function(roundId) {
-                    role_round_titles.push(_oApp._roundsById[roundId].title);
+                    if (_oApp._roundsById[roundId]) {
+                        role_round_titles.push(_oApp._roundsById[roundId].title);
+                    }
                 });
                 player.role_round_titles = role_round_titles;
             }
@@ -217,7 +278,7 @@ provider('srvGroupApp', function() {
             cached: function() {
                 return _rounds;
             },
-            list: function() {
+            list: function(roundType) {
                 var defer = $q.defer(),
                     url;
 
@@ -226,6 +287,11 @@ provider('srvGroupApp', function() {
                 } else {
                     _rounds = [];
                     url = '/rest/pl/fe/matter/group/round/list?site=' + _siteId + '&app=' + _appId + '&cascade=playerCount';
+                    if (!roundType) {
+                        url += '&roundType=';
+                    } else if (/T|R/.test(roundType)) {
+                        url += '&roundType=' + roundType;
+                    }
                     http2.get(url, function(rsp) {
                         var rounds = rsp.data;
                         rounds.forEach(function(oRound) {
@@ -596,10 +662,10 @@ provider('srvGroupApp', function() {
             }
         }
     }]
-}).controller('ctrlGroupEditor', ['$scope', '$uibModalInstance', '$sce', 'player', 'tmsSchema', 'srvGroupApp', 'srvGroupRound', 'srvGroupPlayer', function($scope, $mi, $sce, player, tmsSchema, srvGroupApp, srvGroupRound, srvGroupPlayer) {
+}).controller('ctrlGroupEditor', ['$scope', '$uibModalInstance', '$sce', 'player', 'tmsSchema', 'srvGroupApp', 'tkGroupRnd', 'srvGroupPlayer', function($scope, $mi, $sce, player, tmsSchema, srvGroupApp, tkGroupRnd, srvGroupPlayer) {
     srvGroupApp.get().then(function(oApp) {
         $scope.app = oApp;
-        srvGroupRound.list().then(function(rounds) {
+        tkGroupRnd.list(oApp).then(function(rounds) {
             $scope.teamRounds = [];
             $scope.roleRounds = [];
             rounds.forEach(function(oRound) {

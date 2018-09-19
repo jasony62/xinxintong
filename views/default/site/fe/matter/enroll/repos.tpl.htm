@@ -83,7 +83,7 @@
                     </ul>
                 </div>
                 <div id='filterQuick' ng-cloak>
-                    <div ng-if="rounds.length" class="btn-group" uib-dropdown dropdown-append-to-body='true'>
+                    <div ng-if="rounds.length>1" class="btn-group" uib-dropdown dropdown-append-to-body='true'>
                         <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
                             <span>轮次</span>
                             <span class="glyphicon glyphicon-filter"></span>
@@ -150,7 +150,7 @@
                 </div>
                 <!-- end: filterQuick -->
                 <div id='filterTip' ng-if="filter.round||filter.group||filter.mine||filter.tags.length">
-                    <div class="bg-info small" ng-if="filter.round">
+                    <div class="bg-info small" ng-if="filter.round>1">
                         <span>{{filter.round.title}}</span>
                         <button class="close" ng-click="shiftRound()"><span>&times;</span></button>
                     </div>

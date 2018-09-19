@@ -878,8 +878,8 @@ class data_model extends entity_model {
 	/**
 	 * 返回指定活动，指定数据项的填写数据
 	 */
-	public function byId($id, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : self::DEFAULT_FIELDS;
+	public function byId($id, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : self::DEFAULT_FIELDS;
 
 		$q = [
 			$fields,

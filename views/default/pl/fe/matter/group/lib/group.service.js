@@ -1,11 +1,67 @@
 angular.module('service.group', ['ui.bootstrap', 'ui.xxt']).
-provider('srvGroupApp', function() {
+service('tkGroupApp', ['$uibModal', function($uibModal) {
+    this.choose = function(oMatter) {
+        return $uibModal.open({
+            templateUrl: '/views/default/pl/fe/matter/enroll/component/chooseGroupApp.html?_=1',
+            controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
+                $scope2.app = oMatter;
+                $scope2.data = {
+                    app: null,
+                    round: null
+                };
+                oMatter.mission && ($scope2.data.sameMission = 'Y');
+                $scope2.cancel = function() {
+                    $mi.dismiss();
+                };
+                $scope2.ok = function() {
+                    $mi.close($scope2.data);
+                };
+                $scope2.$watch('data.app', function(oGrpApp) {
+                    if (oGrpApp) {
+                        var url = '/rest/pl/fe/matter/group/round/list?app=' + oGrpApp.id + '&roundType=';
+                        http2.get(url, function(rsp) {
+                            $scope2.rounds = rsp.data;
+                        });
+                    }
+                });
+                var url = '/rest/pl/fe/matter/group/list?site=' + oMatter.siteid + '&size=999';
+                oMatter.mission && (url += '&mission=' + oMatter.mission.id);
+                http2.get(url, function(rsp) {
+                    $scope2.apps = rsp.data.apps;
+                });
+            }],
+            backdrop: 'static'
+        }).result;
+    };
+}]).service('tkGroupRnd', ['$q', 'http2', function($q, http2) {
+    this.list = function(oApp, roundType) {
+        var defer = $q.defer(),
+            url;
+
+        url = '/rest/pl/fe/matter/group/round/list?site=' + oApp.siteid + '&app=' + oApp.id + '&cascade=playerCount';
+        if (!roundType) {
+            url += '&roundType=';
+        } else if (/T|R/.test(roundType)) {
+            url += '&roundType=' + roundType;
+        }
+        http2.get(url, function(rsp) {
+            var rounds = rsp.data;
+            rounds.forEach(function(oRound) {
+                oRound.extattrs = (oRound.extattrs && oRound.extattrs.length) ? JSON.parse(oRound.extattrs) : {};
+                oRound.targets = (!oRound.targets || oRound.targets.length === 0) ? [] : JSON.parse(oRound.targets);
+            });
+            defer.resolve(rounds);
+        });
+
+        return defer.promise;
+    };
+}]).provider('srvGroupApp', function() {
     var _siteId, _appId, _oApp;
     this.config = function(siteId, appId) {
         _siteId = siteId;
         _appId = appId;
     };
-    this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'srvSite', function($q, $uibModal, http2, noticebox, srvSite) {
+    this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'srvSite', 'tkGroupRnd', function($q, $uibModal, http2, noticebox, srvSite, tkGroupRnd) {
         return {
             cached: function() {
                 return _oApp;
@@ -19,36 +75,39 @@ provider('srvGroupApp', function() {
                 } else {
                     url = '/rest/pl/fe/matter/group/get?site=' + _siteId + '&app=' + _appId;
                     http2.get(url, function(rsp) {
-                        var url, schemasById = {},
-                            roundsById = {};
+                        var schemasById = {};
+
                         _oApp = rsp.data;
                         _oApp.tags = (!_oApp.tags || _oApp.tags.length === 0) ? [] : _oApp.tags.split(',');
                         try {
                             _oApp.group_rule = _oApp.group_rule && _oApp.group_rule.length ? JSON.parse(_oApp.group_rule) : {};
-                            _oApp.data_schemas = _oApp.data_schemas && _oApp.data_schemas.length ? JSON.parse(_oApp.data_schemas) : [];
-                            _oApp.data_schemas.forEach(function(schema) {
-                                if (schema.type !== 'html') {
-                                    schemasById[schema.id] = schema;
+                            _oApp.dataSchemas.forEach(function(oSchema) {
+                                if (oSchema.type !== 'html') {
+                                    schemasById[oSchema.id] = oSchema;
                                 }
                             });
-                            _oApp.rounds.forEach(function(round) {
-                                roundsById[round.round_id] = round;
-                            });
                             _oApp._schemasById = schemasById;
-                            _oApp._roundsById = roundsById;
                         } catch (e) {
                             console.error('error', e);
                         }
                         _oApp.opUrl = location.protocol + '//' + location.host + '/rest/site/op/matter/group?site=' + _siteId + '&app=' + _appId;
-                        if (_oApp.page_code_id == 0 && _oApp.scenario.length) {
-                            url = '/rest/pl/fe/matter/group/page/create?site=' + _siteId + '&app=' + _appId + '&scenario=' + _oApp.scenario;
-                            http2.get(url, function(rsp) {
-                                _oApp.page_code_id = rsp.data;
-                                defer.resolve(_oApp);
+
+                        tkGroupRnd.list(_oApp).then(function(rounds) {
+                            var roundsById = {};
+                            rounds.forEach(function(round) {
+                                roundsById[round.round_id] = round;
                             });
-                        } else {
-                            defer.resolve(_oApp);
-                        }
+                            _oApp._roundsById = roundsById;
+                            if (_oApp.page_code_id == 0 && _oApp.scenario.length) {
+                                var url = '/rest/pl/fe/matter/group/page/create?site=' + _siteId + '&app=' + _appId + '&scenario=' + _oApp.scenario;
+                                http2.get(url, function(rsp) {
+                                    _oApp.page_code_id = rsp.data;
+                                    defer.resolve(_oApp);
+                                });
+                            } else {
+                                defer.resolve(_oApp);
+                            }
+                        });
                     });
                 }
 
@@ -200,7 +259,9 @@ provider('srvGroupApp', function() {
             dealData: function(player) {
                 var role_round_titles = [];
                 player.role_rounds.forEach(function(roundId) {
-                    role_round_titles.push(_oApp._roundsById[roundId].title);
+                    if (_oApp._roundsById[roundId]) {
+                        role_round_titles.push(_oApp._roundsById[roundId].title);
+                    }
                 });
                 player.role_round_titles = role_round_titles;
             }
@@ -217,7 +278,7 @@ provider('srvGroupApp', function() {
             cached: function() {
                 return _rounds;
             },
-            list: function() {
+            list: function(roundType) {
                 var defer = $q.defer(),
                     url;
 
@@ -226,6 +287,11 @@ provider('srvGroupApp', function() {
                 } else {
                     _rounds = [];
                     url = '/rest/pl/fe/matter/group/round/list?site=' + _siteId + '&app=' + _appId + '&cascade=playerCount';
+                    if (!roundType) {
+                        url += '&roundType=';
+                    } else if (/T|R/.test(roundType)) {
+                        url += '&roundType=' + roundType;
+                    }
                     http2.get(url, function(rsp) {
                         var rounds = rsp.data;
                         rounds.forEach(function(oRound) {
@@ -345,7 +411,7 @@ provider('srvGroupApp', function() {
         }
     }];
 }).provider('srvGroupPlayer', function() {
-    var _oApp, _siteId, _appId, _aPlayers, _activeRound;
+    var _oApp, _siteId, _appId, _aPlayers;
     this.$get = ['$q', '$uibModal', 'noticebox', 'http2', 'cstApp', 'pushnotify', 'tmsSchema', 'srvGroupApp', function($q, $uibModal, noticebox, http2, cstApp, pushnotify, tmsSchema, srvGroupApp) {
         return {
             init: function(aPlayers) {
@@ -363,7 +429,7 @@ provider('srvGroupApp', function() {
                 var _self = this;
                 if (window.confirm('本操作将清除已有分组数据，确定执行?')) {
                     http2.get('/rest/pl/fe/matter/group/execute?site=' + _siteId + '&app=' + _appId, function(rsp) {
-                        _self.list(_activeRound);
+                        _self.list();
                     });
                 }
             },
@@ -371,25 +437,22 @@ provider('srvGroupApp', function() {
                 arg == 'round' ? commonRound(this) : roleRound(this);
 
                 function commonRound(obj) {
-                    if (round === undefined) {
-                        round = _activeRound;
-                    }
                     if (round === null) {
                         return obj.all({});
                     } else if (round === false) {
-                        return obj.pendings();
+                        return obj.pendings('T');
                     } else {
-                        return obj.winners(round);
+                        return obj.winners(round, 'T');
                     }
                 }
 
                 function roleRound(obj) {
                     if (round === null) {
-                        return obj.all({ roleRoundId: 'all' });
+                        return obj.all({});
                     } else if (round === false) {
-                        return obj.all({ roleRoundId: 'pending' });
+                        return obj.pendings('R');
                     } else {
-                        return obj.all({ roleRoundId: round.round_id });
+                        return obj.winners(round, 'R');
                     }
                 }
             },
@@ -397,7 +460,6 @@ provider('srvGroupApp', function() {
                 var defer = $q.defer(),
                     url = '/rest/pl/fe/matter/group/player/list?site=' + _siteId + '&app=' + _appId;
 
-                _activeRound = null;
                 _aPlayers.splice(0, _aPlayers.length);
                 http2.post(url, oFilter, function(rsp) {
                     if (rsp.data.total) {
@@ -411,11 +473,10 @@ provider('srvGroupApp', function() {
                 });
                 return defer.promise;
             },
-            winners: function(round) {
+            winners: function(round, roundType) {
                 var defer = $q.defer(),
-                    url = '/rest/pl/fe/matter/group/round/winnersGet?app=' + _appId + '&rid=' + round.round_id;
+                    url = '/rest/pl/fe/matter/group/round/winnersGet?app=' + _appId + '&rid=' + round.round_id + '&roundType=' + roundType;
 
-                _activeRound = round;
                 _aPlayers.splice(0, _aPlayers.length);
                 http2.get(url, function(rsp) {
                     rsp.data.forEach(function(player) {
@@ -427,11 +488,10 @@ provider('srvGroupApp', function() {
                 });
                 return defer.promise;
             },
-            pendings: function() {
+            pendings: function(roundType) {
                 var defer = $q.defer(),
-                    url = '/rest/pl/fe/matter/group/player/pendingsGet?app=' + _appId;
+                    url = '/rest/pl/fe/matter/group/player/pendingsGet?app=' + _appId + '&roundType=' + roundType;
 
-                _activeRound = false;
                 _aPlayers.splice(0, _aPlayers.length);
                 http2.get(url, function(rsp) {
                     rsp.data.forEach(function(player) {
@@ -443,50 +503,47 @@ provider('srvGroupApp', function() {
                 });
                 return defer.promise;
             },
-            quitGroup: function(round, players) {
+            quitGroup: function(users) {
                 var defer = $q.defer(),
                     url, eks = [];
 
-                url = '/rest/pl/fe/matter/group/player/quitGroup?site=' + _siteId + '&app=' + _appId;
-                url += '&round=' + round.round_id;
+                url = '/rest/pl/fe/matter/group/player/quitGroup?app=' + _appId;
 
-                players.forEach(function(player) {
-                    eks.push(player.enroll_key);
+                users.forEach(function($oUser) {
+                    eks.push($oUser.enroll_key);
                 });
 
                 http2.post(url, eks, function(rsp) {
-                    var result = rsp.data;
-                    players.forEach(function(player) {
-                        if (result[player.enroll_key] !== false) {
-                            _aPlayers.splice(_aPlayers.indexOf(player), 1);
+                    var oResult = rsp.data;
+                    users.forEach(function(oUser) {
+                        if (oResult[oUser.enroll_key] !== false) {
+                            oUser.round_id = '';
+                            oUser.round_title = '';
+                            tmsSchema.forTable(oUser, _oApp._schemasById);
                         }
                     });
                     defer.resolve();
                 });
                 return defer.promise;
             },
-            joinGroup: function(round, players) {
+            joinGroup: function(oRound, users) {
                 var defer = $q.defer(),
                     url, eks = [];
 
-                url = '/rest/pl/fe/matter/group/player/joinGroup?site=' + _siteId + '&app=' + _appId;
-                url += '&round=' + round.round_id;
+                url = '/rest/pl/fe/matter/group/player/joinGroup?app=' + _appId;
+                url += '&round=' + oRound.round_id;
 
-                players.forEach(function(player) {
-                    eks.push(player.enroll_key);
+                users.forEach(function(oUser) {
+                    eks.push(oUser.enroll_key);
                 });
 
                 http2.post(url, eks, function(rsp) {
-                    var result = rsp.data;
-                    players.forEach(function(player) {
-                        if (result[player.enroll_key] !== false) {
-                            if (_activeRound === false) {
-                                _aPlayers.splice(_aPlayers.indexOf(player), 1);
-                            } else if (_activeRound === null) {
-                                player.round_id = round.round_id;
-                                player.round_title = round.title;
-                                tmsSchema.forTable(player, _oApp._schemasById);
-                            }
+                    var oResult = rsp.data;
+                    users.forEach(function(oUser) {
+                        if (oResult[oUser.enroll_key] !== false) {
+                            oUser.round_id = oRound.round_id;
+                            oUser.round_title = oRound.title;
+                            tmsSchema.forTable(oUser, _oApp._schemasById);
                         }
                     });
                     defer.resolve();
@@ -605,10 +662,10 @@ provider('srvGroupApp', function() {
             }
         }
     }]
-}).controller('ctrlGroupEditor', ['$scope', '$uibModalInstance', '$sce', 'player', 'tmsSchema', 'srvGroupApp', 'srvGroupRound', 'srvGroupPlayer', function($scope, $mi, $sce, player, tmsSchema, srvGroupApp, srvGroupRound, srvGroupPlayer) {
+}).controller('ctrlGroupEditor', ['$scope', '$uibModalInstance', '$sce', 'player', 'tmsSchema', 'srvGroupApp', 'tkGroupRnd', 'srvGroupPlayer', function($scope, $mi, $sce, player, tmsSchema, srvGroupApp, tkGroupRnd, srvGroupPlayer) {
     srvGroupApp.get().then(function(oApp) {
         $scope.app = oApp;
-        srvGroupRound.list().then(function(rounds) {
+        tkGroupRnd.list(oApp).then(function(rounds) {
             $scope.teamRounds = [];
             $scope.roleRounds = [];
             rounds.forEach(function(oRound) {

@@ -51,15 +51,12 @@
                 </li>
                 <li ng-class="{'opened':opened==='result'}">
                     <a href='' ng-click="opened=opened==='result'?false:'result';switchTo('enrollee')">数据 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='result'?'123px':'0'}">
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='result'?'82px':'0'}">
                         <li ng-class="{'active':subView==='mschema'}">
                             <a href='' ng-click="switchTo('mschema')">通讯录</a>
                         </li>
                         <li ng-class="{'active':subView==='enrollee'}">
                             <a href='' ng-click="switchTo('enrollee')">参与人</a>
-                        </li>
-                        <li ng-class="{'active':subView==='report'}">
-                            <a href='' ng-click="switchTo('report')">汇总报告</a>
                         </li>
                     </ul>
                 </li>
@@ -133,7 +130,6 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="/static/js/tinymce/tinymce.min.js"></script>
-    <script src="/static/js/ZeroClipboard.min.js"></script>
     <script src="/static/js/ui-tms.js?_=1"></script>
     <script src="/static/js/xxt.ui.js?_=1"></script>
     <script src="/static/js/xxt.ui.tinymce.js"></script>

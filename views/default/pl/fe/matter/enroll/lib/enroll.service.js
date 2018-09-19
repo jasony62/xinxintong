@@ -162,6 +162,20 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
     /**
      * app
      */
+    ngModule.service('tkEnrollApp', ['$q', 'http2', function($q, http2) {
+        function _fnMakeApiUrl(oApp, action) {
+            var url;
+            url = '/rest/pl/fe/matter/enroll/' + action + '?site=' + oApp.siteid + '&app=' + oApp.id;
+            return url;
+        }
+        this.update = function(oApp, oModifiedData) {
+            var defer = $q.defer();
+            http2.post(_fnMakeApiUrl(oApp, 'update'), oModifiedData, function(rsp) {
+                defer.resolve(rsp.data);
+            });
+            return defer.promise;
+        };
+    }]);
     ngModule.provider('srvEnrollApp', function() {
         function _fnMapAssocEnrollApp(oApp) {
             var enrollDataSchemas = [];
@@ -486,12 +500,12 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     });
                     return defer.promise;
                 },
-                renewScore: function(record) {
+                renewScore: function(rid) {
                     var url, defer;
 
                     url = '/rest/pl/fe/matter/enroll/record/renewScore';
-                    url += '?site=' + _siteId;
-                    url += '&app=' + _appId;
+                    url += '?app=' + _appId;
+                    if (rid) url += '&rid=' + rid;
                     defer = $q.defer();
 
                     http2.get(url, function(rsp) {
@@ -530,7 +544,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         }
                     }
                 },
-                list: function(checkRid) {
+                list: function(checkRid, pageAt, pageSize) {
                     var defer = $q.defer(),
                         url;
                     if (_rounds === undefined) {
@@ -538,8 +552,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     }
                     if (_oPage === undefined) {
                         _oPage = {
-                            at: 1,
-                            size: 10,
+                            at: pageAt || 1,
+                            size: pageSize || 10,
                             j: function() {
                                 return 'page=' + this.at + '&size=' + this.size;
                             }

@@ -1,7 +1,7 @@
 <?php
 namespace pl\fe\matter\enroll;
 
-require_once dirname(dirname(__FILE__)) . '/base.php';
+require_once dirname(__FILE__) . '/main_base.php';
 /*
  * 登记数据
  */

@@ -79,20 +79,20 @@ class base extends \pl\fe\base {
 			return [false, '未登陆'];
 		}
 
-		$options = ['cascaded' => 'N', 'fields' => 'siteid,id,title,mission_id'];
+		$aOptions = ['cascaded' => 'N', 'fields' => 'siteid,id,title,mission_id'];
 		if ($matterType === 'lottery') {
-			unset($options['cascaded']);
+			unset($aOptions['cascaded']);
 		}
-		$oMatter = $this->model('matter\\' . $matterType)->byId($matterId, $options);
+		$oMatter = $this->model('matter\\' . $matterType)->byId($matterId, $aOptions);
 		if (!$oMatter) {
 			return [false, '指定的素材不存在'];
 		}
 
 		$siteid = $oMatter->siteid;
-		$modelSite = $this->model('site\admin');
-		$oSiteUser = $modelSite->byUid($siteid, $oUser->id);
-		if ($oSiteUser !== false) {
-			return [true];
+		$modelSiteAdmin = $this->model('site\admin');
+		$oSiteAdmin = $modelSiteAdmin->byUid($siteid, $oUser->id);
+		if ($oSiteAdmin !== false) {
+			return [true, $oUser];
 		}
 
 		/*检查此素材是否在项目中*/
@@ -104,7 +104,7 @@ class base extends \pl\fe\base {
 		if (isset($mission_id)) {
 			$oMissionUser = $this->model('matter\mission\acl')->byCoworker($mission_id, $oUser->id, ['fields' => 'id']);
 			if ($oMissionUser) {
-				return [true];
+				return [true, $oUser];
 			}
 		}
 

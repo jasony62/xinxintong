@@ -347,7 +347,9 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
             if (data[schema.id] && data[schema.id].length) {
                 files = data[schema.id];
                 files.forEach(function(file) {
-                    file.url && $sce.trustAsUrl(file.url);
+                    if (file.url && angular.isString(file.url)) {
+                        file.url && $sce.trustAsUrl(file.url);
+                    }
                 });
             }
             data[schema.id] = files;

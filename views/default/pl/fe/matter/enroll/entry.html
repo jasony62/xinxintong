@@ -1,11 +1,10 @@
 <div id='entry-view' class="col-md-6 col-md-offset-3">
-    <div id='enrollee' class="panel panel-default">
+    <div class="panel panel-default">
         <div class="panel-body">
             <div class='form-group'>
                 <label>进入活动链接</label>
                 <div class='pl-input-group'>
                     <div class='form-control pl-line' ng-bind="entry.url"></div>
-                    <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
                     <a class='btn btn-default' ng-href="{{entry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                 </div>
             </div>
@@ -156,80 +155,11 @@
             </div>
         </div>
     </div>
-    <div id='organizer' class="panel panel-default">
-        <div class="panel-body">
-            <div ng-controller="ctrlOpUrl">
-                <div class='form-group'>
-                    <label>汇总结果分享链接</label>
-                    <div class='pl-input-group'>
-                        <div class='form-control pl-line' ng-bind="opEntry.url"></div>
-                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opEntry.url}}">复制</button>
-                        <a class='btn btn-default' ng-href="{{opEntry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
-                    </div>
-                </div>
-                <div class='form-group'>
-                    <button class='btn btn-default' ng-if="!opEntry.url" ng-click="makeOpUrl()">生成</button>
-                    <button class='btn btn-default' ng-if="opEntry.url" ng-click="closeOpUrl()">关闭</button>
-                    <button uib-popover-template="'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="opEntry.url">密码 <span class="caret"></span></button>
-                </div>
-                <div class='form-group' ng-if="opEntry.url">
-                    <label class='checkbox-inline'>
-                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opEntry.can_favor" ng-change="updCanFavor()">支持收藏</label>
-                    <p class='help-block'>分享链接有效期1小时，设置【支持收藏】后，用户可收藏本链接，避免有效期限制</p>
-                </div>
-            </div>
-            <hr>
-            <div ng-controller="ctrlRpUrl">
-                <div class='form-group'>
-                    <label>统计报告分享链接</label>
-                    <div class='pl-input-group'>
-                        <div class='form-control pl-line' ng-bind="rpEntry.url"></div>
-                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{rpEntry.url}}">复制</button>
-                        <a class='btn btn-default' ng-href="{{rpEntry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
-                    </div>
-                </div>
-                <div class='form-group'>
-                    <button class='btn btn-default' ng-if="!rpEntry.url" ng-click="makeOpUrl()">生成</button>
-                    <button class='btn btn-default' ng-if="rpEntry.url" ng-click="closeOpUrl()">关闭</button>
-                    <button uib-popover-template="'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="rpEntry.url">密码 <span class="caret"></span></button>
-                </div>
-                <div class='form-group' ng-if="rpEntry.url">
-                    <label class='checkbox-inline'>
-                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rpEntry.can_favor" ng-change="updCanFavor()">支持收藏</label>
-                    <p class='help-block'>分享链接有效期1小时，设置【支持收藏】后，用户可收藏本链接，避免有效期限制</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script type="text/ng-template" id="opUrlPasswd.html">
-        <div id="opUrlPasswd">
-            <div class='form-group'>
-                <div class='input-group'>
-                    <input class='form-control' ng-model="opEntry.password">
-                    <div class='input-group-btn'>
-                        <button class='btn btn-default' ng-click="configOpUrl($event,'password')">设置</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </script>
-    <script type="text/ng-template" id="rpUrlPasswd.html">
-        <div id="rpUrlPasswd">
-            <div class='form-group'>
-                <div class='input-group'>
-                    <input class='form-control' ng-model="rpEntry.password">
-                    <div class='input-group-btn'>
-                        <button class='btn btn-default' ng-click="configOpUrl($event,'password')">设置</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </script>
-    <div id='remind' class='panel panel-default' ng-controller="ctrlRemind">
+    <div class='panel panel-default' ng-controller="ctrlTaskRemind">
         <div class='panel-body'>
             <div class='form-group'>
                 <p>
-                    <i class="glyphicon glyphicon-bell"></i> <span uib-tooltip='定时将包含【活动进入链接】消息发送给所有填写人'>事件提醒 <span class='glyphicon glyphicon-question-sign'></span></span>
+                    <i class="glyphicon glyphicon-bell"></i> <span>任务提醒</span>
                 </p>
             </div>
             <!--begin timer-->
@@ -246,11 +176,29 @@
                 </div>
                 <div class='form-group'>
                     <label class='radio-inline'>
-                        <input type='radio' value='enroll' ng-model="timer.task.task_arguments.receiver.scope">填写人</label>
+                        <input type='radio' value='enroll' ng-model="timer.task.task_arguments.receiver.scope" ng-change="defaultReceiver(timer)">填写人</label>
                     <label class='radio-inline'>
-                        <input type='radio' value='mschema' ng-model="timer.task.task_arguments.receiver.scope">通讯录</label>
+                        <input type='radio' value='mschema' ng-model="timer.task.task_arguments.receiver.scope" ng-change="defaultReceiver(timer)">通讯录</label>
                     <label class='radio-inline'>
-                        <input type='radio' value='group' ng-model="timer.task.task_arguments.receiver.scope">分组活动</label>
+                        <input type='radio' value='group' ng-model="timer.task.task_arguments.receiver.scope" ng-change="defaultReceiver(timer)"><span>分组活动</span>&nbsp;<a ng-if="timer.task.task_arguments.receiver.scope==='group'" ng-click="assignGroup(timer)">指定</a></label>
+                </div>
+                <div class='form-group' ng-if="timer.task.task_arguments.receiver.scope==='mschema'">
+                    <input class='form-control' title="{{timer._temp.mschema.title}}" value="{{timer._temp.mschema.title}}" readonly>
+                </div>
+                <div class='form-group' ng-if="timer.task.task_arguments.receiver.scope==='group'">
+                    <div class='row'>
+                        <div class='col-md-7'>
+                            <div class='pl-input-group'>
+                                <div class='form-control pl-line' ng-bind="timer._temp.group.title||timer.task.task_arguments.receiver.app.title"></div>
+                                <a class='btn btn-default' ng-href="/rest/pl/fe/matter/group?site={{app.siteid}}&id={{timer._temp.group.id||timer.task.task_arguments.receiver.app.id}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                            </div>
+                        </div>
+                        <div class='col-md-5'>
+                            <div class='pl-input-group'>
+                                <div class='form-control pl-line' ng-bind="timer._temp.group.round.title||timer.task.task_arguments.receiver.app.round.title"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div ng-include="'/views/default/pl/fe/_module/timerNotice.html'"></div>
                 <hr>
@@ -259,79 +207,173 @@
             <div>
                 <button class='btn btn-default' ng-click="srvTimer.add(app,timers,'remind',{page:'',receiver:{scope:'enroll'}})">添加定时发送规则</button>
             </div>
+            <div ng-if="timers.length">
+                <hr>
+                <a href ng-click="switchTo('notice')">查看通知发送日志</a>
+            </div>
         </div>
     </div>
-    <div id='report' class='panel panel-default' ng-controller="ctrlReport">
+    <div class='panel panel-default' ng-controller="ctrlEventRemind">
         <div class='panel-body'>
             <div class='form-group'>
-                <p><i class="glyphicon glyphicon-bell"></i> 事件提醒</p>
+                <p><i class="glyphicon glyphicon-bell"></i> 事件提醒【用户提交填写记录】</p>
             </div>
-            <div class='form-group' ng-if="sns.wx.joined==='Y'&&sns.wx.can_qrcode==='Y'">
-                <button id='wxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('wx')">微信公众号用户扫码作为接收人 <span class="caret"></span></button>
+            <hr>
+            <div class='form-group'>
+                <label class='radio-inline'>
+                    <input type='radio' value="cowork" ng-model="config.submit.page">讨论页</label>
             </div>
-            <div class='form-group' ng-if="sns.yx.joined==='Y'&&sns.yx.can_qrcode==='Y'">
-                <button id='yxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('yx')">易信公众号用户扫码作为接收人 <span class="caret"></span></button>
+            <div tms-array-checkbox model="config.submit.receiver.scope">
+                <div class='checkbox' ng-if="app.entryRule.group.id">
+                    <label>
+                        <input type='checkbox' value='leader'>用户在分组活动【<span ng-bind="app.entryRule.group.title"></span>】所属分组的组长
+                    </label>
+                </div>
+                <div class='checkbox'>
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' value='group'><span>指定分组活动和分组</span>&nbsp;<a ng-if="config.submit.receiver.scope&&config.submit.receiver.scope.indexOf('group')!==-1" ng-click="assignGroup(config.submit.receiver)">指定</a>
+                    </label>
+                </div>
             </div>
-            <div class='list-group'>
-                <div class='list-group-item' ng-repeat="r in receivers" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
-                    <span>{{r.nickname}}</span>&nbsp;<span ng-if="r.snsUser.snsName">{{r.snsUser.snsName}}</span>
-                    <button class='btn btn-default btn-xs pull-right' ng-show="entered" ng-click="remove(r)">
-                        <span class='glyphicon glyphicon-remove'></span>
-                    </button>
+            <div class='form-group' ng-if="config.submit.receiver.scope&&config.submit.receiver.scope.indexOf('group')!==-1">
+                <div class='row'>
+                    <div class='col-md-7'>
+                        <input class='form-control' title="{{config.submit.receiver.group.title}}" value="{{config.submit.receiver.group.title}}" readonly>
+                    </div>
+                    <div class='col-md-5'>
+                        <input class='form-control' title="{{config.submit.receiver.group.round.title}}" value="{{config.submit.receiver.group.round.title}}" readonly>
+                    </div>
                 </div>
             </div>
             <hr>
-            <div class='checkbox'>
-                <label class='checkbox-inline'>
-                    <input type='checkbox' ng-model="app.notifyConfig.submit.valid" ng-change="update('notifyConfig')">用户提交填写记录时通知接收人</label>
-            </div>
-            <div class='form-group' ng-if="app.notifyConfig.submit.valid">
-                <label class='radio-inline'>
-                    <input type='radio' name='notifySubmitPage' value="console" ng-model="app.notifyConfig.submit.page" ng-change="update('notifyConfig')">汇总结果分享链接</label>
-                <label class='radio-inline'>
-                    <input type='radio' name='notifySubmitPage' value="cowork" ng-model="app.notifyConfig.submit.page" ng-change="update('notifyConfig')">讨论页</label>
-                <label class='radio-inline'>
-                    <input type='radio' name='notifySubmitPage' value="repos" ng-model="app.notifyConfig.submit.page" ng-change="update('notifyConfig')">数据共享页</label>
-            </div>
-            <!-- begin timers -->
-            <div ng-repeat="timer in timers">
-                <hr>
-                <div class='form-group'>
-                    <label class='radio-inline'>
-                        <input type='radio' value="console" ng-model="timer.task.task_arguments.page">汇总结果分享链接</label>
-                    <label class='radio-inline'>
-                        <input type='radio' value="repos" ng-model="timer.task.task_arguments.page">数据共享页</label>
-                    <label class='radio-inline'>
-                        <input type='radio' value="event" ng-model="timer.task.task_arguments.page">动态页</label>
-                    <label class='radio-inline'>
-                        <input type='radio' value="rank" ng-model="timer.task.task_arguments.page">排行榜</label>
+            <div class='form-inline'>
+                <div class='checkbox'>
+                    <input type='checkbox' bs-switch data-on-text="启用" data-off-text="停用" ng-model="config.submit.valid">
                 </div>
-                <div ng-include="'/views/default/pl/fe/_module/timerNotice.html'"></div>
-            </div>
-            <!-- end timers-->
-            <div>
-                <hr>
-                <button class='btn btn-default' ng-click="srvTimer.add(app,timers,'report',{page:'console'})">添加定时发送规则</button>
+                <button class='btn' ng-class="{ 'btn-default':!modified, 'btn-success':modified} " ng-disabled="!modified " ng-click="save() ">保存</button>
             </div>
         </div>
     </div>
-    <script type="text/ng-template" id="joinQrcode.html">
-        <div style="width:200px">
-            <img ng-src="{{qrcodeURL}}" style="width:100%">
+    <div class='panel panel-default' ng-controller="ctrlEventRemind">
+        <div class='panel-body'>
+            <div class='form-group'>
+                <p><i class="glyphicon glyphicon-bell"></i> 事件提醒【用户提交评论】</p>
+            </div>
+            <hr>
+            <div class='form-group'>
+                <label class='radio-inline'>
+                    <input type='radio' value="cowork" ng-model="config.remark.page">讨论页</label>
+            </div>
+            <div tms-array-checkbox model="config.remark.receiver.scope">
+                <div class='checkbox'>
+                    <label>
+                        <input type='checkbox' value='related'>被评论内容（记录和内容）的提交人
+                    </label>
+                </div>
+                <div class='checkbox'>
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' value='group'><span>指定分组活动和分组</span>&nbsp;<a ng-if="config.remark.receiver.scope&&config.remark.receiver.scope.indexOf('group')!==-1" ng-click="assignGroup(config.remark.receiver)">指定</a>
+                    </label>
+                </div>
+            </div>
+            <div class='form-group' ng-if="config.remark.receiver.scope&&config.remark.receiver.scope.indexOf('group')!==-1">
+                <div class='row'>
+                    <div class='col-md-7'>
+                        <input class='form-control' title="{{config.remark.receiver.group.title}}" value="{{config.remark.receiver.group.title}}" readonly>
+                    </div>
+                    <div class='col-md-5'>
+                        <input class='form-control' title="{{config.remark.receiver.group.round.title}}" value="{{config.remark.receiver.group.round.title}}" readonly>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class='form-inline'>
+                <div class='checkbox'>
+                    <input type='checkbox' bs-switch data-on-text="启用" data-off-text="停用" ng-model="config.remark.valid">
+                </div>
+                <button class='btn' ng-class="{'btn-default':!modified, 'btn-success':modified} " ng-disabled="!modified" ng-click="save()">保存</button>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-body ">
+            <div ng-controller="ctrlOpUrl ">
+                <div class='form-group'>
+                    <label>汇总结果分享链接</label>
+                    <div class='pl-input-group'>
+                        <div class='form-control pl-line' ng-bind="opEntry.url "></div>
+                        <a class='btn btn-default' ng-href="{{opEntry.url}} " target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <button class='btn btn-default' ng-if="!opEntry.url " ng-click="makeOpUrl() ">生成</button>
+                    <button class='btn btn-default' ng-if="opEntry.url " ng-click="closeOpUrl() ">关闭</button>
+                    <button uib-popover-template=" 'opUrlPasswd.html' " popover-append-to-body='true' popover-placement="bottom " popover-title="访问密码 " popover-trigger="outsideClick " type="button " class="btn btn-default " class='btn btn-default' ng-if="opEntry.url ">密码 <span class="caret "></span></button>
+                </div>
+                <div class='form-group' ng-if="opEntry.url ">
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value=" 'Y' " ng-false-value=" 'N' " ng-model="opEntry.can_favor " ng-change="updCanFavor() ">支持收藏</label>
+                    <p class='help-block'>分享链接有效期1小时，设置【支持收藏】后，用户可收藏本链接，避免有效期限制</p>
+                </div>
+            </div>
+            <hr>
+            <div ng-controller="ctrlRpUrl ">
+                <div class='form-group'>
+                    <label>统计报告分享链接</label>
+                    <div class='pl-input-group'>
+                        <div class='form-control pl-line' ng-bind="rpEntry.url "></div>
+                        <a class='btn btn-default' ng-href="{{rpEntry.url}} " target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <button class='btn btn-default' ng-if="!rpEntry.url " ng-click="makeOpUrl() ">生成</button>
+                    <button class='btn btn-default' ng-if="rpEntry.url " ng-click="closeOpUrl() ">关闭</button>
+                    <button uib-popover-template=" 'opUrlPasswd.html' " popover-append-to-body='true' popover-placement="bottom " popover-title="访问密码 " popover-trigger="outsideClick " type="button " class="btn btn-default " class='btn btn-default' ng-if="rpEntry.url ">密码 <span class="caret "></span></button>
+                </div>
+                <div class='form-group' ng-if="rpEntry.url ">
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value=" 'Y' " ng-false-value=" 'N' " ng-model="rpEntry.can_favor " ng-change="updCanFavor() ">支持收藏</label>
+                    <p class='help-block'>分享链接有效期1小时，设置【支持收藏】后，用户可收藏本链接，避免有效期限制</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/ng-template " id="opUrlPasswd.html ">
+        <div id="opUrlPasswd ">
+            <div class='form-group'>
+                <div class='input-group'>
+                    <input class='form-control' ng-model="opEntry.password ">
+                    <div class='input-group-btn'>
+                        <button class='btn btn-default' ng-click="configOpUrl($event, 'password') ">设置</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </script>
-    <div id='mpshare' class="panel panel-default">
-        <div class="panel-body">
+    <script type="text/ng-template " id="rpUrlPasswd.html ">
+        <div id="rpUrlPasswd ">
+            <div class='form-group'>
+                <div class='input-group'>
+                    <input class='form-control' ng-model="rpEntry.password ">
+                    <div class='input-group-btn'>
+                        <button class='btn btn-default' ng-click="configOpUrl($event, 'password') ">设置</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+    <div class="panel panel-default ">
+        <div class="panel-body ">
             <div class='form-group'>
                 <label>公众号分享卡片头图（可选，建议尺寸360*200）</label>
                 <div style='position:relative'>
-                    <div style="width:182px;border:1px solid #CCC">
-                        <div style="height:100px;text-align:center;padding-top:32px" ng-if="!app.pic">
+                    <div style="width:182px;border:1px solid #CCC ">
+                        <div style="height:100px;text-align:center;padding-top:32px " ng-if="!app.pic ">
                             <button class='btn btn-default' ng-click='setPic();'>
                                 <span class='glyphicon glyphicon-picture'></span>选择图片</button>
                         </div>
-                        <div style='position:relative' ng-if="app.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
-                            <img name='pic' ng-src="{{app.pic}}" width='180px' />
+                        <div style='position:relative' ng-if="app.pic!='' " ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                            <img name='pic' ng-src="{{app.pic}} " width='180px' />
                             <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
                                 <span class='glyphicon glyphicon-picture'></span>
                             </button>
@@ -344,16 +386,8 @@
             </div>
             <div class='form-group'>
                 <label>公众号分享卡片摘要（可选）</label>
-                <textarea class='form-control' ng-model='app.summary' rows=5 tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
+                <textarea class='form-control' ng-model='app.summary' rows=5 tms-auto-update tms-wait=1000 tms-update="update( 'summary') "></textarea>
             </div>
         </div>
     </div>
-</div>
-<div class="col-md-3" id="entryScrollspy" style='position:relative;'>
-    <ul class="nav nav-pills nav-stacked pl-workspace" style='position:fixed;'>
-        <li><a href="#enrollee">用户入口</a></li>
-        <li><a href="#organizer">组织者入口</a></li>
-        <li><a href="#remind">事件提醒</a></li>
-        <li><a href="#mpshare">公众号分享</a></li>
-    </ul>
 </div>

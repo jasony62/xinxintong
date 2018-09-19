@@ -74,7 +74,7 @@ define(['frame'], function(ngApp) {
         /*overview*/
         var status;
         $scope.status = status = {
-            schema: { required: 0, remarkable: 0, shareable: 0 },
+            schema: { required: 0, shareable: 0 },
             page: { submitAfter: null, addRecord: 'N', removeRecord: 'N', browseHistory: null, whenEnrolled: null, repos: 'N', rank: 'N' },
             user: { member: [], sns: [] }
         };
@@ -86,9 +86,6 @@ define(['frame'], function(ngApp) {
                 }
                 if (oSchema.shareable === 'Y') {
                     status.schema.shareable++;
-                }
-                if (oSchema.remarkable === 'Y') {
-                    status.schema.remarkable++;
                 }
             });
         }, true);

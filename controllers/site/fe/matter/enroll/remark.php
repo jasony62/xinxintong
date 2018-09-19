@@ -3,7 +3,7 @@ namespace site\fe\matter\enroll;
 
 include_once dirname(__FILE__) . '/base.php';
 /**
- * 登记活动登记记录留言
+ * 登记活动填写记录留言
  */
 class remark extends base {
 	/**
@@ -68,7 +68,7 @@ class remark extends base {
 		return new \ResponseData($oRemark);
 	}
 	/**
-	 * 返回一条登记记录的所有留言
+	 * 返回一条填写记录的所有留言
 	 */
 	public function list_action($ek, $schema = '', $data = '', $page = 1, $size = 99, $role = null) {
 		$modelRec = $this->model('matter\enroll\record');
@@ -152,7 +152,7 @@ class remark extends base {
 		return new \ResponseData($oResult);
 	}
 	/**
-	 * 给指定的登记记录的添加留言
+	 * 给指定的填写记录的添加留言
 	 * 进行留言操作的用户需满足进入活动规则的条件
 	 *
 	 * @param $ek 被留言的记录
@@ -306,7 +306,10 @@ class remark extends base {
 			$oNewRemark->nickname = '我';
 		}
 
-		//$this->_notifyHasRemark($oApp, $oRecord, $oNewRemark);
+		/* 通知登记活动事件接收人 */
+		if (isset($oApp->notifyConfig->remark->valid) && $oApp->notifyConfig->remark->valid === true) {
+			$this->_notifyReceivers($oApp, $oRecord, $oNewRemark);
+		}
 
 		return new \ResponseData($oNewRemark);
 	}
@@ -410,93 +413,38 @@ class remark extends base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 通知留言登记记录事件
+	 * 通知留言填写记录事件
 	 */
-	private function _notifyHasRemark($oApp, $oRecord, $oRemark) {
-		/* 模板消息参数 */
-		$notice = $this->model('site\notice')->byName($oApp->siteid, 'site.enroll.remark');
-		if ($notice === false) {
-			return false;
-		}
-		$tmplConfig = $this->model('matter\tmplmsg\config')->byId($notice->tmplmsg_config_id, ['cascaded' => 'Y']);
-		if (!isset($tmplConfig->tmplmsg)) {
+	private function _notifyReceivers($oApp, $oRecord, $oRemark) {
+		/* 通知接收人 */
+		$receivers = $this->model('matter\enroll\user')->getRemarkReceivers($oApp, $oRecord, $oRemark, $oApp->notifyConfig->remark);
+		if (empty($receivers)) {
 			return false;
 		}
 
-		$params = new \stdClass;
-		foreach ($tmplConfig->tmplmsg->params as $param) {
-			if (!isset($tmplConfig->mapping->{$param->pname})) {
-				continue;
-			}
-			$mapping = $tmplConfig->mapping->{$param->pname};
-			if (isset($mapping->src)) {
-				if ($mapping->src === 'matter') {
-					if (isset($oApp->{$mapping->id})) {
-						$value = $oApp->{$mapping->id};
-					} else if ($mapping->id === 'event_at') {
-						$value = date('Y-m-d H:i:s');
-					}
-				} else if ($mapping->src === 'text') {
-					$value = $mapping->name;
-				}
-			}
-			!isset($value) && $value = '';
-			$params->{$param->pname} = $value;
+		$page = empty($oApp->notifyConfig->remark->page) ? 'cowork' : $oApp->notifyConfig->remark->page;
+		$noticeURL = $oApp->entryUrl . '&ek=' . $oRecord->enroll_key . '&page=cowork' . '#remark-' . $oRemark->id;
+
+		$noticeName = 'site.enroll.remark';
+
+		/*获取模板消息id*/
+		$oTmpConfig = $this->model('matter\tmplmsg\config')->getTmplConfig($oApp, $noticeName, ['onlySite' => false, 'noticeURL' => $noticeURL]);
+		if ($oTmpConfig[0] === false) {
+			return false;
 		}
-		/**
-		 * 给记录的提交人发送通知
-		 */
-		if ($oRecord->userid !== $oRemark->userid) {
-			/* 发送给登记记录的提交人 */
-			$noticeURL = $this->model('matter\enroll')->getEntryUrl($oApp->siteid, $oApp->id);
-			$noticeURL .= '&page=remark&ek=' . $oRecord->enroll_key;
-			$noticeURL .= '&schema=' . $oRemark->schema_id;
-			$params->url = $noticeURL;
+		$oTmpConfig = $oTmpConfig[1];
 
-			/* 消息的接收人 */
-			$oEnroller = new \stdClass;
-			$oEnroller->assoc_with = $oRecord->enroll_key;
-			$oEnroller->userid = $oRecord->userid;
-
-			/* 消息的创建人 */
-			$oCreator = new \stdClass;
-			$oCreator->uid = $oRemark->userid;
-			$oCreator->name = $oRemark->nickname;
-			$oCreator->src = 'site';
-
-			/* 给用户发通知消息 */
-			$modelTmplBat = $this->model('matter\tmplmsg\batch');
-			$modelTmplBat->send($oRecord->siteid, $tmplConfig->msgid, $oCreator, [$oEnroller], $params, ['send_from' => 'enroll:' . $oRecord->aid . ':' . $oRecord->enroll_key]);
-		}
-		/**
-		 * 给活动管理员发送通知
-		 */
-		$receivers = $this->model('matter\enroll\receiver')->byApp($oApp->siteid, $oApp->id);
-		if (count($receivers)) {
-			/* 获得活动的管理员链接 */
-			$appURL = $this->model('matter\enroll')->getOpUrl($oApp->siteid, $oApp->id);
-			$modelQurl = $this->model('q\url');
-			$noticeURL = $modelQurl->urlByUrl($oApp->siteid, $appURL);
-			$params->url = $noticeURL;
-
-			/* 发送消息 */
-			foreach ($receivers as &$receiver) {
-				if (!empty($receiver->sns_user)) {
-					$snsUser = json_decode($receiver->sns_user);
-					if (isset($snsUser->src) && isset($snsUser->openid)) {
-						$receiver->{$snsUser->src . '_openid'} = $snsUser->openid;
-					}
-				}
-			}
-			/* 发送给活动管理员 */
-			$modelTmplBat = $this->model('matter\tmplmsg\plbatch');
-			$modelTmplBat->send($oApp->siteid, $tmplConfig->msgid, $receivers, $params, ['event_name' => 'site.enroll.remark', 'send_from' => 'enroll:' . $oApp->id . ':' . $oRemark->enroll_key]);
-		}
+		$modelTmplBat = $this->model('matter\tmplmsg\batch');
+		$oCreator = new \stdClass;
+		$oCreator->uid = $noticeName;
+		$oCreator->name = 'system';
+		$oCreator->src = 'pl';
+		$modelTmplBat->send($oApp->siteid, $oTmpConfig->tmplmsgId, $oCreator, $receivers, $oTmpConfig->oParams, ['send_from' => $oApp->type . ':' . $oApp->id]);
 
 		return true;
 	}
 	/**
-	 * 点赞登记记录中的某一个留言
+	 * 点赞填写记录中的某一个留言
 	 *
 	 * @param string $remark remark'id
 	 *

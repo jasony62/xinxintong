@@ -326,12 +326,6 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
         var oConfig, rankItems, dataSchemas, facRound;
         oApp = params.app;
         dataSchemas = oApp.dynaDataSchemas;
-        for (var i = dataSchemas.length - 1; i >= 0; i--) {
-            if (Object.keys(dataSchemas[i]).indexOf('remarkable') !== -1 && dataSchemas[i].remarkable == 'Y') {
-                $scope.isRemark = true;
-                break;
-            }
-        }
         /* 排行显示内容设置 */
         rankItems = ['enroll', 'remark', 'like', 'remark_other', 'do_like', 'total_coin', 'score', 'average_score'];
         oConfig = {};

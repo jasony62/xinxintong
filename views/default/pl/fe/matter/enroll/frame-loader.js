@@ -12,6 +12,7 @@ require.config({
         "enrollSchema": '/views/default/pl/fe/matter/enroll/lib/enroll.schema',
         "enrollPage": '/views/default/pl/fe/matter/enroll/lib/enroll.page',
         "enrollService": '/views/default/pl/fe/matter/enroll/lib/enroll.service',
+        "groupService": '/views/default/pl/fe/matter/group/lib/group.service',
         "page": '/views/default/pl/fe/matter/enroll/lib/page',
         "schema": '/views/default/pl/fe/matter/enroll/lib/schema',
         "wrap": '/views/default/pl/fe/matter/enroll/lib/wrap',

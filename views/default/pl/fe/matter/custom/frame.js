@@ -31,19 +31,19 @@ ngApp.controller('ctrlCustom', ['$scope', '$location', 'http2', 'srvSite', funct
     http2.get('/rest/pl/fe/matter/custom/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
         var url;
         $scope.editing = rsp.data;
-        if($scope.editing.matter_cont_tag !== ''){
-            $scope.editing.matter_cont_tag.forEach(function(cTag,index){
-                $scope.oTagC.forEach(function(oTag){
-                    if(oTag.id === cTag){
+        if ($scope.editing.matter_cont_tag !== '') {
+            $scope.editing.matter_cont_tag.forEach(function(cTag, index) {
+                $scope.oTagC.forEach(function(oTag) {
+                    if (oTag.id === cTag) {
                         $scope.editing.matter_cont_tag[index] = oTag;
                     }
                 });
             });
         }
-        if($scope.editing.matter_mg_tag !== ''){
-            $scope.editing.matter_mg_tag.forEach(function(cTag,index){
-                $scope.oTag.forEach(function(oTag){
-                    if(oTag.id === cTag){
+        if ($scope.editing.matter_mg_tag !== '') {
+            $scope.editing.matter_mg_tag.forEach(function(cTag, index) {
+                $scope.oTag.forEach(function(oTag) {
+                    if (oTag.id === cTag) {
                         $scope.editing.matter_mg_tag[index] = oTag;
                     }
                 });
@@ -147,7 +147,7 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', 'templateSho
             $scope.$root.infomsg = '成功';
         });
     };
-    $scope.tagMatter = function(subType){
+    $scope.tagMatter = function(subType) {
         var oTags;
         if (subType === 'C') {
             oTags = $scope.oTagC;
@@ -156,9 +156,6 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', 'templateSho
         }
         srvTag._tagMatter($scope.editing, oTags, subType);
     };
-    (function() {
-        new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
-    })();
     $scope.downloadQrcode = function(url) {
         $('<a href="' + url + '" download="登记二维码.png"></a>')[0].click();
     };

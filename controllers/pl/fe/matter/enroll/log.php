@@ -1,23 +1,11 @@
 <?php
 namespace pl\fe\matter\enroll;
 
-require_once dirname(dirname(__FILE__)) . '/base.php';
+require_once dirname(__FILE__) . '/main_base.php';
 /*
  * 登记活动日志控制器
  */
-class log extends \pl\fe\matter\base {
-	/**
-	 *
-	 */
-	public function index_action($id) {
-		$access = $this->accessControlUser('enroll', $id);
-		if ($access[0] === false) {
-			die($access[1]);
-		}
-
-		\TPL::output('/pl/fe/matter/enroll/frame');
-		exit;
-	}
+class log extends main_base {
 	/**
 	 * 查询日志
 	 *
@@ -46,7 +34,7 @@ class log extends \pl\fe\matter\base {
 		if (!empty($criteria->endAt)) {
 			$options['endAt'] = $modelLog->escape($criteria->endAt);
 		}
-		
+
 		if ($logType === 'pl') {
 			$reads = $modelLog->listMatterOp($oApp->id, 'enroll', $options, $page, $size);
 		} else if ($logType === 'page') {

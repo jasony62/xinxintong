@@ -43,7 +43,6 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                 // schemas
                 var recordSchemas = [],
                     recordSchemas2 = [],
-                    remarkableSchemas = [],
                     imageSchemas = [],
                     enrollDataSchemas = [],
                     groupDataSchemas = [],
@@ -56,18 +55,12 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     if (schema.type === 'image') {
                         imageSchemas.push(schema);
                     }
-                    if (schema.remarkable && schema.remarkable === 'Y') {
-                        remarkableSchemas.push(schema);
-                        recordSchemas2.push({ type: 'remark', title: '留言数', id: schema.id });
-                        recordSchemas2.push({ type: 'agreed', title: '设置态度', id: schema.id });
-                    }
                     if (schema.format && schema.format === 'number') {
                         numberSchemas.push(schema);
                     }
                 });
                 $scope.recordSchemas = recordSchemas;
                 $scope.recordSchemas2 = recordSchemas2;
-                $scope.remarkableSchemas = remarkableSchemas;
                 $scope.imageSchemas = imageSchemas;
                 $scope.numberSchemas = numberSchemas;
                 oApp._schemasFromEnrollApp.forEach(function(schema) {
@@ -408,16 +401,6 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                         }
                     });
                 }
-                /* 点评数据 */
-                var remarkableSchemas = [];
-                oApp.dataSchemas.forEach(function(schema) {
-                    if (schema.remarkable === 'Y') {
-                        schema._open = false;
-                        oBeforeRecord.verbose && oBeforeRecord.verbose[schema.id] && (schema.summary = oBeforeRecord.verbose[schema.id]);
-                        remarkableSchemas.push(schema);
-                    }
-                });
-                $scope.remarkableSchemas = remarkableSchemas;
                 $scope.record = oRecord = angular.copy(oBeforeRecord);
                 window.loading.finish();
             });

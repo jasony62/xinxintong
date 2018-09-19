@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRecord', ['$scope', '$timeout', '$location', 'srvEnrollApp', 'srvEnrollRound', 'srvEnrollRecord', '$filter', 'http2', function($scope, $timeout, $location, srvEnrollApp, srvEnlRnd, srvEnrollRecord, $filter, http2) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', '$timeout', '$location', 'srvEnrollApp', 'srvEnrollRound', 'srvEnrollRecord', '$filter', 'http2', 'noticebox', function($scope, $timeout, $location, srvEnrollApp, srvEnlRnd, srvEnrollRecord, $filter, http2, noticebox) {
         function fnSum4Schema() {
             var sum4SchemaAtPage;
             $scope.sum4SchemaAtPage = sum4SchemaAtPage = {};
@@ -130,8 +130,21 @@ define(['frame'], function(ngApp) {
             srvEnrollRecord.exportImage();
         };
         $scope.renewScore = function() {
-            srvEnrollApp.renewScore().then(function() {
-                $scope.doSearch(1);
+            srvEnlRnd.list(false, 1, 999).then(function(oResult) {
+                var rounds = oResult.rounds;
+
+                function renewScoreByRound(i) {
+                    var oRound;
+                    if (i < rounds.length) {
+                        srvEnrollApp.renewScore(rounds[i].rid).then(function() {
+                            renewScoreByRound(++i);
+                        });
+                    } else {
+                        noticebox.success('完成【' + i + '】个轮次数据的更新');
+                        $scope.doSearch(1);
+                    }
+                }
+                renewScoreByRound(0);
             });
         };
         $scope.importByOther = function() {
@@ -224,9 +237,6 @@ define(['frame'], function(ngApp) {
                     if (oSchema.type !== 'html') {
                         recordSchemas.push(oSchema);
                         recordSchemasExt.push(oSchema);
-                    }
-                    if (oSchema.remarkable && oSchema.remarkable === 'Y') {
-                        recordSchemasExt.push({ type: 'remark', title: '留言数', id: oSchema.id });
                     }
                     if (oSchema.requireScore && oSchema.requireScore === 'Y') {
                         recordSchemasExt.push({ type: 'calcScore', title: '得分', id: oSchema.id });

@@ -11,7 +11,7 @@
             <th style='width:8em'>团队角色</th>
             <th ng-class="{nickname:schema.id===app.assignedNickname.schema.id}" ng-repeat="schema in app._schemasById">{{schema.title}}</th>
             <th style='width:140px' ng-if="app.tags.length">标签</th>
-            <th ng-if="roleRounds.length" style='width:120px' class='th-action' data-filter-by='role_round_title' uib-popover-template="'filterByRole.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">角色分组 <i class='glyphicon glyphicon-filter'></i></th>
+            <th style='width:120px' class='th-action' data-filter-by='role_round_title' uib-popover-template="'filterByRole.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">角色分组 <i class='glyphicon glyphicon-filter'></i></th>
             <th style='width:140px'>备注</th>
             <!--待删除-->
             <th style='width:48px'>操作</th>
@@ -30,7 +30,7 @@
             </td>
             <td>{{p.round_title}}</td>
             <td ng-if="bRequireNickname">{{p.nickname}}</td>
-            <td>{{p.is_leader==='Y'?'组长':(p.is_leader==='S'?'超级用户':'')}}</td>
+            <td>{{p.is_leader==='Y'?'组长':(p.is_leader==='S'?'超级用户':'组员')}}</td>
             <td ng-repeat="schema in app._schemasById" ng-switch on="schema.type">
                 <span ng-switch-when="image">
                     <img ng-repeat="img in p._data[schema.id]" ng-src='{{img}}' />
@@ -41,10 +41,10 @@
                 </span>
                 <span ng-switch-default ng-bind-html="p._data[schema.id]"></span>
             </td>
-            <td ng-if="roleRounds.length">
+            <td ng-if="app.tags.length">{{p.tags}}</td>
+            <td>
                 <div ng-repeat="title in p.role_round_titles">{{title}}</div>
             </td>
-            <td ng-if="app.tags.length">{{p.tags}}</td>
             <td>{{p.comment}}</td>
             <td>
                 <button class='btn btn-xs btn-danger' ng-click='removePlayer(p)'>

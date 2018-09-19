@@ -180,9 +180,6 @@
                                         <div ng-if="schema.shareable==='Y'">
                                             <span>赞同<span class='badge'>{{record.verbose[schema.id]._items[item.id].like_num||0}}</span></span>
                                         </div>
-                                        <div ng-if="schema.remarkable==='Y'">
-                                            <span class='glyphicon glyphicon-comment'></span> <span class="badge">{{record.verbose[schema.id]._items[item.id].remark_num||0}}</span>
-                                        </div>
                                         <span ng-if="schema.shareable==='Y'">
                                             <select class='form-control input-sm' ng-change="agree(record,schema,record.verbose[schema.id]._items[item.id].agreed,item.id)" ng-model="record.verbose[schema.id]._items[item.id].agreed" disabled>
                                                 <option value=''>未表态</option>
@@ -220,9 +217,6 @@
                                 </div>
                                 <div ng-if="schema.shareable==='Y'">
                                     <span>赞同<span class='badge'>{{record.verbose[schema.id].like_num||0}}</span></span>
-                                </div>
-                                <div ng-if="schema.remarkable==='Y'">
-                                    <span class='glyphicon glyphicon-comment'></span> <span class="badge">{{record.verbose[schema.id].remark_num||0}}</span>
                                 </div>
                                 <div ng-if="schema.shareable==='Y'">
                                     <select class='form-control input-sm' ng-change="agree(record,schema,record.verbose[schema.id].agreed)" ng-model="record.verbose[schema.id].agreed" disabled>

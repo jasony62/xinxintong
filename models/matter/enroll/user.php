@@ -138,7 +138,7 @@ class user_model extends \TMS_MODEL {
 		$oNewUsr->aid = $oApp->id;
 		$oNewUsr->userid = $oUser->uid;
 		$oNewUsr->group_id = empty($oUser->group_id) ? '' : $oUser->group_id;
-		$oNewUsr->nickname = $this->escape($oUser->nickname);
+		$oNewUsr->nickname = empty($oUser->nickname) ? '' : $this->escape($oUser->nickname);
 
 		foreach ($data as $k => $v) {
 			switch ($k) {
@@ -811,5 +811,102 @@ class user_model extends \TMS_MODEL {
 		}
 
 		return [true, $deductCoin];
+	}
+	/**
+	 * 接收记录提交事件通知的接收人
+	 */
+	public function getSubmitReceivers($oApp, $oRecord, $oRule) {
+		if (empty($oRule->receiver->scope) || !is_array($oRule->receiver->scope)) {
+			return false;
+		}
+		/* 分组活动中的接收人 */
+		if (in_array('group', $oRule->receiver->scope) && !empty($oRule->receiver->group->id)) {
+			$q = [
+				'distinct userid',
+				'xxt_group_player',
+				['state' => 1, 'aid' => $oRule->receiver->group->id, 'userid' => (object) ['op' => '<>', 'pat' => $oRecord->userid]],
+			];
+			if (!empty($oRule->receiver->group->round->id)) {
+				$q[2]['round_id'] = $oRule->receiver->group->round->id;
+			}
+			$receivers = $this->query_objs_ss($q);
+		}
+		/* 分组活动中的组长 */
+		if (in_array('leader', $oRule->receiver->scope) && !empty($oRecord->userid)) {
+			if (isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && !empty($oApp->entryRule->group->id)) {
+				$q = [
+					'round_id',
+					'xxt_group_player',
+					['state' => 1, 'aid' => $oApp->entryRule->group->id, 'userid' => $oRecord->userid],
+				];
+				$oUserRounds = $this->query_objs_ss($q);
+				if (!empty($oUserRounds)) {
+					$q = [
+						'distinct userid',
+						'xxt_group_player',
+						['state' => 1, 'aid' => $oApp->entryRule->group->id, 'round_id' => $oUserRounds[0]->round_id, 'is_leader' => 'Y', 'userid' => (object) ['op' => '<>', 'pat' => $oRecord->userid]],
+					];
+					if (empty($receivers)) {
+						$receivers = $this->query_objs_ss($q);
+					} else {
+						$leaders = $this->query_objs_ss($q);
+						if (!empty($leaders)) {
+							$receivers = array_merge($receivers, $leaders);
+						}
+					}
+				}
+			}
+		}
+
+		return isset($receivers) ? $receivers : false;
+	}
+	/**
+	 * 接收评论提交事件通知的接收人
+	 */
+	public function getRemarkReceivers($oApp, $oRecord, $oRemark, $oRule) {
+		if (empty($oRule->receiver->scope) || !is_array($oRule->receiver->scope)) {
+			return false;
+		}
+		/* 分组活动中的接收人 */
+		if (in_array('group', $oRule->receiver->scope) && !empty($oRule->receiver->group->id)) {
+			$q = [
+				'distinct userid',
+				'xxt_group_player',
+				['state' => 1, 'aid' => $oRule->receiver->group->id, 'userid' => (object) ['op' => '<>', 'pat' => $oRemark->userid]],
+			];
+			if (!empty($oRule->receiver->group->round->id)) {
+				$q[2]['round_id'] = $oRule->receiver->group->round->id;
+			}
+			$receivers = $this->query_objs_ss($q);
+		}
+		/* 和评论对象相关的用户 */
+		if (in_array('related', $oRule->receiver->scope)) {
+			$relateds = [];
+			/* 被评论的记录 */
+			if (isset($oRecord->userid) && (empty($oRemark->userid) || $oRemark->userid !== $oRecord->userid)) {
+				$relateds[] = (object) ['userid' => $oRecord->userid];
+			}
+			/* 被评论的数据 */
+			if (!empty($oRemark->data_id)) {
+				$oBeRemarkedData = $this->model('matter\enroll\data')->byId($oRemark->data_id, ['fields' => 'userid']);
+				if (empty($oRemark->userid) || $oRemark->userid !== $oBeRemarkedData->userid) {
+					$relateds[] = (object) ['userid' => $oBeRemarkedData->userid];
+				}
+			}
+			/* 被评论的评论 */
+			if (!empty($oRemark->remark_id)) {
+				$oBeRemarkedRemark = $this->model('matter\enroll\remark')->byId($oRemark->remark_id, ['fields' => 'userid']);
+				if (empty($oRemark->userid) || $oRemark->userid !== $oBeRemarkedRemark->userid) {
+					$relateds[] = (object) ['userid' => $oBeRemarkedRemark->userid];
+				}
+			}
+			if (isset($receivers)) {
+				$receivers = array_merge($receivers, $relateds);
+			} else {
+				$receivers = $relateds;
+			}
+		}
+
+		return isset($receivers) ? $receivers : false;
 	}
 }

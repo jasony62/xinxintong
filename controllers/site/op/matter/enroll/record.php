@@ -43,22 +43,6 @@ class record extends \site\op\base {
 
 		$mdoelRec = $this->model('matter\enroll\record');
 		$result = $mdoelRec->byApp($oApp, $options, $oCriteria);
-		if (!empty($result->records)) {
-			$remarkables = [];
-			foreach ($oApp->dataSchemas as $oSchema) {
-				if (isset($oSchema->remarkable) && $oSchema->remarkable === 'Y') {
-					$remarkables[] = $oSchema->id;
-				}
-			}
-			if (count($remarkables)) {
-				foreach ($result->records as &$oRec) {
-					$modelRem = $this->model('matter\enroll\data');
-					$oRecordData = $modelRem->byRecord($oRec->enroll_key, ['schema' => $remarkables]);
-					$oRec->verbose = new \stdClass;
-					$oRec->verbose->data = $oRecordData;
-				}
-			}
-		}
 
 		return new \ResponseData($result);
 	}

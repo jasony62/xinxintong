@@ -147,7 +147,6 @@
         <nav class="navbar navbar-default navbar-fixed-bottom">
             <form class="navbar-form navbar-right">
                 <p class="tms-keep-inline"><a href="" ng-click="switchTo('report')" class="navbar-link">看报告</a></p>
-                <p class="tms-keep-inline" ng-if="remarkableSchemas.length"><a href="" ng-click="switchTo('remarks')" class="navbar-link">看留言</a></p>
                 <span> 共{{page.total}}条，</span>
                 <span>第 <select class='form-control' ng-model="page.at" ng-options="number as number for number in page.numbers" ng-change="getRecords()"></select><span>页</span></span>
                 <button class='btn btn-default' ng-click="getRecords()">刷新</button>

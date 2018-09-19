@@ -305,84 +305,84 @@
             </div>
         </div>
     </div>
-    <div class="panel panel-default">
-        <div class="panel-body ">
-            <div ng-controller="ctrlOpUrl ">
+    <div class="panel panel-default hide">
+        <div class="panel-body">
+            <div ng-controller="ctrlOpUrl">
                 <div class='form-group'>
                     <label>汇总结果分享链接</label>
                     <div class='pl-input-group'>
-                        <div class='form-control pl-line' ng-bind="opEntry.url "></div>
+                        <div class='form-control pl-line' ng-bind="opEntry.url"></div>
                         <a class='btn btn-default' ng-href="{{opEntry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                     </div>
                 </div>
                 <div class='form-group'>
-                    <button class='btn btn-default' ng-if="!opEntry.url " ng-click="makeOpUrl() ">生成</button>
-                    <button class='btn btn-default' ng-if="opEntry.url " ng-click="closeOpUrl() ">关闭</button>
-                    <button uib-popover-template=" 'opUrlPasswd.html' " popover-append-to-body='true' popover-placement="bottom " popover-title="访问密码 " popover-trigger="outsideClick " type="button " class="btn btn-default " class='btn btn-default' ng-if="opEntry.url ">密码 <span class="caret "></span></button>
+                    <button class='btn btn-default' ng-if="!opEntry.url" ng-click="makeOpUrl()">生成</button>
+                    <button class='btn btn-default' ng-if="opEntry.url" ng-click="closeOpUrl()">关闭</button>
+                    <button uib-popover-template=" 'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="opEntry.url">密码 <span class="caret"></span></button>
                 </div>
-                <div class='form-group' ng-if="opEntry.url ">
+                <div class='form-group' ng-if="opEntry.url">
                     <label class='checkbox-inline'>
-                        <input type='checkbox' ng-true-value=" 'Y' " ng-false-value=" 'N' " ng-model="opEntry.can_favor " ng-change="updCanFavor() ">支持收藏</label>
+                        <input type='checkbox' ng-true-value=" 'Y'" ng-false-value=" 'N'" ng-model="opEntry.can_favor" ng-change="updCanFavor()">支持收藏</label>
                     <p class='help-block'>分享链接有效期1小时，设置【支持收藏】后，用户可收藏本链接，避免有效期限制</p>
                 </div>
             </div>
             <hr>
-            <div ng-controller="ctrlRpUrl ">
+            <div ng-controller="ctrlRpUrl">
                 <div class='form-group'>
                     <label>统计报告分享链接</label>
                     <div class='pl-input-group'>
-                        <div class='form-control pl-line' ng-bind="rpEntry.url "></div>
+                        <div class='form-control pl-line' ng-bind="rpEntry.url"></div>
                         <a class='btn btn-default' ng-href="{{rpEntry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                     </div>
                 </div>
                 <div class='form-group'>
-                    <button class='btn btn-default' ng-if="!rpEntry.url " ng-click="makeOpUrl() ">生成</button>
-                    <button class='btn btn-default' ng-if="rpEntry.url " ng-click="closeOpUrl() ">关闭</button>
-                    <button uib-popover-template=" 'opUrlPasswd.html' " popover-append-to-body='true' popover-placement="bottom " popover-title="访问密码 " popover-trigger="outsideClick " type="button " class="btn btn-default " class='btn btn-default' ng-if="rpEntry.url ">密码 <span class="caret "></span></button>
+                    <button class='btn btn-default' ng-if="!rpEntry.url" ng-click="makeOpUrl()">生成</button>
+                    <button class='btn btn-default' ng-if="rpEntry.url" ng-click="closeOpUrl()">关闭</button>
+                    <button uib-popover-template=" 'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="rpEntry.url">密码 <span class="caret"></span></button>
                 </div>
-                <div class='form-group' ng-if="rpEntry.url ">
+                <div class='form-group' ng-if="rpEntry.url">
                     <label class='checkbox-inline'>
-                        <input type='checkbox' ng-true-value=" 'Y' " ng-false-value=" 'N' " ng-model="rpEntry.can_favor " ng-change="updCanFavor() ">支持收藏</label>
+                        <input type='checkbox' ng-true-value=" 'Y'" ng-false-value=" 'N'" ng-model="rpEntry.can_favor" ng-change="updCanFavor()">支持收藏</label>
                     <p class='help-block'>分享链接有效期1小时，设置【支持收藏】后，用户可收藏本链接，避免有效期限制</p>
                 </div>
             </div>
         </div>
     </div>
-    <script type="text/ng-template " id="opUrlPasswd.html ">
-        <div id="opUrlPasswd ">
+    <script type="text/ng-template" id="opUrlPasswd.html">
+        <div id="opUrlPasswd">
             <div class='form-group'>
                 <div class='input-group'>
-                    <input class='form-control' ng-model="opEntry.password ">
+                    <input class='form-control' ng-model="opEntry.password">
                     <div class='input-group-btn'>
-                        <button class='btn btn-default' ng-click="configOpUrl($event, 'password') ">设置</button>
+                        <button class='btn btn-default' ng-click="configOpUrl($event, 'password')">设置</button>
                     </div>
                 </div>
             </div>
         </div>
     </script>
-    <script type="text/ng-template " id="rpUrlPasswd.html ">
-        <div id="rpUrlPasswd ">
+    <script type="text/ng-template" id="rpUrlPasswd.html">
+        <div id="rpUrlPasswd">
             <div class='form-group'>
                 <div class='input-group'>
-                    <input class='form-control' ng-model="rpEntry.password ">
+                    <input class='form-control' ng-model="rpEntry.password">
                     <div class='input-group-btn'>
-                        <button class='btn btn-default' ng-click="configOpUrl($event, 'password') ">设置</button>
+                        <button class='btn btn-default' ng-click="configOpUrl($event,'password')">设置</button>
                     </div>
                 </div>
             </div>
         </div>
     </script>
-    <div class="panel panel-default ">
-        <div class="panel-body ">
+    <div class="panel panel-default">
+        <div class="panel-body">
             <div class='form-group'>
                 <label>公众号分享卡片头图（可选，建议尺寸360*200）</label>
                 <div style='position:relative'>
-                    <div style="width:182px;border:1px solid #CCC ">
-                        <div style="height:100px;text-align:center;padding-top:32px " ng-if="!app.pic ">
+                    <div style="width:182px;border:1px solid #CCC">
+                        <div style="height:100px;text-align:center;padding-top:32px" ng-if="!app.pic">
                             <button class='btn btn-default' ng-click='setPic();'>
                                 <span class='glyphicon glyphicon-picture'></span>选择图片</button>
                         </div>
-                        <div style='position:relative' ng-if="app.pic!='' " ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                        <div style='position:relative' ng-if="app.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
                             <img name='pic' ng-src="{{app.pic}}" width='180px' />
                             <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
                                 <span class='glyphicon glyphicon-picture'></span>
@@ -396,7 +396,7 @@
             </div>
             <div class='form-group'>
                 <label>公众号分享卡片摘要（可选）</label>
-                <textarea class='form-control' ng-model='app.summary' rows=5 tms-auto-update tms-wait=1000 tms-update="update( 'summary') "></textarea>
+                <textarea class='form-control' ng-model='app.summary' rows=5 tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
             </div>
         </div>
     </div>

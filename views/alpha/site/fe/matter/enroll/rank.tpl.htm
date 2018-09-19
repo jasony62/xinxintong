@@ -15,7 +15,7 @@
 <body ng-controller="ctrlRank">
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
-    <nav class='navbar site-navbar-default'>
+    <nav class='navbar site-navbar-default visible-xs'>
         <div class='container'>
             <div class="navbar-header">
                 <a href class="navbar-brand">
@@ -29,13 +29,37 @@
             </ul>
         </div>
     </nav>
+    <nav class='navbar site-navbar-alpha hidden-xs'>
+        <div class='container'>
+            <div class="navbar-header">
+                <a href class="navbar-brand">
+                    <img src="../../../../../../static/img/alpha/logo.png" >
+                </a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="pull-left">
+                    <a href ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><span class="visible-lg-inline">我的</span></a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class='navbar site-navbar-alpha hidden-xs'>
+        <div class='container'>
+            <ul class="nav navbar-nav">
+                <li><a href="#" ng-click="gotoPage($event,'repos')">首页</a></li>
+                <li><a href="#" ng-click="gotoPage($event,'favor')">收藏</a></li>
+                <li class="active"><a href="#">排行榜</a></li>
+                <li><a href="#" ng-click="gotoPage($event,'event')">通知</a></li>
+            </ul>
+        </div>
+    </div>
     <div ng-cloak class='ng-cloak container'>
         <div id='rank' class='app'>
             <div class='row filter'>
                 <div class="col-md-2 col-xs-4">
                     <div class='form-control' ng-click="setRound()" title='{{checkedRoundTitles}}' style='overflow:hidden;white-space:nowrap;'>{{checkedRoundTitles}}</div>
                 </div>
-                <div class='col-md-2 col-xs-4'>
+                <div class='col-md-3 col-xs-4'>
                     <select class='form-control' ng-model="appState.criteria.obj">
                         <option value='user'>用户</option>
                         <option value='group' ng-if="app.group_app_id||app.entryRule.scope.group==='Y'">用户分组</option>
@@ -83,10 +107,9 @@
                             <div class='col-md-9 text-left'>用户</div>
                             <div class='col-md-2'>数量</div>
                         </li>
-                        <li ng-repeat="u in users" class='record'>
+                        <li ng-repeat="u in users" class='record' ng-class-odd="'odd-color'">
                             <div class='col-md-1 col-xs-1'>
-                                <span class='index-user-img' ng-if="$index<3" ng-class="{'first-user-img':$index=='0','second-user-img':$index=='1','third-user-img':$index=='2'}"></span>
-                                <span class='index-num' ng-if="$index>=3">{{(appState.page.at-1)*appState.page.size+$index+1}}</span>
+                                <span class='index-num' ng-class="{'num-top':$index==0||$index==1||$index==2}">{{(appState.page.at-1)*appState.page.size+$index+1}}</span>
                             </div>
                             <div class="col-md-9 col-xs-8 text-left">
                                 <img class='user-headimg' ng-src="{{u.headimgurl}}" />

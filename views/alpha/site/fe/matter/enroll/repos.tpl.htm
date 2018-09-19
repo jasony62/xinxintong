@@ -78,9 +78,9 @@
                         <button class='btn btn-default btn-block' ng-click="shiftDir()">清除选择</button>
                     </div>
                 </uib-accordion>
-                <div class='text-center'>
+                <!-- <div class='text-center'>
                     <button class='btn btn-default btn-sm' ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">关闭</button>
-                </div>
+                </div> -->
             </div>
             <div class='records col-xs-12' ng-class="{'col-md-9':dirSchemas.length,'col-md-12':dirSchemas.length===0}">
                 <div id='filterCriteria'>
@@ -235,6 +235,7 @@
                                         <li><a href ng-click="assignTag(rec)"><span class='glyphicon glyphicon-tag'></span> 标签</a></li>
                                         <li ng-if="rec.favored"><a href ng-click="assignTopic(rec)"><span class='glyphicon glyphicon-inbox'></span> 专题</a></li>
                                         <li ng-if="rec.userid===user.uid"><a href ng-click="editRecord($event,rec)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
+                                        <li ng-if="rec.userid===user.uid"><a href ng-click="removeRecord($event,rec)"><span class='glyphicon glyphicon-remove'></span> 删除</a></li>
                                         <li ng-if="app.scenarioConfig.can_assoc === 'Y'" class='divider'></li>
                                         <li ng-if="app.scenarioConfig.can_assoc === 'Y'"><a href ng-click="copyRecord($event,rec)"><span class='glyphicon glyphicon-copy'></span> 复制</a></li>
                                     </ul>

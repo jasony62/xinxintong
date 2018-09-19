@@ -573,6 +573,19 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         }
         $scope.gotoPage(event, page, $scope.record.enroll_key);
     };
+    $scope.removeRecord = function(event,oRecord) {
+        if(oRecord.userid != $scope.user.uid) {
+            noticebox.warn('不允许编辑其他用户提交的记录');
+            return;
+        }
+        var url;
+        url = '/rest/site/fe/matter/enroll/record/remove?app=' +  _oApp.id + '&ek=' + oRecord.enroll_key;
+        http2.get(url).then(function(rsp) {
+            if(rsp.data.err_code==0) {
+                noticebox.success('删除成功');
+            }
+        })
+    };
     $scope.shareRecord = function(oRecord) {
         var url;
         url = LS.j('', 'site', 'app') + '&ek=' + oRecord.enroll_key + '&page=share';

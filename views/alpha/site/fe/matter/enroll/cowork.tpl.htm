@@ -82,6 +82,7 @@
                             <li><a href ng-click="assignTag(record)"><span class='glyphicon glyphicon-tag'></span> 标签</a></li>
                             <li ng-if="record.favored"><a href ng-click="assignTopic(record)"><span class='glyphicon glyphicon-inbox'></span> 专题</a></li>
                             <li ng-if="record.userid===user.uid"><a href ng-click="editRecord($event)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
+                            <li ng-if="record.userid===user.uid"><a href ng-click="removeRecord($event,record)"><span class='glyphicon glyphicon-remove'></span> 删除</a></li>
                             <li ng-if="app.scenarioConfig.can_assoc === 'Y'" class='divider'></li>
                             <li ng-if="app.scenarioConfig.can_assoc === 'Y'"><a href ng-click="copyRecord(record)"><span class='glyphicon glyphicon-copy'></span> 复制</a></li>
                             <li ng-if="app.scenarioConfig.can_assoc === 'Y'"><a href ng-click="pasteRecord(record)"><span class='glyphicon glyphicon-paste'></span> 粘贴</a></li>

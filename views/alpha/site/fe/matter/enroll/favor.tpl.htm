@@ -118,6 +118,7 @@
                                     <li><a href ng-click="assignTopic(rec)"><span class='glyphicon glyphicon-inbox'></span> 专题</a></li>
                                     <li><a href ng-click="assignTag(rec)"><span class='glyphicon glyphicon-tag'></span> 标签</a></li>
                                     <li ng-if="rec.userid===user.uid"><a href ng-click="editRecord($event,rec)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
+                                    <li ng-if="rec.userid===user.uid"><a href ng-click="removeRecord($event,rec)"><span class='glyphicon glyphicon-remove'></span> 删除</a></li>
                                 </ul>
                             </div>
                         </div>

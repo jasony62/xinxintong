@@ -264,6 +264,19 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
         $scope.gotoPage(event, page, oRecord.enroll_key);
     };
+    $scope.removeRecord = function(event,oRecord) {
+        if(oRecord.userid != $scope.user.uid) {
+            noticebox.warn('不允许编辑其他用户提交的记录');
+            return;
+        }
+        var url;
+        url = '/rest/site/fe/matter/enroll/record/remove?app=' +  _oApp.id + '&ek=' + oRecord.enroll_key;
+        http2.get(url).then(function(rsp) {
+            if(rsp.data.err_code==0) {
+                noticebox.success('删除成功');
+            }
+        })
+    };
     $scope.shiftAgreed = function(agreed) {
         _oCriteria.agreed = agreed;
         $scope.recordList(1);

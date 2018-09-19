@@ -231,6 +231,17 @@
                 <label>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.entryRule.anonymous" ng-change="update('entryRule')">隐藏用户昵称（匿名）</label>
             </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.visibleSchemaTitle" ng-change="update('scenarioConfig')"> 隐藏页面中的题目</label>
+                <div style='margin-left:20px' ng-if="app.scenarioConfig.visibleSchemaTitle">
+                    <label>
+                        <input type='checkbox' ng-true-value="'Y'" ng-model="app.scenarioConfig.visibleSchemaTitle.config_repos" ng-change="update('scenarioConfig')">共享页</label>
+                        <input type='checkbox' ng-true-value="'Y'" ng-model="app.scenarioConfig.visibleSchemaTitle.config_cowork" ng-change="update('scenarioConfig')">讨论页</label>
+                        <input type='checkbox' ng-true-value="'Y'" ng-model="app.scenarioConfig.visibleSchemaTitle.config_favor" ng-change="update('scenarioConfig')">收藏页</label>
+                        <input type='checkbox' ng-true-value="'Y'" ng-model="app.scenarioConfig.visibleSchemaTitle.config_topic" ng-change="update('scenarioConfig')">专题页</label>
+                </div>
+            </div>
         </div>
         <script type="text/ng-template" id="chooseGroupApp.html">
             <div class="modal-header">

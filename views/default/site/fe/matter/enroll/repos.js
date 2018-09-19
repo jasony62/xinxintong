@@ -110,8 +110,8 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                     $scope.repos.push(oRecord);
                 });
             }
-            if(_oCriteria.keyword && _oHistoryRecords.indexOf(_oCriteria.keyword) == -1) {
-                if(_oHistoryRecords.length >= 5) {
+            if (_oCriteria.keyword && _oHistoryRecords.indexOf(_oCriteria.keyword) == -1) {
+                if (_oHistoryRecords.length >= 5) {
                     _oHistoryRecords.shift(0);
                 }
                 _oHistoryRecords.push(_oCriteria.keyword);
@@ -325,18 +325,45 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         _oCriteria.orderby = orderby;
         $scope.recordList(1);
     };
-    $scope.shiftDir = function(oDir) {
-        var fnSetDirFilter = function(oDir) {
-            if (oDir.parentDir) {
-                fnSetDirFilter(oDir.parentDir);
+    $scope.dirLevel = {
+        active: function(oDir, level) {
+            switch (level) {
+                case 1:
+                    $scope.activeDir1 = oDir;
+                    break;
+                case 2:
+                    $scope.activeDir2 = oDir;
+                    break;
+                case 3:
+                    $scope.activeDir3 = oDir;
+                    break;
+                case 4:
+                    $scope.activeDir4 = oDir;
+                    break;
+                case 5:
+                    $scope.activeDir5 = oDir;
+                    break;
+                default:
+                    $scope.activeDir1 = '';
+                    $scope.activeDir2 = '';
+                    $scope.activeDir3 = '';
+                    $scope.activeDir4 = '';
+                    $scope.activeDir5 = '';
             }
-            _oCriteria.data[oDir.schema_id] = oDir.op.v;
-        };
-        _oCriteria.data = {};
-        oDir && fnSetDirFilter(oDir);
-        $scope.activeDir = oDir;
-        $scope.recordList(1);
+
+        },
+
     };
+    $scope.shiftDir = function(oDir, $event, level) {
+        _oCriteria.data = {};
+        if(oDir) {
+             _oCriteria.data[oDir.schema_id] = oDir.op.v;
+            $scope.dirLevel.active(oDir, level);
+        } else {
+            $scope.dirLevel.active();
+        }
+        $scope.recordList(1);
+    }
     /* 关闭任务提示 */
     $scope.closeTask = function(index) {
         $scope.tasks.splice(index, 1);

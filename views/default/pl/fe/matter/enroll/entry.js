@@ -232,7 +232,7 @@ define(['frame', 'groupService'], function(ngApp) {
             });
         };
         srvEnlApp.get().then(function(oApp) {
-            $scope.config = _oConfig = angular.copy($scope.app.notifyConfig);
+            $scope.config = _oConfig = angular.copy(oApp.notifyConfig);
             $scope.$watch('config', function(oNewConfig, oOldConfig) {
                 if (oNewConfig && oNewConfig !== oOldConfig) {
                     $scope.modified = true;

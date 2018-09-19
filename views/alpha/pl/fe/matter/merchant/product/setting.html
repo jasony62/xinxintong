@@ -1,0 +1,148 @@
+<div id='setting-view' class='col-md-8'>
+    <div class="tile">
+        <div class='form-group'>
+            <input class='form-control' ng-model='editing.name' tms-auto-update tms-wait=1000 tms-update="update('name')">
+            <div class="help-block">名称</div>
+        </div>
+        <div class='form-group'>
+            <textarea class='form-control' ng-model='editing.detail_text' tms-auto-update tms-wait=1000 tms-update="update('detail_text')" rows=3></textarea>
+            <div class="help-block">介绍</div>
+        </div>
+        <div class='form-group'>
+            <div style="width:182px;border:1px solid #CCC">
+                <div style="height:100px;text-align:center;padding-top:32px" ng-if="!editing.main_img">
+                    <button class='btn btn-default' ng-click='setPic();'>
+                        <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                </div>
+                <div style='position:relative' ng-if="editing.main_img!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                    <img name='pic' ng-src="{{editing.main_img}}" width='180px' />
+                    <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                        <span class='glyphicon glyphicon-picture'></span>
+                    </button>
+                    <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                        <span class='glyphicon glyphicon-trash'></span>
+                    </button>
+                </div>
+            </div>
+            <div class='help-block'>图片</div>
+        </div>
+    </div>
+    <div class="tile">
+        <div class='form-group' ng-repeat='p in editing.catelog.properties'>
+            <p class='form-control' ng-bind="editing.propValue[p.id].name" ng-click='setPropValue(p)'></p>
+            <div class="help-block" ng-bind='p.name'></div>
+        </div>
+    </div>
+    <div class="tile" ng-controller="ctrlSku">
+        <div class='form-group'>
+            <div class='form-horizontal list-group-item' ng-repeat='s in skus'>
+                <button class="btn btn-default" ng-click='removeSku($index, s)'><span class='glyphicon glyphicon-remove'></span></button>
+                <button class='btn btn-success' ng-show="s.active==='N'"  ng-click='activateSku(s)'>上线</button>
+                <button class='btn btn-success' ng-show="s.active==='Y'" ng-click='deactivateSku(s)'>下线</button>
+                <div class='price form-group'>
+                    <label class='col-md-3 control-label'>定义名称</label>
+                    <div class='col-md-9'>
+                        <p class='form-control-static' ng-bind='s.cateSku.name'></p>
+                    </div>
+                </div>
+                <div class='validity form-group' ng-if="s.cateSku.has_validity==='Y'">
+                    <label class='col-md-3 control-label'>有效期（开始）</label>
+                    <div class='col-md-9'>
+                        <tms-datepicker tms-title='开始日期' tms-date='s.validity_begin_at' tms-obj='s' tms-state='validity_begin_at'></tms-datepicker>
+                    </div>
+                </div>
+                <div class='validity form-group' ng-if="s.cateSku.has_validity==='Y'">
+                    <label class='col-md-3 control-label'>有效期（结束）</label>
+                    <div class='col-md-9'>
+                        <tms-datepicker tms-title='开始日期' tms-date='s.validity_end_at' tms-obj='s' tms-state='validity_end_at'></tms-datepicker>
+                    </div>
+                </div>
+                <div class='price form-group' ng-if="s.cateSku.require_pay==='Y'">
+                    <label class='col-md-3 control-label'>价格（分）</label>
+                    <div class='col-md-9'>
+                        <input class='form-control' ng-model='s.price' tms-auto-update tms-wait=1000 tms-update="updateSku(s, 'price')">
+                    </div>
+                </div>
+                <div class='unlimited-quantity form-group'>
+                    <label class='col-md-3 control-label'>无数量限制</label>
+                    <div class='col-md-9'>
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='s.unlimited_quantity' ng-change="updateSku(s, 'unlimited_quantity')">
+                    是</label>
+                    </div>
+                </div>
+                <div class='quantity form-group' ng-show="s.unlimited_quantity==='N'">
+                    <label class='col-md-3 control-label'>数量</label>
+                    <div class='col-md-9'>
+                        <input class='form-control' ng-model='s.quantity' tms-auto-update tms-wait=1000 tms-update="updateSku(s, 'quantity')">
+                    </div>
+                </div>
+                <div class='required form-group'>
+                    <label class='col-md-3 control-label'>必选项</label>
+                    <div class='col-md-9'>
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='s.required' ng-change="updateSku(s, 'required')">
+                    是</label>
+                    </div>
+                </div>
+            </div>
+            <button class='btn btn-default' ng-click='addSku()'><span class='glyphicon glyphicon-plus'>添加</span></button>
+            <div class="help-block">已有库存</div>
+        </div>
+    </div>
+</div>
+<div class='col-md-4'>
+    <div class='tile'>
+        <button class='btn btn-block btn-danger' ng-click='remove()'>删除</button>
+        <button class='btn btn-block btn-success' ng-show="editing.active==='N'"  ng-click='activate()'>上线</button>
+        <button class='btn btn-block btn-success' ng-show="editing.active==='Y'" ng-click='deactivate()'>下线</button>
+    </div>
+</div>
+<div class='col-md-4'>
+    <div class='tile'>
+        <div class='form-group'>
+            <div style='word-break: break-all;'>{{entry.url}}</div>
+        </div>
+    </div>
+</div>
+<script type="text/ng-template" id="propValueSetter.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="close()">×</button>
+        <h5 class="modal-title">设置属性</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="col-md-2">{{prop.name}}</label>
+                <div class="col-md-10">
+                    <input type='text' class="form-control" ng-model="data.name"/>
+                   <select class="form-control" size="5" ng-model="data.name" ng-options="v.name as v.name for v in options">
+                        <option value="">空</option>
+                   </select>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-disabled="!data.name" ng-click="ok()">确定</button>
+    </div>
+</script>
+<script type="text/ng-template " id="cateSkuSelector.html ">
+    <div class="modal-header ">
+        <button class="close " type="button " ng-click="close() ">×</button>
+        <h5 class="modal-title ">选择库存定义</h5>
+    </div>
+    <div class="modal-body ">
+        <form class="form-horizontal">
+            <div class="form-group ">
+                <label class="col-md-2 control-label ">名称</label>
+                <div class="col-md-10 ">
+                    <select class='form-control' ng-model='data.selected' ng-options='s.name for s in cateSkus'></select>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-disabled='!data.selected' ng-click="ok() ">确定</button>
+    </div>
+</script>

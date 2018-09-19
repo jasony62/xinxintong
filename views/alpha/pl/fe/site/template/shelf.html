@@ -1,0 +1,160 @@
+<div class='container'>
+    <nav class='navbar navbar-default'>
+        <div class='container-fluid'>
+            <ul class='nav navbar-nav'>
+                <li ng-class="{'active':criteria.scope==='S'}"><a href='' ng-click="changeScope('S')">团队模版</a></li>
+                <li ng-class="{'active':criteria.scope==='P'}"><a href='' ng-click="changeScope('P')">平台模版</a></li>
+                <li ng-class="{'active':criteria.scope==='favor'}"><a href='' ng-click="changeScope('favor')">收藏的</a></li>
+                <li ng-class="{'active':criteria.scope==='purchase'}"><a href='' ng-click="changeScope('purchase')">使用的</a></li>
+                <li ng-class="{'active':criteria.scope==='share2Me'}"><a href='' ng-click="changeScope('share2Me')">共享给我的</a></li>
+                <li ng-class="{'active':criteria.scope==='M'}"><a href='' ng-click="changeScope('M')">我的模板</a></li>
+            </ul>
+            <form class='nav navbar-form pull-right'>
+                <button ng-if="criteria.scope==='M'" class='btn btn-default' ng-click="createEnrollTemplate('enroll')"><i class='glyphicon glyphicon-plus'></i> 新建模板</button>
+            </form>
+        </div>
+    </nav>
+    <div class='row'>
+        <div ng-if="criteria.scope!='M'">
+            <div class='col-md-4' ng-repeat="t in templates">
+                <div class='thumbnail template'>
+                    <div class="head">
+                        <h4 class='title pull-left' ng-bind="t.title"></h4>
+                        <div class="note pull-right">
+                            <div class="favor text-justify">
+                                <i class='glyphicon glyphicon-heart text-danger' title="点赞数"></i> {{t.score}} &nbsp;&nbsp;
+                                <i class='glyphicon glyphicon-fire text-info' title="使用数"></i> {{t.copied_num}}
+                            </div>
+                        </div>
+                    </div>
+                    <p class='summary' ng-bind="t.summary"></p>
+                    <div class='heading-pic' heading-pic ng-if="t.pic">
+                        <img ng-src='{{m.pic}}'>
+                    </div>
+                    <div ng-switch="criteria.scope">
+                        <div ng-switch-when="S">
+                            <div class='attr'>
+                                <div class='creater_name' ng-bind="t.creater_name"></div>
+                                <div ng-bind="t.put_at*1000|date:'yyyy-MM-dd'"></div>
+                            </div>
+                            <div class='actions'>
+                                <a class='btn btn-sm btn-default' href='/rest/site/fe/matter/template?template={{t.id}}' target='_self'>预览</a>
+                                <button class='btn btn-sm btn-success' ng-click='use(t)'>使用</button>
+                            </div>
+                        </div>
+                        <div ng-switch-when="P">
+                            <div class='attr'>
+                                <div class='creater_name' ng-bind="t.site_name"></div>
+                                <div ng-bind="t.put_at*1000|date:'yyyy-MM-dd'"></div>
+                            </div>
+                            <div class='actions'>
+                                <a class='btn btn-sm btn-default' href='/rest/site/fe/matter/template?template={{t.id}}' target='_self'>预览</a>
+                                <button class='btn btn-sm btn-success' ng-click='use(t)'>使用</button>
+                                <button class='btn btn-sm btn-success' ng-click='favor(t)' ng-if="t._favored!=='Y'">收藏</button>
+                            </div>
+                        </div>
+                        <div ng-switch-when="favor">
+                            <div class='attr'>
+                                <div class='creater_name' ng-bind="t.from_site_name"></div>
+                                <div ng-bind="t.favor_at*1000|date:'yyyy-MM-dd'"></div>
+                            </div>
+                            <div class='actions'>
+                                <a class='btn btn-sm btn-default' href='/rest/site/fe/matter/template?template={{t.id}}' target='_self'>预览</a>
+                                <button class='btn btn-sm btn-success' ng-click='use(t)'>使用</button>
+                                <button class='btn btn-sm btn-success' ng-click='unfavor(t,$index)'>取消收藏</button>
+                            </div>
+                        </div>
+                        <div ng-switch-when="purchase">
+                            <div class='attr'>
+                                <div class='creater_name' ng-bind="t.from_site_name"></div>
+                                <div ng-bind="t.purchase_at*1000|date:'yyyy-MM-dd'"></div>
+                            </div>
+                            <div class='actions'>
+                                <a class='btn btn-sm btn-default' href='/rest/site/fe/matter/template?template={{t.id}}' target='_self'>预览</a>
+                                <button class='btn btn-sm btn-success' ng-click='use(t)'>使用</button>
+                            </div>
+                        </div>
+                        <div ng-switch-when="share2Me">
+                            <div class='attr'>
+                                <div class='creater_name' ng-bind="t.creater_name"></div>
+                                <div ng-bind="t.put_at*1000|date:'yyyy-MM-dd'"></div>
+                            </div>
+                            <div class='actions'>
+                                <a class='btn btn-sm btn-default' href='/rest/site/fe/matter/template?template={{t.id}}' target='_self'>预览</a>
+                                <button class='btn btn-sm btn-success' ng-click='use(t)'>使用</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='col-md-12' ng-if="criteria.scope =='M'">
+            <div class='latest'>
+                <nav class='navbar navbar-default tms-panel-heading'>
+                    <div class="navbar-header">
+                        <span class="navbar-brand">未发布的模板列表</span>
+                    </div>
+                </nav>
+                <div class='tms-panel-body'>
+                    <div class='col-md-4' ng-repeat='l in latests'>
+                        <div class='thumbnail template'>
+                            <div class="head">
+                                <h4 class='title pull-left' ng-bind="l.title"></h4>
+                                <div class="note pull-right">
+                                    <div class="favor text-justify">
+                                        <i class='glyphicon glyphicon-heart text-danger' title="点赞数"></i> {{l.score}} &nbsp;&nbsp;
+                                        <i class='glyphicon glyphicon-fire text-info' title="使用数"></i> {{l.copied_num}}
+                                    </div>
+                                </div>
+                            </div>
+                            <p class='summary' ng-bind="l.summary"></p>
+                            <div class='heading-pic' heading-pic ng-if="l.pic">
+                                <img ng-src='{{l.pic}}'>
+                            </div>
+                            <div class='attr'>
+                                <div class='creater_name' ng-bind="l.site_name"></div>
+                                <div ng-bind="l.create_at*1000|date:'yyyy-MM-dd'"></div>
+                            </div>
+                            <div class='actions'>
+                                <button class='btn btn-sm btn-danger' ng-click='message(l)'>编辑</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='publish'>
+                <nav class='navbar navbar-default tms-panel-heading'>
+                    <div class="navbar-header">
+                        <span class="navbar-brand">已发布的模板列表</span>
+                    </div>
+                </nav>
+                <div class='tms-panel-body'>
+                    <div class='col-md-4' ng-repeat='p in publishs'>
+                        <div class='thumbnail template'>
+                            <div class="head">
+                                <h4 class='title pull-left' ng-bind="p.title"></h4>
+                                <div class="note pull-right">
+                                    <div class="favor text-justify">
+                                        <i class='glyphicon glyphicon-heart text-danger' title="点赞数"></i> {{p.score}} &nbsp;&nbsp;
+                                        <i class='glyphicon glyphicon-fire text-info' title="使用数"></i> {{p.copied_num}}
+                                    </div>
+                                </div>
+                            </div>
+                            <p class='summary' ng-bind="p.summary"></p>
+                            <div class='heading-pic' heading-pic ng-if="p.pic">
+                                <img ng-src='{{p.pic}}'>
+                            </div>
+                            <div class='attr'>
+                                <div class='creater_name' ng-bind="p.site_name"></div>
+                                <div ng-bind="p.put_at*1000|date:'yyyy-MM-dd'"></div>
+                            </div>
+                            <div class='actions'>
+                                <button ng-class="{'btn btn-sm btn-success':p.last_version == p.pub_version, 'btn btn-sm btn-danger':p.last_version != p.pub_version}" ng-click='message(p)'>管理</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

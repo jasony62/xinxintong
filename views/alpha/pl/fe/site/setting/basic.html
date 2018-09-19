@@ -1,0 +1,65 @@
+<div class='form-horizontal'>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>团队ID</label>
+        <div class='col-md-10'>
+            <p class='form-control-static' ng-bind="site.id"></p>
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>创建时间</label>
+        <div class='col-md-10'>
+            <p class='form-control-static' ng-bind="site.create_at*1000|date:'yy-MM-dd HH:mm'"></p>
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>团队名称</label>
+        <div class='col-md-10'>
+            <input type='text' class='form-control' ng-model='site.name' tms-auto-update tms-wait=1000 tms-update="update('name')">
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>团队介绍</label>
+        <div class='col-md-10'>
+            <textarea class='form-control' ng-model='site.summary' tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>缺省头图</label>
+        <div class='col-md-10' style='position:relative'>
+            <div style="width:182px;border:1px solid #CCC">
+                <div style="height:100px;text-align:center;padding-top:32px" ng-if="!site.heading_pic">
+                    <button class='btn btn-default' ng-click='setPic();'>
+                        <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                </div>
+                <div style='position:relative' ng-if="site.heading_pic" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                    <img name='pic' ng-src="{{site.heading_pic}}" width='180px' />
+                    <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                        <span class='glyphicon glyphicon-picture'></span>
+                    </button>
+                    <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                        <span class='glyphicon glyphicon-trash'></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>首页地址</label>
+        <div class='col-md-10'>
+            <div class='input-group'>
+                <div class='form-control' style='overflow:hidden;word-break:none' ng-bind='homeURL'></div>
+                <div class="input-group-btn">
+                    <a class='btn btn-default' ng-href="{{homeURL}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='form-group'>
+        <div class='col-md-10 col-md-offset-2'>
+            <span ng-switch on="site.yourRole">
+                <button ng-switch-when="O" class='btn btn-default' ng-click="remove()">删除团队</button>
+                <button ng-switch-when="A" class='btn btn-default' ng-click="quit()">退出团队</button>
+            </span>
+        </div>
+    </div>
+</div>

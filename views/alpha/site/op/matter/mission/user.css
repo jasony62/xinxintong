@@ -1,0 +1,21 @@
+body{font-family:Microsoft Yahei,Arial;background:#fafafa;margin-top:20px;}
+.ng-cloak{display:none;}
+
+/* timeline */
+#times{position:relative;}
+#times:before{content:'';display:block;position:absolute;width:1;top:0;bottom:0;left:16.67%;border-left:1px solid #eee;}
+.timeline{position:relative;padding-top:4px;}
+.timeline .date,.timeline .time{white-space:nowrap;}
+.timeline:after{content:'';display:block;position:absolute;width:16px;height:16px;top:50%;margin-top:-8px;background:lightgreen;border-radius:8px;right:-8px;}
+.timeline.pending:after{background:lightgray;}
+
+/*track*/
+.track{padding:8px 16px 16px;}
+.track label{font-weight:normal;color:#aaa;margin:0;}
+.track .title{margin-bottom:8px;}
+.track .row>div{margin-bottom:8px;}
+
+/**/
+@media screen and (max-width:768px){
+	.navbar-form{width:auto;border:0;margin-left:0;margin-right:0;padding-top:0;padding-bottom:0;-webkit-box-shadow:none;box-shadow:none;text-align:right;}
+}

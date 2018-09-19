@@ -1,0 +1,27 @@
+.container{margin-top:71px;}
+@media screen and (min-width:769px){
+	.hide-app{display:none;}
+}
+@media screen and (max-width:768px){
+	.hide-pc{display:none;}
+}
+.ng-cloak{display:none}
+.navbar .navbar-text{float:none;}
+
+/*app*/
+.text-summary{height:4.5em;overflow:hidden;}
+.media-left-my{width:6em;height:6em;background-size:cover;background-position:center;border-radius:6px;}
+.media-left-right{padding-left:1em;}
+.media-left-right p{height:2.8em;overflow:hidden;}
+.media-my{margin-top:1em;background:#FFFFFF;padding:1em;cursor:pointer;}
+.media-my .mission{margin-top:1em;}
+
+/*版本2*/
+.container-my{background:#fff;margin:1em 0 0 0;padding:.5em;}
+.container-my2{background:#EFF3F5;    /*padding-top: .5em;*/}
+.row-my{margin:0;}
+.col-my{padding:0.5em;}
+.row-my .mission{margin-bottom:1em;border-top:1px solid #ddd;border-bottom:1px solid #ddd;padding:.5em .5em;height:2.5em;}
+.favor{border-bottom:1px solid transparent;display:inline-block;height:1em;overflow:hidden;}
+.unfavor{border-color:#9e0f0f;}
+.more{margin-top:1em;}

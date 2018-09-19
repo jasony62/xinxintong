@@ -1,0 +1,43 @@
+<style>
+.modal.template .modal-dialog{width:650px;margin-left:-325px}
+.modal.template .options{position:relative;float:left;width:280px;margin-right:15px;}
+.modal.template .pages{position:relative;float:left;width:301px;}
+#simulator,#schemaData{width:100%;height:535px;border:1px solid #efefef;}
+#schemaData{resize:none;}
+</style>
+<div class="modal-header">
+    <button class="close" ng-click="cancel()">×</button>
+    <h5 class="modal-title">选择模板</h5>
+</div>
+<div class="modal-body">
+    <div class='options'>
+        <div class='form-group'>
+            <label>场景</label>
+            <select class='form-control' ng-disabled="fixedScenario" ng-model='data.scenario' ng-options='s as s.title for s in templates' ng-change='chooseScenario()'></select>
+        </div>
+        <div class='form-group'>
+            <label>模板</label>
+            <select class='form-control' ng-model='data.template' ng-options='t.title for t in data.scenario.templates' ng-change='chooseTemplate()'></select>
+        </div>
+        <div class='form-group' ng-if="data.scenario.name==='voting'">
+            <button class='btn btn-default' ng-click='choosePage()'>重新生成页面</button>
+        </div>
+        <div class='form-group' ng-if="data.scenario.name==='voting'">
+            <textarea id='schemaData' ng-model="data.simpleSchema"></textarea>
+        </div>
+        
+    </div>
+    <div class='pages'>
+        <div class='form-group'>
+            <label>模版页面预览</label>
+            <select id='selectedPage' class='form-control' ng-model='data.selectedPage' ng-options='p.title for p in pages' ng-change='choosePage()'></select>
+        </div>
+        <div class='form-group'>
+            <iframe id='simulator' src=""></iframe>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="blank()">不使用模版创建</button>
+    <button class="btn btn-success" ng-click="ok()" ng-disabled='!data.template'>使用本模版创建</button>
+</div>

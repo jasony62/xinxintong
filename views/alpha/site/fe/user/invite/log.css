@@ -1,0 +1,5 @@
+body{padding-top:70px;}
+.inviteCode{position:relative;}
+.inviteCode>div:first-child{display:flex;}
+.inviteCode>div:first-child>div:first-child{margin-right:8px;}
+.invitee .count{font-size:1.5em;padding:0 .3em;color:red;}

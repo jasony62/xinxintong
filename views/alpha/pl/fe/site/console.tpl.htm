@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href='/'>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/tms.css?_=1" rel="stylesheet">
+    <link href="/views/default/pl/fe/site/console.css?_=3" rel="stylesheet">
+    <title>团队——工作台</title>
+</head>
+
+<body ng-app='app' ng-controller='ctrlSite'>
+    <nav class='navbar navbar-default navbar-fixed-top'>
+        <div class='container'>
+            <div class='navbar-header'>
+                <a class='navbar-text' href='/rest/pl/fe' target='_self'><i class='glyphicon glyphicon-chevron-left'></i> 工作台</a>
+            </div>
+            <ul class='nav navbar-nav'>
+                <li class='active'><a href='/rest/pl/fe/site/console?site={{siteId}}'>活动和资料</a></li>
+                <li><a href='/rest/pl/fe/site/home?site={{siteId}}' target='_self'>团队门户</a></li>
+                <li><a href='/rest/pl/fe/template/site?site={{siteId}}' target='_self'>模板库</a></li>
+            </ul>
+            <ul class='nav navbar-nav navbar-right'>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{site.name}} <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href='/rest/pl/fe/site/setting?site={{siteId}}' target='_self'>团队设置</a></li>
+                        <li class="divider"></li>
+                        <li><a href='/rest/pl/fe/site/file?site={{siteId}}' target='_self'>图片库</a></li>
+                        <li class="divider"></li>
+                        <li><a href='/rest/pl/fe/site/message?site={{siteId}}' target='_self'>用户消息</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class='container ng-cloak' ng-controller='ctrlConsole' ng-cloak>
+        <div class='row'>
+            <div class='col-md-12'>
+                <nav class="navbar navbar-default tms-panel-heading">
+                    <div class='container-fluid'>
+                        <form class="navbar-form navbar-left">
+                            <select class='form-control category' ng-model="matterType" ng-change="chooseMatterType()">
+                                <option value='recent'>最近</option>
+                                <option value='mission'>项目</option>
+                                <option value='article'>单图文</option>
+                                <option value='enroll'>登记活动</option>
+                                <option value='signin'>签到活动</option>
+                                <option value='group'>分组活动</option>
+                                <option value='lottery'>抽奖活动</option>
+                                <option value='news'>多图文</option>
+                                <option value='channel'>频道</option>
+                                <option value='text'>文本</option>
+                                <option value='link'>链接</option>
+                                <option value='merchant'>订购</option>
+                                <option value='wall'>信息墙</option>
+                                <option value='custom'>定制页</option>
+                                <option value='recycle'>回收站</option>
+                            </select>
+                            <button ng-if="matterType==='mission'" uib-popover-template="'filterMission.html'" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" class='btn btn-default pull-right'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+                        </form>
+                        <form class="navbar-form navbar-right">
+                            <button class='btn btn-default hide' ng-click='createArticleByPptx()'>上传PPT创建单图文</button>
+                            <button uib-popover-template="'addMatter.html'" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" popover-title="添加素材" class='btn btn-default'><i class='glyphicon glyphicon-plus'></i> <i class='caret'></i></button>
+                        </form>
+                    </div>
+                </nav>
+                <div class='tms-panel-body'>
+                    <div class='col-md-4' ng-repeat='m in matters' ng-class="{'recycle':matterType==='recycle'}">
+                        <div class='thumbnail' ng-class="m.matter_type||''" ng-mouseenter="entered=true" ng-mouseleave="entered=false" ng-switch on="m.matter_type||matterType">
+                            <h4 class='title' ng-bind='m.matter_title||m.title'></h4>
+                            <p class='summary' ng-bind='m.matter_summary||m.summary'></p>
+                            <div class='attr'>
+                                <div class='operator_name' ng-bind='m.operator_name||m.creater_name'></div>
+                                <div class='modify_at' title='修改时间' ng-bind="(m.operate_at||m.modify_at||m.join_at||m.create_at)*1000|date:'yy-MM-dd HH:mm'"></div>
+                            </div>
+                            <div class='actions' ng-switch-when="enroll">
+                                <button class='btn btn-sm btn-default' ng-click="open(m,'main')">定义</button>
+                                <button class='btn btn-sm btn-default' ng-click="open(m,'entry')">设置</button>
+                                <button class='btn btn-sm btn-default' ng-click="open(m,'record')">数据</button>
+                            </div>
+                            <div class='actions' ng-switch-when="signin">
+                                <button class='btn btn-sm btn-default' ng-click="open(m,'main')">定义</button>
+                                <button class='btn btn-sm btn-default' ng-click="open(m,'publish')">设置</button>
+                                <button class='btn btn-sm btn-default' ng-click="open(m,'record')">数据</button>
+                            </div>
+                            <div class='actions' ng-switch-when="group">
+                                <button class='btn btn-sm btn-default' ng-click="open(m,'main')">定义</button>
+                                <button class='btn btn-sm btn-default' ng-click="open(m,'player')">数据</button>
+                            </div>
+                            <div class='actions' ng-switch-when="mission">
+                                <button class='btn btn-sm btn-default' ng-click="open(m,'main')">定义</button>
+                                <button class='btn btn-sm btn-default' ng-click="open(m,'matter')">活动</button>
+                                <button class='btn btn-sm btn-default' ng-click="open(m,'user')">数据</button>
+                            </div>
+                            <div class='actions' ng-switch-default>
+                                <button class='btn btn-sm btn-default' ng-click="open(m,'main')">进入</button>
+                            </div>
+                            <div class='actions-top' ng-if="entered">
+                                <button class='btn btn-sm btn-default' title='复制' ng-if="matterType!=='recycle'&&m.matter_type!=='mission'&&m.matter_type!=='news'" ng-click="copyMatter($event,m)">复制</button>
+                                <button class='btn btn-sm btn-default' title='删除' ng-if="matterType!=='recycle'&&m.matter_type!=='mission'" ng-click="removeMatter($event,m)"><span class='glyphicon glyphicon-remove'></span></button>
+                                <button class='btn btn-default' title='恢复' ng-if="matterType==='recycle'" ng-click="restoreMatter(m)">恢复</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class='col-md-12'>
+                        <button class='btn btn-block btn-default' ng-click="moreMatters()" ng-if="page.total>matters.length">更多</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/ng-template" id="filterMission.html">
+        <div id="filterMission">
+            <div class='form-group'>
+                <label>名称</label>
+                <input type='input' class='form-control' ng-model='filter2.byTitle'>
+            </div>
+            <div class='form-group'>
+                <button class='btn btn-default btn-block' ng-click="doFilter()">执行筛选</button>
+                <button class='btn btn-default btn-block' ng-click="cleanFilter()">取消筛选</button>
+            </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="addMatter.html">
+        <div id="addMatter">
+            <div class='form-group'>
+                <button class='btn btn-default' ng-click="addMission()">项目</button>
+            </div>
+            <div class='form-group'>
+                <button class='btn btn-default' ng-click="addArticle()">单图文</button>
+                <button class='btn btn-default' ng-click="addNews()">多图文</button>
+                <button class='btn btn-default' ng-click="addChannel()">频道</button>
+            </div>
+            <div class='form-group'>
+                <button class='btn btn-default' ng-click="addEnrollByTemplate()">登记活动</button>
+                <button class='btn btn-default' ng-click="addSignin()">签到活动</button>
+                <button class='btn btn-default' ng-click="addGroup()">分组活动</button>
+                <button class='btn btn-default' ng-click="addWall()">信息墙</button>
+                <button class='btn btn-default' ng-click="addLottery()">抽奖活动</button>
+            </div>
+            <div class='form-group'>
+                <button class='btn btn-default' ng-click="gotoText()">文本</button>
+                <button class='btn btn-default' ng-click="addLink()">链接</button>
+                <button class='btn btn-default' ng-click="addCustom()">定制页</button>
+            </div>
+            <div class='form-group'>
+                <button class='btn btn-default' ng-click="addMerchant()">订购活动</button>
+            </div>
+            <div>
+    </script>
+    <script type="text/ng-template" id="createArticleByPptx.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="cancel()">×</button>
+            <h5 class="modal-title">上传</h5>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <input id='fileUpload' type='file' class='form-control'>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-success" ng-click="ok()">确定</button>
+        </div>
+    </script>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-route.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/resumable.js"></script>
+    <script src="/static/js/ui-tms.js?_=1"></script>
+    <script src="/static/js/xxt.ui.js?_=1"></script>
+    <script src="/static/js/xxt.ui.tmplshop.js?_=2"></script>
+    <script src="/views/default/pl/fe/site/console.js?_=6"></script>
+</body>
+
+</html>

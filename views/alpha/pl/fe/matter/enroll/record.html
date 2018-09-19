@@ -1,0 +1,183 @@
+<div class="col-md-12">
+    <!-- actions -->
+    <div class='form-group'>
+        <div class='form-inline'>
+            <div class='form-group hide'>
+                <label>标签</label>
+                <combox evt-prefix='search-tag' readonly='true' existing='criteria.tags' options='app.tags'></combox>
+            </div>
+            <button class='btn btn-default' ng-click='filter()'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+            <div class="btn-group" uib-dropdown>
+                <button type="button" class="btn btn-default" uib-dropdown-toggle>更多操作 <i class="caret"></i></button>
+                <ul uib-dropdown-menu>
+                    <li><a href ng-click="batchVerify()">选中记录通过审核<span>（{{rows.count}}）</span></a></li>
+                    <li><a href ng-click="verifyAll()">全部记录通过审核</a></li>
+                    <li class="divider"></li>
+                    <li><a href ng-click="batchTag()">选中记录打标签<span>（{{rows.count}}）</span></a></li>
+                    <li class="divider"></li>
+                    <li><a href ng-click="export()">导出全部填写记录<span>（{{page.total}}）</span></a></li>
+                    <li><a href ng-click="exportImage()">导出填写记录中的图片</a></li>
+                    <li class="divider"></li>
+                    <li><a href ng-click="editRecord()">添加记录</a></li>
+                    <li><a href ng-click="empty()">清空记录</a></li>
+                    <li class="divider"></li>
+                    <li><a href ng-click="renewScore()">更新全部记录得分</a></li>
+                    <li><a href ng-click="importByOther()">从其他活动导入记录</a></li>
+                    <li><a href ng-click="exportToOther()">将记录导入其他活动<span>（{{rows.count}}）</span></a></li>
+                    <li><a href ng-click="fillByOther()">用其他活动的数据填充到已有记录</a></li>
+                    <li><a href ng-click="transferVotes()">将投票结果作为其他活动的记录</a></li>
+                    <li><a href ng-click="transferSchemaAndVotes()">将题目和投票结果作为其他活动的记录</a></li>
+                    <li><a href ng-click="transferGroupAndMarks()">将题目组和打分结果作为其他活动的记录</a></li>
+                    <li ng-if="app.scenario==='mis_user_score'" class="divider"></li>
+                    <li ng-if="app.scenario==='mis_user_score'"><a href ng-click="syncMissionUser()">从项目同步用户数据</a></li>
+                    <li ng-if="app.scenario==='mis_user_score'"><a href ng-click="syncWithDataSource()">从关联的数据源中同步数据</a></li>
+                </ul>
+            </div>
+            <div class='form-group pull-right'>
+                <div class='input-group'>
+                    <span class="input-group-addon">每页条数</span>
+                    <input class='form-control' ng-model='page.size' style='width:64px'>
+                    <div class='input-group-btn'>
+                        <button class='btn btn-default' ng-click='doSearch(1)'>
+                            <span class='glyphicon glyphicon-refresh'></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end actions -->
+    <!-- records -->
+    <div tms-flex-height top='117' bottom='66' class='form-group' style='width:100%;'>
+        <div id='enrollRecords' tms-table-wrap ready='tmsTableWrapReady'>
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th style='width:48px'>操作</th>
+                        <th style='width:28px'>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
+                        </th>
+                        <th style='width:40px'></th>
+                        <th style='width:140px' ng-if="bRequireNickname">用户</th>
+                        <th style='width:140px' ng-if="bRequireGroup">分组</th>
+                        <th style='width:100px'>填写时间</th>
+                        <th style='width:100px'>填写轮次</th>
+                        <th ng-repeat="schema in recordSchemasExt" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
+                        <th ng-if="bRequireScore">总得分</th>
+                        <th class='matched enroll' ng-repeat="schema in enrollDataSchemas" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
+                        <th class='matched group' ng-repeat="schema in groupDataSchemas" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
+                        <th style='width:80px'>审核通过</th>
+                        <th style='width:140px' ng-if="app.tags.length">标签</th>
+                        <th style='width:140px'>备注</th>
+                        <th style='width:48px'>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat='r in records' class='record'>
+                        <td>
+                            <button class='btn btn-xs btn-default' ng-click='editRecord(r)'>
+                                <span class='glyphicon glyphicon-edit'></span>
+                            </button>
+                        </td>
+                        <td>
+                            <input type='checkbox' ng-model="rows.selected[$index]" ng-change="rows.change($index)">
+                        </td>
+                        <td>{{(page.at-1)*page.size+$index+1}}</td>
+                        <td ng-if="bRequireNickname">{{r.nickname}}</td>
+                        <td ng-if="bRequireGroup">{{r.group.title}}</td>
+                        <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
+                        <td>{{r.round.title}}</td>
+                        <td ng-repeat="schema in recordSchemasExt" ng-switch on="schema.type">
+                            <div ng-switch-when="image">
+                                <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
+                            </div>
+                            <div ng-switch-when="file">
+                                <span ng-repeat='file in r._data[schema.id]'><a href ng-click="openFileUrl(file)" target="_blank">{{file.name}}</a></span>
+                            </div>
+                            <div ng-switch-when="multitext">
+                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>
+                            </div>
+                            <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-switch-when="url" ng-bind-html="r._data[schema.id]._text"></span>
+                            <span ng-switch-when="remark">{{r.verbose.data[schema.id].remark_num}}</span>
+                            <span ng-switch-when="calcScore">{{r.score[schema.id]}}</span>
+                            <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
+                            <p ng-if="['single', 'multiple', 'image', 'file'].indexOf(schema.type)!==-1&&r.supplement[schema.id].length">(补充说明：<span ng-bind-html="r.supplement[schema.id]"></span>)</p>
+                        </td>
+                        <td ng-if="bRequireScore" ng-bind="r.score.sum"></td>
+                        <td class='matched enroll' ng-repeat="schema in enrollDataSchemas" ng-switch on="schema.type">
+                            <div ng-switch-when="image">
+                                <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
+                            </div>
+                            <div ng-switch-when="file">
+                                <span ng-repeat='file in r._data[schema.id]'><a href ng-click="openFileUrl(file)" target="_blank">{{file.name}}</a></span>
+                            </div>
+                            <div ng-switch-when="multitext">
+                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>
+                            </div>
+                            <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
+                        </td>
+                        <td class='matched group' ng-repeat="schema in groupDataSchemas" ng-switch on="schema.type">
+                            <div ng-switch-when="image">
+                                <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
+                            </div>
+                            <span ng-switch-when="file">
+                                <span ng-repeat='file in r._data[schema.id]'><a href ng-click="openFileUrl(file)" target="_blank">{{file.name}}</a></span>
+                            </span>
+                            <div ng-switch-when="multitext">
+                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>
+                            </div>
+                            <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
+                        </td>
+                        <td>{{r.verified}}</td>
+                        <td ng-if="app.tags.length">{{r.tags}}</td>
+                        <td>{{r.comment}}</td>
+                        <td>
+                            <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
+                                <span class='glyphicon glyphicon-remove'></span>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot ng-if="bRequireSum||bRequireScore">
+                    <tr>
+                        <td>合计</td>
+                        <td></td>
+                        <td></td>
+                        <td ng-if="bRequireNickname"></td>
+                        <td></td>
+                        <td></td>
+                        <td ng-repeat="schema in recordSchemasExt">
+                            <div ng-if="schema.format==='number'||schema.type==='score'">
+                                {{sum4SchemaAtPage[schema.id]}}/{{sum4Schema[schema.id]}}
+                            </div>
+                            <div ng-if="schema.type==='calcScore'">
+                                {{score4SchemaAtPage[schema.id]}}/{{score4Schema[schema.id]}}
+                            </div>
+                        </td>
+                        <td>
+                            <div ng-if="bRequireScore">
+                                {{score4SchemaAtPage.sum}}/{{score4Schema.sum}}
+                            </div>
+                        </td>
+                        <td class='matched enroll' ng-repeat="schema in enrollDataSchemas"></td>
+                        <td class='matched group' ng-repeat="schema in groupDataSchemas"></td>
+                        <td></td>
+                        <td ng-if="app.tags.length"></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <!-- end records -->
+    <div class='form-group'>
+        <div class='pl-pagination'>
+            <span>总数：{{page.total}}</span>
+            <ul class='pull-right' uib-pagination ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+        </div>
+    </div>
+</div>

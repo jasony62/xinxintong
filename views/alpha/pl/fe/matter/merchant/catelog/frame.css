@@ -1,0 +1,10 @@
+body{background:#f8f8f8;padding-top:71px;}
+.shortcut.navbar-nav{position:absolute;left:50%;margin-left:-58px;float:none;}
+.tile{position:relative;border:1px solid #ddd;border-radius:4px;padding:8px;background:#f8f8f8;margin-bottom:15px;}
+
+/*setting*/
+.tile .form-group,.tile .checkbox{padding:8px;background:#fff;border-radius:4px;}
+.help-block{margin-bottom:0;}
+.tile .form-group:last-child{margin-bottom:0;}
+#sku-view .rule{margin-left:0;margin-right:0}
+#sku-view .rule .help-block{margin-bottom:0}

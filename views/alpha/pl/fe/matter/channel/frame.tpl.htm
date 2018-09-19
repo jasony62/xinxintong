@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <base href="/" />
+    <title>频道</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/tms.css?_=1" rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/pl.fe.css');?>" rel="stylesheet">
+    <link href="<?php echo auto_version('/views/default/pl/fe/matter/channel/frame.css');?>" rel="stylesheet">
+</head>
+
+<body ng-controller='ctrlChannel' ng-cloak class='ng-cloak'>
+    <div class='pl-layout'>
+        <!--logo+侧边栏-->
+        <div class='pl-layout-leftnav'>
+            <!--logo-->
+            <div class='pl-layout-leftnav-header'>
+                <a href='/rest/home' target='_self'>
+                    <?php echo APP_TITLE;?>
+                </a>
+            </div>
+            <!--侧边栏-->
+            <ul class="nav nav-tabs nav-stacked">
+                <li ng-class="{'opened':opened==='edit'}">
+                    <a href='' ng-click="opened=opened==='edit'?false:'edit';switchTo('main')">制作 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='edit'?'41px':'0'}">
+                        <li ng-class="{'active':subView==='main'}">
+                            <a href='' ng-click="switchTo('main')">描述</a>
+                        </li>
+                    </ul>
+                </li>
+                <li ng-class="{'opened':opened==='publish'}">
+                    <a href='' ng-click="opened=opened==='publish'?false:'publish';switchTo('preview')">发布 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='publish'?'82px':'0'}">
+                        <li ng-class="{'active':subView==='preview'}">
+                            <a href='' ng-click="switchTo('preview')">预览</a>
+                        </li>
+                        <li ng-class="{'active':subView==='invite'}">
+                            <a href='' ng-click="switchTo('invite')">邀请</a>
+                        </li>
+                    </ul>
+                </li>
+                <li ng-class="{'opened':opened==='other'}">
+                    <a href='' ng-click="opened=opened==='other'?false:'other';switchTo('log')">其他 <span class="caret"></span></a>
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='other'?'41px':'0'}">
+                        <li ng-class="{'active':subView==='log'}">
+                            <a href='' ng-click="switchTo('log')">运行日志</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <!--导航+主体内容-->
+        <div class='pl-layout-main pl-layout-main-topnav'>
+            <nav class="navbar pl-navbar-default pl-navbar-fixed-top">
+                <div class='container-fluid'>
+                    <nav class='nav navbar-nav tms-breadcrumb'>
+                        <li><a href="/rest/pl/fe" target='_self'>工作台</a></li>
+                        <li ng-if="site.yourRole"><a href="/rest/pl/fe?view=main&scope=doc&sid={{site.id}}" target='_self'>{{site.name}}</a></li>
+                        <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{site.name}}</a></li>
+                        <li ng-if="editing.mission"><a href="/rest/pl/fe/matter/mission/doc?site={{editing.siteid}}&id={{editing.mission.id}}" target='_self' title="{{editing.mission.title}}">{{editing.mission.title}}</a></li>
+                        <li><a href='javascript:void(0)' title='{{editing.title}}'>{{editing.title}}</a></li>
+                    </nav>
+                </div>
+            </nav>
+            <div class='container-fluid'>
+                <div class="row " ng-view></div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/jquery-ui.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-route.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/ui-tms.js?_=1"></script>
+    <script src="/static/js/xxt.ui.js?_=1"></script>
+    <script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
+    <script src="/static/js/require.js" data-main="/views/default/pl/fe/matter/channel/frame-loader.js?_=1"></script>
+</body>
+
+</html>

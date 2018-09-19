@@ -1,0 +1,206 @@
+<div ng-controller="ctrlSchemaEdit">
+    <div class="form-group">
+        <label>题目ID</label>
+        <input class='form-control' type='text' ng-model='activeSchema.id' ng-change="updSchema(activeSchema)" readonly>
+    </div>
+    <div class="form-group" ng-if="activeSchema.type!=='html'">
+        <label>题目标题</label>
+        <input class='form-control' type='text' ng-model='activeSchema.title' ng-change="updSchema(activeSchema)">
+    </div>
+    <div class="form-group" ng-if="editing.type!=='multitext'">
+        <label>题目类型</label>
+        <select class='form-control' ng-model='editing.type' ng-change="changeSchemaType()">
+            <option value='shorttext'>单行填写题</option>
+            <option value='longtext'>多行填写题</option>
+            <option value='multitext'>多项填写题</option>
+            <option value='single'>单选题</option>
+            <option value='multiple'>多选题</option>
+            <option value='score'>打分题</option>
+            <option value='image'>上传图片</option>
+            <option value='file'>上传文件</option>
+            <option value='url'>上传链接</option>
+            <option value='voice'>微信录音</option>
+            <option value='html'>描述说明</option>
+            <option value='date'>日期</option>
+        </select>
+    </div>
+    <div class="form-group" ng-if="'html'!==activeSchema.type">
+        <label>填写说明</label>
+        <button class='btn btn-default' ng-click="makePagelet(activeSchema,'description')">编辑</button>
+    </div>
+    <div class="form-group" ng-show="activeSchema.type==='shorttext'">
+        <label>填写限制</label>
+        <div class='radio'>
+            <label class="radio-inline">
+                <input type='radio' ng-model='activeSchema.format' value='' name='format' ng-change="updSchema(activeSchema)">不限</label>
+        </div>
+        <div class='radio'>
+            <label class="radio-inline">
+                <input type='radio' value="number" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema,null,'format')">数值</label>
+        </div>
+        <div class='radio'>
+            <label class="radio-inline">
+                <input type='radio' value="name" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema)">姓名</label>
+            <label class="radio-inline">
+                <input type='radio' value="mobile" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema)">手机</label>
+            <label class="radio-inline">
+                <input type='radio' value="email" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema)">邮箱</label>
+        </div>
+    </div>
+    <div class="form-group" ng-if="activeSchema.type==='multiple'">
+        <div class='checkbox'>
+            <label>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="activeSchema.limitChoice" ng-change="updSchema(activeSchema)">限制选择数量</label>
+        </div>
+        <div class='form-inline'>
+            至少选
+            <input type='text' class='form-control' style='width:3em;' ng-model='activeSchema.range[0]' ng-change="updSchema(activeSchema)">项，最多选
+            <input type='text' class='form-control' style='width:3em;' ng-model='activeSchema.range[1]' ng-change="updSchema(activeSchema)">项
+        </div>
+    </div>
+    <div class="form-group" ng-if="activeSchema.type==='score'">
+        <label>分值范围</label>
+        <input type='text' class='form-control' ng-model='activeSchema.range[0]' ng-change="updSchema(activeSchema)">
+        <input type='text' class='form-control' ng-model='activeSchema.range[1]' ng-change="updSchema(activeSchema)">
+    </div>
+    <div class="form-group" ng-if="'single'===activeSchema.type">
+        <label class="radio-inline">
+            <input type='radio' name='component' value='R' ng-model='activeConfig.component' ng-change="updConfig(activeSchema)">单选钮</label>
+        <label class="radio-inline">
+            <input type='radio' name='component' value='S' ng-model='activeConfig.component' ng-change="updConfig(activeSchema)">下拉框</label>
+    </div>
+    <div class="form-group" ng-if="('single'===activeSchema.type&&activeConfig.component==='R')||activeSchema.type==='multiple'">
+        <label class="radio-inline">
+            <input type='radio' name='align' value='V' ng-model='activeConfig.align' ng-change="updConfig(activeSchema)">垂直排列</label>
+        <label class="radio-inline">
+            <input type='radio' name='align' value='H' ng-model='activeConfig.align' ng-change="updConfig(activeSchema)">水平排列</label>
+    </div>
+    <div class="checkbox" ng-if="'html'!==activeSchema.type">
+        <label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.required' ng-change="updSchema(activeSchema)"> 必填</label>
+    </div>
+    <div class="checkbox" ng-show="['shorttext'].indexOf(activeSchema.type)!==-1">
+        <label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.unique' ng-change="updSchema(activeSchema)"> 唯一</label>
+    </div>
+    <div class="checkbox" ng-if="activeSchema.type!=='html'">
+        <label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.shareable' ng-change="updSchema(activeSchema,null,'shareable')"> 共享内容</label>
+    </div>
+    <div class="checkbox" ng-if="activeSchema.type!=='html'">
+        <label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.supplement' ng-change="updSchema(activeSchema)"> 允许填写补充说明</label>
+    </div>
+    <div class="checkbox" ng-show="['shorttext','multitext'].indexOf(activeSchema.type)!==-1">
+        <label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.history' ng-change="updSchema(activeSchema,'history')"> 选择已填数据</label>
+    </div>
+    <div class="checkbox" ng-show="'Y'===activeSchema.history">
+        <button class='btn btn-default' ng-click="setHistoryAssoc(activeSchema)"> 设置已填数据关联题目<span ng-if="activeSchema.historyAssoc.length">({{activeSchema.historyAssoc.length}})</span></button>
+    </div>
+    <div class="form-group" ng-show="['image','file','voice'].indexOf(activeSchema.type)!==-1">
+        <label>限制数量</label>
+        <input type='text' class='form-control' ng-model='activeSchema.count' ng-change="updSchema(activeSchema)" placeholder="为空时不限制">
+    </div>
+    <!-- score -->
+    <div class="checkbox" ng-if="['single','multiple','shorttext','longtext','score'].indexOf(activeSchema.type)!==-1">
+        <hr>
+        <label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.requireScore' ng-change="updSchema(activeSchema,null,'requireScore')"> 需要计分</label>
+    </div>
+    <div class='form-group' ng-if="activeSchema.requireScore==='Y'">
+        <label class='radio-inline'>
+            <input type='radio' name='scoreMode' value='evaluation' ng-model='activeSchema.scoreMode' ng-disabled="activeSchema.type==='score'" ng-change="updSchema(activeSchema)"> 作为测评</label>
+        <label class='radio-inline'>
+            <input type='radio' name='scoreMode' value='question' ng-model='activeSchema.scoreMode' ng-disabled="activeSchema.type==='score'" ng-change="updSchema(activeSchema)"> 作为考题</label>
+    </div>
+    <div ng-if="activeSchema.scoreMode==='question'">
+        <!--设置分数-->
+        <div class="form-group">
+            <label>设置分数</label>
+            <input class='form-control' type='text' ng-model='activeSchema.score' ng-change="updSchema(activeSchema)">
+        </div>
+        <!--短文本设置参考答案-->
+        <div class="form-group" ng-if="activeSchema.type==='shorttext'">
+            <label>设置参考答案</label>
+            <input class='form-control' type='text' ng-model='activeSchema.answer' ng-change="updSchema(activeSchema)">
+        </div>
+        <!--长文本设置参考答案或要求-->
+        <div class="form-group" ng-if="activeSchema.type==='longtext'">
+            <label>设置参考答案或要求</label>
+            <textarea class='form-control' name="" id="" cols="10" rows="3" ng-model='activeSchema.answer' ng-change="updSchema(activeSchema)"></textarea>
+        </div>
+        <!--单选设置答案-->
+        <ul class="form-group list-unstyled" ng-if="activeSchema.type==='single'">
+            <li>
+                <label>设置答案</label>
+            </li>
+            <li class="radio" wrap="radio" ng-repeat="op in activeSchema.ops">
+                <label>
+                    <input type="radio" name="{{activeSchema.id}}" value="{{op.v}}" ng-model="activeSchema.answer" ng-change="updSchema(activeSchema)" /><span>{{op.l}}</span></label>
+            </li>
+        </ul>
+        <!--多选设置答案-->
+        <ul class="form-group list-unstyled" ng-if="activeSchema.type==='multiple'">
+            <li>
+                <label>设置答案</label>
+            </li>
+            <li class="checkbox" wrap="checkbox" ng-repeat="op in activeSchema.ops">
+                <label>
+                    <input type="checkbox" ng-model="answerData[op.v]" ng-change="updSchemaMultiple(activeSchema)" /><span>{{op.l}}</span></label>
+            </li>
+        </ul>
+    </div>
+    <div ng-if="activeSchema.scoreMode==='evaluation'">
+        <div class='form-group' ng-if='activeSchema.format==="number"'>
+            <label>计分权重</label>
+            <input type='text' class='form-control' ng-model="activeSchema.weight" ng-change="updSchema(activeSchema,null,'weight')" placeholder="请输入数字">
+        </div>
+        <div class='form-group' ng-if="['single','multiple'].indexOf(activeSchema.type)!==-1">
+            <label><span class='glyphicon glyphicon-info-sign'></span> 选择选项，设置每个选项的分值</label>
+        </div>
+    </div>
+    <hr>
+    <!-- end score -->
+    <div class="checkbox" ng-show="'single'===activeSchema.type||'Y'===activeSchema.history">
+        <label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.asdir' ng-change="updSchema(activeSchema)"> 在共享页作为内容分类目录</label>
+    </div>
+    <div class='form-group' ng-if="['single','multiple'].indexOf(activeSchema.type)!==-1">
+        <button class='btn btn-default' ng-click="setDefaultValue(activeSchema)">设置默认选项</button>
+    </div>
+    <div class='form-group' ng-if="['single','multiple'].indexOf(activeSchema.type)!==-1">
+        <button class='btn btn-default' ng-click="setOptGroup(activeSchema)">设置选项可见条件</button>
+    </div>
+    <div class='form-group' ng-if="activeSchema.type!=='html'">
+        <button class='btn btn-default' ng-click="setSchemaParent(activeSchema)">设置父题目 <span ng-if="activeSchema.parent" class='glyphicon glyphicon-check'></span></button>
+    </div>
+    <div class='form-group'>
+        <button class='btn btn-default' ng-click="setVisibility(activeSchema)">设置题目可见条件({{activeSchema.visibility.rules.length||0}})</button>
+    </div>
+    <div class="checkbox" ng-show="'multitext'===activeSchema.type">
+        <label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.cowork' ng-change="updSchema(activeSchema)"> 多人协作填写</label>
+    </div>
+    <div class="checkbox" ng-show="'longtext'===activeSchema.type">
+        <label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.filterWhiteSpace' ng-change="updSchema(activeSchema)"> 粘贴时提示过滤空白字符</label>
+    </div>
+    <div class='form-group' ng-if="'shorttext'===activeSchema.type&&activeSchema.format==='number'">
+        <button class='btn btn-default' ng-click="setDataSource(activeSchema)">设置填写数据来源 <span ng-if="activeSchema.ds" class='glyphicon glyphicon-check'></span></button>
+    </div>
+    <div class='form-group' ng-if="['single','multiple'].indexOf(activeSchema.type)!==-1">
+        <button class='btn btn-default' ng-click="setOptionsSource(activeSchema)">设置题目选项来源 <span ng-if="activeSchema.dsOps" class='glyphicon glyphicon-check'></span></button>
+    </div>
+    <div class="checkbox" ng-show="activeSchema.dsOps">
+        <label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.showOpNickname' ng-change="updSchema(activeSchema)"> 填写时显示选项用户昵称</label>
+    </div>
+    <div class="checkbox" ng-show="activeSchema.dsOps">
+        <label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.showOpDsLink' ng-change="updSchema(activeSchema)"> 填写时跳转到选项来源记录</label>
+    </div>
+    <div class='form-group' ng-if="['single','multiple','score','longtext','html'].indexOf(activeSchema.type)!==-1">
+        <button class='btn btn-default' ng-click="setSchemaSource(activeSchema)">数量和标题从其它活动生成 <span ng-if="activeSchema.dsSchema" class='glyphicon glyphicon-check'></span></button>
+    </div>
+</div>

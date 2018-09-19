@@ -1,0 +1,23 @@
+<div class='col-md-4 overview'>
+    <div class='aspect'>
+        <div class='alert alert-info'>项目时间</div>
+        <ul class='status-group'>
+            <li class='status'><span ng-if="mission.start_at>0">项目开始时间：<span ng-bind="mission.start_at*1000|date:'yy-MM-dd'"></span></span><span ng-if="mission.start_at==0">未指定项目开始时间</span>，<span ng-if="mission.end_at>0">项目结束时间：<span ng-bind="mission.end_at*1000|date:'yy-MM-dd'"></span></span><span ng-if="mission.end_at==0">未指定项目结束时间</span></li>
+        </ul>
+    </div>
+    <div class='aspect'>
+        <div class='alert alert-info'>参与人</div>
+        <ul class='status-group'>
+            <li class='status' ng-if="status.user.member.length===0">指定通信录中的联系人可以参与 <span class="glyphicon glyphicon-ban-circle"></span></li>
+            <li class='status' ng-repeat="mschema in status.user.member">通信录【<span ng-bind="mschema.title"></span>】中通过审核的联系人可以参与，已通过审核有<span ng-bind="mschema.count.verified"></span>人，未通过审核有<span ng-bind="mschema.count.unverified"></span>人，<span ng-if="mschema.is_wx_fan==='Y'">填写人可以通过公众号接收通知</span><span ng-if="mschema.is_wx_fan==='N'">填写人不可以通过公众号接收通知</span></li>
+        </ul>
+    </div>
+</div>
+<div class='col-md-8'>
+    <div class='aspect'>
+        <div class='alert alert-info'>项目活动</div>
+        <div ng-repeat="matter in matters" style='line-height:2em'>
+            <span ng-if="matter.start_at==0" class='text-muted'>未指定开始时间</span><span ng-if="matter.start_at>0">{{matter.start_at*1000|date:'MM-dd HH:mm'}}</span> - <span ng-if="matter.end_at==0" class='text-muted'>未指定结束时间</span><span ng-if="matter.end_at>0">{{matter.end_at*1000|date:'MM-dd HH:mm'}}</span>，<span>{{matter.matter_title}}</span>
+        </div>
+    </div>
+</div>

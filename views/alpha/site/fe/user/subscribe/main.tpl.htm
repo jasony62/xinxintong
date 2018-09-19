@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href="/" />
+    <title>我的关注</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
+    <link href="<?php echo auto_version('/views/default/site/fe/user/subscribe/main.css');?>" rel="stylesheet">
+</head>
+
+<body ng-controller="ctrlMain">
+    <div class="loading">
+        <div class='loading-indicator'><i></i></div>
+    </div>
+    <nav class='navbar site-navbar-default navbar-fixed-top'>
+        <div class='container-fluid text-right'>
+            <p class="navbar-text">
+                <a class='navbar-link' href='/rest/home' target='_self'>
+                    <?php echo APP_TITLE;?> &nbsp;
+                    <span class='glyphicon glyphicon-menu-right'></span>
+                </a>
+            </p>
+        </div>
+    </nav>
+    <div class="container ng-cloak" ng-cloak>
+        <div class='row'>
+            <div class='col-md-12'>
+                <div class='thumbnail matter' ng-repeat="m in matters" ng-click="openMatter(m)">
+                    <div class="media">
+                        <div class="media-left">
+                            <img class="media-object" ng-src='{{m.matter_pic}}'>
+                        </div>
+                        <div class="media-body">
+                            <h4 class="media-heading">{{m.matter_title}}</h4>
+                            <div>{{m.matter_summary}}</div>
+                            <div class='attr'>
+                                <div class='put_at' ng-bind="m.put_at*1000|date:'yyyy-MM-dd'"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='row' ng-if="page.total>matters.length">
+            <div class='col-md-12'>
+                <button class='btn btn-default btn-block' ng-click="moreMatters()">更多</button>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/require.js" defer async data-main="/views/default/site/fe/user/subscribe/main-loader.js?_=1"></script>
+</body>
+
+</html>

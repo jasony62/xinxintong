@@ -1,0 +1,289 @@
+<style>
+th {
+    text-align: center;
+}
+</style>
+<div class='container'>
+    <nav class='navbar navbar-default'>
+        <div class='container-fluid'>
+            <form class='navbar-form'>
+                <select class='form-control' ng-model='criteria.category'>
+                    <option value='article'>文章</option>
+                    <option value='channel'>频道</option>
+                    <option value='link'>链接</option>
+                    <option value='app'>活动</option>
+                    <option value='site'>团队</option>
+                    <option value='template'>模板</option>
+                </select>
+            </form>
+        </div>
+    </nav>
+    <div class='row' ng-if="criteria.category==='template'">
+        <div class='col-md-12' ng-controller="ctrlTemplate">
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th style='width:48px'></th>
+                        <th>团队</th>
+                        <th>标题</th>
+                        <th>说明</th>
+                        <th>提交人</th>
+                        <th>提交时间</th>
+                        <th style='width:96px'>出现在主页</th>
+                        <th style='width:56px'></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="t in templates">
+                        <td>{{$index+1}}</td>
+                        <td>{{t.site_name}}</td>
+                        <td>{{t.title}}</td>
+                        <td>{{t.summary}}</td>
+                        <td>{{t.creater_name}}</td>
+                        <td>{{t.put_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+                        <td>
+                            <span>{{t.push_home}}</span>
+                            <button class='btn btn-xs btn-default pull-right' ng-if="t.push_home==='Y'" ng-click="pullHome(t)">撤销</button>
+                        </td>
+                        <td>
+                            <button class='btn btn-xs btn-default' ng-click="preview(t)">查看</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="searchTemplate()"></ul>
+        </div>
+    </div>
+    <div class='row' ng-if="criteria.category==='app'">
+        <div class='col-md-12' ng-controller="ctrlMatter">
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th style='width:48px'></th>
+                        <th>标题</th>
+                        <th>说明</th>
+                        <th>提交人</th>
+                        <th style='width:112px'>提交时间</th>
+                        <th style='width:96px'>出现在主页</th>
+                        <th style='width:96px'>活动置顶</th>
+                        <th style='width:96px'>平台素材</th>
+                        <th style='width:100px'></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="m in matters">
+                        <td>{{$index+1}}</td>
+                        <td>{{m.title}}</td>
+                        <td>{{m.summary}}</td>
+                        <td>{{m.creater_name}}</td>
+                        <td>{{m.put_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+                        <td>
+                            <span>{{m.approved}}</span>
+                            <button class='btn btn-xs btn-default pull-right' ng-if="m.approved==='Y'" ng-click="pullHome(m)">撤销</button>
+                        </td>
+                        <td>
+                            <span ng-if="m.weight!=='0'">Y</span>
+                            <button class='btn btn-xs btn-default pull-right' ng-if="m.weight!=='0'" ng-click="cancelTop(m)">取消</button>
+                        </td>
+                        <td>
+                            <span>{{m.as_global}}</span>
+                            <button class='btn btn-xs btn-default pull-right' ng-if="m.as_global==='Y'" ng-click="cancelGlobal(m)">撤销</button>
+                        </td>
+                        <td>
+                            <button class='btn btn-xs btn-default' ng-click="preview(m)">查看</button>
+                            <button class='btn btn-xs btn-default pull-right' ng-if="m.weight==='0'" ng-click="carryHome(m)">置顶</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="searchMatter()"></ul>
+        </div>
+    </div>
+    <div class='row' ng-if="criteria.category==='channel'">
+        <div class='col-md-12' ng-controller="ctrlMatter">
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th style='width:48px'></th>
+                        <th>标题</th>
+                        <th>说明</th>
+                        <th>提交人</th>
+                        <th>提交时间</th>
+                        <th style='width:96px'>出现在主页</th>
+                        <th style='width:96px'>出现位置</th>
+                        <th style='width:56px'></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="m in matters">
+                        <td>{{$index+1}}</td>
+                        <td>{{m.title}}</td>
+                        <td>{{m.summary}}</td>
+                        <td>{{m.creater_name}}</td>
+                        <td>{{m.put_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+                        <td>
+                            <span>{{m.approved}}</span>
+                            <button class='btn btn-xs btn-default pull-right' ng-if="m.approved==='Y'" ng-click="pullHome(m)">撤销</button>
+                        </td>
+                        <td><span ng-if="m.approved==='Y'">{{channelAddr[m.home_group]}}</span></td>
+                        <td>
+                            <button class='btn btn-xs btn-default' ng-click="preview(m)">查看</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="searchMatter()"></ul>
+        </div>
+    </div>
+    <div class='row' ng-if="criteria.category==='article'">
+        <div class='col-md-12' ng-controller="ctrlMatter">
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th style='width:48px'></th>
+                        <th>标题</th>
+                        <th>说明</th>
+                        <th>提交人</th>
+                        <th>提交时间</th>
+                        <th style='width:96px'>出现在主页</th>
+                        <th style='width:96px'>文章置顶</th>
+                        <th style='width:100px'></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="m in matters">
+                        <td>{{$index+1}}</td>
+                        <td>{{m.title}}</td>
+                        <td>{{m.summary}}</td>
+                        <td>{{m.creater_name}}</td>
+                        <td>{{m.put_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+                        <td>
+                            <span>{{m.approved}}</span>
+                            <button class='btn btn-xs btn-default pull-right' ng-if="m.approved==='Y'" ng-click="pullHome(m)">撤销</button>
+                        </td>
+                        <td>
+                            <span ng-if="m.weight!=='0'">Y</span>
+                            <button class='btn btn-xs btn-default pull-right' ng-if="m.weight!=='0'" ng-click="cancleHome(m)">取消</button>
+                        </td>
+                        <td>
+                            <button class='btn btn-xs btn-default' ng-click="preview(m)">查看</button>
+                            <button class='btn btn-xs btn-default pull-right' ng-if="m.weight==='0'" ng-click="carryHome(m)">置顶</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="searchMatter()"></ul>
+        </div>
+    </div>
+    <div class='row' ng-if="criteria.category==='link'">
+        <div class='col-md-12' ng-controller="ctrlMatter">
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th style='width:48px'></th>
+                        <th>标题</th>
+                        <th>说明</th>
+                        <th>提交人</th>
+                        <th>提交时间</th>
+                        <th style='width:96px'>出现在主页</th>
+                        <th style='width:96px'>文章置顶</th>
+                        <th style='width:100px'></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="m in matters">
+                        <td>{{$index+1}}</td>
+                        <td>{{m.title}}</td>
+                        <td>{{m.summary}}</td>
+                        <td>{{m.creater_name}}</td>
+                        <td>{{m.put_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+                        <td>
+                            <span>{{m.approved}}</span>
+                            <button class='btn btn-xs btn-default pull-right' ng-if="m.approved==='Y'" ng-click="pullHome(m)">撤销</button>
+                        </td>
+                        <td>
+                            <span ng-if="m.weight!=='0'">Y</span>
+                            <button class='btn btn-xs btn-default pull-right' ng-if="m.weight!=='0'" ng-click="cancleHome(m)">取消</button>
+                        </td>
+                        <td>
+                            <button class='btn btn-xs btn-default' ng-click="preview(m)">查看</button>
+                            <button class='btn btn-xs btn-default pull-right' ng-if="m.weight==='0'" ng-click="carryHome(m)">置顶</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="searchMatter()"></ul>
+        </div>
+    </div>
+    <div class='row' ng-if="criteria.category==='site'">
+        <div class='col-md-12' ng-controller="ctrlSite">
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th style='width:48px'></th>
+                        <th>标题</th>
+                        <th>说明</th>
+                        <th>提交人</th>
+                        <th>提交时间</th>
+                        <th style='width:96px'>出现在主页</th>
+                        <th style='width:56px'></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="s in sites">
+                        <td>{{$index+1}}</td>
+                        <td>{{s.title}}</td>
+                        <td>{{s.summary}}</td>
+                        <td>{{s.creater_name}}</td>
+                        <td>{{s.put_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+                        <td>
+                            <span>{{s.approved}}</span>
+                            <button class='btn btn-xs btn-default pull-right' ng-if="s.approved==='Y'" ng-click="pullHome(s)">撤销</button>
+                        </td>
+                        <td>
+                            <button class='btn btn-xs btn-default' ng-click="open(s)">查看</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="searchApplication()"></ul>
+        </div>
+    </div>
+    <script type="text/ng-template" id='previewTemplate.html'>
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="cancel()">×</button>
+            <h5 class="modal-title">模板预览</h5>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-success" ng-click="ok()">发布到主页</button>
+        </div>
+    </script>
+    <script type="text/ng-template" id='previewMatter.html'>
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="cancel()">×</button>
+            <h5 class="modal-title">预览</h5>
+        </div>
+        <div class="modal-body" ng-if="filter.category!=='channel'">
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="matter.approved" disabled>发布到平台主页</label>
+            </div>
+            <div class='form-group'>
+                <button class="btn btn-default" ng-click="pushHome()">发布到主页</button>
+            </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="matter.as_global" disabled>作为平台素材</label>
+            </div>
+            <div class='form-group'>
+                <button class="btn btn-default" ng-click="asGlobal()">作为平台活动</button>
+            </div>
+        </div>
+        <div class='modal-body' ng-if="filter.category==='channel'">
+            <button class="btn btn-default" ng-click="toMiddle()">发布到主页中间</button>
+            <button class="btn btn-default" ng-click="toRight()">发布到主页右侧</button>
+        </div>
+    </script>
+</div>

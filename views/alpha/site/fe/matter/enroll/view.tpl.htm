@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html ng-app='app' ng-controller='ctrlMain'>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href="/" />
+    <title>
+        <?php TPL::pt('title');?>
+    </title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href='/static/css/site.fe.css?_=2' rel="stylesheet">
+    <style ng-if="page.css" ng-bind='page.css'></style>
+</head>
+
+<body ng-controller='ctrlView' class='matter_enroll'>
+    <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
+    <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
+    <nav class='navbar site-navbar-default'>
+        <div class='container'>
+            <div class="navbar-header">
+                <a href class="navbar-brand">
+                    <i class="glyphicon glyphicon-list-alt visible-lg-inline"></i> <span tms-app-nav app-navs="appNavs">{{page.title}}</span>
+                </a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="pull-left">
+                    <a href ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline"> 我的</span></a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div ng-cloak class='ng-cloak app'>
+        <div class='container'>
+            <div dynamic-html="page.html" class='data'>
+            </div>
+        </div>
+    </div>
+    <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
+    <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
+    <div class="loading">
+        <div class='loading-indicator'><i></i></div>
+    </div>
+    <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="<?php $viewName=empty(TPL::val('viewName'))?TMS_APP_VIEW_NAME:TPL::val('viewName'); echo auto_version('/bundles/'.$viewName.'/site/fe/matter/enroll/view.js');?>"></script>
+</body>
+
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <base href="/" />
+    <title>计划任务活动——新建</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/static/css/tms.css?_=2" rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/pl.fe.css');?>" rel="stylesheet">
+</head>
+
+<body ng-controller='ctrlPlan' ng-cloak class='ng-cloak'>
+    <div class='pl-layout'>
+        <!--logo+侧边栏-->
+        <div class='pl-layout-leftnav'>
+            <!--logo-->
+            <div class='pl-layout-leftnav-header'>
+                <a href='/rest/home' target='_self'>
+                    <?php echo APP_TITLE;?>
+                </a>
+            </div>
+            <!--侧边栏-->
+            <ul class="nav nav-tabs nav-stacked">
+            </ul>
+        </div>
+        <!--导航+主体内容-->
+        <div class='pl-layout-main pl-layout-main-topnav'>
+            <nav class="navbar pl-navbar-default pl-navbar-fixed-top">
+                <div class='container-fluid'>
+                    <nav class='nav navbar-nav tms-breadcrumb'>
+                        <li><a href="/rest/pl/fe?view=main&scope=activity&type=signin&sid={{site.id}}" target='_self'>工作台</a></li>
+                        <li ng-if="site.yourRole"><a href="/rest/pl/fe?view=main&scope=activity&type=signin&sid={{site.id}}" target='_self'>{{site.name}}</a></li>
+                        <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{site.name}}</a></li>
+                        <li ng-if="mission"><a href="/rest/pl/fe/matter/mission?site={{mission.siteid}}&id={{mission.id}}" target='_self'>{{mission.title}}</a></li>
+                    </nav>
+                </div>
+            </nav>
+            <div class='container-fluid'>
+                <div class="row">
+                    <div class='col-md-6 col-md-offset-3'>
+                        <div class='panel panel-default'>
+                            <div class='panel-body'>
+                                <div class='form-group'>
+                                    <label>活动名称</label>
+                                    <input class='form-control' ng-model='proto.title'>
+                                </div>
+                                <div class='form-group'>
+                                    <label>活动说明</label>
+                                    <textarea class='form-control' ng-model='proto.summary'></textarea>
+                                </div>
+                                <div class='form-group' ng-if="proto.mission">
+                                    <label>所属项目</label>
+                                    <input class='form-control' title="{{proto.mission.title}}" value="{{proto.mission.title}}" readonly>
+                                </div>
+                                <hr>
+                                <div class='form-group'>
+                                    <label>参与用户</label>
+                                    <div class='checkbox'>
+                                        <label>
+                                            <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.member">用户参与活动前需填写通讯录联系人信息</label> <span class='glyphicon glyphicon-question-sign' uib-tooltip='通讯录支持自定义用户信息并提供审核机制，并且可以在不同活动中重复使用'></span> <span ng-if="entryRule.scope.member==='Y'"><span class='badge' ng-repeat="mschema in entryRule.mschemas">{{mschema.title}} <i class='glyphicon glyphicon-remove' ng-click="removeMschema(mschema)"></i></span> <a href ng-click="chooseMschema()">添加</a></span>
+                                    </div>
+                                    <div class='checkbox' ng-if="snsNames.length===1">
+                                        <label>
+                                            <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.sns">邀请用户关注公众号【{{sns[snsNames[0]].title}}】，以便获取用户的昵称和头像，发送活动通知 <span class='glyphicon glyphicon-question-sign' uib-tooltip='可以获得用户昵称和头像（需要用户授权）。系统持久记录填写终端和填写记录间的对应关系，适用于填写后不需要查询和修改的情况。'></span></label>
+                                    </div>
+                                    <div class='checkbox' ng-if="snsNames.length>1">
+                                        <label>
+                                            <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.sns">邀请用户关注公众号，以便获取用户的昵称和头像，发送活动通知</label>
+                                        <span class='glyphicon glyphicon-question-sign' uib-tooltip='需要用户授权'></span>
+                                        <span ng-if="entryRule.scope.sns==='Y'">
+                                                <label class='checkbox-inline' ng-repeat="snsName in snsNames">
+                                                    <input type='checkbox' ng-model="entryRule.sns[snsName]"> {{sns[snsName].title}} 
+                                            </span>
+                                        </label>
+                                    </div>
+                                    <div class='checkbox' ng-if="proto.mission">
+                                        <label>
+                                            <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.group">用户参与活动前需要在<span ng-if="entryRule.scope.group==='Y'">【{{entryRule.group.title}} - {{entryRule.group.round.title}}】</span>分组活动中分组</label> <span class='glyphicon glyphicon-question-sign' uib-tooltip='指定同项目中的分组活动中的某个分组的用户参与。'></span> <a ng-if="entryRule.scope.group==='Y'" href ng-click="chooseGroupApp()">指定</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class='form-group'>
+                            <button class="btn btn-success btn-block" ng-click="doCreate()"><span class='glyphicon glyphicon-plus'></span> 确定创建计划任务活动</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/ng-template" id="chooseGroupApp.html">
+        <div class="modal-header">
+            <button class="close" ng-click="cancel()">×</button>
+            <h5 class="modal-title">分组活动</h5>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal">
+                <div class='form-group'>
+                    <label class="col-md-3 control-label">目标活动</label>
+                    <div class="col-md-9">
+                        <select class="form-control" ng-model="data.app" ng-options="app.title for app in apps"></select>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class="col-md-3 control-label">目标分组</label>
+                    <div class="col-md-9">
+                        <select class="form-control" ng-model="data.round" ng-options="rnd.title for rnd in data.app.rounds">
+                            <option>全部分组</option>
+                        </select>
+                        <div class='help-block'>可选。若选择只有指定分组中的用户才能参与活动。</div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">确定</button>
+        </div>
+    </script>
+    <script src="/static/js/xxt.ui.error.js"></script>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-route.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/ui-tms.js?_=4"></script>
+    <script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
+    <script src="/static/js/require.js" data-main="/views/default/pl/fe/matter/plan/plan-loader.js?_=1"></script>
+</body>
+
+</html>

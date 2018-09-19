@@ -1,0 +1,13 @@
+<div class="modal-header">
+    <button class="close" type="button" ng-click="cancel()">×</button>
+    <h5 class="modal-title">通讯录</h5>
+</div>
+<div class="modal-body">
+    <div class="form-group">
+        <select class='form-control' ng-options="ms.title for ms in mschemas" ng-model="data.chosen" size=10></select>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="create()">添加</button>
+    <button class="btn btn-primary" ng-click="ok()">确定</button>
+</div>

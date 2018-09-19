@@ -1,0 +1,39 @@
+<style>
+    .mp{position:relative;padding-left:50px}
+    .status{position:absolute;display:block;width:20px;height:20px;border-radius:10px;left:15px;top:10px;background:#eee}
+    .status.success{background:green}
+    .status.failed{background:red}
+    .mp .help-block{margin-bottom:0;font-size:0.8em}
+</style>
+<div>
+    <div class='col-md-6'>
+        <div class='form-group'>
+            <ul class='list-group'>
+                <li class='list-group-item mp'>
+                    <span class='status' ng-class="{'success':massStatus.result==='ok','failed':(massStatus&&massStatus.result!=='ok')}"></span>
+                    <span>所有关注用户</span>
+                    <p class='help-block' ng-if="massStatus&&massStatus.result!=='ok'" ng-bind='massStatus.result'></p>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class='col-md-6'>
+        <div class='form-inline form-group'>
+            <div class='form-group'>
+                <select class='form-control' ng-model='matterType' ng-change='fetchMatter()'>
+                    <option value='text'>文本</option>
+                    <option value='article'>单图文</option>
+                    <option value='news'>多图文</option>
+                    <option value='channel'>频道</option>
+                </select>
+            </div>
+            <div class='form-group pull-right'>
+                <button class='btn' ng-class="(!selectedMatter)?'btn-default':'btn-success'" ng-disabled="!selectedMatter" ng-click='send($event)'>发送</button>
+            </div>
+        </div>
+        <div class='list-group'>
+            <a class='list-group-item' ng-class="{'active':selectedMatter==m}" ng-repeat='m in matters' ng-click='selectMatter(m)'>{{m.title||m.content}}</a>
+        </div>
+        <ul ubi-pagination ng-show="matterType==='article'&&page.total>page.size" class="form-group pagination pull-right" style='cursor:pointer;margin-top:0' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.current" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="fetchMatter()"></ul>
+    </div>
+</div>

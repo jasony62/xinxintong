@@ -1,0 +1,54 @@
+<nav class="navbar navbar-default">
+    <div class="navbar-form navbar-left">
+        <div class="form-group">
+            <input type="text" class="form-control" ng-model='groupName' placeholder="组名称">
+        </div>
+        <button type="button" class="btn btn-primary" ng-click="add()">添加</button>
+    </div>
+</nav>
+<table class='table table-bordered'>
+    <thead>
+        <tr>
+            <th>组名称</th>
+            <th>缺省组</th>
+            <th>视图名称</th>
+            <th>可以创建公众号群</th>
+            <th>可以创建公众号</th>
+            <th>可以设置公众号权限</th>
+            <th>平台管理</th>
+            <th>创建团队</th>
+            <th>用户数</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat='g in groups'>
+            <td style='padding:0'>
+                <input type='text' class='form-control' ng-model='g.group_name' ng-change="update(g,'group_name')">
+            </td>
+            <td>
+                <input type='radio' ng-value='g' ng-model='defaultGroup'>
+            </td>
+            <td>
+                <input type='input' ng-model='g.view_name' ng-change="update(g,'view_name')">
+            </td>
+            <td>
+                <input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model='g.p_mpgroup_create' ng-change="update(g,'p_mpgroup_create')">
+            </td>
+            <td>
+                <input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model='g.p_mp_create' ng-change="update(g,'p_mp_create')">
+            </td>
+            <td>
+                <input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model='g.p_mp_permission' ng-change="update(g,'p_mp_permission')">
+            </td>
+            <td>
+                <input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model='g.p_platform_manage' ng-change="update(g,'p_platform_manage')">
+            </td>
+            <td>
+                <input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model='g.p_create_site' ng-change="update(g,'p_create_site')">
+            </td>
+            <td>{{g.account_count}}</td>
+            <td><a href='#' ng-click='remove(g)' ng-if="g.account_count==0">删除</a></td>
+        </tr>
+    </tbody>
+</table>

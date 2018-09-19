@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html ng-controller='ctrl'>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href='/'>
+    <title>
+        <?php TPL::pt('title');?>
+    </title>
+    <link href='/static/css/site.fe.css?_=1' rel="stylesheet">
+    <style type="text/css">
+        html,
+        body{height:100%;width:100%;padding:0;margin:0}
+        body{font-family:"Microsoft YaHei","HSimHei"}
+        #content{height:100%;width:100%}
+        #frmAuth{display:none;position:absolute;top:0;left:0;right:0;border:none;width:100%;z-index:999;box-sizing:border-box;}
+    </style>
+</head>
+
+<body>
+    <header ng-if="article.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
+    <div id="content" dynamic-html='article.page.html'></div>
+    <footer ng-if="article.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
+    <div class="loading">
+        <div class='loading-indicator'><i></i></div>
+    </div>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/require.js" defer async data-main="/views/default/site/fe/matter/custom/main-loader.js?_=7"></script>
+</body>
+
+</html>

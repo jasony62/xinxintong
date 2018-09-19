@@ -1,0 +1,92 @@
+<style>
+.m1{height:256px;width:23%;margin-right:4px;position:relative}
+.menu-wrap{position:absolute;bottom:0;left:0;right:0}
+.list-group-item.s{margin-left:30px}
+.list-group-item.action{border-style:dotted}
+</style>
+<div class='form-group' style='text-align:right'>
+    <button class='btn btn-danger' ng-click='removeMenu()'>删除</button>
+    <button class='btn' ng-class="(published===undefined||published==='Y') ? 'btn-default':'btn-success'" ng-disabled="published===undefined||published==='Y'" ng-click='publish()'>发布</button>
+</div>
+<div dnd-list dataset='menu' class='clearfix form-group' style='border:1px dashed #CCC'>
+    <div class='m1 dndable pull-left' ng-repeat='b in menu'>
+        <div class='menu-wrap'>
+            <a class='list-group-item s text-center action' title='添加二级菜单' ng-if="b.sub.length<5" ng-click='appendSubButton(b)'>
+                <span class='glyphicon glyphicon-plus'></span>
+            </a>
+            <div class='sl' dnd-list dataset='b.sub' connect-with='div.sl'>
+                <a class='list-group-item s dndable' ng-class="{'active':s===editing}" ng-repeat='s in b.sub' ng-click='edit(s)'>
+                    <span>{{s.menu_name}}</span>
+                    <div class='btn-group pull-right' ng-if='s===editing'>
+                        <button class='btn btn-default btn-xs' title='添加二级菜单' ng-click='appendSubButton(b,$index)' ng-if="b.matter_type==='' && b.url===''"><span class='glyphicon glyphicon-plus'></span></button>
+                        <button class='btn btn-default btn-xs' title='删除菜单' ng-click='removeSubButton(b,s,$index,$event)'><span class='glyphicon glyphicon-trash'></span></button>
+                    </div>
+                </a>
+            </div>
+            <a class='list-group-item b' ng-class="{'active':b===editing}" ng-click='edit(b)'>
+                <span>{{b.menu_name}}</span>
+                <div class='btn-group pull-right' ng-if='b===editing'>
+                    <button class='btn btn-default btn-xs' title='删除菜单' ng-click='removeButton(b,$index,$event)'><span class='glyphicon glyphicon-trash'></span></button>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class='m1 pull-left' ng-if="menu.length<4">
+        <div class='menu-wrap'>
+            <a class='list-group-item b text-center action' title='添加一级菜' ng-click='appendButton()'>
+                <span class='glyphicon glyphicon-plus'></span>
+            </a>
+        </div>
+    </div>
+</div>
+<div class='form-horizontal' ng-show='editing'>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>名称</label>
+        <div class='col-md-10'>
+            <input class='form-control' type='text' tms-auto-update tms-wait=1000 ng-model='editing.menu_name' tms-update="update('menu_name')">
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>KEY</label>
+        <div class='col-md-10'>
+            <input class='form-control' type='text' tms-auto-update tms-wait=1000 ng-model='editing.menu_key' tms-update="updateKey()">
+        </div>
+    </div>
+    <div ng-if='editing.l2_pos==0 && !editing.hasReply'>
+        <div class='form-group'>
+            <div class='col-md-10 col-md-offset-2'>
+                <button class='btn btn-success' ng-click='appendSubButton(editing)'>添加二级菜单</button>
+                <button class='btn btn-success' ng-if='editing.sub.length===0' ng-click='editing.hasReply=true'>设置回复信息</button>
+            </div>
+        </div>
+    </div>
+    <div ng-if='editing.sub===undefined || (editing.sub.length===0 && editing.hasReply===true)'>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>素材类型</label>
+            <div class='col-md-10'>
+                <label class='radio-inline'>
+                    <input type='radio' ng-model='editing.replySrc' value='matter'>应用内素材
+                </label>
+                <label class='radio-inline'>
+                    <input type='radio' ng-model='editing.replySrc' value='url'>外部链接
+                </label>
+            </div>
+        </div>
+        <div class='form-group' ng-if="editing.replySrc==='matter'">
+            <label class='col-md-2 control-label'>回复素材</label>
+            <div class='col-md-10'>
+                <button class='btn btn-default btn-sm' ng-click='setReply()'>指定素材</button>
+                <div ng-if='editing.matter'>
+                    <a class='list-group-item' title={{editing.matter.type|typetitle}}>{{editing.matter.title||editing.matter.content}}</a>
+                    <label class='checkbox-inline' ng-hide="editing.matter.type=='Text'"><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.asview' ng-change="update('asview')">作为链接直接打开</label>
+                </div>
+            </div>
+        </div>
+        <div class='form-group' ng-if="editing.replySrc==='url'">
+            <label class='col-md-2 control-label'>URL</label>
+            <div class='col-md-10'>
+                <textarea class='form-control' tms-auto-update tms-wait=1000 ng-model='editing.url' tms-update="update('url')"></textarea>
+            </div>
+        </div>
+    </div>
+</div>

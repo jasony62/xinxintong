@@ -1,0 +1,30 @@
+<div class="modal-header">
+    <button class="close" type="button" ng-click="cancel()">×</button>
+    <h5 class="modal-title">选择报告中包含的活动</h5>
+</div>
+<div class="modal-body">
+    <div style='max-height:420px;overflow-y:auto'>
+        <table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th style='width:32px'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
+                    </th>
+                    <th>项目活动</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="matter in matters">
+                    <td>
+                        <input type='checkbox' ng-model="rows.selected[$index]">
+                    </td>
+                    <td><span>{{matter.title}}</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="cancel()">取消</button>
+    <button class="btn btn-primary" ng-click="ok()">确定</button>
+</div>

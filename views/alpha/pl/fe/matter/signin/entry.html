@@ -1,0 +1,202 @@
+<!-- publish -->
+<div class='col-md-8 col-lg-6 col-md-offset-2 col-lg-offset-3'>
+    <table class='table table-bordered'>
+        <thead>
+            <tr>
+                <th>轮次</th>
+                <th>全部</th>
+                <th>迟到</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="round in summary" ng-class="{'info':round.active==='Y'}">
+                <td ng-bind="round.title"></td>
+                <td ng-bind="round.total"></td>
+                <td ng-bind="round.late"></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class='form-group' ng-controller="ctrlRound">
+                <label>签到轮次</label>
+                <table class='table table-bordered rounds'>
+                    <thead>
+                        <tr>
+                            <th>签到轮次</th>
+                            <th style='width:165px;'>签到开始时间</th>
+                            <th style='width:165px;'>记迟到时间</th>
+                            <th style='width:90px;'></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="round in rounds">
+                            <td style='padding:0'>
+                                <input style='border:0' type='text' class="form-control" ng-model='round.title' tms-auto-update tms-wait=1000 tms-update="update(round,'title')">
+                            </td>
+                            <td style='padding:0'>
+                                <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-obj="round" tms-date="round.start_at" tms-state='round.start_at'></tms-datepicker>
+                            </td>
+                            <td style='padding:0'>
+                                <tms-datepicker class='tms-datepicker' tms-title='迟到时间' tms-obj="round" tms-date='round.late_at' tms-state='round.late_at'></tms-datepicker>
+                            </td>
+                            <td style='padding:0'>
+                                <button class="btn btn-default" ng-click="remove(round)"><span class="glyphicon glyphicon-remove"></span></button>
+                                <button class="btn btn-default" ng-click="qrcode(round)"><span class="glyphicon glyphicon-qrcode"></span></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="4">
+                                <button class="btn btn-success" ng-click="add()"><span class="glyphicon glyphicon-plus"></span></button>
+                                <button class="btn btn-success" ng-click="batch()"><span>批量添加</span></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default" ng-controller="ctrlOpUrl">
+        <div class="panel-body">
+            <div class='form-group'>
+                <label>汇总结果分享链接</label>
+                <div class='input-group'>
+                    <input class='form-control' readonly value="{{opEntry.url}}">
+                    <div class='input-group-btn'>
+                        <a class='btn btn-default' ng-href="{{opEntry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group'>
+                <button class='btn btn-default' ng-if="!opEntry.url.length" ng-click="makeOpUrl()">生成</button>
+                <button class='btn btn-default' ng-if="opEntry.url.length" ng-click="closeOpUrl()">关闭</button>
+                <button uib-popover-template="'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="opEntry.url.length">密码 <span class="caret"></span></button>
+            </div>
+            <div class='form-group' ng-if="opEntry.url">
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opEntry.can_favor" ng-change="updCanFavor()">支持收藏</label>
+                <p class='help-block'>分享链接有效期1小时，设置【支持收藏】后，用户可收藏本链接，避免有效期限制</p>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default" ng-if="sns.wx.joined==='Y'||sns.yx.joined==='Y'">
+        <div class="panel-body">
+            <div class='form-group'>
+                <label>公众号分享头图（可选，建议尺寸360*200）</label>
+                <div style='position:relative'>
+                    <div style="width:182px;border:1px solid #CCC">
+                        <div style="height:100px;text-align:center;padding-top:32px" ng-if="!app.pic">
+                            <button class='btn btn-default' ng-click='setPic();'>
+                                <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                        </div>
+                        <div style='position:relative' ng-if="app.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                            <img name='pic' ng-src="{{app.pic}}" width='180px' />
+                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                                <span class='glyphicon glyphicon-picture'></span>
+                            </button>
+                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                                <span class='glyphicon glyphicon-trash'></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label>公众号分享摘要（可选）：最多120个汉字，240个英文字符</label>
+                <textarea class='form-control' ng-model='app.summary' tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end publish -->
+<script type="text/ng-template" id="batchRounds.html">
+    <div class="modal-header">
+        <button class="close" ng-click="cancel()" type="button">×</button>
+        <h5 class="modal-title">指定签到次数</h5>
+    </div>
+    <div class="modal-body">
+        <div class='form-horizontal'>
+            <div class='form-group'>
+                <label class='col-md-3 control-label'>活动开始时间</label>
+                <div class='col-md-9'>
+                    <tms-datepicker class='tms-datepicker' tms-title='课程开始时间' tms-date='params.start_at' tms-state='start_at'></tms-datepicker>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class='col-md-3 control-label'>活动结束时间</label>
+                <div class='col-md-9'>
+                    <tms-datepicker class='tms-datepicker' tms-title='课程结束时间' tms-date='params.end_at' tms-state='end_at'></tms-datepicker>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">每天签到次数</label>
+                <div class='col-md-9'>
+                    <label class='radio-inline'>
+                        <input type='radio' value='1' name='type' ng-model="params.timesOfDay">1次</label>
+                    <label class='radio-inline'>
+                        <input type='radio' value='2' name='type' ng-model="params.timesOfDay">2次</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">覆盖已有轮次</label>
+                <div class='col-md-9'>
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="params.overwrite">是</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer" style="margin-top:0">
+        <button class="btn btn-success" ng-click="ok()">确定</button>
+    </div>
+</script>
+<script type="text/ng-template" id="roundQrcode.html">
+    <div class="modal-header">
+        <button class="close" ng-click="cancel()" type="button">×</button>
+        <h5 class="modal-title">签到：{{popover.title}}</h5>
+    </div>
+    <div class="modal-body">
+        <div class='form-group'>
+            <label>签到链接：仅［{{popover.title}}］有效</label>
+            <div class='input-group'>
+                <div class='form-control' style='height:auto;word-break:break-all' ng-bind='popover.url'></div>
+                <span class='input-group-addon'>
+                    <a class='btn btn-default' ng-href="{{popover.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                </span>
+            </div>
+        </div>
+        <!--微信企业号暂时使用通用二维码-->
+        <div class='form-group' ng-if="(app.entry_rule.scope!=='sns')||(app.entry_rule.scope=='sns'&&sns.qy.joined==='Y')">
+            <label>签到二维码：仅［{{popover.title}}］有效</label>
+            <div>
+                <span><img style='width:135px;height:135px;' ng-src="{{popover.qrcode}}"></span>
+                <button class='btn btn-default' ng-click="downloadQrcode(popover.qrcode)">下载</button>
+            </div>
+        </div>
+        <div class='form-group' ng-if="app.entry_rule.scope==='sns'&&sns.wx.can_qrcode==='Y'">
+            <label>微信签到二维码：仅［{{popover.title}}］有效</label>
+            <div ng-if='!qrcode'>
+                <button class='btn btn-default' ng-click="createWxQrcode()">生成微信二维码</button>
+            </div>
+            <div ng-if='qrcode'>
+                <span><img style='width:135px;height:135px;' ng-src="{{qrcode.pic}}"></span>
+                <button class='btn btn-default' ng-click="downloadWxQrcode()">下载</button>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="ok()">关闭</button>
+    </div>
+</script>
+<script type="text/ng-template" id="opUrlPasswd.html">
+    <div id="opUrlPasswd">
+        <div class='form-group'>
+            <div class='input-group'>
+                <input class='form-control' ng-model="opEntry.password">
+                <span class='input-group-btn'>
+                    <button class='btn btn-default' ng-click="configOpUrl($event,'password')">设置</button>
+                </span>
+            </div>
+        </div>
+        <div>
+</script>

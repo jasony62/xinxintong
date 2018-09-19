@@ -1,0 +1,96 @@
+<div class='container'>
+    <div id='report' class='row'>
+        <div class='col-md-12'>
+            <h3>{{app.title}}</h3>
+            <hr>
+            <!--schemas-->
+            <div ng-repeat="schema in rpSchemas">
+                <h3><span ng-bind="schema.title"></span></h3>
+                <div ng-if="['single','phase','multiple'].indexOf(schema.type)!==-1">
+                    <div id="{{schema.id}}" style='height:300px'></div>
+                    <table class='table table-bordered'>
+                        <thead>
+                            <tr>
+                                <th style='width:4em'>编号</th>
+                                <th>选项</th>
+                                <th style='width:6em' ng-if="chartConfig.number==='Y'">数量</th>
+                                <th style='width:6em' ng-if="chartConfig.percentage==='Y'">比例</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="op in stat[schema.id].ops">
+                                <td>选项{{$index+1}}</td>
+                                <td>{{op.l}}</td>
+                                <td ng-if="chartConfig.number==='Y'">{{op.c}}</td>
+                                <td ng-if="chartConfig.percentage==='Y'">{{op.p}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div ng-if="'score'===schema.type">
+                    <div id="{{schema.id}}" style='height:300px'></div>
+                    <table class='table table-bordered'>
+                        <thead>
+                            <tr>
+                                <th style='width:4em'>编号</th>
+                                <th>打分项</th>
+                                <th style='width:6em'>平均分</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="op in stat[schema.id].ops">
+                                <td>选项{{$index+1}}</td>
+                                <td>{{op.l}}</td>
+                                <td>{{op.c}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div ng-if="['single','phase','multiple','score'].indexOf(schema.type)===-1" ng-init="page={at:1,size:10}">
+                    <div id="{{schema.id}}" style='height:300px' ng-if="schema.number&&schema.number=='Y'"></div>
+                    <table class='table table-bordered'>
+                        <thead>
+                            <tr>
+                                <th ng-repeat='mark in app.rpConfig.marks' ng-if="mark.id!==schema.id">{{mark.name}}</th>
+                                <th>登记内容</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="record in getRecords(schema,page).records">
+                                <td ng-repeat='mark in app.rpConfig.marks' ng-if="['nickname'].indexOf(mark.id)!==-1&&mark.id!==schema.id">
+                                    <span ng-bind-html="record.task.nickname"></span>
+                                </td>
+                                <td ng-repeat='mark in app.rpConfig.marks' ng-if="['nickname'].indexOf(mark.id)===-1&&mark.id!==schema.id">
+                                    <span ng-bind-html="record.task._data[mark.id]"></span>
+                                </td>
+                                <td ng-switch on="schema.type">
+                                    <span ng-switch-when="image">
+                                        <img ng-repeat="img in record.task._data[schema.id]" ng-src='{{img}}' />
+                                    </span>
+                                    <span ng-switch-when="file">
+                                        <span ng-repeat='file in record.task._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                                    </span>
+                                    <span ng-switch-when="date">{{(record.task._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                                    <span ng-switch-default ng-bind-html="record.task._data[schema.id]"></span>
+                                </td>
+                            </tr>
+                            <tr class='text-center' ng-if="schema.number&&schema.number=='Y'">
+                                <td>合计</td>
+                                <td colspan={{app.rpConfig.marks.length}}>{{getRecords(schema,page).sum}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class='pl-pagination'>
+                        <span>总数：{{page.total}}</span>
+                        <ul uib-pagination ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getRecords(schema,page)"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <nav class="navbar navbar-default navbar-fixed-bottom" ng-if="!onlyReport">
+            <div class="container-fluid">
+                <p class="navbar-text"><a href="" ng-click="switchTo('list')" class="navbar-link">看列表</a></p>
+            </div>
+        </nav>
+    </div>
+</div>

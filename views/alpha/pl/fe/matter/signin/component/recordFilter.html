@@ -1,0 +1,57 @@
+<style>
+/* img tiles */
+
+ul {
+    margin: 0;
+    padding: 0
+}
+</style>
+<div class="modal-header">
+    <button class="close" type="button" ng-click="cancel()">×</button>
+    <h5 class="modal-title">筛选条件</h5>
+</div>
+<div class="modal-body">
+    <form class="form-horizontal">
+        <div class="form-group">
+            <label class="col-md-3 control-label">签到时间</label>
+            <div class="col-md-7">
+                <label class='radio-inline'>
+                    <input type='radio' name='late' value='Y' ng-model="criteria.late">迟到</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='late' value='' ng-model="criteria.late">全部</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-3 control-label">验证通过</label>
+            <div class="col-md-7">
+                <label class='radio-inline'>
+                    <input type='radio' name='verified' value='Y' ng-model="criteria.record.verified">是</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='verified' value='N' ng-model="criteria.record.verified">否</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='verified' value='' ng-model="criteria.record.verified">全部</label>
+            </div>
+        </div>
+        <div class="form-group" ng-repeat="schema in schemas" ng-if="schema.id.indexOf('member')!==0">
+            <label class="col-md-3 control-label">{{schema.title}}</label>
+            <div class="col-md-7">
+                <input type='text' class='form-control' ng-if="['name','email','mobile','shorttext','location'].indexOf(schema.type)!==-1" ng-model="criteria.data[schema.id]">
+                <textarea class='form-control' ng-if="'longtext'===schema.type" ng-model="criteria.data[schema.id]"></textarea>
+                <select class='form-control' ng-if="'single'===schema.type" ng-model="criteria.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
+                    <option></option>
+                </select>
+                <ul ng-if="schema.type==='multiple'">
+                    <li class='checkbox' ng-repeat="op in schema.ops">
+                        <label>
+                            <input type="checkbox" name="{{schema.id}}" ng-model="criteria.data[schema.id][op.v]" /><span>{{op.l}}</span></label>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="clean()">清除条件</button>
+    <button class="btn btn-default" ng-click="cancel()">关闭</button>
+    <button class="btn btn-primary" ng-click="ok()">确定</button>
+</div>

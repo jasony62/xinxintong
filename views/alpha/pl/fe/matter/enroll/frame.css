@@ -1,0 +1,71 @@
+#main-view,#preview-view,#entry-view{overflow-y:auto;}
+
+/*main-view*/
+#main-access .badge a{color:#fff;text-decoration:none;}
+
+/*preview*/
+#simulator{position:relative;width:360px;height:640px;border:1px solid #ccc;box-shadow:0px 2px 5px 5px rgba(192,192,192,1);}
+#simulator iframe{width:100%;height:100%;border:0;}
+#simulatorActions{position:absolute;top:80px;left:350px;width:150px;}
+
+/*schema-view*/
+#schema-view .flexrow{display:flex;margin-bottom:8px;}
+#schema-view .flexrow>*{flex:1;}
+#schema-view .schemas{index}
+#schema-view .schemas .schema{counter-increment:index;position:relative;padding-left:24px;padding-right:24px;}
+#schema-view .schemas .schema:before{content:counter(index);background:#999;color:#fff;position:absolute;top:0px;left:0px;width:18px;height:18px;line-height:18px;text-align:center;border-top-left-radius:2px;}
+#schema-view .schema{background:#fff;margin-bottom:15px;padding:8px;border:1px solid #ddd;}
+#schema-view .schema.shorttext:after{content:'单行填写题';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
+#schema-view .schema.multitext:after{content:'多项填写题';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
+#schema-view .schema.longtext:after{content:'多行填写题';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
+#schema-view .schema.date:after{content:'日期';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
+#schema-view .schema.member:after{content:'通讯录联系人';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
+#schema-view .schema.single:after{content:'单选题';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
+#schema-view .schema.score:after{content:'打分题';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
+#schema-view .schema.multiple:after{content:'多选题';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
+#schema-view .schema.image:after{content:'上传图片';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
+#schema-view .schema.file:after{content:'上传文件';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
+#schema-view .schema.voice:after{content:'上传录音';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
+#schema-view .schema.url:after{content:'上传链接';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
+#schema-view .schema.location:after{content:'上传位置';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
+#schema-view .schema.html:after{content:'描述说明';position:absolute;top:0;right:0;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-top-right-radius:2px;}
+#schema-view .schema .title{height:38px;line-height:38px;margin-bottom:5px;overflow:hidden;white-space:nowrap;cursor:move;}
+#schema-view .schema .title div[editable]{display:inline-block;width:320px;}
+#schema-view .schema-options .option{position:relative;cursor:move;height:auto;line-height:38px;overflow:hidden;white-space:nowrap;}
+#schema-view .schema-options .option input[type=radio],#schema-view .schema-options .option input[type=checkbox]{vertical-align:middle;margin-top:0;}
+#schema-view .schema-options .option div[editable]{display:inline-block;vertical-align:middle;margin-left:8px;width:300px;}
+#schema-view .schema-options .option.entered{background:#f8f8f8;}
+#schema-view .schema-options .option .btn-group{position:absolute;top:50%;right:5px;margin-top:-10px;}
+#schema-view [editable]{cursor:text;}
+#schema-view .actions{margin-top:10px;padding-top:10px;border-top:1px dotted #ddd;}
+#schema-view .schema .description{word-wrap:break-word;}
+#schema-view .schema .description img{max-width:100%;}
+#schema-view .schema.active{border-left:4px solid red;margin-left:-3px;}
+#schema-view img{max-width:100%;}
+#schema-view .schema .hint{margin-top:8px;}
+
+/*page-view*/
+#page-view .schema-switch{position:absolute;top:50%;margin-top:-10px;right:4px;}
+
+/*page-view pages*/
+#pageEdit{height:300px;overflow-y:auto;}
+#pageEdit .mce-tinymce.mce-container.mce-panel{border:1px solid #ccc;height:100%;box-sizing:border-box;}
+#pageEdit .mce-tinymce.mce-container.mce-panel .mce-container-body{height:100%;}
+#pageEdit .mce-tinymce .mce-edit-area{position:absolute;top:34px;left:0;right:0;bottom:0;border:0!important;border-top:1px solid #ccc!important;}
+#pageEdit .mce-tinymce .mce-edit-area iframe{width:100%;height:100%!important;}
+#pageEdit .mce-tinymce.mce-container.mce-panel.mce-fullscreen{margin-top:51px}
+#pageEdit .mce-tinymce .mce-menubtn.mce-fixed-width span{width:auto;}
+
+/*record-view*/
+table img{max-width:96px;}
+#enrollRecords th{text-align:center;}
+#enrollRecords td span.signin_late{color:red;}
+#enrollRecords .nickname{background:lightblue;}
+#enrollRecords .matched.enroll{background:yellow;}
+#enrollRecords .matched.group{background:lightgreen;}
+.tag{background:#3af;padding:4px 6px;margin:4px;border-radius:2px;font-size:.8em;color:#fff;}
+
+/*overview*/
+.overview .status-group{margin:0 0 20px 0;padding-left:20px;}
+.overview .status-group .status{padding:1em 0;border-bottom:1px dotted #ddd;}
+.overview .status-group .status:last-child{border-bottom:0}

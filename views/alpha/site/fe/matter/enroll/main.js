@@ -281,6 +281,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
         var params = rsp.data,
             oSite = params.site,
             oApp = params.app,
+            oEntryRuleResult = params.entryRuleResult,
             oMission = params.mission,
             oPage = params.page,
             oUser = params.user,
@@ -294,6 +295,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
         $scope.site = oSite;
         $scope.mission = oMission;
         $scope.app = oApp;
+        $scope.entryRuleResult = oEntryRuleResult;
         $scope.user = oUser;
         $scope.activeRid = '';
         if (params.activeRound) {

@@ -130,21 +130,31 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         return deferred.promise;
     }
     $scope.likeRecord = function(oRecord) {
+        if ($scope.entryRuleResult.passed == 'N') {
+            location.href = $scope.entryRuleResult.passUrl;
+            return;
+        }
         var url;
         url = LS.j('record/like', 'site');
         url += '&ek=' + oRecord.enroll_key;
         http2.get(url).then(function(rsp) {
             oRecord.like_log = rsp.data.like_log;
             oRecord.like_num = rsp.data.like_num;
+            noticebox.warn('您获得0分，添加答案或写留言获取更多积分吧~');
         });
     };
     $scope.dislikeRecord = function(oRecord) {
+        if ($scope.entryRuleResult.passed == 'N') {
+            location.href = $scope.entryRuleResult.passUrl;
+            return;
+        }
         var url;
         url = LS.j('record/dislike', 'site');
         url += '&ek=' + oRecord.enroll_key;
         http2.get(url).then(function(rsp) {
             oRecord.dislike_log = rsp.data.dislike_log;
             oRecord.dislike_num = rsp.data.dislike_num;
+            noticebox.warn('您获得0分，添加答案或写留言获取更多积分吧~');
         });
     };
     $scope.remarkRecord = function(oRecord) {
@@ -270,15 +280,15 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
         $scope.gotoPage(event, page, oRecord.enroll_key);
     };
-    $scope.removeRecord = function(event,oRecord) {
-        if(oRecord.userid != $scope.user.uid) {
+    $scope.removeRecord = function(event, oRecord) {
+        if (oRecord.userid != $scope.user.uid) {
             noticebox.warn('不允许编辑其他用户提交的记录');
             return;
         }
         var url;
-        url = '/rest/site/fe/matter/enroll/record/remove?app=' +  _oApp.id + '&ek=' + oRecord.enroll_key;
+        url = '/rest/site/fe/matter/enroll/record/remove?app=' + _oApp.id + '&ek=' + oRecord.enroll_key;
         http2.get(url).then(function(rsp) {
-            if(rsp.data.err_code==0) {
+            if (rsp.data.err_code == 0) {
                 noticebox.success('删除成功');
             }
         })
@@ -366,14 +376,28 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                     $scope.activeDir4 = '';
                     $scope.activeDir5 = '';
             }
-
+        },
+        toggleClick: function() {
+            var blocks = document.querySelectorAll('.item-inner .block');
+            //true 收起  false kaizhan
+            if ($scope.advCriteriaStatus.dirOpen) {
+                blocks.forEach(function(block) {
+                    block.style.display = 'block';
+                });
+            } else {
+                blocks.forEach(function(block) {
+                    block.style.display = 'none';
+                });
+            }
+            $scope.advCriteriaStatus.dirOpen = !$scope.advCriteriaStatus.dirOpen;
         },
 
-    };
+    }
     $scope.shiftDir = function(oDir, $event, level) {
         _oCriteria.data = {};
-        if(oDir) {
-             _oCriteria.data[oDir.schema_id] = oDir.op.v;
+        if (oDir) {
+            _oCriteria.data[oDir.schema_id] = oDir.op.v;
+            $scope.advCriteriaStatus.dirOpen = false;
             $scope.dirLevel.active(oDir, level);
         } else {
             $scope.dirLevel.active();
@@ -520,5 +544,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         if (Object.keys(oAppNavs).length) {
             $scope.appNavs = oAppNavs;
         }
+        /*判断是否登陆*/
+        $scope.isLogin = params.entryRuleResult.passed;
     });
 }]);

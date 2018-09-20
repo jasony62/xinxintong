@@ -431,6 +431,10 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         }
     };
     $scope.likeRemark = function(oRemark) {
+        if($scope.entryRuleResult.passed == 'N') {
+            location.href = $scope.entryRuleResult.passUrl;
+            return;
+        }
         var url;
         url = LS.j('remark/like', 'site');
         url += '&remark=' + oRemark.id;
@@ -440,6 +444,10 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         });
     };
     $scope.dislikeRemark = function(oRemark) {
+        if($scope.entryRuleResult.passed == 'N') {
+            location.href = $scope.entryRuleResult.passUrl;
+            return;
+        }
         var url;
         url = LS.j('remark/dislike', 'site');
         url += '&remark=' + oRemark.id;
@@ -486,6 +494,10 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         }
     };
     $scope.writeRemark = function(oUpperRemark) {
+        if($scope.entryRuleResult.passed == 'N') {
+            location.href = $scope.entryRuleResult.passUrl;
+            return;
+        }
         $uibModal.open({
             templateUrl: 'writeRemark.html',
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
@@ -507,6 +519,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         }).result.then(function(data) {
             addRemark(data.content, oUpperRemark).then(function(rsp) {
                 fnAppendRemark(rsp.data, oUpperRemark);
+                noticebox.warn('您获得'+  +'分，添加答案或写留言获取更多积分吧~');
             });
         });
     };
@@ -543,6 +556,10 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         });
     };
     $scope.likeRecord = function() {
+        if($scope.entryRuleResult.passed == 'N') {
+            location.href = $scope.entryRuleResult.passUrl;
+            return;
+        }
         var oRecord;
         oRecord = $scope.record;
         http2.get(LS.j('record/like', 'site', 'ek')).then(function(rsp) {
@@ -551,6 +568,10 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         });
     };
     $scope.dislikeRecord = function() {
+        if($scope.entryRuleResult.passed == 'N') {
+            location.href = $scope.entryRuleResult.passUrl;
+            return;
+        }
         var oRecord;
         oRecord = $scope.record;
         http2.get(LS.j('record/dislike', 'site', 'ek')).then(function(rsp) {
@@ -595,12 +616,20 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         location.href = url;
     };
     $scope.likeItem = function(oItem) {
+        if($scope.entryRuleResult.passed == 'N') {
+            location.href = $scope.entryRuleResult.passUrl;
+            return;
+        }
         http2.get(LS.j('data/like', 'site') + '&data=' + oItem.id).then(function(rsp) {
             oItem.like_log = rsp.data.like_log;
             oItem.like_num = rsp.data.like_num;
         });
     };
     $scope.dislikeItem = function(oItem) {
+        if($scope.entryRuleResult.passed == 'N') {
+            location.href = $scope.entryRuleResult.passUrl;
+            return;
+        }
         http2.get(LS.j('data/dislike', 'site') + '&data=' + oItem.id).then(function(rsp) {
             oItem.dislike_log = rsp.data.dislike_log;
             oItem.dislike_num = rsp.data.dislike_num;
@@ -709,6 +738,10 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
 ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uibModal', 'tmsLocation', 'http2', 'noticebox', function($scope, $timeout, $anchorScroll, $uibModal, LS, http2, noticebox) {
     $scope.canSubmitCowork = true; // 是否允许提交协作数据
     $scope.addItem = function(oSchema) {
+        if($scope.entryRuleResult.passed == 'N') {
+            location.href = $scope.entryRuleResult.passUrl;
+            return;
+        }
         var oCoworkRule;
         if (oCoworkRule = $scope.ruleCowork($scope.record)) {
             noticebox.warn(oCoworkRule.desc);
@@ -750,6 +783,7 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
                     oRecData = $scope.record.verbose[oSchema.id] = rsp.data[1];
                     oRecData.items = [oNewItem];
                 }
+                noticebox.warn('您获得'+  +'分，添加答案或写留言获取更多积分吧~');
             });
         });
     };
@@ -852,6 +886,7 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
                     }
                     document.body.scrollTop = offsetTop - 40;
                     elRemark.classList.add('blink');
+                    noticebox.warn('您获得'+  +'分，添加答案或写留言获取更多积分吧~');
                     $timeout(function() {
                         elRemark.classList.remove('blink');
                     }, 1000);

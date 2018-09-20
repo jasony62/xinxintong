@@ -97,7 +97,6 @@ class main extends base {
 		if (isset($user->unionid)) {
 			$oAccount = $this->model('account')->byId($user->unionid, ['cascaded' => ['group']]);
 			if (isset($oAccount->group->view_name) && $oAccount->group->view_name !== TMS_APP_VIEW_NAME) {
-				\TPL::assign('viewName', $oAccount->group->view_name);
 				\TPL::output($outputUrl, ['customViewName' => $oAccount->group->view_name]);
 				exit;
 			}

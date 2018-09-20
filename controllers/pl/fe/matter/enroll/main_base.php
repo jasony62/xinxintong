@@ -21,7 +21,6 @@ abstract class main_base extends \pl\fe\matter\main_base {
 		$oAccount = $aAccess[1];
 		$oAccount = $this->model('account')->byId($oAccount->id, ['cascaded' => ['group']]);
 		if (isset($oAccount->group->view_name) && $oAccount->group->view_name !== TMS_APP_VIEW_NAME) {
-			\TPL::assign('customViewName', $oAccount->group->view_name);
 			\TPL::output('/pl/fe/matter/enroll/frame', ['customViewName' => $oAccount->group->view_name]);
 		} else {
 			\TPL::output('/pl/fe/matter/enroll/frame');

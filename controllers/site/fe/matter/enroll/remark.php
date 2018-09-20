@@ -290,12 +290,21 @@ class remark extends base {
 				}
 			}
 			if (isset($oDataSchema->cowork) && $oDataSchema->cowork === 'Y') {
-				$this->model('matter\enroll\event')->remarkCowork($oApp, $oRecData, $oNewRemark, $oRemarker);
+				$rst = $this->model('matter\enroll\event')->remarkCowork($oApp, $oRecData, $oNewRemark, $oRemarker);
+				if (isset($rst->user_total_coin)) {
+					$oNewRemark->userGetCoin = $rst->user_total_coin;
+				}
 			} else {
-				$this->model('matter\enroll\event')->remarkRecData($oApp, $oRecData, $oNewRemark, $oRemarker);
+				$rst = $this->model('matter\enroll\event')->remarkRecData($oApp, $oRecData, $oNewRemark, $oRemarker);
+				if (isset($rst->user_total_coin)) {
+					$oNewRemark->userGetCoin = $rst->user_total_coin;
+				}
 			}
 		} else {
-			$this->model('matter\enroll\event')->remarkRecord($oApp, $oRecord, $oNewRemark, $oRemarker);
+			$rst = $this->model('matter\enroll\event')->remarkRecord($oApp, $oRecord, $oNewRemark, $oRemarker);
+			if (isset($rst->user_total_coin)) {
+				$oNewRemark->userGetCoin = $rst->user_total_coin;
+			}
 		}
 
 		/* 生成提醒 */

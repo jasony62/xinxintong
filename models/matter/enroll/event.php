@@ -362,6 +362,8 @@ class event_model extends \TMS_MODEL {
 		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
 		$this->_logEvent($oApp, $oRecData->rid, $oRecData->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
+
+		return $oOperatorData;
 	}
 	/**
 	 * 执行提交协作填写项
@@ -642,6 +644,8 @@ class event_model extends \TMS_MODEL {
 		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
 		$this->_logEvent($oApp, $oRecord->rid, $oRecord->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
+
+		return $oOperatorData;
 	}
 	/**
 	 * 留言填写数据

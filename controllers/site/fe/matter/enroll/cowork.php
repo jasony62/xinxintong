@@ -134,11 +134,15 @@ class cowork extends base {
 
 		/* 更新用户汇总信息及积分 */
 		$modelEvt = $this->model('matter\enroll\event');
-		$modelEvt->submitCowork($oApp, $oRecData, $oNewItem, $oUser);
+		$rst = $modelEvt->submitCowork($oApp, $oRecData, $oNewItem, $oUser);
 		/* 生成提醒 */
 		$this->model('matter\enroll\notice')->addCowork($oApp, $oRecData, $oNewItem, $oUser);
 
-		return new \ResponseData([$oNewItem, $oRecData]);
+		$data = [$oNewItem, $oRecData];
+		if (isset($rst->user_total_coin)) {
+			$data['userGetCoin'] = $rst->user_total_coin;
+		}
+		return new \ResponseData($data);
 	}
 	/**
 	 * 更新题目中的一个项

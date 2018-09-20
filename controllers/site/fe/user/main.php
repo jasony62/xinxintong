@@ -10,6 +10,15 @@ class main extends \site\fe\base {
 	 *
 	 */
 	public function index_action() {
+		$user = $this->who;
+		if (isset($user->unionid)) {
+			$oAccount = $this->model('account')->byId($user->unionid, ['cascaded' => ['group']]);
+			if (isset($oAccount->group->view_name) && $oAccount->group->view_name !== TMS_APP_VIEW_NAME) {
+				\TPL::output('/site/fe/user/main', ['customViewName' => $oAccount->group->view_name]);
+				exit;
+			}
+		}
+
 		\TPL::output('/site/fe/user/main');
 		exit;
 	}

@@ -384,20 +384,27 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                         title: '分组' + (_rounds.length + 1)
                     };
                 http2.post('/rest/pl/fe/matter/group/round/add?site=' + _siteId + '&app=' + _appId, proto, function(rsp) {
-                    _rounds.push(rsp.data);
-                    defer.resolve(rsp.data);
+                    var oNewRound = rsp.data;
+                    oNewRound._before = angular.copy(oNewRound);
+                    _rounds.push(oNewRound);
+                    defer.resolve(oNewRound);
                 });
                 return defer.promise;
             },
-            update: function(round, name) {
+            update: function(oRound, name) {
                 var defer = $q.defer(),
-                    nv = {};
+                    oUpdated = {};
 
-                nv[name] = round[name];
-                http2.post('/rest/pl/fe/matter/group/round/update?site=' + _siteId + '&app=' + _appId + '&rid=' + round.round_id, nv, function(rsp) {
-                    defer.resolve();
-                    noticebox.success('完成保存');
-                });
+                oUpdated[name] = oRound[name];
+                http2.post('/rest/pl/fe/matter/group/round/update?site=' + _siteId + '&app=' + _appId + '&rid=' + oRound.round_id, oUpdated, function(rsp) {
+                    if (rsp.err_code === 0) {
+                        oRound._before = angular.copy(oRound);
+                        defer.resolve(oRound);
+                        noticebox.success('完成保存');
+                    } else {
+                        oRound[name] = oRound._before[name];
+                    }
+                }, { autoBreak: false });
                 return defer.promise;
             },
             remove: function(round) {

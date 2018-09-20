@@ -139,8 +139,12 @@ class cowork extends base {
 		$this->model('matter\enroll\notice')->addCowork($oApp, $oRecData, $oNewItem, $oUser);
 
 		$data = [$oNewItem, $oRecData];
-		if (isset($rst->user_total_coin)) {
-			$data['userGetCoin'] = $rst->user_total_coin;
+		$data['getCoin'] = new \stdClass;
+		if (isset($rst->userGetCoin)) {
+			$data['getCoin']->userGetCoin = $rst->userGetCoin;
+		}
+		if (isset($rst->authorGetCoin)) {
+			$data['getCoin']->authorGetCoin = $rst->authorGetCoin;
 		}
 		return new \ResponseData($data);
 	}

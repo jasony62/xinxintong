@@ -865,7 +865,7 @@ class record extends base {
 		$modelEnlEvt = $this->model('matter\enroll\event');
 		if ($incLikeNum > 0) {
 			/* 发起点赞 */
-			$modelEnlEvt->likeRecord($oApp, $oRecord, $oUser);
+			$likeRst = $modelEnlEvt->likeRecord($oApp, $oRecord, $oUser);
 		} else {
 			/* 撤销发起点赞 */
 			$modelEnlEvt->undoLikeRecord($oApp, $oRecord, $oUser);
@@ -874,6 +874,12 @@ class record extends base {
 		$oResult = new \stdClass;
 		$oResult->like_log = $oLikeLog;
 		$oResult->like_num = $likeNum;
+		if (isset($likeRst->userGetCoin)) {
+			$oResult->userGetCoin = $likeRst->userGetCoin;
+		}
+		if (isset($likeRst->authorGetCoin)) {
+			$oResult->authorGetCoin = $likeRst->authorGetCoin;
+		}
 
 		return new \ResponseData($oResult);
 	}

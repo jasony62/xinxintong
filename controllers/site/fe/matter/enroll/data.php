@@ -491,7 +491,7 @@ class data extends base {
 		if ($incLikeNum > 0) {
 			/* 发起点赞 */
 			if (isset($oDataSchema->cowork) && $oDataSchema->cowork === 'Y') {
-				$modelEnlEvt->likeCowork($oApp, $oRecData, $oUser);
+				$likeCoworkRst = $modelEnlEvt->likeCowork($oApp, $oRecData, $oUser);
 			} else {
 				$modelEnlEvt->likeRecData($oApp, $oRecData, $oUser);
 			}
@@ -507,6 +507,12 @@ class data extends base {
 		$aResult = [];
 		$aResult['like_log'] = $oLikeLog;
 		$aResult['like_num'] = $likeNum;
+		if (isset($likeCoworkRst->userGetCoin)) {
+			$aResult['userGetCoin'] = $likeCoworkRst->userGetCoin;
+		}
+		if (isset($likeCoworkRst->authorGetCoin)) {
+			$aResult['authorGetCoin'] = $likeCoworkRst->authorGetCoin;
+		}
 
 		return new \ResponseData($aResult);
 	}

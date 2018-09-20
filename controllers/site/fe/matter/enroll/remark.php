@@ -291,19 +291,28 @@ class remark extends base {
 			}
 			if (isset($oDataSchema->cowork) && $oDataSchema->cowork === 'Y') {
 				$rst = $this->model('matter\enroll\event')->remarkCowork($oApp, $oRecData, $oNewRemark, $oRemarker);
-				if (isset($rst->user_total_coin)) {
-					$oNewRemark->userGetCoin = $rst->user_total_coin;
+				if (isset($rst->userGetCoin)) {
+					$oNewRemark->userGetCoin = $rst->userGetCoin;
+				}
+				if (isset($rst->authorGetCoin)) {
+					$oNewRemark->authorGetCoin = $rst->authorGetCoin;
 				}
 			} else {
 				$rst = $this->model('matter\enroll\event')->remarkRecData($oApp, $oRecData, $oNewRemark, $oRemarker);
-				if (isset($rst->user_total_coin)) {
-					$oNewRemark->userGetCoin = $rst->user_total_coin;
+				if (isset($rst->userGetCoin)) {
+					$oNewRemark->userGetCoin = $rst->userGetCoin;
+				}
+				if (isset($rst->authorGetCoin)) {
+					$oNewRemark->authorGetCoin = $rst->authorGetCoin;
 				}
 			}
 		} else {
 			$rst = $this->model('matter\enroll\event')->remarkRecord($oApp, $oRecord, $oNewRemark, $oRemarker);
-			if (isset($rst->user_total_coin)) {
-				$oNewRemark->userGetCoin = $rst->user_total_coin;
+			if (isset($rst->userGetCoin)) {
+				$oNewRemark->userGetCoin = $rst->userGetCoin;
+			}
+			if (isset($rst->authorGetCoin)) {
+				$oNewRemark->authorGetCoin = $rst->authorGetCoin;
 			}
 		}
 
@@ -499,13 +508,21 @@ class remark extends base {
 		$modelEnlEvt = $this->model('matter\enroll\event');
 		if ($incLikeNum > 0) {
 			/* 发起点赞 */
-			$modelEnlEvt->likeRemark($oApp, $oRemark, $oUser);
+			$likeRst = $modelEnlEvt->likeRemark($oApp, $oRemark, $oUser);
 		} else {
 			/* 撤销发起点赞 */
 			$modelEnlEvt->undoLikeRemark($oApp, $oRemark, $oUser);
 		}
 
-		return new \ResponseData(['like_log' => $oLikeLog, 'like_num' => $likeNum]);
+		$data = ['like_log' => $oLikeLog, 'like_num' => $likeNum];
+		$data['getCoin'] = new \stdClass;
+		if (isset($likeRst->userGetCoin)) {
+			$data['getCoin']->userGetCoin = $likeRst->userGetCoin;
+		}
+		if (isset($likeRst->authorGetCoin)) {
+			$data['getCoin']->authorGetCoin = $likeRst->authorGetCoin;
+		}
+		return new \ResponseData($data);
 	}
 	/**
 	 * 反对登记记录中的某一个留言

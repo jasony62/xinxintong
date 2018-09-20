@@ -541,8 +541,17 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                     var oResult = rsp.data;
                     users.forEach(function(oUser) {
                         if (oResult[oUser.enroll_key] !== false) {
-                            oUser.round_id = oRound.round_id;
-                            oUser.round_title = oRound.title;
+                            switch (oRound.round_type) {
+                                case 'T':
+                                    oUser.round_id = oRound.round_id;
+                                    oUser.round_title = oRound.title;
+                                    break;
+                                case 'R':
+                                    oUser.role_rounds === undefined && (oUser.role_rounds = []);
+                                    oUser.role_rounds.push(oRound.round_id);
+                                    srvGroupApp.dealData(oUser);
+                                    break;
+                            }
                             tmsSchema.forTable(oUser, _oApp._schemasById);
                         }
                     });

@@ -574,6 +574,9 @@ class player extends \pl\fe\matter\base {
 		}
 
 		$oRound = $this->model('matter\group\round')->byId($round);
+		if (false === $oRound) {
+			return new \ObjectNotFoundError();
+		}
 
 		$oResult = new \stdClass;
 		$modelPly = $this->model('matter\group\player');

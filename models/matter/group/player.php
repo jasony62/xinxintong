@@ -530,15 +530,33 @@ class player_model extends \TMS_MODEL {
 	/**
 	 * 移入分组 （团队分组）
 	 */
-	public function joinGroup($appId, &$round, $ek) {
-		$rst = $this->update(
-			'xxt_group_player',
-			[
-				'round_id' => $round->round_id,
-				'round_title' => $round->title,
-			],
-			["aid" => $appId, "enroll_key" => $ek]
-		);
+	public function joinGroup($appId, $oRound, $ek) {
+		$rst = 0;
+		switch ($oRound->round_type) {
+		case 'T':
+			$rst = $this->update(
+				'xxt_group_player',
+				[
+					'round_id' => $oRound->round_id,
+					'round_title' => $oRound->title,
+				],
+				["aid" => $appId, "enroll_key" => $ek]
+			);
+			break;
+		case 'R':
+			$oUser = $this->byEnrollKey($ek, $appId, ['fields' => 'role_rounds']);
+			if ($oUser && !in_array($oRound->round_id, $oUser->role_rounds)) {
+				$oUser->role_rounds[] = $oRound->round_id;
+				$rst = $this->update(
+					'xxt_group_player',
+					[
+						'role_rounds' => json_encode($oUser->role_rounds),
+					],
+					["aid" => $appId, "enroll_key" => $ek]
+				);
+			}
+			break;
+		}
 
 		return $rst;
 	}
@@ -667,7 +685,7 @@ class player_model extends \TMS_MODEL {
 	/**
 	 * 获得分组内用户的数量（团队分组）
 	 */
-	public function &countByRound($appId, $rid) {
+	public function countByRound($appId, $rid) {
 		$q = [
 			'count(*)',
 			'xxt_group_player',
@@ -680,11 +698,10 @@ class player_model extends \TMS_MODEL {
 	/**
 	 * 获得角色分组内用户的数量（角色分组）
 	 */
-	public function &countByRoleRound($appId, $rid) {
+	public function countByRoleRound($appId, $rid) {
 		$q = [
 			'count(*)',
 			'xxt_group_player',
-			['aid' => $appId, 'round_id' => $rid, 'state' => 1],
 			"aid = '{$appId}' and state = 1 and role_rounds like '%\"" . $rid . "\"%'",
 		];
 		$cnt = (int) $this->query_val_ss($q);

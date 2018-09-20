@@ -6,12 +6,12 @@
                 <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected" ng-change="selectAllRows(rows.allSelected)">
             </th>
             <th style='width:48px'>操作</th>
-            <th style='width:120px' class='th-action' data-filter-by='round_title' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">团队分组 <i class='glyphicon glyphicon-filter'></i></th>
+            <th style='width:120px' class='th-action' data-filter-by='round_title' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">主分组 <i class='glyphicon glyphicon-filter'></i></th>
             <th style='width:72px' ng-if="bRequireNickname">用户</th>
-            <th style='width:8em'>团队角色</th>
+            <th style='width:8em'>主分组内角色</th>
+            <th style='width:120px' class='th-action' data-filter-by='role_round_title' uib-popover-template="'filterByRole.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">辅助分组 <i class='glyphicon glyphicon-filter'></i></th>
             <th ng-class="{nickname:schema.id===app.assignedNickname.schema.id}" ng-repeat="schema in app._schemasById">{{schema.title}}</th>
             <th style='width:140px' ng-if="app.tags.length">标签</th>
-            <th style='width:120px' class='th-action' data-filter-by='role_round_title' uib-popover-template="'filterByRole.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">角色分组 <i class='glyphicon glyphicon-filter'></i></th>
             <th style='width:140px'>备注</th>
             <!--待删除-->
             <th style='width:48px'>操作</th>
@@ -31,6 +31,9 @@
             <td>{{p.round_title}}</td>
             <td ng-if="bRequireNickname">{{p.nickname}}</td>
             <td>{{p.is_leader==='Y'?'组长':(p.is_leader==='S'?'超级用户':'组员')}}</td>
+            <td>
+                <div ng-repeat="title in p.role_round_titles">{{title}}</div>
+            </td>
             <td ng-repeat="schema in app._schemasById" ng-switch on="schema.type">
                 <span ng-switch-when="image">
                     <img ng-repeat="img in p._data[schema.id]" ng-src='{{img}}' />
@@ -42,9 +45,6 @@
                 <span ng-switch-default ng-bind-html="p._data[schema.id]"></span>
             </td>
             <td ng-if="app.tags.length">{{p.tags}}</td>
-            <td>
-                <div ng-repeat="title in p.role_round_titles">{{title}}</div>
-            </td>
             <td>{{p.comment}}</td>
             <td>
                 <button class='btn btn-xs btn-danger' ng-click='removePlayer(p)'>

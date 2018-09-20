@@ -984,7 +984,7 @@ class record_model extends record_base {
 
 		// 查询参数
 		$q = [
-			'd.enroll_key,d.value,d.like_log,d.like_num,r.nickname,r.rid,r.enroll_at,r.data',
+			'd.enroll_key,d.like_log,d.like_num,r.nickname,r.rid,r.enroll_at,r.data',
 			"xxt_enroll_record_data d,xxt_enroll_record r",
 			"d.state=1 and d.aid='{$oApp->id}' and d.schema_id='{$schemaId}' and d.value<>'' and d.multitext_seq = 0 and r.aid = d.aid and r.enroll_key = d.enroll_key",
 		];
@@ -1034,12 +1034,6 @@ class record_model extends record_base {
 				$oResult->sum = $sum;
 			}
 			foreach ($records as $oRecord) {
-				// $oRecord->data = new \stdClass;
-				// if (in_array($oDataSchema->type, ['multitext', 'file']) || $schemaId === 'member') {
-				// 	$oRecord->data->{$schemaId} = empty($oRecord->value) ? new \stdClass : json_decode($oRecord->value);
-				// } else {
-				// 	$oRecord->data->{$schemaId} = $oRecord->value;
-				// }
 				if (empty($oRecord->data)) {
 					$oRecord->data = new \stdClass;
 				} else {
@@ -1047,7 +1041,7 @@ class record_model extends record_base {
 					$oRecord->data = new \stdClass;
 					$oRecord->data->{$schemaId} = $oData->{$schemaId};
 					if (!empty($oApp->rpConfig->marks)) {
-						foreach ($oApp->rpConfig->mark as $oMark) {
+						foreach ($oApp->rpConfig->marks as $oMark) {
 							if (isset($oData->{$oMark->id})) {
 								$oRecord->data->{$oMark->id} = $oData->{$oMark->id};
 							}

@@ -9,10 +9,9 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
         scope: {
             schemas: '=',
             rec: '=record',
-            page: '='
+            flag: '='
         },
         controller: ['$scope', '$sce', 'tmsLocation', '$location',function($scope, $sce, LS, $location) {
-
             $scope.coworkRecord = function(oRecord) {
                 var url;
                 url = LS.j('', 'site', 'app');
@@ -69,15 +68,9 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
                     }
                 });
             });
-            $scope.$watch('page', function(oPage) {
-                if(!oPage) {return;}
-                switch(oPage) {
-                    case 'page_repos':
-                        $scope.isVisible = $scope.$parent.isVisible;
-                        console.log(oPage);
-                    break;
-
-                }
+            $scope.$watch('flag', function(oFlag) {
+                if(!oFlag) {return;}
+                $scope.isVisible = oFlag;
             });
         }]
     };

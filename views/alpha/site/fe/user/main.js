@@ -10,7 +10,7 @@ define(['require', 'angular'], function(require, angular) {
                     window.xxt.image.choose($q.defer(), from).then(function(imgs) {
                         var imgUrl = imgs[0].imgSrc,
                             data = {};
-                        data.headImgUrl = imgUrl;
+                        data.imgSrc = imgUrl;
                         http2.post('/rest/site/fe/user/changeHeadImg?site=' + siteId, data).then(function(rsp) {
                             if (rsp.data.err_code == 0) {
                                 var eleImg = document.querySelector('img');

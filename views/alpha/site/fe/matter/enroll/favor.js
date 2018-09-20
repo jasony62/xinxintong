@@ -314,6 +314,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     $scope.$watch('app', function(oApp) {
         if (!oApp) return;
         _oApp = oApp;
+        $scope.isVisible = _oApp.scenarioConfig.hiddenSchemaTitle.favor;
         /* 活动任务 */
         if (_oApp.actionRule) {
             /* 开启协作填写需要的点赞数 */

@@ -410,6 +410,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         _oApp = params.app;
+        $scope.isVisible = _oApp.scenarioConfig.hiddenSchemaTitle.repos;
         /* 活动任务 */
         if (_oApp.actionRule) {
             /* 设置活动任务提示 */
@@ -519,6 +520,5 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         if (Object.keys(oAppNavs).length) {
             $scope.appNavs = oAppNavs;
         }
-        $scope.isVisible = _oApp.scenarioConfig.hiddenSchemaTitle.repos;
     });
 }]);

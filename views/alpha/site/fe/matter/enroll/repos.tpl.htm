@@ -15,7 +15,7 @@
 <body ng-controller="ctrlRepos" class='matter_enroll' tms-trace send-url='/rest/site/fe/matter/enroll/analysis/submit?site={{app.siteid}}&app={{app.id}}&page=repos' ready-sign="app">
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
-    <nav class='navbar site-navbar-default'>
+    <nav class='navbar site-navbar-default visible-xs'>
         <div class='container' ng-cloak>
             <div class="navbar-header">
                 <a href class="navbar-brand">
@@ -26,6 +26,30 @@
                 <li class="pull-left">
                     <a href ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline">我的</span></a>
                 </li>
+            </ul>
+        </div>
+    </nav>
+    <nav class='navbar site-navbar-alpha main hidden-xs'>
+        <div class='container'>
+            <div class="navbar-header">
+                <a href class="navbar-brand">
+                    <img src="../../../../../../static/img/alpha/logo.png" >
+                </a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="pull-left">
+                    <a href ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><span class="visible-lg-inline">我的</span></a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <nav class='navbar site-navbar-alpha second hidden-xs'>
+        <div class='container'>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">首页</a></li>
+                <li><a href="#" ng-click="gotoPage($event,'rank')">排行榜</a></li>
+                <li><a href="#" ng-click="gotoPage($event,'favor')">我的收藏</a></li>
+                <li><a href="#" ng-click="gotoPage($event,'event')">我的消息</a></li>
             </ul>
         </div>
     </nav>

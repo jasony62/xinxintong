@@ -29,7 +29,7 @@
             </ul>
         </div>
     </nav>
-    <nav class='navbar site-navbar-alpha hidden-xs'>
+    <nav class='navbar site-navbar-alpha main hidden-xs'>
         <div class='container'>
             <div class="navbar-header">
                 <a href class="navbar-brand">
@@ -43,16 +43,16 @@
             </ul>
         </div>
     </nav>
-    <div class='navbar site-navbar-alpha hidden-xs'>
+    <nav class='navbar site-navbar-alpha second hidden-xs'>
         <div class='container'>
             <ul class="nav navbar-nav">
                 <li><a href="#" ng-click="gotoPage($event,'repos')">首页</a></li>
-                <li><a href="#" ng-click="gotoPage($event,'favor')">收藏</a></li>
                 <li class="active"><a href="#">排行榜</a></li>
-                <li><a href="#" ng-click="gotoPage($event,'event')">通知</a></li>
+                <li><a href="#" ng-click="gotoPage($event,'favor')">我的收藏</a></li>
+                <li><a href="#" ng-click="gotoPage($event,'event')">我的消息</a></li>
             </ul>
         </div>
-    </div>
+    </nav>
     <div ng-cloak class='ng-cloak container'>
         <div id='rank' class='app'>
             <div class='row filter'>

@@ -2,6 +2,58 @@ body {
     margin-bottom: 64px;
 }
 
+/* match start*/
+a {
+    color: #666;
+}
+
+a:focus {
+    outline: none;
+    outline-offset: 0;
+}
+
+.site-navbar-default {
+    background-color: #3594fa;
+    border-color: #3594fa;
+}
+
+.main.site-navbar-alpha {
+    margin-bottom: 0px;
+    border: none;
+    border-bottom: 1px solid #f1f1f1;
+
+    .navbar-nav>li>a {
+        padding-top: 25px;
+        padding-bottom: 25px;
+    }
+}
+
+.site-navbar-alpha {
+    background-color: #fff;
+    border-color: #fff;
+    .navbar-brand {
+        height: 78px;
+        padding: 25px;
+    }
+
+    .nav>li>a:focus,
+    .nav>li>a:hover {
+        text-decoration: none;
+        background-color: #fff;
+    }
+}
+
+.second.site-navbar-alpha {
+    .navbar-nav>li>a {
+        margin-right: 40px;
+    }
+    .navbar-nav>li.active>a {
+        color: #3594fa;
+        border-bottom: 2px solid #3594fa;
+    }
+}
+/* match end */
+
 .action {
     position: relative;
 
@@ -15,14 +67,12 @@ body {
             font-weight: 400;
             border-radius: .5em;
         }
-
     }
 
     .event {
         &>*+* {
             margin-top: .5em;
         }
-
     }
 
     .footer {
@@ -33,9 +83,7 @@ body {
         .datetime {
             flex: 1;
         }
-
     }
-
 }
 
 .notice {
@@ -51,7 +99,6 @@ body {
             font-weight: 400;
             border-radius: .5em;
         }
-
     }
 
     .event {
@@ -59,7 +106,8 @@ body {
             margin-top: .5em;
         }
 
-        .event-user, .event-action {
+        .event-user,
+        .event-action {
             font-size: .9em;
         }
 
@@ -72,18 +120,14 @@ body {
             &>*+* {
                 margin-left: 1em;
             }
-
         }
-
     }
-
 }
 
 .site-pagination {
     ul {
         margin: 0;
     }
-
 }
 
 .table-responsive {
@@ -98,47 +142,47 @@ body {
     >.table {
         margin-bottom: 0;
 
-        >thead, >tbody, >tfoot {
+        >thead,
+        >tbody,
+        >tfoot {
             >tr {
-                >th, >td {
+                >th,
+                >td {
                     white-space: nowrap;
                 }
-
             }
-
         }
-
     }
 
     >.table-bordered {
         border: 0;
 
-        >thead, >tbody, >tfoot {
+        >thead,
+        >tbody,
+        >tfoot {
             >tr {
-                >th:first-child, >td:first-child {
+                >th:first-child,
+                >td:first-child {
                     border-left: 0;
                 }
 
-                >th:last-child, >td:last-child {
+                >th:last-child,
+                >td:last-child {
                     border-right: 0;
                 }
-
             }
-
         }
 
-        >tbody, >tfoot {
+        >tbody,
+        >tfoot {
             >tr:last-child {
-                >th, >td {
+                >th,
+                >td {
                     border-bottom: 0;
                 }
-
             }
-
         }
-
     }
-
 }
 
 #kanban {
@@ -149,5 +193,4 @@ body {
     td.undone {
         color: red;
     }
-
 }

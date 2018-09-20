@@ -865,20 +865,22 @@ class record extends base {
 		$modelEnlEvt = $this->model('matter\enroll\event');
 		if ($incLikeNum > 0) {
 			/* 发起点赞 */
-			$likeRst = $modelEnlEvt->likeRecord($oApp, $oRecord, $oUser);
+			$like = $modelEnlEvt->likeRecord($oApp, $oRecord, $oUser);
 		} else {
 			/* 撤销发起点赞 */
 			$modelEnlEvt->undoLikeRecord($oApp, $oRecord, $oUser);
+			$like = new \stdClass;
+			$like->authorGetCoin = '积分以撤销';
 		}
 
 		$oResult = new \stdClass;
 		$oResult->like_log = $oLikeLog;
 		$oResult->like_num = $likeNum;
-		if (isset($likeRst->userGetCoin)) {
-			$oResult->userGetCoin = $likeRst->userGetCoin;
+		if (isset($like->userGetCoin)) {
+			$oResult->userGetCoin = $like->userGetCoin;
 		}
-		if (isset($likeRst->authorGetCoin)) {
-			$oResult->authorGetCoin = $likeRst->authorGetCoin;
+		if (isset($like->authorGetCoin)) {
+			$oResult->authorGetCoin = $like->authorGetCoin;
 		}
 
 		return new \ResponseData($oResult);
@@ -985,15 +987,23 @@ class record extends base {
 		$modelEnlEvt = $this->model('matter\enroll\event');
 		if ($incDislikeNum > 0) {
 			/* 发起反对 */
-			$modelEnlEvt->dislikeRecord($oApp, $oRecord, $oUser);
+			$like = $modelEnlEvt->dislikeRecord($oApp, $oRecord, $oUser);
 		} else {
 			/* 撤销发起反对 */
 			$modelEnlEvt->undoDislikeRecord($oApp, $oRecord, $oUser);
+			$like = new \stdClass;
+			$like->authorGetCoin = '积分以撤销';
 		}
 
 		$oResult = new \stdClass;
 		$oResult->dislike_log = $oDislikeLog;
 		$oResult->dislike_num = $dislikeNum;
+		if (isset($like->userGetCoin)) {
+			$oResult->userGetCoin = $like->userGetCoin;
+		}
+		if (isset($like->authorGetCoin)) {
+			$oResult->authorGetCoin = $like->authorGetCoin;
+		}
 
 		return new \ResponseData($oResult);
 	}

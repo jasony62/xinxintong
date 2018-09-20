@@ -937,6 +937,15 @@ class event_model extends \TMS_MODEL {
 		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
 		$this->_logEvent($oApp, $oRecord->rid, $oRecord->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
+		
+		$data = new \stdClass;
+		if (isset($oOperatorData->user_total_coin)) {
+			$data->userGetCoin = $oOperatorData->user_total_coin;
+		}
+		if (isset($oOwnerData->user_total_coin)) {
+			$data->authorGetCoin = $oOwnerData->user_total_coin;
+		}
+		return $data;
 	}
 	/**
 	 * 赞同填写记录数据
@@ -1015,15 +1024,6 @@ class event_model extends \TMS_MODEL {
 		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
 		$this->_logEvent($oApp, $oRecData->rid, $oRecData->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
-
-		$data = new \stdClass;
-		if (isset($oOperatorData->user_total_coin)) {
-			$data->userGetCoin = $oOperatorData->user_total_coin;
-		}
-		if (isset($oOwnerData->user_total_coin)) {
-			$data->authorGetCoin = $oOwnerData->user_total_coin;
-		}
-		return $data;
 	}
 	/**
 	 * 反对填写协作记录数据
@@ -2107,15 +2107,6 @@ class event_model extends \TMS_MODEL {
 		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
 		$this->_logEvent($oApp, $oRemark->rid, $oRemark->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
-
-		$data = new \stdClass;
-		if (isset($oOperatorData->user_total_coin)) {
-			$data->userGetCoin = $oOperatorData->user_total_coin;
-		}
-		if (isset($oOwnerData->user_total_coin)) {
-			$data->authorGetCoin = $oOwnerData->user_total_coin;
-		}
-		return $data;
 	}
 	/**
 	 * 留言点踩

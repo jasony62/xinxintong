@@ -508,21 +508,13 @@ class remark extends base {
 		$modelEnlEvt = $this->model('matter\enroll\event');
 		if ($incLikeNum > 0) {
 			/* 发起点赞 */
-			$likeRst = $modelEnlEvt->likeRemark($oApp, $oRemark, $oUser);
+			$modelEnlEvt->likeRemark($oApp, $oRemark, $oUser);
 		} else {
 			/* 撤销发起点赞 */
 			$modelEnlEvt->undoLikeRemark($oApp, $oRemark, $oUser);
 		}
 
-		$data = ['like_log' => $oLikeLog, 'like_num' => $likeNum];
-		$data['getCoin'] = new \stdClass;
-		if (isset($likeRst->userGetCoin)) {
-			$data['getCoin']->userGetCoin = $likeRst->userGetCoin;
-		}
-		if (isset($likeRst->authorGetCoin)) {
-			$data['getCoin']->authorGetCoin = $likeRst->authorGetCoin;
-		}
-		return new \ResponseData($data);
+		return new \ResponseData(['like_log' => $oLikeLog, 'like_num' => $likeNum]);
 	}
 	/**
 	 * 反对登记记录中的某一个留言

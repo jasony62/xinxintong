@@ -49,8 +49,8 @@
                 <li><a href="#" ng-click="gotoPage($event,'repos')">首页</a></li>
                 <li class="active"><a href="#">讨论页</a></li>
                 <li><a href="#" ng-click="gotoPage($event,'rank')">排行榜</a></li>
-                <li><a href="#" >我的收藏</a></li>
-                <li><a href="#" ng-click="gotoPage($event,'event')">我的消息</a></li>
+                <li><a href="#">收藏</a></li>
+                <li><a href="#" ng-click="gotoPage($event,'event')">动态</a></li>
             </ul>
         </div>
     </nav>
@@ -89,7 +89,7 @@
                 <hr>
                 <div class='data'>
                     <blockquote>
-                        <div tms-repos-record-data schemas="visibleSchemas" record="record" isVisible="app.scenarioConfig.visibleSchemaTitle.config_repos"></div>
+                        <div tms-repos-record-data schemas="visibleSchemas" record="record"></div>
                     </blockquote>
                 </div>
                 <div class='bottom-bar small text-muted'>
@@ -309,7 +309,7 @@
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-    <script src="<?php $viewName=empty(TPL::val('viewName'))?TMS_APP_VIEW_NAME:TPL::val('viewName'); echo auto_version('/bundles/'.$viewName.'/site/fe/matter/enroll/cowork.js');?>"></script>
+    <script src="<?php echo auto_version('/bundles/alpha/site/fe/matter/enroll/cowork.js');?>"></script>
 </body>
 
 </html>

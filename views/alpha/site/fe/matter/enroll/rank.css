@@ -23,6 +23,15 @@ ul>li {
     overflow: hidden;
 }
 
+a {
+    color: #666;
+}
+
+a:focus {
+    outline: none;
+    outline-offset: 0;
+}
+
 .site-navbar-default {
     background-color: #3594fa;
     border-color: #3594fa;
@@ -31,30 +40,36 @@ ul>li {
 .site-navbar-alpha {
     background-color: #fff;
     border-color: #fff;
-    border-bottom-color: #f1f1f1;
 }
 
-.site-navbar-alpha .nav.navbar-nav a {
-    color: #666;
-}
-
-nav.navbar {
-    margin-bottom: 0;
-}
-
-nav.site-navbar-alpha .navbar-brand {
+.site-navbar-alpha .navbar-brand {
     height: 78px;
     padding: 25px;
 }
-
-nav.site-navbar-alpha .navbar-nav a {
-    line-height: 48px;
+.site-navbar-alpha .nav>li>a:focus, .site-navbar-alpha .nav>li>a:hover {
+    text-decoration: none;
+    background-color: #fff;
 }
 
-div.site-navbar-alpha .nav.navbar-nav>.active>a, div.site-navbar-alpha .nav.navbar-nav>.active>a:focus, div.site-navbar-alpha .nav.navbar-nav>.active>a:hover, div.site-navbar-alpha .nav>li>a:hover, div.site-navbar-alpha .nav>li>a:focus{
-    background-color: #fff;
+.main.site-navbar-alpha {
+    margin-bottom: 0px;
+    border: none;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.main.site-navbar-alpha .navbar-nav>li>a{
+    padding-top: 25px;
+    padding-bottom: 25px;
+}
+
+.second.site-navbar-alpha .navbar-nav>li>a {
+    margin-right: 40px;
+
+}
+
+.second.site-navbar-alpha .navbar-nav>li.active>a {
     color: #3594fa;
-    border-bottom: 1px solid #3594fa;
+    border-bottom: 2px solid #3594fa;
 }
 
 

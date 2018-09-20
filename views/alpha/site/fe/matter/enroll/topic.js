@@ -213,6 +213,7 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                 _oShareableSchemas[schema.id] = schema;
             }
         });
+        $scope.isVisible = _oApp.scenarioConfig.hiddenSchemaTitle.topic;
         /*设置页面操作*/
         $scope.appActs = {};
         /* 允许添加记录 */

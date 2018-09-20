@@ -48,8 +48,8 @@
             <ul class="nav navbar-nav">
                 <li><a href="#" ng-click="gotoPage($event,'repos')">首页</a></li>
                 <li class="active"><a href="#">排行榜</a></li>
-                <li><a href="#" ng-click="gotoPage($event,'favor')">我的收藏</a></li>
-                <li><a href="#" ng-click="gotoPage($event,'event')">我的消息</a></li>
+                <li><a href="#" ng-click="gotoPage($event,'favor')">收藏</a></li>
+                <li><a href="#" ng-click="gotoPage($event,'event')">动态</a></li>
             </ul>
         </div>
     </nav>
@@ -401,7 +401,7 @@
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-    <script src="<?php $viewName=empty(TPL::val('viewName'))?TMS_APP_VIEW_NAME:TPL::val('viewName'); echo auto_version('/bundles/'.$viewName.'/site/fe/matter/enroll/rank.js');?>"></script>
+    <script src="<?php echo auto_version('/bundles/alpha/site/fe/matter/enroll/rank.js');?>"></script>
 </body>
 
 </html>

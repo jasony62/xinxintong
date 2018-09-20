@@ -37,8 +37,11 @@
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
-                <li class="pull-left">
+                <li class="pull-left" ng-if="user.loginExpire">
                     <a href ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><span class="visible-lg-inline">我的</span></a>
+                </li>
+                <li class="pull-left" ng-if="!user.loginExpire">
+                    <a href ng-click="siteLogin(app.siteid, app.id)" class="tms-switch-siteuser"><span class="visible-lg-inline">登陆/注册</span></a>
                 </li>
             </ul>
         </div>
@@ -48,8 +51,8 @@
             <ul class="nav navbar-nav">
                 <li class="active"><a href="#">首页</a></li>
                 <li><a href="#" ng-click="gotoPage($event,'rank')">排行榜</a></li>
-                <li><a href="#" ng-click="gotoPage($event,'favor')">我的收藏</a></li>
-                <li><a href="#" ng-click="gotoPage($event,'event')">我的消息</a></li>
+                <li><a href="#" ng-click="gotoPage($event,'favor')">收藏</a></li>
+                <li><a href="#" ng-click="gotoPage($event,'event')">动态</a></li>
             </ul>
         </div>
     </nav>
@@ -113,6 +116,7 @@
                         <div class='input-group-btn'>
                             <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';recordList(1)"><span class='glyphicon glyphicon-remove'></span></button>
                             <button class='btn btn-default' ng-click="recordList(1)"><span class='glyphicon glyphicon-search'></span></button>
+                            <button class='btn btn-info' ng-click="addRecord($event)" style="background-color: #3594fa;"><span class="glyphicon glyphicon-plus"></span> 提问</button>
                             <button id='advCriteriaSwitch' ng-if="dirSchemas.length" class="btn btn-default visible-xs-inline-block" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">
                                 <span class='glyphicon glyphicon-filter' ng-class="{'opened':advCriteriaStatus.opened}"></span>
                             </button>
@@ -179,13 +183,9 @@
                     </div>
                     <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
                         <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
-                            <span>更多</span>
+                            <span ng-click="shiftMine('我的记录')">我的记录</span>
                             <span class="glyphicon glyphicon-filter"></span>
                         </button>
-                        <ul class="dropdown-menu" uib-dropdown-menu>
-                            <li><a href ng-click="shiftMine('我的记录')">我的记录</a></li>
-                            <li ng-if="user.unionid"><a href ng-click="shiftMine('我的收藏')">我的收藏</a></li>
-                        </ul>
                     </div>
                 </div>
                 <!-- end: filterQuick -->
@@ -241,7 +241,7 @@
                             </div>
                             <div class='data'>
                                 <blockquote>
-                                    <div tms-repos-record-data schemas="schemas" record="rec" isVisible="app.scenarioConfig.visibleSchemaTitle.config_repos"></div>
+                                    <div tms-repos-record-data schemas="schemas" record="rec" page="page_repos"></div>
                                 </blockquote>
                             </div>
                             <div class='bottom-bar'>
@@ -318,7 +318,7 @@
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-    <script src="<?php $viewName=empty(TPL::val('viewName'))?TMS_APP_VIEW_NAME:TPL::val('viewName'); echo auto_version('/bundles/'.$viewName.'/site/fe/matter/enroll/repos.js');?>"></script>
+    <script src="<?php echo auto_version('/bundles/alpha/site/fe/matter/enroll/repos.js');?>"></script>
 </body>
 
 </html>

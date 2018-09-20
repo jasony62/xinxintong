@@ -48,8 +48,8 @@
             <ul class="nav navbar-nav">
                 <li><a href="#" ng-click="gotoPage($event,'repos')">首页</a></li>
                 <li><a href="#" ng-click="gotoPage($event,'rank')">排行榜</a></li>
-                <li class="active"><a href="#">我的收藏</a></li>
-                <li><a href="#" ng-click="gotoPage($event,'event')">我的消息</a></li>
+                <li class="active"><a href="#">收藏</a></li>
+                <li><a href="#" ng-click="gotoPage($event,'event')">动态</a></li>
             </ul>
         </div>
     </nav>
@@ -125,7 +125,7 @@
                         </div>
                         <div class='data'>
                             <blockquote>
-                                <div tms-repos-record-data schemas="schemas" record="rec" isVisible="app.scenarioConfig.visibleSchemaTitle.config_repos"></div>
+                                <div tms-repos-record-data schemas="schemas" record="rec"></div>
                             </blockquote>
                         </div>
                         <div class='bottom-bar small text-muted'>
@@ -265,7 +265,7 @@
                     <div class='data'>
                         <blockquote>
                             <div class='schema' ng-class="{'cowork':schema.cowork==='Y'}" ng-if="rec.data[schema.id]||schema.cowork==='Y'" ng-repeat="schema in schemas" ng-switch on="schema.type">
-                                <div class='text-muted data-title' ng-if="app.scenarioConfig.visibleSchemaTitle.config_repos">{{schema.title}}</div>
+                                <div class='text-muted data-title' ng-if="app.scenarioConfig.hiddenSchemaTitle.favor">{{schema.title}}</div>
                                 <div ng-switch-when="file">
                                     <div ng-repeat="file in rec.data[schema.id]">
                                         <video ng-if="file.type.indexOf('video')===0" controls="controls" preload="none">
@@ -341,7 +341,7 @@
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-    <script src="<?php $viewName=empty(TPL::val('viewName'))?TMS_APP_VIEW_NAME:TPL::val('viewName'); echo auto_version('/bundles/'.$viewName.'/site/fe/matter/enroll/favor.js');?>"></script>
+    <script src="<?php echo auto_version('/bundles/alpha/site/fe/matter/enroll/favor.js');?>"></script>
 </body>
 
 </html>

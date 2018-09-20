@@ -120,14 +120,12 @@
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.visibleRevisedRecordAtRound" ng-change="update('scenarioConfig')"> 修改非当前轮次的记录后，记录在当前轮次中可见</label>
             </div>
             <div class='checkbox'>
-                <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.hiddenSchemaTitle" ng-change="update('scenarioConfig')"> 隐藏共享页等页面中的题目</label>
-                <div style='margin-left:20px' ng-if="app.scenarioConfig.hiddenSchemaTitle">
-                    <label>
-                        <input type='checkbox' ng-true-value="'Y'" ng-model="app.scenarioConfig.hiddenSchemaTitle.config_repos" ng-change="update('scenarioConfig')">共享页</label>
-                        <input type='checkbox' ng-true-value="'Y'" ng-model="app.scenarioConfig.hiddenSchemaTitle.config_cowork" ng-change="update('scenarioConfig')">讨论页</label>
-                        <input type='checkbox' ng-true-value="'Y'" ng-model="app.scenarioConfig.hiddenSchemaTitle.config_favor" ng-change="update('scenarioConfig')">收藏页</label>
-                        <input type='checkbox' ng-true-value="'Y'" ng-model="app.scenarioConfig.hiddenSchemaTitle.config_topic" ng-change="update('scenarioConfig')">专题页</label>
+                <label style='padding-left:0px'>隐藏页面中的题目</label>
+                <div>
+                    <label><input type='checkbox' ng-true-value="'Y'" ng-model="app.scenarioConfig.hiddenSchemaTitle.repos" ng-change="update('scenarioConfig')">共享页</label>
+                    <label><input type='checkbox' ng-true-value="'Y'" ng-model="app.scenarioConfig.hiddenSchemaTitle.cowork" ng-change="update('scenarioConfig')">讨论页</label>
+                    <label><input type='checkbox' ng-true-value="'Y'" ng-model="app.scenarioConfig.hiddenSchemaTitle.favor" ng-change="update('scenarioConfig')">收藏页</label>
+                    <label><input type='checkbox' ng-true-value="'Y'" ng-model="app.scenarioConfig.hiddenSchemaTitle.topic" ng-change="update('scenarioConfig')">专题页</label>
                 </div>
             </div>
         </div>

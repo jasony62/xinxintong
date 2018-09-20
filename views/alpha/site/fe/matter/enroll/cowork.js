@@ -653,12 +653,15 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         }
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        $scope.isVisible = params.app.scenarioConfig.hiddenSchemaTitle.cowork;
         var oSchemasById, aCoworkSchemas, aVisibleSchemas;
         _oApp = params.app;
         _oUser = params.user;
         aVisibleSchemas = [];
         aCoworkSchemas = [];
         oSchemasById = {};
+        
+        console.log($scope.isVisible);
         _oApp.dynaDataSchemas.forEach(function(oSchema) {
             if (oSchema.cowork === 'Y') {
                 aCoworkSchemas.push(oSchema);

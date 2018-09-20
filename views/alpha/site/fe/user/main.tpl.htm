@@ -8,7 +8,7 @@
     <title><?php echo APP_TITLE;?>——用户主页</title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
-    <link href="<?php echo auto_version('/views/default/site/fe/user/main.css');?>" rel="stylesheet">
+    <link href="<?php echo auto_version('/views/alpha/site/fe/user/main.css');?>" rel="stylesheet">
 </head>
 
 <body ng-controller='ctrlMain' class="ng-cloak" ng-cloak>
@@ -30,8 +30,8 @@
             <ul class="nav navbar-nav navbar-right">
                 <li><a href="#" ng-click="gotoPage($event,'repos')">首页</a></li>
                 <li><a href="#" ng-click="gotoPage($event,'rank')">排行榜</a></li>
-                <li><a href="#" ng-click="gotoPage($event,'favor')">我的收藏</a></li>
-                <li><a href="#" ng-click="gotoPage($event,'event')">我的消息</a></li>
+                <li><a href="#" ng-click="gotoPage($event,'favor')">收藏</a></li>
+                <li><a href="#" ng-click="gotoPage($event,'event')">动态</a></li>
             </ul>
         </div>
     </nav>
@@ -76,7 +76,7 @@
             <button class="btn btn-default btn-block" ng-click='logout()' ng-if="user.loginExpire">退出登录</button>
         </div>
     </div>
-    <script src="/static/js/require.js" defer async data-main="<?php echo auto_version('/views/default/site/fe/user/main-loader.js');?>"></script>
+    <script src="/static/js/require.js" defer async data-main="<?php echo auto_version('/views/alpha/site/fe/user/main-loader.js');?>"></script>
 </body>
 
 </html>

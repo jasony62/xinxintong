@@ -49,8 +49,8 @@
                 <li><a href="#" ng-click="gotoPage($event,'repos')">首页</a></li>
                 <li><a href="#" ng-click="gotoPage($event,'rank')">排行榜</a></li>
                 <li class="active"><a href="#">专题详情</a></li>
-                <li><a href="#" ng-click="gotoPage($event,'favor')">我的收藏</a></li>
-                <li><a href="#" ng-click="gotoPage($event,'event')">我的消息</a></li>
+                <li><a href="#" ng-click="gotoPage($event,'favor')">收藏</a></li>
+                <li><a href="#" ng-click="gotoPage($event,'event')">动态</a></li>
             </ul>
         </div>
     </nav>
@@ -107,7 +107,7 @@
                         </div>
                         <div class='data'>
                             <blockquote>
-                                <div tms-repos-record-data schemas="schemas" record="rec"></div>
+                                <div tms-repos-record-data schemas="schemas" record="rec" isVisible="app.scenarioConfig.hiddenSchemaTitle.topic"></div>
                             </blockquote>
                         </div>
                         <div class='bottom-bar'>
@@ -175,7 +175,7 @@
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-    <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/topic.js');?>"></script>
+     <script src="<?php echo auto_version('/bundles/alpha/site/fe/matter/enroll/topic.js');?>"></script>
 </body>
 
 </html>

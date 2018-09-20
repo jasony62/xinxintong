@@ -12,8 +12,8 @@ define(['require', 'angular'], function(require, angular) {
                             data = {};
                         data.imgSrc = imgUrl;
                         http2.post('/rest/site/fe/user/changeHeadImg?site=' + siteId, data).then(function(rsp) {
-                            if (rsp.data.err_code == 0) {
-                                var eleImg = document.querySelector('img');
+                            if (rsp.err_code == 0) {
+                                var eleImg = document.querySelector('.headimg > img');
                                 eleImg.setAttribute('src', imgUrl);
                             }
                         });
@@ -109,6 +109,11 @@ define(['require', 'angular'], function(require, angular) {
         $scope.gotoConsole = function() {
             location.href = '/rest/pl/fe';
         };
+        $scope.gotoBack = function() {
+            if(history) {
+                 window.history.back();
+            }
+        }
         http2.get('/rest/site/fe/get?site=' + siteId).then(function(rsp) {
             $scope.site = rsp.data;
             userService.get().then(function(oUser) {

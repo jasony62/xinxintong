@@ -37,8 +37,11 @@
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
-                <li class="pull-left">
+                <li class="pull-left" ng-if="user.loginExpire">
                     <a href ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><span class="visible-lg-inline">我的</span></a>
+                </li>
+                <li class="pull-left" ng-if="!user.loginExpire">
+                    <a href ng-click="siteLogin(app.siteid, app.id)" class="tms-switch-siteuser"><span class="visible-lg-inline">完善个人信息</span></a>
                 </li>
             </ul>
         </div>
@@ -50,7 +53,7 @@
                 <li><a href="#" ng-click="gotoPage($event,'rank')">排行榜</a></li>
                 <li class="active"><a href="#">专题详情</a></li>
                 <li><a href="#" ng-click="gotoPage($event,'favor')">收藏</a></li>
-                <li><a href="#" ng-click="gotoPage($event,'event')">动态</a></li>
+                <li><a href="#" ng-click="gotoPage($event,'event')">动态<span class="notice-count" ng-if="noticeCount" ng-bind="noticeCount"></span></a></li>
             </ul>
         </div>
     </nav>

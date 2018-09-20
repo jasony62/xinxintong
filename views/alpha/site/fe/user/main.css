@@ -1,11 +1,56 @@
-.container{margin-top:71px;margin-bottom:71px;}
-.navbar .navbar-text{float:none;}
-.avatar{text-align:center;}
-.avatar .headimg{width:100px;height:100px;margin:0 auto;position: relative;cursor: pointer;}
-.avatar img{width: 100%;height: 100%;}
-.avatar span{width: 100px;height: 21px;line-height: 21px;color: #fff;position: absolute;bottom:0;left: 0;font-size:10px;text-align: center;opacity: .7;background-color:#000;}
-.avatar .nickname{height:4em;line-height:4em;}
-.subscription .badge-new{margin-left:.5em;background:#dd0000;display:inline-block;width:8px;height:8px;border-radius:3px;}
+.navbar .navbar-text {
+    float: none;
+}
+
+.container.content {
+    margin-top: 70px;
+}
+
+.avatar {
+    text-align: center;
+}
+
+.avatar .headimg {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto;
+    position: relative;
+    cursor: pointer;
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+}
+
+.avatar span {
+    width: 100px;
+    height: 21px;
+    line-height: 21px;
+    color: #fff;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    font-size: 10px;
+    text-align: center;
+    opacity: .7;
+    background-color: #000;
+}
+
+.avatar .nickname {
+    height: 4em;
+    line-height: 4em;
+}
+
+.subscription .badge-new {
+    margin-left: .5em;
+    background: #dd0000;
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 3px;
+}
+
 a {
     color: #666;
 }
@@ -29,7 +74,9 @@ a:focus {
     height: 78px;
     padding: 25px;
 }
-.site-navbar-alpha .nav>li>a:focus, .site-navbar-alpha .nav>li>a:hover {
+
+.site-navbar-alpha .nav>li>a:focus,
+.site-navbar-alpha .nav>li>a:hover {
     text-decoration: none;
     background-color: #fff;
 }
@@ -40,7 +87,7 @@ a:focus {
     border-bottom: 1px solid #f1f1f1;
 }
 
-.main.site-navbar-alpha .navbar-nav>li>a{
+.main.site-navbar-alpha .navbar-nav>li>a {
     padding-top: 25px;
     padding-bottom: 25px;
 }

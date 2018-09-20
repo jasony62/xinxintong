@@ -25,7 +25,9 @@ button.option {
     padding: 0;
 }
 
+
 /* match start*/
+
 a {
     color: #666;
 }
@@ -69,12 +71,30 @@ a:focus {
 .second.site-navbar-alpha {
     .navbar-nav>li>a {
         margin-right: 40px;
+        text-align: center;
+        position: relative;
+
+        .notice-count {
+            display: inline-block;
+            background: red;
+            color: white;
+            line-height: 14px;
+            min-width: 14px;
+            border-radius: 7px;
+            font-size: 8px;
+            vertical-align: middle;
+            margin-left: 4px;
+            position: absolute;
+            top:10px;
+        }
     }
     .navbar-nav>li.active>a {
         color: #3594fa;
         border-bottom: 2px solid #3594fa;
     }
 }
+
+
 /* match end */
 
 .navbar-header {

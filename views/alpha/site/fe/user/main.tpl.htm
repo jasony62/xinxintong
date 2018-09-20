@@ -28,14 +28,11 @@
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="#" ng-click="gotoPage($event,'repos')">首页</a></li>
-                <li><a href="#" ng-click="gotoPage($event,'rank')">排行榜</a></li>
-                <li><a href="#" ng-click="gotoPage($event,'favor')">收藏</a></li>
-                <li><a href="#" ng-click="gotoPage($event,'event')">动态</a></li>
+                <li><a href ng-click="gotoBack()">返回</a></li>
             </ul>
         </div>
     </nav>
-    <div class="container">
+    <div class="container content">
         <div class='avatar'>
             <div class='headimg' ng-if="user.loginExpire" tms-image-input="Y" ng-click="changeHeadImg()" >
                 <img ng-src="{{user.headimgurl}}">
@@ -45,8 +42,7 @@
             <div class='nickname' ng-bind="user.nickname"></div>
         </div>
         <div class='list-group'>
-            <a href='' class='list-group-item' ng-click="toggleUserSetting($event)">
-                <span>个人设置</span>
+            <a href='' class='list-group-item' ng-click="toggleUserSetting($event)">个人设置
                 <div ng-if="userSetting">
                     <hr>
                     <div class='form-group'>

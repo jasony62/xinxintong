@@ -41,7 +41,7 @@
                     <a href ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><span class="visible-lg-inline">我的</span></a>
                 </li>
                 <li class="pull-left" ng-if="!user.loginExpire">
-                    <a href ng-click="siteLogin(app.siteid, app.id)" class="tms-switch-siteuser"><span class="visible-lg-inline">登陆/注册</span></a>
+                    <a href ng-click="siteLogin(app.siteid, app.id)" class="tms-switch-siteuser"><span class="visible-lg-inline">完善个人信息</span></a>
                 </li>
             </ul>
         </div>
@@ -52,7 +52,7 @@
                 <li class="active"><a href="#">首页</a></li>
                 <li><a href="#" ng-click="gotoPage($event,'rank')">排行榜</a></li>
                 <li><a href="#" ng-click="gotoPage($event,'favor')">收藏</a></li>
-                <li><a href="#" ng-click="gotoPage($event,'event')">动态</a></li>
+                <li><a href="#" ng-click="gotoPage($event,'event')">动态<span class="notice-count" ng-if="noticeCount" ng-bind="noticeCount"></span></a></li>
             </ul>
         </div>
     </nav>
@@ -116,7 +116,7 @@
                         <div class='input-group-btn'>
                             <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';recordList(1)"><span class='glyphicon glyphicon-remove'></span></button>
                             <button class='btn btn-default' ng-click="recordList(1)"><span class='glyphicon glyphicon-search'></span></button>
-                            <button class='btn btn-info' ng-click="addRecord($event)" style="background-color: #3594fa;"><span class="glyphicon glyphicon-plus"></span> 提问</button>
+                            <button class='btn btn-info' ng-click="addRecord($event)" style="background-color: #3594fa;"><span class="glyphicon glyphicon-plus"></span> 添加记录</button>
                             <button id='advCriteriaSwitch' ng-if="dirSchemas.length" class="btn btn-default visible-xs-inline-block" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">
                                 <span class='glyphicon glyphicon-filter' ng-class="{'opened':advCriteriaStatus.opened}"></span>
                             </button>

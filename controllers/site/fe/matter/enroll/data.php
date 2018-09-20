@@ -440,6 +440,15 @@ class data extends base {
 			return new \ObjectNotFoundError('（2）指定的对象不存在或不可用');
 		}
 
+		$oUser = $this->getUser($oApp);
+		/* 检查是否满足给答案点赞的条件 */
+		if (!isset($oApp->entryRule->exclude_action) || $oApp->entryRule->exclude_action->like != "Y") {
+			$checkEntryRule = $this->checkEntryRule($oApp, false, $oUser);
+			if ($checkEntryRule[0] === false) {
+				return new \ResponseError($checkEntryRule[1]);
+			}
+		}
+
 		$oRecord = $this->model('matter\enroll\record')->byId($oRecData->enroll_key, ['cascaded' => 'N', 'fields' => 'id,state,like_data_num']);
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError('（3）指定的对象不存在或不可用');
@@ -456,8 +465,6 @@ class data extends base {
 		if (empty($oDataSchema)) {
 			return new \ObjectNotFoundError('（4）指定的对象不存在或不可用');
 		}
-
-		$oUser = $this->getUser($oApp);
 
 		$oLikeLog = $oRecData->like_log;
 		if (isset($oLikeLog->{$oUser->uid})) {

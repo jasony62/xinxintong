@@ -375,6 +375,12 @@ class record extends base {
 				return [false, '仅限活动编辑组用户提交填写记录'];
 			}
 		}
+		if (!isset($oApp->entryRule->exclude_action) || $oApp->entryRule->exclude_action->submit_record != "Y") {
+			$checkEntryRule = $this->checkEntryRule($oApp, false, $oUser);
+			if ($checkEntryRule[0] === false) {
+				return $checkEntryRule;
+			}
+		}
 
 		$modelRec = $this->model('matter\enroll\record');
 		if (empty($ek)) {
@@ -758,6 +764,13 @@ class record extends base {
 		$oUser = $this->getUser($oApp);
 
 		/* 检查是否满足了点赞的前置条件 */
+		if (!isset($oApp->entryRule->exclude_action) || $oApp->entryRule->exclude_action->like != "Y") {
+			$checkEntryRule = $this->checkEntryRule($oApp, false, $oUser);
+			if ($checkEntryRule[0] === false) {
+				return new \ResponseError($checkEntryRule[1]);
+			}
+		}
+
 		if (!empty($oApp->actionRule->record->like->pre)) {
 			/* 当前轮次，当前组已经提交的记录数 */
 			$oRule = $oApp->actionRule->record->like->pre;

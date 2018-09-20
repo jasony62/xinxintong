@@ -34,16 +34,19 @@ class repos extends base {
 						}
 					} else {
 						foreach ($oSchema->optGroups as $oOptGroup) {
-							if (isset($oOptGroup->assocOp) && isset($oOptGroup->assocOp->v) && $oSchemasById->{$oOptGroup->assocOp->schemaId}) {
+							if (isset($oOptGroup->assocOp) && isset($oOptGroup->assocOp->v) && isset($oSchemasById->{$oOptGroup->assocOp->schemaId})) {
 								$oParentSchema = $oSchemasById->{$oOptGroup->assocOp->schemaId};
 								foreach ($oParentSchema->ops as $oAssocOp) {
 									if ($oAssocOp->v === $oOptGroup->assocOp->v) {
-										$oAssocOp->childrenDir = [];
+										if (!isset($oAssocOp->childrenDir)) {
+											$oAssocOp->childrenDir = [];
+										}
 										foreach ($oSchema->ops as $oOp) {
 											if (isset($oOp->g) && $oOp->g === $oOptGroup->i) {
 												$oAssocOp->childrenDir[] = (object) ['schema_id' => $oSchema->id, 'op' => $oOp];
 											}
 										}
+										break;
 									}
 								}
 							}

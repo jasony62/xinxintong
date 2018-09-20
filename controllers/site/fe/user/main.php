@@ -15,19 +15,27 @@ class main extends \site\fe\base {
 	}
 	/**
 	 * 登录和注册页
+	 * $originUrl  来源页面地址
+	 * $urlEncryptKey   如果来源地址加密，需传入解密算子
 	 */
-	public function access_action() {
+	public function access_action($originUrl = null, $urlEncryptKey = null) {
 		/* 整理cookie中的数据，便于后续处理 */
 		$modelWay = $this->model('site\fe\way');
 		$modelWay->resetAllCookieUser();
-
+		
 		/* 保存页面来源 */
-		if (isset($_SERVER['HTTP_REFERER'])) {
+		if (!empty($originUrl)) {
+			if (!empty($urlEncryptKey)) {
+				$referer = $this->model()->encrypt($originUrl, 'DECODE', $urlEncryptKey);
+			} else {
+				$referer = $originUrl;
+			}
+		} else if (isset($_SERVER['HTTP_REFERER'])) {
 			$referer = $_SERVER['HTTP_REFERER'];
-			if (!empty($referer) && !in_array($referer, array('/'))) {
-				if (false === strpos($referer, '/fe/user')) {
-					$this->mySetCookie('_user_access_referer', $referer);
-				}
+		}
+		if (!empty($referer) && !in_array($referer, array('/'))) {
+			if (false === strpos($referer, '/fe/user')) {
+				$this->mySetCookie('_user_access_referer', $referer);
 			}
 		}
 

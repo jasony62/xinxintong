@@ -197,6 +197,13 @@ class remark extends base {
 
 		/* 发表留言的用户 */
 		$oRemarker = $this->getUser($oApp);
+		/* 检查是否满足添加留言的条件 */
+		if (!isset($oApp->entryRule->exclude_action) || $oApp->entryRule->exclude_action->add_remark != "Y") {
+			$checkEntryRule = $this->checkEntryRule($oApp, false, $oRemarker);
+			if ($checkEntryRule[0] === false) {
+				return new \ResponseError($checkEntryRule[1]);
+			}
+		}
 
 		$current = time();
 		$oNewRemark = new \stdClass;
@@ -457,6 +464,14 @@ class remark extends base {
 		$oLikeLog = $oRemark->like_log;
 
 		$oUser = $this->getUser($oApp);
+		/* 检查是否满足给评论点赞的条件 */
+		if (!isset($oApp->entryRule->exclude_action) || $oApp->entryRule->exclude_action->like != "Y") {
+			$checkEntryRule = $this->checkEntryRule($oApp, false, $oUser);
+			if ($checkEntryRule[0] === false) {
+				return new \ResponseError($checkEntryRule[1]);
+			}
+		}
+
 		if (isset($oLikeLog->{$oUser->uid})) {
 			unset($oLikeLog->{$oUser->uid});
 			$incLikeNum = -1;

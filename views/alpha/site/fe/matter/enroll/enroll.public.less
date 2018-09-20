@@ -115,32 +115,71 @@ a:focus {
 }
 
 #advCriteria {
+    width: 200px;
+    height: 100%;
+    padding: 0;
+    cursor: pointer;
+    z-index: 3;
+
+    .category-body {
+        width: 100%;
+        height: 45vh;
+        color: #000;
+        background-color: #fff;
+        position: relative;
+
+        & * {
+            box-sizing: content-box;
+        }
+        .category-item {
+            height: 100%;
+            overflow: hidden;
+
+            .item-inner {
+                margin-right: -25px;
+                padding-right: 20px;
+                overflow-y: scroll;
+                height: 100%;
+            }
+
+            .dir {
+                height: 26px;
+                line-height: 26px;
+                font-size: 16px;
+                padding: 6px 10px;
+
+                .icon-indicator {
+                    float: right;
+                    margin-top: 3px;
+                }
+            }
+
+            .dir.active {
+                color: red;
+            }
+
+            .childrenDir {
+                position: absolute;
+                top: -1px;
+                left: 100%;
+                width: 200px;
+                height: 100%;
+                display: none;
+                background-color: #fff;
+            }
+
+            .childrenDir.block {
+                display: block;
+                border: 1px solid lightgray;
+            }
+        }
+    }
+
+    .panel-body {
+        padding: 0px;
+    }
     .panel-group {
         margin-bottom: 8px;
-    }
-
-    .form-control {
-        float: none;
-    }
-
-    .form-group {
-        display: block;
-    }
-
-    .form-group:last-child {
-        margin-bottom: 0;
-    }
-
-    .dir-level-2 {
-        margin-left: 1em;
-    }
-
-    .dir-level-3 {
-        margin-left: 1em;
-    }
-
-    .dir.active {
-        background-color: #ddd;
     }
 }
 
@@ -522,6 +561,7 @@ a:focus {
         right: 0;
         margin-top: 1px;
         width: 300px;
+        height: auto;
         background: #fff;
         padding: 0 0 8px;
         border: 1px solid #ccc;

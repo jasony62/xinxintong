@@ -325,7 +325,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
                 url += "?site=" + id;
                 location.href = url;
             };
-            $scope.siteLogin = function() {
+            $scope.siteLogin = function(siteid, appid) {
                 var url = location.protocol + '//' + location.host;
                 url += '/rest/site/fe/matter/enroll';
                 url += '?site=' + siteid +'&app=' + appid;

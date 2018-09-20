@@ -188,14 +188,19 @@
                 <div class='form-group' ng-if="timer.task.task_arguments.receiver.scope==='group'">
                     <div class='row'>
                         <div class='col-md-7'>
-                            <div class='pl-input-group'>
-                                <div class='form-control pl-line' ng-bind="timer._temp.group.title||timer.task.task_arguments.receiver.app.title"></div>
-                                <a class='btn btn-default' ng-href="/rest/pl/fe/matter/group?site={{app.siteid}}&id={{timer._temp.group.id||timer.task.task_arguments.receiver.app.id}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                            <div class='pl-input-group' ng-if="timer._temp">
+                                <div class='form-control pl-line' ng-bind="timer._temp.group.title"></div>
+                                <a class='btn btn-default' ng-href="/rest/pl/fe/matter/group?site={{app.siteid}}&id={{timer._temp.group.id}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                            </div>
+                            <div class='pl-input-group' ng-if="!timer._temp">
+                                <div class='form-control pl-line' ng-bind="timer.task.task_arguments.receiver.app.title"></div>
+                                <a class='btn btn-default' ng-href="/rest/pl/fe/matter/group?site={{app.siteid}}&id={{timer.task.task_arguments.receiver.app.id}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                             </div>
                         </div>
                         <div class='col-md-5'>
                             <div class='pl-input-group'>
-                                <div class='form-control pl-line' ng-bind="timer._temp.group.round.title||timer.task.task_arguments.receiver.app.round.title"></div>
+                                <div ng-if="timer._temp" class='form-control pl-line' ng-bind="timer._temp.group.round.title"></div>
+                                <div ng-if="!timer._temp" class='form-control pl-line' ng-bind="timer.task.task_arguments.receiver.app.round.title"></div>
                             </div>
                         </div>
                     </div>

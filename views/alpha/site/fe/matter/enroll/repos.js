@@ -130,32 +130,28 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         return deferred.promise;
     }
     $scope.likeRecord = function(oRecord) {
-        if ($scope.entryRuleResult.passed == 'N') {
-            location.href = $scope.entryRuleResult.passUrl;
-            return;
+        if ($scope.setOperateLimit('like')) {
+            var url;
+            url = LS.j('record/like', 'site');
+            url += '&ek=' + oRecord.enroll_key;
+            http2.get(url).then(function(rsp) {
+                oRecord.like_log = rsp.data.like_log;
+                oRecord.like_num = rsp.data.like_num;
+                noticebox.warn('您获得0分，添加答案或写留言获取更多积分吧~');
+            });
         }
-        var url;
-        url = LS.j('record/like', 'site');
-        url += '&ek=' + oRecord.enroll_key;
-        http2.get(url).then(function(rsp) {
-            oRecord.like_log = rsp.data.like_log;
-            oRecord.like_num = rsp.data.like_num;
-            noticebox.warn('您获得0分，添加答案或写留言获取更多积分吧~');
-        });
     };
     $scope.dislikeRecord = function(oRecord) {
-        if ($scope.entryRuleResult.passed == 'N') {
-            location.href = $scope.entryRuleResult.passUrl;
-            return;
+        if ($scope.setOperateLimit('like')) {
+            var url;
+            url = LS.j('record/dislike', 'site');
+            url += '&ek=' + oRecord.enroll_key;
+            http2.get(url).then(function(rsp) {
+                oRecord.dislike_log = rsp.data.dislike_log;
+                oRecord.dislike_num = rsp.data.dislike_num;
+                noticebox.warn('您获得0分，添加答案或写留言获取更多积分吧~');
+            });
         }
-        var url;
-        url = LS.j('record/dislike', 'site');
-        url += '&ek=' + oRecord.enroll_key;
-        http2.get(url).then(function(rsp) {
-            oRecord.dislike_log = rsp.data.dislike_log;
-            oRecord.dislike_num = rsp.data.dislike_num;
-            noticebox.warn('您获得0分，添加答案或写留言获取更多积分吧~');
-        });
     };
     $scope.remarkRecord = function(oRecord) {
         var url;
@@ -376,28 +372,13 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                     $scope.activeDir4 = '';
                     $scope.activeDir5 = '';
             }
-        },
-        toggleClick: function() {
-            var blocks = document.querySelectorAll('.item-inner .block');
-            //true 收起  false kaizhan
-            if ($scope.advCriteriaStatus.dirOpen) {
-                blocks.forEach(function(block) {
-                    block.style.display = 'block';
-                });
-            } else {
-                blocks.forEach(function(block) {
-                    block.style.display = 'none';
-                });
-            }
-            $scope.advCriteriaStatus.dirOpen = !$scope.advCriteriaStatus.dirOpen;
-        },
+        }
 
     }
     $scope.shiftDir = function(oDir, $event, level) {
         _oCriteria.data = {};
         if (oDir) {
             _oCriteria.data[oDir.schema_id] = oDir.op.v;
-            $scope.advCriteriaStatus.dirOpen = false;
             $scope.dirLevel.active(oDir, level);
         } else {
             $scope.dirLevel.active();
@@ -434,7 +415,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         _oApp = params.app;
-        $scope.isVisible = _oApp.scenarioConfig.hiddenSchemaTitle.repos;
+        if(_oApp.scenarioConfig.hiddenSchemaTitle && _oApp.scenarioConfig.hiddenSchemaTitle.repos) {
+            $scope.isVisible = _oApp.scenarioConfig.hiddenSchemaTitle.repos;
+        }
         /* 活动任务 */
         if (_oApp.actionRule) {
             /* 设置活动任务提示 */

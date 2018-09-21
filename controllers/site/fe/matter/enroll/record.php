@@ -870,7 +870,7 @@ class record extends base {
 			/* 撤销发起点赞 */
 			$modelEnlEvt->undoLikeRecord($oApp, $oRecord, $oUser);
 			$like = new \stdClass;
-			$like->authorGetCoin = '积分以撤销';
+			$like->authorGetCoin = '积分已撤销';
 		}
 
 		$oResult = new \stdClass;
@@ -992,7 +992,7 @@ class record extends base {
 			/* 撤销发起反对 */
 			$modelEnlEvt->undoDislikeRecord($oApp, $oRecord, $oUser);
 			$like = new \stdClass;
-			$like->authorGetCoin = '积分以撤销';
+			$like->authorGetCoin = '积分已撤销';
 		}
 
 		$oResult = new \stdClass;

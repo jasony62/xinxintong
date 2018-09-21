@@ -943,13 +943,9 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         };
                         $scope2.ok = function() {
                             _groups.forEach(function(oGroup) {
-                                if(oGroup.assocOp) {
-                                    if(!oGroup.assocOp.schema) {
-                                        delete oGroup.assocOp;
-                                    }else {
-                                        oGroup.assocOp.schemaId = oGroup.assocOp.schema.id;
-                                        delete oGroup.assocOp.schema;
-                                    }
+                                if (oGroup.assocOp && oGroup.assocOp.schema) {
+                                    oGroup.assocOp.schemaId = oGroup.assocOp.schema.id;
+                                    delete oGroup.assocOp.schema;
                                 }
                             });
                             $mi.close({ groups: _groups, options: _options });

@@ -450,7 +450,7 @@ class user_model extends \TMS_MODEL {
 		} else if (!empty($oApp->mission_id)) {
 			$modelMis = $this->model('matter\mission');
 			$oMission = $modelMis->byId($oApp->mission_id, ['fields' => 'user_app_id,user_app_type,entry_rule']);
-			if (isset($oMission->entry_rule->scope) && $oMission->entry_rule->scope === 'member') {
+			if (isset($oMission->entry_rule->scope) && $oMission->entry_rule->scope === 'member' && !empty($oMission->entry_rule->member)) {
 				$modelMem = $this->model('site\user\member');
 				foreach ($oMission->entry_rule->member as $mschemaId => $rule) {
 					$members = $modelMem->byMschema($mschemaId);

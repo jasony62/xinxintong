@@ -1039,11 +1039,13 @@ class record_model extends record_base {
 				} else {
 					$oData = json_decode($oRecord->data);
 					$oRecord->data = new \stdClass;
-					$oRecord->data->{$schemaId} = $oData->{$schemaId};
-					if (!empty($oApp->rpConfig->marks)) {
-						foreach ($oApp->rpConfig->marks as $oMark) {
-							if (isset($oData->{$oMark->id})) {
-								$oRecord->data->{$oMark->id} = $oData->{$oMark->id};
+					if (isset($oData) && is_object($oData)) {
+						$oRecord->data->{$schemaId} = $oData->{$schemaId};
+						if (!empty($oApp->rpConfig->marks)) {
+							foreach ($oApp->rpConfig->marks as $oMark) {
+								if (isset($oData->{$oMark->id})) {
+									$oRecord->data->{$oMark->id} = $oData->{$oMark->id};
+								}
 							}
 						}
 					}

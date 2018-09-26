@@ -36,6 +36,27 @@ define(['frame', 'groupService'], function(ngApp) {
             }
         });
     }]);
+    /**
+     * 微信二维码
+     */
+    ngApp.provider.controller('ctrlWxQrcode', ['$scope', 'http2', function($scope, http2) {
+        $scope.create = function() {
+            var url;
+            url = '/rest/pl/fe/site/sns/wx/qrcode/create?site=' + $scope.app.siteid;
+            url += '&matter_type=enroll&matter_id=' + $scope.app.id;
+            //url += '&expire=864000';
+            http2.get(url, function(rsp) {
+                $scope.qrcode = rsp.data;
+            });
+        };
+        $scope.download = function() {
+            $('<a href="' + $scope.qrcode.pic + '" download="微信登记二维码.jpeg"></a>')[0].click();
+        };
+        http2.get('/rest/pl/fe/matter/enroll/wxQrcode?site=' + $scope.app.siteid + '&app=' + $scope.app.id, function(rsp) {
+            var qrcodes = rsp.data;
+            $scope.qrcode = qrcodes.length ? qrcodes[0] : false;
+        });
+    }]);
     ngApp.provider.controller('ctrlOpUrl', ['$scope', 'srvQuickEntry', 'srvEnrollApp', function($scope, srvQuickEntry, srvEnrollApp) {
         var targetUrl, host, opEntry;
         $scope.opEntry = opEntry = {};

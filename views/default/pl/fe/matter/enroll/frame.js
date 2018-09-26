@@ -88,7 +88,7 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage', 'groupService'
             .when('/rest/pl/fe/matter/enroll/notice', new RouteParam('notice'))
             .when('/rest/pl/fe/matter/enroll/enrollee', new RouteParam('enrollee'))
             .when('/rest/pl/fe/matter/enroll/tag', new RouteParam('tag'))
-            .otherwise(new RouteParam('preview'));
+            .otherwise(new RouteParam('entry'));
 
         $locationProvider.html5Mode(true);
 
@@ -127,7 +127,7 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage', 'groupService'
         $scope.opened = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
-            $scope.subView = subView[1] === 'enroll' ? 'preview' : subView[1];
+            $scope.subView = subView[1] === 'enroll' ? 'entry' : subView[1];
             switch ($scope.subView) {
                 case 'main':
                 case 'page':

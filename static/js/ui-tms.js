@@ -266,11 +266,13 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                     scope.$apply();
                 }
             });
-            elem[0].querySelectorAll('.dropdown-menu *').forEach(function(elem2) {
-                elem2.addEventListener('click', function(e) {
+            var menus = elem[0].querySelectorAll('.dropdown-menu *');
+            for (var i = 0, ii = menus.length; i < ii; i++) {
+                var elemMenu = menus[i];
+                elemMenu.addEventListener('click', function(e) {
                     e.stopPropagation();
                 });
-            });
+            }
         }
     }
 }).directive('editable', ['$timeout', function($timeout) {

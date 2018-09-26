@@ -528,4 +528,23 @@ class TMS_APP {
 
 		return $val;
 	}
+	/**
+	 * 根据客户端环境，编码下载文件文件名
+	 */
+	public static function setContentDisposition($filename) {
+		$ua = $_SERVER["HTTP_USER_AGENT"];
+		//if (preg_match("/MSIE|Edge/", $ua) || preg_match("/Trident\/7.0/", $ua)) {
+		if (preg_match("/Firefox/", $ua)) {
+			header('Content-Disposition: attachment; filename*="utf8\'\'' . $filename . '"');
+		} else if (preg_match("/Windows/", $ua)) {
+			$encoded_filename = urlencode($filename);
+			$encoded_filename = str_replace("+", "%20", $encoded_filename);
+			$encoded_filename = iconv('UTF-8', 'GBK//IGNORE', $encoded_filename);
+			header('Content-Disposition: attachment; filename="' . $encoded_filename . '"');
+		} else {
+			header('Content-Disposition: attachment; filename="' . $filename . '"');
+		}
+
+		return true;
+	}
 }

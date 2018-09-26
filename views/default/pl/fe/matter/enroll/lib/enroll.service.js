@@ -1298,7 +1298,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             url = '/rest/pl/fe/matter/enroll/record/exportToOther';
                             url += '?app=' + oApp.id;
                             url += '&targetApp=' + data.fromApp.id;
-                            http2.post(url, { mappings: data.mappings, eks, eks }, function() {});
+                            http2.post(url, { mappings: data.mappings, eks: eks }, function() {});
                         }
                     });
                 }

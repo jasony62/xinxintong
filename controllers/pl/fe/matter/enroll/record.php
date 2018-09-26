@@ -1915,20 +1915,8 @@ class record extends main_base {
 		// 输出
 		header('Content-Type: application/vnd.ms-excel');
 		header('Cache-Control: max-age=0');
-
 		$filename = $oApp->title . '.xlsx';
-		$ua = $_SERVER["HTTP_USER_AGENT"];
-		//if (preg_match("/MSIE/", $ua) || preg_match("/Trident\/7.0/", $ua)) {
-		if (preg_match("/MSIE/", $ua)) {
-			$encoded_filename = urlencode($filename);
-			$encoded_filename = str_replace("+", "%20", $encoded_filename);
-			$encoded_filename = iconv('UTF-8', 'GBK//IGNORE', $encoded_filename);
-			header('Content-Disposition: attachment; filename="' . $encoded_filename . '"');
-		} else if (preg_match("/Firefox/", $ua)) {
-			header('Content-Disposition: attachment; filename*="utf8\'\'' . $filename . '"');
-		} else {
-			header('Content-Disposition: attachment; filename="' . $filename . '"');
-		}
+		\TMS_App::setContentDisposition($filename);
 
 		$objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
 		$objWriter->save('php://output');

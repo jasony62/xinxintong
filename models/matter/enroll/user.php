@@ -88,7 +88,8 @@ class user_model extends \TMS_MODEL {
 			$oEnlUser = $modelEnlUsr->byId($oApp, $oUser->uid, ['fields' => 'nickname']);
 			if ($oEnlUser) {
 				$oUser->nickname = $oEnlUser->nickname;
-			} else {
+			} 
+			if (empty($oUser->nickname) || !$oEnlUser) {
 				$modelEnl = $this->model('matter\enroll');
 				$userNickname = $modelEnl->getUserNickname($oApp, $oUser);
 				$oUser->nickname = $userNickname;
@@ -225,6 +226,7 @@ class user_model extends \TMS_MODEL {
 			case 'score':
 			case 'state':
 			case 'group_id':
+			case 'nickname':
 				$aDbData[$field] = $value;
 				break;
 			case 'modify_log':

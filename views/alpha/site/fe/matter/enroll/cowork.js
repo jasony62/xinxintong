@@ -512,7 +512,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             }).result.then(function(data) {
                 addRemark(data.content, oUpperRemark).then(function(rsp) {
                     fnAppendRemark(rsp.data, oUpperRemark);
-                    noticebox.warn('您获得【'+ rsp.data.userGetCoin +'】分');
+                    noticebox.info('您获得【'+ rsp.data.userGetCoin +'】分');
                 });
             });
         }
@@ -556,7 +556,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             http2.get(LS.j('record/like', 'site', 'ek')).then(function(rsp) {
                 oRecord.like_log = rsp.data.like_log;
                 oRecord.like_num = rsp.data.like_num;
-                noticebox.warn('提问者获得【'+ rsp.data.authorGetCoin +'】分');
+                noticebox.info('提问者获得【'+ rsp.data.authorGetCoin +'】分');
             });
         }
     };
@@ -567,7 +567,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             http2.get(LS.j('record/dislike', 'site', 'ek')).then(function(rsp) {
                 oRecord.dislike_log = rsp.data.dislike_log;
                 oRecord.dislike_num = rsp.data.dislike_num;
-                noticebox.warn('提问者获得【'+ rsp.data.authorGetCoin +'】分');
+                noticebox.info('提问者获得【'+ rsp.data.authorGetCoin +'】分');
             });
         }
     };
@@ -770,7 +770,7 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
                         oRecData = $scope.record.verbose[oSchema.id] = rsp.data[1];
                         oRecData.items = [oNewItem];
                     }
-                    noticebox.warn('您获得【'+ rsp.data.getCoin.userGetCoin +'】分');
+                    noticebox.info('您获得【'+ rsp.data.getCoin.userGetCoin +'】分');
                 });
             });
         }
@@ -867,7 +867,7 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
                         }
                         document.body.scrollTop = offsetTop - 40;
                         elRemark.classList.add('blink');
-                        noticebox.warn('您获得【' + rsp.data.userGetCoin+ '】分');
+                        noticebox.info('您获得【' + rsp.data.userGetCoin+ '】分');
                         $timeout(function() {
                             elRemark.classList.remove('blink');
                         }, 1000);

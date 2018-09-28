@@ -15,7 +15,7 @@
 <body ng-controller="ctrlTopic" class='matter_enroll' tms-trace send-url='/rest/site/fe/matter/enroll/analysis/submit?site={{topic.siteid}}&app={{topic.aid}}&page=topic&topic={{topic.id}}' ready-sign="topic">
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
-    <nav class='navbar site-navbar-default'>
+    <nav class='navbar site-navbar-default visible-xs'>
         <div class='container' ng-cloak>
             <div class="navbar-header">
                 <a href class="navbar-brand">

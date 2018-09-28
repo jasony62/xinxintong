@@ -1,3 +1,51 @@
+a {
+    color: #666;
+}
+
+a:focus {
+    outline: none;
+    outline-offset: 0;
+}
+
+.site-navbar-default {
+    background-color: #3594fa;
+    border-color: #3594fa;
+}
+
+.site-navbar-alpha {
+    background-color: #fff;
+    border-color: #fff;
+}
+
+.site-navbar-alpha .navbar-brand {
+    height: 78px;
+    padding: 25px;
+}
+.site-navbar-alpha .nav>li>a:focus, .site-navbar-alpha .nav>li>a:hover {
+    text-decoration: none;
+    background-color: #fff;
+}
+
+.main.site-navbar-alpha {
+    margin-bottom: 0px;
+    border: none;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.main.site-navbar-alpha .navbar-nav>li>a{
+    padding-top: 25px;
+    padding-bottom: 25px;
+}
+
+.second.site-navbar-alpha .navbar-nav>li>a {
+    margin-right: 40px;
+
+}
+
+.second.site-navbar-alpha .navbar-nav>li.active>a {
+    color: #3594fa;
+    border-bottom: 2px solid #3594fa;
+}
 img{max-width:100%}
 
 /* default form style*/

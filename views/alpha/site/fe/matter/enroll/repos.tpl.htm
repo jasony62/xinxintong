@@ -181,11 +181,8 @@
                             <li ng-repeat="ug in userGroups"><a href ng-click="shiftUserGroup(ug)">{{ug.title}}</a></li>
                         </ul>
                     </div>
-                    <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
-                        <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
-                            <span ng-click="shiftMine('我的记录')">我的记录</span>
-                            <span class="glyphicon glyphicon-filter"></span>
-                        </button>
+                    <div class="btn-group">
+                        <button class="btn btn-default" ng-click="shiftMine('我的记录')">我的记录<span class="glyphicon glyphicon-filter"></span></button>
                     </div>
                 </div>
                 <!-- end: filterQuick -->

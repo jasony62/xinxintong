@@ -442,7 +442,7 @@ class data extends base {
 
 		$oUser = $this->getUser($oApp);
 		/* 检查是否满足给答案点赞的条件 */
-		if (!isset($oApp->entryRule->exclude_action) || $oApp->entryRule->exclude_action->like != "Y") {
+		if (empty($oApp->entryRule->exclude_action->like) || $oApp->entryRule->exclude_action->like != "Y") {
 			$checkEntryRule = $this->checkEntryRule($oApp, false, $oUser);
 			if ($checkEntryRule[0] === false) {
 				return new \ResponseError($checkEntryRule[1]);
@@ -535,7 +535,7 @@ class data extends base {
 
 		$oUser = $this->getUser($oApp);
 		/* 检查是否满足给答案点赞/点踩的条件 */
-		if (!isset($oApp->entryRule->exclude_action) || $oApp->entryRule->exclude_action->like != "Y") {
+		if (empty($oApp->entryRule->exclude_action->like) || $oApp->entryRule->exclude_action->like != "Y") {
 			$checkEntryRule = $this->checkEntryRule($oApp, false, $oUser);
 			if ($checkEntryRule[0] === false) {
 				return new \ResponseError($checkEntryRule[1]);

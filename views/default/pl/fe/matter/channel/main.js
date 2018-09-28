@@ -114,7 +114,7 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.createLink = function() {
-            http2.get('/rest/pl/fe/matter/link/create?site=' + $scope.siteId, function(rsp) {
+            http2.get('/rest/pl/fe/matter/link/create?site=' + $scope.siteId).then(function(rsp) {
                 var link = rsp.data,
                     relations = { matter: [link] };
                 http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId + '&channel=' + _oEditing.id, relations).then(function(rsp) {

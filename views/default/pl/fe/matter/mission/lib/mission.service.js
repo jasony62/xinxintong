@@ -352,7 +352,7 @@ define(['require'], function(require) {
                         var url = _RestURL;
                         if (rst.action === 'update') {
                             url += 'update?site=' + _siteId + '&mission=' + _missionId + '&rid=' + round.rid;
-                            http2.post(url, rst.data, function(rsp) {
+                            http2.post(url, rst.data).then(function(rsp) {
                                 if (_rounds.length > 1 && rst.data.state === '1') {
                                     _rounds[1].state = '2';
                                 }

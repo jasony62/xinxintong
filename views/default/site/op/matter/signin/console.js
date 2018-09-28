@@ -1,6 +1,6 @@
-define(["require", "angular", "signinService"], function(require, angular) {
+define(["require", "signinService"], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'schema.ui.xxt', 'service.matter', 'service.signin']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'schema.ui.xxt', 'service.matter', 'service.signin']);
     ngApp.constant('cstApp', {});
     ngApp.config(['$locationProvider', '$routeProvider', 'srvSigninAppProvider', 'srvOpSigninRecordProvider', function($locationProvider, $routeProvider, srvSigninAppProvider, srvOpSigninRecordProvider) {
         var RouteParam = function(name, baseURL) {
@@ -59,7 +59,7 @@ define(["require", "angular", "signinService"], function(require, angular) {
             $scope.app = app;
             window.loading.finish();
         });
-        http2.get('/rest/site/fe/user/get?site=' + $location.search().site, function(rsp) {
+        http2.get('/rest/site/fe/user/get?site=' + $location.search().site).then(function(rsp) {
             $scope.user = rsp.data;
         });
     }]);
@@ -68,7 +68,7 @@ define(["require", "angular", "signinService"], function(require, angular) {
         url += '?site=' + $location.search().site;
         url += '&app=' + $location.search().app;
         url += '&accessToken=' + $location.search().accessToken;
-        http2.get(url, function(rsp) {
+        http2.get(url).then(function(rsp) {
             $scope.summary = rsp.data;
         });
     }]);
@@ -190,7 +190,7 @@ define(["require", "angular", "signinService"], function(require, angular) {
             url += '&app=' + $location.search().app;
             url += '&accessToken=' + $location.search().accessToken;
             url += '&ek=' + ek;
-            http2.post(url, posted, function(rsp) {
+            http2.post(url, posted).then(function(rsp) {
                 //angular.extend($scope.record, rsp.data);
             });
         };

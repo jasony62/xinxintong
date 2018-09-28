@@ -5,7 +5,7 @@ require(['matterService'], function() {
     _missionId = location.search.match('mission=([^&]*)')[1];
     _accessToken = location.search.match('accessToken=([^&]*)')[1];
 
-    var ngApp = angular.module('app', ['ui.tms', 'service.matter', 'service.mission']);
+    var ngApp = angular.module('app', ['ui.tms', 'http.ui.xxt', 'service.matter', 'service.mission']);
     ngApp.config(['srvOpMissionProvider', function(srvOpMissionProvider) {
         srvOpMissionProvider.config(_siteId, _missionId, _accessToken);
     }]);
@@ -17,7 +17,7 @@ require(['matterService'], function() {
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     var url;
                     url = '/rest/site/op/matter/mission/report/userList?site=' + _siteId + '&mission=' + _missionId + '&accessToken=' + _accessToken;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         $scope2.users = rsp.data;
                     });
                     $scope2.chosen = {};
@@ -41,7 +41,7 @@ require(['matterService'], function() {
             $scope.mission = result.mission;
             var url;
             url = '/rest/site/op/matter/mission/report/matterList?site=' + _siteId + '&mission=' + _missionId + '&accessToken=' + _accessToken;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 var mattersByTime, orderedTimes;
                 mattersByTime = {};
                 orderedTimes = [];

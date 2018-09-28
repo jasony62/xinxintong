@@ -1,5 +1,5 @@
 'use strict';
-define(["require", "angular", "enrollService"], function(require, angular) {
+define(["require", "enrollService"], function(require) {
     var ls, siteId, appId, accessId, ngApp;
     ls = location.search;
     siteId = ls.match(/[\?&]site=([^&]*)/)[1];

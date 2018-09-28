@@ -7,14 +7,14 @@ require(['matterService'], function() {
     _userId = ls.match('user=([^&]*)')[1];
     _accessToken = ls.match('accessToken=([^&]*)')[1];
 
-    var ngApp = angular.module('app', ['ui.tms', 'service.matter', 'service.mission']);
+    var ngApp = angular.module('app', ['ui.tms', 'http.ui.xxt', 'service.matter', 'service.mission']);
     ngApp.config(['srvOpMissionProvider', function(srvOpMissionProvider) {
         srvOpMissionProvider.config(_siteId, _missionId, _accessToken);
     }]);
     ngApp.controller('ctrlMain', ['$scope', 'http2', 'srvOpMission', function($scope, http2, srvMission) {
         srvMission.get().then(function(result) {
             $scope.mission = result.mission;
-            http2.get('/rest/site/op/matter/mission/report/userTrack?site=' + _siteId + '&mission=' + _missionId + '&user=' + _userId + '&accessToken=' + _accessToken, function(rsp) {
+            http2.get('/rest/site/op/matter/mission/report/userTrack?site=' + _siteId + '&mission=' + _missionId + '&user=' + _userId + '&accessToken=' + _accessToken).then(function(rsp) {
                 var mattersByTime, orderedTimes;
                 mattersByTime = {};
                 orderedTimes = [];

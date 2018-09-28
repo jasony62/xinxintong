@@ -1,5 +1,5 @@
 'use strict';
-var ngApp = angular.module('app', ['ui.tms']);
+var ngApp = angular.module('app', ['ui.tms', 'http.ui.xxt']);
 ngApp.controller('ctrlSetting', ['$scope', 'http2', 'noticebox', function($scope, http2, noticebox) {
     $scope.repeatPwd = (function() {
         return {

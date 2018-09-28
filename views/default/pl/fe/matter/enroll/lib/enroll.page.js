@@ -32,7 +32,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                                 };
                             }],
                         }).result.then(function(options) {
-                            http2.post(_baseUrl + 'add?site=' + _siteId + '&app=' + _appId, options, function(rsp) {
+                            http2.post(_baseUrl + 'add?site=' + _siteId + '&app=' + _appId, options).then(function(rsp) {
                                 var page = rsp.data;
                                 pageLib.enhance(page);
                                 app.pages.push(page);
@@ -60,7 +60,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                     url += '&app=' + _appId;
                     url += '&page=' + page.id;
                     url += '&cname=' + page.code_name;
-                    http2.post(url, updated, function(rsp) {
+                    http2.post(url, updated).then(function(rsp) {
                         page.$$modified = false;
                         defer.resolve();
                         noticebox.success('完成保存');
@@ -82,7 +82,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                         url += '&app=' + _appId;
                         url += '&pid=' + page.id;
                         url += '&cname=' + page.code_name;
-                        http2.get(url, function(rsp) {
+                        http2.get(url).then(function(rsp) {
                             app.pages.splice(app.pages.indexOf(page), 1);
                             defer.resolve(app.pages);
                             noticebox.success('完成删除');

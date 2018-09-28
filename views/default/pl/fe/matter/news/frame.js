@@ -1,4 +1,4 @@
-ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'ui.bootstrap', 'service.matter']);
+ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'service.matter']);
 ngApp.config(['$routeProvider', '$locationProvider', 'srvTagProvider', 'srvSiteProvider', function($routeProvider, $locationProvider, srvTagProvider, srvSiteProvider) {
     $routeProvider.when('/rest/pl/fe/matter/news', {
         templateUrl: '/views/default/pl/fe/matter/news/setting.html?_=2',
@@ -46,10 +46,10 @@ ngApp.controller('ctrlNews', ['$scope', '$location', 'http2', function($scope, $
     var ls = $location.search();
     $scope.id = ls.id;
     $scope.siteId = ls.site;
-    http2.get('/rest/pl/fe/matter/tag/listTags?site=' + $scope.siteId, function(rsp) {
+    http2.get('/rest/pl/fe/matter/tag/listTags?site=' + $scope.siteId).then(function(rsp) {
         $scope.oTag = rsp.data;
     });
-    http2.get('/rest/pl/fe/matter/news/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
+    http2.get('/rest/pl/fe/matter/news/get?site=' + $scope.siteId + '&id=' + $scope.id).then(function(rsp) {
         if (rsp.data.matter_mg_tag !== '') {
             rsp.data.matter_mg_tag.forEach(function(cTag, index) {
                 $scope.oTag.forEach(function(oTag) {
@@ -96,7 +96,7 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'srvSite', '$uibModal', 'srv
         http2.post('/rest/pl/fe/matter/news/updateMatter?site=' + $scope.siteId + '&id=' + $scope.editing.id, $scope.editing.matters);
     };
     $scope.submit = function() {
-        http2.post('/rest/pl/fe/matter/news/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData, function() {
+        http2.post('/rest/pl/fe/matter/news/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData).then(function() {
             modifiedData = {};
             $scope.modified = false;
         });
@@ -135,7 +135,7 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'srvSite', '$uibModal', 'srv
                     mt: type,
                     mid: matters[0].id
                 };
-                http2.post('/rest/pl/fe/matter/news/setEmptyReply?site=' + $scope.siteId + '&id=' + $scope.editing.id, p, function(rsp) {
+                http2.post('/rest/pl/fe/matter/news/setEmptyReply?site=' + $scope.siteId + '&id=' + $scope.editing.id, p).then(function(rsp) {
                     $scope.editing.emptyReply = matters[0];
                 });
             }
@@ -146,7 +146,7 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'srvSite', '$uibModal', 'srv
             mt: '',
             mid: ''
         };
-        http2.post('/rest/pl/fe/matter/news/setEmptyReply?site=' + $scope.siteId + '&id=' + $scope.editing.id, p, function(rsp) {
+        http2.post('/rest/pl/fe/matter/news/setEmptyReply?site=' + $scope.siteId + '&id=' + $scope.editing.id, p).then(function(rsp) {
             $scope.editing.emptyReply = null;
         });
     };

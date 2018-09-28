@@ -178,14 +178,14 @@ define(['frame'], function(ngApp) {
             if ($scope.criteria.record && $scope.criteria.record.rid) {
                 oPosted.rid = $scope.criteria.record.ri;
             }
-            http2.post('/rest/pl/fe/matter/enroll/record/syncMissionUser?app=' + $scope.app.id, oPosted, function(rsp) {
+            http2.post('/rest/pl/fe/matter/enroll/record/syncMissionUser?app=' + $scope.app.id, oPosted).then(function(rsp) {
                 if (rsp.data > 0) {
                     $scope.doSearch(1);
                 }
             });
         };
         $scope.syncWithDataSource = function() {
-            http2.get('/rest/pl/fe/matter/enroll/record/syncWithDataSource?app=' + $scope.app.id, function(rsp) {
+            http2.get('/rest/pl/fe/matter/enroll/record/syncWithDataSource?app=' + $scope.app.id).then(function(rsp) {
                 $scope.doSearch(1);
             });
         };
@@ -220,7 +220,7 @@ define(['frame'], function(ngApp) {
         $scope.records = []; // 登记记录
         $scope.tmsTableWrapReady = 'N';
         srvEnrollApp.get().then(function(oApp) {
-            http2.get('/rest/pl/fe/matter/enroll/schema/get?app=' + oApp.id, function(rsp) {
+            http2.get('/rest/pl/fe/matter/enroll/schema/get?app=' + oApp.id).then(function(rsp) {
                 rsp.data.forEach(function(oSchema) {
                     oApp._unionSchemasById[oSchema.id] = oSchema;
                 });

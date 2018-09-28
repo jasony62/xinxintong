@@ -45,14 +45,14 @@ define(['frame', 'groupService'], function(ngApp) {
             url = '/rest/pl/fe/site/sns/wx/qrcode/create?site=' + $scope.app.siteid;
             url += '&matter_type=enroll&matter_id=' + $scope.app.id;
             //url += '&expire=864000';
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.qrcode = rsp.data;
             });
         };
         $scope.download = function() {
             $('<a href="' + $scope.qrcode.pic + '" download="微信登记二维码.jpeg"></a>')[0].click();
         };
-        http2.get('/rest/pl/fe/matter/enroll/wxQrcode?site=' + $scope.app.siteid + '&app=' + $scope.app.id, function(rsp) {
+        http2.get('/rest/pl/fe/matter/enroll/wxQrcode?site=' + $scope.app.siteid + '&app=' + $scope.app.id).then(function(rsp) {
             var qrcodes = rsp.data;
             $scope.qrcode = qrcodes.length ? qrcodes[0] : false;
         });

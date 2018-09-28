@@ -18,7 +18,7 @@ controller('ctrlSetChannel', ['$scope', 'http2', function($scope, http2) {
             id: matter.id,
             type: $scope.matterType
         };
-        http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId, relations, function() {
+        http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId, relations).then(function() {
             matter.channels = matter.channels.concat(aNewChannels);
         });
     });
@@ -28,13 +28,13 @@ controller('ctrlSetChannel', ['$scope', 'http2', function($scope, http2) {
                 id: matter.id,
                 type: $scope.matterType
             };
-        http2.post('/rest/pl/fe/matter/channel/removeMatter?site=' + $scope.siteId + '&id=' + removed.id, param, function(rsp) {
+        http2.post('/rest/pl/fe/matter/channel/removeMatter?site=' + $scope.siteId + '&id=' + removed.id, param).then(function(rsp) {
             matter.channels.splice(matter.channels.indexOf(removed), 1);
         });
     });
     $scope.$watch('siteId', function(siteid) {
         if (siteid) {
-            http2.get('/rest/pl/fe/matter/channel/list?site=' + siteid + '&cascade=N', function(rsp) {
+            http2.get('/rest/pl/fe/matter/channel/list?site=' + siteid + '&cascade=N').then(function(rsp) {
                 $scope.channels = rsp.data.docs;
             });
         }

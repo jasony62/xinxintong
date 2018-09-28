@@ -29,7 +29,7 @@ define(['require'], function(require) {
             $scope.site = oSite;
         });
         if (missionId) {
-            http2.get('/rest/pl/fe/matter/mission/get?site=' + siteId + '&id=' + missionId, function(rsp) {
+            http2.get('/rest/pl/fe/matter/mission/get?site=' + siteId + '&id=' + missionId).then(function(rsp) {
                 var oMission;
                 $scope.mission = oMission = rsp.data;
                 _oProto.mission = { id: oMission.id, title: oMission.title };
@@ -64,7 +64,7 @@ define(['require'], function(require) {
             if (oConfig.proto.sourceApp) {
                 delete oConfig.proto.sourceApp.title;
             }
-            http2.post(url, oConfig, function(rsp) {
+            http2.post(url, oConfig).then(function(rsp) {
                 location.href = '/rest/pl/fe/matter/group/main?site=' + siteId + '&id=' + rsp.data.id;
             });
         };

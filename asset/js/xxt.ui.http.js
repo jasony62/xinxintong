@@ -55,6 +55,20 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
         }
     }
 
+    function _requirePagination(oOptions) {
+        if (oOptions.page && angular.isObject(oOptions.page)) {
+            if (oOptions.page.at === undefined) oOptions.page.at = 1;
+            if (oOptions.page.size === undefined) oOptions.page.size = 12;
+            if (oOptions.page.j === undefined || !angular.isFunction(oOptions.page.j)) {
+                oOptions.page.j = function() {
+                    return 'page=' + this.at + '&size=' + this.size;
+                };
+            }
+            return true;
+        }
+        return false;
+    }
+
     this.get = function(url, oOptions) {
         var _alert, _timer, _defer = $q.defer();
         oOptions = angular.extend({
@@ -74,7 +88,13 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
                 _alert = createAlert(oOptions.showProgressText, 'info');
             }, oOptions.showProgressDelay);
         }
+        if (_requirePagination(oOptions)) {
+            url += (url.indexOf('?') === -1 ? '?' : '&') + oOptions.page.j();
+        }
         $http.get(url, oOptions).success(function(rsp) {
+            if (oOptions.page && rsp.data.total !== undefined) {
+                oOptions.page.total = rsp.data.total;
+            }
             if (oOptions.showProgress === true) {
                 _timer && $timeout.cancel(_timer);
                 if (_alert) {
@@ -147,7 +167,13 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
                 _alert = createAlert(oOptions.showProgressText, 'info');
             }, oOptions.showProgressDelay);
         }
+        if (_requirePagination(oOptions)) {
+            url += (url.indexOf('?') === -1 ? '?' : '&') + oOptions.page.j();
+        }
         $http.post(url, posted, oOptions).success(function(rsp) {
+            if (oOptions.page && rsp.data.total !== undefined) {
+                oOptions.page.total = rsp.data.total;
+            }
             if (oOptions.showProgress === true) {
                 _timer && $timeout.cancel(_timer);
                 if (_alert) {

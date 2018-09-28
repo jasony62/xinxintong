@@ -5,7 +5,7 @@ define(['main'], function(ngApp) {
         $scope.shiftSubview = function(subview) {
             $scope.subview = subview;
         }
-        http2.get('/rest/pl/fe/site/sns/wx/group/list?site=' + $scope.siteId, function(rsp) {
+        http2.get('/rest/pl/fe/site/sns/wx/group/list?site=' + $scope.siteId).then(function(rsp) {
             $scope.groups = rsp.data;
         });
     }]);
@@ -37,7 +37,7 @@ define(['main'], function(ngApp) {
                 param += '&gid=' + $scope.selectedGroup.id;
             }
             param += '&order=' + $scope.order;
-            http2.get('/rest/pl/fe/site/sns/wx/user/list' + param, function(rsp) {
+            http2.get('/rest/pl/fe/site/sns/wx/user/list' + param).then(function(rsp) {
                 $scope.users = rsp.data.fans;
                 $scope.page.total = rsp.data.total;
             });
@@ -54,7 +54,7 @@ define(['main'], function(ngApp) {
                 step && params.push('step=' + step);
                 nextOpenid && params.push('nextOpenid=' + nextOpenid);
                 params.length && (url += '&' + params.join('&'));
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     if (angular.isObject(rsp) && rsp.err_code === 0) {
                         if (rsp.data.left > 0) {
                             doRefresh(rsp.data.step, rsp.data.nextOpenid);
@@ -75,7 +75,7 @@ define(['main'], function(ngApp) {
         };
         $scope.refresh = function(fan) {
             var url = '/rest/pl/fe/site/sns/wx/user/refreshOne?site=' + $scope.siteId + '&openid=' + fan.openid;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 fan.nickname = rsp.data.nickname;
                 fan.sex = rsp.data.sex;
                 fan.city = rsp.data.city;
@@ -102,7 +102,7 @@ define(['main'], function(ngApp) {
         };
         $scope.save = function() {
             if ($scope.editing.id === undefined) {
-                http2.post('/rest/mp/user/fans/addGroup', $scope.editing, function(rsp) {
+                http2.post('/rest/mp/user/fans/addGroup', $scope.editing).then(function(rsp) {
                     $scope.editing.id = rsp.data.id;
                 });
             } else {
@@ -110,7 +110,7 @@ define(['main'], function(ngApp) {
             }
         };
         $scope.refresh = function() {
-            http2.get('/rest/pl/fe/site/sns/wx/group/refresh?site=' + $scope.siteId, function(rsp) {
+            http2.get('/rest/pl/fe/site/sns/wx/group/refresh?site=' + $scope.siteId).then(function(rsp) {
                 alert('更新用户分组数量：' + rsp.data);
             });
         };

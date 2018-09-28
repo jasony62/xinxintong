@@ -121,7 +121,7 @@ define(['frame'], function(ngApp) {
                     matter: { id: _oApp.id, type: 'plan' },
                     task: { model: model }
                 }
-                http2.post('/rest/pl/fe/matter/timer/create?site=' + _oApp.siteid, oConfig, function(rsp) {
+                http2.post('/rest/pl/fe/matter/timer/create?site=' + _oApp.siteid, oConfig).then(function(rsp) {
                     oOneTask.state = 'Y';
                     oOneTask.taskId = rsp.data.id;
                     oOneTask.task = {};
@@ -137,7 +137,7 @@ define(['frame'], function(ngApp) {
                     }, true);
                 });
             } else {
-                http2.get('/rest/pl/fe/matter/timer/remove?site=' + _oApp.siteid + '&id=' + oOneTask.taskId, function(rsp) {
+                http2.get('/rest/pl/fe/matter/timer/remove?site=' + _oApp.siteid + '&id=' + oOneTask.taskId).then(function(rsp) {
                     oOneTask.state = 'N';
                     delete oOneTask.taskId;
                     delete oOneTask.task;
@@ -148,7 +148,7 @@ define(['frame'], function(ngApp) {
             var oOneTask;
             oOneTask = _oTimerTask[model];
             if (oOneTask.state === 'Y') {
-                http2.post('/rest/pl/fe/matter/timer/update?site=' + _oApp.siteid + '&id=' + oOneTask.taskId, oOneTask.task, function(rsp) {
+                http2.post('/rest/pl/fe/matter/timer/update?site=' + _oApp.siteid + '&id=' + oOneTask.taskId, oOneTask.task).then(function(rsp) {
                     ['min', 'hour', 'wday', 'mday', 'mon', 'left_count'].forEach(function(prop) {
                         oOneTask.task[prop] = '' + rsp.data[prop];
                     });
@@ -158,7 +158,7 @@ define(['frame'], function(ngApp) {
         };
         srvPlanApp.get().then(function(oApp) {
             _oApp = oApp;
-            http2.get('/rest/pl/fe/matter/timer/byMatter?site=' + oApp.siteid + '&type=plan&id=' + oApp.id, function(rsp) {
+            http2.get('/rest/pl/fe/matter/timer/byMatter?site=' + oApp.siteid + '&type=plan&id=' + oApp.id).then(function(rsp) {
                 rsp.data.forEach(function(oTask) {
                     _oTimerTask[oTask.task_model].state = 'Y';
                     _oTimerTask[oTask.task_model].taskId = oTask.id;

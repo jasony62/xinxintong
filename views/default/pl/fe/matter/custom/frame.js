@@ -1,4 +1,4 @@
-var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'tmplshop.ui.xxt', 'channel.fe.pl', 'service.matter']);
+var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'tmplshop.ui.xxt', 'channel.fe.pl', 'service.matter']);
 ngApp.config(['$routeProvider', '$locationProvider', 'srvSiteProvider', 'srvTagProvider', function($routeProvider, $locationProvider, srvSiteProvider, srvTagProvider) {
     $routeProvider.when('/rest/pl/fe/matter/custom', {
         templateUrl: '/views/default/pl/fe/matter/custom/setting.html?_=2',
@@ -28,7 +28,7 @@ ngApp.controller('ctrlCustom', ['$scope', '$location', 'http2', 'srvSite', funct
     srvSite.tagList('C').then(function(oTag) {
         $scope.oTagC = oTag;
     });
-    http2.get('/rest/pl/fe/matter/custom/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
+    http2.get('/rest/pl/fe/matter/custom/get?site=' + $scope.siteId + '&id=' + $scope.id).then(function(rsp) {
         var url;
         $scope.editing = rsp.data;
         if ($scope.editing.matter_cont_tag !== '') {
@@ -74,7 +74,7 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', 'templateSho
         }
     };
     $scope.submit = function() {
-        http2.post('/rest/pl/fe/matter/custom/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData, function() {
+        http2.post('/rest/pl/fe/matter/custom/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData).then(function() {
             modifiedData = {};
             $scope.modified = false;
         });
@@ -84,12 +84,12 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', 'templateSho
         modifiedData[name] = name === 'body' ? encodeURIComponent($scope.editing[name]) : $scope.editing[name];
     };
     $scope.copy = function() {
-        http2.get('/rest/pl/fe/matter/custom/copy?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
+        http2.get('/rest/pl/fe/matter/custom/copy?site=' + $scope.siteId + '&id=' + $scope.id).then(function(rsp) {
             location.href = '/rest/pl/fe/matter/custom?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
     $scope.remove = function() {
-        http2.get('/rest/pl/fe/matter/custom/remove?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
+        http2.get('/rest/pl/fe/matter/custom/remove?site=' + $scope.siteId + '&id=' + $scope.id).then(function(rsp) {
             location.href = '/rest/pl/fe/site/console?site=' + $scope.siteId;
         });
     };
@@ -111,12 +111,12 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', 'templateSho
         if (name && name.length) {
             window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + name);
         } else {
-            http2.get('/rest/pl/fe/code/create?site=' + $scope.siteId, function(rsp) {
+            http2.get('/rest/pl/fe/code/create?site=' + $scope.siteId).then(function(rsp) {
                 var nv = {
                     'page_id': rsp.data.id,
                     'body_page_name': rsp.data.name
                 };
-                http2.post('/rest/pl/fe/matter/custom/update?site=' + $scope.siteId + '&id=' + $scope.id, nv, function() {
+                http2.post('/rest/pl/fe/matter/custom/update?site=' + $scope.siteId + '&id=' + $scope.id, nv).then(function() {
                     $scope.editing.page_id = rsp.data.id;
                     $scope.editing.body_page_name = rsp.data.name;
                     window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + rsp.data.name);
@@ -126,7 +126,7 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', 'templateSho
     };
     $scope.selectTemplate = function() {
         templateShop.choose('custom').then(function(data) {
-            http2.get('/rest/pl/fe/matter/custom/pageByTemplate?id=' + $scope.editing.id + '&template=' + data.id, function(rsp) {
+            http2.get('/rest/pl/fe/matter/custom/pageByTemplate?id=' + $scope.editing.id + '&template=' + data.id).then(function(rsp) {
                 $scope.editing.page_id = rsp.data.id;
                 $scope.editing.body_page_name = rsp.data.name;
                 location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + $scope.editing.body_page_name;

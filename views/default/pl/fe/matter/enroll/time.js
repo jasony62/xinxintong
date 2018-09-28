@@ -13,7 +13,7 @@ define(['frame'], function(ngApp) {
                 if (rounds.length === 1 && rounds[0].start_at == 0) {
                     oDefaultRound = rounds[0];
                     if (window.confirm('是否将现有默认填写时段，根据填写时段生成规则设置为第一个启用时段？')) {
-                        http2.get('/rest/pl/fe/matter/enroll/round/activeByCron?app=' + $scope.app.id + '&rid=' + oDefaultRound.rid, function(rsp) {
+                        http2.get('/rest/pl/fe/matter/enroll/round/activeByCron?app=' + $scope.app.id + '&rid=' + oDefaultRound.rid).then(function(rsp) {
                             angular.extend(oDefaultRound, rsp.data);
                         });
                     } else {

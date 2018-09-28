@@ -24,7 +24,7 @@ define(['frame'], function(ngApp) {
             var url = '/rest/pl/fe/matter/signin/opData';
             url += '?site=' + oApp.siteid;
             url += '&app=' + oApp.id;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.summary = rsp.data;
             });
         });

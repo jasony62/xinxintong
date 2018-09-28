@@ -1,6 +1,6 @@
 'use strict';
 
-var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'snsshare.ui.xxt', 'directive.enroll']);
+var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'http.ui.xxt', 'snsshare.ui.xxt', 'directive.enroll']);
 ngApp.controller('ctrlInvite', ['$scope', '$q', '$uibModal', 'http2', 'tmsSnsShare', function($scope, $q, $uibModal, http2, tmsSnsShare) {
     var _inviteId, _oInvite, _oNewInvite, _oPage;
     _inviteId = location.search.match('invite=(.*)')[1];
@@ -16,7 +16,7 @@ ngApp.controller('ctrlInvite', ['$scope', '$q', '$uibModal', 'http2', 'tmsSnsSha
         var posted;
         posted = {};
         posted[prop] = _oNewInvite[prop];
-        http2.post('/rest/site/fe/invite/update?invite=' + _oInvite.id, posted, function() {
+        http2.post('/rest/site/fe/invite/update?invite=' + _oInvite.id, posted).then(function() {
             _oInvite[prop] = _oNewInvite[prop];
         });
     };
@@ -34,17 +34,17 @@ ngApp.controller('ctrlInvite', ['$scope', '$q', '$uibModal', 'http2', 'tmsSnsSha
                 $scope.ok = function() {
                     var regx = /^[0-9]\d*$/;
                     if ($scope.code.max_count !== '' && (!regx.test($scope.code.max_count))) {
-                        alert( '请输入正确的使用次数值' );
+                        alert('请输入正确的使用次数值');
                         return false;
                     }
-                    if($scope.isDate=='N') {
+                    if ($scope.isDate == 'N') {
                         $scope.code.expire_at = '0';
                     }
                     $mi.close($scope.code);
                 };
             }]
         }).result.then(function(oNewCode) {
-            http2.post('/rest/site/fe/invite/code/add?invite=' + _oInvite.id, oNewCode, function(rsp) {
+            http2.post('/rest/site/fe/invite/code/add?invite=' + _oInvite.id, oNewCode).then(function(rsp) {
                 $scope.codes === undefined && ($scope.codes = []);
                 $scope.codes.splice(0, 0, rsp.data);
             });
@@ -58,14 +58,14 @@ ngApp.controller('ctrlInvite', ['$scope', '$q', '$uibModal', 'http2', 'tmsSnsSha
                 $scope.code = {};
                 $scope.state = 'config';
                 ['stop', 'expire_at', 'max_count', 'remark'].forEach(function(prop) {
-                    if(prop=='expire_at') {
-                        if(oCode[prop] == '0') {
+                    if (prop == 'expire_at') {
+                        if (oCode[prop] == '0') {
                             $scope.isDate = 'N';
                         } else {
                             $scope.isDate = 'Y';
                             $scope.code['expire_at'] = oCode['expire_at'];
                         }
-                    }else {
+                    } else {
                         $scope.code[prop] = oCode[prop]
                     }
                 });
@@ -75,17 +75,17 @@ ngApp.controller('ctrlInvite', ['$scope', '$q', '$uibModal', 'http2', 'tmsSnsSha
                 $scope.ok = function() {
                     var regx = /^[0-9]\d*$/;
                     if ($scope.code.max_count === '' || (!regx.test($scope.code.max_count))) {
-                        alert( '请输入正确的使用次数值' );
+                        alert('请输入正确的使用次数值');
                         return false;
                     }
-                    if($scope.isDate=='N') {
+                    if ($scope.isDate == 'N') {
                         $scope.code.expire_at = '0';
                     }
                     $mi.close($scope.code);
                 };
             }]
         }).result.then(function(oNewCode) {
-            http2.post('/rest/site/fe/invite/code/update?code=' + oCode.id, oNewCode, function(rsp) {
+            http2.post('/rest/site/fe/invite/code/update?code=' + oCode.id, oNewCode).then(function(rsp) {
                 ['stop', 'expire_at', 'max_count', 'remark'].forEach(function(prop) {
                     oCode[prop] = oNewCode[prop]
                 });
@@ -96,7 +96,7 @@ ngApp.controller('ctrlInvite', ['$scope', '$q', '$uibModal', 'http2', 'tmsSnsSha
         var defer, url;
         defer = $q.defer();
         url = '/rest/site/fe/user/invite/codeList?invite=' + _inviteId;
-        http2.get(url, function(rsp) {
+        http2.get(url).then(function(rsp) {
             $scope.codes = rsp.data;
             defer.resolve(rsp.data);
         });
@@ -105,7 +105,7 @@ ngApp.controller('ctrlInvite', ['$scope', '$q', '$uibModal', 'http2', 'tmsSnsSha
     $scope.gotoLog = function(oInviteCode) {
         location.href = '/rest/site/fe/user/invite/log?inviteCode=' + oInviteCode.id;
     };
-    http2.get('/rest/site/fe/user/invite/get?invite=' + _inviteId, function(rsp) {
+    http2.get('/rest/site/fe/user/invite/get?invite=' + _inviteId).then(function(rsp) {
         $scope.invite = _oInvite = rsp.data;
         if (/MicroMessenger/i.test(navigator.userAgent)) {
             $scope.wxAgent = true;

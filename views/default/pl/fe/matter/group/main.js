@@ -17,7 +17,7 @@ define(['frame'], function(ngApp) {
         });
         $scope.remove = function() {
             if (window.confirm('确定删除？')) {
-                http2.get('/rest/pl/fe/matter/group/remove?site=' + $scope.app.siteid + '&app=' + $scope.app.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/group/remove?site=' + $scope.app.siteid + '&app=' + $scope.app.id).then(function(rsp) {
                     if ($scope.app.mission) {
                         location = "/rest/pl/fe/matter/mission?site=" + $scope.app.siteid + "&id=" + $scope.app.mission.id;
                     } else {
@@ -42,7 +42,7 @@ define(['frame'], function(ngApp) {
                         id: $scope.app.id,
                         type: 'group'
                     };
-                    http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.app.siteid + '&id=' + result.matters[0].id, app, function(rsp) {
+                    http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.app.siteid + '&id=' + result.matters[0].id, app).then(function(rsp) {
                         $scope.app.mission = rsp.data;
                         $scope.app.mission_id = rsp.data.id;
                         srvGroupApp.update('mission_id');
@@ -58,7 +58,7 @@ define(['frame'], function(ngApp) {
                         type: 'group',
                         title: oApp.title
                     };
-                http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + oApp.siteid + '&id=' + oApp.mission_id, matter, function(rsp) {
+                http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + oApp.siteid + '&id=' + oApp.mission_id, matter).then(function(rsp) {
                     delete oApp.mission;
                     oApp.mission_id = 0;
                     srvGroupApp.update(['mission_id']);
@@ -120,7 +120,7 @@ define(['frame'], function(ngApp) {
                 window.open('/rest/pl/fe/code?site=' + app.siteid + '&name=' + app.page_code_name, '_self');
             } else {
                 url = '/rest/pl/fe/matter/group/page/create?site=' + app.siteid + '&app=' + app.id + '&scenario=' + app.scenario;
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     app.page_code_id = rsp.data.id;
                     app.page_code_name = rsp.data.name;
                     window.open('/rest/pl/fe/code?site=' + app.siteid + '&name=' + app.page_code_name, '_self');
@@ -132,7 +132,7 @@ define(['frame'], function(ngApp) {
             if (window.confirm('重置操作将丢失已做修改，确定？')) {
                 app = $scope.app;
                 url = '/rest/pl/fe/matter/group/page/reset?site=' + app.siteid + '&app=' + app.id + '&scenario=' + app.scenario;
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     window.open('/rest/pl/fe/code?site=' + app.siteid + '&name=' + app.page_code_name, '_self');
                 });
             }

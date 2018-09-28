@@ -1,6 +1,6 @@
 define(['require', 'schema', 'planService'], function(require, schemaLib) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'service.matter', 'service.plan', 'tinymce.enroll', 'sys.chart', 'schema.ui.xxt']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'http.ui.xxt', 'service.matter', 'service.plan', 'tinymce.enroll', 'sys.chart', 'schema.ui.xxt']);
     ngApp.constant('CstApp', {
         bornMode: {
             'A': { l: '组织者指定统一时间' },
@@ -23,7 +23,7 @@ define(['require', 'schema', 'planService'], function(require, schemaLib) {
             'schema.duplicated': '不允许重复添加登记项',
         },
     });
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', 'srvInviteProvider', 'srvSiteProvider', 'srvPlanAppProvider', 'srvPlanRecordProvider', 'srvPlanLogProvider', 'srvQuickEntryProvider',function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, srvInviteProvider, srvSiteProvider, srvPlanAppProvider, srvPlanRecordProvider, srvPlanLogProvider, srvQuickEntryProvider) {
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', 'srvInviteProvider', 'srvSiteProvider', 'srvPlanAppProvider', 'srvPlanRecordProvider', 'srvPlanLogProvider', 'srvQuickEntryProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, srvInviteProvider, srvSiteProvider, srvPlanAppProvider, srvPlanRecordProvider, srvPlanLogProvider, srvQuickEntryProvider) {
         var RouteParam = function(name, baseURL) {
             !baseURL && (baseURL = '/views/default/pl/fe/matter/plan/');
             this.templateUrl = baseURL + name + '.html?_=' + (new Date * 1);

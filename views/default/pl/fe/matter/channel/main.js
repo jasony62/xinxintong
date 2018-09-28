@@ -18,7 +18,7 @@ define(['frame'], function(ngApp) {
         }
 
         function postFixed(pos, params) {
-            http2.post('/rest/pl/fe/matter/channel/setfixed?site=' + $scope.siteId + '&id=' + $scope.id + '&pos=' + pos, params, function(rsp) {
+            http2.post('/rest/pl/fe/matter/channel/setfixed?site=' + $scope.siteId + '&id=' + $scope.id + '&pos=' + pos, params).then(function(rsp) {
                 if (pos === 'top') {
                     _oEditing.top_type = params.t;
                     _oEditing.top_id = params.id;
@@ -37,9 +37,9 @@ define(['frame'], function(ngApp) {
         $scope.update = function(name) {
             var modifiedData = {};
             modifiedData[name] = _oEditing[name];
-            http2.post('/rest/pl/fe/matter/channel/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData, function() {
+            http2.post('/rest/pl/fe/matter/channel/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData).then(function() {
                 if (name === 'orderby') {
-                    http2.get('/rest/pl/fe/matter/channel/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
+                    http2.get('/rest/pl/fe/matter/channel/get?site=' + $scope.siteId + '&id=' + $scope.id).then(function(rsp) {
                         _oEditing = rsp.data;
                     });
                 }
@@ -60,7 +60,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.remove = function() {
             if (window.confirm('确定删除？')) {
-                http2.get('/rest/pl/fe/matter/channel/remove?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/channel/remove?site=' + $scope.siteId + '&id=' + $scope.id).then(function(rsp) {
                     location = '/rest/pl/fe';
                 });
             }
@@ -97,7 +97,7 @@ define(['frame'], function(ngApp) {
                         matter.type = result.type;
                     });
                     relations = { matter: result.matters };
-                    http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId + '&channel=' + _oEditing.id, relations, function(rsp) {
+                    http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId + '&channel=' + _oEditing.id, relations).then(function(rsp) {
                         _oEditing.matters = rsp.data;
                         arrangeMatters();
                     });
@@ -105,10 +105,10 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.createArticle = function() {
-            http2.get('/rest/pl/fe/matter/article/create?site=' + $scope.siteId, function(rsp) {
+            http2.get('/rest/pl/fe/matter/article/create?site=' + $scope.siteId).then(function(rsp) {
                 var article = rsp.data,
                     relations = { matter: [article] };
-                http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId + '&channel=' + _oEditing.id, relations, function(rsp) {
+                http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId + '&channel=' + _oEditing.id, relations).then(function(rsp) {
                     location.href = '/rest/pl/fe/matter/article?site=' + $scope.siteId + '&id=' + article.id;
                 });
             });
@@ -117,7 +117,7 @@ define(['frame'], function(ngApp) {
             http2.get('/rest/pl/fe/matter/link/create?site=' + $scope.siteId, function(rsp) {
                 var link = rsp.data,
                     relations = { matter: [link] };
-                http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId + '&channel=' + _oEditing.id, relations, function(rsp) {
+                http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId + '&channel=' + _oEditing.id, relations).then(function(rsp) {
                     location.href = '/rest/pl/fe/matter/link?site=' + $scope.siteId + '&id=' + link.id;
                 });
             });
@@ -127,7 +127,7 @@ define(['frame'], function(ngApp) {
                 id: matter.id,
                 type: matter.type.toLowerCase()
             };
-            http2.post('/rest/pl/fe/matter/channel/removeMatter?site=' + $scope.siteId + '&reload=Y&id=' + $scope.id, removed, function(rsp) {
+            http2.post('/rest/pl/fe/matter/channel/removeMatter?site=' + $scope.siteId + '&reload=Y&id=' + $scope.id, removed).then(function(rsp) {
                 _oEditing.matters = rsp.data;
                 arrangeMatters();
             });

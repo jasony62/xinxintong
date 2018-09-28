@@ -1,5 +1,5 @@
 define(['require'], function(require) {
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'service.matter']);
     ngApp.config(['$locationProvider', '$controllerProvider', '$routeProvider', '$provide', 'srvSiteProvider', function($lp, $cp, $rp, $provide, srvSiteProvider) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/fe/site/sns/yx/';
@@ -40,7 +40,7 @@ define(['require'], function(require) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
             $scope.subView = subView[1] === 'yx' ? 'setting' : subView[1];
         });
-        http2.get('/rest/pl/fe/site/sns/yx/get?site=' + $scope.siteId, function(rsp) {
+        http2.get('/rest/pl/fe/site/sns/yx/get?site=' + $scope.siteId).then(function(rsp) {
             $scope.yx = rsp.data;
         });
     }]);

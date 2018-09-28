@@ -1,6 +1,6 @@
 define(['require', 'wallService'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'ui.bootstrap', 'service.matter', 'service.wall']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'ui.bootstrap', 'http.ui.xxt', 'service.matter', 'service.wall']);
     ngApp.constant('cstApp', {
         matterTypes: [{
             value: 'article',
@@ -81,7 +81,7 @@ define(['require', 'wallService'], function(require) {
         };
         $scope.remove = function() {
             if (window.confirm('确定删除活动？')) {
-                http2.get('/rest/pl/fe/matter/wall/remove?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/wall/remove?site=' + $scope.siteId + '&app=' + $scope.id).then(function(rsp) {
                     if ($scope.app.mission) {
                         location = "/rest/pl/fe/matter/mission?site=" + $scope.siteId + "&id=" + $scope.app.mission.id;
                     } else {
@@ -105,7 +105,7 @@ define(['require', 'wallService'], function(require) {
                     };
                 }],
             }).result.then(function(options) {
-                http2.post('/rest/pl/fe/matter/wall/page/add?site=' + $scope.siteId + '&app=' + $scope.id, options, function(rsp) {
+                http2.post('/rest/pl/fe/matter/wall/page/add?site=' + $scope.siteId + '&app=' + $scope.id, options).then(function(rsp) {
                     var page = rsp.data;
                     angular.extend(page, pageLib);
                     page.arrange();
@@ -117,10 +117,10 @@ define(['require', 'wallService'], function(require) {
             return deferred.promise;
         };
         srvWallApp.get().then(function(oWall) {
-            if(oWall.matter_mg_tag !== ''){
-                 oWall.matter_mg_tag.forEach(function(cTag,index){
-                    $scope.oTag.forEach(function(oTag){
-                        if(oTag.id === cTag){
+            if (oWall.matter_mg_tag !== '') {
+                oWall.matter_mg_tag.forEach(function(cTag, index) {
+                    $scope.oTag.forEach(function(oTag) {
+                        if (oTag.id === cTag) {
                             oWall.matter_mg_tag[index] = oTag;
                         }
                     });

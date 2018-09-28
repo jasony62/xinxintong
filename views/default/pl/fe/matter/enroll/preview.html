@@ -1,4 +1,44 @@
 <div id='preview-view' class='col-md-6 col-md-offset-3 overview'>
+    <div id='status7' class='panel panel-default'>
+        <div class='panel-body'>
+            <div id='simulator'>
+                <iframe ng-src={{previewURL}}></iframe>
+                <div id='simulatorActions'>
+                    <a class='btn btn-default btn-block' style='color:#337ab7' href="/rest/pl/fe/matter/enroll/schema?site={{app.siteid}}&id={{app.id}}">修改题目 <i class="glyphicon glyphicon-chevron-right"></i></a>
+                    <div class="btn-group btn-block" ng-repeat="page in app.pages">
+                        <button type="button" class="btn btn-default" ng-class="params.page===page?'btn-primary':'btn-default'" style="width:125px" title="{{page.title}}" ng-click="showPage(page)">{{page.title}}</button>
+                        <button type="button" class="btn dropdown-toggle" ng-class="params.page===page?'btn-primary':'btn-default'" data-toggle="dropdown">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="#" ng-click="gotoPage(page)">编辑页面</a></li>
+                        </ul>
+                    </div>
+                    <button uib-popover-template="'pageSetting.html'" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" class='btn btn-default btn-block'>页面设置 <span class="caret"></span></button>
+                    <button class='btn btn-default btn-block' ng-click="shareAsTemplate()">保存为模板</button>
+                </div>
+                <script type="text/ng-template" id="pageSetting.html">
+                    <div class='checkbox'>
+                        <label>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_header' ng-change="update('use_site_header');">使用站点页眉</label>
+                    </div>
+                    <div class='checkbox'>
+                        <label>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_footer' ng-change="update('use_site_footer');">使用站点页脚</label>
+                    </div>
+                    <div class='checkbox' ng-if="app.mission_id>0">
+                        <label>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_header' ng-change="update('use_mission_header');">使用项目页眉</label>
+                    </div>
+                    <div class='checkbox' ng-if="app.mission_id>0">
+                        <label>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_footer' ng-change="update('use_mission_footer');">使用项目页脚</label>
+                    </div>
+                </script>
+            </div>
+        </div>
+    </div>
     <div id='status1' class='panel panel-default'>
         <div class='panel-body'>
             <a href='' ng-click="switchTo('schema')" class='pull-right'>修改</a>
@@ -92,56 +132,16 @@
             </ul>
         </div>
     </div>
-    <div id='status7' class='panel panel-default'>
-        <div class='panel-body'>
-            <div id='simulator'>
-                <iframe ng-src={{previewURL}}></iframe>
-                <div id='simulatorActions'>
-                    <a class='btn btn-default btn-block' style='color:#337ab7' href="/rest/pl/fe/matter/enroll/schema?site={{app.siteid}}&id={{app.id}}">修改题目 <i class="glyphicon glyphicon-chevron-right"></i></a>
-                    <div class="btn-group btn-block" ng-repeat="page in app.pages">
-                        <button type="button" class="btn btn-default" ng-class="params.page===page?'btn-primary':'btn-default'" style="width:125px" title="{{page.title}}" ng-click="showPage(page)">{{page.title}}</button>
-                        <button type="button" class="btn dropdown-toggle" ng-class="params.page===page?'btn-primary':'btn-default'" data-toggle="dropdown">
-                            <span class="caret"></span>
-                            <span class="sr-only">Toggle Dropdown</span>
-                        </button>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a href="#" ng-click="gotoPage(page)">编辑页面</a></li>
-                        </ul>
-                    </div>
-                    <button uib-popover-template="'pageSetting.html'" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" class='btn btn-default btn-block'>页面设置 <span class="caret"></span></button>
-                    <button class='btn btn-default btn-block' ng-click="shareAsTemplate()">保存为模板</button>
-                </div>
-                <script type="text/ng-template" id="pageSetting.html">
-                    <div class='checkbox'>
-                        <label>
-                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_header' ng-change="update('use_site_header');">使用站点页眉</label>
-                    </div>
-                    <div class='checkbox'>
-                        <label>
-                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_footer' ng-change="update('use_site_footer');">使用站点页脚</label>
-                    </div>
-                    <div class='checkbox' ng-if="app.mission_id>0">
-                        <label>
-                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_header' ng-change="update('use_mission_header');">使用项目页眉</label>
-                    </div>
-                    <div class='checkbox' ng-if="app.mission_id>0">
-                        <label>
-                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_footer' ng-change="update('use_mission_footer');">使用项目页脚</label>
-                    </div>
-                </script>
-            </div>
-        </div>
-    </div>
 </div>
 <div class="col-md-3" id="previewScrollspy" style='position:relative;'>
     <ul class="nav nav-pills nav-stacked pl-workspace" style='position:fixed;'>
+        <li><a href="#status7">页面预览</a></li>
         <li><a href="#status1">填写题目</a></li>
         <li><a href="#status2">用户页面</a></li>
         <li><a href="#status3">填写人</a></li>
         <li><a href="#status4">活动时间</a></li>
         <li><a href="#status5">访问链接</a></li>
         <li><a href="#status6">填写记录</a></li>
-        <li><a href="#status7">活动预览</a></li>
     </ul>
 </div>
 <script type="text/ng-template" id="popupQrcode.html">

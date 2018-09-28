@@ -21,7 +21,7 @@ define(['require'], function(require) {
                     return _getAppDeferred.promise;
                 }
                 _getAppDeferred = $q.defer();
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     _oApp = rsp.data;
                     if (!_oApp.entryRule) {
                         _oApp.entryRule = {};
@@ -50,7 +50,7 @@ define(['require'], function(require) {
                         modifiedData[name] = _oApp[name];
                     });
                     url = '/rest/pl/fe/matter/plan/update?site=' + _siteId + '&app=' + _appId;
-                    http2.post(url, modifiedData, function(rsp) {
+                    http2.post(url, modifiedData).then(function(rsp) {
                         defer.resolve(rsp.data);
                     });
                     return defer.promise;
@@ -130,13 +130,13 @@ define(['require'], function(require) {
             _plOperations = [{
                 value: 'C',
                 title: '创建活动'
-            },{
+            }, {
                 value: 'U',
                 title: '修改活动'
-            },{
+            }, {
                 value: 'addSchemaTask',
                 title: '添加任务'
-            },{
+            }, {
                 value: 'batchSchemaTask',
                 title: '批量添加任务'
             }, {
@@ -151,19 +151,19 @@ define(['require'], function(require) {
             }, {
                 value: 'updateSchemaAction',
                 title: '修改行动项'
-            },{
+            }, {
                 value: 'removeSchemaAction',
                 title: '删除行动项'
-            },{
+            }, {
                 value: 'updateTask',
                 title: '修改用户任务'
-            },{
+            }, {
                 value: 'addUser',
                 title: '添加用户'
-            },{
+            }, {
                 value: 'updateUser',
                 title: '修改用户备注信息'
-            },{
+            }, {
                 value: 'verify.batch',
                 title: '审核通过指定记录'
             }, {
@@ -173,7 +173,7 @@ define(['require'], function(require) {
             _siteOperations = [{
                 value: 'read',
                 title: '阅读'
-            },{
+            }, {
                 value: 'submit',
                 title: '提交'
             }, {
@@ -200,7 +200,7 @@ define(['require'], function(require) {
                         });
                     }
                     url = '/rest/pl/fe/matter/plan/log/list?logType=' + type + '&app=' + _appId + page._j();
-                    http2.post(url, criteria, function(rsp) {
+                    http2.post(url, criteria).then(function(rsp) {
                         rsp.data.total && (page.total = rsp.data.total);
                         defer.resolve(rsp.data.logs);
                     });
@@ -210,7 +210,7 @@ define(['require'], function(require) {
                     var defer = $q.defer();
                     $uibModal.open({
                         templateUrl: '/views/default/pl/fe/matter/plan/component/logFilter.html?_=1',
-                        controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
+                        controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                             var oCriteria;
                             $scope2.type = type;
                             $scope2.siteOperations = _siteOperations;

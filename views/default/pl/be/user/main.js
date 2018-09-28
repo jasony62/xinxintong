@@ -1,10 +1,10 @@
 define(['require'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'http.ui.xxt']);
     ngApp.config(['$locationProvider', '$provide', '$controllerProvider', '$routeProvider', function($lp, $provide, $cp, $rp) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/be/user/';
-            this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
+            this.templateUrl = baseURL + name + '.html?_=' + (new Date * 1);
             this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
             this.resolve = {
                 load: function($q) {
@@ -25,7 +25,7 @@ define(['require'], function(require) {
             .when('/rest/pl/be/user/group', new RouteParam('group'))
             .otherwise(new RouteParam('account'));
     }]);
-    ngApp.controller('ctrlMain', ['$scope', 'http2', function($scope, http2) {
+    ngApp.controller('ctrlMain', ['$scope', function($scope) {
         $scope.subView = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)$/);

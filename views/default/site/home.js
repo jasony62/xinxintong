@@ -1,11 +1,12 @@
 'use strict';
+require('../../../asset/js/xxt.ui.http.js');
 require('../../../asset/js/xxt.ui.page.js');
 require('../../../asset/js/xxt.ui.subscribe.js');
 require('../../../asset/js/xxt.ui.contribute.js');
 require('../../../asset/js/xxt.ui.favor.js');
 require('../../../asset/js/xxt.ui.forward.js');
 
-var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'page.ui.xxt', 'subscribe.ui.xxt', 'contribute.ui.xxt', 'favor.ui.xxt', 'forward.ui.xxt']);
+var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'http.ui.xxt', 'page.ui.xxt', 'subscribe.ui.xxt', 'contribute.ui.xxt', 'favor.ui.xxt', 'forward.ui.xxt']);
 ngApp.provider('srvUser', function() {
     var _getSiteUserDeferred;
     this.$get = ['$q', 'http2', function($q, http2) {
@@ -15,7 +16,7 @@ ngApp.provider('srvUser', function() {
                     return _getSiteUserDeferred.promise;
                 }
                 _getSiteUserDeferred = $q.defer();
-                http2.get('/rest/site/fe/user/get?site=' + siteId, function(rsp) {
+                http2.get('/rest/site/fe/user/get?site=' + siteId).then(function(rsp) {
                     _getSiteUserDeferred.resolve(rsp.data);
                 });
                 return _getSiteUserDeferred.promise;
@@ -44,10 +45,10 @@ ngApp.directive('autoHeight', ['$window', function($window) {
         }
     }
 }]);
-ngApp.directive('imageonload',function(){
+ngApp.directive('imageonload', function() {
     return {
         restrict: 'A',
-        link: function(scope, element, attrs){
+        link: function(scope, element, attrs) {
             element.bind('load', function() {
                 scope.$apply(attrs.imageonload);
             })
@@ -59,7 +60,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$uibModal', 'http2', 'srvUser', '
         var defer = $q.defer(),
             url = '/rest/pl/fe/site/create?_=' + (new Date() * 1);
 
-        http2.get(url, function(rsp) {
+        http2.get(url).then(function(rsp) {
             defer.resolve(rsp.data);
         });
         return defer.promise;
@@ -69,8 +70,8 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$uibModal', 'http2', 'srvUser', '
         var url = '/rest/pl/fe/template/purchase?template=' + template.id;
         url += '&site=' + site.id;
 
-        http2.get(url, function(rsp) {
-            http2.get('/rest/pl/fe/matter/enroll/createByOther?site=' + site.id + '&template=' + template.id, function(rsp) {
+        http2.get(url).then(function(rsp) {
+            http2.get('/rest/pl/fe/matter/enroll/createByOther?site=' + site.id + '&template=' + template.id).then(function(rsp) {
                 location.href = '/rest/pl/fe/matter/enroll?id=' + rsp.data.id + '&site=' + site.id;
             });
         });
@@ -94,7 +95,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$uibModal', 'http2', 'srvUser', '
     $scope.favorTemplate = function(template, asAdmin) {
         if (oUser.loginExpire) {
             var url = '/rest/pl/fe/template/siteCanFavor?template=' + template.id + '&_=' + (new Date() * 1);
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 var sites = rsp.data;
                 $uibModal.open({
                     templateUrl: 'favorTemplateSite.html',
@@ -124,7 +125,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$uibModal', 'http2', 'srvUser', '
                         sites.push(site.id);
                     });
                     url += '&site=' + sites.join(',');
-                    http2.get(url, function(rsp) {});
+                    http2.get(url).then(function(rsp) {});
                 });
             });
         }
@@ -132,7 +133,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$uibModal', 'http2', 'srvUser', '
     $scope.useTemplate = function(template, asAdmin) {
         if (oUser.loginExpire) {
             var url = '/rest/pl/fe/site/list?_=' + (new Date() * 1);
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 var sites = rsp.data;
                 if (sites.length === 1) {
                     useTemplate(sites[0], template);
@@ -192,7 +193,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$uibModal', 'http2', 'srvUser', '
             tmsSubscribe.open(oUser, $scope.site);
         }
     };
-    http2.get('/rest/site/home/get?site=' + siteId, function(rsp) {
+    http2.get('/rest/site/home/get?site=' + siteId).then(function(rsp) {
         srvUser.getSiteUser(siteId).then(function(siteUser) {
             $scope.user = oUser = siteUser;
             if (window.sessionStorage) {

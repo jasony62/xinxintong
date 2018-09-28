@@ -6,7 +6,7 @@ define(['require'], function(require) {
     _siteId = ls.match(/[\?&]site=([^&]*)/)[1];
     _missionId = ls.match(/[\?&]mission=([^&]*)/) ? ls.match(/[\?&]mission=([^&]*)/)[1] : '';
 
-    ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'pl.const', 'service.matter']);
+    ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'pl.const', 'service.matter']);
     ngApp.config(['$locationProvider', 'srvSiteProvider', function($locationProvider, srvSiteProvider) {
         $locationProvider.html5Mode(true);
         srvSiteProvider.config(_siteId);
@@ -19,7 +19,7 @@ define(['require'], function(require) {
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
             if (_missionId) {
-                http2.get('/rest/pl/fe/matter/mission/get?site=' + _siteId + '&id=' + _missionId, function(rsp) {
+                http2.get('/rest/pl/fe/matter/mission/get?site=' + _siteId + '&id=' + _missionId).then(function(rsp) {
                     $scope.mission = rsp.data;
                 });
             }
@@ -68,7 +68,7 @@ define(['require'], function(require) {
                     };
                     var url = '/rest/pl/fe/matter/group/list?site=' + _siteId + '&size=999&cascaded=Y';
                     url += '&mission=' + _missionId;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         $scope2.apps = rsp.data.apps;
                     });
                 }],
@@ -121,14 +121,14 @@ define(['require'], function(require) {
             if (data.scenarioConfig) {
                 oConfig.scenarioConfig = data.scenarioConfig;
             }
-            http2.post(url, oConfig, function(rsp) {
+            http2.post(url, oConfig).then(function(rsp) {
                 location.href = '/rest/pl/fe/matter/enroll/schema?site=' + _siteId + '&id=' + rsp.data.id;
             });
         };
         $scope.doCreateUserScore = function() {
             var url;
             url = '/rest/pl/fe/matter/enroll/createByMissionUser?mission=' + _missionId;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 location.href = '/rest/pl/fe/matter/enroll/schema?site=' + _siteId + '&id=' + rsp.data.id;
             });
         };
@@ -146,7 +146,7 @@ define(['require'], function(require) {
             url = '/rest/pl/fe/matter/enroll/template/config';
             url += '?scenario=' + _oResult.scenario.name;
             url += '&template=' + _oResult.template.name;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 var oScenarioConfig, elSimulator, url;
                 $scope.scenarioConfig = oScenarioConfig = rsp.data.scenarioConfig;
                 oScenarioConfig.required = (oScenarioConfig.can_repos !== 'D' || oScenarioConfig.can_rank !== 'D' || oScenarioConfig.can_repos !== 'D');
@@ -197,7 +197,7 @@ define(['require'], function(require) {
             }
         };
         /*系统模版*/
-        http2.get('/rest/pl/fe/matter/enroll/template/list', function(rsp) {
+        http2.get('/rest/pl/fe/matter/enroll/template/list').then(function(rsp) {
             var oScenarioes = rsp.data,
                 oTemplates;
 
@@ -270,14 +270,14 @@ define(['require'], function(require) {
             if (_missionId) {
                 url += '&mission=' + _missionId;
             }
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 location.href = '/rest/pl/fe/matter/enroll/schema?site=' + _siteId + '&id=' + rsp.data.id;
             });
         };
         $scope.searchTemplate = function() {
             var url = '/rest/pl/fe/template/site/list?matterType=enroll&scope=P' + '&site=' + _siteId;
 
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.templates = rsp.data.templates;
                 $scope.page.total = rsp.data.total;
             });
@@ -285,7 +285,7 @@ define(['require'], function(require) {
         $scope.searchShare2Me = function() {
             var url = '/rest/pl/fe/template/platform/share2Me?matterType=enroll';
 
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.templates = rsp.data.templates;
                 $scope.page.total = rsp.data.total;
             });
@@ -293,7 +293,7 @@ define(['require'], function(require) {
         $scope.searchBySite = function() {
             var url = '/rest/pl/fe/template/site/list?site=' + _siteId + '&matterType=enroll&scope=S';
 
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.templates = rsp.data.templates;
                 $scope.page.total = rsp.data.total;
             });
@@ -324,7 +324,7 @@ define(['require'], function(require) {
                         lastModified: lastModified,
                         uniqueIdentifier: f.uniqueIdentifier,
                     };
-                    http2.post('/rest/pl/fe/matter/enroll/createByExcel?site=' + _siteId, posted, function(rsp) {
+                    http2.post('/rest/pl/fe/matter/enroll/createByExcel?site=' + _siteId, posted).then(function(rsp) {
                         $mi.close({ source: 'file', app: rsp.data });
                     });
                 });
@@ -349,7 +349,7 @@ define(['require'], function(require) {
                 if (_missionId) {
                     url += '&mission=' + _missionId;
                 }
-                http2.post(url, template, function(rsp) {
+                http2.post(url, template).then(function(rsp) {
                     oNewApp = rsp.data;
                 });
             };

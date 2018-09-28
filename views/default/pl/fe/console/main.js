@@ -7,14 +7,14 @@ define(['frame'], function(ngApp) {
             if (oMatter.star) {
                 if (oMatter.id && oMatter.type) {
                     url = '/rest/pl/fe/delTop?site=' + oMatter.siteid + '&id=' + oMatter.id + '&type=' + oMatter.type;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         delete oMatter.star;
                     });
                 }
             } else {
                 if (oMatter.id && oMatter.type) {
                     url = '/rest/pl/fe/top?site=' + oMatter.siteid + '&matterId=' + oMatter.id + '&matterType=' + oMatter.type + '&matterTitle=' + oMatter.title;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         oMatter.star = rsp.data;
                     });
                 }
@@ -66,7 +66,7 @@ define(['frame'], function(ngApp) {
                             $scope2.doMission = function() {
                                 var url = '/rest/pl/fe/matter/mission/list?site=' + siteid + $scope2.pageOfMission.j() + '&field=id,title',
                                     params = { byTitle: criteria.byTitle };
-                                http2.post(url, params, function(rsp) {
+                                http2.post(url, params).then(function(rsp) {
                                     if (rsp.data) {
                                         $scope2.missions = rsp.data.missions;
                                         $scope2.pageOfMission.total = rsp.data.total;
@@ -92,7 +92,7 @@ define(['frame'], function(ngApp) {
                         backdrop: 'static'
                     }).result.then(function(result) {
                         url += type + '/copy?site=' + siteid + '&app=' + id + '&mission=' + result.mission + '&cpRecord=' + result.cpRecord + '&cpEnrollee=' + result.cpEnrollee;
-                        http2.get(url, function(rsp) {
+                        http2.get(url).then(function(rsp) {
                             location.href = '/rest/pl/fe/matter/enroll/preview?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
                         });
                     });
@@ -107,7 +107,7 @@ define(['frame'], function(ngApp) {
                     return;
             }
             if (type !== 'enroll') {
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     location.href = '/rest/pl/fe/matter/' + type + '?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
                 });
             }
@@ -149,7 +149,7 @@ define(['frame'], function(ngApp) {
             var url;
             pageAt && (_oPage.at = pageAt);
             url = '/rest/pl/fe/matter/mission/listByUser?_=' + t + '&' + _oPage.j();
-            http2.post(url, _oCriteria, function(rsp) {
+            http2.post(url, _oCriteria).then(function(rsp) {
                 $scope.missions = rsp.data.missions;
                 _oPage.total = rsp.data.total;
             });
@@ -238,14 +238,14 @@ define(['frame'], function(ngApp) {
                         url += '&cascaded=opData';
                     }
                     url += '&' + _oPage.j() + '&_=' + t;
-                    http2.post(url, { byTitle: _oCriteria.filter.keyword, byStar: _oCriteria.byStar }, function(rsp) {
+                    http2.post(url, { byTitle: _oCriteria.filter.keyword, byStar: _oCriteria.byStar }).then(function(rsp) {
                         $scope.matters = rsp.data.apps;
                         _oPage.total = rsp.data.total;
                     });
                 } else {
                     url = '/rest/pl/fe/matter/bySite?site=' + _oCriteria.bySite + '&category=app';
                     url += '&' + _oPage.j() + '&_=' + t;
-                    http2.post(url, { byTitle: _oCriteria.filter.keyword, byStar: _oCriteria.byStar }, function(rsp) {
+                    http2.post(url, { byTitle: _oCriteria.filter.keyword, byStar: _oCriteria.byStar }).then(function(rsp) {
                         $scope.matters = rsp.data.matters;
                         _oPage.total = rsp.data.total;
                     });
@@ -329,14 +329,14 @@ define(['frame'], function(ngApp) {
                 if (_oCriteria.matter.type) {
                     url = '/rest/pl/fe/matter/' + _oCriteria.matter.type + '/list?site=' + _oCriteria.bySite + '&' + _oPage.j() + '&_=' + t;
                     _oCriteria.matter.type == 'channel' && (url += '&cascade=N');
-                    http2.post(url, { byTitle: _oCriteria.filter.keyword, byStar: _oCriteria.byStar }, function(rsp) {
+                    http2.post(url, { byTitle: _oCriteria.filter.keyword, byStar: _oCriteria.byStar }).then(function(rsp) {
                         $scope.matters = rsp.data.docs || rsp.data.apps;
                         _oPage.total = rsp.data.total;
                     });
                 } else {
                     url = '/rest/pl/fe/matter/bySite?site=' + _oCriteria.bySite + '&category=doc&' + _oPage.j() + '&_=' + t;
                     _oCriteria.matter.type == 'channel' && (url += '&cascade=N');
-                    http2.post(url, { byTitle: _oCriteria.filter.keyword, byStar: _oCriteria.byStar }, function(rsp) {
+                    http2.post(url, { byTitle: _oCriteria.filter.keyword, byStar: _oCriteria.byStar }).then(function(rsp) {
                         $scope.matters = rsp.data.matters;
                         _oPage.total = rsp.data.total;
                     });
@@ -378,7 +378,7 @@ define(['frame'], function(ngApp) {
             var url;
             if ($scope.frameState.sid) {
                 url = '/rest/pl/fe/site/member/schema/create?site=' + $scope.frameState.sid;
-                http2.post(url, { valid: 'Y' }, function(rsp) {
+                http2.post(url, { valid: 'Y' }).then(function(rsp) {
                     location.href = '/rest/pl/fe/site/mschema?site=' + $scope.frameState.sid + '#' + rsp.data.id;
                 });
             }
@@ -407,7 +407,7 @@ define(['frame'], function(ngApp) {
                     targetAndMsg.schema = oMembers.schema.id;
                     targetAndMsg.tmplmsg = notify.tmplmsg.id;
 
-                    http2.post(url, targetAndMsg, function(data) {
+                    http2.post(url, targetAndMsg).then(function(data) {
                         noticebox.success('发送完成');
                     });
                 }
@@ -418,7 +418,7 @@ define(['frame'], function(ngApp) {
         });
         $scope.$watch('frameState.sid', function(siteId) {
             if (siteId) {
-                http2.get('/rest/pl/fe/site/member/schema/list?site=' + siteId + '&valid=Y', function(rsp) {
+                http2.get('/rest/pl/fe/site/member/schema/list?site=' + siteId + '&valid=Y').then(function(rsp) {
                     $scope.mschemas = rsp.data;
                     if ($scope.mschemas.length) {
                         if ($location.search().mschema) {
@@ -441,7 +441,7 @@ define(['frame'], function(ngApp) {
     }]);
     ngApp.provider.controller('ctrlMember', ['$scope', '$location', '$sce', '$uibModal', 'http2', 'facListFilter', 'tmsSchema', function($scope, $location, $sce, $uibModal, http2, facListFilter, tmsSchema) {
         function listInvite(oSchema) {
-            http2.get('/rest/pl/fe/site/member/invite/list?schema=' + oSchema.id, function(rsp) {
+            http2.get('/rest/pl/fe/site/member/invite/list?schema=' + oSchema.id).then(function(rsp) {
                 $scope.invites = rsp.data.invites;
             });
         }
@@ -486,7 +486,7 @@ define(['frame'], function(ngApp) {
             url = '/rest/pl/fe/site/member/list?site=' + $scope.frameState.sid + '&schema=' + _oMschema.id;
             url += '&page=' + $scope.page.at + '&size=' + $scope.page.size + filter
             url += '&contain=total';
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 var members = rsp.data.members;
                 if (members.length) {
                     if (_oMschema.extAttrs.length) {
@@ -541,12 +541,12 @@ define(['frame'], function(ngApp) {
                             email_verified: data.email_verified,
                             extattr: data.extattr
                         };
-                    http2.post('/rest/pl/fe/site/member/update?site=' + $scope.frameState.sid + '&id=' + oMember.id, newData, function(rsp) {
+                    http2.post('/rest/pl/fe/site/member/update?site=' + $scope.frameState.sid + '&id=' + oMember.id, newData).then(function(rsp) {
                         angular.extend(oMember, newData);
                         oMember._extattr = tmsSchema.member.getExtattrsUIValue(_oMschema.extAttrs, oMember);
                     });
                 } else if (rst.action === 'remove') {
-                    http2.get('/rest/pl/fe/site/member/remove?site=' + $scope.frameState.sid + '&id=' + oMember.id, function() {
+                    http2.get('/rest/pl/fe/site/member/remove?site=' + $scope.frameState.sid + '&id=' + oMember.id).then(function() {
                         $scope.members.splice($scope.members.indexOf(oMember), 1);
                     });
                 }
@@ -587,7 +587,7 @@ define(['frame'], function(ngApp) {
             if (_oFilter.by === 'nickname' && _oFilter.keyword) {
                 data.nickname = _oFilter.keyword;
             }
-            http2.post(url, data, function(rsp) {
+            http2.post(url, data).then(function(rsp) {
                 $scope.users = rsp.data.users;
                 _oPage.total = rsp.data.total;
             });
@@ -622,7 +622,7 @@ define(['frame'], function(ngApp) {
             if (_oFilter.by === 'nickname' && _oFilter.keyword) {
                 data.nickname = _oFilter.keyword;
             }
-            http2.post(url, data, function(rsp) {
+            http2.post(url, data).then(function(rsp) {
                 $scope.users = rsp.data.subscribers;
                 _oPage.total = rsp.data.total;
             });
@@ -643,7 +643,7 @@ define(['frame'], function(ngApp) {
                 if (_oFilter.by === 'title' && _oFilter.keyword) {
                     data.byTitle = _oFilter.keyword;
                 }
-                http2.post(url, data, function(rsp) {
+                http2.post(url, data).then(function(rsp) {
                     $scope.matters = rsp.data.matters;
                 });
             }
@@ -651,7 +651,7 @@ define(['frame'], function(ngApp) {
         $scope.restoreSite = function(site) {
             //恢复删除的站点
             var url = '/rest/pl/fe/site/recover?site=' + site.id;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 location.href = '/rest/pl/fe/site?site=' + site.id;
             })
         };
@@ -659,12 +659,12 @@ define(['frame'], function(ngApp) {
             var url;
             if (oMatter.matter_type === 'memberschema') {
                 url = '/rest/pl/fe/site/member/schema/restore' + '?site=' + oMatter.siteid + '&id=' + oMatter.matter_id;
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     location.href = '/rest/pl/fe/site/mschema?site=' + oMatter.siteid + '#' + oMatter.matter_id;
                 });
             } else {
                 url = '/rest/pl/fe/matter/' + oMatter.matter_type + '/restore' + '?site=' + oMatter.siteid + '&id=' + oMatter.matter_id;
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     location.href = '/rest/pl/fe/matter/' + oMatter.matter_type + '?site=' + oMatter.siteid + '&id=' + oMatter.matter_id;
                 });
             }

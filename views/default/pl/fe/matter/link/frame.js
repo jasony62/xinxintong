@@ -1,5 +1,5 @@
 define(['require'], function() {
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter', 'member.xxt', 'channel.fe.pl']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'service.matter', 'member.xxt', 'channel.fe.pl']);
     ngApp.config(['$routeProvider', '$locationProvider', '$controllerProvider', 'srvSiteProvider', 'srvTagProvider', 'srvInviteProvider', function($routeProvider, $locationProvider, $controllerProvider, srvSiteProvider, srvTagProvider, srvInviteProvider) {
         var RouteParam = function(name, baseURL) {
             !baseURL && (baseURL = '/views/default/pl/fe/matter/link/');
@@ -76,7 +76,7 @@ define(['require'], function() {
             $scope.snsNames = Object.keys(oSns);
             $scope.snsCount = Object.keys(oSns).length;
         });
-        http2.get('/rest/pl/fe/matter/link/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
+        http2.get('/rest/pl/fe/matter/link/get?site=' + $scope.siteId + '&id=' + $scope.id).then(function(rsp) {
             $scope.editing = rsp.data;
             $scope.entryUrl = rsp.data.entryUrl;
         });

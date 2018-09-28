@@ -13,18 +13,18 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'noticebox', function($scope
         http2.post('/rest/pl/fe/user/changePwd', {
             opwd: $scope.opwd,
             npwd: $scope.npwd
-        }, function(rsp) {
+        }).then(function(rsp) {
             noticebox.success('修改成功');
         });
     };
     $scope.changeNickname = function() {
         http2.post('/rest/pl/fe/user/changeNickname', {
             nickname: $scope.nickname
-        }, function(rsp) {
+        }).then(function(rsp) {
             noticebox.success('修改成功');
         });
     };
-    http2.get('/rest/pl/fe/user/get', function(rsp) {
+    http2.get('/rest/pl/fe/user/get').then(function(rsp) {
         $scope.nickname = rsp.data.nickname;
     });
 }]);

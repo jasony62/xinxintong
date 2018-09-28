@@ -3,7 +3,7 @@ define(['main'], function(ngApp) {
     ngApp.provider.controller('ctrlAccount', ['$scope', '$uibModal', 'http2', 'noticebox', function($scope, $uibModal, http2, noticebox) {
         function doSearch(page) {
             !page && (page = $scope.page.at);
-            http2.post('/rest/pl/be/user/account/list?page=' + page + '&size=' + $scope.page.size, filter, function(rsp) {
+            http2.post('/rest/pl/be/user/account/list?page=' + page + '&size=' + $scope.page.size, filter).then(function(rsp) {
                 $scope.users = rsp.data[0];
                 rsp.data[1] && ($scope.page.total = rsp.data[1]);
             });
@@ -57,12 +57,12 @@ define(['main'], function(ngApp) {
                 }]
             }).result.then(function(data) {
                 data.uid = user.uid;
-                http2.post('/rest/pl/be/user/account/resetPwd', data, function(rsp) {
+                http2.post('/rest/pl/be/user/account/resetPwd', data).then(function(rsp) {
                     noticebox.success('修改完成');
                 });
             });
         };
-        http2.get('/rest/pl/be/user/group/list', function(rsp) {
+        http2.get('/rest/pl/be/user/group/list').then(function(rsp) {
             $scope.groups = rsp.data;
             doSearch(1);
         });

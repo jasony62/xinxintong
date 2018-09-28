@@ -31,7 +31,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
                     };
                 }],
             }).result.then(function(options) {
-                http2.post('/rest/pl/fe/matter/signin/page/add?site=' + $scope.app.siteid + '&app=' + $scope.app.id, options, function(rsp) {
+                http2.post('/rest/pl/fe/matter/signin/page/add?site=' + $scope.app.siteid + '&app=' + $scope.app.id, options).then(function(rsp) {
                     var page = rsp.data;
                     pageLib.enhance(page);
                     page._arrange($scope.mapOfAppSchemas);

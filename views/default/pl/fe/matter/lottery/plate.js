@@ -1,6 +1,6 @@
 (function() {
     ngApp.provider.controller('ctrlPlate', ['$scope', 'http2', function($scope, http2) {
-        http2.get('/rest/pl/fe/matter/lottery/plate/get?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+        http2.get('/rest/pl/fe/matter/lottery/plate/get?site=' + $scope.siteId + '&app=' + $scope.id).then(function(rsp) {
             $scope.plate = rsp.data;
         });
         $scope.update = function(slot) {

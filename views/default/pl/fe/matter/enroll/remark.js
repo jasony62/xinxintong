@@ -7,7 +7,7 @@ define(['frame'], function(ngApp) {
 
             defer = $q.defer();
             url = '/rest/pl/fe/matter/enroll/remark/byApp?site=' + $location.search().site + '&app=' + $location.search().id + '&' + oPage.j();
-            http2.post(url, oCriteria, function(rsp) {
+            http2.post(url, oCriteria).then(function(rsp) {
                 defer.resolve(rsp.data);
             });
             return defer.promise;
@@ -59,7 +59,7 @@ define(['frame'], function(ngApp) {
                     tmsSchema.forTable(result.records[ek], $scope.app._schemasById);
                 }
                 $scope.records = result.records;
-                
+
                 oPage.total = result.total;
             });
         };
@@ -67,10 +67,10 @@ define(['frame'], function(ngApp) {
             $uibModal.open({
                 templateUrl: '/views/default/pl/fe/matter/enroll/component/remarkFilter.html?_=1',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                    http2.get('/rest/pl/fe/matter/enroll/user/enrollee?site=' + $location.search().site + '&app=' + $location.search().id, function(rsp) {
+                    http2.get('/rest/pl/fe/matter/enroll/user/enrollee?site=' + $location.search().site + '&app=' + $location.search().id).then(function(rsp) {
                         $scope2.enrollees = rsp.data.users;
                     });
-                    http2.get('/rest/pl/fe/matter/enroll/user/remarker?site=' + $location.search().site + '&app=' + $location.search().id, function(rsp) {
+                    http2.get('/rest/pl/fe/matter/enroll/user/remarker?site=' + $location.search().site + '&app=' + $location.search().id).then(function(rsp) {
                         $scope2.remarkers = rsp.data.users;
                     });
                     $scope2.criteria = oCriteria;

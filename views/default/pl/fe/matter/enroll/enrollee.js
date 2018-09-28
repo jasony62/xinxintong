@@ -2,7 +2,7 @@ define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlEnrollee', ['$scope', 'http2', 'srvEnrollRecord', '$q', '$uibModal', 'tmsSchema', function($scope, http2, srvEnrollRecord, $q, $uibModal, tmsSchema) {
         function _fnAbsent() {
-            http2.get('/rest/pl/fe/matter/enroll/user/undone?app=' + $scope.app.id + '&rid=' + _oCriteria.rid, function(rsp) {
+            http2.get('/rest/pl/fe/matter/enroll/user/undone?app=' + $scope.app.id + '&rid=' + _oCriteria.rid).then(function(rsp) {
                 var schemasById;
                 $scope.absentUsers = rsp.data.users;
                 if (rsp.data.app) {
@@ -65,7 +65,7 @@ define(['frame'], function(ngApp) {
                             cause: $scope2.cause
                         }
                         url = '/rest/pl/fe/matter/enroll/update?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
-                        http2.post(url, { 'absent_cause': params }, function(rsp) {
+                        http2.post(url, { 'absent_cause': params }).then(function(rsp) {
                             $mi.close($scope2.cause);
                         });
                     };
@@ -102,7 +102,7 @@ define(['frame'], function(ngApp) {
                         }
                     };
                     $scope2.doSearchRound = function() {
-                        http2.get('/rest/pl/fe/matter/enroll/round/list?site=' + $scope.app.siteid + '&app=' + $scope.app.id + $scope2.page.j(), function(rsp) {
+                        http2.get('/rest/pl/fe/matter/enroll/round/list?site=' + $scope.app.siteid + '&app=' + $scope.app.id + $scope2.page.j()).then(function(rsp) {
                             $scope2.rounds = rsp.data.rounds;
                             $scope2.page.total = rsp.data.total;
                         });
@@ -135,7 +135,7 @@ define(['frame'], function(ngApp) {
             _oRows.reset();
             pageAt && (_oPage.at = pageAt);
             url = '/rest/pl/fe/matter/enroll/user/enrollee?app=' + $scope.app.id + _oPage.j();
-            http2.post(url, _oCriteria, function(rsp) {
+            http2.post(url, _oCriteria).then(function(rsp) {
                 srvEnrollRecord.init($scope.app, _oPage, _oCriteria, rsp.data.users);
                 rsp.data.users.forEach(function(user) {
                     if (user.tmplmsg && user.tmplmsg.status) {
@@ -150,14 +150,14 @@ define(['frame'], function(ngApp) {
         $scope.repairEnrollee = function() {
             var url = '/rest/pl/fe/matter/enroll/user/repair?site=' + $scope.app.siteid;
             url += '&app=' + $scope.app.id;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.searchEnrollee(1);
             });
         };
         $scope.repairGroup = function() {
             var url = '/rest/pl/fe/matter/enroll/user/repairGroup?site=' + $scope.app.siteid;
             url += '&app=' + $scope.app.id;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.searchEnrollee(1);
             });
         };

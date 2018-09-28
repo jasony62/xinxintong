@@ -9,7 +9,7 @@ define(['frame'], function(ngApp) {
             var url;
             $scope.batchId = batch;
             url = '/rest/pl/fe/matter/mission/notice/logList?batch=' + batch.id;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 var noticeStatus, result;
                 result = rsp.data;
                 if (result.logs && result.logs.length) {

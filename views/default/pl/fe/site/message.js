@@ -1,5 +1,5 @@
 define(['require'], function(require) {
-    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.bootstrap']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'http.ui.xxt']);
     ngApp.config(['$locationProvider', '$controllerProvider', '$routeProvider', function($lp, $cp, $rp) {
         var RouteParam = function(name, loadjs) {
             var baseURL = '/views/default/pl/fe/site/message/';
@@ -30,7 +30,7 @@ define(['require'], function(require) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
             $scope.subView = subView ? (subView[1] === 'message' ? 'received' : subView[1]) : 'received';
         });
-        http2.get('/rest/pl/fe/site/get?site=' + $scope.siteId, function(rsp) {
+        http2.get('/rest/pl/fe/site/get?site=' + $scope.siteId).then(function(rsp) {
             $scope.site = rsp.data;
         });
     }]);

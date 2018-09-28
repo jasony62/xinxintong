@@ -3,7 +3,7 @@ require(['matterService'], function() {
     var siteId, missionId, ngApp;
     siteId = location.search.match('site=([^&]*)')[1];
     missionId = location.search.match('mission=([^&]*)')[1];
-    ngApp = angular.module('app', ['ui.tms', 'service.matter']);
+    ngApp = angular.module('app', ['ui.tms', 'http.ui.xxt', 'service.matter']);
     ngApp.controller('ctrlMain', ['$scope', 'http2', function($scope, http2) {
         function getUserTrack(oUser) {
             var url;
@@ -11,7 +11,7 @@ require(['matterService'], function() {
             if (oUser) {
                 url += '&user=' + oUser.userid;
             }
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 var mattersByTime, orderedTimes;
                 mattersByTime = {};
                 orderedTimes = [];
@@ -95,7 +95,7 @@ require(['matterService'], function() {
         $scope.shiftGroupUser = function(oGrpUser) {
             getUserTrack(oGrpUser);
         };
-        http2.get('/rest/site/fe/matter/mission/get?site=' + siteId + '&mission=' + missionId, function(rsp) {
+        http2.get('/rest/site/fe/matter/mission/get?site=' + siteId + '&mission=' + missionId).then(function(rsp) {
             var groupUsers;
             $scope.mission = _oMission = rsp.data;
             if (_oMission) {

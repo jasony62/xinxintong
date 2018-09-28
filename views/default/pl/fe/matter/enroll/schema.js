@@ -43,7 +43,7 @@ define(['frame'], function(ngApp) {
                             },
                             options: oOptions
                         };
-                        http2.post('/rest/pl/fe/matter/enroll/import/endUpload?site=' + oApp.siteid + '&app=' + oApp.id, oPosted, function success(rsp) {});
+                        http2.post('/rest/pl/fe/matter/enroll/import/endUpload?site=' + oApp.siteid + '&app=' + oApp.id, oPosted);
                     });
                     $timeout(function() {
                         oResu.assignBrowse(document.getElementById('btnImportByExcel'));

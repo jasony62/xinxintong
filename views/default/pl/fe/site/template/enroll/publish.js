@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlPublish', ['$scope', 'http2', 'mediagallery', '$timeout',  'srvEnrollApp', 'srvTempApp', '$controller', function($scope,  http2, mediagallery, $timeout,  srvEnrollApp, srvTempApp, controller) {
+    ngApp.provider.controller('ctrlPublish', ['$scope', 'mediagallery', '$timeout', 'srvEnrollApp', 'srvTempApp', '$controller', function($scope, mediagallery, $timeout, srvEnrollApp, srvTempApp, controller) {
         $scope.shareUser = {};
         $scope.setPic = function() {
             var options = {
@@ -60,17 +60,17 @@ define(['frame'], function(ngApp) {
 
                 previewURL = '/rest/site/fe/matter/template/enroll/preview?site=' + data.siteid;
                 previewURL += '&tid=' + data.id + '&vid=' + num;
-                $scope.$broadcast('to-child', {0:previewURL,1:data,2:$scope.params});
+                $scope.$broadcast('to-child', { 0: previewURL, 1: data, 2: $scope.params });
             });
         }
         $scope.lookDetail = function(id) {
             srvTempApp.lookDetail(id);
         }
         $scope.createVersion = function() {
-           srvTempApp.createVersion();
+            srvTempApp.createVersion();
         }
         $scope.addReceiver = function(user) {
-            srvTempApp.addReceiver($scope.shareUser).then(function(){
+            srvTempApp.addReceiver($scope.shareUser).then(function() {
                 $scope.shareUser.label = '';
             });
         };
@@ -101,6 +101,7 @@ define(['frame'], function(ngApp) {
         $scope.showPage = function(page) {
             params.page = page;
         };
+
         function refresh() {
             $scope.previewURL = previewURL + '&page=' + params.page.name + '&_=' + (new Date() * 1);
         }
@@ -143,7 +144,7 @@ define(['frame'], function(ngApp) {
                 });
             }
         });
-        $scope.$on('to-child',function(event,data)  {
+        $scope.$on('to-child', function(event, data) {
             $scope.app.pub_status = data[1].pub_status;
             $scope.args = args = data[2];
             $scope.nextPage = function() {
@@ -158,7 +159,7 @@ define(['frame'], function(ngApp) {
             };
             $scope.$watch('args', function(param) {
                 if (param) {
-                    $scope.previewURL = data[0]  + '&page=' + data[1].pages[args.pageAt].name;
+                    $scope.previewURL = data[0] + '&page=' + data[1].pages[args.pageAt].name;
                 }
             }, true);
         });

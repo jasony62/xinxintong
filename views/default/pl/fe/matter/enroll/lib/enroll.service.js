@@ -60,8 +60,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         this._bSearch = function(url) {
             var that = this,
                 defer = $q.defer();
-            $http.get('/rest/pl/fe/matter/enroll/schema/get?app=' + that._oApp.id, function(rsp) {});
-            $http.post(url, that._oCriteria, function(rsp) {
+            $http.post(url, that._oCriteria).then(function(rsp) {
                 var records;
                 if (rsp.data) {
                     records = rsp.data.records ? rsp.data.records : [];
@@ -170,7 +169,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         }
         this.update = function(oApp, oModifiedData) {
             var defer = $q.defer();
-            http2.post(_fnMakeApiUrl(oApp, 'update'), oModifiedData, function(rsp) {
+            http2.post(_fnMakeApiUrl(oApp, 'update'), oModifiedData).then(function(rsp) {
                 defer.resolve(rsp.data);
             });
             return defer.promise;
@@ -263,7 +262,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     return _getAppDeferred.promise;
                 }
                 _getAppDeferred = $q.defer();
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     _oApp = rsp.data;
                     _ins._bGetAfter(_oApp, _fnMapSchemas);
                     _getAppDeferred.resolve(_oApp);
@@ -299,14 +298,14 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             modifiedData[name] = _oApp[name];
                         }
                     });
-                    http2.post(_fnMakeApiUrl('update'), modifiedData, function(rsp) {
+                    http2.post(_fnMakeApiUrl('update'), modifiedData).then(function(rsp) {
                         defer.resolve(rsp.data);
                     });
                     return defer.promise;
                 },
                 remove: function() {
                     var defer = $q.defer();
-                    http2.get(_fnMakeApiUrl('remove'), function(rsp) {
+                    http2.get(_fnMakeApiUrl('remove')).then(function(rsp) {
                         defer.resolve(rsp.data);
                     });
                     return defer.promise;
@@ -387,7 +386,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 id: _appId,
                                 type: 'enroll'
                             };
-                            http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + _siteId + '&id=' + missions.matters[0].id, matter, function(rsp) {
+                            http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + _siteId + '&id=' + missions.matters[0].id, matter).then(function(rsp) {
                                 var mission = rsp.data,
                                     updatedFields = ['mission_id'];
 
@@ -411,7 +410,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 },
                 quitMission: function() {
                     var defer = $q.defer();
-                    http2.get(_fnMakeApiUrl('quitMission'), function(rsp) {
+                    http2.get(_fnMakeApiUrl('quitMission')).then(function(rsp) {
                         delete _oApp.mission;
                         _oApp.mission_id = 0;
                         _oApp.sync_mission_round = 'N';
@@ -421,7 +420,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 },
                 opData: function() {
                     var deferred = $q.defer();
-                    http2.get(_fnMakeApiUrl('opData'), function(rsp) {
+                    http2.get(_fnMakeApiUrl('opData')).then(function(rsp) {
                         deferred.resolve(rsp.data);
                     });
                     return deferred.promise;
@@ -445,7 +444,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             };
                             var url = '/rest/pl/fe/matter/enroll/list?site=' + _siteId + '&size=999';
                             _oApp.mission && (url += '&mission=' + _oApp.mission.id);
-                            http2.get(url, function(rsp) {
+                            http2.get(url).then(function(rsp) {
                                 $scope2.apps = rsp.data.apps;
                             });
                         }],
@@ -454,7 +453,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         _oApp.enroll_app_id = data.source;
                         _self.update('enroll_app_id').then(function(rsp) {
                             var url = '/rest/pl/fe/matter/enroll/get?site=' + _siteId + '&app=' + _oApp.enroll_app_id;
-                            http2.get(url, function(rsp) {
+                            http2.get(url).then(function(rsp) {
                                 _oApp.enrollApp = rsp.data;
                                 _fnMapAssocEnrollApp(_oApp);
                                 defer.resolve(_oApp.enrollApp);
@@ -482,7 +481,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             };
                             var url = '/rest/pl/fe/matter/group/list?site=' + _siteId + '&size=999';
                             _oApp.mission && (url += '&mission=' + _oApp.mission.id);
-                            http2.get(url, function(rsp) {
+                            http2.get(url).then(function(rsp) {
                                 $scope2.apps = rsp.data.apps;
                             });
                         }],
@@ -491,7 +490,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         _oApp.group_app_id = data.source;
                         _self.update('group_app_id').then(function(rsp) {
                             var url = '/rest/pl/fe/matter/group/get?site=' + _siteId + '&app=' + _oApp.group_app_id;
-                            http2.get(url, function(rsp) {
+                            http2.get(url).then(function(rsp) {
                                 _oApp.groupApp = rsp.data;
                                 _fnMapAssocGroupApp(_oApp);
                                 defer.resolve(_oApp.groupApp);
@@ -508,7 +507,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     if (rid) url += '&rid=' + rid;
                     defer = $q.defer();
 
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         defer.resolve();
                     });
 
@@ -563,7 +562,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     if (checkRid) {
                         url += '&checked=' + checkRid;
                     }
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         var _checked;
                         _rounds.splice(0, _rounds.length);
                         rsp.data.rounds.forEach(function(rnd) {
@@ -609,7 +608,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             };
                         }]
                     }).result.then(function(newRound) {
-                        http2.post(_RestURL + 'add?site=' + _siteId + '&app=' + _appId, newRound, function(rsp) {
+                        http2.post(_RestURL + 'add?site=' + _siteId + '&app=' + _appId, newRound).then(function(rsp) {
                             if (_rounds.length > 0 && rsp.data.state == 1) {
                                 _rounds[0].state = 2;
                             }
@@ -674,7 +673,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                     qrcode: '/rest/site/fe/matter/enroll/qrcode?site=' + oApp.siteid + '&url=' + encodeURIComponent(rndEntryUrl),
                                 }
                                 if (oApp.mission) {
-                                    http2.get('/rest/pl/fe/matter/mission/round/list?mission=' + oApp.mission.id, function(rsp) {
+                                    http2.get('/rest/pl/fe/matter/mission/round/list?mission=' + oApp.mission.id).then(function(rsp) {
                                         $scope.missionRounds = rsp.data.rounds;
                                     });
                                 }
@@ -684,7 +683,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         var url = _RestURL;
                         if (rst.action === 'update') {
                             url += 'update?site=' + _siteId + '&app=' + _appId + '&rid=' + oRound.rid;
-                            http2.post(url, rst.data, function(rsp) {
+                            http2.post(url, rst.data).then(function(rsp) {
                                 if (_rounds.length > 1 && rst.data.state === '1') {
                                     _rounds[1].state = '2';
                                 }
@@ -692,7 +691,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             });
                         } else if (rst.action === 'remove') {
                             url += 'remove?site=' + _siteId + '&app=' + _appId + '&rid=' + oRound.rid;
-                            http2.get(url, function(rsp) {
+                            http2.get(url).then(function(rsp) {
                                 _rounds.splice(_rounds.indexOf(oRound), 1);
                                 _oPage.total--;
                             });
@@ -716,7 +715,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 $scope.byPeriods = byPeriods = [];
                                 $scope.byIntervals = byIntervals = [];
                                 $scope.example = function(oRule) {
-                                    http2.post('/rest/pl/fe/matter/enroll/round/getcron', { roundCron: oRule }, function(rsp) {
+                                    http2.post('/rest/pl/fe/matter/enroll/round/getcron', { roundCron: oRule }).then(function(rsp) {
                                         oRule.case = rsp.data;
                                     });
                                 };
@@ -825,7 +824,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 url += '?site=' + _siteId;
                 url += '&app=' + _appId;
                 url += this._oPage.joinParams();
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     var records;
                     if (rsp.data) {
                         records = rsp.data.records ? rsp.data.records : [];
@@ -847,21 +846,21 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             };
             _ins.get = function(ek) {
                 var defer = $q.defer();
-                http2.get('/rest/pl/fe/matter/enroll/record/get?ek=' + ek, function(rsp) {
+                http2.get('/rest/pl/fe/matter/enroll/record/get?ek=' + ek).then(function(rsp) {
                     defer.resolve(rsp.data);
                 });
                 return defer.promise;
             };
             _ins.add = function(newRecord) {
                 var defer = $q.defer();
-                http2.post('/rest/pl/fe/matter/enroll/record/add?site=' + _siteId + '&app=' + _appId, newRecord, function(rsp) {
+                http2.post('/rest/pl/fe/matter/enroll/record/add?site=' + _siteId + '&app=' + _appId, newRecord).then(function(rsp) {
                     defer.resolve(rsp.data);
                 });
                 return defer.promise;
             };
             _ins.update = function(record, updated) {
                 var defer = $q.defer();
-                http2.post('/rest/pl/fe/matter/enroll/record/update?site=' + _siteId + '&app=' + _appId + '&ek=' + record.enroll_key, updated, function(rsp) {
+                http2.post('/rest/pl/fe/matter/enroll/record/update?site=' + _siteId + '&app=' + _appId + '&ek=' + record.enroll_key, updated).then(function(rsp) {
                     defer.resolve(rsp.data);
                 });
                 return defer.promise;
@@ -924,7 +923,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             tags: result.tags,
                             appTags: result.appTags
                         };
-                        http2.post('/rest/pl/fe/matter/enroll/record/batchTag?site=' + _siteId + '&app=' + _appId, posted, function(rsp) {
+                        http2.post('/rest/pl/fe/matter/enroll/record/batchTag?site=' + _siteId + '&app=' + _appId, posted).then(function(rsp) {
                             var m, n, newTag;
                             n = result.tags.length;
                             selectedRecords.forEach(function(record) {
@@ -944,7 +943,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             };
             _ins.remove = function(record) {
                 if (window.confirm('确认删除？')) {
-                    http2.get('/rest/pl/fe/matter/enroll/record/remove?site=' + _siteId + '&app=' + _appId + '&key=' + record.enroll_key, function(rsp) {
+                    http2.get('/rest/pl/fe/matter/enroll/record/remove?site=' + _siteId + '&app=' + _appId + '&key=' + record.enroll_key).then(function(rsp) {
                         var i = _ins._aRecords.indexOf(record);
                         _ins._aRecords.splice(i, 1);
                         _ins._oPage.total = _ins._oPage.total - 1;
@@ -953,7 +952,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             };
             _ins.restore = function(record) {
                 if (window.confirm('确认恢复？')) {
-                    http2.get('/rest/pl/fe/matter/enroll/record/restore?site=' + _siteId + '&app=' + _appId + '&key=' + record.enroll_key, function(rsp) {
+                    http2.get('/rest/pl/fe/matter/enroll/record/restore?site=' + _siteId + '&app=' + _appId + '&key=' + record.enroll_key).then(function(rsp) {
                         var i = _ins._aRecords.indexOf(record);
                         _ins._aRecords.splice(i, 1);
                         _ins._oPage.total = _ins._oPage.total - 1;
@@ -965,7 +964,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     vcode;
                 vcode = prompt('是否要删除所有登记信息？，若是，请输入活动名称。');
                 if (vcode === _ins._oApp.title) {
-                    http2.get('/rest/pl/fe/matter/enroll/record/empty?site=' + _siteId + '&app=' + _appId, function(rsp) {
+                    http2.get('/rest/pl/fe/matter/enroll/record/empty?site=' + _siteId + '&app=' + _appId).then(function(rsp) {
                         _ins._aRecords.splice(0, _ins._aRecords.length);
                         _ins._oPage.total = 0;
                         _ins._oPage.at = 1;
@@ -974,7 +973,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             };
             _ins.verifyAll = function() {
                 if (window.confirm('确定审核通过所有记录（共' + _ins._oPage.total + '条）？')) {
-                    http2.get('/rest/pl/fe/matter/enroll/record/batchVerify?site=' + _siteId + '&app=' + _appId + '&all=Y', function(rsp) {
+                    http2.get('/rest/pl/fe/matter/enroll/record/batchVerify?site=' + _siteId + '&app=' + _appId + '&all=Y').then(function(rsp) {
                         _ins._aRecords.forEach(function(record) {
                             record.verified = 'Y';
                         });
@@ -1023,7 +1022,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         url += '&app=' + _appId;
                         url += '&tmplmsg=' + notify.tmplmsg.id;
 
-                        http2.post(url, targetAndMsg, function(data) {
+                        http2.post(url, targetAndMsg).then(function(data) {
                             noticebox.success('发送完成');
                         });
                     }
@@ -1109,7 +1108,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 url += '?site=' + _siteId;
                 url += '&app=' + _appId;
 
-                http2.post(url, record.data, function(rsp) {
+                http2.post(url, record.data).then(function(rsp) {
                     var matched;
                     if (rsp.data && rsp.data.length === 1) {
                         matched = rsp.data[0];
@@ -1126,7 +1125,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 url += '?site=' + _siteId;
                 url += '&app=' + _appId;
 
-                http2.post(url, record.data, function(rsp) {
+                http2.post(url, record.data).then(function(rsp) {
                     var matched;
                     if (rsp.data && rsp.data.length === 1) {
                         matched = rsp.data[0];
@@ -1145,7 +1144,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     templateUrl: '/views/default/pl/fe/matter/enroll/component/record/importByOther.html?_=1',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         function doSearchRnd(appId, oDataset) {
-                            http2.get('/rest/pl/fe/matter/enroll/round/list?app=' + appId + '&' + oDataset.page.j(), function(rsp) {
+                            http2.get('/rest/pl/fe/matter/enroll/round/list?app=' + appId + '&' + oDataset.page.j()).then(function(rsp) {
                                 oDataset.data = rsp.data.rounds;
                                 oDataset.page.total = rsp.data.total;
                                 _oData.fromRnd = oDataset.data[0];
@@ -1173,7 +1172,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             var url = '/rest/pl/fe/matter/enroll/list?site=' + _siteId + '&' + $scope2.fromApps.page.j();
                             http2.post(url, {
                                 byTitle: $scope2.fromApps.filter.byTitle
-                            }, function(rsp) {
+                            }).then(function(rsp) {
                                 $scope2.fromApps.data = rsp.data.apps;
                                 if ($scope2.fromApps.data.length) {
                                     _oData.fromApp = $scope2.fromApps.data[0];
@@ -1191,14 +1190,14 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         $scope2.$watch('data.fromApp', function(oFromApp) {
                             if (oFromApp) {
                                 $scope2.doSearchFromRnd(1);
-                                http2.get('/rest/pl/fe/matter/enroll/schema/compatible?app1=' + _appId + '&app2=' + oFromApp.id, function(rsp) {
+                                http2.get('/rest/pl/fe/matter/enroll/schema/compatible?app1=' + _appId + '&app2=' + oFromApp.id).then(function(rsp) {
                                     _oData.compatibleSchemas = rsp.data;
                                 });
                             }
                         });
                         $scope2.$watch('data.fromRnd', function(oFromRnd) {
                             if (oFromRnd) {
-                                http2.get('/rest/pl/fe/matter/enroll/record/countByRound?round=' + oFromRnd.rid, function(rsp) {
+                                http2.get('/rest/pl/fe/matter/enroll/record/countByRound?round=' + oFromRnd.rid).then(function(rsp) {
                                     _oData.countOfRecord = rsp.data;
                                 });
                             }
@@ -1223,7 +1222,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     if (_oData.fromRnd) {
                         url += '&fromRnd=' + _oData.fromRnd.rid;
                     }
-                    http2.post(url, {}, function(rsp) {
+                    http2.post(url, {}).then(function(rsp) {
                         noticebox.info('导入（' + rsp.data + '）条数据');
                         _ins.search(1).then(function() {
                             defer.resolve();
@@ -1277,7 +1276,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 var url = '/rest/pl/fe/matter/enroll/list?site=' + _siteId + '&' + page.j();
                                 http2.post(url, {
                                     byTitle: filter.byTitle
-                                }, function(rsp) {
+                                }).then(function(rsp) {
                                     $scope2.apps = rsp.data.apps;
                                     if ($scope2.apps.length) {
                                         data.fromApp = $scope2.apps[0];
@@ -1298,7 +1297,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             url = '/rest/pl/fe/matter/enroll/record/exportToOther';
                             url += '?app=' + oApp.id;
                             url += '&targetApp=' + data.fromApp.id;
-                            http2.post(url, { mappings: data.mappings, eks: eks }, function() {});
+                            http2.post(url, { mappings: data.mappings, eks: eks }).then(function() {});
                         }
                     });
                 }
@@ -1357,7 +1356,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             var url = '/rest/pl/fe/matter/enroll/list?site=' + oApp.siteid + '&' + oPage.j();
                             http2.post(url, {
                                 byTitle: oFilter.byTitle
-                            }, function(rsp) {
+                            }).then(function(rsp) {
                                 $scope2.apps = rsp.data.apps;
                                 if ($scope2.apps.length) {
                                     oResult.fromApp = $scope2.apps[0];
@@ -1376,7 +1375,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         url = '/rest/pl/fe/matter/enroll/record/transferVotes';
                         url += '?app=' + oApp.id;
                         url += '&targetApp=' + oResult.fromApp.id;
-                        http2.post(url, { targetSchema: oResult.targetSchema, votingSchemas: oResult.votingSchemas, limit: oResult.limit }, function(rsp) {
+                        http2.post(url, { targetSchema: oResult.targetSchema, votingSchemas: oResult.votingSchemas, limit: oResult.limit }).then(function(rsp) {
                             noticebox.info('创建（' + rsp.data + '）条记录');
                             defer.resolve(rsp);
                         });
@@ -1444,7 +1443,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             var url = '/rest/pl/fe/matter/enroll/list?site=' + oApp.siteid + '&' + oPage.j();
                             http2.post(url, {
                                 byTitle: oFilter.byTitle
-                            }, function(rsp) {
+                            }).then(function(rsp) {
                                 $scope2.apps = rsp.data.apps;
                                 if ($scope2.apps.length) {
                                     oResult.fromApp = $scope2.apps[0];
@@ -1472,7 +1471,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         url = '/rest/pl/fe/matter/enroll/record/transferSchemaAndVotes';
                         url += '?app=' + oApp.id;
                         url += '&targetApp=' + oResult.fromApp.id;
-                        http2.post(url, { questionSchema: oResult.questionSchema, answerSchema: oResult.answerSchema, votingSchemas: oResult.votingSchemas, limit: oResult.limit }, function(rsp) {
+                        http2.post(url, { questionSchema: oResult.questionSchema, answerSchema: oResult.answerSchema, votingSchemas: oResult.votingSchemas, limit: oResult.limit }).then(function(rsp) {
                             noticebox.info('创建（' + rsp.data + '）条记录');
                             defer.resolve(rsp);
                         });
@@ -1526,7 +1525,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             var url = '/rest/pl/fe/matter/enroll/list?site=' + oApp.siteid + '&' + oPage.j();
                             http2.post(url, {
                                 byTitle: oFilter.byTitle
-                            }, function(rsp) {
+                            }).then(function(rsp) {
                                 $scope2.apps = rsp.data.apps;
                                 if ($scope2.apps.length) {
                                     oResult.fromApp = $scope2.apps[0];
@@ -1553,7 +1552,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         url = '/rest/pl/fe/matter/enroll/record/transferGroupAndMarks';
                         url += '?app=' + oApp.id;
                         url += '&targetApp=' + oResult.fromApp.id;
-                        http2.post(url, { questionSchema: oResult.questionSchema, answerSchema: oResult.answerSchema, limit: oResult.limit }, function(rsp) {
+                        http2.post(url, { questionSchema: oResult.questionSchema, answerSchema: oResult.answerSchema, limit: oResult.limit }).then(function(rsp) {
                             noticebox.info('创建（' + rsp.data + '）条记录');
                             defer.resolve(rsp);
                         });
@@ -1604,7 +1603,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                     url = '/rest/pl/fe/site/member/schema/list?valid=Y&site=' + oApp.siteid + '&matter=' + oApp.id + ',enroll';
                                     http2.post(url, {
                                         byTitle: oFilter.byTitle
-                                    }, function(rsp) {
+                                    }).then(function(rsp) {
                                         $scope2.apps = rsp.data;
                                         if ($scope2.apps.length) {
                                             oResult.fromApp = $scope2.apps[0];
@@ -1616,7 +1615,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                     url = '/rest/pl/fe/matter/enroll/list?site=' + oApp.siteid + '&' + oPage.j();
                                     http2.post(url, {
                                         byTitle: oFilter.byTitle
-                                    }, function(rsp) {
+                                    }).then(function(rsp) {
                                         $scope2.apps = rsp.data.apps;
                                         if ($scope2.apps.length) {
                                             oResult.fromApp = $scope2.apps[0];
@@ -1651,7 +1650,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             url += '?app=' + oApp.id;
                             url += '&targetApp=' + data.matterType + ',' + data.fromApp.id;
                             url += '&preview=N';
-                            http2.post(url, { intersectedSchemas: intersectedSchemas, filledSchemas: filledSchemas }, function(rsp) {
+                            http2.post(url, { intersectedSchemas: intersectedSchemas, filledSchemas: filledSchemas }).then(function(rsp) {
                                 defer.resolve(rsp.data);
                             });
                         }
@@ -1678,7 +1677,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     }
                 }
 
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     defer.resolve(rsp.data);
                 })
                 return defer.promise;
@@ -1702,7 +1701,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     }
                 }
 
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     defer.resolve(rsp.data);
                 })
                 return defer.promise;
@@ -1717,7 +1716,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 if (itemId == '0') {
                     url += '&id=null';
                 }
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     defer.resolve(rsp.data);
                 });
                 return defer.promise;
@@ -1728,7 +1727,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 url += '&schema=' + schemaId;
                 url += '&value=' + value;
                 itemId && (url += '&id=' + itemId);
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     defer.resolve(rsp.data);
                 });
                 return defer.promise;
@@ -1782,14 +1781,14 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 url += '&value=' + value;
                 url += '&site=' + _siteId;
                 url += '&accessToken=' + _accessId
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     defer.resolve(rsp.data);
                 });
                 return defer.promise;
             };
             _ins.remove = function(record) {
                 if (window.confirm('确认删除？')) {
-                    http2.get('/rest/site/op/matter/enroll/record/remove?site=' + _siteId + '&app=' + _appId + '&accessToken=' + _accessId + '&ek=' + record.enroll_key, function(rsp) {
+                    http2.get('/rest/site/op/matter/enroll/record/remove?site=' + _siteId + '&app=' + _appId + '&accessToken=' + _accessId + '&ek=' + record.enroll_key).then(function(rsp) {
                         var i = _ins._aRecords.indexOf(record);
                         _ins._aRecords.splice(i, 1);
                         _ins._oPage.total = _ins._oPage.total - 1;
@@ -1809,7 +1808,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 url += '&accessToken=' + _accessId;
                 params.criteria.record && (url += '&rid=' + params.criteria.record.rid);
 
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     defer.resolve(rsp.data);
                 })
                 return defer.promise;
@@ -1820,7 +1819,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 url += '?site=' + _siteId;
                 url += '&accessToken=' + _accessId;
                 url += '&value=' + value;
-                http2.post(url, { remark: remarkId }, function(rsp) {
+                http2.post(url, { remark: remarkId }).then(function(rsp) {
                     defer.resolve(rsp.data);
                 });
                 return defer.promise;
@@ -1875,7 +1874,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     if (checkRid) {
                         url += '&checked=' + checkRid;
                     }
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         _rounds.splice(0, _rounds.length);
                         rsp.data.rounds.forEach(function(rnd) {
                             rsp.data.active && (rnd._isActive = rnd.rid === rsp.data.active.rid);
@@ -1979,7 +1978,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         });
                     }
                     url = '/rest/pl/fe/matter/enroll/log/list?logType=' + type + '&app=' + _appId + page._j();
-                    http2.post(url, criteria, function(rsp) {
+                    http2.post(url, criteria).then(function(rsp) {
                         rsp.data.total && (page.total = rsp.data.total);
                         defer.resolve(rsp.data.logs);
                     });
@@ -2005,7 +2004,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             };
                             $scope2.doSearchRound = function() {
                                 var url = '/rest/pl/fe/matter/enroll/round/list?site=' + _siteId + '&app=' + _appId + $scope2.pageOfRound.j();
-                                http2.get(url, function(rsp) {
+                                http2.get(url).then(function(rsp) {
                                     oCriteria.byRid = rsp.data.active.rid;
                                     $scope2.activeRound = rsp.data.active;
                                     $scope2.rounds = rsp.data.rounds;
@@ -2095,7 +2094,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     } else {
                         url = '/rest/pl/fe/template/get?site=' + _siteId + '&tid=' + _appId;
                     }
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         _oApp = rsp.data;
 
                         function _tGet(data, method) {
@@ -2136,7 +2135,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     url = '/rest/pl/fe/template/update?site=' + _siteId;
                     url += '&tid=' + _appId;
                     url += '&vid=' + _oApp.vid;
-                    http2.post(url, modifiedData, function(rsp) {
+                    http2.post(url, modifiedData).then(function(rsp) {
                         //noticebox.success('完成保存');
                         defer.resolve(rsp.data);
                     });
@@ -2157,21 +2156,21 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         }],
                         backdrop: 'static'
                     }).result.then(function(data) {
-                        http2.post('/rest/pl/fe/template/putCreate?site=' + _siteId + '&tid=' + _appId, data, function(rsp) {
+                        http2.post('/rest/pl/fe/template/putCreate?site=' + _siteId + '&tid=' + _appId, data).then(function(rsp) {
                             location.href = '/rest/pl/fe/template/site?site=' + _siteId;
                         });
                     });
                 },
                 cancelAsTemplate: function() {
                     var url = '/rest/pl/fe/template/unPut?site=' + _siteId + '&tid=' + _appId;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         location.href = '/rest/pl/fe/template/site?site=' + _siteId;
                     });
                 },
                 applyToHome: function() {
                     var url = '/rest/pl/fe/template/pushHome?site=' + _siteId;
                     url += '&tid=' + _appId;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         noticebox.success('完成申请！');
                     });
                 },
@@ -2181,7 +2180,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     url += '&tid=' + _appId;
                     url += '&lastVersion=' + _oApp.last_version;
                     url += '&matterType=' + _oApp.matter_type;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         location.href = '/rest/pl/fe/template/' + _oApp.matter_type + '?site=' + _siteId + '&id=' + _appId + '&vid=' + rsp.data.vid;
                     });
                 },
@@ -2190,7 +2189,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     url = '/rest/pl/fe/template/get?site=' + _siteId;
                     url += '&tid=' + _appId;
                     url += '&vid=' + num;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         defer.resolve(rsp.data);
                     });
                     return defer.promise;
@@ -2201,7 +2200,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         backdrop: 'static',
                         controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                             if (id === undefined) return false;
-                            http2.get('/rest/pl/fe/template/getVersion?site=' + _siteId + '&tid=' + _appId + '&vid=' + id, function(rsp) {
+                            http2.get('/rest/pl/fe/template/getVersion?site=' + _siteId + '&tid=' + _appId + '&vid=' + id).then(function(rsp) {
                                 $scope.version = rsp.data;
                             });
                             $scope.cancel = function() {
@@ -2217,7 +2216,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     url = '/rest/pl/fe/template/acl/add?label=' + shareUser.label;
                     url += '&site=' + _siteId;
                     url += '&tid=' + _appId;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         if (_oApp.acl === undefined) {
                             _oApp.acl = [];
                         }
@@ -2231,7 +2230,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         url;
                     url = '/rest/pl/fe/template/acl/remove';
                     url += '?acl=' + acl.id;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         angular.forEach(_oApp.acl, function(item, index) {
                             if (item.id == acl.id) {
                                 _oApp.acl.splice(index, 1);
@@ -2245,7 +2244,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     var defer = $q.defer(),
                         url;
                     url = '/rest/pl/fe/template/remove?site=' + _siteId + '&tid=' + _appId;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         defer.resolve();
                     });
                     return defer.promise;
@@ -2279,7 +2278,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 };
                             }],
                         }).result.then(function(options) {
-                            http2.post('/rest/pl/fe/template/enroll/add?site=' + _siteId + '&tid=' + _appId + '&vid=' + app.vid, options, function(rsp) {
+                            http2.post('/rest/pl/fe/template/enroll/add?site=' + _siteId + '&tid=' + _appId + '&vid=' + app.vid, options).then(function(rsp) {
                                 var page = rsp.data;
                                 pageLib.enhance(page);
                                 app.pages.push(page);
@@ -2309,7 +2308,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         url += '&vid=' + app.vid;
                         url += '&pageId=' + page.id;
                         url += '&cname=' + page.code_name;
-                        http2.post(url, updated, function(rsp) {
+                        http2.post(url, updated).then(function(rsp) {
                             page.$$modified = false;
                             defer.resolve();
                             noticebox.success('完成保存');
@@ -2332,7 +2331,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         url += '&vid=' + app.vid;
                         url += '&pageId=' + oPage.id;
                         url += '&cname=' + oPage.code_name;
-                        http2.get(url, function(rsp) {
+                        http2.get(url).then(function(rsp) {
                             app.pages.splice(app.pages.indexOf(oPage), 1);
                             defer.resolve(app.pages);
                             noticebox.success('完成删除');
@@ -2369,7 +2368,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     }
                     url = '/rest/pl/fe/template/order/listPurchaser?site=' + _siteId + '&tid=' + _appId;
                     url += page._j();
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         rsp.data.total && (page.total = rsp.data.total);
                         defer.resolve(rsp.data);
                     });
@@ -2389,7 +2388,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     var defer = $q.defer(),
                         url;
                     url = '/rest/pl/fe/matter/enroll/notice/logList?batch=' + batch.id;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         defer.resolve(rsp.data);
                     });
 

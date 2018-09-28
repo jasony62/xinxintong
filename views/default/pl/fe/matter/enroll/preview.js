@@ -19,7 +19,7 @@ define(['frame'], function(ngApp) {
                     _oApp = $scope.app;
                     $scope2.qrcode = _oQrcode = {};
                     if (_oApp.entryRule.scope && _oApp.entryRule.scope.sns === 'Y' && _oApp.entryRule.sns.wx) {
-                        http2.get('/rest/pl/fe/matter/enroll/wxQrcode?site=' + _oApp.siteid + '&app=' + _oApp.id, function(rsp) {
+                        http2.get('/rest/pl/fe/matter/enroll/wxQrcode?site=' + _oApp.siteid + '&app=' + _oApp.id).then(function(rsp) {
                             var qrcodes = rsp.data;
                             _oQrcode.pic = qrcodes.length ? qrcodes[0].pic : false;
                             _oQrcode.src = 'wx';
@@ -32,7 +32,7 @@ define(['frame'], function(ngApp) {
                         url = '/rest/pl/fe/site/sns/wx/qrcode/create?site=' + _oApp.siteid;
                         url += '&matter_type=enroll&matter_id=' + _oApp.id;
                         url += '&expire=864000';
-                        http2.get(url, function(rsp) {
+                        http2.get(url).then(function(rsp) {
                             _oQrcode.pic = rsp.data.pic;
                         });
                     };
@@ -135,7 +135,7 @@ define(['frame'], function(ngApp) {
             if (oRule.scope.member === 'Y' && oRule.member) {
                 var mschemaIds = Object.keys(oRule.member);
                 if (mschemaIds.length) {
-                    http2.get('/rest/pl/fe/site/member/schema/overview?site=' + $scope.app.siteid + '&mschema=' + mschemaIds.join(','), function(rsp) {
+                    http2.get('/rest/pl/fe/site/member/schema/overview?site=' + $scope.app.siteid + '&mschema=' + mschemaIds.join(',')).then(function(rsp) {
                         var oMschema;
                         for (var schemaId in rsp.data) {
                             oMschema = rsp.data[schemaId];
@@ -160,7 +160,7 @@ define(['frame'], function(ngApp) {
         });
         $scope.$watch('app', function(oApp) {
             if (!oApp) return;
-            http2.get('/rest/pl/fe/matter/enroll/receiver/list?site=' + oApp.siteid + '&app=' + oApp.id, function(rsp) {
+            http2.get('/rest/pl/fe/matter/enroll/receiver/list?site=' + oApp.siteid + '&app=' + oApp.id).then(function(rsp) {
                 var map = { wx: '微信', yx: '易信', qy: '企业号' };
                 rsp.data.forEach(function(receiver) {
                     if (receiver.sns_user) {

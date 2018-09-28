@@ -1,4 +1,4 @@
-ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter']);
+ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'service.matter']);
 ngApp.config(['$routeProvider', '$locationProvider', 'srvTagProvider', function($routeProvider, $locationProvider, srvTagProvider) {
     $routeProvider.when('/rest/pl/fe/matter/news', {
         templateUrl: '/views/default/pl/fe/matter/text/setting.html?_=2',
@@ -17,7 +17,7 @@ ngApp.config(['$routeProvider', '$locationProvider', 'srvTagProvider', function(
         srvTagProvider.config(siteId);
     })();
 }]);
-ngApp.controller('ctrlText', ['$scope', '$location', 'http2', function($scope, $location, http2) {
+ngApp.controller('ctrlText', ['$scope', '$location', function($scope, $location) {
     var ls = $location.search();
     $scope.id = ls.id;
     $scope.siteId = ls.site;
@@ -27,7 +27,7 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'srvTag', funct
         var obj = {
             title: '新文本素材',
         };
-        http2.post('/rest/pl/fe/matter/text/create?site=' + $scope.siteId, obj, function(rsp) {
+        http2.post('/rest/pl/fe/matter/text/create?site=' + $scope.siteId, obj).then(function(rsp) {
             $scope.texts.splice(0, 0, rsp.data);
             $scope.selectOne(0);
         });
@@ -35,7 +35,7 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'srvTag', funct
     $scope.deleteOne = function(event) {
         event.preventDefault();
         event.stopPropagation();
-        http2.get('/rest/pl/fe/matter/text/delete?site=' + $scope.siteId + '&id=' + $scope.editing.id, function(rsp) {
+        http2.get('/rest/pl/fe/matter/text/delete?site=' + $scope.siteId + '&id=' + $scope.editing.id).then(function(rsp) {
             $scope.texts.splice($scope.selectedIndex, 1);
             if ($scope.texts.length == 0) {
                 alert('empty');
@@ -63,7 +63,7 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'srvTag', funct
     $scope.doSearch = function() {
         var url = '/rest/pl/fe/matter/text/list?site=' + $scope.siteId,
             params = {};
-        http2.get(url, function(rsp) {
+        http2.get(url).then(function(rsp) {
             $scope.texts = rsp.data.docs;
             if ($scope.texts.length > 0)
                 $scope.texts.forEach(function(text) {
@@ -80,7 +80,7 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'srvTag', funct
             $scope.selectOne(0);
         });
     };
-    http2.get('/rest/pl/fe/matter/tag/listTags?site=' + $scope.siteId, function(rsp) {
+    http2.get('/rest/pl/fe/matter/tag/listTags?site=' + $scope.siteId).then(function(rsp) {
         $scope.oTag = rsp.data;
     });
     $scope.doSearch();

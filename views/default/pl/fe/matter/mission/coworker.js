@@ -6,7 +6,7 @@ define(['frame'], function(ngApp) {
         $scope.transfer = function() {
             var url = '/rest/pl/fe/matter/mission/coworker/transferMission?site=' + $scope.mission.siteid;
             url += '&mission=' + $scope.mission.id + '&label=' + $scope.newOwner;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 noticebox.success('完成移交');
                 if (rsp.data == 1) {
                     $scope.status = true;
@@ -29,7 +29,7 @@ define(['frame'], function(ngApp) {
         $scope.add = function() {
             var url = '/rest/pl/fe/matter/mission/coworker/add?mission=' + $scope.mission.id;
             url += '&label=' + $scope.label;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.coworkers.splice(0, 0, rsp.data);
                 if ($scope.myCoworkers && $scope.myCoworkers.length) {
                     for (var i = 0, ii = $scope.myCoworkers.length; i < ii; i++) {
@@ -43,13 +43,13 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.remove = function(acl) {
-            http2.get('/rest/pl/fe/matter/mission/coworker/remove?mission=' + $scope.mission.id + '&coworker=' + acl.coworker, function(rsp) {
+            http2.get('/rest/pl/fe/matter/mission/coworker/remove?mission=' + $scope.mission.id + '&coworker=' + acl.coworker).then(function(rsp) {
                 var index = $scope.coworkers.indexOf(acl);
                 $scope.coworkers.splice(index, 1);
             });
         };
         $scope.makeInvite = function() {
-            http2.get('/rest/pl/fe/matter/mission/coworker/makeInvite?mission=' + $scope.mission.id, function(rsp) {
+            http2.get('/rest/pl/fe/matter/mission/coworker/makeInvite?mission=' + $scope.mission.id).then(function(rsp) {
                 var host, url;
                 host = $scope.mission.opUrl.match(/\/\/(\S+?)\//);
                 host = host.length === 2 ? host[1] : location.host;
@@ -64,10 +64,10 @@ define(['frame'], function(ngApp) {
         };
         $scope.$watch('mission', function(mission) {
             if (mission) {
-                http2.get('/rest/pl/fe/matter/mission/coworker/list?mission=' + $scope.mission.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/mission/coworker/list?mission=' + $scope.mission.id).then(function(rsp) {
                     $scope.coworkers = rsp.data;
                 });
-                http2.get('/rest/pl/fe/matter/mission/coworker/mine?mission=' + $scope.mission.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/mission/coworker/mine?mission=' + $scope.mission.id).then(function(rsp) {
                     $scope.myCoworkers = rsp.data;
                 });
             }

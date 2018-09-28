@@ -39,7 +39,7 @@ define(['frame'], function(ngApp) {
                 }
             }
             url = '/rest/pl/fe/matter/signin/coin/saveRules?site=' + $scope.app.siteid;
-            http2.post(url, posted, function(rsp) {
+            http2.post(url, posted).then(function(rsp) {
                 for (var k in rsp.data) {
                     $scope.rules[k].id = rsp.data[k];
                 }
@@ -48,7 +48,7 @@ define(['frame'], function(ngApp) {
         $scope.fetchRules = function() {
             var url;
             url = '/rest/pl/fe/matter/signin/coin/rules?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 rsp.data.forEach(function(rule) {
                     var rule2 = $scope.rules[rule.act];
                     rule2.id = rule.id;
@@ -67,7 +67,7 @@ define(['frame'], function(ngApp) {
         $scope.fetchLogs = function() {
             var url;
             url = '/rest/pl/fe/matter/signin/coin/logs?site=' + $scope.app.siteid + '&app=' + $scope.app.id + page.j();
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 if (rsp.data.logs) {
                     $scope.tabActive = 1;
                     $scope.logs = logs = rsp.data.logs;

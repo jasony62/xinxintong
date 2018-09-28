@@ -30,7 +30,7 @@ define(['frame'], function(ngApp) {
                         url = '/rest/pl/fe/site/member/list?site=' + _oApp.siteid + '&schema=' + _oSelected.mschema.id;
                         url += '&page=' + _oPage.at + '&size=' + _oPage.size
                         url += '&contain=total';
-                        http2.get(url, function(rsp) {
+                        http2.get(url).then(function(rsp) {
                             var i, member, members = rsp.data.members;
                             for (i in members) {
                                 member = members[i];
@@ -94,7 +94,7 @@ define(['frame'], function(ngApp) {
                 backdrop: 'static'
             }).result.then(function(members) {
                 if (members && members.length) {
-                    http2.post('/rest/pl/fe/matter/plan/user/add?app=' + _oApp.id, { members: members }, function(rsp) {
+                    http2.post('/rest/pl/fe/matter/plan/user/add?app=' + _oApp.id, { members: members }).then(function(rsp) {
                         if (rsp.data && rsp.data.length) {
                             rsp.data.forEach(function(oUser) {
                                 $scope.users.splice(0, 0, oUser);
@@ -124,7 +124,7 @@ define(['frame'], function(ngApp) {
                     $scope2.ok = function() {
                         $mi.close(_oUpdated);
                     };
-                    http2.get('/rest/pl/fe/matter/plan/schema/task/list?plan=' + _oApp.id, function(rsp) {
+                    http2.get('/rest/pl/fe/matter/plan/schema/task/list?plan=' + _oApp.id).then(function(rsp) {
                         if (rsp.data.tasks.length) {
                             $scope2.firstTask = rsp.data.tasks[0];
                             console.log($scope2.firstTask);
@@ -134,14 +134,14 @@ define(['frame'], function(ngApp) {
                 backdrop: 'static'
             }).result.then(function(oUpdated) {
                 if (Object.keys(oUpdated).length) {
-                    http2.post('/rest/pl/fe/matter/plan/user/update?user=' + oUser.id, oUpdated, function(rsp) {
+                    http2.post('/rest/pl/fe/matter/plan/user/update?user=' + oUser.id, oUpdated).then(function(rsp) {
                         angular.extend(oUser, rsp.data);
                     });
                 }
             });
         };
         $scope.doSearch = function() {
-            http2.get('/rest/pl/fe/matter/plan/user/list?app=' + _oApp.id + _oPage.j(), function(rsp) {
+            http2.get('/rest/pl/fe/matter/plan/user/list?app=' + _oApp.id + _oPage.j()).then(function(rsp) {
                 $scope.users = rsp.data.users;
                 $scope.page.total = rsp.data.total;
             });
@@ -149,7 +149,7 @@ define(['frame'], function(ngApp) {
         srvPlanApp.get().then(function(oApp) {
             _oApp = oApp;
             $scope.doSearch();
-            http2.get('/rest/pl/fe/matter/plan/assocMschema?app=' + _oApp.id, function(rsp) {
+            http2.get('/rest/pl/fe/matter/plan/assocMschema?app=' + _oApp.id).then(function(rsp) {
                 _assocMschemas = rsp.data;
             });
         });

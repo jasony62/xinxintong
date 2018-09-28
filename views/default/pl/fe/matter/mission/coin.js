@@ -4,7 +4,7 @@ define(['frame'], function(ngApp) {
         function fetchRules() {
             var url;
             url = '/rest/pl/fe/matter/mission/coin/rules?site=' + _oMission.siteid + '&mission=' + _oMission.id;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 rsp.data.forEach(function(oRule) {
                     var oRuleData;
                     if ($scope.rules[oRule.act]) {
@@ -88,7 +88,7 @@ define(['frame'], function(ngApp) {
                 }
             }
             url = '/rest/pl/fe/matter/mission/coin/saveRules?site=' + _oMission.siteid + '&mission=' + _oMission.id;
-            http2.post(url, aPostRules, function(rsp) {
+            http2.post(url, aPostRules).then(function(rsp) {
                 for (var k in rsp.data) {
                     $scope.rules[k].id = rsp.data[k];
                 }

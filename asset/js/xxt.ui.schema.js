@@ -320,7 +320,7 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
                                     data[oSchema.id] = _memberAttr(oRecord.data.member, oSchema);
                                 } else {
                                     var htmlVal = _that.value2Html(oSchema, oRecord.data[oSchema.id]);
-                                    data[oSchema.id] = $sce.trustAsHtml(htmlVal);
+                                    data[oSchema.id] = angular.isString(htmlVal) ? $sce.trustAsHtml(htmlVal) : htmlVal;
                                 }
                             } catch (e) {
                                 console.log(e, oSchema, oRecord.data[oSchema.id]);

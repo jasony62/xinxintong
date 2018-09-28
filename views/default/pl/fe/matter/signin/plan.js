@@ -5,7 +5,7 @@ define(['require'], function(require) {
     ls = location.search;
     siteId = ls.match(/[\?&]site=([^&]*)/)[1];
     missionId = ls.match(/[\?&]mission=([^&]*)/) ? ls.match(/[\?&]mission=([^&]*)/)[1] : '';
-    ngApp = angular.module('app', ['ngRoute', 'service.matter']);
+    ngApp = angular.module('app', ['ngRoute', 'http.ui.xxt', 'service.matter']);
     ngApp.config(['$locationProvider', 'srvSiteProvider', function($locationProvider, srvSiteProvider) {
         $locationProvider.html5Mode(true);
         srvSiteProvider.config(siteId);
@@ -30,7 +30,7 @@ define(['require'], function(require) {
             $scope.snsNames = Object.keys(oSns);
         });
         if (missionId) {
-            http2.get('/rest/pl/fe/matter/mission/get?site=' + siteId + '&id=' + missionId, function(rsp) {
+            http2.get('/rest/pl/fe/matter/mission/get?site=' + siteId + '&id=' + missionId).then(function(rsp) {
                 var oMission;
                 $scope.mission = oMission = rsp.data;
                 _oProto.mission = { id: oMission.id, title: oMission.title };
@@ -107,7 +107,7 @@ define(['require'], function(require) {
             oConfig = {
                 proto: $scope.proto
             };
-            http2.post(url, oConfig, function(rsp) {
+            http2.post(url, oConfig).then(function(rsp) {
                 location.href = '/rest/pl/fe/matter/signin/schema?site=' + siteId + '&id=' + rsp.data.id;
             });
         };

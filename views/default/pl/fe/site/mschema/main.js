@@ -71,7 +71,7 @@ define(['frame'], function(ngApp) {
             $uibModal.open({
                 templateUrl: 'importMember.html',
                 controller: ['$scope', '$uibModalInstance', '$q', 'noticebox', function($scope2, $mi, $q, noticebox) {
-                    http2.get('/rest/pl/fe/site/member/schema/listImportSchema?site=' + $scope.site.id + '&id=' + $scope.choosedSchema.id, function(rsp) {
+                    http2.get('/rest/pl/fe/site/member/schema/listImportSchema?site=' + $scope.site.id + '&id=' + $scope.choosedSchema.id).then(function(rsp) {
                         $scope2.importSchemas = rsp.data;
                     });
 
@@ -94,7 +94,7 @@ define(['frame'], function(ngApp) {
                     };
                     $scope2.importSchemaPost = function(schemas, rounds) {
                         var defer = $q.defer();
-                        http2.post('/rest/pl/fe/site/member/schema/importSchema?site=' + $scope.site.id + '&id=' + $scope.choosedSchema.id + '&rounds=' + rounds, {'schemas': schemas}, function(rsp) {
+                        http2.post('/rest/pl/fe/site/member/schema/importSchema?site=' + $scope.site.id + '&id=' + $scope.choosedSchema.id + '&rounds=' + rounds, { 'schemas': schemas }).then(function(rsp) {
                             if (rsp.data.state !== 'end') {
                                 var group = parseInt(rsp.data.group) + 1;
                                 noticebox.success('已导入用户' + rsp.data.plan + '/' + rsp.data.total);
@@ -128,7 +128,7 @@ define(['frame'], function(ngApp) {
             var url;
             url = '/rest/pl/fe/site/sns/wx/qrcode/create?site=' + oMschema.siteid;
             url += '&matter_type=mschema&matter_id=' + oMschema.id;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.qrcode = rsp.data;
             });
         };
@@ -138,7 +138,7 @@ define(['frame'], function(ngApp) {
         $scope.$watch('choosedSchema', function(mschema) {
             if (mschema) {
                 oMschema = mschema;
-                http2.get('/rest/pl/fe/site/member/schema/wxQrcode?site=' + oMschema.siteid + '&mschema=' + oMschema.id, function(rsp) {
+                http2.get('/rest/pl/fe/site/member/schema/wxQrcode?site=' + oMschema.siteid + '&mschema=' + oMschema.id).then(function(rsp) {
                     var qrcodes = rsp.data;
                     $scope.qrcode = qrcodes.length ? qrcodes[0] : false;
                 });
@@ -147,7 +147,7 @@ define(['frame'], function(ngApp) {
     }]);
     ngApp.provider.controller('ctrlInvite', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
         function listInvite(oSchema) {
-            http2.get('/rest/pl/fe/site/member/invite/list?schema=' + oSchema.id, function(rsp) {
+            http2.get('/rest/pl/fe/site/member/invite/list?schema=' + oSchema.id).then(function(rsp) {
                 $scope.invites = rsp.data.invites;
             });
         }
@@ -165,7 +165,7 @@ define(['frame'], function(ngApp) {
                     };
                 }]
             }).result.then(function(option) {
-                http2.post('/rest/pl/fe/site/member/invite/update?invite=' + oInvite.id, option, function(rsp) {
+                http2.post('/rest/pl/fe/site/member/invite/update?invite=' + oInvite.id, option).then(function(rsp) {
                     angular.extend(oInvite, rsp.data);
                 });
             });
@@ -184,28 +184,28 @@ define(['frame'], function(ngApp) {
                     };
                 }]
             }).result.then(function(option) {
-                http2.post('/rest/pl/fe/site/member/invite/add?schema=' + $scope.choosedSchema.id, option, function(rsp) {
+                http2.post('/rest/pl/fe/site/member/invite/add?schema=' + $scope.choosedSchema.id, option).then(function(rsp) {
                     $scope.invites.push(rsp.data);
                 });
             });
         };
         $scope.stopInvite = function(oInvite) {
-            http2.post('/rest/pl/fe/site/member/invite/update?invite=' + oInvite.id, { stop: 'Y' }, function(rsp) {
+            http2.post('/rest/pl/fe/site/member/invite/update?invite=' + oInvite.id, { stop: 'Y' }).then(function(rsp) {
                 angular.extend(oInvite, rsp.data);
             });
         };
         $scope.startInvite = function(oInvite) {
-            http2.post('/rest/pl/fe/site/member/invite/update?invite=' + oInvite.id, { stop: 'N' }, function(rsp) {
+            http2.post('/rest/pl/fe/site/member/invite/update?invite=' + oInvite.id, { stop: 'N' }).then(function(rsp) {
                 angular.extend(oInvite, rsp.data);
             });
         };
         $scope.removeInvite = function(oInvite) {
-            http2.post('/rest/pl/fe/site/member/invite/update?invite=' + oInvite.id, { state: 0 }, function(rsp) {
+            http2.post('/rest/pl/fe/site/member/invite/update?invite=' + oInvite.id, { state: 0 }).then(function(rsp) {
                 oInvite.state = '0';
             });
         };
         $scope.restoreInvite = function(oInvite) {
-            http2.post('/rest/pl/fe/site/member/invite/update?invite=' + oInvite.id, { state: 1 }, function(rsp) {
+            http2.post('/rest/pl/fe/site/member/invite/update?invite=' + oInvite.id, { state: 1 }).then(function(rsp) {
                 oInvite.state = '1';
             });
         };

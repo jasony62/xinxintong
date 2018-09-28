@@ -2,7 +2,7 @@ define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlMschema', ['$scope', '$location', '$uibModal', 'http2', 'tmsSchema', 'srvSite', 'CstNaming', 'pushnotify', 'noticebox', function($scope, $location, $uibModal, http2, tmsSchema, srvSite, CstNaming, pushnotify, noticebox) {
         function listInvite(oSchema) {
-            http2.get('/rest/pl/fe/site/member/invite/list?schema=' + oSchema.id, function(rsp) {
+            http2.get('/rest/pl/fe/site/member/invite/list?schema=' + oSchema.id).then(function(rsp) {
                 $scope.invites = rsp.data.invites;
             });
         }
@@ -55,7 +55,7 @@ define(['frame'], function(ngApp) {
             if ($scope.mission && $scope.mission.siteid) {
                 url = '/rest/pl/fe/site/member/schema/create?site=' + $scope.mission.siteid;
                 proto = { valid: 'Y', matter_id: $scope.mission.id, matter_type: $scope.mission.type, title: $scope.mission.title + '-通讯录' + ($scope.mschemas.length + 1) };
-                http2.post(url, proto, function(rsp) {
+                http2.post(url, proto).then(function(rsp) {
                     $scope.mschemas.push(rsp.data);
                     selected.mschema = rsp.data;
                     $scope.chooseMschema();
@@ -72,7 +72,7 @@ define(['frame'], function(ngApp) {
             url = '/rest/pl/fe/site/member/list?site=' + selected.mschema.siteid + '&schema=' + selected.mschema.id;
             url += '&page=' + $scope.page.at + '&size=' + $scope.page.size + filter
             url += '&contain=total';
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 var members;
                 members = rsp.data.members;
                 if (members.length) {
@@ -127,12 +127,12 @@ define(['frame'], function(ngApp) {
                             email_verified: data.email_verified,
                             extattr: data.extattr
                         };
-                    http2.post('/rest/pl/fe/site/member/update?site=' + $scope.mission.siteid + '&id=' + oMember.id, newData, function(rsp) {
+                    http2.post('/rest/pl/fe/site/member/update?site=' + $scope.mission.siteid + '&id=' + oMember.id, newData).then(function(rsp) {
                         angular.extend(oMember, newData);
                         oMember._extattr = tmsSchema.member.getExtattrsUIValue(selected.mschema.extAttrs, oMember);
                     });
                 } else if (rst.action === 'remove') {
-                    http2.get('/rest/pl/fe/site/member/remove?site=' + $scope.mission.siteid + '&id=' + oMember.id, function() {
+                    http2.get('/rest/pl/fe/site/member/remove?site=' + $scope.mission.siteid + '&id=' + oMember.id).then(function() {
                         $scope.members.splice($scope.members.indexOf(oMember), 1);
                     });
                 }
@@ -145,14 +145,14 @@ define(['frame'], function(ngApp) {
                 sender: 'schema:' + selected.mschema.id
             };
             pushnotify.open(selected.mschema.siteid, function(notify) {
-                var url, targetAndMsg = {}; 
+                var url, targetAndMsg = {};
                 if (notify.matters.length) {
                     if (rows) {
                         targetAndMsg.users = [];
                         Object.keys(rows.selected).forEach(function(key) {
                             if (rows.selected[key] === true) {
                                 var rec = $scope.members[key];
-                                targetAndMsg.users.push({ id:rec.id, userid: rec.userid});
+                                targetAndMsg.users.push({ id: rec.id, userid: rec.userid });
                             }
                         });
                     }
@@ -162,7 +162,7 @@ define(['frame'], function(ngApp) {
                     targetAndMsg.schema = selected.mschema.id;
                     targetAndMsg.tmplmsg = notify.tmplmsg.id;
 
-                    http2.post(url, targetAndMsg, function(data) {
+                    http2.post(url, targetAndMsg).then(function(data) {
                         noticebox.success('发送完成');
                     });
                 }
@@ -170,12 +170,12 @@ define(['frame'], function(ngApp) {
         }
         $scope.$watch('rows.allSelected', function(nv) {
             var index = 0;
-            if(nv == 'Y') {
-                while(index < $scope.members.length) {
+            if (nv == 'Y') {
+                while (index < $scope.members.length) {
                     $scope.rows.selected[index++] = true;
                 }
                 $scope.rows.count = $scope.members.length;
-            }else if(nv == 'N'){
+            } else if (nv == 'N') {
                 $scope.rows.reset();
             }
         });

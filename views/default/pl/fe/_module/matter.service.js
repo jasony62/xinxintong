@@ -1,5 +1,5 @@
 'use strict';
-angular.module('service.matter', ['ngSanitize', 'ui.bootstrap', 'ui.tms']).
+angular.module('service.matter', ['ngSanitize', 'ui.bootstrap', 'ui.tms', 'http.ui.xxt']).
 provider('srvSite', function() {
     var _siteId, _oSite, _aSns, _aMemberSchemas, _oTag;
     this.config = function(siteId) {
@@ -14,7 +14,7 @@ provider('srvSite', function() {
                 var defer, url;
                 defer = $q.defer();
                 url = '/rest/pl/fe/user/get?_=' + (new Date * 1);
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     defer.resolve(rsp.data);
                 });
                 return defer.promise;
@@ -24,7 +24,7 @@ provider('srvSite', function() {
                 if (_oSite) {
                     defer.resolve(_oSite);
                 } else {
-                    http2.get('/rest/pl/fe/site/get?site=' + _siteId, function(rsp) {
+                    http2.get('/rest/pl/fe/site/get?site=' + _siteId).then(function(rsp) {
                         _oSite = rsp.data;
                         defer.resolve(_oSite);
                     });
@@ -35,7 +35,7 @@ provider('srvSite', function() {
                 var oUpdated = {},
                     defer = $q.defer();
                 oUpdated[prop] = _oSite[prop];
-                http2.post('/rest/pl/fe/site/update?site=' + _siteId, oUpdated, function(rsp) {
+                http2.post('/rest/pl/fe/site/update?site=' + _siteId, oUpdated).then(function(rsp) {
                     defer.resolve(_oSite);
                 });
                 return defer.promise;
@@ -72,7 +72,7 @@ provider('srvSite', function() {
                         break;
                 }
                 url += '?' + page._j() + '&site=' + site;
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     page.total = rsp.data.total;
                     defer.resolve({ matters: rsp.data.matters, page: page });
                 });
@@ -178,14 +178,14 @@ provider('srvSite', function() {
             },
             publicList: function() {
                 var defer = $q.defer();
-                http2.get('/rest/pl/fe/site/publicList', function(rsp) {
+                http2.get('/rest/pl/fe/site/publicList').then(function(rsp) {
                     defer.resolve(rsp.data);
                 });
                 return defer.promise;
             },
             friendList: function() {
                 var defer = $q.defer();
-                http2.get('/rest/pl/fe/site/friendList', function(rsp) {
+                http2.get('/rest/pl/fe/site/friendList').then(function(rsp) {
                     defer.resolve(rsp.data);
                 });
                 return defer.promise;
@@ -204,7 +204,7 @@ provider('srvSite', function() {
                     page.at++;
                 }
                 var defer = $q.defer();
-                http2.get('/rest/pl/fe/site/subscriberList?site=' + _siteId + '&category=' + category + '&' + page._j(), function(rsp) {
+                http2.get('/rest/pl/fe/site/subscriberList?site=' + _siteId + '&category=' + category + '&' + page._j()).then(function(rsp) {
                     page.total = rsp.data.total;
                     defer.resolve({ subscribers: rsp.data.subscribers, page: page });
                 });
@@ -215,7 +215,7 @@ provider('srvSite', function() {
                 if (!siteId && _aSns) {
                     defer.resolve(_aSns);
                 } else {
-                    http2.get('/rest/pl/fe/site/snsList?site=' + (siteId || _siteId), function(rsp) {
+                    http2.get('/rest/pl/fe/site/snsList?site=' + (siteId || _siteId)).then(function(rsp) {
                         _aSns = rsp.data;
                         defer.resolve(_aSns);
                     });
@@ -228,7 +228,7 @@ provider('srvSite', function() {
                 if (_oTag) {
                     defer.resolve(_oTag);
                 } else {
-                    http2.get('/rest/pl/fe/matter/tag/listTags?site=' + _siteId + '&subType=' + subType, function(rsp) {
+                    http2.get('/rest/pl/fe/matter/tag/listTags?site=' + _siteId + '&subType=' + subType).then(function(rsp) {
                         _oTag = rsp.data;
                         defer.resolve(_oTag);
                     });
@@ -247,7 +247,7 @@ provider('srvSite', function() {
                             url += '&onlyMatter=Y';
                         }
                     }
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         _aMemberSchemas = rsp.data;
                         _aMemberSchemas.forEach(function(ms) {
                             var oSchema, schemas = [],
@@ -361,7 +361,7 @@ provider('srvSite', function() {
                                         proto.title = oMatter.title + '-' + '通讯录';
                                     }
                                 }
-                                http2.post(url, proto, function(rsp) {
+                                http2.post(url, proto).then(function(rsp) {
                                     mschemas.push(rsp.data);
                                     $scope2.data.chosen = rsp.data;
                                 });
@@ -444,7 +444,7 @@ provider('srvTag', function() {
                             if ($scope2.model.newtag) {
                                 newTags = $scope2.model.newtag.replace(/\s/, ',');
                                 newTags = newTags.split(',');
-                                http2.post('/rest/pl/fe/matter/tag/create?site=' + oApp.siteid + '&subType=' + subType, newTags, function(rsp) {
+                                http2.post('/rest/pl/fe/matter/tag/create?site=' + oApp.siteid + '&subType=' + subType, newTags).then(function(rsp) {
                                     rsp.data.forEach(function(oNewTag) {
                                         $scope2.apptags.push(oNewTag);
                                     });
@@ -464,7 +464,7 @@ provider('srvTag', function() {
                                 }
                             });
                             var url = '/rest/pl/fe/matter/tag/add?site=' + oApp.siteid + '&resId=' + oApp.id + '&resType=' + oApp.type + '&subType=' + subType;
-                            http2.post(url, addMatterTag, function(rsp) {
+                            http2.post(url, addMatterTag).then(function(rsp) {
                                 if (subType === 'C') {
                                     matter.matter_cont_tag = addMatterTag;
                                 } else {
@@ -496,7 +496,7 @@ provider('srvQuickEntry', function() {
                 url = '/rest/pl/fe/q/get?site=' + siteId;
                 http2.post(url, {
                     url: encodeURI(taskUrl)
-                }, function(rsp) {
+                }).then(function(rsp) {
                     defer.resolve(rsp.data);
                 });
 
@@ -510,7 +510,7 @@ provider('srvQuickEntry', function() {
                 http2.post(url, {
                     url: encodeURI(taskUrl),
                     title: title
-                }, function(rsp) {
+                }).then(function(rsp) {
                     defer.resolve(rsp.data);
                 });
 
@@ -523,7 +523,7 @@ provider('srvQuickEntry', function() {
                 url = '/rest/pl/fe/q/remove?site=' + siteId;
                 http2.post(url, {
                     url: encodeURI(taskUrl)
-                }, function(rsp) {
+                }).then(function(rsp) {
                     defer.resolve(rsp.data);
                 });
 
@@ -537,7 +537,7 @@ provider('srvQuickEntry', function() {
                 http2.post(url, {
                     url: encodeURI(taskUrl),
                     config: config
-                }, function(rsp) {
+                }).then(function(rsp) {
                     defer.resolve(rsp.data);
                 });
 
@@ -548,192 +548,11 @@ provider('srvQuickEntry', function() {
                     url;
 
                 url = '/rest/pl/fe/q/update?site=' + siteId + '&code=' + code;
-                http2.post(url, data, function(rsp) {
+                http2.post(url, data).then(function(rsp) {
                     defer.resolve(rsp.data);
                 });
 
                 return defer.promise;
-            }
-        };
-    }];
-}).
-provider('srvRecordConverter', function() {
-    this.$get = ['$sce', function($sce) {
-        function _memberAttr(oMember, oSchema) {
-            var keys, originalValue, afterValue;
-            if (oMember) {
-                keys = oSchema.id.split('.');
-                if (keys.length === 2) {
-                    return oMember[keys[1]];
-                } else if (keys.length === 3 && oMember.extattr) {
-                    if (originalValue = oMember.extattr[keys[2]]) {
-                        switch (oSchema.type) {
-                            case 'single':
-                                if (oSchema.ops && oSchema.ops.length) {
-                                    for (var i = oSchema.ops.length - 1; i >= 0; i--) {
-                                        if (originalValue === oSchema.ops[i].v) {
-                                            afterValue = oSchema.ops[i].l;
-                                        }
-                                    }
-                                }
-                                break;
-                            case 'multiple':
-                                if (oSchema.ops && oSchema.ops.length) {
-                                    afterValue = [];
-                                    oSchema.ops.forEach(function(op) {
-                                        originalValue[op.v] && afterValue.push(op.l);
-                                    });
-                                    afterValue = afterValue.join(',');
-                                }
-                                break;
-                            default:
-                                afterValue = originalValue;
-                        }
-                    }
-                    return afterValue;
-                } else {
-                    return '';
-                }
-            } else {
-                return '';
-            }
-        }
-
-        function _value2Html(val, oSchema) {
-            if (!val || !oSchema) return '';
-            if (oSchema.ops && oSchema.ops.length) {
-                if (oSchema.type === 'score') {
-                    var label = '';
-                    oSchema.ops.forEach(function(op, index) {
-                        if (val[op.v] !== undefined) {
-                            label += '<div>' + op.l + ':' + val[op.v] + '</div>';
-                        }
-                    });
-                    label = label.replace(/\s\/\s$/, '');
-                    return label;
-                } else if (angular.isString(val)) {
-                    var aVal, aLab = [];
-                    aVal = val.split(',');
-                    oSchema.ops.forEach(function(op, i) {
-                        aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
-                    });
-                    if (aLab.length) return aLab.join(',');
-                } else if (angular.isObject(val) || angular.isArray(val)) {
-                    val = JSON.stringify(val);
-                }
-            }
-            return val;
-        }
-
-        function _forTable(oRecord, mapOfSchemas) {
-            var oSchema, type, data = {};
-
-            if (oRecord.state !== undefined) {
-                oRecord._state = _mapOfRecordState[oRecord.state];
-            }
-            if (oRecord.data && mapOfSchemas) {
-                for (var schemaId in mapOfSchemas) {
-                    oSchema = mapOfSchemas[schemaId];
-                    type = oSchema.type;
-                    /* 分组活动导入数据时会将member题型改为shorttext题型 */
-                    if (oSchema.schema_id && oRecord.data.member) {
-                        type = 'member';
-                    }
-                    switch (type) {
-                        case 'image':
-                            var imgs = oRecord.data[oSchema.id] ? oRecord.data[oSchema.id].split(',') : [];
-                            data[oSchema.id] = imgs;
-                            break;
-                        case 'file':
-                            var files = oRecord.data[oSchema.id] ? oRecord.data[oSchema.id] : {};
-                            data[oSchema.id] = files;
-                            break;
-                        case 'multitext':
-                            var multitexts = oRecord.data[oSchema.id] ? oRecord.data[oSchema.id] : [];
-                            data[oSchema.id] = multitexts;
-                            break;
-                        case 'member':
-                            data[oSchema.id] = _memberAttr(oRecord.data.member, oSchema);
-                            break;
-                        default:
-                            data[oSchema.id] = $sce.trustAsHtml(_value2Html(oRecord.data[oSchema.id], oSchema));
-                    }
-                };
-                oRecord._data = data;
-            }
-            return oRecord;
-        }
-
-        var _mapOfRecordState = {
-                '0': '删除',
-                '1': '正常',
-                '100': '删除',
-                '101': '用户删除',
-            },
-            _mapOfSchemas;
-        return {
-            config: function(schemas) {
-                if (angular.isString(schemas)) {
-                    schemas = JSON.parse(schemas);
-                }
-                if (angular.isArray(schemas)) {
-                    _mapOfSchemas = {};
-                    schemas.forEach(function(schema) {
-                        _mapOfSchemas[schema.id] = schema;
-                    });
-                } else {
-                    _mapOfSchemas = schemas;
-                }
-            },
-            forTable: function(record, mapOfSchemas) {
-                var map;
-                if (mapOfSchemas && angular.isArray(mapOfSchemas)) {
-                    map = {};
-                    mapOfSchemas.forEach(function(oSchema) {
-                        map[oSchema.id] = oSchema;
-                    });
-                    mapOfSchemas = map;
-                }
-                return _forTable(record, mapOfSchemas ? mapOfSchemas : _mapOfSchemas);
-            },
-            forEdit: function(schema, data) {
-                if (schema.type === 'file') {
-                    var files;
-                    if (data[schema.id] && data[schema.id].length) {
-                        files = data[schema.id];
-                        files.forEach(function(file) {
-                            file.url && $sce.trustAsUrl(file.url);
-                        });
-                    }
-                    data[schema.id] = files;
-                } else if (schema.type === 'multiple') {
-                    var obj = {},
-                        value;
-                    if (data[schema.id] && data[schema.id].length) {
-                        value = data[schema.id].split(',')
-                        value.forEach(function(p) {
-                            obj[p] = true;
-                        });
-                    }
-                    data[schema.id] = obj;
-                } else if (schema.type === 'image') {
-                    var value = data[schema.id],
-                        obj = [];
-                    if (value && value.length) {
-                        value = value.split(',');
-                        value.forEach(function(p) {
-                            obj.push({
-                                imgSrc: p
-                            });
-                        });
-                    }
-                    data[schema.id] = obj;
-                }
-
-                return data;
-            },
-            value2Html: function(val, schema) {
-                return _value2Html(val, schema);
             }
         };
     }];
@@ -755,7 +574,7 @@ provider('srvUserNotice', function() {
                     url;
 
                 url = '/rest/pl/fe/user/notice/uncloseList?' + _oPage.j();
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     _logs.splice(0, _logs.length);
                     rsp.data.logs.forEach(function(log) {
                         if (log.data) {
@@ -774,7 +593,7 @@ provider('srvUserNotice', function() {
                     url;
 
                 url = '/rest/pl/fe/user/notice/close?id=' + log.id;
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     defer.resolve(rsp.data);
                 });
                 return defer.promise;
@@ -808,7 +627,7 @@ provider('srvTmplmsgNotice', function() {
 
                 this._aBatches.splice(0, this._aBatches.length);
                 url = '/rest/pl/fe/matter/tmplmsg/notice/list?sender=' + this._sender + this._oPage.j();
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     that._oPage.total = rsp.data.total;
                     rsp.data.batches.forEach(function(batch) {
                         that._aBatches.push(batch);
@@ -823,7 +642,7 @@ provider('srvTmplmsgNotice', function() {
                     url;
 
                 url = '/rest/pl/fe/matter/tmplmsg/notice/detail?batch=' + batch.id;
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     defer.resolve(rsp.data.logs);
                 });
 
@@ -851,7 +670,7 @@ controller('ctrlSetChannel', ['$scope', 'http2', 'srvSite', function($scope, htt
             id: matter.id,
             type: $scope.matterType
         };
-        http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + srvSite.getSiteId(), relations, function() {
+        http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + srvSite.getSiteId(), relations).then(function() {
             matter.channels = matter.channels.concat(aNewChannels);
         });
     });
@@ -864,11 +683,11 @@ controller('ctrlSetChannel', ['$scope', 'http2', 'srvSite', function($scope, htt
                 id: matter.id,
                 type: $scope.matterType
             };
-        http2.post('/rest/pl/fe/matter/channel/removeMatter?site=' + srvSite.getSiteId() + '&id=' + removed.id, param, function(rsp) {
+        http2.post('/rest/pl/fe/matter/channel/removeMatter?site=' + srvSite.getSiteId() + '&id=' + removed.id, param).then(function(rsp) {
             matter.channels.splice(matter.channels.indexOf(removed), 1);
         });
     });
-    http2.get('/rest/pl/fe/matter/channel/list?site=' + srvSite.getSiteId() + '&cascade=N', function(rsp) {
+    http2.get('/rest/pl/fe/matter/channel/list?site=' + srvSite.getSiteId() + '&cascade=N').then(function(rsp) {
         $scope.channels = rsp.data.docs;
     });
 }]).
@@ -885,7 +704,7 @@ provider('srvInvite', function() {
                     url;
 
                 url = '/rest/pl/fe/invite/get?matter=' + _matterType + ',' + _matterId;
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     defer.resolve(rsp.data);
                 });
                 return defer.promise;
@@ -895,14 +714,14 @@ provider('srvInvite', function() {
                     url;
 
                 url = '/rest/pl/fe/invite/create?matter=' + _matterType + ',' + _matterId;
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     defer.resolve(rsp.data);
                 });
                 return defer.promise;
             },
             addCode: function(oInvite) {
                 var defer = $q.defer();
-                http2.get('/rest/pl/fe/invite/code/add?invite=' + oInvite.id, function(rsp) {
+                http2.get('/rest/pl/fe/invite/code/add?invite=' + oInvite.id).then(function(rsp) {
                     defer.resolve(rsp.data);
                 });
                 return defer.promise;
@@ -935,7 +754,7 @@ provider('srvMemberPicker', function() {
                                     }
 
                                     function schemaUser(schemas, rounds) {
-                                        http2.post('/rest/pl/fe/site/member/schema/importSchema?site=' + oMatter.siteid + '&id=' + oMatter.id + '&rounds=' + rounds, { 'schemas': schemas, 'users': ids }, function(rsp) {
+                                        http2.post('/rest/pl/fe/site/member/schema/importSchema?site=' + oMatter.siteid + '&id=' + oMatter.id + '&rounds=' + rounds, { 'schemas': schemas, 'users': ids }).then(function(rsp) {
                                             if (rsp.data.state !== 'end') {
                                                 var group = parseInt(rsp.data.group) + 1;
                                                 noticebox.success('已导入用户' + rsp.data.plan + '/' + rsp.data.total);
@@ -948,7 +767,7 @@ provider('srvMemberPicker', function() {
                                     };
 
                                     function matterUser() {
-                                        http2.post('/rest/pl/fe/matter/group/player/addByApp?app=' + oMatter.id, ids, function(rsp) {
+                                        http2.post('/rest/pl/fe/matter/group/player/addByApp?app=' + oMatter.id, ids).then(function(rsp) {
                                             noticebox.success('加入【' + rsp.data + '】个用户');
                                             defer.resolve(rsp.data);
                                         });
@@ -983,7 +802,7 @@ provider('srvMemberPicker', function() {
                         };
 
                         function doSchemas() {
-                            http2.get('/rest/pl/fe/site/member/schema/listImportSchema?site=' + oMschema.siteid + '&id=' + oMschema.id, function(rsp) {
+                            http2.get('/rest/pl/fe/site/member/schema/listImportSchema?site=' + oMschema.siteid + '&id=' + oMschema.id).then(function(rsp) {
                                 $scope2.importSchemas = rsp.data;
                                 _oRows.impschemaId = rsp.data[0].id;
                                 rsp.data.forEach(function(oSchema) {
@@ -1005,7 +824,7 @@ provider('srvMemberPicker', function() {
                             url = '/rest/pl/fe/site/member/list?site=' + oMschema.siteid + '&schema=' + selectedSchemaId;
                             url += '&page=' + _oPage.at + '&size=' + _oPage.size + filter
                             url += '&contain=total';
-                            http2.get(url, function(rsp) {
+                            http2.get(url).then(function(rsp) {
                                 var members;
                                 members = rsp.data.members;
                                 if (members.length) {
@@ -1108,7 +927,7 @@ controller('ctrlStat', ['$scope', 'http2', '$uibModal', '$compile', function($sc
     $scope.list = function() {
         var url;
         url = '/rest/pl/fe/matter/' + app.type + '/log/userMatterAction?site=' + app.siteid + '&appId=' + app.id + page._j();
-        http2.post(url, criteria, function(rsp) {
+        http2.post(url, criteria).then(function(rsp) {
             $scope.logs = rsp.data.logs;
             page.total = rsp.data.total;
         });
@@ -1172,7 +991,7 @@ service('srvTimerNotice', ['$rootScope', '$q', 'http2', function($rootScope, $q,
             task: { model: model }
         };
         if (oArgs) oConfig.task.arguments = oArgs;
-        http2.post('/rest/pl/fe/matter/timer/create', oConfig, function(rsp) {
+        http2.post('/rest/pl/fe/matter/timer/create', oConfig).then(function(rsp) {
             var oNewTimer;
             oNewTimer = fnAppendLocal(rsp.data);
             timers.push(oNewTimer);
@@ -1187,7 +1006,7 @@ service('srvTimerNotice', ['$rootScope', '$q', 'http2', function($rootScope, $q,
                         fnOne(++i);
                     });
                 } else {
-                    http2.post('/rest/pl/fe/matter/timer/update?id=' + oTimer.id, oTimer.task, function(rsp) {
+                    http2.post('/rest/pl/fe/matter/timer/update?id=' + oTimer.id, oTimer.task).then(function(rsp) {
                         fnDbToLocal(rsp.data, oTimer);
                         oTimer.modified = false;
                     });
@@ -1195,7 +1014,7 @@ service('srvTimerNotice', ['$rootScope', '$q', 'http2', function($rootScope, $q,
             }
             fnOne(0);
         } else {
-            http2.post('/rest/pl/fe/matter/timer/update?id=' + oTimer.id, oTimer.task, function(rsp) {
+            http2.post('/rest/pl/fe/matter/timer/update?id=' + oTimer.id, oTimer.task).then(function(rsp) {
                 fnDbToLocal(rsp.data, oTimer);
                 oTimer.modified = false;
             });
@@ -1210,7 +1029,7 @@ service('srvTimerNotice', ['$rootScope', '$q', 'http2', function($rootScope, $q,
         var oTimer;
         if (window.confirm('确定删除定时规则？')) {
             oTimer = timers[index];
-            http2.get('/rest/pl/fe/matter/timer/remove?id=' + oTimer.id, function(rsp) {
+            http2.get('/rest/pl/fe/matter/timer/remove?id=' + oTimer.id).then(function(rsp) {
                 timers.splice(index, 1);
             });
         }
@@ -1222,7 +1041,7 @@ service('srvTimerNotice', ['$rootScope', '$q', 'http2', function($rootScope, $q,
     /* 定时任务列表 */
     this.list = function(oMatter, model) {
         var defer = $q.defer();
-        http2.get('/rest/pl/fe/matter/timer/byMatter?type=' + oMatter.type + '&id=' + oMatter.id + '&model=' + model, function(rsp) {
+        http2.get('/rest/pl/fe/matter/timer/byMatter?type=' + oMatter.type + '&id=' + oMatter.id + '&model=' + model).then(function(rsp) {
             var timers = [];
             rsp.data.forEach(function(oTask) {
                 var oNewTimer;

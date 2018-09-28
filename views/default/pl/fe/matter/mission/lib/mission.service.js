@@ -15,7 +15,7 @@ define(['require'], function(require) {
                     }
                     _getMissionDeferred = $q.defer();
                     url = '/rest/pl/fe/matter/mission/get?id=' + _missionId;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         var userApp;
                         _oMission = rsp.data;
                         _oMission.extattrs = (_oMission.extattrs && _oMission.extattrs.length) ? JSON.parse(_oMission.extattrs) : {};
@@ -131,14 +131,14 @@ define(['require'], function(require) {
                     deferred = $q.defer();
                     !oCriteria && (oCriteria = {});
                     url = '/rest/pl/fe/matter/mission/matter/list?id=' + _missionId;
-                    http2.post(url, oCriteria, function(rsp) {
+                    http2.post(url, oCriteria).then(function(rsp) {
                         deferred.resolve(rsp.data);
                     });
                     return deferred.promise;
                 },
                 matterCount: function() {
                     var deferred = $q.defer();
-                    http2.get('/rest/pl/fe/matter/mission/matter/count?id=' + _missionId, function(rsp) {
+                    http2.get('/rest/pl/fe/matter/mission/matter/count?id=' + _missionId).then(function(rsp) {
                         deferred.resolve(parseInt(rsp.data));
                     });
                     return deferred.promise;
@@ -170,7 +170,7 @@ define(['require'], function(require) {
 
                     url = '/rest/pl/fe/matter/mission/user/list?mission=' + _missionId;
                     url += '&' + oResultSet.page.j();
-                    http2.post(url, oResultSet.criteria, function(rsp) {
+                    http2.post(url, oResultSet.criteria).then(function(rsp) {
                         var records = rsp.data.records;
                         oResultSet.users.splice(0, oResultSet.users.length);
                         if (records && records.length) {
@@ -187,7 +187,7 @@ define(['require'], function(require) {
                 recordByUser: function(user) {
                     var deferred = $q.defer();
                     if (user.userid) {
-                        http2.get('/rest/pl/fe/matter/mission/report/recordByUser?mission=' + _missionId + '&user=' + user.userid, function(rsp) {
+                        http2.get('/rest/pl/fe/matter/mission/report/recordByUser?mission=' + _missionId + '&user=' + user.userid).then(function(rsp) {
                             deferred.resolve(rsp.data);
                         });
                     } else {
@@ -197,7 +197,7 @@ define(['require'], function(require) {
                 },
                 submit: function(modifiedData) {
                     var defer = $q.defer();
-                    http2.post('/rest/pl/fe/matter/mission/update?id=' + _missionId, modifiedData, function(rsp) {
+                    http2.post('/rest/pl/fe/matter/mission/update?id=' + _missionId, modifiedData).then(function(rsp) {
                         defer.resolve(rsp.data);
                     });
                     return defer.promise;
@@ -247,7 +247,7 @@ define(['require'], function(require) {
                     if (checkRid) {
                         url += '&checked=' + checkRid;
                     }
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         var _checked;
                         _rounds.splice(0, _rounds.length);
                         rsp.data.rounds.forEach(function(rnd) {
@@ -293,7 +293,7 @@ define(['require'], function(require) {
                             };
                         }]
                     }).result.then(function(newRound) {
-                        http2.post(_RestURL + 'add?site=' + _siteId + '&mission=' + _missionId, newRound, function(rsp) {
+                        http2.post(_RestURL + 'add?site=' + _siteId + '&mission=' + _missionId, newRound).then(function(rsp) {
                             if (_rounds.length > 0 && rsp.data.state == 1) {
                                 _rounds[0].state = 2;
                             }
@@ -360,7 +360,7 @@ define(['require'], function(require) {
                             });
                         } else if (rst.action === 'remove') {
                             url += 'remove?site=' + _siteId + '&mission=' + _missionId + '&rid=' + round.rid;
-                            http2.get(url, function(rsp) {
+                            http2.get(url).then(function(rsp) {
                                 _rounds.splice(_rounds.indexOf(round), 1);
                                 _oPage.total--;
                             });
@@ -384,7 +384,7 @@ define(['require'], function(require) {
                                 $scope.byPeriods = byPeriods = [];
                                 $scope.byIntervals = byIntervals = [];
                                 $scope.example = function(oRule) {
-                                    http2.post('/rest/pl/fe/matter/mission/round/getcron', { roundCron: oRule }, function(rsp) {
+                                    http2.post('/rest/pl/fe/matter/mission/round/getcron', { roundCron: oRule }).then(function(rsp) {
                                         oRule.case = rsp.data;
                                     });
                                 };
@@ -475,7 +475,7 @@ define(['require'], function(require) {
                     }
                     _getMissionDeferred = $q.defer();
                     url = '/rest/site/op/matter/mission/get?site=' + _siteId + '&mission=' + _missionId + '&accessToken=' + _accessId;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         var userApp;
                         _oMission = rsp.data.mission;
                         _oMission.extattrs = (_oMission.extattrs && _oMission.extattrs.length) ? JSON.parse(_oMission.extattrs) : {};
@@ -554,7 +554,7 @@ define(['require'], function(require) {
                         url;
 
                     url = '/rest/site/op/matter/mission/matterList?site=' + _siteId + '&mission=' + _missionId + '&accessToken=' + _accessId;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         deferred.resolve(rsp.data);
                     });
                     return deferred.promise;
@@ -568,7 +568,7 @@ define(['require'], function(require) {
                     url += '?site=' + _siteId + '&mission=' + _missionId + '&accessToken=' + _accessId;
                     url += '&user=' + oUser.userid;
                     oApp && (url += '&app=' + oApp.type + ',' + oApp.id);
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         deferred.resolve(rsp.data);
                     });
                     return deferred.promise;

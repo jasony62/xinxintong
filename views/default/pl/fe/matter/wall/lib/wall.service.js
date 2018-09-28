@@ -24,7 +24,7 @@ define(['require'], function(require) {
                     }
                     _getAppDeferred = $q.defer();
                     url = '/rest/pl/fe/matter/wall/get?site=' + _siteId + '&id=' + _wallId;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         _oWall = rsp.data;
                         _getAppDeferred.resolve(_oWall);
                     });
@@ -41,7 +41,7 @@ define(['require'], function(require) {
                         modifiedData[name] = _oWall[name];
                     });
                     url = '/rest/pl/fe/matter/wall/update?site=' + _siteId + '&app=' + _wallId;
-                    http2.post(url, modifiedData, function(rsp) {
+                    http2.post(url, modifiedData).then(function(rsp) {
                         defer.resolve(rsp.data);
                     });
                     return defer.promise;
@@ -62,7 +62,7 @@ define(['require'], function(require) {
                                 id: _wallId,
                                 type: 'wall'
                             };
-                            http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + _siteId + '&id=' + missions.matters[0].id, matter, function(rsp) {
+                            http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + _siteId + '&id=' + missions.matters[0].id, matter).then(function(rsp) {
                                 var mission = rsp.data,
                                     updatedFields = ['mission_id'];
 
@@ -88,7 +88,7 @@ define(['require'], function(require) {
                             type: 'wall',
                             title: _oWall.title
                         };
-                    http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + _siteId + '&id=' + _oWall.mission_id, matter, function(rsp) {
+                    http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + _siteId + '&id=' + _oWall.mission_id, matter).then(function(rsp) {
                         delete _oWall.mission;
                         _oWall.mission_id = null;
                         _this.update(['mission_id']);

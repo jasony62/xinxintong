@@ -55,7 +55,7 @@ define(['frame'], function(ngApp) {
             });
         });
     }]);
-    ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'http2', 'srvSite', function($scope, $uibModal, http2, srvSite) {
+    ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'srvSite', function($scope, $uibModal, srvSite) {
         var _oEntryRule;
         $scope.rule = {};
         $scope.changeUserScope = function() {
@@ -148,7 +148,7 @@ define(['frame'], function(ngApp) {
                                 });
                             } else {
                                 var url = '/rest/pl/fe/matter/' + appType + '/list?mission=' + mission.id;
-                                http2.get(url, function(rsp) {
+                                http2.get(url).then(function(rsp) {
                                     $scope2.apps = rsp.data.apps;
                                 });
                             }
@@ -162,13 +162,13 @@ define(['frame'], function(ngApp) {
                 $scope.update(['user_app_id', 'user_app_type']).then(function(rsp) {
                     if (data.appType === 'mschema') {
                         var url = '/rest/pl/fe/matter/mission/get?id=' + mission.id;
-                        http2.get(url, function(rsp) {
+                        http2.get(url).then(function(rsp) {
                             mission.userApp = rsp.data.userApp;
                         });
                     } else {
                         var key = data.appType == 'enroll' ? 'app' : 'id';
                         var url = '/rest/pl/fe/matter/' + data.appType + '/get?site=' + mission.siteid + '&' + key + '=' + data.appId;
-                        http2.get(url, function(rsp) {
+                        http2.get(url).then(function(rsp) {
                             mission.userApp = rsp.data;
                             if (mission.userApp.data_schemas && angular.isString(mission.userApp.data_schemas)) {
                                 mission.userApp.data_schemas = JSON.parse(mission.userApp.data_schemas);
@@ -184,7 +184,7 @@ define(['frame'], function(ngApp) {
             mission.user_app_type = '';
             $scope.update(['user_app_id', 'user_app_type']).then(function() {
                 delete mission.userApp;
-                http2.post('/rest/pl/fe/matter/mission/report/configUpdate?mission=' + mission.id, { apps: [] }, function(rsp) {
+                http2.post('/rest/pl/fe/matter/mission/report/configUpdate?mission=' + mission.id, { apps: [] }).then(function(rsp) {
                     if (mission.reportConfig) {
                         mission.reportConfig.include_apps = [];
                     }
@@ -196,7 +196,7 @@ define(['frame'], function(ngApp) {
         var baseURL = '/rest/pl/fe/matter/mission/receiver/';
 
         function listReceivers(app) {
-            http2.get(baseURL + 'list?site=' + app.siteid + '&app=' + app.id, function(rsp) {
+            http2.get(baseURL + 'list?site=' + app.siteid + '&app=' + app.id).then(function(rsp) {
                 var map = { wx: '微信', yx: '易信' };
                 rsp.data.forEach(function(receiver) {
                     if (receiver.sns_user) {
@@ -221,7 +221,7 @@ define(['frame'], function(ngApp) {
                 url += '?site=' + $scope.mission.siteid;
                 url += '&matter_type=missionreceiver';
                 url += '&matter_id=' + $scope.mission.id;
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     var qrcode = rsp.data,
                         eleQrcode = $("#" + snsName + "Qrcode");
                     eleQrcode.trigger('show');
@@ -234,7 +234,7 @@ define(['frame'], function(ngApp) {
                         url2 += '&id=' + rsp.data.id;
                         url2 += '&cascaded=N';
                         fnCheckQrcode = $interval(function() {
-                            http2.get(url2, function(rsp) {
+                            http2.get(url2).then(function(rsp) {
                                 if (rsp.data == false) {
                                     $interval.cancel(fnCheckQrcode);
                                     eleQrcode.trigger('hide');
@@ -242,7 +242,7 @@ define(['frame'], function(ngApp) {
                                     (function() {
                                         var fnCheckReceiver;
                                         fnCheckReceiver = $interval(function() {
-                                            http2.get('/rest/pl/fe/matter/mission/receiver/afterJoin?site=' + $scope.mission.siteid + '&app=' + $scope.mission.id + '&timestamp=' + qrcode.create_at, function(rsp) {
+                                            http2.get('/rest/pl/fe/matter/mission/receiver/afterJoin?site=' + $scope.mission.siteid + '&app=' + $scope.mission.id + '&timestamp=' + qrcode.create_at).then(function(rsp) {
                                                 if (rsp.data.length) {
                                                     $interval.cancel(fnCheckReceiver);
                                                     $scope.receivers = $scope.receivers.concat(rsp.data);
@@ -261,7 +261,7 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.remove = function(receiver) {
-            http2.get(baseURL + 'remove?site=' + $scope.mission.siteid + '&app=' + $scope.mission.id + '&receiver=' + receiver.id, function(rsp) {
+            http2.get(baseURL + 'remove?site=' + $scope.mission.siteid + '&app=' + $scope.mission.id + '&receiver=' + receiver.id).then(function(rsp) {
                 $scope.receivers.splice($scope.receivers.indexOf(receiver), 1);
             });
         };

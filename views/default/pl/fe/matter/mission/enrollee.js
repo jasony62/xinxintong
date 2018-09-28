@@ -4,7 +4,7 @@ define(['frame'], function(ngApp) {
         function enrolleeList() {
             var url;
             url = '/rest/pl/fe/matter/mission/user/enrolleeList?site=' + _oMission.siteid + '&mission=' + _oMission.id;
-            http2.post(url, _oCriteria, function(rsp) {
+            http2.post(url, _oCriteria).then(function(rsp) {
                 var enrollees, dateFormat;
                 dateFormat = 'MM-dd HH:mm';
                 $scope.enrollees = enrollees = rsp.data.enrollees;
@@ -33,7 +33,7 @@ define(['frame'], function(ngApp) {
         $scope.createEnlAppByUser = function() {
             var url;
             url = '/rest/pl/fe/matter/enroll/createByMissionUser?mission=' + _oMission.id;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 location.href = '/rest/pl/fe/matter/enroll/preview?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
             });
         };

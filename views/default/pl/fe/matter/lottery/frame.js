@@ -1,4 +1,4 @@
-ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter']);
+ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'service.matter']);
 ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', 'srvTagProvider', function($controllerProvider, $routeProvider, $locationProvider, srvTagProvider) {
     ngApp.provider = {
         controller: $controllerProvider.register
@@ -138,7 +138,7 @@ ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($sco
     };
     $scope.submit = function() {
         var defer = $q.defer();
-        http2.post('/rest/pl/fe/matter/lottery/update?site=' + $scope.siteId + '&app=' + $scope.id, modifiedData, function(rsp) {
+        http2.post('/rest/pl/fe/matter/lottery/update?site=' + $scope.siteId + '&app=' + $scope.id, modifiedData).then(function(rsp) {
             $scope.modified = false;
             modifiedData = {};
             defer.resolve(rsp.data);
@@ -149,10 +149,10 @@ ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($sco
         modifiedData[name] = $scope.app[name];
         $scope.modified = true;
     };
-    http2.get('/rest/pl/fe/matter/tag/listTags?site=' + $scope.siteId, function(rsp) {
+    http2.get('/rest/pl/fe/matter/tag/listTags?site=' + $scope.siteId).then(function(rsp) {
         $scope.oTag = rsp.data;
     });
-    http2.get('/rest/pl/fe/matter/lottery/get?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+    http2.get('/rest/pl/fe/matter/lottery/get?site=' + $scope.siteId + '&app=' + $scope.id).then(function(rsp) {
         var app;
         app = rsp.data;
         app.tags = (!app.tags || app.tags.length === 0) ? [] : app.tags.split(',');

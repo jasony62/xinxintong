@@ -1,6 +1,6 @@
 define(['require'], function() {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'service.matter']);
     ngApp.constant('cstApp', {
         matterTypes: [{
             value: 'article',
@@ -106,7 +106,7 @@ define(['require'], function() {
         srvSite.tagList().then(function(oTag) {
             $scope.oTag = oTag;
         });
-        http2.get('/rest/pl/fe/matter/channel/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
+        http2.get('/rest/pl/fe/matter/channel/get?site=' + $scope.siteId + '&id=' + $scope.id).then(function(rsp) {
             if (rsp.data.matter_mg_tag !== '') {
                 rsp.data.matter_mg_tag.forEach(function(cTag, index) {
                     $scope.oTag.forEach(function(oTag) {

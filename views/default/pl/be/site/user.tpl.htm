@@ -24,6 +24,7 @@
         </nav>
         <div ng-view></div>
     </div>
+    <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/jquery-ui.min.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
@@ -32,7 +33,8 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="/static/js/ui-tms.js?_=1"></script>
-    <script src="/static/js/require.js" data-main="/views/default/pl/be/site/user-loader.js?_=1"></script>
+    <script src="<?php echo auto_version('/asset/js/xxt.ui.http.js');?>"></script>
+    <script src="/static/js/require.js" data-main="<?php echo auto_version('/views/default/pl/be/site/user-loader.js');?>"></script>
 </body>
 
 </html>

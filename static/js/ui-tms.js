@@ -1,9 +1,11 @@
+'use strict';
 /**
  * directives:
  * combox
  * editable
  */
-angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', function($timeout) {
+angular.module('ui.tms', ['ngSanitize']).
+service('noticebox', ['$timeout', function($timeout) {
     var _boxId = 'tmsbox' + (new Date() * 1),
         _last = {
             type: '',
@@ -179,7 +181,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
             }
         }
     }
-}).directive('editable', ['$timeout', function($timeout) {
+}).directive('tmsEditable', ['$timeout', function($timeout) {
     return {
         restrict: 'A',
         scope: {
@@ -191,24 +193,30 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
         },
         templateUrl: '/static/template/editable.html?_=4',
         link: function(scope, elem, attrs) {
-            function whenBlur() {
-                delete scope.focus;
-                if (scope.obj[scope.prop] && scope.obj[scope.prop].length == 0) {
-                    scope.remove();
+            function whenBlur(event) {
+                if (!event.relatedTarget || $(elem).find('.input-group button')[0] !== event.relatedTarget) {
+                    delete scope.focus;
+                    if (scope.obj[scope.prop] !== scope.editing.value) {
+                        scope.obj[scope.prop] = scope.editing.value;
+                        scope.valueChanged();
+                    }
+                    //if (scope.obj[scope.prop] && scope.obj[scope.prop].length === 0) {
+                    //    scope.remove();
+                    //}
                 }
-            };
+            }
 
-            function onBlur() {
+            function onBlur(event) {
                 var phase;
                 phase = scope.$root.$$phase;
                 if (phase === '$digest' || phase === '$apply') {
-                    whenBlur();
+                    whenBlur(event);
                 } else {
                     scope.$apply(function() {
-                        whenBlur();
+                        whenBlur(event);
                     });
                 }
-            };
+            }
             $(elem).on('click', function(event) {
                 delete scope.enter;
                 scope.focus = true;
@@ -223,11 +231,18 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                 scope.$apply();
             });
             scope.valueChanged = function() {
+                scope.obj[scope.prop] = scope.editing.value;
+                delete scope.focus;
                 if (scope.evtPrefix && scope.evtPrefix.length) {
                     scope.$emit(scope.evtPrefix + '.xxt.editable.changed', scope.obj, scope.state);
                 } else {
                     scope.$emit('xxt.editable.changed', scope.obj, scope.state);
                 }
+            };
+            scope.submitChange = function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                scope.valueChanged();
             };
             scope.remove = function(event) {
                 if (event) {
@@ -247,10 +262,12 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
             });
             scope.$watch('focus', function(nv, ov) {
                 if (nv) {
-                    scope.oldVal = scope.obj[scope.prop];
                     $(elem).find('input').on('blur', onBlur).focus();
                 }
             }, true);
+            scope.editing = {
+                value: scope.obj[scope.prop]
+            };
         }
     }
 }]).directive('tmsArrayCheckbox', ['$timeout', '$parse', function($timeout, $parse) {

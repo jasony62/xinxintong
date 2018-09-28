@@ -81,7 +81,7 @@ provider('srvSite', function() {
             openGallery: function(options) {
                 var defer = $q.defer();
                 $uibModal.open({
-                    templateUrl: '/static/template/mattersgallery2.html?_=9',
+                    templateUrl: '/static/template/mattersgallery.html?_=1',
                     controller: ['$scope', '$http', '$uibModalInstance', function($scope, $http, $mi) {
                         var fields = ['id', 'title'];
                         $scope.filter = {};

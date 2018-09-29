@@ -743,10 +743,12 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                     oNewRule = {
                                         pattern: 'period',
                                         period: 'D',
-                                        hour: 8
+                                        hour: 8,
+                                        end_hour: 23
                                     };
                                     byPeriods.push(oNewRule);
                                     aCronRules.push(oNewRule);
+                                    $scope.example(oNewRule);
                                 };
                                 $scope.removePeriod = function(rule) {
                                     byPeriods.splice(byPeriods.indexOf(rule), 1);

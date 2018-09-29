@@ -185,10 +185,25 @@ trait Round {
 		} else if ($oRule->period === 'D' && isset($oRule->hour) && strlen($oRule->hour)) {
 			/* 每天指定时间 */
 			if ($hour < (int) $oRule->hour) {
-				/* 在上个月的指定时间 */
+				/* 前一天的指定时间 */
 				$mday--;
+				if ($wday === (int) 0) {
+					$wday = 6;
+				} else {
+					$wday--;
+				}
 			}
 			$hour = (int) $oRule->hour;
+			if (isset($oRule->notweekend) && $oRule->notweekend === true) {
+				/* 不包含周六、日 */
+				if ($wday === (int) 0) {
+					$mday -= 2;
+					$wday = 5;
+				} else if ($wday === (int) 6) {
+					$mday--;
+					$wday = 5;
+				}
+			}
 			$end_hour = empty($oRule->end_hour) ? 0 : (int) $oRule->end_hour;
 			if ($hour >= $end_hour) {
 				$end_mday = $mday + 1;

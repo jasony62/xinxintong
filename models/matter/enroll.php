@@ -641,7 +641,8 @@ class enroll_model extends enroll_base {
 					$oScenarioConfig->{$k} = $v;
 				}
 			}
-			$oNewApp->scenario_config = json_encode($oScenarioConfig);
+		} else {
+			$oScenarioConfig = new \stdClass;
 		}
 		$oNewApp->scenario = $scenario;
 
@@ -649,29 +650,29 @@ class enroll_model extends enroll_base {
 		$oNewApp->id = $appId;
 		$oNewApp->siteid = $oSite->id;
 		$oProto = isset($oCustomConfig->proto) ? $oCustomConfig->proto : null;
-		$oNewApp->title = empty($oProto->title) ? '新登记活动' : $this->escape($oProto->title);
+		$oNewApp->title = empty($oProto->title) ? '新记录活动' : $this->escape($oProto->title);
 		$oNewApp->summary = empty($oProto->summary) ? '' : $this->escape($oProto->summary);
 		$oNewApp->sync_mission_round = empty($oProto->sync_mission_round) ? 'N' : (in_array($oProto->sync_mission_round, ['Y', 'N']) ? $oProto->sync_mission_round : 'N');
 		$oNewApp->enroll_app_id = empty($oProto->enrollApp->id) ? '' : $this->escape($oProto->enrollApp->id);
 		$oNewApp->start_at = isset($oProto->start_at) ? $oProto->start_at : 0;
 		$oNewApp->end_at = isset($oProto->end_at) ? $oProto->end_at : 0;
-		$oNewApp->can_siteuser = 'Y';
 		/* 是否开放共享页 */
-		if (isset($oProto->can_repos) && in_array($oProto->can_repos, ['Y', 'N'])) {
-			$oNewApp->can_repos = $oProto->can_repos;
+		if (isset($oProto->scenarioConfig->can_repos) && in_array($oProto->scenarioConfig->can_repos, ['Y', 'N'])) {
+			$oScenarioConfig->can_repos = $oProto->scenarioConfig->can_repos;
 		} else if (isset($oTemplateConfig->can_repos)) {
-			$oNewApp->can_repos = $oTemplateConfig->can_repos;
+			$oScenarioConfig->can_repos = $oTemplateConfig->can_repos;
 		} else {
-			$oNewApp->can_repos = 'N';
+			$oScenarioConfig->can_repos = 'N';
 		}
 		/* 是否开放排行榜 */
-		if (isset($oProto->can_rank) && in_array($oProto->can_rank, ['Y', 'N'])) {
-			$oNewApp->can_rank = $oProto->can_rank;
+		if (isset($oProto->scenarioConfig->can_rank) && in_array($oProto->scenarioConfig->can_rank, ['Y', 'N'])) {
+			$oScenarioConfig->can_rank = $oProto->scenarioConfig->can_rank;
 		} else if (isset($oTemplateConfig->can_rank)) {
-			$oNewApp->can_rank = $oTemplateConfig->can_rank;
+			$oScenarioConfig->can_rank = $oTemplateConfig->can_rank;
 		} else {
-			$oNewApp->can_rank = 'N';
+			$oScenarioConfig->can_rank = 'N';
 		}
+		$oNewApp->scenario_config = json_encode($oScenarioConfig);
 
 		/*任务码*/
 		$entryUrl = $this->getOpUrl($oSite->id, $appId);

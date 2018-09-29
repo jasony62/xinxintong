@@ -280,7 +280,6 @@ class main extends main_base {
 		$oNewApp->scenario_config = json_encode($oCopied->scenarioConfig);
 		$oNewApp->count_limit = $oCopied->count_limit;
 		$oNewApp->enrolled_entry_page = $oCopied->enrolled_entry_page;
-		$oNewApp->can_siteuser = 'Y';
 		$oNewApp->entry_rule = json_encode($oNewEntryRule);
 		$oNewApp->data_schemas = $modelApp->escape($modelApp->toJson($aDataSchemas));
 		$oNewApp->group_app_id = $oCopied->group_app_id;
@@ -564,7 +563,6 @@ class main extends main_base {
 		$oNewApp->enrolled_entry_page = $template->enrolled_entry_page;
 		$oNewApp->template_id = $template->id;
 		$oNewApp->template_version = $template->version;
-		$oNewApp->can_siteuser = 'Y';
 		/* 进入规则 */
 		$oEntryRule = new \stdClass;
 		$oEntryRule->scope = new \stdClass;
@@ -685,7 +683,6 @@ class main extends main_base {
 		$oNewApp->title = empty($oCustomConfig->proto->title) ? '新登记活动' : $oCustomConfig->proto->title;
 		$oNewApp->start_at = $current;
 		$oNewApp->entry_rule = json_encode($entryRule);
-		$oNewApp->can_siteuser = 'Y';
 		isset($config) && $oNewApp->data_schemas = \TMS_MODEL::toJson($config->schema);
 
 		$oNewApp = $modelApp->create($oUser, $oNewApp);
@@ -782,7 +779,6 @@ class main extends main_base {
 		$oNewApp->title = $modelApp->escape($oMission->title) . '-计分活动';
 		$oNewApp->start_at = $current;
 		$oNewApp->entry_rule = json_encode($entryRule);
-		$oNewApp->can_siteuser = 'Y';
 		$oNewApp->data_schemas = $modelApp->escape($modelApp->toJson($newSchemas));
 
 		$oNewApp = $modelApp->create($oUser, $oNewApp);
@@ -1026,7 +1022,6 @@ class main extends main_base {
 		$oNewApp->title = $modelApp->escape($title);
 		$oNewApp->start_at = $current;
 		$oNewApp->entry_rule = json_encode($entryRule);
-		$oNewApp->can_siteuser = 'Y';
 		$oNewApp->data_schemas = \TMS_MODEL::toJson($record);
 
 		$oNewApp = $modelApp->create($oUser, $oNewApp);

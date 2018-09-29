@@ -397,7 +397,7 @@ class record extends base {
 			/**
 			 * 检查提交人
 			 */
-			if (empty($oApp->can_cowork) || $oApp->can_cowork === 'N') {
+			if (empty($oApp->scenarioConfig->can_cowork) || $oApp->scenarioConfig->can_cowork === 'N') {
 				if ($oRecord = $modelRec->byId($ek, ['fields' => 'userid'])) {
 					if ($oRecord->userid !== $oUser->uid) {
 						return [false, ['不允许修改其他用户提交的数据']];

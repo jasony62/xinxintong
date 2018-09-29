@@ -49,7 +49,7 @@
                 <li class='status' ng-if="app.enroll_app_id">已经和登记活动【<span ng-bind="app.enrollApp.title"></span>】关联</li>
                 <li class='status' ng-if="!app.group_app_id">未指定关联的分组数据 <span class='glyphicon glyphicon-question-sign' uib-tooltip='指定关联分组活动和关联题目后，关联题目填写的内容必须在关联的分组活动中有对应记录'></span></li>
                 <li class='status' ng-if="app.group_app_id">已经和分组活动【<span ng-bind="app.groupApp.title"></span>】关联</li>
-                <li class='status'>填写人可以查看其他人填写的数据 <span class='glyphicon' ng-class="status.page.repos==='Y'||app.can_repos==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span>，可以查看的题目有<span ng-bind="status.schema.shareable"></span>道 <span class='glyphicon glyphicon-question-sign' uib-tooltip='在活动【描述】中设置【开放共享页】，或者在页面中添加导航到【共享数据页】的【页面导航】按钮，用户可以在共享数据页中查看所有用户提交的共享题目内容'></span></li>
+                <li class='status'>填写人可以查看其他人填写的数据 <span class='glyphicon' ng-class="status.page.repos==='Y'||app.scenarioConfig.can_repos==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span>，可以查看的题目有<span ng-bind="status.schema.shareable"></span>道 <span class='glyphicon glyphicon-question-sign' uib-tooltip='在活动【描述】中设置【开放共享页】，或者在页面中添加导航到【共享数据页】的【页面导航】按钮，用户可以在共享数据页中查看所有用户提交的共享题目内容'></span></li>
             </ul>
         </div>
     </div>
@@ -62,7 +62,7 @@
                 <li class='status'>填写过再次进入活动，打开【<span ng-bind='status.page.whenEnrolled.title'></span>】</li>
                 <li class='status'>允许填写人删除提交后的数据 <span class='glyphicon' ng-class="status.page.removeRecord==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span></li>
                 <li class='status'>填写人可以查看填写的历史记录 <span class='glyphicon' ng-class="status.page.browseHistory==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span> <span class='glyphicon glyphicon-question-sign' uib-tooltip='制作【列表页】，添加【记录列表】，可以查看填写历史记录'></span></li>
-                <li class='status'>填写人可以查看其他人填写的数据 <span class='glyphicon' ng-class="status.page.repos==='Y'||app.can_repos==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span>，可以查看的题目有<span ng-bind="status.schema.shareable"></span>道 <span class='glyphicon glyphicon-question-sign' uib-tooltip='在活动【描述】中设置【开放共享页】，或者在页面中添加导航到【共享数据页】的【页面导航】按钮，用户可以在共享数据页中查看所有用户提交的共享题目内容'></span></li>
+                <li class='status'>填写人可以查看其他人填写的数据 <span class='glyphicon' ng-class="status.page.repos==='Y'||app.scenarioConfig.can_repos==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span>，可以查看的题目有<span ng-bind="status.schema.shareable"></span>道 <span class='glyphicon glyphicon-question-sign' uib-tooltip='在活动【描述】中设置【开放共享页】，或者在页面中添加导航到【共享数据页】的【页面导航】按钮，用户可以在共享数据页中查看所有用户提交的共享题目内容'></span></li>
                 <li class='status'>查看填写数据排行榜 <span class='glyphicon' ng-class="status.page.rank==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span> <span class='glyphicon glyphicon-question-sign' uib-tooltip='排行页面可以对填写人、填写内容、留言内容按照获得的留言数、赞同数等排序显示'></span></li>
             </ul>
         </div>

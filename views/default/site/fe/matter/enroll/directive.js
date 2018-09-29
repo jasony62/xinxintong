@@ -40,7 +40,7 @@ ngMod.directive('tmsAppNav', ['$templateCache', function($templateCache) {
             navs: '=appNavs',
             noticeCount: '=noticeCount'
         },
-        template: "<span><span ng-if=\"!navs\"><span ng-transclude></span></span><span ng-if=\"navs\" uib-popover-template=\"'appNavTemplate.html'\" popover-placement=\"bottom\" popover-trigger=\"'outsideClick'\"><span ng-transclude></span><span class='notice-count' ng-if=\"noticeCount\" ng-bind=\"noticeCount\"></span><span class=\"caret\"></span></span></span>",
+        template: "<span><span ng-if=\"!navs||navs.length===0\"><span ng-transclude></span></span><span ng-if=\"navs.length\" uib-popover-template=\"'appNavTemplate.html'\" popover-placement=\"bottom\" popover-trigger=\"'outsideClick'\"><span ng-transclude></span><span class='notice-count' ng-if=\"noticeCount\" ng-bind=\"noticeCount\"></span><span class=\"caret\"></span></span></span>",
         controller: ['$scope', function($scope) {
             $scope.goto = function(event, page) {
                 $scope.$parent.gotoPage(event, page);

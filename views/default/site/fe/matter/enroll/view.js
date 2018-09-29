@@ -67,10 +67,12 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$sce', 'noti
         return $sce.trustAsHtml(label);
     };
     $scope.editRecord = function(event, page) {
-        if ($scope.app.can_cowork && $scope.app.can_cowork !== 'Y') {
-            if ($scope.user.uid !== facRecord.current.userid) {
-                noticebox.warn('不允许修改他人提交的数据');
-                return;
+        if ($scope.app.scenarioConfig) {
+            if ($scope.app.scenarioConfig.can_cowork !== 'Y') {
+                if ($scope.user.uid !== facRecord.current.userid) {
+                    noticebox.warn('不允许修改他人提交的数据');
+                    return;
+                }
             }
         }
         if (!page) {
@@ -251,18 +253,26 @@ ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticeb
             /*页面阅读日志*/
             $scope.logAccess();
             /*设置页面导航*/
-            var oAppNavs = {};
-            if (oApp.can_repos === 'Y') {
-                oAppNavs.repos = {};
-            }
-            if (oApp.can_rank === 'Y') {
-                oAppNavs.rank = {};
-            }
+            var oAppNavs = {
+                length: 0
+            };
             if (oApp.scenario === 'voting') {
                 oAppNavs.votes = {};
+                oAppNavs.length++;
             }
-            if (oApp.scenarioConfig && oApp.scenarioConfig.can_action === 'Y') {
-                oAppNavs.event = {};
+            if (oApp.scenarioConfig) {
+                if (oApp.scenarioConfig.can_repos === 'Y') {
+                    oAppNavs.repos = {};
+                    oAppNavs.length++;
+                }
+                if (oApp.scenarioConfig.can_rank === 'Y') {
+                    oAppNavs.rank = {};
+                    oAppNavs.length++;
+                }
+                if (oApp.scenarioConfig.can_action === 'Y') {
+                    oAppNavs.event = {};
+                    oAppNavs.length++;
+                }
             }
             if (Object.keys(oAppNavs).length) {
                 $scope.appNavs = oAppNavs;

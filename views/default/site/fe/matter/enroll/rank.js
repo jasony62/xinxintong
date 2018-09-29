@@ -413,12 +413,18 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
             addRecord: {}
         };
         /*设置页面导航*/
-        var oAppNavs = {};
-        if (oApp.can_repos === 'Y') {
-            oAppNavs.repos = {};
-        }
-        if (oApp.scenarioConfig && oApp.scenarioConfig.can_action === 'Y') {
-            oAppNavs.event = {};
+        var oAppNavs = {
+            length: 0
+        };
+        if (oApp.scenarioConfig) {
+            if (oApp.scenarioConfig.can_repos === 'Y') {
+                oAppNavs.repos = {};
+                oAppNavs.length++;
+            }
+            if (oApp.scenarioConfig.can_action === 'Y') {
+                oAppNavs.event = {};
+                oAppNavs.length++;
+            }
         }
         if (Object.keys(oAppNavs).length) {
             $scope.appNavs = oAppNavs;

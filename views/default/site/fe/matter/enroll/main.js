@@ -317,15 +317,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
                 $scope.page = params.page;
             });
         }
-
-        if (oApp.can_siteuser === 'Y') {
-            $scope.siteUser = function(id) {
-                var url = location.protocol + '//' + location.host;
-                url += '/rest/site/fe/user';
-                url += "?site=" + id;
-                location.href = url;
-            };
-        }
         if (tasksOfOnReady.length) {
             angular.forEach(tasksOfOnReady, execTask);
         }

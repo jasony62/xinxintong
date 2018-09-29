@@ -85,19 +85,15 @@
         <div class='panel-body'>
             <div class='checkbox'>
                 <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_cowork" ng-change="update('can_cowork')"> 允许其他用户修改填写记录</label>
-            </div>
-            <div class='checkbox hide'>
-                <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_siteuser" ng-change="update('can_siteuser')"> 开放用户主页</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.can_cowork" ng-change="update('scenarioConfig')"> 允许其他用户修改填写记录</label>
             </div>
             <div class='checkbox'>
                 <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_repos" ng-change="update('can_repos')"> 开放共享页</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.can_repos" ng-change="update('scenarioConfig')"> 开放共享页</label>
             </div>
             <div class='checkbox'>
                 <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_rank" ng-change="update('can_rank')"> 开放排行页</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.can_rank" ng-change="update('scenarioConfig')"> 开放排行页</label>
             </div>
             <div class='checkbox'>
                 <label>

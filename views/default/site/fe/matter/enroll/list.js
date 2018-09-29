@@ -212,9 +212,8 @@ ngApp.controller('ctrlRecords', ['$scope', '$uibModal', 'Record', 'tmsLocation',
     });
 }]);
 ngApp.controller('ctrlList', ['$scope', function($scope) {
-    var oApp;
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        oApp = params.app;
+        var oApp = params.app;
         /*设置页面分享信息*/
         $scope.setSnsShare();
         /*页面阅读日志*/
@@ -224,15 +223,22 @@ ngApp.controller('ctrlList', ['$scope', function($scope) {
             addRecord: {}
         };
         /*设置页面导航*/
-        var oAppNavs = {};
-        if (oApp.can_repos === 'Y') {
-            oAppNavs.repos = {};
-        }
-        if (oApp.can_rank === 'Y') {
-            oAppNavs.rank = {};
-        }
-        if (oApp.scenarioConfig && oApp.scenarioConfig.can_action === 'Y') {
-            oAppNavs.event = {};
+        var oAppNavs = {
+            length: 1
+        };
+        if (oApp.scenarioConfig.scenarioConfig) {
+            if (oApp.scenarioConfig.can_repos === 'Y') {
+                oAppNavs.repos = {};
+                oAppNavs.length++;
+            }
+            if (oApp.scenarioConfig.can_rank === 'Y') {
+                oAppNavs.rank = {};
+                oAppNavs.length++;
+            }
+            if (oApp.scenarioConfig.can_action === 'Y') {
+                oAppNavs.event = {};
+                oAppNavs.length++;
+            }
         }
         if (Object.keys(oAppNavs)) {
             $scope.appNavs = oAppNavs;

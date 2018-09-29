@@ -85,7 +85,7 @@
             <div class='records col-xs-12' ng-class="{'col-md-9':dirSchemas.length,'col-md-12':dirSchemas.length===0}">
                 <div id='filterCriteria'>
                     <div class='input-group'>
-                        <input class='form-control' ng-model='criteria.keyword' placeholder='输入搜索关键字' ng-click="flag=!flag">
+                        <input class='form-control' ng-model='criteria.keyword' placeholder='输入搜索关键字' ng-click="toggleHistory('open', $event)">
                         <div class='input-group-btn'>
                             <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';recordList(1)"><span class='glyphicon glyphicon-remove'></span></button>
                             <button class='btn btn-default' ng-click="recordList(1)"><span class='glyphicon glyphicon-search'></span></button>
@@ -96,6 +96,7 @@
                     </div>
                     <ul class="history-panel" ng-if="historyRecords.length" ng-show="flag">
                         <li class="history-item" ng-repeat="record in historyRecords" ng-click="chooseHistoryRecord(record)">{{record}}</li>
+                        <li class="history-item history-close" ng-click="toggleHistory('close', $event)">关闭</li>
                     </ul>
                 </div>
                 <div id='filterQuick' ng-cloak>

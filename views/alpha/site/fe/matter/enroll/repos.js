@@ -84,6 +84,11 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         $scope.recordList(1);
         $scope.flag = false;
     }
+    $scope.toggleHistory = function(isOpen, event) {
+        event.preventDefault();
+        event.stopPropagation();
+        $scope.flag = isOpen == 'open'? true : false;
+    }
     $scope.recordList = function(pageAt) {
         var url, deferred;
         deferred = $q.defer();

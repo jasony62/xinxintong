@@ -744,7 +744,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                         pattern: 'period',
                                         period: 'D',
                                         hour: 8,
-                                        end_hour: 23
+                                        end_hour: 23,
+                                        notweekend: true
                                     };
                                     byPeriods.push(oNewRule);
                                     aCronRules.push(oNewRule);

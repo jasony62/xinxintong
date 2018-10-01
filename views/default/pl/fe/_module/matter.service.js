@@ -948,25 +948,68 @@ controller('ctrlStat', ['$scope', 'http2', '$uibModal', '$compile', function($sc
     });
 }]).
 /**
+ * 轮次生成规则
+ */
+service('tkRoundCron', ['$q', '$uibModal', 'http2', function($q, $uibModal, http2) {
+    this.choose = function(oMatter) {
+        var defer = $q.defer();
+        if (!oMatter.roundCron || oMatter.roundCron.length === 0) {
+            defer.reject();
+        } else {
+            $uibModal.open({
+                templateUrl: '/views/default/pl/fe/_module/chooseRoundCron.html?_=1',
+                controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
+                    $scope.roundCron = oMatter.roundCron;
+                    $scope.data = {};
+                    if ($scope.roundCron && $scope.roundCron.length) {
+                        $scope.data.chosen = $scope.roundCron[0];
+                    }
+                    $scope.cancel = function() { $mi.dismiss(); };
+                    $scope.ok = function() {
+                        $mi.close($scope.data.chosen);
+                    };
+                }],
+            }).result.then(function(oRule) {
+                defer.resolve(oRule);
+            });
+        }
+        return defer.promise;
+    };
+}]).
+/**
  * 定时通知
  */
-service('srvTimerNotice', ['$rootScope', '$q', 'http2', function($rootScope, $q, http2) {
+service('srvTimerNotice', ['$rootScope', '$parse', '$q', '$timeout', 'http2', 'tkRoundCron', function($rootScope, $parse, $q, $timeout, http2, tkRoundCron) {
     function fnDbToLocal(oDb, oLocal) {
-        ['pattern', 'task_expire_at', 'task_model', 'enabled', 'notweekend'].forEach(function(prop) {
+        ['pattern', 'task_expire_at', 'task_model', 'enabled', 'notweekend', 'offset_matter_type', 'offset_matter_id', 'offset_mode'].forEach(function(prop) {
             oLocal.task[prop] = oDb[prop];
         });
-        ['min', 'hour', 'wday', 'mday', 'mon', 'left_count'].forEach(function(prop) {
+        ['min', 'hour', 'wday', 'mday', 'mon', 'offset_min', 'offset_hour'].forEach(function(prop) {
             oLocal.task[prop] = '' + oDb[prop];
         });
         oLocal.task.task_arguments = oDb.task_arguments ? oDb.task_arguments : { page: '' };
     }
 
-    function fnAppendLocal(oDbTimer) {
+    function fnAppendLocal(oDbTimer, oMatter) {
         var oLocalTimer;
         oLocalTimer = {
             id: oDbTimer.id,
             task: {}
         };
+        if (oMatter) {
+            oLocalTimer.matter = oMatter;
+            /* 参照轮次规则 */
+            if (oDbTimer.offset_matter_type === 'RC' && oDbTimer.offset_matter_id) {
+                if (oMatter.roundCron && oMatter.roundCron.length) {
+                    for (var i = 0, ii = oMatter.roundCron.length; i < ii; i++) {
+                        if (oMatter.roundCron[i].id === oDbTimer.offset_matter_id) {
+                            $parse('surface.offset.matter').assign(oLocalTimer, { name: oMatter.roundCron[i].name })
+                            break;
+                        }
+                    }
+                }
+            }
+        }
         fnDbToLocal(oDbTimer, oLocalTimer);
         oWatcher['t_' + oLocalTimer.id] = oLocalTimer;
         $scope.$watch('watcher.t_' + oLocalTimer.id, function(oUpdTask, oOldTask) {
@@ -993,7 +1036,7 @@ service('srvTimerNotice', ['$rootScope', '$q', 'http2', function($rootScope, $q,
         if (oArgs) oConfig.task.arguments = oArgs;
         http2.post('/rest/pl/fe/matter/timer/create', oConfig).then(function(rsp) {
             var oNewTimer;
-            oNewTimer = fnAppendLocal(rsp.data);
+            oNewTimer = fnAppendLocal(rsp.data, oMatter);
             timers.push(oNewTimer);
         });
     };
@@ -1008,7 +1051,9 @@ service('srvTimerNotice', ['$rootScope', '$q', 'http2', function($rootScope, $q,
                 } else {
                     http2.post('/rest/pl/fe/matter/timer/update?id=' + oTimer.id, oTimer.task).then(function(rsp) {
                         fnDbToLocal(rsp.data, oTimer);
-                        oTimer.modified = false;
+                        $timeout(function() {
+                            oTimer.modified = false;
+                        });
                     });
                 }
             }
@@ -1016,7 +1061,9 @@ service('srvTimerNotice', ['$rootScope', '$q', 'http2', function($rootScope, $q,
         } else {
             http2.post('/rest/pl/fe/matter/timer/update?id=' + oTimer.id, oTimer.task).then(function(rsp) {
                 fnDbToLocal(rsp.data, oTimer);
-                oTimer.modified = false;
+                $timeout(function() {
+                    oTimer.modified = false;
+                });
             });
         }
     };
@@ -1034,6 +1081,15 @@ service('srvTimerNotice', ['$rootScope', '$q', 'http2', function($rootScope, $q,
             });
         }
     };
+    /* 设置偏移的素材 */
+    this.setOffsetMatter = function(oTimer) {
+        if (oTimer.task.offset_matter_type === 'RC') {
+            tkRoundCron.choose(oTimer.matter).then(function(oRule) {
+                oTimer.task.offset_matter_id = oRule.id;
+                $parse('surface.offset.matter').assign(oTimer, { name: oRule.name })
+            });
+        }
+    };
     /* 根据id获得定时任务 */
     this.timerById = function(id) {
         return oWatcher[id];
@@ -1045,7 +1101,7 @@ service('srvTimerNotice', ['$rootScope', '$q', 'http2', function($rootScope, $q,
             var timers = [];
             rsp.data.forEach(function(oTask) {
                 var oNewTimer;
-                oNewTimer = fnAppendLocal(oTask);
+                oNewTimer = fnAppendLocal(oTask, oMatter);
                 timers.push(oNewTimer);
             });
             defer.resolve(timers);

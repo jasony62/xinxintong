@@ -125,7 +125,7 @@ define(['frame'], function(ngApp) {
                     oOneTask.state = 'Y';
                     oOneTask.taskId = rsp.data.id;
                     oOneTask.task = {};
-                    ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'left_count', 'task_expire_at', 'enabled', 'notweekend'].forEach(function(prop) {
+                    ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'task_expire_at', 'enabled', 'notweekend'].forEach(function(prop) {
                         oOneTask.task[prop] = '' + rsp.data[prop];
                     });
                     $scope.$watch('timerTask.' + model, function(oUpdTask, oOldTask) {
@@ -149,7 +149,7 @@ define(['frame'], function(ngApp) {
             oOneTask = _oTimerTask[model];
             if (oOneTask.state === 'Y') {
                 http2.post('/rest/pl/fe/matter/timer/update?site=' + _oApp.siteid + '&id=' + oOneTask.taskId, oOneTask.task).then(function(rsp) {
-                    ['min', 'hour', 'wday', 'mday', 'mon', 'left_count'].forEach(function(prop) {
+                    ['min', 'hour', 'wday', 'mday', 'mon'].forEach(function(prop) {
                         oOneTask.task[prop] = '' + rsp.data[prop];
                     });
                     oOneTask.modified = false;
@@ -163,7 +163,7 @@ define(['frame'], function(ngApp) {
                     _oTimerTask[oTask.task_model].state = 'Y';
                     _oTimerTask[oTask.task_model].taskId = oTask.id;
                     _oTimerTask[oTask.task_model].task = {};
-                    ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'left_count', 'task_expire_at', 'enabled', 'notweekend'].forEach(function(prop) {
+                    ['pattern', 'min', 'hour', 'wday', 'mday', 'mon', 'task_expire_at', 'enabled', 'notweekend'].forEach(function(prop) {
                         _oTimerTask[oTask.task_model].task[prop] = oTask[prop];
                     });
                     $scope.$watch('timerTask.' + oTask.task_model, function(oUpdTask, oOldTask) {

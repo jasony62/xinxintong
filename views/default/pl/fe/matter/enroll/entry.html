@@ -158,9 +158,7 @@
     <div class='panel panel-default' ng-controller="ctrlTaskRemind">
         <div class='panel-body'>
             <div class='form-group'>
-                <p>
-                    <i class="glyphicon glyphicon-bell"></i> <span>任务提醒</span>
-                </p>
+                <p><i class="glyphicon glyphicon-bell"></i> <span>任务提醒</span></p>
             </div>
             <!--begin timer-->
             <div class='timer' ng-repeat="timer in timers">
@@ -211,6 +209,64 @@
             <!--end timer-->
             <div>
                 <button class='btn btn-default' ng-click="srvTimer.add(app,timers,'remind',{page:'',receiver:{scope:'enroll'}})">添加定时发送规则</button>
+            </div>
+            <div ng-if="timers.length">
+                <hr>
+                <a href ng-click="switchTo('notice')">查看通知发送日志</a>
+            </div>
+        </div>
+    </div>
+    <div class='panel panel-default' ng-controller="ctrlAbsentRemind">
+        <div class='panel-body'>
+            <div class='form-group'>
+                <p><i class="glyphicon glyphicon-bell"></i> 事件提醒【未完成任务】</p>
+            </div>
+            <!--begin timer-->
+            <div class='timer' ng-repeat="timer in timers">
+                <div tms-array-checkbox model="timer.task.task_arguments.receiver.scope">
+                    <div class='checkbox'>
+                        <label>
+                            <input type='checkbox' value='user'>未完成任务的用户
+                        </label>
+                    </div>
+                    <div class='checkbox' ng-if="app.entryRule.group.id">
+                        <label>
+                            <input type='checkbox' value='leader'>用户在分组活动【<span ng-bind="app.entryRule.group.title"></span>】所属分组的组长
+                        </label>
+                    </div>
+                    <div class='checkbox'>
+                        <label class='checkbox-inline'>
+                            <input type='checkbox' value='group'><span>指定分组活动和分组</span>&nbsp;<a ng-if="timer.task.task_arguments.receiver.scope&&timer.task.task_arguments.receiver.scope.indexOf('group')!==-1" ng-click="assignGroup(timer)">指定</a>
+                        </label>
+                    </div>
+                </div>
+                <div class='form-group' ng-if="timer.task.task_arguments.receiver.scope.indexOf('group')!==-1">
+                    <div class='row'>
+                        <div class='col-md-7'>
+                            <div class='pl-input-group'>
+                                <div class='form-control pl-line' ng-bind="timer.task.task_arguments.receiver.group.title"></div>
+                                <a class='btn btn-default' ng-href="/rest/pl/fe/matter/group?site={{app.siteid}}&id={{timer.task.task_arguments.receiver.group.id}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                            </div>
+                        </div>
+                        <div class='col-md-5'>
+                            <div class='pl-input-group'>
+                                <div class='form-control pl-line' ng-bind="timer.task.task_arguments.receiver.group.round.title"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class='radio-inline'>
+                        <input type='radio' value='start' ng-model="timer.task.task_arguments.offset">填写轮次开始时间后</label>
+                    <label class='radio-inline'>
+                        <input type='radio' value='end' ng-model="timer.task.task_arguments.offset">填写轮次结束时间前</label>
+                </div>
+                <div ng-include="'/views/default/pl/fe/_module/timerNotice.html'"></div>
+                <hr>
+            </div>
+            <!--end timer-->
+            <div>
+                <button class='btn btn-default' ng-click="srvTimer.add(app,timers,'absent',{receiver:{scope:['user']}})">添加定时发送规则</button>
             </div>
             <div ng-if="timers.length">
                 <hr>

@@ -529,7 +529,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _siteId = siteId;
             _appId = appId;
         };
-        this.$get = ['$q', '$uibModal', 'http2', 'srvEnrollApp', function($q, $uibModal, http2, srvEnrollApp) {
+        this.$get = ['$q', '$uibModal', 'http2', 'srvEnrollApp', 'tkEnrollApp', function($q, $uibModal, http2, srvEnrollApp, tkEnrollApp) {
             return {
                 RoundState: RoundState,
                 init: function(rounds, page) {
@@ -783,9 +783,9 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             aCronRules.forEach(function(oRule) {
                                 delete oRule.case;
                             });
-                            oApp.roundCron = aCronRules;
-                            srvEnrollApp.update('roundCron').then(function() {
-                                defer.resolve(aCronRules);
+                            tkEnrollApp.update(oApp, { roundCron: aCronRules }).then(function(oNewApp) {
+                                http2.merge(oApp.roundCron, oNewApp.roundCron);
+                                defer.resolve(oApp.roundCron);
                             });
                         });
                     });

@@ -25,14 +25,9 @@ class timer extends base {
 				'result' => $rsp[0] ? 'true' : (is_string($rsp[1]) ? $rsp[1] : $modelTim->toJson($rsp[1])),
 			];
 			$modelTim->insert('xxt_log_timer', $oLog, true);
-
 			/* 更新任务状态 */
 			if (false == $rsp[0]) {
-				$modelTim->update('update xxt_timer_task set enabled=\'N\' where id=' . $oTask->id);
-			} else {
-				if (isset($oTask->left_count) && $oTask->left_count > 0) {
-					$modelTim->update('update xxt_timer_task set left_count=left_count-1 where id=' . $oTask->id);
-				}
+				$modelTim->update('xxt_timer_task', ['enabled' => 'N'], ['id' => $oTask->id]);
 			}
 		}
 

@@ -273,4 +273,107 @@ trait Round {
 
 		return [$startAt, $endAt];
 	}
+	/**
+	 * 检查传入的定时规则
+	 *
+	 * @param object $rules
+	 */
+	public function checkCron(&$rules) {
+		foreach ($rules as $oRule) {
+			if ($oRule->pattern === 'period') {
+				switch ($oRule->period) {
+				//1-28 日期
+				case 'M':
+					if (empty($oRule->mday)) {return [false, '请设置定时轮次每月的开始日期！'];}
+					if (empty($oRule->end_mday)) {return [false, '请设置定时轮次每月的结束日期！'];}
+					if (empty($oRule->hour)) {return [false, '请设置定时轮次每月开始日期的几点开始！'];}
+					break;
+				// 0-6 周几
+				case 'W':
+					if (!isset($oRule->wday)) {return [false, '请设置定时轮次每周几开始！'];}
+					if (!isset($oRule->end_wday)) {return [false, '请设置定时轮次每周几结束！'];}
+					if (empty($oRule->hour)) {return [false, '请设置定时轮次每周几的几点开始！'];}
+					break;
+				// 0-23 几点
+				default:
+					if (empty($oRule->hour)) {return [false, '请设置定时轮次每天的几点开始！'];}
+					break;
+				}
+			} else if ($oRule->pattern === 'interval') {
+
+			}
+			if (!isset($oRule->id)) {
+				$oRule->id = uniqid();
+			}
+			$oRule->name = $this->readableCronName($oRule);
+		}
+
+		return [true];
+	}
+	/**
+	 * 生成规则的名称
+	 */
+	public function readableCronName($oRule) {
+		$WeekdayZh = ['日', '一', '二', '三', '四', '五', '六'];
+		$name = '';
+		if ($oRule->pattern === 'period') {
+			switch ($oRule->period) {
+			//1-28 日期
+			case 'M':
+				if (isset($oRule->mday)) {
+					$name = '每月' . $oRule->mday . '号';
+					if (isset($oRule->hour)) {
+						$name .= $oRule->hour . '点开始';
+						if (isset($oRule->end_mday)) {
+							if ($oRule->end_mday !== $oRule->mday) {
+								$name .= '，每月' . $oRule->end_mday . '号';
+								if (isset($oRule->end_hour) && $oRule->end_hour > 0) {
+									$name .= $oRule->end_hour . '点结束';
+								}
+							} else {
+								if (isset($oRule->end_hour) && $oRule->end_hour > 0) {
+									$name .= $oRule->end_hour . '点结束';
+								}
+							}
+						}
+					}
+				}
+				break;
+			// 0-6 周几
+			case 'W':
+				if (isset($oRule->wday)) {
+					$name = '每周' . $WeekdayZh[$oRule->wday];
+					if (isset($oRule->hour)) {
+						$name .= $oRule->hour . '点开始';
+						if (isset($oRule->end_wday)) {
+							if ($oRule->end_wday !== $oRule->wday) {
+								$name .= '，每周' . $WeekdayZh[$oRule->end_wday];
+								if (isset($oRule->end_hour) && $oRule->end_hour > 0) {
+									$name .= $oRule->end_hour . '点结束';
+								}
+							} else {
+								if (isset($oRule->end_hour) && $oRule->end_hour > 0) {
+									$name .= $oRule->end_hour . '点结束';
+								}
+							}
+						}
+					}
+				}
+				break;
+			// 0-23 几点
+			case 'D':
+				if (isset($oRule->hour)) {
+					$name = '每天' . $oRule->hour . '点开始';
+					if (isset($oRule->end_hour) && $oRule->end_hour > 0) {
+						$name .= '，' . $oRule->end_hour . '点结束';
+					}
+				}
+				break;
+			}
+		} else if ($oRule->pattern === 'interval') {
+
+		}
+
+		return $name;
+	}
 }

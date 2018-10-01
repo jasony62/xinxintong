@@ -1,114 +1,182 @@
 <div class='form-group'>
     <label class='radio-inline'>
-        <input type='radio' value='Y' ng-model="timer.task.pattern"> 每年</label>
+        <input type='radio' value='N' ng-model="timer.task.offset_matter_type"> 固定时间</label>
     <label class='radio-inline'>
-        <input type='radio' value='M' ng-model="timer.task.pattern"> 每月</label>
-    <label class='radio-inline'>
-        <input type='radio' value='W' ng-model="timer.task.pattern"> 每周</label>
+        <input type='radio' value='RC' ng-model="timer.task.offset_matter_type"> 轮次规则相对时间</label>
+    <label class='radio-inline hide'>
+        <input type='radio' value='R' ng-model="timer.task.offset_matter_type"> 参照指定轮次</label>
 </div>
-<div class='form-group'>
-    <div class='form-inline'>
-        <select class='form-control' ng-model="timer.task.mon" ng-if="timer.task.pattern==='Y'">
-            <option value='-1'>每月</option>
-            <option value='1'>1月</option>
-            <option value='2'>2月</option>
-            <option value='3'>3月</option>
-            <option value='4'>4月</option>
-            <option value='5'>5月</option>
-            <option value='6'>6月</option>
-            <option value='7'>7月</option>
-            <option value='8'>8月</option>
-            <option value='9'>9月</option>
-            <option value='10'>10月</option>
-            <option value='11'>11月</option>
-            <option value='12'>12月</option>
-        </select>
-        <select class='form-control' ng-model="timer.task.mday" ng-if="timer.task.pattern==='M'||timer.task.pattern==='Y'">
-            <option value='-1'>每日</option>
-            <option value='1'>1号</option>
-            <option value='2'>2号</option>
-            <option value='3'>3号</option>
-            <option value='4'>4号</option>
-            <option value='5'>5号</option>
-            <option value='6'>6号</option>
-            <option value='7'>7号</option>
-            <option value='8'>8号</option>
-            <option value='9'>9号</option>
-            <option value='10'>10号</option>
-            <option value='11'>11号</option>
-            <option value='12'>12号</option>
-            <option value='13'>13号</option>
-            <option value='14'>14号</option>
-            <option value='15'>15号</option>
-            <option value='16'>16号</option>
-            <option value='17'>17号</option>
-            <option value='18'>18号</option>
-            <option value='19'>19号</option>
-            <option value='20'>20号</option>
-            <option value='21'>21号</option>
-            <option value='22'>22号</option>
-            <option value='23'>23号</option>
-            <option value='24'>24号</option>
-            <option value='25'>25号</option>
-            <option value='26'>26号</option>
-            <option value='27'>27号</option>
-            <option value='28'>28号</option>
-            <option value='29'>29号</option>
-            <option value='30'>30号</option>
-            <option value='31'>31号</option>
-        </select>
-        <select class='form-control' ng-model="timer.task.wday" ng-if="timer.task.pattern==='W'">
-            <option value='-1'>每天</option>
-            <option value='1'>周一</option>
-            <option value='2'>周二</option>
-            <option value='3'>周三</option>
-            <option value='4'>周四</option>
-            <option value='5'>周五</option>
-            <option value='6'>周六</option>
-            <option value='0'>周日</option>
-        </select>
-        <select class='form-control' ng-model="timer.task.hour">
-            <option value='-1'>每小时</option>
-            <option value='0'>0点</option>
-            <option value='1'>1点</option>
-            <option value='2'>2点</option>
-            <option value='3'>3点</option>
-            <option value='4'>4点</option>
-            <option value='5'>5点</option>
-            <option value='6'>6点</option>
-            <option value='7'>7点</option>
-            <option value='8'>8点</option>
-            <option value='9'>9点</option>
-            <option value='10'>10点</option>
-            <option value='11'>11点</option>
-            <option value='12'>12点</option>
-            <option value='13'>13点</option>
-            <option value='14'>14点</option>
-            <option value='15'>15点</option>
-            <option value='16'>16点</option>
-            <option value='17'>17点</option>
-            <option value='18'>18点</option>
-            <option value='19'>19点</option>
-            <option value='20'>20点</option>
-            <option value='21'>21点</option>
-            <option value='22'>22点</option>
-            <option value='23'>23点</option>
-        </select>
-        <select class='form-control' ng-model="timer.task.min">
-            <option value='-1'>每分种</option>
-            <option value='0'>0分</option>
-            <option value='5'>5分</option>
-            <option value='10'>10分</option>
-            <option value='15'>15分</option>
-            <option value='20'>20分</option>
-            <option value='25'>25分</option>
-            <option value='30'>30分</option>
-            <option value='35'>35分</option>
-            <option value='40'>40分</option>
-            <option value='45'>45分</option>
-            <option value='50'>50分</option>
-            <option value='55'>55分</option>
-        </select>
+<div class='form-group' ng-if="timer.task.offset_matter_type!=='N'">
+    <div class='pl-input-group'>
+        <div class='form-control pl-line' ng-bind="timer.surface.offset.matter.name"></div>
+        <button class='btn btn-default' ng-click="srvTimer.setOffsetMatter(timer)"><i class='glyphicon glyphicon-edit'></i></button>
+    </div>
+</div>
+<div>
+    <div class='form-group'>
+        <label class='radio-inline'>
+            <input type='radio' value='Y' ng-model="timer.task.pattern"> 每年</label>
+        <label class='radio-inline'>
+            <input type='radio' value='M' ng-model="timer.task.pattern"> 每月</label>
+        <label class='radio-inline'>
+            <input type='radio' value='W' ng-model="timer.task.pattern"> 每周</label>
+    </div>
+    <div class='form-group'>
+        <div class='form-inline'>
+            <select class='form-control' ng-model="timer.task.mon" ng-if="timer.task.pattern==='Y'">
+                <option value='-1'>每月</option>
+                <option value='1'>1月</option>
+                <option value='2'>2月</option>
+                <option value='3'>3月</option>
+                <option value='4'>4月</option>
+                <option value='5'>5月</option>
+                <option value='6'>6月</option>
+                <option value='7'>7月</option>
+                <option value='8'>8月</option>
+                <option value='9'>9月</option>
+                <option value='10'>10月</option>
+                <option value='11'>11月</option>
+                <option value='12'>12月</option>
+            </select>
+            <select class='form-control' ng-model="timer.task.mday" ng-if="timer.task.pattern==='M'||timer.task.pattern==='Y'">
+                <option value='-1'>每日</option>
+                <option value='1'>1号</option>
+                <option value='2'>2号</option>
+                <option value='3'>3号</option>
+                <option value='4'>4号</option>
+                <option value='5'>5号</option>
+                <option value='6'>6号</option>
+                <option value='7'>7号</option>
+                <option value='8'>8号</option>
+                <option value='9'>9号</option>
+                <option value='10'>10号</option>
+                <option value='11'>11号</option>
+                <option value='12'>12号</option>
+                <option value='13'>13号</option>
+                <option value='14'>14号</option>
+                <option value='15'>15号</option>
+                <option value='16'>16号</option>
+                <option value='17'>17号</option>
+                <option value='18'>18号</option>
+                <option value='19'>19号</option>
+                <option value='20'>20号</option>
+                <option value='21'>21号</option>
+                <option value='22'>22号</option>
+                <option value='23'>23号</option>
+                <option value='24'>24号</option>
+                <option value='25'>25号</option>
+                <option value='26'>26号</option>
+                <option value='27'>27号</option>
+                <option value='28'>28号</option>
+                <option value='29'>29号</option>
+                <option value='30'>30号</option>
+                <option value='31'>31号</option>
+            </select>
+            <select class='form-control' ng-model="timer.task.wday" ng-if="timer.task.pattern==='W'">
+                <option value='-1'>每天</option>
+                <option value='1'>周一</option>
+                <option value='2'>周二</option>
+                <option value='3'>周三</option>
+                <option value='4'>周四</option>
+                <option value='5'>周五</option>
+                <option value='6'>周六</option>
+                <option value='0'>周日</option>
+            </select>
+            <select class='form-control' ng-model="timer.task.hour">
+                <option value='-1'>每小时</option>
+                <option value='0'>0点</option>
+                <option value='1'>1点</option>
+                <option value='2'>2点</option>
+                <option value='3'>3点</option>
+                <option value='4'>4点</option>
+                <option value='5'>5点</option>
+                <option value='6'>6点</option>
+                <option value='7'>7点</option>
+                <option value='8'>8点</option>
+                <option value='9'>9点</option>
+                <option value='10'>10点</option>
+                <option value='11'>11点</option>
+                <option value='12'>12点</option>
+                <option value='13'>13点</option>
+                <option value='14'>14点</option>
+                <option value='15'>15点</option>
+                <option value='16'>16点</option>
+                <option value='17'>17点</option>
+                <option value='18'>18点</option>
+                <option value='19'>19点</option>
+                <option value='20'>20点</option>
+                <option value='21'>21点</option>
+                <option value='22'>22点</option>
+                <option value='23'>23点</option>
+            </select>
+            <select class='form-control' ng-model="timer.task.min">
+                <option value='-1'>每分种</option>
+                <option value='0'>0分</option>
+                <option value='5'>5分</option>
+                <option value='10'>10分</option>
+                <option value='15'>15分</option>
+                <option value='20'>20分</option>
+                <option value='25'>25分</option>
+                <option value='30'>30分</option>
+                <option value='35'>35分</option>
+                <option value='40'>40分</option>
+                <option value='45'>45分</option>
+                <option value='50'>50分</option>
+                <option value='55'>55分</option>
+            </select>
+        </div>
+    </div>
+</div>
+<div ng-if="timer.task.offset_matter_type!=='N'">
+    <div class='form-group'>
+        <label class='radio-inline'>
+            <input type='radio' value='AS' ng-model="timer.task.offset_mode"> 开始时间之后</label>
+        <label class='radio-inline'>
+            <input type='radio' value='BE' ng-model="timer.task.offset_mode"> 结束时间之前</label>
+    </div>
+    <div class='form-group'>
+        <div class='form-inline'>
+            <select class='form-control' ng-model="timer.task.offset_hour">
+                <option value='0'>0小时</option>
+                <option value='1'>1小时</option>
+                <option value='2'>2小时</option>
+                <option value='3'>3小时</option>
+                <option value='4'>4小时</option>
+                <option value='5'>5小时</option>
+                <option value='6'>6小时</option>
+                <option value='7'>7小时</option>
+                <option value='8'>8小时</option>
+                <option value='9'>9小时</option>
+                <option value='10'>10小时</option>
+                <option value='11'>11小时</option>
+                <option value='12'>12小时</option>
+                <option value='13'>13小时</option>
+                <option value='14'>14小时</option>
+                <option value='15'>15小时</option>
+                <option value='16'>16小时</option>
+                <option value='17'>17小时</option>
+                <option value='18'>18小时</option>
+                <option value='19'>19小时</option>
+                <option value='20'>20小时</option>
+                <option value='21'>21小时</option>
+                <option value='22'>22小时</option>
+                <option value='23'>23小时</option>
+            </select>
+            <select class='form-control' ng-model="timer.task.offset_min">
+                <option value='0'>0分钟</option>
+                <option value='5'>5分钟</option>
+                <option value='10'>10分钟</option>
+                <option value='15'>15分钟</option>
+                <option value='20'>20分钟</option>
+                <option value='25'>25分钟</option>
+                <option value='30'>30分钟</option>
+                <option value='35'>35分钟</option>
+                <option value='40'>40分钟</option>
+                <option value='45'>45分钟</option>
+                <option value='50'>50分钟</option>
+                <option value='55'>55分钟</option>
+            </select>
+        </div>
     </div>
 </div>
 <div class='checkbox' ng-show="['6','0'].indexOf(timer.task.wday)===-1">
@@ -119,26 +187,6 @@
     <div class='form-inline'>
         <span>终止时间</span>
         <tms-datepicker class='tms-datepicker' tms-title='终止时间' tms-date='timer.task.task_expire_at' tms-state='{{timer.id}}'></tms-datepicker>
-    </div>
-</div>
-<div class='form-group'>
-    <div class='form-inline'>
-        <div class='form-group'>
-            <span>剩余执行次数</span>
-            <select class='form-control' ng-model="timer.task.left_count">
-                <option value='0'>0次</option>
-                <option value='1'>1次</option>
-                <option value='2'>2次</option>
-                <option value='3'>3次</option>
-                <option value='4'>4次</option>
-                <option value='5'>5次</option>
-                <option value='6'>6次</option>
-                <option value='7'>7次</option>
-                <option value='8'>8次</option>
-                <option value='9'>9次</option>
-                <option value='10'>10次</option>
-            </select>
-        </div>
     </div>
 </div>
 <div class='form-group'>

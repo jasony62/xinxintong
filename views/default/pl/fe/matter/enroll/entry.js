@@ -181,6 +181,8 @@ define(['frame', 'groupService'], function(ngApp) {
                     }
                 }
                 defer.resolve();
+            } else {
+                defer.resolve();
             }
             return defer.promise;
         });
@@ -225,6 +227,29 @@ define(['frame', 'groupService'], function(ngApp) {
         });
     }]);
     /**
+     * 任务提醒
+     */
+    ngApp.provider.controller('ctrlAbsentRemind', ['$scope', '$parse', 'srvEnrollApp', 'tkGroupApp', function($scope, $parse, srvEnrollApp, tkGroupApp) {
+        $scope.assignGroup = function(oTimer) {
+            tkGroupApp.choose($scope.app).then(function(oResult) {
+                var oGrpApp;
+                if (oResult.app) {
+                    oGrpApp = { id: oResult.app.id, title: oResult.app.title };
+                    if (oResult.round) {
+                        oGrpApp.round = { id: oResult.round.round_id, title: oResult.round.title };
+                    }
+                    $parse('task.task_arguments.receiver.group').assign(oTimer, oGrpApp);
+                    oTimer.modified = true;
+                }
+            });
+        };
+        srvEnrollApp.get().then(function(oApp) {
+            $scope.srvTimer.list(oApp, 'absent').then(function(timers) {
+                $scope.timers = timers;
+            });
+        });
+    }]);
+    /**
      * 事件提醒
      */
     ngApp.provider.controller('ctrlEventRemind', ['$scope', '$parse', '$timeout', 'srvEnrollApp', 'tkGroupApp', 'tkEnrollApp', function($scope, $parse, $timeout, srvEnlApp, tkGroupApp, tkEnrollApp) {
@@ -238,6 +263,9 @@ define(['frame', 'groupService'], function(ngApp) {
                     break;
                 case 'remark':
                     _oConfig[eventName].receiver.scope.push('related');
+                    break;
+                case 'absent':
+                    $scope.timers = [];
                     break;
             }
         };

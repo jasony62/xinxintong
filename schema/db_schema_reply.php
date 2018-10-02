@@ -203,7 +203,7 @@ $sql = "create table if not exists xxt_call_relay_yx(";
 $sql .= 'id int not null auto_increment';
 $sql .= ',siteid varchar(32) not null';
 $sql .= ",title varchar(50) not null default ''";
-$sql .= ",url text";
+$sql .= ",url text null";
 $sql .= ',state tinyint not null default 1'; // 1:正常, 0:停用
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
@@ -218,7 +218,7 @@ $sql = "create table if not exists xxt_call_relay_wx(";
 $sql .= 'id int not null auto_increment';
 $sql .= ',siteid varchar(32) not null';
 $sql .= ",title varchar(50) not null default ''";
-$sql .= ",url text";
+$sql .= ",url text null";
 $sql .= ',state tinyint not null default 1'; // 1:正常, 0:停用
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
@@ -233,7 +233,7 @@ $sql = "create table if not exists xxt_call_relay_qy(";
 $sql .= 'id int not null auto_increment';
 $sql .= ',siteid varchar(32) not null';
 $sql .= ",title varchar(50) not null default ''";
-$sql .= ",url text";
+$sql .= ",url text null";
 $sql .= ',state tinyint not null default 1'; // 1:正常, 0:停用
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
@@ -265,6 +265,7 @@ $sql .= ",left_count int not null default 1"; // 任务过期时间
 $sql .= ",task_model varchar(20) not null default ''"; // 执行任务的对象
 $sql .= ",task_arguments text"; // 执行任务的参数
 $sql .= ",task_expire_at int not null default 0"; // 任务过期时间
+$sql .= ",invalid_cause text null"; // 任务失效的原因
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

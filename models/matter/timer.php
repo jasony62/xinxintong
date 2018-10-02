@@ -147,14 +147,25 @@ class timer_model extends base_model {
 
 		foreach ($tasks as $oTask) {
 			if (!empty($oTask->offset_matter_id) && !isset($oCronById->{$oTask->offset_matter_id})) {
+				/* 参照的对象不存在 */
 				$this->update(
 					$this->table(),
 					['enabled' => 'N', 'offset_matter_id' => ''],
 					['id' => $oTask->id]
 				);
+			} else {
+				$oResult = $this->setTimeByRoundCron($oTask, $oCron);
+				if (false === $oResult[0]) {
+					/* 无法设置有效的时间 */
+					$this->update(
+						$this->table(),
+						['enabled' => 'N', 'offset_matter_id' => ''],
+						['id' => $oTask->id]
+					);
+				}
 			}
-			$this->setTimeByRoundCron($oTask, $oCron);
 		}
+
 		return true;
 	}
 	/**

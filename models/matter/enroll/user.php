@@ -849,6 +849,34 @@ class user_model extends \TMS_MODEL {
 		return isset($receivers) ? $receivers : false;
 	}
 	/**
+	 * 活动中用户所在组的组长
+	 */
+	public function getLeaderByUser($oApp, $aUserids) {
+		if (is_string($aUserids)) {$aUserids = [$aUserids];}
+
+		$aUserAndLeaders = [];
+
+		if (isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && !empty($oApp->entryRule->group->id)) {
+			$q = [
+				'userid,round_id',
+				'xxt_group_player',
+				['state' => 1, 'aid' => $oApp->entryRule->group->id, 'userid' => $aUserids],
+			];
+			$oUserRounds = $this->query_objs_ss($q);
+			foreach ($oUserRounds as $oUserRound) {
+				$q = [
+					'distinct userid',
+					'xxt_group_player',
+					['state' => 1, 'aid' => $oApp->entryRule->group->id, 'round_id' => $oUserRound->round_id, 'is_leader' => 'Y'],
+				];
+				$leaders = $this->query_objs_ss($q);
+				$aUserAndLeaders[$oUserRound->userid] = empty($leaders) ? [] : array_column($leaders, 'userid');
+			}
+		}
+
+		return $aUserAndLeaders;
+	}
+	/**
 	 * 接收评论提交事件通知的接收人
 	 */
 	public function getRemarkReceivers($oApp, $oRecord, $oRemark, $oRule) {

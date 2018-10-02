@@ -8,6 +8,7 @@ $sqls[] = "ALTER TABLE xxt_timer_task add offset_matter_id varchar(13) not null 
 $sqls[] = "ALTER TABLE xxt_timer_task add offset_mode char(2) not null default '' after offset_matter_id";
 $sqls[] = "ALTER TABLE xxt_timer_task add offset_min int not null default 0 after offset_mode";
 $sqls[] = "ALTER TABLE xxt_timer_task add offset_hour int not null default 0 after offset_min";
+$sqls[] = "ALTER TABLE xxt_timer_task add invalid_cause text null";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

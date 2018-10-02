@@ -229,7 +229,7 @@ define(['frame', 'groupService'], function(ngApp) {
     /**
      * 任务提醒
      */
-    ngApp.provider.controller('ctrlAbsentRemind', ['$scope', '$parse', 'srvEnrollApp', 'tkGroupApp', function($scope, $parse, srvEnrollApp, tkGroupApp) {
+    ngApp.provider.controller('ctrlUndoneRemind', ['$scope', '$parse', 'srvEnrollApp', 'tkGroupApp', function($scope, $parse, srvEnrollApp, tkGroupApp) {
         $scope.assignGroup = function(oTimer) {
             tkGroupApp.choose($scope.app).then(function(oResult) {
                 var oGrpApp;
@@ -244,7 +244,7 @@ define(['frame', 'groupService'], function(ngApp) {
             });
         };
         srvEnrollApp.get().then(function(oApp) {
-            $scope.srvTimer.list(oApp, 'absent').then(function(timers) {
+            $scope.srvTimer.list(oApp, 'undone').then(function(timers) {
                 $scope.timers = timers;
             });
         });
@@ -263,9 +263,6 @@ define(['frame', 'groupService'], function(ngApp) {
                     break;
                 case 'remark':
                     _oConfig[eventName].receiver.scope.push('related');
-                    break;
-                case 'absent':
-                    $scope.timers = [];
                     break;
             }
         };

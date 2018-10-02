@@ -216,10 +216,10 @@
             </div>
         </div>
     </div>
-    <div class='panel panel-default' ng-controller="ctrlAbsentRemind">
+    <div class='panel panel-default' ng-controller="ctrlUndoneRemind">
         <div class='panel-body'>
             <div class='form-group'>
-                <p><i class="glyphicon glyphicon-bell"></i> 事件提醒【未完成任务】</p>
+                <p><i class="glyphicon glyphicon-bell"></i> 任务提醒【有未完成任务用户时发送】</p>
             </div>
             <!--begin timer-->
             <div class='timer' ng-repeat="timer in timers">
@@ -255,18 +255,12 @@
                         </div>
                     </div>
                 </div>
-                <div class='form-group'>
-                    <label class='radio-inline'>
-                        <input type='radio' value='start' ng-model="timer.task.task_arguments.offset">填写轮次开始时间后</label>
-                    <label class='radio-inline'>
-                        <input type='radio' value='end' ng-model="timer.task.task_arguments.offset">填写轮次结束时间前</label>
-                </div>
                 <div ng-include="'/views/default/pl/fe/_module/timerNotice.html'"></div>
                 <hr>
             </div>
             <!--end timer-->
             <div>
-                <button class='btn btn-default' ng-click="srvTimer.add(app,timers,'absent',{receiver:{scope:['user']}})">添加定时发送规则</button>
+                <button class='btn btn-default' ng-click="srvTimer.add(app,timers,'undone',{receiver:{scope:['user']}})">添加定时发送规则</button>
             </div>
             <div ng-if="timers.length">
                 <hr>

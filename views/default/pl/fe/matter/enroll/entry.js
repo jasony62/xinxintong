@@ -252,7 +252,7 @@ define(['frame', 'groupService'], function(ngApp) {
     /**
      * 事件提醒
      */
-    ngApp.provider.controller('ctrlEventRemind', ['$scope', '$parse', '$timeout', 'srvEnrollApp', 'tkGroupApp', 'tkEnrollApp', function($scope, $parse, $timeout, srvEnlApp, tkGroupApp, tkEnrollApp) {
+    ngApp.provider.controller('ctrlEventRemind', ['$scope', '$parse', 'http2', '$timeout', 'srvEnrollApp', 'tkGroupApp', 'tkEnrollApp', function($scope, $parse, http2, $timeout, srvEnlApp, tkGroupApp, tkEnrollApp) {
         var _oConfig;
         $scope.modified = false;
         $scope.config = null;
@@ -261,6 +261,7 @@ define(['frame', 'groupService'], function(ngApp) {
             switch (eventName) {
                 case 'submit':
                     break;
+                case 'cowork':
                 case 'remark':
                     _oConfig[eventName].receiver.scope.push('related');
                     break;
@@ -280,7 +281,8 @@ define(['frame', 'groupService'], function(ngApp) {
         };
         $scope.save = function() {
             tkEnrollApp.update($scope.app, { notifyConfig: _oConfig }).then(function(oNewApp) {
-                $scope.app.notifyConfig = $scope.config = _oConfig = oNewApp.notifyConfig;
+                http2.merge($scope.app.notifyConfig, oNewApp.notifyConfig);
+                http2.merge(_oConfig, oNewApp.notifyConfig);
                 /* watch后再执行 */
                 $timeout(function() {
                     $scope.modified = false;

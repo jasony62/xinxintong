@@ -879,6 +879,41 @@ class user_model extends \TMS_MODEL {
 	/**
 	 * 接收评论提交事件通知的接收人
 	 */
+	public function getCoworkReceivers($oApp, $oRecord, $oItem, $oRule) {
+		if (empty($oRule->receiver->scope) || !is_array($oRule->receiver->scope)) {
+			return false;
+		}
+		/* 分组活动中的接收人 */
+		if (in_array('group', $oRule->receiver->scope) && !empty($oRule->receiver->group->id)) {
+			$q = [
+				'distinct userid',
+				'xxt_group_player',
+				['state' => 1, 'aid' => $oRule->receiver->group->id, 'userid' => (object) ['op' => '<>', 'pat' => $oItem->userid]],
+			];
+			if (!empty($oRule->receiver->group->round->id)) {
+				$q[2]['round_id'] = $oRule->receiver->group->round->id;
+			}
+			$receivers = $this->query_objs_ss($q);
+		}
+		/* 和协作填写对象相关的用户 */
+		if (in_array('related', $oRule->receiver->scope)) {
+			$relateds = [];
+			/* 被评论的记录 */
+			if (isset($oRecord->userid) && (empty($oItem->userid) || $oItem->userid !== $oRecord->userid)) {
+				$relateds[] = (object) ['userid' => $oRecord->userid];
+			}
+			if (isset($receivers)) {
+				$receivers = array_merge($receivers, $relateds);
+			} else {
+				$receivers = $relateds;
+			}
+		}
+
+		return isset($receivers) ? $receivers : false;
+	}
+	/**
+	 * 接收评论提交事件通知的接收人
+	 */
 	public function getRemarkReceivers($oApp, $oRecord, $oRemark, $oRule) {
 		if (empty($oRule->receiver->scope) || !is_array($oRule->receiver->scope)) {
 			return false;

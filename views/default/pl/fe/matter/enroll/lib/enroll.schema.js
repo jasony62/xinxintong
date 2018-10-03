@@ -6,7 +6,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
         this.config = function(siteId) {
             _siteId = siteId;
         };
-        this.$get = ['$uibModal', '$q', 'srv' + window.MATTER_TYPE + 'App', 'srvEnrollPage', function($uibModal, $q, srvApp, srvAppPage) {
+        this.$get = ['$uibModal', '$q', 'http2', 'srv' + window.MATTER_TYPE + 'App', 'srvEnrollPage', function($uibModal, $q, http2, srvApp, srvAppPage) {
             var _self = {
                 makePagelet: function(content) {
                     var deferred = $q.defer();
@@ -125,38 +125,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             }
                         }
                         srvApp.update(updatedAppProps).then(function(oUpdatedApp) {
-                            function fnRefreshSchema(oOld, oNew) {
-                                for (var prop in oOld) {
-                                    if (oNew[prop] === undefined) {
-                                        delete oOld[prop];
-                                    } else {
-                                        if (angular.isObject(oNew[prop]) && angular.isObject(oOld[prop])) {
-                                            fnRefreshSchema(oOld[prop], oNew[prop]);
-                                        } else if (angular.isArray(oNew[prop]) && angular.isArray(oOld[prop])) {
-                                            if (oOld[prop].length > oNew[prop].length) {
-                                                oOld[prop].splice(oNew[prop].length - 1, oOld[prop].length - oNew[prop].length);
-                                            }
-                                            for (var i = 0, ii = oNew[prop].length; i < ii; i++) {
-                                                if (i < oOld[prop].length) {
-                                                    oOld[prop][i] = oNew[prop][i];
-                                                } else {
-                                                    oOld[prop].push(oNew[prop][i]);
-                                                }
-                                            }
-                                        } else {
-                                            oOld[prop] = oNew[prop];
-                                        }
-                                    }
-                                }
-                                for (var prop in oNew) {
-                                    if (oOld[prop] === undefined) {
-                                        oOld[prop] = oNew[prop];
-                                    }
-                                }
-                            }
-                            for (var i = 0, ii = oApp.dataSchemas.length; i < ii; i++) {
-                                fnRefreshSchema(oApp.dataSchemas[i], oUpdatedApp.dataSchemas[i]);
-                            }
+                            http2.merge(oApp.dataSchemas, oUpdatedApp.dataSchemas);
                             if (!changedPages || changedPages.length === 0) {
                                 deferred.resolve();
                             } else {

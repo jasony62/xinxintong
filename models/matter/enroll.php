@@ -812,6 +812,36 @@ class enroll_model extends enroll_base {
 				$oPurified->submit->page = $oNoticeConfig->submit->page;
 				$oPurified->submit->receiver = $oNoticeConfig->submit->receiver;
 			}
+			/* 提交协作填写 */
+			if (isset($oNoticeConfig->cowork)) {
+				$oSubmit = $oNoticeConfig->cowork;
+				$oPurified->cowork = new \stdClass;
+				if (empty($oSubmit->page) || !in_array($oSubmit->page, ['cowork'])) {
+					return [false, '没有指定可用的通知页面'];
+				}
+				if (empty($oSubmit->receiver->scope) || !is_array($oSubmit->receiver->scope)) {
+					return [false, '没有指定接收通知的用户范围'];
+				}
+				foreach ($oSubmit->receiver->scope as $scope) {
+					if (!in_array($scope, ['related', 'group'])) {
+						return [false, '没有指定可用的接收通知用户范围'];
+					}
+				}
+				if (in_array('group', $oSubmit->receiver->scope)) {
+					if (empty($oSubmit->receiver->group)) {
+						return [false, '没有指定接收通知的分组活动'];
+					}
+					if (empty($oSubmit->receiver->group->id)) {
+						return [false, '没有指定接收通知的分组活动'];
+					}
+				} else {
+					unset($oSubmit->receiver->group);
+				}
+
+				$oPurified->cowork->valid = !empty($oNoticeConfig->cowork->valid);
+				$oPurified->cowork->page = $oNoticeConfig->cowork->page;
+				$oPurified->cowork->receiver = $oNoticeConfig->cowork->receiver;
+			}
 			/* 提交评论提醒 */
 			if (isset($oNoticeConfig->remark)) {
 				$oSubmit = $oNoticeConfig->remark;

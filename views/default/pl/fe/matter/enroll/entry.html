@@ -160,6 +160,7 @@
             <div class='form-group'>
                 <p><i class="glyphicon glyphicon-bell"></i> <span>任务提醒</span></p>
             </div>
+            <hr>
             <!--begin timer-->
             <div class='timer' ng-repeat="timer in timers">
                 <div class='form-group'>
@@ -203,6 +204,7 @@
                         </div>
                     </div>
                 </div>
+                <hr>
                 <div ng-include="'/views/default/pl/fe/_module/timerNotice.html'"></div>
                 <hr>
             </div>
@@ -221,6 +223,7 @@
             <div class='form-group'>
                 <p><i class="glyphicon glyphicon-bell"></i> 任务提醒【有未完成任务用户时发送】</p>
             </div>
+            <hr>
             <!--begin timer-->
             <div class='timer' ng-repeat="timer in timers">
                 <div tms-array-checkbox model="timer.task.task_arguments.receiver.scope">
@@ -255,6 +258,7 @@
                         </div>
                     </div>
                 </div>
+                <hr>
                 <div ng-include="'/views/default/pl/fe/_module/timerNotice.html'"></div>
                 <hr>
             </div>

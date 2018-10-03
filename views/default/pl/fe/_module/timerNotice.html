@@ -6,13 +6,14 @@
     <label class='radio-inline hide'>
         <input type='radio' value='R' ng-model="timer.task.offset_matter_type"> 参照指定轮次</label>
 </div>
-<div class='form-group' ng-if="timer.task.offset_matter_type!=='N'">
+<div class='form-group' ng-if="timer.task.offset_matter_type==='RC'">
     <div class='pl-input-group'>
+        <div class='pl-input-group-addon'>轮次生成规则</div>
         <div class='form-control pl-line' ng-bind="timer.surface.offset.matter.name"></div>
         <button class='btn btn-default' ng-click="srvTimer.setOffsetMatter(timer)"><i class='glyphicon glyphicon-edit'></i></button>
     </div>
 </div>
-<div>
+<div ng-if="timer.task.offset_matter_type==='N'">
     <div class='form-group'>
         <label class='radio-inline'>
             <input type='radio' value='Y' ng-model="timer.task.pattern"> 每年</label>
@@ -179,21 +180,21 @@
         </div>
     </div>
 </div>
-<div class='checkbox' ng-show="['6','0'].indexOf(timer.task.wday)===-1">
-    <label>
-        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="timer.task.notweekend"> 不包含周六、周日</label>
-</div>
 <div class='form-group'>
     <div class='form-inline'>
-        <span>终止时间</span>
-        <tms-datepicker class='tms-datepicker' tms-title='终止时间' tms-date='timer.task.task_expire_at' tms-state='{{timer.id}}'></tms-datepicker>
+        <tms-datepicker class='tms-datepicker' tms-title='终止时间' tms-title-addon='show' tms-date='timer.task.task_expire_at' tms-state='{{timer.id}}'></tms-datepicker>
+        <div class='checkbox' ng-show="['6','0'].indexOf(timer.task.wday)===-1">
+            <label>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="timer.task.notweekend"> 不包含周六、周日</label>
+        </div>
     </div>
 </div>
+<hr>
 <div class='form-group'>
     <div class='form-inline'>
         <div class="checkbox">
             <label>
-                <input type='checkbox' ng-model="timer.task.enabled" ng-true-value="'Y'" ng-false-value="'N'"> 定时规则生效</label>
+                <input type='checkbox' bs-switch data-on-text="启用" data-off-text="停用" ng-model="timer.task.enabled" ng-true-value="'Y'" ng-false-value="'N'"></label>
         </div>
         <button class='btn' ng-class="timer.modified?'btn-success':'btn-default'" ng-disabled="!timer.modified" ng-click="srvTimer.save(timer)">保存</button>
         <button class='btn btn-danger' ng-click="srvTimer.del(timers,$index)">删除</button>

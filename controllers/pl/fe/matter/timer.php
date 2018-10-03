@@ -70,6 +70,7 @@ class timer extends \pl\fe\base {
 		$oNewTimer->task_expire_at = isset($oNewTimer->expireAt) ? $oNewTimer->expireAt : 0;
 
 		if (isset($oConfig->timer)) {
+			isset($oConfig->timer->offset_matter_type) && $oNewTimer->offset_matter_type = $oConfig->timer->offset_matter_type;
 			isset($oConfig->timer->min) && $oNewTimer->min = $oConfig->timer->min;
 			isset($oConfig->timer->hour) && $oNewTimer->hour = $oConfig->timer->hour;
 			isset($oConfig->timer->mday) && $oNewTimer->mday = $oConfig->timer->mday;
@@ -82,6 +83,10 @@ class timer extends \pl\fe\base {
 			$oNewTimer->min = 0;
 			$oNewTimer->hour = 8;
 			$oNewTimer->notweekend = 'Y';
+			$oNewTimer->offset_matter_type = 'N'; // 固定时间，没有参照对象
+			$oNewTimer->offset_mode = 'AS';
+			$oNewTimer->offset_matter_hour = 0;
+			$oNewTimer->offset_matter_min = 0;
 		}
 
 		$oNewTimer->id = $modelTim->insert('xxt_timer_task', $oNewTimer, true);
@@ -115,7 +120,7 @@ class timer extends \pl\fe\base {
 			return new \ParameterError('没有指定定时任务时间周期');
 		}
 		if (empty($oNewUpdate->task_expire_at)) {
-			return new \ParameterError('没有指定定时任务的结束时间');
+			return new \ParameterError('没有指定定时任务的【终止时间】');
 		}
 
 		switch ($oNewUpdate->offset_matter_type) {
@@ -140,14 +145,14 @@ class timer extends \pl\fe\base {
 			break;
 		case 'RC': // 相对轮次规则的时间
 			if (empty($oNewUpdate->offset_matter_id)) {
-				return new \ParameterError('没有指定定时任务的相对时间的参照对象');
+				return new \ParameterError('没有指定定时任务的相对时间参照的【填写轮次生成规则】');
 			}
 			if (empty($oNewUpdate->offset_mode) || !in_array($oNewUpdate->offset_mode, ['AS', 'BE'])) {
 				return new \ParameterError('没有指定定时任务的相对时间的参照模式');
 			}
 			$oMatter = $this->model('matter\\' . $oBeforeTimer->matter_type)->byId($oBeforeTimer->matter_id);
 			if (false === $oMatter || empty($oMatter->roundCron)) {
-				return new \ParameterError('定时任务的相对时间的参照对象不存在');
+				return new \ParameterError('定时任务的相对时间参照的【填写轮次生成规则】不存在');
 			}
 			foreach ($oMatter->roundCron as $oRule) {
 				if ($oRule->id === $oNewUpdate->offset_matter_id) {
@@ -156,7 +161,7 @@ class timer extends \pl\fe\base {
 				}
 			}
 			if (!isset($oReferRule)) {
-				return new \ParameterError('定时任务的相对时间的参照对象不存在');
+				return new \ParameterError('定时任务的相对时间参照的【填写轮次生成规则】不存在');
 			}
 			$oResult = $modelTim->setTimeByRoundCron($oNewUpdate, $oReferRule, false);
 			if (false === $oResult[0]) {

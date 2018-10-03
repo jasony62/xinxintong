@@ -366,7 +366,7 @@ service('noticebox', ['$timeout', function($timeout) {
         return str;
     }
 }]).directive('tmsDatepicker', function() {
-    var _version = 7;
+    var _version = 8;
     return {
         restrict: 'EA',
         scope: {
@@ -374,6 +374,7 @@ service('noticebox', ['$timeout', function($timeout) {
             defaultDate: '@tmsDefaultDate',
             mask: '@tmsMask', //y,m,d,h,i
             title: '@tmsTitle',
+            titleAddon: '@tmsTitleAddon',
             state: '@tmsState',
             obj: '=tmsObj'
         },

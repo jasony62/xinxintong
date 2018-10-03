@@ -1016,6 +1016,15 @@ service('srvTimerNotice', ['$rootScope', '$parse', '$q', '$timeout', 'http2', 't
             if (oUpdTask && oUpdTask.task) {
                 if (!angular.equals(oUpdTask.task, oOldTask.task)) {
                     oUpdTask.modified = true;
+                    if (oUpdTask.task.offset_matter_type !== oOldTask.task.offset_matter_type) {
+                        switch (oUpdTask.task.offset_matter_type) {
+                            case 'RC':
+                                !oUpdTask.task.offset_mode && (oUpdTask.task.offset_mode = 'AS');
+                                oUpdTask.task.offset_hour = '0';
+                                oUpdTask.task.offset_min = '0';
+                                break;
+                        }
+                    }
                 }
             }
         }, true);

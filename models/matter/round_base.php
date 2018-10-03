@@ -321,7 +321,7 @@ trait Round {
 			//1-28 日期
 			case 'M':
 				if (isset($oRule->mday)) {
-					$name = '每月' . $oRule->mday . '号';
+					$name = '每月，' . $oRule->mday . '号';
 					if (isset($oRule->hour)) {
 						$name .= $oRule->hour . '点开始';
 						if (isset($oRule->end_mday)) {
@@ -363,7 +363,7 @@ trait Round {
 			// 0-23 几点
 			case 'D':
 				if (isset($oRule->hour)) {
-					$name = '每天' . $oRule->hour . '点开始';
+					$name = '每天，' . $oRule->hour . '点开始';
 					if (isset($oRule->end_hour) && $oRule->end_hour > 0) {
 						$name .= '，' . $oRule->end_hour . '点结束';
 					}

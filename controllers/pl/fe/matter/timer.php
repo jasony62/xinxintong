@@ -85,8 +85,8 @@ class timer extends \pl\fe\base {
 			$oNewTimer->notweekend = 'Y';
 			$oNewTimer->offset_matter_type = 'N'; // 固定时间，没有参照对象
 			$oNewTimer->offset_mode = 'AS';
-			$oNewTimer->offset_matter_hour = 0;
-			$oNewTimer->offset_matter_min = 0;
+			$oNewTimer->offset_hour = 0;
+			$oNewTimer->offset_min = 0;
 		}
 
 		$oNewTimer->id = $modelTim->insert('xxt_timer_task', $oNewTimer, true);

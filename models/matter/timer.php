@@ -187,31 +187,29 @@ class timer_model extends base_model {
 			$oNewUpdate->mday = $oCron->mday;
 			break;
 		}
-		if ((isset($oTask->offset_hour) && $oTask->offset_hour) || (isset($oTask->offset_min) && $oTask->offset_min)) {
-			switch ($oTask->offset_mode) {
-			case 'AS':
-				$oNewUpdate->hour = $oCron->hour + (isset($oTask->offset_hour) ? $oTask->offset_hour : 0);
-				if ($oNewUpdate->hour > 23) {
-					return [false, '定时任务的相对时间设置超出范围'];
-				}
-				$oNewUpdate->min = isset($oTask->offset_min) ? $oTask->offset_min : 0;
-				break;
-			case 'BE':
-				$oNewUpdate->hour = $oCron->end_hour - (isset($oTask->offset_hour) ? $oTask->offset_hour : 0);
-				if (isset($oTask->offset_min) && $oTask->offset_min > 0) {
-					$oNewUpdate->hour--;
-					$oNewUpdate->min = 60 - (isset($oTask->offset_min) ? $oTask->offset_min : 0);
-				} else {
-					$oNewUpdate->min = 0;
-				}
-				if ($oNewUpdate->hour < 0) {
-					return [false, '定时任务的相对时间设置超出范围'];
-				}
-				break;
+		switch ($oTask->offset_mode) {
+		case 'AS':
+			$oNewUpdate->hour = $oCron->hour + (isset($oTask->offset_hour) ? $oTask->offset_hour : 0);
+			if ($oNewUpdate->hour > 23) {
+				return [false, '定时任务的相对时间设置超出范围'];
 			}
-		} else {
-			$oNewUpdate->hour = $oCron->hour;
-			$oNewUpdate->min = 0;
+			$oNewUpdate->min = isset($oTask->offset_min) ? $oTask->offset_min : 0;
+			break;
+		case 'BE':
+			if (!isset($oCron->end_hour) || strlen($oCron->end_hour) === 0) {
+				return [false, '轮次生成规则没有指定结束时间，无法生成任务执行时间'];
+			}
+			$oNewUpdate->hour = $oCron->end_hour - (isset($oTask->offset_hour) ? $oTask->offset_hour : 0);
+			if (isset($oTask->offset_min) && $oTask->offset_min > 0) {
+				$oNewUpdate->hour--;
+				$oNewUpdate->min = 60 - (isset($oTask->offset_min) ? $oTask->offset_min : 0);
+			} else {
+				$oNewUpdate->min = 0;
+			}
+			if ($oNewUpdate->hour < 0) {
+				return [false, '定时任务的相对时间设置超出范围'];
+			}
+			break;
 		}
 		if ($bPersit) {
 			$this->update($this->table(), $oNewUpdate, ['id' => $oTask->id]);

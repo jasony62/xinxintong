@@ -156,14 +156,14 @@ class timer extends \pl\fe\base {
 			}
 			foreach ($oMatter->roundCron as $oRule) {
 				if ($oRule->id === $oNewUpdate->offset_matter_id) {
-					$oReferRule = $oRule;
+					$oReferCron = $oRule;
 					break;
 				}
 			}
-			if (!isset($oReferRule)) {
+			if (!isset($oReferCron)) {
 				return new \ParameterError('定时任务的相对时间参照的【填写轮次生成规则】不存在');
 			}
-			$oResult = $modelTim->setTimeByRoundCron($oNewUpdate, $oReferRule, false);
+			$oResult = $modelTim->setTimeByRoundCron($oNewUpdate, $oReferCron, false);
 			if (false === $oResult[0]) {
 				return new \ParameterError($oResult[1]);
 			}

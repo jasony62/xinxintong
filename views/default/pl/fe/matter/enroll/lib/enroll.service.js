@@ -698,99 +698,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         }
                     });
                 },
-                cron: function() {
-                    var defer = $q.defer();
-                    srvEnrollApp.get().then(function(oApp) {
-                        $uibModal.open({
-                            templateUrl: '/views/default/pl/fe/matter/enroll/component/roundCron.html?_=2',
-                            size: 'lg',
-                            backdrop: 'static',
-                            controller: ['$scope', '$uibModalInstance', 'http2', function($scope, $mi, $http2) {
-                                var aCronRules, byPeriods, byIntervals;
-                                $scope.mdays = [];
-                                while ($scope.mdays.length < 28) {
-                                    $scope.mdays.push('' + ($scope.mdays.length + 1));
-                                }
-                                aCronRules = oApp.roundCron ? angular.copy(oApp.roundCron) : [];
-                                $scope.byPeriods = byPeriods = [];
-                                $scope.byIntervals = byIntervals = [];
-                                $scope.example = function(oRule) {
-                                    http2.post('/rest/pl/fe/matter/enroll/round/getcron', { roundCron: oRule }).then(function(rsp) {
-                                        oRule.case = rsp.data;
-                                    });
-                                };
-                                aCronRules.forEach(function(oRule) {
-                                    switch (oRule.pattern) {
-                                        case 'period':
-                                            byPeriods.push(oRule);
-                                            break;
-                                        case 'interval':
-                                            byIntervals.push(oRule);
-                                            break;
-                                    }
-                                    $scope.example(oRule);
-                                });
-                                $scope.changePeriod = function(oRule) {
-                                    if (oRule.period !== 'W') {
-                                        oRule.wday = '';
-                                    }
-                                    if (oRule.period !== 'M') {
-                                        oRule.mday = '';
-                                    }
-                                };
-                                $scope.addPeriod = function() {
-                                    var oNewRule;
-                                    oNewRule = {
-                                        pattern: 'period',
-                                        period: 'D',
-                                        hour: 8,
-                                        end_hour: 23,
-                                        notweekend: true
-                                    };
-                                    byPeriods.push(oNewRule);
-                                    aCronRules.push(oNewRule);
-                                    $scope.example(oNewRule);
-                                };
-                                $scope.removePeriod = function(rule) {
-                                    byPeriods.splice(byPeriods.indexOf(rule), 1);
-                                    aCronRules.splice(aCronRules.indexOf(rule), 1);
-                                };
-                                $scope.addInterval = function() {
-                                    var oNewRule;
-                                    oNewRule = {
-                                        pattern: 'interval',
-                                        start_at: parseInt(new Date * 1 / 1000),
-                                    };
-                                    byIntervals.push(oNewRule);
-                                    aCronRules.push(oNewRule);
-                                };
-                                $scope.removeInterval = function(rule) {
-                                    byIntervals.splice(byIntervals.indexOf(rule), 1);
-                                    aCronRules.splice(aCronRules.indexOf(rule), 1);
-                                };
-                                $scope.$on('xxt.tms-datepicker.change', function(event, oData) {
-                                    oData.obj[oData.state] = oData.value;
-                                    $scope.example(oData.obj);
-                                });
-                                $scope.cancel = function() {
-                                    $mi.dismiss();
-                                };
-                                $scope.ok = function() {
-                                    $mi.close(aCronRules);
-                                };
-                            }]
-                        }).result.then(function(aCronRules) {
-                            aCronRules.forEach(function(oRule) {
-                                delete oRule.case;
-                            });
-                            tkEnrollApp.update(oApp, { roundCron: aCronRules }).then(function(oNewApp) {
-                                http2.merge(oApp.roundCron, oNewApp.roundCron);
-                                defer.resolve(oApp.roundCron);
-                            });
-                        });
-                    });
-                    return defer.promise;
-                }
             };
         }];
     });
@@ -1087,7 +994,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 ".jp": "image/jpeg",
                                 ".pn": "image/png",
                                 ".gi": "image/gif"
-                            }[f.name.match(/\.(\w){2}/g)[0] || ".jp"];
+                            } [f.name.match(/\.(\w){2}/g)[0] || ".jp"];
                             f.type2 = f.type || type;
                             var reader = new FileReader();
                             reader.onload = (function(theFile) {

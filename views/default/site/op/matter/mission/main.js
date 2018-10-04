@@ -77,14 +77,6 @@ require(['matterService'], function() {
                                     oIndicator.state = 'end';
                                 }
                             }
-                            if ((!oIndicator.end || oIndicator.end === 'R') && matter.end_submit_at > 0) {
-                                if (matter.end_submit_at * 1000 > (new Date * 1)) {
-                                    oIndicator.end_submit = 'R';
-                                } else {
-                                    oIndicator.end_submit = 'E';
-                                    oIndicator.state = 'end-submit';
-                                }
-                            }
                         }
                         matter.indicator = oIndicator;
                     } else if (matter.type === 'signin') {}

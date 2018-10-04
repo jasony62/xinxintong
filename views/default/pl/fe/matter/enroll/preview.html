@@ -87,7 +87,6 @@
             <label>活动时间</label>
             <ul class='status-group'>
                 <li class='status'><span ng-if="app.start_at>0">活动开始时间：<span ng-bind="app.start_at*1000|date:'MM-dd HH:mm'"></span></span><span ng-if="app.start_at==0">未指定活动开始时间</span>，<span ng-if="app.end_at>0">活动结束时间：<span ng-bind="app.end_at*1000|date:'MM-dd HH:mm'"></span></span><span ng-if="app.end_at==0">未指定活动结束时间</span></li>
-                <li class='status'><span ng-if="app.end_submit_at>0">提交结束时间：<span ng-bind="app.end_submit_at*1000|date:'MM-dd HH:mm'"></span></span><span ng-if="app.end_submit_at==0">未指定提交结束时间</span></li>
                 <li class='status' ng-repeat="rule in app.roundCron" ng-switch on="rule.period">
                     <div ng-switch-when="D">每日{{rule.hour}}点生成填写轮次 <span class='glyphicon' ng-class="rule.enabled==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span>
                     </div>

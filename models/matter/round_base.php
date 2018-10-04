@@ -115,13 +115,23 @@ trait Round {
 			$mday = (int) $oRule->mday;
 			$oRule->end_mday = empty($oRule->end_mday) ? 1 : $oRule->end_mday;
 			$hour = empty($oRule->hour) ? 0 : (int) $oRule->hour;
-			$end_hour = empty($oRule->end_hour) ? 0 : (int) $oRule->end_hour;
-			//算出结束的日期
-			if ($oRule->mday == $oRule->end_mday) {
-				if ($hour < $end_hour) {
-					$end_month = $month;
-					$end_year = $year;
-				} else {
+			if (isset($oRule->end_hour) && strlen($oRule->end_hour)) {
+				$end_hour = (int) $oRule->end_hour;
+				//算出结束的日期
+				if ($oRule->mday == $oRule->end_mday) {
+					if ($hour < $end_hour) {
+						$end_month = $month;
+						$end_year = $year;
+					} else {
+						if ($month < 12) {
+							$end_month = $month + 1;
+							$end_year = $year;
+						} else {
+							$end_month = 1;
+							$end_year = $year + 1;
+						}
+					}
+				} else if ($oRule->mday > $oRule->end_mday) {
 					if ($month < 12) {
 						$end_month = $month + 1;
 						$end_year = $year;
@@ -129,20 +139,14 @@ trait Round {
 						$end_month = 1;
 						$end_year = $year + 1;
 					}
-				}
-			} else if ($oRule->mday > $oRule->end_mday) {
-				if ($month < 12) {
-					$end_month = $month + 1;
-					$end_year = $year;
 				} else {
-					$end_month = 1;
-					$end_year = $year + 1;
+					$end_month = $month;
+					$end_year = $year;
 				}
+				$end_mday = (int) $oRule->end_mday;
 			} else {
-				$end_month = $month;
-				$end_year = $year;
+				$end_year = $end_month = $end_mday = $end_hour = null;
 			}
-			$end_mday = (int) $oRule->end_mday;
 		} else if ($oRule->period === 'W' && isset($oRule->wday) && strlen($oRule->wday)) {
 			/* 某周的某一天 */
 			if ($wday === (int) $oRule->wday) {
@@ -167,21 +171,26 @@ trait Round {
 				$hour = empty($oRule->hour) ? 0 : (int) $oRule->hour;
 				$week--;
 			}
-			$oRule->end_wday = empty($oRule->end_wday) ? 0 : $oRule->end_wday;
-			$end_hour = empty($oRule->end_hour) ? 0 : (int) $oRule->end_hour;
-			if ($oRule->wday == $oRule->end_wday) {
-				if ($hour < $end_hour) {
-					$end_mday = $mday + ((int) $oRule->end_wday - (int) $oRule->wday);
-				} else {
+			/* 轮次结束时间 */
+			if (isset($oRule->end_wday) && strlen($oRule->end_wday)) {
+				$oRule->end_wday = (int) $oRule->end_wday;
+				$end_hour = empty($oRule->end_hour) ? 0 : (int) $oRule->end_hour;
+				if ($oRule->wday == $oRule->end_wday) {
+					if ($hour < $end_hour) {
+						$end_mday = $mday + ((int) $oRule->end_wday - (int) $oRule->wday);
+					} else {
+						$end_mday = $mday + 7 - ((int) $oRule->wday - (int) $oRule->end_wday);
+					}
+				} else if ($oRule->wday > $oRule->end_wday) {
 					$end_mday = $mday + 7 - ((int) $oRule->wday - (int) $oRule->end_wday);
+				} else {
+					$end_mday = $mday + ((int) $oRule->end_wday - (int) $oRule->wday);
 				}
-			} else if ($oRule->wday > $oRule->end_wday) {
-				$end_mday = $mday + 7 - ((int) $oRule->wday - (int) $oRule->end_wday);
+				$end_year = $year;
+				$end_month = $month;
 			} else {
-				$end_mday = $mday + ((int) $oRule->end_wday - (int) $oRule->wday);
+				$end_year = $end_month = $end_mday = $end_hour = null;
 			}
-			$end_year = $year;
-			$end_month = $month;
 		} else if ($oRule->period === 'D' && isset($oRule->hour) && strlen($oRule->hour)) {
 			/* 每天指定时间 */
 			if ($hour < (int) $oRule->hour) {
@@ -204,14 +213,19 @@ trait Round {
 					$wday = 5;
 				}
 			}
-			$end_hour = empty($oRule->end_hour) ? 0 : (int) $oRule->end_hour;
-			if ($hour >= $end_hour) {
-				$end_mday = $mday + 1;
+			/* 轮次的结束时间 */
+			if (isset($oRule->end_hour) && strlen($oRule->end_hour)) {
+				$end_hour = empty($oRule->end_hour) ? 0 : (int) $oRule->end_hour;
+				if ($hour >= $end_hour) {
+					$end_mday = $mday + 1;
+				} else {
+					$end_mday = $mday;
+				}
+				$end_month = $month;
+				$end_year = $year;
 			} else {
-				$end_mday = $mday;
+				$end_year = $end_month = $end_mday = $end_hour = null;
 			}
-			$end_month = $month;
-			$end_year = $year;
 		} else {
 			isset($oRule->hour) && $hour = (int) $oRule->hour;
 			$end_hour = empty($oRule->end_hour) ? 0 : (int) $oRule->end_hour;
@@ -221,7 +235,7 @@ trait Round {
 		}
 
 		$startAt = mktime($hour, 0, 0, $month, $mday, $year);
-		$endAt = mktime($end_hour, 0, 0, $end_month, $end_mday, $end_year);
+		$endAt = $end_hour === null ? 0 : mktime($end_hour, 0, 0, $end_month, $end_mday, $end_year);
 
 		return [$startAt, $endAt];
 	}
@@ -285,18 +299,19 @@ trait Round {
 				//1-28 日期
 				case 'M':
 					if (empty($oRule->mday)) {return [false, '请设置定时轮次每月的开始日期！'];}
-					if (empty($oRule->end_mday)) {return [false, '请设置定时轮次每月的结束日期！'];}
+					//if (empty($oRule->end_mday)) {return [false, '请设置定时轮次每月的结束日期！'];}
 					if (empty($oRule->hour)) {return [false, '请设置定时轮次每月开始日期的几点开始！'];}
 					break;
 				// 0-6 周几
 				case 'W':
 					if (!isset($oRule->wday)) {return [false, '请设置定时轮次每周几开始！'];}
-					if (!isset($oRule->end_wday)) {return [false, '请设置定时轮次每周几结束！'];}
+					//if (!isset($oRule->end_wday)) {return [false, '请设置定时轮次每周几结束！'];}
 					if (empty($oRule->hour)) {return [false, '请设置定时轮次每周几的几点开始！'];}
 					break;
 				// 0-23 几点
 				default:
 					if (empty($oRule->hour)) {return [false, '请设置定时轮次每天的几点开始！'];}
+					//if (!isset($oRule->end_hour)) {return [false, '请设置定时轮次几点结束！'];}
 					break;
 				}
 			} else if ($oRule->pattern === 'interval') {

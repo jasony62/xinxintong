@@ -1,7 +1,7 @@
 <div class='form-group'>
     <button class='btn btn-default' ng-click="addPeriod()"><span class='glyphicon glyphicon-plus'></span> 添加规则（按周期）</button>
     <button class='btn btn-default' ng-click="addInterval()"><span class='glyphicon glyphicon-plus'></span> 添加规则（按间隔）</button>
-    <button class='btn btn-default' ng-click="ok()">保存</button>
+    <button class='btn' ng-disabled="!editing.modified" ng-class="editing.modified?'btn-success':'btn-default'" ng-click="ok()">保存</button>
 </div>
 <div ng-repeat="rule in byPeriods">
     <hr>

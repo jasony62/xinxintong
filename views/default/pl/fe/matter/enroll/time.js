@@ -72,7 +72,7 @@ define(['frame'], function(ngApp) {
             };
             _byPeriods.push(oNewRule);
             _aCronRules.push(oNewRule);
-            $scope.example(oNewRule);
+            //$scope.example(oNewRule);
         };
         $scope.removePeriod = function(rule) {
             _byPeriods.splice(_byPeriods.indexOf(rule), 1);
@@ -93,15 +93,16 @@ define(['frame'], function(ngApp) {
         };
         $scope.$on('xxt.tms-datepicker.change', function(event, oData) {
             oData.obj[oData.state] = oData.value;
-            $scope.example(oData.obj);
+            //$scope.example(oData.obj);
         });
         $scope.ok = function() {
-            _aCronRules.forEach(function(oRule) {
-                //delete oRule.case;
-            });
+            //_aCronRules.forEach(function(oRule) {
+            //delete oRule.case;
+            //});
             tkEnlApp.update(_oApp, { roundCron: _aCronRules }).then(function(oNewApp) {
                 http2.merge(_oApp.roundCron, oNewApp.roundCron);
                 $scope.updateCron();
+                $scope.editing.modified = false;
             });
         };
         srvEnlApp.get().then(function(oApp) {
@@ -120,7 +121,9 @@ define(['frame'], function(ngApp) {
             });
             $scope.editing.rules = _aCronRules;
             $scope.$watch('editing.rules', function(newRules, oldRules) {
-                console.log('ddd');
+                if (newRules !== oldRules) {
+                    $scope.editing.modified = true;
+                }
             }, true);
         });
     }]);

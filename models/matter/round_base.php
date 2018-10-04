@@ -356,11 +356,11 @@ trait Round {
 				break;
 			// 0-6 周几
 			case 'W':
-				if (isset($oRule->wday)) {
+				if (isset($oRule->wday) && strlen($oRule->wday)) {
 					$name = '每周' . $WeekdayZh[$oRule->wday];
 					if (isset($oRule->hour)) {
 						$name .= $oRule->hour . '点开始';
-						if (isset($oRule->end_wday)) {
+						if (isset($oRule->end_wday) && strlen($oRule->end_wday)) {
 							if ($oRule->end_wday !== $oRule->wday) {
 								$name .= '，每周' . $WeekdayZh[$oRule->end_wday];
 								if (isset($oRule->end_hour) && $oRule->end_hour > 0) {

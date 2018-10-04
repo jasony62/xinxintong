@@ -43,6 +43,7 @@ define(['frame'], function(ngApp) {
         while ($scope.mdays.length < 28) {
             $scope.mdays.push('' + ($scope.mdays.length + 1));
         }
+        $scope.editing = { modified: false };
         $scope.byPeriods = _byPeriods = [];
         $scope.byIntervals = _byIntervals = [];
         $scope.example = function(oRule) {
@@ -51,25 +52,28 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.changePeriod = function(oRule) {
-            if (oRule.period !== 'W') {
-                oRule.wday = '';
+            switch (oRule.period) {
+                case 'W':
+                    !oRule.wday && (oRule.wday = '1');
+                    break;
+                case 'M':
+                    !oRule.mday && (oRule.mday = '1');
+                    break;
             }
-            if (oRule.period !== 'M') {
-                oRule.mday = '';
-            }
+            !oRule.hour && (oRule.hour = '8');
         };
         $scope.addPeriod = function() {
             var oNewRule;
             oNewRule = {
                 pattern: 'period',
                 period: 'D',
-                hour: 8,
-                end_hour: 23,
-                notweekend: true
+                hour: '8',
+                notweekend: true,
+                enabled: 'N',
             };
             _byPeriods.push(oNewRule);
             _aCronRules.push(oNewRule);
-            $scope.example(oNewRule);
+            //$scope.example(oNewRule);
         };
         $scope.removePeriod = function(rule) {
             _byPeriods.splice(_byPeriods.indexOf(rule), 1);
@@ -113,8 +117,12 @@ define(['frame'], function(ngApp) {
                         _byIntervals.push(oRule);
                         break;
                 }
-                $scope.example(oRule);
+                //$scope.example(oRule);
             });
+            $scope.editing.rules = _aCronRules;
+            $scope.$watch('editing.rules', function(newRules, oldRules) {
+                console.log('ddd');
+            }, true);
         });
     }]);
 });

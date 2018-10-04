@@ -1,7 +1,7 @@
 <div class='form-group'>
     <button class='btn btn-default' ng-click="addPeriod()"><span class='glyphicon glyphicon-plus'></span> 添加规则（按周期）</button>
     <button class='btn btn-default' ng-click="addInterval()"><span class='glyphicon glyphicon-plus'></span> 添加规则（按间隔）</button>
-    <button class="btn btn-success" ng-click="ok()">保存</button>
+    <button class='btn btn-default' ng-click="ok()">保存</button>
 </div>
 <div ng-repeat="rule in byPeriods">
     <hr>
@@ -21,8 +21,7 @@
             <label>开始：</label>
             <div class='form-group' ng-if="rule.period==='W'">
                 <label>星期几</label>
-                <select class='form-control' ng-model="rule.wday" ng-disabled="rule.period!=='W'" ng-blur="example(rule)">
-                    <option value=''>忽略</option>
+                <select class='form-control' ng-model="rule.wday" ng-disabled="rule.period!=='W'" ng-change="example(rule)">
                     <option value='1'>周一</option>
                     <option value='2'>周二</option>
                     <option value='3'>周三</option>
@@ -34,16 +33,37 @@
             </div>
             <div class='form-group' ng-if="rule.period==='M'">
                 <label>日期 (1 - 28)</label>
-                <select class='form-control' ng-model='rule.mday' ng-options="m for m in mdays" ng-disabled="rule.period!=='M'" ng-blur="example(rule)">
-                    <option value=''>忽略</option>
+                <select class='form-control' ng-model='rule.mday' ng-options="m for m in mdays" ng-disabled="rule.period!=='M'" ng-change="example(rule)">
                 </select>
             </div>
             <div class='form-group'>
                 <label>小时 (0 - 23)</label>
-                <input type='text' class='form-control' style='width:4em' ng-model="rule.hour" ng-blur="example(rule)">
-            </div>
-            <div class='form-group'>
-                <div class='help-block' ng-if="rule.case.start_at">{{rule.case.start_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+                <select class='form-control' ng-model='rule.hour' ng-change="example(rule)">
+                    <option value='0'>0点</option>
+                    <option value='1'>1点</option>
+                    <option value='2'>2点</option>
+                    <option value='3'>3点</option>
+                    <option value='4'>4点</option>
+                    <option value='5'>5点</option>
+                    <option value='6'>6点</option>
+                    <option value='7'>7点</option>
+                    <option value='8'>8点</option>
+                    <option value='9'>9点</option>
+                    <option value='10'>10点</option>
+                    <option value='11'>11点</option>
+                    <option value='12'>12点</option>
+                    <option value='13'>13点</option>
+                    <option value='14'>14点</option>
+                    <option value='15'>15点</option>
+                    <option value='16'>16点</option>
+                    <option value='17'>17点</option>
+                    <option value='18'>18点</option>
+                    <option value='19'>19点</option>
+                    <option value='20'>20点</option>
+                    <option value='21'>21点</option>
+                    <option value='22'>22点</option>
+                    <option value='23'>23点</option>
+                </select>
             </div>
         </div>
     </div>
@@ -52,8 +72,8 @@
             <label>结束：</label>
             <div class='form-group' ng-if="rule.period==='W'">
                 <label>星期几</label>
-                <select class='form-control' ng-model="rule.end_wday" ng-disabled="rule.period!=='W'" ng-blur="example(rule)">
-                    <option value=''>忽略</option>
+                <select class='form-control' ng-model="rule.end_wday" ng-disabled="rule.period!=='W'" ng-change="example(rule)">
+                    <option value=''>不指定</option>
                     <option value='1'>周一</option>
                     <option value='2'>周二</option>
                     <option value='3'>周三</option>
@@ -65,23 +85,46 @@
             </div>
             <div class='form-group' ng-if="rule.period==='M'">
                 <label>日期 (1 - 28)</label>
-                <select class='form-control' ng-model='rule.end_mday' ng-options="m for m in mdays" ng-disabled="rule.period!=='M'" ng-blur="example(rule)">
-                    <option value=''>忽略</option>
+                <select class='form-control' ng-model='rule.end_mday' ng-options="m for m in mdays" ng-disabled="rule.period!=='M'" ng-change="example(rule)">
+                    <option value=''>不指定</option>
                 </select>
             </div>
             <div class='form-group'>
                 <label>小时 (0 - 23)</label>
-                <input type='text' class='form-control' style='width:4em' ng-model="rule.end_hour" ng-blur="example(rule)">
-            </div>
-            <div class='form-group'>
-                <div class='help-block' ng-if="rule.case.end_at">{{rule.case.end_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+                <select class='form-control' ng-model='rule.end_hour' ng-change="example(rule)">
+                    <option value=''>不指定</option>
+                    <option value='0'>0点</option>
+                    <option value='1'>1点</option>
+                    <option value='2'>2点</option>
+                    <option value='3'>3点</option>
+                    <option value='4'>4点</option>
+                    <option value='5'>5点</option>
+                    <option value='6'>6点</option>
+                    <option value='7'>7点</option>
+                    <option value='8'>8点</option>
+                    <option value='9'>9点</option>
+                    <option value='10'>10点</option>
+                    <option value='11'>11点</option>
+                    <option value='12'>12点</option>
+                    <option value='13'>13点</option>
+                    <option value='14'>14点</option>
+                    <option value='15'>15点</option>
+                    <option value='16'>16点</option>
+                    <option value='17'>17点</option>
+                    <option value='18'>18点</option>
+                    <option value='19'>19点</option>
+                    <option value='20'>20点</option>
+                    <option value='21'>21点</option>
+                    <option value='22'>22点</option>
+                    <option value='23'>23点</option>
+                </select>
             </div>
         </div>
     </div>
     <div class='form-group'>
         <div class='checkbox'>
             <label>
-                <input type='checkbox' ng-model="rule.notweekend" ng-blur="example(rule)"> 不包含周六日</label>
+                <input type='checkbox' ng-model="rule.notweekend" ng-change="example(rule)"> 不包含周六日</label>
         </div>
     </div>
     <div class='form-group'>

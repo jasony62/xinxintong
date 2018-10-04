@@ -59,8 +59,7 @@ define(['frame'], function(ngApp) {
                 case 'M':
                     !oRule.mday && (oRule.mday = '1');
                     break;
-            }
-            !oRule.hour && (oRule.hour = '8');
+            }!oRule.hour && (oRule.hour = '8');
         };
         $scope.addPeriod = function() {
             var oNewRule;
@@ -73,7 +72,7 @@ define(['frame'], function(ngApp) {
             };
             _byPeriods.push(oNewRule);
             _aCronRules.push(oNewRule);
-            //$scope.example(oNewRule);
+            $scope.example(oNewRule);
         };
         $scope.removePeriod = function(rule) {
             _byPeriods.splice(_byPeriods.indexOf(rule), 1);

@@ -411,7 +411,7 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         dataSchemas.forEach(function(oSchemaWrap) {
             var oSchema, domSchema;
             if (oSchema = oSchemaWrap.schema) {
-                domSchema = document.querySelector('[wrap=input][schema="' + oSchema.id + '"]');
+                domSchema = document.querySelector('[wrap=input][schema="' + oSchema.id + '"],[wrap=html][schema="' + oSchema.id + '"]');
                 if (domSchema) {
                     if (oSchema.visibility && oSchema.visibility.rules && oSchema.visibility.rules.length) {
                         var bVisible, oRule, oRuleVal;

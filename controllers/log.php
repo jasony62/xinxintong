@@ -16,21 +16,24 @@ class log extends TMS_CONTROLLER {
 	 * 通过日志记录
 	 */
 	public function add_action() {
-		$data = $this->getPostJson();
-
-		$agent = $_SERVER['HTTP_USER_AGENT'];
 		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
-
 		if (preg_match('/[?&]site=([^&]*)/', $referer, $matches)) {
 			$siteid = $matches[1];
 		} else {
-			$siteid = '';
+			$siteid = 'platform';
 		}
+
+		$modelWay = $this->model('site\fe\way');
+		$this->who = $modelWay->who($siteid);
+
+		$data = $this->getPostJson();
+
+		$agent = $_SERVER['HTTP_USER_AGENT'];
 
 		$src = isset($data->src) ? $data->src : '';
 		$msg = isset($data->msg) ? $data->msg : '';
 
-		$this->model('log')->log($siteid, $src, $msg, $agent, $referer);
+		$this->model('log')->log($this->who->uid, $src, $msg, $agent, $referer);
 
 		return new \ResponseData('ok');
 	}

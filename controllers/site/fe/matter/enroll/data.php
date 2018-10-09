@@ -354,28 +354,36 @@ class data extends base {
 		if (!isset($oDataSchema)) {
 			return new \ObjectNotFoundError('（3）指定的对象不存在或不可用');
 		}
-		if (empty($oApp->entryRule->group->id)) {
-			return new \ParameterError('只有进入条件为分组活动的登记活动才允许组长推荐');
+		if (empty($oApp->entryRule->group->id) && empty($oApp->actionRule->cowork->agreed->pre->author)) {
+			return new \ParameterError('只有进入条件为分组活动的登记活动才允许组长表态 或 【允许对协作填写(答案)表态的成员】的配置中勾选了允许提问者表态');
 		}
+		// 获取记录信息
+		$oRec = $this->model('matter\enroll\record')->byId($oRecData->enroll_key, ['fields' => 'id,userid,state']);
+		if (false === $oRec || $oRec->state !== '1') {
+			return new \ObjectNotFoundError('（4）指定的对象不存在或不可用');
+		}
+
 		$oUser = $this->getUser($oApp);
 
 		$modelGrpUsr = $this->model('matter\group\player');
-		/* 当前操作用户所属分组及角色 */
-		$oGrpLeader = $modelGrpUsr->byUser($oApp->entryRule->group, $oUser->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
-		if (false === $oGrpLeader || !in_array($oGrpLeader->is_leader, ['Y', 'S'])) {
-			return new \ParameterError('只允许组长进行推荐');
-		}
-		/* 检查是否在同一分组内 */
-		if ($oGrpLeader->is_leader === 'Y') {
-			$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oRecData->userid, ['fields' => 'round_id', 'onlyOne' => true]);
-			if ($oGrpMemb && !empty($oGrpMemb->round_id)) {
-				/* 填写记录的用户属于一个分组 */
-				if ($oGrpMemb->round_id !== $oGrpLeader->round_id) {
-					return new \ParameterError('只允许组长对本组成员的数据表态');
-				}
-			} else {
-				if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
-					return new \ParameterError('只允许编辑组的组长对不属于任何分组的成员的数据表态');
+		if (empty($oApp->actionRule->cowork->agreed->pre->author) || $oRec->userid !== $oUser->uid) {
+			/* 当前操作用户所属分组及角色 */
+			$oGrpLeader = $modelGrpUsr->byUser($oApp->entryRule->group, $oUser->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
+			if (false === $oGrpLeader || !in_array($oGrpLeader->is_leader, ['Y', 'S'])) {
+				return new \ParameterError('只允许组长进行推荐');
+			}
+			/* 检查是否在同一分组内 */
+			if ($oGrpLeader->is_leader === 'Y') {
+				$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oRecData->userid, ['fields' => 'round_id', 'onlyOne' => true]);
+				if ($oGrpMemb && !empty($oGrpMemb->round_id)) {
+					/* 填写记录的用户属于一个分组 */
+					if ($oGrpMemb->round_id !== $oGrpLeader->round_id) {
+						return new \ParameterError('只允许组长对本组成员的数据表态');
+					}
+				} else {
+					if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
+						return new \ParameterError('只允许编辑组的组长对不属于任何分组的成员的数据表态');
+					}
 				}
 			}
 		}

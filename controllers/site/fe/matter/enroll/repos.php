@@ -402,6 +402,19 @@ class repos extends base {
 		}
 		!empty($oPosted->data) && $oCriteria->data = $oPosted->data;
 
+		/* 答案的筛选 */
+		if (isset($oPosted->cowork)) {
+			foreach ($oApp->dataSchemas as $oSchema) {
+				if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
+					$oCriteria->cowork = new \stdClass;
+					if (isset($oPosted->cowork->agreed) && $oPosted->cowork->agreed !== 'all') {
+						$oCriteria->cowork->agreed = $oPosted->cowork->agreed;
+					}
+					break;
+				}
+			}	
+		}
+
 		/* 指定的用户身份 */
 		if ($role === 'visitor') {
 			$oMockUser = clone $oUser;

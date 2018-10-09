@@ -138,7 +138,9 @@ class cowork extends base {
 		/* 生成提醒 */
 		$this->model('matter\enroll\notice')->addCowork($oApp, $oRecData, $oNewItem, $oUser);
 
-		$data = [$oNewItem, $oRecData];
+		$data = [];
+		$data['oNewItem'] = $oNewItem;
+		$data['oRecData'] = $oRecData;
 		$data['coworkResult'] = $coworkResult;
 		return new \ResponseData($data);
 	}

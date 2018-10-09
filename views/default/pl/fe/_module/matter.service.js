@@ -950,30 +950,63 @@ controller('ctrlStat', ['$scope', 'http2', '$uibModal', '$compile', function($sc
 /**
  * 轮次生成规则
  */
-service('tkRoundCron', ['$q', '$uibModal', 'http2', function($q, $uibModal, http2) {
-    this.choose = function(oMatter) {
-        var defer = $q.defer();
-        if (!oMatter.roundCron || oMatter.roundCron.length === 0) {
-            defer.reject();
-        } else {
-            $uibModal.open({
-                templateUrl: '/views/default/pl/fe/_module/chooseRoundCron.html?_=1',
-                controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
-                    $scope.roundCron = oMatter.roundCron;
-                    $scope.data = {};
-                    if ($scope.roundCron && $scope.roundCron.length) {
-                        $scope.data.chosen = $scope.roundCron[0];
-                    }
-                    $scope.cancel = function() { $mi.dismiss(); };
-                    $scope.ok = function() {
-                        $mi.close($scope.data.chosen);
-                    };
-                }],
-            }).result.then(function(oRule) {
-                defer.resolve(oRule);
-            });
-        }
-        return defer.promise;
+service('tkRoundCron', ['$q', '$rootScope', 'http2', function($q, $rootScope, http2) {
+    var _aCronRules, _$scope;
+    this.editing = { modified: false };
+    this.mdays = [];
+    while (this.mdays.length < 28) {
+        this.mdays.push('' + (this.mdays.length + 1));
+    }
+    this.init = function(aCronRules) {
+        this.editing.rules = _aCronRules = aCronRules;
+        _$scope = $rootScope.$new(true);
+        _$scope.editing = this.editing;
+        _$scope.$on('xxt.tms-datepicker.change', function(event, oData) {
+            oData.obj[oData.state] = oData.value;
+        });
+        _$scope.$watch('editing.rules', function(newRules, oldRules) {
+            if (newRules !== oldRules) {
+                _$scope.editing.modified = true;
+            }
+        }, true);
+    };
+    this.example = function(oRule) {
+        http2.post('/rest/pl/fe/matter/enroll/round/getcron', { roundCron: oRule }).then(function(rsp) {
+            oRule.case = rsp.data;
+        });
+    };
+    this.addPeriod = function() {
+        var oNewRule;
+        oNewRule = {
+            pattern: 'period',
+            period: 'D',
+            hour: '8',
+            notweekend: true,
+            enabled: 'N',
+        };
+        _aCronRules.push(oNewRule);
+    };
+    this.changePeriod = function(oRule) {
+        switch (oRule.period) {
+            case 'W':
+                !oRule.wday && (oRule.wday = '1');
+                break;
+            case 'M':
+                !oRule.mday && (oRule.mday = '1');
+                break;
+        }!oRule.hour && (oRule.hour = '8');
+    };
+    this.addInterval = function() {
+        var oNewRule;
+        oNewRule = {
+            pattern: 'interval',
+            start_at: parseInt(new Date * 1 / 1000),
+            enabled: 'N',
+        };
+        _aCronRules.push(oNewRule);
+    };
+    this.removeRule = function(oRule) {
+        _aCronRules.splice(_aCronRules.indexOf(oRule), 1);
     };
 }]).
 /**

@@ -300,8 +300,11 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$modelMis = $this->model('matter\mission');
-		$modelMis->setOnlyWriteDbConn(true);
+		$modelMis = $this->model('matter\mission')->setOnlyWriteDbConn(true);
+		$oMission = $modelMis->byId($id);
+		if (false === $oMission) {
+			return new \ObjectNotFoundError();
+		}
 
 		/* data */
 		$oPosted = $this->getPostJson();
@@ -328,23 +331,24 @@ class main extends \pl\fe\matter\base {
 		$oPosted->modify_at = time();
 
 		/* update */
-		$rst = $modelMis->update('xxt_mission', $oPosted, ["id" => $id]);
-		if ($rst) {
-			$mission = $modelMis->byId($id, 'id,siteid,title,summary,pic');
-			/*记录操作日志*/
-			$this->model('matter\log')->matterOp($mission->siteid, $oUser, $mission, 'U', $oPosted);
-			/*更新acl*/
-			$mission = $this->model('matter\mission\acl')->updateMission($mission);
+		$rst = $modelMis->update('xxt_mission', $oPosted, ["id" => $oMission->id]);
+		if (!$rst) {
+			return new \ResponseError('更新失败！');
 		}
 
-		return new \ResponseData($rst);
+		$oMission = $modelMis->byId($oMission->id);
+		/*记录操作日志*/
+		$this->model('matter\log')->matterOp($oMission->siteid, $oUser, $oMission, 'U', $oPosted);
+		/*更新acl*/
+		$this->model('matter\mission\acl')->updateMission($oMission);
+
+		return new \ResponseData($oMission);
 	}
 	/**
 	 *
 	 * 删除项目
 	 * 只有任务的创建人和项目所在团队的管理员才能删除任务，任务合作者删除任务时，只是将自己从acl列表中移除
 	 *
-	 * @param string $site site'id
 	 * @param int $id mission'id
 	 */
 	public function remove_action($id) {
@@ -353,7 +357,10 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$modelMis = $this->model('matter\mission');
-		$oMission = $modelMis->byId($id, 'id,siteid,title,summary,pic,creater');
+		$oMission = $modelMis->byId($id);
+		if (false === $oMission) {
+			return new \ObjectNotFoundError();
+		}
 
 		$modelAcl = $this->model('matter\mission\acl');
 		$acl = $modelAcl->byCoworker($oMission->id, $oUser->id);

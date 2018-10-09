@@ -1,4 +1,4 @@
-ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'service.matter']);
+ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'notice.ui.xxt', 'service.matter']);
 ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', 'srvTagProvider', function($controllerProvider, $routeProvider, $locationProvider, srvTagProvider) {
     ngApp.provider = {
         controller: $controllerProvider.register

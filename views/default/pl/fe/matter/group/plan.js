@@ -5,7 +5,7 @@ define(['require'], function(require) {
     ls = location.search;
     siteId = ls.match(/[\?&]site=([^&]*)/)[1];
     missionId = ls.match(/[\?&]mission=([^&]*)/) ? ls.match(/[\?&]mission=([^&]*)/)[1] : '';
-    ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'service.matter', 'service.group']);
+    ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'notice.ui.xxt', 'service.matter', 'service.group']);
     ngApp.constant('cstApp', {
         importSource: [
             { v: 'mschema', l: '通讯录联系人' },

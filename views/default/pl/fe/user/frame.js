@@ -2,7 +2,7 @@ define(['require'], function(require) {
     'use strict';
     var siteId, ngApp;
     siteId = location.search.match(/site=([^&]*)/)[1];
-    ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'service.matter']);
+    ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'notice.ui.xxt', 'service.matter']);
     ngApp.config(['$locationProvider', '$routeProvider', '$controllerProvider', 'srvSiteProvider', function($lp, $rp, $cp, srvSiteProvider) {
         var RouteParam = function(name, loadjs) {
             var baseURL = '/views/default/pl/fe/user/';

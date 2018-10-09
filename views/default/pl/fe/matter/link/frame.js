@@ -1,5 +1,5 @@
 define(['require'], function() {
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'service.matter', 'member.xxt', 'channel.fe.pl']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'notice.ui.xxt', 'service.matter', 'member.xxt', 'channel.fe.pl']);
     ngApp.config(['$routeProvider', '$locationProvider', '$controllerProvider', 'srvSiteProvider', 'srvTagProvider', 'srvInviteProvider', function($routeProvider, $locationProvider, $controllerProvider, srvSiteProvider, srvTagProvider, srvInviteProvider) {
         var RouteParam = function(name, baseURL) {
             !baseURL && (baseURL = '/views/default/pl/fe/matter/link/');

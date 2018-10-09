@@ -3,7 +3,7 @@ define(['require'], function(require) {
     var ngApp, ls, _siteid;
     ls = location.search;
     _siteid = ls.match(/[\?&]site=([^&]*)/)[1];
-    ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'service.matter']);
+    ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'notice.ui.xxt', 'service.matter']);
     ngApp.config(['$routeProvider', '$controllerProvider', '$locationProvider', '$uibTooltipProvider', 'srvSiteProvider', function($routeProvider, $controllerProvider, $locationProvider, $uibTooltipProvider, srvSiteProvider) {
         var RouteParam = function(name, htmlBase, jsBase) {
             var baseURL = '/views/default/pl/fe/site/';

@@ -1,5 +1,5 @@
 'use strict';
-var ngApp = angular.module('app', ['ui.tms', 'ui.bootstrap', 'http.ui.xxt']);
+var ngApp = angular.module('app', ['ui.tms', 'ui.bootstrap', 'http.ui.xxt', 'notice.ui.xxt']);
 ngApp.config(['$locationProvider', '$controllerProvider', function($locationProvider, $controllerProvider) {
     $locationProvider.html5Mode(true);
     ngApp.register = {

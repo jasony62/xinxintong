@@ -1,4 +1,4 @@
-ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'service.matter']);
+ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'notice.ui.xxt', 'service.matter']);
 ngApp.config(['$routeProvider', '$locationProvider', 'srvTagProvider', 'srvSiteProvider', function($routeProvider, $locationProvider, srvTagProvider, srvSiteProvider) {
     $routeProvider.when('/rest/pl/fe/matter/news', {
         templateUrl: '/views/default/pl/fe/matter/news/setting.html?_=2',

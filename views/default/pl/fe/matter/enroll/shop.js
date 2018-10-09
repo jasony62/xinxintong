@@ -5,7 +5,7 @@ ls = location.search;
 _siteId = ls.match(/[\?&]site=([^&]*)/)[1];
 _missionId = ls.match(/[\?&]mission=([^&]*)/) ? ls.match(/[\?&]mission=([^&]*)/)[1] : '';
 
-ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'pl.const', 'service.matter']);
+ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'notice.ui.xxt', 'pl.const', 'service.matter']);
 ngApp.config(['$locationProvider', 'srvSiteProvider', function($locationProvider, srvSiteProvider) {
     $locationProvider.html5Mode(true);
     srvSiteProvider.config(_siteId);

@@ -1,6 +1,6 @@
 define(['require', 'wallService'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'ui.bootstrap', 'http.ui.xxt', 'service.matter', 'service.wall']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'ui.bootstrap', 'http.ui.xxt', 'notice.ui.xxt', 'service.matter', 'service.wall']);
     ngApp.constant('cstApp', {
         matterTypes: [{
             value: 'article',

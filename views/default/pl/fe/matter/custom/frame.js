@@ -1,4 +1,4 @@
-var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'tmplshop.ui.xxt', 'channel.fe.pl', 'service.matter']);
+var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'notice.ui.xxt', 'tmplshop.ui.xxt', 'channel.fe.pl', 'service.matter']);
 ngApp.config(['$routeProvider', '$locationProvider', 'srvSiteProvider', 'srvTagProvider', function($routeProvider, $locationProvider, srvSiteProvider, srvTagProvider) {
     $routeProvider.when('/rest/pl/fe/matter/custom', {
         templateUrl: '/views/default/pl/fe/matter/custom/setting.html?_=2',

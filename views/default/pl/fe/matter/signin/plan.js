@@ -5,7 +5,7 @@ define(['require'], function(require) {
     ls = location.search;
     siteId = ls.match(/[\?&]site=([^&]*)/)[1];
     missionId = ls.match(/[\?&]mission=([^&]*)/) ? ls.match(/[\?&]mission=([^&]*)/)[1] : '';
-    ngApp = angular.module('app', ['ngRoute', 'http.ui.xxt', 'service.matter']);
+    ngApp = angular.module('app', ['ngRoute', 'http.ui.xxt', 'notice.ui.xxt', 'service.matter']);
     ngApp.config(['$locationProvider', 'srvSiteProvider', function($locationProvider, srvSiteProvider) {
         $locationProvider.html5Mode(true);
         srvSiteProvider.config(siteId);

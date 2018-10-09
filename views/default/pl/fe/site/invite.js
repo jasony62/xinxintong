@@ -1,6 +1,6 @@
 define(['require', 'ngSanitize', 'tmsUI'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'http.ui.xxt']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'http.ui.xxt', 'notice.ui.xxt']);
     ngApp.config(['$locationProvider', function($locationProvider) {
         $locationProvider.html5Mode(true);
     }]);

@@ -228,9 +228,6 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         if (_oMocker.role && /visitor|member/.test(_oMocker.role)) {
             return false;
         }
-        if (oRecord.userid === oUser.uid) {
-            return true;
-        }
         if (oUser.is_leader) {
             if (oUser.is_leader === 'S') {
                 return true;
@@ -516,7 +513,9 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             }).result.then(function(data) {
                 addRemark(data.content, oUpperRemark).then(function(rsp) {
                     fnAppendRemark(rsp.data, oUpperRemark);
-                    noticebox.info('您获得【'+ rsp.data.userGetCoin +'】分');
+                    if(rsp.data.remarkResult) {
+                        noticebox.info('您获得【'+ rsp.data.remarkResult.user_total_coin +'】分');
+                    }
                 });
             });
         }
@@ -560,7 +559,6 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             http2.get(LS.j('record/like', 'site', 'ek')).then(function(rsp) {
                 oRecord.like_log = rsp.data.like_log;
                 oRecord.like_num = rsp.data.like_num;
-                noticebox.info('提问者获得【'+ rsp.data.authorGetCoin +'】分');
             });
         }
     };
@@ -571,7 +569,6 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             http2.get(LS.j('record/dislike', 'site', 'ek')).then(function(rsp) {
                 oRecord.dislike_log = rsp.data.dislike_log;
                 oRecord.dislike_num = rsp.data.dislike_num;
-                noticebox.info('提问者获得【'+ rsp.data.authorGetCoin +'】分');
             });
         }
     };
@@ -766,15 +763,17 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
                 url += '&ek=' + $scope.record.enroll_key + '&schema=' + oSchema.id;
                 http2.post(url, oNewItem).then(function(rsp) {
                     var oNewItem;
-                    oNewItem = rsp.data[0];
+                    oNewItem = rsp.data.oNewItem;
                     oNewItem.nickname = '我';
                     if (oRecData) {
                         oRecData.items.push(oNewItem);
-                    } else if (rsp.data[1]) {
-                        oRecData = $scope.record.verbose[oSchema.id] = rsp.data[1];
+                    } else if (rsp.data.oRecData) {
+                        oRecData = $scope.record.verbose[oSchema.id] = rsp.data.oRecData;
                         oRecData.items = [oNewItem];
                     }
-                    noticebox.info('您获得【'+ rsp.data.getCoin.userGetCoin +'】分');
+                    if(rsp.data.coworkResult) {
+                        noticebox.info('您获得【'+ rsp.data.coworkResult.user_total_coin +'】分');
+                    }
                 });
             });
         }
@@ -871,7 +870,9 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
                         }
                         document.body.scrollTop = offsetTop - 40;
                         elRemark.classList.add('blink');
-                        noticebox.info('您获得【' + rsp.data.userGetCoin+ '】分');
+                        if(rsp.data.remarkResult) {
+                            noticebox.info('您获得【' + rsp.data.remarkResult.user_total_coin + '】分');
+                        }                        
                         $timeout(function() {
                             elRemark.classList.remove('blink');
                         }, 1000);

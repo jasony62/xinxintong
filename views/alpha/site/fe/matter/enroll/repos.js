@@ -142,7 +142,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             http2.get(url).then(function(rsp) {
                 oRecord.like_log = rsp.data.like_log;
                 oRecord.like_num = rsp.data.like_num;
-                noticebox.info('提问者获得【'+ rsp.data.authorGetCoin +'】分');
             });
         }
     };
@@ -154,7 +153,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             http2.get(url).then(function(rsp) {
                 oRecord.dislike_log = rsp.data.dislike_log;
                 oRecord.dislike_num = rsp.data.dislike_num;
-                noticebox.info('提问者获得【'+ rsp.data.authorGetCoin +'】分');
             });
         }
     };

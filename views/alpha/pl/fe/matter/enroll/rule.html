@@ -206,6 +206,17 @@
                             </div>
                             <hr>
                             <div class='panel panel-default'>
+                                <div class='panel-heading'>协作填写（答案）可表态的成员</div>
+                                <div class='panel-body'>
+                                    <div class='checkbox'>
+                                        <label>
+                                            <input type="checkbox" ng-model="rule.cowork.agree.pre.author">记录（问题）提交者</label>
+                                    </div>
+                                    <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class='panel panel-default'>
                                 <div class='panel-heading'>协作填写（答案）开启点赞（投票）的条件</div>
                                 <div class='panel-body'>
                                     <div class='form-group'>

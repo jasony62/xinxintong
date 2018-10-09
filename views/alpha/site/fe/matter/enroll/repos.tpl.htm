@@ -139,7 +139,7 @@
                     </div>
                     <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
                         <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
-                            <span ng-if="criteria.agreed==='all'">表态</span>
+                            <span ng-if="criteria.agreed==='all'">记录表态</span>
                             <span ng-if="criteria.agreed==='Y'">推荐</span>
                             <span ng-if="criteria.agreed==='D'">讨论</span>
                             <span ng-if="criteria.agreed==='N'">关闭</span>
@@ -150,6 +150,25 @@
                             <li><a href ng-click="shiftAgreed('Y')">推荐</a></li>
                             <li><a href ng-click="shiftAgreed('D')">讨论</a></li>
                             <li><a href ng-click="shiftAgreed('N')">关闭</a></li>
+                        </ul>
+                    </div>
+                    <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
+                        <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                            <span ng-if="criteria.cowork.agreed==='all'">协作表态</span>
+                            <span ng-if="criteria.cowork.agreed===''">未表态</span>                            
+                            <span ng-if="criteria.cowork.agreed==='Y'">推荐</span>
+                            <span ng-if="criteria.cowork.agreed==='A'">接受</span>
+                            <span ng-if="criteria.cowork.agreed==='D'">讨论</span>                            
+                            <span ng-if="criteria.cowork.agreed==='N'">关闭</span>
+                            <span class="glyphicon glyphicon-filter"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
+                            <li><a href ng-click="shiftCoworkAgreed('all')">全部</a></li>
+                            <li><a href ng-click="shiftCoworkAgreed('')">未表态</a></li>
+                            <li><a href ng-click="shiftCoworkAgreed('Y')">推荐</a></li>
+                            <li><a href ng-click="shiftCoworkAgreed('A')">接受</a></li>
+                            <li><a href ng-click="shiftCoworkAgreed('D')">讨论</a></li>
+                            <li><a href ng-click="shiftCoworkAgreed('N')">关闭</a></li>
                         </ul>
                     </div>
                     <div ng-if="userGroups.length" class="btn-group" uib-dropdown dropdown-append-to-body='true'>

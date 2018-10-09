@@ -72,7 +72,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = { at: 1, size: 12, total: 0 };
     $scope.filter = _oFilter = {}; // 过滤条件
-    $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'lastest' }; // 数据查询条件
+    $scope.criteria = _oCriteria = { creator: false, recordAgreed: 'all', orderby: 'lastest', cowork: {agreed: 'all'}}; // 数据查询条件
     $scope.mocker = _oMocker = {}; // 用户自己指定的角色
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.repos = []; // 分享的记录
@@ -348,6 +348,10 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         _oCriteria.agreed = agreed;
         $scope.recordList(1);
     };
+    $scope.shiftCoworkAgreed = function(agreed) {
+        _oCriteria.cowork.agreed = agreed;
+        $scope.recordList(1);
+    }
     $scope.shiftOrderby = function(orderby) {
         _oCriteria.orderby = orderby;
         $scope.recordList(1);

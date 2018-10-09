@@ -228,6 +228,9 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         if (_oMocker.role && /visitor|member/.test(_oMocker.role)) {
             return false;
         }
+        if (oRecord.userid === oUser.uid) {
+            return true;
+        }
         if (oUser.is_leader) {
             if (oUser.is_leader === 'S') {
                 return true;
@@ -240,6 +243,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
                 }
             }
         }
+        
         return false;
     }
 

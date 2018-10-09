@@ -332,34 +332,40 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     };
     $scope.dirLevel = {
         active: function(oDir, level) {
-            switch (level) {
-                case 1:
-                    $scope.activeDir1 = oDir;
-                    break;
-                case 2:
-                    $scope.activeDir2 = oDir;
-                    break;
-                case 3:
-                    $scope.activeDir3 = oDir;
-                    break;
-                case 4:
-                    $scope.activeDir4 = oDir;
-                    break;
-                case 5:
-                    $scope.activeDir5 = oDir;
-                    break;
-                default:
-                    $scope.activeDir1 = '';
-                    $scope.activeDir2 = '';
-                    $scope.activeDir3 = '';
-                    $scope.activeDir4 = '';
-                    $scope.activeDir5 = '';
+            if (oDir) {
+                oDir.opened = true;
+                switch (level) {
+                    case 1:
+                        $scope.activeDir1 = oDir;
+                        break;
+                    case 2:
+                        $scope.activeDir2 = oDir;
+                        break;
+                    case 3:
+                        $scope.activeDir3 = oDir;
+                        break;
+                    case 4:
+                        $scope.activeDir4 = oDir;
+                        break;
+                    case 5:
+                        $scope.activeDir5 = oDir;
+                        break;
+                    default:
+                }
+            } else {
+                $scope.activeDir1 = '';
+                $scope.activeDir2 = '';
+                $scope.activeDir3 = '';
+                $scope.activeDir4 = '';
+                $scope.activeDir5 = '';
             }
 
         },
-
-    };
-    $scope.shiftDir = function(oDir, $event, level) {
+        clearDir: function(oDir) {
+            oDir.opened = false;
+        }
+    }
+    $scope.shiftDir = function(oDir, level) {
         _oCriteria.data = {};
         if(oDir) {
              _oCriteria.data[oDir.schema_id] = oDir.op.v;
@@ -465,6 +471,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                     }
                 };
                 $scope.dirSchemas.forEach(function(oDir) {
+                    oDir.opened = false;
                     fnSetParentDir(oDir);
                 });
             }

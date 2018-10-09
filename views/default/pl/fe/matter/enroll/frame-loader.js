@@ -69,24 +69,8 @@ function _fnConfigRequire(oScriptTimes) {
     require(['frame']);
 }
 /* 获得要加载文件的修改时间 */
-var xhr;
-xhr = new XMLHttpRequest();
-xhr.open('POST', '/rest/script/time', true);
-xhr.onreadystatechange = function() {
-    if (xhr.readyState == 4) {
-        if (xhr.status >= 200 && xhr.status < 400) {
-            var oScriptTimes;
-            try {
-                oScriptTimes = JSON.parse(xhr.responseText);
-                if (oScriptTimes && typeof(oScriptTimes) === 'object') {
-                    _fnConfigRequire(oScriptTimes.data);
-                }
-            } catch (e) {
-                alert('local error:' + e.toString());
-            }
-        } else {
-            alert('http error:' + xhr.statusText);
-        }
-    };
-}
-xhr.send(JSON.stringify(_oRawScripts));
+angular.injector(['ng']).invoke(function($http) {
+    $http.post('/rest/script/time', _oRawScripts, { 'headers': { 'accept': 'application/json' } }).success(function(rsp) {
+        _fnConfigRequire(rsp.data);
+    });
+});

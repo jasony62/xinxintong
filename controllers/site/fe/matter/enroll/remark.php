@@ -290,31 +290,14 @@ class remark extends base {
 				}
 			}
 			if (isset($oDataSchema->cowork) && $oDataSchema->cowork === 'Y') {
-				$rst = $this->model('matter\enroll\event')->remarkCowork($oApp, $oRecData, $oNewRemark, $oRemarker);
-				if (isset($rst->userGetCoin)) {
-					$oNewRemark->userGetCoin = $rst->userGetCoin;
-				}
-				if (isset($rst->authorGetCoin)) {
-					$oNewRemark->authorGetCoin = $rst->authorGetCoin;
-				}
+				$remarkResult = $this->model('matter\enroll\event')->remarkCowork($oApp, $oRecData, $oNewRemark, $oRemarker);
 			} else {
-				$rst = $this->model('matter\enroll\event')->remarkRecData($oApp, $oRecData, $oNewRemark, $oRemarker);
-				if (isset($rst->userGetCoin)) {
-					$oNewRemark->userGetCoin = $rst->userGetCoin;
-				}
-				if (isset($rst->authorGetCoin)) {
-					$oNewRemark->authorGetCoin = $rst->authorGetCoin;
-				}
+				$remarkResult = $this->model('matter\enroll\event')->remarkRecData($oApp, $oRecData, $oNewRemark, $oRemarker);
 			}
 		} else {
-			$rst = $this->model('matter\enroll\event')->remarkRecord($oApp, $oRecord, $oNewRemark, $oRemarker);
-			if (isset($rst->userGetCoin)) {
-				$oNewRemark->userGetCoin = $rst->userGetCoin;
-			}
-			if (isset($rst->authorGetCoin)) {
-				$oNewRemark->authorGetCoin = $rst->authorGetCoin;
-			}
+			$remarkResult = $this->model('matter\enroll\event')->remarkRecord($oApp, $oRecord, $oNewRemark, $oRemarker);
 		}
+		$oNewRemark->remarkResult = $remarkResult;
 
 		/* 生成提醒 */
 		$this->model('matter\enroll\notice')->addRemark($oApp, $oRecord, $oNewRemark, $oRemarker, isset($oRecData) ? $oRecData : null, isset($oRemark) ? $oRemark : null);

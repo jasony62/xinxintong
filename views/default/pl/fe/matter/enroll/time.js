@@ -38,9 +38,9 @@ define(['frame'], function(ngApp) {
         });
     }]);
     ngApp.provider.controller('ctrlRoundCron', ['$scope', 'http2', 'srvEnrollApp', 'tkEnrollApp', 'tkRoundCron', function($scope, http2, srvEnlApp, tkEnlApp, tkRndCron) {
-        var _oApp, _aCronRules;
+        var _oApp;
         $scope.save = function() {
-            tkEnlApp.update(_oApp, { roundCron: _aCronRules }).then(function(oNewApp) {
+            tkEnlApp.update(_oApp, { roundCron: tkRndCron.editing.rules }).then(function(oNewApp) {
                 http2.merge(_oApp.roundCron, oNewApp.roundCron);
                 tkRndCron.editing.modified = false;
                 $scope.updateCron();
@@ -48,9 +48,7 @@ define(['frame'], function(ngApp) {
         };
         srvEnlApp.get().then(function(oApp) {
             _oApp = oApp;
-            _aCronRules = oApp.roundCron ? angular.copy(oApp.roundCron) : [];
-            tkRndCron.init(_aCronRules);
-            $scope.tkRndCron = tkRndCron;
+            $scope.tkRndCron = tkRndCron.init(oApp);
         });
     }]);
 });

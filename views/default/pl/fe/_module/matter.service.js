@@ -957,8 +957,9 @@ service('tkRoundCron', ['$q', '$rootScope', 'http2', function($q, $rootScope, ht
     while (this.mdays.length < 28) {
         this.mdays.push('' + (this.mdays.length + 1));
     }
-    this.init = function(aCronRules) {
-        this.editing.rules = _aCronRules = aCronRules;
+    this.init = function(oMatter) {
+        this.matter = oMatter;
+        this.editing.rules = _aCronRules = (oMatter.roundCron ? angular.copy(oMatter.roundCron) : []);
         _$scope = $rootScope.$new(true);
         _$scope.editing = this.editing;
         _$scope.$on('xxt.tms-datepicker.change', function(event, oData) {
@@ -969,9 +970,10 @@ service('tkRoundCron', ['$q', '$rootScope', 'http2', function($q, $rootScope, ht
                 _$scope.editing.modified = true;
             }
         }, true);
+        return this;
     };
     this.example = function(oRule) {
-        http2.post('/rest/pl/fe/matter/enroll/round/getcron', { roundCron: oRule }).then(function(rsp) {
+        http2.post('/rest/pl/fe/matter/' + this.matter.type + '/round/getCron', { roundCron: oRule }).then(function(rsp) {
             oRule.case = rsp.data;
         });
     };

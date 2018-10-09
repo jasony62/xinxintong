@@ -1086,21 +1086,19 @@ service('srvTimerNotice', ['$rootScope', '$parse', '$q', '$timeout', 'http2', 't
     };
     /* 保存定时任务设置 */
     this.save = function(oTimer) {
-        if (fnBeforeSaves.length) {
-            function fnOne(i) {
-                if (i < fnBeforeSaves.length) {
-                    fnBeforeSaves[i](oTimer).then(function() {
-                        fnOne(++i);
-                    });
-                } else {
-                    http2.post('/rest/pl/fe/matter/timer/update?id=' + oTimer.id, oTimer.task).then(function(rsp) {
-                        fnDbToLocal(rsp.data, oTimer);
-                        $timeout(function() {
-                            oTimer.modified = false;
-                        });
-                    });
-                }
+        function fnOne(i) {
+            if (i < fnBeforeSaves.length) {
+                fnBeforeSaves[i](oTimer).then(function() {
+                    fnOne(++i);
+                });
+            } else {
+                http2.post('/rest/pl/fe/matter/timer/update?id=' + oTimer.id, oTimer.task).then(function(rsp) {
+                    fnDbToLocal(rsp.data, oTimer);
+                    oTimer.modified = false;
+                });
             }
+        }
+        if (fnBeforeSaves.length) {
             fnOne(0);
         } else {
             http2.post('/rest/pl/fe/matter/timer/update?id=' + oTimer.id, oTimer.task).then(function(rsp) {

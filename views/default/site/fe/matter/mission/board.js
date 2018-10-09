@@ -1,9 +1,9 @@
-require(['matterService'], function() {
+require([], function() {
     'use strict';
     var siteId, missionId, ngApp;
     siteId = location.search.match('site=([^&]*)')[1];
     missionId = location.search.match('mission=([^&]*)')[1];
-    ngApp = angular.module('app', ['ui.tms', 'http.ui.xxt', 'service.matter']);
+    ngApp = angular.module('app', ['ui.tms', 'http.ui.xxt']);
     ngApp.controller('ctrlMain', ['$scope', 'http2', function($scope, http2) {
         var _oMission;
         $scope.siteid = siteId;

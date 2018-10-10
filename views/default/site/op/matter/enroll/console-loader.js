@@ -22,6 +22,7 @@ window.loading = {
                 "ui-tms": '/static/js/ui-tms',
                 "ui-xxt": '/static/js/xxt.ui',
                 "schema.ui.xxt": '/asset/js/xxt.ui.schema',
+                "notice.ui.xxt": '/asset/js/xxt.ui.notice',
                 "service.matter": '/views/default/pl/fe/_module/matter.service',
                 "enrollService": '/views/default/pl/fe/matter/enroll/lib/enroll.service',
                 "page": '/views/default/pl/fe/matter/enroll/lib/page',
@@ -50,8 +51,10 @@ window.loading = {
         require(['ui-tms'], function() {
             require(['ui-xxt'], function() {
                 require(['schema.ui.xxt'], function() {
-                    require(['highcharts'], function() {
-                        requirejs(['/views/default/site/op/matter/enroll/console.js']);
+                    require(['notice.ui.xxt'], function() {
+                        require(['highcharts'], function() {
+                            requirejs(['/views/default/site/op/matter/enroll/console.js']);
+                        });
                     });
                 });
             });

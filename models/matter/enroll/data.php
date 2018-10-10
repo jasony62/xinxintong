@@ -182,7 +182,7 @@ class data_model extends entity_model {
 					if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
 						if (isset($oBeforeSchemaVal->value)) {
 							$treatedValue = $oBeforeSchemaVal->value;
-							$dbData->{$schemaId} = json_encode($treatedValue);
+							$dbData->{$schemaId} = json_decode($treatedValue);
 						}
 					} else {
 						foreach ($newSchemaValues as $k => $newSchemaValue) {

@@ -1,6 +1,6 @@
 define(['require', 'mschemaService'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'schema.ui.xxt', 'service.matter', 'service.mschema']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'notice.ui.xxt', 'schema.ui.xxt', 'service.matter', 'service.mschema']);
     ngApp.constant('CstApp', {
         alertMsg: {
             'schema.duplicated': '不允许重复添加登记项',
@@ -69,7 +69,7 @@ define(['require', 'mschemaService'], function(require) {
         };
         $scope.addSchema = function() {
             var url = '/rest/pl/fe/site/member/schema/create?site=' + $scope.site.id;
-            http2.post(url, {}, function(rsp) {
+            http2.post(url, {}).then(function(rsp) {
                 shiftAttr(rsp.data);
                 $scope.schemas.push(rsp.data);
             });
@@ -79,7 +79,7 @@ define(['require', 'mschemaService'], function(require) {
             if (window.confirm('确认删除通讯录？')) {
                 schema = $scope.choosedSchema;
                 url = '/rest/pl/fe/site/member/schema/delete?site=' + $scope.site.id + '&id=' + schema.id;
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     var i = $scope.schemas.indexOf(schema);
                     $scope.schemas.splice(i, 1);
                     $scope.choosedSchema = null;

@@ -280,7 +280,6 @@ class main extends main_base {
 		$oNewApp->scenario_config = json_encode($oCopied->scenarioConfig);
 		$oNewApp->count_limit = $oCopied->count_limit;
 		$oNewApp->enrolled_entry_page = $oCopied->enrolled_entry_page;
-		$oNewApp->can_siteuser = 'Y';
 		$oNewApp->entry_rule = json_encode($oNewEntryRule);
 		$oNewApp->data_schemas = $modelApp->escape($modelApp->toJson($aDataSchemas));
 		$oNewApp->group_app_id = $oCopied->group_app_id;
@@ -445,11 +444,12 @@ class main extends main_base {
 				$oUpdated->recycle_schemas = $modelApp->escape($modelApp->toJson($val));
 				break;
 			case 'roundCron':
-				$rst = $this->checkCron($val);
+				$rst = $this->model('matter\enroll\round')->checkCron($val);
 				if ($rst[0] === false) {
 					return new \ResponseError($rst[1]);
 				}
 				$oUpdated->round_cron = $modelApp->escape($modelApp->toJson($val));
+				$oApp->roundCron = $val;
 				break;
 			case 'actionRule':
 				$oUpdated->action_rule = $modelApp->escape($modelApp->toJson($val));
@@ -461,7 +461,12 @@ class main extends main_base {
 				$oUpdated->scenario_config = $modelApp->escape($modelApp->toJson($val));
 				break;
 			case 'notifyConfig':
-				$oUpdated->notify_config = $modelApp->escape($modelApp->toJson($val));
+				$oPurifyResult = $modelApp->purifyNoticeConfig($oApp, $val);
+				if (false === $oPurifyResult[0]) {
+					return new \ResponseError($oPurifyResult[1]);
+				}
+				$oUpdated->notify_config = $modelApp->escape($modelApp->toJson($oPurifyResult[1]));
+				$oApp->notifyConfig = $oPurifyResult[1];
 				break;
 			case 'rpConfig':
 				$oUpdated->rp_config = $modelApp->escape($modelApp->toJson($val));
@@ -489,8 +494,13 @@ class main extends main_base {
 			// 记录操作日志并更新信息
 			$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'U', $oUpdated);
 			/* 清除数据 */
-			if (isset($oApp->data_schemas)) {
-				unset($oApp->data_schemas);
+			$uselessProps = ['data_schemas', 'round_cron'];
+			array_walk($uselessProps, function ($prop) use ($oApp) {
+				unset($oApp->{$prop});
+			});
+			/* 更新关联的定时任务 */
+			if (isset($oUpdated->round_cron)) {
+				$this->model('matter\timer')->updateByRoundCron($oApp);
 			}
 		}
 
@@ -559,7 +569,6 @@ class main extends main_base {
 		$oNewApp->enrolled_entry_page = $template->enrolled_entry_page;
 		$oNewApp->template_id = $template->id;
 		$oNewApp->template_version = $template->version;
-		$oNewApp->can_siteuser = 'Y';
 		/* 进入规则 */
 		$oEntryRule = new \stdClass;
 		$oEntryRule->scope = new \stdClass;
@@ -680,7 +689,6 @@ class main extends main_base {
 		$oNewApp->title = empty($oCustomConfig->proto->title) ? '新登记活动' : $oCustomConfig->proto->title;
 		$oNewApp->start_at = $current;
 		$oNewApp->entry_rule = json_encode($entryRule);
-		$oNewApp->can_siteuser = 'Y';
 		isset($config) && $oNewApp->data_schemas = \TMS_MODEL::toJson($config->schema);
 
 		$oNewApp = $modelApp->create($oUser, $oNewApp);
@@ -777,7 +785,6 @@ class main extends main_base {
 		$oNewApp->title = $modelApp->escape($oMission->title) . '-计分活动';
 		$oNewApp->start_at = $current;
 		$oNewApp->entry_rule = json_encode($entryRule);
-		$oNewApp->can_siteuser = 'Y';
 		$oNewApp->data_schemas = $modelApp->escape($modelApp->toJson($newSchemas));
 
 		$oNewApp = $modelApp->create($oUser, $oNewApp);
@@ -1021,7 +1028,6 @@ class main extends main_base {
 		$oNewApp->title = $modelApp->escape($title);
 		$oNewApp->start_at = $current;
 		$oNewApp->entry_rule = json_encode($entryRule);
-		$oNewApp->can_siteuser = 'Y';
 		$oNewApp->data_schemas = \TMS_MODEL::toJson($record);
 
 		$oNewApp = $modelApp->create($oUser, $oNewApp);
@@ -1133,39 +1139,6 @@ class main extends main_base {
 		$id = 's' . floor($microtime);
 
 		return $id;
-	}
-	/**
-	 * 检查传入的定时规则
-	 *
-	 * @param object $rules
-	 */
-	protected function checkCron(&$rules) {
-		foreach ($rules as $oRule) {
-			if ($oRule->pattern === 'period') {
-				switch ($oRule->period) {
-				//1-28 日期
-				case 'M':
-					if (empty($oRule->mday)) {return [false, '请设置定时轮次每月的开始日期！'];}
-					if (empty($oRule->end_mday)) {return [false, '请设置定时轮次每月的结束日期！'];}
-					if (empty($oRule->hour)) {return [false, '请设置定时轮次每月开始日期的几点开始！'];}
-					break;
-				// 0-6 周几
-				case 'W':
-					if (!isset($oRule->wday)) {return [false, '请设置定时轮次每周几开始！'];}
-					if (!isset($oRule->end_wday)) {return [false, '请设置定时轮次每周几结束！'];}
-					if (empty($oRule->hour)) {return [false, '请设置定时轮次每周几的几点开始！'];}
-					break;
-				// 0-23 几点
-				default:
-					if (empty($oRule->hour)) {return [false, '请设置定时轮次每天的几点开始！'];}
-					break;
-				}
-			} else if ($oRule->pattern === 'interval') {
-
-			}
-		}
-
-		return [true];
 	}
 	/**
 	 * 添加空页面

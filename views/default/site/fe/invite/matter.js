@@ -1,9 +1,9 @@
 'use strict';
-var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'snsshare.ui.xxt', 'directive.enroll']);
+var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'http.ui.xxt', 'snsshare.ui.xxt', 'directive.enroll']);
 ngApp.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'tmsSnsShare', function($scope, $uibModal, http2, tmsSnsShare) {
     var _oNewInvite, _oMatterList = {};
     $scope.newInvite = _oNewInvite = {};
-    $scope.criteria = {id: ''};
+    $scope.criteria = { id: '' };
     $scope.addInviteCode = function() {
         $uibModal.open({
             templateUrl: 'codeEditor.html',
@@ -17,17 +17,17 @@ ngApp.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'tmsSnsShare', fun
                 $scope.ok = function() {
                     var regx = /^[0-9]\d*$/;
                     if ($scope.code.max_count === '' || (!regx.test($scope.code.max_count))) {
-                        alert( '请输入正确的使用次数值' );
+                        alert('请输入正确的使用次数值');
                         return false;
                     }
-                    if($scope.isDate=='N') {
+                    if ($scope.isDate == 'N') {
                         $scope.code.expire_at = '0';
                     }
                     $mi.close($scope.code);
                 };
             }]
         }).result.then(function(oNewCode) {
-            http2.post('/rest/site/fe/invite/code/add?invite=' + $scope.invite.id, oNewCode, function(rsp) {
+            http2.post('/rest/site/fe/invite/code/add?invite=' + $scope.invite.id, oNewCode).then(function(rsp) {
                 $scope.inviteCodes.splice(0, 0, rsp.data);
             });
         });
@@ -35,17 +35,17 @@ ngApp.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'tmsSnsShare', fun
     $scope.updateInvite = function(prop) {
         var posted = {};
         posted[prop] = _oNewInvite[prop];
-        http2.post('/rest/site/fe/invite/update?invite=' + $scope.invite.id, posted, function(rsp) {
+        http2.post('/rest/site/fe/invite/update?invite=' + $scope.invite.id, posted).then(function(rsp) {
             $scope.invite[prop] = _oNewInvite[prop];
         });
     };
     $scope.$watch('criteria.id', function(nv) {
-        if(!nv) return;
-        http2.get('/rest/site/fe/invite/create?matter=' + _oMatterList[nv].type +',' + nv, function(rsp) {
+        if (!nv) return;
+        http2.get('/rest/site/fe/invite/create?matter=' + _oMatterList[nv].type + ',' + nv).then(function(rsp) {
             var oInvite = rsp.data;
             _oNewInvite.message = oInvite.message;
             $scope.invite = oInvite;
-            http2.get('/rest/site/fe/user/invite/codeList?invite=' + oInvite.id, function(rsp) {
+            http2.get('/rest/site/fe/user/invite/codeList?invite=' + oInvite.id).then(function(rsp) {
                 var codes = rsp.data;
                 $scope.inviteCodes = codes;
             });
@@ -60,10 +60,10 @@ ngApp.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'tmsSnsShare', fun
             }
         });
     });
-    http2.get('/rest/site/fe/user/get', function(rsp) {
+    http2.get('/rest/site/fe/user/get').then(function(rsp) {
         $scope.loginUser = rsp.data;
         if ($scope.loginUser.unionid) {
-            http2.get('/rest/site/fe/invite/listInviteMatter' + location.search, function(rsp) {
+            http2.get('/rest/site/fe/invite/listInviteMatter' + location.search).then(function(rsp) {
                 $scope.matterList = rsp.data;
                 $scope.matterList.forEach(function(matter) {
                     _oMatterList[matter.id] = matter;

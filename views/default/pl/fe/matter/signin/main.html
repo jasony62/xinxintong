@@ -48,31 +48,6 @@
             </div>
         </div>
     </div>
-    <div class='panel panel-default' ng-controller="ctrlReceiver">
-        <div class='panel-body'>
-            <div class='form-group'>
-                <p class=''><i class="glyphicon glyphicon-bell"></i> 事件提醒</p>
-            </div>
-            <div class='checkbox'>
-                <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.notify_submit" ng-change="update('notify_submit')">用户提交填写内容时通知</label>
-            </div>
-            <div class='form-group' ng-if="sns.wx.joined==='Y'&&sns.wx.can_qrcode==='Y'">
-                <button id='wxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('wx')">微信公众号用户扫码作为接收人 <span class="caret"></span></button>
-            </div>
-            <div class='form-group' ng-if="sns.yx.joined==='Y'&&sns.yx.can_qrcode==='Y'">
-                <button id='yxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('yx')">易信公众号用户扫码作为接收人 <span class="caret"></span></button>
-            </div>
-            <div class='list-group'>
-                <div class='list-group-item' ng-repeat="r in receivers" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
-                    <span>{{r.nickname}}</span>&nbsp;<span ng-if="r.snsUser.snsName">{{r.snsUser.snsName}}</span>
-                    <button class='btn btn-default btn-xs pull-right' ng-show="entered" ng-click="remove(r)">
-                        <span class='glyphicon glyphicon-remove'></span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
     <div id='main-access' class='panel panel-default' ng-controller="ctrlAccess">
         <div class='panel-body'>
             <div class='form-group'>

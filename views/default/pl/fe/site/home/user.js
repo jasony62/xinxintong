@@ -6,7 +6,7 @@ define(['frame'], function(ngApp) {
         $scope.catelogs = catelogs = [];
         $scope.$watch('site', function(oSite) {
             if (oSite === undefined) return;
-            http2.get('/rest/pl/fe/site/member/schema/list?site=' + oSite.id, function(rsp) {
+            http2.get('/rest/pl/fe/site/member/schema/list?site=' + oSite.id).then(function(rsp) {
                 catelogs.splice(0, catelogs.length, { l: '站点用户', v: 'account' });
                 rsp.data.forEach(function(memberSchema) {
                     catelogs.push({ l: memberSchema.title, v: 'member', obj: memberSchema })
@@ -25,7 +25,7 @@ define(['frame'], function(ngApp) {
             page && ($scope.page.at = page);
             url += '?site=' + $scope.site.id;
             url += '&page=' + $scope.page.at + '&size=' + $scope.page.size;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.users = rsp.data.users;
                 $scope.page.total = rsp.data.total;
             });
@@ -44,7 +44,7 @@ define(['frame'], function(ngApp) {
                 };
             url += '?site=' + $scope.site.id;
             url += '&nickname=' + $scope.nickname;
-            http2.post(url, data, function(rsp) {
+            http2.post(url, data).then(function(rsp) {
                 $scope.users = rsp.data.users;
                 $scope.page.total = rsp.data.total;
             })
@@ -85,7 +85,7 @@ define(['frame'], function(ngApp) {
             url = '/rest/pl/fe/site/member/list?site=' + $scope.site.id + '&schema=' + $scope.schema.id;
             url += '&page=' + $scope.page.at + '&size=' + $scope.page.size + filter
             url += '&contain=total';
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 var i, member, members = rsp.data.members;
                 for (i in members) {
                     member = members[i];
@@ -147,11 +147,11 @@ define(['frame'], function(ngApp) {
                         ea = $scope.schema.extattr[i];
                         newData[ea.id] = rst.data[ea.id];
                     }
-                    http2.post('/rest/pl/fe/site/member/update?site=' + $scope.site.id + '&id=' + member.id, newData, function(rsp) {
+                    http2.post('/rest/pl/fe/site/member/update?site=' + $scope.site.id + '&id=' + member.id, newData).then(function(rsp) {
                         angular.extend(member, newData);
                     });
                 } else if (rst.action === 'remove') {
-                    http2.get('/rest/pl/fe/site/member/remove?site=' + $scope.site.id + '&id=' + member.id, function() {
+                    http2.get('/rest/pl/fe/site/member/remove?site=' + $scope.site.id + '&id=' + member.id).then(function() {
                         $scope.members.splice($scope.members.indexOf(member), 1);
                     });
                 }
@@ -195,7 +195,7 @@ define(['frame'], function(ngApp) {
                 }
             }
             url = '/rest/pl/fe/site/user/coin/save?site=' + $scope.site.id;
-            http2.post(url, posted, function(rsp) {
+            http2.post(url, posted).then(function(rsp) {
                 for (var k in rsp.data) {
                     $scope.rules[k].id = rsp.data[k];
                 }
@@ -204,7 +204,7 @@ define(['frame'], function(ngApp) {
         $scope.fetch = function() {
             var url;
             url = '/rest/pl/fe/site/user/coin/get?site=' + $scope.site.id;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 rsp.data.forEach(function(rule) {
                     var rule2 = $scope.rules[rule.act];
                     rule2.id = rule.id;

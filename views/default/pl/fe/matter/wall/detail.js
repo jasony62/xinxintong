@@ -4,9 +4,6 @@ define(['frame'], function(ngApp) {
      * app setting controller
      */
     ngApp.provider.controller('ctrlDetail', ['$scope', 'http2', 'mediagallery', 'srvWallApp', '$uibModal', 'srvTag', 'srvSite', 'cstApp', function($scope, http2, mediagallery, srvWallApp, $uibModal, srvTag, srvSite, cstApp) {
-        (function() {
-            new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
-        })();
         $scope.$parent.subView = 'detail';
         $scope.matterTypes = cstApp.matterTypes;
         $scope.tagMatter = function(subType) {
@@ -26,7 +23,7 @@ define(['frame'], function(ngApp) {
             var vcode;
             vcode = prompt('如果此信息墙中没有用户，删除后不可恢复！若要继续请输入信息墙名称');
             if (vcode === $scope.wall.title) {
-                http2.get('/rest/pl/fe/matter/wall/remove?site=' + $scope.wall.siteid + '&app=' + $scope.wall.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/wall/remove?site=' + $scope.wall.siteid + '&app=' + $scope.wall.id).then(function(rsp) {
                     location.href = '/rest/pl/fe';
                 });
             }
@@ -103,7 +100,7 @@ define(['frame'], function(ngApp) {
                         matter.type = result.type;
                     });
                     relations = { matters: result.matters };
-                    http2.post('/rest/pl/fe/matter/wall/addInteractMatter?site=' + $scope.wall.siteid + '&app=' + $scope.wall.id, relations, function(rsp) {
+                    http2.post('/rest/pl/fe/matter/wall/addInteractMatter?site=' + $scope.wall.siteid + '&app=' + $scope.wall.id, relations).then(function(rsp) {
                         $scope.wall.interact_matter = rsp.data.interact_matter;
                     });
                 }
@@ -118,7 +115,7 @@ define(['frame'], function(ngApp) {
                 type: matter.type.toLowerCase(),
                 title: matter.title
             };
-            http2.post('/rest/pl/fe/matter/wall/removeInteractMatter?site=' + $scope.wall.siteid + '&app=' + $scope.wall.id, removed, function(rsp) {
+            http2.post('/rest/pl/fe/matter/wall/removeInteractMatter?site=' + $scope.wall.siteid + '&app=' + $scope.wall.id, removed).then(function(rsp) {
                 $scope.wall.interact_matter = rsp.data.interact_matter;
             });
         };

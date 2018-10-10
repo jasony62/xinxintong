@@ -1,6 +1,6 @@
 define(['require', 'page', 'schema', 'signinService', 'enrollSchema', 'enrollPage'], function(require, pageLib, schemaLib) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'schema.ui.xxt', 'service.matter', 'service.signin', 'schema.enroll', 'page.enroll', 'tinymce.enroll', 'ui.xxt']);
+    var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'http.ui.xxt', 'notice.ui.xxt', 'notice.ui.xxt', 'schema.ui.xxt', 'service.matter', 'service.signin', 'schema.enroll', 'page.enroll', 'tinymce.enroll', 'ui.xxt']);
     ngApp.constant('cstApp', {
         notifyMatter: [{
             value: 'tmplmsg',
@@ -43,13 +43,19 @@ define(['require', 'page', 'schema', 'signinService', 'enrollSchema', 'enrollPag
     });
     ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvSigninAppProvider', 'srvSigninRoundProvider', 'srvEnrollPageProvider', 'srvSigninRecordProvider', 'srvTagProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvSigninAppProvider, srvSigninRoundProvider, srvSigninPageProvider, srvSigninRecordProvider, srvTagProvider) {
         var RouteParam = function(name) {
-            var baseURL = '/views/default/pl/fe/matter/signin/';
-            this.templateUrl = baseURL + name + '.html?_=' + ((new Date()) * 1);
+            var baseURL;
+            if (window.ScriptTimes && window.ScriptTimes.html && window.ScriptTimes.html[name]) {
+                this.templateUrl = window.ScriptTimes.html[name].path + '.html?_=' + window.ScriptTimes.html[name].time;
+            } else {
+                baseURL = '/views/default/pl/fe/matter/signin/';
+                this.templateUrl = baseURL + name + '.html?_=' + (new Date * 1);
+            }
             this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
+            this.reloadOnSearch = false;
             this.resolve = {
                 load: function($q) {
                     var defer = $q.defer();
-                    require([baseURL + name + '.js'], function() {
+                    require([name + 'Ctrl'], function() {
                         defer.resolve();
                     });
                     return defer.promise;

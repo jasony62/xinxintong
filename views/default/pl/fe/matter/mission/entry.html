@@ -76,8 +76,19 @@
                 <div class='input-group'>
                     <input class='form-control' readonly value="{{mission.entryUrl}}">
                     <div class='input-group-btn'>
-                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{mission.entryUrl}}">复制</button>
                         <a class='btn btn-default' ng-href="{{mission.entryUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label>接收项目定时通知的用户</label>
+                <div class="input-group">
+                    <input class='form-control' title="{{mission.userApp.title}}" value="{{mission.userApp.title}}" readonly="">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" ng-click="cancelUserApp()" ng-if="mission.userApp">
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                        <button class='btn btn-success' ng-click="assignUserApp()" ng-if="!mission.userApp">指定</button>
                     </div>
                 </div>
             </div>
@@ -91,6 +102,10 @@
             <div>
                 <button class='btn btn-default' ng-click="srvTimer.add(mission,timers,'remind')">添加定时通知规则</button>
             </div>
+            <div ng-if="timers.length">
+                <hr>
+                <a href ng-click="switchTo('notice')">查看通知发送日志</a>
+            </div>
         </div>
     </div>
     <div class='panel panel-default' ng-if="missionMschemas.length">
@@ -100,7 +115,6 @@
                 <div class='input-group'>
                     <input class='form-control' readonly value="{{mschema.fullUrl}}">
                     <div class='input-group-btn'>
-                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{mschema.fullUrl}}">复制</button>
                         <a class='btn btn-default' ng-href="{{mschema.fullUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                     </div>
                 </div>
@@ -114,7 +128,6 @@
                 <div class='input-group'>
                     <input class='form-control' readonly value="{{opEntry.url}}">
                     <div class='input-group-btn'>
-                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opEntry.url}}">复制</button>
                         <a class='btn btn-default' ng-href="{{opEntry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                     </div>
                 </div>
@@ -156,6 +169,10 @@
             <div>
                 <button class='btn btn-default' ng-click="srvTimer.add(mission,timers,'report')">添加定时通知规则</button>
             </div>
+            <div ng-if="timers.length">
+                <hr>
+                <a href ng-click="switchTo('notice')">查看通知发送日志</a>
+            </div>
         </div>
         <!-- end timer -->
     </div>
@@ -174,6 +191,38 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="assignUserApp.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="cancel()">×</button>
+            <h5 class="modal-title">指定项目用户名单</h5>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal">
+                <div class='form-group'>
+                    <label class="col-md-3 control-label">活动类型</label>
+                    <div class="col-md-9">
+                        <label class='radio-inline'>
+                            <input type='radio' value='group' ng-model="data.appType">分组活动</label>
+                        <label class='radio-inline'>
+                            <input type='radio' value='enroll' ng-model="data.appType">登记活动</label>
+                        <label class='radio-inline'>
+                            <input type='radio' value='signin' ng-model="data.appType">签到活动</label>
+                        <label class='radio-inline'>
+                            <input type='radio' value='mschema' ng-model="data.appType">通讯录</label>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class="col-md-3 control-label">目标活动</label>
+                    <div class="col-md-9">
+                        <select class="form-control" ng-model="data.appId" ng-options="app.id as app.title for app in apps" size=10></select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">确定</button>
         </div>
     </script>
 </div>

@@ -43,7 +43,7 @@ class main extends \pl\fe\base {
 		$options['groupby'] = 'r.matter_type,r.matter_id';
 		$options['shareby'] = 'N';
 		$options['orderby'] = 'readAt desc';
-		
+
 		if (!empty($page) && !empty($size)) {
 			$options['paging'] = ['page' => $page, 'size' => $size];
 		}
@@ -82,7 +82,7 @@ class main extends \pl\fe\base {
 		}
 		$options['byUserId'] = $modelLog->escape($filter->byUserId);
 		$options['byOp'] = $modelLog->escape($filter->byOp);
-		
+
 		if (!empty($filter->start)) {
 			$options['start'] = $modelLog->escape($filter->start);
 		}
@@ -201,9 +201,9 @@ class main extends \pl\fe\base {
 			return new \ResponseData(false);
 		}
 
-		$account = $this->model('account')->byId($loginUser->id, ['fields' => 'email,nickname']);
+		$oAccount = $this->model('account')->byId($loginUser->id, ['fields' => 'email,nickname']);
 
-		return new \ResponseData($account);
+		return new \ResponseData($oAccount);
 	}
 	/**
 	 * 修改当前用户的口令

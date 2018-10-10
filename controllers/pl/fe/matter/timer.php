@@ -70,20 +70,23 @@ class timer extends \pl\fe\base {
 		$oNewTimer->task_expire_at = isset($oNewTimer->expireAt) ? $oNewTimer->expireAt : 0;
 
 		if (isset($oConfig->timer)) {
+			isset($oConfig->timer->offset_matter_type) && $oNewTimer->offset_matter_type = $oConfig->timer->offset_matter_type;
 			isset($oConfig->timer->min) && $oNewTimer->min = $oConfig->timer->min;
 			isset($oConfig->timer->hour) && $oNewTimer->hour = $oConfig->timer->hour;
 			isset($oConfig->timer->mday) && $oNewTimer->mday = $oConfig->timer->mday;
 			isset($oConfig->timer->mon) && $oNewTimer->mon = $oConfig->timer->mon;
 			isset($oConfig->timer->wday) && $oNewTimer->wday = $oConfig->timer->wday;
 			$oNewTimer->wday = isset($oConfig->timer->wday) ? $oConfig->timer->wday : 'Y';
-			isset($oConfig->timer->lelf_count) && $oNewTimer->left_count = $oConfig->timer->left_count;
 		} else {
 			$oNewTimer->pattern = 'W';
 			$oNewTimer->mday = $oNewTimer->mon = $oNewTimer->wday = -1;
 			$oNewTimer->min = 0;
 			$oNewTimer->hour = 8;
 			$oNewTimer->notweekend = 'Y';
-			$oNewTimer->left_count = 1;
+			$oNewTimer->offset_matter_type = 'N'; // 固定时间，没有参照对象
+			$oNewTimer->offset_mode = 'AS';
+			$oNewTimer->offset_hour = 0;
+			$oNewTimer->offset_min = 0;
 		}
 
 		$oNewTimer->id = $modelTim->insert('xxt_timer_task', $oNewTimer, true);
@@ -102,30 +105,72 @@ class timer extends \pl\fe\base {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		$modelTim = $this->model('matter\timer');
+		$oBeforeTimer = $modelTim->byId($id);
+		if (false === $oBeforeTimer) {
+			return new \ObjectNotFoundError();
+		}
 
 		$oNewUpdate = $this->getPostJson();
 
-		/* 计算定时时间模式 */
+		if (empty($oNewUpdate->offset_matter_type) || !in_array($oNewUpdate->offset_matter_type, ['N', 'RC'])) {
+			return new \ParameterError('没有指定定时任务的相对时间模式');
+		}
 		if (empty($oNewUpdate->pattern)) {
 			return new \ParameterError('没有指定定时任务时间周期');
 		}
-		$pattern = $oNewUpdate->pattern;
+		if (empty($oNewUpdate->task_expire_at)) {
+			return new \ParameterError('没有指定定时任务的【终止时间】');
+		}
 
-		/* 时间规则 */
-		switch ($pattern) {
-		case 'Y': // year
-			$oNewUpdate->wday = -1;
+		switch ($oNewUpdate->offset_matter_type) {
+		case 'N': // 固定时间
+			$pattern = $oNewUpdate->pattern;
+			/* 时间规则 */
+			switch ($pattern) {
+			case 'Y': // year
+				$oNewUpdate->wday = -1;
+				break;
+			case 'M': // month
+				$oNewUpdate->mon = -1;
+				$oNewUpdate->wday = -1;
+				break;
+			case 'W': // week
+				$oNewUpdate->mon = -1;
+				$oNewUpdate->mday = -1;
+				break;
+			default:
+				return new \ParameterError('指定了不支持的定时任务时间周期【' . $pattern . '】');
+			}
 			break;
-		case 'M': // month
-			$oNewUpdate->mon = -1;
-			$oNewUpdate->wday = -1;
+		case 'RC': // 相对轮次规则的时间
+			if (empty($oNewUpdate->offset_matter_id)) {
+				return new \ParameterError('没有指定定时任务的相对时间参照的【填写轮次生成规则】');
+			}
+			if (empty($oNewUpdate->offset_mode) || !in_array($oNewUpdate->offset_mode, ['AS', 'BE'])) {
+				return new \ParameterError('没有指定定时任务的相对时间的参照模式');
+			}
+			$oMatter = $this->model('matter\\' . $oBeforeTimer->matter_type)->byId($oBeforeTimer->matter_id);
+			if (false === $oMatter || empty($oMatter->roundCron)) {
+				return new \ParameterError('定时任务的相对时间参照的【填写轮次生成规则】不存在');
+			}
+			foreach ($oMatter->roundCron as $oRule) {
+				if ($oRule->id === $oNewUpdate->offset_matter_id) {
+					$oReferCron = $oRule;
+					break;
+				}
+			}
+			if (!isset($oReferCron)) {
+				return new \ParameterError('定时任务的相对时间参照的【填写轮次生成规则】不存在');
+			}
+			$oResult = $modelTim->setTimeByRoundCron($oNewUpdate, $oReferCron, false);
+			if (false === $oResult[0]) {
+				return new \ParameterError($oResult[1]);
+			}
+			foreach ($oResult[1] as $prop => $val) {
+				$oNewUpdate->{$prop} = $val;
+			}
 			break;
-		case 'W': // week
-			$oNewUpdate->mon = -1;
-			$oNewUpdate->mday = -1;
-			break;
-		default:
-			return new \ParameterError('指定了不支持的定时任务时间周期【' . $pattern . '】');
 		}
 		if (isset($oNewUpdate->task_arguments)) {
 			$oTaskArguments = $oNewUpdate->task_arguments;
@@ -135,7 +180,7 @@ class timer extends \pl\fe\base {
 			$oNewUpdate->task_arguments = $this->escape($oNewUpdate->task_arguments);
 		}
 
-		$rst = $this->model()->update(
+		$rst = $modelTim->update(
 			'xxt_timer_task',
 			$oNewUpdate,
 			['id' => $id]

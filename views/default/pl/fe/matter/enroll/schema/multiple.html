@@ -1,7 +1,7 @@
 <div dnd-list dataset='schema.ops' state="{{schema.id}}" evt-prefix="options" class='schema-options'>
     <div class='option dndable' ng-class="{'entered':enter}" ng-repeat="op in schema.ops" ng-mouseenter="enter=true" ng-mouseleave="enter=false">
         <input type='checkbox'>
-        <div editable state="{{schema.id}}" data-index="{{$index}}" prop='l' obj='op' evt-prefix='option' no-remove="Y" ng-click="chooseOption($event,schema,op)"></div>
+        <div tms-editable state="{{schema.id}}" data-index="{{$index}}" prop='l' obj='op' evt-prefix='option' no-remove="Y" ng-click="chooseOption($event,schema,op)"></div>
         <div class="desc" ng-if="'html'!==op.type&&op.desc" ng-click="chooseOption($event,schema,op)">
             <span ng-bind-html="trustAsHtml(op,'desc')"></span>
         </div>

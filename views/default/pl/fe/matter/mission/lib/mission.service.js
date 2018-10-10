@@ -15,7 +15,7 @@ define(['require'], function(require) {
                     }
                     _getMissionDeferred = $q.defer();
                     url = '/rest/pl/fe/matter/mission/get?id=' + _missionId;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         var userApp;
                         _oMission = rsp.data;
                         _oMission.extattrs = (_oMission.extattrs && _oMission.extattrs.length) ? JSON.parse(_oMission.extattrs) : {};
@@ -131,14 +131,14 @@ define(['require'], function(require) {
                     deferred = $q.defer();
                     !oCriteria && (oCriteria = {});
                     url = '/rest/pl/fe/matter/mission/matter/list?id=' + _missionId;
-                    http2.post(url, oCriteria, function(rsp) {
+                    http2.post(url, oCriteria).then(function(rsp) {
                         deferred.resolve(rsp.data);
                     });
                     return deferred.promise;
                 },
                 matterCount: function() {
                     var deferred = $q.defer();
-                    http2.get('/rest/pl/fe/matter/mission/matter/count?id=' + _missionId, function(rsp) {
+                    http2.get('/rest/pl/fe/matter/mission/matter/count?id=' + _missionId).then(function(rsp) {
                         deferred.resolve(parseInt(rsp.data));
                     });
                     return deferred.promise;
@@ -170,7 +170,7 @@ define(['require'], function(require) {
 
                     url = '/rest/pl/fe/matter/mission/user/list?mission=' + _missionId;
                     url += '&' + oResultSet.page.j();
-                    http2.post(url, oResultSet.criteria, function(rsp) {
+                    http2.post(url, oResultSet.criteria).then(function(rsp) {
                         var records = rsp.data.records;
                         oResultSet.users.splice(0, oResultSet.users.length);
                         if (records && records.length) {
@@ -187,7 +187,7 @@ define(['require'], function(require) {
                 recordByUser: function(user) {
                     var deferred = $q.defer();
                     if (user.userid) {
-                        http2.get('/rest/pl/fe/matter/mission/report/recordByUser?mission=' + _missionId + '&user=' + user.userid, function(rsp) {
+                        http2.get('/rest/pl/fe/matter/mission/report/recordByUser?mission=' + _missionId + '&user=' + user.userid).then(function(rsp) {
                             deferred.resolve(rsp.data);
                         });
                     } else {
@@ -197,7 +197,7 @@ define(['require'], function(require) {
                 },
                 submit: function(modifiedData) {
                     var defer = $q.defer();
-                    http2.post('/rest/pl/fe/matter/mission/update?id=' + _missionId, modifiedData, function(rsp) {
+                    http2.post('/rest/pl/fe/matter/mission/update?id=' + _missionId, modifiedData).then(function(rsp) {
                         defer.resolve(rsp.data);
                     });
                     return defer.promise;
@@ -247,7 +247,7 @@ define(['require'], function(require) {
                     if (checkRid) {
                         url += '&checked=' + checkRid;
                     }
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         var _checked;
                         _rounds.splice(0, _rounds.length);
                         rsp.data.rounds.forEach(function(rnd) {
@@ -293,7 +293,7 @@ define(['require'], function(require) {
                             };
                         }]
                     }).result.then(function(newRound) {
-                        http2.post(_RestURL + 'add?site=' + _siteId + '&mission=' + _missionId, newRound, function(rsp) {
+                        http2.post(_RestURL + 'add?site=' + _siteId + '&mission=' + _missionId, newRound).then(function(rsp) {
                             if (_rounds.length > 0 && rsp.data.state == 1) {
                                 _rounds[0].state = 2;
                             }
@@ -352,7 +352,7 @@ define(['require'], function(require) {
                         var url = _RestURL;
                         if (rst.action === 'update') {
                             url += 'update?site=' + _siteId + '&mission=' + _missionId + '&rid=' + round.rid;
-                            http2.post(url, rst.data, function(rsp) {
+                            http2.post(url, rst.data).then(function(rsp) {
                                 if (_rounds.length > 1 && rst.data.state === '1') {
                                     _rounds[1].state = '2';
                                 }
@@ -360,102 +360,12 @@ define(['require'], function(require) {
                             });
                         } else if (rst.action === 'remove') {
                             url += 'remove?site=' + _siteId + '&mission=' + _missionId + '&rid=' + round.rid;
-                            http2.get(url, function(rsp) {
+                            http2.get(url).then(function(rsp) {
                                 _rounds.splice(_rounds.indexOf(round), 1);
                                 _oPage.total--;
                             });
                         }
                     });
-                },
-                cron: function() {
-                    var defer = $q.defer();
-                    srvMission.get().then(function(oApp) {
-                        $uibModal.open({
-                            templateUrl: '/views/default/pl/fe/matter/enroll/component/roundCron.html?_=2',
-                            size: 'lg',
-                            backdrop: 'static',
-                            controller: ['$scope', '$uibModalInstance', 'http2', function($scope, $mi, $http2) {
-                                var aCronRules, byPeriods, byIntervals;
-                                $scope.mdays = [];
-                                while ($scope.mdays.length < 28) {
-                                    $scope.mdays.push('' + ($scope.mdays.length + 1));
-                                }
-                                aCronRules = oApp.roundCron ? angular.copy(oApp.roundCron) : [];
-                                $scope.byPeriods = byPeriods = [];
-                                $scope.byIntervals = byIntervals = [];
-                                $scope.example = function(oRule) {
-                                    http2.post('/rest/pl/fe/matter/mission/round/getcron', { roundCron: oRule }, function(rsp) {
-                                        oRule.case = rsp.data;
-                                    });
-                                };
-                                aCronRules.forEach(function(oRule) {
-                                    switch (oRule.pattern) {
-                                        case 'period':
-                                            byPeriods.push(oRule);
-                                            break;
-                                        case 'interval':
-                                            byIntervals.push(oRule);
-                                            break;
-                                    }
-                                    $scope.example(oRule);
-                                });
-                                $scope.changePeriod = function(oRule) {
-                                    if (oRule.period !== 'W') {
-                                        oRule.wday = '';
-                                    }
-                                    if (oRule.period !== 'M') {
-                                        oRule.mday = '';
-                                    }
-                                };
-                                $scope.addPeriod = function() {
-                                    var oNewRule;
-                                    oNewRule = {
-                                        pattern: 'period',
-                                        period: 'D',
-                                        hour: 8
-                                    };
-                                    byPeriods.push(oNewRule);
-                                    aCronRules.push(oNewRule);
-                                };
-                                $scope.removePeriod = function(rule) {
-                                    byPeriods.splice(byPeriods.indexOf(rule), 1);
-                                    aCronRules.splice(aCronRules.indexOf(rule), 1);
-                                };
-                                $scope.addInterval = function() {
-                                    var oNewRule;
-                                    oNewRule = {
-                                        pattern: 'interval',
-                                        start_at: parseInt(new Date * 1 / 1000),
-                                    };
-                                    byIntervals.push(oNewRule);
-                                    aCronRules.push(oNewRule);
-                                };
-                                $scope.removeInterval = function(rule) {
-                                    byIntervals.splice(byIntervals.indexOf(rule), 1);
-                                    aCronRules.splice(aCronRules.indexOf(rule), 1);
-                                };
-                                $scope.$on('xxt.tms-datepicker.change', function(event, oData) {
-                                    oData.obj[oData.state] = oData.value;
-                                    $scope.example(oData.obj);
-                                });
-                                $scope.cancel = function() {
-                                    $mi.dismiss();
-                                };
-                                $scope.ok = function() {
-                                    $mi.close(aCronRules);
-                                };
-                            }]
-                        }).result.then(function(aCronRules) {
-                            aCronRules.forEach(function(oRule) {
-                                delete oRule.case;
-                            });
-                            srvMission.submit({ round_cron: aCronRules }).then(function() {
-                                oApp.roundCron = aCronRules;
-                                defer.resolve(aCronRules);
-                            });
-                        });
-                    });
-                    return defer.promise;
                 }
             };
         }];
@@ -475,7 +385,7 @@ define(['require'], function(require) {
                     }
                     _getMissionDeferred = $q.defer();
                     url = '/rest/site/op/matter/mission/get?site=' + _siteId + '&mission=' + _missionId + '&accessToken=' + _accessId;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         var userApp;
                         _oMission = rsp.data.mission;
                         _oMission.extattrs = (_oMission.extattrs && _oMission.extattrs.length) ? JSON.parse(_oMission.extattrs) : {};
@@ -554,7 +464,7 @@ define(['require'], function(require) {
                         url;
 
                     url = '/rest/site/op/matter/mission/matterList?site=' + _siteId + '&mission=' + _missionId + '&accessToken=' + _accessId;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         deferred.resolve(rsp.data);
                     });
                     return deferred.promise;
@@ -568,7 +478,7 @@ define(['require'], function(require) {
                     url += '?site=' + _siteId + '&mission=' + _missionId + '&accessToken=' + _accessId;
                     url += '&user=' + oUser.userid;
                     oApp && (url += '&app=' + oApp.type + ',' + oApp.id);
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         deferred.resolve(rsp.data);
                     });
                     return deferred.promise;

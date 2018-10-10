@@ -106,7 +106,7 @@
         <div dnd-list dataset='app.dataSchemas' evt-prefix="schemas" class='schemas'>
             <div data-schema-index="{{$index}}" class='dndable schema {{schema.type}}' ng-class="{'active':schema===activeSchema}" ng-repeat="schema in app.dataSchemas">
                 <div class='title' ng-if="schema.type!=='html'||schema.mediaType" ng-click="chooseSchema($event,schema)">
-                    <div editable prop='title' obj='schema' evt-prefix='title' no-remove="Y" style="min-height:34px;"></div>
+                    <div tms-editable prop='title' obj='schema' evt-prefix='title' no-remove="Y" style="min-height:34px;"></div>
                 </div>
                 <div class="description" ng-if="'html'!==schema.type&&schema.description">
                     <span ng-bind-html="trustAsHtml(schema,'description')"></span>
@@ -134,6 +134,8 @@
                 <div class='hint'>
                     <span class='text-danger small' ng-if="schema.required==='Y'">必填</span>
                     <span class='text-danger small' ng-if="schema.shareable==='Y'">共享</span>
+                    <span class='text-danger small' ng-if="schema.visibility.rules.length">可见条件</span>
+                    <span class='text-danger small' ng-if="schema.requireScore==='Y'">计分</span>
                 </div>
             </div>
         </div>

@@ -196,6 +196,51 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
+ * 设置转发接口
+ * 用于向后台业务系统转发收到的消息事件
+ */
+$sql = "create table if not exists xxt_call_relay_yx(";
+$sql .= 'id int not null auto_increment';
+$sql .= ',siteid varchar(32) not null';
+$sql .= ",title varchar(50) not null default ''";
+$sql .= ",url text null";
+$sql .= ',state tinyint not null default 1'; // 1:正常, 0:停用
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error(xxt_mprelay): ' . $mysqli->error;
+}
+/**
+ * 设置转发接口
+ * 用于向后台业务系统转发收到的消息事件
+ */
+$sql = "create table if not exists xxt_call_relay_wx(";
+$sql .= 'id int not null auto_increment';
+$sql .= ',siteid varchar(32) not null';
+$sql .= ",title varchar(50) not null default ''";
+$sql .= ",url text null";
+$sql .= ',state tinyint not null default 1'; // 1:正常, 0:停用
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error(xxt_mprelay): ' . $mysqli->error;
+}
+/**
+ * 设置转发接口
+ * 用于向后台业务系统转发收到的消息事件
+ */
+$sql = "create table if not exists xxt_call_relay_qy(";
+$sql .= 'id int not null auto_increment';
+$sql .= ',siteid varchar(32) not null';
+$sql .= ",title varchar(50) not null default ''";
+$sql .= ",url text null";
+$sql .= ',state tinyint not null default 1'; // 1:正常, 0:停用
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error(xxt_mprelay): ' . $mysqli->error;
+}
+/**
  * 定时消息推送
  */
 $sql = "create table if not exists xxt_timer_task(";
@@ -211,57 +256,18 @@ $sql .= ",mday int not null default -1";
 $sql .= ",mon int not null default -1";
 $sql .= ",wday int not null default -1";
 $sql .= ",notweekend char(1) not null default 'Y'";
+$sql .= ",offset_matter_type varchar(2) not null default 'N'"; // N:not, RC:Round Cron, Round:R
+$sql .= ",offset_matter_id varchar(13) not null default ''";
+$sql .= ",offset_mode char(2) not null default ''"; // 偏差的模式, AS:after start,BE:before end
+$sql .= ",offset_min int not null default 0"; // 和参考时间偏差的分钟数
+$sql .= ",offset_hour int not null default 0"; // 和参考时间偏差的小时数
 $sql .= ",left_count int not null default 1"; // 任务过期时间
 $sql .= ",task_model varchar(20) not null default ''"; // 执行任务的对象
 $sql .= ",task_arguments text"; // 执行任务的参数
 $sql .= ",task_expire_at int not null default 0"; // 任务过期时间
+$sql .= ",invalid_cause text null"; // 任务失效的原因
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error: ' . $mysqli->error;
-}
-/**
- * 设置转发接口
- * 用于向后台业务系统转发收到的消息事件
- */
-$sql = "create table if not exists xxt_call_relay_yx(";
-$sql .= 'id int not null auto_increment';
-$sql .= ',siteid varchar(32) not null';
-$sql .= ",title varchar(50) not null default ''";
-$sql .= ",url text";
-$sql .= ',state tinyint not null default 1'; // 1:正常, 0:停用
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_mprelay): ' . $mysqli->error;
-}
-/**
- * 设置转发接口
- * 用于向后台业务系统转发收到的消息事件
- */
-$sql = "create table if not exists xxt_call_relay_wx(";
-$sql .= 'id int not null auto_increment';
-$sql .= ',siteid varchar(32) not null';
-$sql .= ",title varchar(50) not null default ''";
-$sql .= ",url text";
-$sql .= ',state tinyint not null default 1'; // 1:正常, 0:停用
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_mprelay): ' . $mysqli->error;
-}
-/**
- * 设置转发接口
- * 用于向后台业务系统转发收到的消息事件
- */
-$sql = "create table if not exists xxt_call_relay_qy(";
-$sql .= 'id int not null auto_increment';
-$sql .= ',siteid varchar(32) not null';
-$sql .= ",title varchar(50) not null default ''";
-$sql .= ",url text";
-$sql .= ',state tinyint not null default 1'; // 1:正常, 0:停用
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_mprelay): ' . $mysqli->error;
 }

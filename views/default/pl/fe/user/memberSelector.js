@@ -34,7 +34,7 @@
         $scope.toggleChild = function(child) {
             if (!child.loaded) {
                 child.loaded = true;
-                http2.get('/rest/mp/user/department/list?authid=' + $scope.authid + '&pid=' + child.data.id, function(rsp) {
+                http2.get('/rest/mp/user/department/list?authid=' + $scope.authid + '&pid=' + child.data.id).then(function(rsp) {
                     var depts = rsp.data;
                     buildDepts(child.data.id, depts, child);
                 });
@@ -65,7 +65,7 @@
             }
         };
         $scope.searchTag = function() {
-            http2.get('/rest/pl/fe/site/member/tag/list?site=' + $scope.$parent.siteId + '&schema=' + $scope.$parent.memberschema.id, function(rsp) {
+            http2.get('/rest/pl/fe/site/member/tag/list?site=' + $scope.$parent.siteId + '&schema=' + $scope.$parent.memberschema.id).then(function(rsp) {
                 $scope.tags = rsp.data;
             });
         };
@@ -77,7 +77,7 @@
             url += '&page=' + $scope.page.at + '&size=' + $scope.page.size
             url += '&contain=total';
             params.length && (url += '&' + params.join('&'));
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.members = rsp.data.members;
                 rsp.data.total !== undefined && ($scope.page.total = rsp.data.total);
             });
@@ -100,7 +100,7 @@
         $scope.depts = {
             children: []
         };
-        http2.get('/rest/pl/fe/site/member/department/list?site=' + $scope.$parent.siteId + '&schema=' + $scope.$parent.memberschema.id, function(rsp) {
+        http2.get('/rest/pl/fe/site/member/department/list?site=' + $scope.$parent.siteId + '&schema=' + $scope.$parent.memberschema.id).then(function(rsp) {
             var depts = rsp.data;
             buildDepts(0, depts, $scope.depts, []);
         });

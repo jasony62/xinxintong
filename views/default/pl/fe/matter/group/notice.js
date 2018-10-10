@@ -6,7 +6,7 @@ define(['frame'], function(ngApp) {
         $scope.oBatchPage = oBatchPage = {};
         $scope.batches = aBatches = [];
         $scope.detail = function(batch) {
-            $scope.choosed = {value: 'N'};
+            $scope.choosed = { value: 'N' };
             srvGroupNotice.detail(batch).then(function(result) {
                 var records, noticeStatus;
                 $scope.logs = result.logs;
@@ -25,26 +25,26 @@ define(['frame'], function(ngApp) {
             })
         };
         $scope.fail = function(isCheck) {
-            if(isCheck == 'Y') {
-                for(var i=$scope.records.length-1; i>=0; i--) {
-                    if($scope.records[i].noticeStatus.indexOf('failed') == -1) {
-                        $scope.records.splice(i,1);
+            if (isCheck == 'Y') {
+                for (var i = $scope.records.length - 1; i >= 0; i--) {
+                    if ($scope.records[i].noticeStatus.indexOf('failed') == -1) {
+                        $scope.records.splice(i, 1);
                     }
                 }
-            }else {
+            } else {
                 $scope.detail($scope.activeBatch);
             }
         }
-        $scope.$watch('app', function(app) {
+        $scope.$watch('app', function(oApp) {
             var recordSchemas;
-            if (!app) return;
+            if (!oApp) return;
             recordSchemas = [];
-            app.data_schemas.forEach(function(schema) {
+            oApp.dataSchemas.forEach(function(schema) {
                 if (schema.type !== 'html') {
                     recordSchemas.push(schema);
                 }
             });
-            srvTmplmsgNotice.init('group:' + app.id, oBatchPage, aBatches);
+            srvTmplmsgNotice.init('group:' + oApp.id, oBatchPage, aBatches);
             srvTmplmsgNotice.list();
             $scope.tmsTableWrapReady = 'Y';
             $scope.recordSchemas = recordSchemas;

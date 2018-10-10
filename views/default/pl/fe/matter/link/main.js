@@ -14,7 +14,7 @@ define(['frame'], function(ngApp) {
             '{{site}}': '公众号标识',
         };
         var getInitData = function() {
-            http2.get('/rest/pl/fe/matter/link/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
+            http2.get('/rest/pl/fe/matter/link/get?site=' + $scope.siteId + '&id=' + $scope.id).then(function(rsp) {
                 editLink(rsp.data);
             });
         };
@@ -60,12 +60,12 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.remove = function() {
-            http2.get('/rest/pl/fe/matter/link/remove?site=' + $scope.siteId + '&id=' + $scope.id, function() {
+            http2.get('/rest/pl/fe/matter/link/remove?site=' + $scope.siteId + '&id=' + $scope.id).then(function() {
                 location.href = '/rest/pl/fe/site/console?site=' + $scope.siteId;
             });
         };
         $scope.submit = function() {
-            http2.post('/rest/pl/fe/matter/link/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData, function() {
+            http2.post('/rest/pl/fe/matter/link/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData).then(function() {
                 modifiedData = {};
                 $scope.modified = false;
             });
@@ -89,7 +89,7 @@ define(['frame'], function(ngApp) {
                     };
                     var url = '/rest/pl/fe/matter/group/list?site=' + $scope.editing.siteid + '&size=999&cascaded=Y';
                     $scope.editing.mission && (url += '&mission=' + $scope.editing.mission.id);
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         $scope2.apps = rsp.data.apps;
                     });
                 }],
@@ -205,7 +205,7 @@ define(['frame'], function(ngApp) {
             $scope.update('pic');
         };
         $scope.addParam = function() {
-            http2.get('/rest/pl/fe/matter/link/paramAdd?site=' + $scope.siteId + '&linkid=' + $scope.editing.id, function(rsp) {
+            http2.get('/rest/pl/fe/matter/link/paramAdd?site=' + $scope.siteId + '&linkid=' + $scope.editing.id).then(function(rsp) {
                 var oNewParam = {
                     id: rsp.data,
                     pname: 'newparam',
@@ -224,7 +224,7 @@ define(['frame'], function(ngApp) {
             http2.post('/rest/pl/fe/matter/link/paramUpd?site=' + $scope.siteId + '&id=' + updated.id, p);
         };
         $scope.removeParam = function(removed) {
-            http2.get('/rest/pl/fe/matter/link/removeParam?id=' + removed.id, function(rsp) {
+            http2.get('/rest/pl/fe/matter/link/removeParam?id=' + removed.id).then(function(rsp) {
                 var i = $scope.editing.params.indexOf(removed);
                 $scope.editing.params.splice(i, 1);
             });
@@ -253,7 +253,7 @@ define(['frame'], function(ngApp) {
                         id: $scope.id,
                         type: 'link'
                     };
-                    http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.siteId + '&id=' + missions.matters[0].id, matter, function(rsp) {
+                    http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.siteId + '&id=' + missions.matters[0].id, matter).then(function(rsp) {
                         var mission = rsp.data;
 
                         $scope.editing.mission = mission;
@@ -279,7 +279,7 @@ define(['frame'], function(ngApp) {
                     type: 'link',
                     title: $scope.editing.title
                 },
-                http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + $scope.siteId + '&id=' + $scope.editing.mission_id, matter, function(rsp) {
+                http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + $scope.siteId + '&id=' + $scope.editing.mission_id, matter).then(function(rsp) {
                     delete $scope.editing.mission;
                     $scope.editing.mission_id = 0;
                     modifiedData['mission_id'] = 0;
@@ -318,21 +318,21 @@ define(['frame'], function(ngApp) {
             switch (nv) {
                 case '1':
                     if ($scope.news === undefined) {
-                        http2.get('/rest/pl/fe/matter/news/list?site=' + $scope.siteId + '&cascade=N', function(rsp) {
+                        http2.get('/rest/pl/fe/matter/news/list?site=' + $scope.siteId + '&cascade=N').then(function(rsp) {
                             $scope.news = rsp.data.docs;
                         });
                     }
                     break;
                 case '2':
                     if ($scope.channels === undefined) {
-                        http2.get('/rest/pl/fe/matter/channel/list?site=' + $scope.siteId + '&cascade=N', function(rsp) {
+                        http2.get('/rest/pl/fe/matter/channel/list?site=' + $scope.siteId + '&cascade=N').then(function(rsp) {
                             $scope.channels = rsp.data.docs;
                         });
                     }
                     break;
                 case '3':
                     if ($scope.inners === undefined) {
-                        http2.get('/rest/pl/fe/matter/inner/list?site=' + $scope.siteId, function(rsp) {
+                        http2.get('/rest/pl/fe/matter/inner/list?site=' + $scope.siteId).then(function(rsp) {
                             $scope.inners = rsp.data;
                         });
                     }
@@ -340,8 +340,5 @@ define(['frame'], function(ngApp) {
             }
         });
         getInitData();
-        (function() {
-            new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
-        })();
     }]);
 });

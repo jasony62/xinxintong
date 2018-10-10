@@ -363,6 +363,18 @@ class base extends \site\fe\base {
 		}
 	}
 	/**
+	 * 跳转到用户登陆注册页
+	 */
+	protected function gotoAccess() {
+		$originUrl = $this->getRequestUrl();
+		// 对url加密避免在浏览器地址栏上直接显示
+		$originUrl = $this->model()->encrypt($originUrl, 'ENCODE', 'originUrl');
+		$authUrl = '/rest/site/fe/user/access';
+		$authUrl .= '?originUrl=' . $originUrl . '&urlEncryptKey=originUrl';
+
+		$this->redirect($authUrl);
+	}
+	/**
 	 * 检查参与规则
 	 *
 	 * @param object $oApp
@@ -377,6 +389,17 @@ class base extends \site\fe\base {
 		$oEntryRule = $oApp->entryRule;
 		$oScope = $oEntryRule->scope;
 
+		if (isset($oScope->register) && $oScope->register === 'Y') {
+			$checkRegister = $this->checkRegisterEntryRule($oUser);
+			if ($checkRegister[0] === false) {
+				if (true === $bRedirect) {
+					$this->gotoAccess();
+				} else {
+					$msg = '未检测到您的注册信息，不满足【' . $oApp->title . '】的参与规则，请登陆后再尝试操作。';
+					return [false, $msg];
+				}
+			}
+		}
 		if (isset($oScope->member) && $oScope->member === 'Y') {
 			if (empty($oEntryRule->optional->member) || $oEntryRule->optional->member !== 'Y') {
 				if (!isset($oEntryRule->member)) {
@@ -457,5 +480,37 @@ class base extends \site\fe\base {
 		}
 
 		return [true];
+	}
+	/**
+	 * 检查用户是否是注册用户
+	 */
+	protected function checkRegisterEntryRule($oUser) {
+		$checkRegister = false;
+
+		if (empty($oUser->unionid)) {
+			$modelAct = $this->model('site\user\account');
+			$getUserRegisterInfo = function ($unionid) use ($modelAct) {
+				$q = [
+					'count(uid)',
+					'account',
+					"uid = '" . $modelAct->escape($unionid) . "' and forbidden = 0"
+				];
+				$val = (int) $modelAct->query_val_ss($q);
+				return $val;
+			};
+
+			$siteUser = $modelAct->byId($oUser->uid, ['fields' => 'unionid']);
+			if ($siteUser && !empty($siteUser->unionid)) {
+				$val = $getUserRegisterInfo($siteUser->unionid);
+				if ($val > 0) {
+					$checkRegister = true;
+				}
+			}
+		} else {
+			$checkRegister = true;			
+		}
+
+		$result = [$checkRegister];
+		return $result;
 	}
 }

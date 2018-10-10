@@ -1,5 +1,5 @@
 'use strict';
-var ngApp = angular.module('app', ['ui.tms', 'ui.bootstrap']);
+var ngApp = angular.module('app', ['ui.tms', 'ui.bootstrap', 'http.ui.xxt', 'notice.ui.xxt']);
 ngApp.config(['$locationProvider', '$controllerProvider', function($locationProvider, $controllerProvider) {
     $locationProvider.html5Mode(true);
     ngApp.register = {
@@ -40,7 +40,7 @@ ngApp.controller('pageCtrl', ['$rootScope', '$scope', '$location', 'http2', '$ti
     $scope.save = function(name) {
         var p = {};
         p[name] = encodeURIComponent(oEditors[name].getValue());
-        http2.post('/rest/pl/fe/code/update?id=' + $scope.page.id, p, function(rsp) {
+        http2.post('/rest/pl/fe/code/update?id=' + $scope.page.id, p).then(function(rsp) {
             $rootScope.infomsg = '保存成功';
             $scope[name + 'Changed'] = false;
         });
@@ -75,7 +75,7 @@ ngApp.controller('pageCtrl', ['$rootScope', '$scope', '$location', 'http2', '$ti
                 };
             }]
         }).result.then(function(rst) {
-            http2.post('/rest/pl/fe/code/addExternal?id=' + $scope.page.id, rst, function(rsp) {
+            http2.post('/rest/pl/fe/code/addExternal?id=' + $scope.page.id, rst).then(function(rsp) {
                 if (type === 'J')
                     $scope.page.ext_js.push(rsp.data);
                 else if (type === 'C')
@@ -84,14 +84,14 @@ ngApp.controller('pageCtrl', ['$rootScope', '$scope', '$location', 'http2', '$ti
         });
     };
     $scope.removeExternal = function(ext, index) {
-        http2.get('/rest/pl/fe/code/delExternal?id=' + ext.id, function(rsp) {
+        http2.get('/rest/pl/fe/code/delExternal?id=' + ext.id).then(function(rsp) {
             if (ext.type === 'J')
                 $scope.page.ext_js.splice(index, 1);
             else if (ext.type === 'C')
                 $scope.page.ext_css.splice(index, 1);
         });
     };
-    http2.get('/rest/pl/fe/code/get?site=' + $location.search().site + '&name=' + $location.search().name, function(rsp) {
+    http2.get('/rest/pl/fe/code/get?site=' + $location.search().site + '&name=' + $location.search().name).then(function(rsp) {
         $scope.page = rsp.data;
         oEditors.html.setValue($scope.page.html);
         oEditors.html.getSession().setUndoManager(new ace.UndoManager());

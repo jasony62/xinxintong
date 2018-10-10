@@ -326,12 +326,6 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
         var oConfig, rankItems, dataSchemas, facRound;
         oApp = params.app;
         dataSchemas = oApp.dynaDataSchemas;
-        for (var i = dataSchemas.length - 1; i >= 0; i--) {
-            if (Object.keys(dataSchemas[i]).indexOf('remarkable') !== -1 && dataSchemas[i].remarkable == 'Y') {
-                $scope.isRemark = true;
-                break;
-            }
-        }
         /* 排行显示内容设置 */
         rankItems = ['enroll', 'remark', 'like', 'remark_other', 'do_like', 'total_coin', 'score', 'average_score'];
         oConfig = {};
@@ -419,12 +413,18 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
             addRecord: {}
         };
         /*设置页面导航*/
-        var oAppNavs = {};
-        if (oApp.can_repos === 'Y') {
-            oAppNavs.repos = {};
-        }
-        if (oApp.scenarioConfig && oApp.scenarioConfig.can_action === 'Y') {
-            oAppNavs.event = {};
+        var oAppNavs = {
+            length: 0
+        };
+        if (oApp.scenarioConfig) {
+            if (oApp.scenarioConfig.can_repos === 'Y') {
+                oAppNavs.repos = {};
+                oAppNavs.length++;
+            }
+            if (oApp.scenarioConfig.can_action === 'Y') {
+                oAppNavs.event = {};
+                oAppNavs.length++;
+            }
         }
         if (Object.keys(oAppNavs).length) {
             $scope.appNavs = oAppNavs;

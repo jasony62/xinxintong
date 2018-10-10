@@ -1,12 +1,12 @@
 'use strict';
-define(["require", "angular", "enrollService"], function(require, angular) {
+define(["require", "enrollService"], function(require) {
     var ls, siteId, appId, accessId, ngApp;
     ls = location.search;
     siteId = ls.match(/[\?&]site=([^&]*)/)[1];
     appId = ls.match(/[\?&]app=([^&]*)/)[1];
     accessId = ls.match(/[\?&]accessToken=([^&]*)/)[1];
 
-    ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'schema.ui.xxt', 'service.matter', 'service.enroll']);
+    ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'schema.ui.xxt', 'service.matter', 'service.enroll']);
     ngApp.constant('cstApp', {});
     ngApp.config(['$locationProvider', '$routeProvider', '$uibTooltipProvider', 'srvEnrollAppProvider', 'srvOpEnrollRecordProvider', 'srvEnrollRecordProvider', 'srvOpEnrollRoundProvider', function($locationProvider, $routeProvider, $uibTooltipProvider, srvEnrollAppProvider, srvOpEnrollRecordProvider, srvEnrollRecordProvider, srvOpEnrollRoundProvider) {
         var RouteParam = function(name, baseURL) {
@@ -37,13 +37,12 @@ define(["require", "angular", "enrollService"], function(require, angular) {
         $scope.switchTo = function(view) {
             $location.path('/rest/site/op/matter/enroll/' + view);
         };
-        http2.get('/rest/site/fe/user/get?site=' + siteId, function(rsp) {
+        http2.get('/rest/site/fe/user/get?site=' + siteId).then(function(rsp) {
             $scope.user = rsp.data;
             srvEnrollApp.opGet().then(function(oApp) {
                 // schemas
                 var recordSchemas = [],
                     recordSchemas2 = [],
-                    remarkableSchemas = [],
                     imageSchemas = [],
                     enrollDataSchemas = [],
                     groupDataSchemas = [],
@@ -56,18 +55,12 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     if (schema.type === 'image') {
                         imageSchemas.push(schema);
                     }
-                    if (schema.remarkable && schema.remarkable === 'Y') {
-                        remarkableSchemas.push(schema);
-                        recordSchemas2.push({ type: 'remark', title: '留言数', id: schema.id });
-                        recordSchemas2.push({ type: 'agreed', title: '设置态度', id: schema.id });
-                    }
                     if (schema.format && schema.format === 'number') {
                         numberSchemas.push(schema);
                     }
                 });
                 $scope.recordSchemas = recordSchemas;
                 $scope.recordSchemas2 = recordSchemas2;
-                $scope.remarkableSchemas = remarkableSchemas;
                 $scope.imageSchemas = imageSchemas;
                 $scope.numberSchemas = numberSchemas;
                 oApp._schemasFromEnrollApp.forEach(function(schema) {
@@ -408,16 +401,6 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                         }
                     });
                 }
-                /* 点评数据 */
-                var remarkableSchemas = [];
-                oApp.dataSchemas.forEach(function(schema) {
-                    if (schema.remarkable === 'Y') {
-                        schema._open = false;
-                        oBeforeRecord.verbose && oBeforeRecord.verbose[schema.id] && (schema.summary = oBeforeRecord.verbose[schema.id]);
-                        remarkableSchemas.push(schema);
-                    }
-                });
-                $scope.remarkableSchemas = remarkableSchemas;
                 $scope.record = oRecord = angular.copy(oBeforeRecord);
                 window.loading.finish();
             });
@@ -651,7 +634,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     url += '&schema=' + schema.id + '&page=' + page.at + '&size=' + page.size;
                     url += '&rid=' + (rid ? rid : '');
                     cached._running = true;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         cached._running = false;
                         cached.page = {
                             at: page.at,
@@ -694,7 +677,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
         url += '&accessToken=' + $scope.accessToken;
         url += '&rid=' + (rid ? rid : '');
 
-        http2.get(url, function(rsp) {
+        http2.get(url).then(function(rsp) {
             var app, stat = {};
 
             app = rsp.data.app;
@@ -835,7 +818,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
 
             defer = $q.defer();
             url = '/rest/site/op/matter/enroll/remark/byApp?site=' + $location.search().site + '&accessToken=' + $location.search().accessToken + '&app=' + $location.search().app + '&' + oPage.j();
-            http2.post(url, oCriteria, function(rsp) {
+            http2.post(url, oCriteria).then(function(rsp) {
                 defer.resolve(rsp.data);
             });
             return defer.promise;
@@ -897,10 +880,10 @@ define(["require", "angular", "enrollService"], function(require, angular) {
             $uibModal.open({
                 templateUrl: '/views/default/pl/fe/matter/enroll/component/remarkFilter.html?_=1',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                    http2.get('/rest/site/op/matter/enroll/user/enrollee?site=' + $location.search().site + '&accessToken' + $location.search().accessToken + '&app=' + $location.search().app, function(rsp) {
+                    http2.get('/rest/site/op/matter/enroll/user/enrollee?site=' + $location.search().site + '&accessToken' + $location.search().accessToken + '&app=' + $location.search().app).then(function(rsp) {
                         $scope2.enrollees = rsp.data.users;
                     });
-                    http2.get('/rest/site/op/matter/enroll/user/remarker?site=' + $location.search().site + '&accessToken=' + $location.search().accessToken + '&app=' + $location.search().app, function(rsp) {
+                    http2.get('/rest/site/op/matter/enroll/user/remarker?site=' + $location.search().site + '&accessToken=' + $location.search().accessToken + '&app=' + $location.search().app).then(function(rsp) {
                         $scope2.remarkers = rsp.data.users;
                     });
                     $scope2.criteria = oCriteria;

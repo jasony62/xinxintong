@@ -12,7 +12,7 @@ define(['main'], function(ngApp) {
         $scope.fetch = function() {
             var url;
             url = '/rest/pl/be/log/sys/list?' + $scope.page.param();
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.page.total = rsp.data.total;
                 $scope.logs = rsp.data.logs;
             });
@@ -21,7 +21,7 @@ define(['main'], function(ngApp) {
             if (window.confirm('确定删除？')) {
                 var url;
                 url = '/rest/pl/be/log/sys/remove?id=' + log.id;
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     $scope.logs.splice(index, 1);
                     $scope.page.total--;
                 });

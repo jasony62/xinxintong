@@ -1,6 +1,6 @@
 define(['require'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'tmplshop.ui.xxt', 'pl.const', 'service.matter', 'page.ui.xxt', 'modal.ui.xxt', 'schema.ui.xxt', 'ui.xxt']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'http.ui.xxt', 'notice.ui.xxt', 'tmplshop.ui.xxt', 'pl.const', 'service.matter', 'page.ui.xxt', 'modal.ui.xxt', 'schema.ui.xxt', 'ui.xxt']);
     ngApp.constant('cstApp', {
         matterNames: {
             doc: {
@@ -82,11 +82,11 @@ define(['require'], function(require) {
         };
         $scope.opened = 'main';
         var url = '/rest/pl/fe/user/get?_=' + (new Date * 1);
-        http2.get(url, function(rsp) {
+        http2.get(url).then(function(rsp) {
             $scope.loginUser = rsp.data;
         });
         $scope.getMatterTag = function() {
-            http2.get('/rest/pl/fe/matter/tag/listTags?site=' + _oFrameState.sid, function(rsp) {
+            http2.get('/rest/pl/fe/matter/tag/listTags?site=' + _oFrameState.sid).then(function(rsp) {
                 $scope.tagsMatter = rsp.data;
             });
         };
@@ -114,22 +114,22 @@ define(['require'], function(require) {
         /*新建素材*/
         var _fns = {
             addLink: function(site) {
-                http2.get('/rest/pl/fe/matter/link/create?site=' + site.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/link/create?site=' + site.id).then(function(rsp) {
                     location.href = '/rest/pl/fe/matter/link?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
             addArticle: function(site) {
-                http2.get('/rest/pl/fe/matter/article/create?site=' + site.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/article/create?site=' + site.id).then(function(rsp) {
                     location.href = '/rest/pl/fe/matter/article?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
             addNews: function(site) {
-                http2.get('/rest/pl/fe/matter/news/create?site=' + site.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/news/create?site=' + site.id).then(function(rsp) {
                     location.href = '/rest/pl/fe/matter/news?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
             addChannel: function(site) {
-                http2.get('/rest/pl/fe/matter/channel/create?site=' + site.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/channel/create?site=' + site.id).then(function(rsp) {
                     location.href = '/rest/pl/fe/matter/channel?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
@@ -143,17 +143,17 @@ define(['require'], function(require) {
                 location.href = '/rest/pl/fe/matter/group/plan?site=' + site.id;
             },
             addLottery: function(site) {
-                http2.get('/rest/pl/fe/matter/lottery/create?site=' + site.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/lottery/create?site=' + site.id).then(function(rsp) {
                     location.href = '/rest/pl/fe/matter/lottery?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
             addCustom: function(site) {
-                http2.get('/rest/pl/fe/matter/custom/create?site=' + site.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/custom/create?site=' + site.id).then(function(rsp) {
                     location.href = '/rest/pl/fe/matter/custom?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
             addMerchant: function(site) {
-                http2.get('/rest/pl/fe/matter/merchant/shop/create?site=' + site.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/merchant/shop/create?site=' + site.id).then(function(rsp) {
                     location.href = '/rest/pl/fe/matter/merchant/shop?site=' + site.id + '&id=' + rsp.data;
                 });
             },
@@ -186,7 +186,7 @@ define(['require'], function(require) {
             var url, oPlSite;
             url = '/rest/pl/fe/site/list';
             oPlSite = { id: '_coworker', name: '被邀合作项目' };
-            http2.get(url + '?_=' + (new Date * 1), function(rsp) {
+            http2.get(url + '?_=' + (new Date * 1)).then(function(rsp) {
                 var userSites;
                 $scope.sites = userSites = rsp.data;
                 userSites.splice(0, 0, oPlSite);

@@ -165,7 +165,7 @@ xxtMembers.controller('MemberAclController', ['$rootScope', '$scope', 'http2', '
         }
     };
     $scope.changeAcl = function(newAcl, state) {
-        http2.post($scope.changeAclUrl, newAcl, function(rsp) {
+        http2.post($scope.changeAclUrl, newAcl).then(function(rsp) {
             if (newAcl.id === undefined)
                 newAcl.id = rsp.data.id;
             if (newAcl.idsrc === '') newAcl.label = newAcl.identity;
@@ -179,7 +179,7 @@ xxtMembers.controller('MemberAclController', ['$rootScope', '$scope', 'http2', '
         if (acl.id === undefined)
             $scope.obj[$scope.propAcl].splice(i, 1);
         else {
-            http2.get($scope.removeAclUrl + '&acl=' + acl.id, function(rsp) {
+            http2.get($scope.removeAclUrl + '&acl=' + acl.id).then(function(rsp) {
                 $scope.obj[$scope.propAcl].splice(i, 1);
             });
         }
@@ -189,7 +189,7 @@ xxtMembers.controller('MemberAclController', ['$rootScope', '$scope', 'http2', '
             setObjMemberSchemas();
         }
     });
-    http2.get('/rest/pl/fe/site/member/schema/list?site=' + $scope.siteId + '&valid=Y', function(rsp) {
+    http2.get('/rest/pl/fe/site/member/schema/list?site=' + $scope.siteId + '&valid=Y').then(function(rsp) {
         $scope.memberschemas = rsp.data;
         if ($scope.obj) {
             setObjMemberSchemas();
@@ -258,16 +258,16 @@ xxtMembers.controller('UserPickerController', ['http2', '$scope', function(http2
     $scope.$watch('userSet.userScope', function(nv) {
         if (nv && nv.length) {
             if (nv === 'mp') {
-                http2.get('/rest/mp/mpaccount/childmps', function(rsp) {
+                http2.get('/rest/mp/mpaccount/childmps').then(function(rsp) {
                     $scope.childmps = rsp.data;
                 });
             } else if (nv === 'g' && $scope.groups === undefined) {
-                http2.get('/rest/mp/user/fans/group', function(rsp) {
+                http2.get('/rest/mp/user/fans/group').then(function(rsp) {
                     $scope.groups = rsp.data;
                 });
             } else if (/ms_\d+/.test(nv)) {
                 $scope.memberschema = getPickedMemberSchema();
-                http2.get($scope.memberschema.url + '/memberSelector?site=' + $scope.siteId + '&id=' + $scope.memberschema.id, function(rsp) {
+                http2.get($scope.memberschema.url + '/memberSelector?site=' + $scope.siteId + '&id=' + $scope.memberschema.id).then(function(rsp) {
                     $.getScript(rsp.data.js, function() {
                         $scope.memberViewUrl = rsp.data.view;
                         $scope.$apply('memberViewUrl');
@@ -305,7 +305,7 @@ xxtMembers.controller('UserPickerController', ['http2', '$scope', function(http2
         $scope.userSet.members.splice($scope.userSet.members.indexOf(member), 1);
     });
     if ($scope.canMember()) {
-        http2.get('/rest/pl/fe/site/member/schema/list?site=' + $scope.siteId, function(rsp) {
+        http2.get('/rest/pl/fe/site/member/schema/list?site=' + $scope.siteId).then(function(rsp) {
             $scope.memberschemas = rsp.data;
         });
     }

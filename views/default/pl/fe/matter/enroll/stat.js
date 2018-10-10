@@ -25,7 +25,7 @@ define(['frame'], function(ngApp) {
             url += '?site=' + oApp.siteid;
             url += '&app=' + oApp.id;
             url += '&rid=' + (_rid || '');
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 var oStatData = {};
                 $scope.schemasForReport.forEach(function(oSchema) {
                     var oStatBySchema;
@@ -121,7 +121,7 @@ define(['frame'], function(ngApp) {
                     url += '?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
                     url += '&schema=' + schema.id + '&page=' + page.at + '&size=' + page.size + '&rid=' + (_rid || '');
                     cached._running = true;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         cached._running = false;
                         cached.page = {
                             at: page.at,

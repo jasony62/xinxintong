@@ -1,4 +1,5 @@
 <div class="input-group">
+    <span class='input-group-addon' ng-bind="title" ng-if="titleAddon==='show'"></span>
     <div class="form-control" title="{{title}}">
         <span ng-show="date>0" ng-bind="date*1000|date:format"></span>
     </div>

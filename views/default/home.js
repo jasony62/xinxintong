@@ -1,11 +1,12 @@
 'use strict';
+require('../../asset/js/xxt.ui.http.js');
 require('../../asset/js/xxt.ui.page.js');
 require('../../asset/js/xxt.ui.subscribe.js');
 require('../../asset/js/xxt.ui.favor.js');
 require('../../asset/js/xxt.ui.forward.js');
 
 
-var ngApp = angular.module('app', ['ngSanitize', 'ui.bootstrap', 'ui.tms', 'page.ui.xxt', 'subscribe.ui.xxt', 'favor.ui.xxt', 'forward.ui.xxt']);
+var ngApp = angular.module('app', ['ngSanitize', 'ui.bootstrap', 'ui.tms', 'http.ui.xxt', 'page.ui.xxt', 'subscribe.ui.xxt', 'favor.ui.xxt', 'forward.ui.xxt']);
 ngApp.config(['$locationProvider', '$controllerProvider', '$uibTooltipProvider', function($lp, $cp, $uibTooltipProvider) {
     $lp.html5Mode(true);
     ngApp.provider = {
@@ -24,7 +25,7 @@ ngApp.provider('srvUser', function() {
                     return _getSiteUserDeferred.promise;
                 }
                 _getSiteUserDeferred = $q.defer();
-                http2.get('/rest/site/fe/user/get?site=' + siteId, function(rsp) {
+                http2.get('/rest/site/fe/user/get?site=' + siteId).then(function(rsp) {
                     _getSiteUserDeferred.resolve(rsp.data);
                 });
                 return _getSiteUserDeferred.promise;
@@ -61,7 +62,7 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', '$q', '$uibModal', 'http2', 
         var defer = $q.defer(),
             url = '/rest/pl/fe/site/create?_=' + (new Date() * 1);
 
-        http2.get(url, function(rsp) {
+        http2.get(url).then(function(rsp) {
             defer.resolve(rsp.data);
         });
         return defer.promise;
@@ -71,8 +72,8 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', '$q', '$uibModal', 'http2', 
         var url = '/rest/pl/fe/template/purchase?template=' + template.id;
         url += '&site=' + site.id;
 
-        http2.get(url, function(rsp) {
-            http2.get('/rest/pl/fe/matter/enroll/createByOther?site=' + site.id + '&template=' + template.id, function(rsp) {
+        http2.get(url).then(function(rsp) {
+            http2.get('/rest/pl/fe/matter/enroll/createByOther?site=' + site.id + '&template=' + template.id).then(function(rsp) {
                 location.href = '/rest/pl/fe/matter/enroll?id=' + rsp.data.id + '&site=' + site.id;
             });
         });
@@ -96,7 +97,7 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', '$q', '$uibModal', 'http2', 
     $scope.favorTemplate = function(template) {
         if (oUser.loginExpire) {
             var url = '/rest/pl/fe/template/siteCanFavor?template=' + template.id + '&_=' + (new Date() * 1);
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 var sites = rsp.data;
                 $uibModal.open({
                     templateUrl: 'favorTemplateSite.html',
@@ -126,7 +127,7 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', '$q', '$uibModal', 'http2', 
                         sites.push(site.id);
                     });
                     url += '&site=' + sites.join(',');
-                    http2.get(url, function(rsp) {});
+                    http2.get(url).then(function(rsp) {});
                 });
             });
         }
@@ -135,7 +136,7 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', '$q', '$uibModal', 'http2', 
     $scope.useTemplate = function(template) {
         if (oUser.loginExpire) {
             var url = '/rest/pl/fe/site/list?_=' + (new Date() * 1);
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 var sites = rsp.data;
                 if (sites.length === 1) {
                     useTemplate(sites[0], template);
@@ -207,7 +208,7 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', '$q', '$uibModal', 'http2', 
     $scope.openTemplate = function(template) {
         location.href = '/rest/site/fe/matter/template?template=' + template.id;
     };
-    http2.get('/rest/home/get', function(rsp) {
+    http2.get('/rest/home/get').then(function(rsp) {
         platform = rsp.data.platform;
         if (platform.home_page === false) {
             // 没有设置主页

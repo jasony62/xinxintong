@@ -34,10 +34,16 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
         location.href = (matter.type || matter.matter_type) !== undefined ? matter.url : '/rest/site/home?site=' + matter.siteid;
     };
     $scope.checked = function(index) {
-        $('.mobile_qrcodes a').removeClass('active').addClass('unchecked');
-        $('.mobile_qrcodes a').eq(index).removeClass('unchecked').addClass('active');
-        $scope.url = $scope.platform.home_qrcode_group[index].picUrl;
+        var qrcodes = $('.mobile_qrcodes a');
+        qrcodes.removeClass('active').addClass('unchecked');
+        qrcodes.eq(index).removeClass('unchecked').addClass('active');
+        if ($scope.platform && $scope.platform.home_qrcode_group && $scope.platform.home_qrcode_group.length && $scope.platform.home_qrcode_group[index]) {
+            $scope.url = $scope.platform.home_qrcode_group[index].picUrl;
+        } else {
+            $scope.url = '';
+        }
     };
+
     function dealImgSrc(item) {
         if (Object.keys(item).indexOf('pic') !== -1 && item.pic == null) {
             item.src = item.pic = '';

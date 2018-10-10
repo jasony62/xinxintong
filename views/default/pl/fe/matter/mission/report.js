@@ -31,7 +31,7 @@ define(['frame'], function(ngApp) {
                                 });
                             } else {
                                 var url = '/rest/pl/fe/matter/' + appType + '/list?mission=' + mission.id;
-                                http2.get(url, function(rsp) {
+                                http2.get(url).then(function(rsp) {
                                     $scope2.apps = rsp.data.apps;
                                 });
                             }
@@ -45,14 +45,14 @@ define(['frame'], function(ngApp) {
                 $scope.update(['user_app_id', 'user_app_type']).then(function(rsp) {
                     if (data.appType === 'mschema') {
                         var url = '/rest/pl/fe/matter/mission/get?id=' + mission.id;
-                        http2.get(url, function(rsp) {
+                        http2.get(url).then(function(rsp) {
                             mission.userApp = rsp.data.userApp;
                             $scope.makeReport();
                         });
                     } else {
                         var key = data.appType == 'enroll' ? 'app' : 'id';
                         var url = '/rest/pl/fe/matter/' + data.appType + '/get?site=' + mission.siteid + '&' + key + '=' + data.appId;
-                        http2.get(url, function(rsp) {
+                        http2.get(url).then(function(rsp) {
                             mission.userApp = rsp.data;
                             if (mission.userApp.data_schemas && angular.isString(mission.userApp.data_schemas)) {
                                 mission.userApp.data_schemas = JSON.parse(mission.userApp.data_schemas);
@@ -69,7 +69,7 @@ define(['frame'], function(ngApp) {
             mission.user_app_type = '';
             $scope.update(['user_app_id', 'user_app_type']).then(function() {
                 delete mission.userApp;
-                http2.post('/rest/pl/fe/matter/mission/report/configUpdate?mission=' + mission.id, { apps: [] }, function(rsp) {
+                http2.post('/rest/pl/fe/matter/mission/report/configUpdate?mission=' + mission.id, { apps: [] }).then(function(rsp) {
                     if (mission.reportConfig) {
                         mission.reportConfig.include_apps = [];
                     }
@@ -106,29 +106,30 @@ define(['frame'], function(ngApp) {
             configUserApps();
         };
         $scope.makeReport = function(results) {
-            var oMission, mapOfUnionSchemaById = {}, url, params;
+            var oMission, mapOfUnionSchemaById = {},
+                url, params;
             oMission = $scope.mission;
             url = '/rest/pl/fe/matter/mission/report/userAndApp?site=' + oMission.siteid + '&mission=' + oMission.id;
             params = {
-                defaultConfig: {apps: [], show_schema: []},
+                defaultConfig: { apps: [], show_schema: [] },
                 userSource: { id: oMission.user_app_id, type: oMission.user_app_type }
             };
             if (results && results.app && results.app.length) {
                 results.app.forEach(function(oApp) {
-                    params.defaultConfig.apps.push({ id: oApp.id, type: oApp.type});
+                    params.defaultConfig.apps.push({ id: oApp.id, type: oApp.type });
                 });
             };
             if (results && results.mark && results.mark.length) {
                 results.mark.forEach(function(schema) {
-                    if(schema.id=='_round_id') {
-                        params.defaultConfig.show_schema.push({ id: schema.id, title: schema.title, type: schema.type, ops: schema.ops});
-                    }else{
-                        params.defaultConfig.show_schema.push({ id: schema.id, title: schema.title, type: schema.type});
+                    if (schema.id == '_round_id') {
+                        params.defaultConfig.show_schema.push({ id: schema.id, title: schema.title, type: schema.type, ops: schema.ops });
+                    } else {
+                        params.defaultConfig.show_schema.push({ id: schema.id, title: schema.title, type: schema.type });
                     }
                 });
             };
-            http2.post(url, params, function(rsp) {
-                if(rsp.data) {
+            http2.post(url, params).then(function(rsp) {
+                if (rsp.data) {
                     $scope.dataSchemas = rsp.data.show_schema.length > 0 ? rsp.data.show_schema : oMission.userApp.dataSchemas;
                     $scope.dataSchemas.forEach(function(schema) {
                         mapOfUnionSchemaById[schema.id] = schema;

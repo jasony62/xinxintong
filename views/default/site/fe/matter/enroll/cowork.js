@@ -208,16 +208,22 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         $scope.appActs.length = Object.keys($scope.appActs).length;
         /*设置页面导航*/
         var oAppNavs = {
-            favor: {}
+            favor: {},
+            length: 1
         };
-        if (_oApp.can_repos === 'Y') {
-            oAppNavs.repos = {};
-        }
-        if (_oApp.can_rank === 'Y') {
-            oAppNavs.rank = {};
-        }
-        if (_oApp.scenarioConfig && _oApp.scenarioConfig.can_action === 'Y') {
-            oAppNavs.event = {};
+        if (_oApp.scenarioConfig) {
+            if (_oApp.scenarioConfig.can_repos === 'Y') {
+                oAppNavs.repos = {};
+                oAppNavs.length++;
+            }
+            if (_oApp.scenarioConfig.can_rank === 'Y') {
+                oAppNavs.rank = {};
+                oAppNavs.length++;
+            }
+            if (_oApp.scenarioConfig.can_action === 'Y') {
+                oAppNavs.event = {};
+                oAppNavs.length++;
+            }
         }
         if (Object.keys(oAppNavs).length) {
             $scope.appNavs = oAppNavs;

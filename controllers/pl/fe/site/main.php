@@ -81,21 +81,29 @@ class main extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
-		$log = $this->model('matter\log');
+		$modelSite = $this->model('site');
+		$oSite = $modelSite->byId($site);
+		if (false === $oSite || $oSite->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		if ($oSite->creater !== $oUser->id) {
+			return new \ParameterError('只有团队创建人可以删除团队');
+		}
 		/**
 		 * 做标记
 		 */
-		$rst = $log->update(
+		$rst = $modelSite->update(
 			'xxt_site',
 			['state' => 0],
-			['id' => $site, 'creater' => $oUser->id]
+			['id' => $oSite->id]
 		);
 		if ($rst) {
 			//工作台
-			$log->update('xxt_log_matter_op', ['user_last_op' => 'N', 'operation' => 'Recycle'], ['siteid' => $site]);
+			$modelSite->update('xxt_log_matter_op', ['user_last_op' => 'N', 'operation' => 'Recycle'], ['siteid' => $oSite->id]);
 			//项目
-			$log->update('xxt_mission_acl', ['state' => 0], ['siteid' => $site]);
+			$modelSite->update('xxt_mission_acl', ['state' => 0], ['siteid' => $oSite->id]);
 		}
+
 		return new \ResponseData($rst);
 	}
 	/**

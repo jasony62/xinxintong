@@ -20,12 +20,15 @@ class round extends \pl\fe\matter\base {
 	 * @param string $cascade 返回的结果中包含哪些级联。逗号分隔的字符串。支持：playerCount
 	 *
 	 */
-	public function list_action($app, $cascade = '') {
+	public function list_action($app, $cascade = '', $roundType = 'T') {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
-		$aOptions = ['cascade' => $cascade];
+		$aOptions = [
+			'cascade' => $cascade,
+			'round_type' => $roundType,
+		];
 		$rounds = $this->model('matter\group\round')->byApp($app, $aOptions);
 
 		return new \ResponseData($rounds);
@@ -38,6 +41,12 @@ class round extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$modelApp = $this->model('matter\group');
+		$oApp = $modelApp->byId($app);
+		if (false === $oApp && $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
 		$oPosted = $this->getPostJson();
 		$aNewRound = [
 			'aid' => $app,
@@ -45,45 +54,70 @@ class round extends \pl\fe\matter\base {
 			'create_at' => time(),
 			'title' => empty($oPosted->title) ? '新分组' : $oPosted->title,
 			'times' => 1,
+			'round_type' => empty($oPosted->round_type) ? 'T' : (in_array($oPosted->round_type, ['T', 'R']) ? $oPosted->round_type : 'T'),
 			'targets' => '',
 		];
 
-		$this->model()->insert('xxt_group_round', $aNewRound, false);
+		$modelApp->insert('xxt_group_round', $aNewRound, false);
 
 		return new \ResponseData($aNewRound);
 	}
 	/**
 	 *
 	 */
-	public function update_action($app, $rid) {
-		if (false === ($user = $this->accountUser())) {
+	public function update_action($rid) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
-		$model = $this->model();
-		$nv = $this->getPostJson();
+		$modelRnd = $this->model('matter\group\round');
 
-		/*data*/
-		if (isset($nv->targets)) {
-			$nv->targets = $model->toJson($nv->targets);
+		$oRound = $modelRnd->byId($rid);
+		if (false === $oRound) {
+			return new \ObjectNotFoundError();
 		}
-		if (isset($nv->extattrs)) {
-			$nv->extattrs = $model->toJson($nv->extattrs);
+		$oPosted = $this->getPostJson();
+		if (isset($oPosted->round_type) && $oPosted->round_type !== $oRound->round_type) {
+			/**
+			 * 已过已经有分组用户不允许删除
+			 */
+			$roundUserCnt = 0;
+			$modelPly = $this->model('matter\group\player');
+			switch ($oRound->round_type) {
+			case 'T':
+				$roundUserCnt = $modelPly->countByRound($oRound->aid, $oRound->round_id);
+				break;
+			case 'R':
+				$roundUserCnt = $modelPly->countByRoleRound($oRound->aid, $oRound->round_id);
+				break;
+			}
+			if ($roundUserCnt > 0) {
+				return new \ResponseError('已经有分组数据，不允许删除轮次！');
+			}
 		}
-		$rst = $model->update(
+
+		if (isset($oPosted->targets)) {
+			$oPosted->targets = $model->toJson($oPosted->targets);
+		}
+		if (isset($oPosted->extattrs)) {
+			$oPosted->extattrs = $model->toJson($oPosted->extattrs);
+		}
+		$rst = $modelRnd->update(
 			'xxt_group_round',
-			$nv,
-			"aid='$app' and round_id='$rid'"
+			$oPosted,
+			['aid' => $oRound->aid, 'round_id' => $oRound->round_id]
 		);
-		/*更新级联信息*/
-		if ($rst && isset($nv->title)) {
-			$model->update(
+		$oRound = $modelRnd->byId($rid);
+
+		/* 更新级联信息 */
+		if ($rst && isset($oPosted->title) && $oRound->round_type === 'T') {
+			$modelRnd->update(
 				'xxt_group_player',
-				array('round_title' => $nv->title),
-				"aid='$app' and round_id='$rid'"
+				['round_title' => $oPosted->title],
+				['aid' => $oRound->aid, 'round_id' => $oRound->round_id]
 			);
 		}
 
-		return new \ResponseData($rst);
+		return new \ResponseData($oRound);
 	}
 	/**
 	 *
@@ -94,7 +128,7 @@ class round extends \pl\fe\matter\base {
 		}
 		$model = $this->model();
 		/**
-		 * 已过已经有抽奖数据不允许删除
+		 * 已过已经有分组用户不允许删除
 		 */
 		$q = [
 			'count(*)',
@@ -114,12 +148,17 @@ class round extends \pl\fe\matter\base {
 	}
 	/**
 	 * 属于指定分组的人
+	 * $roundType 分组类型 “T” 团队分组，"R" 角色分组
 	 */
-	public function winnersGet_action($app, $rid = null) {
+	public function winnersGet_action($app, $rid = null, $roundType = 'T') {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
-		$oResult = $this->model('matter\group\player')->byRound($app, $rid);
+		if ($roundType === 'R') {
+			$oResult = $this->model('matter\group\player')->byRoleRound($app, $rid);
+		} else {
+			$oResult = $this->model('matter\group\player')->byRound($app, $rid);
+		}
 
 		return new \ResponseData($oResult);
 	}

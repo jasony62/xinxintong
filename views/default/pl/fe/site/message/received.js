@@ -9,7 +9,7 @@ define(['frame'], function(ngApp) {
             var param = '?page=' + page + '&size=' + $scope.page.size + '&site=' + $scope.siteId;
             if ($scope.page.keyword && $scope.page.keyword.length > 0)
                 param += '&keyword=' + $scope.page.keyword;
-            http2.get('/rest/pl/fe/site/message/get' + param, function(rsp) {
+            http2.get('/rest/pl/fe/site/message/get' + param).then(function(rsp) {
                 $scope.messages = rsp.data[0];
                 $scope.page.total = rsp.data[1];
             });

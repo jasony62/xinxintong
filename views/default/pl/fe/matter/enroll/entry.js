@@ -1,9 +1,6 @@
-define(['frame'], function(ngApp) {
+define(['frame', 'groupService'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlEntry', ['$scope', 'mediagallery', '$timeout', 'srvEnrollApp', 'srvTimerNotice', function($scope, mediagallery, $timeout, srvEnrollApp, srvTimerNotice) {
-        $timeout(function() {
-            new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
-        });
         srvEnrollApp.get().then(function(app) {
             var oEntry;
             oEntry = {
@@ -38,13 +35,26 @@ define(['frame'], function(ngApp) {
                 oTimer.task.task_expire_at = data.value;
             }
         });
-        /* 页面内导航 */
-        $('#entry-view').height($('#pl-layout-main').height());
-        $('#entry-view').scrollspy({ target: '#entryScrollspy' });
-        $('#entryScrollspy>ul').affix({
-            offset: {
-                top: 0
-            }
+    }]);
+    /**
+     * 微信二维码
+     */
+    ngApp.provider.controller('ctrlWxQrcode', ['$scope', 'http2', function($scope, http2) {
+        $scope.create = function() {
+            var url;
+            url = '/rest/pl/fe/site/sns/wx/qrcode/create?site=' + $scope.app.siteid;
+            url += '&matter_type=enroll&matter_id=' + $scope.app.id;
+            //url += '&expire=864000';
+            http2.get(url).then(function(rsp) {
+                $scope.qrcode = rsp.data;
+            });
+        };
+        $scope.download = function() {
+            $('<a href="' + $scope.qrcode.pic + '" download="微信登记二维码.jpeg"></a>')[0].click();
+        };
+        http2.get('/rest/pl/fe/matter/enroll/wxQrcode?site=' + $scope.app.siteid + '&app=' + $scope.app.id).then(function(rsp) {
+            var qrcodes = rsp.data;
+            $scope.qrcode = qrcodes.length ? qrcodes[0] : false;
         });
     }]);
     ngApp.provider.controller('ctrlOpUrl', ['$scope', 'srvQuickEntry', 'srvEnrollApp', function($scope, srvQuickEntry, srvEnrollApp) {
@@ -136,104 +146,156 @@ define(['frame'], function(ngApp) {
         };
     }]);
     /**
-     * 微信二维码
+     * 任务提醒
      */
-    ngApp.provider.controller('ctrlWxQrcode', ['$scope', 'http2', function($scope, http2) {
-        $scope.create = function() {
-            var url;
-            url = '/rest/pl/fe/site/sns/wx/qrcode/create?site=' + $scope.app.siteid;
-            url += '&matter_type=enroll&matter_id=' + $scope.app.id;
-            //url += '&expire=864000';
-            http2.get(url, function(rsp) {
-                $scope.qrcode = rsp.data;
-            });
-        };
-        $scope.download = function() {
-            $('<a href="' + $scope.qrcode.pic + '" download="微信登记二维码.jpeg"></a>')[0].click();
-        };
-        http2.get('/rest/pl/fe/matter/enroll/wxQrcode?site=' + $scope.app.siteid + '&app=' + $scope.app.id, function(rsp) {
-            var qrcodes = rsp.data;
-            $scope.qrcode = qrcodes.length ? qrcodes[0] : false;
-        });
-    }]);
-    ngApp.provider.controller('ctrlReport', ['$scope', 'http2', '$interval', '$uibModal', 'srvEnrollApp', function($scope, http2, $interval, $uibModal, srvEnrollApp) {
-        function listReceivers(app) {
-            http2.get(baseURL + 'list?site=' + app.siteid + '&app=' + app.id, function(rsp) {
-                var map = { wx: '微信', yx: '易信', qy: '企业号' };
-                rsp.data.forEach(function(receiver) {
-                    if (receiver.sns_user) {
-                        receiver.snsUser = JSON.parse(receiver.sns_user);
-                        map[receiver.snsUser.src] && (receiver.snsUser.snsName = map[receiver.snsUser.src]);
+    ngApp.provider.controller('ctrlTaskRemind', ['$scope', '$parse', '$q', 'srvEnrollApp', 'tkGroupApp', function($scope, $parse, $q, srvEnrollApp, tkGroupApp) {
+        function fnGetEntryRuleMschema() {
+            var oAppEntryRule = $scope.app.entryRule;
+            if (oAppEntryRule.scope && oAppEntryRule.scope.member === 'Y') {
+                if (oAppEntryRule.member && Object.keys(oAppEntryRule.member).length) {
+                    if ($scope.mschemasById[Object.keys(oAppEntryRule.member)[0]]) {
+                        return $scope.mschemasById[Object.keys(oAppEntryRule.member)[0]];
                     }
-                });
-                $scope.receivers = rsp.data;
-            });
+                }
+            }
+            return false;
         }
-
-        var baseURL = '/rest/pl/fe/matter/enroll/receiver/';
-        $scope.qrcodeShown = false;
-        $scope.qrcode = function(snsName) {
-            if ($scope.qrcodeShown === false) {
-                var url = '/rest/pl/fe/site/sns/' + snsName + '/qrcode/createOneOff';
-                url += '?site=' + $scope.app.siteid;
-                url += '&matter_type=enrollreceiver';
-                url += '&matter_id=' + $scope.app.id;
-                http2.get(url, function(rsp) {
-                    var qrcode = rsp.data,
-                        eleQrcode = $("#" + snsName + "Qrcode");
-                    eleQrcode.trigger('show');
-                    $scope.qrcodeURL = qrcode.pic;
-                    $scope.qrcodeShown = true;
-                    (function() {
-                        var fnCheckQrcode, url2;
-                        url2 = '/rest/pl/fe/site/sns/' + snsName + '/qrcode/get';
-                        url2 += '?site=' + qrcode.siteid;
-                        url2 += '&id=' + rsp.data.id;
-                        url2 += '&cascaded=N';
-                        fnCheckQrcode = $interval(function() {
-                            http2.get(url2, function(rsp) {
-                                if (rsp.data == false) {
-                                    $interval.cancel(fnCheckQrcode);
-                                    eleQrcode.trigger('hide');
-                                    $scope.qrcodeShown = false;
-                                    (function() {
-                                        var fnCheckReceiver;
-                                        fnCheckReceiver = $interval(function() {
-                                            http2.get('/rest/pl/fe/matter/enroll/receiver/afterJoin?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&timestamp=' + qrcode.create_at, function(rsp) {
-                                                if (rsp.data.length) {
-                                                    $interval.cancel(fnCheckReceiver);
-                                                    $scope.receivers = $scope.receivers.concat(rsp.data);
-                                                }
-                                            });
-                                        }, 2000);
-                                    })();
+        $scope.srvTimer.onBeforeSave(function(oTimer) {
+            var defer = $q.defer(),
+                oTask = oTimer.task;
+            if (oTask && oTask.task_model === 'remind') {
+                if (oTask.task_arguments) {
+                    var oArgs = oTask.task_arguments;
+                    if (oArgs.receiver) {
+                        if (oArgs.receiver.scope) {
+                            if (oArgs.receiver.scope === 'enroll') {
+                                delete oArgs.receiver.app;
+                            } else if (oArgs.receiver.scope === 'mschema') {
+                                delete oArgs.receiver.app;
+                            } else if (oArgs.receiver.scope === 'group') {
+                                if (oTimer._temp && oTimer._temp.group && !oTimer._temp.group.auto) {
+                                    oArgs.receiver.app = oTimer._temp.group;
                                 }
-                            });
-                        }, 2000);
-                    })();
-                });
+                            }
+                        }
+                    }
+                }
+                defer.resolve();
             } else {
-                $("#yxQrcode").trigger('hide');
-                $scope.qrcodeShown = false;
+                defer.resolve();
+            }
+            return defer.promise;
+        });
+        $scope.assignGroup = function(oTimer) {
+            tkGroupApp.choose($scope.app).then(function(oResult) {
+                var oGrpApp;
+                if (oResult.app) {
+                    oGrpApp = { id: oResult.app.id, title: oResult.app.title };
+                    if (oResult.round) {
+                        oGrpApp.round = { id: oResult.round.round_id, title: oResult.round.title };
+                    }
+                    $parse('_temp.group').assign(oTimer, oGrpApp);
+                    oTimer.modified = true;
+                }
+            });
+        };
+        $scope.defaultReceiver = function(oTimer) {
+            var oRule = $parse('task.task_arguments.receiver')(oTimer);
+            switch (oRule.scope) {
+                case 'mschema':
+                    var oMschema;
+                    if (oMschema = fnGetEntryRuleMschema()) {
+                        $parse('_temp.mschema').assign(oTimer, { title: oMschema.title, auto: true });
+                    }
+                    break;
+                case 'group':
+                    if (!oRule.app && $scope.app.entryRule.group) {
+                        $parse('_temp.group').assign(oTimer, { id: $scope.app.entryRule.group.id, title: $scope.app.entryRule.group.title, auto: true });
+                    }
+                    break;
             }
         };
-        $scope.remove = function(receiver) {
-            http2.get(baseURL + 'remove?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&receiver=' + receiver.id, function(rsp) {
-                $scope.receivers.splice($scope.receivers.indexOf(receiver), 1);
-            });
-        };
         srvEnrollApp.get().then(function(oApp) {
-            listReceivers(oApp);
-            $scope.srvTimer.list(oApp, 'report').then(function(timers) {
+            $scope.srvTimer.list(oApp, 'remind').then(function(timers) {
+                if (timers && timers.length) {
+                    timers.forEach(function(oTimer) {
+                        $scope.defaultReceiver(oTimer);
+                    });
+                }
                 $scope.timers = timers;
             });
         });
     }]);
-    ngApp.provider.controller('ctrlRemind', ['$scope', 'srvEnrollApp', function($scope, srvEnrollApp) {
+    /**
+     * 任务提醒
+     */
+    ngApp.provider.controller('ctrlUndoneRemind', ['$scope', '$parse', 'srvEnrollApp', 'tkGroupApp', function($scope, $parse, srvEnrollApp, tkGroupApp) {
+        $scope.assignGroup = function(oTimer) {
+            tkGroupApp.choose($scope.app).then(function(oResult) {
+                var oGrpApp;
+                if (oResult.app) {
+                    oGrpApp = { id: oResult.app.id, title: oResult.app.title };
+                    if (oResult.round) {
+                        oGrpApp.round = { id: oResult.round.round_id, title: oResult.round.title };
+                    }
+                    $parse('task.task_arguments.receiver.group').assign(oTimer, oGrpApp);
+                    oTimer.modified = true;
+                }
+            });
+        };
         srvEnrollApp.get().then(function(oApp) {
-            $scope.srvTimer.list(oApp, 'remind').then(function(timers) {
+            $scope.srvTimer.list(oApp, 'undone').then(function(timers) {
                 $scope.timers = timers;
             });
+        });
+    }]);
+    /**
+     * 事件提醒
+     */
+    ngApp.provider.controller('ctrlEventRemind', ['$scope', '$parse', 'http2', '$timeout', 'srvEnrollApp', 'tkGroupApp', 'tkEnrollApp', function($scope, $parse, http2, $timeout, srvEnlApp, tkGroupApp, tkEnrollApp) {
+        var _oConfig;
+        $scope.modified = false;
+        $scope.config = null;
+        $scope.initConfig = function(eventName) {
+            _oConfig[eventName] = { valid: false, page: 'cowork', receiver: { scope: [] } };
+            switch (eventName) {
+                case 'submit':
+                    break;
+                case 'cowork':
+                case 'remark':
+                    _oConfig[eventName].receiver.scope.push('related');
+                    break;
+            }
+        };
+        $scope.assignGroup = function(oRule) {
+            tkGroupApp.choose($scope.app).then(function(oResult) {
+                var oGrpApp;
+                if (oResult.app) {
+                    oGrpApp = { id: oResult.app.id, title: oResult.app.title };
+                    if (oResult.round) {
+                        oGrpApp.round = { id: oResult.round.id, title: oResult.round.title };
+                    }
+                    $parse('group').assign(oRule, oGrpApp);
+                }
+            });
+        };
+        $scope.save = function() {
+            tkEnrollApp.update($scope.app, { notifyConfig: _oConfig }).then(function(oNewApp) {
+                http2.merge($scope.app.notifyConfig, oNewApp.notifyConfig);
+                http2.merge(_oConfig, oNewApp.notifyConfig);
+                /* watch后再执行 */
+                $timeout(function() {
+                    $scope.modified = false;
+                });
+            });
+        };
+        srvEnlApp.get().then(function(oApp) {
+            $scope.config = _oConfig = angular.copy(oApp.notifyConfig);
+            $scope.$watch('config', function(oNewConfig, oOldConfig) {
+                if (oNewConfig && oNewConfig !== oOldConfig) {
+                    $scope.modified = true;
+                }
+            }, true);
         });
     }]);
 });

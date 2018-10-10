@@ -10,14 +10,14 @@
                 url += '&award=' + $scope.byAward;
             if ($scope.associatedAct)
                 url += '&assocAct=' + $scope.associatedAct.aid;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.result = rsp.data.result;
                 $scope.page.total = rsp.data.total;
                 //rsp.data[2] && ($scope.assocDef = rsp.data[2]);
             });
         };
         var doStat = function() {
-            http2.get('/rest/pl/fe/matter/lottery/stat?lid=' + $scope.id, function(rsp) {
+            http2.get('/rest/pl/fe/matter/lottery/stat?lid=' + $scope.id).then(function(rsp) {
                 $scope.stat = rsp.data;
             });
         };
@@ -68,7 +68,7 @@
             if (vcode === $scope.app.title) {
                 var url = '/rest/pl/fe/matter/lottery/removeRoll?lid=' + $scope.id;
                 url += '&userid=' + r.userid;
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     $scope.refresh();
                 });
             }
@@ -77,7 +77,7 @@
             var vcode;
             vcode = prompt('是否要重新设置奖项数量，并删除所有抽奖记录？，若是，请输入活动名称。');
             if (vcode === $scope.app.title) {
-                http2.get('/rest/pl/fe/matter/lottery/clean?lid=' + $scope.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/lottery/clean?lid=' + $scope.id).then(function(rsp) {
                     $scope.refresh();
                 });
             }
@@ -86,7 +86,7 @@
             var vcode;
             vcode = prompt('是否要给未中奖用户增加1次抽奖机会？，若是，请输入活动名称。');
             if (vcode === $scope.app.title) {
-                http2.get('/rest/pl/fe/matter/lottery/addChance?lid=' + $scope.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/lottery/addChance?lid=' + $scope.id).then(function(rsp) {
                     $rootScope.infomsg = rsp.data;
                 });
             }

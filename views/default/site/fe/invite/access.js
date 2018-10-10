@@ -1,16 +1,17 @@
 'use strict';
+require('../../../../../asset/js/xxt.ui.http.js');
 require('../../../../../asset/js/xxt.ui.share.js');
 
-var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'snsshare.ui.xxt']);
+var ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'http.ui.xxt', 'snsshare.ui.xxt']);
 ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsSnsShare', function($scope, http2, tmsSnsShare) {
     $scope.requireLogin = false;
     $scope.data = {};
     $scope.submit = function() {
-        http2.post('/rest/i/matterUrl?invite=' + $scope.invite.id, $scope.data, function(rsp) {
+        http2.post('/rest/i/matterUrl?invite=' + $scope.invite.id, $scope.data).then(function(rsp) {
             location.href = rsp.data;
         });
     };
-    http2.get('/rest/site/fe/user/get', function(rsp) {
+    http2.get('/rest/site/fe/user/get').then(function(rsp) {
         var oUser, unameType;
         $scope.loginUser = oUser = rsp.data;
         if (oUser.unionid && oUser.uname) {
@@ -20,7 +21,7 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsSnsShare', function($scope,
                 unameType = 'email';
             }
         }
-        http2.get('/rest/site/fe/invite/get' + location.search, function(rsp) {
+        http2.get('/rest/site/fe/invite/get' + location.search).then(function(rsp) {
             var oInvite = rsp.data;
             $scope.invite = oInvite;
             /* 设置分享 */

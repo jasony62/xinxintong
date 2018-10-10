@@ -1,21 +1,21 @@
-require(['matterService'], function() {
+require([], function() {
     'use strict';
     var siteId, missionId, ngApp;
     siteId = location.search.match('site=([^&]*)')[1];
     missionId = location.search.match('mission=([^&]*)')[1];
-    ngApp = angular.module('app', ['ui.tms', 'service.matter']);
+    ngApp = angular.module('app', ['ui.tms', 'http.ui.xxt']);
     ngApp.controller('ctrlMain', ['$scope', 'http2', function($scope, http2) {
         var _oMission;
         $scope.siteid = siteId;
         /* end app loading */
-        http2.get('/rest/site/fe/matter/mission/get?site=' + siteId + '&mission=' + missionId, function(rsp) {
+        http2.get('/rest/site/fe/matter/mission/get?site=' + siteId + '&mission=' + missionId).then(function(rsp) {
             var groupUsers;
             $scope.mission = _oMission = rsp.data;
         });
         window.loading.finish();
     }]);
     ngApp.controller('ctrlDoc', ['$scope', 'http2', function($scope, http2) {
-        http2.get('/rest/site/fe/matter/mission/matter/docList?site=' + siteId + '&mission=' + missionId, function(rsp) {
+        http2.get('/rest/site/fe/matter/mission/matter/docList?site=' + siteId + '&mission=' + missionId).then(function(rsp) {
             $scope.docs = rsp.data;
         });
     }]);
@@ -40,13 +40,13 @@ require(['matterService'], function() {
             var oRecord, oRecData;
             if (oRecommend.obj_unit === 'R') {
                 oRecord = oRecommend.obj;
-                http2.get('/rest/site/fe/matter/enroll/record/like?site=' + siteId + '&ek=' + oRecommend.obj_key, function(rsp) {
+                http2.get('/rest/site/fe/matter/enroll/record/like?site=' + siteId + '&ek=' + oRecommend.obj_key).then(function(rsp) {
                     oRecord.like_log = rsp.data.like_log;
                     oRecord.like_num = rsp.data.like_num;
                 });
             } else {
                 oRecData = oRecommend.obj;
-                http2.get('/rest/site/fe/matter/enroll/data/like?site=' + siteId + '&ek=' + oRecommend.obj_key + '&schema=' + oRecommend.obj.schema_id, function(rsp) {
+                http2.get('/rest/site/fe/matter/enroll/data/like?site=' + siteId + '&ek=' + oRecommend.obj_key + '&schema=' + oRecommend.obj.schema_id).then(function(rsp) {
                     oRecData.like_log = rsp.data.like_log;
                     oRecData.like_num = rsp.data.like_num;
                 });
@@ -63,12 +63,12 @@ require(['matterService'], function() {
             }
             location.href = url;
         };
-        http2.get('/rest/site/fe/matter/mission/matter/agreedList?site=' + siteId + '&mission=' + missionId, function(rsp) {
+        http2.get('/rest/site/fe/matter/mission/matter/agreedList?site=' + siteId + '&mission=' + missionId).then(function(rsp) {
             $scope.recommends = rsp.data.agreed;
         });
     }]);
     ngApp.controller('ctrlRank', ['$scope', 'http2', function($scope, http2) {
-        http2.get('/rest/site/fe/matter/mission/user/rank?site=' + siteId + '&mission=' + missionId, function(rsp) {
+        http2.get('/rest/site/fe/matter/mission/user/rank?site=' + siteId + '&mission=' + missionId).then(function(rsp) {
             $scope.users = rsp.data.users;
         });
     }]);

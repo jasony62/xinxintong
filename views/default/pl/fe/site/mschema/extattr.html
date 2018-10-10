@@ -22,7 +22,7 @@
         <div dnd-list dataset='appSchemas' evt-prefix="schemas" class='schemas'>
             <div data-schema-index="{{$index}}" class='dndable schema' ng-class="schema.type" ng-repeat="schema in mschema.extAttrs">
                 <div class='title' ng-if="schema.type!=='html'" ng-click="chooseSchema($event,schema)">
-                    <div editable prop='title' obj='schema' evt-prefix='title' no-remove="Y" style="min-height:34px;"></div>
+                    <div tms-editable prop='title' obj='schema' evt-prefix='title' no-remove="Y" style="min-height:34px;"></div>
                 </div>
                 <div ng-include="schemaHtml(schema)"></div>
                 <div class='actions'>

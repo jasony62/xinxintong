@@ -37,10 +37,6 @@
                                     <label>留言数量</label>
                                     <div ng-bind="matter.opData[0].remark_total||0"></div>
                                 </div>
-                                <div class='col-xs-12' ng-if="matter.indicator.end_submit" ng-switch on="matter.indicator.end_submit">
-                                    <div ng-switch-when="R">！本活动将于<span style='color:orangered;'>{{matter.end_submit_at*1000|date:'MM-dd HH:mm'}}</span>停止提交</div>
-                                    <div ng-switch-when="E">！本活动已于<span style='color:orangered;'>{{matter.end_submit_at*1000|date:'MM-dd HH:mm'}}</span>停止提交</div>
-                                </div>
                                 <div class='col-xs-12' ng-if="matter.indicator.end" ng-switch on="matter.indicator.end">
                                     <div ng-switch-when="R">！本活动将于<span style='color:orangered;'>{{matter.end_at*1000|date:'MM-dd HH:mm'}}</span>结束</div>
                                     <div ng-switch-when="E">！本活动已于<span style='color:orangered;'>{{matter.end_at*1000|date:'MM-dd HH:mm'}}</span>结束</div>
@@ -81,10 +77,11 @@
             <button class="btn btn-default" ng-click="ok() ">确定</button>
         </div>
     </script>
-    <script src="/static/js/xxt.ui.error.js"></script>
+    <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="<?php echo auto_version('/asset/js/xxt.ui.http.js');?>"></script>
     <script src="/static/js/require.js" defer async data-main="/views/default/site/op/matter/mission/main-loader.js?_=1"></script>
 </body>
 

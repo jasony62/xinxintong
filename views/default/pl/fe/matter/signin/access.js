@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'http2', 'srvSite', 'srvSigninApp', function($scope, $uibModal, http2, srvSite, srvSigninApp) {
+    ngApp.provider.controller('ctrlAccess', ['$scope', 'srvSite', 'srvSigninApp', function($scope, srvSite, srvSigninApp) {
         var oEntryRule;
         $scope.rule = {};
         $scope.isInputPage = function(pageName) {

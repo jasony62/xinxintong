@@ -1,42 +1,47 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <base href="/"/>
-        <title>定制页</title>
-        <link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
-        <link href="/static/css/tms.css?_=1" rel="stylesheet">
-        <link href="/views/default/pl/fe/matter/custom/frame.css?_=1" rel="stylesheet">
-    </head>
-    <body ng-app='app' ng-controller='ctrlCustom' ng-cloak class='ng-cloak'>
-        <nav class='navbar navbar-default navbar-fixed-top'>
-            <ul class='nav navbar-nav'>
-                <li><a href='/rest/pl/fe' target='_self'>首页</a></li>
-                <li><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>工作台</a></li>
-            </ul>
-            <ul class='nav navbar-nav shortcut'>
-            </ul>
-            <ul class='nav navbar-nav navbar-right' style='margin-right:0'>
-                <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
-                <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
-            </ul>
-        </nav>
-        <div class='container'>
-            <div class='row' ng-view></div>
-        </div>
-        <script src="/static/js/jquery.min.js"></script>
-        <script src="/static/js/jquery-ui.min.js"></script>
-        <script src="/static/js/bootstrap.min.js"></script>
-        <script src="/static/js/angular.min.js"></script>
-        <script src="/static/js/angular-route.min.js"></script>
-        <script src="/static/js/angular-sanitize.min.js"></script>
-        <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-        <script src="/static/js/ui-tms.js?_=1"></script>
-        <script src="/static/js/xxt.ui.js?_=1"></script>
-        <script src="/static/js/xxt.ui.tmplshop.js?_=1"></script>
-        <script src="/views/default/pl/fe/_module/channel.js?_=1"></script>
-        <script src="/static/js/ZeroClipboard.min.js"></script>
-        <script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
-        <script src="/views/default/pl/fe/matter/custom/frame.js?_=3"></script>
-    </body>
+
+<head>
+    <meta charset="UTF-8">
+    <base href="/" />
+    <title>定制页</title>
+    <link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/tms.css?_=1" rel="stylesheet">
+    <link href="/views/default/pl/fe/matter/custom/frame.css?_=1" rel="stylesheet">
+</head>
+
+<body ng-app='app' ng-controller='ctrlCustom' ng-cloak class='ng-cloak'>
+    <nav class='navbar navbar-default navbar-fixed-top'>
+        <ul class='nav navbar-nav'>
+            <li><a href='/rest/pl/fe' target='_self'>首页</a></li>
+            <li><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>工作台</a></li>
+        </ul>
+        <ul class='nav navbar-nav shortcut'>
+        </ul>
+        <ul class='nav navbar-nav navbar-right' style='margin-right:0'>
+            <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
+            <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
+        </ul>
+    </nav>
+    <div class='container'>
+        <div class='row' ng-view></div>
+    </div>
+    <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/jquery-ui.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-route.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/ui-tms.js?_=1"></script>
+    <script src="/static/js/xxt.ui.js?_=1"></script>
+    <script src="/static/js/xxt.ui.tmplshop.js?_=1"></script>
+    <script src="/views/default/pl/fe/_module/channel.js?_=1"></script>
+    <script src="<?php echo auto_version('/asset/js/xxt.ui.http.js');?>"></script>
+    <script src="<?php echo auto_version('/asset/js/xxt.ui.notice.js');?>"></script>
+    <script src="<?php echo auto_version('/views/default/pl/fe/_module/matter.service.js');?>"></script>
+    <script src="/views/default/pl/fe/matter/custom/frame.js?_=3"></script>
+</body>
+
 </html>

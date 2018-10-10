@@ -13,7 +13,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.remove = function() {
             if (window.confirm('确定删除？')) {
-                http2.get('/rest/pl/fe/matter/signin/remove?site=' + $scope.app.siteid + '&app=' + $scope.app.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/signin/remove?site=' + $scope.app.siteid + '&app=' + $scope.app.id).then(function(rsp) {
                     if ($scope.app.mission) {
                         location = "/rest/pl/fe/matter/mission?site=" + $scope.app.siteid + "&id=" + $scope.app.mission.id;
                     } else {
@@ -42,77 +42,7 @@ define(['frame'], function(ngApp) {
             };
         });
     }]);
-    ngApp.provider.controller('ctrlReceiver', ['$scope', 'http2', '$interval', '$uibModal', 'srvSigninApp', function($scope, http2, $interval, $uibModal, srvSigninApp) {
-        function listReceivers(app) {
-            http2.get(baseURL + 'list?site=' + app.siteid + '&app=' + app.id, function(rsp) {
-                var map = { wx: '微信', yx: '易信', qy: '企业号' };
-                rsp.data.forEach(function(receiver) {
-                    if (receiver.sns_user) {
-                        receiver.snsUser = JSON.parse(receiver.sns_user);
-                        map[receiver.snsUser.src] && (receiver.snsUser.snsName = map[receiver.snsUser.src]);
-                    }
-                });
-                $scope.receivers = rsp.data;
-            });
-        }
-
-        var baseURL = '/rest/pl/fe/matter/signin/receiver/';
-        $scope.qrcodeShown = false;
-        $scope.qrcode = function(snsName) {
-            if ($scope.qrcodeShown === false) {
-                var url = '/rest/pl/fe/site/sns/' + snsName + '/qrcode/createOneOff';
-                url += '?site=' + $scope.app.siteid;
-                url += '&matter_type=signinreceiver';
-                url += '&matter_id=' + $scope.app.id;
-                http2.get(url, function(rsp) {
-                    var qrcode = rsp.data,
-                        eleQrcode = $("#" + snsName + "Qrcode");
-                    eleQrcode.trigger('show');
-                    $scope.qrcodeURL = qrcode.pic;
-                    $scope.qrcodeShown = true;
-                    (function() {
-                        var fnCheckQrcode, url2;
-                        url2 = '/rest/pl/fe/site/sns/' + snsName + '/qrcode/get';
-                        url2 += '?site=' + qrcode.siteid;
-                        url2 += '&id=' + rsp.data.id;
-                        url2 += '&cascaded=N';
-                        fnCheckQrcode = $interval(function() {
-                            http2.get(url2, function(rsp) {
-                                if (rsp.data == false) {
-                                    $interval.cancel(fnCheckQrcode);
-                                    eleQrcode.trigger('hide');
-                                    $scope.qrcodeShown = false;
-                                    (function() {
-                                        var fnCheckReceiver;
-                                        fnCheckReceiver = $interval(function() {
-                                            http2.get('/rest/pl/fe/matter/signin/receiver/afterJoin?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&timestamp=' + qrcode.create_at, function(rsp) {
-                                                if (rsp.data.length) {
-                                                    $interval.cancel(fnCheckReceiver);
-                                                    $scope.receivers = $scope.receivers.concat(rsp.data);
-                                                }
-                                            });
-                                        }, 2000);
-                                    })();
-                                }
-                            });
-                        }, 2000);
-                    })();
-                });
-            } else {
-                $("#yxQrcode").trigger('hide');
-                $scope.qrcodeShown = false;
-            }
-        };
-        $scope.remove = function(receiver) {
-            http2.get(baseURL + 'remove?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&receiver=' + receiver.userid, function(rsp) {
-                $scope.receivers.splice($scope.receivers.indexOf(receiver), 1);
-            });
-        };
-        srvSigninApp.get().then(function(app) {
-            listReceivers(app);
-        });
-    }]);
-    ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'http2', 'srvSite', 'srvSigninApp', 'srvEnrollSchema', function($scope, $uibModal, http2, srvSite, srvSigninApp, srvEnrollSchema) {
+    ngApp.provider.controller('ctrlAccess', ['$scope', 'srvSite', 'srvSigninApp', 'srvEnrollSchema', function($scope, srvSite, srvSigninApp, srvEnrollSchema) {
         var oEntryRule;
         $scope.rule = {};
         $scope.changeUserScope = function(scopeProp) {

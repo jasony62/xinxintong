@@ -8,7 +8,7 @@ define(['frame'], function(ngApp) {
         });
         $scope.remove = function() {
             if (window.confirm('确定删除项目？')) {
-                http2.get('/rest/pl/fe/matter/mission/remove?id=' + $scope.mission.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/mission/remove?id=' + $scope.mission.id).then(function(rsp) {
                     location.href = '/rest/pl/fe';
                 });
             }
@@ -74,7 +74,7 @@ define(['frame'], function(ngApp) {
                         if (page) {
                             editor.setContent(page.html);
                         } else {
-                            http2.get('/rest/pl/fe/matter/mission/page/create?id=' + $scope.mission.id + '&page=' + type, function(rsp) {
+                            http2.get('/rest/pl/fe/matter/mission/page/create?id=' + $scope.mission.id + '&page=' + type).then(function(rsp) {
                                 mission[type + '_page_name'] = rsp.data.name;
                                 page = rsp.data;
                                 editor.setContent(page.html);
@@ -85,7 +85,7 @@ define(['frame'], function(ngApp) {
                 size: 'lg',
                 backdrop: 'static'
             }).result.then(function(result) {
-                http2.post('/rest/pl/fe/matter/mission/page/update?id=' + $scope.mission.id + '&page=' + type, result, function(rsp) {
+                http2.post('/rest/pl/fe/matter/mission/page/update?id=' + $scope.mission.id + '&page=' + type, result).then(function(rsp) {
                     $scope.mission[type + '_page'] = rsp.data;
                 });
             });
@@ -98,7 +98,7 @@ define(['frame'], function(ngApp) {
             if (codeName && codeName.length) {
                 location.href = '/rest/pl/fe/code?site=' + $scope.mission.siteid + '&name=' + codeName;
             } else {
-                http2.get('/rest/pl/fe/matter/mission/page/create?id=' + $scope.mission.id + '&page=' + page, function(rsp) {
+                http2.get('/rest/pl/fe/matter/mission/page/create?id=' + $scope.mission.id + '&page=' + page).then(function(rsp) {
                     $scope.mission[prop] = rsp.data.name;
                     location.href = '/rest/pl/fe/code?site=' + $scope.mission.siteid + '&name=' + rsp.data.name;
                 });

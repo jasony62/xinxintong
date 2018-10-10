@@ -124,9 +124,9 @@ class report extends \pl\fe\matter\base {
 			}
 			break;
 		case 'enroll':
-			$users = $this->model('matter\enroll\user')->enrolleeByApp($userSource, '', '', ['fields' => 'userid,nickname', 'cascaded' => 'N']);
-			if (count($users)) {
-				foreach ($users as $oUser) {
+			$oResult = $this->model('matter\enroll\user')->enrolleeByApp($userSource, '', '', ['fields' => 'userid,nickname', 'cascaded' => 'N']);
+			if (count($oResult->users)) {
+				foreach ($oResult->users as $oUser) {
 					$show_schema_data = new \stdClass;
 					// if (!empty($oUser->show_schema_datas)) {
 					// 	$show_schema_datas = json_decode($oUser->show_schema_datas);

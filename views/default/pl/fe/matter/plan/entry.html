@@ -6,7 +6,6 @@
                 <div class='input-group'>
                     <input class='form-control' readonly value="{{entry.url}}">
                     <div class='input-group-btn'>
-                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
                         <a class='btn btn-default' ng-href="{{entry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                     </div>
                 </div>
@@ -25,7 +24,6 @@
                     <div class='input-group'>
                         <input class='form-control' readonly value="{{opEntry.url}}">
                         <div class='input-group-btn'>
-                            <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opEntry.url}}">复制</button>
                             <a class='btn btn-default' ng-href="{{opEntry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                         </div>
                     </div>
@@ -48,7 +46,6 @@
                     <div class='input-group'>
                         <input class='form-control' readonly value="{{rpEntry.url}}">
                         <div class='input-group-btn'>
-                            <button class='btn btn-default text2Clipboard' data-clipboard-text="{{rpEntry.url}}">复制</button>
                             <a class='btn btn-default' ng-href="{{rpEntry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                         </div>
                     </div>
@@ -198,26 +195,6 @@
                         <div class='form-inline'>
                             <span>终止时间</span>
                             <tms-datepicker class='tms-datepicker' tms-title='终止时间' tms-data='timerTask.remind.task.task_expire_at' tms-state='remind'></tms-datepicker>
-                        </div>
-                    </div>
-                    <div class='form-group' ng-if="timerTask.remind.task.task_expire_at==0">
-                        <div class='form-inline'>
-                            <div class='form-group'>
-                                <span>剩余执行次数 </span>
-                                <select class='form-control' ng-model="timerTask.remind.task.left_count">
-                                    <option value='0'>0次</option>
-                                    <option value='1'>1次</option>
-                                    <option value='2'>2次</option>
-                                    <option value='3'>3次</option>
-                                    <option value='4'>4次</option>
-                                    <option value='5'>5次</option>
-                                    <option value='6'>6次</option>
-                                    <option value='7'>7次</option>
-                                    <option value='8'>8次</option>
-                                    <option value='9'>9次</option>
-                                    <option value='10'>10次</option>
-                                </select>
-                            </div>
                         </div>
                     </div>
                     <div class='form-group'>

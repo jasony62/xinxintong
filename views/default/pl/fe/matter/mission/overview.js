@@ -10,7 +10,7 @@ define(['frame'], function(ngApp) {
             if (oRule.scope === 'member') {
                 var mschemaIds = Object.keys(oRule.member);
                 if (mschemaIds.length) {
-                    http2.get('/rest/pl/fe/site/member/schema/overview?site=' + $scope.mission.siteid + '&mschema=' + mschemaIds.join(','), function(rsp) {
+                    http2.get('/rest/pl/fe/site/member/schema/overview?site=' + $scope.mission.siteid + '&mschema=' + mschemaIds.join(',')).then(function(rsp) {
                         var oMschema;
                         for (var schemaId in rsp.data) {
                             oMschema = rsp.data[schemaId];
@@ -23,7 +23,7 @@ define(['frame'], function(ngApp) {
         $scope.$watch('mission', function(oMission) {
             var url;
             url = '/rest/pl/fe/matter/mission/matter/list?id=' + oMission.id + '&verbose=N';
-            http2.post(url, {}, function(rsp) {
+            http2.post(url, {}).then(function(rsp) {
                 $scope.matters = rsp.data;
             });
         });

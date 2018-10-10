@@ -1,47 +1,53 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <base href='/'>
-        <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-        <link href="/static/css/tms.css" rel="stylesheet">
-        <link href="/views/default/pl/fe/site/sns/main.css" rel="stylesheet">
-        <title>微信企业号</title>
-    </head>
-    <body ng-controller='ctrlQy'>
-        <nav class='navbar navbar-default'>
+
+<head>
+    <meta charset="UTF-8">
+    <base href='/'>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/tms.css" rel="stylesheet">
+    <link href="/views/default/pl/fe/site/sns/main.css" rel="stylesheet">
+    <title>微信企业号</title>
+</head>
+
+<body ng-controller='ctrlQy'>
+    <nav class='navbar navbar-default'>
+        <ul class='nav navbar-nav'>
+            <li><a href='/rest/pl/fe' target='_self'>首页</a></li>
+            <li><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>工作台</a></li>
+        </ul>
+        <ul class='nav navbar-nav navbar-right' style='margin-right:0'>
+            <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
+            <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
+        </ul>
+    </nav>
+    <div class='container'>
+        <div class='navbar navbar-default'>
             <ul class='nav navbar-nav'>
-                <li><a href='/rest/pl/fe' target='_self'>首页</a></li>
-                <li><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>工作台</a></li>
+                <li ng-class="{'active':subView==='setting'}"><a href='/rest/pl/fe/site/sns/qy/setting?site={{siteId}}'>账号配置</a></li>
+                <li ng-class="{'active':subView==='text'}"><a href='/rest/pl/fe/site/sns/qy/text?site={{siteId}}'>文本消息</a></li>
+                <li ng-class="{'active':subView==='menu'}"><a href='/rest/pl/fe/site/sns/qy/menu?site={{siteId}}'>菜单事件</a></li>
+                <!--<li><a href='/rest/pl/fe/site/sns/qy/qrcode'>扫二维码</a></li>-->
+                <li ng-class="{'active':subView==='relay'}"><a href='/rest/pl/fe/site/sns/qy/relay?site={{siteId}}'>转发接口</a></li>
+                <li ng-class="{'active':subView==='other'}"><a href='/rest/pl/fe/site/sns/qy/other?site={{siteId}}'>其他事件</a></li>
+                <li ng-class="{'active':subView==='customapi'}"><a href='/rest/pl/fe/site/sns/qy/customapi?site={{siteId}}'>通讯录同步</a></li>
             </ul>
-            <ul class='nav navbar-nav navbar-right' style='margin-right:0'>
-                <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
-                <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
-            </ul>
-        </nav>
-        <div class='container'>
-            <div class='navbar navbar-default'>
-                <ul class='nav navbar-nav'>
-                    <li ng-class="{'active':subView==='setting'}"><a href='/rest/pl/fe/site/sns/qy/setting?site={{siteId}}'>账号配置</a></li>
-                    <li ng-class="{'active':subView==='text'}"><a href='/rest/pl/fe/site/sns/qy/text?site={{siteId}}'>文本消息</a></li>
-                    <li ng-class="{'active':subView==='menu'}"><a href='/rest/pl/fe/site/sns/qy/menu?site={{siteId}}'>菜单事件</a></li>
-                    <!--<li><a href='/rest/pl/fe/site/sns/qy/qrcode'>扫二维码</a></li>-->
-                    <li ng-class="{'active':subView==='relay'}"><a href='/rest/pl/fe/site/sns/qy/relay?site={{siteId}}'>转发接口</a></li>
-                    <li ng-class="{'active':subView==='other'}"><a href='/rest/pl/fe/site/sns/qy/other?site={{siteId}}'>其他事件</a></li>
-                    <li ng-class="{'active':subView==='customapi'}"><a href='/rest/pl/fe/site/sns/qy/customapi?site={{siteId}}'>通讯录同步</a></li>
-                </ul>
-            </div>
-            <div class='row' ng-view></div>
         </div>
-        <script src="/static/js/jquery.min.js"></script>
-        <script src="/static/js/jquery-ui.min.js"></script>
-        <script src="/static/js/angular.min.js"></script>
-        <script src="/static/js/angular-route.min.js"></script>
-        <script src="/static/js/angular-sanitize.min.js"></script>
-        <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-        <script src="/static/js/xxt.ui.js?_=1"></script>
-        <script src="/static/js/ui-tms.js?_=1"></script>
-        <script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
-        <script src="/static/js/require.js" data-main="/views/default/pl/fe/site/sns/qy/main-loader.js?_=2"></script>
-    </body>
+        <div class='row' ng-view></div>
+    </div>
+    <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/jquery-ui.min.js"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-route.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/xxt.ui.js?_=1"></script>
+    <script src="/static/js/ui-tms.js?_=1"></script>
+    <script src="<?php echo auto_version('/asset/js/xxt.ui.http.js');?>"></script>
+    <script src="<?php echo auto_version('/asset/js/xxt.ui.notice.js');?>"></script>
+    <script src="<?php echo auto_version('/views/default/pl/fe/_module/matter.service.js');?>"></script>
+    <script src="/static/js/require.js" data-main="<?php echo auto_version('/views/default/pl/fe/site/sns/qy/main-loader.js');?>"></script>
+</body>
+
 </html>

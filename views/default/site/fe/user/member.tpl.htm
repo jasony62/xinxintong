@@ -112,7 +112,7 @@
                                 <div class='input-group-addon'>
                                     <div style='width:4em'>姓名</div>
                                 </div>
-                                <input type='text' required="" ng-model="member.name" class='form-control'>
+                                <input type='text' ng-required="schema.attrs.name.required" ng-model="member.name" class='form-control'>
                             </div>
                         </div>
                         <div class='form-group' ng-if="!schema.attrs.mobile.hide">
@@ -120,7 +120,7 @@
                                 <div class='input-group-addon'>
                                     <div style='width:4em'>手机</div>
                                 </div>
-                                <input type='text' required="" ng-model="member.mobile" class='form-control'>
+                                <input type='text' ng-required="schema.attrs.mobile.required" ng-model="member.mobile" class='form-control'>
                             </div>
                         </div>
                         <div class='form-group' ng-if="!schema.attrs.email.hide">
@@ -128,7 +128,7 @@
                                 <div class='input-group-addon'>
                                     <div style='width:4em'>邮箱</div>
                                 </div>
-                                <input type='text' required="" ng-model="member.email" class='form-control'>
+                                <input type='text' ng-required="schema.attrs.email.required" ng-model="member.email" class='form-control'>
                             </div>
                         </div>
                         <div class='form-group' ng-repeat="ea in schema.extAttrs" ng-switch on="ea.type">

@@ -31,7 +31,7 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
                     };
                 }],
             }).result.then(function(options) {
-                http2.post('/rest/pl/fe/matter/signin/page/add?site=' + $scope.app.siteid + '&app=' + $scope.app.id, options, function(rsp) {
+                http2.post('/rest/pl/fe/matter/signin/page/add?site=' + $scope.app.siteid + '&app=' + $scope.app.id, options).then(function(rsp) {
                     var page = rsp.data;
                     pageLib.enhance(page);
                     page._arrange($scope.mapOfAppSchemas);
@@ -57,6 +57,13 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
             }
 
             return srvAppPage.update(page, names);
+        };
+        $scope.cleanPage = function() {
+            if (window.confirm('确定清除页面【' + $scope.ep.title + '】的所有内容？')) {
+                srvAppPage.clean($scope.ep).then(function() {
+                    editorProxy.getEditor().setContent('');
+                });
+            }
         };
         $scope.delPage = function() {
             var oPage, oActSchema, bUserd;

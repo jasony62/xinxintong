@@ -1,0 +1,72 @@
+<div class="modal-header">
+    <button class="close" ng-click="cancel()">×</button>
+    <h5 class="modal-title">设置数据来源</h5>
+</div>
+<div class="modal-body">
+    <div class='row'>
+        <div class='col-md-6'>
+            <div class='form-group'>
+                <label>1.选择目标活动</label>
+                <div class='input-group'>
+                    <input type='text' class='form-control' ng-model="filter.byTitle" placeholder="输入活动标题筛选">
+                    <span class='input-group-btn'>
+                        <button class='btn btn-default' ng-click="doFilter()"><i class='glyphicon glyphicon-refresh'></i></button>
+                    </span>
+                </div>
+                <select class="form-control" ng-model="result.fromApp" ng-options="app as app.title for app in apps" size="12" ng-change="selectApp()" style="overflow-x:auto"></select>
+            </div>
+            <div class='form-group'>
+                <div class='pl-pagination'>
+                    <ul uib-pagination ng-show="page.total>page.size" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="doSearch()"></ul>
+                </div>
+            </div>
+        </div>
+        <div class='col-md-6' ng-switch on="result.type">
+            <label>2.选择数据来源 <span ng-if="!result.type" class='text-danger glyphicon glyphicon-hand-left'></span></label>
+            <div class='radio'>
+                <label>
+                    <input type='radio' value='input' ng-model="result.type">填写格式为数值的填写题</label>
+            </div>
+            <div class='radio'>
+                <label>
+                    <input type='radio' value='act' ng-model="result.type">用户在活动中的行为数据</label>
+            </div>
+            <div class='radio'>
+                <label>
+                    <input type='radio' value='option' ng-model="result.type">动态选项选择题中用户提供的选项获得的选择数</label>
+            </div>
+            <div ng-switch-when="input">
+                <label>3.选择题目 <span ng-if="!result.selected" class='text-danger glyphicon glyphicon-hand-left'></span></label>
+                <div class='list-group' style='height:300px;overflow-y:auto' ng-if="schemas.length">
+                    <div class='list-group-item' ng-repeat="schema in schemas">
+                        <label class="radio-inline">
+                            <input type='radio' value="{{$index}}" ng-model="result.selected">{{schema.title}}</label>
+                    </div>
+                </div>
+                <div class='alert alert-danger' ng-if="schemas.length===0"><strong>没有符合条件的题目！</strong>需要填写格式为【数值】的【填写题】。</div>
+            </div>
+            <div ng-switch-when="act">
+                <label>3.选择行为</label>
+                <div class='list-group' style='height:300px;overflow-y:auto'>
+                    <div class='list-group-item'>
+                        <label class="radio-inline">
+                            <input type='radio' value="user_total_coin" ng-model="result.selected">用户获得的积分</label>
+                    </div>
+                </div>
+            </div>
+            <div ng-switch-when="option">
+                <label>3.选择题目 <span ng-if="!result.selected" class='text-danger glyphicon glyphicon-hand-left'></span></label>
+                <div class='list-group' style='height:300px;overflow-y:auto' ng-if="schemas.length">
+                    <div class='list-group-item' ng-repeat="schema in schemas">
+                        <label class="radio-inline">
+                            <input type='radio' value="{{$index}}" ng-model="result.selected">{{schema.title}}</label>
+                    </div>
+                </div>
+                <div class='alert alert-danger' ng-if="schemas.length===0"><strong>没有符合条件的题目！</strong>需要已【设置题目选项来源】的单选题或多选题。</div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-success" ng-class="{'btn-danger':disabled,'btn-success':!disabled}" ng-click="ok()" ng-disabled="disabled">设置</button>
+</div>

@@ -32,7 +32,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.applyToHome = function() {
             var url = '/rest/pl/fe/matter/home/apply?site=' + $scope.app.siteid + '&type=enroll&id=' + $scope.app.id;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 noticebox.success('完成申请！');
             });
         };
@@ -63,33 +63,7 @@ define(['frame'], function(ngApp) {
             });
         });
     }]);
-    ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'http2', 'srvSite', 'srvEnrollApp', 'srvEnrollSchema', function($scope, $uibModal, http2, srvSite, srvEnrollApp, srvEnrollSchema) {
-        function chooseGroupApp() {
-            return $uibModal.open({
-                templateUrl: 'chooseGroupApp.html',
-                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                    $scope2.app = _oApp;
-                    $scope2.data = {
-                        app: null,
-                        round: null
-                    };
-                    _oApp.mission && ($scope2.data.sameMission = 'Y');
-                    $scope2.cancel = function() {
-                        $mi.dismiss();
-                    };
-                    $scope2.ok = function() {
-                        $mi.close($scope2.data);
-                    };
-                    var url = '/rest/pl/fe/matter/group/list?site=' + _oApp.siteid + '&size=999&cascaded=Y';
-                    _oApp.mission && (url += '&mission=' + _oApp.mission.id);
-                    http2.get(url, function(rsp) {
-                        $scope2.apps = rsp.data.apps;
-                    });
-                }],
-                backdrop: 'static'
-            }).result;
-        }
-
+    ngApp.provider.controller('ctrlAccess', ['$scope', 'srvSite', 'srvEnrollApp', 'srvEnrollSchema', 'tkGroupApp', function($scope, srvSite, srvEnrollApp, srvEnrollSchema, tkGroupApp) {
         function setMschemaEntry(mschemaId) {
             if (!_oAppRule.member) {
                 _oAppRule.member = {};
@@ -149,7 +123,7 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.chooseGroupApp = function() {
-            chooseGroupApp().then(function(result) {
+            tkGroupApp.choose(_oApp).then(function(result) {
                 if (setGroupEntry(result)) {
                     $scope.update('entryRule');
                 }

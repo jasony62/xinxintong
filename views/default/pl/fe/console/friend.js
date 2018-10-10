@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.service('tmsCopy', ['$http', '$q', 'tmsDynaPage', 'tmsModal', function($http, $q, tmsDynaPage, tmsModal) {
+    ngApp.provider.service('tmsCopy', ['$http', '$q', 'tmsModal', function($http, $q, tmsModal) {
         function bySite(oMatter) {
             var url, defer;
             defer = $q.defer();
@@ -75,7 +75,7 @@ define(['frame'], function(ngApp) {
             });
         };
     }]);
-    ngApp.provider.controller('ctrlFriend', ['$scope', 'http2', '$uibModal', 'noticebox', 'tmsDynaPage', 'tmsCopy', 'srvSite', function($scope, http2, $uibModal, noticebox, tmsDynaPage, tmsCopy, srvSite) {
+    ngApp.provider.controller('ctrlFriend', ['$scope', 'tmsCopy', function($scope, tmsCopy) {
         $scope.openSite = function(id) {
             location.href = '/rest/site/home?site=' + id;
         };
@@ -94,7 +94,7 @@ define(['frame'], function(ngApp) {
             location.href = url;
         };
     }]);
-    ngApp.provider.controller('ctrlSubscribeSite', ['$scope', 'http2', 'srvSite', function($scope, http2, srvSite) {
+    ngApp.provider.controller('ctrlSubscribeSite', ['$scope', 'srvSite', function($scope, srvSite) {
         $scope.moreMatter = function() {
             srvSite.matterList($scope.frameState.scope, $scope.frameState.sid, $scope.pageOfmatters).then(function(result) {
                 result.matters.forEach(function(matter) {
@@ -110,9 +110,9 @@ define(['frame'], function(ngApp) {
             });
         }, true);
     }]);
-    ngApp.provider.controller('ctrlContributeSite', ['$scope', 'http2', '$q', 'srvSite', function($scope, http2, $q, srvSite) {
+    ngApp.provider.controller('ctrlContributeSite', ['$scope', 'http2', 'srvSite', function($scope, http2, srvSite) {
         $scope.close = function(m) {
-            http2.get('rest/pl/fe/site/contribute/update?id=' + m.id, function(rsp) {
+            http2.get('rest/pl/fe/site/contribute/update?id=' + m.id).then(function(rsp) {
                 $scope.matters.forEach(function(item) {
                     if (m.id == item.id) {
                         matters.splice(item, 1);
@@ -137,7 +137,7 @@ define(['frame'], function(ngApp) {
             });
         }, true);
     }]);
-    ngApp.provider.controller('ctrlFavorSite', ['$scope', 'http2', '$q', 'srvSite', function($scope, http2, $q, srvSite) {
+    ngApp.provider.controller('ctrlFavorSite', ['$scope', 'srvSite', function($scope, srvSite) {
         $scope.moreMatter = function() {
             srvSite.matterList($scope.frameState.scope, $scope.frameState.sid, $scope.pageOfmatters).then(function(result) {
                 result.matters.forEach(function(matter) {

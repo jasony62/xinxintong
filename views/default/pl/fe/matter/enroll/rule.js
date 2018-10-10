@@ -12,7 +12,7 @@ define(['frame'], function(ngApp) {
         $scope.fetchLogs = function() {
             var url;
             url = '/rest/pl/fe/matter/enroll/coin/logs?site=' + _oApp.siteid + '&app=' + _oApp.id + page.j();
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 if (rsp.data.logs) {
                     $scope.logs = logs = rsp.data.logs;
                     $scope.page.total = rsp.data.total;
@@ -47,7 +47,7 @@ define(['frame'], function(ngApp) {
         function fetchAppRules() {
             var url;
             url = '/rest/pl/fe/matter/enroll/coin/rules?site=' + _oApp.siteid + '&app=' + _oApp.id;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 rsp.data.forEach(function(oRule) {
                     var oRuleData;
                     if ($scope.rules[oRule.act]) {
@@ -63,7 +63,7 @@ define(['frame'], function(ngApp) {
         function fetchMissionRules() {
             var url;
             url = '/rest/pl/fe/matter/mission/coin/rules?site=' + _oApp.siteid + '&mission=' + _oApp.mission.id;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 rsp.data.forEach(function(oRule) {
                     if ($scope.rules[oRule.act]) {
                         $scope.rules[oRule.act].mission = oRule;
@@ -137,7 +137,7 @@ define(['frame'], function(ngApp) {
                 }
             }
             url = '/rest/pl/fe/matter/enroll/coin/saveRules?site=' + _oApp.siteid + '&app=' + _oApp.id;
-            http2.post(url, posted, function(rsp) {
+            http2.post(url, posted).then(function(rsp) {
                 for (var k in rsp.data) {
                     $scope.rules[k].data.id = rsp.data[k];
                 }

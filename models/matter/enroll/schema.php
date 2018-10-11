@@ -295,36 +295,82 @@ class schema_model extends \TMS_MODEL {
 			return $weight * $x;
 		}
 		if (is_string($weight)) {
-			$stackEquation = [];
-			$index = 0;
-			$length = strlen($weight);
-			$stackNumber = (string) $x;
-			while ($index < $length) {
-				$char = $weight[$index];
-				if (in_array($char, ['+', '-', '*', '/'])) {
-					if (empty($stackNumber)) {
-						return false;
+			/* 解析权重公式 */
+			$stackCases = [];
+			$cases = explode(';', $weight);
+			foreach ($cases as $cn => $case) {
+				list($condition, $equation) = (strpos($case, '?') ? explode('?', $case) : ['', $case]);
+				/* 适用条件 */
+				$stackCondition = [(string) $x, '', ''];
+				if (isset($condition)) {
+					$index = 0;
+					$length = strlen($condition);
+					while ($index < $length) {
+						$char = $condition[$index];
+						if (in_array($char, ['>', '<', '='])) {
+							if (!empty($stackCondition[2])) {
+								return false;
+							}
+							$stackCondition[1] .= $char;
+						} else if (is_numeric($char)) {
+							$stackCondition[2] .= $char;
+						} else {
+							return false;
+						}
+						$index++;
 					}
-					$stackEquation[] = $stackNumber;
-					$stackEquation[] = $char;
-					$stackNumber = '';
-					$index++;
-				} else if (is_numeric($char)) {
-					$stackNumber .= $char;
-					$index++;
-					if ($index === $length) {
-						if (!empty($stackNumber)) {
+					if ($stackCondition[1] === '=') {
+						$stackCondition[1] = '===';
+					}
+				}
+				/* 计算公式 */
+				$stackEquation = [];
+				if (is_numeric($equation)) {
+					$stackEquation[] = $equation;
+				} else {
+					$index = 0;
+					$length = strlen($equation);
+					$stackNumber = (string) $x;
+					while ($index < $length) {
+						$char = $equation[$index];
+						if (in_array($char, ['+', '-', '*', '/'])) {
+							if (empty($stackNumber)) {
+								return false;
+							}
 							$stackEquation[] = $stackNumber;
-							break;
+							$stackEquation[] = $char;
+							$stackNumber = '';
+							$index++;
+						} else if (is_numeric($char)) {
+							$stackNumber .= $char;
+							$index++;
+							if ($index === $length) {
+								if (!empty($stackNumber)) {
+									$stackEquation[] = $stackNumber;
+									break;
+								}
+							}
+						} else {
+							return false;
 						}
 					}
-				} else {
-					return false;
 				}
+				// 全部计算规则
+				$stackCases[] = [$stackCondition, $stackEquation];
 			}
-			$score = eval('return ' . implode('', $stackEquation) . ';');
-			if ($score < 0) {
-				$score = 0;
+			if (empty($stackCases)) {
+				return false;
+			}
+			foreach ($stackCases as $aCase) {
+				if (strlen($aCase[0][1]) && strlen($aCase[0][2])) {
+					if (false === eval('return ' . implode('', $aCase[0]) . ';')) {
+						continue;
+					}
+				}
+				$score = eval('return ' . implode('', $aCase[1]) . ';');
+			}
+			if (!isset($score)) {
+				return false;
 			}
 
 			return $score;

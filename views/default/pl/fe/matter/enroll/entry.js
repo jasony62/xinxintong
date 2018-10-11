@@ -273,7 +273,7 @@ define(['frame', 'groupService'], function(ngApp) {
                 if (oResult.app) {
                     oGrpApp = { id: oResult.app.id, title: oResult.app.title };
                     if (oResult.round) {
-                        oGrpApp.round = { id: oResult.round.id, title: oResult.round.title };
+                        oGrpApp.round = { id: oResult.round.round_id, title: oResult.round.title };
                     }
                     $parse('group').assign(oRule, oGrpApp);
                 }

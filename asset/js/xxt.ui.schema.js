@@ -49,7 +49,7 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
                 return '题目［' + oSchema.title + '］请输入正确的姓名（不少于2个字符）';
             }
         } else if (oSchema.format === 'mobile') {
-            if (!/^1(3[0-9]|4[57]|5[0-35-9]|7[0135678]|8[0-9])\d{8}$/.test(value)) {
+            if (!/^1(3[0-9]|4[57]|5[0-35-9]|7[0135678]|8[0-9]|9[0-9])\d{8}$/.test(value)) {
                 return '题目［' + oSchema.title + '］请输入正确的手机号（11位数字）';
             }
         } else if (oSchema.format === 'email') {

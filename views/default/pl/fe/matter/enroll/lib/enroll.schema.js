@@ -66,13 +66,6 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         if (oUpdatedSchema.scoreMode === 'evaluation') {
                             if (oUpdatedSchema.weight === undefined) {
                                 oUpdatedSchema.weight = 1;
-                            } else {
-                                if (false === /^\d+\.?\d*$/.test(oUpdatedSchema.weight)) {
-                                    oUpdatedSchema.weight = 1;
-                                } else if (/\.$/.test(oUpdatedSchema.weight)) {
-                                    // 这样会导致无法输入“点”
-                                    //oSchema.weight = oSchema.weight.slice(0, -1);
-                                }
                             }
                         }
                     }
@@ -1853,6 +1846,9 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
             };
             $scope.$on('title.xxt.editable.changed', function(e, schema) {
                 $scope.updSchema(schema);
+            });
+            $scope.$on('weight.xxt.editable.changed', function(e, schema) {
+                $scope.updSchema(schema, null, 'weight');
             });
             // 回车添加选项
             $('body').on('keyup', function(evt) {

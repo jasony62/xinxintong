@@ -95,6 +95,20 @@ class schema_model extends \TMS_MODEL {
 					}
 				}
 				break;
+			case 'shorttext':
+				if (isset($oSchema->format) && $oSchema->format === 'number') {
+					if (isset($oSchema->scoreMode) && $oSchema->scoreMode === 'evaluation') {
+						if (empty($oSchema->weight)) {
+							$oSchema->weight = 1;
+						} else if (!is_numeric($oSchema->weight)) {
+							/* 检查是否为可运行的表达式 */
+							if (false === $this->scoreByWeight($oSchema->weight, 5)) {
+								$oSchema->weight = 1;
+							}
+						}
+					}
+				}
+				break;
 			}
 			/* 关联到其他应用时才需要检查 */
 			if (empty($oSchema->fromApp)) {
@@ -241,7 +255,6 @@ class schema_model extends \TMS_MODEL {
 					}
 				}
 			}
-
 			$purified[] = $oSchema;
 		}
 
@@ -263,6 +276,58 @@ class schema_model extends \TMS_MODEL {
 			unset($oSchema->schema_id);
 
 			return true;
+		}
+
+		return false;
+	}
+	/**
+	 * 根据权重表达式计算得分
+	 *
+	 * 如果权重设置不符合要求返回false
+	 * 如果计算后的得分小于0，得分记为0
+	 *
+	 */
+	public function scoreByWeight($weight, $x) {
+		if (empty($weight) || empty($x) || !is_numeric($x)) {
+			return false;
+		}
+		if (is_numeric($weight)) {
+			return $weight * $x;
+		}
+		if (is_string($weight)) {
+			$stackEquation = [];
+			$index = 0;
+			$length = strlen($weight);
+			$stackNumber = (string) $x;
+			while ($index < $length) {
+				$char = $weight[$index];
+				if (in_array($char, ['+', '-', '*', '/'])) {
+					if (empty($stackNumber)) {
+						return false;
+					}
+					$stackEquation[] = $stackNumber;
+					$stackEquation[] = $char;
+					$stackNumber = '';
+					$index++;
+				} else if (is_numeric($char)) {
+					$stackNumber .= $char;
+					$index++;
+					if ($index === $length) {
+						if (!empty($stackNumber)) {
+							$stackEquation[] = $stackNumber;
+							break;
+						}
+					}
+				} else {
+					return false;
+				}
+			}
+			$score = eval('return ' . implode('', $stackEquation) . ';');
+			if ($score < 0) {
+				$score = 0;
+			}
+
+			return $score;
 		}
 
 		return false;

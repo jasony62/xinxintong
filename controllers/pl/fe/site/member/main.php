@@ -10,7 +10,7 @@ class main extends \pl\fe\base {
 	 *
 	 */
 	public function list_action($schema, $page = 1, $size = 30, $kw = '', $by = '') {
-		if (false === ($user = $this->accountUser())) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
@@ -110,19 +110,67 @@ class main extends \pl\fe\base {
 		return new \ResponseData($rst);
 	}
 	/**
+	 * 提交站点自定义用户信息
+	 *
+	 * @param int $schema 自定义用户信息定义的id
+	 *
+	 */
+	public function create_action($schema) {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		$oMschema = $this->model('site\user\memberschema')->byId($schema, ['fields' => 'siteid,id,title,attr_mobile,attr_email,attr_name,ext_attrs,auto_verified,require_invite']);
+		if ($oMschema === false) {
+			return new \ObjectNotFoundError();
+		}
+
+		$oNewMember = $this->getPostJson();
+		if (emptty($oNewMember->userid)) {
+			return new \ResponseError('没有指定要关联的用户');
+		}
+
+		$oSiteUser = $modelSiteUser->byId($oNewMember->userid);
+		if ($oSiteUser === false) {
+			return new \ResponseError('请注册或登录后再填写通讯录联系人信息');
+		}
+
+		$modelMem = $this->model('site\user\member');
+
+		/* 给当前用户创建自定义用户信息 */
+		$oNewMember->siteid = $oMschema->siteid;
+		$oNewMember->schema_id = $oMschema->id;
+		$oNewMember->unionid = isset($oSiteUser->unionid) ? $oSiteUser->unionid : '';
+		/* check auth data */
+		if ($errMsg = $modelMem->rejectAuth($oNewMember, $oMschema)) {
+			return new \ResponseError($errMsg);
+		}
+		/* 验证状态 */
+		$oNewMember->verified = $oMschema->auto_verified === 'Y' ? 'Y' : 'P';
+
+		/* 创建通讯录用户 */
+		$aResult = $modelMem->create($oSiteUser->uid, $oMschema, $oNewMember);
+		if ($aResult[0] === false) {
+			return new \ResponseError($aResult[1]);
+		}
+		$oNewMember = $aResult[1];
+
+		return new \ResponseData($oNewMember);
+	}
+	/**
 	 * 删除一个注册用户
 	 *
 	 * 不删除用户数据只是打标记
 	 */
 	public function remove_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
 		$rst = $this->model()->update(
 			'xxt_site_member',
-			array('forbidden' => 'Y'),
-			"siteid='$site' and id='$id'"
+			['forbidden' => 'Y'],
+			['siteid' => $site, 'id' => $id]
 		);
 
 		return new \ResponseData($rst);

@@ -225,12 +225,6 @@
         </div>
     </div>
     <div ng-controller="ctrlUser" ng-switch-when="user">
-        <div class='col-md-3' ng-if="!frameState.sid">
-            <div class='form-group'>
-                <label>选择团队</label>
-                <select class='form-control' ng-model="frameState.sid" ng-options="site.id as site.name for site in sites"></select>
-            </div>
-        </div>
         <div class="col-md-12" ng-if="frameState.sid" ng-switch on="catelog">
             <div class='form-group'>
                 <div class='form-inline'>
@@ -258,6 +252,12 @@
                             <li><a href ng-click="notify()">给全部用户发消息<span>（{{members.page.total}}）</span></a></li>
                         </ul>
                     </div>
+                    <div class='checkbox' ng-if="catelog==='account'">
+                        <label><input type='checkbox' ng-model="query.onlyWxfan"> 微信关注用户</label>
+                    </div>
+                    <div class='form-group'>
+                        <button class='btn btn-default' ng-click="refresh()"><i class='glyphicon glyphicon-refresh'></i> 刷新</button>
+                    </div>
                 </div>
             </div>
             <div ng-controller='ctrlMember' ng-switch-when="member">
@@ -265,7 +265,7 @@
                     <table class='table table-bordered'>
                         <thead>
                             <tr>
-                                <th style='width:28px'><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected"/></th>
+                                <th style='width:28px'><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected" /></th>
                                 <th style='width:48px'>序号</th>
                                 <th style='width:120px'>填写日期</th>
                                 <th style='width:80px'>通过审核</th>
@@ -278,7 +278,7 @@
                         </thead>
                         <tbody>
                             <tr ng-repeat='m in members'>
-                                <td><input type="checkbox" ng-change="rows.change($index)" ng-model="rows.selected[$index]"/></td>
+                                <td><input type="checkbox" ng-change="rows.change($index)" ng-model="rows.selected[$index]" /></td>
                                 <td>{{$index+1}}</td>
                                 <td>{{m.create_at*1000|date:'yy-MM-dd HH:mm'}}</td>
                                 <td>{{m.verified==='Y'?'是':(m.verified==='N'?'否':'待定')}}</td>
@@ -291,8 +291,8 @@
                                     </div>
                                     <div ng-switch-when="image">
                                         <div ng-repeat="img in m._extattr[ea.id]"><img style="max-width:128px;" ng-src="{{img.imgSrc}}"></div>
-                                    </div>
-                                    <div ng-switch-default>{{m._extattr[ea.id]}}</div>
+                                        </div>
+                                        <div ng-switch-default>{{m._extattr[ea.id]}}</div>
                                 </td>
                                 <td>
                                     <a href='' ng-click='editMember(m)'>修改</a>
@@ -313,13 +313,12 @@
                     <thead>
                         <tr>
                             <th style='width:48px'>序号</th>
-                            <th data-filter-by='nickname' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-trigger="'show'" popover-append-to-body="true"  ng-click="filter.show($event)">昵称 <i class='glyphicon glyphicon-filter'></i></th>
+                            <th data-filter-by='nickname' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-trigger="'show'" popover-append-to-body="true" ng-click="filter.show($event)">昵称 <i class='glyphicon glyphicon-filter'></i></th>
                             <th style='width:120px'>创建时间</th>
                             <th style='width:120px'>最近访问时间</th>
                             <th style='width:60px'>已注册</th>
                             <th style='width:60px'>主账号</th>
-                            <th style='width:74px'>关联微信</th>
-                            <th style='width:74px'>关联易信</th>
+                            <th style='width:74px'>微信昵称</th>
                             <th style='width:60px'>积分</th>
                             <th style='width:60px'>访问数</th>
                             <th style='width:60px'>收藏数</th>
@@ -333,8 +332,7 @@
                             <td><span ng-if="u.last_active">{{u.last_active*1000|date:'yy-MM-dd HH:mm'}}</span></td>
                             <td><span ng-if="u.unionid">是</span></td>
                             <td><span ng-if="u.is_reg_primary==='Y'">是</span></td>
-                            <td><span ng-if="u.wx_openid">是</span></td>
-                            <td><span ng-if="u.yx_openid">是</span></td>
+                            <td><span ng-bind="u.wxfan.nickname"></span></td>
                             <td>{{u.coin}}</td>
                             <td>{{u.read_num}}</td>
                             <td>{{u.favor_num}}</td>

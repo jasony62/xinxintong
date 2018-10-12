@@ -138,16 +138,14 @@ class site_model extends \TMS_MODEL {
 	 * 获得指定团队的个人关注用户
 	 */
 	public function subscriber($siteId, $page = 1, $size = 10, $options = []) {
-
 		$q = [
 			'*',
 			'xxt_site_subscriber',
-			"siteid = '" . $this->escape($siteId) . "'",
+			"siteid = '" . $siteId . "'",
 		];
 		if (!empty($options['byNickname'])) {
 			$q[2] .= " and nickname like '%" . $this->escape($options['byNickname']) . "%'";
 		}
-
 		if (empty($page) || empty($size)) {
 			$result = $this->query_objs_ss($q);
 		} else {

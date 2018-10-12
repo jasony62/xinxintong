@@ -369,7 +369,8 @@ define(['frame'], function(ngApp) {
         }, true);
     }]);
     ngApp.provider.controller('ctrlUser', ['$scope', '$location', 'http2', 'cstApp', 'pushnotify', 'noticebox', function($scope, $location, http2, cstApp, pushnotify, noticebox) {
-        var oSelected, oMembers;
+        var oSelected, oMembers, _oQuery;
+        $scope.query = _oQuery = {};
         $scope.selected = oSelected = {
             mschema: null
         };
@@ -413,6 +414,9 @@ define(['frame'], function(ngApp) {
                 }
             }, options);
         }
+        $scope.refresh = function() {
+            $scope.$broadcast('site.user.refresh');
+        };
         $scope.$on('member.data', function(event, data) {
             $scope.members = oMembers = data;
         });
@@ -484,9 +488,9 @@ define(['frame'], function(ngApp) {
                 filter += '&by=' + _oCriteria.filter.by;
             }
             url = '/rest/pl/fe/site/member/list?site=' + $scope.frameState.sid + '&schema=' + _oMschema.id;
-            url += '&page=' + $scope.page.at + '&size=' + $scope.page.size + filter
+            url += filter
             url += '&contain=total';
-            http2.get(url).then(function(rsp) {
+            http2.get(url, { page: $scope.page }).then(function(rsp) {
                 var members = rsp.data.members;
                 if (members.length) {
                     if (_oMschema.extAttrs.length) {
@@ -563,6 +567,9 @@ define(['frame'], function(ngApp) {
                 $scope.rows.reset();
             }
         });
+        $scope.$on('site.user.refresh', function() {
+            $scope.doSearch();
+        });
     }]);
     ngApp.provider.controller('ctrlSiteAccount', ['$scope', '$uibModal', 'http2', 'facListFilter', 'srvSite', function($scope, $uibModal, http2, facListFilter, srvSite) {
         var _oFilter, _oPage;
@@ -574,24 +581,23 @@ define(['frame'], function(ngApp) {
         $scope.filter = facListFilter.init(function() {
             $scope.doSearch(1);
         }, _oFilter);
-        $scope.openProfile = function(oUser) {
-            location.href = '/rest/pl/fe/site/user?site=' + $scope.frameState.sid + '&uid=' + oUser.uid + '&unionid=' + oUser.unionid;
-        };
         $scope.doSearch = function(pageAt) {
             var url, data;
             pageAt && ($scope.page.at = pageAt);
             url = '/rest/pl/fe/site/user/account/list';
             url += '?site=' + $scope.frameState.sid;
-            url += '&page=' + _oPage.at + '&size=' + _oPage.size;
-            data = {};
+            data = angular.extend($scope.query);
             if (_oFilter.by === 'nickname' && _oFilter.keyword) {
                 data.nickname = _oFilter.keyword;
             }
-            http2.post(url, data).then(function(rsp) {
+            http2.post(url, data, { page: _oPage }).then(function(rsp) {
                 $scope.users = rsp.data.users;
                 _oPage.total = rsp.data.total;
             });
         };
+        $scope.$parent.$watch('query', function() {
+            $scope.doSearch(1);
+        }, true);
         $scope.$watch('frameState.sid', function(sid) {
             if (sid) {
                 $scope.doSearch(1);
@@ -599,6 +605,9 @@ define(['frame'], function(ngApp) {
                     $scope.sns = aSns;
                 });
             }
+        });
+        $scope.$on('site.user.refresh', function() {
+            $scope.doSearch();
         });
     }]);
     ngApp.provider.controller('ctrlSiteSubscribe', ['$scope', '$uibModal', 'http2', 'facListFilter', function($scope, $uibModal, http2, facListFilter) {
@@ -613,21 +622,27 @@ define(['frame'], function(ngApp) {
         }, _oFilter);
         $scope.doSearch = function(pageAt) {
             var url, data;
-            url = '/rest/pl/fe/site/subscriberList';
             pageAt && ($scope.page.at = pageAt);
+            url = '/rest/pl/fe/site/subscriberList';
             url += '?site=' + $scope.frameState.sid;
             url += '&category=client';
-            url += '&page=' + _oPage.at + '&size=' + _oPage.size;
             data = {};
             if (_oFilter.by === 'nickname' && _oFilter.keyword) {
                 data.nickname = _oFilter.keyword;
             }
-            http2.post(url, data).then(function(rsp) {
+            http2.post(url, data, { page: _oPage }).then(function(rsp) {
                 $scope.users = rsp.data.subscribers;
                 _oPage.total = rsp.data.total;
             });
         };
-        $scope.doSearch(1);
+        $scope.$watch('frameState.sid', function(sid) {
+            if (sid) {
+                $scope.doSearch(1);
+            }
+        });
+        $scope.$on('site.user.refresh', function() {
+            $scope.doSearch();
+        });
     }]);
     ngApp.provider.controller('ctrlRecycle', ['$scope', 'http2', 'facListFilter', function($scope, http2, facListFilter) {
         var _oFilter, t = (new Date * 1);

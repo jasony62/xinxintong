@@ -1,28 +1,8 @@
-define(['require', 'cstApp'], function(require, cstApp) {
+define(['require', 'frame/RouteParam', 'frame/const'], function(require, RouteParam, CstApp) {
     'use strict';
     var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'http.ui.xxt', 'notice.ui.xxt', 'tmplshop.ui.xxt', 'pl.const', 'service.matter', 'page.ui.xxt', 'modal.ui.xxt', 'schema.ui.xxt', 'ui.xxt']);
-    ngApp.constant('cstApp', cstApp);
+    ngApp.constant('cstApp', CstApp);
     ngApp.config(['$controllerProvider', '$provide', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', function($controllerProvider, $provide, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {
-        var RouteParam = function(name) {
-            var baseURL;
-            if (window.ScriptTimes && window.ScriptTimes.html && window.ScriptTimes.html[name]) {
-                this.templateUrl = window.ScriptTimes.html[name].path + '.html?_=' + window.ScriptTimes.html[name].time;
-            } else {
-                baseURL = '/views/default/pl/fe/console/';
-                this.templateUrl = baseURL + name + '.html?_=' + (new Date * 1);
-            }
-            this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
-            this.reloadOnSearch = false;
-            this.resolve = {
-                load: function($q) {
-                    var defer = $q.defer();
-                    require([name + 'Ctrl'], function() {
-                        defer.resolve();
-                    });
-                    return defer.promise;
-                }
-            };
-        };
         ngApp.provider = {
             controller: $controllerProvider.register,
             directive: $compileProvider.directive,

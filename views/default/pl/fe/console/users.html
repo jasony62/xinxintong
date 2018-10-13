@@ -16,12 +16,12 @@
                     <div class='btn-group'>
                         <button type="button" class='btn btn-default dropdown-toggle' data-toggle="dropdown">更多操作 <i class="caret"></i></button>
                         <ul class="dropdown-menu">
-                            <li><a href ng-click="notify(true)">给选中用户发消息<span>（{{members.rows.count}}）</span></a></li>
-                            <li><a href ng-click="notify()">给全部用户发消息<span>（{{members.page.total}}）</span></a></li>
+                            <li><a href ng-click="notify(true)">给选中用户发消息<span>（{{rows.count}}）</span></a></li>
+                            <li><a href ng-click="notify()">给全部用户发消息<span>（{{page.total}}）</span></a></li>
                         </ul>
                     </div>
                     <div class='form-group'>
-                        <button class='btn btn-default' ng-click="refresh()"><i class='glyphicon glyphicon-refresh'></i> 刷新</button>
+                        <button class='btn btn-default' ng-click="doSearch()"><i class='glyphicon glyphicon-refresh'></i> 刷新</button>
                     </div>
                 </div>
             </div>
@@ -82,7 +82,7 @@
                         <label><input type='checkbox' ng-model="query.onlyWxfan"> 已关注公众号</label>
                     </div>
                     <div class='form-group pull-right'>
-                        <button class='btn btn-default' ng-click="refresh()"><i class='glyphicon glyphicon-refresh'></i> 刷新</button>
+                        <button class='btn btn-default' ng-click="doSearch()"><i class='glyphicon glyphicon-refresh'></i> 刷新</button>
                     </div>
                 </div>
             </div>

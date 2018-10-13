@@ -62,12 +62,12 @@
                     <div ng-repeat="img in member.extattr[ea.id]">
                         <img ng-src="{{img.imgSrc}}" style='max-width:100%;'>
                     </div>
-                </div>
-                <div ng-switch-default>
-                    <input type='text' class='form-control' ng-model="member.extattr[ea.id]">
+                    </div>
+                    <div ng-switch-default>
+                        <input type='text' class='form-control' ng-model="member.extattr[ea.id]">
+                    </div>
                 </div>
             </div>
-        </div>
     </form>
 </div>
 <div class="modal-footer">

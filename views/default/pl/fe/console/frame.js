@@ -47,13 +47,19 @@ define(['require'], function(require) {
     });
     ngApp.config(['$controllerProvider', '$provide', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', function($controllerProvider, $provide, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {
         var RouteParam = function(name) {
-            var baseURL = '/views/default/pl/fe/console/';
-            this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
+            var baseURL;
+            if (window.ScriptTimes && window.ScriptTimes.html && window.ScriptTimes.html[name]) {
+                this.templateUrl = window.ScriptTimes.html[name].path + '.html?_=' + window.ScriptTimes.html[name].time;
+            } else {
+                baseURL = '/views/default/pl/fe/console/';
+                this.templateUrl = baseURL + name + '.html?_=' + (new Date * 1);
+            }
             this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
+            this.reloadOnSearch = false;
             this.resolve = {
                 load: function($q) {
                     var defer = $q.defer();
-                    require([baseURL + name + '.js'], function() {
+                    require([name + 'Ctrl'], function() {
                         defer.resolve();
                     });
                     return defer.promise;
@@ -68,6 +74,7 @@ define(['require'], function(require) {
         $locationProvider.html5Mode(true);
         $routeProvider
             .when('/rest/pl/fe/friend', new RouteParam('friend'))
+            .when('/rest/pl/fe/users', new RouteParam('users'))
             .otherwise(new RouteParam('main'));
         $uibTooltipProvider.setTriggers({
             'show': 'hide'
@@ -80,7 +87,43 @@ define(['require'], function(require) {
             view: '',
             scope: ''
         };
-        $scope.opened = 'main';
+        $scope.opened = '';
+        /* 设置页面入口状态 */
+        $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+            var subView = currentRoute.match(/[^\/]+$/)[0];
+            subView.indexOf('?') !== -1 && (subView = subView.substr(0, subView.indexOf('?')));
+            subView = subView === 'fe' ? 'main' : subView;
+            if (subView !== _oFrameState.view) {
+                _oFrameState.view = subView;
+                if (_oFrameState.view === 'main') {
+                    _oFrameState.scope = 'mission';
+                } else if (_oFrameState.view === 'users') {
+                    _oFrameState.scope = 'account';
+                } else if (_oFrameState.view === 'friend') {
+                    _oFrameState.scope = 'subscribeSite';
+                }
+            }
+            switch (_oFrameState.scope) {
+                case 'mission':
+                case 'activity':
+                case 'doc':
+                case 'recycle':
+                    $scope.opened = 'main';
+                    break;
+                case 'account':
+                case 'member':
+                case 'subscriber':
+                    $scope.opened = 'users';
+                    break;
+                case 'subscribeSite':
+                case 'contributeSite':
+                case 'favorSite':
+                    $scope.opened = 'friend';
+                    break;
+                default:
+                    $scope.opened = '';
+            }
+        });
         var url = '/rest/pl/fe/user/get?_=' + (new Date * 1);
         http2.get(url).then(function(rsp) {
             $scope.loginUser = rsp.data;
@@ -101,8 +144,24 @@ define(['require'], function(require) {
         });
         $scope.changeScope = function(scope) {
             _oFrameState.scope = scope;
-            if (location.search) {
-                $location.url('/rest/pl/fe');
+            switch (scope) {
+                case 'mission':
+                case 'activity':
+                case 'doc':
+                case 'recycle':
+                    $location.url('/rest/pl/fe');
+                    break;
+                case 'account':
+                case 'member':
+                case 'subscriber':
+                    $location.url('/rest/pl/fe/users');
+                    $scope.opened = 'users';
+                    break;
+                case 'subscribeSite':
+                case 'contributeSite':
+                case 'favorSite':
+                    $location.url('/rest/pl/fe/friend');
+                    break;
             }
         };
         $scope.openSite = function(id) {
@@ -228,36 +287,6 @@ define(['require'], function(require) {
                 if (!_oFrameState.sid) {
                     _oFrameState.sid = userSites[0].id;
                 }
-                /* 设置页面入口状态 */
-                $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
-                    var subView = currentRoute.match(/[^\/]+$/)[0];
-                    subView.indexOf('?') !== -1 && (subView = subView.substr(0, subView.indexOf('?')));
-                    subView = subView === 'fe' ? 'main' : subView;
-                    if (subView !== _oFrameState.view) {
-                        _oFrameState.view = subView;
-                        if (_oFrameState.view === 'main') {
-                            _oFrameState.scope = 'mission';
-                        } else if (_oFrameState.view === 'friend') {
-                            _oFrameState.scope = 'subscribeSite';
-                        }
-                    }
-                    switch (_oFrameState.scope) {
-                        case 'mission':
-                        case 'activity':
-                        case 'doc':
-                        case 'user':
-                        case 'recycle':
-                            $scope.opened = 'main';
-                            break;
-                        case 'subscribeSite':
-                        case 'contributeSite':
-                        case 'favorSite':
-                            $scope.opened = 'friend';
-                            break;
-                        default:
-                            $scope.opened = '';
-                    }
-                });
                 $scope.frameState = _oFrameState;
             });
         };

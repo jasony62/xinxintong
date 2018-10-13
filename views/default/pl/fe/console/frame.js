@@ -1,50 +1,7 @@
-define(['require'], function(require) {
+define(['require', 'cstApp'], function(require, cstApp) {
     'use strict';
     var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'http.ui.xxt', 'notice.ui.xxt', 'tmplshop.ui.xxt', 'pl.const', 'service.matter', 'page.ui.xxt', 'modal.ui.xxt', 'schema.ui.xxt', 'ui.xxt']);
-    ngApp.constant('cstApp', {
-        matterNames: {
-            doc: {
-                'article': '单图文',
-                'news': '多图文',
-                'channel': '频道',
-                'link': '链接',
-                'text': '文本',
-                'custom': '定制页',
-            },
-            docOrder: ['article', 'news', 'channel', 'link', 'text', 'custom'],
-            app: {
-                'enroll': '登记',
-                'signin': '签到',
-                'group': '分组',
-                'lottery': '抽奖',
-                'wall': '信息墙',
-            },
-            appOrder: ['enroll', 'signin', 'group', 'lottery', 'wall'],
-            'site': '团队',
-            'mission': '项目',
-        },
-        notifyMatter: [{
-            value: 'tmplmsg',
-            title: '模板消息',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'article',
-            title: '单图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'news',
-            title: '多图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'channel',
-            title: '频道',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'enroll',
-            title: '登记活动',
-            url: '/rest/pl/fe/matter'
-        }]
-    });
+    ngApp.constant('cstApp', cstApp);
     ngApp.config(['$controllerProvider', '$provide', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', function($controllerProvider, $provide, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {
         var RouteParam = function(name) {
             var baseURL;

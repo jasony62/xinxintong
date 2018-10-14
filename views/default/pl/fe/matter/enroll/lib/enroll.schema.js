@@ -1696,11 +1696,20 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     return '/views/default/pl/fe/matter/enroll/schema/' + schema.type + '.html?_=' + bust;
                 }
             };
+            var _IncludeSchemaTemplates = {
+                html: {
+                    option: { url: '/views/default/pl/fe/matter/enroll/schema/option' },
+                    main: { url: '/views/default/pl/fe/matter/enroll/schema/main' }
+                }
+            };
+            http2.post('/rest/script/time', _IncludeSchemaTemplates).then(function(rsp) {
+                angular.merge(_IncludeSchemaTemplates, rsp.data);
+            });
             $scope.schemaEditorHtml = function() {
                 if ($scope.activeOption) {
-                    return '/views/default/pl/fe/matter/enroll/schema/option.html?_=2';
+                    return '/views/default/pl/fe/matter/enroll/schema/option.html?_=' + (_IncludeSchemaTemplates.html.option.time || 1);
                 } else if ($scope.activeSchema) {
-                    return '/views/default/pl/fe/matter/enroll/schema/main.html?_=2';
+                    return '/views/default/pl/fe/matter/enroll/schema/main.html?_=' + (_IncludeSchemaTemplates.html.main.time || 1);
                 } else {
                     return '';
                 }

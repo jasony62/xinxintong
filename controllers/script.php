@@ -25,7 +25,15 @@ class script extends TMS_CONTROLLER {
 		$times = new \stdClass; // 记录目标文件的修改时间
 
 		$fnGetTime = function ($path, $name, $category) use ($times) {
-			$path .= '.' . $category;
+			if (is_string($path)) {
+				$path .= '.' . $category;
+			} else if (is_object($path) && !empty($path->url)) {
+				$path = $path->url . '.' . $category;
+			} else {
+				$times->{$category}->{$name} = '';
+				return;
+			}
+
 			if (strpos($path, DIRECTORY_SEPARATOR) !== 0 || !file_exists(TMS_APP_DIR . $path)) {
 				$times->{$category}->{$name} = '';
 			} else {

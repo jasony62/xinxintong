@@ -14,7 +14,11 @@ class main extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
-		$model = $this->model();
+		$modelMs = $this->model('site\user\memberschema');
+		$oMschema = $modelMs->byId($schema, ['fields' => 'siteid,id,title,attr_mobile,attr_email,attr_name,ext_attrs,auto_verified,require_invite']);
+		if ($oMschema === false) {
+			return new \ObjectNotFoundError();
+		}
 
 		$w = "m.schema_id=$schema and m.forbidden='N'";
 		if (!empty($kw) && !empty($by)) {
@@ -26,7 +30,6 @@ class main extends \pl\fe\base {
 		if (!empty($tag)) {
 			$w .= " and concat(',',m.tags,',') like '%,$tag,%'";
 		}
-		$result = array();
 		$q = [
 			'm.*',
 			'xxt_site_member m',
@@ -35,22 +38,35 @@ class main extends \pl\fe\base {
 		$q2['o'] = 'm.create_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
-		if ($members = $model->query_objs_ss($q, $q2)) {
+		$members = $modelMs->query_objs_ss($q, $q2);
+
+		$oResult = new \stdClass;
+		if (count($members)) {
+			$modelAcnt = $this->model('site\user\account');
+			$modelWxfan = $this->model('sns\wx\fan');
 			foreach ($members as $oMember) {
 				if (property_exists($oMember, 'extattr')) {
 					$oMember->extattr = empty($oMember->extattr) ? new \stdClass : json_decode($oMember->extattr);
 				}
+				if (!empty($oMember->userid)) {
+					$oAccount = $modelAcnt->byId($oMember->userid, ['fields' => 'wx_openid']);
+					if (!empty($oAccount->wx_openid)) {
+						$oWxfan = $modelWxfan->byOpenid($oMschema->siteid, $oAccount->wx_openid, 'nickname,headimgurl', 'Y');
+						if ($oWxfan) {
+							$oMember->wxfan = $oWxfan;
+						}
+					}
+				}
 			}
-			$result['members'] = $members;
-			$q[0] = 'count(*)';
-			$total = (int) $model->query_val_ss($q);
-			$result['total'] = $total;
-		} else {
-			$result['members'] = array();
-			$result['total'] = 0;
 		}
 
-		return new \ResponseData($result);
+		$oResult->members = $members;
+
+		$q[0] = 'count(*)';
+		$total = (int) $modelMs->query_val_ss($q);
+		$oResult->total = $total;
+
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 更新成员数据

@@ -1,3 +1,7 @@
+/**
+ * 业务组件
+ * pushnotify
+ */
 angular.module('ui.xxt', []).
 constant('matterTypes', [{
     value: 'text',

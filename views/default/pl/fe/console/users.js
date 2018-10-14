@@ -177,10 +177,34 @@ define(['frame'], function(ngApp) {
             }
         });
     }]);
-    ngApp.provider.controller('ctrlSiteAccount', ['$scope', '$uibModal', 'http2', 'facListFilter', 'srvSite', function($scope, $uibModal, http2, facListFilter, srvSite) {
+    ngApp.provider.controller('ctrlSiteAccount', ['$scope', 'http2', 'pushnotify', 'facListFilter', 'cstApp', function($scope, http2, pushnotify, facListFilter, cstApp) {
         var _oFilter, _oPage, _oQuery;
         _oFilter = {};
         $scope.page = _oPage = { size: 30 };
+        $scope.rows = {
+            allSelected: 'N',
+            selected: {},
+            count: 0,
+            change: function(index) {
+                this.selected[index] ? this.count++ : this.count--;
+            },
+            reset: function() {
+                this.allSelected = 'N';
+                this.selected = {};
+                this.count = 0;
+            }
+        };
+        $scope.$watch('rows.allSelected', function(nv) {
+            var index = 0;
+            if (nv == 'Y') {
+                while (index < $scope.users.length) {
+                    $scope.rows.selected[index++] = true;
+                }
+                $scope.rows.count = $scope.users.length;
+            } else if (nv == 'N') {
+                $scope.rows.reset();
+            }
+        });
         $scope.query = _oQuery = {};
         $scope.filter = facListFilter.init(function() {
             $scope.doSearch(1);
@@ -195,8 +219,40 @@ define(['frame'], function(ngApp) {
             }
             http2.post(url, data, { page: _oPage }).then(function(rsp) {
                 $scope.users = rsp.data.users;
-                _oPage.total = rsp.data.total;
             });
+        };
+        $scope.notify = function() {
+            var oOptions = {
+                matterTypes: cstApp.notifyMatter
+            };
+            if ($scope.rows && $scope.rows.count) {
+                pushnotify.open($scope.frameState.sid, function(oNotify) {
+                    var url, targetAndMsg = {};
+                    if (oNotify.matters.length) {
+                        targetAndMsg.users = [];
+                        Object.keys($scope.rows.selected).forEach(function(key) {
+                            if ($scope.rows.selected[key] === true) {
+                                var rec = $scope.users[key];
+                                if (rec.uid) {
+                                    targetAndMsg.users.push({ userid: rec.uid });
+                                }
+                            }
+                        });
+                        if (targetAndMsg.users.length === 0) {
+                            noticebox.warn('没有指定有效用户');
+                        } else {
+                            targetAndMsg.message = oNotify.message;
+
+                            url = '/rest/pl/fe/site/user/notice/send?site=' + $scope.frameState.sid;
+                            targetAndMsg.tmplmsg = oNotify.tmplmsg.id;
+
+                            http2.post(url, targetAndMsg).then(function(data) {
+                                noticebox.success('发送完成');
+                            });
+                        }
+                    }
+                }, oOptions);
+            }
         };
         $scope.$watch('query', function() {
             $scope.doSearch(1);
@@ -204,9 +260,6 @@ define(['frame'], function(ngApp) {
         $scope.$watch('frameState.sid', function(sid) {
             if (sid) {
                 $scope.doSearch(1);
-                srvSite.snsList(sid).then(function(aSns) {
-                    $scope.sns = aSns;
-                });
             }
         });
     }]);

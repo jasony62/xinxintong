@@ -177,7 +177,7 @@ define(['frame'], function(ngApp) {
             }
         });
     }]);
-    ngApp.provider.controller('ctrlSiteAccount', ['$scope', 'http2', 'pushnotify', 'facListFilter', 'cstApp', function($scope, http2, pushnotify, facListFilter, cstApp) {
+    ngApp.provider.controller('ctrlSiteAccount', ['$scope', 'noticebox', 'http2', 'pushnotify', 'facListFilter', 'cstApp', function($scope, noticebox, http2, pushnotify, facListFilter, cstApp) {
         var _oFilter, _oPage, _oQuery;
         _oFilter = {};
         $scope.page = _oPage = { size: 30 };

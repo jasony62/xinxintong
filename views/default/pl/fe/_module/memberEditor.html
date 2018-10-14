@@ -4,8 +4,8 @@
 </div>
 <div class="modal-body">
     <form class="form-horizontal">
-        <div class="form-group">
-            <label class="col-md-2 control-label">审核日期</label>
+        <div class="form-group" ng-if='member.id'>
+            <label class="col-md-2 control-label">创建日期</label>
             <div class="col-md-10">
                 <p class="form-control-static">{{member.create_at*1000|date:'yy-MM-dd hh:mm'}}</p>
             </div>
@@ -24,19 +24,19 @@
                 </label>
             </div>
         </div>
-        <div class="form-group" ng-if="canShow('name')">
+        <div class="form-group" ng-if="!schema.attrs.name.hide">
             <label class="col-md-2 control-label">姓名</label>
             <div class="col-md-10">
                 <input class="form-control" ng-model='member.name'>
             </div>
         </div>
-        <div class="form-group" ng-if="canShow('mobile')">
+        <div class="form-group" ng-if="!schema.attrs.mobile.hide">
             <label class="col-md-2 control-label">手机</label>
             <div class="col-md-10">
                 <input class="form-control" ng-model='member.mobile'>
             </div>
         </div>
-        <div class="form-group" ng-if="canShow('email')">
+        <div class="form-group" ng-if="!schema.attrs.email.hide">
             <label class="col-md-2 control-label">邮箱</label>
             <div class="col-md-10">
                 <input class="form-control" ng-model='member.email'>

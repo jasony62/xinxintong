@@ -1,7 +1,7 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlUsers', ['$scope', function($scope) {}]);
-    ngApp.provider.controller('ctrlMember', ['$scope', '$location', '$sce', '$uibModal', 'http2', 'noticebox', 'pushnotify', 'facListFilter', 'tmsSchema', 'cstApp', function($scope, $location, $sce, $uibModal, http2, noticebox, pushnotify, facListFilter, tmsSchema, cstApp) {
+    ngApp.provider.controller('ctrlMember', ['$scope', '$location', '$sce', '$uibModal', 'http2', 'noticebox', 'pushnotify', 'facListFilter', 'tmsSchema', 'cstApp', 'tkAccount', 'tkMember', function($scope, $location, $sce, $uibModal, http2, noticebox, pushnotify, facListFilter, tmsSchema, cstApp, tkAccount, tkMember) {
         var _oMschema, _oCriteria, _oSelected;
         _oCriteria = {
             filter: { by: '', keyword: '' }
@@ -20,6 +20,34 @@ define(['frame'], function(ngApp) {
                     location.href = '/rest/pl/fe/site/mschema?site=' + $scope.frameState.sid + '#' + rsp.data.id;
                 });
             }
+        };
+        /* 创建通讯录用户 */
+        $scope.createByAccount = function() {
+            /* 选择一个访客用户 */
+            tkAccount.pick({ id: $scope.frameState.sid }, { single: true }).then(function(oSiteAccount) {
+                if (oSiteAccount) {
+                    /* 访客用户创建通讯录用户 */
+                    tkMember.create(_oMschema, { userid: oSiteAccount.uid }).then(function(oNewMember) {
+                        oNewMember._extattr = tmsSchema.member.getExtattrsUIValue(_oMschema.extAttrs, oNewMember);
+                        $scope.members.splice(0, 0, oNewMember);
+                    });
+                }
+            });
+        };
+        /* 修改通讯录用户 */
+        $scope.editMember = function(oMember) {
+            tkMember.edit(_oMschema, oMember).then(function(oResult) {
+                if (oResult.action) {
+                    switch (oResult.action) {
+                        case 'remove':
+                            $scope.members.splice($scope.members.indexOf(oMember), 1);
+                            break;
+                        case 'update':
+                            oMember._extattr = tmsSchema.member.getExtattrsUIValue(_oMschema.extAttrs, oMember);
+                            break;
+                    }
+                }
+            });
         };
         $scope.notify = function(isBatch) {
             var rows = isBatch ? $scope.rows : null;
@@ -116,53 +144,6 @@ define(['frame'], function(ngApp) {
                     }
                 }
                 $scope.members = members;
-            });
-        };
-        $scope.editMember = function(oMember) {
-            $uibModal.open({
-                templateUrl: '/views/default/pl/fe/_module/memberEditor.html?_=1',
-                backdrop: 'static',
-                controller: ['$uibModalInstance', '$scope', function($mi, $scope2) {
-                    $scope2.schema = _oMschema;
-                    $scope2.member = angular.copy(oMember);
-                    $scope2.canShow = function(name) {
-                        return _oMschema && _oMschema['attr_' + name].charAt(0) === '0';
-                    };
-                    $scope2.close = function() {
-                        $mi.dismiss();
-                    };
-                    $scope2.ok = function() {
-                        $mi.close({
-                            action: 'update',
-                            data: $scope2.member
-                        });
-                    };
-                    $scope2.remove = function() {
-                        $mi.close({
-                            action: 'remove'
-                        });
-                    };
-                }]
-            }).result.then(function(rst) {
-                if (rst.action === 'update') {
-                    var data = rst.data,
-                        newData = {
-                            verified: data.verified,
-                            name: data.name,
-                            mobile: data.mobile,
-                            email: data.email,
-                            email_verified: data.email_verified,
-                            extattr: data.extattr
-                        };
-                    http2.post('/rest/pl/fe/site/member/update?site=' + $scope.frameState.sid + '&id=' + oMember.id, newData).then(function(rsp) {
-                        angular.extend(oMember, newData);
-                        oMember._extattr = tmsSchema.member.getExtattrsUIValue(_oMschema.extAttrs, oMember);
-                    });
-                } else if (rst.action === 'remove') {
-                    http2.get('/rest/pl/fe/site/member/remove?site=' + $scope.frameState.sid + '&id=' + oMember.id).then(function() {
-                        $scope.members.splice($scope.members.indexOf(oMember), 1);
-                    });
-                }
             });
         };
         $scope.$watch('rows.allSelected', function(nv) {

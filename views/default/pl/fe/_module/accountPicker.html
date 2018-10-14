@@ -1,0 +1,51 @@
+<div class="modal-header">
+    <button class="close" ng-click="cancel()">×</button>
+    <h5 class="modal-title">选择访客用户</h5>
+</div>
+<div class="modal-body">
+    <table class='table table-bordered'>
+        <thead>
+            <tr>
+                <th style='width:32px'><input ng-if="!config.single" type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected" /></th>
+                <th style='width:48px'>序号</th>
+                <th data-filter-by='nickname' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-trigger="'show'" popover-append-to-body="true" ng-click="filter.show($event)">昵称 <i class='glyphicon glyphicon-filter'></i></th>
+                <th style='width:120px'>创建时间</th>
+                <th style='width:120px'>最近访问时间</th>
+                <th style='width:60px'>已注册</th>
+                <th style='width:60px'>主账号</th>
+                <th style='width:74px'>微信昵称</th>
+                <th style='width:60px'>积分</th>
+                <th style='width:60px'>访问数</th>
+                <th style='width:60px'>收藏数</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat='u in users'>
+                <td>
+                    <input ng-if="!config.single" type="checkbox" ng-change="rows.change($index)" ng-model="rows.selected[$index]" />
+                    <input ng-if="config.single" value='{{$index}}' type="radio" ng-model="rows.selected" />
+                </td>
+                <td>{{$index+1}}</td>
+                <td>{{u.nickname}}</td>
+                <td>{{u.reg_time*1000|date:'yy-MM-dd HH:mm'}}</td>
+                <td><span ng-if="u.last_active">{{u.last_active*1000|date:'yy-MM-dd HH:mm'}}</span></td>
+                <td><span ng-if="u.unionid">是</span></td>
+                <td><span ng-if="u.is_reg_primary==='Y'">是</span></td>
+                <td><span ng-bind="u.wxfan.nickname"></span></td>
+                <td>{{u.coin}}</td>
+                <td>{{u.read_num}}</td>
+                <td>{{u.favor_num}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class='form-group'>
+        <div class='pl-pagination'>
+            <span>总数：{{page.total}}</span>
+            <ul uib-pagination ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="cancel()">关闭</button>
+    <button class="btn btn-success" ng-click="execute()">完成</button>
+</div>

@@ -77,6 +77,9 @@ class main extends \pl\fe\base {
 		}
 		$modelMem = $this->model('site\user\member')->setOnlyWriteDbConn(true);
 		$oOldMember = $modelMem->byId($id, ['fields' => 'id,schema_id']);
+		if (false === $oOldMember) {
+			return new \ObjectNotFoundError();
+		}
 		$attrs = $this->model('site\user\memberschema')->byId($oOldMember->schema_id, ['fields' => 'attr_mobile,attr_email,attr_name,extattr']);
 
 		$oPosted = $this->getPostJson();
@@ -142,10 +145,11 @@ class main extends \pl\fe\base {
 		}
 
 		$oNewMember = $this->getPostJson();
-		if (emptty($oNewMember->userid)) {
+		if (empty($oNewMember->userid)) {
 			return new \ResponseError('没有指定要关联的用户');
 		}
 
+		$modelSiteUser = $this->model('site\user\account');
 		$oSiteUser = $modelSiteUser->byId($oNewMember->userid);
 		if ($oSiteUser === false) {
 			return new \ResponseError('请注册或登录后再填写通讯录联系人信息');
@@ -174,19 +178,25 @@ class main extends \pl\fe\base {
 		return new \ResponseData($oNewMember);
 	}
 	/**
-	 * 删除一个注册用户
+	 * 删除一个通讯录用户
 	 *
 	 * 不删除用户数据只是打标记
 	 */
-	public function remove_action($site, $id) {
+	public function remove_action($id) {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
-		$rst = $this->model()->update(
+		$modelMem = $this->model('site\user\member');
+		$oMember = $modelMem->byId($id, ['fields' => 'id,siteid']);
+		if (false === $oMember) {
+			return new \ObjectNotFoundError();
+		}
+
+		$rst = $modelMem->update(
 			'xxt_site_member',
 			['forbidden' => 'Y'],
-			['siteid' => $site, 'id' => $id]
+			['id' => $oMember->id]
 		);
 
 		return new \ResponseData($rst);

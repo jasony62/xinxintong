@@ -53,9 +53,11 @@
                                 <span ng-if="m._extattr[ea.id]">{{m._extattr[ea.id]*1000|date:'yy-MM-dd HH:mm'}}</span>
                             </div>
                             <div ng-switch-when="image">
-                                <div ng-repeat="img in m._extattr[ea.id]"><img style="max-width:128px;" ng-src="{{img.imgSrc}}"></div>
+                                <div ng-repeat="img in m._extattr[ea.id]">
+                                    <img style="max-width:128px;" ng-src="{{img.imgSrc}}">
                                 </div>
-                                <div ng-switch-default>{{m._extattr[ea.id]}}</div>
+                            </div>
+                            <div ng-switch-default>{{m._extattr[ea.id]}}</div>
                         </td>
                         <td>
                             <a href='' ng-click='editMember(m)'>修改</a>

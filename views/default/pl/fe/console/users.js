@@ -2,11 +2,6 @@ define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlUsers', ['$scope', function($scope) {}]);
     ngApp.provider.controller('ctrlMember', ['$scope', '$location', '$sce', '$uibModal', 'http2', 'noticebox', 'pushnotify', 'facListFilter', 'tmsSchema', 'cstApp', function($scope, $location, $sce, $uibModal, http2, noticebox, pushnotify, facListFilter, tmsSchema, cstApp) {
-        function listInvite(oSchema) {
-            http2.get('/rest/pl/fe/site/member/invite/list?schema=' + oSchema.id).then(function(rsp) {
-                $scope.invites = rsp.data.invites;
-            });
-        }
         var _oMschema, _oCriteria, _oSelected;
         _oCriteria = {
             filter: { by: '', keyword: '' }
@@ -99,7 +94,6 @@ define(['frame'], function(ngApp) {
                 };
                 $scope.mschema = _oMschema = oMschema;
                 $scope.doSearch(1);
-                listInvite(oMschema);
             }
         });
         $scope.doSearch = function(pageAt) {

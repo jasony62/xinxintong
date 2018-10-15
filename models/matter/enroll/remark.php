@@ -62,7 +62,7 @@ class remark_model extends \TMS_MODEL {
 	/**
 	 * 获得指定登记记录的留言
 	 */
-	public function listByRecord($oUser, $ek, $schemaId, $page = 1, $size = 10, $oOptions = []) {
+	public function listByRecord($oUser, $ek, $schemaId = '', $page = 1, $size = 10, $oOptions = []) {
 		$fields = isset($oOptions['fields']) ? $oOptions['fields'] : '*';
 
 		$oRecord = $this->model('matter\enroll\record')->byId($ek, ['fields' => 'rid,userid,state']);
@@ -106,13 +106,23 @@ class remark_model extends \TMS_MODEL {
 			$rdId = '("' . $rdId . '")';
 			$q[2] .= " and data_id in $rdId";
 		}
+		if (isset($oOptions['remark_id'])) {
+			$remark_id = $oOptions['remark_id'];
+			$q[2] .= " and remark_id = {$remark_id}";
+		}
 
 		// $q2 = [
 		// 	'o' => 'agreed desc,create_at desc',
 		// ];
-		$q2 = [
-			'o' => 'seq_in_record',
-		];
+		if (isset($oOptions['data_id'])) {
+			$q2 = [
+				'o' => 'seq_in_data',
+			];
+		} else {
+			$q2 = [
+				'o' => 'seq_in_record',
+			];
+		}
 		if (isset($page) && isset($size)) {
 			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		}

@@ -70,7 +70,9 @@ class remark extends base {
 	/**
 	 * 返回一条填写记录的所有留言
 	 */
-	public function list_action($ek, $schema = '', $data = '', $page = 1, $size = 99, $role = null) {
+	public function list_action($ek, $schema = '', $data = '', $remarkId = '', $page = 1, $size = 99, $role = null) {
+		$recDataId = $data;
+
 		$modelRec = $this->model('matter\enroll\record');
 		$oRecord = $modelRec->byId($ek, ['aid,state']);
 		if (false === $oRecord && $oRecord->state !== '1') {
@@ -109,8 +111,11 @@ class remark extends base {
 		$aOptions = [
 			'fields' => 'id,seq_in_record,seq_in_data,userid,group_id,userid,nickname,data_id,remark_id,create_at,modify_at,content,agreed,remark_num,like_num,like_log,as_cowork_id,dislike_num,dislike_log',
 		];
-		if (!empty($data)) {
-			$aOptions['data_id'] = $data;
+		if (!empty($recDataId)) {
+			$aOptions['data_id'] = $recDataId;
+		}
+		if (!empty($remarkId)) {
+			$aOptions['remark_id'] = $remarkId;
 		}
 		/* 指定的用户身份 */
 		if ($role === 'visitor') {
@@ -178,9 +183,15 @@ class remark extends base {
 		}
 		if (!empty($remark)) {
 			$modelRem = $this->model('matter\enroll\remark');
-			$oRemark = $modelRem->byId($remark, ['fields' => 'id,userid,nickname,state,aid,rid,enroll_key,content,modify_at,modify_log']);
+			$oRemark = $modelRem->byId($remark, ['fields' => 'id,userid,nickname,state,aid,rid,enroll_key,content,modify_at,modify_log,schema_id,data_id']);
 			if (false === $oRemark && $oRemark->state !== '1') {
 				return new \ObjectNotFoundError('（1）访问的资源不可用');
+			}
+			if (!empty($oRemark->data_id)) {
+				$oRecData = $modelRecData->byId($oRemark->data_id);
+				if (false === $oRecData && $oRecData->state !== '1') {
+					return new \ObjectNotFoundError();
+				}
 			}
 		}
 
@@ -217,7 +228,7 @@ class remark extends base {
 		$oNewRemark->enroll_group_id = $oRecord->group_id;
 		$oNewRemark->enroll_userid = $oRecord->userid;
 		$oNewRemark->schema_id = isset($oRecData) ? $oRecData->schema_id : '';
-		$oNewRemark->data_id = empty($recDataId) ? 0 : $recDataId;
+		$oNewRemark->data_id = isset($oRecData) ? $oRecData->id : 0;
 		$oNewRemark->remark_id = isset($oRemark) ? $oRemark->id : 0;
 		$oNewRemark->create_at = $current;
 		$oNewRemark->modify_at = $current;
@@ -270,7 +281,7 @@ class remark extends base {
 			$modelRec->update("update xxt_enroll_record set rec_remark_num=rec_remark_num+1 where enroll_key='$ek'");
 		} else {
 			if (isset($oRecData)) {
-				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where id = " . $recDataId);
+				$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where id = " . $oRecData->id);
 				// 如果每一条的数据被留言了那么这道题的总数据+1
 				if ($oRecData->multitext_seq != 0) {
 					$modelRec->update("update xxt_enroll_record_data set remark_num=remark_num+1,last_remark_at=$current where enroll_key='$ek' and schema_id='{$oRecData->schema_id}' and multitext_seq = 0");

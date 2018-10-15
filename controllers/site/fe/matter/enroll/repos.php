@@ -490,7 +490,14 @@ class repos extends base {
 						} else if (!empty($oRecord->data->{$schemaId})) {
 							/* 协作填写题 */
 							if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
-								$items = $modelData->getMultitext($oRecord->enroll_key, $oSchema->id, ['excludeRoot' => true, 'agreed' => ['Y', 'A'], 'fields' => 'id,agreed,like_num,nickname,value']);
+								$options = ['excludeRoot' => true, 'fields' => 'id,agreed,like_num,nickname,value'];
+								// 展示在共享页的协作数据表态类型
+								if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
+									$options['agreed'] = $oApp->actionRule->cowork->repos->pre->cowork->agreed;
+								} else {
+									$options['agreed'] = ['Y', 'A'];
+								}
+								$items = $modelData->getMultitext($oRecord->enroll_key, $oSchema->id, $options);
 								$aCoworkState[$oSchema->id] = (object) ['length' => count($items)];
 								if ($coworkReposLikeNum) {
 									$reposItems = [];

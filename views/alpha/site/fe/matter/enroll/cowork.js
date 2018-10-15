@@ -513,7 +513,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             }).result.then(function(data) {
                 addRemark(data.content, oUpperRemark).then(function(rsp) {
                     fnAppendRemark(rsp.data, oUpperRemark);
-                    if(rsp.data.remarkResult) {
+                    if(rsp.data.remarkResult.user_total_coin) {
                         noticebox.info('您获得【'+ rsp.data.remarkResult.user_total_coin +'】分');
                     }
                 });
@@ -771,7 +771,7 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
                         oRecData = $scope.record.verbose[oSchema.id] = rsp.data.oRecData;
                         oRecData.items = [oNewItem];
                     }
-                    if(rsp.data.coworkResult) {
+                    if(rsp.data.coworkResult.user_total_coin) {
                         noticebox.info('您获得【'+ rsp.data.coworkResult.user_total_coin +'】分');
                     }
                 });
@@ -870,7 +870,7 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
                         }
                         document.body.scrollTop = offsetTop - 40;
                         elRemark.classList.add('blink');
-                        if(rsp.data.remarkResult) {
+                        if(rsp.data.remarkResult.user_total_coin) {
                             noticebox.info('您获得【' + rsp.data.remarkResult.user_total_coin + '】分');
                         }                        
                         $timeout(function() {

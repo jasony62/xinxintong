@@ -675,7 +675,7 @@ class record_model extends record_base {
 				} else if (isset($oCriteria->cowork->agreed) && empty($oCriteria->cowork->agreed)) {
 					// 如果查询为表态需要查询所有的答案都未表态
 					$w .= " and 0 = (select count(rd.id) from xxt_enroll_record_data rd where rd.enroll_key = r.enroll_key and rd.agreed <> '' and rd.state=1 and rd.schema_id in " . $coworkSchemaIds . " and rd.rid = r.rid)";
-				} else if (isset($oCriteria->cowork->agreed) && $oCriteria->cowork->agreed === 'unsolved') {
+				} else if (isset($oCriteria->cowork->agreed) && $oCriteria->cowork->agreed === 'unrecommend') {
 					// 如果查询未推荐需要查询所有的答案都未推荐
 					$w .= " and 0 = (select count(rd.id) from xxt_enroll_record_data rd where rd.enroll_key = r.enroll_key and rd.agreed = 'Y' and rd.state=1 and rd.schema_id in " . $coworkSchemaIds . " and rd.rid = r.rid)";
 				}

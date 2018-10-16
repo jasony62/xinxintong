@@ -372,7 +372,7 @@ class record extends base {
 				return [false, '仅限活动编辑组用户提交填写记录'];
 			}
 		}
-		if (!isset($oApp->entryRule->exclude_action) || $oApp->entryRule->exclude_action->submit_record != "Y") {
+		if (!isset($oApp->entryRule->exclude_action) || (isset($oApp->entryRule->exclude_action->submit_record) && $oApp->entryRule->exclude_action->submit_record != "Y")) {
 			$checkEntryRule = $this->checkEntryRule($oApp, false, $oUser);
 			if ($checkEntryRule[0] === false) {
 				return $checkEntryRule;

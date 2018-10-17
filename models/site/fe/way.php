@@ -27,11 +27,11 @@ class way_model extends \TMS_MODEL {
 			$modified = true;
 		} else if (empty($oCookieUser)) {
 			/* 无访客身份用户首次访问站点 */
-			$modelSiteUser = \TMS_App::M('site\user\account');
+			$modelSiteUser = $this->model('site\user\account');
 			if ($oCookieRegUser) {
 				/* 注册主站点访客账号，有，使用，没有，创建 */
-				$siteUser = $modelSiteUser->byPrimaryUnionid($siteId, $oCookieRegUser->unionid);
-				if ($siteUser === false) {
+				$oSiteUser = $modelSiteUser->byPrimaryUnionid($siteId, $oCookieRegUser->unionid);
+				if ($oSiteUser === false) {
 					/* 当前为登录状态，创建持久化用户，且作为绑定的主访客账号 */
 					$props = [
 						'unionid' => $oCookieRegUser->unionid,
@@ -40,15 +40,15 @@ class way_model extends \TMS_MODEL {
 					if (!empty($oCookieRegUser->nickname)) {
 						$props['nickname'] = $oCookieRegUser->nickname;
 					}
-					$siteUser = $modelSiteUser->blank($siteId, true, $props);
+					$oSiteUser = $modelSiteUser->blank($siteId, true, $props);
 				}
 			} else {
 				/* 未登录状态，创建非持久化的站点访客账号 */
-				$siteUser = $modelSiteUser->blank($siteId, false);
+				$oSiteUser = $modelSiteUser->blank($siteId, false);
 			}
 			$oCookieUser = new \stdClass;
-			$oCookieUser->uid = $siteUser->uid;
-			$oCookieUser->nickname = $siteUser->nickname;
+			$oCookieUser->uid = $oSiteUser->uid;
+			$oCookieUser->nickname = $oSiteUser->nickname;
 			$oCookieUser->expire = time() + (86400 * TMS_COOKIE_SITE_USER_EXPIRE);
 			$modified = true;
 		} else {

@@ -138,6 +138,12 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
             }
         }
     };
+    $scope.siteUser = function() {
+        var url = location.protocol + '//' + location.host;
+        url += '/rest/site/fe/user';
+        url += "?site=" + LS.s().site;
+        location.href = url;
+    };
     $scope.gotoApp = function(event) {
         location.replace($scope.app.entryUrl);
     };

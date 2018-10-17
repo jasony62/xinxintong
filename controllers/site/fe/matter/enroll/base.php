@@ -9,7 +9,7 @@ class base extends \site\fe\matter\base {
 	/**
 	 *
 	 */
-	const AppFields = 'id,state,siteid,title,summary,pic,assigned_nickname,open_lastroll,can_coin,count_limit,data_schemas,start_at,end_at,end_submit_at,entry_rule,action_rule,mission_id,read_num,scenario,share_friend_num,share_timeline_num,use_mission_header,use_mission_footer,use_site_header,use_site_footer,enrolled_entry_page,group_app_id,enroll_app_id,repos_config,rank_config,scenario_config,round_cron,mission_id,sync_mission_round';
+	const AppFields = 'id,state,siteid,title,summary,pic,assigned_nickname,open_lastroll,can_coin,count_limit,data_schemas,start_at,end_at,entry_rule,action_rule,mission_id,read_num,scenario,share_friend_num,share_timeline_num,use_mission_header,use_mission_footer,use_site_header,use_site_footer,enrolled_entry_page,group_app_id,enroll_app_id,repos_config,rank_config,scenario_config,round_cron,mission_id,sync_mission_round';
 
 	public function get_access_rule() {
 		$rule_action['rule_type'] = 'black';

@@ -26,7 +26,6 @@ $sql .= ",sync_mission_round char(1) not null default 'N'"; // 和项目轮次�
 $sql .= ",count_limit int not null default 0"; // 限制登记次数，0不限制
 $sql .= ",start_at int not null default 0"; // 开始时间
 $sql .= ",before_start_page varchar(20) not null default ''";
-$sql .= ",end_submit_at int not null default 0"; // 结束提交时间
 $sql .= ",end_at int not null default 0"; // 结束时间
 $sql .= ",after_end_page varchar(20) not null default ''";
 $sql .= ",entry_rule text null"; // 进入规则

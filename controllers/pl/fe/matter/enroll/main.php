@@ -1272,10 +1272,6 @@ class main extends main_base {
 				$rst = $modelApp->remove($oUser, $oApp, 'Recycle');
 			} else {
 				$modelApp->delete(
-					'xxt_enroll_receiver',
-					["aid" => $oApp->id]
-				);
-				$modelApp->delete(
 					'xxt_enroll_round',
 					["aid" => $oApp->id]
 				);

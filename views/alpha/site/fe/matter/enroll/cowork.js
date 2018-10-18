@@ -240,7 +240,6 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
                 }
             }
         }
-        
         return false;
     }
 
@@ -701,26 +700,6 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
                 fnAfterRecordLoad(oRecord, _oUser);
             }
         });
-        /*设置页面导航*/
-        var oAppNavs = {
-            favor: {}
-        };
-        if (_oApp.can_repos === 'Y') {
-            oAppNavs.repos = {};
-        }
-        if (_oApp.can_rank === 'Y') {
-            oAppNavs.rank = {};
-        }
-        if (Object.keys(oAppNavs).length) {
-            $scope.appNavs = oAppNavs;
-        }
-        if (_oApp.scenarioConfig && _oApp.scenarioConfig.can_action === 'Y') {
-            /* 设置活动事件提醒 */
-            http2.get(LS.j('notice/count', 'site', 'app')).then(function(rsp) {
-                $scope.noticeCount = rsp.data;
-            });
-            oAppNavs.event = {};
-        }
     });
 }]);
 /**
@@ -821,7 +800,6 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
         });
     };
     $scope.agreeItem = function(oItem, value) {
-        console.log(oItem);
         var url;
         if (oItem.agreed !== value) {
             url = LS.j('data/agree', 'site', 'ek') + '&data=' + oItem.id + '&schema=' + oItem.schema_id;

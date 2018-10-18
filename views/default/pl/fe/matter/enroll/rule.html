@@ -182,6 +182,18 @@
                                 <div class='panel-heading'>提交协作填写（答案）</div>
                                 <div class='panel-body'>
                                     <div class='form-group'>
+                                        <label>什么表态的协作填写（答案）显示在共享页</label>
+                                        <div tms-array-checkbox model="rule.cowork.repos.pre.cowork.agreed">
+                                            <label class='checkbox-inline'>
+                                                <input type='checkbox' value='Y'>推荐
+                                            </label>
+                                            <label class='checkbox-inline'>
+                                                <input type='checkbox' value='A'>接受
+                                            </label>
+                                        </div>
+                                        <div class='help-block'>默认【推荐】和【接受】的协作填写（答案）显示在共享页</div>
+                                    </div>
+                                    <div class='form-group'>
                                         <label>每轮每条记录（问题）每个人至少提交的协作填写数据（答案）的数量</label>
                                         <input type='text' class='form-control' ng-model="rule.cowork.submit.end.cowork.num" placeholder="输入需要的数量">
                                     </div>

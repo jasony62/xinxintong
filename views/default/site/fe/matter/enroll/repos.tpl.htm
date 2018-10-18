@@ -152,6 +152,19 @@
                             <li><a href ng-click="shiftAgreed('N')">关闭</a></li>
                         </ul>
                     </div>
+                    <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
+                        <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                            <span ng-if="criteria.cowork.agreed==='all'">协作表态</span>
+                            <span ng-if="criteria.cowork.agreed==='unrecommend'">未推荐</span>            
+                            <span ng-if="criteria.cowork.agreed==='Y'">推荐</span>
+                            <span class="glyphicon glyphicon-filter"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
+                            <li><a href ng-click="shiftCoworkAgreed('all')">全部</a></li>
+                            <li><a href ng-click="shiftCoworkAgreed('unrecommend')">未推荐</a></li>
+                            <li><a href ng-click="shiftCoworkAgreed('Y')">推荐</a></li>
+                        </ul>
+                    </div>
                     <div ng-if="userGroups.length" class="btn-group" uib-dropdown dropdown-append-to-body='true'>
                         <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
                             <span>分组</span>

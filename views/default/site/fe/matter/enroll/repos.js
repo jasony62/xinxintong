@@ -72,7 +72,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = { at: 1, size: 12, total: 0 };
     $scope.filter = _oFilter = {}; // 过滤条件
-    $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'lastest' }; // 数据查询条件
+    $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'lastest', cowork: {agreed: 'all'}}; // 数据查询条件
     $scope.mocker = _oMocker = {}; // 用户自己指定的角色
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.repos = []; // 分享的记录
@@ -135,22 +135,26 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         return deferred.promise;
     }
     $scope.likeRecord = function(oRecord) {
-        var url;
-        url = LS.j('record/like', 'site');
-        url += '&ek=' + oRecord.enroll_key;
-        http2.get(url).then(function(rsp) {
-            oRecord.like_log = rsp.data.like_log;
-            oRecord.like_num = rsp.data.like_num;
-        });
+        if ($scope.setOperateLimit('like')) {
+            var url;
+            url = LS.j('record/like', 'site');
+            url += '&ek=' + oRecord.enroll_key;
+            http2.get(url).then(function(rsp) {
+                oRecord.like_log = rsp.data.like_log;
+                oRecord.like_num = rsp.data.like_num;
+            });
+        }
     };
     $scope.dislikeRecord = function(oRecord) {
-        var url;
-        url = LS.j('record/dislike', 'site');
-        url += '&ek=' + oRecord.enroll_key;
-        http2.get(url).then(function(rsp) {
-            oRecord.dislike_log = rsp.data.dislike_log;
-            oRecord.dislike_num = rsp.data.dislike_num;
-        });
+        if ($scope.setOperateLimit('like')) {
+            var url;
+            url = LS.j('record/dislike', 'site');
+            url += '&ek=' + oRecord.enroll_key;
+            http2.get(url).then(function(rsp) {
+                oRecord.dislike_log = rsp.data.dislike_log;
+                oRecord.dislike_num = rsp.data.dislike_num;
+            });
+        }
     };
     $scope.remarkRecord = function(oRecord) {
         var url;
@@ -257,6 +261,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
         location.href = url;
     };
+    $scope.addRecord = function(event) {
+        $scope.$parent.addRecord(event);
+    };
     $scope.editRecord = function(event, oRecord) {
         if (oRecord.userid !== $scope.user.uid) {
             noticebox.warn('不允许编辑其他用户提交的记录');
@@ -324,6 +331,10 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     };
     $scope.shiftAgreed = function(agreed) {
         _oCriteria.agreed = agreed;
+        $scope.recordList(1);
+    };
+    $scope.shiftCoworkAgreed = function(agreed) {
+        _oCriteria.cowork.agreed = agreed;
         $scope.recordList(1);
     };
     $scope.shiftOrderby = function(orderby) {

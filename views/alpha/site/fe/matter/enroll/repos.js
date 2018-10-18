@@ -263,7 +263,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     };
     $scope.addRecord = function(event) {
         $scope.$parent.addRecord(event);
-    }
+    };
     $scope.editRecord = function(event, oRecord) {
         if (oRecord.userid !== $scope.user.uid) {
             noticebox.warn('不允许编辑其他用户提交的记录');
@@ -349,7 +349,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     $scope.shiftCoworkAgreed = function(agreed) {
         _oCriteria.cowork.agreed = agreed;
         $scope.recordList(1);
-    }
+    };
     $scope.shiftOrderby = function(orderby) {
         _oCriteria.orderby = orderby;
         $scope.recordList(1);
@@ -498,6 +498,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                     }
                 };
                 $scope.dirSchemas.forEach(function(oDir) {
+                    oDir.opened = false;
                     fnSetParentDir(oDir);
                 });
             }
@@ -541,7 +542,5 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         if (Object.keys(oAppNavs).length) {
             $scope.appNavs = oAppNavs;
         }
-        /*判断是否登陆*/
-        $scope.isLogin = params.entryRuleResult.passed;
     });
 }]);

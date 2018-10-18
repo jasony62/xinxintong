@@ -421,7 +421,6 @@ class data_model extends entity_model {
 		$oQuizNum = new \stdClass;
 		$oQuizNum->schema = 0; // 测验题目的数量
 		$oQuizNum->correctSchema = 0; // 答对测验题目的数量
-
 		/* 评估 */
 		$fnEvaluation = function (&$oSchema, $treatedValue, &$oRecordScore) {
 			$schemaScore = null; // 题目的得分

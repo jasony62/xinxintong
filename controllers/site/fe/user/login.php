@@ -43,16 +43,17 @@ class login extends \site\fe\base {
 			$modelWay->quitRegUser();
 		}
 
-		$registration = $modelReg->validate($data->uname, $data->password);
-		if (is_string($registration)) {
-			return new \ResponseError($registration);
+		$oRegistration = $modelReg->validate($data->uname, $data->password);
+		if (false === $oResult[0]) {
+			return new \ResponseError($oResult[1]);
 		}
+		$oRegistration = $oResult[1];
 		/* 记录登录状态 */
 		$fromip = $this->client_ip();
-		$modelReg->updateLastLogin($registration->unionid, $fromip);
+		$modelReg->updateLastLogin($oRegistration->unionid, $fromip);
 
 		/* cookie中保留注册信息 */
-		$cookieRegUser = $modelWay->shiftRegUser($registration);
+		$cookieRegUser = $modelWay->shiftRegUser($oRegistration);
 
 		$cookieUser = $modelWay->who($this->siteId);
 		if ($referer = $this->myGetCookie('_user_access_referer')) {
@@ -66,9 +67,9 @@ class login extends \site\fe\base {
 			$expire = time() + (86400 * 365 * 10);
 			$ua = $_SERVER['HTTP_USER_AGENT'];
 			$token = [
-				'uid' => $registration->unionid,
-				'email' => $registration->uname,
-				'password' => $registration->password,
+				'uid' => $oRegistration->unionid,
+				'email' => $oRegistration->uname,
+				'password' => $oRegistration->password,
 			];
 			$cookiekey = md5($ua);
 			$cookieToken = json_encode($token);

@@ -21,6 +21,10 @@ ul > li {
 	overflow: hidden;
 }
 
+img {
+	max-width: 100%
+}
+
 .app {
 	margin-bottom: 64px;
 	color: #333;

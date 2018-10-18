@@ -88,6 +88,11 @@ define(['require', 'angular'], function(require, angular) {
         $scope.gotoConsole = function() {
             location.href = '/rest/pl/fe';
         };
+        $scope.shiftRegUser = function(oOtherRegUser) {
+            http2.post('/rest/site/fe/user/shiftRegUser?site=' + siteId, { uname: oOtherRegUser.uname }).then(function(rsp) {
+                $scope.user = rsp.data;
+            });
+        };
         http2.get('/rest/site/fe/get?site=' + siteId).then(function(rsp) {
             $scope.site = rsp.data;
             userService.get().then(function(oUser) {

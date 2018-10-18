@@ -19,7 +19,7 @@ class account_model extends \TMS_MODEL {
 	 *
 	 * @return object
 	 */
-	public function &byId($uid, $aOptions = array()) {
+	public function &byId($uid, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : self::DEFAULT_FIELDS;
 		$q = [
 			$fields,
@@ -54,6 +54,12 @@ class account_model extends \TMS_MODEL {
 		}
 		if (isset($aOptions['is_primary'])) {
 			$q[2]['is_' . $snsName . '_primary'] = $aOptions['is_primary'];
+		}
+		if (isset($aOptions['is_reg_primary'])) {
+			$q[2]['is_reg_primary'] = $aOptions['is_reg_primary'];
+		}
+		if (isset($aOptions['has_unionid']) && true === $aOptions['has_unionid']) {
+			$q[2]['unionid'] = (object) ['op' => '<>', 'pat' => ''];
 		}
 		$acts = $this->query_objs_ss($q);
 

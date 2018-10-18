@@ -972,7 +972,7 @@ class record extends main_base {
 	 * @param string $app
 	 * @param $ek record's key
 	 */
-	public function update_action($site, $app, $ek) {
+	public function update_action($app, $ek) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -1085,14 +1085,14 @@ class record extends main_base {
 		/* 记录登记数据 */
 		if (isset($oPosted->data)) {
 			$score = isset($oPosted->quizScore) ? $oPosted->quizScore : null;
-			$userSite = $this->model('site\fe\way')->who($site);
+			$userSite = $this->model('site\fe\way')->who($oApp->siteid);
 			$modelRec->setData($userSite, $oApp, $ek, $oPosted->data, '', false, $score);
 		} else if (isset($oPosted->quizScore)) {
 			/* 只修改登记项的分值 */
 			$oAfterScore = new \stdClass;
 			$oAfterScore->sum = 0;
 			$oBeforeScore = $modelRec->query_val_ss(['score', 'xxt_enroll_record', ['aid' => $app, 'enroll_key' => $ek, 'state' => 1]]);
-			$oBeforeScore = empty($oBeforeScore) ? new stdClass : json_decode($oBeforeScore);
+			$oBeforeScore = empty($oBeforeScore) ? new \stdClass : json_decode($oBeforeScore);
 			foreach ($oApp->dataSchemas as $schema) {
 				if (empty($schema->requireScore) || $schema->requireScore !== 'Y') {
 					continue;
@@ -1138,13 +1138,13 @@ class record extends main_base {
 			$modelUsr->update(
 				'xxt_enroll_user',
 				$upData,
-				['siteid' => $site, 'aid' => $result->aid, 'rid' => $result->rid, 'userid' => $result->userid]
+				['siteid' => $oApp->siteid, 'aid' => $result->aid, 'rid' => $result->rid, 'userid' => $result->userid]
 			);
 			/* 更新用户获得的分数 */
 			$users = $modelUsr->query_objs_ss([
 				'id,score',
 				'xxt_enroll_user',
-				"siteid='$site' and aid='$result->aid' and userid='$result->userid' and rid !='ALL'",
+				"siteid='$oApp->siteid' and aid='$result->aid' and userid='$result->userid' and rid !='ALL'",
 			]);
 			$total = 0;
 			foreach ($users as $v) {
@@ -1156,7 +1156,7 @@ class record extends main_base {
 			$modelUsr->update(
 				'xxt_enroll_user',
 				$upDataALL,
-				['siteid' => $site, 'aid' => $result->aid, 'rid' => 'ALL', 'userid' => $result->userid]
+				['siteid' => $oApp->siteid, 'aid' => $result->aid, 'rid' => 'ALL', 'userid' => $result->userid]
 			);
 		}
 

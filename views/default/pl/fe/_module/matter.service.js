@@ -1085,7 +1085,7 @@ controller('ctrlStat', ['$scope', 'http2', '$uibModal', '$compile', function($sc
 /**
  * 轮次生成规则
  */
-service('tkRoundCron', ['$q', '$rootScope', 'http2', function($q, $rootScope, http2) {
+service('tkRoundCron', ['$rootScope', '$q', '$uibModal', 'http2', function($rootScope, $q, $uibModal, http2) {
     var _aCronRules, _$scope;
     this.editing = { modified: false };
     this.mdays = [];
@@ -1144,6 +1144,30 @@ service('tkRoundCron', ['$q', '$rootScope', 'http2', function($q, $rootScope, ht
     };
     this.removeRule = function(oRule) {
         _aCronRules.splice(_aCronRules.indexOf(oRule), 1);
+    };
+    this.choose = function(oMatter) {
+        var defer = $q.defer();
+        http2.post('/rest/script/time', { html: { 'picker': '/views/default/pl/fe/_module/chooseRoundCron.html' } }).then(function(oTemplateTimes) {
+            $uibModal.open({
+                templateUrl: '/views/default/pl/fe/_module/chooseRoundCron.html?_=' + oTemplateTimes.data.html.picker.time,
+                controller: ['$uibModalInstance', '$scope', function($mi, $scope2) {
+                    $scope2.roundCron = oMatter.roundCron;
+                    $scope2.data = {};
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        if ($scope2.data.chosen) {
+                            $mi.close($scope2.data.chosen);
+                        } else {
+                            $mi.dismiss();
+                        }
+                    };
+                }],
+                backdrop: 'static',
+            }).result.then(function(rst) {});
+        });
+        return defer.promise;
     };
 }]).
 /**

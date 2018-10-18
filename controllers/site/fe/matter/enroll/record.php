@@ -79,11 +79,6 @@ class record extends base {
 		// 提交数据的用户
 		$oUser = $this->getUser($oEnrollApp, $oEnrolledData);
 
-		/* 记录数据提交日志，跟踪提交特殊数据失败的问题 */
-		//$rawPosted = file_get_contents("php://input");
-		//$modelLog = $this->model('log');
-		//$modelLog->log('trace', 'enroll-submit-' . $oUser->uid, $modelLog->cleanEmoji($rawPosted, true));
-
 		if ($subType === 'save') {
 			$logid = $this->_saveRecord($oUser, $oEnrollApp, $oEnrolledData, $oPosted);
 			return new \ResponseData($logid);

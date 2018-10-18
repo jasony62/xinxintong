@@ -43,7 +43,7 @@ class login extends \site\fe\base {
 			$modelWay->quitRegUser();
 		}
 
-		$oRegistration = $modelReg->validate($data->uname, $data->password);
+		$oResult = $modelReg->validate($data->uname, $data->password);
 		if (false === $oResult[0]) {
 			return new \ResponseError($oResult[1]);
 		}

@@ -112,6 +112,7 @@ class base extends \site\fe\matter\base {
 					if (false === $oGroupApp || $oGroupApp->state !== '1') {
 						$msg = '【' . $oApp->title . '】指定的分组活动不可访问，请联系活动的组织者解决。';
 						if (true === $bRedirect) {
+							$oSite = $this->model('site')->byId($oApp->siteid);
 							$this->outputInfo($msg);
 						} else {
 							return [false, $msg];
@@ -132,7 +133,8 @@ class base extends \site\fe\matter\base {
 				if (false === $bMatched) {
 					$msg = '您【ID:' . $oUser->uid . '】目前的分组，不满足【' . $oApp->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
 					if (true === $bRedirect) {
-						$this->outputInfo($msg);
+						$oSite = $this->model('site')->byId($oApp->siteid);
+						$this->outputInfo($msg, $oSite);
 					} else {
 						return [false, $msg];
 					}

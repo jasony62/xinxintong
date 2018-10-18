@@ -51,7 +51,7 @@ class main extends \site\fe\base {
 		/* 站点用户信息 */
 		$modelAnt = $this->model('site\user\account');
 		$modelReg = $this->model('site\user\registration');
-		if ($oAccount = $modelAnt->byId($oUser->uid, ['fields' => 'siteid,unionid,coin,headimgurl,wx_openid,is_wx_primary,is_reg_primary'])) {
+		if ($oAccount = $modelAnt->byId($oUser->uid, ['fields' => 'uid,siteid,unionid,coin,headimgurl,wx_openid,is_wx_primary,is_reg_primary'])) {
 			$oUser->coin = $oAccount->coin;
 			$oUser->headimgurl = $oAccount->headimgurl;
 			$oUser->is_wx_primary = $oAccount->is_wx_primary;
@@ -67,12 +67,12 @@ class main extends \site\fe\base {
 		 * 和微信openid绑定的注册账号
 		 */
 		$userAgent = $this->userAgent(); // 客户端类型
-		//if (in_array($userAgent, ['wx'])) {
-		$otherRegisters = $this->_getOtherRegistersByWxopenid($oAccount);
-		if (count($otherRegisters)) {
-			$oUser->registersByWx = $otherRegisters;
+		if (in_array($userAgent, ['wx'])) {
+			$otherRegisters = $this->_getOtherRegAntsByWxopenid($oAccount);
+			if (count($otherRegisters)) {
+				$oUser->registersByWx = $otherRegisters;
+			}
 		}
-		//}
 
 		return new \ResponseData($oUser);
 	}
@@ -139,10 +139,10 @@ class main extends \site\fe\base {
 	 * 切换当前注册用户
 	 */
 	public function shiftRegUser_action() {
-		// $userAgent = $this->userAgent(); // 客户端类型
-		// if (!in_array($userAgent, ['wx'])) {
-		// 	return new \ResponseError('仅在微信中支持切换用户');
-		// }
+		$userAgent = $this->userAgent(); // 客户端类型
+		if (!in_array($userAgent, ['wx'])) {
+			return new \ResponseError('仅在微信中支持切换用户');
+		}
 		$oPosted = $this->getPostJson();
 		if (empty($oPosted->uname)) {
 			return new \ParameterError();
@@ -153,39 +153,48 @@ class main extends \site\fe\base {
 		$modelAnt = $this->model('site\user\account');
 		$modelReg = $this->model('site\user\registration');
 
-		$oAccount = $modelAnt->byId($oUser->uid, ['fields' => 'siteid,unionid,coin,headimgurl,wx_openid,is_wx_primary,is_reg_primary']);
-		if (false === $oAccount) {
+		$oCurrentAnt = $modelAnt->byId($oUser->uid, ['fields' => 'uid,siteid,unionid,coin,headimgurl,wx_openid,is_wx_primary,is_reg_primary']);
+		if (false === $oCurrentAnt) {
 			return new \ObjectNotFoundError('当前用户不存在');
 		}
 		/**
 		 * 和微信openid绑定的注册账号
 		 */
-		$otherRegisters = $this->_getOtherRegistersByWxopenid($oAccount);
-		if (0 === count($otherRegisters)) {
+		$otherRegAnts = $this->_getOtherRegAntsByWxopenid($oCurrentAnt);
+		if (0 === count($otherRegAnts)) {
 			return new \ObjectNotFoundError('不存在可以切换的用户');
 		}
-		$oTargetRegUser = null;
-		foreach ($otherRegisters as $oRegUser) {
+		$oTargetRegAnt = null;
+		foreach ($otherRegAnts as $oRegUser) {
 			if ($oRegUser->uname === $uname) {
-				$oTargetRegUser = $oRegUser;
+				$oTargetRegAnt = $oRegUser;
 				break;
 			}
 		}
-		if (empty($oTargetRegUser)) {
+		if (empty($oTargetRegAnt)) {
 			return new \ObjectNotFoundError('指定的切换账号不存在');
+		}
+		/* 将要切换的账号作为微信中的默认账号，解决利用微信openid自动登录的问题 */
+		if (isset($oTargetRegAnt->is_wx_primary) && $oTargetRegAnt->is_wx_primary !== 'Y') {
+			$modelAnt->update(
+				'xxt_site_account',
+				['is_wx_primary' => 'N'],
+				['siteid' => $oCurrentAnt->siteid, 'wx_openid' => $oCurrentAnt->wx_openid, 'is_wx_primary' => 'Y']);
+			$modelAnt->update(
+				'xxt_site_account',
+				['is_wx_primary' => 'Y'],
+				['uid' => $oTargetRegAnt->uid]);
 		}
 
 		/* 记录登录状态 */
 		$fromip = $this->client_ip();
-		$modelReg->updateLastLogin($oTargetRegUser->unionid, $fromip);
+		$modelReg->updateLastLogin($oTargetRegAnt->unionid, $fromip);
 
 		/* cookie中保留注册信息 */
 		$modelWay = $this->model('site\fe\way');
-		$modelWay->shiftRegUser($oTargetRegUser);
+		$modelWay->shiftRegUser($oTargetRegAnt);
 
-		$oUser = $this->get_action();
-
-		return $oUser;
+		return new \ResponseData($oTargetRegAnt);
 	}
 	/**
 	 * 用户访问过的所有站点
@@ -199,26 +208,26 @@ class main extends \site\fe\base {
 	/**
 	 * 根据微信的openid获得当前用户的注册用户
 	 */
-	private function _getOtherRegistersByWxopenid($oAccount) {
-		$registers = [];
+	private function _getOtherRegAntsByWxopenid($oAccount) {
+		$accounts = [];
 		if (!empty($oAccount->wx_openid)) {
 			$modelAnt = $this->model('site\user\account');
 			$modelReg = $this->model('site\user\registration');
-			$others = $modelAnt->byOpenid($oAccount->siteid, 'wx', $oAccount->wx_openid, ['fields' => 'uid,nickname,unionid,is_wx_primary,is_reg_primary', 'is_reg_primary' => null, 'has_unionid' => true]);
+			$others = $modelAnt->byOpenid($oAccount->siteid, 'wx', $oAccount->wx_openid, ['fields' => 'uid,nickname,unionid,is_wx_primary,is_reg_primary', 'is_reg_primary' => 'Y', 'has_unionid' => true]);
 			if (count($others) > 1) {
 				foreach ($others as $oOther) {
-					//if ($oOther->uid === $oUser->uid || $oOther->unionid === $oAccount->unionid)) {
-					//	continue;
-					//}
+					if ($oOther->uid === $oAccount->uid) {
+						continue;
+					}
 					$oReg = $modelReg->byId($oOther->unionid);
 					if ($oReg) {
 						$oOther->uname = $oReg->uname;
 					}
-					$registers[] = $oOther;
+					$accounts[] = $oOther;
 				}
 			}
 		}
 
-		return $registers;
+		return $accounts;
 	}
 }

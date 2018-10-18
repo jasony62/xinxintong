@@ -62,7 +62,8 @@ class base extends \site\fe\matter\base {
 				if (!isset($oEntryRule->member)) {
 					$msg = '需要填写通讯录信息，请联系活动的组织者解决。';
 					if (true === $bRedirect) {
-						$this->outputInfo($msg);
+						$oSite = $this->model('site')->byId($oApp->siteid);
+						$this->outputInfo($msg, $oSite);
 					} else {
 						return [false, $msg];
 					}
@@ -113,7 +114,7 @@ class base extends \site\fe\matter\base {
 						$msg = '【' . $oApp->title . '】指定的分组活动不可访问，请联系活动的组织者解决。';
 						if (true === $bRedirect) {
 							$oSite = $this->model('site')->byId($oApp->siteid);
-							$this->outputInfo($msg);
+							$this->outputInfo($msg, $oSite);
 						} else {
 							return [false, $msg];
 						}

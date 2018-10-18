@@ -669,13 +669,17 @@ class record_model extends record_base {
 				}
 			}
 			$coworkSchemaIds = "('" . implode("','", $coworkSchemaIds) . "')";
+			$oCriteria->cowork->agreed = 'answer';
 			if (!empty($coworkSchemaIds)) {
 				if (isset($oCriteria->cowork->agreed) && empty($oCriteria->cowork->agreed)) {
-					// 如果查询为表态需要查询所有的答案都未表态
+					// 如果查询未表态的问题需要所有的答案都未表态才返回
 					$w .= " and 0 = (select count(rd.id) from xxt_enroll_record_data rd where rd.enroll_key = r.enroll_key and rd.agreed <> '' and rd.state=1 and rd.schema_id in " . $coworkSchemaIds . " and rd.rid = r.rid)";
-				} else if (isset($oCriteria->cowork->agreed) && $oCriteria->cowork->agreed === 'unrecommend') {
-					// 如果查询未推荐需要查询所有的答案都未推荐
-					$w .= " and 0 = (select count(rd.id) from xxt_enroll_record_data rd where rd.enroll_key = r.enroll_key and rd.agreed = 'Y' and rd.state=1 and rd.schema_id in " . $coworkSchemaIds . " and rd.rid = r.rid)";
+				} else if (isset($oCriteria->cowork->agreed) && $oCriteria->cowork->agreed === 'answer') {
+					// 如果查询已回答的问题，答案表态为A或者Y的都算已回答
+					$w .= " and exists(select 1 from xxt_enroll_record_data rd where r.enroll_key = rd.enroll_key and (rd.agreed = 'Y' or rd.agreed = 'A') and rd.state=1 and rd.schema_id in " . $coworkSchemaIds . " and rd.rid = r.rid)";
+				} else if (isset($oCriteria->cowork->agreed) && $oCriteria->cowork->agreed === 'unanswer') {
+					// 如果查询未回答的问题需要查询所有的答案表态都不是“Y”和“A”才返回
+					$w .= " and 0 = (select count(rd.id) from xxt_enroll_record_data rd where rd.enroll_key = r.enroll_key and (rd.agreed = 'Y' or rd.agreed = 'A') and rd.state=1 and rd.schema_id in " . $coworkSchemaIds . " and rd.rid = r.rid)";
 				} else if (isset($oCriteria->cowork->agreed)) {
 					$w .= " and exists(select 1 from xxt_enroll_record_data rd where r.enroll_key = rd.enroll_key and rd.agreed = '{$oCriteria->cowork->agreed}' and rd.state=1 and rd.schema_id in " . $coworkSchemaIds . " and rd.rid = r.rid)";
 				}

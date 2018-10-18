@@ -620,6 +620,13 @@ class record extends \pl\fe\matter\base {
 					}
 					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, implode(' / ', $labels));
 					break;
+				case 'shorttext':
+					if (isset($oSchema->format) && $oSchema->format === 'number') {
+						$objActiveSheet->setCellValueExplicitByColumnAndRow($colNumber++, $rowNumber, $v, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
+					} else {
+						$objActiveSheet->setCellValueExplicitByColumnAndRow($colNumber++, $rowNumber, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+					}
+					break;
 				default:
 					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $v);
 					break;

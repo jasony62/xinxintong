@@ -1,46 +1,7 @@
-define(['require', 'enrollService', 'enrollSchema', 'enrollPage', 'groupService'], function(require) {
+define(['frame/RouteParam', 'frame/const', 'enrollService', 'enrollSchema', 'enrollPage', 'groupService'], function(RouteParam, CstApp) {
     'use strict';
     var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'http.ui.xxt', 'notice.ui.xxt', 'schema.ui.xxt', 'tmplshop.ui.xxt', 'pl.const', 'service.matter', 'service.enroll', 'schema.enroll', 'page.enroll', 'tinymce.enroll', 'service.group', 'ui.xxt', 'sys.chart']);
-    ngApp.constant('cstApp', {
-        notifyMatter: [{
-            value: 'tmplmsg',
-            title: '模板消息',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'article',
-            title: '单图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'news',
-            title: '多图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'channel',
-            title: '频道',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'enroll',
-            title: '登记活动',
-            url: '/rest/pl/fe/matter'
-        }],
-        innerlink: [{
-            value: 'article',
-            title: '单图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'news',
-            title: '多图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'channel',
-            title: '频道',
-            url: '/rest/pl/fe/matter'
-        }],
-        alertMsg: {
-            'schema.duplicated': '不允许重复添加登记项'
-        },
-        naming: {}
-    });
+    ngApp.constant('cstApp', CstApp);
     ngApp.filter('filterTime', function() {
         return function(e) {
             var result, h, m, s, time = e * 1;
@@ -51,26 +12,6 @@ define(['require', 'enrollService', 'enrollSchema', 'enrollPage', 'groupService'
         }
     });
     ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvEnrollAppProvider', 'srvEnrollRoundProvider', 'srvEnrollPageProvider', 'srvEnrollRecordProvider', 'srvTagProvider', 'srvEnrollSchemaProvider', 'srvEnrollLogProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvEnrollAppProvider, srvEnrollRoundProvider, srvEnrollPageProvider, srvEnrollRecordProvider, srvTagProvider, srvEnrollSchemaProvider, srvEnrollLogProvider) {
-        var RouteParam = function(name) {
-            var baseURL;
-            if (window.ScriptTimes && window.ScriptTimes.html && window.ScriptTimes.html[name]) {
-                this.templateUrl = window.ScriptTimes.html[name].path + '.html?_=' + window.ScriptTimes.html[name].time;
-            } else {
-                baseURL = '/views/default/pl/fe/matter/enroll/';
-                this.templateUrl = baseURL + name + '.html?_=' + (new Date * 1);
-            }
-            this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
-            this.reloadOnSearch = false;
-            this.resolve = {
-                load: function($q) {
-                    var defer = $q.defer();
-                    require([name + 'Ctrl'], function() {
-                        defer.resolve();
-                    });
-                    return defer.promise;
-                }
-            };
-        };
         ngApp.provider = {
             controller: $controllerProvider.register,
             directive: $compileProvider.directive

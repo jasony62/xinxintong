@@ -773,10 +773,6 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         StateCacheKey = 'xxt.app.enroll:' + params.app.id + '.user:' + params.user.uid + '.cacheKey';
         $scope.schemasById = schemasById = params.app._schemasById;
         _oApp = params.app;
-        //if (_oApp.end_submit_at > 0 && parseInt(_oApp.end_submit_at) < (new Date * 1) / 1000) {
-        //    fnDisableActions();
-        //    noticebox.warn('活动提交数据时间已经结束，不能提交数据');
-        //}
         /* 判断多项类型 */
         if (_oApp.dynaDataSchemas.length) {
             angular.forEach(_oApp.dynaDataSchemas, function(dataSchema) {

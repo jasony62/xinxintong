@@ -5,7 +5,8 @@
     <meta charset="utf-8">
     <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
     <base href="/" />
-    <title><?php echo APP_TITLE;?>——用户主页</title>
+    <title>
+        <?php echo APP_TITLE;?>——用户主页</title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
     <link href="<?php echo auto_version('/views/default/site/fe/user/main.css');?>" rel="stylesheet">
@@ -37,7 +38,7 @@
             <a class='list-group-item' href="/rest/site/fe/user/notice?site={{site.id}}">我的通知<span class="badge" ng-bind="count.notice"></span></a>
             <a class='list-group-item' href="/rest/site/fe/user/share?site={{site.id}}">我的分享</a>
             <a class='list-group-item' href="/rest/site/fe/user/invite?site={{site.id}}">我的邀请</a>
-            <a class='list-group-item' href="/rest/site/fe/user/history?site={{site.id}}">最近浏览</a>
+            <a class='list-group-item' href="/rest/site/fe/user/history?site={{site.id}}">最近参与</a>
             <a href='' class='list-group-item' ng-click="toggleUserSetting($event)">
                 <span>个人设置</span>
                 <div ng-if="userSetting">
@@ -68,6 +69,10 @@
             <button class="btn btn-default btn-block" ng-click='gotoMember(ms)' ng-repeat="ms in memberSchemas">补充【{{ms.title}}】信息</button>
             <button class="btn btn-default btn-block" ng-click='gotoConsole()' ng-if="user.loginExpire">进入工作台</button>
             <button class="btn btn-default btn-block" ng-click='logout()' ng-if="user.loginExpire">退出登录</button>
+        </div>
+        <div ng-if="user.registersByWx.length">
+            <hr>
+            <button ng-repeat="other in user.registersByWx" class='btn btn-default btn-block' ng-click="shiftRegUser(other)">切换到账号【<span ng-bind="other.uname"></span>】</button>
         </div>
     </div>
     <nav class='navbar navbar-default navbar-fixed-bottom' ng-if="site.id!=='platform'">

@@ -66,13 +66,6 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         if (oUpdatedSchema.scoreMode === 'evaluation') {
                             if (oUpdatedSchema.weight === undefined) {
                                 oUpdatedSchema.weight = 1;
-                            } else {
-                                if (false === /^\d+\.?\d*$/.test(oUpdatedSchema.weight)) {
-                                    oUpdatedSchema.weight = 1;
-                                } else if (/\.$/.test(oUpdatedSchema.weight)) {
-                                    // 这样会导致无法输入“点”
-                                    //oSchema.weight = oSchema.weight.slice(0, -1);
-                                }
                             }
                         }
                     }
@@ -1703,11 +1696,20 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     return '/views/default/pl/fe/matter/enroll/schema/' + schema.type + '.html?_=' + bust;
                 }
             };
+            var _IncludeSchemaTemplates = {
+                html: {
+                    option: { url: '/views/default/pl/fe/matter/enroll/schema/option' },
+                    main: { url: '/views/default/pl/fe/matter/enroll/schema/main' }
+                }
+            };
+            http2.post('/rest/script/time', _IncludeSchemaTemplates).then(function(rsp) {
+                angular.merge(_IncludeSchemaTemplates, rsp.data);
+            });
             $scope.schemaEditorHtml = function() {
                 if ($scope.activeOption) {
-                    return '/views/default/pl/fe/matter/enroll/schema/option.html?_=1';
+                    return '/views/default/pl/fe/matter/enroll/schema/option.html?_=' + (_IncludeSchemaTemplates.html.option.time || 1);
                 } else if ($scope.activeSchema) {
-                    return '/views/default/pl/fe/matter/enroll/schema/main.html?_=1';
+                    return '/views/default/pl/fe/matter/enroll/schema/main.html?_=' + (_IncludeSchemaTemplates.html.main.time || 1);
                 } else {
                     return '';
                 }
@@ -1853,6 +1855,9 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
             };
             $scope.$on('title.xxt.editable.changed', function(e, schema) {
                 $scope.updSchema(schema);
+            });
+            $scope.$on('weight.xxt.editable.changed', function(e, schema) {
+                $scope.updSchema(schema, null, 'weight');
             });
             // 回车添加选项
             $('body').on('keyup', function(evt) {

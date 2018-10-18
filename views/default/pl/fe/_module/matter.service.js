@@ -875,6 +875,141 @@ provider('srvMemberPicker', function() {
         }
     }];
 }).
+/* 选取访客账号 */
+service('tkAccount', ['$q', 'http2', '$uibModal', 'noticebox', function($q, http2, $uibModal, noticebox) {
+    this.pick = function(oSite, oConfig) {
+        var defer = $q.defer();
+        http2.post('/rest/script/time', { html: { 'picker': '/views/default/pl/fe/_module/accountPicker' } }).then(function(oTemplateTimes) {
+            $uibModal.open({
+                templateUrl: '/views/default/pl/fe/_module/accountPicker.html?_=' + oTemplateTimes.data.html.picker.time,
+                controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
+                    var _oPage, _oRows, _fnSearch;
+                    $scope2.config = oConfig || {};
+                    $scope2.page = _oPage = { size: 30 };
+                    $scope2.rows = _oRows = {
+                        change: function(index) {
+                            this.selected[index] ? this.count++ : this.count--;
+                        },
+                        reset: function() {
+                            this.selected = $scope2.config.single === true ? '-1' : {};
+                            this.count = 0;
+                        }
+                    };
+                    _oRows.reset();
+                    $scope2.doSearch = _fnSearch = function(pageAt) {
+                        var url, data;
+                        pageAt && (_oPage.at = pageAt);
+                        url = '/rest/pl/fe/site/user/account/list?site=' + oSite.id;
+                        http2.post(url, {}, { page: _oPage }).then(function(rsp) {
+                            $scope2.users = rsp.data.users;
+                        });
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.execute = function() {
+                        var pickedAccounts;
+                        if ($scope2.config.single === true) {
+                            if (_oRows.selected >= 0 && $scope2.users[_oRows.selected]) {
+                                $mi.close($scope2.users[_oRows.selected]);
+                            }
+                        } else {
+                            if (_oRows.count) {
+                                pickedAccounts = [];
+                                for (var i in _oRows.selected) {
+                                    pickedAccounts.push($scope2.users[i]);
+                                }
+                            }
+                            $mi.close(pickedAccounts);
+                        }
+                    };
+                    _fnSearch(1);
+                }],
+                size: 'lg',
+                backdrop: 'static',
+                windowClass: 'auto-height'
+            }).result.then(function(accounts) {
+                defer.resolve(accounts);
+            });
+        });
+        return defer.promise;
+    };
+}]).
+/* 通讯录用户通用服务 */
+service('tkMember', ['$q', 'http2', '$uibModal', 'noticebox', function($q, http2, $uibModal, noticebox) {
+    this.create = function(oMschema, oProto) {
+        var defer = $q.defer();
+        http2.post('/rest/script/time', { html: { 'editor': '/views/default/pl/fe/_module/memberEditor' } }).then(function(oTemplateTimes) {
+            $uibModal.open({
+                templateUrl: '/views/default/pl/fe/_module/memberEditor.html?_=' + oTemplateTimes.data.html.editor.time,
+                controller: ['$uibModalInstance', '$scope', function($mi, $scope2) {
+                    $scope2.schema = oMschema;
+                    $scope2.member = oProto ? angular.copy(oProto) : {};
+                    $scope2.close = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        http2.post('/rest/pl/fe/site/member/create?schema=' + oMschema.id, $scope2.member).then(function(rsp) {
+                            $mi.close(rsp.data);
+                        });
+                    };
+                }],
+                backdrop: 'static',
+            }).result.then(function(oNewMember) {
+                defer.resolve(oNewMember);
+            });
+        });
+        return defer.promise;
+    };
+    this.edit = function(oMschema, oMember) {
+        var defer = $q.defer();
+        http2.post('/rest/script/time', { html: { 'editor': '/views/default/pl/fe/_module/memberEditor' } }).then(function(oTemplateTimes) {
+            $uibModal.open({
+                templateUrl: '/views/default/pl/fe/_module/memberEditor.html?_=' + oTemplateTimes.data.html.editor.time,
+                controller: ['$uibModalInstance', '$scope', function($mi, $scope2) {
+                    $scope2.schema = oMschema;
+                    $scope2.member = angular.copy(oMember);
+                    $scope2.close = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        $mi.close({
+                            action: 'update',
+                            data: $scope2.member
+                        });
+                    };
+                    $scope2.remove = function() {
+                        $mi.close({
+                            action: 'remove'
+                        });
+                    };
+                }],
+                backdrop: 'static',
+            }).result.then(function(rst) {
+                if (rst.action === 'update') {
+                    var data = rst.data,
+                        oUpdated = {
+                            verified: data.verified,
+                            name: data.name,
+                            mobile: data.mobile,
+                            email: data.email,
+                            email_verified: data.email_verified,
+                            extattr: data.extattr
+                        };
+                    http2.post('/rest/pl/fe/site/member/update?id=' + oMember.id, oUpdated).then(function(rsp) {
+                        angular.extend(oMember, oUpdated);
+                        defer.resolve({ action: 'update' });
+                    });
+                } else if (rst.action === 'remove') {
+                    http2.get('/rest/pl/fe/site/member/remove?id=' + oMember.id).then(function() {
+                        defer.resolve({ action: 'remove' });
+                    });
+                }
+            });
+        });
+        return defer.promise;
+    };
+}]).
 controller('ctrlStat', ['$scope', 'http2', '$uibModal', '$compile', function($scope, http2, $uibModal, $compile) {
     var page, criteria, time1, time2, app;
     time1 = (function() {

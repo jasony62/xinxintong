@@ -3,7 +3,7 @@ require([], function() {
     var siteId, missionId, ngApp;
     siteId = location.search.match('site=([^&]*)')[1];
     missionId = location.search.match('mission=([^&]*)')[1];
-    ngApp = angular.module('app', ['ui.tms', 'http.ui.xxt']);
+    ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'http.ui.xxt']);
     ngApp.controller('ctrlMain', ['$scope', 'http2', function($scope, http2) {
         function getUserTrack(oUser) {
             var url;

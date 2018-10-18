@@ -10,11 +10,15 @@ class main extends \pl\fe\base {
 	 *
 	 */
 	public function list_action($schema, $page = 1, $size = 30, $kw = '', $by = '') {
-		if (false === ($user = $this->accountUser())) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
-		$model = $this->model();
+		$modelMs = $this->model('site\user\memberschema');
+		$oMschema = $modelMs->byId($schema, ['fields' => 'siteid,id,title,attr_mobile,attr_email,attr_name,ext_attrs,auto_verified,require_invite']);
+		if ($oMschema === false) {
+			return new \ObjectNotFoundError();
+		}
 
 		$w = "m.schema_id=$schema and m.forbidden='N'";
 		if (!empty($kw) && !empty($by)) {
@@ -26,7 +30,6 @@ class main extends \pl\fe\base {
 		if (!empty($tag)) {
 			$w .= " and concat(',',m.tags,',') like '%,$tag,%'";
 		}
-		$result = array();
 		$q = [
 			'm.*',
 			'xxt_site_member m',
@@ -35,22 +38,35 @@ class main extends \pl\fe\base {
 		$q2['o'] = 'm.create_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
-		if ($members = $model->query_objs_ss($q, $q2)) {
+		$members = $modelMs->query_objs_ss($q, $q2);
+
+		$oResult = new \stdClass;
+		if (count($members)) {
+			$modelAcnt = $this->model('site\user\account');
+			$modelWxfan = $this->model('sns\wx\fan');
 			foreach ($members as $oMember) {
 				if (property_exists($oMember, 'extattr')) {
 					$oMember->extattr = empty($oMember->extattr) ? new \stdClass : json_decode($oMember->extattr);
 				}
+				if (!empty($oMember->userid)) {
+					$oAccount = $modelAcnt->byId($oMember->userid, ['fields' => 'wx_openid']);
+					if (!empty($oAccount->wx_openid)) {
+						$oWxfan = $modelWxfan->byOpenid($oMschema->siteid, $oAccount->wx_openid, 'nickname,headimgurl', 'Y');
+						if ($oWxfan) {
+							$oMember->wxfan = $oWxfan;
+						}
+					}
+				}
 			}
-			$result['members'] = $members;
-			$q[0] = 'count(*)';
-			$total = (int) $model->query_val_ss($q);
-			$result['total'] = $total;
-		} else {
-			$result['members'] = array();
-			$result['total'] = 0;
 		}
 
-		return new \ResponseData($result);
+		$oResult->members = $members;
+
+		$q[0] = 'count(*)';
+		$total = (int) $modelMs->query_val_ss($q);
+		$oResult->total = $total;
+
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 更新成员数据
@@ -61,6 +77,9 @@ class main extends \pl\fe\base {
 		}
 		$modelMem = $this->model('site\user\member')->setOnlyWriteDbConn(true);
 		$oOldMember = $modelMem->byId($id, ['fields' => 'id,schema_id']);
+		if (false === $oOldMember) {
+			return new \ObjectNotFoundError();
+		}
 		$attrs = $this->model('site\user\memberschema')->byId($oOldMember->schema_id, ['fields' => 'attr_mobile,attr_email,attr_name,extattr']);
 
 		$oPosted = $this->getPostJson();
@@ -110,19 +129,74 @@ class main extends \pl\fe\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 删除一个注册用户
+	 * 提交站点自定义用户信息
 	 *
-	 * 不删除用户数据只是打标记
+	 * @param int $schema 自定义用户信息定义的id
+	 *
 	 */
-	public function remove_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
+	public function create_action($schema) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
-		$rst = $this->model()->update(
+		$oMschema = $this->model('site\user\memberschema')->byId($schema, ['fields' => 'siteid,id,title,attr_mobile,attr_email,attr_name,ext_attrs,auto_verified,require_invite']);
+		if ($oMschema === false) {
+			return new \ObjectNotFoundError();
+		}
+
+		$oNewMember = $this->getPostJson();
+		if (empty($oNewMember->userid)) {
+			return new \ResponseError('没有指定要关联的用户');
+		}
+
+		$modelSiteUser = $this->model('site\user\account');
+		$oSiteUser = $modelSiteUser->byId($oNewMember->userid);
+		if ($oSiteUser === false) {
+			return new \ResponseError('请注册或登录后再填写通讯录联系人信息');
+		}
+
+		$modelMem = $this->model('site\user\member');
+
+		/* 给当前用户创建自定义用户信息 */
+		$oNewMember->siteid = $oMschema->siteid;
+		$oNewMember->schema_id = $oMschema->id;
+		$oNewMember->unionid = isset($oSiteUser->unionid) ? $oSiteUser->unionid : '';
+		/* check auth data */
+		if ($errMsg = $modelMem->rejectAuth($oNewMember, $oMschema)) {
+			return new \ResponseError($errMsg);
+		}
+		/* 验证状态 */
+		$oNewMember->verified = $oMschema->auto_verified === 'Y' ? 'Y' : 'P';
+
+		/* 创建通讯录用户 */
+		$aResult = $modelMem->create($oSiteUser->uid, $oMschema, $oNewMember);
+		if ($aResult[0] === false) {
+			return new \ResponseError($aResult[1]);
+		}
+		$oNewMember = $aResult[1];
+
+		return new \ResponseData($oNewMember);
+	}
+	/**
+	 * 删除一个通讯录用户
+	 *
+	 * 不删除用户数据只是打标记
+	 */
+	public function remove_action($id) {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		$modelMem = $this->model('site\user\member');
+		$oMember = $modelMem->byId($id, ['fields' => 'id,siteid']);
+		if (false === $oMember) {
+			return new \ObjectNotFoundError();
+		}
+
+		$rst = $modelMem->update(
 			'xxt_site_member',
-			array('forbidden' => 'Y'),
-			"siteid='$site' and id='$id'"
+			['forbidden' => 'Y'],
+			['id' => $oMember->id]
 		);
 
 		return new \ResponseData($rst);

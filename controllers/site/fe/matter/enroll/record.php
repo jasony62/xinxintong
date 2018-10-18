@@ -79,11 +79,6 @@ class record extends base {
 		// 提交数据的用户
 		$oUser = $this->getUser($oEnrollApp, $oEnrolledData);
 
-		/* 记录数据提交日志，跟踪提交特殊数据失败的问题 */
-		//$rawPosted = file_get_contents("php://input");
-		//$modelLog = $this->model('log');
-		//$modelLog->log('trace', 'enroll-submit-' . $oUser->uid, $modelLog->cleanEmoji($rawPosted, true));
-
 		if ($subType === 'save') {
 			$logid = $this->_saveRecord($oUser, $oEnrollApp, $oEnrolledData, $oPosted);
 			return new \ResponseData($logid);
@@ -372,7 +367,7 @@ class record extends base {
 				return [false, '仅限活动编辑组用户提交填写记录'];
 			}
 		}
-		if (!isset($oApp->entryRule->exclude_action) || $oApp->entryRule->exclude_action->submit_record != "Y") {
+		if (!isset($oApp->entryRule->exclude_action) || (isset($oApp->entryRule->exclude_action->submit_record) && $oApp->entryRule->exclude_action->submit_record != "Y")) {
 			$checkEntryRule = $this->checkEntryRule($oApp, false, $oUser);
 			if ($checkEntryRule[0] === false) {
 				return $checkEntryRule;

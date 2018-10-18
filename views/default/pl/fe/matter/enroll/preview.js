@@ -158,19 +158,6 @@ define(['frame'], function(ngApp) {
                 }
             }
         });
-        $scope.$watch('app', function(oApp) {
-            if (!oApp) return;
-            http2.get('/rest/pl/fe/matter/enroll/receiver/list?site=' + oApp.siteid + '&app=' + oApp.id).then(function(rsp) {
-                var map = { wx: '微信', yx: '易信', qy: '企业号' };
-                rsp.data.forEach(function(receiver) {
-                    if (receiver.sns_user) {
-                        receiver.snsUser = JSON.parse(receiver.sns_user);
-                        map[receiver.snsUser.src] && (receiver.snsUser.snsName = map[receiver.snsUser.src]);
-                    }
-                });
-                $scope.admins = rsp.data;
-            });
-        });
         srvEnrollApp.opData().then(function(data) {
             if (data.length) {
                 $scope.opData = data[0];

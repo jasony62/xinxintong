@@ -1,21 +1,62 @@
-var timestamp, minutes;
-timestamp = new Date();
-minutes = timestamp.getMinutes();
-minutes = Math.floor(minutes / 5) * 5;
-timestamp.setMinutes(minutes);
-timestamp.setMilliseconds(0);
-timestamp.setSeconds(0);
-require.config({
-    waitSeconds: 0,
-    paths: {
-        "domReady": '/static/js/domReady',
-        "frame": '/views/default/pl/fe/console/frame'
-    },
-    urlArgs: function(id, url) {
-        if (/domReady/.test(id)) {
-            return '';
+requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
+    /* 定义应用常量 */
+    define("frame/const", {
+        matterNames: {
+            doc: {
+                'article': '单图文',
+                'news': '多图文',
+                'channel': '频道',
+                'link': '链接',
+                'text': '文本',
+                'custom': '定制页',
+            },
+            docOrder: ['article', 'news', 'channel', 'link', 'text', 'custom'],
+            app: {
+                'enroll': '登记',
+                'signin': '签到',
+                'group': '分组',
+                'lottery': '抽奖',
+                'wall': '信息墙',
+            },
+            appOrder: ['enroll', 'signin', 'group', 'lottery', 'wall'],
+            'site': '团队',
+            'mission': '项目',
+        },
+        notifyMatter: [{
+            value: 'tmplmsg',
+            title: '模板消息',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'article',
+            title: '单图文',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'news',
+            title: '多图文',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'channel',
+            title: '频道',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'enroll',
+            title: '登记活动',
+            url: '/rest/pl/fe/matter'
+        }]
+    });
+    var _oRawPathes;
+    _oRawPathes = {
+        js: {
+            "frame": '/views/default/pl/fe/console/frame',
+            "mainCtrl": '/views/default/pl/fe/console/main',
+            "usersCtrl": '/views/default/pl/fe/console/users',
+            "friendCtrl": '/views/default/pl/fe/console/friend',
+        },
+        html: {
+            "main": '/views/default/pl/fe/console/main',
+            "users": '/views/default/pl/fe/console/users',
+            "friend": '/views/default/pl/fe/console/friend',
         }
-        return "?bust=" + (timestamp * 1);
     }
+    tms.bootstrap(_oRawPathes);
 });
-require(['frame']);

@@ -1147,7 +1147,7 @@ service('tkRoundCron', ['$rootScope', '$q', '$uibModal', 'http2', function($root
     };
     this.choose = function(oMatter) {
         var defer = $q.defer();
-        http2.post('/rest/script/time', { html: { 'picker': '/views/default/pl/fe/_module/chooseRoundCron.html' } }).then(function(oTemplateTimes) {
+        http2.post('/rest/script/time', { html: { 'picker': '/views/default/pl/fe/_module/chooseRoundCron' } }).then(function(oTemplateTimes) {
             $uibModal.open({
                 templateUrl: '/views/default/pl/fe/_module/chooseRoundCron.html?_=' + oTemplateTimes.data.html.picker.time,
                 controller: ['$uibModalInstance', '$scope', function($mi, $scope2) {

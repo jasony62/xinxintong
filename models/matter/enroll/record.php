@@ -669,7 +669,6 @@ class record_model extends record_base {
 				}
 			}
 			$coworkSchemaIds = "('" . implode("','", $coworkSchemaIds) . "')";
-			$oCriteria->cowork->agreed = 'answer';
 			if (!empty($coworkSchemaIds)) {
 				if (isset($oCriteria->cowork->agreed) && empty($oCriteria->cowork->agreed)) {
 					// 如果查询未表态的问题需要所有的答案都未表态才返回

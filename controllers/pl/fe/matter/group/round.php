@@ -91,7 +91,7 @@ class round extends \pl\fe\matter\base {
 				break;
 			}
 			if ($roundUserCnt > 0) {
-				return new \ResponseError('已经有分组数据，不允许删除轮次！');
+				return new \ResponseError('已经有分组数据，不允许修改分组类型！');
 			}
 		}
 
@@ -136,7 +136,7 @@ class round extends \pl\fe\matter\base {
 			['aid' => $app, 'round_id' => $rid, 'state' => 1],
 		];
 		if (0 < (int) $model->query_val_ss($q)) {
-			return new \ResponseError('已经有分组数据，不允许删除轮次！');
+			return new \ResponseError('已经有分组数据，不允许删除分组！');
 		}
 
 		$rst = $model->delete(

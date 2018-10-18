@@ -1157,15 +1157,14 @@ service('tkRoundCron', ['$rootScope', '$q', '$uibModal', 'http2', function($root
                         $mi.dismiss();
                     };
                     $scope2.ok = function() {
-                        if ($scope2.data.chosen) {
-                            $mi.close($scope2.data.chosen);
-                        } else {
-                            $mi.dismiss();
-                        }
+                        $mi.close($scope2.data.chosen);
                     };
                 }],
                 backdrop: 'static',
-            }).result.then(function(rst) {});
+            }).result.then(function(oRule) {
+                if (oRule)
+                    defer.resolve(oRule);
+            });
         });
         return defer.promise;
     };

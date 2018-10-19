@@ -93,15 +93,11 @@ class undone_model extends \TMS_MODEL {
 					['state' => 1, 'aid' => $oTaskArgs->receiver->group->id],
 				];
 				if (empty($oTaskArgs->receiver->group->round->id)) {
+					/* 分组活动内的用户 */
 					$aGrpUsers = $modelEnl->query_objs_ss($q);
 				} else {
-					$q[2]['role_rounds'] = (object) ['op' => 'like', 'pat' => '%' . $oTaskArgs->receiver->group->round->id . '%'];
-					$aGrpUsers = $modelEnl->query_objs_ss($q);
-					if (count($aGrpUsers) === 0) {
-						unset($q[2]['role_rounds']);
-						$q[2]['round_id'] = $oTaskArgs->receiver->group->round->id;
-						$aGrpUsers = $modelEnl->query_objs_ss($q);
-					}
+					/* 指定分组的用户 */
+					$aGrpUsers = $this->model('matter\group\user')->byRound($oTaskArgs->receiver->group->round->id, ['fields' => 'userid']);
 				}
 				if (empty($aGrpUsers)) {
 					return [false, '指定的分组活动中没有符合接受通知条件的用户'];

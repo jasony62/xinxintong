@@ -6,7 +6,7 @@ define(['require'], function(require) {
     siteId = ls.match(/[\?&]site=([^&]*)/)[1];
     missionId = ls.match(/[\?&]mission=([^&]*)/) ? ls.match(/[\?&]mission=([^&]*)/)[1] : '';
 
-    ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter']);
+    ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'notice.ui.xxt', 'service.matter']);
     ngApp.config(['$locationProvider', 'srvSiteProvider', function($locationProvider, srvSiteProvider) {
         $locationProvider.html5Mode(true);
         srvSiteProvider.config(siteId);
@@ -20,7 +20,7 @@ define(['require'], function(require) {
             $scope.site = oSite;
         });
         if (missionId) {
-            http2.get('/rest/pl/fe/matter/mission/get?site=' + siteId + '&id=' + missionId, function(rsp) {
+            http2.get('/rest/pl/fe/matter/mission/get?site=' + siteId + '&id=' + missionId).then(function(rsp) {
                 $scope.mission = rsp.data;
             });
         }
@@ -30,7 +30,7 @@ define(['require'], function(require) {
 
         assignedScenario = $location.search().scenario;
         $scope.result = {
-            proto: {'title':'信息墙-讨论'}
+            proto: { 'title': '信息墙-讨论' }
         };
         $scope.proto = $scope.result.proto;
         $scope.$on('xxt.tms-datepicker.change', function(event, data) {
@@ -50,7 +50,7 @@ define(['require'], function(require) {
             if (data.proto) {
                 oConfig.proto = data.proto;
             }
-            http2.post(url, oConfig, function(rsp) {
+            http2.post(url, oConfig).then(function(rsp) {
                 location.href = '/rest/pl/fe/matter/wall?site=' + siteId + '&id=' + rsp.data.id;
             });
         };
@@ -61,10 +61,10 @@ define(['require'], function(require) {
             keys = Object.keys(oTemplates);
             $scope.result.template = oTemplates[keys[0]];
             if ($scope.result.scenario.name == 'discuss') {
-                $scope.proto.title = $scope.proto.title.slice(0,-3);
+                $scope.proto.title = $scope.proto.title.slice(0, -3);
                 $scope.proto.title += '-讨论'
             } else {
-                $scope.proto.title = $scope.proto.title.slice(0,-3);
+                $scope.proto.title = $scope.proto.title.slice(0, -3);
                 $scope.proto.title += '-互动'
             }
             $scope.chooseTemplate();
@@ -75,12 +75,12 @@ define(['require'], function(require) {
             url = '/rest/pl/fe/matter/wall/template/config';
             url += '?scenario=' + $scope.result.scenario.name;
             url += '&template=' + $scope.result.template.name;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.result.proto.scenario_config = rsp.data;
             });
         };
         /*系统模版*/
-        http2.get('/rest/pl/fe/matter/wall/template/list', function(rsp) {
+        http2.get('/rest/pl/fe/matter/wall/template/list').then(function(rsp) {
             var oScenarioes = rsp.data,
                 oTemplates;
 
@@ -133,14 +133,14 @@ define(['require'], function(require) {
             if (missionId) {
                 url += '&mission=' + missionId;
             }
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 location.href = '/rest/pl/fe/matter/wall/schema?site=' + siteId + '&id=' + rsp.data.id;
             });
         };
         $scope.searchTemplate = function() {
             var url = '/rest/pl/fe/template/site/list?matterType=wall&scope=P' + '&site=' + siteId;
 
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.templates = rsp.data.templates;
                 $scope.page.total = rsp.data.total;
             });
@@ -148,7 +148,7 @@ define(['require'], function(require) {
         $scope.searchShare2Me = function() {
             var url = '/rest/pl/fe/template/platform/share2Me?matterType=wall';
 
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.templates = rsp.data.templates;
                 $scope.page.total = rsp.data.total;
             });
@@ -156,7 +156,7 @@ define(['require'], function(require) {
         $scope.searchBySite = function() {
             var url = '/rest/pl/fe/template/site/list?site=' + siteId + '&matterType=wall&scope=S';
 
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.templates = rsp.data.templates;
                 $scope.page.total = rsp.data.total;
             });

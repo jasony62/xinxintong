@@ -43,15 +43,15 @@ class mission_model extends app_base {
 	/**
 	 * 获得项目定义
 	 */
-	public function &byId($id, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : '';
+	public function &byId($id, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$cascaded = isset($aOptions['cascaded']) ? $aOptions['cascaded'] : '';
 		$q = [
 			$fields,
 			$this->table(),
 			["id" => $id],
 		];
-		if (($oMission = $this->query_obj_ss($q)) && empty($options['notDecode'])) {
+		if (($oMission = $this->query_obj_ss($q)) && empty($aOptions['notDecode'])) {
 			$oMission->type = 'mission';
 			if (!empty($oMission->matter_mg_tag)) {
 				$oMission->matter_mg_tag = json_decode($oMission->matter_mg_tag);
@@ -102,17 +102,17 @@ class mission_model extends app_base {
 	/**
 	 *
 	 */
-	public function &bySite($siteId, $options = array()) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$limit = isset($options['limit']) ? $options['limit'] : (object) ['page' => 1, 'size' => 20];
+	public function &bySite($siteId, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$limit = isset($aOptions['limit']) ? $aOptions['limit'] : (object) ['page' => 1, 'size' => 20];
 
 		$q = [
 			$fields,
 			'xxt_mission',
 			"siteid='$siteId' and state=1",
 		];
-		if (isset($options['byTitle'])) {
-			$q[2] .= " and title like '%{$options['byTitle']}%'";
+		if (isset($aOptions['byTitle'])) {
+			$q[2] .= " and title like '%{$aOptions['byTitle']}%'";
 		}
 
 		$q2 = [

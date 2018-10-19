@@ -521,9 +521,9 @@ class stat extends main_base {
 		$section->addTextBreak(1, null, null);
 
 		$name = !empty($oApp->title) ? $oApp->title : uniqid();
-		$file = $name . '.docx';
+		$filename = $name . '.docx';
+		\TMS_App::setContentDisposition($filename);
 		header("Content-Description: File Transfer");
-		header('Content-Disposition: attachment; filename="' . $file . '"');
 		header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
 		header('Content-Transfer-Encoding: binary');
 		header('Cache-Control: must-revalidate, post-check=0, pre-check=0');

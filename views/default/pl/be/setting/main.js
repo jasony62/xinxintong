@@ -1,5 +1,5 @@
 define(['require'], function(require) {
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'http.ui.xxt', 'notice.ui.xxt']);
     ngApp.config(['$locationProvider', '$provide', '$controllerProvider', '$routeProvider', function($lp, $provide, $cp, $rp) {
         var RouteParam = function(name, loadjs) {
             var baseURL;
@@ -28,11 +28,11 @@ define(['require'], function(require) {
             .when('/rest/pl/be/setting/notice', new RouteParam('notice', true))
             .otherwise(new RouteParam('tmplmsg', true));
     }]);
-    ngApp.controller('ctrlSetting', ['$scope', 'http2', function($scope, http2) {
+    ngApp.controller('ctrlSetting', ['$scope', function($scope) {
         $scope.subView = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.split('/');
-            $scope.subView = subView ? (subView[subView.length-1] === 'setting' ? 'tmplmsg' : subView[subView.length-1]) : 'tmplmsg';
+            $scope.subView = subView ? (subView[subView.length - 1] === 'setting' ? 'tmplmsg' : subView[subView.length - 1]) : 'tmplmsg';
         });
         $scope.siteId = 'platform';
     }]);

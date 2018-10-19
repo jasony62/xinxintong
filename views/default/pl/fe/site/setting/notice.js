@@ -12,7 +12,7 @@ define(['main'], function(ngApp) {
                 url = _baseURL + '/get' + _baseQS;
             url += '&name=' + name;
             url += '&cascaded=Y';
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 defer.resolve(rsp.data);
             });
             return defer.promise;
@@ -22,7 +22,7 @@ define(['main'], function(ngApp) {
                 url = _baseURL + '/setup' + _baseQS;
             url += '&name=' + notice.event_name;
             url += '&mapping=' + notice.tmplmsg_config_id;
-            http2.post(url, mapping, function(rsp) {
+            http2.post(url, mapping).then(function(rsp) {
                 defer.resolve(rsp.data);
             });
             return defer.promise;
@@ -32,7 +32,7 @@ define(['main'], function(ngApp) {
                 url = _baseURL + '/clean' + _baseQS;
             url += '&name=' + notice.event_name;
             url += '&mapping=' + notice.tmplmsg_config_id;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 defer.resolve(rsp.data);
             });
             return defer.promise;
@@ -50,10 +50,10 @@ define(['main'], function(ngApp) {
             });
         };
         serNotice.setSiteId($scope.siteId);
-        http2.get('/rest/pl/fe/matter/tmplmsg/list?site=' + $scope.siteId + '&cascaded=Y', function(rsp) {
+        http2.get('/rest/pl/fe/matter/tmplmsg/list?site=' + $scope.siteId + '&cascaded=Y').then(function(rsp) {
             $scope.tmplmsgs = rsp.data;
         });
-        http2.get('/rest/pl/fe/matter/tmplmsg/list?site=platform&cascaded=Y', function(rsp) {
+        http2.get('/rest/pl/fe/matter/tmplmsg/list?site=platform&cascaded=Y').then(function(rsp) {
             $scope.plTmplmsgs = rsp.data;
         });
         $scope.choose = function(name) {

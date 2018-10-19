@@ -13,7 +13,7 @@ ngApp.controller('ctrlFile', ['$scope', '$location','http2', function($scope, $l
     var ls = $location.search();
     $scope.id = ls.id;
     $scope.siteId = ls.site;
-    http2.get('/rest/pl/fe/site/get?site=' + $scope.siteId, function(rsp) {
+    http2.get('/rest/pl/fe/site/get?site=' + $scope.siteId).then(function(rsp) {
         $scope.site = rsp.data;
     });
 }]);

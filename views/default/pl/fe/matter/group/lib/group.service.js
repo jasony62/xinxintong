@@ -19,14 +19,14 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                 $scope2.$watch('data.app', function(oGrpApp) {
                     if (oGrpApp) {
                         var url = '/rest/pl/fe/matter/group/round/list?app=' + oGrpApp.id + '&roundType=';
-                        http2.get(url, function(rsp) {
+                        http2.get(url).then(function(rsp) {
                             $scope2.rounds = rsp.data;
                         });
                     }
                 });
                 var url = '/rest/pl/fe/matter/group/list?site=' + oMatter.siteid + '&size=999';
                 oMatter.mission && (url += '&mission=' + oMatter.mission.id);
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     $scope2.apps = rsp.data.apps;
                 });
             }],
@@ -44,7 +44,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
         } else if (/T|R/.test(roundType)) {
             url += '&roundType=' + roundType;
         }
-        http2.get(url, function(rsp) {
+        http2.get(url).then(function(rsp) {
             var rounds = rsp.data;
             rounds.forEach(function(oRound) {
                 oRound.extattrs = (oRound.extattrs && oRound.extattrs.length) ? JSON.parse(oRound.extattrs) : {};
@@ -74,7 +74,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                     defer.resolve(_oApp);
                 } else {
                     url = '/rest/pl/fe/matter/group/get?site=' + _siteId + '&app=' + _appId;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         var schemasById = {};
 
                         _oApp = rsp.data;
@@ -100,7 +100,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                             _oApp._roundsById = roundsById;
                             if (_oApp.page_code_id == 0 && _oApp.scenario.length) {
                                 var url = '/rest/pl/fe/matter/group/page/create?site=' + _siteId + '&app=' + _appId + '&scenario=' + _oApp.scenario;
-                                http2.get(url, function(rsp) {
+                                http2.get(url).then(function(rsp) {
                                     _oApp.page_code_id = rsp.data;
                                     defer.resolve(_oApp);
                                 });
@@ -126,7 +126,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                     }
                 });
 
-                http2.post('/rest/pl/fe/matter/group/update?site=' + _siteId + '&app=' + _appId, modifiedData, function(rsp) {
+                http2.post('/rest/pl/fe/matter/group/update?site=' + _siteId + '&app=' + _appId, modifiedData).then(function(rsp) {
                     modifiedData = {};
                     defer.resolve(rsp.data);
                 });
@@ -137,7 +137,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                     url;
 
                 url = '/rest/pl/fe/matter/enroll/remove?site=' + _siteId + '&app=' + _appId;
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     defer.resolve();
                 });
 
@@ -186,7 +186,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                                     url = '/rest/pl/fe/matter/wall/list?site=' + _siteId + '&size=999';
                                 }
                                 oMission && (url += '&mission=' + oMission.id);
-                                http2.get(url, function(rsp) {
+                                http2.get(url).then(function(rsp) {
                                     $scope2.apps = rsp.data.apps;
                                 });
                             }
@@ -206,7 +206,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                             params.appTitle = data.app.title;
                             defer.resolve(params);
                         } else {
-                            http2.post('/rest/pl/fe/matter/group/player/assocWithApp?site=' + _siteId + '&app=' + _appId, params, function(rsp) {
+                            http2.post('/rest/pl/fe/matter/group/player/assocWithApp?site=' + _siteId + '&app=' + _appId, params).then(function(rsp) {
                                 var schemasById = {}
                                 _oApp.sourceApp = data.app;
                                 if (angular.isString(rsp.data.data_schemas)) {
@@ -238,7 +238,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                             url += '&onlySpeaker=N';
                         }
                     }
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         noticebox.success('同步' + rsp.data + '个用户');
                         defer.resolve(rsp.data);
                     });
@@ -292,7 +292,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                     } else if (/T|R/.test(roundType)) {
                         url += '&roundType=' + roundType;
                     }
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         var rounds = rsp.data;
                         rounds.forEach(function(oRound) {
                             oRound.extattrs = (oRound.extattrs && oRound.extattrs.length) ? JSON.parse(oRound.extattrs) : {};
@@ -321,7 +321,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                             };
                             schemas = angular.copy(oApp.data_schemas);
                             $scope.schemas = [];
-                            http2.get('/rest/pl/fe/matter/group/player/count?site=' + _siteId + '&app=' + _appId, function(rsp) {
+                            http2.get('/rest/pl/fe/matter/group/player/count?site=' + _siteId + '&app=' + _appId).then(function(rsp) {
                                 $scope.countOfPlayers = rsp.data;
                                 $scope.$watch('rule.count', function(countOfGroups) {
                                     if (countOfGroups) {
@@ -357,7 +357,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                     }).result.then(function(rule) {
                         var url = '/rest/pl/fe/matter/group/configRule?site=' + _siteId + '&app=' + _appId;
                         _rounds.splice(0, _rounds.length);
-                        http2.post(url, rule, function(rsp) {
+                        http2.post(url, rule).then(function(rsp) {
                             rsp.data.forEach(function(round) {
                                 _rounds.push(round);
                             });
@@ -371,7 +371,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                 var defer = $q.defer();
                 if (window.confirm('本操作将清除已有分组数据，确定执行?')) {
                     var url = '/rest/pl/fe/matter/group/configRule?site=' + _siteId + '&app=' + _appId;
-                    http2.post(url, {}, function(rsp) {
+                    http2.post(url, {}).then(function(rsp) {
                         _rounds.splice(0, _rounds.length);
                         defer.resolve(rsp.data);
                     });
@@ -383,26 +383,33 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                     proto = {
                         title: '分组' + (_rounds.length + 1)
                     };
-                http2.post('/rest/pl/fe/matter/group/round/add?site=' + _siteId + '&app=' + _appId, proto, function(rsp) {
-                    _rounds.push(rsp.data);
-                    defer.resolve(rsp.data);
+                http2.post('/rest/pl/fe/matter/group/round/add?site=' + _siteId + '&app=' + _appId, proto).then(function(rsp) {
+                    var oNewRound = rsp.data;
+                    oNewRound._before = angular.copy(oNewRound);
+                    _rounds.push(oNewRound);
+                    defer.resolve(oNewRound);
                 });
                 return defer.promise;
             },
-            update: function(round, name) {
+            update: function(oRound, name) {
                 var defer = $q.defer(),
-                    nv = {};
+                    oUpdated = {};
 
-                nv[name] = round[name];
-                http2.post('/rest/pl/fe/matter/group/round/update?site=' + _siteId + '&app=' + _appId + '&rid=' + round.round_id, nv, function(rsp) {
-                    defer.resolve();
-                    noticebox.success('完成保存');
-                });
+                oUpdated[name] = oRound[name];
+                http2.post('/rest/pl/fe/matter/group/round/update?site=' + _siteId + '&app=' + _appId + '&rid=' + oRound.round_id, oUpdated).then(function(rsp) {
+                    if (rsp.err_code === 0) {
+                        oRound._before = angular.copy(oRound);
+                        defer.resolve(oRound);
+                        noticebox.success('完成保存');
+                    } else {
+                        oRound[name] = oRound._before[name];
+                    }
+                }, { autoBreak: false });
                 return defer.promise;
             },
             remove: function(round) {
                 var defer = $q.defer();
-                http2.get('/rest/pl/fe/matter/group/round/remove?site=' + _siteId + '&app=' + _appId + '&rid=' + round.round_id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/group/round/remove?site=' + _siteId + '&app=' + _appId + '&rid=' + round.round_id).then(function(rsp) {
                     _rounds.splice(_rounds.indexOf(round), 1);
                     defer.resolve();
                 });
@@ -428,7 +435,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
             execute: function() {
                 var _self = this;
                 if (window.confirm('本操作将清除已有分组数据，确定执行?')) {
-                    http2.get('/rest/pl/fe/matter/group/execute?site=' + _siteId + '&app=' + _appId, function(rsp) {
+                    http2.get('/rest/pl/fe/matter/group/execute?site=' + _siteId + '&app=' + _appId).then(function(rsp) {
                         _self.list();
                     });
                 }
@@ -461,7 +468,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                     url = '/rest/pl/fe/matter/group/player/list?site=' + _siteId + '&app=' + _appId;
 
                 _aPlayers.splice(0, _aPlayers.length);
-                http2.post(url, oFilter, function(rsp) {
+                http2.post(url, oFilter).then(function(rsp) {
                     if (rsp.data.total) {
                         rsp.data.players.forEach(function(player) {
                             tmsSchema.forTable(player, _oApp._schemasById);
@@ -478,7 +485,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                     url = '/rest/pl/fe/matter/group/round/winnersGet?app=' + _appId + '&rid=' + round.round_id + '&roundType=' + roundType;
 
                 _aPlayers.splice(0, _aPlayers.length);
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     rsp.data.forEach(function(player) {
                         tmsSchema.forTable(player, _oApp._schemasById);
                         srvGroupApp.dealData(player);
@@ -493,7 +500,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                     url = '/rest/pl/fe/matter/group/player/pendingsGet?app=' + _appId + '&roundType=' + roundType;
 
                 _aPlayers.splice(0, _aPlayers.length);
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     rsp.data.forEach(function(player) {
                         tmsSchema.forTable(player, _oApp._schemasById);
                         srvGroupApp.dealData(player);
@@ -513,7 +520,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                     eks.push($oUser.enroll_key);
                 });
 
-                http2.post(url, eks, function(rsp) {
+                http2.post(url, eks).then(function(rsp) {
                     var oResult = rsp.data;
                     users.forEach(function(oUser) {
                         if (oResult[oUser.enroll_key] !== false) {
@@ -537,12 +544,21 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                     eks.push(oUser.enroll_key);
                 });
 
-                http2.post(url, eks, function(rsp) {
+                http2.post(url, eks).then(function(rsp) {
                     var oResult = rsp.data;
                     users.forEach(function(oUser) {
                         if (oResult[oUser.enroll_key] !== false) {
-                            oUser.round_id = oRound.round_id;
-                            oUser.round_title = oRound.title;
+                            switch (oRound.round_type) {
+                                case 'T':
+                                    oUser.round_id = oRound.round_id;
+                                    oUser.round_title = oRound.title;
+                                    break;
+                                case 'R':
+                                    oUser.role_rounds === undefined && (oUser.role_rounds = []);
+                                    oUser.role_rounds.push(oRound.round_id);
+                                    srvGroupApp.dealData(oUser);
+                                    break;
+                            }
                             tmsSchema.forTable(oUser, _oApp._schemasById);
                         }
                     });
@@ -555,7 +571,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                     url;
 
                 url = '/rest/pl/fe/matter/group/player/add?site=' + _siteId + '&app=' + _appId;
-                http2.post(url, player, function(rsp) {
+                http2.post(url, player).then(function(rsp) {
                     tmsSchema.forTable(rsp.data, _oApp._schemasById);
                     srvGroupApp.dealData(rsp.data);
                     _aPlayers.splice(0, 0, rsp.data);
@@ -569,7 +585,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
 
                 url = '/rest/pl/fe/matter/group/player/update?site=' + _siteId + '&app=' + _appId;
                 url += '&ek=' + player.enroll_key;
-                http2.post(url, newPlayer, function(rsp) {
+                http2.post(url, newPlayer).then(function(rsp) {
                     angular.extend(player, rsp.data);
                     tmsSchema.forTable(player, _oApp._schemasById);
                     srvGroupApp.dealData(player);
@@ -579,7 +595,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
             },
             remove: function(player) {
                 var defer = $q.defer();
-                http2.get('/rest/pl/fe/matter/group/player/remove?site=' + _siteId + '&app=' + _appId + '&ek=' + player.enroll_key, function(rsp) {
+                http2.get('/rest/pl/fe/matter/group/player/remove?site=' + _siteId + '&app=' + _appId + '&ek=' + player.enroll_key).then(function(rsp) {
                     _aPlayers.splice(_aPlayers.indexOf(player), 1);
                     defer.resolve();
                 });
@@ -591,7 +607,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
 
                 vcode = prompt('是否要从【' + _oApp.title + '】删除所有用户？，若是，请输入活动名称。');
                 if (vcode === _oApp.title) {
-                    http2.get('/rest/pl/fe/matter/group/player/empty?site=' + _siteId + '&app=' + _appId, function(rsp) {
+                    http2.get('/rest/pl/fe/matter/group/player/empty?site=' + _siteId + '&app=' + _appId).then(function(rsp) {
                         _aPlayers.splice(0, _aPlayers.length);
                         defer.resolve();
                     });
@@ -637,7 +653,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                         targetAndMsg.app = _appId;
                         targetAndMsg.tmplmsg = notify.tmplmsg.id;
 
-                        http2.post(url, targetAndMsg, function(data) {
+                        http2.post(url, targetAndMsg).then(function(data) {
                             noticebox.success('发送完成');
                         });
                     }
@@ -653,7 +669,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                     url;
                 srvGroupApp.get().then(function(oApp) {
                     url = '/rest/pl/fe/matter/group/notice/logList?batch=' + batch.id + '&app=' + oApp.id;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         defer.resolve(rsp.data);
                     });
                 });

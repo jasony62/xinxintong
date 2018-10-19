@@ -57,9 +57,9 @@ class round extends \pl\fe\matter\base {
 		}
 
 		$rules[] = $oPosted->roundCron;
-		$rst = $modelRnd->byCron($rules);
+		$oExampleRnd = $modelRnd->byCron($rules);
 
-		return new \ResponseData($rst);
+		return new \ResponseData($oExampleRnd);
 	}
 	/**
 	 * 添加轮次

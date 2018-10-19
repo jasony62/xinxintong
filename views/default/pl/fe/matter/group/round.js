@@ -2,6 +2,9 @@ define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlRound', ['$scope', '$anchorScroll', '$timeout', '$location', '$uibModal', 'srvGroupRound', 'tmsSchema', function($scope, $anchorScroll, $timeout, $location, $uibModal, srvGroupRound, tmsSchema) {
         srvGroupRound.list().then(function(rounds) {
             $scope.rounds = rounds;
+            rounds.forEach(function(oRound) {
+                oRound._before = angular.copy(oRound);
+            });
         });
         $scope.configRule = function() {
             srvGroupRound.config().then(function() {

@@ -241,7 +241,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
                 //if (!document.querySelector('.tms-switch-siteuser')) {
                 //    tmsSiteUser.showSwitch(oArticle.siteid, true);
                 //} else {
-                $scope.siteUser = function(id) {
+                $scope.siteUser = function(siteId) {
                     var url = location.protocol + '//' + location.host;
                     url += '/rest/site/fe/user';
                     url += "?site=" + siteId;

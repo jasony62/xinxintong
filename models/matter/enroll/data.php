@@ -421,15 +421,22 @@ class data_model extends entity_model {
 		$oQuizNum = new \stdClass;
 		$oQuizNum->schema = 0; // 测验题目的数量
 		$oQuizNum->correctSchema = 0; // 答对测验题目的数量
-
 		/* 评估 */
 		$fnEvaluation = function (&$oSchema, $treatedValue, &$oRecordScore) {
 			$schemaScore = null; // 题目的得分
 			switch ($oSchema->type) {
 			case 'shorttext';
 				if (isset($oSchema->format) && $oSchema->format === 'number') {
-					$weight = (isset($oSchema->weight) && is_numeric($oSchema->weight)) ? $oSchema->weight : 1;
-					$schemaScore = $treatedValue * $weight;
+					//$weight = (isset($oSchema->weight) && is_numeric($oSchema->weight)) ? $oSchema->weight : 1;
+					//$schemaScore = $treatedValue * $weight;
+					if (isset($oSchema->weight)) {
+						$schemaScore = $this->model('matter\enroll\schema')->scoreByWeight($oSchema->weight, $treatedValue);
+						if (false === $schemaScore) {
+							$schemaScore = $treatedValue;
+						}
+					} else {
+						$schemaScore = 0;
+					}
 				}
 				break;
 			case 'single':

@@ -31,7 +31,7 @@
             var nv = {
                 pic: ''
             };
-            http2.post('/rest/mp/app/group/update?aid=' + $scope.id, nv, function() {
+            http2.post('/rest/mp/app/group/update?aid=' + $scope.id, nv).then(function() {
                 $scope.app.pic = '';
             });
         };
@@ -46,7 +46,7 @@
                 window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + app.page_code_name, '_self');
             } else {
                 url = '/rest/pl/fe/matter/lottery/page/create?site=' + $scope.siteId + '&app=' + app.id;
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     app.page_code_id = rsp.data;
                     app.page_code_name = rsp.data.name;
                     window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + app.page_code_name, '_self');
@@ -58,16 +58,16 @@
             if (window.confirm('重置操作将丢失已做修改，确定？')) {
                 app = $scope.app;
                 url = '/rest/pl/fe/matter/lottery/page/reset?site=' + $scope.siteId + '&app=' + app.id;;
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + app.page_code_name, '_self');
                 });
             }
         };
-        $scope.tagMatter = function(subType){
+        $scope.tagMatter = function(subType) {
             var oTags;
             oTags = $scope.oTag;
             $scope.app.type = 'lottery';
-            srvTag._tagMatter($scope.app, oTags, subType).then(function(){
+            srvTag._tagMatter($scope.app, oTags, subType).then(function() {
                 $scope.app.type = 'group';
             });
         };
@@ -83,7 +83,7 @@
             url = '/rest/pl/fe/matter/lottery/task/add?site=' + $scope.siteId + '&app=' + $scope.app.id;
             data.task_type = 'can_play';
             data.task_name = 'sns_share';
-            http2.post(url, data, function(rsp) {
+            http2.post(url, data).then(function(rsp) {
                 $scope.tasks.push(rsp.data);
             });
         };
@@ -91,7 +91,7 @@
             var url;
             url = '/rest/pl/fe/matter/lottery/task/remove?site=' + $scope.siteId + '&app=' + $scope.app.id;
             url += '&task=' + task.tid;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 var i = $scope.tasks.indexOf(task);
                 $scope.tasks.splice(i, 1);
             });
@@ -102,7 +102,7 @@
             url += '&task=' + task.tid;
             data.description = task.description;
             data.task_params = task.task_params;
-            http2.post(url, data, function(rsp) {});
+            http2.post(url, data).then(function(rsp) {});
         };
         $scope.$watch('app.tasks', function(tasks) {
             var canPlayTasks = [];
@@ -124,7 +124,7 @@
             url = '/rest/pl/fe/matter/lottery/task/add?site=' + $scope.siteId + '&app=' + $scope.app.id;
             data.task_type = 'add_chance';
             data.task_name = 'sns_share';
-            http2.post(url, data, function(rsp) {
+            http2.post(url, data).then(function(rsp) {
                 $scope.tasks.push(rsp.data);
             });
         };
@@ -132,7 +132,7 @@
             var url;
             url = '/rest/pl/fe/matter/lottery/task/remove?site=' + $scope.siteId + '&app=' + $scope.app.id;
             url += '&task=' + task.tid;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 var i = $scope.tasks.indexOf(task);
                 $scope.tasks.splice(i, 1);
             });
@@ -143,9 +143,9 @@
             url += '&task=' + task.tid;
             data.description = task.description;
             data.task_params = task.task_params;
-            http2.post(url, data, function(rsp) {});
+            http2.post(url, data).then(function(rsp) {});
         };
-        $scope.$watch('app.tasks', function(tasks) {
+        $scope.$watch('app.tasks').then(function(tasks) {
             var addChanceTasks = [];
             if (!tasks) return;
             angular.forEach(tasks, function(task) {

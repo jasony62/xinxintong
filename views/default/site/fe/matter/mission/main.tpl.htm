@@ -81,10 +81,6 @@
                                         <label>表示赞同</label>
                                         <div ng-bind="matter.user.do_like_num||0"></div>
                                     </div>
-                                    <div class='col-xs-12' ng-if="matter.indicator.end_submit" ng-switch on="matter.indicator.end_submit">
-                                        <div ng-switch-when="R">！本活动将于<span style='color:orangered;'>{{matter.end_submit_at*1000|date:'MM-dd HH:mm'}}</span>停止提交</div>
-                                        <div ng-switch-when="E">！本活动已于<span style='color:orangered;'>{{matter.end_submit_at*1000|date:'MM-dd HH:mm'}}</span>停止提交</div>
-                                    </div>
                                     <div class='col-xs-12' ng-if="matter.indicator.end" ng-switch on="matter.indicator.end">
                                         <div ng-switch-when="R">！本活动将于<span style='color:orangered;'>{{matter.end_at*1000|date:'MM-dd HH:mm'}}</span>结束</div>
                                         <div ng-switch-when="E">！本活动已于<span style='color:orangered;'>{{matter.end_at*1000|date:'MM-dd HH:mm'}}</span>结束</div>
@@ -121,7 +117,8 @@
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-    <script src="/static/js/require.js" defer async data-main="/views/default/site/fe/matter/mission/main-loader.js?_=12"></script>
+    <script src="<?php echo auto_version('/asset/js/xxt.ui.http.js');?>"></script>
+    <script src="/static/js/require.js" defer async data-main="<?php echo auto_version('/views/default/site/fe/matter/mission/main-loader.js');?>"></script>
 </body>
 
 </html>

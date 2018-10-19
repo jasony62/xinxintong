@@ -49,15 +49,22 @@ ngApp.controller('ctrlScore', ['$scope', '$sce', 'tmsLocation', 'http2', functio
             /*页面阅读日志*/
             $scope.logAccess();
             /*设置页面导航*/
-            var oAppNavs = {};
-            if (oApp.can_repos === 'Y') {
-                oAppNavs.repos = {};
-            }
-            if (oApp.can_rank === 'Y') {
-                oAppNavs.rank = {};
-            }
-            if (oApp.scenarioConfig && oApp.scenarioConfig.can_action === 'Y') {
-                oAppNavs.event = {};
+            var oAppNavs = {
+                length: 0
+            };
+            if (oApp.scenarioConfig) {
+                if (oApp.scenarioConfig.can_repos === 'Y') {
+                    oAppNavs.repos = {};
+                    oAppNavs.length++;
+                }
+                if (oApp.scenarioConfig.can_rank === 'Y') {
+                    oAppNavs.rank = {};
+                    oAppNavs.length++;
+                }
+                if (oApp.scenarioConfig.can_action === 'Y') {
+                    oAppNavs.event = {};
+                    oAppNavs.length++;
+                }
             }
             if (Object.keys(oAppNavs)) {
                 $scope.appNavs = oAppNavs;

@@ -2,7 +2,7 @@ define(['require'], function(require) {
     'use strict';
     var siteId, ngApp;
     siteId = location.search.match(/site=([^&]*)/)[1];
-    ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter']);
+    ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'notice.ui.xxt', 'service.matter']);
     ngApp.config(['$locationProvider', '$routeProvider', '$controllerProvider', 'srvSiteProvider', function($lp, $rp, $cp, srvSiteProvider) {
         var RouteParam = function(name, loadjs) {
             var baseURL = '/views/default/pl/fe/user/';
@@ -24,8 +24,7 @@ define(['require'], function(require) {
         ngApp.provider = {
             controller: $cp.register
         };
-        $rp
-            .when('/rest/pl/fe/user/main', new RouteParam('main', true))
+        $rp.when('/rest/pl/fe/user/main', new RouteParam('main', true))
             .when('/rest/pl/fe/user/doc', new RouteParam('doc', true))
             .when('/rest/pl/fe/user/app', new RouteParam('app', true))
             .when('/rest/pl/fe/user/favor', new RouteParam('favor', true))
@@ -71,7 +70,7 @@ define(['require'], function(require) {
             $scope.site = site;
         });
         //获取 增加公众号信息
-        http2.get('/rest/pl/fe/user/fans/getsnsinfo?site=' + $scope.siteId + '&uid=' + $scope.userId, function(rsp) {
+        http2.get('/rest/pl/fe/user/fans/getsnsinfo?site=' + $scope.siteId + '&uid=' + $scope.userId).then(function(rsp) {
             $scope.fans = rsp.data;
             $scope.fans.wx && ($scope.wx = $scope.fans.wx);
             $scope.fans.qy && ($scope.qy = $scope.fans.qy);

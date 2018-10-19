@@ -12,7 +12,7 @@
     <link href="<?php echo auto_version('/views/default/pl/fe/matter/enroll/shop.css');?>" rel="stylesheet">
 </head>
 
-<body ng-controller='ctrlMain' ng-cloak class='ng-cloak'>
+<body ng-app="app" ng-controller='ctrlMain' ng-cloak class='ng-cloak'>
     <div class='pl-layout'>
         <!--logo+侧边栏-->
         <div class='pl-layout-leftnav'>
@@ -263,7 +263,7 @@
             <button class="btn btn-primary" ng-click="ok()">确定</button>
         </div>
     </script>
-    <script src="/static/js/xxt.ui.error.js"></script>
+    <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
     <script src="/static/js/angular.min.js"></script>
@@ -273,9 +273,11 @@
     <script src="/static/js/resumable.js"></script>
     <script src="/static/js/ui-tms.js?_=4"></script>
     <script src="/static/js/xxt.ui.js?_=4"></script>
+    <script src="<?php echo auto_version('/asset/js/xxt.ui.http.js');?>"></script>
+    <script src="<?php echo auto_version('/asset/js/xxt.ui.notice.js');?>"></script>
     <script src="<?php echo custom_version('/pl/fe/_module/const.js');?>"></script>
-    <script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
-    <script src="/static/js/require.js" data-main="/views/default/pl/fe/matter/enroll/shop-loader.js?_=1"></script>
+    <script src="/views/default/pl/fe/_module/matter.service.js"></script>
+    <script src="/views/default/pl/fe/matter/enroll/shop.js"></script>
 </body>
 
 </html>

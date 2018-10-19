@@ -1,6 +1,6 @@
 define(['require'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'service.matter']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'notice.ui.xxt', 'service.matter']);
     ngApp.config(['$locationProvider', 'srvSiteProvider', function($locationProvider, srvSiteProvider) {
         $locationProvider.html5Mode(true);
         var ls, siteId;
@@ -86,7 +86,7 @@ define(['require'], function(require) {
             srvSite.chooseMschema({ id: '_pending', title: _oProto.title }).then(fnChosenMschema);
         };
         $scope.doCreate = function() {
-            http2.post('/rest/pl/fe/matter/mission/create?site=' + $scope.site.id, _oProto, function(rsp) {
+            http2.post('/rest/pl/fe/matter/mission/create?site=' + $scope.site.id, _oProto).then(function(rsp) {
                 location.href = '/rest/pl/fe/matter/mission?site=' + $scope.site.id + '&id=' + rsp.data.id;
             });
         };

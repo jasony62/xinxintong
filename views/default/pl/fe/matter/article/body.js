@@ -21,7 +21,7 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.submit = function() {
-            http2.post('/rest/pl/fe/matter/article/update?site=' + $scope.editing.siteid + '&id=' + $scope.editing.id, modifiedData, function() {
+            http2.post('/rest/pl/fe/matter/article/update?site=' + $scope.editing.siteid + '&id=' + $scope.editing.id, modifiedData).then(function() {
                 modifiedData = {};
                 $scope.modified = false;
                 noticebox.success('完成保存');
@@ -29,7 +29,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.remove = function() {
             if (window.confirm('确定删除？')) {
-                http2.get('/rest/pl/fe/matter/article/remove?site=' + $scope.editing.siteid + '&id=' + $scope.editing.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/article/remove?site=' + $scope.editing.siteid + '&id=' + $scope.editing.id).then(function(rsp) {
                     if ($scope.editing.mission) {
                         location = "/rest/pl/fe/matter/mission?site=" + $scope.editing.siteid + "&id=" + $scope.editing.mission.id;
                     } else {
@@ -205,7 +205,7 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.delAttachment = function(index, att) {
-            http2.get('/rest/pl/fe/matter/article/attachment/del?site=' + $scope.editing.siteid + '&id=' + att.id, function success(rsp) {
+            http2.get('/rest/pl/fe/matter/article/attachment/del?site=' + $scope.editing.siteid + '&id=' + att.id).then(function(rsp) {
                 $scope.editing.attachments.splice(index, 1);
             });
         };
@@ -244,7 +244,7 @@ define(['frame'], function(ngApp) {
                     lastModified: lastModified,
                     uniqueIdentifier: f.uniqueIdentifier,
                 };
-                http2.post('/rest/pl/fe/matter/article/attachment/add?site=' + $scope.editing.siteid + '&id=' + $scope.editing.id, posted, function success(rsp) {
+                http2.post('/rest/pl/fe/matter/article/attachment/add?site=' + $scope.editing.siteid + '&id=' + $scope.editing.id, posted).then(function(rsp) {
                     $scope.editing.attachments.push(rsp.data);
                 });
             });

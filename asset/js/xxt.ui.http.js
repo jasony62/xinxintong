@@ -29,7 +29,7 @@ ngMod.provider('tmsLocation', function() {
     }];
 });
 ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compile', function($rootScope, $http, $timeout, $q, $sce, $compile) {
-    function createAlert(msg, type, keep) {
+    function _fnCreateAlert(msg, type, keep) {
         var alertDomEl;
         /* backdrop */
         $sce.trustAsHtml(msg);
@@ -49,10 +49,64 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
         return alertDomEl[0];
     }
 
-    function removeAlert(alertDomEl) {
+    function _fnRemoveAlert(alertDomEl) {
         if (alertDomEl) {
             document.body.removeChild(alertDomEl);
         }
+    }
+
+    function _requirePagination(oOptions) {
+        if (oOptions.page && angular.isObject(oOptions.page)) {
+            if (oOptions.page.at === undefined) oOptions.page.at = 1;
+            if (oOptions.page.size === undefined) oOptions.page.size = 12;
+            if (oOptions.page.j === undefined || !angular.isFunction(oOptions.page.j)) {
+                oOptions.page.j = function() {
+                    return 'page=' + this.at + '&size=' + this.size;
+                };
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 合并两个对象
+     * 解决将通过http获得的数据和本地数据合并的问题
+     */
+    function _fnMerge(oOld, oNew) {
+        if (!oOld) {
+            oOld = oNew;
+        } else if (angular.isArray(oOld)) {
+            if (oOld.length > oNew.length) {
+                oOld.splice(oNew.length - 1, oOld.length - oNew.length);
+            }
+            for (var i = 0, ii = oNew.length; i < ii; i++) {
+                if (i < oOld.length) {
+                    _fnMerge(oOld[i], oNew[i]);
+                } else {
+                    oOld.push(oNew[i]);
+                }
+            }
+        } else if (angular.isObject(oOld)) {
+            for (var prop in oOld) {
+                if (oNew[prop] === undefined) {
+                    delete oOld[prop];
+                } else {
+                    if (angular.isObject(oNew[prop]) && angular.isObject(oOld[prop])) {
+                        _fnMerge(oOld[prop], oNew[prop]);
+                    } else {
+                        oOld[prop] = oNew[prop];
+                    }
+                }
+            }
+            for (var prop in oNew) {
+                if (oOld[prop] === undefined) {
+                    oOld[prop] = oNew[prop];
+                }
+            }
+        }
+
+        return oOld;
     }
 
     this.get = function(url, oOptions) {
@@ -71,14 +125,20 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
         if (oOptions.showProgress === true) {
             _timer = $timeout(function() {
                 _timer = null;
-                _alert = createAlert(oOptions.showProgressText, 'info');
+                _alert = _fnCreateAlert(oOptions.showProgressText, 'info');
             }, oOptions.showProgressDelay);
         }
+        if (_requirePagination(oOptions)) {
+            url += (url.indexOf('?') === -1 ? '?' : '&') + oOptions.page.j();
+        }
         $http.get(url, oOptions).success(function(rsp) {
+            if (oOptions.page && rsp.data.total !== undefined) {
+                oOptions.page.total = rsp.data.total;
+            }
             if (oOptions.showProgress === true) {
                 _timer && $timeout.cancel(_timer);
                 if (_alert) {
-                    removeAlert(_alert);
+                    _fnRemoveAlert(_alert);
                     _alert = null;
                 }
             }
@@ -87,7 +147,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
             } else {
                 if (angular.isString(rsp)) {
                     if (oOptions.autoNotice) {
-                        createAlert(rsp, 'warning');
+                        _fnCreateAlert(rsp, 'warning');
                     }
                     if (oOptions.autoBreak) {
                         return
@@ -104,7 +164,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
                         } else {
                             errmsg = JSON.stringify(rsp.err_msg);
                         }
-                        createAlert(errmsg, 'warning');
+                        _fnCreateAlert(errmsg, 'warning');
                     }
                     if (oOptions.autoBreak) {
                         return
@@ -119,11 +179,11 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
             if (oOptions.showProgress === true) {
                 _timer && $timeout.cancel(_timer);
                 if (_alert) {
-                    removeAlert(_alert);
+                    _fnRemoveAlert(_alert);
                     _alert = null;
                 }
             }
-            createAlert(data === null ? '网络不可用' : data, 'danger');
+            _fnCreateAlert(data === null ? '网络不可用' : data, 'danger');
         });
 
         return _defer.promise;
@@ -144,14 +204,20 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
         if (oOptions.showProgress === true) {
             _timer = $timeout(function() {
                 _timer = null;
-                _alert = createAlert(oOptions.showProgressText, 'info');
+                _alert = _fnCreateAlert(oOptions.showProgressText, 'info');
             }, oOptions.showProgressDelay);
         }
+        if (_requirePagination(oOptions)) {
+            url += (url.indexOf('?') === -1 ? '?' : '&') + oOptions.page.j();
+        }
         $http.post(url, posted, oOptions).success(function(rsp) {
+            if (oOptions.page && rsp.data.total !== undefined) {
+                oOptions.page.total = rsp.data.total;
+            }
             if (oOptions.showProgress === true) {
                 _timer && $timeout.cancel(_timer);
                 if (_alert) {
-                    removeAlert(_alert);
+                    _fnRemoveAlert(_alert);
                     _alert = null;
                 }
             }
@@ -160,7 +226,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
             } else {
                 if (angular.isString(rsp)) {
                     if (oOptions.autoNotice) {
-                        createAlert(rsp, 'warning');
+                        _fnCreateAlert(rsp, 'warning');
                         _alert = null;
                     }
                     if (oOptions.autoBreak) {
@@ -178,7 +244,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
                         } else {
                             errmsg = JSON.stringify(rsp.err_msg);
                         }
-                        createAlert(errmsg, 'warning');
+                        _fnCreateAlert(errmsg, 'warning');
                     }
                     if (oOptions.autoBreak) {
                         return
@@ -193,13 +259,20 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
             if (oOptions.showProgress === true) {
                 _timer && $timeout.cancel(_timer);
                 if (_alert) {
-                    removeAlert(_alert);
+                    _fnRemoveAlert(_alert);
                     _alert = null;
                 }
             }
-            createAlert(data === null ? '网络不可用' : data, 'danger');
+            _fnCreateAlert(data === null ? '网络不可用' : data, 'danger');
         });
 
         return _defer.promise;
+    };
+    /**
+     * 合并两个对象
+     * 解决将通过http获得的数据和本地数据合并的问题
+     */
+    this.merge = function(oOld, oNew) {
+        return _fnMerge(oOld, oNew);
     };
 }]);

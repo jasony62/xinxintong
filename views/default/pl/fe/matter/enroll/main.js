@@ -32,7 +32,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.applyToHome = function() {
             var url = '/rest/pl/fe/matter/home/apply?site=' + $scope.app.siteid + '&type=enroll&id=' + $scope.app.id;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 noticebox.success('完成申请！');
             });
         };

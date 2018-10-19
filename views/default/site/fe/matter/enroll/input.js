@@ -411,7 +411,7 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         dataSchemas.forEach(function(oSchemaWrap) {
             var oSchema, domSchema;
             if (oSchema = oSchemaWrap.schema) {
-                domSchema = document.querySelector('[wrap=input][schema="' + oSchema.id + '"]');
+                domSchema = document.querySelector('[wrap=input][schema="' + oSchema.id + '"],[wrap=html][schema="' + oSchema.id + '"]');
                 if (domSchema) {
                     if (oSchema.visibility && oSchema.visibility.rules && oSchema.visibility.rules.length) {
                         var bVisible, oRule, oRuleVal;
@@ -715,18 +715,24 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
             };
         }
         /*设置页面导航*/
-        var oAppNavs = {};
-        if (_oApp.can_repos === 'Y') {
-            oAppNavs.repos = {};
-        }
-        if (_oApp.can_rank === 'Y') {
-            oAppNavs.rank = {};
-        }
+        var oAppNavs = { length: 0 };
         if (_oApp.scenario === 'voting') {
             oAppNavs.votes = {};
+            oAppNavs.length++;
         }
-        if (_oApp.scenarioConfig && _oApp.scenarioConfig.can_action === 'Y') {
-            oAppNavs.event = {};
+        if (_oApp.scenarioConfig) {
+            if (_oApp.scenarioConfig.can_repos === 'Y') {
+                oAppNavs.repos = {};
+                oAppNavs.length++;
+            }
+            if (_oApp.scenarioConfig.can_rank === 'Y') {
+                oAppNavs.rank = {};
+                oAppNavs.length++;
+            }
+            if (_oApp.scenarioConfig.can_action === 'Y') {
+                oAppNavs.event = {};
+                oAppNavs.length++;
+            }
         }
         if (Object.keys(oAppNavs).length) {
             $scope.appNavs = oAppNavs;
@@ -767,10 +773,6 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         StateCacheKey = 'xxt.app.enroll:' + params.app.id + '.user:' + params.user.uid + '.cacheKey';
         $scope.schemasById = schemasById = params.app._schemasById;
         _oApp = params.app;
-        if (_oApp.end_submit_at > 0 && parseInt(_oApp.end_submit_at) < (new Date * 1) / 1000) {
-            fnDisableActions();
-            noticebox.warn('活动提交数据时间已经结束，不能提交数据');
-        }
         /* 判断多项类型 */
         if (_oApp.dynaDataSchemas.length) {
             angular.forEach(_oApp.dynaDataSchemas, function(dataSchema) {

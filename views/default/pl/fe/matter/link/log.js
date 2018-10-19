@@ -13,14 +13,14 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.read = function() {
-            var url = '/rest/pl/fe/matter/link/log/list?id=' + oApp.id +  page.j();
-            http2.get(url, function(rsp) {
+            var url = '/rest/pl/fe/matter/link/log/list?id=' + oApp.id + page.j();
+            http2.get(url).then(function(rsp) {
                 $scope.logs = rsp.data.logs;
                 $scope.page.total = rsp.data.total;
             });
         };
         $scope.$watch('editing', function(nv) {
-            if(!nv) return;
+            if (!nv) return;
             oApp = nv;
             $scope.read();
         });

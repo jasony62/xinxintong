@@ -9,14 +9,14 @@ define(['frame'], function(ngApp) {
             });
         }
 
-        function doSave (){
+        function doSave() {
             //oRecord 原始数据
             //updated 上传数据包
             var updated = {},
                 url = '/rest/pl/fe/matter/plan/task/update' + location.search;
             updated.data = _oTask.data;
             updated.supplement = _oTask.supplement;
-            http2.post(url, updated, function(rsp) {
+            http2.post(url, updated).then(function(rsp) {
                 noticebox.success('完成保存');
             });
         }
@@ -117,7 +117,7 @@ define(['frame'], function(ngApp) {
             _oUpdated[prop] = _oTask[prop];
         };
         $scope.saveTask = function() {
-            http2.post('/rest/pl/fe/matter/plan/task/update' + location.search, _oUpdated, function(rsp) {
+            http2.post('/rest/pl/fe/matter/plan/task/update' + location.search, _oUpdated).then(function(rsp) {
                 $scope.modified = false;
             });
         };
@@ -126,7 +126,7 @@ define(['frame'], function(ngApp) {
         };
         srvPlanApp.get().then(function(oApp) {
             _oApp = oApp;
-            http2.get('/rest/pl/fe/matter/plan/task/get' + location.search, function(rsp) {
+            http2.get('/rest/pl/fe/matter/plan/task/get' + location.search).then(function(rsp) {
                 $scope.task = _oTask = rsp.data;
                 $scope.data = _oTask.data;
                 $scope.supplement = _oTask.supplement;

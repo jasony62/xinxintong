@@ -32,6 +32,8 @@
                     <li ng-if="selected.mschema.require_invite==='Y'"><a href="/rest/pl/fe/site/mschema?site={{selected.mschema.siteid}}#{{selected.mschema.id}}" target='_self'>查看邀请码</a></li>
                     <li><a href ng-click="notify(true)">给选中用户发消息<span>（{{rows.count}}）</span></a></li>
                     <li><a href ng-click="notify()">给全部用户发消息<span>（{{page.total}}）</span></a></li>
+                    <li class="divider"></li>
+                    <li><a href ng-click="createByAccount()">从团队访客中添加用户</a></li>
                 </ul>
             </div>
         </div>
@@ -39,10 +41,11 @@
             <table class='table table-bordered'>
                 <thead>
                     <tr>
-                        <th style='width:28px'><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected"/></th>
+                        <th style='width:28px'><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected" /></th>
                         <th style='width:48px'>序号</th>
                         <th style='width:120px'>填写日期</th>
                         <th style='width:80px'>通过审核</th>
+                        <th style='width:120px'>微信昵称</th>
                         <th ng-if='!selected.mschema.attrs.name.hide'>姓名</th>
                         <th ng-if='!selected.mschema.attrs.mobile.hide'>手机</th>
                         <th ng-if='!selected.mschema.attrs.email.hide'>邮箱</th>
@@ -52,10 +55,11 @@
                 </thead>
                 <tbody>
                     <tr ng-repeat='m in members'>
-                        <td><input type="checkbox" ng-change="rows.change($index)" ng-model="rows.selected[$index]"/></td>
+                        <td><input type="checkbox" ng-change="rows.change($index)" ng-model="rows.selected[$index]" /></td>
                         <td>{{$index+1}}</td>
                         <td>{{m.create_at*1000|date:'yy-MM-dd HH:mm'}}</td>
                         <td>{{m.verified==='Y'?'是':(m.verified==='N'?'否':'待定')}}</td>
+                        <td>{{m.wxfan.nickname}}</td>
                         <td ng-if='!selected.mschema.attrs.name.hide'>{{m.name}}</td>
                         <td ng-if="!selected.mschema.attrs.mobile.hide">{{m.mobile}}</td>
                         <td ng-if="!selected.mschema.attrs.email.hide">{{m.email}}</td>
@@ -65,8 +69,8 @@
                             </div>
                             <div ng-switch-when="image">
                                 <div ng-repeat="img in m._extattr[ea.id]"><img ng-src="{{img.imgSrc}}"></div>
-                            </div>
-                            <div ng-switch-default>{{m._extattr[ea.id]}}</div>
+                                </div>
+                                <div ng-switch-default>{{m._extattr[ea.id]}}</div>
                         </td>
                         <td>
                             <a href='' ng-click='editMember(m)'>修改</a>

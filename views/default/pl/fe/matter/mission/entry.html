@@ -142,24 +142,6 @@
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opEntry.can_favor" ng-change="updCanFavor()">支持收藏</label>
                 <p class='help-block'>分享链接有效期1小时，设置【支持收藏】后，用户可收藏本链接，避免有效期限制</p>
             </div>
-            <hr>
-            <div>
-                <div class='form-group' ng-if="sns.wx.joined==='Y'&&sns.wx.can_qrcode==='Y'">
-                    <button id='wxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('wx')">微信公众号用户扫码作为接收人 <span class="caret"></span></button>
-                </div>
-                <div class='form-group' ng-if="sns.yx.joined==='Y'&&sns.yx.can_qrcode==='Y'">
-                    <button id='yxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('yx')">易信公众号用户扫码作为接收人 <span class="caret"></span></button>
-                </div>
-                <div class='list-group'>
-                    <div class='list-group-item' ng-repeat="r in receivers" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
-                        <span>{{r.nickname}}</span>&nbsp;<span ng-if="r.snsUser.snsName">{{r.snsUser.snsName}}</span>
-                        <button class='btn btn-default btn-xs pull-right' ng-show="entered" ng-click="remove(r)">
-                            <span class='glyphicon glyphicon-remove'></span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <!-- receiver -->
             <!-- begin timer -->
             <div ng-repeat="timer in timers">
                 <hr>

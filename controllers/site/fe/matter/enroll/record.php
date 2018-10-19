@@ -78,11 +78,6 @@ class record extends base {
 		// 提交数据的用户
 		$oUser = $this->getUser($oEnrollApp, $oEnrolledData);
 
-		/* 记录数据提交日志，跟踪提交特殊数据失败的问题 */
-		//$rawPosted = file_get_contents("php://input");
-		//$modelLog = $this->model('log');
-		//$modelLog->log('trace', 'enroll-submit-' . $oUser->uid, $modelLog->cleanEmoji($rawPosted, true));
-
 		if ($subType === 'save') {
 			$logid = $this->_saveRecord($oUser, $oEnrollApp, $oEnrolledData, $oPosted);
 			return new \ResponseData($logid);
@@ -365,9 +360,6 @@ class record extends base {
 		if (!empty($oApp->end_at) && $oApp->end_at < $current) {
 			return [false, ['活动已经结束，不允许修改数据']];
 		}
-		if (!empty($oApp->end_submit_at) && $oApp->end_submit_at < $current) {
-			return [false, ['活动提交时间已经结束，不允许修改数据']];
-		}
 
 		if (!empty($oApp->actionRule->record->submit->pre->editor)) {
 			if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
@@ -396,7 +388,7 @@ class record extends base {
 			/**
 			 * 检查提交人
 			 */
-			if (empty($oApp->can_cowork) || $oApp->can_cowork === 'N') {
+			if (empty($oApp->scenarioConfig->can_cowork) || $oApp->scenarioConfig->can_cowork === 'N') {
 				if ($oRecord = $modelRec->byId($ek, ['fields' => 'userid'])) {
 					if ($oRecord->userid !== $oUser->uid) {
 						return [false, ['不允许修改其他用户提交的数据']];

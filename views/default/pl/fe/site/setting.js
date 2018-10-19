@@ -1,5 +1,5 @@
 define(['require'], function(require) {
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'notice.ui.xxt']);
     ngApp.config(['$locationProvider', '$provide', '$controllerProvider', '$routeProvider', function($lp, $provide, $cp, $rp) {
         var RouteParam = function(name, loadjs) {
             var baseURL = '/views/default/pl/fe/site/setting/';
@@ -42,7 +42,7 @@ define(['require'], function(require) {
             url = this.baseUrl;
             url += 'list?site=' + this.siteId;
             url += '&own=' + own;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 deferred.resolve(rsp.data);
             });
             return deferred.promise;
@@ -54,7 +54,7 @@ define(['require'], function(require) {
             url += 'update?site=' + this.siteId;
             url += '&type=' + schema.type;
             if (schema.id) url += '&id=' + schema.id;
-            http2.post(url, updated, function(rsp) {
+            http2.post(url, updated).then(function(rsp) {
                 deferred.resolve(rsp.data);
             });
             return deferred.promise;
@@ -63,7 +63,7 @@ define(['require'], function(require) {
     });
     ngApp.controller('ctrlSite', ['$scope', '$location', 'http2', function($scope, $location, http2) {
         $scope.siteId = $location.search().site;
-        http2.get('/rest/pl/fe/site/get?site=' + $scope.siteId, function(rsp) {
+        http2.get('/rest/pl/fe/site/get?site=' + $scope.siteId).then(function(rsp) {
             $scope.site = rsp.data;
         });
     }]);
@@ -77,12 +77,12 @@ define(['require'], function(require) {
         $scope.update = function(name) {
             var p = {};
             p[name] = $scope.site[name];
-            http2.post('/rest/pl/fe/site/update?site=' + $scope.siteId, p, function(rsp) {});
+            http2.post('/rest/pl/fe/site/update?site=' + $scope.siteId, p).then(function(rsp) {});
         };
         $scope.remove = function() {
             if (window.confirm('确定删除团队【' + $scope.site.name + '】？')) {
                 var url = '/rest/pl/fe/site/remove?site=' + $scope.siteId;
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     location.href = '/rest/pl/fe';
                 });
             }
@@ -90,7 +90,7 @@ define(['require'], function(require) {
         $scope.quit = function() {
             if (window.confirm('确定退出团队？')) {
                 var url = '/rest/pl/fe/site/setting/admin/remove?site=' + $scope.siteId + '&uid=' + $scope.site.uid;
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     location.href = '/rest/pl/fe';
                 });
             }
@@ -116,7 +116,7 @@ define(['require'], function(require) {
             if (name && name.length) {
                 location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + name;
             } else {
-                http2.get('/rest/pl/fe/site/pageCreate?site=' + $scope.siteId + '&page=' + page, function(rsp) {
+                http2.get('/rest/pl/fe/site/pageCreate?site=' + $scope.siteId + '&page=' + page).then(function(rsp) {
                     $scope.site[prop] = rsp.data.name;
                     location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + rsp.data.name;
                 });
@@ -128,11 +128,11 @@ define(['require'], function(require) {
             if (window.confirm('重置操作将覆盖已经做出的修改，确定重置？')) {
                 var name = $scope.site[page + '_page_name'];
                 if (name && name.length) {
-                    http2.get('/rest/pl/fe/site/pageReset?site=' + $scope.siteId + '&page=' + page, function(rsp) {
+                    http2.get('/rest/pl/fe/site/pageReset?site=' + $scope.siteId + '&page=' + page).then(function(rsp) {
                         location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + name;
                     });
                 } else {
-                    http2.get('/rest/pl/fe/site/pageCreate?site=' + $scope.siteId + '&page=' + page, function(rsp) {
+                    http2.get('/rest/pl/fe/site/pageCreate?site=' + $scope.siteId + '&page=' + page).then(function(rsp) {
                         $scope.site[prop] = rsp.data.name;
                         location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + rsp.data.name;
                     });
@@ -149,7 +149,7 @@ define(['require'], function(require) {
             location.href = '/rest/pl/fe/site/sns/' + snsName + '?site=' + $scope.siteId;
         };
         /* 下面两段代码的逻辑要优化 */
-        // http2.get('/rest/pl/be/platform/get', function(rsp) {
+        // http2.get('/rest/pl/be/platform/get').then(function(rsp) {
         //     if (rsp.data.home_nav) {
         //         $scope.home_nav = rsp.data.home_nav;
         //         $scope.home_nav.forEach(function(item) {
@@ -159,7 +159,7 @@ define(['require'], function(require) {
         //         })
         //     }
         // });
-        // http2.get('/rest/pl/be/home/recommend/listSite', function(rsp) {
+        // http2.get('/rest/pl/be/home/recommend/listSite').then(function(rsp) {
         //     $scope.sites = rsp.data.sites;
         //     $scope.sites.forEach(function(item) {
         //         if (item.siteid == $scope.site.id) {
@@ -214,14 +214,14 @@ define(['require'], function(require) {
         };
         $scope.addSchema = function() {
             var url = '/rest/pl/fe/site/member/schema/create?site=' + $scope.siteId;
-            http2.post(url, {}, function(rsp) {
+            http2.post(url, {}).then(function(rsp) {
                 shiftAttr(rsp.data);
                 $scope.schemas.push(rsp.data);
             });
         };
         $scope.delSchema = function(schema) {
             var url = '/rest/pl/fe/site/member/schema/delete?site=' + $scope.siteId + '&id=' + schema.id;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 var i = $scope.schemas.indexOf(schema);
                 $scope.schemas.splice(i, 1);
             });
@@ -329,7 +329,7 @@ define(['require'], function(require) {
             if (schema.page_code_name && schema.page_code_name.length) {
                 location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + schema.page_code_name;
             } else {
-                http2.get('/rest/pl/fe/code/create?site=' + $scope.siteId, function(rsp) {
+                http2.get('/rest/pl/fe/code/create?site=' + $scope.siteId).then(function(rsp) {
                     var nv = {
                         'code_id': rsp.data.id,
                         'page_code_name': rsp.data.name
@@ -345,12 +345,12 @@ define(['require'], function(require) {
         $scope.resetCode = function(schema) {
             if (schema.page_code_name && schema.page_code_name.length) {
                 if (window.confirm('重置操作将覆盖已经做出的修改，确定重置？')) {
-                    http2.get('/rest/pl/fe/site/member/schema/pageReset?site=' + $scope.siteId + '&name=' + schema.page_code_name, function(rsp) {
+                    http2.get('/rest/pl/fe/site/member/schema/pageReset?site=' + $scope.siteId + '&name=' + schema.page_code_name).then(function(rsp) {
                         location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + schema.page_code_name;
                     });
                 }
             } else {
-                http2.get('/rest/pl/fe/code/create?site=' + $scope.siteId, function(rsp) {
+                http2.get('/rest/pl/fe/code/create?site=' + $scope.siteId).then(function(rsp) {
                     var nv = {
                         'code_id': rsp.data.id,
                         'page_code_name': rsp.data.name

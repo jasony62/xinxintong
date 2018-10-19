@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRecommend', ['$scope', 'http2', function($scope, http2) {
+    ngApp.provider.controller('ctrlRecommend', ['$scope', function($scope) {
         $scope.criteria = {
             category: 'article'
         };
@@ -15,7 +15,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.searchTemplate = function() {
             var url = '/rest/pl/fe/template/platform/list?matterType=enroll' + $scope.page.j();
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.templates = rsp.data.templates;
                 $scope.page.total = rsp.data.total;
             });
@@ -34,14 +34,14 @@ define(['frame'], function(ngApp) {
                 backdrop: 'static'
             }).result.then(function(data) {
                 var url = '/rest/pl/be/home/recommend/pushTemplate?template=' + template.id;
-                http2.post(url, {}, function(rsp) {
+                http2.post(url, {}).then(function(rsp) {
                     template.push_home = 'Y';
                 });
             });
         };
         $scope.pullHome = function(template) {
             var url = '/rest/pl/be/home/recommend/pullTemplate?template=' + template.id;
-            http2.post(url, {}, function(rsp) {
+            http2.post(url, {}).then(function(rsp) {
                 template.push_home = 'N';
             });
         };
@@ -61,7 +61,7 @@ define(['frame'], function(ngApp) {
         }
         $scope.searchMatter = function() {
             var url = '/rest/pl/be/home/recommend/listMatter?category=' + $scope.criteria.category + $scope.page.j();
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.matters = rsp.data.matters;
                 $scope.page.total = rsp.data.total;
             });
@@ -86,7 +86,7 @@ define(['frame'], function(ngApp) {
                     };
                     $scope2.asGlobal = function() {
                         var url = '/rest/pl/be/home/recommend/asGlobal?application=' + oMatter.id;
-                        http2.post(url, {}, function(rsp) {
+                        http2.post(url, {}).then(function(rsp) {
                             oMatter.as_global = 'Y';
                             $mi.dismiss();
                         });
@@ -98,7 +98,7 @@ define(['frame'], function(ngApp) {
                 if ($scope.criteria.category == 'channel') {
                     url += '&homeGroup=' + data.home_group;
                 }
-                http2.post(url, {}, function(rsp) {
+                http2.post(url, {}).then(function(rsp) {
                     oMatter.approved = 'Y';
                     if ($scope.criteria.category == 'channel') {
                         oMatter.home_group = data.home_group;
@@ -108,25 +108,25 @@ define(['frame'], function(ngApp) {
         };
         $scope.pullHome = function(oMatter) {
             var url = '/rest/pl/be/home/recommend/pullMatter?application=' + oMatter.id;
-            http2.post(url, {}, function(rsp) {
+            http2.post(url, {}).then(function(rsp) {
                 oMatter.approved = 'N';
             });
         };
         $scope.carryHome = function(oMatter) {
             var url = '/rest/pl/be/home/recommend/pushMatterTop?application=' + oMatter.id;
-            http2.post(url, {}, function(rsp) {
+            http2.post(url, {}).then(function(rsp) {
                 oMatter.weight = '1';
             });
         };
         $scope.cancelTop = function(oMatter) {
             var url = '/rest/pl/be/home/recommend/pullMatterTop?application=' + oMatter.id;
-            http2.post(url, {}, function(rsp) {
+            http2.post(url, {}).then(function(rsp) {
                 oMatter.weight = '0';
             });
         };
         $scope.cancelGlobal = function(oMatter) {
             var url = '/rest/pl/be/home/recommend/canelGlobal?application=' + oMatter.id;
-            http2.post(url, {}, function(rsp) {
+            http2.post(url, {}).then(function(rsp) {
                 oMatter.as_global = 'N';
             });
         };
@@ -142,7 +142,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.searchApplication = function() {
             var url = '/rest/pl/be/home/recommend/listSite' + $scope.page.j();
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.sites = rsp.data.sites;
                 $scope.page.total = rsp.data.total;
             });
@@ -161,14 +161,14 @@ define(['frame'], function(ngApp) {
                 backdrop: 'static'
             }).result.then(function(data) {
                 var url = '/rest/pl/be/home/recommend/pushSite?application=' + application.id;
-                http2.post(url, {}, function(rsp) {
+                http2.post(url, {}).then(function(rsp) {
                     application.approved = 'Y';
                 });
             });
         };
         $scope.pullHome = function(application) {
             var url = '/rest/pl/be/home/recommend/pullSite?application=' + application.id;
-            http2.post(url, {}, function(rsp) {
+            http2.post(url, {}).then(function(rsp) {
                 application.approved = 'N';
             });
         };

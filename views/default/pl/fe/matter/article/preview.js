@@ -7,7 +7,7 @@ define(['frame'], function(ngApp) {
 
         $scope.modified = false;
         $scope.submit = function() {
-            http2.post('/rest/pl/fe/matter/article/update?site=' + $scope.editing.siteid + '&id=' + $scope.editing.id, modifiedData, function() {
+            http2.post('/rest/pl/fe/matter/article/update?site=' + $scope.editing.siteid + '&id=' + $scope.editing.id, modifiedData).then(function() {
                 modifiedData = {};
                 $scope.modified = false;
                 noticebox.success('完成保存');
@@ -15,7 +15,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.applyToHome = function() {
             var url = '/rest/pl/fe/matter/home/apply?site=' + $scope.editing.siteid + '&type=article&id=' + $scope.editing.id;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 noticebox.success('完成申请！');
             });
         };

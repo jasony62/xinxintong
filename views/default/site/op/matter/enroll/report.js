@@ -1,12 +1,12 @@
 'use strict';
-define(["require", "angular", "enrollService"], function(require, angular) {
+define(["require", "enrollService"], function(require) {
     var ls, siteId, appId, accessId, ngApp;
     ls = location.search;
     siteId = ls.match(/[\?&]site=([^&]*)/)[1];
     appId = ls.match(/[\?&]app=([^&]*)/)[1];
     accessId = ls.match(/[\?&]accessToken=([^&]*)/)[1];
 
-    ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'schema.ui.xxt', 'service.matter', 'service.enroll', 'sys.chart']);
+    ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'schema.ui.xxt', 'notice.ui.xxt', 'service.matter', 'service.enroll', 'sys.chart']);
     ngApp.constant('cstApp', {});
     ngApp.config(['$locationProvider', '$routeProvider', '$uibTooltipProvider', 'srvEnrollAppProvider', 'srvOpEnrollRecordProvider', 'srvEnrollRecordProvider', 'srvOpEnrollRoundProvider', function($locationProvider, $routeProvider, $uibTooltipProvider, srvEnrollAppProvider, srvOpEnrollRecordProvider, srvEnrollRecordProvider, srvOpEnrollRoundProvider) {
         var RouteParam = function(name, baseURL) {
@@ -34,7 +34,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
         $scope.switchTo = function(view) {
             $location.path('/rest/site/op/matter/enroll/' + view);
         };
-        http2.get('/rest/site/fe/user/get?site=' + siteId, function(rsp) {
+        http2.get('/rest/site/fe/user/get?site=' + siteId).then(function(rsp) {
             $scope.user = rsp.data;
             srvEnrollApp.opGet().then(function(data) {
                 var oApp = data;
@@ -129,7 +129,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
                     url += '&schema=' + schema.id + '&page=' + page.at + '&size=' + page.size;
                     url += '&rid=' + (rid ? rid : '');
                     cached._running = true;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         cached._running = false;
                         cached.page = {
                             at: page.at,
@@ -172,7 +172,7 @@ define(["require", "angular", "enrollService"], function(require, angular) {
         url += '&accessToken=' + $scope.accessToken;
         url += '&rid=' + (rid ? rid : '');
 
-        http2.get(url, function(rsp) {
+        http2.get(url).then(function(rsp) {
             var oApp = rsp.data.app,
                 rpSchemas = [],
                 oStat = {},

@@ -7,7 +7,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         var _oApp;
         $scope.submitChange = function() {
             var deferred = $q.defer();
-            http2.post('/rest/pl/fe/matter/plan/update?site=' + _oApp.siteid + '&app=' + _oApp.id, { 'checkSchemas': _oApp.checkSchemas }, function(rsp) {
+            http2.post('/rest/pl/fe/matter/plan/update?site=' + _oApp.siteid + '&app=' + _oApp.id, { 'checkSchemas': _oApp.checkSchemas }).then(function(rsp) {
                 deferred.resolve();
             });
             return deferred.promise;

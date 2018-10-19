@@ -1,6 +1,6 @@
 define(['require'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'notice.ui.xxt']);
     ngApp.config(['$locationProvider', '$provide', '$controllerProvider', '$routeProvider', function($lp, $provide, $cp, $rp) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/be/sns/wx/';
@@ -36,7 +36,7 @@ define(['require'], function(require) {
             var subView = currentRoute.match(/([^\/]+?)$/);
             $scope.subView = subView[1] === 'wx' ? 'setting' : subView[1];
         });
-        http2.get('/rest/pl/be/sns/wx/get', function(rsp) {
+        http2.get('/rest/pl/be/sns/wx/get').then(function(rsp) {
             $scope.wx = rsp.data;
         });
     }]);

@@ -23,7 +23,7 @@
                     }
                 }],
             }).result.then(function(data) {
-                http2.get('/rest/pl/fe/matter/lottery/page/update?site=' + $scope.siteId + '&app=' + $scope.id + '&name=' + $scope.app.page_code_name + '&pattern=' + data.pattern.v, function(rsp) {
+                http2.get('/rest/pl/fe/matter/lottery/page/update?site=' + $scope.siteId + '&app=' + $scope.id + '&name=' + $scope.app.page_code_name + '&pattern=' + data.pattern.v).then(function(rsp) {
                     $scope.gotoCode();
                 });
             });
@@ -33,12 +33,12 @@
             if (app.page_code_name && app.page_code_name.length) {
                 location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + app.page_code_name;
             } else {
-                http2.get('/rest/pl/fe/code/create?site=' + $scope.siteId, function(rsp) {
+                http2.get('/rest/pl/fe/code/create?site=' + $scope.siteId).then(function(rsp) {
                     var nv = {
                         'page_id': rsp.data.id,
                         'page_code_name': rsp.data.name
                     };
-                    http2.post('/rest/pl/fe/matter/lottery/update?site=' + $scope.siteId + '&app=' + $scope.id, nv, function() {
+                    http2.post('/rest/pl/fe/matter/lottery/update?site=' + $scope.siteId + '&app=' + $scope.id, nv).then(function() {
                         $scope.app.page_id = rsp.data.id;
                         $scope.app.page_code_name = rsp.data.name;
                         location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + app.page_code_name;

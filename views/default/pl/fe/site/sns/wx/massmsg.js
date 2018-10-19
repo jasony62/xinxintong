@@ -16,12 +16,13 @@ define(['main'], function(ngApp) {
             !page && (page = $scope.page.at);
             url += '/list?site=' + $scope.siteId;
             url += '&page=' + page + '&size=' + $scope.page.size;
-            http2.post(url, params, function(rsp) {
+            http2.post(url, params).then(function(rsp) {
                 if ('article' === $scope.matterType) {
                     $scope.matters = rsp.data.articles;
                     $scope.page.total = rsp.data.total;
-                } else
+                } else {
                     $scope.matters = rsp.data;
+                }
             });
         };
         $scope.send = function(evt) {
@@ -32,7 +33,7 @@ define(['main'], function(ngApp) {
                     id: -1
                 }],
             };
-            http2.post('/rest/pl/fe/site/sns/wx/send/mass?site=' + $scope.siteId, data, function(rsp) {
+            http2.post('/rest/pl/fe/site/sns/wx/send/mass?site=' + $scope.siteId, data).then(function(rsp) {
                 $scope.massStatus = {
                     result: 'ok'
                 };
@@ -40,7 +41,7 @@ define(['main'], function(ngApp) {
         };
         $scope.fetchMatter();
 
-        http2.get('/rest/pl/fe/site/sns/wx/group/list?site=' + $scope.siteId, function(rsp) {
+        http2.get('/rest/pl/fe/site/sns/wx/group/list?site=' + $scope.siteId).then(function(rsp) {
             $scope.groups = rsp.data;
         });
     }]);

@@ -59,14 +59,6 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>提交结束</td>
-                        <td style='padding:0;width:180px;'>
-                            <tms-datepicker class='tms-datepicker' tms-title='提交结束时间' tms-date='app.end_submit_at' tms-state='end_submit_at'></tms-datepicker>
-                        </td>
-                        <td style='padding:0'>
-                        </td>
-                    </tr>
-                    <tr>
                         <td>活动结束</td>
                         <td style='padding:0;width:180px;'>
                             <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='app.end_at' tms-state='end_at'></tms-datepicker>
@@ -85,19 +77,15 @@
         <div class='panel-body'>
             <div class='checkbox'>
                 <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_cowork" ng-change="update('can_cowork')"> 允许其他用户修改填写记录</label>
-            </div>
-            <div class='checkbox hide'>
-                <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_siteuser" ng-change="update('can_siteuser')"> 开放用户主页</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.can_cowork" ng-change="update('scenarioConfig')"> 允许其他用户修改填写记录</label>
             </div>
             <div class='checkbox'>
                 <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_repos" ng-change="update('can_repos')"> 开放共享页</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.can_repos" ng-change="update('scenarioConfig')"> 开放共享页</label>
             </div>
             <div class='checkbox'>
                 <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_rank" ng-change="update('can_rank')"> 开放排行页</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.can_rank" ng-change="update('scenarioConfig')"> 开放排行页</label>
             </div>
             <div class='checkbox'>
                 <label>
@@ -125,6 +113,10 @@
         <div class='panel-body'>
             <div class='form-group'>
                 <label>设置参与规则</label>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-true-value="'Y'" ng-model="rule.scope.register" ng-change="changeUserScope('register')">用户参与活动前需完成平台注册</label>
+                </div>
                 <div class='checkbox'>
                     <label>
                         <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.member" ng-change="changeUserScope('member')">用户参与活动前需填写通讯录联系人信息</label><span ng-if="rule.scope.member==='Y'"><span class='badge' ng-repeat="(msid,entry) in app.entryRule.member"><a href title='进入查看' ng-click="editMschema(mschemasById[msid])">{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</a> <a href title='取消指定' class='glyphicon glyphicon-remove' ng-click="removeMschema(msid)"></a></span> <a href ng-click="chooseMschema()">添加</a></span>
@@ -182,7 +174,7 @@
             </div>
             <hr>
             <div class='form-group'>
-                <label>忽略参与规则页面</label>
+                <label>可忽略参与规则进入的页面</label>
                 <table class='table table-bordered'>
                     <tbody>
                         <tr ng-repeat="page in rule.exclude">
@@ -198,6 +190,26 @@
                 </table>
                 <div>
                     <button class='btn btn-default' ng-click="addExclude()">添加忽略参与规则页面</button>
+                </div>
+            </div>
+            <hr>
+            <div class="form-group">
+                <label>可忽略参与规则进行的操作</label>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.like" ng-change="configExclude()">点赞</label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.submit_record" ng-change="configExclude()">提交记录</label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.add_remark" ng-change="configExclude()">添加留言</label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.add_cowork" ng-change="configExclude()">添加答案（协作填写）</label>
                 </div>
             </div>
             <hr>

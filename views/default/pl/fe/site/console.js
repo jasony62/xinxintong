@@ -1,4 +1,4 @@
-var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'tmplshop.ui.xxt']);
+var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'notice.ui.xxt', 'tmplshop.ui.xxt']);
 ngApp.config(['$locationProvider', '$uibTooltipProvider', function($lp, $uibTooltipProvider) {
     $lp.html5Mode(true);
     $uibTooltipProvider.setTriggers({
@@ -7,7 +7,7 @@ ngApp.config(['$locationProvider', '$uibTooltipProvider', function($lp, $uibTool
 }]);
 ngApp.controller('ctrlSite', ['$scope', '$location', 'http2', function($scope, $location, http2) {
     $scope.siteId = $location.search().site;
-    http2.get('/rest/pl/fe/site/get?site=' + $scope.siteId, function(rsp) {
+    http2.get('/rest/pl/fe/site/get?site=' + $scope.siteId).then(function(rsp) {
         $scope.site = rsp.data;
     });
 }]);
@@ -22,7 +22,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                 break;
         }
         if (/mission/.test($scope.matterType)) {
-            http2.post(url, filter2, function(rsp) {
+            http2.post(url, filter2).then(function(rsp) {
                 if (append) {
                     $scope.matters = $scope.matters.concat(rsp.data.missions);
                 } else {
@@ -31,7 +31,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                 page.total = rsp.data.total;
             });
         } else {
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 if (append) {
                     $scope.matters = $scope.matters.concat(rsp.data.docs || rsp.data.apps);
                 } else {
@@ -87,12 +87,12 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
     $scope.chooseMatterType = function(matterType) {
         matterType && ($scope.matterType = matterType);
         if ($scope.matterType === 'recent') {
-            http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date() * 1), function(rsp) {
+            http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date() * 1)).then(function(rsp) {
                 $scope.matters = rsp.data.matters;
                 //$scope.page.total = rsp.data.total;
             });
         } else if ($scope.matterType === 'recycle') {
-            http2.get('/rest/pl/fe/site/console/recycle?site=' + $scope.siteId + '&_=' + (new Date() * 1), function(rsp) {
+            http2.get('/rest/pl/fe/site/console/recycle?site=' + $scope.siteId + '&_=' + (new Date() * 1)).then(function(rsp) {
                 $scope.matters = rsp.data.matters;
             });
         } else {
@@ -140,7 +140,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                     alert('指定素材不支持删除');
                     return;
             }
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.matters.splice($scope.matters.indexOf(matter), 1);
             });
         }
@@ -165,13 +165,13 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                 alert('指定素材不支持复制');
                 return;
         }
-        http2.get(url, function(rsp) {
+        http2.get(url).then(function(rsp) {
             location.href = '/rest/pl/fe/matter/' + type + '?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
     $scope.restoreMatter = function(matter) {
         var url = '/rest/pl/fe/matter/' + matter.matter_type + '/restore' + '?site=' + $scope.siteId + '&id=' + matter.matter_id;
-        http2.get(url, function(rsp) {
+        http2.get(url).then(function(rsp) {
             location.href = '/rest/pl/fe/matter/' + matter.matter_type + '?site=' + $scope.siteId + '&id=' + matter.matter_id;
         });
     };
@@ -179,13 +179,13 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
         location.href = '/rest/pl/fe/matter/text?site=' + $scope.siteId;
     };
     $scope.addLink = function() {
-        http2.get('/rest/pl/fe/matter/link/create?site=' + $scope.siteId, function(rsp) {
+        http2.get('/rest/pl/fe/matter/link/create?site=' + $scope.siteId).then(function(rsp) {
             location.href = '/rest/pl/fe/matter/link?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
     //研究项目-单图文
     $scope.addArticle = function() {
-        http2.get('/rest/pl/fe/matter/article/create?site=' + $scope.siteId, function(rsp) {
+        http2.get('/rest/pl/fe/matter/article/create?site=' + $scope.siteId).then(function(rsp) {
             location.href = '/rest/pl/fe/matter/article?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
@@ -224,7 +224,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                                 uniqueIdentifier: f.uniqueIdentifier,
                             }
                         };
-                        http2.post('/rest/pl/fe/matter/article/uploadAndCreate?site=' + siteId + '&state=done', posted, function(rsp) {
+                        http2.post('/rest/pl/fe/matter/article/uploadAndCreate?site=' + siteId + '&state=done', posted).then(function(rsp) {
                             $mi.close(rsp.data);
                         });
                     });
@@ -237,12 +237,12 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
         });
     };
     $scope.addNews = function() {
-        http2.get('/rest/pl/fe/matter/news/create?site=' + $scope.siteId, function(rsp) {
+        http2.get('/rest/pl/fe/matter/news/create?site=' + $scope.siteId).then(function(rsp) {
             location.href = '/rest/pl/fe/matter/news?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
     $scope.addChannel = function() {
-        http2.get('/rest/pl/fe/matter/channel/create?site=' + $scope.siteId, function(rsp) {
+        http2.get('/rest/pl/fe/matter/channel/create?site=' + $scope.siteId).then(function(rsp) {
             location.href = '/rest/pl/fe/matter/channel?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
@@ -253,8 +253,8 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                 if (choice.source === 'share') {
                     var url, data = choice.data;
                     url = '/rest/pl/fe/template/purchase?template=' + data.id + '&site=' + $scope.siteId;
-                    http2.get(url, function(rsp) {
-                        http2.get('/rest/pl/fe/matter/enroll/createByOther?site=' + $scope.siteId + '&template=' + data.id, function(rsp) {
+                    http2.get(url).then(function(rsp) {
+                        http2.get('/rest/pl/fe/matter/enroll/createByOther?site=' + $scope.siteId + '&template=' + data.id).then(function(rsp) {
                             location.href = '/rest/pl/fe/matter/enroll?id=' + rsp.data.id + '&site=' + $scope.siteId;
                         });
                     });
@@ -269,52 +269,52 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                             config.simpleSchema = data.simpleSchema;
                         }
                     }
-                    http2.post(url, config, function(rsp) {
+                    http2.post(url, config).then(function(rsp) {
                         location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
                     });
                 } else if (choice.source === 'file') {
                     var url, data = choice.data;
                     url = '/rest/pl/fe/matter/enroll/createByFile?site=' + $scope.siteId;
-                    http2.post(url, data, function(rsp) {
+                    http2.post(url, data).then(function(rsp) {
                         location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
                     });
                 }
             } else {
                 var url;
                 url = '/rest/pl/fe/matter/enroll/create?site=' + $scope.siteId;
-                http2.post(url, {}, function(rsp) {
+                http2.post(url, {}).then(function(rsp) {
                     location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
                 });
             }
         });
     };
     $scope.addSignin = function() {
-        http2.get('/rest/pl/fe/matter/signin/create?site=' + $scope.siteId, function(rsp) {
+        http2.get('/rest/pl/fe/matter/signin/create?site=' + $scope.siteId).then(function(rsp) {
             location.href = '/rest/pl/fe/matter/signin?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
     $scope.addGroup = function() {
-        http2.get('/rest/pl/fe/matter/group/create?site=' + $scope.siteId + '&scenario=split', function(rsp) {
+        http2.get('/rest/pl/fe/matter/group/create?site=' + $scope.siteId + '&scenario=split').then(function(rsp) {
             location.href = '/rest/pl/fe/matter/group/main?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
     $scope.addLottery = function() {
-        http2.get('/rest/pl/fe/matter/lottery/create?site=' + $scope.siteId, function(rsp) {
+        http2.get('/rest/pl/fe/matter/lottery/create?site=' + $scope.siteId).then(function(rsp) {
             location.href = '/rest/pl/fe/matter/lottery?site=' + $scope.siteId + '&id=' + rsp.data;
         });
     };
     $scope.addMission = function() {
-        http2.get('/rest/pl/fe/matter/mission/create?site=' + $scope.siteId, function(rsp) {
+        http2.get('/rest/pl/fe/matter/mission/create?site=' + $scope.siteId).then(function(rsp) {
             location.href = '/rest/pl/fe/matter/mission?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
     $scope.addCustom = function() {
-        http2.get('/rest/pl/fe/matter/custom/create?site=' + $scope.siteId, function(rsp) {
+        http2.get('/rest/pl/fe/matter/custom/create?site=' + $scope.siteId).then(function(rsp) {
             location.href = '/rest/pl/fe/matter/custom?site=' + $scope.siteId + '&id=' + rsp.data;
         });
     };
     $scope.addMerchant = function() {
-        http2.get('/rest/pl/fe/matter/merchant/shop/create?site=' + $scope.siteId, function(rsp) {
+        http2.get('/rest/pl/fe/matter/merchant/shop/create?site=' + $scope.siteId).then(function(rsp) {
             location.href = '/rest/pl/fe/matter/merchant/shop?site=' + $scope.siteId + '&id=' + rsp.data;
         });
     };
@@ -322,7 +322,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
     $scope.addWall = function() {
         location.href = '/rest/pl/fe/matter/wall/shop?site=' + $scope.siteId;
     };
-    http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date() * 1), function(rsp) {
+    http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date() * 1)).then(function(rsp) {
         $scope.matters = rsp.data.matters;
     });
 }]);

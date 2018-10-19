@@ -16,10 +16,6 @@ window.loading = {
             waitSeconds: 0,
             paths: {
                 "domReady": '/static/js/domReady',
-                "angular": "/static/js/angular.min",
-                "angular-route": "/static/js/angular-route.min",
-                "angular-sanitize": '/static/js/angular-sanitize.min',
-                "ui-bootstrap": '/static/js/ui-bootstrap-tpls.min',
                 "ui-tms": '/static/js/ui-tms',
                 "ui-xxt": '/static/js/xxt.ui',
                 "schema.ui.xxt": '/asset/js/xxt.ui.schema',
@@ -48,18 +44,10 @@ window.loading = {
                 return "?bust=" + (timestamp * 1);
             }
         });
-        require(['angular'], function() {
-            require(['angular-route'], function() {
-                require(['angular-sanitize'], function() {
-                    require(['ui-bootstrap'], function() {
-                        require(['ui-tms'], function() {
-                            require(['ui-xxt'], function() {
-                                require(['schema.ui.xxt'], function() {
-                                    requirejs(['/views/default/site/op/matter/signin/console.js']);
-                                });
-                            });
-                        });
-                    });
+        require(['ui-tms'], function() {
+            require(['ui-xxt'], function() {
+                require(['schema.ui.xxt'], function() {
+                    requirejs(['/views/default/site/op/matter/signin/console.js']);
                 });
             });
         });

@@ -14,7 +14,7 @@ define(['frame'], function(ngApp) {
             type: 'op',
             name: '信息墙.大屏幕'
         }];
-        http2.get('/rest/pl/fe/matter/wall/page/list?id=' + $scope.id + '&site=' + $scope.siteId, function(rsp) {
+        http2.get('/rest/pl/fe/matter/wall/page/list?id=' + $scope.id + '&site=' + $scope.siteId).then(function(rsp) {
             $scope.pages = {};
             angular.forEach(rsp.data, function(page) {
                 $scope.pages[page.type] = page;
@@ -27,7 +27,7 @@ define(['frame'], function(ngApp) {
         //重置页面
         $scope.resetCode = function(page) {
             if (window.confirm('重置后将丢失已经做过的修改，确定操作？')) {
-                http2.get('/rest/pl/fe/matter/wall/page/reset?id=' + $scope.id + '&page=' + page.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/wall/page/reset?id=' + $scope.id + '&page=' + page.id).then(function(rsp) {
                     $scope.gotoCode(page);
                 });
             }

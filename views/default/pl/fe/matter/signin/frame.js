@@ -1,61 +1,8 @@
-define(['require', 'page', 'schema', 'signinService', 'enrollSchema', 'enrollPage'], function(require, pageLib, schemaLib) {
+define(['frame/RouteParam', 'frame/const', 'page', 'schema', 'signinService', 'enrollSchema', 'enrollPage'], function(RouteParam, CstApp, pageLib, schemaLib) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'schema.ui.xxt', 'service.matter', 'service.signin', 'schema.enroll', 'page.enroll', 'tinymce.enroll', 'ui.xxt']);
-    ngApp.constant('cstApp', {
-        notifyMatter: [{
-            value: 'tmplmsg',
-            title: '模板消息',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'article',
-            title: '单图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'news',
-            title: '多图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'channel',
-            title: '频道',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'enroll',
-            title: '登记活动',
-            url: '/rest/pl/fe/matter'
-        }],
-        innerlink: [{
-            value: 'article',
-            title: '单图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'news',
-            title: '多图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'channel',
-            title: '频道',
-            url: '/rest/pl/fe/matter'
-        }],
-        alertMsg: {
-            'schema.duplicated': '不允许重复添加登记项'
-        },
-        naming: {}
-    });
+    var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'http.ui.xxt', 'notice.ui.xxt', 'notice.ui.xxt', 'schema.ui.xxt', 'service.matter', 'service.signin', 'schema.enroll', 'page.enroll', 'tinymce.enroll', 'ui.xxt']);
+    ngApp.constant('cstApp', CstApp);
     ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvSigninAppProvider', 'srvSigninRoundProvider', 'srvEnrollPageProvider', 'srvSigninRecordProvider', 'srvTagProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvSigninAppProvider, srvSigninRoundProvider, srvSigninPageProvider, srvSigninRecordProvider, srvTagProvider) {
-        var RouteParam = function(name) {
-            var baseURL = '/views/default/pl/fe/matter/signin/';
-            this.templateUrl = baseURL + name + '.html?_=' + ((new Date()) * 1);
-            this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
-            this.resolve = {
-                load: function($q) {
-                    var defer = $q.defer();
-                    require([baseURL + name + '.js'], function() {
-                        defer.resolve();
-                    });
-                    return defer.promise;
-                }
-            };
-        };
         ngApp.provider = {
             controller: $controllerProvider.register,
             directive: $compileProvider.directive

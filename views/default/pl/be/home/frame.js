@@ -1,6 +1,6 @@
 define(['require'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'notice.ui.xxt']);
     ngApp.config(['$locationProvider', '$provide', '$controllerProvider', '$routeProvider', function($lp, $provide, $cp, $rp) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/be/home/';
@@ -34,9 +34,9 @@ define(['require'], function(require) {
         $scope.update = function(name) {
             var p = {};
             p[name] = $scope.platform[name];
-            http2.post('/rest/pl/be/platform/update', p, function(rsp) {});
+            http2.post('/rest/pl/be/platform/update', p).then(function(rsp) {});
         };
-        http2.get('/rest/pl/be/platform/get', function(rsp) {
+        http2.get('/rest/pl/be/platform/get').then(function(rsp) {
             $scope.platform = rsp.data;
         });
     }]);

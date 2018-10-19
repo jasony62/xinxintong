@@ -1,0 +1,182 @@
+<div class='form-group'>
+    <button class='btn btn-default' ng-click="tkRndCron.addPeriod()"><span class='glyphicon glyphicon-plus'></span> 添加规则（按周期）</button>
+    <button class='btn btn-default' ng-click="tkRndCron.addInterval()"><span class='glyphicon glyphicon-plus'></span> 添加规则（按间隔）</button>
+</div>
+<div ng-repeat="rule in tkRndCron.editing.rules" ng-switch on="rule.pattern">
+    <hr>
+    <div ng-switch-when="period">
+        <div class='form-group'>
+            <div class='form-inline'>
+                <label>周期：</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='period{{$index}}' value='W' ng-model="rule.period" ng-change="tkRndCron.changePeriod(rule)">每周</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='period{{$index}}' value='M' ng-model="rule.period" ng-change="tkRndCron.changePeriod(rule)">每月</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='period{{$index}}' value='D' ng-model="rule.period" ng-change="tkRndCron.changePeriod(rule)">每日</label>
+            </div>
+        </div>
+        <div class='form-group'>
+            <div class='form-inline'>
+                <label>开始：</label>
+                <div class='form-group' ng-if="rule.period==='W'">
+                    <label>星期几</label>
+                    <select class='form-control' ng-model="rule.wday" ng-disabled="rule.period!=='W'" ng-change="tkRndCron.example(rule)">
+                        <option value='1'>周一</option>
+                        <option value='2'>周二</option>
+                        <option value='3'>周三</option>
+                        <option value='4'>周四</option>
+                        <option value='5'>周五</option>
+                        <option value='6'>周六</option>
+                        <option value='0'>周日</option>
+                    </select>
+                </div>
+                <div class='form-group' ng-if="rule.period==='M'">
+                    <label>日期 (1 - 28)</label>
+                    <select class='form-control' ng-model='rule.mday' ng-options="m for m in tkRndCron.mdays" ng-disabled="rule.period!=='M'" ng-change="tkRndCron.example(rule)">
+                    </select>
+                </div>
+                <div class='form-group'>
+                    <label>小时 (0 - 23)</label>
+                    <select class='form-control' ng-model='rule.hour' ng-change="tkRndCron.example(rule)">
+                        <option value='0'>0点</option>
+                        <option value='1'>1点</option>
+                        <option value='2'>2点</option>
+                        <option value='3'>3点</option>
+                        <option value='4'>4点</option>
+                        <option value='5'>5点</option>
+                        <option value='6'>6点</option>
+                        <option value='7'>7点</option>
+                        <option value='8'>8点</option>
+                        <option value='9'>9点</option>
+                        <option value='10'>10点</option>
+                        <option value='11'>11点</option>
+                        <option value='12'>12点</option>
+                        <option value='13'>13点</option>
+                        <option value='14'>14点</option>
+                        <option value='15'>15点</option>
+                        <option value='16'>16点</option>
+                        <option value='17'>17点</option>
+                        <option value='18'>18点</option>
+                        <option value='19'>19点</option>
+                        <option value='20'>20点</option>
+                        <option value='21'>21点</option>
+                        <option value='22'>22点</option>
+                        <option value='23'>23点</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class='form-group'>
+            <div class='form-inline'>
+                <label>结束：</label>
+                <div class='form-group' ng-if="rule.period==='W'">
+                    <label>星期几</label>
+                    <select class='form-control' ng-model="rule.end_wday" ng-disabled="rule.period!=='W'" ng-change="tkRndCron.example(rule)">
+                        <option value=''>不指定</option>
+                        <option value='1'>周一</option>
+                        <option value='2'>周二</option>
+                        <option value='3'>周三</option>
+                        <option value='4'>周四</option>
+                        <option value='5'>周五</option>
+                        <option value='6'>周六</option>
+                        <option value='0'>周日</option>
+                    </select>
+                </div>
+                <div class='form-group' ng-if="rule.period==='M'">
+                    <label>日期 (1 - 28)</label>
+                    <select class='form-control' ng-model='rule.end_mday' ng-options="m for m in tkRndCron.mdays" ng-disabled="rule.period!=='M'" ng-change="tkRndCron.example(rule)">
+                        <option value=''>不指定</option>
+                    </select>
+                </div>
+                <div class='form-group'>
+                    <label>小时 (0 - 23)</label>
+                    <select class='form-control' ng-model='rule.end_hour' ng-change="tkRndCron.example(rule)">
+                        <option value=''>不指定</option>
+                        <option value='0'>0点</option>
+                        <option value='1'>1点</option>
+                        <option value='2'>2点</option>
+                        <option value='3'>3点</option>
+                        <option value='4'>4点</option>
+                        <option value='5'>5点</option>
+                        <option value='6'>6点</option>
+                        <option value='7'>7点</option>
+                        <option value='8'>8点</option>
+                        <option value='9'>9点</option>
+                        <option value='10'>10点</option>
+                        <option value='11'>11点</option>
+                        <option value='12'>12点</option>
+                        <option value='13'>13点</option>
+                        <option value='14'>14点</option>
+                        <option value='15'>15点</option>
+                        <option value='16'>16点</option>
+                        <option value='17'>17点</option>
+                        <option value='18'>18点</option>
+                        <option value='19'>19点</option>
+                        <option value='20'>20点</option>
+                        <option value='21'>21点</option>
+                        <option value='22'>22点</option>
+                        <option value='23'>23点</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class='form-group'>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-model="rule.notweekend" ng-change="tkRndCron.example(rule)"> 不包含周六日</label>
+            </div>
+        </div>
+        <div class='form-group'>
+            <strong>按规则生成的当前轮次：</strong><span ng-bind="rule.case.title"></span>
+        </div>
+    </div>
+    <div ng-switch-when="interval">
+        <div class='form-group'>
+            <div class='form-inline'>
+                <label>首个轮次开始时间：</label>
+                <tms-datepicker class='tms-datepicker' tms-date='rule.start_at' tms-state='start_at' tms-obj="rule"></tms-datepicker>
+            </div>
+        </div>
+        <div class='form-group'>
+            <div class='form-inline'>
+                <label>轮次结束间隔时间：</label>
+                <select class='form-control' ng-model="rule.end.unit" ng-blur="example(rule)">
+                    <option value='week'>周</option>
+                    <option value='day'>天</option>
+                    <option value='hour'>小时</option>
+                </select>
+                <input class='form-control' ng-model="rule.end.interval" placeholder='输入间隔' ng-blur="example(rule)">
+            </div>
+        </div>
+        <div class='form-group'>
+            <div class='form-inline'>
+                <label>后续轮次开始间隔时间：</label>
+                <select class='form-control' ng-model="rule.next.unit" ng-blur="example(rule)">
+                    <option value='week'>周</option>
+                    <option value='day'>天</option>
+                    <option value='hour'>小时</option>
+                </select>
+                <input class='form-control' ng-model="rule.next.interval" placeholder='输入间隔' ng-blur="example(rule)">
+            </div>
+        </div>
+        <div class='form-group'>
+            <div class='form-inline'>
+                <div class='form-group'>
+                    <p>开始时间：<span ng-if="rule.case.start_at">{{rule.case.start_at*1000|date:'yy-MM-dd HH:mm'}}</span></p>
+                </div>
+                <div class='form-group'>
+                    <p>结束时间：<span ng-if="rule.case.end_at">{{rule.case.end_at*1000|date:'yy-MM-dd HH:mm'}}</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div class='form-group'>
+        <div class='form-inline'>
+            <input type='checkbox' bs-switch data-on-text="启用" data-off-text="停用" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.enabled">
+            <button class='btn btn-danger' ng-click="tkRndCron.removeRule(rule)">删除</button>
+            <button class='btn' ng-disabled="!tkRndCron.editing.modified" ng-class="tkRndCron.editing.modified?'btn-success':'btn-default'" ng-click="save()">保存</button>
+        </div>
+    </div>
+</div>

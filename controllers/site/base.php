@@ -45,9 +45,14 @@ class base extends \TMS_CONTROLLER {
 	/**
 	 *
 	 */
-	protected function outputInfo($info, $title = '提示') {
+	protected function outputInfo($info, $oSite = null, $title = '提示') {
 		\TPL::assign('title', $title);
 		\TPL::assign('body', $info);
+		if (isset($oSite->id)) {
+			\TPL::assign('site', $oSite);
+		} else {
+			\TPL::assign('site', (object) ['id' => 'platform']);
+		}
 		\TPL::output('info');
 		exit;
 	}

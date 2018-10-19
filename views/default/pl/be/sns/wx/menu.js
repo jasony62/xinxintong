@@ -1,6 +1,6 @@
 'use strict';
 define(['main'], function(ngApp) {
-    ngApp.provider.controller('ctrlMenu', ['$scope', 'http2', 'matterTypes', '$timeout', 'mattersgallery', function($scope, http2, matterTypes, $timeout, mattersgallery) {
+    ngApp.provider.controller('ctrlMenu', ['$scope', 'http2', 'matterTypes', '$timeout', function($scope, http2, matterTypes, $timeout) {
         $scope.matterTypes = matterTypes;
         var setPublishState = function(state) {
             for (var i in $scope.menu) {
@@ -13,7 +13,7 @@ define(['main'], function(ngApp) {
         };
         $scope.edit = function(button) {
             if (button.sub === undefined || button.sub.length === 0) {
-                http2.get('/rest/pl/be/sns/wx/menu/get?site=platform&k=' + button.menu_key, function(rsp) {
+                http2.get('/rest/pl/be/sns/wx/menu/get?site=platform&k=' + button.menu_key).then(function(rsp) {
                     $scope.editing = button;
                     delete $scope.editing.matter;
                     if (rsp.data.matter) {
@@ -35,7 +35,7 @@ define(['main'], function(ngApp) {
             var button = {
                 menu_name: '新菜单'
             };
-            http2.post('/rest/pl/be/sns/wx/menu/createButton?site=platform', button, function(rsp) {
+            http2.post('/rest/pl/be/sns/wx/menu/createButton?site=platform', button).then(function(rsp) {
                 button = rsp.data;
                 if (button.sub === undefined) button.sub = [];
                 $scope.menu.push(button);
@@ -52,7 +52,7 @@ define(['main'], function(ngApp) {
             if (afterIndex !== undefined) {
                 subButton.l2_pos = afterIndex + 2;
             }
-            http2.post('/rest/pl/be/sns/wx/menu/createSubButton?site=platform', subButton, function(rsp) {
+            http2.post('/rest/pl/be/sns/wx/menu/createSubButton?site=platform', subButton).then(function(rsp) {
                 subButton = rsp.data;
                 if (button.sub === undefined) {
                     button.sub = [subButton];
@@ -70,7 +70,7 @@ define(['main'], function(ngApp) {
         $scope.removeButton = function(button, index, evt) {
             evt.preventDefault();
             evt.stopPropagation();
-            http2.get('/rest/pl/be/sns/wx/menu/removeButton?site=platform&k=' + button.menu_key, function(rsp) {
+            http2.get('/rest/pl/be/sns/wx/menu/removeButton?site=platform&k=' + button.menu_key).then(function(rsp) {
                 $scope.menu.splice(index, 1);
                 setPublishState('N');
                 $scope.editing = false;
@@ -79,7 +79,7 @@ define(['main'], function(ngApp) {
         $scope.removeSubButton = function(button, subButton, index, evt) {
             evt.preventDefault();
             evt.stopPropagation();
-            http2.get('/rest/pl/be/sns/wx/menu/removeButton?site=platform&k=' + subButton.menu_key, function(rsp) {
+            http2.get('/rest/pl/be/sns/wx/menu/removeButton?site=platform&k=' + subButton.menu_key).then(function(rsp) {
                 button.sub.splice(index, 1);
                 if ($scope.published === 'Y')
                     setPublishState('N');
@@ -93,7 +93,7 @@ define(['main'], function(ngApp) {
                         matter_type: matterType,
                         matter_id: aSelected[0].id
                     };
-                    http2.post('/rest/pl/be/sns/wx/menu/setreply?site=platform&k=' + $scope.editing.menu_key, p, function(rsp) {
+                    http2.post('/rest/pl/be/sns/wx/menu/setreply?site=platform&k=' + $scope.editing.menu_key, p).then(function(rsp) {
                         if (rsp.data.menu_key) {
                             if ($scope.editing.published != rsp.data.published)
                                 setPublishState(rsp.data.published);
@@ -112,7 +112,7 @@ define(['main'], function(ngApp) {
             if (!angular.equals($scope.editing, $scope.persisted)) {
                 var p = {};
                 p[name] = $scope.editing[name];
-                http2.post('/rest/pl/be/sns/wx/menu/update?site=platform&k=' + $scope.editing.menu_key, p, function(rsp) {
+                http2.post('/rest/pl/be/sns/wx/menu/update?site=platform&k=' + $scope.editing.menu_key, p).then(function(rsp) {
                     if (rsp.data.menu_key) {
                         angular.extend($scope.editing, rsp.data);
                         $scope.edit($scope.editing)
@@ -137,7 +137,7 @@ define(['main'], function(ngApp) {
         };
         $scope.removeMenu = function() {
             if (confirm('确定删除菜单？')) {
-                http2.get('/rest/pl/be/sns/wx/menu/removeMenu?site=platform', function(rsp) {
+                http2.get('/rest/pl/be/sns/wx/menu/removeMenu?site=platform').then(function(rsp) {
                     setPublishState('Y');
                     $scope.editing = false;
                     $scope.menu = [];
@@ -145,7 +145,7 @@ define(['main'], function(ngApp) {
             }
         };
         $scope.publish = function() {
-            http2.get('/rest/pl/be/sns/wx/menu/publish?site=platform', function(rsp) {
+            http2.get('/rest/pl/be/sns/wx/menu/publish?site=platform').then(function(rsp) {
                 setPublishState('Y');
             });
         };
@@ -163,7 +163,7 @@ define(['main'], function(ngApp) {
                     'l1_pos': pos1 + 1,
                     'l2_pos': pos2 + 1
                 };
-                http2.post('/rest/pl/be/sns/wx/menu/setpos?site=platform&k=' + moved.menu_key, pos, function() {
+                http2.post('/rest/pl/be/sns/wx/menu/setpos?site=platform&k=' + moved.menu_key, pos).then(function() {
                     setPublishState('N');
                 });
             } else {
@@ -175,7 +175,7 @@ define(['main'], function(ngApp) {
                 });
             }
         });
-        http2.get('/rest/pl/be/sns/wx/menu/get?site=platform', function(rsp) {
+        http2.get('/rest/pl/be/sns/wx/menu/get?site=platform').then(function(rsp) {
             $scope.menu = [];
             for (var i in rsp.data) {
                 var button = rsp.data[i];

@@ -110,7 +110,7 @@ angular.module('app', ['ui.bootstrap', 'infinite-scroll', 'page.ui.xxt', 'snssha
             location.href = opened.url;
         }
     };
-    $scope.siteUser = function(id) {
+    $scope.siteUser = function(siteId) {
         var url = location.protocol + '//' + location.host;
         url += '/rest/site/fe/user';
         url += "?site=" + siteId;

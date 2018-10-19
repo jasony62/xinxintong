@@ -17,7 +17,6 @@ window.loading = {
             paths: {
                 "domReady": '/static/js/domReady',
                 "ui-tms": "/static/js/ui-tms",
-                "matterService": "/views/default/pl/fe/_module/matter.service",
                 "main": "/views/default/site/fe/matter/mission/main",
             },
             shim: {

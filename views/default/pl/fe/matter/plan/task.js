@@ -50,7 +50,7 @@ define(['frame'], function(ngApp) {
         $scope.doSearch = function(pageNumber) {
             pageNumber && (_oPage.at = pageNumber);
             var url = '/rest/pl/fe/matter/plan/task/list?app=' + _oApp.id + _oPage.j();
-            http2.post(url, _oCriteria, function(rsp) {
+            http2.post(url, _oCriteria).then(function(rsp) {
                 var tasks, total, oSchemasById;
                 tasks = rsp.data.tasks;
                 oSchemasById = {};
@@ -107,7 +107,7 @@ define(['frame'], function(ngApp) {
             if (ids.length) {
                 http2.post('/rest/pl/fe/matter/plan/task/batchVerify?app=' + _oApp.id, {
                     ids: ids
-                }, function(rsp) {
+                }).then(function(rsp) {
                     selectedTasks.forEach(function(oTask) {
                         oTask.verified = 'Y';
                     });
@@ -116,7 +116,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.verifyAll = function() {
             if (window.confirm('确定审核通过所有记录（共' + $scope.page.total + '条）？')) {
-                http2.get('/rest/pl/fe/matter/plan/task/verifyAll?app=' + _oApp.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/plan/task/verifyAll?app=' + _oApp.id).then(function(rsp) {
                     $scope.tasks.forEach(function(task) {
                         task.verified = 'Y';
                     });
@@ -139,7 +139,7 @@ define(['frame'], function(ngApp) {
                     oCriteria.data = oFilterDat;
                 }
             }
-            if(_oCriteria.byTaskSchema) {
+            if (_oCriteria.byTaskSchema) {
                 oCriteria.byTaskSchema = _oCriteria.byTaskSchema;
             }
             if (_oCriteria.record) {
@@ -157,11 +157,11 @@ define(['frame'], function(ngApp) {
         };
         $scope.exportImage = function() {
             var url;
-            url = '/rest/pl/fe/matter/plan/task/exportImage?app=' + _oApp.id ;
+            url = '/rest/pl/fe/matter/plan/task/exportImage?app=' + _oApp.id;
             window.open(url);
         };
         srvPlanApp.get().then(function(oApp) {
-            if(oApp.entryRule.scope.group && oApp.entryRule.scope.group=='Y' && oApp.groupApp.rounds.length) {
+            if (oApp.entryRule.scope.group && oApp.entryRule.scope.group == 'Y' && oApp.groupApp.rounds.length) {
                 oApp.groupApp.rounds.forEach(function(round) {
                     _oGroup[round.round_id] = round;
                 });

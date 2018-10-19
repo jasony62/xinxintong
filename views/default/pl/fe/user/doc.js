@@ -19,7 +19,7 @@ define(['frame'], function(ngApp) {
             url = '/rest/pl/fe/user/readList?site='+ $scope.siteId +'&uid=' + $scope.userId;
             url += '&startAt=' + _oCriteria.start + '&endAt=' + _oCriteria.end;
             url += _oPage.j();
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.matters = rsp.data.logs;
                 _oPage.total = rsp.data.total || 0;
             });
@@ -48,7 +48,7 @@ define(['frame'], function(ngApp) {
                     $scope.doSearch = function() {
                         var url;
                         url = '/rest/pl/fe/user/userDetailLogs?matterId=' + matter.matter_id + '&matterType=' + matter.matter_type + $scope.page.j();
-                        http2.post(url, criteria, function(rsp) {
+                        http2.post(url, criteria).then(function(rsp) {
                             $scope.logs = rsp.data.logs;
                             $scope.page.total = rsp.data.total;
                         });

@@ -17,31 +17,44 @@ class account extends \pl\fe\base {
 	 * 团队下的所有访客用户
 	 */
 	public function list_action($site, $page = 1, $size = 30) {
-		$model = $this->model();
-		$posted = $this->getPostJson();
-		$nickname = empty($posted->nickname) ? '' : $posted->nickname;
-		$result = new \stdClass;
+		$modelSite = $this->model('site');
+		if (false === ($oSite = $modelSite->byId($site))) {
+			return new \ObjectNotFoundError();
+		}
+
+		$oPosted = $this->getPostJson();
 
 		$q = [
 			'uid,reg_time,last_active,nickname,headimgurl,ufrom,coin,unionid,is_reg_primary,wx_openid,yx_openid,read_num,favor_num',
 			'xxt_site_account',
-			"siteid='$site'",
+			['siteid' => $oSite->id],
 		];
-		$q[2] .= " and nickname like '%$nickname%'";
+		if (!empty($oPosted->nickname)) {
+			$q[2]['nickname'] = (object) ['op' => 'like', 'pat' => '%' . $oPosted->nickname . '%'];
+		}
+		if (isset($oPosted->onlyWxfan) && $oPosted->onlyWxfan === true) {
+			$q[2]['wx_openid'] = (object) ['op' => '<>', 'pat' => ''];
+		}
+
 		$q2['o'] = 'reg_time desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
 
-		if ($users = $model->query_objs_ss($q, $q2)) {
-			$result->users = $users;
-			$q[0] = 'count(*)';
-			$total = (int) $model->query_val_ss($q);
-			$result->total = $total;
-		} else {
-			$result->users = array();
-			$result->total = 0;
+		$oResult = new \stdClass;
+		$users = $modelSite->query_objs_ss($q, $q2);
+		if (count($users)) {
+			$modelWx = $this->model('sns\wx\fan');
+			foreach ($users as $oUser) {
+				if (!empty($oUser->wx_openid)) {
+					$oUser->wxfan = $modelWx->byOpenid($oSite->id, $oUser->wx_openid, 'nickname,headimgurl,subscribe_at,unsubscribe_at');
+				}
+			}
+			$oResult->users = $users;
 		}
+		$q[0] = 'count(*)';
+		$total = (int) $modelSite->query_val_ss($q);
+		$oResult->total = $total;
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 }

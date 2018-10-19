@@ -271,7 +271,7 @@ ngApp.controller('ctrlMain', ['$scope', '$location', 'http2', 'tmsLocation', 'tm
         }
         http2.post('/rest/site/fe/matter/logAccess?site=' + _oApp.siteid, {
             type: 'plan',
-            id:  _oApp.id,
+            id: _oApp.id,
             title: _oApp.title
         });
         var eleLoading;

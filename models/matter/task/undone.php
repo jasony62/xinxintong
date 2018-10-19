@@ -98,6 +98,7 @@ class undone_model extends \TMS_MODEL {
 					$q[2]['role_rounds'] = (object) ['op' => 'like', 'pat' => '%' . $oTaskArgs->receiver->group->round->id . '%'];
 					$aGrpUsers = $modelEnl->query_objs_ss($q);
 					if (count($aGrpUsers) === 0) {
+						unset($q[2]['role_rounds']);
 						$q[2]['round_id'] = $oTaskArgs->receiver->group->round->id;
 						$aGrpUsers = $modelEnl->query_objs_ss($q);
 					}

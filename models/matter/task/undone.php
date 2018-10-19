@@ -96,6 +96,9 @@ class undone_model extends \TMS_MODEL {
 					$q[2]['round_id'] = $oTaskArgs->receiver->group->round->id;
 				}
 				$aGrpUsers = $modelEnl->query_objs_ss($q);
+				if (empty($aGrpUsers)) {
+					return [false, '指定的分组活动中没有符合接受通知条件的用户'];
+				}
 				if (count($aGrpUsers)) {
 					$aOtherReceivers = array_merge($aOtherReceivers, $aGrpUsers);
 				}

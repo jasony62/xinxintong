@@ -17,14 +17,14 @@ class user_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_group_player',
-			"aid='{$oRound->aid}' and state=1",
+			['aid' => $oRound->aid, 'state' => 1],
 		];
 		switch ($oRound->round_type) {
 		case 'T':
-			$q[2] .= " and round_id='$rid'";
+			$q[2]['round_id'] = $oRound->round_id;
 			break;
 		case 'R':
-			$q[2] .= " and role_rounds like '%\"" . $oRound->rid . "\"%'";
+			$q[2]['role_rounds'] = (object) ['op' => 'like', 'pat' => '%' . $oRound->round_id . '%'];
 			break;
 		default:
 			return false;

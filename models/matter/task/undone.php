@@ -92,10 +92,16 @@ class undone_model extends \TMS_MODEL {
 					'xxt_group_player',
 					['state' => 1, 'aid' => $oTaskArgs->receiver->group->id],
 				];
-				if (!empty($oTaskArgs->receiver->group->round->id)) {
-					$q[2]['round_id'] = $oTaskArgs->receiver->group->round->id;
+				if (empty($oTaskArgs->receiver->group->round->id)) {
+					$aGrpUsers = $modelEnl->query_objs_ss($q);
+				} else {
+					$q[2]['role_rounds'] = (object) ['op' => 'like', 'pat' => '%' . $oTaskArgs->receiver->group->round->id . '%'];
+					$aGrpUsers = $modelEnl->query_objs_ss($q);
+					if (count($aGrpUsers) === 0) {
+						$q[2]['round_id'] = $oTaskArgs->receiver->group->round->id;
+						$aGrpUsers = $modelEnl->query_objs_ss($q);
+					}
 				}
-				$aGrpUsers = $modelEnl->query_objs_ss($q);
 				if (empty($aGrpUsers)) {
 					return [false, '指定的分组活动中没有符合接受通知条件的用户'];
 				}

@@ -65,9 +65,9 @@ class undone_model extends \TMS_MODEL {
 			$aUndoneReceivers = array_map(function ($oUndoneUser) {return (object) ['userid' => $oUndoneUser->userid];}, $aUndoneUsers);
 			if (count($aUndoneReceivers)) {
 				$aResult = $this->sendByRemindTmpl($oEnlApp, $noticeURL, $aUndoneReceivers);
-				//if (false === $aResult[0]) {
-				//	return $aResult;
-				//}
+				if (false === $aResult[0]) {
+					return $aResult;
+				}
 			}
 		}
 		/**
@@ -104,9 +104,9 @@ class undone_model extends \TMS_MODEL {
 		if (count($aOtherReceivers)) {
 			$noticeURL .= '&page=event';
 			$aResult = $this->sendByReportTmpl($oEnlApp, $noticeURL, $aOtherReceivers);
-			//if (false === $aResult[0]) {
-			//	return $aResult;
-			//}
+			if (false === $aResult[0]) {
+				return $aResult;
+			}
 		}
 
 		return [true];

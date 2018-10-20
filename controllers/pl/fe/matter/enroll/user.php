@@ -10,7 +10,7 @@ class user extends main_base {
 	 * 返回提交过填写记录的用户列表
 	 */
 	public function enrollee_action($app, $page = 1, $size = 30) {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
@@ -20,12 +20,16 @@ class user extends main_base {
 			return new \ObjectNotFoundError();
 		}
 		$modelUsr = $this->model('matter\enroll\user');
-		$post = $this->getPostJson();
+		$oPost = $this->getPostJson();
+
 		$aOptions = [];
-		!empty($post->orderby) && $aOptions['orderby'] = $post->orderby;
-		!empty($post->byGroup) && $aOptions['byGroup'] = $post->byGroup;
-		!empty($post->rid) && $aOptions['rid'] = $post->rid;
-		!empty($post->onlyEnrolled) && $aOptions['onlyEnrolled'] = $post->onlyEnrolled;
+		!empty($oPost->orderby) && $aOptions['orderby'] = $oPost->orderby;
+		!empty($oPost->byGroup) && $aOptions['byGroup'] = $oPost->byGroup;
+		!empty($oPost->rid) && $aOptions['rid'] = $oPost->rid;
+		!empty($oPost->onlyEnrolled) && $aOptions['onlyEnrolled'] = $oPost->onlyEnrolled;
+		if (!empty($oPost->filter->by) && !empty($oPost->filter->keyword)) {
+			$aOptions[$oPost->filter->by] = $oPost->filter->keyword;
+		}
 
 		$oResult = $modelUsr->enrolleeByApp($oApp, $page, $size, $aOptions);
 		/* 由于版本原因，判断是否需要系统获取填写人信息 */
@@ -45,25 +49,25 @@ class user extends main_base {
 					}
 				}
 			}
-			foreach ($oResult->users as &$user) {
+			foreach ($oResult->users as $oUser) {
 				$q = [
 					'd.tmplmsg_id,d.status,b.create_at',
 					'xxt_log_tmplmsg_detail d,xxt_log_tmplmsg_batch b',
-					"d.userid = '{$user->userid}' and d.openid<>'' and d.batch_id = b.id and b.send_from = 'enroll:" . $user->aid . "'",
+					"d.userid = '{$oUser->userid}' and d.openid<>'' and d.batch_id = b.id and b.send_from = 'enroll:" . $oUser->aid . "'",
 				];
 				$q2 = [
 					'r' => ['o' => 0, 'l' => 1],
 					'o' => 'b.create_at desc',
 				];
 				if ($tmplmsg = $modelUsr->query_objs_ss($q, $q2)) {
-					$user->tmplmsg = $tmplmsg[0];
+					$oUser->tmplmsg = $tmplmsg[0];
 				} else {
-					$user->tmplmsg = new \stdClass;
+					$oUser->tmplmsg = new \stdClass;
 				}
-				if (isset($aUserRounds) && $user->group_id) {
+				if (isset($aUserRounds) && $oUser->group_id) {
 					foreach ($aUserRounds as $v) {
-						if ($v->v == $user->group_id) {
-							$user->group = $v;
+						if ($v->v == $oUser->group_id) {
+							$oUser->group = $v;
 						}
 					}
 				}

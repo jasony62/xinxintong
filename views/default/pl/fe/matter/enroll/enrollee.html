@@ -3,7 +3,7 @@
         <div class='form-inline'>
             <button class='btn btn-default' ng-click="toggleAbsent()">缺席<span ng-bind="absentUsers.length"></span>人，<span ng-if="category!=='absent'">查看</span><span ng-if="category==='absent'">关闭</span></button>
             <section style='display:inline-block' ng-if="category==='enrollee'">
-                <button class='btn btn-default' ng-click='filter()'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+                <button class='btn btn-default' ng-click='advFilter()'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
                 <div class="btn-group" uib-dropdown>
                     <button type="button" class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
                         排序
@@ -54,7 +54,7 @@
                                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
                                 </th>
                                 <th style='width:48px'>序号</th>
-                                <th style='width:75px'>姓名</th>
+                                <th data-filter-by='nickname' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)" style='width:75px'>姓名 <i class='glyphicon glyphicon-filter'></i></th>
                                 <th style='width:48px' ng-if="app.group_app_id">分组</th>
                                 <th style='width:75px'>填写记录</th>
                                 <th style='width:75px'>发表留言</th>
@@ -172,12 +172,12 @@
                             <div ng-switch-when="image">
                                 <img ng-repeat="img in user._data[schema.id]" ng-src='{{img}}' />
                             </div>
-                            <div ng-switch-when="file">
-                                <span ng-repeat='file in user._data[schema.id]'>{{file.name}}</span>
-                            </div>
-                            <span ng-switch-when="date">{{(user._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
-                            <span ng-switch-when="url" ng-bind-html="user._data[schema.id]._text"></span>
-                            <span ng-switch-default ng-bind-html="user._data[schema.id]"></span>
+                                <div ng-switch-when="file">
+                                    <span ng-repeat='file in user._data[schema.id]'>{{file.name}}</span>
+                                </div>
+                                <span ng-switch-when="date">{{(user._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                                <span ng-switch-when="url" ng-bind-html="user._data[schema.id]._text"></span>
+                                <span ng-switch-default ng-bind-html="user._data[schema.id]"></span>
                         </td>
                         <td>{{user.absent_cause.cause}}</td>
                         <td>

@@ -41,14 +41,6 @@ class user extends main_base {
 
 		/* 查询有openid的用户发送消息的情况 */
 		if (count($oResult->users)) {
-			if (!empty($oApp->group_app_id)) {
-				foreach ($oApp->dataSchemas as $schema) {
-					if ($schema->id == '_round_id') {
-						$aUserRounds = $schema->ops;
-						break;
-					}
-				}
-			}
 			foreach ($oResult->users as $oUser) {
 				$q = [
 					'd.tmplmsg_id,d.status,b.create_at',
@@ -63,13 +55,6 @@ class user extends main_base {
 					$oUser->tmplmsg = $tmplmsg[0];
 				} else {
 					$oUser->tmplmsg = new \stdClass;
-				}
-				if (isset($aUserRounds) && $oUser->group_id) {
-					foreach ($aUserRounds as $v) {
-						if ($v->v == $oUser->group_id) {
-							$oUser->group = $v;
-						}
-					}
 				}
 			}
 		}

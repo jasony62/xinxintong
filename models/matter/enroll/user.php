@@ -322,6 +322,20 @@ class user_model extends \TMS_MODEL {
 		}
 		$users = $this->query_objs_ss($q, $q2);
 		if ($cascaded === 'Y' && count($users)) {
+			$aHandlers = [];
+			/* 用户的分组信息 */
+			if (!empty($oApp->group_app_id) || !empty($oApp->entryRule->group->id)) {
+				$modelGrpUser = $this->model('matter\group\user');
+				$groupAppId = !empty($oApp->group_app_id) ? $oApp->group_app_id : $oApp->entryRule->group->id;
+				$fnHandler = function ($oUser) use ($groupAppId, $modelGrpUser) {
+					$oGrpUser = $modelGrpUser->byUser((object) ['id' => $groupAppId], $oUser->userid, ['fields' => 'round_id,round_title', 'onlyOne' => true]);
+					if ($oGrpUser) {
+						$oUser->group = (object) ['id' => $oGrpUser->round_id, 'title' => $oGrpUser->round_title];
+					}
+				};
+				$aHandlers[] = $fnHandler;
+			}
+
 			foreach ($users as $oUser) {
 				$p = [
 					'wx_openid,yx_openid,qy_openid',
@@ -352,6 +366,10 @@ class user_model extends \TMS_MODEL {
 				} else {
 					$oUser->wx_openid = '';
 					$oUser->yx_openid = '';
+				}
+				//
+				foreach ($aHandlers as $fnHandler) {
+					$fnHandler($oUser);
 				}
 			}
 		}

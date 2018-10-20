@@ -5,6 +5,44 @@ namespace matter\group;
  */
 class user_model extends \TMS_MODEL {
 	/**
+	 * 根据用户id获得在指定分组活动中的分组信息
+	 */
+	public function byUser($oApp, $userid, $aOptions = []) {
+		if (empty($userid)) {
+			return false;
+		}
+
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$q = [
+			$fields,
+			'xxt_group_player',
+			['state' => 1, 'aid' => $oApp->id, 'userid' => $userid],
+		];
+		$q2 = ['o' => 'enroll_at desc'];
+
+		$list = $this->query_objs_ss($q, $q2);
+		if (count($list)) {
+			if ($fields === '*' || false !== strpos($fields, 'role_rounds')) {
+				foreach ($list as &$player) {
+					if (!empty($player->role_rounds)) {
+						$player->role_rounds = json_decode($player->role_rounds);
+					} else {
+						$player->role_rounds = [];
+					}
+				}
+			}
+		}
+		if (isset($aOptions['onlyOne']) && $aOptions['onlyOne'] === true) {
+			if (count($list)) {
+				return $list[0];
+			} else {
+				return false;
+			}
+		}
+
+		return $list;
+	}
+	/**
 	 * 获得指定分组内的用户
 	 */
 	public function byRound($rid, $aOptions = []) {

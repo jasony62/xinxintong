@@ -21,7 +21,7 @@
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="criteria.allSelected">
                 </th>
                 <th style='width:48px'>序号</th>
-                <th data-filter-by='nickname' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">姓名 <i class='glyphicon glyphicon-filter'></i></th>
+                <th data-filter-by='nickname' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">姓名 <i class='glyphicon glyphicon-filter'></i></th>
                 <th>微信昵称</th>
                 <th style='width:96px'>加入通信录</th>
                 <th class='th-action' ng-class="{'active':criteria.orderBy==='group_id'}" ng-click="chooseOrderBy('group_id')">

@@ -38,31 +38,31 @@
                             <div ng-switch-when="image">
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
                             </div>
-                            <div ng-switch-when="file">
-                                <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
-                            </div>
-                            <div ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</div>
-                            <div ng-switch-default ng-bind-html="r._data[schema.id]"></div>
+                                <div ng-switch-when="file">
+                                    <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                                </div>
+                                <div ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</div>
+                                <div ng-switch-default ng-bind-html="r._data[schema.id]"></div>
                         </td>
                         <td data-th='{{schema.title}}' ng-repeat="schema in enrollDataSchemas" ng-switch on="schema.type">
                             <div ng-switch-when="image">
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
                             </div>
-                            <div ng-switch-when="file">
-                                <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
-                            </div>
-                            <div ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</div>
-                            <div ng-switch-default ng-bind-html="r._data[schema.id]"></div>
+                                <div ng-switch-when="file">
+                                    <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                                </div>
+                                <div ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</div>
+                                <div ng-switch-default ng-bind-html="r._data[schema.id]"></div>
                         </td>
                         <td data-th='{{schema.title}}' ng-repeat="schema in groupDataSchemas" ng-switch on="schema.type">
                             <div ng-switch-when="image">
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
                             </div>
-                            <div ng-switch-when="file">
-                                <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
-                            </div>
-                            <div ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</div>
-                            <div ng-switch-default ng-bind-html="r._data[schema.id]"></div>
+                                <div ng-switch-when="file">
+                                    <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                                </div>
+                                <div ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</div>
+                                <div ng-switch-default ng-bind-html="r._data[schema.id]"></div>
                         </td>
                         <td data-th='签到时间' ng-if="page.byRound">
                             <div ng-class="{'signin_late':r._signinLate[page.byRound]}" ng-if="r.signin_log[page.byRound]">{{r.signin_log[page.byRound]*1000|date:'MM-dd HH:mm'}}</div>
@@ -87,13 +87,13 @@
                                 <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
                                     <i class='glyphicon glyphicon-remove'></i>
                                 </button>
-                                <button uib-popover-template="'leadToLogin.html'" popover-placement="bottom-right" popover-trigger="show" class='btn btn-xs btn-default' ng-click="switchToRecord($event,r)">
+                                <button uib-popover-template="'leadToLogin.html'" popover-placement="bottom-right" popover-trigger="'show'" class='btn btn-xs btn-default' ng-click="switchToRecord($event,r)">
                                     <i class='glyphicon glyphicon-edit'></i>
                                 </button>
                             </div>
                             <div class='visible-xs'>
                                 <button class='btn btn-danger' ng-click='removeRecord(r)'>删除</button>
-                                <button uib-popover-template="'leadToLogin.html'" popover-placement="bottom-right" popover-trigger="show" class='btn btn-default pull-right' ng-click="switchToRecord($event,r)">修改</button>
+                                <button uib-popover-template="'leadToLogin.html'" popover-placement="bottom-right" popover-trigger="'show'" class='btn btn-default pull-right' ng-click="switchToRecord($event,r)">修改</button>
                             </div>
                         </td>
                     </tr>

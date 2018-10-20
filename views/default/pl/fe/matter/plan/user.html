@@ -74,9 +74,9 @@
                         </th>
                         <th style='width:120px'>填写日期</th>
                         <th style='width:80px'>通过审核</th>
-                        <th ng-if='msAttrs.name.hide===false' data-filter-by='name' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">姓名 <i class='glyphicon glyphicon-filter'></i></th>
-                        <th ng-if='msAttrs.mobile.hide===false' data-filter-by='mobile' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">手机 <i class='glyphicon glyphicon-filter'></i></th>
-                        <th ng-if='msAttrs.email.hide===false' data-filter-by='email' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">邮箱 <i class='glyphicon glyphicon-filter'></i></th>
+                        <th ng-if='msAttrs.name.hide===false' data-filter-by='name' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">姓名 <i class='glyphicon glyphicon-filter'></i></th>
+                        <th ng-if='msAttrs.mobile.hide===false' data-filter-by='mobile' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">手机 <i class='glyphicon glyphicon-filter'></i></th>
+                        <th ng-if='msAttrs.email.hide===false' data-filter-by='email' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">邮箱 <i class='glyphicon glyphicon-filter'></i></th>
                         <th ng-repeat='ea in selected.mschema.extattr'>{{ea.label}}</th>
                     </tr>
                 </thead>

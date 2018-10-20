@@ -87,13 +87,13 @@ class undone_model extends \TMS_MODEL {
 		/* 给指定的分组用户发通知 */
 		if (in_array('group', $oTaskArgs->receiver->scope)) {
 			if (!empty($oTaskArgs->receiver->group->id)) {
-				$q = [
-					'distinct userid',
-					'xxt_group_player',
-					['state' => 1, 'aid' => $oTaskArgs->receiver->group->id],
-				];
 				if (empty($oTaskArgs->receiver->group->round->id)) {
 					/* 分组活动内的用户 */
+					$q = [
+						'distinct userid',
+						'xxt_group_player',
+						['state' => 1, 'aid' => $oTaskArgs->receiver->group->id],
+					];
 					$aGrpUsers = $modelEnl->query_objs_ss($q);
 				} else {
 					/* 指定分组的用户 */

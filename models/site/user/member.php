@@ -28,14 +28,16 @@ class member_model extends \TMS_MODEL {
 	 * @param string $userid
 	 *
 	 */
-	public function byUser($userid, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+	public function byUser($userid, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$q = [
 			$fields,
 			'xxt_site_member',
 			"userid='$userid' and forbidden='N'",
 		];
-		isset($options['schemas']) && $q[2] .= " and schema_id in (" . $options['schemas'] . ")";
+		if (isset($aOptions['schemas'])) {
+			$q[2] .= " and schema_id in (" . (is_array($aOptions['schemas']) ? implode(',', $aOptions['schemas']) : $aOptions['schemas']) . ")";
+		}
 
 		$members = $this->query_objs_ss($q);
 		foreach ($members as $oMember) {

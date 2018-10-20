@@ -147,26 +147,28 @@ class remind_model extends \TMS_MODEL {
 		case 'group':
 			if (isset($oArguments->receiver->app)) {
 				if (!empty($oArguments->receiver->app->id)) {
+					if (empty($oArguments->receiver->app->round->id)) {
+						$q = [
+							'distinct userid',
+							'xxt_group_player',
+							['state' => 1, 'aid' => $oArguments->receiver->app->id],
+						];
+						$receivers = $modelEnl->query_objs_ss($q);
+					} else {
+						$receivers = $this->model('matter\group\user')->byRound($oArguments->receiver->app->round->id, ['fields' => 'userid']);
+					}
+				}
+			} else if (isset($oMatter->entryRule->scope->group) && $oMatter->entryRule->scope->group === 'Y' && !empty($oMatter->entryRule->group->id)) {
+				if (empty($oMatter->entryRule->group->round->id)) {
 					$q = [
 						'distinct userid',
 						'xxt_group_player',
-						['state' => 1, 'aid' => $oArguments->receiver->app->id],
+						['state' => 1, 'aid' => $oMatter->entryRule->group->id],
 					];
-					if (!empty($oArguments->receiver->app->round->id)) {
-						$q[2]['round_id'] = $oArguments->receiver->app->round->id;
-					}
 					$receivers = $modelEnl->query_objs_ss($q);
+				} else {
+					$receivers = $this->model('matter\group\user')->byRound($oMatter->entryRule->group->round->id, ['fields' => 'userid']);
 				}
-			} else if (isset($oMatter->entryRule->scope->group) && $oMatter->entryRule->scope->group === 'Y' && !empty($oMatter->entryRule->group->id)) {
-				$q = [
-					'distinct userid',
-					'xxt_group_player',
-					['state' => 1, 'aid' => $oMatter->entryRule->group->id],
-				];
-				if (!empty($oMatter->entryRule->group->round->id)) {
-					$q[2]['round_id'] = $oMatter->entryRule->group->round->id;
-				}
-				$receivers = $modelEnl->query_objs_ss($q);
 			}
 			break;
 		case 'enroll':

@@ -1275,7 +1275,7 @@ class record extends main_base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 删除一条登记信息
+	 * 删除一条记录
 	 */
 	public function remove_action($app, $ek) {
 		if (false === ($oUser = $this->accountUser())) {
@@ -1309,9 +1309,9 @@ class record extends main_base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 恢复一条登记信息
+	 * 恢复一条记录
 	 */
-	public function restore_action($app, $key) {
+	public function restore_action($app, $ek) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -1320,7 +1320,7 @@ class record extends main_base {
 			return new \ObjectNotFoundError();
 		}
 		$modelEnlRec = $this->model('matter\enroll\record');
-		$oRecord = $modelEnlRec->byId($key, ['fields' => 'userid,enroll_key,data,rid']);
+		$oRecord = $modelEnlRec->byId($ek, ['fields' => 'userid,enroll_key,data,rid']);
 		if (false === $oRecord) {
 			return new ObjectNotFoundError();
 		}
@@ -1333,7 +1333,7 @@ class record extends main_base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 清空登记信息
+	 * 清空活动中的所有记录
 	 */
 	public function empty_action($app) {
 		if (false === ($oUser = $this->accountUser())) {
@@ -1357,29 +1357,28 @@ class record extends main_base {
 	/**
 	 * 所有记录通过审核
 	 */
-	public function verifyAll_action($site, $app) {
+	public function verifyAll_action($app) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 
 		$rst = $this->model()->update(
 			'xxt_enroll_record',
 			['verified' => 'Y'],
-			"aid='{$app->id}'"
+			['aid' => $oApp->id]
 		);
 
 		// 记录操作日志
-		$app->type = 'enroll';
-		$this->model('matter\log')->matterOp($site, $oUser, $app, 'verify.all');
+		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'verify.all');
 
 		return new \ResponseData($rst);
 	}
 	/**
 	 * 指定记录通过审核
 	 */
-	public function batchVerify_action($site, $app, $all = 'N') {
+	public function batchVerify_action($app, $all = 'N') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -1435,13 +1434,13 @@ class record extends main_base {
 	/**
 	 * 验证通过时，如果登记记录有对应的签到记录，且签到记录没有验证通过，那么验证通过
 	 */
-	private function _whenVerifyRecord(&$app, $enrollKey) {
-		if ($app->mission_id) {
+	private function _whenVerifyRecord(&$oApp, $enrollKey) {
+		if ($oApp->mission_id) {
 			$modelSigninRec = $this->model('matter\signin\record');
 			$q = [
 				'id',
 				'xxt_signin',
-				"enroll_app_id='{$app->id}'",
+				"enroll_app_id='{$oApp->id}'",
 			];
 			$signinApps = $modelSigninRec->query_objs_ss($q);
 			if (count($signinApps)) {
@@ -1473,7 +1472,7 @@ class record extends main_base {
 								$modelSigninRec->delete('xxt_signin_record_data', "enroll_key='$signinRecord->enroll_key'");
 								foreach ($signinData as $k => $v) {
 									$ic = [
-										'aid' => $app->id,
+										'aid' => $oApp->id,
 										'enroll_key' => $signinRecord->enroll_key,
 										'name' => $k,
 										'value' => $model->toJson($v),

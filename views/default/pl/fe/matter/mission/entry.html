@@ -95,7 +95,7 @@
             <!-- begin timers -->
             <div ng-repeat="timer in timers">
                 <hr>
-                <div ng-include="'/views/default/pl/fe/_module/timerNotice.html'"></div>
+                <div ng-include="frameTemplates.url('timerNotice')"></div>
             </div>
             <!-- end timers -->
             <hr>
@@ -145,7 +145,7 @@
             <!-- begin timer -->
             <div ng-repeat="timer in timers">
                 <hr>
-                <div ng-include="'/views/default/pl/fe/_module/timerNotice.html'"></div>
+                <div ng-include="frameTemplates.url('timerNotice')"></div>
             </div>
             <hr>
             <div>

@@ -5,8 +5,8 @@ class round_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function &byId($id, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+	public function &byId($id, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$q = [
 			$fields,
 			'xxt_group_round',

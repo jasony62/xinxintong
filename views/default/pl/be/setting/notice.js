@@ -116,6 +116,13 @@ define(['main'], function(ngApp) {
                         id: 'event_at',
                         name: '事件发生时间'
                     }];
+                    $scope2.timerTaskProps = [{
+                        id: 'receiver',
+                        name: '接收人'
+                    }, {
+                        id: 'page',
+                        name: '页面'
+                    }];
                     $scope2.data = data;
                     $scope2.changeSrcProp = function() {
                         if (data.srcProp === 'text') {

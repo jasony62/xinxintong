@@ -20,7 +20,6 @@ class history extends \site\fe\base {
 	 * @param string $matterType
 	 */
 	public function appList_action($site = '', $matterType = 'enroll,signin', $userid = '') {
-		$result = new \stdClass;
 		$modelAct = $this->model('site\user\account');
 		$q = [
 			'matter_id,matter_type,matter_title,operate_at',
@@ -59,9 +58,11 @@ class history extends \site\fe\base {
 		$q2 = ['o' => 'operate_at desc'];
 
 		$logs = $modelAct->query_objs_ss($q, $q2);
-		$result->apps = $logs;
 
-		return new \ResponseData($result);
+		$oResult = new \stdClass;
+		$oResult->apps = $logs;
+
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 获得当前用户在指定站点参与的项目
@@ -69,7 +70,6 @@ class history extends \site\fe\base {
 	 * @param string $site
 	 */
 	public function missionList_action($site, $userid = '') {
-		$result = new \stdClass;
 
 		$modelAct = $this->model('site\user\account');
 		$q = [
@@ -115,8 +115,9 @@ class history extends \site\fe\base {
 			});
 		}
 
-		$result->missions = $logs;
+		$oResult = new \stdClass;
+		$oResult->missions = $logs;
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 }

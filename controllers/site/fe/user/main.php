@@ -67,12 +67,12 @@ class main extends \site\fe\base {
 		 * 和微信openid绑定的注册账号
 		 */
 		$userAgent = $this->userAgent(); // 客户端类型
-		//if (in_array($userAgent, ['wx'])) {
-		$regUsers = $this->_getRegAntsByWxopenid($oAccount);
-		if (count($regUsers)) {
-			$oUser->registersByWx = $regUsers;
+		if (in_array($userAgent, ['wx'])) {
+			$regUsers = $this->_getRegAntsByWxopenid($oAccount);
+			if (count($regUsers)) {
+				$oUser->registersByWx = $regUsers;
+			}
 		}
-		//}
 
 		return new \ResponseData($oUser);
 	}

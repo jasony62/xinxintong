@@ -31,11 +31,16 @@ class remind_model extends \TMS_MODEL {
 		if (false === $aResult[0]) {
 			return $aResult;
 		}
-		list($bState, $oMatter, $noticeURL, $receivers) = $aResult;
+		list($bState, $oMatter, $noticeURL, $receivers, $oTmplTimerTaskParams) = $aResult;
 		$noticeName = 'timer.' . $oMatter->type . '.remind';
 
 		/*获取模板消息id*/
-		$tmpConfig = $this->model('matter\tmplmsg\config')->getTmplConfig($oMatter, $noticeName, ['onlySite' => false, 'noticeURL' => $noticeURL]);
+		$aTmplOptions = ['onlySite' => false, 'noticeURL' => $noticeURL];
+		if (!empty($oTmplTimerTaskParams)) {
+			$aTmplOptions['timerTask'] = $oTmplTimerTaskParams;
+		}
+
+		$tmpConfig = $this->model('matter\tmplmsg\config')->getTmplConfig($oMatter, $noticeName, $aTmplOptions);
 		if ($tmpConfig[0] === false) {
 			return [false, $tmpConfig[1]];
 		}
@@ -107,7 +112,7 @@ class remind_model extends \TMS_MODEL {
 			return [false, '没有填写人'];
 		}
 
-		return [true, $oMatter, $noticeURL, $receivers];
+		return [true, $oMatter, $noticeURL, $receivers, null];
 	}
 	/**
 	 * 记录活动提醒通知
@@ -119,12 +124,19 @@ class remind_model extends \TMS_MODEL {
 			return [false, '指定的活动不存在，或已不可用'];
 		}
 
+		$oTmplTimerTaskParams = new \stdClass; // 模板消息中和定时任务相关的参数
+
 		/* 获得活动的进入链接 */
 		$noticeURL = $oMatter->entryUrl;
 		$noticeURL .= '&origin=timer';
 		if (!empty($oArguments->page)) {
 			$noticeURL .= '&page=' . $oArguments->page;
+			$aPageNames = ['repos' => '共享页', 'rank' => '排行榜', 'event' => '动态页'];
+			if (isset($aPageNames[$oArguments->page])) {
+				$oTmplTimerTaskParams->page = $aPageNames[$oArguments->page];
+			}
 		}
+
 		/* 通知接收人范围 */
 		$receiverScope = empty($oArguments->receiver->scope) ? 'enroll' : $oArguments->receiver->scope;
 
@@ -135,39 +147,62 @@ class remind_model extends \TMS_MODEL {
 				$modelMs = $this->model('site\user\memberschema');
 				$modelMem = $this->model('site\user\member');
 				$receivers = [];
+				$oTmplTimerTaskParams->receiver = [];
 				foreach ($oMatter->entryRule->member as $mschemaId => $oRule) {
-					$oMschema = $modelMs->byId($mschemaId, ['fields' => 'is_wx_fan', 'cascaded' => 'N']);
+					$oMschema = $modelMs->byId($mschemaId, ['fields' => 'title,is_wx_fan', 'cascaded' => 'N']);
 					if ($oMschema->is_wx_fan === 'Y') {
 						$aOnce = $modelMem->byMschema($mschemaId, ['fields' => 'userid']);
 						$receivers = array_merge($receivers, $aOnce);
+						$oTmplTimerTaskParams->receiver[] = $oMschema->title;
 					}
+				}
+				if (empty($oTmplTimerTaskParams->receiver)) {
+					unset($oTmplTimerTaskParams->receiver);
+				} else {
+					$oTmplTimerTaskParams->receiver = implode(',', $oTmplTimerTaskParams->receiver);
 				}
 			}
 			break;
 		case 'group':
 			if (isset($oArguments->receiver->app)) {
 				if (!empty($oArguments->receiver->app->id)) {
-					if (empty($oArguments->receiver->app->round->id)) {
-						$q = [
-							'distinct userid',
-							'xxt_group_player',
-							['state' => 1, 'aid' => $oArguments->receiver->app->id],
-						];
-						$receivers = $modelEnl->query_objs_ss($q);
-					} else {
-						$receivers = $this->model('matter\group\user')->byRound($oArguments->receiver->app->round->id, ['fields' => 'userid']);
+					$oGrpApp = $this->model('matter\group')->byId($oArguments->receiver->app->id, ['fields' => 'title']);
+					if ($oGrpApp) {
+						if (empty($oArguments->receiver->app->round->id)) {
+							$q = [
+								'distinct userid',
+								'xxt_group_player',
+								['state' => 1, 'aid' => $oArguments->receiver->app->id],
+							];
+							$receivers = $modelEnl->query_objs_ss($q);
+							$oTmplTimerTaskParams->receiver = $oGrpApp->title;
+						} else {
+							$oGrpAppRnd = $this->model('matter\group\round')->byId($oArguments->receiver->app->round->id);
+							if ($oGrpAppRnd) {
+								$receivers = $this->model('matter\group\user')->byRound($oArguments->receiver->app->round->id, ['fields' => 'userid']);
+								$oTmplTimerTaskParams->receiver = $oGrpAppRnd->title;
+							}
+						}
 					}
 				}
 			} else if (isset($oMatter->entryRule->scope->group) && $oMatter->entryRule->scope->group === 'Y' && !empty($oMatter->entryRule->group->id)) {
-				if (empty($oMatter->entryRule->group->round->id)) {
-					$q = [
-						'distinct userid',
-						'xxt_group_player',
-						['state' => 1, 'aid' => $oMatter->entryRule->group->id],
-					];
-					$receivers = $modelEnl->query_objs_ss($q);
-				} else {
-					$receivers = $this->model('matter\group\user')->byRound($oMatter->entryRule->group->round->id, ['fields' => 'userid']);
+				$oGrpApp = $this->model('matter\group')->byId($oMatter->entryRule->group->id, ['fields' => 'title']);
+				if ($oGrpApp) {
+					if (empty($oMatter->entryRule->group->round->id)) {
+						$q = [
+							'distinct userid',
+							'xxt_group_player',
+							['state' => 1, 'aid' => $oMatter->entryRule->group->id],
+						];
+						$receivers = $modelEnl->query_objs_ss($q);
+						$oTmplTimerTaskParams->receiver = $oGrpApp->title;
+					} else {
+						$oGrpAppRnd = $this->model('matter\group\round')->byId($oMatter->entryRule->group->round->id);
+						if ($oGrpAppRnd) {
+							$receivers = $this->model('matter\group\user')->byRound($oMatter->entryRule->group->round->id, ['fields' => 'userid']);
+							$oTmplTimerTaskParams->receiver = $oGrpAppRnd->title;
+						}
+					}
 				}
 			}
 			break;
@@ -182,6 +217,7 @@ class remind_model extends \TMS_MODEL {
 			];
 			$enrollUsers = $modelUsr->enrolleeByApp($oMatter, '', '', $aOptions);
 			$receivers = $enrollUsers->users;
+			$oTmplTimerTaskParams->receiver = '全体填写人';
 			break;
 		}
 
@@ -189,7 +225,7 @@ class remind_model extends \TMS_MODEL {
 			return [false, '指定活动中没有接收人'];
 		}
 
-		return [true, $oMatter, $noticeURL, $receivers];
+		return [true, $oMatter, $noticeURL, $receivers, $oTmplTimerTaskParams];
 	}
 	/**
 	 * 计划活动通知提醒
@@ -216,6 +252,6 @@ class remind_model extends \TMS_MODEL {
 			return [false, '没有填写人'];
 		}
 
-		return [true, $oMatter, $noticeURL, $receivers];
+		return [true, $oMatter, $noticeURL, $receivers, null];
 	}
 }

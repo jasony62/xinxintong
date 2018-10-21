@@ -289,6 +289,10 @@ define(['frame', 'groupService'], function(ngApp) {
                 });
             });
         };
+        $scope.remove = function(eventName) {
+            delete _oConfig[eventName];
+            $scope.save();
+        };
         srvEnlApp.get().then(function(oApp) {
             $scope.config = _oConfig = angular.copy(oApp.notifyConfig);
             $scope.$watch('config', function(oNewConfig, oOldConfig) {

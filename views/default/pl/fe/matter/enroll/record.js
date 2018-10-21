@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRecord', ['$scope', '$timeout', '$location', '$uibModal', 'srvEnrollApp', 'srvEnrollRound', 'srvEnrollRecord', '$filter', 'http2', 'noticebox', function($scope, $timeout, $location, $uibModal, srvEnrollApp, srvEnlRnd, srvEnrollRecord, $filter, http2, noticebox) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', '$timeout', '$location', '$uibModal', 'srvEnrollApp', 'srvEnrollRound', 'srvEnrollRecord', '$filter', 'http2', 'noticebox', 'tmsRowPicker', function($scope, $timeout, $location, $uibModal, srvEnrollApp, srvEnlRnd, srvEnrollRecord, $filter, http2, noticebox, tmsRowPicker) {
         function fnSum4Schema() {
             var sum4SchemaAtPage;
             $scope.sum4SchemaAtPage = sum4SchemaAtPage = {};
@@ -200,23 +200,11 @@ define(['frame'], function(ngApp) {
             http2.post('/rest/script/time', { html: { 'enrollee': '/views/default/pl/fe/matter/enroll/component/enrolleePicker' } }).then(function(rsp) {
                 $uibModal.open({
                     templateUrl: '/views/default/pl/fe/matter/enroll/component/enrolleePicker.html?_=' + rsp.data.html.enrollee.time,
-                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    controller: ['$scope', '$uibModalInstance', 'tmsRowPicker', function($scope2, $mi, tmsRowPicker) {
                         var _oPage, _oRows;
                         $scope2.tmsTableWrapReady = 'Y';
-                        $scope2.page = _oPage = { size: 20 };
-                        $scope2.rows = _oRows = {
-                            allSelected: 'N',
-                            selected: {},
-                            count: 0,
-                            change: function(index) {
-                                this.selected[index] ? this.count++ : this.count--;
-                            },
-                            reset: function() {
-                                this.allSelected = 'N';
-                                this.selected = {};
-                                this.count = 0;
-                            }
-                        };
+                        $scope2.page = _oPage = {};
+                        $scope2.rows = _oRows = new tmsRowPicker();
                         $scope2.doSearch = function(pageAt) {
                             var url;
 
@@ -259,35 +247,10 @@ define(['frame'], function(ngApp) {
             });
         };
         // 选中的记录
-        $scope.rows = {
-            allSelected: 'N',
-            selected: {},
-            count: 0,
-            change: function(index) {
-                this.selected[index] ? this.count++ : this.count--;
-                if (!this.selected[index]) delete this.selected[index];
-            },
-            indexes: function() {
-                return Object.keys(this.selected);
-            },
-            reset: function() {
-                this.allSelected = 'N';
-                this.selected = {};
-                this.count = 0;
-            }
-        };
+        $scope.rows = new tmsRowPicker();
         $scope.$watch('rows.allSelected', function(checked) {
-            var index = 0;
-            if (checked === 'Y') {
-                while (index < $scope.records.length) {
-                    $scope.rows.selected[index++] = true;
-                }
-                $scope.rows.count = $scope.records.length;
-            } else if (checked === 'N') {
-                $scope.rows.reset();
-            }
+            $scope.rows.setAllSelected(checked, $scope.records.length);
         });
-
         $scope.page = {}; // 分页条件
         $scope.criteria = {}; // 过滤条件
         $scope.records = []; // 登记记录

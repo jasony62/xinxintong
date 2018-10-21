@@ -835,4 +835,36 @@ controller('ComboxController', ['$scope', function($scope) {
         }
     };
     return oFacFilter;
-}]);
+}]).
+/* 记录列表的选择结果 */
+factory('tmsRowPicker', function() {
+    function RowPicker() {
+        this.allSelected = 'N';
+        this.selected = {};
+        this.count = 0;
+        this.change = function(index) {
+            this.selected[index] ? this.count++ : this.count--;
+            if (!this.selected[index]) delete this.selected[index];
+        };
+        this.indexes = function() {
+            return Object.keys(this.selected);
+        };
+        this.reset = function() {
+            this.allSelected = 'N';
+            this.selected = {};
+            this.count = 0;
+        };
+        this.setAllSelected = function(checked, amount) {
+            var index = 0;
+            if (checked === 'Y') {
+                while (index < amount) {
+                    this.selected[index++] = true;
+                }
+                this.count = amount;
+            } else if (checked === 'N') {
+                this.reset();
+            }
+        };
+    }
+    return RowPicker;
+});

@@ -3,7 +3,7 @@
     <h5 class="modal-title">选择用户</h5>
 </div>
 <div class="modal-body">
-    <div tms-flex-height top='117' bottom='66' class='form-group' style='width:100%;'>
+    <div tms-flex-height top='0' bottom='0' class='form-group' style='width:100%;'>
         <div tms-table-wrap ready='tmsTableWrapReady'>
             <table class='table table-bordered'>
                 <thead>
@@ -23,11 +23,6 @@
                         <th style='width:130px'>专题页被浏览次数</th>
                         <th style='width:120px'>浏览讨论页次数</th>
                         <th style='width:130px'>讨论页被浏览次数</th>
-                        <th style='width:150px'>共享页浏览累计时间</th>
-                        <th style='width:150px'>专题页浏览累计时间</th>
-                        <th style='width:160px'>专题页被浏览累计时间</th>
-                        <th style='width:150px'>讨论页浏览累计时间</th>
-                        <th style='width:160px'>讨论页被浏览累计时间</th>
                         <th>积分</th>
                         <th>得分</th>
                         <th ng-if="sns.wx.joined=='Y'">微信昵称</th>
@@ -64,11 +59,6 @@
                         <td>{{e.topic_read_num}}</td>
                         <td>{{e.do_cowork_read_num}}</td>
                         <td>{{e.cowork_read_num}}</td>
-                        <td>{{e.do_repos_read_elapse | filterTime}}</td>
-                        <td>{{e.do_topic_read_elapse | filterTime}}</td>
-                        <td>{{e.topic_read_elapse | filterTime}}</td>
-                        <td>{{e.do_cowork_read_elapse | filterTime}}</td>
-                        <td>{{e.cowork_read_elapse | filterTime}}</td>
                         <td>
                             <div ng-if='e.user.user_total_coin'>{{e.user.user_total_coin}}</div>
                             <div ng-if='e.user_total_coin'>{{e.user_total_coin}}</div>
@@ -83,11 +73,11 @@
                 </tbody>
             </table>
         </div>
-    </div>
-    <div class='form-group'>
-        <div class='pl-pagination'>
-            <span>总数：{{page.total}}</span>
-            <ul uib-pagination class='pull-right' ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+        <div class='form-group'>
+            <div class='pl-pagination'>
+                <span>总数：{{page.total}}</span>
+                <ul uib-pagination class='pull-right' ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+            </div>
         </div>
     </div>
 </div>

@@ -72,7 +72,7 @@
         </div>
         <div ng-if="user.registersByWx.length">
             <hr>
-            <button ng-repeat="other in user.registersByWx" class='btn btn-default btn-block' ng-click="shiftRegUser(other)">切换到账号【<span ng-bind="other.uname"></span>】</button>
+            <button ng-repeat="regUser in user.registersByWx" class='btn btn-default btn-block' ng-click="shiftRegUser(regUser)">切换到【<span ng-bind="regUser.uname"></span>】<span ng-if="regUser.is_wx_primary==='Y'">（微信默认）</span></button>
         </div>
     </div>
     <nav class='navbar navbar-default navbar-fixed-bottom' ng-if="site.id!=='platform'">
@@ -84,7 +84,11 @@
             </p>
         </div>
     </nav>
-    <script src="/static/js/require.js" defer async data-main="<?php echo auto_version('/views/default/site/fe/user/main-loader.js');?>"></script>
+    <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="<?php echo auto_version('/asset/js/xxt.ui.http.js');?>"></script>
+    <script src="<?php echo auto_version('/views/default/site/fe/user/main.js');?>"></script>
 </body>
 
 </html>

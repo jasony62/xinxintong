@@ -67,12 +67,12 @@ class main extends \site\fe\base {
 		 * 和微信openid绑定的注册账号
 		 */
 		$userAgent = $this->userAgent(); // 客户端类型
-		if (in_array($userAgent, ['wx'])) {
-			$otherRegisters = $this->_getOtherRegAntsByWxopenid($oAccount);
-			if (count($otherRegisters)) {
-				$oUser->registersByWx = $otherRegisters;
-			}
+		//if (in_array($userAgent, ['wx'])) {
+		$regUsers = $this->_getRegAntsByWxopenid($oAccount);
+		if (count($regUsers)) {
+			$oUser->registersByWx = $regUsers;
 		}
+		//}
 
 		return new \ResponseData($oUser);
 	}
@@ -160,7 +160,7 @@ class main extends \site\fe\base {
 		/**
 		 * 和微信openid绑定的注册账号
 		 */
-		$otherRegAnts = $this->_getOtherRegAntsByWxopenid($oCurrentAnt);
+		$otherRegAnts = $this->_getRegAntsByWxopenid($oCurrentAnt);
 		if (0 === count($otherRegAnts)) {
 			return new \ObjectNotFoundError('不存在可以切换的用户');
 		}
@@ -208,22 +208,19 @@ class main extends \site\fe\base {
 	/**
 	 * 根据微信的openid获得当前用户的注册用户
 	 */
-	private function _getOtherRegAntsByWxopenid($oAccount) {
+	private function _getRegAntsByWxopenid($oAccount) {
 		$accounts = [];
 		if (!empty($oAccount->wx_openid)) {
 			$modelAnt = $this->model('site\user\account');
 			$modelReg = $this->model('site\user\registration');
-			$others = $modelAnt->byOpenid($oAccount->siteid, 'wx', $oAccount->wx_openid, ['fields' => 'uid,nickname,unionid,is_wx_primary,is_reg_primary', 'is_reg_primary' => 'Y', 'has_unionid' => true]);
-			if (count($others) > 1) {
-				foreach ($others as $oOther) {
-					if ($oOther->uid === $oAccount->uid) {
-						continue;
-					}
-					$oReg = $modelReg->byId($oOther->unionid);
+			$regAnts = $modelAnt->byOpenid($oAccount->siteid, 'wx', $oAccount->wx_openid, ['fields' => 'uid,nickname,unionid,is_wx_primary,is_reg_primary', 'is_reg_primary' => 'Y', 'has_unionid' => true]);
+			if (count($regAnts) > 1) {
+				foreach ($regAnts as $oRegAnt) {
+					$oReg = $modelReg->byId($oRegAnt->unionid);
 					if ($oReg) {
-						$oOther->uname = $oReg->uname;
+						$oRegAnt->uname = $oReg->uname;
 					}
-					$accounts[] = $oOther;
+					$accounts[] = $oRegAnt;
 				}
 			}
 		}

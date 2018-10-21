@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRecord', ['$scope', '$timeout', '$location', 'srvEnrollApp', 'srvEnrollRound', 'srvEnrollRecord', '$filter', 'http2', 'noticebox', function($scope, $timeout, $location, srvEnrollApp, srvEnlRnd, srvEnrollRecord, $filter, http2, noticebox) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', '$timeout', '$location', '$uibModal', 'srvEnrollApp', 'srvEnrollRound', 'srvEnrollRecord', '$filter', 'http2', 'noticebox', function($scope, $timeout, $location, $uibModal, srvEnrollApp, srvEnlRnd, srvEnrollRecord, $filter, http2, noticebox) {
         function fnSum4Schema() {
             var sum4SchemaAtPage;
             $scope.sum4SchemaAtPage = sum4SchemaAtPage = {};
@@ -189,6 +189,75 @@ define(['frame'], function(ngApp) {
                 $scope.doSearch(1);
             });
         };
+        $scope.copyToUser = function() {
+            var oCopiedRecord;
+            if ($scope.rows.count === 1) {
+                oCopiedRecord = $scope.records[$scope.rows.indexes()[0]];
+            }
+            if (!oCopiedRecord) {
+                return;
+            }
+            http2.post('/rest/script/time', { html: { 'enrollee': '/views/default/pl/fe/matter/enroll/component/enrolleePicker' } }).then(function(rsp) {
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/enrolleePicker.html?_=' + rsp.data.html.enrollee.time,
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        var _oPage, _oRows;
+                        $scope2.tmsTableWrapReady = 'Y';
+                        $scope2.page = _oPage = { size: 20 };
+                        $scope2.rows = _oRows = {
+                            allSelected: 'N',
+                            selected: {},
+                            count: 0,
+                            change: function(index) {
+                                this.selected[index] ? this.count++ : this.count--;
+                            },
+                            reset: function() {
+                                this.allSelected = 'N';
+                                this.selected = {};
+                                this.count = 0;
+                            }
+                        };
+                        $scope2.doSearch = function(pageAt) {
+                            var url;
+
+                            _oRows.reset();
+                            pageAt && (_oPage.at = pageAt);
+                            url = '/rest/pl/fe/matter/enroll/user/enrollee?app=' + $scope.app.id;
+                            http2.post(url, {}, { page: _oPage }).then(function(rsp) {
+                                $scope2.enrollees = rsp.data.users;
+                            });
+                        };
+                        $scope2.execute = function(bClose) {
+                            var pickedEnrollees;
+                            if (_oRows.count) {
+                                pickedEnrollees = [];
+                                for (var i in _oRows.selected) {
+                                    pickedEnrollees.push($scope2.enrollees[i]);
+                                }
+                                if (bClose) {
+                                    $mi.close(pickedEnrollees);
+                                } else {
+
+                                }
+                            }
+                        };
+                        $scope2.cancel = function() {
+                            $mi.dismiss('cancel');
+                        };
+                        $scope2.doSearch(1);
+                    }],
+                    windowClass: 'auto-height',
+                    backdrop: 'static',
+                    size: 'lg'
+                }).result.then(function(enrollees) {
+                    if (enrollees && enrollees.length === 1) {
+                        http2.get('/rest/pl/fe/matter/enroll/record/copy?ek=' + oCopiedRecord.enroll_key + '&owner=' + enrollees[0].userid).then(function() {
+                            $scope.doSearch();
+                        });
+                    }
+                });
+            });
+        };
         // 选中的记录
         $scope.rows = {
             allSelected: 'N',
@@ -196,6 +265,10 @@ define(['frame'], function(ngApp) {
             count: 0,
             change: function(index) {
                 this.selected[index] ? this.count++ : this.count--;
+                if (!this.selected[index]) delete this.selected[index];
+            },
+            indexes: function() {
+                return Object.keys(this.selected);
             },
             reset: function() {
                 this.allSelected = 'N';

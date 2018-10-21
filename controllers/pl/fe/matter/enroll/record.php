@@ -3,12 +3,11 @@ namespace pl\fe\matter\enroll;
 
 require_once dirname(__FILE__) . '/main_base.php';
 /*
- * 登记记录
+ * 记录活动的记录
  */
 class record extends main_base {
 	/**
-	 * 活动登记名单
-	 *
+	 * 获得指定记录
 	 */
 	public function get_action($ek) {
 		if (false === $this->accountUser()) {
@@ -270,12 +269,61 @@ class record extends main_base {
 		return new \ResponseData($result);
 	}
 	/**
+	 * 复制记录
+	 *
+	 * @param string $ek 被复制记录的ID
+	 * @param string $owner 接受记录的用户id
+	 *
+	 */
+	public function copy_action($ek, $owner) {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		$modelRec = $this->model('matter\enroll\record');
+		$oCopiedRecord = $modelRec->byId($ek, ['verbose' => 'N']);
+		if (false === $oCopiedRecord) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelEnl = $this->model('matter\enroll');
+		$oApp = $modelEnl->byId($oCopiedRecord->aid, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelEnlUsr = $this->model('matter\enroll\user');
+		$oOwner = $modelEnlUsr->byId($oApp, $owner, ['fields' => 'userid,group_id,nickname']);
+		if (false === $oOwner) {
+			return new \ObjectNotFoundError();
+		}
+
+		$oMocker = new \stdClass;
+		$oMocker->uid = $oOwner->userid;
+		$oMocker->nickname = $oOwner->nickname;
+		$oMocker->group_id = $oOwner->group_id;
+
+		/* 创建记录 */
+		$aOptions = [];
+		$aOptions['assignRid'] = $oCopiedRecord->rid;
+		$newEk = $modelRec->enroll($oApp, $oMocker, $aOptions);
+		$aResult = $modelRec->setData($oMocker, $oApp, $newEk, $oCopiedRecord->data, true);
+		if (false === $aResult[0]) {
+			return new \ResponseError($aResult[1]);
+		}
+
+		/* 返回完整的记录 */
+		$oNewRecord = $modelRec->byId($newEk, ['verbose' => 'Y']);
+
+		return new \ResponseData($oNewRecord);
+	}
+	/**
 	 * 手工添加登记信息
 	 *
 	 * @param string $app
 	 */
 	public function add_action($app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oOperator = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$posted = $this->getPostJson();
@@ -287,7 +335,7 @@ class record extends main_base {
 		/* 创建登记记录 */
 		$aOptions = [];
 		!empty($posted->rid) && $aOptions['assignRid'] = $posted->rid;
-		$ek = $modelRec->enroll($oApp, '', $aOptions);
+		$ek = $modelRec->enroll($oApp, null, $aOptions);
 		$record = [];
 		$record['verified'] = isset($posted->verified) ? $posted->verified : 'N';
 		$record['comment'] = isset($posted->comment) ? $posted->comment : '';
@@ -299,11 +347,11 @@ class record extends main_base {
 
 		/* 记录登记数据 */
 		$addUser = $this->model('site\fe\way')->who($oApp->siteid);
-		$result = $modelRec->setData(null, $oApp, $ek, $posted->data, $addUser->uid, true, isset($posted->quizScore) ? $posted->quizScore : null);
+		$result = $modelRec->setData(null, $oApp, $ek, $posted->data, $addUser->uid, true);
 
 		/* 记录操作日志 */
 		$oRecord = $modelRec->byId($ek, ['fields' => 'enroll_key,data,rid']);
-		$this->model('matter\log')->matterOp($oApp->siteid, $user, $oApp, 'add', $oRecord);
+		$this->model('matter\log')->matterOp($oApp->siteid, $oOperator, $oApp, 'add', $oRecord);
 
 		/* 返回完整的记录 */
 		$oNewRecord = $modelRec->byId($ek, ['verbose' => 'Y']);

@@ -7,7 +7,7 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class main extends \site\fe\base {
 	/**
-	 * 进入用户主页
+	 * 进入用户个人中心
 	 */
 	public function index_action() {
 		\TPL::output('/site/fe/user/main');

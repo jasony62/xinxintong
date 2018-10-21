@@ -6,7 +6,7 @@
     <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
     <base href="/" />
     <title>
-        <?php echo APP_TITLE;?>——用户主页</title>
+        <?php echo APP_TITLE;?>——个人中心</title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
     <link href="<?php echo auto_version('/views/default/site/fe/user/main.css');?>" rel="stylesheet">
@@ -32,13 +32,13 @@
             <div class='nickname' ng-bind="user.nickname"></div>
         </div>
         <div class='list-group'>
+            <a class='list-group-item' href="/rest/site/fe/user/history?site={{site.id}}">最近参与</a>
             <a class='list-group-item' href="/rest/site/fe/user/coin?site={{site.id}}">我的积分</a>
             <a class='list-group-item subscription' href="/rest/site/fe/user/subscribe?site={{site.id}}">我的关注<span class="badge-new" ng-if="count.newSubscriptions>0"></span><span class="badge" ng-bind="count.subscription"></span></a>
             <a class='list-group-item' href="/rest/site/fe/user/favor?site={{site.id}}">我的收藏<span class="badge" ng-bind="count.favor"></span></a>
             <a class='list-group-item' href="/rest/site/fe/user/notice?site={{site.id}}">我的通知<span class="badge" ng-bind="count.notice"></span></a>
             <a class='list-group-item' href="/rest/site/fe/user/share?site={{site.id}}">我的分享</a>
             <a class='list-group-item' href="/rest/site/fe/user/invite?site={{site.id}}">我的邀请</a>
-            <a class='list-group-item' href="/rest/site/fe/user/history?site={{site.id}}">最近参与</a>
             <a href='' class='list-group-item' ng-click="toggleUserSetting($event)">
                 <span>个人设置</span>
                 <div ng-if="userSetting">

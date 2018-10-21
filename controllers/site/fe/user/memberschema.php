@@ -70,7 +70,7 @@ class memberschema extends \site\fe\base {
 		return new \ResponseData($aMemberSchemas);
 	}
 	/**
-	 * 获得用户主页可用的自定义联系人定义
+	 * 获得用户个人中心可用的自定义联系人定义
 	 */
 	public function atHome_action($site) {
 		$modelSchema = $this->model('site\user\memberschema');

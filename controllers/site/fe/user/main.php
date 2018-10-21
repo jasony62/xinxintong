@@ -212,9 +212,9 @@ class main extends \site\fe\base {
 		$accounts = [];
 		if (!empty($oAccount->wx_openid)) {
 			$modelAnt = $this->model('site\user\account');
-			$modelReg = $this->model('site\user\registration');
 			$regAnts = $modelAnt->byOpenid($oAccount->siteid, 'wx', $oAccount->wx_openid, ['fields' => 'uid,nickname,unionid,is_wx_primary,is_reg_primary', 'is_reg_primary' => 'Y', 'has_unionid' => true]);
-			if (count($regAnts) > 1) {
+			if (count($regAnts)) {
+				$modelReg = $this->model('site\user\registration');
 				foreach ($regAnts as $oRegAnt) {
 					$oReg = $modelReg->byId($oRegAnt->unionid);
 					if ($oReg) {

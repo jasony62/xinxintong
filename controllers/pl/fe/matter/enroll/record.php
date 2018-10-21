@@ -315,6 +315,9 @@ class record extends main_base {
 		/* 返回完整的记录 */
 		$oNewRecord = $modelRec->byId($newEk, ['verbose' => 'Y']);
 
+		/* 处理用户汇总数据，积分数据 */
+		$this->model('matter\enroll\event')->submitRecord($oApp, $oNewRecord, $oMocker, true);
+
 		return new \ResponseData($oNewRecord);
 	}
 	/**
@@ -1274,7 +1277,7 @@ class record extends main_base {
 	/**
 	 * 删除一条登记信息
 	 */
-	public function remove_action($app, $key) {
+	public function remove_action($app, $ek) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -1283,7 +1286,7 @@ class record extends main_base {
 			return new \ObjectNotFoundError();
 		}
 		$modelEnlRec = $this->model('matter\enroll\record');
-		$oRecord = $modelEnlRec->byId($key, ['fields' => 'userid,state,enroll_key,data,rid']);
+		$oRecord = $modelEnlRec->byId($ek, ['fields' => 'userid,state,enroll_key,data,rid']);
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();
 		}

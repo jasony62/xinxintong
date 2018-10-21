@@ -18,8 +18,8 @@
                     <th style='width:75px'>发表留言</th>
                     <th style='width:75px'>发表点赞</th>
                     <th style='width:75px'>获得推荐</th>
-                    <th>积分</th>
                     <th>得分</th>
+                    <th>积分</th>
                 </tr>
             </thead>
             <tbody>
@@ -48,10 +48,10 @@
                         <div ng-if='e.agree_num'>{{e.agree_num}}</div>
                     </td>
                     <td>
-                        <div ng-if='e.user_total_coin'>{{e.user_total_coin}}</div>
+                        <div ng-if='e.score'>{{e.score}}</div>
                     </td>
                     <td>
-                        <div ng-if='e.score'>{{e.score}}</div>
+                        <div ng-if='e.user_total_coin'>{{e.user_total_coin}}</div>
                     </td>
                 </tr>
             </tbody>

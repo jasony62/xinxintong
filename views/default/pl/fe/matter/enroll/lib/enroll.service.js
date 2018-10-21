@@ -853,7 +853,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             };
             _ins.remove = function(record) {
                 if (window.confirm('确认删除？')) {
-                    http2.get('/rest/pl/fe/matter/enroll/record/remove?site=' + _siteId + '&app=' + _appId + '&key=' + record.enroll_key).then(function(rsp) {
+                    http2.get('/rest/pl/fe/matter/enroll/record/remove?app=' + _appId + '&ek=' + record.enroll_key).then(function(rsp) {
                         var i = _ins._aRecords.indexOf(record);
                         _ins._aRecords.splice(i, 1);
                         _ins._oPage.total = _ins._oPage.total - 1;

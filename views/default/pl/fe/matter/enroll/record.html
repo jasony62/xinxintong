@@ -86,52 +86,53 @@
                         </td>
                         <td>{{(page.at-1)*page.size+$index+1}}</td>
                         <td ng-if="bRequireNickname"><span>{{r.nickname}}</span></td>
-                        <td ng-if="bRequireGroup"><span>{{r.group.title}}</span> <span ng-if="r.group_id!==r.user.group.id" class='glyphicon glyphicon-exclamation-sign' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span></td>
+                        <td ng-if="bRequireGroup"><span>{{r.group.title}}</span> <span ng-if="r.group_id!==r.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span></td>
                         <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                         <td>{{r.round.title}}</td>
                         <td ng-repeat="schema in recordSchemasExt" ng-switch on="schema.type">
                             <div ng-switch-when="image">
-                                <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
+                                <span><img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' /></span>
                             </div>
-                                <div ng-switch-when="file">
-                                    <span ng-repeat='file in r._data[schema.id]'><a href ng-click="openFileUrl(file)" target="_blank">{{file.name}}</a></span>
-                                </div>
-                                <div ng-switch-when="multitext">
-                                    <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>
-                                </div>
-                                <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
-                                <span ng-switch-when="url" ng-bind-html="r._data[schema.id]._text"></span>
-                                <span ng-switch-when="remark">{{r.verbose.data[schema.id].remark_num}}</span>
-                                <span ng-switch-when="calcScore">{{r.score[schema.id]}}</span>
-                                <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
-                                <p ng-if="['single', 'multiple', 'image', 'file'].indexOf(schema.type)!==-1&&r.supplement[schema.id].length">(补充说明：<span ng-bind-html="r.supplement[schema.id]"></span>)</p>
+                            <div ng-switch-when="file">
+                                <span ng-repeat='file in r._data[schema.id]'><a href ng-click="openFileUrl(file)" target="_blank">{{file.name}}</a></span>
+                            </div>
+                            <div ng-switch-when="multitext">
+                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>
+                            </div>
+                            <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-switch-when="url" ng-bind-html="r._data[schema.id]._text"></span>
+                            <span ng-switch-when="remark">{{r.verbose.data[schema.id].remark_num}}</span>
+                            <span ng-switch-when="calcScore">{{r.score[schema.id]}}</span>
+                            <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
+                            <span ng-if="schema.id==='_round_id'&&r.group_id!==r.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span>
+                            <p ng-if="['single', 'multiple', 'image', 'file'].indexOf(schema.type)!==-1&&r.supplement[schema.id].length">(补充说明：<span ng-bind-html="r.supplement[schema.id]"></span>)</p>
                         </td>
                         <td ng-if="bRequireScore" ng-bind="r.score.sum"></td>
                         <td class='matched enroll' ng-repeat="schema in enrollDataSchemas" ng-switch on="schema.type">
                             <div ng-switch-when="image">
-                                <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
+                                <span><img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' /></span>
                             </div>
-                                <div ng-switch-when="file">
-                                    <span ng-repeat='file in r._data[schema.id]'><a href ng-click="openFileUrl(file)" target="_blank">{{file.name}}</a></span>
-                                </div>
-                                <div ng-switch-when="multitext">
-                                    <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>
-                                </div>
-                                <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
-                                <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
+                            <div ng-switch-when="file">
+                                <span ng-repeat='file in r._data[schema.id]'><a href ng-click="openFileUrl(file)" target="_blank">{{file.name}}</a></span>
+                            </div>
+                            <div ng-switch-when="multitext">
+                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>
+                            </div>
+                            <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
                         </td>
                         <td class='matched group' ng-repeat="schema in groupDataSchemas" ng-switch on="schema.type">
                             <div ng-switch-when="image">
-                                <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />
+                                <span><img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' /></span>
                             </div>
-                                <span ng-switch-when="file">
+                            <span ng-switch-when="file">
                                 <span ng-repeat='file in r._data[schema.id]'><a href ng-click="openFileUrl(file)" target="_blank">{{file.name}}</a></span>
-                                </span>
-                                <div ng-switch-when="multitext">
-                                    <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>
-                                </div>
-                                <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
-                                <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
+                            </span>
+                            <div ng-switch-when="multitext">
+                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>
+                            </div>
+                            <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
                         </td>
                         <td>{{r.verified}}</td>
                         <td ng-if="app.tags.length">{{r.tags}}</td>

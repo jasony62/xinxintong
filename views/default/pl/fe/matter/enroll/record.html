@@ -85,8 +85,8 @@
                             <input type='checkbox' ng-model="rows.selected[$index]" ng-change="rows.change($index)">
                         </td>
                         <td>{{(page.at-1)*page.size+$index+1}}</td>
-                        <td ng-if="bRequireNickname"><span>{{r.nickname}}</span> <span ng-if="r.group_id!==r.user.group.id" class='glyphicon glyphicon-exclamation-sign' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span></td>
-                        <td ng-if="bRequireGroup"><span>{{r.group.title}}</span></td>
+                        <td ng-if="bRequireNickname"><span>{{r.nickname}}</span></td>
+                        <td ng-if="bRequireGroup"><span>{{r.group.title}}</span> <span ng-if="r.group_id!==r.user.group.id" class='glyphicon glyphicon-exclamation-sign' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span></td>
                         <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                         <td>{{r.round.title}}</td>
                         <td ng-repeat="schema in recordSchemasExt" ng-switch on="schema.type">

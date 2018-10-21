@@ -3,76 +3,59 @@
     <h5 class="modal-title">选择用户</h5>
 </div>
 <div class="modal-body">
-    <div tms-flex-height top='0' bottom='0' class='form-group' style='width:100%;'>
-        <div tms-table-wrap ready='tmsTableWrapReady'>
-            <table class='table table-bordered'>
-                <thead>
-                    <tr>
-                        <th style='width:28px'>
-                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
-                        </th>
-                        <th style='width:48px'>序号</th>
-                        <th data-filter-by='nickname' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)" style='width:75px'>姓名 <i class='glyphicon glyphicon-filter'></i></th>
-                        <th style='width:120px'>分组</th>
-                        <th style='width:75px'>填写记录</th>
-                        <th style='width:75px'>发表留言</th>
-                        <th style='width:75px'>发表点赞</th>
-                        <th style='width:75px'>获得推荐</th>
-                        <th style='width:120px'>浏览共享页次数</th>
-                        <th style='width:120px'>浏览专题页次数</th>
-                        <th style='width:130px'>专题页被浏览次数</th>
-                        <th style='width:120px'>浏览讨论页次数</th>
-                        <th style='width:130px'>讨论页被浏览次数</th>
-                        <th>积分</th>
-                        <th>得分</th>
-                        <th ng-if="sns.wx.joined=='Y'">微信昵称</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat='e in enrollees'>
-                        <td>
-                            <input type='checkbox' ng-model="rows.selected[$index]" ng-change="rows.change($index)">
-                        </td>
-                        <td>{{$index+1}}</td>
-                        <td>{{e.nickname}}</td>
-                        <td>
-                            <div ng-if='e.group'>{{e.group.title}}</div>
-                        </td>
-                        <td>
-                            <div ng-if='e.user.enroll_num'>{{e.user.enroll_num}}</div>
-                            <div ng-if='e.enroll_num'>{{e.enroll_num}}</div>
-                        </td>
-                        <td>
-                            <div ng-if='e.user.do_remark_num'>{{e.user.do_remark_num}}</div>
-                            <div ng-if='e.do_remark_num'>{{e.do_remark_num}}</div>
-                        </td>
-                        <td>
-                            <div ng-if='e.user.do_like_num'>{{e.user.do_like_num}}</div>
-                            <div ng-if='e.do_like_num'>{{e.do_like_num}}</div>
-                        </td>
-                        <td>
-                            <div ng-if='e.user.agree_num'>{{e.user.agree_num}}</div>
-                            <div ng-if='e.agree_num'>{{e.agree_num}}</div>
-                        </td>
-                        <td>{{e.do_repos_read_num}}</td>
-                        <td>{{e.do_topic_read_num}}</td>
-                        <td>{{e.topic_read_num}}</td>
-                        <td>{{e.do_cowork_read_num}}</td>
-                        <td>{{e.cowork_read_num}}</td>
-                        <td>
-                            <div ng-if='e.user.user_total_coin'>{{e.user.user_total_coin}}</div>
-                            <div ng-if='e.user_total_coin'>{{e.user_total_coin}}</div>
-                        </td>
-                        <td>
-                            <div ng-if='e.score'>{{e.score}}</div>
-                        </td>
-                        <td ng-if="sns.wx.joined=='Y'">
-                            <div ng-show="e.wx_openid">{{e.wxfan.nickname}}</div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <div tms-table-wrap ready='tmsTableWrapReady' overflow-x='auto'>
+        <table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th style='width:28px'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
+                    </th>
+                    <th style='width:48px'>序号</th>
+                    <th data-filter-by='nickname' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)" style='width:75px'>姓名 <i class='glyphicon glyphicon-filter'></i></th>
+                    <th>微信昵称</th>
+                    <th style='width:120px'>分组</th>
+                    <th style='width:75px'>填写记录</th>
+                    <th style='width:75px'>发表留言</th>
+                    <th style='width:75px'>发表点赞</th>
+                    <th style='width:75px'>获得推荐</th>
+                    <th>积分</th>
+                    <th>得分</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat='e in enrollees'>
+                    <td>
+                        <input type='checkbox' ng-model="rows.selected[$index]" ng-change="rows.change($index)">
+                    </td>
+                    <td>{{$index+1}}</td>
+                    <td>{{e.nickname}}</td>
+                    <td>
+                        <div ng-show="e.wx_openid">{{e.wxfan.nickname}}</div>
+                    </td>
+                    <td>
+                        <div ng-if='e.group'>{{e.group.title}}</div>
+                    </td>
+                    <td>
+                        <div ng-if='e.enroll_num'>{{e.enroll_num}}</div>
+                    </td>
+                    <td>
+                        <div ng-if='e.do_remark_num'>{{e.do_remark_num}}</div>
+                    </td>
+                    <td>
+                        <div ng-if='e.do_like_num'>{{e.do_like_num}}</div>
+                    </td>
+                    <td>
+                        <div ng-if='e.agree_num'>{{e.agree_num}}</div>
+                    </td>
+                    <td>
+                        <div ng-if='e.user_total_coin'>{{e.user_total_coin}}</div>
+                    </td>
+                    <td>
+                        <div ng-if='e.score'>{{e.score}}</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
         <div class='form-group'>
             <div class='pl-pagination'>
                 <span>总数：{{page.total}}</span>

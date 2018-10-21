@@ -200,18 +200,22 @@ define(['frame'], function(ngApp) {
             http2.post('/rest/script/time', { html: { 'enrollee': '/views/default/pl/fe/matter/enroll/component/enrolleePicker' } }).then(function(rsp) {
                 $uibModal.open({
                     templateUrl: '/views/default/pl/fe/matter/enroll/component/enrolleePicker.html?_=' + rsp.data.html.enrollee.time,
-                    controller: ['$scope', '$uibModalInstance', 'tmsRowPicker', function($scope2, $mi, tmsRowPicker) {
-                        var _oPage, _oRows;
+                    controller: ['$scope', '$uibModalInstance', 'tmsRowPicker', 'facListFilter', function($scope2, $mi, tmsRowPicker, facListFilter) {
+                        var _oPage, _oCriteria, _oRows;
                         $scope2.tmsTableWrapReady = 'Y';
                         $scope2.page = _oPage = {};
+                        $scope2.criteria = _oCriteria = { filter: {} };
                         $scope2.rows = _oRows = new tmsRowPicker();
+                        $scope2.filter = facListFilter.init(function() {
+                            $scope2.doSearch(1);
+                        }, _oCriteria.filter);
                         $scope2.doSearch = function(pageAt) {
                             var url;
 
                             _oRows.reset();
                             pageAt && (_oPage.at = pageAt);
                             url = '/rest/pl/fe/matter/enroll/user/enrollee?app=' + $scope.app.id;
-                            http2.post(url, {}, { page: _oPage }).then(function(rsp) {
+                            http2.post(url, _oCriteria, { page: _oPage }).then(function(rsp) {
                                 $scope2.enrollees = rsp.data.users;
                             });
                         };

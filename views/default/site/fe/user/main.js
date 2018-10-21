@@ -89,10 +89,7 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'userService', func
     };
     $scope.shiftRegUser = function(oOtherRegUser) {
         http2.post('/rest/site/fe/user/shiftRegUser?site=' + siteId, { uname: oOtherRegUser.uname }).then(function(rsp) {
-            var oNewUser = rsp.data;
-            if (oNewUser.uid !== $scope.user.uid) {
-                location.reload();
-            }
+            location.reload();
         });
     };
     http2.get('/rest/site/fe/get?site=' + siteId).then(function(rsp) {

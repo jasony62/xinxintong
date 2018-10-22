@@ -1,7 +1,0 @@
-*{margin:0;padding:0}
-*,:before,:after{box-sizing:border-box}
-body{background-color:white}
-#gotoLogin{width:100%;text-align:center;margin-top:30px;}
-#frmPlugin{position:absolute;top:0;bottom:0;left:0;right:0;width:100%;height:100%;border:none;z-index:999;box-sizing:border-box;padding-bottom:48px;background:#fff;}
-#frmPlugin iframe{width:100%;height:100%;}
-#frmPlugin:after{content:'关闭';position:absolute;width:100px;text-align:center;left:50%;margin-left:-50px;bottom:4px;padding:5px 6px 3px;border:1px solid #ccc;border-radius:4px;}

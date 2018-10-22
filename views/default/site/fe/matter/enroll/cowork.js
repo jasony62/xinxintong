@@ -516,6 +516,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
                 windowClass: 'modal-remark auto-height',
                 backdrop: 'static',
             }).result.then(function(data) {
+                if (!data.content) return;
                 addRemark(data.content, oUpperRemark).then(function(rsp) {
                     fnAppendRemark(rsp.data, oUpperRemark);
                     if (rsp.data.remarkResult.user_total_coin) {
@@ -722,6 +723,7 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
                 windowClass: 'modal-remark auto-height',
                 backdrop: 'static',
             }).result.then(function(data) {
+                if (!data.content) return;
                 var oRecData, oNewItem, url;
                 oRecData = $scope.record.verbose[oSchema.id];
                 oNewItem = {
@@ -739,8 +741,8 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
                         oRecData = $scope.record.verbose[oSchema.id] = rsp.data.oRecData;
                         oRecData.items = [oNewItem];
                     }
-                    if(rsp.data.coworkResult.user_total_coin) {
-                        noticebox.info('您获得【'+ rsp.data.coworkResult.user_total_coin +'】分');
+                    if (rsp.data.coworkResult.user_total_coin) {
+                        noticebox.info('您获得【' + rsp.data.coworkResult.user_total_coin + '】分');
                     }
                 });
             });
@@ -769,6 +771,7 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
             windowClass: 'modal-remark auto-height',
             backdrop: 'static',
         }).result.then(function(data) {
+            if (!data.content) return;
             var oNewItem;
             oNewItem = {
                 value: data.content
@@ -829,6 +832,7 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
                 windowClass: 'modal-remark auto-height',
                 backdrop: 'static',
             }).result.then(function(data) {
+                if (!data.content) return;
                 http2.post(LS.j('remark/add', 'site', 'ek') + '&data=' + oItem.id, { content: data.content }).then(function(rsp) {
                     var oNewRemark;
                     oNewRemark = rsp.data;
@@ -845,7 +849,7 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
                         }
                         document.body.scrollTop = offsetTop - 40;
                         elRemark.classList.add('blink');
-                        if(rsp.data.remarkResult.user_total_coin) {
+                        if (rsp.data.remarkResult.user_total_coin) {
                             noticebox.info('您获得【' + rsp.data.remarkResult.user_total_coin + '】分');
                         }
                         $timeout(function() {

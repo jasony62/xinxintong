@@ -110,14 +110,16 @@ ngMod.service('tmsDynaPage', ['$q', function($q) {
         return deferred.promise;
     };
     this.openPlugin = function(content) {
-        var frag, wrap, frm, body, deferred = $q.defer();
+        var frag, wrap, frm, html, body, deferred = $q.defer();
         if(document.documentElement.clientWidth > 768) {
             document.documentElement.scrollTop  = 0;
         } else {
             document.body.scrollTop  = 0;
         }
         body = document.getElementsByTagName('body')[0];
-        body.style.cssText="overflow-y:hidden";
+        html = document.getElementsByTagName('html')[0];
+        html.style.cssText="height:100%;"
+        body.style.cssText="height:100%;overflow-y:hidden";
         frag = document.createDocumentFragment();
         wrap = document.createElement('div');
         wrap.setAttribute('id', 'frmPlugin');

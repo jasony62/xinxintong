@@ -833,6 +833,9 @@ class record_model extends record_base {
 			if (property_exists($oRec, 'like_log')) {
 				$oRec->like_log = empty($oRec->like_log) ? new \stdClass : json_decode($oRec->like_log);
 			}
+			if (property_exists($oRec, 'dislike_log')) {
+				$oRec->dislike_log = empty($oRec->dislike_log) ? new \stdClass : json_decode($oRec->dislike_log);
+			}
 			//附加说明
 			if (!empty($oRec->supplement)) {
 				$supplement = str_replace("\n", ' ', $oRec->supplement);

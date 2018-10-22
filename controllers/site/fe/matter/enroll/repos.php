@@ -498,7 +498,12 @@ class repos extends base {
 									$options['agreed'] = ['Y', 'A'];
 								}
 								$items = $modelData->getMultitext($oRecord->enroll_key, $oSchema->id, $options);
-								$aCoworkState[$oSchema->id] = (object) ['length' => count($items)];
+								if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
+									$countItems = $modelData->getMultitext($oRecord->enroll_key, $oSchema->id, ['agreed' => ['Y', 'A'], 'fields' => 'id']);
+									$aCoworkState[$oSchema->id] = (object) ['length' => count($countItems)];
+								} else {
+									$aCoworkState[$oSchema->id] = (object) ['length' => count($items)];
+								}
 								if ($coworkReposLikeNum) {
 									$reposItems = [];
 									foreach ($items as $oItem) {

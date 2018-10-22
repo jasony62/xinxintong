@@ -34,7 +34,6 @@ class script extends TMS_CONTROLLER {
 				return;
 			}
 
-			// if (strpos($path, DIRECTORY_SEPARATOR) !== 0 || !file_exists(TMS_APP_DIR . $path)) {
 			if (strpos($path, '/') !== 0 || !file_exists(TMS_APP_DIR . $path)) {
 				$times->{$category}->{$name} = '';
 			} else {

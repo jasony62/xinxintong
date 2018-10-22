@@ -1,8 +1,8 @@
 (function() {
     ngApp.provider.controller('ctrlAward', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
-        
+
         $scope.addAward = function() {
-            http2.get('/rest/pl/fe/matter/lottery/award/add?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+            http2.get('/rest/pl/fe/matter/lottery/award/add?site=' + $scope.siteId + '&app=' + $scope.id).then(function(rsp) {
                 $scope.app.awards.push(rsp.data);
                 $scope.openAward(rsp.data);
             });
@@ -31,7 +31,7 @@
                     };
                 }]
             }).result.then(function(option) {
-                http2.post('/rest/pl/fe/matter/lottery/award/batch?site=' + $scope.siteId + '&app=' + $scope.id, option, function(rsp) {
+                http2.post('/rest/pl/fe/matter/lottery/award/batch?site=' + $scope.siteId + '&app=' + $scope.id, option).then(function(rsp) {
                     var i, l, award;
                     for (i = 0, l = rsp.data.length; i < l; i++) {
                         award = rsp.data[i];
@@ -77,7 +77,7 @@
                 delete updatedAward.siteid;
                 delete updatedAward.lid;
                 delete updatedAward.aid;
-                http2.post('/rest/pl/fe/matter/lottery/award/update?site=' + $scope.siteId + '&app=' + $scope.id + '&award=' + award.aid, updatedAward, function(rsp) {
+                http2.post('/rest/pl/fe/matter/lottery/award/update?site=' + $scope.siteId + '&app=' + $scope.id + '&award=' + award.aid, updatedAward).then(function(rsp) {
                     angular.extend(award, updatedAward);
                     award._type = $scope.awardTypes[award.type].n;
                     award._period = $scope.awardPeriods[award.period].n;
@@ -86,7 +86,7 @@
         };
         $scope.removeAward = function(award) {
             if (confirm('确定删除？')) {
-                http2.get('/rest/pl/fe/matter/lottery/award/remove?site=' + $scope.siteId + '&app=' + $scope.id + '&award=' + award.aid, function(rsp) {
+                http2.get('/rest/pl/fe/matter/lottery/award/remove?site=' + $scope.siteId + '&app=' + $scope.id + '&award=' + award.aid).then(function(rsp) {
                     var i = $scope.app.awards.indexOf(award);
                     $scope.app.awards.splice(i, 1);
                 });

@@ -31,7 +31,7 @@ class schema_model extends \TMS_MODEL {
 	public function purify($aAppSchemas) {
 		$validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'optGroups', 'defaultValue', 'cowork', 'filterWhiteSpace', 'ops', 'schema_id', 'asdir'];
 		$validPropsBySchema = [
-			'html' => ['id', 'type', 'content', 'title'],
+			'html' => ['id', 'type', 'content', 'title', 'visibility'],
 		];
 
 		$purified = [];
@@ -92,6 +92,20 @@ class schema_model extends \TMS_MODEL {
 					}
 					if ($del) {
 						unset($oSchema->answer);
+					}
+				}
+				break;
+			case 'shorttext':
+				if (isset($oSchema->format) && $oSchema->format === 'number') {
+					if (isset($oSchema->scoreMode) && $oSchema->scoreMode === 'evaluation') {
+						if (empty($oSchema->weight)) {
+							$oSchema->weight = 1;
+						} else if (!is_numeric($oSchema->weight)) {
+							/* 检查是否为可运行的表达式 */
+							if (false === $this->scoreByWeight($oSchema->weight, 5)) {
+								$oSchema->weight = 1;
+							}
+						}
 					}
 				}
 				break;
@@ -241,7 +255,6 @@ class schema_model extends \TMS_MODEL {
 					}
 				}
 			}
-
 			$purified[] = $oSchema;
 		}
 
@@ -263,6 +276,104 @@ class schema_model extends \TMS_MODEL {
 			unset($oSchema->schema_id);
 
 			return true;
+		}
+
+		return false;
+	}
+	/**
+	 * 根据权重表达式计算得分
+	 *
+	 * 如果权重设置不符合要求返回false
+	 * 如果计算后的得分小于0，得分记为0
+	 *
+	 */
+	public function scoreByWeight($weight, $x) {
+		if (empty($weight) || empty($x) || !is_numeric($x)) {
+			return false;
+		}
+		if (is_numeric($weight)) {
+			return $weight * $x;
+		}
+		if (is_string($weight)) {
+			/* 解析权重公式 */
+			$stackCases = [];
+			$cases = explode(';', $weight);
+			foreach ($cases as $cn => $case) {
+				list($condition, $equation) = (strpos($case, '?') ? explode('?', $case) : ['', $case]);
+				/* 适用条件 */
+				$stackCondition = [(string) $x, '', ''];
+				if (isset($condition)) {
+					$index = 0;
+					$length = strlen($condition);
+					while ($index < $length) {
+						$char = $condition[$index];
+						if (in_array($char, ['>', '<', '='])) {
+							if (!empty($stackCondition[2])) {
+								return false;
+							}
+							$stackCondition[1] .= $char;
+						} else if (is_numeric($char)) {
+							$stackCondition[2] .= $char;
+						} else {
+							return false;
+						}
+						$index++;
+					}
+					if ($stackCondition[1] === '=') {
+						$stackCondition[1] = '===';
+					}
+				}
+				/* 计算公式 */
+				$stackEquation = [];
+				if (is_numeric($equation)) {
+					$stackEquation[] = $equation;
+				} else {
+					$index = 0;
+					$length = strlen($equation);
+					$stackNumber = (string) $x;
+					while ($index < $length) {
+						$char = $equation[$index];
+						if (in_array($char, ['+', '-', '*', '/'])) {
+							if (empty($stackNumber)) {
+								return false;
+							}
+							$stackEquation[] = $stackNumber;
+							$stackEquation[] = $char;
+							$stackNumber = '';
+							$index++;
+						} else if (is_numeric($char)) {
+							$stackNumber .= $char;
+							$index++;
+							if ($index === $length) {
+								if (!empty($stackNumber)) {
+									$stackEquation[] = $stackNumber;
+									break;
+								}
+							}
+						} else {
+							return false;
+						}
+					}
+				}
+				// 全部计算规则
+				$stackCases[] = [$stackCondition, $stackEquation];
+			}
+			if (empty($stackCases)) {
+				return false;
+			}
+			foreach ($stackCases as $aCase) {
+				if (strlen($aCase[0][1]) && strlen($aCase[0][2])) {
+					if (false === eval('return ' . implode('', $aCase[0]) . ';')) {
+						continue;
+					}
+				}
+				$score = eval('return ' . implode('', $aCase[1]) . ';');
+			}
+			if (!isset($score)) {
+				return false;
+			}
+
+			return $score;
 		}
 
 		return false;

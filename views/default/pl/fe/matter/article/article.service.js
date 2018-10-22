@@ -18,16 +18,16 @@ angular.module('service.article', ['ui.bootstrap', 'ui.xxt']).provider('srvLog',
                     });
                 }
                 //收藏接口
-                switch(type) {
+                switch (type) {
                     case 'favor':
                         url = '/rest/pl/fe/matter/article/favor/list?site=' + article.siteid + '&id=' + article.id;
-                    break;
+                        break;
                     case 'download':
                         url = '/rest/pl/fe/matter/article/log/attachmentLog?site=' + article.siteid + '&appId=' + article.id;
-                    break;
+                        break;
                 }
                 url += page._j();
-                http2.post(url, criteria, function(rsp) {
+                http2.post(url, criteria).then(function(rsp) {
                     rsp.data.total && (page.total = rsp.data.total);
                     defer.resolve(rsp.data);
                 });
@@ -50,7 +50,7 @@ angular.module('service.article', ['ui.bootstrap', 'ui.xxt']).provider('srvLog',
                 var defer = $q.defer(),
                     url;
                 url = '/rest/pl/fe/matter/article/get?id=' + articleId;
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     edit = rsp.data;
                     defer.resolve(edit);
                 });
@@ -70,7 +70,7 @@ angular.module('service.article', ['ui.bootstrap', 'ui.xxt']).provider('srvLog',
                     }
                 });
                 url = '/rest/pl/fe/matter/article/update?site=' + siteId + '&id=' + articleId;
-                http2.post(url, modifiedData, function(rsp) {
+                http2.post(url, modifiedData).then(function(rsp) {
                     noticebox.success('完成保存');
                     defer.resolve(rsp.data);
                 });
@@ -93,7 +93,7 @@ angular.module('service.article', ['ui.bootstrap', 'ui.xxt']).provider('srvLog',
                             id: articleId,
                             type: 'article'
                         };
-                        http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + siteId + '&id=' + missions.matters[0].id, matter, function(rsp) {
+                        http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + siteId + '&id=' + missions.matters[0].id, matter).then(function(rsp) {
                             var mission = rsp.data,
                                 updatedFields = ['mission_id'];
 
@@ -124,7 +124,7 @@ angular.module('service.article', ['ui.bootstrap', 'ui.xxt']).provider('srvLog',
                             title: edit.title
                         },
                         defer = $q.defer();
-                    http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + siteId + '&id=' + edit.mission_id, matter, function(rsp) {
+                    http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + siteId + '&id=' + edit.mission_id, matter).then(function(rsp) {
                         delete edit.mission;
                         edit.mission_id = 0;
                         _this.update(['mission_id']).then(function() {
@@ -161,7 +161,7 @@ angular.module('service.article', ['ui.bootstrap', 'ui.xxt']).provider('srvLog',
                     });
                 }
                 url = '/rest/pl/fe/matter/article/coin/logs?site=' + articleSiteId + '&id=' + articleId + page._j();
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     rsp.data.total && (page.total = rsp.data.total);
                     defer.resolve(rsp.data.logs);
                 });

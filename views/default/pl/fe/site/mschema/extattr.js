@@ -7,7 +7,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         var _oMschema;
         $scope.submitChange = function() {
             var deferred = $q.defer();
-            http2.post('/rest/pl/fe/site/member/schema/update?site=' + _oMschema.siteid + '&id=' + _oMschema.id, { 'extAttrs': _oMschema.extAttrs }, function(rsp) {
+            http2.post('/rest/pl/fe/site/member/schema/update?site=' + _oMschema.siteid + '&id=' + _oMschema.id, { 'extAttrs': _oMschema.extAttrs }).then(function(rsp) {
                 deferred.resolve();
             });
             return deferred.promise;

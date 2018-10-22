@@ -1,21 +1,7 @@
-define(['missionService', 'enrollService', 'signinService'], function() {
+define(['frame/RouteParam', 'frame/templates', 'missionService', 'enrollService', 'signinService'], function(RouteParam, frameTemplates) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'tinymce.ui.xxt', 'schema.ui.xxt', 'pl.const', 'service.matter', 'service.mission', 'service.enroll', 'service.signin']);
+    var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'ui.xxt', 'tinymce.ui.xxt', 'http.ui.xxt', 'notice.ui.xxt', 'schema.ui.xxt', 'pl.const', 'service.matter', 'service.mission', 'service.enroll', 'service.signin']);
     ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvMissionProvider', 'srvMissionRoundProvider', 'srvQuickEntryProvider', 'srvTagProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvMissionProvider, srvMissionRoundProvider, srvQuickEntryProvider, srvTagProvider) {
-        var RouteParam = function(name) {
-            var baseURL = '/views/default/pl/fe/matter/mission/';
-            this.templateUrl = baseURL + name + '.html?_=' + ((new Date()) * 1);
-            this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
-            this.resolve = {
-                load: function($q) {
-                    var defer = $q.defer();
-                    require([baseURL + name + '.js'], function() {
-                        defer.resolve();
-                    });
-                    return defer.promise;
-                }
-            };
-        };
         ngApp.provider = {
             controller: $controllerProvider.register,
             directive: $compileProvider.directive
@@ -61,6 +47,7 @@ define(['missionService', 'enrollService', 'signinService'], function() {
         $scope.isNavCollapsed = $scope.isSmallLayout;
         $scope.subView = '';
         $scope.CstNaming = CstNaming;
+        $scope.frameTemplates = frameTemplates;
         $scope.update = function(name) {
             var modifiedData = {};
             if (angular.isObject(name)) {

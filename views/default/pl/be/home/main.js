@@ -4,7 +4,7 @@ define(['frame'], function(ngApp) {
         function createPage(pageType) {
             var url = '/rest/pl/be/home/pageCreate?name=' + pageType;
             url += '&template=basic';
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.platform[pageType + '_page_name'] = rsp.data.name;
                 location.href = '/rest/pl/fe/code?site=platform&name=' + rsp.data.name;
             });
@@ -16,13 +16,13 @@ define(['frame'], function(ngApp) {
             if (name && name.length) {
                 url = '/rest/pl/be/home/pageReset?name=' + pageType;
                 url += '&template=basic';
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     location.href = '/rest/pl/fe/code?site=platform&name=' + name;
                 });
             } else {
                 url = '/rest/pl/be/home/pageCreate?name=' + pageType;
                 url += '&template=basic';
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     $scope.platform[pageType + '_page_name'] = rsp.data.name;
                     location.href = '/rest/pl/fe/code?site=platform&name=' + rsp.data.name;
                 });
@@ -89,7 +89,7 @@ define(['frame'], function(ngApp) {
                     $scope2.page = page = {};
                     $scope2.listSite = function() {
                         var url = '/rest/pl/be/home/recommend/listSite';
-                        http2.get(url, function(rsp) {
+                        http2.get(url).then(function(rsp) {
                             $scope2.sites = rsp.data.sites;
                             $scope2.page.total = rsp.data.total;
                         });

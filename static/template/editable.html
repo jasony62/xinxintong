@@ -1,3 +1,10 @@
-<input type="text" class="form-control" ng-if="focus" ng-model="obj[prop]" tms-auto-update tms-wait=1000 tms-update="valueChanged()">
-<span ng-if="!focus">{{obj[prop]}}</span>
-<button class="btn btn-default btn-xs pull-right" ng-if="enter&&noRemove!=='Y'" ng-click="remove($event)"><span class="glyphicon glyphicon-remove"></span></button>
+<div class='tms-editable'>
+    <div class='input-group' ng-if="focus">
+        <input type="text" class="form-control" ng-model="editing.value">
+        <div class='input-group-btn'>
+            <button class='btn btn-default' ng-click="submitChange($event)" ng-disabled="editing.value===obj[prop]"><span class='glyphicon glyphicon-ok' ng-class="editing.value!==obj[prop]?'text-success':'text-muted'"></span></button>
+        </div>
+    </div>
+    <span ng-if="!focus">{{obj[prop]}}</span>
+    <button class="btn btn-default btn-xs pull-right" ng-if="enter&&noRemove!=='Y'" ng-click="remove($event)"><span class="glyphicon glyphicon-remove"></span></button>
+</div>

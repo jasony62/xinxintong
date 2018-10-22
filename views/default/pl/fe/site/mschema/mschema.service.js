@@ -1,7 +1,7 @@
 define(['require'], function(require) {
     'use strict';
     var ngMod;
-    ngMod = angular.module('service.mschema', ['ui.xxt']);
+    ngMod = angular.module('service.mschema', ['ui.xxt', 'http.ui.xxt']);
     ngMod.provider('srvMschema', function() {
         var _siteId, _mschemaId, _getAppDeferred, _oMschema;
         this.config = function(site) {
@@ -23,7 +23,7 @@ define(['require'], function(require) {
                     _mschemaId = mschemaId;
                     _getAppDeferred = $q.defer();
                     url = _baseUrl + 'get?site=' + _siteId + '&mschema=' + mschemaId;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         _oMschema = rsp.data;
                         if (!_oMschema.extAttrs) {
                             _oMschema.extAttrs = [];
@@ -40,7 +40,7 @@ define(['require'], function(require) {
                     url = _baseUrl;
                     url += 'list?site=' + _siteId;
                     url += '&own=' + own;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         deferred.resolve(rsp.data);
                     });
                     return deferred.promise;
@@ -52,7 +52,7 @@ define(['require'], function(require) {
                     url += 'update?site=' + _siteId;
                     url += '&type=' + oSchema.type;
                     if (oSchema.id) url += '&id=' + oSchema.id;
-                    http2.post(url, updated, function(rsp) {
+                    http2.post(url, updated).then(function(rsp) {
                         deferred.resolve(rsp.data);
                     });
                     return deferred.promise;
@@ -69,7 +69,7 @@ define(['require'], function(require) {
                         url;
                     srvMschema.get().then(function(mschema) {
                         url = '/rest/pl/fe/site/member/notice/logList?batch=' + batch.id + '&schema=' + mschema.id;
-                        http2.get(url, function(rsp) {
+                        http2.get(url).then(function(rsp) {
                             defer.resolve(rsp.data);
                         });
                     });

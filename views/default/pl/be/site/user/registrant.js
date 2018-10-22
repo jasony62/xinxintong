@@ -13,7 +13,7 @@ define(['main'], function(ngApp) {
             var url = '/rest/pl/be/site/registrant/list';
             pageNo && (page.at = pageNo);
             url += '?' + page.j();
-            http2.post(url, filter, function(rsp) {
+            http2.post(url, filter).then(function(rsp) {
                 $scope.users = rsp.data.users;
                 page.total = rsp.data.total;
             });
@@ -39,21 +39,21 @@ define(['main'], function(ngApp) {
                 }]
             }).result.then(function(data) {
                 data.uid = user.uid;
-                http2.post('/rest/pl/be/site/registrant/resetPwd', data, function(rsp) {
+                http2.post('/rest/pl/be/site/registrant/resetPwd', data).then(function(rsp) {
                     alert('ok');
                 });
             });
         };
         $scope.forbideUser = function(user) {
             if (window.confirm('确定关闭帐号【' + user.uname + '】？')) {
-                http2.post('/rest/pl/be/site/registrant/forbide', { uid: user.uid }, function(rsp) {
+                http2.post('/rest/pl/be/site/registrant/forbide', { uid: user.uid }).then(function(rsp) {
                     user.forbidden = '1';
                 });
             }
         };
         $scope.activeUser = function(user) {
             if (window.confirm('确定关闭帐号【' + user.uname + '】？')) {
-                http2.post('/rest/pl/be/site/registrant/active', { uid: user.uid }, function(rsp) {
+                http2.post('/rest/pl/be/site/registrant/active', { uid: user.uid }).then(function(rsp) {
                     user.forbidden = '0';
                 });
             }

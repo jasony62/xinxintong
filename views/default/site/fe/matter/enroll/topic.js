@@ -233,23 +233,29 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         $scope.appActs.length = Object.keys($scope.appActs).length;
         /*设置页面导航*/
         var oAppNavs = {
-            favor: {}
+            favor: {},
+            length: 1
         };
-        if (oApp.can_repos === 'Y') {
-            oAppNavs.repos = {};
-        }
-        if (oApp.can_rank === 'Y') {
-            oAppNavs.rank = {};
+        if (oApp.scenarioConfig) {
+            if (oApp.scenarioConfig.can_repos === 'Y') {
+                oAppNavs.repos = {};
+                oAppNavs.length++;
+            }
+            if (oApp.scenarioConfig.can_rank === 'Y') {
+                oAppNavs.rank = {};
+                oAppNavs.length++;
+            }
+            if (oApp.scenarioConfig.can_action === 'Y') {
+                oAppNavs.event = {};
+                oAppNavs.length++;
+                /* 设置活动事件提醒 */
+                http2.get(LS.j('notice/count', 'site', 'app')).then(function(rsp) {
+                    $scope.noticeCount = rsp.data;
+                });
+            }
         }
         if (Object.keys(oAppNavs).length) {
             $scope.appNavs = oAppNavs;
-        }
-        if (oApp.scenarioConfig && oApp.scenarioConfig.can_action === 'Y') {
-            /* 设置活动事件提醒 */
-            http2.get(LS.j('notice/count', 'site', 'app')).then(function(rsp) {
-                $scope.noticeCount = rsp.data;
-            });
-            oAppNavs.event = {};
         }
 
         /* 活动任务 */

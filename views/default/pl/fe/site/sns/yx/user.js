@@ -27,7 +27,7 @@ define(['main'], function(ngApp) {
                 param += '&gid=' + $scope.selectedGroup.id;
             }
             param += '&order=' + $scope.order;
-            http2.get('/rest/pl/fe/site/sns/yx/user/list' + param, function(rsp) {
+            http2.get('/rest/pl/fe/site/sns/yx/user/list' + param).then(function(rsp) {
                 $scope.users = rsp.data.fans;
                 $scope.page.total = rsp.data.total;
             });
@@ -40,7 +40,7 @@ define(['main'], function(ngApp) {
             event.stopPropagation();
             location.href = '/rest/mp/user?openid=' + fan.openid;
         };
-        http2.get('/rest/mp/user/fans/group', function(rsp) {
+        http2.get('/rest/mp/user/fans/group').then(function(rsp) {
             $scope.groups = rsp.data;
         });
         $scope.doSearch();

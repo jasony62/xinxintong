@@ -761,22 +761,50 @@ class record_model extends record_base {
 				}
 			}
 		};
-		foreach ($records as $oRec) {
-			if (property_exists($oRec, 'like_log')) {
-				$oRec->like_log = empty($oRec->like_log) ? new \stdClass : json_decode($oRec->like_log);
-			}
-			//测验场景或数值填空题共用score字段
-			if (isset($oApp->scenario)) {
+
+		$aFnHandlers = []; // 记录处理函数
+		if (isset($oApp->scenario)) {
+			/* 记录得分 */
+			$aFnHandlers[] = function ($oRec) use ($oApp, $bRequireScore) {
 				if (($oApp->scenario === 'quiz' || $bRequireScore) && !empty($oRec->score)) {
 					$score = str_replace("\n", ' ', $oRec->score);
 					$score = json_decode($score);
-
 					if ($score === null) {
 						$oRec->score = 'json error(' . json_last_error_msg() . '):' . $oRec->score;
 					} else {
 						$oRec->score = $score;
 					}
 				}
+			};
+			// 记录的分数
+			if ($oApp->scenario === 'voting' || $oApp->scenario === 'common') {
+				$scoreSchemas = $this->_mapOfScoreSchema($oApp);
+				$countScoreSchemas = count(array_keys((array) $scoreSchemas));
+				$aFnHandlers[] = function ($oRec) use ($scoreSchemas, $countScoreSchemas) {
+					$oRec->_score = $this->_calcVotingScore($scoreSchemas, $oRec->data);
+					$oRec->_average = $countScoreSchemas === 0 ? 0 : $oRec->_score / $countScoreSchemas;
+				};
+			}
+		}
+		/* 用户所属分组 */
+		if (!empty($oApp->group_app_id) || !empty($oApp->entryRule->group->id)) {
+			$groupAppId = !empty($oApp->group_app_id) ? $oApp->group_app_id : $oApp->entryRule->group->id;
+			$modelGrpUser = $this->model('matter\group\user');
+			$aFnHandlers[] = function ($oRec) use ($groupAppId, $modelGrpUser) {
+				if (!empty($oRec->userid)) {
+					$oGrpUser = $modelGrpUser->byUser((object) ['id' => $groupAppId], $oRec->userid, ['fields' => 'round_id,round_title', 'onlyOne' => true]);
+					if ($oGrpUser) {
+						if (!isset($oRec->user)) {
+							$oRec->user = new \stdClass;
+						}
+						$oRec->user->group = (object) ['id' => $oGrpUser->round_id, 'title' => $oGrpUser->round_title];
+					}
+				}
+			};
+		}
+		foreach ($records as $oRec) {
+			if (property_exists($oRec, 'like_log')) {
+				$oRec->like_log = empty($oRec->like_log) ? new \stdClass : json_decode($oRec->like_log);
 			}
 			//附加说明
 			if (!empty($oRec->supplement)) {
@@ -842,6 +870,8 @@ class record_model extends record_base {
 					$oRec->group = $oGroup;
 				}
 			}
+			// 用户的分组
+
 			// 记录的登记轮次
 			if (!empty($oRec->rid)) {
 				if (!isset($aRoundsById[$oRec->rid])) {
@@ -857,16 +887,9 @@ class record_model extends record_base {
 					$oRec->round = $round;
 				}
 			}
-			// 记录的分数
-			if (isset($oApp->scenario)) {
-				if ($oApp->scenario === 'voting' || $oApp->scenario === 'common') {
-					if (!isset($scoreSchemas)) {
-						$scoreSchemas = $this->_mapOfScoreSchema($oApp);
-						$countScoreSchemas = count(array_keys((array) $scoreSchemas));
-					}
-					$oRec->_score = $this->_calcVotingScore($scoreSchemas, $data);
-					$oRec->_average = $countScoreSchemas === 0 ? 0 : $oRec->_score / $countScoreSchemas;
-				}
+
+			foreach ($aFnHandlers as $fnHandler) {
+				$fnHandler($oRec);
 			}
 		}
 
@@ -984,13 +1007,10 @@ class record_model extends record_base {
 
 		// 查询参数
 		$q = [
-			'd.enroll_key,d.value,d.like_log,d.like_num,r.nickname,r.rid,r.enroll_at',
+			'd.enroll_key,d.like_log,d.like_num,r.nickname,r.rid,r.enroll_at,r.data',
 			"xxt_enroll_record_data d,xxt_enroll_record r",
 			"d.state=1 and d.aid='{$oApp->id}' and d.schema_id='{$schemaId}' and d.value<>'' and d.multitext_seq = 0 and r.aid = d.aid and r.enroll_key = d.enroll_key",
 		];
-		if ($oDataSchema->type === 'date') {
-
-		}
 		/* 指定用户 */
 		if (!empty($options->owner)) {
 			$q[2] .= " and d.userid='" . $options->owner . "'";
@@ -1036,24 +1056,25 @@ class record_model extends record_base {
 				$sum = (int) $this->query_val_ss($p);
 				$oResult->sum = $sum;
 			}
-			/* 补充记录标识 */
-			if (!isset($oApp->rpConfig) || empty($oApp->rpConfig->marks)) {
-				$defaultMark = new \stdClass;
-				$defaultMark->id = 'nickname';
-				$defaultMark->name = 'nickname';
-				$marks = [$defaultMark];
-			} else {
-				$marks = $oApp->rpConfig->marks;
-			}
-			foreach ($records as &$record) {
-				$record->data = new \stdClass;
-				if (in_array($oDataSchema->type, ['multitext', 'file']) || $schemaId === 'member') {
-					$record->data->{$schemaId} = empty($record->value) ? new \stdClass : json_decode($record->value);
+			foreach ($records as $oRecord) {
+				if (empty($oRecord->data)) {
+					$oRecord->data = new \stdClass;
 				} else {
-					$record->data->{$schemaId} = $record->value;
+					$oData = json_decode($oRecord->data);
+					$oRecord->data = new \stdClass;
+					if (isset($oData) && is_object($oData)) {
+						$oRecord->data->{$schemaId} = empty($oData->{$schemaId}) ? '' : $oData->{$schemaId};
+						if (!empty($oApp->rpConfig->marks)) {
+							foreach ($oApp->rpConfig->marks as $oMark) {
+								if (isset($oData->{$oMark->id})) {
+									$oRecord->data->{$oMark->id} = $oData->{$oMark->id};
+								}
+							}
+						}
+					}
 				}
-				$record->like_log = empty($record->like_log) ? new \stdClass : json_decode($record->like_log);
-				$oResult->records[] = $record;
+				$oRecord->like_log = empty($oRecord->like_log) ? new \stdClass : json_decode($oRecord->like_log);
+				$oResult->records[] = $oRecord;
 			}
 		}
 

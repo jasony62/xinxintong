@@ -55,7 +55,7 @@ define(['frame'], function(ngApp) {
             var url, proto;
             url = '/rest/pl/fe/site/member/schema/create?site=' + $scope.mission.siteid;
             proto = { valid: 'Y', matter_id: _oMission.id, matter_type: _oMission.type, title: _oMission.title + '-通讯录' };
-            http2.post(url, proto, function(rsp) {
+            http2.post(url, proto).then(function(rsp) {
                 location.href = '/rest/pl/fe/site/mschema?site=' + _oMission.siteid + '#' + rsp.data.id;
             });
         };
@@ -100,7 +100,7 @@ define(['frame'], function(ngApp) {
             evt.stopPropagation();
             if (window.confirm('确定删除：' + title + '？')) {
                 url += type + '/remove?app=' + id + '&site=' + _oMission.siteid;
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     $scope.matters.splice($scope.matters.indexOf(matter), 1);
                 });
             }
@@ -136,7 +136,7 @@ define(['frame'], function(ngApp) {
                         $scope2.doMission = function() {
                             var url = '/rest/pl/fe/matter/mission/list?site=' + siteid + $scope2.pageOfMission.j() + '&fields=id,title',
                                 params = { byTitle: criteria.byTitle };
-                            http2.post(url, params, function(rsp) {
+                            http2.post(url, params).then(function(rsp) {
                                 if (rsp.data) {
                                     $scope2.missions = rsp.data.missions;
                                     $scope2.pageOfMission.total = rsp.data.total;
@@ -162,13 +162,13 @@ define(['frame'], function(ngApp) {
                     backdrop: 'static'
                 }).result.then(function(result) {
                     url += type + '/copy?site=' + siteid + '&app=' + id + '&mission=' + result.mission + '&cpRecord=' + result.cpRecord + '&cpEnrollee=' + result.cpEnrollee;
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         location.href = '/rest/pl/fe/matter/enroll/preview?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
                     });
                 });
             } else {
                 url += type + '/copy?app=' + id + '&site=' + _oMission.siteid + '&mission=' + _oMission.id;
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     location.href = '/rest/pl/fe/matter/' + type + '?site=' + _oMission.siteid + '&id=' + rsp.data.id;
                 });
             }
@@ -192,7 +192,7 @@ define(['frame'], function(ngApp) {
             } else {
                 url += '&matterType=' + matterType;
             }
-            http2.post(url, data, function(rsp) {
+            http2.post(url, data).then(function(rsp) {
                 rsp.data.forEach(function(matter) {
                     matter._operator = matter.modifier_name || matter.creater_name;
                     matter._operateAt = matter.modifiy_at || matter.create_at;
@@ -206,7 +206,7 @@ define(['frame'], function(ngApp) {
                 isPublic = oMatter.is_public === 'Y' ? 'N' : 'Y';
             }
             url = '/rest/pl/fe/matter/mission/matter/update?site=' + _oMission.siteid + '&id=' + _oMission.id + '&matterType=' + oMatter.type + '&matterId=' + oMatter.id;
-            http2.post(url, { 'is_public': isPublic }, function(rsp) {
+            http2.post(url, { 'is_public': isPublic }).then(function(rsp) {
                 oMatter.is_public = isPublic;
             });
         };

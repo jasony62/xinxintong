@@ -36,6 +36,27 @@ define(['frame', 'groupService'], function(ngApp) {
             }
         });
     }]);
+    /**
+     * 微信二维码
+     */
+    ngApp.provider.controller('ctrlWxQrcode', ['$scope', 'http2', function($scope, http2) {
+        $scope.create = function() {
+            var url;
+            url = '/rest/pl/fe/site/sns/wx/qrcode/create?site=' + $scope.app.siteid;
+            url += '&matter_type=enroll&matter_id=' + $scope.app.id;
+            //url += '&expire=864000';
+            http2.get(url).then(function(rsp) {
+                $scope.qrcode = rsp.data;
+            });
+        };
+        $scope.download = function() {
+            $('<a href="' + $scope.qrcode.pic + '" download="微信登记二维码.jpeg"></a>')[0].click();
+        };
+        http2.get('/rest/pl/fe/matter/enroll/wxQrcode?site=' + $scope.app.siteid + '&app=' + $scope.app.id).then(function(rsp) {
+            var qrcodes = rsp.data;
+            $scope.qrcode = qrcodes.length ? qrcodes[0] : false;
+        });
+    }]);
     ngApp.provider.controller('ctrlOpUrl', ['$scope', 'srvQuickEntry', 'srvEnrollApp', function($scope, srvQuickEntry, srvEnrollApp) {
         var targetUrl, host, opEntry;
         $scope.opEntry = opEntry = {};
@@ -160,6 +181,8 @@ define(['frame', 'groupService'], function(ngApp) {
                     }
                 }
                 defer.resolve();
+            } else {
+                defer.resolve();
             }
             return defer.promise;
         });
@@ -204,19 +227,53 @@ define(['frame', 'groupService'], function(ngApp) {
         });
     }]);
     /**
+     * 任务提醒
+     */
+    ngApp.provider.controller('ctrlUndoneRemind', ['$scope', '$parse', 'srvEnrollApp', 'tkGroupApp', function($scope, $parse, srvEnrollApp, tkGroupApp) {
+        $scope.assignGroup = function(oTimer) {
+            tkGroupApp.choose($scope.app).then(function(oResult) {
+                var oGrpApp;
+                if (oResult.app) {
+                    oGrpApp = { id: oResult.app.id, title: oResult.app.title };
+                    if (oResult.round) {
+                        oGrpApp.round = { id: oResult.round.round_id, title: oResult.round.title };
+                    }
+                    $parse('task.task_arguments.receiver.group').assign(oTimer, oGrpApp);
+                    oTimer.modified = true;
+                }
+            });
+        };
+        srvEnrollApp.get().then(function(oApp) {
+            $scope.srvTimer.list(oApp, 'undone').then(function(timers) {
+                $scope.timers = timers;
+            });
+        });
+    }]);
+    /**
      * 事件提醒
      */
-    ngApp.provider.controller('ctrlEventRemind', ['$scope', '$parse', '$timeout', 'srvEnrollApp', 'tkGroupApp', 'tkEnrollApp', function($scope, $parse, $timeout, srvEnlApp, tkGroupApp, tkEnrollApp) {
+    ngApp.provider.controller('ctrlEventRemind', ['$scope', '$parse', 'http2', '$timeout', 'srvEnrollApp', 'tkGroupApp', 'tkEnrollApp', function($scope, $parse, http2, $timeout, srvEnlApp, tkGroupApp, tkEnrollApp) {
         var _oConfig;
         $scope.modified = false;
         $scope.config = null;
+        $scope.initConfig = function(eventName) {
+            _oConfig[eventName] = { valid: false, page: 'cowork', receiver: { scope: [] } };
+            switch (eventName) {
+                case 'submit':
+                    break;
+                case 'cowork':
+                case 'remark':
+                    _oConfig[eventName].receiver.scope.push('related');
+                    break;
+            }
+        };
         $scope.assignGroup = function(oRule) {
             tkGroupApp.choose($scope.app).then(function(oResult) {
                 var oGrpApp;
                 if (oResult.app) {
                     oGrpApp = { id: oResult.app.id, title: oResult.app.title };
                     if (oResult.round) {
-                        oGrpApp.round = { id: oResult.round.id, title: oResult.round.title };
+                        oGrpApp.round = { id: oResult.round.round_id, title: oResult.round.title };
                     }
                     $parse('group').assign(oRule, oGrpApp);
                 }
@@ -224,15 +281,20 @@ define(['frame', 'groupService'], function(ngApp) {
         };
         $scope.save = function() {
             tkEnrollApp.update($scope.app, { notifyConfig: _oConfig }).then(function(oNewApp) {
-                $scope.app.notifyConfig = $scope.config = _oConfig = oNewApp.notifyConfig;
+                http2.merge($scope.app.notifyConfig, oNewApp.notifyConfig);
+                http2.merge(_oConfig, oNewApp.notifyConfig);
                 /* watch后再执行 */
                 $timeout(function() {
                     $scope.modified = false;
                 });
             });
         };
+        $scope.remove = function(eventName) {
+            delete _oConfig[eventName];
+            $scope.save();
+        };
         srvEnlApp.get().then(function(oApp) {
-            $scope.config = _oConfig = angular.copy($scope.app.notifyConfig);
+            $scope.config = _oConfig = angular.copy(oApp.notifyConfig);
             $scope.$watch('config', function(oNewConfig, oOldConfig) {
                 if (oNewConfig && oNewConfig !== oOldConfig) {
                     $scope.modified = true;

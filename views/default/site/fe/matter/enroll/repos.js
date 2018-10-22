@@ -511,17 +511,22 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         $scope.appActs.length = Object.keys($scope.appActs).length;
         /*设置页面导航*/
         var oAppNavs = {
-            favor: {}
+            favor: {},
+            length: 0
         };
-        if (_oApp.can_rank === 'Y') {
-            oAppNavs.rank = {};
-        }
-        if (_oApp.scenarioConfig && _oApp.scenarioConfig.can_action === 'Y') {
-            /* 设置活动事件提醒 */
-            http2.get(LS.j('notice/count', 'site', 'app')).then(function(rsp) {
-                $scope.noticeCount = rsp.data;
-            });
-            oAppNavs.event = {};
+        if (_oApp.scenarioConfig) {
+            if (_oApp.scenarioConfig.can_rank === 'Y') {
+                oAppNavs.rank = {};
+                oAppNavs.length++;
+            }
+            if (_oApp.scenarioConfig.can_action === 'Y') {
+                oAppNavs.event = {};
+                oAppNavs.length++;
+                /* 设置活动事件提醒 */
+                http2.get(LS.j('notice/count', 'site', 'app')).then(function(rsp) {
+                    $scope.noticeCount = rsp.data;
+                });
+            }
         }
         if (Object.keys(oAppNavs).length) {
             $scope.appNavs = oAppNavs;

@@ -7,6 +7,11 @@
                     <li><a href ng-click="createEnlAppByUser()">创建项目用户计分活动</a></li>
                 </ul>
             </div>
+            <div class='form-group pull-right'>
+                <button class='btn btn-default' ng-click='enrolleeList()'>
+                    <span class='glyphicon glyphicon-refresh'></span> 刷新
+                </button>
+            </div>
         </div>
     </div>
     <table class='table table-bordered'>
@@ -16,8 +21,9 @@
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="criteria.allSelected">
                 </th>
                 <th style='width:48px'>序号</th>
-                <th data-filter-by='nickname' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">姓名 <i class='glyphicon glyphicon-filter'></i></th>
-                </th>
+                <th data-filter-by='nickname' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">姓名 <i class='glyphicon glyphicon-filter'></i></th>
+                <th>微信昵称</th>
+                <th style='width:96px'>加入通信录</th>
                 <th class='th-action' ng-class="{'active':criteria.orderBy==='group_id'}" ng-click="chooseOrderBy('group_id')">
                     <div>分组 <span class='glyphicon glyphicon-arrow-down'></span></div>
                 </th>
@@ -60,6 +66,8 @@
                 </td>
                 <td>{{$index+1}}</td>
                 <td>{{enrollee.nickname}}</td>
+                <td>{{enrollee.wxfan.nickname}}</td>
+                <td>{{enrollee.isMember}}</td>
                 <td>{{enrollee.group.title}}</td>
                 <td>
                     <div>{{enrollee.user_total_coin}}</div>

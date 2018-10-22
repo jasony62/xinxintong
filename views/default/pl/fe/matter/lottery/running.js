@@ -1,5 +1,5 @@
 (function() {
-    ngApp.provider.controller('ctrlRunning', ['$scope', 'http2', function($scope, http2) {
+    ngApp.provider.controller('ctrlRunning', ['$scope', function($scope) {
         $scope.downloadQrcode = function(url) {
             $('<a href="' + url + '" download="登记二维码.png"></a>')[0].click();
         };

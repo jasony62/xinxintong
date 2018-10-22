@@ -16,7 +16,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.remove = function() {
             if (window.confirm('确定删除？')) {
-                http2.get('/rest/pl/fe/matter/plan/remove?site=' + $scope.app.siteid + '&app=' + $scope.app.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/plan/remove?site=' + $scope.app.siteid + '&app=' + $scope.app.id).then(function(rsp) {
                     if ($scope.app.mission) {
                         location.href = "/rest/pl/fe/matter/mission?site=" + $scope.app.siteid + "&id=" + $scope.app.mission.id;
                     } else {
@@ -45,7 +45,7 @@ define(['frame'], function(ngApp) {
                     };
                     var url = '/rest/pl/fe/matter/group/list?site=' + _oApp.siteid + '&size=999&cascaded=Y';
                     _oApp.mission && (url += '&mission=' + _oApp.mission.id);
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         $scope2.apps = rsp.data.apps;
                     });
                 }],

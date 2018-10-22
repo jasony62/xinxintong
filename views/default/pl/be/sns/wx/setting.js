@@ -4,7 +4,7 @@ define(['main'], function(ngApp) {
         $scope.update = function(name) {
             var p = {};
             p[name] = $scope.wx[name];
-            http2.post('/rest/pl/be/sns/wx/update?site=' + $scope.wx.plid, p, function(rsp) {
+            http2.post('/rest/pl/be/sns/wx/update?site=' + $scope.wx.plid, p).then(function(rsp) {
                 if (name === 'token') {
                     $scope.wx.joined = 'N';
                 }
@@ -24,7 +24,7 @@ define(['main'], function(ngApp) {
             $scope.update('qrcode');
         };
         $scope.checkJoin = function() {
-            http2.get('/rest/pl/be/sns/wx/checkJoin?site=' + $scope.wx.plid, function(rsp) {
+            http2.get('/rest/pl/be/sns/wx/checkJoin?site=' + $scope.wx.plid).then(function(rsp) {
                 if (rsp.data === 'Y') {
                     $scope.wx.joined = 'Y';
                 }
@@ -49,7 +49,7 @@ define(['main'], function(ngApp) {
                 step && params.push('step=' + step);
                 nextOpenid && params.push('nextOpenid=' + nextOpenid);
                 params.length && (url += '?' + params.join('&'));
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     if (angular.isObject(rsp) && rsp.err_code === 0) {
                         if (rsp.data.left > 0) {
                             doRefresh(rsp.data.step, rsp.data.nextOpenid);
@@ -69,7 +69,7 @@ define(['main'], function(ngApp) {
         };
         $scope.syncGroups = function() {
             $scope.backRunning = true;
-            http2.get('/rest/pl/be/sns/wx/user/syncGroups?site=platform', function(rsp) {
+            http2.get('/rest/pl/be/sns/wx/user/syncGroups?site=platform').then(function(rsp) {
                 $scope.backRunning = false;
                 $scope.$root.progmsg = '更新用户分组数量：' + rsp.data;
             });

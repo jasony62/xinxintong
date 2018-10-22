@@ -48,7 +48,7 @@ define(['frame'], function(ngApp) {
             url += '&startAt=' + $scope.startAt;
             url += '&endAt=' + $scope.endAt;
             url += '&' + $scope.page.param();
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.matters = rsp.data.matters;
                 $scope.page.total = rsp.data.total;
             });
@@ -103,7 +103,7 @@ define(['frame'], function(ngApp) {
             url += '&startAt=' + $scope.startAt;
             url += '&endAt=' + $scope.endAt;
             url += '&' + $scope.page.param();
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.users = rsp.data.users;
                 $scope.page.total = rsp.data.total;
             });

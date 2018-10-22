@@ -23,7 +23,12 @@ class cowork extends base {
 		}
 		$oRecData = $modelData->byRecord($oRecord->enroll_key, ['schema' => $schema, 'fields' => '*']);
 		if ($oRecData) {
-			$oRecData->value = empty($oRecData->value) ? [] : json_decode($oRecData->value);
+			if (empty($oRecData->value)) {
+				$oRecData->value = [];
+			} else {
+				$oRecData->value = json_decode($oRecData->value);
+				if (empty($oRecData->value) || !is_array($oRecData->value)) {$oRecData->value = [];}
+			}
 		} else {
 			/* 补充创建新的题目数据 */
 			$oRecData = new \stdClass;
@@ -47,6 +52,14 @@ class cowork extends base {
 		}
 
 		$oUser = $this->getUser($oApp);
+
+		/* 检查是否满足添加答案的条件 */
+		if (!isset($oApp->entryRule->exclude_action) || $oApp->entryRule->exclude_action->add_cowork != "Y") {
+			$checkEntryRule = $this->checkEntryRule($oApp, false, $oUser);
+			if ($checkEntryRule[0] === false) {
+				return new \ResponseError($checkEntryRule[1]);
+			}
+		}
 
 		if (!empty($oApp->actionRule->cowork->submit->pre->editor)) {
 			if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
@@ -130,7 +143,43 @@ class cowork extends base {
 		/* 生成提醒 */
 		$this->model('matter\enroll\notice')->addCowork($oApp, $oRecData, $oNewItem, $oUser);
 
+		/* 通知登记活动事件接收人 */
+		if (isset($oApp->notifyConfig->cowork->valid) && $oApp->notifyConfig->cowork->valid === true) {
+			$this->_notifyReceivers($oApp, $oRecord, $oNewItem);
+		}
+
 		return new \ResponseData([$oNewItem, $oRecData]);
+	}
+	/**
+	 * 通知协作填写记录事件
+	 */
+	private function _notifyReceivers($oApp, $oRecord, $oItem) {
+		/* 通知接收人 */
+		$receivers = $this->model('matter\enroll\user')->getCoworkReceivers($oApp, $oRecord, $oItem, $oApp->notifyConfig->cowork);
+		if (empty($receivers)) {
+			return false;
+		}
+
+		$page = empty($oApp->notifyConfig->cowork->page) ? 'cowork' : $oApp->notifyConfig->cowork->page;
+		$noticeURL = $oApp->entryUrl . '&ek=' . $oRecord->enroll_key . '&page=cowork' . '#item-' . $oItem->id;
+
+		$noticeName = 'site.enroll.cowork';
+
+		/*获取模板消息id*/
+		$oTmpConfig = $this->model('matter\tmplmsg\config')->getTmplConfig($oApp, $noticeName, ['onlySite' => false, 'noticeURL' => $noticeURL]);
+		if ($oTmpConfig[0] === false) {
+			return false;
+		}
+		$oTmpConfig = $oTmpConfig[1];
+
+		$modelTmplBat = $this->model('matter\tmplmsg\batch');
+		$oCreator = new \stdClass;
+		$oCreator->uid = $noticeName;
+		$oCreator->name = 'system';
+		$oCreator->src = 'pl';
+		$modelTmplBat->send($oApp->siteid, $oTmpConfig->tmplmsgId, $oCreator, $receivers, $oTmpConfig->oParams, ['send_from' => $oApp->type . ':' . $oApp->id]);
+
+		return true;
 	}
 	/**
 	 * 更新题目中的一个项

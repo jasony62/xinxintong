@@ -70,7 +70,7 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt', 'snsshare.
             location.href = "/rest/site/fe/invite?matter=link," + link.id + '&inviteToken=' + invite_token;
         }
     };
-    $scope.siteUser = function(id) {
+    $scope.siteUser = function(siteId) {
         var url = location.protocol + '//' + location.host;
         url += '/rest/site/fe/user';
         url += "?site=" + siteId;

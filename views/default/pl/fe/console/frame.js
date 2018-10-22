@@ -1,65 +1,8 @@
-define(['require'], function(require) {
+define(['require', 'frame/RouteParam', 'frame/const'], function(require, RouteParam, CstApp) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'tmplshop.ui.xxt', 'pl.const', 'service.matter', 'page.ui.xxt', 'modal.ui.xxt', 'schema.ui.xxt', 'ui.xxt']);
-    ngApp.constant('cstApp', {
-        matterNames: {
-            doc: {
-                'article': '单图文',
-                'news': '多图文',
-                'channel': '频道',
-                'link': '链接',
-                'text': '文本',
-                'custom': '定制页',
-            },
-            docOrder: ['article', 'news', 'channel', 'link', 'text', 'custom'],
-            app: {
-                'enroll': '登记',
-                'signin': '签到',
-                'group': '分组',
-                'lottery': '抽奖',
-                'wall': '信息墙',
-            },
-            appOrder: ['enroll', 'signin', 'group', 'lottery', 'wall'],
-            'site': '团队',
-            'mission': '项目',
-        },
-        notifyMatter: [{
-            value: 'tmplmsg',
-            title: '模板消息',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'article',
-            title: '单图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'news',
-            title: '多图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'channel',
-            title: '频道',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'enroll',
-            title: '登记活动',
-            url: '/rest/pl/fe/matter'
-        }]
-    });
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'http.ui.xxt', 'notice.ui.xxt', 'tmplshop.ui.xxt', 'pl.const', 'service.matter', 'page.ui.xxt', 'modal.ui.xxt', 'schema.ui.xxt', 'ui.xxt']);
+    ngApp.constant('cstApp', CstApp);
     ngApp.config(['$controllerProvider', '$provide', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', function($controllerProvider, $provide, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {
-        var RouteParam = function(name) {
-            var baseURL = '/views/default/pl/fe/console/';
-            this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
-            this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
-            this.resolve = {
-                load: function($q) {
-                    var defer = $q.defer();
-                    require([baseURL + name + '.js'], function() {
-                        defer.resolve();
-                    });
-                    return defer.promise;
-                }
-            };
-        };
         ngApp.provider = {
             controller: $controllerProvider.register,
             directive: $compileProvider.directive,
@@ -68,6 +11,7 @@ define(['require'], function(require) {
         $locationProvider.html5Mode(true);
         $routeProvider
             .when('/rest/pl/fe/friend', new RouteParam('friend'))
+            .when('/rest/pl/fe/users', new RouteParam('users'))
             .otherwise(new RouteParam('main'));
         $uibTooltipProvider.setTriggers({
             'show': 'hide'
@@ -80,13 +24,49 @@ define(['require'], function(require) {
             view: '',
             scope: ''
         };
-        $scope.opened = 'main';
+        $scope.opened = '';
+        /* 设置页面入口状态 */
+        $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+            var subView = currentRoute.match(/[^\/]+$/)[0];
+            subView.indexOf('?') !== -1 && (subView = subView.substr(0, subView.indexOf('?')));
+            subView = subView === 'fe' ? 'main' : subView;
+            if (subView !== _oFrameState.view) {
+                _oFrameState.view = subView;
+                if (_oFrameState.view === 'main') {
+                    _oFrameState.scope = 'mission';
+                } else if (_oFrameState.view === 'users') {
+                    _oFrameState.scope = 'account';
+                } else if (_oFrameState.view === 'friend') {
+                    _oFrameState.scope = 'subscribeSite';
+                }
+            }
+            switch (_oFrameState.scope) {
+                case 'mission':
+                case 'activity':
+                case 'doc':
+                case 'recycle':
+                    $scope.opened = 'main';
+                    break;
+                case 'account':
+                case 'member':
+                case 'subscriber':
+                    $scope.opened = 'users';
+                    break;
+                case 'subscribeSite':
+                case 'contributeSite':
+                case 'favorSite':
+                    $scope.opened = 'friend';
+                    break;
+                default:
+                    $scope.opened = '';
+            }
+        });
         var url = '/rest/pl/fe/user/get?_=' + (new Date * 1);
-        http2.get(url, function(rsp) {
+        http2.get(url).then(function(rsp) {
             $scope.loginUser = rsp.data;
         });
         $scope.getMatterTag = function() {
-            http2.get('/rest/pl/fe/matter/tag/listTags?site=' + _oFrameState.sid, function(rsp) {
+            http2.get('/rest/pl/fe/matter/tag/listTags?site=' + _oFrameState.sid).then(function(rsp) {
                 $scope.tagsMatter = rsp.data;
             });
         };
@@ -101,8 +81,24 @@ define(['require'], function(require) {
         });
         $scope.changeScope = function(scope) {
             _oFrameState.scope = scope;
-            if (location.search) {
-                $location.url('/rest/pl/fe');
+            switch (scope) {
+                case 'mission':
+                case 'activity':
+                case 'doc':
+                case 'recycle':
+                    $location.url('/rest/pl/fe');
+                    break;
+                case 'account':
+                case 'member':
+                case 'subscriber':
+                    $location.url('/rest/pl/fe/users');
+                    $scope.opened = 'users';
+                    break;
+                case 'subscribeSite':
+                case 'contributeSite':
+                case 'favorSite':
+                    $location.url('/rest/pl/fe/friend');
+                    break;
             }
         };
         $scope.openSite = function(id) {
@@ -114,22 +110,22 @@ define(['require'], function(require) {
         /*新建素材*/
         var _fns = {
             addLink: function(site) {
-                http2.get('/rest/pl/fe/matter/link/create?site=' + site.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/link/create?site=' + site.id).then(function(rsp) {
                     location.href = '/rest/pl/fe/matter/link?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
             addArticle: function(site) {
-                http2.get('/rest/pl/fe/matter/article/create?site=' + site.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/article/create?site=' + site.id).then(function(rsp) {
                     location.href = '/rest/pl/fe/matter/article?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
             addNews: function(site) {
-                http2.get('/rest/pl/fe/matter/news/create?site=' + site.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/news/create?site=' + site.id).then(function(rsp) {
                     location.href = '/rest/pl/fe/matter/news?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
             addChannel: function(site) {
-                http2.get('/rest/pl/fe/matter/channel/create?site=' + site.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/channel/create?site=' + site.id).then(function(rsp) {
                     location.href = '/rest/pl/fe/matter/channel?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
@@ -143,17 +139,17 @@ define(['require'], function(require) {
                 location.href = '/rest/pl/fe/matter/group/plan?site=' + site.id;
             },
             addLottery: function(site) {
-                http2.get('/rest/pl/fe/matter/lottery/create?site=' + site.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/lottery/create?site=' + site.id).then(function(rsp) {
                     location.href = '/rest/pl/fe/matter/lottery?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
             addCustom: function(site) {
-                http2.get('/rest/pl/fe/matter/custom/create?site=' + site.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/custom/create?site=' + site.id).then(function(rsp) {
                     location.href = '/rest/pl/fe/matter/custom?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
             addMerchant: function(site) {
-                http2.get('/rest/pl/fe/matter/merchant/shop/create?site=' + site.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/merchant/shop/create?site=' + site.id).then(function(rsp) {
                     location.href = '/rest/pl/fe/matter/merchant/shop?site=' + site.id + '&id=' + rsp.data;
                 });
             },
@@ -186,7 +182,7 @@ define(['require'], function(require) {
             var url, oPlSite;
             url = '/rest/pl/fe/site/list';
             oPlSite = { id: '_coworker', name: '被邀合作项目' };
-            http2.get(url + '?_=' + (new Date * 1), function(rsp) {
+            http2.get(url + '?_=' + (new Date * 1)).then(function(rsp) {
                 var userSites;
                 $scope.sites = userSites = rsp.data;
                 userSites.splice(0, 0, oPlSite);
@@ -228,36 +224,6 @@ define(['require'], function(require) {
                 if (!_oFrameState.sid) {
                     _oFrameState.sid = userSites[0].id;
                 }
-                /* 设置页面入口状态 */
-                $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
-                    var subView = currentRoute.match(/[^\/]+$/)[0];
-                    subView.indexOf('?') !== -1 && (subView = subView.substr(0, subView.indexOf('?')));
-                    subView = subView === 'fe' ? 'main' : subView;
-                    if (subView !== _oFrameState.view) {
-                        _oFrameState.view = subView;
-                        if (_oFrameState.view === 'main') {
-                            _oFrameState.scope = 'mission';
-                        } else if (_oFrameState.view === 'friend') {
-                            _oFrameState.scope = 'subscribeSite';
-                        }
-                    }
-                    switch (_oFrameState.scope) {
-                        case 'mission':
-                        case 'activity':
-                        case 'doc':
-                        case 'user':
-                        case 'recycle':
-                            $scope.opened = 'main';
-                            break;
-                        case 'subscribeSite':
-                        case 'contributeSite':
-                        case 'favorSite':
-                            $scope.opened = 'friend';
-                            break;
-                        default:
-                            $scope.opened = '';
-                    }
-                });
                 $scope.frameState = _oFrameState;
             });
         };

@@ -33,7 +33,7 @@
     <div class="form-group" ng-if="['single','multiple'].indexOf(activeWrap.schema.type)!==-1">
         <button class="btn btn-default btn-sm" ng-click='addOption()'>添加</button>
         <ul class='list-group' style='margin-bottom:0;' ng-keyup="onKeyup($event)">
-            <li class='list-group-item' ng-repeat='op in activeWrap.schema.ops' editable prop='l' obj='op'></li>
+            <li class='list-group-item' ng-repeat='op in activeWrap.schema.ops' tms-editable prop='l' obj='op'></li>
         </ul>
     </div>
 </div>

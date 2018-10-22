@@ -28,8 +28,8 @@ define(['frame'], function(ngApp) {
             templateId = template.template_id || template.id;
             url = '/rest/pl/fe/template/purchase?template=' + templateId;
             url += '&site=' + $scope.siteId;
-            http2.get(url, function(rsp) {
-                http2.get('/rest/pl/fe/matter/enroll/createByOther?site=' + $scope.siteId + '&template=' + templateId, function(rsp) {
+            http2.get(url).then(function(rsp) {
+                http2.get('/rest/pl/fe/matter/enroll/createByOther?site=' + $scope.siteId + '&template=' + templateId).then(function(rsp) {
                     location.href = '/rest/pl/fe/matter/enroll?id=' + rsp.data.id + '&site=' + $scope.siteId;
                 });
             });
@@ -37,14 +37,14 @@ define(['frame'], function(ngApp) {
         $scope.favor = function(template) {
             var url = '/rest/pl/fe/template/favor?template=' + template.id;
             url += '&site=' + $scope.siteId;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 template._favored = 'Y';
             });
         };
         $scope.unfavor = function(template, index) {
             var url = '/rest/pl/fe/template/unfavor?template=' + template.id;
             url += '&site=' + $scope.siteId;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.templates.splice(index, 1);
                 $scope.page.total--;
             });
@@ -53,7 +53,7 @@ define(['frame'], function(ngApp) {
             var url = '/rest/pl/fe/template/site/list?matterType=enroll&scope=' + criteria.scope;
             url += '&site=' + $scope.siteId;
 
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.templates = rsp.data.templates;
                 $scope.page.total = rsp.data.total;
             });
@@ -62,7 +62,7 @@ define(['frame'], function(ngApp) {
             var url = '/rest/pl/fe/template/platform/share2Me?matterType=enroll';
             url += '&site=' + $scope.siteId;
 
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.templates = rsp.data.templates;
                 $scope.page.total = rsp.data.total;
             });
@@ -75,7 +75,7 @@ define(['frame'], function(ngApp) {
             if (pageAt) {
                 page.at = pageAt;
             }
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.latests = rsp.data.templates;
                 $scope.page.total = rsp.data.total;
             });
@@ -88,7 +88,7 @@ define(['frame'], function(ngApp) {
             if (pageAt) {
                 page.at = pageAt;
             }
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.publishs = rsp.data.templates;
                 $scope.page.total = rsp.data.total;
             });
@@ -97,7 +97,7 @@ define(['frame'], function(ngApp) {
             location.href = '/rest/pl/fe/template/enroll?site=' + $scope.siteId + '&id=' + template.id + '&vid=' + template.lastVersion.id;
         }
         $scope.createEnrollTemplate = function(matter) {
-            http2.get('/rest/pl/fe/template/create?site=' + $scope.siteId + '&matterType=' + matter, function(rsp) {
+            http2.get('/rest/pl/fe/template/create?site=' + $scope.siteId + '&matterType=' + matter).then(function(rsp) {
                 location.href = '/rest/pl/fe/template/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
             });
         }

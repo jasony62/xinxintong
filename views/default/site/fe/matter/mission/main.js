@@ -1,9 +1,9 @@
-require(['matterService'], function() {
+require([], function() {
     'use strict';
     var siteId, missionId, ngApp;
     siteId = location.search.match('site=([^&]*)')[1];
     missionId = location.search.match('mission=([^&]*)')[1];
-    ngApp = angular.module('app', ['ui.tms', 'service.matter']);
+    ngApp = angular.module('app', ['ui.bootstrap', 'ui.tms', 'http.ui.xxt']);
     ngApp.controller('ctrlMain', ['$scope', 'http2', function($scope, http2) {
         function getUserTrack(oUser) {
             var url;
@@ -11,7 +11,7 @@ require(['matterService'], function() {
             if (oUser) {
                 url += '&user=' + oUser.userid;
             }
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 var mattersByTime, orderedTimes;
                 mattersByTime = {};
                 orderedTimes = [];
@@ -38,21 +38,12 @@ require(['matterService'], function() {
                         if (matter.start_at * 1000 > (new Date * 1)) {
                             oIndicator.state = 'pending';
                         } else {
-
                             if (matter.end_at > 0) {
                                 if (matter.end_at * 1000 > (new Date * 1)) {
                                     oIndicator.end = 'R';
                                 } else {
                                     oIndicator.end = 'E';
                                     oIndicator.state = 'end';
-                                }
-                            }
-                            if ((!oIndicator.end || oIndicator.end === 'R') && matter.end_submit_at > 0) {
-                                if (matter.end_submit_at * 1000 > (new Date * 1)) {
-                                    oIndicator.end_submit = 'R';
-                                } else {
-                                    oIndicator.end_submit = 'E';
-                                    oIndicator.state = 'end-submit';
                                 }
                             }
                         }
@@ -95,7 +86,7 @@ require(['matterService'], function() {
         $scope.shiftGroupUser = function(oGrpUser) {
             getUserTrack(oGrpUser);
         };
-        http2.get('/rest/site/fe/matter/mission/get?site=' + siteId + '&mission=' + missionId, function(rsp) {
+        http2.get('/rest/site/fe/matter/mission/get?site=' + siteId + '&mission=' + missionId).then(function(rsp) {
             var groupUsers;
             $scope.mission = _oMission = rsp.data;
             if (_oMission) {

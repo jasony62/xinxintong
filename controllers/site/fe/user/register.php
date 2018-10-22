@@ -26,7 +26,7 @@ class register extends \site\fe\base {
 		$isValidUname = false;
 		if (1 === preg_match('/^\S+@(\S+[-.])+\S{2,4}$/', $uname)) {
 			$isValidUname = true;
-		} else if (1 === preg_match('/^1(3[0-9]|4[57]|5[0-35-9]|7[0135678]|8[0-9])\\d{8}$/', $uname)) {
+		} else if (1 === preg_match('/^1(3[0-9]|4[57]|5[0-35-9]|7[0135678]|8[0-9]|9[0-9])\\d{8}$/', $uname)) {
 			$isValidUname = true;
 		}
 		if (false === $isValidUname) {

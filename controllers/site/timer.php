@@ -15,24 +15,21 @@ class timer extends base {
 		$tasks = $modelTim->tasksByTime();
 		foreach ($tasks as $oTask) {
 			/* 执行任务 */
-			$rsp = $oTask->model->exec($oTask->matter, isset($oTask->arguments) ? $oTask->arguments : null);
-
+			$aRsp = $oTask->model->exec($oTask->matter, isset($oTask->arguments) ? $oTask->arguments : null);
+			if (false === $aRsp[0]) {
+				$invalidCause = empty($aRsp[1]) ? '' : (is_string($aRsp[1]) ? $aRsp[1] : $modelTim->toJson($aRsp[1]));
+			}
 			/* 记录日志 */
 			$oLog = [
 				'siteid' => $oTask->siteid,
 				'task_id' => $oTask->id,
 				'occur_at' => time(),
-				'result' => $rsp[0] ? 'true' : (is_string($rsp[1]) ? $rsp[1] : $modelTim->toJson($rsp[1])),
+				'result' => $aRsp[0] ? 'true' : $invalidCause,
 			];
 			$modelTim->insert('xxt_log_timer', $oLog, true);
-
 			/* 更新任务状态 */
-			if (false == $rsp[0]) {
-				$modelTim->update('update xxt_timer_task set enabled=\'N\' where id=' . $oTask->id);
-			} else {
-				if (isset($oTask->left_count) && $oTask->left_count > 0) {
-					$modelTim->update('update xxt_timer_task set left_count=left_count-1 where id=' . $oTask->id);
-				}
+			if (false == $aRsp[0]) {
+				$modelTim->update('xxt_timer_task', ['enabled' => 'N', 'invalid_cause' => $invalidCause], ['id' => $oTask->id]);
 			}
 		}
 

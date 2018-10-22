@@ -169,24 +169,24 @@ class data extends \pl\fe\matter\base {
 		/* 消息的创建人 */
 		$modelWay = $this->model('site\fe\way');
 		$who = $modelWay->who($oRecord->siteid);
-		$creater = new \stdClass;
-		$creater->uid = $who->uid;
-		$creater->name = $who->nickname;
-		$creater->src = 'pl';
+		$oCreator = new \stdClass;
+		$oCreator->uid = $who->uid;
+		$oCreator->name = $who->nickname;
+		$oCreator->src = 'pl';
 
 		/* 消息的接收人 */
-		$receiver = new \stdClass;
-		$receiver->assoc_with = $oRecord->enroll_key;
-		$receiver->userid = $oRecord->userid;
+		$oReceiver = new \stdClass;
+		$oReceiver->assoc_with = $oRecord->enroll_key;
+		$oReceiver->userid = $oRecord->userid;
 
 		/*判断是否是同一个人*/
-		if ($creater->uid == $receiver->userid) {
+		if ($oCreator->uid == $oReceiver->userid) {
 			return false;
 		}
 
 		/* 给用户发通知消息 */
 		$modelTmplBat = $this->model('matter\tmplmsg\batch');
-		$modelTmplBat->send($oRecord->siteid, $tmplConfig->msgid, $creater, [$receiver], $params, ['send_from' => 'enroll:' . $oRecord->aid . ':' . $oRecord->enroll_key]);
+		$modelTmplBat->send($oRecord->siteid, $tmplConfig->msgid, $oCreator, [$oReceiver], $params, ['send_from' => 'enroll:' . $oRecord->aid . ':' . $oRecord->enroll_key]);
 	}
 	/**
 	 * 返回指定登记项的活动登记名单

@@ -60,10 +60,10 @@ class notice extends main_base {
 		if (count($oUsers)) {
 			$receivers = [];
 			foreach ($oUsers as $oUser) {
-				$receiver = new \stdClass;
-				isset($oUser->enroll_key) && $receiver->assoc_with = $oUser->enroll_key;
-				$receiver->userid = $oUser->userid;
-				$receivers[] = $receiver;
+				$oReceiver = new \stdClass;
+				isset($oUser->enroll_key) && $oReceiver->assoc_with = $oUser->enroll_key;
+				$oReceiver->userid = $oUser->userid;
+				$receivers[] = $oReceiver;
 			}
 			$oUser = $this->accountUser();
 			$modelTmplBat = $this->model('matter\tmplmsg\batch');

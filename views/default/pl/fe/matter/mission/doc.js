@@ -28,21 +28,21 @@ define(['frame'], function(ngApp) {
                         title: _oMission.title + '-单图文'
                     }
                 };
-            http2.post(url, config, function(rsp) {
+            http2.post(url, config).then(function(rsp) {
                 location.href = '/rest/pl/fe/matter/article?id=' + rsp.data.id + '&site=' + _oMission.siteid;
             });
         };
         $scope.addLink = function() {
             var url = '/rest/pl/fe/matter/link/create?mission=' + _oMission.id;
             url += '&title=' + _oMission.title + '-链接';
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 location.href = '/rest/pl/fe/matter/link?id=' + rsp.data.id + '&site=' + _oMission.siteid;
             });
         };
         $scope.addChannel = function() {
             var url = '/rest/pl/fe/matter/channel/create?mission=' + _oMission.id;
             url += '&title=' + _oMission.title + '-频道';
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 location.href = '/rest/pl/fe/matter/channel?id=' + rsp.data.id + '&site=' + _oMission.siteid;
             });
         };
@@ -79,7 +79,7 @@ define(['frame'], function(ngApp) {
                         url += type + '/remove?id=' + id + '&site=' + _oMission.siteid;
                         break;
                 }
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     $scope.matters.splice($scope.matters.indexOf(matter), 1);
                 });
             }
@@ -99,7 +99,7 @@ define(['frame'], function(ngApp) {
                     return;
                     break;
             }
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 location.href = '/rest/pl/fe/matter/' + type + '?site=' + _oMission.siteid + '&id=' + rsp.data.id;
             });
         };
@@ -109,7 +109,7 @@ define(['frame'], function(ngApp) {
                 isPublic = oMatter.is_public === 'Y' ? 'N' : 'Y';
             }
             url = '/rest/pl/fe/matter/mission/matter/update?site=' + _oMission.siteid + '&id=' + _oMission.id + '&matterType=' + oMatter.type + '&matterId=' + oMatter.id;
-            http2.post(url, { 'is_public': isPublic }, function(rsp) {
+            http2.post(url, { 'is_public': isPublic }).then(function(rsp) {
                 oMatter.is_public = isPublic;
             });
         };
@@ -127,7 +127,7 @@ define(['frame'], function(ngApp) {
             } else {
                 url += '&matterType=' + matterType;
             }
-            http2.post(url, data, function(rsp) {
+            http2.post(url, data).then(function(rsp) {
                 rsp.data.forEach(function(matter) {
                     matter._operator = matter.modifier_name || matter.creater_name;
                     matter._operateAt = matter.modifiy_at || matter.create_at;

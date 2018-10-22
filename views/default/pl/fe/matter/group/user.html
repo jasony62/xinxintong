@@ -32,6 +32,12 @@
                 </ul>
             </div>
             <div class="btn-group" uib-dropdown>
+                <button class="btn btn-default" uib-dropdown-toggle><span ng-bind="rows.players.length"></span>个用户加入到...<i class="caret"></i></button>
+                <ul uib-dropdown-menu>
+                    <li ng-repeat="rnd in roleRounds"><a href ng-click="joinGroup(rnd,rows.players)">{{rnd.title}}</a></li>
+                </ul>
+            </div>
+            <div class="btn-group" uib-dropdown>
                 <button class="btn btn-default" uib-dropdown-toggle>更多操作 <i class="caret"></i></button>
                 <ul uib-dropdown-menu>
                     <li><a href="" ng-click="addPlayer()">添加用户</a></li>

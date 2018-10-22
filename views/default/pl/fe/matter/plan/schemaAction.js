@@ -7,7 +7,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
         $scope.submitChange = function() {
             var oAction, deferred = $q.defer();
             oAction = $scope.action;
-            http2.post('/rest/pl/fe/matter/plan/schema/action/update?action=' + oAction.id, { 'checkSchemas': oAction.checkSchemas }, function(rsp) {
+            http2.post('/rest/pl/fe/matter/plan/schema/action/update?action=' + oAction.id, { 'checkSchemas': oAction.checkSchemas }).then(function(rsp) {
                 deferred.resolve();
             });
             return deferred.promise;
@@ -54,7 +54,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
             return deferred.promise;
         };
         srvPlanApp.get().then(function(oApp) {
-            http2.get('/rest/pl/fe/matter/plan/schema/action/get' + location.search, function(rsp) {
+            http2.get('/rest/pl/fe/matter/plan/schema/action/get' + location.search).then(function(rsp) {
                 var oAction, schemasById = {};
                 oAction = rsp.data;
                 oAction.checkSchemas.forEach(function(oSchema) {

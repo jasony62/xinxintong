@@ -27,11 +27,11 @@ class way_model extends \TMS_MODEL {
 			$modified = true;
 		} else if (empty($oCookieUser)) {
 			/* 无访客身份用户首次访问站点 */
-			$modelSiteUser = \TMS_App::M('site\user\account');
+			$modelSiteUser = $this->model('site\user\account');
 			if ($oCookieRegUser) {
 				/* 注册主站点访客账号，有，使用，没有，创建 */
-				$siteUser = $modelSiteUser->byPrimaryUnionid($siteId, $oCookieRegUser->unionid);
-				if ($siteUser === false) {
+				$oSiteUser = $modelSiteUser->byPrimaryUnionid($siteId, $oCookieRegUser->unionid);
+				if ($oSiteUser === false) {
 					/* 当前为登录状态，创建持久化用户，且作为绑定的主访客账号 */
 					$props = [
 						'unionid' => $oCookieRegUser->unionid,
@@ -40,15 +40,15 @@ class way_model extends \TMS_MODEL {
 					if (!empty($oCookieRegUser->nickname)) {
 						$props['nickname'] = $oCookieRegUser->nickname;
 					}
-					$siteUser = $modelSiteUser->blank($siteId, true, $props);
+					$oSiteUser = $modelSiteUser->blank($siteId, true, $props);
 				}
 			} else {
 				/* 未登录状态，创建非持久化的站点访客账号 */
-				$siteUser = $modelSiteUser->blank($siteId, false);
+				$oSiteUser = $modelSiteUser->blank($siteId, false);
 			}
 			$oCookieUser = new \stdClass;
-			$oCookieUser->uid = $siteUser->uid;
-			$oCookieUser->nickname = $siteUser->nickname;
+			$oCookieUser->uid = $oSiteUser->uid;
+			$oCookieUser->nickname = $oSiteUser->nickname;
 			$oCookieUser->expire = time() + (86400 * TMS_COOKIE_SITE_USER_EXPIRE);
 			$modified = true;
 		} else {
@@ -507,19 +507,19 @@ class way_model extends \TMS_MODEL {
 	/**
 	 * 切换当前客户端的注册用户
 	 *
-	 * @param object $registration
+	 * @param object $oRegUser
 	 * @param boolean $loadFromDb 是否从数据库中加载访客账号
 	 */
-	public function shiftRegUser($registration, $loadFromDb = true) {
+	public function shiftRegUser($oRegUser, $loadFromDb = true) {
 		$modelAct = $this->model('site\user\account');
 		$current = time();
 		$loginExpire = $current + (86400 * TMS_COOKIE_SITE_LOGIN_EXPIRE);
 
 		/* cookie中保留注册信息 */
 		$oCookieRegUser = new \stdClass;
-		$oCookieRegUser->unionid = $registration->unionid;
-		$oCookieRegUser->uname = $registration->uname;
-		$oCookieRegUser->nickname = $registration->nickname;
+		$oCookieRegUser->unionid = $oRegUser->unionid;
+		$oCookieRegUser->uname = $oRegUser->uname;
+		$oCookieRegUser->nickname = $oRegUser->nickname;
 		$oCookieRegUser->loginExpire = $loginExpire;
 		$this->setCookieRegUser($oCookieRegUser);
 
@@ -535,7 +535,7 @@ class way_model extends \TMS_MODEL {
 		$primaryAccounts = []; // 和当前注册账号关联的主访客账号
 		if ($loadFromDb) {
 			/* 获取和注册账号关联的主访客账号 */
-			$accounts = $modelAct->byUnionid($registration->unionid, ['is_reg_primary' => 'Y']);
+			$accounts = $modelAct->byUnionid($oRegUser->unionid, ['is_reg_primary' => 'Y']);
 			if (count($accounts)) {
 				$modelMem = $this->model('site\user\member');
 				foreach ($accounts as $account) {
@@ -593,9 +593,9 @@ class way_model extends \TMS_MODEL {
 				if ($account) {
 					if (empty($account->unionid)) {
 						/* 作为关联访客账号绑定到注册账号 */
-						$modelAct->update('xxt_site_account', ['unionid' => $registration->unionid], ['uid' => $beforeCookieuser->uid]);
+						$modelAct->update('xxt_site_account', ['unionid' => $oRegUser->unionid], ['uid' => $beforeCookieuser->uid]);
 					} else {
-						if ($account->unionid !== $registration->unionid) {
+						if ($account->unionid !== $oRegUser->unionid) {
 							/* 同一个站点，绑定了不同注册账号，从cookie中清除 */
 							// cookie中对应的数据已经被数据库中的主访客账号覆盖
 						} else {
@@ -606,8 +606,8 @@ class way_model extends \TMS_MODEL {
 					/* 同一个站点下，未保存在数据库中，作为关联账号保存*/
 					$props = [
 						'uid' => $beforeCookieuser->uid,
-						'unionid' => $registration->unionid,
-						'nickname' => $registration->nickname,
+						'unionid' => $oRegUser->unionid,
+						'nickname' => $oRegUser->nickname,
 					];
 					$modelAct->blank($siteId, true, $props);
 				}
@@ -616,9 +616,9 @@ class way_model extends \TMS_MODEL {
 				if ($account) {
 					if (empty($account->unionid)) {
 						// 站点下，新的主访客账号
-						$modelAct->update('xxt_site_account', ['unionid' => $registration->unionid, 'is_reg_primary' => 'Y'], ['uid' => $beforeCookieuser->uid]);
+						$modelAct->update('xxt_site_account', ['unionid' => $oRegUser->unionid, 'is_reg_primary' => 'Y'], ['uid' => $beforeCookieuser->uid]);
 					} else {
-						if ($account->unionid !== $registration->unionid) {
+						if ($account->unionid !== $oRegUser->unionid) {
 							/* 其他注册账号下的站点，当前注册账号没有访问过，从cookie中清除 */
 							$this->cleanCookieUser($siteId);
 						} else {
@@ -630,8 +630,8 @@ class way_model extends \TMS_MODEL {
 					/* 新的主访客账号 */
 					$props = [
 						'uid' => $beforeCookieuser->uid,
-						'unionid' => $registration->unionid,
-						'nickname' => $registration->nickname,
+						'unionid' => $oRegUser->unionid,
+						'nickname' => $oRegUser->nickname,
 						'is_reg_primary' => 'Y',
 					];
 					$modelAct->blank($siteId, true, $props);

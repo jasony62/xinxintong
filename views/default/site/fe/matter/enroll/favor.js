@@ -99,19 +99,24 @@ ngApp.controller('ctrlFavor', ['$scope', '$uibModal', 'http2', 'tmsLocation', fu
         /*页面阅读日志*/
         $scope.logAccess();
         /*设置页面导航*/
-        var oAppNavs = {};
-        if (oApp.can_repos === 'Y') {
-            oAppNavs.repos = {};
-        }
-        if (oApp.can_rank === 'Y') {
-            oAppNavs.rank = {};
-        }
-        if (oApp.scenarioConfig && oApp.scenarioConfig.can_action === 'Y') {
-            /* 设置活动事件提醒 */
-            http2.get(LS.j('notice/count', 'site', 'app')).then(function(rsp) {
-                $scope.noticeCount = rsp.data;
-            });
-            oAppNavs.event = {};
+        var oAppNavs = { length: 0 };
+        if (oApp.scenarioConfig) {
+            if (oApp.scenarioConfig.can_repos === 'Y') {
+                oAppNavs.repos = {};
+                oApp.length++;
+            }
+            if (oApp.scenarioConfig.can_rank === 'Y') {
+                oAppNavs.rank = {};
+                oApp.length++;
+            }
+            if (oApp.scenarioConfig.can_action === 'Y') {
+                /* 设置活动事件提醒 */
+                http2.get(LS.j('notice/count', 'site', 'app')).then(function(rsp) {
+                    $scope.noticeCount = rsp.data;
+                });
+                oAppNavs.event = {};
+                oApp.length++;
+            }
         }
         if (Object.keys(oAppNavs).length) {
             $scope.appNavs = oAppNavs;

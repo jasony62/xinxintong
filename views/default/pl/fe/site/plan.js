@@ -1,6 +1,6 @@
 define(['require'], function(require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'notice.ui.xxt']);
     ngApp.config(['$locationProvider', function($locationProvider) {
         $locationProvider.html5Mode(true);
     }]);
@@ -9,7 +9,7 @@ define(['require'], function(require) {
         $scope.proto = _oProto = {};
         _oBeforeProto = angular.copy(_oProto);
         $scope.doCreate = function() {
-            http2.post('/rest/pl/fe/site/create', _oProto, function(rsp) {
+            http2.post('/rest/pl/fe/site/create', _oProto).then(function(rsp) {
                 location.href = '/rest/pl/fe/site/setting?site=' + rsp.data.id;
             });
         };

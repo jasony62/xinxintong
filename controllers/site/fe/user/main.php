@@ -7,27 +7,36 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class main extends \site\fe\base {
 	/**
-	 *
+	 * 进入用户个人中心
 	 */
 	public function index_action() {
 		\TPL::output('/site/fe/user/main');
 		exit;
 	}
 	/**
-	 * 登录和注册页
+	 * 进入登录和注册页
+	 *
+	 * @param string $originUrl  来源页面地址
+	 * @param string $urlEncryptKey   如果来源地址加密，需传入解密算子
 	 */
-	public function access_action() {
+	public function access_action($originUrl = null, $urlEncryptKey = null) {
 		/* 整理cookie中的数据，便于后续处理 */
 		$modelWay = $this->model('site\fe\way');
 		$modelWay->resetAllCookieUser();
 
 		/* 保存页面来源 */
-		if (isset($_SERVER['HTTP_REFERER'])) {
+		if (!empty($originUrl)) {
+			if (!empty($urlEncryptKey)) {
+				$referer = $this->model()->encrypt($originUrl, 'DECODE', $urlEncryptKey);
+			} else {
+				$referer = $originUrl;
+			}
+		} else if (isset($_SERVER['HTTP_REFERER'])) {
 			$referer = $_SERVER['HTTP_REFERER'];
-			if (!empty($referer) && !in_array($referer, array('/'))) {
-				if (false === strpos($referer, '/fe/user')) {
-					$this->mySetCookie('_user_access_referer', $referer);
-				}
+		}
+		if (!empty($referer) && !in_array($referer, array('/'))) {
+			if (false === strpos($referer, '/fe/user')) {
+				$this->mySetCookie('_user_access_referer', $referer);
 			}
 		}
 
@@ -40,14 +49,28 @@ class main extends \site\fe\base {
 	public function get_action() {
 		$oUser = clone $this->who;
 		/* 站点用户信息 */
-		if ($account = $this->model('site\user\account')->byId($this->who->uid, ['fields' => 'coin,headimgurl'])) {
-			$oUser->coin = $account->coin;
-			$oUser->headimgurl = $account->headimgurl;
+		$modelAnt = $this->model('site\user\account');
+		$modelReg = $this->model('site\user\registration');
+		if ($oAccount = $modelAnt->byId($oUser->uid, ['fields' => 'uid,siteid,unionid,coin,headimgurl,wx_openid,is_wx_primary,is_reg_primary'])) {
+			$oUser->coin = $oAccount->coin;
+			$oUser->headimgurl = $oAccount->headimgurl;
+			$oUser->is_wx_primary = $oAccount->is_wx_primary;
+			$oUser->is_reg_primary = $oAccount->is_reg_primary;
 		}
 		if (!empty($oUser->unionid)) {
-			$oReg = $this->model('site\user\registration')->byId($oUser->unionid);
+			$oReg = $modelReg->byId($oUser->unionid);
 			if ($oReg) {
 				$oUser->uname = $oReg->uname;
+			}
+		}
+		/**
+		 * 和微信openid绑定的注册账号
+		 */
+		$userAgent = $this->userAgent(); // 客户端类型
+		if (in_array($userAgent, ['wx'])) {
+			$regUsers = $this->_getRegAntsByWxopenid($oAccount);
+			if (count($regUsers)) {
+				$oUser->registersByWx = $regUsers;
 			}
 		}
 
@@ -80,8 +103,8 @@ class main extends \site\fe\base {
 
 		/* 更新站点用户信息 */
 		$modelUsr = $this->model('site\user\account');
-		if ($account = $modelUsr->byId($user->uid)) {
-			$modelUsr->changeNickname($this->siteId, $account->uid, $data->nickname);
+		if ($oAccount = $modelUsr->byId($user->uid)) {
+			$modelUsr->changeNickname($this->siteId, $oAccount->uid, $data->nickname);
 		}
 		$cookieUser = $modelWay->getCookieUser($this->siteId);
 		$cookieUser->nickname = $data->nickname;
@@ -102,15 +125,76 @@ class main extends \site\fe\base {
 		$user = $this->who;
 
 		$modelUsr = $this->model('site\user\account');
-		if ($account = $modelUsr->byId($user->uid)) {
+		if ($oAccount = $modelUsr->byId($user->uid)) {
 			$modelReg = $this->model('site\user\registration');
-			if ($registration = $modelReg->byId($account->unionid)) {
+			if ($registration = $modelReg->byId($oAccount->unionid)) {
 				$rst = $modelReg->changePwd($registration->uname, $data->password, $registration->salt);
 				return new \ResponseData($rst);
 			}
 		}
 
 		return new \ResponseError('你不是注册用户，无法修改口令');
+	}
+	/**
+	 * 切换当前注册用户
+	 */
+	public function shiftRegUser_action() {
+		$userAgent = $this->userAgent(); // 客户端类型
+		if (!in_array($userAgent, ['wx'])) {
+			return new \ResponseError('仅在微信中支持切换用户');
+		}
+		$oPosted = $this->getPostJson();
+		if (empty($oPosted->uname)) {
+			return new \ParameterError();
+		}
+		$uname = $oPosted->uname;
+
+		$oUser = clone $this->who;
+		$modelAnt = $this->model('site\user\account');
+		$modelReg = $this->model('site\user\registration');
+
+		$oCurrentAnt = $modelAnt->byId($oUser->uid, ['fields' => 'uid,siteid,unionid,coin,headimgurl,wx_openid,is_wx_primary,is_reg_primary']);
+		if (false === $oCurrentAnt) {
+			return new \ObjectNotFoundError('当前用户不存在');
+		}
+		/**
+		 * 和微信openid绑定的注册账号
+		 */
+		$otherRegAnts = $this->_getRegAntsByWxopenid($oCurrentAnt);
+		if (0 === count($otherRegAnts)) {
+			return new \ObjectNotFoundError('不存在可以切换的用户');
+		}
+		$oTargetRegAnt = null;
+		foreach ($otherRegAnts as $oRegUser) {
+			if ($oRegUser->uname === $uname) {
+				$oTargetRegAnt = $oRegUser;
+				break;
+			}
+		}
+		if (empty($oTargetRegAnt)) {
+			return new \ObjectNotFoundError('指定的切换账号不存在');
+		}
+		/* 将要切换的账号作为微信中的默认账号，解决利用微信openid自动登录的问题 */
+		if (isset($oTargetRegAnt->is_wx_primary) && $oTargetRegAnt->is_wx_primary !== 'Y') {
+			$modelAnt->update(
+				'xxt_site_account',
+				['is_wx_primary' => 'N'],
+				['siteid' => $oCurrentAnt->siteid, 'wx_openid' => $oCurrentAnt->wx_openid, 'is_wx_primary' => 'Y']);
+			$modelAnt->update(
+				'xxt_site_account',
+				['is_wx_primary' => 'Y'],
+				['uid' => $oTargetRegAnt->uid]);
+		}
+
+		/* 记录登录状态 */
+		$fromip = $this->client_ip();
+		$modelReg->updateLastLogin($oTargetRegAnt->unionid, $fromip);
+
+		/* cookie中保留注册信息 */
+		$modelWay = $this->model('site\fe\way');
+		$modelWay->shiftRegUser($oTargetRegAnt);
+
+		return new \ResponseData($oTargetRegAnt);
 	}
 	/**
 	 * 用户访问过的所有站点
@@ -120,5 +204,27 @@ class main extends \site\fe\base {
 		$sites = $modelWay->siteList();
 
 		return new \ResponseData($sites);
+	}
+	/**
+	 * 根据微信的openid获得当前用户的注册用户
+	 */
+	private function _getRegAntsByWxopenid($oAccount) {
+		$accounts = [];
+		if (!empty($oAccount->wx_openid)) {
+			$modelAnt = $this->model('site\user\account');
+			$regAnts = $modelAnt->byOpenid($oAccount->siteid, 'wx', $oAccount->wx_openid, ['fields' => 'uid,nickname,unionid,is_wx_primary,is_reg_primary', 'is_reg_primary' => 'Y', 'has_unionid' => true]);
+			if (count($regAnts)) {
+				$modelReg = $this->model('site\user\registration');
+				foreach ($regAnts as $oRegAnt) {
+					$oReg = $modelReg->byId($oRegAnt->unionid);
+					if ($oReg) {
+						$oRegAnt->uname = $oReg->uname;
+					}
+					$accounts[] = $oRegAnt;
+				}
+			}
+		}
+
+		return $accounts;
 	}
 }

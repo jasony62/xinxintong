@@ -6,7 +6,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
         this.config = function(siteId) {
             _siteId = siteId;
         };
-        this.$get = ['$uibModal', '$q', 'srv' + window.MATTER_TYPE + 'App', 'srvEnrollPage', function($uibModal, $q, srvApp, srvAppPage) {
+        this.$get = ['$uibModal', '$q', 'http2', 'srv' + window.MATTER_TYPE + 'App', 'srvEnrollPage', function($uibModal, $q, http2, srvApp, srvAppPage) {
             var _self = {
                 makePagelet: function(content) {
                     var deferred = $q.defer();
@@ -66,13 +66,6 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         if (oUpdatedSchema.scoreMode === 'evaluation') {
                             if (oUpdatedSchema.weight === undefined) {
                                 oUpdatedSchema.weight = 1;
-                            } else {
-                                if (false === /^\d+\.?\d*$/.test(oUpdatedSchema.weight)) {
-                                    oUpdatedSchema.weight = 1;
-                                } else if (/\.$/.test(oUpdatedSchema.weight)) {
-                                    // 这样会导致无法输入“点”
-                                    //oSchema.weight = oSchema.weight.slice(0, -1);
-                                }
                             }
                         }
                     }
@@ -125,18 +118,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             }
                         }
                         srvApp.update(updatedAppProps).then(function(oUpdatedApp) {
-                            function fnRefreshSchema(oOld, oNew) {
-                                for (var prop in oOld) {
-                                    if (oNew[prop] === undefined) {
-                                        delete oOld[prop];
-                                    } else {
-                                        oOld[prop] = oNew[prop];
-                                    }
-                                }
-                            }
-                            for (var i = 0, ii = oApp.dataSchemas.length; i < ii; i++) {
-                                fnRefreshSchema(oApp.dataSchemas[i], oUpdatedApp.dataSchemas[i]);
-                            }
+                            http2.merge(oApp.dataSchemas, oUpdatedApp.dataSchemas);
                             if (!changedPages || changedPages.length === 0) {
                                 deferred.resolve();
                             } else {
@@ -363,7 +345,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                     lastModified: lastModified,
                                     uniqueIdentifier: f.uniqueIdentifier,
                                 };
-                                http2.post('/rest/pl/fe/matter/enroll/attachment/add?site=' + oApp.siteid + '&app=' + oApp.id, posted, function success(rsp) {
+                                http2.post('/rest/pl/fe/matter/enroll/attachment/add?site=' + oApp.siteid + '&app=' + oApp.id, posted).then(function(rsp) {
                                     $scope2.attachment = rsp.data;
                                 });
                             });
@@ -619,7 +601,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             }
                             http2.post(url, {
                                 byTitle: oFilter.byTitle
-                            }, function(rsp) {
+                            }).then(function(rsp) {
                                 $scope2.apps = rsp.data.apps;
                                 if ($scope2.apps.length) {
                                     oResult.fromApp = $scope2.apps[0];
@@ -860,7 +842,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                     url = '/rest/pl/fe/matter/enroll/schema/' + oResult.purpose;
                                     url += '?app=' + _oApp.id;
                                     url += '&targetApp=' + oResult.fromApp.id;
-                                    http2.post(url, oConfig, function(rsp) {
+                                    http2.post(url, oConfig).then(function(rsp) {
                                         if (rsp.data.length) {
                                             rsp.data.forEach(function(oNewSchema) {
                                                 $scope._appendSchema(oNewSchema);
@@ -1162,37 +1144,72 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 var _oApp;
                 _oApp = $scope.app;
                 $uibModal.open({
-                    templateUrl: '/views/default/pl/fe/matter/enroll/component/setDataSource.html?_=1',
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/schema/setDataSource.html?_=1',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         var oPage, oResult, oFilter;
-                        $scope2.page = oPage = {
-                            at: 1,
-                            size: 12,
-                            j: function() {
-                                return 'page=' + this.at + '&size=' + this.size;
+                        $scope2.page = oPage = {};
+                        $scope2.result = oResult = {
+                            reset: function() {
+                                this.type = null;
+                                this.selected = null;
                             }
                         };
-                        $scope2.result = oResult = {};
                         $scope2.filter = oFilter = {};
                         $scope2.schemas = [];
                         $scope2.selectApp = function() {
-                            $scope2.schemas = [];
                             if (angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
                                 oResult.fromApp.dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
-                                oResult.fromApp.dataSchemas.forEach(function(oSchema) {
-                                    if (/single|multiple/.test(oSchema.type)) {
-                                        $scope2.schemas.push(oSchema);
-                                    } else if ('shorttext' === oSchema.type && oSchema.format === 'number') {
-                                        $scope2.schemas.push(oSchema);
-                                    }
-                                });
                             }
-                            oResult.selected = null;
+                            oResult.reset();
                         };
+                        $scope2.$watch('result.type', function(newType) {
+                            $scope2.schemas = [];
+                            if (newType) {
+                                switch (newType) {
+                                    case 'input':
+                                        oResult.fromApp.dataSchemas.forEach(function(oSchema) {
+                                            if ('shorttext' === oSchema.type && oSchema.format === 'number') {
+                                                $scope2.schemas.push(oSchema);
+                                            }
+                                        });
+                                        break;
+                                    case 'option':
+                                        oResult.fromApp.dataSchemas.forEach(function(oSchema) {
+                                            if (/single|multiple/.test(oSchema.type) && oSchema.dsOps) {
+                                                $scope2.schemas.push(oSchema);
+                                            }
+                                        });
+                                        break;
+                                }
+                            }
+                        });
+                        $scope2.$watch('result', function(oNewResult) {
+                            $scope2.disabled = false;
+                            if (!oResult.fromApp) $scope2.disabled = true;
+                            if (!oResult.type) {
+                                $scope2.disabled = true;
+                            } else {
+                                if (/input|option/.test(oResult.type) && !oResult.selected) {
+                                    $scope2.disabled = true;
+                                }
+                            }
+                        }, true);
                         $scope2.ok = function() {
-                            var fromApp;
-                            if ((fromApp = oResult.fromApp) && oResult.selected !== undefined) {
-                                $mi.close({ app: { id: fromApp.id, title: fromApp.title }, schema: $scope2.schemas[parseInt(oResult.selected)] });
+                            var fromApp, oConfig;
+                            if ((fromApp = oResult.fromApp)) {
+                                oConfig = { app: { id: fromApp.id, title: fromApp.title }, type: oResult.type };
+                                if (oResult.selected !== undefined) {
+                                    switch (oResult.type) {
+                                        case 'act':
+                                            oConfig.name = oResult.selected;
+                                            break;
+                                        case 'input':
+                                        case 'option':
+                                            oConfig.schema = $scope2.schemas[parseInt(oResult.selected)];
+                                            break;
+                                    }
+                                }
+                                $mi.close(oConfig);
                             } else {
                                 $mi.dismiss();
                             }
@@ -1205,31 +1222,36 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             $scope2.doSearch();
                         };
                         $scope2.doSearch = function() {
-                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid + '&' + oPage.j();
+                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid;
                             if (_oApp.mission) {
                                 url += '&mission=' + _oApp.mission.id;
                             }
                             http2.post(url, {
                                 byTitle: oFilter.byTitle
-                            }, function(rsp) {
+                            }, { page: oPage }).then(function(rsp) {
                                 $scope2.apps = rsp.data.apps;
                                 if ($scope2.apps.length) {
                                     oResult.fromApp = $scope2.apps[0];
                                     $scope2.selectApp();
                                 }
-                                oPage.total = rsp.data.total;
                             });
                         };
+                        $scope2.disabled = true;
                         $scope2.doSearch();
                     }],
                     backdrop: 'static',
                     windowClass: 'auto-height',
                     size: 'lg'
                 }).result.then(function(oResult) {
-                    if (oResult.app && oResult.schema) {
+                    if (oResult.app && oResult.type) {
                         oSchema.ds = {
                             app: { id: oResult.app.id, title: oResult.app.title },
-                            schema: { id: oResult.schema.id, title: oResult.schema.title, type: oResult.schema.type },
+                            type: oResult.type,
+                        }
+                        if (oResult.name) {
+                            oSchema.ds.name = oResult.name;
+                        } else if (oResult.schema) {
+                            oSchema.ds.schema = { id: oResult.schema.id, title: oResult.schema.title, type: oResult.schema.type };
                         }
                         $scope.updSchema(oSchema);
                     }
@@ -1302,7 +1324,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             pageAt && (oPage.at = pageAt);
                             http2.post(url, {
                                 byTitle: oAppFilter.byTitle
-                            }, function(rsp) {
+                            }).then(function(rsp) {
                                 $scope2.apps = rsp.data.apps;
                                 if ($scope2.apps.length) {
                                     oResult.fromApp = $scope2.apps[0];
@@ -1461,7 +1483,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             pageAt && (oPage.at = pageAt);
                             http2.post(url, {
                                 byTitle: oAppFilter.byTitle
-                            }, function(rsp) {
+                            }).then(function(rsp) {
                                 $scope2.apps = rsp.data.apps;
                                 if ($scope2.apps.length) {
                                     oResult.fromApp = $scope2.apps[0];
@@ -1674,11 +1696,20 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     return '/views/default/pl/fe/matter/enroll/schema/' + schema.type + '.html?_=' + bust;
                 }
             };
+            var _IncludeSchemaTemplates = {
+                html: {
+                    option: { url: '/views/default/pl/fe/matter/enroll/schema/option' },
+                    main: { url: '/views/default/pl/fe/matter/enroll/schema/main' }
+                }
+            };
+            http2.post('/rest/script/time', _IncludeSchemaTemplates).then(function(rsp) {
+                angular.merge(_IncludeSchemaTemplates, rsp.data);
+            });
             $scope.schemaEditorHtml = function() {
                 if ($scope.activeOption) {
-                    return '/views/default/pl/fe/matter/enroll/schema/option.html?_=1';
+                    return '/views/default/pl/fe/matter/enroll/schema/option.html?_=' + (_IncludeSchemaTemplates.html.option.time || 1);
                 } else if ($scope.activeSchema) {
-                    return '/views/default/pl/fe/matter/enroll/schema/main.html?_=1';
+                    return '/views/default/pl/fe/matter/enroll/schema/main.html?_=' + (_IncludeSchemaTemplates.html.main.time || 1);
                 } else {
                     return '';
                 }
@@ -1790,7 +1821,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 var oApp;
                 oApp = $scope.app;
                 if (oSchema.id === '_round_id' && oApp.groupApp) {
-                    http2.get('/rest/pl/fe/matter/group/round/list?site=' + oApp.siteid + '&app=' + oApp.groupApp.id, function(rsp) {
+                    http2.get('/rest/pl/fe/matter/group/round/list?site=' + oApp.siteid + '&app=' + oApp.groupApp.id).then(function(rsp) {
                         var newOp, opById;
                         if (rsp.data.length) {
                             opById = {};
@@ -1824,6 +1855,9 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
             };
             $scope.$on('title.xxt.editable.changed', function(e, schema) {
                 $scope.updSchema(schema);
+            });
+            $scope.$on('weight.xxt.editable.changed', function(e, schema) {
+                $scope.updSchema(schema, null, 'weight');
             });
             // 回车添加选项
             $('body').on('keyup', function(evt) {

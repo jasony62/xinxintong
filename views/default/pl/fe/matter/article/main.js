@@ -4,7 +4,7 @@ define(['frame'], function(ngApp) {
 
         $scope.modified = false;
         $scope.submit = function() {
-            http2.post('/rest/pl/fe/matter/article/update?site=' + _oEditing.siteid + '&id=' + _oEditing.id, modifiedData, function() {
+            http2.post('/rest/pl/fe/matter/article/update?site=' + _oEditing.siteid + '&id=' + _oEditing.id, modifiedData).then(function() {
                 modifiedData = {};
                 $scope.modified = false;
                 noticebox.success('完成保存');
@@ -12,7 +12,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.remove = function() {
             if (window.confirm('确定删除？')) {
-                http2.get('/rest/pl/fe/matter/article/remove?site=' + _oEditing.siteid + '&id=' + _oEditing.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/article/remove?site=' + _oEditing.siteid + '&id=' + _oEditing.id).then(function(rsp) {
                     if (_oEditing.mission) {
                         location = "/rest/pl/fe/matter/mission?site=" + _oEditing.siteid + "&id=" + _oEditing.mission.id;
                     } else {
@@ -113,7 +113,7 @@ define(['frame'], function(ngApp) {
                     };
                     var url = '/rest/pl/fe/matter/group/list?site=' + _oEditing.siteid + '&size=999&cascaded=Y';
                     _oEditing.mission && (url += '&mission=' + _oEditing.mission.id);
-                    http2.get(url, function(rsp) {
+                    http2.get(url).then(function(rsp) {
                         $scope2.apps = rsp.data.apps;
                     });
                 }],

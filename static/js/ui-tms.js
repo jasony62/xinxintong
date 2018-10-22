@@ -1,192 +1,15 @@
+'use strict';
 /**
  * directives:
  * combox
- * editable
+ * tmsEditable
+ * tmsArrayCheckbox
+ * tmsDatepicker
+ * tmsAutoUpdate
+ * dndlist
  */
-angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', function($timeout) {
-    var _boxId = 'tmsbox' + (new Date() * 1),
-        _last = {
-            type: '',
-            timer: null
-        },
-        _getBox = function(type, msg) {
-            var box;
-            box = document.querySelector('#' + _boxId);
-            if (box === null) {
-                box = document.createElement('div');
-                box.setAttribute('id', _boxId);
-                box.classList.add('notice-box');
-                box.classList.add('alert');
-                box.classList.add('alert-' + type);
-                box.innerHTML = '<div>' + msg + '</div>';
-                document.body.appendChild(box);
-                _last.type = type;
-            } else {
-                if (_last.type !== type) {
-                    box.classList.remove('alert-' + type);
-                    _last.type = type;
-                }
-                box.childNodes[0].innerHTML = msg;
-            }
-
-            return box;
-        };
-
-    this.close = function() {
-        var box;
-        box = document.querySelector('#' + _boxId);
-        if (box) {
-            document.body.removeChild(box);
-        }
-    };
-    this.error = function(msg) {
-        var box, btn;
-
-        /*取消自动关闭*/
-        if (_last.timer) {
-            $timeout.cancel(_last.timer);
-            _last.timer = null;
-        }
-        /*显示消息框*/
-        box = _getBox('danger', msg);
-        /*手工关闭*/
-        btn = document.createElement('button');
-        btn.classList.add('close');
-        btn.innerHTML = '<span>&times;</span>';
-        box.insertBefore(btn, box.childNodes[0]);
-        btn.addEventListener('click', function() {
-            document.body.removeChild(box);
-        });
-    };
-    this.success = function(msg) {
-        var box;
-        /*取消自动关闭*/
-        _last.timer && $timeout.cancel(_last.timer);
-        /*显示消息框*/
-        box = _getBox('success', msg);
-        /*保持2秒钟后自动关闭*/
-        _last.timer = $timeout(function() {
-            if (box.parentNode && box.parentNode === document.body) {
-                document.body.removeChild(box);
-            }
-            _last.timer = null;
-        }, 2000);
-    };
-    this.info = function(msg) {
-        var box;
-        /*取消自动关闭*/
-        _last.timer && $timeout.cancel(_last.timer);
-        /*显示消息框*/
-        box = _getBox('info', msg);
-        /*保持2秒钟后自动关闭*/
-        _last.timer = $timeout(function() {
-            if (box.parentNode && box.parentNode === document.body) {
-                document.body.removeChild(box);
-            }
-            _last.timer = null;
-        }, 2000);
-    };
-    this.progress = function(msg) {
-        /*显示消息框*/
-        _getBox('progress', msg);
-    };
-}]).service('http2', ['$http', '$timeout', '$sce', 'noticebox', function($http, $timeout, $sce, noticebox) {
-    this.newPage = function(size, at) {
-        return {
-            at: at || 1,
-            size: size || 10,
-            j: function() { return 'page=' + this.at + '&size=' + this.size; }
-        }
-    };
-    this.get = function(url, callback, options) {
-        var _timer;
-        options = angular.extend({
-            'headers': {
-                'accept': 'application/json'
-            },
-            'autoBreak': true,
-            'autoNotice': true,
-            'showProgress': true,
-            'showProgressDelay': 500,
-            'showProgressText': '操作进行中...',
-        }, options);
-        if (options.showProgress === true) {
-            _timer = $timeout(function() {
-                _timer = null;
-                noticebox.progress(options.showProgressText);
-            }, options.showProgressDelay);
-        }
-        $http.get(url, options).success(function(rsp) {
-            if (options.showProgress === true) {
-                _timer && $timeout.cancel(_timer);
-                noticebox.close();
-            }
-            if (angular.isString(rsp)) {
-                if (options.autoNotice) {
-                    noticebox.error($sce.trustAsHtml(rsp));
-                }
-                return;
-            }
-            if (rsp.err_code != 0) {
-                if (options.autoNotice) {
-                    noticebox.error($sce.trustAsHtml(angular.isArray(rsp.err_msg) ? rsp.err_msg.join('<br>') : rsp.err_msg));
-                }
-                if (options.autoBreak) return;
-            }
-            if (callback) callback(rsp);
-        }).error(function(data, status) {
-            if (options.showProgress === true) {
-                _timer && $timeout.cancel(_timer);
-                noticebox.close();
-            }
-            noticebox.error($sce.trustAsHtml(data));
-        });
-    };
-    this.post = function(url, posted, callback, options) {
-        var _timer;
-        options = angular.extend({
-            'headers': {
-                'accept': 'application/json'
-            },
-            'autoBreak': true,
-            'autoNotice': true,
-            'showProgress': true,
-            'showProgressDelay': 500,
-            'showProgressText': '操作进行中...',
-        }, options);
-        if (options.showProgress === true) {
-            _timer = $timeout(function() {
-                _timer = null;
-                noticebox.progress(options.showProgressText);
-            }, options.showProgressDelay);
-        }
-        $http.post(url, posted, options).success(function(rsp) {
-            if (options.showProgress === true) {
-                _timer && $timeout.cancel(_timer);
-                noticebox.close();
-            }
-            if (angular.isString(rsp)) {
-                if (options.autoNotice) {
-                    noticebox.error($sce.trustAsHtml(rsp));
-                }
-                return;
-            }
-            if (rsp.err_code != 0) {
-                if (options.autoNotice) {
-                    noticebox.error($sce.trustAsHtml(rsp.err_msg));
-                }
-                if (options.autoBreak) return;
-            }
-            if (callback) callback(rsp);
-        }).error(function(data, status) {
-            if (options.showProgress === true) {
-                _timer && $timeout.cancel(_timer);
-                noticebox.close();
-            }
-            noticebox.error($sce.trustAsHtml(data));
-        });
-    };
-}]).controller('ComboxController', ['$scope', function($scope) {
+angular.module('ui.tms', ['ngSanitize']).
+controller('ComboxController', ['$scope', function($scope) {
     $scope.aChecked = [];
     if ($scope.evtPrefix === undefined)
         $scope.evt = 'xxt.combox.';
@@ -266,14 +89,16 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                     scope.$apply();
                 }
             });
-            elem[0].querySelectorAll('.dropdown-menu *').forEach(function(elem2) {
-                elem2.addEventListener('click', function(e) {
+            var menus = elem[0].querySelectorAll('.dropdown-menu *');
+            for (var i = 0, ii = menus.length; i < ii; i++) {
+                var elemMenu = menus[i];
+                elemMenu.addEventListener('click', function(e) {
                     e.stopPropagation();
                 });
-            });
+            }
         }
     }
-}).directive('editable', ['$timeout', function($timeout) {
+}).directive('tmsEditable', ['$timeout', function($timeout) {
     return {
         restrict: 'A',
         scope: {
@@ -285,24 +110,30 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
         },
         templateUrl: '/static/template/editable.html?_=4',
         link: function(scope, elem, attrs) {
-            function whenBlur() {
-                delete scope.focus;
-                if (scope.obj[scope.prop] && scope.obj[scope.prop].length == 0) {
-                    scope.remove();
+            function whenBlur(event) {
+                if (!event.relatedTarget || $(elem).find('.input-group button')[0] !== event.relatedTarget) {
+                    delete scope.focus;
+                    if (scope.obj[scope.prop] !== scope.editing.value) {
+                        scope.obj[scope.prop] = scope.editing.value;
+                        scope.valueChanged();
+                    }
+                    //if (scope.obj[scope.prop] && scope.obj[scope.prop].length === 0) {
+                    //    scope.remove();
+                    //}
                 }
-            };
+            }
 
-            function onBlur() {
+            function onBlur(event) {
                 var phase;
                 phase = scope.$root.$$phase;
                 if (phase === '$digest' || phase === '$apply') {
-                    whenBlur();
+                    whenBlur(event);
                 } else {
                     scope.$apply(function() {
-                        whenBlur();
+                        whenBlur(event);
                     });
                 }
-            };
+            }
             $(elem).on('click', function(event) {
                 delete scope.enter;
                 scope.focus = true;
@@ -317,11 +148,18 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                 scope.$apply();
             });
             scope.valueChanged = function() {
+                scope.obj[scope.prop] = scope.editing.value;
+                delete scope.focus;
                 if (scope.evtPrefix && scope.evtPrefix.length) {
                     scope.$emit(scope.evtPrefix + '.xxt.editable.changed', scope.obj, scope.state);
                 } else {
                     scope.$emit('xxt.editable.changed', scope.obj, scope.state);
                 }
+            };
+            scope.submitChange = function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                scope.valueChanged();
             };
             scope.remove = function(event) {
                 if (event) {
@@ -341,10 +179,12 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
             });
             scope.$watch('focus', function(nv, ov) {
                 if (nv) {
-                    scope.oldVal = scope.obj[scope.prop];
                     $(elem).find('input').on('blur', onBlur).focus();
                 }
             }, true);
+            scope.editing = {
+                value: scope.obj[scope.prop]
+            };
         }
     }
 }]).directive('tmsArrayCheckbox', ['$timeout', '$parse', function($timeout, $parse) {
@@ -443,7 +283,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
         return str;
     }
 }]).directive('tmsDatepicker', function() {
-    var _version = 7;
+    var _version = 8;
     return {
         restrict: 'EA',
         scope: {
@@ -451,6 +291,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
             defaultDate: '@tmsDefaultDate',
             mask: '@tmsMask', //y,m,d,h,i
             title: '@tmsTitle',
+            titleAddon: '@tmsTitleAddon',
             state: '@tmsState',
             obj: '=tmsObj'
         },
@@ -994,4 +835,36 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
         }
     };
     return oFacFilter;
-}]);
+}]).
+/* 记录列表的选择结果 */
+factory('tmsRowPicker', function() {
+    function RowPicker() {
+        this.allSelected = 'N';
+        this.selected = {};
+        this.count = 0;
+        this.change = function(index) {
+            this.selected[index] ? this.count++ : this.count--;
+            if (!this.selected[index]) delete this.selected[index];
+        };
+        this.indexes = function() {
+            return Object.keys(this.selected);
+        };
+        this.reset = function() {
+            this.allSelected = 'N';
+            this.selected = {};
+            this.count = 0;
+        };
+        this.setAllSelected = function(checked, amount) {
+            var index = 0;
+            if (checked === 'Y') {
+                while (index < amount) {
+                    this.selected[index++] = true;
+                }
+                this.count = amount;
+            } else if (checked === 'N') {
+                this.reset();
+            }
+        };
+    }
+    return RowPicker;
+});

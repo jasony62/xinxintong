@@ -79,11 +79,6 @@ class record extends base {
 		// 提交数据的用户
 		$oUser = $this->getUser($oEnrollApp, $oEnrolledData);
 
-		/* 记录数据提交日志，跟踪提交特殊数据失败的问题 */
-		//$rawPosted = file_get_contents("php://input");
-		//$modelLog = $this->model('log');
-		//$modelLog->log('trace', 'enroll-submit-' . $oUser->uid, $modelLog->cleanEmoji($rawPosted, true));
-
 		if ($subType === 'save') {
 			$logid = $this->_saveRecord($oUser, $oEnrollApp, $oEnrolledData, $oPosted);
 			return new \ResponseData($logid);
@@ -366,13 +361,16 @@ class record extends base {
 		if (!empty($oApp->end_at) && $oApp->end_at < $current) {
 			return [false, ['活动已经结束，不允许修改数据']];
 		}
-		if (!empty($oApp->end_submit_at) && $oApp->end_submit_at < $current) {
-			return [false, ['活动提交时间已经结束，不允许修改数据']];
-		}
 
 		if (!empty($oApp->actionRule->record->submit->pre->editor)) {
 			if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
 				return [false, '仅限活动编辑组用户提交填写记录'];
+			}
+		}
+		if (!isset($oApp->entryRule->exclude_action) || (isset($oApp->entryRule->exclude_action->submit_record) && $oApp->entryRule->exclude_action->submit_record != "Y")) {
+			$checkEntryRule = $this->checkEntryRule($oApp, false, $oUser);
+			if ($checkEntryRule[0] === false) {
+				return $checkEntryRule;
 			}
 		}
 
@@ -391,7 +389,7 @@ class record extends base {
 			/**
 			 * 检查提交人
 			 */
-			if (empty($oApp->can_cowork) || $oApp->can_cowork === 'N') {
+			if (empty($oApp->scenarioConfig->can_cowork) || $oApp->scenarioConfig->can_cowork === 'N') {
 				if ($oRecord = $modelRec->byId($ek, ['fields' => 'userid'])) {
 					if ($oRecord->userid !== $oUser->uid) {
 						return [false, ['不允许修改其他用户提交的数据']];
@@ -758,6 +756,13 @@ class record extends base {
 		$oUser = $this->getUser($oApp);
 
 		/* 检查是否满足了点赞的前置条件 */
+		if (!isset($oApp->entryRule->exclude_action) || $oApp->entryRule->exclude_action->like != "Y") {
+			$checkEntryRule = $this->checkEntryRule($oApp, false, $oUser);
+			if ($checkEntryRule[0] === false) {
+				return new \ResponseError($checkEntryRule[1]);
+			}
+		}
+
 		if (!empty($oApp->actionRule->record->like->pre)) {
 			/* 当前轮次，当前组已经提交的记录数 */
 			$oRule = $oApp->actionRule->record->like->pre;

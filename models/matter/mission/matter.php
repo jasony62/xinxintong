@@ -83,7 +83,7 @@ class matter_model extends \TMS_MODEL {
 				if (in_array($mm->matter_type, ['enroll', 'signin', 'group'])) {
 					$fields = 'siteid,mission_id,id,title,summary,pic,create_at,creater_name,data_schemas,op_short_url_code,start_at,end_at';
 					if (in_array($mm->matter_type, ['enroll'])) {
-						$fields .= ',end_submit_at,rp_short_url_code,can_coin,entry_rule,round_cron,sync_mission_round';
+						$fields .= ',rp_short_url_code,can_coin,entry_rule,round_cron,sync_mission_round';
 					}
 					if (in_array($mm->matter_type, ['enroll', 'group'])) {
 						$fields .= ',scenario';

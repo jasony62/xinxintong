@@ -22,7 +22,7 @@ define(['main'], function(ngApp) {
                             matter_type: result.type
                         };
                     matter.type = result.type;
-                    http2.post('/rest/pl/fe/site/sns/qy/other/setreply?site=' + $scope.siteId + '&id=' + $scope.editing.id, p, function(rsp) {
+                    http2.post('/rest/pl/fe/site/sns/qy/other/setreply?site=' + $scope.siteId + '&id=' + $scope.editing.id, p).then(function(rsp) {
                         $scope.editing.matter = result.matters[0];
                     });
                 }
@@ -33,11 +33,11 @@ define(['main'], function(ngApp) {
                 matter_id: '',
                 matter_type: ''
             };
-            http2.post('/rest/pl/fe/site/sns/qy/other/setreply?site=' + $scope.siteId + '&id=' + $scope.editing.id, p, function(rsp) {
+            http2.post('/rest/pl/fe/site/sns/qy/other/setreply?site=' + $scope.siteId + '&id=' + $scope.editing.id, p).then(function(rsp) {
                 $scope.editing.matter = null;
             });
         };
-        http2.get('/rest/pl/fe/site/sns/qy/other/list?site=' + $scope.siteId, function(rsp) {
+        http2.get('/rest/pl/fe/site/sns/qy/other/list?site=' + $scope.siteId).then(function(rsp) {
             $scope.calls = rsp.data;
             $scope.edit($scope.calls[0]);
         });

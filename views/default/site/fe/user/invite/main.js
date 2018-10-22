@@ -1,6 +1,6 @@
 'use strict';
 
-var ngApp = angular.module('app', ['ui.tms']);
+var ngApp = angular.module('app', ['ui.tms', 'http.ui.xxt']);
 ngApp.controller('ctrlInvite', ['$scope', '$q', 'http2', function($scope, $q, http2) {
     var _siteId, _oPage;
     _siteId = location.search.match('site=(.*)')[1];
@@ -18,14 +18,14 @@ ngApp.controller('ctrlInvite', ['$scope', '$q', 'http2', function($scope, $q, ht
         var defer, url;
         defer = $q.defer();
         url = '/rest/site/fe/user/invite/list?site=' + _siteId + _oPage.join();
-        http2.get(url, function(rsp) {
+        http2.get(url).then(function(rsp) {
             $scope.invites = rsp.data.invites;
             _oPage.total = rsp.data.total;
             defer.resolve(rsp.data);
         });
         return defer.promise;
     };
-    http2.get('/rest/site/fe/get?site=' + _siteId, function(rsp) {
+    http2.get('/rest/site/fe/get?site=' + _siteId).then(function(rsp) {
         $scope.site = rsp.data;
         $scope.list().then(function() {
             var eleLoading;

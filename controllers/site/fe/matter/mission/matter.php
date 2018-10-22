@@ -87,8 +87,11 @@ class matter extends \site\fe\matter\base {
 			$this->_modelEnlDat = $this->model('matter\enroll\data');
 		}
 
-		$oData = new \stdClass;
 		$oRecData = $this->_modelEnlDat->byId($oMisAgreed->obj_data_id);
+		if (false === $oRecData) {
+			return false;
+		}
+		$oData = new \stdClass;
 		$oMisAgreed->obj = new \stdClass;
 		$oMisAgreed->obj->enroll_at = $oRecData->submit_at;
 		$oMisAgreed->obj->like_num = $oRecData->like_num;

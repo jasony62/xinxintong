@@ -4,7 +4,7 @@
             <div class='form-group'>
                 <label>添加用户共同管理项目</label>
                 <div class='input-group'>
-                    <input id='popoverMyCoworker' type="text" class="form-control" ng-model='label' placeholder="请输入作为用户账号的邮箱" uib-popover-template="'myCoworker.html'" popover-placement="bottom" popover-trigger="show" ng-click="openMyCoworkers()">
+                    <input id='popoverMyCoworker' type="text" class="form-control" ng-model='label' placeholder="请输入作为用户账号的邮箱" uib-popover-template="'myCoworker.html'" popover-placement="bottom" popover-trigger="'show'" ng-click="openMyCoworkers()">
                     <span class='input-group-btn'>
                             <button class='btn btn-primary' ng-click='add()' ng-disabled="!label||!label.length"><span class='glyphicon glyphicon-plus'></span></button>
                     </span>
@@ -12,7 +12,7 @@
             </div>
             <div class='form-group'>
                 <label>或者发送邀请链接</label>
-                <button id='shareMission' uib-popover-template="'shareMission.html'" popover-trigger="show" popover-placement="bottom" popover-title="应用设置" class='btn btn-block btn-success' ng-click="makeInvite()">获取链接</button>
+                <button id='shareMission' uib-popover-template="'shareMission.html'" popover-trigger="'show'" popover-placement="bottom" popover-title="应用设置" class='btn btn-block btn-success' ng-click="makeInvite()">获取链接</button>
             </div>
             <div class='list-group' ng-if="coworkers.length">
                 <a href='javascript:void(0)' class='list-group-item' ng-repeat="c in coworkers" ng-mouseenter="entered=true" ng-mouseleave="entered=false"><span>{{c.account.nickname}}</span><span>（{{c.coworker_label}}）</span><button class='close' ng-if="entered" ng-click="remove(c)">&times;</button></a>

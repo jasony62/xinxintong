@@ -293,7 +293,6 @@ class user_model extends \TMS_MODEL {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$cascaded = isset($aOptions['cascaded']) ? $aOptions['cascaded'] : 'Y';
 
-		$result = new \stdClass;
 		$q = [
 			$fields,
 			"xxt_enroll_user",
@@ -310,6 +309,9 @@ class user_model extends \TMS_MODEL {
 		if (!empty($aOptions['byGroup'])) {
 			$q[2] .= " and group_id = '" . $this->escape($aOptions['byGroup']) . "'";
 		}
+		if (!empty($aOptions['nickname'])) {
+			$q[2] .= " and nickname like '%" . $this->escape($aOptions['nickname']) . "%'";
+		}
 		if (!empty($aOptions['orderby'])) {
 			$q2 = ['o' => $aOptions['orderby'] . ' desc'];
 		} else {
@@ -320,6 +322,20 @@ class user_model extends \TMS_MODEL {
 		}
 		$users = $this->query_objs_ss($q, $q2);
 		if ($cascaded === 'Y' && count($users)) {
+			$aHandlers = [];
+			/* 用户的分组信息 */
+			if (!empty($oApp->group_app_id) || !empty($oApp->entryRule->group->id)) {
+				$modelGrpUser = $this->model('matter\group\user');
+				$groupAppId = !empty($oApp->group_app_id) ? $oApp->group_app_id : $oApp->entryRule->group->id;
+				$fnHandler = function ($oUser) use ($groupAppId, $modelGrpUser) {
+					$oGrpUser = $modelGrpUser->byUser((object) ['id' => $groupAppId], $oUser->userid, ['fields' => 'round_id,round_title', 'onlyOne' => true]);
+					if ($oGrpUser) {
+						$oUser->group = (object) ['id' => $oGrpUser->round_id, 'title' => $oGrpUser->round_title];
+					}
+				};
+				$aHandlers[] = $fnHandler;
+			}
+
 			foreach ($users as $oUser) {
 				$p = [
 					'wx_openid,yx_openid,qy_openid',
@@ -351,17 +367,22 @@ class user_model extends \TMS_MODEL {
 					$oUser->wx_openid = '';
 					$oUser->yx_openid = '';
 				}
+				//
+				foreach ($aHandlers as $fnHandler) {
+					$fnHandler($oUser);
+				}
 			}
 		}
 
-		$result->users = $users;
+		$oResult = new \stdClass;
+		$oResult->users = $users;
 
 		/* 符合条件的用户总数 */
 		$q[0] = 'count(*)';
 		$total = (int) $this->query_val_ss($q);
-		$result->total = $total;
+		$oResult->total = $total;
 
-		return $result;
+		return $oResult;
 	}
 	/**
 	 * 活动中提交过数据的用户
@@ -369,7 +390,7 @@ class user_model extends \TMS_MODEL {
 	public function enrolleeByMschema($oApp, $oMschema, $page = '', $size = '', $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : 'm.userid,m.email,m.mobile,m.name,m.extattr';
 
-		$result = new \stdClass;
+		$oResult = new \stdClass;
 		$q = [
 			$fields . ',a.wx_openid,a.yx_openid,a.qy_openid',
 			"xxt_site_member m,xxt_site_account a",
@@ -393,13 +414,13 @@ class user_model extends \TMS_MODEL {
 				$oMember->user = $this->byId($oApp, $oMember->userid, $sel);
 			}
 		}
-		$result->members = $members;
+		$oResult->members = $members;
 
 		$q[0] = 'count(*)';
 		$total = (int) $this->query_val_ss($q);
-		$result->total = $total;
+		$oResult->total = $total;
 
-		return $result;
+		return $oResult;
 	}
 	/**
 	 * 获得活动指定的参与
@@ -450,7 +471,7 @@ class user_model extends \TMS_MODEL {
 		} else if (!empty($oApp->mission_id)) {
 			$modelMis = $this->model('matter\mission');
 			$oMission = $modelMis->byId($oApp->mission_id, ['fields' => 'user_app_id,user_app_type,entry_rule']);
-			if (isset($oMission->entry_rule->scope) && $oMission->entry_rule->scope === 'member') {
+			if (isset($oMission->entry_rule->scope) && $oMission->entry_rule->scope === 'member' && !empty($oMission->entry_rule->member)) {
 				$modelMem = $this->model('site\user\member');
 				foreach ($oMission->entry_rule->member as $mschemaId => $rule) {
 					$members = $modelMem->byMschema($mschemaId);
@@ -843,6 +864,69 @@ class user_model extends \TMS_MODEL {
 						}
 					}
 				}
+			}
+		}
+
+		return isset($receivers) ? $receivers : false;
+	}
+	/**
+	 * 活动中用户所在组的组长
+	 */
+	public function getLeaderByUser($oApp, $aUserids) {
+		if (is_string($aUserids)) {$aUserids = [$aUserids];}
+
+		$aUserAndLeaders = [];
+
+		if (isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && !empty($oApp->entryRule->group->id)) {
+			$q = [
+				'userid,round_id',
+				'xxt_group_player',
+				['state' => 1, 'aid' => $oApp->entryRule->group->id, 'userid' => $aUserids],
+			];
+			$oUserRounds = $this->query_objs_ss($q);
+			foreach ($oUserRounds as $oUserRound) {
+				$q = [
+					'distinct userid',
+					'xxt_group_player',
+					['state' => 1, 'aid' => $oApp->entryRule->group->id, 'round_id' => $oUserRound->round_id, 'is_leader' => 'Y'],
+				];
+				$leaders = $this->query_objs_ss($q);
+				$aUserAndLeaders[$oUserRound->userid] = empty($leaders) ? [] : array_column($leaders, 'userid');
+			}
+		}
+
+		return $aUserAndLeaders;
+	}
+	/**
+	 * 接收评论提交事件通知的接收人
+	 */
+	public function getCoworkReceivers($oApp, $oRecord, $oItem, $oRule) {
+		if (empty($oRule->receiver->scope) || !is_array($oRule->receiver->scope)) {
+			return false;
+		}
+		/* 分组活动中的接收人 */
+		if (in_array('group', $oRule->receiver->scope) && !empty($oRule->receiver->group->id)) {
+			$q = [
+				'distinct userid',
+				'xxt_group_player',
+				['state' => 1, 'aid' => $oRule->receiver->group->id, 'userid' => (object) ['op' => '<>', 'pat' => $oItem->userid]],
+			];
+			if (!empty($oRule->receiver->group->round->id)) {
+				$q[2]['round_id'] = $oRule->receiver->group->round->id;
+			}
+			$receivers = $this->query_objs_ss($q);
+		}
+		/* 和协作填写对象相关的用户 */
+		if (in_array('related', $oRule->receiver->scope)) {
+			$relateds = [];
+			/* 被评论的记录 */
+			if (isset($oRecord->userid) && (empty($oItem->userid) || $oItem->userid !== $oRecord->userid)) {
+				$relateds[] = (object) ['userid' => $oRecord->userid];
+			}
+			if (isset($receivers)) {
+				$receivers = array_merge($receivers, $relateds);
+			} else {
+				$receivers = $relateds;
 			}
 		}
 

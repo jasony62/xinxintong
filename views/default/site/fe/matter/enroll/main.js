@@ -138,6 +138,12 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
             }
         }
     };
+    $scope.siteUser = function() {
+        var url = location.protocol + '//' + location.host;
+        url += '/rest/site/fe/user';
+        url += "?site=" + LS.s().site;
+        location.href = url;
+    };
     $scope.gotoApp = function(event) {
         location.replace($scope.app.entryUrl);
     };
@@ -334,15 +340,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
             tmsDynaPage.loadCode(ngApp, params.page).then(function() {
                 $scope.page = params.page;
             });
-        }
-
-        if (oApp.can_siteuser === 'Y') {
-            $scope.siteUser = function(id) {
-                var url = location.protocol + '//' + location.host;
-                url += '/rest/site/fe/user';
-                url += "?site=" + id;
-                location.href = url;
-            };
         }
         if (tasksOfOnReady.length) {
             angular.forEach(tasksOfOnReady, execTask);

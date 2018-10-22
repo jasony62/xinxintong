@@ -4,7 +4,7 @@ define(['frame'], function(ngApp) {
         $scope.remove = function() {
             if (window.confirm('确定删除团队【' + $scope.site.name + '】？')) {
                 var url = '/rest/pl/fe/site/remove?site=' + $scope.site.id;
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     location.href = '/rest/pl/fe';
                 });
             }
@@ -12,7 +12,7 @@ define(['frame'], function(ngApp) {
         $scope.quit = function() {
             if (window.confirm('确定退出团队【' + $scope.site.name + '】？')) {
                 var url = '/rest/pl/fe/site/setting/admin/remove?site=' + $scope.site.id + '&uid=' + $scope.site.uid;
-                http2.get(url, function(rsp) {
+                http2.get(url).then(function(rsp) {
                     location.href = '/rest/pl/fe';
                 });
             }
@@ -38,7 +38,7 @@ define(['frame'], function(ngApp) {
             if (name && name.length) {
                 location.href = '/rest/pl/fe/code?site=' + $scope.site.id + '&name=' + name;
             } else {
-                http2.get('/rest/pl/fe/site/pageCreate?site=' + $scope.site.id + '&page=' + page, function(rsp) {
+                http2.get('/rest/pl/fe/site/pageCreate?site=' + $scope.site.id + '&page=' + page).then(function(rsp) {
                     $scope.site[prop] = rsp.data.name;
                     location.href = '/rest/pl/fe/code?site=' + $scope.site.id + '&name=' + rsp.data.name;
                 });
@@ -50,11 +50,11 @@ define(['frame'], function(ngApp) {
             if (window.confirm('重置操作将覆盖已经做出的修改，确定重置？')) {
                 var name = $scope.site[page + '_page_name'];
                 if (name && name.length) {
-                    http2.get('/rest/pl/fe/site/pageReset?site=' + $scope.site.id + '&page=' + page, function(rsp) {
+                    http2.get('/rest/pl/fe/site/pageReset?site=' + $scope.site.id + '&page=' + page).then(function(rsp) {
                         location.href = '/rest/pl/fe/code?site=' + $scope.site.id + '&name=' + name;
                     });
                 } else {
-                    http2.get('/rest/pl/fe/site/pageCreate?site=' + $scope.site.id + '&page=' + page, function(rsp) {
+                    http2.get('/rest/pl/fe/site/pageCreate?site=' + $scope.site.id + '&page=' + page).then(function(rsp) {
                         $scope.site[prop] = rsp.data.name;
                         location.href = '/rest/pl/fe/code?site=' + $scope.site.id + '&name=' + rsp.data.name;
                     });

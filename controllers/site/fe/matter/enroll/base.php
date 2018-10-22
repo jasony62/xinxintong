@@ -9,7 +9,7 @@ class base extends \site\fe\matter\base {
 	/**
 	 *
 	 */
-	const AppFields = 'id,state,siteid,title,summary,pic,assigned_nickname,open_lastroll,can_coin,can_cowork,can_rank,can_repos,can_siteuser,count_limit,data_schemas,start_at,end_at,end_submit_at,entry_rule,action_rule,mission_id,read_num,scenario,share_friend_num,share_timeline_num,use_mission_header,use_mission_footer,use_site_header,use_site_footer,enrolled_entry_page,group_app_id,enroll_app_id,repos_config,rank_config,scenario_config,round_cron,mission_id,sync_mission_round';
+	const AppFields = 'id,state,siteid,title,summary,pic,assigned_nickname,open_lastroll,can_coin,count_limit,data_schemas,start_at,end_at,entry_rule,action_rule,mission_id,read_num,scenario,share_friend_num,share_timeline_num,use_mission_header,use_mission_footer,use_site_header,use_site_footer,enrolled_entry_page,group_app_id,enroll_app_id,repos_config,rank_config,scenario_config,round_cron,mission_id,sync_mission_round';
 
 	public function get_access_rule() {
 		$rule_action['rule_type'] = 'black';
@@ -35,20 +35,35 @@ class base extends \site\fe\matter\base {
 	 * @param boolean $redirect
 	 *
 	 */
-	protected function checkEntryRule($oApp, $bRedirect = false) {
+	protected function checkEntryRule($oApp, $bRedirect = false, $oUser = null) {
 		if (!isset($oApp->entryRule->scope)) {
 			return [true];
 		}
-		$oUser = $this->getUser($oApp);
+		if (empty($oUser)) {
+			$oUser = $this->getUser($oApp);
+		}
+
 		$oEntryRule = $oApp->entryRule;
 		$oScope = $oEntryRule->scope;
 
+		if (isset($oScope->register) && $oScope->register === 'Y') {
+			$checkRegister = $this->checkRegisterEntryRule($oUser);
+			if ($checkRegister[0] === false) {
+				if (true === $bRedirect) {
+					$this->gotoAccess();
+				} else {
+					$msg = '未检测到您的注册信息，不满足【' . $oApp->title . '】的参与规则，请登陆后再尝试操作。';
+					return [false, $msg];
+				}
+			}
+		}
 		if (isset($oScope->member) && $oScope->member === 'Y') {
 			if (empty($oEntryRule->optional->member) || $oEntryRule->optional->member !== 'Y') {
 				if (!isset($oEntryRule->member)) {
 					$msg = '需要填写通讯录信息，请联系活动的组织者解决。';
 					if (true === $bRedirect) {
-						$this->outputInfo($msg);
+						$oSite = $this->model('site')->byId($oApp->siteid);
+						$this->outputInfo($msg, $oSite);
 					} else {
 						return [false, $msg];
 					}
@@ -98,7 +113,8 @@ class base extends \site\fe\matter\base {
 					if (false === $oGroupApp || $oGroupApp->state !== '1') {
 						$msg = '【' . $oApp->title . '】指定的分组活动不可访问，请联系活动的组织者解决。';
 						if (true === $bRedirect) {
-							$this->outputInfo($msg);
+							$oSite = $this->model('site')->byId($oApp->siteid);
+							$this->outputInfo($msg, $oSite);
 						} else {
 							return [false, $msg];
 						}
@@ -118,7 +134,8 @@ class base extends \site\fe\matter\base {
 				if (false === $bMatched) {
 					$msg = '您【ID:' . $oUser->uid . '】目前的分组，不满足【' . $oApp->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
 					if (true === $bRedirect) {
-						$this->outputInfo($msg);
+						$oSite = $this->model('site')->byId($oApp->siteid);
+						$this->outputInfo($msg, $oSite);
 					} else {
 						return [false, $msg];
 					}
@@ -139,34 +156,32 @@ class base extends \site\fe\matter\base {
 	 * @return object
 	 *
 	 */
-	protected function checkEntryRule2($oApp) {
+	protected function checkEntryRule2($oApp, $oUser = null) {
 		$oResult = new \stdClass;
 		$oResult->passed = 'Y';
 
 		if (isset($oApp->entryRule->scope)) {
-			$oUser = $this->getUser($oApp);
+			if (empty($oUser)) {
+				$oUser = $this->getUser($oApp);
+			}
 			$oEntryRule = $oApp->entryRule;
-			if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y') {
-				$bMemberPassed = false;
-				/* 限自定义用户访问 */
-				foreach ($oEntryRule->member as $schemaId => $rule) {
-					if (!empty($rule->entry)) {
-						/* 检查用户的信息是否完整，是否已经通过审核 */
-						$modelMem = $this->model('site\user\member');
-						if (empty($oUser->unionid)) {
-							$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => $schemaId]);
-							if (count($aMembers) === 1) {
-								$oMember = $aMembers[0];
-								if ($oMember->verified === 'Y') {
-									$bMemberPassed = true;
-									break;
-								}
-							}
-						} else {
-							$modelAcnt = $this->model('site\user\account');
-							$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
-							foreach ($aUnionUsers as $oUnionUser) {
-								$aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => $schemaId]);
+			if (isset($oEntryRule->scope->register) && $oEntryRule->scope->register === 'Y') {
+				$checkRegister = $this->checkRegisterEntryRule($oUser);
+				if ($checkRegister[0] === false) {
+					$oResult->passed = 'N';
+					$oResult->scope = 'register';
+				}
+			}
+			if ($oResult->passed === 'Y' && isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y') {
+				if (empty($oEntryRule->optional->member) || $oEntryRule->optional->member !== 'Y') {
+					$bMemberPassed = false;
+					/* 限自定义用户访问 */
+					foreach ($oEntryRule->member as $schemaId => $rule) {
+						if (!empty($rule->entry)) {
+							/* 检查用户的信息是否完整，是否已经通过审核 */
+							$modelMem = $this->model('site\user\member');
+							if (empty($oUser->unionid)) {
+								$aMembers = $modelMem->byUser($oUser->uid, ['schemas' => $schemaId]);
 								if (count($aMembers) === 1) {
 									$oMember = $aMembers[0];
 									if ($oMember->verified === 'Y') {
@@ -174,17 +189,30 @@ class base extends \site\fe\matter\base {
 										break;
 									}
 								}
-							}
-							if ($bMemberPassed) {
-								break;
+							} else {
+								$modelAcnt = $this->model('site\user\account');
+								$aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
+								foreach ($aUnionUsers as $oUnionUser) {
+									$aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => $schemaId]);
+									if (count($aMembers) === 1) {
+										$oMember = $aMembers[0];
+										if ($oMember->verified === 'Y') {
+											$bMemberPassed = true;
+											break;
+										}
+									}
+								}
+								if ($bMemberPassed) {
+									break;
+								}
 							}
 						}
 					}
-				}
-				if (!$bMemberPassed) {
-					$oResult->passed = 'N';
-					$oResult->scope = 'member';
-					$oResult->member = $oEntryRule->member;
+					if (!$bMemberPassed) {
+						$oResult->passed = 'N';
+						$oResult->scope = 'member';
+						$oResult->member = $oEntryRule->member;
+					}
 				}
 			}
 			if ($oResult->passed === 'Y' && isset($oEntryRule->scope->sns) && $oEntryRule->scope->sns === 'Y') {

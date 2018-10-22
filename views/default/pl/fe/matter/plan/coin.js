@@ -5,7 +5,7 @@ define(['frame'], function(ngApp) {
         function fetchAppRules() {
             var url;
             url = '/rest/pl/fe/matter/plan/coin/rules?site=' + _oApp.siteid + '&app=' + _oApp.id;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 rsp.data.forEach(function(oRule) {
                     var oRuleData = $scope.rules[oRule.act].data;
                     oRuleData.id = oRule.id;
@@ -18,7 +18,7 @@ define(['frame'], function(ngApp) {
         function fetchMissionRules() {
             var url;
             url = '/rest/pl/fe/matter/mission/coin/rules?site=' + _oApp.siteid + '&mission=' + _oApp.mission.id;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 rsp.data.forEach(function(oRule) {
                     $scope.rules[oRule.act].mission = oRule;
                 });
@@ -54,7 +54,7 @@ define(['frame'], function(ngApp) {
                 }
             }
             url = '/rest/pl/fe/matter/plan/coin/saveRules?site=' + _oApp.siteid + '&app=' + _oApp.id;
-            http2.post(url, posted, function(rsp) {
+            http2.post(url, posted).then(function(rsp) {
                 for (var k in rsp.data) {
                     $scope.rules[k].data.id = rsp.data[k];
                 }
@@ -72,7 +72,7 @@ define(['frame'], function(ngApp) {
         $scope.fetchLogs = function() {
             var url;
             url = '/rest/pl/fe/matter/plan/coin/logs?site=' + _oApp.siteid + '&app=' + _oApp.id + page.j();
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 if (rsp.data.logs) {
                     $scope.tabActive = 1;
                     $scope.logs = logs = rsp.data.logs;

@@ -9,7 +9,7 @@ define(['frame'], function(ngApp) {
             if (name && name.length) {
                 location.href = '/rest/pl/fe/code?site=' + $scope.site.id + '&name=' + name;
             } else {
-                http2.get('/rest/pl/fe/site/pageCreate?site=' + $scope.site.id + '&page=' + page, function(rsp) {
+                http2.get('/rest/pl/fe/site/pageCreate?site=' + $scope.site.id + '&page=' + page).then(function(rsp) {
                     $scope.site[prop] = rsp.data.name;
                     location.href = '/rest/pl/fe/code?site=' + $scope.site.id + '&name=' + rsp.data.name;
                 });
@@ -19,11 +19,11 @@ define(['frame'], function(ngApp) {
             if (window.confirm('重置操作将覆盖已经做出的修改，确定重置？')) {
                 var name = $scope.site[page + '_page_name'];
                 if (name && name.length) {
-                    http2.get('/rest/pl/fe/site/pageReset?site=' + $scope.site.id + '&page=' + page, function(rsp) {
+                    http2.get('/rest/pl/fe/site/pageReset?site=' + $scope.site.id + '&page=' + page).then(function(rsp) {
                         location.href = '/rest/pl/fe/code?site=' + $scope.site.id + '&name=' + name;
                     });
                 } else {
-                    http2.get('/rest/pl/fe/site/pageCreate?site=' + $scope.site.id + '&page=' + page, function(rsp) {
+                    http2.get('/rest/pl/fe/site/pageCreate?site=' + $scope.site.id + '&page=' + page).then(function(rsp) {
                         $scope.site[prop] = rsp.data.name;
                         location.href = '/rest/pl/fe/code?site=' + $scope.site.id + '&name=' + rsp.data.name;
                     });
@@ -47,7 +47,7 @@ define(['frame'], function(ngApp) {
             if (name !== 'autoup_homepage' || window.confirm('勾选后，如果团队主页页面有更新将会自动覆盖现有主页页面，确定自动更新？')) {
                 var p = {};
                 p[name] = $scope.site[name];
-                http2.post('/rest/pl/fe/site/update?site=' + $scope.site.id, p, function(rsp) {});
+                http2.post('/rest/pl/fe/site/update?site=' + $scope.site.id, p).then(function(rsp) {});
             }
         };
         $scope.openPage = function(page) {
@@ -61,7 +61,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.applyToHome = function() {
             var url = '/rest/pl/fe/site/applyToHome?site=' + $scope.site.id;
-            http2.get(url, function(rsp) {
+            http2.get(url).then(function(rsp) {
                 $scope.state = 'Y';
             });
         };
@@ -81,7 +81,7 @@ define(['frame'], function(ngApp) {
             };
             $scope.entry = entry;
         });
-        /*http2.get('/rest/pl/be/platform/get', function(rsp) {
+        /*http2.get('/rest/pl/be/platform/get').then(function(rsp) {
             if (rsp.data.home_nav) {
                 $scope.home_nav = rsp.data.home_nav;
                 $scope.home_nav.forEach(function(item) {
@@ -91,7 +91,7 @@ define(['frame'], function(ngApp) {
                 })
             }
         })
-        http2.get('/rest/pl/be/home/recommend/listSite', function(rsp) {
+        http2.get('/rest/pl/be/home/recommend/listSite').then(function(rsp) {
             $scope.sites = rsp.data.sites;
             $scope.sites.forEach(function(item) {
                 if (item.siteid == $scope.site.id) {
@@ -106,7 +106,7 @@ define(['frame'], function(ngApp) {
             var p = {},
                 site = $scope.site;
             p[name] = site[name];
-            http2.post('/rest/pl/fe/site/update?site=' + site.id, p, function(rsp) {});
+            http2.post('/rest/pl/fe/site/update?site=' + site.id, p).then(function(rsp) {});
         }
         var slides;
         $scope.add = function() {
@@ -148,7 +148,7 @@ define(['frame'], function(ngApp) {
             var p = {},
                 site = $scope.site;
             p[name] = site[name];
-            http2.post('/rest/pl/fe/site/update?site=' + site.id, p, function(rsp) {});
+            http2.post('/rest/pl/fe/site/update?site=' + site.id, p).then(function(rsp) {});
         }
         var qrcodes;
         $scope.add = function() {
@@ -192,7 +192,7 @@ define(['frame'], function(ngApp) {
         $scope.doGroup = function(channel, group) {
             var url = '/rest/pl/fe/site/setting/page/updateHomeChannel';
             url += '?site=' + channel.siteid + '&id=' + channel.id;
-            http2.post(url, { homeGroup: group }, function(rsp) {
+            http2.post(url, { homeGroup: group }).then(function(rsp) {
                 noticebox.success('完成分组');
             });
         }
@@ -213,7 +213,7 @@ define(['frame'], function(ngApp) {
                 channel.display_name = newChannel.display_name;
                 var url = '/rest/pl/fe/site/setting/page/updateHomeChannel';
                 url += '?site=' + channel.siteid + '&id=' + channel.id;
-                http2.post(url, { display_name: channel.display_name }, function(rsp) {
+                http2.post(url, { display_name: channel.display_name }).then(function(rsp) {
                     noticebox.success('完成更新');
                 });
             });
@@ -224,12 +224,12 @@ define(['frame'], function(ngApp) {
             $scope.channels.forEach(function(channel, index) {
                 updated[channel.id] = index;
             });
-            http2.post('/rest/pl/fe/site/setting/page/seqHomeChannel?site=' + $scope.site.id, updated, function(rsp) {});
+            http2.post('/rest/pl/fe/site/setting/page/seqHomeChannel?site=' + $scope.site.id, updated).then(function(rsp) {});
         }
         $scope.create = function() {
-            http2.get('/rest/pl/fe/matter/channel/create?site=' + $scope.site.id, function(rsp) {
+            http2.get('/rest/pl/fe/matter/channel/create?site=' + $scope.site.id).then(function(rsp) {
                 var channel = rsp.data;
-                http2.post('/rest/pl/fe/site/setting/page/addHomeChannel?site=' + $scope.site.id, channel, function(rsp) {
+                http2.post('/rest/pl/fe/site/setting/page/addHomeChannel?site=' + $scope.site.id, channel).then(function(rsp) {
                     $scope.channels.push(rsp.data);
                     location.href = '/rest/pl/fe/matter/channel?site=' + $scope.site.id + '&id=' + channel.id;
                 });
@@ -248,7 +248,7 @@ define(['frame'], function(ngApp) {
                 var channel;
                 if (channels && channels.matters.length) {
                     channel = channels.matters[0];
-                    http2.post('/rest/pl/fe/site/setting/page/addHomeChannel?site=' + $scope.site.id, channel, function(rsp) {
+                    http2.post('/rest/pl/fe/site/setting/page/addHomeChannel?site=' + $scope.site.id, channel).then(function(rsp) {
                         $scope.channels.push(rsp.data);
                     });
                 }
@@ -256,13 +256,13 @@ define(['frame'], function(ngApp) {
         };
         $scope.remove = function(homeChannel, index) {
             if (window.confirm('确定删除主页上的频道？')) {
-                http2.get('/rest/pl/fe/site/setting/page/removeHomeChannel?site=' + $scope.site.id + '&id=' + homeChannel.id, function(rsp) {
+                http2.get('/rest/pl/fe/site/setting/page/removeHomeChannel?site=' + $scope.site.id + '&id=' + homeChannel.id).then(function(rsp) {
                     $scope.channels.splice(index, 1);
                 });
             }
         };
         $scope.fresh = function(homeChannel) {
-            http2.get('/rest/pl/fe/site/setting/page/refreshHomeChannel?site=' + $scope.site.id + '&id=' + homeChannel.id, function(rsp) {
+            http2.get('/rest/pl/fe/site/setting/page/refreshHomeChannel?site=' + $scope.site.id + '&id=' + homeChannel.id).then(function(rsp) {
                 angular.extend(homeChannel, rsp.data);
             });
         };
@@ -280,7 +280,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.$watch('site', function(site) {
             if (site === undefined) return;
-            http2.get('/rest/pl/fe/site/setting/page/listHomeChannel?site=' + site.id, function(rsp) {
+            http2.get('/rest/pl/fe/site/setting/page/listHomeChannel?site=' + site.id).then(function(rsp) {
                 $scope.channels = rsp.data;
             });
         });

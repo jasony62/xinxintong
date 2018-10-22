@@ -4,7 +4,7 @@ controller('ctrlProfile', ['$scope', 'http2', '$uibModalInstance', '$uibModal', 
         userid = params.userid;
     $scope.siteId = params.siteId;
     $scope.memberSchemas = params.memberSchemas;
-    http2.get(baseURL + 'get?site=' + params.siteId + '&userid=' + userid, function(rsp) {
+    http2.get(baseURL + 'get?site=' + params.siteId + '&userid=' + userid).then(function(rsp) {
         var members, mapMemberSchemas = {};
         $scope.user = rsp.data.user;
         if (rsp.data.members) {
@@ -46,17 +46,15 @@ controller('ctrlProfile', ['$scope', 'http2', '$uibModalInstance', '$uibModal', 
         for (i in aNewTags) {
             aTagIds.push(aNewTags[i].id);
         }
-        http2.post(baseURL + 'tagAdd?site=' + params.siteId + '&userid=' + userid + '&id=' + member.id, aTagIds, function(rsp) {
+        http2.post(baseURL + 'tagAdd?site=' + params.siteId + '&userid=' + userid + '&id=' + member.id, aTagIds).then(function(rsp) {
             member.tags2 = member.tags2.concat(aNewTags);
             member.tags = rsp.data;
         });
     });
-    $scope.$on('tag.xxt.combox.add', function(event, added, index) {
-        console.log('dddd', arguments);
-    });
+    $scope.$on('tag.xxt.combox.add', function(event, added, index) {});
     $scope.$on('tag.xxt.combox.del', function(event, removed, index) {
         var member = $scope.user.members[index];
-        http2.get(baseURL + 'tagDel?site=' + params.siteId + '&userid=' + userid + '&id=' + member.id + '&tagid=' + removed.id, function(rsp) {
+        http2.get(baseURL + 'tagDel?site=' + params.siteId + '&userid=' + userid + '&id=' + member.id + '&tagid=' + removed.id).then(function(rsp) {
             member.tags2.splice(member.tags2.indexOf(removed), 1);
             member.tags = rsp.data;
         });
@@ -81,7 +79,7 @@ controller('ctrlProfile', ['$scope', 'http2', '$uibModalInstance', '$uibModal', 
                 };
             }]
         }).result.then(function(member) {
-            http2.post(baseURL + 'memberAdd?site=' + params.siteId + '&userid=' + userid + '&schema=' + schema.id, member, function(rsp) {
+            http2.post(baseURL + 'memberAdd?site=' + params.siteId + '&userid=' + userid + '&schema=' + schema.id, member).then(function(rsp) {
                 member = rsp.data;
                 member.extattr = JSON.parse(decodeURIComponent(member.extattr.replace(/\+/g, '%20')));
                 member.schema = schema;
@@ -126,11 +124,11 @@ controller('ctrlProfile', ['$scope', 'http2', '$uibModalInstance', '$uibModal', 
                     email_verified: rst.data.email_verified,
                     extattr: rst.data.extattr
                 };
-                http2.post(baseURL + 'memberUpd?site=' + $scope.siteId + '&id=' + member.id, newData, function(rsp) {
+                http2.post(baseURL + 'memberUpd?site=' + $scope.siteId + '&id=' + member.id, newData).then(function(rsp) {
                     angular.extend(member, newData);
                 });
             } else if (rst.action === 'remove') {
-                http2.get(baseURL + 'memberDel?site=' + $scope.siteId + '&id=' + member.id, function() {
+                http2.get(baseURL + 'memberDel?site=' + $scope.siteId + '&id=' + member.id).then(function() {
                     $scope.members.splice($scope.members.indexOf(member), 1);
                 });
             }

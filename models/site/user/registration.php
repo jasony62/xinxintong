@@ -11,8 +11,8 @@ class registration_model extends \TMS_MODEL {
 	 *
 	 * @return object
 	 */
-	public function &byId($uid, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'uid unionid,email uname,nickname,password,salt,from_siteid';
+	public function &byId($uid, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : 'uid unionid,email uname,nickname,password,salt,from_siteid';
 		$q = [
 			$fields,
 			'account',
@@ -29,16 +29,16 @@ class registration_model extends \TMS_MODEL {
 	 *
 	 * return object
 	 */
-	public function &byUname($uname, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'uid unionid,email uname,nickname,password,salt,from_siteid';
+	public function &byUname($uname, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : 'uid unionid,email uname,nickname,password,salt,from_siteid';
 		$q = [
 			$fields,
 			'account',
 			["email" => $uname],
 		];
-		if (isset($options['forbidden'])) {
+		if (isset($aOptions['forbidden'])) {
 			/* 帐号是否已关闭 */
-			$q[2]['forbidden'] = $options['forbidden'];
+			$q[2]['forbidden'] = $aOptions['forbidden'];
 		}
 		$reg = $this->query_obj_ss($q);
 
@@ -47,7 +47,7 @@ class registration_model extends \TMS_MODEL {
 	/**
 	 * 注册用户帐号
 	 */
-	public function create($siteId, $uname, $password, $options = array()) {
+	public function create($siteId, $uname, $password, $aOptions = array()) {
 		$this->setOnlyWriteDbConn(true);
 		if ($this->checkUname($uname)) {
 			return [false, '注册账号已经存在，不能重复注册'];
@@ -59,8 +59,8 @@ class registration_model extends \TMS_MODEL {
 		$pw_hash = $this->compile_password($uname, $password, $pw_salt);
 
 		/*ip*/
-		$from_ip = empty($options['from_ip']) ? '' : $options['from_ip'];
-		$nickname = empty($options['nickname']) ? '' : $options['nickname'];
+		$from_ip = empty($aOptions['from_ip']) ? '' : $aOptions['from_ip'];
+		$nickname = empty($aOptions['nickname']) ? '' : $aOptions['nickname'];
 
 		$unionid = md5($uname . $siteId);
 
@@ -151,18 +151,18 @@ class registration_model extends \TMS_MODEL {
 	 * @param string $uname
 	 * @param string $password
 	 *
-	 * @return object|string
+	 * @return array
 	 */
 	public function validate($uname, $password) {
-		if (!$registration = $this->byUname($uname, ['forbidden' => 0])) {
-			return '指定的登录用户名不存在';
+		if (!$oRegistration = $this->byUname($uname, ['forbidden' => 0])) {
+			return [false, '指定的登录用户名不存在'];
 		}
 
-		$pw_hash = $this->compile_password($uname, $password, $registration->salt);
-		if ($pw_hash != $registration->password) {
-			return '提供的登录用户名或密码不正确';
+		$pw_hash = $this->compile_password($uname, $password, $oRegistration->salt);
+		if ($pw_hash != $oRegistration->password) {
+			return [false, '提供的登录用户名或密码不正确'];
 		}
 
-		return $registration;
+		return [true, $oRegistration];
 	}
 }

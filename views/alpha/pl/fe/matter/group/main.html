@@ -1,0 +1,122 @@
+<div class='col-md-6 col-md-offset-3'>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <label>活动名称</label>
+                <input type='text' class='form-control' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+            </div>
+            <div class='form-group'>
+                <label>分组方式</label>
+                <select class='form-control' ng-model='app.scenario' ng-change="update('scenario');">
+                    <option value='split'>拆分</option>
+                    <option value='extract'>抽取</option>
+                </select>
+            </div>
+            <div class='row'>
+                <div class='col-md-6'>
+                    <div class='form-group'>
+                        <label>开始时间</label>
+                        <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='app.start_at' tms-state='start_at'></tms-datepicker>
+                    </div>
+                </div>
+                <div class='col-md-6'>
+                    <div class='form-group'>
+                        <label>结束时间</label>
+                        <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='app.end_at' tms-state='end_at'></tms-datepicker>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class='help-block'>管理标签（可选）</label>
+                <p class="form-control" ng-click="tagMatter('M')">
+                    <span class="tag" ng-repeat="t in app.matter_mg_tag" ng-bind="t.title"></span>
+                </p>
+            </div>
+            <div class='form-group' ng-if="!app.mission">
+                <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
+            </div>
+            <div class='form-group' ng-if="app.mission">
+                <label>所属项目</label>
+                <div class="input-group">
+                    <input class='form-control' title="{{app.mission.title}}" value="{{app.mission.title}}" readonly>
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" type="button" ng-click="quitMission()" title='删除项目'>
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                        <a class="btn btn-default" href='/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}' target='_self' title='查看项目'>
+                    <span class='glyphicon glyphicon-new-window'></span>
+                </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='panel panel-default '>
+        <div class='panel-body'>
+            <div class='form-group' ng-if="!app.sourceApp">
+                <button class='btn btn-block btn-success' ng-click="assocWithApp()">导入用户</button>
+            </div>
+            <div class='form-group' ng-if="app.sourceApp">
+                <label>分组用户来源</label>
+                <div class="form-group">
+                    <div class="input-group">
+                        <input class='form-control' value="{{app.sourceApp.title}}" disabled="">
+                        <div class="input-group-btn">
+                            <button class="btn btn-default" ng-click="cancelSourceApp()">
+                                <span class='glyphicon glyphicon-remove'></span>
+                            </button>
+                            <a class='btn btn-default' href='' ng-click="gotoSourceApp()"><span class='glyphicon glyphicon-new-window'></span></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" ng-if="app.sourceApp.type=='mschema'||chooseAssocWitchApp.sourceApp.type=='memberschema'">
+                    <p>
+                        <label class='checkbox-inline'>
+                            <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.auto_sync' ng-change="update('auto_sync')">自动同步用户
+                        </label>
+                    </p>
+                    <div class="form-group" ng-if="app.auto_sync=='Y'">
+                        <label>默认同步到</label>
+                        <select class="form-control" ng-model="app.sync_round" ng-change="update('sync_round')">
+                            <option value="">无</option>
+                            <option value="{{round.round_id}}" ng-repeat="round in app.rounds">{{round.title}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default" ng-controller="ctrlOpUrl">
+        <div class="panel-heading">汇总结果分享链接</div>
+        <div class="panel-body">
+            <form>
+                <div class='form-group'>
+                    <div class='input-group'>
+                        <input class='form-control' readonly value="{{opEntry.url}}">
+                        <span class='input-group-btn'>
+                            <a class='btn btn-default' ng-href="{{opEntry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                        </span>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <button class='btn btn-default' ng-if="!opEntry.url" ng-click="makeOpUrl()">生成</button>
+                    <button class='btn btn-default' ng-if="opEntry.url" ng-click="closeOpUrl()">关闭</button>
+                    <button uib-popover-template="'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="opEntry.url">密码 <span class="caret"></span></button>
+                </div>
+                <div class='form-group' ng-if="opEntry.url">
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opEntry.can_favor" ng-change="updCanFavor()">支持收藏</label>
+                    <p class='help-block'>分享链接有效期1小时，设置【支持收藏】后，用户可收藏本链接，避免有效期限制</p>
+                </div>
+                <div class='form-group' ng-if="opEntry.url.length">
+                    <a href="javascript:void(0)" ng-click="gotoCode()">编辑页面</a>
+                    <a href="javascript:void(0)" ng-click="resetCode()">重置页面</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <hr>
+    <div class='form-group'>
+        <button class='btn btn-default btn-block' ng-click="remove()">删除活动</button>
+    </div>
+</div>

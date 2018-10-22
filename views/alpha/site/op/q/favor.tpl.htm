@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>
+        <?php TPL::pt('title');?>
+    </title>
+    <meta content="width=device-width,user-scalable=yes" name="viewport">
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+    body {
+        background-color: #EEE;
+        font-family: Microsoft Yahei, Arial
+    }
+
+    .form {
+        position: absolute;
+        width: 300px;
+        left: 50%;
+        margin-left: -150px;
+        top: 140px
+    }
+    </style>
+</head>
+
+<body style='padding:140px'>
+    <div class='form'>
+        <form action="/rest/q" method='GET'>
+            <input type='hidden' name='code' value='<?php echo $_GET["code"];?>'>
+            <input type='hidden' name='favor' value='Y'>
+            <div class='form-group'>
+                <p class='help-block'>直接打开的分享链接有效期为1小时，如果需要长期访问请收藏本页面。</p>
+            </div>
+            <div class='form-group'>
+                <button type='submit' class='btn btn-success btn-block'>继续访问</button>
+            </div>
+        </form>
+    </div>
+    <script>
+    if (history) {
+        var url = location.protocol + '//' + location.host + '/rest/q' + location.search;
+        url += '&favor=Y';
+        history.pushState({}, '收藏', url);
+    }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,83 @@
+<div ng-switch on="frameState.scope">
+    <div ng-controller="ctrlSubscribeSite" ng-switch-when="subscribeSite">
+        <div class="col-md-6">
+            <div class='thumbnail friend-matter' ng-repeat="matter in matters">
+                <div class="media">
+                    <div class="media-left">
+                        <a href="#">
+                            <img class="media-object" ng-src="{{matter.matter_pic}}">
+                        </a>
+                    </div>
+                    <div class="media-body">
+                        <div class="title">
+                            <h4 class="media-heading pull-left" ng-click="openMatter(matter)">{{matter.matter_title}}</h4>
+                            <button class="btn btn-default btn-sm pull-right" ng-click="favor(matter)">收藏</button>
+                            <button style="margin-right:5px" class="btn btn-default btn-sm pull-right" ng-click="copy(matter)">复制</button>
+                        </div>
+                        <div class="summary">{{matter.matter_summary}}</div>
+                        <div class='attr'>
+                            <span class='name pull-left' ><a href='' ng-click='openSite(matter.siteid)'>{{matter.site_name}}&nbsp;&nbsp;</a></span>
+                            <span class='create_at pull-left'>{{matter.put_at*1000|date:'yy-MM-dd HH:mm'}}</span>
+                            <button class="btn btn-default btn-sm pull-right" ng-click="forward(matter)">转发到团队主页</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class='btn btn-default btn-block' ng-if="pageOfmatters.total>matters.length" ng-click="moreMatter()">更多</button>
+        </div>
+    </div>
+    <div ng-controller="ctrlContributeSite" ng-switch-when="contributeSite">
+        <div class="col-md-6">
+            <div class='thumbnail friend-matter' ng-repeat="matter in matters">
+                <div class="media">
+                    <div class="media-left">
+                        <a href="#">
+                            <img class="media-object" ng-src="{{matter.matter_pic}}">
+                        </a>
+                    </div>
+                    <div class="media-body">
+                        <div class="title">
+                            <h4 class="media-heading pull-left" ng-click="openMatter(matter)">{{matter.matter_title}}</h4>
+                            <button style="margin-right:5px" class="btn btn-default btn-sm pull-right" ng-click="copy(matter)">复制</button>
+                        </div>
+                        <div class="summary">{{matter.matter_summary}}</div>
+                        <div class='attr'>
+                            <span class='name pull-left' ><a href='' ng-click='openSite(matter.from_siteid)'>{{matter.from_site_name}}&nbsp;&nbsp;</a></span>
+                            <span class='create_at pull-left'>{{matter.create_at*1000|date:'yy-MM-dd HH:mm'}}</span>
+                            <button class="btn btn-default btn-sm pull-right" ng-click="forward(matter)">转发到团队主页</button>
+                            <button style="margin-right:5px" class="btn btn-default btn-sm pull-right" ng-click="close(matter)">关闭</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class='btn btn-default btn-block' ng-if="pageOfmatters.total>matters.length" ng-click="moreMatter()">更多</button>
+        </div>
+    </div>
+    <div ng-controller="ctrlFavorSite" ng-switch-when="favorSite">
+        <div class="col-md-6">
+            <div class='thumbnail friend-matter' ng-repeat="matter in matters">
+                <div class="media">
+                    <div class="media-left">
+                        <a href="#">
+                            <img class="media-object" ng-src="{{matter.matter_pic}}">
+                        </a>
+                    </div>
+                    <div class="media-body">
+                        <div class="title">
+                            <h4 class="media-heading pull-left" ng-click="openMatter(matter)">{{matter.matter_title}}</h4>
+                            <button style="margin-right:5px" class="btn btn-default btn-sm pull-right" ng-click="copy(matter)">复制</button>
+                        </div>
+                        <div class="summary">{{matter.matter_summary}}</div>
+                        <div class='attr'>
+                            <span class='name pull-left' ><a href='' ng-click='openSite(matter.from_siteid)'>{{matter.from_site_name}}&nbsp;&nbsp;</a></span>
+                            <span class='create_at pull-left'>{{matter.favor_at*1000|date:'yy-MM-dd HH:mm'}}</span>
+                            <button class="btn btn-default btn-sm pull-right" ng-click="forward(matter)">转发到团队主页</button>
+                            <button style="margin-right:5px" class="btn btn-default btn-sm pull-right" ng-click="unfavor(matter)">取消收藏</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class='btn btn-default btn-block' ng-if="pageOfmatters.total>matters.length" ng-click="moreMatter()">更多</button>
+        </div>
+    </div>
+</div>

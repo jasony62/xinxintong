@@ -1,0 +1,94 @@
+<div id='tmplmsg-view'>
+    <div class='col-md-5'>
+        <div class='list-group'>
+            <div class='list-group-item' ng-class="{'active':e===selectedOrderEvt}" ng-repeat='e in orderEvts' ng-bind='e.label' ng-click='choose(e)'></div>
+        </div>
+    </div>
+    <div class='col-md-7'>
+        <div class='alert alert-info' ng-if='!selectedOrderEvt'>请选择需要发送通知的事件</div>
+        <div ng-show='selectedOrderEvt'>
+            <div class='form-group'>
+                <button class='btn btn-default' ng-click='selectTmplmsg()'>选择模板消息</button>
+            </div>
+            <div ng-show='selectedOrderEvt.tmplmsg'>
+                <div class='form-group'>
+                    <label>模板名称</label>
+                    <p class='form-control-static' ng-bind='selectedOrderEvt.tmplmsg.title'></p>
+                </div>
+                <div class='form-group'>
+                    <label>模板示例</label>
+                    <p class='form-control-static' ng-bind='selectedOrderEvt.tmplmsg.example'></p>
+                </div>
+                <div class='mappings'>
+                    <table class='table table-bordered'>
+                        <tbody>
+                            <tr class='mapping' ng-repeat='p in selectedOrderEvt.tmplmsg.params'>
+                                <td><p class='form-control-static' ng-bind='p.plabel'></p></td>
+                                <td>
+                                    <input type='text' class='form-control' ng-model="selectedOrderEvt.mapping[p.id].name">
+                                </td>
+                                <td>
+                                    <button class="btn btn-default" ng-click='selectProperty(p)'>属性</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class='form-group'>
+                <button class='btn btn-success' ng-click='save()'>保存</button>
+                <button class='btn btn-danger' ng-click='clean()'>清除</button>
+            </div>
+        </div>
+    </div>
+    <script type="text/ng-template" id="tmplmsgSelector.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="close()">×</button>
+        <h5 class="modal-title">选择模板</h5>
+    </div>
+    <div class="modal-body">
+        <div class='form-group'>
+            <select class='form-control' ng-model='data.selected' ng-options='t.title for t in tmplmsgs'></select>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="ok()">确定</button>
+    </div>
+    </script>
+    <script type="text/ng-template" id="propertySelector.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="close()">×</button>
+        <h5 class="modal-title">选择属性</h5>
+    </div>
+    <div class="modal-body">
+        <div class='form-group'>
+            <label>属性来源</label>
+            <select class='form-control' ng-model='data.srcProp' ng-change='changeSrcProp()'>
+                <option value='product'>商品</option>
+                <option value='order'>订单</option>
+                <option value='feedback'>订单反馈</option>
+                <option value='text'>自定义文本</option>
+            </select>
+        </div>
+        <div class='form-group' ng-show="data.srcProp==='product'">
+            <label>分类属性</label>
+            <select class='form-control' ng-model='data.selected' ng-options='p.name for p in properties'></select>
+        </div>
+        <div class='form-group' ng-show="data.srcProp==='order'">
+            <label>订单属性</label>
+            <select class='form-control' ng-model='data.selected' ng-options='p.name for p in orderProperties'></select>
+        </div>
+        <div class='form-group' ng-show="data.srcProp==='feedback'">
+            <label>订单反馈属性</label>
+            <select class='form-control' ng-model='data.selected' ng-options='p.name for p in catelog.feedbackProperties'></select>
+        </div>
+        <div class='form-group' ng-show="data.srcProp==='text'">
+            <label>自定义文本</label>
+            <textarea class='form-control' rows=5 ng-model='data.selected.name'></textarea>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="ok()">确定</button>
+    </div>
+    </script>
+</div>

@@ -1,0 +1,3 @@
+body{padding-top:71px;margin-bottom:50px;}
+.ng-cloak{display:none;}
+.navbar-nav .active:after{content:' ';position:absolute;left:0;right:0;bottom:-1px;height:3px;background:red;}

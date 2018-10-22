@@ -1,0 +1,482 @@
+<div class="col-md-12">
+    <uib-tabset active="tabActive" classes="ng-cloak">
+        <uib-tab index="0">
+            <uib-tab-heading>行动规则</uib-tab-heading>
+            <div class='panel panel-default' ng-controller="ctrlActionRule">
+                <div class='panel-body'>
+                    <div class='row'>
+                        <div class='col-md-6'>
+                            <div class='panel panel-default'>
+                                <div class='panel-heading'>角色</div>
+                                <div class='panel-body'>
+                                    <div class='form-group'>
+                                        <label>指定活动编辑组</label>
+                                        <select class='form-control' ng-model="rule.role.editor.group">
+                                            <option value=''>不指定</option>
+                                            <option ng-repeat="group in app.groups" value="{{group.round_id}}">{{group.title}}</option>
+                                        </select>
+                                        <div class='help-block'>可以见处理所有不是分组内的记录和数据</div>
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>编辑组用户统一昵称</label>
+                                        <input type='text' class='form-control' ng-model="rule.role.editor.nickname" placeholder="输入昵称">
+                                        <div class='help-block'>编辑组用户的昵称组外用户不可见，显示为编辑组统一昵称</div>
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>可以查看活动看板的用户组</label>
+                                        <select class='form-control' ng-model="rule.role.kanban.group">
+                                            <option value=''>所有用户</option>
+                                            <option ng-repeat="group in app.groups" value="{{group.round_id}}">{{group.title}}</option>
+                                        </select>
+                                        <div class='help-block'>超级用户不受次限制</div>
+                                    </div>
+                                    <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
+                                </div>
+                            </div>
+                            <div class='panel panel-default'>
+                                <div class='panel-heading'>默认表态</div>
+                                <div class='panel-body'>
+                                    <div class='form-group'>
+                                        <label>提交的记录（问题）的默认表态</label>
+                                        <select class='form-control' ng-model="rule.record.default.agreed">
+                                            <option value=''></option>
+                                            <option value='A'>接受</option>
+                                            <option value='D'>讨论</option>
+                                        </select>
+                                        <div class='help-block'>【讨论】状态的记录仅记录的提交人或同组用户或超级用户可见</div>
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>提交协作填写（答案）的默认表态</label>
+                                        <select class='form-control' ng-model="rule.cowork.default.agreed">
+                                            <option value=''></option>
+                                            <option value='A'>接受</option>
+                                            <option value='D'>讨论</option>
+                                        </select>
+                                        <div class='help-block'>【讨论】状态的数据仅数据的提交人或同组用户或超级用户可见</div>
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>提交留言的默认表态</label>
+                                        <select class='form-control' ng-model="rule.remark.default.agreed">
+                                            <option value=''></option>
+                                            <option value='A'>接受</option>
+                                            <option value='D'>讨论</option>
+                                        </select>
+                                        <div class='help-block'>【讨论】状态的留言仅留言的提交人或同组用户或超级用户可见</div>
+                                    </div>
+                                    <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
+                                </div>
+                            </div>
+                            <div class='panel panel-default'>
+                                <div class='panel-heading'>提交记录（问题）</div>
+                                <div class='panel-body'>
+                                    <div class='form-group'>
+                                        <label>每轮每人至少提交的记录（问题）数量</label>
+                                        <input type='text' class='form-control' ng-model="rule.record.submit.end.min" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每轮提交记录（问题）的截止时间</label>
+                                        <select class='form-control' ng-model="rule.record.submit.end.time.mode">
+                                            <option value=''>不设置</option>>
+                                            <option value='after_round_start_at'>轮次开始时间后</option>
+                                        </select>
+                                        <select class='form-control' ng-model="rule.record.submit.end.time.unit">
+                                            <option value=''>不设置</option>>
+                                            <option value='hour'>小时</option>
+                                        </select>
+                                        <input type='text' class='form-control' ng-model="rule.record.submit.end.time.value" placeholder="输入需要的时间">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每轮提交记录（问题）的要求说明</label>
+                                        <textarea class='form-control' ng-model="rule.record.submit.end.desc"></textarea>
+                                    </div>
+                                    <div class='checkbox'>
+                                        <label>
+                                            <input type='checkbox' ng-model="rule.record.submit.pre.editor">仅限活动编辑组用户提交记录（问题）</label>
+                                    </div>
+                                    <div class='checkbox'>
+                                        <label>
+                                            <input type='checkbox' ng-model="rule.record.submit.optional">作为可选任务</label>
+                                    </div>
+                                    <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class='panel panel-default'>
+                                <div class='panel-heading'>开启记录（问题）点赞（投票）条件</div>
+                                <div class='panel-body'>
+                                    <div class='form-group'>
+                                        <label>每轮次至少提交多少条记录后开启点赞（投票）</label>
+                                        <input type='text' class='form-control' ng-model="rule.record.like.pre.record.num" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='checkbox'>
+                                        <label>
+                                            <input type='checkbox' ng-model="rule.record.like.pre.record.submit.end"> 每轮提交记录（问题）的截止时间后开启点赞（投票）</label>
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每轮次至少提交多少条记录后开启点赞（投票）的要求说明</label>
+                                        <textarea class='form-control' ng-model="rule.record.like.pre.desc"></textarea>
+                                    </div>
+                                    <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class='panel panel-default'>
+                                <div class='panel-heading'>记录（问题）点赞（投票）</div>
+                                <div class='panel-body'>
+                                    <div class='form-group'>
+                                        <label>每轮每人给记录（问题）至少点赞（投票）数</label>
+                                        <input type='text' class='form-control' ng-model="rule.record.like.end.min" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每轮每人给记录（问题）最多点赞（投票）数</label>
+                                        <input type='text' class='form-control' ng-model="rule.record.like.end.max" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每轮记录点赞（投票）的截止时间</label>
+                                        <select class='form-control' ng-model="rule.record.like.end.time.mode">
+                                            <option value=''>不设置</option>
+                                            <option value='after_round_start_at'>轮次开始时间后</option>
+                                        </select>
+                                        <select class='form-control' ng-model="rule.record.like.end.time.unit">
+                                            <option value=''>不设置</option>
+                                            <option value='hour'>小时</option>
+                                        </select>
+                                        <input type='text' class='form-control' ng-model="rule.record.like.end.time.value" placeholder="输入需要的时间">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label class='checkbox-inline'>
+                                            <input type='checkbox' ng-model="rule.record.anonymous.time.record.like.end">点赞（投票）截止时间前，记录匿名</label>
+                                    </div>
+                                    <div class='form-group'>
+                                        <label class='checkbox-inline'>
+                                            <input type='checkbox' ng-model="rule.record.group.time.record.like.end">点赞（投票）截止时间前，共享页仅能查看本组记录</label>
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每轮每条记录获得多少个点赞（投票）后在共享页对其他组可见</label>
+                                        <input type='text' class='form-control' ng-model="rule.record.repos.pre.record.likeNum" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每轮对记录点赞（投票）的要求说明</label>
+                                        <textarea class='form-control' ng-model="rule.record.like.end.desc"></textarea>
+                                    </div>
+                                    <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class='panel panel-default'>
+                                <div class='panel-heading'>开启协作填写（答案）点赞（投票）条件</div>
+                                <div class='panel-body'>
+                                    <div class='form-group'>
+                                        <label>获得多少个点赞（投票）的记录（问题）才能开启协作填写（答案）</label>
+                                        <input type='text' class='form-control' ng-model="rule.record.cowork.pre.record.likeNum" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>开启协作填写（答案）的要求说明</label>
+                                        <textarea class='form-control' ng-model="rule.record.cowork.pre.desc"></textarea>
+                                    </div>
+                                    <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class='panel panel-default'>
+                                <div class='panel-heading'>提交协作填写（答案）</div>
+                                <div class='panel-body'>
+                                    <div class='form-group'>
+                                        <label>什么表态的协作填写（答案）显示在共享页</label>
+                                        <div tms-array-checkbox model="rule.cowork.repos.pre.cowork.agreed">
+                                            <label class='checkbox-inline'>
+                                                <input type='checkbox' value='Y'>推荐
+                                            </label>
+                                            <label class='checkbox-inline'>
+                                                <input type='checkbox' value='A'>接受
+                                            </label>
+                                        </div>
+                                        <div class='help-block'>默认【推荐】和【接受】的协作填写（答案）显示在共享页</div>
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每轮每条记录（问题）每个人至少提交的协作填写数据（答案）的数量</label>
+                                        <input type='text' class='form-control' ng-model="rule.cowork.submit.end.cowork.num" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每轮每条记录（问题）每个人至少提交的留言的数量</label>
+                                        <input type='text' class='form-control' ng-model="rule.cowork.submit.end.remark.num" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每轮每条记录（问题）每个人至少提交的协作填写数据（答案）或留言的数量</label>
+                                        <input type='text' class='form-control' ng-model="rule.cowork.submit.end.coworkOrRemark.num" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每轮每条记录（问题）每个人需要提交的协作填写数据（答案）或留言的要求说明</label>
+                                        <textarea type='text' class='form-control' ng-model="rule.cowork.submit.end.desc"></textarea>
+                                    </div>
+                                    <div class='checkbox'>
+                                        <label>
+                                            <input type='checkbox' ng-model="rule.cowork.submit.pre.editor">仅限活动编辑组用户提交协作填写数据（答案）</label>
+                                    </div>
+                                    <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class='panel panel-default'>
+                                <div class='panel-heading'>协作填写（答案）可表态的成员</div>
+                                <div class='panel-body'>
+                                    <div class='checkbox'>
+                                        <label>
+                                            <input type="checkbox" ng-model="rule.cowork.agreed.pre.author">记录（问题）提交者</label>
+                                    </div>
+                                    <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class='panel panel-default'>
+                                <div class='panel-heading'>协作填写（答案）开启点赞（投票）的条件</div>
+                                <div class='panel-body'>
+                                    <div class='form-group'>
+                                        <label>每轮每条记录（问题）至少获得多少个协作填写数据（答案）后开启点赞（投票）</label>
+                                        <input type='text' class='form-control' ng-model="rule.cowork.like.pre.cowork.num" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每轮每个记录（问题）至少获得多少个协作填写数据（答案）后开启点赞（投票）的要求说明</label>
+                                        <input type='text' class='form-control' ng-model="rule.cowork.like.pre.desc">
+                                    </div>
+                                    <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class='panel panel-default'>
+                                <div class='panel-heading'>协作填写（答案）开启点赞（投票）</div>
+                                <div class='panel-body'>
+                                    <div class='form-group'>
+                                        <label>每轮每人对每协作填写数据（答案）至少点赞（投票）数</label>
+                                        <input type='text' class='form-control' ng-model="rule.cowork.like.end.min" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每轮每人对每协作填写数据（答案）最多点赞（投票）数</label>
+                                        <input type='text' class='form-control' ng-model="rule.cowork.like.end.max" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每轮对每协作填写数据（答案）点赞（投票）的截止时间</label>
+                                        <select class='form-control' ng-model="rule.cowork.like.end.time.mode">
+                                            <option value=''>不设置</option>
+                                            <option value='after_round_start_at'>轮次开始时间后</option>
+                                        </select>
+                                        <select class='form-control' ng-model="rule.cowork.like.end.time.unit">
+                                            <option value=''>不设置</option>
+                                            <option value='hour'>小时</option>
+                                        </select>
+                                        <input type='text' class='form-control' ng-model="rule.cowork.like.end.time.value" placeholder="输入需要的时间">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label class='checkbox-inline'>
+                                            <input type='checkbox' ng-model="rule.record.anonymous.time.cowork.like.end">投票（点赞）截止时间前，记录（问题）匿名</label>
+                                    </div>
+                                    <div class='form-group'>
+                                        <label class='checkbox-inline'>
+                                            <input type='checkbox' ng-model="rule.record.group.time.cowork.like.end">投票（点赞）截止时间前，共享页仅能查看本组记录</label>
+                                    </div>
+                                    <div class='form-group'>
+                                        <label class='checkbox-inline'>
+                                            <input type='checkbox' ng-model="rule.cowork.anonymous.time.cowork.like.end">投票（点赞）截止时间前，协作填写（答案）匿名</label>
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>获得多少点赞（投票）的协同填写数据（答案）显示在共享页</label>
+                                        <input type='text' class='form-control' ng-model="rule.cowork.repos.pre.cowork.likeNum" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每轮每个填写数据（答案）获得多少个点赞（投票）后在讨论页对其他组可见</label>
+                                        <input type='text' class='form-control' ng-model="rule.cowork.remark.pre.cowork.likeNum" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每轮对每协作填写数据（答案）点赞（投票）的要求说明</label>
+                                        <textarea class='form-control' ng-model="rule.cowork.like.end.desc"></textarea>
+                                    </div>
+                                    <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class='panel panel-default'>
+                                <div class='panel-heading'>提交留言</div>
+                                <div class='panel-body'>
+                                    <div class='form-group'>
+                                        <label>每轮每人至少提交的留言数量</label>
+                                        <input type='text' class='form-control' ng-model="rule.remark.submit.end.min" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每轮每人至少提交的留言数量的要求说明</label>
+                                        <textarea class='form-control' ng-model="rule.remark.submit.end.desc"></textarea>
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>什么表态的留言显示在共享页</label>
+                                        <div tms-array-checkbox model="rule.remark.repos.pre.remark.agreed">
+                                            <label class='checkbox-inline'>
+                                                <input type='checkbox' value='Y'>推荐
+                                            </label>
+                                            <label class='checkbox-inline'>
+                                                <input type='checkbox' value='A'>接受
+                                            </label>
+                                        </div>
+                                        <div class='help-block'>默认【推荐】的留言显示在共享页</div>
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>获得多少点赞（投票）的留言显示在共享页</label>
+                                        <input type='text' class='form-control' ng-model="rule.remark.repos.pre.remark.likeNum" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>留言显示在共享页的要求说明</label>
+                                        <textarea class='form-control' ng-model="rule.remark.repos.pre.desc"></textarea>
+                                    </div>
+                                    <div class='checkbox'>
+                                        <label>
+                                            <input type='checkbox' ng-model="rule.remark.submit.optional">作为可选任务</label>
+                                    </div>
+                                    <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class='panel panel-default'>
+                                <div class='panel-heading'>标签</div>
+                                <div class='panel-body'>
+                                    <div class='checkbox'>
+                                        <label>
+                                            <input type='checkbox' ng-model="rule.tag.public.pre.editor">仅限活动编辑组用户设置标签对所有人可见</label>
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>标签引用次数操作一定数量后，对所有人可见</label>
+                                        <input type='text' class='form-control' ng-model="rule.tag.public.pre.assign_num" placeholder='输入需要的数量'>
+                                    </div>
+                                    <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class='panel panel-default'>
+                                <div class='panel-heading'>组长任务说明</div>
+                                <div class='panel-body'>
+                                    <div class='form-group'>
+                                        <label>组长至少推荐记录（问题）的数量</label>
+                                        <input type='text' class='form-control' ng-model="rule.leader.record.agree.end.min" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>组长最多推荐记录（问题）的数量</label>
+                                        <input type='text' class='form-control' ng-model="rule.leader.record.agree.end.max" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>组长推荐记录（问题）</label>
+                                        <textarea class='form-control' ng-model="rule.leader.record.agree.end.desc"></textarea>
+                                    </div>
+                                    <hr>
+                                    <div class='form-group'>
+                                        <label>每个记录（问题）组长至少推荐协作填写（答案）的数量</label>
+                                        <input type='text' class='form-control' ng-model="rule.leader.cowork.agree.end.min" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每个记录（问题）组长最多推荐协作填写（答案）的数量</label>
+                                        <input type='text' class='form-control' ng-model="rule.leader.cowork.agree.end.max" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每个记录（问题）组长推荐协作填写（答案）</label>
+                                        <textarea class='form-control' ng-model="rule.leader.cowork.agree.end.desc"></textarea>
+                                    </div>
+                                    <hr>
+                                    <div class='form-group'>
+                                        <label>每个记录（问题）组长至少推荐留言的数量</label>
+                                        <input type='text' class='form-control' ng-model="rule.leader.remark.agree.end.min" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每个记录（问题）组长最多推荐留言的数量</label>
+                                        <input type='text' class='form-control' ng-model="rule.leader.remark.agree.end.max" placeholder="输入需要的数量">
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>每个记录（问题）组长推荐留言</label>
+                                        <textarea class='form-control' ng-model="rule.leader.remark.agree.end.desc"></textarea>
+                                    </div>
+                                    <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class='panel panel-default'>
+                                <div class='panel-heading'>完成活动任务整体要求</div>
+                                <div class='panel-body'>
+                                    <div class='form-group'>
+                                        <div class='input-group'>
+                                            <div class='input-group-addon'>至少完成的可选任务数</div>
+                                            <input type='text' class='form-control' ng-model="rule.done.optional.num">
+                                        </div>
+                                    </div>
+                                    <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </uib-tab>
+        <uib-tab index="1">
+            <uib-tab-heading>积分规则</uib-tab-heading>
+            <div ng-controller="ctrlCoinRule">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>说明</th>
+                            <th>活动积分</th>
+                            <th ng-if="app.mission">项目积分</th>
+                            <th>计算方式</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="r in rules">
+                            <td ng-bind="r.data.act"></td>
+                            <td ng-bind="r.desc"></td>
+                            <td>
+                                <input type='text' ng-model="r.data.actor_delta" ng-change="changeRules()">
+                            </td>
+                            <td ng-if="app.mission">
+                                <span>{{r.mission.actor_delta||0}}</span>
+                            </td>
+                            <td>
+                                <label class='radio-inline'>
+                                    <input type='radio' name='{{r.data.act}}' value='A' ng-model="r.data.actor_overlap" ng-change="changeRules()">累加
+                                </label>
+                                <label class='radio-inline'>
+                                    <input type='radio' name='{{r.data.act}}' value='R' ng-model="r.data.actor_overlap" ng-change="changeRules()">替代
+                                </label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
+            </div>
+        </uib-tab>
+        <uib-tab index="2">
+            <uib-tab-heading>积分日志</uib-tab-heading>
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th style='width:48px'>序号</th>
+                        <th style='width:120px'>时间</th>
+                        <th>用户</th>
+                        <th>获得积分原因</th>
+                        <th>获得积分</th>
+                        <th>获得总积分</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="log in logs">
+                        <td>{{$index+1}}</td>
+                        <td>{{log.occur_at*1000|date:'yy-MM-dd hh:mm'}}</td>
+                        <td>{{log.nickname}}</td>
+                        <td>{{log.act}}</td>
+                        <td>{{log.delta}}</td>
+                        <td>{{log.user_total_coin}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class='form-group'>
+                <div class='pl-pagination'>
+                    <span>总数：{{page.total}}</span>
+                    <ul uib-pagination ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="fetchLogs()"></ul>
+                </div>
+            </div>
+        </uib-tab>
+    </uib-tabset>
+</div>

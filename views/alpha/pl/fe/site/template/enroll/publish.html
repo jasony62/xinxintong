@@ -1,0 +1,159 @@
+<div id='publish-view' class='row'>
+    <!-- preview -->
+    <div class='col-md-6 hidden-xs' ng-controller="ctrlPreview">
+        <div id='simulator'>
+            <iframe ng-src={{previewURL}}></iframe>
+            <div id='simulatorActions' ng-show="app.pub_status=='N'">
+                <a class='btn btn-default btn-block' style='color:#337ab7' href="/rest/pl/fe/template/enroll/schema?site={{app.siteid}}&id={{app.id}}&vid={{app.vid}}">修改题目 <i class="glyphicon glyphicon-chevron-right"></i></a>
+                <div class="btn-group btn-block" ng-repeat="page in app.pages">
+                    <button type="button" class="btn btn-default" ng-class="params.page===page?'btn-primary':'btn-default'" style="width:125px" title="{{page.title}}" ng-click="showPage(page)">{{page.title}}</button>
+                    <button type="button" class="btn dropdown-toggle" ng-class="params.page===page?'btn-primary':'btn-default'" data-toggle="dropdown">
+                        <span class="caret"></span>
+                        <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="#" ng-click="gotoPage(page)">编辑页面</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div id='viewActions' ng-hide="app.pub_status=='N'">
+                <button class='btn btn-default btn-block' ng-disabled="!args.hasPrev" ng-click="prevPage()"><i class='glyphicon glyphicon-arrow-up'>上一页</i></button>
+                <button class='btn btn-default btn-block' ng-disabled="!args.hasNext" ng-click="nextPage()"><i class='glyphicon glyphicon-arrow-down'>下一页</i></button>
+            </div>
+        </div>
+    </div>
+    <!-- end preview -->
+    <div class='col-md-6'>
+        <div class='form-group hidden-xs'>
+            <div class='list-group-item'>
+                <div><span>点赞数：{{app.score}}</span>，<span>使用数：{{app.copied_num}}</span>，<span>收藏数：{{app.favor_num}}</span></div>
+            </div>
+        </div>
+        <uib-tabset active="0" justified="true">
+            <!-- setting -->
+            <uib-tab index="0">
+                <uib-tab-heading><i class="glyphicon glyphicon-edit"></i> 模板定义</uib-tab-heading>
+                <div class="form-group">
+                    <div class='form-group'>
+                        <div class='input-group'>
+                            <label>模板名称</label>
+                            <input type='text' class='form-control' size='40' title='{{app.title}}' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+                        </div>
+                    </div>
+                    <div class='form-group'>
+                        <div class='input-group'>
+                            <label>版本号</label>
+                            <span ng-if="app.pub_status=='N'" class='text-danger'>(※ 未发布)</span>
+                            <span ng-if="app.pub_status=='Y'" class='text-success'>(※ 已发布)</span>
+                            <input type='text' class='form-control' ng-model="app.version" disabled/>
+                        </div>
+                    </div>
+                    <div class='form-group'>
+                        <label>模板头图（可选，建议尺寸360*200）</label>
+                        <div style='position:relative'>
+                            <div style="width:182px;border:1px solid #CCC">
+                                <div style="height:100px;text-align:center;padding-top:32px" ng-if="!app.pic">
+                                    <button class='btn btn-default' ng-click='setPic();'>
+                                        <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                                </div>
+                                <div style='position:relative' ng-if="app.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                                    <img name='pic' ng-src="{{app.pic}}" width='180px' />
+                                    <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                                        <span class='glyphicon glyphicon-picture'></span>
+                                    </button>
+                                    <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                                        <span class='glyphicon glyphicon-trash'></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class='form-group'>
+                        <label>活动类型</label>
+                        <select class='form-control' ng-model="app.scenario" ng-change="update('scenario');">
+                            <option value='common'>通用登记</option>
+                            <option value='registration'>报名</option>
+                            <option value='voting'>评价</option>
+                            <option value='quiz'> 测验</option>
+                            <option value='group_week_report'>周报</option>
+                            <option value='score_sheet'>记分表</option>
+                        </select>
+                    </div>
+                    <div class='form-group'>
+                        <label>模板描述</label>
+                        <textarea type='text' class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
+                    </div>
+                    <div class='form-group'>
+                        <label>版本说明</label>
+                        <textarea type='text' class='form-control' ng-model="app.up_said" tms-auto-update tms-wait=1000 tms-update="update('up_said')"></textarea>
+                    </div>
+                </div>
+            </uib-tab>
+            <!-- end setting -->
+            <uib-tab index="1">
+                <uib-tab-heading><i class="glyphicon glyphicon-cog"></i> 模板设置</uib-tab-heading>
+                <div class="form-group">
+                    <div>
+                        <table class='table table-bordered'>
+                            <tbody>
+                                <tr>
+                                    <td rowspan="2">已填写时进入</td>
+                                    <td style='padding:0'>
+                                        <select style='border:0' class='form-control' ng-model='app.enrolled_entry_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('enrolled_entry_page')">
+                                            <option value=''></option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr ng-show='isInputPage(app.enrolled_entry_page)'>
+                                    <td>
+                                        <label class='checkbox-inline'>
+                                            <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.open_lastroll' ng-change="update('open_lastroll')">显示最后一条填写记录</label>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class='form-group'>
+                        <label>下载该模板所需的积分</label>
+                        <input type='text' class='form-control' size='40' ng-model='app.coin' tms-auto-update tms-wait=1000 tms-update="update('coin')">
+                    </div>
+                    <div class="form-group">
+                        <label>添加模板共享用户</label>
+                        <div class='input-group'>
+                            <input type="text" class="form-control" ng-model='shareUser.label' placeholder="请输入作为用户账号的邮箱">
+                            <span class='input-group-btn'>
+                                <button class='btn btn-primary' ng-click='addReceiver()' ng-disabled="!shareUser.label||!shareUser.label.length"><span class='glyphicon glyphicon-plus'></span></button>
+                            </span>
+                        </div>
+                        <div class='list-group'>
+                            <a href='javascript:void(0)' class='list-group-item' ng-repeat="acl in app.acl" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
+                                <span>（{{acl.receiver_label}}）</span>
+                                <button class='close' ng-if="entered" ng-click="removeReceiver(acl)">&times;</button>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </uib-tab>
+            <uib-tab index="2">
+                <uib-tab-heading><i class="glyphicon glyphicon-th-large"></i> 模板版本</uib-tab-heading>
+                <div class="form-group">
+                    <div class="list-group">
+                        <a class='list-group-item' ng-repeat='v in app.versions' ng-mouseenter='hover=true' ng-mouseleave='hover=false' ng-click='lookView(v.id)'>
+                            <span class='glyphicon glyphicon-edit' ng-if="v.pub_status== 'N'"></span>
+                            {{v.version}}
+                            <button class='btn btn-default btn-xs pull-right' ng-click='lookDetail(v.id)' ng-if="hover">
+                                <span>查看详情</span>
+                            </button>
+                        </a>
+                    </div>
+                    <button class='btn btn-default btn-block' ng-click="createVersion()">创建新版本</button>
+                    <hr>
+                    <button class='btn btn-default btn-block' ng-click="shareAsTemplate()">发布模版</button>
+                    <button class='btn btn-default btn-block' ng-click="applyToHome()">申请发布到平台主页</button>
+                    <button class='btn btn-default btn-block' ng-click="cancelAsTemplate()">撤销模版</button>
+                    <button class='btn btn-default btn-block' ng-click="removeAsTemplate()">删除模板</button>
+                </div>
+            </uib-tab>
+        </uib-tabset>
+    </div>
+</div>

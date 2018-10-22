@@ -1,0 +1,77 @@
+<div class='form-horizontal'>
+    <div class='form-group' ng-if="app.fans_only==='Y'">
+        <label class='col-md-2 control-label'>不是关注用户提示（抽奖时提示）</label>
+        <div class='col-md-10'>
+            <textarea class="form-control" ng-model='app.nonfans_alert' tms-auto-update tms-wait=1000 tms-update="update('nonfans_alert');"></textarea>
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>活动未开始提示</label>
+        <div class='col-md-10'>
+            <textarea class="form-control" ng-model='app.nostart_alert' tms-auto-update tms-wait=1000 tms-update="update('nostart_alert');"></textarea>
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>活动已结束提示</label>
+        <div class='col-md-10'>
+            <textarea class="form-control" ng-model='app.hasend_alert' tms-auto-update tms-wait=1000 tms-update="update('hasend_alert');"></textarea>
+        </div>
+    </div>
+    <div class='form-group' ng-if="app.pretask==='Y'">
+        <label class='col-md-2 control-label'>前置活动说明</label>
+        <div class='col-md-10'>
+            <textarea class="form-control" ng-model='app.pretaskdesc' tms-auto-update tms-wait=1000 tms-update="update('pretaskdesc');"></textarea>
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>抽奖机会用完提示</label>
+        <div class='col-md-10'>
+            <textarea class="form-control" ng-model='app.nochance_alert' tms-auto-update tms-wait=1000 tms-update="update('nochance_alert');"></textarea>
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>奖项中奖词</label>
+        <div class='col-md-10'>
+            <div class='checkbox'>
+                <label><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.show_greeting' ng-change="update('show_greeting');">显示</label>
+            </div>
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>获奖名单</label>
+        <div class='col-md-10'>
+            <div class='checkbox'>
+                <label><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.show_winners' ng-change="update('show_winners');">显示</label>
+            </div>
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>定制页面</label>
+        <div class='col-md-10'>
+            <p class="form-control-static">
+                <button class="btn btn-success" ng-click="setPage()">重置页面</button>
+                <a href='#' ng-click='gotoCode()'>编辑页面</a>
+            </p>
+        </div>
+    </div>
+    <script type="text/ng-template " id="pageSetting.html ">
+        <div class="modal-header ">
+            <button class="close " type="button " ng-click="close() ">×</button>
+            <h5 class="modal-title ">重置页面</h5>
+        </div>
+        <div class="modal-body ">
+            <div class="alert alert-danger"><strong>重置页面</strong>操作将覆盖所有对页面进行过的修改，且不可以恢复！</div>
+            <div class="form-horizontal">
+                <div class="form-group ">
+                    <label class="col-md-2 control-label ">模式</label>
+                    <div class="col-md-10 ">
+                        <select class='form-control' ng-model='data.pattern' ng-options='p.l for p in patterns'></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-success" ng-click="ok()">确定</button>
+        </div>
+    </script>
+</div>

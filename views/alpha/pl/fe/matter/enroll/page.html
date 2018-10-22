@@ -1,0 +1,121 @@
+<div class="col-md-12">
+    <div id='page-view'>
+        <!--pages -->
+        <nav class='navbar navbar-default'>
+            <div class='container-fluid'>
+                <ul class="nav navbar-nav" ng-show="app.pages.length<=3">
+                    <li ng-class="{'active':p===ep}" ng-repeat="p in app.pages">
+                        <a href="" ng-click="choosePage(p)"><span><i class='fa fa-file-o'></i> {{p.title}}</span></a>
+                    </li>
+                </ul>
+                <form class="navbar-form navbar-left" ng-show="app.pages.length>3">
+                    <div class='form-group'>
+                        <select class='form-control' ng-options="p as p.title for p in app.pages" ng-model="ep"></select>
+                    </div>
+                </form>
+                <ul class="navbar-form navbar-right">
+                    <button class='btn' ng-class="ep.$$modified?'btn-success':'btn-default'" ng-click="save()">保存修改</button>
+                    <button uib-popover-template="'pageSetting.html'" popover-append-to-body='true' popover-placement="left-top" popover-trigger="outsideClick" class="btn btn-default">高级设置 <span class="caret"></span></button>
+                </ul>
+            </div>
+        </nav>
+        <!-- end pages -->
+        <!-- one page-->
+        <div class='row' ng-controller="ctrlPageEdit">
+            <!--page schemas-->
+            <div class='col-md-3 page-schemas' tms-flex-height top='145' bottom='72'>
+                <!-- toggle schema in pages -->
+                <div class='list-group-item' ng-if="ep.type==='I'" ng-controller="ctrlAppSchemas4IV">
+                    <div class='list-group'>
+                        <div class='list-group-item schema' ng-repeat="s in app.dataSchemas">
+                            <span ng-bind="s.title"></span>
+                            <span class='schema-switch'>
+                            <input type='checkbox' bs-switch switch-size="mini" data-on-text="显" data-off-text="隐" ng-model="chooseState[s.id]" ng-change="choose(s)">
+                        </span>
+                        </div>
+                    </div>
+                </div>
+                <div class='list-group-item' ng-if="ep.type==='V'" ng-controller="ctrlAppSchemas4IV">
+                    <div class='list-group-item' ng-repeat="s in app.dataSchemas">
+                        <span ng-bind-html="s.title"></span>
+                        <span class='schema-switch'>
+                        <input type='checkbox' bs-switch switch-size="mini" data-on-text="显" data-off-text="隐" ng-model="chooseState[s.id]" ng-change="choose(s)">
+                    </span>
+                    </div>
+                    <div class='list-group-item' ng-repeat="s in otherSchemas">
+                        <span ng-bind="s.title"></span>
+                        <span class='schema-switch'>
+                        <input type='checkbox' bs-switch switch-size="mini" data-on-text="显" data-off-text="隐" ng-model="chooseState[s.id]" ng-change="choose(s)">
+                    </span>
+                    </div>
+                </div>
+                <div class='list-group-item' ng-if="ep.type==='L'">
+                    <button class='btn btn-default' ng-click="newList()">记录列表</button>
+                    <button class='btn btn-default' ng-click="enrolleeList()">填写人列表</button>
+                </div>
+                <!-- end toggle schema in pages -->
+                <!-- create button wrap -->
+                <div class='list-group-item'>
+                    <div class='help-block'>在页面中添加操作</div>
+                    <button class='btn btn-default' ng-click="newButton(btn)" ng-repeat="btn in buttons">{{btn.l}}</button>
+                </div>
+                <!-- end create button wrap-->
+                <!-- embed inner matter -->
+                <div class='list-group-item'>
+                    <div class='help-block'>在页面中添加素材</div>
+                    <button class='btn btn-default' ng-click="embedMatter()">添加素材</button>
+                </div>
+                <!-- end embed inner matter-->
+            </div>
+            <!--page schemas-->
+            <!--tinymce editor-->
+            <div id='pageEdit' class='col-md-6' tms-flex-height top='145' bottom='72'>
+                <tinymce id='tinymce-page' toolbar='code'></tinymce>
+            </div>
+            <!-- end tinymce editor -->
+            <div id="wrapEdit" class='col-md-3' tms-flex-height top='145' bottom='72'>
+                <div class='list-group-item' ng-if="activeWrap">
+                    <div class='form-group' ng-include="wrapEditorHtml()"></div>
+                    <div class='form-group'>
+                        <button class='btn btn-default' ng-if="activeWrap.schema" ng-click="refreshWrap(activeWrap)">刷新页面元素</button>
+                        <button class='btn btn-default' ng-if="['input','value','radio','checkbox','score'].indexOf(activeWrap.type)!==-1" ng-click="removeActiveWrap()">隐藏</button>
+                        <button class='btn btn-default' ng-if="['input','value','radio','checkbox','score'].indexOf(activeWrap.type)===-1" ng-click="removeActiveWrap()">删除</button>
+                    </div>
+                    <div class='form-group'>
+                        <div class='btn-group'>
+                            <button class='btn btn-default' ng-click="moveWrap('up')"><i class='fa fa-arrow-up'></i></button>
+                            <button class='btn btn-default' ng-click="moveWrap('down')"><i class='fa fa-arrow-down'></i></button>
+                            <button class='btn btn-default' title='上一级' ng-click="moveWrap('upLevel')" ng-if="activeWrap.type!=='html'"><i class='fa fa-level-up'></i></button>
+                            <button class='btn btn-default' title='下一级' ng-click="moveWrap('downLevel')" ng-if="activeWrap.type!=='html'"><i class='fa fa-level-down'></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end one page -->
+    </div>
+    <script type="text/ng-template" id="pageSetting.html">
+        <div id="pageSetting">
+            <div class='form-group'>
+                <p>ID: <span ng-bind="ep.name"></span></p>
+            </div>
+            <div class='form-group'>
+                <input class='form-control' readonly value="{{app.entryUrl+'&page='+ep.name}}">
+            </div>
+            <div class='form-group'>
+                <input type='text' class='form-control' ng-model="ep.title" tms-auto-update tms-wait=1000 tms-update="updPage(ep,'title')">
+            </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="ep.share_page" ng-change="updPage(ep,'share_page')"> 分享时分享本页面</label>
+            </div>
+            <hr>
+            <button class='btn btn-block btn-default' ng-click="cleanPage()">清空页面</button>
+            <button class='btn btn-block btn-default' ng-click="delPage()">删除页面</button>
+            <hr>
+            <button class='btn btn-block btn-default' ng-click="addPage()">添加页面</button>
+            <hr>
+            <button class='btn btn-block btn-default' ng-click="gotoCode()">编辑代码</button>
+        </div>
+    </script>
+</div>

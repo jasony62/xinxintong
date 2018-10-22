@@ -1,0 +1,177 @@
+<div class='col-md-12'>
+    <div class='form-group'>
+        <div class='form-inline'>
+            <select class='form-control' ng-model="catelog" ng-options="cat.l for cat in catelogs"></select>
+        </div>
+    </div>
+</div>
+<div class='col-md-12' ng-switch on="catelog.v">
+    <div ng-controller='ctrlAccount' ng-switch-when="account">
+        <div class='form-group' style='max-width:200px'>
+            <div class="input-group">
+                <input type='text' class='form-control' ng-model='nickname' placeholder='请输入昵称'>
+                <div class="input-group-btn">
+                    <button class="btn btn-default" type="button" ng-click='find()'>
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th>昵称</th>
+                    <th>来源</th>
+                    <th style='width:120px'>创建日期</th>
+                    <th style='width:60px'>积分</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat='u in users'>
+                    <td><a href='' ng-click="openProfile(u.uid, u.unionid)">{{u.nickname}}</a></td>
+                    <td>{{u.ufrom}}</td>
+                    <td>{{u.reg_time*1000|date:'yy-MM-dd HH:mm'}}</td>
+                    <td>{{u.coin}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class='form-group form-inline'>
+            <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+            <ul uib-pagination style='margin:0;cursor:pointer' class='pull-right' ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+        </div>
+    </div>
+    <div ng-controller='ctrlMember' ng-switch-when="member">
+        <div class='form-group form-inline'>
+            <div class='form-group'>
+                <select class='form-control' ng-model='page.searchBy' ng-options='s.v as s.n for s in searchBys'></select>
+            </div>
+            <div class='form-group' style='max-width:200px'>
+                <div class="input-group">
+                    <input type='text' class='form-control' ng-model='page.keyword' placeholder='搜索条件' ng-keyup='keywordKeyup($event)'>
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" ng-click='doSearch(1)'>
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div>
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th style='width:100px'>认证日期</th>
+                        <th style='width:80px'>完成认证</th>
+                        <th ng-if='schema.attr_name[0]==0'>姓名</th>
+                        <th ng-if='schema.attr_mobile[0]==0'>手机号</th>
+                        <th ng-if='schema.attr_email[0]==0'>电子邮件</th>
+                        <th style='width:80px' ng-if='schema.attr_email[0]==0&&schema.attr_email[4]==1'>邮箱验证</th>
+                        <th ng-repeat='ea in schema.extattr'>{{ea.label}}</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat='m in members'>
+                        <td>{{m.create_at*1000|date:'yy-MM-dd'}}</td>
+                        <td>{{m.verified==='Y'?'是':'否'}}</td>
+                        <td ng-if='schema.attr_name[0]==0'>{{m.name}}</td>
+                        <td ng-if="schema.attr_mobile[0]==0">{{m.mobile}}</td>
+                        <td ng-if="schema.attr_email[0]==0">{{m.email}}</td>
+                        <td ng-if="schema.attr_email[0]==0&&schema.attr_email[4]==1">{{m.email_verified==='Y'?'通过':'未通过'}}</td>
+                        <td ng-repeat='ea in schema.extattr'>{{m.extattr[ea.id]}}</td>
+                        <td>
+                            <a href='javascript:void(0)' ng-click='editMember(m)'>修改</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class='form-group form-inline'>
+                <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+                <ul uib-pagination style='margin:0;cursor:pointer' class='pull-right' ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+            </div>
+        </div>
+    </div>
+    <div ng-controller='ctrlCoin' ng-switch-when="coin">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>说明</th>
+                    <th style='width:90px'>用户A积分</th>
+                    <!--<th style='width:90px'>用户B积分</th>-->
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="r in rules">
+                    <td ng-bind="r.act"></td>
+                    <td ng-bind="r.desc"></td>
+                    <td>
+                        <input type='text' ng-model="r.actor_delta">
+                    </td>
+                    <!--<td><input type='text' ng-model="r.creator_delta"></td>-->
+                </tr>
+            </tbody>
+        </table>
+        <button class='btn btn-success' ng-click="save()">保存</button>
+    </div>
+</div>
+<script type="text/ng-template" id="memberEditor.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="close()">×</button>
+        <h5 class="modal-title">{{schema.title}}</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="col-md-2 control-label">认证日期</label>
+                <div class="col-md-10">
+                    <p class="form-control-static">{{member.create_at*1000|date:'yy-MM-dd hh:mm'}}</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label">完成认证</label>
+                <div class="col-md-10">
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='member.verified'>是
+                    </label>
+                </div>
+            </div>
+            <div class="form-group" ng-if="canShow('name')">
+                <label class="col-md-2 control-label">姓名</label>
+                <div class="col-md-10">
+                    <input class="form-control" ng-model='member.name'>
+                </div>
+            </div>
+            <div class="form-group" ng-if="canShow('mobile')">
+                <label class="col-md-2 control-label">手机</label>
+                <div class="col-md-10">
+                    <input class="form-control" ng-model='member.mobile'>
+                </div>
+            </div>
+            <div class="form-group" ng-if="canShow('email')">
+                <label class="col-md-2 control-label">邮箱</label>
+                <div class="col-md-10">
+                    <input class="form-control" ng-model='member.email'>
+                </div>
+            </div>
+            <div class="form-group" ng-if='schema.attr_email[4]==1'>
+                <label class="col-md-2 control-label">邮箱验证通过</label>
+                <div class="col-md-10">
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='member.email_verified'>是
+                    </label>
+                </div>
+            </div>
+            <div class="form-group" ng-repeat='ea in schema.extattr'>
+                <label class="col-md-2 control-label">{{ea.label}}</label>
+                <div class="col-md-10">
+                    <input class="form-control" ng-model='member.extattr[ea.id]'>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-danger pull-left" ng-click="remove()" ng-if='member.id'>删除</button>
+        <button class="btn btn-success" ng-click="ok()">保存</button>
+    </div>
+</script>

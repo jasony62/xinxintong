@@ -1,0 +1,39 @@
+<div class='col-md-6 col-md-offset-3'>
+    <div id='simulator'>
+        <iframe ng-src={{previewURL}}></iframe>
+        <div id='simulatorActions'>
+            <a class='btn btn-default btn-block' style='color:#337ab7' href="/rest/pl/fe/matter/signin/schema?site={{app.siteid}}&id={{app.id}}">修改题目 <i class="glyphicon glyphicon-chevron-right"></i></a>
+            <div class="btn-group btn-block" ng-repeat="page in app.pages">
+                <button type="button" class="btn btn-default" ng-class="params.page===page?'btn-primary':'btn-default'" style="width:125px" title="{{page.title}}" ng-click="showPage(page)">{{page.title}}</button>
+                <button type="button" class="btn dropdown-toggle" ng-class="params.page===page?'btn-primary':'btn-default'" data-toggle="dropdown">
+                    <span class="caret"></span>
+                    <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="#" ng-click="gotoPage(page)">编辑页面</a></li>
+                </ul>
+            </div>
+            <button uib-popover-template="'pageSetting.html'" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" class='btn btn-default btn-block'>页面设置 <i class="caret"></i></button>
+        </div>
+    </div>
+    <script type="text/ng-template" id="pageSetting.html">
+        <div class='checkbox'>
+            <label>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_header' ng-change="update('use_site_header');">使用站点页眉</label>
+        </div>
+        <div class='checkbox'>
+            <label>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_footer' ng-change="update('use_site_footer');">使用站点页脚</label>
+        </div>
+        <div class='' ng-if="app.mission_id>0">
+            <div class='checkbox'>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_header' ng-change="update('use_mission_header');">使用项目页眉</label>
+            </div>
+            <div class='checkbox'>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_footer' ng-change="update('use_mission_footer');">使用项目页脚</label>
+            </div>
+        </div>
+    </script>
+</div>

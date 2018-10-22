@@ -1,0 +1,42 @@
+<div class='form-inline form-group'>
+    <div class='form-group'>
+        <select class='form-control' ng-model='userSet.userScope'>
+            <option value=''></option>
+            <option value='a' ng-if="canGroup()">全部用户</option>
+            <option value='g' ng-if="canGroup()">用户分组</option>
+            <option value="{{'ms_'+ms.id}}" ng-repeat='ms in memberschemas'>
+                <span>{{ms.title}}</span>
+            </option>
+        </select>
+    </div>
+    <div class='form-group' ng-show="showPickSingleMember">
+        <label class="checkbox-inline">
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='isPickSingleMember'>选择用户</label>
+    </div>
+</div>
+<div id="childmps" ng-show="userSet.userScope==='mp'">
+    <div class='col-md-6' style='padding-left:0'>
+        <ul class='list-group' style='margin-bottom:0'>
+            <li class='list-group-item' ng-repeat='mp in childmps'>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='mp.checked' ng-change='pickMp(mp)'>{{mp.name}}</label>
+            </li>
+            <li class='list-group-item' ng-show='groups&&groups.length===0' style='color:#CCC'>没有分组</li>
+        </ul>
+    </div>
+</div>
+<div id="all" ng-show="userSet.userScope==='a'">
+    <div class='alert alert-info'>已选择所有关注用户</div>
+</div>
+<div id="group" ng-show="userSet.userScope==='g'">
+    <div class='col-md-6' style='padding-left:0'>
+        <ul class='list-group' style='margin-bottom:0'>
+            <li class='list-group-item' ng-repeat='g in groups'>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='g.checked' ng-change='pickGroup(g)'>{{g.name}}</label>
+            </li>
+            <li class='list-group-item' ng-show='groups&&groups.length===0' style='color:#CCC'>没有分组</li>
+        </ul>
+    </div>
+</div>
+<div id="member" ng-include="memberViewUrl" ng-show="isPickMember()"></div>

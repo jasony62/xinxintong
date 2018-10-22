@@ -1,0 +1,86 @@
+<div class='col-md-12 form-group'>
+    <div class="container-fluid">
+        <ul class="nav nav-tabs">
+            <li ng-class="{'active':subview==='fans'}">
+                <a ng-click="shiftSubview('fans')"><span>用户</span></a>
+            </li>
+            <li ng-class="{'active':subview==='group'}">
+                <a ng-click="shiftSubview('group')"><span>用户组</span></a>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class='col-md-12' ng-if="subview==='fans'" ng-controller="ctrlFan">
+    <div class='form-group form-inline'>
+        <div class='form-group'>
+            <div class="input-group">
+                <input type='text' class='form-control' ng-model='page.keyword' placeholder='按昵称' ng-keyup='keywordKeyup($event)'>
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="button" ng-click='doSearch()'>
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                </span>
+            </div>
+        </div>
+        <label>微信公众号分组
+            <select class='form-control' ng-model='selectedGroup' ng-options='g.name for g in groups' ng-change="doSearch()">
+                <option value=></option>
+            </select>
+        </label>
+    </div>
+    <div>
+        <table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th style='width:40px'></th>
+                    <th>昵称</th>
+                    <th style='width:160px'>关注日期</th>
+                    <th style='width:48px'>性别</th>
+                    <th>城市</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat='f in users'>
+                    <td ng-bind="$index+1"></td>
+                    <td>{{f.nickname||'未知'}}</td>
+                    <td>{{f.subscribe_at*1000|date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                    <td>{{SexMap[f.sex]}}</td>
+                    <td>{{f.city}}</td>
+                    <td><a href='' ng-click='refresh(f)'>刷新</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class='form-group clearfix'>
+        <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+        <button class='btn btn-default' ng-click="refreshAll()">全部刷新</button>
+        <ul uib-pagination ng-show='page.total>page.size' class='pull-right' style='cursor:pointer;margin:0;vertical-align:middle'
+        boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at"
+        class="pagination" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+    </div>
+</div>
+<div class='col-md-12' ng-if="subview==='group'" ng-controller="ctrlGroup">
+    <div class='col-md-12'>
+        <div class='form-group'>
+            <button class="btn btn-default" ng-click='refresh()'>和公众号同步用户组</button>
+        </div>
+    </div>
+    <div class='col-md-4'>
+        <div class='list-group'>
+            <a class='list-group-item' ng-class={'active':editing===g} ng-repeat='g in groups' ng-click='edit(g)'>
+                <span>{{g.name}}</span>
+            </a>
+            <li class='list-group-item'><button class='btn btn-success' ng-click="addGroup()"><span class='glyphicon glyphicon-plus'></span>新建分组</button></li>
+        </div>
+    </div>
+    <div class='col-md-8' ng-if='editing'>
+        <div class='form-group'>
+            <label>名称</label>
+            <input type='text' class='form-control' ng-model='editing.name'>
+        </div>
+        <div class='form-group text-right'>
+            <button class='btn btn-success' ng-click='save()'>保存</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href="/" />
+    <title>项目活动</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href='/static/css/site.fe.css?_=1' rel="stylesheet">
+    <link href="/views/default/site/fe/matter/mission/board.css?_=1" rel="stylesheet">
+</head>
+
+<body>
+    <div class="loading">
+        <div class='loading-indicator'><i></i></div>
+    </div>
+    <div ng-controller="ctrlMain">
+        <nav class='navbar site-navbar-default'>
+            <div class='container'>
+                <div class="navbar-header">
+                    <div class="navbar-brand">
+                        <i class="glyphicon glyphicon-edit visible-lg-inline"></i> <span class='icon-note' ng-bind='mission.title'></span>
+                    </div>
+                </div>
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="pull-left">
+                        <a href="/rest/site/fe/matter/mission?site={{siteid}}&mission={{mission.id}}"><i class="glyphicon glyphicon-list"></i><span class="visible-lg-inline"> 足迹</span></a>
+                    </li>
+                    <li class="pull-left">
+                        <a href="" ng-click="siteUser()"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline"> 我的</span></a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class='container ng-cloak' ng-cloak>
+            <uib-tabset id='cardPills' active="activeCard" type="pills" justified='true'>
+                <uib-tab index="'doc'" heading="资料"></uib-tab>
+                <uib-tab index="'recommend'" heading="推荐"></uib-tab>
+                <uib-tab index="'rank'" heading="积分排行"></uib-tab>
+            </uib-tabset>
+            <div id='cards'>
+                <div ng-switch on="activeCard">
+                    <div id='docs' class='row' ng-switch-when="doc" ng-controller="ctrlDoc">
+                        <div ng-repeat='doc in docs'>
+                            <div class='col-xs-2 timeline'>
+                                <div class='date' ng-bind="doc.create_at*1000|date:'MM-dd'"></div>
+                                <div class='time' ng-bind="doc.create_at*1000|date:'HH:mm'"></div>
+                            </div>
+                            <div class='col-xs-10'>
+                                <div class='thumbnail doc'>
+                                    <div class='title form-group'>{{doc.title}}</div>
+                                    <div class='summary form-group'>{{doc.summary}}</div>
+                                    <hr>
+                                    <a ng-href="{{doc.entryUrl}}">进入查看</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--end doc-->
+                    <div id='recommends' class='row' ng-switch-when="recommend" ng-controller="ctrlRecommend">
+                        <div ng-repeat='recommend in recommends' ng-switch on="recommend.obj_unit">
+                            <div class='col-xs-2 timeline'>
+                                <div class='date' ng-bind="recommend.op_at*1000|date:'MM-dd'"></div>
+                                <div class='time' ng-bind="recommend.op_at*1000|date:'HH:mm'"></div>
+                            </div>
+                            <div class='col-xs-10'>
+                                <div class='thumbnail recommend'>
+                                    <div class='user text-muted'>
+                                        <div class='nickname'><span>{{recommend.obj.nickname}}</span><span ng-if="recommend.group.title">- {{recommend.group.title}}</span></div>
+                                        <div class='enroll_at'>{{recommend.obj.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
+                                    </div>
+                                    <hr>
+                                    <div class='data'>
+                                        <div class='schema' ng-repeat="schema in recommend.matter.dataSchemas" ng-switch on="schema.type">
+                                            <div ng-switch-when="image">
+                                                <div class='text-muted'>{{schema.title}}</div>
+                                                <div ng-repeat="img in recommend.obj.data[schema.id]"><img ng-src="{{img}}" /></div>
+                                            </div>
+                                            <div ng-switch-when="file">
+                                                <div class='text-muted'>{{schema.title}}</div>
+                                                <div ng-repeat="file in recommend.obj.data[schema.id]">
+                                                    <video ng-if="file.type.indexOf('video')===0" controls="controls">
+                                                        <source src="{{file.url}}" type="{{file.type}}" />
+                                                    </video>
+                                                    <audio ng-if="file.type.indexOf('audio')===0" controls="controls">
+                                                        <source src="{{file.url}}" type="{{file.type}}" />
+                                                    </audio>
+                                                    <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' />
+                                                </div>
+                                            </div>
+                                            <div ng-switch-when="multitext">
+                                                <ul ng-if="recommend.obj.data[schema.id]">
+                                                    <li ng-repeat="item in recommend.obj.data[schema.id].value"><span ng-bind="item.value"></span></li>
+                                                </ul>
+                                            </div>
+                                            <div ng-switch-when="single"><span class='text-muted'>{{schema.title}}：</span><span>{{value2Label(schema,recommend.obj.data[schema.id])}}</span></div>
+                                            <div ng-switch-when="multiple"><span class='text-muted'>{{schema.title}}：</span><span>{{value2Label(schema,recommend.obj.data[schema.id])}}</span></div>
+                                            <div ng-switch-default>
+                                                <span class='text-muted'>{{schema.title}}：</span>
+                                                <span>{{recommend.obj.data[schema.id]}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class='footer'>
+                                        <div class='remark_num' ng-click="remarkRecommend(recommend)">留言 {{recommend.obj.remark_num}}</div>
+                                        <div class='like_num' ng-click="likeRecommend(recommend)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':recommend.obj.like_log[mission.user.uid]}"></span> {{recommend.obj.like_num}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--end recommend-->
+                    <div id='rank' ng-switch-when="rank" class='row' ng-controller="ctrlRank">
+                        <div ng-repeat='user in users'>
+                            <div class='col-xs-3 text-center index'>
+                                <div>{{user.user_total_coin}}</div>
+                            </div>
+                            <div class='col-xs-9'>
+                                <div class='user'>
+                                    <span>{{user.nickname}}</span><span ng-if="user.group.title"> - {{user.group.title}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/xxt.ui.error.js"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/require.js" defer async data-main="/views/default/site/fe/matter/mission/board-loader.js?_=12"></script>
+</body>
+
+</html>

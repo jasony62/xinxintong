@@ -1,0 +1,66 @@
+<div class='col-md-6 col-md-offset-3'>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <label>用户访问链接</label>
+            <div class='pl-input-group'>
+                <div class='form-control pl-line' ng-bind="entry.url"></div>
+                <a class='btn btn-default' ng-href="{{entry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+            </div>
+            <div class='form-group'>
+                <span><img id='entryQrcode' ng-src="{{entry.qrcode}}"></span>
+                <button class='btn btn-default' ng-click="downloadQrcode(entry.qrcode)">下载</button>
+            </div>
+            <div class='form-group'>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_share' ng-change="update('can_share');">可以分享</label>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_fullsearch' ng-change="update('can_fullsearch');">可以检索</label>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_coinpay' ng-change="update('can_coinpay');">开放打赏</label>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_siteuser' ng-change="update('can_siteuser');">用户主页</label>
+            </div>
+        </div>
+    </div>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <div id='simulator'>
+                <iframe ng-src={{previewURL}}></iframe>
+                <div id='simulatorActions'>
+                    <a class='btn btn-default btn-block' style='color:#337ab7' href="/rest/pl/fe/matter/article/body?site={{editing.siteid}}&id={{editing.id}}">修改正文 <i class="glyphicon glyphicon-chevron-right"></i></a>
+                    <button uib-popover-template="'pageSetting.html'" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" class='btn btn-default btn-block'>页面设置 <span class="caret"></span></button>
+                </div>
+                <script type="text/ng-template" id="pageSetting.html">
+                    <div class='checkbox'>
+                        <label class='checkbox-inline'>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.use_site_header' ng-change="update('use_site_header');">使用站点页眉</label>
+                    </div>
+                    <div class='checkbox'>
+                        <label class='checkbox-inline'>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.use_site_footer' ng-change="update('use_site_footer');">使用站点页脚</label>
+                    </div>
+                    <div class='checkbox' ng-if="editing.mission_id>0">
+                        <label class='checkbox-inline'>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.use_mission_header' ng-change="update('use_mission_header');">使用项目页眉</label>
+                    </div>
+                    <div class='checkbox' ng-if="editing.mission_id>0">
+                        <label class='checkbox-inline'>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.use_mission_footer' ng-change="update('use_mission_footer');">使用项目页脚</label>
+                    </div>
+                </script>
+            </div>
+        </div>
+    </div>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <div>阅读：{{editing.read_num}}</div>
+                <div>分享好友：{{editing.share_friend_num}}</div>
+                <div>分享朋友圈：{{editing.share_timeline_num}}</div>
+            </div>
+        </div>
+    </div>
+    <div class='form-group'>
+        <button class='btn btn-default btn-block' ng-click="applyToHome()">申请发布到平台主页</button>
+    </div>
+</div>

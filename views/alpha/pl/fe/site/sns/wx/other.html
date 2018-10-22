@@ -1,0 +1,19 @@
+<div class='col-md-5'>
+    <div class='list-group'>
+        <a class='list-group-item' ng-class="{'active':c===editing}" ng-repeat='c in calls' ng-click='edit(c)'>{{c.title}}</a>
+    </div>
+</div>
+<div class='col-md-7'>
+    <div class='form-group'>
+        <label class='col-md-3 control-label'>回复素材</label>
+        <div class='col-md-9'>
+            <button class='btn btn-default btn-sm' ng-click='setReply()'>指定素材</button>
+            <a class='list-group-item' ng-mouseenter='enter=true' ng-mouseleave='enter=false' ng-show='editing.matter' title={{editing.matter.type|typetitle}}>
+                {{editing.matter.title||editing.matter.content}}
+                <button class='btn btn-default btn-sm' style='position:absolute;top:4px;right:4px' ng-click='remove()' ng-if='enter'>
+                <span class='glyphicon glyphicon-remove'></span>
+                </button>
+            </a>
+        </div>
+    </div>
+</div>

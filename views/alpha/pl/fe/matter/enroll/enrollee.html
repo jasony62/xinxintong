@@ -1,0 +1,212 @@
+<div class="col-md-12">
+    <div class='form-group'>
+        <div class='form-inline'>
+            <button class='btn btn-default' ng-click="toggleAbsent()">缺席<span ng-bind="absentUsers.length"></span>人，<span ng-if="category!=='absent'">查看</span><span ng-if="category==='absent'">关闭</span></button>
+            <section style='display:inline-block' ng-if="category==='enrollee'">
+                <button class='btn btn-default' ng-click='filter()'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+                <div class="btn-group" uib-dropdown>
+                    <button type="button" class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                        排序
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" uib-dropdown-menu>
+                        <li><a href ng-click="chooseOrderby('enroll_num')"><span class='glyphicon' ng-class="criteria.orderby==='enroll_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 记录数</a></li>
+                        <li><a href ng-click="chooseOrderby('do_remark_num')"><span class='glyphicon' ng-class="criteria.orderby==='do_remark_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 留言数</a></li>
+                        <li><a href ng-click="chooseOrderby('do_like_num')"><span class='glyphicon' ng-class="criteria.orderby==='do_like_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 赞同数</a></li>
+                        <li><a href ng-click="chooseOrderby('agree_num')"><span class='glyphicon' ng-class="criteria.orderby==='agree_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 获得推荐数</a></li>
+                        <li><a href ng-click="chooseOrderby('user_total_coin')"><span class='glyphicon' ng-class="criteria.orderby==='user_total_coin'?'glyphicon-check':'glyphicon-unchecked'"></span> 积分数</a></li>
+                        <li><a href ng-click="chooseOrderby('score')"><span class='glyphicon' ng-class="criteria.orderby==='score'?'glyphicon-check':'glyphicon-unchecked'"></span> 得分数</a></li>
+                        <li ng-if="app.group_app_id"><a href ng-click="chooseOrderby('group_id')"><span class='glyphicon' ng-class="criteria.orderby==='group_id'?'glyphicon-check':'glyphicon-unchecked'"></span> 分组名称</a></li>
+                    </ul>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">更多操作 <i class="caret"></i></button>
+                    <ul class="dropdown-menu">
+                        <li><a href ng-click="notify(true)">给选中用户发消息<span>（{{rows.count}}）</span></a></li>
+                        <li><a href ng-click="notify()">给全部用户发消息<span>（{{page.total}}）</span></a></li>
+                        <li class="divider"></li>
+                        <li><a href ng-click="export()">导出全部数据</a></li>
+                        <li class="divider"></li>
+                        <li><a href ng-click="repairGroup()">修复用户所属分组</a></li>
+                        <li><a href ng-click="repairEnrollee()">修复用户汇总数据</a></li>
+                    </ul>
+                </div>
+            </section>
+            <div class='form-group pull-right' ng-if="category==='enrollee'">
+                <button type='button' class='btn btn-default' ng-click="searchEnrollee()"><i class='glyphicon glyphicon-refresh'></i> 刷新</button>
+            </div>
+            <div class='form-group pull-right' ng-if="category==='absent'">
+                <div class='input-group'>
+                    <span class="input-group-addon">当前选中轮次</span>
+                    <input class='form-control' ng-model='criteria.turn_title' readonly="readonly" style='width:100px'>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div ng-switch on='category'>
+        <div ng-switch-when="enrollee">
+            <div tms-flex-height top='117' bottom='66' class='form-group' style='width:100%;'>
+                <div id='enrollRecords' tms-table-wrap ready='tmsTableWrapReady'>
+                    <table class='table table-bordered'>
+                        <thead>
+                            <tr>
+                                <th style='width:28px'>
+                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
+                                </th>
+                                <th style='width:48px'>序号</th>
+                                <th style='width:75px'>姓名</th>
+                                <th style='width:48px' ng-if="app.group_app_id">分组</th>
+                                <th style='width:75px'>填写记录</th>
+                                <th style='width:75px'>发表留言</th>
+                                <th style='width:75px'>发表点赞</th>
+                                <th style='width:75px'>获得推荐</th>
+                                <th style='width:120px'>浏览共享页次数</th>
+                                <th style='width:120px'>浏览专题页次数</th>
+                                <th style='width:130px'>专题页被浏览次数</th>
+                                <th style='width:120px'>浏览讨论页次数</th>
+                                <th style='width:130px'>讨论页被浏览次数</th>
+                                <th style='width:150px'>共享页浏览累计时间</th>
+                                <th style='width:150px'>专题页浏览累计时间</th>
+                                <th style='width:160px'>专题页被浏览累计时间</th>
+                                <th style='width:150px'>讨论页浏览累计时间</th>
+                                <th style='width:160px'>讨论页被浏览累计时间</th>
+                                <th>积分</th>
+                                <th>得分</th>
+                                <th ng-if="sns.wx.joined=='Y'">微信昵称</th>
+                                <th ng-if="sns.yx.joined=='Y'">易信昵称</th>
+                                <th>最后一次通知发送时间</th>
+                                <th>最后一次通知发送结果</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat='m in enrollees'>
+                                <td>
+                                    <input type='checkbox' ng-model="rows.selected[$index]" ng-change="rows.change($index)">
+                                </td>
+                                <td>{{$index+1}}</td>
+                                <td>{{m.nickname}}</td>
+                                <td ng-if='app.group_app_id'>
+                                    <div ng-if='m.group'>{{m.group.l}}</div>
+                                </td>
+                                <td>
+                                    <div ng-if='m.user.enroll_num'>{{m.user.enroll_num}}</div>
+                                    <div ng-if='m.enroll_num'>{{m.enroll_num}}</div>
+                                </td>
+                                <td>
+                                    <div ng-if='m.user.do_remark_num'>{{m.user.do_remark_num}}</div>
+                                    <div ng-if='m.do_remark_num'>{{m.do_remark_num}}</div>
+                                </td>
+                                <td>
+                                    <div ng-if='m.user.do_like_num'>{{m.user.do_like_num}}</div>
+                                    <div ng-if='m.do_like_num'>{{m.do_like_num}}</div>
+                                </td>
+                                <td>
+                                    <div ng-if='m.user.agree_num'>{{m.user.agree_num}}</div>
+                                    <div ng-if='m.agree_num'>{{m.agree_num}}</div>
+                                </td>
+                                <td>{{m.do_repos_read_num}}</td>
+                                <td>{{m.do_topic_read_num}}</td>
+                                <td>{{m.topic_read_num}}</td>
+                                <td>{{m.do_cowork_read_num}}</td>
+                                <td>{{m.cowork_read_num}}</td>
+                                <td>{{m.do_repos_read_elapse | filterTime}}</td>
+                                <td>{{m.do_topic_read_elapse | filterTime}}</td>
+                                <td>{{m.topic_read_elapse | filterTime}}</td>
+                                <td>{{m.do_cowork_read_elapse | filterTime}}</td>
+                                <td>{{m.cowork_read_elapse | filterTime}}</td>
+                                <td>
+                                    <div ng-if='m.user.user_total_coin'>{{m.user.user_total_coin}}</div>
+                                    <div ng-if='m.user_total_coin'>{{m.user_total_coin}}</div>
+                                </td>
+                                <td>
+                                    <div ng-if='m.score'>{{m.score}}</div>
+                                </td>
+                                <td ng-if="sns.wx.joined=='Y'">
+                                    <div ng-show="m.wx_openid">{{m.wxfan.nickname}}</div>
+                                </td>
+                                <td ng-if="sns.yx.joined=='Y'">
+                                    <div ng-show="m.yx_openid">{{m.yxfan.nickname}}</div>
+                                </td>
+                                <td>
+                                    <div ng-if="m.tmplmsg.create_at">{{m.tmplmsg.create_at*1000|date: 'yy-MM-dd HH:mm'}}</div>
+                                </td>
+                                <td>
+                                    <div ng-if="m.tmplmsg">{{m._tmpStatus[0]}}</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class='form-group'>
+                <div class='pl-pagination'>
+                    <span>总数：{{page.total}}</span>
+                    <ul uib-pagination class='pull-right' ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="searchEnrollee()"></ul>
+                </div>
+            </div>
+        </div>
+        <div ng-switch-when="absent">
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th style='width:28px'>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
+                        </th>
+                        <th style='width:48px'>序号</th>
+                        <th>姓名</th>
+                        <th>分组</th>
+                        <th ng-repeat="schema in absentApp.dataSchemas">{{schema.title}}</th>
+                        <th>备注</th>
+                        <th style='width:48px'>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat='user in absentUsers'>
+                        <td>
+                            <input type='checkbox' ng-model="rows.selected[$index]" ng-change="rows.change($index)">
+                        </td>
+                        <td>{{$index+1}}</td>
+                        <td>{{user.nickname}}</td>
+                        <td>{{user.round_title}}</td>
+                        <td ng-repeat="schema in absentApp.dataSchemas" ng-switch on="schema.type">
+                            <div ng-switch-when="image">
+                                <img ng-repeat="img in user._data[schema.id]" ng-src='{{img}}' />
+                            </div>
+                            <div ng-switch-when="file">
+                                <span ng-repeat='file in user._data[schema.id]'>{{file.name}}</span>
+                            </div>
+                            <span ng-switch-when="date">{{(user._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-switch-when="url" ng-bind-html="user._data[schema.id]._text"></span>
+                            <span ng-switch-default ng-bind-html="user._data[schema.id]"></span>
+                        </td>
+                        <td>{{user.absent_cause.cause}}</td>
+                        <td>
+                            <button class="btn btn-xs btn-default" ng-click="editCause(user)">
+                                <span class="glyphicon glyphicon-edit"></span>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script type='text/ng-template' id='editCause.html'>
+    <div class="modal-header">
+        <h5 class="modal-title">修改备注</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="col-md-3 control-label">备注</label>
+                <div class="col-md-9">
+                    <textarea name="cause" ng-model="cause" style="width:100%;height:100px;resize:none;"></textarea>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="cancel()">关闭</button>
+        <button class="btn btn-primary" ng-click="ok()">确定</button>
+    </div>
+</script>

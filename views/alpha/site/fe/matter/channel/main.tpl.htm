@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,user-scalable=no" name="viewport">
+    <base href="/" />
+    <title>
+        <?php TPL::pt('title');?>
+    </title>
+    <link href="/static/css/custom-bootstrap.min.css" rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/home.fe.css');?>" rel="stylesheet">
+    <link href="<?php echo auto_version('/views/default/site/fe/matter/channel/main.css');?>" rel="stylesheet">
+</head>
+
+<body ng-app='app' ng-controller='ctrl' ng-cloak class='ng-cloak'>
+    <nav class='navbar hm-navbar-default'>
+        <div class='container-fluid'>
+            <div class="navbar-header">
+                <a class='navbar-brand' href='/rest/home' target='_self'>
+                    <?php echo APP_TITLE;?>
+                </a>
+            </div>
+        </div>
+    </nav>
+    <div id='content' class='container'>
+        <div class='row'>
+            <div class='col-md-3 col-md-push-9 col-xs-12'>
+                <div id='site-card' class='hm-tile'>
+                    <div class="site-title">
+                        <img class="img-circle" ng-src="{{siteInfo.heading_pic}}">
+                        <a ng-href="{{'/rest/site/home?site='+siteInfo.id}}" target='_self' ng-bind="siteInfo.name"></a>
+                        <div uib-dropdown dropdown-append-to="elSiteCard" on-toggle="siteCardToggled(open)" ng-if="siteInfo.can_subscribe==='Y'">
+                            <i class="glyphicon glyphicon-option-vertical" uib-dropdown-toggle></i>
+                            <ul class="dropdown-menu dropdown-menu-lg" uib-dropdown-menu>
+                                <li>
+                                    <a href='' ng-click="subscribeSite()">关注</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="site-summary" ng-bind="siteInfo.summary"></p>
+                </div>
+                <div class='hm-tile' ng-if="channel.summary">
+                    <div ng-bind="channel.summary"></div>
+                </div>
+                <div id='qrCode' class='hidden-xs hidden-sm'>
+                    <img ng-src="{{qrcode}}">
+                </div>
+            </div>
+            <div id='matters' class='col-md-9 col-md-pull-3 col-xs-12 '>
+                <div class='form-group' ng-if="channel.matter_type==='article'">
+                    <select class='form-control input-lg' ng-model='Matter.orderby' ng-change='Matter.changeOrderby()'>
+                        <option value='time'>最新</option>
+                        <option value='score'>最热</option>
+                    </select>
+                </div>
+                <div infinite-scroll="Matter.nextPage()" infinite-scroll-disabled="Matter.busy" infinite-scroll-distance="1">
+                    <div class='media-item' ng-repeat='m in Matter.matters' ng-click='open(m)'>
+                        <div class="media-item-left">
+                            <div class="media-item-img" ng-style="{'background-image':'url('+m.pic+')'}">
+                            </div>
+                        </div>
+                        <div class="media-item-body">
+                            <div class='media-item-body-flexbox'>
+                                <div class="media-heading">{{m.title}}</div>
+                                <div class="media-summary">{{m.summary}}</div>
+                                <div class='media-attr'>
+                                    <div class='put_at'>
+                                        <span ng-bind="m.create_at*1000|date:'yyyy-MM-dd'"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <button class='btn btn-default btn-block' ng-if="Matter.end" ng-click="Matter.nextPage()">更多</button>
+                </div>
+                <div id="behavior" class="behavior">
+                    <div id="action">
+                        <a href="" ng-click="siteUser(siteInfo.id)">
+                            <i class="glyphicon glyphicon-user"></i>
+                            <span> 个人中心</span>
+                        </a>
+                        <a href="" class="invite" ng-click="invite(user,channel)" ng-if="channel.invite">
+                            <i class="icon_invite"></i>
+                            <span> 邀请体验</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/ng-infinite-scroll.min.js"></script>
+    <script src="/static/js/xxt.ui.error.js"></script>
+    <script src="<?php echo auto_version('/bundles/default/site/fe/matter/channel/main.js');?>"></script>
+</body>
+
+</html>

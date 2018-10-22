@@ -1,0 +1,49 @@
+<div class="col-md-12">
+    <div class='form-group'>
+        <div class='form-inline'>
+            <div class='form-group'>
+                <select class='form-control' ng-model="unionType">
+                    <option value=''>全部类型</option>
+                    <option ng-repeat="mt in unionMatterTypes" value="{{mt.name}}">{{mt.label}}</option>
+                </select>
+                <button ng-if="unionType" class='btn btn-default' ng-click="addMatter(unionType)"><i class='glyphicon glyphicon-plus'></i> <span>新建{{cstApp.matterNames.doc[unionType]}}</span></button>
+                <div ng-if="!unionType" class="btn-group" uib-dropdown>
+                    <button class="btn btn-default" uib-dropdown-toggle>
+                        <i class='glyphicon glyphicon-plus'></i> 新建 <span class="caret"></span>
+                    </button>
+                    <ul class='dropdown-menu' uib-dropdown-menu>
+                        <li ng-repeat="mt in unionMatterTypes"><a href='' ng-click="addMatter(mt.name)">{{mt.label}}</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <table class='table table-bordered'>
+        <thead>
+            <tr>
+                <th style='width:48px'>序号</th>
+                <th data-filter-by='title' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="show" ng-click="filter.show($event)">名称 <i class='glyphicon glyphicon-filter'></i></th>
+                <th style='width:74px'>用户可见</th>
+                <th style='width:140px'>创建人</th>
+                <th style='width:120px'>创建时间</th>
+                <th style='width:166px'>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat='m in matters'>
+                <td>{{$index+1}}</td>
+                <td ng-click="openMatter(m)">{{m.title}}</td>
+                <td ng-click="togglePublic(m)"><i class='glyphicon' ng-class="m.is_public==='Y'?'glyphicon-eye-open':'glyphicon-eye-close'"></i></td>
+                <td>{{m._operator||m.creater_name||m.modifier_name}}</td>
+                <td>{{(m._operateAt||m.modify_at||m.create_at)*1000|date:'yy-MM-dd HH:mm'}}</td>
+                <td>
+                    <div>
+                        <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">进入</button>
+                        <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
+                        <button class='btn btn-sm btn-default' ng-if="m.type!= 'wall'" ng-click="removeMatter($event,m)">删除</button>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

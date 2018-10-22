@@ -1,0 +1,33 @@
+<div id='summary' class='container'>
+    <div class='row'>
+        <div class='col-md-12'>
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th>轮次</th>
+                        <th>全部</th>
+                        <th>迟到</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="round in summary" ng-class="{'info':round.active==='Y'}" ng-click="switchTo('list',round)">
+                        <td data-th='轮次'>
+                            <div>{{round.title}}</div>
+                        </td>
+                        <td data-th='全部'>
+                            <div>{{round.total}}</div>
+                        </td>
+                        <td data-th='迟到'>
+                            <div>{{round.late}}</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <nav class="navbar navbar-default navbar-fixed-bottom">
+                <div class="container-fluid text-center">
+                    <p class="navbar-text tms-keep-inline"><a href="" ng-click="switchTo('list')" class="navbar-link">看列表</a></p>
+                </div>
+            </nav>
+        </div>
+    </div>
+</div>

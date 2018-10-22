@@ -1,0 +1,31 @@
+<div ng-controller="ctrlRecordListWrap">
+    <div class="form-group">
+        <label>数据范围</label>
+        <select class='form-control' ng-model="activeWrap.config.dataScope" ng-change="updWrap()">
+            <option value='U'>当前用户</option>
+            <option value='G' ng-if="bSupportGroup">当前用户所在分组</option>
+            <option value='A'>整个活动</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>选中后跳转到页面</label>
+        <select class='form-control' ng-model="activeWrap.config.onclick" ng-change="updWrap()">
+            <option value=''>不跳转</option>
+            <option value='{{p.name}}' ng-repeat='p in app.pages'>{{p.title}}</option>
+        </select>
+    </div>
+    <div class='list-group' style='max-height:300px;overflow-y:auto;min-width:240px;' >
+        <div class='list-group-item' ng-repeat="s in app.dataSchemas">
+            <span ng-bind="s.title"></span>
+            <span class='schema-switch'>
+                <input type='checkbox' bs-switch switch-size="mini" data-on-text="显" data-off-text="隐" ng-model="chooseState[s.id]" ng-change="choose(s)">
+            </span>
+        </div>
+        <div class='list-group-item' ng-repeat="s in otherSchemas">
+            <span ng-bind="s.title"></span>
+            <span class='schema-switch'>
+                <input type='checkbox' bs-switch switch-size="mini" data-on-text="显" data-off-text="隐" ng-model="chooseState[s.id]" ng-change="choose(s)">
+            </span>
+        </div>
+    </div>
+</div>

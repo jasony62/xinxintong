@@ -1,0 +1,85 @@
+<div id='mschema-view' class="col-md-12">
+    <div ng-if='mschemas.length===0'>
+        <div class='alert alert-info'>请<a href class="alert-link" ng-click="createMschema()">创建</a>项目联系人通讯录</div>
+    </div>
+    <div ng-if='mschemas.length'>
+        <div class='form-group form-inline'>
+            <div class='input-group'>
+                <select class='form-control' ng-options="mschema.title for mschema in mschemas" ng-model="selected.mschema" ng-change="chooseMschema()"></select>
+                <div class='input-group-btn'>
+                    <a class='btn btn-default' href="/rest/pl/fe/site/mschema?site={{selected.mschema.siteid}}#{{selected.mschema.id}}" target='_self'><span class='glyphicon glyphicon-edit'></span></a>
+                </div>
+            </div>
+            <div class='form-group'>
+                <select class='form-control' ng-model='page.searchBy' ng-options='s.v as s.n for s in searchBys'></select>
+            </div>
+            <div class='form-group' style='max-width:200px'>
+                <div class="input-group">
+                    <input type='text' class='form-control' ng-model='page.keyword' placeholder='搜索条件' ng-keyup='keywordKeyup($event)'>
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" ng-click='doSearch(1)'>
+                            <span class="glyphicon glyphicon-search"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group'>
+                <button class='btn btn-default' ng-click="createMschema()">添加通讯录</button>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">更多操作 <i class="caret"></i></button>
+                <ul class="dropdown-menu">
+                    <li ng-if="selected.mschema.require_invite==='Y'"><a href="/rest/pl/fe/site/mschema?site={{selected.mschema.siteid}}#{{selected.mschema.id}}" target='_self'>查看邀请码</a></li>
+                    <li><a href ng-click="notify(true)">给选中用户发消息<span>（{{rows.count}}）</span></a></li>
+                    <li><a href ng-click="notify()">给全部用户发消息<span>（{{page.total}}）</span></a></li>
+                </ul>
+            </div>
+        </div>
+        <div>
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th style='width:28px'><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected"/></th>
+                        <th style='width:48px'>序号</th>
+                        <th style='width:120px'>填写日期</th>
+                        <th style='width:80px'>通过审核</th>
+                        <th ng-if='!selected.mschema.attrs.name.hide'>姓名</th>
+                        <th ng-if='!selected.mschema.attrs.mobile.hide'>手机</th>
+                        <th ng-if='!selected.mschema.attrs.email.hide'>邮箱</th>
+                        <th ng-repeat='ea in selected.mschema.extAttrs'>{{ea.title}}</th>
+                        <th style='width:48px'>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat='m in members'>
+                        <td><input type="checkbox" ng-change="rows.change($index)" ng-model="rows.selected[$index]"/></td>
+                        <td>{{$index+1}}</td>
+                        <td>{{m.create_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+                        <td>{{m.verified==='Y'?'是':(m.verified==='N'?'否':'待定')}}</td>
+                        <td ng-if='!selected.mschema.attrs.name.hide'>{{m.name}}</td>
+                        <td ng-if="!selected.mschema.attrs.mobile.hide">{{m.mobile}}</td>
+                        <td ng-if="!selected.mschema.attrs.email.hide">{{m.email}}</td>
+                        <td ng-repeat='ea in selected.mschema.extAttrs' ng-switch on="ea.type">
+                            <div ng-switch-when="date">
+                                <span ng-if="m._extattr[ea.id]">{{m._extattr[ea.id]*1000|date:'yy-MM-dd HH:mm'}}</span>
+                            </div>
+                            <div ng-switch-when="image">
+                                <div ng-repeat="img in m._extattr[ea.id]"><img ng-src="{{img.imgSrc}}"></div>
+                            </div>
+                            <div ng-switch-default>{{m._extattr[ea.id]}}</div>
+                        </td>
+                        <td>
+                            <a href='' ng-click='editMember(m)'>修改</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class='form-group'>
+                <div class='pl-pagination'>
+                    <span>总数：{{page.total}}</span>
+                    <ul uib-pagination class='pull-right' ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

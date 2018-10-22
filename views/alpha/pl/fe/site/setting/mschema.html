@@ -1,0 +1,137 @@
+<div class='list-group'>
+    <div class='list-group-item' ng-repeat='s in schemas'>
+        <div class='form-group'>
+            <div class='form-inline'>
+                <div class='form-group'>
+                    <div class='input-group'>
+                        <span class='input-group-addon'>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='s.valid' ng-change="updSchema(s,'valid')">
+                        </span>
+                        <input type='text' class='form-control' style='width:200px' ng-model='s.title' placeholder='输入名称' tms-auto-update tms-wait=1000 tms-update="updSchema(s,'title')">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" ng-click='delSchema(s)'>
+                                <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                        </span>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <select class='form-control' title='类型' ng-model='s.type' ng-change="updSchema(s,'type')">
+                        <option value='inner'>内置</option>
+                        <option value='cus'>自定义</option>
+                    </select>
+                </div>
+                <div class='form-group'>
+                    <select class='form-control' title='数据有效期' ng-model='s.validity' ng-options='d.v as d.n for d in days' ng-change="updSchema(s,'validity')"></select>
+                </div>
+                <div class='form-group'>
+                    <button class='btn btn-success' ng-click='addExtattr(s)'>增加信息项</button>
+                    <button class='btn btn-default' ng-if="s.type==='inner'" ng-click='gotoCode(s)'>定制认证页面</button>
+                    <button class='btn btn-default' ng-if="s.type==='inner'" ng-click='resetCode(s)'>重置认证页面</button>
+                </div>
+            </div>
+        </div>
+        <div class='form-group'>
+            <div class='form-inline'>
+                <div class="form-group">
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='s.require_invite' ng-change="updSchema(s,'require_invite')">通过邀请码验证</label>
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'N'" ng-false-value="'Y'" ng-model='s.auto_verified' ng-change="updSchema(s,'auto_verified')">是否需要管理员审核</label>
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='s.qy_ab' ng-change="updQy(s,'qy_ab')">企业号同步通讯录使用</label>
+                </div>
+                <div class='form-group'>
+                    <button class='btn btn-default' ng-click="createEnrollApp(s)">生成登记活动</button>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class='form-group'>
+                <table class='table table-bordered'>
+                    <thead>
+                        <tr>
+                            <th style='width:96px'>信息项</th>
+                            <th style='width:96px'>隐藏</th>
+                            <th style='width:96px'>必填</th>
+                            <th style='width:96px'>唯一</th>
+                            <th style='width:96px'>不可更改</th>
+                            <th style='width:96px'>需要验证</th>
+                            <th style='width:96px'>身份标识</th>
+                            <th style='width:96px'>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat='attr in attrOps'>
+                            <td>{{attr[0]}}</td>
+                            <td ng-repeat='op in attr[2]'>
+                                <input type='checkbox' ng-if='op===$index' ng-true-value="'1'" ng-false-value="'0'" ng-model="s.attrs[attr[1]][$index]" ng-change="updAttr(s,attr[1])">
+                            </td>
+                            <td></td>
+                        </tr>
+                        <tr ng-repeat='ea in s.extattr'>
+                            <td>{{ea.label}}</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <a href='javascript:void(0)' ng-click='editExtattr(s,ea)'>修改</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class='form-group'>
+                <table class='table table-bordered'>
+                    <tr>
+                        <td>
+                            <label>认证页面地址</label>
+                        </td>
+                        <td>
+                            <input type='text' ng-show="s.type==='cus'" class='form-control' ng-model='s.url' placeholder='输入URL' tms-auto-update tms-wait=1000 tms-update="updSchema(s,'url')">
+                            <div class='form-control-static'>{{fullUrl(s)}}</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>认证通过后页面地址</label>
+                        </td>
+                        <td>
+                            <input type='text' class='form-control' ng-model='s.passed_url' placeholder='输入URL' tms-auto-update tms-wait=1000 tms-update="updSchema(s,'passed_url')">
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<button class='btn btn-primary' ng-click='addSchema()'>添加定义</button>
+<script type="text/ng-template" id="schemaEditor.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="close()">×</button>
+        <h5 class="modal-title">{{schema.title}}</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="col-md-2 control-label">属性ID</label>
+                <div class="col-md-10">
+                    <input class="form-control" ng-model='attr.id'>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label">属性名称</label>
+                <div class="col-md-10">
+                    <input class="form-control" ng-model='attr.label'>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-danger pull-left" ng-if='canRemove' ng-click="remove()">删除</button>
+        <button class="btn btn-success" ng-click="ok()">保存</button>
+    </div>
+</script>

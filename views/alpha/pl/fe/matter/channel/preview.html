@@ -1,0 +1,48 @@
+<div class='col-md-6 col-md-offset-3'>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <label>频道链接</label>
+                <div class='input-group'>
+                    <input class='form-control' readonly value="{{editing.entryUrl}}">
+                    <div class='input-group-btn'>
+                        <a class='btn btn-default' ng-href="{{editing.entryUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <label>页面定制</label>
+            <table class='table table-bordered' style='margin:0'>
+                <tr>
+                    <td>频道样式</td>
+                    <td>频道内图文样式</td>
+                    <td>
+                        <a href='' ng-click="editPage($event,'style')">编辑页面</a>
+                        <a href='' ng-click="resetPage($event,'style')" ng-show="editing.style_page_name.length">重置页面</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <div>阅读：{{editing.read_num}}</div>
+                <div>分享好友：{{editing.share_friend_num}}</div>
+                <div>分享朋友圈：{{editing.share_timeline_num}}</div>
+            </div>
+            <div class='form-group'>
+                <div>创建人：{{editing.creater_name}}</div>
+                <div>创建时间：{{editing.create_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+                <div>修改人：{{editing.modifier_name}}</div>
+                <div>最后一次修改时间：{{editing.modify_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+            </div>
+        </div>
+    </div>
+    <div class='panel panel-default'>
+        <button class='btn btn-default btn-block' ng-click="applyToHome()">申请发布到平台主页</button>
+    </div>
+</div>

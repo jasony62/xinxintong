@@ -1,0 +1,53 @@
+<div class="row ng-cloak">
+    <div class="col-md-12" ng-if="page.state===1">
+        <p class="alert alert-danger ">您没有绑定微信公众号或微信企业号或易信公众号 !</p>
+        <ul class="list-unstyled">
+            <li><a href="/rest/pl/fe/site/sns/wx?site={{siteId}}" target='_self'>绑定微信公众号</a></li>
+            <li><a href="/rest/pl/fe/site/sns/qy?site={{siteId}}" target='_self'>绑定微信企业号</a></li>
+            <li><a href="/rest/pl/fe/site/sns/yx?site={{siteId}}" target='_self'>绑定易信公众号</a></li>
+        </ul>
+    </div>
+    <div class="col-md-12" ng-if="page.state===2">
+        <div class="panel panel-default">
+            <div class="panel-heading">交流记录</div>
+            <div class="panel-body">
+                <div class='col-md-5'>
+                    <div class='form-inline form-group'>
+                        <div class='form-group'>
+                            <select class='form-control' ng-model="matterType" ng-options="s.value as s.content for s in selMatter" ng-change='fetchMatter(matterType)'></select>
+                            <select class='form-control' ng-model="sns" ng-options="s as s.title for s in selSync" ng-change='checkoutSns(sns)'></select>
+                        </div>
+                        <div class="form-group pull-right">
+                            <button class='btn btn-primary' ng-disabled="!selectedMatter&&matterType!='write'" ng-click='send()'>发送</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <textarea class='form-control' rows=4 ng-model='page.text' ng-show="matterType=='write'"></textarea>
+                    </div>
+                    <div class='list-group' ng-hide="matterType=='write'">
+                        <a class='list-group-item' ng-class="{'active':selectedMatter==m}" ng-repeat='m in matters' ng-click='selectMatter(m)'>{{m.title||m.content}}</a>
+                    </div>
+                    <div ng-show='page2.total>page2.size'>
+                        <span style='height:34px;line-height:34px'>总数：{{page2.total}}</span>
+                        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" class='pull-right' ng-show="page2.total>page2.size" boundary-links="true" total-items="page2.total" max-size="4" items-per-page="page2.size" rotate="false" ng-model="page2.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list()"></ul>
+                    </div>
+                </div>
+                <div class='col-md-7'>
+                    <div class="form-group">
+                        <select class='form-control' ng-model="syncOpenId" ng-options="s.value as s.content for s in selSync" ng-change='checkoutSns(syncOpenId)'></select>
+                    </div>
+                    <ul class='list-group'>
+                        <a class='list-group-item' ng-class="{'send':t.creater}" ng-repeat='t in track'>
+                            <div>{{t.content}}</div>
+                            <div><span>{{t.create_at*1000|date:'yyyy-MM-dd HH:mm'}}</span></div>
+                        </a>
+                    </ul>
+                    <div>
+                        <!--<span style='height:34px;line-height:34px'>总数：{{page.total}}</span>-->
+                        <ul uib-pagination ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="4" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

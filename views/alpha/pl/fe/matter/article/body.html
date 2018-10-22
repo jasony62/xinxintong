@@ -1,0 +1,55 @@
+<div class='col-md-6 col-md-offset-3'>
+    <div class='form-group'>
+        <div class='form-inline'>
+            <div class="btn-group" uib-dropdown>
+                <button type="button" class="btn btn-default" uib-dropdown-toggle>添加素材
+                    <span class="caret"></span>
+                </button>
+                <ul uib-dropdown-menu>
+                    <li><a href="" ng-click="embedMatter()">内置素材</a></li>
+                    <li><a href="" ng-click="embedLink()">外部链接</a></li>
+                    <li><a href="" ng-click="embedVideo()">视频</a></li>
+                    <li><a href="" ng-click="embedAudio()">音频</a></li>
+                </ul>
+            </div>
+            <label class='checkbox-inline'>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_picviewer' ng-change="update('can_picviewer');">支持图片缩放浏览</label>
+            <button class='btn pull-right' ng-class="{'btn-success':modified,'btn-default':!modified}" ng-click="submit()" ng-disabled="!modified">保存</button>
+        </div>
+    </div>
+    <tinymce id='body1' contenteditable='bodyEditable' toolbar="fullscreen code" height='1200'></tinymce>
+    <div class='help-block'>正文：少于2万字符</div>
+    <div class='form-group'>
+        <button id='addAttachment' class='btn btn-default btn-sm'>
+            <span class='glyphicon glyphicon-plus'></span> 附件（可选）
+        </button>
+        <ul class='list-group' style='margin-bottom:0'>
+            <li class='list-group-item' ng-repeat='a in editing.attachments' ng-mouseenter="enter=true" ng-mouseleave="enter=false">
+                <span><a ng-href='{{downloadUrl(a)}}' target='_blank'>{{a.name}}</a></span>
+                <button class='btn btn-default btn-xs pull-right' ng-if='enter' ng-click='delAttachment($index,a)'>
+                    <span class='glyphicon glyphicon-remove'></span>
+                </button>
+            </li>
+        </ul>
+    </div>
+</div>
+<!-- end footer navbar -->
+<script type="text/ng-template" id="insertMedia.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title">媒体文件</h5>
+    </div>
+    <div class="modal-body">
+        <div class="form-group" ng-if="embedType=='link'">
+            <label>链接文本</label>
+            <input class="form-control" ng-model='data.text' />
+        </div>
+        <div class="form-group">
+            <label>地址（URL）</label>
+            <textarea class="form-control" ng-model='data.url' rows=6></textarea>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="ok()">确定</button>
+    </div>
+</script>

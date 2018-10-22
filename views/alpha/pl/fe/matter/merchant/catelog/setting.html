@@ -1,0 +1,284 @@
+<div id='catelog-view' class='col-md-8'>
+    <div class='tile'>
+        <div class='form-group'>
+            <input class='form-control' ng-model='editing.name' tms-auto-update tms-wait=1000 tms-update="update('name')">
+            <div class='help-block'>分类名称</div>
+        </div>
+        <div class='form-group'>
+            <select class='form-control' ng-model='editing.pattern' ng-change="update('pattern')">
+                <option value='basic'>实物</option>
+                <option value='place'>场所</option>
+                <option value='service'>服务</option>
+            </select>
+            <div class='help-block'>商品类型</div>
+        </div>
+        <div class='form-group'>
+            <select class='form-control' ng-model='editing.has_validity' ng-change="update('has_validity')">
+                <option value='N'>否</option>
+                <option value='Y'>是</option>
+            </select>
+            <div class='help-block'>需要有效期</div>
+        </div>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <div>
+                <label>商品属性</label>
+                <button class='btn btn-default btn-xs' ng-click="addProp()">
+                <span class='glyphicon glyphicon-plus'></span>
+                </button>
+            </div>
+            <ul class='list-group'>
+                <li class='list-group-item' ng-repeat='p in editing.properties'>
+                    <span ng-bind='p.name'></span>
+                    <button class='btn btn-default btn-xs pull-right' ng-click="editProp(p, $index)">
+                    <span class='glyphicon glyphicon-edit'></span>
+                    </button>
+                </li>
+            </ul>
+            <div class='help-block'>定义除商品名称、介绍外的其他扩展信息</div>
+        </div>
+        <div class='form-group'>
+            <div>
+                <label>订单属性</label>
+                <button class='btn btn-default btn-xs' ng-click="addOrderProp()">
+                <span class='glyphicon glyphicon-plus'></span>
+                </button>
+            </div>
+            <ul class='list-group'>
+                <li class='list-group-item' ng-repeat='p in editing.orderProperties'>
+                    <span ng-bind='p.name'></span>
+                    <button class='btn btn-default btn-xs pull-right' ng-click="editOrderProp(p, $index)">
+                    <span class='glyphicon glyphicon-edit'></span>
+                    </button>
+                </li>
+            </ul>
+            <p class='help-block'>定义提交订单时需用户填写的信息</p>
+        </div>
+        <div class='form-group'>
+            <div>
+                <label>订单反馈属性</label>
+                <button class='btn btn-default btn-xs' ng-click="addFeedbackProp()">
+                <span class='glyphicon glyphicon-plus'></span>
+                </button>
+            </div>
+            <ul class='list-group'>
+                <li class='list-group-item' ng-repeat='p in editing.feedbackProperties'>
+                    <span ng-bind='p.name'></span>
+                    <button class='btn btn-default btn-xs pull-right' ng-click="editFeedbackProp(p, $index)">
+                    <span class='glyphicon glyphicon-edit'></span>
+                    </button>
+                </li>
+            </ul>
+            <p class='help-block'>定义确认订单时需客服填写的信息</p>
+        </div>
+    </div>
+    <div  id='sku-view' class='tile' ng-controller="ctrlSku">
+        <div class='form-horizontal list-group-item' ng-repeat='s in skus'>
+            <button class="btn btn-default" ng-click='removeSku($index, s)'><span class='glyphicon glyphicon-remove'></span></button>
+            <div class='price form-group'>
+                <label class='col-md-2 control-label'>名称</label>
+                <div class='col-md-10'>
+                    <input class='form-control' ng-model='s.name' tms-auto-update tms-wait=1000 tms-update="updateSku(s, 'name')">
+                </div>
+            </div>
+            <div class='feature form-group'>
+                <label class='col-md-2 control-label'>特性</label>
+                <div class='col-md-10'>
+                    <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="s.has_validity" ng-change="updateSku(s, 'has_validity')">包含有效期</label>
+                    <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="s.require_pay" ng-change="updateSku(s, 'require_pay')">需要支付</label>
+                    <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="s.can_autogen" ng-change="updateSku(s, 'can_autogen')">按需生成</label>
+                </div>
+            </div>
+            <div class='autogen-rule form-group' ng-show="s.can_autogen==='Y'">
+                <label class='col-md-2 control-label'>生成规则</label>
+                <div class='col-md-10'>
+                    <div class='rule form-group'>
+                        <div class='input-group'>
+                            <p class='form-control' ng-bind='s.autogen_rule.crontab'></p>
+                            <span class='input-group-btn'>
+                                <button class='btn btn-default' ng-click='setCrontab(s)'><span class='glyphicon glyphicon-time'></span></button>
+                            </span>
+                        </div>
+                        <p class='help-block'>生成时间</p>
+                    </div>
+                    <div class='rule form-group'>
+                        <input class='form-control' ng-model='s.autogen_rule.count' tms-auto-update tms-wait=1000 tms-update="updateSku(s, 'autogen_rule')">
+                        <p class='help-block'>库存数量</p>
+                    </div>
+                    <div class='rule form-group'>
+                        <input class='form-control' ng-model='s.autogen_rule.duration' tms-auto-update tms-wait=1000 tms-update="updateSku(s, 'autogen_rule')">
+                        <p class='help-block'>时长，单位：分钟</p>
+                    </div>
+                    <div class='rule form-group'>
+                        <input class='form-control' ng-model='s.autogen_rule.price' tms-auto-update tms-wait=1000 tms-update="updateSku(s, 'autogen_rule')">
+                        <p class='help-block'>价格，单位：分</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class='btn btn-default' ng-click='addSku()'><span class='glyphicon glyphicon-plus'>添加</span></button>
+        <p class='help-block'>库存定义</p>
+    </div>
+    <div class='tile' ng-controller="ctrlProduct">
+        <div class='form-group'>
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th style='width:60px'>ID</th>
+                        <th>名称</th>
+                        <th style='width:60px'>已上线</th>
+                        <th>介绍</th>
+                        <th ng-repeat="prop in selectedCatelog.properties" ng-bind='prop.name'></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat='prod in products'>
+                        <td ng-bind='prod.id' ng-click="open(prod)"></td>
+                        <td ng-bind='prod.name' ng-click="open(prod)"></td>
+                        <td ng-bind='prod.active'></td>
+                        <td ng-bind='prod.detail_text'></td>
+                        <td ng-repeat="prop in selectedCatelog.properties" ng-bind="prod.propValue2[prop.id].name"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class='btn btn-success' ng-click='create()'>添加</button>
+            <div class='help-block'>已有商品</div>
+        </div>
+    </div>
+    <div id='page-view' class='tile' ng-controller="ctrlPage">
+        <div class='form-group'>
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th style='width:60px'>ID</th>
+                        <th>类型</th>
+                        <th>标题</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat='pt in pageTypes'>
+                        <td ng-bind="pages[pt.type].id"></td>
+                        <td ng-bind="pt.name"></td>
+                        <td ng-bind="pages[pt.type].title"></td>
+                        <td>
+                            <span ng-show='!pages[pt.type]'>
+                                <a href="javascript:void(0)" ng-click="createCode(pt.type)">设置</a>
+                            </span>
+                            <span ng-show='pages[pt.type]'>
+                                <a href="javascript:void(0)" ng-click="config(pages[pt.type])">配置</a>
+                                <a href="javascript:void(0)" ng-click="gotoCode(pages[pt.type])">代码</a>
+                                <a href="javascript:void(0)" ng-click="resetCode(pages[pt.type])">重置</a>
+                                <a href="javascript:void(0)" ng-click="removeCode(pages[pt.type])">清除</a>
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class='help-block'>定制页面</div>
+    </div>
+</div>
+<div class='col-md-4'>
+    <div class='tile'>
+        <button class='btn btn-block btn-danger' ng-click='remove()'>删除</button>
+        <button class='btn btn-block btn-success' ng-show="editing.active==='N'"  ng-click='activate()'>上线</button>
+        <button class='btn btn-block btn-success' ng-show="editing.active==='Y'" ng-click='deactivate()'>下线</button>
+    </div>
+</div>
+<script type="text/ng-template" id="propEditor.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="close()">×</button>
+        <h5 class="modal-title">编辑属性</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="col-md-2 control-label">ID</label>
+                <div class="col-md-10">
+                    <p class='form-control-static' ng-bind='prop.id'></p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label">名称</label>
+                <div class="col-md-10">
+                    <input type='text' class='form-control' ng-model='prop.name'>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-danger" ng-click="remove()">删除</button>
+        <button class="btn btn-success" ng-click="ok()">保存</button>
+    </div>
+</script>
+<script type="text/ng-template " id="catelogSelector.html ">
+    <div class="modal-header ">
+        <button class="close " type="button " ng-click="close() ">×</button>
+        <h5 class="modal-title ">选择分类</h5>
+    </div>
+    <div class="modal-body ">
+        <form class="form-horizontal">
+            <div class="form-group ">
+                <label class="col-md-2 control-label ">名称</label>
+                <div class="col-md-10 ">
+                    <select class='form-control' ng-model='data.selected' ng-options='c.name for c in catelogs'></select>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-disabled='!data.selected' ng-click="ok() ">确定</button>
+    </div>
+</script>
+<script type="text/ng-template" id="crontabEditor.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="close()">×</button>
+        <h5 class="modal-title">指定规则</h5>
+    </div>
+    <div class="modal-body">
+        <div class='form-group'>
+            <input class='form-control' ng-model='data[0]'>
+            <p class='help-block'>分钟1-59，每分钟用*或者*/1表示</p>
+        </div>
+        <div class='form-group'>
+            <input class='form-control' ng-model='data[1]'>
+            <p class='help-block'>小时1-23，0表示0点</p>
+        </div>
+        <div class='form-group'>
+            <input disabled class='form-control' ng-model='data[2]'>
+            <p class='help-block'>日期1-31</p>
+        </div>
+        <div class='form-group'>
+            <input disabled class='form-control' ng-model='data[3]'>
+            <p class='help-block'>月1-12</p>
+        </div>
+        <div class='form-group'>
+            <input class='form-control' ng-model='data[4]'>
+            <p class='help-block'>星期0-6，0表示星期天</p>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="ok()">保存</button>
+    </div>
+</script>
+<script type='text/ng-template' id='pageEditor.html'>
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="close()">×</button>
+        <h5 class="modal-title">配置页面</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="col-md-2 control-label">标题</label>
+                <div class="col-md-10">
+                    <input type='text' class='form-control' ng-model='page.title'>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="ok()">保存</button>
+    </div>
+</script>

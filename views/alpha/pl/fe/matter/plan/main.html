@@ -1,0 +1,111 @@
+<div id='main-view' class='col-md-6 col-md-offset-3'>
+    <div class='panel panel-default'>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <label>活动名称</label>
+                <input type='text' class='form-control' size='40' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+            </div>
+            <div class='form-group'>
+                <label>活动说明</label>
+                <textarea type='text' class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
+            </div>
+            <div class='form-group'>
+                <label>头图（可选）：建议尺寸：900像素 * 500像素</label>
+                <div style='position:relative'>
+                    <div style="width:182px;border:1px solid #CCC">
+                        <div style="height:100px;text-align:center;padding-top:32px" ng-if="!app.pic">
+                            <button class='btn btn-default' ng-click='setPic();'>
+                                <span class='glyphicon glyphicon-picture'></span> 选择图片</button>
+                        </div>
+                        <div style='position:relative' ng-if="app.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                            <img name='pic' ng-src="{{app.pic}}" width='180px' />
+                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                                <span class='glyphicon glyphicon-picture'></span>
+                            </button>
+                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                                <span class='glyphicon glyphicon-trash'></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group' ng-if="!app.mission">
+                <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
+            </div>
+            <div class='form-group' ng-if="app.mission">
+                <label>所属项目</label>
+                <div class="input-group">
+                    <input class='form-control' title="{{app.mission.title}}" value="{{app.mission.title}}" readonly>
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" type="button" ng-click="quitMission()" title='删除项目'>
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                        <a class="btn btn-default" href='/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}' target='_self' title='查看项目'>
+                    <span class='glyphicon glyphicon-new-window'></span>
+                </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='panel panel-default' ng-controller="ctrlAccess ">
+        <div class='panel-body'>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.member" ng-change="changeUserScope('member')">用户参与活动前需填写通讯录联系人信息</label><span ng-if="entryRule.scope.member==='Y'"><span class='badge' ng-repeat="(msid,entry) in entryRule.member"><a href title='进入查看' ng-click="editMschema(msid)">{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</a> <a href title='取消指定' class='glyphicon glyphicon-remove' ng-click="removeMschema(msid)"></a></span> <a href ng-click="chooseMschema()">添加</a></span>
+            </div>
+            <div class='checkbox' ng-if="snsCount===1">
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.sns" ng-change="changeUserScope('sns')">邀请用户关注公众号【{{sns[snsNames[0]].title}}】，以便获取用户的昵称和头像，发送活动通知</label>
+            </div>
+            <div class='checkbox' ng-if="snsCount>1">
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.sns" ng-change="changeUserScope('sns')">邀请用户关注公众号，以便获取用户的昵称和头像，发送活动通知</label>
+                <span ng-if="entryRule.scope.sns==='Y'">
+                    <label class='checkbox-inline' ng-repeat="snsName in snsNames">
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-model="entryRule.sns[snsName].entry" ng-change="update('entryRule')"> {{sns[snsName].title}}</label>
+                </span>
+            </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.group" ng-change="changeUserScope('group')">用户参与活动前需要在<span ng-if="entryRule.scope.group==='Y'">【{{entryRule.group.title}} - {{entryRule.group.round.title}}】</span>分组活动中分组</label> <a ng-if="entryRule.scope.group==='Y'" href ng-click="chooseGroupApp()">指定</a>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div class='form-group'>
+        <button class='btn btn-default btn-block' ng-click="remove() ">删除活动</button>
+    </div>
+</div>
+<script type="text/ng-template" id="chooseGroupApp.html">
+    <div class="modal-header">
+        <button class="close" ng-click="cancel()">×</button>
+        <h5 class="modal-title">分组活动</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class='form-group'>
+                <label class="col-md-3 control-label">目标活动</label>
+                <div class="col-md-9">
+                    <select class="form-control" ng-model="data.app" ng-options="app.title for app in apps"></select>
+                    <div class='checkbox' ng-if="app.mission">
+                        <label>
+                            <input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'"> 选择同一个项目中的活动</label>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class="col-md-3 control-label">目标分组</label>
+                <div class="col-md-9">
+                    <select class="form-control" ng-model="data.round" ng-options="rnd.title for rnd in data.app.rounds">
+                        <option>全部分组</option>
+                    </select>
+                    <div class='help-block'>可选。若选择只有指定分组中的用户才能参与活动。</div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">确定</button>
+    </div>
+</script>

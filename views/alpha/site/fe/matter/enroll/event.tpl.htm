@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html ng-app='app' ng-controller='ctrlMain'>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href="/" />
+    <title>
+        <?php TPL::pt('title');?>
+    </title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href='/static/css/site.fe.css?_=2' rel="stylesheet">
+</head>
+
+<body ng-controller="ctrlAction">
+    <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
+    <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
+    <nav class='navbar site-navbar-default'>
+        <div class='container'>
+            <div class="navbar-header">
+                <a href class="navbar-brand">
+                    <i class="glyphicon glyphicon-bell visible-lg-inline"></i> <span tms-app-nav app-navs="appNavs">动态</span>
+                </a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="pull-left">
+                    <a href ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline">我的</span></a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div ng-cloak class='ng-cloak app'>
+        <div class='container'>
+            <div ng-if="tasks.length">
+                <div uib-alert ng-repeat="task in tasks" class='alert-info' close="closeTask($index)" ng-switch="task.id">
+                    <span>{{task.msg}}</span>
+                    <span ng-switch-when="record.submit.end"><span ng-if="task.coin">每条记录可获得【{{task.coin}}个】积分，</span><a href class="alert-link" ng-click="addRecord($event)">去添加</a></span>
+                    <span ng-switch-when="record.like.pre"></span>
+                    <span ng-switch-when="record.like.end"></span>
+                </div>
+            </div>
+            <div class='row'>
+                <div class='col-md-12'>
+                    <div class='form-group'>
+                        <label class='radio-inline'>
+                            <input type='radio' name='scope' value='N' ng-model="filter.scope">通知</label>
+                        <label class='radio-inline'>
+                            <input type='radio' name='scope' value='M' ng-model="filter.scope">我的</label>
+                        <label class='radio-inline'>
+                            <input type='radio' name='scope' value='A' ng-model="filter.scope">全部</label>
+                        <label class='radio-inline'>
+                            <input type='radio' name='scope' value='kanban' ng-model="filter.scope">看板</label>
+                    </div>
+                    <div ng-include="subView"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
+    <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
+    <div class="loading">
+        <div class='loading-indicator'><i></i></div>
+    </div>
+    <script type="text/ng-template" id="timeline.html">
+        <!--notice list-->
+        <div ng-if="filter.scope==='N'">
+            <div class='list-group'>
+                <div class='notice list-group-item' ng-repeat="notice in notices">
+                    <div class='seq label label-default'>{{((page.at-1)*page.size)+$index+1}}</div>
+                    <div class='event'>
+                        <div class='tms-flex-row text-muted event-user'>
+                            <div class='tms-flex-grow'>{{notice.event_nickname}}</div>
+                            <div>{{notice.event_at*1000|date:'MM-dd HH:mm'}}</div>
+                        </div>
+                        <div ng-switch on="notice.event_name" ng-click="gotoCowork(notice.enroll_key)">
+                            <div ng-switch-when="site.matter.enroll.submit">
+                                <div ng-switch on="notice.notice_reason">
+                                    <div ng-switch-when="same.group">在你们的分组下添加记录</div>
+                                    <div ng-switch-when="as.editor">添加记录</div>
+                                    <div ng-switch-when="as.super">添加记录</div>
+                                    <div ng-switch-default> 添加记录
+                                        <span>（{{notice.notice_reason}}）</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-switch-when="site.matter.enroll.cowork.do.submit">
+                                <div ng-switch on="notice.notice_reason">
+                                    <div ng-switch-when="record.owner">在你的记录（问题）下添加了协作数据（答案）</div>
+                                    <div ng-switch-when="other.cowork">你们在同一记录（问题）下添加了协作数据（答案）</div>
+                                    <div ng-switch-when="same.group">在你们组的记录下（问题）添加了协作数据（答案）</div>
+                                    <div ng-switch-default> 添加协作数据
+                                        <span>（{{notice.notice_reason}}）</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-switch-when="site.matter.enroll.do.remark">
+                                <div ng-switch on="notice.notice_reason">
+                                    <div ng-switch-when="record.owner">在你的记录（问题）下留言</div>
+                                    <div ng-switch-when="record.data.owner">在你的协作数据（答案）下留言</div>
+                                    <div ng-switch-when="remark.owner">在你的留言下留言</div>
+                                    <div ng-switch-default>留言
+                                        <span>（{{notice.notice_reason}}）</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-switch-default>
+                                {{notice.event_name}}
+                            </div>
+                        </div>
+                        <div class='text-right event-action'>
+                            <a href ng-click="closeNotice(notice)">关闭</a>
+                            <a href ng-click="closeNotice(notice,true)">看看并关闭</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='site-pagination text-center'>
+                <ul uib-pagination ng-if="page.total>page.size" boundary-links="true" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="searchNotice()"></ul>
+            </div>
+        </div>
+        <!--end notice list-->
+        <!--log list-->
+        <div ng-if="filter.scope==='A'||filter.scope==='M'">
+            <div class='list-group'>
+                <div class='action list-group-item' ng-repeat="log in logs">
+                    <div class='seq label label-default'>{{((page.at-1)*page.size)+$index+1}}</div>
+                    <div class='event' ng-switch on="log.event_name">
+                        <div ng-switch-when="site.matter.enroll.submit">
+                            <span class='nickname'>{{log.nickname}}</span> 添加记录
+                        </div>
+                        <div ng-switch-when="site.matter.enroll.cowork.do.submit">
+                            <span class='nickname'>{{log.nickname}}</span> 在
+                            <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的记录下添加数据
+                        </div>
+                        <div ng-switch-when="site.matter.enroll.do.remark">
+                            <div ng-switch on="log.target_type">
+                                <div ng-switch-when="record">
+                                    <div ng-switch on="log.event_op">
+                                        <span class='nickname'>{{log.nickname}}</span> 在
+                                        <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的记录下<span ng-switch-when="New">添加</span><span ng-switch-when="Upd">修改</span>留言
+                                    </div>
+                                </div>
+                                <div ng-switch-when="record.data">
+                                    <div ng-switch on="log.event_op">
+                                        <span class='nickname'>{{log.nickname}}</span> 在
+                                        <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的数据下<span ng-switch-when="New">添加</span><span ng-switch-when="Upd">修改</span>留言
+                                    </div>
+                                </div>
+                                <div ng-switch-when="remark">
+                                    <div ng-switch on="log.event_op">
+                                        <span class='nickname'>{{log.nickname}}</span> 在
+                                        <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的留言下<span ng-switch-when="New">添加</span><span ng-switch-when="Upd">修改</span>留言
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div ng-switch-when="site.matter.enroll.data.do.like">
+                            <div ng-switch on="log.event_op">
+                                <div ng-switch-when="Y">
+                                    <span class='nickname'>{{log.nickname}}</span> 对
+                                    <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的记录点赞
+                                </div>
+                                <div ng-switch-when="N">
+                                    <span class='nickname'>{{log.nickname}}</span> 对
+                                    <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的记录取消点赞
+                                </div>
+                            </div>
+                        </div>
+                        <div ng-switch-when="site.matter.enroll.cowork.do.like">
+                            <div ng-switch on="log.event_op">
+                                <div ng-switch-when="Y">
+                                    <span class='nickname'>{{log.nickname}}</span> 对
+                                    <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的数据点赞
+                                </div>
+                                <div ng-switch-when="N">
+                                    <span class='nickname'>{{log.nickname}}</span> 对
+                                    <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的数据取消点赞
+                                </div>
+                            </div>
+                        </div>
+                        <div ng-switch-when="site.matter.enroll.remark.do.like">
+                            <div ng-switch on="log.event_op">
+                                <div ng-switch-when="Y">
+                                    <span class='nickname'>{{log.nickname}}</span> 对
+                                    <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的留言点赞
+                                </div>
+                                <div ng-switch-when="N">
+                                    <span class='nickname'>{{log.nickname}}</span> 对
+                                    <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的留言取消点赞
+                                </div>
+                            </div>
+                        </div>
+                        <div ng-switch-when="site.matter.enroll.data.get.agree">
+                            <div ng-switch on="log.event_op">
+                                <div ng-switch-when="Y">
+                                    <span class='nickname'>{{log.owner_nickname}}</span> 的记录获得推荐
+                                </div>
+                                <div ng-switch-default>
+                                    <span class='nickname'>{{log.owner_nickname}}</span> 的记录被修改了表态
+                                </div>
+                            </div>
+                        </div>
+                        <div ng-switch-when="site.matter.enroll.cowork.get.agree">
+                            <div ng-switch on="log.event_op">
+                                <div ng-switch-when="Y">
+                                    <span class='nickname'>{{log.owner_nickname}}</span> 的数据获得推荐
+                                </div>
+                                <div ng-switch-default>
+                                    <span class='nickname'>{{log.owner_nickname}}</span> 的数据被修改了表态
+                                </div>
+                            </div>
+                        </div>
+                        <div ng-switch-when="site.matter.enroll.remark.get.agree">
+                            <div ng-switch on="log.event_op">
+                                <div ng-switch-when="Y">
+                                    <span class='nickname'>{{log.owner_nickname}}</span> 的留言获得推荐
+                                </div>
+                                <div ng-switch-default>
+                                    <span class='nickname'>{{log.owner_nickname}}</span> 的留言被修改了表态
+                                </div>
+                            </div>
+                        </div>
+                        <div ng-switch-when="site.matter.enroll.remark.as.cowork">
+                            <span class='nickname'>{{log.nickname}}</span>将<span class='nickname'>{{log.owner_nickname}}</span> 的留言设置为协作数据（答案）
+                        </div>
+                        <div ng-switch-default>
+                            <div class='nickname'>{{log.nickname}}</div>
+                            <div class='eventname'>{{log.eventName}}</div>
+                            <div class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</div>
+                            <div ng-if="log.event_op">{{log.event_op}}</div>
+                        </div>
+                        <div class='coin' ng-if="log.earn_coin>0">
+                            <span>{{log.nickname}}</span> 得到 <span>{{log.earn_coin}}</span> 个积分
+                        </div>
+                        <div class='coin' ng-if="log.owner_earn_coin>0">
+                            <span>{{log.owner_nickname}}</span> 得到 <span>{{log.owner_earn_coin}}</span> 个积分
+                        </div>
+                    </div>
+                    <div class='footer'>
+                        <div class='datetime text-muted'>{{log.event_at*1000|date:'MM-dd HH:mm'}}</div>
+                        <div ng-if="log.canGotoCowork">
+                            <a href ng-click="gotoCowork(log.enroll_key)">查看<span class='glyphicon glyphicon-menu-right'></span></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='site-pagination text-center'>
+                <ul uib-pagination ng-if="page.total>page.size" boundary-links="true" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="searchEvent()"></ul>
+            </div>
+        </div>
+        <!--end log list-->
+    </script>
+    <script type="text/ng-template" id="kanban.html">
+        <div id='filterQuick' ng-cloak>
+            <div ng-if="rounds.length" class="btn-group" uib-dropdown dropdown-append-to-body='true'>
+                <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                    <span>轮次</span>
+                    <span class="glyphicon glyphicon-filter"></span>
+                </button>
+                <ul class="dropdown-menu" uib-dropdown-menu>
+                    <li><a href ng-click="shiftRound()">全部</a></li>
+                    <li ng-repeat="rnd in rounds"><a href ng-click="shiftRound(rnd)">{{rnd.title}}</a></li>
+                </ul>
+            </div>
+        </div>
+        <div id='kanban' class='table-responsive'>
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th style='width:48px'>序号</th>
+                        <th>姓名</th>
+                        <th ng-if="app.group_app_id">分组</th>
+                        <th>填写记录</th>
+                        <th>跨轮次修改</th>
+                        <th>最后填写时间</th>
+                        <th>协作填写</th>
+                        <th>发表留言</th>
+                        <th>发表点赞</th>
+                        <th>获得推荐</th>
+                        <th>获得协作</th>
+                        <th>获得留言</th>
+                        <th>获得赞同</th>
+                        <th>浏览共享页次数</th>
+                        <th>浏览专题页次数</th>
+                        <th>专题页被浏览次数</th>
+                        <th>浏览讨论页次数</th>
+                        <th>讨论页被浏览次数</th>
+                        <th>共享页浏览累计时间</th>
+                        <th>专题页浏览累计时间</th>
+                        <th>专题页被浏览累计时间</th>
+                        <th>讨论页浏览累计时间</th>
+                        <th>讨论页被浏览累计时间</th>
+                        <th>积分</th>
+                        <th>得分</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat='u in kanban.users' ng-class="{'undone':u.undone}">
+                        <td>{{$index+1}}</td>
+                        <td>{{u.nickname}}</td>
+                        <td ng-if='app.group_app_id'>
+                            <div ng-if='u.group'>{{u.group.l}}</div>
+                        </td>
+                        <td ng-class="{'undone':u.undone.enroll_num[0]===true}">
+                            <div ng-if='u.enroll_num'>{{u.enroll_num}}</div>
+                        </td>
+                        <td ng-class="{'undone':u.undone.revise_num[0]===true}">
+                            <div ng-if='u.revise_num'>{{u.revise_num}}</div>
+                        </td>
+                        <td>
+                            <div ng-if='u.last_enroll_at>0'>{{u.last_enroll_at*1000|date:'MM-dd HH:mm'}}</div>
+                        </td>
+                        <td>
+                            <div ng-if='u.do_cowork_num'>{{u.do_cowork_num}}</div>
+                        </td>
+                        <td ng-class="{'undone':u.undone.do_remark_num[0]===true}">
+                            <div ng-if='u.do_remark_num'>{{u.do_remark_num}}</div>
+                        </td>
+                        <td>
+                            <div ng-if='u.do_like_num'>{{u.do_like_num}}</div>
+                        </td>
+                        <td>
+                            <div ng-if='u.agree_num'>{{u.agree_num}}</div>
+                        </td>
+                        <td>
+                            <div ng-if='u.cowork_num'>{{u.cowork_num}}</div>
+                        </td>
+                        <td>
+                            <div ng-if='u.remark_num'>{{u.remark_num}}</div>
+                        </td>
+                        <td>
+                            <div ng-if='u.like_num'>{{u.like_num}}</div>
+                        </td>
+                        <td>
+                            <div>{{u.do_repos_read_num}}</div>
+                        </td>
+                        <td>
+                            <div>{{u.do_topic_read_num}}</div>
+                        </td>
+                        <td>
+                            <div>{{u.topic_read_num}}</div>
+                        </td>
+                        <td>
+                            <div>{{u.do_cowork_read_num}}</div>
+                        </td>
+                        <td>
+                            <div>{{u.cowork_read_num}}</div>
+                        </td>
+                        <td>
+                            <div>{{u.do_repos_read_elapse | filterTime}}</div>
+                        </td>
+                        <td>
+                            <div>{{u.do_topic_read_elapse | filterTime}}</div>
+                        </td>
+                        <td>
+                            <div>{{u.topic_read_elapse | filterTime}}</div>
+                        </td>
+                        <td>
+                            <div>{{u.do_cowork_read_elapse | filterTime}}</div>
+                        </td>
+                        <td>
+                            <div>{{u.cowork_read_elapse | filterTime}}</div>
+                        </td>
+                        <td>
+                            <div ng-if='u.user_total_coin'>{{u.user_total_coin}}</div>
+                        </td>
+                        <td>
+                            <div ng-if='u.score'>{{m.score}}</div>
+                        </td>
+                    </tr>
+                    <tr ng-repeat='u in kanban.undone' class="undone">
+                        <td>{{$index+1}}</td>
+                        <td>{{u.nickname}}</td>
+                        <td ng-if='app.group_app_id'></td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </script>
+    <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-route.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/event.js');?>"></script>
+</body>
+
+</html>

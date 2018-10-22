@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href="/" />
+    <title>登记活动</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/bootstrap-switch.min.css" rel="stylesheet">
+    <link href="/static/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/static/css/tms.css?_=2" rel="stylesheet">
+    <link href="/views/default/pl/fe/site/template/enroll/frame.css?_=11" rel="stylesheet">
+</head>
+
+<body ng-controller='ctrlFrame' ng-cloak class='ng-cloak'>
+    <nav class='navbar navbar-default navbar-fixed-top'>
+        <div class='container-fluid'>
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target='#navbar-collapse-1'>
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <div class='collapse navbar-collapse' id='navbar-collapse-1'>
+                <nav class='nav navbar-nav tms-breadcrumb'>
+                    <li>
+                        <a href='/rest/home' target='_self'>
+                            <?php echo APP_TITLE;?>
+                        </a>
+                    </li>
+                    <li><a href="/rest/pl/fe" target='_self'>个人工作台</a></li>
+                    <li ng-if="site.yourRole"><a href="/rest/pl/fe/site/console?site={{app.siteid}}" target='_self'>{{site.name}}</a></li>
+                    <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{site.name}}</a></li>
+                    <li><a href="/rest/pl/fe/template/site?site={{app.siteid}}" target='_self'>模板库</a></li>
+                    <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}" target='_self' title="{{app.mission.title}}">{{app.mission.title}}</a></li>
+                    <li><a href="/rest/pl/fe/site/template/enroll/publish?site={{app.siteid}}&id={{app.id}}" title='{{app.title}}'>{{app.title}}</a></li>
+                </nav>
+                <ul class='nav navbar-nav navbar-right'>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{viewNames[subView]}} <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="/rest/pl/fe/template/enroll/publish?site={{app.siteid}}&id={{app.id}}&vid={{app.vid}}">发布预览</a></li>
+                            <li><a href="/rest/pl/fe/template/enroll/schema?site={{app.siteid}}&id={{app.id}}&vid={{app.vid}}">修改题目</a></li>
+                            <li><a href="/rest/pl/fe/template/enroll/page?site={{ app.siteid}}&id={{app.id}}&vid={{app.vid}}">修改页面</a></li>
+                            <li><a href="/rest/pl/fe/template/enroll/order?site={{ app.siteid}}&id={{app.id}}&vid={{app.vid}}">查看记录</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class='container'>
+        <div class='row' ng-view></div>
+    </div>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/jquery-ui.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/bootstrap-switch.min.js"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-route.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/angular-bootstrap-switch.min.js"></script>
+    <script src="/static/js/tinymce/tinymce.min.js"></script>
+    <script src="/static/js/resumable.js"></script>
+    <script src="/static/js/FileSaver.min.js "></script>
+    <script src="/static/js/highcharts.js"></script>
+    <script src="/static/js/highcharts/exporting.js"></script>
+    <script src="/static/js/ui-tms.js?_=4"></script>
+    <script src="/static/js/xxt.ui.js?_=4"></script>
+    <script src="/static/js/xxt.ui.tmplshop.js?_=1"></script>
+    <script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
+    <script src="/views/default/pl/fe/matter/enroll/lib/enroll.tinymce.js?_=2"></script>
+    <script src="/static/js/require.js" data-main="/views/default/pl/fe/site/template/enroll/frame-loader.js?_=8"></script>
+</body>
+
+</html>

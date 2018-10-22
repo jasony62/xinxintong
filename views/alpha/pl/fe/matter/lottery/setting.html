@@ -1,0 +1,109 @@
+<div class='col-md-8'>
+    <div class='tile'>
+        <div class='form-group'>
+            <input type="text" class="form-control" ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title');">
+            <div class='help-block'>标题：最多35个汉字，70个英文字符</div>
+        </div>
+        <div class='form-group'>
+            <div style='position:relative'>
+                <div style="width:182px;border:1px solid #CCC">
+                    <div style="height:100px;text-align:center;padding-top:32px" ng-if="!app.pic">
+                        <button class='btn btn-default' ng-click='setPic();'>
+                        <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                    </div>
+                    <div style='position:relative' ng-if="app.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                        <img name='pic' ng-src="{{app.pic}}" width='180px' />
+                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'><span class='glyphicon glyphicon-picture'></span></button>
+                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'><span class='glyphicon glyphicon-trash'></span></button>
+                    </div>
+                </div>
+            </div>
+            <div class='help-block'>头图（可选）：建议尺寸：900像素 * 500像素</div>
+        </div>
+        <div class='form-group'>
+            <textarea class='form-control' ng-model='app.summary' tms-auto-update tms-wait=1000 tms-update="update('summary');" rows='3'></textarea>
+            <div class='help-block'>摘要：最多120个汉字，240个英文字符</div>
+        </div>
+        <div class='form-group'>
+            <input type="text" class="form-control" ng-model='app.chance' ng-change="update('chance');">
+            <div class='help-block'>抽奖次数</div>
+        </div>
+        <div class='form-group'>
+            <select class='form-control' ng-model='app.period' ng-change="update('period');">
+                <option value='A'>总计</option>
+                <option value='D'>每天</option>
+            </select>
+            <div class='help-block'>抽奖周期</div>
+        </div>
+        <div class='form-group'>
+            <input type="text" class="form-control" ng-model='app.pay_coin' ng-change="update('pay_coin');">
+            <div class='help-block'>需要支付的积分</div>
+        </div>
+        <div class='form-group'>
+            <label class='checkbox-inline'><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.fans_enter_only' ng-change="update('fans_enter_only')" disabled="">仅限关注用户进入</label>
+            <label class='checkbox-inline'><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.fans_only' ng-change="update('fans_only')">仅限关注用户参与</label>
+        </div>
+        <div class='form-group' ng-controller="ctrlCanPlayTask">
+            <button class='btn btn-default' ng-click="add()">添加</button>
+            <ul class='list-group'>
+                <li class='list-group-item' ng-repeat="t in tasks">
+                    <textarea class="form-control" ng-model='t.description'></textarea>
+                    <div class='help-block'>任务描述</div>
+                    <div class='task-params' ng-include="taskHtml(t)"></div>
+                    <button class='btn btn-default' ng-click="save(t)">保存</button>
+                    <button class='btn btn-default' ng-click="remove(t)">删除</button>
+                </li>
+            </ul>
+            <div class='help-block'>抽奖前完成任务</div>
+        </div>
+        <div class='form-group' ng-controller="ctrlAddChanceTask">
+            <button class='btn btn-default' ng-click="add()">添加</button>
+            <ul class='list-group'>
+                <li class='list-group-item' ng-repeat="t in tasks">
+                    <textarea class="form-control" ng-model='t.description'></textarea>
+                    <div class='help-block'>任务描述</div>
+                    <div class='task-params' ng-include="taskHtml(t)"></div>
+                    <button class='btn btn-default' ng-click="save(t)">保存</button>
+                    <button class='btn btn-default' ng-click="remove(t)">删除</button>
+                </li>
+            </ul>
+            <div class='help-block'>增加抽奖次数任务</div>
+        </div>
+    </div>    
+</div>
+<div class='col-md-4'>
+    <div class='tile'>
+        <button class='btn btn-block' ng-click="submit()" ng-disabled='!modified' ng-class="modified?'btn-success':'btn-default'">保存</button>
+        <button class='btn btn-block' ng-click="run()" ng-disabled='modified' ng-class="modified?'btn-default':'btn-success'">开始</button>
+    </div>
+    <div class='tile'>
+        <a class='btn btn-success' href='/rest/pl/fe/matter/lottery/award?site={{siteId}}&id={{id}}'>设置奖品</a>
+        <a class='btn btn-success' href='/rest/pl/fe/matter/lottery/plate?site={{siteId}}&id={{id}}'>设置槽位</a>
+        <a class='btn btn-success' href='/rest/pl/fe/matter/lottery/page?site={{siteId}}&id={{id}}'>设置页面</a>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <tms-datepicker tms-title='开始时间' tms-date='app.start_at' tms-state='start_at'></tms-datepicker>
+            <div class='help-block'>开始时间（可选）</div>
+            <tms-datepicker tms-title='结束时间' tms-date='app.end_at' tms-state='end_at'></tms-datepicker>
+            <div class='help-block'>结束时间（可选）</div>
+        </div>
+        <div class='form-group'>
+            <label>管理标签（可选）</label>
+            <p class="form-control" ng-click="tagMatter('M')">
+                <span class="tag" ng-repeat="t in app.matter_mg_tag" ng-bind="t.title"></span>
+            </p>
+        </div>
+    </div>
+    <div class='tile'>
+        <a href="/rest/pl/fe/matter/lottery/result?site={{siteId}}&id={{id}}">抽奖结果</a>    
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <div>创建人：{{app.creater_name}}</div>
+            <div>创建时间：{{app.create_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+            <div>修改人：{{app.modifier_name}}</div>
+            <div>最后一次修改时间：{{app.modify_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+        </div>
+    </div>
+</div>

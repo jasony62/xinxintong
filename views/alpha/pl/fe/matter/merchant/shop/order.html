@@ -1,0 +1,124 @@
+<div id='order-view'>
+	<table class='table table-bordered'>
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>订单号</th>
+				<th>下单时间</th>
+				<th>状态</th>
+				<th>用户</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat='o in orders'>
+				<td ng-bind='o.id'></td>
+				<td ng-bind='o.trade_no'></td>
+				<td ng-bind="o.order_create_time*1000|date:'yy/MM/dd HH:mm'"></td>
+				<td ng-bind='o._order_status'></td>
+				<td ng-bind='o.buyer_nick'></td>
+				<td><a href='javascript:void(0)' ng-click='open(o)'>详情</a></td>
+			</tr>
+		</tbody>
+	</table>
+	<span>总数：{{page.total}}</span>
+        <pagination style='margin:0;cursor:pointer;vertical-align:bottom' ng-if='page.total>page.size' class='pull-right'
+        boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at"
+        previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
+	<script type='text/ng-template' id='orderDetail.html'>
+	<div class="modal-header">
+		<button class="close" type="button" ng-click="close()">×</button>
+		<h5 class="modal-title">订单</h5>
+	</div>
+	<div class="modal-body">
+		<form class="form-horizontal">
+			<div class="form-group">
+				<label class="col-md-3 control-label">订单号</label>
+				<div class="col-md-9">
+					<p class='form-control-static' ng-bind='order.trade_no'></p>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-3 control-label">下单时间</label>
+				<div class="col-md-9">
+					<p class='form-control-static' ng-bind="order.order_create_time*1000|date:'yy/MM/dd HH:mm'"></p>
+				</div>
+			</div>
+			<div class='form-group'>
+            	<label class='col-md-3 control-label'>联系人姓名</label>
+            	<div class="col-md-9">
+            		<p class='form-control-static' ng-bind='order.receiver_name'></p>
+            	</div>
+        	</div>
+	        <div class='form-group'>
+	            <label class='col-md-3 control-label'>联系人电话</label>
+	            <div class="col-md-9">
+	            	<p class='form-control-static' ng-bind='order.receiver_mobile'></p>
+	            </div>
+	        </div>
+	        <div class='form-group'>
+	            <label class='col-md-3 control-label'>联系人邮箱</label>
+	            <div class="col-md-9">
+	            	<p class='form-control-static' ng-bind='order.receiver_email'></p>
+	            </div>
+	        </div>
+			<div class="form-group">
+				<label class="col-md-3 control-label">状态</label>
+				<div class="col-md-9">
+					<p class='form-control-static' ng-bind="order._order_status"></p>
+				</div>
+			</div>
+		</form>
+		<div id='order-detail-skus'>
+			<div class='catelog' ng-repeat="cate in catelogs">
+				<div class='products'>
+					<div class='product' ng-repeat="p in cate.products">
+						<div class='form-group'>
+							<label class='form-control-static'>名称</label>
+							<div class='form-control-static' ng-bind='p.name'></div>
+						</div>
+						<div class='form-group'>
+							<label class='form-control-static'>介绍</label>
+							<div class='form-control-static detail_text' ng-bind="p.detail_text||'&nbsp;'"></div>
+						</div>
+						<div class='form-group prop' ng-repeat='cp in cate.properties'>
+							<label class='form-control-static' ng-bind='cp.name'></label>
+							<div class='form-control-static' ng-bind="p.propValue[cp.id].name||'&nbsp;'"></div>
+						</div>
+						<div class='skus'>
+							<div class='sku' ng-repeat='s in p.skus'>
+								<div>
+									<div class='summary'>
+										<div ng-bind="summarySku(cate,p,s)"></div>
+									</div>
+									<div class='price' ng-if="s.cateSku.require_pay==='Y'">
+										<div ng-bind="(s.price/100)||'&nbsp;'"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class='order-properties'>
+					<div class='order-property form-group' ng-repeat='p in cate.orderProperties'>
+						<label class='form-control-static' ng-bind='p.name'></label>
+						<div class='form-control-static' ng-bind='order.extPropValues[cate.id][p.id]'></div>
+					</div>
+				</div>
+				<div class='feedback-properties' ng-if='cate.feedbackProperties.length'>
+					<div class='feedback form-group' ng-repeat='p in cate.feedbackProperties'>
+						<label class='form-control-static' ng-bind='p.name'></label>
+						<input type='text' class='form-control input-lg' ng-readonly="order.order_status!=='1'" ng-model="order.feedback[cate.id][p.id]">
+					</div>
+					<div class='form-group' ng-if="order.order_status=='1'">
+						<button class="btn btn-success btn-lg btn-block" ng-click="sendFeedback()">保存反馈信息并通知用户</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button class="btn btn-success" ng-click="close()">关闭</button>
+	</div>
+	</script>
+</div>

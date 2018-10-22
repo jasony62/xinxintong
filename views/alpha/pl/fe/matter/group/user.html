@@ -1,0 +1,54 @@
+<div class='col-md-12' ng-if="!activeRound&&app.sourceApp">
+    <div class='form-group'>
+        <div class='form-inline'>
+            <div class='form-group' ng-if="!app.sourceApp">
+                <button class='btn btn-block btn-success' ng-click="assocWithApp()">导入用户</button>
+            </div>
+            <div class='form-group' ng-if="app.sourceApp">
+                <label>用户来源</label>
+                <div class="input-group">
+                    <input class='form-control' value="{{app.sourceApp.title}}" disabled="">
+                    <div class="input-group-btn">
+                        <button class='btn btn-default' title='同步用户' ng-click='syncByApp()'>
+                            <span class='glyphicon glyphicon-refresh'></span>
+                        </button>
+                        <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a href ng-click="chooseAppUser()" ng-if="app.sourceApp.type==='mschema'">选取用户</a></li>
+                            <li><a href ng-click="gotoSourceApp()">查看活动</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <button class='btn btn-success' ng-disabled="!app.sourceApp||!rounds.length" ng-click="execute()">自动分组</button>
+            <div class="btn-group" uib-dropdown>
+                <button class="btn btn-default" uib-dropdown-toggle>移动<span ng-bind="rows.players.length"></span>个用户到...<i class="caret"></i></button>
+                <ul uib-dropdown-menu>
+                    <li ng-repeat="rnd in teamRounds"><a href ng-click="joinGroup(rnd,rows.players)">{{rnd.title}}</a></li>
+                    <li><a href ng-click="quitGroup(rows.players)">未分组</a></li>
+                </ul>
+            </div>
+            <div class="btn-group" uib-dropdown>
+                <button class="btn btn-default" uib-dropdown-toggle>更多操作 <i class="caret"></i></button>
+                <ul uib-dropdown-menu>
+                    <li><a href="" ng-click="addPlayer()">添加用户</a></li>
+                    <li><a href="" ng-click="export()">导出结果</a></li>
+                    <li class="divider"></li>
+                    <li><a href="" ng-click="notify(true)">给选中用户发消息<span>（{{rows.players.length}}）</span></a></li>
+                    <li><a href="" ng-click="notify()">给全部用户发消息<span>（{{players.length}}）</span></a></li>
+                    <li class="divider"></li>
+                    <li><a href="" ng-click="empty()">清空用户</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- result -->
+    <div tms-flex-height top='72' bottom='72' class='form-group'>
+        <div tms-table-wrap ready='tableReady' overflow-x='auto' ng-include="'/views/default/pl/fe/matter/group/component/users.html?_=1'">
+        </div>
+    </div>
+    <!-- end result -->
+</div>

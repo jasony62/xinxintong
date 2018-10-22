@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html ng-app='app' ng-controller='ctrlMain'>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href="/" />
+    <title>
+        <?php TPL::pt('title');?>
+    </title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href='/static/css/site.fe.css?_=1' rel="stylesheet">
+    <style ng-if="page.css" ng-bind='page.css'></style>
+</head>
+
+<body ng-controller='ctrlInput'>
+    <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
+    <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
+    <div id="wxUploadFileTip" uib-popover-template="'wxUploadFileTip.html'" uib-popover popover-placement="bottom" popover-trigger="'show'" popover-append-to-body="true"></div>
+    <nav class='navbar site-navbar-default'>
+        <div class='container'>
+            <div class="navbar-header">
+                <a href="" class="navbar-brand">
+                    <i class="glyphicon glyphicon-edit visible-lg-inline"></i> <span tms-app-nav app-navs="appNavs">{{page.title}}</span>
+                </a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="pull-left">
+                    <a href="" ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline"> 我的</span></a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div ng-cloak class='app ng-cloak'>
+        <div id='enroll' class='container'>
+            <form name='enroll' novalidate dynamic-html="page.html">
+            </form>
+            <div ng-if="app.appRound&&app.appRound.start_at>0&&app.appRound.end_at>0">
+                <div class='text-center help-block'>
+                    <span ng-bind="app.appRound.title"></span>
+                    <span ng-if="app.appRound.start_at>0"> / {{app.appRound.start_at*1000|date:'MM.dd HH:mm'}}</span>
+                    <span ng-if="app.appRound.end_at>0"> - {{app.appRound.end_at*1000|date:'MM.dd HH:mm'}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div ng-if="appActs" tms-app-act app-acts="appActs"></div>
+    <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
+    <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
+    <div class="loading">
+        <div class='loading-indicator'><i></i></div>
+    </div>
+    <script type="text/ng-template" id="wxUploadFileTip.html">
+        <div ng-controller="ctrlWxUploadFileTip" ng-init="domId='#wxUploadFileTip'">
+            <div ng-if="isIos">
+                <p>苹果手机不支持在页面中上传文件，请将该页面转发到PC机上的浏览器进行操作。</p>
+            </div>
+            <div ng-if="!isIos">
+                <p>如果微信无法上传文件，请按如下步骤操作：</p>
+                <p>1、点击当前界面右上角的3个点；</p>
+                <p>2、选择【在浏览器中打开】；</p>
+                <p>3、在打开的浏览器中进行后续。</p>
+            </div>
+            <div class='text-right'>
+                <button class='btn btn-default btn-sm' ng-click="closeTip()">知道了，关闭</button>
+            </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="dataBySchema.html">
+        <div class="modal-header">
+            <h5 class="modal-title">已填写过的内容</h5>
+        </div>
+        <div class="modal-body">
+            <div class='form-group'>
+                <select class="form-control" ng-model="data.selected" ng-options="rec.value for rec in records" size='5'></select>
+            </div>
+            <div class='text-center'>
+                <ul style='margin:0' uib-pagination ng-if="page.total>page.size" boundary-links="true" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" class='pagination-sm' ng-change="search()"></ul>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class='text-center'>
+                <button class="btn btn-default" ng-click="cancel()">关闭</button>
+                <button class="btn btn-primary" ng-click="ok()">使用选择的内容填写</button>
+            </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="recordVoice.html">
+        <div class="modal-header">
+            <h5 class="modal-title">录音</h5>
+        </div>
+        <div class="modal-body">
+            <div class='form-group'>
+                <div class='input-group'>
+                    <input class='form-control' ng-model="data.name">
+                    <div class='input-group-addon'>
+                        <span ng-bind="data.time"></span>秒
+                    </div>
+                </div>
+                <div class='help-block'><small class='text-danger'><span class='glyphicon glyphicon-exclamation-sign'></span> 时间超过1分钟自动停止录音</small></div>
+            </div>
+            <div class='form-group'>
+                <button class="btn btn-default" ng-click="startRecord()">开始录音</button>
+                <button class="btn btn-default" ng-click="stopRecord()">停止</button>
+            </div>
+            <div class='form-group' ng-if="data.localId">
+                <button class="btn btn-default" ng-click="play()">播放</button>
+                <button class="btn btn-default" ng-click="pause()">暂停</button>
+                <button class="btn btn-default" ng-click="stop()">停止</button>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class='text-center'>
+                <button class="btn btn-default" ng-click="cancel()">关闭</button>
+                <button class="btn btn-default" ng-click="ok()" ng-disabled="!data.localId">完成</button>
+            </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="writeItem.html">
+        <div class="modal-body">
+            <div id='remarkEditor' content='data.content' tms-editor></div>
+        </div>
+        <div class="modal-footer" tms-hide-parent-height='400'>
+            <div class='text-center'>
+                <button class="btn btn-default" ng-click="cancel()">取消</button>
+                <button class="btn btn-primary" ng-click="ok()">提交</button>
+            </div>
+        </div>
+    </script>
+    <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="<?php echo auto_version('/bundles/defalut/site/fe/matter/enroll/input.js');?>"></script>
+</body>
+
+</html>

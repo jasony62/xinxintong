@@ -1,0 +1,149 @@
+<div class='col-md-8'>
+	<div class='tile'>
+		<div class='form-group'>
+			<input type="text" class="form-control" ng-model='editing.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+			<div class='help-block'>名称：最多35个汉字，70个英文字符</div>
+		</div>
+		<div class='form-group'>
+			<select class="form-control" ng-model='editing.buyer_api.authid' ng-change="update('buyer_api')" ng-options='ms.id as ms.title for ms in memberSchemas'>
+				<option value=''></option>
+			</select>
+			<div class='help-block'>指定记录客户信息接口</div>
+		</div>
+	</div>
+	<div id='catelog-view' class='tile' ng-controller="ctrlCatelog">
+		<div class='form-group'>
+		    <table class="table table-bordered">
+		        <thead>
+		            <tr>
+		                <th style='width:60px'>ID</th>
+		                <th>名称</th>
+		                <th style='width:60px'>已上线</th>
+		            </tr>
+		        </thead>
+		        <tbody>
+		            <tr ng-repeat='c in catelogs' ng-click='open(c)'>
+		                <td ng-bind='c.id'></td>
+		                <td ng-bind='c.name'></td>
+		                <td ng-bind='c.active'></td>
+		            </tr>
+		        </tbody>
+		    </table>
+		    <button class='btn btn-success' ng-click='create()'>添加</button>
+		    <div class='help-block'>已有商品分类</div>
+		</div>
+	</div>
+	<div id='product-view' class='tile' ng-controller="ctrlProduct">
+		<div class='form-group'>
+		    <table class='table table-bordered'>
+		        <thead>
+		            <tr>
+		                <th style='width:60px'>ID</th>
+		                <th>名称</th>
+		                <th style='width:60px'>已上线</th>
+		                <th>介绍</th>
+		                <th ng-repeat="prop in selectedCatelog.properties" ng-bind='prop.name'></th>
+		            </tr>
+		        </thead>
+		        <tbody>
+		            <tr ng-repeat='prod in products'>
+		                <td ng-bind='prod.id'></td>
+		                <td ng-bind='prod.name' ng-click="open(prod)"></td>
+		                <td ng-bind='prod.active'></td>
+		                <td ng-bind='prod.detail_text'></td>
+		                <td ng-repeat="prop in selectedCatelog.properties" ng-bind="prod.propValue2[prop.id].name"></td>
+		            </tr>
+		        </tbody>
+		    </table>
+		    <div class='form-inline form-group'>
+		        <select class="form-control" ng-model='selectedCatelog' ng-options="cate.name for cate in catelogs" ng-change="selectCatelog()"></select>
+		        <button class='btn btn-success' ng-click='create()'>添加</button>
+		    </div>
+		    <div class='help-block'>已有商品</div>
+		</div>
+	</div>
+	<div class='tile'>
+		<div class='form-group'>
+			<table class='table table-bordered' style='margin-bottom:0'>
+				<thead>
+					<tr>
+						<th style='width:48px'>ID</th>
+						<th style='width:80px'>状态</th>
+						<th>说明</th>
+						<th style='width:126px'>自定义名称</th>
+						<th style='width:48px'>操作</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="os in orderStatus">
+						<td ng-bind="os.id"></td>
+						<td ng-bind="os.name"></td>
+						<td ng-bind="os.desc"></td>
+						<td ng-bind="os.title"></td>
+						<td>
+							<a href="javascript:void(0)" ng-click="configOrderStatus(os)">配置</a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<div class='help-block'>订单状态名称</div>
+		</div>
+	</div>
+	<div class='tile'>
+		<div class='form-group'>
+			<div>
+				<label class='checkbox-inline'><input type='checkbox' ng-model="payby.coin" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('payby')">积分支付</label>
+				<label class='checkbox-inline'><input type='checkbox' ng-model="payby.wx" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('payby')">微信支付</label>
+			</div>
+			<div class='help-block'>支付渠道</div>
+		</div>
+	</div>
+</div>
+<div class='col-md-4' ng-controller="ctrlPage">
+	<div class='tile'>
+		<ul class='list-group'>
+			<li class='list-group-item' ng-repeat="p in shelfs">
+				<div style='word-break: break-all;' ng-bind="p.title"></div>
+				<div style='word-break: break-all;' ng-bind="p._url"></div>
+			</li>
+		</ul>
+		<a href="/rest/pl/fe/matter/merchant/shop/page?site={{siteId}}&id={{shopId}}">设置页面</a>
+	</div>
+	<div class='tile'>
+		<a href="/rest/pl/fe/matter/merchant/shop/order?site={{siteId}}&id={{shopId}}">已有订单</a>
+	</div>
+</div>
+<script type='text/ng-template' id='orderStatusEditor.html'>
+	<div class="modal-header">
+		<button class="close" type="button" ng-click="close()">×</button>
+		<h5 class="modal-title">设置订单状态</h5>
+	</div>
+	<div class="modal-body">
+		<div class="form-group">
+			<label>自定义名称</label>
+			<input type='text' class='form-control' ng-model='status.title'>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button class="btn btn-success" ng-click="ok()">保存</button>
+	</div>
+</script>
+<script type="text/ng-template " id="catelogSelector.html ">
+    <div class="modal-header ">
+        <button class="close " type="button " ng-click="close() ">×</button>
+        <h5 class="modal-title ">选择分类</h5>
+    </div>
+    <div class="modal-body ">
+        <form class="form-horizontal">
+            <div class="form-group ">
+                <label class="col-md-2 control-label ">名称</label>
+                <div class="col-md-10 ">
+                    <select class='form-control' ng-model='data.selected' ng-options='c.name for c in catelogs'></select>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-disabled='!data.selected' ng-click="ok() ">确定</button>
+    </div>
+</script>

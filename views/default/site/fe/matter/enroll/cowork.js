@@ -731,12 +731,12 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
                 url += '&ek=' + $scope.record.enroll_key + '&schema=' + oSchema.id;
                 http2.post(url, oNewItem).then(function(rsp) {
                     var oNewItem;
-                    oNewItem = rsp.data[0];
+                    oNewItem = rsp.data.oNewItem;
                     oNewItem.nickname = '我';
                     if (oRecData) {
                         oRecData.items.push(oNewItem);
-                    } else if (rsp.data[1]) {
-                        oRecData = $scope.record.verbose[oSchema.id] = rsp.data[1];
+                    } else if (rsp.data.oRecData) {
+                        oRecData = $scope.record.verbose[oSchema.id] = rsp.data.oRecData;
                         oRecData.items = [oNewItem];
                     }
                     if(rsp.data.coworkResult.user_total_coin) {

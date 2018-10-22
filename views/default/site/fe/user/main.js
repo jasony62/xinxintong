@@ -1,90 +1,3 @@
-<<<<<<< HEAD
-define(['require', 'angular'], function(require, angular) {
-    'use strict';
-    var siteId = location.search.match('site=(.*)')[1];
-    var ngApp = angular.module('app', ['http.ui.xxt']);
-    ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
-        return {
-            restrict: 'A',
-            controller: ['$scope', '$timeout', 'http2', function($scope, $timeout, http2) {
-                $scope.changeHeadImg = function(from) {
-                    window.xxt.image.choose($q.defer(), from).then(function(imgs) {
-                        var imgUrl = imgs[0].imgSrc,
-                            data = {};
-                        data.imgSrc = imgUrl;
-                        http2.post('/rest/site/fe/user/changeHeadImg?site=' + siteId, data).then(function(rsp) {
-                            if (rsp.err_code == 0) {
-                                var eleImg = document.querySelector('.headimg > img');
-                                eleImg.setAttribute('src', imgUrl);
-                            }
-                        });
-                    });
-                }
-            }]
-        }
-    }]);
-    ngApp.service('userService', ['http2', '$q', function(http2, $q) {
-        var _baseUrl = '/rest/site/fe/user',
-            _user;
-        return {
-            get: function() {
-                var deferred = $q.defer();
-                http2.get(_baseUrl + '/get?site=' + siteId).then(function(rsp) {
-                    _user = rsp.data;
-                    if (!_user.headimgurl) {
-                        _user.headimgurl = '/static/img/avatar.png';
-                    }
-                    if (!_user.uname) {
-                        _user.uname = '未知昵称';
-                    }
-                    deferred.resolve(_user);
-                });
-                return deferred.promise;
-            },
-            changePwd: function(data) {
-                var deferred = $q.defer();
-                http2.post(_baseUrl + '/changePwd?site=' + siteId, data).then(function(rsp) {
-                    _user = rsp.data;
-                    deferred.resolve(_user);
-                });
-                return deferred.promise;
-            },
-            changeNickname: function(data) {
-                var deferred = $q.defer();
-                http2.post(_baseUrl + '/changeNickname?site=' + siteId, data).then(function(rsp) {
-                    _user = rsp.data;
-                    deferred.resolve(_user);
-                });
-                return deferred.promise;
-            }
-        }
-    }]);
-    ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'userService', function($scope, $timeout, http2, userService) {
-        function newSubscriptions(afterAt) {
-            var url;
-            url = '/rest/site/fe/user/subscribe/count?site=' + siteId + '&after=' + afterAt;
-            http2.get(url).then(function(rsp) {
-                $scope.count.newSubscriptions = rsp.data;
-            });
-        }
-
-        var cachedStatus, lastCachedStatus;
-        $scope.count = {};
-        $scope.userSetting = false;
-        $scope.toggleUserSetting = function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            if (event.target.classList.contains('list-group-item')) {
-                $scope.userSetting = !$scope.userSetting;
-            }
-        };
-
-        $scope.changeNickname = function() {
-            var data = {};
-            data.nickname = $scope.user.nickname;
-            userService.changeNickname(data).then(function() {
-                alert('修改成功');
-=======
 'use strict';
 var siteId = location.search.match('site=(.*)')[1];
 var ngApp = angular.module('app', ['http.ui.xxt']);
@@ -103,7 +16,6 @@ ngApp.service('userService', ['http2', '$q', function(http2, $q) {
                     _user.uname = '未知昵称';
                 }
                 deferred.resolve(_user);
->>>>>>> master
             });
             return deferred.promise;
         },

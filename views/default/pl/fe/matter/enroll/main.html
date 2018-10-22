@@ -114,12 +114,8 @@
             <div class='form-group'>
                 <label>设置参与规则</label>
                 <div class="checkbox">
-<<<<<<< HEAD
-                    <label><input type="checkbox" ng-true-value="'Y'" ng-model="rule.scope.register" ng-change="changeUserScope('register')">用户参与活动前需登陆</label>
-=======
                     <label>
                         <input type="checkbox" ng-true-value="'Y'" ng-model="rule.scope.register" ng-change="changeUserScope('register')">用户参与活动前需完成平台注册</label>
->>>>>>> master
                 </div>
                 <div class='checkbox'>
                     <label>
@@ -178,11 +174,7 @@
             </div>
             <hr>
             <div class='form-group'>
-<<<<<<< HEAD
-                <label>忽略参与规则可进入的页面</label>
-=======
                 <label>可忽略参与规则进入的页面</label>
->>>>>>> master
                 <table class='table table-bordered'>
                     <tbody>
                         <tr ng-repeat="page in rule.exclude">
@@ -202,20 +194,6 @@
             </div>
             <hr>
             <div class="form-group">
-<<<<<<< HEAD
-                <label>忽略参与规则可进行的操作</label>
-                <div class="checkbox">
-                    <label><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.like" ng-change="configExclude()">点赞</label>
-                </div>
-                <div class="checkbox">
-                    <label><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.submit_record" ng-change="configExclude()">提交记录</label>
-                </div>
-                <div class="checkbox">
-                    <label><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.add_remark" ng-change="configExclude()">添加留言</label>
-                </div>
-                <div class="checkbox">
-                    <label><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.add_cowork" ng-change="configExclude()">添加答案</label>
-=======
                 <label>可忽略参与规则进行的操作</label>
                 <div class="checkbox">
                     <label>
@@ -232,7 +210,6 @@
                 <div class="checkbox">
                     <label>
                         <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.add_cowork" ng-change="configExclude()">添加答案（协作填写）</label>
->>>>>>> master
                 </div>
             </div>
             <hr>

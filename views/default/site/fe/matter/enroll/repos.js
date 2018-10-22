@@ -72,7 +72,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = { at: 1, size: 12, total: 0 };
     $scope.filter = _oFilter = {}; // 过滤条件
-    $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'lastest', cowork: {agreed: 'all'}}; // 数据查询条件
+    $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'lastest', cowork: { agreed: 'all' } }; // 数据查询条件
     $scope.mocker = _oMocker = {}; // 用户自己指定的角色
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.repos = []; // 分享的记录
@@ -87,7 +87,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     $scope.toggleHistory = function(isOpen, event) {
         event.preventDefault();
         event.stopPropagation();
-        $scope.flag = isOpen == 'open'? true : false;
+        $scope.flag = isOpen == 'open' ? true : false;
     }
     $scope.recordList = function(pageAt) {
         var url, deferred;
@@ -348,15 +348,27 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                 switch (level) {
                     case 1:
                         $scope.activeDir1 = oDir;
+                        $scope.activeDir2 = '';
+                        $scope.activeDir3 = '';
+                        $scope.activeDir4 = '';
+                        $scope.activeDir5 = '';
                         break;
                     case 2:
                         $scope.activeDir2 = oDir;
+                        $scope.activeDir3 = '';
+                        $scope.activeDir4 = '';
+                        $scope.activeDir5 = '';
                         break;
                     case 3:
                         $scope.activeDir3 = oDir;
+
+                        $scope.activeDir4 = '';
+                        $scope.activeDir5 = '';
                         break;
                     case 4:
                         $scope.activeDir4 = oDir;
+
+                        $scope.activeDir5 = '';
                         break;
                     case 5:
                         $scope.activeDir5 = oDir;
@@ -370,7 +382,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                 $scope.activeDir4 = '';
                 $scope.activeDir5 = '';
             }
-
         },
         hideDir: function(oDir) {
             oDir.opened = false;
@@ -381,8 +392,8 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     }
     $scope.shiftDir = function(oDir, level) {
         _oCriteria.data = {};
-        if(oDir) {
-             _oCriteria.data[oDir.schema_id] = oDir.op.v;
+        if (oDir) {
+            _oCriteria.data[oDir.schema_id] = oDir.op.v;
             $scope.dirLevel.active(oDir, level);
         } else {
             $scope.dirLevel.active();

@@ -83,6 +83,7 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
             "schema": '/views/default/pl/fe/matter/enroll/schema',
             "stat": '/views/default/pl/fe/matter/enroll/stat',
             "time": '/views/default/pl/fe/matter/enroll/time',
+            "timerNotice": '/views/default/pl/fe/_module/timerNotice',
         }
     }
     window.MATTER_TYPE = 'Enroll'; // 为了支持动态加载服务模块

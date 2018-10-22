@@ -1,6 +1,6 @@
 define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
     'use strict';
-    var BaseSrvEnrollRecord = function($q, $http, noticebox, $uibModal, tmsSchema) {
+    var BaseSrvEnrollRecord = function($q, http2, noticebox, $uibModal, tmsSchema) {
         this._oApp = null;
         this._oPage = null;
         this._oCriteria = null;
@@ -60,7 +60,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         this._bSearch = function(url) {
             var that = this,
                 defer = $q.defer();
-            $http.post(url, that._oCriteria).then(function(rsp) {
+            http2.post(url, that._oCriteria).then(function(rsp) {
                 var records;
                 if (rsp.data) {
                     records = rsp.data.records ? rsp.data.records : [];
@@ -79,18 +79,17 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         };
         this._bBatchVerify = function(rows, url) {
             var eks = [],
-                selectedRecords = [],
-                that = this;
+                selectedRecords = [];
             for (var p in rows.selected) {
                 if (rows.selected[p] === true) {
-                    eks.push(that._aRecords[p].enroll_key);
-                    selectedRecords.push(that._aRecords[p]);
+                    eks.push(this._aRecords[p].enroll_key);
+                    selectedRecords.push(this._aRecords[p]);
                 }
             }
             if (eks.length) {
-                $http.post(url, {
+                http2.post(url, {
                     eks: eks
-                }, function(rsp) {
+                }).then(function() {
                     selectedRecords.forEach(function(record) {
                         record.verified = 'Y';
                     });
@@ -853,7 +852,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             };
             _ins.remove = function(record) {
                 if (window.confirm('确认删除？')) {
-                    http2.get('/rest/pl/fe/matter/enroll/record/remove?site=' + _siteId + '&app=' + _appId + '&key=' + record.enroll_key).then(function(rsp) {
+                    http2.get('/rest/pl/fe/matter/enroll/record/remove?app=' + _appId + '&ek=' + record.enroll_key).then(function(rsp) {
                         var i = _ins._aRecords.indexOf(record);
                         _ins._aRecords.splice(i, 1);
                         _ins._oPage.total = _ins._oPage.total - 1;
@@ -862,7 +861,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             };
             _ins.restore = function(record) {
                 if (window.confirm('确认恢复？')) {
-                    http2.get('/rest/pl/fe/matter/enroll/record/restore?site=' + _siteId + '&app=' + _appId + '&key=' + record.enroll_key).then(function(rsp) {
+                    http2.get('/rest/pl/fe/matter/enroll/record/restore?app=' + _appId + '&ek=' + record.enroll_key).then(function(rsp) {
                         var i = _ins._aRecords.indexOf(record);
                         _ins._aRecords.splice(i, 1);
                         _ins._oPage.total = _ins._oPage.total - 1;
@@ -874,7 +873,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     vcode;
                 vcode = prompt('是否要删除所有登记信息？，若是，请输入活动名称。');
                 if (vcode === _ins._oApp.title) {
-                    http2.get('/rest/pl/fe/matter/enroll/record/empty?site=' + _siteId + '&app=' + _appId).then(function(rsp) {
+                    http2.get('/rest/pl/fe/matter/enroll/record/empty?app=' + _appId).then(function(rsp) {
                         _ins._aRecords.splice(0, _ins._aRecords.length);
                         _ins._oPage.total = 0;
                         _ins._oPage.at = 1;
@@ -883,7 +882,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             };
             _ins.verifyAll = function() {
                 if (window.confirm('确定审核通过所有记录（共' + _ins._oPage.total + '条）？')) {
-                    http2.get('/rest/pl/fe/matter/enroll/record/batchVerify?site=' + _siteId + '&app=' + _appId + '&all=Y').then(function(rsp) {
+                    http2.get('/rest/pl/fe/matter/enroll/record/batchVerify?app=' + _appId + '&all=Y').then(function(rsp) {
                         _ins._aRecords.forEach(function(record) {
                             record.verified = 'Y';
                         });
@@ -894,10 +893,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             _ins.batchVerify = function(rows) {
                 var url;
                 if (window.confirm('确定审核通过选中的记录（共' + Object.keys(rows.selected).length + '条）？')) {
-                    url = '/rest/pl/fe/matter/enroll/record/batchVerify';
-                    url += '?site=' + _siteId;
-                    url += '&app=' + _appId;
-
+                    url = '/rest/pl/fe/matter/enroll/record/batchVerify?app=' + _appId;
                     return _ins._bBatchVerify(rows, url);
                 }
             };

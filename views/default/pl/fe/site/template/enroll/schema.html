@@ -56,7 +56,7 @@
     <!-- end schema list -->
     <nav class='navbar navbar-default navbar-fixed-bottom visible-xs-block'>
         <div class='container-fluid'>
-            <button class='btn navbar-btn btn-default' uib-popover-template="'schemaProto.html'" popover-placement="top-left" popover-trigger="show" popover-title="" ng-click="showSchemaProto($event)">添加</button>
+            <button class='btn navbar-btn btn-default' uib-popover-template="'schemaProto.html'" popover-placement="top-left" popover-trigger="'show'" popover-title="" ng-click="showSchemaProto($event)">添加</button>
             <button class="btn navbar-btn btn-default" ng-if="['single','multiple','score'].indexOf(activeSchema.type)!==-1" ng-click="addOption(activeSchema)">添加选项</button>
             <button class="btn navbar-btn btn-default" ng-click="copySchema(activeSchema)">复制</button>
             <button class='btn navbar-btn btn-default' ng-click="upSchema(activeSchema)"><span class='glyphicon glyphicon-arrow-up'></span></button>

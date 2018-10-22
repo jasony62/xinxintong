@@ -1,0 +1,71 @@
+<div class="modal-header">
+    <button class="close" ng-click="cancel()">×</button>
+    <h5 class="modal-title">选择用户</h5>
+</div>
+<div class="modal-body">
+    <div tms-table-wrap ready='tmsTableWrapReady' overflow-x='auto'>
+        <table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th style='width:28px'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
+                    </th>
+                    <th style='width:48px'>序号</th>
+                    <th data-filter-by='nickname' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)" style='width:75px'>姓名 <i class='glyphicon glyphicon-filter'></i></th>
+                    <th>微信昵称</th>
+                    <th style='width:120px'>分组</th>
+                    <th style='width:75px'>填写记录</th>
+                    <th style='width:75px'>发表留言</th>
+                    <th style='width:75px'>发表点赞</th>
+                    <th style='width:75px'>获得推荐</th>
+                    <th>得分</th>
+                    <th>积分</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat='e in enrollees'>
+                    <td>
+                        <input type='checkbox' ng-model="rows.selected[$index]" ng-change="rows.change($index)">
+                    </td>
+                    <td>{{$index+1}}</td>
+                    <td>{{e.nickname}}</td>
+                    <td>
+                        <div ng-show="e.wx_openid">{{e.wxfan.nickname}}</div>
+                    </td>
+                    <td>
+                        <div ng-if='e.group'>{{e.group.title}}</div>
+                    </td>
+                    <td>
+                        <div ng-if='e.enroll_num'>{{e.enroll_num}}</div>
+                    </td>
+                    <td>
+                        <div ng-if='e.do_remark_num'>{{e.do_remark_num}}</div>
+                    </td>
+                    <td>
+                        <div ng-if='e.do_like_num'>{{e.do_like_num}}</div>
+                    </td>
+                    <td>
+                        <div ng-if='e.agree_num'>{{e.agree_num}}</div>
+                    </td>
+                    <td>
+                        <div ng-if='e.score'>{{e.score}}</div>
+                    </td>
+                    <td>
+                        <div ng-if='e.user_total_coin'>{{e.user_total_coin}}</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class='form-group'>
+            <div class='pl-pagination'>
+                <span>总数：{{page.total}}</span>
+                <ul uib-pagination ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="cancel()">关闭</button>
+    <button class="btn btn-success hide" ng-click="execute()">选取({{rows.count}})</button>
+    <button class="btn btn-success" ng-click="execute(true)">选取({{rows.count}})后关闭</button>
+</div>

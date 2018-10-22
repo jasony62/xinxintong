@@ -293,7 +293,6 @@ class user_model extends \TMS_MODEL {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$cascaded = isset($aOptions['cascaded']) ? $aOptions['cascaded'] : 'Y';
 
-		$result = new \stdClass;
 		$q = [
 			$fields,
 			"xxt_enroll_user",
@@ -310,6 +309,9 @@ class user_model extends \TMS_MODEL {
 		if (!empty($aOptions['byGroup'])) {
 			$q[2] .= " and group_id = '" . $this->escape($aOptions['byGroup']) . "'";
 		}
+		if (!empty($aOptions['nickname'])) {
+			$q[2] .= " and nickname like '%" . $this->escape($aOptions['nickname']) . "%'";
+		}
 		if (!empty($aOptions['orderby'])) {
 			$q2 = ['o' => $aOptions['orderby'] . ' desc'];
 		} else {
@@ -320,6 +322,20 @@ class user_model extends \TMS_MODEL {
 		}
 		$users = $this->query_objs_ss($q, $q2);
 		if ($cascaded === 'Y' && count($users)) {
+			$aHandlers = [];
+			/* 用户的分组信息 */
+			if (!empty($oApp->group_app_id) || !empty($oApp->entryRule->group->id)) {
+				$modelGrpUser = $this->model('matter\group\user');
+				$groupAppId = !empty($oApp->group_app_id) ? $oApp->group_app_id : $oApp->entryRule->group->id;
+				$fnHandler = function ($oUser) use ($groupAppId, $modelGrpUser) {
+					$oGrpUser = $modelGrpUser->byUser((object) ['id' => $groupAppId], $oUser->userid, ['fields' => 'round_id,round_title', 'onlyOne' => true]);
+					if ($oGrpUser) {
+						$oUser->group = (object) ['id' => $oGrpUser->round_id, 'title' => $oGrpUser->round_title];
+					}
+				};
+				$aHandlers[] = $fnHandler;
+			}
+
 			foreach ($users as $oUser) {
 				$p = [
 					'wx_openid,yx_openid,qy_openid',
@@ -351,17 +367,22 @@ class user_model extends \TMS_MODEL {
 					$oUser->wx_openid = '';
 					$oUser->yx_openid = '';
 				}
+				//
+				foreach ($aHandlers as $fnHandler) {
+					$fnHandler($oUser);
+				}
 			}
 		}
 
-		$result->users = $users;
+		$oResult = new \stdClass;
+		$oResult->users = $users;
 
 		/* 符合条件的用户总数 */
 		$q[0] = 'count(*)';
 		$total = (int) $this->query_val_ss($q);
-		$result->total = $total;
+		$oResult->total = $total;
 
-		return $result;
+		return $oResult;
 	}
 	/**
 	 * 活动中提交过数据的用户
@@ -369,7 +390,7 @@ class user_model extends \TMS_MODEL {
 	public function enrolleeByMschema($oApp, $oMschema, $page = '', $size = '', $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : 'm.userid,m.email,m.mobile,m.name,m.extattr';
 
-		$result = new \stdClass;
+		$oResult = new \stdClass;
 		$q = [
 			$fields . ',a.wx_openid,a.yx_openid,a.qy_openid',
 			"xxt_site_member m,xxt_site_account a",
@@ -393,13 +414,13 @@ class user_model extends \TMS_MODEL {
 				$oMember->user = $this->byId($oApp, $oMember->userid, $sel);
 			}
 		}
-		$result->members = $members;
+		$oResult->members = $members;
 
 		$q[0] = 'count(*)';
 		$total = (int) $this->query_val_ss($q);
-		$result->total = $total;
+		$oResult->total = $total;
 
-		return $result;
+		return $oResult;
 	}
 	/**
 	 * 获得活动指定的参与

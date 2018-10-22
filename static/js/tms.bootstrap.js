@@ -21,6 +21,15 @@ define([], function() {
                         oPathAndTimes.html[n].path = _oRawPathes.html[n] + '';
                     }
                 }
+                if (oPathAndTimes.html) {
+                    oPathAndTimes.html.url = function(templateName) {
+                        if (this[templateName]) {
+                            return this[templateName].path + '.html?_=' + this[templateName].time;
+                        }
+                        return '';
+                    }
+                }
+                define('frame/templates', oPathAndTimes.html ? oPathAndTimes.html : {});
                 define('frame/RouteParam', function() {
                     return function(name) {
                         if (oPathAndTimes && oPathAndTimes.html && oPathAndTimes.html[name]) {

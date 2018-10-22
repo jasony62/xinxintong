@@ -3,7 +3,7 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
     /**
      *
      */
-    ngApp.provider.controller('ctrlPage', ['$scope', '$location', '$uibModal', 'srvEnrollApp', 'srvEnrollPage', function($scope, $location, $uibModal, srvEnrollApp, srvAppPage) {
+    ngApp.provider.controller('ctrlPage', ['$scope', '$location', 'srvEnrollApp', 'srvEnrollPage', function($scope, $location, srvEnrollApp, srvAppPage) {
         var _oApp;
         window.onbeforeunload = function(e) {
             var message;

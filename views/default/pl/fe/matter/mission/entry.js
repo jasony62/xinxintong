@@ -192,82 +192,9 @@ define(['frame'], function(ngApp) {
             });
         };
     }]);
-    ngApp.provider.controller('ctrlReport', ['$scope', 'http2', '$interval', '$uibModal', 'srvSite', function($scope, http2, $interval, $uibModal, srvSite) {
-        var baseURL = '/rest/pl/fe/matter/mission/receiver/';
-
-        function listReceivers(app) {
-            http2.get(baseURL + 'list?site=' + app.siteid + '&app=' + app.id).then(function(rsp) {
-                var map = { wx: '微信', yx: '易信' };
-                rsp.data.forEach(function(receiver) {
-                    if (receiver.sns_user) {
-                        receiver.snsUser = JSON.parse(receiver.sns_user);
-                        map[receiver.snsUser.src] && (receiver.snsUser.snsName = map[receiver.snsUser.src]);
-                    }
-                });
-                $scope.receivers = rsp.data;
-            });
-        }
-
-        srvSite.get().then(function(oSite) {
-            $scope.site = oSite;
-        });
-        srvSite.snsList().then(function(oSns) {
-            $scope.sns = oSns;
-        });
-        $scope.qrcodeShown = false;
-        $scope.qrcode = function(snsName) {
-            if ($scope.qrcodeShown === false) {
-                var url = '/rest/pl/fe/site/sns/' + snsName + '/qrcode/createOneOff';
-                url += '?site=' + $scope.mission.siteid;
-                url += '&matter_type=missionreceiver';
-                url += '&matter_id=' + $scope.mission.id;
-                http2.get(url).then(function(rsp) {
-                    var qrcode = rsp.data,
-                        eleQrcode = $("#" + snsName + "Qrcode");
-                    eleQrcode.trigger('show');
-                    $scope.qrcodeURL = qrcode.pic;
-                    $scope.qrcodeShown = true;
-                    (function() {
-                        var fnCheckQrcode, url2;
-                        url2 = '/rest/pl/fe/site/sns/' + snsName + '/qrcode/get';
-                        url2 += '?site=' + qrcode.siteid;
-                        url2 += '&id=' + rsp.data.id;
-                        url2 += '&cascaded=N';
-                        fnCheckQrcode = $interval(function() {
-                            http2.get(url2).then(function(rsp) {
-                                if (rsp.data == false) {
-                                    $interval.cancel(fnCheckQrcode);
-                                    eleQrcode.trigger('hide');
-                                    $scope.qrcodeShown = false;
-                                    (function() {
-                                        var fnCheckReceiver;
-                                        fnCheckReceiver = $interval(function() {
-                                            http2.get('/rest/pl/fe/matter/mission/receiver/afterJoin?site=' + $scope.mission.siteid + '&app=' + $scope.mission.id + '&timestamp=' + qrcode.create_at).then(function(rsp) {
-                                                if (rsp.data.length) {
-                                                    $interval.cancel(fnCheckReceiver);
-                                                    $scope.receivers = $scope.receivers.concat(rsp.data);
-                                                }
-                                            });
-                                        }, 2000);
-                                    })();
-                                }
-                            });
-                        }, 2000);
-                    })();
-                });
-            } else {
-                $("#yxQrcode").trigger('hide');
-                $scope.qrcodeShown = false;
-            }
-        };
-        $scope.remove = function(receiver) {
-            http2.get(baseURL + 'remove?site=' + $scope.mission.siteid + '&app=' + $scope.mission.id + '&receiver=' + receiver.id).then(function(rsp) {
-                $scope.receivers.splice($scope.receivers.indexOf(receiver), 1);
-            });
-        };
+    ngApp.provider.controller('ctrlReport', ['$scope', function($scope) {
         $scope.$watch('mission', function(oMission) {
             if (!oMission) return;
-            listReceivers(oMission);
             /* 定时推送 */
             $scope.srvTimer.list(oMission, 'report').then(function(timers) {
                 $scope.timers = timers;

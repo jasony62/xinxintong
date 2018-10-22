@@ -165,6 +165,7 @@ class data extends base {
 					$oRecData->items = $modelRecDat->query_objs_ss($q);
 					foreach ($oRecData->items as $oItem) {
 						$oItem->like_log = empty($oItem->like_log) ? [] : json_decode($oItem->like_log);
+						$oItem->dislike_log = empty($oItem->dislike_log) ? [] : json_decode($oItem->dislike_log);
 						if ($bAnonymous) {
 							unset($oItem->nickname);
 						} else if ($oItem->userid === $oUser->uid) {

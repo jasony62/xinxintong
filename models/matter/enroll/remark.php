@@ -134,6 +134,11 @@ class remark_model extends \TMS_MODEL {
 					$oRemark->like_log = empty($oRemark->like_log) ? new \stdClass : json_decode($oRemark->like_log);
 				};
 			}
+			if ($fields === '*' || false !== strpos($fields, 'dislike_log')) {
+				$fnHandlers[] = function (&$oRemark) {
+					$oRemark->dislike_log = empty($oRemark->dislike_log) ? new \stdClass : json_decode($oRemark->dislike_log);
+				};
+			}
 			if (count($fnHandlers)) {
 				foreach ($aRemarks as &$oRemark) {
 					foreach ($fnHandlers as $fnHandler) {

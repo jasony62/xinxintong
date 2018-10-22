@@ -44,7 +44,11 @@
                     <div class="category-title">
                         目录
                         <button class="close" ng-if="isSmallLayout" ng-click="advCriteriaStatus.dirOpen=!advCriteriaStatus.dirOpen"><span>&times;</span></button>
-                        <div class="pull-right" ng-if="!isSmallLayout" ng-click="dirLevel.clearDir(activeDir1)"><span class="glyphicon glyphicon-indent-right" ng-if="activeDir1.op.childrenDir.length"></span></div>
+                        <div class="pull-right" ng-if="!isSmallLayout">
+                            <span class="glyphicon glyphicon-indent-right" ng-if="activeDir1.op.childrenDir.length&&activeDir1.opened" ng-click="dirLevel.hideDir(activeDir1)"></span>
+                            <span class="glyphicon glyphicon-indent-left" ng-if="activeDir1.op.childrenDir.length&&!activeDir1.opened" ng-click="dirLevel.showDir(activeDir1)"></span>
+                        </div>
+                       
                     </div>
                     <div class="category-body" ng-if="advCriteriaStatus.dirOpen">
                         <div class="category-item">

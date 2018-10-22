@@ -372,8 +372,11 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             }
 
         },
-        clearDir: function(oDir) {
+        hideDir: function(oDir) {
             oDir.opened = false;
+        },
+        showDir: function(oDir) {
+            oDir.opened = true;
         }
     }
     $scope.shiftDir = function(oDir, level) {

@@ -121,7 +121,7 @@
                             <hr>
                             <div class='top-bar tms-flex-row'>
                                 <div class='seq tms-flex-grow text-muted'>#<span ng-bind="item.multitext_seq"></span></div>
-                                <div ng-if="user.uid==record.userid||record._canAgree">
+                                <div ng-if="(app.actionRule.cowork.agreed.pre.author&&user.uid==record.userid)||record._canAgree">
                                     <div class="btn-group" uib-dropdown>
                                         <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>
                                             <span ng-if="item.agreed===''">未表态</span>
@@ -140,7 +140,7 @@
                                         </ul>
                                     </div>
                                 </div>
-                                <div ng-if="!record.userid==user.uid&&!record._canAgree&&(item.agreed==='Y'||(item.agreed==='D'&&user.uid===record.userid)||user.uid===item.userid||user.is_editor==='Y')" ng-switch on="item.agreed">
+                                <div ng-if="!(app.actionRule.cowork.agreed.pre.author&&user.uid==record.userid)&&!record._canAgree&&(item.agreed==='Y'||(item.agreed==='D'&&user.uid===record.userid)||user.uid===item.userid||user.is_editor==='Y')" ng-switch on="item.agreed">
                                     <button ng-switch-when="D" class='btn btn-xs btn-danger'>讨论</button>
                                     <button ng-switch-when="Y" class='btn btn-xs btn-success'>推荐</button>
                                     <button ng-switch-when="N" class='btn btn-xs btn-danger'>关闭</button>

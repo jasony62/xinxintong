@@ -91,7 +91,6 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
             }
         };
         var member = $scope.member;
-        console.log('m', member);
         if (member.name && false === required(member.name, 2, '请提供您的姓名！')) {
             return false;
         }

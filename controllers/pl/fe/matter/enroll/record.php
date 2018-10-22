@@ -3,12 +3,11 @@ namespace pl\fe\matter\enroll;
 
 require_once dirname(__FILE__) . '/main_base.php';
 /*
- * 登记记录
+ * 记录活动的记录
  */
 class record extends main_base {
 	/**
-	 * 活动登记名单
-	 *
+	 * 获得指定记录
 	 */
 	public function get_action($ek) {
 		if (false === $this->accountUser()) {
@@ -270,12 +269,64 @@ class record extends main_base {
 		return new \ResponseData($result);
 	}
 	/**
+	 * 复制记录
+	 *
+	 * @param string $ek 被复制记录的ID
+	 * @param string $owner 接受记录的用户id
+	 *
+	 */
+	public function copy_action($ek, $owner) {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		$modelRec = $this->model('matter\enroll\record');
+		$oCopiedRecord = $modelRec->byId($ek, ['verbose' => 'N']);
+		if (false === $oCopiedRecord) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelEnl = $this->model('matter\enroll');
+		$oApp = $modelEnl->byId($oCopiedRecord->aid, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelEnlUsr = $this->model('matter\enroll\user');
+		$oOwner = $modelEnlUsr->byId($oApp, $owner, ['fields' => 'userid,group_id,nickname']);
+		if (false === $oOwner) {
+			return new \ObjectNotFoundError();
+		}
+
+		$oMocker = new \stdClass;
+		$oMocker->uid = $oOwner->userid;
+		$oMocker->nickname = $oOwner->nickname;
+		$oMocker->group_id = $oOwner->group_id;
+
+		/* 创建记录 */
+		$aOptions = [];
+		$aOptions['assignRid'] = $oCopiedRecord->rid;
+		$newEk = $modelRec->enroll($oApp, $oMocker, $aOptions);
+		$aResult = $modelRec->setData($oMocker, $oApp, $newEk, $oCopiedRecord->data, true);
+		if (false === $aResult[0]) {
+			return new \ResponseError($aResult[1]);
+		}
+
+		/* 返回完整的记录 */
+		$oNewRecord = $modelRec->byId($newEk, ['verbose' => 'Y']);
+
+		/* 处理用户汇总数据，积分数据 */
+		$this->model('matter\enroll\event')->submitRecord($oApp, $oNewRecord, $oMocker, true);
+
+		return new \ResponseData($oNewRecord);
+	}
+	/**
 	 * 手工添加登记信息
 	 *
 	 * @param string $app
 	 */
 	public function add_action($app) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($oOperator = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$posted = $this->getPostJson();
@@ -287,7 +338,7 @@ class record extends main_base {
 		/* 创建登记记录 */
 		$aOptions = [];
 		!empty($posted->rid) && $aOptions['assignRid'] = $posted->rid;
-		$ek = $modelRec->enroll($oApp, '', $aOptions);
+		$ek = $modelRec->enroll($oApp, null, $aOptions);
 		$record = [];
 		$record['verified'] = isset($posted->verified) ? $posted->verified : 'N';
 		$record['comment'] = isset($posted->comment) ? $posted->comment : '';
@@ -299,11 +350,11 @@ class record extends main_base {
 
 		/* 记录登记数据 */
 		$addUser = $this->model('site\fe\way')->who($oApp->siteid);
-		$result = $modelRec->setData(null, $oApp, $ek, $posted->data, $addUser->uid, true, isset($posted->quizScore) ? $posted->quizScore : null);
+		$result = $modelRec->setData(null, $oApp, $ek, $posted->data, $addUser->uid, true);
 
 		/* 记录操作日志 */
 		$oRecord = $modelRec->byId($ek, ['fields' => 'enroll_key,data,rid']);
-		$this->model('matter\log')->matterOp($oApp->siteid, $user, $oApp, 'add', $oRecord);
+		$this->model('matter\log')->matterOp($oApp->siteid, $oOperator, $oApp, 'add', $oRecord);
 
 		/* 返回完整的记录 */
 		$oNewRecord = $modelRec->byId($ek, ['verbose' => 'Y']);
@@ -1224,9 +1275,9 @@ class record extends main_base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 删除一条登记信息
+	 * 删除一条记录
 	 */
-	public function remove_action($app, $key) {
+	public function remove_action($app, $ek) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -1235,7 +1286,7 @@ class record extends main_base {
 			return new \ObjectNotFoundError();
 		}
 		$modelEnlRec = $this->model('matter\enroll\record');
-		$oRecord = $modelEnlRec->byId($key, ['fields' => 'userid,state,enroll_key,data,rid']);
+		$oRecord = $modelEnlRec->byId($ek, ['fields' => 'userid,state,enroll_key,data,rid']);
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -1258,9 +1309,9 @@ class record extends main_base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 恢复一条登记信息
+	 * 恢复一条记录
 	 */
-	public function restore_action($app, $key) {
+	public function restore_action($app, $ek) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -1269,7 +1320,7 @@ class record extends main_base {
 			return new \ObjectNotFoundError();
 		}
 		$modelEnlRec = $this->model('matter\enroll\record');
-		$oRecord = $modelEnlRec->byId($key, ['fields' => 'userid,enroll_key,data,rid']);
+		$oRecord = $modelEnlRec->byId($ek, ['fields' => 'userid,enroll_key,data,rid']);
 		if (false === $oRecord) {
 			return new ObjectNotFoundError();
 		}
@@ -1282,7 +1333,7 @@ class record extends main_base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 清空登记信息
+	 * 清空活动中的所有记录
 	 */
 	public function empty_action($app) {
 		if (false === ($oUser = $this->accountUser())) {
@@ -1306,29 +1357,28 @@ class record extends main_base {
 	/**
 	 * 所有记录通过审核
 	 */
-	public function verifyAll_action($site, $app) {
+	public function verifyAll_action($app) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 
 		$rst = $this->model()->update(
 			'xxt_enroll_record',
 			['verified' => 'Y'],
-			"aid='{$app->id}'"
+			['aid' => $oApp->id]
 		);
 
 		// 记录操作日志
-		$app->type = 'enroll';
-		$this->model('matter\log')->matterOp($site, $oUser, $app, 'verify.all');
+		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'verify.all');
 
 		return new \ResponseData($rst);
 	}
 	/**
 	 * 指定记录通过审核
 	 */
-	public function batchVerify_action($site, $app, $all = 'N') {
+	public function batchVerify_action($app, $all = 'N') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -1384,13 +1434,13 @@ class record extends main_base {
 	/**
 	 * 验证通过时，如果登记记录有对应的签到记录，且签到记录没有验证通过，那么验证通过
 	 */
-	private function _whenVerifyRecord(&$app, $enrollKey) {
-		if ($app->mission_id) {
+	private function _whenVerifyRecord(&$oApp, $enrollKey) {
+		if ($oApp->mission_id) {
 			$modelSigninRec = $this->model('matter\signin\record');
 			$q = [
 				'id',
 				'xxt_signin',
-				"enroll_app_id='{$app->id}'",
+				"enroll_app_id='{$oApp->id}'",
 			];
 			$signinApps = $modelSigninRec->query_objs_ss($q);
 			if (count($signinApps)) {
@@ -1422,7 +1472,7 @@ class record extends main_base {
 								$modelSigninRec->delete('xxt_signin_record_data', "enroll_key='$signinRecord->enroll_key'");
 								foreach ($signinData as $k => $v) {
 									$ic = [
-										'aid' => $app->id,
+										'aid' => $oApp->id,
 										'enroll_key' => $signinRecord->enroll_key,
 										'name' => $k,
 										'value' => $model->toJson($v),

@@ -57,50 +57,50 @@
                             <div ng-switch-when="image">
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' ng-if="bShowImage" />
                             </div>
-                            <div ng-switch-when="file">
-                                <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
-                            </div>
-                            <div ng-switch-when="multitext">
-                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind="item.value"></span></p>
-                            </div>
-                            <div ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</div>
-                            <div ng-switch-when="remark" ng-class="{unread:r.verbose.data[schema.id].last_remark_at>lastCachedStatus.lastAt}">{{r.verbose.data[schema.id].remark_num}}</div>
-                            <div ng-switch-when="agreed">
-                                <select class='form-control input-sm' ng-model="r.verbose.data[schema.id].agreed" disabled>
-                                    <option value=''>不表态</option>
-                                    <option value='A'>接受</option>
-                                    <option value='Y'>推荐</option>
-                                    <option value='N'>屏蔽</option>
-                                </select>
-                            </div>
-                            <div ng-switch-default ng-bind-html="r._data[schema.id]"></div>
-                            <div ng-if="['single', 'multiple', 'image', 'file'].indexOf(schema.type)!==-1&&r.supplement[schema.id].length">(补充说明：{{r.supplement[schema.id]}})</div>
+                                <div ng-switch-when="file">
+                                    <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                                </div>
+                                <div ng-switch-when="multitext">
+                                    <p ng-repeat='item in r._data[schema.id]'><span ng-bind="item.value"></span></p>
+                                </div>
+                                <div ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</div>
+                                <div ng-switch-when="remark" ng-class="{unread:r.verbose.data[schema.id].last_remark_at>lastCachedStatus.lastAt}">{{r.verbose.data[schema.id].remark_num}}</div>
+                                <div ng-switch-when="agreed">
+                                    <select class='form-control input-sm' ng-model="r.verbose.data[schema.id].agreed" disabled>
+                                        <option value=''>不表态</option>
+                                        <option value='A'>接受</option>
+                                        <option value='Y'>推荐</option>
+                                        <option value='N'>屏蔽</option>
+                                    </select>
+                                </div>
+                                <div ng-switch-default ng-bind-html="r._data[schema.id]"></div>
+                                <div ng-if="['single', 'multiple', 'image', 'file'].indexOf(schema.type)!==-1&&r.supplement[schema.id].length">(补充说明：{{r.supplement[schema.id]}})</div>
                         </td>
                         <td data-th='{{schema.title}}' ng-repeat="schema in enrollDataSchemas" ng-switch on="schema.type">
                             <div ng-switch-when="image">
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' ng-if="bShowImage" />
                             </div>
-                            <div ng-switch-when="file">
-                                <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
-                            </div>
-                            <div ng-switch-when="multitext">
-                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind="item.value"></span></p>
-                            </div>
-                            <div ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</div>
-                            <div ng-switch-default ng-bind-html="r._data[schema.id]"></div>
+                                <div ng-switch-when="file">
+                                    <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                                </div>
+                                <div ng-switch-when="multitext">
+                                    <p ng-repeat='item in r._data[schema.id]'><span ng-bind="item.value"></span></p>
+                                </div>
+                                <div ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</div>
+                                <div ng-switch-default ng-bind-html="r._data[schema.id]"></div>
                         </td>
                         <td data-th='{{schema.title}}' ng-repeat="schema in groupDataSchemas" ng-switch on="schema.type">
                             <div ng-switch-when="image">
                                 <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' ng-if="bShowImage" />
                             </div>
-                            <div ng-switch-when="file">
-                                <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
-                            </div>
-                            <div ng-switch-when="multitext">
-                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind="item.value"></span></p>
-                            </div>
-                            <div ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</div>
-                            <div ng-switch-default ng-bind-html="r._data[schema.id]"></div>
+                                <div ng-switch-when="file">
+                                    <span ng-repeat='file in r._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                                </div>
+                                <div ng-switch-when="multitext">
+                                    <p ng-repeat='item in r._data[schema.id]'><span ng-bind="item.value"></span></p>
+                                </div>
+                                <div ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</div>
+                                <div ng-switch-default ng-bind-html="r._data[schema.id]"></div>
                         </td>
                         <td data-th='标签'>
                             <div>{{r.tags}}</div>
@@ -110,16 +110,16 @@
                         </td>
                         <td data-th='操作' class='span-cols-sm'>
                             <div class='hidden-xs'>
-                                <button uib-popover-template="'leadToLogin.html'" popover-placement="bottom-right" popover-trigger="show" class='btn btn-xs btn-danger' ng-click='removeRecord($event,r)'>
+                                <button uib-popover-template="'leadToLogin.html'" popover-placement="bottom-right" popover-trigger="'show'" class='btn btn-xs btn-danger' ng-click='removeRecord($event,r)'>
                                     <i class='glyphicon glyphicon-remove'></i>
                                 </button>
-                                <button uib-popover-template="'leadToLogin.html'" popover-placement="bottom-right" popover-trigger="show" class='btn btn-xs btn-default' ng-click="switchToRecord($event,r)">
+                                <button uib-popover-template="'leadToLogin.html'" popover-placement="bottom-right" popover-trigger="'show'" class='btn btn-xs btn-default' ng-click="switchToRecord($event,r)">
                                     <i class='glyphicon glyphicon-edit'></i>
                                 </button>
                             </div>
                             <div class='visible-xs'>
-                                <button uib-popover-template="'leadToLogin.html'" popover-placement="bottom-right" popover-trigger="show" class='btn btn-danger' ng-click='removeRecord($event,r)'>删除</button>
-                                <button uib-popover-template="'leadToLogin.html'" popover-placement="bottom-right" popover-trigger="show" class='btn btn-default pull-right' ng-click="switchToRecord($event,r)">修改</button>
+                                <button uib-popover-template="'leadToLogin.html'" popover-placement="bottom-right" popover-trigger="'show'" class='btn btn-danger' ng-click='removeRecord($event,r)'>删除</button>
+                                <button uib-popover-template="'leadToLogin.html'" popover-placement="bottom-right" popover-trigger="'show'" class='btn btn-default pull-right' ng-click="switchToRecord($event,r)">修改</button>
                             </div>
                         </td>
                     </tr>

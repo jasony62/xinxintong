@@ -1,7 +1,12 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlEnrollee', ['$scope', '$filter', '$uibModal', 'http2', 'facListFilter', function($scope, $filter, $uibModal, http2, facListFilter) {
-        function enrolleeList() {
+    ngApp.provider.controller('ctrlEnrollee', ['$scope', '$filter', 'http2', 'facListFilter', function($scope, $filter, http2, facListFilter) {
+        var _oMission, _oCriteria;
+        $scope.criteria = _oCriteria = {
+            orderBy: '',
+            filter: {}
+        };
+        $scope.enrolleeList = function() {
             var url;
             url = '/rest/pl/fe/matter/mission/user/enrolleeList?site=' + _oMission.siteid + '&mission=' + _oMission.id;
             http2.post(url, _oCriteria).then(function(rsp) {
@@ -13,22 +18,15 @@ define(['frame'], function(ngApp) {
                     oEnrollee.last_do_remark_at = oEnrollee.last_do_remark_at > 0 ? $filter('date')(oEnrollee.last_do_remark_at * 1000, dateFormat) : '';
                     oEnrollee.last_do_like_at = oEnrollee.last_do_like_at > 0 ? $filter('date')(oEnrollee.last_do_like_at * 1000, dateFormat) : '';
                     oEnrollee.last_agree_at = oEnrollee.last_agree_at > 0 ? $filter('date')(oEnrollee.last_agree_at * 1000, dateFormat) : '';
+                    if (oEnrollee.members && oEnrollee.members.length) {
+                        oEnrollee.isMember = '是';
+                    }
                 });
             });
         }
-        var _oMission, _oCriteria;
-        $scope.criteria = _oCriteria = {
-            orderBy: '',
-            filter: {}
-        };
-        $scope.$watch('mission', function(oMission) {
-            if (!oMission) return;
-            _oMission = oMission;
-            enrolleeList();
-        });
         $scope.chooseOrderBy = function(orderBy) {
             _oCriteria.orderBy = orderBy;
-            enrolleeList();
+            $scope.enrolleeList();
         };
         $scope.createEnlAppByUser = function() {
             var url;
@@ -38,7 +36,12 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.filter = facListFilter.init(function() {
-            enrolleeList();
+            $scope.enrolleeList();
         }, _oCriteria.filter);
+        $scope.$watch('mission', function(oMission) {
+            if (!oMission) return;
+            _oMission = oMission;
+            $scope.enrolleeList();
+        });
     }]);
 });

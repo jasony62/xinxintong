@@ -205,7 +205,7 @@
                     </div>
                 </div>
                 <hr>
-                <div ng-include="'/views/default/pl/fe/_module/timerNotice.html'"></div>
+                <div ng-include="frameTemplates.url('timerNotice')"></div>
                 <hr>
             </div>
             <!--end timer-->
@@ -259,7 +259,7 @@
                     </div>
                 </div>
                 <hr>
-                <div ng-include="'/views/default/pl/fe/_module/timerNotice.html'"></div>
+                <div ng-include="frameTemplates.url('timerNotice')"></div>
                 <hr>
             </div>
             <!--end timer-->
@@ -311,6 +311,7 @@
                         <input type='checkbox' bs-switch data-on-text="启用" data-off-text="停用" ng-model="config.submit.valid">
                     </div>
                     <button class='btn' ng-class="{'btn-default':!modified, 'btn-success':modified}" ng-disabled="!modified" ng-click="save()">保存</button>
+                    <button class='btn btn-danger' ng-click="remove('submit')">删除</button>
                 </div>
             </div>
             <div ng-if="!config.submit">
@@ -357,6 +358,7 @@
                         <input type='checkbox' bs-switch data-on-text="启用" data-off-text="停用" ng-model="config.cowork.valid">
                     </div>
                     <button class='btn' ng-class="{'btn-default':!modified, 'btn-success':modified}" ng-disabled="!modified" ng-click="save()">保存</button>
+                    <button class='btn btn-danger' ng-click="remove('cowork')">删除</button>
                 </div>
             </div>
             <div ng-if="!config.cowork">
@@ -403,6 +405,7 @@
                         <input type='checkbox' bs-switch data-on-text="启用" data-off-text="停用" ng-model="config.remark.valid">
                     </div>
                     <button class='btn' ng-class="{'btn-default':!modified, 'btn-success':modified}" ng-disabled="!modified" ng-click="save()">保存</button>
+                    <button class='btn btn-danger' ng-click="remove('remark')">删除</button>
                 </div>
             </div>
             <div ng-if="!config.remark">
@@ -410,7 +413,7 @@
             </div>
         </div>
     </div>
-    <div class="panel panel-default">
+    <div class="panel panel-default hide">
         <div class="panel-body">
             <div ng-controller="ctrlOpUrl">
                 <div class='form-group'>

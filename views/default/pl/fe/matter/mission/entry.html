@@ -95,7 +95,7 @@
             <!-- begin timers -->
             <div ng-repeat="timer in timers">
                 <hr>
-                <div ng-include="'/views/default/pl/fe/_module/timerNotice.html'"></div>
+                <div ng-include="frameTemplates.url('timerNotice')"></div>
             </div>
             <!-- end timers -->
             <hr>
@@ -121,7 +121,7 @@
             </div>
         </div>
     </div>
-    <div class='panel panel-default' ng-controller="ctrlReport">
+    <div class='panel panel-default hide' ng-controller="ctrlReport">
         <div class='panel-body'>
             <div class='form-group'>
                 <label>监督人进入链接 <span class='glyphicon glyphicon-question-sign' uib-tooltip='监督人查看项目下所有活动的进展。'></span></label>
@@ -145,7 +145,7 @@
             <!-- begin timer -->
             <div ng-repeat="timer in timers">
                 <hr>
-                <div ng-include="'/views/default/pl/fe/_module/timerNotice.html'"></div>
+                <div ng-include="frameTemplates.url('timerNotice')"></div>
             </div>
             <hr>
             <div>

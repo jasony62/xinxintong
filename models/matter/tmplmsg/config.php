@@ -34,14 +34,15 @@ class config_model extends \TMS_MODEL {
 
 		return $config;
 	}
-	/*
-		* 获取模板消息id和参数
-	*/
-	public function getTmplConfig($oApp, $noticeName, $options = []) {
+	/**
+	 * 获取模板消息id和参数
+	 */
+	public function getTmplConfig($oMatter, $noticeName, $aOptions = []) {
 		$oParams = new \stdClass;
-		$options2 = [];
-		$options2['onlySite'] = empty($options['onlySite']) ? false : $options['onlySite'];
-		$oNotice = $this->model('site\notice')->byName($oApp->siteid, $noticeName, $options2);
+		$aOptions2 = [];
+		$aOptions2['onlySite'] = empty($aOptions['onlySite']) ? false : $aOptions['onlySite'];
+		$oTimerTask = empty($aOptions['timerTask']) ? null : $aOptions['timerTask'];
+		$oNotice = $this->model('site\notice')->byName($oMatter->siteid, $noticeName, $aOptions2);
 		if ($oNotice === false) {
 			return [false, '没有指定事件的模板消息1'];
 		}
@@ -53,24 +54,41 @@ class config_model extends \TMS_MODEL {
 			if (!isset($oTmplConfig->mapping->{$param->pname})) {
 				continue;
 			}
-			$mapping = $oTmplConfig->mapping->{$param->pname};
-			if (isset($mapping->src)) {
-				if ($mapping->src === 'matter') {
-					if (isset($oApp->{$mapping->id})) {
-						$value = $oApp->{$mapping->id};
-					} else if ($mapping->id === 'event_at') {
+			$oMapping = $oTmplConfig->mapping->{$param->pname};
+			if (!empty($oMapping->src)) {
+				switch ($oMapping->src) {
+				case 'matter':
+					if (isset($oMatter->{$oMapping->id})) {
+						$value = $oMatter->{$oMapping->id};
+					} else if ($oMapping->id === 'event_at') {
 						$value = date('Y-m-d H:i:s');
 					} else {
 						$value = '';
 					}
-				} else if ($mapping->src === 'text') {
-					$value = $mapping->name;
+					break;
+				case 'timerTask':
+					if (!empty($oTimerTask) && isset($oTimerTask->{$oMapping->id})) {
+						$value = $oTimerTask->{$oMapping->id};
+						if ('page' === $oMapping->id) {
+							$value .= '，请及时浏览';
+						}
+					} else {
+						if ('page' === $oMapping->id) {
+							$value .= '请及时浏览';
+						} else {
+							$value = '';
+						}
+					}
+					break;
+				case 'text':
+					$value = $oMapping->name;
+					break;
 				}
 			}
 			$oParams->{$param->pname} = isset($value) ? $value : '';
 		}
-		if (!empty($options['noticeURL'])) {
-			$oParams->url = $options['noticeURL'];
+		if (!empty($aOptions['noticeURL'])) {
+			$oParams->url = $aOptions['noticeURL'];
 		}
 
 		$data = new \stdClass;

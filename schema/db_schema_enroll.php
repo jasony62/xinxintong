@@ -166,6 +166,9 @@ $sql .= ",agreed_log text null"; // 推荐日志
 $sql .= ",like_log longtext"; // 点赞日志 {userid:likeAt}
 $sql .= ",like_num int not null default 0"; // 点赞数
 $sql .= ",like_data_num int not null default 0"; // 记录的数据点赞数
+$sql .= ",dislike_log longtext"; // 反对日志 {userid:dislikeAt}
+$sql .= ",dislike_num int not null default 0"; // 反对数
+$sql .= ",dislike_data_num int not null default 0"; // 记录的数据反对数
 $sql .= ",favor_num int not null default 0"; // 收藏数
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
@@ -196,6 +199,10 @@ $sql .= ",score float not null default 0"; // 登记项获得的分数
 $sql .= ",modify_log longtext null"; // 数据修改日志
 $sql .= ",like_log longtext null"; // 点赞日志 {userid:likeAt}
 $sql .= ",like_num int not null default 0"; // 点赞数
+
+$sql .= ",dislike_log longtext null"; // 点赞日志 {userid:likeAt}
+$sql .= ",dislike_num int not null default 0"; // 点赞数
+
 $sql .= ",agreed char(1) not null default ''"; // 是否赞同（Y：推荐，N：屏蔽，A(ccept)：接受）
 $sql .= ",agreed_log text null"; // 推荐日志
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
@@ -308,6 +315,10 @@ $sql .= ",remark_id int not null default 0"; // 是对哪条留言进行的留�
 $sql .= ",remark_num int not null default 0"; // 留言数
 $sql .= ",like_log longtext null"; // 点赞日志 {userid:likeAt}
 $sql .= ",like_num int not null default 0"; // 点赞数
+
+$sql .= ",dislike_log longtext null"; // 点赞日志 {userid:likeAt}
+$sql .= ",dislike_num int not null default 0"; // 点赞数
+
 $sql .= ",agreed char(1) not null default ''"; // 是否赞同（Y：推荐，N：屏蔽，A(ccept)：接受）
 $sql .= ",agreed_log text null"; // 推荐日志
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除,101:用户删除;
@@ -354,6 +365,20 @@ $sql .= ",last_do_like_cowork_at int not null default 0"; // 最后一次对协�
 $sql .= ",do_like_cowork_num int not null default 0"; // 对协作进行点赞的次数
 $sql .= ",last_do_like_remark_at int not null default 0"; // 最后一次对留言进行点赞的时间
 $sql .= ",do_like_remark_num int not null default 0"; // 对留言进行点赞的次数
+
+$sql .= ",last_dislike_at int not null default 0"; // 登记内容最后一次获得点赞的时间
+$sql .= ",dislike_num int not null default 0"; // 登记内容获得点赞的次数
+$sql .= ",last_dislike_cowork_at int not null default 0"; // 协作填写最后一次获得点赞的时间
+$sql .= ",dislike_cowork_num int not null default 0"; // 协作填写获得点赞的次数
+$sql .= ",last_dislike_remark_at int not null default 0"; // 留言最后一次获得点赞的时间
+$sql .= ",dislike_remark_num int not null default 0"; // 留言获得点赞的次数
+$sql .= ",last_do_dislike_at int not null default 0"; // 最后一次对登记内容进行点赞的时间
+$sql .= ",do_dislike_num int not null default 0"; // 对登记内容进行点赞的次数
+$sql .= ",last_do_dislike_cowork_at int not null default 0"; // 最后一次对协作进行点赞的时间
+$sql .= ",do_dislike_cowork_num int not null default 0"; // 对协作进行点赞的次数
+$sql .= ",last_do_dislike_remark_at int not null default 0"; // 最后一次对留言进行点赞的时间
+$sql .= ",do_dislike_remark_num int not null default 0"; // 对留言进行点赞的次数
+
 $sql .= ",last_agree_at int not null default 0"; // 最后一次获得推荐的时间
 $sql .= ",agree_num int not null default 0"; // 获得推荐的次数
 $sql .= ",last_agree_cowork_at int not null default 0"; // 最后一次协作获得推荐的时间

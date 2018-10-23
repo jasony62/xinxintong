@@ -10,6 +10,15 @@ class main extends \site\fe\base {
 	 * 进入用户个人中心
 	 */
 	public function index_action() {
+		$user = $this->who;
+		if (isset($user->unionid)) {
+			$oAccount = $this->model('account')->byId($user->unionid, ['cascaded' => ['group']]);
+			if (isset($oAccount->group->view_name) && $oAccount->group->view_name !== TMS_APP_VIEW_NAME) {
+				\TPL::output('/site/fe/user/main', ['customViewName' => $oAccount->group->view_name]);
+				exit;
+			}
+		}
+
 		\TPL::output('/site/fe/user/main');
 		exit;
 	}
@@ -23,7 +32,7 @@ class main extends \site\fe\base {
 		/* 整理cookie中的数据，便于后续处理 */
 		$modelWay = $this->model('site\fe\way');
 		$modelWay->resetAllCookieUser();
-
+		
 		/* 保存页面来源 */
 		if (!empty($originUrl)) {
 			if (!empty($urlEncryptKey)) {
@@ -78,7 +87,6 @@ class main extends \site\fe\base {
 	}
 	/**
 	 * 修改用户昵称
-	 * 只有注册过用户才能修改？？？
 	 */
 	public function changeNickname_action() {
 		$data = $this->getPostJson();
@@ -109,6 +117,35 @@ class main extends \site\fe\base {
 		$cookieUser = $modelWay->getCookieUser($this->siteId);
 		$cookieUser->nickname = $data->nickname;
 		$modelWay->setCookieUser($this->siteId, $cookieUser);
+
+		return new \ResponseData('ok');
+	}
+	/**
+	 * 修改用户头像信息
+	 */
+	public function changeHeadImg_action($site) {
+		$data = $this->getPostJson();
+		if (empty($data->imgSrc)) {
+			return new \ResponseError('头像地址不能为空');
+		}
+		
+		$user = $this->who;
+		$avatar = new \stdClass;
+		$avatar->imgSrc = $data->imgSrc;
+		$avatar->imgType = 'avatar';
+		$avatar->creatorId = $user->uid;
+		
+		$store = $this->model('fs/user', $site, 'avatar');
+		$rst = $store->storeImg($avatar);
+		if (false === $rst[0]) {
+			return new \ResponseError($rst[1]);
+		}
+		$headImgUrl = $rst[1];
+		/* 更新站点用户信息 */
+		$modelUsr = $this->model('site\user\account');
+		if ($account = $modelUsr->byId($user->uid)) {
+			$modelUsr->changeHeadImgUrl($site, $account->uid, $headImgUrl);
+		}
 
 		return new \ResponseData('ok');
 	}

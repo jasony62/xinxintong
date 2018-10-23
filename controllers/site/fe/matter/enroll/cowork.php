@@ -54,7 +54,7 @@ class cowork extends base {
 		$oUser = $this->getUser($oApp);
 
 		/* 检查是否满足添加答案的条件 */
-		if (!isset($oApp->entryRule->exclude_action) || $oApp->entryRule->exclude_action->add_cowork != "Y") {
+		if (empty($oApp->entryRule->exclude_action->add_cowork) || $oApp->entryRule->exclude_action->add_cowork != "Y") {
 			$checkEntryRule = $this->checkEntryRule($oApp, false, $oUser);
 			if ($checkEntryRule[0] === false) {
 				return new \ResponseError($checkEntryRule[1]);
@@ -139,7 +139,7 @@ class cowork extends base {
 
 		/* 更新用户汇总信息及积分 */
 		$modelEvt = $this->model('matter\enroll\event');
-		$modelEvt->submitCowork($oApp, $oRecData, $oNewItem, $oUser);
+		$coworkResult = $modelEvt->submitCowork($oApp, $oRecData, $oNewItem, $oUser);
 		/* 生成提醒 */
 		$this->model('matter\enroll\notice')->addCowork($oApp, $oRecData, $oNewItem, $oUser);
 
@@ -148,7 +148,11 @@ class cowork extends base {
 			$this->_notifyReceivers($oApp, $oRecord, $oNewItem);
 		}
 
-		return new \ResponseData([$oNewItem, $oRecData]);
+		$data = [];
+		$data['oNewItem'] = $oNewItem;
+		$data['oRecData'] = $oRecData;
+		$data['coworkResult'] = $coworkResult;
+		return new \ResponseData($data);
 	}
 	/**
 	 * 通知协作填写记录事件

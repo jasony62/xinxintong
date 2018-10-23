@@ -112,6 +112,14 @@ define(['frame'], function(ngApp) {
                         }
                     }
                     break;
+                case 'group':
+                    if ($scope.rule.scope.group !== 'Y') {
+                        delete $scope.rule.group;
+                        if ($scope.rule.optional) {
+                            delete $scope.rule.optional.group;
+                        }
+                    }
+                    break;
             }
             srvEnrollApp.changeUserScope($scope.rule.scope, $scope.sns);
         };

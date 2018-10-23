@@ -53,14 +53,9 @@
                 </li>
             </ul>
         </div>
-        <div class='form-group list-group-item'>
-            <div class='form-group' ng-if="!app.group_app_id">
-                <button class='btn btn-success btn-block' ng-click="assignGroupApp()">指定分组匹配名单</button>
-            </div>
-            <div ng-if="app.group_app_id" class='help-block'>需要与【<a href='/rest/pl/fe/matter/group?site={{app.siteid}}&id={{app.groupApp.id}}' target='_self'>{{app.groupApp.title}}</a>】中的分组记录匹配的题目
-                <button class='btn btn-default btn-xs' ng-click="cancelGroupApp()"><span class='glyphicon glyphicon-remove'></span></button>
-            </div>
-            <ul class='list-group' ng-if="app.group_app_id">
+        <div class='form-group list-group-item' ng-if="app.entryRule.scope.group==='Y'&&app.entryRule.group.id">
+            <div class='help-block'>需要与【<a href='/rest/pl/fe/matter/group?site={{app.siteid}}&id={{app.groupApp.id}}' target='_self'>{{app.entryRule.group.title}}</a>】中的分组记录匹配的题目</div>
+            <ul class='list-group'>
                 <li class='list-group-item' ng-repeat="s in app.groupApp.dataSchemas" ng-switch on="s.assocState">
                     <span>{{s.title}}</span>
                     <span ng-switch-when="yes" class='pull-right'>已关联</span>

@@ -1581,96 +1581,74 @@ class record extends main_base {
 	/**
 	 * 从关联的分组活动中查找匹配的记录
 	 */
-	public function matchGroup_action($site, $app) {
-		if (false === ($oUser = $this->accountUser())) {
+	public function matchGroup_action($app) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
-		$enrollRecord = $this->getPostJson();
-		$result = [];
-
-		// 签到应用
 		$modelApp = $this->model('matter\enroll');
-		$enrollApp = $modelApp->byId($app, ['cascaded' => 'N']);
-		if (empty($enrollApp->group_app_id) || empty($enrollApp->data_schemas)) {
-			return new \ParameterError();
+		$oEnlApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $oEnlApp || empty($oEnlApp->dataSchemas)) {
+			return new \ObjectNotFoundError();
 		}
 
+		if (empty($oEnlApp->entryRule->group->id)) {
+			return new \ParameterError('没有关联分组活动');
+		}
+
+		$oEnlRecord = $this->getPostJson();
+
 		// 匹配规则
-		$isEmpty = true;
-		$matchCriteria = new \stdClass;
-		$schemas = json_decode($enrollApp->data_schemas);
-		foreach ($schemas as $schema) {
-			if (isset($schema->requireCheck) && $schema->requireCheck === 'Y') {
-				if (isset($schema->fromApp) && $schema->fromApp === $enrollApp->group_app_id) {
-					if (!empty($enrollRecord->{$schema->id})) {
-						$matchCriteria->{$schema->id} = $enrollRecord->{$schema->id};
-						$isEmpty = false;
+		$bEmpty = true;
+		$oMatchCriteria = new \stdClass;
+		foreach ($oEnlApp->dataSchemas as $oSchema) {
+			if (isset($oSchema->requireCheck) && $oSchema->requireCheck === 'Y') {
+				if (isset($oSchema->fromApp) && $oSchema->fromApp === $oEnlApp->entryRule->group->id) {
+					if (!empty($oEnlRecord->{$oSchema->id})) {
+						$oMatchCriteria->{$oSchema->id} = $oEnlRecord->{$oSchema->id};
+						$bEmpty = false;
 					}
 				}
 			}
 		}
 
-		if (!$isEmpty) {
+		$aResult = [];
+		if (!$bEmpty) {
 			// 查找匹配的数据
-			$groupApp = $this->model('matter\group')->byId($enrollApp->group_app_id, ['cascaded' => 'N']);
+			$oGroupApp = $this->model('matter\group')->byId($oEnlApp->entryRule->group->id, ['cascaded' => 'N']);
 			$modelGrpRec = $this->model('matter\group\player');
-			$matchedRecords = $modelGrpRec->byData($groupApp, $matchCriteria);
+			$matchedRecords = $modelGrpRec->byData($oGroupApp, $oMatchCriteria);
 			foreach ($matchedRecords as $matchedRec) {
 				if (isset($matchedRec->round_id)) {
 					$matchedRec->data->_round_id = $matchedRec->round_id;
 				}
-				$result[] = $matchedRec->data;
+				$aResult[] = $matchedRec->data;
 			}
 		}
 
-		return new \ResponseData($result);
+		return new \ResponseData($aResult);
 	}
 	/**
-	 * 登记数据导出
+	 * 填写记录导出
 	 */
-	public function export_action($site, $app, $filter = '') {
+	public function export_action($app, $filter = '') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		// 登记活动
-		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,state,title,data_schemas,entry_rule,assigned_nickname,scenario,enroll_app_id,group_app_id,mission_id,sync_mission_round,round_cron', 'cascaded' => 'N']);
+		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,state,title,data_schemas,entry_rule,assigned_nickname,scenario,enroll_app_id,mission_id,sync_mission_round,round_cron', 'cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
-			die('指定的对象不存在或者已经不可用');
+			die('访问的对象不存在或不可用');
 		}
 		$schemas = $oApp->dynaDataSchemas;
 
-		// 关联的登记活动
-		if (!empty($oApp->enroll_app_id)) {
-			$matchApp = $this->model('matter\enroll')->byId($oApp->enroll_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
-			$enrollSchemas = $matchApp->dataSchemas;
-			$mapOfAppSchemas = [];
-			foreach ($schemas as $schema) {
-				$mapOfAppSchemas[] = $schema->id;
-			}
-			foreach ($enrollSchemas as $schema) {
-				if (!in_array($schema->id, $mapOfAppSchemas)) {
-					$schemas[] = $schema;
-				}
-			}
-		}
-		// 关联的分组活动
-		if (!empty($oApp->group_app_id)) {
-			$matchApp = $this->model('matter\group')->byId($oApp->group_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
-			$groupSchemas = json_decode($matchApp->data_schemas);
-			$mapOfAppSchemas = [];
-			foreach ($schemas as $schema) {
-				$mapOfAppSchemas[] = $schema->id;
-			}
-			foreach ($groupSchemas as $schema) {
-				if (!in_array($schema->id, $mapOfAppSchemas)) {
-					$schemas[] = $schema;
-				}
-			}
-		}
+		$modelSch = $this->model('matter\enroll\schema');
+		// 加入关联活动的题目
+		$modelSch->getUnionSchemas($oApp, $schemas);
+		// 关联的分组题目
+		$oAssocGrpSchema = $modelSch->getAssocGroupSchema($oApp);
 
-		// 获得所有有效的登记记录
+		/* 获得所有有效的登记记录 */
 		$modelRec = $this->model('matter\enroll\record');
 
 		// 筛选条件
@@ -1689,9 +1667,6 @@ class record extends main_base {
 		if ($oResult->total === 0) {
 			die('导出数据为空');
 		}
-
-		// 是否需要分组信息
-		$bRequireGroup = empty($oApp->group_app_id) && isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && !empty($oApp->entryRule->group->id);
 
 		$records = $oResult->records;
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
@@ -1749,7 +1724,7 @@ class record extends main_base {
 		if ($bRequireNickname) {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '昵称');
 		}
-		if ($bRequireGroup) {
+		if (null === $oAssocGrpSchema) {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '分组');
 		}
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '备注');
@@ -1927,7 +1902,7 @@ class record extends main_base {
 				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->nickname);
 			}
 			// 分组
-			if ($bRequireGroup) {
+			if (null === $oAssocGrpSchema) {
 				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, isset($oRecord->group->title) ? $oRecord->group->title : '');
 			}
 			// 备注
@@ -1973,7 +1948,7 @@ class record extends main_base {
 		exit;
 	}
 	/**
-	 * 导出登记数据中的图片
+	 * 导出记录中的图片
 	 */
 	public function exportImage_action($site, $app) {
 		if (false === ($oUser = $this->accountUser())) {
@@ -1983,47 +1958,21 @@ class record extends main_base {
 			die('部署环境不支持该功能');
 		}
 
-		$nameSchema = null;
+		$oNameSchema = null;
 		$imageSchemas = [];
 
-		// 登记活动
-		$enrollApp = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario,enroll_app_id,group_app_id,sync_mission_round', 'cascaded' => 'N']);
-		$schemas = $enrollApp->dataSchemas;
-
-		// 关联的登记活动
-		if (!empty($enrollApp->enroll_app_id)) {
-			$matchApp = $this->model('matter\enroll')->byId($enrollApp->enroll_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
-			$enrollSchemas = json_decode($matchApp->data_schemas);
-			$mapOfAppSchemas = [];
-			foreach ($schemas as $schema) {
-				$mapOfAppSchemas[] = $schema->id;
-			}
-			foreach ($enrollSchemas as $schema) {
-				if (!in_array($schema->id, $mapOfAppSchemas)) {
-					$schemas[] = $schema;
-				}
-			}
-		}
-		// 关联的分组活动
-		if (!empty($enrollApp->group_app_id)) {
-			$matchApp = $this->model('matter\group')->byId($enrollApp->group_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
-			$groupSchemas = json_decode($matchApp->data_schemas);
-			$mapOfAppSchemas = [];
-			foreach ($schemas as $schema) {
-				$mapOfAppSchemas[] = $schema->id;
-			}
-			foreach ($groupSchemas as $schema) {
-				if (!in_array($schema->id, $mapOfAppSchemas)) {
-					$schemas[] = $schema;
-				}
-			}
-		}
+		// 记录活动
+		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario,enroll_app_id,sync_mission_round', 'cascaded' => 'N']);
+		$schemas = $oApp->dynaDataSchemas;
+		$modelSch = $this->model('matter\enroll\schema');
+		// 加入关联活动的题目
+		$modelSch->getUnionSchemas($oApp, $schemas);
 
 		foreach ($schemas as $schema) {
 			if ($schema->type === 'image') {
 				$imageSchemas[] = $schema;
 			} else if ($schema->id === 'name' || (in_array($schema->title, array('姓名', '名称')))) {
-				$nameSchema = $schema;
+				$oNameSchema = $schema;
 			}
 		}
 
@@ -2032,7 +1981,7 @@ class record extends main_base {
 		}
 
 		// 获得所有有效的登记记录
-		$records = $this->model('matter\enroll\record')->byApp($enrollApp);
+		$records = $this->model('matter\enroll\record')->byApp($oApp);
 		if ($records->total === 0) {
 			die('record empty');
 		}
@@ -2055,7 +2004,7 @@ class record extends main_base {
 		// 输出
 		$usedRecordName = [];
 		// 输出打包文件
-		$zipFilename = tempnam('/tmp', $enrollApp->id);
+		$zipFilename = tempnam('/tmp', $oApp->id);
 		$zip = new \ZipArchive;
 		if ($zip->open($zipFilename, \ZIPARCHIVE::CREATE) === false) {
 			die('无法打开压缩文件，或者文件创建失败');
@@ -2067,10 +2016,10 @@ class record extends main_base {
 				/**
 				 * 图片文件名称替换
 				 */
-				if (isset($nameSchema)) {
+				if (isset($oNameSchema)) {
 					$data = $image['data'];
-					if (!empty($data->{$nameSchema->id})) {
-						$recordName = $data->{$nameSchema->id};
+					if (!empty($data->{$oNameSchema->id})) {
+						$recordName = $data->{$oNameSchema->id};
 						if (isset($usedRecordName[$recordName])) {
 							$usedRecordName[$recordName]++;
 							$recordName = $recordName . '_' . $usedRecordName[$recordName];
@@ -2090,7 +2039,7 @@ class record extends main_base {
 		}
 		header("Cache-Control: public");
 		header("Content-Description: File Transfer");
-		header('Content-disposition: attachment; filename=' . $enrollApp->title . '.zip');
+		header('Content-disposition: attachment; filename=' . $oApp->title . '.zip');
 		header("Content-Type: application/zip");
 		header("Content-Transfer-Encoding: binary");
 		header('Content-Length: ' . filesize($zipFilename));

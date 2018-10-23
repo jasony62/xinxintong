@@ -123,10 +123,11 @@ class user extends base {
 	 */
 	public function kanban_action($app, $rid = '', $page = 1, $size = 100) {
 		$modelEnl = $this->model('matter\enroll');
-		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,mission_id,entry_rule,action_rule,group_app_id,absent_cause,data_schemas']);
-		if (false === $oApp) {
+		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,state,mission_id,entry_rule,action_rule,absent_cause,data_schemas']);
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+
 		$oUser = $this->getUser($oApp);
 		if (!empty($oApp->actionRule->role->kanban->group)) {
 			if (empty($oUser->group_id)) {
@@ -141,25 +142,20 @@ class user extends base {
 		$modelUsr = $this->model('matter\enroll\user');
 		$oResult = $modelUsr->enrolleeByApp($oApp, $page, $size, ['rid' => $rid]);
 		if (count($oResult->users)) {
-			if (!empty($oApp->group_app_id)) {
-				foreach ($oApp->dataSchemas as $schema) {
-					if ($schema->id == '_round_id') {
-						$aUserRounds = $schema->ops;
-						break;
-					}
+			$oAssocGrpSchema = $this->model('matter\enroll\schema')->getAssocGroupSchema($oApp);
+			if ($oAssocGrpSchema && !empty($oAssocGrpSchema->ops)) {
+				$aUserRounds = [];
+				foreach ($oAssocGrpSchema->ops as $oOp) {
+					$aUserRounds[$oOp->v] = $oOp;
 				}
 			}
-			foreach ($oResult->users as &$oUser) {
+			foreach ($oResult->users as $oUser) {
 				unset($oUser->siteid);
 				unset($oUser->aid);
 				unset($oUser->modify_log);
 				unset($oUser->wx_openid);
-				if (isset($aUserRounds) && $oUser->group_id) {
-					foreach ($aUserRounds as $v) {
-						if ($v->v == $oUser->group_id) {
-							$oUser->group = $v;
-						}
-					}
+				if (isset($aUserRounds) && !empty($oUser->group_id) && isset($aUserRounds[$oUser->group_id])) {
+					$oUser->group = $aUserRounds[$oUser->group_id];
 				}
 			}
 		}

@@ -29,8 +29,7 @@ class topic extends base {
 				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
 				// 如果登记活动指定了编辑组需要获取，编辑组中所有的用户
 				$modelGrpUsr = $this->model('matter\group\player');
-				$assocGroupId = $oApp->entryRule->group->id;
-				$groupEditor = $modelGrpUsr->byApp($assocGroupId, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
+				$groupEditor = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
 				if (isset($groupEditor->players)) {
 					$groupEditorPlayers = $groupEditor->players;
 					$oEditorUsers = new \stdClass;
@@ -63,7 +62,8 @@ class topic extends base {
 			if (empty($oMockUser->is_editor) || $oMockUser->is_editor !== 'Y') {
 				if (!empty($oTopic->group_id) && $oTopic->group_id === $oEditor->group) {
 					$oTopic->nickname = $oEditor->nickname;
-				} else if (isset($oEditorUsers) && isset($oEditorUsers->{$oTopic->userid})) { // 记录提交者是否有编辑组角色
+				} else if (isset($oEditorUsers) && isset($oEditorUsers->{$oTopic->userid})) {
+					// 记录提交者是否有编辑组角色
 					$oTopic->nickname = $oEditor->nickname;
 				}
 			}

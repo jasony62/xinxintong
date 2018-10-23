@@ -787,8 +787,8 @@ class record_model extends record_base {
 			}
 		}
 		/* 用户所属分组 */
-		if (!empty($oApp->group_app_id) || !empty($oApp->entryRule->group->id)) {
-			$groupAppId = !empty($oApp->group_app_id) ? $oApp->group_app_id : $oApp->entryRule->group->id;
+		if (!empty($oApp->entryRule->group->id)) {
+			$groupAppId = $oApp->entryRule->group->id;
 			$modelGrpUser = $this->model('matter\group\user');
 			$aFnHandlers[] = function ($oRec) use ($groupAppId, $modelGrpUser) {
 				if (!empty($oRec->userid)) {

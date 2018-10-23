@@ -185,7 +185,7 @@ class remind_model extends \TMS_MODEL {
 						}
 					}
 				}
-			} else if (isset($oMatter->entryRule->scope->group) && $oMatter->entryRule->scope->group === 'Y' && !empty($oMatter->entryRule->group->id)) {
+			} else if (!empty($oMatter->entryRule->group->id)) {
 				$oGrpApp = $this->model('matter\group')->byId($oMatter->entryRule->group->id, ['fields' => 'title']);
 				if ($oGrpApp) {
 					if (empty($oMatter->entryRule->group->round->id)) {

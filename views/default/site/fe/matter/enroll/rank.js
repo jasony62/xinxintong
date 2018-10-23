@@ -352,7 +352,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
                 if (!oAppState.aid || oAppState.aid !== oApp.id) {
                     oAppState = null;
                 } else if (oAppState.criteria.obj === 'group') {
-                    if (!oApp.group_app_id) {
+                    if (!oApp.entryRule.group.id) {
                         oAppState = null;
                     }
                 }

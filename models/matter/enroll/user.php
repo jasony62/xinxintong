@@ -96,15 +96,9 @@ class user_model extends \TMS_MODEL {
 		}
 
 		/* 获得用户所属分组 */
-		if (!empty($oApp->group_app_id)) {
-			$assocGroupId = $oApp->group_app_id;
-		} else if (isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && isset($oApp->entryRule->group->id)) {
-			$assocGroupId = $oApp->entryRule->group->id;
-		}
-		if (isset($assocGroupId)) {
+		if (isset($oApp->entryRule->group->id)) {
 			$modelGrpUsr = $this->model('matter\group\player');
-			$oAssocGrpApp = (object) ['id' => $assocGroupId];
-			$oGrpMemb = $modelGrpUsr->byUser($oAssocGrpApp, $oUser->uid, ['fields' => 'round_id,is_leader,role_rounds', 'onlyOne' => true]);
+			$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oUser->uid, ['fields' => 'round_id,is_leader,role_rounds', 'onlyOne' => true]);
 			if ($oGrpMemb) {
 				$oUser->group_id = $oGrpMemb->round_id;
 				$oUser->is_leader = $oGrpMemb->is_leader;
@@ -324,11 +318,10 @@ class user_model extends \TMS_MODEL {
 		if ($cascaded === 'Y' && count($users)) {
 			$aHandlers = [];
 			/* 用户的分组信息 */
-			if (!empty($oApp->group_app_id) || !empty($oApp->entryRule->group->id)) {
+			if (!empty($oApp->entryRule->group->id)) {
 				$modelGrpUser = $this->model('matter\group\user');
-				$groupAppId = !empty($oApp->group_app_id) ? $oApp->group_app_id : $oApp->entryRule->group->id;
-				$fnHandler = function ($oUser) use ($groupAppId, $modelGrpUser) {
-					$oGrpUser = $modelGrpUser->byUser((object) ['id' => $groupAppId], $oUser->userid, ['fields' => 'round_id,round_title', 'onlyOne' => true]);
+				$fnHandler = function ($oUser) use ($oApp, $modelGrpUser) {
+					$oGrpUser = $modelGrpUser->byUser((object) ['id' => $oApp->entryRule->group->id], $oUser->userid, ['fields' => 'round_id,round_title', 'onlyOne' => true]);
 					if ($oGrpUser) {
 						$oUser->group = (object) ['id' => $oGrpUser->round_id, 'title' => $oGrpUser->round_title];
 					}
@@ -423,29 +416,34 @@ class user_model extends \TMS_MODEL {
 		return $oResult;
 	}
 	/**
-	 * 获得活动指定的参与
+	 * 获得活动指定的参与人
 	 */
 	public function assignedByApp($oApp) {
 		$aAssignedUsrs = [];
 		$oEntryRule = $oApp->entryRule;
-		if (isset($oEntryRule->scope->group) && $oEntryRule->scope->group === 'Y') {
+		if (!empty($oEntryRule->group->id)) {
 			$oGrpApp = $oEntryRule->group;
 			$modelGrpUsr = $this->model('matter\group\player');
 			if (empty($oGrpApp->round->id)) {
 				$aGrpUsrs = $modelGrpUsr->byApp(
 					$oGrpApp->id,
-					['fields' => 'userid,nickname']
+					['fields' => 'userid,nickname,round_id,round_title']
 				);
 				foreach ($aGrpUsrs->players as $oGrpUsr) {
+					$oGrpUsr->group = (object) ['id' => $oGrpUsr->round_id, 'title' => $oGrpUsr->round_title];
+					unset($oGrpUsr->round_id);
+					unset($oGrpUsr->round_title);
 					$aAssignedUsrs[] = $oGrpUsr;
 				}
 			} else {
 				$aGrpUsrs = $modelGrpUsr->byRound(
 					$oGrpApp->id,
 					$oGrpApp->round->id,
-					['fields' => 'userid,nickname']
+					['fields' => 'userid,nickname,round_title']
 				);
 				foreach ($aGrpUsrs as $oGrpUsr) {
+					$oGrpUsr->group = (object) ['id' => $oGrpApp->round->id, 'title' => $oGrpUsr->round_title];
+					unset($oGrpUsr->round_title);
 					$aAssignedUsrs[] = $oGrpUsr;
 				}
 			}
@@ -461,13 +459,6 @@ class user_model extends \TMS_MODEL {
 					$aAssignedUsrs[] = $oUser;
 				}
 			}
-		} else if (!empty($oApp->group_app_id)) {
-			$modelGrpUsr = $this->model('matter\group\player');
-			$aGrpUsrs = $modelGrpUsr->byApp($oApp->group_app_id, ['fields' => 'userid,nickname']);
-			foreach ($aGrpUsrs->players as $oGrpUsr) {
-				$aAssignedUsrs[] = $oGrpUsr;
-			}
-			$oReferenceApp = $this->model('matter\group')->byId($oApp->group_app_id, ['fields' => 'id,title,data_schemas']);
 		} else if (!empty($oApp->mission_id)) {
 			$modelMis = $this->model('matter\mission');
 			$oMission = $modelMis->byId($oApp->mission_id, ['fields' => 'user_app_id,user_app_type,entry_rule']);
@@ -841,27 +832,25 @@ class user_model extends \TMS_MODEL {
 			$receivers = $this->query_objs_ss($q);
 		}
 		/* 分组活动中的组长 */
-		if (in_array('leader', $oRule->receiver->scope) && !empty($oRecord->userid)) {
-			if (isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && !empty($oApp->entryRule->group->id)) {
+		if (in_array('leader', $oRule->receiver->scope) && !empty($oRecord->userid) && !empty($oApp->entryRule->group->id)) {
+			$q = [
+				'round_id',
+				'xxt_group_player',
+				['state' => 1, 'aid' => $oApp->entryRule->group->id, 'userid' => $oRecord->userid],
+			];
+			$oUserRounds = $this->query_objs_ss($q);
+			if (!empty($oUserRounds)) {
 				$q = [
-					'round_id',
+					'distinct userid',
 					'xxt_group_player',
-					['state' => 1, 'aid' => $oApp->entryRule->group->id, 'userid' => $oRecord->userid],
+					['state' => 1, 'aid' => $oApp->entryRule->group->id, 'round_id' => $oUserRounds[0]->round_id, 'is_leader' => 'Y', 'userid' => (object) ['op' => '<>', 'pat' => $oRecord->userid]],
 				];
-				$oUserRounds = $this->query_objs_ss($q);
-				if (!empty($oUserRounds)) {
-					$q = [
-						'distinct userid',
-						'xxt_group_player',
-						['state' => 1, 'aid' => $oApp->entryRule->group->id, 'round_id' => $oUserRounds[0]->round_id, 'is_leader' => 'Y', 'userid' => (object) ['op' => '<>', 'pat' => $oRecord->userid]],
-					];
-					if (empty($receivers)) {
-						$receivers = $this->query_objs_ss($q);
-					} else {
-						$leaders = $this->query_objs_ss($q);
-						if (!empty($leaders)) {
-							$receivers = array_merge($receivers, $leaders);
-						}
+				if (empty($receivers)) {
+					$receivers = $this->query_objs_ss($q);
+				} else {
+					$leaders = $this->query_objs_ss($q);
+					if (!empty($leaders)) {
+						$receivers = array_merge($receivers, $leaders);
 					}
 				}
 			}
@@ -877,7 +866,7 @@ class user_model extends \TMS_MODEL {
 
 		$aUserAndLeaders = [];
 
-		if (isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && !empty($oApp->entryRule->group->id)) {
+		if (!empty($oApp->entryRule->group->id)) {
 			$q = [
 				'userid,round_id',
 				'xxt_group_player',

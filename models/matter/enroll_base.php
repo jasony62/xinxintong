@@ -421,10 +421,10 @@ abstract class enroll_base extends app_base {
 
 		/* 移除和项目中其他活动的关联 */
 		$aAssocApps = [];
-		if (!empty($oApp->group_app_id)) {
-			$aAssocApps[] = $oApp->group_app_id;
-			$oUpdatedApp->group_app_id = $oApp->group_app_id = '';
-		}
+		//if (!empty($oApp->group_app_id)) {
+		//	$aAssocApps[] = $oApp->group_app_id;
+		//	$oUpdatedApp->group_app_id = $oApp->group_app_id = '';
+		//}
 		if (!empty($oApp->enroll_app_id)) {
 			$aAssocApps[] = $oApp->enroll_app_id;
 			$oUpdatedApp->enroll_app_id = $oApp->enroll_app_id = '';

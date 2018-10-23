@@ -605,10 +605,10 @@ class enroll_model extends enroll_base {
 			}
 
 			/* 关联了分组活动，添加分组名称，替换匹配的题目 */
-			if (!empty($oCustomConfig->proto->groupApp->id)) {
-				$oNewApp->group_app_id = $this->escape($oCustomConfig->proto->groupApp->id);
-				$this->setSchemaByGroupApp($oNewApp->group_app_id, $oTemplateConfig);
-			}
+			//if (!empty($oCustomConfig->proto->groupApp->id)) {
+			//	$oNewApp->group_app_id = $this->escape($oCustomConfig->proto->groupApp->id);
+			//	$this->setSchemaByGroupApp($oNewApp->group_app_id, $oTemplateConfig);
+			//}
 
 			/* 作为昵称的题目 */
 			$oNicknameSchema = $this->findAssignedNicknameSchema($oTemplateConfig->schema);

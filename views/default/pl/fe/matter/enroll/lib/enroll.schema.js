@@ -150,37 +150,6 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
             $scope.activeSchema = null;
             $scope.cstApp = cstApp;
 
-            $scope.assignEnrollApp = function() {
-                srvApp.assignEnrollApp().then(function(oEnlApp) {
-                    var oAppSchema, oEnlSchema, oBefore;
-                    /* 自动关联字段 */
-                    for (var i = 0; i < $scope.app.dataSchemas.length; i++) {
-                        oAppSchema = $scope.app.dataSchemas[i];
-                        for (var j = 0; j < oEnlApp.dataSchemas.length; j++) {
-                            oEnlSchema = oEnlApp.dataSchemas[j];
-                            if (oAppSchema.id === oEnlSchema.id && oAppSchema.type === oEnlSchema.type && oAppSchema.title === oEnlSchema.title) {
-                                oBefore = angular.copy(oAppSchema);
-                                oAppSchema.fromApp = oEnlApp.id;
-                                oAppSchema.requireCheck = 'Y';
-                                $scope.updSchema(oAppSchema, oBefore);
-                                oEnlSchema.assocState = 'yes';
-                                break;
-                            }
-                        }
-                    }
-                });
-            };
-            $scope.cancelEnrollApp = function() {
-                srvApp.get().then(function(oApp) {
-                    oApp.enroll_app_id = '';
-                    delete oApp.enrollApp;
-                    oApp.dataSchemas.forEach(function(oSchema) {
-                        delete oSchema.fromApp;
-                        delete oSchema.requireCheck;
-                    });
-                    srvApp.update(['enroll_app_id', 'data_schemas']);
-                });
-            };
             $scope.assocApp = function(appId) {
                 var oApp, assocApp;
                 oApp = $scope.app;

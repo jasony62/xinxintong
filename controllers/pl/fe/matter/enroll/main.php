@@ -10,13 +10,13 @@ class main extends main_base {
 	 * 返回指定的登记活动
 	 */
 	public function get_action($app) {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
 		$modelEnl = $this->model('matter\enroll');
 		if (false === ($oApp = $modelEnl->byId($app))) {
-			return new \ResponseError('指定的数据不存在');
+			return new \ObjectNotFoundError();
 		}
 		unset($oApp->round_cron);
 		unset($oApp->rp_config);
@@ -28,8 +28,8 @@ class main extends main_base {
 			$oApp->mission = $this->model('matter\mission')->byId($oApp->mission_id);
 		}
 		/* 关联登记活动 */
-		if ($oApp->enroll_app_id) {
-			$oApp->enrollApp = $modelEnl->byId($oApp->enroll_app_id, ['cascaded' => 'N']);
+		if (isset($oApp->entryRule->enroll->id)) {
+			$oApp->enrollApp = $modelEnl->byId($oApp->entryRule->enroll->id, ['cascaded' => 'N']);
 		}
 		/* 指定分组活动用户进入 */
 		if (isset($oApp->entryRule->group->id)) {
@@ -255,10 +255,10 @@ class main extends main_base {
 			//	$aAssocApps[] = $oCopied->group_app_id;
 			//	$oCopied->group_app_id = '';
 			//}
-			if (!empty($oCopied->enroll_app_id)) {
-				$aAssocApps[] = $oCopied->enroll_app_id;
-				$oCopied->enroll_app_id = '';
-			}
+			//if (!empty($oCopied->enroll_app_id)) {
+			//	$aAssocApps[] = $oCopied->enroll_app_id;
+			//	$oCopied->enroll_app_id = '';
+			//}
 			if (count($aAssocApps)) {
 				/* 页面的题目 */
 				foreach ($aPages as $oPage) {
@@ -288,7 +288,7 @@ class main extends main_base {
 		$oNewApp->enrolled_entry_page = $oCopied->enrolled_entry_page;
 		$oNewApp->entry_rule = json_encode($oNewEntryRule);
 		$oNewApp->data_schemas = $modelApp->escape($modelApp->toJson($aDataSchemas));
-		$oNewApp->enroll_app_id = $oCopied->enroll_app_id;
+		//$oNewApp->enroll_app_id = $oCopied->enroll_app_id;
 		$oNewApp->tags = $modelApp->escape($oCopied->tags);
 		$oNewApp->count_limit = $modelApp->escape($oCopied->count_limit);
 

@@ -424,43 +424,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     });
                     return deferred.promise;
                 },
-                assignEnrollApp: function() {
-                    var defer = $q.defer();
-                    $uibModal.open({
-                        templateUrl: 'assignEnrollApp.html',
-                        controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                            $scope2.app = _oApp;
-                            $scope2.data = {
-                                filter: {},
-                                source: ''
-                            };
-                            _oApp.mission && ($scope2.data.sameMission = 'Y');
-                            $scope2.cancel = function() {
-                                $mi.dismiss();
-                            };
-                            $scope2.ok = function() {
-                                $mi.close($scope2.data);
-                            };
-                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _siteId + '&size=999';
-                            _oApp.mission && (url += '&mission=' + _oApp.mission.id);
-                            http2.get(url).then(function(rsp) {
-                                $scope2.apps = rsp.data.apps;
-                            });
-                        }],
-                        backdrop: 'static'
-                    }).result.then(function(data) {
-                        _oApp.enroll_app_id = data.source;
-                        _self.update('enroll_app_id').then(function(rsp) {
-                            var url = '/rest/pl/fe/matter/enroll/get?site=' + _siteId + '&app=' + _oApp.enroll_app_id;
-                            http2.get(url).then(function(rsp) {
-                                _oApp.enrollApp = rsp.data;
-                                _fnMapAssocEnrollApp(_oApp);
-                                defer.resolve(_oApp.enrollApp);
-                            });
-                        });
-                    });
-                    return defer.promise;
-                },
                 renewScore: function(rid) {
                     var url, defer;
 

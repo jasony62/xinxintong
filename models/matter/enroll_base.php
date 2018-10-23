@@ -425,10 +425,10 @@ abstract class enroll_base extends app_base {
 		//	$aAssocApps[] = $oApp->group_app_id;
 		//	$oUpdatedApp->group_app_id = $oApp->group_app_id = '';
 		//}
-		if (!empty($oApp->enroll_app_id)) {
-			$aAssocApps[] = $oApp->enroll_app_id;
-			$oUpdatedApp->enroll_app_id = $oApp->enroll_app_id = '';
-		}
+		//if (!empty($oApp->enroll_app_id)) {
+		//	$aAssocApps[] = $oApp->enroll_app_id;
+		//	$oUpdatedApp->enroll_app_id = $oApp->enroll_app_id = '';
+		//}
 		if (count($aAssocApps)) {
 			/* 页面的题目 */
 			foreach ($oApp->pages as $oPage) {

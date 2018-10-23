@@ -653,7 +653,7 @@ class enroll_model extends enroll_base {
 		$oNewApp->title = empty($oProto->title) ? '新记录活动' : $this->escape($oProto->title);
 		$oNewApp->summary = empty($oProto->summary) ? '' : $this->escape($oProto->summary);
 		$oNewApp->sync_mission_round = empty($oProto->sync_mission_round) ? 'N' : (in_array($oProto->sync_mission_round, ['Y', 'N']) ? $oProto->sync_mission_round : 'N');
-		$oNewApp->enroll_app_id = empty($oProto->enrollApp->id) ? '' : $this->escape($oProto->enrollApp->id);
+		//$oNewApp->enroll_app_id = empty($oProto->enrollApp->id) ? '' : $this->escape($oProto->enrollApp->id);
 		$oNewApp->start_at = isset($oProto->start_at) ? $oProto->start_at : 0;
 		$oNewApp->end_at = isset($oProto->end_at) ? $oProto->end_at : 0;
 		/* 是否开放共享页 */

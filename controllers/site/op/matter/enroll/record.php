@@ -55,7 +55,7 @@ class record extends \site\op\base {
 			$q = [
 				'id',
 				'xxt_signin',
-				"enroll_app_id='{$app->id}'",
+				['enroll_app_id'=$app->id],
 			];
 			$signinApps = $model->query_objs_ss($q);
 			if (count($signinApps)) {

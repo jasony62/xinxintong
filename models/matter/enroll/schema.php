@@ -931,8 +931,8 @@ class schema_model extends \TMS_MODEL {
 			return $count;
 		};
 		// 关联的记录活动
-		if (!empty($oApp->enroll_app_id)) {
-			$matchApp = $this->model('matter\enroll')->byId($oApp->enroll_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+		if (!empty($oApp->entryRule->enroll->id)) {
+			$matchApp = $this->model('matter\enroll')->byId($oApp->entryRule->enroll->id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
 			if (count($matchApp->dynaDataSchemas)) {
 				$fnUnion($matchApp->dynaDataSchemas);
 			}

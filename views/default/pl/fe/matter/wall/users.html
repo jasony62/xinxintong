@@ -1,11 +1,11 @@
 <!--<div  ng-include="'nav.html'"></div>-->
 <div class="tile">
-    <div class= 'navbar-form '>
+    <div class='navbar-form '>
         <button class='btn  btn-success' ng-click="import()" ng-if="!wall.sourceApp">导入用户</button>
         <button class='btn  btn-success' ng-click="importPublic()">导入公众号用户</button>
-        <div ng-if="wall.sourceApp"  class="form-group">
-            <label >在线用户来源</label>
-            <div class="form-control"   ng-bind = "wall.sourceApp.title" ></div>
+        <div ng-if="wall.sourceApp" class="form-group">
+            <label>在线用户来源</label>
+            <div class="form-control" ng-bind="wall.sourceApp.title"></div>
         </div>
         <button class='btn  btn-success' ng-click='syncByApp()' ng-if="wall.sourceApp"> 同步用户</button>
         <button class='btn btn-danger' ng-click='quit()'>将所有用户退出信息墙</button>
@@ -16,26 +16,26 @@
     <div class="form-group">
         <table class='table table-bordered'>
             <thead>
-            <tr>
-                <th style='width:48px'>序号</th>
-                <th>用户</th>
-                <th>进入时间</th>
-                <th>留言时间</th>
-                <th>操作</th>
-            </tr>
+                <tr>
+                    <th style='width:48px'>序号</th>
+                    <th>用户</th>
+                    <th>进入时间</th>
+                    <th>留言时间</th>
+                    <th>操作</th>
+                </tr>
             </thead>
             <tbody>
-            <tr ng-repeat='u in users'>
-                <td>{{$index+1}}</td>
-                <td>{{u.nickname}}</td>
-                <td>{{u.join_at*1000|date:'MM-dd HH:mm'}}</td>
-                <td>{{u.last_msg_at*1000|date:'MM-dd HH:mm'}}</td>
-                <td>
-                    <button class='btn btn-xs btn-danger' ng-click='removeRecord(u)'>
-                        <span class='glyphicon glyphicon-remove'></span>
-                    </button>
-                </td>
-            </tr>
+                <tr ng-repeat='u in users'>
+                    <td>{{$index+1}}</td>
+                    <td>{{u.nickname}}</td>
+                    <td>{{u.join_at*1000|date:'MM-dd HH:mm'}}</td>
+                    <td>{{u.last_msg_at*1000|date:'MM-dd HH:mm'}}</td>
+                    <td>
+                        <button class='btn btn-xs btn-danger' ng-click='removeRecord(u)'>
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -50,10 +50,8 @@
                     <label class="col-md-3 control-label">数据来源</label>
 
                     <div class="col-md-9">
-                        <label class='radio-inline'><input type='radio' name='appType' value='enroll'
-                                                           ng-model="data.appType">登记活动</label>
-                        <label class='radio-inline'><input type='radio' name='appType' value='signin'
-                                                           ng-model="data.appType">签到</label>
+                        <label class='radio-inline'><input type='radio' name='appType' value='enroll' ng-model="data.appType">登记活动</label>
+                        <label class='radio-inline'><input type='radio' name='appType' value='signin' ng-model="data.appType">签到</label>
                     </div>
                 </div>
                 <div class='form-group'>
@@ -64,8 +62,7 @@
                                 ng-options="app.title for app in apps"></select>
 
                         <div class='checkbox' ng-if="app.mission">
-                            <label><input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'"
-                                          ng-false-value="'N'">选择同一个项目中的活动</label>
+                            <label><input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'">选择同一个项目中的活动</label>
                         </div>
                     </div>
                 </div>
@@ -74,8 +71,7 @@
 
                     <div class="col-md-9">
                         <div class='checkbox'>
-                            <label><input type='checkbox' ng-model="data.includeEnroll" ng-true-value="'Y'"
-                                          ng-false-value="'N'">是</label>
+                            <label><input type='checkbox' ng-model="data.includeEnroll" ng-true-value="'Y'" ng-false-value="'N'">是</label>
                         </div>
                     </div>
                 </div>

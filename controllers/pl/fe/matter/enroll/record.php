@@ -1440,7 +1440,7 @@ class record extends main_base {
 			$q = [
 				'id',
 				'xxt_signin',
-				"enroll_app_id='{$oApp->id}'",
+				['enroll_app_id' => $oApp->id],
 			];
 			$signinApps = $modelSigninRec->query_objs_ss($q);
 			if (count($signinApps)) {
@@ -1537,46 +1537,47 @@ class record extends main_base {
 	 * 从关联的登记活动中查找匹配的记录
 	 */
 	public function matchEnroll_action($site, $app) {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
-		$enrollRecord = $this->getPostJson();
-		$result = [];
-
-		// 登记活动
 		$modelApp = $this->model('matter\enroll');
-		$enrollApp = $modelApp->byId($app, ['cascaded' => 'N']);
-		if (empty($enrollApp->enroll_app_id) || empty($enrollApp->data_schemas)) {
+		$oEnlApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $oEnlApp || empty($oEnlApp->dynaDataSchemas)) {
+			return new \ObjectNotFoundError();
+		}
+
+		if (empty($oEnlApp->entryRule->enroll->id)) {
 			return new \ParameterError();
 		}
 
+		$oEnlRecord = $this->getPostJson();
 		// 匹配规则
-		$isEmpty = true;
-		$matchCriteria = new \stdClass;
-		$schemas = json_decode($enrollApp->data_schemas);
-		foreach ($schemas as $schema) {
-			if (isset($schema->requireCheck) && $schema->requireCheck === 'Y') {
-				if (isset($schema->fromApp) && $schema->fromApp === $enrollApp->enroll_app_id) {
-					if (!empty($enrollRecord->{$schema->id})) {
-						$matchCriteria->{$schema->id} = $enrollRecord->{$schema->id};
-						$isEmpty = false;
+		$bEmpty = true;
+		$oMatchCriteria = new \stdClass;
+		foreach ($oEnlApp->dynaDataSchemas as $oSchema) {
+			if (isset($oSchema->requireCheck) && $oSchema->requireCheck === 'Y') {
+				if (isset($oSchema->fromApp) && $oSchema->fromApp === $oEnlApp->entryRule->enroll->id) {
+					if (!empty($oEnlRecord->{$oSchema->id})) {
+						$oMatchCriteria->{$oSchema->id} = $oEnlRecord->{$oSchema->id};
+						$bEmpty = false;
 					}
 				}
 			}
 		}
 
-		if (!$isEmpty) {
+		$aResult = [];
+		if (!$bEmpty) {
 			// 查找匹配的数据
-			$matchApp = $modelApp->byId($enrollApp->enroll_app_id, ['cascaded' => 'N']);
+			$matchApp = $modelApp->byId($oEnlApp->entryRule->enroll->id, ['cascaded' => 'N']);
 			$modelEnlRec = $this->model('matter\enroll\record');
-			$matchRecords = $modelEnlRec->byData($matchApp, $matchCriteria);
+			$matchRecords = $modelEnlRec->byData($matchApp, $oMatchCriteria);
 			foreach ($matchRecords as $matchRec) {
-				$result[] = $matchRec->data;
+				$aResult[] = $matchRec->data;
 			}
 		}
 
-		return new \ResponseData($result);
+		return new \ResponseData($aResult);
 	}
 	/**
 	 * 从关联的分组活动中查找匹配的记录
@@ -1636,7 +1637,7 @@ class record extends main_base {
 			return new \ResponseTimeout();
 		}
 
-		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,state,title,data_schemas,entry_rule,assigned_nickname,scenario,enroll_app_id,mission_id,sync_mission_round,round_cron', 'cascaded' => 'N']);
+		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,state,title,data_schemas,entry_rule,assigned_nickname,scenario,mission_id,sync_mission_round,round_cron', 'cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			die('访问的对象不存在或不可用');
 		}
@@ -1985,7 +1986,7 @@ class record extends main_base {
 		$imageSchemas = [];
 
 		// 记录活动
-		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario,enroll_app_id,sync_mission_round', 'cascaded' => 'N']);
+		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario,sync_mission_round', 'cascaded' => 'N']);
 		$schemas = $oApp->dynaDataSchemas;
 		$modelSch = $this->model('matter\enroll\schema');
 		// 加入关联活动的题目

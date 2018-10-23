@@ -91,8 +91,8 @@ class record extends base {
 		/**
 		 * 检查是否存在匹配的登记记录
 		 */
-		if (!empty($oEnrollApp->enroll_app_id)) {
-			$oMatchApp = $modelEnl->byId($oEnrollApp->enroll_app_id, ['cascaded' => 'N']);
+		if (!empty($oEnrollApp->entryRule->enroll->id)) {
+			$oMatchApp = $modelEnl->byId($oEnrollApp->entryRule->enroll->id, ['cascaded' => 'N']);
 			if (empty($oMatchApp)) {
 				return new \ParameterError('指定的登记匹配登记活动不存在');
 			}
@@ -101,7 +101,7 @@ class record extends base {
 			$dataSchemas = $oEnrollApp->dataSchemas;
 			foreach ($dataSchemas as $oSchema) {
 				if (isset($oSchema->requireCheck) && $oSchema->requireCheck === 'Y') {
-					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oEnrollApp->enroll_app_id) {
+					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oEnrollApp->entryRule->enroll->id) {
 						$requireCheckedData->{$oSchema->id} = $modelRec->getValueBySchema($oSchema, $oEnrolledData);
 					}
 				}
@@ -520,7 +520,7 @@ class record extends base {
 				if (file_exists($absPath)) {
 					header("HTTP/1.0 200 Ok");
 					return new \ResponseData('已上传');
-				} else{
+				} else {
 					header("HTTP/1.0 404 Not Found");
 					return new \ResponseData('未上传');
 				}

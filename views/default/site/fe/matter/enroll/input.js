@@ -185,7 +185,7 @@ ngApp.directive('tmsFileInput', ['$q', 'tmsLocation', 'tmsDynaPage', function($q
     tmsDynaPage.loadScript(['/static/js/resumable.js']).then(function() {
         oResumable = new Resumable({
             target: LS.j('record/uploadFile', 'site', 'app'),
-            testChunks: false,
+            testChunks: true,
             chunkSize: 512 * 1024
         });
     });

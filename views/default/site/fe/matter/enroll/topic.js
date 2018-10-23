@@ -105,6 +105,15 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             oRecord.like_num = rsp.data.like_num;
         });
     };
+    $scope.dislikeRecord = function(oRecord) {
+        var url;
+        url = LS.j('record/dislike', 'site');
+        url += '&ek=' + oRecord.enroll_key;
+        http2.get(url).then(function(rsp) {
+            oRecord.dislike_log = rsp.data.dislike_log;
+            oRecord.dislike_num = rsp.data.dislike_num;
+        });
+    };
     $scope.remarkRecord = function(oRecord) {
         var url;
         url = LS.j('', 'site', 'app');

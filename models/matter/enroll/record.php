@@ -185,6 +185,9 @@ class record_model extends record_base {
 		if ($fields === '*' || false !== strpos($fields, 'like_log')) {
 			$oRecord->like_log = empty($oRecord->like_log) ? new \stdClass : json_decode($oRecord->like_log);
 		}
+		if ($fields === '*' || false !== strpos($fields, 'dislike_log')) {
+			$oRecord->dislike_log = empty($oRecord->dislike_log) ? new \stdClass : json_decode($oRecord->dislike_log);
+		}
 		if ($verbose === 'Y' && isset($oRecord->enroll_key)) {
 			$oRecord->verbose = $this->model('matter\enroll\data')->byRecord($oRecord->enroll_key);
 		}
@@ -657,10 +660,34 @@ class record_model extends record_base {
 		if (!empty($oOptions->keyword)) {
 			$w .= ' and (data like \'%' . $oOptions->keyword . '%\')';
 		}
+		// 筛选答案
+		if (isset($oCriteria->cowork)) {
+			$coworkSchemaIds = [];
+			foreach ($oSchemasById as $oSchemaId => $oSchema) {
+				if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
+					$coworkSchemaIds[] = $oSchemaId;
+				}
+			}
+			$coworkSchemaIds = "('" . implode("','", $coworkSchemaIds) . "')";
+			if (!empty($coworkSchemaIds)) {
+				if (isset($oCriteria->cowork->agreed) && empty($oCriteria->cowork->agreed)) {
+					// 如果查询未表态的问题需要所有的答案都未表态才返回
+					$w .= " and 0 = (select count(rd.id) from xxt_enroll_record_data rd where rd.enroll_key = r.enroll_key and rd.agreed <> '' and rd.state=1 and rd.schema_id in " . $coworkSchemaIds . " and rd.rid = r.rid)";
+				} else if (isset($oCriteria->cowork->agreed) && $oCriteria->cowork->agreed === 'answer') {
+					// 如果查询已回答的问题，答案表态为A或者Y的都算已回答
+					$w .= " and exists(select 1 from xxt_enroll_record_data rd where r.enroll_key = rd.enroll_key and (rd.agreed = 'Y' or rd.agreed = 'A') and rd.state=1 and rd.schema_id in " . $coworkSchemaIds . " and rd.rid = r.rid)";
+				} else if (isset($oCriteria->cowork->agreed) && $oCriteria->cowork->agreed === 'unanswer') {
+					// 如果查询未回答的问题需要查询所有的答案表态都不是“Y”和“A”才返回
+					$w .= " and 0 = (select count(rd.id) from xxt_enroll_record_data rd where rd.enroll_key = r.enroll_key and (rd.agreed = 'Y' or rd.agreed = 'A') and rd.state=1 and rd.schema_id in " . $coworkSchemaIds . " and rd.rid = r.rid)";
+				} else if (isset($oCriteria->cowork->agreed)) {
+					$w .= " and exists(select 1 from xxt_enroll_record_data rd where r.enroll_key = rd.enroll_key and rd.agreed = '{$oCriteria->cowork->agreed}' and rd.state=1 and rd.schema_id in " . $coworkSchemaIds . " and rd.rid = r.rid)";
+				}
+			}
+		}
 
 		// 查询参数
 		$q = [
-			'id,enroll_key,rid,enroll_at,userid,group_id,nickname,wx_openid,yx_openid,qy_openid,headimgurl,verified,comment,data,score,supplement,agreed,like_num,like_log,remark_num,favor_num',
+			'id,enroll_key,rid,enroll_at,userid,group_id,nickname,wx_openid,yx_openid,qy_openid,headimgurl,verified,comment,data,score,supplement,agreed,like_num,like_log,remark_num,favor_num,dislike_num,dislike_log',
 			"xxt_enroll_record r",
 			$w,
 		];
@@ -805,6 +832,9 @@ class record_model extends record_base {
 		foreach ($records as $oRec) {
 			if (property_exists($oRec, 'like_log')) {
 				$oRec->like_log = empty($oRec->like_log) ? new \stdClass : json_decode($oRec->like_log);
+			}
+			if (property_exists($oRec, 'dislike_log')) {
+				$oRec->dislike_log = empty($oRec->dislike_log) ? new \stdClass : json_decode($oRec->dislike_log);
 			}
 			//附加说明
 			if (!empty($oRec->supplement)) {

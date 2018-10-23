@@ -12,12 +12,12 @@ class user_model {
 	 */
 	private $service;
 
-	public function __construct($siteId) {
+	public function __construct($siteId, $dirName = '_user') {
 		$this->siteId = $siteId;
 		if (defined('APP_FS_USER') && APP_FS_USER === 'ali-oss') {
 			$this->service = new alioss_model($siteId);
 		} else {
-			$this->service = new local_model($siteId, '_user');
+			$this->service = new local_model($siteId, $dirName);
 		}
 	}
 	/**
@@ -92,6 +92,30 @@ class user_model {
 		return [true, $newUrl];
 	}
 	/**
+	 * 存储base64的文件数据(头像)
+	 */
+	private function storeBase64ImageAvatar($data, $creatorId = null) {
+		$matches = [];
+		$rst = preg_match('/data:image\/(.+?);base64\,/', $data, $matches);
+		if (1 !== $rst) {
+			return array(false, '图片数据格式错误' . $rst);
+		}
+
+		list($header, $ext) = $matches;
+		$ext === 'jpeg' && $ext = 'jpg';
+
+		$pic = base64_decode(str_replace($header, "", $data));
+
+		$dir = empty($creatorId) ? date("ymdH") : $creatorId;
+		$storename = date("is") . rand(10000, 99999) . "." . $ext;
+		/**
+		 * 写到alioss
+		 */
+		$newUrl = $this->writeFile($dir, $storename, $pic);
+
+		return [true, $newUrl];
+	}
+	/**
 	 *
 	 * $img
 	 */
@@ -131,7 +155,15 @@ class user_model {
 				/**
 				 * base64
 				 */
-				$rst = $this->storeBase64Image($img->imgSrc);
+				if (isset($img->imgType) && $img->imgType === 'avatar') {
+					if (isset($img->creatorId)) {
+						$rst = $this->storeBase64ImageAvatar($img->imgSrc, $img->creatorId);
+					} else {
+						$rst = $this->storeBase64ImageAvatar($img->imgSrc);
+					}
+				} else {
+					$rst = $this->storeBase64Image($img->imgSrc);
+				}
 			}
 		}
 

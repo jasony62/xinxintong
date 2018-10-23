@@ -402,6 +402,19 @@ class repos extends base {
 		}
 		!empty($oPosted->data) && $oCriteria->data = $oPosted->data;
 
+		/* 答案的筛选 */
+		if (isset($oPosted->cowork)) {
+			foreach ($oApp->dataSchemas as $oSchema) {
+				if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
+					$oCriteria->cowork = new \stdClass;
+					if (isset($oPosted->cowork->agreed) && $oPosted->cowork->agreed !== 'all') {
+						$oCriteria->cowork->agreed = $oPosted->cowork->agreed;
+					}
+					break;
+				}
+			}	
+		}
+
 		/* 指定的用户身份 */
 		if ($role === 'visitor') {
 			$oMockUser = clone $oUser;
@@ -476,8 +489,20 @@ class repos extends base {
 						} else if (!empty($oRecord->data->{$schemaId})) {
 							/* 协作填写题 */
 							if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
-								$items = $modelData->getMultitext($oRecord->enroll_key, $oSchema->id, ['excludeRoot' => true, 'agreed' => ['Y', 'A'], 'fields' => 'id,agreed,like_num,nickname,value']);
-								$aCoworkState[$oSchema->id] = (object) ['length' => count($items)];
+								$options = ['excludeRoot' => true, 'fields' => 'id,agreed,like_num,nickname,value'];
+								// 展示在共享页的协作数据表态类型
+								if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
+									$options['agreed'] = $oApp->actionRule->cowork->repos->pre->cowork->agreed;
+								} else {
+									$options['agreed'] = ['Y', 'A'];
+								}
+								$items = $modelData->getMultitext($oRecord->enroll_key, $oSchema->id, $options);
+								if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
+									$countItems = $modelData->getMultitext($oRecord->enroll_key, $oSchema->id, ['agreed' => ['Y', 'A'], 'fields' => 'id']);
+									$aCoworkState[$oSchema->id] = (object) ['length' => count($countItems)];
+								} else {
+									$aCoworkState[$oSchema->id] = (object) ['length' => count($items)];
+								}
 								if ($coworkReposLikeNum) {
 									$reposItems = [];
 									foreach ($items as $oItem) {
@@ -851,7 +876,7 @@ class repos extends base {
 			}
 		}
 
-		$fields = 'id,aid,state,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,supplement,score,like_num,like_log,remark_num,rec_remark_num,favor_num,agreed,data';
+		$fields = 'id,aid,state,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,supplement,score,like_num,like_log,remark_num,rec_remark_num,favor_num,agreed,data,dislike_num,dislike_log';
 		$oRecord = $modelRec->byId($ek, ['fields' => $fields]);
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();

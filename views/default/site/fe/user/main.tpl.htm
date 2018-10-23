@@ -28,7 +28,11 @@
     </nav>
     <div class="container">
         <div class='avatar'>
-            <img class='headimg img-circle' ng-src="{{user.headimgurl}}">
+            <div class='headimg' ng-if="user.loginExpire" tms-image-input="Y" ng-click="changeHeadImg()" >
+                <img ng-src="{{user.headimgurl}}">
+                <span class='img-edit'><i class='glyphicon glyphicon-edit'></i> 上传新头像</span>
+            </div>
+            <div class='headimg' ng-if="!user.loginExpire" ><img ng-src="{{user.headimgurl}}" ></div>
             <div class='nickname' ng-bind="user.nickname"></div>
         </div>
         <div class='list-group'>

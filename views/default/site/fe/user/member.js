@@ -91,7 +91,6 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
             }
         };
         var member = $scope.member;
-        console.log('m', member);
         if (member.name && false === required(member.name, 2, '请提供您的姓名！')) {
             return false;
         }
@@ -110,7 +109,11 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
         http2.post(url, $scope.member, { autoBreak: false }).then(function(rsp) {
             $scope.posting = false;
             http2.get(LS.j('passed', 'site', 'schema') + '&redirect=N').then(function(rsp) {
-                location.href = rsp.data;
+                if (window.parent && window.parent.onClosePlugin) {
+                    window.parent.onClosePlugin(rsp.data);
+                } else {
+                    location.href = rsp.data;
+                }
             });
         }, function() {
             $scope.posting = false;

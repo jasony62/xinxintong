@@ -170,11 +170,13 @@ class base extends \site\fe\matter\base {
 				if ($checkRegister[0] === false) {
 					$oResult->passed = 'N';
 					$oResult->scope = 'register';
+					$oResult->passUrl = APP_PROTOCOL . APP_HTTP_HOST . '/rest/site/fe/user/access?site=' . $oApp->siteid;
 				}
 			}
 			if ($oResult->passed === 'Y' && isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y') {
 				if (empty($oEntryRule->optional->member) || $oEntryRule->optional->member !== 'Y') {
 					$bMemberPassed = false;
+					$aMemberSchemaIds = [];
 					/* 限自定义用户访问 */
 					foreach ($oEntryRule->member as $schemaId => $rule) {
 						if (!empty($rule->entry)) {
@@ -207,11 +209,30 @@ class base extends \site\fe\matter\base {
 								}
 							}
 						}
+						$aMemberSchemaIds[] = $schemaId;
 					}
 					if (!$bMemberPassed) {
+						$siteId = $oApp->siteid;
+						if (count($aMemberSchemaIds) === 1) {
+							$schema = $this->model('site\user\memberschema')->byId($aMemberSchemaIds[0], ['fields' => 'id,url']);
+							strpos($schema->url, 'http') === false && $authUrl = APP_PROTOCOL . APP_HTTP_HOST;
+							$authUrl .= $schema->url;
+							$authUrl .= "?site=$siteId";
+							$authUrl .= "&schema=" . $aMemberSchemaIds[0];
+						} else {
+							/**
+							 * 让用户选择通过那个认证接口进行认证
+							 */
+							$authUrl = APP_PROTOCOL . APP_HTTP_HOST . '/rest/site/fe/user/memberschema';
+							$authUrl .= "?site=$siteId";
+							$authUrl .= "&schema=" . implode(',', $aMemberSchemaIds);
+						}
+						$authUrl .= '&matter=' . $oApp->type . ',' . $oApp->id;
+
 						$oResult->passed = 'N';
 						$oResult->scope = 'member';
 						$oResult->member = $oEntryRule->member;
+						$oResult->passUrl = $authUrl;
 					}
 				}
 			}

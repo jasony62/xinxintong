@@ -1729,6 +1729,7 @@ class record extends main_base {
 		}
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '备注');
 		// $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '标签');
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '用户端用户标签');
 		// 记录分数
 		if ($oApp->scenario === 'voting') {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '总分数');
@@ -1909,6 +1910,28 @@ class record extends main_base {
 			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->comment);
 			// 标签
 			// $objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->tags);
+			// 用户端用户标签
+			if (!isset($who)) {
+				$modelWay = $this->model('site\fe\way');
+				$modelTag2 = $this->model('matter\enroll\tag2');
+				$who = $modelWay->who($oApp->siteid);
+			}
+			$oRecordTags = $modelTag2->byRecord($oRecord, $who, ['UserAndPublic' => true]);
+			$userTags = '';
+			if (!empty($oRecordTags->user)) {
+				foreach ($oRecordTags->user as $k => $val) {
+					$k > 0 && $userTags .= ',';
+					$userTags .= $val->label;
+				}
+			}
+			if (!empty($oRecordTags->public)) {
+				!empty($userTags) && $userTags .= ',';
+				foreach ($oRecordTags->public as $k => $val) {
+					$k > 0 && $userTags .= ',';
+					$userTags .= $val->label;
+				}
+			}
+			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $userTags);
 			// 记录投票分数
 			if ($oApp->scenario === 'voting') {
 				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->_score);

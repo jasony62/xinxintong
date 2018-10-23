@@ -437,13 +437,26 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         }
     };
     $scope.likeRemark = function(oRemark) {
-        var url;
-        url = LS.j('remark/like', 'site');
-        url += '&remark=' + oRemark.id;
-        http2.get(url).then(function(rsp) {
-            oRemark.like_log = rsp.data.like_log;
-            oRemark.like_num = rsp.data.like_num;
-        });
+        if ($scope.setOperateLimit('like')) {
+            var url;
+            url = LS.j('remark/like', 'site');
+            url += '&remark=' + oRemark.id;
+            http2.get(url).then(function(rsp) {
+                oRemark.like_log = rsp.data.like_log;
+                oRemark.like_num = rsp.data.like_num;
+            });
+        }
+    };
+    $scope.dislikeRemark = function(oRemark) {
+        if ($scope.setOperateLimit('like')) {
+            var url;
+            url = LS.j('remark/dislike', 'site');
+            url += '&remark=' + oRemark.id;
+            http2.get(url).then(function(rsp) {
+                oRemark.dislike_log = rsp.data.dislike_log;
+                oRemark.dislike_num = rsp.data.dislike_num;
+            });
+        }
     };
     $scope.coworkAsRemark = function(oSchema, index) {
         var oRecData, oItem;
@@ -483,29 +496,35 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         }
     };
     $scope.writeRemark = function(oUpperRemark) {
-        $uibModal.open({
-            templateUrl: 'writeRemark.html',
-            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                $scope2.data = {
-                    content: ''
-                };
-                $scope2.cancel = function() { $mi.dismiss(); };
-                $scope2.ok = function() {
-                    var content;
-                    if (window.tmsEditor && window.tmsEditor.finish) {
-                        content = window.tmsEditor.finish();
-                        $scope2.data.content = content;
-                        $mi.close({ content: content });
+        if ($scope.setOperateLimit('add_remark')) {
+            $uibModal.open({
+                templateUrl: 'writeRemark.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.data = {
+                        content: ''
+                    };
+                    $scope2.cancel = function() { $mi.dismiss(); };
+                    $scope2.ok = function() {
+                        var content;
+                        if (window.tmsEditor && window.tmsEditor.finish) {
+                            content = window.tmsEditor.finish();
+                            $scope2.data.content = content;
+                            $mi.close({ content: content });
+                        }
+                    };
+                }],
+                windowClass: 'modal-remark auto-height',
+                backdrop: 'static',
+            }).result.then(function(data) {
+                if (!data.content) return;
+                addRemark(data.content, oUpperRemark).then(function(rsp) {
+                    fnAppendRemark(rsp.data, oUpperRemark);
+                    if (rsp.data.remarkResult.user_total_coin) {
+                        noticebox.info('您获得【' + rsp.data.remarkResult.user_total_coin + '】分');
                     }
-                };
-            }],
-            windowClass: 'modal-remark auto-height',
-            backdrop: 'static',
-        }).result.then(function(data) {
-            addRemark(data.content, oUpperRemark).then(function(rsp) {
-                fnAppendRemark(rsp.data, oUpperRemark);
+                });
             });
-        });
+        }
     };
     $scope.editRemark = function(oRemark) {
         $uibModal.open({
@@ -540,12 +559,24 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         });
     };
     $scope.likeRecord = function() {
-        var oRecord;
-        oRecord = $scope.record;
-        http2.get(LS.j('record/like', 'site', 'ek')).then(function(rsp) {
-            oRecord.like_log = rsp.data.like_log;
-            oRecord.like_num = rsp.data.like_num;
-        });
+        if ($scope.setOperateLimit('like')) {
+            var oRecord;
+            oRecord = $scope.record;
+            http2.get(LS.j('record/like', 'site', 'ek')).then(function(rsp) {
+                oRecord.like_log = rsp.data.like_log;
+                oRecord.like_num = rsp.data.like_num;
+            });
+        }
+    };
+    $scope.dislikeRecord = function() {
+        if ($scope.setOperateLimit('like')) {
+            var oRecord;
+            oRecord = $scope.record;
+            http2.get(LS.j('record/dislike', 'site', 'ek')).then(function(rsp) {
+                oRecord.dislike_log = rsp.data.dislike_log;
+                oRecord.dislike_num = rsp.data.dislike_num;
+            });
+        }
     };
     $scope.editRecord = function(event) {
         if ($scope.record.userid !== $scope.user.uid) {
@@ -571,10 +602,20 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         location.href = url;
     };
     $scope.likeItem = function(oItem) {
-        http2.get(LS.j('data/like', 'site') + '&data=' + oItem.id).then(function(rsp) {
-            oItem.like_log = rsp.data.like_log;
-            oItem.like_num = rsp.data.like_num;
-        });
+        if ($scope.setOperateLimit('like')) {
+            http2.get(LS.j('data/like', 'site') + '&data=' + oItem.id).then(function(rsp) {
+                oItem.like_log = rsp.data.like_log;
+                oItem.like_num = rsp.data.like_num;
+            });
+        }
+    };
+    $scope.dislikeItem = function(oItem) {
+        if ($scope.setOperateLimit('like')) {
+            http2.get(LS.j('data/dislike', 'site') + '&data=' + oItem.id).then(function(rsp) {
+                oItem.dislike_log = rsp.data.dislike_log;
+                oItem.dislike_num = rsp.data.dislike_num;
+            });
+        }
     };
     $scope.gotoUpper = function(upperId) {
         var elRemark, offsetTop, parentNode;
@@ -657,49 +698,55 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
 ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uibModal', 'tmsLocation', 'http2', 'noticebox', function($scope, $timeout, $anchorScroll, $uibModal, LS, http2, noticebox) {
     $scope.canSubmitCowork = true; // 是否允许提交协作数据
     $scope.addItem = function(oSchema) {
-        var oCoworkRule;
-        if (oCoworkRule = $scope.ruleCowork($scope.record)) {
-            noticebox.warn(oCoworkRule.desc);
-            return;
-        }
-        $uibModal.open({
-            templateUrl: 'writeItem.html',
-            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                $scope2.data = {
-                    content: ''
+        if ($scope.setOperateLimit('add_cowork')) {
+            var oCoworkRule;
+            if (oCoworkRule = $scope.ruleCowork($scope.record)) {
+                noticebox.warn(oCoworkRule.desc);
+                return;
+            }
+            $uibModal.open({
+                templateUrl: 'writeItem.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.data = {
+                        content: ''
+                    };
+                    $scope2.cancel = function() { $mi.dismiss(); };
+                    $scope2.ok = function() {
+                        var content;
+                        if (window.tmsEditor && window.tmsEditor.finish) {
+                            content = window.tmsEditor.finish();
+                            $scope2.data.content = content;
+                            $mi.close({ content: content });
+                        }
+                    };
+                }],
+                windowClass: 'modal-remark auto-height',
+                backdrop: 'static',
+            }).result.then(function(data) {
+                if (!data.content) return;
+                var oRecData, oNewItem, url;
+                oRecData = $scope.record.verbose[oSchema.id];
+                oNewItem = {
+                    value: data.content
                 };
-                $scope2.cancel = function() { $mi.dismiss(); };
-                $scope2.ok = function() {
-                    var content;
-                    if (window.tmsEditor && window.tmsEditor.finish) {
-                        content = window.tmsEditor.finish();
-                        $scope2.data.content = content;
-                        $mi.close({ content: content });
+                url = LS.j('cowork/add', 'site');
+                url += '&ek=' + $scope.record.enroll_key + '&schema=' + oSchema.id;
+                http2.post(url, oNewItem).then(function(rsp) {
+                    var oNewItem;
+                    oNewItem = rsp.data.oNewItem;
+                    oNewItem.nickname = '我';
+                    if (oRecData) {
+                        oRecData.items.push(oNewItem);
+                    } else if (rsp.data.oRecData) {
+                        oRecData = $scope.record.verbose[oSchema.id] = rsp.data.oRecData;
+                        oRecData.items = [oNewItem];
                     }
-                };
-            }],
-            windowClass: 'modal-remark auto-height',
-            backdrop: 'static',
-        }).result.then(function(data) {
-            var oRecData, oNewItem, url;
-            oRecData = $scope.record.verbose[oSchema.id];
-            oNewItem = {
-                value: data.content
-            };
-            url = LS.j('cowork/add', 'site');
-            url += '&ek=' + $scope.record.enroll_key + '&schema=' + oSchema.id;
-            http2.post(url, oNewItem).then(function(rsp) {
-                var oNewItem;
-                oNewItem = rsp.data[0];
-                oNewItem.nickname = '我';
-                if (oRecData) {
-                    oRecData.items.push(oNewItem);
-                } else if (rsp.data[1]) {
-                    oRecData = $scope.record.verbose[oSchema.id] = rsp.data[1];
-                    oRecData.items = [oNewItem];
-                }
+                    if (rsp.data.coworkResult.user_total_coin) {
+                        noticebox.info('您获得【' + rsp.data.coworkResult.user_total_coin + '】分');
+                    }
+                });
             });
-        });
+        }
     };
     $scope.editItem = function(oSchema, index) {
         var oRecData, oItem;
@@ -724,6 +771,7 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
             windowClass: 'modal-remark auto-height',
             backdrop: 'static',
         }).result.then(function(data) {
+            if (!data.content) return;
             var oNewItem;
             oNewItem = {
                 value: data.content
@@ -744,7 +792,6 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
         });
     };
     $scope.agreeItem = function(oItem, value) {
-        console.log(oItem);
         var url;
         if (oItem.agreed !== value) {
             url = LS.j('data/agree', 'site', 'ek') + '&data=' + oItem.id + '&schema=' + oItem.schema_id;
@@ -755,57 +802,63 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
         }
     };
     $scope.writeItemRemark = function(oItem) {
-        var itemRemarks;
-        if ($scope.remarks && $scope.remarks.length) {
-            itemRemarks = [];
-            $scope.remarks.forEach(function(oRemark) {
-                if (oRemark.data_id && oRemark.data_id === oItem.id) {
-                    itemRemarks.push(oRemark);
-                }
-            });
-        }
-        $uibModal.open({
-            templateUrl: 'writeRemark.html',
-            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                $scope2.remarks = itemRemarks;
-                $scope2.data = {
-                    content: ''
-                };
-                $scope2.cancel = function() { $mi.dismiss(); };
-                $scope2.ok = function() {
-                    var content;
-                    if (window.tmsEditor && window.tmsEditor.finish) {
-                        content = window.tmsEditor.finish();
-                        $scope2.data.content = content;
-                        $mi.close({ content: content });
+        if ($scope.setOperateLimit('add_remark')) {
+            var itemRemarks;
+            if ($scope.remarks && $scope.remarks.length) {
+                itemRemarks = [];
+                $scope.remarks.forEach(function(oRemark) {
+                    if (oRemark.data_id && oRemark.data_id === oItem.id) {
+                        itemRemarks.push(oRemark);
                     }
-                };
-            }],
-            windowClass: 'modal-remark auto-height',
-            backdrop: 'static',
-        }).result.then(function(data) {
-            http2.post(LS.j('remark/add', 'site', 'ek') + '&data=' + oItem.id, { content: data.content }).then(function(rsp) {
-                var oNewRemark;
-                oNewRemark = rsp.data;
-                oNewRemark.data = oItem;
-                oNewRemark.content = oNewRemark.content.replace(/\\n/g, '<br/>');
-                $scope.remarks.splice(0, 0, oNewRemark);
-                $timeout(function() {
-                    var elRemark, parentNode, offsetTop;
-                    elRemark = document.querySelector('#remark-' + oNewRemark.id);
-                    parentNode = elRemark.parentNode;
-                    while (parentNode && parentNode.tagName !== 'BODY') {
-                        offsetTop += parentNode.offsetTop;
-                        parentNode = parentNode.parentNode;
-                    }
-                    document.body.scrollTop = offsetTop - 40;
-                    elRemark.classList.add('blink');
+                });
+            }
+            $uibModal.open({
+                templateUrl: 'writeRemark.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.remarks = itemRemarks;
+                    $scope2.data = {
+                        content: ''
+                    };
+                    $scope2.cancel = function() { $mi.dismiss(); };
+                    $scope2.ok = function() {
+                        var content;
+                        if (window.tmsEditor && window.tmsEditor.finish) {
+                            content = window.tmsEditor.finish();
+                            $scope2.data.content = content;
+                            $mi.close({ content: content });
+                        }
+                    };
+                }],
+                windowClass: 'modal-remark auto-height',
+                backdrop: 'static',
+            }).result.then(function(data) {
+                if (!data.content) return;
+                http2.post(LS.j('remark/add', 'site', 'ek') + '&data=' + oItem.id, { content: data.content }).then(function(rsp) {
+                    var oNewRemark;
+                    oNewRemark = rsp.data;
+                    oNewRemark.data = oItem;
+                    oNewRemark.content = oNewRemark.content.replace(/\\n/g, '<br/>');
+                    $scope.remarks.splice(0, 0, oNewRemark);
                     $timeout(function() {
-                        elRemark.classList.remove('blink');
-                    }, 1000);
+                        var elRemark, parentNode, offsetTop;
+                        elRemark = document.querySelector('#remark-' + oNewRemark.id);
+                        parentNode = elRemark.parentNode;
+                        while (parentNode && parentNode.tagName !== 'BODY') {
+                            offsetTop += parentNode.offsetTop;
+                            parentNode = parentNode.parentNode;
+                        }
+                        document.body.scrollTop = offsetTop - 40;
+                        elRemark.classList.add('blink');
+                        if (rsp.data.remarkResult.user_total_coin) {
+                            noticebox.info('您获得【' + rsp.data.remarkResult.user_total_coin + '】分');
+                        }
+                        $timeout(function() {
+                            elRemark.classList.remove('blink');
+                        }, 1000);
+                    });
                 });
             });
-        });
+        }
     };
     $scope.shareItem = function(oItem) {
         var url, shareby;

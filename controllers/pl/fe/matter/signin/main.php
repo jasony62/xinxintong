@@ -9,29 +9,29 @@ class main extends \pl\fe\matter\main_base {
 	/**
 	 * 返回视图
 	 */
-	public function index_action($site, $id) {
+	public function index_action() {
 		\TPL::output('/pl/fe/matter/signin/frame');
 		exit;
 	}
 	/**
 	 * 返回一个签到活动
 	 */
-	public function get_action($site, $id) {
-		if (false === ($oUser = $this->accountUser())) {
+	public function get_action($id) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
 		$oApp = $this->model('matter\signin')->byId($id);
-		if (false === $oApp) {
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 		/*关联登记活动*/
-		if ($oApp->enroll_app_id) {
-			$oApp->enrollApp = $this->model('matter\enroll')->byId($oApp->enroll_app_id, ['cascaded' => 'N']);
+		if (!empty($oApp->entryRule->enroll->id)) {
+			$oApp->enrollApp = $this->model('matter\enroll')->byId($oApp->entryRule->enroll->id, ['cascaded' => 'N']);
 		}
 		/*关联分组活动*/
-		if ($oApp->group_app_id) {
-			$oApp->groupApp = $this->model('matter\group')->byId($oApp->group_app_id);
+		if (!empty($oApp->entryRule->group->id)) {
+			$oApp->groupApp = $this->model('matter\group')->byId($oApp->entryRule->group->id);
 		}
 		/*所属项目*/
 		if ($oApp->mission_id) {
@@ -83,20 +83,6 @@ class main extends \pl\fe\matter\main_base {
 				}
 			}
 		}
-
-		return new \ResponseData($result);
-	}
-	/**
-	 * 返回和指定登记活动关联的签到活动列表
-	 *
-	 */
-	public function listByEnroll_action($site, $enroll) {
-		if (false === ($oUser = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$modelSig = $this->model('matter\signin');
-		$result = $modelSig->byEnrollApp($enroll);
 
 		return new \ResponseData($result);
 	}

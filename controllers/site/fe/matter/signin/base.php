@@ -31,7 +31,7 @@ class base extends \site\fe\matter\base {
 		if ($signinLog = $modelRec->userSigned($oUser, $oApp, $oRound)) {
 			/* 用户是否已经签到 */
 			$signinRec = $modelRec->byId($signinLog->enroll_key, ['cascaded' => 'N']);
-			if (!empty($oApp->enroll_app_id)) {
+			if (!empty($oApp->entryRule->enroll->id)) {
 				/* 需要验证登记信息 */
 				if ($signinRec->verified === 'Y') {
 					if (isset($oEntryRule->success->entry)) {

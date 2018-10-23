@@ -49,13 +49,13 @@ class record extends \site\op\base {
 	/**
 	 * 验证通过时，如果登记记录有对应的签到记录，且签到记录没有验证通过，那么验证通过
 	 */
-	private function _whenVerifyRecord(&$app, $enrollKey) {
-		if ($app->mission_id) {
+	private function _whenVerifyRecord($oApp, $enrollKey) {
+		if ($oApp->mission_id) {
 			$model = $this->model('matter\signin\record');
 			$q = [
 				'id',
 				'xxt_signin',
-				['enroll_app_id'=$app->id],
+				['enroll_app_id' => $oApp->id],
 			];
 			$signinApps = $model->query_objs_ss($q);
 			if (count($signinApps)) {
@@ -88,7 +88,7 @@ class record extends \site\op\base {
 								$model->delete('xxt_signin_record_data', "enroll_key='$signinRecord->enroll_key'");
 								foreach ($signinData as $k => $v) {
 									$ic = [
-										'aid' => $app->id,
+										'aid' => $oApp->id,
 										'enroll_key' => $signinRecord->enroll_key,
 										'name' => $k,
 										'value' => $model->toJson($v),
@@ -117,7 +117,7 @@ class record extends \site\op\base {
 	/**
 	 * 指定记录通过审核
 	 */
-	public function batchVerify_action($site, $app) {
+	public function batchVerify_action($app) {
 		if (!$this->checkAccessToken()) {
 			return new \InvalidAccessToken();
 		}

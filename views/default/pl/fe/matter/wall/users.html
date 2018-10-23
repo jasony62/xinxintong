@@ -48,7 +48,6 @@
             <form class="form-horizontal record-editor">
                 <div class='form-group'>
                     <label class="col-md-3 control-label">数据来源</label>
-
                     <div class="col-md-9">
                         <label class='radio-inline'><input type='radio' name='appType' value='enroll' ng-model="data.appType">登记活动</label>
                         <label class='radio-inline'><input type='radio' name='appType' value='signin' ng-model="data.appType">签到</label>
@@ -56,7 +55,6 @@
                 </div>
                 <div class='form-group'>
                     <label class="col-md-3 control-label">目标活动</label>
-
                     <div class="col-md-9">
                         <select class="form-control" ng-model="data.app"
                                 ng-options="app.title for app in apps"></select>
@@ -66,9 +64,8 @@
                         </div>
                     </div>
                 </div>
-                <div class='form-group' ng-if="data.app.enroll_app_id">
+                <div class='form-group' ng-if="data.app.entryRule.enroll.id">
                     <label class="col-md-3 control-label">含报名数据</label>
-
                     <div class="col-md-9">
                         <div class='checkbox'>
                             <label><input type='checkbox' ng-model="data.includeEnroll" ng-true-value="'Y'" ng-false-value="'N'">是</label>

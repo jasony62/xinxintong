@@ -632,8 +632,8 @@ class record extends base {
 		}
 
 		/* 返回当前用户在关联活动中填写的数据 */
-		if (!empty($oApp->enroll_app_id) && !empty($oUser->uid)) {
-			$oAssocApp = $this->model('matter\enroll')->byId($oApp->enroll_app_id, ['cascaded' => 'N']);
+		if (!empty($oApp->entryRule->enroll->id) && !empty($oUser->uid)) {
+			$oAssocApp = $this->model('matter\enroll')->byId($oApp->entryRule->enroll->id, ['cascaded' => 'N']);
 			if ($oAssocApp) {
 				$oAssocRec = $modelRec->byUser($oAssocApp, $oUser);
 				if (count($oAssocRec) === 1) {

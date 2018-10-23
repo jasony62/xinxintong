@@ -1434,13 +1434,13 @@ class record extends main_base {
 	/**
 	 * 验证通过时，如果登记记录有对应的签到记录，且签到记录没有验证通过，那么验证通过
 	 */
-	private function _whenVerifyRecord(&$oApp, $enrollKey) {
+	private function _whenVerifyRecord($oApp, $enrollKey) {
 		if ($oApp->mission_id) {
 			$modelSigninRec = $this->model('matter\signin\record');
 			$q = [
 				'id',
 				'xxt_signin',
-				['enroll_app_id' => $oApp->id],
+				['entry_rule' => (object) ['op' => 'like', 'pat' => '%' . $oApp->id . '%']],
 			];
 			$signinApps = $modelSigninRec->query_objs_ss($q);
 			if (count($signinApps)) {
@@ -1453,7 +1453,7 @@ class record extends main_base {
 						$q = [
 							'*',
 							'xxt_signin_record',
-							"state=1 and verified='N' and aid='$signinApp->id' and verified_enroll_key='{$enrollKey}'",
+							['state' => 1, 'verified' => 'N', 'aid' => $signinApp->id, 'verified_enroll_key' => $enrollKey],
 						];
 						$signinRecords = $modelSigninRec->query_objs_ss($q);
 						if (count($signinRecords)) {
@@ -1469,7 +1469,7 @@ class record extends main_base {
 									$signinData->{$k} = $v;
 								}
 								// 更新数据
-								$modelSigninRec->delete('xxt_signin_record_data', "enroll_key='$signinRecord->enroll_key'");
+								$modelSigninRec->delete('xxt_signin_record_data', ['enroll_key' => $signinRecord->enroll_key]);
 								foreach ($signinData as $k => $v) {
 									$ic = [
 										'aid' => $oApp->id,
@@ -1485,7 +1485,7 @@ class record extends main_base {
 									[
 										'data' => $modelSigninRec->toJson($signinData),
 									],
-									"enroll_key='$signinRecord->enroll_key'"
+									['enroll_key' => $signinRecord->enroll_key]
 								);
 							}
 						}

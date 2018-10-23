@@ -68,6 +68,14 @@
                             <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-model="app.entryRule.sns[snsName].entry" ng-change="update('entryRule')"> {{sns[snsName].title}}</label>
                     </div>
                 </div>
+                <div class='checkbox'>
+                    <label>
+                        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.group" ng-change="changeUserScope('group')">用户参与活动前需要在分组活动</label><span class='badge' ng-if="rule.scope.group==='Y'"><a href='/rest/pl/fe/matter/group?site={{app.siteid}}&id={{app.entryRule.group.id}}' target='_self'>{{app.entryRule.group.title}} - {{app.entryRule.group.round.title}}</a></span>中分组 <a ng-if="rule.scope.group==='Y'" href ng-click="chooseGroupApp()">指定</a>
+                </div>
+                <div class='checkbox'>
+                    <label>
+                        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.enroll" ng-change="changeUserScope('enroll')">用户参与活动前需要在登记活动</label><span class='badge' ng-if="rule.scope.enroll==='Y'"><a href='/rest/pl/fe/matter/enroll?site={{app.siteid}}&id={{app.entryRule.enroll.id}}' target='_self'>{{app.entryRule.enroll.title}}</a></span>中 <a ng-if="rule.scope.enroll==='Y'" href ng-click="chooseEnrollApp()">指定</a>
+                </div>
             </div>
             <hr>
             <table class='table table-bordered'>
@@ -133,5 +141,51 @@
 <script type="text/ng-template" id="joinQrcode.html">
     <div style="width:200px">
         <img ng-src="{{qrcodeURL}}" style="width:100%">
+    </div>
+</script>
+<script type="text/ng-template" id="assignEnrollApp.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title">选择登记活动</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class='form-group'>
+                <label class="col-md-3 control-label">目标活动</label>
+                <div class="col-md-9">
+                    <select class="form-control" ng-model="data.app" ng-options="app.title for app in apps"></select>
+                    <div class='checkbox' ng-if="app.mission">
+                        <label>
+                            <input type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'">选择同一个项目中的活动</label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">确定</button>
+    </div>
+</script>
+<script type="text/ng-template" id="assignGroupApp.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title">选择分组活动</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class='form-group'>
+                <label class="col-md-3 control-label">目标活动</label>
+                <div class="col-md-9">
+                    <select class="form-control" ng-model="data.app" ng-options="app.title for app in apps"></select>
+                    <div class='checkbox' ng-if="app.mission">
+                        <label>
+                            <input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value=" 'N'">选择同一个项目中的活动</label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">确定</button>
     </div>
 </script>

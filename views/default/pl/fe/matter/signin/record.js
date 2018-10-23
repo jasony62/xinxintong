@@ -127,7 +127,7 @@ define(['frame'], function(ngApp) {
             $scope.tmsTableWrapReady = 'Y';
             $scope.bRequireNickname = oApp.assignedNickname.valid !== 'Y' || !oApp.assignedNickname.schema;
             $scope.doSearch();
-            if (oApp.group_app_id || oApp.enroll_app_id || oApp.entry_rule.scope === 'member') {
+            if (oApp.entryRule.group.id || oApp.entryRule.enroll.id || oApp.entryRule.scope === 'member') {
                 $scope.bHasAbsent = true;
                 $scope.absent();
             }

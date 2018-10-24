@@ -419,16 +419,49 @@ abstract class enroll_base extends app_base {
 		$oEntryRule = $oApp->entryRule;
 		$bEntryRuleModified = false;
 
+		/* 修改进入规则 */
+		if (isset($oEntryRule->scope)) {
+			if ($oEntryRule->scope->member === 'Y') {
+				/* 移除和项目通讯录的关联 */
+				$aMatterMschemas = $this->getEntryMemberSchema($oEntryRule);
+				foreach ($aMatterMschemas as $oMschema) {
+					if (!empty($oMschema->matter_type)) {
+						/* 页面的题目 */
+						foreach ($oApp->pages as $oPage) {
+							$rst = $modelPg->replaceMemberSchema($oPage, $oMschema);
+							if (true === $rst[0]) {
+								$aUpdatedPages[$oPage->id] = $oPage;
+							}
+						}
+						/* 应用的题目 */
+						$rst = $this->replaceMemberSchema($aDataSchemas, $oMschema);
+						if (true === $rst[0]) {
+							$bDataSchemasModified = true;
+						}
+						unset($oEntryRule->member->{$oMschema->id});
+						$bEntryRuleModified = true;
+					}
+				}
+				if (count((array) $oEntryRule->member) === 0) {
+					$oEntryRule->scope = 'none';
+					unset($oEntryRule->member);
+				}
+			}
+		}
 		/* 移除和项目中其他活动的关联 */
 		$aAssocApps = [];
-		//if (!empty($oApp->group_app_id)) {
-		//	$aAssocApps[] = $oApp->group_app_id;
-		//	$oUpdatedApp->group_app_id = $oApp->group_app_id = '';
-		//}
-		//if (!empty($oApp->enroll_app_id)) {
-		//	$aAssocApps[] = $oApp->enroll_app_id;
-		//	$oUpdatedApp->enroll_app_id = $oApp->enroll_app_id = '';
-		//}
+		if (isset($oEntryRule->group->id)) {
+			$aAssocApps[] = $oEntryRule->group->id;
+			unset($oEntryRule->scope->group);
+			unset($oEntryRule->group);
+			$bEntryRuleModified = true;
+		}
+		if (isset($oEntryRule->enroll->id)) {
+			$aAssocApps[] = $oEntryRule->enroll->id;
+			unset($oEntryRule->scope->enroll);
+			unset($oEntryRule->enroll);
+			$bEntryRuleModified = true;
+		}
 		if (count($aAssocApps)) {
 			/* 页面的题目 */
 			foreach ($oApp->pages as $oPage) {
@@ -444,40 +477,13 @@ abstract class enroll_base extends app_base {
 			}
 		}
 
-		/* 移除和项目通讯录的关联 */
-		if (isset($oEntryRule->scope) && $oEntryRule->scope === 'member') {
-			$aMatterMschemas = $this->getEntryMemberSchema($oEntryRule);
-			foreach ($aMatterMschemas as $oMschema) {
-				if (!empty($oMschema->matter_type)) {
-					/* 页面的题目 */
-					foreach ($oApp->pages as $oPage) {
-						$rst = $modelPg->replaceMemberSchema($oPage, $oMschema);
-						if (true === $rst[0]) {
-							$aUpdatedPages[$oPage->id] = $oPage;
-						}
-					}
-					/* 应用的题目 */
-					$rst = $this->replaceMemberSchema($aDataSchemas, $oMschema);
-					if (true === $rst[0]) {
-						$bDataSchemasModified = true;
-					}
-					unset($oEntryRule->member->{$oMschema->id});
-					$bEntryRuleModified = true;
-				}
-			}
-			if (count((array) $oEntryRule->member) === 0) {
-				$oEntryRule->scope = 'none';
-				unset($oEntryRule->member);
-			}
-		}
-
 		/* 设置更新的属性 */
 		$oUpdatedApp->mission_id = $oApp->mission_id = 0;
 		$oUpdatedApp->sync_mission_round = $oApp->sync_mission_round = 'N';
 		if ($bDataSchemasModified) {
 			$oUpdatedApp->data_schemas = $this->escape($this->toJson($aDataSchemas));
 		}if ($bEntryRuleModified) {
-			$oUpdatedApp->entry_rule = json_encode($oEntryRule);
+			$oUpdatedApp->entry_rule = $this->escape(json_encode($oEntryRule));
 		}
 		if (count($aUpdatedPages)) {
 			$oUpdatedApp->pages = $aUpdatedPages;

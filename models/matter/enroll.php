@@ -590,9 +590,19 @@ class enroll_model extends enroll_base {
 			/* 项目的进入规则 */
 			$this->setEntryRuleByMission($oEntryRule, $oMisEntryRule);
 		}
-		$oNewApp->entry_rule = json_encode($oEntryRule);
 
-		if (empty($oCustomConfig->proto->schema->default->empty)) {
+		/* 指定了关联活动 */
+		$oProto = isset($oCustomConfig->proto) ? $oCustomConfig->proto : null;
+		if (!empty($oProto->enrollApp->id)) {
+			if (!isset($oEntryRule->scope)) {
+				$oEntryRule->scope = new \stdClass;
+			}
+			$oEntryRule->scope->enroll = 'Y';
+			$oEntryRule->enroll = (object) ['id' => $oProto->enrollApp->id];
+		}
+
+		/* 活动题目 */
+		if (empty($oProto->schema->default->empty)) {
 			/* 关联了通讯录，替换匹配的题目 */
 			if (!empty($oTemplateConfig->schema)) {
 				/* 通讯录关联题目 */
@@ -605,10 +615,9 @@ class enroll_model extends enroll_base {
 			}
 
 			/* 关联了分组活动，添加分组名称，替换匹配的题目 */
-			//if (!empty($oCustomConfig->proto->groupApp->id)) {
-			//	$oNewApp->group_app_id = $this->escape($oCustomConfig->proto->groupApp->id);
-			//	$this->setSchemaByGroupApp($oNewApp->group_app_id, $oTemplateConfig);
-			//}
+			if (!empty($oEntryRule->group->id)) {
+				$this->setSchemaByGroupApp($oEntryRule->group->id, $oTemplateConfig);
+			}
 
 			/* 作为昵称的题目 */
 			$oNicknameSchema = $this->findAssignedNicknameSchema($oTemplateConfig->schema);
@@ -616,7 +625,7 @@ class enroll_model extends enroll_base {
 				$oNewApp->assigned_nickname = json_encode(['valid' => 'Y', 'schema' => ['id' => $oNicknameSchema->id]]);
 			}
 
-			isset($oTemplateConfig->schema) && $oNewApp->data_schemas = $this->toJson($oTemplateConfig->schema);
+			isset($oTemplateConfig->schema) && $oNewApp->data_schemas = $this->escape($this->toJson($oTemplateConfig->schema));
 		} else {
 			/* 不使用默认题目 */
 			$oTemplateConfig->schema = [];
@@ -649,13 +658,12 @@ class enroll_model extends enroll_base {
 		/* create app */
 		$oNewApp->id = $appId;
 		$oNewApp->siteid = $oSite->id;
-		$oProto = isset($oCustomConfig->proto) ? $oCustomConfig->proto : null;
 		$oNewApp->title = empty($oProto->title) ? '新记录活动' : $this->escape($oProto->title);
 		$oNewApp->summary = empty($oProto->summary) ? '' : $this->escape($oProto->summary);
 		$oNewApp->sync_mission_round = empty($oProto->sync_mission_round) ? 'N' : (in_array($oProto->sync_mission_round, ['Y', 'N']) ? $oProto->sync_mission_round : 'N');
-		//$oNewApp->enroll_app_id = empty($oProto->enrollApp->id) ? '' : $this->escape($oProto->enrollApp->id);
 		$oNewApp->start_at = isset($oProto->start_at) ? $oProto->start_at : 0;
 		$oNewApp->end_at = isset($oProto->end_at) ? $oProto->end_at : 0;
+		$oNewApp->entry_rule = $this->escape($this->toJson($oEntryRule));
 		/* 是否开放共享页 */
 		if (isset($oProto->scenarioConfig->can_repos) && in_array($oProto->scenarioConfig->can_repos, ['Y', 'N'])) {
 			$oScenarioConfig->can_repos = $oProto->scenarioConfig->can_repos;

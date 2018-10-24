@@ -239,26 +239,26 @@ class main extends main_base {
 		 */
 		if ($oCopied->mission_id !== $mission) {
 			/**
-			 * 只有同项目内的分组活动可以作为参与规则
+			 * 只有同项目内的分组活动和登记活动可以作为参与规则
 			 */
+			$aAssocApps = [];
 			if (isset($oNewEntryRule->scope->group) && $oNewEntryRule->scope->group === 'Y') {
 				unset($oNewEntryRule->scope->group);
 			}
 			if (isset($oNewEntryRule->group)) {
+				$aAssocApps[] = $oNewEntryRule->group->id;
 				unset($oNewEntryRule->group);
+			}
+			if (isset($oNewEntryRule->scope->enroll) && $oNewEntryRule->scope->enroll === 'Y') {
+				unset($oNewEntryRule->scope->enroll);
+			}
+			if (isset($oNewEntryRule->enroll)) {
+				$aAssocApps[] = $oNewEntryRule->enroll->id;
+				unset($oNewEntryRule->enroll);
 			}
 			/**
 			 * 如果关联了分组或登记活动，需要去掉题目的关联信息
 			 */
-			$aAssocApps = [];
-			//if (!empty($oCopied->group_app_id)) {
-			//	$aAssocApps[] = $oCopied->group_app_id;
-			//	$oCopied->group_app_id = '';
-			//}
-			//if (!empty($oCopied->enroll_app_id)) {
-			//	$aAssocApps[] = $oCopied->enroll_app_id;
-			//	$oCopied->enroll_app_id = '';
-			//}
 			if (count($aAssocApps)) {
 				/* 页面的题目 */
 				foreach ($aPages as $oPage) {
@@ -274,7 +274,6 @@ class main extends main_base {
 		if (!empty($oNicknameSchema)) {
 			$oNewApp->assigned_nickname = json_encode(['valid' => 'Y', 'schema' => ['id' => $oNicknameSchema->id]]);
 		}
-
 		/**
 		 * 获得的基本信息
 		 */
@@ -286,9 +285,8 @@ class main extends main_base {
 		$oNewApp->scenario_config = json_encode($oCopied->scenarioConfig);
 		$oNewApp->count_limit = $oCopied->count_limit;
 		$oNewApp->enrolled_entry_page = $oCopied->enrolled_entry_page;
-		$oNewApp->entry_rule = json_encode($oNewEntryRule);
+		$oNewApp->entry_rule = $modelApp->escape($modelApp->toJson($oNewEntryRule));
 		$oNewApp->data_schemas = $modelApp->escape($modelApp->toJson($aDataSchemas));
-		//$oNewApp->enroll_app_id = $oCopied->enroll_app_id;
 		$oNewApp->tags = $modelApp->escape($oCopied->tags);
 		$oNewApp->count_limit = $modelApp->escape($oCopied->count_limit);
 

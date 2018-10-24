@@ -1755,7 +1755,7 @@ class record extends main_base {
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $oRecord->round->title);
 			}
 			// 处理登记项
-			$data = $oRecord->data;
+			$oRecData = $oRecord->data;
 			$oRecScore = empty($oRecord->score) ? new \stdClass : $oRecord->score;
 			$supplement = $oRecord->supplement;
 			$oVerbose = isset($oRecord->verbose) ? $oRecord->verbose->data : false;
@@ -1763,25 +1763,10 @@ class record extends main_base {
 			for ($i2 = 0, $ii = count($schemas); $i2 < $ii; $i2++) {
 				$columnNum3 = $columnNum2; //列号
 				$oSchema = $schemas[$i2];
-				if (isset($data->{$oSchema->id})) {
-					$v = $data->{$oSchema->id};
-				} else if ((strpos($oSchema->id, 'member.') === 0) && isset($data->member)) {
-					$mbSchemaId = $oSchema->id;
-					$mbSchemaIds = explode('.', $mbSchemaId);
-					$mbSchemaId = $mbSchemaIds[1];
-					if ($mbSchemaId === 'extattr' && count($mbSchemaIds) == 3) {
-						$mbSchemaId = $mbSchemaIds[2];
-						$v = isset($data->member->extattr->{$mbSchemaId}) ? $data->member->extattr->{$mbSchemaId} : '';
-					} else {
-						$v = isset($data->member->{$mbSchemaId}) ? $data->member->{$mbSchemaId} : '';
-					}
-				} else {
-					$v = '';
-				}
-
 				if (in_array($oSchema->type, ['html'])) {
 					continue;
 				}
+				$v = $modelRec->getDeepValue($oRecData, $oSchema->id, '');
 				switch ($oSchema->type) {
 				case 'single':
 					$cellValue = '';
@@ -2016,11 +2001,11 @@ class record extends main_base {
 		for ($j = 0, $jj = count($records); $j < $jj; $j++) {
 			$record = $records[$j];
 			// 处理登记项
-			$data = $record->data;
+			$oRecData = $record->data;
 			for ($i = 0, $ii = count($imageSchemas); $i < $ii; $i++) {
 				$schema = $imageSchemas[$i];
-				if (!empty($data->{$schema->id})) {
-					$aImages[] = ['url' => $data->{$schema->id}, 'schema' => $schema, 'data' => $data];
+				if (!empty($oRecData->{$schema->id})) {
+					$aImages[] = ['url' => $oRecData->{$schema->id}, 'schema' => $schema, 'data' => $oRecData];
 				}
 			}
 		}

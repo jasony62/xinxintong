@@ -99,10 +99,10 @@ abstract class enroll_base extends app_base {
 	 */
 	protected function setEntryRuleByMission(&$oEntryRule, $oMisEntryRule) {
 		if (isset($oMisEntryRule->scope) && $oMisEntryRule->scope !== 'none') {
-			if (!is_object($oEntryRule->scope)) {
+			if (empty($oEntryRule->scope) || !is_object($oEntryRule->scope)) {
 				$oEntryRule->scope = new \stdClass;
 			}
-			switch ($oEntryRule->scope) {
+			switch ($oMisEntryRule->scope) {
 			case 'member':
 				if (isset($oMisEntryRule->member)) {
 					$oEntryRule->member = $oMisEntryRule->member;

@@ -28,12 +28,10 @@ class history extends \site\fe\base {
 		];
 		// 指定团队下的访问记录
 		if (!empty($site) && $site !== 'platform') {
-			$site = $modelAct->escape($site);
 			$q[2] .= " and siteid='{$site}'";
 		}
 		// 指定用户的访问记录
 		if (!empty($userid)) {
-			$userid = $modelAct->escape($userid);
 			$q[2] .= " and userid='{userid}'";
 		} else if (empty($this->who->unionid)) {
 			$q[2] .= " and userid='{$this->who->uid}'";
@@ -70,7 +68,6 @@ class history extends \site\fe\base {
 	 * @param string $site
 	 */
 	public function missionList_action($site, $userid = '') {
-
 		$modelAct = $this->model('site\user\account');
 		$q = [
 			'distinct mission_id,mission_title',
@@ -86,7 +83,6 @@ class history extends \site\fe\base {
 
 		// 指定用户的访问记录
 		if (!empty($userid)) {
-			$userid = $modelAct->escape($userid);
 			$q[2] .= " and userid='{userid}'";
 		} else if (empty($this->who->unionid)) {
 			$q[2] .= " and userid='{$this->who->uid}'";

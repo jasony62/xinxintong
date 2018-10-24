@@ -404,7 +404,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         defaultInput: defaultInput
                     }
                 },
-                
+
             };
         }];
     }).provider('srvSigninRound', function() {
@@ -527,7 +527,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             $scope2.downloadWxQrcode = function() {
                                 $('<a href="' + $scope2.qrcode.pic + '" download="' + app.title + '_' + round.title + '_签到二维码.jpeg"></a>')[0].click();
                             };
-                            if (app.entry_rule.scope === 'sns' && sns.wx) {
+                            if (app.entryRule.scope === 'sns' && sns.wx) {
                                 if (sns.wx.can_qrcode === 'Y') {
                                     http2.get('/rest/pl/fe/matter/signin/wxQrcode?site=' + siteId + '&app=' + appId + '&round=' + round.rid).then(function(rsp) {
                                         var qrcodes = rsp.data;
@@ -799,7 +799,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 ".jp": "image/jpeg",
                                 ".pn": "image/png",
                                 ".gi": "image/gif"
-                            }[f.name.match(/\.(\w){2}/g)[0] || ".jp"];
+                            } [f.name.match(/\.(\w){2}/g)[0] || ".jp"];
                             f.type2 = f.type || type;
                             var reader = new FileReader();
                             reader.onload = (function(theFile) {

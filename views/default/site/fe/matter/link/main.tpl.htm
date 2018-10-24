@@ -49,8 +49,11 @@
                 </div>
             </div>
             <div id="link" class='col-md-9 col-md-pull-3 col-xs-12'>
-                <iframe></iframe>
-                <div class="invite">
+                <div class="iframeWrap">
+                    <button class="btn btn-success" ng-if="!isIE">全屏</button>
+                    <iframe></iframe>
+                </div>
+                <div id="invite" class="invite">
                     <a href="" ng-click="invite(user,link)" ng-if="link.invite">
                         <i class="icon_invite"></i>
                         <span> 邀请体验</span>
@@ -66,21 +69,12 @@
                             <i class="glyphicon glyphicon-star-empty"></i>
                             <span> 收藏</span>
                         </a>
-                        <a ng-if="link.config.nav.app.length" uib-popover-template="'optionTemplate.html'" popover-placement="top-right" popover-trigger="'outsideClick'" popover-append-to-body="true">
-                            <i class="glyphicon glyphicon-option-vertical"></i>
-                        </a>
                     </div>
                 </div>
             </div>
+            
         </div>
     </div>
-    <script type="text/ng-template" id="optionTemplate.html">
-        <div>
-            <div ng-repeat="app in link.config.nav.app">
-                <button class='btn btn-default btn-sm btn-block' ng-click="gotoNavApp(app)">{{app.title}}</button>
-            </div>
-        </div>
-    </script>
     <script src="/static/js/xxt.ui.error.js"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>

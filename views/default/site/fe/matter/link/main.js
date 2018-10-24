@@ -10,7 +10,57 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt', 'snsshare.
     linkId = $location.search().id;
     invite_token = $location.search().inviteToken;
     shareby = $location.search().shareby ? $location.search().shareby : '';
+    $scope.isFull = false;
+    $scope.isIE = window.ActiveXObject || "ActiveXObject" in window ? true : false;
     $scope.elSiteCard = angular.element(document.querySelector('#site-card'));
+    var runPrefixMethod = function(element, method) {
+        var usablePrefixMethod;
+        ["webkit", "moz", "ms", "o", ""].forEach(function(prefix) {
+            if (usablePrefixMethod) return;
+            if (prefix === "") {
+                // 无前缀，方法首字母小写
+                method = method.slice(0, 1).toLowerCase() + method.slice(1);
+            }
+            var typePrefixMethod = typeof element[prefix + method];
+            if (typePrefixMethod + "" !== "undefined") {
+                if (typePrefixMethod === "function") {
+                    usablePrefixMethod = element[prefix + method]();
+                } else {
+                    usablePrefixMethod = element[prefix + method];
+                }
+            }
+        });
+        return usablePrefixMethod;
+    };
+    if (typeof window.screenX === "number") {
+        var eleFull = document.querySelector(".iframeWrap"),
+            userAgent = navigator.userAgent;
+        eleFull.addEventListener("click", function(event) {
+            if (userAgent.indexOf('iPhone') > -1) {
+                if(!$scope.isFull) {
+                    document.querySelector('.col-md-3 ').style.display = 'none';
+                    document.querySelector('.invite').style.display = 'none';
+                    document.querySelector("button").innerText = "退出";
+                    $scope.isFull = true;
+                }else {
+                    document.querySelector('.col-md-3 ').style.display = 'block';
+                    document.querySelector('.invite').style.display = 'block';
+                    document.querySelector("button").innerText = "全屏";
+                    $scope.isFull = false;
+                }
+            } else {
+                if (runPrefixMethod(document, "FullScreen") || runPrefixMethod(document, "IsFullScreen")) {
+                    runPrefixMethod(document, "CancelFullScreen");
+                    document.querySelector("button").innerText = "全屏";
+                } else {
+                    runPrefixMethod(this, "RequestFullScreen")
+                    document.querySelector("button").innerText = "退出";
+                }
+            }
+        });
+    } else {
+        alert("版本太低，请切换高版本浏览器");
+    }
     var setShare = function() {
         var shareid, sharelink;
         shareid = $scope.user.uid + '_' + (new Date() * 1);
@@ -29,9 +79,9 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt', 'snsshare.
             },
             jsApiList: ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage']
         });
-        if($scope.link.invite) {
-            sharelink = location.protocol + '//' + location.host + '/i/'+ $scope.link.invite.code;
-        }else {
+        if ($scope.link.invite) {
+            sharelink = location.protocol + '//' + location.host + '/i/' + $scope.link.invite.code;
+        } else {
             sharelink = location.href;
             if (/shareby=/.test(sharelink)) {
                 sharelink = sharelink.replace(/shareby=[^&]*/, 'shareby=' + shareid);
@@ -77,8 +127,20 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt', 'snsshare.
         location.href = url;
     };
     $scope.gotoNavApp = function(oNavApp) {
-        if (oNavApp.id) {
-            location.href = '/rest/site/fe/matter/enroll?site=' + $scope.link.siteid + '&app=' + oNavApp.id;
+        switch (oNavApp.type) {
+            case 'enroll':
+                location.href = '/rest/site/fe/matter/enroll?site=' + $scope.link.siteid + '&app=' + oNavApp.id;
+                break;
+            case 'article':
+            case 'channel':
+                location.href = '/rest/site/fe/matter?site=' + $scope.link.siteid + '&id=' + oNavApp.id + '&type=' + oNavApp.type;
+                break;
+            case 'link':
+                location.href = '/rest/site/fe/matter/link?site=' + $scope.link.siteid + '&id=' + oNavApp.id + '&type=' + oNavApp.type;
+                break;
+            default:
+                alert("不支持此类型");
+                break;
         }
     };
     $http.get('/rest/site/home/get?site=' + siteId).success(function(rsp) {
@@ -99,7 +161,7 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt', 'snsshare.
                 if (/MicroMessenge|Yixin/i.test(navigator.userAgent)) {
                     setShare();
                 }
-                document.querySelector('#link>iframe').setAttribute('src', $scope.link.fullUrl);
+                document.querySelector('#link>.iframeWrap>iframe').setAttribute('src', $scope.link.fullUrl);
                 $http.post('/rest/site/fe/matter/logAccess?site=' + siteId, {
                     search: location.search.replace('?', ''),
                     referer: document.referrer,

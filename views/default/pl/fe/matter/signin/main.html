@@ -74,7 +74,7 @@
                 </div>
                 <div class='checkbox'>
                     <label>
-                        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.enroll" ng-change="changeUserScope('enroll')">用户参与活动前需要在登记活动</label><span class='badge' ng-if="rule.scope.enroll==='Y'"><a href='/rest/pl/fe/matter/enroll?site={{app.siteid}}&id={{app.entryRule.enroll.id}}' target='_self'>{{app.entryRule.enroll.title}}</a></span>中 <a ng-if="rule.scope.enroll==='Y'" href ng-click="chooseEnrollApp()">指定</a>
+                        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.enroll" ng-change="changeUserScope('enroll')">用户参与活动前需要在登记活动</label><span class='badge' ng-if="rule.scope.enroll==='Y'"><a href='/rest/pl/fe/matter/enroll?site={{app.siteid}}&id={{app.entryRule.enroll.id}}' target='_self'>{{app.entryRule.enroll.title}}</a></span>中有填写记录 <a ng-if="rule.scope.enroll==='Y'" href ng-click="chooseEnrollApp()">指定</a>
                 </div>
             </div>
             <hr>

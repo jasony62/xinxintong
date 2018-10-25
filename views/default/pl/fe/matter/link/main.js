@@ -292,6 +292,18 @@ define(['frame'], function(ngApp) {
                     value: 'enroll',
                     title: '登记活动',
                     url: '/rest/pl/fe/matter'
+                },{
+                    value: 'article',
+                    title: '单图文',
+                    url: '/rest/pl/fe/matter'
+                },{
+                    value: 'channel',
+                    title: '频道',
+                    url: '/rest/pl/fe/matter'
+                },{
+                    value: 'link',
+                    title: '链接',
+                    url: '/rest/pl/fe/matter'
                 }],
                 singleMatter: true
             };
@@ -300,6 +312,7 @@ define(['frame'], function(ngApp) {
                     !$scope.editing.config.nav && ($scope.editing.config.nav = {});
                     !$scope.editing.config.nav.app && ($scope.editing.config.nav.app = []);
                     $scope.editing.config.nav.app.push({
+                        type: result.matters[0].type,
                         id: result.matters[0].id,
                         title: result.matters[0].title
                     });

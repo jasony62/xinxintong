@@ -17,7 +17,7 @@ class log extends \pl\fe\matter\base {
 	 * 查询日志
 	 *
 	 */
-	public function userMatterAction_action($site, $appId, $page = 1, $size = 30) {
+	public function matterActionLog_action($site, $appId, $page = 1, $size = 30) {
 		$modelLog = $this->model('matter\log');
 
 		$filter = $this->getPostJson();
@@ -72,7 +72,7 @@ class log extends \pl\fe\matter\base {
 	/**
 	 * 导出传播情况
 	 */
-	public function exportOperateStat_action($site, $appId, $startAt = '', $endAt = '', $byEvent = '') {
+	public function exportMatterActionLog_action($site, $appId, $startAt = '', $endAt = '', $byEvent = '') {
 		if (empty($startAt)) {
 			die('未找到开始时间');
 		}

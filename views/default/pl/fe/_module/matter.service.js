@@ -1061,7 +1061,7 @@ controller('ctrlStat', ['$scope', 'http2', '$uibModal', '$compile', function($sc
     };
     $scope.list = function() {
         var url;
-        url = '/rest/pl/fe/matter/' + app.type + '/log/userMatterAction?site=' + app.siteid + '&appId=' + app.id + page._j();
+        url = '/rest/pl/fe/matter/' + app.type + '/log/matterActionLog?site=' + app.siteid + '&appId=' + app.id + page._j();
         http2.post(url, criteria).then(function(rsp) {
             $scope.logs = rsp.data.logs;
             page.total = rsp.data.total;
@@ -1069,7 +1069,7 @@ controller('ctrlStat', ['$scope', 'http2', '$uibModal', '$compile', function($sc
     };
     $scope.export = function(user) {
         var url;
-        url = '/rest/pl/fe/matter/' + app.type + '/log/exportOperateStat?site=' + app.siteid + '&appId=' + app.id;
+        url = '/rest/pl/fe/matter/' + app.type + '/log/operateStat?site=' + app.siteid + '&appId=' + app.id;
         url += '&startAt=' + criteria.startAt + '&endAt=' + criteria.endAt + '&byEvent=' + criteria.byEvent;
         window.open(url);
     };

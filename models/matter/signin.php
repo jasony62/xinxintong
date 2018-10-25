@@ -538,8 +538,7 @@ class signin_model extends enroll_base {
 			}
 		}
 		/* 关联了分组活动，添加分组名称，替换匹配的题目 */
-		if (!empty($oCustomConfig->proto->groupApp->id)) {
-			$oEntryRule->group->id = $this->escape($oCustomConfig->proto->groupApp->id);
+		if (!empty($oEntryRule->group->id)) {
 			$this->setSchemaByGroupApp($oEntryRule->group->id, $oTemplateConfig);
 		}
 		/* 作为昵称的题目 */

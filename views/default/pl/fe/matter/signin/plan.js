@@ -10,11 +10,11 @@ define(['require'], function(require) {
         $locationProvider.html5Mode(true);
         srvSiteProvider.config(siteId);
     }]);
-    ngApp.controller('ctrlPlan', ['$scope', 'http2', 'srvSite', function($scope, http2, srvSite) {
+    ngApp.controller('ctrlPlan', ['$scope', '$uibModal', 'http2', 'srvSite', function($scope, $uibModal, http2, srvSite) {
         var _oProto, _oEntryRule;
         $scope.proto = _oProto = {
             entryRule: {
-                scope: '',
+                scope: {},
                 mschemas: [],
             }
         };
@@ -34,21 +34,21 @@ define(['require'], function(require) {
                 var oMission;
                 $scope.mission = oMission = rsp.data;
                 _oProto.mission = { id: oMission.id, title: oMission.title };
-                _oEntryRule.scope = oMission.entry_rule.scope || 'none';
+                _oEntryRule.scope = {};
                 if ('member' === oMission.entry_rule.scope) {
+                    _oEntryRule.scope.member = 'Y';
                     srvSite.memberSchemaList(oMission).then(function(aMemberSchemas) {
                         var oMschemasById = {};
                         aMemberSchemas.forEach(function(mschema) {
                             oMschemasById[mschema.id] = mschema;
                         });
                         Object.keys(oMission.entry_rule.member).forEach(function(mschemaId) {
-                            if (oMschemasById[mschemaId]) {
-                                _oEntryRule.mschemas.push({ id: mschemaId, title: oMschemasById[mschemaId].title });
-                            }
+                            _oEntryRule.mschemas.push({ id: mschemaId, title: oMschemasById[mschemaId].title });
                         });
                     });
                 } else if ('sns' === oMission.entry_rule.scope) {
-                    $scope.proto.sns = oMission.entry_rule.sns;
+                    _oEntryRule.scope.sns = 'Y';
+                    _oResult.proto.sns = oMission.entry_rule.sns;
                 }
                 _oProto.title = oMission.title + '-签到';
             });
@@ -65,6 +65,11 @@ define(['require'], function(require) {
         };
         $scope.changeUserScope = function() {
             switch (_oEntryRule.scope) {
+                case 'group':
+                    if (!_oEntryRule.group) {
+                        $scope.chooseGroupApp();
+                    }
+                    break;
                 case 'member':
                     if (!_oEntryRule.mschemas || _oEntryRule.mschemas.length === 0) {
                         $scope.chooseMschema();
@@ -78,22 +83,33 @@ define(['require'], function(require) {
                     break;
             }
         };
-        $scope.assignGroupApp = function() {
-            srvSite.openGallery({
-                matterTypes: [{
-                    value: 'group',
-                    title: '分组活动',
-                    url: '/rest/pl/fe/matter'
+        $scope.chooseGroupApp = function() {
+            $uibModal.open({
+                templateUrl: 'chooseGroupApp.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.data = {
+                        app: null,
+                        round: null
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        $mi.close($scope2.data);
+                    };
+                    var url = '/rest/pl/fe/matter/group/list?site=' + siteId + '&size=999&cascaded=Y';
+                    url += '&mission=' + missionId;
+                    http2.get(url).then(function(rsp) {
+                        $scope2.apps = rsp.data.apps;
+                    });
                 }],
-                singleMatter: true,
-                mission: _oProto.mission,
-                onlySameMission: true
-            }).then(function(result) {
-                var oGroupApp, oChosen;
-                if (result.matters.length === 1) {
-                    oChosen = result.matters[0];
-                    oGroupApp = { id: oChosen.id, title: oChosen.title };
-                    _oProto.groupApp = oGroupApp;
+                backdrop: 'static'
+            }).result.then(function(result) {
+                if (result.app) {
+                    _oEntryRule.group = { id: result.app.id, title: result.app.title };
+                    if (result.round) {
+                        _oEntryRule.group.round = { id: result.round.round_id, title: result.round.title };
+                    }
                 }
             });
         };

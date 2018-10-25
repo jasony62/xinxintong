@@ -20,7 +20,7 @@
             </div>
         </div>
         <div class='form-group list-group-item' ng-if="app.entryRule.enroll.id">
-            <div class='help-block'>需要与【<a href='/rest/pl/fe/matter/enroll?site={{app.siteid}}&id={{app.entryRule.enroll.id}}' target='_self'>{{app.entryRule.enroll.title}}</a>】中的填写记录匹配的题目</div>
+            <div class='help-block'>需要与【<a href='/rest/pl/fe/matter/enroll?site={{app.siteid}}&id={{app.enrollApp.id}}' target='_self'>{{app.enrollApp.title}}</a>】中的填写记录匹配的题目</div>
             <ul class='list-group'>
                 <li class='list-group-item' ng-repeat="s in app.enrollApp.dataSchemas" ng-switch on="s.assocState">
                     <span>{{s.title}}</span>
@@ -31,7 +31,7 @@
             </ul>
         </div>
         <div class='form-group list-group-item' ng-if="app.entryRule.group.id">
-            <div class='help-block'>需要与【<a href='/rest/pl/fe/matter/group?site={{app.siteid}}&id={{app.groupApp.id}}' target='_self'>{{app.entryRule.group.title}}</a>】中的分组记录匹配的题目</div>
+            <div class='help-block'>需要与【<a href='/rest/pl/fe/matter/group?site={{app.siteid}}&id={{app.groupApp.id}}' target='_self'>{{app.groupApp.title}}</a>】中的分组记录匹配的题目</div>
             <ul class='list-group'>
                 <li class='list-group-item' ng-repeat="s in app.groupApp.dataSchemas" ng-switch on="s.assocState">
                     <span>{{s.title}}</span>

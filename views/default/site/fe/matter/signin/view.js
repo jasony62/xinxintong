@@ -43,7 +43,7 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', '$sce', 'tmsLocation', 'noti
     $scope.value2Label = function(schemaId) {
         var val, schema, aVal, aLab = [];
 
-        if ($scope.app.data_schemas && (schema = $scope.app._schemasById[schemaId]) && facRecord.current.data) {
+        if ($scope.app.dataSchemas && (schema = $scope.app._schemasById[schemaId]) && facRecord.current.data) {
             if (val = facRecord.current.data[schemaId]) {
                 if (schema.ops && schema.ops.length) {
                     aVal = val.split(',');

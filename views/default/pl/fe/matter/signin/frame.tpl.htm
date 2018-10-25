@@ -91,7 +91,6 @@
                         <li ng-if="site.yourRole"><a href="/rest/pl/fe?view=main&scope=activity&type=signin&sid={{site.id}}" target='_self'>{{site.name}}</a></li>
                         <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{site.name}}</a></li>
                         <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}" target='_self' title="{{app.mission.title}}">{{app.mission.title}}</a></li>
-                        <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission/app?site={{app.siteid}}&id={{app.mission.id}}#signin" target='_self'>签到</a></li>
                         <li>
                             <a href="" ng-click="switchTo('main')">{{app.title}}</a>
                         </li>

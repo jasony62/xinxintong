@@ -154,7 +154,7 @@ class record extends base {
 						$mdoelSigRec->update(
 							'xxt_signin_record',
 							['verified' => 'Y', 'verified_enroll_key' => $oEnrollRecord->enroll_key],
-							"enroll_key='{$oSignState->ek}'"
+							['enroll_key' => $oSignState->ek]
 						);
 						$oSignState->verified = 'Y';
 						// 返回指定的验证成功页
@@ -180,7 +180,7 @@ class record extends base {
 					$mdoelSigRec->update(
 						'xxt_signin_record',
 						['verified' => 'N', 'verified_enroll_key' => ''],
-						"enroll_key='{$oSignState->ek}'"
+						['enroll_key' => $oSignState->ek]
 					);
 					$oSignState->verified = 'N';
 					if (isset($oSigninApp->entryRule->fail->entry)) {

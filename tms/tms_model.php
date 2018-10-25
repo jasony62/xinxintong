@@ -394,4 +394,22 @@ class TMS_MODEL {
 
 		return $str;
 	}
+	/**
+	 * 获得对象的指定属性的值
+	 * 属性可以是‘.’连接，例如a.b，对表对象的属性a是一个对象，取这个对象的属性b
+	 */
+	public static function getDeepValue($deepObj, $deepProp, $notSetVal = null) {
+		$props = explode('.', $deepProp);
+		$val = $deepObj;
+		foreach ($props as $prop) {
+			if (!isset($val->{$prop})) {
+				return $notSetVal;
+			} else if (empty($val->{$prop})) {
+				return $val->{$prop};
+			} else {
+				$val = $val->{$prop};
+			}
+		}
+		return $val;
+	}
 }

@@ -36,7 +36,7 @@ class record extends \pl\fe\matter\base {
 		}
 
 		// 登记数据过滤条件
-		$criteria = $this->getPostJson();
+		$oCriteria = $this->getPostJson();
 
 		/*应用*/
 		$modelApp = $this->model('matter\signin');
@@ -51,7 +51,7 @@ class record extends \pl\fe\matter\base {
 		!empty($rid) && (strcasecmp($rid, 'all') !== 0) && $aOptions['rid'] = $rid;
 
 		$modelRec = $this->model('matter\signin\record');
-		$oResult = $modelRec->byApp($oApp, $aOptions, $criteria);
+		$oResult = $modelRec->byApp($oApp, $aOptions, $oCriteria);
 		if ($oResult->total > 0 && !empty($oApp->entryRule->enroll->id)) {
 			foreach ($oResult->records as $oRecord) {
 				$q = [
@@ -492,7 +492,7 @@ class record extends \pl\fe\matter\base {
 			'xxt_signin_record',
 			["aid" => $oSigninApp->id, 'state' => 1],
 		];
-		$records = $this->model()->query_objs_ss($q);
+		$records = $modelApp->query_objs_ss($q);
 		if (count($records) === 0) {
 			die('record empty');
 		}
@@ -540,12 +540,12 @@ class record extends \pl\fe\matter\base {
 
 		// 转换数据
 		$rowNumber = 2;
-		foreach ($records as $record) {
+		foreach ($records as $oRecord) {
 			$colNumber = 0;
 			// 基本信息
-			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, date('y-m-j H:i', $record->enroll_at));
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, date('y-m-j H:i', $oRecord->enroll_at));
 			// 处理签到日志
-			$signinLog = empty($record->signin_log) ? new \stdClass : json_decode($record->signin_log);
+			$signinLog = empty($oRecord->signin_log) ? new \stdClass : json_decode($oRecord->signin_log);
 			if (!empty($round)) {
 				if (isset($signinLog->{$round->rid})) {
 					$signinAt = $signinLog->{$round->rid};
@@ -559,7 +559,7 @@ class record extends \pl\fe\matter\base {
 					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
 				}
 			} else {
-				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $record->signin_num);
+				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $oRecord->signin_num);
 				$lateCount = 0;
 				foreach ($oSigninApp->rounds as $rnd) {
 					if (isset($signinLog->{$rnd->rid})) {
@@ -577,14 +577,14 @@ class record extends \pl\fe\matter\base {
 				}
 				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $lateCount);
 			}
-			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $record->verified);
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $oRecord->verified);
 			// 处理登记项
-			$data = json_decode($record->data);
+			$oRecData = json_decode($oRecord->data);
 			foreach ($schemas as $schema) {
 				if (in_array($schema->type, ['html', 'image', 'file'])) {
 					continue;
 				}
-				$v = isset($data->{$schema->id}) ? $data->{$schema->id} : '';
+				$v = $modelApp->getDeepValue($oRecData, $schema->id, '');
 				switch ($schema->type) {
 				case 'single':
 					foreach ($schema->ops as $op) {
@@ -632,15 +632,15 @@ class record extends \pl\fe\matter\base {
 			}
 			// 基本信息
 			if (!empty($oSigninApp->tags)) {
-				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($record->tags) ? $record->tags : '');
+				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($oRecord->tags) ? $oRecord->tags : '');
 			}
-			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($record->comment) ? $record->comment : '');
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($oRecord->comment) ? $oRecord->comment : '');
 			// 关联的报名记录
-			if (!empty($record->verified_enroll_key)) {
+			if (!empty($oRecord->verified_enroll_key)) {
 				$q = [
 					'enroll_at,tags,comment',
 					'xxt_enroll_record',
-					['state' => 1, 'aid' => $oSigninApp->entryRule->enroll->id, 'enroll_key' => $record->verified_enroll_key],
+					['state' => 1, 'aid' => $oSigninApp->entryRule->enroll->id, 'enroll_key' => $oRecord->verified_enroll_key],
 				];
 				if ($oEnrollRecord = $modelApp->query_obj_ss($q)) {
 					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($oEnrollRecord->tags) ? $oEnrollRecord->tags : '');

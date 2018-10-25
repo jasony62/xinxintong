@@ -22,10 +22,9 @@ class main extends \site\op\base {
 	/**
 	 * 返回登记记录
 	 *
-	 * @param string $siteid
 	 * @param string $appid
 	 */
-	public function get_action($site, $app) {
+	public function get_action($app) {
 		if (!$this->checkAccessToken()) {
 			return new \InvalidAccessToken();
 		}
@@ -34,15 +33,15 @@ class main extends \site\op\base {
 
 		/* 登记活动定义 */
 		$modelApp = $this->model('matter\signin');
-		$app = $modelApp->byId($app, ['cascaded' => 'Y']);
-		$params['app'] = &$app;
+		$oApp = $modelApp->byId($app, ['cascaded' => 'Y']);
+		$params['app'] = $oApp;
 		/*关联登记活动*/
-		if ($app->enroll_app_id) {
-			$app->enrollApp = $this->model('matter\enroll')->byId($app->enroll_app_id);
+		if ($oApp->entryRule->enroll->id) {
+			$oApp->enrollApp = $this->model('matter\enroll')->byId($oApp->entryRule->enroll->id);
 		}
 		/*关联分组活动*/
-		if ($app->group_app_id) {
-			$app->groupApp = $this->model('matter\group')->byId($app->group_app_id);
+		if ($oApp->entryRule->group->id) {
+			$oApp->groupApp = $this->model('matter\group')->byId($oApp->entryRule->group->id);
 		}
 
 		return new \ResponseData($params);

@@ -21,7 +21,7 @@ ngApp.factory('Record', ['$http', '$q', function($http, $q) {
 }]);
 ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', function($scope, Record, LS) {
     var facRecord = Record.ins(),
-        schemas = $scope.app.data_schemas;
+        schemas = $scope.app.dataSchemas;
     $scope.value2Label = function(key) {
         var val, i, j, s, aVal, aLab = [];
         if (schemas && facRecord.current && facRecord.current.data) {

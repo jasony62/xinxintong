@@ -115,6 +115,12 @@ class TMS_CONTROLLER {
 		return TMS_MODEL::escape($data);
 	}
 	/**
+	 *
+	 */
+	public static function getDeepValue($deepObj, $deepProp, $notSetVal = null) {
+		return TMS_MODEL::getDeepValue($deepObj, $deepProp, $notSetVal);
+	}
+	/**
 	 * 获得URL对应的view
 	 *
 	 * 查找规则：

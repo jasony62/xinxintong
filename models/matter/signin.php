@@ -72,6 +72,7 @@ class signin_model extends enroll_base {
 				} else {
 					$oApp->entryRule = json_decode($oApp->entry_rule);
 				}
+				unset($oApp->entry_rule);
 			}
 			if ($fields === '*' || false !== strpos($fields, 'data_schemas')) {
 				if (!empty($oApp->data_schemas)) {
@@ -79,6 +80,7 @@ class signin_model extends enroll_base {
 				} else {
 					$oApp->dataSchemas = [];
 				}
+				unset($oApp->data_schemas);
 			}
 			if ($fields === '*' || false !== strpos($fields, 'recycle_schemas')) {
 				if (!empty($oApp->recycle_schemas)) {
@@ -94,6 +96,7 @@ class signin_model extends enroll_base {
 				} else {
 					$oApp->assignedNickname = new \stdClass;
 				}
+				unset($oApp->assigned_nickname);
 			}
 			if (!empty($oApp->matter_mg_tag)) {
 				$oApp->matter_mg_tag = json_decode($oApp->matter_mg_tag);
@@ -198,33 +201,6 @@ class signin_model extends enroll_base {
 		}
 
 		return $result;
-	}
-	/**
-	 * 返回和登记活动关联的签到活动
-	 */
-	public function &byEnrollApp($enrollAppId, $aOptions = []) {
-		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
-		$cascaded = isset($aOptions['cascaded']) ? $aOptions['cascaded'] : 'Y';
-		$mapRounds = isset($aOptions['mapRounds']) ? $aOptions['mapRounds'] : 'N';
-
-		$q = [
-			$fields,
-			'xxt_signin',
-			"state<>0 and enroll_app_id='" . $this->escape($enrollAppId) . "'",
-		];
-		$q2['o'] = 'create_at asc';
-
-		$apps = $this->query_objs_ss($q, $q2);
-		if (count($apps) && $cascaded === 'Y') {
-			$modelRnd = \TMS_APP::M('matter\signin\round');
-			foreach ($apps as &$app) {
-				$aOptions = $mapRounds === 'Y' ? ['mapRounds' => 'Y'] : [];
-				$rounds = $modelRnd->byApp($app->id, $aOptions);
-				$app->rounds = $rounds;
-			}
-		}
-
-		return $apps;
 	}
 	/**
 	 * 更新登记活动标签
@@ -541,6 +517,9 @@ class signin_model extends enroll_base {
 
 		/* 进入规则 */
 		$oEntryRule = $oTemplateConfig->entryRule;
+		if (!isset($oEntryRule->scope)) {
+			$oEntryRule->scope = new \stdClass;
+		}
 		if (!empty($oCustomConfig->proto->entryRule->scope)) {
 			/* 用户指定的规则 */
 			$this->setEntryRuleByProto($oSite, $oEntryRule, $oCustomConfig->proto->entryRule);
@@ -548,11 +527,6 @@ class signin_model extends enroll_base {
 			/* 项目的进入规则 */
 			$this->setEntryRuleByMission($oEntryRule, $oMisEntryRule);
 		}
-		if (!isset($oEntryRule->scope)) {
-			$oEntryRule->scope = 'none';
-		}
-		$oNewApp->entry_rule = $this->toJson($oEntryRule);
-
 		/* 关联了通讯录，替换匹配的题目 */
 		if (!empty($oTemplateConfig->schema)) {
 			/* 通讯录关联题目 */
@@ -564,17 +538,16 @@ class signin_model extends enroll_base {
 			}
 		}
 		/* 关联了分组活动，添加分组名称，替换匹配的题目 */
-		if (!empty($oCustomConfig->proto->groupApp->id)) {
-			$oNewApp->group_app_id = $this->escape($oCustomConfig->proto->groupApp->id);
-			$this->setSchemaByGroupApp($oNewApp->group_app_id, $oTemplateConfig);
+		if (!empty($oEntryRule->group->id)) {
+			$this->setSchemaByGroupApp($oEntryRule->group->id, $oTemplateConfig);
 		}
-
 		/* 作为昵称的题目 */
 		$oNicknameSchema = $this->findAssignedNicknameSchema($oTemplateConfig->schema);
 		if (!empty($oNicknameSchema)) {
 			$oNewApp->assigned_nickname = json_encode(['valid' => 'Y', 'schema' => ['id' => $oNicknameSchema->id]]);
 		}
 
+		$oNewApp->entry_rule = $this->toJson($oEntryRule);
 		$oNewApp->data_schemas = empty($oTemplateConfig->schema) ? [] : $this->toJson($oTemplateConfig->schema);
 
 		/* 任务码 */

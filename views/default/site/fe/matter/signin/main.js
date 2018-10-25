@@ -155,8 +155,7 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'tms
             oMission = params.mission,
             schemasById = {};
 
-        oApp.data_schemas = JSON.parse(oApp.data_schemas);
-        oApp.data_schemas.forEach(function(schema) {
+        oApp.dataSchemas.forEach(function(schema) {
             schemasById[schema.id] = schema;
         });
         oApp._schemasById = schemasById;

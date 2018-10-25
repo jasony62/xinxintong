@@ -68,17 +68,16 @@ class record extends base {
 		/**
 		 * 检查是否存在匹配的分组记录
 		 */
-		if (!empty($oSigninApp->group_app_id)) {
-			$oGroupApp = $this->model('matter\group')->byId($oSigninApp->group_app_id);
+		if (!empty($oSigninApp->entryRule->group->id)) {
+			$oGroupApp = $this->model('matter\group')->byId($oSigninApp->entryRule->group->id);
 			if (empty($oGroupApp)) {
 				return new \ParameterError('指定的登记匹配分组活动不存在');
 			}
 			/* 获得要检查的登记项 */
 			$requireCheckedData = new \stdClass;
-			$dataSchemas = json_decode($oSigninApp->data_schemas);
-			foreach ($dataSchemas as $oSchema) {
+			foreach ($oSigninApp->dataSchemas as $oSchema) {
 				if (isset($oSchema->requireCheck) && $oSchema->requireCheck === 'Y') {
-					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oSigninApp->group_app_id) {
+					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oSigninApp->entryRule->group->id) {
 						$requireCheckedData->{$oSchema->id} = $mdoelSigRec->getValueBySchema($oSchema, $oSigninData);
 					}
 				}
@@ -126,8 +125,8 @@ class record extends base {
 		/**
 		 * 检查签到数据是否在报名表中
 		 */
-		if (!empty($oSigninApp->enroll_app_id)) {
-			$oEnrollApp = $this->model('matter\enroll')->byId($oSigninApp->enroll_app_id, ['cascaded' => 'N']);
+		if (!empty($oSigninApp->entryRule->enroll->id)) {
+			$oEnrollApp = $this->model('matter\enroll')->byId($oSigninApp->entryRule->enroll->id, ['cascaded' => 'N']);
 			if ($oEnrollApp) {
 				/*获得要检查的数据*/
 				$dataSchemas = $oSigninApp->dataSchemas;
@@ -155,7 +154,7 @@ class record extends base {
 						$mdoelSigRec->update(
 							'xxt_signin_record',
 							['verified' => 'Y', 'verified_enroll_key' => $oEnrollRecord->enroll_key],
-							"enroll_key='{$oSignState->ek}'"
+							['enroll_key' => $oSignState->ek]
 						);
 						$oSignState->verified = 'Y';
 						// 返回指定的验证成功页
@@ -181,7 +180,7 @@ class record extends base {
 					$mdoelSigRec->update(
 						'xxt_signin_record',
 						['verified' => 'N', 'verified_enroll_key' => ''],
-						"enroll_key='{$oSignState->ek}'"
+						['enroll_key' => $oSignState->ek]
 					);
 					$oSignState->verified = 'N';
 					if (isset($oSigninApp->entryRule->fail->entry)) {

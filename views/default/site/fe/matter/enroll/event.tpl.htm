@@ -269,7 +269,7 @@
                     <tr>
                         <th style='width:48px'>序号</th>
                         <th>姓名</th>
-                        <th ng-if="app.group_app_id">分组</th>
+                        <th ng-if="app.entryRule.group.id">分组</th>
                         <th>填写记录</th>
                         <th>跨轮次修改</th>
                         <th>最后填写时间</th>
@@ -298,7 +298,7 @@
                     <tr ng-repeat='u in kanban.users' ng-class="{'undone':u.undone}">
                         <td>{{$index+1}}</td>
                         <td>{{u.nickname}}</td>
-                        <td ng-if='app.group_app_id'>
+                        <td ng-if='app.entryRule.group.id'>
                             <div ng-if='u.group'>{{u.group.l}}</div>
                         </td>
                         <td ng-class="{'undone':u.undone.enroll_num[0]===true}">
@@ -371,7 +371,7 @@
                     <tr ng-repeat='u in kanban.undone' class="undone">
                         <td>{{$index+1}}</td>
                         <td>{{u.nickname}}</td>
-                        <td ng-if='app.group_app_id'></td>
+                        <td ng-if='app.entryRule.group.id'></td>
                         <td> </td>
                         <td> </td>
                         <td> </td>

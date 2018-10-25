@@ -145,6 +145,14 @@
                             <input type='checkbox' ng-true-value="'Y'" ng-model="app.entryRule.optional.group" ng-change="changeUserScope('group')">不强制要求用户在分组活动中</label>
                     </div>
                 </div>
+                <div class='checkbox'>
+                    <label>
+                        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.enroll" ng-change="changeUserScope('enroll')">用户参与活动前需要在登记活动</label><span class='badge' ng-if="rule.scope.enroll==='Y'"><a href='/rest/pl/fe/matter/enroll?site={{app.siteid}}&id={{app.entryRule.enroll.id}}' target='_self'>{{app.entryRule.enroll.title}}</a></span>中 <a ng-if="rule.scope.enroll==='Y'" href ng-click="chooseEnrollApp()">指定</a>
+                    <div style='margin-left:20px'>
+                        <label class='checkbox-inline'>
+                            <input type='checkbox' ng-true-value="'Y'" ng-model="app.entryRule.optional.enroll" ng-change="changeUserScope('enroll')">不强制要求用户在登记活动中</label>
+                    </div>
+                </div>
             </div>
             <div class='form-group'>
                 <table class='table table-bordered'>
@@ -248,6 +256,29 @@
                             <select class="form-control" ng-model="data.round" ng-options="rnd.title for rnd in data.app.rounds">
                                 <option>全部分组</option>
                             </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" ng-click="ok()">确定</button>
+            </div>
+        </script>
+        <script type="text/ng-template" id="assignEnrollApp.html">
+            <div class="modal-header">
+                <button class="close" type="button" ng-click="cancel()">×</button>
+                <h5 class="modal-title">关联登记活动</h5>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class='form-group'>
+                        <label class="col-md-3 control-label">目标活动</label>
+                        <div class="col-md-9 ">
+                            <select class="form-control" ng-model="data.app" ng-options="app.title for app in apps"></select>
+                            <div class='checkbox' ng-if="app.mission ">
+                                <label>
+                                    <input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'">选择同一个项目中的活动</label>
+                            </div>
                         </div>
                     </div>
                 </form>

@@ -63,7 +63,7 @@ define(['frame'], function(ngApp) {
             });
         });
     }]);
-    ngApp.provider.controller('ctrlAccess', ['$scope', 'srvSite', 'srvEnrollApp', 'srvEnrollSchema', 'tkGroupApp', function($scope, srvSite, srvEnrollApp, srvEnrollSchema, tkGroupApp) {
+    ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'srvSite', 'srvEnrollApp', 'srvEnrollSchema', 'tkGroupApp', function($scope, $uibModal, srvSite, srvEnrollApp, srvEnrollSchema, tkGroupApp) {
         function setMschemaEntry(mschemaId) {
             if (!_oAppRule.member) {
                 _oAppRule.member = {};
@@ -112,6 +112,22 @@ define(['frame'], function(ngApp) {
                         }
                     }
                     break;
+                case 'group':
+                    if ($scope.rule.scope.group !== 'Y') {
+                        delete $scope.rule.group;
+                        if ($scope.rule.optional) {
+                            delete $scope.rule.optional.group;
+                        }
+                    }
+                    break;
+                case 'enroll':
+                    if ($scope.rule.scope.enroll !== 'Y') {
+                        delete $scope.rule.enroll;
+                        if ($scope.rule.optional) {
+                            delete $scope.rule.optional.enroll;
+                        }
+                    }
+                    break;
             }
             srvEnrollApp.changeUserScope($scope.rule.scope, $scope.sns);
         };
@@ -127,6 +143,31 @@ define(['frame'], function(ngApp) {
                 if (setGroupEntry(result)) {
                     $scope.update('entryRule');
                 }
+            });
+        };
+        $scope.chooseEnrollApp = function() {
+            $uibModal.open({
+                templateUrl: 'assignEnrollApp.html',
+                controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
+                    $scope2.app = _oApp;
+                    $scope2.data = {};
+                    _oApp.mission && ($scope2.data.sameMission = 'Y');
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        $mi.close($scope2.data);
+                    };
+                    var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid + '&size=999';
+                    _oApp.mission && (url += '&mission=' + _oApp.mission.id);
+                    http2.get(url).then(function(rsp) {
+                        $scope2.apps = rsp.data.apps;
+                    });
+                }],
+                backdrop: 'static'
+            }).result.then(function(oResult) {
+                _oAppRule.enroll = { id: oResult.app.id, title: oResult.app.title };
+                $scope.update('entryRule');
             });
         };
         $scope.removeGroupApp = function() {

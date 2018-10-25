@@ -33,7 +33,7 @@
                         <li><a href="" ng-click="empty()">清空记录</a></li>
                         <li class="divider"></li>
                         <li><a href="" ng-click="createAppByRecords()">根据选中记录创建活动<span>（{{rows.count}}）</span></a></li>
-                        <li ng-if="app.enroll_app_id"><a href="" ng-click="importByEnrollApp()">导入【{{app.enrollApp.title}}】数据</a></li>
+                        <li ng-if="app.entryRule.enroll.id"><a href="" ng-click="importByEnrollApp()">导入【{{app.entryRule.enroll.title}}】数据</a></li>
                     </ul>
                 </div>
             </div>
@@ -73,8 +73,8 @@
                                 <th ng-if="!page.byRound" ng-repeat="r in app.rounds"><span>{{r.title}}</span></th>
                                 <th style='width:140px' ng-if="app.tags.length">签到标签</th>
                                 <th style='width:140px'>签到备注</th>
-                                <th style='width:140px' class='enroll' ng-if="app.enroll_app_id">报名标签</th>
-                                <th style='width:140px' class='enroll' ng-if="app.enroll_app_id">报名备注</th>
+                                <th style='width:140px' class='enroll' ng-if="app.entryRule.enroll.id">报名标签</th>
+                                <th style='width:140px' class='enroll' ng-if="app.entryRule.enroll.id">报名备注</th>
                                 <th style='width:48px'>操作</th>
                             </tr>
                         </thead>
@@ -128,8 +128,8 @@
                                 <td ng-if="!page.byRound" ng-repeat="rnd in app.rounds"><span ng-class="{'signin_late':r._signinLate[rnd.rid]}" ng-if="r.signin_log[rnd.rid]">{{r.signin_log[rnd.rid]*1000|date:'MM-dd HH:mm'}}</span></td>
                                 <td ng-if="app.tags.length">{{r.tags}}</td>
                                 <td>{{r.comment}}</td>
-                                <td ng-if="app.enroll_app_id">{{r._enrollRecord.tags}}</td>
-                                <td ng-if="app.enroll_app_id">{{r._enrollRecord.comment}}</td>
+                                <td ng-if="app.entryRule.enroll.id">{{r._enrollRecord.tags}}</td>
+                                <td ng-if="app.entryRule.enroll.id">{{r._enrollRecord.comment}}</td>
                                 <td>
                                     <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
                                         <span class='glyphicon glyphicon-remove'></span>

@@ -33,19 +33,13 @@ class notice_model extends \TMS_MODEL {
 			];
 			$grpUsers = $modelGrpUsr->query_objs_ss($q);
 		} else {
-			$targetGrpAppId = null;
-			if (!empty($oApp->group_app_id)) {
-				$targetGrpAppId = $oApp->group_app_id;
-			} else if (isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && isset($oApp->entryRule->group->id)) {
-				$targetGrpAppId = $oApp->entryRule->group->id;
-			}
-			if (!empty($targetGrpAppId)) {
+			if (isset($oApp->entryRule->group->id)) {
 				$noticeReason = 'as.super';
 				$modelGrpUsr = $this->model('matter\group\player');
 				$q = [
 					'userid,nickname',
 					'xxt_group_player',
-					['aid' => $targetGrpAppId, 'state' => 1, 'is_leader' => 'S', 'userid' => (object) ['op' => '<>', 'pat' => $oRecord->userid]],
+					['aid' => $oApp->entryRule->group->id, 'state' => 1, 'is_leader' => 'S', 'userid' => (object) ['op' => '<>', 'pat' => $oRecord->userid]],
 				];
 				$grpUsers = $modelGrpUsr->query_objs_ss($q);
 			}

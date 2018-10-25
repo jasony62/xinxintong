@@ -3,13 +3,13 @@ namespace site\fe\matter\enroll;
 
 include_once dirname(dirname(__FILE__)) . '/base.php';
 /**
- * 登记活动
+ * 记录活动
  */
 class base extends \site\fe\matter\base {
 	/**
 	 *
 	 */
-	const AppFields = 'id,state,siteid,title,summary,pic,assigned_nickname,open_lastroll,can_coin,count_limit,data_schemas,start_at,end_at,entry_rule,action_rule,mission_id,read_num,scenario,share_friend_num,share_timeline_num,use_mission_header,use_mission_footer,use_site_header,use_site_footer,enrolled_entry_page,group_app_id,enroll_app_id,repos_config,rank_config,scenario_config,round_cron,mission_id,sync_mission_round';
+	const AppFields = 'id,state,siteid,title,summary,pic,assigned_nickname,open_lastroll,can_coin,count_limit,data_schemas,start_at,end_at,entry_rule,action_rule,mission_id,read_num,scenario,share_friend_num,share_timeline_num,use_mission_header,use_mission_footer,use_site_header,use_site_footer,enrolled_entry_page,repos_config,rank_config,scenario_config,round_cron,mission_id,sync_mission_round';
 
 	public function get_access_rule() {
 		$rule_action['rule_type'] = 'black';
@@ -47,8 +47,8 @@ class base extends \site\fe\matter\base {
 		$oScope = $oEntryRule->scope;
 
 		if (isset($oScope->register) && $oScope->register === 'Y') {
-			$checkRegister = $this->checkRegisterEntryRule($oUser);
-			if ($checkRegister[0] === false) {
+			$aCheckResult = $this->checkRegisterEntryRule($oUser);
+			if ($aCheckResult[0] === false) {
 				if (true === $bRedirect) {
 					$this->gotoAccess();
 				} else {
@@ -57,92 +57,15 @@ class base extends \site\fe\matter\base {
 				}
 			}
 		}
-		if (isset($oScope->member) && $oScope->member === 'Y') {
-			if (empty($oEntryRule->optional->member) || $oEntryRule->optional->member !== 'Y') {
-				if (!isset($oEntryRule->member)) {
-					$msg = '需要填写通讯录信息，请联系活动的组织者解决。';
-					if (true === $bRedirect) {
-						$oSite = $this->model('site')->byId($oApp->siteid);
-						$this->outputInfo($msg, $oSite);
-					} else {
-						return [false, $msg];
-					}
-				}
-				$aResult = $this->enterAsMember($oApp);
-				/**
-				 * 限通讯录用户访问
-				 * 如果指定的任何一个通讯录要求用户关注公众号，但是用户还没有关注，那么就要求用户先关注公众号，再填写通讯录
-				 */
-				if (false === $aResult[0]) {
-					if (true === $bRedirect) {
-						$aMemberSchemaIds = [];
-						$modelMs = $this->model('site\user\memberschema');
-						foreach ($oEntryRule->member as $mschemaId => $oRule) {
-							$oMschema = $modelMs->byId($mschemaId, ['fields' => 'is_wx_fan', 'cascaded' => 'N']);
-							if ($oMschema->is_wx_fan === 'Y') {
-								$oApp2 = clone $oApp;
-								$oApp2->entryRule = new \stdClass;
-								$oApp2->entryRule->sns = (object) ['wx' => (object) ['entry' => 'Y']];
-								$aResult = $this->checkSnsEntryRule($oApp2, $bRedirect);
-								if (false === $aResult[0]) {
-									return $aResult;
-								}
-							}
-							$aMemberSchemaIds[] = $mschemaId;
-						}
-						$this->gotoMember($oApp, $aMemberSchemaIds);
-					} else {
-						$msg = '您【ID:' . $oUser->uid . '】没有填写通讯录信息，不满足【' . $oApp->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
-						return [false, $msg];
-					}
-				}
-			}
-		}
-		if (isset($oScope->sns) && $oScope->sns === 'Y') {
-			$aResult = $this->checkSnsEntryRule($oApp, $bRedirect);
-			if (false === $aResult[0]) {
-				return $aResult;
-			}
-		}
-		if (isset($oScope->group) && $oScope->group === 'Y') {
-			if (empty($oEntryRule->optional->group) || $oEntryRule->optional->group !== 'Y') {
-				$bMatched = false;
-				/* 限分组用户访问 */
-				if (isset($oEntryRule->group->id)) {
-					$oGroupApp = $this->model('matter\group')->byId($oEntryRule->group->id, ['fields' => 'id,state,title']);
-					if (false === $oGroupApp || $oGroupApp->state !== '1') {
-						$msg = '【' . $oApp->title . '】指定的分组活动不可访问，请联系活动的组织者解决。';
-						if (true === $bRedirect) {
-							$oSite = $this->model('site')->byId($oApp->siteid);
-							$this->outputInfo($msg, $oSite);
-						} else {
-							return [false, $msg];
-						}
-					}
-					$oGroupUsr = $this->model('matter\group\player')->byUser($oGroupApp, $oUser->uid, ['fields' => 'round_id,round_title']);
-					if (count($oGroupUsr)) {
-						$oGroupUsr = $oGroupUsr[0];
-						if (isset($oEntryRule->group->round->id)) {
-							if ($oGroupUsr->round_id === $oEntryRule->group->round->id) {
-								$bMatched = true;
-							}
-						} else {
-							$bMatched = true;
-						}
-					}
-				}
-				if (false === $bMatched) {
-					$msg = '您【ID:' . $oUser->uid . '】目前的分组，不满足【' . $oApp->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
-					if (true === $bRedirect) {
-						$oSite = $this->model('site')->byId($oApp->siteid);
-						$this->outputInfo($msg, $oSite);
-					} else {
-						return [false, $msg];
-					}
-				}
-			}
-		}
 
+		foreach (['member', 'sns', 'group', 'enroll'] as $item) {
+			if (isset($oScope->{$item}) && $oScope->{$item} === 'Y') {
+				$aCheckResult = $this->{'check' . ucfirst($item) . 'EntryRule'}($oApp, $bRedirect);
+				if (false === $aCheckResult[0]) {
+					return $aCheckResult;
+				}
+			}
+		}
 		// 默认进入页面的名称
 		$page = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : null;
 

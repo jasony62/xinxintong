@@ -6,13 +6,7 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
     var Round, _ins;
     Round = function(oApp) {
         this.oApp = oApp;
-        this.oPage = {
-            at: 1,
-            size: 10,
-            j: function() {
-                return '&page=' + this.at + '&size=' + this.size;
-            }
-        };
+        this.oPage = {};
     };
     Round.prototype.list = function() {
         var _this = this,
@@ -21,8 +15,7 @@ ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
 
         url = '/rest/site/fe/matter/enroll/round/list?site=' + this.oApp.siteid + '&app=' + this.oApp.id;
         url += this.oPage.j();
-        http2.get(url).then(function(rsp) {
-            _this.oPage.total = rsp.data.total;
+        http2.get(url, { page: _this.oPage }).then(function(rsp) {
             deferred.resolve(rsp.data);
         });
         return deferred.promise;
@@ -352,7 +345,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
                 if (!oAppState.aid || oAppState.aid !== oApp.id) {
                     oAppState = null;
                 } else if (oAppState.criteria.obj === 'group') {
-                    if (!oApp.group_app_id) {
+                    if (!oApp.entryRule.group.id) {
                         oAppState = null;
                     }
                 }

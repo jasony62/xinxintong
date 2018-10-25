@@ -17,12 +17,12 @@ class account extends \pl\be\base {
 	 * 返回现有注册用户的列表
 	 */
 	public function list_action($page, $size) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
-		$filter = $this->getPostJson();
-		$rst = $this->model('account')->getAccount($page, $size, $filter);
+		$oFilter = $this->getPostJson();
+		$rst = $this->model('account')->getAccount($page, $size, $oFilter);
 
 		return new \ResponseData($rst);
 	}

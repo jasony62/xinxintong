@@ -122,18 +122,16 @@ class users extends \pl\fe\matter\base {
 		$modelWall = $this->model('matter\wall');
 		$modelSignin = $this->model('matter\signin');
 
-		$sourceApp = $modelSignin->byId($byApp, ['fields' => 'data_schemas,enroll_app_id', 'cascaded' => 'N']);
-		$sourceDataSchemas = $sourceApp->data_schemas;
+		$oSourceApp = $modelSignin->byId($byApp, ['fields' => 'entry_rule,data_schemas', 'cascaded' => 'N']);
+		$sourceDataSchemas = $oSourceApp->dataSchemas;
 		/**
 		 * 导入报名数据，需要合并签到和报名的登记项
 		 */
 		if (isset($params->includeEnroll) && $params->includeEnroll === 'Y') {
-			if (!empty($sourceApp->enroll_app_id)) {
+			if (!empty($oSourceApp->entryRule->enroll->id)) {
 				$modelEnl = $this->model('matter\enroll');
-				$enrollApp = $modelEnl->byId($sourceApp->enroll_app_id, ['fields' => 'data_schemas', 'cascaded' => 'N']);
-				$enrollDataSchemas = json_decode($enrollApp->data_schemas);
-				$sourceDataSchemas = json_decode($sourceDataSchemas);
-				$diff = array_udiff($enrollDataSchemas, $sourceDataSchemas, create_function('$a,$b', 'return strcmp($a->id,$b->id);'));
+				$oAssocEnlApp = $modelEnl->byId($oSourceApp->entryRule->enroll->id, ['fields' => 'data_schemas', 'cascaded' => 'N']);
+				$diff = array_udiff($oAssocEnlApp->dataSchemas, $sourceDataSchemas, create_function('$a,$b', 'return strcmp($a->id,$b->id);'));
 				$sourceDataSchemas = array_merge($sourceDataSchemas, $diff);
 				$sourceDataSchemas = $modelWall->toJson($sourceDataSchemas);
 			}
@@ -146,10 +144,10 @@ class users extends \pl\fe\matter\base {
 				'source_app' => '{"id":"' . $byApp . '","type":"signin"}',
 				'data_schemas' => $sourceDataSchemas,
 			],
-			"id='$app'"
+			['id' => $app]
 		);
 		/* 清空所有用户 */
-		$this->model()->delete('xxt_wall_enroll', "wid='$app'");
+		$modelWall->delete('xxt_wall_enroll', ['wid' => $app]);
 		/* 获取数据 */
 		$modelRec = $this->model('matter\signin\record');
 		$q = [
@@ -160,27 +158,27 @@ class users extends \pl\fe\matter\base {
 		$records = $modelRec->query_objs_ss($q);
 		/* 导入数据 */
 		if (!empty($records)) {
-			foreach ($records as $record) {
+			foreach ($records as $oRecord) {
 				//退出其它信息墙
-				$this->model()->update(
+				$modelWall->update(
 					'xxt_wall_enroll',
-					array('close_at' => $sync_at),
-					"siteid='$site' and wid != '{$app}' and (wx_openid='{$record->wx_openid}' or yx_openid='{$record->yx_openid}' or qy_openid='{$record->qy_openid}') "
+					['close_at' => $sync_at],
+					"siteid='$site' and wid != '{$app}' and (wx_openid='{$oRecord->wx_openid}' or yx_openid='{$oRecord->yx_openid}' or qy_openid='{$oRecord->qy_openid}') "
 				);
-				$options = array();
-				$options['siteid'] = $site;
-				$options['wid'] = $app;
-				$options['join_at'] = $sync_at;
-				$options['userid'] = $record->userid;
-				$options['nickname'] = $record->nickname;
-				$options['wx_openid'] = $record->wx_openid;
-				$options['yx_openid'] = $record->yx_openid;
-				$options['qy_openid'] = $record->qy_openid;
-				$options['headimgurl'] = $record->headimgurl;
-				$options['enroll_key'] = $record->enroll_key;
-				$options['data'] = $record->data;
+				$oWallEnroll = [];
+				$oWallEnroll['siteid'] = $site;
+				$oWallEnroll['wid'] = $app;
+				$oWallEnroll['join_at'] = $sync_at;
+				$oWallEnroll['userid'] = $oRecord->userid;
+				$oWallEnroll['nickname'] = $oRecord->nickname;
+				$oWallEnroll['wx_openid'] = $oRecord->wx_openid;
+				$oWallEnroll['yx_openid'] = $oRecord->yx_openid;
+				$oWallEnroll['qy_openid'] = $oRecord->qy_openid;
+				$oWallEnroll['headimgurl'] = $oRecord->headimgurl;
+				$oWallEnroll['enroll_key'] = $oRecord->enroll_key;
+				$oWallEnroll['data'] = $oRecord->data;
 
-				$this->model()->insert('xxt_wall_enroll', $options, false);
+				$modelWall->insert('xxt_wall_enroll', $oWallEnroll, false);
 			}
 		}
 		$num = count($records);

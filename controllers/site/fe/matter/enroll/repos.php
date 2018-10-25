@@ -442,8 +442,7 @@ class repos extends base {
 					$oEditor->nickname = $oActionRule->role->editor->nickname;
 					// 如果登记活动指定了编辑组需要获取，编辑组中所有的用户
 					$modelGrpUsr = $this->model('matter\group\player');
-					$assocGroupId = $oApp->entryRule->group->id;
-					$groupEditor = $modelGrpUsr->byApp($assocGroupId, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
+					$groupEditor = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
 					if (isset($groupEditor->players)) {
 						$groupEditorPlayers = $groupEditor->players;
 						$oEditorUsers = new \stdClass;
@@ -710,8 +709,7 @@ class repos extends base {
 					$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
 					// 如果登记活动指定了编辑组需要获取，编辑组中所有的用户
 					$modelGrpUsr = $this->model('matter\group\player');
-					$assocGroupId = $oApp->entryRule->group->id;
-					$groupEditor = $modelGrpUsr->byApp($assocGroupId, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
+					$groupEditor = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
 					if (isset($groupEditor->players)) {
 						$groupEditorPlayers = $groupEditor->players;
 						$oEditorUsers = new \stdClass;
@@ -866,8 +864,7 @@ class repos extends base {
 				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
 				// 如果登记活动指定了编辑组需要获取，编辑组中所有的用户
 				$modelGrpUsr = $this->model('matter\group\player');
-				$assocGroupId = $oApp->entryRule->group->id;
-				$groupEditor = $modelGrpUsr->byApp($assocGroupId, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
+				$groupEditor = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
 				if (isset($groupEditor->players)) {
 					$groupEditorPlayers = $groupEditor->players;
 					$oEditorUsers = new \stdClass;

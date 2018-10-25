@@ -886,6 +886,69 @@ class schema_model extends \TMS_MODEL {
 		}
 	}
 	/**
+	 * 获得分组题
+	 *
+	 * @return false 不支持分组活动；null 没有关联分组题；分组题
+	 */
+	public function getAssocGroupSchema($oApp) {
+		if (empty($oApp->entryRule->group->id)) {
+			/* 没有关联分组活动 */
+			return false;
+		}
+		if (empty($oApp->dataSchemas)) {
+			return null;
+		}
+		$oGroupSchema = null;
+		foreach ($oApp->dataSchemas as $oSchema) {
+			if ($oSchema->id === '_round_id') {
+				if (isset($oSchema->requireCheck) && $oSchema->requireCheck === 'Y') {
+					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oApp->entryRule->group->id) {
+						$oGroupSchema = $oSchema;
+						break;
+					}
+				}
+			}
+		}
+
+		return $oGroupSchema;
+	}
+	/**
+	 * 获得活动的所有题目，包含关联活动中的题目
+	 */
+	public function getUnionSchemas($oApp, &$unionSchemas) {
+		$count = 0;
+		$fnUnion = function ($otherSchemas) use ($unionSchemas, $count) {
+			$mapOfUnionSchemas = [];
+			foreach ($unionSchemas as $oSchema) {
+				$mapOfUnionSchemas[] = $oSchema->id;
+			}
+			foreach ($otherSchemas as $oSchema) {
+				if (!in_array($oSchema->id, $mapOfUnionSchemas)) {
+					$unionSchemas[] = $oSchema;
+					$count++;
+				}
+			}
+			return $count;
+		};
+		// 关联的记录活动
+		if (!empty($oApp->entryRule->enroll->id)) {
+			$matchApp = $this->model('matter\enroll')->byId($oApp->entryRule->enroll->id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+			if (count($matchApp->dynaDataSchemas)) {
+				$fnUnion($matchApp->dynaDataSchemas);
+			}
+		}
+
+		// 关联的分组活动
+		if (!empty($oApp->entryRule->group->id)) {
+			$matchApp = $this->model('matter\group')->byId($oApp->entryRule->group->id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+			if (count($matchApp->dataSchemas)) {
+				$fnUnion($matchApp->dataSchemas);
+			}
+		}
+
+		return $count;
+	}
+	/**
 	 * 获得schemasB中和schemasA兼容的登记项定义及对应关系
 	 *
 	 * 从目标应用中导入和指定应用的数据定义中名称（title）和类型（type）一致的项

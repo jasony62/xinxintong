@@ -741,17 +741,17 @@ class record_model extends \matter\enroll\record_base {
 			}
 		}
 		$aAllUsrs = [];
-		if (!empty($oApp->group_app_id)) {
+		if (!empty($oApp->entryRule->group->id)) {
 			$modelGrpUsr = $this->model('matter\group\player');
-			$aGrpUsrs = $modelGrpUsr->byApp($oApp->group_app_id, ['fields' => 'userid,nickname,wx_openid,yx_openid,qy_openid,is_leader,round_id,round_title']);
+			$aGrpUsrs = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['fields' => 'userid,nickname,wx_openid,yx_openid,qy_openid,is_leader,round_id,round_title']);
 			foreach ($aGrpUsrs->players as $oGrpUsr) {
 				if (false === in_array($oGrpUsr->userid, $oSigninedUsers)) {
 					$aAllUsrs[] = $oGrpUsr;
 				}
 			}
-		} else if (!empty($oApp->enroll_app_id)) {
+		} else if (!empty($oApp->entryRule->enroll->id)) {
 			$modelRec = $this->model('matter\enroll\record');
-			$result = $modelRec->byApp($oApp->enroll_app_id);
+			$result = $modelRec->byApp($oApp->entryRule->enroll->id);
 			if (!empty($result->records)) {
 				foreach ($result->records as $oRec) {
 					if (false === in_array($oRec->userid, $oSigninedUsers)) {

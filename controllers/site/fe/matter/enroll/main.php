@@ -327,8 +327,8 @@ class main extends base {
 		/**
 		 * 获得当前活动的分组和当前用户所属的分组，是否为组长，及同组成员
 		 */
-		if ((isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && !empty($oApp->entryRule->group->id)) || !empty($oApp->group_app_id)) {
-			$assocGroupAppId = (isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && !empty($oApp->entryRule->group->id)) ? $oApp->entryRule->group->id : $oApp->group_app_id;
+		if (!empty($oApp->entryRule->group->id)) {
+			$assocGroupAppId = $oApp->entryRule->group->id;
 			/* 获得的分组信息 */
 			$modelGrpRnd = $this->model('matter\group\round');
 			$groups = $modelGrpRnd->byApp($assocGroupAppId, ['fields' => "round_id,title,round_type"]);

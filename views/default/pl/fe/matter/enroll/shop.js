@@ -81,25 +81,6 @@ ngApp.controller('ctrlSysTemplate', ['$scope', '$location', '$uibModal', 'http2'
             }
         });
     };
-    $scope.assignGroupApp = function() {
-        srvSite.openGallery({
-            matterTypes: [{
-                value: 'group',
-                title: '分组活动',
-                url: '/rest/pl/fe/matter'
-            }],
-            singleMatter: true,
-            mission: _oProto.mission,
-            onlySameMission: true
-        }).then(function(result) {
-            var oGroupApp, oChosen;
-            if (result.matters.length === 1) {
-                oChosen = result.matters[0];
-                oGroupApp = { id: oChosen.id, title: oChosen.title };
-                _oProto.groupApp = oGroupApp;
-            }
-        });
-    };
     $scope.doCreate = function() {
         var url, data;
         var oConfig;

@@ -119,6 +119,130 @@ class base extends \site\fe\base {
 		return false;
 	}
 	/**
+	 * 检查通信录作为进入规则
+	 */
+	protected function checkMemberEntryRule($oMatter, $bRedirect) {
+		$oEntryRule = $oMatter->entryRule;
+		if ($this->getDeepValue($oEntryRule, 'optional.member') !== 'Y') {
+			if (!isset($oEntryRule->member)) {
+				$msg = '需要填写通讯录信息，请联系活动的组织者解决。';
+			} else {
+				$aResult = $this->enterAsMember($oMatter);
+				/**
+				 * 限通讯录用户访问
+				 * 如果指定的任何一个通讯录要求用户关注公众号，但是用户还没有关注，那么就要求用户先关注公众号，再填写通讯录
+				 */
+				if (false === $aResult[0]) {
+					if (true === $bRedirect) {
+						$aMemberSchemaIds = [];
+						$modelMs = $this->model('site\user\memberschema');
+						foreach ($oEntryRule->member as $mschemaId => $oRule) {
+							$oMschema = $modelMs->byId($mschemaId, ['fields' => 'is_wx_fan', 'cascaded' => 'N']);
+							if ($oMschema->is_wx_fan === 'Y') {
+								$oApp2 = clone $oMatter;
+								$oApp2->entryRule = new \stdClass;
+								$oApp2->entryRule->sns = (object) ['wx' => (object) ['entry' => 'Y']];
+								$aResult = $this->checkSnsEntryRule($oApp2, $bRedirect);
+								if (false === $aResult[0]) {
+									return $aResult;
+								}
+							}
+							$aMemberSchemaIds[] = $mschemaId;
+						}
+						$this->gotoMember($oMatter, $aMemberSchemaIds);
+					} else {
+						$msg = '您【ID:' . $oUser->uid . '】没有填写通讯录信息，不满足【' . $oMatter->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
+					}
+				}
+			}
+			if (isset($msg)) {
+				if (true === $bRedirect) {
+					$oSite = $this->model('site')->byId($oApp->siteid);
+					$this->outputInfo($msg, $oSite);
+				} else {
+					return [false, $msg];
+				}
+			}
+		}
+
+		return [true];
+	}
+	/**
+	 * 检查分组活动作为进入规则
+	 */
+	protected function checkGroupEntryRule($oMatter, $bRedirect) {
+		$oEntryRule = $oMatter->entryRule;
+		if ($this->getDeepValue($oEntryRule, 'optional.group') !== 'Y') {
+			$oUser = $this->who;
+			/* 限分组用户访问 */
+			if (empty($oEntryRule->group->id)) {
+				$msg = '没有指定作为进入规则的分组活动，请联系活动的组织者解决。';
+			} else {
+				$oGroupApp = $this->model('matter\group')->byId($oEntryRule->group->id, ['fields' => 'id,state,title']);
+				if (false === $oGroupApp || $oGroupApp->state !== '1') {
+					$msg = '【' . $oMatter->title . '】指定的分组活动不可访问，请联系活动的组织者解决。';
+				} else {
+					$bMatched = false;
+					$oGroupUsr = $this->model('matter\group\player')->byUser($oGroupApp, $oUser->uid, ['fields' => 'round_id,round_title']);
+					if (count($oGroupUsr)) {
+						$oGroupUsr = $oGroupUsr[0];
+						if (isset($oEntryRule->group->round->id)) {
+							if ($oGroupUsr->round_id === $oEntryRule->group->round->id) {
+								$bMatched = true;
+							}
+						} else {
+							$bMatched = true;
+						}
+					}
+					if (false === $bMatched) {
+						$msg = '您【ID:' . $oUser->uid . '】目前的分组，不满足【' . $oMatter->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
+					}
+				}
+			}
+			if (isset($msg)) {
+				if (true === $bRedirect) {
+					$oSite = $this->model('site')->byId($oMatter->siteid);
+					$this->outputInfo($msg, $oSite);
+				} else {
+					return [false, $msg];
+				}
+			}
+		}
+
+		return [true];
+	}
+	/**
+	 * 检查登记活动作为进入规则
+	 */
+	protected function checkEnrollEntryRule($oMatter, $bRedirect) {
+		$oEntryRule = $oMatter->entryRule;
+		if ($this->getDeepValue($oEntryRule, 'optional.enroll') !== 'Y') {
+			$oUser = $this->who;
+			if (empty($oEntryRule->enroll->id)) {
+				$msg = '没有指定作为进入规则的登记活动，请联系活动的组织者解决。';
+			} else {
+				$oEnlApp = $this->model('matter\enroll')->byId($oEntryRule->enroll->id, ['fields' => 'id,state,title']);
+				if (false === $oEnlApp && $oEnlApp->state !== '1') {
+					$msg = '指定作为进入规则的登记活动不存在，请联系活动的组织者解决。';
+				}
+			}
+			$oEnlUsr = $this->model('matter\enroll\user')->byId($oEnlApp, $oUser->uid, ['fields' => 'enroll_num']);
+			if (false === $oEnlUsr || $oEnlUsr->enroll_num <= 0) {
+				$msg = '您的用户信息，不满足【' . $oMatter->title . '】的参与规则，请联系活动的组织者解决。';
+			}
+			if (isset($msg)) {
+				if (true === $bRedirect) {
+					$oSite = $this->model('site')->byId($oMatter->siteid);
+					$this->outputInfo($msg, $oSite);
+				} else {
+					return [false, $msg];
+				}
+			}
+		}
+
+		return [true];
+	}
+	/**
 	 * 检查是否已经关注公众号
 	 */
 	protected function checkSnsEntryRule($oMatter, $bRedirect) {
@@ -153,64 +277,67 @@ class base extends \site\fe\base {
 	 */
 	protected function enterAsSns($oMatter) {
 		$oEntryRule = $oMatter->entryRule;
-		$oUser = $this->who;
-		$bFollowed = false;
-		$oFollowedRule = null;
+		if (isset($oEntryRule->sns)) {
 
-		/* 检查用户是否已经关注公众号 */
-		$fnCheckSnsFollow = function ($snsName, $matterSiteId, $openid) {
-			if ($snsName === 'wx') {
-				$modelWx = $this->model('sns\wx');
-				if (($wxConfig = $modelWx->bySite($matterSiteId)) && $wxConfig->joined === 'Y') {
-					$snsSiteId = $matterSiteId;
+			$oUser = $this->who;
+			$bFollowed = false;
+			$oFollowedRule = null;
+
+			/* 检查用户是否已经关注公众号 */
+			$fnCheckSnsFollow = function ($snsName, $matterSiteId, $openid) {
+				if ($snsName === 'wx') {
+					$modelWx = $this->model('sns\wx');
+					if (($wxConfig = $modelWx->bySite($matterSiteId)) && $wxConfig->joined === 'Y') {
+						$snsSiteId = $matterSiteId;
+					} else {
+						$snsSiteId = 'platform';
+					}
 				} else {
-					$snsSiteId = 'platform';
+					$snsSiteId = $matterSiteId;
 				}
-			} else {
-				$snsSiteId = $matterSiteId;
-			}
-			// 检查用户是否已经关注
-			$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
-			if ($modelSnsUser->isFollow($snsSiteId, $openid)) {
-				return true;
-			}
-
-			return false;
-		};
-
-		foreach ($oEntryRule->sns as $snsName => $rule) {
-			if (isset($oUser->sns->{$snsName})) {
-				/* 缓存的信息 */
-				$snsUser = $oUser->sns->{$snsName};
-				if ($fnCheckSnsFollow($snsName, $oMatter->siteid, $snsUser->openid)) {
-					$bFollowed = true;
-					$oFollowedRule = $rule;
-					break;
+				// 检查用户是否已经关注
+				$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
+				if ($modelSnsUser->isFollow($snsSiteId, $openid)) {
+					return true;
 				}
-			} else {
-				$modelAcnt = $this->model('site\user\account');
-				$propSnsOpenid = $snsName . '_openid';
-				if (empty($oUser->unionid)) {
-					/* 当前站点用户绑定的信息 */
-					$oSiteUser = $modelAcnt->byId($oUser->uid, ['fields' => $propSnsOpenid]);
-					if ($oSiteUser && $fnCheckSnsFollow($snsName, $oMatter->siteid, $oSiteUser->{$propSnsOpenid})) {
+
+				return false;
+			};
+
+			foreach ($oEntryRule->sns as $snsName => $rule) {
+				if (isset($oUser->sns->{$snsName})) {
+					/* 缓存的信息 */
+					$snsUser = $oUser->sns->{$snsName};
+					if ($fnCheckSnsFollow($snsName, $oMatter->siteid, $snsUser->openid)) {
 						$bFollowed = true;
 						$oFollowedRule = $rule;
 						break;
 					}
 				} else {
-					/* 当前注册用户绑定的信息 */
-					$aSiteUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oMatter->siteid, 'fields' => $propSnsOpenid]);
-					foreach ($aSiteUsers as $oSiteUser) {
+					$modelAcnt = $this->model('site\user\account');
+					$propSnsOpenid = $snsName . '_openid';
+					if (empty($oUser->unionid)) {
+						/* 当前站点用户绑定的信息 */
 						$oSiteUser = $modelAcnt->byId($oUser->uid, ['fields' => $propSnsOpenid]);
 						if ($oSiteUser && $fnCheckSnsFollow($snsName, $oMatter->siteid, $oSiteUser->{$propSnsOpenid})) {
 							$bFollowed = true;
 							$oFollowedRule = $rule;
 							break;
 						}
-					}
-					if ($bFollowed) {
-						break;
+					} else {
+						/* 当前注册用户绑定的信息 */
+						$aSiteUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oMatter->siteid, 'fields' => $propSnsOpenid]);
+						foreach ($aSiteUsers as $oSiteUser) {
+							$oSiteUser = $modelAcnt->byId($oUser->uid, ['fields' => $propSnsOpenid]);
+							if ($oSiteUser && $fnCheckSnsFollow($snsName, $oMatter->siteid, $oSiteUser->{$propSnsOpenid})) {
+								$bFollowed = true;
+								$oFollowedRule = $rule;
+								break;
+							}
+						}
+						if ($bFollowed) {
+							break;
+						}
 					}
 				}
 			}
@@ -485,7 +612,7 @@ class base extends \site\fe\base {
 	 * 检查用户是否是注册用户
 	 */
 	protected function checkRegisterEntryRule($oUser) {
-		$checkRegister = false;
+		$bCheckRegister = false;
 
 		if (empty($oUser->unionid)) {
 			$modelAct = $this->model('site\user\account');
@@ -493,7 +620,7 @@ class base extends \site\fe\base {
 				$q = [
 					'count(uid)',
 					'account',
-					"uid = '" . $modelAct->escape($unionid) . "' and forbidden = 0"
+					"uid = '" . $modelAct->escape($unionid) . "' and forbidden = 0",
 				];
 				$val = (int) $modelAct->query_val_ss($q);
 				return $val;
@@ -503,14 +630,15 @@ class base extends \site\fe\base {
 			if ($siteUser && !empty($siteUser->unionid)) {
 				$val = $getUserRegisterInfo($siteUser->unionid);
 				if ($val > 0) {
-					$checkRegister = true;
+					$bCheckRegister = true;
 				}
 			}
 		} else {
-			$checkRegister = true;			
+			$bCheckRegister = true;
 		}
 
-		$result = [$checkRegister];
+		$result = [$bCheckRegister];
+
 		return $result;
 	}
 }

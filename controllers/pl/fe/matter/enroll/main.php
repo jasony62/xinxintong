@@ -10,13 +10,13 @@ class main extends main_base {
 	 * 返回指定的登记活动
 	 */
 	public function get_action($app) {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
 		$modelEnl = $this->model('matter\enroll');
 		if (false === ($oApp = $modelEnl->byId($app))) {
-			return new \ResponseError('指定的数据不存在');
+			return new \ObjectNotFoundError();
 		}
 		unset($oApp->round_cron);
 		unset($oApp->rp_config);
@@ -28,38 +28,44 @@ class main extends main_base {
 			$oApp->mission = $this->model('matter\mission')->byId($oApp->mission_id);
 		}
 		/* 关联登记活动 */
-		if ($oApp->enroll_app_id) {
-			$oApp->enrollApp = $modelEnl->byId($oApp->enroll_app_id, ['cascaded' => 'N']);
+		if (isset($oApp->entryRule->enroll->id)) {
+			$oApp->enrollApp = $modelEnl->byId($oApp->entryRule->enroll->id, ['cascaded' => 'N']);
 		}
-		/* 关联分组活动 */
-		if ($oApp->group_app_id) {
-			$oApp->groupApp = $this->model('matter\group')->byId($oApp->group_app_id);
-		}
-		/* 指定分组活动访问 */
-		if (isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y') {
-			if (isset($oApp->entryRule->group)) {
-				$oRuleApp = $oApp->entryRule->group;
-				if (!empty($oRuleApp->id)) {
-					$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'title', 'cascaded' => 'N']);
-					if ($oGroupApp) {
-						$oRuleApp->title = $oGroupApp->title;
-						if (!empty($oRuleApp->round->id)) {
-							$oGroupRnd = $this->model('matter\group\round')->byId($oRuleApp->round->id, ['fields' => 'title']);
-							if ($oGroupRnd) {
-								$oRuleApp->round->title = $oGroupRnd->title;
-							}
-						}
+		/* 指定分组活动用户进入 */
+		if (isset($oApp->entryRule->group->id)) {
+			$oRuleApp = $oApp->entryRule->group;
+			$modelGrpRnd = $this->model('matter\group\round');
+			$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+			if ($oGroupApp) {
+				unset($oApp->groupApp->data_schemas);
+				$oRuleApp->title = $oGroupApp->title;
+				if (!empty($oRuleApp->round->id)) {
+					$oGroupRnd = $modelGrpRnd->byId($oRuleApp->round->id, ['fields' => 'title']);
+					if ($oGroupRnd) {
+						$oRuleApp->round->title = $oGroupRnd->title;
 					}
 				}
+				/* 获得当前活动的分组 */
+				$groups = $modelGrpRnd->byApp($oGroupApp->id, ['fields' => "round_id,title"]);
+				$oGroupDS = new \stdClass;
+				$oGroupDS->id = '_round_id';
+				$oGroupDS->type = 'single';
+				$oGroupDS->title = '分组名称';
+				$ops = [];
+				/* 获得的分组信息 */
+				foreach ($groups as $oGroup) {
+					$ops[] = (object) [
+						'v' => $oGroup->round_id,
+						'l' => $oGroup->title,
+					];
+				}
+				$oGroupDS->ops = $ops;
+
+				$oGroupApp->dataSchemas = array_merge([$oGroupDS], $oGroupApp->dataSchemas);
+
+				$oApp->groupApp = $oGroupApp;
+				$oApp->groups = $groups;
 			}
-		}
-		/* 获得当前活动的分组 */
-		if ((isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && !empty($oApp->entryRule->group->id)) || !empty($oApp->group_app_id)) {
-			$assocGroupAppId = (isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && !empty($oApp->entryRule->group->id)) ? $oApp->entryRule->group->id : $oApp->group_app_id;
-			/* 获得的分组信息 */
-			$modelGrpRnd = $this->model('matter\group\round');
-			$groups = $modelGrpRnd->byApp($assocGroupAppId, ['fields' => "round_id,title"]);
-			$oApp->groups = $groups;
 		}
 
 		return new \ResponseData($oApp);
@@ -233,26 +239,26 @@ class main extends main_base {
 		 */
 		if ($oCopied->mission_id !== $mission) {
 			/**
-			 * 只有同项目内的分组活动可以作为参与规则
+			 * 只有同项目内的分组活动和登记活动可以作为参与规则
 			 */
+			$aAssocApps = [];
 			if (isset($oNewEntryRule->scope->group) && $oNewEntryRule->scope->group === 'Y') {
 				unset($oNewEntryRule->scope->group);
 			}
 			if (isset($oNewEntryRule->group)) {
+				$aAssocApps[] = $oNewEntryRule->group->id;
 				unset($oNewEntryRule->group);
+			}
+			if (isset($oNewEntryRule->scope->enroll) && $oNewEntryRule->scope->enroll === 'Y') {
+				unset($oNewEntryRule->scope->enroll);
+			}
+			if (isset($oNewEntryRule->enroll)) {
+				$aAssocApps[] = $oNewEntryRule->enroll->id;
+				unset($oNewEntryRule->enroll);
 			}
 			/**
 			 * 如果关联了分组或登记活动，需要去掉题目的关联信息
 			 */
-			$aAssocApps = [];
-			if (!empty($oCopied->group_app_id)) {
-				$aAssocApps[] = $oCopied->group_app_id;
-				$oCopied->group_app_id = '';
-			}
-			if (!empty($oCopied->enroll_app_id)) {
-				$aAssocApps[] = $oCopied->enroll_app_id;
-				$oCopied->enroll_app_id = '';
-			}
 			if (count($aAssocApps)) {
 				/* 页面的题目 */
 				foreach ($aPages as $oPage) {
@@ -268,7 +274,6 @@ class main extends main_base {
 		if (!empty($oNicknameSchema)) {
 			$oNewApp->assigned_nickname = json_encode(['valid' => 'Y', 'schema' => ['id' => $oNicknameSchema->id]]);
 		}
-
 		/**
 		 * 获得的基本信息
 		 */
@@ -280,10 +285,8 @@ class main extends main_base {
 		$oNewApp->scenario_config = json_encode($oCopied->scenarioConfig);
 		$oNewApp->count_limit = $oCopied->count_limit;
 		$oNewApp->enrolled_entry_page = $oCopied->enrolled_entry_page;
-		$oNewApp->entry_rule = json_encode($oNewEntryRule);
+		$oNewApp->entry_rule = $modelApp->escape($modelApp->toJson($oNewEntryRule));
 		$oNewApp->data_schemas = $modelApp->escape($modelApp->toJson($aDataSchemas));
-		$oNewApp->group_app_id = $oCopied->group_app_id;
-		$oNewApp->enroll_app_id = $oCopied->enroll_app_id;
 		$oNewApp->tags = $modelApp->escape($oCopied->tags);
 		$oNewApp->count_limit = $modelApp->escape($oCopied->count_limit);
 

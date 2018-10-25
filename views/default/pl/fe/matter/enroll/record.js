@@ -291,8 +291,10 @@ define(['frame'], function(ngApp) {
                 });
 
                 $scope.bRequireNickname = oApp.assignedNickname.valid !== 'Y' || !oApp.assignedNickname.schema;
-                if (!oApp.group_app_id) {
-                    $scope.bRequireGroup = oApp.entryRule.scope.group === 'Y' && oApp.entryRule.group && oApp.entryRule.group.id;
+                if (oApp.entryRule.group) {
+                    $scope.bRequireGroup = oApp._schemasById['_round_id'] ? false : true;
+                } else {
+                    $scope.bRequireGroup = false;
                 }
                 $scope.bRequireSum = bRequireSum;
                 $scope.bRequireScore = bRequireScore;

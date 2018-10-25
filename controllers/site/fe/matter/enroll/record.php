@@ -91,8 +91,8 @@ class record extends base {
 		/**
 		 * 检查是否存在匹配的登记记录
 		 */
-		if (!empty($oEnrollApp->enroll_app_id)) {
-			$oMatchApp = $modelEnl->byId($oEnrollApp->enroll_app_id, ['cascaded' => 'N']);
+		if (!empty($oEnrollApp->entryRule->enroll->id)) {
+			$oMatchApp = $modelEnl->byId($oEnrollApp->entryRule->enroll->id, ['cascaded' => 'N']);
 			if (empty($oMatchApp)) {
 				return new \ParameterError('指定的登记匹配登记活动不存在');
 			}
@@ -101,7 +101,7 @@ class record extends base {
 			$dataSchemas = $oEnrollApp->dataSchemas;
 			foreach ($dataSchemas as $oSchema) {
 				if (isset($oSchema->requireCheck) && $oSchema->requireCheck === 'Y') {
-					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oEnrollApp->enroll_app_id) {
+					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oEnrollApp->entryRule->enroll->id) {
 						$requireCheckedData->{$oSchema->id} = $modelRec->getValueBySchema($oSchema, $oEnrolledData);
 					}
 				}
@@ -141,52 +141,56 @@ class record extends base {
 		/**
 		 * 检查是否存在匹配的分组记录
 		 */
-		if (!empty($oEnrollApp->group_app_id)) {
-			$oGroupApp = $this->model('matter\group')->byId($oEnrollApp->group_app_id);
-			if (empty($oGroupApp)) {
-				return new \ParameterError('指定的登记匹配分组活动不存在');
-			}
+		if (isset($oEnrollApp->entryRule->group->id)) {
 			/* 获得要检查的登记项 */
+			$countRequireCheckedData = 0;
 			$requireCheckedData = new \stdClass;
-			$dataSchemas = $oEnrollApp->dataSchemas;
+			$dataSchemas = $oEnrollApp->dynaDataSchemas;
 			foreach ($dataSchemas as $oSchema) {
 				if (isset($oSchema->requireCheck) && $oSchema->requireCheck === 'Y') {
-					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oEnrollApp->group_app_id) {
+					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oEnrollApp->entryRule->group->id) {
+						$countRequireCheckedData++;
 						$requireCheckedData->{$oSchema->id} = $modelRec->getValueBySchema($oSchema, $oEnrolledData);
 					}
 				}
 			}
-			/* 在指定的分组活动中检查数据 */
-			$modelMatchRec = $this->model('matter\group\player');
-			$groupRecords = $modelMatchRec->byData($oGroupApp, $requireCheckedData);
-			if (empty($groupRecords)) {
-				return new \ParameterError('未在指定的分组活动［' . $oGroupApp->title . '］中找到与提交数据相匹配的记录');
-			}
-			/* 如果匹配的分组数据不唯一，怎么办？ */
-			if (count($groupRecords) > 1) {
-				return new \ParameterError('在指定的分组活动［' . $oGroupApp->title . '］中找到多条与提交数据相匹配的记录，匹配关系不唯一');
-			}
-			$oGroupRecord = $groupRecords[0];
-			/* 如果分组数据中未包含用户信息，更新用户信息 */
-			if (empty($oGroupRecord->userid)) {
-				$oUserAcnt = $this->model('site\user\account')->byId($oUser->uid, ['fields' => 'wx_openid,yx_openid,qy_openid,headimgurl']);
-				if (false === $oUserAcnt) {
-					$oUserAcnt = new \stdClass;
+			if ($countRequireCheckedData > 0) {
+				$oGroupApp = $this->model('matter\group')->byId($oEnrollApp->entryRule->group->id);
+				if (empty($oGroupApp)) {
+					return new \ParameterError('指定的登记匹配分组活动不存在');
 				}
-				$oUserAcnt->userid = $oUser->uid;
-				$oUserAcnt->nickname = $modelMatchRec->escape($oUser->nickname);
-				$modelMatchRec->update('xxt_group_player', $oUserAcnt, ['id' => $oGroupRecord->id]);
-			}
-			/* 将匹配的分组记录数据作为提交的登记数据的一部分 */
-			$oMatchedData = $oGroupRecord->data;
-			foreach ($oGroupApp->dataSchemas as $oSchema) {
-				if (!isset($oEnrolledData->{$oSchema->id}) && isset($oMatchedData->{$oSchema->id})) {
-					$oEnrolledData->{$oSchema->id} = $oMatchedData->{$oSchema->id};
+				/* 在指定的分组活动中检查数据 */
+				$modelMatchRec = $this->model('matter\group\player');
+				$groupRecords = $modelMatchRec->byData($oGroupApp, $requireCheckedData);
+				if (empty($groupRecords)) {
+					return new \ParameterError('未在指定的分组活动［' . $oGroupApp->title . '］中找到与提交数据相匹配的记录');
 				}
-			}
-			/* 所属分组id */
-			if (isset($oGroupRecord->round_id)) {
-				$oUser->group_id = $oEnrolledData->_round_id = $oGroupRecord->round_id;
+				/* 如果匹配的分组数据不唯一，怎么办？ */
+				if (count($groupRecords) > 1) {
+					return new \ParameterError('在指定的分组活动［' . $oGroupApp->title . '］中找到多条与提交数据相匹配的记录，匹配关系不唯一');
+				}
+				$oGroupRecord = $groupRecords[0];
+				/* 如果分组数据中未包含用户信息，更新用户信息 */
+				if (empty($oGroupRecord->userid)) {
+					$oUserAcnt = $this->model('site\user\account')->byId($oUser->uid, ['fields' => 'wx_openid,yx_openid,qy_openid,headimgurl']);
+					if (false === $oUserAcnt) {
+						$oUserAcnt = new \stdClass;
+					}
+					$oUserAcnt->userid = $oUser->uid;
+					$oUserAcnt->nickname = $modelMatchRec->escape($oUser->nickname);
+					$modelMatchRec->update('xxt_group_player', $oUserAcnt, ['id' => $oGroupRecord->id]);
+				}
+				/* 将匹配的分组记录数据作为提交的登记数据的一部分 */
+				$oMatchedData = $oGroupRecord->data;
+				foreach ($oGroupApp->dataSchemas as $oSchema) {
+					if (!isset($oEnrolledData->{$oSchema->id}) && isset($oMatchedData->{$oSchema->id})) {
+						$oEnrolledData->{$oSchema->id} = $oMatchedData->{$oSchema->id};
+					}
+				}
+				/* 所属分组id */
+				if (isset($oGroupRecord->round_id)) {
+					$oUser->group_id = $oEnrolledData->_round_id = $oGroupRecord->round_id;
+				}
 			}
 		}
 		/**
@@ -516,7 +520,7 @@ class record extends base {
 				if (file_exists($absPath)) {
 					header("HTTP/1.0 200 Ok");
 					return new \ResponseData('已上传');
-				} else{
+				} else {
 					header("HTTP/1.0 404 Not Found");
 					return new \ResponseData('未上传');
 				}
@@ -628,8 +632,8 @@ class record extends base {
 		}
 
 		/* 返回当前用户在关联活动中填写的数据 */
-		if (!empty($oApp->enroll_app_id) && !empty($oUser->uid)) {
-			$oAssocApp = $this->model('matter\enroll')->byId($oApp->enroll_app_id, ['cascaded' => 'N']);
+		if (!empty($oApp->entryRule->enroll->id) && !empty($oUser->uid)) {
+			$oAssocApp = $this->model('matter\enroll')->byId($oApp->entryRule->enroll->id, ['cascaded' => 'N']);
 			if ($oAssocApp) {
 				$oAssocRec = $modelRec->byUser($oAssocApp, $oUser);
 				if (count($oAssocRec) === 1) {
@@ -647,8 +651,8 @@ class record extends base {
 				}
 			}
 		}
-		if (!empty($oApp->group_app_id) && !empty($oUser->uid)) {
-			$oGrpApp = $this->model('matter\group')->byId($oApp->group_app_id, ['cascaded' => 'N']);
+		if (!empty($oApp->entryRule->group->id) && !empty($oUser->uid)) {
+			$oGrpApp = $this->model('matter\group')->byId($oApp->entryRule->group->id, ['cascaded' => 'N']);
 			$oGrpPlayer = $this->model('matter\group\player')->byUser($oGrpApp, $oUser->uid);
 			if (count($oGrpPlayer) === 1) {
 				if (!empty($oGrpPlayer[0]->data)) {

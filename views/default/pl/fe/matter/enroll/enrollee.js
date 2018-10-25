@@ -75,7 +75,7 @@ define(['frame'], function(ngApp) {
             $scope.searchEnrollee(1);
         };
         $scope.export = function() {
-            var url = '/rest/pl/fe/matter/enroll/user/export?site=' + $scope.app.siteid;
+            var url = '/rest/pl/fe/matter/enroll/user/export';
             url += '&app=' + $scope.app.id;
             url += '&rid=' + _oCriteria.rid;
             window.open(url);

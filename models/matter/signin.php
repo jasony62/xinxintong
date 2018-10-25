@@ -517,6 +517,9 @@ class signin_model extends enroll_base {
 
 		/* 进入规则 */
 		$oEntryRule = $oTemplateConfig->entryRule;
+		if (!isset($oEntryRule->scope)) {
+			$oEntryRule->scope = new \stdClass;
+		}
 		if (!empty($oCustomConfig->proto->entryRule->scope)) {
 			/* 用户指定的规则 */
 			$this->setEntryRuleByProto($oSite, $oEntryRule, $oCustomConfig->proto->entryRule);
@@ -524,10 +527,6 @@ class signin_model extends enroll_base {
 			/* 项目的进入规则 */
 			$this->setEntryRuleByMission($oEntryRule, $oMisEntryRule);
 		}
-		if (!isset($oEntryRule->scope)) {
-			$oEntryRule->scope = new \stdClass;
-		}
-
 		/* 关联了通讯录，替换匹配的题目 */
 		if (!empty($oTemplateConfig->schema)) {
 			/* 通讯录关联题目 */
@@ -543,7 +542,6 @@ class signin_model extends enroll_base {
 			$oEntryRule->group->id = $this->escape($oCustomConfig->proto->groupApp->id);
 			$this->setSchemaByGroupApp($oEntryRule->group->id, $oTemplateConfig);
 		}
-
 		/* 作为昵称的题目 */
 		$oNicknameSchema = $this->findAssignedNicknameSchema($oTemplateConfig->schema);
 		if (!empty($oNicknameSchema)) {

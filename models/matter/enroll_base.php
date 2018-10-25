@@ -36,7 +36,7 @@ abstract class enroll_base extends app_base {
 	 * 根据用户指定的规则设置
 	 */
 	protected function setEntryRuleByProto($oSite, &$oEntryRule, $oProtoEntryRule) {
-		if (isset($oProtoEntryRule->scope)) {
+		if (isset($oProtoEntryRule->scope) && is_object($oProtoEntryRule->scope)) {
 			$oEntryRule->scope = $oProtoEntryRule->scope;
 			if (isset($oEntryRule->scope->group) && $oEntryRule->scope->group === 'Y') {
 				if (!empty($oProtoEntryRule->group->id)) {

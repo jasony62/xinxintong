@@ -1,21 +1,32 @@
-<div class='form-inline'>
-    <div class='form-group'>
-        <div class='input-group'>
-            <span class='input-group-addon'>登录账号</span>
-            <input type='text' class='form-control' ng-model="filter.email" placeholder="输入登录账号查找">
-            <div class='input-group-btn'>
-                <button class='btn btn-default' ng-click="resetFilter()"><i class='glyphicon glyphicon-remove'></i></button>
-                <button class='btn btn-default' ng-click="pageChanged(1)"><i class='glyphicon glyphicon-search'></i></button>
+<div class='form-group'>
+    <div class='form-inline'>
+        <div class='form-group'>
+            <div class="input-group">
+                <div class="input-group-btn">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{byProps[filter.prop]}} <span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li ng-repeat="(prop,label) in byProps"><a href ng-click="filter.prop=prop">{{label}}</a></li>
+                    </ul>
+                </div>
+                <input type='text' class='form-control' ng-model="filter.keyword">
+                <div class='input-group-btn'>
+                    <button class='btn btn-default' ng-click="resetFilter()"><i class='glyphicon glyphicon-remove'></i></button>
+                    <button class='btn btn-default' ng-click="pageChanged(1)"><i class='glyphicon glyphicon-search'></i></button>
+                </div>
             </div>
         </div>
-    </div>
-    <div class='form-group'>
-        <ul uib-pagination boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" class="pagination" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="pageChanged()" style='cursor:pointer'></ul>
+        <div class='form-group'>
+            <div class='pl-pagination'>
+                <span>总数：{{page.total}}</span>
+                <ul uib-pagination boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="pageChanged()"></ul>
+            </div>
+        </div>
     </div>
 </div>
 <table class='table table-bordered'>
     <thead>
         <tr>
+            <th></th>
             <th>昵称</th>
             <th>登录账号</th>
             <th>积分</th>
@@ -27,6 +38,7 @@
     </thead>
     <tbody>
         <tr ng-repeat='u in users'>
+            <td>{{$index+1+(page.size*(page.at-1))}}</td>
             <td>{{u.nickname}}</td>
             <td>{{u.email}}</td>
             <td>{{u.coin}}</td>

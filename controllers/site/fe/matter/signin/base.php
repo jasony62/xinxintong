@@ -47,45 +47,18 @@ class base extends \site\fe\matter\base {
 					return [true, $oEntryRule->success->entry];
 				}
 			}
-			return [true, null];
+
+			return [true];
 		}
-		if (isset($oScope->member) && $oScope->member === 'Y') {
-			$aResult = $this->enterAsMember($oApp);
-			/**
-			 * 限通讯录用户访问
-			 * 如果指定的任何一个通讯录要求用户关注公众号，但是用户还没有关注，那么就要求用户先关注公众号，再填写通讯录
-			 */
-			if (false === $aResult[0]) {
-				if (true === $bRedirect) {
-					$aMemberSchemaIds = [];
-					$modelMs = $this->model('site\user\memberschema');
-					foreach ($oEntryRule->member as $mschemaId => $oRule) {
-						$oMschema = $modelMs->byId($mschemaId, ['fields' => 'is_wx_fan', 'cascaded' => 'N']);
-						if ($oMschema->is_wx_fan === 'Y') {
-							$oApp2 = clone $oApp;
-							$oApp2->entryRule = new \stdClass;
-							$oApp2->entryRule->sns = (object) ['wx' => (object) ['entry' => 'Y']];
-							$aResult = $this->checkSnsEntryRule($oApp2, $bRedirect);
-							if (false === $aResult[0]) {
-								return $aResult;
-							}
-						}
-						$aMemberSchemaIds[] = $mschemaId;
-					}
-					$this->gotoMember($oApp, $aMemberSchemaIds);
-				} else {
-					$msg = '您没有填写通讯录信息，不满足【' . $oApp->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
-					return [false, $msg];
+
+		foreach (['member', 'sns', 'group', 'enroll'] as $item) {
+			if (isset($oScope->{$item}) && $oScope->{$item} === 'Y') {
+				$aCheckResult = $this->{'check' . ucfirst($item) . 'EntryRule'}($oApp, $bRedirect);
+				if (false === $aCheckResult[0]) {
+					return $aCheckResult;
 				}
 			}
 		}
-		if (isset($oScope->sns) && $oScope->sns === 'Y') {
-			$aResult = $this->checkSnsEntryRule($oApp, $bRedirect);
-			if (false === $aResult[0]) {
-				return $aResult;
-			}
-		}
-
 		// 默认进入页面的名称
 		$page = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : null;
 

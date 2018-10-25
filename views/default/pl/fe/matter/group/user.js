@@ -1,5 +1,5 @@
 define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlUser', ['$scope', 'noticebox', 'srvGroupApp', 'srvGroupPlayer', 'srvMemberPicker', function($scope, noticebox, srvGroupApp, srvGroupPlayer, srvMemberPicker) {
+    ngApp.provider.controller('ctrlUser', ['$scope', 'noticebox', 'srvGroupApp', 'srvGroupRound', 'srvGroupPlayer', 'srvMemberPicker', function($scope, noticebox, srvGroupApp, srvGroupRound, srvGroupPlayer, srvMemberPicker) {
         $scope.syncByApp = function(data) {
             srvGroupApp.syncByApp().then(function(count) {
                 $scope.list('round');
@@ -149,23 +149,23 @@ define(['frame'], function(ngApp) {
             if (oApp.assignedNickname) {
                 $scope.bRequireNickname = oApp.assignedNickname.valid !== 'Y' || !oApp.assignedNickname.schema;
             }
-            $scope.teamRounds = [];
-            $scope.roleRounds = [];
-            if (oApp._roundsById) {
-                angular.forEach(oApp._roundsById, function(oRound) {
-                    switch (oRound.round_type) {
-                        case 'T':
-                            $scope.teamRounds.push(oRound);
-                            break;
-                        case 'R':
-                            $scope.roleRounds.push(oRound);
-                            break;
-                    }
-                });
-            }
             srvGroupPlayer.init(players).then(function() {
                 $scope.list('round');
                 $scope.tableReady = 'Y';
+            });
+        });
+        srvGroupRound.list().then(function(rounds) {
+            $scope.teamRounds = [];
+            $scope.roleRounds = [];
+            rounds.forEach(function(oRound) {
+                switch (oRound.round_type) {
+                    case 'T':
+                        $scope.teamRounds.push(oRound);
+                        break;
+                    case 'R':
+                        $scope.roleRounds.push(oRound);
+                        break;
+                }
             });
         });
     }]);

@@ -402,6 +402,9 @@ class data_model extends entity_model {
 					break;
 				default:
 					// string & score
+					if (is_string($submitVal)) {
+						$submitVal = $this->cleanEmoji($submitVal);
+					}
 					$oDbData->{$schemaId} = $submitVal;
 				}
 			} else {

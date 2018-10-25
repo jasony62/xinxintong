@@ -1,4 +1,4 @@
-<div class='col-md-12' ng-if="!activeRound&&app.sourceApp">
+<div class='col-md-12'>
     <div class='form-group'>
         <div class='form-inline'>
             <div class='form-group' ng-if="!app.sourceApp">
@@ -23,21 +23,21 @@
                     </div>
                 </div>
             </div>
-            <button class='btn btn-success' ng-disabled="!app.sourceApp||!rounds.length" ng-click="execute()">自动分组</button>
-            <div class="btn-group" uib-dropdown>
+            <button class='btn btn-success' ng-disabled="!app.sourceApp||!teamRounds.length" ng-click="execute()">自动分组</button>
+            <div class="btn-group" uib-dropdown ng-if="app.sourceApp">
                 <button class="btn btn-default" uib-dropdown-toggle>移动<span ng-bind="rows.players.length"></span>个用户到...<i class="caret"></i></button>
                 <ul uib-dropdown-menu>
                     <li ng-repeat="rnd in teamRounds"><a href ng-click="joinGroup(rnd,rows.players)">{{rnd.title}}</a></li>
                     <li><a href ng-click="quitGroup(rows.players)">未分组</a></li>
                 </ul>
             </div>
-            <div class="btn-group" uib-dropdown>
+            <div class="btn-group" uib-dropdown ng-if="app.sourceApp">
                 <button class="btn btn-default" uib-dropdown-toggle><span ng-bind="rows.players.length"></span>个用户加入到...<i class="caret"></i></button>
                 <ul uib-dropdown-menu>
                     <li ng-repeat="rnd in roleRounds"><a href ng-click="joinGroup(rnd,rows.players)">{{rnd.title}}</a></li>
                 </ul>
             </div>
-            <div class="btn-group" uib-dropdown>
+            <div class="btn-group" uib-dropdown ng-if="app.sourceApp">
                 <button class="btn btn-default" uib-dropdown-toggle>更多操作 <i class="caret"></i></button>
                 <ul uib-dropdown-menu>
                     <li><a href="" ng-click="addPlayer()">添加用户</a></li>

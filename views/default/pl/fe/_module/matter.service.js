@@ -1069,7 +1069,7 @@ controller('ctrlStat', ['$scope', 'http2', '$uibModal', '$compile', function($sc
     };
     $scope.export = function(user) {
         var url;
-        url = '/rest/pl/fe/matter/' + app.type + '/log/operateStat?site=' + app.siteid + '&appId=' + app.id;
+        url = '/rest/pl/fe/matter/' + app.type + '/log/exportMatterActionLog?site=' + app.siteid + '&appId=' + app.id;
         url += '&startAt=' + criteria.startAt + '&endAt=' + criteria.endAt + '&byEvent=' + criteria.byEvent;
         window.open(url);
     };

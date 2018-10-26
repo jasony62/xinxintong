@@ -71,7 +71,7 @@ ngApp.controller('ctrlStat', ['$scope', '$timeout', '$uibModal', '$q', 'tmsLocat
                 /member/.test(oSchema.id) && (oSchema.id = 'member');
                 url = LS.j('record/list4Schema', 'site', 'app');
                 url += '&schema=' + oSchema.id;
-                url += '&rid=' + LS.s().rid;
+                url += '&rid=' + _oCriteria.round[0];
                 oCached._running = true;
                 http2.get(url, { page: oPage }).then(function(rsp) {
                     oCached._running = false;

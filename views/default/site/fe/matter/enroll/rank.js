@@ -2,20 +2,15 @@
 require('./rank.css');
 
 var ngApp = require('./main.js');
-ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
+ngApp.factory('Round', ['$q', 'http2', 'tmsLocation', function($q, http2, LS) {
     var Round, _ins;
     Round = function(oApp) {
         this.oApp = oApp;
         this.oPage = {};
     };
     Round.prototype.list = function() {
-        var _this = this,
-            deferred = $q.defer(),
-            url;
-
-        url = '/rest/site/fe/matter/enroll/round/list?site=' + this.oApp.siteid + '&app=' + this.oApp.id;
-        url += this.oPage.j();
-        http2.get(url, { page: _this.oPage }).then(function(rsp) {
+        var deferred = $q.defer();
+        http2.get(LS.j('round/list', 'site', 'app'), { page: this.oPage }).then(function(rsp) {
             deferred.resolve(rsp.data);
         });
         return deferred.promise;

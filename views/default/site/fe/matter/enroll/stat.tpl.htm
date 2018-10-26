@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html ng-app='app' ng-controller='ctrlMain'>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href="/" />
+    <title>
+        <?php TPL::pt('title');?>
+    </title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href='/static/css/site.fe.css' rel="stylesheet">
+    <style ng-if="page.css" ng-bind='page.css'></style>
+</head>
+
+<body ng-controller='ctrlStat'>
+    <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
+    <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
+    <nav class='navbar site-navbar-default'>
+        <div class='container'>
+            <div class="navbar-header">
+                <a href class="navbar-brand">
+                    <i class="glyphicon glyphicon-list-alt visible-lg-inline"></i> <span tms-app-nav app-navs="appNavs">统计</span>
+                </a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="pull-left">
+                    <a href ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline"> 个人中心</span></a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div ng-cloak class='ng-cloak'>
+        <div class='container'>
+            <div class='col-md-12'>
+                <h3>{{app.title}}</h3>
+                <hr>
+                <div class='form-inline'>
+                    <div class="form-group">
+                        <div class='form-control' ng-click="setRound()" title='{{checkedRoundTitles}}' style='overflow:hidden;white-space:nowrap;'>{{checkedRoundTitles}}</div>
+                    </div>
+                </div>
+                <!--schemas-->
+                <div ng-repeat="schema in rpSchemas">
+                    <h3><span ng-bind="schema.title"></span></h3>
+                    <div ng-if="['single','multiple'].indexOf(schema.type)!==-1">
+                        <div id="{{schema.id}}" style='height:300px'></div>
+                        <table class='table table-bordered'>
+                            <thead>
+                                <tr>
+                                    <th style='width:4em'>编号</th>
+                                    <th>选项</th>
+                                    <th style='width:6em' ng-if="chartConfig.number==='Y'">数量</th>
+                                    <th style='width:6em' ng-if="chartConfig.percentage==='Y'">占比</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="op in stat[schema.id].ops">
+                                    <td>选项{{$index+1}}</td>
+                                    <td>{{op.l}}</td>
+                                    <td ng-if="chartConfig.number==='Y'">{{op.c}}</td>
+                                    <td ng-if="chartConfig.percentage==='Y'">{{op.p}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div ng-if="'score'===schema.type">
+                        <div id="{{schema.id}}" style='height:300px'></div>
+                        <table class='table table-bordered'>
+                            <thead>
+                                <tr>
+                                    <th style='width:4em'>编号</th>
+                                    <th>打分项</th>
+                                    <th style='width:6em'>平均分</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="op in stat[schema.id].ops">
+                                    <td>选项{{$index+1}}</td>
+                                    <td>{{op.l}}</td>
+                                    <td>{{op.c}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div ng-if="['single','multiple','score'].indexOf(schema.type)===-1" ng-init="page={schema:schema.id,at:1,size:10}">
+                        <div id="{{schema.id}}" style='height:300px' ng-if="schema.number&&schema.number=='Y'"></div>
+                        <table class='table table-bordered' ng-switch on="schema.type">
+                            <thead>
+                                <tr>
+                                    <th ng-repeat='mark in app.rpConfig.marks' ng-if="mark.id!==schema.id">{{mark.name}}</th>
+                                    <th>登记内容</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="record in getRecords(schema,page).records">
+                                    <td ng-repeat='mark in app.rpConfig.marks' ng-if="['nickname'].indexOf(mark.id)!==-1&&mark.id!==schema.id">
+                                        <span ng-bind-html="record.nickname"></span>
+                                    </td>
+                                    <td ng-repeat='mark in app.rpConfig.marks' ng-if="['nickname'].indexOf(mark.id)===-1&&mark.id!==schema.id">
+                                        <span ng-bind-html="record._data[mark.id]"></span>
+                                    </td>
+                                    <td ng-switch on="schema.type">
+                                        <div ng-switch-when="image">
+                                            <span><img ng-repeat="img in record._data[schema.id]" ng-src='{{img}}' /></span>
+                                        </div>
+                                        <div ng-switch-when="file">
+                                            <span ng-repeat='file in record._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                                        </div>
+                                        <div ng-switch-when="multitext">
+                                            <p ng-repeat='item in record._data[schema.id]'><span ng-bind="item.value"></span></p>
+                                        </div>
+                                        <span ng-switch-when="date">{{(record._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                                        <span ng-switch-default ng-bind-html="record._data[schema.id]"></span>
+                                    </td>
+                                </tr>
+                                <tr class='text-center' ng-if="schema.number&&schema.number=='Y'&&app.rpConfig.marks.length">
+                                    <td>合计</td>
+                                    <td colspan={{app.rpConfig.marks.length}}>{{getRecords(schema,page).sum}}</td>
+                                </tr>
+                                <tr class='text-center' ng-if="schema.number&&schema.number=='Y'&&!app.rpConfig.marks.length">
+                                    <td>合计：{{getRecords(schema,page).sum}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class='form-inline'>
+                            <span>总数：{{page.total}}</span>
+                            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getRecords(schema,page)"></ul>
+                        </div>
+                    </div>
+                </div>
+                <!--schemas-->
+                <div ng-if="scoreSummary.length">
+                    <hr style='height:1px;background:#aaa'>
+                    <h3><span>打分项汇总</span></h3>
+                    <table class='table table-bordered'>
+                        <thead>
+                            <tr>
+                                <th>打分项</th>
+                                <th>平均分</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="op in scoreSummary">
+                                <td>{{op.l}}</td>
+                                <td>{{op.c}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
+    <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
+    <div class="loading">
+        <div class='loading-indicator'><i></i></div>
+    </div>
+    <script type="text/ng-template" id="setRound.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="cancel()">×</button>
+            <h5 class="modal-title">轮次列表</h5>
+        </div>
+        <div class="modal-body">
+            <div class='form-group'>
+                <button class='btn btn-default btn-sm' ng-click="clean()">清除<span>已选的{{countOfChecked}}项</span></button>
+            </div>
+            <div class='form-group' style='height:230px;overflow-y:auto'>
+                <div>
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-model="checkedRounds.ALL" ng-change="toggleCheckedRound('ALL')">全部轮次</label>
+                </div>
+                <div ng-if="activeRound">
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-model="checkedRounds[activeRound.rid]" ng-change="toggleCheckedRound(activeRound.rid)">{{activeRound.title}}<span>（启用）</span></label>
+                </div>
+                <div ng-repeat="rnd in rounds">
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-model="checkedRounds[rnd.rid]" ng-change="toggleCheckedRound(rnd.id)">{{rnd.title}}</label>
+                </div>
+            </div>
+            <div ng-show="pageOfRound.total>pageOfRound.size">
+                <span class='hidden-xs' style='line-height:34px'>总数：{{pageOfRound.total}}</span>
+                <ul uib-pagination class='pagination-sm' style="margin:0;vertical-align:bottom;cursor:pointer" boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">确定</button>
+        </div>
+    </script>
+    <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
+    <script src="/static/js/highcharts.js"></script>
+    <script src="/static/js/highcharts/exporting.js"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/ui-tms.js"></script>
+    <script src="/static/js/xxt.ui.js"></script>,
+    <script src="/asset/js/xxt.ui.schema.js"></script>
+    <script src="/asset/js/xxt.ui.notice.js"></script>
+    <script src="/views/default/pl/fe/_module/sys.chart.js"></script>
+    <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/stat.js');?>"></script>
+</body>
+
+</html>

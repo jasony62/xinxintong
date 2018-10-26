@@ -1144,4 +1144,30 @@ class record extends base {
 
 		return new \ResponseData($rst);
 	}
+	/**
+	 * 返回指定登记项的活动记录
+	 */
+	public function list4Schema_action($site, $app, $rid = null, $schema, $page = 1, $size = 10) {
+		// 登记数据过滤条件
+		$oCriteria = $this->getPostJson();
+
+		// 登记记录过滤条件
+		$aOptions = [
+			'page' => $page,
+			'size' => $size,
+		];
+		if (!empty($rid)) {
+			$aOptions['rid'] = $rid;
+		}
+
+		// 登记活动
+		$modelApp = $this->model('matter\enroll');
+		$enrollApp = $modelApp->byId($app);
+
+		// 查询结果
+		$mdoelRec = $this->model('matter\enroll\record');
+		$result = $mdoelRec->list4Schema($enrollApp, $schema, $aOptions);
+
+		return new \ResponseData($result);
+	}
 }

@@ -179,6 +179,8 @@
                         <input type='radio' value='event' ng-model="timer.task.task_arguments.page">动态页</label>
                     <label class='radio-inline'>
                         <input type='radio' value='rank' ng-model="timer.task.task_arguments.page">排行榜</label>
+                    <label class='radio-inline'>
+                        <input type='radio' value='stat' ng-model="timer.task.task_arguments.page">统计页</label>
                 </div>
                 <div class='form-group'>
                     <label class='radio-inline'>
@@ -420,7 +422,7 @@
             </div>
         </div>
     </div>
-    <div class="panel panel-default">
+    <div class="panel panel-default hide">
         <div class="panel-body">
             <div ng-controller="ctrlOpUrl">
                 <div class='form-group'>

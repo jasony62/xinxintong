@@ -131,7 +131,7 @@ class remind_model extends \TMS_MODEL {
 		$noticeURL .= '&origin=timer';
 		if (!empty($oArguments->page)) {
 			$noticeURL .= '&page=' . $oArguments->page;
-			$aPageNames = ['repos' => '共享页', 'rank' => '排行榜', 'event' => '动态页'];
+			$aPageNames = ['repos' => '共享页', 'rank' => '排行榜', 'event' => '动态页', 'stat' => '统计页'];
 			if (isset($aPageNames[$oArguments->page])) {
 				$oTmplTimerTaskParams->page = $aPageNames[$oArguments->page];
 			}

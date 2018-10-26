@@ -44,52 +44,52 @@ ngApp.controller('ctrlStat', ['$scope', '$timeout', '$uibModal', '$q', 'tmsLocat
     var _oChartConfig, _oCriteria;
 
     var _oCacheOfRecordsBySchema = {
-        recordsBySchema: function(schema, page) {
+        recordsBySchema: function(oSchema, oPage) {
             var deferred = $q.defer(),
-                cached,
+                oCached,
                 requireGet = false,
                 url;
 
-            if (cached = _oCacheOfRecordsBySchema[schema.id]) {
-                if (cached.page && cached.page.at === page.at) {
-                    records = cached.records;
+            if (oCached = _oCacheOfRecordsBySchema[oSchema.id]) {
+                if (oCached.page && oCached.page.at === oPage.at) {
+                    records = oCached.records;
                     deferred.resolve(records);
                 } else {
-                    if (cached._running) {
+                    if (oCached._running) {
                         deferred.resolve(false);
                         return false;
                     }
                     requireGet = true;
                 }
             } else {
-                cached = {};
-                _oCacheOfRecordsBySchema[schema.id] = cached;
+                oCached = {};
+                _oCacheOfRecordsBySchema[oSchema.id] = oCached;
                 requireGet = true;
             }
 
             if (requireGet) {
-                /member/.test(schema.id) && (schema.id = 'member');
+                /member/.test(oSchema.id) && (oSchema.id = 'member');
                 url = LS.j('record/list4Schema', 'site', 'app');
-                url += '&schema=' + schema.id + '&page=' + page.at + '&size=' + page.size;
+                url += '&schema=' + oSchema.id;
                 url += '&rid=' + LS.s().rid;
-                cached._running = true;
-                http2.get(url).then(function(rsp) {
-                    cached._running = false;
-                    cached.page = {
-                        at: page.at,
-                        size: page.size
+                oCached._running = true;
+                http2.get(url, { page: oPage }).then(function(rsp) {
+                    oCached._running = false;
+                    oCached.page = {
+                        at: oPage.at,
+                        size: oPage.size
                     };
-                    rsp.data.records.forEach(function(record) {
-                        tmsSchema.forTable(record);
-                    });
-
-                    if (schema.number && schema.number == 'Y') {
-                        cached.sum = rsp.data.sum;
-                        srvChart.drawNumPieChart(rsp.data, schema);
+                    if (rsp.data && rsp.data.records) {
+                        rsp.data.records.forEach(function(oRecord) {
+                            tmsSchema.forTable(oRecord);
+                        });
+                        if (oSchema.number && oSchema.number == 'Y') {
+                            oCached.sum = rsp.data.sum;
+                            srvChart.drawNumPieChart(rsp.data, schema);
+                        }
+                        oCached.records = rsp.data.records;
+                        oCached.page.total = rsp.data.total;
                     }
-
-                    cached.records = rsp.data.records;
-                    cached.page.total = rsp.data.total;
                     deferred.resolve(rsp.data);
                 });
             }

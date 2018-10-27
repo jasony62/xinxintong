@@ -35,14 +35,16 @@
             <div class='col-md-12'>
                 <h3>{{app.title}}</h3>
                 <hr>
-                <div ng-if="rounds.length>1" class="btn-group" uib-dropdown dropdown-append-to-body='true'>
-                    <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
-                        <span ng-bind="criteria.round.title"></span>
-                        <span class="glyphicon glyphicon-filter"></span>
-                    </button>
-                    <ul class="dropdown-menu" uib-dropdown-menu>
-                        <li ng-repeat="rnd in rounds"><a href ng-click="shiftRound(rnd)">{{rnd.title}}</a></li>
-                    </ul>
+                <div ng-if="rounds.length>1">
+                    <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
+                        <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                            <span ng-bind="criteria.round.title"></span>
+                            <span class="glyphicon glyphicon-filter"></span>
+                        </button>
+                        <ul class="dropdown-menu" uib-dropdown-menu>
+                            <li ng-repeat="rnd in rounds"><a href ng-click="shiftRound(rnd)">{{rnd.title}}</a></li>
+                        </ul>
+                    </div>
                 </div>
                 <!--schemas-->
                 <div ng-repeat="schema in rpSchemas">

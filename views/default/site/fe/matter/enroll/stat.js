@@ -124,13 +124,13 @@ ngApp.controller('ctrlStat', ['$scope', '$timeout', '$uibModal', '$q', 'tmsLocat
             }
         }
 
-        var _oApp,
+        var _oApp = params['app'],
             rpSchemas = [],
             oStat = {},
             rpConfig = (_oApp.rpConfig && _oApp.rpConfig.op) ? _oApp.rpConfig.op : undefined,
             aExcludeSchemas = (rpConfig && rpConfig.exclude) ? rpConfig.exclude : [];
 
-        $scope.app = _oApp = params['app'];
+        $scope.app = _oApp;
         $scope.criteria = _oCriteria = {};
         $scope.chartConfig = _oChartConfig = rpConfig || {
             number: 'Y',
@@ -173,5 +173,30 @@ ngApp.controller('ctrlStat', ['$scope', '$timeout', '$uibModal', '$q', 'tmsLocat
         _facRound.list().then(function(oResult) {
             $scope.rounds = oResult.rounds;
         });
+        /*设置页面操作*/
+        $scope.appActs = {
+            addRecord: {}
+        };
+        /*设置页面导航*/
+        var oAppNavs = {
+            length: 0
+        };
+        if (_oApp.scenarioConfig) {
+            if (_oApp.scenarioConfig.can_repos === 'Y') {
+                oAppNavs.repos = {};
+                oAppNavs.length++;
+            }
+            if (_oApp.scenarioConfig.can_action === 'Y') {
+                oAppNavs.event = {};
+                oAppNavs.length++;
+            }
+            if (_oApp.scenarioConfig.can_rank === 'Y') {
+                oAppNavs.rank = {};
+                oAppNavs.length++;
+            }
+        }
+        if (Object.keys(oAppNavs).length) {
+            $scope.appNavs = oAppNavs;
+        }
     });
 }]);

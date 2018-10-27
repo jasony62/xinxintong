@@ -19,25 +19,31 @@ class user_model extends \TMS_MODEL {
 			['state' => 1, 'aid' => $oApp->id, 'userid' => $userid],
 		];
 		$q2 = ['o' => 'enroll_at desc'];
+		if (isset($aOptions['onlyOne']) && $aOptions['onlyOne'] === true) {
+			$q2['r'] = ['o' => 0, 'l' => 1];
+		}
 
 		$list = $this->query_objs_ss($q, $q2);
 		if (count($list)) {
+			$aRecHandler = [];
+			if ($fields === '*' || false !== strpos($fields, 'data')) {
+				$aRecHandler[] = function (&$oUser) {
+					$oUser->data = empty($oUser->data) ? new \stdClass : json_decode($oUser->data);
+				};
+			}
 			if ($fields === '*' || false !== strpos($fields, 'role_rounds')) {
-				foreach ($list as &$player) {
-					if (!empty($player->role_rounds)) {
-						$player->role_rounds = json_decode($player->role_rounds);
-					} else {
-						$player->role_rounds = [];
-					}
+				$aRecHandler[] = function (&$oUser) {
+					$oUser->role_rounds = empty($oUser->role_rounds) ? [] : json_decode($oUser->role_rounds);
+				};
+			}
+			foreach ($list as $oUser) {
+				foreach ($aRecHandler as $fnHandler) {
+					$fnHandler($oUser);
 				}
 			}
 		}
 		if (isset($aOptions['onlyOne']) && $aOptions['onlyOne'] === true) {
-			if (count($list)) {
-				return $list[0];
-			} else {
-				return false;
-			}
+			return count($list) ? $list[0] : false;
 		}
 
 		return $list;

@@ -121,6 +121,12 @@ class TMS_CONTROLLER {
 		return TMS_MODEL::getDeepValue($deepObj, $deepProp, $notSetVal);
 	}
 	/**
+	 *
+	 */
+	public static function setDeepValue($deepObj, $deepProp, $setVal) {
+		return TMS_MODEL::setDeepValue($deepObj, $deepProp, $setVal);
+	}
+	/**
 	 * 获得URL对应的view
 	 *
 	 * 查找规则：

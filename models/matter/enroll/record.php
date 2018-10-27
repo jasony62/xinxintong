@@ -110,12 +110,12 @@ class record_model extends record_base {
 		}
 
 		/* 更新在登记记录上记录数据 */
-		$oRecordUpdated = new \stdClass;
-		$oRecordUpdated->data = $this->escape($this->toJson($oResult->dbData));
+		$oUpdatedRec = new \stdClass;
+		$oUpdatedRec->data = $this->escape($this->toJson($oResult->dbData));
 		if (count(get_object_vars($oResult->score)) > 1) {
-			$oRecordUpdated->score = $this->escape($this->toJson($oResult->score));
+			$oUpdatedRec->score = $this->escape($this->toJson($oResult->score));
 		}
-		/* 记录提交日志 */
+		/* 如果不是首次提交，需要记录提交日志 */
 		if ($bFirstSubmit === false) {
 			if (empty($oRecord->submit_log)) {
 				$recordSubmitLogs = [];
@@ -126,18 +126,18 @@ class record_model extends record_base {
 			$newSubmitLog->submitAt = $oRecord->enroll_at;
 			$newSubmitLog->userid = $oRecord->userid;
 			$recordSubmitLogs[] = $newSubmitLog;
-			$oRecordUpdated->submit_log = json_encode($recordSubmitLogs);
+			$oUpdatedRec->submit_log = json_encode($recordSubmitLogs);
 		}
 
-		$this->update('xxt_enroll_record', $oRecordUpdated, ['enroll_key' => $ek]);
+		$this->update('xxt_enroll_record', $oUpdatedRec, ['enroll_key' => $ek]);
 
-		$oRecordUpdated->data = $oResult->dbData;
+		$oUpdatedRec->data = $oResult->dbData;
 		if (isset($oResult->score)) {
-			$oRecordUpdated->score = $oResult->score;
+			$oUpdatedRec->score = $oResult->score;
 		}
-		unset($oRecordUpdated->submit_log);
+		unset($oUpdatedRec->submit_log);
 
-		return [true, $oRecordUpdated];
+		return [true, $oUpdatedRec];
 	}
 	/**
 	 * 保存登记的数据
@@ -473,12 +473,13 @@ class record_model extends record_base {
 	 * 登记清单
 	 *
 	 * @param object/string 记录活动/记录活动的id
-	 * @param object/array $aOptions
+	 * @param object/array $oOptions
 	 * --page
 	 * --size
 	 * --kw 检索关键词
 	 * --by 检索字段
-	 * @param object $criteria 登记数据过滤条件
+	 * @param object $oCriteria 登记数据过滤条件
+	 * @param object $oUser ['uid','group_id']
 	 *
 	 * @return object
 	 * records 数据列表
@@ -488,7 +489,7 @@ class record_model extends record_base {
 		if (is_string($oApp)) {
 			$oApp = $this->model('matter\enroll')->byId($oApp, ['cascaded' => 'N']);
 		}
-		if (false === $oApp) {
+		if (false === $oApp && empty($oApp->dynaDataSchemas)) {
 			return false;
 		}
 		if ($oOptions && is_array($oOptions)) {
@@ -496,11 +497,10 @@ class record_model extends record_base {
 		}
 
 		$oSchemasById = new \stdClass; // 方便查找题目
-		if (!empty($oApp->dataSchemas)) {
-			foreach ($oApp->dataSchemas as $oSchema) {
-				$oSchemasById->{$oSchema->id} = $oSchema;
-			}
+		foreach ($oApp->dataSchemas as $oSchema) {
+			$oSchemasById->{$oSchema->id} = $oSchema;
 		}
+
 		// 指定记录活动下的登记记录
 		$w = "r.state=1 and r.aid='{$oApp->id}'";
 

@@ -189,6 +189,11 @@ define(['frame'], function(ngApp) {
                 $scope.doSearch(1);
             });
         };
+        $scope.syncWithGroupApp = function() {
+            http2.get('/rest/pl/fe/matter/enroll/record/syncGroup?app=' + $scope.app.id).then(function(rsp) {
+                $scope.doSearch(1);
+            });
+        };
         $scope.copyToUser = function() {
             var oCopiedRecord;
             if ($scope.rows.count === 1) {

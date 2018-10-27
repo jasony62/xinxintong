@@ -6,48 +6,13 @@ require('./_asset/ui.repos.js');
 require('./_asset/ui.tag.js');
 require('./_asset/ui.topic.js');
 require('./_asset/ui.assoc.js');
+require('./_asset/ui.round.js');
 
-window.moduleAngularModules = ['repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll', 'trace.ui.xxt'];
+window.moduleAngularModules = ['round.ui.enroll', 'repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll', 'trace.ui.xxt'];
 
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');
-ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
-    var Round, _ins;
-    Round = function(oApp) {
-        this.oApp = oApp;
-        this.oPage = {
-            at: 1,
-            size: 12,
-            j: function() {
-                return '&page=' + this.at + '&size=' + this.size;
-            }
-        };
-    };
-    Round.prototype.list = function() {
-        var _this = this,
-            deferred = $q.defer(),
-            url;
-
-        url = '/rest/site/fe/matter/enroll/round/list?site=' + this.oApp.siteid + '&app=' + this.oApp.id;
-        url += this.oPage.j();
-        http2.get(url).then(function(rsp) {
-            if (rsp.err_code != 0) {
-                alert(rsp.data);
-                return;
-            }
-            _this.oPage.total = rsp.data.total;
-            deferred.resolve(rsp.data);
-        });
-        return deferred.promise;
-    };
-    return {
-        ins: function(oApp) {
-            _ins = _ins ? _ins : new Round(oApp);
-            return _ins;
-        }
-    };
-}]);
-ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'Round', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', function($scope, $sce, $q, $uibModal, http2, LS, srvRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc) {
+ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', function($scope, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc) {
     /* 是否可以对记录进行表态 */
     function fnCanAgreeRecord(oRecord, oUser) {
         if (_oMocker.role && /visitor|member/.test(_oMocker.role)) {
@@ -466,7 +431,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
         $scope.groupOthers = groupOthersById;
         $scope.recordList(1);
-        $scope.facRound = _facRound = srvRound.ins(_oApp);
+        $scope.facRound = _facRound = new enlRound(_oApp);
         _facRound.list().then(function(result) {
             if (result.active) {
                 for (var i = 0, ii = result.rounds.length; i < ii; i++) {

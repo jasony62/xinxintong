@@ -53,7 +53,7 @@ class record extends base {
 		if (!$bSubmitNewRecord) {
 			$oBeforeRecord = $modelRec->byId($ek, ['state' => '1']);
 			if (false === $oBeforeRecord) {
-				return new \ObjectNotFoundError('指定的记录不存在');
+				return new \ObjectNotFoundError('指定的填写记录不存在');
 			}
 			$rid = $oBeforeRecord->rid;
 		}
@@ -677,7 +677,7 @@ class record extends base {
 		}
 
 		if (!empty($oRecord->rid)) {
-			$oRecRound = $this->model('matter\enroll\round')->byId($oRecord->rid);
+			$oRecRound = $this->model('matter\enroll\round')->byId($oRecord->rid, ['fields' => 'rid,title,start_at,end_at']);
 			$oRecord->round = $oRecRound;
 		}
 
@@ -719,14 +719,15 @@ class record extends base {
 	 * [2] 数据项的定义
 	 *
 	 */
-	public function list_action($site, $app, $owner = 'U', $orderby = 'time', $page = 1, $size = 30) {
+	public function list_action($site, $app, $owner = 'U', $orderby = 'time', $page = 1, $size = 30, $sketch = 'N') {
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
 		$oUser = $this->getUser($oApp);
-		// 登记数据过滤条件
+
+		// 填写记录过滤条件
 		$oCriteria = $this->getPostJson();
 
 		switch ($owner) {
@@ -747,14 +748,17 @@ class record extends base {
 			break;
 		}
 
-		$options = [];
-		$options['page'] = $page;
-		$options['size'] = $size;
-		$options['orderby'] = $orderby;
+		$aOptions = [];
+		$aOptions['page'] = $page;
+		$aOptions['size'] = $size;
+		$aOptions['orderby'] = $orderby;
+		if ($sketch === 'Y') {
+			$aOptions['fields'] = 'id,enroll_key,enroll_at';
+		}
 
 		$modelRec = $this->model('matter\enroll\record');
 
-		$oResult = $modelRec->byApp($oApp, $options, $oCriteria);
+		$oResult = $modelRec->byApp($oApp, $aOptions, $oCriteria);
 
 		return new \ResponseData($oResult);
 	}

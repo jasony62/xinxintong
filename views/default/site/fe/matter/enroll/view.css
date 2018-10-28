@@ -1,5 +1,3 @@
-img{max-width:100%}
-
 /* default form style*/
 div[wrap].wrap-splitline{padding-bottom:0.5em;border-bottom:1px dotted #ccc;}
 div[wrap].wrap-inline>*{display:inline-block;vertical-align:top;margin:0 1em 0 0;}

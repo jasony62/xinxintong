@@ -690,11 +690,12 @@ class record_model extends record_base {
 		}
 
 		// 查询参数
-		$q = [
-			'id,enroll_key,rid,enroll_at,userid,group_id,nickname,wx_openid,yx_openid,qy_openid,headimgurl,verified,comment,data,score,supplement,agreed,like_num,like_log,remark_num,favor_num,dislike_num,dislike_log',
-			"xxt_enroll_record r",
-			$w,
-		];
+		if (!empty($oOptions->fields)) {
+			$fields = $oOptions->fields;
+		} else {
+			$fields = 'id,enroll_key,rid,enroll_at,userid,group_id,nickname,wx_openid,yx_openid,qy_openid,headimgurl,verified,comment,data,score,supplement,agreed,like_num,like_log,remark_num,favor_num,dislike_num,dislike_log';
+		}
+		$q = [$fields, "xxt_enroll_record r", $w];
 
 		$q2 = [];
 		// 查询结果分页
@@ -761,8 +762,8 @@ class record_model extends record_base {
 	public function parse($oApp, &$records) {
 		$bRequireScore = false; // 数值型的填空题需要计算分值
 		$visibilitySchemas = []; // 设置了可见性规则的题目
-		if (!empty($oApp->dataSchemas)) {
-			foreach ($oApp->dataSchemas as $oSchema) {
+		if (!empty($oApp->dynaDataSchemas)) {
+			foreach ($oApp->dynaDataSchemas as $oSchema) {
 				if ($oSchema->type == 'shorttext' && isset($oSchema->format) && $oSchema->format === 'number') {
 					$bRequireScore = true;
 					break;
@@ -851,43 +852,45 @@ class record_model extends record_base {
 					$oRec->supplement = $supplement;
 				}
 			}
-			if (!empty($oRec->data)) {
-				$data = str_replace("\n", ' ', $oRec->data);
-				$data = json_decode($data);
-				if ($data === null) {
-					$oRec->data = 'json error(' . json_last_error_msg() . '):' . $oRec->data;
-				} else {
-					$oRec->data = $data;
-					/* 处理提交数据后分组的问题 */
-					if (!empty($oRec->group_id) && !isset($oRec->data->_round_id)) {
-						$oRec->data->_round_id = $oRec->group_id;
-					}
-					/* 处理提交数据后指定昵称题的问题 */
-					if ($oRec->nickname && isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') {
-						if (isset($oApp->assignedNickname->schema->id)) {
-							$nicknameSchemaId = $oApp->assignedNickname->schema->id;
-							if (0 === strpos($nicknameSchemaId, 'member.')) {
-								$nicknameSchemaId = explode('.', $nicknameSchemaId);
-								if (!isset($oRec->data->member)) {
-									$oRec->data->member = new \stdClass;
-								}
-								if (!isset($oRec->data->member->{$nicknameSchemaId[1]})) {
-									$oRec->data->member->{$nicknameSchemaId[1]} = $oRec->nickname;
-								}
-							} else {
-								if (!isset($oRec->data->{$nicknameSchemaId})) {
-									$oRec->data->{$nicknameSchemaId} = $oRec->nickname;
+			if (property_exists($oRec, 'data')) {
+				if (!empty($oRec->data)) {
+					$data = str_replace("\n", ' ', $oRec->data);
+					$data = json_decode($data);
+					if ($data === null) {
+						$oRec->data = 'json error(' . json_last_error_msg() . '):' . $oRec->data;
+					} else {
+						$oRec->data = $data;
+						/* 处理提交数据后分组的问题 */
+						if (!empty($oRec->group_id) && !isset($oRec->data->_round_id)) {
+							$oRec->data->_round_id = $oRec->group_id;
+						}
+						/* 处理提交数据后指定昵称题的问题 */
+						if ($oRec->nickname && isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') {
+							if (isset($oApp->assignedNickname->schema->id)) {
+								$nicknameSchemaId = $oApp->assignedNickname->schema->id;
+								if (0 === strpos($nicknameSchemaId, 'member.')) {
+									$nicknameSchemaId = explode('.', $nicknameSchemaId);
+									if (!isset($oRec->data->member)) {
+										$oRec->data->member = new \stdClass;
+									}
+									if (!isset($oRec->data->member->{$nicknameSchemaId[1]})) {
+										$oRec->data->member->{$nicknameSchemaId[1]} = $oRec->nickname;
+									}
+								} else {
+									if (!isset($oRec->data->{$nicknameSchemaId})) {
+										$oRec->data->{$nicknameSchemaId} = $oRec->nickname;
+									}
 								}
 							}
 						}
+						/* 根据题目的可见性处理数据 */
+						if (count($visibilitySchemas)) {
+							$fnCheckSchemaVisibility($visibilitySchemas, $oRec->data);
+						}
 					}
-					/* 根据题目的可见性处理数据 */
-					if (count($visibilitySchemas)) {
-						$fnCheckSchemaVisibility($visibilitySchemas, $oRec->data);
-					}
+				} else {
+					$oRec->data = new \stdClass;
 				}
-			} else {
-				$oRec->data = new \stdClass;
 			}
 			// 记录的分组
 			if (!empty($oRec->group_id)) {

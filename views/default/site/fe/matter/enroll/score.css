@@ -1,4 +1,3 @@
-img{max-width:100%}
 .schema{border-bottom:1px dashed #aaa;}
 .schema:last-child{border-bottom:0;}
 .schema.fail{background:#eee;}

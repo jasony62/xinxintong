@@ -100,12 +100,16 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$parse', '$s
     };
 }]);
 ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2', 'noticebox', 'Record', 'picviewer', '$timeout', 'enlRound', function($scope, $sce, $parse, LS, http2, noticebox, Record, picviewer, $timeout, enlRound) {
-    function fnGetRecord(oRound) {
-        if (oRound) {
-            return http2.get(LS.j('record/get', 'site', 'app') + '&rid=' + oRound.rid);
+    function fnGetRecord(ek) {
+        if (ek) {
+            return http2.get(LS.j('record/get', 'site', 'app') + '&ek=' + ek);
         } else {
             return http2.get(LS.j('record/get', 'site', 'app', 'ek', 'rid'));
         }
+    }
+
+    function fnGetRecordByRound(oRound) {
+        return http2.get(LS.j('record/get', 'site', 'app') + '&rid=' + oRound.rid);
     }
 
     function fnProcessData(oRecord) {
@@ -194,36 +198,68 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
         });
     }
     /* 根据获得的记录设置页面状态 */
-    function fnSetPageByRecord(oRound) {
-        fnGetRecord(oRound).then(function(rsp) {
-            var oRecord, oOriginalData;
-            oOriginalData = angular.copy(rsp.data.data);
-            /* 设置题目的可见性 */
-            fnToggleAssocSchemas(_oApp.dynaDataSchemas, oOriginalData);
-            /* 将数据转换为可直接显示的形式 */
-            fnProcessData(rsp.data);
-            $scope.Record.current = oRecord = rsp.data;
-            /* disable actions */
-            if ((_oApp.can_cowork && _oApp.can_cowork !== 'Y')) {
-                if ($scope.user.uid !== oRecord.userid) {
-                    fnDisableActions();
+    function fnSetPageByRecord(rsp) {
+        var oRecord, oOriginalData;
+        oOriginalData = angular.copy(rsp.data.data);
+        /* 设置题目的可见性 */
+        fnToggleAssocSchemas(_oApp.dynaDataSchemas, oOriginalData);
+        /* 将数据转换为可直接显示的形式 */
+        fnProcessData(rsp.data);
+        $scope.Record.current = oRecord = rsp.data;
+        /* disable actions */
+        if ((_oApp.can_cowork && _oApp.can_cowork !== 'Y')) {
+            if ($scope.user.uid !== oRecord.userid) {
+                fnDisableActions();
+            }
+        }
+        $timeout(function() {
+            var imgs;
+            if (imgs = document.querySelectorAll('.data img')) {
+                picviewer.init(imgs);
+            }
+        });
+        /* 设置页面分享信息 */
+        $scope.setSnsShare(oRecord);
+        /* 同轮次的其他记录 */
+        http2.post(LS.j('record/list', 'site', 'app') + '&sketch=Y', { record: { rid: oRecord.round.rid } }).then(function(rsp) {
+            var records;
+            records = rsp.data.records;
+            $scope.recordsOfRound = {
+                records: records,
+                page: {
+                    size: 1,
+                    total: rsp.data.total
+                },
+                shift: function() {
+                    fnGetRecord(records[this.page.at - 1].enroll_key).then(fnSetPageByRecord);
+                }
+            };
+            for (var i = 0, l = records.length; i < l; i++) {
+                if (records[i].enroll_key === oRecord.enroll_key) {
+                    $scope.recordsOfRound.page.at = i + 1;
+                    break;
                 }
             }
-            $timeout(function() {
-                var imgs;
-                if (imgs = document.querySelectorAll('.data img')) {
-                    picviewer.init(imgs);
-                }
-            });
-            /*设置页面分享信息*/
-            $scope.setSnsShare(oRecord);
         });
     }
 
     var _oApp;
 
+    $scope.addRecord = function(event, page) {
+        if (page) {
+            $scope.gotoPage(event, page, null, $scope.Record.current.round.rid, 'Y');
+        } else {
+            for (var i in $scope.app.pages) {
+                var oPage = $scope.app.pages[i];
+                if (oPage.type === 'I') {
+                    $scope.gotoPage(event, oPage.name, null, $scope.Record.current.round.rid, 'Y');
+                    break;
+                }
+            }
+        }
+    };
     $scope.shiftRound = function(oRound) {
-        fnSetPageByRecord(oRound);
+        fnGetRecordByRound(oRound).then(fnSetPageByRecord);
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var facRecord, _facRound;
@@ -234,7 +270,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
         _facRound.list().then(function(oResult) {
             $scope.rounds = oResult.rounds;
         });
-        fnSetPageByRecord();
+        fnGetRecord().then(fnSetPageByRecord);
         /*设置页面导航*/
         var oAppNavs = {
             length: 0

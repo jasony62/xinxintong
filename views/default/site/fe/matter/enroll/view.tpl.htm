@@ -32,8 +32,17 @@
     </nav>
     <div ng-cloak class='ng-cloak app'>
         <div class='container'>
-            <div dynamic-html="page.html" class='data'>
+            <div class='form-group' ng-if="rounds.length>1">
+                <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
+                    <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                        <span ng-bind="Record.current.round.title"></span> <span class="glyphicon glyphicon-triangle-bottom"></span>
+                    </button>
+                    <ul class="dropdown-menu" uib-dropdown-menu>
+                        <li ng-repeat="rnd in rounds"><a href ng-click="shiftRound(rnd)">{{rnd.title}}</a></li>
+                    </ul>
+                </div>
             </div>
+            <div dynamic-html="page.html" class='data'></div>
         </div>
     </div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>

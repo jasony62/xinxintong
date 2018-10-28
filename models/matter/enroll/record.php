@@ -262,10 +262,14 @@ class record_model extends record_base {
 			['aid' => $oApp->id, 'state' => 1, 'userid' => $oUser->uid],
 		];
 
-		/* 指定登记轮次 */
+		/* 指定填写轮次 */
 		if (empty($assignRid)) {
-			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
-				$q[2]['rid'] = $activeRound->rid;
+			if (isset($oApp->appRound->rid)) {
+				$q[2]['rid'] = $oApp->appRound->rid;
+			} else {
+				if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
+					$q[2]['rid'] = $oActiveRnd->rid;
+				}
 			}
 		} else {
 			$q[2]['rid'] = $assignRid;
@@ -940,8 +944,8 @@ class record_model extends record_base {
 				} else if (!empty($options->rid)) {
 					$rid = $options->rid;
 				}
-			} else if ($activeRound = $this->M('matter\enroll\round')->getActive($oApp)) {
-				$rid = $activeRound->rid;
+			} else if ($oActiveRnd = $this->M('matter\enroll\round')->getActive($oApp)) {
+				$rid = $oActiveRnd->rid;
 			}
 		}
 		$oResult = new \stdClass; // 返回的结果
@@ -1052,8 +1056,8 @@ class record_model extends record_base {
 			}
 		} else {
 			/* 没有指定轮次，就使用当前轮次 */
-			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
-				$q[2] .= " and d.rid='{$activeRound->rid}'";
+			if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
+				$q[2] .= " and d.rid='{$oActiveRnd->rid}'";
 			}
 		}
 
@@ -1078,8 +1082,8 @@ class record_model extends record_base {
 						$p[2]['rid'] = $rid;
 					}
 				} else {
-					if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
-						$p[2]['rid'] = $activeRound->rid;
+					if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
+						$p[2]['rid'] = $oActiveRnd->rid;
 					}
 				}
 
@@ -1125,8 +1129,8 @@ class record_model extends record_base {
 		$oResult = new \stdClass;
 		$dataSchemas = $oApp->dynaDataSchemas;
 		if (empty($rid)) {
-			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
-				$rid = $activeRound->rid;
+			if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
+				$rid = $oActiveRnd->rid;
 			}
 		}
 		/* 每道题目的合计 */
@@ -1185,8 +1189,8 @@ class record_model extends record_base {
 		$oResult = new \stdClass;
 		$dataSchemas = $oApp->dynaDataSchemas;
 		if (empty($rid)) {
-			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
-				$rid = $activeRound->rid;
+			if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
+				$rid = $oActiveRnd->rid;
 			}
 		}
 		/* 每道题目的得分 */
@@ -1469,8 +1473,8 @@ class record_model extends record_base {
 			$oApp = $appIdOrObj;
 		}
 		if (empty($rid)) {
-			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
-				$rid = $activeRound->rid;
+			if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
+				$rid = $oActiveRnd->rid;
 			}
 		}
 

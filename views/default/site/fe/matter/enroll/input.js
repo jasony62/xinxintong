@@ -7,7 +7,9 @@ require('../../../../../../asset/js/xxt.ui.url.js');
 require('../../../../../../asset/js/xxt.ui.paste.js');
 require('../../../../../../asset/js/xxt.ui.editor.js');
 
-window.moduleAngularModules = ['paste.ui.xxt', 'editor.ui.xxt', 'url.ui.xxt'];
+require('./_asset/ui.round.js');
+
+window.moduleAngularModules = ['round.ui.enroll', 'paste.ui.xxt', 'editor.ui.xxt', 'url.ui.xxt'];
 
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');

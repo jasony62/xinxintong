@@ -1,6 +1,10 @@
 'use strict';
 require('./view.css');
 
+require('./_asset/ui.round.js');
+
+window.moduleAngularModules = ['round.ui.enroll'];
+
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');
 ngApp.factory('Record', ['http2', 'tmsLocation', function(http2, LS) {
@@ -31,45 +35,40 @@ ngApp.factory('Record', ['http2', 'tmsLocation', function(http2, LS) {
         }
     };
 }]);
-ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$sce', 'noticebox', function($scope, Record, LS, $sce, noticebox) {
-    var facRecord;
-
+ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$parse', '$sce', 'noticebox', function($scope, Record, LS, $parse, $sce, noticebox) {
     $scope.value2Label = function(schemaId) {
-        var oData, attr, val;
-        if (schemaId && facRecord.current && facRecord.current.data) {
-            oData = facRecord.current.data;
-            attr = schemaId.split('.');
-            if (attr.length === 1) {
-                val = oData[schemaId];
-            } else if (oData.member) {
-                if (attr.length === 2) {
-                    val = oData.member[attr[1]];
-                } else if (attr.length === 3 && oData.member.extattr) {
-                    val = oData.member.extattr[attr[2]];
-                }
+        var val, oRecord;
+        if (schemaId && $scope.Record) {
+            oRecord = $scope.Record.current;
+            if (oRecord && oRecord.data && oRecord.data[schemaId]) {
+                val = $parse(schemaId)(oRecord.data);
+                return $sce.trustAsHtml(val);
             }
         }
-        return $sce.trustAsHtml(val);
+        return '';
     };
     $scope.score2Html = function(schemaId) {
         var label = '',
-            schema = $scope.app._schemasById[schemaId],
-            val;
-
-        if (schema && facRecord.current && facRecord.current.data && facRecord.current.data[schemaId]) {
-            val = facRecord.current.data[schemaId];
-            if (schema.ops && schema.ops.length) {
-                schema.ops.forEach(function(op, index) {
-                    label += '<div>' + op.l + ': ' + (val[op.v] ? val[op.v] : 0) + '</div>';
-                });
+            oSchema = $scope.app._schemasById[schemaId],
+            val, oRecord;
+        if (oSchema && $scope.Record) {
+            oRecord = $scope.Record.current;
+            if (oRecord && oRecord.data && oRecord.data[schemaId]) {
+                val = oRecord.data[schemaId];
+                if (oSchema.ops && oSchema.ops.length) {
+                    oSchema.ops.forEach(function(op, index) {
+                        label += '<div>' + op.l + ': ' + (val[op.v] ? val[op.v] : 0) + '</div>';
+                    });
+                }
             }
+            return $sce.trustAsHtml(label);
         }
-        return $sce.trustAsHtml(label);
+        return '';
     };
     $scope.editRecord = function(event, page) {
         if ($scope.app.scenarioConfig) {
             if ($scope.app.scenarioConfig.can_cowork !== 'Y') {
-                if ($scope.user.uid !== facRecord.current.userid) {
+                if ($scope.user.uid !== $scope.Record.current.userid) {
                     noticebox.warn('不允许修改他人提交的数据');
                     return;
                 }
@@ -84,67 +83,37 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$sce', 'noti
                 }
             }
         }
-        $scope.gotoPage(event, page, facRecord.current.enroll_key);
+        $scope.gotoPage(event, page, $scope.Record.current.enroll_key);
     };
     $scope.removeRecord = function(event, page) {
         if ($scope.app.can_cowork && $scope.app.can_cowork !== 'Y') {
-            if ($scope.user.uid !== facRecord.current.userid) {
+            if ($scope.user.uid !== $scope.Record.current.userid) {
                 noticebox.warn('不允许删除他人提交的数据');
                 return;
             }
         }
         noticebox.confirm('删除记录，确定？').then(function() {
-            facRecord.remove(facRecord.current).then(function(data) {
+            $scope.Record.remove($scope.Record.current).then(function(data) {
                 page && $scope.gotoPage(event, page);
             });
         });
     };
-    $scope.$watch('app', function(app) {
-        if (!app) return;
-        $scope.Record = facRecord = Record.ins(app);
-    });
 }]);
-ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticebox', 'Record', 'picviewer', '$timeout', function($scope, $sce, LS, http2, noticebox, Record, picviewer, $timeout) {
-    function fnGetRecord() {
-        return http2.get(LS.j('record/get', 'site', 'app', 'ek', 'rid'));
+ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2', 'noticebox', 'Record', 'picviewer', '$timeout', 'enlRound', function($scope, $sce, $parse, LS, http2, noticebox, Record, picviewer, $timeout, enlRound) {
+    function fnGetRecord(oRound) {
+        if (oRound) {
+            return http2.get(LS.j('record/get', 'site', 'app') + '&rid=' + oRound.rid);
+        } else {
+            return http2.get(LS.j('record/get', 'site', 'app', 'ek', 'rid'));
+        }
     }
 
     function fnProcessData(oRecord) {
-        var oData, originalValue, afterValue, aProcessing;
-        oData = oRecord.data;
-        http2.get(LS.j('schema/get', 'site', 'app') + '&rid=' + oRecord.rid).then(function(rsp) {
-            rsp.data.forEach(function(oSchema) {
-                if (oSchema.schema_id && oData.member) {
-                    var attr;
-                    attr = oSchema.id.split('.');
-                    if (attr.length === 2) {
-                        originalValue = oData.member[attr[1]];
-                        aProcessing = [oData.member, attr[1]];
-                    } else if (attr.length === 3) {
-                        originalValue = oData.member.extattr[attr[2]];
-                        if (originalValue && oSchema.type === 'multiple') {
-                            var originalValue2 = [];
-                            angular.forEach(originalValue, function(v, k) {
-                                if (v) originalValue2.push(k);
-                            });
-                            originalValue = originalValue2;
-                        }
-                        aProcessing = [oData.member.extattr, attr[2]];
-                    }
-                } else {
-                    originalValue = oData[oSchema.id];
-                    if (originalValue) {
-                        switch (oSchema.type) {
-                            case 'multiple':
-                                originalValue = originalValue.split(',');
-                                break;
-                            case 'url':
-                                originalValue._text = ngApp.oUtilSchema.urlSubstitute(originalValue);
-                                break;
-                        }
-                    }
-                    aProcessing = [oData, oSchema.id];
-                }
+        var oRecData, originalValue, afterValue;
+        oRecData = oRecord.data;
+        if (oRecData && Object.keys(oRecData).length) {
+            _oApp.dynaDataSchemas.forEach(function(oSchema) {
+                originalValue = $parse(oSchema.id)(oRecData);
                 if (originalValue) {
                     switch (oSchema.type) {
                         case 'longtext':
@@ -160,6 +129,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticeb
                             }
                             break;
                         case 'multiple':
+                            originalValue = originalValue.split(',');
                             if (oSchema.ops && oSchema.ops.length) {
                                 afterValue = [];
                                 oSchema.ops.forEach(function(op) {
@@ -168,14 +138,19 @@ ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticeb
                                 afterValue = afterValue.length ? afterValue.join(',') : '[空]';
                             }
                             break;
+                        case 'url':
+                            originalValue._text = ngApp.oUtilSchema.urlSubstitute(originalValue);
+                            break;
                         default:
                             afterValue = originalValue;
                     }
                 }
-                aProcessing[0][aProcessing[1]] = afterValue || originalValue || (/image|file|voice|multitext/.test(oSchema.type) ? '' : '[空]');
+
+                $parse(oSchema.id).assign(oRecData, (afterValue || originalValue || (/image|file|voice|multitext/.test(oSchema.type) ? '' : '[空]')));
+
                 afterValue = undefined;
             });
-        });
+        }
     }
 
     function fnDisableActions() {
@@ -218,25 +193,19 @@ ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticeb
             }
         });
     }
-
-    $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        var oApp, dataSchemas, facRecord;
-
-        oApp = params.app;
-        dataSchemas = params.app.dynaDataSchemas;
-        facRecord = Record.ins(oApp);
-
-        fnGetRecord().then(function(rsp) {
-            var schemaId, domWrap, oRecord, oOriginalData;
+    /* 根据获得的记录设置页面状态 */
+    function fnSetPageByRecord(oRound) {
+        fnGetRecord(oRound).then(function(rsp) {
+            var oRecord, oOriginalData;
             oOriginalData = angular.copy(rsp.data.data);
             /* 设置题目的可见性 */
-            fnToggleAssocSchemas(dataSchemas, oOriginalData);
+            fnToggleAssocSchemas(_oApp.dynaDataSchemas, oOriginalData);
             /* 将数据转换为可直接显示的形式 */
             fnProcessData(rsp.data);
-            facRecord.current = oRecord = rsp.data;
+            $scope.Record.current = oRecord = rsp.data;
             /* disable actions */
-            if ((oApp.can_cowork && oApp.can_cowork !== 'Y')) {
-                if (params.user.uid !== oRecord.userid) {
+            if ((_oApp.can_cowork && _oApp.can_cowork !== 'Y')) {
+                if ($scope.user.uid !== oRecord.userid) {
                     fnDisableActions();
                 }
             }
@@ -248,33 +217,50 @@ ngApp.controller('ctrlView', ['$scope', '$sce', 'tmsLocation', 'http2', 'noticeb
             });
             /*设置页面分享信息*/
             $scope.setSnsShare(oRecord);
-            /*页面阅读日志*/
-            $scope.logAccess();
-            /*设置页面导航*/
-            var oAppNavs = {
-                length: 0
-            };
-            if (oApp.scenario === 'voting') {
-                oAppNavs.votes = {};
+        });
+    }
+
+    var _oApp;
+
+    $scope.shiftRound = function(oRound) {
+        fnSetPageByRecord(oRound);
+    };
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        var facRecord, _facRound;
+
+        _oApp = params.app;
+        $scope.Record = facRecord = Record.ins(_oApp);
+        _facRound = new enlRound(_oApp);
+        _facRound.list().then(function(oResult) {
+            $scope.rounds = oResult.rounds;
+        });
+        fnSetPageByRecord();
+        /*设置页面导航*/
+        var oAppNavs = {
+            length: 0
+        };
+        if (_oApp.scenario === 'voting') {
+            oAppNavs.votes = {};
+            oAppNavs.length++;
+        }
+        if (_oApp.scenarioConfig) {
+            if (_oApp.scenarioConfig.can_repos === 'Y') {
+                oAppNavs.repos = {};
                 oAppNavs.length++;
             }
-            if (oApp.scenarioConfig) {
-                if (oApp.scenarioConfig.can_repos === 'Y') {
-                    oAppNavs.repos = {};
-                    oAppNavs.length++;
-                }
-                if (oApp.scenarioConfig.can_rank === 'Y') {
-                    oAppNavs.rank = {};
-                    oAppNavs.length++;
-                }
-                if (oApp.scenarioConfig.can_action === 'Y') {
-                    oAppNavs.event = {};
-                    oAppNavs.length++;
-                }
+            if (_oApp.scenarioConfig.can_rank === 'Y') {
+                oAppNavs.rank = {};
+                oAppNavs.length++;
             }
-            if (Object.keys(oAppNavs).length) {
-                $scope.appNavs = oAppNavs;
+            if (_oApp.scenarioConfig.can_action === 'Y') {
+                oAppNavs.event = {};
+                oAppNavs.length++;
             }
-        });
+        }
+        if (Object.keys(oAppNavs).length) {
+            $scope.appNavs = oAppNavs;
+        }
+        /*页面阅读日志*/
+        $scope.logAccess();
     });
 }]);

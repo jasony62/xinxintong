@@ -610,9 +610,9 @@ class record extends base {
 		$fields = 'id,aid,state,rid,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,data,supplement,score,like_num,like_log,remark_num';
 
 		if (empty($ek)) {
-			$oUser = $this->getUser($oApp);
+			$oRecUser = $this->getUser($oApp);
 			if ($loadLast === 'Y') {
-				$oRecord = $modelRec->lastByUser($oApp, $oUser, ['assignRid' => $rid, 'verbose' => 'Y', 'fields' => $fields]);
+				$oRecord = $modelRec->lastByUser($oApp, $oRecUser, ['assignRid' => $rid, 'verbose' => 'Y', 'fields' => $fields]);
 				if (false === $oRecord || $oRecord->state !== '1') {
 					$oRecord = new \stdClass;
 				}
@@ -621,68 +621,68 @@ class record extends base {
 			}
 		} else {
 			$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'fields' => $fields]);
-			$oUser = new \stdClass;
+			$oRecUser = new \stdClass;
 			if (false === $oRecord || $oRecord->state !== '1') {
 				$oRecord = new \stdClass;
 			} else {
 				if (!empty($oRecord->userid)) {
-					$oUser->uid = $oRecord->userid;
+					$oRecUser->uid = $oRecord->userid;
 				}
 			}
 		}
 
-		/* 返回当前用户在关联活动中填写的数据 */
-		if (!empty($oApp->entryRule->enroll->id) && !empty($oUser->uid)) {
-			$oAssocApp = $this->model('matter\enroll')->byId($oApp->entryRule->enroll->id, ['cascaded' => 'N']);
-			if ($oAssocApp) {
-				$oAssocRec = $modelRec->byUser($oAssocApp, $oUser);
-				if (count($oAssocRec) === 1) {
-					if (!empty($oAssocRec[0]->data)) {
-						$oAssocRecord = $oAssocRec[0]->data;
+		/* 当前用户在关联活动中填写的数据 */
+		if (!empty($oRecUser->uid)) {
+			if (!empty($oApp->entryRule->enroll->id)) {
+				$oAssocApp = $this->model('matter\enroll')->byId($oApp->entryRule->enroll->id, ['cascaded' => 'N']);
+				if ($oAssocApp) {
+					$oAssocRec = $modelRec->byUser($oAssocApp, $oRecUser);
+					if (count($oAssocRec) === 1) {
+						if (!empty($oAssocRec[0]->data)) {
+							$oAssocRecData = $oAssocRec[0]->data;
+							if (!isset($oRecord->data)) {
+								$oRecord->data = new \stdClass;
+							}
+							foreach ($oAssocRecData as $key => $value) {
+								if (!isset($oRecord->data->{$key})) {
+									$oRecord->data->{$key} = $value;
+								}
+							}
+						}
+					}
+				}
+			}
+			if (!empty($oApp->entryRule->group->id)) {
+				$oGrpApp = $this->model('matter\group')->byId($oApp->entryRule->group->id, ['cascaded' => 'N']);
+				if ($oGrpApp) {
+					$oGrpUsr = $this->model('matter\group\user')->byUser($oGrpApp, $oRecUser->uid, ['onlyOne' => true, 'fields' => 'round_id,data']);
+					if ($oGrpUsr) {
 						if (!isset($oRecord->data)) {
 							$oRecord->data = new \stdClass;
 						}
-						foreach ($oAssocRecord as $key => $value) {
-							if (!isset($oRecord->data->{$key})) {
-								$oRecord->data->{$key} = $value;
+						$oAssocRecData = $oGrpUsr->data;
+						$oAssocRecData->_round_id = $oGrpUsr->round_id;
+						foreach ($oAssocRecData as $k => $v) {
+							if (!isset($oRecord->data->{$k})) {
+								$oRecord->data->{$k} = $v;
 							}
 						}
 					}
 				}
 			}
 		}
-		if (!empty($oApp->entryRule->group->id) && !empty($oUser->uid)) {
-			$oGrpApp = $this->model('matter\group')->byId($oApp->entryRule->group->id, ['cascaded' => 'N']);
-			$oGrpPlayer = $this->model('matter\group\player')->byUser($oGrpApp, $oUser->uid);
-			if (count($oGrpPlayer) === 1) {
-				if (!empty($oGrpPlayer[0]->data)) {
-					if (!isset($oRecord->data)) {
-						$oRecord->data = new \stdClass;
-					}
-					if (is_string($oGrpPlayer[0]->data)) {
-						$oAssocRecord = json_decode($oGrpPlayer[0]->data);
-					} else {
-						$oAssocRecord = $oGrpPlayer[0]->data;
-					}
-
-					$oAssocRecord->_round_id = $oGrpPlayer[0]->round_id;
-					foreach ($oAssocRecord as $k => $v) {
-						if (!isset($oRecord->data->{$k})) {
-							$oRecord->data->{$k} = $v;
-						}
-					}
-				}
-			}
-		}
-
 		/* 恢复用户保存的数据 */
 		if ($withSaved === 'Y') {
-			$this->_fillWithSaved($oApp, $oUser, $oRecord);
+			$this->_fillWithSaved($oApp, $oRecUser, $oRecord);
 		}
 
 		if (!empty($oRecord->rid)) {
 			$oRecRound = $this->model('matter\enroll\round')->byId($oRecord->rid);
 			$oRecord->round = $oRecRound;
+		}
+
+		if (count((array) $oRecord) === 0) {
+			return new \ObjectNotFoundError('不存在符合指定条件的填写记录');
 		}
 
 		return new \ResponseData($oRecord);

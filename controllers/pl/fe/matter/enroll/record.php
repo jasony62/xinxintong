@@ -1671,6 +1671,9 @@ class record extends main_base {
 			foreach ($oResult->records as $oRec) {
 				$oUpdatedData = $oRec->data;
 				$oGrpUsr = $modelGrpUsr->byUser($oGrpApp, $oRec->userid, ['onlyOne' => true, 'fields' => 'round_id,data']);
+				if (false === $oGrpUsr) {
+					continue;
+				}
 				$bModified = false;
 				foreach ($aGrpSchemas as $oGrpSchema) {
 					$enlVal = $this->getDeepValue($oUpdatedData, $oGrpSchema->id);

@@ -76,7 +76,7 @@
                 <div class='input-group'>
                     <input class='form-control' readonly value="{{mission.entryUrl}}">
                     <div class='input-group-btn'>
-                        <a class='btn btn-default' ng-href="{{mission.entryUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                        <a class='btn btn-default' ng-href="{{::mission.entryUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                     </div>
                 </div>
             </div>
@@ -85,6 +85,7 @@
                 <div class="input-group">
                     <input class='form-control' title="{{mission.userApp.title}}" value="{{mission.userApp.title}}" readonly="">
                     <div class="input-group-btn">
+                        <a class='btn btn-default' href="/rest/pl/fe/matter/{{mission.userApp.type}}?site={{mission.siteid}}&id={{mission.userApp.id}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                         <button class="btn btn-default" ng-click="cancelUserApp()" ng-if="mission.userApp">
                             <span class='glyphicon glyphicon-remove'></span>
                         </button>
@@ -120,43 +121,6 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class='panel panel-default hide' ng-controller="ctrlReport">
-        <div class='panel-body'>
-            <div class='form-group'>
-                <label>监督人进入链接 <span class='glyphicon glyphicon-question-sign' uib-tooltip='监督人查看项目下所有活动的进展。'></span></label>
-                <div class='input-group'>
-                    <input class='form-control' readonly value="{{opEntry.url}}">
-                    <div class='input-group-btn'>
-                        <a class='btn btn-default' ng-href="{{opEntry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class='form-group'>
-                <button class='btn btn-default' ng-if="!opEntry.url" ng-click="makeOpUrl()">生成</button>
-                <button class='btn btn-default' ng-if="opEntry.url" ng-click="closeOpUrl()">关闭</button>
-                <button uib-popover-template="'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="opEntry.url">密码 <span class="caret"></span></button>
-            </div>
-            <div class='form-group' ng-if="opEntry.url">
-                <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="opEntry.can_favor" ng-change="updCanFavor()">支持收藏</label>
-                <p class='help-block'>分享链接有效期1小时，设置【支持收藏】后，用户可收藏本链接，避免有效期限制</p>
-            </div>
-            <!-- begin timer -->
-            <div ng-repeat="timer in timers">
-                <hr>
-                <div ng-include="frameTemplates.url('timerNotice')"></div>
-            </div>
-            <hr>
-            <div>
-                <button class='btn btn-default' ng-click="srvTimer.add(mission,timers,'report')">添加定时通知规则</button>
-            </div>
-            <div ng-if="timers.length">
-                <hr>
-                <a href ng-click="switchTo('notice')">查看通知发送日志</a>
-            </div>
-        </div>
-        <!-- end timer -->
     </div>
     <script type="text/ng-template" id="opUrlPasswd.html">
         <div id="opUrlPasswd">

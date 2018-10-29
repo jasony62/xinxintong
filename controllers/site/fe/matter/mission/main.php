@@ -98,7 +98,7 @@ class main extends \site\fe\matter\base {
 					continue;
 				}
 				if (isset($oGrpLeader)) {
-					/*只能查看分配给分组的活动数据*/
+					/* 只能查看分配给分组的活动数据 */
 					if ($oMatter->type !== 'enroll') {
 						continue;
 					}

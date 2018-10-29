@@ -6,8 +6,8 @@
                 <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected" ng-change="selectAllRows(rows.allSelected)">
             </th>
             <th style='width:48px'>操作</th>
-            <th style='width:120px' class='th-action' data-filter-by='round_title' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">主分组 <i class='glyphicon glyphicon-filter'></i></th>
             <th style='width:72px' ng-if="bRequireNickname">用户</th>
+            <th style='width:120px' class='th-action' data-filter-by='round_title' uib-popover-template="'filterByTeam.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">主分组 <i class='glyphicon glyphicon-filter'></i></th>
             <th style='width:120px'>主分组内角色</th>
             <th style='width:120px' class='th-action' data-filter-by='role_round_title' uib-popover-template="'filterByRole.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">辅助分组 <i class='glyphicon glyphicon-filter'></i></th>
             <th ng-class="{nickname:schema.id===app.assignedNickname.schema.id}" ng-repeat="schema in app._schemasById">{{schema.title}}</th>
@@ -28,8 +28,8 @@
                     <span class='glyphicon glyphicon-edit'></span>
                 </button>
             </td>
-            <td>{{p.round_title}}</td>
             <td ng-if="bRequireNickname">{{p.nickname}}</td>
+            <td>{{p.round_title}}</td>
             <td>{{p.is_leader==='Y'?'组长':(p.is_leader==='S'?'超级用户':'组员')}}</td>
             <td>
                 <div ng-repeat="title in p.role_round_titles">{{title}}</div>
@@ -54,7 +54,7 @@
         </tr>
     </tbody>
 </table>
-<script type="text/ng-template" id="filterBy.html">
+<script type="text/ng-template" id="filterByTeam.html">
     <div class="form-group">
         <select class='form-control' ng-model="criteria.round.round_id">
             <option value='all'>全部分组</option>

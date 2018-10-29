@@ -1632,7 +1632,7 @@ class record extends main_base {
 	/**
 	 * 根据记录的userid更新关联分组活动题目的数据
 	 */
-	public function syncGroup_action($app, $overwrite = 'N') {
+	public function syncGroup_action($app, $rid = '', $overwrite = 'N') {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
@@ -1663,7 +1663,7 @@ class record extends main_base {
 
 		$updatedCount = 0;
 		$modelRec = $this->model('matter\enroll\record');
-		$oResult = $modelRec->byApp($oEnlApp, null, (object) ['record' => (object) ['rid' => 'all']]);
+		$oResult = $modelRec->byApp($oEnlApp, null, (object) ['record' => (object) ['rid' => empty($rid) ? $oEnlApp->appRound->rid : 'all']]);
 		if (count($oResult->records)) {
 			$oGrpApp = (object) ['id' => $oEnlApp->entryRule->group->id];
 			$modelGrpUsr = $this->model('matter\group\user');
@@ -1687,6 +1687,73 @@ class record extends main_base {
 					}
 					if ($enlVal !== $grpVal) {
 						$this->setDeepValue($oUpdatedData, $oGrpSchema->id, $grpVal);
+						$bModified = true;
+					}
+				}
+				if (false === $bModified) {
+					continue;
+				}
+				$oMocker->uid = $oRec->userid;
+				$oMocker->group_id = $oRec->group_id;
+				$modelRec->setData($oMocker, $oEnlApp, $oRec->enroll_key, $oUpdatedData);
+				$updatedCount++;
+			}
+		}
+
+		return new \ResponseData($updatedCount);
+	}
+	/**
+	 * 根据记录的userid更新关联通信录题目的数据
+	 */
+	public function syncMschema_action($app, $rid = '', $overwrite = 'N') {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		$modelApp = $this->model('matter\enroll');
+		$oEnlApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $oEnlApp || $oEnlApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		if ($this->getDeepValue($oEnlApp->entryRule, 'scope.member') !== 'Y' || !isset($oEnlApp->entryRule->member)) {
+			return new \ParameterError('当前活动没有关联通信录');
+		}
+
+		$aMsSchemas = [];
+		if (!empty($oEnlApp->dynaDataSchemas)) {
+			foreach ($oEnlApp->dynaDataSchemas as $oSchema) {
+				if (isset($oSchema->schema_id) && isset($oEnlApp->entryRule->member->{$oSchema->schema_id})) {
+					$aMsSchemas[] = $oSchema;
+				}
+			}
+		}
+		if (empty($aMsSchemas)) {
+			return new \ParameterError('当前活动没有指定和通信录关联的题目');
+		}
+
+		$updatedCount = 0;
+		$modelRec = $this->model('matter\enroll\record');
+		$oResult = $modelRec->byApp($oEnlApp, null, (object) ['record' => (object) ['rid' => empty($rid) ? $oEnlApp->appRound->rid : 'all']]);
+		if (count($oResult->records)) {
+			$modelMem = $this->model('site\user\member');
+			$oMocker = new \stdClass;
+			foreach ($oResult->records as $oRec) {
+				$oUpdatedData = $oRec->data;
+				$aMembers = $modelMem->byUser($oRec->userid, ['schemas' => array_keys((array) $oEnlApp->entryRule->member)]);
+				if (count($aMembers) === 0) {
+					continue;
+				}
+				$oMember = (object) ['member' => $aMembers[0]];
+				$bModified = false;
+				foreach ($aMsSchemas as $oMsSchema) {
+					$enlVal = $this->getDeepValue($oUpdatedData, $oMsSchema->id);
+					if ($overwrite === 'N' && !empty($enlVal)) {
+						continue;
+					}
+					$memVal = $this->getDeepValue($oMember, $oMsSchema->id);
+					if ($enlVal !== $memVal) {
+						$this->setDeepValue($oUpdatedData, $oMsSchema->id, $memVal);
 						$bModified = true;
 					}
 				}

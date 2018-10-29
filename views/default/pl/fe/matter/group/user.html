@@ -40,13 +40,13 @@
             <div class="btn-group" uib-dropdown ng-if="app.sourceApp">
                 <button class="btn btn-default" uib-dropdown-toggle>更多操作 <i class="caret"></i></button>
                 <ul uib-dropdown-menu>
-                    <li><a href="" ng-click="addPlayer()">添加用户</a></li>
-                    <li><a href="" ng-click="export()">导出结果</a></li>
+                    <li><a href ng-click="addPlayer()">添加用户</a></li>
+                    <li><a href ng-click="export()">导出结果</a></li>
                     <li class="divider"></li>
-                    <li><a href="" ng-click="notify(true)">给选中用户发消息<span>（{{rows.players.length}}）</span></a></li>
-                    <li><a href="" ng-click="notify()">给全部用户发消息<span>（{{players.length}}）</span></a></li>
+                    <li><a href ng-click="notify(true)">给选中用户发消息<span>（{{rows.players.length}}）</span></a></li>
+                    <li><a href ng-click="notify()">给全部用户发消息<span>（{{players.length}}）</span></a></li>
                     <li class="divider"></li>
-                    <li><a href="" ng-click="empty()">清空用户</a></li>
+                    <li><a href ng-click="empty()">清空用户</a></li>
                 </ul>
             </div>
         </div>

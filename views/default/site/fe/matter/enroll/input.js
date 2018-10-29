@@ -54,7 +54,6 @@ ngApp.factory('Input', ['tmsLocation', 'http2', function(LS, http2) {
         var url, d, oPosted, tagsByScchema;
 
         oPosted = angular.copy(oRecData);
-        delete oPosted.member;
 
         if (oRecord.enroll_key) {
             /* 更新已有填写记录 */
@@ -716,10 +715,6 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                 fnDisableActions();
             }
         }
-        ngApp.oUtilSchema.loadRecord(_oApp._schemasById, $scope.data, oRecord.data);
-
-        ngApp.oUtilSchema.autoFillMember(_oApp._schemasById, $scope.user, $scope.data.member);
-
         /* 判断多项类型 */
         if (_oApp.dynaDataSchemas.length) {
             angular.forEach(_oApp.dynaDataSchemas, function(oSchema) {
@@ -728,6 +723,10 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                 }
             });
         }
+
+        ngApp.oUtilSchema.autoFillMember(_oApp._schemasById, $scope.user, $scope.data.member);
+
+        ngApp.oUtilSchema.loadRecord(_oApp._schemasById, $scope.data, oRecord.data);
 
         $scope.record = oRecord;
         if (oRecord.supplement) {

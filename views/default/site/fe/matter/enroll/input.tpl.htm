@@ -43,7 +43,7 @@
                     </ul>
                 </div>
             </div>
-            <div class='form-group' ng-if="recordsOfRound.page.total>recordsOfRound.page.size" ng-hide="true">
+            <div class='form-group' ng-if="recordsOfRound.page.total>recordsOfRound.page.size">
                 <div class='site-pagination'>
                     <ul uib-pagination class='pagination-sm' total-items="recordsOfRound.page.total" max-size="5" items-per-page="recordsOfRound.page.size" rotate="false" ng-model="recordsOfRound.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="recordsOfRound.shift()"></ul>
                 </div>

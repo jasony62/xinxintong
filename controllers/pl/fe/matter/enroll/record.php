@@ -1630,6 +1630,76 @@ class record extends main_base {
 		return new \ResponseData($aResult);
 	}
 	/**
+	 * 根据记录的userid更新关联分组活动题目的数据
+	 */
+	public function syncGroup_action($app, $overwrite = 'N') {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		$modelApp = $this->model('matter\enroll');
+		$oEnlApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $oEnlApp || $oEnlApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		if (empty($oEnlApp->entryRule->group->id)) {
+			return new \ParameterError('当前活动没有关联分组活动');
+		}
+
+		$aGrpSchemas = [];
+		if (!empty($oEnlApp->dynaDataSchemas)) {
+			foreach ($oEnlApp->dynaDataSchemas as $oSchema) {
+				if (isset($oSchema->requireCheck) && $oSchema->requireCheck === 'Y') {
+					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oEnlApp->entryRule->group->id) {
+						$aGrpSchemas[] = $oSchema;
+					}
+				}
+			}
+		}
+		if (empty($aGrpSchemas)) {
+			return new \ParameterError('当前活动没有指定和分组活动关联的题目');
+		}
+
+		$updatedCount = 0;
+		$modelRec = $this->model('matter\enroll\record');
+		$oResult = $modelRec->byApp($oEnlApp, null, (object) ['record' => (object) ['rid' => 'all']]);
+		if (count($oResult->records)) {
+			$oGrpApp = (object) ['id' => $oEnlApp->entryRule->group->id];
+			$modelGrpUsr = $this->model('matter\group\user');
+			$oMocker = new \stdClass;
+			foreach ($oResult->records as $oRec) {
+				$oUpdatedData = $oRec->data;
+				$oGrpUsr = $modelGrpUsr->byUser($oGrpApp, $oRec->userid, ['onlyOne' => true, 'fields' => 'round_id,data']);
+				$bModified = false;
+				foreach ($aGrpSchemas as $oGrpSchema) {
+					$enlVal = $this->getDeepValue($oUpdatedData, $oGrpSchema->id);
+					if ($overwrite === 'N' && !empty($enlVal)) {
+						continue;
+					}
+					if ($oGrpSchema->id === '_round_id') {
+						$grpVal = $oGrpUsr->round_id;
+					} else {
+						$grpVal = $this->getDeepValue($oGrpUsr->data, $oGrpSchema->id);
+					}
+					if ($enlVal !== $grpVal) {
+						$this->setDeepValue($oUpdatedData, $oGrpSchema->id, $grpVal);
+						$bModified = true;
+					}
+				}
+				if (false === $bModified) {
+					continue;
+				}
+				$oMocker->uid = $oRec->userid;
+				$oMocker->group_id = $oRec->group_id;
+				$modelRec->setData($oMocker, $oEnlApp, $oRec->enroll_key, $oUpdatedData);
+				$updatedCount++;
+			}
+		}
+
+		return new \ResponseData($updatedCount);
+	}
+	/**
 	 * 填写记录导出
 	 */
 	public function export_action($app, $filter = '') {

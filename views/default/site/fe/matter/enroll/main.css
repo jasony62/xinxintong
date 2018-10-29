@@ -1,5 +1,6 @@
 html,body{font-family:Microsoft Yahei,Arial;width:100%;height:auto;}
 body{position:relative;font-size:16px;padding:0;}
+header img,footer img{max-width:100%}
 .ng-cloak{display:none;}
 .container{position:relative;}
 .site-navbar-default .navbar-default .navbar-nav>li>a,.navbar-default .navbar-brand{color:#fff;}
@@ -30,5 +31,9 @@ body{position:relative;font-size:16px;padding:0;}
 .previewImage-text span.exit>i{text-shadow:0 0 .1em #fff,-0 -0 .1em #fff}
 #previewImage-container .previewImage-box{width:999999rem;height:100vh}
 #previewImage-container .previewImage-box .previewImage-item{width:100vw;height:100vh;margin-right:15px;float:left;text-align:center}
-@media screen and (min-width:992px){#previewImage-container .previewImage-box .previewImage-item .previewImage-image {display: block;}}
-@media screen and (max-width:992px){#previewImage-container .previewImage-box .previewImage-item .previewImage-image{width:100%}}
+@media screen and (min-width:992px){
+	#previewImage-container .previewImage-box .previewImage-item .previewImage-image{display:block;}
+}
+@media screen and (max-width:992px){
+	#previewImage-container .previewImage-box .previewImage-item .previewImage-image{width:100%}
+}

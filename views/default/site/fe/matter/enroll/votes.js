@@ -1,44 +1,12 @@
 'use strict';
 require('./votes.css');
 
-var ngApp = require('./main.js');
-ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
-    var Round, _ins;
-    Round = function(oApp) {
-        this.oApp = oApp;
-        this.oPage = {
-            at: 1,
-            size: 12,
-            j: function() {
-                return '&page=' + this.at + '&size=' + this.size;
-            }
-        };
-    };
-    Round.prototype.list = function() {
-        var _this = this,
-            deferred = $q.defer(),
-            url;
+require('./_asset/ui.round.js');
 
-        url = '/rest/site/fe/matter/enroll/round/list?site=' + this.oApp.siteid + '&app=' + this.oApp.id;
-        url += this.oPage.j();
-        http2.get(url).then(function(rsp) {
-            if (rsp.err_code != 0) {
-                alert(rsp.data);
-                return;
-            }
-            _this.oPage.total = rsp.data.total;
-            deferred.resolve(rsp.data);
-        });
-        return deferred.promise;
-    };
-    return {
-        ins: function(oApp) {
-            _ins = _ins ? _ins : new Round(oApp);
-            return _ins;
-        }
-    };
-}]);
-ngApp.controller('ctrlVotes', ['$scope', '$q', '$timeout', 'tmsLocation', 'http2', 'Round', function($scope, $q, $timeout, LS, http2, srvRound) {
+window.moduleAngularModules = ['round.ui.enroll'];
+
+var ngApp = require('./main.js');
+ngApp.controller('ctrlVotes', ['$scope', '$q', '$timeout', 'tmsLocation', 'http2', 'enlRound', function($scope, $q, $timeout, LS, http2, enlRound) {
     var _oApp, _facRound, _oCriteria, _oFilter;
     $scope.criteria = _oCriteria = {}; // 数据查询条件
     $scope.filter = _oFilter = {}; // 过滤条件
@@ -135,7 +103,7 @@ ngApp.controller('ctrlVotes', ['$scope', '$q', '$timeout', 'tmsLocation', 'http2
         $scope.setSnsShare();
         /* 设置页面导航和全局操作 */
         $scope.setAppActsAndNavs();
-        $scope.facRound = _facRound = srvRound.ins(_oApp);
+        $scope.facRound = _facRound = new enlRound(_oApp);
         _facRound.list().then(function(result) {
             if (result.active) {
                 for (var i = 0, ii = result.rounds.length; i < ii; i++) {

@@ -91,26 +91,28 @@ utilSchema.loadRecord = function(schemasById, dataOfPage, dataOfRecord) {
         if (schemaId === 'member') {
             dataOfPage.member = angular.extend(dataOfPage.member, dataOfRecord.member);
         } else if (oSchema = schemasById[schemaId]) {
-            if (/score|url/.test(oSchema.type)) {
-                dataOfPage[schemaId] = dataOfRecord[schemaId];
-                if ('url' === oSchema.type) {
-                    dataOfPage[schemaId]._text = utilSchema.urlSubstitute(dataOfPage[schemaId]);
-                }
-            } else if (dataOfRecord[schemaId].length) {
-                if (oSchema.type === 'image') {
-                    value = dataOfRecord[schemaId].split(',');
-                    dataOfPage[schemaId] = [];
-                    for (var i in value) {
-                        dataOfPage[schemaId].push({
-                            imgSrc: value[i]
-                        });
-                    }
-                } else if (oSchema.type === 'multiple') {
-                    value = dataOfRecord[schemaId].split(',');
-                    dataOfPage[schemaId] = {};
-                    for (var i in value) dataOfPage[schemaId][value[i]] = true;
-                } else {
-                    dataOfPage[schemaId] = dataOfRecord[schemaId];
+            if (dataOfRecord[oSchema.id]) {
+                switch (oSchema.type) {
+                    case 'url':
+                        dataOfPage[schemaId] = dataOfRecord[schemaId];
+                        dataOfPage[schemaId]._text = utilSchema.urlSubstitute(dataOfPage[schemaId]);
+                        break;
+                    case 'image':
+                        value = dataOfRecord[schemaId].split(',');
+                        dataOfPage[schemaId] = [];
+                        for (var i in value) {
+                            dataOfPage[schemaId].push({
+                                imgSrc: value[i]
+                            });
+                        }
+                        break;
+                    case 'multiple':
+                        value = dataOfRecord[schemaId].split(',');
+                        dataOfPage[schemaId] = {};
+                        for (var i in value) dataOfPage[schemaId][value[i]] = true;
+                        break;
+                    default:
+                        dataOfPage[schemaId] = dataOfRecord[schemaId];
                 }
             }
         }

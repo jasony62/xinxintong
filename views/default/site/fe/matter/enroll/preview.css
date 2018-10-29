@@ -2,7 +2,6 @@
 html,body{min-height:100%;width:100%;background:#efefef;font-family:Microsoft Yahei,Arial;}
 body{position:relative;font-size:16px;}
 .app{padding:15px 0;}
-img{max-width:100%}
 ul{margin:0;padding:0;list-style:none}
 li{margin:0;padding:0}
 #errmsg{display:block;opacity:0;height:0;overflow:hidden;width:300px;position:fixed;top:0;left:50%;margin:0 0 0 -150px;text-align:center;transition:opacity 1s;z-index:-1;word-break:break-all}

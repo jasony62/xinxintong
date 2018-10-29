@@ -33,6 +33,7 @@
                     <li ng-if="app.scenario==='mis_user_score'"><a href ng-click="syncWithDataSource()">从关联的数据源中同步数据</a></li>
                     <li class="divider"></li>
                     <li><a href ng-click="copyToUser()">复制记录给指定用户<span>（{{rows.count}}）</span></a></li>
+                    <li ng-if="app.entryRule.group.id"><a href ng-click="syncWithGroupApp()">补填全部全部记录的分组数据</a></li>
                 </ul>
             </div>
             <div class='form-group pull-right'>
@@ -104,7 +105,7 @@
                             <span ng-switch-when="remark">{{r.verbose.data[schema.id].remark_num}}</span>
                             <span ng-switch-when="calcScore">{{r.score[schema.id]}}</span>
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
-                            <span ng-if="schema.id==='_round_id'&&r.group_id!==r.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span>
+                            <span ng-if="fromApp.fromApp&&schema.id==='_round_id'&&r.group_id!==r.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span>
                             <p ng-if="['single', 'multiple', 'image', 'file'].indexOf(schema.type)!==-1&&r.supplement[schema.id].length">(补充说明：<span ng-bind-html="r.supplement[schema.id]"></span>)</p>
                         </td>
                         <td ng-if="bRequireScore" ng-bind="r.score.sum"></td>

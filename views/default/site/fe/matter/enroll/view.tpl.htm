@@ -9,7 +9,7 @@
         <?php TPL::pt('title');?>
     </title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-    <link href='/static/css/site.fe.css?_=2' rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
     <style ng-if="page.css" ng-bind='page.css'></style>
 </head>
 
@@ -32,8 +32,22 @@
     </nav>
     <div ng-cloak class='ng-cloak app'>
         <div class='container'>
-            <div dynamic-html="page.html" class='data'>
+            <div class='form-group' ng-if="rounds.length>1">
+                <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
+                    <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                        <span ng-bind="Record.current.round.title"></span> <span class="glyphicon glyphicon-triangle-bottom"></span>
+                    </button>
+                    <ul class="dropdown-menu" uib-dropdown-menu>
+                        <li ng-repeat="rnd in rounds"><a href ng-click="shiftRound(rnd)">{{rnd.title}}</a></li>
+                    </ul>
+                </div>
             </div>
+            <div class='form-group' ng-if="recordsOfRound.page.total>recordsOfRound.page.size">
+                <div class='site-pagination'>
+                    <ul uib-pagination class='pagination-sm' total-items="recordsOfRound.page.total" max-size="5" items-per-page="recordsOfRound.page.size" rotate="false" ng-model="recordsOfRound.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="recordsOfRound.shift()"></ul>
+                </div>
+            </div>
+            <div dynamic-html="page.html" class='data'></div>
         </div>
     </div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>

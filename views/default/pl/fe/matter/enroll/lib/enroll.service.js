@@ -342,11 +342,13 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     all.push({ name: 'votes', 'title': '投票榜' });
                     all.push({ name: 'marks', 'title': '打分榜' });
                     all.push({ name: 'score', 'title': '测验结果' });
+                    all.push({ name: 'stat', 'title': '统计页' });
                     otherwise.push({ name: 'event', 'title': '活动动态页' });
                     otherwise.push({ name: 'repos', 'title': '共享数据页' });
                     otherwise.push({ name: 'rank', 'title': '排行榜' });
                     otherwise.push({ name: 'votes', 'title': '投票榜' });
                     otherwise.push({ name: 'marks', 'title': '打分榜' });
+                    otherwise.push({ name: 'stat', 'title': '统计页' });
                     exclude.push({ name: 'event', 'title': '活动动态页' });
                     exclude.push({ name: 'repos', 'title': '共享数据页' });
                     exclude.push({ name: 'cowork', 'title': '讨论页' });
@@ -354,6 +356,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     exclude.push({ name: 'votes', 'title': '投票榜' });
                     exclude.push({ name: 'marks', 'title': '打分榜' });
                     exclude.push({ name: 'score', 'title': '测验结果' });
+                    exclude.push({ name: 'stat', 'title': '统计页' });
 
                     return {
                         all: all,

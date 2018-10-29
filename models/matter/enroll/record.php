@@ -110,12 +110,12 @@ class record_model extends record_base {
 		}
 
 		/* 更新在登记记录上记录数据 */
-		$oRecordUpdated = new \stdClass;
-		$oRecordUpdated->data = $this->escape($this->toJson($oResult->dbData));
+		$oUpdatedRec = new \stdClass;
+		$oUpdatedRec->data = $this->escape($this->toJson($oResult->dbData));
 		if (count(get_object_vars($oResult->score)) > 1) {
-			$oRecordUpdated->score = $this->escape($this->toJson($oResult->score));
+			$oUpdatedRec->score = $this->escape($this->toJson($oResult->score));
 		}
-		/* 记录提交日志 */
+		/* 如果不是首次提交，需要记录提交日志 */
 		if ($bFirstSubmit === false) {
 			if (empty($oRecord->submit_log)) {
 				$recordSubmitLogs = [];
@@ -126,18 +126,18 @@ class record_model extends record_base {
 			$newSubmitLog->submitAt = $oRecord->enroll_at;
 			$newSubmitLog->userid = $oRecord->userid;
 			$recordSubmitLogs[] = $newSubmitLog;
-			$oRecordUpdated->submit_log = json_encode($recordSubmitLogs);
+			$oUpdatedRec->submit_log = json_encode($recordSubmitLogs);
 		}
 
-		$this->update('xxt_enroll_record', $oRecordUpdated, ['enroll_key' => $ek]);
+		$this->update('xxt_enroll_record', $oUpdatedRec, ['enroll_key' => $ek]);
 
-		$oRecordUpdated->data = $oResult->dbData;
+		$oUpdatedRec->data = $oResult->dbData;
 		if (isset($oResult->score)) {
-			$oRecordUpdated->score = $oResult->score;
+			$oUpdatedRec->score = $oResult->score;
 		}
-		unset($oRecordUpdated->submit_log);
+		unset($oUpdatedRec->submit_log);
 
-		return [true, $oRecordUpdated];
+		return [true, $oUpdatedRec];
 	}
 	/**
 	 * 保存登记的数据
@@ -262,10 +262,14 @@ class record_model extends record_base {
 			['aid' => $oApp->id, 'state' => 1, 'userid' => $oUser->uid],
 		];
 
-		/* 指定登记轮次 */
+		/* 指定填写轮次 */
 		if (empty($assignRid)) {
-			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
-				$q[2]['rid'] = $activeRound->rid;
+			if (isset($oApp->appRound->rid)) {
+				$q[2]['rid'] = $oApp->appRound->rid;
+			} else {
+				if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
+					$q[2]['rid'] = $oActiveRnd->rid;
+				}
 			}
 		} else {
 			$q[2]['rid'] = $assignRid;
@@ -473,12 +477,13 @@ class record_model extends record_base {
 	 * 登记清单
 	 *
 	 * @param object/string 记录活动/记录活动的id
-	 * @param object/array $aOptions
+	 * @param object/array $oOptions
 	 * --page
 	 * --size
 	 * --kw 检索关键词
 	 * --by 检索字段
-	 * @param object $criteria 登记数据过滤条件
+	 * @param object $oCriteria 登记数据过滤条件
+	 * @param object $oUser ['uid','group_id']
 	 *
 	 * @return object
 	 * records 数据列表
@@ -488,7 +493,7 @@ class record_model extends record_base {
 		if (is_string($oApp)) {
 			$oApp = $this->model('matter\enroll')->byId($oApp, ['cascaded' => 'N']);
 		}
-		if (false === $oApp) {
+		if (false === $oApp && empty($oApp->dynaDataSchemas)) {
 			return false;
 		}
 		if ($oOptions && is_array($oOptions)) {
@@ -496,11 +501,10 @@ class record_model extends record_base {
 		}
 
 		$oSchemasById = new \stdClass; // 方便查找题目
-		if (!empty($oApp->dataSchemas)) {
-			foreach ($oApp->dataSchemas as $oSchema) {
-				$oSchemasById->{$oSchema->id} = $oSchema;
-			}
+		foreach ($oApp->dataSchemas as $oSchema) {
+			$oSchemasById->{$oSchema->id} = $oSchema;
 		}
+
 		// 指定记录活动下的登记记录
 		$w = "r.state=1 and r.aid='{$oApp->id}'";
 
@@ -686,11 +690,12 @@ class record_model extends record_base {
 		}
 
 		// 查询参数
-		$q = [
-			'id,enroll_key,rid,enroll_at,userid,group_id,nickname,wx_openid,yx_openid,qy_openid,headimgurl,verified,comment,data,score,supplement,agreed,like_num,like_log,remark_num,favor_num,dislike_num,dislike_log',
-			"xxt_enroll_record r",
-			$w,
-		];
+		if (!empty($oOptions->fields)) {
+			$fields = $oOptions->fields;
+		} else {
+			$fields = 'id,enroll_key,rid,enroll_at,userid,group_id,nickname,wx_openid,yx_openid,qy_openid,headimgurl,verified,comment,data,score,supplement,agreed,like_num,like_log,remark_num,favor_num,dislike_num,dislike_log';
+		}
+		$q = [$fields, "xxt_enroll_record r", $w];
 
 		$q2 = [];
 		// 查询结果分页
@@ -757,8 +762,8 @@ class record_model extends record_base {
 	public function parse($oApp, &$records) {
 		$bRequireScore = false; // 数值型的填空题需要计算分值
 		$visibilitySchemas = []; // 设置了可见性规则的题目
-		if (!empty($oApp->dataSchemas)) {
-			foreach ($oApp->dataSchemas as $oSchema) {
+		if (!empty($oApp->dynaDataSchemas)) {
+			foreach ($oApp->dynaDataSchemas as $oSchema) {
 				if ($oSchema->type == 'shorttext' && isset($oSchema->format) && $oSchema->format === 'number') {
 					$bRequireScore = true;
 					break;
@@ -847,43 +852,45 @@ class record_model extends record_base {
 					$oRec->supplement = $supplement;
 				}
 			}
-			if (!empty($oRec->data)) {
-				$data = str_replace("\n", ' ', $oRec->data);
-				$data = json_decode($data);
-				if ($data === null) {
-					$oRec->data = 'json error(' . json_last_error_msg() . '):' . $oRec->data;
-				} else {
-					$oRec->data = $data;
-					/* 处理提交数据后分组的问题 */
-					if (!empty($oRec->group_id) && !isset($oRec->data->_round_id)) {
-						$oRec->data->_round_id = $oRec->group_id;
-					}
-					/* 处理提交数据后指定昵称题的问题 */
-					if ($oRec->nickname && isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') {
-						if (isset($oApp->assignedNickname->schema->id)) {
-							$nicknameSchemaId = $oApp->assignedNickname->schema->id;
-							if (0 === strpos($nicknameSchemaId, 'member.')) {
-								$nicknameSchemaId = explode('.', $nicknameSchemaId);
-								if (!isset($oRec->data->member)) {
-									$oRec->data->member = new \stdClass;
-								}
-								if (!isset($oRec->data->member->{$nicknameSchemaId[1]})) {
-									$oRec->data->member->{$nicknameSchemaId[1]} = $oRec->nickname;
-								}
-							} else {
-								if (!isset($oRec->data->{$nicknameSchemaId})) {
-									$oRec->data->{$nicknameSchemaId} = $oRec->nickname;
+			if (property_exists($oRec, 'data')) {
+				if (!empty($oRec->data)) {
+					$data = str_replace("\n", ' ', $oRec->data);
+					$data = json_decode($data);
+					if ($data === null) {
+						$oRec->data = 'json error(' . json_last_error_msg() . '):' . $oRec->data;
+					} else {
+						$oRec->data = $data;
+						/* 处理提交数据后分组的问题 */
+						if (!empty($oRec->group_id) && !isset($oRec->data->_round_id)) {
+							$oRec->data->_round_id = $oRec->group_id;
+						}
+						/* 处理提交数据后指定昵称题的问题 */
+						if ($oRec->nickname && isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') {
+							if (isset($oApp->assignedNickname->schema->id)) {
+								$nicknameSchemaId = $oApp->assignedNickname->schema->id;
+								if (0 === strpos($nicknameSchemaId, 'member.')) {
+									$nicknameSchemaId = explode('.', $nicknameSchemaId);
+									if (!isset($oRec->data->member)) {
+										$oRec->data->member = new \stdClass;
+									}
+									if (!isset($oRec->data->member->{$nicknameSchemaId[1]})) {
+										$oRec->data->member->{$nicknameSchemaId[1]} = $oRec->nickname;
+									}
+								} else {
+									if (!isset($oRec->data->{$nicknameSchemaId})) {
+										$oRec->data->{$nicknameSchemaId} = $oRec->nickname;
+									}
 								}
 							}
 						}
+						/* 根据题目的可见性处理数据 */
+						if (count($visibilitySchemas)) {
+							$fnCheckSchemaVisibility($visibilitySchemas, $oRec->data);
+						}
 					}
-					/* 根据题目的可见性处理数据 */
-					if (count($visibilitySchemas)) {
-						$fnCheckSchemaVisibility($visibilitySchemas, $oRec->data);
-					}
+				} else {
+					$oRec->data = new \stdClass;
 				}
-			} else {
-				$oRec->data = new \stdClass;
 			}
 			// 记录的分组
 			if (!empty($oRec->group_id)) {
@@ -940,8 +947,8 @@ class record_model extends record_base {
 				} else if (!empty($options->rid)) {
 					$rid = $options->rid;
 				}
-			} else if ($activeRound = $this->M('matter\enroll\round')->getActive($oApp)) {
-				$rid = $activeRound->rid;
+			} else if ($oActiveRnd = $this->M('matter\enroll\round')->getActive($oApp)) {
+				$rid = $oActiveRnd->rid;
 			}
 		}
 		$oResult = new \stdClass; // 返回的结果
@@ -1052,8 +1059,8 @@ class record_model extends record_base {
 			}
 		} else {
 			/* 没有指定轮次，就使用当前轮次 */
-			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
-				$q[2] .= " and d.rid='{$activeRound->rid}'";
+			if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
+				$q[2] .= " and d.rid='{$oActiveRnd->rid}'";
 			}
 		}
 
@@ -1078,8 +1085,8 @@ class record_model extends record_base {
 						$p[2]['rid'] = $rid;
 					}
 				} else {
-					if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
-						$p[2]['rid'] = $activeRound->rid;
+					if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
+						$p[2]['rid'] = $oActiveRnd->rid;
 					}
 				}
 
@@ -1125,8 +1132,8 @@ class record_model extends record_base {
 		$oResult = new \stdClass;
 		$dataSchemas = $oApp->dynaDataSchemas;
 		if (empty($rid)) {
-			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
-				$rid = $activeRound->rid;
+			if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
+				$rid = $oActiveRnd->rid;
 			}
 		}
 		/* 每道题目的合计 */
@@ -1185,8 +1192,8 @@ class record_model extends record_base {
 		$oResult = new \stdClass;
 		$dataSchemas = $oApp->dynaDataSchemas;
 		if (empty($rid)) {
-			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
-				$rid = $activeRound->rid;
+			if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
+				$rid = $oActiveRnd->rid;
 			}
 		}
 		/* 每道题目的得分 */
@@ -1469,8 +1476,8 @@ class record_model extends record_base {
 			$oApp = $appIdOrObj;
 		}
 		if (empty($rid)) {
-			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
-				$rid = $activeRound->rid;
+			if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
+				$rid = $oActiveRnd->rid;
 			}
 		}
 

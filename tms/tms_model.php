@@ -412,4 +412,25 @@ class TMS_MODEL {
 		}
 		return $val;
 	}
+	/**
+	 * 设置对象的指定属性的值
+	 * 属性可以是‘.’连接，例如a.b，对表对象的属性a是一个对象，取这个对象的属性b
+	 */
+	public static function setDeepValue($deepObj, $deepProp, $setVal) {
+		$props = explode('.', $deepProp);
+		$last = count($props) - 1; // 最后一个属性的位置
+
+		$propObj = $deepObj;
+		for ($i = 0; $i < $last; $i++) {
+			$prop = $props[$i];
+			if (empty($propObj->{$prop})) {
+				$propObj->{$prop} = new \stdClass;
+			}
+			$propObj = $propObj->{$prop};
+		}
+
+		$propObj->{$props[$last]} = $setVal;
+
+		return $deepObj;
+	}
 }

@@ -9,7 +9,7 @@
         <?php TPL::pt('title');?>
     </title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-    <link href='/static/css/site.fe.css?_=1' rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
     <style ng-if="page.css" ng-bind='page.css'></style>
 </head>
 
@@ -26,25 +26,32 @@
             </div>
             <ul class="nav navbar-nav navbar-right">
                 <li class="pull-left">
-                    <a href="" ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline"> 个人中心</span></a>
+                    <a href ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline"> 个人中心</span></a>
                 </li>
             </ul>
         </div>
     </nav>
     <div ng-cloak class='app ng-cloak'>
         <div id='enroll' class='container'>
-            <form name='enroll' novalidate dynamic-html="page.html">
-            </form>
-            <div ng-if="app.appRound&&app.appRound.start_at>0&&app.appRound.end_at>0">
-                <div class='text-center help-block'>
-                    <span ng-bind="app.appRound.title"></span>
-                    <span ng-if="app.appRound.start_at>0"> / {{app.appRound.start_at*1000|date:'MM.dd HH:mm'}}</span>
-                    <span ng-if="app.appRound.end_at>0"> - {{app.appRound.end_at*1000|date:'MM.dd HH:mm'}}</span>
+            <div class='form-group' ng-if="rounds.length>1">
+                <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
+                    <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                        <span ng-bind="record.round.title"></span> <span class="glyphicon glyphicon-triangle-bottom"></span>
+                    </button>
+                    <ul class="dropdown-menu" uib-dropdown-menu>
+                        <li ng-repeat="rnd in rounds"><a href ng-click="shiftRound(rnd)">{{rnd.title}}</a></li>
+                    </ul>
                 </div>
             </div>
+            <div class='form-group' ng-if="recordsOfRound.page.total>recordsOfRound.page.size">
+                <div class='site-pagination'>
+                    <ul uib-pagination class='pagination-sm' total-items="recordsOfRound.page.total" max-size="5" items-per-page="recordsOfRound.page.size" rotate="false" ng-model="recordsOfRound.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="recordsOfRound.shift()"></ul>
+                </div>
+            </div>
+            <form name='enroll' novalidate dynamic-html="page.html"></form>
         </div>
     </div>
-    <div ng-if="appActs" tms-app-act app-acts="appActs"></div>
+    <div ng-if="appActs.length" tms-app-act app-acts="appActs"></div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
     <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
     <div class="loading">
@@ -74,8 +81,10 @@
             <div class='form-group'>
                 <select class="form-control" ng-model="data.selected" ng-options="rec.value for rec in records" size='5'></select>
             </div>
-            <div class='text-center'>
-                <ul style='margin:0' uib-pagination ng-if="page.total>page.size" boundary-links="true" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" class='pagination-sm' ng-change="search()"></ul>
+            <div class='text-center' ng-if="page.total>page.size">
+                <div class='site-pagination'>
+                    <ul uib-pagination class='pagination-sm' boundary-links="true" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" class='pagination-sm' ng-change="search()"></ul>
+                </div>
             </div>
         </div>
         <div class="modal-footer">

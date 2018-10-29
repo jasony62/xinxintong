@@ -20,6 +20,7 @@ module.exports = {
         '/default/site/fe/matter/enroll/score': ['./views/default/site/fe/matter/enroll/score.js'],
         '/default/site/fe/matter/enroll/votes': ['./views/default/site/fe/matter/enroll/votes.js'],
         '/default/site/fe/matter/enroll/marks': ['./views/default/site/fe/matter/enroll/marks.js'],
+        '/default/site/fe/matter/enroll/stat': ['./views/default/site/fe/matter/enroll/stat.js'],
         '/default/site/fe/matter/enroll/preview': ['./views/default/site/fe/matter/enroll/preview.js'],
         '/default/site/fe/matter/enroll/template': ['./views/default/site/fe/matter/enroll/template.js'],
         '/default/site/fe/matter/signin/signin': ['./views/default/site/fe/matter/signin/signin.js'],

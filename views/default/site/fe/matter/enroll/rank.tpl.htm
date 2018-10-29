@@ -342,38 +342,6 @@
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
-    <script type="text/ng-template" id="setRound.html">
-        <div class="modal-header">
-            <button class="close" type="button" ng-click="cancel()">×</button>
-            <h5 class="modal-title">轮次列表</h5>
-        </div>
-        <div class="modal-body">
-            <div class='form-group'>
-                <button class='btn btn-default btn-sm' ng-click="clean()">清除<span>已选的{{countOfChecked}}项</span></button>
-            </div>
-            <div class='form-group' style='height:230px;overflow-y:auto'>
-                <div>
-                    <label class='checkbox-inline'>
-                        <input type='checkbox' ng-model="checkedRounds.ALL" ng-change="toggleCheckedRound('ALL')">全部轮次</label>
-                </div>
-                <div ng-if="activeRound">
-                    <label class='checkbox-inline'>
-                        <input type='checkbox' ng-model="checkedRounds[activeRound.rid]" ng-change="toggleCheckedRound(activeRound.rid)">{{activeRound.title}}<span>（启用）</span></label>
-                </div>
-                <div ng-repeat="rnd in rounds">
-                    <label class='checkbox-inline'>
-                        <input type='checkbox' ng-model="checkedRounds[rnd.rid]" ng-change="toggleCheckedRound(rnd.id)">{{rnd.title}}</label>
-                </div>
-            </div>
-            <div ng-show="pageOfRound.total>pageOfRound.size">
-                <span class='hidden-xs' style='line-height:34px'>总数：{{pageOfRound.total}}</span>
-                <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-primary" ng-click="ok()">确定</button>
-        </div>
-    </script>
     <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>

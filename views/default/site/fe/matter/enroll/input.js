@@ -720,6 +720,15 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
 
         ngApp.oUtilSchema.autoFillMember(_oApp._schemasById, $scope.user, $scope.data.member);
 
+        /* 判断多项类型 */
+        if (_oApp.dynaDataSchemas.length) {
+            angular.forEach(_oApp.dynaDataSchemas, function(oSchema) {
+                if (oSchema.type == 'multitext') {
+                    $scope.data[oSchema.id] === undefined && ($scope.data[oSchema.id] = []);
+                }
+            });
+        }
+
         $scope.record = oRecord;
         if (oRecord.supplement) {
             $scope.supplement = oRecord.supplement;
@@ -1077,14 +1086,6 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         _oPage = params.page;
         _StateCacheKey = 'xxt.app.enroll:' + _oApp.id + '.user:' + $scope.user.uid + '.cacheKey';
         $scope.schemasById = schemasById = _oApp._schemasById;
-        /* 判断多项类型 */
-        if (_oApp.dynaDataSchemas.length) {
-            angular.forEach(_oApp.dynaDataSchemas, function(oSchema) {
-                if (oSchema.type == 'multitext') {
-                    $scope.data[oSchema.id] === undefined && ($scope.data[oSchema.id] = []);
-                }
-            });
-        }
         /* 用户已经登记过或保存过，恢复之前的数据 */
         fnGetRecord();
         /* 活动轮次 */

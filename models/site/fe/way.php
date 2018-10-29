@@ -189,6 +189,10 @@ class way_model extends \TMS_MODEL {
 				$oSiteRegUser = $modelSiteUser->byPrimaryUnionid($siteId, $oSiteUser->unionid);
 				if ($oSiteRegUser && isset($oSiteRegUser->{$snsName . '_openid'})) {
 					if ($oSiteRegUser->{$snsName . '_openid'} === $snsUser->openid) {
+						/* 将主注册用户设置为主公众号用户 */
+						if (isset($oSiteRegUser->{'is_' . $snsName . '_primary'}) && $oSiteRegUser->{'is_' . $snsName . '_primary'} !== 'Y') {
+							$modelSiteUser->setAsSnsPrimary($oSiteRegUser, $snsName);
+						}
 						$oSiteUser = $oSiteRegUser;
 					}
 				}

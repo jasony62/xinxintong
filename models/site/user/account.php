@@ -11,7 +11,7 @@ class account_model extends \TMS_MODEL {
 	/**
 	 * 缺省属性列表
 	 */
-	const DEFAULT_FIELDS = 'siteid,uid,nickname,wx_openid,yx_openid,qy_openid,unionid,is_reg_primary,headimgurl';
+	const DEFAULT_FIELDS = 'siteid,uid,nickname,is_wx_primary,wx_openid,is_yx_primary,yx_openid,is_qy_primary,qy_openid,unionid,is_reg_primary,headimgurl';
 	/**
 	 *
 	 *
@@ -78,6 +78,19 @@ class account_model extends \TMS_MODEL {
 		} else {
 			return $siteUsers[0];
 		}
+	}
+	/**
+	 * 将用户设置为公众号用户的主用户
+	 */
+	public function setAsSnsPrimary($oUser, $snsName) {
+		$oPrimaryUser = $this->byPrimaryOpenid($oUser->siteid, $snsName, $oUser->{$snsName . '_openid'});
+		if ($oPrimaryUser && $oPrimaryUser->uid !== $oUser->uid) {
+			$this->update('xxt_site_account', ['is_' . $snsName . '_primary' => 'N'], ['uid' => $oPrimaryUser->uid]);
+		}
+
+		$this->update('xxt_site_account', ['is_' . $snsName . '_primary' => 'Y'], ['uid' => $oUser->uid]);
+
+		return true;
 	}
 	/**
 	 * get account objects by it's unionid

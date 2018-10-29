@@ -45,7 +45,7 @@
                     </div>
                 </div>
                 <div class='col-md-6 col-md-offset-3' ng-if="user">
-                    <div ng-if="!user.loginExpire">
+                    <div ng-if="!user.login">
                         <div class='alert alert-info'>
                             <span class='glyphicon glyphicon-info-sign'></span> 请注册登录账号或用已有账号登录后，填写【{{schema.title}}】联系人信息。
                         </div>
@@ -97,7 +97,7 @@
                             </div>
                         </div>
                     </div>
-                    <div ng-if="user.loginExpire">
+                    <div ng-if="user.login">
                         <div class='alert alert-info' ng-if="!matter">
                             <span class='glyphicon glyphicon-info-sign'></span> 请填写【{{schema.title}}】联系人信息。
                         </div>

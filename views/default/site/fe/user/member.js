@@ -225,6 +225,11 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
             $scope.pinImg = url + '&_=' + time;
         }
     };
+    $scope.shiftRegUser = function(oOtherRegUser) {
+        http2.post('/rest/site/fe/user/shiftRegUser?site=' + LS.s().site, { uname: oOtherRegUser.uname }).then(function(rsp) {
+            location.reload();
+        });
+    };
     http2.get('/rest/site/fe/get?site=' + LS.s().site).then(function(rsp) {
         $scope.site = rsp.data;
         http2.get('/rest/site/fe/user/memberschema/get?site=' + LS.s().site + '&schema=' + LS.s().schema + '&matter=' + LS.s().matter).then(function(rsp) {
@@ -247,6 +252,12 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
                     var preEle = document.getElementById('pinInput');
                     if (preEle) {
                         $scope.refreshPin(preEle);
+                    }
+                });
+                /* 解决多个注册账号的问题 */
+                http2.get('/rest/site/fe/user/get?site=' + LS.s().site).then(function(rsp) {
+                    if (rsp.data.registersByWx) {
+                        $scope.user.registersByWx = rsp.data.registersByWx;
                     }
                 });
             });

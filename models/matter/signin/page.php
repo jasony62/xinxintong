@@ -23,9 +23,9 @@ class page_model extends \TMS_MODEL {
 		$ep = $this->query_obj_ss($q);
 		if ($ep) {
 			if ($published === 'Y') {
-				$code = \TMS_APP::model('code\page')->lastPublishedByName($ep->siteid, $ep->code_name);
+				$code = $this->model('code\page')->lastPublishedByName($ep->siteid, $ep->code_name);
 			} else {
-				$code = \TMS_APP::model('code\page')->lastByName($ep->siteid, $ep->code_name);
+				$code = $this->model('code\page')->lastByName($ep->siteid, $ep->code_name);
 			}
 			$ep->html = $code->html;
 			$ep->css = $code->css;

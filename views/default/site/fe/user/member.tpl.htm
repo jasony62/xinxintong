@@ -182,6 +182,10 @@
                         </div>
                     </div>
                 </div>
+                <div class='col-md-6 col-md-offset-3' ng-if="user.registersByWx.length">
+                    <hr>
+                    <button ng-repeat="regUser in user.registersByWx" class='btn btn-default btn-block' ng-click="shiftRegUser(regUser)">切换到【<span ng-bind="regUser.uname"></span>】<span ng-if="regUser.is_wx_primary==='Y'">（微信默认）</span></button>
+                </div>
                 <div class='col-md-6 col-md-offset-3' style="height:60px"></div>
             </div>
         </div>

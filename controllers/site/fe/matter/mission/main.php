@@ -98,26 +98,27 @@ class main extends \site\fe\matter\base {
 					continue;
 				}
 				if (isset($oGrpLeader)) {
-					/*只能查看分配给分组的活动数据*/
+					/* 只能查看分配给分组的活动数据 */
 					if ($oMatter->type !== 'enroll') {
 						continue;
 					}
-					if (empty($oMatter->entry_rule->group->round->id) || $oMatter->entry_rule->group->round->id !== $oGrpLeader->round_id) {
+					if ($this->getDeepValue($oMatter->entryRule, 'group.round.id') !== $oGrpLeader->round_id) {
 						continue;
 					}
 				}
 				if ($oMatter->type === 'enroll') {
 					/* 用户身份是否匹配活动进入规则 */
-					if (isset($oMatter->entry_rule->scope) && $oMatter->entry_rule->scope === 'group') {
+					if ($this->getDeepValue($oMatter->entryRule, 'scope.group') === 'Y') {
 						$bMatched = false;
-						$oEntryRule = $oMatter->entry_rule;
+						$oEntryRule = $oMatter->entryRule;
 						if (isset($oEntryRule->group->id)) {
 							$oGroupApp = $oEntryRule->group;
-							$oGroupUsr = $this->model('matter\group\player')->byUser($oGroupApp, $oUser->uid, ['fields' => 'round_id,round_title']);
-							if (count($oGroupUsr)) {
-								$oGroupUsr = $oGroupUsr[0];
+							$oGroupUsr = $this->model('matter\group\user')->byUser($oGroupApp, $oUser->uid, ['fields' => 'round_id,round_title,role_rounds', 'onlyOne' => true]);
+							if ($oGroupUsr) {
 								if (isset($oGroupApp->round->id)) {
 									if ($oGroupUsr->round_id === $oGroupApp->round->id) {
+										$bMatched = true;
+									} else if (count($oGroupUsr->role_rounds) && in_array($oGroupApp->round->id, $oGroupUsr->role_rounds)) {
 										$bMatched = true;
 									}
 								} else {

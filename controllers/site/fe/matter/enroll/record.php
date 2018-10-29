@@ -615,9 +615,11 @@ class record extends base {
 				$oRecord = $modelRec->lastByUser($oApp, $oRecUser, ['assignRid' => $rid, 'verbose' => 'Y', 'fields' => $fields]);
 				if (false === $oRecord || $oRecord->state !== '1') {
 					$oRecord = new \stdClass;
+					$oRecord->rid = empty($rid) ? $oApp->appRound->rid : $rid;
 				}
 			} else {
 				$oRecord = new \stdClass;
+				$oRecord->rid = empty($rid) ? $oApp->appRound->rid : $rid;
 			}
 		} else {
 			$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'fields' => $fields]);

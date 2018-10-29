@@ -688,7 +688,7 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         /* 同轮次的其他记录 */
         http2.post(LS.j('record/list', 'site', 'app') + '&sketch=Y', { record: { rid: oRecord.round.rid } }).then(function(rsp) {
             var records;
-            records = rsp.data.records;
+            records = rsp.data.records || [];
             $scope.recordsOfRound = {
                 records: records,
                 page: {
@@ -717,6 +717,9 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
             }
         }
         ngApp.oUtilSchema.loadRecord(_oApp._schemasById, $scope.data, oRecord.data);
+
+        ngApp.oUtilSchema.autoFillMember(_oApp._schemasById, $scope.user, $scope.data.member);
+
         $scope.record = oRecord;
         if (oRecord.supplement) {
             $scope.supplement = oRecord.supplement;
@@ -1082,7 +1085,6 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                 }
             });
         }
-        ngApp.oUtilSchema.autoFillMember(_oApp._schemasById, $scope.user, $scope.data.member);
         /* 用户已经登记过或保存过，恢复之前的数据 */
         fnGetRecord();
         /* 活动轮次 */

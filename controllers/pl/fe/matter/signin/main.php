@@ -147,7 +147,7 @@ class main extends \pl\fe\matter\main_base {
 		$oNewApp->title = $modelApp->escape($oCopied->title) . '（副本）';
 		$oNewApp->pic = $oCopied->pic;
 		$oNewApp->summary = $modelApp->escape($oCopied->summary);
-		$oNewApp->data_schemas = $modelApp->escape($oCopied->data_schemas);
+		$oNewApp->data_schemas = $modelApp->escape($modelApp->toJson($oCopied->dataSchemas));
 		$oNewApp->entry_rule = json_encode($oCopied->entryRule);
 		if (!empty($mission)) {
 			$oNewApp->mission_id = $mission;

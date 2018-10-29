@@ -32,7 +32,7 @@ class main extends \site\fe\base {
 		/* 整理cookie中的数据，便于后续处理 */
 		$modelWay = $this->model('site\fe\way');
 		$modelWay->resetAllCookieUser();
-		
+
 		/* 保存页面来源 */
 		if (!empty($originUrl)) {
 			if (!empty($urlEncryptKey)) {
@@ -128,13 +128,13 @@ class main extends \site\fe\base {
 		if (empty($data->imgSrc)) {
 			return new \ResponseError('头像地址不能为空');
 		}
-		
+
 		$user = $this->who;
 		$avatar = new \stdClass;
 		$avatar->imgSrc = $data->imgSrc;
 		$avatar->imgType = 'avatar';
 		$avatar->creatorId = $user->uid;
-		
+
 		$store = $this->model('fs/user', $site, 'avatar');
 		$rst = $store->storeImg($avatar);
 		if (false === $rst[0]) {

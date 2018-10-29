@@ -686,7 +686,8 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
     /* 获得页面编辑的记录 */
     function fnAfterGetRecord(oRecord) {
         /* 同轮次的其他记录 */
-        http2.post(LS.j('record/list', 'site', 'app') + '&sketch=Y', { record: { rid: oRecord.round.rid } }).then(function(rsp) {
+        var roundId = oRecord.round ? oRecord.round.rid : '';
+        http2.post(LS.j('record/list', 'site', 'app') + '&sketch=Y', { record: { rid: roundId} }).then(function(rsp) {
             var records;
             records = rsp.data.records;
             $scope.recordsOfRound = {
@@ -841,6 +842,9 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
 
     _tasksOfBeforeSubmit = [];
     _facInput = Input.ins();
+    $scope.data = {
+        member: {},
+    };
     $scope.tag = {};
     $scope.supplement = {};
     $scope.submitState = _oSubmitState = ngApp.oUtilSubmit.state;

@@ -1677,9 +1677,9 @@ class record extends main_base {
 				$bModified = false;
 				foreach ($aGrpSchemas as $oGrpSchema) {
 					$enlVal = $this->getDeepValue($oUpdatedData, $oGrpSchema->id);
-					//if ($overwrite === 'N' && !empty($enlVal)) {
-					//	continue;
-					//}
+					if ($overwrite === 'N' && !empty($enlVal)) {
+						continue;
+					}
 					if ($oGrpSchema->id === '_round_id') {
 						$grpVal = $oGrpUsr->round_id;
 					} else {

@@ -33,7 +33,7 @@
                     <li ng-if="app.scenario==='mis_user_score'"><a href ng-click="syncWithDataSource()">从关联的数据源中同步数据</a></li>
                     <li class="divider"></li>
                     <li><a href ng-click="copyToUser()">复制记录给指定用户<span>（{{rows.count}}）</span></a></li>
-                    <li ng-if="app.entryRule.group.id"><a href ng-click="syncWithGroupApp()">补填全部全部记录的分组数据</a></li>
+                    <li ng-if="app.entryRule.group.id"><a href ng-click="syncWithGroupApp()">补填全部记录的分组数据</a></li>
                 </ul>
             </div>
             <div class='form-group pull-right'>
@@ -185,3 +185,18 @@
         </div>
     </div>
 </div>
+<script type="text/ng-template" id="syncWithGroupApp.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title">补填记录的分组数据</h5>
+    </div>
+    <div class="modal-body">
+        <div class='checkbox'>
+            <label>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="config.overwrite"> 覆盖已有数据</label>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="ok()">执行</button>
+    </div>
+</script>

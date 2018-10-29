@@ -190,8 +190,22 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.syncWithGroupApp = function() {
-            http2.get('/rest/pl/fe/matter/enroll/record/syncGroup?app=' + $scope.app.id).then(function(rsp) {
-                $scope.doSearch(1);
+            $uibModal.open({
+                templateUrl: 'syncWithGroupApp.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.config = { $overwrite: 'N' };
+                    $scope2.ok = function() {
+                        $mi.close($scope2.config);
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss('cancel');
+                    };
+                }],
+                backdrop: 'static',
+            }).result.then(function(oConfig) {
+                http2.get('/rest/pl/fe/matter/enroll/record/syncGroup?app=' + $scope.app.id + '&overwrite=' + oConfig.overwrite).then(function(rsp) {
+                    $scope.doSearch(1);
+                });
             });
         };
         $scope.copyToUser = function() {

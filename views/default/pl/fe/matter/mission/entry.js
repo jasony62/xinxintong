@@ -1,31 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlEntry', ['$scope', 'srvQuickEntry', '$timeout', 'srvSite', 'srvTimerNotice', function($scope, srvQuickEntry, $timeout, srvSite, srvTimerNotice) {
-        var targetUrl, host, opEntry;
-        $scope.opEntry = opEntry = {};
-        $scope.makeOpUrl = function() {
-            srvQuickEntry.add(targetUrl, $scope.mission.title).then(function(task) {
-                opEntry.url = location.protocol + '//' + host + '/q/' + task.code;
-                opEntry.code = task.code;
-            });
-        };
-        $scope.closeOpUrl = function() {
-            srvQuickEntry.remove(targetUrl).then(function(task) {
-                opEntry.url = '';
-                opEntry.code = '';
-                opEntry.can_favor = 'N';
-                opEntry.password = '';
-            });
-        };
-        $scope.configOpUrl = function(event, prop) {
-            event.preventDefault();
-            srvQuickEntry.config(targetUrl, {
-                password: opEntry.password
-            });
-        };
-        $scope.updCanFavor = function() {
-            srvQuickEntry.update(opEntry.code, { can_favor: opEntry.can_favor });
-        };
+    ngApp.provider.controller('ctrlEntry', ['$scope', 'srvSite', 'srvTimerNotice', function($scope, srvSite, srvTimerNotice) {
         /* 定时任务服务 */
         $scope.srvTimer = srvTimerNotice;
         /* 定时任务截止时间 */
@@ -37,18 +12,6 @@ define(['frame'], function(ngApp) {
         });
         $scope.$watch('mission', function(oMission) {
             if (!oMission) return;
-            /* 监督人入口 */
-            targetUrl = oMission.opUrl;
-            host = targetUrl.match(/\/\/(\S+?)\//);
-            host = host.length === 2 ? host[1] : location.host;
-            srvQuickEntry.get(targetUrl).then(function(entry) {
-                if (entry) {
-                    opEntry.url = location.protocol + '//' + host + '/q/' + entry.code;
-                    opEntry.password = entry.password;
-                    opEntry.code = entry.code;
-                    opEntry.can_favor = entry.can_favor;
-                }
-            });
             /* 项目通讯录 */
             srvSite.memberSchemaList(oMission, true).then(function(aMemberSchemas) {
                 $scope.missionMschemas = aMemberSchemas;
@@ -179,26 +142,20 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.cancelUserApp = function() {
-            var mission = $scope.mission;
-            mission.user_app_id = '';
-            mission.user_app_type = '';
-            $scope.update(['user_app_id', 'user_app_type']).then(function() {
-                delete mission.userApp;
-                http2.post('/rest/pl/fe/matter/mission/report/configUpdate?mission=' + mission.id, { apps: [] }).then(function(rsp) {
-                    if (mission.reportConfig) {
-                        mission.reportConfig.include_apps = [];
-                    }
+            var mission;
+            if (window.confirm('确定删除项目用户名单活动？')) {
+                mission = $scope.mission;
+                mission.user_app_id = '';
+                mission.user_app_type = '';
+                $scope.update(['user_app_id', 'user_app_type']).then(function() {
+                    delete mission.userApp;
+                    http2.post('/rest/pl/fe/matter/mission/report/configUpdate?mission=' + mission.id, { apps: [] }).then(function(rsp) {
+                        if (mission.reportConfig) {
+                            mission.reportConfig.include_apps = [];
+                        }
+                    });
                 });
-            });
+            }
         };
     }]);
-    ngApp.provider.controller('ctrlReport', ['$scope', function($scope) {
-        $scope.$watch('mission', function(oMission) {
-            if (!oMission) return;
-            /* 定时推送 */
-            $scope.srvTimer.list(oMission, 'report').then(function(timers) {
-                $scope.timers = timers;
-            });
-        });
-    }]);
-})
+});

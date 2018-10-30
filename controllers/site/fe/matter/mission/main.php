@@ -9,7 +9,17 @@ class main extends \site\fe\matter\base {
 	/**
 	 *
 	 */
-	public function index_action() {
+	public function index_action($mission) {
+		$oMission = $this->model('matter\mission')->byId($mission, ['fields' => 'id,entry_rule']);
+		if (false === $oMission) {
+			return new \ObjectNotFoundError();
+		}
+
+		/* 检查是否需要第三方社交帐号OAuth */
+		if (!$this->afterSnsOAuth()) {
+			$this->requireSnsOAuth($oMission);
+		}
+
 		\TPL::output('/site/fe/matter/mission/main');
 		exit;
 	}
@@ -17,6 +27,16 @@ class main extends \site\fe\matter\base {
 	 *
 	 */
 	public function board_action() {
+		$oMission = $this->model('matter\mission')->byId($mission, ['fields' => 'id,entry_rule']);
+		if (false === $oMission) {
+			return new \ObjectNotFoundError();
+		}
+
+		/* 检查是否需要第三方社交帐号OAuth */
+		if (!$this->afterSnsOAuth()) {
+			$this->requireSnsOAuth($oMission);
+		}
+
 		\TPL::output('/site/fe/matter/mission/board');
 		exit;
 	}

@@ -5,7 +5,7 @@ define(['frame'], function(ngApp) {
         $scope.status = status = {
             user: { member: [] }
         };
-        $scope.$watch('mission.entry_rule', function(oRule) {
+        $scope.$watch('mission.entryRule', function(oRule) {
             if (!oRule) return;
             if (oRule.scope === 'member') {
                 var mschemaIds = Object.keys(oRule.member);

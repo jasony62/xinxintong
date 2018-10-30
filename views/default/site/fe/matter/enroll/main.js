@@ -113,7 +113,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
     };
     $scope.askBecomeMember = function() {
         var url, mschemaIds;
-        if ($scope.app.entry_rule && $scope.app.entryRule.scope.member === 'Y') {
+        if ($scope.app.entryRule && $scope.app.entryRule.scope.member === 'Y') {
             mschemaIds = Object.keys($scope.app.entryRule.member);
             if (mschemaIds.length === 1) {
                 url = '/rest/site/fe/user/member?site=' + $scope.app.siteid;
@@ -195,7 +195,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation'
             } else {
                 return true;
             }
-        }else {
+        } else {
             return true;
         }
     }

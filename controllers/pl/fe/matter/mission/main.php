@@ -191,10 +191,10 @@ class main extends \pl\fe\matter\base {
 		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewMis, 'C');
 
 		/* entry rule */
-		if (isset($oProto->entryRule)) {
+		if (isset($oProto->entryRule->scope)) {
 			$oMisEntryRule = new \stdClass;
-			$oMisEntryRule->scope = isset($oProto->entryRule->scope) ? $oProto->entryRule->scope : 'none';
-			if ($oMisEntryRule->scope === 'member' && !empty($oProto->entryRule->mschema)) {
+			if ($oProto->entryRule->scope === 'member' && !empty($oProto->entryRule->mschema)) {
+				$this->setDeepValue($oMisEntryRule, 'scope.member', 'Y');
 				$oMisEntryRule->member = new \stdClass;
 				if ($oProto->entryRule->mschema->id === '_pending') {
 					/* 给项目创建通讯录 */
@@ -207,7 +207,8 @@ class main extends \pl\fe\matter\base {
 					$oProto->entryRule->mschema->id = $oMisMschema->id;
 				}
 				$oMisEntryRule->member->{$oProto->entryRule->mschema->id} = (object) ['entry' => ''];
-			} else if ($oMisEntryRule->scope === 'sns' && isset($oProto->entryRule->sns)) {
+			} else if ($oProto->entryRule->scope === 'sns' && isset($oProto->entryRule->sns)) {
+				$this->setDeepValue($oMisEntryRule, 'scope.sns', 'Y');
 				$oMisEntryRule->sns = new \stdClass;
 				foreach ($oProto->entryRule->sns as $snsName => $valid) {
 					if ($valid === 'Y') {
@@ -315,8 +316,9 @@ class main extends \pl\fe\matter\base {
 		if (isset($oPosted->summary)) {
 			$oPosted->summary = $modelMis->escape($oPosted->summary);
 		}
-		if (isset($oPosted->entry_rule)) {
-			$oPosted->entry_rule = $modelMis->escape($modelMis->toJson($oPosted->entry_rule));
+		if (isset($oPosted->entryRule)) {
+			$oPosted->entry_rule = $modelMis->escape($modelMis->toJson($oPosted->entryRule));
+			unset($oPosted->entryRule);
 		}
 		if (isset($oPosted->round_cron)) {
 			$oPosted->round_cron = $modelMis->escape($modelMis->toJson($oPosted->round_cron));

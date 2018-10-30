@@ -1,71 +1,32 @@
 <div class='col-md-6 col-md-offset-3'>
-    <div class='panel panel-default' ng-controller="ctrlAccess">
+    <div id='main-access' class='panel panel-default' ng-controller='ctrlAccess'>
         <div class='panel-body'>
             <div class='form-group'>
-                <label>参与人进入规则 <span class='glyphicon glyphicon-question-sign' uib-tooltip='项目下创建活动时，默认设置的进入规则。' tooltip-placement='bottom'></span></label>
-                <div class='radio'>
+                <label>设置参与规则</label>
+                <div class="checkbox">
                     <label>
-                        <input type='radio' value='member' ng-model="rule.scope" ng-change="changeUserScope()">限通讯录联系人访问</label>
+                        <input type="checkbox" ng-true-value="'Y'" ng-model="rule.scope.register" ng-change="changeUserScope('register')">用户参与活动前需完成平台注册</label>
                 </div>
-                <div class='radio' ng-if="snsCount>0">
+                <div class='checkbox'>
                     <label>
-                        <input type='radio' value='sns' ng-model="rule.scope" ng-change="changeUserScope()">限公众号关注用户访问</label>
+                        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.member" ng-change="changeUserScope('member')">用户参与活动前需填写通讯录联系人信息</label><span ng-if="rule.scope.member==='Y'"><span class='badge' ng-repeat="(msid,entry) in rule.member"><a href title='进入查看' ng-click="editMschema(mschemasById[msid])">{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</a> <a href title='取消指定' class='glyphicon glyphicon-remove' ng-click="removeMschema(msid)"></a></span> <a href ng-click="chooseMschema()">添加</a></span>
+                    <div style='margin-left:20px'>
+                        <label class='checkbox-inline'>
+                            <input type='checkbox' ng-true-value="'Y'" ng-model="rule.optional.member" ng-change="changeUserScope('member')">不强制要求用户在通讯录中</label>
+                    </div>
                 </div>
-                <div class='radio'>
+                <div class='checkbox' ng-if="snsCount===1">
                     <label>
-                        <input type='radio' value='none' ng-model="rule.scope" ng-change="changeUserScope()">不限制</label>
+                        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.sns" ng-change="changeUserScope('sns')">邀请用户关注公众号【{{sns[snsNames[0]].title}}】，以便获取用户的昵称和头像，向用户发送活动通知</label>
                 </div>
-            </div>
-            <div ng-if="rule.scope==='member'">
-                <table class='table table-bordered'>
-                    <thead>
-                        <tr>
-                            <th>通讯录</th>
-                            <th style='width:69px'>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="(msid,erm) in mission.entry_rule.member">
-                            <td><span>{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</span></td>
-                            <td>
-                                <button class='btn btn-default btn-xs' ng-click="editMschema(mschemasById[msid])"><span class='glyphicon glyphicon-edit'></span></button>
-                                <button class='btn btn-default btn-xs' ng-click="removeMschema(msid)"><span class='glyphicon glyphicon-remove'></span></button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <button class='btn btn-default' ng-click="chooseMschema()">选择通讯录</button>
-            </div>
-            <div ng-if="rule.scope==='sns'&&snsCount>1">
-                <table class='table table-bordered'>
-                    <tbody>
-                        <tr>
-                            <th>公众号</th>
-                            <th style='width:69px'>操作</th>
-                        </tr>
-                        <tr ng-if="sns.wx">
-                            <td>微信公众号关注用户</td>
-                            <td>
-                                <label class='checkbox-inline'>
-                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-change="update('entry_rule')" ng-model='mission.entry_rule.sns.wx.entry'>生效</label>
-                            </td>
-                        </tr>
-                        <tr ng-if="sns.qy">
-                            <td>微信企业号关注用户</td>
-                            <td>
-                                <label class='checkbox-inline'>
-                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-change="update('entry_rule')" ng-model='mission.entry_rule.sns.qy.entry'>生效</label>
-                            </td>
-                        </tr>
-                        <tr ng-if="sns.yx">
-                            <td>易信公众号关注用户</td>
-                            <td>
-                                <label class='checkbox-inline'>
-                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-change="update('entry_rule')" ng-model='mission.entry_rule.sns.yx.entry'>生效</label>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class='checkbox' ng-if="snsCount>1">
+                    <label>
+                        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.sns" ng-change="changeUserScope('sns')">邀请用户关注公众号，以便获取用户的昵称和头像，向用户发送活动通知</label>
+                    <div ng-if="rule.scope.sns==='Y'" style='margin-left:20px'>
+                        <label class='checkbox-inline' ng-repeat="snsName in snsNames">
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-model="rule.sns[snsName].entry" ng-change="update('entryRule')"> {{sns[snsName].title}}</label>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -122,20 +83,9 @@
             </div>
         </div>
     </div>
-    <script type="text/ng-template" id="opUrlPasswd.html">
-        <div id="opUrlPasswd">
-            <div class='form-group'>
-                <div class='input-group'>
-                    <input class='form-control' ng-model="opEntry.password">
-                    <div class='input-group-btn'>
-                        <button class='btn btn-default' ng-click="configOpUrl($event,'password')">设置</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </script>
-    <script type="text/ng-template" id="assignUserApp.html">
-        <div class="modal-header">
+</div>
+<script type="text/ng-template" id="assignUserApp.html">
+    <div class="modal-header">
             <button class="close" type="button" ng-click="cancel()">×</button>
             <h5 class="modal-title">指定项目用户名单</h5>
         </div>

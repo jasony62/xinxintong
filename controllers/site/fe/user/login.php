@@ -94,8 +94,11 @@ class login extends \site\fe\base {
 			return new \ObjectNotFoundError();
 		}
 		$userAgent = $this->userAgent(); // 客户端类型
-		if (in_array($userAgent, ['wx']) && !empty($oAccount->wx_openid)) {
-			return new \ResponseData('仅支持在微信客户端下进行该操作');
+		if (!in_array($userAgent, ['wx'])) {
+			return new \ResponseError('仅支持在微信客户端下进行该操作');
+		}
+		if (empty($oAccount->wx_openid)) {
+			return new \ResponseError('没有获得有效的用户信息，不能进行自动登录');
 		}
 		if (!empty($oAccount->unionid)) {
 			return new \ParameterError('当前用户已经绑定注册账号，不能用指定注册账号自动登录');

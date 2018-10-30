@@ -1657,9 +1657,9 @@ class record extends main_base {
 				}
 			}
 		}
-		if (empty($aGrpSchemas)) {
-			return new \ParameterError('当前活动没有指定和分组活动关联的题目');
-		}
+		//if (empty($aGrpSchemas)) {
+		//	return new \ParameterError('当前活动没有指定和分组活动关联的题目');
+		//}
 
 		$updatedCount = 0;
 		$modelRec = $this->model('matter\enroll\record');
@@ -1674,7 +1674,7 @@ class record extends main_base {
 				if (false === $oGrpUsr) {
 					continue;
 				}
-				$bModified = false;
+				$bModified = ($oRec->group_id !== $oGrpUsr->round_id);
 				foreach ($aGrpSchemas as $oGrpSchema) {
 					$enlVal = $this->getDeepValue($oUpdatedData, $oGrpSchema->id);
 					if ($overwrite === 'N' && !empty($enlVal)) {
@@ -1694,8 +1694,10 @@ class record extends main_base {
 					continue;
 				}
 				$oMocker->uid = $oRec->userid;
-				$oMocker->group_id = $oRec->group_id;
+				$oMocker->group_id = $oGrpUsr->round_id;
 				$modelRec->setData($oMocker, $oEnlApp, $oRec->enroll_key, $oUpdatedData);
+				$modelRec->update('xxt_enroll_record', ['group_id' => $oMocker->group_id], ['enroll_key' => $oRec->enroll_key]);
+
 				$updatedCount++;
 			}
 		}

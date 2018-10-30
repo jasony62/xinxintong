@@ -29,7 +29,6 @@ $sql[] = 'drop table if exists xxt_enroll';
 $sql[] = 'drop table if exists xxt_enroll_page';
 //$sql[] = 'drop table if exists xxt_enroll_record_schema';
 $sql[] = 'drop table if exists xxt_enroll_round';
-$sql[] = 'drop table if exists xxt_enroll_receiver';
 $sql[] = 'drop table if exists xxt_enroll_record';
 //$sql[] = 'drop table if exists xxt_enroll_signin_log';
 $sql[] = 'drop table if exists xxt_enroll_record_score';

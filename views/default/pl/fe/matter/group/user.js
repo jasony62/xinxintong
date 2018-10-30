@@ -33,7 +33,6 @@ define(['frame'], function(ngApp) {
             srvGroupPlayer.execute();
         };
         $scope.list = function(arg) {
-            console.log(arg);
             if (_oCriteria[arg].round_id === 'all') {
                 srvGroupPlayer.list(null, arg);
             } else if (_oCriteria[arg].round_id === 'pending') {

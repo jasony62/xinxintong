@@ -379,10 +379,11 @@ class account_model extends \TMS_MODEL {
 		if ('1' === $this->query_val_ss($q)) {
 			$this->delete(
 				'xxt_site_account',
-				"uid='$uid'"
+				['uid' => $uid]
 			);
 			return true;
 		}
+
 		return false;
 	}
 }

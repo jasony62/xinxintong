@@ -12,6 +12,7 @@ class login extends \site\fe\base {
 		$rule_action['actions'] = array();
 		$rule_action['actions'][] = 'index';
 		$rule_action['actions'][] = 'do';
+		$rule_action['actions'][] = 'byRegAndWxopenid';
 		$rule_action['actions'][] = 'getCaptcha';
 
 		return $rule_action;
@@ -82,36 +83,61 @@ class login extends \site\fe\base {
 		return new \ResponseData($cookieUser);
 	}
 	/**
-	 * 用微信openid进行登录
+	 * 用指定注册账号和微信公众号openid登录
 	 */
-	public function wxopenid_action() {
+	public function byRegAndWxopenid_action() {
 		$oUser = clone $this->who;
-		if (empty($oUser->sns->wx->openid)) {
-			return new \ResponseError("登录信息不完整（1）");
+		/* 站点用户信息 */
+		$modelAnt = $this->model('site\user\account');
+		$oAccount = $modelAnt->byId($oUser->uid, ['fields' => 'uid,siteid,unionid,coin,headimgurl,wx_openid,is_wx_primary,is_reg_primary']);
+		if (false === $oAccount) {
+			return new \ObjectNotFoundError();
+		}
+		$userAgent = $this->userAgent(); // 客户端类型
+		if (in_array($userAgent, ['wx']) && !empty($oAccount->wx_openid)) {
+			return new \ResponseData('仅支持在微信客户端下进行该操作');
+		}
+		if (!empty($oAccount->unionid)) {
+			return new \ParameterError('当前用户已经绑定注册账号，不能用指定注册账号自动登录');
 		}
 
-		$oSiteUserByOpenid = $this->model('site\user\account')->byPrimaryOpenid($this->siteId, 'wx', $oUser->sns->wx->openid);
-		if (false === $oSiteUserByOpenid) {
-			return new \ResponseError("登录信息不完整（2）");
-		}
-		if (empty($oSiteUserByOpenid->unionid)) {
-			return new \ResponseError("登录信息不完整（3）");
-		}
+		$oAssignedRegUser = $this->getPostJson();
 
 		$modelReg = $this->model('site\user\registration');
-		$oRegistration = $modelReg->byId($oSiteUserByOpenid->unionid);
+		$oRegUser = $modelReg->byId($oAssignedRegUser->unionid);
+		if (false === $oRegUser) {
+			return new \ObjectNotFoundError('指定的注册账号不存在');
+		}
 
-		/* 记录登录状态 */
-		$fromip = $this->client_ip();
-		$modelReg->updateLastLogin($oRegistration->unionid, $fromip);
+		$bFound = false;
+		$aUnionids = $modelAnt->byOpenid(null, 'wx', $oAccount->wx_openid, ['is_reg_primary' => 'Y', 'fields' => 'distinct unionid']);
+		foreach ($aUnionids as $oUnionid) {
+			if ($oRegUser->unionid === $oUnionid->unionid) {
+				$bFound = true;
+				break;
+			}
+		}
 
+		if (false === $bFound) {
+			return new \ObjectNotFoundError('指定的注册账号没有和微信进行绑定，请通过登录操作进行绑定');
+		}
+
+		/* 更新数据 */
+		$aUpdated = ['unionid' => $oRegUser->unionid];
+		$oPrimaryReg = $modelAnt->byPrimaryUnionid($oAccount->siteid, $oRegUser->unionid);
+		if (false === $oPrimaryReg) {
+			$aUpdated['is_reg_primary'] = 'Y';
+		}
+
+		$modelAnt->update('xxt_site_account', $aUpdated, ['uid' => $oAccount->uid]);
+
+		/* 更新cookie数据 */
 		$modelWay = $this->model('site\fe\way');
-		/* cookie中保留注册信息 */
-		$modelWay->shiftRegUser($oRegistration);
+		$oCookieUser = $modelWay->getCookieUser($oAccount->siteid);
+		$oCookieUser->unionid = $oRegUser->unionid;
+		$modelWay->setCookieUser($oAccount->siteid, $oCookieUser);
 
-		$cookieUser = $modelWay->who($this->siteId);
-
-		return new \ResponseData($cookieUser);
+		return new \ResponseData('ok');
 	}
 	/**
 	 * 获取验证码

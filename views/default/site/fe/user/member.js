@@ -160,13 +160,9 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
             });
         });
     };
-    $scope.wxLogin = function() {
-        http2.get('/rest/site/fe/user/login/wxopenid?site=' + LS.s().site).then(function(rsp) {
-            http2.get(LS.j('get', 'site', 'schema')).then(function(rsp) {
-                var user = rsp.data;
-                $scope.user = user;
-                setMember(user);
-            });
+    $scope.loginByReg = function(oRegUser) {
+        http2.post('/rest/site/fe/user/login/byRegAndWxopenid?site=' + LS.s().site, oRegUser).then(function(rsp) {
+            location.reload(true);
         });
     };
     $scope.logout = function() {
@@ -227,7 +223,7 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
     };
     $scope.shiftRegUser = function(oOtherRegUser) {
         http2.post('/rest/site/fe/user/shiftRegUser?site=' + LS.s().site, { uname: oOtherRegUser.uname }).then(function(rsp) {
-            location.reload();
+            location.reload(true);
         });
     };
     http2.get('/rest/site/fe/get?site=' + LS.s().site).then(function(rsp) {
@@ -256,8 +252,11 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
                 });
                 /* 解决多个注册账号的问题 */
                 http2.get('/rest/site/fe/user/get?site=' + LS.s().site).then(function(rsp) {
-                    if (rsp.data.registersByWx) {
-                        $scope.user.registersByWx = rsp.data.registersByWx;
+                    if (rsp.data.siteRegistersByWx) {
+                        $scope.user.siteRegistersByWx = rsp.data.siteRegistersByWx;
+                    }
+                    if (rsp.data.plRegistersByWx) {
+                        $scope.user.plRegistersByWx = rsp.data.plRegistersByWx;
                     }
                 });
             });

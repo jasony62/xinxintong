@@ -10,7 +10,7 @@ class main extends \site\fe\matter\base {
 	 *
 	 */
 	public function index_action($mission) {
-		$oMission = $this->model('matter\mission')->byId($mission, ['fields' => 'id,entry_rule']);
+		$oMission = $this->model('matter\mission')->byId($mission, ['fields' => 'id,siteid,entry_rule']);
 		if (false === $oMission) {
 			return new \ObjectNotFoundError();
 		}
@@ -27,7 +27,7 @@ class main extends \site\fe\matter\base {
 	 *
 	 */
 	public function board_action() {
-		$oMission = $this->model('matter\mission')->byId($mission, ['fields' => 'id,entry_rule']);
+		$oMission = $this->model('matter\mission')->byId($mission, ['fields' => 'id,siteid,entry_rule']);
 		if (false === $oMission) {
 			return new \ObjectNotFoundError();
 		}

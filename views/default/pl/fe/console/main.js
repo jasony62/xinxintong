@@ -44,16 +44,10 @@ define(['frame'], function(ngApp) {
                     break;
                 case 'enroll':
                     $uibModal.open({
-                        templateUrl: '/views/default/pl/fe/_module/copyMatter.html?_=1',
+                        templateUrl: '/views/default/pl/fe/_module/copyMatter.html?_=3',
                         controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
                             var criteria;
-                            $scope2.pageOfMission = {
-                                at: '1',
-                                size: '5',
-                                j: function() {
-                                    return '&page=' + this.at + '&size=' + this.size;
-                                }
-                            };
+                            $scope2.pageOfMission = {};
                             $scope2.criteria = criteria = {
                                 'mission_id': '',
                                 'byTitle': '',
@@ -64,9 +58,9 @@ define(['frame'], function(ngApp) {
                                 if (nv === 'Y') { criteria.isMatterAction = 'Y' };
                             });
                             $scope2.doMission = function() {
-                                var url = '/rest/pl/fe/matter/mission/list?site=' + siteid + $scope2.pageOfMission.j() + '&field=id,title',
+                                var url = '/rest/pl/fe/matter/mission/list?site=' + siteid + '&field=id,title',
                                     params = { byTitle: criteria.byTitle };
-                                http2.post(url, params).then(function(rsp) {
+                                http2.post(url, params, { page: $scope2.pageOfMission }).then(function(rsp) {
                                     if (rsp.data) {
                                         $scope2.missions = rsp.data.missions;
                                         $scope2.pageOfMission.total = rsp.data.total;
@@ -84,7 +78,7 @@ define(['frame'], function(ngApp) {
                                     mission: criteria.mission_id
                                 });
                             };
-                            $scope2.cancle = function() {
+                            $scope2.cancel = function() {
                                 $mi.dismiss();
                             }
                             $scope2.doMission();
@@ -197,18 +191,6 @@ define(['frame'], function(ngApp) {
         //     filter2.byTitle = filter.byTitle;
         //     filter2.byTags = filter.byTags
         // }
-        var aUnionMatterTypes;
-        aUnionMatterTypes = [];
-        cstApp.matterNames.appOrder.forEach(function(name) {
-            if (name === 'enroll') {
-                CstNaming.scenario.enrollIndex.forEach(function(scenario) {
-                    aUnionMatterTypes.push({ name: 'enroll.' + scenario, label: CstNaming.scenario.enroll[scenario] });
-                });
-            } else {
-                aUnionMatterTypes.push({ name: name, label: cstApp.matterNames.app[name] });
-            }
-        });
-        $scope.unionMatterTypes = aUnionMatterTypes;
         $scope.scenarioNames = CstNaming.scenario.enroll;
         $scope.page = _oPage = {};
         $scope.list = function(pageAt) {
@@ -220,9 +202,7 @@ define(['frame'], function(ngApp) {
             if (_oCriteria.bySite) {
                 if (oMatter.type) {
                     url = '/rest/pl/fe/matter/' + oMatter.type + '/list?site=' + _oCriteria.bySite;
-                    if (oMatter.type === 'enroll') {
-                        url += '&scenario=' + oMatter.scenario;
-                    } else if (oMatter.type === 'signin') {
+                    if (oMatter.type === 'signin') {
                         url += '&cascaded=opData';
                     }
                     url += '&_=' + t;
@@ -239,7 +219,6 @@ define(['frame'], function(ngApp) {
             }
         };
         var _oCriteria;
-        $scope.unionType = '';
         $scope.criteria = _oCriteria = {
             matter: {},
             orderBy: '',
@@ -258,21 +237,6 @@ define(['frame'], function(ngApp) {
             if (!nv) return;
             _oCriteria.bySite = nv;
             //$scope.getMatterTag();
-        });
-        $scope.$watch('unionType', function(nv) {
-            var aUnionType;
-            if (nv) {
-                aUnionType = nv.split('.');
-                _oCriteria.matter.type = aUnionType[0];
-                if (aUnionType.length === 2) {
-                    _oCriteria.matter.scenario = aUnionType[1];
-                } else {
-                    delete _oCriteria.matter.scenario;
-                }
-            } else {
-                _oCriteria.matter.type = '';
-                _oCriteria.matter.scenario = '';
-            }
         });
         $scope.$watch('criteria', function(nv, ov) {
             if (!nv) return;

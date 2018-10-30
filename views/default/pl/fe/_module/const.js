@@ -8,10 +8,10 @@ constant('CstNaming', {
         },
         docOrder: ['article', 'link', 'channel'],
         app: {
-            'enroll': '登记',
+            'enroll': '记录',
             'signin': '签到',
             'group': '分组',
-            'plan': '计划任务',
+            'plan': '计划',
             'wall': '信息墙',
             'memberschema': '通讯录'
         },
@@ -19,7 +19,7 @@ constant('CstNaming', {
     },
     scenario: {
         enroll: {
-            'common': '通用登记',
+            'common': '通用记录',
             'registration': '报名',
             'voting': '投票',
             'quiz': '测验',
@@ -53,7 +53,7 @@ constant('CstNaming', {
         url: '/rest/pl/fe/matter'
     }, {
         value: 'enroll',
-        title: '登记活动',
+        title: '记录活动',
         url: '/rest/pl/fe/matter'
     }],
     mission: {}

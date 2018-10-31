@@ -16,8 +16,8 @@ class player extends \pl\fe\matter\base {
 	/**
 	 * 查看分组数据
 	 */
-	public function list_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+	public function list_action($app) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 

@@ -6,10 +6,10 @@
                 <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected" ng-change="selectAllRows(rows.allSelected)">
             </th>
             <th style='width:48px'>操作</th>
-            <th style='width:72px' ng-if="bRequireNickname">用户</th>
-            <th style='width:120px' class='th-action' data-filter-by='round_title' uib-popover-template="'filterByTeam.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">主分组 <i class='glyphicon glyphicon-filter'></i></th>
+            <th style='width:72px' ng-if="bRequireNickname" class='th-action' data-filter-by='nickname' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">用户 <i class='glyphicon glyphicon-filter'></i></th>
+            <th style='width:120px' class='th-action' data-filter-by='round' uib-popover-template="'filterByTeam.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">主分组 <i class='glyphicon glyphicon-filter'></i></th>
             <th style='width:120px'>主分组内角色</th>
-            <th style='width:120px' class='th-action' data-filter-by='role_round_title' uib-popover-template="'filterByRole.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">辅助分组 <i class='glyphicon glyphicon-filter'></i></th>
+            <th style='width:120px' class='th-action' data-filter-by='roleRound' uib-popover-template="'filterByRole.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">辅助分组 <i class='glyphicon glyphicon-filter'></i></th>
             <th ng-class="{nickname:schema.id===app.assignedNickname.schema.id}" ng-repeat="schema in app._schemasById">{{schema.title}}</th>
             <th style='width:140px' ng-if="app.tags.length">标签</th>
             <th style='width:140px'>备注</th>
@@ -21,10 +21,10 @@
         <tr ng-repeat='p in players' class='player'>
             <td>{{$index+1}}</td>
             <td>
-                <input type='checkbox' ng-model="rows.selected[$index]" ng-change="selectPlayer(p)">
+                <input type='checkbox' ng-model="rows.selected[$index]" ng-change="selectUser(p)">
             </td>
             <td>
-                <button class='btn btn-xs btn-default' ng-click='editPlayer(p)'>
+                <button class='btn btn-xs btn-default' ng-click='editUser(p)'>
                     <span class='glyphicon glyphicon-edit'></span>
                 </button>
             </td>
@@ -47,13 +47,28 @@
             <td ng-if="app.tags.length">{{p.tags}}</td>
             <td>{{p.comment}}</td>
             <td>
-                <button class='btn btn-xs btn-danger' ng-click='removePlayer(p)'>
+                <button class='btn btn-xs btn-danger' ng-click='removeUser(p)'>
                     <span class='glyphicon glyphicon-remove'></span>
                 </button>
             </td>
         </tr>
     </tbody>
 </table>
+<script type="text/ng-template" id="filterBy.html">
+    <div class="form-group">
+        <div class='input-group'>
+            <input type="text" ng-model="filter.keyword" class="form-control" ng-keypress='filter.keyUp($event)' autofocus>
+            <div class="input-group-btn">
+                <button class='btn btn-default' ng-disabled="!filter.keyword" ng-click="filter.keyword=''"><i class='glyphicon glyphicon-erase'></i></button>
+            </div>
+        </div>
+    </div>
+    <div class='text-right'>
+        <button class='btn btn-default' ng-click="filter.cancel()">取消筛选</button>
+        <button class='btn btn-default' ng-click="filter.exec()">进行筛选</button>
+        <button class='btn btn-default' ng-click="filter.close()"><i class='glyphicon glyphicon-remove'></i></button>
+    </div>
+</script>
 <script type="text/ng-template" id="filterByTeam.html">
     <div class="form-group">
         <select class='form-control' ng-model="criteria.round.round_id">
@@ -63,8 +78,8 @@
         </select>
     </div>
     <div class='text-right'>
-        <button class='btn btn-default' ng-click="filter.cancel('round')">取消筛选</button>
-        <button class='btn btn-default' ng-click="filter.exec('round')">进行筛选</button>
+        <button class='btn btn-default' ng-click="filter.cancel()">取消筛选</button>
+        <button class='btn btn-default' ng-click="filter.exec()">进行筛选</button>
         <button class='btn btn-default' ng-click="filter.close()"><i class='glyphicon glyphicon-remove'></i></button>
     </div>
 </script>
@@ -77,8 +92,8 @@
         </select>
     </div>
     <div class='text-right'>
-        <button class='btn btn-default' ng-click="filter.cancel('roleRound')">取消筛选</button>
-        <button class='btn btn-default' ng-click="filter.exec('roleRound')">进行筛选</button>
+        <button class='btn btn-default' ng-click="filter.cancel()">取消筛选</button>
+        <button class='btn btn-default' ng-click="filter.exec()">进行筛选</button>
         <button class='btn btn-default' ng-click="filter.close()"><i class='glyphicon glyphicon-remove'></i></button>
     </div>
 </script>

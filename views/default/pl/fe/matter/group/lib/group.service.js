@@ -440,12 +440,12 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                     });
                 }
             },
-            list: function(round, arg) {
-                arg == 'round' ? commonRound(this) : roleRound(this);
+            list: function(round, arg, filterByKeyword) {
+                arg === 'round' ? teamRound(this) : roleRound(this);
 
-                function commonRound(obj) {
+                function teamRound(obj) {
                     if (round === null) {
-                        return obj.all({});
+                        return obj.all(filterByKeyword || {});
                     } else if (round === false) {
                         return obj.pendings('T');
                     } else {
@@ -455,7 +455,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
 
                 function roleRound(obj) {
                     if (round === null) {
-                        return obj.all({});
+                        return obj.all(filterByKeyword || {});
                     } else if (round === false) {
                         return obj.pendings('R');
                     } else {
@@ -465,18 +465,18 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
             },
             all: function(oFilter) {
                 var defer = $q.defer(),
-                    url = '/rest/pl/fe/matter/group/player/list?site=' + _siteId + '&app=' + _appId;
+                    url = '/rest/pl/fe/matter/group/user/list?app=' + _appId;
 
                 _aPlayers.splice(0, _aPlayers.length);
                 http2.post(url, oFilter).then(function(rsp) {
                     if (rsp.data.total) {
-                        rsp.data.players.forEach(function(player) {
-                            tmsSchema.forTable(player, _oApp._schemasById);
-                            srvGroupApp.dealData(player);
-                            _aPlayers.push(player);
+                        rsp.data.users.forEach(function(oUser) {
+                            tmsSchema.forTable(oUser, _oApp._schemasById);
+                            srvGroupApp.dealData(oUser);
+                            _aPlayers.push(oUser);
                         });
                     }
-                    defer.resolve(rsp.data.players);
+                    defer.resolve(rsp.data.users);
                 });
                 return defer.promise;
             },

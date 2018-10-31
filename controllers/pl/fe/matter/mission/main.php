@@ -193,7 +193,7 @@ class main extends \pl\fe\matter\base {
 		/* entry rule */
 		if (isset($oProto->entryRule->scope)) {
 			$oMisEntryRule = new \stdClass;
-			if ($oProto->entryRule->scope === 'member' && !empty($oProto->entryRule->mschema)) {
+			if ($this->getDeepValue($oProto->entryRule->scope, 'member') === true && !empty($oProto->entryRule->mschema)) {
 				$this->setDeepValue($oMisEntryRule, 'scope.member', 'Y');
 				$oMisEntryRule->member = new \stdClass;
 				if ($oProto->entryRule->mschema->id === '_pending') {
@@ -207,7 +207,8 @@ class main extends \pl\fe\matter\base {
 					$oProto->entryRule->mschema->id = $oMisMschema->id;
 				}
 				$oMisEntryRule->member->{$oProto->entryRule->mschema->id} = (object) ['entry' => ''];
-			} else if ($oProto->entryRule->scope === 'sns' && isset($oProto->entryRule->sns)) {
+			}
+			if ($this->getDeepValue($oProto->entryRule->scope, 'sns') === true && isset($oProto->entryRule->sns)) {
 				$this->setDeepValue($oMisEntryRule, 'scope.sns', 'Y');
 				$oMisEntryRule->sns = new \stdClass;
 				foreach ($oProto->entryRule->sns as $snsName => $valid) {

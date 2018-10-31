@@ -817,15 +817,17 @@ controller('ComboxController', ['$scope', function($scope) {
             $(this.target).trigger('hide');
         },
         cancel: function() {
+            var by;
+            by = this.oOutside.by;
             this.oOutside.keyword = this.keyword = '';
             this.oOutside.by = '';
             this.close();
-            this.fnCallbck && this.fnCallbck(this.oOutside);
+            this.fnCallbck && this.fnCallbck(this.oOutside, by);
         },
         exec: function() {
             this.oOutside.keyword = this.keyword;
             this.oOutside.by = this.keyword ? this.target.dataset.filterBy : '';
-            this.fnCallbck && this.fnCallbck(this.oOutside);
+            this.fnCallbck && this.fnCallbck(this.oOutside, this.target.dataset.filterBy, this.oOutside.keyword);
             this.close();
         },
         keyUp: function(event) {

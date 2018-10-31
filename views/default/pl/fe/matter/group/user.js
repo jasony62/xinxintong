@@ -1,7 +1,7 @@
 define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlUser', ['$scope', 'noticebox', 'srvGroupApp', 'srvGroupRound', 'srvGroupPlayer', 'srvMemberPicker', function($scope, noticebox, srvGroupApp, srvGroupRound, srvGroupPlayer, srvMemberPicker) {
+    ngApp.provider.controller('ctrlUser', ['$scope', 'noticebox', 'srvGroupApp', 'srvGroupRound', 'srvGroupPlayer', 'srvMemberPicker', 'facListFilter', function($scope, noticebox, srvGroupApp, srvGroupRound, srvGrpUsr, srvMemberPicker, facListFilter) {
         $scope.syncByApp = function(data) {
-            srvGroupApp.syncByApp().then(function(count) {
+            srvGroupApp.syncBƒApp().then(function(count) {
                 $scope.list('round');
             });
         };
@@ -30,40 +30,40 @@ define(['frame'], function(ngApp) {
             srvGroupApp.export();
         };
         $scope.execute = function() {
-            srvGroupPlayer.execute();
+            srvGrpUsr.execute();
         };
         $scope.list = function(arg) {
             if (_oCriteria[arg].round_id === 'all') {
-                srvGroupPlayer.list(null, arg);
+                srvGrpUsr.list(null, arg);
             } else if (_oCriteria[arg].round_id === 'pending') {
-                srvGroupPlayer.list(false, arg);
+                srvGrpUsr.list(false, arg);
             } else {
-                srvGroupPlayer.list(_oCriteria[arg], arg);
+                srvGrpUsr.list(_oCriteria[arg], arg);
             }
         };
-        $scope.editPlayer = function(player) {
-            srvGroupPlayer.edit(player).then(function(updated) {
-                srvGroupPlayer.update(player, updated.player);
+        $scope.editUser = function(oUser) {
+            srvGrpUsr.edit(oUser).then(function(updated) {
+                srvGrpUsr.update(oUser, updated.player);
                 srvGroupApp.update('tags');
             });
         };
-        $scope.addPlayer = function() {
-            srvGroupPlayer.edit({ tags: '', role_rounds: [] }).then(function(updated) {
-                srvGroupPlayer.add(updated.player);
+        $scope.addUser = function() {
+            srvGrpUsr.edit({ tags: '', role_rounds: [] }).then(function(updated) {
+                srvGrpUsr.add(updated.player);
             });
         };
-        $scope.removePlayer = function(player) {
+        $scope.removeUser = function(oUser) {
             if (window.confirm('确认删除？')) {
-                srvGroupPlayer.remove(player);
+                srvGrpUsr.remove(oUser);
             }
         };
         $scope.empty = function() {
-            srvGroupPlayer.empty();
+            srvGrpUsr.empty();
         };
-        $scope.selectPlayer = function(player) {
+        $scope.selectUser = function(oUser) {
             var players = $scope.rows.players,
-                i = players.indexOf(player);
-            i === -1 ? players.push(player) : players.splice(i, 1);
+                i = players.indexOf(oUser);
+            i === -1 ? players.push(oUser) : players.splice(i, 1);
         };
         // 选中或取消选中所有行
         $scope.selectAllRows = function(checked) {
@@ -80,51 +80,20 @@ define(['frame'], function(ngApp) {
         };
         $scope.quitGroup = function(users) {
             if (users.length) {
-                srvGroupPlayer.quitGroup(users).then(function() {
+                srvGrpUsr.quitGroup(users).then(function() {
                     $scope.rows.reset();
                 });
             }
         };
         $scope.joinGroup = function(oRound, users) {
             if (users.length && oRound) {
-                srvGroupPlayer.joinGroup(oRound, users).then(function() {
+                srvGrpUsr.joinGroup(oRound, users).then(function() {
                     $scope.rows.reset();
                 });
             }
         };
         $scope.notify = function(isBatch) {
-            srvGroupPlayer.notify(isBatch ? $scope.rows : undefined);
-        };
-        $scope.filter = {
-            show: function(event) {
-                var eleKw;
-                this.target = event.target;
-                while (this.target.tagName !== 'TH') {
-                    this.target = this.target.parentNode;
-                }
-                if (!this.target.dataset.filterBy) {
-                    alert('没有指定过滤字段【data-filter-by】');
-                    return;
-                }
-                $(this.target).trigger('show');
-            },
-            close: function() {
-                if (this.keyword) {
-                    this.target.classList.add('active');
-                } else {
-                    this.target.classList.remove('active');
-                }
-                $(this.target).trigger('hide');
-            },
-            cancel: function(arg) {
-                _oCriteria[arg].round_id = 'all';
-                $scope.list(arg);
-                this.close();
-            },
-            exec: function(arg) {
-                $scope.list(arg);
-                this.close();
-            }
+            srvGrpUsr.notify(isBatch ? $scope.rows : undefined);
         };
         var players, _oCriteria;
         $scope.players = players = [];
@@ -145,11 +114,19 @@ define(['frame'], function(ngApp) {
             round: { round_id: 'all' },
             roleRound: { round_id: 'all' }
         };
+        $scope.filter = facListFilter.init(function(oFilterData, filterByProp, filterByKeyword) {
+            if (/round|roleRound/.test(filterByProp)) {
+                $scope.list(filterByProp);
+            } else if ('nickname' === filterByProp) {
+                srvGrpUsr.list(null, 'round', { by: filterByProp, kw: filterByKeyword });
+            }
+        }, _oCriteria);
+
         srvGroupApp.get().then(function(oApp) {
             if (oApp.assignedNickname) {
                 $scope.bRequireNickname = oApp.assignedNickname.valid !== 'Y' || !oApp.assignedNickname.schema;
             }
-            srvGroupPlayer.init(players).then(function() {
+            srvGrpUsr.init(players).then(function() {
                 $scope.list('round');
                 $scope.tableReady = 'Y';
             });

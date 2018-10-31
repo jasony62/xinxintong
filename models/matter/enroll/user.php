@@ -88,7 +88,7 @@ class user_model extends \TMS_MODEL {
 			$oEnlUser = $modelEnlUsr->byId($oApp, $oUser->uid, ['fields' => 'nickname']);
 			if ($oEnlUser) {
 				$oUser->nickname = $oEnlUser->nickname;
-			} 
+			}
 			if (empty($oUser->nickname) || !$oEnlUser) {
 				$modelEnl = $this->model('matter\enroll');
 				$userNickname = $modelEnl->getUserNickname($oApp, $oUser);
@@ -476,9 +476,9 @@ class user_model extends \TMS_MODEL {
 		} else if (!empty($oApp->mission_id)) {
 			$modelMis = $this->model('matter\mission');
 			$oMission = $modelMis->byId($oApp->mission_id, ['fields' => 'user_app_id,user_app_type,entry_rule']);
-			if (isset($oMission->entry_rule->scope) && $oMission->entry_rule->scope === 'member' && !empty($oMission->entry_rule->member)) {
+			if ($this->getDeepValue($oMission->entryRule, 'scope.member') === 'Y' && !empty($oMission->entryRule->member)) {
 				$modelMem = $this->model('site\user\member');
-				foreach ($oMission->entry_rule->member as $mschemaId => $rule) {
+				foreach ($oMission->entryRule->member as $mschemaId => $rule) {
 					$members = $modelMem->byMschema($mschemaId);
 					foreach ($members as $oMember) {
 						$oUser = new \stdClass;

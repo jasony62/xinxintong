@@ -22,8 +22,8 @@
                     <ul uib-dropdown-menu>
                         <li><a href="" ng-click="batchVerify()">选中记录通过审核<span>（{{rows.count}}）</span></a></li>
                         <li><a href="" ng-click="verifyAll()">全部记录通过审核</a></li>
-                        <li><a href="" ng-if="app.entry_rule.scope==='sns'" ng-click="notify(true)">选中记录发送信息<span>（{{rows.count}}）</span></a></li>
-                        <li><a href="" ng-if="app.entry_rule.scope==='sns'" ng-click="notify()">全部记录发送信息</a></li>
+                        <li><a href="" ng-if="app.entryRule.scope==='sns'" ng-click="notify(true)">选中记录发送信息<span>（{{rows.count}}）</span></a></li>
+                        <li><a href="" ng-if="app.entryRule.scope==='sns'" ng-click="notify()">全部记录发送信息</a></li>
                         <li class="divider"></li>
                         <li><a href="" ng-click="export()">导出全部记录</a></li>
                         <li><a href="" ng-click="exportImage()">导出全部图片</a></li>

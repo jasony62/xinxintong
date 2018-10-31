@@ -53,8 +53,8 @@ define(['frame'], function(ngApp) {
         };
         srvSigninApp.get().then(function(app) {
             $scope.jumpPages = srvSigninApp.jumpPages();
-            $scope.rule.scope = app.entry_rule.scope || 'none';
-            oEntryRule = app.entry_rule;
+            $scope.rule.scope = app.entryRule.scope || 'none';
+            oEntryRule = app.entryRule;
         }, true);
     }]);
 });

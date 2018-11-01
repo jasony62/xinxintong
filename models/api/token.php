@@ -39,11 +39,12 @@ class token_model extends \TMS_MODEL {
 		} else {
 			$invToken = $invTokens[0];
 			// 如果token过期，需要重新创建
-			if ($invToken->expire_at < time()) {
+			$current = time();
+			if ($invToken->expire_at <= $current) {
 				$this->update('xxt_site_invoke_token', ['state' => 0], ['id' => $invToken->id]);
 				$invToken = $this->createToken($secret, $invoke);
 			} else {
-				$invToken->expires_in = (int) $invToken->expire_at - time();
+				$invToken->expires_in = (int) $invToken->expire_at - $current;
 			}
 		}
 

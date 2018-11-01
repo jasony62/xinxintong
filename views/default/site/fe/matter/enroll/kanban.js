@@ -46,6 +46,7 @@ ngApp.controller('ctrlAction', ['$scope', 'tmsLocation', 'http2', 'enlRound', fu
     $scope.filter = _oFilter = {};
     $scope.shiftRound = function(oRound) {
         _oFilter.round = oRound;
+        fnGetKanban();
     };
     $scope.kanban = {};
     $scope.$on('xxt.app.enroll.ready', function(event, params) {

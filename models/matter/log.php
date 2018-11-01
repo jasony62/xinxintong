@@ -371,7 +371,7 @@ class log_model extends \TMS_MODEL {
 	public function &listMatterOp($matterId, $matterType, $options = [], $page, $size) {
 		$result = new \stdClass;
 		$q = [
-			'l.operator userid,l.operator_name nickname,l.operation,l.operate_at',
+			'id,l.operator userid,l.operator_name nickname,l.operation,l.operate_at',
 			'xxt_log_matter_op l',
 			"l.matter_type='" . $matterType . "' and l.matter_id='" . $matterId . "'",
 		];

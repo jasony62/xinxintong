@@ -7,14 +7,14 @@ class way_model extends \TMS_MODEL {
 	/**
 	 * 返回当前用户的访客账号信息
 	 */
-	public function who($siteId, $auth = []) {
+	public function who($siteId, $aSnsAuth = []) {
 		$modified = false;
 		/* cookie中缓存的用户信息 */
 		$oCookieUser = $this->getCookieUser($siteId);
 		$oCookieRegUser = $this->getCookieRegUser();
-		if (!empty($auth)) {
+		if (!empty($aSnsAuth)) {
 			/* 有身份用户首次访问，若已经有绑定的站点用户，获取站点用户；否则，创建持久化的站点用户，并绑定关系 */
-			foreach ($auth['sns'] as $snsName => $snsUser) {
+			foreach ($aSnsAuth['sns'] as $snsName => $snsUser) {
 				if ($oCookieUser) {
 					if (isset($oCookieUser->sns->{$snsName}) && $cookieSnsUser = $oCookieUser->sns->{$snsName}) {
 						if ($cookieSnsUser->openid === $snsUser->openid) {
@@ -100,6 +100,7 @@ class way_model extends \TMS_MODEL {
 				$oSiteUser = $modelSiteUser->byPrimaryOpenid($siteId, $snsName, $snsUser->openid);
 				if ($oSiteUser === false) {
 					/* 公众号用户主访客账号不存在，创建 */
+					/* 如果openid已经绑定过注册账号，是否要自动关联注册账号呢？ */
 					$dbSnsUser = $this->_getDbSnsUser($siteId, $snsName, $snsUser);
 					$propsAccount = [
 						'ufrom' => $snsName,

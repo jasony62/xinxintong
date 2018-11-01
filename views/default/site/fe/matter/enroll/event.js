@@ -1,6 +1,10 @@
 'use strict';
 require('./event.css');
 
+require('./_asset/ui.round.js');
+
+window.moduleAngularModules = ['round.ui.enroll'];
+
 var ngApp = require('./main.js');
 ngApp.filter('filterTime', function() {
     return function(e) {
@@ -11,28 +15,7 @@ ngApp.filter('filterTime', function() {
         return result = h + ":" + m + ":" + s;
     }
 });
-ngApp.service('EnlRound', ['http2', '$q', 'tmsLocation', function(http2, $q, LS) {
-    var oPage;
-    oPage = {
-        at: 1,
-        size: 12,
-        j: function() {
-            return '&page=' + this.at + '&size=' + this.size;
-        }
-    };
-    this.list = function() {
-        var deferred = $q.defer(),
-            url;
-        url = LS.j('round/list', 'site', 'app');
-        url += oPage.j();
-        http2.get(url).then(function(rsp) {
-            oPage.total = rsp.data.total;
-            deferred.resolve(rsp.data);
-        });
-        return deferred.promise;
-    };
-}]);
-ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', 'EnlRound', function($scope, $q, LS, http2, EnlRound) {
+ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', 'enlRound', function($scope, $q, LS, http2, enlRound) {
     function fnCloseNotice(oNotice) {
         var url, defer;
         defer = $q.defer();
@@ -45,10 +28,10 @@ ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', 'EnlRoun
         return defer.promise;
     }
 
-    function fnGetKanban(rid) {
+    function fnGetKanban() {
         var url, defer;
         url = LS.j('user/kanban', 'site', 'app');
-        if (rid) url += '&rid=' + rid;
+        url += '&rid=' + _oFilter.round.rid;
         http2.get(url).then(function(rsp) {
             var oUndoneByUserid = {};
             if (rsp.data.users && rsp.data.users.length) {
@@ -71,25 +54,17 @@ ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', 'EnlRoun
         });
     }
     var _oApp, _aLogs, _oPage, _oFilter;
-    $scope.page = _oPage = {
-        at: 1,
-        size: 30,
-        j: function() {
-            return 'page=' + this.at + '&size=' + this.size;
-        }
-    };
-    $scope.subView = 'timeline.html';
-    $scope.filter = _oFilter = { scope: 'N' };
+    $scope.page = _oPage = { size: 30 };
+    $scope.subView = 'kanban.html';
+    $scope.filter = _oFilter = { scope: 'kanban' };
     $scope.searchEvent = function(pageAt) {
         var url, defer;
         pageAt && (_oPage.at = pageAt);
         defer = $q.defer();
         url = LS.j('event/timeline', 'site', 'app');
-        url += '&scope=' + _oFilter.scope || 'A';
-        url += '&' + _oPage.j();
-        http2.get(url).then(function(rsp) {
+        url += '&scope=' + _oFilter.scope || 'kanban';
+        http2.get(url, { page: _oPage }).then(function(rsp) {
             $scope.logs = _aLogs = rsp.data.logs;
-            _oPage.total = rsp.data.total;
             defer.resolve(rsp.data);
         });
         return defer.promise;
@@ -99,10 +74,8 @@ ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', 'EnlRoun
         pageAt && (_oPage.at = pageAt);
         defer = $q.defer();
         url = LS.j('notice/list', 'site', 'app');
-        url += '&' + _oPage.j();
-        http2.get(url).then(function(rsp) {
+        http2.get(url, { page: _oPage }).then(function(rsp) {
             $scope.notices = rsp.data.notices;
-            _oPage.total = rsp.data.total;
             defer.resolve(rsp.data);
         });
         return defer.promise;
@@ -124,25 +97,12 @@ ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', 'EnlRoun
         }
     };
     $scope.shiftRound = function(oRound) {
-        fnGetKanban(oRound ? oRound.rid : '');
+        _oFilter.round = oRound;
     };
     $scope.kanban = {};
-    $scope.$watch('filter', function(nv, ov) {
-        if (nv && nv !== ov) {
-            if (/N/.test(nv.scope)) {
-                $scope.subView = 'timeline.html';
-                $scope.searchNotice(1);
-            } else if (/kanban/.test(nv.scope)) {
-                $scope.subView = 'kanban.html';
-                fnGetKanban();
-            } else {
-                $scope.subView = 'timeline.html';
-                $scope.searchEvent(1);
-            }
-        }
-    }, true)
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         _oApp = params.app;
+        _oFilter.round = _oApp.appRound;
         /* 活动任务 */
         if (_oApp.actionRule) {
             /* 设置活动任务提示 */
@@ -173,13 +133,23 @@ ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', 'EnlRoun
         if (Object.keys(oAppNavs)) {
             $scope.appNavs = oAppNavs;
         }
-        EnlRound.list().then(function(result) {
+        (new enlRound(_oApp)).list().then(function(result) {
             $scope.rounds = result.rounds;
         });
-        $scope.searchNotice(1).then(function(data) {
-            if (data.total === 0) {
-                $scope.filter.scope = 'A';
+        $scope.filter.scope = 'kanban';
+        $scope.$watch('filter', function(nv, ov) {
+            if (nv) {
+                if (/N/.test(nv.scope)) {
+                    $scope.subView = 'timeline.html';
+                    $scope.searchNotice(1);
+                } else if (/kanban/.test(nv.scope)) {
+                    $scope.subView = 'kanban.html';
+                    fnGetKanban();
+                } else {
+                    $scope.subView = 'timeline.html';
+                    $scope.searchEvent(1);
+                }
             }
-        });
+        }, true);
     });
 }]);

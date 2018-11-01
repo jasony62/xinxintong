@@ -204,20 +204,23 @@ ngApp.controller('ctrlSysTemplate', ['$scope', '$location', '$uibModal', 'http2'
             if (oMission) {
                 _oProto.mission = { id: oMission.id, title: oMission.title };
                 _oEntryRule.scope = {};
-                if ('member' === oMission.entry_rule.scope) {
-                    _oEntryRule.scope.member = 'Y';
-                    srvSite.memberSchemaList(oMission).then(function(aMemberSchemas) {
-                        var oMschemasById = {};
-                        aMemberSchemas.forEach(function(mschema) {
-                            oMschemasById[mschema.id] = mschema;
+                if (oMission.entryRule.scope) {
+                    if (oMission.entryRule.scope.member === 'Y') {
+                        _oEntryRule.scope.member = 'Y';
+                        srvSite.memberSchemaList(oMission).then(function(aMemberSchemas) {
+                            var oMschemasById = {};
+                            aMemberSchemas.forEach(function(mschema) {
+                                oMschemasById[mschema.id] = mschema;
+                            });
+                            Object.keys(oMission.entryRule.member).forEach(function(mschemaId) {
+                                _oEntryRule.mschemas.push({ id: mschemaId, title: oMschemasById[mschemaId].title });
+                            });
                         });
-                        Object.keys(oMission.entry_rule.member).forEach(function(mschemaId) {
-                            _oEntryRule.mschemas.push({ id: mschemaId, title: oMschemasById[mschemaId].title });
-                        });
-                    });
-                } else if ('sns' === oMission.entry_rule.scope) {
-                    _oEntryRule.scope.sns = 'Y';
-                    _oResult.proto.sns = oMission.entry_rule.sns;
+                    }
+                    if (oMission.entryRule.scope.sns === 'Y') {
+                        _oEntryRule.scope.sns = 'Y';
+                        _oResult.proto.sns = oMission.entryRule.sns;
+                    }
                 }
                 _oProto.title = oMission.title + '-' + CstNaming.scenario.enroll[assignedScenario] || '登记活动';
             }

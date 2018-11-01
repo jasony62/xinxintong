@@ -12,14 +12,14 @@ class user extends \site\fe\matter\base {
 	 * @param int $mission
 	 */
 	public function rank_action($mission, $page = 1, $size = 36) {
-		$oMission = $this->model('matter\mission')->byId($mission, ['fields' => 'id,entry_rule']);
+		$oMission = $this->model('matter\mission')->byId($mission, ['fields' => 'id,entry_rule,user_app_type,user_app_id']);
 		if (false === $oMission) {
 			return new \ObjectNotFoundError();
 		}
 
 		/* 如果项目用户名单是分组活动，获得分组信息 */
-		if (!empty($oMission->entry_rule->group->id)) {
-			$oMisUsrGrpApp = (object) ['id' => $oMission->entry_rule->group->id];
+		if ($oMission->user_app_type === 'group' && !empty($oMission->user_app_id)) {
+			$oMisUsrGrpApp = (object) ['id' => $oMission->user_app_id];
 			$modelGrpUsr = $this->model('matter\group\player');
 		}
 

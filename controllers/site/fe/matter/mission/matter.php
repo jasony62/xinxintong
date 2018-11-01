@@ -145,12 +145,6 @@ class matter extends \site\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 
-		/* 如果项目用户名单是分组活动，获得分组信息 */
-		if (!empty($oMission->entry_rule->group->id)) {
-			$oMisUsrGrpApp = (object) ['id' => $oMission->entry_rule->group->id];
-			$modelGrpUsr = $this->model('matter\group\player');
-		}
-
 		$modelMisMat = $this->model('matter\mission\matter');
 		$q = ['matter_id,matter_type,obj_unit,obj_key,obj_data_id,op_at', 'xxt_mission_agreed', ['mission_id' => $oMission->id]];
 		$q2 = ['o' => 'op_at desc'];
@@ -181,14 +175,14 @@ class matter extends \site\fe\matter\base {
 	 * @param int $mission
 	 */
 	public function agreedList2_action($mission, $page = 1, $size = 12) {
-		$oMission = $this->model('matter\mission')->byId($mission, ['fields' => 'id,entry_rule']);
+		$oMission = $this->model('matter\mission')->byId($mission, ['fields' => 'id,entry_rule,user_app_id,user_app_type']);
 		if (false === $oMission) {
 			return new \ObjectNotFoundError();
 		}
 
 		/* 如果项目用户名单是分组活动，获得分组信息 */
-		if (!empty($oMission->entry_rule->group->id)) {
-			$oMisUsrGrpApp = (object) ['id' => $oMission->entry_rule->group->id];
+		if ($oMission->user_app_type === 'group' && !empty($oMission->user_app_id)) {
+			$oMisUsrGrpApp = (object) ['id' => $oMission->user_app_id];
 			$modelGrpUsr = $this->model('matter\group\player');
 		}
 

@@ -39,8 +39,6 @@ $sql .= ",notify_config text null"; // 通知提醒设置
 $sql .= ",assigned_nickname text null"; // 填写题目中指定填写人昵称{"valid":"Y","schema":{"id":"xxxxxx"}}
 $sql .= ",tags text null"; // 登记记录标签
 $sql .= ",category_tags text null"; // 素材分类标签
-$sql .= ",enroll_app_id varchar(40) not null default ''"; // 关联的记录活动
-$sql .= ",group_app_id varchar(40) not null default ''"; // 关联的分组活动
 $sql .= ",read_num int not null default 0"; // 阅读数
 $sql .= ",share_friend_num int not null default 0"; // 分享给好友数
 $sql .= ",share_timeline_num int not null default 0"; // 分享朋友圈数
@@ -108,22 +106,6 @@ $sql .= ",title varchar(70) not null default ''"; // 分享或生成链接时的
 $sql .= ",summary varchar(240)"; // 分享或生成链接时的摘要
 $sql .= ",state tinyint not null default 0"; // 0:新建|1:启用|2:停用|100:删除
 $sql .= ",mission_rid varchar(13) not null default ''"; // 关联的项目轮次
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
-}
-/**
- * 登记信息通知接收人
- */
-$sql = "create table if not exists xxt_enroll_receiver(";
-$sql .= "id int not null auto_increment";
-$sql .= ",siteid varchar(32) not null";
-$sql .= ",aid varchar(40) not null";
-$sql .= ",join_at int not null default 0"; // 加入时间
-$sql .= ",userid varchar(40) not null default ''";
-$sql .= ",nickname varchar(255) not null default ''";
-$sql .= ",sns_user text"; // 社交账号信息
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -735,22 +717,6 @@ $sql .= ",name varchar(40) not null";
 $sql .= ",value text";
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal
 $sql .= ",primary key(aid,enroll_key,name)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
-}
-/**
- * 登记信息通知接收人
- */
-$sql = "create table if not exists xxt_signin_receiver(";
-$sql .= "id int not null auto_increment";
-$sql .= ",siteid varchar(32) not null";
-$sql .= ",aid varchar(40) not null";
-$sql .= ",join_at int not null default 0"; // 加入时间
-$sql .= ",userid varchar(40) not null default ''";
-$sql .= ",nickname varchar(255) not null default ''";
-$sql .= ",sns_user text"; // 社交账号信息
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error: ' . $mysqli->error;

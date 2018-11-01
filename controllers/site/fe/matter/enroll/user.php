@@ -129,15 +129,15 @@ class user extends base {
 		}
 
 		$oUser = $this->getUser($oApp);
-		if (!empty($oApp->actionRule->role->kanban->group)) {
-			if (empty($oUser->group_id)) {
-				if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
-					return new \ParameterError('没有查看数据的权限，请联系活动管理员解决');
-				}
-			} else if ($oUser->group_id !== $oApp->actionRule->role->kanban->group) {
-				return new \ParameterError('没有查看数据的权限，请联系活动管理员解决');
-			}
-		}
+		// if (!empty($oApp->actionRule->role->kanban->group)) {
+		// 	if (empty($oUser->group_id)) {
+		// 		if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
+		// 			return new \ParameterError('没有查看数据的权限，请联系活动管理员解决');
+		// 		}
+		// 	} else if ($oUser->group_id !== $oApp->actionRule->role->kanban->group) {
+		// 		return new \ParameterError('没有查看数据的权限，请联系活动管理员解决');
+		// 	}
+		// }
 
 		$modelUsr = $this->model('matter\enroll\user');
 		$oResult = $modelUsr->enrolleeByApp($oApp, $page, $size, ['rid' => $rid]);

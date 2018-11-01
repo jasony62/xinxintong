@@ -20,34 +20,32 @@ define(['frame'], function(ngApp) {
     }]);
     ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'srvSite', function($scope, $uibModal, srvSite) {
         var _oEntryRule;
-        $scope.rule = {};
         $scope.changeUserScope = function() {
             switch (_oEntryRule.scope) {
-                case 'member':
-                    _oEntryRule.member === undefined && (_oEntryRule.member = {});
-                    break;
                 case 'sns':
-                    _oEntryRule.sns === undefined && (_oEntryRule.sns = {});
-                    Object.keys($scope.sns).forEach(function(snsName) {
-                        if (_oEntryRule.sns[snsName] === undefined) {
-                            _oEntryRule.sns[snsName] = { entry: 'Y' };
+                    if (_oEntryRule.scope[scopeProp] === 'Y') {
+                        if (!_oEntryRule.sns) {
+                            _oEntryRule.sns = {};
                         }
-                    });
+                        if ($scope.snsCount === 1) {
+                            _oEntryRule.sns[Object.keys($scope.sns)[0]] = { 'entry': 'Y' };
+                        }
+                    }
                     break;
                 default:
             }
-            this.update('entry_rule');
+            this.update('entryRule');
         };
         $scope.chooseMschema = function() {
-            srvSite.chooseMschema($scope.mission).then(function(result) {
+            srvSite.chooseMschema($scope.mission).then(function(oResult) {
                 var chosen;
-                if (result && result.chosen) {
-                    chosen = result.chosen;
+                if (oResult && oResult.chosen) {
+                    chosen = oResult.chosen;
                     $scope.mschemasById[chosen.id] = chosen;
                     _oEntryRule.member === undefined && (_oEntryRule.member = {});
                     if (!_oEntryRule.member[chosen.id]) {
                         _oEntryRule.member[chosen.id] = { entry: '' };
-                        $scope.update('entry_rule');
+                        $scope.update('entryRule');
                     }
                 }
             });
@@ -62,16 +60,17 @@ define(['frame'], function(ngApp) {
         $scope.removeMschema = function(mschemaId) {
             if (_oEntryRule.member[mschemaId]) {
                 delete _oEntryRule.member[mschemaId];
-                $scope.update('entry_rule');
+                $scope.update('entryRule');
             }
         };
         srvSite.snsList().then(function(oSns) {
             $scope.sns = oSns;
+            $scope.snsNames = Object.keys(oSns);
             $scope.snsCount = Object.keys(oSns).length;
         });
         $scope.$watch('mission', function(oMission) {
             if (!oMission) return;
-            $scope.rule = _oEntryRule = oMission.entry_rule;
+            $scope.rule = _oEntryRule = oMission.entryRule;
             srvSite.memberSchemaList(oMission).then(function(aMemberSchemas) {
                 $scope.memberSchemas = aMemberSchemas;
                 $scope.mschemasById = {};

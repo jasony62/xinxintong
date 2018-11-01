@@ -128,9 +128,9 @@ class enroll_model extends enroll_base {
 			}
 			if ($fields === '*' || false !== strpos($fields, 'entry_rule')) {
 				if (empty($oApp->entry_rule)) {
-					$oApp->entryRule = $oApp->entry_rule = new \stdClass;
+					$oApp->entryRule = new \stdClass;
 				} else {
-					$oApp->entryRule = $oApp->entry_rule = json_decode($oApp->entry_rule);
+					$oApp->entryRule = json_decode($oApp->entry_rule);
 				}
 				unset($oApp->entry_rule);
 			}
@@ -582,7 +582,7 @@ class enroll_model extends enroll_base {
 			$oNewApp->mission_id = $oMission->id;
 			$oNewApp->use_mission_header = 'Y';
 			$oNewApp->use_mission_footer = 'Y';
-			$oMisEntryRule = $oMission->entry_rule;
+			$oMisEntryRule = $oMission->entryRule;
 		}
 		$appId = uniqid();
 
@@ -741,7 +741,7 @@ class enroll_model extends enroll_base {
 	 * @param string $scenario scenario's name
 	 * @param string $template template's name
 	 */
-	public function &addPageByTemplate(&$user, $oSite, $oMission, &$appId, &$oTemplateConfig) {
+	public function addPageByTemplate(&$user, $oSite, $oMission, &$appId, &$oTemplateConfig) {
 		$pages = $oTemplateConfig->pages;
 		if (empty($pages)) {
 			return false;

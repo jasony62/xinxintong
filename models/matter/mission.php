@@ -57,12 +57,8 @@ class mission_model extends app_base {
 				$oMission->matter_mg_tag = json_decode($oMission->matter_mg_tag);
 			}
 			if ($fields === '*' || false !== strpos($fields, 'entry_rule')) {
-				if (empty($oMission->entry_rule)) {
-					$oMission->entry_rule = new \stdClass;
-					$oMission->entry_rule->scope = 'none';
-				} else {
-					$oMission->entry_rule = json_decode($oMission->entry_rule);
-				}
+				$oMission->entryRule = empty($oMission->entry_rule) ? new \stdClass : json_decode($oMission->entry_rule);
+				unset($oMission->entry_rule);
 			}
 			$modelRnd = $this->model('matter\mission\round');
 			if ($fields === '*' || false !== strpos($fields, 'round_cron')) {

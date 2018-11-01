@@ -176,7 +176,7 @@ define(['frame'], function(ngApp) {
         $scope.syncMissionUser = function() {
             var oPosted = {};
             if ($scope.criteria.record && $scope.criteria.record.rid) {
-                oPosted.rid = $scope.criteria.record.ri;
+                oPosted.rid = $scope.criteria.record.rid;
             }
             http2.post('/rest/pl/fe/matter/enroll/record/syncMissionUser?app=' + $scope.app.id, oPosted).then(function(rsp) {
                 if (rsp.data > 0) {
@@ -190,8 +190,51 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.syncWithGroupApp = function() {
-            http2.get('/rest/pl/fe/matter/enroll/record/syncGroup?app=' + $scope.app.id).then(function(rsp) {
-                $scope.doSearch(1);
+            $uibModal.open({
+                templateUrl: 'syncWithGroupApp.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.config = { $overwrite: 'N' };
+                    $scope2.ok = function() {
+                        $mi.close($scope2.config);
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss('cancel');
+                    };
+                }],
+                backdrop: 'static',
+            }).result.then(function(oConfig) {
+                var url;
+                url = '/rest/pl/fe/matter/enroll/record/syncGroup?app=' + $scope.app.id + '&overwrite=' + oConfig.overwrite;
+                if ($scope.criteria.record && $scope.criteria.record.rid) {
+                    url += '&rid=' + $scope.criteria.record.rid;
+                }
+                http2.get(url).then(function(rsp) {
+                    $scope.doSearch(1);
+                });
+            });
+        };
+        $scope.syncWithMschema = function() {
+            $uibModal.open({
+                templateUrl: 'syncWithMschema.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.config = { $overwrite: 'N' };
+                    $scope2.ok = function() {
+                        $mi.close($scope2.config);
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss('cancel');
+                    };
+                }],
+                backdrop: 'static',
+            }).result.then(function(oConfig) {
+                var url;
+                url = '/rest/pl/fe/matter/enroll/record/syncMschema?app=' + $scope.app.id + '&overwrite=' + oConfig.overwrite;
+                if ($scope.criteria.record && $scope.criteria.record.rid) {
+                    url += '&rid=' + $scope.criteria.record.rid;
+                }
+                http2.get(url).then(function(rsp) {
+                    $scope.doSearch(1);
+                });
             });
         };
         $scope.copyToUser = function() {

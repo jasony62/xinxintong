@@ -59,13 +59,16 @@ class main extends \site\fe\base {
 		$oUser = clone $this->who;
 		/* 站点用户信息 */
 		$modelAnt = $this->model('site\user\account');
-		$modelReg = $this->model('site\user\registration');
-		if ($oAccount = $modelAnt->byId($oUser->uid, ['fields' => 'uid,siteid,unionid,coin,headimgurl,wx_openid,is_wx_primary,is_reg_primary'])) {
-			$oUser->coin = $oAccount->coin;
-			$oUser->headimgurl = $oAccount->headimgurl;
-			$oUser->is_wx_primary = $oAccount->is_wx_primary;
-			$oUser->is_reg_primary = $oAccount->is_reg_primary;
+		$oAccount = $modelAnt->byId($oUser->uid, ['fields' => 'uid,siteid,unionid,coin,headimgurl,wx_openid,is_wx_primary,is_reg_primary']);
+		if (false === $oAccount) {
+			return new \ResponseData($oUser);
 		}
+
+		$modelReg = $this->model('site\user\registration');
+		$oUser->coin = $oAccount->coin;
+		$oUser->headimgurl = $oAccount->headimgurl;
+		$oUser->is_wx_primary = $oAccount->is_wx_primary;
+		$oUser->is_reg_primary = $oAccount->is_reg_primary;
 		if (!empty($oUser->unionid)) {
 			$oReg = $modelReg->byId($oUser->unionid);
 			if ($oReg) {
@@ -76,10 +79,21 @@ class main extends \site\fe\base {
 		 * 和微信openid绑定的注册账号
 		 */
 		$userAgent = $this->userAgent(); // 客户端类型
-		if (in_array($userAgent, ['wx'])) {
+		if (in_array($userAgent, ['wx']) && !empty($oAccount->wx_openid)) {
 			$regUsers = $this->_getRegAntsByWxopenid($oAccount);
 			if (count($regUsers)) {
-				$oUser->registersByWx = $regUsers;
+				/* 已经存在绑定了主注册账号的团队账号 */
+				$oUser->siteRegistersByWx = $regUsers;
+			} else {
+				/* 同站点下没有绑定了主注册账号的团队账号，获得用户在平台的注册账号 */
+				$aUnionids = $modelAnt->byOpenid(null, 'wx', $oAccount->wx_openid, ['is_reg_primary' => 'Y', 'fields' => 'distinct unionid']);
+				if (count($aUnionids)) {
+					$oUser->plRegistersByWx = [];
+					foreach ($aUnionids as $oUnionid) {
+						$oReg = $modelReg->byId($oUnionid->unionid, ['fields' => 'uid unionid,email uname,nickname']);
+						$oUser->plRegistersByWx[] = $oReg;
+					}
+				}
 			}
 		}
 

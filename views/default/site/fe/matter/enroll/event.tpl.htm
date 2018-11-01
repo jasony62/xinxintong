@@ -43,13 +43,13 @@
                 <div class='col-md-12'>
                     <div class='form-group'>
                         <label class='radio-inline'>
+                            <input type='radio' name='scope' value='kanban' ng-model="filter.scope">看板</label>
+                        <label class='radio-inline'>
                             <input type='radio' name='scope' value='N' ng-model="filter.scope">通知</label>
                         <label class='radio-inline'>
                             <input type='radio' name='scope' value='M' ng-model="filter.scope">我的</label>
                         <label class='radio-inline'>
                             <input type='radio' name='scope' value='A' ng-model="filter.scope">全部</label>
-                        <label class='radio-inline'>
-                            <input type='radio' name='scope' value='kanban' ng-model="filter.scope">看板</label>
                     </div>
                     <div ng-include="subView"></div>
                 </div>
@@ -254,11 +254,11 @@
         <div id='filterQuick' ng-cloak>
             <div ng-if="rounds.length" class="btn-group" uib-dropdown dropdown-append-to-body='true'>
                 <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
-                    <span>轮次</span>
+                    <span ng-bind="filter.round.title"></span>
                     <span class="glyphicon glyphicon-filter"></span>
                 </button>
                 <ul class="dropdown-menu" uib-dropdown-menu>
-                    <li><a href ng-click="shiftRound()">全部</a></li>
+                    <li><a href ng-click="shiftRound({rid:'ALL',title:'全部'})">全部</a></li>
                     <li ng-repeat="rnd in rounds"><a href ng-click="shiftRound(rnd)">{{rnd.title}}</a></li>
                 </ul>
             </div>

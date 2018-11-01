@@ -42,10 +42,12 @@ class token_model extends \TMS_MODEL {
 			if ($invToken->expire_at < time()) {
 				$this->update('xxt_site_invoke_token', ['state' => 0], ['id' => $invToken->id]);
 				$invToken = $this->createToken($secret, $invoke);
+			} else {
+				$invToken->expires_in = (int) $invToken->expire_at - time();
 			}
 		}
 
-		$invToken->expires_in = $this->expires_in;
+		empty($invToken->expires_in) && $invToken->expires_in = $this->expires_in;
 		return $invToken;
 	}
 	/*

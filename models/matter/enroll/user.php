@@ -339,7 +339,7 @@ class user_model extends \TMS_MODEL {
 				$modelGrpUser = $this->model('matter\group\user');
 				$fnHandler = function ($oUser) use ($oApp, $modelGrpUser) {
 					$oGrpUser = $modelGrpUser->byUser((object) ['id' => $oApp->entryRule->group->id], $oUser->userid, ['fields' => 'round_id,round_title', 'onlyOne' => true]);
-					if ($oGrpUser) {
+					if ($oGrpUser && !empty($oGrpUser->round_id)) {
 						$oUser->group = (object) ['id' => $oGrpUser->round_id, 'title' => $oGrpUser->round_title];
 					}
 				};

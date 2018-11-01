@@ -37,6 +37,7 @@ ngApp.controller('ctrlAction', ['$scope', 'tmsLocation', 'http2', 'enlRound', fu
                     }
                 });
             }
+            $scope.kanban.stat = rsp.data.stat;
             $scope.kanban.users = rsp.data.users;
             $scope.kanban.undone = oUndoneByUserid;
         });

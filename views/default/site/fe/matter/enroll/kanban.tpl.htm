@@ -54,10 +54,10 @@
                                     <th style='width:48px'>序号</th>
                                     <th>姓名</th>
                                     <th ng-if="app.entryRule.group.id">分组</th>
-                                    <th>总访问次数</th>
-                                    <th>总访问时间</th>
-                                    <th>积分</th>
-                                    <th>得分</th>
+                                    <th colspan='4'>积分</th>
+                                    <th colspan='4'>得分</th>
+                                    <th colspan='4'>总访问次数</th>
+                                    <th colspan='4'>总访问时间</th>
                                     <th>最近访问时间</th>
                                     <th>填写记录</th>
                                     <th>跨轮次修改</th>
@@ -89,16 +89,52 @@
                                         <div ng-if='u.group'>{{u.group.l}}</div>
                                     </td>
                                     <td>
-                                        <div ng-if='u.entry_num'>{{u.entry_num}}</div>
+                                        <div>{{u.user_total_coin.val}}</div>
                                     </td>
                                     <td>
-                                        <div ng-if='u.total_elapse'>{{u.total_elapse|filterTime}}</div>
+                                        <div>{{u.user_total_coin.pos}}</div>
                                     </td>
                                     <td>
-                                        <div ng-if='u.user_total_coin'>{{u.user_total_coin}}</div>
+                                        <div ng-if="kanban.stat.user_total_coin.max">{{u.user_total_coin.val/kanban.stat.user_total_coin.max}}</div>
                                     </td>
                                     <td>
-                                        <div ng-if='u.score'>{{m.score}}</div>
+                                        <div ng-if="kanban.stat.user_total_coin.mean">{{u.user_total_coin.val/kanban.stat.user_total_coin.mean}}</div>
+                                    </td>
+                                    <td>
+                                        <div>{{u.score.val}}</div>
+                                    </td>
+                                    <td>
+                                        <div>{{u.score.pos}}</div>
+                                    </td>
+                                    <td>
+                                        <div ng-if="kanban.stat.score.max">{{u.score.val/kanban.stat.score.max}}</div>
+                                    </td>
+                                    <td>
+                                        <div ng-if="kanban.stat.score.mean">{{u.score.val/kanban.stat.score.mean}}</div>
+                                    </td>
+                                    <td>
+                                        <div>{{u.entry_num.val}}</div>
+                                    </td>
+                                    <td>
+                                        <div>{{u.entry_num.pos}}</div>
+                                    </td>
+                                    <td>
+                                        <div ng-if="kanban.stat.entry_num.max">{{u.entry_num.val/kanban.stat.entry_num.max}}</div>
+                                    </td>
+                                    <td>
+                                        <div ng-if="kanban.stat.entry_num.mean">{{u.entry_num.val/kanban.stat.entry_num.mean}}</div>
+                                    </td>
+                                    <td>
+                                        <div>{{u.total_elapse.val|filterTime}}</div>
+                                    </td>
+                                    <td>
+                                        <div>{{u.total_elapse.pos}}</div>
+                                    </td>
+                                    <td>
+                                        <div ng-if="kanban.stat.total_elapse.max">{{u.total_elapse.val/kanban.stat.total_elapse.max}}</div>
+                                    </td>
+                                    <td>
+                                        <div ng-if="kanban.stat.total_elapse.mean">{{u.total_elapse.val/kanban.stat.total_elapse.mean}}</div>
                                     </td>
                                     <td>
                                         <div ng-if='u.last_entry_at'>{{u.last_entry_at*1000|date:'MM-dd HH:mm'}}</div>

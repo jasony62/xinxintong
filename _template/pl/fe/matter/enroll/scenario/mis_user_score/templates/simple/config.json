@@ -1,0 +1,18 @@
+{
+    "scenario": "mis_user_score",
+    "pages": [],
+    "schema": [],
+    "scenarioConfig":
+    {
+        "can_rank": "Y"
+    },
+    "entryRule":
+    {
+        "otherwise":
+        {
+            "entry": "rank"
+        }
+    },
+    "count_limit": "1",
+    "enrolled_entry_page": "rank"
+}

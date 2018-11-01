@@ -115,5 +115,20 @@
                 "description": "简单快速"
             }
         }
+    },
+    "mis_user_score":
+    {
+        "title": "用户计分表",
+        "name": "mis_user_score",
+        "description": "从项目的其他活动中提取项目用户的得分进行汇总",
+        "templates":
+        {
+            "simple":
+            {
+                "title": "简单",
+                "name": "simple",
+                "description": "简单快速"
+            }
+        }
     }
 }

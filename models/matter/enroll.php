@@ -741,7 +741,7 @@ class enroll_model extends enroll_base {
 	 * @param string $scenario scenario's name
 	 * @param string $template template's name
 	 */
-	public function &addPageByTemplate(&$user, $oSite, $oMission, &$appId, &$oTemplateConfig) {
+	public function addPageByTemplate(&$user, $oSite, $oMission, &$appId, &$oTemplateConfig) {
 		$pages = $oTemplateConfig->pages;
 		if (empty($pages)) {
 			return false;

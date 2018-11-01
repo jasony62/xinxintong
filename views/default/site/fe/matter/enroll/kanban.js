@@ -15,7 +15,7 @@ ngApp.filter('filterTime', function() {
         return result = h + ":" + m + ":" + s;
     }
 });
-ngApp.controller('ctrlAction', ['$scope', 'tmsLocation', 'http2', 'enlRound', function($scope, LS, http2, enlRound) {
+ngApp.controller('ctrlKanban', ['$scope', 'tmsLocation', 'http2', 'enlRound', function($scope, LS, http2, enlRound) {
     function fnGetKanban() {
         var url, defer;
         url = LS.j('user/kanban', 'site', 'app');
@@ -39,7 +39,7 @@ ngApp.controller('ctrlAction', ['$scope', 'tmsLocation', 'http2', 'enlRound', fu
             }
             $scope.kanban.stat = rsp.data.stat;
             $scope.kanban.users = rsp.data.users;
-            $scope.kanban.undone = oUndoneByUserid;
+            $scope.kanban.undone = rsp.data.undone;
         });
     }
     var _oApp, _oFilter;
@@ -48,6 +48,7 @@ ngApp.controller('ctrlAction', ['$scope', 'tmsLocation', 'http2', 'enlRound', fu
         _oFilter.round = oRound;
         fnGetKanban();
     };
+    $scope.subView = location.hash === '#undone' ? 'undone' : 'users';
     $scope.kanban = {};
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         _oApp = params.app;

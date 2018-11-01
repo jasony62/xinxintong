@@ -81,7 +81,7 @@ class undone_model extends \TMS_MODEL {
 				$aLeaderReceivers[] = (object) ['userid' => $leaderUserid];
 			}
 			if (count($aLeaderReceivers)) {
-				$noticeURL .= '&page=kanban';
+				$noticeURL .= '&page=kanban#undone';
 				$oTmplTimerTaskParams = new \stdClass;
 				$oTmplTimerTaskParams->receiver = '组长';
 				$oTmplTimerTaskParams->page = '看板页';
@@ -117,7 +117,7 @@ class undone_model extends \TMS_MODEL {
 					if (empty($aGrpUsers)) {
 						return [false, '指定的分组活动中没有符合接受通知条件的用户'];
 					}
-					$noticeURL .= '&page=kanban';
+					$noticeURL .= '&page=kanban#undone';
 					$oTmplTimerTaskParams->page = '看板页';
 					$aResult = $this->sendByReportTmpl($oEnlApp, $noticeURL, $aGrpUsers, $oTmplTimerTaskParams);
 					if (false === $aResult[0]) {

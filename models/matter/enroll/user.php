@@ -157,6 +157,7 @@ class user_model extends \TMS_MODEL {
 		$aDbData = [];
 		foreach ($oUpdatedData as $field => $value) {
 			switch ($field) {
+			case 'last_entry_at':
 			case 'last_enroll_at':
 			case 'last_cowork_at':
 			case 'last_do_cowork_at':
@@ -181,6 +182,8 @@ class user_model extends \TMS_MODEL {
 			case 'last_topic_at':
 				$aDbData[$field] = $value;
 				break;
+			case 'entry_num':
+			case 'total_elapse':
 			case 'enroll_num':
 			case 'revise_num':
 			case 'cowork_num':

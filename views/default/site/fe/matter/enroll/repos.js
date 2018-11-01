@@ -1,14 +1,13 @@
 'use strict';
 require('./enroll.public.css');
 
-require('../../../../../../asset/js/xxt.ui.trace.js');
 require('./_asset/ui.repos.js');
 require('./_asset/ui.tag.js');
 require('./_asset/ui.topic.js');
 require('./_asset/ui.assoc.js');
 require('./_asset/ui.round.js');
 
-window.moduleAngularModules = ['round.ui.enroll', 'repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll', 'trace.ui.xxt'];
+window.moduleAngularModules = ['round.ui.enroll', 'repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll'];
 
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');
@@ -35,7 +34,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oMocker, _oHistoryRecords, localStorageValues;
     localStorageValues = localStorage.getItem("xxt.search.historys"); // 读取localstorage中的搜索历史
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
-    $scope.page = _oPage = { at: 1, size: 12, total: 0 };
+    $scope.page = _oPage = {};
     $scope.filter = _oFilter = {}; // 过滤条件
     $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'lastest', cowork: { agreed: 'all' } }; // 数据查询条件
     $scope.mocker = _oMocker = {}; // 用户自己指定的角色
@@ -63,14 +62,12 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             _oPage.total = 0;
         }
         url = LS.j('repos/recordList', 'site', 'app');
-        url += '&page=' + _oPage.at + '&size=' + _oPage.size;
         if (_oMocker.role) {
             url += '&role=' + _oMocker.role;
         }
         $scope.reposLoading = true;
         $scope.flag = false;
-        http2.post(url, _oCriteria).then(function(result) {
-            _oPage.total = result.data.total;
+        http2.post(url, _oCriteria, { page: _oPage }).then(function(result) {
             if (result.data.records) {
                 result.data.records.forEach(function(oRecord) {
                     if (_coworkRequireLikeNum > oRecord.like_num) {

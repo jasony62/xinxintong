@@ -141,7 +141,7 @@ class user extends base {
 
 		$oStat = new \stdClass;
 		$fnSort = function (&$users, $prop) use ($oStat) {
-			usort($users, function ($a, $b) {
+			usort($users, function ($a, $b) use ($prop) {
 				if ($a->{$prop} === $b->{$prop}) {
 					return 0;
 				}

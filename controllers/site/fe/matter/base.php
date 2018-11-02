@@ -151,7 +151,7 @@ class base extends \site\fe\base {
 						}
 						$this->gotoMember($oMatter, $aMemberSchemaIds);
 					} else {
-						$msg = '您【ID:' . $oUser->uid . '】没有填写通讯录信息，不满足【' . $oMatter->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
+						$msg = '您【ID:' . $this->who->uid . '】没有填写通讯录信息，不满足【' . $oMatter->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
 					}
 				}
 			}

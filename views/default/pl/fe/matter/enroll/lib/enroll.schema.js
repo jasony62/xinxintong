@@ -361,7 +361,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 if (oSchema.schema_id) {
                     oBefore = angular.copy(oSchema);
                     oAssocMschema = $scope.mschemasById[oSchema.schema_id];
-                    if (oMsSchema = oAssocMschema._schemasById[oSchema.id]) {
+                    if (oMsSchema = $scope.app._schemasById[oSchema.id]) {
                         oMsSchema.assocState = 'no';
                     }
                     if (!bOnlyAssocState) {

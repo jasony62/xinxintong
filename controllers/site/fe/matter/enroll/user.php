@@ -121,7 +121,7 @@ class user extends base {
 	 * 2、支持按照轮次过滤
 	 * 2、如果指定了轮次，支持看看缺席情况
 	 */
-	public function kanban_action($app, $rid = '', $page = 1, $size = 999) {
+	public function kanban_action($app, $rid = '', $gid = '', $page = 1, $size = 999) {
 		$modelEnl = $this->model('matter\enroll');
 		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,state,mission_id,entry_rule,action_rule,absent_cause,data_schemas']);
 		if (false === $oApp || $oApp->state !== '1') {
@@ -163,7 +163,7 @@ class user extends base {
 		};
 
 		$modelUsr = $this->model('matter\enroll\user');
-		$oResult = $modelUsr->enrolleeByApp($oApp, $page, $size, ['rid' => $rid]);
+		$oResult = $modelUsr->enrolleeByApp($oApp, $page, $size, ['rid' => $rid, 'byGroup' => $gid]);
 		if (count($oResult->users)) {
 			foreach ($oResult->users as $oUser) {
 				unset($oUser->siteid);

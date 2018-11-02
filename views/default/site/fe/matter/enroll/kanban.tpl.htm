@@ -62,6 +62,16 @@
                                     <li><a href ng-click="shiftOrderby('devote')">贡献次数</a></li>
                                 </ul>
                             </div>
+                            <div ng-if="userGroups.length" class="btn-group" uib-dropdown dropdown-append-to-body='true'>
+                                <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                                    <span>分组</span>
+                                    <span class="glyphicon glyphicon-filter"></span>
+                                </button>
+                                <ul class="dropdown-menu" uib-dropdown-menu>
+                                    <li><a href ng-click="shiftUserGroup()">全部</a></li>
+                                    <li ng-repeat="ug in userGroups"><a href ng-click="shiftUserGroup(ug)">{{ug.title}}</a></li>
+                                </ul>
+                            </div>
                             <button ng-show="subView==='users'" class='btn btn-default' ng-click="subView='undone'">查看未完成<span ng-bind="kanban.undone.length"></span>人</button>
                             <button ng-show="subView==='undone'" class='btn btn-default' ng-click="subView='users'">查看整体情况</button>
                         </div>

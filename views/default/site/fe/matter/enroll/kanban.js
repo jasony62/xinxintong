@@ -21,6 +21,7 @@ ngApp.controller('ctrlKanban', ['$scope', '$q', '$uibModal', 'tmsLocation', 'htt
         defer = $q.defer();
         url = LS.j('user/kanban', 'site', 'app');
         url += '&rid=' + _oFilter.round.rid;
+        _oFilter.group && (url += '&gid=' + _oFilter.group.round_id);
         http2.get(url).then(function(rsp) {
             var oUndoneByUserid = {};
             if (rsp.data.users && rsp.data.users.length) {
@@ -55,6 +56,12 @@ ngApp.controller('ctrlKanban', ['$scope', '$q', '$uibModal', 'tmsLocation', 'htt
             $scope.shiftOrderby();
         });
     };
+    $scope.shiftUserGroup = function(oUserGroup) {
+        _oFilter.group = oUserGroup;
+        fnGetKanban().then(function() {
+            $scope.shiftOrderby();
+        });
+    };
     $scope.shiftOrderby = function(orderby) {
         if (orderby) {
             _oCriteria.orderby = orderby;
@@ -79,6 +86,7 @@ ngApp.controller('ctrlKanban', ['$scope', '$q', '$uibModal', 'tmsLocation', 'htt
     $scope.kanban = {};
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         _oApp = params.app;
+        $scope.userGroups = params.groups;
         _oFilter.round = _oApp.appRound;
         /*设置页面导航*/
         var oAppNavs = { length: 0 };

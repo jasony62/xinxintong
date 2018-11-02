@@ -164,7 +164,10 @@ class rank extends base {
 		case 'average_score':
 			$sql .= 'sum(score)';
 			break;
+		default:
+			return new \ParameterError('不支持的排行数据类型【' . $oCriteria->orderby . '】');
 		}
+
 		$sql .= ' from xxt_enroll_user where aid=\'' . $oApp->id . "' and state=1";
 		if (!empty($oCriteria->round) && is_string($oCriteria->round)) {
 			$oCriteria->round = explode(',', $oCriteria->round);

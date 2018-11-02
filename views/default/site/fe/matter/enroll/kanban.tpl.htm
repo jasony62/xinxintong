@@ -47,19 +47,30 @@
                             </div>
                             <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
                                 <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
-                                    <span ng-if="criteria.orderby==='user_total_coin'">积分</span>
                                     <span ng-if="criteria.orderby==='score'">得分</span>
+                                    <span ng-if="criteria.orderby==='user_total_coin'">积分</span>
                                     <span ng-if="criteria.orderby==='entry_num'">访问次数</span>
                                     <span ng-if="criteria.orderby==='total_elapse'">投入时间</span>
                                     <span ng-if="criteria.orderby==='devote'">贡献次数</span>
                                     <span class="glyphicon glyphicon-sort"></span>
                                 </button>
                                 <ul class="dropdown-menu" uib-dropdown-menu>
-                                    <li><a href ng-click="shiftOrderby('user_total_coin')">积分</a></li>
                                     <li><a href ng-click="shiftOrderby('score')">得分</a></li>
+                                    <li><a href ng-click="shiftOrderby('user_total_coin')">积分</a></li>
                                     <li><a href ng-click="shiftOrderby('entry_num')">访问次数</a></li>
                                     <li><a href ng-click="shiftOrderby('total_elapse')">投入时间</a></li>
                                     <li><a href ng-click="shiftOrderby('devote')">贡献次数</a></li>
+                                </ul>
+                            </div>
+                            <div ng-if="userGroups.length" class="btn-group" uib-dropdown dropdown-append-to-body='true'>
+                                <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                                    <span ng-if="filter.group">{{filter.group.title}}</span>
+                                    <span ng-if="!filter.group">全部分组</span>
+                                    <span class="glyphicon glyphicon-filter"></span>
+                                </button>
+                                <ul class="dropdown-menu" uib-dropdown-menu>
+                                    <li><a href ng-click="shiftUserGroup()">全部</a></li>
+                                    <li ng-repeat="ug in userGroups"><a href ng-click="shiftUserGroup(ug)">{{ug.title}}</a></li>
                                 </ul>
                             </div>
                             <button ng-show="subView==='users'" class='btn btn-default' ng-click="subView='undone'">查看未完成<span ng-bind="kanban.undone.length"></span>人</button>
@@ -88,53 +99,53 @@
                                 <div class='who' ng-click="viewDetail(u)">
                                     <div>{{u.nickname}}</div>
                                     <div ng-if='app.entryRule.group.id'>
-                                        <div ng-if='u.group'>{{u.group.l}}</div>
+                                        <div>{{u.group.title}}</div>
                                     </div>
                                 </div>
                                 <div class='data'>
-                                    <div>
-                                        <div>积分</div>
-                                        <div>
-                                            <div>{{u.user_total_coin.pos}}</div>
-                                            <div>{{u.user_total_coin.val}}</div>
-                                            <div><span ng-if="kanban.stat.user_total_coin.max">{{u.user_total_coin.val/kanban.stat.user_total_coin.max|number:2}}</span></div>
-                                            <div><span ng-if="kanban.stat.user_total_coin.mean">{{u.user_total_coin.val/kanban.stat.user_total_coin.mean|number:2}}</span></div>
-                                        </div>
-                                    </div>
-                                    <div>
+                                    <div ng-class="{'ordered':criteria.orderby==='score'}">
                                         <div>得分</div>
                                         <div>
-                                            <div>{{u.score.pos}}</div>
-                                            <div>{{u.score.val}}</div>
+                                            <div><span class='pos'>{{u.score.pos}}</span></div>
+                                            <div><span>{{u.score.val}}</span></div>
                                             <div><span ng-if="kanban.stat.score.max">{{u.score.val/kanban.stat.score.max|number:2}}</span></div>
                                             <div><span ng-if="kanban.stat.score.mean">{{u.score.val/kanban.stat.score.mean|number:2}}</span></div>
                                         </div>
                                     </div>
-                                    <div>
+                                    <div ng-class="{'ordered':criteria.orderby==='user_total_coin'}">
+                                        <div>积分</div>
+                                        <div>
+                                            <div><span class='pos'>{{u.user_total_coin.pos}}</span></div>
+                                            <div><span>{{u.user_total_coin.val}}</span></div>
+                                            <div><span ng-if="kanban.stat.user_total_coin.max">{{u.user_total_coin.val/kanban.stat.user_total_coin.max|number:2}}</span></div>
+                                            <div><span ng-if="kanban.stat.user_total_coin.mean">{{u.user_total_coin.val/kanban.stat.user_total_coin.mean|number:2}}</span></div>
+                                        </div>
+                                    </div>
+                                    <div ng-class="{'ordered':criteria.orderby==='entry_num'}">
                                         <div>访问次数</div>
                                         <div>
-                                            <div>{{u.entry_num.pos}}</div>
-                                            <div>{{u.entry_num.val}}</div>
-                                            <div><span ng-if="kanban.stat.entry_num.max">{{u.score.val/kanban.stat.entry_num.max|number:2}}</span></div>
-                                            <div><span ng-if="kanban.stat.entry_num.mean">{{u.score.val/kanban.stat.entry_num.mean|number:2}}</span></div>
+                                            <div><span class='pos'>{{u.entry_num.pos}}</span></div>
+                                            <div><span>{{u.entry_num.val}}</span></div>
+                                            <div><span ng-if="kanban.stat.entry_num.max">{{u.entry_num.val/kanban.stat.entry_num.max|number:2}}</span></div>
+                                            <div><span ng-if="kanban.stat.entry_num.mean">{{u.entry_num.val/kanban.stat.entry_num.mean|number:2}}</span></div>
                                         </div>
                                     </div>
-                                    <div>
+                                    <div ng-class="{'ordered':criteria.orderby==='total_elapse'}">
                                         <div>投入时间</div>
                                         <div>
-                                            <div>{{u.total_elapse.pos}}</div>
-                                            <div>{{u.total_elapse.val|filterTime}}</div>
-                                            <div><span ng-if="kanban.stat.total_elapse.max">{{u.score.val/kanban.stat.total_elapse.max|number:2}}</span></div>
-                                            <div><span ng-if="kanban.stat.total_elapse.mean">{{u.score.val/kanban.stat.total_elapse.mean|number:2}}</span></div>
+                                            <div><span class='pos'>{{u.total_elapse.pos}}</span></div>
+                                            <div><span>{{u.total_elapse.val|filterTime}}</span></div>
+                                            <div><span ng-if="kanban.stat.total_elapse.max">{{u.total_elapse.val/kanban.stat.total_elapse.max|number:2}}</span></div>
+                                            <div><span ng-if="kanban.stat.total_elapse.mean">{{u.total_elapse.val/kanban.stat.total_elapse.mean|number:2}}</span></div>
                                         </div>
                                     </div>
-                                    <div>
+                                    <div ng-class="{'ordered':criteria.orderby==='devote'}">
                                         <div>贡献次数</div>
                                         <div>
-                                            <div>{{u.devote.pos}}</div>
-                                            <div>{{u.devote.val}}</div>
-                                            <div><span ng-if="kanban.stat.devote.max">{{u.score.val/kanban.stat.devote.max|number:2}}</span></div>
-                                            <div><span ng-if="kanban.stat.devote.mean">{{u.score.val/kanban.stat.devote.mean|number:2}}</span></div>
+                                            <div><span class='pos'>{{u.devote.pos}}</span></div>
+                                            <div><span>{{u.devote.val}}</span></div>
+                                            <div><span ng-if="kanban.stat.devote.max">{{u.devote.val/kanban.stat.devote.max|number:2}}</span></div>
+                                            <div><span ng-if="kanban.stat.devote.mean">{{u.devote.val/kanban.stat.devote.mean|number:2}}</span></div>
                                         </div>
                                     </div>
                                 </div>
@@ -178,16 +189,16 @@
             </div>
             <div ng-if='app.entryRule.group.id'>
                 <div>分组</div>
-                <div>{{user.group.l}}</div>
+                <div>{{user.group.title}}</div>
             </div>
             <hr>
             <div>
-                <div>积分</div>
-                <div><span>{{user.user_total_coin.val}}</span></div>
-            </div>
-            <div>
                 <div>得分</div>
                 <div><span>{{user.score.val}}</span></div>
+            </div>
+            <div>
+                <div>积分</div>
+                <div><span>{{user.user_total_coin.val}}</span></div>
             </div>
             <div>
                 <div>访问次数</div>

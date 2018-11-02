@@ -502,7 +502,7 @@ class signin_model extends enroll_base {
 			$oNewApp->mission_id = $oMission->id;
 			$oNewApp->use_mission_header = 'Y';
 			$oNewApp->use_mission_footer = 'Y';
-			$oMisEntryRule = $oMission->entry_rule;
+			$oMisEntryRule = $oMission->entryRule;
 		} else {
 			$oNewApp->summary = '';
 			$oNewApp->pic = $oSite->heading_pic;

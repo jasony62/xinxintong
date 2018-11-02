@@ -37,7 +37,6 @@ class main extends main_base {
 			$modelGrpRnd = $this->model('matter\group\round');
 			$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
 			if ($oGroupApp) {
-				unset($oApp->groupApp->data_schemas);
 				$oRuleApp->title = $oGroupApp->title;
 				if (!empty($oRuleApp->round->id)) {
 					$oGroupRnd = $modelGrpRnd->byId($oRuleApp->round->id, ['fields' => 'title']);
@@ -46,7 +45,7 @@ class main extends main_base {
 					}
 				}
 				/* 获得当前活动的分组 */
-				$groups = $modelGrpRnd->byApp($oGroupApp->id, ['fields' => "round_id,title"]);
+				$groups = $modelGrpRnd->byApp($oGroupApp->id, ['fields' => 'round_id,round_type,title', 'round_type' => '']);
 				$oGroupDS = new \stdClass;
 				$oGroupDS->id = '_round_id';
 				$oGroupDS->type = 'single';
@@ -54,10 +53,12 @@ class main extends main_base {
 				$ops = [];
 				/* 获得的分组信息 */
 				foreach ($groups as $oGroup) {
-					$ops[] = (object) [
-						'v' => $oGroup->round_id,
-						'l' => $oGroup->title,
-					];
+					if ($oGroup->round_type === 'T') {
+						$ops[] = (object) [
+							'v' => $oGroup->round_id,
+							'l' => $oGroup->title,
+						];
+					}
 				}
 				$oGroupDS->ops = $ops;
 

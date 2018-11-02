@@ -20,13 +20,15 @@ class main extends \site\fe\matter\base {
 			$this->requireSnsOAuth($oMission);
 		}
 
+		$this->checkEntryRule($oMission, true);
+
 		\TPL::output('/site/fe/matter/mission/main');
 		exit;
 	}
 	/**
 	 *
 	 */
-	public function board_action() {
+	public function board_action($mission) {
 		$oMission = $this->model('matter\mission')->byId($mission, ['fields' => 'id,siteid,entry_rule']);
 		if (false === $oMission) {
 			return new \ObjectNotFoundError();
@@ -36,6 +38,8 @@ class main extends \site\fe\matter\base {
 		if (!$this->afterSnsOAuth()) {
 			$this->requireSnsOAuth($oMission);
 		}
+
+		$this->checkEntryRule($oMission, true);
 
 		\TPL::output('/site/fe/matter/mission/board');
 		exit;

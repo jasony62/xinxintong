@@ -10,7 +10,7 @@ ngApp.filter('filterTime', function() {
     return function(e) {
         var result, h, m, s, time = e * 1;
         h = Math.floor(time / 3600);
-        m = Math.floor((time / 60 % 6));
+        m = Math.floor((time / 60 % 60));
         s = Math.floor((time % 60));
         return result = h + ":" + m + ":" + s;
     }
@@ -21,6 +21,7 @@ ngApp.controller('ctrlKanban', ['$scope', '$q', '$uibModal', 'tmsLocation', 'htt
         defer = $q.defer();
         url = LS.j('user/kanban', 'site', 'app');
         url += '&rid=' + _oFilter.round.rid;
+        _oFilter.group && (url += '&gid=' + _oFilter.group.round_id);
         http2.get(url).then(function(rsp) {
             var oUndoneByUserid = {};
             if (rsp.data.users && rsp.data.users.length) {
@@ -41,6 +42,7 @@ ngApp.controller('ctrlKanban', ['$scope', '$q', '$uibModal', 'tmsLocation', 'htt
             $scope.kanban.stat = rsp.data.stat;
             $scope.kanban.users = rsp.data.users;
             $scope.kanban.undone = rsp.data.undone;
+
             defer.resolve($scope.kanban);
         });
         return defer.promise;
@@ -50,12 +52,24 @@ ngApp.controller('ctrlKanban', ['$scope', '$q', '$uibModal', 'tmsLocation', 'htt
     $scope.filter = _oFilter = {};
     $scope.shiftRound = function(oRound) {
         _oFilter.round = oRound;
-        fnGetKanban();
+        fnGetKanban().then(function() {
+            $scope.shiftOrderby();
+        });
+    };
+    $scope.shiftUserGroup = function(oUserGroup) {
+        _oFilter.group = oUserGroup;
+        fnGetKanban().then(function() {
+            $scope.shiftOrderby();
+        });
     };
     $scope.shiftOrderby = function(orderby) {
-        _oCriteria.orderby = orderby;
+        if (orderby) {
+            _oCriteria.orderby = orderby;
+        } else {
+            orderby = _oCriteria.orderby;
+        }
         $scope.kanban.users.sort(function(a, b) {
-            return b[orderby] - a[orderby];
+            return a[orderby].pos - b[orderby].pos;
         });
     };
     $scope.viewDetail = function(oUser) {
@@ -72,6 +86,7 @@ ngApp.controller('ctrlKanban', ['$scope', '$q', '$uibModal', 'tmsLocation', 'htt
     $scope.kanban = {};
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         _oApp = params.app;
+        $scope.userGroups = params.groups;
         _oFilter.round = _oApp.appRound;
         /*设置页面导航*/
         var oAppNavs = { length: 0 };

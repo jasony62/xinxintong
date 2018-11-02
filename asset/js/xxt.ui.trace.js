@@ -5,7 +5,7 @@
 var ngMod = angular.module('trace.ui.xxt', ['http.ui.xxt']);
 ngMod.directive('tmsTrace', ['$q', '$timeout', 'http2', function($q, $timeout, http2) {
     var EventInterval = 1000; // 有效的事件间隔
-    var IdleInterval = 20000; // 有效的事件间隔
+    var IdleInterval = 5000; // 有效的事件间隔
     var StoreKey = '/xxt/site/matter/enroll/trace';
     var TraceEvent = function(start, type, elapse) {
         this.type = type;
@@ -65,7 +65,7 @@ ngMod.directive('tmsTrace', ['$q', '$timeout', 'http2', function($q, $timeout, h
                         oCachedTrack = oCached[oTraceStack.sendUrl];
                         delete oCached[oTraceStack.sendUrl];
                         oCached = oStorage.setItem(StoreKey, JSON.stringify(oCached));
-                        http2.post(oTraceStack.sendUrl, { start: oCachedTrack.start, events: oCachedTrack.events }).then(function() {});
+                        http2.post(oTraceStack.sendUrl, { start: oCachedTrack.start, events: oCachedTrack.events }, { showProgress: false });
                     }
                 }
             }, IdleInterval);

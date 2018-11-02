@@ -11,6 +11,7 @@ module.exports = {
         '/default/site/fe/matter/enroll/view': ['./views/default/site/fe/matter/enroll/view.js'],
         '/default/site/fe/matter/enroll/list': ['./views/default/site/fe/matter/enroll/list.js'],
         '/default/site/fe/matter/enroll/event': ['./views/default/site/fe/matter/enroll/event.js'],
+        '/default/site/fe/matter/enroll/kanban': ['./views/default/site/fe/matter/enroll/kanban.js'],
         '/default/site/fe/matter/enroll/cowork': ['./views/default/site/fe/matter/enroll/cowork.js'],
         '/default/site/fe/matter/enroll/share': ['./views/default/site/fe/matter/enroll/share.js'],
         '/default/site/fe/matter/enroll/repos': ['./views/default/site/fe/matter/enroll/repos.js'],

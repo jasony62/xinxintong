@@ -121,44 +121,66 @@ class user extends base {
 	 * 2、支持按照轮次过滤
 	 * 2、如果指定了轮次，支持看看缺席情况
 	 */
-	public function kanban_action($app, $rid = '', $page = 1, $size = 100) {
+	public function kanban_action($app, $rid = '', $page = 1, $size = 999) {
 		$modelEnl = $this->model('matter\enroll');
 		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,state,mission_id,entry_rule,action_rule,absent_cause,data_schemas']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
-		$oUser = $this->getUser($oApp);
-		if (!empty($oApp->actionRule->role->kanban->group)) {
-			if (empty($oUser->group_id)) {
-				if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
-					return new \ParameterError('没有查看数据的权限，请联系活动管理员解决');
+		// $oUser = $this->getUser($oApp);
+		// if (!empty($oApp->actionRule->role->kanban->group)) {
+		// 	if (empty($oUser->group_id)) {
+		// 		if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
+		// 			return new \ParameterError('没有查看数据的权限，请联系活动管理员解决');
+		// 		}
+		// 	} else if ($oUser->group_id !== $oApp->actionRule->role->kanban->group) {
+		// 		return new \ParameterError('没有查看数据的权限，请联系活动管理员解决');
+		// 	}
+		// }
+
+		$oStat = new \stdClass;
+		$fnSort = function (&$users, $prop) use ($oStat) {
+			usort($users, function ($a, $b) use ($prop) {
+				if ($a->{$prop} === $b->{$prop}) {
+					return 0;
 				}
-			} else if ($oUser->group_id !== $oApp->actionRule->role->kanban->group) {
-				return new \ParameterError('没有查看数据的权限，请联系活动管理员解决');
+				return ($b->{$prop} < $a->{$prop}) ? -1 : 1;
+			});
+			$sum = 0;
+			$max = 0;
+			$mean = 0;
+			foreach ($users as $pos => $oUser) {
+				$sum += $oUser->{$prop};
+				if ($oUser->{$prop} > $max) {
+					$max = (int) $oUser->{$prop};
+				}
+				$oUser->{$prop} = (object) ['pos' => $pos + 1, 'val' => $oUser->{$prop}];
 			}
-		}
+			$oStat->{$prop} = (object) ['sum' => $sum, 'max' => $max, 'mean' => round($sum / count($users), 2)];
+
+			return $users;
+		};
 
 		$modelUsr = $this->model('matter\enroll\user');
 		$oResult = $modelUsr->enrolleeByApp($oApp, $page, $size, ['rid' => $rid]);
 		if (count($oResult->users)) {
-			$oAssocGrpSchema = $this->model('matter\enroll\schema')->getAssocGroupSchema($oApp);
-			if ($oAssocGrpSchema && !empty($oAssocGrpSchema->ops)) {
-				$aUserRounds = [];
-				foreach ($oAssocGrpSchema->ops as $oOp) {
-					$aUserRounds[$oOp->v] = $oOp;
-				}
-			}
 			foreach ($oResult->users as $oUser) {
 				unset($oUser->siteid);
 				unset($oUser->aid);
 				unset($oUser->modify_log);
 				unset($oUser->wx_openid);
-				if (isset($aUserRounds) && !empty($oUser->group_id) && isset($aUserRounds[$oUser->group_id])) {
-					$oUser->group = $aUserRounds[$oUser->group_id];
-				}
+				/* 用户的贡献行为次数 */
+				$oUser->devote = (int) $oUser->enroll_num + (int) $oUser->do_cowork_num + (int) $oUser->do_remark_num + (int) $oUser->do_like_num + (int) $oUser->do_like_cowork_num + (int) $oUser->do_like_remark_num;
+			}
+			/* 计算指标排序 */
+			foreach (['user_total_coin', 'score', 'entry_num', 'total_elapse', 'devote'] as $prop) {
+				$fnSort($oResult->users, $prop);
 			}
 		}
+		$oResult->stat = $oStat;
+
+		/* 未完成任务用户 */
 		if ($rid) {
 			$oResultUndone = $modelUsr->undoneByApp($oApp, $rid);
 			$oResult->undone = $oResultUndone->users;

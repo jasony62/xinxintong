@@ -104,7 +104,6 @@ define(['frame'], function(ngApp) {
         $scope.editRecord = function(record) {
             var newUrl = '/rest/pl/fe/matter/enroll/editor?site=' + $scope.app.siteid + '&id=' + $scope.app.id + '&ek=';
             newUrl +=  record ? record.enroll_key :  '';
-            //var newUrl = $location.path('/rest/pl/fe/matter/enroll/editor').search({ site: $scope.app.siteid, id: $scope.app.id, ek: record ? record.enroll_key : '' }).absUrl();
             window.open(newUrl, '_blank');
         };
         $scope.batchTag = function() {

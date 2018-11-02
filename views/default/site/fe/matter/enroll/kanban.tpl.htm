@@ -64,7 +64,8 @@
                             </div>
                             <div ng-if="userGroups.length" class="btn-group" uib-dropdown dropdown-append-to-body='true'>
                                 <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
-                                    <span>分组</span>
+                                    <span ng-if="filter.group">{{filter.group.title}}</span>
+                                    <span ng-if="!filter.group">全部分组</span>
                                     <span class="glyphicon glyphicon-filter"></span>
                                 </button>
                                 <ul class="dropdown-menu" uib-dropdown-menu>

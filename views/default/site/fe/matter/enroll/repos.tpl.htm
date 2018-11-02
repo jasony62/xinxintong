@@ -48,7 +48,6 @@
                             <span class="glyphicon glyphicon-indent-right" ng-if="activeDir1.op.childrenDir.length&&activeDir1.opened" ng-click="dirLevel.hideDir(activeDir1)"></span>
                             <span class="glyphicon glyphicon-indent-left" ng-if="activeDir1.op.childrenDir.length&&!activeDir1.opened" ng-click="dirLevel.showDir(activeDir1)"></span>
                         </div>
-                       
                     </div>
                     <div class="category-body" ng-if="advCriteriaStatus.dirOpen">
                         <div class="category-item">
@@ -166,7 +165,7 @@
                             <span ng-if="criteria.cowork.agreed==='Y'">推荐</span>
                             <span ng-if="criteria.cowork.agreed==='A'">接受</span>
                             <span ng-if="criteria.cowork.agreed==='D'">讨论</span>
-                            <span ng-if="criteria.cowork.agreed==='N'">关闭</span>                           
+                            <span ng-if="criteria.cowork.agreed==='N'">关闭</span>
                             <span class="glyphicon glyphicon-filter"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
@@ -180,8 +179,7 @@
                             <li><a href ng-click="shiftCoworkAgreed('D')">讨论</a></li>
                             <li><a href ng-click="shiftCoworkAgreed('N')">关闭</a></li>
                         </ul>
-
-                    </div>                  
+                    </div>
                     <div ng-if="userGroups.length" class="btn-group" uib-dropdown dropdown-append-to-body='true'>
                         <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
                             <span>分组</span>
@@ -205,7 +203,7 @@
                 </div>
                 <!-- end: filterQuick -->
                 <div id='filterTip' ng-if="filter.round||filter.group||filter.mine||filter.tags.length">
-                    <div class="bg-info small" ng-if="filter.round>1">
+                    <div class="bg-info small" ng-if="filter.round">
                         <span>{{filter.round.title}}</span>
                         <button class="close" ng-click="shiftRound()"><span>&times;</span></button>
                     </div>

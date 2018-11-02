@@ -36,7 +36,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = {};
     $scope.filter = _oFilter = {}; // 过滤条件
-    $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'lastest', cowork: { agreed: 'all' } }; // 数据查询条件
+    $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'lastest', cowork: { agreed: 'all' }, rid: 'all' }; // 数据查询条件
     $scope.mocker = _oMocker = {}; // 用户自己指定的角色
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.repos = []; // 分享的记录
@@ -430,15 +430,15 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         $scope.recordList(1);
         $scope.facRound = _facRound = new enlRound(_oApp);
         _facRound.list().then(function(result) {
-            if (result.active) {
-                for (var i = 0, ii = result.rounds.length; i < ii; i++) {
-                    if (result.rounds[i].rid === result.active.rid) {
-                        _oFilter.round = result.active;
-                        _oCriteria.rid = result.active.rid;
-                        break;
-                    }
-                }
-            }
+            // if (result.active) {
+            //     for (var i = 0, ii = result.rounds.length; i < ii; i++) {
+            //         if (result.rounds[i].rid === result.active.rid) {
+            //             _oFilter.round = result.active;
+            //             _oCriteria.rid = result.active.rid;
+            //             break;
+            //         }
+            //     }
+            // }
             $scope.rounds = result.rounds;
         });
         if (_oApp.reposConfig && _oApp.reposConfig.defaultOrder) {

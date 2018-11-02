@@ -88,7 +88,7 @@
                                 <div class='who' ng-click="viewDetail(u)">
                                     <div>{{u.nickname}}</div>
                                     <div ng-if='app.entryRule.group.id'>
-                                        <div ng-if='u.group'>{{u.group.l}}</div>
+                                        <div>{{u.group.title}}</div>
                                     </div>
                                 </div>
                                 <div class='data'>
@@ -178,7 +178,7 @@
             </div>
             <div ng-if='app.entryRule.group.id'>
                 <div>分组</div>
-                <div>{{user.group.l}}</div>
+                <div>{{user.group.title}}</div>
             </div>
             <hr>
             <div>

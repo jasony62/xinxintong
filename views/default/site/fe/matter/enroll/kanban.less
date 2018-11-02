@@ -65,3 +65,65 @@ tr.undone td:nth-child(2) {
 td.undone {
     color: red;
 }
+
+#kanban {
+    overflow-x: auto;
+
+    .wrap {
+        min-width: 640px;
+    }
+
+    .user {
+        display: flex;
+
+        &>div:first-child {
+            width: 6em;
+        }
+
+    }
+
+    .data {
+        flex-grow: 1;
+
+        &>div {
+            display: flex;
+
+            &>div:first-child {
+                width: 6em;
+            }
+
+            &>div:last-child {
+                flex: 1;
+                display: flex;
+
+                &>div {
+                    flex: 1;
+                }
+
+            }
+
+        }
+
+    }
+
+}
+
+#user-detail {
+    &>div {
+        display: flex;
+
+        &>div {
+            padding: .25em 0;
+        }
+
+        &>div:first-child {
+            width: 12em;
+        }
+
+        &>div:nth-child(2) {
+            flex: 1;
+        }
+
+    }
+
+}

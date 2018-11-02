@@ -170,9 +170,11 @@ class user extends base {
 				unset($oUser->aid);
 				unset($oUser->modify_log);
 				unset($oUser->wx_openid);
+				/* 用户的贡献行为次数 */
+				$oUser->devote = (int) $oUser->enroll_num + (int) $oUser->do_cowork_num + (int) $oUser->do_remark_num + (int) $oUser->do_like_num + (int) $oUser->do_like_cowork_num + (int) $oUser->do_like_remark_num;
 			}
 			/* 计算指标排序 */
-			foreach (['user_total_coin', 'score', 'entry_num', 'total_elapse'] as $prop) {
+			foreach (['user_total_coin', 'score', 'entry_num', 'total_elapse', 'devote'] as $prop) {
 				$fnSort($oResult->users, $prop);
 			}
 		}

@@ -41,6 +41,10 @@ ngApp.controller('ctrlKanban', ['$scope', '$q', '$uibModal', 'tmsLocation', 'htt
             $scope.kanban.stat = rsp.data.stat;
             $scope.kanban.users = rsp.data.users;
             $scope.kanban.undone = rsp.data.undone;
+            $scope.kanban.users.sort(function(a, b) {
+                return a[orderby].pos - b[orderby].pos;
+            });
+
             defer.resolve($scope.kanban);
         });
         return defer.promise;
@@ -54,9 +58,6 @@ ngApp.controller('ctrlKanban', ['$scope', '$q', '$uibModal', 'tmsLocation', 'htt
     };
     $scope.shiftOrderby = function(orderby) {
         _oCriteria.orderby = orderby;
-        $scope.kanban.users.sort(function(a, b) {
-            return parseInt(a[orderby].pos) - parseInt(b[orderby].pos);
-        });
     };
     $scope.viewDetail = function(oUser) {
         $uibModal.open({

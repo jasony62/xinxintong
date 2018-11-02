@@ -155,7 +155,7 @@ class user extends base {
 				if ($oUser->{$prop} > $max) {
 					$max = (int) $oUser->{$prop};
 				}
-				$oUser->{$prop} = (object) ['pos' => $pos + 1, 'val' => $oUser->{$prop}];
+				$oUser->{$prop} = (object) ['pos' => $pos + 1, 'val' => (float) $oUser->{$prop}];
 			}
 			$oStat->{$prop} = (object) ['sum' => $sum, 'max' => $max, 'mean' => round($sum / count($users), 2)];
 

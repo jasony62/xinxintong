@@ -20,6 +20,8 @@ class main extends \site\fe\matter\base {
 			$this->requireSnsOAuth($oMission);
 		}
 
+		$this->checkEntryRule($oMission, true);
+
 		\TPL::output('/site/fe/matter/mission/main');
 		exit;
 	}
@@ -36,6 +38,8 @@ class main extends \site\fe\matter\base {
 		if (!$this->afterSnsOAuth()) {
 			$this->requireSnsOAuth($oMission);
 		}
+
+		$this->checkEntryRule($oMission, true);
 
 		\TPL::output('/site/fe/matter/mission/board');
 		exit;

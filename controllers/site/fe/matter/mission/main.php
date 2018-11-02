@@ -28,7 +28,7 @@ class main extends \site\fe\matter\base {
 	/**
 	 *
 	 */
-	public function board_action() {
+	public function board_action($mission) {
 		$oMission = $this->model('matter\mission')->byId($mission, ['fields' => 'id,siteid,entry_rule']);
 		if (false === $oMission) {
 			return new \ObjectNotFoundError();

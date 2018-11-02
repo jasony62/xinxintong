@@ -84,9 +84,12 @@ td.undone {
 
     .data {
         flex-grow: 1;
+        display: flex;
+        flex-direction: column;
 
         &>div {
             display: flex;
+            order: 5;
 
             &>div:first-child {
                 width: 6em;
@@ -104,8 +107,8 @@ td.undone {
 
         }
 
-        &>div+div {
-            margin-top: .5em;
+        &>div {
+            margin-bottom: .5em;
         }
 
         .pos {
@@ -117,6 +120,7 @@ td.undone {
 
         .ordered {
             color: red;
+            order: 1;
 
             &>div:nth-child(2)>div:first-child>span {
                 background-color: #ddd;

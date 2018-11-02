@@ -92,47 +92,47 @@
                                     </div>
                                 </div>
                                 <div class='data'>
-                                    <div>
+                                    <div ng-class="{'ordered':criteria.orderby==='user_total_coin'}">
                                         <div>积分</div>
                                         <div>
-                                            <div>{{u.user_total_coin.pos}}</div>
-                                            <div>{{u.user_total_coin.val}}</div>
+                                            <div><span class='pos'>{{u.user_total_coin.pos}}</span></div>
+                                            <div><span>{{u.user_total_coin.val}}</span></div>
                                             <div><span ng-if="kanban.stat.user_total_coin.max">{{u.user_total_coin.val/kanban.stat.user_total_coin.max|number:2}}</span></div>
                                             <div><span ng-if="kanban.stat.user_total_coin.mean">{{u.user_total_coin.val/kanban.stat.user_total_coin.mean|number:2}}</span></div>
                                         </div>
                                     </div>
-                                    <div>
+                                    <div ng-class="{'ordered':criteria.orderby==='score'}">
                                         <div>得分</div>
                                         <div>
-                                            <div>{{u.score.pos}}</div>
-                                            <div>{{u.score.val}}</div>
+                                            <div><span class='pos'>{{u.score.pos}}</span></div>
+                                            <div><span>{{u.score.val}}</span></div>
                                             <div><span ng-if="kanban.stat.score.max">{{u.score.val/kanban.stat.score.max|number:2}}</span></div>
                                             <div><span ng-if="kanban.stat.score.mean">{{u.score.val/kanban.stat.score.mean|number:2}}</span></div>
                                         </div>
                                     </div>
-                                    <div>
+                                    <div ng-class="{'ordered':criteria.orderby==='entry_num'}">
                                         <div>访问次数</div>
                                         <div>
-                                            <div>{{u.entry_num.pos}}</div>
-                                            <div>{{u.entry_num.val}}</div>
+                                            <div><span class='pos'>{{u.entry_num.pos}}</span></div>
+                                            <div><span>{{u.entry_num.val}}</span></div>
                                             <div><span ng-if="kanban.stat.entry_num.max">{{u.score.val/kanban.stat.entry_num.max|number:2}}</span></div>
                                             <div><span ng-if="kanban.stat.entry_num.mean">{{u.score.val/kanban.stat.entry_num.mean|number:2}}</span></div>
                                         </div>
                                     </div>
-                                    <div>
+                                    <div ng-class="{'ordered':criteria.orderby==='total_elapse'}">
                                         <div>投入时间</div>
                                         <div>
-                                            <div>{{u.total_elapse.pos}}</div>
-                                            <div>{{u.total_elapse.val|filterTime}}</div>
+                                            <div><span class='pos'>{{u.total_elapse.pos}}</span></div>
+                                            <div><span>{{u.total_elapse.val|filterTime}}</span></div>
                                             <div><span ng-if="kanban.stat.total_elapse.max">{{u.score.val/kanban.stat.total_elapse.max|number:2}}</span></div>
                                             <div><span ng-if="kanban.stat.total_elapse.mean">{{u.score.val/kanban.stat.total_elapse.mean|number:2}}</span></div>
                                         </div>
                                     </div>
-                                    <div>
+                                    <div ng-class="{'ordered':criteria.orderby==='devote'}">
                                         <div>贡献次数</div>
                                         <div>
-                                            <div>{{u.devote.pos}}</div>
-                                            <div>{{u.devote.val}}</div>
+                                            <div><span class='pos'>{{u.devote.pos}}</span></div>
+                                            <div><span>{{u.devote.val}}</span></div>
                                             <div><span ng-if="kanban.stat.devote.max">{{u.score.val/kanban.stat.devote.max|number:2}}</span></div>
                                             <div><span ng-if="kanban.stat.devote.mean">{{u.score.val/kanban.stat.devote.mean|number:2}}</span></div>
                                         </div>

@@ -104,6 +104,28 @@ td.undone {
 
         }
 
+        &>div+div {
+            margin-top: .5em;
+        }
+
+        .pos {
+            display: inline-block;
+            padding: 0 .25em;
+            border-radius: .5em;
+            border: 1px solid #ddd;
+        }
+
+        .ordered {
+            &>div:first-child, &>div:nth-child(2)>div:first-child {
+                color: red;
+            }
+
+            &>div:nth-child(2)>div:first-child>span {
+                background-color: #ddd;
+            }
+
+        }
+
     }
 
 }

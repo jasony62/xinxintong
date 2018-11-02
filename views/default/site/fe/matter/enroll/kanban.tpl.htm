@@ -115,8 +115,8 @@
                                         <div>
                                             <div><span class='pos'>{{u.entry_num.pos}}</span></div>
                                             <div><span>{{u.entry_num.val}}</span></div>
-                                            <div><span ng-if="kanban.stat.entry_num.max">{{u.score.val/kanban.stat.entry_num.max|number:2}}</span></div>
-                                            <div><span ng-if="kanban.stat.entry_num.mean">{{u.score.val/kanban.stat.entry_num.mean|number:2}}</span></div>
+                                            <div><span ng-if="kanban.stat.entry_num.max">{{u.entry_num.val/kanban.stat.entry_num.max|number:2}}</span></div>
+                                            <div><span ng-if="kanban.stat.entry_num.mean">{{u.entry_num.val/kanban.stat.entry_num.mean|number:2}}</span></div>
                                         </div>
                                     </div>
                                     <div ng-class="{'ordered':criteria.orderby==='total_elapse'}">
@@ -124,8 +124,8 @@
                                         <div>
                                             <div><span class='pos'>{{u.total_elapse.pos}}</span></div>
                                             <div><span>{{u.total_elapse.val|filterTime}}</span></div>
-                                            <div><span ng-if="kanban.stat.total_elapse.max">{{u.score.val/kanban.stat.total_elapse.max|number:2}}</span></div>
-                                            <div><span ng-if="kanban.stat.total_elapse.mean">{{u.score.val/kanban.stat.total_elapse.mean|number:2}}</span></div>
+                                            <div><span ng-if="kanban.stat.total_elapse.max">{{u.total_elapse.val/kanban.stat.total_elapse.max|number:2}}</span></div>
+                                            <div><span ng-if="kanban.stat.total_elapse.mean">{{u.total_elapse.val/kanban.stat.total_elapse.mean|number:2}}</span></div>
                                         </div>
                                     </div>
                                     <div ng-class="{'ordered':criteria.orderby==='devote'}">
@@ -133,8 +133,8 @@
                                         <div>
                                             <div><span class='pos'>{{u.devote.pos}}</span></div>
                                             <div><span>{{u.devote.val}}</span></div>
-                                            <div><span ng-if="kanban.stat.devote.max">{{u.score.val/kanban.stat.devote.max|number:2}}</span></div>
-                                            <div><span ng-if="kanban.stat.devote.mean">{{u.score.val/kanban.stat.devote.mean|number:2}}</span></div>
+                                            <div><span ng-if="kanban.stat.devote.max">{{u.devote.val/kanban.stat.devote.max|number:2}}</span></div>
+                                            <div><span ng-if="kanban.stat.devote.mean">{{u.devote.val/kanban.stat.devote.mean|number:2}}</span></div>
                                         </div>
                                     </div>
                                 </div>

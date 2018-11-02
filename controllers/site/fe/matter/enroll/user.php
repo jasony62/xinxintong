@@ -128,17 +128,33 @@ class user extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		// $oUser = $this->getUser($oApp);
-		// if (!empty($oApp->actionRule->role->kanban->group)) {
-		// 	if (empty($oUser->group_id)) {
-		// 		if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
-		// 			return new \ParameterError('没有查看数据的权限，请联系活动管理员解决');
-		// 		}
-		// 	} else if ($oUser->group_id !== $oApp->actionRule->role->kanban->group) {
-		// 		return new \ParameterError('没有查看数据的权限，请联系活动管理员解决');
-		// 	}
-		// }
+		$oVisitor = $this->getUser($oApp);
 
+		/* 数据是否公开可见 */
+		$fnIsKeepPrivate = function ($oUser) use ($oVisitor) {
+			if ($oUser->userid === $oVisitor->uid) {
+				return false;
+			}
+			if (!empty($oVisitor->is_leader)) {
+				if ($oVisitor->is_leader === 'S') {
+					/* 超级用户可以查看所有信息 */
+					return false;
+				}
+				if ($oVisitor->is_leader === 'Y') {
+					if (isset($oUser->group_id) && isset($oVisitor->group_id) && $oUser->group_id === $oVisitor->group_id) {
+						/* 同组组长可以查看组内用户 */
+						return false;
+					}
+				}
+				// 	if ($oVisitor->group_id === $oApp->actionRule->role->kanban->group) {
+				// 		return false;
+				// 	}
+			}
+
+			return true;
+		};
+
+		/* 处理原始数据 */
 		$oStat = new \stdClass;
 		$fnSort = function (&$users, $prop) use ($oStat) {
 			usort($users, function ($a, $b) use ($prop) {
@@ -172,6 +188,10 @@ class user extends base {
 				unset($oUser->wx_openid);
 				/* 用户的贡献行为次数 */
 				$oUser->devote = (int) $oUser->enroll_num + (int) $oUser->do_cowork_num + (int) $oUser->do_remark_num + (int) $oUser->do_like_num + (int) $oUser->do_like_cowork_num + (int) $oUser->do_like_remark_num;
+				/* 隐藏用户身份信息 */
+				if ($fnIsKeepPrivate($oUser)) {
+					$oUser->nickname = '隐身';
+				}
 			}
 			/* 计算指标排序 */
 			foreach (['user_total_coin', 'score', 'entry_num', 'total_elapse', 'devote'] as $prop) {

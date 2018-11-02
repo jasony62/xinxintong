@@ -114,14 +114,12 @@ $sql .= ",last_like_cowork_at int not null default 0"; // 协作填写最后一�
 $sql .= ",like_cowork_num int not null default 0"; // 协作填写获得点赞的次数
 $sql .= ",last_like_remark_at int not null default 0"; // 留言最后一次获得点赞的时间
 $sql .= ",like_remark_num int not null default 0"; // 留言获得点赞的次数
-
 $sql .= ",last_dislike_at int not null default 0"; // 登记内容最后一次获得点赞的时间
 $sql .= ",dislike_num int not null default 0"; // 登记内容获得点赞的次数
 $sql .= ",last_dislike_cowork_at int not null default 0"; // 协作填写最后一次获得点赞的时间
 $sql .= ",dislike_cowork_num int not null default 0"; // 协作填写获得点赞的次数
 $sql .= ",last_dislike_remark_at int not null default 0"; // 留言最后一次获得点赞的时间
 $sql .= ",dislike_remark_num int not null default 0"; // 留言获得点赞的次数
-
 $sql .= ",last_do_remark_at int not null default 0"; // 最后一次发表评价的时间
 $sql .= ",do_remark_num int not null default 0"; // 发表的评价条数
 $sql .= ",last_do_like_at int not null default 0"; // 最后一次对登记内容进行点赞的时间
@@ -130,14 +128,12 @@ $sql .= ",last_do_like_cowork_at int not null default 0"; // 最后一次对协�
 $sql .= ",do_like_cowork_num int not null default 0"; // 对协作进行点赞的次数
 $sql .= ",last_do_like_remark_at int not null default 0"; // 最后一次对留言进行点赞的时间
 $sql .= ",do_like_remark_num int not null default 0"; // 对留言进行点赞的次数
-
 $sql .= ",last_do_dislike_at int not null default 0"; // 最后一次对登记内容进行点赞的时间
 $sql .= ",do_dislike_num int not null default 0"; // 对登记内容进行点赞的次数
 $sql .= ",last_do_dislike_cowork_at int not null default 0"; // 最后一次对协作进行点赞的时间
 $sql .= ",do_dislike_cowork_num int not null default 0"; // 对协作进行点赞的次数
 $sql .= ",last_do_dislike_remark_at int not null default 0"; // 最后一次对留言进行点赞的时间
 $sql .= ",do_dislike_remark_num int not null default 0"; // 对留言进行点赞的次数
-
 $sql .= ",last_agree_at int not null default 0"; // 最后一次获得推荐的时间
 $sql .= ",agree_num int not null default 0"; // 获得推荐的次数
 $sql .= ",last_agree_cowork_at int not null default 0"; // 最后一次协作获得推荐的时间

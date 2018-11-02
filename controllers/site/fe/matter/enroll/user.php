@@ -130,6 +130,11 @@ class user extends base {
 
 		$oVisitor = $this->getUser($oApp);
 
+		/* 当前用户属于有查看看板权限的用户组 */
+		if (!empty($oApp->actionRule->role->kanban->group)) {
+			$bInKanbanGroup = $this->model('matter\group\user')->isInRound($oApp->actionRule->role->kanban->group, $oVisitor->uid);
+			$oVisitor->bInKanbanGroup = $bInKanbanGroup;
+		}
 		/* 数据是否公开可见 */
 		$fnIsKeepPrivate = function ($oUser) use ($oVisitor) {
 			if ($oUser->userid === $oVisitor->uid) {
@@ -146,9 +151,9 @@ class user extends base {
 						return false;
 					}
 				}
-				// 	if ($oVisitor->group_id === $oApp->actionRule->role->kanban->group) {
-				// 		return false;
-				// 	}
+				if (!empty($oVisitor->bInKanbanGroup)) {
+					return false;
+				}
 			}
 
 			return true;

@@ -178,4 +178,28 @@ class user_model extends \TMS_MODEL {
 
 		return $users;
 	}
+	/**
+	 * 指定用户是否属于指定用户组
+	 */
+	public function isInRound($roundId, $userid) {
+		/* 主分组 */
+		$q = [
+			'1',
+			'xxt_group_player',
+			['userid' => $userid, 'state' => 1, 'round_id' => $roundId],
+		];
+		$oUser = $this->query_obj_ss($q);
+		if ($oUser) {
+			return true;
+		}
+		/* 辅助分组 */
+		unset($q[2]['round_id']);
+		$q[2]['role_rounds'] = (object) ['op' => 'like', 'pat' => '%' . $roundId . '%'];
+		$oUser = $this->query_obj_ss($q);
+		if ($oUser) {
+			return true;
+		}
+
+		return false;
+	}
 }

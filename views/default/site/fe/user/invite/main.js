@@ -1,31 +1,22 @@
 'use strict';
 
 var ngApp = angular.module('app', ['ui.tms', 'http.ui.xxt']);
-ngApp.controller('ctrlInvite', ['$scope', '$q', 'http2', function($scope, $q, http2) {
-    var _siteId, _oPage;
-    _siteId = location.search.match('site=(.*)')[1];
-    $scope.page = _oPage = {
-        at: 1,
-        size: 10,
-        join: function() {
-            return '&page=' + this.at + '&size=' + this.size;
-        }
-    };
+ngApp.controller('ctrlInvite', ['$scope', '$q', 'tmsLocation', 'http2', function($scope, $q, LS, http2) {
+    var _oPage;
+    $scope.page = _oPage = {};
     $scope.openInvite = function(oInvite) {
         location.href = '/rest/site/fe/user/invite/detail?invite=' + oInvite.id;
     };
     $scope.list = function() {
-        var defer, url;
+        var defer;
         defer = $q.defer();
-        url = '/rest/site/fe/user/invite/list?site=' + _siteId + _oPage.join();
-        http2.get(url).then(function(rsp) {
+        http2.get(LS.j('list', 'site'), { page: _oPage }).then(function(rsp) {
             $scope.invites = rsp.data.invites;
-            _oPage.total = rsp.data.total;
             defer.resolve(rsp.data);
         });
         return defer.promise;
     };
-    http2.get('/rest/site/fe/get?site=' + _siteId).then(function(rsp) {
+    http2.get('/rest/site/fe/get?site=' + LS.s().site).then(function(rsp) {
         $scope.site = rsp.data;
         $scope.list().then(function() {
             var eleLoading;

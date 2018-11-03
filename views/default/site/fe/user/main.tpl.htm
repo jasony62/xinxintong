@@ -45,7 +45,7 @@
             <a class='list-group-item' href="/rest/site/fe/user/favor?site={{site.id}}" target="_self">我的收藏<span class="badge" ng-bind="count.favor"></span></a>
             <a class='list-group-item' href="/rest/site/fe/user/notice?site={{site.id}}" target="_self">我的通知<span class="badge" ng-bind="count.notice"></span></a>
             <a class='list-group-item hide' href="/rest/site/fe/user/share?site={{site.id}}" target="_self">我的分享</a>
-            <a class='list-group-item' href="/rest/site/fe/user/invite?site={{site.id}}" target="_self">我的邀请</a>
+            <a ng-if="count.invite" class='list-group-item' href="/rest/site/fe/user/invite?site={{site.id}}" target="_self">我的邀请<span class="badge" ng-bind="count.invite"></span></a>
             <a href class='list-group-item' ng-click="toggleUserSetting($event)">
                 <span>个人设置</span>
                 <div ng-if="userSetting">

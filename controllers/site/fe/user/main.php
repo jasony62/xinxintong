@@ -9,7 +9,12 @@ class main extends \site\fe\base {
 	/**
 	 * 进入用户个人中心
 	 */
-	public function index_action() {
+	public function index_action($site) {
+		/* 检查是否需要第三方社交帐号OAuth */
+		if (!$this->afterSnsOAuth()) {
+			$this->requireSnsOAuth($site);
+		}
+
 		$user = $this->who;
 		if (isset($user->unionid)) {
 			$oAccount = $this->model('account')->byId($user->unionid, ['cascaded' => ['group']]);

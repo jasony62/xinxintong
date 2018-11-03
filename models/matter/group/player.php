@@ -1052,7 +1052,7 @@ class player_model extends \TMS_MODEL {
 			}
 		}
 
-		$dataSchemas = json_decode($objGrp->data_schemas);
+		$dataSchemas = $objGrp->dataSchemas;
 		$data = new \stdClass;
 		foreach ($dataSchemas as $ds) {
 			$data->{$ds->id} = !empty($ds->format) ? $record->{$ds->format} : (!empty($record->{$ds->id}) ? $record->{$ds->id} : '');

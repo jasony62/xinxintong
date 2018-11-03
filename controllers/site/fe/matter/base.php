@@ -277,11 +277,11 @@ class base extends \site\fe\base {
 	 */
 	protected function enterAsSns($oMatter) {
 		$oEntryRule = $oMatter->entryRule;
-		if (isset($oEntryRule->sns)) {
+		$bFollowed = false;
+		$oFollowedRule = null;
 
+		if (isset($oEntryRule->sns)) {
 			$oUser = $this->who;
-			$bFollowed = false;
-			$oFollowedRule = null;
 
 			/* 检查用户是否已经关注公众号 */
 			$fnCheckSnsFollow = function ($snsName, $matterSiteId, $openid) {

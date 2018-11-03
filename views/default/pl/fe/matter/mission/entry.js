@@ -20,7 +20,7 @@ define(['frame'], function(ngApp) {
     }]);
     ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'srvSite', function($scope, $uibModal, srvSite) {
         var _oEntryRule;
-        $scope.changeUserScope = function() {
+        $scope.changeUserScope = function(scopeProp) {
             switch (_oEntryRule.scope) {
                 case 'sns':
                     if (_oEntryRule.scope[scopeProp] === 'Y') {

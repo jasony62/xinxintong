@@ -116,6 +116,12 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'use
                 http2.get('/rest/site/fe/user/notice/count?site=' + LS.s().site).then(function(rsp) {
                     $scope.count.notice = rsp.data;
                 });
+                http2.get('/rest/site/fe/user/history/appCount?site=' + LS.s().site).then(function(rsp) {
+                    $scope.count.app = rsp.data;
+                });
+                http2.get('/rest/site/fe/user/history/missionCount?site=' + LS.s().site).then(function(rsp) {
+                    $scope.count.mission = rsp.data;
+                });
                 /*上一次访问状态*/
                 if (window.localStorage) {
                     if (cachedStatus = window.localStorage.getItem("site.fe.user.main")) {

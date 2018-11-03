@@ -154,7 +154,8 @@ $sql .= ",do_cowork_read_num int not null default 0"; // 阅读谈论页的次�
 $sql .= ",cowork_read_num int not null default 0"; // 谈论页被阅读的次数
 $sql .= ",do_cowork_read_elapse int not null default 0"; // 阅读谈论页的时长
 $sql .= ",cowork_read_elapse int not null default 0"; //
-$sql .= ",user_total_coin int not null default 0"; // 用户在某个活动中的总分数
+$sql .= ",user_total_coin int not null default 0"; // 用户的总积分
+$sql .= ",score float not null default 0"; // 用户总得分
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,100:后台删除,101:用户删除;
 $sql .= ",modify_log longtext null"; // 数据修改日志
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";

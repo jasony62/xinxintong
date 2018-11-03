@@ -34,6 +34,7 @@
             </div>
             <div class='headimg' ng-if="!user.loginExpire">
                 <img ng-src="{{user.headimgurl}}" >
+                <span></span>
             </div>
             <div class='nickname' ng-bind="user.nickname"></div>
         </div>
@@ -76,9 +77,9 @@
             <button class="btn btn-default btn-block" ng-click='gotoConsole()' ng-if="user.loginExpire">进入工作台</button>
             <button class="btn btn-default btn-block" ng-click='logout()' ng-if="user.loginExpire">退出登录</button>
         </div>
-        <div ng-if="user.registersByWx.length">
+        <div ng-if="user.siteRegistersByWx.length">
             <hr>
-            <button ng-repeat="regUser in user.registersByWx" class='btn btn-default btn-block' ng-click="shiftRegUser(regUser)">切换到【<span ng-bind="regUser.uname"></span>】<span ng-if="regUser.is_wx_primary==='Y'">（微信默认）</span></button>
+            <button ng-repeat="regUser in user.siteRegistersByWx" class='btn btn-default btn-block' ng-click="shiftRegUser(regUser)">切换到【<span ng-bind="regUser.uname"></span>】<span ng-if="regUser.is_wx_primary==='Y'">（微信默认）</span></button>
         </div>
         <div ng-if="user.plRegistersByWx.length">
             <hr>

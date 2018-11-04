@@ -35,6 +35,10 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseError('项目不存在');
 		}
 		$oMission = $this->model('matter\mission')->byId($id, ['cascaded' => ($cascaded === 'Y' ? 'header_page_name,footer_page_name' : '')]);
+		if (false === $oMission) {
+			return new \ObjectNotFoundError();
+		}
+
 		if ($cascaded === 'Y') {
 			/* 关联的用户名单活动 */
 			if ($oMission->user_app_id) {

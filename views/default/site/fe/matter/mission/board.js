@@ -7,15 +7,33 @@ ngApp.config(['$locationProvider', '$uibTooltipProvider', function($locationProv
     });
     $locationProvider.html5Mode(true);
 }]);
-ngApp.controller('ctrlMain', ['$scope', 'tmsLocation', 'http2', function($scope, LS, http2) {
+ngApp.controller('ctrlMain', ['$scope', '$parse', 'tmsLocation', 'http2', function($scope, $parse, LS, http2) {
     var _oMission;
     $scope.siteid = LS.s().site;
-    /*设置页面导航*/
-    $scope.pageNavs = [{ name: 'main', title: '项目活动', url: LS.j('', 'site', 'mission') + '&page=main' }];
     /* end app loading */
     http2.get(LS.j('get', 'site', 'mission')).then(function(rsp) {
         var groupUsers;
         $scope.mission = _oMission = rsp.data;
+        http2.get(LS.j('user/get', 'site', 'mission')).then(function(rsp) {
+            var oMisUser, oCustom;
+            oMisUser = rsp.data;
+            if (oMisUser) {
+                oCustom = $parse('board.nav')(oMisUser.custom);
+            }
+            if (!oCustom) {
+                oCustom = { stopTip: false };
+            }
+            /* 设置页面导航 */
+            $scope.popNav = {
+                navs: [{ name: 'main', title: '项目活动', url: LS.j('', 'site', 'mission') + '&page=main' }],
+                custom: oCustom
+            };
+            $scope.$watch('popNav.custom', function(nv, ov) {
+                if (nv !== ov) {
+                    http2.post(LS.j('user/updateCustom', 'site', 'mission'), { board: { nav: $scope.popNav.custom } }).then(function(rsp) {});
+                }
+            }, true);
+        });
     });
     var eleLoading, eleStyle;
     eleLoading = document.querySelector('.loading');

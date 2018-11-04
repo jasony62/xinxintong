@@ -20,6 +20,9 @@ class user_model extends \TMS_MODEL {
 			if (property_exists($oUser, 'modify_log')) {
 				$oUser->modify_log = empty($oUser->modify_log) ? [] : json_decode($oUser->modify_log);
 			}
+			if (property_exists($oUser, 'custom')) {
+				$oUser->custom = empty($oUser->custom) ? new \stdClass : json_decode($oUser->custom);
+			}
 		}
 
 		return $oUser;
@@ -100,6 +103,10 @@ class user_model extends \TMS_MODEL {
 			case 'modify_log':
 				if (!is_string($v)) {
 					$oNewUsr->{$k} = json_encode([$v]);
+				}
+			case 'custom':
+				if (!is_string($v)) {
+					$oNewUsr->{$k} = $this->escape($this->toJson($v));
 				}
 				break;
 			}

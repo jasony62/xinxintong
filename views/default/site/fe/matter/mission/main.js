@@ -7,8 +7,8 @@ ngApp.config(['$locationProvider', '$uibTooltipProvider', function($locationProv
     });
     $locationProvider.html5Mode(true);
 }]);
-ngApp.controller('ctrlMain', ['$scope', 'tmsLocation', 'http2', function($scope, LS, http2) {
-    function getUserTrack(oUser) {
+ngApp.controller('ctrlMain', ['$scope', '$parse', 'tmsLocation', 'http2', function($scope, $parse, LS, http2) {
+    function fnGetUserTrack(oUser) {
         var url;
         url = LS.j('userTrack', 'site', 'mission');
         if (oUser) {
@@ -87,10 +87,8 @@ ngApp.controller('ctrlMain', ['$scope', 'tmsLocation', 'http2', function($scope,
         }
     };
     $scope.shiftGroupUser = function(oGrpUser) {
-        getUserTrack(oGrpUser);
+        fnGetUserTrack(oGrpUser);
     };
-    /*设置页面导航*/
-    $scope.pageNavs = [{ name: 'board', title: '项目公告', url: LS.j('', 'site', 'mission') + '&page=board' }];
     http2.get(LS.j('get', 'site', 'mission')).then(function(rsp) {
         var groupUsers;
         $scope.mission = _oMission = rsp.data;
@@ -111,9 +109,29 @@ ngApp.controller('ctrlMain', ['$scope', 'tmsLocation', 'http2', function($scope,
                 search: location.search.replace('?', ''),
                 referer: document.referrer
             });
+            http2.get(LS.j('user/get', 'site', 'mission')).then(function(rsp) {
+                var oMisUser, oCustom;
+                oMisUser = rsp.data;
+                if (oMisUser) {
+                    oCustom = $parse('main.nav')(oMisUser.custom);
+                }
+                if (!oCustom) {
+                    oCustom = { stopTip: false };
+                }
+                /* 设置页面导航 */
+                $scope.popNav = {
+                    navs: [{ name: 'board', title: '项目公告', url: LS.j('', 'site', 'mission') + '&page=board' }],
+                    custom: oCustom
+                };
+                $scope.$watch('popNav.custom', function(nv, ov) {
+                    if (nv !== ov) {
+                        http2.post(LS.j('user/updateCustom', 'site', 'mission'), { main: { nav: $scope.popNav.custom } }).then(function(rsp) {});
+                    }
+                }, true);
+            });
         }
     });
-    getUserTrack();
+    fnGetUserTrack();
     /* end app loading */
     var eleLoading, eleStyle;
     eleLoading = document.querySelector('.loading');

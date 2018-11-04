@@ -158,6 +158,7 @@ $sql .= ",user_total_coin int not null default 0"; // 用户的总积分
 $sql .= ",score float not null default 0"; // 用户总得分
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,100:后台删除,101:用户删除;
 $sql .= ",modify_log longtext null"; // 数据修改日志
+$sql .= ",custom text null"; // 用户自定义设置
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

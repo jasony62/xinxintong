@@ -7,7 +7,7 @@ class analysis_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function submit($oApp, $rid, $oUser, $oEventData, $page, $recordId = 0, $topicId = 0, $client) {
+	public function submit($oApp, $rid, $oUser, $oEventData, $page, $recordId = 0, $topicId = 0, $oClient) {
 		$events = $oEventData->events;
 		if (empty($events)) {
 			$data = [false, '没有获取到任何事件'];
@@ -44,8 +44,8 @@ class analysis_model extends \TMS_MODEL {
 		$aNewTrace['event_end_at'] = $eventEndAt;
 		$aNewTrace['event_elapse'] = $eventElapse;
 		$aNewTrace['events'] = json_encode($oEventData);
-		$aNewTrace['user_agent'] = $client->agent;
-		$aNewTrace['client_ip'] = $client->ip;
+		$aNewTrace['user_agent'] = $oClient->agent;
+		$aNewTrace['client_ip'] = $oClient->ip;
 
 		$aNewTrace['id'] = $this->insert('xxt_enroll_trace', $aNewTrace, true);
 

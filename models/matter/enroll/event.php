@@ -258,6 +258,42 @@ class event_model extends \TMS_MODEL {
 		return true;
 	}
 	/**
+	 * 更新用户汇总数据
+	 */
+	public function updateMisUsrData($oMission, $bJumpCreate, $oUser, $oUsrEventData, $fnUsrMisData = null) {
+		$modelMisUsr = $this->model('matter\mission\user')->setOnlyWriteDbConn(true);
+		/* 项目中需要额外更新的数据 */
+		$oUpdatedMisUsrData = clone $oUsrEventData;
+		// unset($oUpdatedMisUsrData->modify_log);
+
+		$oMisUser = $modelMisUsr->byId($oMission, $oUser->uid, ['fields' => '*']);
+		/* 用户在项目中的所属分组 */
+		if ($oMission->user_app_type === 'group') {
+			$oMisUsrGrpApp = (object) ['id' => $oMission->user_app_id];
+			$oMisGrpUser = $this->model('matter\group\user')->byUser($oMisUsrGrpApp, $oUser->uid, ['onlyOne' => true, 'round_id']);
+			if (isset($oMisGrpUser->round_id)) {
+				$oUpdatedMisUsrData->group_id = $oMisGrpUser->round_id;
+			}
+		}
+		if (false === $oMisUser) {
+			if (!$bJumpCreate) {
+				$modelMisUsr->add($oMission, $oUser, $oUpdatedMisUsrData);
+			}
+		} else {
+			if (isset($fnUsrMisData)) {
+				$oResult = $fnUsrMisData($oMisUser);
+				if ($oResult) {
+					foreach ($oResult as $k => $v) {
+						$oUpdatedMisUsrData->{$k} = $v;
+					}
+				}
+			}
+			$modelMisUsr->modify($oMisUser, $oUpdatedMisUsrData);
+		}
+
+		return true;
+	}
+	/**
 	 * 用户提交记录
 	 */
 	public function submitRecord($oApp, $oRecord, $oUser, $bSubmitNewRecord, $bReviseRecordBeyondRound = false) {

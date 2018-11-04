@@ -1,7 +1,10 @@
 'use strict';
 var ngApp;
-ngApp = angular.module('app', ['ui.bootstrap', 'http.ui.xxt', 'trace.ui.xxt']);
-ngApp.config(['$locationProvider', function($locationProvider) {
+ngApp = angular.module('app', ['ui.bootstrap', 'http.ui.xxt', 'trace.ui.xxt', 'nav.ui.xxt']);
+ngApp.config(['$locationProvider', '$uibTooltipProvider', function($locationProvider, $uibTooltipProvider) {
+    $uibTooltipProvider.setTriggers({
+        'show': 'hide'
+    });
     $locationProvider.html5Mode(true);
 }]);
 ngApp.controller('ctrlMain', ['$scope', 'tmsLocation', 'http2', function($scope, LS, http2) {
@@ -86,6 +89,8 @@ ngApp.controller('ctrlMain', ['$scope', 'tmsLocation', 'http2', function($scope,
     $scope.shiftGroupUser = function(oGrpUser) {
         getUserTrack(oGrpUser);
     };
+    /*设置页面导航*/
+    $scope.pageNavs = [{ name: 'board', title: '项目公告', url: LS.j('', 'site', 'mission') + '&page=board' }];
     http2.get(LS.j('get', 'site', 'mission')).then(function(rsp) {
         var groupUsers;
         $scope.mission = _oMission = rsp.data;

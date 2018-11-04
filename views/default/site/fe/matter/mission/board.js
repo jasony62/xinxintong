@@ -1,14 +1,19 @@
 'use strict';
 var ngApp;
-ngApp = angular.module('app', ['ui.bootstrap', 'http.ui.xxt', 'trace.ui.xxt']);
-ngApp.config(['$locationProvider', function($locationProvider) {
+ngApp = angular.module('app', ['ui.bootstrap', 'http.ui.xxt', 'trace.ui.xxt', 'nav.ui.xxt']);
+ngApp.config(['$locationProvider', '$uibTooltipProvider', function($locationProvider, $uibTooltipProvider) {
+    $uibTooltipProvider.setTriggers({
+        'show': 'hide'
+    });
     $locationProvider.html5Mode(true);
 }]);
 ngApp.controller('ctrlMain', ['$scope', 'tmsLocation', 'http2', function($scope, LS, http2) {
     var _oMission;
     $scope.siteid = LS.s().site;
+    /*设置页面导航*/
+    $scope.pageNavs = [{ name: 'main', title: '项目活动', url: LS.j('', 'site', 'mission') + '&page=main' }];
     /* end app loading */
-    http2.get('/rest/site/fe/matter/mission/get?site=' + LS.s().site + '&mission=' + LS.s().mission).then(function(rsp) {
+    http2.get(LS.j('get', 'site', 'mission')).then(function(rsp) {
         var groupUsers;
         $scope.mission = _oMission = rsp.data;
     });
@@ -17,7 +22,7 @@ ngApp.controller('ctrlMain', ['$scope', 'tmsLocation', 'http2', function($scope,
     eleLoading.parentNode.removeChild(eleLoading);
 }]);
 ngApp.controller('ctrlDoc', ['$scope', 'tmsLocation', 'http2', function($scope, LS, http2) {
-    http2.get('/rest/site/fe/matter/mission/matter/docList?site=' + LS.s().site + '&mission=' + LS.s().mission).then(function(rsp) {
+    http2.get(LS.j('matter/docList', 'site', 'mission')).then(function(rsp) {
         $scope.docs = rsp.data;
     });
 }]);
@@ -65,12 +70,12 @@ ngApp.controller('ctrlRecommend', ['$scope', '$sce', 'tmsLocation', 'http2', fun
         }
         location.href = url;
     };
-    http2.get('/rest/site/fe/matter/mission/matter/agreedList?site=' + LS.s().site + '&mission=' + LS.s().mission).then(function(rsp) {
+    http2.get(LS.j('matter/agreedList', 'site', 'mission')).then(function(rsp) {
         $scope.recommends = rsp.data.agreed;
     });
 }]);
 ngApp.controller('ctrlRank', ['$scope', 'tmsLocation', 'http2', function($scope, LS, http2) {
-    http2.get('/rest/site/fe/matter/mission/user/rank?site=' + LS.s().site + '&mission=' + LS.s().mission).then(function(rsp) {
+    http2.get(LS.j('user/rank', 'site', 'mission')).then(function(rsp) {
         $scope.users = rsp.data.users;
     });
 }]);

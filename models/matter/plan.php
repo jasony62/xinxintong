@@ -108,7 +108,7 @@ class plan_model extends app_base {
 			$oNewApp->summary = empty($oProto->summary) ? $oMission->summary : $oProto->summary;
 			$oNewApp->pic = $oMission->pic;
 			$oNewApp->mission_id = $oMission->id;
-			$oMisEntryRule = $oMission->entry_rule;
+			$oMisEntryRule = $oMission->entryRule;
 		} else {
 			$oNewApp->summary = empty($oProto->summary) ? '' : $oProto->summary;
 			$oNewApp->pic = $oSite->heading_pic;

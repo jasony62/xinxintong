@@ -151,7 +151,7 @@ class base extends \site\fe\base {
 						}
 						$this->gotoMember($oMatter, $aMemberSchemaIds);
 					} else {
-						$msg = '您【ID:' . $oUser->uid . '】没有填写通讯录信息，不满足【' . $oMatter->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
+						$msg = '您【ID:' . $this->who->uid . '】没有填写通讯录信息，不满足【' . $oMatter->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
 					}
 				}
 			}
@@ -277,11 +277,11 @@ class base extends \site\fe\base {
 	 */
 	protected function enterAsSns($oMatter) {
 		$oEntryRule = $oMatter->entryRule;
-		if (isset($oEntryRule->sns)) {
+		$bFollowed = false;
+		$oFollowedRule = null;
 
+		if (isset($oEntryRule->sns)) {
 			$oUser = $this->who;
-			$bFollowed = false;
-			$oFollowedRule = null;
 
 			/* 检查用户是否已经关注公众号 */
 			$fnCheckSnsFollow = function ($snsName, $matterSiteId, $openid) {

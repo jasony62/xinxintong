@@ -12,7 +12,7 @@
     <link href='/static/css/site.fe.css?_=2' rel="stylesheet">
 </head>
 
-<body ng-controller="ctrlAction">
+<body ng-controller="ctrlAction" tms-trace send-url='/rest/site/fe/matter/enroll/analysis/submit?site={{app.siteid}}&app={{app.id}}&page=event' ready-sign="app">
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <nav class='navbar site-navbar-default'>
@@ -42,8 +42,6 @@
             <div class='row'>
                 <div class='col-md-12'>
                     <div class='form-group'>
-                        <label class='radio-inline'>
-                            <input type='radio' name='scope' value='kanban' ng-model="filter.scope">看板</label>
                         <label class='radio-inline'>
                             <input type='radio' name='scope' value='N' ng-model="filter.scope">通知</label>
                         <label class='radio-inline'>
@@ -249,154 +247,6 @@
             </div>
         </div>
         <!--end log list-->
-    </script>
-    <script type="text/ng-template" id="kanban.html">
-        <div id='filterQuick' ng-cloak>
-            <div ng-if="rounds.length" class="btn-group" uib-dropdown dropdown-append-to-body='true'>
-                <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
-                    <span ng-bind="filter.round.title"></span>
-                    <span class="glyphicon glyphicon-filter"></span>
-                </button>
-                <ul class="dropdown-menu" uib-dropdown-menu>
-                    <li><a href ng-click="shiftRound({rid:'ALL',title:'全部'})">全部</a></li>
-                    <li ng-repeat="rnd in rounds"><a href ng-click="shiftRound(rnd)">{{rnd.title}}</a></li>
-                </ul>
-            </div>
-        </div>
-        <div id='kanban' class='table-responsive'>
-            <table class='table table-bordered'>
-                <thead>
-                    <tr>
-                        <th style='width:48px'>序号</th>
-                        <th>姓名</th>
-                        <th ng-if="app.entryRule.group.id">分组</th>
-                        <th>填写记录</th>
-                        <th>跨轮次修改</th>
-                        <th>最后填写时间</th>
-                        <th>协作填写</th>
-                        <th>发表留言</th>
-                        <th>发表点赞</th>
-                        <th>获得推荐</th>
-                        <th>获得协作</th>
-                        <th>获得留言</th>
-                        <th>获得赞同</th>
-                        <th>浏览共享页次数</th>
-                        <th>浏览专题页次数</th>
-                        <th>专题页被浏览次数</th>
-                        <th>浏览讨论页次数</th>
-                        <th>讨论页被浏览次数</th>
-                        <th>共享页浏览累计时间</th>
-                        <th>专题页浏览累计时间</th>
-                        <th>专题页被浏览累计时间</th>
-                        <th>讨论页浏览累计时间</th>
-                        <th>讨论页被浏览累计时间</th>
-                        <th>积分</th>
-                        <th>得分</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat='u in kanban.users' ng-class="{'undone':u.undone}">
-                        <td>{{$index+1}}</td>
-                        <td>{{u.nickname}}</td>
-                        <td ng-if='app.entryRule.group.id'>
-                            <div ng-if='u.group'>{{u.group.l}}</div>
-                        </td>
-                        <td ng-class="{'undone':u.undone.enroll_num[0]===true}">
-                            <div ng-if='u.enroll_num'>{{u.enroll_num}}</div>
-                        </td>
-                        <td ng-class="{'undone':u.undone.revise_num[0]===true}">
-                            <div ng-if='u.revise_num'>{{u.revise_num}}</div>
-                        </td>
-                        <td>
-                            <div ng-if='u.last_enroll_at>0'>{{u.last_enroll_at*1000|date:'MM-dd HH:mm'}}</div>
-                        </td>
-                        <td>
-                            <div ng-if='u.do_cowork_num'>{{u.do_cowork_num}}</div>
-                        </td>
-                        <td ng-class="{'undone':u.undone.do_remark_num[0]===true}">
-                            <div ng-if='u.do_remark_num'>{{u.do_remark_num}}</div>
-                        </td>
-                        <td>
-                            <div ng-if='u.do_like_num'>{{u.do_like_num}}</div>
-                        </td>
-                        <td>
-                            <div ng-if='u.agree_num'>{{u.agree_num}}</div>
-                        </td>
-                        <td>
-                            <div ng-if='u.cowork_num'>{{u.cowork_num}}</div>
-                        </td>
-                        <td>
-                            <div ng-if='u.remark_num'>{{u.remark_num}}</div>
-                        </td>
-                        <td>
-                            <div ng-if='u.like_num'>{{u.like_num}}</div>
-                        </td>
-                        <td>
-                            <div>{{u.do_repos_read_num}}</div>
-                        </td>
-                        <td>
-                            <div>{{u.do_topic_read_num}}</div>
-                        </td>
-                        <td>
-                            <div>{{u.topic_read_num}}</div>
-                        </td>
-                        <td>
-                            <div>{{u.do_cowork_read_num}}</div>
-                        </td>
-                        <td>
-                            <div>{{u.cowork_read_num}}</div>
-                        </td>
-                        <td>
-                            <div>{{u.do_repos_read_elapse | filterTime}}</div>
-                        </td>
-                        <td>
-                            <div>{{u.do_topic_read_elapse | filterTime}}</div>
-                        </td>
-                        <td>
-                            <div>{{u.topic_read_elapse | filterTime}}</div>
-                        </td>
-                        <td>
-                            <div>{{u.do_cowork_read_elapse | filterTime}}</div>
-                        </td>
-                        <td>
-                            <div>{{u.cowork_read_elapse | filterTime}}</div>
-                        </td>
-                        <td>
-                            <div ng-if='u.user_total_coin'>{{u.user_total_coin}}</div>
-                        </td>
-                        <td>
-                            <div ng-if='u.score'>{{m.score}}</div>
-                        </td>
-                    </tr>
-                    <tr ng-repeat='u in kanban.undone' class="undone">
-                        <td>{{$index+1}}</td>
-                        <td>{{u.nickname}}</td>
-                        <td ng-if='app.entryRule.group.id'></td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
     </script>
     <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
     <script src="/static/js/angular.min.js"></script>

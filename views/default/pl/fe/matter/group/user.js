@@ -1,7 +1,7 @@
 define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlUser', ['$scope', 'noticebox', 'srvGroupApp', 'srvGroupRound', 'srvGroupPlayer', 'srvMemberPicker', 'facListFilter', function($scope, noticebox, srvGroupApp, srvGroupRound, srvGrpUsr, srvMemberPicker, facListFilter) {
         $scope.syncByApp = function(data) {
-            srvGroupApp.syncBƒApp().then(function(count) {
+            srvGroupApp.syncByApp().then(function(count) {
                 $scope.list('round');
             });
         };

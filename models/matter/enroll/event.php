@@ -226,7 +226,6 @@ class event_model extends \TMS_MODEL {
 			$modelMisUsr = $this->model('matter\mission\user')->setOnlyWriteDbConn(true);
 			/* 项目中需要额外更新的数据 */
 			$oUpdatedMisUsrData = clone $oUsrEventData;
-			unset($oUpdatedMisUsrData->score);
 			// unset($oUpdatedMisUsrData->modify_log);
 
 			$oMission = $this->model('matter\mission')->byId($oApp->mission_id, ['fields' => 'siteid,id,user_app_type,user_app_id']);
@@ -234,7 +233,7 @@ class event_model extends \TMS_MODEL {
 			/* 用户在项目中的所属分组 */
 			if ($oMission->user_app_type === 'group') {
 				$oMisUsrGrpApp = (object) ['id' => $oMission->user_app_id];
-				$oMisGrpUser = $this->model('matter\group\player')->byUser($oMisUsrGrpApp, $oUser->uid, ['onlyOne' => true, 'round_id']);
+				$oMisGrpUser = $this->model('matter\group\user')->byUser($oMisUsrGrpApp, $oUser->uid, ['onlyOne' => true, 'round_id']);
 				if (isset($oMisGrpUser->round_id)) {
 					$oUpdatedMisUsrData->group_id = $oMisGrpUser->round_id;
 				}
@@ -254,6 +253,42 @@ class event_model extends \TMS_MODEL {
 				}
 				$modelMisUsr->modify($oMisUser, $oUpdatedMisUsrData);
 			}
+		}
+
+		return true;
+	}
+	/**
+	 * 更新用户汇总数据
+	 */
+	public function updateMisUsrData($oMission, $bJumpCreate, $oUser, $oUsrEventData, $fnUsrMisData = null) {
+		$modelMisUsr = $this->model('matter\mission\user')->setOnlyWriteDbConn(true);
+		/* 项目中需要额外更新的数据 */
+		$oUpdatedMisUsrData = clone $oUsrEventData;
+		// unset($oUpdatedMisUsrData->modify_log);
+
+		$oMisUser = $modelMisUsr->byId($oMission, $oUser->uid, ['fields' => '*']);
+		/* 用户在项目中的所属分组 */
+		if ($oMission->user_app_type === 'group') {
+			$oMisUsrGrpApp = (object) ['id' => $oMission->user_app_id];
+			$oMisGrpUser = $this->model('matter\group\user')->byUser($oMisUsrGrpApp, $oUser->uid, ['onlyOne' => true, 'round_id']);
+			if (isset($oMisGrpUser->round_id)) {
+				$oUpdatedMisUsrData->group_id = $oMisGrpUser->round_id;
+			}
+		}
+		if (false === $oMisUser) {
+			if (!$bJumpCreate) {
+				$modelMisUsr->add($oMission, $oUser, $oUpdatedMisUsrData);
+			}
+		} else {
+			if (isset($fnUsrMisData)) {
+				$oResult = $fnUsrMisData($oMisUser);
+				if ($oResult) {
+					foreach ($oResult as $k => $v) {
+						$oUpdatedMisUsrData->{$k} = $v;
+					}
+				}
+			}
+			$modelMisUsr->modify($oMisUser, $oUpdatedMisUsrData);
 		}
 
 		return true;
@@ -878,7 +913,7 @@ class event_model extends \TMS_MODEL {
 	}
 	/**
 	 * 不赞同填写记录
-	 * 
+	 *
 	 */
 	public function dislikeRecord($oApp, $oRecord, $oOperator) {
 		$oOperatorData = $this->_doDislikeRecOrData($oApp, $oRecord, $oOperator, 'record');
@@ -902,7 +937,7 @@ class event_model extends \TMS_MODEL {
 		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
 		$this->_logEvent($oApp, $oRecord->rid, $oRecord->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
-		
+
 		return $oOperatorData;
 	}
 	/**

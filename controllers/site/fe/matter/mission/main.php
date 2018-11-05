@@ -9,8 +9,8 @@ class main extends \site\fe\matter\base {
 	/**
 	 *
 	 */
-	public function index_action($mission) {
-		$oMission = $this->model('matter\mission')->byId($mission, ['fields' => 'id,siteid,entry_rule']);
+	public function index_action($mission, $page = 'main') {
+		$oMission = $this->model('matter\mission')->byId($mission, ['fields' => 'siteid,id,title,entry_rule']);
 		if (false === $oMission) {
 			return new \ObjectNotFoundError();
 		}
@@ -20,24 +20,15 @@ class main extends \site\fe\matter\base {
 			$this->requireSnsOAuth($oMission);
 		}
 
-		\TPL::output('/site/fe/matter/mission/main');
-		exit;
-	}
-	/**
-	 *
-	 */
-	public function board_action() {
-		$oMission = $this->model('matter\mission')->byId($mission, ['fields' => 'id,siteid,entry_rule']);
-		if (false === $oMission) {
-			return new \ObjectNotFoundError();
-		}
+		$this->checkEntryRule($oMission, true);
 
-		/* 检查是否需要第三方社交帐号OAuth */
-		if (!$this->afterSnsOAuth()) {
-			$this->requireSnsOAuth($oMission);
+		switch ($page) {
+		case 'board':
+			\TPL::output('/site/fe/matter/mission/board');
+			break;
+		default:
+			\TPL::output('/site/fe/matter/mission/main');
 		}
-
-		\TPL::output('/site/fe/matter/mission/board');
 		exit;
 	}
 	/**

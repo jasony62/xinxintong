@@ -297,10 +297,8 @@ $sql .= ",remark_id int not null default 0"; // 是对哪条留言进行的留�
 $sql .= ",remark_num int not null default 0"; // 留言数
 $sql .= ",like_log longtext null"; // 点赞日志 {userid:likeAt}
 $sql .= ",like_num int not null default 0"; // 点赞数
-
 $sql .= ",dislike_log longtext null"; // 点赞日志 {userid:likeAt}
 $sql .= ",dislike_num int not null default 0"; // 点赞数
-
 $sql .= ",agreed char(1) not null default ''"; // 是否赞同（Y：推荐，N：屏蔽，A(ccept)：接受）
 $sql .= ",agreed_log text null"; // 推荐日志
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除,101:用户删除;
@@ -322,6 +320,9 @@ $sql .= ",rid varchar(13) not null default ''"; // 登记轮次，ALL代表累�
 $sql .= ",group_id varchar(32) not null default ''"; // 用户分组id
 $sql .= ",userid varchar(40) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
+$sql .= ",entry_num int not null default 0"; // 进入活动的次数
+$sql .= ",last_entry_at int not null default 0"; // 最后一次进入时间
+$sql .= ",total_elapse int not null default 0"; // 参与活动的总时长
 $sql .= ",last_enroll_at int not null default 0"; // 最后一次登记时间
 $sql .= ",enroll_num int not null default 0"; // 登记记录的条数
 $sql .= ",revise_num int not null default 0"; // 跨轮次修订的次数

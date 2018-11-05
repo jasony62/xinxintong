@@ -118,20 +118,20 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             }
                         }
                         srvApp.update(updatedAppProps).then(function(oUpdatedApp) {
+                            function fnUpdateOnePage(index) {
+                                srvAppPage.update(changedPages[index], ['dataSchemas', 'html']).then(function() {
+                                    index++;
+                                    if (index === changedPages.length) {
+                                        deferred.resolve();
+                                    } else {
+                                        fnUpdateOnePage(index);
+                                    }
+                                });
+                            }
                             http2.merge(oApp.dataSchemas, oUpdatedApp.dataSchemas);
                             if (!changedPages || changedPages.length === 0) {
                                 deferred.resolve();
                             } else {
-                                function fnUpdateOnePage(index) {
-                                    srvAppPage.update(changedPages[index], ['dataSchemas', 'html']).then(function() {
-                                        index++;
-                                        if (index === changedPages.length) {
-                                            deferred.resolve();
-                                        } else {
-                                            fnUpdateOnePage(index);
-                                        }
-                                    });
-                                };
                                 fnUpdateOnePage(0);
                             }
                         });
@@ -361,7 +361,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 if (oSchema.schema_id) {
                     oBefore = angular.copy(oSchema);
                     oAssocMschema = $scope.mschemasById[oSchema.schema_id];
-                    if (oMsSchema = oAssocMschema._schemasById[oSchema.id]) {
+                    if (oMsSchema = $scope.app._schemasById[oSchema.id]) {
                         oMsSchema.assocState = 'no';
                     }
                     if (!bOnlyAssocState) {

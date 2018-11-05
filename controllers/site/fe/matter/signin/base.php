@@ -48,7 +48,7 @@ class base extends \site\fe\matter\base {
 				}
 			}
 
-			return [true];
+			return [false, '没有指定签到完成后进入的页面'];
 		}
 
 		foreach (['member', 'sns', 'group', 'enroll'] as $item) {

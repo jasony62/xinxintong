@@ -172,9 +172,9 @@ class user extends main_base {
 			}
 		}
 
-		$options = [];
-		!empty($rid) && $options['rid'] = $rid;
-		$oResult = $modelUsr->enrolleeByApp($oApp, $page = '', $size = '', $options);
+		$aOptions = [];
+		!empty($rid) && $aOptions['rid'] = $rid;
+		$oResult = $modelUsr->enrolleeByApp($oApp, $page = '', $size = '', $aOptions);
 
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
 		// Create new PHPExcel object
@@ -196,6 +196,8 @@ class user extends main_base {
 		if (!empty($oApp->entryRule->group->id)) {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '分组');
 		}
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '总访问次数');
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '总访问时长');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '记录');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '留言');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '点赞');
@@ -223,6 +225,8 @@ class user extends main_base {
 			if (!empty($oApp->entryRule->group->id)) {
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, empty($oUser->group) ? '' : $oUser->group->title);
 			}
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $oUser->entry_num);
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, date('y-m-j H:i', $oUser->last_entry_at));
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $oUser->enroll_num);
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $oUser->do_remark_num);
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $oUser->do_like_num);
@@ -265,6 +269,7 @@ class user extends main_base {
 
 				$rowNumber++;
 			}
+			$objPHPExcel->setActiveSheetIndex(0);
 		}
 
 		// 输出

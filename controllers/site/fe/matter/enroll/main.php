@@ -49,7 +49,7 @@ class main extends base {
 		}
 
 		/* 返回登记活动页面 */
-		if (in_array($page, ['cowork', 'share', 'event', 'rank', 'score', 'votes', 'marks', 'repos', 'favor', 'topic', 'stat'])) {
+		if (in_array($page, ['cowork', 'share', 'event', 'kanban', 'rank', 'score', 'votes', 'marks', 'repos', 'favor', 'topic', 'stat'])) {
 			/* 设置页面标题 */
 			if (in_array($page, ['topic', 'share']) && !empty($topic)) {
 				$modelTop = $this->model('matter\enroll\topic');
@@ -82,7 +82,7 @@ class main extends base {
 				$this->_pageReadlog($oApp, $oOpenPage->name, $rid, $ek, $topic);
 			}
 			\TPL::assign('title', $oApp->title);
-			if (in_array($oOpenPage->name, ['event', 'rank', 'score', 'votes', 'marks', 'repos', 'favor', 'topic', 'stat'])) {
+			if (in_array($oOpenPage->name, ['event', 'kanban', 'rank', 'score', 'votes', 'marks', 'repos', 'favor', 'topic', 'stat'])) {
 				$outputUrl = '/site/fe/matter/enroll/' . $oOpenPage->name;
 			} else if ($oOpenPage->type === 'I') {
 				$outputUrl = '/site/fe/matter/enroll/input';
@@ -304,7 +304,7 @@ class main extends base {
 		}
 
 		/* 要打开的页面 */
-		if (!in_array($page, ['event', 'repos', 'cowork', 'share', 'rank', 'score', 'votes', 'marks', 'favor', 'topic', 'stat'])) {
+		if (!in_array($page, ['event', 'kanban', 'repos', 'cowork', 'share', 'rank', 'score', 'votes', 'marks', 'favor', 'topic', 'stat'])) {
 			$modelPage = $this->model('matter\enroll\page');
 			$oUserEnrolled = $modelRec->lastByUser($oApp, $oUser, ['asaignRid' => $rid]);
 			/* 计算打开哪个页面 */

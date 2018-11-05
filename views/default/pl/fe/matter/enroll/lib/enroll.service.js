@@ -336,20 +336,20 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         }
                         page.type === 'I' && (defaultInput = newPage);
                     });
-                    all.push({ name: 'event', 'title': '活动动态页' });
+                    all.push({ name: 'kanban', 'title': '活动看板页' });
                     all.push({ name: 'repos', 'title': '共享数据页' });
                     all.push({ name: 'rank', 'title': '排行榜' });
                     all.push({ name: 'votes', 'title': '投票榜' });
                     all.push({ name: 'marks', 'title': '打分榜' });
                     all.push({ name: 'score', 'title': '测验结果' });
                     all.push({ name: 'stat', 'title': '统计页' });
-                    otherwise.push({ name: 'event', 'title': '活动动态页' });
+                    otherwise.push({ name: 'kanban', 'title': '活动看板页' });
                     otherwise.push({ name: 'repos', 'title': '共享数据页' });
                     otherwise.push({ name: 'rank', 'title': '排行榜' });
                     otherwise.push({ name: 'votes', 'title': '投票榜' });
                     otherwise.push({ name: 'marks', 'title': '打分榜' });
                     otherwise.push({ name: 'stat', 'title': '统计页' });
-                    exclude.push({ name: 'event', 'title': '活动动态页' });
+                    exclude.push({ name: 'kanban', 'title': '活动看板页' });
                     exclude.push({ name: 'repos', 'title': '共享数据页' });
                     exclude.push({ name: 'cowork', 'title': '讨论页' });
                     exclude.push({ name: 'rank', 'title': '排行榜' });

@@ -20,6 +20,9 @@ class user_model extends \TMS_MODEL {
 			if (property_exists($oUser, 'modify_log')) {
 				$oUser->modify_log = empty($oUser->modify_log) ? [] : json_decode($oUser->modify_log);
 			}
+			if (property_exists($oUser, 'custom')) {
+				$oUser->custom = empty($oUser->custom) ? new \stdClass : json_decode($oUser->custom);
+			}
 		}
 
 		return $oUser;
@@ -94,9 +97,16 @@ class user_model extends \TMS_MODEL {
 			case 'do_repos_read_elapse':
 				$oNewUsr->{$k} = $v;
 				break;
+			case 'score':
+				$oNewUsr->{$k} = $v;
+				break;
 			case 'modify_log':
 				if (!is_string($v)) {
 					$oNewUsr->{$k} = json_encode([$v]);
+				}
+			case 'custom':
+				if (!is_string($v)) {
+					$oNewUsr->{$k} = $this->escape($this->toJson($v));
 				}
 				break;
 			}
@@ -112,6 +122,7 @@ class user_model extends \TMS_MODEL {
 		$aDbData = [];
 		foreach ($oUpdatedData as $field => $value) {
 			switch ($field) {
+			case 'last_entry_at':
 			case 'last_enroll_at':
 			case 'last_cowork_at':
 			case 'last_do_cowork_at':
@@ -136,6 +147,8 @@ class user_model extends \TMS_MODEL {
 			case 'last_topic_at':
 				$aDbData[$field] = $value;
 				break;
+			case 'entry_num':
+			case 'total_elapse':
 			case 'enroll_num':
 			case 'cowork_num':
 			case 'do_cowork_num':
@@ -171,6 +184,10 @@ class user_model extends \TMS_MODEL {
 			case 'do_repos_read_elapse':
 				$aDbData[$field] = (int) $oBeforeData->{$field}+$value;
 				break;
+			case 'score':
+				/* 更新时传入的得分可能只是用户在某个活动中的得分，需要重新计算用户在整个项目中的得分 */
+				$aDbData['score'] = $this->_scoreByUser($oBeforeData);
+				break;
 			case 'group_id':
 			case 'nickname':
 				$aDbData[$field] = $value;
@@ -184,10 +201,34 @@ class user_model extends \TMS_MODEL {
 				break;
 			}
 		}
+		if (!empty($aDbData)) {
+			$rst = $this->update('xxt_mission_user', $aDbData, ['id' => $oBeforeData->id]);
+		}
 
-		$rst = $this->update('xxt_mission_user', $aDbData, ['id' => $oBeforeData->id]);
+		return true;
+	}
+	/**
+	 * 用户在整个项目中的得分
+	 */
+	private function _scoreByUser($oMisUser) {
+		$q = [
+			'id',
+			'xxt_enroll',
+			['mission_id' => $oMisUser->mission_id, 'state' => 1],
+		];
+		$appIds = $this->query_vals_ss($q);
+		if (count($appIds)) {
+			$q = [
+				'sum(score)',
+				'xxt_enroll_user',
+				['userid' => $oMisUser->userid, 'aid' => $appIds, 'rid' => 'ALL'],
+			];
+			$sum = (float) $this->query_val_ss($q);
+		} else {
+			$sum = 0;
+		}
 
-		return $rst;
+		return $sum;
 	}
 	/**
 	 * 删除1条记录

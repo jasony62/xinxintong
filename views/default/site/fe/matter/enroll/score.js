@@ -46,29 +46,10 @@ ngApp.controller('ctrlScore', ['$scope', '$sce', 'tmsLocation', 'http2', functio
             $scope.record = oRecord;
             /*设置页面分享信息*/
             $scope.setSnsShare(oRecord);
+            /*设置页面导航*/
+            $scope.setPopNav(['repos', 'rank', 'event'], 'score');
             /*页面阅读日志*/
             $scope.logAccess();
-            /*设置页面导航*/
-            var oAppNavs = {
-                length: 0
-            };
-            if (oApp.scenarioConfig) {
-                if (oApp.scenarioConfig.can_repos === 'Y') {
-                    oAppNavs.repos = {};
-                    oAppNavs.length++;
-                }
-                if (oApp.scenarioConfig.can_rank === 'Y') {
-                    oAppNavs.rank = {};
-                    oAppNavs.length++;
-                }
-                if (oApp.scenarioConfig.can_action === 'Y') {
-                    oAppNavs.event = {};
-                    oAppNavs.length++;
-                }
-            }
-            if (Object.keys(oAppNavs)) {
-                $scope.appNavs = oAppNavs;
-            }
         });
     });
 }]);

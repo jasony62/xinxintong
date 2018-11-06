@@ -76,8 +76,6 @@
                                 <th>得分</th>
                                 <th ng-if="sns.wx.joined=='Y'">微信昵称</th>
                                 <th ng-if="sns.yx.joined=='Y'">易信昵称</th>
-                                <th>最后一次通知发送时间</th>
-                                <th>最后一次通知发送结果</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -128,12 +126,6 @@
                                 </td>
                                 <td ng-if="sns.yx.joined=='Y'">
                                     <div ng-show="m.yx_openid">{{m.yxfan.nickname}}</div>
-                                </td>
-                                <td>
-                                    <div ng-if="m.tmplmsg.create_at">{{m.tmplmsg.create_at*1000|date: 'yy-MM-dd HH:mm'}}</div>
-                                </td>
-                                <td>
-                                    <div ng-if="m.tmplmsg">{{m._tmpStatus[0]}}</div>
                                 </td>
                             </tr>
                         </tbody>

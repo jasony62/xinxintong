@@ -7,6 +7,85 @@ include_once dirname(__FILE__) . '/base.php';
  */
 class user extends base {
 	/**
+	 *
+	 */
+	public function get_action($app) {
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		if ($oApp === false) {
+			return new \ObjectNotFoundError();
+		}
+		$modelEnlUsr = $this->model('matter\enroll\user');
+
+		$oEnlUser = $modelEnlUsr->byId($oApp, $this->who->uid);
+
+		return new \ResponseData($oEnlUser);
+	}
+	/**
+	 * 更新用户设置
+	 */
+	public function updateCustom_action($app) {
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		if ($oApp === false) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelEnlUsr = $this->model('matter\enroll\user');
+		$oEnlUser = $modelEnlUsr->byId($oApp, $this->who->uid, ['fields' => 'id,custom']);
+		if (false === $oEnlUser) {
+			$oEnlUser = $modelEnlUsr->add($oApp, $this->who);
+			$oEnlUser->custom = new \stdClass;
+		}
+		$oPosted = $this->getPostJson();
+		foreach ($oPosted as $prop => $val) {
+			switch ($prop) {
+			case 'cowork':
+			case 'event':
+			case 'favor':
+			case 'input':
+			case 'kanban':
+			case 'list':
+			case 'marks':
+			case 'rank':
+			case 'repos':
+			case 'score':
+			case 'share':
+			case 'stat':
+			case 'topic':
+			case 'view':
+			case 'votes':
+				$oPurifiedVal = new \stdClass;
+				if (is_object($val)) {
+					foreach ($val as $prop2 => $val2) {
+						switch ($prop2) {
+						case 'nav':
+							if (is_object($val2)) {
+								$oPurifiedVal->nav = new \stdClass;
+								foreach ($val2 as $prop3 => $val3) {
+									switch ($prop3) {
+									case 'stopTip':
+										$oPurifiedVal->nav->stopTip = is_bool($val3) ? $val3 : false;
+										break;
+									}
+								}
+							}
+							break;
+						}
+					}
+				}
+				break;
+			}
+			$oEnlUser->custom->{$prop} = $oPurifiedVal;
+		}
+
+		$modelEnlUsr->update(
+			'xxt_enroll_user',
+			['custom' => $modelEnlUsr->escape($modelEnlUsr->toJson($oEnlUser->custom))],
+			['id' => $oEnlUser->id]
+		);
+
+		return new \ResponseData('ok');
+	}
+	/**
 	 * 返回当前用户任务完成的情况
 	 */
 	public function task_action($app) {

@@ -1092,31 +1092,10 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         _facRound.list().then(function(oResult) {
             $scope.rounds = oResult.rounds;
         });
+        /*设置页面导航*/
+        $scope.setPopNav(['votes', 'repos', 'rank', 'event'], 'input');
         /*页面阅读日志*/
         $scope.logAccess();
-        /*设置页面导航*/
-        var oAppNavs = { length: 0 };
-        if (_oApp.scenario === 'voting') {
-            oAppNavs.votes = {};
-            oAppNavs.length++;
-        }
-        if (_oApp.scenarioConfig) {
-            if (_oApp.scenarioConfig.can_repos === 'Y') {
-                oAppNavs.repos = {};
-                oAppNavs.length++;
-            }
-            if (_oApp.scenarioConfig.can_rank === 'Y') {
-                oAppNavs.rank = {};
-                oAppNavs.length++;
-            }
-            if (_oApp.scenarioConfig.can_action === 'Y') {
-                oAppNavs.event = {};
-                oAppNavs.length++;
-            }
-        }
-        if (Object.keys(oAppNavs).length) {
-            $scope.appNavs = oAppNavs;
-        }
         /* 微信不支持上传文件，指导用户进行处理 */
         if (/MicroMessenger|iphone|ipad/i.test(navigator.userAgent)) {
             if (_oApp.entryRule && _oApp.entryRule.scope && _oApp.entryRule.scope.member === 'Y') {

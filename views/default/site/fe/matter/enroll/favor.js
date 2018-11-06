@@ -23,13 +23,7 @@ ngApp.factory('TopicRepos', ['http2', '$q', '$sce', 'tmsLocation', function(http
         this.oApp = oApp;
         this.oTopic = oTopic;
         this.shareableSchemas = oShareableSchemas;
-        this.oPage = {
-            at: 1,
-            size: 12,
-            j: function() {
-                return '&page=' + this.at + '&size=' + this.size;
-            }
-        };
+        this.oPage = {};
         this.repos = [];
     };
     TopicRepos.prototype.list = function(pageAt) {
@@ -45,10 +39,9 @@ ngApp.factory('TopicRepos', ['http2', '$q', '$sce', 'tmsLocation', function(http
             this.repos.splice(0, this.repos.length);
             this.oPage.total = 0;
         }
-        url = LS.j('repos/recordByTopic', 'site', 'app') + '&topic=' + this.oTopic.id + this.oPage.j();
+        url = LS.j('repos/recordByTopic', 'site', 'app') + '&topic=' + this.oTopic.id;
 
-        http2.post(url, {}).then(function(oResult) {
-            _this.oPage.total = oResult.data.total;
+        http2.post(url, {}, { page: this.oPage }).then(function(oResult) {
             if (oResult.data.records) {
                 oResult.data.records.forEach(function(oRecord) {
                     _this.repos.push(oRecord);
@@ -96,31 +89,10 @@ ngApp.controller('ctrlFavor', ['$scope', '$uibModal', 'http2', 'tmsLocation', fu
         if (!oApp) return;
         /* 设置页面分享信息 */
         $scope.setSnsShare(); // 应该禁止分享
+        /*设置页面导航*/
+        $scope.setPopNav(['repos', 'rank', 'event'], 'favor');
         /*页面阅读日志*/
         $scope.logAccess();
-        /*设置页面导航*/
-        var oAppNavs = { length: 0 };
-        if (oApp.scenarioConfig) {
-            if (oApp.scenarioConfig.can_repos === 'Y') {
-                oAppNavs.repos = {};
-                oApp.length++;
-            }
-            if (oApp.scenarioConfig.can_rank === 'Y') {
-                oAppNavs.rank = {};
-                oApp.length++;
-            }
-            if (oApp.scenarioConfig.can_action === 'Y') {
-                /* 设置活动事件提醒 */
-                http2.get(LS.j('notice/count', 'site', 'app')).then(function(rsp) {
-                    $scope.noticeCount = rsp.data;
-                });
-                oAppNavs.event = {};
-                oApp.length++;
-            }
-        }
-        if (Object.keys(oAppNavs).length) {
-            $scope.appNavs = oAppNavs;
-        }
     });
 }]);
 /**
@@ -146,7 +118,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     var _oApp, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oMocker, shareby;
     shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
-    $scope.page = _oPage = { at: 1, size: 12, total: 0 };
+    $scope.page = _oPage = {};
     $scope.filter = _oFilter = {}; // 过滤条件
     $scope.criteria = _oCriteria = { rid: 'all', creator: false, favored: true, agreed: 'all', orderby: 'lastest' }; // 数据查询条件
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
@@ -165,10 +137,8 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             _oPage.total = 0;
         }
         url = LS.j('repos/recordList', 'site', 'app');
-        url += '&page=' + _oPage.at + '&size=' + _oPage.size;
         $scope.reposLoading = true;
-        http2.post(url, _oCriteria).then(function(result) {
-            _oPage.total = result.data.total;
+        http2.post(url, _oCriteria, { page: _oPage }).then(function(result) {
             if (result.data.records) {
                 result.data.records.forEach(function(oRecord) {
                     if (_coworkRequireLikeNum > oRecord.like_num) {

@@ -22,32 +22,6 @@ window.__util.makeDialog = function(id, html) {
 };
 
 var ngMod = angular.module('directive.enroll', []);
-ngMod.directive('tmsAppNav', ['$templateCache', function($templateCache) {
-    var html;
-    html = "<div class='tms-nav-target'>";
-    html += "<div ng-if=\"navs.repos\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'repos')\">共享页</button></div>";
-    html += "<div ng-if=\"navs.favor\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'favor')\">收藏页</button></div>";
-    html += "<div ng-if=\"navs.rank\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'rank')\">排行页</button></div>";
-    html += "<div ng-if=\"navs.votes\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'votes')\">投票榜</button></div>";
-    html += "<div ng-if=\"navs.event\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'event')\">动态页<span class='notice-count' ng-if=\"noticeCount\" ng-bind=\"noticeCount\"></span></button></div>";
-    html += "</div>";
-    $templateCache.put('appNavTemplate.html', html);
-    return {
-        restrict: 'A',
-        replace: true,
-        transclude: true,
-        scope: {
-            navs: '=appNavs',
-            noticeCount: '=noticeCount'
-        },
-        template: "<span><span ng-if=\"!navs||navs.length===0\"><span ng-transclude></span></span><span ng-if=\"navs.length\" uib-popover-template=\"'appNavTemplate.html'\" popover-placement=\"bottom\" popover-trigger=\"'outsideClick'\"><span ng-transclude></span><span class='notice-count' ng-if=\"noticeCount\" ng-bind=\"noticeCount\"></span><span class=\"caret\"></span></span></span>",
-        controller: ['$scope', function($scope) {
-            $scope.goto = function(event, page) {
-                $scope.$parent.gotoPage(event, page);
-            };
-        }]
-    };
-}]);
 ngMod.directive('tmsAppAct', ['$templateCache', function($templateCache) {
     var html;
     html = "<div class='tms-act-popover-wrap'>";

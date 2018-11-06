@@ -32,32 +32,6 @@ class user extends main_base {
 		}
 
 		$oResult = $modelUsr->enrolleeByApp($oApp, $page, $size, $aOptions);
-		/* 由于版本原因，判断是否需要系统获取填写人信息 */
-		if (0 === count($oResult->users)) {
-			if ($this->_refresh($oApp) > 0) {
-				$oResult = $modelUsr->enrolleeByApp($oApp, $page, $size, $aOptions);
-			}
-		}
-
-		/* 查询有openid的用户发送消息的情况 */
-		if (count($oResult->users)) {
-			foreach ($oResult->users as $oUser) {
-				$q = [
-					'd.tmplmsg_id,d.status,b.create_at',
-					'xxt_log_tmplmsg_detail d,xxt_log_tmplmsg_batch b',
-					"d.userid = '{$oUser->userid}' and d.openid<>'' and d.batch_id = b.id and b.send_from = 'enroll:" . $oUser->aid . "'",
-				];
-				$q2 = [
-					'r' => ['o' => 0, 'l' => 1],
-					'o' => 'b.create_at desc',
-				];
-				if ($tmplmsg = $modelUsr->query_objs_ss($q, $q2)) {
-					$oUser->tmplmsg = $tmplmsg[0];
-				} else {
-					$oUser->tmplmsg = new \stdClass;
-				}
-			}
-		}
 
 		return new \ResponseData($oResult);
 	}
@@ -68,7 +42,6 @@ class user extends main_base {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
-		empty($rid) && $rid = 'ALL';
 
 		$modelEnl = $this->model('matter\enroll');
 		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,state,mission_id,entry_rule,action_rule,absent_cause']);
@@ -76,6 +49,7 @@ class user extends main_base {
 			return new \ObjectNotFoundError();
 		}
 
+		empty($rid) && $rid = 'ALL';
 		$modelUsr = $this->model('matter\enroll\user');
 		$oResult = $modelUsr->undoneByApp($oApp, $rid);
 
@@ -291,14 +265,6 @@ class user extends main_base {
 		$objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
 		$objWriter->save('php://output');
 		exit;
-	}
-	/**
-	 *
-	 */
-	private function _refresh($oApp) {
-		$count = 0;
-
-		return $count;
 	}
 	/**
 	 * 根据用户的填写记录更新用户数据

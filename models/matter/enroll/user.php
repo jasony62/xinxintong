@@ -26,6 +26,9 @@ class user_model extends \TMS_MODEL {
 			if (property_exists($oUser, 'modify_log')) {
 				$oUser->modify_log = empty($oUser->modify_log) ? [] : json_decode($oUser->modify_log);
 			}
+			if (property_exists($oUser, 'custom')) {
+				$oUser->custom = empty($oUser->custom) ? new \stdClass : json_decode($oUser->custom);
+			}
 		}
 
 		return $oUser;

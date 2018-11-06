@@ -188,6 +188,7 @@ class base extends \site\fe\matter\base {
 					$oResult->passed = 'N';
 					$oResult->scope = 'sns';
 					$oResult->sns = $oEntryRule->sns;
+					$oResult->passUrl = '/rest/site/fe/user/follow?site=' . $oApp->siteid . '&sns=wx';
 				}
 			}
 		}

@@ -256,12 +256,6 @@ class record extends base {
 				}
 			}
 		}
-		/**
-		 * 通知登记活动事件接收人
-		 */
-		if ($oSigninApp->notify_submit === 'Y') {
-			$this->_notifyReceivers($oSigninApp, $oSignState->ek);
-		}
 
 		return new \ResponseData($oSignState);
 	}
@@ -291,62 +285,6 @@ class record extends base {
 		$logid = $modelLog->addUserMatterOp($oApp->siteid, $logUser, $oApp, $operation, $client, $referer);
 
 		return $logid;
-	}
-	/**
-	 * 通知签到活动事件接收人
-	 *
-	 * @param string $siteId
-	 * @param object $app
-	 * @param string $ek
-	 *
-	 */
-	private function _notifyReceivers(&$oApp, $ek) {
-		$receivers = $this->model('matter\signin\receiver')->byApp($oApp->siteid, $oApp->id);
-		if (count($receivers) === 0) {
-			return false;
-		}
-		/* 获得活动的管理员链接 */
-		$appURL = $this->model('matter\signin')->getOpUrl($oApp->siteid, $oApp->id);
-		$modelQurl = $this->model('q\url');
-		$noticeURL = $modelQurl->urlByUrl($oApp->siteid, $appURL);
-		/* 模板消息参数 */
-		$params = new \stdClass;
-		$notice = $this->model('site\notice')->byName($oApp->siteid, 'site.signin.submit');
-		if ($notice === false) {
-			return false;
-		}
-		$tmplConfig = $this->model('matter\tmplmsg\config')->byId($notice->tmplmsg_config_id, ['cascaded' => 'Y']);
-		if (!isset($tmplConfig->tmplmsg)) {
-			return false;
-		}
-		foreach ($tmplConfig->tmplmsg->params as $param) {
-			$mapping = $tmplConfig->mapping->{$param->pname};
-			if ($mapping->src === 'matter') {
-				if (isset($oApp->{$mapping->id})) {
-					$value = $oApp->{$mapping->id};
-				}
-			} else if ($mapping->src === 'text') {
-				$value = $mapping->name;
-			}
-			!isset($value) && $value = '';
-			$params->{$param->pname} = $value;
-		}
-		$noticeURL && $params->url = $noticeURL;
-
-		/* 发送消息 */
-		foreach ($receivers as &$receiver) {
-			if (!empty($receiver->sns_user)) {
-				$snsUser = json_decode($receiver->sns_user);
-				if (isset($snsUser->src) && isset($snsUser->openid)) {
-					$receiver->{$snsUser->src . '_openid'} = $snsUser->openid;
-				}
-			}
-		}
-
-		$modelTmplBat = $this->model('matter\tmplmsg\plbatch');
-		$modelTmplBat->send($oApp->siteid, $tmplConfig->msgid, $receivers, $params, ['event_name' => 'site.signin.submit', 'send_from' => 'signin:' . $oApp->id . ':' . $ek]);
-
-		return true;
 	}
 	/**
 	 * 分段上传文件

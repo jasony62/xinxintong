@@ -38,16 +38,6 @@ class signin_model extends enroll_base {
 		return $url;
 	}
 	/**
-	 * 签到活动的汇总展示链接
-	 */
-	public function getOpUrl($siteId, $id) {
-		$url = APP_PROTOCOL . APP_HTTP_HOST;
-		$url .= '/rest/site/op/matter/signin';
-		$url .= "?site={$siteId}&app=" . $id;
-
-		return $url;
-	}
-	/**
 	 *
 	 * @param string $appId
 	 * @param $options array []
@@ -64,7 +54,6 @@ class signin_model extends enroll_base {
 			$oApp->type = 'signin';
 			if (isset($oApp->siteid) && isset($oApp->id)) {
 				$oApp->entryUrl = $this->getEntryUrl($oApp->siteid, $oApp->id);
-				$oApp->opUrl = $this->getOpUrl($oApp->siteid, $oApp->id);
 			}
 			if ($fields === '*' || false !== strpos($fields, 'entry_rule')) {
 				if (empty($oApp->entry_rule)) {
@@ -549,11 +538,6 @@ class signin_model extends enroll_base {
 
 		$oNewApp->entry_rule = $this->toJson($oEntryRule);
 		$oNewApp->data_schemas = empty($oTemplateConfig->schema) ? [] : $this->toJson($oTemplateConfig->schema);
-
-		/* 任务码 */
-		$entryUrl = $this->getOpUrl($oSite->id, $appId);
-		$code = $this->model('q\url')->add($oUser, $oSite->id, $entryUrl, $oNewApp->title);
-		$oNewApp->op_short_url_code = $code;
 
 		$oNewApp = $this->create($oUser, $oNewApp);
 

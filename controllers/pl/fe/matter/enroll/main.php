@@ -295,10 +295,6 @@ class main extends main_base {
 		if (!empty($mission)) {
 			$oNewApp->mission_id = $mission;
 		}
-		/* 任务码 */
-		$entryUrl = $modelApp->getOpUrl($oNewApp->siteid, $oNewApp->id);
-		$code = $this->model('q\url')->add($oUser, $oNewApp->siteid, $entryUrl, $oNewApp->title);
-		$oNewApp->op_short_url_code = $code;
 
 		$oNewApp = $modelApp->create($oUser, $oNewApp);
 		/**

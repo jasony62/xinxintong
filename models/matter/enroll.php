@@ -44,26 +44,6 @@ class enroll_model extends enroll_base {
 		return $url;
 	}
 	/**
-	 * 登记活动的汇总展示链接
-	 */
-	public function getOpUrl($siteId, $id) {
-		$url = APP_PROTOCOL . APP_HTTP_HOST;
-		$url .= '/rest/site/op/matter/enroll';
-		$url .= "?site={$siteId}&app=" . $id;
-
-		return $url;
-	}
-	/**
-	 * 登记活动的统计报告链接
-	 */
-	public function getRpUrl($siteId, $id) {
-		$url = APP_PROTOCOL . APP_HTTP_HOST;
-		$url .= '/rest/site/op/matter/enroll/report';
-		$url .= "?site={$siteId}&app=" . $id;
-
-		return $url;
-	}
-	/**
 	 * 新建记录活动
 	 */
 	public function create($oUser, $oNewApp) {
@@ -123,8 +103,6 @@ class enroll_model extends enroll_base {
 
 			if (isset($oApp->siteid) && isset($oApp->id)) {
 				$oApp->entryUrl = $this->getEntryUrl($oApp->siteid, $oApp->id);
-				$oApp->opUrl = $this->getOpUrl($oApp->siteid, $oApp->id);
-				$oApp->rpUrl = $this->getRpUrl($oApp->siteid, $oApp->id);
 			}
 			if ($fields === '*' || false !== strpos($fields, 'entry_rule')) {
 				if (empty($oApp->entry_rule)) {
@@ -686,11 +664,6 @@ class enroll_model extends enroll_base {
 			$oScenarioConfig->can_rank = 'N';
 		}
 		$oNewApp->scenario_config = json_encode($oScenarioConfig);
-
-		/*任务码*/
-		$entryUrl = $this->getOpUrl($oSite->id, $appId);
-		$code = $this->model('q\url')->add($oUser, $oSite->id, $entryUrl, $oNewApp->title);
-		$oNewApp->op_short_url_code = $code;
 
 		$oNewApp = $this->create($oUser, $oNewApp);
 

@@ -7,32 +7,6 @@ require_once dirname(__FILE__) . '/app_base.php';
  */
 abstract class enroll_base extends app_base {
 	/**
-	 * 更新素材信息并记录
-	 *
-	 * 修改冗余信息
-	 *
-	 * @param object $oUser 修改人
-	 * @param object $oMatter 被修改的素材
-	 * @param object $oUpdated 被修改的内容
-	 *
-	 */
-	public function modify($oUser, $oMatter, $oUpdated) {
-		if (isset($oUpdated->title)) {
-			$qCodes = [];
-			if (!empty($oMatter->op_short_url_code)) {
-				$qCodes[] = $oMatter->op_short_url_code;
-			}
-			if (!empty($oMatter->rp_short_url_code)) {
-				$qCodes[] = $oMatter->rp_short_url_code;
-			}
-			if (count($qCodes)) {
-				$this->model()->update('xxt_short_url', ['target_title' => $oUpdated->title], ['code' => $qCodes]);
-			}
-		}
-
-		return parent::modify($oUser, $oMatter, $oUpdated);
-	}
-	/**
 	 * 根据用户指定的规则设置
 	 */
 	protected function setEntryRuleByProto($oSite, &$oEntryRule, $oProtoEntryRule) {

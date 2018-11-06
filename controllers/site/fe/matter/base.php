@@ -157,7 +157,7 @@ class base extends \site\fe\base {
 			}
 			if (isset($msg)) {
 				if (true === $bRedirect) {
-					$oSite = $this->model('site')->byId($oApp->siteid);
+					$oSite = $this->model('site')->byId($oMatter->siteid);
 					$this->outputInfo($msg, $oSite);
 				} else {
 					return [false, $msg];

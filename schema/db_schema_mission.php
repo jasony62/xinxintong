@@ -154,9 +154,34 @@ $sql .= ",do_cowork_read_num int not null default 0"; // 阅读谈论页的次�
 $sql .= ",cowork_read_num int not null default 0"; // 谈论页被阅读的次数
 $sql .= ",do_cowork_read_elapse int not null default 0"; // 阅读谈论页的时长
 $sql .= ",cowork_read_elapse int not null default 0"; //
-$sql .= ",user_total_coin int not null default 0"; // 用户在某个活动中的总分数
+$sql .= ",user_total_coin int not null default 0"; // 用户的总积分
+$sql .= ",score float not null default 0"; // 用户总得分
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,100:后台删除,101:用户删除;
 $sql .= ",modify_log longtext null"; // 数据修改日志
+$sql .= ",custom text null"; // 用户自定义设置
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 记录活动页面记录追踪
+ */
+$sql = "create table if not exists xxt_mission_trace(";
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",mission_id int not null";
+$sql .= ",page varchar(13) not null default ''"; //
+$sql .= ",userid varchar(40) not null";
+$sql .= ",nickname varchar(255) not null default ''";
+$sql .= ",event_first varchar(255) not null default ''";
+$sql .= ",event_first_at int not null default 0";
+$sql .= ",event_end varchar(255) not null default ''";
+$sql .= ",event_end_at int not null default 0";
+$sql .= ",event_elapse int not null default 0"; // 事件总时长
+$sql .= ",events text null"; // 事件
+$sql .= ",user_agent text null";
+$sql .= ",client_ip varchar(40) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

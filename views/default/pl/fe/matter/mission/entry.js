@@ -20,8 +20,8 @@ define(['frame'], function(ngApp) {
     }]);
     ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'srvSite', function($scope, $uibModal, srvSite) {
         var _oEntryRule;
-        $scope.changeUserScope = function() {
-            switch (_oEntryRule.scope) {
+        $scope.changeUserScope = function(scopeProp) {
+            switch (scopeProp) {
                 case 'sns':
                     if (_oEntryRule.scope[scopeProp] === 'Y') {
                         if (!_oEntryRule.sns) {
@@ -91,7 +91,7 @@ define(['frame'], function(ngApp) {
             var mission = $scope.mission;
             $uibModal.open({
                 templateUrl: 'assignUserApp.html',
-                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                controller: ['$scope', '$uibModalInstance', 'srvSite', function($scope2, $mi, srvSite) {
                     $scope2.data = {
                         appId: '',
                         appType: 'group'

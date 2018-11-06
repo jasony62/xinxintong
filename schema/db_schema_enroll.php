@@ -297,10 +297,8 @@ $sql .= ",remark_id int not null default 0"; // 是对哪条留言进行的留�
 $sql .= ",remark_num int not null default 0"; // 留言数
 $sql .= ",like_log longtext null"; // 点赞日志 {userid:likeAt}
 $sql .= ",like_num int not null default 0"; // 点赞数
-
 $sql .= ",dislike_log longtext null"; // 点赞日志 {userid:likeAt}
 $sql .= ",dislike_num int not null default 0"; // 点赞数
-
 $sql .= ",agreed char(1) not null default ''"; // 是否赞同（Y：推荐，N：屏蔽，A(ccept)：接受）
 $sql .= ",agreed_log text null"; // 推荐日志
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除,101:用户删除;

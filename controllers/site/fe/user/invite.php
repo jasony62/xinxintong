@@ -49,6 +49,24 @@ class invite extends \site\fe\base {
 		return new \ResponseData($result);
 	}
 	/**
+	 * 当前用户发起的邀请
+	 */
+	public function count_action() {
+		if (empty($this->who->unionid)) {
+			return new \ResponseData(0);
+		}
+
+		$modelInv = $this->model('invite');
+
+		$oCreator = new \stdClass;
+		$oCreator->id = $this->who->unionid;
+		$oCreator->type = 'A';
+
+		$count = $modelInv->countByCreator($oCreator);
+
+		return new \ResponseData($count);
+	}
+	/**
 	 *
 	 */
 	public function get_action($invite) {

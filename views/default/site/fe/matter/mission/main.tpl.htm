@@ -15,20 +15,17 @@
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
-    <div ng-controller="ctrlMain">
+    <div ng-controller="ctrlMain" tms-trace send-url='/rest/site/fe/matter/mission/analysis/submit?site={{siteid}}&mission={{mission.id}}&page=main' ready-sign="mission">
         <nav class='navbar site-navbar-default'>
             <div class='container'>
                 <div class="navbar-header">
-                    <div class="navbar-brand">
-                        <i class="glyphicon glyphicon-edit visible-lg-inline"></i> <span class='icon-note' ng-bind='mission.title'></span>
-                    </div>
+                    <a href="" class="navbar-brand">
+                    <i class="glyphicon glyphicon-edit visible-lg-inline"></i> <span tms-pop-nav navs="popNav.navs" close-after='5000' custom="popNav.custom">项目活动</span>
+                </a>
                 </div>
                 <ul class="nav navbar-nav navbar-right">
                     <li class="pull-left">
-                        <a href="/rest/site/fe/matter/mission/board?site={{siteid}}&mission={{mission.id}}"><i class="glyphicon glyphicon-bullhorn"></i><span class="visible-lg-inline"> 公告</span></a>
-                    </li>
-                    <li class="pull-left">
-                        <a href="" ng-click="siteUser()"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline"> 个人中心</span></a>
+                        <a href ng-click="siteUser()"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline"> 个人中心</span></a>
                     </li>
                 </ul>
             </div>
@@ -115,10 +112,13 @@
     </div>
     <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
     <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-route.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="<?php echo auto_version('/asset/js/xxt.ui.trace.js');?>"></script>
     <script src="<?php echo auto_version('/asset/js/xxt.ui.http.js');?>"></script>
-    <script src="/static/js/require.js" defer async data-main="<?php echo auto_version('/views/default/site/fe/matter/mission/main-loader.js');?>"></script>
+    <script src="<?php echo auto_version('/asset/js/xxt.ui.nav.js');?>"></script>
+    <script src="<?php echo auto_version('/views/default/site/fe/matter/mission/main.js');?>"></script>
 </body>
 
 </html>

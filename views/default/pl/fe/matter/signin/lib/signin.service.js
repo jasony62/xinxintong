@@ -273,22 +273,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
                     return _getAppDeferred.promise;
                 },
-                opGet: function() {
-                    var url, _getAppDeferred = false;
-
-                    if (_getAppDeferred) {
-                        return _getAppDeferred.promise;
-                    }
-                    _getAppDeferred = $q.defer();
-                    url = '/rest/site/op/matter/signin/get?site=' + siteId + '&app=' + appId + '&accessToken=' + accessId;
-                    http2.get(url).then(function(rsp) {
-                        _opApps = rsp.data, _opApp = rsp.data.app, _opPage = rsp.data.page;
-                        _ins._bGet(_opApp, _fnMapSchemas);
-                        _getAppDeferred.resolve(_opApps);
-                    });
-
-                    return _getAppDeferred.promise;
-                },
                 update: function(names) {
                     var defer = $q.defer(),
                         modifiedData = {},
@@ -891,53 +875,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 });
                 return defer.promise;
             };
-            return _ins;
-        }];
-    }).provider('srvOpSigninRecord', function() {
-        var _siteId, _appId, _accessId;
-        this.config = function(siteId, appId, accessId) {
-            _siteId = siteId;
-            _appId = appId;
-            _accessId = accessId;
-        };
-        this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'tmsSchema', function($q, http2, noticebox, $uibModal, tmsSchema) {
-            var _ins = new BasesrvSigninRecord($q, http2, tmsSchema, noticebox, $uibModal);
-            _ins.search = function(pageNumber) {
-                var url;
-
-                this._aRecords.splice(0, this._aRecords.length);
-                pageNumber && (this._oPage.at = pageNumber);
-                url = '/rest/site/op/matter/signin/record/list';
-                url += '?site=' + this._oApp.siteid;
-                url += '&app=' + this._oApp.id;
-                url += '&accessToken=' + _accessId;
-                url += this._oPage.joinParams();
-
-                return _ins._bSearch(url);
-            };
-            _ins.batchVerify = function(rows) {
-                var url;
-
-                url = '/rest/site/op/matter/signin/record/batchVerify';
-                url += '?site=' + _siteId;
-                url += '&app=' + _appId;
-                url += '&accessToken=' + _accessId;
-
-                return _ins._bBatchVerify(rows, url);
-            };
-            _ins.filter = function() {
-                return _ins._bFilter();
-            };
-            _ins.remove = function(record) {
-                if (window.confirm('确认删除？')) {
-                    http2.get('/rest/site/op/matter/signin/record/remove?site=' + _siteId + '&app=' + _appId + '&accessToken=' + _accessId + '&ek=' + record.enroll_key).then(function(rsp) {
-                        var i = _ins._aRecords.indexOf(record);
-                        _ins._aRecords.splice(i, 1);
-                        _ins._oPage.total = _ins._oPage.total - 1;
-                    });
-                }
-            };
-
             return _ins;
         }];
     }).provider('srvSigninNotice', function() {

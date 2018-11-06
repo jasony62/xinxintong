@@ -169,10 +169,6 @@ class main extends \site\fe\matter\base {
 				unset($oMatter->pages);
 				unset($oMatter->create_at);
 				unset($oMatter->creater_name);
-				unset($oMatter->opUrl);
-				unset($oMatter->op_short_url_code);
-				unset($oMatter->rpUrl);
-				unset($oMatter->rp_short_url_code);
 				unset($oMatter->is_public);
 
 				$mattersByUser[] = $oMatter;

@@ -31,16 +31,6 @@ class mission_model extends app_base {
 		return $url;
 	}
 	/**
-	 * 获得访问入口url
-	 */
-	public function getOpUrl($siteId, $id) {
-		$url = APP_PROTOCOL . APP_HTTP_HOST;
-		$url .= "/rest/site/op/matter/mission";
-		$url .= "?site={$siteId}&mission=" . $id;
-
-		return $url;
-	}
-	/**
 	 * 获得项目定义
 	 */
 	public function &byId($id, $aOptions = []) {
@@ -74,7 +64,6 @@ class mission_model extends app_base {
 			}
 			if (isset($oMission->siteid) && isset($oMission->id)) {
 				$oMission->entryUrl = $this->getEntryUrl($oMission->siteid, $oMission->id);
-				$oMission->opUrl = $this->getOpUrl($oMission->siteid, $oMission->id);
 			}
 			if (!empty($oMission->id)) {
 				$oMission->roundNum = $modelRnd->countByMission($oMission, ['state' => 1]);

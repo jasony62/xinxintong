@@ -430,15 +430,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         $scope.recordList(1);
         $scope.facRound = _facRound = new enlRound(_oApp);
         _facRound.list().then(function(result) {
-            // if (result.active) {
-            //     for (var i = 0, ii = result.rounds.length; i < ii; i++) {
-            //         if (result.rounds[i].rid === result.active.rid) {
-            //             _oFilter.round = result.active;
-            //             _oCriteria.rid = result.active.rid;
-            //             break;
-            //         }
-            //     }
-            // }
             $scope.rounds = result.rounds;
         });
         if (_oApp.reposConfig && _oApp.reposConfig.defaultOrder) {
@@ -466,7 +457,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         /* 设置页面分享信息 */
         $scope.setSnsShare(null, null, { target_type: 'repos', target_id: _oApp.id });
         /*设置页面导航*/
-        $scope.setPopNav(['rank', 'event'], 'repos');
+        $scope.setPopNav(['rank', 'event', 'favor'], 'repos');
         /* 页面阅读日志 */
         $scope.logAccess({ target_type: 'repos', target_id: _oApp.id });
         /* 设置页面操作 */

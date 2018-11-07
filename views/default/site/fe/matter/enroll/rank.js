@@ -305,7 +305,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'e
         /*设置页面分享信息*/
         $scope.setSnsShare();
         /*设置页面导航*/
-        $scope.setPopNav(['repos', 'event'], 'rank');
+        $scope.setPopNav(['repos', 'favor', 'event'], 'rank');
         /*页面阅读日志*/
         $scope.logAccess();
         /*设置页面操作*/

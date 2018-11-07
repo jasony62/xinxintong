@@ -50,7 +50,10 @@ class main extends base {
 
 		/* 返回登记活动页面 */
 		if (in_array($page, ['cowork', 'share', 'event', 'kanban', 'rank', 'score', 'votes', 'marks', 'repos', 'favor', 'topic', 'stat'])) {
-			/* 设置页面标题 */
+			if ($page === 'topic' && empty($topic)) {
+				$this->outputError('参数不完整，无法访问专题页');
+				exit;
+			}
 			if (in_array($page, ['topic', 'share']) && !empty($topic)) {
 				$modelTop = $this->model('matter\enroll\topic');
 				$oTopic = $modelTop->byId($topic, ['fields' => 'id,state,title']);

@@ -206,7 +206,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         }
         $scope.appActs.length = Object.keys($scope.appActs).length;
         /*设置页面导航*/
-        $scope.setPopNav(['repos', 'rank', 'event'], 'cowork');
+        $scope.setPopNav(['repos', 'favor', 'rank', 'event'], 'cowork');
     }
     /* 是否可以对记录进行表态 */
     function fnCanAgreeRecord(oRecord, oUser) {

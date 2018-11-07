@@ -89,7 +89,7 @@ ngApp.controller('ctrlKanban', ['$scope', '$q', '$uibModal', 'tmsLocation', 'htt
         $scope.userGroups = params.groups;
         _oFilter.round = _oApp.appRound;
         /*设置页面导航*/
-        $scope.setPopNav(['repos', 'rank', 'event'], 'kanban');
+        $scope.setPopNav(['repos', 'favor', 'rank', 'event'], 'kanban');
         (new enlRound(_oApp)).list().then(function(result) {
             $scope.rounds = result.rounds;
         });

@@ -89,7 +89,7 @@ define(['frame'], function(ngApp) {
             evt.stopPropagation();
             if (type == 'enroll') {
                 $uibModal.open({
-                    templateUrl: '/views/default/pl/fe/_module / copyMatter.html?_=3',
+                    templateUrl: '/views/default/pl/fe/_module/copyMatter.html?_=3',
                     controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
                         var criteria;
                         $scope2.pageOfMission = {};

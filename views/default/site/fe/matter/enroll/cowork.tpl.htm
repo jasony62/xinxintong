@@ -71,7 +71,7 @@
                     <div><span ng-if="record.enroll_at>0">{{record.enroll_at*1000|date:'MM-dd HH:mm'}}</span></div>
                     <a href ng-click="likeRecord()"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':record.like_log[user.uid]}"></span>&nbsp;<span ng-bind="record.like_num"></span></a>
                     <a href ng-click="dislikeRecord()"><span class='glyphicon glyphicon-thumbs-down' ng-class="{'like':record.dislike_log[user.uid]}"></span>&nbsp;<span ng-bind="record.dislike_num"></span></a>
-                    <a href ng-if="params.entryRuleResult.passed==='Y'" ng-click="writeRemark()"><span class="glyphicon glyphicon-comment"></span>&nbsp;<span ng-bind="record.rec_remark_num"></span></a>
+                    <a href ng-if="app.scenarioConfig.no_remark!=='Y'&&params.entryRuleResult.passed==='Y'" ng-click="writeRemark()"><span class="glyphicon glyphicon-comment"></span>&nbsp;<span ng-bind="record.rec_remark_num"></span></a>
                     <div class="btn-group" uib-dropdown>
                         <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>
                             <span class="glyphicon glyphicon-option-vertical"></span>
@@ -154,7 +154,7 @@
                                         <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
                                             <li><a href ng-click="removeItem(schema,$index)"><span class='glyphicon glyphicon-trash'></span> 删除</a></li>
                                             <li><a href ng-click="editItem(schema,$index)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
-                                            <li><a href ng-click="coworkAsRemark(schema,$index)"><span class='glyphicon glyphicon-transfer'></span> 转为留言</a></li>
+                                            <li ng-if="app.scenarioConfig.no_remark!=='Y'&&"><a href ng-click="coworkAsRemark(schema,$index)"><span class='glyphicon glyphicon-transfer'></span> 转为留言</a></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -167,7 +167,7 @@
                                 <div>{{item.submit_at*1000|date:'MM-dd HH:mm'}}</div>
                                 <a href ng-click="likeItem(item)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':item.like_log[user.uid]}"></span>&nbsp;<span ng-bind="item.like_num"></span></a>
                                 <a href ng-click="dislikeItem(item)"><span class='glyphicon glyphicon-thumbs-down' ng-class="{'like':item.dislike_log[user.uid]}"></span>&nbsp;<span ng-bind="item.dislike_num"></span></a>
-                                <a href ng-if="params.entryRuleResult.passed==='Y'" ng-click="writeItemRemark(item)"><span class="glyphicon glyphicon-comment"></span>&nbsp;<span ng-bind="item.remark_num"></span></a>
+                                <a href ng-if="app.scenarioConfig.no_remark!=='Y'&&params.entryRuleResult.passed==='Y'" ng-click="writeItemRemark(item)"><span class="glyphicon glyphicon-comment"></span>&nbsp;<span ng-bind="item.remark_num"></span></a>
                                 <a href ng-click="shareItem(item)"><span class='glyphicon glyphicon-share'></span></a>
                             </div>
                         </div>
@@ -179,7 +179,7 @@
                     </div>
                 </div>
             </div>
-            <div id='remarks'>
+            <div id='remarks' ng-if="app.scenarioConfig.no_remark!=='Y'">
                 <div class='remark' ng-if="remarkTasks.length">
                     <div uib-alert ng-repeat="task in remarkTasks" class='alert-info' close="closeRemarkTask($index)" ng-switch="task.id">
                         <span>{{task.msg}}</span>

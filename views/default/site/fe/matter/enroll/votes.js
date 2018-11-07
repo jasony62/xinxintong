@@ -16,26 +16,7 @@ ngApp.controller('ctrlVotes', ['$scope', '$q', '$timeout', 'tmsLocation', 'http2
             addRecord: {}
         };
         /*设置页面导航*/
-        var oAppNavs = {
-            length: 0
-        };
-        if (_oApp.scenarioConfig) {
-            if (_oApp.scenarioConfig.can_repos === 'Y') {
-                oAppNavs.repos = {};
-                oAppNavs.length++;
-            }
-            if (_oApp.scenarioConfig.can_rank === 'Y') {
-                oAppNavs.rank = {};
-                oAppNavs.length++;
-            }
-            if (_oApp.scenarioConfig.can_action === 'Y') {
-                oAppNavs.event = {};
-                oAppNavs.length++;
-            }
-        }
-        if (Object.keys(oAppNavs)) {
-            $scope.appNavs = oAppNavs;
-        }
+        $scope.setPopNav(['repos', 'rank', 'event'], 'votes');
     };
     $scope.gotoOptionLink = function(oSchema, oOption) {
         if (oOption.referRecord && oOption.referRecord.ds && oOption.referRecord.ds.ek && oSchema.dsOps && oSchema.dsOps.app && oSchema.dsOps.app.id) {

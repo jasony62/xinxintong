@@ -121,12 +121,6 @@ define(['frame'], function(ngApp) {
             url = '/rest/pl/fe/matter/enroll/user/enrollee?app=' + $scope.app.id;
             http2.post(url, _oCriteria, { page: _oPage }).then(function(rsp) {
                 srvEnrollRecord.init($scope.app, _oPage, _oCriteria, rsp.data.users);
-                rsp.data.users.forEach(function(user) {
-                    if (user.tmplmsg && user.tmplmsg.status) {
-                        user._tmpStatus = user.tmplmsg.status.split(':');
-                        user._tmpStatus[0] = user._tmpStatus[0] === 'success' ? '成功' : '失败';
-                    }
-                });
                 $scope.enrollees = rsp.data.users;
             });
         };

@@ -1,4 +1,5 @@
 <div class="modal-header">
+    <button class="close" type="button" ng-click="cancel()">×</button>
     <h5 class="modal-title">活动复制</h5>
 </div>
 <div class="modal-body">
@@ -12,14 +13,14 @@
                     <button class="btn btn-default" ng-click="cleanCriteria()"><span class="glyphicon glyphicon-remove"></span></button>
                 </div>
             </div>
-            <select class='form-control' ng-model="criteria.mission_id" size="5">
+            <select class='form-control' ng-model="criteria.mission_id" size="13">
                 <option value="">无</option>
                 <option value="{{mission.id}}" ng-repeat="mission in missions">{{mission.title}}</option>
             </select>
         </div>
         <div class='pl-pagination' ng-show="pageOfMission.total > pageOfMission.size">
             <span>总数：{{pageOfMission.total}}</span>
-            <ul uib-pagination boundary-links="true" total-items="pageOfMission.total" max-size="5" items-per-page="pageOfMission.size" rotate="false" ng-model="pageOfMission.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doMission()"></ul>
+            <ul class='pagination-sm' uib-pagination boundary-links="true" total-items="pageOfMission.total" max-size="5" items-per-page="pageOfMission.size" rotate="false" ng-model="pageOfMission.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doMission()"></ul>
         </div>
     </div>
     <div class='form-group'>
@@ -35,5 +36,5 @@
 </div>
 <div class="modal-footer">
     <button class="btn btn-primary" ng-click="ok()">确定</button>
-    <button class="btn btn-default" ng-click="cancle()">取消</button>
+    <button class="btn btn-default" ng-click="cancel()">取消</button>
 </div>

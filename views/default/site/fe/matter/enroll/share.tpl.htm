@@ -20,7 +20,7 @@
         <div class='container'>
             <div class="navbar-header">
                 <a href class="navbar-brand">
-                    <i class="glyphicon glyphicon-list-alt visible-lg-inline"></i> <span tms-app-nav app-navs="appNavs">分享</span>
+                    <i class="glyphicon glyphicon-list-alt visible-lg-inline"></i> <span>分享</span>
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
@@ -51,20 +51,20 @@
                 <div class='form-group'>
                     <img ng-src="{{qrcode}}" />
                 </div>
-                <p>请用微信扫描二维码后继续访问</p>
+                    <p>请用微信扫描二维码后继续访问</p>
+                </div>
             </div>
         </div>
-    </div>
-    <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
-    <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
-    <div class="loading">
-        <div class='loading-indicator'><i></i></div>
-    </div>
-    <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
-    <script src="/static/js/angular.min.js"></script>
-    <script src="/static/js/angular-sanitize.min.js"></script>
-    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-    <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/share.js');?>"></script>
+        <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
+        <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
+        <div class="loading">
+            <div class='loading-indicator'><i></i></div>
+        </div>
+        <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
+        <script src="/static/js/angular.min.js"></script>
+        <script src="/static/js/angular-sanitize.min.js"></script>
+        <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+        <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/share.js');?>"></script>
 </body>
 
 </html>

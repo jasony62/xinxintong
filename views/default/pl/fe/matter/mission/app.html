@@ -10,18 +10,18 @@
                 </select>
             </div>
             <div class='form-group'>
-                <select class="form-control" ng-model="unionType">
+                <select class="form-control" ng-model="matterType">
                     <option value=''>全部类型</option>
-                    <option ng-repeat="mt in unionMatterTypes" value="{{mt.name}}">{{mt.label}}</option>
+                    <option ng-repeat="mt in matterNames.appOrder" value="{{::mt}}">{{::matterNames.app[mt]}}</option>
                 </select>
             </div>
-            <button ng-if="unionType" class='btn btn-default' ng-click="addMatter()"><i class='glyphicon glyphicon-plus'></i> <span>新建{{scenarioes.enroll[matterScenario||matterType]}}活动</span></button>
-            <div ng-if="!unionType" class="btn-group" uib-dropdown>
+            <button ng-if="matterType" class='btn btn-default' ng-click="addMatter()"><i class='glyphicon glyphicon-plus'></i> <span>新建</span></button>
+            <div ng-if="!matterType" class="btn-group" uib-dropdown>
                 <button class="btn btn-default" uib-dropdown-toggle>
                     <i class='glyphicon glyphicon-plus'></i> 新建 <span class="caret"></span>
                 </button>
                 <ul class='dropdown-menu' uib-dropdown-menu>
-                    <li ng-repeat="mt in unionMatterTypes"><a href='' ng-click="addMatter(mt.name)">{{mt.label}}</a></li>
+                    <li ng-repeat="mt in matterNames.appOrder"><a href ng-click="addMatter(mt)">{{::matterNames.app[mt]}}</a></li>
                 </ul>
             </div>
         </div>

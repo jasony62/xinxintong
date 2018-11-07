@@ -76,20 +76,7 @@ ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', function
             $scope.tasks = tasks;
         }
         /*设置页面导航*/
-        var oAppNavs = { length: 0 };
-        if (_oApp.scenarioConfig) {
-            if (_oApp.scenarioConfig.can_repos === 'Y') {
-                oAppNavs.repos = {};
-                oAppNavs.length++;
-            }
-            if (_oApp.scenarioConfig.can_rank === 'Y') {
-                oAppNavs.rank = {};
-                oAppNavs.length++;
-            }
-        }
-        if (Object.keys(oAppNavs)) {
-            $scope.appNavs = oAppNavs;
-        }
+        $scope.setPopNav(['repos', 'rank'], 'event');
         $scope.$watch('filter', function(nv, ov) {
             if (nv) {
                 if (/N/.test(nv.scope)) {

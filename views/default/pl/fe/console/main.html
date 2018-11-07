@@ -65,9 +65,9 @@
             <div class='form-group'>
                 <div class='form-inline'>
                     <div class='form-group'>
-                        <select class="form-control" ng-model="unionType">
+                        <select class="form-control" ng-model="criteria.matter.type">
                             <option value=''>全部类型</option>
-                            <option ng-repeat="mt in unionMatterTypes" value="{{mt.name}}">{{mt.label}}</option>
+                            <option ng-repeat="mt in matterNames.appOrder" value="{{::mt}}">{{::matterNames.app[mt]}}</option>
                         </select>
                     </div>
                     <div class='form-group hide' ng-if="frameState.sid!==''">
@@ -82,14 +82,14 @@
                         </div>
                     </div>
                     <button class='btn btn-default' ng-click="criteria.byStar=criteria.byStar==='N'?'Y':'N'"><i class='glyphicon' ng-class="criteria.byStar==='Y'?'glyphicon-star':'glyphicon-star-empty'"></i> 星标</button>
-                    <button ng-if="criteria.matter.type" class='btn btn-default' ng-click="addMatter(criteria.matter.type,criteria.matter.scenario)"><i class='glyphicon glyphicon-plus'></i> <span>新建<span ng-bind="scenarioNames[criteria.matter.scenario]||matterNames.app[criteria.matter.type]"></span>活动</span>
+                    <button ng-if="criteria.matter.type" class='btn btn-default' ng-click="addMatter(criteria.matter.type)"><i class='glyphicon glyphicon-plus'></i> <span>新建<span ng-bind="scenarioNames[criteria.matter.scenario]||matterNames.app[criteria.matter.type]"></span>活动</span>
                     </button>
                     <div ng-if="!criteria.matter.type" class="btn-group" uib-dropdown>
                         <button class="btn btn-default" uib-dropdown-toggle>
                             <i class='glyphicon glyphicon-plus'></i> 新建 <span class="caret"></span>
                         </button>
                         <ul class='dropdown-menu' uib-dropdown-menu>
-                            <li ng-repeat="mt in unionMatterTypes"><a href='' ng-click="addMatter(mt.name)">{{mt.label}}</a></li>
+                            <li ng-repeat="mt in matterNames.appOrder"><a href ng-click="addMatter(mt)">{{::matterNames.app[mt]}}</a></li>
                         </ul>
                     </div>
                 </div>

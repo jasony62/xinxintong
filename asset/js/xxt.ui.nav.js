@@ -16,7 +16,7 @@ ngMod.directive('tmsPopNav', ['$templateCache', '$timeout', function($templateCa
             navs: '=navs',
             custom: '=custom'
         },
-        template: "<span><span uib-popover-template=\"'popNavTemplate.html'\" popover-placement=\"bottom\" popover-trigger=\"'show'\"><span ng-transclude></span><span class=\"caret\"></span></span></span>",
+        template: "<span><span ng-if=\"!navs||navs.length===0\" ng-transclude></span><span ng-if=\"navs.length\" uib-popover-template=\"'popNavTemplate.html'\" popover-placement=\"bottom\" popover-trigger=\"'show'\"><span ng-transclude></span><span class=\"caret\"></span></span></span>",
         link: function(scope, elem, attrs) {
             var elePopover, fnOpenPopover, fnClosePopover;
             fnOpenPopover = function() {

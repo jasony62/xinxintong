@@ -222,13 +222,13 @@ ngApp.controller('ctrlSysTemplate', ['$scope', '$location', '$uibModal', 'http2'
                         _oResult.proto.sns = oMission.entryRule.sns;
                     }
                 }
-                _oProto.title = oMission.title + '-' + CstNaming.scenario.enroll[assignedScenario] || '登记活动';
+                _oProto.title = oMission.title + '-记录活动';
             }
         });
     } else if (_siteId) {
         $scope.$watch('site', function(oSite) {
             if (oSite) {
-                _oProto.title = oSite.name + '-' + CstNaming.scenario.enroll[assignedScenario] || '登记活动';
+                _oProto.title = oSite.name + '-记录活动';
             }
         });
     }

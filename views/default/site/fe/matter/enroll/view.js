@@ -272,30 +272,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
         });
         fnGetRecord().then(fnSetPageByRecord);
         /*设置页面导航*/
-        var oAppNavs = {
-            length: 0
-        };
-        if (_oApp.scenario === 'voting') {
-            oAppNavs.votes = {};
-            oAppNavs.length++;
-        }
-        if (_oApp.scenarioConfig) {
-            if (_oApp.scenarioConfig.can_repos === 'Y') {
-                oAppNavs.repos = {};
-                oAppNavs.length++;
-            }
-            if (_oApp.scenarioConfig.can_rank === 'Y') {
-                oAppNavs.rank = {};
-                oAppNavs.length++;
-            }
-            if (_oApp.scenarioConfig.can_action === 'Y') {
-                oAppNavs.event = {};
-                oAppNavs.length++;
-            }
-        }
-        if (Object.keys(oAppNavs).length) {
-            $scope.appNavs = oAppNavs;
-        }
+        $scope.setPopNav(['votes', 'repos', 'rank', 'event'], 'view');
         /*页面阅读日志*/
         $scope.logAccess();
     });

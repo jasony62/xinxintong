@@ -20,11 +20,12 @@ require('../../../../../../asset/js/xxt.ui.siteuser.js');
 require('../../../../../../asset/js/xxt.ui.coinpay.js');
 require('../../../../../../asset/js/xxt.ui.picviewer.js');
 require('../../../../../../asset/js/xxt.ui.nav.js');
+require('../../../../../../asset/js/xxt.ui.act.js');
 
 require('./directive.js');
 
 /* 公共加载的模块 */
-var angularModules = ['ngSanitize', 'ui.bootstrap', 'notice.ui.xxt', 'http.ui.xxt', 'trace.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'directive.enroll', 'picviewer.ui.xxt', 'nav.ui.xxt'];
+var angularModules = ['ngSanitize', 'ui.bootstrap', 'notice.ui.xxt', 'http.ui.xxt', 'trace.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'directive.enroll', 'picviewer.ui.xxt', 'nav.ui.xxt', 'act.ui.xxt'];
 /* 加载指定的模块 */
 if (window.moduleAngularModules) {
     window.moduleAngularModules.forEach(function(m) {
@@ -272,13 +273,95 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
             }
         }
     };
+    $scope.mocker = {}; // 用户模拟用户身份
+    /* 设置页面操作 */
+    $scope.setPopAct = function(aNames, fromPage, oParamsByAct) {
+        if (!fromPage || !aNames || aNames.length === 0) return;
+        http2.get(LS.j('user/get', 'site', 'app')).then(function(rsp) {
+            var oEnlUser, oCustom;
+            if (oEnlUser = rsp.data) {
+                oCustom = $parse(fromPage + '.act')(oEnlUser.custom);
+            }
+            if (!oCustom) {
+                oCustom = { stopTip: false };
+            }
+            $scope.popAct = {
+                acts: [],
+                custom: oCustom
+            };
+            $scope.$watch('popAct.custom', function(nv, ov) {
+                var oCustom;
+                if (nv !== ov) {
+                    oCustom = {};
+                    oCustom[fromPage] = { act: $scope.popAct.custom };
+                    http2.post(LS.j('user/updateCustom', 'site', 'app'), oCustom).then(function(rsp) {});
+                }
+            }, true);
+            aNames.forEach(function(name) {
+                var oAct;
+                switch (name) {
+                    case 'save':
+                        oAct = { title: '保存' };
+                        break;
+                    case 'addRecord':
+                        if ($scope.app) {
+                            if (parseInt($scope.app.count_limit) === 0 || $scope.app.count_limit > oEnlUser.enroll_num) {
+                                /* 允许添加记录 */
+                                if ($parse('actionRule.record.submit.pre.editor')($scope.app)) {
+                                    if ($scope.user && $scope.user.is_editor && $scope.user.is_editor === 'Y') {
+                                        oAct = { title: '添加记录', func: $scope.addRecord };
+                                    }
+                                } else {
+                                    oAct = { title: '添加记录', func: $scope.addRecord };
+                                }
+                            }
+                        }
+                        break;
+                    case 'newRecord':
+                        oAct = { title: '添加记录' };
+                        break;
+                    case 'mocker':
+                        /* 是否允许切换用户角色 */
+                        if ($scope.user) {
+                            if ($scope.user.is_editor && $scope.user.is_editor === 'Y') {
+                                oAct = { title: '作为访客', toggle: function() { return $scope.mocker.role !== 'visitor'; }, func: function() { $scope.mocker.role = 'visitor'; } };
+                                $scope.popAct.acts.push(oAct);
+                                oAct = { title: '退出访客', toggle: function() { return $scope.mocker.role === 'visitor'; }, func: function() { $scope.mocker.role = ''; } };
+                                $scope.popAct.acts.push(oAct);
+                                oAct = null;
+                            }
+                            if ($scope.user.is_leader && /Y|S/.test($scope.user.is_leader)) {
+                                oAct = { title: '作为成员', toggle: function() { return $scope.mocker.role !== 'member'; }, func: function() { $scope.mocker.role = 'member'; } };
+                                $scope.popAct.acts.push(oAct);
+                                oAct = { title: '退出成员', toggle: function() { return $scope.mocker.role === 'member'; }, func: function() { $scope.mocker.role = ''; } };
+                                $scope.popAct.acts.push(oAct);
+                                oAct = null;
+                            }
+                        }
+                        break;
+                }
+                if (oAct) {
+                    if (oParamsByAct) {
+                        if (oParamsByAct.func)
+                            if (oParamsByAct.func[name])
+                                oAct.func = oParamsByAct.func[name];
+                        if (!oAct.func && $scope[name])
+                            oAct.func = $scope[name];
+                        if (oParamsByAct.toggle)
+                            if (oParamsByAct.toggle[name])
+                                oAct.toggle = oParamsByAct.toggle[name];
+                    }
+                    $scope.popAct.acts.push(oAct);
+                }
+            });
+        });
+    };
     /* 设置弹出导航页 */
     $scope.setPopNav = function(aNames, fromPage) {
         if (!fromPage || !aNames || aNames.length === 0) return;
         http2.get(LS.j('user/get', 'site', 'app')).then(function(rsp) {
-            var oApp;
+            var oApp, oEnlUser, oCustom;
             oApp = $scope.app;
-            var oEnlUser, oCustom;
             oEnlUser = rsp.data;
             if (oEnlUser) {
                 oCustom = $parse(fromPage + '.nav')(oEnlUser.custom);
@@ -308,6 +391,9 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
                 }
                 if (oApp.scenarioConfig.can_rank === 'Y' && aNames.indexOf('rank') !== -1) {
                     $scope.popNav.navs.push({ name: 'rank', title: '排行页', url: LS.j('', 'site', 'app') + '&page=rank' });
+                }
+                if (oApp.scenarioConfig.can_stat === 'Y' && fromPage !== 'stat') {
+                    $scope.popNav.navs.push({ name: 'stat', title: '统计页', url: LS.j('', 'site', 'app') + '&page=stat' });
                 }
                 if (oApp.scenarioConfig.can_action === 'Y' && aNames.indexOf('event') !== -1) {
                     $scope.popNav.navs.push({ name: 'event', title: '动态页', url: LS.j('', 'site', 'app') + '&page=event' });

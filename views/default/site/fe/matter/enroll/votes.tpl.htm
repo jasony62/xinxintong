@@ -60,7 +60,7 @@
             </div>
         </div>
     </div>
-    <div ng-if="appActs" tms-app-act app-acts="appActs"></div>
+    <div ng-if="popAct.acts.length" tms-pop-act acts="popAct.acts" custom="popAct.custom" close-after='5000'></div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
     <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
     <div class="loading">

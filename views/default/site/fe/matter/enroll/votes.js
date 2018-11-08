@@ -12,9 +12,7 @@ ngApp.controller('ctrlVotes', ['$scope', '$q', '$timeout', 'tmsLocation', 'http2
     $scope.filter = _oFilter = {}; // 过滤条件
     $scope.setAppActsAndNavs = function() {
         /*设置页面操作*/
-        $scope.appActs = {
-            addRecord: {}
-        };
+        $scope.setPopAct(['addRecord'], 'votes');
         /*设置页面导航*/
         $scope.setPopNav(['repos', 'rank', 'event'], 'votes');
     };

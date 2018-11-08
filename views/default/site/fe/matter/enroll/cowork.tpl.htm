@@ -154,7 +154,7 @@
                                         <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
                                             <li><a href ng-click="removeItem(schema,$index)"><span class='glyphicon glyphicon-trash'></span> 删除</a></li>
                                             <li><a href ng-click="editItem(schema,$index)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
-                                            <li ng-if="app.scenarioConfig.no_remark!=='Y'&&"><a href ng-click="coworkAsRemark(schema,$index)"><span class='glyphicon glyphicon-transfer'></span> 转为留言</a></li>
+                                            <li ng-if="app.scenarioConfig.no_remark!=='Y'"><a href ng-click="coworkAsRemark(schema,$index)"><span class='glyphicon glyphicon-transfer'></span> 转为留言</a></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -245,7 +245,7 @@
                 </div>
             </div>
         </div>
-        <div ng-if="appActs.length" tms-app-act app-acts="appActs"></div>
+        <div ng-if="popAct.acts.length" tms-pop-act acts="popAct.acts" custom="popAct.custom" close-after='5000'></div>
         <div id='favorGuide' ng-if="favorStack.guiding">
             <span>已收藏</span>
             <button class='btn btn-default' ng-click="assignTopic()">选择专题</button>

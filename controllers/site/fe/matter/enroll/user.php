@@ -9,14 +9,14 @@ class user extends base {
 	/**
 	 *
 	 */
-	public function get_action($app) {
+	public function get_action($app, $rid = '') {
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		if ($oApp === false) {
 			return new \ObjectNotFoundError();
 		}
 		$modelEnlUsr = $this->model('matter\enroll\user');
-
-		$oEnlUser = $modelEnlUsr->byId($oApp, $this->who->uid);
+		$aOptions = ['rid' => empty($rid) ? $oApp->appRound->rid : $rid];
+		$oEnlUser = $modelEnlUsr->byId($oApp, $this->who->uid, $aOptions);
 
 		return new \ResponseData($oEnlUser);
 	}
@@ -64,6 +64,18 @@ class user extends base {
 									switch ($prop3) {
 									case 'stopTip':
 										$oPurifiedVal->nav->stopTip = is_bool($val3) ? $val3 : false;
+										break;
+									}
+								}
+							}
+							break;
+						case 'act':
+							if (is_object($val2)) {
+								$oPurifiedVal->act = new \stdClass;
+								foreach ($val2 as $prop3 => $val3) {
+									switch ($prop3) {
+									case 'stopTip':
+										$oPurifiedVal->act->stopTip = is_bool($val3) ? $val3 : false;
 										break;
 									}
 								}

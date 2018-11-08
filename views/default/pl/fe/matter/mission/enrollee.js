@@ -16,7 +16,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.enrolleeList = function() {
             var url;
-            url = '/rest/pl/fe/matter/mission/user/enrolleeList?site=' + _oMission.siteid + '&mission=' + _oMission.id;
+            url = '/rest/pl/fe/matter/mission/user/enrolleeList?mission=' + _oMission.id;
             http2.post(url, _oCriteria).then(function(rsp) {
                 var enrollees, dateFormat;
                 dateFormat = 'MM-dd HH:mm';
@@ -42,6 +42,14 @@ define(['frame'], function(ngApp) {
             url = '/rest/pl/fe/matter/enroll/createByMissionUser?mission=' + _oMission.id;
             http2.get(url).then(function(rsp) {
                 location.href = '/rest/pl/fe/matter/enroll/preview?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
+            });
+        };
+        $scope.renewScore = function() {
+            var url;
+            url = '/rest/pl/fe/matter/mission/user/renewScore';
+            url += '?mission=' + _oMission.id;
+            http2.get(url).then(function(rsp) {
+                $scope.enrolleeList();
             });
         };
         $scope.tmsTableWrapReady = 'N';

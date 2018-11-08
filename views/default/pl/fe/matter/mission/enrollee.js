@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlEnrollee', ['$scope', '$filter', 'http2', 'facListFilter', function($scope, $filter, http2, facListFilter) {
+    ngApp.provider.controller('ctrlEnrollee', ['$scope', '$filter', 'http2', 'facListFilter', 'noticebox', function($scope, $filter, http2, facListFilter, noticebox) {
         function fnReadableElapse(e) {
             var result, h, m, s, time = e * 1;
             h = Math.floor(time / 3600);
@@ -50,6 +50,7 @@ define(['frame'], function(ngApp) {
             url += '?mission=' + _oMission.id;
             http2.get(url).then(function(rsp) {
                 $scope.enrolleeList();
+                noticebox.success('更新完成');
             });
         };
         $scope.tmsTableWrapReady = 'N';

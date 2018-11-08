@@ -90,7 +90,7 @@ ngApp.controller('ctrlFavor', ['$scope', '$uibModal', 'http2', 'tmsLocation', fu
         /* 设置页面分享信息 */
         $scope.setSnsShare(); // 应该禁止分享
         /*设置页面导航*/
-        $scope.setPopNav(['repos', 'rank', 'event'], 'favor');
+        $scope.setPopNav(['repos', 'rank', 'kanban', 'event'], 'favor');
         /*页面阅读日志*/
         $scope.logAccess();
     });

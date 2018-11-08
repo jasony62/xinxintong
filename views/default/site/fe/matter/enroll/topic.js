@@ -199,7 +199,7 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         /*设置页面操作*/
         $scope.setPopAct(['addRecord', 'mocker'], 'cowork');
         /*设置页面导航*/
-        $scope.setPopNav(['repos', 'rank', 'event'], 'topic');
+        $scope.setPopNav(['repos'], 'topic');
         /* 活动任务 */
         if (oApp.actionRule) {
             /* 开启协作填写需要的点赞数 */

@@ -307,7 +307,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'e
         /*设置页面操作*/
         $scope.setPopAct(['addRecord'], 'rank');
         /*设置页面导航*/
-        $scope.setPopNav(['repos', 'favor', 'event'], 'rank');
+        $scope.setPopNav(['repos', 'kanban', 'favor', 'event'], 'rank');
         /*页面阅读日志*/
         $scope.logAccess();
     });

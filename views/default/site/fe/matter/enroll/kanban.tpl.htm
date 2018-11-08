@@ -97,9 +97,12 @@
                             </div>
                             <div class='user list-group-item' ng-repeat='u in kanban.users'>
                                 <div class='who' ng-click="viewDetail(u)">
-                                    <div>{{u.nickname}}</div>
+                                    <div><span>{{u.nickname}}</span><span ng-if="user.uid===u.userid">（我）</span></div>
                                     <div ng-if='app.entryRule.group.id'>
-                                        <div>{{u.group.title}}</div>
+                                        <div class='text-muted small'>{{u.group.title}}</div>
+                                    </div>
+                                    <div ng-if="user.uid===u.userid">
+                                        <button class='btn btn-default btn-sm' ng-click="toggleProfilePublic($event,u)">设置为<span ng-if="!u.custom.profile.public">公开</span><span ng-if="u.custom.profile.public">隐身</span></button>
                                     </div>
                                 </div>
                                 <div class='data'>
@@ -167,7 +170,7 @@
                                     <td>{{$index+1}}</td>
                                     <td>{{u.nickname}}</td>
                                     <td ng-if='app.entryRule.group.id'>
-                                        <div ng-if='u.group'>{{u.group.l}}</div>
+                                        <div ng-if='u.group'>{{u.group.title}}</div>
                                     </td>
                                 </tr>
                             </tbody>

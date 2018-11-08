@@ -56,6 +56,8 @@
                                 <th style='width:48px'>序号</th>
                                 <th data-filter-by='nickname' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)" style='width:75px'>姓名 <i class='glyphicon glyphicon-filter'></i></th>
                                 <th style='width:120px'>分组</th>
+                                <th>得分</th>
+                                <th>积分</th>
                                 <th style='width:100px'>总访问次数</th>
                                 <th style='width:100px'>总访问时长</th>
                                 <th style='width:75px'>填写记录</th>
@@ -72,8 +74,6 @@
                                 <th style='width:160px'>专题页被浏览累计时间</th>
                                 <th style='width:150px'>讨论页浏览累计时间</th>
                                 <th style='width:160px'>讨论页被浏览累计时间</th>
-                                <th>积分</th>
-                                <th>得分</th>
                                 <th ng-if="sns.wx.joined=='Y'">微信昵称</th>
                                 <th ng-if="sns.yx.joined=='Y'">易信昵称</th>
                             </tr>
@@ -87,6 +87,12 @@
                                 <td>{{m.nickname}}</td>
                                 <td>
                                     <div ng-if='m.group'>{{m.group.title}}</div>
+                                </td>
+                                <td>
+                                    <div ng-if='m.score'>{{m.score}}</div>
+                                </td>
+                                <td>
+                                    <div ng-if='m.user_total_coin'>{{m.user_total_coin}}</div>
                                 </td>
                                 <td>
                                     <div ng-if='m.entry_num'>{{m.enroll_num}}</div>
@@ -114,13 +120,6 @@
                                 <td>{{m.topic_read_elapse | filterTime}}</td>
                                 <td>{{m.do_cowork_read_elapse | filterTime}}</td>
                                 <td>{{m.cowork_read_elapse | filterTime}}</td>
-                                <td>
-                                    <div ng-if='m.user.user_total_coin'>{{m.user.user_total_coin}}</div>
-                                    <div ng-if='m.user_total_coin'>{{m.user_total_coin}}</div>
-                                </td>
-                                <td>
-                                    <div ng-if='m.score'>{{m.score}}</div>
-                                </td>
                                 <td ng-if="sns.wx.joined=='Y'">
                                     <div ng-show="m.wx_openid">{{m.wxfan.nickname}}</div>
                                 </td>

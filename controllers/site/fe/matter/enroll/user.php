@@ -30,11 +30,12 @@ class user extends base {
 		}
 
 		$modelEnlUsr = $this->model('matter\enroll\user');
-		$oEnlUser = $modelEnlUsr->byId($oApp, $this->who->uid, ['fields' => 'id,custom']);
+		$oEnlUser = $modelEnlUsr->byId($oApp, $this->who->uid, ['fields' => 'aid,userid,custom']);
 		if (false === $oEnlUser) {
 			$oEnlUser = $modelEnlUsr->add($oApp, $this->who);
 			$oEnlUser->custom = new \stdClass;
 		}
+
 		$oPosted = $this->getPostJson();
 		foreach ($oPosted as $prop => $val) {
 			switch ($prop) {
@@ -85,6 +86,18 @@ class user extends base {
 					}
 				}
 				break;
+			case 'profile':
+				$oPurifiedVal = new \stdClass;
+				if (is_object($val)) {
+					foreach ($val as $prop2 => $val2) {
+						switch ($prop2) {
+						case 'public':
+							$oPurifiedVal->public = ($val2 === true ? true : false);
+							break;
+						}
+					}
+				}
+				break;
 			}
 			$oEnlUser->custom->{$prop} = $oPurifiedVal;
 		}
@@ -92,7 +105,7 @@ class user extends base {
 		$modelEnlUsr->update(
 			'xxt_enroll_user',
 			['custom' => $modelEnlUsr->escape($modelEnlUsr->toJson($oEnlUser->custom))],
-			['id' => $oEnlUser->id]
+			['aid' => $oEnlUser->aid, 'userid' => $oEnlUser->userid]
 		);
 
 		return new \ResponseData('ok');
@@ -152,7 +165,7 @@ class user extends base {
 		$users = $modelEnl->query_objs_ss($q1, $q2);
 		foreach ($users as $oUser) {
 			//添加分组信息
-			$dataSchemas = $oApp->dataSchemas;
+			$dataSchemas = $oApp->dynaDataSchemas;
 			foreach ($dataSchemas as $value) {
 				if ($value->id == '_round_id') {
 					$ops = $value->ops;
@@ -228,16 +241,19 @@ class user extends base {
 		}
 		/* 数据是否公开可见 */
 		$fnIsKeepPrivate = function ($oUser) use ($oVisitor) {
-			if ($oUser->userid === $oVisitor->uid) {
+			if ($this->getDeepValue($oUser, 'custom.profile.public') === true) {
 				return false;
 			}
+			// if ($oUser->userid === $oVisitor->uid) {
+			// 	return false;
+			// }
 			if (!empty($oVisitor->is_leader)) {
 				if ($oVisitor->is_leader === 'S') {
 					/* 超级用户可以查看所有信息 */
 					return false;
 				}
 				if ($oVisitor->is_leader === 'Y') {
-					if (isset($oUser->group_id) && isset($oVisitor->group_id) && $oUser->group_id === $oVisitor->group_id) {
+					if (isset($oUser->group->id) && isset($oVisitor->group_id) && $oUser->group->id === $oVisitor->group_id) {
 						/* 同组组长可以查看组内用户 */
 						return false;
 					}
@@ -282,6 +298,7 @@ class user extends base {
 				unset($oUser->aid);
 				unset($oUser->modify_log);
 				unset($oUser->wx_openid);
+				$oUser->custom = empty($oUser->custom) ? new \stdClass : json_decode($oUser->custom);
 				/* 用户的贡献行为次数 */
 				$oUser->devote = (int) $oUser->enroll_num + (int) $oUser->do_cowork_num + (int) $oUser->do_remark_num + (int) $oUser->do_like_num + (int) $oUser->do_like_cowork_num + (int) $oUser->do_like_remark_num;
 				/* 隐藏用户身份信息 */
@@ -299,6 +316,12 @@ class user extends base {
 		/* 未完成任务用户 */
 		if ($rid) {
 			$oResultUndone = $modelUsr->undoneByApp($oApp, $rid);
+			foreach ($oResultUndone->users as $oUndoneUser) {
+				/* 隐藏用户身份信息 */
+				if ($fnIsKeepPrivate($oUndoneUser)) {
+					$oUndoneUser->nickname = '隐身';
+				}
+			}
 			$oResult->undone = $oResultUndone->users;
 		}
 

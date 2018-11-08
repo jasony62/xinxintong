@@ -1091,7 +1091,7 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
             $scope.rounds = oResult.rounds;
         });
         /*设置页面导航*/
-        $scope.setPopNav(['votes', 'repos', 'rank', 'event'], 'input');
+        $scope.setPopNav(['votes', 'repos', 'rank', 'kanban', 'event'], 'input');
         /*页面阅读日志*/
         $scope.logAccess();
         /* 微信不支持上传文件，指导用户进行处理 */

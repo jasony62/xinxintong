@@ -219,7 +219,7 @@ ngApp.controller('ctrlList', ['$scope', function($scope) {
         /*设置页面操作*/
         $scope.setPopAct(['addRecord'], 'list');
         /*设置页面导航*/
-        $scope.setPopNav(['repos', 'rank', 'event'], 'list');
+        $scope.setPopNav(['repos', 'rank', 'kanban', 'event'], 'list');
         /*页面阅读日志*/
         $scope.logAccess();
     });

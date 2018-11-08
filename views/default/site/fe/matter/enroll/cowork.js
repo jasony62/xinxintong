@@ -188,7 +188,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         /*设置页面操作*/
         $scope.setPopAct(['addRecord', 'mocker'], 'cowork');
         /*设置页面导航*/
-        $scope.setPopNav(['repos', 'favor', 'rank', 'event'], 'cowork');
+        $scope.setPopNav(['repos', 'favor', 'rank', 'kanban', 'event'], 'cowork');
     }
     /* 是否可以对记录进行表态 */
     function fnCanAgreeRecord(oRecord, oUser) {

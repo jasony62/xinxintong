@@ -450,7 +450,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         /* 设置页面操作 */
         $scope.setPopAct(['addRecord', 'mocker'], 'cowork');
         /*设置页面导航*/
-        $scope.setPopNav(['rank', 'event', 'favor'], 'repos');
+        $scope.setPopNav(['rank', 'kanban', 'event', 'favor'], 'repos');
         /* 页面阅读日志 */
         $scope.logAccess({ target_type: 'repos', target_id: _oApp.id });
         $scope.$watch('mocker', function(nv, ov) {

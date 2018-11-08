@@ -76,7 +76,7 @@ ngApp.controller('ctrlAction', ['$scope', '$q', 'tmsLocation', 'http2', function
             $scope.tasks = tasks;
         }
         /*设置页面导航*/
-        $scope.setPopNav(['repos', 'rank'], 'event');
+        $scope.setPopNav(['repos', 'rank', 'kanban'], 'event');
         $scope.$watch('filter', function(nv, ov) {
             if (nv) {
                 if (/N/.test(nv.scope)) {

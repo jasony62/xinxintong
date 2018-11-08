@@ -272,7 +272,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
         });
         fnGetRecord().then(fnSetPageByRecord);
         /*设置页面导航*/
-        $scope.setPopNav(['votes', 'repos', 'rank', 'event'], 'view');
+        $scope.setPopNav(['votes', 'repos', 'rank', 'kanban', 'event'], 'view');
         /*页面阅读日志*/
         $scope.logAccess();
     });

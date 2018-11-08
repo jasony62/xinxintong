@@ -82,6 +82,13 @@ td.undone {
 
     }
 
+    .who {
+        &>div {
+            margin-bottom: .5em;
+        }
+
+    }
+
     .data {
         flex-grow: 1;
         display: flex;
@@ -123,7 +130,7 @@ td.undone {
             order: 1;
 
             &>div:nth-child(2)>div:first-child>span {
-                background-color: #ddd;
+                border-color: red;
             }
 
         }

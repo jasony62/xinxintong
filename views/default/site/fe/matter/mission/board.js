@@ -92,7 +92,7 @@ ngApp.controller('ctrlRecommend', ['$scope', '$sce', 'tmsLocation', 'http2', fun
         $scope.recommends = rsp.data.agreed;
     });
 }]);
-ngApp.controller('ctrlRank', ['$scope', 'tmsLocation', 'http2', function($scope, LS, http2) {
+ngApp.controller('ctrlScore', ['$scope', 'tmsLocation', 'http2', function($scope, LS, http2) {
     http2.get(LS.j('user/rank', 'site', 'mission')).then(function(rsp) {
         $scope.users = rsp.data.users;
     });

@@ -7,8 +7,8 @@
     <base href="/" />
     <title>项目公告</title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-    <link href='/static/css/site.fe.css?_=1' rel="stylesheet">
-    <link href="/views/default/site/fe/matter/mission/board.css?_=1" rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
+    <link href="<?php echo auto_version('/views/default/site/fe/matter/mission/board.css');?>" rel="stylesheet">
 </head>
 
 <body>
@@ -37,7 +37,7 @@
             <uib-tabset id='cardPills' active="activeCard" type="pills" justified='true'>
                 <uib-tab index="'doc'" heading="资料"></uib-tab>
                 <uib-tab index="'recommend'" heading="推荐"></uib-tab>
-                <uib-tab index="'rank'" heading="积分排行"></uib-tab>
+                <uib-tab index="'score'" heading="得分排行"></uib-tab>
             </uib-tabset>
             <div id='cards'>
                 <div ng-switch on="activeCard">
@@ -112,10 +112,10 @@
                         </div>
                     </div>
                     <!--end recommend-->
-                    <div id='rank' ng-switch-when="rank" class='row' ng-controller="ctrlRank">
+                    <div id='score' ng-switch-when="score" class='row' ng-controller="ctrlScore">
                         <div ng-repeat='user in users'>
                             <div class='col-xs-3 text-center index'>
-                                <div>{{user.user_total_coin}}</div>
+                                <div>{{user.score}}</div>
                             </div>
                             <div class='col-xs-9'>
                                 <div class='user'>

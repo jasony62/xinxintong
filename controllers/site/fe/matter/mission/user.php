@@ -90,14 +90,14 @@ class user extends \site\fe\matter\base {
 
 		$modelMisUsr = $this->model('matter\mission\user');
 
-		$fields = 'userid,group_id,nickname,user_total_coin';
+		$fields = 'userid,group_id,nickname,score';
 		$q = [
 			$fields,
 			'xxt_mission_user',
 			['mission_id' => $oMission->id],
 		];
 		$q2 = [
-			'o' => 'user_total_coin desc',
+			'o' => 'score desc',
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
 		];
 

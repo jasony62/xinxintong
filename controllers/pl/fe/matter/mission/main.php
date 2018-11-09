@@ -224,7 +224,7 @@ class main extends \pl\fe\matter\base {
 				}
 			}
 			$modelMis->update('xxt_mission', ['entry_rule' => json_encode($oMisEntryRule)], ['id' => $oNewMis->id]);
-			$oNewMis->entry_rule = $oMisEntryRule;
+			$oNewMis->entryRule = $oMisEntryRule;
 		}
 
 		/**

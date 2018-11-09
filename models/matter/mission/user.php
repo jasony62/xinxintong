@@ -193,11 +193,8 @@ class user_model extends \TMS_MODEL {
 				$aDbData[$field] = $value;
 				break;
 			case 'modify_log':
-				if (empty($oBeforeData->modify_log)) {
+				if (empty($oBeforeData->modify_log) || !is_array($oBeforeData->modify_log)) {
 					$oBeforeData->modify_log = [];
-				}
-				if (!is_object($oBeforeData->modify_log)) {
-					$oBeforeData->modify_log = [$value];
 				}
 				array_unshift($oBeforeData->modify_log, $value);
 				$aDbData['modify_log'] = json_encode($oBeforeData->modify_log);

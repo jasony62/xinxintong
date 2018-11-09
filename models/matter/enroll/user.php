@@ -230,7 +230,7 @@ class user_model extends \TMS_MODEL {
 				$aDbData[$field] = $value;
 				break;
 			case 'modify_log':
-				if (empty($oBeforeData->modify_log)) {
+				if (empty($oBeforeData->modify_log) || !is_array($oBeforeData->modify_log)) {
 					$oBeforeData->modify_log = [];
 				}
 				array_unshift($oBeforeData->modify_log, $value);

@@ -438,18 +438,18 @@ class user_model extends \TMS_MODEL {
 	/**
 	 * 获得活动指定的参与人
 	 */
-	public function assignedByApp($oApp) {
+	public function assignedByApp($oApp, $aOptions = []) {
 		$aAssignedUsrs = [];
 		$oEntryRule = $oApp->entryRule;
 		if (!empty($oEntryRule->group->id)) {
 			$oGrpApp = $oEntryRule->group;
-			$modelGrpUsr = $this->model('matter\group\player');
+			$modelGrpUsr = $this->model('matter\group\user');
 			if (empty($oGrpApp->round->id)) {
 				$aGrpUsrs = $modelGrpUsr->byApp(
 					$oGrpApp->id,
 					['fields' => 'userid,nickname,round_id,round_title']
 				);
-				foreach ($aGrpUsrs->players as $oGrpUsr) {
+				foreach ($aGrpUsrs->users as $oGrpUsr) {
 					$oGrpUsr->group = (object) ['id' => $oGrpUsr->round_id, 'title' => $oGrpUsr->round_title];
 					unset($oGrpUsr->round_id);
 					unset($oGrpUsr->round_title);
@@ -610,7 +610,7 @@ class user_model extends \TMS_MODEL {
 	 * 获得指定活动指定轮次没有完成任务的用户
 	 */
 	public function undoneByApp($oApp, $rid) {
-		$oAssignedUsrsResult = $this->assignedByApp($oApp);
+		$oAssignedUsrsResult = $this->assignedByApp($oApp, ['inGroupTeam' => true]);
 		if (empty($oAssignedUsrsResult->users)) {
 			return (object) ['users' => []];
 		}

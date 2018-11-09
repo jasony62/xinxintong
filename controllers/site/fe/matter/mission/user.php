@@ -24,7 +24,7 @@ class user extends \site\fe\matter\base {
 	 * 更新用户设置
 	 */
 	public function updateCustom_action($mission) {
-		$oMission = $this->model('matter\mission')->byId($mission, ['fields' => 'id,entry_rule,user_app_type,user_app_id']);
+		$oMission = $this->model('matter\mission')->byId($mission, ['fields' => 'id,siteid,entry_rule,user_app_type,user_app_id']);
 		if (false === $oMission) {
 			return new \ObjectNotFoundError();
 		}

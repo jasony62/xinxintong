@@ -398,7 +398,7 @@ class signin_model extends enroll_base {
 			return '';
 		}
 		$nickname = '';
-		$entryRule = $oApp->entry_rule;
+		$entryRule = $oApp->entryRule;
 		if (isset($entryRule->scope) && $entryRule->scope === 'member') {
 			foreach ($entryRule->member as $schemaId => $rule) {
 				$modelMem = $this->model('site\user\member');

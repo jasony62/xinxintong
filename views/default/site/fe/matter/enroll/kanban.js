@@ -76,6 +76,7 @@ ngApp.controller('ctrlKanban', ['$scope', '$q', '$parse', '$uibModal', 'tmsLocat
         $uibModal.open({
             templateUrl: 'userDetail.html',
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.app = $scope.app;
                 $scope2.user = oUser;
                 $scope2.cancel = function() { $mi.dismiss(); };
             }],

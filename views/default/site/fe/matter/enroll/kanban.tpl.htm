@@ -56,7 +56,7 @@
                                 </button>
                                 <ul class="dropdown-menu" uib-dropdown-menu>
                                     <li><a href ng-click="shiftOrderby('score')">得分</a></li>
-                                    <li><a href ng-click="shiftOrderby('user_total_coin')">积分</a></li>
+                                    <li ng-if="app.scenarioConfig.can_coin==='Y'"><a href ng-click="shiftOrderby('user_total_coin')">积分</a></li>
                                     <li><a href ng-click="shiftOrderby('entry_num')">访问次数</a></li>
                                     <li><a href ng-click="shiftOrderby('total_elapse')">投入时间</a></li>
                                     <li><a href ng-click="shiftOrderby('devote')">贡献次数</a></li>
@@ -115,7 +115,7 @@
                                             <div><span ng-if="kanban.stat.score.mean">{{u.score.val/kanban.stat.score.mean|number:2}}</span></div>
                                         </div>
                                     </div>
-                                    <div ng-class="{'ordered':criteria.orderby==='user_total_coin'}">
+                                    <div ng-if="app.scenarioConfig.can_coin==='Y'" ng-class="{'ordered':criteria.orderby==='user_total_coin'}">
                                         <div>积分</div>
                                         <div>
                                             <div><span class='pos'>{{u.user_total_coin.pos}}</span></div>
@@ -199,7 +199,7 @@
                 <div>得分</div>
                 <div><span>{{user.score.val}}</span></div>
             </div>
-            <div>
+            <div ng-if="app.scenarioConfig.can_coin==='Y'">
                 <div>积分</div>
                 <div><span>{{user.user_total_coin.val}}</span></div>
             </div>

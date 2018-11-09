@@ -143,6 +143,10 @@ div[wrap].wrap-inline>label {
 	text-overflow: ellipsis;
 }
 
+die[wrap] img {
+	max-width: 100%;
+}
+
 div[wrap=input].schema-required>label:after {
 	content: '【必填】';
 	color: red;

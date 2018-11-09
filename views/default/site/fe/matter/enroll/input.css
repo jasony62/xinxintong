@@ -143,7 +143,7 @@ div[wrap].wrap-inline>label {
 	text-overflow: ellipsis;
 }
 
-die[wrap] img {
+div[wrap] img {
 	max-width: 100%;
 }
 

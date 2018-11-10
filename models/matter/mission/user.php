@@ -101,7 +101,7 @@ class user_model extends \TMS_MODEL {
 				$oNewUsr->{$k} = $v;
 				break;
 			case 'modify_log':
-				if (!is_string($v)) {
+				if (is_object($v)) {
 					$oNewUsr->{$k} = json_encode([$v]);
 				}
 			case 'custom':

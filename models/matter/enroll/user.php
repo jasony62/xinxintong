@@ -141,7 +141,7 @@ class user_model extends \TMS_MODEL {
 		foreach ($data as $k => $v) {
 			switch ($k) {
 			case 'modify_log':
-				if (!is_string($v)) {
+				if (is_object($v)) {
 					$oNewUsr->{$k} = json_encode([$v]);
 				}
 				break;

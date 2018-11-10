@@ -86,7 +86,7 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$parse', '$s
         $scope.gotoPage(event, page, $scope.Record.current.enroll_key);
     };
     $scope.removeRecord = function(event, page) {
-        if ($scope.app.can_cowork && $scope.app.can_cowork !== 'Y') {
+        if ($scope.app.scenarioConfig.can_cowork && $scope.appscenarioConfig.can_cowork !== 'Y') {
             if ($scope.user.uid !== $scope.Record.current.userid) {
                 noticebox.warn('不允许删除他人提交的数据');
                 return;
@@ -197,6 +197,19 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
             }
         });
     }
+    /* 显示题目的分数 */
+    function fnShowSchemaScore(oScore) {
+        for (var schemaId in oScore) {
+            var domSchema, domScore;
+            domSchema = document.querySelector('[wrap=value][schema="' + schemaId + '"]');
+            if (domSchema) {
+                domScore = document.createElement('div');
+                domScore.innerText = oScore[schemaId];
+                domScore.classList.add('schema-score');
+                domSchema.appendChild(domScore);
+            }
+        }
+    }
     /* 根据获得的记录设置页面状态 */
     function fnSetPageByRecord(rsp) {
         var oRecord, oOriginalData;
@@ -205,9 +218,13 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
         fnToggleAssocSchemas(_oApp.dynaDataSchemas, oOriginalData);
         /* 将数据转换为可直接显示的形式 */
         fnProcessData(rsp.data);
+        /* 显示打分题的分数 */
+        if (rsp.data.score) {
+            fnShowSchemaScore(rsp.data.score);
+        }
         $scope.Record.current = oRecord = rsp.data;
         /* disable actions */
-        if ((_oApp.can_cowork && _oApp.can_cowork !== 'Y')) {
+        if ((_oApp.scenarioConfig.can_cowork && _oApp.scenarioConfig.can_cowork !== 'Y')) {
             if ($scope.user.uid !== oRecord.userid) {
                 fnDisableActions();
             }

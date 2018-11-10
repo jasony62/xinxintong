@@ -7,6 +7,8 @@ div[wrap][schema-type=multitext] ul,div[wrap][schema-type=file] ul{padding-left:
 div[schema-type=image]>ul>li>img{width:100%;}
 div[wrap=matter]>span{cursor:pointer;text-decoration:underline;}
 div[wrap] .supplement{font-style:italic;margin-top:1em;}
+div[wrap] .schema-score{font-size:.8em;color:red;}
+div[wrap] .schema-score:before{content:'得分:';}
 
 /*list*/
 li .wrap-inline>label{padding:7px 0;color:#444;}

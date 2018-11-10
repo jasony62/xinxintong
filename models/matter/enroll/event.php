@@ -226,7 +226,6 @@ class event_model extends \TMS_MODEL {
 			$modelMisUsr = $this->model('matter\mission\user')->setOnlyWriteDbConn(true);
 			/* 项目中需要额外更新的数据 */
 			$oUpdatedMisUsrData = clone $oUsrEventData;
-			//unset($oUpdatedMisUsrData->modify_log);
 
 			$oMission = $this->model('matter\mission')->byId($oApp->mission_id, ['fields' => 'siteid,id,user_app_type,user_app_id']);
 			$oMisUser = $modelMisUsr->byId($oMission, $userid, ['fields' => '*']);

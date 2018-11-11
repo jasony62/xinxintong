@@ -71,6 +71,7 @@
                         <th class='matched enroll' ng-repeat="schema in enrollDataSchemas" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
                         <th class='matched group' ng-repeat="schema in groupDataSchemas" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
                         <th style='width:80px'>审核通过</th>
+                        <th style='width:80px'>获得赞同</th>
                         <th style='width:140px' ng-if="app.tags.length">标签</th>
                         <th style='width:140px'>备注</th>
                         <th style='width:48px'>操作</th>
@@ -137,6 +138,7 @@
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
                         </td>
                         <td>{{r.verified}}</td>
+                        <td>{{r.like_num}}</td>
                         <td ng-if="app.tags.length">{{r.tags}}</td>
                         <td>{{r.comment}}</td>
                         <td>

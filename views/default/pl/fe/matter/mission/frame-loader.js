@@ -20,7 +20,6 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
             "noticeCtrl": '/views/default/pl/fe/matter/mission/notice',
             "recycleCtrl": '/views/default/pl/fe/matter/mission/recycle',
             "overviewCtrl": '/views/default/pl/fe/matter/mission/overview',
-            "reportCtrl": '/views/default/pl/fe/matter/mission/report',
             "timeCtrl": '/views/default/pl/fe/matter/mission/time',
         },
         html: {
@@ -35,7 +34,6 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
             "notice": '/views/default/pl/fe/matter/mission/notice',
             "recycle": '/views/default/pl/fe/matter/mission/recycle',
             "overview": '/views/default/pl/fe/matter/mission/overview',
-            "report": '/views/default/pl/fe/matter/mission/report',
             "time": '/views/default/pl/fe/matter/mission/time',
             "timerNotice": '/views/default/pl/fe/_module/timerNotice',
         }

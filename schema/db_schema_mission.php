@@ -211,22 +211,5 @@ if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error(xxt_mission_matter): ' . $mysqli->error;
 }
-/**
- * 项目报告配置信息
- */
-$sql = "create table if not exists xxt_mission_report(";
-$sql .= "id int not null auto_increment";
-$sql .= ",siteid varchar(32) not null";
-$sql .= ",mission_id int not null";
-$sql .= ",creater varchar(40) not null default ''";
-$sql .= ",creater_name varchar(255) not null default ''";
-$sql .= ",create_at int not null";
-$sql .= ",as_default char(1) not null default 'Y'";
-$sql .= ",include_apps text"; // 报告中包含的应用的数组
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_mission_matter): ' . $mysqli->error;
-}
 
 echo 'finish xxt_mission.' . PHP_EOL;

@@ -49,8 +49,6 @@ $sql .= ",use_mission_footer char(1) not null default 'Y'"; // 使用项目页�
 $sql .= ",extattrs text null"; //扩展属性
 $sql .= ",template_id int not null default 0"; // 通过哪个模板创建
 $sql .= ",template_version varchar(10) not null default ''"; //模板版本号
-$sql .= ",op_short_url_code char(4) not null default ''"; // 运营管理页面的短链接编码
-$sql .= ",rp_short_url_code char(4) not null default ''"; // 统计报告页面的短链接编码
 $sql .= ",rp_config text null"; // 统计报告页面用户选择的标识信息
 $sql .= ",repos_config text null"; // 共享页页面设置信息
 $sql .= ",rank_config text null"; // 排行榜页面设置信息
@@ -622,8 +620,6 @@ $sql .= ",use_mission_header char(1) not null default 'Y'"; // 使用项目页�
 $sql .= ",use_mission_footer char(1) not null default 'Y'"; // 使用项目页脚
 $sql .= ",extattrs text"; //扩展属性
 $sql .= ",tags text";
-$sql .= ",op_short_url_code char(4) not null default ''"; // 运营管理页面的短链接编码
-$sql .= ",notify_submit char(1) not null default 'N'"; // 是否发送提交事件通知
 $sql .= ",matter_mg_tag varchar(255) not null default ''";
 $sql .= ",absent_cause text";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";

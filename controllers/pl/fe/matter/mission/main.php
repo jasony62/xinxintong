@@ -65,9 +65,6 @@ class main extends \pl\fe\matter\base {
 					}
 				}
 			}
-			/* 汇总报告配置信息 */
-			$rpConfig = $this->model('matter\mission\report')->defaultConfigByUser($oUser, $oMission);
-			$oMission->reportConfig = $rpConfig;
 		}
 
 		/* 检查当前用户的角色 */

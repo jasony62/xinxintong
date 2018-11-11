@@ -45,7 +45,7 @@ class main extends \pl\fe\matter\main_base {
 		 * select fields
 		 */
 		$s = "a.id,a.siteid,a.title,a.summary,a.approved,a.mission_id";
-		$s .= ",a.create_at,a.modify_at,a.creater,a.creater_name,a.creater_src";
+		$s .= ",a.create_at,a.modify_at,a.creater,a.creater_name";
 		$s .= ",a.read_num,a.score,a.remark_num,a.share_friend_num,a.share_timeline_num,a.download_num";
 		/**
 		 * where

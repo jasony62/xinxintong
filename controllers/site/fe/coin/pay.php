@@ -119,18 +119,11 @@ class pay extends \site\fe\base {
 		}
 		/* 向指定用户支付积分 */
 		$act = 'site.user.coin.pay';
-		if ($matter->creater_src === 'A') {
-			/* 作者是平台用户 */
-			$payee = new \stdClass;
-			$payee->id = $matter->creater;
-			$payee->name = $matter->creater_name;
-			$this->model('site\coin\log')->transfer2PlUser($matter, $act, $payer, $payee, $data->coins);
-		} else if ($matter->creater_src !== 'M') {
-			/* 作者是站点用户 */
-			$this->model('site\coin\log')->transfer();
-		} else {
-			return new \ResponseError("指定的素材无法接收奖励", 104);
-		}
+		/* 作者是平台用户 */
+		$payee = new \stdClass;
+		$payee->id = $matter->creater;
+		$payee->name = $matter->creater_name;
+		$this->model('site\coin\log')->transfer2PlUser($matter, $act, $payer, $payee, $data->coins);
 
 		return new \ResponseData('ok');
 	}

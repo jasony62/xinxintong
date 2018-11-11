@@ -249,7 +249,6 @@ class mission_model extends app_base {
 			'end_at' => isset($oMatter->end_at) ? $oMatter->end_at : 0,
 			'creater' => $user->id,
 			'creater_name' => $this->escape($user->name),
-			'creater_src' => $user->src,
 			'create_at' => time(),
 			'is_public' => isset($aOptions['is_public']) ? $aOptions['is_public'] : 'Y',
 		];

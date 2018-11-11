@@ -142,7 +142,6 @@ class base_model extends \TMS_MODEL {
 		/* 记录操作人信息 */
 		$oNewMatter->creater = $oNewMatter->modifier = $oUser->id;
 		$oNewMatter->creater_name = $oNewMatter->modifier_name = $this->escape($oUser->name);
-		//$oNewMatter->creater_src = $oNewMatter->modifier_src = 'A';
 		$oNewMatter->create_at = $oNewMatter->modify_at = time();
 
 		if (empty($oNewMatter->id)) {

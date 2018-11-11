@@ -26,11 +26,9 @@ class copy_model extends \TMS_MODEL {
 
 		$newArticle = new \stdClass;
 		$newArticle->creater = $oUser->id;
-		$newArticle->creater_src = 'A';
 		$newArticle->creater_name = $modelArt->escape($oUser->name);
 		$newArticle->create_at = $current;
 		$newArticle->modifier = $oUser->id;
-		$newArticle->modifier_src = 'A';
 		$newArticle->modifier_name = $modelArt->escape($oUser->name);
 		$newArticle->modify_at = $current;
 		$newArticle->author = $modelArt->escape($oUser->name);

@@ -149,7 +149,6 @@ class batch_model extends \TMS_MODEL {
 		$oBatch->user_num = $userCount;
 		$oBatch->creater = isset($oCreator->uid) ? $oCreator->uid : '';
 		$oBatch->creater_name = isset($oCreator->name) ? $this->escape($oCreator->name) : '';
-		$oBatch->creater_src = isset($oCreator->src) ? $oCreator->src : '';
 		$oBatch->create_at = time();
 		$oBatch->params = $this->escape($this->toJson($params));
 		!empty($aOptions['event_name']) && $oBatch->event_name = $aOptions['event_name'];

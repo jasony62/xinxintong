@@ -17,36 +17,24 @@ ngApp.oUtilSubmit = require('../_module/submit.util.js');
 ngApp.config(['$compileProvider', function($compileProvider) {
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);
 }]);
-ngApp.factory('Input', ['tmsLocation', 'http2', function(LS, http2) {
+ngApp.factory('Input', ['$parse', 'tmsLocation', 'http2', function($parse, LS, http2) {
     var Input, _ins;
     Input = function() {};
-    Input.prototype.check = function(data, app, page) {
-        var dataSchemas, item, oSchema, value, sCheckResult;
-        if (page.dataSchemas && page.dataSchemas.length) {
-            dataSchemas = page.dataSchemas;
-            for (var i = dataSchemas.length - 1; i >= 0; i--) {
-                item = dataSchemas[i];
-                oSchema = item.schema;
-                if (oSchema.id.indexOf('member.') === 0) {
-                    var memberSchema = oSchema.id.substr(7);
-                    if (memberSchema.indexOf('.') === -1) {
-                        value = data.member[memberSchema];
-                    } else {
-                        memberSchema = memberSchema.split('.');
-                        value = data.member.extattr[memberSchema[1]];
-                    }
-                } else {
-                    value = data[oSchema.id];
-                }
+    Input.prototype.check = function(oRecData, oApp, oPage) {
+        var dataSchemas, oSchema, value, sCheckResult;
+        if (oPage.dataSchemas && oPage.dataSchemas.length) {
+            oPage.dataSchemas.forEach(function(oSchemaWrap) {
+                oSchema = oSchemaWrap.schema;
                 /* 隐藏题和协作题不做检查 */
                 if ((!oSchema.visibility || !oSchema.visibility.rules || oSchema.visibility.rules.length === 0 || oSchema.visibility.visible) && oSchema.cowork !== 'Y') {
                     if (oSchema.type && oSchema.type !== 'html') {
+                        value = $parse(oSchema.id)(oRecData);
                         if (true !== (sCheckResult = ngApp.oUtilSchema.checkValue(oSchema, value))) {
                             return sCheckResult;
                         }
                     }
                 }
-            }
+            });
         }
         return true;
     };
@@ -934,7 +922,7 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         }
         if (!_oSubmitState.isRunning()) {
             _oSubmitState.start(event, _StateCacheKey, type);
-            if (true === (checkResult = _facInput.check($scope.data, $scope.app, $scope.page))) {
+            if ($scope.record.round.purpose !== 'C' || true === (checkResult = _facInput.check($scope.data, $scope.app, $scope.page))) {
                 _tasksOfBeforeSubmit.length ? doTask(0, nextAction, type) : doSubmit(nextAction, type);
             } else {
                 _oSubmitState.finish();

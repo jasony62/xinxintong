@@ -7,7 +7,7 @@ require_once dirname(__FILE__) . '/record_base.php';
  */
 class record_model extends record_base {
 	/**
-	 * 活动登记（不包括登记数据）
+	 * 活动记录（不包括记录数据）
 	 *
 	 * @param object $app
 	 * @param object $oUser [uid,nickname]
@@ -36,14 +36,14 @@ class record_model extends record_base {
 		} else if ($oActiveRound = $modelRun->getActive($oApp)) {
 			$aRecord['rid'] = $oActiveRound->rid;
 		}
-		/* 登记用户昵称 */
+		/* 记录用户昵称 */
 		if (isset($aOptions['nickname'])) {
 			$aRecord['nickname'] = $this->escape($aOptions['nickname']);
 		} else {
 			$nickname = $this->model('matter\enroll')->getUserNickname($oApp, $oUser, $aOptions);
 			$aRecord['nickname'] = $this->escape($nickname);
 		}
-		/* 登记用户的社交账号信息，还需要吗？ */
+		/* 记录用户的社交账号信息，还需要吗？ */
 		if (!empty($oUser->uid)) {
 			$oUserOpenids = $this->model('site\user\account')->byId($oUser->uid, ['fields' => 'wx_openid,yx_openid,qy_openid']);
 			if ($oUserOpenids) {
@@ -53,7 +53,7 @@ class record_model extends record_base {
 			}
 		}
 
-		/* 登记记录的表态 */
+		/* 记录记录的表态 */
 		if (isset($oApp->actionRule->record->default->agreed)) {
 			$agreed = $oApp->actionRule->record->default->agreed;
 			if (in_array($agreed, ['A', 'D'])) {
@@ -88,7 +88,7 @@ class record_model extends record_base {
 		return $ek;
 	}
 	/**
-	 * 保存登记的数据
+	 * 保存记录的数据
 	 *
 	 * @param object $oUser [uid]
 	 * @param object $oApp
@@ -99,7 +99,7 @@ class record_model extends record_base {
 		if (empty($submitData)) {
 			return [true];
 		}
-		// 数据对应的登记记录
+		// 数据对应的记录记录
 		$oRecord = $this->byId($ek);
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return [false, '指定的对象不存在'];
@@ -109,7 +109,7 @@ class record_model extends record_base {
 			return $oResult;
 		}
 
-		/* 更新在登记记录上记录数据 */
+		/* 更新在记录记录上记录数据 */
 		$oUpdatedRec = new \stdClass;
 		$oUpdatedRec->data = $this->escape($this->toJson($oResult->dbData));
 		if (count(get_object_vars($oResult->score)) > 1) {
@@ -140,7 +140,7 @@ class record_model extends record_base {
 		return [true, $oUpdatedRec];
 	}
 	/**
-	 * 保存登记的数据
+	 * 保存记录的数据
 	 *
 	 * @param object $oUser [uid]
 	 * @param object $oApp
@@ -203,7 +203,7 @@ class record_model extends record_base {
 		return $oRecord;
 	}
 	/**
-	 * 根据ID返回登记记录
+	 * 根据ID返回记录记录
 	 */
 	public function byPlainId($id, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
@@ -224,7 +224,7 @@ class record_model extends record_base {
 		return $oRecord;
 	}
 	/**
-	 * 根据ek返回登记记录
+	 * 根据ek返回记录记录
 	 */
 	public function &byId($ek, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
@@ -245,7 +245,7 @@ class record_model extends record_base {
 		return $oRecord;
 	}
 	/**
-	 * 获得指定用户最后一次登记记录
+	 * 获得指定用户最后一次记录记录
 	 *
 	 * 如果用户是注册用户，那么获得这个注册用户，在活动所属团队下，对应的所有站点用户账号填写的内容
 	 *
@@ -274,7 +274,7 @@ class record_model extends record_base {
 		} else {
 			$q[2]['rid'] = $assignRid;
 		}
-		/* 登记的时间 */
+		/* 记录的时间 */
 		$q2 = [
 			'o' => 'enroll_at desc',
 			'r' => ['o' => 0, 'l' => 1],
@@ -290,7 +290,7 @@ class record_model extends record_base {
 		return $oRecord;
 	}
 	/**
-	 * 获得用户的登记清单
+	 * 获得用户的记录清单
 	 *
 	 * @param object $oApp
 	 * @param object $oUser
@@ -329,7 +329,7 @@ class record_model extends record_base {
 		return $records;
 	}
 	/**
-	 * 获得登记轮次的清单
+	 * 获得记录轮次的清单
 	 *
 	 * @param string $roundId
 	 */
@@ -359,7 +359,7 @@ class record_model extends record_base {
 		}
 	}
 	/**
-	 * 获得指定项目下的登记记录
+	 * 获得指定项目下的记录记录
 	 *
 	 * @param int $missionId
 	 */
@@ -442,6 +442,25 @@ class record_model extends record_base {
 		return $records;
 	}
 	/**
+	 * 获得指定轮次的基线记录
+	 */
+	public function baselineByRound($userid, $oRound) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : 'data,score,rid';
+		$q = [
+			$fields,
+			'xxt_enroll_record',
+			["state" => 1, 'rid' => $oRound->rid, "userid" => $userid],
+		];
+		$q2 = ['o' => 'enroll_at desc', 'r' => ['o' => 0, 'l' => 1]];
+
+		$records = $this->query_objs_ss($q, $q2);
+		if (count($records) === 1) {
+			return $this->_processRecord($records[0], $fields);
+		}
+
+		return $false;
+	}
+	/**
 	 * 为了计算每条记录的分数，转换schema的形式
 	 */
 	private function _mapOfScoreSchema(&$oApp) {
@@ -474,7 +493,7 @@ class record_model extends record_base {
 		return $score;
 	}
 	/**
-	 * 登记清单
+	 * 记录清单
 	 *
 	 * @param object/string 记录活动/记录活动的id
 	 * @param object/array $oOptions
@@ -482,7 +501,7 @@ class record_model extends record_base {
 	 * --size
 	 * --kw 检索关键词
 	 * --by 检索字段
-	 * @param object $oCriteria 登记数据过滤条件
+	 * @param object $oCriteria 记录数据过滤条件
 	 * @param object $oUser ['uid','group_id']
 	 *
 	 * @return object
@@ -505,7 +524,7 @@ class record_model extends record_base {
 			$oSchemasById->{$oSchema->id} = $oSchema;
 		}
 
-		// 指定记录活动下的登记记录
+		// 指定记录活动下的记录记录
 		$w = "r.state=1 and r.aid='{$oApp->id}'";
 
 		/* 指定轮次，或者当前激活轮次 */
@@ -612,7 +631,7 @@ class record_model extends record_base {
 			}
 		}
 
-		// 指定了登记数据过滤条件
+		// 指定了记录数据过滤条件
 		if (isset($oCriteria->data)) {
 			$whereByData = '';
 			foreach ($oCriteria->data as $k => $v) {
@@ -909,7 +928,7 @@ class record_model extends record_base {
 			}
 			// 用户的分组
 
-			// 记录的登记轮次
+			// 记录的记录轮次
 			if (!empty($oRec->rid)) {
 				if (!isset($aRoundsById[$oRec->rid])) {
 					if (!isset($modelRnd)) {
@@ -933,7 +952,7 @@ class record_model extends record_base {
 		return $records;
 	}
 	/**
-	 * 已删除的登记清单
+	 * 已删除的记录清单
 	 */
 	public function recycle($oApp, $options = null) {
 		if ($options) {
@@ -954,13 +973,13 @@ class record_model extends record_base {
 		$oResult = new \stdClass; // 返回的结果
 		$oResult->total = 0;
 
-		// 指定记录活动下的登记记录
+		// 指定记录活动下的记录记录
 		$w = "(e.state=100 or e.state=101 or e.state=0) and e.aid='{$oApp->id}'";
 
 		// 指定了轮次
 		!empty($rid) && $w .= " and e.rid='$rid'";
 
-		// 指定了登记记录过滤条件
+		// 指定了记录记录过滤条件
 		if (!empty($criteria->record)) {
 			$whereByRecord = '';
 			if (!empty($criteria->record->verified)) {
@@ -1013,7 +1032,7 @@ class record_model extends record_base {
 		return $oResult;
 	}
 	/**
-	 * 返回指定登记项的登记记录
+	 * 返回指定记录项的记录记录
 	 *
 	 */
 	public function list4Schema($oApp, $schemaId, $options = null) {
@@ -1052,7 +1071,7 @@ class record_model extends record_base {
 		if (!empty($options->owner)) {
 			$q[2] .= " and d.userid='" . $options->owner . "'";
 		}
-		/* 指定登记轮次 */
+		/* 指定记录轮次 */
 		if (!empty($rid)) {
 			if ($rid !== 'ALL') {
 				$q[2] .= " and d.rid='{$rid}'";
@@ -1123,7 +1142,7 @@ class record_model extends record_base {
 		return $oResult;
 	}
 	/**
-	 * 计算指定登记项所有记录的合计
+	 * 计算指定记录项所有记录的合计
 	 */
 	public function sum4Schema($oApp, $rid = 'ALL', $gid = '') {
 		if (empty($oApp->dynaDataSchemas)) {
@@ -1183,7 +1202,7 @@ class record_model extends record_base {
 		return $oResult;
 	}
 	/**
-	 * 计算指定登记项所有记录的合计
+	 * 计算指定记录项所有记录的合计
 	 */
 	public function score4Schema($oApp, $rid = 'ALL', $gid = '') {
 		if (empty($oApp->dynaDataSchemas)) {
@@ -1249,7 +1268,7 @@ class record_model extends record_base {
 		return $oResult;
 	}
 	/**
-	 * 获得指定用户最后一次登记的key
+	 * 获得指定用户最后一次记录的key
 	 * 如果设置轮次，只检查当前轮次的情况
 	 *
 	 * @param object $oApp
@@ -1262,7 +1281,7 @@ class record_model extends record_base {
 		return $last ? $last->enroll_key : false;
 	}
 	/**
-	 * 生成活动登记的key
+	 * 生成活动记录的key
 	 */
 	public function genKey($siteId, $aid) {
 		return md5(uniqid() . $siteId . $aid);
@@ -1304,7 +1323,7 @@ class record_model extends record_base {
 		return [true];
 	}
 	/**
-	 * 登记人清除一条登记记录
+	 * 记录人清除一条记录记录
 	 *
 	 * @param object $oApp
 	 * @param object $oRecord
@@ -1334,7 +1353,7 @@ class record_model extends record_base {
 		return $rst;
 	}
 	/**
-	 * 清除一条登记记录
+	 * 清除一条记录记录
 	 *
 	 * @param object $oApp
 	 * @param object $oRecord
@@ -1436,7 +1455,7 @@ class record_model extends record_base {
 		return $rst;
 	}
 	/**
-	 *  恢复一条登记记录
+	 *  恢复一条记录记录
 	 *
 	 * @param object $oApp
 	 * @param object $oRecord
@@ -1492,7 +1511,7 @@ class record_model extends record_base {
 
 			$q2 = ['r' => ['o' => 0, 'l' => 1]];
 			$last = $this->query_objs_ss($q, $q2);
-			/* 上次统计后的新登记记录数 */
+			/* 上次统计后的新记录记录数 */
 			if (count($last) === 1) {
 				$last = $last[0];
 				$q = [
@@ -1508,7 +1527,7 @@ class record_model extends record_base {
 			} else {
 				$newCnt = 999;
 			}
-			// 如果更新的登记数据，重新计算统计结果
+			// 如果更新的记录数据，重新计算统计结果
 			if ($newCnt > 0) {
 				$aResult = $this->_calcStat($oApp, $rid);
 				// 保存统计结果

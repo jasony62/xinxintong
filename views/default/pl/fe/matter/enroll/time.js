@@ -6,6 +6,7 @@ define(['frame'], function(ngApp) {
         $scope.rounds = rounds = [];
         srvEnlRnd.init(rounds, page)
         $scope.roundState = srvEnlRnd.RoundState;
+        $scope.roundPurpose = srvEnlRnd.RoundPurpose;
         $scope.updateCron = function() {
             var oDefaultRound;
             /* 是否要替换默认的填写时段 */

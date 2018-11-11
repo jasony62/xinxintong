@@ -298,6 +298,9 @@ class event_model extends \TMS_MODEL {
 	public function submitRecord($oApp, $oRecord, $oUser, $bSubmitNewRecord, $bReviseRecordBeyondRound = false) {
 		$eventAt = isset($oRecord->enroll_at) ? $oRecord->enroll_at : time();
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
+		$modelRnd = $this->model('matter\enroll\round');
+		$oRecRnd = $modelRnd->byId($oRecord->rid, ['fields' => 'purpose,start_at,end_at,state']);
+
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->userid = $oUser->uid;
@@ -310,8 +313,12 @@ class event_model extends \TMS_MODEL {
 		$oUpdatedUsrData->nickname = $this->escape($oUser->nickname);
 		$oUpdatedUsrData->last_enroll_at = $eventAt;
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
-		if (isset($oRecord->score->sum)) {
-			$oUpdatedUsrData->score = $oRecord->score->sum;
+
+		/* 只有常规轮次才将记录得分计入用户总分 */
+		if ($oRecRnd->purpose === 'C') {
+			if (isset($oRecord->score->sum)) {
+				$oUpdatedUsrData->score = $oRecord->score->sum;
+			}
 		}
 
 		/* 提交新记录 */

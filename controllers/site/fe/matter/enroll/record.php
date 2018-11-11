@@ -679,7 +679,7 @@ class record extends base {
 		}
 
 		if (!empty($oRecord->rid)) {
-			$oRecRound = $this->model('matter\enroll\round')->byId($oRecord->rid, ['fields' => 'rid,title,start_at,end_at']);
+			$oRecRound = $this->model('matter\enroll\round')->byId($oRecord->rid, ['fields' => 'rid,title,purpose,state,start_at,end_at']);
 			$oRecord->round = $oRecRound;
 		}
 
@@ -688,6 +688,46 @@ class record extends base {
 		}
 
 		return new \ResponseData($oRecord);
+	}
+	/**
+	 * 获得基线记录
+	 * 基线轮次中的记录
+	 *
+	 * @param string $app app'id
+	 * @param string $rid 指定的轮次
+	 */
+	public function baseline_action($app, $rid = '') {
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelRnd = $this->model('matter\enroll\round');
+		$aRndOptions = ['fields' => 'rid,title'];
+		if (!empty($rid)) {
+			$aRndOptions['assignedRid'] = $rid;
+		}
+		$oBaselineRnd = $modelRnd->getBaseline($oApp, $aRndOptions);
+		if (false === $oBaselineRnd) {
+			return new \ResponseData(false);
+		}
+
+		$modelRec = $this->model('matter\enroll\record');
+		$oBaselineRec = $modelRec->baselineByRound($this->who->uid, $oBaselineRnd);
+		if (false === $oBaselineRnd) {
+			return new \ResponseData(false);
+		}
+		/* 只有数值题可以作为基准 */
+		$oNumberRecData = new \stdClass;
+		foreach ($oApp->dynaDataSchemas as $oSchema) {
+			if ($oSchema->type === 'shorttext' && $modelRec->getDeepValue($oSchema, 'format') === 'number') {
+				$oNumberRecData->{$oSchema->id} = empty($oBaselineRec->data->{$oSchema->id}) ? 0 : $oBaselineRec->data->{$oSchema->id};
+			}
+		}
+		$oBaselineRec->data = $oNumberRecData;
+
+		return new \ResponseData($oBaselineRec);
 	}
 	/**
 	 * 记录的概要信息

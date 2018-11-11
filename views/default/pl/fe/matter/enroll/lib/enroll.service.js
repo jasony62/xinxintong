@@ -446,7 +446,8 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
     ngModule.provider('srvEnrollRound', function() {
         var _siteId, _appId, _rounds, _oPage,
             _RestURL = '/rest/pl/fe/matter/enroll/round/',
-            RoundState = ['新建', '启用', '结束'];
+            RoundState = ['新建', '启用', '结束'],
+            RoundPurpose = { C: '常规', B: '基线' };
 
         this.config = function(siteId, appId) {
             _siteId = siteId;
@@ -455,16 +456,10 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         this.$get = ['$q', '$uibModal', 'http2', 'srvEnrollApp', 'tkEnrollApp', function($q, $uibModal, http2, srvEnrollApp, tkEnrollApp) {
             return {
                 RoundState: RoundState,
+                RoundPurpose: RoundPurpose,
                 init: function(rounds, page) {
                     _rounds = rounds;
                     _oPage = page;
-                    if (page.j === undefined) {
-                        page.at = 1;
-                        page.size = 10;
-                        page.j = function() {
-                            return 'page=' + this.at + '&size=' + this.size;
-                        }
-                    }
                 },
                 list: function(checkRid, pageAt, pageSize) {
                     var defer = $q.defer(),
@@ -473,26 +468,19 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         _rounds = [];
                     }
                     if (_oPage === undefined) {
-                        _oPage = {
-                            at: pageAt || 1,
-                            size: pageSize || 10,
-                            j: function() {
-                                return 'page=' + this.at + '&size=' + this.size;
-                            }
-                        };
+                        _oPage = {};
                     }
-                    url = _RestURL + 'list?site=' + _siteId + '&app=' + _appId + '&' + _oPage.j();
+                    url = _RestURL + 'list?app=' + _appId;
                     if (checkRid) {
                         url += '&checked=' + checkRid;
                     }
-                    http2.get(url).then(function(rsp) {
+                    http2.get(url, { page: _oPage }).then(function(rsp) {
                         var _checked;
                         _rounds.splice(0, _rounds.length);
                         rsp.data.rounds.forEach(function(rnd) {
                             rsp.data.active && (rnd._isActive = rnd.rid === rsp.data.active.rid);
                             _rounds.push(rnd);
                         });
-                        _oPage.total = parseInt(rsp.data.total);
                         _checked = (rsp.data.checked ? rsp.data.checked : '');
                         defer.resolve({ rounds: _rounds, page: _oPage, active: rsp.data.active, checked: _checked });
                     });
@@ -501,12 +489,13 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 },
                 add: function() {
                     $uibModal.open({
-                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=2',
+                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=3',
                         backdrop: 'static',
                         controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                             $scope.round = {
                                 state: '0',
-                                start_at: '0'
+                                start_at: '0',
+                                purpose: 'C',
                             };
                             $scope.roundState = RoundState;
                             $scope.$on('xxt.tms-datepicker.change', function(event, data) {
@@ -531,7 +520,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             };
                         }]
                     }).result.then(function(newRound) {
-                        http2.post(_RestURL + 'add?site=' + _siteId + '&app=' + _appId, newRound).then(function(rsp) {
+                        http2.post(_RestURL + 'add?app=' + _appId, newRound).then(function(rsp) {
                             if (_rounds.length > 0 && rsp.data.state == 1) {
                                 _rounds[0].state = 2;
                             }
@@ -542,10 +531,10 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 },
                 edit: function(oRound) {
                     $uibModal.open({
-                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=2',
+                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=3',
                         backdrop: 'static',
                         controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
-                            $scope.round = { rid: oRound.id, mission_rid: oRound.mission_rid, title: oRound.title, start_at: oRound.start_at, end_at: oRound.end_at, state: oRound.state };
+                            $scope.round = { rid: oRound.id, mission_rid: oRound.mission_rid, title: oRound.title, purpose: oRound.purpose, start_at: oRound.start_at, end_at: oRound.end_at, state: oRound.state };
                             $scope.roundState = RoundState;
                             $scope.$on('xxt.tms-datepicker.change', function(event, data) {
                                 if (data.state === 'start_at') {
@@ -605,7 +594,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                     }).result.then(function(rst) {
                         var url = _RestURL;
                         if (rst.action === 'update') {
-                            url += 'update?site=' + _siteId + '&app=' + _appId + '&rid=' + oRound.rid;
+                            url += 'update?app=' + _appId + '&rid=' + oRound.rid;
                             http2.post(url, rst.data).then(function(rsp) {
                                 if (_rounds.length > 1 && rst.data.state === '1') {
                                     _rounds[1].state = '2';
@@ -613,7 +602,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 angular.extend(oRound, rsp.data);
                             });
                         } else if (rst.action === 'remove') {
-                            url += 'remove?site=' + _siteId + '&app=' + _appId + '&rid=' + oRound.rid;
+                            url += 'remove?app=' + _appId + '&rid=' + oRound.rid;
                             http2.get(url).then(function(rsp) {
                                 _rounds.splice(_rounds.indexOf(oRound), 1);
                                 _oPage.total--;

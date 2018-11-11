@@ -95,9 +95,9 @@ class enroll_model extends enroll_base {
 			/* 活动轮次 */
 			$modelRnd = $this->model('matter\enroll\round');
 			if (empty($appRid)) {
-				$oAppRnd = $modelRnd->getActive($oApp, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
+				$oAppRnd = $modelRnd->getActive($oApp, ['fields' => 'id,rid,title,purpose,start_at,end_at,mission_rid']);
 			} else {
-				$oAppRnd = $modelRnd->byId($appRid, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
+				$oAppRnd = $modelRnd->byId($appRid, ['fields' => 'id,rid,title,purpose,start_at,end_at,mission_rid']);
 			}
 			$oApp->appRound = $oAppRnd;
 

@@ -48,20 +48,21 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$parse', '$s
         return '';
     };
     $scope.score2Html = function(schemaId) {
-        var label = '',
-            oSchema = $scope.app._schemasById[schemaId],
-            val, oRecord;
-        if (oSchema && $scope.Record) {
-            oRecord = $scope.Record.current;
-            if (oRecord && oRecord.data && oRecord.data[schemaId]) {
-                val = oRecord.data[schemaId];
-                if (oSchema.ops && oSchema.ops.length) {
-                    oSchema.ops.forEach(function(op, index) {
-                        label += '<div>' + op.l + ': ' + (val[op.v] ? val[op.v] : 0) + '</div>';
-                    });
+        var oSchema, val, oRecord, label;
+        if ($scope.Record) {
+            if (oSchema = $scope.app._schemasById[schemaId]) {
+                label = '';
+                oRecord = $scope.Record.current;
+                if (oRecord && oRecord.data && oRecord.data[schemaId]) {
+                    val = oRecord.data[schemaId];
+                    if (oSchema.ops && oSchema.ops.length) {
+                        oSchema.ops.forEach(function(op, index) {
+                            label += '<div>' + op.l + ': ' + (val[op.v] ? val[op.v] : 0) + '</div>';
+                        });
+                    }
                 }
+                return $sce.trustAsHtml(label);
             }
-            return $sce.trustAsHtml(label);
         }
         return '';
     };
@@ -199,14 +200,55 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
     }
     /* 显示题目的分数 */
     function fnShowSchemaScore(oScore) {
+        var domSchema, domScore;
         for (var schemaId in oScore) {
-            var domSchema, domScore;
             domSchema = document.querySelector('[wrap=value][schema="' + schemaId + '"]');
+            domScore = null;
             if (domSchema) {
-                domScore = document.createElement('div');
+                for (var i = 0; i < domSchema.children.length; i++) {
+                    if (domSchema.children[i].classList.contains('schema-score')) {
+                        domScore = domSchema.children[i];
+                        break;
+                    }
+                }
+                if (!domScore) {
+                    domScore = document.createElement('div');
+                    domScore.classList.add('schema-score');
+                    domSchema.appendChild(domScore);
+                }
                 domScore.innerText = oScore[schemaId];
-                domScore.classList.add('schema-score');
-                domSchema.appendChild(domScore);
+            }
+        }
+    }
+    /* 显示题目的分数 */
+    function fnShowSchemaBaseline(oBaseline) {
+        if (oBaseline) {
+            var domSchema, domBaseline;
+            for (var schemaId in oBaseline.data) {
+                domSchema = document.querySelector('[wrap=value][schema="' + schemaId + '"]');
+                domBaseline = null;
+                if (domSchema) {
+                    for (var i = 0; i < domSchema.children.length; i++) {
+                        if (domSchema.children[i].classList.contains('schema-baseline')) {
+                            domBaseline = domSchema.children[i];
+                            break;
+                        }
+                    }
+                    if (!domBaseline) {
+                        domBaseline = document.createElement('div');
+                        domBaseline.classList.add('schema-baseline');
+                        domSchema.appendChild(domBaseline);
+                    }
+                    domBaseline.innerText = oBaseline.data[schemaId];
+                }
+            }
+        } else {
+            /*清空基线*/
+            var domBaselines, domBaseline;
+            domBaselines = document.querySelectorAll('[wrap=value] .schema-baseline');
+            for (var i = 0; i < domBaselines.length; i++) {
+                domBaseline = domBaselines[i];
+                domBaseline.parentNode.removeChild(domBaseline);
             }
         }
     }
@@ -218,7 +260,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
         fnToggleAssocSchemas(_oApp.dynaDataSchemas, oOriginalData);
         /* 将数据转换为可直接显示的形式 */
         fnProcessData(rsp.data);
-        /* 显示打分题的分数 */
+        /* 显示题目的分数 */
         if (rsp.data.score) {
             fnShowSchemaScore(rsp.data.score);
         }
@@ -258,6 +300,18 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
                 }
             }
         });
+        /* 基准轮次记录 */
+        if (oRecord.round.purpose === 'C') {
+            http2.get(LS.j('record/baseline', 'site', 'app') + '&rid=' + oRecord.round.rid).then(function(rsp) {
+                if (rsp.data) {
+                    /* 显示题目的基线 */
+                    fnShowSchemaBaseline(rsp.data);
+                }
+            });
+        } else {
+            /* 清除显示题目的基线 */
+            fnShowSchemaBaseline(false);
+        }
     }
 
     var _oApp;

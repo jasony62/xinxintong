@@ -37,7 +37,7 @@ class round_model extends \TMS_MODEL {
 		return $oRound;
 	}
 	/**
-	 * 返回登记活动下的轮次
+	 * 返回记录活动下的轮次
 	 *
 	 * @param object $oApp
 	 *
@@ -130,7 +130,7 @@ class round_model extends \TMS_MODEL {
 		return [true, $oRound];
 	}
 	/**
-	 * 获得指定登记活动的当前轮次
+	 * 获得指定记录活动的当前轮次（开始时间为0），必须是常规轮次
 	 *
 	 * @param object $oApp
 	 *
@@ -141,17 +141,17 @@ class round_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_enroll_round',
-			['aid' => $oApp->id, 'start_at' => 0, 'end_at' => 0, 'state' => 1],
+			['aid' => $oApp->id, 'purpose' => 'C', 'start_at' => 0, 'end_at' => 0, 'state' => 1],
 		];
 		$oRound = $this->query_obj_ss($q);
 
 		return $oRound;
 	}
 	/**
-	 * 获得指定登记活动中启用状态的轮次
+	 * 获得指定记录活动中启用状态的轮次
 	 *
 	 * 没有指定开始和结束时间，且状态为启用状态的轮次优先
-	 * 如果登记活动设置了轮次定时生成规则，需要检查是否需要自动生成轮次
+	 * 如果记录活动设置了轮次定时生成规则，需要检查是否需要自动生成轮次
 	 *
 	 * @param object $app
 	 *
@@ -215,12 +215,12 @@ class round_model extends \TMS_MODEL {
 				}
 			}
 			if (empty($enabledRules)) {
-				/* 根据轮次开始时间获得轮次 */
+				/* 根据轮次开始时间获得轮次，但是必须是常规轮次 */
 				$current = time();
 				$q = [
 					$fields,
 					'xxt_enroll_round',
-					"aid='{$oApp->id}' and state=1 and start_at<={$current}",
+					['aid' => $oApp->id, 'state' => 1, 'purpose' => 'C', 'start_at' => (object) ['op' => '<=', 'pat' => $current]],
 				];
 				$q2 = [
 					'o' => 'start_at desc',
@@ -239,6 +239,31 @@ class round_model extends \TMS_MODEL {
 
 			return $oAppRound;
 		}
+	}
+	/**
+	 * 获得指定活动中的基线轮次
+	 */
+	public function getBaseline($oApp, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+
+		$q = [
+			$fields,
+			'xxt_enroll_round',
+			['aid' => $oApp->id, 'state' => 1, 'purpose' => 'B'],
+		];
+		if (!empty($aOptions['assignedRid'])) {
+			$oAssignedRnd = $this->byId($aOptions['assignedRid'], ['fields' => 'start_at']);
+			if (isset($oAssignedRnd) && $oAssignedRnd->start_at > 0) {
+				$q[2]['start_at'] = (object) ['op' => '<=', 'pat' => $oAssignedRnd->start_at];
+			}
+		}
+		$q2 = [
+			'o' => 'start_at desc',
+			'r' => ['o' => 0, 'l' => 1],
+		];
+		$rounds = $this->query_objs_ss($q, $q2);
+
+		return count($rounds) === 1 ? $rounds[0] : false;
 	}
 	/**
 	 * 根据定时规则生成轮次
@@ -306,7 +331,9 @@ class round_model extends \TMS_MODEL {
 		return $rst;
 	}
 	/**
-	 * 创建记录
+	 * 记录轮次下创建的记录
+	 *
+	 * 1条记录可以属于多个轮次
 	 */
 	public function createRecord($oRecord) {
 		$oRecordRound = new \stdClass;

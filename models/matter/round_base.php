@@ -23,26 +23,28 @@ trait Round {
 	 * @param array rules 定时生成轮次规则
 	 *
 	 */
-	private function _lastRoundByCron($rules) {
+	private function _lastRoundByCron($rules, $timestamp = null) {
 		$WeekdayZh = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 		$latest = $latestEnd = 0;
 		$latestLabel = '';
+		$oLatestRule = null;
 		foreach ($rules as $oRule) {
 			if ($oRule->pattern === 'period') {
 				/* 按周期生成规则 */
 				if (empty($oRule->period)) {
 					continue;
 				}
-				list($startAt, $endAt) = $this->_timeByPeriodRule($oRule);
+				list($startAt, $endAt) = $this->_timeByPeriodRule($oRule, $timestamp);
 			} else if ($oRule->pattern === 'interval') {
 				/* 按间隔生成轮次 */
 				if (empty($oRule->start_at) || empty($oRule->next->unit) || empty($oRule->next->interval)) {
 					continue;
 				}
-				list($startAt, $endAt) = $this->_timeByIntervalRule($oRule);
+				list($startAt, $endAt) = $this->_timeByIntervalRule($oRule, $timestamp);
 			}
 			// 记录活动的轮次生成时间
 			if ($startAt > $latest) {
+				$oLatestRule = $oRule;
 				$latest = $startAt;
 				$latestEnd = $endAt;
 				$rndLabel = date('y年n月d日', $latest) . ' ' . $WeekdayZh[date('w', $latest)] . ' ' . date('H:i', $latest);
@@ -69,20 +71,21 @@ trait Round {
 		$oNewRound->start_at = $latest;
 		$oNewRound->end_at = $latestEnd;
 		$oNewRound->state = 1;
+		$oNewRound->purpose = empty($oLatestRule->purpose) ? 'C' : (in_array($oLatestRule->purpose, ['C', 'B', 'S']) ? $oLatestRule->purpose : 'C');
 
 		return $oNewRound;
 	}
 	/**
 	 * 根据指定规则计算轮次的开始结束时间
 	 */
-	private function _timeByPeriodRule($oRule) {
+	private function _timeByPeriodRule($oRule, $timestamp = null) {
 		/* 根据定时计划计算轮次的开始时间 */
-		$hour = (int) date("G"); // 0-23
-		$month = (int) date("n"); // 1-12
-		$mday = (int) date("j"); // 1-31
-		$year = (int) date("Y"); // yyyy
-		$wday = (int) date('w'); //0 (for Sunday) through 6 (for Saturday)
-		$week = (int) date('W'); //0-51, ISO-8601 week number of year, weeks starting on Monday
+		$hour = (int) (empty($timestamp) ? date("G") : date("G", $timestamp)); // 0-23
+		$month = (int) (empty($timestamp) ? date("n") : date("n", $timestamp)); // 1-12
+		$mday = (int) (empty($timestamp) ? date("j") : date("j", $timestamp)); // 1-31
+		$year = (int) (empty($timestamp) ? date("Y") : date("Y", $timestamp)); // yyyy
+		$wday = (int) (empty($timestamp) ? date("w") : date("w", $timestamp)); //0 (for Sunday) through 6 (for Saturday)
+		$week = (int) (empty($timestamp) ? date("W") : date("W", $timestamp)); //0-51, ISO-8601 week number of year, weeks starting on Monday
 
 		if ($oRule->period === 'M' && !empty($oRule->mday)) {
 			/* 某个月的某一天 */

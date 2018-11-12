@@ -37,7 +37,7 @@ class analysis_model extends \TMS_MODEL {
 			$aNewTrace['topic_id'] = $topicId;
 		}
 		$aNewTrace['userid'] = $oUser->uid;
-		$aNewTrace['nickname'] = $oUser->nickname;
+		$aNewTrace['nickname'] = $this->escape($oUser->nickname);
 		$aNewTrace['event_first'] = $oEventFirst->type;
 		$aNewTrace['event_first_at'] = $eventStartAt;
 		$aNewTrace['event_end'] = $eventEnd->type;

@@ -201,47 +201,46 @@ class round_model extends \TMS_MODEL {
 				}
 				return $oAppRound;
 			}
-			return false;
-		} else {
-			/* 已经存在的，用户指定的当前轮次 */
-			if ($oAppRound = $this->getAssignedActive($oApp, $aOptions)) {
-				return $oAppRound;
-			}
-			/* 根据活动的轮次规则生成轮次 */
-			if (!empty($oApp->roundCron)) {
-				/* 有效的定时规则 */
-				$enabledRules = [];
-				foreach ($oApp->roundCron as $rule) {
-					if (isset($rule->enabled) && $rule->enabled === 'Y' && (empty($rule->purpose) || $rule->purpose === 'C')) {
-						$enabledRules[] = $rule;
-					}
-				}
-			}
-			if (empty($enabledRules)) {
-				/* 根据轮次开始时间获得轮次，但是必须是常规轮次 */
-				$current = time();
-				$q = [
-					$fields,
-					'xxt_enroll_round',
-					['aid' => $oApp->id, 'state' => 1, 'purpose' => 'C', 'start_at' => (object) ['op' => '<=', 'pat' => $current]],
-				];
-				$q2 = [
-					'o' => 'start_at desc',
-					'r' => ['o' => 0, 'l' => 1],
-				];
-				$rounds = $this->query_objs_ss($q, $q2);
-				$oAppRound = count($rounds) === 1 ? $rounds[0] : false;
-			} else {
-				/* 根据定时规则获得轮次 */
-				$rst = $this->_getRoundByCron($oApp, $enabledRules, $aOptions);
-				if (false === $rst[0]) {
-					return false;
-				}
-				$oAppRound = $rst[1];
-			}
+		}
 
+		/* 已经存在的，用户指定的当前轮次 */
+		if ($oAppRound = $this->getAssignedActive($oApp, $aOptions)) {
 			return $oAppRound;
 		}
+		/* 根据活动的轮次规则生成轮次 */
+		if (!empty($oApp->roundCron)) {
+			/* 有效的定时规则 */
+			$enabledRules = [];
+			foreach ($oApp->roundCron as $rule) {
+				if (isset($rule->enabled) && $rule->enabled === 'Y' && (empty($rule->purpose) || $rule->purpose === 'C')) {
+					$enabledRules[] = $rule;
+				}
+			}
+		}
+		if (empty($enabledRules)) {
+			/* 根据轮次开始时间获得轮次，但是必须是常规轮次 */
+			$current = time();
+			$q = [
+				$fields,
+				'xxt_enroll_round',
+				['aid' => $oApp->id, 'state' => 1, 'purpose' => 'C', 'start_at' => (object) ['op' => '<=', 'pat' => $current]],
+			];
+			$q2 = [
+				'o' => 'start_at desc',
+				'r' => ['o' => 0, 'l' => 1],
+			];
+			$rounds = $this->query_objs_ss($q, $q2);
+			$oAppRound = count($rounds) === 1 ? $rounds[0] : false;
+		} else {
+			/* 根据定时规则获得轮次 */
+			$rst = $this->_getRoundByCron($oApp, $enabledRules, $aOptions);
+			if (false === $rst[0]) {
+				return false;
+			}
+			$oAppRound = $rst[1];
+		}
+
+		return $oAppRound;
 	}
 	/**
 	 * 获得指定活动中的基线轮次

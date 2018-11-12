@@ -5,6 +5,7 @@ $sqls = [];
 //
 $sqls[] = "ALTER TABLE xxt_enroll_record add purpose char(1) not null default 'C' after rid";
 $sqls[] = "ALTER TABLE xxt_enroll_record_data add purpose char(1) not null default 'C' after rid";
+$sqls[] = "ALTER TABLE xxt_enroll_user add purpose char(1) not null default 'C' after rid";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

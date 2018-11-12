@@ -235,24 +235,20 @@ class record extends base {
 				['enroll_key' => $ek]
 			);
 		}
+		$oRecord = $modelRec->byId($ek);
+		/**
+		 * 处理用户按轮次汇总数据，积分数据
+		 */
+		$modelRec->setSummaryRec($oUser, $oEnrollApp, $oRecord->rid);
 		/**
 		 * 处理用户汇总数据，积分数据
 		 */
-		$oRecord = $modelRec->byId($ek);
 		if ($bReviseRecordBeyondRound) {
 			$oRoundRecord = clone $oRecord;
 			$oRoundRecord->rid = $oEnrollApp->appRound->rid;
 			$this->model('matter\enroll\event')->submitRecord($oEnrollApp, $oRoundRecord, $oUser, $bSubmitNewRecord, true);
 		} else {
 			$this->model('matter\enroll\event')->submitRecord($oEnrollApp, $oRecord, $oUser, $bSubmitNewRecord);
-		}
-		/**
-		 * 处理用户按轮次汇总数据，积分数据
-		 */
-		$aResultSumRec = $modelRec->setSummaryRec($oUser, $oEnrollApp, $oRecord->rid);
-		if (true === $aResultSumRec[0]) {
-			$oSumRec = $aResultSumRec[1];
-			$this->model('matter\enroll\event')->submitRecord($oEnrollApp, $oSumRec, $oUser, false);
 		}
 
 		/* 生成提醒 */
@@ -716,7 +712,7 @@ class record extends base {
 
 		$modelRec = $this->model('matter\enroll\record');
 		$oBaselineRec = $modelRec->baselineByRound($this->who->uid, $oBaselineRnd);
-		if (false === $oBaselineRnd) {
+		if (false === $oBaselineRec) {
 			return new \ResponseData(false);
 		}
 		/* 只有数值题可以作为基准 */

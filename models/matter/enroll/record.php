@@ -174,7 +174,7 @@ class record_model extends record_base {
 
 		$oSumRec = $this->byId($oSumRec->enroll_key);
 
-		return [true, $oSumRec];
+		return [true, $oSumRec, $oSumRnd];
 	}
 	/**
 	 * 保存记录的数据
@@ -495,7 +495,7 @@ class record_model extends record_base {
 			return $this->_processRecord($records[0], $fields);
 		}
 
-		return $false;
+		return false;
 	}
 	/**
 	 * 为了计算每条记录的分数，转换schema的形式

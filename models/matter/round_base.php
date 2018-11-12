@@ -65,6 +65,16 @@ trait Round {
 				}
 			}
 		}
+		if (!empty($oLatestRule->purpose)) {
+			switch ($oLatestRule->purpose) {
+			case 'B':
+				$latestLabel .= '（基线）';
+				break;
+			case 'S':
+				$latestLabel .= '（汇总）';
+				break;
+			}
+		}
 
 		$oNewRound = new \stdClass;
 		$oNewRound->title = $latestLabel;

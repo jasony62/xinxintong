@@ -149,6 +149,13 @@ class user_model extends \TMS_MODEL {
 				$oNewUsr->{$k} = $v;
 			}
 		}
+		if (!empty($oNewUsr->rid) && $oNewUsr->rid !== 'ALL') {
+			$oRecRnd = $this->model('matter\enroll\round')->byId($oNewUsr->rid, ['fields' => 'purpose']);
+			if ($oRecRnd) {
+				$oNewUsr->purpose = $oRecRnd->purpose;
+			}
+		}
+
 		$oNewUsr->id = $this->insert('xxt_enroll_user', $oNewUsr, true);
 
 		return $oNewUsr;
@@ -242,6 +249,122 @@ class user_model extends \TMS_MODEL {
 		$rst = $this->update('xxt_enroll_user', $aDbData, ['id' => $oBeforeData->id]);
 
 		return $rst;
+	}
+	/**
+	 * 根据汇总轮次进行用户数据汇总
+	 */
+	public function sumByRound($oApp, $oUser, $oSumRnd, $oUpdatedData) {
+		$oNewSumData = new \stdClass;
+		$aLastFields = [];
+		$aSumFields = [];
+		foreach ($oUpdatedData as $field => $value) {
+			switch ($field) {
+			case 'last_entry_at':
+			case 'last_enroll_at':
+			case 'last_cowork_at':
+			case 'last_do_cowork_at':
+			case 'last_like_at':
+			case 'last_dislike_at':
+			case 'last_like_cowork_at':
+			case 'last_dislike_cowork_at':
+			case 'last_do_like_at':
+			case 'last_do_dislike_at':
+			case 'last_do_like_cowork_at':
+			case 'last_do_dislike_cowork_at':
+			case 'last_remark_at':
+			case 'last_remark_cowork_at':
+			case 'last_do_remark_at':
+			case 'last_like_remark_at':
+			case 'last_dislike_remark_at':
+			case 'last_do_like_remark_at':
+			case 'last_do_dislike_remark_at':
+			case 'last_agree_at':
+			case 'last_agree_cowork_at':
+			case 'last_agree_remark_at':
+			case 'last_topic_at':
+				$aLastFields[] = 'max(' . $field . ') ' . $field;
+				break;
+			case 'entry_num':
+			case 'total_elapse':
+			case 'enroll_num':
+			case 'revise_num':
+			case 'cowork_num':
+			case 'do_cowork_num':
+			case 'do_like_num':
+			case 'do_dislike_num':
+			case 'do_like_cowork_num':
+			case 'do_dislike_cowork_num':
+			case 'do_like_remark_num':
+			case 'do_dislike_remark_num':
+			case 'like_num':
+			case 'dislike_num':
+			case 'like_cowork_num':
+			case 'dislike_cowork_num':
+			case 'like_remark_num':
+			case 'dislike_remark_num':
+			case 'do_remark_num':
+			case 'remark_num':
+			case 'remark_cowork_num':
+			case 'agree_num':
+			case 'agree_cowork_num':
+			case 'agree_remark_num':
+			case 'user_total_coin':
+			case 'topic_num':
+			case 'do_repos_read_num':
+			case 'do_topic_read_num':
+			case 'topic_read_num':
+			case 'do_cowork_read_num':
+			case 'cowork_read_num':
+			case 'do_cowork_read_elapse':
+			case 'cowork_read_elapse':
+			case 'do_topic_read_elapse':
+			case 'topic_read_elapse':
+			case 'do_repos_read_elapse':
+			case 'score':
+				$aSumFields[] = 'sum(' . $field . ') ' . $field;
+				break;
+			case 'group_id':
+			case 'nickname':
+				$oNewSumData->{$field} = $value;
+				break;
+			}
+		}
+		/* 获得汇总周期内最新的值 */
+		if (count($aLastFields)) {
+			$q = [
+				implode(',', $aLastFields),
+				'xxt_enroll_user',
+				['aid' => $oApp->id, 'userid' => $oUser->uid, 'state' => 1, 'purpose' => 'C'],
+			];
+			if (!empty($oSumRnd->includeRounds)) {
+				foreach ($oSumRnd->includeRounds as $oRnd) {
+					$q[2]['rid'][] = $oRnd->rid;
+				}
+			}
+			$oData = $this->query_obj_ss($q);
+			foreach ($oData as $prop => $val) {
+				$oNewSumData->{$prop} = $val;
+			}
+		}
+		/* 获得汇总周期内合计的值 */
+		if (count($aSumFields)) {
+			$q = [
+				implode(',', $aSumFields),
+				'xxt_enroll_user',
+				['aid' => $oApp->id, 'userid' => $oUser->uid, 'state' => 1, 'purpose' => 'C'],
+			];
+			if (!empty($oSumRnd->includeRounds)) {
+				foreach ($oSumRnd->includeRounds as $oRnd) {
+					$q[2]['rid'][] = $oRnd->rid;
+				}
+			}
+			$oData = $this->query_obj_ss($q);
+			foreach ($oData as $prop => $val) {
+				$oNewSumData->{$prop} = $val;
+			}
+		}
+
+		return $oNewSumData;
 	}
 	/**
 	 * 删除1条记录

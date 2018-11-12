@@ -99,7 +99,7 @@ $sql .= ",end_at int not null"; // 轮次结束时间
 $sql .= ",title varchar(70) not null default ''"; // 分享或生成链接时的标题
 $sql .= ",summary varchar(240)"; // 分享或生成链接时的摘要
 $sql .= ",state tinyint not null default 0"; // 0:新建|1:启用|2:停用|100:删除
-$sql .= ",purpose char(1) not null default 'C'"; // Common:常规的|Baseline:基准的
+$sql .= ",purpose char(1) not null default 'C'"; // Common:常规的|Baseline:基准的|Summary:汇总的
 $sql .= ",mission_rid varchar(13) not null default ''"; // 关联的项目轮次
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
@@ -114,6 +114,7 @@ $sql .= "id int not null auto_increment";
 $sql .= ",aid varchar(40) not null";
 $sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",rid varchar(13) not null default ''";
+$sql .= ",purpose char(1) not null default 'C'"; // Common:常规的|Baseline:基准的|Summary:汇总的
 $sql .= ",group_id varchar(32) not null default ''"; // 用户分组id
 $sql .= ",userid varchar(40) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
@@ -159,6 +160,7 @@ $sql = "create table if not exists xxt_enroll_record_data(";
 $sql .= "id int not null auto_increment";
 $sql .= ",aid varchar(40) not null";
 $sql .= ",rid varchar(13) not null default ''";
+$sql .= ",purpose char(1) not null default 'C'"; // Common:常规的|Baseline:基准的|Summary:汇总的
 $sql .= ",group_id varchar(32) not null default ''"; // 用户分组id
 $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",submit_at int not null default 0"; // 数据的提交时间，和modify_log中的数据对应
@@ -176,10 +178,8 @@ $sql .= ",score float not null default 0"; // 登记项获得的分数
 $sql .= ",modify_log longtext null"; // 数据修改日志
 $sql .= ",like_log longtext null"; // 点赞日志 {userid:likeAt}
 $sql .= ",like_num int not null default 0"; // 点赞数
-
 $sql .= ",dislike_log longtext null"; // 点赞日志 {userid:likeAt}
 $sql .= ",dislike_num int not null default 0"; // 点赞数
-
 $sql .= ",agreed char(1) not null default ''"; // 是否赞同（Y：推荐，N：屏蔽，A(ccept)：接受）
 $sql .= ",agreed_log text null"; // 推荐日志
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
@@ -312,6 +312,7 @@ $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",aid varchar(40) not null";
 $sql .= ",rid varchar(13) not null default ''"; // 登记轮次，ALL代表累计的数据，每个轮次有单独轮次的记录，如果没有设置轮次，轮次rid为空字符串
+$sql .= ",purpose char(1) not null default 'C'"; // Common:常规的|Baseline:基准的|Summary:汇总的
 $sql .= ",group_id varchar(32) not null default ''"; // 用户分组id
 $sql .= ",userid varchar(40) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";

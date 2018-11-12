@@ -7,7 +7,18 @@
     <div ng-switch-when="period">
         <div class='form-group'>
             <div class='form-inline'>
-                <label>周期：</label>
+                <label>用途：</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='purpose{{$index}}' value='C' ng-model="rule.purpose" ng-change="tkRndCron.changePeriod(rule)">常规</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='purpose{{$index}}' value='B' ng-model="rule.purpose" ng-change="tkRndCron.changePeriod(rule)">基线</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='purpose{{$index}}' value='S' ng-model="rule.purpose" ng-change="tkRndCron.changePeriod(rule)">汇总</label>
+            </div>
+        </div>
+        <div class='form-group'>
+            <div class='form-inline'>
+                <label>生成周期：</label>
                 <label class='radio-inline'>
                     <input type='radio' name='period{{$index}}' value='W' ng-model="rule.period" ng-change="tkRndCron.changePeriod(rule)">每周</label>
                 <label class='radio-inline'>
@@ -18,7 +29,7 @@
         </div>
         <div class='form-group'>
             <div class='form-inline'>
-                <label>开始：</label>
+                <label>开始时间：</label>
                 <div class='form-group' ng-if="rule.period==='W'">
                     <label>星期几</label>
                     <select class='form-control' ng-model="rule.wday" ng-disabled="rule.period!=='W'" ng-change="tkRndCron.example(rule)">
@@ -69,7 +80,7 @@
         </div>
         <div class='form-group'>
             <div class='form-inline'>
-                <label>结束：</label>
+                <label>停止提交：</label>
                 <div class='form-group' ng-if="rule.period==='W'">
                     <label>星期几</label>
                     <select class='form-control' ng-model="rule.end_wday" ng-disabled="rule.period!=='W'" ng-change="tkRndCron.example(rule)">

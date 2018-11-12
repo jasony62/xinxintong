@@ -1115,6 +1115,7 @@ service('tkRoundCron', ['$rootScope', '$q', '$uibModal', 'http2', function($root
     this.addPeriod = function() {
         var oNewRule;
         oNewRule = {
+            purpose: 'C',
             pattern: 'period',
             period: 'D',
             hour: '8',

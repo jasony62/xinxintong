@@ -266,7 +266,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
         }
         $scope.Record.current = oRecord = rsp.data;
         /* disable actions */
-        if ((_oApp.scenarioConfig.can_cowork && _oApp.scenarioConfig.can_cowork !== 'Y')) {
+        if (_oApp.scenarioConfig.can_cowork && _oApp.scenarioConfig.can_cowork !== 'Y') {
             if ($scope.user.uid !== oRecord.userid) {
                 fnDisableActions();
             }
@@ -282,21 +282,22 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
         /* 同轮次的其他记录 */
         http2.post(LS.j('record/list', 'site', 'app') + '&sketch=Y', { record: { rid: oRecord.round.rid } }).then(function(rsp) {
             var records;
-            records = rsp.data.records;
-            $scope.recordsOfRound = {
-                records: records,
-                page: {
-                    size: 1,
-                    total: rsp.data.total
-                },
-                shift: function() {
-                    fnGetRecord(records[this.page.at - 1].enroll_key).then(fnSetPageByRecord);
-                }
-            };
-            for (var i = 0, l = records.length; i < l; i++) {
-                if (records[i].enroll_key === oRecord.enroll_key) {
-                    $scope.recordsOfRound.page.at = i + 1;
-                    break;
+            if (records = rsp.data.records) {
+                $scope.recordsOfRound = {
+                    records: records,
+                    page: {
+                        size: 1,
+                        total: rsp.data.total
+                    },
+                    shift: function() {
+                        fnGetRecord(records[this.page.at - 1].enroll_key).then(fnSetPageByRecord);
+                    }
+                };
+                for (var i = 0, l = records.length; i < l; i++) {
+                    if (records[i].enroll_key === oRecord.enroll_key) {
+                        $scope.recordsOfRound.page.at = i + 1;
+                        break;
+                    }
                 }
             }
         });

@@ -170,7 +170,7 @@ class round extends \pl\fe\matter\base {
 				$oUpdate->title = $modelRnd->escape($value);
 				break;
 			case 'purpose':
-				$oUpdate->purpose = in_array($value, ['C', 'B']) ? $value : 'C';
+				$oUpdate->purpose = in_array($value, ['C', 'B', 'S']) ? $value : 'C';
 				break;
 			case 'state':
 				$oUpdate->state = (int) $value;

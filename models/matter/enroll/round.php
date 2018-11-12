@@ -122,6 +122,7 @@ class round_model extends \TMS_MODEL {
 			'state' => isset($oProps->state) ? $oProps->state : 0,
 			'start_at' => empty($oProps->start_at) ? 0 : $oProps->start_at,
 			'end_at' => empty($oProps->end_at) ? 0 : $oProps->end_at,
+			'purpose' => empty($oProps->purpose) ? 'C' : (in_array($oProps->purpose, ['C', 'B', 'S']) ? $oProps->purpose : 'C'),
 		];
 		$this->insert('xxt_enroll_round', $aNewRound, false);
 
@@ -152,6 +153,8 @@ class round_model extends \TMS_MODEL {
 	 *
 	 * 没有指定开始和结束时间，且状态为启用状态的轮次优先
 	 * 如果记录活动设置了轮次定时生成规则，需要检查是否需要自动生成轮次
+	 *
+	 * 活跃轮次只能是常规轮次
 	 *
 	 * @param object $app
 	 *
@@ -198,52 +201,73 @@ class round_model extends \TMS_MODEL {
 				}
 				return $oAppRound;
 			}
-			return false;
-		} else {
-			/* 已经存在的，用户指定的当前轮次 */
-			if ($oAppRound = $this->getAssignedActive($oApp, $aOptions)) {
-				return $oAppRound;
-			}
-			/* 根据活动的轮次规则生成轮次 */
-			if (!empty($oApp->roundCron)) {
-				/* 有效的定时规则 */
-				$enabledRules = [];
-				foreach ($oApp->roundCron as $rule) {
-					if (isset($rule->enabled) && $rule->enabled === 'Y') {
-						$enabledRules[] = $rule;
-					}
-				}
-			}
-			if (empty($enabledRules)) {
-				/* 根据轮次开始时间获得轮次，但是必须是常规轮次 */
-				$current = time();
-				$q = [
-					$fields,
-					'xxt_enroll_round',
-					['aid' => $oApp->id, 'state' => 1, 'purpose' => 'C', 'start_at' => (object) ['op' => '<=', 'pat' => $current]],
-				];
-				$q2 = [
-					'o' => 'start_at desc',
-					'r' => ['o' => 0, 'l' => 1],
-				];
-				$rounds = $this->query_objs_ss($q, $q2);
-				$oAppRound = count($rounds) === 1 ? $rounds[0] : false;
-			} else {
-				/* 根据定时规则获得轮次 */
-				$rst = $this->_getRoundByCron($oApp, $enabledRules, $aOptions);
-				if (false === $rst[0]) {
-					return false;
-				}
-				$oAppRound = $rst[1];
-			}
+		}
 
+		/* 已经存在的，用户指定的当前轮次 */
+		if ($oAppRound = $this->getAssignedActive($oApp, $aOptions)) {
 			return $oAppRound;
 		}
+		/* 根据活动的轮次规则生成轮次 */
+		if (!empty($oApp->roundCron)) {
+			/* 有效的定时规则 */
+			$enabledRules = [];
+			foreach ($oApp->roundCron as $rule) {
+				if (isset($rule->enabled) && $rule->enabled === 'Y' && (empty($rule->purpose) || $rule->purpose === 'C')) {
+					$enabledRules[] = $rule;
+				}
+			}
+		}
+		if (empty($enabledRules)) {
+			/* 根据轮次开始时间获得轮次，但是必须是常规轮次 */
+			$current = time();
+			$q = [
+				$fields,
+				'xxt_enroll_round',
+				['aid' => $oApp->id, 'state' => 1, 'purpose' => 'C', 'start_at' => (object) ['op' => '<=', 'pat' => $current]],
+			];
+			$q2 = [
+				'o' => 'start_at desc',
+				'r' => ['o' => 0, 'l' => 1],
+			];
+			$rounds = $this->query_objs_ss($q, $q2);
+			$oAppRound = count($rounds) === 1 ? $rounds[0] : false;
+		} else {
+			/* 根据定时规则获得轮次 */
+			$rst = $this->_getRoundByCron($oApp, $enabledRules, $aOptions);
+			if (false === $rst[0]) {
+				return false;
+			}
+			$oAppRound = $rst[1];
+		}
+
+		return $oAppRound;
 	}
 	/**
 	 * 获得指定活动中的基线轮次
 	 */
 	public function getBaseline($oApp, $aOptions = []) {
+		if (!empty($aOptions['assignedRid'])) {
+			$oAssignedRnd = $this->byId($aOptions['assignedRid'], ['fields' => 'start_at']);
+		}
+		/* 根据活动的轮次规则生成轮次 */
+		if (!empty($oApp->roundCron)) {
+			/* 有效的定时规则 */
+			$enabledRules = [];
+			foreach ($oApp->roundCron as $rule) {
+				if (isset($rule->enabled) && $rule->enabled === 'Y' && !empty($rule->purpose) && $rule->purpose === 'B') {
+					$enabledRules[] = $rule;
+				}
+			}
+			if (count($enabledRules)) {
+				/* 根据定时规则获得轮次 */
+				$aCronOptions = [];
+				if (isset($oAssignedRnd) && $oAssignedRnd->start_at > 0) {
+					$aCronOptions['timestamp'] = $oAssignedRnd->start_at;
+				}
+				$this->_getRoundByCron($oApp, $enabledRules, $aCronOptions);
+			}
+		}
+
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 
 		$q = [
@@ -251,11 +275,8 @@ class round_model extends \TMS_MODEL {
 			'xxt_enroll_round',
 			['aid' => $oApp->id, 'state' => 1, 'purpose' => 'B'],
 		];
-		if (!empty($aOptions['assignedRid'])) {
-			$oAssignedRnd = $this->byId($aOptions['assignedRid'], ['fields' => 'start_at']);
-			if (isset($oAssignedRnd) && $oAssignedRnd->start_at > 0) {
-				$q[2]['start_at'] = (object) ['op' => '<=', 'pat' => $oAssignedRnd->start_at];
-			}
+		if (isset($oAssignedRnd) && $oAssignedRnd->start_at > 0) {
+			$q[2]['start_at'] = (object) ['op' => '<=', 'pat' => $oAssignedRnd->start_at];
 		}
 		$q2 = [
 			'o' => 'start_at desc',
@@ -266,13 +287,94 @@ class round_model extends \TMS_MODEL {
 		return count($rounds) === 1 ? $rounds[0] : false;
 	}
 	/**
+	 * 获得指定活动中的汇总轮次
+	 */
+	public function getSummary($oApp, $aOptions = []) {
+		/* 指定了需要汇总的轮次 */
+		if (!empty($aOptions['assignedRid'])) {
+			$oAssignedRnd = $this->byId($aOptions['assignedRid'], ['fields' => 'start_at']);
+		}
+		/* 根据活动的轮次规则生成轮次 */
+		if (!empty($oApp->roundCron)) {
+			/* 有效的定时规则 */
+			$enabledRules = [];
+			foreach ($oApp->roundCron as $rule) {
+				if (isset($rule->enabled) && $rule->enabled === 'Y' && !empty($rule->purpose) && $rule->purpose === 'S') {
+					$enabledRules[] = $rule;
+				}
+			}
+			if (count($enabledRules)) {
+				/* 根据定时规则获得轮次 */
+				$aCronOptions = [];
+				if (isset($oAssignedRnd) && $oAssignedRnd->start_at > 0) {
+					$aCronOptions['timestamp'] = $oAssignedRnd->start_at;
+				}
+				$this->_getRoundByCron($oApp, $enabledRules, $aCronOptions);
+			}
+		}
+
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+
+		$q = [
+			$fields,
+			'xxt_enroll_round',
+			['aid' => $oApp->id, 'state' => 1, 'purpose' => 'S'],
+		];
+		if (isset($oAssignedRnd) && $oAssignedRnd->start_at > 0) {
+			$q[2]['start_at'] = (object) ['op' => '<=', 'pat' => $oAssignedRnd->start_at];
+		}
+		$q2 = [
+			'o' => 'start_at desc',
+			'r' => ['o' => 0, 'l' => 1],
+		];
+		$rounds = $this->query_objs_ss($q, $q2);
+
+		if (count($rounds) !== 1) {
+			return false;
+		}
+
+		$oSumRnd = $rounds[0];
+
+		/* 覆盖哪些常规轮次。如果没有指定，就认为汇总所有轮次的数据 */
+		if (isset($oSumRnd->start_at) && $oSumRnd->start_at > 0) {
+			/* 是否有开始时间更晚的汇总轮次 */
+			$q = [
+				$fields,
+				'xxt_enroll_round',
+				['aid' => $oApp->id, 'state' => 1, 'purpose' => 'S', 'start_at' => (object) ['op' => '>', 'pat' => $oSumRnd->start_at]],
+			];
+			$q2 = [
+				'o' => 'start_at asc',
+				'r' => ['o' => 0, 'l' => 1],
+			];
+			$rounds = $this->query_objs_ss($q, $q2);
+			if (count($rounds) === 1) {
+				$oNextSumRnd = $rounds[0];
+			}
+			/* 和汇总轮次关联的常规轮次 */
+			$q = [
+				'rid,start_at',
+				'xxt_enroll_round',
+				['aid' => $oApp->id, 'state' => 1, 'purpose' => 'C', 'start_at' => (object) ['op' => '>=', 'pat' => $oSumRnd->start_at]],
+			];
+			if (isset($oNextSumRnd)) {
+				$q[2]['start_at'] = (object) ['op' => '<=', 'pat' => $oNextSumRnd->start_at];
+			}
+			$rounds = $this->query_objs_ss($q);
+
+			$oSumRnd->includeRounds = $rounds;
+		}
+
+		return $oSumRnd;
+	}
+	/**
 	 * 根据定时规则生成轮次
 	 *
 	 * @param array $rules 定时生成轮次规则
 	 *
 	 */
 	private function _getRoundByCron($oApp, $rules, $aOptions) {
-		if (false === ($oCronRound = $this->_lastRoundByCron($rules))) {
+		if (false === ($oCronRound = $this->_lastRoundByCron($rules, empty($aOptions['timestamp']) ? null : (int) $aOptions['timestamp']))) {
 			return [false, '无法生成定时轮次'];
 		}
 

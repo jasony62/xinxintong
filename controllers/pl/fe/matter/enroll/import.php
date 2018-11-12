@@ -583,7 +583,7 @@ class import extends \pl\fe\matter\base {
 				'nickname' => isset($oRecord->nickname) ? $oRecord->nickname : '',
 				'comment' => isset($oRecord->comment) ? $oRecord->comment : '',
 				'verified' => isset($oRecord->verified) ? $oRecord->verified : 'N',
-				'assignRid' => $rid,
+				'assignedRid' => $rid,
 			];
 			/* 记录信息 */
 			$oMockUser = new \stdClass;
@@ -596,8 +596,8 @@ class import extends \pl\fe\matter\base {
 				}
 				$oMockUser = $modelUsr->detail($oApp, $oMockUser, $oRecord->data);
 			}
-			$ek = $modelRec->enroll($oApp, $oMockUser, $aOptions);
-			$enrollKeys[] = $ek;
+			$oNewRec = $modelRec->enroll($oApp, $oMockUser, $aOptions);
+			$enrollKeys[] = $oNewRec->enroll_key;
 			/* 登记数据 */
 			if (isset($oRecord->data)) {
 				$modelRec->setData($oMockUser, $oApp, $ek, $oRecord->data);

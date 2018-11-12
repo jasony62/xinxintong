@@ -103,7 +103,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.editRecord = function(record) {
             var newUrl = '/rest/pl/fe/matter/enroll/editor?site=' + $scope.app.siteid + '&id=' + $scope.app.id + '&ek=';
-            newUrl +=  record ? record.enroll_key :  '';
+            newUrl += record ? record.enroll_key : '';
             window.open(newUrl, '_blank');
         };
         $scope.batchTag = function() {
@@ -132,7 +132,7 @@ define(['frame'], function(ngApp) {
             srvEnrollRecord.exportImage();
         };
         $scope.renewScore = function() {
-            srvEnlRnd.list(false, 1, 999).then(function(oResult) {
+            srvEnlRnd.list().then(function(oResult) {
                 var rounds = oResult.rounds;
 
                 function renewScoreByRound(i) {

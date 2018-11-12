@@ -266,6 +266,67 @@ class round_model extends \TMS_MODEL {
 		return count($rounds) === 1 ? $rounds[0] : false;
 	}
 	/**
+	 * 获得指定活动中的汇总轮次
+	 */
+	public function getSummary($oApp, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+
+		$q = [
+			$fields,
+			'xxt_enroll_round',
+			['aid' => $oApp->id, 'state' => 1, 'purpose' => 'S'],
+		];
+		if (!empty($aOptions['assignedRid'])) {
+			$oAssignedRnd = $this->byId($aOptions['assignedRid'], ['fields' => 'start_at']);
+			if (isset($oAssignedRnd) && $oAssignedRnd->start_at > 0) {
+				$q[2]['start_at'] = (object) ['op' => '<=', 'pat' => $oAssignedRnd->start_at];
+			}
+		}
+		$q2 = [
+			'o' => 'start_at desc',
+			'r' => ['o' => 0, 'l' => 1],
+		];
+		$rounds = $this->query_objs_ss($q, $q2);
+
+		if (count($rounds) !== 1) {
+			return false;
+		}
+
+		$oSumRnd = $rounds[0];
+
+		/* 覆盖哪些常规轮次。如果没有指定，就认为汇总所有轮次的数据 */
+		if (isset($oSumRnd->start_at) && $oSumRnd->start_at > 0) {
+			/* 是否有开始时间更晚的汇总轮次 */
+			$q = [
+				$fields,
+				'xxt_enroll_round',
+				['aid' => $oApp->id, 'state' => 1, 'purpose' => 'S', 'start_at' => (object) ['op' => '>', 'pat' => $oSumRnd->start_at]],
+			];
+			$q2 = [
+				'o' => 'start_at asc',
+				'r' => ['o' => 0, 'l' => 1],
+			];
+			$rounds = $this->query_objs_ss($q, $q2);
+			if (count($rounds) === 1) {
+				$oNextSumRnd = $rounds[0];
+			}
+			/* 和汇总轮次关联的常规轮次 */
+			$q = [
+				'rid,start_at',
+				'xxt_enroll_round',
+				['aid' => $oApp->id, 'state' => 1, 'purpose' => 'C', 'start_at' => (object) ['op' => '>=', 'pat' => $oSumRnd->start_at]],
+			];
+			if (isset($oNextSumRnd)) {
+				$q[2]['start_at'] = (object) ['op' => '<=', 'pat' => $oNextSumRnd->start_at];
+			}
+			$rounds = $this->query_objs_ss($q);
+
+			$oSumRnd->includeRounds = $rounds;
+		}
+
+		return $oSumRnd;
+	}
+	/**
 	 * 根据定时规则生成轮次
 	 *
 	 * @param array $rules 定时生成轮次规则

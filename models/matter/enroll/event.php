@@ -315,7 +315,7 @@ class event_model extends \TMS_MODEL {
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
 
 		/* 只有常规轮次才将记录得分计入用户总分 */
-		if ($oRecRnd->purpose === 'C') {
+		if (in_array($oRecRnd->purpose, ['C', 'S'])) {
 			if (isset($oRecord->score->sum)) {
 				$oUpdatedUsrData->score = $oRecord->score->sum;
 			}

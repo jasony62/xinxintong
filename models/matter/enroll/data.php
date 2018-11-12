@@ -72,6 +72,7 @@ class data_model extends entity_model {
 								$aSchemaValue = [
 									'aid' => $oApp->id,
 									'rid' => $oRecord->rid,
+									'purpose' => $oRecord->purpose,
 									'enroll_key' => $oRecord->enroll_key,
 									'submit_at' => $oRecord->enroll_at,
 									'userid' => isset($oUser->uid) ? $oUser->uid : '',
@@ -95,6 +96,7 @@ class data_model extends entity_model {
 					$aSchemaValue = [
 						'aid' => $oApp->id,
 						'rid' => $oRecord->rid,
+						'purpose' => $oRecord->purpose,
 						'enroll_key' => $oRecord->enroll_key,
 						'submit_at' => $oRecord->enroll_at,
 						'userid' => isset($oUser->uid) ? $oUser->uid : '',
@@ -119,6 +121,7 @@ class data_model extends entity_model {
 							$aSchemaValue2 = [
 								'aid' => $oApp->id,
 								'rid' => $oRecord->rid,
+								'purpose' => $oRecord->purpose,
 								'enroll_key' => $oRecord->enroll_key,
 								'submit_at' => $oRecord->enroll_at,
 								'userid' => isset($oUser->uid) ? $oUser->uid : '',
@@ -193,6 +196,7 @@ class data_model extends entity_model {
 								$aSchemaValue = [
 									'aid' => $oApp->id,
 									'rid' => $oRecord->rid,
+									'purpose' => $oRecord->purpose,
 									'enroll_key' => $oRecord->enroll_key,
 									'submit_at' => $oRecord->enroll_at,
 									'userid' => isset($oUser->uid) ? $oUser->uid : '',

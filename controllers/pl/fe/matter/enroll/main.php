@@ -362,7 +362,7 @@ class main extends main_base {
 						$cpUser->uid = ($cpEnrollee !== 'Y') ? '' : $record->userid;
 						$cpUser->nickname = ($cpEnrollee !== 'Y') ? '' : $record->nickname;
 						/* 插入登记数据 */
-						$ek = $modelRec->enroll($oNewApp, $cpUser, ['nickname' => $cpUser->nickname, 'assignRid' => $newRound]);
+						$oNewRec = $modelRec->enroll($oNewApp, $cpUser, ['nickname' => $cpUser->nickname, 'assignedRid' => $newRound]);
 						/* 处理自定义信息 */
 						if (isset($record->data->member) && $oNewApp->entryRule->scope->member !== 'Y') {
 							unset($record->data->member->schema_id);
@@ -372,9 +372,9 @@ class main extends main_base {
 							unset($record->data->member);
 						}
 						$oEnrolledData = $record->data;
-						$rst = $modelRec->setData($cpUser, $oNewApp, $ek, $oEnrolledData, '', false);
+						$rst = $modelRec->setData($cpUser, $oNewApp, $oNewRec->enroll_key, $oEnrolledData, '', false);
 						if (!empty($record->supplement) && count(get_object_vars($record->supplement))) {
-							$rst = $modelRec->setSupplement($cpUser, $oNewApp, $ek, $record->supplement);
+							$rst = $modelRec->setSupplement($cpUser, $oNewApp, $oNewRec->enroll_key, $record->supplement);
 						}
 						$upDate = [];
 						$upDate['verified'] = $record->verified;
@@ -385,7 +385,7 @@ class main extends main_base {
 						$rst = $modelRec->update(
 							'xxt_enroll_record',
 							$upDate,
-							['enroll_key' => $ek, 'state' => 1]
+							['enroll_key' => $oNewRec->enroll_key, 'state' => 1]
 						);
 					}
 				}

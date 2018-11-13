@@ -14,11 +14,13 @@ class user extends base {
 		if ($oApp === false) {
 			return new \ObjectNotFoundError();
 		}
-		$modelEnlUsr = $this->model('matter\enroll\user');
-		$aOptions = ['rid' => empty($rid) ? $oApp->appRound->rid : $rid];
-		$oEnlUser = $modelEnlUsr->byId($oApp, $this->who->uid, $aOptions);
 
-		return new \ResponseData($oEnlUser);
+		$modelEnlUsr = $this->model('matter\enroll\user');
+		$oEnlRndUser = $modelEnlUsr->byId($oApp, $this->who->uid, ['rid' => empty($rid) ? $oApp->appRound->rid : $rid]);
+		$oEnlAppUser = $modelEnlUsr->byId($oApp, $this->who->uid, ['rid' => 'ALL', 'fields' => 'custom']);
+		$oEnlRndUser->custom = $oEnlAppUser->custom;
+
+		return new \ResponseData($oEnlRndUser);
 	}
 	/**
 	 * 更新用户设置

@@ -8,6 +8,7 @@ include_once dirname(__FILE__) . '/config.php';
  ***************************/
 function show_error($message) {
 	require_once 'tms/tms_app.php';
+	$modelLog = TMS_APP::M('log');
 	if ($message instanceof UrlNotMatchException) {
 		$msg = $message->getMessage();
 	} else if ($message instanceof Exception) {
@@ -15,7 +16,7 @@ function show_error($message) {
 		$trace = $message->getTrace();
 		foreach ($trace as $t) {
 			foreach ($t as $k => $v) {
-				$excep .= $k . ':' . json_encode($v) . "\n";
+				$excep .= $k . ':' . $modelLog->toJson($v) . "\n";
 			}
 		}
 		if (defined('TMS_APP_EXCEPTION_TRACE') && TMS_APP_EXCEPTION_TRACE === 'Y') {
@@ -36,9 +37,9 @@ function show_error($message) {
 	$agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 	$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 	if (isset($excep)) {
-		TMS_APP::M('log')->log('error', $method, $excep, $agent, $referer);
+		$modelLog->log('error', $method, $excep, $agent, $referer);
 	} else {
-		TMS_APP::M('log')->log('error', $method, $msg, $agent, $referer);
+		$modelLog->log('error', $method, $msg, $agent, $referer);
 	}
 
 	exit;

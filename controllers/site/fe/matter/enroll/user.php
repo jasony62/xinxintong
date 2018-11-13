@@ -17,8 +17,10 @@ class user extends base {
 
 		$modelEnlUsr = $this->model('matter\enroll\user');
 		$oEnlRndUser = $modelEnlUsr->byId($oApp, $this->who->uid, ['rid' => empty($rid) ? $oApp->appRound->rid : $rid]);
-		$oEnlAppUser = $modelEnlUsr->byId($oApp, $this->who->uid, ['rid' => 'ALL', 'fields' => 'custom']);
-		$oEnlRndUser->custom = $oEnlAppUser->custom;
+		if ($oEnlRndUser) {
+			$oEnlAppUser = $modelEnlUsr->byId($oApp, $this->who->uid, ['rid' => 'ALL', 'fields' => 'custom']);
+			$oEnlRndUser->custom = $oEnlAppUser->custom;
+		}
 
 		return new \ResponseData($oEnlRndUser);
 	}

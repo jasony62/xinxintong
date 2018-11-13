@@ -63,7 +63,7 @@ define(['frame'], function(ngApp) {
             });
         });
     }]);
-    ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'srvSite', 'srvEnrollApp', 'srvEnrollSchema', 'tkGroupApp', function($scope, $uibModal, srvSite, srvEnrollApp, srvEnrollSchema, tkGroupApp) {
+    ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'srvSite', 'srvEnrollApp', 'srvEnrollSchema', 'tkGroupApp', function($scope, $uibModal, srvSite, srvEnlApp, srvEnrollSchema, tkGroupApp) {
         function setMschemaEntry(mschemaId) {
             if (!_oAppRule.member) {
                 _oAppRule.member = {};
@@ -103,33 +103,33 @@ define(['frame'], function(ngApp) {
         $scope.changeUserScope = function(scopeProp) {
             switch (scopeProp) {
                 case 'sns':
-                    if ($scope.rule.scope[scopeProp] === 'Y') {
-                        if (!$scope.rule.sns) {
-                            $scope.rule.sns = {};
+                    if (_oAppRule.scope[scopeProp] === 'Y') {
+                        if (!_oAppRule.sns) {
+                            _oAppRule.sns = {};
                         }
                         if ($scope.snsCount === 1) {
-                            $scope.rule.sns[Object.keys($scope.sns)[0]] = { 'entry': 'Y' };
+                            _oAppRule.sns[Object.keys($scope.sns)[0]] = { 'entry': 'Y' };
                         }
                     }
                     break;
                 case 'group':
-                    if ($scope.rule.scope.group !== 'Y') {
-                        delete $scope.rule.group;
-                        if ($scope.rule.optional) {
-                            delete $scope.rule.optional.group;
+                    if (_oAppRule.scope.group !== 'Y') {
+                        delete _oAppRule.group;
+                        if (_oAppRule.optional) {
+                            delete _oAppRule.optional.group;
                         }
                     }
                     break;
                 case 'enroll':
-                    if ($scope.rule.scope.enroll !== 'Y') {
-                        delete $scope.rule.enroll;
-                        if ($scope.rule.optional) {
-                            delete $scope.rule.optional.enroll;
+                    if (_oAppRule.scope.enroll !== 'Y') {
+                        delete _oAppRule.enroll;
+                        if (_oAppRule.optional) {
+                            delete _oAppRule.optional.enroll;
                         }
                     }
                     break;
             }
-            srvEnrollApp.changeUserScope($scope.rule.scope, $scope.sns);
+            srvEnlApp.changeUserScope(_oAppRule.scope, $scope.sns);
         };
         $scope.chooseMschema = function() {
             srvSite.chooseMschema(_oApp).then(function(result) {
@@ -208,8 +208,8 @@ define(['frame'], function(ngApp) {
         $scope.configExclude = function() {
             $scope.update('entryRule');
         };
-        srvEnrollApp.get().then(function(app) {
-            $scope.jumpPages = srvEnrollApp.jumpPages();
+        srvEnlApp.get().then(function(app) {
+            $scope.jumpPages = srvEnlApp.jumpPages();
             _oApp = app;
             $scope.rule = _oAppRule = app.entryRule;
         }, true);

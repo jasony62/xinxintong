@@ -21,20 +21,22 @@ ngApp.factory('Input', ['$parse', 'tmsLocation', 'http2', function($parse, LS, h
     var Input, _ins;
     Input = function() {};
     Input.prototype.check = function(oRecData, oApp, oPage) {
-        var dataSchemas, oSchema, value, sCheckResult;
+        var dataSchemas, oSchemaWrap, oSchema, value, sCheckResult;
         if (oPage.dataSchemas && oPage.dataSchemas.length) {
-            oPage.dataSchemas.forEach(function(oSchemaWrap) {
+            for (var i = 0; i < oPage.dataSchemas.length; i++) {
+                oSchemaWrap = oPage.dataSchemas[i];
                 oSchema = oSchemaWrap.schema;
                 /* 隐藏题和协作题不做检查 */
                 if ((!oSchema.visibility || !oSchema.visibility.rules || oSchema.visibility.rules.length === 0 || oSchema.visibility.visible) && oSchema.cowork !== 'Y') {
                     if (oSchema.type && oSchema.type !== 'html') {
                         value = $parse(oSchema.id)(oRecData);
-                        if (true !== (sCheckResult = ngApp.oUtilSchema.checkValue(oSchema, value))) {
+                        sCheckResult = ngApp.oUtilSchema.checkValue(oSchema, value);
+                        if (true !== sCheckResult) {
                             return sCheckResult;
                         }
                     }
                 }
-            });
+            }
         }
         return true;
     };

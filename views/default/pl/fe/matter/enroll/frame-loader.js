@@ -90,6 +90,7 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
             "stat": '/views/default/pl/fe/matter/enroll/stat',
             "time": '/views/default/pl/fe/matter/enroll/time',
             "timerNotice": '/views/default/pl/fe/_module/timerNotice',
+            "entryRule": '/views/default/pl/fe/_module/entryRule',
             "roundCron": '/views/default/pl/fe/_module/roundCron',
             "roundEditor": '/views/default/pl/fe/matter/enroll/component/roundEditor',
         }

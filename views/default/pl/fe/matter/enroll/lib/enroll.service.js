@@ -173,6 +173,35 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
             });
             return defer.promise;
         };
+        this.choose = function(oApp) {
+            var defer;
+            defer = $q.defer();
+            http2.post('/rest/script/time', { html: { 'enrollApp': '/views/default/pl/fe/_module/chooseEnrollApp' } }).then(function(rsp) {
+                return $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/_module/chooseEnrollApp.html?_=' + rsp.data.html.enrollApp.time,
+                    controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
+                        $scope2.app = oApp;
+                        $scope2.data = {};
+                        oApp.mission && ($scope2.data.sameMission = 'Y');
+                        $scope2.cancel = function() {
+                            $mi.dismiss();
+                        };
+                        $scope2.ok = function() {
+                            $mi.close($scope2.data);
+                        };
+                        var url = '/rest/pl/fe/matter/enroll/list?site=' + oApp.siteid + '&size=999';
+                        oApp.mission && (url += '&mission=' + oApp.mission.id);
+                        http2.get(url).then(function(rsp) {
+                            $scope2.apps = rsp.data.apps;
+                        });
+                    }],
+                    backdrop: 'static'
+                }).result.then(function(oResult) {
+                    defer.resolve(oResult);
+                });
+            });
+            return defer.promise;
+        };
     }]);
     ngModule.provider('srvEnrollApp', function() {
         function _fnMapAssocEnrollApp(oApp) {
@@ -361,11 +390,6 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                         nonfan: pages4Nonfan,
                         defaultInput: defaultInput
                     }
-                },
-                changeUserScope: function(ruleScope, oSiteSns, oDefaultInputPage) {
-                    var oEntryRule = _oApp.entryRule;
-                    oEntryRule.scope = ruleScope;
-                    return this.update('entryRule');
                 },
                 assignMission: function() {
                     var defer = $q.defer();

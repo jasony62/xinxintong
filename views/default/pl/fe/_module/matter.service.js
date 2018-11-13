@@ -1310,4 +1310,110 @@ service('srvTimerNotice', ['$rootScope', '$parse', '$q', '$timeout', 'http2', 't
 
         return defer.promise;
     };
+}]).
+/**
+ * 素材进入规则
+ */
+factory('tkEntryRule', ['noticebox', 'srvSite', 'tkEnrollApp', 'tkGroupApp', function(noticebox, srvSite, tkEnrollApp, tkGroupApp) {
+    function setMschemaEntry(oApp, mschemaId) {
+        var er;
+        er = oApp.entryRule;
+        if (!er.member) {
+            er.member = {};
+        }
+        if (!er.member[mschemaId]) {
+            er.member[mschemaId] = {
+                entry: 'Y'
+            };
+            return true;
+        }
+        return false;
+    }
+
+    function setGroupEntry(oApp, oResult) {
+        var er;
+        if (oResult.app) {
+            er = oApp.entryRule;
+            er.group = { id: oResult.app.id, title: oResult.app.title };
+            if (oResult.round) {
+                er.group.round = { id: oResult.round.round_id, title: oResult.round.title };
+            }
+            return true;
+        }
+        return false;
+    }
+
+    function Tk(oApp) {
+        this.chooseMschema = function() {
+            srvSite.chooseMschema(oApp).then(function(oResult) {
+                setMschemaEntry(oApp, oResult.chosen.id);
+            });
+        };
+        this.removeMschema = function(mschemaId) {
+            var bSchemaChanged = false;
+            if (oApp.entryRule.member[mschemaId]) {
+                /* 取消题目和通信录的关联 */
+                var aAssocSchemas = [];
+                oApp.dataSchemas.forEach(function(oSchema) {
+                    if (oSchema.schema_id && oSchema.schema_id === mschemaId) {
+                        aAssocSchemas.push(oSchema.title);
+                    }
+                });
+                if (aAssocSchemas.length) {
+                    noticebox.warn('已经有题目<b style="color:red">' + aAssocSchemas.join('，') + '</b>和通讯录关联，请解除关联后再删除通讯录');
+                    return;
+                }
+                delete oApp.entryRule.member[mschemaId];
+            }
+        };
+        this.chooseGroupApp = function() {
+            tkGroupApp.choose(oApp).then(function(oResult) {
+                setGroupEntry(oApp, oResult);
+            });
+        };
+        this.chooseEnrollApp = function() {
+            tkEnrollApp.choose(oApp).then(function(oResult) {
+                oApp.entryRule.enroll = { id: oResult.app.id, title: oResult.app.title };
+            });
+        };
+        this.changeUserScope = function(scopeProp) {
+            var er;
+            er = oApp.entryRule;
+            switch (scopeProp) {
+                case 'mschema':
+                    // if (er.scope[scopeProp] !== 'N') {
+                    //     this.removeMschema();
+                    // }
+                    break;
+                case 'sns':
+                    if (er.scope[scopeProp] === 'Y') {
+                        if (!er.sns) {
+                            er.sns = {};
+                        }
+                        if ($scope.snsCount === 1) {
+                            er.sns[Object.keys($scope.sns)[0]] = { 'entry': 'Y' };
+                        }
+                    }
+                    break;
+                case 'group':
+                    if (er.scope.group !== 'Y') {
+                        delete er.group;
+                        if (er.optional) {
+                            delete er.optional.group;
+                        }
+                    }
+                    break;
+                case 'enroll':
+                    if (er.scope.enroll !== 'Y') {
+                        delete er.enroll;
+                        if (er.optional) {
+                            delete er.optional.enroll;
+                        }
+                    }
+                    break;
+            }
+        };
+    }
+
+    return Tk;
 }]);

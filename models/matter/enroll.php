@@ -574,15 +574,7 @@ class enroll_model extends enroll_base {
 			$this->setEntryRuleByMission($oEntryRule, $oMisEntryRule);
 		}
 
-		/* 指定了关联活动 */
 		$oProto = isset($oCustomConfig->proto) ? $oCustomConfig->proto : null;
-		if (!empty($oProto->enrollApp->id)) {
-			if (!isset($oEntryRule->scope)) {
-				$oEntryRule->scope = new \stdClass;
-			}
-			$oEntryRule->scope->enroll = 'Y';
-			$oEntryRule->enroll = (object) ['id' => $oProto->enrollApp->id];
-		}
 
 		/* 活动题目 */
 		if (empty($oProto->schema->default->empty)) {

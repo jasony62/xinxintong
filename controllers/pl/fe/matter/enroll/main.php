@@ -40,6 +40,7 @@ class main extends main_base {
 			}
 			if (isset($oEntryRule->enroll->id)) {
 				$oApp->enrollApp = $modelEnl->byId($oEntryRule->enroll->id, ['cascaded' => 'N']);
+				$oEntryRule->enroll->title = $oApp->enrollApp->title;
 			}
 			/* 指定分组活动用户进入 */
 			if (isset($oEntryRule->group->id)) {

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
     <base href="/" />
-    <title>登记活动——新建</title>
+    <title>记录活动——新建</title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/tms.css?_=2" rel="stylesheet">
     <link href="<?php echo auto_version('/static/css/pl.fe.css');?>" rel="stylesheet">
@@ -101,28 +101,8 @@
                                             </div>
                                             <hr>
                                             <div class='form-group'>
-                                                <label>参与用户</label>
-                                                <div class='checkbox'>
-                                                    <label>
-                                                        <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.member" ng-change="changeUserScope()">限通讯录联系人参与 <span class='glyphicon glyphicon-question-sign' uib-tooltip='通讯录支持自定义用户信息并提供审核机制，并且可以在不同活动中重复使用'></span> <span class='badge' ng-repeat="mschema in entryRule.mschemas">{{mschema.title}} <i class='glyphicon glyphicon-remove' ng-click="removeMschema(mschema)"></i></span> <a ng-if="entryRule.scope.member==='Y'" href ng-click="chooseMschema()">添加</a></label>
-                                                </div>
-                                                <div class='checkbox' ng-if="proto.mission">
-                                                    <label>
-                                                        <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.group" ng-change="changeUserScope()">限分组活动<span ng-if="entryRule.group">【{{entryRule.group.title}} - {{entryRule.group.round.title}}】</span>用户参与 <span class='glyphicon glyphicon-question-sign' uib-tooltip='指定同项目中的分组活动中的某个分组的用户参与。'></span> <a ng-if="entryRule.scope.group==='Y'" href ng-click="chooseGroupApp()">指定</a></label>
-                                                </div>
-                                                <div class='checkbox' ng-if="snsNames.length===1">
-                                                    <label>
-                                                        <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.sns" ng-change="changeUserScope()">限公众号【{{sns[snsNames[0]].title}}】关注用户参与 <span class='glyphicon glyphicon-question-sign' uib-tooltip='可以获得用户昵称和头像（需要用户授权）。系统持久记录填写终端和填写记录间的对应关系，适用于填写后不需要查询和修改的情况。'></span></label>
-                                                </div>
-                                                <div class='checkbox' ng-if="snsNames.length>1">
-                                                    <label>
-                                                        <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.sns" ng-change="changeUserScope()">限公众号关注用户参与 <span class='glyphicon glyphicon-question-sign' uib-tooltip='可以获得用户昵称和头像（需要用户授权）。系统持久记录填写终端和填写记录间的对应关系，适用于填写后不需要查询和修改的情况。'></span>
-                                                        <span ng-if="entryRule.scope.sns==='Y'">
-                                                        <label ng-repeat="snsName in snsNames">
-                                                            <input type='checkbox' ng-model="entryRule.sns[snsName]"> {{sns[snsName].title}} </label>
-                                                        </span>
-                                                    </label>
-                                                </div>
+                                                <label>设置参与规则</label>
+                                                <div ng-include="frameTemplates.html.entryRule"></div>
                                             </div>
                                             <div class='form-group' ng-if="scenarioConfig.required">
                                                 <hr>
@@ -260,8 +240,8 @@
     <script src="<?php echo auto_version('/asset/js/xxt.ui.http.js');?>"></script>
     <script src="<?php echo auto_version('/asset/js/xxt.ui.notice.js');?>"></script>
     <script src="<?php echo custom_version('/pl/fe/_module/const.js');?>"></script>
-    <script src="/views/default/pl/fe/_module/matter.service.js"></script>
-    <script src="/views/default/pl/fe/matter/enroll/shop.js"></script>
+    <script src="<?php echo custom_version('/pl/fe/_module/matter.service.js');?>"></script>
+    <script src="<?php echo custom_version('/pl/fe/matter/enroll/shop.js');?>"></script>
 </body>
 
 </html>

@@ -130,8 +130,6 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', '
         });
         $scope.sns = {};
         srvSite.snsList().then(function(oSns) {
-            oSns.names = Object.keys(oSns);
-            oSns.count = oSns.names.length;
             angular.extend($scope.sns, oSns);
             srvEnrollApp.get().then(function(oApp) {
                 if (oApp.matter_mg_tag !== '') {

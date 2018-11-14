@@ -1,3 +1,4 @@
+#platformBoard .badge a{color:#fff;text-decoration:none;}
 #simulator{position:relative;}
 #simulator .nav{position:absolute;top:70px;left:50%;margin-left:-286px;width:114px;}
 #simulator .nav-pills>li{border:1px solid #ddd;}

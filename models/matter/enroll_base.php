@@ -12,7 +12,17 @@ abstract class enroll_base extends app_base {
 	protected function setEntryRuleByProto($oSite, &$oEntryRule, $oProtoEntryRule) {
 		if (isset($oProtoEntryRule->scope) && is_object($oProtoEntryRule->scope)) {
 			$oEntryRule->scope = $oProtoEntryRule->scope;
-			if (isset($oEntryRule->scope->group) && $oEntryRule->scope->group === 'Y') {
+			if ($this->getDeepValue($oEntryRule, 'scope.member') === 'Y') {
+				if (isset($oProtoEntryRule->member)) {
+					$oEntryRule->member = new \stdClass;
+					foreach ($oProtoEntryRule->member as $msid => $oMschema) {
+						$oRule = new \stdClass;
+						$oRule->entry = 'Y';
+						$oEntryRule->member->{$msid} = $oRule;
+					}
+				}
+			}
+			if ($this->getDeepValue($oEntryRule, 'scope.group') === 'Y') {
 				if (!empty($oProtoEntryRule->group->id)) {
 					$oEntryRule->group = (object) ['id' => $oProtoEntryRule->group->id];
 					if (!empty($oProtoEntryRule->group->round->id)) {
@@ -20,17 +30,12 @@ abstract class enroll_base extends app_base {
 					}
 				}
 			}
-			if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y') {
-				if (isset($oProtoEntryRule->mschemas)) {
-					$oEntryRule->member = new \stdClass;
-					foreach ($oProtoEntryRule->mschemas as $oMschema) {
-						$oRule = new \stdClass;
-						$oRule->entry = 'Y';
-						$oEntryRule->member->{$oMschema->id} = $oRule;
-					}
+			if ($this->getDeepValue($oEntryRule, 'scope.enroll') === 'Y') {
+				if (!empty($oProtoEntryRule->enroll->id)) {
+					$oEntryRule->enroll = (object) ['id' => $oProtoEntryRule->enroll->id];
 				}
 			}
-			if (isset($oEntryRule->scope->sns) && $oEntryRule->scope->sns === 'Y') {
+			if ($this->getDeepValue($oEntryRule, 'scope.sns') === 'Y') {
 				$oRule = new \stdClass;
 				$oRule->entry = 'Y';
 				$oSns = new \stdClass;
@@ -182,18 +187,18 @@ abstract class enroll_base extends app_base {
 							/* 自动添加项目阶段定义 */
 							if ($oAppPage->type === 'I') {
 								$newPageSchema = new \stdClass;
-								$$oSchemaNameConfig = new \stdClass;
+								$oSchemaNameConfig = new \stdClass;
 								$newPageSchema->schema = $oNameSchema;
-								$newPageSchema->config = $$oSchemaNameConfig;
+								$newPageSchema->config = $oSchemaNameConfig;
 								array_splice($oAppPage->data_schemas, 0, 0, [$newPageSchema]);
 							} else if ($oAppPage->type === 'V') {
 								$newPageSchema = new \stdClass;
-								$$oSchemaNameConfig = new \stdClass;
-								$$oSchemaNameConfig->id = 'V' . time();
-								$$oSchemaNameConfig->pattern = 'record';
-								$$oSchemaNameConfig->splitLine = 'Y';
+								$oSchemaNameConfig = new \stdClass;
+								$oSchemaNameConfig->id = 'V' . time();
+								$oSchemaNameConfig->pattern = 'record';
+								$oSchemaNameConfig->splitLine = 'Y';
 								$newPageSchema->schema = $oNameSchema;
-								$newPageSchema->config = $$oSchemaNameConfig;
+								$newPageSchema->config = $oSchemaNameConfig;
 								array_splice($oAppPage->data_schemas, 0, 0, [$newPageSchema]);
 							}
 						}

@@ -217,6 +217,8 @@ provider('srvSite', function() {
                 } else {
                     http2.get('/rest/pl/fe/site/snsList?site=' + (siteId || _siteId)).then(function(rsp) {
                         _aSns = rsp.data;
+                        _aSns.names = Object.keys(_aSns);
+                        _aSns.count = _aSns.names.length;
                         defer.resolve(_aSns);
                     });
                 }
@@ -1316,31 +1318,36 @@ service('srvTimerNotice', ['$rootScope', '$parse', '$q', '$timeout', 'http2', 't
  */
 factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite', 'tkEnrollApp', 'tkGroupApp', function($rootScope, $timeout, noticebox, http2, srvSite, tkEnrollApp, tkGroupApp) {
     var RelativeProps = ['scope', 'member', 'group', 'enroll', 'sns'];
-
-    function TK(oMatter, oSns) {
+    /**
+     * bNoSave 不对修改进行保存，直接修改传入的原始数据
+     */
+    function TK(oMatter, oSns, bNoSave) {
         var _self, _oRule, _bJumpModifyWatch, $scope;
         $scope = $rootScope.$new(true);
+        this.noSave = !!bNoSave;
         this.matter = oMatter;
         this.sns = oSns;
-        this.rule = _oRule = $scope.rule = angular.copy(oMatter.entryRule);
-        this.originalRule = $scope.originalRule = oMatter.entryRule;
-        this.modified = false;
+        this.rule = _oRule = $scope.rule = (this.noSave ? oMatter.entryRule : angular.copy(oMatter.entryRule));
         _self = this;
-        _bJumpModifyWatch = false;
-        $scope.$watch('rule', function(nv, ov) {
-            if (nv && nv !== ov) {
-                if (_bJumpModifyWatch === false) {
-                    _self.modified = true;
+        if (!this.noSave) {
+            this.originalRule = $scope.originalRule = oMatter.entryRule;
+            this.modified = false;
+            _bJumpModifyWatch = false;
+            $scope.$watch('rule', function(nv, ov) {
+                if (nv && nv !== ov) {
+                    if (_bJumpModifyWatch === false) {
+                        _self.modified = true;
+                    }
+                    _bJumpModifyWatch = false;
                 }
-                _bJumpModifyWatch = false;
-            }
-        }, true);
-        $scope.$watch('originalRule', function(nv, ov) {
-            if (nv && nv !== ov) {
-                http2.merge(_oRule, nv, RelativeProps);
-                _bJumpModifyWatch = true;
-            }
-        }, true);
+            }, true);
+            $scope.$watch('originalRule', function(nv, ov) {
+                if (nv && nv !== ov) {
+                    http2.merge(_oRule, nv, RelativeProps);
+                    _bJumpModifyWatch = true;
+                }
+            }, true);
+        }
         this.chooseMschema = function() {
             srvSite.chooseMschema(oMatter).then(function(oResult) {
                 if (!_oRule.member) {
@@ -1359,16 +1366,18 @@ factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite
                 }
             }
             if (mschemaId && _oRule.member[mschemaId]) {
-                /* 取消题目和通信录的关联 */
-                var aAssocSchemas = [];
-                oMatter.dataSchemas.forEach(function(oSchema) {
-                    if (oSchema.schema_id && oSchema.schema_id === mschemaId) {
-                        aAssocSchemas.push(oSchema.title);
+                if (oMatter.dataSchemas && oMatter.dataSchemas.length) {
+                    /* 取消题目和通信录的关联 */
+                    var aAssocSchemas = [];
+                    oMatter.dataSchemas.forEach(function(oSchema) {
+                        if (oSchema.schema_id && oSchema.schema_id === mschemaId) {
+                            aAssocSchemas.push(oSchema.title);
+                        }
+                    });
+                    if (aAssocSchemas.length) {
+                        noticebox.warn('已经有题目<b style="color:red">' + aAssocSchemas.join('，') + '</b>和通讯录关联，请解除关联后再删除进入规则');
+                        return false;
                     }
-                });
-                if (aAssocSchemas.length) {
-                    noticebox.warn('已经有题目<b style="color:red">' + aAssocSchemas.join('，') + '</b>和通讯录关联，请解除关联后再删除进入规则');
-                    return false;
                 }
                 delete _oRule.member[mschemaId];
             }
@@ -1452,8 +1461,8 @@ factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite
                         if (!_oRule.sns) {
                             _oRule.sns = {};
                         }
-                        if (_oSns.count === 1) {
-                            _oRule.sns[_oSns.names[0]] = { 'entry': 'Y' };
+                        if (oSns.count === 1) {
+                            _oRule.sns[oSns.names[0]] = { 'entry': 'Y' };
                         }
                     } else {
                         delete _oRule.sns;
@@ -1490,4 +1499,88 @@ factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite
     }
 
     return TK;
+}]).
+/**
+ * enroll
+ */
+service('tkEnrollApp', ['$q', '$uibModal', 'http2', function($q, $uibModal, http2) {
+    function _fnMakeApiUrl(oApp, action) {
+        var url;
+        url = '/rest/pl/fe/matter/enroll/' + action + '?site=' + oApp.siteid + '&app=' + oApp.id;
+        return url;
+    }
+    this.update = function(oApp, oModifiedData) {
+        var defer = $q.defer();
+        http2.post(_fnMakeApiUrl(oApp, 'update'), oModifiedData).then(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    };
+    this.choose = function(oApp) {
+        var defer;
+        defer = $q.defer();
+        http2.post('/rest/script/time', { html: { 'enrollApp': '/views/default/pl/fe/_module/chooseEnrollApp' } }).then(function(rsp) {
+            return $uibModal.open({
+                templateUrl: '/views/default/pl/fe/_module/chooseEnrollApp.html?_=' + rsp.data.html.enrollApp.time,
+                controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
+                    $scope2.app = oApp;
+                    $scope2.data = {};
+                    oApp.mission && ($scope2.data.sameMission = 'Y');
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        $mi.close($scope2.data);
+                    };
+                    var url = '/rest/pl/fe/matter/enroll/list?site=' + oApp.siteid + '&size=999';
+                    oApp.mission && (url += '&mission=' + oApp.mission.id);
+                    http2.get(url).then(function(rsp) {
+                        $scope2.apps = rsp.data.apps;
+                    });
+                }],
+                backdrop: 'static'
+            }).result.then(function(oResult) {
+                defer.resolve(oResult);
+            });
+        });
+        return defer.promise;
+    };
+}]).
+/**
+ * group app
+ */
+service('tkGroupApp', ['$uibModal', function($uibModal) {
+    this.choose = function(oMatter) {
+        return $uibModal.open({
+            templateUrl: '/views/default/pl/fe/matter/enroll/component/chooseGroupApp.html',
+            controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
+                $scope2.app = oMatter;
+                $scope2.data = {
+                    app: null,
+                    round: null
+                };
+                oMatter.mission && ($scope2.data.sameMission = 'Y');
+                $scope2.cancel = function() {
+                    $mi.dismiss();
+                };
+                $scope2.ok = function() {
+                    $mi.close($scope2.data);
+                };
+                $scope2.$watch('data.app', function(oGrpApp) {
+                    if (oGrpApp) {
+                        var url = '/rest/pl/fe/matter/group/round/list?app=' + oGrpApp.id + '&roundType=';
+                        http2.get(url).then(function(rsp) {
+                            $scope2.rounds = rsp.data;
+                        });
+                    }
+                });
+                var url = '/rest/pl/fe/matter/group/list?site=' + oMatter.siteid + '&size=999';
+                oMatter.mission && (url += '&mission=' + oMatter.mission.id);
+                http2.get(url).then(function(rsp) {
+                    $scope2.apps = rsp.data.apps;
+                });
+            }],
+            backdrop: 'static'
+        }).result;
+    };
 }]);

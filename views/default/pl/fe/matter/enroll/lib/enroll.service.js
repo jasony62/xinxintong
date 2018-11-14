@@ -157,52 +157,6 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
         }
     };
     var ngModule = angular.module('service.enroll', ['ui.bootstrap', 'ui.xxt', 'service.matter']);
-    /**
-     * app
-     */
-    ngModule.service('tkEnrollApp', ['$q', '$uibModal', 'http2', function($q, $uibModal, http2) {
-        function _fnMakeApiUrl(oApp, action) {
-            var url;
-            url = '/rest/pl/fe/matter/enroll/' + action + '?site=' + oApp.siteid + '&app=' + oApp.id;
-            return url;
-        }
-        this.update = function(oApp, oModifiedData) {
-            var defer = $q.defer();
-            http2.post(_fnMakeApiUrl(oApp, 'update'), oModifiedData).then(function(rsp) {
-                defer.resolve(rsp.data);
-            });
-            return defer.promise;
-        };
-        this.choose = function(oApp) {
-            var defer;
-            defer = $q.defer();
-            http2.post('/rest/script/time', { html: { 'enrollApp': '/views/default/pl/fe/_module/chooseEnrollApp' } }).then(function(rsp) {
-                return $uibModal.open({
-                    templateUrl: '/views/default/pl/fe/_module/chooseEnrollApp.html?_=' + rsp.data.html.enrollApp.time,
-                    controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
-                        $scope2.app = oApp;
-                        $scope2.data = {};
-                        oApp.mission && ($scope2.data.sameMission = 'Y');
-                        $scope2.cancel = function() {
-                            $mi.dismiss();
-                        };
-                        $scope2.ok = function() {
-                            $mi.close($scope2.data);
-                        };
-                        var url = '/rest/pl/fe/matter/enroll/list?site=' + oApp.siteid + '&size=999';
-                        oApp.mission && (url += '&mission=' + oApp.mission.id);
-                        http2.get(url).then(function(rsp) {
-                            $scope2.apps = rsp.data.apps;
-                        });
-                    }],
-                    backdrop: 'static'
-                }).result.then(function(oResult) {
-                    defer.resolve(oResult);
-                });
-            });
-            return defer.promise;
-        };
-    }]);
     ngModule.provider('srvEnrollApp', function() {
         function _fnMapAssocEnrollApp(oApp) {
             var enrollDataSchemas = [];

@@ -972,7 +972,7 @@ class user_model extends \TMS_MODEL {
 				['state' => 1, 'aid' => $oRule->receiver->group->id, 'userid' => (object) ['op' => '<>', 'pat' => $oRecord->userid]],
 			];
 			if (!empty($oRule->receiver->group->round->id)) {
-				$q[2]['round_id'] = $oRule->receiver->group->round->id;
+				$q[2]['round_id'] = (object) ['op' => 'or', 'pat' => ["round_id = '{$oRule->receiver->group->round->id}'", "role_rounds like '%\"" . $oRule->receiver->group->round->id . "\"%'"]];
 			}
 			$receivers = $this->query_objs_ss($q);
 		}
@@ -1046,7 +1046,7 @@ class user_model extends \TMS_MODEL {
 				['state' => 1, 'aid' => $oRule->receiver->group->id, 'userid' => (object) ['op' => '<>', 'pat' => $oItem->userid]],
 			];
 			if (!empty($oRule->receiver->group->round->id)) {
-				$q[2]['round_id'] = $oRule->receiver->group->round->id;
+				$q[2]['round_id'] = (object) ['op' => 'or', 'pat' => ["round_id = '{$oRule->receiver->group->round->id}'", "role_rounds like '%\"" . $oRule->receiver->group->round->id . "\"%'"]];
 			}
 			$receivers = $this->query_objs_ss($q);
 		}
@@ -1081,7 +1081,7 @@ class user_model extends \TMS_MODEL {
 				['state' => 1, 'aid' => $oRule->receiver->group->id, 'userid' => (object) ['op' => '<>', 'pat' => $oRemark->userid]],
 			];
 			if (!empty($oRule->receiver->group->round->id)) {
-				$q[2]['round_id'] = $oRule->receiver->group->round->id;
+				$q[2]['round_id'] = (object) ['op' => 'or', 'pat' => ["round_id = '{$oRule->receiver->group->round->id}'", "role_rounds like '%\"" . $oRule->receiver->group->round->id . "\"%'"]];
 			}
 			$receivers = $this->query_objs_ss($q);
 		}

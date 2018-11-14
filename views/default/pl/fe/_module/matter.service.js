@@ -1315,17 +1315,30 @@ service('srvTimerNotice', ['$rootScope', '$parse', '$q', '$timeout', 'http2', 't
  * 素材进入规则
  */
 factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite', 'tkEnrollApp', 'tkGroupApp', function($rootScope, $timeout, noticebox, http2, srvSite, tkEnrollApp, tkGroupApp) {
+    var RelativeProps = ['scope', 'member', 'group', 'enroll', 'sns'];
+
     function TK(oMatter, oSns) {
-        var _self, _oRule, $scope;
+        var _self, _oRule, _bJumpModifyWatch, $scope;
         $scope = $rootScope.$new(true);
         this.matter = oMatter;
         this.sns = oSns;
         this.rule = _oRule = $scope.rule = angular.copy(oMatter.entryRule);
+        this.originalRule = $scope.originalRule = oMatter.entryRule;
         this.modified = false;
         _self = this;
+        _bJumpModifyWatch = false;
         $scope.$watch('rule', function(nv, ov) {
             if (nv && nv !== ov) {
-                _self.modified = true;
+                if (_bJumpModifyWatch === false) {
+                    _self.modified = true;
+                }
+                _bJumpModifyWatch = false;
+            }
+        }, true);
+        $scope.$watch('originalRule', function(nv, ov) {
+            if (nv && nv !== ov) {
+                http2.merge(_oRule, nv, RelativeProps);
+                _bJumpModifyWatch = true;
             }
         }, true);
         this.chooseMschema = function() {
@@ -1461,9 +1474,8 @@ factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite
             http2.post('/rest/pl/fe/matter/updateEntryRule?matter=' + oMatter.id + ',' + oMatter.type, _oRule).then(function(rsp) {
                 http2.merge(_oRule, rsp.data);
                 oMatter.entryRule = _oRule;
-                $timeout(function() {
-                    _self.modified = false;
-                });
+                _self.modified = false;
+                _bJumpModifyWatch = true;
             });
         };
     }

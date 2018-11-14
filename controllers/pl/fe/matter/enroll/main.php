@@ -445,7 +445,7 @@ class main extends main_base {
 				if (false === $aScanResult[0]) {
 					return new \ResponseError($aScanResult[1]);
 				}
-				$oUpdated->entry_rule = $modelApp->escape($modelApp->toJson($aUpdResult[1]));
+				$oUpdated->entry_rule = $modelApp->escape($modelApp->toJson($aScanResult[1]));
 				break;
 			case 'recycle_schemas':
 				$oUpdated->recycle_schemas = $modelApp->escape($modelApp->toJson($val));

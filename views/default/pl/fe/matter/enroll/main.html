@@ -160,7 +160,7 @@
                     <tbody>
                         <tr ng-repeat="page in rule.exclude">
                             <td style='padding:0'>
-                                <select style='border:0' class='form-control' ng-model="rule.exclude[$index]" ng-options='page.name as page.title for page in jumpPages.exclude' ng-change="configExclude()">
+                                <select style='border:0' class='form-control' ng-model="rule.exclude[$index]" ng-options='page.name as page.title for page in jumpPages.exclude' ng-change="updateRule()">
                                 </select>
                             </td>
                             <td style="width:36px">
@@ -178,19 +178,19 @@
                 <label>可忽略参与规则进行的操作</label>
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.like" ng-change="configExclude()">点赞</label>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.like" ng-change="updateRule()">点赞</label>
                 </div>
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.submit_record" ng-change="configExclude()">提交记录</label>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.submit_record" ng-change="updateRule()">提交记录</label>
                 </div>
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.add_remark" ng-change="configExclude()">添加留言</label>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.add_remark" ng-change="updateRule()">添加留言</label>
                 </div>
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.add_cowork" ng-change="configExclude()">添加答案（协作填写）</label>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.add_cowork" ng-change="updateRule()">添加答案（协作填写）</label>
                 </div>
             </div>
             <hr>

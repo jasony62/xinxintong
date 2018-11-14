@@ -65,9 +65,6 @@ class main extends \pl\fe\matter\base {
 					}
 				}
 			}
-			/* 汇总报告配置信息 */
-			$rpConfig = $this->model('matter\mission\report')->defaultConfigByUser($oUser, $oMission);
-			$oMission->reportConfig = $rpConfig;
 		}
 
 		/* 检查当前用户的角色 */
@@ -183,11 +180,9 @@ class main extends \pl\fe\matter\base {
 		$oNewMis->start_at = isset($oProto->start_at) ? $modelSite->escape($oProto->start_at) : 0;
 		$oNewMis->end_at = isset($oProto->end_at) ? $modelSite->escape($oProto->end_at) : 0;
 		$oNewMis->creater = $oUser->id;
-		$oNewMis->creater_src = $oUser->src;
 		$oNewMis->creater_name = $modelSite->escape($oUser->name);
 		$oNewMis->create_at = $current;
 		$oNewMis->modifier = $oUser->id;
-		$oNewMis->modifier_src = $oUser->src;
 		$oNewMis->modifier_name = $modelSite->escape($oUser->name);
 		$oNewMis->modify_at = $current;
 		$oNewMis->state = 1;
@@ -224,7 +219,7 @@ class main extends \pl\fe\matter\base {
 				}
 			}
 			$modelMis->update('xxt_mission', ['entry_rule' => json_encode($oMisEntryRule)], ['id' => $oNewMis->id]);
-			$oNewMis->entry_rule = $oMisEntryRule;
+			$oNewMis->entryRule = $oMisEntryRule;
 		}
 
 		/**
@@ -335,7 +330,6 @@ class main extends \pl\fe\matter\base {
 		}
 		/* modifier */
 		$oPosted->modifier = $oUser->id;
-		$oPosted->modifier_src = $oUser->src;
 		$oPosted->modifier_name = $modelMis->escape($oUser->name);
 		$oPosted->modify_at = time();
 

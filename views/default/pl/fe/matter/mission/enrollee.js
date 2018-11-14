@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlEnrollee', ['$scope', '$filter', 'http2', 'facListFilter', function($scope, $filter, http2, facListFilter) {
+    ngApp.provider.controller('ctrlEnrollee', ['$scope', '$filter', 'http2', 'facListFilter', 'noticebox', function($scope, $filter, http2, facListFilter, noticebox) {
         function fnReadableElapse(e) {
             var result, h, m, s, time = e * 1;
             h = Math.floor(time / 3600);
@@ -16,7 +16,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.enrolleeList = function() {
             var url;
-            url = '/rest/pl/fe/matter/mission/user/enrolleeList?site=' + _oMission.siteid + '&mission=' + _oMission.id;
+            url = '/rest/pl/fe/matter/mission/user/enrolleeList?mission=' + _oMission.id;
             http2.post(url, _oCriteria).then(function(rsp) {
                 var enrollees, dateFormat;
                 dateFormat = 'MM-dd HH:mm';
@@ -42,6 +42,15 @@ define(['frame'], function(ngApp) {
             url = '/rest/pl/fe/matter/enroll/createByMissionUser?mission=' + _oMission.id;
             http2.get(url).then(function(rsp) {
                 location.href = '/rest/pl/fe/matter/enroll/preview?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
+            });
+        };
+        $scope.renewScore = function() {
+            var url;
+            url = '/rest/pl/fe/matter/mission/user/renewScore';
+            url += '?mission=' + _oMission.id;
+            http2.get(url).then(function(rsp) {
+                $scope.enrolleeList();
+                noticebox.success('更新完成');
             });
         };
         $scope.tmsTableWrapReady = 'N';

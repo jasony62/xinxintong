@@ -199,7 +199,6 @@ $sql .= ",user_num int not null"; // 送的用户数量
 $sql .= ",success_user_num int not null default 0"; // 送成功的用户数量
 $sql .= ",remark text"; // 发送内容说明
 $sql .= ",creater varchar(40) not null";
-$sql .= ",creater_src varchar(10) not null"; // 发送者来源 pl(account)|site(site_account)
 $sql .= ",creater_name varchar(255) not null";
 $sql .= ",create_at int not null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";

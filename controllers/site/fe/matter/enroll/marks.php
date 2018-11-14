@@ -33,7 +33,7 @@ class marks extends base {
 		}
 		/* 每道题目的得分 */
 		foreach ($dataSchemas as $oSchema) {
-			if ((isset($oSchema->requireScore) && $oSchema->requireScore === 'Y')) {
+			if ($oSchema->type === 'score' && isset($oSchema->requireScore) && $oSchema->requireScore === 'Y') {
 				$q = [
 					'score,value',
 					'xxt_enroll_record_data',
@@ -60,11 +60,13 @@ class marks extends base {
 					$sum += (int) $oRecData->score;
 					if (!empty($oRecData->value)) {
 						$oValue = json_decode($oRecData->value);
-						foreach ($oValue as $key => $score) {
-							if (!isset($oStat->{$key})) {
-								$oStat->{$key} = (int) $score;
-							} else {
-								$oStat->{$key} += (int) $score;
+						if ($oValue && is_object($oValue)) {
+							foreach ($oValue as $key => $score) {
+								if (!isset($oStat->{$key})) {
+									$oStat->{$key} = (int) $score;
+								} else {
+									$oStat->{$key} += (int) $score;
+								}
 							}
 						}
 					}

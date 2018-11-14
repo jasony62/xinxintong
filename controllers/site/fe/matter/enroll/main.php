@@ -215,7 +215,7 @@ class main extends base {
 		if ($oOpenPage === null) {
 			// 根据登记状态确定进入页面
 			$modelRec = $this->model('matter\enroll\record');
-			$userEnrolled = $modelRec->lastByUser($oApp, $oUser, ['assignRid' => $rid]);
+			$userEnrolled = $modelRec->lastByUser($oApp, $oUser, ['rid' => $rid]);
 			if ($userEnrolled) {
 				if (empty($oApp->enrolled_entry_page)) {
 					$pages = $modelPage->byApp($oApp->id);
@@ -309,7 +309,7 @@ class main extends base {
 		/* 要打开的页面 */
 		if (!in_array($page, ['event', 'kanban', 'repos', 'cowork', 'share', 'rank', 'score', 'votes', 'marks', 'favor', 'topic', 'stat'])) {
 			$modelPage = $this->model('matter\enroll\page');
-			$oUserEnrolled = $modelRec->lastByUser($oApp, $oUser, ['asaignRid' => $rid]);
+			$oUserEnrolled = $modelRec->lastByUser($oApp, $oUser, ['rid' => $rid]);
 			/* 计算打开哪个页面 */
 			if (empty($page)) {
 				$oOpenPage = $this->_defaultPage($oApp, $rid, false, $ignoretime);

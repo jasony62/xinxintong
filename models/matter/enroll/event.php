@@ -194,6 +194,27 @@ class event_model extends \TMS_MODEL {
 			}
 			$modelUsr->modify($oEnlUsrRnd, $oUpdateUsrData1);
 		}
+		/* 如果存在匹配的汇总轮次，进行数据汇总 */
+		$oSumRnd = $this->model('matter\enroll\round')->getSummary($oApp, ['fields' => 'id,rid,title,start_at,state', 'assignedRid' => $rid]);
+		if ($oSumRnd && $oSumRnd->state === '1') {
+			$oUpdatedEnlUsrSumData = $modelUsr->sumByRound($oApp, $oUser, $oSumRnd, $oUpdatedEnlUsrData);
+			if ($oUpdatedEnlUsrSumData) {
+				/* 用户在汇总轮次中的数据汇总 */
+				$oEnlUsrSum = $modelUsr->byId($oApp, $userid, ['fields' => '*', 'rid' => $oSumRnd->rid]);
+				if (false === $oEnlUsrSum) {
+					if (!$bJumpCreate) {
+						$oUpdatedEnlUsrSumData->rid = $oSumRnd->rid;
+						$modelUsr->add($oApp, $oUser, $oUpdatedEnlUsrSumData);
+					}
+				} else {
+					if ($oEnlUsrSum->state == 0) {
+						$oUpdatedEnlUsrSumData->state = 1;
+					}
+					$modelUsr->modify($oEnlUsrSum, $oUpdatedEnlUsrSumData);
+				}
+			}
+		}
+		/* 用户在活动中的数据汇总 */
 		$oEnlUsrApp = $modelUsr->byId($oApp, $userid, ['fields' => '*', 'rid' => 'ALL']);
 		if (false === $oEnlUsrApp) {
 			if (!$bJumpCreate) {
@@ -226,7 +247,6 @@ class event_model extends \TMS_MODEL {
 			$modelMisUsr = $this->model('matter\mission\user')->setOnlyWriteDbConn(true);
 			/* 项目中需要额外更新的数据 */
 			$oUpdatedMisUsrData = clone $oUsrEventData;
-			// unset($oUpdatedMisUsrData->modify_log);
 
 			$oMission = $this->model('matter\mission')->byId($oApp->mission_id, ['fields' => 'siteid,id,user_app_type,user_app_id']);
 			$oMisUser = $modelMisUsr->byId($oMission, $userid, ['fields' => '*']);
@@ -299,6 +319,9 @@ class event_model extends \TMS_MODEL {
 	public function submitRecord($oApp, $oRecord, $oUser, $bSubmitNewRecord, $bReviseRecordBeyondRound = false) {
 		$eventAt = isset($oRecord->enroll_at) ? $oRecord->enroll_at : time();
 		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
+		$modelRnd = $this->model('matter\enroll\round');
+		$oRecRnd = $modelRnd->byId($oRecord->rid, ['fields' => 'purpose,start_at,end_at,state']);
+
 		/* 记录修改日志 */
 		$oNewModifyLog = new \stdClass;
 		$oNewModifyLog->userid = $oUser->uid;
@@ -311,21 +334,26 @@ class event_model extends \TMS_MODEL {
 		$oUpdatedUsrData->nickname = $this->escape($oUser->nickname);
 		$oUpdatedUsrData->last_enroll_at = $eventAt;
 		$oUpdatedUsrData->modify_log = $oNewModifyLog;
-		if (isset($oRecord->score->sum)) {
-			$oUpdatedUsrData->score = $oRecord->score->sum;
-		}
 
-		/* 提交新记录 */
-		if (true === $bSubmitNewRecord) {
-			$oNewModifyLog->op .= '_New';
-			/* 提交记录的积分奖励 */
-			$aCoinResult = $modelUsr->awardCoin($oApp, $oUser->uid, $oRecord->rid, self::SubmitEventName);
-			if (!empty($aCoinResult[1])) {
-				$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
+		/* 只有常规轮次才将记录得分计入用户总分 */
+		if (in_array($oRecRnd->purpose, ['C', 'S'])) {
+			if (isset($oRecord->score->sum)) {
+				$oUpdatedUsrData->score = $oRecord->score->sum;
 			}
-			$oUpdatedUsrData->enroll_num = 1;
-		} else if (true === $bReviseRecordBeyondRound) {
-			$oUpdatedUsrData->revise_num = 1;
+		}
+		if ($oRecRnd->purpose === 'C') {
+			/* 提交新记录 */
+			if (true === $bSubmitNewRecord) {
+				$oNewModifyLog->op .= '_New';
+				/* 提交记录的积分奖励 */
+				$aCoinResult = $modelUsr->awardCoin($oApp, $oUser->uid, $oRecord->rid, self::SubmitEventName);
+				if (!empty($aCoinResult[1])) {
+					$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
+				}
+				$oUpdatedUsrData->enroll_num = 1;
+			} else if (true === $bReviseRecordBeyondRound) {
+				$oUpdatedUsrData->revise_num = 1;
+			}
 		}
 		/* 更新用户汇总数据 */
 		$fnUpdateRndUser = function ($oUserData) use ($oRecord, $oUser) {
@@ -342,7 +370,7 @@ class event_model extends \TMS_MODEL {
 			$sumScore = $modelUsr->query_val_ss([
 				'sum(score)',
 				'xxt_enroll_user',
-				"siteid='$oApp->siteid' and aid='$oApp->id' and userid='$oUser->uid' and state=1 and rid <>'ALL'",
+				['siteid' => $oApp->siteid, 'aid' => $oApp->id, 'userid' => $oUser->uid, 'state' => 1, 'purpose' => 'C', 'rid' => (object) ['op' => '<>', 'pat' => 'ALL']],
 			]);
 
 			$oResult->score = $sumScore;

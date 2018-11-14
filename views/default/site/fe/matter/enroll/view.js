@@ -48,20 +48,21 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$parse', '$s
         return '';
     };
     $scope.score2Html = function(schemaId) {
-        var label = '',
-            oSchema = $scope.app._schemasById[schemaId],
-            val, oRecord;
-        if (oSchema && $scope.Record) {
-            oRecord = $scope.Record.current;
-            if (oRecord && oRecord.data && oRecord.data[schemaId]) {
-                val = oRecord.data[schemaId];
-                if (oSchema.ops && oSchema.ops.length) {
-                    oSchema.ops.forEach(function(op, index) {
-                        label += '<div>' + op.l + ': ' + (val[op.v] ? val[op.v] : 0) + '</div>';
-                    });
+        var oSchema, val, oRecord, label;
+        if ($scope.Record) {
+            if (oSchema = $scope.app._schemasById[schemaId]) {
+                label = '';
+                oRecord = $scope.Record.current;
+                if (oRecord && oRecord.data && oRecord.data[schemaId]) {
+                    val = oRecord.data[schemaId];
+                    if (oSchema.ops && oSchema.ops.length) {
+                        oSchema.ops.forEach(function(op, index) {
+                            label += '<div>' + op.l + ': ' + (val[op.v] ? val[op.v] : 0) + '</div>';
+                        });
+                    }
                 }
+                return $sce.trustAsHtml(label);
             }
-            return $sce.trustAsHtml(label);
         }
         return '';
     };
@@ -86,7 +87,7 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$parse', '$s
         $scope.gotoPage(event, page, $scope.Record.current.enroll_key);
     };
     $scope.removeRecord = function(event, page) {
-        if ($scope.app.can_cowork && $scope.app.can_cowork !== 'Y') {
+        if ($scope.app.scenarioConfig.can_cowork && $scope.appscenarioConfig.can_cowork !== 'Y') {
             if ($scope.user.uid !== $scope.Record.current.userid) {
                 noticebox.warn('不允许删除他人提交的数据');
                 return;
@@ -197,6 +198,60 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
             }
         });
     }
+    /* 显示题目的分数 */
+    function fnShowSchemaScore(oScore) {
+        var domSchema, domScore;
+        for (var schemaId in oScore) {
+            domSchema = document.querySelector('[wrap=value][schema="' + schemaId + '"]');
+            domScore = null;
+            if (domSchema) {
+                for (var i = 0; i < domSchema.children.length; i++) {
+                    if (domSchema.children[i].classList.contains('schema-score')) {
+                        domScore = domSchema.children[i];
+                        break;
+                    }
+                }
+                if (!domScore) {
+                    domScore = document.createElement('div');
+                    domScore.classList.add('schema-score');
+                    domSchema.appendChild(domScore);
+                }
+                domScore.innerText = oScore[schemaId];
+            }
+        }
+    }
+    /* 显示题目的分数 */
+    function fnShowSchemaBaseline(oBaseline) {
+        if (oBaseline) {
+            var domSchema, domBaseline;
+            for (var schemaId in oBaseline.data) {
+                domSchema = document.querySelector('[wrap=value][schema="' + schemaId + '"]');
+                domBaseline = null;
+                if (domSchema) {
+                    for (var i = 0; i < domSchema.children.length; i++) {
+                        if (domSchema.children[i].classList.contains('schema-baseline')) {
+                            domBaseline = domSchema.children[i];
+                            break;
+                        }
+                    }
+                    if (!domBaseline) {
+                        domBaseline = document.createElement('div');
+                        domBaseline.classList.add('schema-baseline');
+                        domSchema.appendChild(domBaseline);
+                    }
+                    domBaseline.innerText = oBaseline.data[schemaId];
+                }
+            }
+        } else {
+            /*清空基线*/
+            var domBaselines, domBaseline;
+            domBaselines = document.querySelectorAll('[wrap=value] .schema-baseline');
+            for (var i = 0; i < domBaselines.length; i++) {
+                domBaseline = domBaselines[i];
+                domBaseline.parentNode.removeChild(domBaseline);
+            }
+        }
+    }
     /* 根据获得的记录设置页面状态 */
     function fnSetPageByRecord(rsp) {
         var oRecord, oOriginalData;
@@ -205,9 +260,13 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
         fnToggleAssocSchemas(_oApp.dynaDataSchemas, oOriginalData);
         /* 将数据转换为可直接显示的形式 */
         fnProcessData(rsp.data);
+        /* 显示题目的分数 */
+        if (rsp.data.score) {
+            fnShowSchemaScore(rsp.data.score);
+        }
         $scope.Record.current = oRecord = rsp.data;
         /* disable actions */
-        if ((_oApp.can_cowork && _oApp.can_cowork !== 'Y')) {
+        if (_oApp.scenarioConfig.can_cowork && _oApp.scenarioConfig.can_cowork !== 'Y') {
             if ($scope.user.uid !== oRecord.userid) {
                 fnDisableActions();
             }
@@ -223,24 +282,37 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
         /* 同轮次的其他记录 */
         http2.post(LS.j('record/list', 'site', 'app') + '&sketch=Y', { record: { rid: oRecord.round.rid } }).then(function(rsp) {
             var records;
-            records = rsp.data.records;
-            $scope.recordsOfRound = {
-                records: records,
-                page: {
-                    size: 1,
-                    total: rsp.data.total
-                },
-                shift: function() {
-                    fnGetRecord(records[this.page.at - 1].enroll_key).then(fnSetPageByRecord);
-                }
-            };
-            for (var i = 0, l = records.length; i < l; i++) {
-                if (records[i].enroll_key === oRecord.enroll_key) {
-                    $scope.recordsOfRound.page.at = i + 1;
-                    break;
+            if (records = rsp.data.records) {
+                $scope.recordsOfRound = {
+                    records: records,
+                    page: {
+                        size: 1,
+                        total: rsp.data.total
+                    },
+                    shift: function() {
+                        fnGetRecord(records[this.page.at - 1].enroll_key).then(fnSetPageByRecord);
+                    }
+                };
+                for (var i = 0, l = records.length; i < l; i++) {
+                    if (records[i].enroll_key === oRecord.enroll_key) {
+                        $scope.recordsOfRound.page.at = i + 1;
+                        break;
+                    }
                 }
             }
         });
+        /* 基准轮次记录 */
+        if (oRecord.round.purpose === 'C') {
+            http2.get(LS.j('record/baseline', 'site', 'app') + '&rid=' + oRecord.round.rid).then(function(rsp) {
+                if (rsp.data) {
+                    /* 显示题目的基线 */
+                    fnShowSchemaBaseline(rsp.data);
+                }
+            });
+        } else {
+            /* 清除显示题目的基线 */
+            fnShowSchemaBaseline(false);
+        }
     }
 
     var _oApp;
@@ -272,7 +344,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
         });
         fnGetRecord().then(fnSetPageByRecord);
         /*设置页面导航*/
-        $scope.setPopNav(['votes', 'repos', 'rank', 'event'], 'view');
+        $scope.setPopNav(['votes', 'repos', 'rank', 'kanban', 'event'], 'view');
         /*页面阅读日志*/
         $scope.logAccess();
     });

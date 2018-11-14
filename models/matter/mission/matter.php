@@ -36,9 +36,9 @@ class matter_model extends \TMS_MODEL {
 
 		/* 按类型过滤 */
 		!empty($matterType) && $q[2]['matter_type'] = $matterType;
-		/* 按可见性过滤 */
-		if (isset($aOptions['is_public']) && $aOptions['is_public'] === 'Y') {
-			$q[2]['is_public'] = 'Y';
+		/* 按是用户是否可见过滤 */
+		if (!empty($aOptions['is_public'])) {
+			$q[2]['is_public'] = $aOptions['is_public'];
 		}
 		/* 按名称过滤 */
 		if (!empty($aOptions['byTitle'])) {
@@ -63,10 +63,6 @@ class matter_model extends \TMS_MODEL {
 		if (!empty($aOptions['byScenario'])) {
 			$q[2]['scenario'] = $aOptions['byScenario'];
 		}
-		/* 按是用户是否可见过滤 */
-		if (!empty($aOptions['is_public'])) {
-			$q[2]['is_public'] = $aOptions['is_public'];
-		}
 
 		$q2 = ['o' => 'create_at desc'];
 		$mms = $this->query_objs_ss($q, $q2);
@@ -83,7 +79,7 @@ class matter_model extends \TMS_MODEL {
 				if (in_array($mm->matter_type, ['enroll', 'signin', 'group'])) {
 					$fields = 'siteid,mission_id,id,title,summary,pic,create_at,creater_name,data_schemas,start_at,end_at';
 					if (in_array($mm->matter_type, ['enroll'])) {
-						$fields .= ',can_coin,entry_rule,round_cron,sync_mission_round';
+						$fields .= ',entry_rule,round_cron,sync_mission_round';
 					}
 					if (in_array($mm->matter_type, ['enroll', 'group'])) {
 						$fields .= ',scenario';

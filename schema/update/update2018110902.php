@@ -1,9 +1,10 @@
 <?php
 require_once '../../db.php';
 
-$sqls = array();
+$sqls = [];
 //
-$sqls[] = "ALTER TABLE xxt_enroll_record_data add nickname varchar(255) not null default '' after userid";
+$sqls[] = "ALTER TABLE  xxt_enroll drop can_coin";
+$sqls[] = "ALTER TABLE  xxt_enroll drop can_coinpay";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

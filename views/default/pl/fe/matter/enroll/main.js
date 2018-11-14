@@ -63,31 +63,7 @@ define(['frame'], function(ngApp) {
             });
         });
     }]);
-    ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'srvSite', 'srvEnrollApp', 'srvEnrollSchema', 'tkGroupApp', function($scope, $uibModal, srvSite, srvEnrollApp, srvEnrollSchema, tkGroupApp) {
-        function setMschemaEntry(mschemaId) {
-            if (!_oAppRule.member) {
-                _oAppRule.member = {};
-            }
-            if (!_oAppRule.member[mschemaId]) {
-                _oAppRule.member[mschemaId] = {
-                    entry: 'Y'
-                };
-                return true;
-            }
-            return false;
-        }
-
-        function setGroupEntry(oResult) {
-            if (oResult.app) {
-                _oAppRule.group = { id: oResult.app.id, title: oResult.app.title };
-                if (oResult.round) {
-                    _oAppRule.group.round = { id: oResult.round.round_id, title: oResult.round.title };
-                }
-                return true;
-            }
-            return false;
-        }
-
+    ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'srvSite', 'srvEnrollApp', 'srvEnrollSchema', 'tkEntryRule', 'tkGroupApp', function($scope, $uibModal, srvSite, srvEnlApp, srvEnrollSchema, tkEntryRule, tkGroupApp) {
         var _oApp, _oAppRule;
         $scope.isInputPage = function(pageName) {
             if (!$scope.app) {
@@ -99,101 +75,6 @@ define(['frame'], function(ngApp) {
                 }
             }
             return false;
-        };
-        $scope.changeUserScope = function(scopeProp) {
-            switch (scopeProp) {
-                case 'sns':
-                    if ($scope.rule.scope[scopeProp] === 'Y') {
-                        if (!$scope.rule.sns) {
-                            $scope.rule.sns = {};
-                        }
-                        if ($scope.snsCount === 1) {
-                            $scope.rule.sns[Object.keys($scope.sns)[0]] = { 'entry': 'Y' };
-                        }
-                    }
-                    break;
-                case 'group':
-                    if ($scope.rule.scope.group !== 'Y') {
-                        delete $scope.rule.group;
-                        if ($scope.rule.optional) {
-                            delete $scope.rule.optional.group;
-                        }
-                    }
-                    break;
-                case 'enroll':
-                    if ($scope.rule.scope.enroll !== 'Y') {
-                        delete $scope.rule.enroll;
-                        if ($scope.rule.optional) {
-                            delete $scope.rule.optional.enroll;
-                        }
-                    }
-                    break;
-            }
-            srvEnrollApp.changeUserScope($scope.rule.scope, $scope.sns);
-        };
-        $scope.chooseMschema = function() {
-            srvSite.chooseMschema(_oApp).then(function(result) {
-                if (setMschemaEntry(result.chosen.id)) {
-                    $scope.update('entryRule');
-                }
-            });
-        };
-        $scope.chooseGroupApp = function() {
-            tkGroupApp.choose(_oApp).then(function(result) {
-                if (setGroupEntry(result)) {
-                    $scope.update('entryRule');
-                }
-            });
-        };
-        $scope.chooseEnrollApp = function() {
-            $uibModal.open({
-                templateUrl: 'assignEnrollApp.html',
-                controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
-                    $scope2.app = _oApp;
-                    $scope2.data = {};
-                    _oApp.mission && ($scope2.data.sameMission = 'Y');
-                    $scope2.cancel = function() {
-                        $mi.dismiss();
-                    };
-                    $scope2.ok = function() {
-                        $mi.close($scope2.data);
-                    };
-                    var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid + '&size=999';
-                    _oApp.mission && (url += '&mission=' + _oApp.mission.id);
-                    http2.get(url).then(function(rsp) {
-                        $scope2.apps = rsp.data.apps;
-                    });
-                }],
-                backdrop: 'static'
-            }).result.then(function(oResult) {
-                _oAppRule.enroll = { id: oResult.app.id, title: oResult.app.title };
-                $scope.update('entryRule');
-            });
-        };
-        $scope.removeGroupApp = function() {
-            delete _oAppRule.group;
-            $scope.update('entryRule');
-        };
-        $scope.removeMschema = function(mschemaId) {
-            var bSchemaChanged = false;
-            if (_oAppRule.member[mschemaId]) {
-                /* 取消题目和通信录的关联 */
-                _oApp.dataSchemas.forEach(function(oSchema) {
-                    var _oBeforeState;
-                    if (oSchema.type === 'member') {
-                        _oBeforeState = angular.copy(oSchema);
-                        oSchema.type = 'shorttext';
-                        delete oSchema.schema_id;
-                        srvEnrollSchema.update(oSchema, _oBeforeState);
-                        bSchemaChanged = true;
-                    }
-                });
-                if (bSchemaChanged) {
-                    srvEnrollSchema.submitChange(_oApp.pages);
-                }
-                delete _oAppRule.member[mschemaId];
-                $scope.update('entryRule');
-            }
         };
         $scope.addExclude = function() {
             if (!_oAppRule.exclude) {
@@ -208,10 +89,16 @@ define(['frame'], function(ngApp) {
         $scope.configExclude = function() {
             $scope.update('entryRule');
         };
-        srvEnrollApp.get().then(function(app) {
-            $scope.jumpPages = srvEnrollApp.jumpPages();
-            _oApp = app;
-            $scope.rule = _oAppRule = app.entryRule;
-        }, true);
+        srvEnlApp.get().then(function(oApp) {
+            $scope.jumpPages = srvEnlApp.jumpPages();
+            _oApp = oApp;
+            $scope.tkEntryRule = new tkEntryRule(oApp, $scope.sns);
+            $scope.rule = _oAppRule = oApp.entryRule;
+            $scope.$watch('app.entryRule', function(nv, ov) {
+                if (nv && nv !== ov) {
+                    $scope.update('entryRule');
+                }
+            }, true);
+        });
     }]);
 });

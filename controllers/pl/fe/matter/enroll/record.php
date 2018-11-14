@@ -305,15 +305,15 @@ class record extends main_base {
 
 		/* 创建记录 */
 		$aOptions = [];
-		$aOptions['assignRid'] = $oCopiedRecord->rid;
-		$newEk = $modelRec->enroll($oApp, $oMocker, $aOptions);
-		$aResult = $modelRec->setData($oMocker, $oApp, $newEk, $oCopiedRecord->data, true);
+		$aOptions['assignedRid'] = $oCopiedRecord->rid;
+		$oNewRec = $modelRec->enroll($oApp, $oMocker, $aOptions);
+		$aResult = $modelRec->setData($oMocker, $oApp, $oNewRec->enroll_key, $oCopiedRecord->data, true);
 		if (false === $aResult[0]) {
 			return new \ResponseError($aResult[1]);
 		}
 
 		/* 返回完整的记录 */
-		$oNewRecord = $modelRec->byId($newEk, ['verbose' => 'Y']);
+		$oNewRecord = $modelRec->byId($oNewRec->enroll_key, ['verbose' => 'Y']);
 
 		/* 处理用户汇总数据，积分数据 */
 		$this->model('matter\enroll\event')->submitRecord($oApp, $oNewRecord, $oMocker, true);
@@ -337,8 +337,9 @@ class record extends main_base {
 
 		/* 创建登记记录 */
 		$aOptions = [];
-		!empty($posted->rid) && $aOptions['assignRid'] = $posted->rid;
-		$ek = $modelRec->enroll($oApp, null, $aOptions);
+		!empty($posted->rid) && $aOptions['assignedRid'] = $posted->rid;
+		$oNewRec = $modelRec->enroll($oApp, null, $aOptions);
+
 		$record = [];
 		$record['verified'] = isset($posted->verified) ? $posted->verified : 'N';
 		$record['comment'] = isset($posted->comment) ? $posted->comment : '';
@@ -346,20 +347,20 @@ class record extends main_base {
 			$record['tags'] = $posted->tags;
 			$modelEnl->updateTags($oApp->id, $posted->tags);
 		}
-		$modelRec->update('xxt_enroll_record', $record, "enroll_key='$ek'");
+		$modelRec->update('xxt_enroll_record', $record, ['enroll_key' => $oNewRec->enroll_key]);
 
 		/* 记录登记数据 */
 		$addUser = $this->model('site\fe\way')->who($oApp->siteid);
-		$result = $modelRec->setData(null, $oApp, $ek, $posted->data, $addUser->uid, true);
+		$result = $modelRec->setData(null, $oApp, $oNewRec->enroll_key, $posted->data, $addUser->uid, true);
 
 		/* 记录操作日志 */
-		$oRecord = $modelRec->byId($ek, ['fields' => 'enroll_key,data,rid']);
+		$oRecord = $modelRec->byId($oNewRec->enroll_key, ['fields' => 'enroll_key,data,rid']);
 		$this->model('matter\log')->matterOp($oApp->siteid, $oOperator, $oApp, 'add', $oRecord);
 
 		/* 返回完整的记录 */
-		$oNewRecord = $modelRec->byId($ek, ['verbose' => 'Y']);
+		$oNewRec = $modelRec->byId($oNewRec->enroll_key, ['verbose' => 'Y']);
 
-		return new \ResponseData($oNewRecord);
+		return new \ResponseData($oNewRec);
 	}
 	/**
 	 * 将记录导入到其他活动
@@ -417,8 +418,8 @@ class record extends main_base {
 			}
 
 			/* 在目标活动中创建新记录 */
-			$newek = $modelRec->enroll($oTargetApp, $oMockUser);
-			$modelRec->setData($oMockUser, $oTargetApp, $newek, $oNewRecData, '', true);
+			$oNewRec = $modelRec->enroll($oTargetApp, $oMockUser);
+			$modelRec->setData($oMockUser, $oTargetApp, $oNewRec->enroll_key, $oNewRecData, '', true);
 		}
 
 		return new \ResponseData('ok');
@@ -527,8 +528,8 @@ class record extends main_base {
 					$oMockUser = null;
 				}
 				/* 在目标活动中创建新记录 */
-				$newek = $modelRec->enroll($oTargetApp, $oMockUser);
-				$modelRec->setData($oMockUser, $oTargetApp, $newek, $oNewRecData, '', true);
+				$oNewRec = $modelRec->enroll($oTargetApp, $oMockUser);
+				$modelRec->setData($oMockUser, $oTargetApp, $oNewRec->enroll_key, $oNewRecData, '', true);
 				$newRecordNum++;
 			}
 		}
@@ -626,7 +627,7 @@ class record extends main_base {
 			} else {
 				$oMockRecUser = new \stdClass;
 			}
-			$newek = $modelRec->enroll($oTargetApp, $oMockRecUser);
+			$oNewRec = $modelRec->enroll($oTargetApp, $oMockRecUser);
 
 			$oNewRecData = new \stdClass; // 问题+答案的记录数据
 			/* 写入问题 */
@@ -637,7 +638,7 @@ class record extends main_base {
 			$oRecData = new \stdClass;
 			$oRecData->aid = $oTargetApp->id;
 			$oRecData->rid = empty($oTargetAppRnd->rid) ? '' : $oTargetAppRnd->rid;
-			$oRecData->enroll_key = $newek;
+			$oRecData->enroll_key = $oNewRec->enroll_key;
 			$oRecData->submit_at = $current;
 			$oRecData->userid = isset($oMockRecUser->uid) ? $oMockRecUser->uid : '';
 			$oRecData->nickname = isset($oMockRecUser->nickname) ? $modelData->escape($oMockRecUser->nickname) : '';
@@ -683,7 +684,7 @@ class record extends main_base {
 			}
 			/* 记录的数据 */
 			$oNewRecData->{$oPosted->answerSchema} = $oRecData->value;
-			$modelRec->setData($oMockRecUser, $oTargetApp, $newek, $oNewRecData, '', true);
+			$modelRec->setData($oMockRecUser, $oTargetApp, $oNewRec->enroll_key, $oNewRecData, '', true);
 			$newRecordNum++;
 			/* 答案的根数据 */
 			$oRecData->value = $modelData->escape($modelData->toJson($oRecData->value));
@@ -788,19 +789,19 @@ class record extends main_base {
 			} else {
 				$oMockRecUser = new \stdClass;
 			}
-			$newek = $modelRec->enroll($oTargetApp, $oMockRecUser);
+			$oNewRec = $modelRec->enroll($oTargetApp, $oMockRecUser);
 
 			$oNewRecData = new \stdClass; // 问题+答案的记录数据
 			/* 写入问题 */
 			$oNewRecData->{$oPosted->questionSchema} = $oGroupSchema->title;
-			$modelRec->setData($oMockRecUser, $oTargetApp, $newek, $oNewRecData, '', true);
+			$modelRec->setData($oMockRecUser, $oTargetApp, $oNewRec->enroll_key, $oNewRecData, '', true);
 
 			/* 写入答案 */
 			$current = time();
 			$oRecData = new \stdClass;
 			$oRecData->aid = $oTargetApp->id;
 			$oRecData->rid = empty($oTargetAppRnd->rid) ? '' : $oTargetAppRnd->rid;
-			$oRecData->enroll_key = $newek;
+			$oRecData->enroll_key = $oNewRec->enroll_key;
 			$oRecData->submit_at = $current;
 			$oRecData->userid = isset($oMockRecUser->uid) ? $oMockRecUser->uid : '';
 			$oRecData->nickname = isset($oMockRecUser->nickname) ? $modelData->escape($oMockRecUser->nickname) : '';
@@ -845,7 +846,7 @@ class record extends main_base {
 			$modelData->update(
 				'xxt_enroll_record',
 				['data' => $this->escape($modelData->toJson($oNewRecData))],
-				['enroll_key' => $newek]
+				['enroll_key' => $oNewRec->enroll_key]
 			);
 
 			$newRecordNum++;
@@ -2246,8 +2247,8 @@ class record extends main_base {
 				$aOptions = [];
 				$aOptions['enrollAt'] = $oRecord->enroll_at;
 				$aOptions['nickname'] = $oRecord->nickname;
-				$aOptions['assignRid'] = $toRnd;
-				$ek = $modelRec->enroll($oApp, $oEnrollee, $aOptions);
+				$aOptions['assignedRid'] = $toRnd;
+				$oNewRec = $modelRec->enroll($oApp, $oEnrollee, $aOptions);
 				// 登记数据
 				$oRecData = new \stdClass;
 				foreach ($compatibleSchemas as $cs) {
@@ -2288,7 +2289,7 @@ class record extends main_base {
 					}
 					$oRecData->{$cs[1]->id} = $val;
 				}
-				$modelRec->setData($oEnrollee, $oApp, $ek, $oRecData);
+				$modelRec->setData($oEnrollee, $oApp, $oNewRec->enroll_key, $oRecData);
 				$countOfImport++;
 			}
 		}
@@ -2578,7 +2579,7 @@ class record extends main_base {
 				$records = $modelRec->byUser($oApp, $oMockUser, ['rid' => $oAssignedRnd->rid]);
 				if (empty($records)) {
 					$oMockUser->nickname = $oMisUser->nickname;
-					$modelRec->enroll($oApp, $oMockUser, ['nickname' => $oMockUser->nickname, 'assignRid' => $oAssignedRnd->rid]);
+					$modelRec->enroll($oApp, $oMockUser, ['nickname' => $oMockUser->nickname, 'assignedRid' => $oAssignedRnd->rid]);
 					$newRecordCount++;
 				}
 			}

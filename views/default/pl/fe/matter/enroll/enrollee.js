@@ -25,7 +25,7 @@ define(['frame'], function(ngApp) {
         $scope.page = _oPage = { size: 20 };
         $scope.criteria = _oCriteria = {
             orderby: 'enroll_num',
-            onlyEnrolled: 'Y',
+            //onlyEnrolled: 'Y',
             rid: '',
             turn_title: '全部轮次',
             filter: {}

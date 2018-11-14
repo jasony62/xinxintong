@@ -12,11 +12,9 @@ ngApp.controller('ctrlVotes', ['$scope', '$q', '$timeout', 'tmsLocation', 'http2
     $scope.filter = _oFilter = {}; // 过滤条件
     $scope.setAppActsAndNavs = function() {
         /*设置页面操作*/
-        $scope.appActs = {
-            addRecord: {}
-        };
+        $scope.setPopAct(['addRecord'], 'votes');
         /*设置页面导航*/
-        $scope.setPopNav(['repos', 'rank', 'event'], 'votes');
+        $scope.setPopNav(['repos', 'rank', 'kanban', 'event'], 'votes');
     };
     $scope.gotoOptionLink = function(oSchema, oOption) {
         if (oOption.referRecord && oOption.referRecord.ds && oOption.referRecord.ds.ek && oSchema.dsOps && oSchema.dsOps.app && oSchema.dsOps.app.id) {

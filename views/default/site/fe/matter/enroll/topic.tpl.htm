@@ -121,7 +121,7 @@
             </div>
         </div>
     </div>
-    <div ng-if="appActs.length" tms-app-act app-acts="appActs"></div>
+    <div ng-if="popAct.acts.length" tms-pop-act acts="popAct.acts" custom="popAct.custom" close-after='5000'></div>
     <script type="text/ng-template" id="assignTopic.html">
         <div class="modal-body">
             <div ng-repeat="topic in topics">

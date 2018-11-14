@@ -3,7 +3,7 @@ require_once '../../db.php';
 
 $sqls = [];
 //
-$sqls[] = "ALTER TABLE account_group add p_create_site tinyint  not null default 0";
+$sqls[] = "ALTER TABLE  xxt_signin drop notify_submit";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

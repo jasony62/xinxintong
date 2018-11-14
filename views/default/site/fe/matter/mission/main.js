@@ -34,9 +34,6 @@ ngApp.controller('ctrlMain', ['$scope', '$parse', 'tmsLocation', 'http2', functi
                     if (/quiz|score_sheet/.test(matter)) {
                         oIndicator.score = true;
                     }
-                    if (matter.can_coin && matter.can_coin === 'Y') {
-                        oIndicator.coin = true;
-                    }
                     /* 时间状态 */
                     if (matter.start_at * 1000 > (new Date * 1)) {
                         oIndicator.state = 'pending';

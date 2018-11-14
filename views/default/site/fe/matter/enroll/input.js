@@ -17,31 +17,21 @@ ngApp.oUtilSubmit = require('../_module/submit.util.js');
 ngApp.config(['$compileProvider', function($compileProvider) {
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);
 }]);
-ngApp.factory('Input', ['tmsLocation', 'http2', function(LS, http2) {
+ngApp.factory('Input', ['$parse', 'tmsLocation', 'http2', function($parse, LS, http2) {
     var Input, _ins;
     Input = function() {};
-    Input.prototype.check = function(data, app, page) {
-        var dataSchemas, item, oSchema, value, sCheckResult;
-        if (page.dataSchemas && page.dataSchemas.length) {
-            dataSchemas = page.dataSchemas;
-            for (var i = dataSchemas.length - 1; i >= 0; i--) {
-                item = dataSchemas[i];
-                oSchema = item.schema;
-                if (oSchema.id.indexOf('member.') === 0) {
-                    var memberSchema = oSchema.id.substr(7);
-                    if (memberSchema.indexOf('.') === -1) {
-                        value = data.member[memberSchema];
-                    } else {
-                        memberSchema = memberSchema.split('.');
-                        value = data.member.extattr[memberSchema[1]];
-                    }
-                } else {
-                    value = data[oSchema.id];
-                }
+    Input.prototype.check = function(oRecData, oApp, oPage) {
+        var dataSchemas, oSchemaWrap, oSchema, value, sCheckResult;
+        if (oPage.dataSchemas && oPage.dataSchemas.length) {
+            for (var i = 0; i < oPage.dataSchemas.length; i++) {
+                oSchemaWrap = oPage.dataSchemas[i];
+                oSchema = oSchemaWrap.schema;
                 /* 隐藏题和协作题不做检查 */
                 if ((!oSchema.visibility || !oSchema.visibility.rules || oSchema.visibility.rules.length === 0 || oSchema.visibility.visible) && oSchema.cowork !== 'Y') {
                     if (oSchema.type && oSchema.type !== 'html') {
-                        if (true !== (sCheckResult = ngApp.oUtilSchema.checkValue(oSchema, value))) {
+                        value = $parse(oSchema.id)(oRecData);
+                        sCheckResult = ngApp.oUtilSchema.checkValue(oSchema, value);
+                        if (true !== sCheckResult) {
                             return sCheckResult;
                         }
                     }
@@ -704,10 +694,6 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                     break;
                 }
             }
-            if (parseInt(_oApp.count_limit) === 0 || _oApp.count_limit > records.length) {
-                $scope.appActs.newRecord = {};
-                $scope.appActs.length++;
-            }
         });
         if (oRecord.round && oRecord.round.end_at > 0) {
             if (oRecord.round.end_at * 1000 < (new Date * 1)) {
@@ -775,10 +761,6 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         $scope.data = { member: {} };
         http2.get(urlLoadRecord, { autoBreak: false, autoNotice: false }).then(function(rsp) {
             fnAfterGetRecord(rsp.data);
-            if (parseInt(_oApp.count_limit) !== 1) {
-                $scope.appActs.newRecord = {};
-                $scope.appActs.length++;
-            }
         }, function(rsp) {
             if (LS.s().newRecord === 'Y' && LS.s().rid) {
                 _facRound.get([LS.s().rid]).then(function(aRounds) {
@@ -819,6 +801,7 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
             }
         }, true);
         /*设置页面操作*/
+        var appActs = [];
         // 如果页面上有保存按钮，隐藏内置的保存按钮
         if (oPage.act_schemas) {
             var bHasSaveButton = false,
@@ -831,9 +814,15 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
             }
         }
         if (!bHasSaveButton) {
-            $scope.appActs.save = {};
-            $scope.appActs.length++;
+            appActs.push('save');
         }
+        appActs.push('newRecord');
+        $scope.setPopAct(appActs, 'input', {
+            func: {
+                newRecord: $scope.newRecord,
+                save: $scope.save
+            }
+        });
     }
 
     window.onbeforeunload = function(e) {
@@ -855,7 +844,6 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
     $scope.tag = {};
     $scope.supplement = {};
     $scope.submitState = _oSubmitState = ngApp.oUtilSubmit.state;
-    $scope.appActs = { length: 0 }; // 页面的动态操作
 
     $scope.beforeSubmit = function(fn) {
         if (_tasksOfBeforeSubmit.indexOf(fn) === -1) {
@@ -936,7 +924,7 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         }
         if (!_oSubmitState.isRunning()) {
             _oSubmitState.start(event, _StateCacheKey, type);
-            if (true === (checkResult = _facInput.check($scope.data, $scope.app, $scope.page))) {
+            if ($scope.record.round.purpose !== 'C' || true === (checkResult = _facInput.check($scope.data, $scope.app, $scope.page))) {
                 _tasksOfBeforeSubmit.length ? doTask(0, nextAction, type) : doSubmit(nextAction, type);
             } else {
                 _oSubmitState.finish();
@@ -1093,7 +1081,7 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
             $scope.rounds = oResult.rounds;
         });
         /*设置页面导航*/
-        $scope.setPopNav(['votes', 'repos', 'rank', 'event'], 'input');
+        $scope.setPopNav(['votes', 'repos', 'rank', 'kanban', 'event'], 'input');
         /*页面阅读日志*/
         $scope.logAccess();
         /* 微信不支持上传文件，指导用户进行处理 */

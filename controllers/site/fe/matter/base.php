@@ -57,7 +57,7 @@ class base extends \site\fe\base {
 			$modelMs = $this->model('site\user\memberschema');
 			foreach ($oEntryRule->member as $mschemaId => $oRule) {
 				$oMschema = $modelMs->byId($mschemaId, ['fields' => 'is_wx_fan', 'cascaded' => 'N']);
-				if ($oMschema->is_wx_fan === 'Y') {
+				if ($oMschema && $oMschema->is_wx_fan === 'Y') {
 					if (!isset($this->who->sns->wx)) {
 						$aRequireSns['wx'] = true;
 					}

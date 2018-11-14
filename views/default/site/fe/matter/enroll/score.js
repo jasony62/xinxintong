@@ -46,8 +46,10 @@ ngApp.controller('ctrlScore', ['$scope', '$sce', 'tmsLocation', 'http2', functio
             $scope.record = oRecord;
             /*设置页面分享信息*/
             $scope.setSnsShare(oRecord);
+            /*设置页面操作*/
+            $scope.setPopAct(['addRecord'], 'score');
             /*设置页面导航*/
-            $scope.setPopNav(['repos', 'rank', 'event'], 'score');
+            $scope.setPopNav(['repos', 'rank', 'kanban', 'event'], 'score');
             /*页面阅读日志*/
             $scope.logAccess();
         });

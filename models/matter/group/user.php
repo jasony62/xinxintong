@@ -19,8 +19,6 @@ class user_model extends \TMS_MODEL {
 			is_array($oOptions) && $oOptions = (object) $oOptions;
 			$page = isset($oOptions->page) ? $oOptions->page : null;
 			$size = isset($oOptions->size) ? $oOptions->size : null;
-			$kw = isset($oOptions->kw) ? $oOptions->kw : null;
-			$by = isset($oOptions->by) ? $oOptions->by : null;
 		}
 
 		$fields = isset($oOptions->fields) ? $oOptions->fields : 'enroll_key,enroll_at,comment,tags,data,userid,nickname,is_leader,wx_openid,yx_openid,qy_openid,headimgurl,round_id,round_title,role_rounds';
@@ -34,18 +32,20 @@ class user_model extends \TMS_MODEL {
 				$w .= " and concat(',',tags,',') like '%,$tag,%'";
 			}
 		}
-		if (isset($oOptions->roleRoundId) && ($oOptions->roleRoundId == '' || $oOptions->roleRoundId == 'pending')) {
-			$w .= " and role_rounds = ''";
-		} else if (isset($oOptions->roleRoundId) && (strcasecmp($oOptions->roleRoundId, 'all') !== 0)) {
+		if (isset($oOptions->roundId)) {
+			if ($oOptions->roundId === 'inTeam') {
+				$w .= " and round_id <> ''";
+			} else if ($oOptions->roundId === '' || $oOptions->roundId === 'pending') {
+				$w .= " and round_id = ''";
+			} else if (strcasecmp($oOptions->roundId, 'all') !== 0) {
+				$w .= " and round_id = '" . $oOptions->roundId . "' and userid <> ''";
+			}
+		}
+		if (!empty($oOptions->roleRoundId)) {
 			$w .= " and role_rounds like '%\"" . $oOptions->roleRoundId . "\"%' and userid <> ''";
 		}
-		if (isset($oOptions->roundId) && ($oOptions->roundId == '' || $oOptions->roundId == 'pending')) {
-			$w .= " and round_id = ''";
-		} else if (isset($oOptions->roundId) && (strcasecmp($oOptions->roundId, 'all') !== 0)) {
-			$w .= " and round_id = '" . $oOptions->roundId . "' and userid <> ''";
-		}
 		// 根据用户昵称过滤
-		if (isset($oOptions->nickname)) {
+		if (!empty($oOptions->nickname)) {
 			$w .= " and nickname like '%{$oOptions->nickname}%'";
 		}
 		$q = [
@@ -54,7 +54,7 @@ class user_model extends \TMS_MODEL {
 			$w,
 		];
 		/* 分页参数 */
-		if (isset($page)) {
+		if (isset($page) && isset($size)) {
 			$q2 = [
 				'r' => ['o' => ($page - 1) * $size, 'l' => $size],
 			];

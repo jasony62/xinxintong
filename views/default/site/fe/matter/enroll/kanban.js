@@ -15,7 +15,7 @@ ngApp.filter('filterTime', function() {
         return result = h + ":" + m + ":" + s;
     }
 });
-ngApp.controller('ctrlKanban', ['$scope', '$q', '$uibModal', 'tmsLocation', 'http2', 'enlRound', function($scope, $q, $uibModal, LS, http2, enlRound) {
+ngApp.controller('ctrlKanban', ['$scope', '$q', '$parse', '$uibModal', 'tmsLocation', 'http2', 'enlRound', function($scope, $q, $parse, $uibModal, LS, http2, enlRound) {
     function fnGetKanban() {
         var url, defer;
         defer = $q.defer();
@@ -76,10 +76,27 @@ ngApp.controller('ctrlKanban', ['$scope', '$q', '$uibModal', 'tmsLocation', 'htt
         $uibModal.open({
             templateUrl: 'userDetail.html',
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.app = $scope.app;
                 $scope2.user = oUser;
                 $scope2.cancel = function() { $mi.dismiss(); };
             }],
-            backdrop: 'static'
+            backdrop: 'static',
+            windowClass: 'auto-height'
+        });
+    };
+    $scope.toggleProfilePublic = function(event, oEnlUser) {
+        event.stopPropagation();
+        var bPublic;
+        bPublic = $parse('custom.profile.public')(oEnlUser) === true ? false : true;
+        http2.post(LS.j('user/updateCustom', 'site', 'app'), { profile: { public: bPublic } }).then(function() {
+            if (bPublic) {
+                http2.get(LS.j('user/get', 'site', 'app') + '&rid=' + _oFilter.round.rid).then(function(rsp) {
+                    oEnlUser.nickname = rsp.data.nickname;
+                });
+            } else {
+                oEnlUser.nickname = '隐身';
+            }
+            $parse('custom.profile.public').assign(oEnlUser, bPublic);
         });
     };
     $scope.subView = location.hash === '#undone' ? 'undone' : 'users';

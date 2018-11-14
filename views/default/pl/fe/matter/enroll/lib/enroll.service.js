@@ -1,4 +1,4 @@
-define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
+define(['require', 'frame/templates', 'schema', 'page'], function(require, FrameTemplates, schemaLib, pageLib) {
     'use strict';
     var BaseSrvEnrollRecord = function($q, http2, noticebox, $uibModal, tmsSchema) {
         this._oApp = null;
@@ -160,7 +160,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
     /**
      * app
      */
-    ngModule.service('tkEnrollApp', ['$q', 'http2', function($q, http2) {
+    ngModule.service('tkEnrollApp', ['$q', '$uibModal', 'http2', function($q, $uibModal, http2) {
         function _fnMakeApiUrl(oApp, action) {
             var url;
             url = '/rest/pl/fe/matter/enroll/' + action + '?site=' + oApp.siteid + '&app=' + oApp.id;
@@ -170,6 +170,35 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             var defer = $q.defer();
             http2.post(_fnMakeApiUrl(oApp, 'update'), oModifiedData).then(function(rsp) {
                 defer.resolve(rsp.data);
+            });
+            return defer.promise;
+        };
+        this.choose = function(oApp) {
+            var defer;
+            defer = $q.defer();
+            http2.post('/rest/script/time', { html: { 'enrollApp': '/views/default/pl/fe/_module/chooseEnrollApp' } }).then(function(rsp) {
+                return $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/_module/chooseEnrollApp.html?_=' + rsp.data.html.enrollApp.time,
+                    controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
+                        $scope2.app = oApp;
+                        $scope2.data = {};
+                        oApp.mission && ($scope2.data.sameMission = 'Y');
+                        $scope2.cancel = function() {
+                            $mi.dismiss();
+                        };
+                        $scope2.ok = function() {
+                            $mi.close($scope2.data);
+                        };
+                        var url = '/rest/pl/fe/matter/enroll/list?site=' + oApp.siteid + '&size=999';
+                        oApp.mission && (url += '&mission=' + oApp.mission.id);
+                        http2.get(url).then(function(rsp) {
+                            $scope2.apps = rsp.data.apps;
+                        });
+                    }],
+                    backdrop: 'static'
+                }).result.then(function(oResult) {
+                    defer.resolve(oResult);
+                });
             });
             return defer.promise;
         };
@@ -362,11 +391,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         defaultInput: defaultInput
                     }
                 },
-                changeUserScope: function(ruleScope, oSiteSns, oDefaultInputPage) {
-                    var oEntryRule = _oApp.entryRule;
-                    oEntryRule.scope = ruleScope;
-                    return this.update('entryRule');
-                },
                 assignMission: function() {
                     var defer = $q.defer();
                     srvSite.openGallery({
@@ -443,184 +467,151 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
     /**
      * round
      */
-    ngModule.provider('srvEnrollRound', function() {
-        var _siteId, _appId, _rounds, _oPage,
-            _RestURL = '/rest/pl/fe/matter/enroll/round/',
-            RoundState = ['新建', '启用', '结束'];
+    ngModule.service('tkEnrollRound', ['$q', '$uibModal', 'http2', 'cstApp', function($q, $uibModal, http2, CstApp) {
+        function RoundModal(oApp, oRound) {
+            this.templateUrl = FrameTemplates.url('roundEditor');
+            this.backdrop = 'static';
+            this.controller = ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.round = angular.copy(oRound);
+                $scope2.roundState = CstApp.options.round.state;
+                $scope2.$on('xxt.tms-datepicker.change', function(event, data) {
+                    if (data.state === 'start_at') {
+                        if (data.obj[data.state] == 0 && data.value > 0) {
+                            $scope2.round.state = '1';
+                        } else if (data.obj[data.state] > 0 && data.value == 0) {
+                            $scope2.round.state = '0';
+                        }
+                    }
+                    data.obj[data.state] = data.value;
+                });
+                $scope2.close = function() {
+                    $mi.dismiss();
+                };
+                $scope2.ok = function() {
+                    $mi.close($scope2.round);
+                };
+                $scope2.stop = function() {
+                    $scope2.round.state = '2';
+                    $mi.close({
+                        data: $scope2.round
+                    });
+                };
+                $scope2.start = function() {
+                    $scope2.round.state = '1';
+                    $mi.close($scope2.round);
+                };
+                if (oRound.rid) {
+                    $scope2.downloadQrcode = function(url) {
+                        $('<a href="' + url + '" download="记录活动轮次二维码.png"></a>')[0].click();
+                    };
+                    var rndEntryUrl;
+                    rndEntryUrl = oApp.entryUrl + '&rid=' + oRound.rid;
+                    $scope2.entry = {
+                        url: rndEntryUrl,
+                        qrcode: '/rest/site/fe/matter/enroll/qrcode?site=' + oApp.siteid + '&url=' + encodeURIComponent(rndEntryUrl),
+                    }
+                    if (oApp.mission) {
+                        http2.get('/rest/pl/fe/matter/mission/round/list?mission=' + oApp.mission.id).then(function(rsp) {
+                            $scope2.missionRounds = rsp.data.rounds;
+                        });
+                    }
+                }
+            }];
+        }
+        this.add = function(oApp) {
+            var defer;
+            defer = $q.defer();
+            $uibModal.open(new RoundModal(oApp, { state: '0', start_at: '0', purpose: 'C', })).result.then(function(oNewRound) {
+                http2.post('/rest/pl/fe/matter/enroll/round/add?app=' + oApp.id, oNewRound).then(function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+            });
 
-        this.config = function(siteId, appId) {
-            _siteId = siteId;
-            _appId = appId;
+            return defer.promise;
         };
-        this.$get = ['$q', '$uibModal', 'http2', 'srvEnrollApp', 'tkEnrollApp', function($q, $uibModal, http2, srvEnrollApp, tkEnrollApp) {
+        this.edit = function(oApp, oRound) {
+            var defer;
+            defer = $q.defer();
+            $uibModal.open(new RoundModal(oApp, oRound)).result.then(function(oNewRound) {
+                var url;
+                url = '/rest/pl/fe/matter/enroll/round/update?app=' + oApp.id + '&rid=' + oRound.rid;
+                http2.post(url, oNewRound).then(function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+            });
+
+            return defer.promise;
+        };
+        this.remove = function(oApp, oRound) {
+            var url = '/rest/pl/fe/matter/enroll/round/remove?app=' + oApp.id + '&rid=' + oRound.rid;
+            return http2.get(url);
+        };
+    }]);
+    ngModule.provider('srvEnrollRound', function() {
+        var _rounds, _oPage;
+        this.$get = ['$q', '$uibModal', 'http2', 'srvEnrollApp', 'tkEnrollRound', function($q, $uibModal, http2, srvEnrollApp, tkEnlRnd) {
             return {
-                RoundState: RoundState,
                 init: function(rounds, page) {
                     _rounds = rounds;
                     _oPage = page;
-                    if (page.j === undefined) {
-                        page.at = 1;
-                        page.size = 10;
-                        page.j = function() {
-                            return 'page=' + this.at + '&size=' + this.size;
-                        }
-                    }
                 },
-                list: function(checkRid, pageAt, pageSize) {
-                    var defer = $q.defer(),
-                        url;
-                    if (_rounds === undefined) {
-                        _rounds = [];
-                    }
-                    if (_oPage === undefined) {
-                        _oPage = {
-                            at: pageAt || 1,
-                            size: pageSize || 10,
-                            j: function() {
-                                return 'page=' + this.at + '&size=' + this.size;
-                            }
-                        };
-                    }
-                    url = _RestURL + 'list?site=' + _siteId + '&app=' + _appId + '&' + _oPage.j();
-                    if (checkRid) {
-                        url += '&checked=' + checkRid;
-                    }
-                    http2.get(url).then(function(rsp) {
-                        var _checked;
-                        _rounds.splice(0, _rounds.length);
-                        rsp.data.rounds.forEach(function(rnd) {
-                            rsp.data.active && (rnd._isActive = rnd.rid === rsp.data.active.rid);
-                            _rounds.push(rnd);
+                list: function(checkRid) {
+                    var defer = $q.defer();
+                    srvEnrollApp.get().then(function(oApp) {
+                        var url;
+                        if (_rounds === undefined) {
+                            _rounds = [];
+                        }
+                        if (_oPage === undefined) {
+                            _oPage = {};
+                        }
+                        url = '/rest/pl/fe/matter/enroll/round/list?app=' + oApp.id;
+                        if (checkRid) {
+                            url += '&checked=' + checkRid;
+                        }
+                        http2.get(url, { page: _oPage }).then(function(rsp) {
+                            var _oCheckedRnd;
+                            _rounds.splice(0, _rounds.length);
+                            rsp.data.rounds.forEach(function(rnd) {
+                                rsp.data.active && (rnd._isActive = rnd.rid === rsp.data.active.rid);
+                                _rounds.push(rnd);
+                            });
+                            _oCheckedRnd = (rsp.data.checked ? rsp.data.checked : '');
+                            defer.resolve({ rounds: _rounds, page: _oPage, active: rsp.data.active, checked: _oCheckedRnd });
                         });
-                        _oPage.total = parseInt(rsp.data.total);
-                        _checked = (rsp.data.checked ? rsp.data.checked : '');
-                        defer.resolve({ rounds: _rounds, page: _oPage, active: rsp.data.active, checked: _checked });
                     });
 
                     return defer.promise;
                 },
                 add: function() {
-                    $uibModal.open({
-                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=2',
-                        backdrop: 'static',
-                        controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
-                            $scope.round = {
-                                state: '0',
-                                start_at: '0'
-                            };
-                            $scope.roundState = RoundState;
-                            $scope.$on('xxt.tms-datepicker.change', function(event, data) {
-                                if (data.state === 'start_at') {
-                                    if (data.obj[data.state] == 0 && data.value > 0) {
-                                        $scope.round.state = '1';
-                                    } else if (data.obj[data.state] > 0 && data.value == 0) {
-                                        $scope.round.state = '0';
-                                    }
-                                }
-                                data.obj[data.state] = data.value;
-                            });
-                            $scope.close = function() {
-                                $mi.dismiss();
-                            };
-                            $scope.ok = function() {
-                                $mi.close($scope.round);
-                            };
-                            $scope.start = function() {
-                                $scope.round.state = 1;
-                                $mi.close($scope.round);
-                            };
-                        }]
-                    }).result.then(function(newRound) {
-                        http2.post(_RestURL + 'add?site=' + _siteId + '&app=' + _appId, newRound).then(function(rsp) {
-                            if (_rounds.length > 0 && rsp.data.state == 1) {
+                    srvEnrollApp.get().then(function(oApp) {
+                        tkEnlRnd.add(oApp).then(function(oNewRound) {
+                            if (_rounds.length > 0 && oNewRound.state == 1) {
                                 _rounds[0].state = 2;
                             }
-                            _rounds.splice(0, 0, rsp.data);
+                            _rounds.splice(0, 0, oNewRound);
                             _oPage.total++;
                         });
                     });
                 },
                 edit: function(oRound) {
-                    $uibModal.open({
-                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=2',
-                        backdrop: 'static',
-                        controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
-                            $scope.round = { rid: oRound.id, mission_rid: oRound.mission_rid, title: oRound.title, start_at: oRound.start_at, end_at: oRound.end_at, state: oRound.state };
-                            $scope.roundState = RoundState;
-                            $scope.$on('xxt.tms-datepicker.change', function(event, data) {
-                                if (data.state === 'start_at') {
-                                    if (data.obj[data.state] == 0 && data.value > 0) {
-                                        $scope.round.state = '1';
-                                    } else if (data.obj[data.state] > 0 && data.value == 0) {
-                                        $scope.round.state = '0';
-                                    }
-                                }
-                                data.obj[data.state] = data.value;
-                            });
-                            $scope.close = function() {
-                                $mi.dismiss();
-                            };
-                            $scope.ok = function() {
-                                $mi.close({
-                                    action: 'update',
-                                    data: $scope.round
-                                });
-                            };
-                            $scope.remove = function() {
-                                $mi.close({
-                                    action: 'remove'
-                                });
-                            };
-                            $scope.stop = function() {
-                                $scope.round.state = '2';
-                                $mi.close({
-                                    action: 'update',
-                                    data: $scope.round
-                                });
-                            };
-                            $scope.start = function() {
-                                $scope.round.state = '1';
-                                $mi.close({
-                                    action: 'update',
-                                    data: $scope.round
-                                });
-                            };
-                            $scope.downloadQrcode = function(url) {
-                                $('<a href="' + url + '" download="登记二维码.png"></a>')[0].click();
-                            };
-                            srvEnrollApp.get().then(function(oApp) {
-                                var rndEntryUrl;
-                                rndEntryUrl = oApp.entryUrl + '&rid=' + oRound.rid;
-                                $scope.entry = {
-                                    url: rndEntryUrl,
-                                    qrcode: '/rest/site/fe/matter/enroll/qrcode?site=' + oApp.siteid + '&url=' + encodeURIComponent(rndEntryUrl),
-                                }
-                                if (oApp.mission) {
-                                    http2.get('/rest/pl/fe/matter/mission/round/list?mission=' + oApp.mission.id).then(function(rsp) {
-                                        $scope.missionRounds = rsp.data.rounds;
-                                    });
-                                }
-                            });
-                        }]
-                    }).result.then(function(rst) {
-                        var url = _RestURL;
-                        if (rst.action === 'update') {
-                            url += 'update?site=' + _siteId + '&app=' + _appId + '&rid=' + oRound.rid;
-                            http2.post(url, rst.data).then(function(rsp) {
-                                if (_rounds.length > 1 && rst.data.state === '1') {
-                                    _rounds[1].state = '2';
-                                }
-                                angular.extend(oRound, rsp.data);
-                            });
-                        } else if (rst.action === 'remove') {
-                            url += 'remove?site=' + _siteId + '&app=' + _appId + '&rid=' + oRound.rid;
-                            http2.get(url).then(function(rsp) {
-                                _rounds.splice(_rounds.indexOf(oRound), 1);
-                                _oPage.total--;
-                            });
-                        }
+                    srvEnrollApp.get().then(function(oApp) {
+                        tkEnlRnd.edit(oApp, oRound).then(function(oNewRound) {
+                            if (_rounds.length > 1 && oNewRound.state === '1') {
+                                _rounds[1].state = '2';
+                            }
+                            angular.extend(oRound, oNewRound);
+                        });
                     });
                 },
+                remove: function(oRound) {
+                    srvEnrollApp.get().then(function(oApp) {
+                        tkEnlRnd.remove(oApp, oRound).then(function() {
+                            _rounds.splice(_rounds.indexOf(oRound), 1);
+                            _oPage.total--;
+                        });
+                    });
+                }
             };
         }];
     });

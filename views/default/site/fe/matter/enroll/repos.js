@@ -14,7 +14,7 @@ ngApp.oUtilSchema = require('../_module/schema.util.js');
 ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', function($scope, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc) {
     /* 是否可以对记录进行表态 */
     function fnCanAgreeRecord(oRecord, oUser) {
-        if (_oMocker.role && /visitor|member/.test(_oMocker.role)) {
+        if (_oMocker && _oMocker.role && /visitor|member/.test(_oMocker.role)) {
             return false;
         }
         if (oUser.is_leader) {
@@ -37,7 +37,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     $scope.page = _oPage = {};
     $scope.filter = _oFilter = {}; // 过滤条件
     $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'lastest', cowork: { agreed: 'all' }, rid: 'all' }; // 数据查询条件
-    $scope.mocker = _oMocker = {}; // 用户自己指定的角色
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.repos = []; // 分享的记录
     $scope.reposLoading = false;
@@ -62,7 +61,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             _oPage.total = 0;
         }
         url = LS.j('repos/recordList', 'site', 'app');
-        if (_oMocker.role) {
+        if (_oMocker && _oMocker.role) {
             url += '&role=' + _oMocker.role;
         }
         $scope.reposLoading = true;
@@ -378,14 +377,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             });
         }
     };
-    $scope.mockAsVisitor = function(event, bMock) {
-        _oMocker.role = bMock ? 'visitor' : '';
-        $scope.recordList(1);
-    };
-    $scope.mockAsMember = function(event, bMock) {
-        _oMocker.role = bMock ? 'member' : '';
-        $scope.recordList(1);
-    };
     $scope.advCriteriaStatus = {
         opened: !$scope.isSmallLayout,
         dirOpen: false
@@ -456,27 +447,17 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         });
         /* 设置页面分享信息 */
         $scope.setSnsShare(null, null, { target_type: 'repos', target_id: _oApp.id });
+        /* 设置页面操作 */
+        $scope.setPopAct(['addRecord', 'mocker'], 'cowork');
         /*设置页面导航*/
-        $scope.setPopNav(['rank', 'event', 'favor'], 'repos');
+        $scope.setPopNav(['rank', 'kanban', 'event', 'favor'], 'repos');
         /* 页面阅读日志 */
         $scope.logAccess({ target_type: 'repos', target_id: _oApp.id });
-        /* 设置页面操作 */
-        $scope.appActs = {};
-        /* 允许添加记录 */
-        if (_oApp.actionRule && _oApp.actionRule.record && _oApp.actionRule.record.submit && _oApp.actionRule.record.submit.pre && _oApp.actionRule.record.submit.pre.editor) {
-            if ($scope.user.is_editor && $scope.user.is_editor === 'Y') {
-                $scope.appActs.addRecord = {};
+        $scope.$watch('mocker', function(nv, ov) {
+            if (nv && nv !== ov) {
+                _oMocker = nv;
+                $scope.recordList(1);
             }
-        } else {
-            $scope.appActs.addRecord = {};
-        }
-        /* 是否允许切换用户角色 */
-        if (params.user.is_editor && params.user.is_editor === 'Y') {
-            $scope.appActs.mockAsVisitor = { mocker: 'mocker' };
-        }
-        if (params.user.is_leader && /Y|S/.test(params.user.is_leader)) {
-            $scope.appActs.mockAsMember = { mocker: 'mocker' };
-        }
-        $scope.appActs.length = Object.keys($scope.appActs).length;
+        }, true);
     });
 }]);

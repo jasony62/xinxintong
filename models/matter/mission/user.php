@@ -101,7 +101,7 @@ class user_model extends \TMS_MODEL {
 				$oNewUsr->{$k} = $v;
 				break;
 			case 'modify_log':
-				if (!is_string($v)) {
+				if (is_object($v)) {
 					$oNewUsr->{$k} = json_encode([$v]);
 				}
 			case 'custom':
@@ -193,7 +193,7 @@ class user_model extends \TMS_MODEL {
 				$aDbData[$field] = $value;
 				break;
 			case 'modify_log':
-				if (empty($oBeforeData->modify_log)) {
+				if (empty($oBeforeData->modify_log) || !is_array($oBeforeData->modify_log)) {
 					$oBeforeData->modify_log = [];
 				}
 				array_unshift($oBeforeData->modify_log, $value);

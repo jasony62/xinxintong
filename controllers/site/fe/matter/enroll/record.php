@@ -3,7 +3,7 @@ namespace site\fe\matter\enroll;
 
 include_once dirname(__FILE__) . '/base.php';
 /**
- * 登记活动记录
+ * 记录活动记录
  */
 class record extends base {
 	/**
@@ -18,35 +18,21 @@ class record extends base {
 		return new \ResponseData($key);
 	}
 	/**
-	 * 记录登记信息
+	 * 记录记录信息
 	 *
-	 * @param string $site
 	 * @param string $app
 	 * @param string $rid 指定在哪一个轮次上提交（仅限新建的情况）
 	 * @param string $ek enrollKey 如果要更新之前已经提交的数据，需要指定
 	 * @param string $submitkey 支持文件分段上传
 	 */
-	public function submit_action($site, $app, $rid = '', $ek = null, $submitkey = '', $subType = 'submit') {
-		/* support CORS */
-		//header('Access-Control-Allow-Origin:*');
-		//header('Access-Control-Allow-Methods:POST');
-		//header('Access-Control-Allow-Headers:Content-Type');
-		//$_SERVER['REQUEST_METHOD'] === 'OPTIONS' && exit;
-		if (empty($site)) {
-			header('HTTP/1.0 500 parameter error:site is empty.');
-			die('参数错误！');
-		}
-		if (empty($app)) {
-			header('HTTP/1.0 500 parameter error:app is empty.');
-			die('参数错误！');
-		}
-
+	public function submit_action($app, $rid = '', $ek = null, $submitkey = '', $subType = 'submit') {
 		$modelEnl = $this->model('matter\enroll');
-		$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
-
-		if (false === ($oEnrollApp = $modelEnl->byId($app, ['cascaded' => 'N']))) {
+		$oEnrollApp = $modelEnl->byId($app, ['cascaded' => 'N']);
+		if (false === $oEnrollApp || $oEnrollApp->state !== '1') {
 			return new \ObjectNotFoundError('指定的活动不存在');
 		}
+
+		$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
 
 		$bSubmitNewRecord = empty($ek); // 是否为提交新纪录
 
@@ -59,11 +45,11 @@ class record extends base {
 		}
 
 		// 提交轮次
-		$aResult = $this->_getSubmitRecordRid($oEnrollApp, $rid);
-		if (false === $aResult[0]) {
-			return new \ResponseError($aResult[1]);
+		$aResultSubmitRid = $this->_getSubmitRecordRid($oEnrollApp, $rid);
+		if (false === $aResultSubmitRid[0]) {
+			return new \ResponseError($aResultSubmitRid[1]);
 		}
-		$rid = $aResult[1];
+		$rid = $aResultSubmitRid[1];
 
 		// 提交的数据
 		$oPosted = $this->getPostJson();
@@ -75,6 +61,7 @@ class record extends base {
 		} else {
 			$oEnrolledData = $oPosted;
 		}
+
 		// 提交数据的用户
 		$oUser = $this->getUser($oEnrollApp, $oEnrolledData);
 
@@ -83,20 +70,20 @@ class record extends base {
 			return new \ResponseData($logid);
 		}
 
-		// 检查是否允许登记
-		$rst = $this->_canSubmit($oEnrollApp, $oUser, $oEnrolledData, $ek, $rid);
-		if ($rst[0] === false) {
-			return new \ResponseError($rst[1]);
+		// 检查是否允许记录
+		$aResultCanSubmit = $this->_canSubmit($oEnrollApp, $oUser, $oEnrolledData, $ek, $rid);
+		if ($aResultCanSubmit[0] === false) {
+			return new \ResponseError($aResultCanSubmit[1]);
 		}
 		/**
-		 * 检查是否存在匹配的登记记录
+		 * 检查是否存在匹配的记录记录
 		 */
 		if (!empty($oEnrollApp->entryRule->enroll->id)) {
 			$oMatchApp = $modelEnl->byId($oEnrollApp->entryRule->enroll->id, ['cascaded' => 'N']);
 			if (empty($oMatchApp)) {
-				return new \ParameterError('指定的登记匹配登记活动不存在');
+				return new \ParameterError('指定的记录匹配记录活动不存在');
 			}
-			/* 获得要检查的登记项 */
+			/* 获得要检查的记录项 */
 			$requireCheckedData = new \stdClass;
 			$dataSchemas = $oEnrollApp->dataSchemas;
 			foreach ($dataSchemas as $oSchema) {
@@ -106,32 +93,32 @@ class record extends base {
 					}
 				}
 			}
-			/* 在指定的登记活动中检查数据 */
+			/* 在指定的记录活动中检查数据 */
 			$modelMatchRec = $this->model('matter\enroll\record');
 			$matchedRecords = $modelMatchRec->byData($oMatchApp, $requireCheckedData);
 			if (empty($matchedRecords)) {
-				return new \ParameterError('未在指定的登记活动［' . $oMatchApp->title . '］中找到与提交数据相匹配的记录');
+				return new \ParameterError('未在指定的记录活动［' . $oMatchApp->title . '］中找到与提交数据相匹配的记录');
 			}
 			/* 如果匹配的分组数据不唯一，怎么办？ */
 			if (count($matchedRecords) > 1) {
-				return new \ParameterError('在指定的登记活动［' . $oMatchApp->title . '］中找到多条与提交数据相匹配的记录，匹配关系不唯一');
+				return new \ParameterError('在指定的记录活动［' . $oMatchApp->title . '］中找到多条与提交数据相匹配的记录，匹配关系不唯一');
 			}
-			$oEnrollRecord = $matchedRecords[0];
-			if ($oEnrollRecord->verified !== 'Y') {
-				return new \ParameterError('在指定的登记活动［' . $oMatchApp->title . '］中与提交数据匹配的记录未通过验证');
+			$oMatchedEnlRec = $matchedRecords[0];
+			if ($oMatchedEnlRec->verified !== 'Y') {
+				return new \ParameterError('在指定的记录活动［' . $oMatchApp->title . '］中与提交数据匹配的记录未通过验证');
 			}
-			/* 如果登记数据中未包含用户信息，更新用户信息 */
-			if (empty($oEnrollRecord->userid)) {
+			/* 如果记录数据中未包含用户信息，更新用户信息 */
+			if (empty($oMatchedEnlRec->userid)) {
 				$oUserAcnt = $this->model('site\user\account')->byId($oUser->uid, ['fields' => 'wx_openid,yx_openid,qy_openid,headimgurl']);
 				if (false === $oUserAcnt) {
 					$oUserAcnt = new \stdClass;
 				}
 				$oUserAcnt->userid = $oUser->uid;
 				$oUserAcnt->nickname = $modelMatchRec->escape($oUser->nickname);
-				$modelMatchRec->update('xxt_enroll_record', $oUserAcnt, ['id' => $oEnrollRecord->id]);
+				$modelMatchRec->update('xxt_enroll_record', $oUserAcnt, ['id' => $oMatchedEnlRec->id]);
 			}
-			/* 将匹配的登记记录数据作为提交的登记数据的一部分 */
-			$oMatchedData = $oEnrollRecord->data;
+			/* 将匹配的记录记录数据作为提交的记录数据的一部分 */
+			$oMatchedData = $oMatchedEnlRec->data;
 			foreach ($oMatchApp->dataSchemas as $oSchema) {
 				if (!isset($oEnrolledData->{$oSchema->id}) && isset($oMatchedData->{$oSchema->id})) {
 					$oEnrolledData->{$oSchema->id} = $oMatchedData->{$oSchema->id};
@@ -142,7 +129,7 @@ class record extends base {
 		 * 检查是否存在匹配的分组记录
 		 */
 		if (isset($oEnrollApp->entryRule->group->id)) {
-			/* 获得要检查的登记项 */
+			/* 获得要检查的记录项 */
 			$countRequireCheckedData = 0;
 			$requireCheckedData = new \stdClass;
 			$dataSchemas = $oEnrollApp->dynaDataSchemas;
@@ -157,7 +144,7 @@ class record extends base {
 			if ($countRequireCheckedData > 0) {
 				$oGroupApp = $this->model('matter\group')->byId($oEnrollApp->entryRule->group->id);
 				if (empty($oGroupApp)) {
-					return new \ParameterError('指定的登记匹配分组活动不存在');
+					return new \ParameterError('指定的记录匹配分组活动不存在');
 				}
 				/* 在指定的分组活动中检查数据 */
 				$modelMatchRec = $this->model('matter\group\player');
@@ -169,43 +156,44 @@ class record extends base {
 				if (count($groupRecords) > 1) {
 					return new \ParameterError('在指定的分组活动［' . $oGroupApp->title . '］中找到多条与提交数据相匹配的记录，匹配关系不唯一');
 				}
-				$oGroupRecord = $groupRecords[0];
+				$oMatchedGrpRec = $groupRecords[0];
 				/* 如果分组数据中未包含用户信息，更新用户信息 */
-				if (empty($oGroupRecord->userid)) {
+				if (empty($oMatchedGrpRec->userid)) {
 					$oUserAcnt = $this->model('site\user\account')->byId($oUser->uid, ['fields' => 'wx_openid,yx_openid,qy_openid,headimgurl']);
 					if (false === $oUserAcnt) {
 						$oUserAcnt = new \stdClass;
 					}
 					$oUserAcnt->userid = $oUser->uid;
 					$oUserAcnt->nickname = $modelMatchRec->escape($oUser->nickname);
-					$modelMatchRec->update('xxt_group_player', $oUserAcnt, ['id' => $oGroupRecord->id]);
+					$modelMatchRec->update('xxt_group_player', $oUserAcnt, ['id' => $oMatchedGrpRec->id]);
 				}
-				/* 将匹配的分组记录数据作为提交的登记数据的一部分 */
-				$oMatchedData = $oGroupRecord->data;
+				/* 将匹配的分组记录数据作为提交的记录数据的一部分 */
+				$oMatchedData = $oMatchedGrpRec->data;
 				foreach ($oGroupApp->dataSchemas as $oSchema) {
 					if (!isset($oEnrolledData->{$oSchema->id}) && isset($oMatchedData->{$oSchema->id})) {
 						$oEnrolledData->{$oSchema->id} = $oMatchedData->{$oSchema->id};
 					}
 				}
 				/* 所属分组id */
-				if (isset($oGroupRecord->round_id)) {
-					$oUser->group_id = $oEnrolledData->_round_id = $oGroupRecord->round_id;
+				if (isset($oMatchedGrpRec->round_id)) {
+					$oUser->group_id = $oEnrolledData->_round_id = $oMatchedGrpRec->round_id;
 				}
 			}
 		}
 		/**
-		 * 提交登记数据
+		 * 提交记录数据
 		 */
 		$aUpdatedEnrollRec = [];
 		$bReviseRecordBeyondRound = false;
 		if ($bSubmitNewRecord) {
-			/* 插入登记数据 */
-			$ek = $modelRec->enroll($oEnrollApp, $oUser, ['nickname' => $oUser->nickname, 'assignRid' => $rid]);
+			/* 插入记录数据 */
+			$oNewRec = $modelRec->enroll($oEnrollApp, $oUser, ['nickname' => $oUser->nickname, 'assignedRid' => $rid]);
+			$ek = $oNewRec->enroll_key;
 			/* 处理自定义信息 */
-			$rst = $modelRec->setData($oUser, $oEnrollApp, $ek, $oEnrolledData, $submitkey, true);
+			$aResultSetData = $modelRec->setData($oUser, $oEnrollApp, $ek, $oEnrolledData, $submitkey, true);
 		} else {
 			/* 重新插入新提交的数据 */
-			$rst = $modelRec->setData($oUser, $oEnrollApp, $ek, $oEnrolledData, $submitkey);
+			$aResultSetData = $modelRec->setData($oUser, $oEnrollApp, $ek, $oEnrolledData, $submitkey);
 			/* 修改后的记录在当前轮次可见 */
 			if (isset($oEnrollApp->scenarioConfig->visibleRevisedRecordAtRound) && $oEnrollApp->scenarioConfig->visibleRevisedRecordAtRound === 'Y') {
 				$aResult = $this->model('matter\enroll\round')->reviseRecord($oEnrollApp->appRound, $oBeforeRecord);
@@ -213,8 +201,8 @@ class record extends base {
 					$bReviseRecordBeyondRound = true;
 				}
 			}
-			if ($rst[0] === true) {
-				/* 已经登记，更新原先提交的数据，只要进行更新操作就设置为未审核通过的状态 */
+			if ($aResultSetData[0] === true) {
+				/* 已经记录，更新原先提交的数据，只要进行更新操作就设置为未审核通过的状态 */
 				$aUpdatedEnrollRec['enroll_at'] = time();
 				$aUpdatedEnrollRec['userid'] = $oUser->uid;
 				$aUpdatedEnrollRec['group_id'] = empty($oUser->group_id) ? '' : $oUser->group_id;
@@ -222,31 +210,39 @@ class record extends base {
 				$aUpdatedEnrollRec['verified'] = 'N';
 			}
 		}
-		if (false === $rst[0]) {
-			return new \ResponseError($rst[1]);
+		if (false === $aResultSetData[0]) {
+			return new \ResponseError($aResultSetData[1]);
 		}
-		$oSubmitedEnrollRec = $rst[1]; // 包含data和score
 		/**
 		 * 提交补充说明
 		 */
 		if (isset($oPosted->supplement) && count(get_object_vars($oPosted->supplement))) {
-			$rst = $modelRec->setSupplement($oUser, $oEnrollApp, $ek, $oPosted->supplement);
+			$modelRec->setSupplement($oUser, $oEnrollApp, $ek, $oPosted->supplement);
 		}
-		if (isset($matchedRecord)) {
-			$aUpdatedEnrollRec['matched_enroll_key'] = $matchedRecord->enroll_key;
+		/**
+		 * 关联记录
+		 */
+		if (isset($oMatchedEnlRec)) {
+			$aUpdatedEnrollRec['matched_enroll_key'] = $oMatchedEnlRec->enroll_key;
 		}
-		if (isset($groupRecord)) {
-			$aUpdatedEnrollRec['group_enroll_key'] = $groupRecord->enroll_key;
+		if (isset($oMatchedGrpRec)) {
+			$aUpdatedEnrollRec['group_enroll_key'] = $oMatchedGrpRec->enroll_key;
 		}
 		if (count($aUpdatedEnrollRec)) {
 			$modelRec->update(
 				'xxt_enroll_record',
 				$aUpdatedEnrollRec,
-				"enroll_key='$ek'"
+				['enroll_key' => $ek]
 			);
 		}
-		/* 处理用户汇总数据，积分数据 */
 		$oRecord = $modelRec->byId($ek);
+		/**
+		 * 处理用户按轮次汇总数据，积分数据
+		 */
+		$modelRec->setSummaryRec($oUser, $oEnrollApp, $oRecord->rid);
+		/**
+		 * 处理用户汇总数据，积分数据
+		 */
 		if ($bReviseRecordBeyondRound) {
 			$oRoundRecord = clone $oRecord;
 			$oRoundRecord->rid = $oEnrollApp->appRound->rid;
@@ -254,6 +250,7 @@ class record extends base {
 		} else {
 			$this->model('matter\enroll\event')->submitRecord($oEnrollApp, $oRecord, $oUser, $bSubmitNewRecord);
 		}
+
 		/* 生成提醒 */
 		if ($bSubmitNewRecord) {
 			$this->model('matter\enroll\notice')->addRecord($oEnrollApp, $oRecord, $oUser);
@@ -264,7 +261,7 @@ class record extends base {
 		$oOperation->name = 'submit';
 		$logid = $this->_logUserOp($oEnrollApp, $oOperation, $oUser);
 
-		/* 通知登记活动事件接收人 */
+		/* 通知记录活动事件接收人 */
 		if (isset($oEnrollApp->notifyConfig->submit->valid) && $oEnrollApp->notifyConfig->submit->valid === true) {
 			$this->_notifyReceivers($oEnrollApp, $oRecord);
 		}
@@ -300,7 +297,7 @@ class record extends base {
 			$submitkey = empty($oUser) ? '' : $oUser->uid;
 		}
 
-		$schemasById = []; // 方便获取登记项定义
+		$schemasById = []; // 方便获取记录项定义
 		foreach ($oEnrollApp->dataSchemas as $schema) {
 			$schemasById[$schema->id] = $schema;
 		}
@@ -345,11 +342,11 @@ class record extends base {
 		return $logid;
 	}
 	/**
-	 * 检查是否允许用户进行登记
+	 * 检查是否允许用户进行记录
 	 *
 	 * 检查内容：
-	 * 1、应用允许登记的条数（count_limit）
-	 * 2、登记项是否和已有登记记录重复（schema.unique）
+	 * 1、应用允许记录的条数（count_limit）
+	 * 2、记录项是否和已有记录记录重复（schema.unique）
 	 * 3、多选题选项的数量（schema.limitChoice, schema.range）
 	 *
 	 */
@@ -380,12 +377,12 @@ class record extends base {
 		$modelRec = $this->model('matter\enroll\record');
 		if (empty($ek)) {
 			/**
-			 * 检查登记数量
+			 * 检查记录数量
 			 */
 			if (isset($oApp->count_limit) && $oApp->count_limit > 0) {
 				$records = $modelRec->byUser($oApp, $oUser, ['rid' => $rid]);
 				if (count($records) >= $oApp->count_limit) {
-					return [false, ['已经进行过' . count($records) . '次登记，不允再次登记']];
+					return [false, ['已经进行过' . count($records) . '次记录，不允再次记录']];
 				}
 			}
 		} else {
@@ -451,7 +448,7 @@ class record extends base {
 		return [true];
 	}
 	/**
-	 * 通知登记活动事件接收人
+	 * 通知记录活动事件接收人
 	 *
 	 * @param object $app
 	 * @param string $ek
@@ -612,7 +609,7 @@ class record extends base {
 		if (empty($ek)) {
 			$oRecUser = $this->getUser($oApp);
 			if ($loadLast === 'Y') {
-				$oRecord = $modelRec->lastByUser($oApp, $oRecUser, ['assignRid' => $rid, 'verbose' => 'Y', 'fields' => $fields]);
+				$oRecord = $modelRec->lastByUser($oApp, $oRecUser, ['rid' => $rid, 'verbose' => 'Y', 'fields' => $fields]);
 				if (false === $oRecord || $oRecord->state !== '1') {
 					$oRecord = new \stdClass;
 					$oRecord->rid = empty($rid) ? $oApp->appRound->rid : $rid;
@@ -679,7 +676,7 @@ class record extends base {
 		}
 
 		if (!empty($oRecord->rid)) {
-			$oRecRound = $this->model('matter\enroll\round')->byId($oRecord->rid, ['fields' => 'rid,title,start_at,end_at']);
+			$oRecRound = $this->model('matter\enroll\round')->byId($oRecord->rid, ['fields' => 'rid,title,purpose,state,start_at,end_at']);
 			$oRecord->round = $oRecRound;
 		}
 
@@ -688,6 +685,46 @@ class record extends base {
 		}
 
 		return new \ResponseData($oRecord);
+	}
+	/**
+	 * 获得基线记录
+	 * 基线轮次中的记录
+	 *
+	 * @param string $app app'id
+	 * @param string $rid 指定的轮次
+	 */
+	public function baseline_action($app, $rid = '') {
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelRnd = $this->model('matter\enroll\round');
+		$aRndOptions = ['fields' => 'rid,title'];
+		if (!empty($rid)) {
+			$aRndOptions['assignedRid'] = $rid;
+		}
+		$oBaselineRnd = $modelRnd->getBaseline($oApp, $aRndOptions);
+		if (false === $oBaselineRnd) {
+			return new \ResponseData(false);
+		}
+
+		$modelRec = $this->model('matter\enroll\record');
+		$oBaselineRec = $modelRec->baselineByRound($this->who->uid, $oBaselineRnd);
+		if (false === $oBaselineRec) {
+			return new \ResponseData(false);
+		}
+		/* 只有数值题可以作为基准 */
+		$oNumberRecData = new \stdClass;
+		foreach ($oApp->dynaDataSchemas as $oSchema) {
+			if ($oSchema->type === 'shorttext' && $modelRec->getDeepValue($oSchema, 'format') === 'number') {
+				$oNumberRecData->{$oSchema->id} = empty($oBaselineRec->data->{$oSchema->id}) ? 0 : $oBaselineRec->data->{$oSchema->id};
+			}
+		}
+		$oBaselineRec->data = $oNumberRecData;
+
+		return new \ResponseData($oBaselineRec);
 	}
 	/**
 	 * 记录的概要信息
@@ -707,7 +744,7 @@ class record extends base {
 		return new \ResponseData($oSketch);
 	}
 	/**
-	 * 列出所有的登记记录
+	 * 列出所有的记录记录
 	 *
 	 * $site
 	 * $app
@@ -765,7 +802,7 @@ class record extends base {
 		return new \ResponseData($oResult);
 	}
 	/**
-	 * 点赞登记记录
+	 * 点赞记录记录
 	 *
 	 * @param string $ek
 	 *
@@ -880,7 +917,7 @@ class record extends base {
 		return new \ResponseData($oResult);
 	}
 	/**
-	 * 点踩登记记录
+	 * 点踩记录记录
 	 *
 	 *
 	 */
@@ -994,7 +1031,7 @@ class record extends base {
 		return new \ResponseData($oResult);
 	}
 	/**
-	 * 推荐登记记录中
+	 * 推荐记录记录中
 	 * 只有组长和超级用户才有权限
 	 *
 	 * @param string $ek
@@ -1014,7 +1051,7 @@ class record extends base {
 		}
 
 		if (empty($oApp->entryRule->group->id)) {
-			return new \ParameterError('只有进入条件为分组活动的登记活动才允许组长表态');
+			return new \ParameterError('只有进入条件为分组活动的记录活动才允许组长表态');
 		}
 		$oUser = $this->getUser($oApp);
 
@@ -1151,13 +1188,13 @@ class record extends base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 返回指定登记项的活动记录
+	 * 返回指定记录项的活动记录
 	 */
 	public function list4Schema_action($site, $app, $rid = null, $schema, $page = 1, $size = 10) {
-		// 登记数据过滤条件
+		// 记录数据过滤条件
 		$oCriteria = $this->getPostJson();
 
-		// 登记记录过滤条件
+		// 记录记录过滤条件
 		$aOptions = [
 			'page' => $page,
 			'size' => $size,
@@ -1166,7 +1203,7 @@ class record extends base {
 			$aOptions['rid'] = $rid;
 		}
 
-		// 登记活动
+		// 记录活动
 		$modelApp = $this->model('matter\enroll');
 		$enrollApp = $modelApp->byId($app);
 

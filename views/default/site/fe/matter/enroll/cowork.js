@@ -15,7 +15,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
     function listRemarks() {
         var url;
         url = LS.j('remark/list', 'site', 'ek', 'schema', 'data');
-        if (_oMocker.role) {
+        if (_oMocker && _oMocker.role) {
             url += '&role=' + _oMocker.role;
         }
         http2.get(url).then(function(rsp) {
@@ -146,7 +146,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
                     });
                 }
                 url = LS.j('data/get', 'site', 'ek') + '&schema=' + oSchema.id + '&cascaded=Y';
-                if (_oMocker.role) {
+                if (_oMocker && _oMocker.role) {
                     url += '&role=' + _oMocker.role;
                 }
                 http2.get(url, { autoBreak: false, autoNotice: false }).then(function(rsp) {
@@ -186,31 +186,13 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             }
         }
         /*设置页面操作*/
-        $scope.appActs = {};
-        /* 允许添加记录 */
-        if (_oApp.actionRule && _oApp.actionRule.record && _oApp.actionRule.record.submit && _oApp.actionRule.record.submit.pre && _oApp.actionRule.record.submit.pre.editor) {
-            if (oUser.is_editor && oUser.is_editor === 'Y') {
-                $scope.appActs.addRecord = {};
-            }
-        } else {
-            $scope.appActs.addRecord = {};
-        }
-        /* 是否允许切换用户角色 */
-        if (oUser) {
-            if (oUser.is_editor && oUser.is_editor === 'Y') {
-                $scope.appActs.mockAsVisitor = { mocker: 'mocker' };
-            }
-            if (oUser.is_leader && /Y|S/.test(oUser.is_leader)) {
-                $scope.appActs.mockAsMember = { mocker: 'mocker' };
-            }
-        }
-        $scope.appActs.length = Object.keys($scope.appActs).length;
+        $scope.setPopAct(['addRecord', 'mocker'], 'cowork');
         /*设置页面导航*/
-        $scope.setPopNav(['repos', 'favor', 'rank', 'event'], 'cowork');
+        $scope.setPopNav(['repos', 'favor', 'rank', 'kanban', 'event'], 'cowork');
     }
     /* 是否可以对记录进行表态 */
     function fnCanAgreeRecord(oRecord, oUser) {
-        if (_oMocker.role && /visitor|member/.test(_oMocker.role)) {
+        if (_oMocker && _oMocker.role && /visitor|member/.test(_oMocker.role)) {
             return false;
         }
         if (oUser.is_leader) {
@@ -260,7 +242,6 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
     $scope.coworkTasks = [];
     $scope.remarkTasks = [];
     $scope.newRemark = {};
-    $scope.mocker = _oMocker = {}; // 用户自己指定的角色
     $scope.favorStack = {
         guiding: false,
         start: function(record, timer) {
@@ -359,18 +340,6 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             }
             $scope.favorStack.end();
         }
-    };
-    $scope.mockAsVisitor = function(event, bMock) {
-        _oMocker.role = bMock ? 'visitor' : '';
-        $scope.record._canAgree = fnCanAgreeRecord($scope.record, $scope.user);
-        fnLoadCowork($scope.record, $scope.coworkSchemas);
-        listRemarks();
-    };
-    $scope.mockAsMember = function(event, bMock) {
-        _oMocker.role = bMock ? 'member' : '';
-        $scope.record._canAgree = fnCanAgreeRecord($scope.record, $scope.user);
-        fnLoadCowork($scope.record, $scope.coworkSchemas);
-        listRemarks();
     };
     $scope.ruleCowork = function(oRecord) {
         var desc, gap;
@@ -669,6 +638,14 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
                 fnAfterRecordLoad(oRecord, _oUser);
             }
         });
+        $scope.$watch('mocker', function(nv, ov) {
+            if (nv && nv !== ov) {
+                _oMocker = nv;
+                $scope.record._canAgree = fnCanAgreeRecord($scope.record, $scope.user);
+                fnLoadCowork($scope.record, $scope.coworkSchemas);
+                listRemarks();
+            }
+        }, true);
     });
 }]);
 /**

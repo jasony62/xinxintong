@@ -174,10 +174,8 @@ ngApp.controller('ctrlStat', ['$scope', '$timeout', '$uibModal', '$q', 'tmsLocat
             $scope.rounds = oResult.rounds;
         });
         /*设置页面操作*/
-        $scope.appActs = {
-            addRecord: {}
-        };
+        $scope.setPopAct(['addRecord'], 'stat');
         /*设置页面导航*/
-        $scope.setPopNav(['repos', 'rank', 'event'], 'stat');
+        $scope.setPopNav(['repos', 'rank', 'kanban', 'event'], 'stat');
     });
 }]);

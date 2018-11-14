@@ -1,13 +1,9 @@
 <?php
 require_once '../../db.php';
 
-$sqls = array();
-/**
- * 项目中的推荐内容
- */
+$sqls = [];
 //
-$sqls[] = "ALTER TABLE xxt_plan add op_short_url_code char(4) not null default ''";
-$sqls[] = "ALTER TABLE xxt_plan add rp_short_url_code char(4) not null default ''";
+$sqls[] = "ALTER TABLE  xxt_enroll_round add purpose char(1) not null default 'C' after state";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

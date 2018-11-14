@@ -22,68 +22,6 @@ window.__util.makeDialog = function(id, html) {
 };
 
 var ngMod = angular.module('directive.enroll', []);
-ngMod.directive('tmsAppAct', ['$templateCache', function($templateCache) {
-    var html;
-    html = "<div class='tms-act-popover-wrap'>";
-    html += "<div ng-if=\"acts.mockAsMember\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'mockAsMember')\"><span ng-if=\"mocker.role!=='member'\">作为</span><span ng-if=\"mocker.role==='member'\">退出</span>成员</button></div>";
-    html += "<div ng-if=\"acts.mockAsVisitor\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'mockAsVisitor')\"><span ng-if=\"mocker.role!=='visitor'\">作为</span><span ng-if=\"mocker.role==='visitor'\">退出</span>访客</button></div>";
-    html += "<div ng-if=\"acts.addRecord\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'addRecord')\">添加记录</button></div>";
-    html += "<div ng-if=\"acts.newRecord\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'newRecord')\">添加记录</button></div>";
-    html += "<div ng-if=\"acts.save\"><button class='btn btn-default btn-block' ng-click=\"goto($event,'save')\">保存</button></div>";
-    html += "</div>";
-    $templateCache.put('appActTemplate.html', html);
-    return {
-        restrict: 'A',
-        replace: true,
-        scope: {
-            acts: '=appActs'
-        },
-        template: "<button uib-popover-template=\"'appActTemplate.html'\" popover-placement=\"top-right\" popover-trigger=\"'outsideClick'\" popover-append-to-body=\"true\" class=\"tms-act-toggle\" popover-class=\"tms-act-popover\"><span class='glyphicon glyphicon-option-vertical'></span></button>",
-        controller: ['$scope', function($scope) {
-            $scope.$watch('acts', function(oActs) {
-                var oMockAct;
-                if (oActs) {
-                    if (oMockAct = oActs.mockAsVisitor || oActs.mockAsMember) {
-                        if (oMockAct.mocker && angular.isString(oMockAct.mocker)) {
-                            if ($scope.mocker = $scope.$parent[oMockAct.mocker]) {
-                                $scope.$parent.$watch(oMockAct.mocker, function(nv) {
-                                    $scope.mocker = nv;
-                                }, true);
-                            }
-                        }
-                    }
-                }
-            });
-            $scope.back = function() {
-                history.back();
-            };
-            $scope.historyLen = function() {
-                return history.length;
-            };
-            $scope.goto = function(event, page) {
-                switch (page) {
-                    case 'mockAsVisitor':
-                        $scope.$parent.mockAsVisitor(event, $scope.mocker.role !== 'visitor');
-                        break;
-                    case 'mockAsMember':
-                        $scope.$parent.mockAsMember(event, $scope.mocker.role !== 'member');
-                        break;
-                    case 'addRecord':
-                        $scope.$parent.addRecord(event);
-                        break;
-                    case 'newRecord':
-                        $scope.$parent.newRecord(event);
-                        break;
-                    case 'save':
-                        $scope.$parent.save();
-                        break;
-                    default:
-                        $scope.$parent.gotoPage(event, page);
-                }
-            };
-        }]
-    };
-}]);
 ngMod.directive('tmsDate', ['$compile', function($compile) {
     return {
         restrict: 'A',

@@ -1,0 +1,21 @@
+<div class="modal-header">
+    <button class="close" type="button" ng-click="cancel()">×</button>
+    <h5 class="modal-title">关联记录活动</h5>
+</div>
+<div class="modal-body">
+    <form class="form-horizontal">
+        <div class='form-group'>
+            <label class="col-md-3 control-label">目标活动</label>
+            <div class="col-md-9 ">
+                <select class="form-control" ng-model="data.app" ng-options="app.title for app in apps"></select>
+                <div class='checkbox' ng-if="app.mission ">
+                    <label>
+                        <input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'"> 选择同一个项目中的活动</label>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="ok()">确定</button>
+</div>

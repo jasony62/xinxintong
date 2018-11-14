@@ -56,7 +56,7 @@
                                 </button>
                                 <ul class="dropdown-menu" uib-dropdown-menu>
                                     <li><a href ng-click="shiftOrderby('score')">得分</a></li>
-                                    <li><a href ng-click="shiftOrderby('user_total_coin')">积分</a></li>
+                                    <li ng-if="app.scenarioConfig.can_coin==='Y'"><a href ng-click="shiftOrderby('user_total_coin')">积分</a></li>
                                     <li><a href ng-click="shiftOrderby('entry_num')">访问次数</a></li>
                                     <li><a href ng-click="shiftOrderby('total_elapse')">投入时间</a></li>
                                     <li><a href ng-click="shiftOrderby('devote')">贡献次数</a></li>
@@ -97,9 +97,12 @@
                             </div>
                             <div class='user list-group-item' ng-repeat='u in kanban.users'>
                                 <div class='who' ng-click="viewDetail(u)">
-                                    <div>{{u.nickname}}</div>
+                                    <div><span>{{u.nickname}}</span><span ng-if="user.uid===u.userid">（我）</span></div>
                                     <div ng-if='app.entryRule.group.id'>
-                                        <div>{{u.group.title}}</div>
+                                        <div class='text-muted small'>{{u.group.title}}</div>
+                                    </div>
+                                    <div ng-if="user.uid===u.userid">
+                                        <button class='btn btn-default btn-sm' ng-click="toggleProfilePublic($event,u)">设置为<span ng-if="!u.custom.profile.public">公开</span><span ng-if="u.custom.profile.public">隐身</span></button>
                                     </div>
                                 </div>
                                 <div class='data'>
@@ -112,7 +115,7 @@
                                             <div><span ng-if="kanban.stat.score.mean">{{u.score.val/kanban.stat.score.mean|number:2}}</span></div>
                                         </div>
                                     </div>
-                                    <div ng-class="{'ordered':criteria.orderby==='user_total_coin'}">
+                                    <div ng-if="app.scenarioConfig.can_coin==='Y'" ng-class="{'ordered':criteria.orderby==='user_total_coin'}">
                                         <div>积分</div>
                                         <div>
                                             <div><span class='pos'>{{u.user_total_coin.pos}}</span></div>
@@ -167,7 +170,7 @@
                                     <td>{{$index+1}}</td>
                                     <td>{{u.nickname}}</td>
                                     <td ng-if='app.entryRule.group.id'>
-                                        <div ng-if='u.group'>{{u.group.l}}</div>
+                                        <div ng-if='u.group'>{{u.group.title}}</div>
                                     </td>
                                 </tr>
                             </tbody>
@@ -196,7 +199,7 @@
                 <div>得分</div>
                 <div><span>{{user.score.val}}</span></div>
             </div>
-            <div>
+            <div ng-if="app.scenarioConfig.can_coin==='Y'">
                 <div>积分</div>
                 <div><span>{{user.user_total_coin.val}}</span></div>
             </div>

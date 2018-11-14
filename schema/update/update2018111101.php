@@ -1,12 +1,9 @@
 <?php
 require_once '../../db.php';
 
-$sqls = array();
+$sqls = [];
 //
-$sqls[] = "ALTER TABLE xxt_site drop shift2pc_page_id";
-$sqls[] = "ALTER TABLE xxt_site drop shift2pc_page_name";
-$sqls[] = "ALTER TABLE xxt_site drop asparent";
-$sqls[] = "ALTER TABLE xxt_site drop site_id";
+$sqls[] = "DROP TABLE xxt_mission_report";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

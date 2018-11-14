@@ -15,7 +15,6 @@ define(['frame/RouteParam', 'frame/templates', 'missionService', 'enrollService'
             .when('/rest/pl/fe/matter/mission/doc', new RouteParam('doc'))
             .when('/rest/pl/fe/matter/mission/mschema', new RouteParam('mschema'))
             .when('/rest/pl/fe/matter/mission/enrollee', new RouteParam('enrollee'))
-            .when('/rest/pl/fe/matter/mission/report', new RouteParam('report'))
             .when('/rest/pl/fe/matter/mission/overview', new RouteParam('overview'))
             .when('/rest/pl/fe/matter/mission/coin', new RouteParam('coin'))
             .when('/rest/pl/fe/matter/mission/notice', new RouteParam('notice'))

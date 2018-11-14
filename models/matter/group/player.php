@@ -624,10 +624,10 @@ class player_model extends \TMS_MODEL {
 			'xxt_group_player',
 			"aid='$appId' and state=1",
 		];
-		if (!empty($rid)) {
-			$q[2] .= " and round_id='$rid'";
-		} else {
+		if (empty($rid)) {
 			$q[2] .= " and round_id<>''";
+		} else {
+			$q[2] .= " and round_id='$rid'";
 		}
 		$q2 = ['o' => 'round_id,draw_at'];
 

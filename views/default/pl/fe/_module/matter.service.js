@@ -1372,6 +1372,9 @@ factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite
                 }
                 delete _oRule.member[mschemaId];
             }
+            if (_oRule.optional) {
+                delete _oRule.optional.member;
+            }
             return true;
         };
         this.chooseGroupApp = function() {
@@ -1436,7 +1439,9 @@ factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite
         this.changeUserScope = function(userScope) {
             switch (userScope) {
                 case 'member':
-                    if (_oRule.scope.member !== 'Y') {
+                    if (_oRule.scope.member === 'Y') {
+                        this.chooseMschema();
+                    } else {
                         if (false === this.removeMschema()) {
                             _oRule.scope.member = 'Y';
                         }
@@ -1455,14 +1460,18 @@ factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite
                     }
                     break;
                 case 'group':
-                    if (_oRule.scope.group !== 'Y') {
+                    if (_oRule.scope.group === 'Y') {
+                        this.chooseGroupApp();
+                    } else {
                         if (false === this.removeGroupApp()) {
                             _oRule.scope.group = 'Y';
                         }
                     }
                     break;
                 case 'enroll':
-                    if (_oRule.scope.enroll !== 'Y') {
+                    if (_oRule.scope.enroll === 'Y') {
+                        this.chooseEnrollApp();
+                    } else {
                         if (false === this.removeEnrollApp()) {
                             _oRule.scope.enroll = 'Y';
                         }

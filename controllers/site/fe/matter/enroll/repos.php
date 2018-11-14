@@ -963,4 +963,124 @@ class repos extends base {
 
 		return new \ResponseData($oRecord);
 	}
+	/**
+	 * 获取活动筛选条件
+	 */
+	public function getFilter_action($app) {
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oUser = $this->getUser($oApp);
+
+		if (!empty($oApp->filterRule)) {
+			$filterRule = $oApp->filterRule;
+		} else {
+			$filterRule = $this->_getDefaultFilter();
+		}
+
+		return new \ResponseData($filterRule);
+	}
+	/**
+	 * 组装默认过滤器
+	 */
+	private function _getDefaultFilter($oApp, $oUser) {
+		// 排序
+		$orderby = $this->_getFilterCriteria('orderby');
+		$orderby->default = new \stdClass;
+		$orderby->default->id = !empty($oApp->reposConfig->defaultOrder) ? $oApp->reposConfig->defaultOrder : 'lastest_first';
+		$orderby->default->name = $this->_getCriteriaName('orderby', $orderby->default->id);
+		//协作
+		$coworkAgreed = $this->_getFilterCriteria('coworkAgreed');
+		$coworkAgreed->default = new \stdClass;
+		$coworkAgreed->default->id = 'all';
+		$coworkAgreed->default->name = $this->_getCriteriaName('coworkAgreed', $coworkAgreed->default->id);
+
+		$out = new \stdClass;
+		$out->id = 'out';
+		$out->criterias = [];
+		$out->criterias['orderby'] = $orderby;
+		$out->criterias['coworkAgreed'] = $coworkAgreed;
+
+		$filterRule = new \stdClass;
+		$filterRule->out = $out;
+
+		return $filterRule;
+	}
+	/**
+	 * 获取筛选条件的名称
+	 */
+	private function _getCriteriaName($type, $criteriaId) {
+		$criterias = (object) $this->_getFilterCriteria($type)->criterias;
+		$name = !empty($criterias->{$criteriaId}) ? $criterias->{$criteriaId}->name : '';
+
+		return $name;
+	}
+	/**
+	 * 获得所有条件
+	 */
+	private function _getFilterCriteria($type) {
+		if ($type === 'all') {
+			$filterCriterias = [];
+		}
+
+		if ($type === 'orderby' || $type === 'all') {
+			$orderby = new \stdClass;
+			$orderby->id = 'orderby';
+			$orderby->type = 'paixu';
+			$orderby->name = '排序';
+			$orderby->criterias = [];
+
+			$lastest_first = new \stdClass;
+			$lastest_first->id = 'lastest_first';
+			$lastest_first->name = '最近提交';
+			$orderby->criterias['lastest_first'] = $lastest_first;
+			$earliest_first = new \stdClass;
+			$earliest_first->id = 'earliest_first';
+			$earliest_first->name = '最早提交';
+			$orderby->criterias['earliest_first'] = $earliest_first;
+			$mostliked = new \stdClass;
+			$mostliked->id = 'mostliked';
+			$mostliked->name = '最多赞同';
+			$orderby->criterias['mostliked'] = $mostliked;
+			$agreed = new \stdClass;
+			$agreed->id = 'agreed';
+			$agreed->name = '精选推荐';
+			$orderby->criterias['agreed'] = $agreed;
+
+			if ($type === 'all')
+				$filterCriterias['orderby'] = $orderby;
+			else
+				return $orderby;
+		}
+		if ($type === 'coworkAgreed' || $type === 'all') {
+			$coworkAgreed = new \stdClass;
+			$coworkAgreed->id = 'coworkAgreed';
+			$coworkAgreed->type = 'paixu';
+			$coworkAgreed->name = '问题答案状态';
+			$coworkAgreed->criterias = [];
+
+			$all = new \stdClass;
+			$all->id = 'all';
+			$all->name = '全部';
+			$coworkAgreed->criterias['all'] = $all;
+			$answer = new \stdClass;
+			$answer->id = 'answer';
+			$answer->name = '已回答';
+			$coworkAgreed->criterias['answer'] = $answer;
+			$unanswer = new \stdClass;
+			$unanswer->id = 'unanswer';
+			$unanswer->name = '未回答';
+			$coworkAgreed->criterias['unanswer'] = $unanswer;
+
+			if ($type === 'all')
+				$filterCriterias['coworkAgreed'] = $coworkAgreed;
+			else
+				return $coworkAgreed;
+		}
+
+		return $filterCriterias;
+	}
 }

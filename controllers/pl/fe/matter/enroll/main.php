@@ -3,11 +3,11 @@ namespace pl\fe\matter\enroll;
 
 require_once dirname(__FILE__) . '/main_base.php';
 /**
- * 登记活动主控制器
+ * 记录活动主控制器
  */
 class main extends main_base {
 	/**
-	 * 返回指定的登记活动
+	 * 返回指定的记录活动
 	 */
 	public function get_action($app) {
 		if (false === $this->accountUser()) {
@@ -27,52 +27,63 @@ class main extends main_base {
 		if ($oApp->mission_id) {
 			$oApp->mission = $this->model('matter\mission')->byId($oApp->mission_id);
 		}
-		/* 关联登记活动 */
-		if (isset($oApp->entryRule->enroll->id)) {
-			$oApp->enrollApp = $modelEnl->byId($oApp->entryRule->enroll->id, ['cascaded' => 'N']);
-		}
-		/* 指定分组活动用户进入 */
-		if (isset($oApp->entryRule->group->id)) {
-			$oRuleApp = $oApp->entryRule->group;
-			$modelGrpRnd = $this->model('matter\group\round');
-			$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
-			if ($oGroupApp) {
-				$oRuleApp->title = $oGroupApp->title;
-				if (!empty($oRuleApp->round->id)) {
-					$oGroupRnd = $modelGrpRnd->byId($oRuleApp->round->id, ['fields' => 'title']);
-					if ($oGroupRnd) {
-						$oRuleApp->round->title = $oGroupRnd->title;
+		/* 关联记录活动 */
+		if (isset($oApp->entryRule) && $oEntryRule = $oApp->entryRule) {
+			if (isset($oEntryRule->member) && is_object($oEntryRule->member)) {
+				$modelMs = $this->model('site\user\memberschema');
+				foreach ($oEntryRule->member as $msid => $oRule) {
+					$oMschema = $modelMs->byId($msid, ['fields' => 'title', 'cascaded' => 'N']);
+					if ($oMschema) {
+						$oRule->title = $oMschema->title;
 					}
 				}
-				/* 获得当前活动的分组 */
-				$groups = $modelGrpRnd->byApp($oGroupApp->id, ['fields' => 'round_id,round_type,title', 'round_type' => '']);
-				$oGroupDS = new \stdClass;
-				$oGroupDS->id = '_round_id';
-				$oGroupDS->type = 'single';
-				$oGroupDS->title = '分组名称';
-				$ops = [];
-				/* 获得的分组信息 */
-				foreach ($groups as $oGroup) {
-					if ($oGroup->round_type === 'T') {
-						$ops[] = (object) [
-							'v' => $oGroup->round_id,
-							'l' => $oGroup->title,
-						];
+			}
+			if (isset($oEntryRule->enroll->id)) {
+				$oApp->enrollApp = $modelEnl->byId($oEntryRule->enroll->id, ['cascaded' => 'N']);
+			}
+			/* 指定分组活动用户进入 */
+			if (isset($oEntryRule->group->id)) {
+				$oRuleApp = $oEntryRule->group;
+				$modelGrpRnd = $this->model('matter\group\round');
+				$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+				if ($oGroupApp) {
+					$oRuleApp->title = $oGroupApp->title;
+					if (!empty($oRuleApp->round->id)) {
+						$oGroupRnd = $modelGrpRnd->byId($oRuleApp->round->id, ['fields' => 'title']);
+						if ($oGroupRnd) {
+							$oRuleApp->round->title = $oGroupRnd->title;
+						}
 					}
+					/* 获得当前活动的分组 */
+					$groups = $modelGrpRnd->byApp($oGroupApp->id, ['fields' => 'round_id,round_type,title', 'round_type' => '']);
+					$oGroupDS = new \stdClass;
+					$oGroupDS->id = '_round_id';
+					$oGroupDS->type = 'single';
+					$oGroupDS->title = '分组名称';
+					$ops = [];
+					/* 获得的分组信息 */
+					foreach ($groups as $oGroup) {
+						if ($oGroup->round_type === 'T') {
+							$ops[] = (object) [
+								'v' => $oGroup->round_id,
+								'l' => $oGroup->title,
+							];
+						}
+					}
+					$oGroupDS->ops = $ops;
+
+					$oGroupApp->dataSchemas = array_merge([$oGroupDS], $oGroupApp->dataSchemas);
+
+					$oApp->groupApp = $oGroupApp;
+					$oApp->groups = $groups;
 				}
-				$oGroupDS->ops = $ops;
-
-				$oGroupApp->dataSchemas = array_merge([$oGroupDS], $oGroupApp->dataSchemas);
-
-				$oApp->groupApp = $oGroupApp;
-				$oApp->groups = $groups;
 			}
 		}
 
 		return new \ResponseData($oApp);
 	}
 	/**
-	 * 返回登记活动列表
+	 * 返回记录活动列表
 	 *
 	 * @param string $onlySns 是否仅查询进入规则为仅限关注用户访问的活动列表
 	 */
@@ -145,7 +156,7 @@ class main extends main_base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 创建登记活动
+	 * 创建记录活动
 	 *
 	 * @param string $site site's id
 	 * @param string $mission mission's id
@@ -180,12 +191,12 @@ class main extends main_base {
 	}
 	/**
 	 *
-	 * 复制指定的登记活动
+	 * 复制指定的记录活动
 	 *
 	 * 跨项目进行复制：
 	 * 1、关联了项目的通讯录，取消关联，修改相关题目的id和type
 	 * 2、关联了分组活动，取消和分组活动的关联，修改分组题目，修改相关题目的id和type
-	 * 3、关联了登记活动，取消和登记活动的关联，修改分组题目，修改相关题目的id和type
+	 * 3、关联了记录活动，取消和记录活动的关联，修改分组题目，修改相关题目的id和type
 	 *
 	 * @param string $site 是否要支持跨团队进行活动的复制？
 	 * @param string $app
@@ -240,7 +251,7 @@ class main extends main_base {
 		 */
 		if ($oCopied->mission_id !== $mission) {
 			/**
-			 * 只有同项目内的分组活动和登记活动可以作为参与规则
+			 * 只有同项目内的分组活动和记录活动可以作为参与规则
 			 */
 			$aAssocApps = [];
 			if (isset($oNewEntryRule->scope->group) && $oNewEntryRule->scope->group === 'Y') {
@@ -258,7 +269,7 @@ class main extends main_base {
 				unset($oNewEntryRule->enroll);
 			}
 			/**
-			 * 如果关联了分组或登记活动，需要去掉题目的关联信息
+			 * 如果关联了分组或记录活动，需要去掉题目的关联信息
 			 */
 			if (count($aAssocApps)) {
 				/* 页面的题目 */
@@ -323,7 +334,7 @@ class main extends main_base {
 				$modelCode->modify($oNewPage->code_id, $data);
 			}
 		}
-		/* 复制登记活动数据 */
+		/* 复制记录活动数据 */
 		if ($cpRecord === 'Y') {
 			$oNewApp = $modelApp->byId($oNewApp->id);
 			$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
@@ -430,14 +441,6 @@ class main extends main_base {
 				$oApp->dataSchemas = $dataSchemas;
 				break;
 			case 'entryRule':
-				if ($val->scope === 'group') {
-					if (isset($val->group->title)) {
-						unset($val->group->title);
-					}
-					if (isset($val->group->round->title)) {
-						unset($val->group->round->title);
-					}
-				}
 				$oUpdated->entry_rule = $modelApp->escape($modelApp->toJson($val));
 				break;
 			case 'recycle_schemas':
@@ -507,7 +510,7 @@ class main extends main_base {
 		return new \ResponseData($oApp);
 	}
 	/**
-	 * 从共享模板模板创建登记活动
+	 * 从共享模板模板创建记录活动
 	 *
 	 * @param string $site
 	 * @param int $template
@@ -609,7 +612,7 @@ class main extends main_base {
 		return new \ResponseData($oNewApp);
 	}
 	/**
-	 * 根据活动定义文件创建登记活动
+	 * 根据活动定义文件创建记录活动
 	 *
 	 * @param string $site site's id
 	 * @param string $mission mission's id
@@ -686,7 +689,7 @@ class main extends main_base {
 		/* create app */
 		$oNewApp->id = $appId;
 		$oNewApp->siteid = $oSite->id;
-		$oNewApp->title = empty($oCustomConfig->proto->title) ? '新登记活动' : $oCustomConfig->proto->title;
+		$oNewApp->title = empty($oCustomConfig->proto->title) ? '新记录活动' : $oCustomConfig->proto->title;
 		$oNewApp->start_at = $current;
 		$oNewApp->entry_rule = json_encode($entryRule);
 		isset($config) && $oNewApp->data_schemas = \TMS_MODEL::toJson($config->schema);
@@ -848,7 +851,7 @@ class main extends main_base {
 		exit;
 	}
 	/**
-	 * 通过导入的Excel数据记录创建登记活动
+	 * 通过导入的Excel数据记录创建记录活动
 	 * 目前就是填空题
 	 */
 	public function createByExcel_action($site) {
@@ -1168,7 +1171,7 @@ class main extends main_base {
 		return $entryRule;
 	}
 	/**
-	 * 获得系统内置登记活动模板
+	 * 获得系统内置记录活动模板
 	 * 如果没有指定场景或模板，那么就使用系统的缺省模板
 	 *
 	 * @param string $scenario scenario's name

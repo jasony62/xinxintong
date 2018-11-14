@@ -160,7 +160,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
     /**
      * app
      */
-    ngModule.service('tkEnrollApp', ['$q', 'http2', function($q, http2) {
+    ngModule.service('tkEnrollApp', ['$q', '$uibModal', 'http2', function($q, $uibModal, http2) {
         function _fnMakeApiUrl(oApp, action) {
             var url;
             url = '/rest/pl/fe/matter/enroll/' + action + '?site=' + oApp.siteid + '&app=' + oApp.id;

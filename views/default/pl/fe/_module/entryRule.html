@@ -1,40 +1,40 @@
 <div class="checkbox">
     <label>
-        <input type="checkbox" ng-true-value="'Y'" ng-model="rule.scope.register" ng-change="changeUserScope('register')">用户参与活动前需完成平台注册</label>
+        <input type="checkbox" ng-true-value="'Y'" ng-model="rule.scope.register" ng-change="tkEntryRule.changeUserScope('register')">用户参与活动前需完成平台注册</label>
 </div>
 <div class='checkbox'>
     <label>
-        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.member" ng-change="changeUserScope('member')">用户参与活动前需填写通讯录联系人信息</label><span ng-if="rule.scope.member==='Y'"><span class='badge' ng-repeat="(msid,entry) in rule.member"><a href title='进入查看' ng-click="editMschema(mschemasById[msid])">{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</a> <a href title='取消指定' class='glyphicon glyphicon-remove' ng-click="tkEntryRule.removeMschema(msid)"></a></span> <a href ng-click="tkEntryRule.chooseMschema()">添加</a></span>
+        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.member" ng-change="tkEntryRule.changeUserScope('member')">用户参与活动前需填写通讯录联系人信息</label><span ng-if="rule.scope.member==='Y'"><span class='badge' ng-repeat="(msid,rule) in rule.member"><a href='/rest/pl/fe/site/mschema?mschema={{msid}}' target='_blank' title='进入查看'>{{rule.title||'通讯录不存在'}}</a> <a href title='取消指定' class='glyphicon glyphicon-remove' ng-click="tkEntryRule.removeMschema(msid)"></a></span> <a href ng-click="tkEntryRule.chooseMschema()">添加</a></span>
     <div style='margin-left:20px'>
         <label class='checkbox-inline'>
-            <input type='checkbox' ng-true-value="'Y'" ng-model="rule.optional.member" ng-change="changeUserScope('member')">不强制要求用户在通讯录中</label>
+            <input type='checkbox' ng-true-value="'Y'" ng-model="rule.optional.member" ng-change="tkEntryRule.changeUserScope('member')">不强制要求用户在通讯录中</label>
     </div>
 </div>
-<div class='checkbox' ng-if="snsCount===1">
+<div class='checkbox' ng-if="tkEntryRule.sns.count===1">
     <label>
-        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.sns" ng-change="changeUserScope('sns')">邀请用户关注公众号【{{sns[snsNames[0]].title}}】，以便获取用户的昵称和头像，向用户发送活动通知</label>
+        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.sns" ng-change="tkEntryRule.changeUserScope('sns')">邀请用户关注公众号【{{tkEntryRule.sns[tkEntryRule.sns.names[0]].title}}】，以便获取用户的昵称和头像，向用户发送活动通知</label>
 </div>
-<div class='checkbox' ng-if="snsCount>1">
+<div class='checkbox' ng-if="tkEntryRule.sns.count>1">
     <label>
-        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.sns" ng-change="changeUserScope('sns')">邀请用户关注公众号，以便获取用户的昵称和头像，向用户发送活动通知</label>
+        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.sns" ng-change="tkEntryRule.changeUserScope('sns')">邀请用户关注公众号，以便获取用户的昵称和头像，向用户发送活动通知</label>
     <div ng-if="rule.scope.sns==='Y'" style='margin-left:20px'>
-        <label class='checkbox-inline' ng-repeat="snsName in snsNames">
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-model="rule.sns[snsName].entry" ng-change="update('entryRule')"> {{sns[snsName].title}}</label>
+        <label class='checkbox-inline' ng-repeat="snsName in tkEntryRule.sns.names">
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-model="rule.sns[snsName].entry"> {{tkEntryRule.sns[snsName].title}}</label>
     </div>
 </div>
 <div class='checkbox'>
     <label>
-        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.group" ng-change="changeUserScope('group')">用户参与活动前需要在分组活动</label><span class='badge' ng-if="rule.scope.group==='Y'"><a href='/rest/pl/fe/matter/group?site={{app.siteid}}&id={{rule.group.id}}' target='_self'>{{rule.group.title}} - {{rule.group.round.title}}</a></span>中分组 <a ng-if="rule.scope.group==='Y'" href ng-click="tkEntryRule.chooseGroupApp()">指定</a>
+        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.group" ng-change="tkEntryRule.changeUserScope('group')">用户参与活动前需要在分组活动</label><span class='badge' ng-if="rule.scope.group==='Y'"><a href='/rest/pl/fe/matter/group?site={{tkEntryRule.app.siteid}}&id={{rule.group.id}}' target='_blank'><span>{{rule.group.title}}</span><span ng-if="rule.group.round.title"> - {{rule.group.round.title}}</span></a></span>中分组 <a ng-if="rule.scope.group==='Y'" href ng-click="tkEntryRule.chooseGroupApp()">指定</a>
     <div style='margin-left:20px'>
         <label class='checkbox-inline'>
-            <input type='checkbox' ng-true-value="'Y'" ng-model="rule.optional.group" ng-change="changeUserScope('group')">不强制要求用户在分组活动中</label>
+            <input type='checkbox' ng-true-value="'Y'" ng-model="rule.optional.group" ng-change="tkEntryRule.changeUserScope('group')">不强制要求用户在分组活动中</label>
     </div>
 </div>
 <div class='checkbox'>
     <label>
-        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.enroll" ng-change="changeUserScope('enroll')">用户参与活动前需要在登记活动</label><span class='badge' ng-if="rule.scope.enroll==='Y'"><a href='/rest/pl/fe/matter/enroll?site={{app.siteid}}&id={{rule.enroll.id}}' target='_self'>{{rule.enroll.title}}</a></span>中有填写记录 <a ng-if="rule.scope.enroll==='Y'" href ng-click="chooseEnrollApp()">指定</a>
+        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.enroll" ng-change="tkEntryRule.changeUserScope('enroll')">用户参与活动前需要在登记活动</label><span class='badge' ng-if="rule.scope.enroll==='Y'"><a href='/rest/pl/fe/matter/enroll?site={{tkEntryRule.app.siteid}}&id={{rule.enroll.id}}' target='_blank'>{{rule.enroll.title}}</a></span>中有填写记录 <a ng-if="rule.scope.enroll==='Y'" href ng-click="tkEntryRule.chooseEnrollApp()">指定</a>
     <div style='margin-left:20px'>
         <label class='checkbox-inline'>
-            <input type='checkbox' ng-true-value="'Y'" ng-model="rule.optional.enroll" ng-change="changeUserScope('enroll')">不强制要求用户在登记活动中</label>
+            <input type='checkbox' ng-true-value="'Y'" ng-model="rule.optional.enroll" ng-change="tkEntryRule.changeUserScope('enroll')">不强制要求用户在登记活动中</label>
     </div>
 </div>

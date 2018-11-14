@@ -128,10 +128,11 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', '
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
         });
+        $scope.sns = {};
         srvSite.snsList().then(function(oSns) {
-            $scope.sns = oSns;
-            $scope.snsNames = Object.keys(oSns);
-            $scope.snsCount = Object.keys(oSns).length;
+            oSns.names = Object.keys(oSns);
+            oSns.count = oSns.names.length;
+            angular.extend($scope.sns, oSns);
             srvEnrollApp.get().then(function(oApp) {
                 if (oApp.matter_mg_tag !== '') {
                     oApp.matter_mg_tag.forEach(function(cTag, index) {
@@ -142,7 +143,6 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', '
                         });
                     });
                 }
-                $scope.app = oApp;
                 srvSite.memberSchemaList(oApp).then(function(aMemberSchemas) {
                     $scope.memberSchemas = aMemberSchemas;
                     $scope.mschemasById = {};
@@ -150,6 +150,7 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', '
                         $scope.mschemasById[mschema.id] = mschema;
                     });
                 });
+                $scope.app = oApp;
             });
         });
     }]);

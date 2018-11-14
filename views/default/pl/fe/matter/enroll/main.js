@@ -89,11 +89,11 @@ define(['frame'], function(ngApp) {
         $scope.configExclude = function() {
             $scope.update('entryRule');
         };
-        srvEnlApp.get().then(function(app) {
+        srvEnlApp.get().then(function(oApp) {
             $scope.jumpPages = srvEnlApp.jumpPages();
-            _oApp = app;
-            $scope.tkEntryRule = new tkEntryRule(app);
-            $scope.rule = _oAppRule = app.entryRule;
+            _oApp = oApp;
+            $scope.tkEntryRule = new tkEntryRule(oApp, $scope.sns);
+            $scope.rule = _oAppRule = oApp.entryRule;
             $scope.$watch('app.entryRule', function(nv, ov) {
                 if (nv && nv !== ov) {
                     $scope.update('entryRule');

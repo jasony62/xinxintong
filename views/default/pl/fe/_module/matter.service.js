@@ -1315,15 +1315,16 @@ service('srvTimerNotice', ['$rootScope', '$parse', '$q', '$timeout', 'http2', 't
  * 素材进入规则
  */
 factory('tkEntryRule', ['noticebox', 'srvSite', 'tkEnrollApp', 'tkGroupApp', function(noticebox, srvSite, tkEnrollApp, tkGroupApp) {
-    function setMschemaEntry(oApp, mschemaId) {
+    function setMschemaEntry(oApp, oMschema) {
         var er;
         er = oApp.entryRule;
         if (!er.member) {
             er.member = {};
         }
-        if (!er.member[mschemaId]) {
-            er.member[mschemaId] = {
-                entry: 'Y'
+        if (!er.member[oMschema.id]) {
+            er.member[oMschema.id] = {
+                entry: 'Y',
+                title: oMschema.title
             };
             return true;
         }
@@ -1343,15 +1344,21 @@ factory('tkEntryRule', ['noticebox', 'srvSite', 'tkEnrollApp', 'tkGroupApp', fun
         return false;
     }
 
-    function Tk(oApp) {
+    function Tk(oApp, oSns) {
+        this.app = oApp;
+        this.sns = oSns;
         this.chooseMschema = function() {
             srvSite.chooseMschema(oApp).then(function(oResult) {
-                setMschemaEntry(oApp, oResult.chosen.id);
+                setMschemaEntry(oApp, oResult.chosen);
             });
         };
         this.removeMschema = function(mschemaId) {
-            var bSchemaChanged = false;
-            if (oApp.entryRule.member[mschemaId]) {
+            if (!mschemaId) {
+                if (Object.keys(oApp.entryRule.member).length) {
+                    mschemaId = Object.keys(oApp.entryRule.member)[0];
+                }
+            }
+            if (mschemaId && oApp.entryRule.member[mschemaId]) {
                 /* 取消题目和通信录的关联 */
                 var aAssocSchemas = [];
                 oApp.dataSchemas.forEach(function(oSchema) {
@@ -1360,54 +1367,97 @@ factory('tkEntryRule', ['noticebox', 'srvSite', 'tkEnrollApp', 'tkGroupApp', fun
                     }
                 });
                 if (aAssocSchemas.length) {
-                    noticebox.warn('已经有题目<b style="color:red">' + aAssocSchemas.join('，') + '</b>和通讯录关联，请解除关联后再删除通讯录');
-                    return;
+                    noticebox.warn('已经有题目<b style="color:red">' + aAssocSchemas.join('，') + '</b>和通讯录关联，请解除关联后再删除进入规则');
+                    return false;
                 }
                 delete oApp.entryRule.member[mschemaId];
             }
+            return true;
         };
         this.chooseGroupApp = function() {
             tkGroupApp.choose(oApp).then(function(oResult) {
                 setGroupEntry(oApp, oResult);
             });
         };
+        this.removeGroupApp = function() {
+            if (oApp.entryRule.group.id) {
+                /* 取消题目和通信录的关联 */
+                var aAssocSchemas = [];
+                oApp.dataSchemas.forEach(function(oSchema) {
+                    if (oSchema.fromApp && oSchema.fromApp === oApp.entryRule.group.id) {
+                        aAssocSchemas.push(oSchema.title);
+                    }
+                });
+                if (aAssocSchemas.length) {
+                    noticebox.warn('已经有题目<b style="color:red">' + aAssocSchemas.join('，') + '</b>和分组活动关联，请解除关联后再删除进入规则');
+                    return false;
+                }
+                delete oApp.entryRule.group;
+                if (oApp.entryRule.optional) {
+                    delete oApp.entryRule.optional.group;
+                }
+            }
+            return true;
+        };
         this.chooseEnrollApp = function() {
             tkEnrollApp.choose(oApp).then(function(oResult) {
                 oApp.entryRule.enroll = { id: oResult.app.id, title: oResult.app.title };
             });
         };
+        this.removeEnrollApp = function() {
+            if (oApp.entryRule.enroll.id) {
+                /* 取消题目和通信录的关联 */
+                var aAssocSchemas = [];
+                oApp.dataSchemas.forEach(function(oSchema) {
+                    if (oSchema.fromApp && oSchema.fromApp === oApp.entryRule.enroll.id) {
+                        aAssocSchemas.push(oSchema.title);
+                    }
+                });
+                if (aAssocSchemas.length) {
+                    noticebox.warn('已经有题目<b style="color:red">' + aAssocSchemas.join('，') + '</b>和记录活动关联，请解除关联后再删除进入规则');
+                    return false;
+                }
+                delete oApp.entryRule.enroll;
+                if (oApp.entryRule.optional) {
+                    delete oApp.entryRule.optional.enroll;
+                }
+            }
+            return true;
+        };
         this.changeUserScope = function(scopeProp) {
             var er;
             er = oApp.entryRule;
             switch (scopeProp) {
-                case 'mschema':
-                    // if (er.scope[scopeProp] !== 'N') {
-                    //     this.removeMschema();
-                    // }
+                case 'member':
+                    if (er.scope[scopeProp] !== 'Y') {
+                        if (false === this.removeMschema()) {
+                            er.scope.member = 'Y';
+                        }
+                    }
                     break;
                 case 'sns':
                     if (er.scope[scopeProp] === 'Y') {
                         if (!er.sns) {
                             er.sns = {};
                         }
-                        if ($scope.snsCount === 1) {
-                            er.sns[Object.keys($scope.sns)[0]] = { 'entry': 'Y' };
+                        if (_oSns.count === 1) {
+                            er.sns[_oSns.names[0]] = { 'entry': 'Y' };
                         }
+                    } else {
+                        delete er.sns;
                     }
                     break;
                 case 'group':
                     if (er.scope.group !== 'Y') {
-                        delete er.group;
-                        if (er.optional) {
-                            delete er.optional.group;
+                        if (false === this.removeGroupApp()) {
+                            er.scope.group = 'Y';
                         }
                     }
                     break;
                 case 'enroll':
                     if (er.scope.enroll !== 'Y') {
-                        delete er.enroll;
-                        if (er.optional) {
-                            delete er.optional.enroll;
+                        if (false === this.removeEnrollApp()) {
+                            er.scope.enroll = 'Y';
                         }
                     }
                     break;

@@ -441,7 +441,11 @@ class main extends main_base {
 				$oApp->dataSchemas = $dataSchemas;
 				break;
 			case 'entryRule':
-				$oUpdated->entry_rule = $modelApp->escape($modelApp->toJson($val));
+				$aScanResult = $modelApp->scanEntryRule($val);
+				if (false === $aScanResult[0]) {
+					return new \ResponseError($aScanResult[1]);
+				}
+				$oUpdated->entry_rule = $modelApp->escape($modelApp->toJson($aUpdResult[1]));
 				break;
 			case 'recycle_schemas':
 				$oUpdated->recycle_schemas = $modelApp->escape($modelApp->toJson($val));

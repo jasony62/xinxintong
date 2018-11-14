@@ -94,11 +94,11 @@ define(['frame'], function(ngApp) {
             _oApp = oApp;
             $scope.tkEntryRule = new tkEntryRule(oApp, $scope.sns);
             $scope.rule = _oAppRule = oApp.entryRule;
-            $scope.$watch('app.entryRule', function(nv, ov) {
-                if (nv && nv !== ov) {
-                    $scope.update('entryRule');
-                }
-            }, true);
+            // $scope.$watch('app.entryRule', function(nv, ov) {
+            //     if (nv && nv !== ov) {
+            //         $scope.update('entryRule');
+            //     }
+            // }, true);
         });
     }]);
 });

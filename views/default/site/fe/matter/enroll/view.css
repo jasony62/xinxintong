@@ -9,7 +9,7 @@ div[wrap=matter]>span{cursor:pointer;text-decoration:underline;}
 div[wrap] .supplement{font-style:italic;margin-top:1em;}
 div[wrap] .schema-score,div[wrap] .schema-baseline{font-size:.8em;color:red;}
 div[wrap] .schema-score:before{content:'得分:';}
-div[wrap] .schema-baseline:before{content:'基线:';}
+div[wrap] .schema-baseline:before{content:'目标:';}
 
 /*list*/
 li .wrap-inline>label{padding:7px 0;color:#444;}

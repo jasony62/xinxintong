@@ -243,7 +243,7 @@ class round_model extends \TMS_MODEL {
 		return $oAppRound;
 	}
 	/**
-	 * 获得指定活动中的基线轮次
+	 * 获得指定活动中的目标轮次
 	 */
 	public function getBaseline($oApp, $aOptions = []) {
 		if (!empty($aOptions['assignedRid'])) {

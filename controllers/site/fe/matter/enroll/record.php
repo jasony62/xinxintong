@@ -687,8 +687,8 @@ class record extends base {
 		return new \ResponseData($oRecord);
 	}
 	/**
-	 * 获得基线记录
-	 * 基线轮次中的记录
+	 * 获得目标值的记录
+	 * 目标轮次中的记录
 	 *
 	 * @param string $app app'id
 	 * @param string $rid 指定的轮次
@@ -715,7 +715,7 @@ class record extends base {
 		if (false === $oBaselineRec) {
 			return new \ResponseData(false);
 		}
-		/* 只有数值题可以作为基准 */
+		/* 只有数值题可以有目标值 */
 		$oNumberRecData = new \stdClass;
 		foreach ($oApp->dynaDataSchemas as $oSchema) {
 			if ($oSchema->type === 'shorttext' && $modelRec->getDeepValue($oSchema, 'format') === 'number') {

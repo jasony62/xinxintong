@@ -243,7 +243,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
                 }
             }
         } else {
-            /*清空基线*/
+            /*清空目标值*/
             var domBaselines, domBaseline;
             domBaselines = document.querySelectorAll('[wrap=value] .schema-baseline');
             for (var i = 0; i < domBaselines.length; i++) {
@@ -301,16 +301,16 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
                 }
             }
         });
-        /* 基准轮次记录 */
+        /* 目标轮次记录 */
         if (oRecord.round.purpose === 'C') {
             http2.get(LS.j('record/baseline', 'site', 'app') + '&rid=' + oRecord.round.rid).then(function(rsp) {
                 if (rsp.data) {
-                    /* 显示题目的基线 */
+                    /* 显示题目的目标值 */
                     fnShowSchemaBaseline(rsp.data);
                 }
             });
         } else {
-            /* 清除显示题目的基线 */
+            /* 清除显示题目的目标值 */
             fnShowSchemaBaseline(false);
         }
     }

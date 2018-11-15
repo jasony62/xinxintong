@@ -160,7 +160,7 @@ class record_model extends record_base {
 				$q[2]['rid'][] = $oRnd->rid;
 			}
 		}
-		/* 只有数值题可以作为基准 */
+		/* 只有数值题可以有目标值 */
 		foreach ($oApp->dynaDataSchemas as $oSchema) {
 			if ($oSchema->type === 'shorttext' && $this->getDeepValue($oSchema, 'format') === 'number') {
 				$q[2]['schema_id'] = $oSchema->id;
@@ -479,7 +479,7 @@ class record_model extends record_base {
 		return $records;
 	}
 	/**
-	 * 获得指定轮次的基线记录
+	 * 获得指定轮次的目标值记录
 	 */
 	public function baselineByRound($userid, $oRound) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : 'data,score,rid';

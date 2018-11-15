@@ -151,9 +151,9 @@ class round extends \pl\fe\matter\base {
 			return new \ResponseError('更新失败，本轮次的开始时间不能晚于结束时间！');
 		}
 		/* 指定了开始时间的轮次，自动指定为启用状态 */
-		if ((int) $oRound->start_at > 0 && (int) $oPosted->start_at === 0) {
+		if ((int) $oRound->start_at > 0 && (int) $this->getDeepValue($oPosted, 'start_at', 0) === 0) {
 			$oPosted->state = 0;
-		} else if ((int) $oRound->start_at === 0 && (int) $oPosted->start_at > 0) {
+		} else if ((int) $oRound->start_at === 0 && (int) $this->getDeepValue($oPosted, 'start_at', 0) > 0) {
 			$oPosted->state = 1;
 		}
 

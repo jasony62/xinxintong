@@ -40,7 +40,7 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
         options: {
             round: {
                 state: ['新建', '启用', '结束'],
-                purpose: { C: '常规', B: '基线', S: '汇总' }
+                purpose: { C: '填写', B: '目标', S: '汇总' }
             }
         },
         naming: {}

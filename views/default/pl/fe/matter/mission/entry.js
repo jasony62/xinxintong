@@ -18,59 +18,12 @@ define(['frame'], function(ngApp) {
             });
         });
     }]);
-    ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'srvSite', function($scope, $uibModal, srvSite) {
-        var _oEntryRule;
-        $scope.changeUserScope = function(scopeProp) {
-            switch (scopeProp) {
-                case 'sns':
-                    if (_oEntryRule.scope[scopeProp] === 'Y') {
-                        if (!_oEntryRule.sns) {
-                            _oEntryRule.sns = {};
-                        }
-                        if ($scope.snsCount === 1) {
-                            _oEntryRule.sns[Object.keys($scope.sns)[0]] = { 'entry': 'Y' };
-                        }
-                    }
-                    break;
-                default:
-            }
-            this.update('entryRule');
-        };
-        $scope.chooseMschema = function() {
-            srvSite.chooseMschema($scope.mission).then(function(oResult) {
-                var chosen;
-                if (oResult && oResult.chosen) {
-                    chosen = oResult.chosen;
-                    $scope.mschemasById[chosen.id] = chosen;
-                    _oEntryRule.member === undefined && (_oEntryRule.member = {});
-                    if (!_oEntryRule.member[chosen.id]) {
-                        _oEntryRule.member[chosen.id] = { entry: '' };
-                        $scope.update('entryRule');
-                    }
-                }
-            });
-        };
-        $scope.editMschema = function(oMschema) {
-            if (oMschema.matter_id === $scope.mission.id) {
-                location.href = '/rest/pl/fe/matter/mission/mschema?site=' + $scope.mission.siteid + '&id=' + $scope.mission.id + '#' + oMschema.id;
-            } else {
-                location.href = '/rest/pl/fe?view=main&scope=user&sid=' + $scope.mission.siteid + '&mschema=' + oMschema.id;
-            }
-        };
-        $scope.removeMschema = function(mschemaId) {
-            if (_oEntryRule.member[mschemaId]) {
-                delete _oEntryRule.member[mschemaId];
-                $scope.update('entryRule');
-            }
-        };
-        srvSite.snsList().then(function(oSns) {
-            $scope.sns = oSns;
-            $scope.snsNames = Object.keys(oSns);
-            $scope.snsCount = Object.keys(oSns).length;
-        });
+    ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'srvSite', 'tkEntryRule', function($scope, $uibModal, srvSite, tkEntryRule) {
         $scope.$watch('mission', function(oMission) {
             if (!oMission) return;
-            $scope.rule = _oEntryRule = oMission.entryRule;
+            srvSite.snsList().then(function(oSns) {
+                $scope.tkEntryRule = new tkEntryRule(oMission, oSns, false, ['group', 'enroll']);
+            });
             srvSite.memberSchemaList(oMission).then(function(aMemberSchemas) {
                 $scope.memberSchemas = aMemberSchemas;
                 $scope.mschemasById = {};

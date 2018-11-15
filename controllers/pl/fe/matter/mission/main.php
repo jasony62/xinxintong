@@ -1,11 +1,11 @@
 <?php
 namespace pl\fe\matter\mission;
 
-require_once dirname(dirname(__FILE__)) . '/base.php';
+require_once dirname(dirname(__FILE__)) . '/main_base.php';
 /*
  * 项目控制器
  */
-class main extends \pl\fe\matter\base {
+class main extends \pl\fe\matter\main_base {
 	/**
 	 * 返回视图
 	 */
@@ -37,6 +37,11 @@ class main extends \pl\fe\matter\base {
 		$oMission = $this->model('matter\mission')->byId($id, ['cascaded' => ($cascaded === 'Y' ? 'header_page_name,footer_page_name' : '')]);
 		if (false === $oMission) {
 			return new \ObjectNotFoundError();
+		}
+
+		/* 进入规则 */
+		if (isset($oMission->entryRule)) {
+			$this->fillEntryRule($oMission->entryRule);
 		}
 
 		if ($cascaded === 'Y') {
@@ -416,7 +421,7 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 恢复被删除的项目
 	 */
-	public function restore_action($site, $id) {
+	public function restore_action($id) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}

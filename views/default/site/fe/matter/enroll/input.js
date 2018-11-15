@@ -27,7 +27,7 @@ ngApp.factory('Input', ['$parse', 'tmsLocation', 'http2', function($parse, LS, h
                 oSchemaWrap = oPage.dataSchemas[i];
                 oSchema = oSchemaWrap.schema;
                 /* 隐藏题和协作题不做检查 */
-                if ((!oSchema.visibility || !oSchema.visibility.rules || oSchema.visibility.rules.length === 0 || oSchema.visibility.visible) && oSchema.cowork !== 'Y') {
+                if ((!oSchema.visibility || !oSchema.visibility.rules || oSchema.visibility.rules.length === 0 || oSchema.visibility.visible) && oSchema.cowork !== 'Y' && (oSchema._visible !== false)) {
                     if (oSchema.type && oSchema.type !== 'html') {
                         value = $parse(oSchema.id)(oRecData);
                         sCheckResult = ngApp.oUtilSchema.checkValue(oSchema, value);
@@ -407,6 +407,31 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         }
     }
     /**
+     * 控制轮次题目的可见性
+     */
+    function fnToggleRoundSchemas(dataSchemas, oRecordData) {
+        dataSchemas.forEach(function(oSchemaWrap) {
+            var oSchema, domSchema;
+            if (oSchema = oSchemaWrap.schema) {
+                domSchema = document.querySelector('[wrap=input][schema="' + oSchema.id + '"],[wrap=html][schema="' + oSchema.id + '"]');
+                if (domSchema) {
+                    if (oSchema.hideByRoundPurpose && oSchema.hideByRoundPurpose.length) {
+                        var bVisible = true;
+                        if (oSchema.hideByRoundPurpose.indexOf($scope.record.round.purpose) !== -1) {
+                            bVisible = false;
+                        }
+                        oSchema._visible = bVisible;
+                        domSchema.classList.toggle('hide', !bVisible);
+                        /* 被隐藏的题目需要清除数据 */
+                        if (false === bVisible) {
+                            $parse(oSchema.id).assign(oRecordData, undefined);
+                        }
+                    }
+                }
+            }
+        });
+    }
+    /**
      * 控制关联题目的可见性
      */
     function fnToggleAssocSchemas(dataSchemas, oRecordData) {
@@ -780,6 +805,8 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         dataSchemas = oPage.dataSchemas;
         // 设置题目的默认值
         ngApp.oUtilSchema.autoFillDefault(_oApp._schemasById, $scope.data);
+        // 控制题目的轮次可见性
+        fnToggleRoundSchemas(dataSchemas);
         // 控制关联题目的可见性
         fnToggleAssocSchemas(dataSchemas, oRecordData);
         // 控制题目关联选项的可见性

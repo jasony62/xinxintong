@@ -206,37 +206,45 @@ controller('ComboxController', ['$scope', function($scope) {
         link: function(scope, elems, attrs) {
             $timeout(function() {
                 var checkboxStack = [],
-                    oInnerModel = {};
+                    oInnerModel = {},
+                    bInnerModified = false;
 
                 fnFindCheckbox(elems[0], checkboxStack);
                 if (checkboxStack.length) {
                     scope.$watch(attrs.model, function(oOutModel) {
                         var aBeforeValue;
-                        if (oOutModel) {
-                            if (angular.isArray(oOutModel)) {
-                                aBeforeValue = oOutModel;
-                            } else if (angular.isString(oOutModel)) {
-                                aBeforeValue = oOutModel.split(',');
-                            } else if (angular.isObject(oOutModel)) {
-                                angular.forEach(oOutModel, function(key, val) {
-                                    val && aBeforeValue.push(key);
-                                });
-                            } else {
-                                aBeforeValue = [];
-                            }
-                            if (aBeforeValue.length) {
+                        if (false === bInnerModified) {
+                            if (oOutModel) {
+                                if (angular.isArray(oOutModel)) {
+                                    aBeforeValue = oOutModel;
+                                } else if (angular.isString(oOutModel)) {
+                                    aBeforeValue = oOutModel.split(',');
+                                } else if (angular.isObject(oOutModel)) {
+                                    angular.forEach(oOutModel, function(key, val) {
+                                        val && aBeforeValue.push(key);
+                                    });
+                                } else {
+                                    aBeforeValue = [];
+                                }
                                 checkboxStack.forEach(function(eleCheckbox) {
                                     var val;
                                     val = eleCheckbox.getAttribute('value');
-                                    if (aBeforeValue && aBeforeValue.length) {
-                                        if (aBeforeValue.indexOf(val) !== -1) {
-                                            eleCheckbox.checked = true;
-                                            oInnerModel[val] = true;
-                                        }
+                                    if (aBeforeValue && aBeforeValue.length && aBeforeValue.indexOf(val) !== -1) {
+                                        eleCheckbox.checked = true;
+                                        oInnerModel[val] = true;
+                                    } else {
+                                        eleCheckbox.checked = false;
+                                        delete oInnerModel[val];
                                     }
                                 });
+                            } else {
+                                checkboxStack.forEach(function(eleCheckbox) {
+                                    eleCheckbox.checked = false;
+                                });
+                                oInnerModel = {};
                             }
                         }
+                        bInnerModified = false;
                     });
                     checkboxStack.forEach(function(eleCheckbox) {
                         eleCheckbox.addEventListener('change', function() {
@@ -248,7 +256,11 @@ controller('ComboxController', ['$scope', function($scope) {
                                 delete oInnerModel[val];
                             }
                             scope.$apply(function() {
+                                bInnerModified = true;
                                 $parse(attrs.model).assign(scope, Object.keys(oInnerModel));
+                                if (attrs.tmsChange) {
+                                    scope.$eval(attrs.tmsChange);
+                                }
                             });
                         });
                     });

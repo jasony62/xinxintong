@@ -82,7 +82,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
             }
             for (var i = 0, ii = oNew.length; i < ii; i++) {
                 if (i < oOld.length) {
-                    oOld[i] = oNew[i];
+                    _fnMerge(oOld[i], oNew[i]);
                 } else {
                     oOld.push(oNew[i]);
                 }

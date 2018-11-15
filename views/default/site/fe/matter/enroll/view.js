@@ -169,7 +169,24 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
             });
         }
     }
-
+    /**
+     * 控制轮次题目的可见性
+     */
+    function fnToggleRoundSchemas(dataSchemas, oRecordData) {
+        dataSchemas.forEach(function(oSchema) {
+            var domSchema;
+            domSchema = document.querySelector('[wrap=value][schema="' + oSchema.id + '"]');
+            if (domSchema && oSchema.hideByRoundPurpose && oSchema.hideByRoundPurpose.length) {
+                var bVisible;
+                bVisible = true;
+                if (oSchema.hideByRoundPurpose.indexOf($scope.Record.current.round.purpose) !== -1) {
+                    bVisible = false;
+                }
+                oSchema._visible = bVisible;
+                domSchema.classList.toggle('hide', !bVisible);
+            }
+        });
+    }
     /**
      * 控制关联题目的可见性
      */
@@ -200,10 +217,9 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
     }
     /* 显示题目的分数 */
     function fnShowSchemaScore(oScore) {
-        var domSchema, domScore;
-        for (var schemaId in oScore) {
-            domSchema = document.querySelector('[wrap=value][schema="' + schemaId + '"]');
-            domScore = null;
+        _aScoreSchemas.forEach(function(oSchema) {
+            var domSchema, domScore;
+            domSchema = document.querySelector('[wrap=value][schema="' + oSchema.id + '"]');
             if (domSchema) {
                 for (var i = 0; i < domSchema.children.length; i++) {
                     if (domSchema.children[i].classList.contains('schema-score')) {
@@ -216,9 +232,13 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
                     domScore.classList.add('schema-score');
                     domSchema.appendChild(domScore);
                 }
-                domScore.innerText = oScore[schemaId];
+                if (oScore) {
+                    domScore.innerText = oScore[oSchema.id] || 0;
+                } else {
+                    domScore.innerText = '[空]';
+                }
             }
-        }
+        });
     }
     /* 显示题目的分数 */
     function fnShowSchemaBaseline(oBaseline) {
@@ -255,16 +275,19 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
     /* 根据获得的记录设置页面状态 */
     function fnSetPageByRecord(rsp) {
         var oRecord, oOriginalData;
-        oOriginalData = angular.copy(rsp.data.data);
-        /* 设置题目的可见性 */
+        $scope.Record.current = oRecord = rsp.data;
+        oRecord.data = oOriginalData = rsp.data.data ? angular.copy(rsp.data.data) : {};
+        if (oRecord.enroll_at === undefined) oRecord.enroll_at = 0;
+        /* 设置轮次题目的可见性 */
+        fnToggleRoundSchemas(_oApp.dynaDataSchemas, oOriginalData);
+        /* 设置关联题目的可见性 */
         fnToggleAssocSchemas(_oApp.dynaDataSchemas, oOriginalData);
         /* 将数据转换为可直接显示的形式 */
         fnProcessData(rsp.data);
         /* 显示题目的分数 */
-        if (rsp.data.score) {
+        if (_aScoreSchemas.length) {
             fnShowSchemaScore(rsp.data.score);
         }
-        $scope.Record.current = oRecord = rsp.data;
         /* disable actions */
         if (_oApp.scenarioConfig.can_cowork && _oApp.scenarioConfig.can_cowork !== 'Y') {
             if ($scope.user.uid !== oRecord.userid) {
@@ -302,7 +325,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
             }
         });
         /* 目标轮次记录 */
-        if (oRecord.round.purpose === 'C') {
+        if (['C', 'S'].indexOf(oRecord.round.purpose) !== -1) {
             http2.get(LS.j('record/baseline', 'site', 'app') + '&rid=' + oRecord.round.rid).then(function(rsp) {
                 if (rsp.data) {
                     /* 显示题目的目标值 */
@@ -315,7 +338,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
         }
     }
 
-    var _oApp;
+    var _oApp, _aScoreSchemas;
 
     $scope.addRecord = function(event, page) {
         if (page) {
@@ -334,12 +357,18 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
         fnGetRecordByRound(oRound).then(fnSetPageByRecord);
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        var facRecord, _facRound;
+        var facRecord, facRound;
 
         _oApp = params.app;
+        _aScoreSchemas = [];
+        _oApp.dynaDataSchemas.forEach(function(oSchema) {
+            if (oSchema.requireScore === 'Y' && oSchema.format === 'number' && oSchema.type === 'shorttext') {
+                _aScoreSchemas.push(oSchema);
+            }
+        });
         $scope.Record = facRecord = Record.ins(_oApp);
-        _facRound = new enlRound(_oApp);
-        _facRound.list().then(function(oResult) {
+        facRound = new enlRound(_oApp);
+        facRound.list().then(function(oResult) {
             $scope.rounds = oResult.rounds;
         });
         fnGetRecord().then(fnSetPageByRecord);

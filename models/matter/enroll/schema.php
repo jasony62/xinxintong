@@ -20,6 +20,7 @@ class schema_model extends \TMS_MODEL {
 	 * dynamic 是否为动态生成的题目
 	 * prototype 动态题目的原始定义
 	 * dsOps 动态选项来源
+	 * hideByRoundPurpose 指定类型轮次下隐藏
 	 *
 	 * 支持的动态属性
 	 * cloneSchema
@@ -29,9 +30,9 @@ class schema_model extends \TMS_MODEL {
 	 * schema_id 通讯录id
 	 */
 	public function purify($aAppSchemas) {
-		$validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'optGroups', 'defaultValue', 'cowork', 'filterWhiteSpace', 'ops', 'schema_id', 'asdir'];
+		$validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'hideByRoundPurpose', 'optGroups', 'defaultValue', 'cowork', 'filterWhiteSpace', 'ops', 'schema_id', 'asdir'];
 		$validPropsBySchema = [
-			'html' => ['id', 'type', 'content', 'title', 'visibility'],
+			'html' => ['id', 'type', 'content', 'title', 'visibility', 'hideByRoundPurpose'],
 		];
 
 		$purified = [];
@@ -167,6 +168,12 @@ class schema_model extends \TMS_MODEL {
 					if (empty($oSchema->visibility->rules)) {
 						unset($oSchema->visibility);
 					}
+				}
+			}
+			/* 指定类型轮次下隐藏 */
+			if (isset($oSchema->hideByRoundPurpose)) {
+				if (!is_array($oSchema->hideByRoundPurpose) || empty($oSchema->hideByRoundPurpose)) {
+					unset($oSchema->hideByRoundPurpose);
 				}
 			}
 			/* 选项可见条件 */

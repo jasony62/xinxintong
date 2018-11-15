@@ -1449,7 +1449,9 @@ factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite
             switch (userScope) {
                 case 'member':
                     if (_oRule.scope.member === 'Y') {
-                        this.chooseMschema();
+                        if (!_oRule.member || Object.keys(_oRule.member).length === 0) {
+                            this.chooseMschema();
+                        }
                     } else {
                         if (false === this.removeMschema()) {
                             _oRule.scope.member = 'Y';
@@ -1470,7 +1472,9 @@ factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite
                     break;
                 case 'group':
                     if (_oRule.scope.group === 'Y') {
-                        this.chooseGroupApp();
+                        if (!_oRule.group) {
+                            this.chooseGroupApp();
+                        }
                     } else {
                         if (false === this.removeGroupApp()) {
                             _oRule.scope.group = 'Y';
@@ -1479,7 +1483,9 @@ factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite
                     break;
                 case 'enroll':
                     if (_oRule.scope.enroll === 'Y') {
-                        this.chooseEnrollApp();
+                        if (!_oRule.enroll) {
+                            this.chooseEnrollApp();
+                        }
                     } else {
                         if (false === this.removeEnrollApp()) {
                             _oRule.scope.enroll = 'Y';

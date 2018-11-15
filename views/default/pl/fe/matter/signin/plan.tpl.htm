@@ -9,9 +9,15 @@
     <link href="/static/css/font-awesome.min.css" rel="stylesheet">
     <link href="/static/css/tms.css?_=2" rel="stylesheet">
     <link href="<?php echo auto_version('/static/css/pl.fe.css');?>" rel="stylesheet">
+    <style>
+    .badge a {
+        color: #fff;
+        text-decoration: none;
+    }
+    </style>
 </head>
 
-<body ng-controller='ctrlPlan' ng-cloak class='ng-cloak'>
+<body ng-app="app" ng-controller='ctrlPlan' ng-cloak class='ng-cloak'>
     <div class='pl-layout'>
         <!--logo+侧边栏-->
         <div class='pl-layout-leftnav'>
@@ -70,43 +76,8 @@
                                 </div>
                                 <hr>
                                 <div class='form-group'>
-                                    <label>参与用户</label>
-                                    <div class='checkbox'>
-                                        <label>
-                                            <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.member" ng-change="changeUserScope()">限通讯录联系人参与 <span class='glyphicon glyphicon-question-sign' uib-tooltip='通讯录支持自定义用户信息并提供审核机制，并且可以在不同活动中重复使用'></span> <span class='badge' ng-repeat="mschema in entryRule.mschemas">{{mschema.title}} <i class='glyphicon glyphicon-remove' ng-click="removeMschema(mschema)"></i></span> <a ng-if="entryRule.scope.member==='Y'" href ng-click="chooseMschema()">添加</a></label>
-                                    </div>
-                                    <div class='checkbox' ng-if="proto.mission">
-                                        <label>
-                                            <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.group" ng-change="changeUserScope()">限分组活动<span ng-if="entryRule.group">【{{entryRule.group.title}} - {{entryRule.group.round.title}}】</span>用户参与 <span class='glyphicon glyphicon-question-sign' uib-tooltip='指定同项目中的分组活动中的某个分组的用户参与。'></span> <a ng-if="entryRule.scope.group==='Y'" href ng-click="chooseGroupApp()">指定</a></label>
-                                    </div>
-                                    <div class='checkbox' ng-if="snsNames.length===1">
-                                        <label>
-                                            <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.sns" ng-change="changeUserScope()">限公众号【{{sns[snsNames[0]].title}}】关注用户参与 <span class='glyphicon glyphicon-question-sign' uib-tooltip='可以获得用户昵称和头像（需要用户授权）。系统持久记录填写终端和填写记录间的对应关系，适用于填写后不需要查询和修改的情况。'></span></label>
-                                    </div>
-                                    <div class='checkbox' ng-if="snsNames.length>1">
-                                        <label>
-                                            <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.sns" ng-change="changeUserScope()">限公众号关注用户参与 <span class='glyphicon glyphicon-question-sign' uib-tooltip='可以获得用户昵称和头像（需要用户授权）。系统持久记录填写终端和填写记录间的对应关系，适用于填写后不需要查询和修改的情况。'></span>
-                                            <div ng-if="entryRule.scope.sns==='Y'">
-                                                <label ng-repeat="snsName in snsNames">
-                                                    <input type='checkbox' ng-model="entryRule.sns[snsName]"> {{sns[snsName].title}} </label>
-                                            </div>
-                                        </label>
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class='form-group' ng-if="!proto.groupApp">
-                                    <button class='btn btn-default btn-block' ng-disabled="!proto.mission" ng-click="assignGroupApp()">指定分组匹配名单 <span class='glyphicon glyphicon-question-sign' uib-tooltip='指定同一个项目中的分组活动后，用户填写数据时需要提供和分组活动中匹配分组信息，例如：组号等，系统支持按照分组提交记录进行筛选和记分等功能'></span></button>
-                                </div>
-                                <div class='form-group' ng-if="proto.groupApp">
-                                    <label>分组匹配名单</label>
-                                    <div class="input-group">
-                                        <input class='form-control' title="{{proto.groupApp.title}}" value="{{proto.groupApp.title}}" readonly>
-                                        <div class="input-group-btn">
-                                            <button class="btn btn-default" ng-click="proto.groupApp=null">
-                                                <span class='glyphicon glyphicon-remove'></span>
-                                            </button>
-                                        </div>
-                                    </div>
+                                    <label>设置参与规则</label>
+                                    <div ng-include="frameTemplates.html.entryRule"></div>
                                 </div>
                             </div>
                         </div>
@@ -119,45 +90,18 @@
             </div>
         </div>
     </div>
-    <script type="text/ng-template" id="chooseGroupApp.html">
-        <div class="modal-header">
-            <button class="close" ng-click="cancel()">×</button>
-            <h5 class="modal-title">分组活动</h5>
-        </div>
-        <div class="modal-body">
-            <form class="form-horizontal">
-                <div class='form-group'>
-                    <label class="col-md-3 control-label">目标活动</label>
-                    <div class="col-md-9">
-                        <select class="form-control" ng-model="data.app" ng-options="app.title for app in apps"></select>
-                    </div>
-                </div>
-                <div class='form-group'>
-                    <label class="col-md-3 control-label">目标分组</label>
-                    <div class="col-md-9">
-                        <select class="form-control" ng-model="data.round" ng-options="rnd.title for rnd in data.app.rounds">
-                            <option>全部分组</option>
-                        </select>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-primary" ng-click="ok()">确定</button>
-        </div>
-    </script>
-    <script src="/static/js/xxt.ui.error.js"></script>
+    <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-route.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-    <script src="/static/js/ui-tms.js?_=4"></script>
+    <script src="<?php echo auto_version('/static/js/ui-tms.js');?>"></script>
     <script src="<?php echo auto_version('/asset/js/xxt.ui.http.js');?>"></script>
     <script src="<?php echo auto_version('/asset/js/xxt.ui.notice.js');?>"></script>
     <script src="<?php echo auto_version('/views/default/pl/fe/_module/matter.service.js');?>"></script>
-    <script src="/static/js/require.js" data-main="/views/default/pl/fe/matter/signin/plan-loader.js?_=1"></script>
+    <script src="<?php echo auto_version('/views/default/pl/fe/matter/signin/plan.js');?>"></script>
 </body>
 
 </html>

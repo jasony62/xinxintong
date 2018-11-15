@@ -108,24 +108,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         };
         this._bGet = function(oSigninApp, method) {
             oSigninApp.tags = (!oSigninApp.tags || oSigninApp.tags.length === 0) ? [] : oSigninApp.tags.split(',');
-            if (oSigninApp.groupApp && oSigninApp.groupApp.dataSchemas) {
-                if (oSigninApp.groupApp.rounds && oSigninApp.groupApp.rounds.length) {
-                    var roundDS = {
-                            id: '_round_id',
-                            type: 'single',
-                            title: '分组名称',
-                        },
-                        ops = [];
-                    oSigninApp.groupApp.rounds.forEach(function(round) {
-                        ops.push({
-                            v: round.round_id,
-                            l: round.title
-                        });
-                    });
-                    roundDS.ops = ops;
-                    oSigninApp.groupApp.dataSchemas.splice(0, 0, roundDS);
-                }
-            }
             method(oSigninApp);
             oSigninApp.pages.forEach(function(page) {
                 pageLib.enhance(page, oSigninApp._schemasById);

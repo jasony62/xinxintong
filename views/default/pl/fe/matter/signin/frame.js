@@ -1,4 +1,4 @@
-define(['frame/RouteParam', 'frame/const', 'page', 'schema', 'signinService', 'enrollSchema', 'enrollPage'], function(RouteParam, CstApp, pageLib, schemaLib) {
+define(['frame/RouteParam', 'frame/const', 'frame/templates', 'page', 'schema', 'signinService', 'enrollSchema', 'enrollPage'], function(RouteParam, CstApp, frameTemplates) {
     'use strict';
     var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'http.ui.xxt', 'notice.ui.xxt', 'notice.ui.xxt', 'schema.ui.xxt', 'service.matter', 'service.signin', 'schema.enroll', 'page.enroll', 'tinymce.enroll', 'ui.xxt']);
     ngApp.constant('cstApp', CstApp);
@@ -46,6 +46,7 @@ define(['frame/RouteParam', 'frame/const', 'page', 'schema', 'signinService', 'e
     }]);
     ngApp.controller('ctrlFrame', ['$scope', 'cstApp', 'srvSite', 'srvSigninApp', '$location', function($scope, cstApp, srvSite, srvSigninApp, $location) {
         $scope.cstApp = cstApp;
+        $scope.frameTemplates = frameTemplates;
         $scope.opened = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
@@ -84,10 +85,10 @@ define(['frame/RouteParam', 'frame/const', 'page', 'schema', 'signinService', 'e
         srvSite.tagList().then(function(oTag) {
             $scope.oTag = oTag;
         });
+        $scope.sns = {};
         srvSite.snsList().then(function(oSns) {
+            angular.extend($scope.sns, oSns);
             $scope.sns = oSns;
-            $scope.snsNames = Object.keys(oSns);
-            $scope.snsCount = Object.keys(oSns).length;
             srvSigninApp.get().then(function(oApp) {
                 if (oApp.matter_mg_tag !== '') {
                     oApp.matter_mg_tag.forEach(function(cTag, index) {

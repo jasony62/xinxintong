@@ -8,7 +8,7 @@
             <div class='form-group'>
                 <label>活动类型</label>
                 <select class='form-control' ng-model="app.scenario" ng-change="update('scenario');">
-                    <option value='{{scenario}}' ng-repeat="scenario in scenarioes.index">{{scenarioes.names[scenario]}}</option>
+                    <option value='{{::scenario}}' ng-repeat="scenario in scenarioes.index">{{::scenarioes.names[scenario]}}</option>
                 </select>
             </div>
             <div class='form-group' ng-if="app.scenario==='quiz'">
@@ -93,11 +93,23 @@
             </div>
             <div class='checkbox'>
                 <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_coin" ng-change="update('can_coin')"> 支持用户积分</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.can_stat" ng-change="update('scenarioConfig')"> 开放活动统计页</label>
+            </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.can_kanban" ng-change="update('scenarioConfig')"> 开放活动看板页</label>
+            </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.can_coin" ng-change="update('scenarioConfig')"> 支持用户积分</label>
             </div>
             <div class='checkbox'>
                 <label>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.can_assoc" ng-change="update('scenarioConfig')"> 支持建立记录关联</label>
+            </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.no_remark" ng-change="update('scenarioConfig')"> 关闭讨论页留言功能</label>
             </div>
             <div class='checkbox' ng-if="app.mission">
                 <label>
@@ -113,38 +125,7 @@
         <div class='panel-body'>
             <div class='form-group'>
                 <label>设置参与规则</label>
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" ng-true-value="'Y'" ng-model="rule.scope.register" ng-change="changeUserScope('register')">用户参与活动前需完成平台注册</label>
-                </div>
-                <div class='checkbox'>
-                    <label>
-                        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.member" ng-change="changeUserScope('member')">用户参与活动前需填写通讯录联系人信息</label><span ng-if="rule.scope.member==='Y'"><span class='badge' ng-repeat="(msid,entry) in app.entryRule.member"><a href title='进入查看' ng-click="editMschema(mschemasById[msid])">{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</a> <a href title='取消指定' class='glyphicon glyphicon-remove' ng-click="removeMschema(msid)"></a></span> <a href ng-click="chooseMschema()">添加</a></span>
-                    <div style='margin-left:20px'>
-                        <label class='checkbox-inline'>
-                            <input type='checkbox' ng-true-value="'Y'" ng-model="app.entryRule.optional.member" ng-change="changeUserScope('member')">不强制要求用户在通讯录中</label>
-                    </div>
-                </div>
-                <div class='checkbox' ng-if="snsCount===1">
-                    <label>
-                        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.sns" ng-change="changeUserScope('sns')">邀请用户关注公众号【{{sns[snsNames[0]].title}}】，以便获取用户的昵称和头像，向用户发送活动通知</label>
-                </div>
-                <div class='checkbox' ng-if="snsCount>1">
-                    <label>
-                        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.sns" ng-change="changeUserScope('sns')">邀请用户关注公众号，以便获取用户的昵称和头像，向用户发送活动通知</label>
-                    <div ng-if="rule.scope.sns==='Y'" style='margin-left:20px'>
-                        <label class='checkbox-inline' ng-repeat="snsName in snsNames">
-                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="" ng-model="app.entryRule.sns[snsName].entry" ng-change="update('entryRule')"> {{sns[snsName].title}}</label>
-                    </div>
-                </div>
-                <div class='checkbox'>
-                    <label>
-                        <input type='checkbox' ng-true-value="'Y'" ng-model="rule.scope.group" ng-change="changeUserScope('group')">用户参与活动前需要在分组活动</label><span class='badge' ng-if="rule.scope.group==='Y'"><a href='/rest/pl/fe/matter/group?site={{app.siteid}}&id={{app.entryRule.group.id}}' target='_self'>{{app.entryRule.group.title}} - {{app.entryRule.group.round.title}}</a></span>中分组 <a ng-if="rule.scope.group==='Y'" href ng-click="chooseGroupApp()">指定</a>
-                    <div style='margin-left:20px'>
-                        <label class='checkbox-inline'>
-                            <input type='checkbox' ng-true-value="'Y'" ng-model="app.entryRule.optional.group" ng-change="changeUserScope('group')">不强制要求用户在分组活动中</label>
-                    </div>
-                </div>
+                <div ng-include="frameTemplates.url('entryRule')"></div>
             </div>
             <div class='form-group'>
                 <table class='table table-bordered'>
@@ -179,7 +160,7 @@
                     <tbody>
                         <tr ng-repeat="page in rule.exclude">
                             <td style='padding:0'>
-                                <select style='border:0' class='form-control' ng-model="rule.exclude[$index]" ng-options='page.name as page.title for page in jumpPages.exclude' ng-change="configExclude()">
+                                <select style='border:0' class='form-control' ng-model="rule.exclude[$index]" ng-options='page.name as page.title for page in jumpPages.exclude' ng-change="updateRule()">
                                 </select>
                             </td>
                             <td style="width:36px">
@@ -197,19 +178,19 @@
                 <label>可忽略参与规则进行的操作</label>
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.like" ng-change="configExclude()">点赞</label>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.like" ng-change="updateRule()">点赞</label>
                 </div>
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.submit_record" ng-change="configExclude()">提交记录</label>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.submit_record" ng-change="updateRule()">提交记录</label>
                 </div>
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.add_remark" ng-change="configExclude()">添加留言</label>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.add_remark" ng-change="updateRule()">添加留言</label>
                 </div>
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.add_cowork" ng-change="configExclude()">添加答案（协作填写）</label>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.exclude_action.add_cowork" ng-change="updateRule()">添加答案（协作填写）</label>
                 </div>
             </div>
             <hr>
@@ -225,37 +206,6 @@
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.entryRule.anonymous" ng-change="update('entryRule')">隐藏用户昵称（匿名）</label>
             </div>
         </div>
-        <script type="text/ng-template" id="chooseGroupApp.html">
-            <div class="modal-header">
-                <button class="close" ng-click="cancel()">×</button>
-                <h5 class="modal-title">分组活动</h5>
-            </div>
-            <div class="modal-body">
-                <form class="form-horizontal">
-                    <div class='form-group'>
-                        <label class="col-md-3 control-label">目标活动</label>
-                        <div class="col-md-9">
-                            <select class="form-control" ng-model="data.app" ng-options="app.title for app in apps"></select>
-                            <div class='checkbox' ng-if="app.mission">
-                                <label>
-                                    <input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'"> 选择同一个项目中的活动</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class='form-group'>
-                        <label class="col-md-3 control-label">目标分组</label>
-                        <div class="col-md-9">
-                            <select class="form-control" ng-model="data.round" ng-options="rnd.title for rnd in data.app.rounds">
-                                <option>全部分组</option>
-                            </select>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" ng-click="ok()">确定</button>
-            </div>
-        </script>
     </div>
     <div class='form-group'>
         <button class='btn btn-default btn-block' ng-click="shareAsTemplate()">生成模版</button>

@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlEnrollee', ['$scope', 'http2', 'srvEnrollRecord', '$q', '$uibModal', 'tmsSchema', 'facListFilter', function($scope, http2, srvEnrollRecord, $q, $uibModal, tmsSchema, facListFilter) {
+    ngApp.provider.controller('ctrlEnrollee', ['$scope', 'http2', 'srvEnrollRecord', '$q', '$uibModal', 'tmsSchema', 'facListFilter', 'tmsRowPicker', function($scope, http2, srvEnrollRecord, $q, $uibModal, tmsSchema, facListFilter, tmsRowPicker) {
         function _fnAbsent() {
             http2.get('/rest/pl/fe/matter/enroll/user/undone?app=' + $scope.app.id + '&rid=' + _oCriteria.rid).then(function(rsp) {
                 var schemasById;
@@ -25,25 +25,18 @@ define(['frame'], function(ngApp) {
         $scope.page = _oPage = { size: 20 };
         $scope.criteria = _oCriteria = {
             orderby: 'enroll_num',
-            onlyEnrolled: 'Y',
+            //onlyEnrolled: 'Y',
             rid: '',
             turn_title: '全部轮次',
             filter: {}
         };
         $scope.tmsTableWrapReady = 'N';
-        $scope.rows = _oRows = {
-            allSelected: 'N',
-            selected: {},
-            count: 0,
-            change: function(index) {
-                this.selected[index] ? this.count++ : this.count--;
-            },
-            reset: function() {
-                this.allSelected = 'N';
-                this.selected = {};
-                this.count = 0;
+        $scope.rows = _oRows = new tmsRowPicker();
+        $scope.$watch('rows.allSelected', function(nv) {
+            if ($scope.enrollees) {
+                _oRows.setAllSelected(nv, $scope.enrollees.length);
             }
-        };
+        });
         $scope.editCause = function(user) {
             $uibModal.open({
                 templateUrl: 'editCause.html',
@@ -75,8 +68,8 @@ define(['frame'], function(ngApp) {
             $scope.searchEnrollee(1);
         };
         $scope.export = function() {
-            var url = '/rest/pl/fe/matter/enroll/user/export?site=' + $scope.app.siteid;
-            url += '&app=' + $scope.app.id;
+            var url = '/rest/pl/fe/matter/enroll/user/export';
+            url += '?app=' + $scope.app.id;
             url += '&rid=' + _oCriteria.rid;
             window.open(url);
         };
@@ -128,12 +121,6 @@ define(['frame'], function(ngApp) {
             url = '/rest/pl/fe/matter/enroll/user/enrollee?app=' + $scope.app.id;
             http2.post(url, _oCriteria, { page: _oPage }).then(function(rsp) {
                 srvEnrollRecord.init($scope.app, _oPage, _oCriteria, rsp.data.users);
-                rsp.data.users.forEach(function(user) {
-                    if (user.tmplmsg && user.tmplmsg.status) {
-                        user._tmpStatus = user.tmplmsg.status.split(':');
-                        user._tmpStatus[0] = user._tmpStatus[0] === 'success' ? '成功' : '失败';
-                    }
-                });
                 $scope.enrollees = rsp.data.users;
             });
         };
@@ -160,17 +147,6 @@ define(['frame'], function(ngApp) {
             $scope.tmsTableWrapReady = 'Y';
             $scope.searchEnrollee(1);
             _fnAbsent();
-        });
-        $scope.$watch('rows.allSelected', function(nv) {
-            var index = 0;
-            if (nv == 'Y') {
-                while (index < $scope.enrollees.length) {
-                    _oRows.selected[index++] = true;
-                }
-                _oRows.count = $scope.enrollees.length;
-            } else if (nv == 'N') {
-                _oRows.reset();
-            }
         });
     }]);
 });

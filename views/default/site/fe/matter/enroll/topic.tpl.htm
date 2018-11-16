@@ -12,14 +12,14 @@
     <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
 </head>
 
-<body ng-controller="ctrlTopic" class='matter_enroll' tms-trace send-url='/rest/site/fe/matter/enroll/analysis/submit?site={{topic.siteid}}&app={{topic.aid}}&page=topic&topic={{topic.id}}' ready-sign="topic">
+<body ng-controller="ctrlTopic" tms-trace send-url='/rest/site/fe/matter/enroll/analysis/submit?site={{topic.siteid}}&app={{topic.aid}}&page=topic&topic={{topic.id}}' ready-sign="topic">
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <nav class='navbar site-navbar-default'>
         <div class='container' ng-cloak>
             <div class="navbar-header">
                 <a href class="navbar-brand">
-                    <i class="glyphicon glyphicon-edit visible-lg-inline"></i> <span class='page-title' tms-app-nav app-navs="appNavs" notice-count="noticeCount">专题页</span></span>
+                    <i class="glyphicon glyphicon-edit visible-lg-inline"></i> <span>专题页</span></span>
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
@@ -88,6 +88,7 @@
                         <div class='bottom-bar'>
                             <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
                             <a href ng-click="likeRecord(rec)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></a>
+                            <a href ng-click="dislikeRecord(rec)"><span class='glyphicon glyphicon-thumbs-down' ng-class="{'like':rec.dislike_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.dislike_num"></span></a>
                             <a href ng-click="remarkRecord(rec)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></a>
                             <div class="btn-group" uib-dropdown>
                                 <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>
@@ -120,7 +121,7 @@
             </div>
         </div>
     </div>
-    <div ng-if="appActs.length" tms-app-act app-acts="appActs"></div>
+    <div ng-if="popAct.acts.length" tms-pop-act acts="popAct.acts" custom="popAct.custom" close-after='5000'></div>
     <script type="text/ng-template" id="assignTopic.html">
         <div class="modal-body">
             <div ng-repeat="topic in topics">

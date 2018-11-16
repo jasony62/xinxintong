@@ -305,15 +305,15 @@ class record extends main_base {
 
 		/* 创建记录 */
 		$aOptions = [];
-		$aOptions['assignRid'] = $oCopiedRecord->rid;
-		$newEk = $modelRec->enroll($oApp, $oMocker, $aOptions);
-		$aResult = $modelRec->setData($oMocker, $oApp, $newEk, $oCopiedRecord->data, true);
+		$aOptions['assignedRid'] = $oCopiedRecord->rid;
+		$oNewRec = $modelRec->enroll($oApp, $oMocker, $aOptions);
+		$aResult = $modelRec->setData($oMocker, $oApp, $oNewRec->enroll_key, $oCopiedRecord->data, true);
 		if (false === $aResult[0]) {
 			return new \ResponseError($aResult[1]);
 		}
 
 		/* 返回完整的记录 */
-		$oNewRecord = $modelRec->byId($newEk, ['verbose' => 'Y']);
+		$oNewRecord = $modelRec->byId($oNewRec->enroll_key, ['verbose' => 'Y']);
 
 		/* 处理用户汇总数据，积分数据 */
 		$this->model('matter\enroll\event')->submitRecord($oApp, $oNewRecord, $oMocker, true);
@@ -337,8 +337,9 @@ class record extends main_base {
 
 		/* 创建登记记录 */
 		$aOptions = [];
-		!empty($posted->rid) && $aOptions['assignRid'] = $posted->rid;
-		$ek = $modelRec->enroll($oApp, null, $aOptions);
+		!empty($posted->rid) && $aOptions['assignedRid'] = $posted->rid;
+		$oNewRec = $modelRec->enroll($oApp, null, $aOptions);
+
 		$record = [];
 		$record['verified'] = isset($posted->verified) ? $posted->verified : 'N';
 		$record['comment'] = isset($posted->comment) ? $posted->comment : '';
@@ -346,20 +347,20 @@ class record extends main_base {
 			$record['tags'] = $posted->tags;
 			$modelEnl->updateTags($oApp->id, $posted->tags);
 		}
-		$modelRec->update('xxt_enroll_record', $record, "enroll_key='$ek'");
+		$modelRec->update('xxt_enroll_record', $record, ['enroll_key' => $oNewRec->enroll_key]);
 
 		/* 记录登记数据 */
 		$addUser = $this->model('site\fe\way')->who($oApp->siteid);
-		$result = $modelRec->setData(null, $oApp, $ek, $posted->data, $addUser->uid, true);
+		$result = $modelRec->setData(null, $oApp, $oNewRec->enroll_key, $posted->data, $addUser->uid, true);
 
 		/* 记录操作日志 */
-		$oRecord = $modelRec->byId($ek, ['fields' => 'enroll_key,data,rid']);
+		$oRecord = $modelRec->byId($oNewRec->enroll_key, ['fields' => 'enroll_key,data,rid']);
 		$this->model('matter\log')->matterOp($oApp->siteid, $oOperator, $oApp, 'add', $oRecord);
 
 		/* 返回完整的记录 */
-		$oNewRecord = $modelRec->byId($ek, ['verbose' => 'Y']);
+		$oNewRec = $modelRec->byId($oNewRec->enroll_key, ['verbose' => 'Y']);
 
-		return new \ResponseData($oNewRecord);
+		return new \ResponseData($oNewRec);
 	}
 	/**
 	 * 将记录导入到其他活动
@@ -417,8 +418,8 @@ class record extends main_base {
 			}
 
 			/* 在目标活动中创建新记录 */
-			$newek = $modelRec->enroll($oTargetApp, $oMockUser);
-			$modelRec->setData($oMockUser, $oTargetApp, $newek, $oNewRecData, '', true);
+			$oNewRec = $modelRec->enroll($oTargetApp, $oMockUser);
+			$modelRec->setData($oMockUser, $oTargetApp, $oNewRec->enroll_key, $oNewRecData, '', true);
 		}
 
 		return new \ResponseData('ok');
@@ -527,8 +528,8 @@ class record extends main_base {
 					$oMockUser = null;
 				}
 				/* 在目标活动中创建新记录 */
-				$newek = $modelRec->enroll($oTargetApp, $oMockUser);
-				$modelRec->setData($oMockUser, $oTargetApp, $newek, $oNewRecData, '', true);
+				$oNewRec = $modelRec->enroll($oTargetApp, $oMockUser);
+				$modelRec->setData($oMockUser, $oTargetApp, $oNewRec->enroll_key, $oNewRecData, '', true);
 				$newRecordNum++;
 			}
 		}
@@ -626,7 +627,7 @@ class record extends main_base {
 			} else {
 				$oMockRecUser = new \stdClass;
 			}
-			$newek = $modelRec->enroll($oTargetApp, $oMockRecUser);
+			$oNewRec = $modelRec->enroll($oTargetApp, $oMockRecUser);
 
 			$oNewRecData = new \stdClass; // 问题+答案的记录数据
 			/* 写入问题 */
@@ -637,7 +638,7 @@ class record extends main_base {
 			$oRecData = new \stdClass;
 			$oRecData->aid = $oTargetApp->id;
 			$oRecData->rid = empty($oTargetAppRnd->rid) ? '' : $oTargetAppRnd->rid;
-			$oRecData->enroll_key = $newek;
+			$oRecData->enroll_key = $oNewRec->enroll_key;
 			$oRecData->submit_at = $current;
 			$oRecData->userid = isset($oMockRecUser->uid) ? $oMockRecUser->uid : '';
 			$oRecData->nickname = isset($oMockRecUser->nickname) ? $modelData->escape($oMockRecUser->nickname) : '';
@@ -683,7 +684,7 @@ class record extends main_base {
 			}
 			/* 记录的数据 */
 			$oNewRecData->{$oPosted->answerSchema} = $oRecData->value;
-			$modelRec->setData($oMockRecUser, $oTargetApp, $newek, $oNewRecData, '', true);
+			$modelRec->setData($oMockRecUser, $oTargetApp, $oNewRec->enroll_key, $oNewRecData, '', true);
 			$newRecordNum++;
 			/* 答案的根数据 */
 			$oRecData->value = $modelData->escape($modelData->toJson($oRecData->value));
@@ -788,19 +789,19 @@ class record extends main_base {
 			} else {
 				$oMockRecUser = new \stdClass;
 			}
-			$newek = $modelRec->enroll($oTargetApp, $oMockRecUser);
+			$oNewRec = $modelRec->enroll($oTargetApp, $oMockRecUser);
 
 			$oNewRecData = new \stdClass; // 问题+答案的记录数据
 			/* 写入问题 */
 			$oNewRecData->{$oPosted->questionSchema} = $oGroupSchema->title;
-			$modelRec->setData($oMockRecUser, $oTargetApp, $newek, $oNewRecData, '', true);
+			$modelRec->setData($oMockRecUser, $oTargetApp, $oNewRec->enroll_key, $oNewRecData, '', true);
 
 			/* 写入答案 */
 			$current = time();
 			$oRecData = new \stdClass;
 			$oRecData->aid = $oTargetApp->id;
 			$oRecData->rid = empty($oTargetAppRnd->rid) ? '' : $oTargetAppRnd->rid;
-			$oRecData->enroll_key = $newek;
+			$oRecData->enroll_key = $oNewRec->enroll_key;
 			$oRecData->submit_at = $current;
 			$oRecData->userid = isset($oMockRecUser->uid) ? $oMockRecUser->uid : '';
 			$oRecData->nickname = isset($oMockRecUser->nickname) ? $modelData->escape($oMockRecUser->nickname) : '';
@@ -845,7 +846,7 @@ class record extends main_base {
 			$modelData->update(
 				'xxt_enroll_record',
 				['data' => $this->escape($modelData->toJson($oNewRecData))],
-				['enroll_key' => $newek]
+				['enroll_key' => $oNewRec->enroll_key]
 			);
 
 			$newRecordNum++;
@@ -1434,13 +1435,13 @@ class record extends main_base {
 	/**
 	 * 验证通过时，如果登记记录有对应的签到记录，且签到记录没有验证通过，那么验证通过
 	 */
-	private function _whenVerifyRecord(&$oApp, $enrollKey) {
+	private function _whenVerifyRecord($oApp, $enrollKey) {
 		if ($oApp->mission_id) {
 			$modelSigninRec = $this->model('matter\signin\record');
 			$q = [
 				'id',
 				'xxt_signin',
-				"enroll_app_id='{$oApp->id}'",
+				['entry_rule' => (object) ['op' => 'like', 'pat' => '%' . $oApp->id . '%']],
 			];
 			$signinApps = $modelSigninRec->query_objs_ss($q);
 			if (count($signinApps)) {
@@ -1453,7 +1454,7 @@ class record extends main_base {
 						$q = [
 							'*',
 							'xxt_signin_record',
-							"state=1 and verified='N' and aid='$signinApp->id' and verified_enroll_key='{$enrollKey}'",
+							['state' => 1, 'verified' => 'N', 'aid' => $signinApp->id, 'verified_enroll_key' => $enrollKey],
 						];
 						$signinRecords = $modelSigninRec->query_objs_ss($q);
 						if (count($signinRecords)) {
@@ -1469,7 +1470,7 @@ class record extends main_base {
 									$signinData->{$k} = $v;
 								}
 								// 更新数据
-								$modelSigninRec->delete('xxt_signin_record_data', "enroll_key='$signinRecord->enroll_key'");
+								$modelSigninRec->delete('xxt_signin_record_data', ['enroll_key' => $signinRecord->enroll_key]);
 								foreach ($signinData as $k => $v) {
 									$ic = [
 										'aid' => $oApp->id,
@@ -1485,7 +1486,7 @@ class record extends main_base {
 									[
 										'data' => $modelSigninRec->toJson($signinData),
 									],
-									"enroll_key='$signinRecord->enroll_key'"
+									['enroll_key' => $signinRecord->enroll_key]
 								);
 							}
 						}
@@ -1537,140 +1538,261 @@ class record extends main_base {
 	 * 从关联的登记活动中查找匹配的记录
 	 */
 	public function matchEnroll_action($site, $app) {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
-		$enrollRecord = $this->getPostJson();
-		$result = [];
-
-		// 登记活动
 		$modelApp = $this->model('matter\enroll');
-		$enrollApp = $modelApp->byId($app, ['cascaded' => 'N']);
-		if (empty($enrollApp->enroll_app_id) || empty($enrollApp->data_schemas)) {
+		$oEnlApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $oEnlApp || empty($oEnlApp->dynaDataSchemas)) {
+			return new \ObjectNotFoundError();
+		}
+
+		if (empty($oEnlApp->entryRule->enroll->id)) {
 			return new \ParameterError();
 		}
 
+		$oEnlRecord = $this->getPostJson();
 		// 匹配规则
-		$isEmpty = true;
-		$matchCriteria = new \stdClass;
-		$schemas = json_decode($enrollApp->data_schemas);
-		foreach ($schemas as $schema) {
-			if (isset($schema->requireCheck) && $schema->requireCheck === 'Y') {
-				if (isset($schema->fromApp) && $schema->fromApp === $enrollApp->enroll_app_id) {
-					if (!empty($enrollRecord->{$schema->id})) {
-						$matchCriteria->{$schema->id} = $enrollRecord->{$schema->id};
-						$isEmpty = false;
+		$bEmpty = true;
+		$oMatchCriteria = new \stdClass;
+		foreach ($oEnlApp->dynaDataSchemas as $oSchema) {
+			if (isset($oSchema->requireCheck) && $oSchema->requireCheck === 'Y') {
+				if (isset($oSchema->fromApp) && $oSchema->fromApp === $oEnlApp->entryRule->enroll->id) {
+					if (!empty($oEnlRecord->{$oSchema->id})) {
+						$oMatchCriteria->{$oSchema->id} = $oEnlRecord->{$oSchema->id};
+						$bEmpty = false;
 					}
 				}
 			}
 		}
 
-		if (!$isEmpty) {
+		$aResult = [];
+		if (!$bEmpty) {
 			// 查找匹配的数据
-			$matchApp = $modelApp->byId($enrollApp->enroll_app_id, ['cascaded' => 'N']);
+			$matchApp = $modelApp->byId($oEnlApp->entryRule->enroll->id, ['cascaded' => 'N']);
 			$modelEnlRec = $this->model('matter\enroll\record');
-			$matchRecords = $modelEnlRec->byData($matchApp, $matchCriteria);
+			$matchRecords = $modelEnlRec->byData($matchApp, $oMatchCriteria);
 			foreach ($matchRecords as $matchRec) {
-				$result[] = $matchRec->data;
+				$aResult[] = $matchRec->data;
 			}
 		}
 
-		return new \ResponseData($result);
+		return new \ResponseData($aResult);
 	}
 	/**
 	 * 从关联的分组活动中查找匹配的记录
 	 */
-	public function matchGroup_action($site, $app) {
-		if (false === ($oUser = $this->accountUser())) {
+	public function matchGroup_action($app) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
-		$enrollRecord = $this->getPostJson();
-		$result = [];
-
-		// 签到应用
 		$modelApp = $this->model('matter\enroll');
-		$enrollApp = $modelApp->byId($app, ['cascaded' => 'N']);
-		if (empty($enrollApp->group_app_id) || empty($enrollApp->data_schemas)) {
-			return new \ParameterError();
+		$oEnlApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $oEnlApp || empty($oEnlApp->dataSchemas)) {
+			return new \ObjectNotFoundError();
 		}
 
+		if (empty($oEnlApp->entryRule->group->id)) {
+			return new \ParameterError('没有关联分组活动');
+		}
+
+		$oEnlRecord = $this->getPostJson();
+
 		// 匹配规则
-		$isEmpty = true;
-		$matchCriteria = new \stdClass;
-		$schemas = json_decode($enrollApp->data_schemas);
-		foreach ($schemas as $schema) {
-			if (isset($schema->requireCheck) && $schema->requireCheck === 'Y') {
-				if (isset($schema->fromApp) && $schema->fromApp === $enrollApp->group_app_id) {
-					if (!empty($enrollRecord->{$schema->id})) {
-						$matchCriteria->{$schema->id} = $enrollRecord->{$schema->id};
-						$isEmpty = false;
+		$bEmpty = true;
+		$oMatchCriteria = new \stdClass;
+		foreach ($oEnlApp->dataSchemas as $oSchema) {
+			if (isset($oSchema->requireCheck) && $oSchema->requireCheck === 'Y') {
+				if (isset($oSchema->fromApp) && $oSchema->fromApp === $oEnlApp->entryRule->group->id) {
+					if (!empty($oEnlRecord->{$oSchema->id})) {
+						$oMatchCriteria->{$oSchema->id} = $oEnlRecord->{$oSchema->id};
+						$bEmpty = false;
 					}
 				}
 			}
 		}
 
-		if (!$isEmpty) {
+		$aResult = [];
+		if (!$bEmpty) {
 			// 查找匹配的数据
-			$groupApp = $this->model('matter\group')->byId($enrollApp->group_app_id, ['cascaded' => 'N']);
+			$oGroupApp = $this->model('matter\group')->byId($oEnlApp->entryRule->group->id, ['cascaded' => 'N']);
 			$modelGrpRec = $this->model('matter\group\player');
-			$matchedRecords = $modelGrpRec->byData($groupApp, $matchCriteria);
+			$matchedRecords = $modelGrpRec->byData($oGroupApp, $oMatchCriteria);
 			foreach ($matchedRecords as $matchedRec) {
 				if (isset($matchedRec->round_id)) {
 					$matchedRec->data->_round_id = $matchedRec->round_id;
 				}
-				$result[] = $matchedRec->data;
+				$aResult[] = $matchedRec->data;
 			}
 		}
 
-		return new \ResponseData($result);
+		return new \ResponseData($aResult);
 	}
 	/**
-	 * 登记数据导出
+	 * 根据记录的userid更新关联分组活动题目的数据
 	 */
-	public function export_action($site, $app, $filter = '') {
+	public function syncGroup_action($app, $rid = '', $overwrite = 'N') {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		$modelApp = $this->model('matter\enroll');
+		$oEnlApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $oEnlApp || $oEnlApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		if (empty($oEnlApp->entryRule->group->id)) {
+			return new \ParameterError('当前活动没有关联分组活动');
+		}
+
+		$aGrpSchemas = [];
+		if (!empty($oEnlApp->dynaDataSchemas)) {
+			foreach ($oEnlApp->dynaDataSchemas as $oSchema) {
+				if (isset($oSchema->requireCheck) && $oSchema->requireCheck === 'Y') {
+					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oEnlApp->entryRule->group->id) {
+						$aGrpSchemas[] = $oSchema;
+					}
+				}
+			}
+		}
+		//if (empty($aGrpSchemas)) {
+		//	return new \ParameterError('当前活动没有指定和分组活动关联的题目');
+		//}
+
+		$updatedCount = 0;
+		$modelRec = $this->model('matter\enroll\record');
+		$oResult = $modelRec->byApp($oEnlApp, null, (object) ['record' => (object) ['rid' => empty($rid) ? $oEnlApp->appRound->rid : 'all']]);
+		if (count($oResult->records)) {
+			$oGrpApp = (object) ['id' => $oEnlApp->entryRule->group->id];
+			$modelGrpUsr = $this->model('matter\group\user');
+			$oMocker = new \stdClass;
+			foreach ($oResult->records as $oRec) {
+				$oUpdatedData = $oRec->data;
+				$oGrpUsr = $modelGrpUsr->byUser($oGrpApp, $oRec->userid, ['onlyOne' => true, 'fields' => 'round_id,data']);
+				if (false === $oGrpUsr) {
+					continue;
+				}
+				$bModified = ($oRec->group_id !== $oGrpUsr->round_id);
+				foreach ($aGrpSchemas as $oGrpSchema) {
+					$enlVal = $this->getDeepValue($oUpdatedData, $oGrpSchema->id);
+					if ($overwrite === 'N' && !empty($enlVal)) {
+						continue;
+					}
+					if ($oGrpSchema->id === '_round_id') {
+						$grpVal = $oGrpUsr->round_id;
+					} else {
+						$grpVal = $this->getDeepValue($oGrpUsr->data, $oGrpSchema->id);
+					}
+					if ($enlVal !== $grpVal) {
+						$this->setDeepValue($oUpdatedData, $oGrpSchema->id, $grpVal);
+						$bModified = true;
+					}
+				}
+				if (false === $bModified) {
+					continue;
+				}
+				$oMocker->uid = $oRec->userid;
+				$oMocker->group_id = $oGrpUsr->round_id;
+				$modelRec->setData($oMocker, $oEnlApp, $oRec->enroll_key, $oUpdatedData);
+				$modelRec->update('xxt_enroll_record', ['group_id' => $oMocker->group_id], ['enroll_key' => $oRec->enroll_key]);
+
+				$updatedCount++;
+			}
+		}
+
+		return new \ResponseData($updatedCount);
+	}
+	/**
+	 * 根据记录的userid更新关联通信录题目的数据
+	 */
+	public function syncMschema_action($app, $rid = '', $overwrite = 'N') {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		$modelApp = $this->model('matter\enroll');
+		$oEnlApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $oEnlApp || $oEnlApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		if ($this->getDeepValue($oEnlApp->entryRule, 'scope.member') !== 'Y' || !isset($oEnlApp->entryRule->member)) {
+			return new \ParameterError('当前活动没有关联通信录');
+		}
+
+		$aMsSchemas = [];
+		if (!empty($oEnlApp->dynaDataSchemas)) {
+			foreach ($oEnlApp->dynaDataSchemas as $oSchema) {
+				if (isset($oSchema->schema_id) && isset($oEnlApp->entryRule->member->{$oSchema->schema_id})) {
+					$aMsSchemas[] = $oSchema;
+				}
+			}
+		}
+		if (empty($aMsSchemas)) {
+			return new \ParameterError('当前活动没有指定和通信录关联的题目');
+		}
+
+		$updatedCount = 0;
+		$modelRec = $this->model('matter\enroll\record');
+		$oResult = $modelRec->byApp($oEnlApp, null, (object) ['record' => (object) ['rid' => empty($rid) ? $oEnlApp->appRound->rid : 'all']]);
+		if (count($oResult->records)) {
+			$modelMem = $this->model('site\user\member');
+			$oMocker = new \stdClass;
+			foreach ($oResult->records as $oRec) {
+				$oUpdatedData = $oRec->data;
+				$aMembers = $modelMem->byUser($oRec->userid, ['schemas' => array_keys((array) $oEnlApp->entryRule->member)]);
+				if (count($aMembers) === 0) {
+					continue;
+				}
+				$oMember = (object) ['member' => $aMembers[0]];
+				$bModified = false;
+				foreach ($aMsSchemas as $oMsSchema) {
+					$enlVal = $this->getDeepValue($oUpdatedData, $oMsSchema->id);
+					if ($overwrite === 'N' && !empty($enlVal)) {
+						continue;
+					}
+					$memVal = $this->getDeepValue($oMember, $oMsSchema->id);
+					if ($enlVal !== $memVal) {
+						$this->setDeepValue($oUpdatedData, $oMsSchema->id, $memVal);
+						$bModified = true;
+					}
+				}
+				if (false === $bModified) {
+					continue;
+				}
+				$oMocker->uid = $oRec->userid;
+				$oMocker->group_id = $oRec->group_id;
+				$modelRec->setData($oMocker, $oEnlApp, $oRec->enroll_key, $oUpdatedData);
+				$updatedCount++;
+			}
+		}
+
+		return new \ResponseData($updatedCount);
+	}
+	/**
+	 * 填写记录导出
+	 */
+	public function export_action($app, $filter = '') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		// 登记活动
-		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,state,title,data_schemas,entry_rule,assigned_nickname,scenario,enroll_app_id,group_app_id,mission_id,sync_mission_round,round_cron', 'cascaded' => 'N']);
+		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,state,title,data_schemas,entry_rule,assigned_nickname,scenario,mission_id,sync_mission_round,round_cron', 'cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
-			die('指定的对象不存在或者已经不可用');
+			die('访问的对象不存在或不可用');
 		}
 		$schemas = $oApp->dynaDataSchemas;
 
-		// 关联的登记活动
-		if (!empty($oApp->enroll_app_id)) {
-			$matchApp = $this->model('matter\enroll')->byId($oApp->enroll_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
-			$enrollSchemas = $matchApp->dataSchemas;
-			$mapOfAppSchemas = [];
-			foreach ($schemas as $schema) {
-				$mapOfAppSchemas[] = $schema->id;
-			}
-			foreach ($enrollSchemas as $schema) {
-				if (!in_array($schema->id, $mapOfAppSchemas)) {
-					$schemas[] = $schema;
-				}
-			}
-		}
-		// 关联的分组活动
-		if (!empty($oApp->group_app_id)) {
-			$matchApp = $this->model('matter\group')->byId($oApp->group_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
-			$groupSchemas = json_decode($matchApp->data_schemas);
-			$mapOfAppSchemas = [];
-			foreach ($schemas as $schema) {
-				$mapOfAppSchemas[] = $schema->id;
-			}
-			foreach ($groupSchemas as $schema) {
-				if (!in_array($schema->id, $mapOfAppSchemas)) {
-					$schemas[] = $schema;
-				}
-			}
-		}
+		$modelSch = $this->model('matter\enroll\schema');
+		// 加入关联活动的题目
+		$modelSch->getUnionSchemas($oApp, $schemas);
+		// 关联的分组题目
+		$oAssocGrpSchema = $modelSch->getAssocGroupSchema($oApp);
 
-		// 获得所有有效的登记记录
+		/* 获得所有有效的登记记录 */
 		$modelRec = $this->model('matter\enroll\record');
 
 		// 筛选条件
@@ -1689,9 +1811,6 @@ class record extends main_base {
 		if ($oResult->total === 0) {
 			die('导出数据为空');
 		}
-
-		// 是否需要分组信息
-		$bRequireGroup = empty($oApp->group_app_id) && isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && !empty($oApp->entryRule->group->id);
 
 		$records = $oResult->records;
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
@@ -1749,11 +1868,12 @@ class record extends main_base {
 		if ($bRequireNickname) {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '昵称');
 		}
-		if ($bRequireGroup) {
+		if (null === $oAssocGrpSchema) {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '分组');
 		}
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '备注');
 		// $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '标签');
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '用户端用户标签');
 		// 记录分数
 		if ($oApp->scenario === 'voting') {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '总分数');
@@ -1778,7 +1898,7 @@ class record extends main_base {
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $oRecord->round->title);
 			}
 			// 处理登记项
-			$data = $oRecord->data;
+			$oRecData = $oRecord->data;
 			$oRecScore = empty($oRecord->score) ? new \stdClass : $oRecord->score;
 			$supplement = $oRecord->supplement;
 			$oVerbose = isset($oRecord->verbose) ? $oRecord->verbose->data : false;
@@ -1786,25 +1906,10 @@ class record extends main_base {
 			for ($i2 = 0, $ii = count($schemas); $i2 < $ii; $i2++) {
 				$columnNum3 = $columnNum2; //列号
 				$oSchema = $schemas[$i2];
-				if (isset($data->{$oSchema->id})) {
-					$v = $data->{$oSchema->id};
-				} else if ((strpos($oSchema->id, 'member.') === 0) && isset($data->member)) {
-					$mbSchemaId = $oSchema->id;
-					$mbSchemaIds = explode('.', $mbSchemaId);
-					$mbSchemaId = $mbSchemaIds[1];
-					if ($mbSchemaId === 'extattr' && count($mbSchemaIds) == 3) {
-						$mbSchemaId = $mbSchemaIds[2];
-						$v = isset($data->member->extattr->{$mbSchemaId}) ? $data->member->extattr->{$mbSchemaId} : '';
-					} else {
-						$v = isset($data->member->{$mbSchemaId}) ? $data->member->{$mbSchemaId} : '';
-					}
-				} else {
-					$v = '';
-				}
-
 				if (in_array($oSchema->type, ['html'])) {
 					continue;
 				}
+				$v = $modelRec->getDeepValue($oRecData, $oSchema->id, '');
 				switch ($oSchema->type) {
 				case 'single':
 					$cellValue = '';
@@ -1927,13 +2032,35 @@ class record extends main_base {
 				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->nickname);
 			}
 			// 分组
-			if ($bRequireGroup) {
+			if (null === $oAssocGrpSchema) {
 				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, isset($oRecord->group->title) ? $oRecord->group->title : '');
 			}
 			// 备注
 			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->comment);
 			// 标签
 			// $objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->tags);
+			// 用户端用户标签
+			if (!isset($who)) {
+				$modelWay = $this->model('site\fe\way');
+				$modelTag2 = $this->model('matter\enroll\tag2');
+				$who = $modelWay->who($oApp->siteid);
+			}
+			$oRecordTags = $modelTag2->byRecord($oRecord, $who, ['UserAndPublic' => true]);
+			$userTags = '';
+			if (!empty($oRecordTags->user)) {
+				foreach ($oRecordTags->user as $k => $val) {
+					$k > 0 && $userTags .= ',';
+					$userTags .= $val->label;
+				}
+			}
+			if (!empty($oRecordTags->public)) {
+				!empty($userTags) && $userTags .= ',';
+				foreach ($oRecordTags->public as $k => $val) {
+					$k > 0 && $userTags .= ',';
+					$userTags .= $val->label;
+				}
+			}
+			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $userTags);
 			// 记录投票分数
 			if ($oApp->scenario === 'voting') {
 				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->_score);
@@ -1973,7 +2100,7 @@ class record extends main_base {
 		exit;
 	}
 	/**
-	 * 导出登记数据中的图片
+	 * 导出记录中的图片
 	 */
 	public function exportImage_action($site, $app) {
 		if (false === ($oUser = $this->accountUser())) {
@@ -1983,47 +2110,21 @@ class record extends main_base {
 			die('部署环境不支持该功能');
 		}
 
-		$nameSchema = null;
+		$oNameSchema = null;
 		$imageSchemas = [];
 
-		// 登记活动
-		$enrollApp = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario,enroll_app_id,group_app_id,sync_mission_round', 'cascaded' => 'N']);
-		$schemas = $enrollApp->dataSchemas;
-
-		// 关联的登记活动
-		if (!empty($enrollApp->enroll_app_id)) {
-			$matchApp = $this->model('matter\enroll')->byId($enrollApp->enroll_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
-			$enrollSchemas = json_decode($matchApp->data_schemas);
-			$mapOfAppSchemas = [];
-			foreach ($schemas as $schema) {
-				$mapOfAppSchemas[] = $schema->id;
-			}
-			foreach ($enrollSchemas as $schema) {
-				if (!in_array($schema->id, $mapOfAppSchemas)) {
-					$schemas[] = $schema;
-				}
-			}
-		}
-		// 关联的分组活动
-		if (!empty($enrollApp->group_app_id)) {
-			$matchApp = $this->model('matter\group')->byId($enrollApp->group_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
-			$groupSchemas = json_decode($matchApp->data_schemas);
-			$mapOfAppSchemas = [];
-			foreach ($schemas as $schema) {
-				$mapOfAppSchemas[] = $schema->id;
-			}
-			foreach ($groupSchemas as $schema) {
-				if (!in_array($schema->id, $mapOfAppSchemas)) {
-					$schemas[] = $schema;
-				}
-			}
-		}
+		// 记录活动
+		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario,sync_mission_round', 'cascaded' => 'N']);
+		$schemas = $oApp->dynaDataSchemas;
+		$modelSch = $this->model('matter\enroll\schema');
+		// 加入关联活动的题目
+		$modelSch->getUnionSchemas($oApp, $schemas);
 
 		foreach ($schemas as $schema) {
 			if ($schema->type === 'image') {
 				$imageSchemas[] = $schema;
 			} else if ($schema->id === 'name' || (in_array($schema->title, array('姓名', '名称')))) {
-				$nameSchema = $schema;
+				$oNameSchema = $schema;
 			}
 		}
 
@@ -2032,7 +2133,7 @@ class record extends main_base {
 		}
 
 		// 获得所有有效的登记记录
-		$records = $this->model('matter\enroll\record')->byApp($enrollApp);
+		$records = $this->model('matter\enroll\record')->byApp($oApp);
 		if ($records->total === 0) {
 			die('record empty');
 		}
@@ -2043,11 +2144,11 @@ class record extends main_base {
 		for ($j = 0, $jj = count($records); $j < $jj; $j++) {
 			$record = $records[$j];
 			// 处理登记项
-			$data = $record->data;
+			$oRecData = $record->data;
 			for ($i = 0, $ii = count($imageSchemas); $i < $ii; $i++) {
 				$schema = $imageSchemas[$i];
-				if (!empty($data->{$schema->id})) {
-					$aImages[] = ['url' => $data->{$schema->id}, 'schema' => $schema, 'data' => $data];
+				if (!empty($oRecData->{$schema->id})) {
+					$aImages[] = ['url' => $oRecData->{$schema->id}, 'schema' => $schema, 'data' => $oRecData];
 				}
 			}
 		}
@@ -2055,7 +2156,7 @@ class record extends main_base {
 		// 输出
 		$usedRecordName = [];
 		// 输出打包文件
-		$zipFilename = tempnam('/tmp', $enrollApp->id);
+		$zipFilename = tempnam('/tmp', $oApp->id);
 		$zip = new \ZipArchive;
 		if ($zip->open($zipFilename, \ZIPARCHIVE::CREATE) === false) {
 			die('无法打开压缩文件，或者文件创建失败');
@@ -2067,10 +2168,10 @@ class record extends main_base {
 				/**
 				 * 图片文件名称替换
 				 */
-				if (isset($nameSchema)) {
+				if (isset($oNameSchema)) {
 					$data = $image['data'];
-					if (!empty($data->{$nameSchema->id})) {
-						$recordName = $data->{$nameSchema->id};
+					if (!empty($data->{$oNameSchema->id})) {
+						$recordName = $data->{$oNameSchema->id};
 						if (isset($usedRecordName[$recordName])) {
 							$usedRecordName[$recordName]++;
 							$recordName = $recordName . '_' . $usedRecordName[$recordName];
@@ -2090,7 +2191,7 @@ class record extends main_base {
 		}
 		header("Cache-Control: public");
 		header("Content-Description: File Transfer");
-		header('Content-disposition: attachment; filename=' . $enrollApp->title . '.zip');
+		header('Content-disposition: attachment; filename=' . $oApp->title . '.zip');
 		header("Content-Type: application/zip");
 		header("Content-Transfer-Encoding: binary");
 		header('Content-Length: ' . filesize($zipFilename));
@@ -2146,8 +2247,8 @@ class record extends main_base {
 				$aOptions = [];
 				$aOptions['enrollAt'] = $oRecord->enroll_at;
 				$aOptions['nickname'] = $oRecord->nickname;
-				$aOptions['assignRid'] = $toRnd;
-				$ek = $modelRec->enroll($oApp, $oEnrollee, $aOptions);
+				$aOptions['assignedRid'] = $toRnd;
+				$oNewRec = $modelRec->enroll($oApp, $oEnrollee, $aOptions);
 				// 登记数据
 				$oRecData = new \stdClass;
 				foreach ($compatibleSchemas as $cs) {
@@ -2188,7 +2289,7 @@ class record extends main_base {
 					}
 					$oRecData->{$cs[1]->id} = $val;
 				}
-				$modelRec->setData($oEnrollee, $oApp, $ek, $oRecData);
+				$modelRec->setData($oEnrollee, $oApp, $oNewRec->enroll_key, $oRecData);
 				$countOfImport++;
 			}
 		}
@@ -2478,7 +2579,7 @@ class record extends main_base {
 				$records = $modelRec->byUser($oApp, $oMockUser, ['rid' => $oAssignedRnd->rid]);
 				if (empty($records)) {
 					$oMockUser->nickname = $oMisUser->nickname;
-					$modelRec->enroll($oApp, $oMockUser, ['nickname' => $oMockUser->nickname, 'assignRid' => $oAssignedRnd->rid]);
+					$modelRec->enroll($oApp, $oMockUser, ['nickname' => $oMockUser->nickname, 'assignedRid' => $oAssignedRnd->rid]);
 					$newRecordCount++;
 				}
 			}

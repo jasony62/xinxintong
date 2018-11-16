@@ -5,6 +5,91 @@ namespace matter\group;
  */
 class user_model extends \TMS_MODEL {
 	/**
+	 * 用户清单
+	 *
+	 * return
+	 * [0] 数据列表
+	 * [1] 数据总条数
+	 */
+	public function byApp($oApp, $oOptions = null) {
+		if (is_string($oApp)) {
+			$oApp = (object) ['id' => $oApp];
+		}
+		if ($oOptions) {
+			is_array($oOptions) && $oOptions = (object) $oOptions;
+			$page = isset($oOptions->page) ? $oOptions->page : null;
+			$size = isset($oOptions->size) ? $oOptions->size : null;
+		}
+
+		$fields = isset($oOptions->fields) ? $oOptions->fields : 'enroll_key,enroll_at,comment,tags,data,userid,nickname,is_leader,wx_openid,yx_openid,qy_openid,headimgurl,round_id,round_title,role_rounds';
+
+		/* 数据过滤条件 */
+		$w = "state=1 and aid='{$oApp->id}'";
+		/*tags*/
+		if (!empty($oOptions->tags)) {
+			$aTags = explode(',', $oOptions->tags);
+			foreach ($aTags as $tag) {
+				$w .= " and concat(',',tags,',') like '%,$tag,%'";
+			}
+		}
+		if (isset($oOptions->roundId)) {
+			if ($oOptions->roundId === 'inTeam') {
+				$w .= " and round_id <> ''";
+			} else if ($oOptions->roundId === '' || $oOptions->roundId === 'pending') {
+				$w .= " and round_id = ''";
+			} else if (strcasecmp($oOptions->roundId, 'all') !== 0) {
+				$w .= " and round_id = '" . $oOptions->roundId . "' and userid <> ''";
+			}
+		}
+		if (!empty($oOptions->roleRoundId)) {
+			$w .= " and role_rounds like '%\"" . $oOptions->roleRoundId . "\"%' and userid <> ''";
+		}
+		// 根据用户昵称过滤
+		if (!empty($oOptions->nickname)) {
+			$w .= " and nickname like '%{$oOptions->nickname}%'";
+		}
+		$q = [
+			$fields,
+			'xxt_group_player',
+			$w,
+		];
+		/* 分页参数 */
+		if (isset($page) && isset($size)) {
+			$q2 = [
+				'r' => ['o' => ($page - 1) * $size, 'l' => $size],
+			];
+		}
+		/* 排序 */
+		$q2['o'] = 'round_id asc,enroll_at desc';
+
+		$oResult = new \stdClass; // 返回的结果
+		$users = $this->query_objs_ss($q, $q2);
+		if (count($users)) {
+			/* record data */
+			if ($fields === '*' || false !== strpos($fields, 'data') || false !== strpos($fields, 'role_rounds')) {
+				foreach ($users as $oUser) {
+					if (!empty($oUser->data)) {
+						$oUser->data = json_decode($oUser->data);
+					}
+					if (!empty($oUser->role_rounds)) {
+						$oUser->role_rounds = json_decode($oUser->role_rounds);
+					} else {
+						$oUser->role_rounds = [];
+					}
+				}
+			}
+
+		}
+		$oResult->users = $users;
+
+		/* total */
+		$q[0] = 'count(*)';
+		$total = (int) $this->query_val_ss($q);
+		$oResult->total = $total;
+
+		return $oResult;
+	}
+	/**
 	 * 根据用户id获得在指定分组活动中的分组信息
 	 */
 	public function byUser($oApp, $userid, $aOptions = []) {
@@ -19,25 +104,31 @@ class user_model extends \TMS_MODEL {
 			['state' => 1, 'aid' => $oApp->id, 'userid' => $userid],
 		];
 		$q2 = ['o' => 'enroll_at desc'];
+		if (isset($aOptions['onlyOne']) && $aOptions['onlyOne'] === true) {
+			$q2['r'] = ['o' => 0, 'l' => 1];
+		}
 
 		$list = $this->query_objs_ss($q, $q2);
 		if (count($list)) {
+			$aRecHandler = [];
+			if ($fields === '*' || false !== strpos($fields, 'data')) {
+				$aRecHandler[] = function (&$oUser) {
+					$oUser->data = empty($oUser->data) ? new \stdClass : json_decode($oUser->data);
+				};
+			}
 			if ($fields === '*' || false !== strpos($fields, 'role_rounds')) {
-				foreach ($list as &$player) {
-					if (!empty($player->role_rounds)) {
-						$player->role_rounds = json_decode($player->role_rounds);
-					} else {
-						$player->role_rounds = [];
-					}
+				$aRecHandler[] = function (&$oUser) {
+					$oUser->role_rounds = empty($oUser->role_rounds) ? [] : json_decode($oUser->role_rounds);
+				};
+			}
+			foreach ($list as $oUser) {
+				foreach ($aRecHandler as $fnHandler) {
+					$fnHandler($oUser);
 				}
 			}
 		}
 		if (isset($aOptions['onlyOne']) && $aOptions['onlyOne'] === true) {
-			if (count($list)) {
-				return $list[0];
-			} else {
-				return false;
-			}
+			return count($list) ? $list[0] : false;
 		}
 
 		return $list;
@@ -86,5 +177,29 @@ class user_model extends \TMS_MODEL {
 		}
 
 		return $users;
+	}
+	/**
+	 * 指定用户是否属于指定用户组
+	 */
+	public function isInRound($roundId, $userid) {
+		/* 主分组 */
+		$q = [
+			'1',
+			'xxt_group_player',
+			['userid' => $userid, 'state' => 1, 'round_id' => $roundId],
+		];
+		$oUser = $this->query_obj_ss($q);
+		if ($oUser) {
+			return true;
+		}
+		/* 辅助分组 */
+		unset($q[2]['round_id']);
+		$q[2]['role_rounds'] = (object) ['op' => 'like', 'pat' => '%' . $roundId . '%'];
+		$oUser = $this->query_obj_ss($q);
+		if ($oUser) {
+			return true;
+		}
+
+		return false;
 	}
 }

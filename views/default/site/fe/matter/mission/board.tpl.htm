@@ -5,27 +5,27 @@
     <meta charset="utf-8">
     <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
     <base href="/" />
-    <title>项目活动</title>
+    <title>项目公告</title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-    <link href='/static/css/site.fe.css?_=1' rel="stylesheet">
-    <link href="/views/default/site/fe/matter/mission/board.css?_=1" rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
+    <link href="<?php echo auto_version('/views/default/site/fe/matter/mission/board.css');?>" rel="stylesheet">
 </head>
 
 <body>
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
-    <div ng-controller="ctrlMain">
+    <div ng-controller="ctrlMain" tms-trace send-url='/rest/site/fe/matter/mission/analysis/submit?site={{siteid}}&mission={{mission.id}}&page=board' ready-sign="mission">
         <nav class='navbar site-navbar-default'>
             <div class='container'>
                 <div class="navbar-header">
-                    <div class="navbar-brand">
-                        <i class="glyphicon glyphicon-edit visible-lg-inline"></i> <span class='icon-note' ng-bind='mission.title'></span>
-                    </div>
+                    <a href="" class="navbar-brand">
+                        <i class="glyphicon glyphicon-edit visible-lg-inline"></i> <span tms-pop-nav navs="popNav.navs" close-after='5000' custom="popNav.custom">项目公告</span>
+                    </a>
                 </div>
                 <ul class="nav navbar-nav navbar-right">
                     <li class="pull-left">
-                        <a href="/rest/site/fe/matter/mission?site={{siteid}}&mission={{mission.id}}"><i class="glyphicon glyphicon-list"></i><span class="visible-lg-inline"> 足迹</span></a>
+                        <a href="/rest/site/fe/matter/mission?site={{siteid}}&mission={{mission.id}}" target='_self'><i class="glyphicon glyphicon-list"></i><span class="visible-lg-inline"> 足迹</span></a>
                     </li>
                     <li class="pull-left">
                         <a href="" ng-click="siteUser()"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline"> 个人中心</span></a>
@@ -37,7 +37,7 @@
             <uib-tabset id='cardPills' active="activeCard" type="pills" justified='true'>
                 <uib-tab index="'doc'" heading="资料"></uib-tab>
                 <uib-tab index="'recommend'" heading="推荐"></uib-tab>
-                <uib-tab index="'rank'" heading="积分排行"></uib-tab>
+                <uib-tab index="'score'" heading="得分排行"></uib-tab>
             </uib-tabset>
             <div id='cards'>
                 <div ng-switch on="activeCard">
@@ -75,7 +75,7 @@
                                         <div class='schema' ng-repeat="schema in recommend.matter.dataSchemas" ng-switch on="schema.type">
                                             <div ng-switch-when="image">
                                                 <div class='text-muted'>{{schema.title}}</div>
-                                                <div ng-repeat="img in recommend.obj.data[schema.id]"><img ng-src="{{img}}" /></div>
+                                                <div ng-repeat="img in recommend.obj.data[schema.id]"><span><img ng-src="{{img}}"></span></div>
                                             </div>
                                             <div ng-switch-when="file">
                                                 <div class='text-muted'>{{schema.title}}</div>
@@ -86,7 +86,7 @@
                                                     <audio ng-if="file.type.indexOf('audio')===0" controls="controls">
                                                         <source src="{{file.url}}" type="{{file.type}}" />
                                                     </audio>
-                                                    <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' />
+                                                    <span><img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}'></span>
                                                 </div>
                                             </div>
                                             <div ng-switch-when="multitext">
@@ -112,10 +112,10 @@
                         </div>
                     </div>
                     <!--end recommend-->
-                    <div id='rank' ng-switch-when="rank" class='row' ng-controller="ctrlRank">
+                    <div id='score' ng-switch-when="score" class='row' ng-controller="ctrlScore">
                         <div ng-repeat='user in users'>
                             <div class='col-xs-3 text-center index'>
-                                <div>{{user.user_total_coin}}</div>
+                                <div>{{user.score}}</div>
                             </div>
                             <div class='col-xs-9'>
                                 <div class='user'>
@@ -130,10 +130,13 @@
     </div>
     <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
     <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-route.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/asset/js/xxt.ui.http.js');?>"></script>
-    <script src="/static/js/require.js" defer async data-main="<?php echo auto_version('/views/default/site/fe/matter/mission/board-loader.js');?>"></script>
+    <script src="<?php echo auto_version('/asset/js/xxt.ui.trace.js');?>"></script>
+    <script src="<?php echo auto_version('/asset/js/xxt.ui.nav.js');?>"></script>
+    <script src="<?php echo auto_version('/views/default/site/fe/matter/mission/board.js');?>"></script>
 </body>
 
 </html>

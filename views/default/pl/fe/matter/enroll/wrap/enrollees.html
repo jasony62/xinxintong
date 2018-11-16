@@ -2,7 +2,7 @@
     <div class="form-group">
         <label>数据范围</label>
         <select class='form-control' ng-model="activeWrap.config.dataScope" ng-change="updWrap()">
-            <option value='G' ng-if="app.group_app_id">当前用户所在分组</option>
+            <option value='G' ng-if="app.entryRule.group.id">当前用户所在分组</option>
             <option value='A'>整个活动</option>
         </select>
     </div>

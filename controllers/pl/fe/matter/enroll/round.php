@@ -3,13 +3,14 @@ namespace pl\fe\matter\enroll;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /*
- * 登记活动主控制器
+ * 记录活动主控制器
  */
 class round extends \pl\fe\matter\base {
 	/**
-	 * 返回指定登记活动下的轮次
+	 * 返回指定记录活动下的轮次
 	 *
 	 * @param string $app app's id
+	 * @param string $checked round's id 指定的轮次
 	 *
 	 */
 	public function list_action($app, $checked = null, $page = 1, $size = 10) {
@@ -28,10 +29,11 @@ class round extends \pl\fe\matter\base {
 		$oPage->num = $page;
 		$oPage->size = $size;
 
-		$oResult = $modelRnd->byApp($oApp, ['page' => $oPage, 'fields' => 'id,state,rid,title,start_at,end_at,mission_rid', 'state' => [0, 1, 2]]);
+		$fields = 'id,state,rid,title,purpose,start_at,end_at,mission_rid';
+		$oResult = $modelRnd->byApp($oApp, ['page' => $oPage, 'fields' => $fields, 'state' => [0, 1, 2]]);
 		if (!empty($checked)) {
-			if ($checked = $modelRnd->byId($checked)) {
-				$oResult->checked = $checked;
+			if ($oChecked = $modelRnd->byId($checked, ['fields' => $fields])) {
+				$oResult->checked = $oChecked;
 			}
 		}
 
@@ -149,9 +151,9 @@ class round extends \pl\fe\matter\base {
 			return new \ResponseError('更新失败，本轮次的开始时间不能晚于结束时间！');
 		}
 		/* 指定了开始时间的轮次，自动指定为启用状态 */
-		if ((int) $oRound->start_at > 0 && (int) $oPosted->start_at === 0) {
+		if ((int) $oRound->start_at > 0 && (int) $this->getDeepValue($oPosted, 'start_at', 0) === 0) {
 			$oPosted->state = 0;
-		} else if ((int) $oRound->start_at === 0 && (int) $oPosted->start_at > 0) {
+		} else if ((int) $oRound->start_at === 0 && (int) $this->getDeepValue($oPosted, 'start_at', 0) > 0) {
 			$oPosted->state = 1;
 		}
 
@@ -166,6 +168,9 @@ class round extends \pl\fe\matter\base {
 			switch ($prop) {
 			case 'title':
 				$oUpdate->title = $modelRnd->escape($value);
+				break;
+			case 'purpose':
+				$oUpdate->purpose = in_array($value, ['C', 'B', 'S']) ? $value : 'C';
 				break;
 			case 'state':
 				$oUpdate->state = (int) $value;

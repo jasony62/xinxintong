@@ -127,9 +127,11 @@ define(['frame'], function(ngApp) {
             $scope.tmsTableWrapReady = 'Y';
             $scope.bRequireNickname = oApp.assignedNickname.valid !== 'Y' || !oApp.assignedNickname.schema;
             $scope.doSearch();
-            if (oApp.group_app_id || oApp.enroll_app_id || oApp.entry_rule.scope === 'member') {
-                $scope.bHasAbsent = true;
-                $scope.absent();
+            if (oApp.entryRule) {
+                if (oApp.entryRule.group || oApp.entryRule.enroll || oApp.entryRule.scope === 'member') {
+                    $scope.bHasAbsent = true;
+                    $scope.absent();
+                }
             }
         });
     }]);

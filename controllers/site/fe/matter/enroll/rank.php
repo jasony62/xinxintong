@@ -11,7 +11,7 @@ class rank extends base {
 	 */
 	public function userByApp_action($app, $page = 1, $size = 100) {
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		if ($oApp === false) {
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
@@ -81,11 +81,11 @@ class rank extends base {
 
 		$oResult = new \stdClass;
 		$users = $modelUsr->query_objs_ss($q, $q2);
-		if (count($users) && !empty($oApp->group_app_id)) {
+		if (count($users) && !empty($oApp->entryRule->group->id)) {
 			$q = [
 				'userid,round_id,round_title',
 				'xxt_group_player',
-				['aid' => $oApp->group_app_id],
+				['aid' => $oApp->entryRule->group->id],
 			];
 			$userGroups = $modelUsr->query_objs_ss($q);
 			if (count($userGroups)) {
@@ -114,15 +114,13 @@ class rank extends base {
 	 */
 	public function groupByApp_action($app) {
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'id,state,entry_rule,data_schemas,group_app_id']);
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'id,state,entry_rule,data_schemas']);
 		if ($oApp === false || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 		$modelGrpRnd = $this->model('matter\group\round');
-		if (isset($oApp->entryRule->scope->group) && $oApp->entryRule->scope->group === 'Y' && !empty($oApp->entryRule->group->id)) {
+		if (!empty($oApp->entryRule->group->id)) {
 			$rounds = $modelGrpRnd->byApp($oApp->entryRule->group->id, ['cascade' => 'playerCount']);
-		} else if (!empty($oApp->group_app_id)) {
-			$rounds = $modelGrpRnd->byApp($oApp->group_app_id, ['cascade' => 'playerCount']);
 		}
 		if (empty($rounds)) {
 			return new \ObjectNotFoundError();
@@ -166,7 +164,10 @@ class rank extends base {
 		case 'average_score':
 			$sql .= 'sum(score)';
 			break;
+		default:
+			return new \ParameterError('不支持的排行数据类型【' . $oCriteria->orderby . '】');
 		}
+
 		$sql .= ' from xxt_enroll_user where aid=\'' . $oApp->id . "' and state=1";
 		if (!empty($oCriteria->round) && is_string($oCriteria->round)) {
 			$oCriteria->round = explode(',', $oCriteria->round);
@@ -213,22 +214,19 @@ class rank extends base {
 		return new \ResponseData($oResult);
 	}
 	/**
-	 * 登记内容排行榜
+	 * 记录内容排行榜
 	 */
 	public function dataByApp_action($app, $page = 1, $size = 20) {
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		if ($oApp === false || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-		if (!empty($oApp->group_app_id)) {
-			foreach ($oApp->dataSchemas as $oSchema) {
-				if ($oSchema->id === '_round_id') {
-					$aAssocGroups = [];
-					foreach ($oSchema->ops as $op) {
-						$aAssocGroups[$op->v] = $op->l;
-					}
-					break;
-				}
+		// 是否需要分组信息
+		$oAssocGrpSchema = $this->model('matter\enroll\schema')->getAssocGroupSchema($oApp);
+		if ($oAssocGrpSchema) {
+			$aAssocGroups = [];
+			foreach ($oAssocGrpSchema->ops as $op) {
+				$aAssocGroups[$op->v] = $op->l;
 			}
 		}
 
@@ -287,20 +285,20 @@ class rank extends base {
 			}
 
 			$modelRec = $this->model('matter\enroll\record');
-			foreach ($records as &$record) {
-				$oRec = $modelRec->byId($record->enroll_key, ['fields' => 'nickname,supplement']);
+			foreach ($records as $oRecord) {
+				$oRec = $modelRec->byId($oRecord->enroll_key, ['fields' => 'nickname,supplement']);
 				if ($oRec) {
-					$record->nickname = $oRec->nickname;
-					if (isset($oRec->supplement->{$record->schema_id})) {
-						$record->supplement = $oRec->supplement->{$record->schema_id};
+					$oRecord->nickname = $oRec->nickname;
+					if (isset($oRec->supplement->{$oRecord->schema_id})) {
+						$oRecord->supplement = $oRec->supplement->{$oRecord->schema_id};
 					}
 				}
-				if (!empty($aAssocGroups) && !empty($record->group_id)) {
-					$record->group_title = isset($aAssocGroups[$record->group_id]) ? $aAssocGroups[$record->group_id] : '';
+				if (!empty($aAssocGroups) && !empty($oRecord->group_id)) {
+					$oRecord->group_title = isset($aAssocGroups[$oRecord->group_id]) ? $aAssocGroups[$oRecord->group_id] : '';
 				}
 				// 处理多项填写题
-				if (isset($record->schema_id) && isset($dataSchemas->{$record->schema_id}) && $dataSchemas->{$record->schema_id}->type === 'multitext' && $record->multitext_seq == 0) {
-					$record->value = empty($record->value) ? [] : json_decode($record->value);
+				if (isset($oRecord->schema_id) && isset($dataSchemas->{$oRecord->schema_id}) && $dataSchemas->{$oRecord->schema_id}->type === 'multitext' && $oRecord->multitext_seq == 0) {
+					$oRecord->value = empty($oRecord->value) ? [] : json_decode($oRecord->value);
 				}
 			}
 		}
@@ -316,7 +314,7 @@ class rank extends base {
 	 */
 	public function remarkByApp_action($app, $page = 1, $size = 20) {
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		if ($oApp === false) {
+		if ($oApp === false || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
@@ -349,11 +347,11 @@ class rank extends base {
 
 		$oResult = new \stdClass;
 		$remarks = $modelRem->query_objs_ss($q, $q2);
-		if ($remarks && !empty($oApp->group_app_id)) {
+		if (count($remarks) && !empty($oApp->entryRule->group->id)) {
 			$q = [
 				'userid,round_id,round_title',
 				'xxt_group_player',
-				['aid' => $oApp->group_app_id],
+				['aid' => $oApp->entryRule->group->id],
 			];
 			if ($userGroups = $modelRem->query_objs_ss($q)) {
 				$userGroups2 = new \stdClass;

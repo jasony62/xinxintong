@@ -403,7 +403,7 @@ define(['require'], function(require) {
                     return $uibModal.open({
                         templateUrl: '/views/default/pl/fe/matter/mission/component/chooseApps.html?_=1',
                         controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                            var oCriteria, oReportConfig, oIncludeApps = {};
+                            var oCriteria, oIncludeApps = {};
                             $scope2.criteria = oCriteria = {};
                             if (includeApps) {
                                 includeApps.forEach(function(oApp) {

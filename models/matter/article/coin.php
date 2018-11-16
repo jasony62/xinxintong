@@ -31,11 +31,6 @@ class coin_model extends \TMS_MODEL {
 	 */
 	public function getCreator($article) {
 		$creator = false;
-		if ($article->creater_src === 'M') {
-			if ($member = $this->model('site\user\member')->byId($article->creater)) {
-				$creator = $this->model('site\user\account')->byId($member->userid);
-			}
-		}
 
 		return $creator;
 	}

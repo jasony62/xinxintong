@@ -102,7 +102,9 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.editRecord = function(record) {
-            $location.path('/rest/pl/fe/matter/enroll/editor').search({ site: $scope.app.siteid, id: $scope.app.id, ek: record ? record.enroll_key : '' });
+            var newUrl = '/rest/pl/fe/matter/enroll/editor?site=' + $scope.app.siteid + '&id=' + $scope.app.id + '&ek=';
+            newUrl += record ? record.enroll_key : '';
+            window.open(newUrl, '_blank');
         };
         $scope.batchTag = function() {
             if ($scope.rows.count) {
@@ -130,7 +132,7 @@ define(['frame'], function(ngApp) {
             srvEnrollRecord.exportImage();
         };
         $scope.renewScore = function() {
-            srvEnlRnd.list(false, 1, 999).then(function(oResult) {
+            srvEnlRnd.list().then(function(oResult) {
                 var rounds = oResult.rounds;
 
                 function renewScoreByRound(i) {
@@ -176,7 +178,7 @@ define(['frame'], function(ngApp) {
         $scope.syncMissionUser = function() {
             var oPosted = {};
             if ($scope.criteria.record && $scope.criteria.record.rid) {
-                oPosted.rid = $scope.criteria.record.ri;
+                oPosted.rid = $scope.criteria.record.rid;
             }
             http2.post('/rest/pl/fe/matter/enroll/record/syncMissionUser?app=' + $scope.app.id, oPosted).then(function(rsp) {
                 if (rsp.data > 0) {
@@ -187,6 +189,54 @@ define(['frame'], function(ngApp) {
         $scope.syncWithDataSource = function() {
             http2.get('/rest/pl/fe/matter/enroll/record/syncWithDataSource?app=' + $scope.app.id).then(function(rsp) {
                 $scope.doSearch(1);
+            });
+        };
+        $scope.syncWithGroupApp = function() {
+            $uibModal.open({
+                templateUrl: 'syncWithGroupApp.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.config = { $overwrite: 'N' };
+                    $scope2.ok = function() {
+                        $mi.close($scope2.config);
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss('cancel');
+                    };
+                }],
+                backdrop: 'static',
+            }).result.then(function(oConfig) {
+                var url;
+                url = '/rest/pl/fe/matter/enroll/record/syncGroup?app=' + $scope.app.id + '&overwrite=' + oConfig.overwrite;
+                if ($scope.criteria.record && $scope.criteria.record.rid) {
+                    url += '&rid=' + $scope.criteria.record.rid;
+                }
+                http2.get(url).then(function(rsp) {
+                    $scope.doSearch(1);
+                });
+            });
+        };
+        $scope.syncWithMschema = function() {
+            $uibModal.open({
+                templateUrl: 'syncWithMschema.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.config = { $overwrite: 'N' };
+                    $scope2.ok = function() {
+                        $mi.close($scope2.config);
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss('cancel');
+                    };
+                }],
+                backdrop: 'static',
+            }).result.then(function(oConfig) {
+                var url;
+                url = '/rest/pl/fe/matter/enroll/record/syncMschema?app=' + $scope.app.id + '&overwrite=' + oConfig.overwrite;
+                if ($scope.criteria.record && $scope.criteria.record.rid) {
+                    url += '&rid=' + $scope.criteria.record.rid;
+                }
+                http2.get(url).then(function(rsp) {
+                    $scope.doSearch(1);
+                });
             });
         };
         $scope.copyToUser = function() {
@@ -291,8 +341,10 @@ define(['frame'], function(ngApp) {
                 });
 
                 $scope.bRequireNickname = oApp.assignedNickname.valid !== 'Y' || !oApp.assignedNickname.schema;
-                if (!oApp.group_app_id) {
-                    $scope.bRequireGroup = oApp.entryRule.scope.group === 'Y' && oApp.entryRule.group && oApp.entryRule.group.id;
+                if (oApp.entryRule.group) {
+                    $scope.bRequireGroup = oApp._schemasById['_round_id'] ? false : true;
+                } else {
+                    $scope.bRequireGroup = false;
                 }
                 $scope.bRequireSum = bRequireSum;
                 $scope.bRequireScore = bRequireScore;

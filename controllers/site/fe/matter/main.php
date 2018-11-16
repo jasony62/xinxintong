@@ -176,10 +176,10 @@ class main extends \site\fe\matter\base {
 			if (empty($post->assignedNickname)) {
 				$oApp = $this->model('matter\enroll')->byId($id, ['fields' => 'siteid,id,round_cron,assigned_nickname', 'cascaded' => 'N']);
 				if ((isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') && isset($oApp->assignedNickname->schema->id)) {
-					$options = [];
-					$options['fields'] = 'nickname';
-					$options['assignRid'] = $userRid;
-					$userRec = $this->model('matter\enroll\record')->lastByUser($oApp, $user, $options);
+					$aOptions = [];
+					$aOptions['fields'] = 'nickname';
+					$aOptions['rid'] = $userRid;
+					$userRec = $this->model('matter\enroll\record')->lastByUser($oApp, $user, $aOptions);
 					if ($userRec) {
 						$assignedNickname = $userRec->nickname;
 					}
@@ -346,10 +346,10 @@ class main extends \site\fe\matter\base {
 		if ($type === 'enroll') {
 			$oApp = $this->model('matter\enroll')->byId($id, ['fields' => 'siteid,id,round_cron,assigned_nickname', 'cascaded' => 'N']);
 			if ((isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') && isset($oApp->assignedNickname->schema->id)) {
-				$options = [];
-				$options['fields'] = 'nickname';
-				$options['assignRid'] = $rid;
-				$userRec = $this->model('matter\enroll\record')->lastByUser($oApp, $user, $options);
+				$aOptions = [];
+				$aOptions['fields'] = 'nickname';
+				$aOptions['rid'] = $rid;
+				$userRec = $this->model('matter\enroll\record')->lastByUser($oApp, $user, $aOptions);
 				if ($userRec) {
 					!empty($userRec->nickname) && $logUser->nickname = $userRec->nickname;
 				}

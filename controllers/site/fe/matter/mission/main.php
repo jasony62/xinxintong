@@ -9,15 +9,26 @@ class main extends \site\fe\matter\base {
 	/**
 	 *
 	 */
-	public function index_action() {
-		\TPL::output('/site/fe/matter/mission/main');
-		exit;
-	}
-	/**
-	 *
-	 */
-	public function board_action() {
-		\TPL::output('/site/fe/matter/mission/board');
+	public function index_action($mission, $page = 'main') {
+		$oMission = $this->model('matter\mission')->byId($mission, ['fields' => 'siteid,id,title,entry_rule']);
+		if (false === $oMission) {
+			return new \ObjectNotFoundError();
+		}
+
+		/* 检查是否需要第三方社交帐号OAuth */
+		if (!$this->afterSnsOAuth()) {
+			$this->requireSnsOAuth($oMission);
+		}
+
+		$this->checkEntryRule($oMission, true);
+
+		switch ($page) {
+		case 'board':
+			\TPL::output('/site/fe/matter/mission/board');
+			break;
+		default:
+			\TPL::output('/site/fe/matter/mission/main');
+		}
 		exit;
 	}
 	/**
@@ -98,26 +109,27 @@ class main extends \site\fe\matter\base {
 					continue;
 				}
 				if (isset($oGrpLeader)) {
-					/*只能查看分配给分组的活动数据*/
+					/* 只能查看分配给分组的活动数据 */
 					if ($oMatter->type !== 'enroll') {
 						continue;
 					}
-					if (empty($oMatter->entry_rule->group->round->id) || $oMatter->entry_rule->group->round->id !== $oGrpLeader->round_id) {
+					if ($this->getDeepValue($oMatter->entryRule, 'group.round.id') !== $oGrpLeader->round_id) {
 						continue;
 					}
 				}
 				if ($oMatter->type === 'enroll') {
 					/* 用户身份是否匹配活动进入规则 */
-					if (isset($oMatter->entry_rule->scope) && $oMatter->entry_rule->scope === 'group') {
+					if ($this->getDeepValue($oMatter->entryRule, 'scope.group') === 'Y') {
 						$bMatched = false;
-						$oEntryRule = $oMatter->entry_rule;
+						$oEntryRule = $oMatter->entryRule;
 						if (isset($oEntryRule->group->id)) {
 							$oGroupApp = $oEntryRule->group;
-							$oGroupUsr = $this->model('matter\group\player')->byUser($oGroupApp, $oUser->uid, ['fields' => 'round_id,round_title']);
-							if (count($oGroupUsr)) {
-								$oGroupUsr = $oGroupUsr[0];
+							$oGroupUsr = $this->model('matter\group\user')->byUser($oGroupApp, $oUser->uid, ['fields' => 'round_id,round_title,role_rounds', 'onlyOne' => true]);
+							if ($oGroupUsr) {
 								if (isset($oGroupApp->round->id)) {
 									if ($oGroupUsr->round_id === $oGroupApp->round->id) {
+										$bMatched = true;
+									} else if (count($oGroupUsr->role_rounds) && in_array($oGroupApp->round->id, $oGroupUsr->role_rounds)) {
 										$bMatched = true;
 									}
 								} else {
@@ -157,10 +169,6 @@ class main extends \site\fe\matter\base {
 				unset($oMatter->pages);
 				unset($oMatter->create_at);
 				unset($oMatter->creater_name);
-				unset($oMatter->opUrl);
-				unset($oMatter->op_short_url_code);
-				unset($oMatter->rpUrl);
-				unset($oMatter->rp_short_url_code);
 				unset($oMatter->is_public);
 
 				$mattersByUser[] = $oMatter;

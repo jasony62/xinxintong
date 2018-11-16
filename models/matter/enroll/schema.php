@@ -20,6 +20,7 @@ class schema_model extends \TMS_MODEL {
 	 * dynamic 是否为动态生成的题目
 	 * prototype 动态题目的原始定义
 	 * dsOps 动态选项来源
+	 * hideByRoundPurpose 指定类型轮次下隐藏
 	 *
 	 * 支持的动态属性
 	 * cloneSchema
@@ -29,9 +30,9 @@ class schema_model extends \TMS_MODEL {
 	 * schema_id 通讯录id
 	 */
 	public function purify($aAppSchemas) {
-		$validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'optGroups', 'defaultValue', 'cowork', 'filterWhiteSpace', 'ops', 'schema_id', 'asdir'];
+		$validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'hideByRoundPurpose', 'optGroups', 'defaultValue', 'cowork', 'filterWhiteSpace', 'ops', 'schema_id', 'asdir'];
 		$validPropsBySchema = [
-			'html' => ['id', 'type', 'content', 'title', 'visibility'],
+			'html' => ['id', 'type', 'content', 'title', 'visibility', 'hideByRoundPurpose'],
 		];
 
 		$purified = [];
@@ -167,6 +168,12 @@ class schema_model extends \TMS_MODEL {
 					if (empty($oSchema->visibility->rules)) {
 						unset($oSchema->visibility);
 					}
+				}
+			}
+			/* 指定类型轮次下隐藏 */
+			if (isset($oSchema->hideByRoundPurpose)) {
+				if (!is_array($oSchema->hideByRoundPurpose) || empty($oSchema->hideByRoundPurpose)) {
+					unset($oSchema->hideByRoundPurpose);
 				}
 			}
 			/* 选项可见条件 */
@@ -884,6 +891,69 @@ class schema_model extends \TMS_MODEL {
 
 			$newSchemas[] = $oNewSchema;
 		}
+	}
+	/**
+	 * 获得分组题
+	 *
+	 * @return false 不支持分组活动；null 没有关联分组题；分组题
+	 */
+	public function getAssocGroupSchema($oApp) {
+		if (empty($oApp->entryRule->group->id)) {
+			/* 没有关联分组活动 */
+			return false;
+		}
+		if (empty($oApp->dataSchemas)) {
+			return null;
+		}
+		$oGroupSchema = null;
+		foreach ($oApp->dataSchemas as $oSchema) {
+			if ($oSchema->id === '_round_id') {
+				if (isset($oSchema->requireCheck) && $oSchema->requireCheck === 'Y') {
+					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oApp->entryRule->group->id) {
+						$oGroupSchema = $oSchema;
+						break;
+					}
+				}
+			}
+		}
+
+		return $oGroupSchema;
+	}
+	/**
+	 * 获得活动的所有题目，包含关联活动中的题目
+	 */
+	public function getUnionSchemas($oApp, &$unionSchemas) {
+		$count = 0;
+		$fnUnion = function ($otherSchemas) use ($unionSchemas, $count) {
+			$mapOfUnionSchemas = [];
+			foreach ($unionSchemas as $oSchema) {
+				$mapOfUnionSchemas[] = $oSchema->id;
+			}
+			foreach ($otherSchemas as $oSchema) {
+				if (!in_array($oSchema->id, $mapOfUnionSchemas)) {
+					$unionSchemas[] = $oSchema;
+					$count++;
+				}
+			}
+			return $count;
+		};
+		// 关联的记录活动
+		if (!empty($oApp->entryRule->enroll->id)) {
+			$matchApp = $this->model('matter\enroll')->byId($oApp->entryRule->enroll->id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+			if (count($matchApp->dynaDataSchemas)) {
+				$fnUnion($matchApp->dynaDataSchemas);
+			}
+		}
+
+		// 关联的分组活动
+		if (!empty($oApp->entryRule->group->id)) {
+			$matchApp = $this->model('matter\group')->byId($oApp->entryRule->group->id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+			if (count($matchApp->dataSchemas)) {
+				$fnUnion($matchApp->dataSchemas);
+			}
+		}
+
+		return $count;
 	}
 	/**
 	 * 获得schemasB中和schemasA兼容的登记项定义及对应关系

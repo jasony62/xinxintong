@@ -10,15 +10,19 @@
                     <thead>
                         <tr>
                             <th class='text-center'>名称</th>
+                            <th class='text-center' style='width:4em'>用途</th>
                             <th class='text-center' style='width:4em'>状态</th>
                             <th class='text-center' style='width:8em'>开始时间</th>
-                            <th class='text-center' style='width:8em'>结束时间</th>
-                            <th style='width:4em'>操作</th>
+                            <th class='text-center' style='width:8em'>停止提交</th>
+                            <th style='width:5em'>操作</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr class='round' ng-repeat="r in rounds" ng-class="{success:r._isActive}">
                             <td>{{r.title}}</td>
+                            <td>
+                                <span>{{roundPurpose[r.purpose]}}</span>
+                            </td>
                             <td>
                                 <span>{{roundState[r.state]}}</span>
                             </td>
@@ -31,6 +35,9 @@
                             <td>
                                 <button class='btn btn-default btn-xs' ng-click='edit(r)'>
                                     <span class='glyphicon glyphicon-edit'></span>
+                                </button>
+                                <button class='btn btn-danger btn-xs' ng-click='remove(r)'>
+                                    <span class='glyphicon glyphicon-remove'></span>
                                 </button>
                             </td>
                         </tr>
@@ -47,7 +54,7 @@
         <uib-tab index="1" ng-if="app.sync_mission_round!=='Y'">
             <uib-tab-heading><i class='glyphicon glyphicon-time'></i> 定时生成</uib-tab-heading>
             <div class='pl-tab-pane-rim' ng-controller="ctrlRoundCron">
-                <div ng-include="'/views/default/pl/fe/_module/roundCron.html'"></div>
+                <div ng-include="frameTemplates.url('roundCron')"></div>
             </div>
         </uib-tab>
     </uib-tabset>

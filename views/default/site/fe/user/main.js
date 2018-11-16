@@ -1,13 +1,15 @@
 'use strict';
-var siteId = location.search.match('site=(.*)')[1];
 var ngApp = angular.module('app', ['http.ui.xxt']);
-ngApp.service('userService', ['http2', '$q', function(http2, $q) {
+ngApp.config(['$locationProvider', function($locationProvider) {
+    $locationProvider.html5Mode(true);
+}]);
+ngApp.service('userService', ['http2', 'tmsLocation', '$q', function(http2, LS, $q) {
     var _baseUrl = '/rest/site/fe/user',
         _user;
     return {
         get: function() {
             var deferred = $q.defer();
-            http2.get(_baseUrl + '/get?site=' + siteId).then(function(rsp) {
+            http2.get(_baseUrl + '/get?site=' + LS.s().site).then(function(rsp) {
                 _user = rsp.data;
                 if (!_user.headimgurl) {
                     _user.headimgurl = '/static/img/avatar.png';
@@ -21,7 +23,7 @@ ngApp.service('userService', ['http2', '$q', function(http2, $q) {
         },
         changePwd: function(data) {
             var deferred = $q.defer();
-            http2.post(_baseUrl + '/changePwd?site=' + siteId, data).then(function(rsp) {
+            http2.post(_baseUrl + '/changePwd?site=' + LS.s().site, data).then(function(rsp) {
                 _user = rsp.data;
                 deferred.resolve(_user);
             });
@@ -29,7 +31,7 @@ ngApp.service('userService', ['http2', '$q', function(http2, $q) {
         },
         changeNickname: function(data) {
             var deferred = $q.defer();
-            http2.post(_baseUrl + '/changeNickname?site=' + siteId, data).then(function(rsp) {
+            http2.post(_baseUrl + '/changeNickname?site=' + LS.s().site, data).then(function(rsp) {
                 _user = rsp.data;
                 deferred.resolve(_user);
             });
@@ -37,10 +39,10 @@ ngApp.service('userService', ['http2', '$q', function(http2, $q) {
         }
     }
 }]);
-ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'userService', function($scope, $timeout, http2, userService) {
+ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'userService', function($scope, $timeout, http2, LS, userService) {
     function newSubscriptions(afterAt) {
         var url;
-        url = '/rest/site/fe/user/subscribe/count?site=' + siteId + '&after=' + afterAt;
+        url = '/rest/site/fe/user/subscribe/count?site=' + LS.s().site + '&after=' + afterAt;
         http2.get(url).then(function(rsp) {
             $scope.count.newSubscriptions = rsp.data;
         });
@@ -71,43 +73,57 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'userService', func
         });
     };
     $scope.logout = function() {
-        http2.get('/rest/site/fe/user/logout/do?site=' + siteId).then(function(rsp) {
-            location.replace('/rest/site/fe/user?site=' + siteId);
+        http2.get('/rest/site/fe/user/logout/do?site=' + LS.s().site).then(function(rsp) {
+            location.replace('/rest/site/fe/user?site=' + LS.s().site);
         });
     };
     $scope.gotoRegister = function() {
-        location.href = '/rest/site/fe/user/access?site=' + siteId + '#register';
+        location.href = '/rest/site/fe/user/access?site=' + LS.s().site + '#register';
     };
     $scope.gotoLogin = function() {
-        location.href = '/rest/site/fe/user/access?site=' + siteId + '#login';
+        location.href = '/rest/site/fe/user/access?site=' + LS.s().site + '#login';
     };
     $scope.gotoMember = function(memberSchema) {
-        location.href = '/rest/site/fe/user/member?site=' + siteId + '&schema=' + memberSchema.id;
+        location.href = '/rest/site/fe/user/member?site=' + LS.s().site + '&schema=' + memberSchema.id;
     };
     $scope.gotoConsole = function() {
         location.href = '/rest/pl/fe';
     };
     $scope.shiftRegUser = function(oOtherRegUser) {
-        http2.post('/rest/site/fe/user/shiftRegUser?site=' + siteId, { uname: oOtherRegUser.uname }).then(function(rsp) {
+        http2.post('/rest/site/fe/user/shiftRegUser?site=' + LS.s().site, { uname: oOtherRegUser.uname }).then(function(rsp) {
             location.reload();
         });
     };
-    http2.get('/rest/site/fe/get?site=' + siteId).then(function(rsp) {
+    $scope.loginByReg = function(oRegUser) {
+        http2.post('/rest/site/fe/user/login/byRegAndWxopenid?site=' + LS.s().site, oRegUser).then(function(rsp) {
+            location.reload(true);
+        });
+    };
+    http2.get('/rest/site/fe/get?site=' + LS.s().site).then(function(rsp) {
         $scope.site = rsp.data;
         userService.get().then(function(oUser) {
             $scope.user = oUser;
             if (oUser.unionid) {
-                http2.get('/rest/site/fe/user/memberschema/atHome?site=' + siteId).then(function(rsp) {
+                http2.get('/rest/site/fe/user/memberschema/atHome?site=' + LS.s().site).then(function(rsp) {
                     $scope.memberSchemas = rsp.data;
                 });
-                http2.get('/rest/site/fe/user/subscribe/count?site=' + siteId).then(function(rsp) {
+                http2.get('/rest/site/fe/user/subscribe/count?site=' + LS.s().site).then(function(rsp) {
                     $scope.count.subscription = rsp.data;
                 });
-                http2.get('/rest/site/fe/user/favor/count?site=' + siteId).then(function(rsp) {
+                http2.get('/rest/site/fe/user/favor/count?site=' + LS.s().site).then(function(rsp) {
                     $scope.count.favor = rsp.data;
                 });
-                http2.get('/rest/site/fe/user/notice/count?site=' + siteId).then(function(rsp) {
+                http2.get('/rest/site/fe/user/notice/count?site=' + LS.s().site).then(function(rsp) {
                     $scope.count.notice = rsp.data;
+                });
+                http2.get('/rest/site/fe/user/history/appCount?site=' + LS.s().site).then(function(rsp) {
+                    $scope.count.app = rsp.data;
+                });
+                http2.get('/rest/site/fe/user/history/missionCount?site=' + LS.s().site).then(function(rsp) {
+                    $scope.count.mission = rsp.data;
+                });
+                http2.get('/rest/site/fe/user/invite/count?site=' + LS.s().site).then(function(rsp) {
+                    $scope.count.invite = rsp.data;
                 });
                 /*上一次访问状态*/
                 if (window.localStorage) {

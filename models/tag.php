@@ -3,7 +3,7 @@ class tag_model extends TMS_MODEL {
 	/**
 	 * 创建标签
 	 */
-	public function create($site, $user, $tags, $subType = 'M'){
+	public function create($site, $user, $tags, $subType = 'M') {
 		$current = time();
 		$newTags = [];
 		$site = $this->escape($site);
@@ -45,53 +45,53 @@ class tag_model extends TMS_MODEL {
 	/**
 	 * 获取当前团队中最大排序
 	 */
-	private function getSeqMax($site, $subType){
+	private function getSeqMax($site, $subType) {
 		$q = [
 			'max(seq)',
 			'xxt_tag',
-			"siteid = '$site' and sub_type = '$subType'"
+			"siteid = '$site' and sub_type = '$subType'",
 		];
 
-		$seq = (int)$this->query_val_ss($q);
+		$seq = (int) $this->query_val_ss($q);
 
 		return $seq;
 	}
 	/**
 	 * 素材添加标签
 	 */
-	public function save2($site, $user, &$matter, $subType, $tags){
+	public function save2($site, $user, &$matter, $subType, $tags) {
 		$current = time();
 		$rst = false;
 		$addTags = [];
 		/*记录标签使用数*/
-		if($subType === 'C'){
+		if ($subType === 'C') {
 			$tagOld = $matter->matter_cont_tag;
-		}elseif($subType === 'M'){
+		} elseif ($subType === 'M') {
 			$tagOld = $matter->matter_mg_tag;
 		}
-		if(!empty($tagOld)){
+		if (!empty($tagOld)) {
 			$tagOld = json_decode($tagOld);
-		}else{
+		} else {
 			$tagOld = [];
 		}
 
 		$tagNew = [];
 		foreach ($tags as $tag) {
-			if(false !== ($key = array_search($tag->id, $tagOld))){
+			if (false !== ($key = array_search($tag->id, $tagOld))) {
 				unset($tagOld[$key]);
-			}else{
+			} else {
 				$tagNew[] = $tag->id;
 			}
-			$addTags[] = (string)$tag->id;
+			$addTags[] = (string) $tag->id;
 		}
 		//删除的标签
-		if(!empty($tagOld)){
+		if (!empty($tagOld)) {
 			foreach ($tagOld as $tag) {
 				$this->update("update xxt_tag set sum = sum - 1 where id = " . $tag);
 			}
 		}
 		//增加的标签
-		if(!empty($tagNew)){
+		if (!empty($tagNew)) {
 			foreach ($tagNew as $tag) {
 				$this->update("update xxt_tag set sum = sum + 1 where id = " . $tag);
 			}
@@ -100,20 +100,19 @@ class tag_model extends TMS_MODEL {
 		$addTags = json_encode($addTags);
 		//记录活动标签
 		switch ($matter->type) {
-			case 'wall':
-				$upData = [];
-				break;
-			default:
-				$upData = [];
-				$upData['modifier'] = $user->id;
-				$upData['modifier_name'] = $user->name;
-				$upData['modifier_src'] = $user->src;
-				$upData['modify_at'] = $current;
-				break;
+		case 'wall':
+			$upData = [];
+			break;
+		default:
+			$upData = [];
+			$upData['modifier'] = $user->id;
+			$upData['modifier_name'] = $user->name;
+			$upData['modify_at'] = $current;
+			break;
 		}
-		if($subType === 'C'){
+		if ($subType === 'C') {
 			$upData['matter_cont_tag'] = $addTags;
-		}elseif($subType === 'M'){
+		} elseif ($subType === 'M') {
 			$upData['matter_mg_tag'] = $addTags;
 		}
 
@@ -124,7 +123,7 @@ class tag_model extends TMS_MODEL {
 	/**
 	 * 获得团队内所有的标签
 	 */
-	public function bySite($site, $subType = 'M', $options = []){
+	public function bySite($site, $subType = 'M', $options = []) {
 		$fields = empty($options['fields']) ? '*' : $options['fields'];
 
 		$site = $this->escape($site);
@@ -132,11 +131,11 @@ class tag_model extends TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_tag',
-			"siteid = '$site' and sub_type = '$subType'"
+			"siteid = '$site' and sub_type = '$subType'",
 		];
 		$q2 = ['o' => 'seq desc,create_at desc'];
-		if(isset($options['at'])){
-			if(!empty($options['at']['page'] && !empty($options['at']['size']))){
+		if (isset($options['at'])) {
+			if (!empty($options['at']['page'] && !empty($options['at']['size']))) {
 				$page = $options['at']['page'];
 				$size = $options['at']['size'];
 				$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];

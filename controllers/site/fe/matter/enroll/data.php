@@ -101,7 +101,7 @@ class data extends base {
 			$oSchemas->{$dataSchema->id} = $dataSchema;
 		}
 
-		$fields = 'id,state,userid,group_id,nickname,schema_id,multitext_seq,submit_at,agreed,value,supplement,like_num,like_log,remark_num,tag,score';
+		$fields = 'id,state,userid,group_id,nickname,schema_id,multitext_seq,submit_at,agreed,value,supplement,like_num,like_log,remark_num,tag,score,dislike_num,dislike_log';
 		$modelRecDat = $this->model('matter\enroll\data');
 		if (empty($data)) {
 			$oRecData = $modelRecDat->byRecord($ek, ['schema' => $schema, 'fields' => $fields]);
@@ -165,6 +165,7 @@ class data extends base {
 					$oRecData->items = $modelRecDat->query_objs_ss($q);
 					foreach ($oRecData->items as $oItem) {
 						$oItem->like_log = empty($oItem->like_log) ? [] : json_decode($oItem->like_log);
+						$oItem->dislike_log = empty($oItem->dislike_log) ? [] : json_decode($oItem->dislike_log);
 						if ($bAnonymous) {
 							unset($oItem->nickname);
 						} else if ($oItem->userid === $oUser->uid) {
@@ -355,27 +356,42 @@ class data extends base {
 			return new \ObjectNotFoundError('（3）指定的对象不存在或不可用');
 		}
 		if (empty($oApp->entryRule->group->id)) {
-			return new \ParameterError('只有进入条件为分组活动的登记活动才允许组长推荐');
+			if (empty($oApp->actionRule->cowork->agreed->pre->author)) {
+				return new \ParameterError('只有进入条件为分组活动的登记活动才允许组长表态 或 【允许对协作填写(答案)表态的成员】的配置中勾选了允许提问者表态');
+			}
 		}
-		$oUser = $this->getUser($oApp);
+		// 获取记录信息
+		$oRec = $this->model('matter\enroll\record')->byId($oRecData->enroll_key, ['fields' => 'id,userid,state']);
+		if (false === $oRec || $oRec->state !== '1') {
+			return new \ObjectNotFoundError('（4）指定的对象不存在或不可用');
+		}
 
-		$modelGrpUsr = $this->model('matter\group\player');
-		/* 当前操作用户所属分组及角色 */
-		$oGrpLeader = $modelGrpUsr->byUser($oApp->entryRule->group, $oUser->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
-		if (false === $oGrpLeader || !in_array($oGrpLeader->is_leader, ['Y', 'S'])) {
-			return new \ParameterError('只允许组长进行推荐');
+		$oUser = $this->getUser($oApp);
+		$oUserCoworkAgreedPower = false;
+		// 如果允许记录（问题）提交者对答案表态，那么提交者可以直接表态
+		if (!empty($oApp->actionRule->cowork->agreed->pre->author) && $oRec->userid === $oUser->uid) {
+			$oUserCoworkAgreedPower = true;
 		}
-		/* 检查是否在同一分组内 */
-		if ($oGrpLeader->is_leader === 'Y') {
-			$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oRecData->userid, ['fields' => 'round_id', 'onlyOne' => true]);
-			if ($oGrpMemb && !empty($oGrpMemb->round_id)) {
-				/* 填写记录的用户属于一个分组 */
-				if ($oGrpMemb->round_id !== $oGrpLeader->round_id) {
-					return new \ParameterError('只允许组长对本组成员的数据表态');
-				}
-			} else {
-				if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
-					return new \ParameterError('只允许编辑组的组长对不属于任何分组的成员的数据表态');
+		//
+		if ($oUserCoworkAgreedPower === false) {
+			$modelGrpUsr = $this->model('matter\group\player');
+			/* 当前操作用户所属分组及角色 */
+			$oGrpLeader = $modelGrpUsr->byUser($oApp->entryRule->group, $oUser->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
+			if (false === $oGrpLeader || !in_array($oGrpLeader->is_leader, ['Y', 'S'])) {
+				return new \ParameterError('只允许组长进行推荐');
+			}
+			/* 检查是否在同一分组内 */
+			if ($oGrpLeader->is_leader === 'Y') {
+				$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oRecData->userid, ['fields' => 'round_id', 'onlyOne' => true]);
+				if ($oGrpMemb && !empty($oGrpMemb->round_id)) {
+					/* 填写记录的用户属于一个分组 */
+					if ($oGrpMemb->round_id !== $oGrpLeader->round_id) {
+						return new \ParameterError('只允许组长对本组成员的数据表态');
+					}
+				} else {
+					if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
+						return new \ParameterError('只允许编辑组的组长对不属于任何分组的成员的数据表态');
+					}
 				}
 			}
 		}
@@ -442,7 +458,7 @@ class data extends base {
 
 		$oUser = $this->getUser($oApp);
 		/* 检查是否满足给答案点赞的条件 */
-		if (!isset($oApp->entryRule->exclude_action) || $oApp->entryRule->exclude_action->like != "Y") {
+		if (empty($oApp->entryRule->exclude_action->like) || $oApp->entryRule->exclude_action->like != "Y") {
 			$checkEntryRule = $this->checkEntryRule($oApp, false, $oUser);
 			if ($checkEntryRule[0] === false) {
 				return new \ResponseError($checkEntryRule[1]);
@@ -507,6 +523,99 @@ class data extends base {
 		$aResult = [];
 		$aResult['like_log'] = $oLikeLog;
 		$aResult['like_num'] = $likeNum;
+
+		return new \ResponseData($aResult);
+	}
+	/**
+	 * 反对登记记录中的某一个题
+	 *
+	 * @param string $ek
+	 * @param string $schema
+	 * @param int $data xxt_enroll_record_data 的id
+	 *
+	 */
+	public function dislike_action($data) {
+		if (empty($data)) {
+			return new \ResponseError('参数错误：未指定被留言内容ID');
+		}
+		$modelData = $this->model('matter\enroll\data');
+		$oRecData = $modelData->byId($data, ['fields' => 'id,aid,rid,enroll_key,schema_id,dislike_log,userid,multitext_seq,dislike_num']);
+		if (false === $oRecData) {
+			return new \ObjectNotFoundError('（1）指定的对象不存在或不可用');
+		}
+
+		$oApp = $this->model('matter\enroll')->byId($oRecData->aid, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError('（2）指定的对象不存在或不可用');
+		}
+
+		$oUser = $this->getUser($oApp);
+		/* 检查是否满足给答案点赞/点踩的条件 */
+		if (empty($oApp->entryRule->exclude_action->like) || $oApp->entryRule->exclude_action->like != "Y") {
+			$checkEntryRule = $this->checkEntryRule($oApp, false, $oUser);
+			if ($checkEntryRule[0] === false) {
+				return new \ResponseError($checkEntryRule[1]);
+			}
+		}
+
+		$oRecord = $this->model('matter\enroll\record')->byId($oRecData->enroll_key, ['cascaded' => 'N', 'fields' => 'id,state,dislike_data_num']);
+		if (false === $oRecord || $oRecord->state !== '1') {
+			return new \ObjectNotFoundError('（3）指定的对象不存在或不可用');
+		}
+
+		/* 数据项的题目 */
+		$oDataSchema = null;
+		foreach ($oApp->dataSchemas as $dataSchema) {
+			if ($dataSchema->id === $oRecData->schema_id) {
+				$oDataSchema = $dataSchema;
+				break;
+			}
+		}
+		if (empty($oDataSchema)) {
+			return new \ObjectNotFoundError('（4）指定的对象不存在或不可用');
+		}
+
+		$oDislikeLog = $oRecData->dislike_log;
+		if (isset($oDislikeLog->{$oUser->uid})) {
+			unset($oDislikeLog->{$oUser->uid});
+			$incDislikeNum = -1;
+		} else {
+			$oDislikeLog->{$oUser->uid} = time();
+			$incDislikeNum = 1;
+		}
+		$dislikeNum = $oRecData->dislike_num + $incDislikeNum;
+		$modelData->update(
+			'xxt_enroll_record_data',
+			['dislike_log' => json_encode($oDislikeLog), 'dislike_num' => $dislikeNum],
+			['id' => $oRecData->id]
+		);
+
+		$modelData->update(
+			'xxt_enroll_record',
+			['dislike_data_num' => $oRecord->dislike_data_num + $incDislikeNum],
+			['id' => $oRecord->id]
+		);
+
+		$modelEnlEvt = $this->model('matter\enroll\event');
+		if ($incDislikeNum > 0) {
+			/* 发起点赞 */
+			if (isset($oDataSchema->cowork) && $oDataSchema->cowork === 'Y') {
+				$modelEnlEvt->dislikeCowork($oApp, $oRecData, $oUser);
+			} else {
+				$modelEnlEvt->dislikeRecData($oApp, $oRecData, $oUser);
+			}
+		} else {
+			/* 撤销点赞 */
+			if (isset($oDataSchema->cowork) && $oDataSchema->cowork === 'Y') {
+				$modelEnlEvt->undoDislikeCowork($oApp, $oRecData, $oUser);
+			} else {
+				$modelEnlEvt->undoDislikeRecData($oApp, $oRecData, $oUser);
+			}
+		}
+
+		$aResult = [];
+		$aResult['dislike_log'] = $oDislikeLog;
+		$aResult['dislike_num'] = $dislikeNum;
 
 		return new \ResponseData($aResult);
 	}

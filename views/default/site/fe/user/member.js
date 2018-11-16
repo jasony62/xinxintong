@@ -91,7 +91,6 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
             }
         };
         var member = $scope.member;
-        console.log('m', member);
         if (member.name && false === required(member.name, 2, '请提供您的姓名！')) {
             return false;
         }
@@ -110,7 +109,11 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
         http2.post(url, $scope.member, { autoBreak: false }).then(function(rsp) {
             $scope.posting = false;
             http2.get(LS.j('passed', 'site', 'schema') + '&redirect=N').then(function(rsp) {
-                location.href = rsp.data;
+                if (window.parent && window.parent.onClosePlugin) {
+                    window.parent.onClosePlugin(rsp.data);
+                } else {
+                    location.href = rsp.data;
+                }
             });
         }, function() {
             $scope.posting = false;
@@ -157,13 +160,9 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
             });
         });
     };
-    $scope.wxLogin = function() {
-        http2.get('/rest/site/fe/user/login/wxopenid?site=' + LS.s().site).then(function(rsp) {
-            http2.get(LS.j('get', 'site', 'schema')).then(function(rsp) {
-                var user = rsp.data;
-                $scope.user = user;
-                setMember(user);
-            });
+    $scope.loginByReg = function(oRegUser) {
+        http2.post('/rest/site/fe/user/login/byRegAndWxopenid?site=' + LS.s().site, oRegUser).then(function(rsp) {
+            location.reload(true);
         });
     };
     $scope.logout = function() {
@@ -222,6 +221,11 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
             $scope.pinImg = url + '&_=' + time;
         }
     };
+    $scope.shiftRegUser = function(oOtherRegUser) {
+        http2.post('/rest/site/fe/user/shiftRegUser?site=' + LS.s().site, { uname: oOtherRegUser.uname }).then(function(rsp) {
+            location.reload(true);
+        });
+    };
     http2.get('/rest/site/fe/get?site=' + LS.s().site).then(function(rsp) {
         $scope.site = rsp.data;
         http2.get('/rest/site/fe/user/memberschema/get?site=' + LS.s().site + '&schema=' + LS.s().schema + '&matter=' + LS.s().matter).then(function(rsp) {
@@ -244,6 +248,15 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
                     var preEle = document.getElementById('pinInput');
                     if (preEle) {
                         $scope.refreshPin(preEle);
+                    }
+                });
+                /* 解决多个注册账号的问题 */
+                http2.get('/rest/site/fe/user/get?site=' + LS.s().site).then(function(rsp) {
+                    if (rsp.data.siteRegistersByWx) {
+                        $scope.user.siteRegistersByWx = rsp.data.siteRegistersByWx;
+                    }
+                    if (rsp.data.plRegistersByWx) {
+                        $scope.user.plRegistersByWx = rsp.data.plRegistersByWx;
                     }
                 });
             });

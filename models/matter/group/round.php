@@ -59,9 +59,9 @@ class round_model extends \TMS_MODEL {
 		/* 获得指定的级联数据 */
 		if (count($rounds) && count($cascade)) {
 			$modelUsr = $this->model('matter\group\player');
-			foreach ($rounds as &$round) {
+			foreach ($rounds as $oRound) {
 				if (in_array('playerCount', $cascade)) {
-					$round->playerCount = $modelUsr->countByRound($appId, $round->round_id);
+					$oRound->playerCount = $modelUsr->countByRound($appId, $oRound->round_id);
 				}
 			}
 		}
@@ -76,11 +76,11 @@ class round_model extends \TMS_MODEL {
 	public function clean($appId) {
 		$rst = $this->update(
 			'xxt_group_player',
-			array(
+			[
 				'round_id' => 0,
 				'round_title' => '',
-			),
-			"aid='$appId'"
+			],
+			['aid' => $appId]
 		);
 
 		return $rst;

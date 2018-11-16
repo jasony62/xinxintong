@@ -431,7 +431,6 @@ $sql .= ",siteid varchar(32) not null";
 $sql .= ",mission_id int not null";
 $sql .= ",creater varchar(40) not null";
 $sql .= ",creater_name varchar(255) not null default ''";
-$sql .= ",creater_src char(1)";
 $sql .= ",create_at int not null";
 $sql .= ",matter_id varchar(40) not null";
 $sql .= ",matter_type varchar(20)";

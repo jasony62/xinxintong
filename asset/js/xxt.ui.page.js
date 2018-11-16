@@ -110,14 +110,21 @@ ngMod.service('tmsDynaPage', ['$q', function($q) {
         return deferred.promise;
     };
     this.openPlugin = function(content) {
-        var frag, wrap, frm, body, deferred = $q.defer();
-        if(document.documentElement.clientWidth > 768) {
-            document.documentElement.scrollTop  = 0;
+        var frag, wrap, frm, html, body, deferred;
+        deferred = $q.defer();
+        if (!content) {
+            console.log('参数为空');
+            deferred.reject();
+        }
+        if (document.documentElement.clientWidth > 768) {
+            document.documentElement.scrollTop = 0;
         } else {
-            document.body.scrollTop  = 0;
+            document.body.scrollTop = 0;
         }
         body = document.getElementsByTagName('body')[0];
-        body.style.cssText="overflow-y:hidden";
+        html = document.getElementsByTagName('html')[0];
+        html.style.cssText = "height:100%;"
+        body.style.cssText = "height:100%;overflow-y:hidden";
         frag = document.createDocumentFragment();
         wrap = document.createElement('div');
         wrap.setAttribute('id', 'frmPlugin');
@@ -125,14 +132,14 @@ ngMod.service('tmsDynaPage', ['$q', function($q) {
         wrap.appendChild(frm);
         wrap.onclick = function() {
             wrap.parentNode.removeChild(wrap);
-            body.style.cssText="overflow-y:auto";
+            body.style.cssText = "overflow-y:auto";
         };
         frag.appendChild(wrap);
         document.body.appendChild(frag);
         if (content.indexOf('http') === 0) {
             window.onClosePlugin = function(result) {
                 wrap.parentNode.removeChild(wrap);
-                body.style.cssText="overflow-y:auto";
+                body.style.cssText = "overflow-y:auto";
                 deferred.resolve(result);
             };
             frm.setAttribute('src', content);

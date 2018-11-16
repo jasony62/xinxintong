@@ -9,7 +9,21 @@ class main extends \site\fe\base {
 	/**
 	 * 进入用户个人中心
 	 */
-	public function index_action() {
+	public function index_action($site) {
+		/* 检查是否需要第三方社交帐号OAuth */
+		if (!$this->afterSnsOAuth()) {
+			$this->requireSnsOAuth($site);
+		}
+
+		$user = $this->who;
+		if (isset($user->unionid)) {
+			$oAccount = $this->model('account')->byId($user->unionid, ['cascaded' => ['group']]);
+			if (isset($oAccount->group->view_name) && $oAccount->group->view_name !== TMS_APP_VIEW_NAME) {
+				\TPL::output('/site/fe/user/main', ['customViewName' => $oAccount->group->view_name]);
+				exit;
+			}
+		}
+
 		\TPL::output('/site/fe/user/main');
 		exit;
 	}
@@ -50,13 +64,16 @@ class main extends \site\fe\base {
 		$oUser = clone $this->who;
 		/* 站点用户信息 */
 		$modelAnt = $this->model('site\user\account');
-		$modelReg = $this->model('site\user\registration');
-		if ($oAccount = $modelAnt->byId($oUser->uid, ['fields' => 'uid,siteid,unionid,coin,headimgurl,wx_openid,is_wx_primary,is_reg_primary'])) {
-			$oUser->coin = $oAccount->coin;
-			$oUser->headimgurl = $oAccount->headimgurl;
-			$oUser->is_wx_primary = $oAccount->is_wx_primary;
-			$oUser->is_reg_primary = $oAccount->is_reg_primary;
+		$oAccount = $modelAnt->byId($oUser->uid, ['fields' => 'uid,siteid,unionid,coin,headimgurl,wx_openid,is_wx_primary,is_reg_primary']);
+		if (false === $oAccount) {
+			return new \ResponseData($oUser);
 		}
+
+		$modelReg = $this->model('site\user\registration');
+		$oUser->coin = $oAccount->coin;
+		$oUser->headimgurl = $oAccount->headimgurl;
+		$oUser->is_wx_primary = $oAccount->is_wx_primary;
+		$oUser->is_reg_primary = $oAccount->is_reg_primary;
 		if (!empty($oUser->unionid)) {
 			$oReg = $modelReg->byId($oUser->unionid);
 			if ($oReg) {
@@ -67,10 +84,21 @@ class main extends \site\fe\base {
 		 * 和微信openid绑定的注册账号
 		 */
 		$userAgent = $this->userAgent(); // 客户端类型
-		if (in_array($userAgent, ['wx'])) {
+		if (in_array($userAgent, ['wx']) && !empty($oAccount->wx_openid)) {
 			$regUsers = $this->_getRegAntsByWxopenid($oAccount);
 			if (count($regUsers)) {
-				$oUser->registersByWx = $regUsers;
+				/* 已经存在绑定了主注册账号的团队账号 */
+				$oUser->siteRegistersByWx = $regUsers;
+			} else {
+				/* 同站点下没有绑定了主注册账号的团队账号，获得用户在平台的注册账号 */
+				$aUnionids = $modelAnt->byOpenid(null, 'wx', $oAccount->wx_openid, ['is_reg_primary' => 'Y', 'fields' => 'distinct unionid']);
+				if (count($aUnionids)) {
+					$oUser->plRegistersByWx = [];
+					foreach ($aUnionids as $oUnionid) {
+						$oReg = $modelReg->byId($oUnionid->unionid, ['fields' => 'uid unionid,email uname,nickname']);
+						$oUser->plRegistersByWx[] = $oReg;
+					}
+				}
 			}
 		}
 
@@ -78,7 +106,6 @@ class main extends \site\fe\base {
 	}
 	/**
 	 * 修改用户昵称
-	 * 只有注册过用户才能修改？？？
 	 */
 	public function changeNickname_action() {
 		$data = $this->getPostJson();
@@ -109,6 +136,35 @@ class main extends \site\fe\base {
 		$cookieUser = $modelWay->getCookieUser($this->siteId);
 		$cookieUser->nickname = $data->nickname;
 		$modelWay->setCookieUser($this->siteId, $cookieUser);
+
+		return new \ResponseData('ok');
+	}
+	/**
+	 * 修改用户头像信息
+	 */
+	public function changeHeadImg_action($site) {
+		$data = $this->getPostJson();
+		if (empty($data->imgSrc)) {
+			return new \ResponseError('头像地址不能为空');
+		}
+
+		$user = $this->who;
+		$avatar = new \stdClass;
+		$avatar->imgSrc = $data->imgSrc;
+		$avatar->imgType = 'avatar';
+		$avatar->creatorId = $user->uid;
+
+		$store = $this->model('fs/user', $site, 'avatar');
+		$rst = $store->storeImg($avatar);
+		if (false === $rst[0]) {
+			return new \ResponseError($rst[1]);
+		}
+		$headImgUrl = $rst[1];
+		/* 更新站点用户信息 */
+		$modelUsr = $this->model('site\user\account');
+		if ($account = $modelUsr->byId($user->uid)) {
+			$modelUsr->changeHeadImgUrl($site, $account->uid, $headImgUrl);
+		}
 
 		return new \ResponseData('ok');
 	}

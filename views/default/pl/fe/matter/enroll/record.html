@@ -33,6 +33,8 @@
                     <li ng-if="app.scenario==='mis_user_score'"><a href ng-click="syncWithDataSource()">从关联的数据源中同步数据</a></li>
                     <li class="divider"></li>
                     <li><a href ng-click="copyToUser()">复制记录给指定用户<span>（{{rows.count}}）</span></a></li>
+                    <li ng-if="app.entryRule.group.id"><a href ng-click="syncWithGroupApp()">补填全部记录的分组数据</a></li>
+                    <li ng-if="app.entryRule.member"><a href ng-click="syncWithMschema()">补填全部记录的通信录数据</a></li>
                 </ul>
             </div>
             <div class='form-group pull-right'>
@@ -69,6 +71,7 @@
                         <th class='matched enroll' ng-repeat="schema in enrollDataSchemas" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
                         <th class='matched group' ng-repeat="schema in groupDataSchemas" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
                         <th style='width:80px'>审核通过</th>
+                        <th style='width:80px'>获得赞同</th>
                         <th style='width:140px' ng-if="app.tags.length">标签</th>
                         <th style='width:140px'>备注</th>
                         <th style='width:48px'>操作</th>
@@ -104,7 +107,7 @@
                             <span ng-switch-when="remark">{{r.verbose.data[schema.id].remark_num}}</span>
                             <span ng-switch-when="calcScore">{{r.score[schema.id]}}</span>
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
-                            <span ng-if="schema.id==='_round_id'&&r.group_id!==r.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span>
+                            <span ng-if="fromApp.fromApp&&schema.id==='_round_id'&&r.group_id!==r.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span>
                             <p ng-if="['single', 'multiple', 'image', 'file'].indexOf(schema.type)!==-1&&r.supplement[schema.id].length">(补充说明：<span ng-bind-html="r.supplement[schema.id]"></span>)</p>
                         </td>
                         <td ng-if="bRequireScore" ng-bind="r.score.sum"></td>
@@ -135,6 +138,7 @@
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
                         </td>
                         <td>{{r.verified}}</td>
+                        <td>{{r.like_num}}</td>
                         <td ng-if="app.tags.length">{{r.tags}}</td>
                         <td>{{r.comment}}</td>
                         <td>
@@ -184,3 +188,33 @@
         </div>
     </div>
 </div>
+<script type="text/ng-template" id="syncWithGroupApp.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title">补填记录的分组数据</h5>
+    </div>
+    <div class="modal-body">
+        <div class='checkbox'>
+            <label>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="config.overwrite"> 覆盖已有数据</label>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="ok()">执行</button>
+    </div>
+</script>
+<script type="text/ng-template" id="syncWithMschema.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title">补填记录的分组数据</h5>
+    </div>
+    <div class="modal-body">
+        <div class='checkbox'>
+            <label>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="config.overwrite"> 覆盖已有数据</label>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="ok()">执行</button>
+    </div>
+</script>

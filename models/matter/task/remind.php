@@ -131,7 +131,7 @@ class remind_model extends \TMS_MODEL {
 		$noticeURL .= '&origin=timer';
 		if (!empty($oArguments->page)) {
 			$noticeURL .= '&page=' . $oArguments->page;
-			$aPageNames = ['repos' => '共享页', 'rank' => '排行榜', 'event' => '动态页'];
+			$aPageNames = ['repos' => '共享页', 'rank' => '排行榜', 'event' => '动态页', 'stat' => '统计页'];
 			if (isset($aPageNames[$oArguments->page])) {
 				$oTmplTimerTaskParams->page = $aPageNames[$oArguments->page];
 			}
@@ -185,7 +185,7 @@ class remind_model extends \TMS_MODEL {
 						}
 					}
 				}
-			} else if (isset($oMatter->entryRule->scope->group) && $oMatter->entryRule->scope->group === 'Y' && !empty($oMatter->entryRule->group->id)) {
+			} else if (!empty($oMatter->entryRule->group->id)) {
 				$oGrpApp = $this->model('matter\group')->byId($oMatter->entryRule->group->id, ['fields' => 'title']);
 				if ($oGrpApp) {
 					if (empty($oMatter->entryRule->group->round->id)) {

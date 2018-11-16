@@ -7,28 +7,13 @@ define(['frame'], function(ngApp) {
             if (/,/.test(hash)) {
                 hash = hash.split(',');
                 $scope.matterType = hash[0];
-                $scope.matterScenario = hash[1];
             } else {
                 $scope.matterType = hash;
-                $scope.matterScenario = null;
             }
         } else {
             $scope.matterType = '';
-            $scope.matterScenario = null;
         }
-        var aUnionMatterTypes;
-        aUnionMatterTypes = [];
-        CstNaming.matter.appOrder.forEach(function(name) {
-            if (name === 'enroll') {
-                $scope.scenarioes.enrollIndex.forEach(function(scenario) {
-                    aUnionMatterTypes.push({ name: 'enroll.' + scenario, label: $scope.scenarioes.enroll[scenario] });
-                });
-            } else {
-                aUnionMatterTypes.push({ name: name, label: CstNaming.matter.app[name] });
-            }
-        });
-        $scope.unionMatterTypes = aUnionMatterTypes;
-        $scope.unionType = '';
+        $scope.matterNames = CstNaming.matter;
         $scope.criteria = _oCriteria = {
             pid: 'ALL',
             filter: {}
@@ -37,10 +22,10 @@ define(['frame'], function(ngApp) {
             $scope.list();
         }, _oCriteria.filter);
         $scope.addWall = function(assignedScenario) {
-            location.href = '/rest/pl/fe/matter/wall/shop?site=' + _oMission.siteid + '&mission=' + _oMission.id + '&scenario=' + (assignedScenario || '');
+            location.href = '/rest/pl/fe/matter/wall/shop?site=' + _oMission.siteid + '&mission=' + _oMission.id;
         };
-        $scope.addEnroll = function(assignedScenario) {
-            location.href = '/rest/pl/fe/matter/enroll/shop?site=' + _oMission.siteid + '&mission=' + _oMission.id + '&scenario=' + (assignedScenario || '');
+        $scope.addEnroll = function() {
+            location.href = '/rest/pl/fe/matter/enroll/shop?site=' + _oMission.siteid + '&mission=' + _oMission.id;
         };
         $scope.addSignin = function() {
             location.href = '/rest/pl/fe/matter/signin/plan?site=' + _oMission.siteid + '&mission=' + _oMission.id;
@@ -63,17 +48,7 @@ define(['frame'], function(ngApp) {
             if (!matterType) {
                 matterType = $scope.matterType;
             }
-            if (/^enroll.*/.test(matterType)) {
-                if (matterType === 'enroll') {
-                    if ($scope.matterScenario) {
-                        $scope.addEnroll($scope.matterScenario);
-                    }
-                } else {
-                    $scope.addEnroll(matterType.split('.')[1]);
-                }
-            } else {
-                $scope['add' + matterType[0].toUpperCase() + matterType.substr(1)]();
-            }
+            $scope['add' + matterType[0].toUpperCase() + matterType.substr(1)]();
         };
         $scope.openMatter = function(matter, subView) {
             var url, type, id;
@@ -114,16 +89,10 @@ define(['frame'], function(ngApp) {
             evt.stopPropagation();
             if (type == 'enroll') {
                 $uibModal.open({
-                    templateUrl: '/views/default/pl/fe/_module/copyMatter.html?_=1',
+                    templateUrl: '/views/default/pl/fe/_module/copyMatter.html?_=3',
                     controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
                         var criteria;
-                        $scope2.pageOfMission = {
-                            at: '1',
-                            size: '5',
-                            j: function() {
-                                return '&page=' + this.at + '&size=' + this.size;
-                            }
-                        };
+                        $scope2.pageOfMission = {};
                         $scope2.criteria = criteria = {
                             'mission_id': '',
                             'byTitle': '',
@@ -134,9 +103,9 @@ define(['frame'], function(ngApp) {
                             if (nv === 'Y') { criteria.isMatterAction = 'Y' };
                         });
                         $scope2.doMission = function() {
-                            var url = '/rest/pl/fe/matter/mission/list?site=' + siteid + $scope2.pageOfMission.j() + '&fields=id,title',
+                            var url = '/rest/pl/fe/matter/mission/list?site=' + siteid + '&fields=id,title',
                                 params = { byTitle: criteria.byTitle };
-                            http2.post(url, params).then(function(rsp) {
+                            http2.post(url, params, { page: $scope2.pageOfMission }).then(function(rsp) {
                                 if (rsp.data) {
                                     $scope2.missions = rsp.data.missions;
                                     $scope2.pageOfMission.total = rsp.data.total;
@@ -154,7 +123,7 @@ define(['frame'], function(ngApp) {
                                 mission: criteria.mission_id
                             });
                         };
-                        $scope2.cancle = function() {
+                        $scope2.cancel = function() {
                             $mi.dismiss();
                         }
                         $scope2.doMission();
@@ -213,18 +182,8 @@ define(['frame'], function(ngApp) {
         $scope.$watch('mission', function(nv) {
             if (!nv) return;
             _oMission = nv;
-            $scope.$watch('unionType', function(nv) {
-                var aUnionType;
-                if (nv !== undefined) {
-                    aUnionType = nv.split('.');
-                    $scope.matterType = aUnionType[0];
-                    if (aUnionType.length === 2) {
-                        $scope.matterScenario = aUnionType[1];
-                    } else {
-                        $scope.matterScenario = '';
-                    }
-                    $scope.list();
-                }
+            $scope.$watch('matterType', function(nv) {
+                $scope.list();
             });
         });
     }]);

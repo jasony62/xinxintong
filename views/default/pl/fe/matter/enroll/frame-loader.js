@@ -18,7 +18,7 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
             url: '/rest/pl/fe/matter'
         }, {
             value: 'enroll',
-            title: '登记活动',
+            title: '记录活动',
             url: '/rest/pl/fe/matter'
         }],
         innerlink: [{
@@ -36,6 +36,12 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
         }],
         alertMsg: {
             'schema.duplicated': '不允许重复添加登记项'
+        },
+        options: {
+            round: {
+                state: ['新建', '启用', '结束'],
+                purpose: { C: '填写', B: '目标', S: '汇总' }
+            }
         },
         naming: {}
     });
@@ -84,6 +90,9 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
             "stat": '/views/default/pl/fe/matter/enroll/stat',
             "time": '/views/default/pl/fe/matter/enroll/time',
             "timerNotice": '/views/default/pl/fe/_module/timerNotice',
+            "entryRule": '/views/default/pl/fe/_module/entryRule',
+            "roundCron": '/views/default/pl/fe/_module/roundCron',
+            "roundEditor": '/views/default/pl/fe/matter/enroll/component/roundEditor',
         }
     }
     window.MATTER_TYPE = 'Enroll'; // 为了支持动态加载服务模块

@@ -18,55 +18,54 @@ class record extends \pl\fe\matter\base {
 	 *
 	 */
 	public function get_action($ek) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
 		$mdoelRec = $this->model('matter\signin\record');
-		$record = $mdoelRec->byId($ek, ['verbose' => 'Y']);
+		$oRecord = $mdoelRec->byId($ek, ['verbose' => 'Y']);
 
-		return new \ResponseData($record);
+		return new \ResponseData($oRecord);
 	}
 	/**
 	 * 签到名单
-	 *
 	 */
-	public function list_action($site, $app, $page = 1, $size = 30, $rid = null, $orderby = null, $contain = null) {
-		if (false === ($user = $this->accountUser())) {
+	public function list_action($app, $page = 1, $size = 30, $rid = null, $orderby = null, $contain = null) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
 		// 登记数据过滤条件
-		$criteria = $this->getPostJson();
+		$oCriteria = $this->getPostJson();
 
 		/*应用*/
 		$modelApp = $this->model('matter\signin');
-		$app = $modelApp->byId($app);
+		$oApp = $modelApp->byId($app);
 		/*参数*/
-		$options = [
+		$aOptions = [
 			'page' => $page,
 			'size' => $size,
 			'orderby' => $orderby,
 			'contain' => $contain,
 		];
-		!empty($rid) && (strcasecmp($rid, 'all') !== 0) && $options['rid'] = $rid;
+		!empty($rid) && (strcasecmp($rid, 'all') !== 0) && $aOptions['rid'] = $rid;
 
-		$mdoelRec = $this->model('matter\signin\record');
-		$result = $mdoelRec->byApp($app, $options, $criteria);
-		if ($result->total > 0 && !empty($app->enroll_app_id)) {
-			foreach ($result->records as &$record) {
+		$modelRec = $this->model('matter\signin\record');
+		$oResult = $modelRec->byApp($oApp, $aOptions, $oCriteria);
+		if ($oResult->total > 0 && !empty($oApp->entryRule->enroll->id)) {
+			foreach ($oResult->records as $oRecord) {
 				$q = [
 					'enroll_at,tags,comment',
 					'xxt_enroll_record',
-					"state=1 and aid='{$app->enroll_app_id}' and enroll_key='{$record->verified_enroll_key}'",
+					['state' => 1, 'aid' => $oApp->entryRule->enroll->id, 'enroll_key' => $oRecord->verified_enroll_key],
 				];
-				if ($enrollRecord = $modelApp->query_obj_ss($q)) {
-					$record->_enrollRecord = $enrollRecord;
+				if ($oEnrollRecord = $modelApp->query_obj_ss($q)) {
+					$oRecord->_enrollRecord = $oEnrollRecord;
 				}
 			}
 		}
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 导入签到数据
@@ -78,46 +77,46 @@ class record extends \pl\fe\matter\base {
 
 		// 签到应用
 		$modelApp = $this->model('matter\signin');
-		$signinApp = $modelApp->byId($app);
+		$oSigninApp = $modelApp->byId($app);
 
-		if (empty($signinApp->enroll_app_id)) {
+		if (empty($oSigninApp->entryRule->enroll->id)) {
 			return new \ResponseError('参数错误，没有指定关联的报名活动');
 		}
 
 		// 和签到在同一个项目阶段的报名
-		$criteria = new \stdClass;
+		$oCriteria = new \stdClass;
 		// 登记记录
-		$options = [];
-		$enrollApp = $this->model('matter\enroll')->byId($signinApp->enroll_app_id);
-		$mdoelRec = $this->model('matter\enroll\record');
+		$aOptions = [];
+		$oEnrollApp = $this->model('matter\enroll')->byId($oSigninApp->entryRule->enroll->id);
+		$modelRec = $this->model('matter\enroll\record');
 
-		$result = $mdoelRec->byApp($enrollApp, $options, $criteria);
+		$oResult = $modelRec->byApp($oEnrollApp, $aOptions, $oCriteria);
 		$countOfNew = 0;
-		if ($result->total > 0) {
+		if ($oResult->total > 0) {
 			$current = time();
-			$mdoelSigninRec = $this->model('matter\signin\record');
-			foreach ($result->records as $record) {
+			$modelSigninRec = $this->model('matter\signin\record');
+			foreach ($oResult->records as $oRecord) {
 				$q = [
 					'verified,enroll_key,enroll_at,data',
 					'xxt_signin_record',
-					['aid' => $signinApp->id, 'state' => 1, 'verified_enroll_key' => $record->enroll_key],
+					['aid' => $oSigninApp->id, 'state' => 1, 'verified_enroll_key' => $oRecord->enroll_key],
 				];
-				$signinRecords = $mdoelSigninRec->query_objs_ss($q);
+				$signinRecords = $modelSigninRec->query_objs_ss($q);
 				if (count($signinRecords) === 1) {
 					$signinRecord = $signinRecords[0];
 					/* 已经有对应的记录，根据登记时间更新数据 */
-					if ($signinRecord->verified === 'N' && $record->enroll_at > $signinRecord->enroll_at) {
+					if ($signinRecord->verified === 'N' && $oRecord->enroll_at > $signinRecord->enroll_at) {
 						$data = json_decode($signinRecord->data);
-						foreach ($record->data as $n => $v) {
+						foreach ($oRecord->data as $n => $v) {
 							$data->{$n} = $v;
 						}
-						$mdoelSigninRec->setData($site, $signinApp, $signinRecord->enroll_key, $data, $user->id);
+						$modelSigninRec->setData($site, $oSigninApp, $signinRecord->enroll_key, $data, $user->id);
 						$countOfNew++;
 					}
 				} else if (count($signinRecords) === 0) {
 					/* 没有对应的记录，创建新的 */
-					$ek = $mdoelSigninRec->enroll($signinApp, null, ['verified_enroll_key' => $record->enroll_key]);
-					$mdoelSigninRec->setData($site, $signinApp, $ek, $record->data, $user->id);
+					$ek = $modelSigninRec->enroll($oSigninApp, null, ['verified_enroll_key' => $oRecord->enroll_key]);
+					$modelSigninRec->setData($site, $oSigninApp, $ek, $oRecord->data, $user->id);
 					$countOfNew++;
 				} else {
 					//@todo 会出现这种情况吗？出现了合理吗?
@@ -136,37 +135,36 @@ class record extends \pl\fe\matter\base {
 		}
 
 		$signinRecord = $this->getPostJson();
-		$result = [];
 
 		// 签到应用
 		$modelApp = $this->model('matter\signin');
-		$signinApp = $modelApp->byId($app, ['cascaded' => 'N']);
-		if (empty($signinApp->enroll_app_id) || empty($signinApp->data_schemas)) {
+		$oSigninApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (empty($oSigninApp->entryRule->enroll->id) || empty($oSigninApp->dataSchemas)) {
 			return new \ParameterError();
 		}
 
 		// 匹配规则
-		$isEmpty = true;
+		$bEmpty = true;
 		$matchCriteria = new \stdClass;
-		$schemas = json_decode($signinApp->data_schemas);
-		foreach ($schemas as $schema) {
+		foreach ($oSigninApp->dataSchemas as $schema) {
 			if (isset($schema->requireCheck) && $schema->requireCheck === 'Y' && !empty($signinRecord->{$schema->id})) {
 				$matchCriteria->{$schema->id} = $signinRecord->{$schema->id};
-				$isEmpty = false;
+				$bEmpty = false;
 			}
 		}
 
-		if (!$isEmpty) {
+		$aResult = [];
+		if (!$bEmpty) {
 			// 查找匹配的数据
-			$enrollApp = $this->model('matter\enroll')->byId($signinApp->enroll_app_id, ['cascaded' => 'N']);
+			$oEnrollApp = $this->model('matter\enroll')->byId($oSigninApp->entryRule->enroll->id, ['cascaded' => 'N']);
 			$modelEnlRec = $this->model('matter\enroll\record');
-			$enlRecords = $modelEnlRec->byData($enrollApp, $matchCriteria);
+			$enlRecords = $modelEnlRec->byData($oEnrollApp, $matchCriteria);
 			foreach ($enlRecords as $enlRec) {
-				$result[] = $enlRec->data;
+				$aResult[] = $enlRec->data;
 			}
 		}
 
-		return new \ResponseData($result);
+		return new \ResponseData($aResult);
 	}
 	/**
 	 * 手工添加登记信息
@@ -185,21 +183,21 @@ class record extends \pl\fe\matter\base {
 		$modelApp = $this->model('matter\signin');
 		$modelRec = $this->model('matter\signin\record');
 
-		$signinApp = $modelApp->byId($app, ['cascaded' => 'N']);
-		$ek = $modelRec->enroll($signinApp);
+		$oSigninApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		$ek = $modelRec->enroll($oSigninApp);
 		/**
 		 * 签到登记记录
 		 */
-		$addedRecord = new \stdClass;
+		$oAddedRecord = new \stdClass;
 		if (isset($posted->verified)) {
-			$addedRecord->verified = $posted->verified;
+			$oAddedRecord->verified = $posted->verified;
 		}
 		if (isset($posted->comment)) {
-			$addedRecord->comment = $posted->comment;
+			$oAddedRecord->comment = $posted->comment;
 		}
 		if (isset($posted->tags)) {
-			$addedRecord->tags = $posted->tags;
-			$this->model('matter\signin')->updateTags($signinApp->id, $posted->tags);
+			$oAddedRecord->tags = $posted->tags;
+			$this->model('matter\signin')->updateTags($oSigninApp->id, $posted->tags);
 		}
 
 		// 签到日志
@@ -227,26 +225,26 @@ class record extends \pl\fe\matter\base {
 					);
 				}
 			}
-			$addedRecord->signin_num = $signinNum;
-			$addedRecord->signin_at = $signinAtLast;
-			$addedRecord->signin_log = \TMS_MODEL::toJson($posted->signin_log);
+			$oAddedRecord->signin_num = $signinNum;
+			$oAddedRecord->signin_at = $signinAtLast;
+			$oAddedRecord->signin_log = \TMS_MODEL::toJson($posted->signin_log);
 		}
 		// 更新登记记录数据
 		$modelRec->update(
 			'xxt_signin_record',
-			$addedRecord,
-			"enroll_key='$ek'"
+			$oAddedRecord,
+			['enroll_key' => $ek]
 		);
 
 		// 保存登记数据
-		$modelRec->setData($site, $signinApp, $ek, $posted->data, $user->id);
+		$modelRec->setData($site, $oSigninApp, $ek, $posted->data, $user->id);
 
 		// 记录操作日志
-		$this->model('matter\log')->matterOp($site, $user, $signinApp, 'add', $ek);
+		$this->model('matter\log')->matterOp($site, $user, $oSigninApp, 'add', $ek);
 
-		$record = $modelRec->byId($ek);
+		$oRecord = $modelRec->byId($ek);
 
-		return new \ResponseData($record);
+		return new \ResponseData($oRecord);
 	}
 	/**
 	 * 更新登记记录
@@ -262,39 +260,39 @@ class record extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$record = $this->getPostJson();
+		$oRecord = $this->getPostJson();
 		$modelApp = $this->model('matter\signin');
 		$modelRec = $this->model('matter\signin\record');
 
-		$signinApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		$oSigninApp = $modelApp->byId($app, ['cascaded' => 'N']);
 
 		$current = time();
-		$updatedRecord = new \stdClass;
-		$updatedRecord->enroll_at = $current;
-		isset($record->comment) && $updatedRecord->comment = $record->comment;
+		$oUpdatedRecord = new \stdClass;
+		$oUpdatedRecord->enroll_at = $current;
+		isset($oRecord->comment) && $oUpdatedRecord->comment = $oRecord->comment;
 
 		// 是否通过验证
-		if (isset($record->verified)) {
-			$updatedRecord->verified = $record->verified;
-			if ($record->verified === 'N') {
+		if (isset($oRecord->verified)) {
+			$oUpdatedRecord->verified = $oRecord->verified;
+			if ($oRecord->verified === 'N') {
 				// 如果不通过验证，解除关联的报名应用信息
-				$updatedRecord->verified_enroll_key = '';
+				$oUpdatedRecord->verified_enroll_key = '';
 			}
 		}
 
 		// 标签
-		if (isset($record->tags)) {
+		if (isset($oRecord->tags)) {
 			// 更新记录的标签时，要同步更新活动的标签，实现标签在整个活动中有效
-			$updatedRecord->tags = $record->tags;
-			$modelApp->updateTags($signinApp->id, $record->tags);
+			$oUpdatedRecord->tags = $oRecord->tags;
+			$modelApp->updateTags($oSigninApp->id, $oRecord->tags);
 		}
 
 		// 签到日志
-		if (isset($record->signin_log)) {
+		if (isset($oRecord->signin_log)) {
 			$signinNum = 0;
 			$signinAtLast = 0;
 			$modelSinLog = $this->model('matter\signin\log');
-			foreach ($record->signin_log as $roundId => $signinAt) {
+			foreach ($oRecord->signin_log as $roundId => $signinAt) {
 				if ($signinAt) {
 					$signinAt > $signinAtLast && $signinAtLast = $signinAt;
 					$signinNum++;
@@ -310,7 +308,7 @@ class record extends \pl\fe\matter\base {
 							'xxt_signin_log',
 							[
 								'siteid' => $site,
-								'aid' => $signinApp->id,
+								'aid' => $oSigninApp->id,
 								'rid' => $roundId,
 								'enroll_key' => $ek,
 								'userid' => '',
@@ -322,46 +320,46 @@ class record extends \pl\fe\matter\base {
 					}
 				} else {
 					// 清除掉无效的数据
-					unset($record->signin_log->{$roundId});
+					unset($oRecord->signin_log->{$roundId});
 					$modelSinLog->delete(
 						'xxt_signin_log',
 						['enroll_key' => $ek, 'rid' => $roundId]
 					);
 				}
 			}
-			$updatedRecord->signin_num = $record->signin_num = $signinNum;
-			$updatedRecord->signin_at = $record->signin_at = $signinAtLast;
-			$updatedRecord->signin_log = \TMS_MODEL::toJson($record->signin_log);
+			$oUpdatedRecord->signin_num = $oRecord->signin_num = $signinNum;
+			$oUpdatedRecord->signin_at = $oRecord->signin_at = $signinAtLast;
+			$oUpdatedRecord->signin_log = \TMS_MODEL::toJson($oRecord->signin_log);
 		}
 		// 更新登记记录数据
 		$modelRec->update(
 			'xxt_signin_record',
-			$updatedRecord,
-			"enroll_key='$ek'"
+			$oUpdatedRecord,
+			['enroll_key' => $ek]
 		);
 
 		// 更新登记数据
-		$modelRec->setData($site, $signinApp, $ek, $record->data, $user->id);
+		$modelRec->setData($site, $oSigninApp, $ek, $oRecord->data, $user->id);
 
 		// 记录操作日志
-		$this->model('matter\log')->matterOp($site, $user, $signinApp, 'update', $record);
+		$this->model('matter\log')->matterOp($site, $user, $oSigninApp, 'update', $oRecord);
 
 		// 返回完整的记录
-		$record = $modelRec->byId($ek);
+		$oRecord = $modelRec->byId($ek);
 
-		return new \ResponseData($record);
+		return new \ResponseData($oRecord);
 	}
 	/**
 	 * 给记录批量添加标签
 	 */
-	public function batchTag_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+	public function batchTag_action($app) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
-		$posted = $this->getPostJson();
-		$eks = $posted->eks;
-		$tags = $posted->tags;
+		$oPosted = $this->getPostJson();
+		$eks = $oPosted->eks;
+		$tags = $oPosted->tags;
 
 		/**
 		 * 给记录打标签
@@ -369,8 +367,8 @@ class record extends \pl\fe\matter\base {
 		$modelRec = $this->model('matter\signin\record');
 		if (!empty($eks) && !empty($tags)) {
 			foreach ($eks as $ek) {
-				$record = $modelRec->byId($ek);
-				$existent = $record->tags;
+				$oRecord = $modelRec->byId($ek);
+				$existent = $oRecord->tags;
 				if (empty($existent)) {
 					$aNew = $tags;
 				} else {
@@ -378,13 +376,13 @@ class record extends \pl\fe\matter\base {
 					$aNew = array_unique(array_merge($aExistent, $tags));
 				}
 				$newTags = implode(',', $aNew);
-				$modelRec->update('xxt_signin_record', ['tags' => $newTags], "enroll_key='$ek'");
+				$modelRec->update('xxt_signin_record', ['tags' => $newTags], ['enroll_key' => $ek]);
 			}
 		}
 		/**
 		 * 给应用打标签
 		 */
-		$this->model('matter\signin')->updateTags($app, $posted->appTags);
+		$this->model('matter\signin')->updateTags($app, $oPosted->appTags);
 
 		return new \ResponseData('ok');
 	}
@@ -444,13 +442,13 @@ class record extends \pl\fe\matter\base {
 
 		// 登记活动
 		$modelApp = $this->model('matter\signin');
-		$signinApp = $modelApp->byId(
+		$oSigninApp = $modelApp->byId(
 			$app,
-			['fields' => 'id,title,data_schemas,assigned_nickname,enroll_app_id,tags,siteid,mission_id,entry_rule,group_app_id,absent_cause', 'cascaded' => 'Y']
+			['fields' => 'id,title,data_schemas,assigned_nickname,tags,siteid,mission_id,entry_rule,absent_cause', 'cascaded' => 'Y']
 		);
-		$schemas = json_decode($signinApp->data_schemas);
+		$schemas = $oSigninApp->dataSchemas;
 		if (!empty($round)) {
-			foreach ($signinApp->rounds as $rnd) {
+			foreach ($oSigninApp->rounds as $rnd) {
 				if ($rnd->rid === $round) {
 					$round = $rnd;
 					break;
@@ -459,9 +457,9 @@ class record extends \pl\fe\matter\base {
 		}
 
 		// 关联的报名活动
-		if (!empty($signinApp->enroll_app_id)) {
-			$enrollApp = $this->model('matter\enroll')->byId($signinApp->enroll_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
-			$enrollSchemas = $enrollApp->dataSchemas;
+		if (!empty($oSigninApp->entryRule->enroll->id)) {
+			$oEnrollApp = $this->model('matter\enroll')->byId($oSigninApp->entryRule->enroll->id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+			$enrollSchemas = $oEnrollApp->dataSchemas;
 			$mapOfSigninSchemas = [];
 			foreach ($schemas as $schema) {
 				$mapOfSigninSchemas[] = $schema->id;
@@ -474,8 +472,8 @@ class record extends \pl\fe\matter\base {
 		}
 
 		// 关联的报名活动
-		if (!empty($signinApp->group_app_id)) {
-			$groupApp = $this->model('matter\group')->byId($signinApp->group_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+		if (!empty($oSigninApp->entryRule->group->id)) {
+			$groupApp = $this->model('matter\group')->byId($oSigninApp->entryRule->group->id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
 			$groupSchemas = $groupApp->dataSchemas;
 			$mapOfSigninSchemas = [];
 			foreach ($schemas as $schema) {
@@ -492,9 +490,9 @@ class record extends \pl\fe\matter\base {
 		$q = [
 			'enroll_at,signin_at,signin_num,verified,data,signin_log,tags,comment,verified_enroll_key',
 			'xxt_signin_record',
-			["aid" => $signinApp->id, 'state' => 1],
+			["aid" => $oSigninApp->id, 'state' => 1],
 		];
-		$records = $this->model()->query_objs_ss($q);
+		$records = $modelApp->query_objs_ss($q);
 		if (count($records) === 0) {
 			die('record empty');
 		}
@@ -504,11 +502,11 @@ class record extends \pl\fe\matter\base {
 		// Create new PHPExcel object
 		$objPHPExcel = new \PHPExcel();
 		// Set properties
-		$objPHPExcel->getProperties()->setCreator("信信通")
-			->setLastModifiedBy("信信通")
-			->setTitle($signinApp->title)
-			->setSubject($signinApp->title)
-			->setDescription($signinApp->title);
+		$objPHPExcel->getProperties()->setCreator(APP_TITLE)
+			->setLastModifiedBy(APP_TITLE)
+			->setTitle($oSigninApp->title)
+			->setSubject($oSigninApp->title)
+			->setDescription($oSigninApp->title);
 
 		$objPHPExcel->setActiveSheetIndex(0);
 		$objActiveSheet = $objPHPExcel->getActiveSheet();
@@ -521,7 +519,7 @@ class record extends \pl\fe\matter\base {
 			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '签到时间');
 		} else {
 			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '签到次数');
-			foreach ($signinApp->rounds as $rnd) {
+			foreach ($oSigninApp->rounds as $rnd) {
 				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, $rnd->title);
 			}
 			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '迟到次数');
@@ -533,7 +531,7 @@ class record extends \pl\fe\matter\base {
 			}
 			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, $schema->title);
 		}
-		if (!empty($signinApp->tags)) {
+		if (!empty($oSigninApp->tags)) {
 			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '签到标签');
 		}
 		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '签到备注');
@@ -542,12 +540,12 @@ class record extends \pl\fe\matter\base {
 
 		// 转换数据
 		$rowNumber = 2;
-		foreach ($records as $record) {
+		foreach ($records as $oRecord) {
 			$colNumber = 0;
 			// 基本信息
-			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, date('y-m-j H:i', $record->enroll_at));
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, date('y-m-j H:i', $oRecord->enroll_at));
 			// 处理签到日志
-			$signinLog = empty($record->signin_log) ? new \stdClass : json_decode($record->signin_log);
+			$signinLog = empty($oRecord->signin_log) ? new \stdClass : json_decode($oRecord->signin_log);
 			if (!empty($round)) {
 				if (isset($signinLog->{$round->rid})) {
 					$signinAt = $signinLog->{$round->rid};
@@ -561,9 +559,9 @@ class record extends \pl\fe\matter\base {
 					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
 				}
 			} else {
-				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $record->signin_num);
+				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $oRecord->signin_num);
 				$lateCount = 0;
-				foreach ($signinApp->rounds as $rnd) {
+				foreach ($oSigninApp->rounds as $rnd) {
 					if (isset($signinLog->{$rnd->rid})) {
 						$signinAt = $signinLog->{$rnd->rid};
 						if (!empty($rnd->late_at) && $signinAt > $rnd->late_at + 59) {
@@ -579,14 +577,14 @@ class record extends \pl\fe\matter\base {
 				}
 				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $lateCount);
 			}
-			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $record->verified);
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $oRecord->verified);
 			// 处理登记项
-			$data = json_decode($record->data);
+			$oRecData = json_decode($oRecord->data);
 			foreach ($schemas as $schema) {
 				if (in_array($schema->type, ['html', 'image', 'file'])) {
 					continue;
 				}
-				$v = isset($data->{$schema->id}) ? $data->{$schema->id} : '';
+				$v = $modelApp->getDeepValue($oRecData, $schema->id, '');
 				switch ($schema->type) {
 				case 'single':
 					foreach ($schema->ops as $op) {
@@ -633,20 +631,20 @@ class record extends \pl\fe\matter\base {
 				}
 			}
 			// 基本信息
-			if (!empty($signinApp->tags)) {
-				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($record->tags) ? $record->tags : '');
+			if (!empty($oSigninApp->tags)) {
+				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($oRecord->tags) ? $oRecord->tags : '');
 			}
-			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($record->comment) ? $record->comment : '');
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($oRecord->comment) ? $oRecord->comment : '');
 			// 关联的报名记录
-			if (!empty($record->verified_enroll_key)) {
+			if (!empty($oRecord->verified_enroll_key)) {
 				$q = [
 					'enroll_at,tags,comment',
 					'xxt_enroll_record',
-					"state=1 and aid='{$signinApp->enroll_app_id}' and enroll_key='{$record->verified_enroll_key}'",
+					['state' => 1, 'aid' => $oSigninApp->entryRule->enroll->id, 'enroll_key' => $oRecord->verified_enroll_key],
 				];
-				if ($enrollRecord = $modelApp->query_obj_ss($q)) {
-					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($enrollRecord->tags) ? $enrollRecord->tags : '');
-					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($enrollRecord->comment) ? $enrollRecord->comment : '');
+				if ($oEnrollRecord = $modelApp->query_obj_ss($q)) {
+					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($oEnrollRecord->tags) ? $oEnrollRecord->tags : '');
+					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($oEnrollRecord->comment) ? $oEnrollRecord->comment : '');
 				} else {
 					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
 					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
@@ -662,7 +660,7 @@ class record extends \pl\fe\matter\base {
 		/* 未签到用户名单 */
 		$modelUsr = $this->model('matter\signin\record');
 		/* 获取未签到人员 */
-		$result = $modelUsr->absentByApp($signinApp, $round);
+		$result = $modelUsr->absentByApp($oSigninApp, $round);
 		$absentUsers = $result->users;
 		if (count($absentUsers)) {
 			$objPHPExcel->createSheet();
@@ -693,7 +691,7 @@ class record extends \pl\fe\matter\base {
 
 		// 输出
 		header('Content-Type: application/vnd.ms-excel');
-		header('Content-Disposition: attachment;filename="' . $signinApp->title . '.xlsx"');
+		header('Content-Disposition: attachment;filename="' . $oSigninApp->title . '.xlsx"');
 		header('Cache-Control: max-age=0');
 		$objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
 		$objWriter->save('php://output');
@@ -711,21 +709,21 @@ class record extends \pl\fe\matter\base {
 			die('部署环境不支持该功能');
 		}
 
-		$nameSchema = null;
+		$oNameSchema = null;
 		$imageSchemas = [];
 
 		// 登记活动
 		$modelApp = $this->model('matter\signin');
-		$signinApp = $modelApp->byId(
+		$oSigninApp = $modelApp->byId(
 			$app,
-			['fields' => 'id,title,data_schemas,enroll_app_id', 'cascaded' => 'Y']
+			['fields' => 'id,title,entry_rule,data_schemas', 'cascaded' => 'Y']
 		);
-		$schemas = json_decode($signinApp->data_schemas);
+		$schemas = $oSigninApp->dataSchemas;
 
 		// 关联的登记活动
-		if (!empty($signinApp->enroll_app_id)) {
-			$enrollApp = $this->model('matter\enroll')->byId($signinApp->enroll_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
-			$enrollSchemas = $enrollApp->dataSchemas;
+		if (!empty($oSigninApp->entryRule->enroll->id)) {
+			$oEnrollApp = $this->model('matter\enroll')->byId($oSigninApp->entryRule->enroll->id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+			$enrollSchemas = $oEnrollApp->dataSchemas;
 			$mapOfSigninSchemas = [];
 			foreach ($schemas as $schema) {
 				$mapOfSigninSchemas[] = $schema->id;
@@ -740,7 +738,7 @@ class record extends \pl\fe\matter\base {
 			if ($schema->type === 'image') {
 				$imageSchemas[] = $schema;
 			} else if ($schema->id === 'name' || (in_array($schema->title, array('姓名', '名称')))) {
-				$nameSchema = $schema;
+				$oNameSchema = $schema;
 			}
 		}
 		if (count($imageSchemas) === 0) {
@@ -750,7 +748,7 @@ class record extends \pl\fe\matter\base {
 		$q = [
 			'data',
 			'xxt_signin_record',
-			["aid" => $signinApp->id, 'state' => 1],
+			["aid" => $oSigninApp->id, 'state' => 1],
 		];
 		$records = $this->model()->query_objs_ss($q);
 		if (count($records) === 0) {
@@ -772,7 +770,7 @@ class record extends \pl\fe\matter\base {
 		}
 		$usedRecordName = [];
 		// 输出打包文件
-		$zipFilename = tempnam('/tmp', $signinApp->id);
+		$zipFilename = tempnam('/tmp', $oSigninApp->id);
 		$zip = new \ZipArchive;
 		if ($zip->open($zipFilename, \ZIPARCHIVE::CREATE) === false) {
 			die('无法打开压缩文件，或者文件创建失败');
@@ -784,9 +782,9 @@ class record extends \pl\fe\matter\base {
 				/**
 				 * 图片文件名称替换
 				 */
-				if (isset($nameSchema)) {
+				if (isset($oNameSchema)) {
 					$data = $image['data'];
-					$recordName = $data->{$nameSchema->id};
+					$recordName = $data->{$oNameSchema->id};
 					if (!empty($recordName)) {
 						if (isset($usedRecordName[$recordName])) {
 							$usedRecordName[$recordName]++;
@@ -807,7 +805,7 @@ class record extends \pl\fe\matter\base {
 		}
 		header("Cache-Control: public");
 		header("Content-Description: File Transfer");
-		header('Content-disposition: attachment; filename=' . $signinApp->title . '.zip');
+		header('Content-disposition: attachment; filename=' . $oSigninApp->title . '.zip');
 		header("Content-Type: application/zip");
 		header("Content-Transfer-Encoding: binary");
 		header('Content-Length: ' . filesize($zipFilename));
@@ -818,28 +816,27 @@ class record extends \pl\fe\matter\base {
 	/**
 	 * 指定记录通过审核
 	 */
-	public function batchVerify_action($site, $app) {
-		if (false === ($oUser = $this->accountUser())) {
+	public function batchVerify_action($app) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
-		$posted = $this->getPostJson();
-		$eks = $posted->eks;
+		$oPosted = $this->getPostJson();
+		$eks = $oPosted->eks;
 
 		$modelApp = $this->model('matter\signin');
-		$app = $modelApp->byId($app, ['cascaded' => 'N']);
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
 
 		foreach ($eks as $ek) {
 			$rst = $modelApp->update(
 				'xxt_signin_record',
 				['verified' => 'Y'],
-				"enroll_key='$ek'"
+				['enroll_key' => $ek]
 			);
 		}
 
 		// 记录操作日志
-		$app->type = 'signin';
-		$this->model('matter\log')->matterOp($site, $oUser, $app, 'verify.batch', $eks);
+		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'verify.batch', $eks);
 
 		return new \ResponseData('ok');
 	}
@@ -850,20 +847,19 @@ class record extends \pl\fe\matter\base {
 	 * 3、如果活动所属项目指定了用户名单
 	 */
 	public function absent_action($app, $rid = '') {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
 		$modelSin = $this->model('matter\signin');
-		$oApp = $modelSin->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,mission_id,entry_rule,group_app_id,enroll_app_id,absent_cause']);
-		if (false === $oApp) {
+		$oApp = $modelSin->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,state,mission_id,entry_rule,absent_cause']);
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
 		$modelUsr = $this->model('matter\signin\record');
+		$oResult = $modelUsr->absentByApp($oApp, $rid);
 
-		$result = $modelUsr->absentByApp($oApp, $rid);
-
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 }

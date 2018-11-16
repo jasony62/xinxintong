@@ -68,17 +68,16 @@ class record extends base {
 		/**
 		 * 检查是否存在匹配的分组记录
 		 */
-		if (!empty($oSigninApp->group_app_id)) {
-			$oGroupApp = $this->model('matter\group')->byId($oSigninApp->group_app_id);
+		if (!empty($oSigninApp->entryRule->group->id)) {
+			$oGroupApp = $this->model('matter\group')->byId($oSigninApp->entryRule->group->id);
 			if (empty($oGroupApp)) {
 				return new \ParameterError('指定的登记匹配分组活动不存在');
 			}
 			/* 获得要检查的登记项 */
 			$requireCheckedData = new \stdClass;
-			$dataSchemas = json_decode($oSigninApp->data_schemas);
-			foreach ($dataSchemas as $oSchema) {
+			foreach ($oSigninApp->dataSchemas as $oSchema) {
 				if (isset($oSchema->requireCheck) && $oSchema->requireCheck === 'Y') {
-					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oSigninApp->group_app_id) {
+					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oSigninApp->entryRule->group->id) {
 						$requireCheckedData->{$oSchema->id} = $mdoelSigRec->getValueBySchema($oSchema, $oSigninData);
 					}
 				}
@@ -126,8 +125,8 @@ class record extends base {
 		/**
 		 * 检查签到数据是否在报名表中
 		 */
-		if (!empty($oSigninApp->enroll_app_id)) {
-			$oEnrollApp = $this->model('matter\enroll')->byId($oSigninApp->enroll_app_id, ['cascaded' => 'N']);
+		if (!empty($oSigninApp->entryRule->enroll->id)) {
+			$oEnrollApp = $this->model('matter\enroll')->byId($oSigninApp->entryRule->enroll->id, ['cascaded' => 'N']);
 			if ($oEnrollApp) {
 				/*获得要检查的数据*/
 				$dataSchemas = $oSigninApp->dataSchemas;
@@ -155,7 +154,7 @@ class record extends base {
 						$mdoelSigRec->update(
 							'xxt_signin_record',
 							['verified' => 'Y', 'verified_enroll_key' => $oEnrollRecord->enroll_key],
-							"enroll_key='{$oSignState->ek}'"
+							['enroll_key' => $oSignState->ek]
 						);
 						$oSignState->verified = 'Y';
 						// 返回指定的验证成功页
@@ -181,7 +180,7 @@ class record extends base {
 					$mdoelSigRec->update(
 						'xxt_signin_record',
 						['verified' => 'N', 'verified_enroll_key' => ''],
-						"enroll_key='{$oSignState->ek}'"
+						['enroll_key' => $oSignState->ek]
 					);
 					$oSignState->verified = 'N';
 					if (isset($oSigninApp->entryRule->fail->entry)) {
@@ -257,12 +256,6 @@ class record extends base {
 				}
 			}
 		}
-		/**
-		 * 通知登记活动事件接收人
-		 */
-		if ($oSigninApp->notify_submit === 'Y') {
-			$this->_notifyReceivers($oSigninApp, $oSignState->ek);
-		}
 
 		return new \ResponseData($oSignState);
 	}
@@ -292,62 +285,6 @@ class record extends base {
 		$logid = $modelLog->addUserMatterOp($oApp->siteid, $logUser, $oApp, $operation, $client, $referer);
 
 		return $logid;
-	}
-	/**
-	 * 通知签到活动事件接收人
-	 *
-	 * @param string $siteId
-	 * @param object $app
-	 * @param string $ek
-	 *
-	 */
-	private function _notifyReceivers(&$oApp, $ek) {
-		$receivers = $this->model('matter\signin\receiver')->byApp($oApp->siteid, $oApp->id);
-		if (count($receivers) === 0) {
-			return false;
-		}
-		/* 获得活动的管理员链接 */
-		$appURL = $this->model('matter\signin')->getOpUrl($oApp->siteid, $oApp->id);
-		$modelQurl = $this->model('q\url');
-		$noticeURL = $modelQurl->urlByUrl($oApp->siteid, $appURL);
-		/* 模板消息参数 */
-		$params = new \stdClass;
-		$notice = $this->model('site\notice')->byName($oApp->siteid, 'site.signin.submit');
-		if ($notice === false) {
-			return false;
-		}
-		$tmplConfig = $this->model('matter\tmplmsg\config')->byId($notice->tmplmsg_config_id, ['cascaded' => 'Y']);
-		if (!isset($tmplConfig->tmplmsg)) {
-			return false;
-		}
-		foreach ($tmplConfig->tmplmsg->params as $param) {
-			$mapping = $tmplConfig->mapping->{$param->pname};
-			if ($mapping->src === 'matter') {
-				if (isset($oApp->{$mapping->id})) {
-					$value = $oApp->{$mapping->id};
-				}
-			} else if ($mapping->src === 'text') {
-				$value = $mapping->name;
-			}
-			!isset($value) && $value = '';
-			$params->{$param->pname} = $value;
-		}
-		$noticeURL && $params->url = $noticeURL;
-
-		/* 发送消息 */
-		foreach ($receivers as &$receiver) {
-			if (!empty($receiver->sns_user)) {
-				$snsUser = json_decode($receiver->sns_user);
-				if (isset($snsUser->src) && isset($snsUser->openid)) {
-					$receiver->{$snsUser->src . '_openid'} = $snsUser->openid;
-				}
-			}
-		}
-
-		$modelTmplBat = $this->model('matter\tmplmsg\plbatch');
-		$modelTmplBat->send($oApp->siteid, $tmplConfig->msgid, $receivers, $params, ['event_name' => 'site.signin.submit', 'send_from' => 'signin:' . $oApp->id . ':' . $ek]);
-
-		return true;
 	}
 	/**
 	 * 分段上传文件

@@ -9,29 +9,74 @@ class main extends \pl\fe\matter\main_base {
 	/**
 	 * 返回视图
 	 */
-	public function index_action($site, $id) {
+	public function index_action() {
 		\TPL::output('/pl/fe/matter/signin/frame');
 		exit;
 	}
 	/**
 	 * 返回一个签到活动
 	 */
-	public function get_action($site, $id) {
-		if (false === ($oUser = $this->accountUser())) {
+	public function get_action($id) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
 		$oApp = $this->model('matter\signin')->byId($id);
-		if (false === $oApp) {
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 		/*关联登记活动*/
-		if ($oApp->enroll_app_id) {
-			$oApp->enrollApp = $this->model('matter\enroll')->byId($oApp->enroll_app_id, ['cascaded' => 'N']);
-		}
-		/*关联分组活动*/
-		if ($oApp->group_app_id) {
-			$oApp->groupApp = $this->model('matter\group')->byId($oApp->group_app_id);
+		if (isset($oApp->entryRule) && $oEntryRule = $oApp->entryRule) {
+			if (isset($oEntryRule->member) && is_object($oEntryRule->member)) {
+				$modelMs = $this->model('site\user\memberschema');
+				foreach ($oEntryRule->member as $msid => $oRule) {
+					$oMschema = $modelMs->byId($msid, ['fields' => 'title', 'cascaded' => 'N']);
+					if ($oMschema) {
+						$oRule->title = $oMschema->title;
+					}
+				}
+			}
+			if (!empty($oEntryRule->enroll->id)) {
+				$oApp->enrollApp = $this->model('matter\enroll')->byId($oEntryRule->enroll->id, ['cascaded' => 'N']);
+				$oEntryRule->enroll->title = $oApp->enrollApp->title;
+			}
+			/*关联分组活动*/
+			if (!empty($oEntryRule->group->id)) {
+				$oRuleApp = $oEntryRule->group;
+				$modelGrpRnd = $this->model('matter\group\round');
+				$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+				if ($oGroupApp) {
+					$oRuleApp->title = $oGroupApp->title;
+					if (!empty($oRuleApp->round->id)) {
+						$oGroupRnd = $modelGrpRnd->byId($oRuleApp->round->id, ['fields' => 'title']);
+						if ($oGroupRnd) {
+							$oRuleApp->round->title = $oGroupRnd->title;
+						}
+					}
+					/* 获得当前活动的分组 */
+					$groups = $modelGrpRnd->byApp($oGroupApp->id, ['fields' => 'round_id,round_type,title', 'round_type' => '']);
+					$oGroupDS = new \stdClass;
+					$oGroupDS->id = '_round_id';
+					$oGroupDS->type = 'single';
+					$oGroupDS->title = '分组名称';
+					$ops = [];
+					/* 获得的分组信息 */
+					foreach ($groups as $oGroup) {
+						if ($oGroup->round_type === 'T') {
+							$ops[] = (object) [
+								'v' => $oGroup->round_id,
+								'l' => $oGroup->title,
+							];
+						}
+					}
+					$oGroupDS->ops = $ops;
+
+					$oGroupApp->dataSchemas = array_merge([$oGroupDS], $oGroupApp->dataSchemas);
+
+					$oApp->groupApp = $oGroupApp;
+					$oApp->groups = $groups;
+				}
+			}
 		}
 		/*所属项目*/
 		if ($oApp->mission_id) {
@@ -83,20 +128,6 @@ class main extends \pl\fe\matter\main_base {
 				}
 			}
 		}
-
-		return new \ResponseData($result);
-	}
-	/**
-	 * 返回和指定登记活动关联的签到活动列表
-	 *
-	 */
-	public function listByEnroll_action($site, $enroll) {
-		if (false === ($oUser = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$modelSig = $this->model('matter\signin');
-		$result = $modelSig->byEnrollApp($enroll);
 
 		return new \ResponseData($result);
 	}
@@ -161,7 +192,7 @@ class main extends \pl\fe\matter\main_base {
 		$oNewApp->title = $modelApp->escape($oCopied->title) . '（副本）';
 		$oNewApp->pic = $oCopied->pic;
 		$oNewApp->summary = $modelApp->escape($oCopied->summary);
-		$oNewApp->data_schemas = $modelApp->escape($oCopied->data_schemas);
+		$oNewApp->data_schemas = $modelApp->escape($modelApp->toJson($oCopied->dataSchemas));
 		$oNewApp->entry_rule = json_encode($oCopied->entryRule);
 		if (!empty($mission)) {
 			$oNewApp->mission_id = $mission;

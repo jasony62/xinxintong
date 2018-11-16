@@ -12,14 +12,14 @@
     <link href='/static/css/site.fe.css?_=2' rel="stylesheet">
 </head>
 
-<body ng-controller="ctrlVotes">
+<body ng-controller="ctrlVotes" tms-trace send-url='/rest/site/fe/matter/enroll/analysis/submit?site={{app.siteid}}&app={{app.id}}&page=votes' ready-sign="app">
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <nav class='navbar site-navbar-default'>
         <div class='container'>
             <div class="navbar-header">
                 <a href class="navbar-brand">
-                    <span tms-app-nav app-navs="appNavs">投票榜</span>
+                    <span tms-pop-nav navs="popNav.navs" close-after='5000' custom="popNav.custom">投票榜</span>
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
@@ -60,7 +60,7 @@
             </div>
         </div>
     </div>
-    <div ng-if="appActs" tms-app-act app-acts="appActs"></div>
+    <div ng-if="popAct.acts.length" tms-pop-act acts="popAct.acts" custom="popAct.custom" close-after='5000'></div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
     <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
     <div class="loading">

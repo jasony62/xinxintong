@@ -200,7 +200,6 @@ $sql .= ",siteid varchar(32) not null";
 $sql .= ",sid int not null"; // shop id
 $sql .= ",cate_id int not null"; // 所属分类ID
 $sql .= ",creater varchar(40) not null";
-$sql .= ",creater_src char(1) not null default 'A'";
 $sql .= ",create_at int not null";
 $sql .= ",reviser varchar(40) not null";
 $sql .= ",modify_at int not null";

@@ -16,8 +16,8 @@ class player extends \pl\fe\matter\base {
 	/**
 	 * 查看分组数据
 	 */
-	public function list_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
+	public function list_action($app) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
@@ -49,7 +49,7 @@ class player extends \pl\fe\matter\base {
 		$modelPlayer = $this->model('matter\group\player');
 
 		$app = $modelGrp->byId($app);
-		$schemas = json_decode($app->data_schemas);
+		$schemas = $app->dataSchemas;
 		$result = $modelPlayer->byApp($app);
 		if ($result->total == 0) {
 			die('player empty');
@@ -61,8 +61,8 @@ class player extends \pl\fe\matter\base {
 		// Create new PHPExcel object
 		$objPHPExcel = new \PHPExcel();
 		// Set properties
-		$objPHPExcel->getProperties()->setCreator("信信通")
-			->setLastModifiedBy("信信通")
+		$objPHPExcel->getProperties()->setCreator(APP_TITLE)
+			->setLastModifiedBy(APP_TITLE)
 			->setTitle($app->title)
 			->setSubject($app->title)
 			->setDescription($app->title);

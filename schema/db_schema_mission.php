@@ -11,11 +11,9 @@ $sql .= ",summary varchar(240) not null default ''";
 $sql .= ",pic text null";
 $sql .= ",creater varchar(40) not null default ''";
 $sql .= ",creater_name varchar(255) not null default ''";
-$sql .= ",creater_src char(1) not null default 'A'"; // should remove
 $sql .= ",create_at int not null";
 $sql .= ",modifier varchar(40) not null default ''";
 $sql .= ",modifier_name varchar(255) not null default ''";
-$sql .= ",modifier_src char(1) not null default 'A'"; // should remove
 $sql .= ',modify_at int not null';
 $sql .= ",state tinyint not null default 1"; //0:stop,1:normal
 $sql .= ",start_at int not null default 0"; // 开始时间
@@ -95,6 +93,9 @@ $sql .= ",mission_id int not null";
 $sql .= ",group_id varchar(32) not null default ''"; // 用户分组id
 $sql .= ",userid varchar(40) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
+$sql .= ",entry_num int not null default 0"; // 进入活动的次数
+$sql .= ",last_entry_at int not null default 0"; // 最后一次进入时间
+$sql .= ",total_elapse int not null default 0"; // 参与活动的总时长
 $sql .= ",last_enroll_at int not null default 0"; // 最后一次登记时间
 $sql .= ",enroll_num int not null default 0"; // 登记记录的条数
 $sql .= ",last_cowork_at int not null default 0"; // 最后一次获得协作填写时间
@@ -111,6 +112,12 @@ $sql .= ",last_like_cowork_at int not null default 0"; // 协作填写最后一�
 $sql .= ",like_cowork_num int not null default 0"; // 协作填写获得点赞的次数
 $sql .= ",last_like_remark_at int not null default 0"; // 留言最后一次获得点赞的时间
 $sql .= ",like_remark_num int not null default 0"; // 留言获得点赞的次数
+$sql .= ",last_dislike_at int not null default 0"; // 登记内容最后一次获得点赞的时间
+$sql .= ",dislike_num int not null default 0"; // 登记内容获得点赞的次数
+$sql .= ",last_dislike_cowork_at int not null default 0"; // 协作填写最后一次获得点赞的时间
+$sql .= ",dislike_cowork_num int not null default 0"; // 协作填写获得点赞的次数
+$sql .= ",last_dislike_remark_at int not null default 0"; // 留言最后一次获得点赞的时间
+$sql .= ",dislike_remark_num int not null default 0"; // 留言获得点赞的次数
 $sql .= ",last_do_remark_at int not null default 0"; // 最后一次发表评价的时间
 $sql .= ",do_remark_num int not null default 0"; // 发表的评价条数
 $sql .= ",last_do_like_at int not null default 0"; // 最后一次对登记内容进行点赞的时间
@@ -119,6 +126,12 @@ $sql .= ",last_do_like_cowork_at int not null default 0"; // 最后一次对协�
 $sql .= ",do_like_cowork_num int not null default 0"; // 对协作进行点赞的次数
 $sql .= ",last_do_like_remark_at int not null default 0"; // 最后一次对留言进行点赞的时间
 $sql .= ",do_like_remark_num int not null default 0"; // 对留言进行点赞的次数
+$sql .= ",last_do_dislike_at int not null default 0"; // 最后一次对登记内容进行点赞的时间
+$sql .= ",do_dislike_num int not null default 0"; // 对登记内容进行点赞的次数
+$sql .= ",last_do_dislike_cowork_at int not null default 0"; // 最后一次对协作进行点赞的时间
+$sql .= ",do_dislike_cowork_num int not null default 0"; // 对协作进行点赞的次数
+$sql .= ",last_do_dislike_remark_at int not null default 0"; // 最后一次对留言进行点赞的时间
+$sql .= ",do_dislike_remark_num int not null default 0"; // 对留言进行点赞的次数
 $sql .= ",last_agree_at int not null default 0"; // 最后一次获得推荐的时间
 $sql .= ",agree_num int not null default 0"; // 获得推荐的次数
 $sql .= ",last_agree_cowork_at int not null default 0"; // 最后一次协作获得推荐的时间
@@ -138,26 +151,35 @@ $sql .= ",topic_read_elapse int not null default 0"; // 专题页被阅读的总
 $sql .= ",do_cowork_read_num int not null default 0"; // 阅读谈论页的次数
 $sql .= ",cowork_read_num int not null default 0"; // 谈论页被阅读的次数
 $sql .= ",do_cowork_read_elapse int not null default 0"; // 阅读谈论页的时长
-$sql .= ",cowork_read_elapse int not null default 0"; // 
-$sql .= ",user_total_coin int not null default 0"; // 用户在某个活动中的总分数
+$sql .= ",cowork_read_elapse int not null default 0"; //
+$sql .= ",user_total_coin int not null default 0"; // 用户的总积分
+$sql .= ",score float not null default 0"; // 用户总得分
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,100:后台删除,101:用户删除;
 $sql .= ",modify_log longtext null"; // 数据修改日志
+$sql .= ",custom text null"; // 用户自定义设置
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 通知接收人
+ * 记录活动页面记录追踪
  */
-$sql = "create table if not exists xxt_mission_receiver(";
+$sql = "create table if not exists xxt_mission_trace(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
-$sql .= ",aid varchar(40) not null";
-$sql .= ",join_at int not null default 0"; // 加入时间
-$sql .= ",userid varchar(40) not null default ''";
+$sql .= ",mission_id int not null";
+$sql .= ",page varchar(13) not null default ''"; //
+$sql .= ",userid varchar(40) not null";
 $sql .= ",nickname varchar(255) not null default ''";
-$sql .= ",sns_user text"; // 社交账号信息
+$sql .= ",event_first varchar(255) not null default ''";
+$sql .= ",event_first_at int not null default 0";
+$sql .= ",event_end varchar(255) not null default ''";
+$sql .= ",event_end_at int not null default 0";
+$sql .= ",event_elapse int not null default 0"; // 事件总时长
+$sql .= ",events text null"; // 事件
+$sql .= ",user_agent text null";
+$sql .= ",client_ip varchar(40) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -172,7 +194,6 @@ $sql .= ",siteid varchar(32) not null";
 $sql .= ",mission_id int not null";
 $sql .= ",creater varchar(40) not null";
 $sql .= ",creater_name varchar(255) not null default ''";
-$sql .= ",creater_src char(1)";
 $sql .= ",create_at int not null";
 $sql .= ",matter_id varchar(40) not null";
 $sql .= ",matter_type varchar(20)";
@@ -182,23 +203,6 @@ $sql .= ",start_at int not null default 0";
 $sql .= ",end_at int not null default 0";
 $sql .= ",is_public char(1) not null default 'Y'"; // 是否为公开素材
 $sql .= ",seq int not null default 65535"; // 素材在项目中的排列顺序
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_mission_matter): ' . $mysqli->error;
-}
-/**
- * 项目报告配置信息
- */
-$sql = "create table if not exists xxt_mission_report(";
-$sql .= "id int not null auto_increment";
-$sql .= ",siteid varchar(32) not null";
-$sql .= ",mission_id int not null";
-$sql .= ",creater varchar(40) not null default ''";
-$sql .= ",creater_name varchar(255) not null default ''";
-$sql .= ",create_at int not null";
-$sql .= ",as_default char(1) not null default 'Y'";
-$sql .= ",include_apps text"; // 报告中包含的应用的数组
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

@@ -43,7 +43,7 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', '$sce', 'tmsLocation', 'noti
     $scope.value2Label = function(schemaId) {
         var val, schema, aVal, aLab = [];
 
-        if ($scope.app.data_schemas && (schema = $scope.app._schemasById[schemaId]) && facRecord.current.data) {
+        if ($scope.app.dataSchemas && (schema = $scope.app._schemasById[schemaId]) && facRecord.current.data) {
             if (val = facRecord.current.data[schemaId]) {
                 if (schema.ops && schema.ops.length) {
                     aVal = val.split(',');
@@ -62,10 +62,10 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', '$sce', 'tmsLocation', 'noti
         page ? $scope.gotoPage(event, page, facRecord.current.enroll_key) : noticebox.error('没有指定登记编辑页');
     };
     $scope.gotoEnroll = function(event, page) {
-        if ($scope.app.enroll_app_id) {
+        if ($scope.app.entryRule && $scope.app.entryRule.enroll && $scope.app.entryRule.enroll.id) {
             var url = '/rest/site/fe/matter/enroll';
             url += '?site=' + LS.s().site;
-            url += '&app=' + $scope.app.enroll_app_id;
+            url += '&app=' + $scope.app.entryRule.enroll.id;
             url += '&ignoretime=Y';
             location.href = url;
         } else {

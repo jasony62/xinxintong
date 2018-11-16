@@ -424,7 +424,6 @@ class channel_model extends article_base {
 		$newc['matter_type'] = $oMatter->type;
 		$newc['create_at'] = $current;
 		$newc['creater'] = $createrId;
-		$newc['creater_src'] = $createrSrc;
 		$newc['creater_name'] = $createrName;
 
 		/* 是否已经加入到频道中 */

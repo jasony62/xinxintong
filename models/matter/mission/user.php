@@ -20,6 +20,9 @@ class user_model extends \TMS_MODEL {
 			if (property_exists($oUser, 'modify_log')) {
 				$oUser->modify_log = empty($oUser->modify_log) ? [] : json_decode($oUser->modify_log);
 			}
+			if (property_exists($oUser, 'custom')) {
+				$oUser->custom = empty($oUser->custom) ? new \stdClass : json_decode($oUser->custom);
+			}
 		}
 
 		return $oUser;
@@ -37,56 +40,75 @@ class user_model extends \TMS_MODEL {
 
 		foreach ($data as $k => $v) {
 			switch ($k) {
-				case 'last_enroll_at':
-				case 'last_cowork_at':
-				case 'last_do_cowork_at':
-				case 'last_like_at':
-				case 'last_like_cowork_at':
-				case 'last_do_like_at':
-				case 'last_remark_at':
-				case 'last_remark_cowork_at':
-				case 'last_do_remark_at':
-				case 'last_like_remark_at':
-				case 'last_do_like_cowork_at':
-				case 'last_do_like_remark_at':
-				case 'last_agree_at':
-				case 'last_agree_cowork_at':
-				case 'last_agree_remark_at':
-				case 'last_topic_at':
-				case 'enroll_num':
-				case 'cowork_num':
-				case 'do_cowork_num':
-				case 'do_like_num':
-				case 'do_like_cowork_num':
-				case 'do_like_remark_num':
-				case 'like_num':
-				case 'like_cowork_num':
-				case 'like_remark_num':
-				case 'do_remark_num':
-				case 'remark_num':
-				case 'remark_cowork_num':
-				case 'agree_num':
-				case 'agree_cowork_num':
-				case 'agree_remark_num':
-				case 'user_total_coin':
-				case 'topic_num':
-				case 'do_repos_read_num':
-				case 'do_topic_read_num':
-				case 'topic_read_num':
-				case 'do_cowork_read_num':
-				case 'cowork_read_num':
-				case 'do_cowork_read_elapse':
-				case 'cowork_read_elapse':
-				case 'do_topic_read_elapse':
-				case 'topic_read_elapse':
-				case 'do_repos_read_elapse':
-					$oNewUsr->{$k} = $v;
-					break;
-				case 'modify_log':
-					if (!is_string($v)) {
-						$oNewUsr->{$k} = json_encode([$v]);
-					}
-					break;
+			case 'last_enroll_at':
+			case 'last_cowork_at':
+			case 'last_do_cowork_at':
+			case 'last_like_at':
+			case 'last_dislike_at':
+			case 'last_like_cowork_at':
+			case 'last_dislike_cowork_at':
+			case 'last_do_like_at':
+			case 'last_do_dislike_at':
+			case 'last_remark_at':
+			case 'last_remark_cowork_at':
+			case 'last_do_remark_at':
+			case 'last_like_remark_at':
+			case 'last_dislike_remark_at':
+			case 'last_do_like_cowork_at':
+			case 'last_do_dislike_cowork_at':
+			case 'last_do_like_remark_at':
+			case 'last_do_dislike_remark_at':
+			case 'last_agree_at':
+			case 'last_agree_cowork_at':
+			case 'last_agree_remark_at':
+			case 'last_topic_at':
+			case 'enroll_num':
+			case 'cowork_num':
+			case 'do_cowork_num':
+			case 'do_like_num':
+			case 'do_dislike_num':
+			case 'do_like_cowork_num':
+			case 'do_dislike_cowork_num':
+			case 'do_like_remark_num':
+			case 'do_dislike_remark_num':
+			case 'like_num':
+			case 'dislike_num':
+			case 'like_cowork_num':
+			case 'dislike_cowork_num':
+			case 'like_remark_num':
+			case 'dislike_remark_num':
+			case 'do_remark_num':
+			case 'remark_num':
+			case 'remark_cowork_num':
+			case 'agree_num':
+			case 'agree_cowork_num':
+			case 'agree_remark_num':
+			case 'user_total_coin':
+			case 'topic_num':
+			case 'do_repos_read_num':
+			case 'do_topic_read_num':
+			case 'topic_read_num':
+			case 'do_cowork_read_num':
+			case 'cowork_read_num':
+			case 'do_cowork_read_elapse':
+			case 'cowork_read_elapse':
+			case 'do_topic_read_elapse':
+			case 'topic_read_elapse':
+			case 'do_repos_read_elapse':
+				$oNewUsr->{$k} = $v;
+				break;
+			case 'score':
+				$oNewUsr->{$k} = $v;
+				break;
+			case 'modify_log':
+				if (is_object($v)) {
+					$oNewUsr->{$k} = json_encode([$v]);
+				}
+			case 'custom':
+				if (!is_string($v)) {
+					$oNewUsr->{$k} = $this->escape($this->toJson($v));
+				}
+				break;
 			}
 		}
 		$oNewUsr->id = $this->insert('xxt_mission_user', $oNewUsr, true);
@@ -100,33 +122,48 @@ class user_model extends \TMS_MODEL {
 		$aDbData = [];
 		foreach ($oUpdatedData as $field => $value) {
 			switch ($field) {
+			case 'last_entry_at':
 			case 'last_enroll_at':
 			case 'last_cowork_at':
 			case 'last_do_cowork_at':
 			case 'last_like_at':
+			case 'last_dislike_at':
 			case 'last_like_cowork_at':
+			case 'last_dislike_cowork_at':
 			case 'last_do_like_at':
+			case 'last_do_dislike_at':
 			case 'last_remark_at':
 			case 'last_remark_cowork_at':
 			case 'last_do_remark_at':
 			case 'last_like_remark_at':
+			case 'last_dislike_remark_at':
 			case 'last_do_like_cowork_at':
+			case 'last_do_dislike_cowork_at':
 			case 'last_do_like_remark_at':
+			case 'last_do_dislike_remark_at':
 			case 'last_agree_at':
 			case 'last_agree_cowork_at':
 			case 'last_agree_remark_at':
 			case 'last_topic_at':
 				$aDbData[$field] = $value;
 				break;
+			case 'entry_num':
+			case 'total_elapse':
 			case 'enroll_num':
 			case 'cowork_num':
 			case 'do_cowork_num':
 			case 'do_like_num':
+			case 'do_dislike_num':
 			case 'do_like_cowork_num':
+			case 'do_dislike_cowork_num':
 			case 'do_like_remark_num':
+			case 'do_dislike_remark_num':
 			case 'like_num':
+			case 'dislike_num':
 			case 'like_cowork_num':
+			case 'dislike_cowork_num':
 			case 'like_remark_num':
+			case 'dislike_remark_num':
 			case 'do_remark_num':
 			case 'remark_num':
 			case 'remark_cowork_num':
@@ -147,11 +184,16 @@ class user_model extends \TMS_MODEL {
 			case 'do_repos_read_elapse':
 				$aDbData[$field] = (int) $oBeforeData->{$field}+$value;
 				break;
+			case 'score':
+				/* 更新时传入的得分可能只是用户在某个活动中的得分，需要重新计算用户在整个项目中的得分 */
+				$aDbData['score'] = $this->_scoreByUser($oBeforeData);
+				break;
 			case 'group_id':
-				$aDbData['group_id'] = $value;
+			case 'nickname':
+				$aDbData[$field] = $value;
 				break;
 			case 'modify_log':
-				if (empty($oBeforeData->modify_log)) {
+				if (empty($oBeforeData->modify_log) || !is_array($oBeforeData->modify_log)) {
 					$oBeforeData->modify_log = [];
 				}
 				array_unshift($oBeforeData->modify_log, $value);
@@ -159,10 +201,34 @@ class user_model extends \TMS_MODEL {
 				break;
 			}
 		}
+		if (!empty($aDbData)) {
+			$rst = $this->update('xxt_mission_user', $aDbData, ['id' => $oBeforeData->id]);
+		}
 
-		$rst = $this->update('xxt_mission_user', $aDbData, ['id' => $oBeforeData->id]);
+		return true;
+	}
+	/**
+	 * 用户在整个项目中的得分
+	 */
+	private function _scoreByUser($oMisUser) {
+		$q = [
+			'id',
+			'xxt_enroll',
+			['mission_id' => $oMisUser->mission_id, 'state' => 1],
+		];
+		$appIds = $this->query_vals_ss($q);
+		if (count($appIds)) {
+			$q = [
+				'sum(score)',
+				'xxt_enroll_user',
+				['userid' => $oMisUser->userid, 'aid' => $appIds, 'rid' => 'ALL'],
+			];
+			$sum = (float) $this->query_val_ss($q);
+		} else {
+			$sum = 0;
+		}
 
-		return $rst;
+		return $sum;
 	}
 	/**
 	 * 删除1条记录
@@ -225,122 +291,6 @@ class user_model extends \TMS_MODEL {
 		return $oUsers;
 	}
 	/**
-	 *
-	 */
-	public function byMission(&$mission, $criteria = null, $options = null) {
-		if (empty($mission->user_app_id) || empty($mission->user_app_type)) {
-			return [false, '没有指定项目的用户清单活动'];
-		}
-		if ($mission->user_app_type !== 'enroll' && $mission->user_app_type !== 'signin') {
-			return [false, '不支持的项目的用户清单活动类型'];
-		}
-		if ($mission->user_app_type === 'enroll') {
-			$modelRec = $this->model('matter\enroll\record');
-			$result = $modelRec->byApp($mission->user_app_id, $options, $criteria);
-			if (!empty($result->records)) {
-				/* 和登记活动关联的签到活动 */
-				$modelSig = $this->model('matter\signin');
-				$signinApps = $modelSig->byEnrollApp($mission->user_app_id, ['fields' => 'id,title']);
-				if (count($signinApps)) {
-					$mapOfSigninApps = [];
-					foreach ($signinApps as $signinApp) {
-						$mapOfSigninApps[$signinApp->id] = $signinApp;
-					}
-					$modelSigRec = $this->model('matter\signin\record');
-					foreach ($result->records as &$record) {
-						$signinRecords = $modelSigRec->byVerifiedEnrollKey($record->enroll_key, null, ['fields' => 'aid,signin_log']);
-						if (count($signinRecords)) {
-							$record->signinRecords = [];
-							foreach ($signinRecords as $signinRecord) {
-								if (isset($signinRecord->signin_log) && isset($mapOfSigninApps[$signinRecord->aid])) {
-									$signinApp = $mapOfSigninApps[$signinRecord->aid];
-									$signinRecord->signinLogs = [];
-									foreach ($signinApp->rounds as $round) {
-										if (isset($signinRecord->signin_log->{$round->rid})) {
-											$signinLog = new \stdClass;
-											$signinLog->roundTitle = $round->title;
-											$signinLog->signinAt = $signinRecord->signin_log->{$round->rid};
-											if (!empty($round->late_at)) {
-												$signinLog->isLate = (int) $signinLog->signinAt > ((int) $round->late_at + 60);
-											}
-											$signinRecord->signinLogs[] = $signinLog;
-										}
-									}
-									if (count($signinRecord->signinLogs)) {
-										unset($signinRecord->signin_log);
-										unset($signinRecord->aid);
-										$signinRecord->app = $signinApp->title;
-										$record->signinRecords[] = $signinRecord;
-									}
-								}
-							}
-						}
-					}
-				}
-				/* 和登记活动关联的分组活动 */
-				$modelGrp = $this->model('matter\group');
-				$groupApps = $modelGrp->byEnrollApp($mission->user_app_id);
-				if (count($groupApps)) {
-					$mapOfGroupApps = [];
-					foreach ($groupApps as $groupApp) {
-						$mapOfGroupApps[$groupApp->id] = $groupApp;
-					}
-					$modelGrpPly = $this->model('matter\group\player');
-					foreach ($result->records as &$record) {
-						$groupRecords = $modelGrpPly->byEnrollKey($record->enroll_key, null, ['fields' => 'aid,round_title']);
-						if (count($groupRecords)) {
-							$record->groupRecords = [];
-							foreach ($groupRecords as $groupRecord) {
-								if (!empty($groupRecord->round_title)) {
-									$groupRecord->app = $mapOfGroupApps[$groupRecord->aid]->title;
-									unset($groupRecord->aid);
-									$record->groupRecords[] = $groupRecord;
-								}
-							}
-						}
-					}
-				}
-			}
-		} else if ($mission->user_app_type === 'signin') {
-			$modelRec = $this->model('matter\signin\record');
-			$result = $modelRec->byApp($mission->user_app_id, $options, $criteria);
-			if (!empty($result->records)) {
-				/* 和登记活动关联的分组活动 */
-				$modelGrp = $this->model('matter\group');
-				$groupApps = $modelGrp->bySigninApp($mission->user_app_id);
-				if (count($groupApps)) {
-					$mapOfGroupApps = [];
-					foreach ($groupApps as $groupApp) {
-						$mapOfGroupApps[$groupApp->id] = $groupApp;
-					}
-					//取出$mapOfGroupApps的所有健名
-					$mapOfGroupAppsKeys = array_keys($mapOfGroupApps);
-
-					$modelGrpPly = $this->model('matter\group\player');
-					foreach ($result->records as &$record) {
-						$groupRecords = $modelGrpPly->byEnrollKey($record->enroll_key, null, ['fields' => 'aid,round_title']);
-						if (count($groupRecords)) {
-							$record->groupRecords = [];
-							foreach ($groupRecords as $groupRecord) {
-								if (!empty($groupRecord->round_title)) {
-									//因为分组活动在导入某个活动后撤销导入的活动时不会删除xxt_group_player中的数据，所以会存在有对应的数据但是没有对应的app的情况
-									if (!in_array($groupRecord->aid, $mapOfGroupAppsKeys)) {
-										continue;
-									}
-									$groupRecord->app = $mapOfGroupApps[$groupRecord->aid]->title;
-									unset($groupRecord->aid);
-									$record->groupRecords[] = $groupRecord;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		return [true, $result];
-	}
-	/**
 	 * 项目用户获得奖励积分
 	 */
 	public function awardCoin($oMission, $userid, $deltaCoin) {
@@ -373,8 +323,8 @@ class user_model extends \TMS_MODEL {
 		return true;
 	}
 	/*
-	 * 用户参与过的项目
-	 */
+		 * 用户参与过的项目
+	*/
 	public function byUser($userId, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : 'u.user_total_coin,u.modify_log,m.id,m.title';
 

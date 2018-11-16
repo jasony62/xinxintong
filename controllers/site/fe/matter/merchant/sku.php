@@ -217,7 +217,6 @@ class sku extends \site\fe\matter\base {
 							'prod_id' => $productId,
 							'create_at' => time(),
 							'creater' => $creater,
-							'creater_src' => 'F',
 							'sku_value' => '{}',
 							'ori_price' => $ns->price,
 							'price' => $ns->price,

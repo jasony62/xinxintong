@@ -16,7 +16,7 @@ class user extends \pl\fe\matter\base {
 		/* 检查权限 */
 		$modelAcl = $this->model('matter\mission\acl');
 		if (false === ($acl = $modelAcl->byCoworker($mission, $oUser->id))) {
-			return new \ResponseError('项目不存在');
+			return new \ResponseError('没有项目访问权限');
 		}
 		$modelMis = $this->model('matter\mission');
 		$oMission = $modelMis->byId($mission, ['fields' => 'id,siteid,user_app_id,user_app_type']);
@@ -27,7 +27,7 @@ class user extends \pl\fe\matter\base {
 		$oCriteria = $this->getPostJson();
 
 		$aOptions = [];
-		$aOptions = ['fields' => 'userid,nickname,group_id,user_total_coin,enroll_num,last_enroll_at,do_remark_num,last_do_remark_at,do_like_num,last_do_like_at,agree_num,last_agree_at,signin_num,last_signin_at'];
+		$aOptions = ['fields' => 'userid,nickname,group_id,score,user_total_coin,entry_num,last_entry_at,total_elapse,enroll_num,last_enroll_at,do_remark_num,last_do_remark_at,do_like_num,last_do_like_at,agree_num,last_agree_at,signin_num,last_signin_at'];
 
 		/* filter */
 		if (!empty($oCriteria->filter->by) && !empty($oCriteria->filter->keyword)) {
@@ -100,5 +100,51 @@ class user extends \pl\fe\matter\base {
 		$result->enrollees = $enrollees;
 
 		return new \ResponseData($result);
+	}
+	/**
+	 * 更新用户在项目中的累计得分数据
+	 */
+	public function renewScore_action($mission) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		/* 检查权限 */
+		$modelAcl = $this->model('matter\mission\acl');
+		if (false === ($acl = $modelAcl->byCoworker($mission, $oUser->id))) {
+			return new \ResponseError('没有项目访问权限');
+		}
+		$modelMis = $this->model('matter\mission');
+		$oMission = $modelMis->byId($mission, ['fields' => 'id,siteid,user_app_id,user_app_type']);
+		if (false === $oMission) {
+			return new \ObjectNotFoundError();
+		}
+		$modelMisUsr = $this->model('matter\mission\user');
+		$misUsers = $modelMisUsr->enrolleeByMission($oMission, ['fields' => 'id,userid']);
+		if (empty($misUsers)) {
+			return new \ObjectNotFoundError('项目中没有用户，不需要进行更新');
+		}
+
+		$matters = $this->model('matter\mission\matter')->byMission($oMission->id, ['enroll'], [], 'N');
+		if (empty($matters)) {
+			return new \ObjectNotFoundError('项目中没有记录活动，不需要进行更新');
+		}
+
+		/*清空现有的得分*/
+		foreach ($misUsers as $oMisUser) {
+			$modelMisUsr->update('xxt_mission_user', ['score' => 0], ['id' => $oMisUser->id]);
+		}
+
+		$modelEnlUsr = $this->model('matter\enroll\user');
+		foreach ($matters as $oMatter) {
+			$oEnlApp = (object) ['id' => $oMatter->matter_id];
+			foreach ($misUsers as $oMisUser) {
+				$oEnlUser = $modelEnlUsr->byId($oEnlApp, $oMisUser->userid, ['fields' => 'score']);
+				if ($oEnlUser) {
+					$modelMisUsr->update('xxt_mission_user', ['score' => (object) ['op' => '+=', 'pat' => $oEnlUser->score]], ['id' => $oMisUser->id]);
+				}
+			}
+		}
+
+		return new \ResponseData('ok');
 	}
 }

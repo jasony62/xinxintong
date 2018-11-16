@@ -13,6 +13,9 @@ class data_model extends entity_model {
 	const DEFAULT_FIELDS = 'id,state,value,tag,supplement,rid,enroll_key,schema_id,userid,nickname,submit_at,score,remark_num,last_remark_at,like_num,like_log,modify_log,agreed,agreed_log,multitext_seq';
 	/**
 	 * 按题目记录数据
+	 * 不产生日志、积分等记录
+	 *
+	 * @param object $oUser ['uid','group_id']
 	 */
 	public function setData($oUser, $oApp, $oRecord, $submitData, $submitkey = '', $oAssignScore = null) {
 		if (empty($submitkey)) {
@@ -69,6 +72,7 @@ class data_model extends entity_model {
 								$aSchemaValue = [
 									'aid' => $oApp->id,
 									'rid' => $oRecord->rid,
+									'purpose' => $oRecord->purpose,
 									'enroll_key' => $oRecord->enroll_key,
 									'submit_at' => $oRecord->enroll_at,
 									'userid' => isset($oUser->uid) ? $oUser->uid : '',
@@ -92,6 +96,7 @@ class data_model extends entity_model {
 					$aSchemaValue = [
 						'aid' => $oApp->id,
 						'rid' => $oRecord->rid,
+						'purpose' => $oRecord->purpose,
 						'enroll_key' => $oRecord->enroll_key,
 						'submit_at' => $oRecord->enroll_at,
 						'userid' => isset($oUser->uid) ? $oUser->uid : '',
@@ -116,6 +121,7 @@ class data_model extends entity_model {
 							$aSchemaValue2 = [
 								'aid' => $oApp->id,
 								'rid' => $oRecord->rid,
+								'purpose' => $oRecord->purpose,
 								'enroll_key' => $oRecord->enroll_key,
 								'submit_at' => $oRecord->enroll_at,
 								'userid' => isset($oUser->uid) ? $oUser->uid : '',
@@ -182,7 +188,7 @@ class data_model extends entity_model {
 					if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
 						if (isset($oBeforeSchemaVal->value)) {
 							$treatedValue = $oBeforeSchemaVal->value;
-							$dbData->{$schemaId} = json_encode($treatedValue);
+							$dbData->{$schemaId} = json_decode($treatedValue);
 						}
 					} else {
 						foreach ($newSchemaValues as $k => $newSchemaValue) {
@@ -190,6 +196,7 @@ class data_model extends entity_model {
 								$aSchemaValue = [
 									'aid' => $oApp->id,
 									'rid' => $oRecord->rid,
+									'purpose' => $oRecord->purpose,
 									'enroll_key' => $oRecord->enroll_key,
 									'submit_at' => $oRecord->enroll_at,
 									'userid' => isset($oUser->uid) ? $oUser->uid : '',
@@ -298,7 +305,7 @@ class data_model extends entity_model {
 				/* 活动中定义的登记项 */
 				$oSchema = $schemasById[$schemaId];
 				if (empty($oSchema->type)) {
-					return [false, '登记项【' . $oSchema->id . '】定义不完整'];
+					return [false, '填写项【' . $oSchema->id . '】定义不完整'];
 				}
 				switch ($oSchema->type) {
 				case 'image':
@@ -320,7 +327,7 @@ class data_model extends entity_model {
 					} else if (is_string($submitVal)) {
 						$oDbData->{$schemaId} = $submitVal;
 					} else {
-						throw new \Exception('登记的数据类型和登记项【image】需要的类型不匹配');
+						throw new \Exception('填写数据的类型和填写项【image】需要的类型不匹配');
 					}
 					break;
 				case 'file':
@@ -364,7 +371,7 @@ class data_model extends entity_model {
 					} else if (is_string($submitVal)) {
 						$oDbData->{$schemaId} = $submitVal;
 					} else {
-						throw new \Exception('登记的数据类型和登记项【file】需要的类型不匹配');
+						throw new \Exception('填写数据的类型和填写项【file】需要的类型不匹配');
 					}
 					break;
 				case 'voice':
@@ -393,7 +400,7 @@ class data_model extends entity_model {
 					} else if (is_string($submitVal)) {
 						$oDbData->{$schemaId} = $submitVal;
 					} else {
-						throw new \Exception('登记的数据类型和登记项【multiple】需要的类型不匹配');
+						throw new \Exception('填写数据的类型和填写项【multiple】需要的类型不匹配');
 					}
 					break;
 				case 'url':
@@ -402,6 +409,9 @@ class data_model extends entity_model {
 					break;
 				default:
 					// string & score
+					if (is_string($submitVal)) {
+						$submitVal = $this->cleanEmoji($submitVal);
+					}
 					$oDbData->{$schemaId} = $submitVal;
 				}
 			} else {
@@ -900,6 +910,9 @@ class data_model extends entity_model {
 			}
 			if (property_exists($oRecData, 'like_log')) {
 				$oRecData->like_log = empty($oRecData->like_log) ? new \stdClass : json_decode($oRecData->like_log);
+			}
+			if (property_exists($oRecData, 'dislike_log')) {
+				$oRecData->dislike_log = empty($oRecData->dislike_log) ? new \stdClass : json_decode($oRecData->dislike_log);
 			}
 			if (property_exists($oRecData, 'agreed_log')) {
 				$oRecData->agreed_log = empty($oRecData->agreed_log) ? new \stdClass : json_decode($oRecData->agreed_log);

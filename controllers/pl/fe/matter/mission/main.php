@@ -1,11 +1,11 @@
 <?php
 namespace pl\fe\matter\mission;
 
-require_once dirname(dirname(__FILE__)) . '/base.php';
+require_once dirname(dirname(__FILE__)) . '/main_base.php';
 /*
  * 项目控制器
  */
-class main extends \pl\fe\matter\base {
+class main extends \pl\fe\matter\main_base {
 	/**
 	 * 返回视图
 	 */
@@ -35,6 +35,15 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseError('项目不存在');
 		}
 		$oMission = $this->model('matter\mission')->byId($id, ['cascaded' => ($cascaded === 'Y' ? 'header_page_name,footer_page_name' : '')]);
+		if (false === $oMission) {
+			return new \ObjectNotFoundError();
+		}
+
+		/* 进入规则 */
+		if (isset($oMission->entryRule)) {
+			$this->fillEntryRule($oMission->entryRule);
+		}
+
 		if ($cascaded === 'Y') {
 			/* 关联的用户名单活动 */
 			if ($oMission->user_app_id) {
@@ -46,22 +55,21 @@ class main extends \pl\fe\matter\base {
 					$oMission->userApp = $this->model('matter\signin')->byId($oMission->user_app_id, ['cascaded' => 'N']);
 				} else if ($oMission->user_app_type === 'mschema') {
 					$oMission->userApp = $this->model('site\user\memberschema')->byId($oMission->user_app_id, ['cascaded' => 'N', 'fields' => 'siteid,id,title,create_at,start_at,end_at,url,attr_email,attr_mobile,attr_name,extattr']);
-					$data_schemas = [];
-					($oMission->userApp->attr_mobile[0] == '0') && $data_schemas[] = (object) ['id' => 'mobile', 'title' => '手机'];
-					($oMission->userApp->attr_email[0] == '0') && $data_schemas[] = (object) ['id' => 'email', 'title' => '邮箱'];
-					($oMission->userApp->attr_name[0] == '0') && $data_schemas[] = (object) ['id' => 'name', 'title' => '姓名'];
-					if (!empty($oMission->userApp->extattr)) {
-						$extattrs = $oMission->userApp->extattr;
-						foreach ($extattrs as $extattr) {
-							$data_schemas[] = (object) ['id' => $extattr->id, 'title' => $extattr->label];
+					if ($oMission->userApp) {
+						$data_schemas = [];
+						($oMission->userApp->attr_mobile[0] == '0') && $data_schemas[] = (object) ['id' => 'mobile', 'title' => '手机'];
+						($oMission->userApp->attr_email[0] == '0') && $data_schemas[] = (object) ['id' => 'email', 'title' => '邮箱'];
+						($oMission->userApp->attr_name[0] == '0') && $data_schemas[] = (object) ['id' => 'name', 'title' => '姓名'];
+						if (!empty($oMission->userApp->extattr)) {
+							$extattrs = $oMission->userApp->extattr;
+							foreach ($extattrs as $extattr) {
+								$data_schemas[] = (object) ['id' => $extattr->id, 'title' => $extattr->label];
+							}
 						}
+						$oMission->userApp->dataSchemas = $data_schemas;
 					}
-					$oMission->userApp->dataSchemas = $data_schemas;
 				}
 			}
-			/* 汇总报告配置信息 */
-			$rpConfig = $this->model('matter\mission\report')->defaultConfigByUser($oUser, $oMission);
-			$oMission->reportConfig = $rpConfig;
 		}
 
 		/* 检查当前用户的角色 */
@@ -177,11 +185,9 @@ class main extends \pl\fe\matter\base {
 		$oNewMis->start_at = isset($oProto->start_at) ? $modelSite->escape($oProto->start_at) : 0;
 		$oNewMis->end_at = isset($oProto->end_at) ? $modelSite->escape($oProto->end_at) : 0;
 		$oNewMis->creater = $oUser->id;
-		$oNewMis->creater_src = $oUser->src;
 		$oNewMis->creater_name = $modelSite->escape($oUser->name);
 		$oNewMis->create_at = $current;
 		$oNewMis->modifier = $oUser->id;
-		$oNewMis->modifier_src = $oUser->src;
 		$oNewMis->modifier_name = $modelSite->escape($oUser->name);
 		$oNewMis->modify_at = $current;
 		$oNewMis->state = 1;
@@ -191,10 +197,10 @@ class main extends \pl\fe\matter\base {
 		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewMis, 'C');
 
 		/* entry rule */
-		if (isset($oProto->entryRule)) {
+		if (isset($oProto->entryRule->scope)) {
 			$oMisEntryRule = new \stdClass;
-			$oMisEntryRule->scope = isset($oProto->entryRule->scope) ? $oProto->entryRule->scope : 'none';
-			if ($oMisEntryRule->scope === 'member' && !empty($oProto->entryRule->mschema)) {
+			if ($this->getDeepValue($oProto->entryRule->scope, 'member') === true && !empty($oProto->entryRule->mschema)) {
+				$this->setDeepValue($oMisEntryRule, 'scope.member', 'Y');
 				$oMisEntryRule->member = new \stdClass;
 				if ($oProto->entryRule->mschema->id === '_pending') {
 					/* 给项目创建通讯录 */
@@ -207,7 +213,9 @@ class main extends \pl\fe\matter\base {
 					$oProto->entryRule->mschema->id = $oMisMschema->id;
 				}
 				$oMisEntryRule->member->{$oProto->entryRule->mschema->id} = (object) ['entry' => ''];
-			} else if ($oMisEntryRule->scope === 'sns' && isset($oProto->entryRule->sns)) {
+			}
+			if ($this->getDeepValue($oProto->entryRule->scope, 'sns') === true && isset($oProto->entryRule->sns)) {
+				$this->setDeepValue($oMisEntryRule, 'scope.sns', 'Y');
 				$oMisEntryRule->sns = new \stdClass;
 				foreach ($oProto->entryRule->sns as $snsName => $valid) {
 					if ($valid === 'Y') {
@@ -216,7 +224,7 @@ class main extends \pl\fe\matter\base {
 				}
 			}
 			$modelMis->update('xxt_mission', ['entry_rule' => json_encode($oMisEntryRule)], ['id' => $oNewMis->id]);
-			$oNewMis->entry_rule = $oMisEntryRule;
+			$oNewMis->entryRule = $oMisEntryRule;
 		}
 
 		/**
@@ -315,8 +323,9 @@ class main extends \pl\fe\matter\base {
 		if (isset($oPosted->summary)) {
 			$oPosted->summary = $modelMis->escape($oPosted->summary);
 		}
-		if (isset($oPosted->entry_rule)) {
-			$oPosted->entry_rule = $modelMis->escape($modelMis->toJson($oPosted->entry_rule));
+		if (isset($oPosted->entryRule)) {
+			$oPosted->entry_rule = $modelMis->escape($modelMis->toJson($oPosted->entryRule));
+			unset($oPosted->entryRule);
 		}
 		if (isset($oPosted->round_cron)) {
 			$oPosted->round_cron = $modelMis->escape($modelMis->toJson($oPosted->round_cron));
@@ -326,7 +335,6 @@ class main extends \pl\fe\matter\base {
 		}
 		/* modifier */
 		$oPosted->modifier = $oUser->id;
-		$oPosted->modifier_src = $oUser->src;
 		$oPosted->modifier_name = $modelMis->escape($oUser->name);
 		$oPosted->modify_at = time();
 
@@ -413,7 +421,7 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 恢复被删除的项目
 	 */
-	public function restore_action($site, $id) {
+	public function restore_action($id) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}

@@ -173,7 +173,7 @@ class main extends \pl\fe\matter\main_base {
 		$oNewApp->pic = $oCopied->pic;
 		$oNewApp->summary = $modelApp->escape($oCopied->summary);
 		$oNewApp->scenario = $oCopied->scenario;
-		$oNewApp->data_schemas = $modelApp->escape($oCopied->data_schemas);
+		$oNewApp->data_schemas = $modelApp->escape($modelApp->toJson($oCopied->dataSchemas));
 		$oNewApp->group_rule = $modelApp->escape($oCopied->group_rule);
 		if (!empty($mission)) {
 			$oNewApp->mission_id = $mission;

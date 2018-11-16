@@ -22,6 +22,9 @@ class page_model extends page_base {
 		if (property_exists($oPage, 'data_schemas')) {
 			if (!empty($oPage->data_schemas)) {
 				$oPage->dataSchemas = json_decode($oPage->data_schemas);
+				if ($oPage->dataSchemas === null) {
+					$oPage->dataSchemas = [];
+				}
 			} else {
 				$oPage->dataSchemas = [];
 			}
@@ -42,11 +45,13 @@ class page_model extends page_base {
 			} else {
 				$oCode = $modelCode->lastByName($oPage->siteid, $oPage->code_name);
 			}
-			$oPage->html = $oCode->html;
-			$oPage->css = $oCode->css;
-			$oPage->js = $oCode->js;
-			$oPage->ext_js = $oCode->ext_js;
-			$oPage->ext_css = $oCode->ext_css;
+			if ($oCode) {
+				$oPage->html = $oCode->html;
+				$oPage->css = $oCode->css;
+				$oPage->js = $oCode->js;
+				$oPage->ext_js = $oCode->ext_js;
+				$oPage->ext_css = $oCode->ext_css;
+			}
 		}
 
 		return $oPage;

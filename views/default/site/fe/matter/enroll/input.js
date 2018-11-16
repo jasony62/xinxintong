@@ -7,7 +7,9 @@ require('../../../../../../asset/js/xxt.ui.url.js');
 require('../../../../../../asset/js/xxt.ui.paste.js');
 require('../../../../../../asset/js/xxt.ui.editor.js');
 
-window.moduleAngularModules = ['paste.ui.xxt', 'editor.ui.xxt', 'url.ui.xxt'];
+require('./_asset/ui.round.js');
+
+window.moduleAngularModules = ['round.ui.enroll', 'paste.ui.xxt', 'editor.ui.xxt', 'url.ui.xxt'];
 
 var ngApp = require('./main.js');
 ngApp.oUtilSchema = require('../_module/schema.util.js');
@@ -15,31 +17,21 @@ ngApp.oUtilSubmit = require('../_module/submit.util.js');
 ngApp.config(['$compileProvider', function($compileProvider) {
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);
 }]);
-ngApp.factory('Input', ['$q', '$timeout', 'tmsLocation', 'http2', function($q, $timeout, LS, http2) {
+ngApp.factory('Input', ['$parse', 'tmsLocation', 'http2', function($parse, LS, http2) {
     var Input, _ins;
     Input = function() {};
-    Input.prototype.check = function(data, app, page) {
-        var dataSchemas, item, oSchema, value, sCheckResult;
-        if (page.dataSchemas && page.dataSchemas.length) {
-            dataSchemas = page.dataSchemas;
-            for (var i = dataSchemas.length - 1; i >= 0; i--) {
-                item = dataSchemas[i];
-                oSchema = item.schema;
-                if (oSchema.id.indexOf('member.') === 0) {
-                    var memberSchema = oSchema.id.substr(7);
-                    if (memberSchema.indexOf('.') === -1) {
-                        value = data.member[memberSchema];
-                    } else {
-                        memberSchema = memberSchema.split('.');
-                        value = data.member.extattr[memberSchema[1]];
-                    }
-                } else {
-                    value = data[oSchema.id];
-                }
+    Input.prototype.check = function(oRecData, oApp, oPage) {
+        var dataSchemas, oSchemaWrap, oSchema, value, sCheckResult;
+        if (oPage.dataSchemas && oPage.dataSchemas.length) {
+            for (var i = 0; i < oPage.dataSchemas.length; i++) {
+                oSchemaWrap = oPage.dataSchemas[i];
+                oSchema = oSchemaWrap.schema;
                 /* 隐藏题和协作题不做检查 */
-                if ((!oSchema.visibility || !oSchema.visibility.rules || oSchema.visibility.rules.length === 0 || oSchema.visibility.visible) && oSchema.cowork !== 'Y') {
+                if ((!oSchema.visibility || !oSchema.visibility.rules || oSchema.visibility.rules.length === 0 || oSchema.visibility.visible) && oSchema.cowork !== 'Y' && (oSchema._visible !== false)) {
                     if (oSchema.type && oSchema.type !== 'html') {
-                        if (true !== (sCheckResult = ngApp.oUtilSchema.checkValue(oSchema, value))) {
+                        value = $parse(oSchema.id)(oRecData);
+                        sCheckResult = ngApp.oUtilSchema.checkValue(oSchema, value);
+                        if (true !== sCheckResult) {
                             return sCheckResult;
                         }
                     }
@@ -48,17 +40,27 @@ ngApp.factory('Input', ['$q', '$timeout', 'tmsLocation', 'http2', function($q, $
         }
         return true;
     };
-    Input.prototype.submit = function(ek, data, tags, oSupplement, type) {
-        var url, d, posted, tagsByScchema;
-        posted = angular.copy(data);
-        if (Object.keys && Object.keys(posted.member).length === 0) {
-            delete posted.member;
+    Input.prototype.submit = function(oRecord, oRecData, tags, oSupplement, type) {
+        var url, d, oPosted, tagsByScchema;
+
+        oPosted = angular.copy(oRecData);
+
+        if (oRecord.enroll_key) {
+            /* 更新已有填写记录 */
+            url = LS.j('record/submit', 'site', 'app')
+            url += '&ek=' + oRecord.enroll_key;
+        } else {
+            /* 添加新记录 */
+            if (oRecord.round) {
+                /* 指定了填写轮次 */
+                url = LS.j('record/submit', 'site', 'app') + '&rid=' + oRecord.round.rid;
+            } else {
+                url = LS.j('record/submit', 'site', 'app', 'rid');
+            }
         }
-        url = LS.j('record/submit', 'site', 'app', 'rid');
-        ek && (url += '&ek=' + ek);
         url += type == 'save' ? '&subType=save' : '&subType=submit';
-        for (var i in posted) {
-            d = posted[i];
+        for (var i in oPosted) {
+            d = oPosted[i];
             if (angular.isArray(d) && d.length && d[0].imgSrc !== undefined && d[0].serverId !== undefined) {
                 d.forEach(function(d2) {
                     delete d2.imgSrc;
@@ -74,7 +76,7 @@ ngApp.factory('Input', ['$q', '$timeout', 'tmsLocation', 'http2', function($q, $
                 });
             }
         }
-        return http2.post(url, { data: posted, tag: tags, supplement: oSupplement }, { autoBreak: false });
+        return http2.post(url, { data: oPosted, tag: tags, supplement: oSupplement }, { autoBreak: false });
     };
     return {
         ins: function() {
@@ -185,7 +187,7 @@ ngApp.directive('tmsFileInput', ['$q', 'tmsLocation', 'tmsDynaPage', function($q
     tmsDynaPage.loadScript(['/static/js/resumable.js']).then(function() {
         oResumable = new Resumable({
             target: LS.j('record/uploadFile', 'site', 'app'),
-            testChunks: false,
+            testChunks: true,
             chunkSize: 512 * 1024
         });
     });
@@ -392,7 +394,7 @@ ngApp.directive('tmsVoiceInput', ['$q', 'noticebox', function($q, noticebox) {
         }]
     }
 }]);
-ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout', 'Input', 'tmsLocation', 'http2', 'noticebox', 'tmsPaste', 'tmsUrl', '$compile', function($scope, $parse, $q, $uibModal, $timeout, Input, LS, http2, noticebox, tmsPaste, tmsUrl, $compile) {
+ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout', 'Input', 'tmsLocation', 'http2', 'noticebox', 'tmsPaste', 'tmsUrl', '$compile', 'enlRound', function($scope, $parse, $q, $uibModal, $timeout, Input, LS, http2, noticebox, tmsPaste, tmsUrl, $compile, enlRound) {
     function fnDisableActions() {
         var domActs, domAct;
         if (domActs = document.querySelectorAll('button[ng-click]')) {
@@ -403,6 +405,31 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                 }
             });
         }
+    }
+    /**
+     * 控制轮次题目的可见性
+     */
+    function fnToggleRoundSchemas(dataSchemas, oRecordData) {
+        dataSchemas.forEach(function(oSchemaWrap) {
+            var oSchema, domSchema;
+            if (oSchema = oSchemaWrap.schema) {
+                domSchema = document.querySelector('[wrap=input][schema="' + oSchema.id + '"],[wrap=html][schema="' + oSchema.id + '"]');
+                if (domSchema) {
+                    if (oSchema.hideByRoundPurpose && oSchema.hideByRoundPurpose.length) {
+                        var bVisible = true;
+                        if (oSchema.hideByRoundPurpose.indexOf($scope.record.round.purpose) !== -1) {
+                            bVisible = false;
+                        }
+                        oSchema._visible = bVisible;
+                        domSchema.classList.toggle('hide', !bVisible);
+                        /* 被隐藏的题目需要清除数据 */
+                        if (false === bVisible) {
+                            $parse(oSchema.id).assign(oRecordData, undefined);
+                        }
+                    }
+                }
+            }
+        });
     }
     /**
      * 控制关联题目的可见性
@@ -629,22 +656,20 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
     }
 
     function doTask(seq, nextAction, type) {
-        var task = tasksOfBeforeSubmit[seq];
+        var task = _tasksOfBeforeSubmit[seq];
         task().then(function(rsp) {
             seq++;
-            seq < tasksOfBeforeSubmit.length ? doTask(seq, nextAction, type) : doSubmit(nextAction, type);
+            seq < _tasksOfBeforeSubmit.length ? doTask(seq, nextAction, type) : doSubmit(nextAction, type);
         });
     }
 
     function doSubmit(nextAction, type) {
-        var ek, submitData;
-        ek = $scope.record ? $scope.record.enroll_key : undefined;
-        facInput.submit(ek, $scope.data, $scope.tag, $scope.supplement, type).then(function(rsp) {
+        _facInput.submit($scope.record, $scope.data, $scope.tag, $scope.supplement, type).then(function(rsp) {
             var url;
             if (type == 'save') {
                 noticebox.success('保存成功，关闭页面后，再次打开时自动恢复当前数据。确认数据填写完成后，请继续【提交】数据。');
             } else {
-                submitState.finish();
+                _oSubmitState.finish();
                 if (nextAction === 'closeWindow') {
                     $scope.closeWindow();
                 } else if (nextAction === '_autoForward') {
@@ -657,7 +682,7 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                     url += '&ek=' + rsp.data;
                     location.replace(url);
                 } else {
-                    if (ek === undefined) {
+                    if ($scope.record.enroll_key === undefined) {
                         $scope.record = {
                             enroll_key: rsp.data
                         }
@@ -668,15 +693,120 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
 
         }, function(rsp) {
             // reject
-            submitState.finish();
+            _oSubmitState.finish();
         });
     }
+
+    /* 获得页面编辑的记录 */
+    function fnAfterGetRecord(oRecord) {
+        /* 同轮次的其他记录 */
+        http2.post(LS.j('record/list', 'site', 'app') + '&sketch=Y', { record: { rid: oRecord.round.rid } }).then(function(rsp) {
+            var records;
+            records = rsp.data.records || [];
+            $scope.recordsOfRound = {
+                records: records,
+                page: {
+                    size: 1,
+                    total: rsp.data.total
+                },
+                shift: function() {
+                    fnGetRecord(records[this.page.at - 1].enroll_key);
+                }
+            };
+            for (var i = 0, l = records.length; i < l; i++) {
+                if (records[i].enroll_key === oRecord.enroll_key) {
+                    $scope.recordsOfRound.page.at = i + 1;
+                    break;
+                }
+            }
+        });
+        if (oRecord.round && oRecord.round.end_at > 0) {
+            if (oRecord.round.end_at * 1000 < (new Date * 1)) {
+                noticebox.warn('活动轮次【' + oRecord.round.title + '】已结束，不能提交、修改、保存或删除填写记录！');
+                fnDisableActions();
+            }
+        }
+        /* 判断多项类型 */
+        if (_oApp.dynaDataSchemas.length) {
+            angular.forEach(_oApp.dynaDataSchemas, function(oSchema) {
+                if (oSchema.type == 'multitext') {
+                    $scope.data[oSchema.id] === undefined && ($scope.data[oSchema.id] = []);
+                }
+            });
+        }
+
+        ngApp.oUtilSchema.autoFillMember(_oApp._schemasById, $scope.user, $scope.data.member);
+
+        ngApp.oUtilSchema.loadRecord(_oApp._schemasById, $scope.data, oRecord.data);
+
+        $scope.record = oRecord;
+        if (oRecord.supplement) {
+            $scope.supplement = oRecord.supplement;
+        }
+        /*设置页面分享信息*/
+        $scope.setSnsShare(oRecord, { 'newRecord': LS.s().newRecord });
+        /*根据加载的数据设置页面*/
+        fnAfterLoad(_oApp, _oPage, $scope.data);
+    }
+
+    /* 获得要编辑记录 */
+    function fnGetRecord(ek) {
+        var urlLoadRecord;
+        if (ek) {
+            urlLoadRecord = LS.j('record/get', 'site', 'app') + '&ek=' + ek;
+        } else {
+            if (LS.s().newRecord === 'Y') {
+                urlLoadRecord = LS.j('record/get', 'site', 'app', 'rid') + '&loadLast=N';
+            } else {
+                urlLoadRecord = LS.j('record/get', 'site', 'app', 'rid', 'ek') + '&loadLast=' + _oApp.open_lastroll + '&withSaved=Y';
+            }
+        }
+        $scope.data = { member: {} };
+        http2.get(urlLoadRecord, { autoBreak: false, autoNotice: false }).then(function(rsp) {
+            var oRecord;
+            oRecord = rsp.data;
+            fnAfterGetRecord(oRecord);
+        }, function(rsp) {
+            if (LS.s().newRecord === 'Y' && LS.s().rid) {
+                _facRound.get([LS.s().rid]).then(function(aRounds) {
+                    if (aRounds && aRounds.length === 1) {
+                        fnAfterGetRecord({ round: aRounds[0] });
+                    }
+                });
+            } else {
+                fnAfterGetRecord({ round: oRound ? oRound : _oApp.appRound });
+            }
+        });
+    }
+
+    function fnGetRecordByRound(oRound) {
+        var urlLoadRecord;
+
+        urlLoadRecord = LS.j('record/get', 'site', 'app') + '&rid=' + oRound.rid;
+        $scope.data = { member: {} };
+        http2.get(urlLoadRecord, { autoBreak: false, autoNotice: false }).then(function(rsp) {
+            fnAfterGetRecord(rsp.data);
+        }, function(rsp) {
+            if (LS.s().newRecord === 'Y' && LS.s().rid) {
+                _facRound.get([LS.s().rid]).then(function(aRounds) {
+                    if (aRounds && aRounds.length === 1) {
+                        fnAfterGetRecord({ round: aRounds[0] });
+                    }
+                });
+            } else {
+                fnAfterGetRecord({ round: oRound ? oRound : _oApp.appRound });
+            }
+        });
+    }
+
     /* 页面和记录数据加载完成 */
     function fnAfterLoad(oApp, oPage, oRecordData) {
         var dataSchemas;
         dataSchemas = oPage.dataSchemas;
         // 设置题目的默认值
         ngApp.oUtilSchema.autoFillDefault(_oApp._schemasById, $scope.data);
+        // 控制题目的轮次可见性
+        fnToggleRoundSchemas(dataSchemas);
         // 控制关联题目的可见性
         fnToggleAssocSchemas(dataSchemas, oRecordData);
         // 控制题目关联选项的可见性
@@ -690,7 +820,7 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         // 跟踪数据变化
         $scope.$watch('data', function(nv, ov) {
             if (nv !== ov) {
-                submitState.modified = true;
+                _oSubmitState.modified = true;
                 // 控制关联题目的可见性
                 fnToggleAssocSchemas(dataSchemas, oRecordData);
                 // 控制题目关联选项的可见性
@@ -698,6 +828,7 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
             }
         }, true);
         /*设置页面操作*/
+        var appActs = [];
         // 如果页面上有保存按钮，隐藏内置的保存按钮
         if (oPage.act_schemas) {
             var bHasSaveButton = false,
@@ -710,38 +841,20 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
             }
         }
         if (!bHasSaveButton) {
-            $scope.appActs = {
-                save: {}
-            };
+            appActs.push('save');
         }
-        /*设置页面导航*/
-        var oAppNavs = { length: 0 };
-        if (_oApp.scenario === 'voting') {
-            oAppNavs.votes = {};
-            oAppNavs.length++;
-        }
-        if (_oApp.scenarioConfig) {
-            if (_oApp.scenarioConfig.can_repos === 'Y') {
-                oAppNavs.repos = {};
-                oAppNavs.length++;
+        appActs.push('newRecord');
+        $scope.setPopAct(appActs, 'input', {
+            func: {
+                newRecord: $scope.newRecord,
+                save: $scope.save
             }
-            if (_oApp.scenarioConfig.can_rank === 'Y') {
-                oAppNavs.rank = {};
-                oAppNavs.length++;
-            }
-            if (_oApp.scenarioConfig.can_action === 'Y') {
-                oAppNavs.event = {};
-                oAppNavs.length++;
-            }
-        }
-        if (Object.keys(oAppNavs).length) {
-            $scope.appNavs = oAppNavs;
-        }
+        });
     }
 
     window.onbeforeunload = function(e) {
         var message;
-        if (submitState.modified) {
+        if (_oSubmitState.modified) {
             message = '已经修改的内容还没有保存，确定离开？';
             e = e || window.event;
             if (e) {
@@ -751,90 +864,22 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         }
     };
 
-    var facInput, tasksOfBeforeSubmit, submitState, StateCacheKey, _oApp;
-    tasksOfBeforeSubmit = [];
-    facInput = Input.ins();
-    $scope.data = {
-        member: {},
-    };
+    var _facInput, _tasksOfBeforeSubmit, _oSubmitState, _oApp, _oPage, _StateCacheKey, _facRound;
+
+    _tasksOfBeforeSubmit = [];
+    _facInput = Input.ins();
     $scope.tag = {};
     $scope.supplement = {};
-    $scope.submitState = submitState = ngApp.oUtilSubmit.state;
+    $scope.submitState = _oSubmitState = ngApp.oUtilSubmit.state;
+
     $scope.beforeSubmit = function(fn) {
-        if (tasksOfBeforeSubmit.indexOf(fn) === -1) {
-            tasksOfBeforeSubmit.push(fn);
+        if (_tasksOfBeforeSubmit.indexOf(fn) === -1) {
+            _tasksOfBeforeSubmit.push(fn);
         }
     };
     $scope.save = function(event) {
         $scope.submit(event, '', 'save');
     };
-    $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        var schemasById, dataOfRecord, p, value, pasteContains;
-        StateCacheKey = 'xxt.app.enroll:' + params.app.id + '.user:' + params.user.uid + '.cacheKey';
-        $scope.schemasById = schemasById = params.app._schemasById;
-        _oApp = params.app;
-        /* 判断多项类型 */
-        if (_oApp.dynaDataSchemas.length) {
-            angular.forEach(_oApp.dynaDataSchemas, function(dataSchema) {
-                if (dataSchema.type == 'multitext') {
-                    $scope.data[dataSchema.id] === undefined && ($scope.data[dataSchema.id] = []);
-                }
-            });
-        }
-        ngApp.oUtilSchema.autoFillMember(_oApp._schemasById, $scope.user, $scope.data.member);
-        /* 用户已经登记过或保存过，恢复之前的数据 */
-        var urlLoadRecord;
-        if (LS.s().newRecord === 'Y') {
-            urlLoadRecord = LS.j('record/get', 'site', 'app', 'rid') + '&loadLast=N';
-        } else {
-            urlLoadRecord = LS.j('record/get', 'site', 'app', 'rid', 'ek') + '&loadLast=' + _oApp.open_lastroll + '&withSaved=Y';
-        }
-        http2.get(urlLoadRecord, { autoBreak: false, autoNotice: false }).then(function(rsp) {
-            var oRecord;
-            oRecord = rsp.data;
-            ngApp.oUtilSchema.loadRecord(_oApp._schemasById, $scope.data, oRecord.data);
-            $scope.record = oRecord;
-            if (oRecord.supplement) {
-                $scope.supplement = oRecord.supplement;
-            }
-            /*设置页面分享信息*/
-            $scope.setSnsShare(oRecord, { 'newRecord': LS.s().newRecord });
-            /*页面阅读日志*/
-            $scope.logAccess();
-            /*根据加载的数据设置页面*/
-            fnAfterLoad(params.app, params.page, $scope.data);
-        });
-        /* 微信不支持上传文件，指导用户进行处理 */
-        if (/MicroMessenger|iphone|ipad/i.test(navigator.userAgent)) {
-            if (_oApp.entryRule && _oApp.entryRule.scope && _oApp.entryRule.scope.member === 'Y') {
-                for (var i = 0, ii = params.page.dataSchemas.length; i < ii; i++) {
-                    if (params.page.dataSchemas[i].schema.type === 'file') {
-                        var domTip, evt;
-                        domTip = document.querySelector('#wxUploadFileTip');
-                        evt = document.createEvent("HTMLEvents");
-                        evt.initEvent("show", false, false);
-                        domTip.dispatchEvent(evt);
-                        break;
-                    }
-                }
-            }
-        }
-        /*动态添加粘贴图片*/
-        if (!$scope.isSmallLayout) {
-            pasteContains = document.querySelectorAll('ul.img-tiles');
-            angular.forEach(pasteContains, function(pastecontain) {
-                var oSchema, html, $html;
-                oSchema = schemasById[pastecontain.getAttribute('name')];
-                html = '<li class="img-picker img-edit">';
-                html += '<button class="btn btn-default" ng-click="pasteImage(\'' + oSchema.id + '\',$event,' + (oSchema.count || 1) + ')">点击按钮<br>Ctrl+V<br>粘贴截图';
-                html += '<div contenteditable="true" tabindex="-1" style="width:1px;height:1px;position:fixed;left:-100px;overflow:hidden;"></div>';
-                html += '</button>';
-                html += '</li>';
-                $html = $compile(html)($scope);
-                angular.element(pastecontain).append($html);
-            });
-        }
-    });
     $scope.removeItem = function(items, index) {
         noticebox.confirm('删除此项，确定？').then(function() {
             items.splice(index, 1);
@@ -904,12 +949,12 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                 });
             }
         }
-        if (!submitState.isRunning()) {
-            submitState.start(event, StateCacheKey, type);
-            if (true === (checkResult = facInput.check($scope.data, $scope.app, $scope.page))) {
-                tasksOfBeforeSubmit.length ? doTask(0, nextAction, type) : doSubmit(nextAction, type);
+        if (!_oSubmitState.isRunning()) {
+            _oSubmitState.start(event, _StateCacheKey, type);
+            if ($scope.record.round.purpose !== 'C' || true === (checkResult = _facInput.check($scope.data, $scope.app, $scope.page))) {
+                _tasksOfBeforeSubmit.length ? doTask(0, nextAction, type) : doSubmit(nextAction, type);
             } else {
-                submitState.finish();
+                _oSubmitState.finish();
                 noticebox.warn(checkResult);
             }
         }
@@ -965,25 +1010,17 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     var oAssocData = {};
                     var oPage;
-                    oPage = {
-                        at: 1,
-                        size: 10,
-                        j: function() {
-                            return '&page=' + this.at + '&size=' + this.size;
-                        }
-                    };
-                    $scope2.page = oPage;
+                    $scope2.page = oPage = {};
                     $scope2.data = {};
                     $scope2.cancel = function() { $mi.dismiss(); };
                     $scope2.ok = function() { $mi.close($scope2.data); };
                     $scope2.search = function() {
-                        http2.post(url + '&page=' + oPage.j() + '&schema=' + oHandleSchema.id, oAssocData).then(function(oResult) {
+                        http2.post(url + '&schema=' + oHandleSchema.id, oAssocData, { page: oPage }).then(function(oResult) {
                             var oData = oResult.data[oHandleSchema.id];
                             if (oHandleSchema.type == 'multitext') {
                                 oData.records.pop();
                             }
                             $scope2.records = oData.records;
-                            oPage.total = oData.total;
                         });
                     };
                     if (oHandleSchema.history === 'Y' && oHandleSchema.historyAssoc && oHandleSchema.historyAssoc.length) {
@@ -1047,4 +1084,62 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         }
         return $scope.data[oSchema.id][oOption.v] >= number;
     };
+    /* 切换轮次，获取和轮次对应的数据，如果有多条数据怎么办？返回最后填写的1条 */
+    $scope.shiftRound = function(oRound) {
+        fnGetRecordByRound(oRound);
+    };
+    /* 当前轮次下新建记录 */
+    $scope.newRecord = function() {
+        $scope.data = { member: {} };
+        fnAfterGetRecord({ round: $scope.record.round ? $scope.record.round : _oApp.appRound });
+    };
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        var schemasById, pasteContains;
+
+        _oApp = params.app;
+        _oPage = params.page;
+        _StateCacheKey = 'xxt.app.enroll:' + _oApp.id + '.user:' + $scope.user.uid + '.cacheKey';
+        $scope.schemasById = schemasById = _oApp._schemasById;
+        /* 用户已经登记过或保存过，恢复之前的数据 */
+        fnGetRecord();
+        /* 活动轮次 */
+        _facRound = new enlRound(_oApp);
+        _facRound.list().then(function(oResult) {
+            $scope.rounds = oResult.rounds;
+        });
+        /*设置页面导航*/
+        $scope.setPopNav(['votes', 'repos', 'rank', 'kanban', 'event'], 'input');
+        /*页面阅读日志*/
+        $scope.logAccess();
+        /* 微信不支持上传文件，指导用户进行处理 */
+        if (/MicroMessenger|iphone|ipad/i.test(navigator.userAgent)) {
+            if (_oApp.entryRule && _oApp.entryRule.scope && _oApp.entryRule.scope.member === 'Y') {
+                for (var i = 0, ii = params.page.dataSchemas.length; i < ii; i++) {
+                    if (params.page.dataSchemas[i].schema.type === 'file') {
+                        var domTip, evt;
+                        domTip = document.querySelector('#wxUploadFileTip');
+                        evt = document.createEvent("HTMLEvents");
+                        evt.initEvent("show", false, false);
+                        domTip.dispatchEvent(evt);
+                        break;
+                    }
+                }
+            }
+        }
+        /*动态添加粘贴图片*/
+        if (!$scope.isSmallLayout) {
+            pasteContains = document.querySelectorAll('ul.img-tiles');
+            angular.forEach(pasteContains, function(pastecontain) {
+                var oSchema, html, $html;
+                oSchema = schemasById[pastecontain.getAttribute('name')];
+                html = '<li class="img-picker img-edit">';
+                html += '<button class="btn btn-default" ng-click="pasteImage(\'' + oSchema.id + '\',$event,' + (oSchema.count || 1) + ')">点击按钮<br>Ctrl+V<br>粘贴截图';
+                html += '<div contenteditable="true" tabindex="-1" style="width:1px;height:1px;position:fixed;left:-100px;overflow:hidden;"></div>';
+                html += '</button>';
+                html += '</li>';
+                $html = $compile(html)($scope);
+                angular.element(pastecontain).append($html);
+            });
+        }
+    });
 }]);

@@ -7,38 +7,22 @@ require_once dirname(__FILE__) . '/app_base.php';
  */
 abstract class enroll_base extends app_base {
 	/**
-	 * 更新素材信息并记录
-	 *
-	 * 修改冗余信息
-	 *
-	 * @param object $oUser 修改人
-	 * @param object $oMatter 被修改的素材
-	 * @param object $oUpdated 被修改的内容
-	 *
-	 */
-	public function modify($oUser, $oMatter, $oUpdated) {
-		if (isset($oUpdated->title)) {
-			$qCodes = [];
-			if (!empty($oMatter->op_short_url_code)) {
-				$qCodes[] = $oMatter->op_short_url_code;
-			}
-			if (!empty($oMatter->rp_short_url_code)) {
-				$qCodes[] = $oMatter->rp_short_url_code;
-			}
-			if (count($qCodes)) {
-				$this->model()->update('xxt_short_url', ['target_title' => $oUpdated->title], ['code' => $qCodes]);
-			}
-		}
-
-		return parent::modify($oUser, $oMatter, $oUpdated);
-	}
-	/**
 	 * 根据用户指定的规则设置
 	 */
 	protected function setEntryRuleByProto($oSite, &$oEntryRule, $oProtoEntryRule) {
-		if (isset($oProtoEntryRule->scope)) {
+		if (isset($oProtoEntryRule->scope) && is_object($oProtoEntryRule->scope)) {
 			$oEntryRule->scope = $oProtoEntryRule->scope;
-			if (isset($oEntryRule->scope->group) && $oEntryRule->scope->group === 'Y') {
+			if ($this->getDeepValue($oEntryRule, 'scope.member') === 'Y') {
+				if (isset($oProtoEntryRule->member)) {
+					$oEntryRule->member = new \stdClass;
+					foreach ($oProtoEntryRule->member as $msid => $oMschema) {
+						$oRule = new \stdClass;
+						$oRule->entry = 'Y';
+						$oEntryRule->member->{$msid} = $oRule;
+					}
+				}
+			}
+			if ($this->getDeepValue($oEntryRule, 'scope.group') === 'Y') {
 				if (!empty($oProtoEntryRule->group->id)) {
 					$oEntryRule->group = (object) ['id' => $oProtoEntryRule->group->id];
 					if (!empty($oProtoEntryRule->group->round->id)) {
@@ -46,17 +30,12 @@ abstract class enroll_base extends app_base {
 					}
 				}
 			}
-			if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y') {
-				if (isset($oProtoEntryRule->mschemas)) {
-					$oEntryRule->member = new \stdClass;
-					foreach ($oProtoEntryRule->mschemas as $oMschema) {
-						$oRule = new \stdClass;
-						$oRule->entry = 'Y';
-						$oEntryRule->member->{$oMschema->id} = $oRule;
-					}
+			if ($this->getDeepValue($oEntryRule, 'scope.enroll') === 'Y') {
+				if (!empty($oProtoEntryRule->enroll->id)) {
+					$oEntryRule->enroll = (object) ['id' => $oProtoEntryRule->enroll->id];
 				}
 			}
-			if (isset($oEntryRule->scope->sns) && $oEntryRule->scope->sns === 'Y') {
+			if ($this->getDeepValue($oEntryRule, 'scope.sns') === 'Y') {
 				$oRule = new \stdClass;
 				$oRule->entry = 'Y';
 				$oSns = new \stdClass;
@@ -99,10 +78,10 @@ abstract class enroll_base extends app_base {
 	 */
 	protected function setEntryRuleByMission(&$oEntryRule, $oMisEntryRule) {
 		if (isset($oMisEntryRule->scope) && $oMisEntryRule->scope !== 'none') {
-			if (!is_object($oEntryRule->scope)) {
+			if (empty($oEntryRule->scope) || !is_object($oEntryRule->scope)) {
 				$oEntryRule->scope = new \stdClass;
 			}
-			switch ($oEntryRule->scope) {
+			switch ($oMisEntryRule->scope) {
 			case 'member':
 				if (isset($oMisEntryRule->member)) {
 					$oEntryRule->member = $oMisEntryRule->member;
@@ -208,18 +187,18 @@ abstract class enroll_base extends app_base {
 							/* 自动添加项目阶段定义 */
 							if ($oAppPage->type === 'I') {
 								$newPageSchema = new \stdClass;
-								$$oSchemaNameConfig = new \stdClass;
+								$oSchemaNameConfig = new \stdClass;
 								$newPageSchema->schema = $oNameSchema;
-								$newPageSchema->config = $$oSchemaNameConfig;
+								$newPageSchema->config = $oSchemaNameConfig;
 								array_splice($oAppPage->data_schemas, 0, 0, [$newPageSchema]);
 							} else if ($oAppPage->type === 'V') {
 								$newPageSchema = new \stdClass;
-								$$oSchemaNameConfig = new \stdClass;
-								$$oSchemaNameConfig->id = 'V' . time();
-								$$oSchemaNameConfig->pattern = 'record';
-								$$oSchemaNameConfig->splitLine = 'Y';
+								$oSchemaNameConfig = new \stdClass;
+								$oSchemaNameConfig->id = 'V' . time();
+								$oSchemaNameConfig->pattern = 'record';
+								$oSchemaNameConfig->splitLine = 'Y';
 								$newPageSchema->schema = $oNameSchema;
-								$newPageSchema->config = $$oSchemaNameConfig;
+								$newPageSchema->config = $oSchemaNameConfig;
 								array_splice($oAppPage->data_schemas, 0, 0, [$newPageSchema]);
 							}
 						}
@@ -419,15 +398,48 @@ abstract class enroll_base extends app_base {
 		$oEntryRule = $oApp->entryRule;
 		$bEntryRuleModified = false;
 
+		/* 修改进入规则 */
+		if (isset($oEntryRule->scope)) {
+			if ($oEntryRule->scope->member === 'Y') {
+				/* 移除和项目通讯录的关联 */
+				$aMatterMschemas = $this->getEntryMemberSchema($oEntryRule);
+				foreach ($aMatterMschemas as $oMschema) {
+					if (!empty($oMschema->matter_type)) {
+						/* 页面的题目 */
+						foreach ($oApp->pages as $oPage) {
+							$rst = $modelPg->replaceMemberSchema($oPage, $oMschema);
+							if (true === $rst[0]) {
+								$aUpdatedPages[$oPage->id] = $oPage;
+							}
+						}
+						/* 应用的题目 */
+						$rst = $this->replaceMemberSchema($aDataSchemas, $oMschema);
+						if (true === $rst[0]) {
+							$bDataSchemasModified = true;
+						}
+						unset($oEntryRule->member->{$oMschema->id});
+						$bEntryRuleModified = true;
+					}
+				}
+				if (count((array) $oEntryRule->member) === 0) {
+					$oEntryRule->scope = 'none';
+					unset($oEntryRule->member);
+				}
+			}
+		}
 		/* 移除和项目中其他活动的关联 */
 		$aAssocApps = [];
-		if (!empty($oApp->group_app_id)) {
-			$aAssocApps[] = $oApp->group_app_id;
-			$oUpdatedApp->group_app_id = $oApp->group_app_id = '';
+		if (isset($oEntryRule->group->id)) {
+			$aAssocApps[] = $oEntryRule->group->id;
+			unset($oEntryRule->scope->group);
+			unset($oEntryRule->group);
+			$bEntryRuleModified = true;
 		}
-		if (!empty($oApp->enroll_app_id)) {
-			$aAssocApps[] = $oApp->enroll_app_id;
-			$oUpdatedApp->enroll_app_id = $oApp->enroll_app_id = '';
+		if (isset($oEntryRule->enroll->id)) {
+			$aAssocApps[] = $oEntryRule->enroll->id;
+			unset($oEntryRule->scope->enroll);
+			unset($oEntryRule->enroll);
+			$bEntryRuleModified = true;
 		}
 		if (count($aAssocApps)) {
 			/* 页面的题目 */
@@ -444,40 +456,13 @@ abstract class enroll_base extends app_base {
 			}
 		}
 
-		/* 移除和项目通讯录的关联 */
-		if (isset($oEntryRule->scope) && $oEntryRule->scope === 'member') {
-			$aMatterMschemas = $this->getEntryMemberSchema($oEntryRule);
-			foreach ($aMatterMschemas as $oMschema) {
-				if (!empty($oMschema->matter_type)) {
-					/* 页面的题目 */
-					foreach ($oApp->pages as $oPage) {
-						$rst = $modelPg->replaceMemberSchema($oPage, $oMschema);
-						if (true === $rst[0]) {
-							$aUpdatedPages[$oPage->id] = $oPage;
-						}
-					}
-					/* 应用的题目 */
-					$rst = $this->replaceMemberSchema($aDataSchemas, $oMschema);
-					if (true === $rst[0]) {
-						$bDataSchemasModified = true;
-					}
-					unset($oEntryRule->member->{$oMschema->id});
-					$bEntryRuleModified = true;
-				}
-			}
-			if (count((array) $oEntryRule->member) === 0) {
-				$oEntryRule->scope = 'none';
-				unset($oEntryRule->member);
-			}
-		}
-
 		/* 设置更新的属性 */
 		$oUpdatedApp->mission_id = $oApp->mission_id = 0;
 		$oUpdatedApp->sync_mission_round = $oApp->sync_mission_round = 'N';
 		if ($bDataSchemasModified) {
 			$oUpdatedApp->data_schemas = $this->escape($this->toJson($aDataSchemas));
 		}if ($bEntryRuleModified) {
-			$oUpdatedApp->entry_rule = json_encode($oEntryRule);
+			$oUpdatedApp->entry_rule = $this->escape(json_encode($oEntryRule));
 		}
 		if (count($aUpdatedPages)) {
 			$oUpdatedApp->pages = $aUpdatedPages;

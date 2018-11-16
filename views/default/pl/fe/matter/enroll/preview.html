@@ -45,10 +45,6 @@
             <label>填写题目</label>
             <ul class='status-group'>
                 <li class='status'>共有<span ng-bind="app.dataSchemas.length"></span>道题目，必填题<span ng-bind="status.schema.required"></span>道</li>
-                <li class='status' ng-if="!app.enroll_app_id">未指定关联的登记数据 <span class='glyphicon glyphicon-question-sign' uib-tooltip='指定关联登记活动和关联题目后，关联题目填写的内容必须在关联的登记活动中有对应记录'></span></li>
-                <li class='status' ng-if="app.enroll_app_id">已经和登记活动【<span ng-bind="app.enrollApp.title"></span>】关联</li>
-                <li class='status' ng-if="!app.group_app_id">未指定关联的分组数据 <span class='glyphicon glyphicon-question-sign' uib-tooltip='指定关联分组活动和关联题目后，关联题目填写的内容必须在关联的分组活动中有对应记录'></span></li>
-                <li class='status' ng-if="app.group_app_id">已经和分组活动【<span ng-bind="app.groupApp.title"></span>】关联</li>
                 <li class='status'>填写人可以查看其他人填写的数据 <span class='glyphicon' ng-class="status.page.repos==='Y'||app.scenarioConfig.can_repos==='Y'?'glyphicon-ok':'glyphicon-ban-circle'"></span>，可以查看的题目有<span ng-bind="status.schema.shareable"></span>道 <span class='glyphicon glyphicon-question-sign' uib-tooltip='在活动【描述】中设置【开放共享页】，或者在页面中添加导航到【共享数据页】的【页面导航】按钮，用户可以在共享数据页中查看所有用户提交的共享题目内容'></span></li>
             </ul>
         </div>
@@ -114,8 +110,6 @@
                         </div>
                     </div>
                 </li>
-                <li class='status'><span ng-bind="app.op_short_url_code?'已经':'未'"></span>开放【汇总结果分享链接】</li>
-                <li class='status'><span ng-bind="app.rp_short_url_code?'已经':'未'"></span>开放【统计报告分享链接】</li>
             </ul>
         </div>
     </div>

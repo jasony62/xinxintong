@@ -21,9 +21,9 @@ class group_model extends app_base {
 	 * $aid string
 	 * $options array
 	 */
-	public function &byId($aid, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
+	public function &byId($aid, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$cascaded = isset($aOptions['cascaded']) ? $aOptions['cascaded'] : 'Y';
 		$q = [
 			$fields,
 			'xxt_group',
@@ -42,6 +42,7 @@ class group_model extends app_base {
 				} else {
 					$oApp->dataSchemas = [];
 				}
+				unset($oApp->data_schemas);
 			}
 			if ($fields === '*' || false !== strpos($fields, 'assigned_nickname')) {
 				if (!empty($oApp->assigned_nickname)) {
@@ -95,45 +96,17 @@ class group_model extends app_base {
 		return $result;
 	}
 	/**
-	 * 和登记活动关联的分组活动
-	 */
-	public function byEnrollApp($enrollAppId, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$q = [
-			$fields,
-			'xxt_group',
-			['source_app' => '{"id":"' . $enrollAppId . '","type":"enroll"}'],
-		];
-		$apps = $this->query_objs_ss($q);
-
-		return $apps;
-	}
-	/**
-	 * 和签到活动关联的分组活动
-	 */
-	public function bySigninApp($signinAppId, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$q = [
-			$fields,
-			'xxt_group',
-			['source_app' => '{"id":"' . $signinAppId . '","type":"signin"}'],
-		];
-		$apps = $this->query_objs_ss($q);
-
-		return $apps;
-	}
-	/**
 	 * 和通讯录关联的分组活动
 	 */
-	public function bySchemaApp($schemaId, $options = []) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
+	public function bySchemaApp($schemaId, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$q = [
 			$fields,
 			'xxt_group',
 			['source_app' => '{"id":"' . $schemaId . '","type":"mschema"}'],
 		];
-		if (isset($options['autoSync'])) {
-			$q[2]['auto_sync'] = $options['autoSync'];
+		if (isset($aOptions['autoSync'])) {
+			$q[2]['auto_sync'] = $aOptions['autoSync'];
 		}
 		$apps = $this->query_objs_ss($q);
 
@@ -147,8 +120,8 @@ class group_model extends app_base {
 			return false;
 		}
 
-		$options = array('fields' => 'tags', 'cascaded' => 'N');
-		$app = $this->byId($aid, $options);
+		$aOptions = array('fields' => 'tags', 'cascaded' => 'N');
+		$app = $this->byId($aid, $aOptions);
 		if (empty($app->tags)) {
 			$this->update('xxt_group', array('tags' => $tags), "id='$aid'");
 		} else {
@@ -282,8 +255,8 @@ class group_model extends app_base {
 	 *
 	 */
 	public function &opData($app) {
-		$options = ['cascade' => 'playerCount'];
-		$rounds = $this->model('matter\group\round')->byApp($app->id, $options);
+		$aOptions = ['cascade' => 'playerCount'];
+		$rounds = $this->model('matter\group\round')->byApp($app->id, $aOptions);
 
 		return $rounds;
 	}

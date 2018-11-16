@@ -129,8 +129,8 @@ define(['require', 'frame/RouteParam', 'frame/const'], function(require, RoutePa
                     location.href = '/rest/pl/fe/matter/channel?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
-            addEnroll: function(site, scenario) {
-                location.href = '/rest/pl/fe/matter/enroll/shop?site=' + site.id + '&scenario=' + (scenario || '');
+            addEnroll: function(site) {
+                location.href = '/rest/pl/fe/matter/enroll/shop?site=' + site.id;
             },
             addSignin: function(site) {
                 location.href = '/rest/pl/fe/matter/signin/plan?site=' + site.id;
@@ -161,20 +161,14 @@ define(['require', 'frame/RouteParam', 'frame/const'], function(require, RoutePa
             }
         };
 
-        function addMatter(site, matterType, scenario) {
+        function addMatter(site, matterType) {
             var fnName = 'add' + matterType[0].toUpperCase() + matterType.substr(1);
-            _fns[fnName].call(_fns, site, scenario);
+            _fns[fnName].call(_fns, site);
         }
-        $scope.addMatter = function(matterType, scenario) {
-            if (_oFrameState.sid) {
-                if (matterType) {
-                    var site = { id: _oFrameState.sid };
-                    if (/^enroll\.(.+)/.test(matterType)) {
-                        addMatter(site, 'enroll', matterType.split('.')[1]);
-                    } else {
-                        addMatter(site, matterType, scenario);
-                    }
-                }
+        $scope.addMatter = function(matterType) {
+            if (_oFrameState.sid && matterType) {
+                var site = { id: _oFrameState.sid };
+                addMatter(site, matterType);
             }
         };
 

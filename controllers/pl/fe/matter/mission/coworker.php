@@ -251,7 +251,6 @@ class coworker extends \pl\fe\matter\base {
 		/* modifier */
 		$nv = new \stdClass;
 		$nv->modifier = $user->id;
-		$nv->modifier_src = $user->src;
 		$nv->modifier_name = $modelMis->escape($user->name);
 		$nv->modify_at = time();
 		$nv->creater = $oNewOwner->uid;

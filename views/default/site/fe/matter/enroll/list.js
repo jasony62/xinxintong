@@ -216,32 +216,11 @@ ngApp.controller('ctrlList', ['$scope', function($scope) {
         var oApp = params.app;
         /*设置页面分享信息*/
         $scope.setSnsShare();
+        /*设置页面操作*/
+        $scope.setPopAct(['addRecord'], 'list');
+        /*设置页面导航*/
+        $scope.setPopNav(['repos', 'rank', 'kanban', 'event'], 'list');
         /*页面阅读日志*/
         $scope.logAccess();
-        /*设置页面操作*/
-        $scope.appActs = {
-            addRecord: {}
-        };
-        /*设置页面导航*/
-        var oAppNavs = {
-            length: 1
-        };
-        if (oApp.scenarioConfig.scenarioConfig) {
-            if (oApp.scenarioConfig.can_repos === 'Y') {
-                oAppNavs.repos = {};
-                oAppNavs.length++;
-            }
-            if (oApp.scenarioConfig.can_rank === 'Y') {
-                oAppNavs.rank = {};
-                oAppNavs.length++;
-            }
-            if (oApp.scenarioConfig.can_action === 'Y') {
-                oAppNavs.event = {};
-                oAppNavs.length++;
-            }
-        }
-        if (Object.keys(oAppNavs)) {
-            $scope.appNavs = oAppNavs;
-        }
     });
 }]);

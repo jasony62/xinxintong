@@ -201,9 +201,12 @@ ngMod.directive('tmsEditor', ['$q', '$timeout', 'http2', 'tmsPaste', function($q
             });
             /* 插入图片操作 */
             if (window.xxt && window.xxt.image) {
-                var eleBtnInsertImage;
+                var eleBtnInsertImage, eleIframe, eleDivContent;
+                eleIframe = document.querySelector('iframe').contentDocument;
+                eleDivContent = eleIframe.getElementsByClassName('tms-editor-content ')[0];
                 if (eleBtnInsertImage = document.querySelector('#' + $scope.id + ' button[action=InsertImage]')) {
                     eleBtnInsertImage.addEventListener('click', function() {
+                        eleDivContent.focus();
                         window.xxt.image.choose($q.defer()).then(function(imgs) {
                             imgs.forEach(function(oImg) {
                                 http2.post('/rest/site/fe/matter/upload/image?site=platform', oImg).then(function(rsp) {

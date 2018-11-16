@@ -108,24 +108,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
         };
         this._bGet = function(oSigninApp, method) {
             oSigninApp.tags = (!oSigninApp.tags || oSigninApp.tags.length === 0) ? [] : oSigninApp.tags.split(',');
-            if (oSigninApp.groupApp && oSigninApp.groupApp.dataSchemas) {
-                if (oSigninApp.groupApp.rounds && oSigninApp.groupApp.rounds.length) {
-                    var roundDS = {
-                            id: '_round_id',
-                            type: 'single',
-                            title: '分组名称',
-                        },
-                        ops = [];
-                    oSigninApp.groupApp.rounds.forEach(function(round) {
-                        ops.push({
-                            v: round.round_id,
-                            l: round.title
-                        });
-                    });
-                    roundDS.ops = ops;
-                    oSigninApp.groupApp.dataSchemas.splice(0, 0, roundDS);
-                }
-            }
             method(oSigninApp);
             oSigninApp.pages.forEach(function(page) {
                 pageLib.enhance(page, oSigninApp._schemasById);
@@ -273,22 +255,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
                     return _getAppDeferred.promise;
                 },
-                opGet: function() {
-                    var url, _getAppDeferred = false;
-
-                    if (_getAppDeferred) {
-                        return _getAppDeferred.promise;
-                    }
-                    _getAppDeferred = $q.defer();
-                    url = '/rest/site/op/matter/signin/get?site=' + siteId + '&app=' + appId + '&accessToken=' + accessId;
-                    http2.get(url).then(function(rsp) {
-                        _opApps = rsp.data, _opApp = rsp.data.app, _opPage = rsp.data.page;
-                        _ins._bGet(_opApp, _fnMapSchemas);
-                        _getAppDeferred.resolve(_opApps);
-                    });
-
-                    return _getAppDeferred.promise;
-                },
                 update: function(names) {
                     var defer = $q.defer(),
                         modifiedData = {},
@@ -404,89 +370,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                         defaultInput: defaultInput
                     }
                 },
-                assignEnrollApp: function() {
-                    var _this = this,
-                        defer = $q.defer();
-                    $uibModal.open({
-                        templateUrl: 'assignEnrollApp.html',
-                        controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                            function listEnrollApp() {
-                                var url = '/rest/pl/fe/matter/enroll/list?site=' + siteId + '&scenario=registration&size=999';
-                                $scope2.data.sameMission === 'Y' && (url += '&mission=' + _oApp.mission.id);
-                                http2.get(url).then(function(rsp) {
-                                    $scope2.apps = rsp.data.apps;
-                                });
-                            }
-                            $scope2.app = _oApp;
-                            $scope2.data = {
-                                filter: {},
-                                source: ''
-                            };
-                            _oApp.mission && ($scope2.data.sameMission = 'Y');
-                            $scope2.cancel = function() {
-                                $mi.dismiss();
-                            };
-                            $scope2.ok = function() {
-                                $mi.close($scope2.data);
-                            };
-                            $scope2.$watch('data.sameMission', listEnrollApp);
-                        }],
-                        backdrop: 'static'
-                    }).result.then(function(data) {
-                        _oApp.enroll_app_id = data.source;
-                        _this.update('enroll_app_id').then(function(rsp) {
-                            var url = '/rest/pl/fe/matter/enroll/get?site=' + siteId + '&app=' + _oApp.enroll_app_id;
-                            http2.get(url).then(function(rsp) {
-                                _oApp.enrollApp = rsp.data;
-                                _fnMapAssocEnrollApp(_oApp);
-                                defer.resolve(_oApp.enrollApp);
-                            });
-                        });
-                    });
-                    return defer.promise;
-                },
-                assignGroupApp: function() {
-                    var _this = this,
-                        defer = $q.defer();;
-                    $uibModal.open({
-                        templateUrl: 'assignGroupApp.html',
-                        controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                            function listEnrollApp() {
-                                var url = '/rest/pl/fe/matter/group/list?site=' + siteId;
-                                $scope2.data.sameMission === 'Y' && (url += '&mission=' + _oApp.mission.id);
-                                http2.get(url).then(function(rsp) {
-                                    $scope2.apps = rsp.data.apps;
-                                });
-                            }
-                            $scope2.app = _oApp;
-                            $scope2.data = {
-                                filter: {},
-                                source: ''
-                            };
-                            _oApp.mission && ($scope2.data.sameMission = 'Y');
-                            $scope2.cancel = function() {
-                                $mi.dismiss();
-                            };
-                            $scope2.ok = function() {
-                                $mi.close($scope2.data);
-                            };
-                            $scope2.$watch('data.sameMission', listEnrollApp);
-                        }],
-                        backdrop: 'static'
-                    }).result.then(function(data) {
-                        _oApp.group_app_id = data.source;
-                        _this.update('group_app_id').then(function(rsp) {
-                            var url = '/rest/pl/fe/matter/group/get?site=' + siteId + '&app=' + _oApp.group_app_id;
-                            http2.get(url).then(function(rsp) {
-                                _oApp.groupApp = rsp.data;
-                                _fnMapAssocGroupApp(_oApp);
-                                defer.resolve(_oApp.groupApp);
-                            });
-                        });
-                    });
 
-                    return defer.promise;
-                },
             };
         }];
     }).provider('srvSigninRound', function() {
@@ -609,7 +493,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                             $scope2.downloadWxQrcode = function() {
                                 $('<a href="' + $scope2.qrcode.pic + '" download="' + app.title + '_' + round.title + '_签到二维码.jpeg"></a>')[0].click();
                             };
-                            if (app.entry_rule.scope === 'sns' && sns.wx) {
+                            if (app.entryRule.scope === 'sns' && sns.wx) {
                                 if (sns.wx.can_qrcode === 'Y') {
                                     http2.get('/rest/pl/fe/matter/signin/wxQrcode?site=' + siteId + '&app=' + appId + '&round=' + round.rid).then(function(rsp) {
                                         var qrcodes = rsp.data;
@@ -881,7 +765,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                                 ".jp": "image/jpeg",
                                 ".pn": "image/png",
                                 ".gi": "image/gif"
-                            }[f.name.match(/\.(\w){2}/g)[0] || ".jp"];
+                            } [f.name.match(/\.(\w){2}/g)[0] || ".jp"];
                             f.type2 = f.type || type;
                             var reader = new FileReader();
                             reader.onload = (function(theFile) {
@@ -973,53 +857,6 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
                 });
                 return defer.promise;
             };
-            return _ins;
-        }];
-    }).provider('srvOpSigninRecord', function() {
-        var _siteId, _appId, _accessId;
-        this.config = function(siteId, appId, accessId) {
-            _siteId = siteId;
-            _appId = appId;
-            _accessId = accessId;
-        };
-        this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'tmsSchema', function($q, http2, noticebox, $uibModal, tmsSchema) {
-            var _ins = new BasesrvSigninRecord($q, http2, tmsSchema, noticebox, $uibModal);
-            _ins.search = function(pageNumber) {
-                var url;
-
-                this._aRecords.splice(0, this._aRecords.length);
-                pageNumber && (this._oPage.at = pageNumber);
-                url = '/rest/site/op/matter/signin/record/list';
-                url += '?site=' + this._oApp.siteid;
-                url += '&app=' + this._oApp.id;
-                url += '&accessToken=' + _accessId;
-                url += this._oPage.joinParams();
-
-                return _ins._bSearch(url);
-            };
-            _ins.batchVerify = function(rows) {
-                var url;
-
-                url = '/rest/site/op/matter/signin/record/batchVerify';
-                url += '?site=' + _siteId;
-                url += '&app=' + _appId;
-                url += '&accessToken=' + _accessId;
-
-                return _ins._bBatchVerify(rows, url);
-            };
-            _ins.filter = function() {
-                return _ins._bFilter();
-            };
-            _ins.remove = function(record) {
-                if (window.confirm('确认删除？')) {
-                    http2.get('/rest/site/op/matter/signin/record/remove?site=' + _siteId + '&app=' + _appId + '&accessToken=' + _accessId + '&ek=' + record.enroll_key).then(function(rsp) {
-                        var i = _ins._aRecords.indexOf(record);
-                        _ins._aRecords.splice(i, 1);
-                        _ins._oPage.total = _ins._oPage.total - 1;
-                    });
-                }
-            };
-
             return _ins;
         }];
     }).provider('srvSigninNotice', function() {

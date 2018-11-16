@@ -64,4 +64,35 @@ class main extends \pl\fe\base {
 
 		return new \ResponseData($result);
 	}
+	/**
+	 * 更新指定素材的进入规则
+	 */
+	public function updateEntryRule_action($matter) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$matter = explode(',', $matter);
+		if (count($matter) !== 2) {
+			return new \ParameterError();
+		}
+		$modelMat = $this->model('matter\\' . $matter[1]);
+		$oMatter = $modelMat->byId($matter[0]);
+		if (false === $oMatter) {
+			return new \ObjectNotFoundError();
+		}
+
+		$oEntryRule = $this->getPostJson();
+
+		$aScanResult = $modelMat->scanEntryRule($oEntryRule);
+		if (false === $aScanResult[0]) {
+			return new \ResponseError($aScanResult[1]);
+		}
+
+		$oScaned = $aScanResult[1];
+
+		$modelMat->modify($oUser, $oMatter, (object) ['entry_rule' => $modelMat->escape($modelMat->toJson($oScaned))], ['id' => $oMatter->id]);
+
+		return new \ResponseData($oScaned);
+	}
 }

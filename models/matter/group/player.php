@@ -624,10 +624,10 @@ class player_model extends \TMS_MODEL {
 			'xxt_group_player',
 			"aid='$appId' and state=1",
 		];
-		if (!empty($rid)) {
-			$q[2] .= " and round_id='$rid'";
-		} else {
+		if (empty($rid)) {
 			$q[2] .= " and round_id<>''";
+		} else {
+			$q[2] .= " and round_id='$rid'";
 		}
 		$q2 = ['o' => 'round_id,draw_at'];
 
@@ -861,15 +861,15 @@ class player_model extends \TMS_MODEL {
 	 */
 	public function assocWithSignin($oGrpApp, $byApp, $includeEnroll = 'Y') {
 		$modelSignin = $this->model('matter\signin');
-		$oSourceApp = $modelSignin->byId($byApp, ['fields' => 'data_schemas,assigned_nickname,enroll_app_id', 'cascaded' => 'N']);
+		$oSourceApp = $modelSignin->byId($byApp, ['fields' => 'entry_rule,data_schemas,assigned_nickname', 'cascaded' => 'N']);
 		$aSourceDataSchemas = $oSourceApp->dataSchemas;
 		/**
 		 * 导入报名数据，需要合并签到和报名的登记项
 		 */
 		if ($includeEnroll === 'Y') {
-			if (!empty($oSourceApp->enroll_app_id)) {
+			if (!empty($oSourceApp->entryRule->enroll->id)) {
 				$modelEnl = $this->model('matter\enroll');
-				$enrollApp = $modelEnl->byId($oSourceApp->enroll_app_id, ['fields' => 'data_schemas', 'cascaded' => 'N']);
+				$enrollApp = $modelEnl->byId($oSourceApp->entryRule->enroll->id, ['fields' => 'data_schemas', 'cascaded' => 'N']);
 				$diff = array_udiff($enrollApp->dataSchemas, $aSourceDataSchemas, create_function('$a,$b', 'return strcmp($a->id,$b->id);'));
 				$aSourceDataSchemas = array_merge($aSourceDataSchemas, $diff);
 			}
@@ -894,31 +894,6 @@ class player_model extends \TMS_MODEL {
 
 		/* 清空已有数据 */
 		$this->clean($oGrpApp->id, true);
-
-		/* 获取数据 */
-		// $q = [
-		// 	'enroll_key',
-		// 	'xxt_signin_record',
-		// 	"aid='$byApp' and state=1",
-		// ];
-		// $eks = $this->query_vals_ss($q);
-		// /* 导入数据 */
-		// if (!empty($eks)) {
-		// 	$modelRec = $this->model('matter\signin\record');
-		// 	$aOptions = array('cascaded' => 'Y');
-		// 	foreach ($eks as $ek) {
-		// 		$oRecord = $modelRec->byId($ek, $aOptions);
-		// 		$oUser = new \stdClass;
-		// 		$oUser->uid = $oRecord->userid;
-		// 		$oUser->nickname = $oRecord->nickname;
-		// 		$oUser->wx_openid = $oRecord->wx_openid;
-		// 		$oUser->yx_openid = $oRecord->yx_openid;
-		// 		$oUser->qy_openid = $oRecord->qy_openid;
-		// 		$oUser->headimgurl = $oRecord->headimgurl;
-		// 		$this->enroll($oGrpApp, $oUser, ['enroll_key' => $ek, 'enroll_at' => $oRecord->enroll_at]);
-		// 		$this->setData($oGrpApp, $ek, $oRecord->data);
-		// 	}
-		// }
 
 		return $oSourceApp;
 	}
@@ -1077,7 +1052,7 @@ class player_model extends \TMS_MODEL {
 			}
 		}
 
-		$dataSchemas = json_decode($objGrp->data_schemas);
+		$dataSchemas = $objGrp->dataSchemas;
 		$data = new \stdClass;
 		foreach ($dataSchemas as $ds) {
 			$data->{$ds->id} = !empty($ds->format) ? $record->{$ds->format} : (!empty($record->{$ds->id}) ? $record->{$ds->id} : '');

@@ -70,6 +70,7 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
             "preview": '/views/default/pl/fe/matter/signin/preview',
             "record": '/views/default/pl/fe/matter/signin/record',
             "schema": '/views/default/pl/fe/matter/signin/schema',
+            "entryRule": '/views/default/pl/fe/_module/entryRule',
         }
     }
     window.MATTER_TYPE = 'Signin'; // 为了支持动态加载服务模块

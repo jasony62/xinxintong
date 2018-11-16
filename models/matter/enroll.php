@@ -44,26 +44,6 @@ class enroll_model extends enroll_base {
 		return $url;
 	}
 	/**
-	 * 登记活动的汇总展示链接
-	 */
-	public function getOpUrl($siteId, $id) {
-		$url = APP_PROTOCOL . APP_HTTP_HOST;
-		$url .= '/rest/site/op/matter/enroll';
-		$url .= "?site={$siteId}&app=" . $id;
-
-		return $url;
-	}
-	/**
-	 * 登记活动的统计报告链接
-	 */
-	public function getRpUrl($siteId, $id) {
-		$url = APP_PROTOCOL . APP_HTTP_HOST;
-		$url .= '/rest/site/op/matter/enroll/report';
-		$url .= "?site={$siteId}&app=" . $id;
-
-		return $url;
-	}
-	/**
 	 * 新建记录活动
 	 */
 	public function create($oUser, $oNewApp) {
@@ -115,22 +95,20 @@ class enroll_model extends enroll_base {
 			/* 活动轮次 */
 			$modelRnd = $this->model('matter\enroll\round');
 			if (empty($appRid)) {
-				$oAppRnd = $modelRnd->getActive($oApp, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
+				$oAppRnd = $modelRnd->getActive($oApp, ['fields' => 'id,rid,title,purpose,start_at,end_at,mission_rid']);
 			} else {
-				$oAppRnd = $modelRnd->byId($appRid, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
+				$oAppRnd = $modelRnd->byId($appRid, ['fields' => 'id,rid,title,purpose,start_at,end_at,mission_rid']);
 			}
 			$oApp->appRound = $oAppRnd;
 
 			if (isset($oApp->siteid) && isset($oApp->id)) {
 				$oApp->entryUrl = $this->getEntryUrl($oApp->siteid, $oApp->id);
-				$oApp->opUrl = $this->getOpUrl($oApp->siteid, $oApp->id);
-				$oApp->rpUrl = $this->getRpUrl($oApp->siteid, $oApp->id);
 			}
 			if ($fields === '*' || false !== strpos($fields, 'entry_rule')) {
 				if (empty($oApp->entry_rule)) {
-					$oApp->entryRule = $oApp->entry_rule = new \stdClass;
+					$oApp->entryRule = new \stdClass;
 				} else {
-					$oApp->entryRule = $oApp->entry_rule = json_decode($oApp->entry_rule);
+					$oApp->entryRule = json_decode($oApp->entry_rule);
 				}
 				unset($oApp->entry_rule);
 			}
@@ -141,13 +119,18 @@ class enroll_model extends enroll_base {
 			if ($fields === '*' || false !== strpos($fields, 'data_schemas')) {
 				if (!empty($oApp->data_schemas)) {
 					$oApp->dataSchemas = json_decode($oApp->data_schemas);
-					/* 应用的动态题目 */
-					$oApp2 = (object) ['id' => $oApp->id, 'appRound' => $oApp->appRound, 'dataSchemas' => json_decode($oApp->data_schemas), 'mission_id' => $oApp->mission_id];
-					$modelSch = $this->model('matter\enroll\schema');
-					$modelSch->setDynaSchemas($oApp2);
-					$oApp->dynaDataSchemas = $oApp2->dataSchemas;
-					/* 设置活动的动态选项 */
-					$modelSch->setDynaOptions($oApp, $oAppRnd);
+					if ($oApp->dataSchemas === null) {
+						/* 解析失败 */
+						$oApp->dataSchemas = [];
+					} else {
+						/* 应用的动态题目 */
+						$oApp2 = (object) ['id' => $oApp->id, 'appRound' => $oApp->appRound, 'dataSchemas' => json_decode($oApp->data_schemas), 'mission_id' => $oApp->mission_id];
+						$modelSch = $this->model('matter\enroll\schema');
+						$modelSch->setDynaSchemas($oApp2);
+						$oApp->dynaDataSchemas = $oApp2->dataSchemas;
+						/* 设置活动的动态选项 */
+						$modelSch->setDynaOptions($oApp, $oAppRnd);
+					}
 				} else {
 					$oApp->dataSchemas = $oApp->dynaDataSchemas = [];
 				}
@@ -577,7 +560,7 @@ class enroll_model extends enroll_base {
 			$oNewApp->mission_id = $oMission->id;
 			$oNewApp->use_mission_header = 'Y';
 			$oNewApp->use_mission_footer = 'Y';
-			$oMisEntryRule = $oMission->entry_rule;
+			$oMisEntryRule = $oMission->entryRule;
 		}
 		$appId = uniqid();
 
@@ -590,9 +573,11 @@ class enroll_model extends enroll_base {
 			/* 项目的进入规则 */
 			$this->setEntryRuleByMission($oEntryRule, $oMisEntryRule);
 		}
-		$oNewApp->entry_rule = json_encode($oEntryRule);
 
-		if (empty($oCustomConfig->proto->schema->default->empty)) {
+		$oProto = isset($oCustomConfig->proto) ? $oCustomConfig->proto : null;
+
+		/* 活动题目 */
+		if (empty($oProto->schema->default->empty)) {
 			/* 关联了通讯录，替换匹配的题目 */
 			if (!empty($oTemplateConfig->schema)) {
 				/* 通讯录关联题目 */
@@ -605,9 +590,8 @@ class enroll_model extends enroll_base {
 			}
 
 			/* 关联了分组活动，添加分组名称，替换匹配的题目 */
-			if (!empty($oCustomConfig->proto->groupApp->id)) {
-				$oNewApp->group_app_id = $this->escape($oCustomConfig->proto->groupApp->id);
-				$this->setSchemaByGroupApp($oNewApp->group_app_id, $oTemplateConfig);
+			if (!empty($oEntryRule->group->id)) {
+				$this->setSchemaByGroupApp($oEntryRule->group->id, $oTemplateConfig);
 			}
 
 			/* 作为昵称的题目 */
@@ -616,7 +600,7 @@ class enroll_model extends enroll_base {
 				$oNewApp->assigned_nickname = json_encode(['valid' => 'Y', 'schema' => ['id' => $oNicknameSchema->id]]);
 			}
 
-			isset($oTemplateConfig->schema) && $oNewApp->data_schemas = $this->toJson($oTemplateConfig->schema);
+			isset($oTemplateConfig->schema) && $oNewApp->data_schemas = $this->escape($this->toJson($oTemplateConfig->schema));
 		} else {
 			/* 不使用默认题目 */
 			$oTemplateConfig->schema = [];
@@ -649,13 +633,12 @@ class enroll_model extends enroll_base {
 		/* create app */
 		$oNewApp->id = $appId;
 		$oNewApp->siteid = $oSite->id;
-		$oProto = isset($oCustomConfig->proto) ? $oCustomConfig->proto : null;
 		$oNewApp->title = empty($oProto->title) ? '新记录活动' : $this->escape($oProto->title);
 		$oNewApp->summary = empty($oProto->summary) ? '' : $this->escape($oProto->summary);
 		$oNewApp->sync_mission_round = empty($oProto->sync_mission_round) ? 'N' : (in_array($oProto->sync_mission_round, ['Y', 'N']) ? $oProto->sync_mission_round : 'N');
-		$oNewApp->enroll_app_id = empty($oProto->enrollApp->id) ? '' : $this->escape($oProto->enrollApp->id);
 		$oNewApp->start_at = isset($oProto->start_at) ? $oProto->start_at : 0;
 		$oNewApp->end_at = isset($oProto->end_at) ? $oProto->end_at : 0;
+		$oNewApp->entry_rule = $this->escape($this->toJson($oEntryRule));
 		/* 是否开放共享页 */
 		if (isset($oProto->scenarioConfig->can_repos) && in_array($oProto->scenarioConfig->can_repos, ['Y', 'N'])) {
 			$oScenarioConfig->can_repos = $oProto->scenarioConfig->can_repos;
@@ -673,11 +656,6 @@ class enroll_model extends enroll_base {
 			$oScenarioConfig->can_rank = 'N';
 		}
 		$oNewApp->scenario_config = json_encode($oScenarioConfig);
-
-		/*任务码*/
-		$entryUrl = $this->getOpUrl($oSite->id, $appId);
-		$code = $this->model('q\url')->add($oUser, $oSite->id, $entryUrl, $oNewApp->title);
-		$oNewApp->op_short_url_code = $code;
 
 		$oNewApp = $this->create($oUser, $oNewApp);
 
@@ -728,7 +706,7 @@ class enroll_model extends enroll_base {
 	 * @param string $scenario scenario's name
 	 * @param string $template template's name
 	 */
-	public function &addPageByTemplate(&$user, $oSite, $oMission, &$appId, &$oTemplateConfig) {
+	public function addPageByTemplate(&$user, $oSite, $oMission, &$appId, &$oTemplateConfig) {
 		$pages = $oTemplateConfig->pages;
 		if (empty($pages)) {
 			return false;

@@ -12,7 +12,7 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
             },
             docOrder: ['article', 'news', 'channel', 'link', 'text', 'custom'],
             app: {
-                'enroll': '登记',
+                'enroll': '记录',
                 'signin': '签到',
                 'group': '分组',
                 'lottery': '抽奖',
@@ -40,7 +40,7 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
             url: '/rest/pl/fe/matter'
         }, {
             value: 'enroll',
-            title: '登记活动',
+            title: '记录活动',
             url: '/rest/pl/fe/matter'
         }]
     });

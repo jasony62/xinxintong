@@ -1,40 +1,12 @@
 'use strict';
 require('./rank.css');
 
-var ngApp = require('./main.js');
-ngApp.factory('Round', ['http2', '$q', function(http2, $q) {
-    var Round, _ins;
-    Round = function(oApp) {
-        this.oApp = oApp;
-        this.oPage = {
-            at: 1,
-            size: 10,
-            j: function() {
-                return '&page=' + this.at + '&size=' + this.size;
-            }
-        };
-    };
-    Round.prototype.list = function() {
-        var _this = this,
-            deferred = $q.defer(),
-            url;
+require('./_asset/ui.round.js');
 
-        url = '/rest/site/fe/matter/enroll/round/list?site=' + this.oApp.siteid + '&app=' + this.oApp.id;
-        url += this.oPage.j();
-        http2.get(url).then(function(rsp) {
-            _this.oPage.total = rsp.data.total;
-            deferred.resolve(rsp.data);
-        });
-        return deferred.promise;
-    };
-    return {
-        ins: function(oApp) {
-            _ins = _ins ? _ins : new Round(oApp);
-            return _ins;
-        }
-    };
-}]);
-ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'Round', '$uibModal', function($scope, $q, $sce, http2, LS, srvRound, $uibModal) {
+window.moduleAngularModules = ['round.ui.enroll'];
+
+var ngApp = require('./main.js');
+ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'enlRound', function($scope, $q, $sce, http2, LS, enlRound) {
     function fnRoundTitle(aRids) {
         var defer;
         defer = $q.defer();
@@ -203,85 +175,12 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
      * 设置轮次条件
      */
     $scope.setRound = function() {
-        $uibModal.open({
-            templateUrl: 'setRound.html',
-            backdrop: 'static',
-            controller: ['$scope', '$uibModalInstance', 'Round', function($scope2, $mi, srvRound) {
-                var oCheckedRounds;
-                $scope2.facRound = srvRound.ins(oApp);
-                $scope2.pageOfRound = $scope2.facRound.oPage;
-                $scope2.checkedRounds = oCheckedRounds = {};
-                $scope2.countOfChecked = 0;
-                $scope2.toggleCheckedRound = function(rid) {
-                    if (rid === 'ALL') {
-                        if (oCheckedRounds.ALL) {
-                            $scope2.checkedRounds = oCheckedRounds = { ALL: true };
-                        } else {
-                            $scope2.checkedRounds = oCheckedRounds = {};
-                        }
-                    } else {
-                        if (oCheckedRounds[rid]) {
-                            delete oCheckedRounds.ALL;
-                        } else {
-                            delete oCheckedRounds[rid];
-                        }
-                    }
-                    $scope2.countOfChecked = Object.keys(oCheckedRounds).length;
-                };
-                $scope2.clean = function() {
-                    $scope2.checkedRounds = oCheckedRounds = {};
-                };
-                $scope2.ok = function() {
-                    var checkedRoundIds = [];
-                    if (Object.keys(oCheckedRounds).length) {
-                        angular.forEach(oCheckedRounds, function(v, k) {
-                            if (v) {
-                                checkedRoundIds.push(k);
-                            }
-                        });
-                    }
-                    $mi.close(checkedRoundIds);
-                };
-                $scope2.cancel = function() {
-                    $mi.dismiss('cancel');
-                };
-                $scope2.doSearchRound = function() {
-                    $scope2.facRound.list().then(function(result) {
-                        $scope2.activeRound = result.active;
-                        if ($scope2.activeRound) {
-                            var otherRounds = [];
-                            result.rounds.forEach(function(oRound) {
-                                if (oRound.rid !== $scope2.activeRound.rid) {
-                                    otherRounds.push(oRound);
-                                }
-                            });
-                            $scope2.rounds = otherRounds;
-                        } else {
-                            $scope2.rounds = result.rounds;
-                        }
-
-                    });
-                };
-                var oCriteria;
-                oCriteria = $scope.appState.criteria;
-                if (angular.isArray(oCriteria.round)) {
-                    if (oCriteria.round.length) {
-                        oCriteria.round.forEach(function(rid) {
-                            oCheckedRounds[rid] = true;;
-                        });
-                    }
-                }
-                $scope2.countOfChecked = Object.keys(oCheckedRounds).length;
-                $scope2.doSearchRound();
-            }]
-        }).result.then(function(result) {
-            oAppState.criteria.round = result;
-            fnRoundTitle(result).then(function(titles) {
-                $scope.checkedRoundTitles = titles;
-            });
+        (new enlRound($scope.app)).pick(oAppState.criteria.round).then(function(oResult) {
+            oAppState.criteria.round = oResult.ids;
+            $scope.checkedRoundTitles = oResult.titles;
             $scope.changeCriteria();
         });
-    }
+    };
     $scope.value2Label = function(oRecord, schemaId) {
         var value, val, schema, aVal, aLab = [];
 
@@ -323,7 +222,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
         event.target.classList.add('hidden');
     }
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        var oConfig, rankItems, dataSchemas, facRound;
+        var oConfig, rankItems, dataSchemas;
         oApp = params.app;
         dataSchemas = oApp.dynaDataSchemas;
         /* 排行显示内容设置 */
@@ -352,7 +251,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
                 if (!oAppState.aid || oAppState.aid !== oApp.id) {
                     oAppState = null;
                 } else if (oAppState.criteria.obj === 'group') {
-                    if (!oApp.group_app_id) {
+                    if (!oApp.entryRule.group.id) {
                         oAppState = null;
                     }
                 }
@@ -373,7 +272,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
                 }
             };
         }
-        fnRoundTitle(oAppState.criteria.round).then(function(titles) {
+        (new enlRound(oApp)).getRoundTitle(oAppState.criteria.round).then(function(titles) {
             $scope.checkedRoundTitles = titles;
         });
         $scope.appState = oAppState;
@@ -402,32 +301,14 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'R
                 $scope.changeCriteria();
             }
         });
-        $scope.facRound = facRound = srvRound.ins(oApp);
         $scope.changeCriteria();
         /*设置页面分享信息*/
         $scope.setSnsShare();
+        /*设置页面操作*/
+        $scope.setPopAct(['addRecord'], 'rank');
+        /*设置页面导航*/
+        $scope.setPopNav(['repos', 'kanban', 'favor', 'event'], 'rank');
         /*页面阅读日志*/
         $scope.logAccess();
-        /*设置页面操作*/
-        $scope.appActs = {
-            addRecord: {}
-        };
-        /*设置页面导航*/
-        var oAppNavs = {
-            length: 0
-        };
-        if (oApp.scenarioConfig) {
-            if (oApp.scenarioConfig.can_repos === 'Y') {
-                oAppNavs.repos = {};
-                oAppNavs.length++;
-            }
-            if (oApp.scenarioConfig.can_action === 'Y') {
-                oAppNavs.event = {};
-                oAppNavs.length++;
-            }
-        }
-        if (Object.keys(oAppNavs).length) {
-            $scope.appNavs = oAppNavs;
-        }
     });
 }]);

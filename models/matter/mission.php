@@ -31,16 +31,6 @@ class mission_model extends app_base {
 		return $url;
 	}
 	/**
-	 * 获得访问入口url
-	 */
-	public function getOpUrl($siteId, $id) {
-		$url = APP_PROTOCOL . APP_HTTP_HOST;
-		$url .= "/rest/site/op/matter/mission";
-		$url .= "?site={$siteId}&mission=" . $id;
-
-		return $url;
-	}
-	/**
 	 * 获得项目定义
 	 */
 	public function &byId($id, $aOptions = []) {
@@ -57,12 +47,8 @@ class mission_model extends app_base {
 				$oMission->matter_mg_tag = json_decode($oMission->matter_mg_tag);
 			}
 			if ($fields === '*' || false !== strpos($fields, 'entry_rule')) {
-				if (empty($oMission->entry_rule)) {
-					$oMission->entry_rule = new \stdClass;
-					$oMission->entry_rule->scope = 'none';
-				} else {
-					$oMission->entry_rule = json_decode($oMission->entry_rule);
-				}
+				$oMission->entryRule = empty($oMission->entry_rule) ? new \stdClass : json_decode($oMission->entry_rule);
+				unset($oMission->entry_rule);
 			}
 			$modelRnd = $this->model('matter\mission\round');
 			if ($fields === '*' || false !== strpos($fields, 'round_cron')) {
@@ -78,7 +64,6 @@ class mission_model extends app_base {
 			}
 			if (isset($oMission->siteid) && isset($oMission->id)) {
 				$oMission->entryUrl = $this->getEntryUrl($oMission->siteid, $oMission->id);
-				$oMission->opUrl = $this->getOpUrl($oMission->siteid, $oMission->id);
 			}
 			if (!empty($oMission->id)) {
 				$oMission->roundNum = $modelRnd->countByMission($oMission, ['state' => 1]);
@@ -264,7 +249,6 @@ class mission_model extends app_base {
 			'end_at' => isset($oMatter->end_at) ? $oMatter->end_at : 0,
 			'creater' => $user->id,
 			'creater_name' => $this->escape($user->name),
-			'creater_src' => $user->src,
 			'create_at' => time(),
 			'is_public' => isset($aOptions['is_public']) ? $aOptions['is_public'] : 'Y',
 		];

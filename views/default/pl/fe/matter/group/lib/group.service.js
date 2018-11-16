@@ -1,39 +1,5 @@
 angular.module('service.group', ['ui.bootstrap', 'ui.xxt']).
-service('tkGroupApp', ['$uibModal', function($uibModal) {
-    this.choose = function(oMatter) {
-        return $uibModal.open({
-            templateUrl: '/views/default/pl/fe/matter/enroll/component/chooseGroupApp.html?_=1',
-            controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
-                $scope2.app = oMatter;
-                $scope2.data = {
-                    app: null,
-                    round: null
-                };
-                oMatter.mission && ($scope2.data.sameMission = 'Y');
-                $scope2.cancel = function() {
-                    $mi.dismiss();
-                };
-                $scope2.ok = function() {
-                    $mi.close($scope2.data);
-                };
-                $scope2.$watch('data.app', function(oGrpApp) {
-                    if (oGrpApp) {
-                        var url = '/rest/pl/fe/matter/group/round/list?app=' + oGrpApp.id + '&roundType=';
-                        http2.get(url).then(function(rsp) {
-                            $scope2.rounds = rsp.data;
-                        });
-                    }
-                });
-                var url = '/rest/pl/fe/matter/group/list?site=' + oMatter.siteid + '&size=999';
-                oMatter.mission && (url += '&mission=' + oMatter.mission.id);
-                http2.get(url).then(function(rsp) {
-                    $scope2.apps = rsp.data.apps;
-                });
-            }],
-            backdrop: 'static'
-        }).result;
-    };
-}]).service('tkGroupRnd', ['$q', 'http2', function($q, http2) {
+service('tkGroupRnd', ['$q', 'http2', function($q, http2) {
     this.list = function(oApp, roundType) {
         var defer = $q.defer(),
             url;
@@ -440,12 +406,12 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                     });
                 }
             },
-            list: function(round, arg) {
-                arg == 'round' ? commonRound(this) : roleRound(this);
+            list: function(round, arg, filterByKeyword) {
+                arg === 'round' ? teamRound(this) : roleRound(this);
 
-                function commonRound(obj) {
+                function teamRound(obj) {
                     if (round === null) {
-                        return obj.all({});
+                        return obj.all(filterByKeyword || {});
                     } else if (round === false) {
                         return obj.pendings('T');
                     } else {
@@ -455,7 +421,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
 
                 function roleRound(obj) {
                     if (round === null) {
-                        return obj.all({});
+                        return obj.all(filterByKeyword || {});
                     } else if (round === false) {
                         return obj.pendings('R');
                     } else {
@@ -465,18 +431,18 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
             },
             all: function(oFilter) {
                 var defer = $q.defer(),
-                    url = '/rest/pl/fe/matter/group/player/list?site=' + _siteId + '&app=' + _appId;
+                    url = '/rest/pl/fe/matter/group/user/list?app=' + _appId;
 
                 _aPlayers.splice(0, _aPlayers.length);
                 http2.post(url, oFilter).then(function(rsp) {
                     if (rsp.data.total) {
-                        rsp.data.players.forEach(function(player) {
-                            tmsSchema.forTable(player, _oApp._schemasById);
-                            srvGroupApp.dealData(player);
-                            _aPlayers.push(player);
+                        rsp.data.users.forEach(function(oUser) {
+                            tmsSchema.forTable(oUser, _oApp._schemasById);
+                            srvGroupApp.dealData(oUser);
+                            _aPlayers.push(oUser);
                         });
                     }
-                    defer.resolve(rsp.data.players);
+                    defer.resolve(rsp.data.users);
                 });
                 return defer.promise;
             },

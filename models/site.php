@@ -478,7 +478,6 @@ class site_model extends \TMS_MODEL {
 			'end_at' => isset($oMatter->end_at) ? $oMatter->end_at : 0,
 			'creater' => $oUser->id,
 			'creater_name' => $this->escape($oUser->name),
-			'creater_src' => $oUser->src,
 			'create_at' => time(),
 		];
 		$this->insert('xxt_site_matter', $relation, false);

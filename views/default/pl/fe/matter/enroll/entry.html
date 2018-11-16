@@ -153,6 +153,20 @@
                     </div>
                 </script>
             </div>
+            <div class='form-group'>
+                <label>进入统计页链接</label>
+                <div class='pl-input-group'>
+                    <div class='form-control pl-line'>{{entry.url}}&page=stat</div>
+                    <a class='btn btn-default' ng-href="{{entry.url}}&page=stat" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label>进入看板页链接</label>
+                <div class='pl-input-group'>
+                    <div class='form-control pl-line'>{{entry.url}}&page=kanban</div>
+                    <a class='btn btn-default' ng-href="{{entry.url}}&page=kanban" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+                </div>
+            </div>
         </div>
     </div>
     <div class='panel panel-default' ng-controller="ctrlTaskRemind">
@@ -169,9 +183,11 @@
                     <label class='radio-inline'>
                         <input type='radio' value='repos' ng-model="timer.task.task_arguments.page">共享页</label>
                     <label class='radio-inline'>
-                        <input type='radio' value='event' ng-model="timer.task.task_arguments.page">动态页</label>
+                        <input type='radio' value='kanban' ng-model="timer.task.task_arguments.page">看板页</label>
                     <label class='radio-inline'>
                         <input type='radio' value='rank' ng-model="timer.task.task_arguments.page">排行榜</label>
+                    <label class='radio-inline'>
+                        <input type='radio' value='stat' ng-model="timer.task.task_arguments.page">统计页</label>
                 </div>
                 <div class='form-group'>
                     <label class='radio-inline'>
@@ -413,73 +429,6 @@
             </div>
         </div>
     </div>
-    <div class="panel panel-default hide">
-        <div class="panel-body">
-            <div ng-controller="ctrlOpUrl">
-                <div class='form-group'>
-                    <label>汇总结果分享链接</label>
-                    <div class='pl-input-group'>
-                        <div class='form-control pl-line' ng-bind="opEntry.url"></div>
-                        <a class='btn btn-default' ng-href="{{opEntry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
-                    </div>
-                </div>
-                <div class='form-group'>
-                    <button class='btn btn-default' ng-if="!opEntry.url" ng-click="makeOpUrl()">生成</button>
-                    <button class='btn btn-default' ng-if="opEntry.url" ng-click="closeOpUrl()">关闭</button>
-                    <button uib-popover-template=" 'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="opEntry.url">密码 <span class="caret"></span></button>
-                </div>
-                <div class='form-group' ng-if="opEntry.url">
-                    <label class='checkbox-inline'>
-                        <input type='checkbox' ng-true-value=" 'Y'" ng-false-value=" 'N'" ng-model="opEntry.can_favor" ng-change="updCanFavor()">支持收藏</label>
-                    <p class='help-block'>分享链接有效期1小时，设置【支持收藏】后，用户可收藏本链接，避免有效期限制</p>
-                </div>
-            </div>
-            <hr>
-            <div ng-controller="ctrlRpUrl">
-                <div class='form-group'>
-                    <label>统计报告分享链接</label>
-                    <div class='pl-input-group'>
-                        <div class='form-control pl-line' ng-bind="rpEntry.url"></div>
-                        <a class='btn btn-default' ng-href="{{rpEntry.url}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
-                    </div>
-                </div>
-                <div class='form-group'>
-                    <button class='btn btn-default' ng-if="!rpEntry.url" ng-click="makeOpUrl()">生成</button>
-                    <button class='btn btn-default' ng-if="rpEntry.url" ng-click="closeOpUrl()">关闭</button>
-                    <button uib-popover-template=" 'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="rpEntry.url">密码 <span class="caret"></span></button>
-                </div>
-                <div class='form-group' ng-if="rpEntry.url">
-                    <label class='checkbox-inline'>
-                        <input type='checkbox' ng-true-value=" 'Y'" ng-false-value=" 'N'" ng-model="rpEntry.can_favor" ng-change="updCanFavor()">支持收藏</label>
-                    <p class='help-block'>分享链接有效期1小时，设置【支持收藏】后，用户可收藏本链接，避免有效期限制</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script type="text/ng-template" id="opUrlPasswd.html">
-        <div id="opUrlPasswd">
-            <div class='form-group'>
-                <div class='input-group'>
-                    <input class='form-control' ng-model="opEntry.password">
-                    <div class='input-group-btn'>
-                        <button class='btn btn-default' ng-click="configOpUrl($event, 'password')">设置</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </script>
-    <script type="text/ng-template" id="rpUrlPasswd.html">
-        <div id="rpUrlPasswd">
-            <div class='form-group'>
-                <div class='input-group'>
-                    <input class='form-control' ng-model="rpEntry.password">
-                    <div class='input-group-btn'>
-                        <button class='btn btn-default' ng-click="configOpUrl($event,'password')">设置</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </script>
     <div class="panel panel-default">
         <div class="panel-body">
             <div class='form-group'>

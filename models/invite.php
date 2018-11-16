@@ -93,6 +93,19 @@ class invite_model extends \TMS_MODEL {
 		return $result;
 	}
 	/**
+	 * 根据指定的素材或邀请创建用户返回邀请的数量
+	 */
+	public function countByCreator($oCreator) {
+		$q = [
+			'count(*)',
+			'xxt_invite',
+			['creator' => $oCreator->id, 'creator_type' => $oCreator->type, 'state' => 1],
+		];
+		$count = (int) $this->query_val_ss($q);
+
+		return $count;
+	}
+	/**
 	 * 创建新邀请
 	 */
 	public function add($oMatter, $oCreator, $inviteeUid = null) {

@@ -7,6 +7,114 @@ include_once dirname(__FILE__) . '/base.php';
  */
 class user extends base {
 	/**
+	 *
+	 */
+	public function get_action($app, $rid = '') {
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		if ($oApp === false) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelEnlUsr = $this->model('matter\enroll\user');
+		$oEnlRndUser = $modelEnlUsr->byId($oApp, $this->who->uid, ['rid' => empty($rid) ? $oApp->appRound->rid : $rid]);
+		if ($oEnlRndUser) {
+			$oEnlAppUser = $modelEnlUsr->byId($oApp, $this->who->uid, ['rid' => 'ALL', 'fields' => 'custom']);
+			$oEnlRndUser->custom = $oEnlAppUser->custom;
+		}
+
+		return new \ResponseData($oEnlRndUser);
+	}
+	/**
+	 * 更新用户设置
+	 */
+	public function updateCustom_action($app) {
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		if ($oApp === false) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelEnlUsr = $this->model('matter\enroll\user');
+		$oEnlUser = $modelEnlUsr->byId($oApp, $this->who->uid, ['fields' => 'aid,userid,custom']);
+		if (false === $oEnlUser) {
+			$oEnlUser = $modelEnlUsr->add($oApp, $this->who);
+			$oEnlUser->custom = new \stdClass;
+		}
+
+		$oPosted = $this->getPostJson();
+		foreach ($oPosted as $prop => $val) {
+			switch ($prop) {
+			case 'cowork':
+			case 'event':
+			case 'favor':
+			case 'input':
+			case 'kanban':
+			case 'list':
+			case 'marks':
+			case 'rank':
+			case 'repos':
+			case 'score':
+			case 'share':
+			case 'stat':
+			case 'topic':
+			case 'view':
+			case 'votes':
+				$oPurifiedVal = new \stdClass;
+				if (is_object($val)) {
+					foreach ($val as $prop2 => $val2) {
+						switch ($prop2) {
+						case 'nav':
+							if (is_object($val2)) {
+								$oPurifiedVal->nav = new \stdClass;
+								foreach ($val2 as $prop3 => $val3) {
+									switch ($prop3) {
+									case 'stopTip':
+										$oPurifiedVal->nav->stopTip = is_bool($val3) ? $val3 : false;
+										break;
+									}
+								}
+							}
+							break;
+						case 'act':
+							if (is_object($val2)) {
+								$oPurifiedVal->act = new \stdClass;
+								foreach ($val2 as $prop3 => $val3) {
+									switch ($prop3) {
+									case 'stopTip':
+										$oPurifiedVal->act->stopTip = is_bool($val3) ? $val3 : false;
+										break;
+									}
+								}
+							}
+							break;
+						}
+					}
+				}
+				break;
+			case 'profile':
+				$oPurifiedVal = new \stdClass;
+				if (is_object($val)) {
+					foreach ($val as $prop2 => $val2) {
+						switch ($prop2) {
+						case 'public':
+							$oPurifiedVal->public = ($val2 === true ? true : false);
+							break;
+						}
+					}
+				}
+				break;
+			}
+			$oEnlUser->custom->{$prop} = $oPurifiedVal;
+		}
+
+		$modelEnlUsr->update(
+			'xxt_enroll_user',
+			['custom' => $modelEnlUsr->escape($modelEnlUsr->toJson($oEnlUser->custom))],
+			['aid' => $oEnlUser->aid, 'userid' => $oEnlUser->userid]
+		);
+
+		return new \ResponseData('ok');
+	}
+	/**
 	 * 返回当前用户任务完成的情况
 	 */
 	public function task_action($app) {
@@ -61,7 +169,7 @@ class user extends base {
 		$users = $modelEnl->query_objs_ss($q1, $q2);
 		foreach ($users as $oUser) {
 			//添加分组信息
-			$dataSchemas = $oApp->dataSchemas;
+			$dataSchemas = $oApp->dynaDataSchemas;
 			foreach ($dataSchemas as $value) {
 				if ($value->id == '_round_id') {
 					$ops = $value->ops;
@@ -121,50 +229,103 @@ class user extends base {
 	 * 2、支持按照轮次过滤
 	 * 2、如果指定了轮次，支持看看缺席情况
 	 */
-	public function kanban_action($app, $rid = '', $page = 1, $size = 100) {
+	public function kanban_action($app, $rid = '', $gid = '', $page = 1, $size = 999) {
 		$modelEnl = $this->model('matter\enroll');
-		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,mission_id,entry_rule,action_rule,group_app_id,absent_cause,data_schemas']);
-		if (false === $oApp) {
+		$oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,state,mission_id,entry_rule,action_rule,absent_cause,data_schemas']);
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-		$oUser = $this->getUser($oApp);
-		if (!empty($oApp->actionRule->role->kanban->group)) {
-			if (empty($oUser->group_id)) {
-				if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
-					return new \ParameterError('没有查看数据的权限，请联系活动管理员解决');
-				}
-			} else if ($oUser->group_id !== $oApp->actionRule->role->kanban->group) {
-				return new \ParameterError('没有查看数据的权限，请联系活动管理员解决');
-			}
-		}
 
-		$modelUsr = $this->model('matter\enroll\user');
-		$oResult = $modelUsr->enrolleeByApp($oApp, $page, $size, ['rid' => $rid]);
-		if (count($oResult->users)) {
-			if (!empty($oApp->group_app_id)) {
-				foreach ($oApp->dataSchemas as $schema) {
-					if ($schema->id == '_round_id') {
-						$aUserRounds = $schema->ops;
-						break;
+		$oVisitor = $this->getUser($oApp);
+
+		/* 当前用户属于有查看看板权限的用户组 */
+		if (!empty($oApp->actionRule->role->kanban->group)) {
+			$bInKanbanGroup = $this->model('matter\group\user')->isInRound($oApp->actionRule->role->kanban->group, $oVisitor->uid);
+			$oVisitor->bInKanbanGroup = $bInKanbanGroup;
+		}
+		/* 数据是否公开可见 */
+		$fnIsKeepPrivate = function ($oUser) use ($oVisitor) {
+			if ($this->getDeepValue($oUser, 'custom.profile.public') === true) {
+				return false;
+			}
+			// if ($oUser->userid === $oVisitor->uid) {
+			// 	return false;
+			// }
+			if (!empty($oVisitor->is_leader)) {
+				if ($oVisitor->is_leader === 'S') {
+					/* 超级用户可以查看所有信息 */
+					return false;
+				}
+				if ($oVisitor->is_leader === 'Y') {
+					if (isset($oUser->group->id) && isset($oVisitor->group_id) && $oUser->group->id === $oVisitor->group_id) {
+						/* 同组组长可以查看组内用户 */
+						return false;
 					}
 				}
+				if (!empty($oVisitor->bInKanbanGroup)) {
+					return false;
+				}
 			}
-			foreach ($oResult->users as &$oUser) {
+
+			return true;
+		};
+
+		/* 处理原始数据 */
+		$oStat = new \stdClass;
+		$fnSort = function (&$users, $prop) use ($oStat) {
+			usort($users, function ($a, $b) use ($prop) {
+				if ($a->{$prop} === $b->{$prop}) {
+					return 0;
+				}
+				return ($b->{$prop} < $a->{$prop}) ? -1 : 1;
+			});
+			$sum = 0;
+			$max = 0;
+			$mean = 0;
+			foreach ($users as $pos => $oUser) {
+				$sum += $oUser->{$prop};
+				if ($oUser->{$prop} > $max) {
+					$max = (int) $oUser->{$prop};
+				}
+				$oUser->{$prop} = (object) ['pos' => $pos + 1, 'val' => (float) $oUser->{$prop}];
+			}
+			$oStat->{$prop} = (object) ['sum' => $sum, 'max' => $max, 'mean' => round($sum / count($users), 2)];
+
+			return $users;
+		};
+
+		$modelUsr = $this->model('matter\enroll\user');
+		$oResult = $modelUsr->enrolleeByApp($oApp, $page, $size, ['rid' => $rid, 'byGroup' => $gid]);
+		if (count($oResult->users)) {
+			foreach ($oResult->users as $oUser) {
 				unset($oUser->siteid);
 				unset($oUser->aid);
 				unset($oUser->modify_log);
 				unset($oUser->wx_openid);
-				if (isset($aUserRounds) && $oUser->group_id) {
-					foreach ($aUserRounds as $v) {
-						if ($v->v == $oUser->group_id) {
-							$oUser->group = $v;
-						}
-					}
+				$oUser->custom = empty($oUser->custom) ? new \stdClass : json_decode($oUser->custom);
+				/* 用户的贡献行为次数 */
+				$oUser->devote = (int) $oUser->enroll_num + (int) $oUser->do_cowork_num + (int) $oUser->do_remark_num + (int) $oUser->do_like_num + (int) $oUser->do_like_cowork_num + (int) $oUser->do_like_remark_num;
+				/* 隐藏用户身份信息 */
+				if ($fnIsKeepPrivate($oUser)) {
+					$oUser->nickname = '隐身';
 				}
 			}
+			/* 计算指标排序 */
+			foreach (['user_total_coin', 'score', 'entry_num', 'total_elapse', 'devote'] as $prop) {
+				$fnSort($oResult->users, $prop);
+			}
 		}
+		$oResult->stat = $oStat;
+
+		/* 未完成任务用户 */
 		if ($rid) {
 			$oResultUndone = $modelUsr->undoneByApp($oApp, $rid);
+			foreach ($oResultUndone->users as $oUndoneUser) {
+				/* 隐藏用户身份信息 */
+				if ($fnIsKeepPrivate($oUndoneUser)) {
+					$oUndoneUser->nickname = '隐身';
+				}
+			}
 			$oResult->undone = $oResultUndone->users;
 		}
 

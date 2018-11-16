@@ -1,5 +1,5 @@
 define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlBody', ['$scope', '$uibModal', 'http2', 'noticebox', 'srvSite', 'mediagallery', 'noticebox', 'srvApp', 'cstApp', '$timeout', function($scope, $uibModal, http2, noticebox, srvSite, mediagallery, noticebox, srvApp, cstApp, $timeout) {
+    ngApp.provider.controller('ctrlBody', ['$scope', '$uibModal', 'http2', 'noticebox', 'srvSite', 'mediagallery', 'noticebox', 'srvApp', 'cstApp', '$timeout', 'tmsThumbnail', function($scope, $uibModal, http2, noticebox, srvSite, mediagallery, noticebox, srvApp, cstApp, $timeout, tmsThumbnail) {
         var tinymceEditor, modifiedData = {};
 
         $scope.modified = false;

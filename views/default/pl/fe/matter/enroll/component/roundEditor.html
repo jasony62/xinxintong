@@ -10,6 +10,22 @@
                 <input type='text' class="form-control" ng-model='round.title'>
             </div>
         </div>
+        <div>
+            <label class="col-md-3 control-label">用途</label>
+            <div class="col-md-9">
+                <div>
+                    <label class='radio-inline'><input name='purpose' type='radio' value='C' ng-model="round.purpose">填写</label>
+                    <label class='radio-inline'><input name='purpose' type='radio' value='B' ng-model="round.purpose">目标</label>
+                    <label class='radio-inline'><input name='purpose' type='radio' value='S' ng-model="round.purpose">汇总</label>
+                </div>
+                <div class='help-block'>
+                    【目标】轮次用于设定用户的完成目标，填写轮次可以和目标轮次进行比较。目标轮次的得分不计入用户总分。
+                </div>
+                <div class='help-block'>
+                    【汇总】轮次用于将其开始时间之后到下一个汇总轮次之间的轮次的填写数据进行汇总。目标轮次的得分不计入用户总分。
+                </div>
+            </div>
+        </div>
         <div class="form-group">
             <label class="col-md-3 control-label">状态</label>
             <div class="col-md-9">
@@ -23,9 +39,9 @@
             </div>
         </div>
         <div class='form-group'>
-            <label class='col-md-3 control-label'>结束时间</label>
+            <label class='col-md-3 control-label'>停止提交</label>
             <div class="col-md-9">
-                <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-obj="round" tms-date="round.end_at" tms-state="end_at"></tms-datepicker>
+                <tms-datepicker class='tms-datepicker' tms-title='停止提交' tms-obj="round" tms-date="round.end_at" tms-state="end_at"></tms-datepicker>
             </div>
         </div>
         <div class='form-group' ng-if="missionRounds&&missionRounds.length">
@@ -59,8 +75,7 @@
     </form>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-danger pull-left" ng-click="remove()" ng-if="round.rid&&round.state!=='1'">删除</button>
     <button class="btn btn-success pull-left" ng-click="start()" ng-if='round.state==0||round.state==2'>启用</button>
-    <button class="btn btn-success pull-left" ng-click="stop()" ng-if='round.state==1'>停用</button>
+    <button class="btn btn-default pull-left" ng-click="stop()" ng-if='round.state==1'>停用</button>
     <button class="btn btn-success" ng-click="ok() ">保存</button>
 </div>

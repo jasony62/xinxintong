@@ -10,7 +10,12 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt', 'snsshare.
     linkId = $location.search().id;
     invite_token = $location.search().inviteToken;
     shareby = $location.search().shareby ? $location.search().shareby : '';
+    $scope.isSmallLayout = false;
+    $scope.isFull = false;
     $scope.elSiteCard = angular.element(document.querySelector('#site-card'));
+    if (window.screen && window.screen.width < 992) {
+        $scope.isSmallLayout = true;
+    };
     var setShare = function() {
         var shareid, sharelink;
         shareid = $scope.user.uid + '_' + (new Date() * 1);
@@ -29,9 +34,9 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt', 'snsshare.
             },
             jsApiList: ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage']
         });
-        if($scope.link.invite) {
-            sharelink = location.protocol + '//' + location.host + '/i/'+ $scope.link.invite.code;
-        }else {
+        if ($scope.link.invite) {
+            sharelink = location.protocol + '//' + location.host + '/i/' + $scope.link.invite.code;
+        } else {
             sharelink = location.href;
             if (/shareby=/.test(sharelink)) {
                 sharelink = sharelink.replace(/shareby=[^&]*/, 'shareby=' + shareid);
@@ -77,8 +82,20 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt', 'snsshare.
         location.href = url;
     };
     $scope.gotoNavApp = function(oNavApp) {
-        if (oNavApp.id) {
-            location.href = '/rest/site/fe/matter/enroll?site=' + $scope.link.siteid + '&app=' + oNavApp.id;
+        switch (oNavApp.type) {
+            case 'enroll':
+                location.href = '/rest/site/fe/matter/enroll?site=' + $scope.link.siteid + '&app=' + oNavApp.id;
+                break;
+            case 'article':
+            case 'channel':
+                location.href = '/rest/site/fe/matter?site=' + $scope.link.siteid + '&id=' + oNavApp.id + '&type=' + oNavApp.type;
+                break;
+            case 'link':
+                location.href = '/rest/site/fe/matter/link?site=' + $scope.link.siteid + '&id=' + oNavApp.id + '&type=' + oNavApp.type;
+                break;
+            default:
+                alert("不支持此类型");
+                break;
         }
     };
     $http.get('/rest/site/home/get?site=' + siteId).success(function(rsp) {
@@ -107,6 +124,23 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt', 'snsshare.
                     type: 'link',
                     title: $scope.link.title
                 });
+                if (typeof window.screenX === "number") {
+                    document.querySelector("#btnFS").addEventListener("click", function(event) {
+                        if (!$scope.isFull) {
+                            document.querySelector('.col-md-3').style.display = 'none';
+                            document.querySelector('.invite').style.display = 'none';
+                            document.querySelector('#matters').classList = 'hidden';
+                            this.innerText = "退出";
+                            $scope.isFull = true;
+                        } else {
+                            document.querySelector('.col-md-3').style.display = 'block';
+                            document.querySelector('.invite').style.display = 'block';
+                            document.querySelector('#matters').classList = 'visible-xs visibile-sm';
+                            this.innerText = "全屏";
+                            $scope.isFull = false;
+                        }
+                    });
+                }
             }
         }).error(function(content, httpCode) {});
     });

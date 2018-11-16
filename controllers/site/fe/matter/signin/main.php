@@ -100,7 +100,7 @@ class main extends base {
 
 		// 签到活动定义
 		$oApp = $this->modelApp->byId($app, ['cascaded' => 'N']);
-		$params['app'] = &$oApp;
+		$params['app'] = $oApp;
 
 		// 当前访问用户的基本信息
 		$oUser = $this->who;
@@ -178,12 +178,12 @@ class main extends base {
 			$modelRec = $this->model('matter\signin\record');
 			if (false === ($oUserRecord = $modelRec->byUser($oUser, $oApp, $options))) {
 				// 如果关联了报名记录，从报名记录中获得登记信息
-				if (!empty($oApp->enroll_app_id)) {
+				if (!empty($oApp->entryRule->enroll->id)) {
 					$oUserRecord = $this->_recordByEnroll($oApp, $oUser);
 				}
 				/* 关联了分组活动 */
-				if (!empty($oApp->group_app_id)) {
-					$oGrpApp = $this->model('matter\group')->byId($oApp->group_app_id, ['cascaded' => 'N']);
+				if (!empty($oApp->entryRule->group->id)) {
+					$oGrpApp = $this->model('matter\group')->byId($oApp->entryRule->group->id, ['cascaded' => 'N']);
 					$oGrpPlayer = $this->model('matter\group\player')->byUser($oGrpApp, $oUser->uid);
 					if (count($oGrpPlayer) === 1) {
 						if (!empty($oGrpPlayer[0]->data)) {
@@ -210,11 +210,11 @@ class main extends base {
 	/**
 	 * 从关联的登记活动中获得匹配的数据
 	 */
-	private function _recordByEnroll(&$signinApp, &$user) {
+	private function _recordByEnroll($oSigninApp, $oUser) {
 		$modelEnlRec = $this->model('matter\enroll\record');
-		$oAssocApp = $this->model('matter\enroll')->byId($signinApp->enroll_app_id, ['cascaded' => 'N']);
+		$oAssocApp = $this->model('matter\enroll')->byId($oSigninApp->entryRule->enroll->id, ['cascaded' => 'N']);
 		if ($oAssocApp) {
-			$records = $modelEnlRec->byUser($oAssocApp, $user);
+			$records = $modelEnlRec->byUser($oAssocApp, $oUser);
 			if (count($records)) {
 				$signinRecord = new \stdClass;
 				foreach ($records as $record) {

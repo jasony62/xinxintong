@@ -36,7 +36,6 @@ class round extends base {
 		if (empty($rid)) {
 			return new \ParameterError();
 		}
-		$rid = $this->escape($rid);
 		$rid = explode(',', $rid);
 
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N', 'id,state']);
@@ -45,7 +44,7 @@ class round extends base {
 		}
 		$modelRun = $this->model('matter\enroll\round');
 		$q = [
-			'rid,title',
+			'rid,title,start_at,end_at',
 			'xxt_enroll_round',
 			['aid' => $oApp->id, 'rid' => $rid],
 		];

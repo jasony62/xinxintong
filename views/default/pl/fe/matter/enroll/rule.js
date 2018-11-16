@@ -1,21 +1,14 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlRule', ['$scope', 'http2', 'srvEnrollApp', function($scope, http2, srvEnrollApp) {
-        var _oApp, logs, page;
-        $scope.page = page = {
-            at: 1,
-            size: 12,
-            j: function() {
-                return '&page=' + this.at + '&size=' + this.size;
-            }
-        };
+        var _oApp, logs;
+        $scope.page = {};
         $scope.fetchLogs = function() {
             var url;
-            url = '/rest/pl/fe/matter/enroll/coin/logs?site=' + _oApp.siteid + '&app=' + _oApp.id + page.j();
-            http2.get(url).then(function(rsp) {
+            url = '/rest/pl/fe/matter/enroll/coin/logs?site=' + _oApp.siteid + '&app=' + _oApp.id;
+            http2.get(url, { page: $scope.page }).then(function(rsp) {
                 if (rsp.data.logs) {
                     $scope.logs = logs = rsp.data.logs;
-                    $scope.page.total = rsp.data.total;
                 }
             });
         };
@@ -92,8 +85,14 @@ define(['frame'], function(ngApp) {
             data: { act: 'site.matter.enroll.data.get.like' },
             desc: '用户A填写数据获得赞同',
         }, {
+            data: { act: 'site.matter.enroll.data.get.dislike' },
+            desc: '用户A填写数据被反对',
+        }, {
             data: { act: 'site.matter.enroll.cowork.get.like' },
             desc: '用户A填写的协作数据获得赞同',
+        }, {
+            data: { act: 'site.matter.enroll.cowork.get.dislike' },
+            desc: '用户A填写的协作数据被反对',
         }, {
             data: { act: 'site.matter.enroll.data.get.remark' },
             desc: '用户A填写数据获得留言',
@@ -106,6 +105,9 @@ define(['frame'], function(ngApp) {
         }, {
             data: { act: 'site.matter.enroll.remark.get.like' },
             desc: '用户A发表的留言获得赞同',
+        }, {
+            data: { act: 'site.matter.enroll.remark.get.dislike' },
+            desc: '用户A发表的留言被反对',
         }, {
             data: { act: 'site.matter.enroll.data.get.agree' },
             desc: '用户A填写的记录获得推荐',

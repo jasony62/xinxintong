@@ -1,88 +1,99 @@
 <?php
 namespace matter\enroll;
 /**
- * 
+ *
  */
 class analysis_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function submit($site, $oApp, $rid, $user, $eventData, $page, $recordId = 0, $topicId = 0, $client) {
-		$events = $eventData->events;
+	public function submit($oApp, $rid, $oUser, $oEventData, $page, $recordId = 0, $topicId = 0, $oClient) {
+		$events = $oEventData->events;
 		if (empty($events)) {
 			$data = [false, '没有获取到任何事件'];
 			return $data;
 		}
-		
+
 		// 获取第一次事件
-		$eventFirst = $events[0];
+		$oEventFirst = $events[0];
 		// 获取最后一次事件
 		$length = count($events);
-		$eventEnd = $events[$length-1];
+		$eventEnd = $events[$length - 1];
 		// 事件总时长
 		$eventElapse = round($eventEnd->elapse / 1000);
 		// 事件开始时间
-		$eventStartAt = round($eventData->start / 1000);
+		$eventStartAt = round($oEventData->start / 1000);
 		// 事件结束时间
 		$eventEndAt = $eventStartAt + $eventElapse;
 
-		$inData = [];
-		$inData['siteid'] = $site;
-		$inData['aid'] = $oApp->id;
-		$inData['rid'] = $rid;
-		$inData['page'] = $page;
+		$aNewTrace = [];
+		$aNewTrace['siteid'] = $oApp->siteid;
+		$aNewTrace['aid'] = $oApp->id;
+		$aNewTrace['rid'] = $rid;
+		$aNewTrace['page'] = $page;
 		if ($page === 'cowork') {
-			$inData['record_id'] = $recordId;
+			$aNewTrace['record_id'] = $recordId;
 		} else if ($page === 'topic') {
-			$inData['topic_id'] = $topicId;
+			$aNewTrace['topic_id'] = $topicId;
 		}
-		$inData['userid'] = $user->uid;
-		$inData['nickname'] = $user->nickname;
-		$inData['event_first'] = $eventFirst->type;
-		$inData['event_first_at'] = $eventStartAt;
-		$inData['event_end'] = $eventEnd->type;
-		$inData['event_end_at'] = $eventEndAt;
-		$inData['event_elapse'] = $eventElapse;
-		$inData['events'] = json_encode($eventData);
-		$inData['user_agent'] = $client->agent;
-		$inData['client_ip'] = $client->ip;
-		
-		$inData['id'] = $this->insert('xxt_enroll_trace', $inData, true);
+		$aNewTrace['userid'] = $oUser->uid;
+		$aNewTrace['nickname'] = $this->escape($oUser->nickname);
+		$aNewTrace['event_first'] = $oEventFirst->type;
+		$aNewTrace['event_first_at'] = $eventStartAt;
+		$aNewTrace['event_end'] = $eventEnd->type;
+		$aNewTrace['event_end_at'] = $eventEndAt;
+		$aNewTrace['event_elapse'] = $eventElapse;
+		$aNewTrace['events'] = json_encode($oEventData);
+		$aNewTrace['user_agent'] = $oClient->agent;
+		$aNewTrace['client_ip'] = $oClient->ip;
+
+		$aNewTrace['id'] = $this->insert('xxt_enroll_trace', $aNewTrace, true);
 
 		// 更新用户信息
-		if ($page === 'cowork') {
-			$upUserData = new \stdClass;
-			$upUserData->do_cowork_read_elapse = $eventElapse;
+		$oUpdUserData = new \stdClass;
+		$oUpdUserData->total_elapse = $eventElapse;
+		if ($oEventFirst->type === 'load') {
+			/* 打开页面 */
+			$oUpdUserData->entry_num = 1;
+			$oUpdUserData->last_entry_at = $eventStartAt;
+		}
+
+		switch ($page) {
+		case 'repos':
+			$oUpdUserData->do_repos_read_elapse = $eventElapse;
+			break;
+		case 'cowork':
+			$oUpdUserData = new \stdClass;
+			$oUpdUserData->do_cowork_read_elapse = $eventElapse;
 			// 查询记录提交者
-			$creater = $this->model('matter\enroll\record')->byPlainId($recordId, ['fields' => 'userid uid,rid,nickname', 'verbose' => 'N']);
-			if ($creater) {
-				$upCreaterData = new \stdClass;
-				$upCreaterData->cowork_read_elapse = $eventElapse;
-				$rid = $creater->rid;
-				unset($creater->rid);
+			$oCreator = $this->model('matter\enroll\record')->byPlainId($recordId, ['fields' => 'userid uid,rid,nickname', 'verbose' => 'N']);
+			if ($oCreator) {
+				$oUpdCreatorData = new \stdClass;
+				$oUpdCreatorData->cowork_read_elapse = $eventElapse;
+				$rid = $oCreator->rid;
+				unset($oCreator->rid);
 			}
-		} else if ($page === 'topic') {
-			$upUserData = new \stdClass;
-			$upUserData->do_topic_read_elapse = $eventElapse;
+			break;
+		case 'topic':
+			$oUpdUserData = new \stdClass;
+			$oUpdUserData->do_topic_read_elapse = $eventElapse;
 			// 查询专题页创建者
-			$creater = $this->model('matter\enroll\topic')->byId($topicId, ['fields' => 'userid uid,nickname']);
-			if ($creater) {
-				$upCreaterData = new \stdClass;
-				$upCreaterData->topic_read_elapse = $eventElapse;
+			$oCreator = $this->model('matter\enroll\topic')->byId($topicId, ['fields' => 'userid uid,nickname']);
+			if ($oCreator) {
+				$oUpdCreatorData = new \stdClass;
+				$oUpdCreatorData->topic_read_elapse = $eventElapse;
 			}
-		} else {
-			$upUserData = new \stdClass;
-			$upUserData->do_repos_read_elapse = $eventElapse;
+			break;
 		}
 
 		$modelEvent = $this->model('matter\enroll\event');
-		$modelEvent->_updateUsrData($oApp, $rid, false, $user, $upUserData);
-		// 更新被阅读者轮次数据
-		if (!empty($upCreaterData)) {
-			$modelEvent->_updateUsrData($oApp, $rid, false, $creater, $upCreaterData);
+		$modelEvent->_updateUsrData($oApp, $rid, false, $oUser, $oUpdUserData);
+
+		// 更新被阅读者数据
+		if (!empty($oUpdCreatorData)) {
+			$modelEvent->_updateUsrData($oApp, $rid, false, $oCreator, $oUpdCreatorData);
 		}
 
-		$data = [true, $inData];
-		return $data;
+		return [true, $aNewTrace];
 	}
 }

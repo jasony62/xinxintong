@@ -12,7 +12,7 @@
     <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
 </head>
 
-<body ng-controller="ctrlFavor" class='matter_enroll'>
+<body ng-controller="ctrlFavor" tms-trace send-url='/rest/site/fe/matter/enroll/analysis/submit?site={{app.siteid}}&app={{app.id}}&page=favor' ready-sign="app">
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <nav class='navbar site-navbar-default'>
@@ -107,6 +107,7 @@
                         <div class='bottom-bar small text-muted'>
                             <div ng-bind="rec.enroll_at*1000|date:'MM-dd HH:mm'"></div>
                             <a href ng-click="likeRecord(rec)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></a>
+                            <a href ng-click="dislikeRecord(rec)"><span class='glyphicon glyphicon-thumbs-down' ng-class="{'like':rec.dislike_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.dislike_num"></span></a>
                             <a href ng-click="remarkRecord(rec)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></a>
                             <div class="btn-group" uib-dropdown>
                                 <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>
@@ -288,6 +289,7 @@
                         <button ng-if="$index" class='btn btn-default btn-xs' ng-click="moveRec(rec,-1,$index)"><i class='glyphicon glyphicon-chevron-up'></i></button>
                         <button ng-if="$index<repos.length-1" class='btn btn-default btn-xs' ng-click="moveRec(rec,1,$index)"><i class='glyphicon glyphicon-chevron-down'></i></button>
                         <div><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></div>
+                        <div><span class='glyphicon glyphicon-thumbs-down' ng-class="{'like':rec.dislike_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.dislike_num"></span></div>
                         <div><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></div>
                     </div>
                 </div>

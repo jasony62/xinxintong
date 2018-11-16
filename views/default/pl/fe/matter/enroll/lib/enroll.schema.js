@@ -118,20 +118,20 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             }
                         }
                         srvApp.update(updatedAppProps).then(function(oUpdatedApp) {
+                            function fnUpdateOnePage(index) {
+                                srvAppPage.update(changedPages[index], ['dataSchemas', 'html']).then(function() {
+                                    index++;
+                                    if (index === changedPages.length) {
+                                        deferred.resolve();
+                                    } else {
+                                        fnUpdateOnePage(index);
+                                    }
+                                });
+                            }
                             http2.merge(oApp.dataSchemas, oUpdatedApp.dataSchemas);
                             if (!changedPages || changedPages.length === 0) {
                                 deferred.resolve();
                             } else {
-                                function fnUpdateOnePage(index) {
-                                    srvAppPage.update(changedPages[index], ['dataSchemas', 'html']).then(function() {
-                                        index++;
-                                        if (index === changedPages.length) {
-                                            deferred.resolve();
-                                        } else {
-                                            fnUpdateOnePage(index);
-                                        }
-                                    });
-                                };
                                 fnUpdateOnePage(0);
                             }
                         });
@@ -150,123 +150,6 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
             $scope.activeSchema = null;
             $scope.cstApp = cstApp;
 
-            $scope.assignGroupApp = function() {
-                srvApp.assignGroupApp().then(function(oGroupApp) {
-                    var oRoundDS, ops, oAppSchema, oAppRoundSchema, oAssignedNickname, oGrpNicknameSchema, oAppNicknameSchema;
-                    /* 添加分组轮次 */
-                    oRoundDS = {
-                        id: '_round_id',
-                        type: 'single',
-                        title: '分组名称',
-                    };
-                    ops = [];
-                    oGroupApp.rounds.forEach(function(round) {
-                        ops.push({
-                            v: round.round_id,
-                            l: round.title
-                        });
-                    });
-                    oRoundDS.ops = ops;
-                    oRoundDS.assocState = 'yes';
-                    oGroupApp.dataSchemas.splice(0, 0, oRoundDS);
-                    /* 匹配分组轮次字段 */
-                    for (var i = 0; i < $scope.app.dataSchemas.length; i++) {
-                        oAppSchema = $scope.app.dataSchemas[i];
-                        if (oAppSchema.id === '_round_id') {
-                            oAppRoundSchema = oAppSchema;
-                            break;
-                        }
-                    }
-                    if (oAppRoundSchema) {
-                        var oBefore;
-                        oBefore = angular.copy(oAppRoundSchema);
-                        oAppRoundSchema.fromApp = oGroupApp.id;
-                        oAppRoundSchema.requireCheck = 'Y';
-                        $scope.updSchema(oAppRoundSchema, oBefore);
-                    } else {
-                        oAppRoundSchema = $scope.newByOtherApp(oRoundDS, oGroupApp, false);
-                    }
-                    /* 匹配昵称字段 */
-                    if (oAssignedNickname = oGroupApp.assignedNickname) {
-                        if (oAssignedNickname.valid && oAssignedNickname.valid === 'Y' && oAssignedNickname.schema) {
-                            for (var i = 1; i < oGroupApp.dataSchemas.length; i++) {
-                                if (oGroupApp.dataSchemas[i].id === oAssignedNickname.schema.id) {
-                                    oGrpNicknameSchema = oGroupApp.dataSchemas[i];
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (oGrpNicknameSchema) {
-                        for (var i = 0; i < $scope.app.dataSchemas.length; i++) {
-                            oAppSchema = $scope.app.dataSchemas[i];
-                            if (oAppSchema.title === oGrpNicknameSchema.title) {
-                                if (/shorttext|member/.test(oAppSchema.type) && oAppSchema.required === 'Y') {
-                                    oAppNicknameSchema = oAppSchema;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (oAppNicknameSchema) {
-                        var oBefore;
-                        oBefore = angular.copy(oAppNicknameSchema);
-                        if (oAppNicknameSchema.type === 'member') {
-                            delete oAppNicknameSchema.schema_id;
-                            oAppNicknameSchema.type = 'shorttext';
-                        }
-                        oAppNicknameSchema.fromApp = oGroupApp.id;
-                        oAppNicknameSchema.requireCheck = 'Y';
-                        oAppNicknameSchema.format = 'name';
-                        oGrpNicknameSchema.assocState = 'yes';
-                        $scope.updSchema(oAppNicknameSchema, oBefore);
-                    } else if (oGrpNicknameSchema) {
-                        $scope.newByOtherApp(oGrpNicknameSchema, oGroupApp, oAppRoundSchema);
-                    }
-                });
-            };
-            $scope.cancelGroupApp = function() {
-                srvApp.get().then(function(oApp) {
-                    oApp.group_app_id = '';
-                    delete oApp.groupApp;
-                    oApp.dataSchemas.forEach(function(oSchema) {
-                        delete oSchema.fromApp;
-                        delete oSchema.requireCheck;
-                    });
-                    srvApp.update(['group_app_id', 'dataSchemas']);
-                });
-            };
-            $scope.assignEnrollApp = function() {
-                srvApp.assignEnrollApp().then(function(oEnlApp) {
-                    var oAppSchema, oEnlSchema, oBefore;
-                    /* 自动关联字段 */
-                    for (var i = 0; i < $scope.app.dataSchemas.length; i++) {
-                        oAppSchema = $scope.app.dataSchemas[i];
-                        for (var j = 0; j < oEnlApp.dataSchemas.length; j++) {
-                            oEnlSchema = oEnlApp.dataSchemas[j];
-                            if (oAppSchema.id === oEnlSchema.id && oAppSchema.type === oEnlSchema.type && oAppSchema.title === oEnlSchema.title) {
-                                oBefore = angular.copy(oAppSchema);
-                                oAppSchema.fromApp = oEnlApp.id;
-                                oAppSchema.requireCheck = 'Y';
-                                $scope.updSchema(oAppSchema, oBefore);
-                                oEnlSchema.assocState = 'yes';
-                                break;
-                            }
-                        }
-                    }
-                });
-            };
-            $scope.cancelEnrollApp = function() {
-                srvApp.get().then(function(oApp) {
-                    oApp.enroll_app_id = '';
-                    delete oApp.enrollApp;
-                    oApp.dataSchemas.forEach(function(oSchema) {
-                        delete oSchema.fromApp;
-                        delete oSchema.requireCheck;
-                    });
-                    srvApp.update(['enroll_app_id', 'data_schemas']);
-                });
-            };
             $scope.assocApp = function(appId) {
                 var oApp, assocApp;
                 oApp = $scope.app;
@@ -478,7 +361,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 if (oSchema.schema_id) {
                     oBefore = angular.copy(oSchema);
                     oAssocMschema = $scope.mschemasById[oSchema.schema_id];
-                    if (oMsSchema = oAssocMschema._schemasById[oSchema.id]) {
+                    if (oMsSchema = $scope.app._schemasById[oSchema.id]) {
                         oMsSchema.assocState = 'no';
                     }
                     if (!bOnlyAssocState) {

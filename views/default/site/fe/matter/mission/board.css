@@ -330,8 +330,8 @@ nav form label {
     padding: 8px 0;
 }
 
-/* rank */
-#rank .index>div {
+/* score */
+#score .index>div {
     padding-top: 8px;
     padding-bottom: 8px;
     background: #fff;
@@ -342,22 +342,22 @@ nav form label {
     max-width: 6em;
 }
 
-#rank .user {
+#score .user {
     padding: 8px 16px;
     border-left: 2px solid #009900;
     margin-bottom: 20px;
     background: #fff;
 }
 
-#rank {
+#score {
     index
 }
 
-#rank>div {
+#score>div {
     counter-increment: index;
 }
 
-#rank .index>div:before {
+#score .index>div:before {
     content: counter(index);
     display: block;
     position: absolute;

@@ -9,7 +9,7 @@ ngApp.config(['$locationProvider', 'srvSiteProvider', function($locationProvider
     srvSiteProvider.config(siteId);
 }]);
 ngApp.controller('ctrlMain', ['$scope', '$location', 'srvSite', 'mediagallery', 'http2', 'tkEntryRule', function($scope, $location, srvSite, mediagallery, http2, tkEntryRule) {
-    var _oProto, _oEntryRule, _oBeforeProto;
+    var _oProto, _oBeforeProto;
     $scope.proto = _oProto = {
         id: '_pending',
         siteid: $location.search().site,
@@ -18,7 +18,7 @@ ngApp.controller('ctrlMain', ['$scope', '$location', 'srvSite', 'mediagallery', 
         userApp: ''
     };
     _oBeforeProto = angular.copy(_oProto);
-    $scope.entryRule = _oEntryRule = _oProto.entryRule;
+    $scope.entryRule = _oProto.entryRule;
     $scope.setPic = function() {
         var options = {
             callback: function(url) {

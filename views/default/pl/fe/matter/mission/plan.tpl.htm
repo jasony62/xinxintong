@@ -37,8 +37,8 @@
                     <div class='collapse navbar-collapse'>
                         <nav class='nav navbar-nav tms-breadcrumb'>
                             <li><a href="/rest/pl/fe?view=main&scope=mission&sid={{site.id}}" target='_self'>工作台</a></li>
-                            <li ng-if="site.yourRole"><a href="/rest/pl/fe/site/home?site={{site.id}}" target='_self'>{{site.name}}</a></li>
-                            <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{site.name}}</a></li>
+                            <li ng-if="site.yourRole"><a href="/rest/pl/fe/site/home?site={{site.id}}" target='_self'>{{::site.name}}</a></li>
+                            <li ng-if="!site.yourRole"><a href="javascript:void(0)" style='color:#777;cursor:default;'>{{::site.name}}</a></li>
                         </nav>
                     </div>
                 </div>
@@ -127,7 +127,7 @@
                                     <p class='form-control-static'>用【分组活动】对</p>
                                     <div class='radio'>
                                         <label>
-                                            <input type='radio' value='mschema' ng-model="proto.app.group.source" ng-disabled="!entryRule.mschema"> 通讯录<span ng-if="entryRule.mschema">【{{entryRule.mschema.title}}】</span> <span class='glyphicon glyphicon-question-sign' uib-tooltip='仅支持手工分组'></span></label>
+                                            <input type='radio' value='mschema' ng-model="proto.app.group.source" ng-disabled="!entryRule.member"> 通信录 <span class='glyphicon glyphicon-question-sign' uib-tooltip='仅支持手工分组'></span></label>
                                     </div>
                                     <div class='radio'>
                                         <label>
@@ -155,7 +155,7 @@
                                 </div>
                                 <div class='radio'>
                                     <label>
-                                        <input type='radio' value='mschema' ng-model="proto.userApp" ng-change="changeUserApp()"> 通讯录<span ng-if="entryRule.mschema">【{{entryRule.mschema.title}}】</span>用户 <a ng-if="proto.userApp==='mschema'&&entryRule.mschema" href='' ng-click="chooseMschema()">修改</a></label>
+                                        <input type='radio' value='mschema' ng-model="proto.userApp" ng-change="changeUserApp()"> 通信录用户 <a ng-if="proto.userApp==='mschema'&&entryRule.member" href='' ng-click="chooseMschema()">修改</a></label>
                                 </div>
                                 <div class='radio'>
                                     <label>

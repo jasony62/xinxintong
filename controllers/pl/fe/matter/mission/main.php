@@ -199,22 +199,27 @@ class main extends \pl\fe\matter\main_base {
 		/* entry rule */
 		if (isset($oProto->entryRule->scope)) {
 			$oMisEntryRule = new \stdClass;
-			if ($this->getDeepValue($oProto->entryRule->scope, 'member') === true && !empty($oProto->entryRule->mschema)) {
+			if ($this->getDeepValue($oProto->entryRule->scope, 'register') === 'Y') {
+				$this->setDeepValue($oMisEntryRule, 'scope.register', 'Y');
+			}
+			if ($this->getDeepValue($oProto->entryRule->scope, 'member') === 'Y' && !empty($oProto->entryRule->member)) {
 				$this->setDeepValue($oMisEntryRule, 'scope.member', 'Y');
 				$oMisEntryRule->member = new \stdClass;
-				if ($oProto->entryRule->mschema->id === '_pending') {
-					/* 给项目创建通讯录 */
-					$oMschemaConfig = new \stdClass;
-					$oMschemaConfig->matter_id = $oNewMis->id;
-					$oMschemaConfig->matter_type = 'mission';
-					$oMschemaConfig->valid = 'Y';
-					$oMschemaConfig->title = $oNewMis->title . '-通讯录';
-					$oMisMschema = $this->model('site\user\memberschema')->create($oSite, $oUser, $oMschemaConfig);
-					$oProto->entryRule->mschema->id = $oMisMschema->id;
+				foreach ($oProto->entryRule->member as $msid => $oRule) {
+					if ($msid === '_pending') {
+						/* 给项目创建通讯录 */
+						$oMschemaConfig = new \stdClass;
+						$oMschemaConfig->matter_id = $oNewMis->id;
+						$oMschemaConfig->matter_type = 'mission';
+						$oMschemaConfig->valid = 'Y';
+						$oMschemaConfig->title = $oNewMis->title . '-通讯录';
+						$oMisMschema = $this->model('site\user\memberschema')->create($oSite, $oUser, $oMschemaConfig);
+						$msid = $oMisMschema->id;
+					}
+					$oMisEntryRule->member->{$msid} = (object) ['entry' => 'Y'];
 				}
-				$oMisEntryRule->member->{$oProto->entryRule->mschema->id} = (object) ['entry' => ''];
 			}
-			if ($this->getDeepValue($oProto->entryRule->scope, 'sns') === true && isset($oProto->entryRule->sns)) {
+			if ($this->getDeepValue($oProto->entryRule->scope, 'sns') === 'Y' && isset($oProto->entryRule->sns)) {
 				$this->setDeepValue($oMisEntryRule, 'scope.sns', 'Y');
 				$oMisEntryRule->sns = new \stdClass;
 				foreach ($oProto->entryRule->sns as $snsName => $valid) {

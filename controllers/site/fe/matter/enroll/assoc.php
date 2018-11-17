@@ -3,7 +3,7 @@ namespace site\fe\matter\enroll;
 
 include_once dirname(__FILE__) . '/base.php';
 /**
- * 登记活动记录间的关联
+ * 记录活动记录间的关联
  */
 class assoc extends base {
 	/**

@@ -1312,7 +1312,7 @@ class record extends main_base {
 	/**
 	 * 恢复一条记录
 	 */
-	public function restore_action($app, $ek) {
+	public function recover_action($app, $ek) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}

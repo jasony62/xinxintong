@@ -112,7 +112,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
             }
         }
 
-        return oOld;
+        return true;
     }
 
     this.get = function(url, oOptions) {
@@ -279,6 +279,9 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
      * 解决将通过http获得的数据和本地数据合并的问题
      */
     this.merge = function(oOld, oNew, aExcludeProps) {
+        if (angular.equals(oOld, oNew)) {
+            return false;
+        }
         return _fnMerge(oOld, oNew, aExcludeProps);
     };
 }]);

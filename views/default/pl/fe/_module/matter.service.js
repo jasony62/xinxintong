@@ -1581,8 +1581,7 @@ factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite
         };
         this.save = function() {
             http2.post('/rest/pl/fe/matter/updateEntryRule?matter=' + oMatter.id + ',' + oMatter.type, _oRule).then(function(rsp) {
-                if (!angular.equals(_oRule, rsp.data)) {
-                    http2.merge(_oRule, rsp.data);
+                if (true === http2.merge(_oRule, rsp.data)) {
                     _bJumpModifyWatch = true;
                 }
                 _self.modified = false;

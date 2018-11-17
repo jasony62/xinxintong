@@ -217,7 +217,7 @@ class base_model extends \TMS_MODEL {
 			}
 		}
 		if ($this->getDeepValue($oRule, 'scope.enroll') === 'Y') {
-			if (empty($oRule->group->id)) {
+			if (empty($oRule->enroll->id)) {
 				return [false, '进入规则不完整，没有指定作为进入条件的记录活动'];
 			}
 		}

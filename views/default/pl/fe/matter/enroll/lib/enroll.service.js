@@ -730,7 +730,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
             };
             _ins.restore = function(record) {
                 if (window.confirm('确认恢复？')) {
-                    http2.get('/rest/pl/fe/matter/enroll/record/restore?app=' + _appId + '&ek=' + record.enroll_key).then(function(rsp) {
+                    http2.get('/rest/pl/fe/matter/enroll/record/recover?app=' + _appId + '&ek=' + record.enroll_key).then(function(rsp) {
                         var i = _ins._aRecords.indexOf(record);
                         _ins._aRecords.splice(i, 1);
                         _ins._oPage.total = _ins._oPage.total - 1;

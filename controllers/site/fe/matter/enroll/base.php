@@ -46,7 +46,7 @@ class base extends \site\fe\matter\base {
 		}
 
 		// 默认进入页面的名称
-		$page = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : null;
+		$page = isset($oApp->entryRule->otherwise->entry) ? $$oApp->entryRule->otherwise->entry : null;
 
 		return [true, $page];
 	}

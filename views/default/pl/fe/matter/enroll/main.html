@@ -111,7 +111,7 @@
                 <label>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.no_remark" ng-change="update('scenarioConfig')"> 关闭讨论页留言功能</label>
             </div>
-            <div class='checkbox' ng-if="app.mission">
+            <div class='checkbox hide' ng-if="app.mission">
                 <label>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.sync_mission_round" ng-change="update('sync_mission_round')"> 活动轮次和项目轮次保持一致</label>
             </div>

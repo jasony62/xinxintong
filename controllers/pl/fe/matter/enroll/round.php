@@ -26,7 +26,7 @@ class round extends \pl\fe\matter\base {
 		$modelRnd = $this->model('matter\enroll\round');
 
 		$oPage = new \stdClass;
-		$oPage->num = $page;
+		$oPage->at = $page;
 		$oPage->size = $size;
 
 		$fields = 'id,state,rid,title,purpose,start_at,end_at,mission_rid';
@@ -121,6 +121,59 @@ class round extends \pl\fe\matter\base {
 		);
 
 		return new \ResponseData($oSampleRnd);
+	}
+	/**
+	 * 和项目轮次一致
+	 */
+	public function syncMissionRound_action($app) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelEnl = $this->model('matter\enroll');
+		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'id,siteid,state,mission_id,sync_mission_round', 'cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+		if (empty($oApp->mission_id)) {
+			return new \ResponseError('活动不属于任何项目，无法关联项目轮次');
+		}
+		$oMission = $this->model('matter\mission')->byId($oApp->mission_id);
+		if (false === $oMission) {
+			return new \ObjectNotFoundError('活动所属项目不存在');
+		}
+
+		$modelRnd = $this->model('matter\enroll\round');
+		$oResult = $modelRnd->byApp($oApp, ['page' => (object) ['at' => 1, 'size' => 1]]);
+		if (empty($oResult->total) || $oResult->total !== 1) {
+			return new \ResponseError('活动中已经有多个轮次，不支持与项目轮次自动关联');
+		}
+		$oAppRnd = $oResult->rounds[0];
+
+		$oMisRnd = $this->model('matter\mission\round')->getActive($oMission);
+		if (false === $oMisRnd) {
+			return new \ResponseError('活动所属项目中没有有效轮次，无法进行关联');
+		}
+
+		/* 更新轮次 */
+		$oUpdate = new \stdClass;
+		$oUpdate->title = $modelRnd->escape($oMisRnd->title);
+		$oUpdate->start_at = $oMisRnd->start_at;
+		$oUpdate->end_at = $oMisRnd->end_at;
+		$oUpdate->mission_rid = $oMisRnd->rid;
+
+		$modelRnd->update('xxt_enroll_round', $oUpdate, ['rid' => $oAppRnd->rid]);
+
+		foreach ($oUpdate as $prop => $val) {
+			$oAppRnd->{$prop} = $val;
+		}
+
+		/*更新活动*/
+		if ($oApp->sync_mission_round !== 'Y') {
+			$modelEnl->update('xxt_enroll', ['sync_mission_round' => 'Y'], ['id' => $oApp->id]);
+		}
+
+		return new \ResponseData($oAppRnd);
 	}
 	/**
 	 * 更新轮次

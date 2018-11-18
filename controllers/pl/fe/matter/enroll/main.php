@@ -447,7 +447,6 @@ class main extends main_base {
 					return new \ResponseError($aScanResult[1]);
 				}
 				$oUpdated->entry_rule = $modelApp->escape($modelApp->toJson($aScanResult[1]));
-				die('ssss:' . $oUpdated->entry_rule);
 				break;
 			case 'recycle_schemas':
 				$oUpdated->recycle_schemas = $modelApp->escape($modelApp->toJson($val));

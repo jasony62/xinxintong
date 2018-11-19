@@ -3,7 +3,7 @@ namespace pl\fe\matter\enroll;
 
 require_once dirname(__FILE__) . '/main_base.php';
 /*
- * 登记活动用户
+ * 记录活动用户
  */
 class user extends main_base {
 	/**
@@ -128,7 +128,7 @@ class user extends main_base {
 			return new \ResponseTimeout();
 		}
 
-		// 登记活动
+		// 记录活动
 		if (false === ($oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,title,entry_rule,data_schemas,absent_cause', 'cascaded' => 'N']))) {
 			return new \ParameterError();
 		}

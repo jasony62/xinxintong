@@ -45,8 +45,8 @@
                         目录
                         <button class="close" ng-if="isSmallLayout" ng-click="advCriteriaStatus.dirOpen=!advCriteriaStatus.dirOpen"><span>&times;</span></button>
                         <div class="pull-right" ng-if="!isSmallLayout">
-                            <span class="glyphicon glyphicon-indent-right" ng-if="activeDir1.op.childrenDir.length&&activeDir1.opened" ng-click="dirLevel.hideDir(activeDir1)"></span>
-                            <span class="glyphicon glyphicon-indent-left" ng-if="activeDir1.op.childrenDir.length&&!activeDir1.opened" ng-click="dirLevel.showDir(activeDir1)"></span>
+                            <span class="glyphicon glyphicon-indent-right" ng-if="activeDir1.op.childrenDir.length&&activeDir1.opened" trace-biz ng-click="dirLevel.hideDir(activeDir1)"></span>
+                            <span class="glyphicon glyphicon-indent-left" ng-if="activeDir1.op.childrenDir.length&&!activeDir1.opened" trace-biz ng-click="dirLevel.showDir(activeDir1)"></span>
                         </div>
                     </div>
                     <div class="category-body" ng-if="advCriteriaStatus.dirOpen">
@@ -95,7 +95,7 @@
             <div class='records col-xs-12' ng-class="{'col-md-9':dirSchemas.length,'col-md-12':dirSchemas.length===0}">
                 <div id='filterCriteria'>
                     <div class='input-group'>
-                        <input class='form-control' ng-model='criteria.keyword' placeholder='输入搜索关键字' ng-click="toggleHistory('open', $event)">
+                        <input class='form-control' ng-model='criteria.keyword' placeholder='输入搜索关键字' trace-biz ng-click="toggleHistory('open', $event)">
                         <div class='input-group-btn'>
                             <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';recordList(1)"><span class='glyphicon glyphicon-remove'></span></button>
                             <button class='btn btn-default' ng-click="recordList(1)"><span class='glyphicon glyphicon-search'></span></button>
@@ -132,12 +132,12 @@
                             <span class="glyphicon glyphicon-sort"></span>
                         </button>
                         <ul class="dropdown-menu" uib-dropdown-menu>
-                            <li><a href ng-click="shiftOrderby('lastest')">最近修改</a></li>
-                            <li><a href ng-click="shiftOrderby('earliest')">最早修改</a></li>
-                            <li><a href ng-click="shiftOrderby('lastest_first')">最近提交</a></li>
-                            <li><a href ng-click="shiftOrderby('earliest_first')">最早提交</a></li>
-                            <li><a href ng-click="shiftOrderby('mostliked')">最多赞同</a></li>
-                            <li><a href ng-click="shiftOrderby('agreed')">精选推荐</a></li>
+                            <li><a href trace-biz ng-click="shiftOrderby('lastest')">最近修改</a></li>
+                            <li><a href trace-biz ng-click="shiftOrderby('earliest')">最早修改</a></li>
+                            <li><a href trace-biz ng-click="shiftOrderby('lastest_first')">最近提交</a></li>
+                            <li><a href trace-biz ng-click="shiftOrderby('earliest_first')">最早提交</a></li>
+                            <li><a href trace-biz ng-click="shiftOrderby('mostliked')">最多赞同</a></li>
+                            <li><a href trace-biz ng-click="shiftOrderby('agreed')">精选推荐</a></li>
                         </ul>
                     </div>
                     <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
@@ -149,10 +149,10 @@
                             <span class="glyphicon glyphicon-filter"></span>
                         </button>
                         <ul class="dropdown-menu" uib-dropdown-menu>
-                            <li><a href ng-click="shiftAgreed('all')">全部</a></li>
-                            <li><a href ng-click="shiftAgreed('Y')">推荐</a></li>
-                            <li><a href ng-click="shiftAgreed('D')">讨论</a></li>
-                            <li><a href ng-click="shiftAgreed('N')">关闭</a></li>
+                            <li><a href trace-biz ng-click="shiftAgreed('all')">全部</a></li>
+                            <li><a href trace-biz ng-click="shiftAgreed('Y')">推荐</a></li>
+                            <li><a href trace-biz ng-click="shiftAgreed('D')">讨论</a></li>
+                            <li><a href trace-biz ng-click="shiftAgreed('N')">关闭</a></li>
                         </ul>
                     </div>
                     <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
@@ -163,9 +163,9 @@
                             <span class="glyphicon glyphicon-filter"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
-                            <li><a href ng-click="shiftCoworkAgreed('all')">全部</a></li>
-                            <li><a href ng-click="shiftCoworkAgreed('answer')">已回答</a></li>
-                            <li><a href ng-click="shiftCoworkAgreed('unanswer')">等待回答</a></li>
+                            <li><a href trace-biz ng-click="shiftCoworkAgreed('all')">全部</a></li>
+                            <li><a href trace-biz ng-click="shiftCoworkAgreed('answer')">已回答</a></li>
+                            <li><a href trace-biz ng-click="shiftCoworkAgreed('unanswer')">等待回答</a></li>
                         </ul>
                     </div>
                     <div ng-if="userGroups.length" class="btn-group" uib-dropdown dropdown-append-to-body='true'>
@@ -174,8 +174,8 @@
                             <span class="glyphicon glyphicon-filter"></span>
                         </button>
                         <ul class="dropdown-menu" uib-dropdown-menu>
-                            <li><a href ng-click="shiftUserGroup()">全部</a></li>
-                            <li ng-repeat="ug in userGroups"><a href ng-click="shiftUserGroup(ug)">{{ug.title}}</a></li>
+                            <li><a href trace-biz ng-click="shiftUserGroup()">全部</a></li>
+                            <li ng-repeat="ug in userGroups"><a href trace-biz ng-click="shiftUserGroup(ug)">{{ug.title}}</a></li>
                         </ul>
                     </div>
                     <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
@@ -184,8 +184,8 @@
                             <span class="glyphicon glyphicon-filter"></span>
                         </button>
                         <ul class="dropdown-menu" uib-dropdown-menu>
-                            <li><a href ng-click="shiftMine('我的记录')">我的记录</a></li>
-                            <li ng-if="user.unionid"><a href ng-click="shiftMine('我的收藏')">我的收藏</a></li>
+                            <li><a trace-biz href ng-click="shiftMine('我的记录')">我的记录</a></li>
+                            <li ng-if="user.unionid"><a href trace-biz ng-click="shiftMine('我的收藏')">我的收藏</a></li>
                         </ul>
                     </div>
                 </div>
@@ -193,19 +193,19 @@
                 <div id='filterTip' ng-if="filter.round||filter.group||filter.mine||filter.tags.length">
                     <div class="bg-info small" ng-if="filter.round">
                         <span>{{filter.round.title}}</span>
-                        <button class="close" ng-click="shiftRound()"><span>&times;</span></button>
+                        <button class="close" trace-biz ng-click="shiftRound()"><span>&times;</span></button>
                     </div>
                     <div class="bg-info small" ng-if="filter.group">
                         <span>{{filter.group.title}}</span>
-                        <button class="close" ng-click="shiftUserGroup()"><span>&times;</span></button>
+                        <button class="close" trace-biz ng-click="shiftUserGroup()"><span>&times;</span></button>
                     </div>
                     <div class="bg-info small" ng-if="filter.mine">
                         <span>{{filter.mine}}</span>
-                        <button class="close" ng-click="shiftMine('')"><span>&times;</span></button>
+                        <button class="close" trace-biz ng-click="shiftMine('')"><span>&times;</span></button>
                     </div>
                     <div class="bg-info small" ng-repeat="tag in filter.tags">
                         <span ng-bind="tag.label"></span>
-                        <button class="close" ng-click="shiftTag(tag,false)"><span>&times;</span></button>
+                        <button class="close" trace-biz ng-click="shiftTag(tag,false)"><span>&times;</span></button>
                     </div>
                 </div>
                 <div id='repos'>

@@ -107,11 +107,11 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
-                <div class='form-group' ng-if='pageOfUsers.total>pageOfUsers.size'>
-                    <div class='pl-pagination'>
-                        <span>总数：{{pageOfUsers.total}}</span>
-                        <ul uib-pagination boundary-links="true" total-items="pageOfUsers.total" max-size="7" items-per-page="pageOfUsers.size" rotate="false" ng-model="pageOfUsers.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getAppUsers()"></ul>
+                    <div class='form-group' ng-if='pageOfUsers.total>pageOfUsers.size'>
+                        <div class='pl-pagination'>
+                            <span>总数：{{pageOfUsers.total}}</span>
+                            <ul uib-pagination boundary-links="true" total-items="pageOfUsers.total" max-size="7" items-per-page="pageOfUsers.size" rotate="false" ng-model="pageOfUsers.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getAppUsers()"></ul>
+                        </div>
                     </div>
                 </div>
             </uib-tab>
@@ -168,19 +168,19 @@
 </div>
 <script type="text/ng-template" id="userTrace.html">
     <div class="modal-header">
-	    <button class="close" ng-click="cancel()">×</button>
-	    <h5 class="modal-title">行为轨迹</h5>
-	</div>
-	<div class="modal-body">
+        <button class="close" ng-click="cancel()">×</button>
+        <h5 class="modal-title">行为轨迹</h5>
+    </div>
+    <div class="modal-body">
         <table class='table table-bordered'>
-        	<thead>
-        		<tr>
-        			<th style='width:120px'>开始时间</th>
-        			<th style='width:120px'>页面</th>
-        			<th style='width:120px'>停留（秒）</th>
-        			<th>事件记录（距开始（秒）|事件|操作）</th>
-        		</tr>
-        	</thead>
+            <thead>
+                <tr>
+                    <th style='width:120px'>开始时间</th>
+                    <th style='width:120px'>页面</th>
+                    <th style='width:120px'>停留（秒）</th>
+                    <th>事件记录（距开始（秒）|事件|操作）</th>
+                </tr>
+            </thead>
             <tbody>
                 <tr ng-repeat="log in logs">
                     <td>{{::log.event_first_at*1000|date:'yy-MM-dd HH:mm'}}</td>
@@ -202,8 +202,8 @@
                 <ul uib-pagination boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getAppUsers()"></ul>
             </div>
         </div>
-	</div>
-	<div class="modal-footer">
-	    <button class="btn btn-default" ng-click="cancel()">关闭</button>
-	</div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="cancel()">关闭</button>
+    </div>
 </script>

@@ -1482,7 +1482,7 @@ factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite
             });
         };
         this.removeGroupApp = function() {
-            if (_oRule.group.id) {
+            if (_oRule.group && _oRule.group.id) {
                 /* 取消题目和通信录的关联 */
                 if (oMatter.dataSchemas && oMatter.dataSchemas.length) {
                     var aAssocSchemas = [];
@@ -1509,7 +1509,7 @@ factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite
             });
         };
         this.removeEnrollApp = function() {
-            if (_oRule.enroll.id) {
+            if (_oRule.enroll && _oRule.enroll.id) {
                 /* 取消题目和通信录的关联 */
                 if (oMatter.dataSchemas && oMatter.dataSchemas.length) {
                     var aAssocSchemas = [];
@@ -1581,10 +1581,11 @@ factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite
         };
         this.save = function() {
             http2.post('/rest/pl/fe/matter/updateEntryRule?matter=' + oMatter.id + ',' + oMatter.type, _oRule).then(function(rsp) {
-                http2.merge(_oRule, rsp.data);
-                oMatter.entryRule = _oRule;
+                if (true === http2.merge(_oRule, rsp.data)) {
+                    _bJumpModifyWatch = true;
+                }
                 _self.modified = false;
-                _bJumpModifyWatch = true;
+                oMatter.entryRule = _oRule;
             });
         };
     }

@@ -77,32 +77,29 @@ abstract class enroll_base extends app_base {
 	 * 根据项目指定的规则设置
 	 */
 	protected function setEntryRuleByMission(&$oEntryRule, $oMisEntryRule) {
-		if (isset($oMisEntryRule->scope) && $oMisEntryRule->scope !== 'none') {
+		if (isset($oMisEntryRule->scope)) {
 			if (empty($oEntryRule->scope) || !is_object($oEntryRule->scope)) {
 				$oEntryRule->scope = new \stdClass;
 			}
-			switch ($oMisEntryRule->scope) {
-			case 'member':
-				if (isset($oMisEntryRule->member)) {
-					$oEntryRule->member = $oMisEntryRule->member;
-					foreach ($oEntryRule->member as &$oRule) {
-						$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
-					}
-					$oEntryRule->scope->member = 'Y';
+			if ($this->getDeepValue($oMisEntryRule, 'scope.register') === 'Y') {
+				$oEntryRule->scope->register = 'Y';
+			}
+			if (isset($oMisEntryRule->member)) {
+				$oEntryRule->member = $oMisEntryRule->member;
+				foreach ($oEntryRule->member as &$oRule) {
+					$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
 				}
-				break;
-			case 'sns':
+				$oEntryRule->scope->member = 'Y';
+			}
+			if (isset($oMisEntryRule->sns)) {
 				$oEntryRule->sns = new \stdClass;
-				if (isset($oMisEntryRule->sns)) {
-					foreach ($oMisEntryRule->sns as $snsName => $oRule) {
-						if (isset($oRule->entry) && $oRule->entry === 'Y') {
-							$oEntryRule->sns->{$snsName} = new \stdClass;
-							$oEntryRule->sns->{$snsName}->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
-						}
+				foreach ($oMisEntryRule->sns as $snsName => $oRule) {
+					if (isset($oRule->entry) && $oRule->entry === 'Y') {
+						$oEntryRule->sns->{$snsName} = new \stdClass;
+						$oEntryRule->sns->{$snsName}->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
 					}
 				}
 				$oEntryRule->scope->sns = 'Y';
-				break;
 			}
 		}
 

@@ -49,7 +49,7 @@ class round_model extends \TMS_MODEL {
 
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$state = isset($aOptions['state']) ? $aOptions['state'] : false;
-		$page = isset($aOptions['page']) ? $aOptions['page'] : null;
+		$oPage = isset($aOptions['page']) ? $aOptions['page'] : null;
 
 		$oResult = new \stdClass; // 返回的结果
 
@@ -63,12 +63,14 @@ class round_model extends \TMS_MODEL {
 		];
 		$state && $q[2]['state'] = $state;
 		$q2 = ['o' => 'create_at desc'];
-		!empty($page) && $q2['r'] = ['o' => ($page->num - 1) * $page->size, 'l' => $page->size];
+		if (isset($oPage->at) && isset($oPage->size)) {
+			$q2['r'] = ['o' => ($oPage->at - 1) * $oPage->size, 'l' => $oPage->size];
+		}
 		$oResult->rounds = $this->query_objs_ss($q, $q2);
 
-		if (!empty($page)) {
+		if (!empty($oPage)) {
 			$q[0] = 'count(*)';
-			$oResult->total = $this->query_val_ss($q);
+			$oResult->total = (int) $this->query_val_ss($q);
 		}
 
 		return $oResult;

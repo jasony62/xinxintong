@@ -199,22 +199,27 @@ class main extends \pl\fe\matter\main_base {
 		/* entry rule */
 		if (isset($oProto->entryRule->scope)) {
 			$oMisEntryRule = new \stdClass;
-			if ($this->getDeepValue($oProto->entryRule->scope, 'member') === true && !empty($oProto->entryRule->mschema)) {
+			if ($this->getDeepValue($oProto->entryRule->scope, 'register') === 'Y') {
+				$this->setDeepValue($oMisEntryRule, 'scope.register', 'Y');
+			}
+			if ($this->getDeepValue($oProto->entryRule->scope, 'member') === 'Y' && !empty($oProto->entryRule->member)) {
 				$this->setDeepValue($oMisEntryRule, 'scope.member', 'Y');
 				$oMisEntryRule->member = new \stdClass;
-				if ($oProto->entryRule->mschema->id === '_pending') {
-					/* 给项目创建通讯录 */
-					$oMschemaConfig = new \stdClass;
-					$oMschemaConfig->matter_id = $oNewMis->id;
-					$oMschemaConfig->matter_type = 'mission';
-					$oMschemaConfig->valid = 'Y';
-					$oMschemaConfig->title = $oNewMis->title . '-通讯录';
-					$oMisMschema = $this->model('site\user\memberschema')->create($oSite, $oUser, $oMschemaConfig);
-					$oProto->entryRule->mschema->id = $oMisMschema->id;
+				foreach ($oProto->entryRule->member as $msid => $oRule) {
+					if ($msid === '_pending') {
+						/* 给项目创建通讯录 */
+						$oMschemaConfig = new \stdClass;
+						$oMschemaConfig->matter_id = $oNewMis->id;
+						$oMschemaConfig->matter_type = 'mission';
+						$oMschemaConfig->valid = 'Y';
+						$oMschemaConfig->title = $oNewMis->title . '-通讯录';
+						$oMisMschema = $this->model('site\user\memberschema')->create($oSite, $oUser, $oMschemaConfig);
+						$msid = $oMisMschema->id;
+					}
+					$oMisEntryRule->member->{$msid} = (object) ['entry' => 'Y'];
 				}
-				$oMisEntryRule->member->{$oProto->entryRule->mschema->id} = (object) ['entry' => ''];
 			}
-			if ($this->getDeepValue($oProto->entryRule->scope, 'sns') === true && isset($oProto->entryRule->sns)) {
+			if ($this->getDeepValue($oProto->entryRule->scope, 'sns') === 'Y' && isset($oProto->entryRule->sns)) {
 				$this->setDeepValue($oMisEntryRule, 'scope.sns', 'Y');
 				$oMisEntryRule->sns = new \stdClass;
 				foreach ($oProto->entryRule->sns as $snsName => $valid) {
@@ -233,17 +238,17 @@ class main extends \pl\fe\matter\main_base {
 		 */
 		$modelAcl = $this->model('matter\mission\acl');
 		/*任务的创建人加入ACL*/
-		$coworker = new \stdClass;
-		$coworker->id = $oUser->id;
-		$coworker->label = $oUser->name;
-		$modelAcl->add($oUser, $oNewMis, $coworker, 'O');
+		$oCoworker = new \stdClass;
+		$oCoworker->id = $oUser->id;
+		$oCoworker->label = $oUser->name;
+		$modelAcl->add($oUser, $oNewMis, $oCoworker, 'O');
 		/*站点的系统管理员加入ACL*/
 		$modelAcl->addSiteAdmin($oSite->id, $oUser, null, $oNewMis);
 
 		/* create apps */
 		if (isset($oProto->app)) {
 			$oAppProto = $oProto->app;
-			if (isset($oAppProto->enroll->create) && $oAppProto->enroll->create === 'Y') {
+			if ($this->getDeepValue($oAppProto, 'enroll.create') === 'Y') {
 				/* 在项目下创建报名活动 */
 				$modelEnl = $this->model('matter\enroll')->setOnlyWriteDbConn(true);
 				$oEnlConfig = new \stdClass;
@@ -252,7 +257,7 @@ class main extends \pl\fe\matter\main_base {
 				$oEnlConfig->proto->summary = $oNewMis->summary;
 				$oNewEnlApp = $modelEnl->createByTemplate($oUser, $oSite, $oEnlConfig, $oNewMis, 'registration', 'simple');
 			}
-			if (isset($oAppProto->signin->create) && $oAppProto->signin->create === 'Y') {
+			if ($this->getDeepValue($oAppProto, 'signin.create') === 'Y') {
 				/* 在项目下创建签到活动 */
 				$modelSig = $this->model('matter\signin')->setOnlyWriteDbConn(true);
 				$oSigConfig = new \stdClass;
@@ -263,7 +268,7 @@ class main extends \pl\fe\matter\main_base {
 				}
 				$oNewSigApp = $modelSig->createByTemplate($oUser, $oSite, $oSigConfig, $oNewMis, 'basic');
 			}
-			if (isset($oAppProto->group->create) && $oAppProto->group->create === 'Y') {
+			if ($this->getDeepValue($oAppProto, 'group.create') === 'Y') {
 				/* 在项目下创建分组活动 */
 				$modelGrp = $this->model('matter\group')->setOnlyWriteDbConn(true);
 				$oGrpConfig = new \stdClass;
@@ -275,19 +280,19 @@ class main extends \pl\fe\matter\main_base {
 						$oGrpConfig->proto->sourceApp = (object) ['id' => $oNewEnlApp->id, 'type' => 'enroll'];
 					} else if ($oAppProto->group->source === 'signin' && isset($oNewSigApp)) {
 						$oGrpConfig->proto->sourceApp = (object) ['id' => $oNewSigApp->id, 'type' => 'signin'];
-					} else if ($oAppProto->group->source === 'mschema' && isset($oMisEntryRule->member)) {
-						$oGrpConfig->proto->sourceApp = (object) ['id' => $oProto->entryRule->mschema->id, 'type' => 'mschema'];
+					} else if ($oAppProto->group->source === 'mschema' && isset($oNewMis->entryRule->member)) {
+						$msid = array_keys((array) $oNewMis->entryRule->member)[0];
+						$oGrpConfig->proto->sourceApp = (object) ['id' => $msid, 'type' => 'mschema'];
 					}
 				}
-				//$oNewGrpApp = $modelGrp->createByMission($oUser, $oSite, $oNewMis, 'split', $oGrpConfig);
 				$oNewGrpApp = $modelGrp->createByConfig($oUser, $oSite, $oGrpConfig, $oNewMis, 'split');
 			}
 			/* 项目的用户名单应用 */
 			if (isset($oProto->userApp)) {
 				$oUserApp = $oProto->userApp;
-				if ($oUserApp === 'mschema' && isset($oMisEntryRule) && $oMisEntryRule->scope === 'member' && isset($oProto->entryRule->mschema)) {
-					$oMschema = $oProto->entryRule->mschema;
-					$modelMis->update('xxt_mission', ['user_app_id' => $oMschema->id, 'user_app_type' => 'mschema'], ['id' => $oNewMis->id]);
+				if ($oUserApp === 'mschema' && isset($oNewMis->entryRule->member)) {
+					$msid = array_keys((array) $oNewMis->entryRule->member)[0];
+					$modelMis->update('xxt_mission', ['user_app_id' => $msid, 'user_app_type' => 'mschema'], ['id' => $oNewMis->id]);
 				} else if ($oUserApp === 'enroll' && isset($oNewEnlApp)) {
 					$modelMis->update('xxt_mission', ['user_app_id' => $oNewEnlApp->id, 'user_app_type' => 'enroll'], ['id' => $oNewMis->id]);
 				} else if ($oUserApp === 'signin' && isset($oNewSigApp)) {
@@ -409,9 +414,9 @@ class main extends \pl\fe\matter\main_base {
 			}
 		} else {
 			/* 从访问列表中移除当前用户 */
-			$coworker = new \stdClass;
-			$coworker->id = $oUser->id;
-			$modelAcl->removeCoworker($oMission, $coworker);
+			$oCoworker = new \stdClass;
+			$oCoworker->id = $oUser->id;
+			$modelAcl->removeCoworker($oMission, $oCoworker);
 			/* 更新用户的操作日志 */
 			$this->model('matter\log')->matterOp($oMission->siteid, $oUser, $oMission, 'Quit');
 		}

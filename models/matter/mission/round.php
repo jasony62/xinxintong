@@ -106,7 +106,7 @@ class round_model extends \TMS_MODEL {
 		return [true, $oRound];
 	}
 	/**
-	 * 获得指定登记活动的当前轮次
+	 * 获得指定项目的当前轮次
 	 *
 	 * @param object $oMission
 	 *

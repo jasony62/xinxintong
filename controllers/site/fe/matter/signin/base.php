@@ -23,15 +23,14 @@ class base extends \site\fe\matter\base {
 	 * @param object $oApp
 	 * @param boolean $bRedirect
 	 */
-	protected function checkEntryRule($oApp, $bRedirect = false, &$oRound = null) {
-		$oUser = $this->who;
+	protected function checkEntryRule($oApp, $bRedirect = false, $oUser = null, $oRound = null) {
+		$oUser = isset($oUser) ? $oUser : $this->who;
 		$oEntryRule = $oApp->entryRule;
-		$oScope = isset($oEntryRule->scope) ? $oEntryRule->scope : new \stdClass;
 		$modelRec = $this->model('matter\signin\record');
 		if ($signinLog = $modelRec->userSigned($oUser, $oApp, $oRound)) {
 			/* 用户是否已经签到 */
 			$signinRec = $modelRec->byId($signinLog->enroll_key, ['cascaded' => 'N']);
-			if (!empty($oApp->entryRule->enroll->id)) {
+			if (!empty($oEntryRule->enroll->id)) {
 				/* 需要验证登记信息 */
 				if ($signinRec->verified === 'Y') {
 					if (isset($oEntryRule->success->entry)) {
@@ -51,14 +50,11 @@ class base extends \site\fe\matter\base {
 			return [false, '没有指定签到完成后进入的页面'];
 		}
 
-		foreach (['member', 'sns', 'group', 'enroll'] as $item) {
-			if (isset($oScope->{$item}) && $oScope->{$item} === 'Y') {
-				$aCheckResult = $this->{'check' . ucfirst($item) . 'EntryRule'}($oApp, $bRedirect);
-				if (false === $aCheckResult[0]) {
-					return $aCheckResult;
-				}
-			}
+		$aCheckResult = parent::checkEntryRule($oApp, $bRedirect, $oUser);
+		if (false === $aCheckResult[0]) {
+			return $aCheckResult;
 		}
+
 		// 默认进入页面的名称
 		$page = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : null;
 

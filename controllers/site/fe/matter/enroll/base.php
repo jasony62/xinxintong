@@ -32,42 +32,21 @@ class base extends \site\fe\matter\base {
 	 * 检查登记活动参与规则
 	 *
 	 * @param object $oApp
-	 * @param boolean $redirect
+	 * @param boolean $bRedirect
+	 * @param object $oUser
 	 *
 	 */
 	protected function checkEntryRule($oApp, $bRedirect = false, $oUser = null) {
-		if (!isset($oApp->entryRule->scope)) {
-			return [true];
-		}
 		if (empty($oUser)) {
 			$oUser = $this->getUser($oApp);
 		}
-
-		$oEntryRule = $oApp->entryRule;
-		$oScope = $oEntryRule->scope;
-
-		if (isset($oScope->register) && $oScope->register === 'Y') {
-			$aCheckResult = $this->checkRegisterEntryRule($oUser);
-			if ($aCheckResult[0] === false) {
-				if (true === $bRedirect) {
-					$this->gotoAccess();
-				} else {
-					$msg = '未检测到您的注册信息，不满足【' . $oApp->title . '】的参与规则，请登陆后再尝试操作。';
-					return [false, $msg];
-				}
-			}
+		$aCheckResult = parent::checkEntryRule($oApp, $bRedirect, $oUser);
+		if (false === $aCheckResult[0]) {
+			return $aCheckResult;
 		}
 
-		foreach (['member', 'sns', 'group', 'enroll'] as $item) {
-			if (isset($oScope->{$item}) && $oScope->{$item} === 'Y') {
-				$aCheckResult = $this->{'check' . ucfirst($item) . 'EntryRule'}($oApp, $bRedirect);
-				if (false === $aCheckResult[0]) {
-					return $aCheckResult;
-				}
-			}
-		}
 		// 默认进入页面的名称
-		$page = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : null;
+		$page = isset($oApp->entryRule->otherwise->entry) ? $oApp->entryRule->otherwise->entry : null;
 
 		return [true, $page];
 	}

@@ -89,17 +89,17 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class='form-group'>
-                                <button class="btn btn-block btn-success" ng-click="login()">登录</button>
-                            </div>
-                            <div class='form-group'>
-                                <button class="btn btn-block btn-default" ng-click="switchSubView('register')">没有帐号，去注册</button>
-                            </div>
                             <div ng-if="user.plRegistersByWx.length">
                                 <hr>
                                 <div class='form-group' ng-repeat="regUser in user.plRegistersByWx">
                                     <button class='btn btn-default btn-block' ng-click="loginByReg(regUser)">用【<span ng-bind="regUser.uname"></span>】登录</button>
                                 </div>
+                            </div>
+                            <div class='form-group'>
+                                <button class="btn btn-block btn-success" ng-click="login()">已有账号，去登录</button>
+                            </div>
+                            <div class='form-group'>
+                                <button class="btn btn-block btn-default" ng-click="switchSubView('register')">没有帐号，去注册</button>
                             </div>
                         </div>
                     </div>
@@ -184,7 +184,7 @@
                             <button class='btn btn-block' ng-class="posting ? 'btn-default':'btn-success'" ng-disabled='posting' ng-click="doAuth()">提交信息</button>
                         </div>
                         <div class='form-group' ng-if="member.id">
-                            <button class='btn btn-block' ng-class="posting ? 'btn-default':'btn-success'" ng-disabled='posting' ng-click="doReauth()">确认信息</button>
+                            <button class='btn btn-block' ng-class="posting ? 'btn-default':'btn-success'" ng-disabled='posting' ng-click="doReauth()">若信息正确，请确认</button>
                         </div>
                     </div>
                 </div>

@@ -345,7 +345,7 @@ class enroll_model extends enroll_base {
 				$recentRounds[] = $oActiveRound;
 			}
 		} else {
-			$page = (object) ['num' => 1, 'size' => 3];
+			$page = (object) ['at' => 1, 'size' => 3];
 			$result = $modelRnd->byApp($oApp, ['fields' => 'rid,title', 'page' => $page]);
 			$recentRounds = $result->rounds;
 		}

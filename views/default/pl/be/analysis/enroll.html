@@ -150,7 +150,8 @@
                                 <div ng-repeat="evt in log.events.events">
                                     <span style='display:inline-block;width:50px'>{{::evt.elapse}}</span>
                                     <span style='display:inline-block;width:100px'>{{::evt.type}}</span>
-                                    <span>{{::evt.biz}}</span>
+                                    <span style='display:inline-block;width:180px'>{{::evt.biz}}</span>
+                                    <span>{{::evt.text}}</span>
                                 </div>
                             </td>
                         </tr>
@@ -190,7 +191,8 @@
                         <div ng-repeat="evt in log.events.events">
                             <span style='display:inline-block;width:50px'>{{::evt.elapse}}</span> 
                             <span style='display:inline-block;width:100px'>{{::evt.type}}</span>
-                            <span>{{::evt.biz}}</span>
+                            <span style='display:inline-block;width:180px'>{{::evt.biz}}</span>
+                            <span>{{::evt.text}}</span>
                         </div>
                     </td>
                 </tr>

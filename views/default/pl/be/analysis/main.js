@@ -27,9 +27,11 @@ ngApp.controller('ctrlMain', ['$scope', function($scope) {
     $scope.subView = 'enroll';
 }]);
 ngApp.controller('ctrlEnroll', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
-    var _oCriteria, _oPage;
+    var _oCriteria, _oPageOfUsers, _oPageOfBizs;
     $scope.criteria = _oCriteria = {};
-    $scope.page = _oPage = {};
+    $scope.pageOfUsers = _oPageOfUsers = {};
+    $scope.pageOfBizs = _oPageOfBizs = {};
+    $scope.activeView = 'users';
     $scope.searchSite = function() {
         var oFilter = {};
         oFilter.name = _oCriteria.siteName
@@ -52,21 +54,27 @@ ngApp.controller('ctrlEnroll', ['$scope', '$uibModal', 'http2', function($scope,
     };
     $scope.getAppUsers = function(pageAt) {
         var url;
-        pageAt && (_oPage.at = pageAt);
+        pageAt && (_oPageOfUsers.at = pageAt);
         url = '/rest/pl/fe/matter/enroll/user/enrollee?app=' + _oCriteria.selectedApp.id;
-        http2.post(url, {}, { page: _oPage }).then(function(rsp) {
+        http2.post(url, {}, { page: _oPageOfUsers }).then(function(rsp) {
             $scope.users = rsp.data.users;
+        });
+    };
+    $scope.getAppBizs = function(pageAt) {
+        pageAt && (_oPageOfBizs.at = pageAt);
+        http2.get('/rest/pl/fe/matter/enroll/trace/byBiz?app=' + _oCriteria.selectedApp.id + '&biz=' + _oCriteria.biz, { page: _oPageOfBizs }).then(function(rsp) {
+            $scope.bizLogs = rsp.data.logs;
         });
     };
     $scope.viewTrace = function(oUser) {
         $uibModal.open({
             templateUrl: 'userTrace.html',
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                var _oPage;
-                $scope2.page = _oPage = {};
+                var _oPageOfUsers;
+                $scope2.page = _oPageOfUsers = {};
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.getTrace = function() {
-                    http2.get('/rest/pl/fe/matter/enroll/trace/get?app=' + _oCriteria.selectedApp.id + '&user=' + oUser.userid, { page: _oPage }).then(function(rsp) {
+                    http2.get('/rest/pl/fe/matter/enroll/trace/byUser?app=' + _oCriteria.selectedApp.id + '&user=' + oUser.userid, { page: _oPageOfUsers }).then(function(rsp) {
                         $scope2.logs = rsp.data.logs;
                     });
                 };

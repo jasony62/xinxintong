@@ -6,7 +6,7 @@
                     <input class='form-control' placeholder='输入查找的团队' type='input' ng-model="criteria.siteName">
                     <div class='input-group-btn'>
                         <button class='btn btn-default' ng-click="searchSite()"><span class='glyphicon glyphicon-search'></span></button>
-                        <button class='btn btn-default'><span class='glyphicon glyphicon-remove'></span></button>
+                        <button class='btn btn-default' ng-click="criteria.siteName=''" ng-disabled="!criteria.siteName"><span class='glyphicon glyphicon-remove'></span></button>
                     </div>
                 </div>
             </div>
@@ -18,97 +18,152 @@
                     <input class='form-control' placeholder='输入查找的活动' type='input' ng-model="criteria.appTitle">
                     <div class='input-group-btn'>
                         <button class='btn btn-default' ng-click="searchApp()"><span class='glyphicon glyphicon-search'></span></button>
-                        <button class='btn btn-default'><span class='glyphicon glyphicon-remove'></span></button>
+                        <button class='btn btn-default' ng-click="criteria.appTitle=''" ng-disabled="!criteria.appTitle"><span class='glyphicon glyphicon-remove'></span></button>
                     </div>
                 </div>
             </div>
             <div class='form-group'>
                 <select class='form-control' ng-options="app.title for app in criteria.apps" ng-model="criteria.selectedApp"></select>
             </div>
-            <button class='btn btn-default' ng-click="getAppUsers()">获取活动用户</button>
         </div>
     </div>
     <div>
-        <div tms-flex-height top='117' bottom='66' class='form-group' style='width:100%;'>
-            <div id='enrollRecords' tms-table-wrap ready='tmsTableWrapReady'>
+        <uib-tabset active="activeView">
+            <uib-tab index="'users'" heading="用户">
+                <div class='form-group'></div>
+                <div class='form-group'>
+                    <button class='btn btn-default' ng-click="getAppUsers()" ng-disabled="!criteria.selectedApp">获取数据</button>
+                </div>
+                <div tms-flex-height top='117' bottom='66' class='form-group' style='width:100%;'>
+                    <div tms-table-wrap ready='tmsTableWrapReady'>
+                        <table class='table table-bordered'>
+                            <thead>
+                                <tr>
+                                    <th style='width:3em'></th>
+                                    <th style='width:48px'>序号</th>
+                                    <th data-filter-by='nickname' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)" style='width:75px'>姓名 <i class='glyphicon glyphicon-filter'></i></th>
+                                    <th>微信昵称</th>
+                                    <th>得分</th>
+                                    <th>积分</th>
+                                    <th style='width:100px'>总访问次数</th>
+                                    <th style='width:100px'>总访问时长</th>
+                                    <th style='width:75px'>填写记录</th>
+                                    <th style='width:75px'>发表留言</th>
+                                    <th style='width:75px'>发表点赞</th>
+                                    <th style='width:75px'>获得推荐</th>
+                                    <th style='width:120px'>浏览共享页次数</th>
+                                    <th style='width:120px'>浏览专题页次数</th>
+                                    <th style='width:130px'>专题页被浏览次数</th>
+                                    <th style='width:120px'>浏览讨论页次数</th>
+                                    <th style='width:130px'>讨论页被浏览次数</th>
+                                    <th style='width:150px'>共享页浏览累计时间</th>
+                                    <th style='width:150px'>专题页浏览累计时间</th>
+                                    <th style='width:160px'>专题页被浏览累计时间</th>
+                                    <th style='width:150px'>讨论页浏览累计时间</th>
+                                    <th style='width:160px'>讨论页被浏览累计时间</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat='u in users'>
+                                    <td><button class='btn btn-default btn-xs' ng-click="viewTrace(u)"><span class='glyphicon glyphicon-stats'></span></button></td>
+                                    <td>{{$index+1}}</td>
+                                    <td>{{u.nickname}}</td>
+                                    <td>
+                                        <div ng-show="u.wx_openid">{{u.wxfan.nickname}}</div>
+                                    </td>
+                                    <td>
+                                        <div ng-if='u.score'>{{u.score}}</div>
+                                    </td>
+                                    <td>
+                                        <div ng-if='u.user_total_coin'>{{u.user_total_coin}}</div>
+                                    </td>
+                                    <td>
+                                        <div ng-if='u.entry_num'>{{u.enroll_num}}</div>
+                                    </td>
+                                    <td>{{u.total_elapse | filterTime}}</td>
+                                    <td>
+                                        <div ng-if='u.enroll_num'>{{u.enroll_num}}</div>
+                                    </td>
+                                    <td>
+                                        <div ng-if='u.do_remark_num'>{{u.do_remark_num}}</div>
+                                    </td>
+                                    <td>
+                                        <div ng-if='u.do_like_num'>{{u.do_like_num}}</div>
+                                    </td>
+                                    <td>
+                                        <div ng-if='u.agree_num'>{{u.agree_num}}</div>
+                                    </td>
+                                    <td>{{u.do_repos_read_num}}</td>
+                                    <td>{{u.do_topic_read_num}}</td>
+                                    <td>{{u.topic_read_num}}</td>
+                                    <td>{{u.do_cowork_read_num}}</td>
+                                    <td>{{u.cowork_read_num}}</td>
+                                    <td>{{u.do_repos_read_elapse | filterTime}}</td>
+                                    <td>{{u.do_topic_read_elapse | filterTime}}</td>
+                                    <td>{{u.topic_read_elapse | filterTime}}</td>
+                                    <td>{{u.do_cowork_read_elapse | filterTime}}</td>
+                                    <td>{{u.cowork_read_elapse | filterTime}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class='form-group' ng-if='pageOfUsers.total>pageOfUsers.size'>
+                    <div class='pl-pagination'>
+                        <span>总数：{{pageOfUsers.total}}</span>
+                        <ul uib-pagination boundary-links="true" total-items="pageOfUsers.total" max-size="7" items-per-page="pageOfUsers.size" rotate="false" ng-model="pageOfUsers.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getAppUsers()"></ul>
+                    </div>
+                </div>
+            </uib-tab>
+            <uib-tab index="'biz'" heading="操作">
+                <div class='form-group'></div>
+                <div class='form-group'>
+                    <div class='form-inline'>
+                        <div class='form-group'>
+                            <div class='input-group'>
+                                <input type='input' placeholder='输入操作名称' class='form-control' ng-model="criteria.biz">
+                                <div class='input-group-btn'>
+                                    <button class='btn btn-default' ng-click="getAppBizs()" ng-disabled="!criteria.selectedApp||!criteria.biz"><span class='glyphicon glyphicon-search'></span></button>
+                                    <button class='btn btn-default' ng-click="criteria.biz=''" ng-disabled="!criteria.biz"><span class='glyphicon glyphicon-remove'></span></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <table class='table table-bordered'>
                     <thead>
                         <tr>
-                            <th style='width:3em'></th>
-                            <th style='width:48px'>序号</th>
-                            <th data-filter-by='nickname' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)" style='width:75px'>姓名 <i class='glyphicon glyphicon-filter'></i></th>
-                            <th>微信昵称</th>
-                            <th>得分</th>
-                            <th>积分</th>
-                            <th style='width:100px'>总访问次数</th>
-                            <th style='width:100px'>总访问时长</th>
-                            <th style='width:75px'>填写记录</th>
-                            <th style='width:75px'>发表留言</th>
-                            <th style='width:75px'>发表点赞</th>
-                            <th style='width:75px'>获得推荐</th>
-                            <th style='width:120px'>浏览共享页次数</th>
-                            <th style='width:120px'>浏览专题页次数</th>
-                            <th style='width:130px'>专题页被浏览次数</th>
-                            <th style='width:120px'>浏览讨论页次数</th>
-                            <th style='width:130px'>讨论页被浏览次数</th>
-                            <th style='width:150px'>共享页浏览累计时间</th>
-                            <th style='width:150px'>专题页浏览累计时间</th>
-                            <th style='width:160px'>专题页被浏览累计时间</th>
-                            <th style='width:150px'>讨论页浏览累计时间</th>
-                            <th style='width:160px'>讨论页被浏览累计时间</th>
+                            <th style='width:120px'>用户</th>
+                            <th style='width:120px'>开始时间</th>
+                            <th style='width:90px'>页面</th>
+                            <th style='width:90px'>停留（秒）</th>
+                            <th>事件记录（距开始（秒）|事件|操作）</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat='u in users'>
-                            <td><button class='btn btn-default btn-xs' ng-click="viewTrace(u)"><span class='glyphicon glyphicon-stats'></span></button></td>
-                            <td>{{$index+1}}</td>
-                            <td>{{u.nickname}}</td>
+                        <tr ng-repeat="log in bizLogs">
+                            <td>{{::log.nickname}}</td>
+                            <td>{{::log.event_first_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+                            <td>{{::log.page}}</td>
+                            <td>{{::log.event_elapse}}</td>
                             <td>
-                                <div ng-show="u.wx_openid">{{u.wxfan.nickname}}</div>
+                                <div ng-repeat="evt in log.events.events">
+                                    <span style='display:inline-block;width:50px'>{{::evt.elapse}}</span>
+                                    <span style='display:inline-block;width:100px'>{{::evt.type}}</span>
+                                    <span>{{::evt.biz}}</span>
+                                </div>
                             </td>
-                            <td>
-                                <div ng-if='u.score'>{{u.score}}</div>
-                            </td>
-                            <td>
-                                <div ng-if='u.user_total_coin'>{{u.user_total_coin}}</div>
-                            </td>
-                            <td>
-                                <div ng-if='u.entry_num'>{{u.enroll_num}}</div>
-                            </td>
-                            <td>{{u.total_elapse | filterTime}}</td>
-                            <td>
-                                <div ng-if='u.enroll_num'>{{u.enroll_num}}</div>
-                            </td>
-                            <td>
-                                <div ng-if='u.do_remark_num'>{{u.do_remark_num}}</div>
-                            </td>
-                            <td>
-                                <div ng-if='u.do_like_num'>{{u.do_like_num}}</div>
-                            </td>
-                            <td>
-                                <div ng-if='u.agree_num'>{{u.agree_num}}</div>
-                            </td>
-                            <td>{{u.do_repos_read_num}}</td>
-                            <td>{{u.do_topic_read_num}}</td>
-                            <td>{{u.topic_read_num}}</td>
-                            <td>{{u.do_cowork_read_num}}</td>
-                            <td>{{u.cowork_read_num}}</td>
-                            <td>{{u.do_repos_read_elapse | filterTime}}</td>
-                            <td>{{u.do_topic_read_elapse | filterTime}}</td>
-                            <td>{{u.topic_read_elapse | filterTime}}</td>
-                            <td>{{u.do_cowork_read_elapse | filterTime}}</td>
-                            <td>{{u.cowork_read_elapse | filterTime}}</td>
                         </tr>
                     </tbody>
                 </table>
-            </div>
-        </div>
-        <div class='form-group' ng-if='page.total>page.size'>
-            <div class='pl-pagination'>
-                <span>总数：{{page.total}}</span>
-                <ul uib-pagination boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getAppUsers()"></ul>
-            </div>
-        </div>
+                <div class='form-group' ng-if='page.total>page.size'>
+                    <div class='pl-pagination'>
+                        <span>总数：{{page.total}}</span>
+                        <ul uib-pagination boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getAppUsers()"></ul>
+                    </div>
+                </div>
+            </uib-tab>
+        </uib-tabset>
     </div>
 </div>
 <script type="text/ng-template" id="userTrace.html">

@@ -7,9 +7,10 @@ ngMod.directive('tmsTrace', ['$q', '$timeout', 'http2', function($q, $timeout, h
     var EventInterval = 1000; // 有效的事件间隔
     var IdleInterval = 5000; // 有效的事件间隔
     var StoreKey = '/xxt/site/matter/enroll/trace';
-    var TraceEvent = function(start, type, elapse) {
+    var TraceEvent = function(start, type, elapse, biz) {
         this.type = type;
         this.elapse = elapse || ((new Date * 1) - start);
+        this.biz = biz;
     };
     var TraceStack = function() {
         function storeTrace(oTrace) {
@@ -27,15 +28,15 @@ ngMod.directive('tmsTrace', ['$q', '$timeout', 'http2', function($q, $timeout, h
             this.sendUrl = url;
             storeTrace(this);
         };
-        this.pushEvent = function(type) {
+        this.pushEvent = function(type, traceBiz) {
             var oNewEvent, oLastEvent;
             if (this.events.length === 0) {
                 this.start = new Date * 1;
-                oNewEvent = new TraceEvent(this.start, type, 0);
+                oNewEvent = new TraceEvent(this.start, type, 0, traceBiz);
                 this.events.push(oNewEvent)
                 storeTrace(this);
             } else {
-                oNewEvent = new TraceEvent(this.start, type);
+                oNewEvent = new TraceEvent(this.start, type, null, traceBiz);
                 oLastEvent = this.events[this.events.length - 1];
                 if (oLastEvent.type !== oNewEvent.type || (oNewEvent.elapse - oLastEvent.elapse > EventInterval)) {
                     this.events.push(oNewEvent)
@@ -107,7 +108,18 @@ ngMod.directive('tmsTrace', ['$q', '$timeout', 'http2', function($q, $timeout, h
             oTraceStack.pushEvent('load');
             /* 用户点击页面 */
             elem.on('click', function(event) {
-                oTraceStack.pushEvent('click');
+                var evtTarget, traceBiz;
+                evtTarget = event.target;
+                if (evtTarget.hasAttribute('trace-biz')) {
+                    traceBiz = evtTarget.getAttribute('trace-biz');
+                    if (!traceBiz && evtTarget.hasAttribute('ng-click')) {
+                        traceBiz = evtTarget.getAttribute('ng-click');
+                    }
+                    if (traceBiz) {
+                        traceBiz = traceBiz.replace(/'|"/g, '');
+                    }
+                }
+                oTraceStack.pushEvent('click', traceBiz);
                 oIdleWatcher.begin();
             });
             /* 用户点击页面 */

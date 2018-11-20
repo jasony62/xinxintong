@@ -53,6 +53,15 @@ ngApp.config(['$controllerProvider', '$locationProvider', function($cp, $locatio
     $locationProvider.html5Mode(true);
 }]);
 ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'tmsDynaPage', function($scope, $timeout, http2, LS, tmsDynaPage) {
+    function fnHidePageActions() {
+        var domActs, domAct;
+        if (domActs = document.querySelectorAll('[wrap=button]')) {
+            angular.forEach(domActs, function(domAct) {
+                domAct.style.display = 'none';
+            });
+        }
+    }
+
     function openAskFollow() {
         http2.get(LS.j('askFollow', 'site')).then(function() {}, function(content) {
             var body, el;;
@@ -187,6 +196,7 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'tms
             angular.forEach(tasksOfOnReady, PG.exec);
         }
         $timeout(function() {
+            fnHidePageActions();
             $scope.$broadcast('xxt.app.signin.ready', params);
         });
         var eleLoading;

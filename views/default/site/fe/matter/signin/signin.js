@@ -294,6 +294,19 @@ ngApp.controller('ctrlSignin', ['$scope', 'Input', 'tmsLocation', 'noticebox', f
             }
         }
     };
+    $scope.doAction = function(event, oAction) {
+        switch (oAction.name) {
+            case 'submit':
+                $scope.submit(event, oAction.next);
+                break;
+            case 'gotoPage':
+                $scope.gotoPage(event, oAction.next);
+                break;
+            case 'closeWindow':
+                $scope.closeWindow();
+                break;
+        }
+    };
     $scope.$on('xxt.app.signin.ready', function(event, params) {
         if (params.record) {
             ngApp.oUtilSchema.loadRecord(params.app._schemasById, $scope.data, params.record.data);

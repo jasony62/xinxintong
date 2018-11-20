@@ -1,0 +1,76 @@
+<div class="modal-header">
+    <button class="close" ng-click="cancel()" type="button">×</button>
+    <h5 class="modal-title">页面操作</h5>
+</div>
+<div class="modal-body">
+    <div class='row'>
+        <div class='col-md-6'>
+            <label>已有操作</label>
+            <div class='list-group'>
+                <div ng-repeat="btn in page.actSchemas" class='list-group-item' ng-class="{active:btn===activeButton}" ng-click="setButton(btn)">
+                    <span ng-bind="btn.label"></span>
+                </div>
+            </div>
+            <label>添加操作</label>
+            <div>
+                <button class='btn btn-default' ng-click="newButton(btn)" ng-repeat="btn in buttons">{{btn.l}}</button>
+            </div>
+        </div>
+        <div class='col-md-6' ng-if="activeButton">
+            <div class="form-group">
+                <label>操作类型</label>
+                <select class='form-control' ng-model='activeButton.name' ng-options='btn.n as btn.l for btn in buttons' ng-change="chooseType()"></select>
+            </div>
+            <div class="form-group">
+                <label>显示为</label>
+                <input type='text' class='form-control' ng-model='activeButton.label'>
+            </div>
+            <div class="form-group" ng-show="['closeWindow'].indexOf(activeButton.name)===-1">
+                <label>操作后</label>
+                <div ng-switch on="activeButton.name">
+                    <select class='form-control' ng-switch-when="submit" ng-model='activeButton.next'>
+                        <option value=''>不跳转</option>
+                        <option value='{{p.name}}' ng-repeat="p in nextPages">{{p.title}}</option>
+                        <option value='kanban'>活动看板页</option>
+                        <option value='repos'>共享数据页</option>
+                        <option value='stat'>统计页</option>
+                        <option value='rank'>排行榜</option>
+                        <option value='score'>测验结果</option>
+                        <option value='votes'>投票榜</option>
+                        <option value='marks'>打分榜</option>
+                        <option value='cowork'>讨论页</option>
+                        <option value='_autoForward'>自动跳转</option>
+                        <option value='closeWindow'>关闭页面</option>
+                    </select>
+                    <select class='form-control' ng-switch-when="save" ng-model='activeButton.next'>
+                        <option value=''>不跳转</option>
+                        <option value='{{p.name}}' ng-repeat="p in nextPages">{{p.title}}</option>
+                    </select>
+                    <select class='form-control' ng-switch-when="addRecord" ng-model='activeButton.next'>
+                        <option value='{{p.name}}' ng-repeat="p in nextPages">{{p.title}}</option>
+                        <option value='closeWindow'>关闭页面</option>
+                    </select>
+                    <select class='form-control' ng-switch-when="editRecord" ng-model='activeButton.next'>
+                        <option value='{{p.name}}' ng-repeat="p in nextPages">{{p.title}}</option>
+                        <option value='closeWindow'>关闭页面</option>
+                    </select>
+                    <select class='form-control' ng-switch-default ng-model='activeButton.next'>
+                        <option value=''>不跳转</option>
+                        <option value='{{p.name}}' ng-repeat="p in nextPages">{{p.title}}</option>
+                        <option value='kanban'>活动看板页</option>
+                        <option value='repos'>共享数据页</option>
+                        <option value='stat'>统计页</option>
+                        <option value='rank'>排行榜</option>
+                        <option value='score'>测验结果</option>
+                        <option value='votes'>投票榜</option>
+                        <option value='marks'>打分榜</option>
+                        <option value='closeWindow'>关闭页面</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="ok()">完成</button>
+</div>

@@ -68,6 +68,15 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$parse', '$s
     };
 }]);
 ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2', 'noticebox', 'Record', 'picviewer', '$timeout', 'enlRound', function($scope, $sce, $parse, LS, http2, noticebox, Record, picviewer, $timeout, enlRound) {
+    function fnHidePageActions() {
+        var domActs, domAct;
+        if (domActs = document.querySelectorAll('[wrap=button]')) {
+            angular.forEach(domActs, function(domAct) {
+                domAct.style.display = 'none';
+            });
+        }
+    }
+
     function fnGetRecord(ek) {
         if (ek) {
             return http2.get(LS.j('record/get', 'site', 'app') + '&ek=' + ek);
@@ -377,6 +386,8 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var facRecord, facRound;
 
+        /* 不再支持在页面中直接显示按钮 */
+        fnHidePageActions();
         _oApp = params.app;
         _aScoreSchemas = [];
         _oApp.dynaDataSchemas.forEach(function(oSchema) {

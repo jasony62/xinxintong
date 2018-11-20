@@ -395,14 +395,11 @@ ngApp.directive('tmsVoiceInput', ['$q', 'noticebox', function($q, noticebox) {
     }
 }]);
 ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout', 'Input', 'tmsLocation', 'http2', 'noticebox', 'tmsPaste', 'tmsUrl', '$compile', 'enlRound', function($scope, $parse, $q, $uibModal, $timeout, Input, LS, http2, noticebox, tmsPaste, tmsUrl, $compile, enlRound) {
-    function fnDisableActions() {
+    function fnHidePageActions() {
         var domActs, domAct;
-        if (domActs = document.querySelectorAll('button[ng-click]')) {
+        if (domActs = document.querySelectorAll('[wrap=button]')) {
             angular.forEach(domActs, function(domAct) {
-                var ngClick = domAct.getAttribute('ng-click');
-                if (ngClick.indexOf('submit') === 0) {
-                    domAct.style.display = 'none';
-                }
+                domAct.style.display = 'none';
             });
         }
     }
@@ -723,7 +720,13 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         if (oRecord.round && oRecord.round.end_at > 0) {
             if (oRecord.round.end_at * 1000 < (new Date * 1)) {
                 noticebox.warn('活动轮次【' + oRecord.round.title + '】已结束，不能提交、修改、保存或删除填写记录！');
-                fnDisableActions();
+                if (_oPage.actSchemas && _oPage.actSchemas.length) {
+                    _oPage.actSchemas.forEach(function(oAct) {
+                        if (oAct.name === 'submit') {
+                            oAct.disabled = true;
+                        }
+                    });
+                }
             }
         }
         /* 判断多项类型 */
@@ -1113,6 +1116,8 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         _oPage = params.page;
         _StateCacheKey = 'xxt.app.enroll:' + _oApp.id + '.user:' + $scope.user.uid + '.cacheKey';
         $scope.schemasById = schemasById = _oApp._schemasById;
+        /* 不再支持在页面中直接显示按钮 */
+        fnHidePageActions();
         /* 用户已经登记过或保存过，恢复之前的数据 */
         fnGetRecord();
         /* 活动轮次 */

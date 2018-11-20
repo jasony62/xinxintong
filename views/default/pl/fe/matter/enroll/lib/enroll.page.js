@@ -131,7 +131,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
     /**
      * page editor
      */
-    ngMod.controller('ctrlPageEdit', ['$scope', 'cstApp', 'mediagallery', 'srvSite', function($scope, cstApp, mediagallery, srvSite) {
+    ngMod.controller('ctrlPageEdit', ['$scope', '$uibModal', 'http2', 'cstApp', 'mediagallery', 'srvSite', function($scope, $uibModal, http2, cstApp, mediagallery, srvSite) {
         var tinymceEditor;
         $scope.activeWrap = false;
         $scope.setActiveWrap = function(domWrap) {
@@ -147,53 +147,104 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
         $scope.refreshWrap = function(wrap) {
             editorProxy.modifySchema(wrap);
         };
-        $scope.newButton = function(btn) {
-            var oSchema, oWrap, pages;
-            oSchema = angular.copy(btn);
-            pages = $scope.app.pages;
-            switch (oSchema.n) {
-                case 'submit':
-                    var oFirstViewPage;
-                    for (var i = pages.length - 1; i >= 0; i--) {
-                        if (pages[i].type === 'V') {
-                            oFirstViewPage = pages[i];
-                            break;
+        /* 设置页面操作 */
+        $scope.configButton = function() {
+            http2.post('/rest/script/time', { html: { 'buttons': '/views/default/pl/fe/matter/enroll/component/pageButtons' } }).then(function(rsp) {
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/pageButtons.html?_=' + rsp.data.html.buttons.time,
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        var _oPage, _oActiveButton, appPages, _nextPages;
+                        $scope2.page = _oPage = $scope.ep;
+                        appPages = $scope.app.pages;
+                        $scope2.nextPages = _nextPages = [];
+                        $scope2.cancel = function() { $mi.dismiss(); };
+                        $scope2.ok = function() {
+                            _oPage.$$modified = true;
+                            $mi.close();
+                        };
+                        $scope2.newButton = function(btn) {
+                            var oSchema, oWrap;
+                            oSchema = angular.copy(btn);
+                            switch (oSchema.n) {
+                                case 'submit':
+                                    var oFirstViewPage;
+                                    for (var i = appPages.length - 1; i >= 0; i--) {
+                                        if (appPages[i].type === 'V') {
+                                            oFirstViewPage = appPages[i];
+                                            break;
+                                        }
+                                    }
+                                    if (oFirstViewPage) {
+                                        oSchema.next = oFirstViewPage.name;
+                                    }
+                                    break;
+                                case 'addRecord':
+                                case 'editRecord':
+                                    var oFirstInputPage;
+                                    for (var i = type.length - 1; i >= 0; i--) {
+                                        if (appPages[i].type === 'I') {
+                                            oFirstInputPage = appPages[i];
+                                            break;
+                                        }
+                                    }
+                                    if (oFirstInputPage) {
+                                        oSchema.next = oFirstInputPage.name;
+                                    }
+                                    break;
+                                default:
+                                    oSchema.next = '';
+                            }
+                            oWrap = {
+                                id: 'act' + (new Date * 1),
+                                name: oSchema.n,
+                                label: oSchema.l,
+                                next: oSchema.next || ''
+                            };
+                            _oPage.actSchemas.push(oWrap);
+                            $scope2.setButton(oWrap);
+                        };
+                        $scope2.setButton = function(oBtn) {
+                            $scope2.activeButton = _oActiveButton = oBtn;
+                            if ($scope2.buttons[_oActiveButton.name] && $scope2.buttons[_oActiveButton.name].next) {
+                                appPages.forEach(function(oPage) {
+                                    if ($scope2.buttons[_oActiveButton.name].next.indexOf(oPage.type) !== -1) {
+                                        _nextPages.push({ name: oPage.name, title: oPage.title });
+                                    }
+                                });
+                            } else {
+                                appPages.forEach(function(oPage) {
+                                    _nextPages.push({ name: oPage.name, title: oPage.title });
+                                });
+                            }
+                        };
+                        $scope2.chooseType = function() {
+                            _oActiveButton.label = $scope2.buttons[_oActiveButton.name].l;
+                            _oActiveButton.next = '';
+                            if (['addRecord', 'editRecord', 'removeRecord'].indexOf(_oActiveButton.name) !== -1) {
+                                for (var i = 0, ii = appPages.length; i < ii; i++) {
+                                    if (appPages[i].type === 'I') {
+                                        _oActiveButton.next = appPages[i].name;
+                                        break;
+                                    }
+                                }
+                                if (i === ii) noticebox.warn('没有类型为“填写页”的页面');
+                            }
+                        };
+                        // page's buttons
+                        var buttons = {},
+                            button, btnName;
+                        for (btnName in schemaLib.buttons) {
+                            button = schemaLib.buttons[btnName];
+                            if (button.scope && button.scope.indexOf(_oPage.type) !== -1) {
+                                buttons[btnName] = button;
+                            }
                         }
-                    }
-                    if (oFirstViewPage) {
-                        oSchema.next = oFirstViewPage.name;
-                    }
-                    break;
-                case 'addRecord':
-                case 'editRecord':
-                    var oFirstInputPage;
-                    for (var i = pages.length - 1; i >= 0; i--) {
-                        if (pages[i].type === 'I') {
-                            oFirstInputPage = pages[i];
-                            break;
-                        }
-                    }
-                    if (oFirstInputPage) {
-                        oSchema.next = oFirstInputPage.name;
-                    }
-                    break;
-                default:
-                    oSchema.next = '';
-            }
-            oWrap = {
-                id: 'act' + (new Date * 1),
-                name: btn.n,
-                label: btn.l,
-                next: btn.next || ''
-            };
-            $scope.ep.actSchemas.push(oWrap);
-            $scope.setButton(oWrap);
-        };
-        $scope.setButton = function(oButton) {
-            var oMockDomWrap;
-            oMockDomWrap = { type: 'button' };
-            oMockDomWrap.schema = oButton;
-            $scope.activeWrap = oMockDomWrap;
+                        $scope2.buttons = buttons;
+                    }],
+                    size: 'lg',
+                    windowClass: 'auto-height'
+                });
+            });
         };
         $scope.removeActiveWrap = function() {
             var activeWrap = $scope.activeWrap,
@@ -369,16 +420,6 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                 }
                 editorProxy.load(tinymceEditor, oNewPage);
             }
-            // page's buttons
-            var buttons = {},
-                button, btnName;
-            for (btnName in schemaLib.buttons) {
-                button = schemaLib.buttons[btnName];
-                if (button.scope && button.scope.indexOf(oNewPage.type) !== -1) {
-                    buttons[btnName] = button;
-                }
-            }
-            $scope.buttons = buttons;
         });
         $scope.$on('tinymce.instance.init', function(event, editor) {
             tinymceEditor = editor;
@@ -564,46 +605,6 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
         $scope.updWrap = function() {
             $scope.ep.$$modified = true;
             editorProxy.modifySchema($scope.activeWrap);
-        };
-    }]);
-    /**
-     * button wrap
-     */
-    ngMod.controller('ctrlButtonWrap', ['$scope', function($scope) {
-        var oActiveSchema, appPages, nextPages;
-
-        oActiveSchema = $scope.activeWrap.schema;
-        appPages = $scope.app.pages;
-        $scope.nextPages = nextPages = [];
-        if ($scope.buttons[oActiveSchema.name].next) {
-            appPages.forEach(function(oPage) {
-                if ($scope.buttons[oActiveSchema.name].next.indexOf(oPage.type) !== -1) {
-                    nextPages.push({ name: oPage.name, title: oPage.title });
-                }
-            });
-        } else {
-            appPages.forEach(function(oPage) {
-                nextPages.push({ name: oPage.name, title: oPage.title });
-            });
-        }
-        $scope.chooseType = function() {
-            $scope.ep.$$modified = true;
-            oActiveSchema.label = $scope.buttons[oActiveSchema.name].l;
-            oActiveSchema.next = '';
-            if (['addRecord', 'editRecord', 'removeRecord'].indexOf(oActiveSchema.name) !== -1) {
-                for (var i = 0, ii = appPages.length; i < ii; i++) {
-                    if (appPages[i].type === 'I') {
-                        oActiveSchema.next = appPages[i].name;
-                        break;
-                    }
-                }
-                if (i === ii) alert('没有类型为“填写页”的页面');
-            }
-            editorProxy.modifyButton($scope.activeWrap);
-        };
-        $scope.updWrap = function() {
-            $scope.ep.$$modified = true;
-            editorProxy.modifyButton($scope.activeWrap);
         };
     }]);
 });

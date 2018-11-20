@@ -18,18 +18,6 @@
     <div class='row' ng-controller="ctrlPageEdit">
         <!--page schemas-->
         <div class='col-md-3' tms-flex-height top='72' bottom='0'>
-            <!-- create button wrap -->
-            <div class='list-group-item'>
-                <div class='help-block'>添加操作</div>
-                <button class='btn btn-default' ng-click="newButton(btn)" ng-repeat="btn in buttons">{{btn.l}}</button>
-            </div>
-            <!-- end create button wrap-->
-            <!--embed inner matter-->
-            <div class='list-group-item'>
-                <div class='help-block'>在页面中添加素材</div>
-                <button class='btn btn-default' ng-click="embedMatter()">添加素材</button>
-            </div>
-            <!--embed inner matter-->
             <div class='list-group-item' ng-if="ep.type==='I'" ng-controller="ctrlAppSchemas4IV">
                 <div class='help-block'>活动中所有填写项</div>
                 <div class='list-group'>
@@ -40,7 +28,6 @@
                             </span>
                     </div>
                 </div>
-                <a class='btn btn-default btn-block' href="/rest/pl/fe/matter/signin/schema?site={{app.siteid}}&id={{app.id}}">修改填写项</a>
             </div>
             <div class='list-group-item' ng-if="ep.type==='V'" ng-controller="ctrlAppSchemas4IV">
                 <div class='help-block'>活动中所有填写项</div>
@@ -57,6 +44,18 @@
                         </span>
                 </div>
             </div>
+            <!-- create button wrap -->
+            <div class='list-group-item'>
+                <div class='help-block'>在页面中添加操作</div>
+                <button class='btn btn-default btn-block' ng-click="configButton()">设置页面操作<span ng-if="ep.actSchemas.length>0">（已有<span ng-bind="ep.actSchemas.length"></span>个）</span></button>
+            </div>
+            <!-- end create button wrap-->
+            <!--embed inner matter-->
+            <div class='list-group-item'>
+                <div class='help-block'>在页面中添加素材</div>
+                <button class='btn btn-default btn-block' ng-click="embedMatter()">添加素材</button>
+            </div>
+            <!--embed inner matter-->
         </div>
         <!--end page schemas-->
         <!--tinymce editor-->

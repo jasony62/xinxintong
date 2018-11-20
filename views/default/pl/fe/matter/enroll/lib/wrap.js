@@ -999,65 +999,6 @@ define([], function() {
             act: 'closeWindow($event)'
         }
     };
-    var ButtonWrap = function() {};
-    ButtonWrap.prototype = Object.create(Wrap.prototype);
-    ButtonWrap.prototype.embed = function(schema) {
-        var attrs = {
-                id: schema.id,
-                wrap: 'button',
-                class: 'form-group',
-                contenteditable: 'false'
-            },
-            tmplBtn = function(action, label) {
-                return '<button class="btn btn-primary btn-block btn-lg" ng-click="' + action + '"><span contenteditable="true">' + label + '</span></button>';
-            },
-            prefab, action;
-        if (prefab = PrefabActSchema[schema.name]) {
-            action = prefab.act;
-            angular.isFunction(action) && (action = action(schema));
-            if (['editRecord', 'removeRecord', 'remarkRecord'].indexOf(schema.name) !== -1) {
-                attrs['ng-controller'] = 'ctrlRecord';
-            }
-            return {
-                tag: 'div',
-                attrs: attrs,
-                html: tmplBtn(action, schema.label)
-            };
-        }
-    };
-    ButtonWrap.prototype.modify = function(dowWrap, oWrap) {
-        var prefab, action, $button, schema = oWrap.schema;
-        if (prefab = PrefabActSchema[schema.name]) {
-            action = prefab.act;
-            angular.isFunction(action) && (action = action(schema));
-            $button = $(dowWrap).find('button');
-            $button.children('span').html(schema.label);
-            $button.attr('ng-click', action);
-        }
-        return true;
-    };
-    ButtonWrap.prototype.dataByDom = function(domWrap, page) {
-        var $button, action, arg, schema = {};
-
-        schema.id = $(domWrap).attr('id');
-        if (page) {
-            return {
-                schema: page.wrapByButton(schema)
-            };
-        } else {
-            $button = $(domWrap).find('button');
-            schema.label = $button.children('span').html();
-            action = $button.attr('ng-click');
-            action = action.match(/(.+?)\((.+?)\)/);
-            schema.name = action[1];
-            arg = action[2].split(',');
-            arg.length === 2 && (schema.next = arg[1].replace(/'/g, ''));
-
-            return {
-                schema: schema
-            };
-        }
-    };
     /**
      *
      */
@@ -1067,7 +1008,6 @@ define([], function() {
         checkbox: new CheckboxWrap(),
         html: new HtmlWrap(),
         value: new ValueWrap(),
-        button: new ButtonWrap(),
         setEditor: function(editor) {
             _editor = editor;
         },

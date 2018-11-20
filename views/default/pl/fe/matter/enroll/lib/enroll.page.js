@@ -62,8 +62,8 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                     url += '&cname=' + page.code_name;
                     http2.post(url, updated).then(function(rsp) {
                         page.$$modified = false;
-                        defer.resolve();
                         noticebox.success('完成保存');
+                        defer.resolve();
                     });
 
                     return defer.promise;
@@ -139,7 +139,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
         };
         $scope.wrapEditorHtml = function() {
             var url = null;
-            if ($scope.activeWrap.type) {
+            if (!/score|matter|text|button/.test($scope.activeWrap.type)) {
                 url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=' + (new Date()).getMinutes();
             }
             return url;
@@ -217,6 +217,9 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                                 });
                             }
                         };
+                        $scope2.removeButton = function(oBtn) {
+                            _oPage.actSchemas.splice(_oPage.actSchemas.indexOf(oBtn), 1);
+                        };
                         $scope2.chooseType = function() {
                             _oActiveButton.label = $scope2.buttons[_oActiveButton.name].l;
                             _oActiveButton.next = '';
@@ -272,16 +275,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                     schema: schema
                 });
                 $scope.setActiveWrap(null);
-            } else if (/records|enrollees/.test(wrapType)) {
-                editorProxy.removeWrap(activeWrap);
-                for (var i = $scope.ep.dataSchemas.length - 1; i >= 0; i--) {
-                    if ($scope.ep.dataSchemas[i].config.id === activeWrap.config.id) {
-                        $scope.ep.dataSchemas.splice(i, 1);
-                        break;
-                    }
-                }
-                $scope.setActiveWrap(null);
-            } else if (/button|text/.test(wrapType)) {
+            } else {
                 editorProxy.removeWrap(activeWrap);
                 $scope.setActiveWrap(null);
             }

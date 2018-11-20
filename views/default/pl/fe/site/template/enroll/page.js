@@ -178,10 +178,6 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
                 $scope.$broadcast('xxt.matter.enroll.page.data_schemas.removed', removedSchema);
             });
         });
-        $scope.newButton = function(btn) {
-            var domWrap = editorProxy.appendButton(btn);
-            $scope.setActiveWrap(domWrap);
-        };
         $scope.removeWrap = function() {
             var wrapType = $scope.activeWrap.type,
                 schema;
@@ -507,36 +503,6 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
     ngApp.provider.controller('ctrlValueWrap', ['$scope', function($scope) {
         $scope.updWrap = function() {
             editorProxy.modifySchema($scope.activeWrap);
-        };
-    }]);
-    /**
-     * button wrap controller
-     */
-    ngApp.provider.controller('ctrlButtonWrap', ['$scope', 'srvEnrollPage', 'srvTempPage', function($scope, srvEnrollPage, srvTempPage) {
-        var schema = $scope.activeWrap.schema;
-
-        $scope.chooseType = function() {
-            schema.label = $scope.buttons[schema.name].l;
-            schema.next = '';
-            if (['addRecord', 'editRecord', 'removeRecord'].indexOf(schema.name) !== -1) {
-                for (var i = 0, ii = $scope.app.pages.length; i < ii; i++) {
-                    if ($scope.app.pages[i].type === 'I') {
-                        schema.next = $scope.app.pages[i].name;
-                        break;
-                    }
-                }
-                if (i === ii) alert('没有类型为“填写页”的页面');
-            }
-            editorProxy.modifyButton($scope.activeWrap);
-        };
-        /* 直接给带有导航功能的按钮创建页面 */
-        $scope.newPage = function(prop) {
-            srvTempPage.create().then(function(page) {
-                schema[prop] = page.name;
-            });
-        };
-        $scope.updWrap = function(obj, prop) {
-            editorProxy.modifyButton($scope.activeWrap);
         };
     }]);
 });

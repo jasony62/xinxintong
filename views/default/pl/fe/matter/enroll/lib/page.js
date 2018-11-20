@@ -18,14 +18,6 @@ define(['wrap'], function(SchemaWrap) {
 
             return false;
         },
-        removeButton: function(schema) {
-            for (var i = this.actSchemas.length - 1; i >= 0; i--) {
-                if (this.actSchemas[i].id === schema.id) {
-                    return this.actSchemas.splice(i, 1);
-                }
-            }
-            return false;
-        },
         /**
          * 调整题目在页面中的位置
          */
@@ -48,18 +40,6 @@ define(['wrap'], function(SchemaWrap) {
                 }
                 this.html = $html.html();
             }
-        },
-        /**
-         * 根据按钮项获得按钮项的包裹对象
-         */
-        wrapByButton: function(schema) {
-            for (var i = this.actSchemas.length - 1; i >= 0; i--) {
-                if (this.actSchemas[i].id === schema.id) {
-                    return this.actSchemas[i];
-                }
-            }
-
-            return false;
         },
         check: function() {
             var $html, schemasById, oSchema, $schemas, $schema;
@@ -167,14 +147,8 @@ define(['wrap'], function(SchemaWrap) {
                     $siblingInputWrap.before(newDomWrap);
                 }
             } else {
-                // 加在按钮的前面
-                $btnWrap = $html.find("[wrap='button']:first");
-                if ($btnWrap.length) {
-                    $btnWrap.before(newDomWrap);
-                } else {
-                    // 加在文档的最后
-                    $html.append(newDomWrap);
-                }
+                // 加在文档的最后
+                $html.append(newDomWrap);
             }
 
             this.html = $html.html();
@@ -299,14 +273,8 @@ define(['wrap'], function(SchemaWrap) {
                     $siblingInputWrap.before(domNewWrap);
                 }
             } else {
-                // 加在按钮的前面
-                $btnWrap = $html.find("[wrap='button']:first");
-                if ($btnWrap.length) {
-                    $btnWrap.before(domNewWrap);
-                } else {
-                    // 加在文档的最后
-                    $html.append(domNewWrap);
-                }
+                // 加在文档的最后
+                $html.append(domNewWrap);
             }
 
             this.html = $html.html();

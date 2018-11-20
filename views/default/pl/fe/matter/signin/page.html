@@ -64,23 +64,20 @@
         </div>
         <!-- end tinymce editor -->
         <!-- wrap editor -->
-        <div class='page-wrap col-md-3' ng-if="activeWrap.schema" tms-flex-height top='72' bottom='0'>
-            <div class='list-group-item'>
+        <div id="wrapEdit" class='col-md-3' tms-flex-height top='145' bottom='72'>
+            <div class='list-group-item' ng-if="activeWrap">
                 <div class='form-group' ng-include="wrapEditorHtml()"></div>
                 <div class='form-group'>
-                    <button class='btn btn-default' ng-click="refreshWrap(activeWrap)">刷新页面元素</button>
-                    <button class='btn btn-default' ng-click="removeWrap()" title='删除'>
-                        <i class='fa fa-remove'></i>
-                    </button>
+                    <button class='btn btn-default' ng-if="activeWrap.schema" ng-click="refreshWrap(activeWrap)">刷新页面元素</button>
+                    <button class='btn btn-default' ng-if="['input','value','radio','checkbox','score'].indexOf(activeWrap.type)!==-1" ng-click="removeActiveWrap()">隐藏</button>
+                    <button class='btn btn-default' ng-if="['input','value','radio','checkbox','score'].indexOf(activeWrap.type)===-1" ng-click="removeActiveWrap()">删除</button>
                 </div>
                 <div class='form-group'>
                     <div class='btn-group'>
-                        <button class='btn btn-default' ng-click="moveWrap('up')">
-                            <i class='fa fa-arrow-up'></i>
-                        </button>
-                        <button class='btn btn-default' ng-click="moveWrap('down')">
-                            <i class='fa fa-arrow-down'></i>
-                        </button>
+                        <button class='btn btn-default' ng-click="moveWrap('up')"><i class='fa fa-arrow-up'></i></button>
+                        <button class='btn btn-default' ng-click="moveWrap('down')"><i class='fa fa-arrow-down'></i></button>
+                        <button class='btn btn-default' title='上一级' ng-click="moveWrap('upLevel')" ng-if="activeWrap.type!=='html'"><i class='fa fa-level-up'></i></button>
+                        <button class='btn btn-default' title='下一级' ng-click="moveWrap('downLevel')" ng-if="activeWrap.type!=='html'"><i class='fa fa-level-down'></i></button>
                     </div>
                 </div>
             </div>
@@ -104,5 +101,5 @@
         <button class='btn btn-block btn-default' ng-click="addPage()">添加页面</button>
         <hr>
         <button class='btn btn-block btn-default' ng-click="gotoCode()">编辑代码</button>
-        <div>
+    <div>
 </script>

@@ -35,15 +35,7 @@ define(['wrap'], function(wrapLib) {
                     newDomWrap = dom.create(name, attrs, html);
                     dom.insertAfter(newDomWrap, $inputWrap[$inputWrap.length - 1]);
                 } else {
-                    var $btnWrap = $(body).find("[wrap='button']");
-                    if ($btnWrap.length) {
-                        /*加在第一个按钮的前面*/
-                        newDomWrap = dom.create(name, attrs, html);
-                        $btnWrap[0].parentNode.insertBefore(newDomWrap, $btnWrap[0]);
-                    } else {
-                        /*加在文档的最后*/
-                        newDomWrap = dom.add(body, name, attrs, html);
-                    }
+                    newDomWrap = dom.add(body, name, attrs, html);
                 }
             } else if (attrs.wrap && attrs.wrap === 'value') {
                 var $valueWrap = $(body).find("[wrap='value']");
@@ -52,29 +44,12 @@ define(['wrap'], function(wrapLib) {
                     newDomWrap = dom.create(name, attrs, html);
                     dom.insertAfter(newDomWrap, $valueWrap[$valueWrap.length - 1]);
                 } else {
-                    var $btnWrap = $(body).find("[wrap='button']");
-                    if ($btnWrap.length) {
-                        /*加在第一个按钮的前面*/
-                        newDomWrap = dom.create(name, attrs, html);
-                        $btnWrap[0].parentNode.insertBefore(newDomWrap, $btnWrap[0]);
-                    } else {
-                        /*加在文档的最后*/
-                        newDomWrap = dom.add(body, name, attrs, html);
-                    }
-                }
-            } else if (attrs.wrap && attrs.wrap === 'button') {
-                /*加在文档的最后*/
-                newDomWrap = dom.add(body, name, attrs, html);
-            } else {
-                var $btnWrap = $(body).find("[wrap='button']");
-                if ($btnWrap.length) {
-                    /*加在第一个按钮的前面*/
-                    newDomWrap = dom.create(name, attrs, html);
-                    $btnWrap[0].parentNode.insertBefore(newDomWrap, $btnWrap[0]);
-                } else {
                     /*加在文档的最后*/
                     newDomWrap = dom.add(body, name, attrs, html);
                 }
+            } else {
+                /*加在文档的最后*/
+                newDomWrap = dom.add(body, name, attrs, html);
             }
         }
 
@@ -116,8 +91,6 @@ define(['wrap'], function(wrapLib) {
                 html = $('<div>' + html + '</div>');
                 html.find('[wrap=input]').attr('contenteditable', 'false');
                 html.find('[wrap=input]>label').attr('contenteditable', 'true');
-                html.find('[wrap=button]').attr('contenteditable', 'false');
-                html.find('[wrap=button]>button>span').attr('contenteditable', 'true');
                 html.find('[wrap=checkbox]>label>span').attr('contenteditable', 'true');
                 html.find('[wrap=radio]>label>span').attr('contenteditable', 'true');
                 html.find('[wrap=score]>div>label').attr('contenteditable', 'true');
@@ -226,9 +199,6 @@ define(['wrap'], function(wrapLib) {
                 wrapLib.value.modify(wrap.dom, wrap);
             }
         },
-        modifyButton: function(wrap) {
-            wrapLib.button.modify(wrap.dom, wrap);
-        },
         /**
          * 页面编辑器内容发生变化
          */
@@ -251,21 +221,6 @@ define(['wrap'], function(wrapLib) {
                                     pageWrap.schema.title = oWrap.schema.title;
                                     status.schemaChanged = true;
                                     status.schema = oWrap.schema;
-                                }
-                            }
-                        })();
-                    }
-                } else if (domNodeWrap.length === 1 && domNodeWrap[0].getAttribute('wrap') === 'button') {
-                    // 编辑button's span
-                    if (/span/i.test(node.nodeName)) {
-                        (function freshButtonByDom() {
-                            var oWrap = wrapLib.dataByDom(domNodeWrap[0]),
-                                pageWrap = _page.wrapByButton(oWrap.schema);
-
-                            if (oWrap) {
-                                if (oWrap.schema.label !== pageWrap.label) {
-                                    pageWrap.label = oWrap.schema.label;
-                                    status.actionChanged = true;
                                 }
                             }
                         })();
@@ -322,21 +277,6 @@ define(['wrap'], function(wrapLib) {
                             }
                         })();
                     }
-                } else if (domNodeWrap.length === 1 && domNodeWrap[0].getAttribute('wrap') === 'button') {
-                    // 编辑button's span
-                    if (/span/i.test(node.nodeName)) {
-                        (function freshButtonByDom() {
-                            var oWrap = wrapLib.dataByDom(domNodeWrap[0]),
-                                pageWrap = _page.wrapByButton(oWrap.schema);
-
-                            if (oWrap) {
-                                if (oWrap.schema.label !== pageWrap.label) {
-                                    pageWrap.label = oWrap.schema.label;
-                                    status.actionChanged = true;
-                                }
-                            }
-                        })();
-                    }
                 }
                 // 修改了页面内容
                 var html = _editor.getContent();
@@ -359,7 +299,7 @@ define(['wrap'], function(wrapLib) {
                     type: wrapType,
                     dom: domWrap,
                     upmost: /body/i.test(domWrap.parentNode.tagName),
-                    downmost: /button|value|radio|checkbox/.test(wrapType),
+                    downmost: /value|radio|checkbox/.test(wrapType),
                 };
                 domWrap.classList.add('active');
                 var dataWrap = wrapLib.dataByDom(domWrap, _page);
@@ -377,11 +317,11 @@ define(['wrap'], function(wrapLib) {
             this.setActiveWrap(null);
             if (selectableWrap) {
                 wrapType = $(selectableWrap).attr('wrap');
-                while (!/text|matter|input|radio|checkbox|value|button|score/.test(wrapType) && selectableWrap.parentNode) {
+                while (!/text|matter|input|radio|checkbox|value|score/.test(wrapType) && selectableWrap.parentNode) {
                     selectableWrap = selectableWrap.parentNode;
                     wrapType = $(selectableWrap).attr('wrap');
                 }
-                if (/text|matter|input|radio|checkbox|value|button|score/.test(wrapType)) {
+                if (/text|matter|input|radio|checkbox|value|score/.test(wrapType)) {
                     this.setActiveWrap(selectableWrap);
                 }
             }
@@ -437,27 +377,12 @@ define(['wrap'], function(wrapLib) {
 
             return [schema, schemaOption];
         },
-        appendButton: function(btn) {
-            var oWrap, wrapParam;
-            oWrap = {
-                id: 'act' + (new Date * 1),
-                name: btn.n,
-                label: btn.l,
-                next: btn.next || ''
-            };
-            _page.actSchemas.push(oWrap);
-            wrapParam = wrapLib.button.embed(oWrap);
-
-            return _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html);
-        },
         removeWrap: function(oWrap) {
             var wrapType = oWrap.type,
                 $domRemoved = $(oWrap.dom);
 
             if (/input/.test(wrapType)) {
                 _page.removeSchema(oWrap.schema);
-            } else if (/button/.test(wrapType)) {
-                _page.removeButton(oWrap.schema);
             } else if (/value/.test(wrapType)) {
                 var config = oWrap.config;
                 if (config) {

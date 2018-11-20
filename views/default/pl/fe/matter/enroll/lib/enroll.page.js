@@ -148,7 +148,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
             editorProxy.modifySchema(wrap);
         };
         $scope.newButton = function(btn) {
-            var oSchema, domWrap, pages;
+            var oSchema, oWrap, pages;
             oSchema = angular.copy(btn);
             pages = $scope.app.pages;
             switch (oSchema.n) {
@@ -180,8 +180,20 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                 default:
                     oSchema.next = '';
             }
-            domWrap = editorProxy.appendButton(oSchema);
-            $scope.setActiveWrap(domWrap);
+            oWrap = {
+                id: 'act' + (new Date * 1),
+                name: btn.n,
+                label: btn.l,
+                next: btn.next || ''
+            };
+            $scope.ep.actSchemas.push(oWrap);
+            $scope.setButton(oWrap);
+        };
+        $scope.setButton = function(oButton) {
+            var oMockDomWrap;
+            oMockDomWrap = { type: 'button' };
+            oMockDomWrap.schema = oButton;
+            $scope.activeWrap = oMockDomWrap;
         };
         $scope.removeActiveWrap = function() {
             var activeWrap = $scope.activeWrap,

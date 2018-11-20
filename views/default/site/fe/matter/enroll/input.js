@@ -1093,6 +1093,19 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         $scope.data = { member: {} };
         fnAfterGetRecord({ round: $scope.record.round ? $scope.record.round : _oApp.appRound });
     };
+    $scope.doAction = function(event, oAction) {
+        switch (oAction.name) {
+            case 'submit':
+                $scope.submit(event, oAction.next);
+                break;
+            case 'gotoPage':
+                $scope.gotoPage(event, oAction.next);
+                break;
+            case 'closeWindow':
+                $scope.closeWindow();
+                break;
+        }
+    };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var schemasById, pasteContains;
 

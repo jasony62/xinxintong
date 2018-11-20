@@ -91,8 +91,6 @@ class main extends base {
 				$outputUrl = '/site/fe/matter/enroll/input';
 			} else if ($oOpenPage->type === 'V') {
 				$outputUrl = '/site/fe/matter/enroll/view';
-			} else if ($oOpenPage->type === 'L') {
-				$outputUrl = '/site/fe/matter/enroll/list';
 			}
 		}
 

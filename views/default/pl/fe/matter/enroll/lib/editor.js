@@ -158,7 +158,7 @@ define(['wrap'], function(wrapLib) {
 
                 oNewWrap = wrapLib.input.newWrap(newSchema);
                 _page.dataSchemas.push(oNewWrap);
-                
+
                 wrapParam = wrapLib.input.embed(oNewWrap, true);
                 domNewWrap = _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html, oSiblingSchema, insertBefore);
             } else if (_page.type === 'V') {
@@ -224,12 +224,6 @@ define(['wrap'], function(wrapLib) {
                 wrapLib.input.modify(wrap.dom, wrap);
             } else if (_page.type === 'V') {
                 wrapLib.value.modify(wrap.dom, wrap);
-            } else if (_page.type === 'L') {
-                if (wrap.type === 'value') {
-                    wrapLib.value.modify(wrap.dom, wrap);
-                } else if (wrap.type === 'records' || wrap.type == 'enrollees') {
-                    wrapLib.records.modify(wrap.dom, wrap);
-                }
             }
         },
         modifyButton: function(wrap) {
@@ -350,53 +344,19 @@ define(['wrap'], function(wrapLib) {
                     status.htmlChanged = true;
                     _page.$$modified = true;
                 }
-            } else if (_page.type === 'L') {
-                if (domNodeWrap.length && domNodeWrap[0].getAttribute('wrap') === 'value') {
-                    if (/label/i.test(node.nodeName)) {
-                        (function freshSchemaByDom() {
-                            var oWrap = wrapLib.dataByDom(domNodeWrap[0]),
-                                pageWrap = _page.wrapBySchema(oWrap.schema);
-
-                            if (oWrap) {
-                                if (oWrap.schema.title !== pageWrap.schema.title) {
-                                    pageWrap.schema.title = oWrap.schema.title;
-                                    status.schemaChanged = true;
-                                    status.schema = oWrap.schema;
-                                }
-                            }
-                        })();
-                    }
-                } else if (domNodeWrap.length === 1 && domNodeWrap[0].getAttribute('wrap') === 'button') {
-                    // 编辑button's span
-                    if (/span/i.test(node.nodeName)) {
-                        (function freshButtonByDom() {
-                            var oWrap = wrapLib.dataByDom(domNodeWrap[0]),
-                                pageWrap = _page.wrapByButton(oWrap.schema);
-
-                            if (oWrap) {
-                                if (oWrap.schema.label !== pageWrap.label) {
-                                    pageWrap.label = oWrap.schema.label;
-                                    status.actionChanged = true;
-                                }
-                            }
-                        })();
-                    }
-                }
             }
 
             return status;
         },
         setActiveWrap: function(domWrap) {
-            var wrapType, dataType;
+            var wrapType;
             if (_activeWrap) {
                 _activeWrap.dom.classList.remove('active');
             }
             if (domWrap) {
                 wrapType = $(domWrap).attr('wrap');
-                dataType = $(domWrap).attr('enroll-records-type');
                 _activeWrap = {
                     type: wrapType,
-                    dataType: dataType == 'records' ? 'records' : 'enrollees',
                     dom: domWrap,
                     upmost: /body/i.test(domWrap.parentNode.tagName),
                     downmost: /button|value|radio|checkbox/.test(wrapType),
@@ -417,11 +377,11 @@ define(['wrap'], function(wrapLib) {
             this.setActiveWrap(null);
             if (selectableWrap) {
                 wrapType = $(selectableWrap).attr('wrap');
-                while (!/text|matter|input|radio|checkbox|value|button|records|score/.test(wrapType) && selectableWrap.parentNode) {
+                while (!/text|matter|input|radio|checkbox|value|button|score/.test(wrapType) && selectableWrap.parentNode) {
                     selectableWrap = selectableWrap.parentNode;
                     wrapType = $(selectableWrap).attr('wrap');
                 }
-                if (/text|matter|input|radio|checkbox|value|button|records|score/.test(wrapType)) {
+                if (/text|matter|input|radio|checkbox|value|button|score/.test(wrapType)) {
                     this.setActiveWrap(selectableWrap);
                 }
             }
@@ -490,76 +450,6 @@ define(['wrap'], function(wrapLib) {
 
             return _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html);
         },
-        appendRecordList: function(oApp) {
-            var dataWrap, wrapParam;
-            dataWrap = {
-                config: {
-                    id: 'L' + (new Date * 1),
-                    pattern: 'records',
-                    type: 'records',
-                    dataScope: 'U',
-                    onclick: '',
-                },
-                schemas: angular.copy(oApp.dataSchemas)
-            };
-            dataWrap.schemas.push({
-                id: 'enrollAt',
-                type: '_enrollAt',
-                title: '填写时间'
-            });
-            if (oApp.pages && oApp.pages.length) {
-                for (var i = 0, ii = oApp.pages.length; i < ii; i++) {
-                    if (oApp.pages[i].type === 'V') {
-                        dataWrap.config.onclick = oApp.pages[i].name;
-                        break;
-                    }
-                }
-            }
-            _page.dataSchemas.push(dataWrap);
-            wrapParam = wrapLib.records.embed(dataWrap);
-
-            return _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html);
-        },
-        appendEnrollee: function(oApp) {
-            var dataWrap, wrapParam;
-            dataWrap = {
-                config: {
-                    id: 'L' + (new Date * 1),
-                    pattern: 'records',
-                    type: 'enrollees',
-                    dataScope: 'A',
-                    onclick: ''
-                },
-                schemas: [{
-                    id: 'group.l',
-                    title: '所属分组',
-                    type: 'enrollee'
-                }]
-            };
-            if (oApp.entryRule.scope.member === 'Y') {
-                dataWrap.schemas.push({
-                    id: 'schema_title',
-                    title: '所属通讯录',
-                    type: 'address'
-                })
-                dataWrap.config.mschemaId = '';
-            }
-            if (oApp.entryRule.scope.sns === 'Y') {
-                dataWrap.schemas.push({
-                    id: 'nickname',
-                    title: '昵称',
-                    type: 'sns'
-                }, {
-                    id: 'headimgurl',
-                    title: '头像',
-                    type: 'sns'
-                });
-            }
-            _page.dataSchemas.push(dataWrap);
-            wrapParam = wrapLib.records.embed(dataWrap);
-
-            return _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html);
-        },
         removeWrap: function(oWrap) {
             var wrapType = oWrap.type,
                 $domRemoved = $(oWrap.dom);
@@ -571,30 +461,8 @@ define(['wrap'], function(wrapLib) {
             } else if (/value/.test(wrapType)) {
                 var config = oWrap.config;
                 if (config) {
-                    if (config.id === undefined) {
-                        // 列表中的值对象
-                        var $listWrap = $domRemoved.parents('[wrap]');
-                        if ($listWrap.length && $listWrap.attr('wrap') === 'records') {
-                            config.id = $listWrap.attr('id');
-                        }
-                        _page.removeSchema(config, oWrap.schema);
-                    } else {
-                        _page.removeSchema(config);
-                    }
+                    _page.removeSchema(config);
                 }
-            } else if (/records/.test(wrapType)) {
-                (function removeList() {
-                    var listId = $domRemoved.attr('id'),
-                        list;
-
-                    for (var i = _page.dataSchemas.length - 1; i >= 0; i--) {
-                        list = _page.dataSchemas[i];
-                        if (list.id === listId) {
-                            _page.dataSchemas.splice(i, 1);
-                            break;
-                        }
-                    }
-                })();
             }
             /* 删除editor中的dom */
             $domRemoved.remove();

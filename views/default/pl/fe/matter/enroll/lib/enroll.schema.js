@@ -411,13 +411,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         var oPage, oResult, oFilter;
                         $scope2.app = _oApp;
-                        $scope2.page = oPage = {
-                            at: 1,
-                            size: 12,
-                            j: function() {
-                                return 'page=' + this.at + '&size=' + this.size;
-                            }
-                        };
+                        $scope2.page = oPage = {};
                         $scope2.result = oResult = {
                             make: 'copy',
                             target: { ops: [], range: {} }
@@ -477,20 +471,19 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             $scope2.doSearch();
                         };
                         $scope2.doSearch = function() {
-                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid + '&' + oPage.j();
+                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid;
                             if (oResult.make === 'rule' && _oApp.mission) {
                                 /* 同一个项目下的题目才可以设置规则 */
                                 url += '&mission=' + _oApp.mission.id;
                             }
                             http2.post(url, {
                                 byTitle: oFilter.byTitle
-                            }).then(function(rsp) {
+                            }, { page: oPage }).then(function(rsp) {
                                 $scope2.apps = rsp.data.apps;
                                 if ($scope2.apps.length) {
                                     oResult.fromApp = $scope2.apps[0];
                                     $scope2.selectApp();
                                 }
-                                oPage.total = rsp.data.total;
                             });
                         };
                         $scope2.disabled = true;
@@ -1147,13 +1140,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     templateUrl: '/views/default/pl/fe/matter/enroll/component/schema/setOptionsSource.html?_=1',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         var oPage, oResult, oAppFilter;
-                        $scope2.page = oPage = {
-                            at: 1,
-                            size: 12,
-                            j: function() {
-                                return 'page=' + this.at + '&size=' + this.size;
-                            }
-                        };
+                        $scope2.page = oPage = {};
                         $scope2.schema = oSchema;
                         $scope2.result = oResult = {};
                         $scope2.appFilter = oAppFilter = {};
@@ -1198,22 +1185,20 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         $scope2.cancel = function() {
                             $mi.dismiss();
                         };
-
                         $scope2.doSearch = function(pageAt) {
-                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid + '&' + oPage.j();
+                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid;
                             if (_oApp.mission) {
                                 url += '&mission=' + _oApp.mission.id;
                             }
                             pageAt && (oPage.at = pageAt);
                             http2.post(url, {
                                 byTitle: oAppFilter.byTitle
-                            }).then(function(rsp) {
+                            }, { page: oPage }).then(function(rsp) {
                                 $scope2.apps = rsp.data.apps;
                                 if ($scope2.apps.length) {
                                     oResult.fromApp = $scope2.apps[0];
                                     $scope2.selectApp();
                                 }
-                                oPage.total = rsp.data.total;
                             });
                         };
                         $scope2.disabled = true;
@@ -1270,13 +1255,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     templateUrl: '/views/default/pl/fe/matter/enroll/component/schema/setSchemaSource.html?_=1',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         var oPage, oResult, oAppFilter;
-                        $scope2.page = oPage = {
-                            at: 1,
-                            size: 12,
-                            j: function() {
-                                return 'page=' + this.at + '&size=' + this.size;
-                            }
-                        };
+                        $scope2.page = oPage = {};
                         $scope2.schema = oSchema;
                         $scope2.result = oResult = {
                             mode: 'fromData'
@@ -1359,20 +1338,19 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             $mi.dismiss();
                         };
                         $scope2.doSearch = function(pageAt) {
-                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid + '&' + oPage.j();
+                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid;
                             if (_oApp.mission) {
                                 url += '&mission=' + _oApp.mission.id;
                             }
                             pageAt && (oPage.at = pageAt);
                             http2.post(url, {
                                 byTitle: oAppFilter.byTitle
-                            }).then(function(rsp) {
+                            }, { page: oPage }).then(function(rsp) {
                                 $scope2.apps = rsp.data.apps;
                                 if ($scope2.apps.length) {
                                     oResult.fromApp = $scope2.apps[0];
                                     $scope2.selectApp();
                                 }
-                                oPage.total = rsp.data.total;
                             });
                         };
                         $scope2.disabled = true;

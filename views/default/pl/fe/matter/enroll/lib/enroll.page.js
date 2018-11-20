@@ -20,7 +20,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                     var deferred = $q.defer();
                     srvApp.get().then(function(app) {
                         $uibModal.open({
-                            templateUrl: '/views/default/pl/fe/matter/enroll/component/createPage.html?_=3',
+                            templateUrl: '/views/default/pl/fe/matter/enroll/component/createPage.html?_=4',
                             backdrop: 'static',
                             controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                                 $scope.options = {};
@@ -162,17 +162,6 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                     }
                     if (oFirstViewPage) {
                         oSchema.next = oFirstViewPage.name;
-                    } else {
-                        var oFirstListPage;
-                        for (var i = pages.length - 1; i >= 0; i--) {
-                            if (pages[i].type === 'L') {
-                                oFirstListPage = pages[i];
-                                break;
-                            }
-                        }
-                        if (oFirstListPage) {
-                            oSchema.next = oFirstListPage.name;
-                        }
                     }
                     break;
                 case 'addRecord':
@@ -193,16 +182,6 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
             }
             domWrap = editorProxy.appendButton(oSchema);
             $scope.setActiveWrap(domWrap);
-        };
-        $scope.newList = function() {
-            var domWrap;
-            domWrap = editorProxy.appendRecordList($scope.app);
-            $scope.setActiveWrap(domWrap);
-        };
-        $scope.enrolleeList = function() {
-            var enrolleeWrap;
-            enrolleeWrap = editorProxy.appendEnrollee($scope.app);
-            $scope.setActiveWrap(enrolleeWrap);
         };
         $scope.removeActiveWrap = function() {
             var activeWrap = $scope.activeWrap,
@@ -572,165 +551,6 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
     ngMod.controller('ctrlValueWrap', ['$scope', function($scope) {
         $scope.updWrap = function() {
             $scope.ep.$$modified = true;
-            editorProxy.modifySchema($scope.activeWrap);
-        };
-    }]);
-    /**
-     * record list wrap
-     */
-    ngMod.controller('ctrlRecordListWrap', ['$scope', '$timeout', function($scope, $timeout) {
-        var listSchemas = $scope.activeWrap.schemas,
-            chooseState = {};
-        $scope.otherSchemas = [{
-            id: 'enrollAt',
-            type: '_enrollAt',
-            title: '填写时间'
-        }, {
-            id: 'roundTitle',
-            type: '_roundTitle',
-            title: '填写轮次'
-        }];
-        $scope.app.dataSchemas.forEach(function(schema) {
-            chooseState[schema.id] = false;
-        });
-        $scope.otherSchemas.forEach(function(schema) {
-            chooseState[schema.id] = false;
-        });
-        listSchemas.forEach(function(schema) {
-            chooseState[schema.id] = true;
-        });
-        $scope.chooseState = chooseState;
-        /* 在处理activeSchema中提交 */
-        $scope.choose = function(schema) {
-            if (chooseState[schema.id]) {
-                var ia, ibl, brother, domNewWrap;
-                ia = $scope.app.dataSchemas.indexOf(schema);
-                if (ia === 0) {
-                    listSchemas.splice(0, 0, schema);
-                } else {
-                    brother = $scope.app.dataSchemas[--ia];
-                    while (ia > 0 && !chooseState[brother.id]) {
-                        brother = $scope.app.dataSchemas[--ia];
-                    }
-                    if (brother) {
-                        for (var ibl = listSchemas.length - 1; ibl >= 0; ibl--) {
-                            if (listSchemas[ibl].id === brother.id) {
-                                break;
-                            }
-                        }
-                        listSchemas.splice(ibl + 1, 0, schema);
-                    } else {
-                        listSchemas.push(schema);
-                    }
-                }
-            } else {
-                for (var i = listSchemas.length - 1; i >= 0; i--) {
-                    if (schema.id === listSchemas[i].id) {
-                        listSchemas.splice(i, 1);
-                        break;
-                    }
-                }
-            }
-            $scope.updWrap();
-        };
-        $scope.updWrap = function() {
-            $scope.ep.$$modified = true;
-            editorProxy.modifySchema($scope.activeWrap);
-        };
-    }]);
-    /**
-     * enrollee list wrap
-     */
-    ngMod.controller('ctrlEnrolleeListWrap', ['$scope', '$timeout', function($scope, $timeout) {
-        var listSchemas = $scope.activeWrap.schemas,
-            memberSchemas = $scope.memberSchemas,
-            config = $scope.activeWrap.config,
-            chooseState = {};
-        $scope.otherMschemas = [{
-            id: 'group.l',
-            title: '所属分组',
-            type: 'enrollee'
-        }];
-        if ($scope.app.entryRule.scope.sns == 'Y') {
-            $scope.mschemas = [{
-                id: 'nickname',
-                title: '昵称',
-                type: 'sns'
-            }, {
-                id: 'headimgurl',
-                title: '头像',
-                type: 'sns'
-            }]
-        } else {
-            for (var i = $scope.otherMschemas.length - 1; i >= 0; i--) {
-                if ($scope.otherMschemas[i].id == 'schema_title') {
-                    break;
-                } else {
-                    $scope.otherMschemas.push({
-                        id: 'schema_title',
-                        title: '所属通讯录',
-                        type: 'address'
-                    });
-                    break;
-                }
-            }
-            if ($scope.activeWrap.config.mschemaId !== '') {
-                $scope.mschemas = [];
-                memberSchemas.forEach(function(item) {
-                    if (item.id == $scope.activeWrap.config.mschemaId) {
-                        $scope.mschemas = item._mschemas;
-                    }
-                });
-            }
-        }
-        $scope.doFilter = function(id) {
-            memberSchemas.forEach(function(item) {
-                if (item.id == id) {
-                    $scope.activeWrap.schemas = [];
-                    config.mschemaId = id;
-                    $scope.activeWrap.schemas = $scope.otherMschemas;
-                    for (var i = item._mschemas.length - 1; i >= 0; i--) {
-                        $scope.activeWrap.schemas.splice(0, 0, item._mschemas[i]);
-                    }
-                    $scope.mschemas = listSchemas = [];
-                }
-            });
-            $scope.updWrap();
-        }
-        listSchemas.forEach(function(schema) {
-            chooseState[schema.id] = true;
-        });
-        $scope.chooseState = chooseState;
-        /* 在处理activeSchema中提交 */
-        $scope.choose = function(schema) {
-            if (chooseState[schema.id]) {
-                var ia, ibl, brother, domNewWrap;
-                ia = $scope.mschemas.indexOf(schema);
-                if (ia === 0) {
-                    listSchemas.splice(0, 0, schema);
-                } else {
-                    brother = $scope.mschemas[--ia];
-                    while (ia > 0 && !chooseState[brother.id]) {
-                        brother = $scope.mschemas[--ia];
-                    }
-                    for (var ibl = listSchemas.length - 1; ibl >= 0; ibl--) {
-                        if (listSchemas[ibl].id === brother.id) {
-                            break;
-                        }
-                    }
-                    listSchemas.splice(ibl + 1, 0, schema);
-                }
-            } else {
-                for (var i = listSchemas.length - 1; i >= 0; i--) {
-                    if (schema.id === listSchemas[i].id) {
-                        listSchemas.splice(i, 1);
-                        break;
-                    }
-                }
-            }
-            $scope.updWrap();
-        };
-        $scope.updWrap = function() {
             editorProxy.modifySchema($scope.activeWrap);
         };
     }]);

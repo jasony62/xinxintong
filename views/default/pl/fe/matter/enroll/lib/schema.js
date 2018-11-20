@@ -44,7 +44,7 @@ define([], function() {
             addRecord: {
                 n: 'addRecord',
                 l: '新增登记',
-                scope: ['V', 'L'],
+                scope: ['V'],
                 next: ['I']
             },
             editRecord: {
@@ -69,12 +69,12 @@ define([], function() {
             gotoPage: {
                 n: 'gotoPage',
                 l: '页面导航',
-                scope: ['I', 'V', 'L']
+                scope: ['I', 'V']
             },
             closeWindow: {
                 n: 'closeWindow',
                 l: '关闭页面',
-                scope: ['I', 'V', 'L']
+                scope: ['I', 'V']
             }
         },
         newSchema: function(type, oApp, oProto) {

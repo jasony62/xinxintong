@@ -949,146 +949,6 @@ define([], function() {
         }
     };
     /**
-     * records wrap class
-     */
-    var RecordsWrap = function() {};
-    RecordsWrap.prototype = Object.create(Wrap.prototype);
-    RecordsWrap.prototype._htmlValue = function(oSchema) {
-        var html;
-        html = '<div wrap="value" class="wrap-inline wrap-splitline" schema="' + oSchema.id + '" schema-type="' + oSchema.type + '"><label>' + oSchema.title + '</label>';
-        switch (oSchema.type) {
-            case 'enrollee':
-                html += '<div>{{r.' + oSchema.id + '}}</div>';
-                break;
-            case 'address':
-                html += '<div>{{r.mschema.' + oSchema.id + '}}</div>';
-                break;
-            case 'sns':
-                html += '<div>{{r.sns.' + oSchema.id + '}}</div>';
-                break;
-            case 'headimgurl':
-                html += '<div><img ng-src="{{r.sns.oSchema.id}}"/></div>';
-                break;
-            case 'shorttext':
-            case 'location':
-            case 'member':
-            case 'sns':
-                html += '<div>{{r.data.' + oSchema.id + '}}</div>';
-                break;
-            case 'longtext':
-                html += '<div ng-bind-html="r.data.' + oSchema.id + '"></div>';
-                break;
-            case 'url':
-                html += '<div ng-bind-html="r.data.' + oSchema.id + '.title"></div>';
-                break;
-            case 'date':
-                html += '<div><span ng-if="r.data.' + oSchema.id + '">{{r.data.' + oSchema.id + '*1000|date:"yy-MM-dd HH:mm"}}</span></div>';
-                break;
-            case 'single':
-            case 'multiple':
-                html += '<div ng-bind-html="' + "value2Label(r,'" + oSchema.id + "')" + '"></div>';
-                break;
-            case 'score':
-                html += '<div ng-bind-html="' + "score2Html(r,'" + oSchema.id + "')" + '"></div>';
-                break;
-            case 'image':
-                html += '<ul><li ng-repeat="img in r.data.' + oSchema.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul>';
-                break;
-            case 'file':
-                html += '<ul><li ng-repeat="file in r.data.' + oSchema.id + '"><span ng-bind="file.name"></span></li></ul>';
-                break;
-            case 'voice':
-                html += '<ul><li ng-repeat="voice in r.data.' + oSchema.id + '"><span ng-bind="voice.name"></span></li></ul>';
-                break;
-            case 'multitext':
-                html += '<ul><li ng-repeat="item in r.data.' + oSchema.id + '"><span ng-bind-html="item.value"></span></li></ul>';
-                break;
-            case '_enrollAt':
-                html += "<div>{{r.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>";
-                break;
-            case '_roundTitle':
-                html += "<div>{{r.round.title}}</div>";
-                break;
-        }
-        if (oSchema.supplement && oSchema.supplement === 'Y') {
-            html += '<p class="supplement" ng-bind-html="r.supplement.' + oSchema.id + '"></p>';
-        }
-        html += '</div>';
-
-        return html;
-    };
-    RecordsWrap.prototype._htmlRecords = function(dataWrap) {
-        var _this = this,
-            config = dataWrap.config,
-            schemas = dataWrap.schemas,
-            html, onclick;
-
-        html = '<ul class="list-group">';
-        onclick = config.onclick.length ? " ng-click=\"gotoPage($event,'" + config.onclick + "',r.enroll_key)\"" : '';
-        html += '<li class="list-group-item text-center actions"><div class="btn-group"><button class="btn btn-default" ng-click="openFilter()">筛选</button><button class="btn btn-default" ng-click="resetFilter()"><span class="glyphicon glyphicon-remove"></span></button></div></li>';
-        html += '<li class="list-group-item" ng-repeat="r in records"' + onclick + '>';
-        schemas.forEach(function(oSchema) {
-            html += _this._htmlValue(oSchema);
-        });
-        html += "</li>";
-        html += '<li class="list-group-item text-center actions"><div class="btn-group"><button class="btn btn-default" ng-click="openFilter()">筛选</button><button class="btn btn-default" ng-click="resetFilter()"><span class="glyphicon glyphicon-remove"></span></button></div><button class="btn btn-default" ng-click="fetch()" ng-if="options.page.total>records.length">更多</button></li>';
-        html += "</ul>";
-
-        return html;
-    };
-    RecordsWrap.prototype.embed = function(dataWrap) {
-        if (!dataWrap.schemas && dataWrap.schemas.length === 0) return false;
-        var html, attrs, mschemaId;
-        html = this._htmlRecords(dataWrap);
-        mschemaId = Object.keys(dataWrap.config).indexOf('mschemaId') == -1 ? '' : dataWrap.config.mschemaId;
-        attrs = {
-            id: dataWrap.config.id,
-            'ng-controller': 'ctrlRecords',
-            'enroll-records': 'Y',
-            'enroll-records-owner': dataWrap.config.dataScope,
-            'enroll-records-type': dataWrap.config.type == 'records' ? 'records' : 'enrollees',
-            'enroll-records-mschema': mschemaId,
-            wrap: dataWrap.config.type == 'records' ? 'records' : 'enrollees',
-            class: 'form-group'
-        };
-        return {
-            tag: 'div',
-            attrs: attrs,
-            html: html
-        };
-    };
-    RecordsWrap.prototype.modify = function(domWrap, oWrap) {
-        var html, mschemaId, attrs = {},
-            $wrap = $(domWrap),
-            config = oWrap.config;
-
-        attrs['enroll-records-owner'] = config.dataScope;
-        if (Object.keys(oWrap.config).indexOf('mschemaId') !== -1) {
-            attrs['enroll-records-mschema'] = config.mschemaId;
-        }
-        $wrap.attr(attrs);
-        $wrap.children('ul').remove();
-        html = this._htmlRecords(oWrap);
-        $wrap.append(html);
-
-        return true;
-    };
-    RecordsWrap.prototype.dataByDom = function(domWrap, page) {
-        var $wrap = $(domWrap),
-            config = {};
-
-        config.id = $wrap.attr('id');
-        if (page) {
-            return page.wrapByList(config);
-        } else {
-            config.pattern = 'records';
-            config.dataScope = $wrap.attr('enroll-records-owner');
-            return {
-                config: config
-            };
-        }
-    };
-    /**
      * button wrap class
      */
     var PrefabActSchema = {
@@ -1207,7 +1067,6 @@ define([], function() {
         checkbox: new CheckboxWrap(),
         html: new HtmlWrap(),
         value: new ValueWrap(),
-        records: new RecordsWrap(),
         button: new ButtonWrap(),
         setEditor: function(editor) {
             _editor = editor;
@@ -1218,7 +1077,6 @@ define([], function() {
         dataByDom: function(domWrap, oPage) {
             var wrapType = $(domWrap).attr('wrap'),
                 dataWrap;
-            if (wrapType == 'enrollees') { wrapType = 'records' };
             if (!this[wrapType]) {
                 return false;
             }

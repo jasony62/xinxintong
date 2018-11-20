@@ -1028,13 +1028,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                         controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                             var page, data, filter;
                             $scope2.sourceApp = oApp;
-                            $scope2.page = page = {
-                                at: 1,
-                                size: 10,
-                                j: function() {
-                                    return 'page=' + this.at + '&size=' + this.size;
-                                }
-                            };
+                            $scope2.page = page = {};
                             $scope2.data = data = { mappings: {} };
                             $scope2.filter = filter = {};
                             $scope2.ok = function() {
@@ -1048,10 +1042,10 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                                 $scope2.doSearch();
                             };
                             $scope2.doSearch = function() {
-                                var url = '/rest/pl/fe/matter/enroll/list?site=' + _siteId + '&' + page.j();
+                                var url = '/rest/pl/fe/matter/enroll/list?site=' + _siteId;
                                 http2.post(url, {
                                     byTitle: filter.byTitle
-                                }).then(function(rsp) {
+                                }, { page: page }).then(function(rsp) {
                                     $scope2.apps = rsp.data.apps;
                                     if ($scope2.apps.length) {
                                         data.fromApp = $scope2.apps[0];
@@ -1059,7 +1053,6 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                                     $scope2.apps.forEach(function(oApp) {
                                         oApp.dataSchemas = JSON.parse(oApp.data_schemas);
                                     });
-                                    page.total = rsp.data.total;
                                 });
                             };
                             $scope2.doSearch();
@@ -1085,13 +1078,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                     templateUrl: '/views/default/pl/fe/matter/enroll/component/transferVotes.html?_=1',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         var oPage, oResult, oFilter;
-                        $scope2.page = oPage = {
-                            at: 1,
-                            size: 12,
-                            j: function() {
-                                return 'page=' + this.at + '&size=' + this.size;
-                            }
-                        };
+                        $scope2.page = oPage = {};
                         $scope2.result = oResult = {
                             limit: { scope: 'top', num: 3 },
                             targetSchema: null,
@@ -1128,16 +1115,15 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                             $scope2.doSearch();
                         };
                         $scope2.doSearch = function() {
-                            var url = '/rest/pl/fe/matter/enroll/list?site=' + oApp.siteid + '&' + oPage.j();
+                            var url = '/rest/pl/fe/matter/enroll/list?site=' + oApp.siteid;
                             http2.post(url, {
                                 byTitle: oFilter.byTitle
-                            }).then(function(rsp) {
+                            }, { page: oPage }).then(function(rsp) {
                                 $scope2.apps = rsp.data.apps;
                                 if ($scope2.apps.length) {
                                     oResult.fromApp = $scope2.apps[0];
                                     $scope2.selectApp();
                                 }
-                                oPage.total = rsp.data.total;
                             });
                         };
                         $scope2.doSearch();
@@ -1165,13 +1151,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                     templateUrl: '/views/default/pl/fe/matter/enroll/component/transferSchemaAndVotes.html?_=1',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         var oPage, oResult, oFilter;
-                        $scope2.page = oPage = {
-                            at: 1,
-                            size: 12,
-                            j: function() {
-                                return 'page=' + this.at + '&size=' + this.size;
-                            }
-                        };
+                        $scope2.page = oPage = {};
                         $scope2.result = oResult = {
                             votingSchemas: [],
                             limit: { scope: 'top', num: 3 }
@@ -1215,16 +1195,15 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                             $scope2.doSearch();
                         };
                         $scope2.doSearch = function() {
-                            var url = '/rest/pl/fe/matter/enroll/list?site=' + oApp.siteid + '&' + oPage.j();
+                            var url = '/rest/pl/fe/matter/enroll/list?site=' + oApp.siteid;
                             http2.post(url, {
                                 byTitle: oFilter.byTitle
-                            }).then(function(rsp) {
+                            }, { page: oPage }).then(function(rsp) {
                                 $scope2.apps = rsp.data.apps;
                                 if ($scope2.apps.length) {
                                     oResult.fromApp = $scope2.apps[0];
                                     $scope2.selectApp();
                                 }
-                                oPage.total = rsp.data.total;
                             });
                         };
                         $scope2.disabled = true; // 选择的参数是否完整
@@ -1261,13 +1240,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                     templateUrl: '/views/default/pl/fe/matter/enroll/component/transferGroupAndMarks.html?_=1',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         var oPage, oResult, oFilter;
-                        $scope2.page = oPage = {
-                            at: 1,
-                            size: 12,
-                            j: function() {
-                                return 'page=' + this.at + '&size=' + this.size;
-                            }
-                        };
+                        $scope2.page = oPage = {};
                         $scope2.result = oResult = {
                             limit: { num: 1 }
                         };
@@ -1297,16 +1270,15 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                             $scope2.doSearch();
                         };
                         $scope2.doSearch = function() {
-                            var url = '/rest/pl/fe/matter/enroll/list?site=' + oApp.siteid + '&' + oPage.j();
+                            var url = '/rest/pl/fe/matter/enroll/list?site=' + oApp.siteid;
                             http2.post(url, {
                                 byTitle: oFilter.byTitle
-                            }).then(function(rsp) {
+                            }, { page: oPage }).then(function(rsp) {
                                 $scope2.apps = rsp.data.apps;
                                 if ($scope2.apps.length) {
                                     oResult.fromApp = $scope2.apps[0];
                                     $scope2.selectApp();
                                 }
-                                oPage.total = rsp.data.total;
                             });
                         };
                         $scope2.disabled = true; // 选择的参数是否完整
@@ -1348,13 +1320,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                                 dataSchemas.push(oSchema);
                             }
                         });
-                        $scope2.page = oPage = {
-                            at: 1,
-                            size: 10,
-                            j: function() {
-                                return 'page=' + this.at + '&size=' + this.size;
-                            }
-                        };
+                        $scope2.page = oPage = {};
                         $scope2.data = oResult = {
                             matterType: 'mschema',
                             intersected: {},
@@ -1383,20 +1349,18 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                                         if ($scope2.apps.length) {
                                             oResult.fromApp = $scope2.apps[0];
                                         }
-                                        oPage.total = $scope2.apps.length;
                                     });
                                     break;
                                 case 'enroll':
-                                    url = '/rest/pl/fe/matter/enroll/list?site=' + oApp.siteid + '&' + oPage.j();
+                                    url = '/rest/pl/fe/matter/enroll/list?site=' + oApp.siteid;
                                     http2.post(url, {
                                         byTitle: oFilter.byTitle
-                                    }).then(function(rsp) {
+                                    }, { page: oPage }).then(function(rsp) {
                                         $scope2.apps = rsp.data.apps;
                                         if ($scope2.apps.length) {
                                             oResult.fromApp = $scope2.apps[0];
                                             $scope2.selectApp();
                                         }
-                                        oPage.total = rsp.data.total;
                                     });
                                     break;
                             }

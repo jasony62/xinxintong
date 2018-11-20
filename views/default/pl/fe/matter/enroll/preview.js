@@ -114,7 +114,7 @@ define(['frame'], function(ngApp) {
                             }
                             if (oPage.actSchemas[i].name === 'removeRecord') {
                                 status.page.removeRecord = 'Y';
-                            }
+                           }
                             if (oPage.actSchemas[i].next === 'repos') {
                                 status.page.repos = 'Y';
                             }
@@ -122,10 +122,6 @@ define(['frame'], function(ngApp) {
                                 status.page.rank = 'Y';
                             }
                         }
-                    }
-                } else if (oPage.type === 'L') {
-                    if (oPage.dataSchemas && oPage.dataSchemas.length) {
-                        status.page.browseHistory = 'Y';
                     }
                 }
             });

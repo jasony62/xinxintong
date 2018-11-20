@@ -182,15 +182,6 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
             var domWrap = editorProxy.appendButton(btn);
             $scope.setActiveWrap(domWrap);
         };
-        $scope.newList = function(pattern) {
-            var domWrap;
-            if (pattern === 'records') {
-                domWrap = $scope.ep.appendRecordList($scope.app);
-            } else if (pattern === 'rounds') {
-                domWrap = $scope.ep.appendRoundList($scope.app);
-            }
-            $scope.setActiveWrap(domWrap);
-        };
         $scope.removeWrap = function() {
             var wrapType = $scope.activeWrap.type,
                 schema;
@@ -514,48 +505,6 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
      * value wrap controller
      */
     ngApp.provider.controller('ctrlValueWrap', ['$scope', function($scope) {
-        $scope.updWrap = function() {
-            editorProxy.modifySchema($scope.activeWrap);
-        };
-    }]);
-    /**
-     * record list wrap controller
-     */
-    ngApp.provider.controller('ctrlRecordListWrap', ['$scope', '$timeout', function($scope, $timeout) {
-        var listSchemas = $scope.activeWrap.schemas,
-            chooseState = {};
-        $scope.appSchemas = $scope.app.data_schemas;
-        $scope.otherSchemas = [{
-            id: 'enrollAt',
-            type: '_enrollAt',
-            title: '登记时间'
-        }];
-        angular.forEach(listSchemas, function(schema) {
-            chooseState[schema.id] = true;
-        });
-        $scope.chooseState = chooseState;
-        /* 在处理activeSchema中提交 */
-        $scope.choose = function(schema) {
-            if (chooseState[schema.id]) {
-                listSchemas.push(schema);
-            } else {
-                for (var i = listSchemas.length - 1; i >= 0; i--) {
-                    if (schema.id === listSchemas[i].id) {
-                        listSchemas.splice(i, 1);
-                        break;
-                    }
-                }
-            }
-            $scope.updWrap('config', 'schemas');
-        };
-        $scope.updWrap = function() {
-            editorProxy.modifySchema($scope.activeWrap);
-        };
-    }]);
-    /**
-     * round list wrap
-     */
-    ngApp.provider.controller('ctrlRoundListWrap', ['$scope', function($scope) {
         $scope.updWrap = function() {
             editorProxy.modifySchema($scope.activeWrap);
         };

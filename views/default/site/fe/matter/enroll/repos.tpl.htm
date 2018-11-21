@@ -99,98 +99,90 @@
                         <div class='input-group-btn'>
                             <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';recordList(1)"><span class='glyphicon glyphicon-remove'></span></button>
                             <button class='btn btn-default' ng-click="recordList(1)"><span class='glyphicon glyphicon-search'></span></button>
-                            <button class='btn btn-default' ng-click="addRecord($event)"><span class="glyphicon glyphicon-plus"></span> 添加记录</button>
                             <button id='advCriteriaSwitch' ng-if="dirSchemas.length" class="btn btn-default visible-xs-inline-block" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">
                                 <span class='glyphicon glyphicon-filter' ng-class="{'opened':advCriteriaStatus.opened}"></span>
                             </button>
                         </div>
                     </div>
-                    <ul class="history-panel" ng-if="historyRecords.length" ng-show="flag">
-                        <li class="history-item" ng-repeat="record in historyRecords" ng-click="chooseHistoryRecord(record)">{{record}}</li>
-                        <li class="history-item history-close" ng-click="toggleHistory('close', $event)">关闭</li>
-                    </ul>
                 </div>
                 <div id='filterQuick' ng-cloak>
-                    <div ng-if="rounds.length>1" class="btn-group" uib-dropdown dropdown-append-to-body='true'>
-                        <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
-                            <span>轮次</span>
-                            <span class="glyphicon glyphicon-filter"></span>
-                        </button>
-                        <ul class="dropdown-menu" uib-dropdown-menu>
-                            <li><a href ng-click="shiftRound()">全部</a></li>
-                            <li ng-repeat="rnd in rounds"><a href ng-click="shiftRound(rnd)">{{rnd.title}}</a></li>
-                        </ul>
-                    </div>
-                    <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
-                        <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
-                            <span ng-if="criteria.orderby==='lastest'">最近修改</span>
-                            <span ng-if="criteria.orderby==='earliest'">最早修改</span>
+                    <div class="site-dropdown" uib-dropdown>
+                        <a href uib-dropdown-toggle class="site-dropdown-title" ng-class="{'active':criteria.orderby!=='lastest_first'}">
                             <span ng-if="criteria.orderby==='lastest_first'">最近提交</span>
                             <span ng-if="criteria.orderby==='earliest_first'">最早提交</span>
                             <span ng-if="criteria.orderby==='mostliked'">最多赞同</span>
                             <span ng-if="criteria.orderby==='agreed'">精选推荐</span>
-                            <span class="glyphicon glyphicon-sort"></span>
-                        </button>
-                        <ul class="dropdown-menu" uib-dropdown-menu>
-                            <li><a href trace-biz ng-click="shiftOrderby('lastest')">最近修改</a></li>
-                            <li><a href trace-biz ng-click="shiftOrderby('earliest')">最早修改</a></li>
-                            <li><a href trace-biz ng-click="shiftOrderby('lastest_first')">最近提交</a></li>
-                            <li><a href trace-biz ng-click="shiftOrderby('earliest_first')">最早提交</a></li>
-                            <li><a href trace-biz ng-click="shiftOrderby('mostliked')">最多赞同</a></li>
-                            <li><a href trace-biz ng-click="shiftOrderby('agreed')">精选推荐</a></li>
+                            <span class="glyphicon glyphicon-menu-down"></span>
+                        </a>
+                        <ul class="dropdown-menu site-dropdown-menu" uib-dropdown-menu>
+                            <li><a href ng-click="shiftOrderby('lastest_first')">最近提交</a></li>
+                            <li><a href ng-class="{'active':criteria.orderby==='earliest_first'}" ng-click="shiftOrderby('earliest_first')">最早提交</a></li>
+                            <li><a href ng-class="{'active':criteria.orderby==='mostliked'}" ng-click="shiftOrderby('mostliked')">最多赞同</a></li>
+                            <li><a href ng-class="{'active':criteria.orderby==='agreed'}" ng-click="shiftOrderby('agreed')">精选推荐</a></li>
                         </ul>
                     </div>
-                    <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
-                        <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
-                            <span ng-if="criteria.agreed==='all'">表态</span>
-                            <span ng-if="criteria.agreed==='Y'">推荐</span>
-                            <span ng-if="criteria.agreed==='D'">讨论</span>
-                            <span ng-if="criteria.agreed==='N'">关闭</span>
-                            <span class="glyphicon glyphicon-filter"></span>
-                        </button>
-                        <ul class="dropdown-menu" uib-dropdown-menu>
-                            <li><a href trace-biz ng-click="shiftAgreed('all')">全部</a></li>
-                            <li><a href trace-biz ng-click="shiftAgreed('Y')">推荐</a></li>
-                            <li><a href trace-biz ng-click="shiftAgreed('D')">讨论</a></li>
-                            <li><a href trace-biz ng-click="shiftAgreed('N')">关闭</a></li>
-                        </ul>
-                    </div>
-                    <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
-                        <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
-                            <span ng-if="criteria.cowork.agreed==='all'">协作</span>
+                    <div class="site-dropdown" uib-dropdown>
+                        <a href uib-dropdown-toggle class="site-dropdown-title" ng-class="{'active':criteria.cowork.agreed!=='all'}">
+                            <span ng-if="criteria.cowork.agreed==='all'">所有问题</span>
                             <span ng-if="criteria.cowork.agreed==='answer'">已回答</span>
                             <span ng-if="criteria.cowork.agreed==='unanswer'">等待回答</span>
-                            <span class="glyphicon glyphicon-filter"></span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
-                            <li><a href trace-biz ng-click="shiftCoworkAgreed('all')">全部</a></li>
-                            <li><a href trace-biz ng-click="shiftCoworkAgreed('answer')">已回答</a></li>
-                            <li><a href trace-biz ng-click="shiftCoworkAgreed('unanswer')">等待回答</a></li>
+                            <span class="glyphicon glyphicon-menu-down"></span>
+                        </a>
+                        <ul class="dropdown-menu site-dropdown-menu" uib-dropdown-menu>
+                            <li><a href ng-click="shiftCoworkAgreed('all')">所有问题</a></li>
+                            <li><a href ng-class="{'active':criteria.cowork.agreed==='answer'}" ng-click="shiftCoworkAgreed('answer')">已回答</a></li>
+                            <li><a href ng-class="{'active':criteria.cowork.agreed==='unanswer'}" ng-click="shiftCoworkAgreed('unanswer')">等待回答</a></li>
                         </ul>
                     </div>
-                    <div ng-if="userGroups.length" class="btn-group" uib-dropdown dropdown-append-to-body='true'>
-                        <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
-                            <span>分组</span>
-                            <span class="glyphicon glyphicon-filter"></span>
-                        </button>
-                        <ul class="dropdown-menu" uib-dropdown-menu>
-                            <li><a href trace-biz ng-click="shiftUserGroup()">全部</a></li>
-                            <li ng-repeat="ug in userGroups"><a href trace-biz ng-click="shiftUserGroup(ug)">{{ug.title}}</a></li>
-                        </ul>
-                    </div>
-                    <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
-                        <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
-                            <span>更多</span>
-                            <span class="glyphicon glyphicon-filter"></span>
-                        </button>
-                        <ul class="dropdown-menu" uib-dropdown-menu>
-                            <li><a trace-biz href ng-click="shiftMine('我的记录')">我的记录</a></li>
-                            <li ng-if="user.unionid"><a href trace-biz ng-click="shiftMine('我的收藏')">我的收藏</a></li>
+                    <div class="site-dropdown pull-right" uib-dropdown dropdown-append-to='appendToEle'>
+                        <a href uib-dropdown-toggle class="site-dropdown-title" ng-click="toggleFilterMore('open')">
+                            <span>筛选 </span><i class="glyphicon glyphicon-menu-down"></i>
+                        </a>
+                        <ul class="dropdown-menu site-dropdown-list" uib-dropdown-menu>
+                            <li class="dropdown-list-wrapper">
+                                <div class="list-left">
+                                    <ul class="nav nav-pills nav-stacked">
+                                        <li ng-if="rounds.length>1"><a href="#status1">轮次</a></li>
+                                        <li><a href="#status2">表态</a></li>
+                                        <li><a href="#status3">分组</a></li>
+                                        <li><a href="#status4">更多</a></li>
+                                    </ul>
+                                </div>
+                                <div class="list-right">
+                                    <div id="status1" ng-if="rounds.length>1">
+                                        <div ng-class="{'active':criteria.rid==='all'}" ng-click="shiftRound()">全部</div>
+                                        <div ng-repeat="rnd in rounds" ng-class="{'active':criteria.rid===rnd.rid}" ng-click="shiftRound(rnd)">{{rnd.title}}</div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="dropdown-list-btn">
+                                <button class="btn btn-danger" ng-click="rest()">重置</button>
+                                <button class="btn btn-info" ng-click="confirm()">確定</button>
+                            </li>
                         </ul>
                     </div>
                 </div>
+                <!-- <div class="dropdown-list">
+                    <a href class="dropdown-list-title" ng-click="toggleFilterMore('open')"><span>筛选 </span><i class="glyphicon glyphicon-menu-down"></i></a>
+                    <div class="row dropdown-list-menu">
+                        <div class="col-md-3">
+                            <ul class="nav nav-pills nav-stacked">
+                                <li><a href="#status7">页面预览</a></li>
+                                <li><a href="#status1">填写题目</a></li>
+                                <li><a href="#status2">用户页面</a></li>
+                                <li><a href="#status3">填写人</a></li>
+                                <li><a href="#status4">活动时间</a></li>
+                                <li><a href="#status5">访问链接</a></li>
+                                <li><a href="#status6">填写记录</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-9">
+                            
+                        </div>
+                    </div>
+                </div> -->
                 <!-- end: filterQuick -->
-                <div id='filterTip' ng-if="filter.round||filter.group||filter.mine||filter.tags.length">
+                <div id='filterTip' class="visible-xs" ng-if="filter.round||filter.group||filter.mine||filter.tags.length">
                     <div class="bg-info small" ng-if="filter.round">
                         <span>{{filter.round.title}}</span>
                         <button class="close" trace-biz ng-click="shiftRound()"><span>&times;</span></button>

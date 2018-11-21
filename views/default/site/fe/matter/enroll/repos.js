@@ -31,27 +31,16 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
         return false;
     }
-    var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oMocker, _oHistoryRecords, localStorageValues;
-    localStorageValues = localStorage.getItem("xxt.search.historys"); // 读取localstorage中的搜索历史
+    var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oMocker;
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = {};
     $scope.filter = _oFilter = {}; // 过滤条件
-    $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'lastest', cowork: { agreed: 'all' }, rid: 'all' }; // 数据查询条件
+    $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'lastest_first', cowork: { agreed: 'all' }, rid: 'all' }; // 数据查询条件
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.repos = []; // 分享的记录
     $scope.reposLoading = false;
-    $scope.flag = false;
-    $scope.historyRecords = _oHistoryRecords = localStorageValues ? JSON.parse(localStorageValues) : [];
-    $scope.chooseHistoryRecord = function(record) {
-        _oCriteria.keyword = record;
-        $scope.recordList(1);
-        $scope.flag = false;
-    }
-    $scope.toggleHistory = function(isOpen, event) {
-        event.preventDefault();
-        event.stopPropagation();
-        $scope.flag = isOpen == 'open' ? true : false;
-    }
+    $scope.open = true;
+    $scope.appendToEle = angular.element(document.querySelector('#filterQuick'));
     $scope.recordList = function(pageAt) {
         var url, deferred;
         deferred = $q.defer();
@@ -75,13 +64,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                     oRecord._canAgree = fnCanAgreeRecord(oRecord, $scope.user);
                     $scope.repos.push(oRecord);
                 });
-            }
-            if (_oCriteria.keyword && _oHistoryRecords.indexOf(_oCriteria.keyword) == -1) {
-                if (_oHistoryRecords.length >= 5) {
-                    _oHistoryRecords.shift(0);
-                }
-                _oHistoryRecords.push(_oCriteria.keyword);
-                localStorage.setItem('xxt.search.historys', JSON.stringify(_oHistoryRecords));
             }
             $timeout(function() {
                 var imgs;

@@ -99,24 +99,6 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
         };
         this._bGetAfter = function(oEnrollApp, fnCallback) {
             oEnrollApp.tags = (!oEnrollApp.tags || oEnrollApp.tags.length === 0) ? [] : oEnrollApp.tags.split(',');
-            if (oEnrollApp.groupApp && oEnrollApp.groupApp.dataSchemas) {
-                if (oEnrollApp.groupApp.rounds && oEnrollApp.groupApp.rounds.length) {
-                    var roundDS = {
-                            id: '_round_id',
-                            type: 'single',
-                            title: '分组名称',
-                        },
-                        ops = [];
-                    oEnrollApp.groupApp.rounds.forEach(function(round) {
-                        ops.push({
-                            v: round.round_id,
-                            l: round.title
-                        });
-                    });
-                    roundDS.ops = ops;
-                    oEnrollApp.groupApp.dataSchemas.splice(0, 0, roundDS);
-                }
-            }
             fnCallback(oEnrollApp);
             if (oEnrollApp.pages) {
                 oEnrollApp.pages.forEach(function(oPage) {
@@ -258,6 +240,21 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
             _self = {
                 get: function() {
                     return _fnGetApp(_fnMakeApiUrl('get'));
+                },
+                renew: function(props) {
+                    if (_oApp) {
+                        http2.get(_fnMakeApiUrl('get')).then(function(rsp) {
+                            var oNewApp = rsp.data;
+                            if (props && props.length) {
+                                props.forEach(function(prop) {
+                                    _oApp[prop] = oNewApp[prop];
+                                });
+                            } else {
+                                http2.merge(_oApp, oNewApp);
+                            }
+                            _ins._bGetAfter(_oApp, _fnMapSchemas);
+                        });
+                    }
                 },
                 update: function(names) {
                     var defer = $q.defer(),

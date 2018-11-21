@@ -255,6 +255,21 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
                     return _getAppDeferred.promise;
                 },
+                renew: function(props) {
+                    if (_oApp) {
+                        http2.get('/rest/pl/fe/matter/signin/get?site=' + siteId + '&id=' + appId).then(function(rsp) {
+                            var oNewApp = rsp.data;
+                            if (props && props.length) {
+                                props.forEach(function(prop) {
+                                    _oApp[prop] = oNewApp[prop];
+                                });
+                            } else {
+                                http2.merge(_oApp, oNewApp);
+                            }
+                            _ins._bGet(app, _fnMapSchemas);
+                        });
+                    }
+                },
                 update: function(names) {
                     var defer = $q.defer(),
                         modifiedData = {},

@@ -1322,6 +1322,13 @@ service('tkEnrollApp', ['$q', '$uibModal', 'http2', function($q, $uibModal, http
         url = '/rest/pl/fe/matter/enroll/' + action + '?site=' + oApp.siteid + '&app=' + oApp.id;
         return url;
     }
+    this.get = function(id) {
+        var defer = $q.defer();
+        http2.get('/rest/pl/fe/matter/enroll/get?app=' + id).then(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    };
     this.update = function(oApp, oModifiedData) {
         var defer = $q.defer();
         http2.post(_fnMakeApiUrl(oApp, 'update'), oModifiedData).then(function(rsp) {

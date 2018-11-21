@@ -83,7 +83,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         for (var i = oApp.dataSchemas.length - 1; i >= 0; i--) {
                             oSchema = oApp.dataSchemas[i];
                             if (oSchema.required === 'Y') {
-                                if (oSchema.type === 'shorttext' || oSchema.type === 'member') {
+                                if (oSchema.type === 'shorttext') {
                                     if (oSchema.title === '姓名') {
                                         oNicknameSchema = oSchema;
                                         break;
@@ -279,10 +279,9 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 return oNewSchema;
             };
             $scope.newByOtherApp = function(oProtoSchema, oOtherApp, oAfterSchema) {
-                var oNewSchema, schemaType;
+                var oNewSchema;
 
-                schemaType = oProtoSchema.type === 'member' ? 'shorttext' : oProtoSchema.type;
-                oNewSchema = schemaLib.newSchema(schemaType, $scope.app, oProtoSchema);
+                oNewSchema = schemaLib.newSchema(oProtoSchema.type, $scope.app, oProtoSchema);
                 oNewSchema.id = oProtoSchema.id;
                 oNewSchema.requireCheck = 'Y';
                 oNewSchema.fromApp = oOtherApp.id;
@@ -318,10 +317,8 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 oAppSchema = $scope.app._schemasById[oOtherSchema.id];
                 if (oAppSchema) {
                     if (oAppSchema.type !== oOtherSchema.type) {
-                        if (!/shorttext|member/.test(oAppSchema.type) || !/shorttext|member/.test(oOtherSchema.type)) {
-                            alert('题目【' + oOtherSchema.title + '】和【' + oAppSchema.title + '】的类型不一致，无法关联');
-                            return;
-                        }
+                        alert('题目【' + oOtherSchema.title + '】和【' + oAppSchema.title + '】的类型不一致，无法关联');
+                        return;
                     }
                     if (oAppSchema.title !== oOtherSchema.title) {
                         alert('题目【' + oOtherSchema.title + '】和【' + oAppSchema.title + '】的名称不一致，无法关联');
@@ -534,7 +531,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             fnGenNewSchema = function(oProtoSchema) {
                                 var oNewSchema;
                                 oNewSchema = schemaLib.newSchema(oProtoSchema.type, _oApp, { id: oProtoSchema.id });
-                                oNewSchema.type === 'member' && (oNewSchema.schema_id = oProtoSchema.schema_id);
+                                oProtoSchema.schema_id && (oNewSchema.schema_id = oProtoSchema.schema_id);
                                 oNewSchema.title = oProtoSchema.title;
                                 if (oProtoSchema.ops) {
                                     oNewSchema.ops = oProtoSchema.ops;
@@ -1481,7 +1478,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     oApp.recycleSchemas = aNewRecycleSchemas;
                     srvApp.update('recycleSchemas');
                     /* 去除关联状态 */
-                    if (oRemovedSchema.type === 'member') {
+                    if (oRemovedSchema.schema_id) {
                         if (oAssocSchema = $scope.unassocWithMschema(oRemovedSchema, true)) {
                             oAssocSchema.assocState = '';
                         }
@@ -1753,10 +1750,6 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
         $scope.editing = _oEditing = {};
         $scope.changeSchemaType = function() {
             var oBeforeState;
-            if (_oEditing.type === 'member') {
-                _oEditing.type = $scope.activeSchema.type;
-                return;
-            }
             oBeforeState = angular.copy($scope.activeSchema);
             if (false === schemaLib.changeType($scope.activeSchema, _oEditing.type)) {
                 _oEditing.type = $scope.activeSchema.type;

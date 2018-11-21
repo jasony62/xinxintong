@@ -326,7 +326,7 @@ define([], function() {
                     html += '<input type="text" ng-model="data.' + oSchema.id + '" title="' + oSchema.title + '"';
                     oSchema.placeholder && (html += ' placeholder="' + oSchema.title + '"');
                     oSchema.required === 'Y' && (html += 'required=""');
-                    oSchema.type === 'member' && (html += 'ng-init="data.member.schema_id=' + oSchema.schema_id + '"');
+                    oSchema.schema_id && (html += 'ng-init="data.member.schema_id=' + oSchema.schema_id + '"');
                     html += ' class="form-control input-lg"';
                     bForEdit && (html += ' readonly');
                     html += '>';

@@ -24,22 +24,20 @@ define(['wrap'], function(SchemaWrap) {
         moveSchema: function(oMovedSchema, oPrevSchema) {
             var movedWrap, prevWrap, $html, $movedHtml, $prevHtml;
 
-            if (/I|V/.test(this.type)) {
-                movedWrap = this.wrapBySchema(oMovedSchema);
-                this.dataSchemas.splice(this.dataSchemas.indexOf(movedWrap), 1);
-                $html = $('<div>' + this.html + '</div>');
-                $movedHtml = $html.find('[schema="' + oMovedSchema.id + '"]');
-                if (oPrevSchema) {
-                    prevWrap = this.wrapBySchema(oPrevSchema);
-                    this.dataSchemas.splice(this.dataSchemas.indexOf(prevWrap), 0, movedWrap);
-                    $prevHtml = $html.find("[schema='" + oPrevSchema.id + "']");
-                    $prevHtml.after($movedHtml);
-                } else {
-                    this.dataSchemas.splice(0, 0, movedWrap);
-                    $($html.find('[schema]').get(0)).before($movedHtml);
-                }
-                this.html = $html.html();
+            movedWrap = this.wrapBySchema(oMovedSchema);
+            this.dataSchemas.splice(this.dataSchemas.indexOf(movedWrap), 1);
+            $html = $('<div>' + this.html + '</div>');
+            $movedHtml = $html.find('[schema="' + oMovedSchema.id + '"]');
+            if (oPrevSchema) {
+                prevWrap = this.wrapBySchema(oPrevSchema);
+                this.dataSchemas.splice(this.dataSchemas.indexOf(prevWrap), 0, movedWrap);
+                $prevHtml = $html.find("[schema='" + oPrevSchema.id + "']");
+                $prevHtml.after($movedHtml);
+            } else {
+                this.dataSchemas.splice(0, 0, movedWrap);
+                $($html.find('[schema]').get(0)).before($movedHtml);
             }
+            this.html = $html.html();
         },
         check: function() {
             var $html, schemasById, oSchema, $schemas, $schema;

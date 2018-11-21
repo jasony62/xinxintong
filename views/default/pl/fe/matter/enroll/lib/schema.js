@@ -120,15 +120,6 @@ define([], function() {
             return oSchema;
         },
         changeType: function(schema, newType) {
-            if ('member' === newType && !/^member\./.test(schema.id)) {
-                return false;
-            }
-            if ('member' === schema.type) {
-                if (!/shorttext/.test(newType)) {
-                    return false;
-                }
-                delete schema.schema_id;
-            }
             if (/single|multiple|score/.test(schema.type) && !/single|multiple|score/.test(newType)) {
                 delete schema.ops;
             }

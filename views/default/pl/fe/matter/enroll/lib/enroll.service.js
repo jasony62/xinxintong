@@ -633,9 +633,9 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                 });
                 return defer.promise;
             };
-            _ins.update = function(record, updated) {
+            _ins.update = function(oRecord, oUpdated) {
                 var defer = $q.defer();
-                http2.post('/rest/pl/fe/matter/enroll/record/update?site=' + _siteId + '&app=' + _appId + '&ek=' + record.enroll_key, updated).then(function(rsp) {
+                http2.post('/rest/pl/fe/matter/enroll/record/update?site=' + _siteId + '&app=' + _appId + '&ek=' + oRecord.enroll_key, oUpdated).then(function(rsp) {
                     defer.resolve(rsp.data);
                 });
                 return defer.promise;

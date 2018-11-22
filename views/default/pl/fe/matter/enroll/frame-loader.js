@@ -93,6 +93,7 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
             "entryRule": '/views/default/pl/fe/_module/entryRule',
             "roundCron": '/views/default/pl/fe/_module/roundCron',
             "roundEditor": '/views/default/pl/fe/matter/enroll/component/roundEditor',
+            'recordEditor': '/views/default/pl/fe/matter/enroll/component/recordEditor'
         }
     }
     window.MATTER_TYPE = 'Enroll'; // 为了支持动态加载服务模块

@@ -134,58 +134,62 @@
                             <li><a href ng-class="{'active':criteria.cowork.agreed==='unanswer'}" ng-click="shiftCoworkAgreed('unanswer')">等待回答</a></li>
                         </ul>
                     </div>
-                    <div class="site-dropdown pull-right" uib-dropdown dropdown-append-to='appendToEle'>
-                        <a href uib-dropdown-toggle class="site-dropdown-title" ng-click="toggleFilterMore('open')">
+                    <div class="site-dropdown pull-right" uib-dropdown dropdown-append-to='appendToEle' auto-close="disabled" is-open="status.isopen" >
+                        <a href uib-dropdown-toggle class="site-dropdown-title" ng-class="{'active':criterias.hasCriteria}">
                             <span>筛选 </span><i class="glyphicon glyphicon-menu-down"></i>
                         </a>
                         <ul class="dropdown-menu site-dropdown-list" uib-dropdown-menu>
                             <li class="dropdown-list-wrapper">
-                                <div class="list-left">
+                                <div class="list-left" id="filterScrollspy">
                                     <ul class="nav nav-pills nav-stacked">
-                                        <li ng-if="rounds.length>1"><a href="#status1">轮次</a></li>
-                                        <li><a href="#status2">表态</a></li>
-                                        <li><a href="#status3">分组</a></li>
-                                        <li><a href="#status4">更多</a></li>
+                                        <li ng-if="rounds.length>1" ng-click="shiftMenu('round')" ng-class="{'active':filter.menu==='round','checked':filter.round!==undefined}"><a href="#status1">轮次</a></li>
+                                        <li ng-click="shiftMenu('agreed')" ng-class="{'active':filter.menu==='agreed','checked':filter.agreed!==undefined}"><a href="#status2">表态</a></li>
+                                        <li ng-click="shiftMenu('userGroup')" ng-class="{'active':filter.menu==='userGroup','checked':filter.group!==undefined}"><a href="#status3">分组</a></li>
+                                        <li ng-click="shiftMenu('mine')" ng-class="{'active':filter.menu==='mine','checked':filter.mine!==undefined}"><a href="#status4">我的</a></li>
                                     </ul>
                                 </div>
-                                <div class="list-right">
-                                    <div id="status1" ng-if="rounds.length>1">
-                                        <div ng-class="{'active':criteria.rid==='all'}" ng-click="shiftRound()">全部</div>
-                                        <div ng-repeat="rnd in rounds" ng-class="{'active':criteria.rid===rnd.rid}" ng-click="shiftRound(rnd)">{{rnd.title}}</div>
+                                <div class="list-right" data-spy="scroll" data-target="#filterScrollspy">
+                                    <div id="status1" class="list-group" ng-if="rounds.length>1">
+                                        <a href class="list-group-item" ng-class="{'active':criteria.rid==='all'}" ng-click="shiftRound()">不限</a>
+                                        <a href class="list-group-item" ng-class="{'active':criteria.rid===rnd.rid}" ng-repeat="rnd in rounds" ng-click="shiftRound(rnd)">{{rnd.title}}</a>
+                                    </div>
+                                    <div id="status2" class="list-group">
+                                        <a href class="list-group-item" ng-class="{'active':criteria.agreed==='all'}" ng-click="shiftAgreed()">不限</a>
+                                        <a href class="list-group-item" ng-class="{'active':criteria.agreed==='Y'}" ng-click="shiftAgreed('Y')">推荐</a>
+                                        <a href class="list-group-item" ng-class="{'active':criteria.agreed==='D'}" ng-click="shiftAgreed('D')" ng-show="user.is_editor=='Y'||user.is_leader=='S'">讨论</a>
+                                        <a href class="list-group-item" ng-class="{'active':criteria.agreed==='S'}" ng-click="shiftAgreed('N')" ng-show="user.is_editor=='Y'||user.is_leader=='S'">关闭</a>
+                                    </div>
+                                    <div id="status3" class="list-group">
+                                        <a href class="list-group-item" ng-class="{'active':criteria.userGroup==='all'}" ng-click="shiftUserGroup()">不限</a>
+                                        <a href class="list-group-item" ng-class="{'active':criteria.userGroup===ug.round_id}" ng-repeat="ug in userGroups" ng-click="shiftUserGroup(ug)">{{ug.title}}</a>
+                                    </div>
+                                    <div id="status4" class="list-group">
+                                        <a href class="list-group-item" ng-class="{'active':filter.mine===undefined}" ng-click="shiftMine()">不限</a>
+                                        <a href class="list-group-item" ng-class="{'active':filter.mine==='我的记录'}" ng-click="shiftMine('我的记录')">我的记录</a>
+                                        <a href class="list-group-item" ng-class="{'active':filter.mine==='我的收藏'}" ng-click="shiftMine('我的收藏')">我的收藏</a>
                                     </div>
                                 </div>
                             </li>
                             <li class="dropdown-list-btn">
-                                <button class="btn btn-danger" ng-click="rest()">重置</button>
-                                <button class="btn btn-info" ng-click="confirm()">確定</button>
+                                <button class="btn btn-danger" ng-click="reset()">重置</button>
+                                <button class="btn btn-info" ng-click="confirm($event)">确定</button>
                             </li>
                         </ul>
                     </div>
                 </div>
-                <!-- <div class="dropdown-list">
-                    <a href class="dropdown-list-title" ng-click="toggleFilterMore('open')"><span>筛选 </span><i class="glyphicon glyphicon-menu-down"></i></a>
-                    <div class="row dropdown-list-menu">
-                        <div class="col-md-3">
-                            <ul class="nav nav-pills nav-stacked">
-                                <li><a href="#status7">页面预览</a></li>
-                                <li><a href="#status1">填写题目</a></li>
-                                <li><a href="#status2">用户页面</a></li>
-                                <li><a href="#status3">填写人</a></li>
-                                <li><a href="#status4">活动时间</a></li>
-                                <li><a href="#status5">访问链接</a></li>
-                                <li><a href="#status6">填写记录</a></li>
-                            </ul>
-                        </div>
-                        <div class="col-md-9">
-                            
-                        </div>
-                    </div>
-                </div> -->
                 <!-- end: filterQuick -->
-                <div id='filterTip' class="visible-xs" ng-if="filter.round||filter.group||filter.mine||filter.tags.length">
+                <div id='filterTip' class="hidden-xs" ng-if="filter.round||filter.agreed||filter.group||filter.mine||filter.tags.length">
                     <div class="bg-info small" ng-if="filter.round">
                         <span>{{filter.round.title}}</span>
                         <button class="close" trace-biz ng-click="shiftRound()"><span>&times;</span></button>
+                    </div>
+                    <div class="bg-info small" ng-if="filter.agreed" >
+                        <span ng-switch="filter.agreed">
+                            <span ng-switch-when="Y">推荐</span>
+                            <span ng-switch-when="D">讨论</span>
+                            <span ng-switch-when="S">关闭</span>
+                        </span>
+                        <button class="close" trace-biz ng-click="shiftAgreed()"><span>&times;</span></button>
                     </div>
                     <div class="bg-info small" ng-if="filter.group">
                         <span>{{filter.group.title}}</span>
@@ -193,7 +197,7 @@
                     </div>
                     <div class="bg-info small" ng-if="filter.mine">
                         <span>{{filter.mine}}</span>
-                        <button class="close" trace-biz ng-click="shiftMine('')"><span>&times;</span></button>
+                        <button class="close" trace-biz ng-click="shiftMine()"><span>&times;</span></button>
                     </div>
                     <div class="bg-info small" ng-repeat="tag in filter.tags">
                         <span ng-bind="tag.label"></span>
@@ -309,6 +313,8 @@
     <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/repos.js');?>"></script>
 </body>

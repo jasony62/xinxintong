@@ -167,8 +167,8 @@ button.option {
         a:focus, a:hover {
             text-decoration: none;
         } 
-
-        .site-dropdown-title.active, .site-dropdown-menu>li>a.active{
+        
+        a.active {
             color: #ff8018;
         }
     }
@@ -177,12 +177,20 @@ button.option {
         width: 100% !important;
         right: 0 !important;
         left: auto !important;
+        background-color: #f0f0f0;
+        padding: 0;
+        
 
         .dropdown-list-wrapper {
             display: flex;
             width: 100%;
             height: 25rem;
             overflow: hidden;
+            
+            a.active {
+                color: #ff8018;
+                background-color: #fff;
+            }
 
             .list-left, .list-right{
                 display: block;
@@ -193,12 +201,52 @@ button.option {
             }
 
             .list-left {
-                width: 10rem;
+                width: 8rem;
+
+                a {
+                    color: #333;
+                }
+                
+                .nav-pills>li.checked:after {
+                    content: '.';
+                    color: #ff8018;
+                    position: absolute;
+                    top:0;
+                    left:5px;
+                    font-size: 20px;
+                }
+
+                .nav-pills>li.checked>a {
+                    color: #ff8018;
+                }
+                
+                .nav-pills>li.active>a, .nav-pills>li.active>a:focus, .nav-pills>li.active>a:hover {
+                    color: #ff8018;
+                    background-color: #fff;
+                }
             }
 
             .list-right {
                 flex: 1;
+                background-color: #fff;
 
+                .list-group-item:first-child {
+                    border-top-left-radius: 0;
+                    border-top-right-radius: 0;
+                }
+
+                .list-group-item {
+                    border: 0;
+                    overflow: hidden;
+                    white-space:nowrap;
+                    text-overflow:ellipsis;
+                }
+
+                .list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {
+                    color: #ff8018;
+                    background-color: #fff;
+                    border-color: #fff;
+                }
             }
         }
 

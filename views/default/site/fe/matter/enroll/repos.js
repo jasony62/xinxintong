@@ -34,12 +34,12 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oMocker;
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = {};
-    $scope.filter = _oFilter = {}; // 过滤条件
-    $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'lastest_first', cowork: { agreed: 'all' }, rid: 'all' }; // 数据查询条件
+    $scope.filter = _oFilter = { menu: 'round', round: undefined, agreed: undefined, group: undefined, mine: undefined}; // 过滤条件
+    $scope.criteria = _oCriteria = { orderby: 'lastest_first', cowork: { agreed: 'all' }, rid: 'all', agreed: 'all', userGroup: 'all', creator: false, favored:false}; // 数据查询条件
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.repos = []; // 分享的记录
     $scope.reposLoading = false;
-    $scope.open = true;
+    $scope.status = { isopen: false };
     $scope.appendToEle = angular.element(document.querySelector('#filterQuick'));
     $scope.recordList = function(pageAt) {
         var url, deferred;
@@ -225,15 +225,50 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     $scope.copyRecord = function(event, oRecord) {
         enlAssoc.copy($scope.app, { id: oRecord.id, type: 'record' });
     };
+    $scope.confirm = function($event) {
+        $event.preventDefault();
+        $event.stopPropagation();
+        $scope.status.isopen = !$scope.status.isopen;
+        $scope.recordList(1);
+    };
+    $scope.reset = function() {
+        $scope.shiftMenu('round');
+        $scope.shiftRound();
+        $scope.shiftAgreed();
+        $scope.shiftUserGroup();
+        $scope.shiftMine();
+    };
+    $scope.shiftMenu = function(menu) {
+        _oFilter.menu = menu;
+    }
     $scope.shiftRound = function(oRound) {
         _oFilter.round = oRound;
         _oCriteria.rid = oRound ? oRound.rid : 'all';
-        $scope.recordList(1);
+    };
+    $scope.shiftAgreed = function(agreed) {
+        _oFilter.agreed = agreed;
+        _oCriteria.agreed = agreed ? agreed : 'all';
     };
     $scope.shiftUserGroup = function(oUserGroup) {
         _oFilter.group = oUserGroup;
-        _oCriteria.userGroup = oUserGroup ? oUserGroup.round_id : null;
-        $scope.recordList(1);
+        _oCriteria.userGroup = oUserGroup ? oUserGroup.round_id : 'all';
+    };
+    $scope.shiftMine = function(filterBy) {
+        delete _oCriteria.creator;
+        delete _oCriteria.favored;
+        switch (filterBy) {
+            case '我的记录':
+                _oCriteria.creator = true;
+                break;
+            case '我的收藏':
+                _oCriteria.favored = true;
+                break;
+            default:
+               _oCriteria.creator = false;
+               _oCriteria.favored = false;
+               break;
+        }
+        _oFilter.mine = filterBy;
     };
     $scope.shiftTag = function(oTag, bToggle) {
         if (bToggle) {
@@ -255,25 +290,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             _oFilter.tags.splice(_oFilter.tags.indexOf(oTag), 1);
             _oCriteria.tags.splice(_oFilter.tags.indexOf(oTag.tag_id), 1);
         }
-        $scope.recordList(1);
-    };
-    $scope.shiftMine = function(filterBy) {
-        delete _oCriteria.creator;
-        delete _oCriteria.favored;
-        switch (filterBy) {
-            case '我的记录':
-                _oCriteria.creator = true;
-                break;
-            case '我的收藏':
-                _oCriteria.favored = true;
-                break;
-            default:
-        }
-        _oFilter.mine = filterBy;
-        $scope.recordList(1);
-    };
-    $scope.shiftAgreed = function(agreed) {
-        _oCriteria.agreed = agreed;
         $scope.recordList(1);
     };
     $scope.shiftCoworkAgreed = function(agreed) {

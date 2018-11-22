@@ -80,6 +80,20 @@ ngApp.controller('ctrlAccount', ['$scope', '$uibModal', 'http2', 'noticebox', fu
             });
         });
     };
+    $scope.forbideUser = function(user) {
+        if (window.confirm('确定关闭帐号【' + user.uname + '】？')) {
+            http2.post('/rest/pl/be/user/account/forbide', { uid: user.uid }).then(function(rsp) {
+                user.forbidden = '1';
+            });
+        }
+    };
+    $scope.activeUser = function(user) {
+        if (window.confirm('确定关闭帐号【' + user.uname + '】？')) {
+            http2.post('/rest/pl/be/user/account/active', { uid: user.uid }).then(function(rsp) {
+                user.forbidden = '0';
+            });
+        }
+    };
     http2.get('/rest/pl/be/user/group/list').then(function(rsp) {
         $scope.groups = rsp.data;
         doSearch(1);
@@ -119,5 +133,3 @@ ngApp.controller('ctrlGroup', ['$scope', 'http2', 'noticebox', function($scope, 
         }
     });
 }]);
-/***/
-angular.bootstrap(document, ["app"]);

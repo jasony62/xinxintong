@@ -1,4 +1,5 @@
 'use strict';
+require('../../../../../../asset/css/buttons.css');
 require('./input.css');
 
 require('../../../../../../asset/js/xxt.ui.image.js');

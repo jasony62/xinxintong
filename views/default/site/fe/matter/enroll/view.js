@@ -1,4 +1,5 @@
 'use strict';
+require('../../../../../../asset/css/buttons.css');
 require('./view.css');
 
 require('./_asset/ui.round.js');

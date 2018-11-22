@@ -116,8 +116,8 @@
                         <button class='btn btn-default btn-xs' ng-click="unassocWithOtherApp(schema) "><span class='glyphicon glyphicon-remove'></span></button>
                     </div>
                 </div>
-                <div ng-if="schema.schema_id">
-                    <div class='hint text-muted'>用通讯录【<span>{{mschemasById[schema.schema_id].title}}</span>】中【<span>{{mschemasById[schema.schema_id]._schemasById[schema.id].title}}</span>】自动填写
+                <div ng-if="schema.mschema_id">
+                    <div class='hint text-muted'>用通讯录【<span>{{mschemasById[schema.mschema_id].title}}</span>】中【<span>{{mschemasById[schema.mschema_id]._schemasById[schema.id].title}}</span>】自动填写
                         <button class='btn btn-default btn-xs' ng-click="unassocWithMschema(schema) "><span class='glyphicon glyphicon-remove'></span></button>
                     </div>
                 </div>

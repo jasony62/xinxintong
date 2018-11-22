@@ -36,7 +36,7 @@
                         </div>
                     </div>
                 </div>
-                <div ng-repeat="schema in data.fromApp.dataSchemas" ng-if="schema.type!=='html'&&!schema.schema_id">
+                <div ng-repeat="schema in data.fromApp.dataSchemas" ng-if="schema.type!=='html'&&!schema.mschema_id">
                     <div class="form-group">
                         <label class='form-label col-md-3' ng-bind="schema.title"></label>
                         <div ng-switch on="schema.type" class='col-md-9'>

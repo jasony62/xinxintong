@@ -567,13 +567,13 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                 schema: $scope.activeWrap.schema
             });
         };
-        if ($scope.activeWrap.schema.schema_id) {
+        if ($scope.activeWrap.schema.mschema_id) {
             (function() {
                 var i, j, memberSchema, schema;
                 /*自定义用户*/
                 for (i = $scope.memberSchemas.length - 1; i >= 0; i--) {
                     memberSchema = $scope.memberSchemas[i];
-                    if ($scope.activeWrap.schema.schema_id === memberSchema.id) {
+                    if ($scope.activeWrap.schema.mschema_id === memberSchema.id) {
                         for (j = memberSchema._schemas.length - 1; j >= 0; j--) {
                             schema = memberSchema._schemas[j];
                             if ($scope.activeWrap.schema.id === schema.id) {

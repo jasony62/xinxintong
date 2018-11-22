@@ -1462,7 +1462,7 @@ factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite
                     /* 取消题目和通信录的关联 */
                     var aAssocSchemas = [];
                     oMatter.dataSchemas.forEach(function(oSchema) {
-                        if (oSchema.schema_id && oSchema.schema_id === mschemaId) {
+                        if (oSchema.mschema_id && oSchema.mschema_id === mschemaId) {
                             aAssocSchemas.push(oSchema.title);
                         }
                     });

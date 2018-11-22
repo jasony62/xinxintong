@@ -1726,7 +1726,7 @@ class record extends main_base {
 		$aMsSchemas = [];
 		if (!empty($oEnlApp->dynaDataSchemas)) {
 			foreach ($oEnlApp->dynaDataSchemas as $oSchema) {
-				if (isset($oSchema->schema_id) && isset($oEnlApp->entryRule->member->{$oSchema->schema_id})) {
+				if (isset($oSchema->mschema_id) && isset($oEnlApp->entryRule->member->{$oSchema->mschema_id})) {
 					$aMsSchemas[] = $oSchema;
 				}
 			}

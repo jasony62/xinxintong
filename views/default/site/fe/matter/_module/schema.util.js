@@ -135,9 +135,9 @@ utilSchema.autoFillDefault = function(schemasById, oPageData) {
 utilSchema.autoFillMember = function(schemasById, oUser, oPageDataMember) {
     if (oUser.members) {
         angular.forEach(schemasById, function(oSchema) {
-            if (oSchema.schema_id && oUser.members[oSchema.schema_id]) {
+            if (oSchema.mschema_id && oUser.members[oSchema.mschema_id]) {
                 var oMember, attr, val;
-                oMember = oUser.members[oSchema.schema_id];
+                oMember = oUser.members[oSchema.mschema_id];
                 attr = oSchema.id.split('.');
                 if (attr.length === 2) {
                     oPageDataMember[attr[1]] = oMember[attr[1]];

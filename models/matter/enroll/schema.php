@@ -27,10 +27,10 @@ class schema_model extends \TMS_MODEL {
 	 * referSchema
 	 * referOption
 	 * referRercord
-	 * schema_id 通讯录id
+	 * mschema_id 通讯录id
 	 */
 	public function purify($aAppSchemas) {
-		$validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'hideByRoundPurpose', 'optGroups', 'defaultValue', 'cowork', 'filterWhiteSpace', 'ops', 'schema_id', 'asdir'];
+		$validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'hideByRoundPurpose', 'optGroups', 'defaultValue', 'cowork', 'filterWhiteSpace', 'ops', 'mschema_id', 'asdir'];
 		$validPropsBySchema = [
 			'html' => ['id', 'type', 'content', 'title', 'visibility', 'hideByRoundPurpose'],
 		];
@@ -271,7 +271,7 @@ class schema_model extends \TMS_MODEL {
 	 * 去除题目中的通讯录信息
 	 */
 	public function wipeMschema(&$oSchema, $oMschema) {
-		if ($oSchema->type === 'member' && $oSchema->schema_id === $oMschema->id) {
+		if ($oSchema->mschema_id === $oMschema->id) {
 			/* 更新题目 */
 			$oSchema->type = 'shorttext';
 			$oSchema->id = str_replace('member.', '', $oSchema->id);
@@ -280,7 +280,7 @@ class schema_model extends \TMS_MODEL {
 			} else {
 				$oSchema->format = '';
 			}
-			unset($oSchema->schema_id);
+			unset($oSchema->mschema_id);
 
 			return true;
 		}

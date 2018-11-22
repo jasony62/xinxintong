@@ -266,7 +266,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
             $scope.newMember = function(ms, oMsSchema) {
                 var oNewSchema = schemaLib.newSchema(oMsSchema.type, $scope.app);
 
-                oNewSchema.schema_id = ms.id;
+                oNewSchema.mschema_id = ms.id;
                 oNewSchema.id = oMsSchema.id;
                 oNewSchema.title = oMsSchema.title;
                 oNewSchema.format = oMsSchema.format;
@@ -341,7 +341,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                     oMschema._schemas.forEach(function(oMsSchema) {
                                         if (oApp._schemasById[oMsSchema.id] === undefined) {
                                             oMsSchema.assocState = '';
-                                        } else if (oApp._schemasById[oMsSchema.id].schema_id === msid) {
+                                        } else if (oApp._schemasById[oMsSchema.id].mschema_id === msid) {
                                             oMsSchema.assocState = 'yes';
                                         } else {
                                             oMsSchema.assocState = 'no';
@@ -355,14 +355,14 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
             });
             $scope.unassocWithMschema = function(oSchema, bOnlyAssocState) {
                 var oAssocMschema, oMsSchema, oBefore;
-                if (oSchema.schema_id) {
+                if (oSchema.mschema_id) {
                     oBefore = angular.copy(oSchema);
-                    oAssocMschema = $scope.mschemasById[oSchema.schema_id];
+                    oAssocMschema = $scope.mschemasById[oSchema.mschema_id];
                     if (oMsSchema = $scope.app._schemasById[oSchema.id]) {
                         oMsSchema.assocState = 'no';
                     }
                     if (!bOnlyAssocState) {
-                        delete oSchema.schema_id;
+                        delete oSchema.mschema_id;
                         $scope.updSchema(oSchema, oBefore);
                     }
                 }
@@ -381,7 +381,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         return;
                     }
                     oBefore = angular.copy(oAppSchema);
-                    oAppSchema.schema_id = oMschema.id;
+                    oAppSchema.mschema_id = oMschema.id;
                     oMsSchema.assocState = 'yes';
                     $scope.updSchema(oAppSchema, oBefore);
                 }
@@ -531,7 +531,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             fnGenNewSchema = function(oProtoSchema) {
                                 var oNewSchema;
                                 oNewSchema = schemaLib.newSchema(oProtoSchema.type, _oApp, { id: oProtoSchema.id });
-                                oProtoSchema.schema_id && (oNewSchema.schema_id = oProtoSchema.schema_id);
+                                oProtoSchema.mschema_id && (oNewSchema.mschema_id = oProtoSchema.mschema_id);
                                 oNewSchema.title = oProtoSchema.title;
                                 if (oProtoSchema.ops) {
                                     oNewSchema.ops = oProtoSchema.ops;
@@ -1478,7 +1478,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     oApp.recycleSchemas = aNewRecycleSchemas;
                     srvApp.update('recycleSchemas');
                     /* 去除关联状态 */
-                    if (oRemovedSchema.schema_id) {
+                    if (oRemovedSchema.mschema_id) {
                         if (oAssocSchema = $scope.unassocWithMschema(oRemovedSchema, true)) {
                             oAssocSchema.assocState = '';
                         }

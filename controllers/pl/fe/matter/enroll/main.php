@@ -756,8 +756,6 @@ class main extends main_base {
 				$oPage->data_schemas = [];
 			} else if ($oPage->type === 'V') {
 				$oPage->data_schemas = [];
-			} else if ($oPage->type === 'L') {
-				$oPage->data_schemas = [];
 			}
 		}
 
@@ -958,8 +956,6 @@ class main extends main_base {
 			if ($page->type === 'I') {
 				$page->data_schemas = [];
 			} else if ($page->type === 'V') {
-				$page->data_schemas = [];
-			} else if ($page->type === 'L') {
 				$page->data_schemas = [];
 			}
 		}

@@ -1312,7 +1312,7 @@ class record extends main_base {
 	/**
 	 * 恢复一条记录
 	 */
-	public function restore_action($app, $ek) {
+	public function recover_action($app, $ek) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -1726,7 +1726,7 @@ class record extends main_base {
 		$aMsSchemas = [];
 		if (!empty($oEnlApp->dynaDataSchemas)) {
 			foreach ($oEnlApp->dynaDataSchemas as $oSchema) {
-				if (isset($oSchema->schema_id) && isset($oEnlApp->entryRule->member->{$oSchema->schema_id})) {
+				if (isset($oSchema->mschema_id) && isset($oEnlApp->entryRule->member->{$oSchema->mschema_id})) {
 					$aMsSchemas[] = $oSchema;
 				}
 			}

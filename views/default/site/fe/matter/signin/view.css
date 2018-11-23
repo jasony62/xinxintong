@@ -1,20 +1,86 @@
-.ng-cloak{display:none;}
-html,body{height:100%;width:100%;background:#efefef;font-family:Microsoft Yahei,Arial;}
-body{position:relative;padding:15px;font-size:16px;}
-img{max-width:100%}
+.ng-cloak {
+	display: none;
+}
+
+html, body {
+	height: 100%;
+	width: 100%;
+	background: #efefef;
+	font-family: Microsoft Yahei, Arial;
+}
+
+body {
+	position: relative;
+	padding: 15px;
+	font-size: 16px;
+}
+
+img {
+	max-width: 100%
+}
+
+.app {
+	margin-bottom: 65px;
+}
 
 /* default form style*/
-div[wrap].wrap-splitline{padding-bottom:0.5em;border-bottom:1px dotted #eee;}
-div[wrap].wrap-inline>*{display:inline-block;vertical-align:top;margin:0 1em 0 0;}
-div[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
-div[wrap] ul{list-style:none;padding:0;margin:0;max-width:50%;}
-div[schema-type=image]>ul>li>img{width:100%;}
-div[wrap=matter]>span{cursor:pointer;text-decoration:underline;}
+div[wrap].wrap-splitline {
+	padding-bottom: 0.5em;
+	border-bottom: 1px dotted #eee;
+}
+
+div[wrap].wrap-inline>* {
+	display: inline-block;
+	vertical-align: top;
+	margin: 0 1em 0 0;
+}
+
+div[wrap].wrap-inline>label {
+	width: 6em;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+div[wrap] ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	max-width: 50%;
+}
+
+div[schema-type=image]>ul>li>img {
+	width: 100%;
+}
+
+div[wrap=matter]>span {
+	cursor: pointer;
+	text-decoration: underline;
+}
 
 /*list*/
-li .wrap-inline>label{padding:7px 0;color:#444;}
-li .wrap-inline{border-bottom:1px dashed #efefef;}
-li .wrap-inline:last-child{border-bottom:0;}
+li .wrap-inline>label {
+	padding: 7px 0;
+	color: #444;
+}
+
+li .wrap-inline {
+	border-bottom: 1px dashed #efefef;
+}
+
+li .wrap-inline:last-child {
+	border-bottom: 0;
+}
 
 /* auth */
-#frmPopup{position:absolute;top:0;left:0;right:0;bottom:0;border:none;width:100%;z-index:999;box-sizing:border-box;}
+#frmPopup {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	border: none;
+	width: 100%;
+	z-index: 999;
+	box-sizing: border-box;
+}

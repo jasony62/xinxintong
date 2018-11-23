@@ -788,6 +788,12 @@ class record_model extends record_base {
 						case 'enroll_at asc':
 							$sqls[] = 'r.enroll_at';
 							break;
+						case 'first_enroll_at desc':
+							$sqls[] = 'r.first_enroll_at desc';
+							break;
+						case 'first_enroll_at asc':
+							$sqls[] = 'r.first_enroll_at';
+							break;
 						}
 					}
 					return implode(',', $sqls);

@@ -1322,6 +1322,13 @@ service('tkEnrollApp', ['$q', '$uibModal', 'http2', function($q, $uibModal, http
         url = '/rest/pl/fe/matter/enroll/' + action + '?site=' + oApp.siteid + '&app=' + oApp.id;
         return url;
     }
+    this.get = function(id) {
+        var defer = $q.defer();
+        http2.get('/rest/pl/fe/matter/enroll/get?app=' + id).then(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    };
     this.update = function(oApp, oModifiedData) {
         var defer = $q.defer();
         http2.post(_fnMakeApiUrl(oApp, 'update'), oModifiedData).then(function(rsp) {
@@ -1455,7 +1462,7 @@ factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite
                     /* 取消题目和通信录的关联 */
                     var aAssocSchemas = [];
                     oMatter.dataSchemas.forEach(function(oSchema) {
-                        if (oSchema.schema_id && oSchema.schema_id === mschemaId) {
+                        if (oSchema.mschema_id && oSchema.mschema_id === mschemaId) {
                             aAssocSchemas.push(oSchema.title);
                         }
                     });
@@ -1482,7 +1489,7 @@ factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite
             });
         };
         this.removeGroupApp = function() {
-            if (_oRule.group.id) {
+            if (_oRule.group && _oRule.group.id) {
                 /* 取消题目和通信录的关联 */
                 if (oMatter.dataSchemas && oMatter.dataSchemas.length) {
                     var aAssocSchemas = [];
@@ -1509,7 +1516,7 @@ factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite
             });
         };
         this.removeEnrollApp = function() {
-            if (_oRule.enroll.id) {
+            if (_oRule.enroll && _oRule.enroll.id) {
                 /* 取消题目和通信录的关联 */
                 if (oMatter.dataSchemas && oMatter.dataSchemas.length) {
                     var aAssocSchemas = [];
@@ -1581,10 +1588,11 @@ factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite
         };
         this.save = function() {
             http2.post('/rest/pl/fe/matter/updateEntryRule?matter=' + oMatter.id + ',' + oMatter.type, _oRule).then(function(rsp) {
-                http2.merge(_oRule, rsp.data);
-                oMatter.entryRule = _oRule;
+                if (true === http2.merge(_oRule, rsp.data)) {
+                    _bJumpModifyWatch = true;
+                }
                 _self.modified = false;
-                _bJumpModifyWatch = true;
+                oMatter.entryRule = _oRule;
             });
         };
     }

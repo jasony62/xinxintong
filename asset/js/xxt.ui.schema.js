@@ -134,9 +134,9 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
     this.autoFillMember = function(schemasById, oUser, oPageDataMember) {
         if (oUser.members) {
             angular.forEach(schemasById, function(oSchema) {
-                if (oSchema.schema_id && oUser.members[oSchema.schema_id]) {
+                if (oSchema.mschema_id && oUser.members[oSchema.mschema_id]) {
                     var oMember, attr, val;
-                    oMember = oUser.members[oSchema.schema_id];
+                    oMember = oUser.members[oSchema.mschema_id];
                     attr = oSchema.id.split('.');
                     if (attr.length === 2) {
                         oPageDataMember[attr[1]] = oMember[attr[1]];
@@ -268,7 +268,7 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
                     oSchema = mapOfSchemas[schemaId];
                     type = oSchema.type;
                     /* 分组活动导入数据时会将member题型改为shorttext题型 */
-                    if (oSchema.schema_id && oRecord.data.member) {
+                    if (oSchema.mschema_id && oRecord.data.member) {
                         type = 'member';
                     }
                     switch (type) {

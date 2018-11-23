@@ -1,4 +1,5 @@
 'use strict';
+require('../../../../../../asset/css/buttons.css');
 require('./view.css');
 
 require('./_asset/ui.round.js');
@@ -66,41 +67,17 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$parse', '$s
         }
         return '';
     };
-    $scope.editRecord = function(event, page) {
-        if ($scope.app.scenarioConfig) {
-            if ($scope.app.scenarioConfig.can_cowork !== 'Y') {
-                if ($scope.user.uid !== $scope.Record.current.userid) {
-                    noticebox.warn('不允许修改他人提交的数据');
-                    return;
-                }
-            }
-        }
-        if (!page) {
-            for (var i in $scope.app.pages) {
-                var oPage = $scope.app.pages[i];
-                if (oPage.type === 'I') {
-                    page = oPage.name;
-                    break;
-                }
-            }
-        }
-        $scope.gotoPage(event, page, $scope.Record.current.enroll_key);
-    };
-    $scope.removeRecord = function(event, page) {
-        if ($scope.app.scenarioConfig.can_cowork && $scope.appscenarioConfig.can_cowork !== 'Y') {
-            if ($scope.user.uid !== $scope.Record.current.userid) {
-                noticebox.warn('不允许删除他人提交的数据');
-                return;
-            }
-        }
-        noticebox.confirm('删除记录，确定？').then(function() {
-            $scope.Record.remove($scope.Record.current).then(function(data) {
-                page && $scope.gotoPage(event, page);
-            });
-        });
-    };
 }]);
 ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2', 'noticebox', 'Record', 'picviewer', '$timeout', 'enlRound', function($scope, $sce, $parse, LS, http2, noticebox, Record, picviewer, $timeout, enlRound) {
+    function fnHidePageActions() {
+        var domActs, domAct;
+        if (domActs = document.querySelectorAll('[wrap=button]')) {
+            angular.forEach(domActs, function(domAct) {
+                domAct.style.display = 'none';
+            });
+        }
+    }
+
     function fnGetRecord(ek) {
         if (ek) {
             return http2.get(LS.j('record/get', 'site', 'app') + '&ek=' + ek);
@@ -353,12 +330,65 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
             }
         }
     };
+    $scope.editRecord = function(event, page) {
+        if ($scope.app.scenarioConfig) {
+            if ($scope.app.scenarioConfig.can_cowork !== 'Y') {
+                if ($scope.user.uid !== $scope.Record.current.userid) {
+                    noticebox.warn('不允许修改他人提交的数据');
+                    return;
+                }
+            }
+        }
+        if (!page) {
+            for (var i in $scope.app.pages) {
+                var oPage = $scope.app.pages[i];
+                if (oPage.type === 'I') {
+                    page = oPage.name;
+                    break;
+                }
+            }
+        }
+        $scope.gotoPage(event, page, $scope.Record.current.enroll_key);
+    };
+    $scope.removeRecord = function(event, page) {
+        if ($scope.app.scenarioConfig.can_cowork && $scope.app.scenarioConfig.can_cowork !== 'Y') {
+            if ($scope.user.uid !== $scope.Record.current.userid) {
+                noticebox.warn('不允许删除他人提交的数据');
+                return;
+            }
+        }
+        noticebox.confirm('删除记录，确定？').then(function() {
+            $scope.Record.remove($scope.Record.current).then(function(data) {
+                page && $scope.gotoPage(event, page);
+            });
+        });
+    };
     $scope.shiftRound = function(oRound) {
         fnGetRecordByRound(oRound).then(fnSetPageByRecord);
+    };
+    $scope.doAction = function(event, oAction) {
+        switch (oAction.name) {
+            case 'addRecord':
+                $scope.editRecord(event, oAction.next);
+                break;
+            case 'editRecord':
+                $scope.editRecord(event, oAction.next);
+                break;
+            case 'removeRecord':
+                $scope.removeRecord(event, oAction.next);
+                break;
+            case 'gotoPage':
+                $scope.gotoPage(event, oAction.next);
+                break;
+            case 'closeWindow':
+                $scope.closeWindow();
+        }
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var facRecord, facRound;
 
+        /* 不再支持在页面中直接显示按钮 */
+        fnHidePageActions();
         _oApp = params.app;
         _aScoreSchemas = [];
         _oApp.dynaDataSchemas.forEach(function(oSchema) {

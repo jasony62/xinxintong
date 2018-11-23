@@ -7,9 +7,11 @@ ngMod.directive('tmsTrace', ['$q', '$timeout', 'http2', function($q, $timeout, h
     var EventInterval = 1000; // 有效的事件间隔
     var IdleInterval = 5000; // 有效的事件间隔
     var StoreKey = '/xxt/site/matter/enroll/trace';
-    var TraceEvent = function(start, type, elapse) {
+    var TraceEvent = function(start, type, elapse, biz, text) {
         this.type = type;
         this.elapse = elapse || ((new Date * 1) - start);
+        this.biz = biz;
+        if (text) this.text = text;
     };
     var TraceStack = function() {
         function storeTrace(oTrace) {
@@ -27,15 +29,15 @@ ngMod.directive('tmsTrace', ['$q', '$timeout', 'http2', function($q, $timeout, h
             this.sendUrl = url;
             storeTrace(this);
         };
-        this.pushEvent = function(type) {
+        this.pushEvent = function(type, traceBiz, traceText) {
             var oNewEvent, oLastEvent;
             if (this.events.length === 0) {
                 this.start = new Date * 1;
-                oNewEvent = new TraceEvent(this.start, type, 0);
+                oNewEvent = new TraceEvent(this.start, type, 0, traceBiz, traceText);
                 this.events.push(oNewEvent)
                 storeTrace(this);
             } else {
-                oNewEvent = new TraceEvent(this.start, type);
+                oNewEvent = new TraceEvent(this.start, type, null, traceBiz, traceText);
                 oLastEvent = this.events[this.events.length - 1];
                 if (oLastEvent.type !== oNewEvent.type || (oNewEvent.elapse - oLastEvent.elapse > EventInterval)) {
                     this.events.push(oNewEvent)
@@ -86,15 +88,18 @@ ngMod.directive('tmsTrace', ['$q', '$timeout', 'http2', function($q, $timeout, h
         oCached = oCached ? JSON.parse(oCached) : {};
         if (oCached) {
             for (var i in oCached) {
-                oTrace = oCached[i];
-                if (oTrace.closing && oTrace.closing === 'Y') {
-                    delete oCached[i];
-                    oCached = oStorage.setItem(StoreKey, JSON.stringify(oCached));
-                    http2.post(oTrace.sendUrl, { start: oTrace.start, events: oTrace.events }).then(function() {});
+                if (oCached && oCached[i]) {
+                    oTrace = oCached[i];
+                    if (oTrace.closing && oTrace.closing === 'Y') {
+                        delete oCached[i];
+                        oCached = oStorage.setItem(StoreKey, JSON.stringify(oCached));
+                        http2.post(oTrace.sendUrl, { start: oTrace.start, events: oTrace.events }).then(function() {});
+                    }
                 }
             }
         }
     }
+
     return {
         restrict: 'A',
         link: function(scope, elem, attrs) {
@@ -107,7 +112,19 @@ ngMod.directive('tmsTrace', ['$q', '$timeout', 'http2', function($q, $timeout, h
             oTraceStack.pushEvent('load');
             /* 用户点击页面 */
             elem.on('click', function(event) {
-                oTraceStack.pushEvent('click');
+                var evtTarget, traceBiz, traceText;
+                evtTarget = event.target;
+                if (evtTarget.hasAttribute('trace-biz')) {
+                    traceBiz = evtTarget.getAttribute('trace-biz');
+                    if (!traceBiz && evtTarget.hasAttribute('ng-click')) {
+                        traceBiz = evtTarget.getAttribute('ng-click');
+                    }
+                    if (traceBiz) {
+                        traceBiz = traceBiz.replace(/'|"/g, '');
+                    }
+                    traceText = evtTarget.innerText;
+                }
+                oTraceStack.pushEvent('click', traceBiz, traceText);
                 oIdleWatcher.begin();
             });
             /* 用户点击页面 */

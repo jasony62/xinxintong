@@ -9,7 +9,6 @@ module.exports = {
         '/default/site/fe/matter/channel/main': ['./views/default/site/fe/matter/channel/main.js'],
         '/default/site/fe/matter/enroll/input': ['./views/default/site/fe/matter/enroll/input.js'],
         '/default/site/fe/matter/enroll/view': ['./views/default/site/fe/matter/enroll/view.js'],
-        '/default/site/fe/matter/enroll/list': ['./views/default/site/fe/matter/enroll/list.js'],
         '/default/site/fe/matter/enroll/event': ['./views/default/site/fe/matter/enroll/event.js'],
         '/default/site/fe/matter/enroll/kanban': ['./views/default/site/fe/matter/enroll/kanban.js'],
         '/default/site/fe/matter/enroll/cowork': ['./views/default/site/fe/matter/enroll/cowork.js'],

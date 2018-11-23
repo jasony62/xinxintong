@@ -13,17 +13,24 @@
     <style ng-if="page.css" ng-bind='page.css'></style>
 </head>
 
-<body>
+<body ng-controller='ctrlSignin'>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <div ng-cloak class='ng-cloak app'>
         <div class='container'>
-            <div class='row' ng-controller='ctrlSignin'>
+            <div class='row'>
                 <form name='formSignin' novalidate dynamic-html="page.html">
                 </form>
             </div>
         </div>
     </div>
+    <nav class="navbar site-navbar-tab navbar-default navbar-fixed-bottom">
+        <div class="container-fluid text-center">
+            <div class='btn-group'>
+                <button ng-repeat="act in page.actSchemas" class="btn btn-default navbar-btn" ng-click="doAction($event,act)"><span>{{::act.label}}</span></button>
+            </div>
+        </div>
+    </nav>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
     <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
     <div class="loading">

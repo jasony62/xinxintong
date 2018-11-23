@@ -71,7 +71,7 @@ class main extends base {
 	 * 当前用户进入的缺省页面
 	 */
 	private function &_defaultPage($oApp, $bRedirect = false, $round = null) {
-		$aResult = $this->checkEntryRule($oApp, $bRedirect, $round);
+		$aResult = $this->checkEntryRule($oApp, $bRedirect, $this->who, $round);
 		if (false === $aResult[0]) {
 			$this->outputError($aResult[1]);
 			exit;

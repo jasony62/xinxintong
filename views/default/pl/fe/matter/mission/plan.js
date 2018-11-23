@@ -8,36 +8,17 @@ ngApp.config(['$locationProvider', 'srvSiteProvider', function($locationProvider
     //
     srvSiteProvider.config(siteId);
 }]);
-ngApp.controller('ctrlMain', ['$scope', 'srvSite', 'mediagallery', 'http2', function($scope, srvSite, mediagallery, http2) {
-    function fnChosenMschema(result) {
-        var chosen;
-        if (result && (chosen = result.chosen)) {
-            if (!_oEntryRule.scope.member) {
-                _oEntryRule.scope.member = true;
-            }
-            _oEntryRule.mschema = { id: chosen.id, title: chosen.title };
-            _oBeforeProto = angular.copy(_oProto);
-        }
-    }
-
-    function fnSetDefaultScopeSns() {
-        if ($scope.snsNames.length) {
-            if (_oEntryRule.sns === undefined) {
-                _oEntryRule.sns = {};
-            }
-            _oEntryRule.sns[$scope.snsNames[0]] = 'Y';
-            _oBeforeProto = angular.copy(_oProto);
-        }
-    }
-
-    var _oProto, _oEntryRule, _oBeforeProto;
+ngApp.controller('ctrlMain', ['$scope', '$location', 'srvSite', 'mediagallery', 'http2', 'tkEntryRule', function($scope, $location, srvSite, mediagallery, http2, tkEntryRule) {
+    var _oProto, _oBeforeProto;
     $scope.proto = _oProto = {
+        id: '_pending',
+        siteid: $location.search().site,
         entryRule: { scope: {} },
         app: { enroll: {}, signin: {}, group: { source: '' } },
         userApp: ''
     };
     _oBeforeProto = angular.copy(_oProto);
-    $scope.entryRule = _oEntryRule = _oProto.entryRule;
+    $scope.entryRule = _oProto.entryRule;
     $scope.setPic = function() {
         var options = {
             callback: function(url) {
@@ -56,45 +37,6 @@ ngApp.controller('ctrlMain', ['$scope', 'srvSite', 'mediagallery', 'http2', func
             _oProto[prop] = data.value;
         }
     });
-    $scope.changeUserApp = function() {
-        switch (_oProto.userApp) {
-            case 'mschema':
-                if (!_oEntryRule.mschema) {
-                    srvSite.chooseMschema({ id: '_pending', title: _oProto.title }).then(fnChosenMschema, function(reason) {
-                        _oProto.userApp = _oBeforeProto.userApp;
-                    });
-                }
-                break;
-            case 'enroll':
-                _oProto.app.enroll.create = 'Y';
-                break;
-            case 'signin':
-                _oProto.app.signin.create = 'Y';
-                break;
-            case 'group':
-                _oProto.app.group.create = 'Y';
-                break;
-        }
-    };
-    $scope.changeUserScope = function(userScope) {
-        switch (userScope) {
-            case 'member':
-                if (_oEntryRule.scope.member) {
-                    srvSite.chooseMschema({ id: '_pending', title: _oProto.title }).then(fnChosenMschema, function(reason) {
-                        _oEntryRule.scope.member = false;
-                    });
-                }
-                break;
-            case 'sns':
-                if (_oEntryRule.scope.sns) {
-                    fnSetDefaultScopeSns();
-                }
-                break;
-        }
-    };
-    $scope.chooseMschema = function() {
-        srvSite.chooseMschema({ id: '_pending', title: _oProto.title }).then(fnChosenMschema);
-    };
     $scope.doCreate = function() {
         http2.post('/rest/pl/fe/matter/mission/create?site=' + $scope.site.id, _oProto).then(function(rsp) {
             location.href = '/rest/pl/fe/matter/mission?site=' + $scope.site.id + '&id=' + rsp.data.id;
@@ -108,13 +50,10 @@ ngApp.controller('ctrlMain', ['$scope', 'srvSite', 'mediagallery', 'http2', func
         $scope.loginUser = oUser;
         _oProto.title = oUser.nickname + '的项目';
     });
+    http2.post('/rest/script/time', { html: { 'entryRule': '/views/default/pl/fe/_module/entryRule' } }).then(function(rsp) {
+        $scope.frameTemplates = { html: { 'entryRule': '/views/default/pl/fe/_module/entryRule.html?_=' + rsp.data.html.entryRule.time } };
+    });
     srvSite.snsList().then(function(oSns) {
-        $scope.sns = oSns;
-        $scope.snsNames = Object.keys(oSns);
-        if ($scope.snsNames.length) {
-            _oEntryRule.scope.sns = true;
-            fnSetDefaultScopeSns();
-        }
+        $scope.tkEntryRule = new tkEntryRule(_oProto, oSns, true, ['group', 'enroll']);
     });
 }]);
-angular.bootstrap(document, ["app"]);

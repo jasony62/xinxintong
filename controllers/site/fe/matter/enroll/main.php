@@ -91,8 +91,6 @@ class main extends base {
 				$outputUrl = '/site/fe/matter/enroll/input';
 			} else if ($oOpenPage->type === 'V') {
 				$outputUrl = '/site/fe/matter/enroll/view';
-			} else if ($oOpenPage->type === 'L') {
-				$outputUrl = '/site/fe/matter/enroll/list';
 			}
 		}
 
@@ -235,7 +233,9 @@ class main extends base {
 			// 根据进入规则确定进入页面
 			$aResult = $this->checkEntryRule($oApp, $redirect);
 			if (true === $aResult[0]) {
-				$oOpenPage = $modelPage->byName($oApp, $aResult[1]);
+				if (!empty($aResult[1])) {
+					$oOpenPage = $modelPage->byName($oApp, $aResult[1]);
+				}
 			}
 		}
 

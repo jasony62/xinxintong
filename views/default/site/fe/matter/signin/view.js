@@ -37,14 +37,12 @@ ngApp.factory('Record', ['http2', '$q', 'tmsLocation', function(http2, $q, LS) {
         }
     };
 }]);
-ngApp.controller('ctrlRecord', ['$scope', 'Record', '$sce', 'tmsLocation', 'noticebox', function($scope, Record, $sce, LS, noticebox) {
-    var facRecord = Record.ins();
-
+ngApp.controller('ctrlRecord', ['$scope', '$sce', function($scope, $sce) {
     $scope.value2Label = function(schemaId) {
         var val, schema, aVal, aLab = [];
 
-        if ($scope.app.dataSchemas && (schema = $scope.app._schemasById[schemaId]) && facRecord.current.data) {
-            if (val = facRecord.current.data[schemaId]) {
+        if ($scope.app.dataSchemas && (schema = $scope.app._schemasById[schemaId]) && $scope.Record.facRecord.current.data) {
+            if (val = $scope.Record.facRecord.current.data[schemaId]) {
                 if (schema.ops && schema.ops.length) {
                     aVal = val.split(',');
                     schema.ops.forEach(function(op) {
@@ -58,21 +56,42 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', '$sce', 'tmsLocation', 'noti
         }
         return $sce.trustAsHtml(val);
     };
+}]);
+ngApp.controller('ctrlView', ['$scope', 'tmsLocation', 'noticebox', 'Record', function($scope, LS, noticebox, Record) {
+    var facRecord = Record.ins();
+    $scope.Record = facRecord;
+    facRecord.get(LS.s().ek);
     $scope.editRecord = function(event, page) {
         page ? $scope.gotoPage(event, page, facRecord.current.enroll_key) : noticebox.error('没有指定登记编辑页');
     };
-    $scope.gotoEnroll = function(event, page) {
-        if ($scope.app.entryRule && $scope.app.entryRule.enroll && $scope.app.entryRule.enroll.id) {
-            var url = '/rest/site/fe/matter/enroll';
-            url += '?site=' + LS.s().site;
-            url += '&app=' + $scope.app.entryRule.enroll.id;
-            url += '&ignoretime=Y';
-            location.href = url;
-        } else {
-            noticebox.warn('没有指定关联报名表，无法填写报名信息');
+    $scope.gotoEnroll = function(event) {
+        var oEntryRule;
+        if (oEntryRule = $scope.app.entryRule) {
+            if (oEntryRule.enroll && oEntryRule.enroll.id) {
+                var url = '/rest/site/fe/matter/enroll';
+                url += '?site=' + LS.s().site;
+                url += '&app=' + oEntryRule.enroll.id;
+                url += '&ignoretime=Y';
+                location.href = url;
+                return;
+            }
+        }
+        noticebox.warn('没有指定关联报名表，无法填写报名信息');
+    };
+    $scope.doAction = function(event, oAction) {
+        switch (oAction.name) {
+            case 'editRecord':
+                $scope.editRecord(event, oAction.next);
+                break;
+            case 'gotoEnroll':
+                $scope.gotoEnroll(event);
+                break;
+            case 'gotoPage':
+                $scope.gotoPage(event, oAction.next);
+                break;
+            case 'closeWindow':
+                $scope.closeWindow();
+                break;
         }
     };
-    facRecord.get(LS.s().ek);
-    $scope.Record = facRecord;
 }]);
-ngApp.controller('ctrlView', ['$scope', function($scope) {}]);

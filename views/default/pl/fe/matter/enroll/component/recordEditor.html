@@ -1,5 +1,5 @@
 <style>
-/* img tiles */
+    /* img tiles */
 
 #recordEditor ul {
     padding-left: 0
@@ -114,7 +114,7 @@
                         </div>
                     </div>
                 </div>
-                <div ng-repeat="schema in app.dataSchemas" ng-if="schema.type!=='html'&&!schema.schema_id">
+                <div ng-repeat="schema in app.dynaDataSchemas" ng-if="schema.type!=='html'&&!schema.mschema_id">
                     <div class="form-group">
                         <label class='form-label col-md-3'>{{schema.title}}</label>
                         <div ng-switch on="schema.type" class='col-md-9'>

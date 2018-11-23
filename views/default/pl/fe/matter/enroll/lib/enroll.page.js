@@ -20,7 +20,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                     var deferred = $q.defer();
                     srvApp.get().then(function(app) {
                         $uibModal.open({
-                            templateUrl: '/views/default/pl/fe/matter/enroll/component/createPage.html?_=3',
+                            templateUrl: '/views/default/pl/fe/matter/enroll/component/createPage.html?_=4',
                             backdrop: 'static',
                             controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                                 $scope.options = {};
@@ -62,8 +62,8 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                     url += '&cname=' + page.code_name;
                     http2.post(url, updated).then(function(rsp) {
                         page.$$modified = false;
-                        defer.resolve();
                         noticebox.success('完成保存');
+                        defer.resolve();
                     });
 
                     return defer.promise;
@@ -131,7 +131,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
     /**
      * page editor
      */
-    ngMod.controller('ctrlPageEdit', ['$scope', 'cstApp', 'mediagallery', 'srvSite', function($scope, cstApp, mediagallery, srvSite) {
+    ngMod.controller('ctrlPageEdit', ['$scope', '$uibModal', 'http2', 'cstApp', 'mediagallery', 'srvSite', function($scope, $uibModal, http2, cstApp, mediagallery, srvSite) {
         var tinymceEditor;
         $scope.activeWrap = false;
         $scope.setActiveWrap = function(domWrap) {
@@ -139,7 +139,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
         };
         $scope.wrapEditorHtml = function() {
             var url = null;
-            if ($scope.activeWrap.type) {
+            if (!/score|matter|text|button/.test($scope.activeWrap.type)) {
                 url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=' + (new Date()).getMinutes();
             }
             return url;
@@ -147,62 +147,107 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
         $scope.refreshWrap = function(wrap) {
             editorProxy.modifySchema(wrap);
         };
-        $scope.newButton = function(btn) {
-            var oSchema, domWrap, pages;
-            oSchema = angular.copy(btn);
-            pages = $scope.app.pages;
-            switch (oSchema.n) {
-                case 'submit':
-                    var oFirstViewPage;
-                    for (var i = pages.length - 1; i >= 0; i--) {
-                        if (pages[i].type === 'V') {
-                            oFirstViewPage = pages[i];
-                            break;
-                        }
-                    }
-                    if (oFirstViewPage) {
-                        oSchema.next = oFirstViewPage.name;
-                    } else {
-                        var oFirstListPage;
-                        for (var i = pages.length - 1; i >= 0; i--) {
-                            if (pages[i].type === 'L') {
-                                oFirstListPage = pages[i];
-                                break;
+        /* 设置页面操作 */
+        $scope.configButton = function() {
+            http2.post('/rest/script/time', { html: { 'buttons': '/views/default/pl/fe/matter/enroll/component/pageButtons' } }).then(function(rsp) {
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/pageButtons.html?_=' + rsp.data.html.buttons.time,
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        var _oPage, _oActiveButton, appPages, _nextPages;
+                        $scope2.page = _oPage = $scope.ep;
+                        appPages = $scope.app.pages;
+                        $scope2.nextPages = _nextPages = [];
+                        $scope2.cancel = function() { $mi.dismiss(); };
+                        $scope2.ok = function() {
+                            _oPage.$$modified = true;
+                            $mi.close();
+                        };
+                        $scope2.newButton = function(btn) {
+                            var oSchema, oWrap;
+                            oSchema = angular.copy(btn);
+                            switch (oSchema.n) {
+                                case 'submit':
+                                    var oFirstViewPage;
+                                    for (var i = appPages.length - 1; i >= 0; i--) {
+                                        if (appPages[i].type === 'V') {
+                                            oFirstViewPage = appPages[i];
+                                            break;
+                                        }
+                                    }
+                                    if (oFirstViewPage) {
+                                        oSchema.next = oFirstViewPage.name;
+                                    }
+                                    break;
+                                case 'addRecord':
+                                case 'editRecord':
+                                    var oFirstInputPage;
+                                    for (var i = type.length - 1; i >= 0; i--) {
+                                        if (appPages[i].type === 'I') {
+                                            oFirstInputPage = appPages[i];
+                                            break;
+                                        }
+                                    }
+                                    if (oFirstInputPage) {
+                                        oSchema.next = oFirstInputPage.name;
+                                    }
+                                    break;
+                                default:
+                                    oSchema.next = '';
+                            }
+                            oWrap = {
+                                id: 'act' + (new Date * 1),
+                                name: oSchema.n,
+                                label: oSchema.l,
+                                next: oSchema.next || ''
+                            };
+                            _oPage.actSchemas.push(oWrap);
+                            $scope2.setButton(oWrap);
+                        };
+                        $scope2.setButton = function(oBtn) {
+                            $scope2.activeButton = _oActiveButton = oBtn;
+                            if ($scope2.buttons[_oActiveButton.name] && $scope2.buttons[_oActiveButton.name].next) {
+                                appPages.forEach(function(oPage) {
+                                    if ($scope2.buttons[_oActiveButton.name].next.indexOf(oPage.type) !== -1) {
+                                        _nextPages.push({ name: oPage.name, title: oPage.title });
+                                    }
+                                });
+                            } else {
+                                appPages.forEach(function(oPage) {
+                                    _nextPages.push({ name: oPage.name, title: oPage.title });
+                                });
+                            }
+                        };
+                        $scope2.removeButton = function(oBtn) {
+                            _oPage.actSchemas.splice(_oPage.actSchemas.indexOf(oBtn), 1);
+                        };
+                        $scope2.chooseType = function() {
+                            _oActiveButton.label = $scope2.buttons[_oActiveButton.name].l;
+                            _oActiveButton.next = '';
+                            if (['addRecord', 'editRecord', 'removeRecord'].indexOf(_oActiveButton.name) !== -1) {
+                                for (var i = 0, ii = appPages.length; i < ii; i++) {
+                                    if (appPages[i].type === 'I') {
+                                        _oActiveButton.next = appPages[i].name;
+                                        break;
+                                    }
+                                }
+                                if (i === ii) noticebox.warn('没有类型为“填写页”的页面');
+                            }
+                        };
+                        // page's buttons
+                        var buttons = {},
+                            button, btnName;
+                        for (btnName in schemaLib.buttons) {
+                            button = schemaLib.buttons[btnName];
+                            if (button.scope && button.scope.indexOf(_oPage.type) !== -1) {
+                                buttons[btnName] = button;
                             }
                         }
-                        if (oFirstListPage) {
-                            oSchema.next = oFirstListPage.name;
-                        }
-                    }
-                    break;
-                case 'addRecord':
-                case 'editRecord':
-                    var oFirstInputPage;
-                    for (var i = pages.length - 1; i >= 0; i--) {
-                        if (pages[i].type === 'I') {
-                            oFirstInputPage = pages[i];
-                            break;
-                        }
-                    }
-                    if (oFirstInputPage) {
-                        oSchema.next = oFirstInputPage.name;
-                    }
-                    break;
-                default:
-                    oSchema.next = '';
-            }
-            domWrap = editorProxy.appendButton(oSchema);
-            $scope.setActiveWrap(domWrap);
-        };
-        $scope.newList = function() {
-            var domWrap;
-            domWrap = editorProxy.appendRecordList($scope.app);
-            $scope.setActiveWrap(domWrap);
-        };
-        $scope.enrolleeList = function() {
-            var enrolleeWrap;
-            enrolleeWrap = editorProxy.appendEnrollee($scope.app);
-            $scope.setActiveWrap(enrolleeWrap);
+                        $scope2.buttons = buttons;
+                    }],
+                    size: 'lg',
+                    windowClass: 'auto-height'
+                });
+            });
         };
         $scope.removeActiveWrap = function() {
             var activeWrap = $scope.activeWrap,
@@ -230,16 +275,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                     schema: schema
                 });
                 $scope.setActiveWrap(null);
-            } else if (/records|enrollees/.test(wrapType)) {
-                editorProxy.removeWrap(activeWrap);
-                for (var i = $scope.ep.dataSchemas.length - 1; i >= 0; i--) {
-                    if ($scope.ep.dataSchemas[i].config.id === activeWrap.config.id) {
-                        $scope.ep.dataSchemas.splice(i, 1);
-                        break;
-                    }
-                }
-                $scope.setActiveWrap(null);
-            } else if (/button|text/.test(wrapType)) {
+            } else {
                 editorProxy.removeWrap(activeWrap);
                 $scope.setActiveWrap(null);
             }
@@ -378,16 +414,6 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                 }
                 editorProxy.load(tinymceEditor, oNewPage);
             }
-            // page's buttons
-            var buttons = {},
-                button, btnName;
-            for (btnName in schemaLib.buttons) {
-                button = schemaLib.buttons[btnName];
-                if (button.scope && button.scope.indexOf(oNewPage.type) !== -1) {
-                    buttons[btnName] = button;
-                }
-            }
-            $scope.buttons = buttons;
         });
         $scope.$on('tinymce.instance.init', function(event, editor) {
             tinymceEditor = editor;
@@ -541,29 +567,27 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                 schema: $scope.activeWrap.schema
             });
         };
-        if ($scope.activeWrap.schema.type === 'member') {
-            if ($scope.activeWrap.schema.schema_id) {
-                (function() {
-                    var i, j, memberSchema, schema;
-                    /*自定义用户*/
-                    for (i = $scope.memberSchemas.length - 1; i >= 0; i--) {
-                        memberSchema = $scope.memberSchemas[i];
-                        if ($scope.activeWrap.schema.schema_id === memberSchema.id) {
-                            for (j = memberSchema._schemas.length - 1; j >= 0; j--) {
-                                schema = memberSchema._schemas[j];
-                                if ($scope.activeWrap.schema.id === schema.id) {
-                                    break;
-                                }
+        if ($scope.activeWrap.schema.mschema_id) {
+            (function() {
+                var i, j, memberSchema, schema;
+                /*自定义用户*/
+                for (i = $scope.memberSchemas.length - 1; i >= 0; i--) {
+                    memberSchema = $scope.memberSchemas[i];
+                    if ($scope.activeWrap.schema.mschema_id === memberSchema.id) {
+                        for (j = memberSchema._schemas.length - 1; j >= 0; j--) {
+                            schema = memberSchema._schemas[j];
+                            if ($scope.activeWrap.schema.id === schema.id) {
+                                break;
                             }
-                            $scope.selectedMemberSchema = {
-                                schema: memberSchema,
-                                attr: schema
-                            };
-                            break;
                         }
+                        $scope.selectedMemberSchema = {
+                            schema: memberSchema,
+                            attr: schema
+                        };
+                        break;
                     }
-                })();
-            }
+                }
+            })();
         }
     }]);
     /**
@@ -573,205 +597,6 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
         $scope.updWrap = function() {
             $scope.ep.$$modified = true;
             editorProxy.modifySchema($scope.activeWrap);
-        };
-    }]);
-    /**
-     * record list wrap
-     */
-    ngMod.controller('ctrlRecordListWrap', ['$scope', '$timeout', function($scope, $timeout) {
-        var listSchemas = $scope.activeWrap.schemas,
-            chooseState = {};
-        $scope.otherSchemas = [{
-            id: 'enrollAt',
-            type: '_enrollAt',
-            title: '填写时间'
-        }, {
-            id: 'roundTitle',
-            type: '_roundTitle',
-            title: '填写轮次'
-        }];
-        $scope.app.dataSchemas.forEach(function(schema) {
-            chooseState[schema.id] = false;
-        });
-        $scope.otherSchemas.forEach(function(schema) {
-            chooseState[schema.id] = false;
-        });
-        listSchemas.forEach(function(schema) {
-            chooseState[schema.id] = true;
-        });
-        $scope.chooseState = chooseState;
-        /* 在处理activeSchema中提交 */
-        $scope.choose = function(schema) {
-            if (chooseState[schema.id]) {
-                var ia, ibl, brother, domNewWrap;
-                ia = $scope.app.dataSchemas.indexOf(schema);
-                if (ia === 0) {
-                    listSchemas.splice(0, 0, schema);
-                } else {
-                    brother = $scope.app.dataSchemas[--ia];
-                    while (ia > 0 && !chooseState[brother.id]) {
-                        brother = $scope.app.dataSchemas[--ia];
-                    }
-                    if (brother) {
-                        for (var ibl = listSchemas.length - 1; ibl >= 0; ibl--) {
-                            if (listSchemas[ibl].id === brother.id) {
-                                break;
-                            }
-                        }
-                        listSchemas.splice(ibl + 1, 0, schema);
-                    } else {
-                        listSchemas.push(schema);
-                    }
-                }
-            } else {
-                for (var i = listSchemas.length - 1; i >= 0; i--) {
-                    if (schema.id === listSchemas[i].id) {
-                        listSchemas.splice(i, 1);
-                        break;
-                    }
-                }
-            }
-            $scope.updWrap();
-        };
-        $scope.updWrap = function() {
-            $scope.ep.$$modified = true;
-            editorProxy.modifySchema($scope.activeWrap);
-        };
-    }]);
-    /**
-     * enrollee list wrap
-     */
-    ngMod.controller('ctrlEnrolleeListWrap', ['$scope', '$timeout', function($scope, $timeout) {
-        var listSchemas = $scope.activeWrap.schemas,
-            memberSchemas = $scope.memberSchemas,
-            config = $scope.activeWrap.config,
-            chooseState = {};
-        $scope.otherMschemas = [{
-            id: 'group.l',
-            title: '所属分组',
-            type: 'enrollee'
-        }];
-        if ($scope.app.entryRule.scope.sns == 'Y') {
-            $scope.mschemas = [{
-                id: 'nickname',
-                title: '昵称',
-                type: 'sns'
-            }, {
-                id: 'headimgurl',
-                title: '头像',
-                type: 'sns'
-            }]
-        } else {
-            for (var i = $scope.otherMschemas.length - 1; i >= 0; i--) {
-                if ($scope.otherMschemas[i].id == 'schema_title') {
-                    break;
-                } else {
-                    $scope.otherMschemas.push({
-                        id: 'schema_title',
-                        title: '所属通讯录',
-                        type: 'address'
-                    });
-                    break;
-                }
-            }
-            if ($scope.activeWrap.config.mschemaId !== '') {
-                $scope.mschemas = [];
-                memberSchemas.forEach(function(item) {
-                    if (item.id == $scope.activeWrap.config.mschemaId) {
-                        $scope.mschemas = item._mschemas;
-                    }
-                });
-            }
-        }
-        $scope.doFilter = function(id) {
-            memberSchemas.forEach(function(item) {
-                if (item.id == id) {
-                    $scope.activeWrap.schemas = [];
-                    config.mschemaId = id;
-                    $scope.activeWrap.schemas = $scope.otherMschemas;
-                    for (var i = item._mschemas.length - 1; i >= 0; i--) {
-                        $scope.activeWrap.schemas.splice(0, 0, item._mschemas[i]);
-                    }
-                    $scope.mschemas = listSchemas = [];
-                }
-            });
-            $scope.updWrap();
-        }
-        listSchemas.forEach(function(schema) {
-            chooseState[schema.id] = true;
-        });
-        $scope.chooseState = chooseState;
-        /* 在处理activeSchema中提交 */
-        $scope.choose = function(schema) {
-            if (chooseState[schema.id]) {
-                var ia, ibl, brother, domNewWrap;
-                ia = $scope.mschemas.indexOf(schema);
-                if (ia === 0) {
-                    listSchemas.splice(0, 0, schema);
-                } else {
-                    brother = $scope.mschemas[--ia];
-                    while (ia > 0 && !chooseState[brother.id]) {
-                        brother = $scope.mschemas[--ia];
-                    }
-                    for (var ibl = listSchemas.length - 1; ibl >= 0; ibl--) {
-                        if (listSchemas[ibl].id === brother.id) {
-                            break;
-                        }
-                    }
-                    listSchemas.splice(ibl + 1, 0, schema);
-                }
-            } else {
-                for (var i = listSchemas.length - 1; i >= 0; i--) {
-                    if (schema.id === listSchemas[i].id) {
-                        listSchemas.splice(i, 1);
-                        break;
-                    }
-                }
-            }
-            $scope.updWrap();
-        };
-        $scope.updWrap = function() {
-            editorProxy.modifySchema($scope.activeWrap);
-        };
-    }]);
-    /**
-     * button wrap
-     */
-    ngMod.controller('ctrlButtonWrap', ['$scope', function($scope) {
-        var oActiveSchema, appPages, nextPages;
-
-        oActiveSchema = $scope.activeWrap.schema;
-        appPages = $scope.app.pages;
-        $scope.nextPages = nextPages = [];
-        if ($scope.buttons[oActiveSchema.name].next) {
-            appPages.forEach(function(oPage) {
-                if ($scope.buttons[oActiveSchema.name].next.indexOf(oPage.type) !== -1) {
-                    nextPages.push({ name: oPage.name, title: oPage.title });
-                }
-            });
-        } else {
-            appPages.forEach(function(oPage) {
-                nextPages.push({ name: oPage.name, title: oPage.title });
-            });
-        }
-        $scope.chooseType = function() {
-            $scope.ep.$$modified = true;
-            oActiveSchema.label = $scope.buttons[oActiveSchema.name].l;
-            oActiveSchema.next = '';
-            if (['addRecord', 'editRecord', 'removeRecord'].indexOf(oActiveSchema.name) !== -1) {
-                for (var i = 0, ii = appPages.length; i < ii; i++) {
-                    if (appPages[i].type === 'I') {
-                        oActiveSchema.next = appPages[i].name;
-                        break;
-                    }
-                }
-                if (i === ii) alert('没有类型为“填写页”的页面');
-            }
-            editorProxy.modifyButton($scope.activeWrap);
-        };
-        $scope.updWrap = function() {
-            $scope.ep.$$modified = true;
-            editorProxy.modifyButton($scope.activeWrap);
         };
     }]);
 });

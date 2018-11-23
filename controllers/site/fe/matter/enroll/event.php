@@ -79,7 +79,7 @@ class event extends base {
 	public function task_action($app) {
 		$modelApp = $this->model('matter\enroll');
 
-		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,siteid,state,entry_rule,action_rule,mission_id,sync_mission_round,round_cron']);
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,siteid,state,entry_rule,action_rule,mission_id,sync_mission_round,round_cron,data_schemas']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}

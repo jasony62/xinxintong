@@ -418,7 +418,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
     /**
      * round
      */
-    ngModule.service('tkEnrollRound', ['$q', '$uibModal', 'http2', 'cstApp', function($q, $uibModal, http2, CstApp) {
+    ngModule.service('tkEnrollRound', ['$q', '$uibModal', 'http2', 'CstApp', function($q, $uibModal, http2, CstApp) {
         function RoundModal(oApp, oRound) {
             this.templateUrl = FrameTemplates.url('roundEditor');
             this.backdrop = 'static';
@@ -575,7 +575,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
             _siteId = siteId;
             _appId = appId;
         };
-        this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'pushnotify', 'cstApp', 'srvEnrollRound', 'tmsSchema', function($q, http2, noticebox, $uibModal, pushnotify, cstApp, srvEnlRnd, tmsSchema) {
+        this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'pushnotify', 'CstApp', 'srvEnrollRound', 'tmsSchema', function($q, http2, noticebox, $uibModal, pushnotify, CstApp, srvEnlRnd, tmsSchema) {
             var _ins = new BaseSrvEnrollRecord($q, http2, noticebox, $uibModal, tmsSchema);
             _ins.search = function(pageNumber) {
                 var url;
@@ -765,7 +765,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
             };
             _ins.notify = function(rows) {
                 var options = {
-                    matterTypes: cstApp.notifyMatter,
+                    matterTypes: CstApp.notifyMatter,
                     sender: 'enroll:' + _appId
                 };
                 _ins._oApp.mission && (options.missionId = _ins._oApp.mission.id);

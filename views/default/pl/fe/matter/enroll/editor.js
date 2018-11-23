@@ -251,6 +251,9 @@ define(['frame'], function(ngApp) {
         $scope.agree = function(oRecord, oSchema, oAgreed, oItemId) {
             srvEnlRec.agree(oRecord.enroll_key, oSchema.id, oAgreed, oItemId).then(function() {});
         };
+        $scope.removeItem = function(items, index) {
+            items.splice(index, 1);
+        };
         var ek = $location.search().ek,
             site = $location.search().site,
             id = $location.search().id;

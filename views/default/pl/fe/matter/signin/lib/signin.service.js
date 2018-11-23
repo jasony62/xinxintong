@@ -533,7 +533,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             siteId = site;
             appId = app;
         }
-        this.$get = ['$q', '$uibModal', '$sce', 'http2', 'noticebox', 'pushnotify', 'cstApp', 'tmsSchema', function($q, $uibModal, $sce, http2, noticebox, pushnotify, cstApp, tmsSchema) {
+        this.$get = ['$q', '$uibModal', '$sce', 'http2', 'noticebox', 'pushnotify', 'CstApp', 'tmsSchema', function($q, $uibModal, $sce, http2, noticebox, pushnotify, CstApp, tmsSchema) {
             var _ins = new BasesrvSigninRecord($q, http2, tmsSchema, noticebox, $uibModal);
 
             _ins.search = function(pageNumber) {

@@ -34,7 +34,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oMocker;
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = {};
-    $scope.filter = _oFilter = { menu: 'round', round: undefined, agreed: undefined, group: undefined, mine: undefined}; // 过滤条件
+    $scope.filter = _oFilter = { menu: undefined, round: undefined, agreed: undefined, group: undefined, mine: undefined}; // 过滤条件
     $scope.criteria = _oCriteria = { orderby: 'lastest_first', cowork: { agreed: 'all' }, rid: 'all', agreed: 'all', userGroup: 'all', creator: false, favored:false}; // 数据查询条件
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.repos = []; // 分享的记录
@@ -232,7 +232,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         $scope.recordList(1);
     };
     $scope.reset = function() {
-        $scope.shiftMenu('round');
+        $scope.shiftMenu();
         $scope.shiftRound();
         $scope.shiftAgreed();
         $scope.shiftUserGroup();

@@ -135,7 +135,7 @@
                         </ul>
                     </div>
                     <div class="site-dropdown pull-right" uib-dropdown dropdown-append-to='appendToEle' auto-close="disabled" is-open="status.isopen" >
-                        <a href uib-dropdown-toggle class="site-dropdown-title" ng-class="{'active':criterias.hasCriteria}">
+                        <a href uib-dropdown-toggle class="site-dropdown-title" ng-class="{'active':filter.round!==undefined||filter.agreed!==undefined||filter.group!==undefined||filter.mine!==undefined}">
                             <span>筛选 </span><i class="glyphicon glyphicon-menu-down"></i>
                         </a>
                         <ul class="dropdown-menu site-dropdown-list" uib-dropdown-menu>
@@ -145,7 +145,7 @@
                                         <li ng-if="rounds.length>1" ng-click="shiftMenu('round')" ng-class="{'active':filter.menu==='round','checked':filter.round!==undefined}"><a href="#status1">轮次</a></li>
                                         <li ng-click="shiftMenu('agreed')" ng-class="{'active':filter.menu==='agreed','checked':filter.agreed!==undefined}"><a href="#status2">表态</a></li>
                                         <li ng-click="shiftMenu('userGroup')" ng-class="{'active':filter.menu==='userGroup','checked':filter.group!==undefined}"><a href="#status3">分组</a></li>
-                                        <li ng-click="shiftMenu('mine')" ng-class="{'active':filter.menu==='mine','checked':filter.mine!==undefined}"><a href="#status4">我的</a></li>
+                                        <li ng-click="shiftMenu('mine')" ng-class="{'active':filter.menu==='mine','checked':filter.mine!==undefined}"><a href="#status4">更多</a></li>
                                     </ul>
                                 </div>
                                 <div class="list-right" data-spy="scroll" data-target="#filterScrollspy">

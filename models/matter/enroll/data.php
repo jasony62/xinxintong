@@ -94,7 +94,7 @@ class data_model extends entity_model {
 						'value' => $this->escape($oUpdatedItem->value),
 					];
 					$dataId = $this->insert('xxt_enroll_record_data', $aSchemaData, true);
-					$oUpdatedItems[$index]->id = $dataId;
+					$newSchemaValues[$index]->id = $dataId;
 					$aSchemaVal[] = (object) ['id' => $dataId, 'value' => $oUpdatedItem->value];
 				} else if (isset($aBeforeSchemaItems[$oUpdatedItem->id])) {
 					if ($aBeforeSchemaItems[$oUpdatedItem->id]->value !== $oUpdatedItem->value || (int) $aBeforeSchemaItems[$oUpdatedItem->id]->multitext_seq !== ($index + 1)) {

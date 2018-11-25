@@ -8,7 +8,11 @@
         xhr.send(JSON.stringify(data));
     }
     window.onerror = function(msg, url, line, column, error) {
-        var message = [
+        var message;
+        if (msg === 'Uncaught ReferenceError: WeixinJSBridge is not defined') {
+            return false;
+        }
+        message = [
             'Message: ' + msg,
             'URL: ' + url,
             'Line: ' + line,

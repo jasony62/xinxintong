@@ -161,7 +161,11 @@ button.option {
             font-size: 14px;
             color: #333;
             min-height: 40px;
-            line-height: 40px;  
+            line-height: 40px;
+
+            .glyphicon-menu-up {
+                transform:rotate(-180deg);
+            }  
         }
 
         a:focus, a:hover {
@@ -170,6 +174,12 @@ button.option {
         
         a.active {
             color: #ff8018;
+        }
+    }
+    
+    .site-dropdown.open {
+        .glyphicon-menu-up {
+            transform:rotate(0deg);
         }
     }
 

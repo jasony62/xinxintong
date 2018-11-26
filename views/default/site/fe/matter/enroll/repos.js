@@ -41,6 +41,28 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     $scope.reposLoading = false;
     $scope.status = { isopen: false };
     $scope.appendToEle = angular.element(document.querySelector('#filterQuick'));
+    $scope.datalist = {
+        orderby: {
+            title: 'orderby',
+            default: {
+                key: 'lastest_first',
+                value: '最近提交'
+            },
+            menu: [{
+                key: 'lastest_first',
+                value: '最近提交'
+            },{
+                key: 'earliest_first',
+                value: '最早提交'
+            },{
+                key: 'mostliked',
+                value: '最多赞同'
+            },{
+               key: 'agreed',
+               value: '精选推荐' 
+            }] 
+        }
+    }
     $scope.recordList = function(pageAt) {
         var url, deferred;
         deferred = $q.defer();

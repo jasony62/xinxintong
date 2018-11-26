@@ -106,7 +106,8 @@
                     </div>
                 </div>
                 <div id='filterQuick' ng-cloak>
-                    <div class="site-dropdown" uib-dropdown>
+                    <tms-dropdown ng-model="criteria.orderby" data="datalist.orderby" switch-menu="shiftOrderby()"></tms-dropdown>
+                    <!-- <div class="site-dropdown" uib-dropdown>
                         <a href uib-dropdown-toggle class="site-dropdown-title" ng-class="{'active':criteria.orderby!=='lastest_first'}">
                             <span ng-if="criteria.orderby==='lastest_first'">最近提交</span>
                             <span ng-if="criteria.orderby==='earliest_first'">最早提交</span>
@@ -120,7 +121,7 @@
                             <li><a href ng-class="{'active':criteria.orderby==='mostliked'}" ng-click="shiftOrderby('mostliked')">最多赞同</a></li>
                             <li><a href ng-class="{'active':criteria.orderby==='agreed'}" ng-click="shiftOrderby('agreed')">精选推荐</a></li>
                         </ul>
-                    </div>
+                    </div> -->
                     <div class="site-dropdown" uib-dropdown>
                         <a href uib-dropdown-toggle class="site-dropdown-title" ng-class="{'active':criteria.cowork.agreed!=='all'}">
                             <span ng-if="criteria.cowork.agreed==='all'">所有问题</span>

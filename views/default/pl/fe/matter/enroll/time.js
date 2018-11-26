@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlTime', ['$scope', '$uibModal', 'http2', 'noticebox', 'cstApp', 'srvEnrollApp', 'srvEnrollRound', function($scope, $uibModal, http2, noticebox, CstApp, srvEnlApp, srvEnlRnd) {
+    ngApp.provider.controller('ctrlTime', ['$scope', '$uibModal', 'http2', 'noticebox', 'CstApp', 'srvEnrollApp', 'srvEnrollRound', function($scope, $uibModal, http2, noticebox, CstApp, srvEnlApp, srvEnlRnd) {
         function fnSetSyncMissionRound(bSetAppRound) {
             if (_oOptions.sync_mission_round === 'Y') {
                 if (bSetAppRound) {

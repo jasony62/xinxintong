@@ -165,7 +165,7 @@ class enroll_model extends enroll_base {
 				if (!empty($oApp->vote_config)) {
 					$oApp->voteConfig = json_decode($oApp->vote_config);
 				} else {
-					$oApp->voteConfig = new \stdClass;
+					$oApp->voteConfig = [];
 				}
 				unset($oApp->vote_config);
 			}

@@ -131,7 +131,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
     /**
      * page editor
      */
-    ngMod.controller('ctrlPageEdit', ['$scope', '$uibModal', 'http2', 'cstApp', 'mediagallery', 'srvSite', function($scope, $uibModal, http2, cstApp, mediagallery, srvSite) {
+    ngMod.controller('ctrlPageEdit', ['$scope', '$uibModal', 'http2', 'CstApp', 'mediagallery', 'srvSite', function($scope, $uibModal, http2, CstApp, mediagallery, srvSite) {
         var tinymceEditor;
         $scope.activeWrap = false;
         $scope.setActiveWrap = function(domWrap) {
@@ -285,7 +285,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
         };
         $scope.embedMatter = function(page) {
             var options = {
-                matterTypes: cstApp.innerlink,
+                matterTypes: CstApp.innerlink,
                 singleMatter: true
             };
             if ($scope.app.mission) {

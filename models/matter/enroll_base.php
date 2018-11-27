@@ -332,18 +332,20 @@ abstract class enroll_base extends app_base {
 	public function replaceMemberSchema(&$aDataSchemas, $oMschema = null, $bKeepSchemaId = false) {
 		foreach ($aDataSchemas as $oSchema) {
 			/* 和通讯录解除关联 */
-			if (empty($oMschema) || $oSchema->mschema_id === $oMschema->id) {
-				$oSchema->type = 'shorttext';
-				$memberProp = str_replace('member.', '', $oSchema->id);
-				if (!$bKeepSchemaId) {
-					$oSchema->id = $memberProp;
+			if (isset($oSchema->mschema_id)) {
+				if (empty($oMschema) || $oSchema->mschema_id === $oMschema->id) {
+					$oSchema->type = 'shorttext';
+					$memberProp = str_replace('member.', '', $oSchema->id);
+					if (!$bKeepSchemaId) {
+						$oSchema->id = $memberProp;
+					}
+					if (in_array($memberProp, ['name', 'mobile', 'email'])) {
+						$oSchema->format = $memberProp;
+					} else {
+						$oSchema->format = '';
+					}
+					unset($oSchema->mschema_id);
 				}
-				if (in_array($memberProp, ['name', 'mobile', 'email'])) {
-					$oSchema->format = $memberProp;
-				} else {
-					$oSchema->format = '';
-				}
-				unset($oSchema->mschema_id);
 			}
 		}
 
@@ -357,7 +359,7 @@ abstract class enroll_base extends app_base {
 			/* 和分组活动解除关联 */
 			if (isset($oSchema->fromApp) && (empty($aAssocAppIds) || in_array($oSchema->fromApp, $aAssocAppIds))) {
 				unset($oSchema->fromApp);
-				unset($oSchema->requieCheck);
+				unset($oSchema->requireCheck);
 			}
 		}
 

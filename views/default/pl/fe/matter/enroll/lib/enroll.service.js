@@ -241,6 +241,9 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                 get: function() {
                     return _fnGetApp(_fnMakeApiUrl('get'));
                 },
+                check: function() {
+                    http2.get(_fnMakeApiUrl('check')).then(function() {});
+                },
                 renew: function(props) {
                     if (_oApp) {
                         http2.get(_fnMakeApiUrl('get')).then(function(rsp) {
@@ -418,7 +421,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
     /**
      * round
      */
-    ngModule.service('tkEnrollRound', ['$q', '$uibModal', 'http2', 'cstApp', function($q, $uibModal, http2, CstApp) {
+    ngModule.service('tkEnrollRound', ['$q', '$uibModal', 'http2', 'CstApp', function($q, $uibModal, http2, CstApp) {
         function RoundModal(oApp, oRound) {
             this.templateUrl = FrameTemplates.url('roundEditor');
             this.backdrop = 'static';
@@ -443,9 +446,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                 };
                 $scope2.stop = function() {
                     $scope2.round.state = '2';
-                    $mi.close({
-                        data: $scope2.round
-                    });
+                    $mi.close($scope2.round);
                 };
                 $scope2.start = function() {
                     $scope2.round.state = '1';
@@ -575,7 +576,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
             _siteId = siteId;
             _appId = appId;
         };
-        this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'pushnotify', 'cstApp', 'srvEnrollRound', 'tmsSchema', function($q, http2, noticebox, $uibModal, pushnotify, cstApp, srvEnlRnd, tmsSchema) {
+        this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'pushnotify', 'CstApp', 'srvEnrollRound', 'tmsSchema', function($q, http2, noticebox, $uibModal, pushnotify, CstApp, srvEnlRnd, tmsSchema) {
             var _ins = new BaseSrvEnrollRecord($q, http2, noticebox, $uibModal, tmsSchema);
             _ins.search = function(pageNumber) {
                 var url;
@@ -765,7 +766,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
             };
             _ins.notify = function(rows) {
                 var options = {
-                    matterTypes: cstApp.notifyMatter,
+                    matterTypes: CstApp.notifyMatter,
                     sender: 'enroll:' + _appId
                 };
                 _ins._oApp.mission && (options.missionId = _ins._oApp.mission.id);

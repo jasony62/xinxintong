@@ -271,18 +271,20 @@ class schema_model extends \TMS_MODEL {
 	 * 去除题目中的通讯录信息
 	 */
 	public function wipeMschema(&$oSchema, $oMschema) {
-		if ($oSchema->mschema_id === $oMschema->id) {
-			/* 更新题目 */
-			$oSchema->type = 'shorttext';
-			$oSchema->id = str_replace('member.', '', $oSchema->id);
-			if (in_array($oSchema->id, ['name', 'mobile', 'email'])) {
-				$oSchema->format = $oSchema->id;
-			} else {
-				$oSchema->format = '';
-			}
-			unset($oSchema->mschema_id);
+		if (isset($oSchema->mschema_id)) {
+			if ($oSchema->mschema_id === $oMschema->id) {
+				/* 更新题目 */
+				$oSchema->type = 'shorttext';
+				$oSchema->id = str_replace('member.', '', $oSchema->id);
+				if (in_array($oSchema->id, ['name', 'mobile', 'email'])) {
+					$oSchema->format = $oSchema->id;
+				} else {
+					$oSchema->format = '';
+				}
+				unset($oSchema->mschema_id);
 
-			return true;
+				return true;
+			}
 		}
 
 		return false;
@@ -391,7 +393,7 @@ class schema_model extends \TMS_MODEL {
 	public function wipeAssoc(&$oSchema, $aAssocAppIds) {
 		if (isset($oSchema->fromApp) && in_array($oSchema->fromApp, $aAssocAppIds)) {
 			unset($oSchema->fromApp);
-			unset($oSchema->requieCheck);
+			unset($oSchema->requireCheck);
 
 			return true;
 		}
@@ -1027,5 +1029,35 @@ class schema_model extends \TMS_MODEL {
 		}
 
 		return $aResult;
+	}
+	/**
+	 * 需要进行投票的题目
+	 */
+	public function setCanVote($oApp, $bModifyOriginal = true) {
+		if (!isset($oApp->dynaDataSchemas) || !isset($oApp->voteConfig)) {
+			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,vote_config']);
+		}
+		$fnValidConfig = function ($oVoteConfig) {
+			if (empty($oVoteConfig->schemas)) {
+				return false;
+			}
+			return true;
+		};
+		$aVoteSchemas = [];
+		foreach ($oApp->voteConfig as $oVoteConfig) {
+			if (!$fnValidConfig($oVoteConfig)) {
+				continue;
+			}
+			foreach ($oApp->dynaDataSchemas as $oSchema) {
+				if (in_array($oSchema->id, $oVoteConfig->schemas)) {
+					if ($bModifyOriginal) {
+						$oSchema->canVote = 'Y';
+					}
+					$aVoteSchemas[$oSchema->id] = $oSchema;
+				}
+			}
+		}
+
+		return $aVoteSchemas;
 	}
 }

@@ -58,6 +58,7 @@
                                 <th style='width:120px'>分组</th>
                                 <th>得分</th>
                                 <th>积分</th>
+                                <th style='width:100px'>最近访问</th>
                                 <th style='width:100px'>总访问次数</th>
                                 <th style='width:100px'>总访问时长</th>
                                 <th style='width:75px'>填写记录</th>
@@ -93,6 +94,9 @@
                                 </td>
                                 <td>
                                     <div ng-if='m.user_total_coin'>{{m.user_total_coin}}</div>
+                                </td>
+                                <td>
+                                    <div ng-if='m.last_entry_at>0'>{{::m.last_entry_at*1000|date:'MM-dd HH:mm'}}</div>
                                 </td>
                                 <td>
                                     <div ng-if='m.entry_num'>{{m.enroll_num}}</div>
@@ -160,7 +164,7 @@
                         </td>
                         <td>{{$index+1}}</td>
                         <td>{{user.nickname}}</td>
-                        <td>{{user.round_title}}</td>
+                        <td>{{user.group.title}}</td>
                         <td ng-repeat="schema in absentApp.dataSchemas" ng-switch on="schema.type">
                             <div ng-switch-when="image">
                                 <img ng-repeat="img in user._data[schema.id]" ng-src='{{img}}' />

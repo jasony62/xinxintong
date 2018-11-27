@@ -7,7 +7,11 @@ $schema = $def->schema;
     <label>
         <?php echo $schema->title;?>
     </label>
-    <input ng-model="data.<?php echo $schema->id;?>" title="<?php echo $schema->title;?>" class="form-control input-lg" type="text" />
+    <?php if (empty($oSchema->mschema_id)) { ?>
+    <input ng-model="data.<?php echo $oSchema->id;?>" title="<?php echo $oSchema->title;?>" class="form-control input-lg" type="text" />
+    <?php } else { ?>
+    <input ng-model="data.<?php echo $oSchema->id;?>" title="<?php echo $oSchema->title;?>" class="form-control input-lg" type="text" ng-init="data.member.schema_id=<?php echo $oSchema->mschema_id;?>" />
+    <?php } ?>
 </div>
 <?php } else if ($schema->type==='longtext') { ?>
 <div class="form-group form-group-lg" wrap="input" schema="<?php echo $schema->id;?>" schema-type="<?php echo $schema->type;?>">

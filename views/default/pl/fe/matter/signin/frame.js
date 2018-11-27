@@ -1,7 +1,7 @@
 define(['frame/RouteParam', 'frame/const', 'frame/templates', 'page', 'schema', 'signinService', 'enrollSchema', 'enrollPage'], function(RouteParam, CstApp, frameTemplates) {
     'use strict';
     var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'http.ui.xxt', 'notice.ui.xxt', 'notice.ui.xxt', 'schema.ui.xxt', 'service.matter', 'service.signin', 'schema.enroll', 'page.enroll', 'tinymce.enroll', 'ui.xxt']);
-    ngApp.constant('cstApp', CstApp);
+    ngApp.constant('CstApp', CstApp);
     ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvSigninAppProvider', 'srvSigninRoundProvider', 'srvEnrollPageProvider', 'srvSigninRecordProvider', 'srvTagProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvSigninAppProvider, srvSigninRoundProvider, srvSigninPageProvider, srvSigninRecordProvider, srvTagProvider) {
         ngApp.provider = {
             controller: $controllerProvider.register,
@@ -44,8 +44,8 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates', 'page', 'schema', 
             srvQuickEntryProvider.setSiteId(siteId);
         })();
     }]);
-    ngApp.controller('ctrlFrame', ['$scope', 'cstApp', 'srvSite', 'srvSigninApp', '$location', function($scope, cstApp, srvSite, srvSigninApp, $location) {
-        $scope.cstApp = cstApp;
+    ngApp.controller('ctrlFrame', ['$scope', 'CstApp', 'srvSite', 'srvSigninApp', '$location', function($scope, CstApp, srvSite, srvSigninApp, $location) {
+        $scope.CstApp = CstApp;
         $scope.frameTemplates = frameTemplates;
         $scope.opened = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {

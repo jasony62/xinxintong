@@ -19,10 +19,15 @@ class data extends base {
 			return new \ObjectNotFoundError('（1）指定的对象不存在或不可用');
 		}
 
-		$oApp = $this->model('matter\enroll')->byId($oRecord->aid, ['cascaded' => 'N', 'fields' => 'id,siteid,state,data_schemas,entry_rule,action_rule']);
+		$oApp = $this->model('matter\enroll')->byId($oRecord->aid, ['cascaded' => 'N', 'fields' => 'id,siteid,state,data_schemas,vote_config,entry_rule,action_rule']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError('（2）指定的对象不存在或不可用');
 		}
+		/* 设置投票题目 */
+		if (!empty($oApp->dynaDataSchemas) && !empty($oApp->voteConfig)) {
+			$this->model('matter\enroll\schema')->setCanVote($oApp);
+		}
+
 		$oUser = $this->getUser($oApp);
 		/* 指定的用户身份 */
 		if ($role === 'visitor') {
@@ -98,7 +103,7 @@ class data extends base {
 			}
 		}
 		$oSchemas = new \stdClass;
-		foreach ($oApp->dataSchemas as $dataSchema) {
+		foreach ($oApp->dynaDataSchemas as $dataSchema) {
 			$oSchemas->{$dataSchema->id} = $dataSchema;
 		}
 

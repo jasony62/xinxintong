@@ -298,6 +298,10 @@ class repos extends base {
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+		/* 设置投票题目 */
+		if (!empty($oApp->dynaDataSchemas) && !empty($oApp->voteConfig)) {
+			$this->model('matter\enroll\schema')->setCanVote($oApp);
+		}
 
 		$oUser = $this->getUser($oApp);
 
@@ -407,7 +411,7 @@ class repos extends base {
 
 		/* 答案的筛选 */
 		if (isset($oPosted->cowork)) {
-			foreach ($oApp->dataSchemas as $oSchema) {
+			foreach ($oApp->dynaDataSchemas as $oSchema) {
 				if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
 					$oCriteria->cowork = new \stdClass;
 					if (isset($oPosted->cowork->agreed) && $oPosted->cowork->agreed !== 'all') {
@@ -458,7 +462,7 @@ class repos extends base {
 			}
 			$aVoteSchemas = [];
 			$aSchareableSchemas = [];
-			foreach ($oApp->dataSchemas as $oSchema) {
+			foreach ($oApp->dynaDataSchemas as $oSchema) {
 				if (isset($oSchema->shareable) && $oSchema->shareable === 'Y') {
 					$aSchareableSchemas[] = $oSchema;
 				}
@@ -872,6 +876,10 @@ class repos extends base {
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+		/* 设置投票题目 */
+		if (!empty($oApp->dynaDataSchemas) && !empty($oApp->voteConfig)) {
+			$this->model('matter\enroll\schema')->setCanVote($oApp);
+		}
 
 		$oUser = $this->getUser($oApp);
 
@@ -959,7 +967,7 @@ class repos extends base {
 			/* 清除非共享数据 */
 			$oShareableSchemas = new \stdClass;
 			$oVoteSchemas = new \stdClass;
-			foreach ($oApp->dataSchemas as $oSchema) {
+			foreach ($oApp->dynaDataSchemas as $oSchema) {
 				if (isset($oSchema->shareable) && $oSchema->shareable === 'Y') {
 					$oShareableSchemas->{$oSchema->id} = $oSchema;
 				}

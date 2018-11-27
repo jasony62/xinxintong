@@ -54,6 +54,12 @@
 .bottom-bar>* {
     margin-right: .5em;
 }
+.cowork >div+div{
+    margin-top: 15px;
+}
+.cowork >div>div{
+    margin-top: 8px;
+}
 </style>
 <div id='recordEditor' class='col-md-6 col-md-offset-3'>
     <div class='panel panel-default'>
@@ -76,14 +82,9 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class='form-label col-md-3'>共享设置</label>
+                    <label class='form-label col-md-3'>表态</label>
                     <div class='col-md-9'>
-                        <select class='form-control' ng-model="record.agreed" disabled>
-                            <option value=''>未表态</option>
-                            <option value='Y'>推荐</option>
-                            <option value='A'>接受</option>
-                            <option value='N'>屏蔽</option>
-                        </select>
+                        <span ng-bind="::CstNaming.enroll.agreed[record.agreed]"></span>
                     </div>
                 </div>
                 <div class="form-group">
@@ -172,25 +173,23 @@
                                 </ul>
                                 <button class="btn btn-default" ng-click="chooseFile(schema.id)">上传文件</button>
                             </div>
-                            <div ng-switch-when='multitext'>
+                            <div class='cowork' ng-switch-when='multitext'>
                                 <div ng-repeat="item in record.data[schema.id]">
                                     <div>
-                                        <div><span class='glyphicon glyphicon-user'></span>{{::record.verbose[schema.id]._items[item.id].nickname}}</div>
+                                        <div class='input-group'>
+                                            <div class='form-control' ng-bind="item.value"></div>
+                                            <div class='input-group-btn'>
+                                                <button class='btn btn-default' ng-click="removeItem(record.data[schema.id],$index)"><span class='glyphicon glyphicon-trash'></span></button>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <div class='form-control' ng-bind="item.value"></div>
-                                    </div>
-                                    <div class='bottom-bar'>
-                                        <div ng-if="schema.shareable==='Y'">
+                                    <div class='bottom-bar' ng-if="schema.shareable==='Y'">
+                                        <div><span class='glyphicon glyphicon-user'></span> {{::record.verbose[schema.id]._items[item.id].nickname}}</div>
+                                        <div>
                                             <span>赞同（<span>{{record.verbose[schema.id]._items[item.id].like_num||0}}</span>）</span>
                                         </div>
-                                        <div ng-if="schema.shareable==='Y'">
-                                            <select class='form-control input-sm' ng-change="agree(record,schema,record.verbose[schema.id]._items[item.id].agreed,item.id)" ng-model="record.verbose[schema.id]._items[item.id].agreed" disabled>
-                                                <option value=''>未表态</option>
-                                                <option value='Y'>推荐</option>
-                                                <option value='A'>接受</option>
-                                                <option value='N'>屏蔽</option>
-                                            </select>
+                                        <div>
+                                            <span ng-bind="::CstNaming.enroll.agreed[record.verbose[schema.id]._items[item.id].agreed]"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -222,12 +221,7 @@
                                     <span>赞同（{{record.verbose[schema.id].like_num||0}}）</span>
                                 </div>
                                 <div ng-if="schema.shareable==='Y'">
-                                    <select class='form-control input-sm' ng-change="agree(record,schema,record.verbose[schema.id].agreed)" ng-model="record.verbose[schema.id].agreed" disabled>
-                                        <option value=''>未表态</option>
-                                        <option value='Y'>推荐</option>
-                                        <option value='A'>接受</option>
-                                        <option value='N'>屏蔽</option>
-                                    </select>
+                                    <span ng-bind="::CstNaming.enroll.agreed[record.verbose[schema.id].agreed]"></span>
                                 </div>
                             </div>
                         </div>

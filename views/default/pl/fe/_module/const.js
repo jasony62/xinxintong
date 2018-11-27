@@ -35,6 +35,14 @@ constant('CstNaming', {
         },
         groupIndex: ['split', 'extract']
     },
+    enroll: {
+        agreed: {
+            'D': '讨论',
+            'A': '接受',
+            'Y': '推荐',
+            'N': '关闭',
+        }
+    },
     notifyMatter: [{
         value: 'tmplmsg',
         title: '模板消息',

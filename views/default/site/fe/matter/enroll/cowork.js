@@ -557,6 +557,20 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             });
         }
     };
+    $scope.vote = function(oRecData) {
+        http2.get(LS.j('data/vote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
+            oRecData.vote_num++;
+            oRecData.vote_at = rsp.data.vote_at;
+            noticebox.success('完成投票！');
+        });
+    };
+    $scope.unvote = function(oRecData) {
+        http2.get(LS.j('data/unvote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
+            oRecData.vote_num--;
+            oRecData.vote_at = 0;
+            noticebox.success('撤销投票！');
+        });
+    };
     $scope.dislikeItem = function(oItem) {
         if ($scope.setOperateLimit('like')) {
             http2.get(LS.j('data/dislike', 'site') + '&data=' + oItem.id).then(function(rsp) {

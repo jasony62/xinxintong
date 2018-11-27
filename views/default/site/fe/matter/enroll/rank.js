@@ -41,40 +41,10 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'e
                     defer.resolve(rsp.data)
                 });
                 break;
-            case 'data':
-                http2.post('/rest/site/fe/matter/enroll/rank/dataByApp?site=' + oApp.siteid + '&app=' + oApp.id, oAppState.criteria).then(function(rsp) {
-                    defer.resolve(rsp.data)
-                });
-                break;
-            case 'data-rec':
-                http2.post('/rest/site/fe/matter/enroll/rank/dataByApp?site=' + oApp.siteid + '&app=' + oApp.id, { agreed: 'Y', obj: 'data-rec', orderby: oAppState.criteria.orderby, round: oAppState.criteria.round }).then(function(rsp) {
-                    defer.resolve(rsp.data)
-                });
-                break;
-            case 'remark':
-                http2.post('/rest/site/fe/matter/enroll/rank/remarkByApp?site=' + oApp.siteid + '&app=' + oApp.id, oAppState.criteria).then(function(rsp) {
-                    defer.resolve(rsp.data)
-                });
-                break;
-            case 'remark-rec':
-                http2.post('/rest/site/fe/matter/enroll/rank/remarkByApp?site=' + oApp.siteid + '&app=' + oApp.id, { agreed: 'Y', obj: 'remrak-rec', orderby: '', round: oAppState.criteria.round }).then(function(rsp) {
-                    defer.resolve(rsp.data)
-                });
-                break;
         }
         return defer.promise;
     }
-    var oApp, oAppState, oAgreedLabel;
-    oAgreedLabel = { 'Y': '推荐', 'N': '关闭', 'A': '' };
-    $scope.gotoCowork = function(ek, schemaId, id, remarkId) {
-        var url = LS.j('', 'site', 'app');
-        url += '&ek=' + ek;
-        url += '&schema=' + schemaId;
-        url += '&data=' + id;
-        remarkId && (url += '&remark=' + remarkId);
-        url += '&page=cowork';
-        location.href = url;
-    };
+    var oApp, oAppState;
     $scope.doSearch = function(pageAt) {
         if (pageAt) {
             oAppState.page.at = pageAt;
@@ -97,57 +67,6 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'e
                         });
                     }
                     break;
-                case 'data':
-                    if (data.records) {
-                        data.records.forEach(function(record) {
-                            if (oSchema = oApp._schemasById[record.schema_id]) {
-                                if (oSchema.type == 'image') {
-                                    record.value = record.value.split(',');
-                                } else if (oSchema.type == 'file') {
-                                    record.value = angular.fromJson(record.value);
-                                }
-                                record.headimgurl = record.headimgurl ? record.headimgurl : '/static/img/avatar.png';
-                                record._agreed = oAgreedLabel[record.agreed] || '';
-                                $scope.records.push(record);
-                            }
-                        });
-                    }
-                    break;
-                case 'data-rec':
-                    if (data.records) {
-                        data.records.forEach(function(record) {
-                            if (oSchema = oApp._schemasById[record.schema_id]) {
-                                if (oSchema.type == 'image') {
-                                    record.value = record.value.split(',');
-                                }
-                                if (oSchema.type == 'file') {
-                                    record.value = angular.fromJson(record.value);
-                                }
-                                record.headimgurl = record.headimgurl ? record.headimgurl : '/static/img/avatar.png';
-                                record._agreed = oAgreedLabel[record.agreed] || '';
-                                $scope.recordsRec.push(record);
-                            }
-                        });
-                    }
-                    break;
-                case 'remark':
-                    if (data.remarks) {
-                        data.remarks.forEach(function(remark) {
-                            remark.headimgurl = remark.headimgurl ? remark.headimgurl : '/static/img/avatar.png';
-                            remark._agreed = oAgreedLabel[remark.agreed] || '';
-                            $scope.remarks.push(remark);
-                        });
-                    }
-                    break;
-                case 'remark-rec':
-                    if (data.remarks) {
-                        data.remarks.forEach(function(remark) {
-                            remark.headimgurl = remark.headimgurl ? remark.headimgurl : '/static/img/avatar.png';
-                            remark._agreed = oAgreedLabel[remark.agreed] || '';
-                            $scope.remarksRec.push(remark);
-                        });
-                    }
-                    break;
             }
             oAppState.page.total = data.total;
             angular.element(document).ready(function() {
@@ -158,10 +77,6 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'e
     $scope.changeCriteria = function() {
         $scope.users = [];
         $scope.groups = [];
-        $scope.records = [];
-        $scope.recordsRec = [];
-        $scope.remarks = [];
-        $scope.remarksRec = [];
         $scope.doSearch(1);
     };
     $scope.doRound = function(rid) {
@@ -181,28 +96,6 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'e
             $scope.changeCriteria();
         });
     };
-    $scope.value2Label = function(oRecord, schemaId) {
-        var value, val, schema, aVal, aLab = [];
-
-        value = oRecord.value;
-        if ((schema = $scope.app._schemasById[schemaId]) && value) {
-            if (val = value) {
-                if (schema.ops && schema.ops.length) {
-                    aVal = val.split(',');
-                    schema.ops.forEach(function(op) {
-                        aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
-                    });
-                    val = aLab.join(',');
-                }
-            } else {
-                val = '';
-            }
-            if (oRecord.supplement) {
-                val += '(' + oRecord.supplement + ')';
-            }
-        }
-        return $sce.trustAsHtml(val);
-    };
     $scope.showFolder = function() {
         var strBox, lastEle;
         strBox = document.querySelectorAll('.content');
@@ -214,19 +107,12 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'e
             }
         });
     }
-    $scope.showStr = function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        var checkEle = event.target.previousElementSibling.lastElementChild;
-        checkEle.classList.remove('text-cut');
-        event.target.classList.add('hidden');
-    }
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var oConfig, rankItems, dataSchemas;
         oApp = params.app;
         dataSchemas = oApp.dynaDataSchemas;
         /* 排行显示内容设置 */
-        rankItems = ['enroll', 'remark', 'like', 'remark_other', 'do_like', 'total_coin', 'score', 'average_score'];
+        rankItems = ['enroll', 'remark', 'like', 'remark_other', 'do_like', 'total_coin', 'score', 'average_score', 'vote_schema', 'vote_cowork'];
         oConfig = {};
         rankItems.forEach(function(item) {
             oConfig[item] = true;
@@ -284,18 +170,6 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'e
                         break;
                     case 'group':
                         oAppState.criteria.orderby = oApp.rankConfig.defaultItem ? oApp.rankConfig.defaultItem : 'enroll';
-                        break;
-                    case 'data':
-                        oAppState.criteria.orderby = 'remark';
-                        break;
-                    case 'data-rec':
-                        oAppState.criteria.orderby = 'remark';
-                        break;
-                    case 'remark':
-                        oAppState.criteria.orderby = '';
-                        break;
-                    case 'remark-rec':
-                        oAppState.criteria.orderby = '';
                         break;
                 }
                 $scope.changeCriteria();

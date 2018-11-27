@@ -296,6 +296,7 @@ class main extends main_base {
 		$oNewApp->summary = $modelApp->escape($oCopied->summary);
 		$oNewApp->scenario = $oCopied->scenario;
 		$oNewApp->scenario_config = json_encode($oCopied->scenarioConfig);
+		$oNewApp->vote_config = json_encode($oCopied->voteConfig);
 		$oNewApp->count_limit = $oCopied->count_limit;
 		$oNewApp->enrolled_entry_page = $oCopied->enrolled_entry_page;
 		$oNewApp->entry_rule = $modelApp->escape($modelApp->toJson($oNewEntryRule));
@@ -468,6 +469,9 @@ class main extends main_base {
 			case 'scenarioConfig':
 				$oUpdated->scenario_config = $modelApp->escape($modelApp->toJson($val));
 				break;
+			case 'voteConfig':
+				$oUpdated->vote_config = $modelApp->escape($modelApp->toJson($val));
+				break;
 			case 'notifyConfig':
 				$oPurifyResult = $modelApp->purifyNoticeConfig($oApp, $val);
 				if (false === $oPurifyResult[0]) {
@@ -572,6 +576,7 @@ class main extends main_base {
 		$oNewApp->start_at = $current;
 		$oNewApp->scenario = $template->scenario;
 		$oNewApp->scenario_config = $template->scenario_config;
+		$oNewApp->vote_config = $template->vote_config;
 		$oNewApp->data_schemas = $modelApp->escape($template->data_schemas);
 		$oNewApp->open_lastroll = $template->open_lastroll;
 		$oNewApp->enrolled_entry_page = $template->enrolled_entry_page;
@@ -678,6 +683,11 @@ class main extends main_base {
 			if (isset($config->scenarioConfig)) {
 				$scenarioConfig = $config->scenarioConfig;
 				$oNewApp->scenario_config = json_encode($scenarioConfig);
+			}
+			/*投票设置*/
+			if (isset($config->voteConfig)) {
+				$voteConfig = $config->voteConfig;
+				$oNewApp->vote_config = json_encode($voteConfig);
 			}
 		} else {
 			$entryRule = $this->_addBlankPage($user, $oSite->id, $appId);
@@ -1023,6 +1033,11 @@ class main extends main_base {
 		if (isset($oConfig->scenarioConfig)) {
 			$scenarioConfig = $oConfig->scenarioConfig;
 			$oNewApp->scenario_config = json_encode($scenarioConfig);
+		}
+		/* 投票设置 */
+		if (isset($oConfig->voteConfig)) {
+			$voteConfig = $oConfig->voteConfig;
+			$oNewApp->vote_config = json_encode($voteConfig);
 		}
 		$oNewApp->scenario = 'common';
 		/* create app */

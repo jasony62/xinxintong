@@ -99,7 +99,7 @@
                         <div class='input-group-btn'>
                             <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';recordList(1)"><span class='glyphicon glyphicon-remove'></span></button>
                             <button class='btn btn-default' ng-click="recordList(1)"><span class='glyphicon glyphicon-search'></span></button>
-                            <button class='btn btn-default' ng-click="addRecord($event)"><span class="glyphicon glyphicon-plus"></span> 添加记录</button>
+                            <button class='btn btn-default' ng-click="addRecord($event)"><span class="glyphicon glyphicon-plus"></span> 记录</button>
                             <button id='advCriteriaSwitch' ng-if="dirSchemas.length" class="btn btn-default visible-xs-inline-block" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">
                                 <span class='glyphicon glyphicon-filter' ng-class="{'opened':advCriteriaStatus.opened}"></span>
                             </button>
@@ -127,6 +127,7 @@
                             <span ng-if="criteria.orderby==='earliest'">最早修改</span>
                             <span ng-if="criteria.orderby==='lastest_first'">最近提交</span>
                             <span ng-if="criteria.orderby==='earliest_first'">最早提交</span>
+                            <span ng-if="criteria.orderby==='mostvoted'">最多投票</span>
                             <span ng-if="criteria.orderby==='mostliked'">最多赞同</span>
                             <span ng-if="criteria.orderby==='agreed'">精选推荐</span>
                             <span class="glyphicon glyphicon-sort"></span>
@@ -136,6 +137,7 @@
                             <li><a href trace-biz ng-click="shiftOrderby('earliest')">最早修改</a></li>
                             <li><a href trace-biz ng-click="shiftOrderby('lastest_first')">最近提交</a></li>
                             <li><a href trace-biz ng-click="shiftOrderby('earliest_first')">最早提交</a></li>
+                            <li><a href trace-biz ng-click="shiftOrderby('mostvoted')">最多投票</a></li>
                             <li><a href trace-biz ng-click="shiftOrderby('mostliked')">最多赞同</a></li>
                             <li><a href trace-biz ng-click="shiftOrderby('agreed')">精选推荐</a></li>
                         </ul>

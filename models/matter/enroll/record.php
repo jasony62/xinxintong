@@ -779,6 +779,12 @@ class record_model extends record_base {
 						case 'agreed':
 							$sqls[] = 'r.agreed desc';
 							break;
+						case 'vote_schema_num':
+							$sqls[] = 'r.vote_schema_num desc';
+							break;
+						case 'vote_cowork_num':
+							$sqls[] = 'r.vote_cowork_num desc';
+							break;
 						case 'like_num':
 							$sqls[] = 'r.like_num desc';
 							break;

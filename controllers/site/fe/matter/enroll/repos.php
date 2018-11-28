@@ -534,7 +534,7 @@ class repos extends base {
 							if ($oRecData) {
 								$vote_at = (int) $modelData->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oRecData->id, 'state' => 1, 'userid' => $oUser->uid]]);
 								$oRecData->vote_at = $vote_at;
-								$oRecData->state = $oCanVoteSchema->voteState;
+								$oRecData->state = $oCanVoteSchema->vote->state;
 								$oVoteResult->{$oCanVoteSchema->id} = $oRecData;
 							}
 						}
@@ -988,7 +988,7 @@ class repos extends base {
 					if ($oRecData) {
 						$vote_at = (int) $modelRecDat->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oRecData->id, 'state' => 1, 'userid' => $oUser->uid]]);
 						$oRecData->vote_at = $vote_at;
-						$oRecData->state = $oCanVoteSchema->voteState;
+						$oRecData->state = $oCanVoteSchema->vote->state;
 						$oVoteResult->{$oCanVoteSchema->id} = $oRecData;
 					}
 				}

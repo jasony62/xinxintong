@@ -1077,8 +1077,11 @@ class schema_model extends \TMS_MODEL {
 			}
 			foreach ($oApp->dynaDataSchemas as $oSchema) {
 				if (in_array($oSchema->id, $oVoteConfig->schemas)) {
-					$oSchema->voteState = $aValid[1];
-					$oSchema->voteLimit = $this->getDeepValue($oVoteConfig, 'limit.num', 0);
+					$oVoteRule = new \stdClass;
+					$oVoteRule->state = $aValid[1];
+					$oVoteRule->limit = $this->getDeepValue($oVoteConfig, 'limit.num', 0);
+					$oVoteRule->groups = $this->getDeepValue($oVoteConfig, 'role.groups');
+					$oSchema->vote = $oVoteRule;
 					$aVoteSchemas[$oSchema->id] = $oSchema;
 				}
 			}

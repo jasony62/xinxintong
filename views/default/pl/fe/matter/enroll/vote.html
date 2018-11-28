@@ -46,24 +46,22 @@
                     <input type='text' class='form-control' ng-model="config.data.end.time.value" placeholder="输入需要的时间">
                 </div>
             </div>
-            <div class='form-group'>
+            <div class='form-group' ng-repeat="vg in config.data.role.groups">
                 <div class='form-inline'>
                     <span>进行投票的分组</span>
-                    <select class='form-control' ng-model="config.data.role.do.group">
+                    <select class='form-control' ng-model="vg.do">
                         <option value=''>不指定</option>
                         <option ng-repeat="group in app.groups" value="{{group.round_id}}">{{group.title}}</option>
                     </select>
-                </div>
-            </div>
-            <div class='form-group'>
-                <div class='form-inline'>
                     <span>获得投票的分组</span>
-                    <select class='form-control' ng-model="config.data.role.get.group">
+                    <select class='form-control' ng-model="vg.get">
                         <option value=''>不指定</option>
                         <option ng-repeat="group in app.groups" value="{{group.round_id}}">{{group.title}}</option>
                     </select>
+                    <button class='btn btn-default' ng-click="delVoteGroup(config,vg)"><span class='glyphicon glyphicon-remove'></span></button>
                 </div>
             </div>
+            <button class='btn btn-default' ng-click="addVoteGroup(config)">添加分组设置</button>
             <hr>
             <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
             <button class='btn btn-default' ng-click="save(config)">保存</button>

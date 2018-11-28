@@ -557,25 +557,29 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             });
         }
     };
-    $scope.vote = function(oRecData) {
-        http2.get(LS.j('data/vote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
-            oRecData.vote_num++;
-            oRecData.vote_at = rsp.data.vote_at;
-            noticebox.success('完成投票！');
-        });
-    };
-    $scope.unvote = function(oRecData) {
-        http2.get(LS.j('data/unvote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
-            oRecData.vote_num--;
-            oRecData.vote_at = 0;
-            noticebox.success('撤销投票！');
-        });
-    };
     $scope.dislikeItem = function(oItem) {
         if ($scope.setOperateLimit('like')) {
             http2.get(LS.j('data/dislike', 'site') + '&data=' + oItem.id).then(function(rsp) {
                 oItem.dislike_log = rsp.data.dislike_log;
                 oItem.dislike_num = rsp.data.dislike_num;
+            });
+        }
+    };
+    $scope.vote = function(oRecData) {
+        if (oRecData && oRecData.voteResult) {
+            http2.get(LS.j('data/vote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
+                oRecData.voteResult.vote_num++;
+                oRecData.voteResult.vote_at = rsp.data[0].vote_at;
+                noticebox.success('已完成投票，还需投【' + (rsp.data[1][0] - rsp.data[1][1]) + '】票！');
+            });
+        }
+    };
+    $scope.unvote = function(oRecData) {
+        if (oRecData && oRecData.voteResult) {
+            http2.get(LS.j('data/unvote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
+                oRecData.voteResult.vote_num--;
+                oRecData.voteResult.vote_at = 0;
+                noticebox.success('已撤销投票，还需投【' + (rsp.data[0] - rsp.data[1]) + '】票！');
             });
         }
     };

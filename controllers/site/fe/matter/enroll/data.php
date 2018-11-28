@@ -23,10 +23,6 @@ class data extends base {
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError('（2）指定的对象不存在或不可用');
 		}
-		/* 设置投票题目 */
-		if (!empty($oApp->dynaDataSchemas) && !empty($oApp->voteConfig)) {
-			$this->model('matter\enroll\schema')->setCanVote($oApp);
-		}
 
 		$oUser = $this->getUser($oApp);
 		/* 指定的用户身份 */
@@ -106,6 +102,10 @@ class data extends base {
 		foreach ($oApp->dynaDataSchemas as $dataSchema) {
 			$oSchemas->{$dataSchema->id} = $dataSchema;
 		}
+		/* 获取记录的投票信息 */
+		if (!empty($oApp->voteConfig)) {
+			$aCanVoteSchemas = $this->model('matter\enroll\schema')->getCanVote($oApp, $oRecord->round);
+		}
 
 		$fields = 'id,state,userid,group_id,nickname,schema_id,multitext_seq,submit_at,agreed,value,supplement,like_num,like_log,remark_num,tag,score,dislike_num,dislike_log,vote_num';
 		$modelRecDat = $this->model('matter\enroll\data');
@@ -169,6 +169,7 @@ class data extends base {
 						}
 					}
 					$oRecData->items = $modelRecDat->query_objs_ss($q);
+
 					foreach ($oRecData->items as $oItem) {
 						$oItem->like_log = empty($oItem->like_log) ? [] : json_decode($oItem->like_log);
 						$oItem->dislike_log = empty($oItem->dislike_log) ? [] : json_decode($oItem->dislike_log);
@@ -188,9 +189,14 @@ class data extends base {
 							}
 						}
 						/* 当前用户投票情况 */
-						if ($this->getDeepValue($oSchemas->{$oRecData->schema_id}, 'canVote') === 'Y') {
+						if (!empty($aCanVoteSchemas[$oRecData->schema_id])) {
+							$oVoteResult = new \stdClass;
 							$vote_at = (int) $modelRecDat->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oItem->id, 'state' => 1, 'userid' => $oUser->uid]]);
-							$oItem->vote_at = $vote_at;
+							$oVoteResult->vote_at = $vote_at;
+							$oVoteResult->vote_num = $oItem->vote_num;
+							$oVoteResult->state = $aCanVoteSchemas[$oRecData->schema_id]->voteState;
+							unset($oItem->vote_num);
+							$oItem->voteResult = $oVoteResult;
 						}
 					}
 				}
@@ -646,7 +652,7 @@ class data extends base {
 
 		$oUser = $this->getUser($oApp);
 
-		$aVoteResult = $modelRecDat->vote($oRecData->id, $oUser);
+		$aVoteResult = $modelRecDat->vote($oApp, $oRecData->id, $oUser);
 		if (false === $aVoteResult[0]) {
 			return new \ResponseError($aVoteResult[1]);
 		}
@@ -660,7 +666,7 @@ class data extends base {
 			$modelEnlEvt->voteRecSchema($oApp, $oRecData, $oUser);
 		}
 
-		return new \ResponseData($oNewVote);
+		return new \ResponseData([$oNewVote, $aVoteResult[2]]);
 	}
 	/**
 	 * 对填写数据撤销投票
@@ -681,7 +687,7 @@ class data extends base {
 
 		$oUser = $this->getUser($oApp);
 
-		$aVoteResult = $modelRecDat->unvote($oRecData->id, $oUser);
+		$aVoteResult = $modelRecDat->unvote($oApp, $oRecData->id, $oUser);
 		if (false === $aVoteResult[0]) {
 			return new \ResponseError($aVoteResult[1]);
 		}
@@ -694,6 +700,6 @@ class data extends base {
 			$modelEnlEvt->unvoteRecSchema($oApp, $oRecData, $oUser);
 		}
 
-		return new \ResponseData('ok');
+		return new \ResponseData($aVoteResult[1]);
 	}
 }

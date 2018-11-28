@@ -121,7 +121,7 @@
                             <hr>
                             <div class='top-bar tms-flex-row'>
                                 <div class='seq tms-flex-grow text-muted'>#<span ng-bind="item.multitext_seq"></span></div>
-                                <span ng-if="schema.canVote==='Y'">得票：<span ng-bind="item.vote_num"></span></span>
+                                <span ng-if="item.voteResult&&item.voteResult.state!=='BS'">得票：<span ng-bind="item.voteResult.vote_num"></span></span>
                                 <div ng-if="(app.actionRule.cowork.agreed.pre.author&&user.uid==record.userid)||record._canAgree">
                                     <div class="btn-group" uib-dropdown>
                                         <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>
@@ -156,8 +156,8 @@
                                             <li><a href ng-click="removeItem(schema,$index)"><span class='glyphicon glyphicon-trash'></span> 删除</a></li>
                                             <li><a href ng-click="editItem(schema,$index)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
                                             <li ng-if="app.scenarioConfig.no_remark!=='Y'"><a href ng-click="coworkAsRemark(schema,$index)"><span class='glyphicon glyphicon-transfer'></span> 转为留言</a></li>
-                                            <li ng-if="schema.canVote==='Y'&&item.vote_at==0"><a href ng-click="vote(item)"><span class='glyphicon glyphicon-triangle-top'></span> 投票</a></li>
-                                            <li ng-if="schema.canVote==='Y'&&item.vote_at>0"><a href ng-click="unvote(item)"><span class='glyphicon glyphicon-triangle-bottom'></span> 取消投票</a></li>
+                                            <li ng-if="item.voteResult.state==='IP'&&item.voteResult.vote_at==0"><a href ng-click="vote(item)"><span class='glyphicon glyphicon-triangle-top'></span> 投票</a></li>
+                                            <li ng-if="item.voteResult.state==='IP'&&item.voteResult.vote_at>0"><a href ng-click="unvote(item)"><span class='glyphicon glyphicon-triangle-bottom'></span> 取消投票</a></li>
                                         </ul>
                                     </div>
                                 </div>

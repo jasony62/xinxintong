@@ -269,12 +269,6 @@ class main extends base {
 		if ($oApp === false || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-		/* 设置投票题目 */
-		if (!empty($oApp->dynaDataSchemas) && !empty($oApp->voteConfig)) {
-			$this->model('matter\enroll\schema')->setCanVote($oApp);
-		}
-
-		/* 应用的动态题目 */
 		if (isset($oApp->appRound->rid)) {
 			$rid = $oApp->appRound->rid;
 		}

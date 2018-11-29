@@ -93,6 +93,14 @@ class event_model extends \TMS_MODEL {
 	 */
 	const DoRemarkAsCoworkEventName = 'site.matter.enroll.remark.as.cowork';
 	/**
+	 * 获得题目投票
+	 */
+	const GetVoteSchemaEventName = 'site.matter.enroll.schema.get.vote';
+	/**
+	 * 获得协作填写投票
+	 */
+	const GetVoteCoworkEventName = 'site.matter.enroll.cowork.get.vote';
+	/**
 	 *
 	 */
 	private function _getOperatorId($oOperator) {
@@ -3016,6 +3024,311 @@ class event_model extends \TMS_MODEL {
 		$oUser = (object) ['uid' => $oRemark->userid];
 
 		$this->_updateUsrData($oApp, $oRemark->rid, true, $oUser, $oUpdatedUsrData, $fnRollback, $fnRollback, $fnRollback);
+
+		return $oUpdatedUsrData;
+	}
+	/**
+	 * 对协作填写进行投票
+	 */
+	public function voteRecCowork($oApp, $oRecData, $oOperator) {
+		$oOperatorData = $this->_doVoteCowork($oApp, $oRecData, $oOperator);
+		$oOwnerData = $this->_getVoteCowork($oApp, $oRecData, $oOperator);
+
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRecData->id;
+		$oTarget->type = 'record.data';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::GetVoteCoworkEventName;
+		$oEvent->op = 'Y';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		$oEvent->coin = isset($oOperatorData->user_total_coin) ? $oOperatorData->user_total_coin : 0;
+		//
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
+		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
+
+		$this->_logEvent($oApp, $oRecData->rid, $oRecData->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
+	}
+	/**
+	 * 对题目进行投票
+	 */
+	public function voteRecSchema($oApp, $oRecData, $oOperator) {
+		$oOperatorData = $this->_doVoteSchema($oApp, $oRecData, $oOperator);
+		$oOwnerData = $this->_getVoteSchema($oApp, $oRecData, $oOperator);
+
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRecData->id;
+		$oTarget->type = 'record.data';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::GetVoteSchemaEventName;
+		$oEvent->op = 'Y';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		$oEvent->coin = isset($oOperatorData->user_total_coin) ? $oOperatorData->user_total_coin : 0;
+		//
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
+		$oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
+
+		$this->_logEvent($oApp, $oRecData->rid, $oRecData->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
+	}
+	/**
+	 * 撤销对协作填写的投票
+	 */
+	public function unvoteRecCowork($oApp, $oRecData, $oOperator) {
+		$this->_undoVoteCowork($oApp, $oRecData, $oOperator);
+		$this->_undoGetVoteCowork($oApp, $oRecData, $oOperator);
+
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRecData->id;
+		$oTarget->type = 'record.data';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::GetVoteCoworkEventName;
+		$oEvent->op = 'N';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		//
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
+
+		$oLog = $this->_logEvent($oApp, $oRecData->rid, $oRecData->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
+
+		/* 更新被撤销的事件 */
+		$this->update(
+			'xxt_enroll_log',
+			['undo_event_id' => $oLog->id],
+			['target_id' => $oRecData->id, 'target_type' => 'remark', 'event_name' => self::GetVoteCoworkEventName, 'event_op' => 'Y', 'undo_event_id' => 0]
+		);
+	}
+	/**
+	 * 撤销对题目的投票
+	 */
+	public function unvoteRecSchema($oApp, $oRecData, $oOperator) {
+		$this->_undoVoteSchema($oApp, $oRecData, $oOperator);
+		$this->_undoGetVoteSchema($oApp, $oRecData, $oOperator);
+
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRecData->id;
+		$oTarget->type = 'record.data';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::GetVoteSchemaEventName;
+		$oEvent->op = 'N';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+		//
+		$oOwnerEvent = new \stdClass;
+		$oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
+
+		$oLog = $this->_logEvent($oApp, $oRecData->rid, $oRecData->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
+
+		/* 更新被撤销的事件 */
+		$this->update(
+			'xxt_enroll_log',
+			['undo_event_id' => $oLog->id],
+			['target_id' => $oRecData->id, 'target_type' => 'remark', 'event_name' => self::GetVoteSchemaEventName, 'event_op' => 'Y', 'undo_event_id' => 0]
+		);
+	}
+	/**
+	 * 对协作填写进行投票
+	 */
+	private function _doVoteCowork($oApp, $oRecOrData, $oOperator) {
+		/* 更新的数据 */
+		$oUpdatedUsrData = new \stdClass;
+
+		return $oUpdatedUsrData;
+	}
+	/**
+	 * 协作填写获得投票
+	 */
+	private function _getVoteCowork($oApp, $oRecOrData, $oOperator) {
+		$operatorId = $this->_getOperatorId($oOperator);
+		$eventAt = time();
+		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
+
+		/* 记录修改日志 */
+		$oNewModifyLog = new \stdClass;
+		$oNewModifyLog->userid = $oRecOrData->userid;
+		$oNewModifyLog->at = $eventAt;
+		$oNewModifyLog->op = self::GetVoteCoworkEventName . '_Y';
+		$oNewModifyLog->args = (object) ['id' => $oRecOrData->id, 'operator' => $operatorId];
+
+		/* 更新的数据 */
+		$oUpdatedUsrData = new \stdClass;
+		$oUpdatedUsrData->last_vote_cowork_at = $eventAt;
+		$oUpdatedUsrData->vote_cowork_num = 1;
+		$oUpdatedUsrData->modify_log = $oNewModifyLog;
+		$aCoinResult = $modelUsr->awardCoin($oApp, $oRecOrData->userid, $oRecOrData->rid, self::GetVoteCoworkEventName);
+		if (!empty($aCoinResult[1])) {
+			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
+		}
+		$oUser = (object) ['uid' => $oRecOrData->userid];
+
+		$this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData);
+		// 如果日志插入失败需要重新增加
+		if ($aCoinResult[0] === false && !empty($aCoinResult[1])) {
+			$modelUsr->awardCoin($oApp, $oRecOrData->userid, $oRecOrData->rid, self::GetVoteCoworkEventName);
+		}
+
+		return $oUpdatedUsrData;
+	}
+	/**
+	 * 对题目进行投票
+	 */
+	private function _doVoteSchema($oApp, $oRecOrData, $oOperator) {
+		$oUpdatedUsrData = new \stdClass;
+
+		return $oUpdatedUsrData;
+	}
+	/**
+	 * 题目获得投票
+	 */
+	private function _getVoteSchema($oApp, $oRecOrData, $oOperator) {
+		$operatorId = $this->_getOperatorId($oOperator);
+		$eventAt = time();
+		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
+
+		/* 记录修改日志 */
+		$oNewModifyLog = new \stdClass;
+		$oNewModifyLog->userid = $oRecOrData->userid;
+		$oNewModifyLog->at = $eventAt;
+		$oNewModifyLog->op = self::GetVoteSchemaEventName . '_Y';
+		$oNewModifyLog->args = (object) ['id' => $oRecOrData->id, 'operator' => $operatorId];
+
+		/* 更新的数据 */
+		$oUpdatedUsrData = new \stdClass;
+		$oUpdatedUsrData->last_vote_schema_at = $eventAt;
+		$oUpdatedUsrData->vote_schema_num = 1;
+		$oUpdatedUsrData->modify_log = $oNewModifyLog;
+		$aCoinResult = $modelUsr->awardCoin($oApp, $oRecOrData->userid, $oRecOrData->rid, self::GetVoteSchemaEventName);
+		if (!empty($aCoinResult[1])) {
+			$oUpdatedUsrData->user_total_coin = $oNewModifyLog->coin = $aCoinResult[1];
+		}
+		$oUser = (object) ['uid' => $oRecOrData->userid];
+
+		$this->_updateUsrData($oApp, $oRecOrData->rid, true, $oUser, $oUpdatedUsrData);
+		// 如果日志插入失败需要重新增加
+		if ($aCoinResult[0] === false && !empty($aCoinResult[1])) {
+			$modelUsr->awardCoin($oApp, $oRecOrData->userid, $oRecOrData->rid, self::GetVoteSchemaEventName);
+		}
+
+		return $oUpdatedUsrData;
+	}
+	/**
+	 * 撤销发起对协作填写的投票
+	 */
+	private function _undoVoteCowork($oApp, $oRecOrData, $oOperator) {
+		/* 更新的数据 */
+		$oUpdatedUsrData = new \stdClass;
+
+		return $oUpdatedUsrData;
+	}
+	/**
+	 * 撤销留言被点赞
+	 */
+	private function _undoGetVoteCowork($oApp, $oRecData, $oOperator) {
+		$operatorId = $this->_getOperatorId($oOperator);
+		$eventAt = time();
+		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
+
+		/* 记录修改日志 */
+		$oNewModifyLog = new \stdClass;
+		$oNewModifyLog->userid = $oRecData->userid;
+		$oNewModifyLog->at = $eventAt;
+		$oNewModifyLog->op = self::GetVoteCoworkEventName . '_N';
+		$oNewModifyLog->args = (object) ['id' => $oRecData->id, 'operator' => $operatorId];
+
+		/* 更新的数据 */
+		$oUpdatedUsrData = new \stdClass;
+		$oUpdatedUsrData->vote_cowork_num = -1;
+		$oUpdatedUsrData->modify_log = $oNewModifyLog;
+
+		$oEnlUsrRnd = $modelUsr->byId($oApp, $oRecData->userid, ['fields' => 'id,modify_log', 'rid' => $oRecData->rid]);
+		/* 撤销获得的积分 */
+		if ($oEnlUsrRnd && count($oEnlUsrRnd->modify_log)) {
+			for ($i = 0; $i < count($oEnlUsrRnd->modify_log); $i++) {
+				$oLog = $oEnlUsrRnd->modify_log[$i];
+				if ($oLog->op === self::GetVoteCoworkEventName . '_Y') {
+					if (isset($oLog->args->id) && isset($oLog->args->operator)) {
+						if ($oLog->args->id === $oRecData->id && $oLog->args->operator === $operatorId) {
+							if (!empty($oLog->coin)) {
+								$oUpdatedUsrData->user_total_coin = -1 * (int) $oLog->coin;
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		$oUser = (object) ['uid' => $oRecData->userid];
+
+		$this->_updateUsrData($oApp, $oRecData->rid, true, $oUser, $oUpdatedUsrData);
+
+		return $oUpdatedUsrData;
+	}
+	/**
+	 * 撤销发起对协作填写的投票
+	 */
+	private function _undoVoteSchema($oApp, $oRecOrData, $oOperator) {
+		/* 更新的数据 */
+		$oUpdatedUsrData = new \stdClass;
+
+		return $oUpdatedUsrData;
+	}
+	/**
+	 * 撤销留言被点赞
+	 */
+	private function _undoGetVoteSchema($oApp, $oRecData, $oOperator) {
+		$operatorId = $this->_getOperatorId($oOperator);
+		$eventAt = time();
+		$modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
+
+		/* 记录修改日志 */
+		$oNewModifyLog = new \stdClass;
+		$oNewModifyLog->userid = $oRecData->userid;
+		$oNewModifyLog->at = $eventAt;
+		$oNewModifyLog->op = self::GetVoteSchemaEventName . '_N';
+		$oNewModifyLog->args = (object) ['id' => $oRecData->id, 'operator' => $operatorId];
+
+		/* 更新的数据 */
+		$oUpdatedUsrData = new \stdClass;
+		$oUpdatedUsrData->vote_schema_num = -1;
+		$oUpdatedUsrData->modify_log = $oNewModifyLog;
+
+		$oEnlUsrRnd = $modelUsr->byId($oApp, $oRecData->userid, ['fields' => 'id,modify_log', 'rid' => $oRecData->rid]);
+		/* 撤销获得的积分 */
+		if ($oEnlUsrRnd && count($oEnlUsrRnd->modify_log)) {
+			for ($i = 0; $i < count($oEnlUsrRnd->modify_log); $i++) {
+				$oLog = $oEnlUsrRnd->modify_log[$i];
+				if ($oLog->op === self::GetVoteSchemaEventName . '_Y') {
+					if (isset($oLog->args->id) && isset($oLog->args->operator)) {
+						if ($oLog->args->id === $oRecData->id && $oLog->args->operator === $operatorId) {
+							if (!empty($oLog->coin)) {
+								$oUpdatedUsrData->user_total_coin = -1 * (int) $oLog->coin;
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		$oUser = (object) ['uid' => $oRecData->userid];
+
+		$this->_updateUsrData($oApp, $oRecData->rid, true, $oUser, $oUpdatedUsrData);
 
 		return $oUpdatedUsrData;
 	}

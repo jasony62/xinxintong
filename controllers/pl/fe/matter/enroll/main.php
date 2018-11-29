@@ -84,6 +84,25 @@ class main extends main_base {
 		return new \ResponseData($oApp);
 	}
 	/**
+	 * 检查活动的可用性
+	 */
+	public function check_action($app) {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		$modelEnl = $this->model('matter\enroll');
+		if (false === ($oApp = $modelEnl->byId($app))) {
+			return new \ObjectNotFoundError();
+		}
+
+		if (empty($oApp->appRound)) {
+			return new \ResponseError('【' . $oApp->title . '】没有可用的填写轮次，请检查');
+		}
+
+		return new \ResponseData('ok');
+	}
+	/**
 	 * 返回记录活动列表
 	 *
 	 * @param string $onlySns 是否仅查询进入规则为仅限关注用户访问的活动列表
@@ -296,6 +315,7 @@ class main extends main_base {
 		$oNewApp->summary = $modelApp->escape($oCopied->summary);
 		$oNewApp->scenario = $oCopied->scenario;
 		$oNewApp->scenario_config = json_encode($oCopied->scenarioConfig);
+		$oNewApp->vote_config = json_encode($oCopied->voteConfig);
 		$oNewApp->count_limit = $oCopied->count_limit;
 		$oNewApp->enrolled_entry_page = $oCopied->enrolled_entry_page;
 		$oNewApp->entry_rule = $modelApp->escape($modelApp->toJson($oNewEntryRule));
@@ -468,6 +488,9 @@ class main extends main_base {
 			case 'scenarioConfig':
 				$oUpdated->scenario_config = $modelApp->escape($modelApp->toJson($val));
 				break;
+			case 'voteConfig':
+				$oUpdated->vote_config = $modelApp->escape($modelApp->toJson($val));
+				break;
 			case 'notifyConfig':
 				$oPurifyResult = $modelApp->purifyNoticeConfig($oApp, $val);
 				if (false === $oPurifyResult[0]) {
@@ -513,6 +536,79 @@ class main extends main_base {
 		}
 
 		return new \ResponseData($oApp);
+	}
+	/**
+	 * 更新指定素材的进入规则
+	 */
+	public function updateVoteConfig_action($app) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$oPosted = $this->getPostJson();
+		$method = $this->getDeepValue($oPosted, 'method');
+		if (empty($method)) {
+			return new \ParameterError('（1）参数不完整');
+		}
+		$oVoteConfig = $this->getDeepValue($oPosted, 'data');
+		if (empty($oVoteConfig)) {
+			return new \ParameterError('（2）参数不完整');
+		}
+
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, 'id,state,siteid,title,summary,pic,scenario,start_at,end_at,mission_id,absent_cause,vote_config');
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError('（3）活动不存在');
+		}
+		$aAllVoteConfigs = $oApp->voteConfig;
+
+		switch ($method) {
+		case 'save':
+			if (empty($oVoteConfig->id)) {
+				$oVoteConfig->id = uniqid();
+				$aAllVoteConfigs[] = $oVoteConfig;
+			} else {
+				$bExistent = false;
+				foreach ($aAllVoteConfigs as $index => $oBefore) {
+					if ($oBefore->id === $oVoteConfig->id) {
+						$aAllVoteConfigs[$index] = $oVoteConfig;
+						$bExistent = true;
+						break;
+					}
+				}
+				if (false === $bExistent) {
+					return new \ObjectNotFoundError('（4）更新的规则不存在');
+				}
+			}
+			break;
+		case 'delete':
+			$bExistent = false;
+			foreach ($aAllVoteConfigs as $index => $oBefore) {
+				if ($oBefore->id === $oVoteConfig->id) {
+					array_splice($aAllVoteConfigs, $index, 1);
+					$bExistent = true;
+					break;
+				}
+			}
+			if (false === $bExistent) {
+				return new \ObjectNotFoundError('（5）删除的规则不存在');
+			}
+			break;
+		}
+
+		//$aScanResult = $modelApp->scanVoteConfig($oEntryRule);
+		//if (false === $aScanResult[0]) {
+		//	return new \ResponseError($aScanResult[1]);
+		//}
+
+		//$oScaned = $aScanResult[1];
+
+		$modelApp->modify($oUser, $oApp, (object) ['vote_config' => $modelApp->escape($modelApp->toJson($aAllVoteConfigs))], ['id' => $oApp->id]);
+		if ($method === 'save') {
+			return new \ResponseData($oVoteConfig);
+		} else {
+			return new \ResponseData('ok');
+		}
 	}
 	/**
 	 * 从共享模板模板创建记录活动
@@ -572,6 +668,7 @@ class main extends main_base {
 		$oNewApp->start_at = $current;
 		$oNewApp->scenario = $template->scenario;
 		$oNewApp->scenario_config = $template->scenario_config;
+		$oNewApp->vote_config = $template->vote_config;
 		$oNewApp->data_schemas = $modelApp->escape($template->data_schemas);
 		$oNewApp->open_lastroll = $template->open_lastroll;
 		$oNewApp->enrolled_entry_page = $template->enrolled_entry_page;
@@ -678,6 +775,11 @@ class main extends main_base {
 			if (isset($config->scenarioConfig)) {
 				$scenarioConfig = $config->scenarioConfig;
 				$oNewApp->scenario_config = json_encode($scenarioConfig);
+			}
+			/*投票设置*/
+			if (isset($config->voteConfig)) {
+				$voteConfig = $config->voteConfig;
+				$oNewApp->vote_config = json_encode($voteConfig);
 			}
 		} else {
 			$entryRule = $this->_addBlankPage($user, $oSite->id, $appId);
@@ -1023,6 +1125,11 @@ class main extends main_base {
 		if (isset($oConfig->scenarioConfig)) {
 			$scenarioConfig = $oConfig->scenarioConfig;
 			$oNewApp->scenario_config = json_encode($scenarioConfig);
+		}
+		/* 投票设置 */
+		if (isset($oConfig->voteConfig)) {
+			$voteConfig = $oConfig->voteConfig;
+			$oNewApp->vote_config = json_encode($voteConfig);
 		}
 		$oNewApp->scenario = 'common';
 		/* create app */

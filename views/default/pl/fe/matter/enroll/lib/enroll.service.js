@@ -241,6 +241,9 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                 get: function() {
                     return _fnGetApp(_fnMakeApiUrl('get'));
                 },
+                check: function() {
+                    http2.get(_fnMakeApiUrl('check')).then(function() {});
+                },
                 renew: function(props) {
                     if (_oApp) {
                         http2.get(_fnMakeApiUrl('get')).then(function(rsp) {
@@ -443,9 +446,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                 };
                 $scope2.stop = function() {
                     $scope2.round.state = '2';
-                    $mi.close({
-                        data: $scope2.round
-                    });
+                    $mi.close($scope2.round);
                 };
                 $scope2.start = function() {
                     $scope2.round.state = '1';

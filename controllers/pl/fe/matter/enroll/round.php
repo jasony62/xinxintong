@@ -235,10 +235,14 @@ class round extends \pl\fe\matter\base {
 			}
 		}
 
-		$rst = $modelRnd->update(
+		if (count((array) $oUpdate) === 0) {
+			return new \ResponseError('没有要更新的数据');
+		}
+
+		$modelRnd->update(
 			'xxt_enroll_round',
 			$oUpdate,
-			['aid' => $app, 'rid' => $rid]
+			['aid' => $oApp->id, 'rid' => $rid]
 		);
 
 		$oRound = $modelRnd->byId($rid);

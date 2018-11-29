@@ -271,18 +271,20 @@ class schema_model extends \TMS_MODEL {
 	 * 去除题目中的通讯录信息
 	 */
 	public function wipeMschema(&$oSchema, $oMschema) {
-		if ($oSchema->mschema_id === $oMschema->id) {
-			/* 更新题目 */
-			$oSchema->type = 'shorttext';
-			$oSchema->id = str_replace('member.', '', $oSchema->id);
-			if (in_array($oSchema->id, ['name', 'mobile', 'email'])) {
-				$oSchema->format = $oSchema->id;
-			} else {
-				$oSchema->format = '';
-			}
-			unset($oSchema->mschema_id);
+		if (isset($oSchema->mschema_id)) {
+			if ($oSchema->mschema_id === $oMschema->id) {
+				/* 更新题目 */
+				$oSchema->type = 'shorttext';
+				$oSchema->id = str_replace('member.', '', $oSchema->id);
+				if (in_array($oSchema->id, ['name', 'mobile', 'email'])) {
+					$oSchema->format = $oSchema->id;
+				} else {
+					$oSchema->format = '';
+				}
+				unset($oSchema->mschema_id);
 
-			return true;
+				return true;
+			}
 		}
 
 		return false;
@@ -391,7 +393,7 @@ class schema_model extends \TMS_MODEL {
 	public function wipeAssoc(&$oSchema, $aAssocAppIds) {
 		if (isset($oSchema->fromApp) && in_array($oSchema->fromApp, $aAssocAppIds)) {
 			unset($oSchema->fromApp);
-			unset($oSchema->requieCheck);
+			unset($oSchema->requireCheck);
 
 			return true;
 		}
@@ -1027,5 +1029,64 @@ class schema_model extends \TMS_MODEL {
 		}
 
 		return $aResult;
+	}
+	/**
+	 * 需要进行投票的题目
+	 */
+	public function getCanVote($oApp, $oRound = null) {
+		if (!isset($oApp->dynaDataSchemas) || !isset($oApp->voteConfig)) {
+			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,vote_config']);
+		}
+		if (empty($oRound)) {
+			$oRound = $oApp->appRound;
+		}
+
+		$fnValidConfig = function ($oVoteConfig) use ($oRound) {
+			if (empty($oVoteConfig->schemas)) {
+				return [false];
+			}
+			$current = time();
+			if ($oStartRule = $this->getDeepValue($oVoteConfig, 'start.time')) {
+				if ($this->getDeepValue($oStartRule, 'mode') === 'after_round_start_at') {
+					if ($this->getDeepValue($oStartRule, 'unit') === 'hour') {
+						$afterHours = (int) $this->getDeepValue($oStartRule, 'value');
+						if (empty($oRound->start_at) || ($current < $oRound->start_at + ($afterHours * 3600))) {
+							return [true, 'BS'];
+						}
+					}
+				}
+			}
+			if ($oEndRule = $this->getDeepValue($oVoteConfig, 'end.time')) {
+				if ($this->getDeepValue($oEndRule, 'mode') === 'after_round_start_at') {
+					if ($this->getDeepValue($oEndRule, 'unit') === 'hour') {
+						$afterHours = (int) $this->getDeepValue($oEndRule, 'value');
+						if (empty($oRound->start_at) || ($current > $oRound->start_at + ($afterHours * 3600))) {
+							return [true, 'AE'];
+						}
+					}
+				}
+			}
+
+			return [true, 'IP'];
+		};
+		$aVoteSchemas = [];
+		foreach ($oApp->voteConfig as $oVoteConfig) {
+			$aValid = $fnValidConfig($oVoteConfig);
+			if (false === $aValid[0]) {
+				continue;
+			}
+			foreach ($oApp->dynaDataSchemas as $oSchema) {
+				if (in_array($oSchema->id, $oVoteConfig->schemas)) {
+					$oVoteRule = new \stdClass;
+					$oVoteRule->state = $aValid[1];
+					$oVoteRule->limit = $this->getDeepValue($oVoteConfig, 'limit.num', 0);
+					$oVoteRule->groups = $this->getDeepValue($oVoteConfig, 'role.groups');
+					$oSchema->vote = $oVoteRule;
+					$aVoteSchemas[$oSchema->id] = $oSchema;
+				}
+			}
+		}
+
+		return $aVoteSchemas;
 	}
 }

@@ -10,7 +10,7 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
             schemas: '=',
             rec: '=record'
         },
-        controller: ['$scope', '$sce', 'tmsLocation', '$location',function($scope, $sce, LS, $location) {
+        controller: ['$scope', '$sce', '$location', 'tmsLocation', 'http2', 'noticebox', function($scope, $sce, $location, LS, http2, noticebox) {
             $scope.coworkRecord = function(oRecord) {
                 var url;
                 url = LS.j('', 'site', 'app');
@@ -18,6 +18,20 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
                 url += '&page=cowork';
                 url += '#cowork';
                 location.href = url;
+            };
+            $scope.vote = function(oRecData) {
+                http2.get(LS.j('data/vote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
+                    oRecData.vote_num++;
+                    oRecData.vote_at = rsp.data[0].vote_at;
+                    noticebox.success('已完成投票，还需投【' + (rsp.data[1][0] - rsp.data[1][1]) + '】票！');
+                });
+            };
+            $scope.unvote = function(oRecData) {
+                http2.get(LS.j('data/unvote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
+                    oRecData.vote_num--;
+                    oRecData.vote_at = 0;
+                    noticebox.success('已撤销投票，还需投【' + (rsp.data[0] - rsp.data[1]) + '】票！');
+                });
             };
             $scope.open = function(file) {
                 var url, appID, data;

@@ -3,11 +3,11 @@ namespace site\fe\matter\enroll;
 
 include_once dirname(__FILE__) . '/base.php';
 /**
- * 登记记录数据
+ * 填写记录数据
  */
 class data extends base {
 	/**
-	 * 获得登记记录中的数据
+	 * 获得填写记录中的数据
 	 *
 	 * @param string $ek
 	 * @param string $schema
@@ -19,10 +19,11 @@ class data extends base {
 			return new \ObjectNotFoundError('（1）指定的对象不存在或不可用');
 		}
 
-		$oApp = $this->model('matter\enroll')->byId($oRecord->aid, ['cascaded' => 'N', 'fields' => 'id,siteid,state,data_schemas,entry_rule,action_rule']);
+		$oApp = $this->model('matter\enroll')->byId($oRecord->aid, ['cascaded' => 'N', 'fields' => 'id,siteid,state,data_schemas,vote_config,entry_rule,action_rule']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError('（2）指定的对象不存在或不可用');
 		}
+
 		$oUser = $this->getUser($oApp);
 		/* 指定的用户身份 */
 		if ($role === 'visitor') {
@@ -91,17 +92,22 @@ class data extends base {
 				/* 设置编辑统一昵称 */
 				if (!empty($oRecord->group_id) && $oRecord->group_id === $oEditor->group) {
 					$oRecord->nickname = $oEditor->nickname;
-				} else if (isset($oEditorUsers) && isset($oEditorUsers->{$oRecord->userid})) { // 记录提交者是否有编辑组角色
+				} else if (isset($oEditorUsers) && isset($oEditorUsers->{$oRecord->userid})) {
+					// 记录提交者是否有编辑组角色
 					$oRecord->nickname = $oEditor->nickname;
 				}
 			}
 		}
 		$oSchemas = new \stdClass;
-		foreach ($oApp->dataSchemas as $dataSchema) {
+		foreach ($oApp->dynaDataSchemas as $dataSchema) {
 			$oSchemas->{$dataSchema->id} = $dataSchema;
 		}
+		/* 获取记录的投票信息 */
+		if (!empty($oApp->voteConfig)) {
+			$aCanVoteSchemas = $this->model('matter\enroll\schema')->getCanVote($oApp, $oRecord->round);
+		}
 
-		$fields = 'id,state,userid,group_id,nickname,schema_id,multitext_seq,submit_at,agreed,value,supplement,like_num,like_log,remark_num,tag,score,dislike_num,dislike_log';
+		$fields = 'id,state,userid,group_id,nickname,schema_id,multitext_seq,submit_at,agreed,value,supplement,like_num,like_log,remark_num,tag,score,dislike_num,dislike_log,vote_num';
 		$modelRecDat = $this->model('matter\enroll\data');
 		if (empty($data)) {
 			$oRecData = $modelRecDat->byRecord($ek, ['schema' => $schema, 'fields' => $fields]);
@@ -163,6 +169,7 @@ class data extends base {
 						}
 					}
 					$oRecData->items = $modelRecDat->query_objs_ss($q);
+
 					foreach ($oRecData->items as $oItem) {
 						$oItem->like_log = empty($oItem->like_log) ? [] : json_decode($oItem->like_log);
 						$oItem->dislike_log = empty($oItem->dislike_log) ? [] : json_decode($oItem->dislike_log);
@@ -176,9 +183,20 @@ class data extends base {
 							/* 设置编辑统一昵称 */
 							if (!empty($oItem->group_id) && $oItem->group_id === $oEditor->group) {
 								$oItem->nickname = $oEditor->nickname;
-							} else if (isset($oEditorUsers) && isset($oEditorUsers->{$oItem->userid})) { // 记录提交者是否有编辑组角色
+							} else if (isset($oEditorUsers) && isset($oEditorUsers->{$oItem->userid})) {
+								// 记录提交者是否有编辑组角色
 								$oItem->nickname = $oEditor->nickname;
 							}
+						}
+						/* 当前用户投票情况 */
+						if (!empty($aCanVoteSchemas[$oRecData->schema_id])) {
+							$oVoteResult = new \stdClass;
+							$vote_at = (int) $modelRecDat->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oItem->id, 'state' => 1, 'userid' => $oUser->uid]]);
+							$oVoteResult->vote_at = $vote_at;
+							$oVoteResult->vote_num = $oItem->vote_num;
+							$oVoteResult->state = $aCanVoteSchemas[$oRecData->schema_id]->vote->state;
+							unset($oItem->vote_num);
+							$oItem->voteResult = $oVoteResult;
 						}
 					}
 				}
@@ -193,7 +211,8 @@ class data extends base {
 						/* 设置编辑统一昵称 */
 						if (!empty($oRecData->group_id) && $oRecData->group_id === $oEditor->group) {
 							$oRecData->nickname = $oEditor->nickname;
-						} else if (isset($oEditorUsers) && isset($oEditorUsers->{$oRecData->userid})) { // 记录提交者是否有编辑组角色
+						} else if (isset($oEditorUsers) && isset($oEditorUsers->{$oRecData->userid})) {
+							// 记录提交者是否有编辑组角色
 							$oRecData->nickname = $oEditor->nickname;
 						}
 					}
@@ -323,7 +342,7 @@ class data extends base {
 		return new \ResponseData($oResult);
 	}
 	/**
-	 * 推荐登记记录中的某一个题
+	 * 推荐填写记录中的某一个题
 	 * 只有组长才有权限做
 	 *
 	 * @param string $ek
@@ -434,7 +453,7 @@ class data extends base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 点赞登记记录中的某一个题
+	 * 点赞填写记录中的某一个题
 	 *
 	 * @param string $ek
 	 * @param string $schema
@@ -527,17 +546,12 @@ class data extends base {
 		return new \ResponseData($aResult);
 	}
 	/**
-	 * 反对登记记录中的某一个题
+	 * 反对填写记录中的某一个题
 	 *
-	 * @param string $ek
-	 * @param string $schema
 	 * @param int $data xxt_enroll_record_data 的id
 	 *
 	 */
 	public function dislike_action($data) {
-		if (empty($data)) {
-			return new \ResponseError('参数错误：未指定被留言内容ID');
-		}
 		$modelData = $this->model('matter\enroll\data');
 		$oRecData = $modelData->byId($data, ['fields' => 'id,aid,rid,enroll_key,schema_id,dislike_log,userid,multitext_seq,dislike_num']);
 		if (false === $oRecData) {
@@ -618,5 +632,74 @@ class data extends base {
 		$aResult['dislike_num'] = $dislikeNum;
 
 		return new \ResponseData($aResult);
+	}
+	/**
+	 * 对填写数据进行投票
+	 *
+	 * @param int $data xxt_enroll_record_data 的id
+	 */
+	public function vote_action($data) {
+		$modelRecDat = $this->model('matter\enroll\data');
+		$oRecData = $modelRecDat->byId($data, ['fields' => 'id,aid,rid,enroll_key,state,multitext_seq,userid,nickname']);
+		if (false === $oRecData || $oRecData->state !== '1') {
+			return new \ObjectNotFoundError('（1）指定的对象不存在或不可用');
+		}
+
+		$oApp = $this->model('matter\enroll')->byId($oRecData->aid, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError('（2）指定的对象不存在或不可用');
+		}
+
+		$oUser = $this->getUser($oApp);
+
+		$aVoteResult = $modelRecDat->vote($oApp, $oRecData->id, $oUser);
+		if (false === $aVoteResult[0]) {
+			return new \ResponseError($aVoteResult[1]);
+		}
+		$oNewVote = $aVoteResult[1];
+
+		/* 记录事件汇总数据 */
+		$modelEnlEvt = $this->model('matter\enroll\event');
+		if ($oRecData->multitext_seq > 0) {
+			$modelEnlEvt->voteRecCowork($oApp, $oRecData, $oUser);
+		} else {
+			$modelEnlEvt->voteRecSchema($oApp, $oRecData, $oUser);
+		}
+
+		return new \ResponseData([$oNewVote, $aVoteResult[2]]);
+	}
+	/**
+	 * 对填写数据撤销投票
+	 *
+	 * @param int $data xxt_enroll_record_data 的id
+	 */
+	public function unvote_action($data) {
+		$modelRecDat = $this->model('matter\enroll\data');
+		$oRecData = $modelRecDat->byId($data, ['fields' => 'id,aid,rid,enroll_key,state,multitext_seq,userid,nickname']);
+		if (false === $oRecData || $oRecData->state !== '1') {
+			return new \ObjectNotFoundError('（1）指定的对象不存在或不可用');
+		}
+
+		$oApp = $this->model('matter\enroll')->byId($oRecData->aid, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError('（2）指定的对象不存在或不可用');
+		}
+
+		$oUser = $this->getUser($oApp);
+
+		$aVoteResult = $modelRecDat->unvote($oApp, $oRecData->id, $oUser);
+		if (false === $aVoteResult[0]) {
+			return new \ResponseError($aVoteResult[1]);
+		}
+
+		/* 记录事件汇总数据 */
+		$modelEnlEvt = $this->model('matter\enroll\event');
+		if ($oRecData->multitext_seq > 0) {
+			$modelEnlEvt->unvoteRecCowork($oApp, $oRecData, $oUser);
+		} else {
+			$modelEnlEvt->unvoteRecSchema($oApp, $oRecData, $oUser);
+		}
+
+		return new \ResponseData($aVoteResult[1]);
 	}
 }

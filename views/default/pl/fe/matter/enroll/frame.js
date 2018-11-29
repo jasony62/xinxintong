@@ -21,6 +21,7 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', '
             .when('/rest/pl/fe/matter/enroll/schema', new RouteParam('schema'))
             .when('/rest/pl/fe/matter/enroll/page', new RouteParam('page'))
             .when('/rest/pl/fe/matter/enroll/time', new RouteParam('time'))
+            .when('/rest/pl/fe/matter/enroll/vote', new RouteParam('vote'))
             .when('/rest/pl/fe/matter/enroll/preview', new RouteParam('preview'))
             .when('/rest/pl/fe/matter/enroll/entry', new RouteParam('entry'))
             .when('/rest/pl/fe/matter/enroll/record', new RouteParam('record'))
@@ -57,7 +58,7 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', '
             srvQuickEntryProvider.setSiteId(siteId);
         })();
     }]);
-    ngApp.controller('ctrlFrame', ['$scope', 'CstNaming', 'CstApp', 'srvSite', 'srvEnrollApp', 'templateShop', '$location', function($scope, CstNaming, CstApp, srvSite, srvEnrollApp, templateShop, $location) {
+    ngApp.controller('ctrlFrame', ['$scope', 'CstNaming', 'CstApp', 'srvSite', 'srvEnrollApp', 'templateShop', '$location', function($scope, CstNaming, CstApp, srvSite, srvEnlApp, templateShop, $location) {
         $scope.isSmallLayout = false;
         if (window.screen && window.screen.width < 768) {
             $scope.isSmallLayout = true;
@@ -81,6 +82,7 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', '
                     $scope.opened = 'edit';
                     break;
                 case 'time':
+                case 'vote':
                     $scope.opened = 'publish';
                     break;
                 case 'record':
@@ -105,7 +107,7 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', '
             $location.path(url).hash(hash || '');
         };
         $scope.update = function(name) {
-            return srvEnrollApp.update(name);
+            return srvEnlApp.update(name);
         };
         $scope.shareAsTemplate = function() {
             templateShop.share($scope.app.siteid, $scope.app).then(function(template) {
@@ -123,6 +125,7 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', '
                 location.href = '/rest/pl/fe?view=main&scope=user&sid=' + $scope.app.siteid + '&mschema=' + oMschema.id;
             }
         };
+        srvEnlApp.check();
         srvSite.tagList().then(function(oTag) {
             $scope.oTag = oTag;
         });
@@ -132,7 +135,7 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', '
         $scope.sns = {};
         srvSite.snsList().then(function(oSns) {
             angular.extend($scope.sns, oSns);
-            srvEnrollApp.get().then(function(oApp) {
+            srvEnlApp.get().then(function(oApp) {
                 if (oApp.matter_mg_tag !== '') {
                     oApp.matter_mg_tag.forEach(function(cTag, index) {
                         $scope.oTag.forEach(function(oTag) {

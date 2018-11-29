@@ -19,6 +19,7 @@ $sql .= ",pic text null"; // 分享或生成链接时的图片
 $sql .= ",mission_id int not null default 0"; // 所属项目
 $sql .= ",scenario varchar(255) not null default ''"; // 记录活动场景
 $sql .= ",scenario_config text null"; // 记录活动场景的配置参数
+$sql .= ",vote_config text null"; // 记录活动投票设置
 $sql .= ",round_cron text null"; // 定时创建轮次规则
 $sql .= ",sync_mission_round char(1) not null default 'N'"; // 和项目轮次同步
 $sql .= ",count_limit int not null default 0"; // 限制登记次数，0不限制
@@ -148,6 +149,8 @@ $sql .= ",dislike_log longtext"; // 反对日志 {userid:dislikeAt}
 $sql .= ",dislike_num int not null default 0"; // 反对数
 $sql .= ",dislike_data_num int not null default 0"; // 记录的数据反对数
 $sql .= ",favor_num int not null default 0"; // 收藏数
+$sql .= ",vote_schema_num int not null default 0"; // 所有题目获得的投票数（不含协作填写）
+$sql .= ",vote_cowork_num int not null default 0"; // 协作填写数据获得投票数
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -178,10 +181,11 @@ $sql .= ",score float not null default 0"; // 登记项获得的分数
 $sql .= ",modify_log longtext null"; // 数据修改日志
 $sql .= ",like_log longtext null"; // 点赞日志 {userid:likeAt}
 $sql .= ",like_num int not null default 0"; // 点赞数
-$sql .= ",dislike_log longtext null"; // 点赞日志 {userid:likeAt}
-$sql .= ",dislike_num int not null default 0"; // 点赞数
+$sql .= ",dislike_log longtext null"; // 点踩日志 {userid:likeAt}
+$sql .= ",dislike_num int not null default 0"; // 点踩数
 $sql .= ",agreed char(1) not null default ''"; // 是否赞同（Y：推荐，N：屏蔽，A(ccept)：接受）
 $sql .= ",agreed_log text null"; // 推荐日志
+$sql .= ",vote_num int not null default 0"; // 获得投票数
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -374,6 +378,10 @@ $sql .= ",do_cowork_read_num int not null default 0"; // 阅读谈论页的次�
 $sql .= ",cowork_read_num int not null default 0"; // 谈论页被阅读的次数
 $sql .= ",do_cowork_read_elapse int not null default 0"; // 阅读谈论页的时长
 $sql .= ",cowork_read_elapse int not null default 0"; //
+$sql .= ",vote_schema_num int not null default 0"; // 题目获得投票的次数
+$sql .= ",last_vote_schema_at int not null default 0"; // 最后一次题目获得投票的时间
+$sql .= ",vote_cowork_num int not null default 0"; // 协作填写获得投票的次数
+$sql .= ",last_vote_cowork_at int not null default 0"; // 最后一次协作填写获得投票的时间
 $sql .= ",user_total_coin int not null default 0"; // 用户在活动中的轮次上的总积分
 $sql .= ",score float default 0 COMMENT '得分'"; //
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除,101:用户删除;
@@ -420,6 +428,25 @@ $sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",record_id int not null"; // 填写记录的ID
 $sql .= ",favor_unionid varchar(40) not null"; // 用户的注册账号ID
 $sql .= ",favor_at int not null"; // 收藏填写的时间
+$sql .= ",state tinyint not null default 1";
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 填写记录的投票记录
+ */
+$sql = "create table if not exists xxt_enroll_vote(";
+$sql .= "id bigint not null auto_increment";
+$sql .= ",aid varchar(40) not null";
+$sql .= ",rid varchar(13) not null";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",record_id int not null"; // 填写记录的ID
+$sql .= ",data_id int not null"; // 填写记录的ID
+$sql .= ",vote_at int not null"; // 收藏填写的时间
+$sql .= ",userid varchar(40) not null";
+$sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",state tinyint not null default 1";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

@@ -565,6 +565,24 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             });
         }
     };
+    $scope.vote = function(oRecData) {
+        if (oRecData && oRecData.voteResult) {
+            http2.get(LS.j('data/vote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
+                oRecData.voteResult.vote_num++;
+                oRecData.voteResult.vote_at = rsp.data[0].vote_at;
+                noticebox.success('已完成投票，还需投【' + (rsp.data[1][0] - rsp.data[1][1]) + '】票！');
+            });
+        }
+    };
+    $scope.unvote = function(oRecData) {
+        if (oRecData && oRecData.voteResult) {
+            http2.get(LS.j('data/unvote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
+                oRecData.voteResult.vote_num--;
+                oRecData.voteResult.vote_at = 0;
+                noticebox.success('已撤销投票，还需投【' + (rsp.data[0] - rsp.data[1]) + '】票！');
+            });
+        }
+    };
     $scope.gotoUpper = function(upperId) {
         var elRemark, offsetTop, parentNode;
         elRemark = document.querySelector('#remark-' + upperId);

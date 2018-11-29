@@ -41,9 +41,12 @@
                 </li>
                 <li ng-class="{'opened':opened==='publish'}">
                     <a href='' ng-click="opened=opened==='publish'?false:'publish';switchTo('time')">发布 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='publish'?'41px':'0'}">
+                    <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='publish'?'82px':'0'}">
                         <li ng-class="{'active':subView==='time'}">
                             <a href='' ng-click="switchTo('time')">轮次</a>
+                        </li>
+                        <li ng-class="{'active':subView==='vote'}">
+                            <a href='' ng-click="switchTo('vote')">投票</a>
                         </li>
                     </ul>
                 </li>

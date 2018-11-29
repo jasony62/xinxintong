@@ -10,7 +10,7 @@ class data_model extends entity_model {
 	/**
 	 * 缺省返回的列
 	 */
-	const DEFAULT_FIELDS = 'id,state,value,tag,supplement,rid,enroll_key,schema_id,userid,nickname,submit_at,score,remark_num,last_remark_at,like_num,like_log,modify_log,agreed,agreed_log,multitext_seq';
+	const DEFAULT_FIELDS = 'id,state,value,tag,supplement,rid,enroll_key,schema_id,userid,nickname,submit_at,score,remark_num,last_remark_at,like_num,like_log,modify_log,agreed,agreed_log,multitext_seq,vote_num';
 	/**
 	 * 按题目记录数据
 	 * 不产生日志、积分等记录
@@ -600,9 +600,15 @@ class data_model extends entity_model {
 		];
 
 		$fnHandler = function (&$oData) {
-			$oData->tag = empty($oData->tag) ? [] : json_decode($oData->tag);
-			$oData->like_log = empty($oData->like_log) ? new \stdClass : json_decode($oData->like_log);
-			$oData->agreed_log = empty($oData->agreed_log) ? new \stdClass : json_decode($oData->agreed_log);
+			if (property_exists($oData, 'tag')) {
+				$oData->tag = empty($oData->tag) ? [] : json_decode($oData->tag);
+			}
+			if (property_exists($oData, 'like_log')) {
+				$oData->like_log = empty($oData->like_log) ? new \stdClass : json_decode($oData->like_log);
+			}
+			if (property_exists($oData, 'agreed_log')) {
+				$oData->agreed_log = empty($oData->agreed_log) ? new \stdClass : json_decode($oData->agreed_log);
+			}
 		};
 
 		if (isset($aOptions['schema'])) {
@@ -948,5 +954,163 @@ class data_model extends entity_model {
 		}
 
 		return $data;
+	}
+	/**
+	 * 对填写数据投票
+	 */
+	public function vote($oApp, $recDataId, $oUser) {
+		$oRecData = $this->byId($recDataId, ['fields' => 'id,aid,rid,group_id,enroll_key,schema_id,multitext_seq']);
+		if (false === $oRecData) {
+			return [false, '（1）指定的对象不存在或不可用'];
+		}
+		if ($oRecData->multitext_seq > 0) {
+			$oParentRecData = $this->byRecord($oRecData->enroll_key, ['schema' => $oRecData->schema_id]);
+			if (false === $oParentRecData) {
+				return [false, '（2）指定的对象不存在或不可用'];
+			}
+		}
+		$oRecord = $this->model('matter\enroll\record')->byId($oRecData->enroll_key, ['cascaded' => 'N', 'fields' => 'id,siteid,state,rid,group_id']);
+		if (false === $oRecord || $oRecord->state !== '1') {
+			return [false, '指定的记录不存在'];
+		}
+
+		$aVoteSchemas = $this->model('matter\enroll\schema')->getCanVote($oApp, $oRecord->round);
+		if (empty($aVoteSchemas[$oRecData->schema_id])) {
+			return [false, '指定的题目不支持投票'];
+		}
+		$oCanVoteSchema = $aVoteSchemas[$oRecData->schema_id];
+		if ($oCanVoteSchema->vote->state === 'BS') {
+			return [false, '投票还没有开始'];
+		}
+		if ($oCanVoteSchema->vote->state === 'AE') {
+			return [false, '投票已经结束'];
+		}
+		if (!empty($oCanVoteSchema->vote->groups)) {
+			/* 只要有1个条件符合就可以 */
+			$bMatched = false;
+			foreach ($oCanVoteSchema->vote->groups as $oVoteGroup) {
+				if (!empty($oVoteGroup->do) && $this->getDeepValue($oUser, 'group_id') !== $oVoteGroup->do) {
+					continue;
+				}
+				if (!empty($oVoteGroup->get) && $oVoteGroup->get !== $oRecData->group_id) {
+					continue;
+				}
+				$bMatched = true;
+				break;
+			}
+			if (false === $bMatched) {
+				return [false, '不符合投票的用户分组规则，不能投票'];
+			}
+		}
+		$q = [
+			'id,vote_at',
+			'xxt_enroll_vote',
+			['data_id' => $oRecData->id, 'rid' => $oRecData->rid, 'userid' => $oUser->uid, 'state' => 1],
+		];
+		if ($oBefore = $this->query_obj_ss($q)) {
+			return [false, '已经投过票，不允许重复投票', $oBefore];
+		}
+
+		$q = [
+			'count(*)',
+			'xxt_enroll_vote',
+			['aid' => $oRecData->aid, 'rid' => $oRecData->rid, 'userid' => $oUser->uid, 'state' => 1],
+		];
+		$beforeCount = (int) $this->query_val_ss($q);
+		if ($oCanVoteSchema->vote->limit > 0) {
+			if ($beforeCount >= $oCanVoteSchema->vote->limit) {
+				return [false, '最多可以投【' . $oCanVoteSchema->vote->limit . '】票，不能继续投票'];
+			}
+		}
+
+		/* 新建投票记录 */
+		$oNew = new \stdClass;
+		$oNew->aid = $oRecData->aid;
+		$oNew->rid = $oRecData->rid;
+		$oNew->siteid = $oRecord->siteid;
+		$oNew->record_id = $oRecord->id;
+		$oNew->data_id = $oRecData->id;
+		$oNew->vote_at = time();
+		$oNew->userid = $oUser->uid;
+		$oNew->nickname = $this->escape($oUser->nickname);
+		$oNew->id = $this->insert('xxt_enroll_vote', $oNew, true);
+
+		/* 更新汇总数据 */
+		$this->update('xxt_enroll_record_data', ['vote_num' => (object) ['op' => '+=', 'pat' => 1]], ['id' => $oRecData->id]);
+		if (isset($oParentRecData)) {
+			/* 协作填写汇总数据 */
+			$this->update('xxt_enroll_record_data', ['vote_num' => (object) ['op' => '+=', 'pat' => 1]], ['id' => $oParentRecData->id]);
+			$this->update('xxt_enroll_record', ['vote_cowork_num' => (object) ['op' => '+=', 'pat' => 1]], ['id' => $oRecord->id]);
+		} else {
+			/* 题目汇总数据 */
+			$this->update('xxt_enroll_record', ['vote_schema_num' => (object) ['op' => '+=', 'pat' => 1]], ['id' => $oRecord->id]);
+		}
+
+		$beforeCount++;
+
+		return [true, $oNew, [$oCanVoteSchema->vote->limit, $beforeCount]];
+	}
+	/**
+	 * 撤销对填写数据投票
+	 */
+	public function unvote($oApp, $recDataId, $oUser) {
+		$oRecData = $this->byId($recDataId, ['fields' => 'id,aid,rid,enroll_key,schema_id,multitext_seq']);
+		if (false === $oRecData) {
+			return [false, '（1）指定的对象不存在或不可用'];
+		}
+		$q = [
+			'id,vote_at',
+			'xxt_enroll_vote',
+			['data_id' => $oRecData->id, 'rid' => $oRecData->rid, 'userid' => $oUser->uid, 'state' => 1],
+		];
+		$oBefore = $this->query_obj_ss($q);
+		if (false === $oBefore) {
+			return [false, '没有投过票，无法撤销投票'];
+		}
+		if ($oRecData->multitext_seq > 0) {
+			$oParentRecData = $this->byRecord($oRecData->enroll_key, ['schema' => $oRecData->schema_id]);
+			if (false === $oParentRecData) {
+				return [false, '（2）指定的对象不存在或不可用'];
+			}
+		}
+		$oRecord = $this->model('matter\enroll\record')->byId($oRecData->enroll_key, ['cascaded' => 'N', 'fields' => 'id,state,rid']);
+		if (false === $oRecord || $oRecord->state !== '1') {
+			return [false, '指定的记录不存在'];
+		}
+
+		$aVoteSchemas = $this->model('matter\enroll\schema')->getCanVote($oApp, $oRecord->round);
+		if (empty($aVoteSchemas[$oRecData->schema_id])) {
+			return [false, '指定的题目不支持投票'];
+		}
+		$oCanVoteSchema = $aVoteSchemas[$oRecData->schema_id];
+		if ($oCanVoteSchema->vote->state === 'BS') {
+			return [false, '投票还没有开始'];
+		}
+		if ($oCanVoteSchema->vote->state === 'AE') {
+			return [false, '投票已经结束'];
+		}
+
+		/* 更新投票记录 */
+		$this->update('xxt_enroll_vote', ['state' => 0], ['id' => $oBefore->id]);
+
+		/* 更新汇总数据 */
+		$this->update('xxt_enroll_record_data', ['vote_num' => (object) ['op' => '-=', 'pat' => 1]], ['id' => $oRecData->id]);
+		if (isset($oParentRecData)) {
+			/* 协作填写汇总数据 */
+			$this->update('xxt_enroll_record_data', ['vote_num' => (object) ['op' => '+=', 'pat' => 1]], ['id' => $oParentRecData->id]);
+			$this->update('xxt_enroll_record', ['vote_cowork_num' => (object) ['op' => '+=', 'pat' => 1]], ['id' => $oRecord->id]);
+		} else {
+			/* 题目汇总数据 */
+			$this->update('xxt_enroll_record', ['vote_schema_num' => (object) ['op' => '+=', 'pat' => 1]], ['id' => $oRecord->id]);
+		}
+
+		$q = [
+			'count(*)',
+			'xxt_enroll_vote',
+			['aid' => $oRecData->aid, 'rid' => $oRecData->rid, 'userid' => $oUser->uid, 'state' => 1],
+		];
+		$beforeCount = (int) $this->query_val_ss($q);
+
+		return [true, [$oCanVoteSchema->vote->limit, $beforeCount]];
 	}
 }

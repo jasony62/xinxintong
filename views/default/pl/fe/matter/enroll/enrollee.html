@@ -164,7 +164,7 @@
                         </td>
                         <td>{{$index+1}}</td>
                         <td>{{user.nickname}}</td>
-                        <td>{{user.round_title}}</td>
+                        <td>{{user.group.title}}</td>
                         <td ng-repeat="schema in absentApp.dataSchemas" ng-switch on="schema.type">
                             <div ng-switch-when="image">
                                 <img ng-repeat="img in user._data[schema.id]" ng-src='{{img}}' />

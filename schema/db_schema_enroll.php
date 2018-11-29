@@ -444,6 +444,7 @@ $sql .= ",rid varchar(13) not null";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",record_id int not null"; // 填写记录的ID
 $sql .= ",data_id int not null"; // 填写记录的ID
+$sql .= ",schema_id varchar(40) not null"; // 题目的ID
 $sql .= ",vote_at int not null"; // 收藏填写的时间
 $sql .= ",userid varchar(40) not null";
 $sql .= ",nickname varchar(255) not null default ''";

@@ -1,0 +1,25 @@
+<div>
+    <div class="site-dropdown" uib-dropdown dropdown-append-to='appendToEle' auto-close="disabled" is-open="status.isopen">
+        <a href uib-dropdown-toggle class="site-dropdown-title"><span>筛选 </span><i class="glyphicon glyphicon-menu-up"></i></a>
+        <ul class="dropdown-menu site-dropdown-list" uib-dropdown-menu>
+            <li class="dropdown-list-wrapper">
+                <div class="list-left" id="filterScrollspy">
+                    <ul class="nav nav-pills nav-stacked">
+                        <li ng-repeat="data in datas" ng-class="{'active':activeType===data.type,'checked':filter[data.type]!==null}" ng-click="checked(data)">
+                            <a href="#{{$index}}" ng-bind="data.title"></a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="list-right" data-spy="scroll" data-target="#filterScrollspy">
+                    <div id="{{$index}}" ng-repeat="data in datas" class="list-group">
+                        <a href class="list-group-item" ng-repeat="menu in data.menus" ng-class="{'active':criteria[data.type]==menu.value}"  ng-click="selected(data, menu)" ng-bind="menu.title"></a>
+                    </div>
+                </div>
+            </li>
+            <li class="dropdown-list-btn">
+                <button class="btn btn-danger" ng-click="cancle()">重置</button>
+                <button class="btn btn-info" ng-click="ok(filter)">确定</button>
+            </li>
+        </ul>
+    </div>
+</div>

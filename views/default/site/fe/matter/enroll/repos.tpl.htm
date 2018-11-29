@@ -100,105 +100,40 @@
                             <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';recordList(1)"><span class='glyphicon glyphicon-remove'></span></button>
                             <button class='btn btn-default' ng-click="recordList(1)"><span class='glyphicon glyphicon-search'></span></button>
                             <button id='advCriteriaSwitch' ng-if="dirSchemas.length" class="btn btn-default visible-xs-inline-block" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">
-                                <span class='glyphicon glyphicon-filter' ng-class="{'opened':advCriteriaStatus.opened}"></span>
+                                目录 <span class='glyphicon glyphicon-th-list' ng-class="{'opened':advCriteriaStatus.opened}"></span>
                             </button>
                         </div>
                     </div>
                 </div>
                 <div id='filterQuick' ng-cloak>
-                    <tms-dropdown ng-model="criteria.orderby" data="datalist.orderby" switch-menu="shiftOrderby()"></tms-dropdown>
-                    <!-- <div class="site-dropdown" uib-dropdown>
-                        <a href uib-dropdown-toggle class="site-dropdown-title" ng-class="{'active':criteria.orderby!=='lastest_first'}">
-                            <span ng-if="criteria.orderby==='lastest_first'">最近提交</span>
-                            <span ng-if="criteria.orderby==='earliest_first'">最早提交</span>
-                            <span ng-if="criteria.orderby==='mostliked'">最多赞同</span>
-                            <span ng-if="criteria.orderby==='agreed'">精选推荐</span>
-                            <span class="glyphicon glyphicon-menu-down"></span>
-                        </a>
-                        <ul class="dropdown-menu site-dropdown-menu" uib-dropdown-menu>
-                            <li><a href ng-click="shiftOrderby('lastest_first')">最近提交</a></li>
-                            <li><a href ng-class="{'active':criteria.orderby==='earliest_first'}" ng-click="shiftOrderby('earliest_first')">最早提交</a></li>
-                            <li><a href ng-class="{'active':criteria.orderby==='mostliked'}" ng-click="shiftOrderby('mostliked')">最多赞同</a></li>
-                            <li><a href ng-class="{'active':criteria.orderby==='agreed'}" ng-click="shiftOrderby('agreed')">精选推荐</a></li>
-                        </ul>
-                    </div> -->
-                    <div class="site-dropdown" uib-dropdown>
-                        <a href uib-dropdown-toggle class="site-dropdown-title" ng-class="{'active':criteria.cowork.agreed!=='all'}">
-                            <span ng-if="criteria.cowork.agreed==='all'">所有问题</span>
-                            <span ng-if="criteria.cowork.agreed==='answer'">已回答</span>
-                            <span ng-if="criteria.cowork.agreed==='unanswer'">等待回答</span>
-                            <span class="glyphicon glyphicon-menu-down"></span>
-                        </a>
-                        <ul class="dropdown-menu site-dropdown-menu" uib-dropdown-menu>
-                            <li><a href ng-click="shiftCoworkAgreed('all')">所有问题</a></li>
-                            <li><a href ng-class="{'active':criteria.cowork.agreed==='answer'}" ng-click="shiftCoworkAgreed('answer')">已回答</a></li>
-                            <li><a href ng-class="{'active':criteria.cowork.agreed==='unanswer'}" ng-click="shiftCoworkAgreed('unanswer')">等待回答</a></li>
-                        </ul>
-                    </div>
-                    <div class="site-dropdown pull-right" uib-dropdown dropdown-append-to='appendToEle' auto-close="disabled" is-open="status.isopen" >
-                        <a href uib-dropdown-toggle class="site-dropdown-title" ng-class="{'active':filter.round!==undefined||filter.agreed!==undefined||filter.group!==undefined||filter.mine!==undefined}">
-                            <span>筛选 </span><i class="glyphicon glyphicon-menu-down"></i>
-                        </a>
-                        <ul class="dropdown-menu site-dropdown-list" uib-dropdown-menu>
-                            <li class="dropdown-list-wrapper">
-                                <div class="list-left" id="filterScrollspy">
-                                    <ul class="nav nav-pills nav-stacked">
-                                        <li ng-if="rounds.length>1"  ng-class="{'active':filter.menu==='round','checked':filter.round!==undefined}"><a href="#status1">轮次</a></li>
-                                        <li  ng-class="{'active':filter.menu==='agreed','checked':filter.agreed!==undefined}"><a href="#status2">表态</a></li>
-                                        <li  ng-class="{'active':filter.menu==='userGroup','checked':filter.group!==undefined}"><a href="#status3">分组</a></li>
-                                        <li  ng-class="{'active':filter.menu==='mine','checked':filter.mine!==undefined}"><a href="#status4">更多</a></li>
-                                    </ul>
-                                </div>
-                                <div class="list-right" data-spy="scroll" data-target="#filterScrollspy">
-                                    <div id="status1" class="list-group" ng-if="rounds.length>1">
-                                        <a href class="list-group-item" ng-class="{'active':criteria.rid==='all'}" ng-click="shiftRound()">不限</a>
-                                        <a href class="list-group-item" ng-class="{'active':criteria.rid===rnd.rid}" ng-repeat="rnd in rounds" ng-click="shiftRound(rnd)">{{rnd.title}}</a>
-                                    </div>
-                                    <div id="status2" class="list-group">
-                                        <a href class="list-group-item" ng-class="{'active':criteria.agreed==='all'}" ng-click="shiftAgreed()">不限</a>
-                                        <a href class="list-group-item" ng-class="{'active':criteria.agreed==='Y'}" ng-click="shiftAgreed('Y')">推荐</a>
-                                        <a href class="list-group-item" ng-class="{'active':criteria.agreed==='D'}" ng-click="shiftAgreed('D')" ng-show="user.is_editor=='Y'||user.is_leader=='S'">讨论</a>
-                                        <a href class="list-group-item" ng-class="{'active':criteria.agreed==='S'}" ng-click="shiftAgreed('N')" ng-show="user.is_editor=='Y'||user.is_leader=='S'">关闭</a>
-                                    </div>
-                                    <div id="status3" class="list-group">
-                                        <a href class="list-group-item" ng-class="{'active':criteria.userGroup==='all'}" ng-click="shiftUserGroup()">不限</a>
-                                        <a href class="list-group-item" ng-class="{'active':criteria.userGroup===ug.round_id}" ng-repeat="ug in userGroups" ng-click="shiftUserGroup(ug)">{{ug.title}}</a>
-                                    </div>
-                                    <div id="status4" class="list-group">
-                                        <a href class="list-group-item" ng-class="{'active':filter.mine===undefined}" ng-click="shiftMine()">不限</a>
-                                        <a href class="list-group-item" ng-class="{'active':filter.mine==='我的记录'}" ng-click="shiftMine('我的记录')">我的记录</a>
-                                        <a href class="list-group-item" ng-class="{'active':filter.mine==='我的收藏'}" ng-click="shiftMine('我的收藏')">我的收藏</a>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="dropdown-list-btn">
-                                <button class="btn btn-danger" ng-click="reset()">重置</button>
-                                <button class="btn btn-info" ng-click="confirm($event)">确定</button>
-                            </li>
-                        </ul>
-                    </div>
+                    <div tms-dropdown data="dropData[0]" change-menu="shiftMenu(criteria)"></div>
+                    <div tms-dropdown data="dropData[1]" change-menu="shiftMenu(criteria)"></div>
+                    <div tms-filter datas="filterData" filter="filter" criteria="criteria" confirm="confirm(filter)" class="pull-right"></div>
                 </div>
                 <!-- end: filterQuick -->
-                <div id='filterTip' class="hidden-xs" ng-if="filter.round||filter.agreed||filter.group||filter.mine||filter.tags.length">
-                    <div class="bg-info small" ng-if="filter.round">
-                        <span>{{filter.round.title}}</span>
-                        <button class="close" trace-biz ng-click="shiftRound()"><span>&times;</span></button>
+                <div id='filterTip' class="hidden-xs" ng-if="filter.rid||filter.agreed||filter.userGroup||filter.mine||filter.tags.length">
+                    <div class="bg-info small" ng-if="filter.rid">
+                        <span>{{filter.rid.title}}</span>
+                        <button class="close" trace-biz ng-click="shiftTip('rid')"><span>&times;</span></button>
                     </div>
-                    <div class="bg-info small" ng-if="filter.agreed" >
-                        <span ng-switch="filter.agreed">
+                    <div class="bg-info small" ng-if="filter.agreed">
+                        <span ng-switch="filter.agreed.value">
                             <span ng-switch-when="Y">推荐</span>
                             <span ng-switch-when="D">讨论</span>
                             <span ng-switch-when="S">关闭</span>
                         </span>
-                        <button class="close" trace-biz ng-click="shiftAgreed()"><span>&times;</span></button>
+                        <button class="close" trace-biz ng-click="shiftTip('agreed')"><span>&times;</span></button>
                     </div>
-                    <div class="bg-info small" ng-if="filter.group">
-                        <span>{{filter.group.title}}</span>
-                        <button class="close" trace-biz ng-click="shiftUserGroup()"><span>&times;</span></button>
+                    <div class="bg-info small" ng-if="filter.userGroup">
+                        <span>{{filter.userGroup.title}}</span>
+                        <button class="close" trace-biz ng-click="shiftTip('userGroup')"><span>&times;</span></button>
                     </div>
                     <div class="bg-info small" ng-if="filter.mine">
-                        <span>{{filter.mine}}</span>
-                        <button class="close" trace-biz ng-click="shiftMine()"><span>&times;</span></button>
+                        <span ng-switch="filter.mine.value">
+                            <span ng-switch-when="creator">我的记录</span>
+                            <span ng-switch-when="favor">我的收藏</span>
+                        </span>
+                        <button class="close" trace-biz ng-click="shiftTip('mine')"><span>&times;</span></button>
                     </div>
                     <div class="bg-info small" ng-repeat="tag in filter.tags">
                         <span ng-bind="tag.label"></span>

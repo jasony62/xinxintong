@@ -23,10 +23,9 @@ require('../../../../../../asset/js/xxt.ui.nav.js');
 require('../../../../../../asset/js/xxt.ui.act.js');
 
 require('./directive.js');
-require('./component.js');
 
 /* 公共加载的模块 */
-var angularModules = ['ngSanitize', 'ui.bootstrap', 'notice.ui.xxt', 'http.ui.xxt', 'trace.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'directive.enroll', 'component.enroll', 'picviewer.ui.xxt', 'nav.ui.xxt', 'act.ui.xxt'];
+var angularModules = ['ngSanitize', 'ui.bootstrap', 'notice.ui.xxt', 'http.ui.xxt', 'trace.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'directive.enroll', 'picviewer.ui.xxt', 'nav.ui.xxt', 'act.ui.xxt'];
 /* 加载指定的模块 */
 if (window.moduleAngularModules) {
     window.moduleAngularModules.forEach(function(m) {

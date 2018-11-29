@@ -1,34 +1,51 @@
 define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlVote', ['$scope', '$parse', 'http2', 'noticebox', 'srvEnrollApp', function($scope, $parse, http2, noticebox, srvEnlApp) {
-        var _aConfigs;
-        $scope.voteConfig = _aConfigs = [];
+        function fnWatchWrap(oWrap) {
+            var $wrapScope;
+            $wrapScope = $scope.$new(true);
+            $wrapScope.wrap = oWrap;
+            $wrapScope.$watch('wrap', function(nv, ov) {
+                if (nv && nv !== ov) {
+                    nv.modified = true;
+                }
+            }, true);
+        }
+        var _aWraps;
+        $scope.wraps = _aWraps = [];
         $scope.addConfig = function() {
-            _aConfigs.push({ data: {} });
+            var oNewWrap;
+            oNewWrap = { data: {}, modified: true };
+            _aWraps.push(oNewWrap);
+            fnWatchWrap(oNewWrap);
         };
-        $scope.delConfig = function(oConfig) {
+        $scope.delConfig = function(oWrap) {
             noticebox.confirm('删除投票环节，确定？').then(function() {
-                if (oConfig.data.id) {
-                    http2.post('/rest/pl/fe/matter/enroll/updateVoteConfig?app=' + $scope.app.id, { method: 'delete', data: oConfig.data }).then(function() {
-                        _aConfigs.splice(_aConfigs.indexOf(oConfig), 1);
+                if (oWrap.data.id) {
+                    http2.post('/rest/pl/fe/matter/enroll/updateVoteConfig?app=' + $scope.app.id, { method: 'delete', data: oWrap.data }).then(function() {
+                        _aWraps.splice(_aWraps.indexOf(oWrap), 1);
                     });
                 } else {
-                    _aConfigs.splice(_aConfigs.indexOf(oConfig), 1);
+                    _aWraps.splice(_aWraps.indexOf(oWrap), 1);
                 }
             });
         };
-        $scope.addVoteGroup = function(oConfig) {
-            if (!$parse('data.role.groups')(oConfig)) {
-                $parse('data.role.groups').assign(oConfig, [{}]);
+        $scope.addVoteGroup = function(oWrap) {
+            if (!$parse('data.role.groups')(oWrap)) {
+                $parse('data.role.groups').assign(oWrap, [{}]);
             } else {
-                $parse('data.role.groups')(oConfig).push({});
+                $parse('data.role.groups')(oWrap).push({});
             }
         };
-        $scope.delVoteGroup = function(oConfig, oVoteGroup) {
-            oConfig.data.role.groups.splice(oConfig.data.role.groups.indexOf(oVoteGroup), 1);
+        $scope.delVoteGroup = function(oWrap, oVoteGroup) {
+            oWrap.data.role.groups.splice(oWrap.data.role.groups.indexOf(oVoteGroup), 1);
         };
-        $scope.save = function(oConfig) {
-            http2.post('/rest/pl/fe/matter/enroll/updateVoteConfig?app=' + $scope.app.id, { method: 'save', data: oConfig.data }).then(function() {});
+        $scope.save = function(oWrap) {
+            http2.post('/rest/pl/fe/matter/enroll/updateVoteConfig?app=' + $scope.app.id, { method: 'save', data: oWrap.data }).then(function(rsp) {
+                http2.merge(oWrap.data, rsp.data);
+                oWrap.modified = false;
+                noticebox.success('保存成功！');
+            });
         };
         srvEnlApp.get().then(function(oApp) {
             $scope.votingSchemas = [];
@@ -38,8 +55,11 @@ define(['frame'], function(ngApp) {
                 }
             });
             if (oApp.voteConfig && oApp.voteConfig.length) {
-                oApp.voteConfig.forEach(function(oConfig) {
-                    _aConfigs.push({ data: angular.copy(oConfig) });
+                oApp.voteConfig.forEach(function(oConfig, index) {
+                    var oWrap;
+                    oWrap = { data: angular.copy(oConfig), index: index };
+                    _aWraps.push(oWrap);
+                    fnWatchWrap(oWrap);
                 });
             }
         });

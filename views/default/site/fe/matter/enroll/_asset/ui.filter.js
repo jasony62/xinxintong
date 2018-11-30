@@ -15,24 +15,20 @@ ngMod.directive('tmsFilter', ['$templateCache', function($templateCache) {
         link: function(scope, elems, attrs) {
             scope.status = { isopen: false };
             scope.appendToEle = scope.$parent.appendToEle;
-            scope.activeType = null;
-            scope.checked = function(data) {
-                scope.activeType = data.type;
-            }
+
             scope.selected = function(data, menu) {
-                scope.filter[data.type] = menu;
+                scope.filter[data.type] = menu.value == data.default.value ? data.default.value : menu;
                 scope.criteria[data.type] = menu.value;
             }
             scope.ok = function(filter) {
                 scope.status.isopen = !scope.status.isopen;
-                scope.confirm({"filter": {"criteria": scope.criteria, "filter": scope.filter}});
+                scope.confirm({"filter": {"criteria": scope.criteria, "filter": filter}});
             };
             scope.cancle = function() {
                 angular.forEach(scope.datas, function(data) {
                     scope.filter[data.type] = data.default.value;
                     scope.criteria[data.type] = data.default.value;
                 });
-                scope.activeType = null;
             };
         }
     };

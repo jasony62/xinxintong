@@ -150,6 +150,16 @@ button.option {
     &>* {
         display: inline-block;
     }
+    
+    .glyphicon-menu-up {
+        transform:rotate(-180deg);
+    } 
+
+    .site-dropdown.open, &.uib-dropdown-open>.pull-right {
+        .glyphicon-menu-up {
+            transform:rotate(0deg);
+        }
+    }
 
     .site-dropdown {
         display: inline-block;
@@ -162,10 +172,6 @@ button.option {
             color: #333;
             min-height: 40px;
             line-height: 40px;
-
-            .glyphicon-menu-up {
-                transform:rotate(-180deg);
-            }  
         }
 
         a:focus, a:hover {
@@ -177,12 +183,6 @@ button.option {
         }
     }
     
-    .site-dropdown.open {
-        .glyphicon-menu-up {
-            transform:rotate(0deg);
-        }
-    }
-
     .site-dropdown-list {
         width: 100% !important;
         right: 0 !important;

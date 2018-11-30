@@ -32,9 +32,18 @@
             </ul>
         </div>
         <div ng-switch-when="multitext">
-            <ul ng-if="rec.data[schema.id]" style='padding-left:20px'>
-                <li ng-repeat="item in rec.data[schema.id]"><span dynamic-html="item.value"></span></li>
-            </ul>
+            <div ng-repeat="item in rec.data[schema.id]">
+                <div class='top-bar tms-flex-row'>
+                    <div class='seq tms-flex-grow text-muted'>#<span ng-bind="item.multitext_seq"></span></div>
+                    <span ng-if="item.voteResult&&item.voteResult.state!=='BS'">得票：<span ng-bind="item.voteResult.vote_num"></span>&nbsp;&nbsp;</span>
+                    <button ng-if="item.voteResult.state==='IP'&&item.voteResult.vote_at==0" class='btn btn-default btn-xs' ng-click="vote(item)"><span class='glyphicon glyphicon-triangle-top'></span> 投票</button>
+                    <button ng-if="item.voteResult.state==='IP'&&item.voteResult.vote_at>0" class='btn btn-default btn-xs' ng-click="unvote(item)"><span class='glyphicon glyphicon-triangle-bottom'></span> 取消投票</button>
+                </div>
+                <blockquote>
+                    <p dynamic-html="item.value"></p>
+                    <footer>{{item.nickname}}</footer>
+                </blockquote>
+            </div>
         </div>
         <div ng-switch-when="single"><span ng-bind="rec.data[schema.id]"></span></div>
         <div ng-switch-when="multiple"><span ng-bind="rec.data[schema.id]"></span></div>

@@ -1014,7 +1014,7 @@ class data_model extends entity_model {
 		$q = [
 			'count(*)',
 			'xxt_enroll_vote',
-			['aid' => $oRecData->aid, 'rid' => $oRecData->rid, 'userid' => $oUser->uid, 'state' => 1],
+			['aid' => $oRecData->aid, 'rid' => $oRecData->rid, 'schema_id' => $oRecData->schema_id, 'userid' => $oUser->uid, 'state' => 1],
 		];
 		$beforeCount = (int) $this->query_val_ss($q);
 		if ($oCanVoteSchema->vote->limit > 0) {
@@ -1030,6 +1030,7 @@ class data_model extends entity_model {
 		$oNew->siteid = $oRecord->siteid;
 		$oNew->record_id = $oRecord->id;
 		$oNew->data_id = $oRecData->id;
+		$oNew->schema_id = $oRecData->schema_id;
 		$oNew->vote_at = time();
 		$oNew->userid = $oUser->uid;
 		$oNew->nickname = $this->escape($oUser->nickname);

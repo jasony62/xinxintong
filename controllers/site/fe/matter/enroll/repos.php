@@ -459,6 +459,10 @@ class repos extends base {
 				}
 			}
 			foreach ($oResult->records as $oRecord) {
+				/* 获取记录的投票信息 */
+				if (!empty($oApp->voteConfig)) {
+					$aCanVoteSchemas = $this->model('matter\enroll\schema')->getCanVote($oApp, $oRecord->round);
+				}
 				$aCoworkState = [];
 				/* 清除非共享数据 */
 				if (isset($oRecord->data)) {
@@ -487,14 +491,14 @@ class repos extends base {
 						} else if (!empty($oRecord->data->{$schemaId})) {
 							/* 协作填写题 */
 							if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
-								$options = ['excludeRoot' => true, 'fields' => 'id,agreed,like_num,nickname,value'];
+								$aOptions = ['excludeRoot' => true, 'fields' => 'id,agreed,like_num,nickname,value,multitext_seq,vote_num'];
 								// 展示在共享页的协作数据表态类型
 								if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
-									$options['agreed'] = $oApp->actionRule->cowork->repos->pre->cowork->agreed;
+									$aOptions['agreed'] = $oApp->actionRule->cowork->repos->pre->cowork->agreed;
 								} else {
-									$options['agreed'] = ['Y', 'A'];
+									$aOptions['agreed'] = ['Y', 'A'];
 								}
-								$items = $modelData->getMultitext($oRecord->enroll_key, $oSchema->id, $options);
+								$items = $modelData->getMultitext($oRecord->enroll_key, $oSchema->id, $aOptions);
 								if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
 									$countItems = $modelData->getMultitext($oRecord->enroll_key, $oSchema->id, ['agreed' => ['Y', 'A'], 'fields' => 'id']);
 									$aCoworkState[$oSchema->id] = (object) ['length' => count($countItems)];
@@ -510,6 +514,18 @@ class repos extends base {
 									}
 									$items = $reposItems;
 								}
+								/* 当前用户投票情况 */
+								if (!empty($aCanVoteSchemas[$oSchema->id])) {
+									foreach ($items as $oItem) {
+										$oVoteResult = new \stdClass;
+										$vote_at = (int) $modelData->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oItem->id, 'state' => 1, 'userid' => $oUser->uid]]);
+										$oVoteResult->vote_at = $vote_at;
+										$oVoteResult->vote_num = $oItem->vote_num;
+										$oVoteResult->state = $aCanVoteSchemas[$oSchema->id]->vote->state;
+										unset($oItem->vote_num);
+										$oItem->voteResult = $oVoteResult;
+									}
+								}
 								$oRecordData->{$schemaId} = $items;
 							} else {
 								$oRecordData->{$schemaId} = $oRecord->data->{$schemaId};
@@ -521,8 +537,7 @@ class repos extends base {
 						$oRecord->coworkState = (object) $aCoworkState;
 					}
 					/* 获取记录的投票信息 */
-					if (!empty($oApp->voteConfig)) {
-						$aCanVoteSchemas = $this->model('matter\enroll\schema')->getCanVote($oApp, $oRecord->round);
+					if (!empty($aCanVoteSchemas)) {
 						$oVoteResult = new \stdClass;
 						foreach ($aCanVoteSchemas as $oCanVoteSchema) {
 							if ($this->getDeepValue($oCanVoteSchema, 'cowork') === 'Y') {continue;}

@@ -181,7 +181,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                                 case 'addRecord':
                                 case 'editRecord':
                                     var oFirstInputPage;
-                                    for (var i = type.length - 1; i >= 0; i--) {
+                                    for (var i = appPages.length - 1; i >= 0; i--) {
                                         if (appPages[i].type === 'I') {
                                             oFirstInputPage = appPages[i];
                                             break;
@@ -219,6 +219,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                         };
                         $scope2.removeButton = function(oBtn) {
                             _oPage.actSchemas.splice(_oPage.actSchemas.indexOf(oBtn), 1);
+                            $scope2.activeButton = _oActiveButton = null;
                         };
                         $scope2.chooseType = function() {
                             _oActiveButton.label = $scope2.buttons[_oActiveButton.name].l;

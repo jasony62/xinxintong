@@ -1,9 +1,9 @@
 <div class="col-md-8 col-md-offset-2">
     <div class='list-group'>
-        <div class='list-group-item' ng-repeat="wrap in wraps">
+        <div class='list-group-item' ng-repeat="config in configs">
             <div class='form-group'>
                 <label>投票题目</label>
-                <div tms-array-checkbox model="wrap.data.schemas">
+                <div tms-array-checkbox model="config.schemas">
                     <div class='checkbox' ng-repeat="schema in votingSchemas">
                         <label class='checkbox-inline'>
                             <input type='checkbox' value='{{::schema.id}}'><span>{{::schema.title}}</span>
@@ -15,38 +15,38 @@
             <div class='form-group'>
                 <div class='form-inline'>
                     <span>每人投票数量</span>
-                    <input type='text' class='form-control' ng-model="wrap.data.limit.num" placeholder="输入数量">
+                    <input type='text' class='form-control' ng-model="config.limit.num" placeholder="输入数量">
                 </div>
             </div>
             <div class='form-group'>
                 <div class='form-inline'>
                     <span>投票开始时间</span>
-                    <select class='form-control' ng-model="wrap.data.start.time.mode">
+                    <select class='form-control' ng-model="config.start.time.mode">
                         <option value=''>不设置</option>>
                         <option value='after_round_start_at'>填写轮次开始时间后</option>
                     </select>
-                    <select class='form-control' ng-model="wrap.data.start.time.unit">
+                    <select class='form-control' ng-model="config.start.time.unit">
                         <option value=''>不设置</option>>
                         <option value='hour'>小时</option>
                     </select>
-                    <input type='text' class='form-control' ng-model="wrap.data.start.time.value" placeholder="输入需要的时间">
+                    <input type='text' class='form-control' ng-model="config.start.time.value" placeholder="输入需要的时间">
                 </div>
             </div>
             <div class='form-group'>
                 <div class='form-inline'>
                     <span>投票结束时间</span>
-                    <select class='form-control' ng-model="wrap.data.end.time.mode">
+                    <select class='form-control' ng-model="config.end.time.mode">
                         <option value=''>不设置</option>>
                         <option value='after_round_start_at'>填写轮次开始时间后</option>
                     </select>
-                    <select class='form-control' ng-model="wrap.data.end.time.unit">
+                    <select class='form-control' ng-model="config.end.time.unit">
                         <option value=''>不设置</option>>
                         <option value='hour'>小时</option>
                     </select>
-                    <input type='text' class='form-control' ng-model="wrap.data.end.time.value" placeholder="输入需要的时间">
+                    <input type='text' class='form-control' ng-model="config.end.time.value" placeholder="输入需要的时间">
                 </div>
             </div>
-            <div class='form-group' ng-repeat="vg in wrap.data.role.groups">
+            <div class='form-group' ng-repeat="vg in config.role.groups">
                 <div class='form-inline'>
                     <span>进行投票的分组</span>
                     <select class='form-control' ng-model="vg.do">
@@ -58,13 +58,13 @@
                         <option value=''>不指定</option>
                         <option ng-repeat="group in app.groups" value="{{group.round_id}}">{{group.title}}</option>
                     </select>
-                    <button class='btn btn-default' ng-click="delVoteGroup(wrap,vg)"><span class='glyphicon glyphicon-remove'></span></button>
+                    <button class='btn btn-default' ng-click="delVoteGroup(config,vg)"><span class='glyphicon glyphicon-remove'></span></button>
                 </div>
             </div>
-            <button class='btn btn-default' ng-click="addVoteGroup(wrap)">添加分组设置</button>
+            <button class='btn btn-default' ng-click="addVoteGroup(config)">添加分组设置</button>
             <hr>
-            <button class='btn btn-default' ng-click="delConfig(wrap)">删除</button>
-            <button class='btn' ng-class="{'btn-default':!wrap.modified,'btn-success':wrap.modified}" ng-click="save(wrap)">保存</button>
+            <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
+            <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
         </div>
     </div>
     <div>

@@ -570,7 +570,12 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             http2.get(LS.j('data/vote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
                 oRecData.voteResult.vote_num++;
                 oRecData.voteResult.vote_at = rsp.data[0].vote_at;
-                noticebox.success('已完成投票，还需投【' + (rsp.data[1][0] - rsp.data[1][1]) + '】票！');
+                var remainder = rsp.data[1][0] - rsp.data[1][1];
+                if (remainder > 0) {
+                    noticebox.success('还需要投出【' + remainder + '】票');
+                } else {
+                    noticebox.success('已完成全部投票');
+                }
             });
         }
     };
@@ -579,7 +584,12 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             http2.get(LS.j('data/unvote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
                 oRecData.voteResult.vote_num--;
                 oRecData.voteResult.vote_at = 0;
-                noticebox.success('已撤销投票，还需投【' + (rsp.data[0] - rsp.data[1]) + '】票！');
+                var remainder = rsp.data[0] - rsp.data[1];
+                if (remainder > 0) {
+                    noticebox.success('还需要投出【' + remainder + '】票');
+                } else {
+                    noticebox.success('已完成全部投票');
+                }
             });
         }
     };

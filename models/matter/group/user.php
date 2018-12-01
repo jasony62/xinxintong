@@ -21,7 +21,7 @@ class user_model extends \TMS_MODEL {
 			$size = isset($oOptions->size) ? $oOptions->size : null;
 		}
 
-		$fields = isset($oOptions->fields) ? $oOptions->fields : 'enroll_key,enroll_at,comment,tags,data,userid,nickname,is_leader,wx_openid,yx_openid,qy_openid,headimgurl,round_id,round_title,role_rounds';
+		$fields = isset($oOptions->fields) ? $oOptions->fields : 'enroll_key,enroll_at,comment,tags,data,userid,nickname,is_leader,round_id,round_title,role_rounds';
 
 		/* 数据过滤条件 */
 		$w = "state=1 and aid='{$oApp->id}'";

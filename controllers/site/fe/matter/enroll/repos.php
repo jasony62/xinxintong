@@ -901,15 +901,15 @@ class repos extends base {
 				$oEditor->group = $oApp->actionRule->role->editor->group;
 				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
 				// 如果记录活动指定了编辑组需要获取，编辑组中所有的用户
-				$modelGrpUsr = $this->model('matter\group\player');
+				$modelGrpUsr = $this->model('matter\group\user');
 				$groupEditor = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
-				if (isset($groupEditor->players)) {
-					$groupEditorPlayers = $groupEditor->players;
+				if (isset($groupEditor->users)) {
+					$groupEditorUsers = $groupEditor->users;
 					$oEditorUsers = new \stdClass;
-					foreach ($groupEditorPlayers as $player) {
+					foreach ($groupEditorUsers as $player) {
 						$oEditorUsers->{$player->userid} = $player->role_rounds;
 					}
-					unset($groupEditorPlayers);
+					unset($groupEditorUsers);
 				}
 			}
 		}

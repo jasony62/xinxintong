@@ -156,13 +156,13 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
             editorProxy.modifySchema(wrap);
         };
         /* 设置页面操作 */
-        $scope.configButton = function() {
+        $scope.configButton = function(oEditingPage) {
             http2.post('/rest/script/time', { html: { 'buttons': '/views/default/pl/fe/matter/enroll/component/pageButtons' } }).then(function(rsp) {
                 $uibModal.open({
                     templateUrl: '/views/default/pl/fe/matter/enroll/component/pageButtons.html?_=' + rsp.data.html.buttons.time,
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         var _oPage, _oActiveButton, appPages, _nextPages;
-                        $scope2.page = _oPage = $scope.ep;
+                        $scope2.page = _oPage = oEditingPage;
                         appPages = $scope.app.pages;
                         $scope2.nextPages = _nextPages = [];
                         $scope2.cancel = function() { $mi.dismiss(); };

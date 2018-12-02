@@ -124,9 +124,9 @@ class record_model extends record_base {
 
 		$this->update('xxt_enroll_record', $oUpdatedRec, ['enroll_key' => $ek]);
 
-		$oRecord->data = $oUpdatedRec->data = $oResult->dbData;
+		$oUpdatedRec->data = $oResult->dbData;
 		if (isset($oResult->score)) {
-			$oRecord->score = $oUpdatedRec->score = $oResult->score;
+			$oUpdatedRec->score = $oResult->score;
 		}
 		unset($oUpdatedRec->submit_log);
 

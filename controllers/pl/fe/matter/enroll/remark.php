@@ -46,12 +46,12 @@ class remark extends main_base {
 		}
 
 		$oCriteria = $this->getPostJson();
-		$options = [
+		$aOptions = [
 			'fields' => 'id,userid,create_at,nickname,content,agreed,like_num,schema_id,data_id,enroll_key',
 			'criteria' => $oCriteria,
 		];
-		$result = $this->model('matter\enroll\remark')->listByApp($oApp, $page, $size, $options);
+		$oResult = $this->model('matter\enroll\remark')->listByApp($oApp, $page, $size, $aOptions);
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 }

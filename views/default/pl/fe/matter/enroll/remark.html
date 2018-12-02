@@ -28,7 +28,7 @@
             </div>
         </div>
         <!-- end actions -->
-        <!-- records -->
+        <!-- remarks -->
         <div tms-flex-height top='117' bottom='66' class='form-group'>
             <div tms-table-wrap ready='tmsTableWrapReady'>
                 <table class='table table-bordered'>
@@ -43,9 +43,9 @@
                             <th style='width:140px'>留言用户</th>
                             <th class='custom-col'>留言内容</th>
                             <th style='width:5em'>赞同数</th>
-                            <th class='custom-col'>留言题目</th>
-                            <th style='width:140px'>提交用户</th>
-                            <th style='width:140px'>提交内容</th>
+                            <th class='custom-col'>被留言题目</th>
+                            <th style='width:140px'>被留言用户</th>
+                            <th class='custom-col'>被留言内容</th>
                             <th style='width:48px'>操作</th>
                         </tr>
                     </thead>
@@ -60,20 +60,10 @@
                             <td>{{r.nickname}}</td>
                             <td ng-bind-html="r.content"></td>
                             <td>{{r.like_num}}</td>
-                            <td>{{app._schemasById[r.schema_id].title}}</td>
-                            <td>{{records[r.enroll_key].nickname}}</td>
-                            <td ng-switch on="app._schemasById[r.schema_id].type">
-                                <div ng-switch-when="image">
-                                    <img ng-repeat="img in records[r.enroll_key]._data[r.schema_id]" ng-src='{{img}}' />
-                                </div>
-                                <div ng-switch-when="file">
-                                    <span ng-repeat='file in records[r.enroll_key]._data[r.schema_id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
-                                </div>
-                                <div ng-switch-when="multitext">
-                                    <p ng-repeat='item in records[r.enroll_key]._data[r.schema_id]'><span ng-bind-html="item.value"></span></p>
-                                </div>
-                                <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
-                                <span ng-switch-default ng-bind-html="records[r.enroll_key]._data[r.schema_id]"></span>
+                            <td>{{r._target.title}}</td>
+                            <td>{{r._target.nickname}}</td>
+                            <td>
+                                <div ng-bind-html="r._target.content"></div>
                             </td>
                             <td>
                                 <button class='btn btn-xs btn-default' ng-click='gotoRemark(r)'>
@@ -85,7 +75,7 @@
                 </table>
             </div>
         </div>
-        <!-- end records -->
+        <!-- end remarks -->
         <div class='form-group' style='text-align:right;'>
             <span>总数：{{page.total}}</span>
             <ul uib-pagination style="margin:0;vertical-align:middle;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>

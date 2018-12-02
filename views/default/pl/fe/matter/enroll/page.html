@@ -15,7 +15,7 @@
                 </form>
                 <ul class="navbar-form navbar-right">
                     <button class='btn' ng-class="ep.$$modified?'btn-success':'btn-default'" ng-click="save()">保存修改</button>
-                    <button uib-popover-template="'pageSetting.html'" popover-append-to-body='true' popover-placement="left-top" popover-trigger="outsideClick" class="btn btn-default">高级设置 <span class="caret"></span></button>
+                    <button id='popoverPageSetting' uib-popover-template="'pageSetting.html'" popover-append-to-body='true' popover-placement="left-top" popover-trigger="'show'" ng-click="togglePageSetting($event)" class="btn btn-default">高级设置 <span class="caret"></span></button>
                 </ul>
             </div>
         </nav>

@@ -29,10 +29,6 @@ class player_model extends \TMS_MODEL {
 			'enroll_key' => $ek,
 			'userid' => $oUser->uid,
 			'nickname' => $this->escape($oUser->nickname),
-			'wx_openid' => $oUser->wx_openid,
-			'yx_openid' => $oUser->yx_openid,
-			'qy_openid' => $oUser->qy_openid,
-			'headimgurl' => $oUser->headimgurl,
 		];
 		$aNewPlayer['enroll_at'] = isset($aOptions['enroll_at']) ? $aOptions['enroll_at'] : $current;
 		$aNewPlayer['draw_at'] = isset($aOptions['draw_at']) ? $aOptions['draw_at'] : $current;
@@ -336,7 +332,7 @@ class player_model extends \TMS_MODEL {
 			$kw = isset($oOptions->kw) ? $oOptions->kw : null;
 			$by = isset($oOptions->by) ? $oOptions->by : null;
 		}
-		$fields = isset($oOptions->fields) ? $oOptions->fields : 'enroll_key,enroll_at,comment,tags,data,userid,nickname,is_leader,wx_openid,yx_openid,qy_openid,headimgurl,round_id,round_title,role_rounds';
+		$fields = isset($oOptions->fields) ? $oOptions->fields : 'enroll_key,enroll_at,comment,tags,data,userid,nickname,is_leader,round_id,round_title,role_rounds';
 
 		$oResult = new \stdClass; // 返回的结果
 		$oResult->total = 0;
@@ -566,7 +562,7 @@ class player_model extends \TMS_MODEL {
 	public function &pendings($appId) {
 		/* 没有抽中过的用户 */
 		$q = [
-			'id,enroll_key,nickname,wx_openid,yx_openid,qy_openid,headimgurl,userid,enroll_at,data,tags,comment,role_rounds',
+			'id,enroll_key,nickname,userid,enroll_at,data,tags,comment,role_rounds',
 			'xxt_group_player',
 			"aid='$appId' and state=1 and round_id=0",
 		];
@@ -593,7 +589,7 @@ class player_model extends \TMS_MODEL {
 	public function &pendingsRole($appId) {
 		/* 没有抽中过的用户 */
 		$q = [
-			'id,enroll_key,nickname,wx_openid,yx_openid,qy_openid,headimgurl,userid,enroll_at,data,tags,comment,role_rounds',
+			'id,enroll_key,nickname,userid,enroll_at,data,tags,comment,role_rounds',
 			'xxt_group_player',
 			"aid='$appId' and state=1 and (role_rounds = '' or role_rounds = '[]')",
 		];
@@ -779,10 +775,6 @@ class player_model extends \TMS_MODEL {
 		// 		$oUser = new \stdClass;
 		// 		$oUser->uid = $oMember->userid;
 		// 		$oUser->nickname = $modelUsr->escape($oSiteUser->nickname);
-		// 		$oUser->wx_openid = $oSiteUser->wx_openid;
-		// 		$oUser->yx_openid = $oSiteUser->yx_openid;
-		// 		$oUser->qy_openid = $oSiteUser->qy_openid;
-		// 		$oUser->headimgurl = $oSiteUser->headimgurl;
 		// 		$this->enroll($objGrp, $oUser, ['enroll_key' => $oMember->id, 'enroll_at' => $oMember->create_at]);
 		// 		$data = new \stdClass;
 		// 		foreach ($dataSchemas as $ds) {
@@ -844,10 +836,6 @@ class player_model extends \TMS_MODEL {
 		// 		$oUser = new \stdClass;
 		// 		$oUser->uid = $oRecord->userid;
 		// 		$oUser->nickname = $oRecord->nickname;
-		// 		$oUser->wx_openid = $oRecord->wx_openid;
-		// 		$oUser->yx_openid = $oRecord->yx_openid;
-		// 		$oUser->qy_openid = $oRecord->qy_openid;
-		// 		$oUser->headimgurl = $oRecord->headimgurl;
 		// 		$this->enroll($oGrpApp, $oUser, ['enroll_key' => $ek, 'enroll_at' => $oRecord->enroll_at]);
 		// 		$this->setData($oGrpApp, $ek, $oRecord->data);
 		// 	}
@@ -974,33 +962,17 @@ class player_model extends \TMS_MODEL {
 					} else {
 						$record = $modelRec->byId($record->enroll_key, $aOptions);
 					}
-					$user = new \stdClass;
-					$user->uid = $record->userid;
-					$user->nickname = $record->nickname;
-					$user->wx_openid = $record->wx_openid;
-					$user->yx_openid = $record->yx_openid;
-					$user->qy_openid = $record->qy_openid;
-					$user->headimgurl = $record->headimgurl;
+					$oUser = new \stdClass;
+					$oUser->uid = $record->userid;
+					$oUser->nickname = $record->nickname;
 					if ($oldPlayer = $this->byId($objGrp->id, $record->enroll_key, ['cascaded' => 'N'])) {
 						$updata = [];
 						if (!empty($assignRound) && is_object($assignRound)) {
 							$updata['round_id'] = $assignRound->round_id;
 							$updata['round_title'] = $assignRound->title;
 						}
-						if ($oldPlayer->nickname !== $user->nickname) {
-							$updata['nickname'] = $user->nickname;
-						}
-						if ($oldPlayer->wx_openid !== $user->wx_openid) {
-							$updata['wx_openid'] = $user->wx_openid;
-						}
-						if ($oldPlayer->yx_openid !== $user->yx_openid) {
-							$updata['yx_openid'] = $user->yx_openid;
-						}
-						if ($oldPlayer->qy_openid !== $user->qy_openid) {
-							$updata['qy_openid'] = $user->qy_openid;
-						}
-						if ($oldPlayer->headimgurl !== $user->headimgurl) {
-							$updata['headimgurl'] = $user->headimgurl;
+						if ($oldPlayer->nickname !== $oUser->nickname) {
+							$updata['nickname'] = $oUser->nickname;
 						}
 						if (!empty($updata)) {
 							$this->modify($record->enroll_key, $updata);
@@ -1014,7 +986,7 @@ class player_model extends \TMS_MODEL {
 							$aOptions2['round_id'] = $assignRound->round_id;
 							$aOptions2['round_title'] = $assignRound->title;
 						}
-						$this->enroll($objGrp, $user, $aOptions2);
+						$this->enroll($objGrp, $oUser, $aOptions2);
 						$this->setData($objGrp, $record->enroll_key, $record->data);
 					}
 					$cnt++;

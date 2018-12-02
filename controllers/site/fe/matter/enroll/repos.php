@@ -593,10 +593,6 @@ class repos extends base {
 				/* 清除不必要的内容 */
 				unset($oRecord->comment);
 				unset($oRecord->verified);
-				unset($oRecord->wx_openid);
-				unset($oRecord->yx_openid);
-				unset($oRecord->qy_openid);
-				unset($oRecord->headimgurl);
 
 				/* 获得推荐的评论数据 */
 				$fnRemarksByRecord = function ($ek, $agreed, $rid = '') use ($modelRec, $oEditor, $oUser) {
@@ -840,10 +836,6 @@ class repos extends base {
 				/* 清除不必要的内容 */
 				unset($oRecord->comment);
 				unset($oRecord->verified);
-				unset($oRecord->wx_openid);
-				unset($oRecord->yx_openid);
-				unset($oRecord->qy_openid);
-				unset($oRecord->headimgurl);
 				/* 获得推荐的评论数据 */
 				$q = [
 					'id,group_id,agreed,like_num,like_log,userid,nickname,content,create_at',

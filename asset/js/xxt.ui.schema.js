@@ -1,6 +1,6 @@
 'use strict';
 var ngMod = angular.module('schema.ui.xxt', []);
-ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
+ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce, $parse) {
     var _that = this,
         _mapOfSchemas;
     this.config = function(schemas) {
@@ -164,6 +164,16 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
             });
         }
     };
+    /**
+     * 给页面中的提交数据填充题目默认值
+     */
+    this.autoFillDefault = function(schemasById, oPageData) {
+        angular.forEach(schemasById, function(oSchema) {
+            if (oSchema.defaultValue && oPageData[oSchema.id] === undefined) {
+                oPageData[oSchema.id] = oSchema.defaultValue;
+            }
+        });
+    };
     this.value2Text = function(oSchema, value) {
         var label, aVal, aLab = [];
 
@@ -217,6 +227,52 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
             } else if (angular.isObject(val) || angular.isArray(val)) {
                 val = JSON.stringify(val);
             }
+        }
+        return val;
+    };
+    this.txtSubstitute = function(oTxtData) {
+        return oTxtData.replace(/\n/g, '<br>');
+    };
+    this.urlSubstitute = function(oUrlData) {
+        var text;
+        text = '';
+        if (oUrlData) {
+            if (oUrlData.title) {
+                text += '【' + oUrlData.title + '】';
+            }
+            if (oUrlData.description) {
+                text += oUrlData.description;
+            }
+        }
+        text += '<a href="' + oUrlData.url + '">网页链接</a>';
+
+        return text;
+    };
+    this.optionsSubstitute = function(oSchema, value) {
+        var val, aVal, aLab = [];
+        if (val = value) {
+            if (oSchema.ops && oSchema.ops.length) {
+                if (oSchema.type === 'score') {
+                    var label = '';
+                    oSchema.ops.forEach(function(op, index) {
+                        if (val[op.v] !== undefined) {
+                            label += '<div>' + op.l + ':' + val[op.v] + '</div>';
+                        }
+                    });
+                    label = label.replace(/\s\/\s$/, '');
+                    return label;
+                } else if (angular.isString(val)) {
+                    aVal = val.split(',');
+                    oSchema.ops.forEach(function(op) {
+                        aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
+                    });
+                    val = aLab.join(',');
+                } else if (angular.isObject(val) || angular.isArray(val)) {
+                    val = JSON.stringify(val);
+                }
+            }
+        } else {
+            val = '';
         }
         return val;
     };

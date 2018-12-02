@@ -1436,7 +1436,7 @@ class main extends main_base {
 
 		/* records */
 		$records = $modelEnroll->query_objs_ss([
-			'id,userid,wx_openid,yx_openid,qy_openid,nickname,data',
+			'id,userid,nickname,data',
 			'xxt_enroll_record',
 			['siteid' => $site, 'aid' => $app],
 		]);

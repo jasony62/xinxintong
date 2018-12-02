@@ -604,8 +604,11 @@ class main extends main_base {
 		//$oScaned = $aScanResult[1];
 
 		$modelApp->modify($oUser, $oApp, (object) ['vote_config' => $modelApp->escape($modelApp->toJson($aAllVoteConfigs))], ['id' => $oApp->id]);
-
-		return new \ResponseData('ok');
+		if ($method === 'save') {
+			return new \ResponseData($oVoteConfig);
+		} else {
+			return new \ResponseData('ok');
+		}
 	}
 	/**
 	 * 从共享模板模板创建记录活动

@@ -369,7 +369,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
     $scope.doAction = function(event, oAction) {
         switch (oAction.name) {
             case 'addRecord':
-                $scope.editRecord(event, oAction.next);
+                $scope.addRecord(event, oAction.next);
                 break;
             case 'editRecord':
                 $scope.editRecord(event, oAction.next);

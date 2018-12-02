@@ -298,10 +298,6 @@ class repos extends base {
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-		/* 设置投票题目 */
-		if (!empty($oApp->dynaDataSchemas) && !empty($oApp->voteConfig)) {
-			$this->model('matter\enroll\schema')->setCanVote($oApp);
-		}
 
 		$oUser = $this->getUser($oApp);
 
@@ -460,17 +456,17 @@ class repos extends base {
 					}
 				}
 			}
-			$aVoteSchemas = [];
 			$aSchareableSchemas = [];
 			foreach ($oApp->dynaDataSchemas as $oSchema) {
 				if (isset($oSchema->shareable) && $oSchema->shareable === 'Y') {
 					$aSchareableSchemas[] = $oSchema;
 				}
-				if (isset($oSchema->canVote) && $oSchema->canVote === 'Y') {
-					$aVoteSchemas[] = $oSchema;
-				}
 			}
 			foreach ($oResult->records as $oRecord) {
+				/* 获取记录的投票信息 */
+				if (!empty($oApp->voteConfig)) {
+					$aCanVoteSchemas = $this->model('matter\enroll\schema')->getCanVote($oApp, $oRecord->round);
+				}
 				$aCoworkState = [];
 				/* 清除非共享数据 */
 				if (isset($oRecord->data)) {
@@ -499,14 +495,14 @@ class repos extends base {
 						} else if (!empty($oRecord->data->{$schemaId})) {
 							/* 协作填写题 */
 							if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
-								$options = ['excludeRoot' => true, 'fields' => 'id,agreed,like_num,nickname,value'];
+								$aOptions = ['excludeRoot' => true, 'fields' => 'id,agreed,like_num,nickname,value,multitext_seq,vote_num'];
 								// 展示在共享页的协作数据表态类型
 								if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
-									$options['agreed'] = $oApp->actionRule->cowork->repos->pre->cowork->agreed;
+									$aOptions['agreed'] = $oApp->actionRule->cowork->repos->pre->cowork->agreed;
 								} else {
-									$options['agreed'] = ['Y', 'A'];
+									$aOptions['agreed'] = ['Y', 'A'];
 								}
-								$items = $modelData->getMultitext($oRecord->enroll_key, $oSchema->id, $options);
+								$items = $modelData->getMultitext($oRecord->enroll_key, $oSchema->id, $aOptions);
 								if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
 									$countItems = $modelData->getMultitext($oRecord->enroll_key, $oSchema->id, ['agreed' => ['Y', 'A'], 'fields' => 'id']);
 									$aCoworkState[$oSchema->id] = (object) ['length' => count($countItems)];
@@ -522,6 +518,18 @@ class repos extends base {
 									}
 									$items = $reposItems;
 								}
+								/* 当前用户投票情况 */
+								if (!empty($aCanVoteSchemas[$oSchema->id])) {
+									foreach ($items as $oItem) {
+										$oVoteResult = new \stdClass;
+										$vote_at = (int) $modelData->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oItem->id, 'state' => 1, 'userid' => $oUser->uid]]);
+										$oVoteResult->vote_at = $vote_at;
+										$oVoteResult->vote_num = $oItem->vote_num;
+										$oVoteResult->state = $aCanVoteSchemas[$oSchema->id]->vote->state;
+										unset($oItem->vote_num);
+										$oItem->voteResult = $oVoteResult;
+									}
+								}
 								$oRecordData->{$schemaId} = $items;
 							} else {
 								$oRecordData->{$schemaId} = $oRecord->data->{$schemaId};
@@ -532,18 +540,20 @@ class repos extends base {
 					if (!empty($aCoworkState)) {
 						$oRecord->coworkState = (object) $aCoworkState;
 					}
-					/* 投票数据 */
-					if (count($aVoteSchemas)) {
-						$oVoteSchema = new \stdClass;
-						foreach ($aVoteSchemas as $oSchema) {
-							$oRecData = $modelData->byRecord($oRecord->enroll_key, ['schema' => $oSchema->id, 'fields' => 'id,vote_num']);
+					/* 获取记录的投票信息 */
+					if (!empty($aCanVoteSchemas)) {
+						$oVoteResult = new \stdClass;
+						foreach ($aCanVoteSchemas as $oCanVoteSchema) {
+							if ($this->getDeepValue($oCanVoteSchema, 'cowork') === 'Y') {continue;}
+							$oRecData = $modelData->byRecord($oRecord->enroll_key, ['schema' => $oCanVoteSchema->id, 'fields' => 'id,vote_num']);
 							if ($oRecData) {
 								$vote_at = (int) $modelData->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oRecData->id, 'state' => 1, 'userid' => $oUser->uid]]);
 								$oRecData->vote_at = $vote_at;
-								$oVoteSchema->{$oSchema->id} = $oRecData;
+								$oRecData->state = $oCanVoteSchema->vote->state;
+								$oVoteResult->{$oCanVoteSchema->id} = $oRecData;
 							}
 						}
-						$oRecord->voteSchema = $oVoteSchema;
+						$oRecord->voteResult = $oVoteResult;
 					}
 				}
 				/* 是否已经被当前用户收藏 */
@@ -868,9 +878,10 @@ class repos extends base {
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-		/* 设置投票题目 */
-		if (!empty($oApp->dynaDataSchemas) && !empty($oApp->voteConfig)) {
-			$this->model('matter\enroll\schema')->setCanVote($oApp);
+		$fields = 'id,state,aid,rid,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,supplement,score,like_num,like_log,remark_num,rec_remark_num,favor_num,agreed,data,dislike_num,dislike_log';
+		$oRecord = $modelRec->byId($ek, ['fields' => $fields]);
+		if (false === $oRecord || $oRecord->state !== '1') {
+			return new \ObjectNotFoundError();
 		}
 
 		$oUser = $this->getUser($oApp);
@@ -882,24 +893,19 @@ class repos extends base {
 				$oEditor->group = $oApp->actionRule->role->editor->group;
 				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
 				// 如果记录活动指定了编辑组需要获取，编辑组中所有的用户
-				$modelGrpUsr = $this->model('matter\group\player');
+				$modelGrpUsr = $this->model('matter\group\user');
 				$groupEditor = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
-				if (isset($groupEditor->players)) {
-					$groupEditorPlayers = $groupEditor->players;
+				if (isset($groupEditor->users)) {
+					$groupEditorUsers = $groupEditor->users;
 					$oEditorUsers = new \stdClass;
-					foreach ($groupEditorPlayers as $player) {
+					foreach ($groupEditorUsers as $player) {
 						$oEditorUsers->{$player->userid} = $player->role_rounds;
 					}
-					unset($groupEditorPlayers);
+					unset($groupEditorUsers);
 				}
 			}
 		}
 
-		$fields = 'id,aid,state,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,supplement,score,like_num,like_log,remark_num,rec_remark_num,favor_num,agreed,data,dislike_num,dislike_log';
-		$oRecord = $modelRec->byId($ek, ['fields' => $fields]);
-		if (false === $oRecord || $oRecord->state !== '1') {
-			return new \ObjectNotFoundError();
-		}
 		if (!empty($oUser->unionid) && $oRecord->favor_num > 0) {
 			$q = ['id', 'xxt_enroll_record_favor', ['record_id' => $oRecord->id, 'favor_unionid' => $oUser->unionid, 'state' => 1]];
 			if ($modelRec->query_obj_ss($q)) {
@@ -940,7 +946,7 @@ class repos extends base {
 			}
 		}
 
-		if (isset($oRecord->data)) {
+		if (isset($oRecord->data) && !empty($oApp->dynaDataSchemas)) {
 			$fnCheckSchemaVisibility = function ($oSchema, $oRecordData) {
 				if (!empty($oSchema->visibility->rules)) {
 					foreach ($oSchema->visibility->rules as $oRule) {
@@ -958,13 +964,9 @@ class repos extends base {
 			};
 			/* 清除非共享数据 */
 			$oShareableSchemas = new \stdClass;
-			$oVoteSchemas = new \stdClass;
 			foreach ($oApp->dynaDataSchemas as $oSchema) {
 				if (isset($oSchema->shareable) && $oSchema->shareable === 'Y') {
 					$oShareableSchemas->{$oSchema->id} = $oSchema;
-				}
-				if (isset($oSchema->canVote) && $oSchema->canVote === 'Y') {
-					$oVoteSchemas->{$oSchema->id} = $oSchema;
 				}
 			}
 			$modelRecDat = $this->model('matter\enroll\data');
@@ -983,15 +985,21 @@ class repos extends base {
 					continue;
 				}
 			}
-			if (count((array) $oVoteSchemas)) {
-				$oVoteSchema = new \stdClass;
-				foreach ($oVoteSchemas as $schemaId => $oSchema) {
-					$oRecData = $modelRecDat->byRecord($oRecord->enroll_key, ['schema' => $schemaId, 'fields' => 'id,vote_num']);
-					$vote_at = (int) $modelRecDat->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oRecData->id, 'state' => 1, 'userid' => $oUser->uid]]);
-					$oRecData->vote_at = $vote_at;
-					$oVoteSchema->{$schemaId} = $oRecData;
+			/* 获取记录的投票信息 */
+			if (!empty($oApp->voteConfig)) {
+				$aCanVoteSchemas = $this->model('matter\enroll\schema')->getCanVote($oApp, $oRecord->round);
+				$oVoteResult = new \stdClass;
+				foreach ($aCanVoteSchemas as $oCanVoteSchema) {
+					if ($this->getDeepValue($oCanVoteSchema, 'cowork') === 'Y') {continue;}
+					$oRecData = $modelRecDat->byRecord($oRecord->enroll_key, ['schema' => $oCanVoteSchema->id, 'fields' => 'id,vote_num']);
+					if ($oRecData) {
+						$vote_at = (int) $modelRecDat->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oRecData->id, 'state' => 1, 'userid' => $oUser->uid]]);
+						$oRecData->vote_at = $vote_at;
+						$oRecData->state = $oCanVoteSchema->vote->state;
+						$oVoteResult->{$oCanVoteSchema->id} = $oRecData;
+					}
 				}
-				$oRecord->voteSchema = $oVoteSchema;
+				$oRecord->voteResult = $oVoteResult;
 			}
 		}
 

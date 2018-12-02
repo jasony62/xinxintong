@@ -1033,26 +1033,55 @@ class schema_model extends \TMS_MODEL {
 	/**
 	 * 需要进行投票的题目
 	 */
-	public function setCanVote($oApp, $bModifyOriginal = true) {
+	public function getCanVote($oApp, $oRound = null) {
 		if (!isset($oApp->dynaDataSchemas) || !isset($oApp->voteConfig)) {
 			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,vote_config']);
 		}
-		$fnValidConfig = function ($oVoteConfig) {
+		if (empty($oRound)) {
+			$oRound = $oApp->appRound;
+		}
+
+		$fnValidConfig = function ($oVoteConfig) use ($oRound) {
 			if (empty($oVoteConfig->schemas)) {
-				return false;
+				return [false];
 			}
-			return true;
+			$current = time();
+			if ($oStartRule = $this->getDeepValue($oVoteConfig, 'start.time')) {
+				if ($this->getDeepValue($oStartRule, 'mode') === 'after_round_start_at') {
+					if ($this->getDeepValue($oStartRule, 'unit') === 'hour') {
+						$afterHours = (int) $this->getDeepValue($oStartRule, 'value');
+						if (empty($oRound->start_at) || ($current < $oRound->start_at + ($afterHours * 3600))) {
+							return [true, 'BS'];
+						}
+					}
+				}
+			}
+			if ($oEndRule = $this->getDeepValue($oVoteConfig, 'end.time')) {
+				if ($this->getDeepValue($oEndRule, 'mode') === 'after_round_start_at') {
+					if ($this->getDeepValue($oEndRule, 'unit') === 'hour') {
+						$afterHours = (int) $this->getDeepValue($oEndRule, 'value');
+						if (empty($oRound->start_at) || ($current > $oRound->start_at + ($afterHours * 3600))) {
+							return [true, 'AE'];
+						}
+					}
+				}
+			}
+
+			return [true, 'IP'];
 		};
 		$aVoteSchemas = [];
 		foreach ($oApp->voteConfig as $oVoteConfig) {
-			if (!$fnValidConfig($oVoteConfig)) {
+			$aValid = $fnValidConfig($oVoteConfig);
+			if (false === $aValid[0]) {
 				continue;
 			}
 			foreach ($oApp->dynaDataSchemas as $oSchema) {
 				if (in_array($oSchema->id, $oVoteConfig->schemas)) {
-					if ($bModifyOriginal) {
-						$oSchema->canVote = 'Y';
-					}
+					$oVoteRule = new \stdClass;
+					$oVoteRule->state = $aValid[1];
+					$oVoteRule->limit = $this->getDeepValue($oVoteConfig, 'limit.num', 0);
+					$oVoteRule->groups = $this->getDeepValue($oVoteConfig, 'role.groups');
+					$oSchema->vote = $oVoteRule;
 					$aVoteSchemas[$oSchema->id] = $oSchema;
 				}
 			}

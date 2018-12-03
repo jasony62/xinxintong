@@ -42,6 +42,85 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     $scope.repos = []; // 分享的记录
     $scope.reposLoading = false;
     $scope.appendToEle = angular.element(document.querySelector('#filterQuick'));
+    $scope.dropData = [{
+        type: 'orderby',
+        title: '排序',
+        default: {
+            value: 'lastest_first',
+            title: '最近提交'
+        },
+        menus: [{
+            value: 'lastest_first',
+            title: '最近提交'
+        },{
+            value: 'earliest_first',
+            title: '最早提交'
+        },{
+            value: 'mostliked',
+            title: '最多赞同'
+        },{
+           value: 'agreed',
+           title: '精选推荐'
+        }]
+    },{
+        type: 'coworkAgreed',
+        title: '协作',
+        default: {
+            value: null,
+            title: '所有问题'
+        },
+        menus: [{
+            value: null,
+            title: '所有问题'
+        },{
+            value: 'answer',
+            title: '已回答'
+        },{
+            value: 'unanswer',
+            title: '等待回答'
+        }]
+    }];
+    var filterData = [{
+        type: 'agreed',
+        title: '表态',
+        default: {
+            value: null,
+            title: '不限'
+        },
+        menus: [{
+            value: null,
+            title: '不限'
+        },{
+            value: 'Y',
+            title: '推荐'
+        },{
+            value: 'D',
+            title: '讨论'
+        },{
+            value: 'S',
+            title: '关闭'
+        }]
+    },{
+        type: 'mine',
+        title: '我的',
+        default: {
+            value: null,
+            title: '不限'
+        },
+        menus: [{
+            value: null,
+            title: '不限'
+        },{
+            value: 'creator',
+            title: '我的记录'
+        },{
+            value: 'favor',
+            title: '我的收藏'
+        }]
+    }];
+    angular.forEach($scope.dropData, function(data) {
+        _oCriteria[data.type] = data.default.value;
+    });
     $scope.recordList = function(pageAt) {
         var url, deferred;
         deferred = $q.defer();
@@ -224,18 +303,17 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     $scope.copyRecord = function(event, oRecord) {
         enlAssoc.copy($scope.app, { id: oRecord.id, type: 'record' });
     };
-    $scope.confirm = function(filter) {
-        for(var i in filter.criteria) {
-            _oCriteria[i] = filter.criteria[i];
-        }
-        _oFilter = filter.filter;
+    $scope.confirm = function(filterOpt) {
+        _oFilter = angular.extend(_oFilter, filterOpt.filter);
+        _oCriteria = angular.extend(_oCriteria, filterOpt.criteria);
         $scope.recordList(1);
     };
     $scope.shiftMenu = function(criteria) {
-        _oCriteria[criteria.type] = criteria.menu;
+        _oCriteria[criteria.type] = criteria.value;
         $scope.recordList(1);
     };
     $scope.shiftTip = function(type) {
+        _oFilter
         _oCriteria[type] = _oFilter[type] = null;
         $scope.recordList(1);
     }
@@ -417,120 +495,45 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                 _oMocker = nv;
                 $scope.recordList(1);
             }
-        }, true);       
+        }, true);
+        $scope.$watch('userGroups', function(userGroups) {
+            var obj = {value: null, title: '不限'};
+            if(!userGroups)  {return false;}
+            userGroups.unshift(obj);
+            angular.forEach(userGroups, function(userGroup) {
+                userGroup.value = userGroup.round_id;
+            });
+            filterData.unshift({
+                type: 'userGroup',
+                title: '分组',
+                default: {
+                    value: null,
+                    title: '不限'
+                },
+                menus: userGroups
+            }); 
+        });
+        $scope.$watch('rounds', function(rounds) {
+            var obj = {value: null, title: '不限'};
+            if(!rounds)  {return false;}
+            rounds.unshift(obj);
+            angular.forEach(rounds, function(round) {
+                round.value = round.rid;
+            });
+            filterData.unshift({
+                type: 'rid',
+                title: '轮次',
+                default: {
+                    value: null,
+                    title: '不限'
+                },
+                menus: rounds
+            });
+            $scope.filterData = filterData;
+            angular.forEach(filterData, function(data) {
+                _oFilter[data.type] = data.default.value;
+                _oCriteria[data.type] = data.default.value;
+            });
+        });
     });
-    /* 处理筛选数据 */
-    $scope.$watch('{userGroups: userGroups, rounds: rounds}', function(n) {
-        if(!n) { return; }
-        var groups=[{value: null, title: '不限'}], rounds=[{value: null, title: '不限'}], filterData, dropData;
-        angular.forEach(n.userGroups, function(userGroup) {
-            userGroup.value = userGroup.round_id;
-            groups.push(userGroup);
-        });
-        angular.forEach(n.rounds, function(round) {
-            round.value = round.rid;
-            rounds.push(round);
-        });
-        
-        $scope.filterData = filterData = [{
-            type: 'rid',
-            title: '轮次',
-            default: {
-                value: null,
-                title: '不限'
-            },
-            menus: rounds
-        },{
-            type: 'agreed',
-            title: '表态',
-            default: {
-                value: null,
-                title: '不限'
-            },
-            menus: [{
-                value: null,
-                title: '不限'
-            },{
-                value: 'Y',
-                title: '推荐'
-            },{
-                value: 'D',
-                title: '讨论'
-            },{
-                value: 'S',
-                title: '关闭'
-            }]
-        },{
-            type: 'userGroup',
-            title: '分组',
-            default: {
-                value: null,
-                title: '不限'
-            },
-            menus: groups
-        },{
-            type: 'mine',
-            title: '我的',
-            default: {
-                value: null,
-                title: '不限'
-            },
-            menus: [{
-                value: null,
-                title: '不限'
-            },{
-                value: 'creator',
-                title: '我的记录'
-            },{
-                value: 'favor',
-                title: '我的收藏'
-            }]
-        }];
-        $scope.dropData = dropData = [{
-            type: 'orderby',
-            title: '排序',
-            default: {
-                value: 'lastest_first',
-                title: '最近提交'
-            },
-            menus: [{
-                value: 'lastest_first',
-                title: '最近提交'
-            },{
-                value: 'earliest_first',
-                title: '最早提交'
-            },{
-                value: 'mostliked',
-                title: '最多赞同'
-            },{
-               value: 'agreed',
-               title: '精选推荐' 
-            }] 
-        },{
-            type: 'coworkAgreed',
-            title: '协作',
-            default: {
-                value: null,
-                title: '所有问题'
-            },
-            menus: [{
-                value: null,
-                title: '所有问题'
-            },{
-                value: 'answer',
-                title: '已回答'
-            },{
-                value: 'unanswer',
-                title: '等待回答'
-            }] 
-        }];
-
-        angular.forEach(filterData, function(data) {
-            _oFilter[data.type] = data.default.value;
-            _oCriteria[data.type] = data.default.value;
-        });
-        angular.forEach(dropData, function(data) {
-            _oCriteria[data.type] = data.default.value;
-        });
-    },true); 
 }]);

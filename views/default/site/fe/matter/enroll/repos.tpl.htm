@@ -106,9 +106,9 @@
                     </div>
                 </div>
                 <div id='filterQuick' ng-cloak>
-                    <div tms-dropdown data="dropData[0]" change-menu="shiftMenu(criteria)"></div>
-                    <div tms-dropdown data="dropData[1]" change-menu="shiftMenu(criteria)"></div>
-                    <div tms-filter datas="filterData" filter="filter" criteria="criteria" confirm="confirm(filter)" class="pull-right"></div>
+                    <div tms-dropdown data="dropData[0]" shift-menu="shiftMenu(criteria)"></div>
+                    <div tms-dropdown data="dropData[1]" shift-menu="shiftMenu(criteria)"></div>
+                    <div tms-filter source="filterData" confirm="confirm(filterOpt)" class="pull-right"></div>
                 </div>
                 <!-- end: filterQuick -->
                 <div id='filterTip' class="hidden-xs" ng-if="filter.rid||filter.agreed||filter.userGroup||filter.mine||filter.tags.length">
@@ -249,8 +249,6 @@
     <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
-    <script src="/static/js/jquery.min.js"></script>
-    <script src="/static/js/bootstrap.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/repos.js');?>"></script>
 </body>

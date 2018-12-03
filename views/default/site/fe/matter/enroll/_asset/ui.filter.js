@@ -1,35 +1,45 @@
 'use strict';
 
-var ngMod = angular.module('filter.ui', []);
-ngMod.directive('tmsFilter', ['$templateCache', function($templateCache) {
+var ngMod = angular.module('filter.ui', ['ui.bootstrap']);
+ngMod.directive('tmsFilter', ['$templateCache', '$timeout', function($templateCache, $timeout) {
     return {
         restrict: 'A',
         replace: true,
         template: require('./tms-filter.html'),
         scope: {
-            datas: '=',
-            filter: '=',
-            criteria: '=',
+            source: '=',
             confirm: '&'
         },
         link: function(scope, elems, attrs) {
+            var _oFiltered, _oCriteriad;
             scope.status = { isopen: false };
             scope.appendToEle = scope.$parent.appendToEle;
-
-            scope.selected = function(data, menu) {
-                scope.filter[data.type] = menu.value == data.default.value ? data.default.value : menu;
-                scope.criteria[data.type] = menu.value;
+            scope.filtered = _oFiltered = angular.copy(scope.$parent.filter);
+            scope.criteriad = _oCriteriad = angular.copy(scope.$parent.criteria);
+            scope.toggled = function(open) {
+                if(open) {
+                    _oFiltered = angular.extend(_oFiltered, scope.$parent.filter);
+                    _oCriteriad = angular.extend(_oCriteriad, scope.$parent.criteria);
+                }                
             }
-            scope.ok = function(filter) {
+            scope.selected = function(data, menu) {
+                _oFiltered[data.type] = menu.value == null ? null : menu;
+                _oCriteriad[data.type] = menu.value;
+            }
+            scope.ok = function(filterOpt) {
                 scope.status.isopen = !scope.status.isopen;
-                scope.confirm({"filter": {"criteria": scope.criteria, "filter": filter}});
+                scope.confirm({"filterOpt": {"criteria": _oCriteriad, "filter": _oFiltered}});
             };
-            scope.cancle = function() {
+            scope.clear = function() {
                 angular.forEach(scope.datas, function(data) {
-                    scope.filter[data.type] = data.default.value;
-                    scope.criteria[data.type] = data.default.value;
+                    _oFiltered[data.type] = data.default.value;
+                    _oCriteriad[data.type] = data.default.value;
                 });
             };
+            scope.$watch('source', function(source) {
+                if(!source) { return false; }
+                scope.datas = source;
+            })
         }
     };
 }]);

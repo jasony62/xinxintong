@@ -8,21 +8,21 @@ ngMod.directive('tmsDropdown', ['$templateCache', function($templateCache) {
         template: require('./tms-dropdown.html'),
         scope: {
             data: '=',
-            changeMenu: '&'
+            shiftMenu: '&'
         },
         link: function(scope, elems, attrs) {
             scope.select = function(value) {
-                scope.criteria.value = value;
+                scope.checked.value = value;
                 angular.forEach(scope.data.menus, function(menu) {
                     if (menu.value == value) {
-                        scope.criteria.title = menu.title;
+                        scope.checked.title = menu.title;
                     }
                 });
-                scope.changeMenu({"criteria": {"menu": value, "type": scope.data.type}});
+                scope.shiftMenu({"criteria": {"value": value, "type": scope.data.type}});
             };
             scope.$watch('data', function(data) {
                 if( !data ) { return; }
-                scope.criteria = {
+                scope.checked = {
                     value: scope.data.default.value,
                     title: scope.data.default.title
                 };

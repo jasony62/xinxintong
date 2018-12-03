@@ -600,7 +600,7 @@ class import extends \pl\fe\matter\base {
 			$enrollKeys[] = $oNewRec->enroll_key;
 			/* 登记数据 */
 			if (isset($oRecord->data)) {
-				$modelRec->setData($oMockUser, $oApp, $ek, $oRecord->data);
+				$modelRec->setData($oMockUser, $oApp, $oNewRec->enroll_key, $oRecord->data);
 			}
 			/* 更新活动标签，@todo 还有用吗？ */
 			if (isset($oRecord->tags)) {

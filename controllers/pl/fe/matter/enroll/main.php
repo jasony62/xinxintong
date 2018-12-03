@@ -359,30 +359,23 @@ class main extends main_base {
 		if ($cpRecord === 'Y') {
 			$oNewApp = $modelApp->byId($oNewApp->id);
 			$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
-			/* 创建新活动的轮次和元活动匹配 */
+			/* 创建新活动的轮次和原活动匹配 */
 			$modelRound = $this->model('matter\enroll\round');
 			$oldRounds = $modelRound->byApp($oCopied)->rounds;
-			//轮次为空的用户
-			$nullRound = new \stdClass;
-			$nullRound->rid = '';
-			$oldRounds[] = $nullRound;
+
 			foreach ($oldRounds as $oldRound) {
-				if (!empty($oldRound->rid)) {
-					$props = new \stdClass;
-					$props->title = $oldRound->title;
-					$props->summary = $oldRound->summary;
-					$props->start_at = $oldRound->start_at;
-					$props->end_at = $oldRound->end_at;
-					$props->state = $oldRound->state;
-					$newRound = $modelRound->create($oNewApp, $props, $oUser);
-					if (!$newRound[0]) {
-						return new \ResponseError($newRound[1]);
-					}
-					$newRound = $newRound[1]->rid;
-				} else {
-					$newRound = '';
+				$props = new \stdClass;
+				$props->title = $oldRound->title;
+				$props->summary = $oldRound->summary;
+				$props->start_at = $oldRound->start_at;
+				$props->end_at = $oldRound->end_at;
+				$props->state = $oldRound->state;
+				$newRound = $modelRound->create($oNewApp, $props, $oUser);
+				if (!$newRound[0]) {
+					return new \ResponseError($newRound[1]);
 				}
-				//插入数据
+				$newRid = $newRound[1]->rid;
+				// 插入数据
 				$oldCriteria = new \stdClass;
 				$oldCriteria->record = new \stdClass;
 				$oldCriteria->record->rid = $oldRound->rid;
@@ -394,7 +387,7 @@ class main extends main_base {
 						$cpUser->uid = ($cpEnrollee !== 'Y') ? '' : $record->userid;
 						$cpUser->nickname = ($cpEnrollee !== 'Y') ? '' : $record->nickname;
 						/* 插入登记数据 */
-						$oNewRec = $modelRec->enroll($oNewApp, $cpUser, ['nickname' => $cpUser->nickname, 'assignedRid' => $newRound]);
+						$oNewRec = $modelRec->enroll($oNewApp, $cpUser, ['nickname' => $cpUser->nickname, 'assignedRid' => $newRid]);
 						/* 处理自定义信息 */
 						if (isset($record->data->member) && $this->getDeepValue($oNewApp, 'entryRule.scope.member') !== 'Y') {
 							unset($record->data->member->schema_id);

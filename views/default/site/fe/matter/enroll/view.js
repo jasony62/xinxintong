@@ -2,12 +2,12 @@
 require('../../../../../../asset/css/buttons.css');
 require('./view.css');
 
+require('../../../../../../asset/js/xxt.ui.schema.js');
 require('./_asset/ui.round.js');
 
-window.moduleAngularModules = ['round.ui.enroll'];
+window.moduleAngularModules = ['round.ui.enroll', 'schema.ui.xxt'];
 
 var ngApp = require('./main.js');
-ngApp.oUtilSchema = require('../_module/schema.util.js');
 ngApp.factory('Record', ['http2', 'tmsLocation', function(http2, LS) {
     var Record, _ins, _deferredRecord;
     Record = function(oApp) {
@@ -68,7 +68,7 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$parse', '$s
         return '';
     };
 }]);
-ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2', 'noticebox', 'Record', 'picviewer', '$timeout', 'enlRound', function($scope, $sce, $parse, LS, http2, noticebox, Record, picviewer, $timeout, enlRound) {
+ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2', 'noticebox', 'Record', 'picviewer', '$timeout', 'tmsSchema', 'enlRound', function($scope, $sce, $parse, LS, http2, noticebox, Record, picviewer, $timeout, tmsSchema, enlRound) {
     function fnHidePageActions() {
         var domActs, domAct;
         if (domActs = document.querySelectorAll('[wrap=button]')) {
@@ -99,7 +99,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
                 if (originalValue) {
                     switch (oSchema.type) {
                         case 'longtext':
-                            afterValue = ngApp.oUtilSchema.txtSubstitute(originalValue);
+                            afterValue = tmsSchema.txtSubstitute(originalValue);
                             break;
                         case 'single':
                             if (oSchema.ops && oSchema.ops.length) {
@@ -121,7 +121,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
                             }
                             break;
                         case 'url':
-                            originalValue._text = ngApp.oUtilSchema.urlSubstitute(originalValue);
+                            originalValue._text = tmsSchema.urlSubstitute(originalValue);
                             break;
                         default:
                             afterValue = originalValue;

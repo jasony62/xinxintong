@@ -1,7 +1,8 @@
 'use strict';
 
-var ngMod = angular.module('repos.ui.enroll', []);
-var oUtilSchema = require('../../_module/schema.util.js');
+require('../../../../../../../asset/js/xxt.ui.schema.js');
+
+var ngMod = angular.module('repos.ui.enroll', ['schema.ui.xxt']);
 ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache) {
     return {
         restrict: 'A',
@@ -10,7 +11,7 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
             schemas: '=',
             rec: '=record'
         },
-        controller: ['$scope', '$sce', '$location', 'tmsLocation', 'http2', 'noticebox', function($scope, $sce, $location, LS, http2, noticebox) {
+        controller: ['$scope', '$sce', '$location', 'tmsLocation', 'http2', 'noticebox', 'tmsSchema', function($scope, $sce, $location, LS, http2, noticebox, tmsSchema) {
             $scope.coworkRecord = function(oRecord) {
                 var url;
                 url = LS.j('', 'site', 'app');
@@ -76,10 +77,10 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
                         if (schemaData = oRecord.data[oSchema.id]) {
                             switch (oSchema.type) {
                                 case 'longtext':
-                                    oRecord.data[oSchema.id] = oUtilSchema.txtSubstitute(schemaData);
+                                    oRecord.data[oSchema.id] = tmsSchema.txtSubstitute(schemaData);
                                     break;
                                 case 'url':
-                                    schemaData._text = oUtilSchema.urlSubstitute(schemaData);
+                                    schemaData._text = tmsSchema.urlSubstitute(schemaData);
                                     break;
                                 case 'file':
                                 case 'voice':
@@ -93,7 +94,7 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
                                 case 'single':
                                 case 'multiple':
                                 case 'score':
-                                    oRecord.data[oSchema.id] = $sce.trustAsHtml(oUtilSchema.optionsSubstitute(oSchema, schemaData));
+                                    oRecord.data[oSchema.id] = $sce.trustAsHtml(tmsSchema.optionsSubstitute(oSchema, schemaData));
                                     break;
                             }
                         }

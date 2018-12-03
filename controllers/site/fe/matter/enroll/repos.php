@@ -589,10 +589,6 @@ class repos extends base {
 				/* 清除不必要的内容 */
 				unset($oRecord->comment);
 				unset($oRecord->verified);
-				unset($oRecord->wx_openid);
-				unset($oRecord->yx_openid);
-				unset($oRecord->qy_openid);
-				unset($oRecord->headimgurl);
 
 				/* 获得推荐的评论数据 */
 				$fnRemarksByRecord = function ($ek, $agreed, $rid = '') use ($modelRec, $oEditor, $oUser) {
@@ -836,10 +832,6 @@ class repos extends base {
 				/* 清除不必要的内容 */
 				unset($oRecord->comment);
 				unset($oRecord->verified);
-				unset($oRecord->wx_openid);
-				unset($oRecord->yx_openid);
-				unset($oRecord->qy_openid);
-				unset($oRecord->headimgurl);
 				/* 获得推荐的评论数据 */
 				$q = [
 					'id,group_id,agreed,like_num,like_log,userid,nickname,content,create_at',
@@ -897,15 +889,15 @@ class repos extends base {
 				$oEditor->group = $oApp->actionRule->role->editor->group;
 				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
 				// 如果记录活动指定了编辑组需要获取，编辑组中所有的用户
-				$modelGrpUsr = $this->model('matter\group\player');
+				$modelGrpUsr = $this->model('matter\group\user');
 				$groupEditor = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
-				if (isset($groupEditor->players)) {
-					$groupEditorPlayers = $groupEditor->players;
+				if (isset($groupEditor->users)) {
+					$groupEditorUsers = $groupEditor->users;
 					$oEditorUsers = new \stdClass;
-					foreach ($groupEditorPlayers as $player) {
+					foreach ($groupEditorUsers as $player) {
 						$oEditorUsers->{$player->userid} = $player->role_rounds;
 					}
-					unset($groupEditorPlayers);
+					unset($groupEditorUsers);
 				}
 			}
 		}

@@ -293,19 +293,15 @@ class player extends \pl\fe\matter\base {
 		if (!empty($wallUsers)) {
 			foreach ($wallUsers as $wallUser) {
 				$wallUser->data = empty($wallUser->data) ? '' : json_decode($wallUser->data);
-				$user = new \stdClass;
-				$user->uid = $wallUser->userid;
-				$user->nickname = $wallUser->nickname;
-				$user->wx_openid = $wallUser->wx_openid;
-				$user->yx_openid = $wallUser->yx_openid;
-				$user->qy_openid = $wallUser->qy_openid;
-				$user->headimgurl = $wallUser->headimgurl;
+				$oUser = new \stdClass;
+				$oUser->uid = $wallUser->userid;
+				$oUser->nickname = $wallUser->nickname;
 				if ($modelPly->byId($objGrp->id, $wallUser->enroll_key, ['cascaded' => 'N'])) {
 					// 已经同步过的用户
 					$modelPly->setData($objGrp, $wallUser->enroll_key, $wallUser->data);
 				} else {
 					// 新用户
-					$modelPly->enroll($objGrp, $user, ['enroll_key' => $wallUser->enroll_key, 'enroll_at' => $wallUser->join_at]);
+					$modelPly->enroll($objGrp, $oUser, ['enroll_key' => $wallUser->enroll_key, 'enroll_at' => $wallUser->join_at]);
 					$modelPly->setData($objGrp, $wallUser->enroll_key, $wallUser->data);
 				}
 			}
@@ -377,10 +373,6 @@ class player extends \pl\fe\matter\base {
 		$oEnrollee = new \stdClass;
 		$oEnrollee->uid = '';
 		$oEnrollee->nickname = '';
-		$oEnrollee->wx_openid = '';
-		$oEnrollee->yx_openid = '';
-		$oEnrollee->qy_openid = '';
-		$oEnrollee->headimgurl = '';
 
 		$oPlayer = new \stdClass;
 		$oPlayer->enroll_key = $ek;

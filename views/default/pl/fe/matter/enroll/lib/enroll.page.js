@@ -25,6 +25,14 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                             controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                                 $scope.options = {};
                                 $scope.ok = function() {
+                                    if (!$scope.options.title) {
+                                        noticebox.warn('请指定页面的名称！');
+                                        return;
+                                    }
+                                    if (!$scope.options.type) {
+                                        noticebox.warn('请指定页面的类型！');
+                                        return;
+                                    }
                                     $mi.close($scope.options);
                                 };
                                 $scope.cancel = function() {
@@ -148,13 +156,13 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
             editorProxy.modifySchema(wrap);
         };
         /* 设置页面操作 */
-        $scope.configButton = function() {
+        $scope.configButton = function(oEditingPage) {
             http2.post('/rest/script/time', { html: { 'buttons': '/views/default/pl/fe/matter/enroll/component/pageButtons' } }).then(function(rsp) {
                 $uibModal.open({
                     templateUrl: '/views/default/pl/fe/matter/enroll/component/pageButtons.html?_=' + rsp.data.html.buttons.time,
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         var _oPage, _oActiveButton, appPages, _nextPages;
-                        $scope2.page = _oPage = $scope.ep;
+                        $scope2.page = _oPage = oEditingPage;
                         appPages = $scope.app.pages;
                         $scope2.nextPages = _nextPages = [];
                         $scope2.cancel = function() { $mi.dismiss(); };
@@ -483,11 +491,13 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                     _oChooseState[schema.id] = false;
                 });
                 if (oPage.type === 'I') {
-                    oPage.dataSchemas.forEach(function(dataWrap) {
-                        if (dataWrap.schema) {
-                            _oChooseState[dataWrap.schema.id] = true;
-                        }
-                    });
+                    if (oPage.dataSchemas && oPage.dataSchemas.length) {
+                        oPage.dataSchemas.forEach(function(dataWrap) {
+                            if (dataWrap.schema) {
+                                _oChooseState[dataWrap.schema.id] = true;
+                            }
+                        });
+                    }
                 } else if (oPage.type === 'V') {
                     $scope.otherSchemas = [{
                         id: 'enrollAt',
@@ -498,9 +508,11 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                         type: '_roundTitle',
                         title: '填写轮次'
                     }];
-                    oPage.dataSchemas.forEach(function(config) {
-                        config.schema && config.schema.id && (_oChooseState[config.schema.id] = true);
-                    });
+                    if (oPage.dataSchemas && oPage.dataSchemas.length) {
+                        oPage.dataSchemas.forEach(function(config) {
+                            config.schema && config.schema.id && (_oChooseState[config.schema.id] = true);
+                        });
+                    }
                     _oChooseState['enrollAt'] === undefined && (_oChooseState['enrollAt'] = false);
                     _oChooseState['roundTitle'] === undefined && (_oChooseState['roundTitle'] = false);
                 }

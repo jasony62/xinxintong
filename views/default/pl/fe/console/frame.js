@@ -148,11 +148,6 @@ define(['require', 'frame/RouteParam', 'frame/const'], function(require, RoutePa
                     location.href = '/rest/pl/fe/matter/custom?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
-            addMerchant: function(site) {
-                http2.get('/rest/pl/fe/matter/merchant/shop/create?site=' + site.id).then(function(rsp) {
-                    location.href = '/rest/pl/fe/matter/merchant/shop?site=' + site.id + '&id=' + rsp.data;
-                });
-            },
             addWall: function(site, scenario) {
                 location.href = '/rest/pl/fe/matter/wall/shop?site=' + site.id + '&scenario=' + (scenario || '');
             },

@@ -1,0 +1,23 @@
+<div>
+    <div class="site-dropdown" uib-dropdown dropdown-append-to='appendToEle' auto-close="disabled" on-toggle="toggled(open)" is-open="status.isopen">
+        <a href uib-dropdown-toggle class="site-dropdown-title"><span>筛选 </span><i class="glyphicon glyphicon-menu-up"></i></a>
+        <ul class="dropdown-menu site-dropdown-list" uib-dropdown-menu>
+            <li class="dropdown-list-wrapper">
+                <uib-tabset active="0" type="pills" vertical="true" class="site-tabset">
+                    <uib-tab ng-repeat="data in datas" index="$index">
+                        <uib-tab-heading>
+                            <div ng-class="{'checked': filtered[data.type]!==data.default.value}" ng-bind="data.title"></div>
+                        </uib-tab-heading>
+                        <div class="list-group">
+                            <a href class="list-group-item site-list-group-item" ng-repeat="menu in data.menus" ng-class="{'active':criteriad[data.type]==menu.value}" ng-click="selected(data, menu)" ng-bind="menu.title"></a>
+                        </div>
+                    </uib-tab>
+                </uib-tabset>
+            </li>
+            <li class="dropdown-list-btn">
+                <button class="btn btn-default" ng-click="clear()">清空条件</button>
+                <button class="btn btn-success" ng-click="ok(filterOpt)">确定</button>
+            </li>
+        </ul>
+    </div>
+</div>

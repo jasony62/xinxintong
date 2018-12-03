@@ -6,8 +6,10 @@ require('./_asset/ui.tag.js');
 require('./_asset/ui.topic.js');
 require('./_asset/ui.assoc.js');
 require('./_asset/ui.round.js');
+require('./_asset/ui.dropdown.js');
+require('./_asset/ui.filter.js');
 
-window.moduleAngularModules = ['round.ui.enroll', 'repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll'];
+window.moduleAngularModules = ['filter.ui', 'dropdown.ui', 'round.ui.enroll', 'repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll'];
 
 var ngApp = require('./main.js');
 ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', function($scope, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc) {
@@ -30,27 +32,94 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
         return false;
     }
-    var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oMocker, _oHistoryRecords, localStorageValues;
-    localStorageValues = localStorage.getItem("xxt.search.historys"); // 读取localstorage中的搜索历史
+    var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oMocker;
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = {};
     $scope.filter = _oFilter = {}; // 过滤条件
-    $scope.criteria = _oCriteria = { creator: false, agreed: 'all', orderby: 'lastest', cowork: { agreed: 'all' }, rid: 'all' }; // 数据查询条件
+    $scope.criteria = _oCriteria = {}; // 数据查询条件
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.repos = []; // 分享的记录
     $scope.reposLoading = false;
-    $scope.flag = false;
-    $scope.historyRecords = _oHistoryRecords = localStorageValues ? JSON.parse(localStorageValues) : [];
-    $scope.chooseHistoryRecord = function(record) {
-        _oCriteria.keyword = record;
-        $scope.recordList(1);
-        $scope.flag = false;
-    }
-    $scope.toggleHistory = function(isOpen, event) {
-        event.preventDefault();
-        event.stopPropagation();
-        $scope.flag = isOpen == 'open' ? true : false;
-    }
+    $scope.appendToEle = angular.element(document.querySelector('#filterQuick'));
+    $scope.dropData = [{
+        type: 'orderby',
+        title: '排序',
+        default: {
+            value: 'lastest_first',
+            title: '最近提交'
+        },
+        menus: [{
+            value: 'lastest_first',
+            title: '最近提交'
+        },{
+            value: 'earliest_first',
+            title: '最早提交'
+        },{
+            value: 'mostliked',
+            title: '最多赞同'
+        },{
+           value: 'agreed',
+           title: '精选推荐'
+        }]
+    },{
+        type: 'coworkAgreed',
+        title: '协作',
+        default: {
+            value: null,
+            title: '所有问题'
+        },
+        menus: [{
+            value: null,
+            title: '所有问题'
+        },{
+            value: 'answer',
+            title: '已回答'
+        },{
+            value: 'unanswer',
+            title: '等待回答'
+        }]
+    }];
+    var filterData = [{
+        type: 'agreed',
+        title: '表态',
+        default: {
+            value: null,
+            title: '不限'
+        },
+        menus: [{
+            value: null,
+            title: '不限'
+        },{
+            value: 'Y',
+            title: '推荐'
+        },{
+            value: 'D',
+            title: '讨论'
+        },{
+            value: 'S',
+            title: '关闭'
+        }]
+    },{
+        type: 'mine',
+        title: '我的',
+        default: {
+            value: null,
+            title: '不限'
+        },
+        menus: [{
+            value: null,
+            title: '不限'
+        },{
+            value: 'creator',
+            title: '我的记录'
+        },{
+            value: 'favor',
+            title: '我的收藏'
+        }]
+    }];
+    angular.forEach($scope.dropData, function(data) {
+        _oCriteria[data.type] = data.default.value;
+    });
     $scope.recordList = function(pageAt) {
         var url, deferred;
         deferred = $q.defer();
@@ -74,13 +143,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                     oRecord._canAgree = fnCanAgreeRecord(oRecord, $scope.user);
                     $scope.repos.push(oRecord);
                 });
-            }
-            if (_oCriteria.keyword && _oHistoryRecords.indexOf(_oCriteria.keyword) == -1) {
-                if (_oHistoryRecords.length >= 5) {
-                    _oHistoryRecords.shift(0);
-                }
-                _oHistoryRecords.push(_oCriteria.keyword);
-                localStorage.setItem('xxt.search.historys', JSON.stringify(_oHistoryRecords));
             }
             $timeout(function() {
                 var imgs;
@@ -168,7 +230,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             });
         }
     };
-
     function fnAssignTag(oRecord) {
         enlTag.assignTag(oRecord).then(function(rsp) {
             if (rsp.data.user && rsp.data.user.length) {
@@ -177,7 +238,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                 delete oRecord.userTags;
             }
         });
-    }
+    };
     $scope.assignTag = function(oRecord) {
         if (oRecord) {
             fnAssignTag(oRecord);
@@ -189,7 +250,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             $scope.favorStack.end();
         }
     };
-
     function fnAssignTopic(oRecord) {
         http2.get(LS.j('topic/list', 'site', 'app')).then(function(rsp) {
             var topics;
@@ -200,7 +260,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                 enlTopic.assignTopic(oRecord);
             }
         });
-    }
+    };
     $scope.assignTopic = function(oRecord) {
         if (oRecord) {
             fnAssignTopic(oRecord);
@@ -242,16 +302,20 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     $scope.copyRecord = function(event, oRecord) {
         enlAssoc.copy($scope.app, { id: oRecord.id, type: 'record' });
     };
-    $scope.shiftRound = function(oRound) {
-        _oFilter.round = oRound;
-        _oCriteria.rid = oRound ? oRound.rid : 'all';
+    $scope.confirm = function(filterOpt) {
+        _oFilter = angular.extend(_oFilter, filterOpt.filter);
+        _oCriteria = angular.extend(_oCriteria, filterOpt.criteria);
         $scope.recordList(1);
     };
-    $scope.shiftUserGroup = function(oUserGroup) {
-        _oFilter.group = oUserGroup;
-        _oCriteria.userGroup = oUserGroup ? oUserGroup.round_id : null;
+    $scope.shiftMenu = function(criteria) {
+        _oCriteria[criteria.type] = criteria.value;
         $scope.recordList(1);
     };
+    $scope.shiftTip = function(type) {
+        _oFilter
+        _oCriteria[type] = _oFilter[type] = null;
+        $scope.recordList(1);
+    }
     $scope.shiftTag = function(oTag, bToggle) {
         if (bToggle) {
             if (!_oFilter.tags) {
@@ -272,33 +336,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             _oFilter.tags.splice(_oFilter.tags.indexOf(oTag), 1);
             _oCriteria.tags.splice(_oFilter.tags.indexOf(oTag.tag_id), 1);
         }
-        $scope.recordList(1);
-    };
-    $scope.shiftMine = function(filterBy) {
-        delete _oCriteria.creator;
-        delete _oCriteria.favored;
-        switch (filterBy) {
-            case '我的记录':
-                _oCriteria.creator = true;
-                break;
-            case '我的收藏':
-                _oCriteria.favored = true;
-                break;
-            default:
-        }
-        _oFilter.mine = filterBy;
-        $scope.recordList(1);
-    };
-    $scope.shiftAgreed = function(agreed) {
-        _oCriteria.agreed = agreed;
-        $scope.recordList(1);
-    };
-    $scope.shiftCoworkAgreed = function(agreed) {
-        _oCriteria.cowork.agreed = agreed;
-        $scope.recordList(1);
-    };
-    $scope.shiftOrderby = function(orderby) {
-        _oCriteria.orderby = orderby;
         $scope.recordList(1);
     };
     $scope.dirLevel = {
@@ -349,7 +386,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         showDir: function(oDir) {
             oDir.opened = true;
         }
-    }
+    };
     $scope.shiftDir = function(oDir, level) {
         _oCriteria.data = {};
         if (oDir) {
@@ -458,5 +495,44 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                 $scope.recordList(1);
             }
         }, true);
+        $scope.$watch('userGroups', function(userGroups) {
+            var obj = {value: null, title: '不限'};
+            if(!userGroups)  {return false;}
+            userGroups.unshift(obj);
+            angular.forEach(userGroups, function(userGroup) {
+                userGroup.value = userGroup.round_id;
+            });
+            filterData.unshift({
+                type: 'userGroup',
+                title: '分组',
+                default: {
+                    value: null,
+                    title: '不限'
+                },
+                menus: userGroups
+            }); 
+        });
+        $scope.$watch('rounds', function(rounds) {
+            var obj = {value: null, title: '不限'};
+            if(!rounds)  {return false;}
+            rounds.unshift(obj);
+            angular.forEach(rounds, function(round) {
+                round.value = round.rid;
+            });
+            filterData.unshift({
+                type: 'rid',
+                title: '轮次',
+                default: {
+                    value: null,
+                    title: '不限'
+                },
+                menus: rounds
+            });
+            $scope.filterData = filterData;
+            angular.forEach(filterData, function(data) {
+                _oFilter[data.type] = data.default.value;
+                _oCriteria[data.type] = data.default.value;
+            });
+        });
     });
 }]);

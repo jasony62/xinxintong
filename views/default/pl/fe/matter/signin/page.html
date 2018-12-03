@@ -18,18 +18,6 @@
     <div class='row' ng-controller="ctrlPageEdit">
         <!--page schemas-->
         <div class='col-md-3' tms-flex-height top='72' bottom='0'>
-            <!-- create button wrap -->
-            <div class='list-group-item'>
-                <div class='help-block'>添加操作</div>
-                <button class='btn btn-default' ng-click="newButton(btn)" ng-repeat="btn in buttons">{{btn.l}}</button>
-            </div>
-            <!-- end create button wrap-->
-            <!--embed inner matter-->
-            <div class='list-group-item'>
-                <div class='help-block'>在页面中添加素材</div>
-                <button class='btn btn-default' ng-click="embedMatter()">添加素材</button>
-            </div>
-            <!--embed inner matter-->
             <div class='list-group-item' ng-if="ep.type==='I'" ng-controller="ctrlAppSchemas4IV">
                 <div class='help-block'>活动中所有填写项</div>
                 <div class='list-group'>
@@ -40,7 +28,6 @@
                             </span>
                     </div>
                 </div>
-                <a class='btn btn-default btn-block' href="/rest/pl/fe/matter/signin/schema?site={{app.siteid}}&id={{app.id}}">修改填写项</a>
             </div>
             <div class='list-group-item' ng-if="ep.type==='V'" ng-controller="ctrlAppSchemas4IV">
                 <div class='help-block'>活动中所有填写项</div>
@@ -57,6 +44,18 @@
                         </span>
                 </div>
             </div>
+            <!-- create button wrap -->
+            <div class='list-group-item'>
+                <div class='help-block'>在页面中添加操作</div>
+                <button class='btn btn-default btn-block' ng-click="configButton()">设置页面操作<span ng-if="ep.actSchemas.length>0">（已有<span ng-bind="ep.actSchemas.length"></span>个）</span></button>
+            </div>
+            <!-- end create button wrap-->
+            <!--embed inner matter-->
+            <div class='list-group-item'>
+                <div class='help-block'>在页面中添加素材</div>
+                <button class='btn btn-default btn-block' ng-click="embedMatter()">添加素材</button>
+            </div>
+            <!--embed inner matter-->
         </div>
         <!--end page schemas-->
         <!--tinymce editor-->
@@ -65,23 +64,20 @@
         </div>
         <!-- end tinymce editor -->
         <!-- wrap editor -->
-        <div class='page-wrap col-md-3' ng-if="activeWrap.schema" tms-flex-height top='72' bottom='0'>
-            <div class='list-group-item'>
+        <div id="wrapEdit" class='col-md-3' tms-flex-height top='145' bottom='72'>
+            <div class='list-group-item' ng-if="activeWrap">
                 <div class='form-group' ng-include="wrapEditorHtml()"></div>
                 <div class='form-group'>
-                    <button class='btn btn-default' ng-click="refreshWrap(activeWrap)">刷新页面元素</button>
-                    <button class='btn btn-default' ng-click="removeWrap()" title='删除'>
-                        <i class='fa fa-remove'></i>
-                    </button>
+                    <button class='btn btn-default' ng-if="activeWrap.schema" ng-click="refreshWrap(activeWrap)">刷新页面元素</button>
+                    <button class='btn btn-default' ng-if="['input','value','radio','checkbox','score'].indexOf(activeWrap.type)!==-1" ng-click="removeActiveWrap()">隐藏</button>
+                    <button class='btn btn-default' ng-if="['input','value','radio','checkbox','score'].indexOf(activeWrap.type)===-1" ng-click="removeActiveWrap()">删除</button>
                 </div>
                 <div class='form-group'>
                     <div class='btn-group'>
-                        <button class='btn btn-default' ng-click="moveWrap('up')">
-                            <i class='fa fa-arrow-up'></i>
-                        </button>
-                        <button class='btn btn-default' ng-click="moveWrap('down')">
-                            <i class='fa fa-arrow-down'></i>
-                        </button>
+                        <button class='btn btn-default' ng-click="moveWrap('up')"><i class='fa fa-arrow-up'></i></button>
+                        <button class='btn btn-default' ng-click="moveWrap('down')"><i class='fa fa-arrow-down'></i></button>
+                        <button class='btn btn-default' title='上一级' ng-click="moveWrap('upLevel')" ng-if="activeWrap.type!=='html'"><i class='fa fa-level-up'></i></button>
+                        <button class='btn btn-default' title='下一级' ng-click="moveWrap('downLevel')" ng-if="activeWrap.type!=='html'"><i class='fa fa-level-down'></i></button>
                     </div>
                 </div>
             </div>
@@ -105,5 +101,5 @@
         <button class='btn btn-block btn-default' ng-click="addPage()">添加页面</button>
         <hr>
         <button class='btn btn-block btn-default' ng-click="gotoCode()">编辑代码</button>
-        <div>
+    <div>
 </script>

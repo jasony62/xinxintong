@@ -1,15 +1,15 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlMain', ['$scope', 'http2', 'srvSigninApp', '$uibModal', 'srvTag', function($scope, http2, srvSigninApp, $uibModal, srvTag) {
+    ngApp.provider.controller('ctrlMain', ['$scope', 'http2', 'srvSigninApp', 'srvTag', function($scope, http2, srvSigApp, srvTag) {
         $scope.$on('xxt.tms-datepicker.change', function(event, data) {
             $scope.app[data.state] = data.value;
-            srvSigninApp.update(data.state);
+            srvSigApp.update(data.state);
         });
         $scope.assignMission = function() {
-            srvSigninApp.assignMission();
+            srvSigApp.assignMission();
         };
         $scope.quitMission = function() {
-            srvSigninApp.quitMission();
+            srvSigApp.quitMission();
         };
         $scope.remove = function() {
             if (window.confirm('确定删除？')) {
@@ -27,7 +27,7 @@ define(['frame'], function(ngApp) {
             oTags = $scope.oTag;
             srvTag._tagMatter($scope.app, oTags, subType);
         };
-        srvSigninApp.get().then(function(oApp) {
+        srvSigApp.get().then(function(oApp) {
             $scope.defaultTime = {
                 start_at: oApp.start_at > 0 ? oApp.start_at : (function() {
                     var t;
@@ -42,11 +42,16 @@ define(['frame'], function(ngApp) {
             };
         });
     }]);
-    ngApp.provider.controller('ctrlAccess', ['$scope', 'srvSigninApp', 'tkEntryRule', function($scope, srvSigninApp, tkEntryRule) {
-        srvSigninApp.get().then(function(oApp) {
-            $scope.jumpPages = srvSigninApp.jumpPages();
+    ngApp.provider.controller('ctrlAccess', ['$scope', 'srvSigninApp', 'tkEntryRule', function($scope, srvSigApp, tkEntryRule) {
+        srvSigApp.get().then(function(oApp) {
+            $scope.jumpPages = srvSigApp.jumpPages();
             $scope.rule = oApp.entryRule;
             $scope.tkEntryRule = new tkEntryRule(oApp, $scope.sns);
         }, true);
+        $scope.$watch('app.entryRule', function(nv, ov) {
+            if (nv && nv !== ov) {
+                srvSigApp.renew(['enrollApp', 'groupApp']);
+            }
+        });
     }]);
 });

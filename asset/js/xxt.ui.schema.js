@@ -1,6 +1,6 @@
 'use strict';
 var ngMod = angular.module('schema.ui.xxt', []);
-ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
+ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce, $parse) {
     var _that = this,
         _mapOfSchemas;
     this.config = function(schemas) {
@@ -134,9 +134,9 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
     this.autoFillMember = function(schemasById, oUser, oPageDataMember) {
         if (oUser.members) {
             angular.forEach(schemasById, function(oSchema) {
-                if (oSchema.schema_id && oUser.members[oSchema.schema_id]) {
+                if (oSchema.mschema_id && oUser.members[oSchema.mschema_id]) {
                     var oMember, attr, val;
-                    oMember = oUser.members[oSchema.schema_id];
+                    oMember = oUser.members[oSchema.mschema_id];
                     attr = oSchema.id.split('.');
                     if (attr.length === 2) {
                         oPageDataMember[attr[1]] = oMember[attr[1]];
@@ -163,6 +163,16 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
                 }
             });
         }
+    };
+    /**
+     * 给页面中的提交数据填充题目默认值
+     */
+    this.autoFillDefault = function(schemasById, oPageData) {
+        angular.forEach(schemasById, function(oSchema) {
+            if (oSchema.defaultValue && oPageData[oSchema.id] === undefined) {
+                oPageData[oSchema.id] = oSchema.defaultValue;
+            }
+        });
     };
     this.value2Text = function(oSchema, value) {
         var label, aVal, aLab = [];
@@ -220,6 +230,52 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
         }
         return val;
     };
+    this.txtSubstitute = function(oTxtData) {
+        return oTxtData.replace(/\n/g, '<br>');
+    };
+    this.urlSubstitute = function(oUrlData) {
+        var text;
+        text = '';
+        if (oUrlData) {
+            if (oUrlData.title) {
+                text += '【' + oUrlData.title + '】';
+            }
+            if (oUrlData.description) {
+                text += oUrlData.description;
+            }
+        }
+        text += '<a href="' + oUrlData.url + '">网页链接</a>';
+
+        return text;
+    };
+    this.optionsSubstitute = function(oSchema, value) {
+        var val, aVal, aLab = [];
+        if (val = value) {
+            if (oSchema.ops && oSchema.ops.length) {
+                if (oSchema.type === 'score') {
+                    var label = '';
+                    oSchema.ops.forEach(function(op, index) {
+                        if (val[op.v] !== undefined) {
+                            label += '<div>' + op.l + ':' + val[op.v] + '</div>';
+                        }
+                    });
+                    label = label.replace(/\s\/\s$/, '');
+                    return label;
+                } else if (angular.isString(val)) {
+                    aVal = val.split(',');
+                    oSchema.ops.forEach(function(op) {
+                        aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
+                    });
+                    val = aLab.join(',');
+                } else if (angular.isObject(val) || angular.isArray(val)) {
+                    val = JSON.stringify(val);
+                }
+            }
+        } else {
+            val = '';
+        }
+        return val;
+    };
     this.forTable = function(record, mapOfSchemas) {
         function _memberAttr(oMember, oSchema) {
             var keys, originalValue, afterValue;
@@ -268,7 +324,7 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
                     oSchema = mapOfSchemas[schemaId];
                     type = oSchema.type;
                     /* 分组活动导入数据时会将member题型改为shorttext题型 */
-                    if (oSchema.schema_id && oRecord.data.member) {
+                    if (oSchema.mschema_id && oRecord.data.member) {
                         type = 'member';
                     }
                     switch (type) {
@@ -378,6 +434,66 @@ ngMod.service('tmsSchema', ['$filter', '$sce', function($filter, $sce) {
         }
 
         return data;
+    };
+    /* 将1条记录的所有指定题目的数据变成字符串 */
+    this.strRecData = function(oRecData, schemas, oOptions) {
+        var str, schemaData, fnSchemaFilter, fnDataFilter;
+
+        if (!schemas || schemas.length === 0) {
+            return '';
+        }
+
+        if (oOptions) {
+            if (oOptions.fnSchemaFilter)
+                fnSchemaFilter = oOptions.fnSchemaFilter;
+            if (oOptions.fnDataFilter)
+                fnDataFilter = oOptions.fnDataFilter;
+        }
+
+        str = '';
+        schemas.forEach(function(oSchema) {
+            if (!fnSchemaFilter || fnSchemaFilter(oSchema)) {
+                schemaData = $parse(oSchema.id)(oRecData);
+                switch (oSchema.type) {
+                    case 'image':
+                        if (schemaData && schemaData.length) {
+                            str += '<span>';
+                            schemaData.forEach(function(imgSrc) {
+                                str += '<img src="' + imgSrc + '" />';
+                            });
+                            str += '</span>';
+                        }
+                        break;
+                    case 'file':
+                        if (schemaData && schemaData.length) {
+                            schemaData.forEach(function(oFile) {
+                                str += '<span><a href="' + oFile.url + '" target="_blank">' + oFile.name + '</a></span>';
+                            });
+                        }
+                        break;
+                    case 'date':
+                        if (schemaData > 0) {
+                            str = '<span>' + $filter('date')(schemaData * 1000, 'yy-MM-dd HH:mm') + '</span>';
+                        }
+                        break;
+                    case 'shortext':
+                    case 'longtext':
+                        str += schemaData;
+                        break;
+                    case 'multitext':
+                        if (schemaData && schemaData.length) {
+                            for (var i = schemaData.length - 1; i >= 0; i--) {
+                                if (!fnDataFilter || fnDataFilter(schemaData[i].id)) {
+                                    str += schemaData[i].value;
+                                }
+                            }
+                        }
+                        break;
+                }
+            }
+        });
+
+        return str;
     };
     /**
      * 通信录记录中的扩展属性转化为用户可读内容

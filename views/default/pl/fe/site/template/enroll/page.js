@@ -178,19 +178,6 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
                 $scope.$broadcast('xxt.matter.enroll.page.data_schemas.removed', removedSchema);
             });
         });
-        $scope.newButton = function(btn) {
-            var domWrap = editorProxy.appendButton(btn);
-            $scope.setActiveWrap(domWrap);
-        };
-        $scope.newList = function(pattern) {
-            var domWrap;
-            if (pattern === 'records') {
-                domWrap = $scope.ep.appendRecordList($scope.app);
-            } else if (pattern === 'rounds') {
-                domWrap = $scope.ep.appendRoundList($scope.app);
-            }
-            $scope.setActiveWrap(domWrap);
-        };
         $scope.removeWrap = function() {
             var wrapType = $scope.activeWrap.type,
                 schema;
@@ -485,29 +472,27 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
                 schema: $scope.activeWrap.schema
             });
         };
-        if ($scope.activeWrap.schema.type === 'member') {
-            if ($scope.activeWrap.schema.schema_id) {
-                (function() {
-                    var i, j, memberSchema, schema;
-                    /*自定义用户*/
-                    for (i = $scope.memberSchemas.length - 1; i >= 0; i--) {
-                        memberSchema = $scope.memberSchemas[i];
-                        if ($scope.activeWrap.schema.schema_id === memberSchema.id) {
-                            for (j = memberSchema._schemas.length - 1; j >= 0; j--) {
-                                schema = memberSchema._schemas[j];
-                                if ($scope.activeWrap.schema.id === schema.id) {
-                                    break;
-                                }
+        if ($scope.activeWrap.schema.mschema_id) {
+            (function() {
+                var i, j, memberSchema, schema;
+                /*自定义用户*/
+                for (i = $scope.memberSchemas.length - 1; i >= 0; i--) {
+                    memberSchema = $scope.memberSchemas[i];
+                    if ($scope.activeWrap.schema.mschema_id === memberSchema.id) {
+                        for (j = memberSchema._schemas.length - 1; j >= 0; j--) {
+                            schema = memberSchema._schemas[j];
+                            if ($scope.activeWrap.schema.id === schema.id) {
+                                break;
                             }
-                            $scope.selectedMemberSchema = {
-                                schema: memberSchema,
-                                attr: schema
-                            };
-                            break;
                         }
+                        $scope.selectedMemberSchema = {
+                            schema: memberSchema,
+                            attr: schema
+                        };
+                        break;
                     }
-                })();
-            }
+                }
+            })();
         }
     }]);
     /**
@@ -516,78 +501,6 @@ define(['frame', 'schema', 'page', 'editor'], function(ngApp, schemaLib, pageLib
     ngApp.provider.controller('ctrlValueWrap', ['$scope', function($scope) {
         $scope.updWrap = function() {
             editorProxy.modifySchema($scope.activeWrap);
-        };
-    }]);
-    /**
-     * record list wrap controller
-     */
-    ngApp.provider.controller('ctrlRecordListWrap', ['$scope', '$timeout', function($scope, $timeout) {
-        var listSchemas = $scope.activeWrap.schemas,
-            chooseState = {};
-        $scope.appSchemas = $scope.app.data_schemas;
-        $scope.otherSchemas = [{
-            id: 'enrollAt',
-            type: '_enrollAt',
-            title: '登记时间'
-        }];
-        angular.forEach(listSchemas, function(schema) {
-            chooseState[schema.id] = true;
-        });
-        $scope.chooseState = chooseState;
-        /* 在处理activeSchema中提交 */
-        $scope.choose = function(schema) {
-            if (chooseState[schema.id]) {
-                listSchemas.push(schema);
-            } else {
-                for (var i = listSchemas.length - 1; i >= 0; i--) {
-                    if (schema.id === listSchemas[i].id) {
-                        listSchemas.splice(i, 1);
-                        break;
-                    }
-                }
-            }
-            $scope.updWrap('config', 'schemas');
-        };
-        $scope.updWrap = function() {
-            editorProxy.modifySchema($scope.activeWrap);
-        };
-    }]);
-    /**
-     * round list wrap
-     */
-    ngApp.provider.controller('ctrlRoundListWrap', ['$scope', function($scope) {
-        $scope.updWrap = function() {
-            editorProxy.modifySchema($scope.activeWrap);
-        };
-    }]);
-    /**
-     * button wrap controller
-     */
-    ngApp.provider.controller('ctrlButtonWrap', ['$scope', 'srvEnrollPage', 'srvTempPage', function($scope, srvEnrollPage, srvTempPage) {
-        var schema = $scope.activeWrap.schema;
-
-        $scope.chooseType = function() {
-            schema.label = $scope.buttons[schema.name].l;
-            schema.next = '';
-            if (['addRecord', 'editRecord', 'removeRecord'].indexOf(schema.name) !== -1) {
-                for (var i = 0, ii = $scope.app.pages.length; i < ii; i++) {
-                    if ($scope.app.pages[i].type === 'I') {
-                        schema.next = $scope.app.pages[i].name;
-                        break;
-                    }
-                }
-                if (i === ii) alert('没有类型为“填写页”的页面');
-            }
-            editorProxy.modifyButton($scope.activeWrap);
-        };
-        /* 直接给带有导航功能的按钮创建页面 */
-        $scope.newPage = function(prop) {
-            srvTempPage.create().then(function(page) {
-                schema[prop] = page.name;
-            });
-        };
-        $scope.updWrap = function(obj, prop) {
-            editorProxy.modifyButton($scope.activeWrap);
         };
     }]);
 });

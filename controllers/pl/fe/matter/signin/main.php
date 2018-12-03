@@ -20,7 +20,6 @@ class main extends \pl\fe\matter\main_base {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
-
 		$oApp = $this->model('matter\signin')->byId($id);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();

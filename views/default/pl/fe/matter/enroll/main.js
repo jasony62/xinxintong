@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlMain', ['$scope', '$anchorScroll', 'http2', '$uibModal', 'noticebox', 'srvSite', 'srvEnrollApp', 'srvTag', function($scope, $anchorScroll, http2, $uibModal, noticebox, srvSite, srvEnrollApp, srvTag) {
+    ngApp.provider.controller('ctrlMain', ['$scope', '$anchorScroll', 'http2', 'noticebox', 'srvEnrollApp', 'srvTag', function($scope, $anchorScroll, http2, noticebox, srvEnrollApp, srvTag) {
         $scope.assignMission = function() {
             srvEnrollApp.assignMission().then(function(mission) {});
         };
@@ -63,7 +63,7 @@ define(['frame'], function(ngApp) {
             });
         });
     }]);
-    ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'srvSite', 'srvEnrollApp', 'srvEnrollSchema', 'tkEntryRule', 'tkGroupApp', function($scope, $uibModal, srvSite, srvEnlApp, srvEnrollSchema, tkEntryRule, tkGroupApp) {
+    ngApp.provider.controller('ctrlAccess', ['$scope', 'srvEnrollApp', 'tkEntryRule', function($scope, srvEnlApp, tkEntryRule) {
         var _oApp, _oRule;
         $scope.isInputPage = function(pageName) {
             if (!$scope.app) {
@@ -94,6 +94,11 @@ define(['frame'], function(ngApp) {
             _oApp = oApp;
             $scope.tkEntryRule = new tkEntryRule(oApp, $scope.sns);
             $scope.rule = _oRule = oApp.entryRule;
+        });
+        $scope.$watch('app.entryRule', function(nv, ov) {
+            if (nv && nv !== ov) {
+                srvEnlApp.renew(['enrollApp', 'groupApp']);
+            }
         });
     }]);
 });

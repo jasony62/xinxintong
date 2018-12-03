@@ -190,6 +190,8 @@ class user_model extends \TMS_MODEL {
 			case 'last_agree_cowork_at':
 			case 'last_agree_remark_at':
 			case 'last_topic_at':
+			case 'last_vote_schema_at':
+			case 'last_vote_cowork_at':
 				$aDbData[$field] = $value;
 				break;
 			case 'entry_num':
@@ -228,6 +230,8 @@ class user_model extends \TMS_MODEL {
 			case 'do_topic_read_elapse':
 			case 'topic_read_elapse':
 			case 'do_repos_read_elapse':
+			case 'vote_schema_num':
+			case 'vote_cowork_num':
 				$aDbData[$field] = $value + (int) $oBeforeData->{$field};
 				break;
 			case 'score':

@@ -44,7 +44,7 @@ define([], function() {
             addRecord: {
                 n: 'addRecord',
                 l: '新增登记',
-                scope: ['V', 'L'],
+                scope: ['V'],
                 next: ['I']
             },
             editRecord: {
@@ -69,12 +69,12 @@ define([], function() {
             gotoPage: {
                 n: 'gotoPage',
                 l: '页面导航',
-                scope: ['I', 'V', 'L']
+                scope: ['I', 'V']
             },
             closeWindow: {
                 n: 'closeWindow',
                 l: '关闭页面',
-                scope: ['I', 'V', 'L']
+                scope: ['I', 'V']
             }
         },
         newSchema: function(type, oApp, oProto) {
@@ -120,15 +120,6 @@ define([], function() {
             return oSchema;
         },
         changeType: function(schema, newType) {
-            if ('member' === newType && !/^member\./.test(schema.id)) {
-                return false;
-            }
-            if ('member' === schema.type) {
-                if (!/shorttext/.test(newType)) {
-                    return false;
-                }
-                delete schema.schema_id;
-            }
             if (/single|multiple|score/.test(schema.type) && !/single|multiple|score/.test(newType)) {
                 delete schema.ops;
             }

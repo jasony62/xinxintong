@@ -72,6 +72,7 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
             "schemaCtrl": '/views/default/pl/fe/matter/enroll/schema',
             "statCtrl": '/views/default/pl/fe/matter/enroll/stat',
             "timeCtrl": '/views/default/pl/fe/matter/enroll/time',
+            "voteCtrl": '/views/default/pl/fe/matter/enroll/vote',
         },
         html: {
             "editor": '/views/default/pl/fe/matter/enroll/editor',
@@ -89,10 +90,12 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
             "schema": '/views/default/pl/fe/matter/enroll/schema',
             "stat": '/views/default/pl/fe/matter/enroll/stat',
             "time": '/views/default/pl/fe/matter/enroll/time',
+            "vote": '/views/default/pl/fe/matter/enroll/vote',
             "timerNotice": '/views/default/pl/fe/_module/timerNotice',
             "entryRule": '/views/default/pl/fe/_module/entryRule',
             "roundCron": '/views/default/pl/fe/_module/roundCron',
             "roundEditor": '/views/default/pl/fe/matter/enroll/component/roundEditor',
+            'recordEditor': '/views/default/pl/fe/matter/enroll/component/recordEditor'
         }
     }
     window.MATTER_TYPE = 'Enroll'; // 为了支持动态加载服务模块

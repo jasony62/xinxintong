@@ -35,15 +35,7 @@ define(['wrap'], function(wrapLib) {
                     newDomWrap = dom.create(name, attrs, html);
                     dom.insertAfter(newDomWrap, $inputWrap[$inputWrap.length - 1]);
                 } else {
-                    var $btnWrap = $(body).find("[wrap='button']");
-                    if ($btnWrap.length) {
-                        /*加在第一个按钮的前面*/
-                        newDomWrap = dom.create(name, attrs, html);
-                        $btnWrap[0].parentNode.insertBefore(newDomWrap, $btnWrap[0]);
-                    } else {
-                        /*加在文档的最后*/
-                        newDomWrap = dom.add(body, name, attrs, html);
-                    }
+                    newDomWrap = dom.add(body, name, attrs, html);
                 }
             } else if (attrs.wrap && attrs.wrap === 'value') {
                 var $valueWrap = $(body).find("[wrap='value']");
@@ -52,29 +44,12 @@ define(['wrap'], function(wrapLib) {
                     newDomWrap = dom.create(name, attrs, html);
                     dom.insertAfter(newDomWrap, $valueWrap[$valueWrap.length - 1]);
                 } else {
-                    var $btnWrap = $(body).find("[wrap='button']");
-                    if ($btnWrap.length) {
-                        /*加在第一个按钮的前面*/
-                        newDomWrap = dom.create(name, attrs, html);
-                        $btnWrap[0].parentNode.insertBefore(newDomWrap, $btnWrap[0]);
-                    } else {
-                        /*加在文档的最后*/
-                        newDomWrap = dom.add(body, name, attrs, html);
-                    }
-                }
-            } else if (attrs.wrap && attrs.wrap === 'button') {
-                /*加在文档的最后*/
-                newDomWrap = dom.add(body, name, attrs, html);
-            } else {
-                var $btnWrap = $(body).find("[wrap='button']");
-                if ($btnWrap.length) {
-                    /*加在第一个按钮的前面*/
-                    newDomWrap = dom.create(name, attrs, html);
-                    $btnWrap[0].parentNode.insertBefore(newDomWrap, $btnWrap[0]);
-                } else {
                     /*加在文档的最后*/
                     newDomWrap = dom.add(body, name, attrs, html);
                 }
+            } else {
+                /*加在文档的最后*/
+                newDomWrap = dom.add(body, name, attrs, html);
             }
         }
 
@@ -116,8 +91,6 @@ define(['wrap'], function(wrapLib) {
                 html = $('<div>' + html + '</div>');
                 html.find('[wrap=input]').attr('contenteditable', 'false');
                 html.find('[wrap=input]>label').attr('contenteditable', 'true');
-                html.find('[wrap=button]').attr('contenteditable', 'false');
-                html.find('[wrap=button]>button>span').attr('contenteditable', 'true');
                 html.find('[wrap=checkbox]>label>span').attr('contenteditable', 'true');
                 html.find('[wrap=radio]>label>span').attr('contenteditable', 'true');
                 html.find('[wrap=score]>div>label').attr('contenteditable', 'true');
@@ -158,7 +131,7 @@ define(['wrap'], function(wrapLib) {
 
                 oNewWrap = wrapLib.input.newWrap(newSchema);
                 _page.dataSchemas.push(oNewWrap);
-                
+
                 wrapParam = wrapLib.input.embed(oNewWrap, true);
                 domNewWrap = _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html, oSiblingSchema, insertBefore);
             } else if (_page.type === 'V') {
@@ -224,16 +197,7 @@ define(['wrap'], function(wrapLib) {
                 wrapLib.input.modify(wrap.dom, wrap);
             } else if (_page.type === 'V') {
                 wrapLib.value.modify(wrap.dom, wrap);
-            } else if (_page.type === 'L') {
-                if (wrap.type === 'value') {
-                    wrapLib.value.modify(wrap.dom, wrap);
-                } else if (wrap.type === 'records' || wrap.type == 'enrollees') {
-                    wrapLib.records.modify(wrap.dom, wrap);
-                }
             }
-        },
-        modifyButton: function(wrap) {
-            wrapLib.button.modify(wrap.dom, wrap);
         },
         /**
          * 页面编辑器内容发生变化
@@ -257,21 +221,6 @@ define(['wrap'], function(wrapLib) {
                                     pageWrap.schema.title = oWrap.schema.title;
                                     status.schemaChanged = true;
                                     status.schema = oWrap.schema;
-                                }
-                            }
-                        })();
-                    }
-                } else if (domNodeWrap.length === 1 && domNodeWrap[0].getAttribute('wrap') === 'button') {
-                    // 编辑button's span
-                    if (/span/i.test(node.nodeName)) {
-                        (function freshButtonByDom() {
-                            var oWrap = wrapLib.dataByDom(domNodeWrap[0]),
-                                pageWrap = _page.wrapByButton(oWrap.schema);
-
-                            if (oWrap) {
-                                if (oWrap.schema.label !== pageWrap.label) {
-                                    pageWrap.label = oWrap.schema.label;
-                                    status.actionChanged = true;
                                 }
                             }
                         })();
@@ -328,21 +277,6 @@ define(['wrap'], function(wrapLib) {
                             }
                         })();
                     }
-                } else if (domNodeWrap.length === 1 && domNodeWrap[0].getAttribute('wrap') === 'button') {
-                    // 编辑button's span
-                    if (/span/i.test(node.nodeName)) {
-                        (function freshButtonByDom() {
-                            var oWrap = wrapLib.dataByDom(domNodeWrap[0]),
-                                pageWrap = _page.wrapByButton(oWrap.schema);
-
-                            if (oWrap) {
-                                if (oWrap.schema.label !== pageWrap.label) {
-                                    pageWrap.label = oWrap.schema.label;
-                                    status.actionChanged = true;
-                                }
-                            }
-                        })();
-                    }
                 }
                 // 修改了页面内容
                 var html = _editor.getContent();
@@ -350,56 +284,22 @@ define(['wrap'], function(wrapLib) {
                     status.htmlChanged = true;
                     _page.$$modified = true;
                 }
-            } else if (_page.type === 'L') {
-                if (domNodeWrap.length && domNodeWrap[0].getAttribute('wrap') === 'value') {
-                    if (/label/i.test(node.nodeName)) {
-                        (function freshSchemaByDom() {
-                            var oWrap = wrapLib.dataByDom(domNodeWrap[0]),
-                                pageWrap = _page.wrapBySchema(oWrap.schema);
-
-                            if (oWrap) {
-                                if (oWrap.schema.title !== pageWrap.schema.title) {
-                                    pageWrap.schema.title = oWrap.schema.title;
-                                    status.schemaChanged = true;
-                                    status.schema = oWrap.schema;
-                                }
-                            }
-                        })();
-                    }
-                } else if (domNodeWrap.length === 1 && domNodeWrap[0].getAttribute('wrap') === 'button') {
-                    // 编辑button's span
-                    if (/span/i.test(node.nodeName)) {
-                        (function freshButtonByDom() {
-                            var oWrap = wrapLib.dataByDom(domNodeWrap[0]),
-                                pageWrap = _page.wrapByButton(oWrap.schema);
-
-                            if (oWrap) {
-                                if (oWrap.schema.label !== pageWrap.label) {
-                                    pageWrap.label = oWrap.schema.label;
-                                    status.actionChanged = true;
-                                }
-                            }
-                        })();
-                    }
-                }
             }
 
             return status;
         },
         setActiveWrap: function(domWrap) {
-            var wrapType, dataType;
+            var wrapType;
             if (_activeWrap) {
                 _activeWrap.dom.classList.remove('active');
             }
             if (domWrap) {
                 wrapType = $(domWrap).attr('wrap');
-                dataType = $(domWrap).attr('enroll-records-type');
                 _activeWrap = {
                     type: wrapType,
-                    dataType: dataType == 'records' ? 'records' : 'enrollees',
                     dom: domWrap,
                     upmost: /body/i.test(domWrap.parentNode.tagName),
-                    downmost: /button|value|radio|checkbox/.test(wrapType),
+                    downmost: /value|radio|checkbox/.test(wrapType),
                 };
                 domWrap.classList.add('active');
                 var dataWrap = wrapLib.dataByDom(domWrap, _page);
@@ -417,11 +317,11 @@ define(['wrap'], function(wrapLib) {
             this.setActiveWrap(null);
             if (selectableWrap) {
                 wrapType = $(selectableWrap).attr('wrap');
-                while (!/text|matter|input|radio|checkbox|value|button|records|score/.test(wrapType) && selectableWrap.parentNode) {
+                while (!/text|matter|input|radio|checkbox|value|score/.test(wrapType) && selectableWrap.parentNode) {
                     selectableWrap = selectableWrap.parentNode;
                     wrapType = $(selectableWrap).attr('wrap');
                 }
-                if (/text|matter|input|radio|checkbox|value|button|records|score/.test(wrapType)) {
+                if (/text|matter|input|radio|checkbox|value|score/.test(wrapType)) {
                     this.setActiveWrap(selectableWrap);
                 }
             }
@@ -477,124 +377,17 @@ define(['wrap'], function(wrapLib) {
 
             return [schema, schemaOption];
         },
-        appendButton: function(btn) {
-            var oWrap, wrapParam;
-            oWrap = {
-                id: 'act' + (new Date * 1),
-                name: btn.n,
-                label: btn.l,
-                next: btn.next || ''
-            };
-            _page.actSchemas.push(oWrap);
-            wrapParam = wrapLib.button.embed(oWrap);
-
-            return _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html);
-        },
-        appendRecordList: function(oApp) {
-            var dataWrap, wrapParam;
-            dataWrap = {
-                config: {
-                    id: 'L' + (new Date * 1),
-                    pattern: 'records',
-                    type: 'records',
-                    dataScope: 'U',
-                    onclick: '',
-                },
-                schemas: angular.copy(oApp.dataSchemas)
-            };
-            dataWrap.schemas.push({
-                id: 'enrollAt',
-                type: '_enrollAt',
-                title: '填写时间'
-            });
-            if (oApp.pages && oApp.pages.length) {
-                for (var i = 0, ii = oApp.pages.length; i < ii; i++) {
-                    if (oApp.pages[i].type === 'V') {
-                        dataWrap.config.onclick = oApp.pages[i].name;
-                        break;
-                    }
-                }
-            }
-            _page.dataSchemas.push(dataWrap);
-            wrapParam = wrapLib.records.embed(dataWrap);
-
-            return _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html);
-        },
-        appendEnrollee: function(oApp) {
-            var dataWrap, wrapParam;
-            dataWrap = {
-                config: {
-                    id: 'L' + (new Date * 1),
-                    pattern: 'records',
-                    type: 'enrollees',
-                    dataScope: 'A',
-                    onclick: ''
-                },
-                schemas: [{
-                    id: 'group.l',
-                    title: '所属分组',
-                    type: 'enrollee'
-                }]
-            };
-            if (oApp.entryRule.scope.member === 'Y') {
-                dataWrap.schemas.push({
-                    id: 'schema_title',
-                    title: '所属通讯录',
-                    type: 'address'
-                })
-                dataWrap.config.mschemaId = '';
-            }
-            if (oApp.entryRule.scope.sns === 'Y') {
-                dataWrap.schemas.push({
-                    id: 'nickname',
-                    title: '昵称',
-                    type: 'sns'
-                }, {
-                    id: 'headimgurl',
-                    title: '头像',
-                    type: 'sns'
-                });
-            }
-            _page.dataSchemas.push(dataWrap);
-            wrapParam = wrapLib.records.embed(dataWrap);
-
-            return _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html);
-        },
         removeWrap: function(oWrap) {
             var wrapType = oWrap.type,
                 $domRemoved = $(oWrap.dom);
 
             if (/input/.test(wrapType)) {
                 _page.removeSchema(oWrap.schema);
-            } else if (/button/.test(wrapType)) {
-                _page.removeButton(oWrap.schema);
             } else if (/value/.test(wrapType)) {
                 var config = oWrap.config;
                 if (config) {
-                    if (config.id === undefined) {
-                        // 列表中的值对象
-                        var $listWrap = $domRemoved.parents('[wrap]');
-                        if ($listWrap.length && $listWrap.attr('wrap') === 'records') {
-                            config.id = $listWrap.attr('id');
-                        }
-                        _page.removeSchema(config, oWrap.schema);
-                    } else {
-                        _page.removeSchema(config);
-                    }
+                    _page.removeSchema(config);
                 }
-            } else if (/records/.test(wrapType)) {
-                (function removeList() {
-                    var listId = $domRemoved.attr('id'),
-                        list;
-
-                    for (var i = _page.dataSchemas.length - 1; i >= 0; i--) {
-                        list = _page.dataSchemas[i];
-                        if (list.id === listId) {
-                            _page.dataSchemas.splice(i, 1);
-                            break;
-                        }
-                    }
-                })();
             }
             /* 删除editor中的dom */
             $domRemoved.remove();

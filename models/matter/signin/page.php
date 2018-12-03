@@ -46,21 +46,21 @@ class page_model extends \TMS_MODEL {
 
 		$q = [$select, $from, $where];
 
-		if ($ep = $this->query_obj_ss($q)) {
+		if ($oPage = $this->query_obj_ss($q)) {
 			if ($published === 'Y') {
-				$code = \TMS_APP::model('code\page')->lastPublishedByName($ep->siteid, $ep->code_name);
+				$code = \TMS_APP::model('code\page')->lastPublishedByName($oPage->siteid, $oPage->code_name);
 			} else {
-				$code = \TMS_APP::model('code\page')->lastByName($ep->siteid, $ep->code_name);
+				$code = \TMS_APP::model('code\page')->lastByName($oPage->siteid, $oPage->code_name);
 			}
-			$ep->html = $code->html;
-			$ep->css = $code->css;
-			$ep->js = $code->js;
-			$ep->ext_js = $code->ext_js;
-			$ep->ext_css = $code->ext_css;
-			return $ep;
-		} else {
-			return false;
+			$oPage->html = $code->html;
+			$oPage->css = $code->css;
+			$oPage->js = $code->js;
+			$oPage->ext_js = $code->ext_js;
+			$oPage->ext_css = $code->ext_css;
+			$oPage->actSchemas = empty($oPage->act_schemas) ? [] : json_decode($oPage->act_schemas);
 		}
+
+		return $oPage;
 	}
 	/**
 	 * 返回指定登记活动的页面

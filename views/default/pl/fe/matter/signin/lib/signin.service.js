@@ -255,6 +255,21 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
 
                     return _getAppDeferred.promise;
                 },
+                renew: function(props) {
+                    if (_oApp) {
+                        http2.get('/rest/pl/fe/matter/signin/get?site=' + siteId + '&id=' + appId).then(function(rsp) {
+                            var oNewApp = rsp.data;
+                            if (props && props.length) {
+                                props.forEach(function(prop) {
+                                    _oApp[prop] = oNewApp[prop];
+                                });
+                            } else {
+                                http2.merge(_oApp, oNewApp);
+                            }
+                            _ins._bGet(app, _fnMapSchemas);
+                        });
+                    }
+                },
                 update: function(names) {
                     var defer = $q.defer(),
                         modifiedData = {},
@@ -518,7 +533,7 @@ define(['require', 'schema', 'page'], function(require, schemaLib, pageLib) {
             siteId = site;
             appId = app;
         }
-        this.$get = ['$q', '$uibModal', '$sce', 'http2', 'noticebox', 'pushnotify', 'cstApp', 'tmsSchema', function($q, $uibModal, $sce, http2, noticebox, pushnotify, cstApp, tmsSchema) {
+        this.$get = ['$q', '$uibModal', '$sce', 'http2', 'noticebox', 'pushnotify', 'CstApp', 'tmsSchema', function($q, $uibModal, $sce, http2, noticebox, pushnotify, CstApp, tmsSchema) {
             var _ins = new BasesrvSigninRecord($q, http2, tmsSchema, noticebox, $uibModal);
 
             _ins.search = function(pageNumber) {

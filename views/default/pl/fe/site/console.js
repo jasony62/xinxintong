@@ -71,7 +71,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             case 'group':
             case 'lottery':
             case 'link':
-            case 'merchant':
             case 'wall':
                 location.href = url + '?id=' + id + '&site=' + $scope.siteId;
                 break;
@@ -311,11 +310,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
     $scope.addCustom = function() {
         http2.get('/rest/pl/fe/matter/custom/create?site=' + $scope.siteId).then(function(rsp) {
             location.href = '/rest/pl/fe/matter/custom?site=' + $scope.siteId + '&id=' + rsp.data;
-        });
-    };
-    $scope.addMerchant = function() {
-        http2.get('/rest/pl/fe/matter/merchant/shop/create?site=' + $scope.siteId).then(function(rsp) {
-            location.href = '/rest/pl/fe/matter/merchant/shop?site=' + $scope.siteId + '&id=' + rsp.data;
         });
     };
     //信息墙

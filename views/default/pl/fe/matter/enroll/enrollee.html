@@ -10,6 +10,7 @@
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" uib-dropdown-menu>
+                        <li><a href ng-click="chooseOrderby('entry_num')"><span class='glyphicon' ng-class="criteria.orderby==='entry_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 总访问次数</a></li>
                         <li><a href ng-click="chooseOrderby('enroll_num')"><span class='glyphicon' ng-class="criteria.orderby==='enroll_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 记录数</a></li>
                         <li><a href ng-click="chooseOrderby('do_remark_num')"><span class='glyphicon' ng-class="criteria.orderby==='do_remark_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 留言数</a></li>
                         <li><a href ng-click="chooseOrderby('do_like_num')"><span class='glyphicon' ng-class="criteria.orderby==='do_like_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 赞同数</a></li>
@@ -99,7 +100,7 @@
                                     <div ng-if='m.last_entry_at>0'>{{::m.last_entry_at*1000|date:'MM-dd HH:mm'}}</div>
                                 </td>
                                 <td>
-                                    <div ng-if='m.entry_num'>{{m.enroll_num}}</div>
+                                    <div ng-if='m.entry_num'>{{m.entry_num}}</div>
                                 </td>
                                 <td>{{m.total_elapse | filterTime}}</td>
                                 <td>

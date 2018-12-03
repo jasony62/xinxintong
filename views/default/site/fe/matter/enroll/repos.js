@@ -51,17 +51,17 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         menus: [{
             value: 'lastest_first',
             title: '最近提交'
-        },{
+        }, {
             value: 'earliest_first',
             title: '最早提交'
-        },{
+        }, {
             value: 'mostliked',
             title: '最多赞同'
-        },{
-           value: 'agreed',
-           title: '精选推荐'
+        }, , {
+            value: 'mostvoted',
+            title: '最多投票'
         }]
-    },{
+    }, {
         type: 'coworkAgreed',
         title: '协作',
         default: {
@@ -71,10 +71,10 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         menus: [{
             value: null,
             title: '所有问题'
-        },{
+        }, {
             value: 'answer',
             title: '已回答'
-        },{
+        }, {
             value: 'unanswer',
             title: '等待回答'
         }]
@@ -89,17 +89,20 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         menus: [{
             value: null,
             title: '不限'
-        },{
+        }, {
             value: 'Y',
             title: '推荐'
-        },{
+        }, {
+            value: 'A',
+            title: '接受'
+        }, {
             value: 'D',
             title: '讨论'
-        },{
-            value: 'S',
+        }, {
+            value: 'N',
             title: '关闭'
         }]
-    },{
+    }, {
         type: 'mine',
         title: '我的',
         default: {
@@ -109,11 +112,11 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         menus: [{
             value: null,
             title: '不限'
-        },{
+        }, {
             value: 'creator',
             title: '我的记录'
-        },{
-            value: 'favor',
+        }, {
+            value: 'favored',
             title: '我的收藏'
         }]
     }];
@@ -230,6 +233,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             });
         }
     };
+
     function fnAssignTag(oRecord) {
         enlTag.assignTag(oRecord).then(function(rsp) {
             if (rsp.data.user && rsp.data.user.length) {
@@ -250,6 +254,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             $scope.favorStack.end();
         }
     };
+
     function fnAssignTopic(oRecord) {
         http2.get(LS.j('topic/list', 'site', 'app')).then(function(rsp) {
             var topics;
@@ -496,38 +501,39 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             }
         }, true);
         $scope.$watch('userGroups', function(userGroups) {
-            var obj = {value: null, title: '不限'};
-            if(!userGroups)  {return false;}
-            userGroups.unshift(obj);
-            angular.forEach(userGroups, function(userGroup) {
-                userGroup.value = userGroup.round_id;
-            });
-            filterData.unshift({
-                type: 'userGroup',
-                title: '分组',
-                default: {
-                    value: null,
-                    title: '不限'
-                },
-                menus: userGroups
-            }); 
+            if (userGroups && userGroups.length) {
+                userGroups.unshift({ value: null, title: '不限' });
+                angular.forEach(userGroups, function(userGroup) {
+                    userGroup.value = userGroup.round_id;
+                });
+                filterData.unshift({
+                    type: 'userGroup',
+                    title: '分组',
+                    default: {
+                        value: null,
+                        title: '不限'
+                    },
+                    menus: userGroups
+                });
+            }
         });
         $scope.$watch('rounds', function(rounds) {
-            var obj = {value: null, title: '不限'};
-            if(!rounds)  {return false;}
-            rounds.unshift(obj);
-            angular.forEach(rounds, function(round) {
-                round.value = round.rid;
-            });
-            filterData.unshift({
-                type: 'rid',
-                title: '轮次',
-                default: {
-                    value: null,
-                    title: '不限'
-                },
-                menus: rounds
-            });
+            if (!rounds) { return false; }
+            if (rounds.length > 1) {
+                rounds.unshift({ value: null, title: '不限' });
+                angular.forEach(rounds, function(round) {
+                    round.value = round.rid;
+                });
+                filterData.unshift({
+                    type: 'rid',
+                    title: '轮次',
+                    default: {
+                        value: null,
+                        title: '不限'
+                    },
+                    menus: rounds
+                });
+            }
             $scope.filterData = filterData;
             angular.forEach(filterData, function(data) {
                 _oFilter[data.type] = data.default.value;

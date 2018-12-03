@@ -14,8 +14,6 @@ ngMod.directive('tmsFilter', ['$templateCache', '$timeout', function($templateCa
             var _oFiltered, _oCriteriad;
             scope.status = { isopen: false };
             scope.appendToEle = scope.$parent.appendToEle;
-            scope.filtered = _oFiltered = angular.copy(scope.$parent.filter);
-            scope.criteriad = _oCriteriad = angular.copy(scope.$parent.criteria);
             scope.toggled = function(open) {
                 if(open) {
                     _oFiltered = angular.extend(_oFiltered, scope.$parent.filter);
@@ -39,7 +37,9 @@ ngMod.directive('tmsFilter', ['$templateCache', '$timeout', function($templateCa
             scope.$watch('source', function(source) {
                 if(!source) { return false; }
                 scope.datas = source;
-            })
+                scope.filtered = _oFiltered = angular.copy(scope.$parent.filter);
+                scope.criteriad = _oCriteriad = angular.copy(scope.$parent.criteria);
+            });
         }
     };
 }]);

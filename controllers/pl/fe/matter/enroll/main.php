@@ -396,7 +396,7 @@ class main extends main_base {
 						/* 插入登记数据 */
 						$oNewRec = $modelRec->enroll($oNewApp, $cpUser, ['nickname' => $cpUser->nickname, 'assignedRid' => $newRound]);
 						/* 处理自定义信息 */
-						if (isset($record->data->member) && $oNewApp->entryRule->scope->member !== 'Y') {
+						if (isset($record->data->member) && $this->getDeepValue($oNewApp, 'entryRule.scope.member') !== 'Y') {
 							unset($record->data->member->schema_id);
 							foreach ($record->data->member as $schemaId => $val) {
 								$record->data->{$schemaId} = $val;

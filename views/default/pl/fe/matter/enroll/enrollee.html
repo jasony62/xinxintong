@@ -11,6 +11,7 @@
                     </button>
                     <ul class="dropdown-menu" uib-dropdown-menu>
                         <li><a href ng-click="chooseOrderby('entry_num')"><span class='glyphicon' ng-class="criteria.orderby==='entry_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 总访问次数</a></li>
+                        <li><a href ng-click="chooseOrderby('last_entry_at')"><span class='glyphicon' ng-class="criteria.orderby==='last_entry_at'?'glyphicon-check':'glyphicon-unchecked'"></span> 最近访问</a></li>
                         <li><a href ng-click="chooseOrderby('enroll_num')"><span class='glyphicon' ng-class="criteria.orderby==='enroll_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 记录数</a></li>
                         <li><a href ng-click="chooseOrderby('do_remark_num')"><span class='glyphicon' ng-class="criteria.orderby==='do_remark_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 留言数</a></li>
                         <li><a href ng-click="chooseOrderby('do_like_num')"><span class='glyphicon' ng-class="criteria.orderby==='do_like_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 赞同数</a></li>

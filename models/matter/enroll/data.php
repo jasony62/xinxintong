@@ -211,7 +211,7 @@ class data_model extends entity_model {
 						'enroll_key' => $oRecord->enroll_key,
 						'submit_at' => $oRecord->enroll_at,
 						'userid' => isset($oUser->uid) ? $oUser->uid : '',
-						'nickname' => $oRecord->nickname,
+						'nickname' => $this->escape($oRecord->nickname),
 						'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 						'schema_id' => $schemaId,
 						'value' => $this->escape($treatedValue),
@@ -242,7 +242,7 @@ class data_model extends entity_model {
 					$aSchemaData = [
 						'submit_at' => $oRecord->enroll_at,
 						'userid' => isset($oUser->uid) ? $oUser->uid : '',
-						'nickname' => $oRecord->nickname,
+						'nickname' => $this->escape($oRecord->nickname),
 						'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 						'value' => $this->escape($treatedValue),
 						'modify_log' => $this->escape($this->toJson($valueModifyLogs)),

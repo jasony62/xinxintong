@@ -6,7 +6,7 @@ define(['frame'], function(ngApp) {
                 url;
 
             defer = $q.defer();
-            url = '/rest/pl/fe/matter/enroll/remark/byApp?site=' + $location.search().site + '&app=' + $location.search().id;
+            url = '/rest/pl/fe/matter/enroll/remark/byApp?app=' + $location.search().id;
             http2.post(url, oCriteria, { page: oPage }).then(function(rsp) {
                 defer.resolve(rsp.data);
             });
@@ -103,6 +103,12 @@ define(['frame'], function(ngApp) {
                     }
                 }
             });
+        };
+        $scope.export = function() {
+            var url;
+            url = '/rest/pl/fe/matter/enroll/remark/export';
+            url += '?app=' + $location.search().id;
+            window.open(url);
         };
         $scope.gotoRemark = function(oRemark) {
             var oSearch = $location.search();

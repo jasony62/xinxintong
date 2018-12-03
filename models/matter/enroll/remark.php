@@ -193,7 +193,9 @@ class remark_model extends \TMS_MODEL {
 			$q2['o'] = 'create_at desc';
 		}
 		/* pagination */
-		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		if (!empty($page) && !empty($size)) {
+			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		}
 
 		$aRemarks = $this->query_objs_ss($q, $q2);
 		$oAssocRecords = new \stdClass;

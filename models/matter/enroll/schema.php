@@ -1089,4 +1089,62 @@ class schema_model extends \TMS_MODEL {
 
 		return $aVoteSchemas;
 	}
+	/**
+	 * 填写记录的字符串表示
+	 */
+	public function strRecData($oRecData, $schemas, $aOptions = []) {
+		if (empty($schemas)) {
+			return '';
+		}
+
+		if (!empty($aOptions)) {
+			if (isset($aOptions['fnSchemaFilter'])) {
+				$fnSchemaFilter = $aOptions['fnSchemaFilter'];
+			}
+			if (isset($aOptions['fnDataFilter'])) {
+				$fnDataFilter = $aOptions['fnDataFilter'];
+			}
+		}
+
+		$str = '';
+		foreach ($schemas as $oSchema) {
+			if (empty($fnSchemaFilter) || $fnSchemaFilter($oSchema)) {
+				$schemaData = $this->getDeepValue($oRecData, $oSchema->id);
+				switch ($oSchema->type) {
+				case 'image':
+					if (is_array($schemaData) && count($schemaData)) {
+						$str .= implode(',', $schemaData);
+					}
+					break;
+				case 'file':
+					if (is_array($schemaData) && count($schemaData)) {
+						foreach ($schemaData as $oFile) {
+							$str .= $oFile->name;
+						};
+					}
+					break;
+				case 'date':
+					if ($schemaData > 0) {
+						$str .= date('y-m-j H:i', $schemaData);
+					}
+					break;
+				case 'shortext':
+				case 'longtext':
+					$str .= $schemaData;
+					break;
+				case 'multitext':
+					if (is_array($schemaData) && count($schemaData)) {
+						for ($i = count($schemaData) - 1; $i >= 0; $i--) {
+							if (empty($fnDataFilter) || $fnDataFilter($schemaData[$i]->id)) {
+								$str .= $schemaData[$i]->value;
+							}
+						}
+					}
+					break;
+				}
+			}
+		};
+
+		return $str;
+	}
 }

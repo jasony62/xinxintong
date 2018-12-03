@@ -14,6 +14,12 @@
                         <li><a href='' ng-click="chooseOrderby('like_num')"><span class='glyphicon' ng-class="criteria.orderby==='like_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 获得赞同数</a></li>
                     </ul>
                 </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">更多操作 <i class="caret"></i></button>
+                    <ul class="dropdown-menu">
+                        <li><a href ng-click="export()">导出全部数据</a></li>
+                    </ul>
+                </div>
                 <div class='form-group pull-right'>
                     <div class='input-group'>
                         <span class="input-group-addon">每页条数</span>

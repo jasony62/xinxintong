@@ -119,8 +119,9 @@
                     <div class="bg-info small" ng-if="filter.agreed">
                         <span ng-switch="filter.agreed.value">
                             <span ng-switch-when="Y">推荐</span>
+                            <span ng-switch-when="A">接受</span>
                             <span ng-switch-when="D">讨论</span>
-                            <span ng-switch-when="S">关闭</span>
+                            <span ng-switch-when="N">关闭</span>
                         </span>
                         <button class="close" trace-biz ng-click="shiftTip('agreed')"><span>&times;</span></button>
                     </div>
@@ -131,7 +132,7 @@
                     <div class="bg-info small" ng-if="filter.mine">
                         <span ng-switch="filter.mine.value">
                             <span ng-switch-when="creator">我的记录</span>
-                            <span ng-switch-when="favor">我的收藏</span>
+                            <span ng-switch-when="favored">我的收藏</span>
                         </span>
                         <button class="close" trace-biz ng-click="shiftTip('mine')"><span>&times;</span></button>
                     </div>

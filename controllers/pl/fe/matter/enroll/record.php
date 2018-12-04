@@ -1029,19 +1029,19 @@ class record extends main_base {
 			return new \ResponseTimeout();
 		}
 
-		$oPosted = $this->getPostJson();
 		$modelEnl = $this->model('matter\enroll');
-		$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
-
 		$oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+
+		$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
 		$oBeforeRecord = $modelRec->byId($ek, ['verbose' => 'N']);
 		if (false === $oBeforeRecord || $oBeforeRecord->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
+		$oPosted = $this->getPostJson();
 		/* 更新记录数据 */
 		$oUpdated = new \stdClass;
 		$oUpdated->enroll_at = time();
@@ -1312,7 +1312,7 @@ class record extends main_base {
 	/**
 	 * 恢复一条记录
 	 */
-	public function restore_action($app, $ek) {
+	public function recover_action($app, $ek) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -1726,7 +1726,7 @@ class record extends main_base {
 		$aMsSchemas = [];
 		if (!empty($oEnlApp->dynaDataSchemas)) {
 			foreach ($oEnlApp->dynaDataSchemas as $oSchema) {
-				if (isset($oSchema->schema_id) && isset($oEnlApp->entryRule->member->{$oSchema->schema_id})) {
+				if (isset($oSchema->mschema_id) && isset($oEnlApp->entryRule->member->{$oSchema->mschema_id})) {
 					$aMsSchemas[] = $oSchema;
 				}
 			}
@@ -1828,7 +1828,7 @@ class record extends main_base {
 		$columnNum1 = 0; //列号
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '登记时间');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '审核通过');
-		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '登记轮次');
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '填写轮次');
 
 		// 转换标题
 		$aNumberSum = []; // 数值型题目的合计
@@ -1920,9 +1920,9 @@ class record extends main_base {
 							}
 						}
 					}
-					if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
-						$cellValue .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
-					}
+					// if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
+					// 	$cellValue .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
+					// }
 					$cellValue = str_replace(['<br>', '</br>'], ["\n", ""], $cellValue);
 					$cellValue = strip_tags($cellValue);
 					$cellValue = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $cellValue);
@@ -1943,9 +1943,9 @@ class record extends main_base {
 						}
 					}
 					$cellValue = implode(',', $labels);
-					if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
-						$cellValue .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
-					}
+					// if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
+					// 	$cellValue .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
+					// }
 					$cellValue = str_replace(['<br>', '</br>'], ["\n", ""], $cellValue);
 					$cellValue = strip_tags($cellValue);
 					$cellValue = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $cellValue);
@@ -1965,9 +1965,9 @@ class record extends main_base {
 					break;
 				case 'image':
 					$v0 = '';
-					if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
-						$v0 .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
-					}
+					// if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
+					// 	$v0 .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
+					// }
 					$v0 = str_replace(['<br>', '</br>'], ["\n", ""], $v0);
 					$v0 = strip_tags($v0);
 					$v0 = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v0);
@@ -1976,9 +1976,9 @@ class record extends main_base {
 					break;
 				case 'file':
 					$v0 = '';
-					if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
-						$v0 .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
-					}
+					// if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
+					// 	$v0 .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
+					// }
 					$v0 = str_replace(['<br>', '</br>'], ["\n", ""], $v0);
 					$v0 = strip_tags($v0);
 					$v0 = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v0);

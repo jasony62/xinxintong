@@ -7,9 +7,29 @@ require_once dirname(__FILE__) . '/base.php';
  */
 class main_base extends \pl\fe\matter\base {
 	/**
+	 * 补充entryRule的数据
+	 */
+	protected function fillEntryRule(&$oEntryRule) {
+		/* 关联记录活动 */
+		if (empty($oEntryRule)) {
+			return false;
+		}
+		if (isset($oEntryRule->member) && is_object($oEntryRule->member)) {
+			$modelMs = $this->model('site\user\memberschema');
+			foreach ($oEntryRule->member as $msid => $oRule) {
+				$oMschema = $modelMs->byId($msid, ['fields' => 'title', 'cascaded' => 'N']);
+				if ($oMschema) {
+					$oRule->title = $oMschema->title;
+				}
+			}
+		}
+
+		return true;
+	}
+	/**
 	 * 恢复被删除的素材
 	 */
-	public function restore_action($site, $id) {
+	public function restore_action($id) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}

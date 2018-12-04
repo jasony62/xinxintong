@@ -1,12 +1,16 @@
 'use strict';
 require('./signin.css');
+
+require('../../../../../../asset/js/xxt.ui.schema.js');
+
+window.moduleAngularModules = ['schema.ui.xxt'];
+
 var ngApp = require('./main.js');
-ngApp.oUtilSchema = require('../_module/schema.util.js');
 ngApp.oUtilSubmit = require('../_module/submit.util.js');
 ngApp.config(['$compileProvider', function($compileProvider) {
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);
 }]);
-ngApp.factory('Input', ['http2', '$q', '$timeout', 'tmsLocation', function(http2, $q, $timeout, LS) {
+ngApp.factory('Input', ['http2', '$q', '$timeout', 'tmsLocation', 'tmsSchema', function(http2, $q, $timeout, LS, tmsSchema) {
     var Input, _ins;
     Input = function() {};
     Input.prototype.check = function(data, app, page) {
@@ -33,7 +37,7 @@ ngApp.factory('Input', ['http2', '$q', '$timeout', 'tmsLocation', function(http2
                     oSchema.required = 'Y';
                 }
                 if (oSchema.type && oSchema.type !== 'html') {
-                    if (true !== (sCheckResult = ngApp.oUtilSchema.checkValue(oSchema, value))) {
+                    if (true !== (sCheckResult = tmsSchema.checkValue(oSchema, value))) {
                         return sCheckResult;
                     }
                 }
@@ -215,7 +219,7 @@ ngApp.directive('tmsFileInput', ['$q', function($q) {
         }]
     }
 }]);
-ngApp.controller('ctrlSignin', ['$scope', 'Input', 'tmsLocation', 'noticebox', function($scope, Input, LS, noticebox) {
+ngApp.controller('ctrlSignin', ['$scope', 'Input', 'tmsLocation', 'noticebox', 'tmsSchema', function($scope, Input, LS, noticebox, tmsSchema) {
     function doSubmit(nextAction) {
         var ek, btnSubmit;
         ek = $scope.record ? $scope.record.enroll_key : undefined;
@@ -294,9 +298,22 @@ ngApp.controller('ctrlSignin', ['$scope', 'Input', 'tmsLocation', 'noticebox', f
             }
         }
     };
+    $scope.doAction = function(event, oAction) {
+        switch (oAction.name) {
+            case 'submit':
+                $scope.submit(event, oAction.next);
+                break;
+            case 'gotoPage':
+                $scope.gotoPage(event, oAction.next);
+                break;
+            case 'closeWindow':
+                $scope.closeWindow();
+                break;
+        }
+    };
     $scope.$on('xxt.app.signin.ready', function(event, params) {
         if (params.record) {
-            ngApp.oUtilSchema.loadRecord(params.app._schemasById, $scope.data, params.record.data);
+            tmsSchema.loadRecord(params.app._schemasById, $scope.data, params.record.data);
             $scope.record = params.record;
         }
         /* 恢复用户未提交的数据 */
@@ -320,7 +337,7 @@ ngApp.controller('ctrlSignin', ['$scope', 'Input', 'tmsLocation', 'noticebox', f
     var hasAutoFillMember = false;
     $scope.$watch('data.member.schema_id', function(schemaId) {
         if (false === hasAutoFillMember && schemaId && $scope.user) {
-            ngApp.oUtilSchema.autoFillMember($scope.user, $scope.data.member);
+            tmsSchema.autoFillMember($scope.app._schemasById, $scope.user, $scope.data.member);
             hasAutoFillMember = true;
         }
     });

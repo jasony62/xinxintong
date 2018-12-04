@@ -68,7 +68,7 @@ trait Round {
 		if (!empty($oLatestRule->purpose)) {
 			switch ($oLatestRule->purpose) {
 			case 'B':
-				$latestLabel .= '（基线）';
+				$latestLabel .= '（目标）';
 				break;
 			case 'S':
 				$latestLabel .= '（汇总）';

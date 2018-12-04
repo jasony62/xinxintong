@@ -10,7 +10,6 @@ require('./_asset/ui.assoc.js');
 window.moduleAngularModules = ['editor.ui.xxt', 'repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll'];
 
 var ngApp = require('./main.js');
-ngApp.oUtilSchema = require('../_module/schema.util.js');
 ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$anchorScroll', '$sce', '$uibModal', 'tmsLocation', 'http2', 'noticebox', 'tmsDynaPage', 'enlTag', 'enlTopic', 'enlAssoc', function($scope, $q, $timeout, $location, $anchorScroll, $sce, $uibModal, LS, http2, noticebox, tmsDynaPage, enlTag, enlTopic, enlAssoc) {
     function listRemarks() {
         var url;
@@ -562,6 +561,34 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             http2.get(LS.j('data/dislike', 'site') + '&data=' + oItem.id).then(function(rsp) {
                 oItem.dislike_log = rsp.data.dislike_log;
                 oItem.dislike_num = rsp.data.dislike_num;
+            });
+        }
+    };
+    $scope.vote = function(oRecData) {
+        if (oRecData && oRecData.voteResult) {
+            http2.get(LS.j('data/vote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
+                oRecData.voteResult.vote_num++;
+                oRecData.voteResult.vote_at = rsp.data[0].vote_at;
+                var remainder = rsp.data[1][0] - rsp.data[1][1];
+                if (remainder > 0) {
+                    noticebox.success('还需要投出【' + remainder + '】票');
+                } else {
+                    noticebox.success('已完成全部投票');
+                }
+            });
+        }
+    };
+    $scope.unvote = function(oRecData) {
+        if (oRecData && oRecData.voteResult) {
+            http2.get(LS.j('data/unvote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
+                oRecData.voteResult.vote_num--;
+                oRecData.voteResult.vote_at = 0;
+                var remainder = rsp.data[0] - rsp.data[1];
+                if (remainder > 0) {
+                    noticebox.success('还需要投出【' + remainder + '】票');
+                } else {
+                    noticebox.success('已完成全部投票');
+                }
             });
         }
     };

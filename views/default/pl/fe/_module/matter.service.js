@@ -217,6 +217,8 @@ provider('srvSite', function() {
                 } else {
                     http2.get('/rest/pl/fe/site/snsList?site=' + (siteId || _siteId)).then(function(rsp) {
                         _aSns = rsp.data;
+                        _aSns.names = Object.keys(_aSns);
+                        _aSns.count = _aSns.names.length;
                         defer.resolve(_aSns);
                     });
                 }
@@ -1312,158 +1314,288 @@ service('srvTimerNotice', ['$rootScope', '$parse', '$q', '$timeout', 'http2', 't
     };
 }]).
 /**
+ * enroll
+ */
+service('tkEnrollApp', ['$q', '$uibModal', 'http2', function($q, $uibModal, http2) {
+    function _fnMakeApiUrl(oApp, action) {
+        var url;
+        url = '/rest/pl/fe/matter/enroll/' + action + '?site=' + oApp.siteid + '&app=' + oApp.id;
+        return url;
+    }
+    this.get = function(id) {
+        var defer = $q.defer();
+        http2.get('/rest/pl/fe/matter/enroll/get?app=' + id).then(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    };
+    this.update = function(oApp, oModifiedData) {
+        var defer = $q.defer();
+        http2.post(_fnMakeApiUrl(oApp, 'update'), oModifiedData).then(function(rsp) {
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    };
+    this.choose = function(oApp) {
+        var defer;
+        defer = $q.defer();
+        http2.post('/rest/script/time', { html: { 'enrollApp': '/views/default/pl/fe/_module/chooseEnrollApp' } }).then(function(rsp) {
+            return $uibModal.open({
+                templateUrl: '/views/default/pl/fe/_module/chooseEnrollApp.html?_=' + rsp.data.html.enrollApp.time,
+                controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
+                    $scope2.app = oApp;
+                    $scope2.data = {};
+                    oApp.mission && ($scope2.data.sameMission = 'Y');
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        $mi.close($scope2.data);
+                    };
+                    var url = '/rest/pl/fe/matter/enroll/list?site=' + oApp.siteid + '&size=999';
+                    oApp.mission && (url += '&mission=' + oApp.mission.id);
+                    http2.get(url).then(function(rsp) {
+                        $scope2.apps = rsp.data.apps;
+                    });
+                }],
+                backdrop: 'static'
+            }).result.then(function(oResult) {
+                defer.resolve(oResult);
+            });
+        });
+        return defer.promise;
+    };
+}]).
+/**
+ * group app
+ */
+service('tkGroupApp', ['$uibModal', function($uibModal) {
+    this.choose = function(oMatter) {
+        return $uibModal.open({
+            templateUrl: '/views/default/pl/fe/matter/enroll/component/chooseGroupApp.html',
+            controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
+                $scope2.app = oMatter;
+                $scope2.data = {
+                    app: null,
+                    round: null
+                };
+                oMatter.mission && ($scope2.data.sameMission = 'Y');
+                $scope2.cancel = function() {
+                    $mi.dismiss();
+                };
+                $scope2.ok = function() {
+                    $mi.close($scope2.data);
+                };
+                $scope2.$watch('data.app', function(oGrpApp) {
+                    if (oGrpApp) {
+                        var url = '/rest/pl/fe/matter/group/round/list?app=' + oGrpApp.id + '&roundType=';
+                        http2.get(url).then(function(rsp) {
+                            $scope2.rounds = rsp.data;
+                        });
+                    }
+                });
+                var url = '/rest/pl/fe/matter/group/list?site=' + oMatter.siteid + '&size=999';
+                oMatter.mission && (url += '&mission=' + oMatter.mission.id);
+                http2.get(url).then(function(rsp) {
+                    $scope2.apps = rsp.data.apps;
+                });
+            }],
+            backdrop: 'static'
+        }).result;
+    };
+}]).
+/**
  * 素材进入规则
  */
-factory('tkEntryRule', ['noticebox', 'srvSite', 'tkEnrollApp', 'tkGroupApp', function(noticebox, srvSite, tkEnrollApp, tkGroupApp) {
-    function setMschemaEntry(oApp, oMschema) {
-        var er;
-        er = oApp.entryRule;
-        if (!er.member) {
-            er.member = {};
-        }
-        if (!er.member[oMschema.id]) {
-            er.member[oMschema.id] = {
-                entry: 'Y',
-                title: oMschema.title
-            };
-            return true;
-        }
-        return false;
-    }
-
-    function setGroupEntry(oApp, oResult) {
-        var er;
-        if (oResult.app) {
-            er = oApp.entryRule;
-            er.group = { id: oResult.app.id, title: oResult.app.title };
-            if (oResult.round) {
-                er.group.round = { id: oResult.round.round_id, title: oResult.round.title };
-            }
-            return true;
-        }
-        return false;
-    }
-
-    function Tk(oApp, oSns) {
-        this.app = oApp;
+factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite', 'tkEnrollApp', 'tkGroupApp', function($rootScope, $timeout, noticebox, http2, srvSite, tkEnrollApp, tkGroupApp) {
+    var RelativeProps = ['scope', 'member', 'group', 'enroll', 'sns'];
+    /**
+     * bNoSave 不对修改进行保存，直接修改传入的原始数据
+     */
+    function TK(oMatter, oSns, bNoSave, aExcludeRules) {
+        var _self, _oRule, _bJumpModifyWatch, $scope;
+        $scope = $rootScope.$new(true);
+        this.noSave = !!bNoSave;
+        this.excludeRules = aExcludeRules || [];
+        this.matter = oMatter;
         this.sns = oSns;
+        this.rule = _oRule = $scope.rule = (this.noSave ? oMatter.entryRule : angular.copy(oMatter.entryRule));
+        _self = this;
+        if (!this.noSave) {
+            this.originalRule = $scope.originalRule = oMatter.entryRule;
+            this.modified = false;
+            _bJumpModifyWatch = false;
+            $scope.$watch('rule', function(nv, ov) {
+                if (nv && nv !== ov) {
+                    if (_bJumpModifyWatch === false) {
+                        _self.modified = true;
+                    }
+                    _bJumpModifyWatch = false;
+                }
+            }, true);
+            $scope.$watch('originalRule', function(nv, ov) {
+                if (nv && nv !== ov) {
+                    http2.merge(_oRule, nv, RelativeProps);
+                    _bJumpModifyWatch = true;
+                }
+            }, true);
+        }
         this.chooseMschema = function() {
-            srvSite.chooseMschema(oApp).then(function(oResult) {
-                setMschemaEntry(oApp, oResult.chosen);
+            srvSite.chooseMschema(oMatter).then(function(oResult) {
+                if (!_oRule.member) {
+                    _oRule.member = {};
+                }
+                _oRule.member[oResult.chosen.id] = {
+                    entry: 'Y',
+                    title: oResult.chosen.title
+                };
             });
         };
         this.removeMschema = function(mschemaId) {
             if (!mschemaId) {
-                if (Object.keys(oApp.entryRule.member).length) {
-                    mschemaId = Object.keys(oApp.entryRule.member)[0];
+                if (Object.keys(_oRule.member).length) {
+                    mschemaId = Object.keys(_oRule.member)[0];
                 }
             }
-            if (mschemaId && oApp.entryRule.member[mschemaId]) {
-                /* 取消题目和通信录的关联 */
-                var aAssocSchemas = [];
-                oApp.dataSchemas.forEach(function(oSchema) {
-                    if (oSchema.schema_id && oSchema.schema_id === mschemaId) {
-                        aAssocSchemas.push(oSchema.title);
+            if (mschemaId && _oRule.member[mschemaId]) {
+                if (oMatter.dataSchemas && oMatter.dataSchemas.length) {
+                    /* 取消题目和通信录的关联 */
+                    var aAssocSchemas = [];
+                    oMatter.dataSchemas.forEach(function(oSchema) {
+                        if (oSchema.mschema_id && oSchema.mschema_id === mschemaId) {
+                            aAssocSchemas.push(oSchema.title);
+                        }
+                    });
+                    if (aAssocSchemas.length) {
+                        noticebox.warn('已经有题目<b style="color:red">' + aAssocSchemas.join('，') + '</b>和通讯录关联，请解除关联后再删除进入规则');
+                        return false;
                     }
-                });
-                if (aAssocSchemas.length) {
-                    noticebox.warn('已经有题目<b style="color:red">' + aAssocSchemas.join('，') + '</b>和通讯录关联，请解除关联后再删除进入规则');
-                    return false;
                 }
-                delete oApp.entryRule.member[mschemaId];
+                delete _oRule.member[mschemaId];
+            }
+            if (_oRule.optional) {
+                delete _oRule.optional.member;
             }
             return true;
         };
         this.chooseGroupApp = function() {
-            tkGroupApp.choose(oApp).then(function(oResult) {
-                setGroupEntry(oApp, oResult);
+            tkGroupApp.choose(oMatter).then(function(oResult) {
+                if (oResult.app) {
+                    _oRule.group = { id: oResult.app.id, title: oResult.app.title };
+                    if (oResult.round) {
+                        _oRule.group.round = { id: oResult.round.round_id, title: oResult.round.title };
+                    }
+                }
             });
         };
         this.removeGroupApp = function() {
-            if (oApp.entryRule.group.id) {
+            if (_oRule.group && _oRule.group.id) {
                 /* 取消题目和通信录的关联 */
-                var aAssocSchemas = [];
-                oApp.dataSchemas.forEach(function(oSchema) {
-                    if (oSchema.fromApp && oSchema.fromApp === oApp.entryRule.group.id) {
-                        aAssocSchemas.push(oSchema.title);
+                if (oMatter.dataSchemas && oMatter.dataSchemas.length) {
+                    var aAssocSchemas = [];
+                    oMatter.dataSchemas.forEach(function(oSchema) {
+                        if (oSchema.fromApp && oSchema.fromApp === _oRule.group.id) {
+                            aAssocSchemas.push(oSchema.title);
+                        }
+                    });
+                    if (aAssocSchemas.length) {
+                        noticebox.warn('已经有题目<b style="color:red">' + aAssocSchemas.join('，') + '</b>和分组活动关联，请解除关联后再删除进入规则');
+                        return false;
                     }
-                });
-                if (aAssocSchemas.length) {
-                    noticebox.warn('已经有题目<b style="color:red">' + aAssocSchemas.join('，') + '</b>和分组活动关联，请解除关联后再删除进入规则');
-                    return false;
                 }
-                delete oApp.entryRule.group;
-                if (oApp.entryRule.optional) {
-                    delete oApp.entryRule.optional.group;
+                delete _oRule.group;
+                if (_oRule.optional) {
+                    delete _oRule.optional.group;
                 }
             }
             return true;
         };
         this.chooseEnrollApp = function() {
-            tkEnrollApp.choose(oApp).then(function(oResult) {
-                oApp.entryRule.enroll = { id: oResult.app.id, title: oResult.app.title };
+            tkEnrollApp.choose(oMatter).then(function(oResult) {
+                _oRule.enroll = { id: oResult.app.id, title: oResult.app.title };
             });
         };
         this.removeEnrollApp = function() {
-            if (oApp.entryRule.enroll.id) {
+            if (_oRule.enroll && _oRule.enroll.id) {
                 /* 取消题目和通信录的关联 */
-                var aAssocSchemas = [];
-                oApp.dataSchemas.forEach(function(oSchema) {
-                    if (oSchema.fromApp && oSchema.fromApp === oApp.entryRule.enroll.id) {
-                        aAssocSchemas.push(oSchema.title);
+                if (oMatter.dataSchemas && oMatter.dataSchemas.length) {
+                    var aAssocSchemas = [];
+                    oMatter.dataSchemas.forEach(function(oSchema) {
+                        if (oSchema.fromApp && oSchema.fromApp === _oRule.enroll.id) {
+                            aAssocSchemas.push(oSchema.title);
+                        }
+                    });
+                    if (aAssocSchemas.length) {
+                        noticebox.warn('已经有题目<b style="color:red">' + aAssocSchemas.join('，') + '</b>和记录活动关联，请解除关联后再删除进入规则');
+                        return false;
                     }
-                });
-                if (aAssocSchemas.length) {
-                    noticebox.warn('已经有题目<b style="color:red">' + aAssocSchemas.join('，') + '</b>和记录活动关联，请解除关联后再删除进入规则');
-                    return false;
                 }
-                delete oApp.entryRule.enroll;
-                if (oApp.entryRule.optional) {
-                    delete oApp.entryRule.optional.enroll;
+                delete _oRule.enroll;
+                if (_oRule.optional) {
+                    delete _oRule.optional.enroll;
                 }
             }
             return true;
         };
-        this.changeUserScope = function(scopeProp) {
-            var er;
-            er = oApp.entryRule;
-            switch (scopeProp) {
+        this.changeUserScope = function(userScope) {
+            switch (userScope) {
                 case 'member':
-                    if (er.scope[scopeProp] !== 'Y') {
+                    if (_oRule.scope.member === 'Y') {
+                        if (!_oRule.member || Object.keys(_oRule.member).length === 0) {
+                            this.chooseMschema();
+                        }
+                    } else {
                         if (false === this.removeMschema()) {
-                            er.scope.member = 'Y';
+                            _oRule.scope.member = 'Y';
                         }
                     }
                     break;
                 case 'sns':
-                    if (er.scope[scopeProp] === 'Y') {
-                        if (!er.sns) {
-                            er.sns = {};
+                    if (_oRule.scope.sns === 'Y') {
+                        if (!_oRule.sns) {
+                            _oRule.sns = {};
                         }
-                        if (_oSns.count === 1) {
-                            er.sns[_oSns.names[0]] = { 'entry': 'Y' };
+                        if (oSns.count === 1) {
+                            _oRule.sns[oSns.names[0]] = { 'entry': 'Y' };
                         }
                     } else {
-                        delete er.sns;
+                        delete _oRule.sns;
                     }
                     break;
                 case 'group':
-                    if (er.scope.group !== 'Y') {
+                    if (_oRule.scope.group === 'Y') {
+                        if (!_oRule.group) {
+                            this.chooseGroupApp();
+                        }
+                    } else {
                         if (false === this.removeGroupApp()) {
-                            er.scope.group = 'Y';
+                            _oRule.scope.group = 'Y';
                         }
                     }
                     break;
                 case 'enroll':
-                    if (er.scope.enroll !== 'Y') {
+                    if (_oRule.scope.enroll === 'Y') {
+                        if (!_oRule.enroll) {
+                            this.chooseEnrollApp();
+                        }
+                    } else {
                         if (false === this.removeEnrollApp()) {
-                            er.scope.enroll = 'Y';
+                            _oRule.scope.enroll = 'Y';
                         }
                     }
                     break;
             }
         };
+        this.save = function() {
+            http2.post('/rest/pl/fe/matter/updateEntryRule?matter=' + oMatter.id + ',' + oMatter.type, _oRule).then(function(rsp) {
+                if (true === http2.merge(_oRule, rsp.data)) {
+                    _bJumpModifyWatch = true;
+                }
+                _self.modified = false;
+                oMatter.entryRule = _oRule;
+            });
+        };
     }
 
-    return Tk;
+    return TK;
 }]);

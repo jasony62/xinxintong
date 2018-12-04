@@ -15,6 +15,9 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'srvSite', function($scope, htt
     $scope.switchSource = function(source) {
         $scope.source = source;
     };
+    http2.post('/rest/script/time', { html: { 'entryRule': '/views/default/pl/fe/_module/entryRule' } }).then(function(rsp) {
+        $scope.frameTemplates = { html: { 'entryRule': '/views/default/pl/fe/_module/entryRule.html?_=' + rsp.data.html.entryRule.time } };
+    });
     srvSite.get().then(function(oSite) {
         $scope.site = oSite;
         if (_missionId) {
@@ -24,63 +27,24 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'srvSite', function($scope, htt
         }
     });
 }]);
-ngApp.controller('ctrlSysTemplate', ['$scope', '$location', '$uibModal', 'http2', 'CstNaming', 'srvSite', function($scope, $location, $uibModal, http2, CstNaming, srvSite) {
+ngApp.controller('ctrlSysTemplate', ['$scope', '$location', '$uibModal', 'http2', 'CstNaming', 'srvSite', 'tkEntryRule', function($scope, $location, $uibModal, http2, CstNaming, srvSite, tkEntryRule) {
     var assignedScenario, _oProto, _oEntryRule, _oResult;
 
     assignedScenario = $location.search().scenario;
     $scope.result = _oResult = {
         proto: {
+            siteid: _siteId,
             entryRule: {
                 scope: {},
-                mschemas: [],
+                member: {},
             }
         }
     };
     $scope.proto = _oProto = $scope.result.proto;
-    $scope.entryRule = _oEntryRule = _oProto.entryRule;
+    _oEntryRule = _oProto.entryRule;
     $scope.$on('xxt.tms-datepicker.change', function(event, data) {
         _oProto[data.state] = data.value;
     });
-    $scope.chooseMschema = function() {
-        srvSite.chooseMschema({ id: '_pending', title: _oProto.title }, $scope.mission).then(function(result) {
-            var oChosen = result.chosen;
-            _oEntryRule.mschemas.push({ id: oChosen.id, title: oChosen.title });
-        });
-    };
-    $scope.removeMschema = function(oMschema) {
-        var mschemas = _oEntryRule.mschemas;
-        mschemas.splice(mschemas.indexOf(oMschema), 1);
-    };
-    $scope.chooseGroupApp = function() {
-        $uibModal.open({
-            templateUrl: 'chooseGroupApp.html',
-            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                $scope2.data = {
-                    app: null,
-                    round: null
-                };
-                $scope2.cancel = function() {
-                    $mi.dismiss();
-                };
-                $scope2.ok = function() {
-                    $mi.close($scope2.data);
-                };
-                var url = '/rest/pl/fe/matter/group/list?site=' + _siteId + '&size=999&cascaded=Y';
-                url += '&mission=' + _missionId;
-                http2.get(url).then(function(rsp) {
-                    $scope2.apps = rsp.data.apps;
-                });
-            }],
-            backdrop: 'static'
-        }).result.then(function(result) {
-            if (result.app) {
-                _oEntryRule.group = { id: result.app.id, title: result.app.title };
-                if (result.round) {
-                    _oEntryRule.group.round = { id: result.round.round_id, title: result.round.title };
-                }
-            }
-        });
-    };
     $scope.doCreate = function() {
         var url, data;
         var oConfig;
@@ -156,26 +120,6 @@ ngApp.controller('ctrlSysTemplate', ['$scope', '$location', '$uibModal', 'http2'
             elSimulator.contentWindow.renew(oPage.name, {});
         }
     };
-    $scope.changeUserScope = function() {
-        switch (_oEntryRule.scope) {
-            case 'group':
-                if (!_oEntryRule.group) {
-                    $scope.chooseGroupApp();
-                }
-                break;
-            case 'member':
-                if (!_oEntryRule.mschemas || _oEntryRule.mschemas.length === 0) {
-                    $scope.chooseMschema();
-                }
-                break;
-            case 'sns':
-                _oEntryRule.sns = {};
-                $scope.snsNames.forEach(function(snsName) {
-                    _oEntryRule.sns[snsName] = true;
-                });
-                break;
-        }
-    };
     /*系统模版*/
     http2.get('/rest/pl/fe/matter/enroll/template/list').then(function(rsp) {
         var oScenarioes = rsp.data,
@@ -196,8 +140,7 @@ ngApp.controller('ctrlSysTemplate', ['$scope', '$location', '$uibModal', 'http2'
         }
     });
     srvSite.snsList().then(function(oSns) {
-        $scope.sns = oSns;
-        $scope.snsNames = Object.keys(oSns);
+        $scope.tkEntryRule = new tkEntryRule(_oProto, oSns, true);
     });
     if (_missionId) {
         $scope.$watch('mission', function(oMission) {
@@ -213,7 +156,7 @@ ngApp.controller('ctrlSysTemplate', ['$scope', '$location', '$uibModal', 'http2'
                                 oMschemasById[mschema.id] = mschema;
                             });
                             Object.keys(oMission.entryRule.member).forEach(function(mschemaId) {
-                                _oEntryRule.mschemas.push({ id: mschemaId, title: oMschemasById[mschemaId].title });
+                                _oEntryRule.member[mschemaId] = { title: oMschemasById[mschemaId].title };
                             });
                         });
                     }

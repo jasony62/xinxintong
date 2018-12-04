@@ -202,6 +202,29 @@ class base_model extends \TMS_MODEL {
 		return false;
 	}
 	/**
+	 * 检查素材进入规则
+	 */
+	public function scanEntryRule($oRule) {
+		$oCheckedRule = clone $oRule;
+		if ($this->getDeepValue($oRule, 'scope.member') === 'Y') {
+			if (empty($oRule->member) || empty((array) $oRule->member)) {
+				return [false, '进入规则不完整，没有指定作为进入条件的通信录'];
+			}
+		}
+		if ($this->getDeepValue($oRule, 'scope.group') === 'Y') {
+			if (empty($oRule->group->id)) {
+				return [false, '进入规则不完整，没有指定作为进入条件的分组活动'];
+			}
+		}
+		if ($this->getDeepValue($oRule, 'scope.enroll') === 'Y') {
+			if (empty($oRule->enroll->id)) {
+				return [false, '进入规则不完整，没有指定作为进入条件的记录活动'];
+			}
+		}
+
+		return [true, $oCheckedRule];
+	}
+	/**
 	 * 删除素材
 	 */
 	public function remove($oUser, $oMatter, $mode = 'Recycle') {

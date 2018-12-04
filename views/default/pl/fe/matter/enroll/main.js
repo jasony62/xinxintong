@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlMain', ['$scope', '$anchorScroll', 'http2', '$uibModal', 'noticebox', 'srvSite', 'srvEnrollApp', 'srvTag', function($scope, $anchorScroll, http2, $uibModal, noticebox, srvSite, srvEnrollApp, srvTag) {
+    ngApp.provider.controller('ctrlMain', ['$scope', '$anchorScroll', 'http2', 'noticebox', 'srvEnrollApp', 'srvTag', function($scope, $anchorScroll, http2, noticebox, srvEnrollApp, srvTag) {
         $scope.assignMission = function() {
             srvEnrollApp.assignMission().then(function(mission) {});
         };
@@ -63,8 +63,8 @@ define(['frame'], function(ngApp) {
             });
         });
     }]);
-    ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'srvSite', 'srvEnrollApp', 'srvEnrollSchema', 'tkEntryRule', 'tkGroupApp', function($scope, $uibModal, srvSite, srvEnlApp, srvEnrollSchema, tkEntryRule, tkGroupApp) {
-        var _oApp, _oAppRule;
+    ngApp.provider.controller('ctrlAccess', ['$scope', 'srvEnrollApp', 'tkEntryRule', function($scope, srvEnlApp, tkEntryRule) {
+        var _oApp, _oRule;
         $scope.isInputPage = function(pageName) {
             if (!$scope.app) {
                 return false;
@@ -77,28 +77,28 @@ define(['frame'], function(ngApp) {
             return false;
         };
         $scope.addExclude = function() {
-            if (!_oAppRule.exclude) {
-                _oAppRule.exclude = [];
+            if (!_oRule.exclude) {
+                _oRule.exclude = [];
             }
-            _oAppRule.exclude.push('');
+            _oRule.exclude.push('');
         };
         $scope.removeExclude = function(index) {
-            _oAppRule.exclude.splice(index, 1);
-            $scope.configExclude();
+            _oRule.exclude.splice(index, 1);
+            $scope.updateRule();
         };
-        $scope.configExclude = function() {
+        $scope.updateRule = function() {
             $scope.update('entryRule');
         };
         srvEnlApp.get().then(function(oApp) {
             $scope.jumpPages = srvEnlApp.jumpPages();
             _oApp = oApp;
             $scope.tkEntryRule = new tkEntryRule(oApp, $scope.sns);
-            $scope.rule = _oAppRule = oApp.entryRule;
-            $scope.$watch('app.entryRule', function(nv, ov) {
-                if (nv && nv !== ov) {
-                    $scope.update('entryRule');
-                }
-            }, true);
+            $scope.rule = _oRule = oApp.entryRule;
+        });
+        $scope.$watch('app.entryRule', function(nv, ov) {
+            if (nv && nv !== ov) {
+                srvEnlApp.renew(['enrollApp', 'groupApp']);
+            }
         });
     }]);
 });

@@ -121,7 +121,7 @@ class main extends \site\fe\base {
 		if ($cookieRegUser) {
 			$rst = $modelWay->update(
 				'account',
-				['nickname' => $data->nickname],
+				['nickname' => $modelWay->escape($data->nickname)],
 				['uid' => $cookieRegUser->unionid]
 			);
 			$cookieRegUser->nickname = $data->nickname;
@@ -131,7 +131,7 @@ class main extends \site\fe\base {
 		/* 更新站点用户信息 */
 		$modelUsr = $this->model('site\user\account');
 		if ($oAccount = $modelUsr->byId($user->uid)) {
-			$modelUsr->changeNickname($this->siteId, $oAccount->uid, $data->nickname);
+			$modelUsr->changeNickname($this->siteId, $oAccount->uid, $modelUsr->escape($data->nickname));
 		}
 		$cookieUser = $modelWay->getCookieUser($this->siteId);
 		$cookieUser->nickname = $data->nickname;

@@ -19,6 +19,7 @@ $sql .= ",pic text null"; // 分享或生成链接时的图片
 $sql .= ",mission_id int not null default 0"; // 所属项目
 $sql .= ",scenario varchar(255) not null default ''"; // 记录活动场景
 $sql .= ",scenario_config text null"; // 记录活动场景的配置参数
+$sql .= ",vote_config text null"; // 记录活动投票设置
 $sql .= ",round_cron text null"; // 定时创建轮次规则
 $sql .= ",sync_mission_round char(1) not null default 'N'"; // 和项目轮次同步
 $sql .= ",count_limit int not null default 0"; // 限制登记次数，0不限制
@@ -99,7 +100,7 @@ $sql .= ",end_at int not null"; // 轮次结束时间
 $sql .= ",title varchar(70) not null default ''"; // 分享或生成链接时的标题
 $sql .= ",summary varchar(240)"; // 分享或生成链接时的摘要
 $sql .= ",state tinyint not null default 0"; // 0:新建|1:启用|2:停用|100:删除
-$sql .= ",purpose char(1) not null default 'C'"; // Common:常规的|Baseline:基准的|Summary:汇总的
+$sql .= ",purpose char(1) not null default 'C'"; // Common:填写的|Baseline:目标的|Summary:汇总的
 $sql .= ",mission_rid varchar(13) not null default ''"; // 关联的项目轮次
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
@@ -114,14 +115,10 @@ $sql .= "id int not null auto_increment";
 $sql .= ",aid varchar(40) not null";
 $sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",rid varchar(13) not null default ''";
-$sql .= ",purpose char(1) not null default 'C'"; // Common:常规的|Baseline:基准的|Summary:汇总的
+$sql .= ",purpose char(1) not null default 'C'"; // Common:填写的|Baseline:目标的|Summary:汇总的
 $sql .= ",group_id varchar(32) not null default ''"; // 用户分组id
 $sql .= ",userid varchar(40) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
-$sql .= ",wx_openid varchar(255) not null default ''";
-$sql .= ",yx_openid varchar(255) not null default ''";
-$sql .= ",qy_openid varchar(255) not null default ''";
-$sql .= ",headimgurl varchar(255) not null default ''";
 $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",enroll_at int not null"; // 填写报名信息时间
 $sql .= ",first_enroll_at int not null"; // 填写报名信息时间
@@ -148,6 +145,8 @@ $sql .= ",dislike_log longtext"; // 反对日志 {userid:dislikeAt}
 $sql .= ",dislike_num int not null default 0"; // 反对数
 $sql .= ",dislike_data_num int not null default 0"; // 记录的数据反对数
 $sql .= ",favor_num int not null default 0"; // 收藏数
+$sql .= ",vote_schema_num int not null default 0"; // 所有题目获得的投票数（不含协作填写）
+$sql .= ",vote_cowork_num int not null default 0"; // 协作填写数据获得投票数
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -160,7 +159,7 @@ $sql = "create table if not exists xxt_enroll_record_data(";
 $sql .= "id int not null auto_increment";
 $sql .= ",aid varchar(40) not null";
 $sql .= ",rid varchar(13) not null default ''";
-$sql .= ",purpose char(1) not null default 'C'"; // Common:常规的|Baseline:基准的|Summary:汇总的
+$sql .= ",purpose char(1) not null default 'C'"; // Common:填写的|Baseline:目标的|Summary:汇总的
 $sql .= ",group_id varchar(32) not null default ''"; // 用户分组id
 $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",submit_at int not null default 0"; // 数据的提交时间，和modify_log中的数据对应
@@ -178,10 +177,11 @@ $sql .= ",score float not null default 0"; // 登记项获得的分数
 $sql .= ",modify_log longtext null"; // 数据修改日志
 $sql .= ",like_log longtext null"; // 点赞日志 {userid:likeAt}
 $sql .= ",like_num int not null default 0"; // 点赞数
-$sql .= ",dislike_log longtext null"; // 点赞日志 {userid:likeAt}
-$sql .= ",dislike_num int not null default 0"; // 点赞数
+$sql .= ",dislike_log longtext null"; // 点踩日志 {userid:likeAt}
+$sql .= ",dislike_num int not null default 0"; // 点踩数
 $sql .= ",agreed char(1) not null default ''"; // 是否赞同（Y：推荐，N：屏蔽，A(ccept)：接受）
 $sql .= ",agreed_log text null"; // 推荐日志
+$sql .= ",vote_num int not null default 0"; // 获得投票数
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -312,7 +312,7 @@ $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",aid varchar(40) not null";
 $sql .= ",rid varchar(13) not null default ''"; // 登记轮次，ALL代表累计的数据，每个轮次有单独轮次的记录，如果没有设置轮次，轮次rid为空字符串
-$sql .= ",purpose char(1) not null default 'C'"; // Common:常规的|Baseline:基准的|Summary:汇总的
+$sql .= ",purpose char(1) not null default 'C'"; // Common:填写的|Baseline:目标的|Summary:汇总的
 $sql .= ",group_id varchar(32) not null default ''"; // 用户分组id
 $sql .= ",userid varchar(40) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
@@ -374,6 +374,10 @@ $sql .= ",do_cowork_read_num int not null default 0"; // 阅读谈论页的次�
 $sql .= ",cowork_read_num int not null default 0"; // 谈论页被阅读的次数
 $sql .= ",do_cowork_read_elapse int not null default 0"; // 阅读谈论页的时长
 $sql .= ",cowork_read_elapse int not null default 0"; //
+$sql .= ",vote_schema_num int not null default 0"; // 题目获得投票的次数
+$sql .= ",last_vote_schema_at int not null default 0"; // 最后一次题目获得投票的时间
+$sql .= ",vote_cowork_num int not null default 0"; // 协作填写获得投票的次数
+$sql .= ",last_vote_cowork_at int not null default 0"; // 最后一次协作填写获得投票的时间
 $sql .= ",user_total_coin int not null default 0"; // 用户在活动中的轮次上的总积分
 $sql .= ",score float default 0 COMMENT '得分'"; //
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除,101:用户删除;
@@ -420,6 +424,26 @@ $sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",record_id int not null"; // 填写记录的ID
 $sql .= ",favor_unionid varchar(40) not null"; // 用户的注册账号ID
 $sql .= ",favor_at int not null"; // 收藏填写的时间
+$sql .= ",state tinyint not null default 1";
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 填写记录的投票记录
+ */
+$sql = "create table if not exists xxt_enroll_vote(";
+$sql .= "id bigint not null auto_increment";
+$sql .= ",aid varchar(40) not null";
+$sql .= ",rid varchar(13) not null";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",record_id int not null"; // 填写记录的ID
+$sql .= ",data_id int not null"; // 填写记录的ID
+$sql .= ",schema_id varchar(40) not null"; // 题目的ID
+$sql .= ",vote_at int not null"; // 收藏填写的时间
+$sql .= ",userid varchar(40) not null";
+$sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",state tinyint not null default 1";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
@@ -680,10 +704,6 @@ $sql .= ",aid varchar(40) not null";
 $sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",userid varchar(40) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
-$sql .= ",wx_openid varchar(255) not null default ''";
-$sql .= ",yx_openid varchar(255) not null default ''";
-$sql .= ",qy_openid varchar(255) not null default ''";
-$sql .= ",headimgurl varchar(255) not null default ''";
 $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",enroll_at int not null"; // 填写报名信息时间
 $sql .= ",signin_at int not null default 0"; // 签到时间
@@ -803,10 +823,6 @@ $sql .= ",aid varchar(40) not null";
 $sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",userid varchar(40) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
-$sql .= ",wx_openid varchar(255) not null default ''";
-$sql .= ",yx_openid varchar(255) not null default ''";
-$sql .= ",qy_openid varchar(255) not null default ''";
-$sql .= ",headimgurl varchar(255) not null default ''";
 $sql .= ",is_leader char(1) not null default 'N'"; // 人员分组中的用户角色，N：组员，Y：组长，S：超级用户
 $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",enroll_at int not null"; // 填写报名信息时间

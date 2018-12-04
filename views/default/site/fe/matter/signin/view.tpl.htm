@@ -13,15 +13,22 @@
     <style ng-if="page.css" ng-bind='page.css'></style>
 </head>
 
-<body>
+<body ng-controller='ctrlView'>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <div ng-cloak class='ng-cloak app'>
         <div class='container'>
-            <div class='row' ng-controller='ctrlView' dynamic-html="page.html">
+            <div class='row' dynamic-html="page.html">
             </div>
         </div>
     </div>
+    <nav class="navbar site-navbar-tab navbar-default navbar-fixed-bottom">
+        <div class="container-fluid text-center">
+            <div class='btn-group'>
+                <button ng-repeat="act in page.actSchemas" class="btn btn-default navbar-btn" ng-click="doAction($event,act)"><span>{{::act.label}}</span></button>
+            </div>
+        </div>
+    </nav>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
     <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
     <div class="loading">
@@ -30,7 +37,6 @@
     <script src="/static/js/xxt.ui.error.js"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
-    <script src="/static/js/resumable.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/signin/view.js');?>"></script>
 </body>
 

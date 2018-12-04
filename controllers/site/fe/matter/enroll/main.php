@@ -3,7 +3,7 @@ namespace site\fe\matter\enroll;
 
 include_once dirname(__FILE__) . '/base.php';
 /**
- * 登记活动
+ * 记录活动
  */
 class main extends base {
 	/**
@@ -25,11 +25,12 @@ class main extends base {
 	 *
 	 */
 	public function index_action($app, $rid = '', $page = '', $ek = null, $topic = null, $ignoretime = 'N') {
-		empty($app) && $this->outputError('登记活动ID为空');
-
 		$oApp = $this->modelApp->byId($app, ['cascaded' => 'N']);
 		if ($oApp === false || $oApp->state !== '1') {
-			$this->outputError('指定的登记活动不存在，请检查参数是否正确');
+			$this->outputError('指定的记录活动不存在，请检查参数是否正确');
+		}
+		if (empty($oApp->appRound)) {
+			$this->outputError('【' . $oApp->title . '】没有可用的填写轮次，请检查');
 		}
 
 		/* 检查是否需要第三方社交帐号OAuth */
@@ -48,7 +49,7 @@ class main extends base {
 			$this->checkEntryRule($oApp, true);
 		}
 
-		/* 返回登记活动页面 */
+		/* 返回记录活动页面 */
 		if (in_array($page, ['cowork', 'share', 'event', 'kanban', 'rank', 'score', 'votes', 'marks', 'repos', 'favor', 'topic', 'stat'])) {
 			if ($page === 'topic' && empty($topic)) {
 				$this->outputError('参数不完整，无法访问专题页');
@@ -91,8 +92,6 @@ class main extends base {
 				$outputUrl = '/site/fe/matter/enroll/input';
 			} else if ($oOpenPage->type === 'V') {
 				$outputUrl = '/site/fe/matter/enroll/view';
-			} else if ($oOpenPage->type === 'L') {
-				$outputUrl = '/site/fe/matter/enroll/list';
 			}
 		}
 
@@ -158,9 +157,9 @@ class main extends base {
 		return [true];
 	}
 	/**
-	 * 登记活动是否可用
+	 * 记录活动是否可用
 	 *
-	 * @param object $app 登记活动
+	 * @param object $app 记录活动
 	 */
 	private function _isValid(&$oApp) {
 		$tipPage = false;
@@ -235,7 +234,9 @@ class main extends base {
 			// 根据进入规则确定进入页面
 			$aResult = $this->checkEntryRule($oApp, $redirect);
 			if (true === $aResult[0]) {
-				$oOpenPage = $modelPage->byName($oApp, $aResult[1]);
+				if (!empty($aResult[1])) {
+					$oOpenPage = $modelPage->byName($oApp, $aResult[1]);
+				}
 			}
 		}
 
@@ -248,7 +249,7 @@ class main extends base {
 		return $oOpenPage;
 	}
 	/**
-	 * 返回登记活动定义
+	 * 返回记录活动定义
 	 *
 	 * @param string $appid
 	 * @param string $rid
@@ -268,8 +269,6 @@ class main extends base {
 		if ($oApp === false || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-		//$oApp->dataSchemas = $oApp->dynaDataSchemas;
-		/* 应用的动态题目 */
 		if (isset($oApp->appRound->rid)) {
 			$rid = $oApp->appRound->rid;
 		}
@@ -360,7 +359,7 @@ class main extends base {
 	public function entryRule_action($app) {
 		$oApp = $this->modelApp->byId($app, ['cascaded' => 'N']);
 		if ($oApp === false) {
-			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
+			return new \ResponseError('指定的记录活动不存在，请检查参数是否正确');
 		}
 
 		$oEntryRuleResult = $this->checkEntryRule2($oApp);

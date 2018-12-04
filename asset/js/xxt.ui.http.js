@@ -73,7 +73,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
      * 合并两个对象
      * 解决将通过http获得的数据和本地数据合并的问题
      */
-    function _fnMerge(oOld, oNew) {
+    function _fnMerge(oOld, oNew, aExcludeProps) {
         if (!oOld) {
             oOld = oNew;
         } else if (angular.isArray(oOld)) {
@@ -89,6 +89,9 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
             }
         } else if (angular.isObject(oOld)) {
             for (var prop in oOld) {
+                if (aExcludeProps && aExcludeProps.indexOf(prop) !== -1) {
+                    continue;
+                }
                 if (oNew[prop] === undefined) {
                     delete oOld[prop];
                 } else {
@@ -100,13 +103,16 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
                 }
             }
             for (var prop in oNew) {
+                if (aExcludeProps && aExcludeProps.indexOf(prop) !== -1) {
+                    continue;
+                }
                 if (oOld[prop] === undefined) {
                     oOld[prop] = oNew[prop];
                 }
             }
         }
 
-        return oOld;
+        return true;
     }
 
     this.get = function(url, oOptions) {
@@ -272,7 +278,10 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
      * 合并两个对象
      * 解决将通过http获得的数据和本地数据合并的问题
      */
-    this.merge = function(oOld, oNew) {
-        return _fnMerge(oOld, oNew);
+    this.merge = function(oOld, oNew, aExcludeProps) {
+        if (angular.equals(oOld, oNew)) {
+            return false;
+        }
+        return _fnMerge(oOld, oNew, aExcludeProps);
     };
 }]);

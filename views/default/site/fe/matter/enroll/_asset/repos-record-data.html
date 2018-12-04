@@ -1,6 +1,6 @@
 <div ng-if="rec">
     <div ng-repeat="schema in schemas" class='schema' ng-class="{'cowork':schema.cowork==='Y'}" ng-if="rec.data[schema.id]||schema.cowork==='Y'" ng-switch on="schema.type">
-        <div class='text-muted data-title'>{{schema.title}}</div>
+        <div class='text-muted data-title'><span>{{::schema.title}}</span></div>
         <div ng-switch-when="file">
             <div ng-repeat="file in rec.data[schema.id]" ng-switch on="file.type">
                 <video ng-switch-when="video" controls="controls" preload="none">
@@ -32,9 +32,18 @@
             </ul>
         </div>
         <div ng-switch-when="multitext">
-            <ul ng-if="rec.data[schema.id]" style='padding-left:20px'>
-                <li ng-repeat="item in rec.data[schema.id]"><span dynamic-html="item.value"></span></li>
-            </ul>
+            <div ng-repeat="item in rec.data[schema.id]">
+                <div class='top-bar tms-flex-row'>
+                    <div class='seq tms-flex-grow text-muted'>#<span ng-bind="item.multitext_seq"></span></div>
+                    <span ng-if="item.voteResult&&item.voteResult.state!=='BS'">得票：<span ng-bind="item.voteResult.vote_num"></span>&nbsp;&nbsp;</span>
+                    <button ng-if="item.voteResult.state==='IP'&&item.voteResult.vote_at==0" class='btn btn-default btn-xs' ng-click="vote(item)"><span class='glyphicon glyphicon-triangle-top'></span> 投票</button>
+                    <button ng-if="item.voteResult.state==='IP'&&item.voteResult.vote_at>0" class='btn btn-default btn-xs' ng-click="unvote(item)"><span class='glyphicon glyphicon-triangle-bottom'></span> 取消投票</button>
+                </div>
+                <blockquote>
+                    <p dynamic-html="item.value"></p>
+                    <footer>{{item.nickname}}</footer>
+                </blockquote>
+            </div>
         </div>
         <div ng-switch-when="single"><span ng-bind="rec.data[schema.id]"></span></div>
         <div ng-switch-when="multiple"><span ng-bind="rec.data[schema.id]"></span></div>
@@ -52,5 +61,6 @@
             </button>
         </div>
         <div ng-if="schema.supplement==='Y'&&rec.supplement[schema.id]" class='supplement' ng-bind-html="rec.supplement[schema.id]"></div>
+        <div ng-if="rec.voteResult[schema.id]"><span ng-if="rec.voteResult[schema.id].state!=='BS'">得票：<span ng-bind="rec.voteResult[schema.id].vote_num"></span></span><span ng-if="rec.voteResult[schema.id].state==='IP'">&nbsp;&nbsp;<button ng-if="rec.voteResult[schema.id].vote_at==0" class='btn btn-default btn-xs' ng-click="vote(rec.voteResult[schema.id])"><span class='glyphicon glyphicon-triangle-top'></span> 投票</button><button ng-if="rec.voteResult[schema.id].vote_at>0" class='btn btn-default btn-xs' ng-click="unvote(rec.voteResult[schema.id])"><span class='glyphicon glyphicon-triangle-bottom'></span> 撤销投票</button></span></div>
     </div>
 </div>

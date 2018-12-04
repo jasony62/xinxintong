@@ -124,9 +124,9 @@ class record_model extends record_base {
 
 		$this->update('xxt_enroll_record', $oUpdatedRec, ['enroll_key' => $ek]);
 
-		$oRecord->data = $oUpdatedRec->data = $oResult->dbData;
+		$oUpdatedRec->data = $oResult->dbData;
 		if (isset($oResult->score)) {
-			$oRecord->score = $oUpdatedRec->score = $oResult->score;
+			$oUpdatedRec->score = $oResult->score;
 		}
 		unset($oUpdatedRec->submit_log);
 
@@ -160,7 +160,7 @@ class record_model extends record_base {
 				$q[2]['rid'][] = $oRnd->rid;
 			}
 		}
-		/* 只有数值题可以作为基准 */
+		/* 只有数值题可以有目标值 */
 		foreach ($oApp->dynaDataSchemas as $oSchema) {
 			if ($oSchema->type === 'shorttext' && $this->getDeepValue($oSchema, 'format') === 'number') {
 				$q[2]['schema_id'] = $oSchema->id;
@@ -229,10 +229,10 @@ class record_model extends record_base {
 			$oRecord->verbose = $this->model('matter\enroll\data')->byRecord($oRecord->enroll_key);
 		}
 		if (!empty($oRecord->rid)) {
-			$oRecord->round = new \stdClass;
-			if ($round = $this->model('matter\enroll\round')->byId($oRecord->rid, ['fields' => 'title'])) {
-				$oRecord->round->title = $round->title;
+			if ($oRound = $this->model('matter\enroll\round')->byId($oRecord->rid, ['fields' => 'title,state,start_at,end_at,purpose'])) {
+				$oRecord->round = $oRound;
 			} else {
+				$oRecord->round = new \stdClass;
 				$oRecord->round->title = '';
 			}
 		}
@@ -479,7 +479,7 @@ class record_model extends record_base {
 		return $records;
 	}
 	/**
-	 * 获得指定轮次的基线记录
+	 * 获得指定轮次的目标值记录
 	 */
 	public function baselineByRound($userid, $oRound) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : 'data,score,rid';
@@ -749,7 +749,7 @@ class record_model extends record_base {
 		if (!empty($oOptions->fields)) {
 			$fields = $oOptions->fields;
 		} else {
-			$fields = 'id,enroll_key,rid,enroll_at,userid,group_id,nickname,wx_openid,yx_openid,qy_openid,headimgurl,verified,comment,data,score,supplement,agreed,like_num,like_log,remark_num,favor_num,dislike_num,dislike_log';
+			$fields = 'id,enroll_key,rid,enroll_at,userid,group_id,nickname,verified,comment,data,score,supplement,agreed,like_num,like_log,remark_num,favor_num,dislike_num,dislike_log';
 		}
 		$q = [$fields, "xxt_enroll_record r", $w];
 
@@ -779,6 +779,12 @@ class record_model extends record_base {
 						case 'agreed':
 							$sqls[] = 'r.agreed desc';
 							break;
+						case 'vote_schema_num':
+							$sqls[] = 'r.vote_schema_num desc';
+							break;
+						case 'vote_cowork_num':
+							$sqls[] = 'r.vote_cowork_num desc';
+							break;
 						case 'like_num':
 							$sqls[] = 'r.like_num desc';
 							break;
@@ -787,6 +793,12 @@ class record_model extends record_base {
 							break;
 						case 'enroll_at asc':
 							$sqls[] = 'r.enroll_at';
+							break;
+						case 'first_enroll_at desc':
+							$sqls[] = 'r.first_enroll_at desc';
+							break;
+						case 'first_enroll_at asc':
+							$sqls[] = 'r.first_enroll_at';
 							break;
 						}
 					}
@@ -971,7 +983,7 @@ class record_model extends record_base {
 					if (!isset($modelRnd)) {
 						$modelRnd = $this->model('matter\enroll\round');
 					}
-					$round = $modelRnd->byId($oRec->rid, ['fields' => 'title']);
+					$round = $modelRnd->byId($oRec->rid, ['fields' => 'title,purpose,start_at,end_at,state']);
 					$aRoundsById[$oRec->rid] = $round;
 				} else {
 					$round = $aRoundsById[$oRec->rid];

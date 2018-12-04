@@ -1,0 +1,14 @@
+<div>
+    <div class="site-dropdown" uib-dropdown >
+        <a href uib-dropdown-toggle class="site-dropdown-title" ng-class="{'active': checked.value!==data.default.value}">
+            <span>{{checked.title}}</span>
+            <i class="glyphicon glyphicon-menu-up"></i>
+        </a>
+        <ul class="dropdown-menu site-dropdown-menu" uib-dropdown-menu>
+            <li ng-repeat="menu in data.menus">
+                <a href ng-click="select(menu.value)" ng-class="{'active': criteria.value==menu.value&&menu.value!==data.default.value}" ng-bind="menu.title"></a>
+            </li>
+        </ul>
+    </div>
+</div>
+

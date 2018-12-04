@@ -116,8 +116,8 @@
                         <button class='btn btn-default btn-xs' ng-click="unassocWithOtherApp(schema) "><span class='glyphicon glyphicon-remove'></span></button>
                     </div>
                 </div>
-                <div ng-if="schema.schema_id">
-                    <div class='hint text-muted'>用通讯录【<span>{{mschemasById[schema.schema_id].title}}</span>】中【<span>{{mschemasById[schema.schema_id]._schemasById[schema.id].title}}</span>】自动填写
+                <div ng-if="schema.mschema_id">
+                    <div class='hint text-muted'>用通讯录【<span>{{mschemasById[schema.mschema_id].title}}</span>】中【<span>{{mschemasById[schema.mschema_id]._schemasById[schema.id].title}}</span>】自动填写
                         <button class='btn btn-default btn-xs' ng-click="unassocWithMschema(schema) "><span class='glyphicon glyphicon-remove'></span></button>
                     </div>
                 </div>
@@ -126,6 +126,9 @@
                     <span class='text-danger small' ng-if="schema.shareable==='Y'">共享</span>
                     <span class='text-danger small' ng-if="schema.visibility.rules.length">可见条件</span>
                     <span class='text-danger small' ng-if="schema.requireScore==='Y'">计分</span>
+                    <span class='text-danger small' ng-if="schema.hideByRoundPurpose&&schema.hideByRoundPurpose.indexOf('C')!==-1">填写轮不显示</span>
+                    <span class='text-danger small' ng-if="schema.hideByRoundPurpose&&schema.hideByRoundPurpose.indexOf('B')!==-1">目标轮不显示</span>
+                    <span class='text-danger small' ng-if="schema.hideByRoundPurpose&&schema.hideByRoundPurpose.indexOf('S')!==-1">汇总轮不显示</span>
                 </div>
             </div>
         </div>
@@ -144,35 +147,35 @@
     <!-- end schema list -->
     <nav class='navbar navbar-default navbar-fixed-bottom visible-xs-block'>
         <div class='container-fluid'>
-            <button class='btn navbar-btn btn-default' uib-popover-template=" 'schemaProto.html' " popover-placement="top-left " popover-trigger="show " popover-title=" " ng-click="showSchemaProto($event) ">添加</button>
-            <button class="btn navbar-btn btn-default " ng-if="['single','multiple','score'].indexOf(activeSchema.type)!==-1 " ng-click="addOption(activeSchema) ">添加选项</button>
-            <button class="btn navbar-btn btn-default " ng-click="copySchema(activeSchema) ">复制</button>
-            <button class='btn navbar-btn btn-default' ng-click="upSchema(activeSchema) "><span class='glyphicon glyphicon-arrow-up'></span></button>
-            <button class='btn navbar-btn btn-default' ng-click="downSchema(activeSchema) "><span class='glyphicon glyphicon-arrow-down'></span></button>
-            <button class='btn navbar-btn btn-default' ng-click="removeSchema(activeSchema) "><span class='glyphicon glyphicon-trash'></span></button>
+            <button class='btn navbar-btn btn-default' uib-popover-template="'schemaProto.html'" popover-placement="top-left" popover-trigger="show" popover-title="" ng-click="showSchemaProto($event)">添加</button>
+            <button class="btn navbar-btn btn-default" ng-if="['single','multiple','score'].indexOf(activeSchema.type)!==-1 " ng-click="addOption(activeSchema) ">添加选项</button>
+            <button class="btn navbar-btn btn-default" ng-click="copySchema(activeSchema)">复制</button>
+            <button class='btn navbar-btn btn-default' ng-click="upSchema(activeSchema)"><span class='glyphicon glyphicon-arrow-up'></span></button>
+            <button class='btn navbar-btn btn-default' ng-click="downSchema(activeSchema)"><span class='glyphicon glyphicon-arrow-down'></span></button>
+            <button class='btn navbar-btn btn-default' ng-click="removeSchema(activeSchema)"><span class='glyphicon glyphicon-trash'></span></button>
         </div>
     </nav>
 </div>
-<script type="text/ng-template " id="schemaProto.html ">
+<script type="text/ng-template" id="schemaProto.html">
     <div class='flexrow'>
-        <button class='btn btn-default' ng-click="newSchema( 'shorttext') ">单行文本</button>
-        <button class='btn btn-default' ng-click="newSchema( 'longtext') ">多行文本</button>
-        <button class='btn btn-default' ng-click="newSchema( 'date') ">日期</button>
+        <button class='btn btn-default' ng-click="newSchema('shorttext')">单行文本</button>
+        <button class='btn btn-default' ng-click="newSchema('longtext')">多行文本</button>
+        <button class='btn btn-default' ng-click="newSchema('date')">日期</button>
     </div>
     <div class='flexrow'>
-        <button class='btn btn-default' ng-click="newSchema( 'single') ">单选题</button>
-        <button class='btn btn-default' ng-click="newSchema( 'multiple') ">多选题</button>
+        <button class='btn btn-default' ng-click="newSchema('single')">单选题</button>
+        <button class='btn btn-default' ng-click="newSchema('multiple')">多选题</button>
     </div>
     <div class='flexrow'>
-        <button class='btn btn-default' ng-click="newSchema( 'image') ">上传图片</button>
-        <button class='btn btn-default' ng-click="newSchema( 'file') ">上传文件</button>
-        <button class='btn btn-default' ng-click="newSchema( 'location') ">上传位置</button>
+        <button class='btn btn-default' ng-click="newSchema('image')">上传图片</button>
+        <button class='btn btn-default' ng-click="newSchema('file')">上传文件</button>
+        <button class='btn btn-default' ng-click="newSchema('location')">上传位置</button>
     </div>
     <div class='flexrow'>
-        <button class='btn btn-default' ng-click="newSchema( 'score') ">打分题</button>
+        <button class='btn btn-default' ng-click="newSchema('score')">打分题</button>
     </div>
     <div class='flexrow'>
-        <button class='btn btn-default' ng-click="newSchema( 'html') ">描述说明</button>
+        <button class='btn btn-default' ng-click="newSchema('html')">描述说明</button>
     </div>
 </script>
 <script type="text/ng-template" id="newMedia.html">

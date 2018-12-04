@@ -1,18 +1,87 @@
+.app {
+	margin-bottom: 65px;
+}
+
+.navbar-fixed-bottom button+button {
+	margin-left: 8px;
+}
+
 /* default form style*/
-div[wrap].wrap-splitline{padding-bottom:0.5em;border-bottom:1px dotted #ccc;}
-div[wrap].wrap-inline>*{display:inline-block;vertical-align:top;margin:0 1em 0 0;}
-div[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
-div[wrap][schema-type=image] ul{list-style:none;padding:0;margin:0;max-width:50%;}
-div[wrap][schema-type=multitext] ul,div[wrap][schema-type=file] ul{padding-left:20px;}
-div[schema-type=image]>ul>li>img{width:100%;}
-div[wrap=matter]>span{cursor:pointer;text-decoration:underline;}
-div[wrap] .supplement{font-style:italic;margin-top:1em;}
-div[wrap] .schema-score,div[wrap] .schema-baseline{font-size:.8em;color:red;}
-div[wrap] .schema-score:before{content:'得分:';}
-div[wrap] .schema-baseline:before{content:'基线:';}
+div[wrap].wrap-splitline {
+	padding-bottom: 0.5em;
+	border-bottom: 1px dotted #ccc;
+}
+
+div[wrap].wrap-inline>* {
+	display: inline-block;
+	vertical-align: top;
+	margin: 0 1em 0 0;
+}
+
+div[wrap].wrap-inline>label {
+	width: 6em;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+div[wrap][schema-type=image] ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	max-width: 50%;
+}
+
+div[wrap][schema-type=multitext] ul, div[wrap][schema-type=file] ul {
+	padding-left: 20px;
+}
+
+div[schema-type=image]>ul>li>img {
+	width: 100%;
+}
+
+div[wrap=matter]>span {
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+div[wrap] .supplement {
+	font-style: italic;
+	margin-top: 1em;
+}
+
+div[wrap] .schema-score, div[wrap] .schema-baseline {
+	font-size: .8em;
+	color: red;
+}
+
+div[wrap] .schema-score:before {
+	content: '得分:';
+}
+
+div[wrap] .schema-baseline:before {
+	content: '目标:';
+}
 
 /*list*/
-li .wrap-inline>label{padding:7px 0;color:#444;}
-li .wrap-inline{border-bottom:1px dashed #efefef;}
-li .wrap-inline:last-child{border-bottom:0;}
-.tag{background:#3af;padding:4px 6px;margin:4px;border-radius:2px;font-size:.8em;color:#fff;}
+li .wrap-inline>label {
+	padding: 7px 0;
+	color: #444;
+}
+
+li .wrap-inline {
+	border-bottom: 1px dashed #efefef;
+}
+
+li .wrap-inline:last-child {
+	border-bottom: 0;
+}
+
+.tag {
+	background: #3af;
+	padding: 4px 6px;
+	margin: 4px;
+	border-radius: 2px;
+	font-size: .8em;
+	color: #fff;
+}

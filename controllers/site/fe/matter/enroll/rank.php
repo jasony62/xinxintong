@@ -75,6 +75,16 @@ class rank extends base {
 			$q[2] .= ' and u.score>0';
 			$q2 = ['o' => 'score desc'];
 			break;
+		case 'vote_schema':
+			$q[0] .= ',sum(u.vote_schema_num) vote_schema_num';
+			$q[2] .= ' and u.vote_schema_num>0';
+			$q2 = ['o' => 'vote_schema_num desc'];
+			break;
+		case 'vote_cowork':
+			$q[0] .= ',sum(u.vote_cowork_num) vote_cowork_num';
+			$q[2] .= ' and u.vote_cowork_num>0';
+			$q2 = ['o' => 'vote_cowork_num desc'];
+			break;
 		}
 		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		$q2['g'] = ['userid'];
@@ -163,6 +173,12 @@ class rank extends base {
 		case 'score':
 		case 'average_score':
 			$sql .= 'sum(score)';
+			break;
+		case 'vote_schema':
+			$sql .= 'sum(vote_schema_num)';
+			break;
+		case 'vote_cowork':
+			$sql .= 'sum(vote_cowork_num)';
 			break;
 		default:
 			return new \ParameterError('不支持的排行数据类型【' . $oCriteria->orderby . '】');

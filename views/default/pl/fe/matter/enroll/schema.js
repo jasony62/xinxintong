@@ -43,7 +43,11 @@ define(['frame'], function(ngApp) {
                             },
                             options: oOptions
                         };
-                        http2.post('/rest/pl/fe/matter/enroll/import/endUpload?site=' + oApp.siteid + '&app=' + oApp.id, oPosted);
+                        http2.post('/rest/pl/fe/matter/enroll/import/endUpload?site=' + oApp.siteid + '&app=' + oApp.id, oPosted).then(function(rsp) {
+                            noticebox.close();
+                            noticebox.success('导入【' + rsp.data + '】条填写记录');
+                            $mi.dismiss('cancel');
+                        });
                     });
                     $timeout(function() {
                         oResu.assignBrowse(document.getElementById('btnImportByExcel'));

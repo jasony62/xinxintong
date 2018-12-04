@@ -12,7 +12,17 @@ abstract class enroll_base extends app_base {
 	protected function setEntryRuleByProto($oSite, &$oEntryRule, $oProtoEntryRule) {
 		if (isset($oProtoEntryRule->scope) && is_object($oProtoEntryRule->scope)) {
 			$oEntryRule->scope = $oProtoEntryRule->scope;
-			if (isset($oEntryRule->scope->group) && $oEntryRule->scope->group === 'Y') {
+			if ($this->getDeepValue($oEntryRule, 'scope.member') === 'Y') {
+				if (isset($oProtoEntryRule->member)) {
+					$oEntryRule->member = new \stdClass;
+					foreach ($oProtoEntryRule->member as $msid => $oMschema) {
+						$oRule = new \stdClass;
+						$oRule->entry = 'Y';
+						$oEntryRule->member->{$msid} = $oRule;
+					}
+				}
+			}
+			if ($this->getDeepValue($oEntryRule, 'scope.group') === 'Y') {
 				if (!empty($oProtoEntryRule->group->id)) {
 					$oEntryRule->group = (object) ['id' => $oProtoEntryRule->group->id];
 					if (!empty($oProtoEntryRule->group->round->id)) {
@@ -20,17 +30,12 @@ abstract class enroll_base extends app_base {
 					}
 				}
 			}
-			if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y') {
-				if (isset($oProtoEntryRule->mschemas)) {
-					$oEntryRule->member = new \stdClass;
-					foreach ($oProtoEntryRule->mschemas as $oMschema) {
-						$oRule = new \stdClass;
-						$oRule->entry = 'Y';
-						$oEntryRule->member->{$oMschema->id} = $oRule;
-					}
+			if ($this->getDeepValue($oEntryRule, 'scope.enroll') === 'Y') {
+				if (!empty($oProtoEntryRule->enroll->id)) {
+					$oEntryRule->enroll = (object) ['id' => $oProtoEntryRule->enroll->id];
 				}
 			}
-			if (isset($oEntryRule->scope->sns) && $oEntryRule->scope->sns === 'Y') {
+			if ($this->getDeepValue($oEntryRule, 'scope.sns') === 'Y') {
 				$oRule = new \stdClass;
 				$oRule->entry = 'Y';
 				$oSns = new \stdClass;
@@ -72,32 +77,29 @@ abstract class enroll_base extends app_base {
 	 * 根据项目指定的规则设置
 	 */
 	protected function setEntryRuleByMission(&$oEntryRule, $oMisEntryRule) {
-		if (isset($oMisEntryRule->scope) && $oMisEntryRule->scope !== 'none') {
+		if (isset($oMisEntryRule->scope)) {
 			if (empty($oEntryRule->scope) || !is_object($oEntryRule->scope)) {
 				$oEntryRule->scope = new \stdClass;
 			}
-			switch ($oMisEntryRule->scope) {
-			case 'member':
-				if (isset($oMisEntryRule->member)) {
-					$oEntryRule->member = $oMisEntryRule->member;
-					foreach ($oEntryRule->member as &$oRule) {
-						$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
-					}
-					$oEntryRule->scope->member = 'Y';
+			if ($this->getDeepValue($oMisEntryRule, 'scope.register') === 'Y') {
+				$oEntryRule->scope->register = 'Y';
+			}
+			if (isset($oMisEntryRule->member)) {
+				$oEntryRule->member = $oMisEntryRule->member;
+				foreach ($oEntryRule->member as &$oRule) {
+					$oRule->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
 				}
-				break;
-			case 'sns':
+				$oEntryRule->scope->member = 'Y';
+			}
+			if (isset($oMisEntryRule->sns)) {
 				$oEntryRule->sns = new \stdClass;
-				if (isset($oMisEntryRule->sns)) {
-					foreach ($oMisEntryRule->sns as $snsName => $oRule) {
-						if (isset($oRule->entry) && $oRule->entry === 'Y') {
-							$oEntryRule->sns->{$snsName} = new \stdClass;
-							$oEntryRule->sns->{$snsName}->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
-						}
+				foreach ($oMisEntryRule->sns as $snsName => $oRule) {
+					if (isset($oRule->entry) && $oRule->entry === 'Y') {
+						$oEntryRule->sns->{$snsName} = new \stdClass;
+						$oEntryRule->sns->{$snsName}->entry = isset($oEntryRule->otherwise->entry) ? $oEntryRule->otherwise->entry : '';
 					}
 				}
 				$oEntryRule->scope->sns = 'Y';
-				break;
 			}
 		}
 
@@ -116,7 +118,7 @@ abstract class enroll_base extends app_base {
 		/* 关联姓名字段 */
 		if (!empty($oTemplateConfig->schema)) {
 			foreach ($oGroupApp->dataSchemas as $oGrpSchema) {
-				if (($oGrpSchema->id === 'name' && $oGrpSchema->type === 'shorttext') || ($oGrpSchema->id === 'member.name' && in_array($oGrpSchema->type, ['member', 'shorttext']))) {
+				if (($oGrpSchema->id === 'name' && $oGrpSchema->type === 'shorttext') || ($oGrpSchema->id === 'member.name' && in_array($oGrpSchema->type, ['shorttext']))) {
 					$oGrpNameSchema = $oGrpSchema;
 					break;
 				}
@@ -124,12 +126,11 @@ abstract class enroll_base extends app_base {
 			if (isset($oGrpNameSchema)) {
 				/* 替换模板中包含的姓名题 */
 				foreach ($oTemplateConfig->schema as $oTmplSchema) {
-					if (($oTmplSchema->id === 'name' && $oTmplSchema->type === 'shorttext') || ($oTmplSchema->id === 'member.name' && $oTmplSchema->type === 'member')) {
+					if ($oTmplSchema->type === 'shorttext' || in_array($oTmplSchema->id, ['name', 'member.name'])) {
 						$oTmplSchema->fromApp = $groupAppId;
 						$oTmplSchema->requireCheck = 'Y';
-						if ($oTmplSchema->type === 'member') {
-							$oTmplSchema->type = 'shorttext';
-							unset($oTmplSchema->schema_id);
+						if (isset($oTmplSchema->mschema_id)) {
+							unset($oTmplSchema->mschema_id);
 						}
 						if ($oTmplSchema->id === 'member.name') {
 							$oTmplSchema->id = 'name';
@@ -147,9 +148,8 @@ abstract class enroll_base extends app_base {
 								if ($oTmplPageSchema->id === $oTmplNameSchema) {
 									$oTmplPageSchema->fromApp = $groupAppId;
 									$oTmplPageSchema->requireCheck = 'Y';
-									if ($oTmplPageSchema->type === 'member') {
-										$oTmplPageSchema->type = 'shorttext';
-										unset($oTmplPageSchema->schema_id);
+									if (isset($oTmplPageSchema->mschema_id)) {
+										unset($oTmplPageSchema->mschema_id);
 									}
 									if ($oTmplPageSchema->id === 'member.name') {
 										$oTmplPageSchema->id = 'name';
@@ -182,18 +182,18 @@ abstract class enroll_base extends app_base {
 							/* 自动添加项目阶段定义 */
 							if ($oAppPage->type === 'I') {
 								$newPageSchema = new \stdClass;
-								$$oSchemaNameConfig = new \stdClass;
+								$oSchemaNameConfig = new \stdClass;
 								$newPageSchema->schema = $oNameSchema;
-								$newPageSchema->config = $$oSchemaNameConfig;
+								$newPageSchema->config = $oSchemaNameConfig;
 								array_splice($oAppPage->data_schemas, 0, 0, [$newPageSchema]);
 							} else if ($oAppPage->type === 'V') {
 								$newPageSchema = new \stdClass;
-								$$oSchemaNameConfig = new \stdClass;
-								$$oSchemaNameConfig->id = 'V' . time();
-								$$oSchemaNameConfig->pattern = 'record';
-								$$oSchemaNameConfig->splitLine = 'Y';
+								$oSchemaNameConfig = new \stdClass;
+								$oSchemaNameConfig->id = 'V' . time();
+								$oSchemaNameConfig->pattern = 'record';
+								$oSchemaNameConfig->splitLine = 'Y';
 								$newPageSchema->schema = $oNameSchema;
-								$newPageSchema->config = $$oSchemaNameConfig;
+								$newPageSchema->config = $oSchemaNameConfig;
 								array_splice($oAppPage->data_schemas, 0, 0, [$newPageSchema]);
 							}
 						}
@@ -261,8 +261,7 @@ abstract class enroll_base extends app_base {
 		foreach ($oTemplateConfig->schema as $oSchema) {
 			if ($oSchema->type === 'shorttext' && in_array($oSchema->id, ['name', 'email', 'mobile'])) {
 				if (false === $oMschema1st->attrs->{$oSchema->id}->hide) {
-					$oSchema->type = 'member';
-					$oSchema->schema_id = $oMschema1st->id;
+					$oSchema->mschema_id = $oMschema1st->id;
 					$oSchema->id = 'member.' . $oSchema->id;
 				}
 			}
@@ -271,31 +270,14 @@ abstract class enroll_base extends app_base {
 		foreach ($oTemplateConfig->pages as $oAppPage) {
 			if (!empty($oAppPage->data_schemas)) {
 				foreach ($oAppPage->data_schemas as $oSchemaConfig) {
-					switch ($oAppPage->type) {
-					case 'I':
-					case 'V':
-						$oSchema = $oSchemaConfig->schema;
-						if ($oSchema->type === 'shorttext' && in_array($oSchema->id, ['name', 'email', 'mobile'])) {
-							if (false === $oMschema1st->attrs->{$oSchema->id}->hide) {
-								$oSchema->type = 'member';
-								$oSchema->schema_id = $oMschema1st->id;
-								$oSchema->id = 'member.' . $oSchema->id;
-							}
+					$oSchema = $oSchemaConfig->schema;
+					if ($oSchema->type === 'shorttext' && in_array($oSchema->id, ['name', 'email', 'mobile'])) {
+						if (false === $oMschema1st->attrs->{$oSchema->id}->hide) {
+							$oSchema->mschema_id = $oMschema1st->id;
+							$oSchema->id = 'member.' . $oSchema->id;
 						}
-						break;
-					case 'L':
-						$oSchemas = $oSchemaConfig->schemas;
-						foreach ($oSchemas as $oSchema) {
-							if ($oSchema->type === 'shorttext' && in_array($oSchema->id, ['name', 'email', 'mobile'])) {
-								if (false === $oMschema1st->attrs->{$oSchema->id}->hide) {
-									$oSchema->type = 'member';
-									$oSchema->schema_id = $oMschema1st->id;
-									$oSchema->id = 'member.' . $oSchema->id;
-								}
-							}
-						}
-						break;
 					}
+					break;
 				}
 			}
 		}
@@ -350,18 +332,20 @@ abstract class enroll_base extends app_base {
 	public function replaceMemberSchema(&$aDataSchemas, $oMschema = null, $bKeepSchemaId = false) {
 		foreach ($aDataSchemas as $oSchema) {
 			/* 和通讯录解除关联 */
-			if ($oSchema->type === 'member' && (empty($oMschema) || $oSchema->schema_id === $oMschema->id)) {
-				$oSchema->type = 'shorttext';
-				$memberProp = str_replace('member.', '', $oSchema->id);
-				if (!$bKeepSchemaId) {
-					$oSchema->id = $memberProp;
+			if (isset($oSchema->mschema_id)) {
+				if (empty($oMschema) || $oSchema->mschema_id === $oMschema->id) {
+					$oSchema->type = 'shorttext';
+					$memberProp = str_replace('member.', '', $oSchema->id);
+					if (!$bKeepSchemaId) {
+						$oSchema->id = $memberProp;
+					}
+					if (in_array($memberProp, ['name', 'mobile', 'email'])) {
+						$oSchema->format = $memberProp;
+					} else {
+						$oSchema->format = '';
+					}
+					unset($oSchema->mschema_id);
 				}
-				if (in_array($memberProp, ['name', 'mobile', 'email'])) {
-					$oSchema->format = $memberProp;
-				} else {
-					$oSchema->format = '';
-				}
-				unset($oSchema->schema_id);
 			}
 		}
 
@@ -375,7 +359,7 @@ abstract class enroll_base extends app_base {
 			/* 和分组活动解除关联 */
 			if (isset($oSchema->fromApp) && (empty($aAssocAppIds) || in_array($oSchema->fromApp, $aAssocAppIds))) {
 				unset($oSchema->fromApp);
-				unset($oSchema->requieCheck);
+				unset($oSchema->requireCheck);
 			}
 		}
 

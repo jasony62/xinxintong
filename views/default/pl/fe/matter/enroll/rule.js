@@ -18,15 +18,16 @@ define(['frame'], function(ngApp) {
         });
     }]);
     ngApp.provider.controller('ctrlActionRule', ['$scope', 'http2', 'srvEnrollApp', function($scope, http2, srvEnrollApp) {
-        var _oRule;
+        var _oApp, _oRule;
         $scope.rulesModified = false;
         $scope.save = function() {
-            $scope.app.actionRule = _oRule;
+            _oApp.actionRule = _oRule;
             $scope.update('actionRule').then(function() {
                 $scope.rulesModified = false;
             });
         };
         srvEnrollApp.get().then(function(oApp) {
+            _oApp = oApp;
             $scope.rule = _oRule = oApp.actionRule;
             $scope.$watch('rule', function(nv, ov) {
                 if (nv !== ov) {

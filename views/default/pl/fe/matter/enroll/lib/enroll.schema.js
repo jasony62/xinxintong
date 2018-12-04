@@ -83,7 +83,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         for (var i = oApp.dataSchemas.length - 1; i >= 0; i--) {
                             oSchema = oApp.dataSchemas[i];
                             if (oSchema.required === 'Y') {
-                                if (oSchema.type === 'shorttext' || oSchema.type === 'member') {
+                                if (oSchema.type === 'shorttext') {
                                     if (oSchema.title === '姓名') {
                                         oNicknameSchema = oSchema;
                                         break;
@@ -145,10 +145,10 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
     /**
      * 所有题目
      */
-    ngMod.controller('ctrlSchemaList', ['$scope', '$timeout', '$sce', '$uibModal', 'http2', 'cstApp', 'srv' + window.MATTER_TYPE + 'App', 'srvEnrollPage', 'srvEnrollSchema',
-        function($scope, $timeout, $sce, $uibModal, http2, cstApp, srvApp, srvAppPage, srvEnrollSchema) {
+    ngMod.controller('ctrlSchemaList', ['$scope', '$timeout', '$sce', '$uibModal', 'http2', 'CstApp', 'srv' + window.MATTER_TYPE + 'App', 'srvEnrollPage', 'srvEnrollSchema',
+        function($scope, $timeout, $sce, $uibModal, http2, CstApp, srvApp, srvAppPage, srvEnrollSchema) {
             $scope.activeSchema = null;
-            $scope.cstApp = cstApp;
+            $scope.CstApp = CstApp;
 
             $scope.assocApp = function(appId) {
                 var oApp, assocApp;
@@ -266,7 +266,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
             $scope.newMember = function(ms, oMsSchema) {
                 var oNewSchema = schemaLib.newSchema(oMsSchema.type, $scope.app);
 
-                oNewSchema.schema_id = ms.id;
+                oNewSchema.mschema_id = ms.id;
                 oNewSchema.id = oMsSchema.id;
                 oNewSchema.title = oMsSchema.title;
                 oNewSchema.format = oMsSchema.format;
@@ -279,10 +279,9 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 return oNewSchema;
             };
             $scope.newByOtherApp = function(oProtoSchema, oOtherApp, oAfterSchema) {
-                var oNewSchema, schemaType;
+                var oNewSchema;
 
-                schemaType = oProtoSchema.type === 'member' ? 'shorttext' : oProtoSchema.type;
-                oNewSchema = schemaLib.newSchema(schemaType, $scope.app, oProtoSchema);
+                oNewSchema = schemaLib.newSchema(oProtoSchema.type, $scope.app, oProtoSchema);
                 oNewSchema.id = oProtoSchema.id;
                 oNewSchema.requireCheck = 'Y';
                 oNewSchema.fromApp = oOtherApp.id;
@@ -318,10 +317,8 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 oAppSchema = $scope.app._schemasById[oOtherSchema.id];
                 if (oAppSchema) {
                     if (oAppSchema.type !== oOtherSchema.type) {
-                        if (!/shorttext|member/.test(oAppSchema.type) || !/shorttext|member/.test(oOtherSchema.type)) {
-                            alert('题目【' + oOtherSchema.title + '】和【' + oAppSchema.title + '】的类型不一致，无法关联');
-                            return;
-                        }
+                        alert('题目【' + oOtherSchema.title + '】和【' + oAppSchema.title + '】的类型不一致，无法关联');
+                        return;
                     }
                     if (oAppSchema.title !== oOtherSchema.title) {
                         alert('题目【' + oOtherSchema.title + '】和【' + oAppSchema.title + '】的名称不一致，无法关联');
@@ -344,7 +341,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                     oMschema._schemas.forEach(function(oMsSchema) {
                                         if (oApp._schemasById[oMsSchema.id] === undefined) {
                                             oMsSchema.assocState = '';
-                                        } else if (oApp._schemasById[oMsSchema.id].schema_id === msid) {
+                                        } else if (oApp._schemasById[oMsSchema.id].mschema_id === msid) {
                                             oMsSchema.assocState = 'yes';
                                         } else {
                                             oMsSchema.assocState = 'no';
@@ -358,14 +355,14 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
             });
             $scope.unassocWithMschema = function(oSchema, bOnlyAssocState) {
                 var oAssocMschema, oMsSchema, oBefore;
-                if (oSchema.schema_id) {
+                if (oSchema.mschema_id) {
                     oBefore = angular.copy(oSchema);
-                    oAssocMschema = $scope.mschemasById[oSchema.schema_id];
+                    oAssocMschema = $scope.mschemasById[oSchema.mschema_id];
                     if (oMsSchema = $scope.app._schemasById[oSchema.id]) {
                         oMsSchema.assocState = 'no';
                     }
                     if (!bOnlyAssocState) {
-                        delete oSchema.schema_id;
+                        delete oSchema.mschema_id;
                         $scope.updSchema(oSchema, oBefore);
                     }
                 }
@@ -384,7 +381,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         return;
                     }
                     oBefore = angular.copy(oAppSchema);
-                    oAppSchema.schema_id = oMschema.id;
+                    oAppSchema.mschema_id = oMschema.id;
                     oMsSchema.assocState = 'yes';
                     $scope.updSchema(oAppSchema, oBefore);
                 }
@@ -411,13 +408,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         var oPage, oResult, oFilter;
                         $scope2.app = _oApp;
-                        $scope2.page = oPage = {
-                            at: 1,
-                            size: 12,
-                            j: function() {
-                                return 'page=' + this.at + '&size=' + this.size;
-                            }
-                        };
+                        $scope2.page = oPage = {};
                         $scope2.result = oResult = {
                             make: 'copy',
                             target: { ops: [], range: {} }
@@ -477,20 +468,19 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             $scope2.doSearch();
                         };
                         $scope2.doSearch = function() {
-                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid + '&' + oPage.j();
+                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid;
                             if (oResult.make === 'rule' && _oApp.mission) {
                                 /* 同一个项目下的题目才可以设置规则 */
                                 url += '&mission=' + _oApp.mission.id;
                             }
                             http2.post(url, {
                                 byTitle: oFilter.byTitle
-                            }).then(function(rsp) {
+                            }, { page: oPage }).then(function(rsp) {
                                 $scope2.apps = rsp.data.apps;
                                 if ($scope2.apps.length) {
                                     oResult.fromApp = $scope2.apps[0];
                                     $scope2.selectApp();
                                 }
-                                oPage.total = rsp.data.total;
                             });
                         };
                         $scope2.disabled = true;
@@ -541,7 +531,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             fnGenNewSchema = function(oProtoSchema) {
                                 var oNewSchema;
                                 oNewSchema = schemaLib.newSchema(oProtoSchema.type, _oApp, { id: oProtoSchema.id });
-                                oNewSchema.type === 'member' && (oNewSchema.schema_id = oProtoSchema.schema_id);
+                                oProtoSchema.mschema_id && (oNewSchema.mschema_id = oProtoSchema.mschema_id);
                                 oNewSchema.title = oProtoSchema.title;
                                 if (oProtoSchema.ops) {
                                     oNewSchema.ops = oProtoSchema.ops;
@@ -1147,13 +1137,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     templateUrl: '/views/default/pl/fe/matter/enroll/component/schema/setOptionsSource.html?_=1',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         var oPage, oResult, oAppFilter;
-                        $scope2.page = oPage = {
-                            at: 1,
-                            size: 12,
-                            j: function() {
-                                return 'page=' + this.at + '&size=' + this.size;
-                            }
-                        };
+                        $scope2.page = oPage = {};
                         $scope2.schema = oSchema;
                         $scope2.result = oResult = {};
                         $scope2.appFilter = oAppFilter = {};
@@ -1198,22 +1182,20 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                         $scope2.cancel = function() {
                             $mi.dismiss();
                         };
-
                         $scope2.doSearch = function(pageAt) {
-                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid + '&' + oPage.j();
+                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid;
                             if (_oApp.mission) {
                                 url += '&mission=' + _oApp.mission.id;
                             }
                             pageAt && (oPage.at = pageAt);
                             http2.post(url, {
                                 byTitle: oAppFilter.byTitle
-                            }).then(function(rsp) {
+                            }, { page: oPage }).then(function(rsp) {
                                 $scope2.apps = rsp.data.apps;
                                 if ($scope2.apps.length) {
                                     oResult.fromApp = $scope2.apps[0];
                                     $scope2.selectApp();
                                 }
-                                oPage.total = rsp.data.total;
                             });
                         };
                         $scope2.disabled = true;
@@ -1270,13 +1252,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     templateUrl: '/views/default/pl/fe/matter/enroll/component/schema/setSchemaSource.html?_=1',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         var oPage, oResult, oAppFilter;
-                        $scope2.page = oPage = {
-                            at: 1,
-                            size: 12,
-                            j: function() {
-                                return 'page=' + this.at + '&size=' + this.size;
-                            }
-                        };
+                        $scope2.page = oPage = {};
                         $scope2.schema = oSchema;
                         $scope2.result = oResult = {
                             mode: 'fromData'
@@ -1359,20 +1335,19 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             $mi.dismiss();
                         };
                         $scope2.doSearch = function(pageAt) {
-                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid + '&' + oPage.j();
+                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid;
                             if (_oApp.mission) {
                                 url += '&mission=' + _oApp.mission.id;
                             }
                             pageAt && (oPage.at = pageAt);
                             http2.post(url, {
                                 byTitle: oAppFilter.byTitle
-                            }).then(function(rsp) {
+                            }, { page: oPage }).then(function(rsp) {
                                 $scope2.apps = rsp.data.apps;
                                 if ($scope2.apps.length) {
                                     oResult.fromApp = $scope2.apps[0];
                                     $scope2.selectApp();
                                 }
-                                oPage.total = rsp.data.total;
                             });
                         };
                         $scope2.disabled = true;
@@ -1443,7 +1418,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 var oApp, afterIndex, changedPages = [];
                 oApp = $scope.app;
                 if (oApp._schemasById[newSchema.id]) {
-                    alert(cstApp.alertMsg['schema.duplicated']);
+                    alert(CstApp.alertMsg['schema.duplicated']);
                     return;
                 }
                 if (undefined === oAfterSchema) {
@@ -1503,7 +1478,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     oApp.recycleSchemas = aNewRecycleSchemas;
                     srvApp.update('recycleSchemas');
                     /* 去除关联状态 */
-                    if (oRemovedSchema.type === 'member') {
+                    if (oRemovedSchema.mschema_id) {
                         if (oAssocSchema = $scope.unassocWithMschema(oRemovedSchema, true)) {
                             oAssocSchema.assocState = '';
                         }
@@ -1775,10 +1750,6 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
         $scope.editing = _oEditing = {};
         $scope.changeSchemaType = function() {
             var oBeforeState;
-            if (_oEditing.type === 'member') {
-                _oEditing.type = $scope.activeSchema.type;
-                return;
-            }
             oBeforeState = angular.copy($scope.activeSchema);
             if (false === schemaLib.changeType($scope.activeSchema, _oEditing.type)) {
                 _oEditing.type = $scope.activeSchema.type;

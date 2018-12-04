@@ -726,6 +726,30 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                     });
                 }
             };
+            _ins.batchRemove = function(oTmsRows) {
+                function removeNext(p) {
+                    var oRec;
+                    if (p < rowIndexes.length) {
+                        oRec = _ins._aRecords[rowIndexes[p]];
+                        http2.get('/rest/pl/fe/matter/enroll/record/remove?app=' + _appId + '&ek=' + oRec.enroll_key).then(function(rsp) {
+                            removedRecords.push(oRec);
+                            removeNext(++p);
+                        });
+                    } else {
+                        removedRecords.forEach(function(oRemoved) {
+                            _ins._aRecords.splice(_ins._aRecords.indexOf(oRemoved), 1);
+                            _ins._oPage.total = _ins._oPage.total - 1;
+                        });
+                        oTmsRows.reset();
+                    }
+                }
+                var rowIndexes, removedRecords;
+                rowIndexes = oTmsRows.indexes();
+                if (rowIndexes.length) {
+                    removedRecords = [];
+                    removeNext(0);
+                }
+            };
             _ins.restore = function(record) {
                 if (window.confirm('确认恢复？')) {
                     http2.get('/rest/pl/fe/matter/enroll/record/recover?app=' + _appId + '&ek=' + record.enroll_key).then(function(rsp) {

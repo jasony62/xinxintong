@@ -1828,7 +1828,7 @@ class record extends main_base {
 		$columnNum1 = 0; //列号
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '登记时间');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '审核通过');
-		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '登记轮次');
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '填写轮次');
 
 		// 转换标题
 		$aNumberSum = []; // 数值型题目的合计
@@ -1920,9 +1920,9 @@ class record extends main_base {
 							}
 						}
 					}
-					if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
-						$cellValue .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
-					}
+					// if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
+					// 	$cellValue .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
+					// }
 					$cellValue = str_replace(['<br>', '</br>'], ["\n", ""], $cellValue);
 					$cellValue = strip_tags($cellValue);
 					$cellValue = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $cellValue);
@@ -1943,9 +1943,9 @@ class record extends main_base {
 						}
 					}
 					$cellValue = implode(',', $labels);
-					if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
-						$cellValue .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
-					}
+					// if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
+					// 	$cellValue .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
+					// }
 					$cellValue = str_replace(['<br>', '</br>'], ["\n", ""], $cellValue);
 					$cellValue = strip_tags($cellValue);
 					$cellValue = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $cellValue);
@@ -1965,9 +1965,9 @@ class record extends main_base {
 					break;
 				case 'image':
 					$v0 = '';
-					if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
-						$v0 .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
-					}
+					// if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
+					// 	$v0 .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
+					// }
 					$v0 = str_replace(['<br>', '</br>'], ["\n", ""], $v0);
 					$v0 = strip_tags($v0);
 					$v0 = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v0);
@@ -1976,9 +1976,9 @@ class record extends main_base {
 					break;
 				case 'file':
 					$v0 = '';
-					if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
-						$v0 .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
-					}
+					// if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
+					// 	$v0 .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
+					// }
 					$v0 = str_replace(['<br>', '</br>'], ["\n", ""], $v0);
 					$v0 = strip_tags($v0);
 					$v0 = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v0);

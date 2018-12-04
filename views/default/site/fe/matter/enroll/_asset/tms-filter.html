@@ -1,6 +1,6 @@
 <div>
-    <div class="site-dropdown" uib-dropdown dropdown-append-to='appendToEle' auto-close="disabled" on-toggle="toggled(open)" is-open="status.isopen">
-        <a href uib-dropdown-toggle class="site-dropdown-title"><span>筛选 </span><i class="glyphicon glyphicon-menu-up"></i></a>
+    <div class="site-dropdown" uib-dropdown dropdown-append-to='appendToEle' auto-close="disabled" is-open="status.isopen">
+        <a href uib-dropdown-toggle class="site-dropdown-title" ng-class="{'active':filtered.isFilter}"><span>筛选 </span><i class="glyphicon glyphicon-menu-up"></i></a>
         <ul class="dropdown-menu site-dropdown-list" uib-dropdown-menu>
             <li class="dropdown-list-wrapper">
                 <uib-tabset active="0" type="pills" vertical="true" class="site-tabset">
@@ -14,9 +14,9 @@
                     </uib-tab>
                 </uib-tabset>
             </li>
-            <li class="dropdown-list-btn">
-                <button class="btn btn-default" ng-click="clear()">清空条件</button>
-                <button class="btn btn-success" ng-click="ok(filterOpt)">确定</button>
+            <li class="dropdown-list-btn btn-group">
+                <button class="btn btn-default" ng-click="clear()">清空选项</button>
+                <button class="btn btn-success" ng-click="ok(filtered)">确认</button>
             </li>
         </ul>
     </div>

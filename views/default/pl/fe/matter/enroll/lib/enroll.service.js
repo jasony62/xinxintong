@@ -726,6 +726,30 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                     });
                 }
             };
+            _ins.batchRemove = function(oTmsRows) {
+                function removeNext(p) {
+                    var oRec;
+                    if (p < rowIndexes.length) {
+                        oRec = _ins._aRecords[rowIndexes[p]];
+                        http2.get('/rest/pl/fe/matter/enroll/record/remove?app=' + _appId + '&ek=' + oRec.enroll_key).then(function(rsp) {
+                            removedRecords.push(oRec);
+                            removeNext(++p);
+                        });
+                    } else {
+                        removedRecords.forEach(function(oRemoved) {
+                            _ins._aRecords.splice(_ins._aRecords.indexOf(oRemoved), 1);
+                            _ins._oPage.total = _ins._oPage.total - 1;
+                        });
+                        oTmsRows.reset();
+                    }
+                }
+                var rowIndexes, removedRecords;
+                rowIndexes = oTmsRows.indexes();
+                if (rowIndexes.length) {
+                    removedRecords = [];
+                    removeNext(0);
+                }
+            };
             _ins.restore = function(record) {
                 if (window.confirm('确认恢复？')) {
                     http2.get('/rest/pl/fe/matter/enroll/record/recover?app=' + _appId + '&ek=' + record.enroll_key).then(function(rsp) {
@@ -917,17 +941,16 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                     templateUrl: '/views/default/pl/fe/matter/enroll/component/record/importByOther.html?_=1',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         function doSearchRnd(appId, oDataset) {
-                            http2.get('/rest/pl/fe/matter/enroll/round/list?app=' + appId + '&' + oDataset.page.j()).then(function(rsp) {
+                            http2.get('/rest/pl/fe/matter/enroll/round/list?app=' + appId, { page: oDataset.page }).then(function(rsp) {
                                 oDataset.data = rsp.data.rounds;
-                                oDataset.page.total = rsp.data.total;
                                 _oData.fromRnd = oDataset.data[0];
                             });
                         }
                         var _oData;
                         $scope2.data = _oData = {};
-                        $scope2.rounds = { page: http2.newPage() };
-                        $scope2.fromApps = { page: http2.newPage(), filter: {} };
-                        $scope2.fromRnds = { page: http2.newPage() };
+                        $scope2.rounds = { page: {} };
+                        $scope2.fromApps = { page: {}, filter: {} };
+                        $scope2.fromRnds = { page: {} };
                         $scope2.ok = function() {
                             $mi.close(_oData);
                         };
@@ -942,16 +965,15 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                             doSearchRnd(_appId, $scope2.rounds);
                         };
                         $scope2.doSearchFromApp = function() {
-                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _siteId + '&' + $scope2.fromApps.page.j();
+                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _siteId;
                             http2.post(url, {
                                 byTitle: $scope2.fromApps.filter.byTitle
-                            }).then(function(rsp) {
+                            }, { page: $scope2.fromApps.page }).then(function(rsp) {
                                 $scope2.fromApps.data = rsp.data.apps;
                                 if ($scope2.fromApps.data.length) {
                                     _oData.fromApp = $scope2.fromApps.data[0];
                                     $scope2.doSearchFromRnd(1);
                                 }
-                                $scope2.fromApps.page.total = rsp.data.total;
                             });
                         };
                         $scope2.doSearchFromRnd = function(at) {

@@ -99,8 +99,9 @@
                         <div class='input-group-btn'>
                             <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';recordList(1)"><span class='glyphicon glyphicon-remove'></span></button>
                             <button class='btn btn-default' ng-click="recordList(1)"><span class='glyphicon glyphicon-search'></span></button>
+                            <button class='btn btn-default' ng-click="addRecord($event)"><span class="glyphicon glyphicon-plus"></span> 记录</button>
                             <button id='advCriteriaSwitch' ng-if="dirSchemas.length" class="btn btn-default visible-xs-inline-block" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">
-                                目录 <span class='glyphicon glyphicon-th-list' ng-class="{'opened':advCriteriaStatus.opened}"></span>
+                                <span class='glyphicon glyphicon-th-list' ng-class="{'opened':advCriteriaStatus.opened}"></span> 目录 
                             </button>
                         </div>
                     </div>
@@ -108,33 +109,13 @@
                 <div id='filterQuick' ng-cloak>
                     <div tms-dropdown data="dropData[0]" shift-menu="shiftMenu(criteria)"></div>
                     <div tms-dropdown data="dropData[1]" shift-menu="shiftMenu(criteria)"></div>
-                    <div tms-filter source="filterData" confirm="confirm(filterOpt)" class="pull-right"></div>
+                    <div tms-filter source="filterData" filter="{{filter}}" criteria="{{criteria}}" confirm="confirm(filterOpt)" class="pull-right"></div>
                 </div>
                 <!-- end: filterQuick -->
-                <div id='filterTip' class="hidden-xs" ng-if="filter.rid||filter.agreed||filter.userGroup||filter.mine||filter.tags.length">
-                    <div class="bg-info small" ng-if="filter.rid">
-                        <span>{{filter.rid.title}}</span>
-                        <button class="close" trace-biz ng-click="shiftTip('rid')"><span>&times;</span></button>
-                    </div>
-                    <div class="bg-info small" ng-if="filter.agreed">
-                        <span ng-switch="filter.agreed.value">
-                            <span ng-switch-when="Y">推荐</span>
-                            <span ng-switch-when="A">接受</span>
-                            <span ng-switch-when="D">讨论</span>
-                            <span ng-switch-when="N">关闭</span>
-                        </span>
-                        <button class="close" trace-biz ng-click="shiftTip('agreed')"><span>&times;</span></button>
-                    </div>
-                    <div class="bg-info small" ng-if="filter.userGroup">
-                        <span>{{filter.userGroup.title}}</span>
-                        <button class="close" trace-biz ng-click="shiftTip('userGroup')"><span>&times;</span></button>
-                    </div>
-                    <div class="bg-info small" ng-if="filter.mine">
-                        <span ng-switch="filter.mine.value">
-                            <span ng-switch-when="creator">我的记录</span>
-                            <span ng-switch-when="favored">我的收藏</span>
-                        </span>
-                        <button class="close" trace-biz ng-click="shiftTip('mine')"><span>&times;</span></button>
+                <div id='filterTip' class="hidden-xs" ng-if="filter.isFilter||filter.tags.length">
+                    <div class="bg-info small" ng-repeat="data in filterData" ng-if="criteria[data.type]!==null">
+                        <span ng-repeat="menu in data.menus" ng-if="criteria[data.type]==menu.value" ng-bind="menu.title"></span>
+                        <button class="close" trace-biz ng-click="shiftTip(data.type)"><span>&times;</span></button>
                     </div>
                     <div class="bg-info small" ng-repeat="tag in filter.tags">
                         <span ng-bind="tag.label"></span>

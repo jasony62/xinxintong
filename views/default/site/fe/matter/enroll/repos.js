@@ -35,7 +35,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oMocker;
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = {};
-    $scope.filter = _oFilter = {}; // 过滤条件
+    $scope.filter = _oFilter = { isFilter: false }; // 过滤条件
     $scope.criteria = _oCriteria = {}; // 数据查询条件
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.repos = []; // 分享的记录
@@ -308,6 +308,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         enlAssoc.copy($scope.app, { id: oRecord.id, type: 'record' });
     };
     $scope.confirm = function(filterOpt) {
+
         _oFilter = angular.extend(_oFilter, filterOpt.filter);
         _oCriteria = angular.extend(_oCriteria, filterOpt.criteria);
         $scope.recordList(1);
@@ -316,10 +317,28 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         _oCriteria[criteria.type] = criteria.value;
         $scope.recordList(1);
     };
+    var count = 0;
     $scope.shiftTip = function(type) {
-        _oFilter
         _oCriteria[type] = _oFilter[type] = null;
-        $scope.recordList(1);
+        function objectKeyIsNull(obj) {
+            var empty = null;
+            for (var i in obj) {
+                if (i!=='isFilter' && i!=='tags') {
+                    if(obj[i] === null) {
+                        empty = true;
+                    }else {
+                        empty = false;
+                        break;
+                    }
+                }
+                
+            }
+            return empty;
+        }
+        if (objectKeyIsNull(_oFilter)) {
+            _oFilter.isFilter = false;
+        } 
+        $scope.recordList(1);   
     }
     $scope.shiftTag = function(oTag, bToggle) {
         if (bToggle) {

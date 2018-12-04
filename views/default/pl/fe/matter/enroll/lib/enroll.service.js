@@ -1043,50 +1043,52 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                 if (!eks || eks.length === 0) {
                     defer.reject();
                 } else {
-                    $uibModal.open({
-                        templateUrl: '/views/default/pl/fe/matter/enroll/component/exportToOther.html?_=1',
-                        controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                            var page, data, filter;
-                            $scope2.sourceApp = oApp;
-                            $scope2.page = page = {};
-                            $scope2.data = data = { mappings: {} };
-                            $scope2.filter = filter = {};
-                            $scope2.ok = function() {
-                                $mi.close(data);
-                            };
-                            $scope2.cancel = function() {
-                                $mi.dismiss('cancel');
-                            };
-                            $scope2.doFilter = function() {
-                                page.at = 1;
-                                $scope2.doSearch();
-                            };
-                            $scope2.doSearch = function() {
-                                var url = '/rest/pl/fe/matter/enroll/list?site=' + _siteId;
-                                http2.post(url, {
-                                    byTitle: filter.byTitle
-                                }, { page: page }).then(function(rsp) {
-                                    $scope2.apps = rsp.data.apps;
-                                    if ($scope2.apps.length) {
-                                        data.fromApp = $scope2.apps[0];
-                                    }
-                                    $scope2.apps.forEach(function(oApp) {
-                                        oApp.dataSchemas = JSON.parse(oApp.data_schemas);
+                    http2.post('/rest/script/time', { html: { 'export': '/views/default/pl/fe/matter/enroll/component/record/exportToOther' } }).then(function(rsp) {
+                        $uibModal.open({
+                            templateUrl: '/views/default/pl/fe/matter/enroll/component/record/exportToOther.html?_=' + rsp.data.html.export.time,
+                            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                                var page, data, filter;
+                                $scope2.sourceApp = oApp;
+                                $scope2.page = page = {};
+                                $scope2.data = data = { mappings: {} };
+                                $scope2.filter = filter = {};
+                                $scope2.ok = function() {
+                                    $mi.close(data);
+                                };
+                                $scope2.cancel = function() {
+                                    $mi.dismiss('cancel');
+                                };
+                                $scope2.doFilter = function() {
+                                    page.at = 1;
+                                    $scope2.doSearch();
+                                };
+                                $scope2.doSearch = function() {
+                                    var url = '/rest/pl/fe/matter/enroll/list?site=' + _siteId;
+                                    http2.post(url, {
+                                        byTitle: filter.byTitle
+                                    }, { page: page }).then(function(rsp) {
+                                        $scope2.apps = rsp.data.apps;
+                                        if ($scope2.apps.length) {
+                                            data.fromApp = $scope2.apps[0];
+                                        }
+                                        $scope2.apps.forEach(function(oApp) {
+                                            oApp.dataSchemas = JSON.parse(oApp.data_schemas);
+                                        });
                                     });
-                                });
-                            };
-                            $scope2.doSearch();
-                        }],
-                        backdrop: 'static',
-                        size: 'lg'
-                    }).result.then(function(data) {
-                        var url;
-                        if (data.fromApp && data.fromApp.id && data.mappings) {
-                            url = '/rest/pl/fe/matter/enroll/record/exportToOther';
-                            url += '?app=' + oApp.id;
-                            url += '&targetApp=' + data.fromApp.id;
-                            http2.post(url, { mappings: data.mappings, eks: eks }).then(function() {});
-                        }
+                                };
+                                $scope2.doSearch();
+                            }],
+                            backdrop: 'static',
+                            size: 'lg'
+                        }).result.then(function(data) {
+                            var url;
+                            if (data.fromApp && data.fromApp.id && data.mappings) {
+                                url = '/rest/pl/fe/matter/enroll/record/exportToOther';
+                                url += '?app=' + oApp.id;
+                                url += '&targetApp=' + data.fromApp.id;
+                                http2.post(url, { mappings: data.mappings, eks: eks });
+                            }
+                        });
                     });
                 }
                 return defer.promise;

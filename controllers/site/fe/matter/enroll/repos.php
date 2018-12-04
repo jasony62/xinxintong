@@ -367,7 +367,7 @@ class repos extends base {
 		$modelRec = $this->model('matter\enroll\record');
 		$oCriteria = new \stdClass;
 		$oCriteria->record = new \stdClass;
-		!empty($oPosted->rid) && $oCriteria->record->rid = $oPosted->rid;
+		$oCriteria->record->rid = !empty($oPosted->rid) ? $oPosted->rid : 'all';
 
 		/* 用户分组限制 */
 		if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
@@ -388,15 +388,13 @@ class repos extends base {
 			}
 		}
 		/* 记录的创建人 */
-		if (!empty($oPosted->creator)) {
+		if (!empty($oPosted->mine) && $oPosted->mine === 'creator') {
 			$oCriteria->record->userid = $oUser->uid;
-		}
-		/* 当前用户收藏 */
-		if (!empty($oPosted->favored)) {
+		} else if (!empty($oPosted->mine) && $oPosted->mine === 'favored') { // 当前用户收藏
 			$oCriteria->record->favored = true;
 		}
 		/* 记录的表态 */
-		if (!empty($oPosted->agreed) && $oPosted->agreed !== 'all') {
+		if (!empty($oPosted->agreed) && stripos($oPosted->agreed, 'all') === false) {
 			$oCriteria->record->agreed = $oPosted->agreed;
 		}
 		/* 记录的标签 */
@@ -406,13 +404,11 @@ class repos extends base {
 		!empty($oPosted->data) && $oCriteria->data = $oPosted->data;
 
 		/* 答案的筛选 */
-		if (isset($oPosted->cowork)) {
+		if (!empty($oPosted->coworkAgreed) && stripos($oPosted->coworkAgreed, 'all') === false) {
 			foreach ($oApp->dynaDataSchemas as $oSchema) {
 				if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
 					$oCriteria->cowork = new \stdClass;
-					if (isset($oPosted->cowork->agreed) && $oPosted->cowork->agreed !== 'all') {
-						$oCriteria->cowork->agreed = $oPosted->cowork->agreed;
-					}
+					$oCriteria->cowork->agreed = $oPosted->coworkAgreed;
 					break;
 				}
 			}

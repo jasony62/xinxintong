@@ -1002,123 +1002,156 @@ class repos extends base {
 		return new \ResponseData($oRecord);
 	}
 	/**
-	 * 获取活动筛选条件
+	 * 获取活动共享页筛选条件
 	 */
-	public function getFilter_action($app) {
+	public function criteriaGet_action($app) {
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		$oApp = $modelApp->byId($app, ['fields' => 'id,siteid,state,entry_rule,action_rule,mission_id,sync_mission_round,assigned_nickname,round_cron', 'cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
 		$oUser = $this->getUser($oApp);
 
-		if (!empty($oApp->filterRule)) {
-			$filterRule = $oApp->filterRule;
-		} else {
-			$filterRule = $this->_getDefaultFilter();
+		$criterias = $this->_packCriteria($oApp, $oUser);
+
+		return new \ResponseData($criterias);
+	}
+	/**
+	 * 组装筛选条件
+	 */
+	private function _packCriteria($oApp, $oUser) {
+		$criterias = $this->_originCriteriaGet();
+		$model = $this->model();
+		foreach ($criterias as $key => $criteria) {
+			//获取轮次 (只返回有数据的)
+			if ($criteria->type === 'rid') {
+				$q = [
+					'distinct ru.rid,ru.title',
+					'xxt_enroll_round ru,xxt_enroll_record r',
+					"ru.aid = '{$oApp->id}' and ru.state in ('1','2') and ru.rid = r.rid"
+				];
+				$p = ['o' => 'ru.create_at desc'];
+				$rounds = $model->query_objs_ss($q, $p);
+				if (count($rounds) == 1) {
+					unset($criterias[$key]);
+				} else {
+					foreach ($rounds as $round) {
+						$criteria->menus[] = (object) ['id' => $round->rid, 'title' => $round->title];
+					}
+				}
+			}
+			// 获取分组 (只返回有数据的)
+			if ($criteria->type === 'userGroup') {
+				if (empty($oApp->entryRule->group->id)) {
+					unset($criterias[$key]);
+				} else {
+					$assocGroupAppId = $oApp->entryRule->group->id;
+					$q2 = [
+						'distinct g.round_id,g.title',
+						'xxt_group_round g,xxt_enroll_record r',
+						"g.aid = '{$assocGroupAppId}' and g.round_id = r.group_id"
+					];
+					$groups = $model->query_objs_ss($q2);
+					if (empty($groups)) {
+						unset($criterias[$key]);
+					} else {
+						foreach ($groups as $group) {
+							$criteria->menus[] = (object) ['id' => $group->round_id, 'title' => $group->title];
+						}
+					}
+				}
+			}
+			/* 
+			 *表态 活动指定了分组活动并且当用户为编辑或者超级管理员或者有组时才会出现“接受”，“关闭” ，“讨论”，“未表态” ，否则只有推荐和不限两种
+			*/
+			if ($criteria->type === 'agreed') {
+				if (empty($oApp->entryRule->group->id)) {
+					unset($criterias[$key]);
+				} else if (!empty($oUser->group_id) || !empty($oUser->role_rounds) || (isset($oUser->is_leader) && in_array($oUser->is_leader, ['Y', 'S'])) || (isset($oUser->is_editor) && $oUser->is_editor === 'Y')) {
+					$criteria->menus[] = (object)['id' => 'A', 'title' => '接受'];
+					$criteria->menus[] = (object)['id' => 'D', 'title' => '讨论'];
+					$criteria->menus[] = (object)['id' => 'N', 'title' => '关闭'];
+				}
+			}
+			// 只有登录用户才会显示我的记录和我的收藏
+			if ($criteria->type === 'mine') {
+				if (empty($oUser->unionid)) {
+					unset($criterias[$key]);
+				}
+			}
 		}
 
-		return new \ResponseData($filterRule);
-	}
-	/**
-	 * 组装默认过滤器
-	 */
-	private function _getDefaultFilter($oApp, $oUser) {
-		// 排序
-		$orderby = $this->_getFilterCriteria('orderby');
-		$orderby->default = new \stdClass;
-		$orderby->default->id = !empty($oApp->reposConfig->defaultOrder) ? $oApp->reposConfig->defaultOrder : 'lastest_first';
-		$orderby->default->name = $this->_getCriteriaName('orderby', $orderby->default->id);
-		//协作
-		$coworkAgreed = $this->_getFilterCriteria('coworkAgreed');
-		$coworkAgreed->default = new \stdClass;
-		$coworkAgreed->default->id = 'all';
-		$coworkAgreed->default->name = $this->_getCriteriaName('coworkAgreed', $coworkAgreed->default->id);
-
-		$out = new \stdClass;
-		$out->id = 'out';
-		$out->criterias = [];
-		$out->criterias['orderby'] = $orderby;
-		$out->criterias['coworkAgreed'] = $coworkAgreed;
-
-		$filterRule = new \stdClass;
-		$filterRule->out = $out;
-
-		return $filterRule;
-	}
-	/**
-	 * 获取筛选条件的名称
-	 */
-	private function _getCriteriaName($type, $criteriaId) {
-		$criterias = (object) $this->_getFilterCriteria($type)->criterias;
-		$name = !empty($criterias->{$criteriaId}) ? $criterias->{$criteriaId}->name : '';
-
-		return $name;
+		return $criterias;
 	}
 	/**
 	 * 获得所有条件
 	 */
-	private function _getFilterCriteria($type) {
-		if ($type === 'all') {
-			$filterCriterias = [];
-		}
+	private function _originCriteriaGet() {
+		$criterias = [];
+		// 排序
+		$orderby = new \stdClass;
+		$orderby->type = 'orderby';
+		$orderby->title = '排序';
+		$orderby->default = (object) ['id' => 'lastest_first', 'title' => '最近提交'];
+		$orderby->menus = [
+			(object)['id' => 'lastest_first', 'title' => '最近提交'],
+			(object)['id' => 'earliest_first', 'title' => '最早提交'],
+			(object)['id' => 'mostliked', 'title' => '最多赞同'],
+			(object)['id' => 'mostvoted', 'title' => '最多投票']
+		];
+		$criterias[] = $orderby;
+		// 协作
+		$coworkAgreed = new \stdClass;
+		$coworkAgreed->type = 'coworkAgreed';
+		$coworkAgreed->title = '协作';
+		$coworkAgreed->default = (object) ['id' => null, 'title' => '所有问题'];
+		$coworkAgreed->menus = [
+			(object)['id' => null, 'title' => '所有问题'],
+			(object)['id' => 'answer', 'title' => '已回答'],
+			(object)['id' => 'unanswer', 'title' => '等待回答']
+		];
+		$criterias[] = $coworkAgreed;
+		// 轮次
+		$round = new \stdClass;
+		$round->type = 'rid';
+		$round->title = '轮次';
+		$round->default = (object) ['id' => null, 'title' => '不限'];
+		$round->menus = [
+			(object)['id' => null, 'title' => '不限']
+		];
+		$criterias[] = $round;
+		// 分组
+		$group = new \stdClass;
+		$group->type = 'userGroup';
+		$group->title = '分组';
+		$group->default = (object) ['id' => null, 'title' => '不限'];
+		$group->menus = [
+			(object)['id' => null, 'title' => '不限']
+		];
+		$criterias[] = $group;
+		// 表态
+		$agreed = new \stdClass;
+		$agreed->type = 'agreed';
+		$agreed->title = '表态';
+		$agreed->default = (object) ['id' => null, 'title' => '不限'];
+		$agreed->menus = [
+			(object)['id' => null, 'title' => '不限'],
+			(object)['id' => 'Y', 'title' => '推荐'],
+		];
+		$criterias[] = $agreed;
+		// 我的
+		$mine = new \stdClass;
+		$mine->type = 'mine';
+		$mine->title = '我的';
+		$mine->default = (object) ['id' => null, 'title' => '不限'];
+		$mine->menus = [
+			(object)['id' => null, 'title' => '不限'],
+			(object)['id' => 'creator', 'title' => '我的记录'],
+			(object)['id' => 'favored', 'title' => '我的收藏'],
+		];
+		$criterias[] = $mine;
 
-		if ($type === 'orderby' || $type === 'all') {
-			$orderby = new \stdClass;
-			$orderby->id = 'orderby';
-			$orderby->type = 'paixu';
-			$orderby->name = '排序';
-			$orderby->criterias = [];
-
-			$lastest_first = new \stdClass;
-			$lastest_first->id = 'lastest_first';
-			$lastest_first->name = '最近提交';
-			$orderby->criterias['lastest_first'] = $lastest_first;
-			$earliest_first = new \stdClass;
-			$earliest_first->id = 'earliest_first';
-			$earliest_first->name = '最早提交';
-			$orderby->criterias['earliest_first'] = $earliest_first;
-			$mostliked = new \stdClass;
-			$mostliked->id = 'mostliked';
-			$mostliked->name = '最多赞同';
-			$orderby->criterias['mostliked'] = $mostliked;
-			$agreed = new \stdClass;
-			$agreed->id = 'agreed';
-			$agreed->name = '精选推荐';
-			$orderby->criterias['agreed'] = $agreed;
-
-			if ($type === 'all')
-				$filterCriterias['orderby'] = $orderby;
-			else
-				return $orderby;
-		}
-		if ($type === 'coworkAgreed' || $type === 'all') {
-			$coworkAgreed = new \stdClass;
-			$coworkAgreed->id = 'coworkAgreed';
-			$coworkAgreed->type = 'paixu';
-			$coworkAgreed->name = '问题答案状态';
-			$coworkAgreed->criterias = [];
-
-			$all = new \stdClass;
-			$all->id = 'all';
-			$all->name = '全部';
-			$coworkAgreed->criterias['all'] = $all;
-			$answer = new \stdClass;
-			$answer->id = 'answer';
-			$answer->name = '已回答';
-			$coworkAgreed->criterias['answer'] = $answer;
-			$unanswer = new \stdClass;
-			$unanswer->id = 'unanswer';
-			$unanswer->name = '未回答';
-			$coworkAgreed->criterias['unanswer'] = $unanswer;
-
-			if ($type === 'all')
-				$filterCriterias['coworkAgreed'] = $coworkAgreed;
-			else
-				return $coworkAgreed;
-		}
-
-		return $filterCriterias;
+		return $criterias;
 	}
 }

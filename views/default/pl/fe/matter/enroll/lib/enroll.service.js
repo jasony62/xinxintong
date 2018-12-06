@@ -1032,10 +1032,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                     eks = [];
                     Object.keys(rows.selected).forEach(function(key) {
                         if (rows.selected[key] === true) {
-                            var oRec = _ins._aRecords[key];
-                            if (Object.keys(oRec).indexOf('enroll_key') !== -1) {
-                                eks.push(oRec.enroll_key);
-                            }
+                            eks.push(_ins._aRecords[key].enroll_key);
                         }
                     });
                 }
@@ -1086,11 +1083,15 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                                 url = '/rest/pl/fe/matter/enroll/record/exportToOther';
                                 url += '?app=' + oApp.id;
                                 url += '&targetApp=' + data.fromApp.id;
-                                http2.post(url, { mappings: data.mappings, eks: eks });
+                                http2.post(url, { mappings: data.mappings, eks: eks }).then(function(rsp) {
+                                    noticebox.success('导入【' + rsp.data + '】条记录');
+                                    defer.resolve(rsp.data);
+                                });
                             }
                         });
                     });
                 }
+                
                 return defer.promise;
             };
             _ins.transferVotes = function(oApp) {

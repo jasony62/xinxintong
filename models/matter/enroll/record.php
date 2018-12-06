@@ -19,7 +19,7 @@ class record_model extends record_base {
 
 		$ek = $this->genKey($oApp->siteid, $oApp->id);
 
-		$aRecord = [
+		$aNewRec = [
 			'aid' => $oApp->id,
 			'siteid' => $oApp->siteid,
 			'enroll_at' => $enrollAt,
@@ -33,31 +33,31 @@ class record_model extends record_base {
 		$modelRnd = $this->model('matter\enroll\round');
 		if (isset($assignedRid)) {
 			$oAssignedRnd = $modelRnd->byId($assignedRid, ['rid,purpose']);
-			$aRecord['rid'] = $oAssignedRnd->rid;
-			$aRecord['purpose'] = $oAssignedRnd->purpose;
+			$aNewRec['rid'] = $oAssignedRnd->rid;
+			$aNewRec['purpose'] = $oAssignedRnd->purpose;
 		} else if ($oActiveRnd = $modelRnd->getActive($oApp)) {
-			$aRecord['rid'] = $oActiveRnd->rid;
-			$aRecord['purpose'] = $oActiveRnd->purpose;
+			$aNewRec['rid'] = $oActiveRnd->rid;
+			$aNewRec['purpose'] = $oActiveRnd->purpose;
 		}
 		/* 记录用户昵称 */
 		if (isset($aOptions['nickname'])) {
-			$aRecord['nickname'] = $this->escape($aOptions['nickname']);
+			$aNewRec['nickname'] = $this->escape($aOptions['nickname']);
 		} else {
 			$nickname = $this->model('matter\enroll')->getUserNickname($oApp, $oUser, $aOptions);
-			$aRecord['nickname'] = $this->escape($nickname);
+			$aNewRec['nickname'] = $this->escape($nickname);
 		}
 		/* 记录记录的表态 */
 		if (isset($oApp->actionRule->record->default->agreed)) {
 			$agreed = $oApp->actionRule->record->default->agreed;
 			if (in_array($agreed, ['A', 'D'])) {
-				$aRecord['agreed'] = $agreed;
+				$aNewRec['agreed'] = $agreed;
 			}
 		}
 		/* 移除用户未签到的原因 */
 		if (!empty($oUser->uid)) {
-			$rid = !empty($aRecord['rid']) ? $aRecord['rid'] : 'ALL';
+			$rid = !empty($aNewRec['rid']) ? $aNewRec['rid'] : 'ALL';
 			if (isset($oApp->absent_cause->{$oUser->uid}) && isset($oApp->absent_cause->{$oUser->uid}->{$rid})) {
-				$aRecord['comment'] = $this->escape($oApp->absent_cause->{$oUser->uid}->{$rid});
+				$aNewRec['comment'] = $this->escape($oApp->absent_cause->{$oUser->uid}->{$rid});
 				unset($oApp->absent_cause->{$oUser->uid}->{$rid});
 				if (count(get_object_vars($oApp->absent_cause->{$oUser->uid})) == 0) {
 					unset($oApp->absent_cause->{$oUser->uid});
@@ -72,13 +72,13 @@ class record_model extends record_base {
 			}
 		}
 
-		$this->insert('xxt_enroll_record', $aRecord, false);
+		$this->insert('xxt_enroll_record', $aNewRec, false);
 
 		/* 记录和轮次的关系 */
-		$oRecord = (object) $aRecord;
-		$modelRnd->createRecord($oRecord);
+		$oNewRec = (object) $aNewRec;
+		$modelRnd->createRecord($oNewRec);
 
-		return $oRecord;
+		return $oNewRec;
 	}
 	/**
 	 * 保存记录的数据

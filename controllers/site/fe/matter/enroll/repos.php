@@ -390,7 +390,8 @@ class repos extends base {
 		/* 记录的创建人 */
 		if (!empty($oPosted->mine) && $oPosted->mine === 'creator') {
 			$oCriteria->record->userid = $oUser->uid;
-		} else if (!empty($oPosted->mine) && $oPosted->mine === 'favored') { // 当前用户收藏
+		} else if (!empty($oPosted->mine) && $oPosted->mine === 'favored') {
+			// 当前用户收藏
 			$oCriteria->record->favored = true;
 		}
 		/* 记录的表态 */
@@ -498,9 +499,9 @@ class repos extends base {
 								} else {
 									$aOptions['agreed'] = ['Y', 'A'];
 								}
-								$items = $modelData->getMultitext($oRecord->enroll_key, $oSchema->id, $aOptions);
+								$items = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, $aOptions);
 								if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
-									$countItems = $modelData->getMultitext($oRecord->enroll_key, $oSchema->id, ['agreed' => ['Y', 'A'], 'fields' => 'id']);
+									$countItems = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, ['agreed' => ['Y', 'A'], 'fields' => 'id']);
 									$aCoworkState[$oSchema->id] = (object) ['length' => count($countItems)];
 								} else {
 									$aCoworkState[$oSchema->id] = (object) ['length' => count($items)];
@@ -781,7 +782,7 @@ class repos extends base {
 						} else if (!empty($oRecord->data->{$schemaId})) {
 							/* 协作填写题 */
 							if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
-								$items = $modelData->getMultitext($oRecord->enroll_key, $oSchema->id, ['excludeRoot' => true, 'agreed' => ['Y', 'A'], 'fields' => 'id,agreed,like_num,nickname,value']);
+								$items = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, ['excludeRoot' => true, 'agreed' => ['Y', 'A'], 'fields' => 'id,agreed,like_num,nickname,value']);
 								$aCoworkState[$oSchema->id] = (object) ['length' => count($items)];
 								if ($coworkReposLikeNum) {
 									$reposItems = [];

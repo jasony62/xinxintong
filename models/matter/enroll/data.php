@@ -10,12 +10,12 @@ class data_model extends entity_model {
 	/**
 	 * 缺省返回的列
 	 */
-	const DEFAULT_FIELDS = 'id,state,value,tag,supplement,rid,enroll_key,schema_id,userid,nickname,submit_at,score,remark_num,last_remark_at,like_num,like_log,modify_log,agreed,agreed_log,multitext_seq,vote_num';
+	const DEFAULT_FIELDS = 'id,state,value,tag,supplement,rid,enroll_key,schema_id,userid,group_id,nickname,submit_at,score,remark_num,last_remark_at,like_num,like_log,modify_log,agreed,agreed_log,multitext_seq,vote_num';
 	/**
 	 * 按题目记录数据
 	 * 不产生日志、积分等记录
 	 *
-	 * @param object $oUser ['uid','group_id']
+	 * @param object ['dbData', 'score']
 	 */
 	public function setData($oUser, $oApp, $oRecord, $submitData, $submitkey = '', $oAssignScore = null) {
 		if (empty($submitkey)) {
@@ -23,6 +23,7 @@ class data_model extends entity_model {
 		}
 
 		$schemasById = []; // 方便获取题目的定义
+		/* 以"member."开头的数据会记录在data.member中 */
 		foreach ($oApp->dynaDataSchemas as $oSchema) {
 			if (strpos($oSchema->id, 'member.') === 0) {
 				$oSchema->id = 'member';
@@ -110,9 +111,6 @@ class data_model extends entity_model {
 						$valueModifyLogs[] = $oNewModifyLog;
 						$aSchemaData = [
 							'submit_at' => $oRecord->enroll_at,
-							//'userid' => isset($oUser->uid) ? $oUser->uid : '',
-							//'nickname' => $this->escape($oRecord->nickname),
-							//'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 							'value' => $this->escape($oUpdatedItem->value),
 							'modify_log' => $this->escape($this->toJson($valueModifyLogs)),
 							'multitext_seq' => (int) $index + 1,
@@ -909,15 +907,59 @@ class data_model extends entity_model {
 		return $oRecData;
 	}
 	/**
+	 * 添加协作填写项
+	 */
+	public function addCowork($oUser, $oApp, $oRecData, $value, $agreed) {
+		$oRecord = $this->model('matter\enroll\record')->byId($oRecData->enroll_key, ['fields' => 'id,data']);
+		if (false === $oRecord) {
+			return fasle;
+		}
+
+		$current = time();
+		$oNewItem = new \stdClass;
+		$oNewItem->aid = $oApp->id;
+		$oNewItem->rid = $oRecData->rid;
+		$oNewItem->enroll_key = $oRecData->enroll_key;
+		$oNewItem->submit_at = $current;
+		$oNewItem->userid = isset($oUser->uid) ? $oUser->uid : '';
+		$oNewItem->nickname = isset($oUser->nickname) ? $this->escape($oUser->nickname) : '';
+		$oNewItem->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
+		$oNewItem->schema_id = $oRecData->schema_id;
+		$oNewItem->value = $this->escape($value);
+		$oNewItem->agreed = $agreed;
+		$oNewItem->multitext_seq = count($oRecData->value) + 1;
+
+		$oNewItem->id = $this->insert('xxt_enroll_record_data', $oNewItem, true);
+
+		/* 更新题目数据 */
+		$oRecData->value[] = (object) ['id' => $oNewItem->id, 'value' => $oNewItem->value];
+		$this->update(
+			'xxt_enroll_record_data',
+			['value' => $this->escape($this->toJson($oRecData->value))],
+			['id' => $oRecData->id]
+		);
+		/* 更新记录数据 */
+		$oRecord->data->{$oRecData->schema_id} = $oRecData->value;
+		$this->update(
+			'xxt_enroll_record',
+			['data' => $this->escape($this->toJson($oRecord->data))],
+			['id' => $oRecord->id]
+		);
+
+		$oNewItem = $this->byId($oNewItem->id, ['fields' => '*']);
+
+		return $oNewItem;
+	}
+	/**
 	 * 获得多项填写题数据
 	 */
-	public function getMultitext($ek, $schema, $oOptions = []) {
+	public function getCowork($ek, $schemaId, $oOptions = []) {
 		$fields = isset($oOptions['fields']) ? $oOptions['fields'] : self::DEFAULT_FIELDS . ',multitext_seq';
 
 		$q = [
 			$fields,
 			'xxt_enroll_record_data',
-			['enroll_key' => $ek, 'state' => 1, 'schema_id' => $schema],
+			['enroll_key' => $ek, 'state' => 1, 'schema_id' => $schemaId],
 		];
 		if (isset($oOptions['excludeRoot']) && $oOptions['excludeRoot']) {
 			$q[2]['multitext_seq'] = (object) ['op' => '>', 'pat' => 0];

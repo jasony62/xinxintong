@@ -170,6 +170,10 @@ class schema_model extends \TMS_MODEL {
 					}
 				}
 			}
+			/* 只有多项填写题才支持协作填写 */
+			if (isset($oSchema->cowork) && $oSchema->type !== 'multitext') {
+				unsset($oSchema->cowork);
+			}
 			/* 指定类型轮次下隐藏 */
 			if (isset($oSchema->hideByRoundPurpose)) {
 				if (!is_array($oSchema->hideByRoundPurpose) || empty($oSchema->hideByRoundPurpose)) {
@@ -1088,6 +1092,22 @@ class schema_model extends \TMS_MODEL {
 		}
 
 		return $aVoteSchemas;
+	}
+	/**
+	 * 转换为关联数组的形式
+	 */
+	public function asAssoc($schemas, $aOptions = []) {
+		if (isset($aOptions['filter']) && is_callable($aOptions['filter'])) {
+			$fnFilter = $aOptions['filter'];
+		}
+		$aSchemas = [];
+		foreach ($schemas as $oSchema) {
+			if (!isset($fnFilter) || $fnFilter($oSchema)) {
+				$aSchemas[$oSchema->id] = $oSchema;
+			}
+		}
+
+		return $aSchemas;
 	}
 	/**
 	 * 填写记录的字符串表示

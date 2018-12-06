@@ -42,7 +42,7 @@ class user_model extends \TMS_MODEL {
 		$oEntryRule = $oApp->entryRule;
 
 		/* 用户通讯录数据 */
-		if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y' && isset($oEntryRule->member)) {
+		if ($this->getDeepValue($oEntryRule, 'scope.member') === 'Y' && isset($oEntryRule->member)) {
 			$mschemaIds = array_keys(get_object_vars($oEntryRule->member));
 			if (count($mschemaIds)) {
 				$modelMem = $this->model('site\user\member');

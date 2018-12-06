@@ -382,47 +382,19 @@ class record extends main_base {
 		}
 
 		$modelEnl = $this->model('matter\enroll');
-		$modelRec = $this->model('matter\enroll\record');
-		$modelUsr = $this->model('matter\enroll\user');
 
-		$oApp = $modelEnl->byId($app, ['fields' => 'siteid,state,mission_id,sync_mission_round']);
+		$oApp = $modelEnl->byId($app, ['fields' => 'siteid,state,mission_id,sync_mission_round,data_schemas']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-
 		$oTargetApp = $modelEnl->byId($targetApp, ['fields' => '*']);
 		if (false === $oTargetApp || $oTargetApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
-		foreach ($oPosted->eks as $ek) {
-			$oRecord = $modelRec->byId($ek, ['fields' => 'userid,nickname,data']);
-			if (!$oRecord) {
-				continue;
-			}
+		$count = $this->model('matter\enroll\record_copy')->exportToApp($oApp, $oTargetApp, $oPosted->eks, $oPosted->mappings);
 
-			/* 传递的数据 */
-			$oNewRecData = new \stdClass;
-			foreach ($oPosted->mappings as $targetSchemaId => $oMapping) {
-				if (isset($oMapping->value)) {
-					$oNewRecData->{$targetSchemaId} = $oMapping->value;
-				} else if (!empty($oMapping->from) && !empty($oRecord->data->{$oMapping->from})) {
-					$oNewRecData->{$targetSchemaId} = $oRecord->data->{$oMapping->from};
-				}
-			}
-
-			/* 模拟用户 */
-			$oMockUser = $modelUsr->byId($oTargetApp, $oRecord->userid, ['fields' => 'id,userid,group_id,nickname']);
-			if (false === $oMockUser) {
-				$oMockUser = $modelUsr->detail($oTargetApp, (object) ['uid' => $oRecord->userid], $oNewRecData);
-			}
-
-			/* 在目标活动中创建新记录 */
-			$oNewRec = $modelRec->enroll($oTargetApp, $oMockUser);
-			$modelRec->setData($oMockUser, $oTargetApp, $oNewRec->enroll_key, $oNewRecData, '', true);
-		}
-
-		return new \ResponseData('ok');
+		return new \ResponseData($count);
 	}
 	/**
 	 * 投票结果导出到其他活动作为记录

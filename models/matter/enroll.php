@@ -468,11 +468,11 @@ class enroll_model extends enroll_base {
 		}
 		$nickname = '';
 		$oEntryRule = $oApp->entryRule;
-		if (isset($oEntryRule->anonymous) && $oEntryRule->anonymous === 'Y') {
+		if ($this->getDeepValue($oEntryRule, 'anonymous') === 'Y') {
 			/* 匿名访问 */
 			$nickname = '';
 		} else {
-			if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y' && isset($oEntryRule->member)) {
+			if ($this->getDeepValue($oEntryRule, 'scope.member') === 'Y' && isset($oEntryRule->member)) {
 				foreach ($oEntryRule->member as $schemaId => $rule) {
 					$modelMem = $this->model('site\user\member');
 					if (empty($oUser->unionid)) {
@@ -502,7 +502,7 @@ class enroll_model extends enroll_base {
 						}
 					}
 				}
-			} else if (isset($oEntryRule->scope->sns) && $oEntryRule->scope->sns === 'Y') {
+			} else if ($this->getDeepValue($oEntryRule, 'scope.sns') === 'Y') {
 				$modelAcnt = $this->model('site\user\account');
 				if ($siteUser = $modelAcnt->byId($oUser->uid)) {
 					foreach ($oEntryRule->sns as $snsName => $rule) {

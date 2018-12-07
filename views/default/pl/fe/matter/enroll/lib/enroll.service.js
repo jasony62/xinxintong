@@ -241,6 +241,9 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                 get: function() {
                     return _fnGetApp(_fnMakeApiUrl('get'));
                 },
+                check: function() {
+                    http2.get(_fnMakeApiUrl('check')).then(function() {});
+                },
                 renew: function(props) {
                     if (_oApp) {
                         http2.get(_fnMakeApiUrl('get')).then(function(rsp) {
@@ -418,7 +421,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
     /**
      * round
      */
-    ngModule.service('tkEnrollRound', ['$q', '$uibModal', 'http2', 'cstApp', function($q, $uibModal, http2, CstApp) {
+    ngModule.service('tkEnrollRound', ['$q', '$uibModal', 'http2', 'CstApp', function($q, $uibModal, http2, CstApp) {
         function RoundModal(oApp, oRound) {
             this.templateUrl = FrameTemplates.url('roundEditor');
             this.backdrop = 'static';
@@ -443,9 +446,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                 };
                 $scope2.stop = function() {
                     $scope2.round.state = '2';
-                    $mi.close({
-                        data: $scope2.round
-                    });
+                    $mi.close($scope2.round);
                 };
                 $scope2.start = function() {
                     $scope2.round.state = '1';
@@ -575,7 +576,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
             _siteId = siteId;
             _appId = appId;
         };
-        this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'pushnotify', 'cstApp', 'srvEnrollRound', 'tmsSchema', function($q, http2, noticebox, $uibModal, pushnotify, cstApp, srvEnlRnd, tmsSchema) {
+        this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'pushnotify', 'CstApp', 'srvEnrollRound', 'tmsSchema', function($q, http2, noticebox, $uibModal, pushnotify, CstApp, srvEnlRnd, tmsSchema) {
             var _ins = new BaseSrvEnrollRecord($q, http2, noticebox, $uibModal, tmsSchema);
             _ins.search = function(pageNumber) {
                 var url;
@@ -633,9 +634,9 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                 });
                 return defer.promise;
             };
-            _ins.update = function(record, updated) {
+            _ins.update = function(oRecord, oUpdated) {
                 var defer = $q.defer();
-                http2.post('/rest/pl/fe/matter/enroll/record/update?site=' + _siteId + '&app=' + _appId + '&ek=' + record.enroll_key, updated).then(function(rsp) {
+                http2.post('/rest/pl/fe/matter/enroll/record/update?site=' + _siteId + '&app=' + _appId + '&ek=' + oRecord.enroll_key, oUpdated).then(function(rsp) {
                     defer.resolve(rsp.data);
                 });
                 return defer.promise;
@@ -725,6 +726,30 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                     });
                 }
             };
+            _ins.batchRemove = function(oTmsRows) {
+                function removeNext(p) {
+                    var oRec;
+                    if (p < rowIndexes.length) {
+                        oRec = _ins._aRecords[rowIndexes[p]];
+                        http2.get('/rest/pl/fe/matter/enroll/record/remove?app=' + _appId + '&ek=' + oRec.enroll_key).then(function(rsp) {
+                            removedRecords.push(oRec);
+                            removeNext(++p);
+                        });
+                    } else {
+                        removedRecords.forEach(function(oRemoved) {
+                            _ins._aRecords.splice(_ins._aRecords.indexOf(oRemoved), 1);
+                            _ins._oPage.total = _ins._oPage.total - 1;
+                        });
+                        oTmsRows.reset();
+                    }
+                }
+                var rowIndexes, removedRecords;
+                rowIndexes = oTmsRows.indexes();
+                if (rowIndexes.length) {
+                    removedRecords = [];
+                    removeNext(0);
+                }
+            };
             _ins.restore = function(record) {
                 if (window.confirm('确认恢复？')) {
                     http2.get('/rest/pl/fe/matter/enroll/record/recover?app=' + _appId + '&ek=' + record.enroll_key).then(function(rsp) {
@@ -765,7 +790,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
             };
             _ins.notify = function(rows) {
                 var options = {
-                    matterTypes: cstApp.notifyMatter,
+                    matterTypes: CstApp.notifyMatter,
                     sender: 'enroll:' + _appId
                 };
                 _ins._oApp.mission && (options.missionId = _ins._oApp.mission.id);
@@ -916,17 +941,16 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                     templateUrl: '/views/default/pl/fe/matter/enroll/component/record/importByOther.html?_=1',
                     controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         function doSearchRnd(appId, oDataset) {
-                            http2.get('/rest/pl/fe/matter/enroll/round/list?app=' + appId + '&' + oDataset.page.j()).then(function(rsp) {
+                            http2.get('/rest/pl/fe/matter/enroll/round/list?app=' + appId, { page: oDataset.page }).then(function(rsp) {
                                 oDataset.data = rsp.data.rounds;
-                                oDataset.page.total = rsp.data.total;
                                 _oData.fromRnd = oDataset.data[0];
                             });
                         }
                         var _oData;
                         $scope2.data = _oData = {};
-                        $scope2.rounds = { page: http2.newPage() };
-                        $scope2.fromApps = { page: http2.newPage(), filter: {} };
-                        $scope2.fromRnds = { page: http2.newPage() };
+                        $scope2.rounds = { page: {} };
+                        $scope2.fromApps = { page: {}, filter: {} };
+                        $scope2.fromRnds = { page: {} };
                         $scope2.ok = function() {
                             $mi.close(_oData);
                         };
@@ -941,16 +965,15 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                             doSearchRnd(_appId, $scope2.rounds);
                         };
                         $scope2.doSearchFromApp = function() {
-                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _siteId + '&' + $scope2.fromApps.page.j();
+                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _siteId;
                             http2.post(url, {
                                 byTitle: $scope2.fromApps.filter.byTitle
-                            }).then(function(rsp) {
+                            }, { page: $scope2.fromApps.page }).then(function(rsp) {
                                 $scope2.fromApps.data = rsp.data.apps;
                                 if ($scope2.fromApps.data.length) {
                                     _oData.fromApp = $scope2.fromApps.data[0];
                                     $scope2.doSearchFromRnd(1);
                                 }
-                                $scope2.fromApps.page.total = rsp.data.total;
                             });
                         };
                         $scope2.doSearchFromRnd = function(at) {
@@ -1009,10 +1032,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                     eks = [];
                     Object.keys(rows.selected).forEach(function(key) {
                         if (rows.selected[key] === true) {
-                            var oRec = _ins._aRecords[key];
-                            if (Object.keys(oRec).indexOf('enroll_key') !== -1) {
-                                eks.push(oRec.enroll_key);
-                            }
+                            eks.push(_ins._aRecords[key].enroll_key);
                         }
                     });
                 }
@@ -1020,52 +1040,58 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                 if (!eks || eks.length === 0) {
                     defer.reject();
                 } else {
-                    $uibModal.open({
-                        templateUrl: '/views/default/pl/fe/matter/enroll/component/exportToOther.html?_=1',
-                        controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                            var page, data, filter;
-                            $scope2.sourceApp = oApp;
-                            $scope2.page = page = {};
-                            $scope2.data = data = { mappings: {} };
-                            $scope2.filter = filter = {};
-                            $scope2.ok = function() {
-                                $mi.close(data);
-                            };
-                            $scope2.cancel = function() {
-                                $mi.dismiss('cancel');
-                            };
-                            $scope2.doFilter = function() {
-                                page.at = 1;
-                                $scope2.doSearch();
-                            };
-                            $scope2.doSearch = function() {
-                                var url = '/rest/pl/fe/matter/enroll/list?site=' + _siteId;
-                                http2.post(url, {
-                                    byTitle: filter.byTitle
-                                }, { page: page }).then(function(rsp) {
-                                    $scope2.apps = rsp.data.apps;
-                                    if ($scope2.apps.length) {
-                                        data.fromApp = $scope2.apps[0];
-                                    }
-                                    $scope2.apps.forEach(function(oApp) {
-                                        oApp.dataSchemas = JSON.parse(oApp.data_schemas);
+                    http2.post('/rest/script/time', { html: { 'export': '/views/default/pl/fe/matter/enroll/component/record/exportToOther' } }).then(function(rsp) {
+                        $uibModal.open({
+                            templateUrl: '/views/default/pl/fe/matter/enroll/component/record/exportToOther.html?_=' + rsp.data.html.export.time,
+                            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                                var page, data, filter;
+                                $scope2.sourceApp = oApp;
+                                $scope2.page = page = {};
+                                $scope2.data = data = { mappings: {} };
+                                $scope2.filter = filter = {};
+                                $scope2.ok = function() {
+                                    $mi.close(data);
+                                };
+                                $scope2.cancel = function() {
+                                    $mi.dismiss('cancel');
+                                };
+                                $scope2.doFilter = function() {
+                                    page.at = 1;
+                                    $scope2.doSearch();
+                                };
+                                $scope2.doSearch = function() {
+                                    var url = '/rest/pl/fe/matter/enroll/list?site=' + _siteId;
+                                    http2.post(url, {
+                                        byTitle: filter.byTitle
+                                    }, { page: page }).then(function(rsp) {
+                                        $scope2.apps = rsp.data.apps;
+                                        if ($scope2.apps.length) {
+                                            data.fromApp = $scope2.apps[0];
+                                        }
+                                        $scope2.apps.forEach(function(oApp) {
+                                            oApp.dataSchemas = JSON.parse(oApp.data_schemas);
+                                        });
                                     });
+                                };
+                                $scope2.doSearch();
+                            }],
+                            backdrop: 'static',
+                            size: 'lg'
+                        }).result.then(function(data) {
+                            var url;
+                            if (data.fromApp && data.fromApp.id && data.mappings) {
+                                url = '/rest/pl/fe/matter/enroll/record/exportToOther';
+                                url += '?app=' + oApp.id;
+                                url += '&targetApp=' + data.fromApp.id;
+                                http2.post(url, { mappings: data.mappings, eks: eks }).then(function(rsp) {
+                                    noticebox.success('导入【' + rsp.data + '】条记录');
+                                    defer.resolve(rsp.data);
                                 });
-                            };
-                            $scope2.doSearch();
-                        }],
-                        backdrop: 'static',
-                        size: 'lg'
-                    }).result.then(function(data) {
-                        var url;
-                        if (data.fromApp && data.fromApp.id && data.mappings) {
-                            url = '/rest/pl/fe/matter/enroll/record/exportToOther';
-                            url += '?app=' + oApp.id;
-                            url += '&targetApp=' + data.fromApp.id;
-                            http2.post(url, { mappings: data.mappings, eks: eks }).then(function() {});
-                        }
+                            }
+                        });
                     });
                 }
+                
                 return defer.promise;
             };
             _ins.transferVotes = function(oApp) {

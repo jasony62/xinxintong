@@ -42,7 +42,7 @@ class user_model extends \TMS_MODEL {
 		$oEntryRule = $oApp->entryRule;
 
 		/* 用户通讯录数据 */
-		if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y' && isset($oEntryRule->member)) {
+		if ($this->getDeepValue($oEntryRule, 'scope.member') === 'Y' && isset($oEntryRule->member)) {
 			$mschemaIds = array_keys(get_object_vars($oEntryRule->member));
 			if (count($mschemaIds)) {
 				$modelMem = $this->model('site\user\member');
@@ -190,6 +190,8 @@ class user_model extends \TMS_MODEL {
 			case 'last_agree_cowork_at':
 			case 'last_agree_remark_at':
 			case 'last_topic_at':
+			case 'last_vote_schema_at':
+			case 'last_vote_cowork_at':
 				$aDbData[$field] = $value;
 				break;
 			case 'entry_num':
@@ -228,6 +230,8 @@ class user_model extends \TMS_MODEL {
 			case 'do_topic_read_elapse':
 			case 'topic_read_elapse':
 			case 'do_repos_read_elapse':
+			case 'vote_schema_num':
+			case 'vote_cowork_num':
 				$aDbData[$field] = $value + (int) $oBeforeData->{$field};
 				break;
 			case 'score':

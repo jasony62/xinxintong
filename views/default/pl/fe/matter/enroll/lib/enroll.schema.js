@@ -145,10 +145,10 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
     /**
      * 所有题目
      */
-    ngMod.controller('ctrlSchemaList', ['$scope', '$timeout', '$sce', '$uibModal', 'http2', 'cstApp', 'srv' + window.MATTER_TYPE + 'App', 'srvEnrollPage', 'srvEnrollSchema',
-        function($scope, $timeout, $sce, $uibModal, http2, cstApp, srvApp, srvAppPage, srvEnrollSchema) {
+    ngMod.controller('ctrlSchemaList', ['$scope', '$timeout', '$sce', '$uibModal', 'http2', 'CstApp', 'srv' + window.MATTER_TYPE + 'App', 'srvEnrollPage', 'srvEnrollSchema',
+        function($scope, $timeout, $sce, $uibModal, http2, CstApp, srvApp, srvAppPage, srvEnrollSchema) {
             $scope.activeSchema = null;
-            $scope.cstApp = cstApp;
+            $scope.CstApp = CstApp;
 
             $scope.assocApp = function(appId) {
                 var oApp, assocApp;
@@ -1418,7 +1418,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 var oApp, afterIndex, changedPages = [];
                 oApp = $scope.app;
                 if (oApp._schemasById[newSchema.id]) {
-                    alert(cstApp.alertMsg['schema.duplicated']);
+                    alert(CstApp.alertMsg['schema.duplicated']);
                     return;
                 }
                 if (undefined === oAfterSchema) {

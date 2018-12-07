@@ -6,14 +6,14 @@ require('../../../../../../asset/js/xxt.ui.date.js');
 require('../../../../../../asset/js/xxt.ui.share.js');
 require('../../../../../../asset/js/xxt.ui.image.js');
 require('../../../../../../asset/js/xxt.ui.geo.js');
+require('../../../../../../asset/js/xxt.ui.schema.js');
 
 require('../enroll/directive.css');
 require('../enroll/directive.js');
 
-var ngApp = angular.module('app', ['ngSanitize', 'ngRoute', 'ui.bootstrap', 'directive.enroll', 'notice.ui.xxt', 'http.ui.xxt', 'date.ui.xxt', 'snsshare.ui.xxt']);
-ngApp.oUtilSchema = require('../_module/schema.util.js');
+var ngApp = angular.module('app', ['ngSanitize', 'ngRoute', 'ui.bootstrap', 'directive.enroll', 'notice.ui.xxt', 'http.ui.xxt', 'date.ui.xxt', 'snsshare.ui.xxt', 'schema.ui.xxt']);
 ngApp.oUtilSubmit = require('../_module/submit.util.js');
-ngApp.factory('Input', ['$q', '$timeout', 'http2', 'tmsLocation', function($q, $timeout, http2, LS) {
+ngApp.factory('Input', ['$q', '$timeout', 'http2', 'tmsLocation', 'tmsSchema', function($q, $timeout, http2, LS, tmsSchema) {
     var Input, _ins;
     Input = function() {};
     Input.prototype.check = function(oTask, oTaskData) {
@@ -28,7 +28,7 @@ ngApp.factory('Input', ['$q', '$timeout', 'http2', 'tmsLocation', function($q, $
                         oSchema = schemas[j];
                         if (oSchema.type && oSchema.type !== 'html') {
                             value = oActionData ? oActionData[oSchema.id] : '';
-                            if (true !== (sCheckResult = ngApp.oUtilSchema.checkValue(oSchema, value))) {
+                            if (true !== (sCheckResult = tmsSchema.checkValue(oSchema, value))) {
                                 return sCheckResult;
                             }
                         }
@@ -416,7 +416,7 @@ ngApp.controller('ctrlTask', ['$scope', '$filter', 'noticebox', 'http2', 'Input'
                             schemasById[oSchema.id] = oSchema;
                         });
                         $scope.data[oAction.id] = {};
-                        ngApp.oUtilSchema.loadRecord(schemasById, $scope.data[oAction.id], oUserTask.data[oAction.id]);
+                        tmsSchema.loadRecord(schemasById, $scope.data[oAction.id], oUserTask.data[oAction.id]);
                     }
                 }
             });

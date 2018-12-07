@@ -18,8 +18,24 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
         };
 
         $scope.ep = null;
+        $scope.togglePageSetting = function($event) {
+            var target = event.target;
+            if (target.dataset.isOpen === 'Y') {
+                delete target.dataset.isOpen;
+                $(target).trigger('hide');
+            } else {
+                target.dataset.isOpen = 'Y';
+                $(target).trigger('show');
+            }
+        };
+        $scope.closePageSetting = function() {
+            var $popover;
+            $popover = $('#popoverPageSetting');
+            delete $popover[0].dataset.isOpen;
+            $popover.trigger('hide');
+        };
         $scope.addPage = function() {
-            $('body').click();
+            $scope.closePageSetting();
             srvAppPage.create().then(function(page) {
                 $scope.choosePage(page);
             });
@@ -45,14 +61,16 @@ define(['frame', 'editor'], function(ngApp, editorProxy) {
         //@todo 应该检查页面是否已经被使用
         $scope.delPage = function() {
             var oPage, oActSchema, bUserd;
-            $('body').click();
+            $scope.closePageSetting();
             for (var i = _oApp.pages.length - 1; i >= 0; i--) {
                 oPage = _oApp.pages[i];
-                for (var j = oPage.actSchemas.length - 1; j >= 0; j--) {
-                    oActSchema = oPage.actSchemas[j];
-                    if (oActSchema.next === $scope.ep.name) {
-                        bUserd = true;
-                        break;
+                if (oPage.actSchemas && oPage.actSchemas.length) {
+                    for (var j = oPage.actSchemas.length - 1; j >= 0; j--) {
+                        oActSchema = oPage.actSchemas[j];
+                        if (oActSchema.next === $scope.ep.name) {
+                            bUserd = true;
+                            break;
+                        }
                     }
                 }
                 if (bUserd) break;

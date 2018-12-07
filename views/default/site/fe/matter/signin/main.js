@@ -45,7 +45,17 @@ var setShareData = function(scope, params) {
     window.shareCounter = 0;
     window.xxt.share.options.logger = function(shareto) {};
 };
-var ngApp = angular.module('app', ['ngSanitize', 'notice.ui.xxt', 'http.ui.xxt', 'page.ui.xxt', 'directive.signin', 'snsshare.ui.xxt']);
+
+/* 公共加载的模块 */
+var angularModules = ['ngSanitize', 'notice.ui.xxt', 'http.ui.xxt', 'page.ui.xxt', 'directive.signin', 'snsshare.ui.xxt'];
+/* 加载指定的模块 */
+if (window.moduleAngularModules) {
+    window.moduleAngularModules.forEach(function(m) {
+        angularModules.push(m);
+    });
+}
+
+var ngApp = angular.module('app', angularModules);
 ngApp.config(['$controllerProvider', '$locationProvider', function($cp, $locationProvider) {
     ngApp.provider = {
         controller: $cp.register

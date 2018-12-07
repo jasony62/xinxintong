@@ -7,18 +7,18 @@ require('../../../../../../asset/js/xxt.ui.geo.js');
 require('../../../../../../asset/js/xxt.ui.url.js');
 require('../../../../../../asset/js/xxt.ui.paste.js');
 require('../../../../../../asset/js/xxt.ui.editor.js');
+require('../../../../../../asset/js/xxt.ui.schema.js');
 
 require('./_asset/ui.round.js');
 
-window.moduleAngularModules = ['round.ui.enroll', 'paste.ui.xxt', 'editor.ui.xxt', 'url.ui.xxt'];
+window.moduleAngularModules = ['round.ui.enroll', 'paste.ui.xxt', 'editor.ui.xxt', 'url.ui.xxt', 'schema.ui.xxt'];
 
 var ngApp = require('./main.js');
-ngApp.oUtilSchema = require('../_module/schema.util.js');
 ngApp.oUtilSubmit = require('../_module/submit.util.js');
 ngApp.config(['$compileProvider', function($compileProvider) {
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);
 }]);
-ngApp.factory('Input', ['$parse', 'tmsLocation', 'http2', function($parse, LS, http2) {
+ngApp.factory('Input', ['$parse', 'tmsLocation', 'http2', 'tmsSchema', function($parse, LS, http2, tmsSchema) {
     var Input, _ins;
     Input = function() {};
     Input.prototype.check = function(oRecData, oApp, oPage) {
@@ -31,7 +31,7 @@ ngApp.factory('Input', ['$parse', 'tmsLocation', 'http2', function($parse, LS, h
                 if ((!oSchema.visibility || !oSchema.visibility.rules || oSchema.visibility.rules.length === 0 || oSchema.visibility.visible) && oSchema.cowork !== 'Y' && (oSchema._visible !== false)) {
                     if (oSchema.type && oSchema.type !== 'html') {
                         value = $parse(oSchema.id)(oRecData);
-                        sCheckResult = ngApp.oUtilSchema.checkValue(oSchema, value);
+                        sCheckResult = tmsSchema.checkValue(oSchema, value);
                         if (true !== sCheckResult) {
                             return sCheckResult;
                         }
@@ -395,7 +395,7 @@ ngApp.directive('tmsVoiceInput', ['$q', 'noticebox', function($q, noticebox) {
         }]
     }
 }]);
-ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout', 'Input', 'tmsLocation', 'http2', 'noticebox', 'tmsPaste', 'tmsUrl', '$compile', 'enlRound', function($scope, $parse, $q, $uibModal, $timeout, Input, LS, http2, noticebox, tmsPaste, tmsUrl, $compile, enlRound) {
+ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout', 'Input', 'tmsLocation', 'http2', 'noticebox', 'tmsPaste', 'tmsUrl', 'tmsSchema', '$compile', 'enlRound', function($scope, $parse, $q, $uibModal, $timeout, Input, LS, http2, noticebox, tmsPaste, tmsUrl, tmsSchema, $compile, enlRound) {
     function fnHidePageActions() {
         var domActs, domAct;
         if (domActs = document.querySelectorAll('[wrap=button]')) {
@@ -739,9 +739,9 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
             });
         }
 
-        ngApp.oUtilSchema.autoFillMember(_oApp._schemasById, $scope.user, $scope.data.member);
+        tmsSchema.autoFillMember(_oApp._schemasById, $scope.user, $scope.data.member);
 
-        ngApp.oUtilSchema.loadRecord(_oApp._schemasById, $scope.data, oRecord.data);
+        tmsSchema.loadRecord(_oApp._schemasById, $scope.data, oRecord.data);
 
         $scope.record = oRecord;
         if (oRecord.supplement) {
@@ -808,7 +808,7 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         var dataSchemas;
         dataSchemas = oPage.dataSchemas;
         // 设置题目的默认值
-        ngApp.oUtilSchema.autoFillDefault(_oApp._schemasById, $scope.data);
+        tmsSchema.autoFillDefault(_oApp._schemasById, $scope.data);
         // 控制题目的轮次可见性
         fnToggleRoundSchemas(dataSchemas);
         // 控制关联题目的可见性

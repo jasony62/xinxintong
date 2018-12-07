@@ -69,4 +69,32 @@ class account extends \pl\be\base {
 
 		return new \ResponseData($account->uid);
 	}
+	/**
+	 * 禁用站点用户注册帐号
+	 */
+	public function forbide_action() {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		$user = $this->getPostJson();
+
+		$this->model()->update('account', ['forbidden' => '1'], ['uid' => $user->uid]);
+
+		return new \ResponseData('ok');
+	}
+	/**
+	 * 激活被禁用的站点用户注册帐号
+	 */
+	public function active_action() {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		$user = $this->getPostJson();
+
+		$this->model()->update('account', ['forbidden' => '0'], ['uid' => $user->uid]);
+
+		return new \ResponseData('ok');
+	}
 }

@@ -54,6 +54,12 @@
 .bottom-bar>* {
     margin-right: .5em;
 }
+.cowork >div+div{
+    margin-top: 15px;
+}
+.cowork >div>div{
+    margin-top: 8px;
+}
 </style>
 <div id='recordEditor' class='col-md-6 col-md-offset-3'>
     <div class='panel panel-default'>
@@ -76,14 +82,9 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class='form-label col-md-3'>共享设置</label>
+                    <label class='form-label col-md-3'>表态</label>
                     <div class='col-md-9'>
-                        <select class='form-control' ng-model="record.agreed" disabled>
-                            <option value=''>未表态</option>
-                            <option value='Y'>推荐</option>
-                            <option value='A'>接受</option>
-                            <option value='N'>屏蔽</option>
-                        </select>
+                        <span ng-bind="::CstNaming.enroll.agreed[record.agreed]"></span>
                     </div>
                 </div>
                 <div class="form-group">
@@ -108,15 +109,17 @@
                             <option ng-if="activeRound" value='{{activeRound.rid}}'>当前轮次（{{activeRound.title}}）</option>
                             <option value="{{rnd.rid}}" ng-repeat="rnd in rounds" ng-if="!rnd._isActive">{{rnd.title}}</option>
                         </select>
-                        <div ng-show="pageOfRound.total>pageOfRound.size">
-                            <span>总数：{{pageOfRound.total}}</span>
-                            <ul uib-pagination style="margin:0;vertical-align:middle;cursor:pointer" boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
+                        <div ng-if="pageOfRound.total>pageOfRound.size">
+                            <div class='pl-pagination'>
+                                <span>总数：{{pageOfRound.total}}</span>
+                                <ul uib-pagination boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div ng-repeat="schema in app.dynaDataSchemas" ng-if="schema.type!=='html'&&!schema.mschema_id">
                     <div class="form-group">
-                        <label class='form-label col-md-3'>{{schema.title}}</label>
+                        <label class='form-label col-md-3'>{{::schema.title}}</label>
                         <div ng-switch on="schema.type" class='col-md-9'>
                             <textarea class='form-control' ng-switch-when="longtext" ng-model="record.data[schema.id]"></textarea>
                             <select class='form-control' ng-switch-when="single" ng-model="record.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
@@ -125,12 +128,12 @@
                             <ul ng-switch-when="multiple">
                                 <li class='checkbox' ng-repeat="op in schema.ops">
                                     <label>
-                                        <input type="checkbox" name="{{schema.id}}" ng-model="record.data[schema.id][op.v]" /><span>{{op.l}}</span></label>
+                                        <input type="checkbox" name="{{schema.id}}" ng-model="record.data[schema.id][op.v]" /><span>{{::op.l}}</span></label>
                                 </li>
                             </ul>
                             <div ng-switch-when="score">
                                 <div ng-repeat="op in schema.ops">
-                                    <div>{{op.l}}</div>
+                                    <div>{{::op.l}}</div>
                                     <select class='form-control' ng-model="record.data[schema.id][op.v]" ng-options="number as number for number in scoreRangeArray(schema)">
                                         <option></option>
                                     </select>
@@ -170,27 +173,26 @@
                                 </ul>
                                 <button class="btn btn-default" ng-click="chooseFile(schema.id)">上传文件</button>
                             </div>
-                            <div ng-switch-when='multitext'>
-                                <div ng-repeat="item in record.data[schema.id]" style="margin-bottom:10px">
-                                    <div class="input-group">
-                                        <input type='text' class='form-control' ng-model="item.value" />
-                                        <span class="input-group-btn"><button class="btn btn-default" ng-click="removeItem(record.data[schema.id], $index)"><i class="glyphicon glyphicon-trash"></i></button></span>
-                                    </div>
-                                    <div class='bottom-bar'>
-                                        <div ng-if="schema.shareable==='Y'">
-                                            <span>赞同<span class='badge'>{{record.verbose[schema.id]._items[item.id].like_num||0}}</span></span>
+                            <div class='cowork' ng-switch-when='multitext'>
+                                <div ng-repeat="item in record.data[schema.id]">
+                                    <div>
+                                        <div class='input-group'>
+                                            <div class='form-control' ng-bind="item.value"></div>
+                                            <div class='input-group-btn'>
+                                                <button class='btn btn-default' ng-click="removeItem(record.data[schema.id],$index)"><span class='glyphicon glyphicon-trash'></span></button>
+                                            </div>
                                         </div>
-                                        <span ng-if="schema.shareable==='Y'">
-                                            <select class='form-control input-sm' ng-change="agree(record,schema,record.verbose[schema.id]._items[item.id].agreed,item.id)" ng-model="record.verbose[schema.id]._items[item.id].agreed" disabled>
-                                                <option value=''>未表态</option>
-                                                <option value='Y'>推荐</option>
-                                                <option value='A'>接受</option>
-                                                <option value='N'>屏蔽</option>
-                                            </select>
-                                        </span>
+                                    </div>
+                                    <div class='bottom-bar' ng-if="schema.shareable==='Y'">
+                                        <div><span class='glyphicon glyphicon-user'></span> {{::record.verbose[schema.id]._items[item.id].nickname}}</div>
+                                        <div>
+                                            <span>赞同（<span>{{record.verbose[schema.id]._items[item.id].like_num||0}}</span>）</span>
+                                        </div>
+                                        <div>
+                                            <span ng-bind="::CstNaming.enroll.agreed[record.verbose[schema.id]._items[item.id].agreed]"></span>
+                                        </div>
                                     </div>
                                 </div>
-                                <button class="btn btn-default" ng-click="addItem(schema.id)">添加内容</button>
                             </div>
                             <div ng-switch-when='date'>
                                 <tms-datepicker class='tms-datepicker' tms-title='时间' tms-obj="rnd" tms-date="record.data[schema.id]" tms-state="signinAt"></tms-datepicker>
@@ -216,15 +218,10 @@
                                     <input type='text' class='form-control' ng-disabled="['single','multiple'].indexOf(schema.type)!==-1" ng-model="quizScore[schema.id]" style='width:64px'>
                                 </div>
                                 <div ng-if="schema.shareable==='Y'">
-                                    <span>赞同<span class='badge'>{{record.verbose[schema.id].like_num||0}}</span></span>
+                                    <span>赞同（{{record.verbose[schema.id].like_num||0}}）</span>
                                 </div>
                                 <div ng-if="schema.shareable==='Y'">
-                                    <select class='form-control input-sm' ng-change="agree(record,schema,record.verbose[schema.id].agreed)" ng-model="record.verbose[schema.id].agreed" disabled>
-                                        <option value=''>未表态</option>
-                                        <option value='Y'>推荐</option>
-                                        <option value='A'>接受</option>
-                                        <option value='N'>屏蔽</option>
-                                    </select>
+                                    <span ng-bind="::CstNaming.enroll.agreed[record.verbose[schema.id].agreed]"></span>
                                 </div>
                             </div>
                         </div>
@@ -252,23 +249,21 @@
                                 <img flex-img="" />
                             </li>
                         </ul>
-                        <span ng-switch-when="file">
-                                <span ng-repeat="file in record.data[schema.id]">
+                        <div ng-switch-when="file">
+                            <span ng-repeat="file in record.data[schema.id]">
                                     <span ng-bind="file.url"></span>
-                        <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
-                            <source src="{{file.url}}" type="{{file.type}}" />
-                        </video>
-                        <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
+                            <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
+                                <source src="{{file.url}}" type="{{file.type}}" />
+                            </video>
+                            <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
                         </span>
-                        </span>
+                        </div>
                         <div ng-switch-when='multitext'>
                             <div ng-repeat="item in record.data[schema.id]" style="margin-bottom:10px">
                                 <div class="input-group">
                                     <input type='text' class='form-control' ng-model="item.value" />
-                                    <span class="input-group-btn"><button class="btn btn-default" ng-click="removeItem(record.data[schema.id], $index)"><i class="glyphicon glyphicon-trash"></i></button></span>
                                 </div>
                             </div>
-                            <button class="btn btn-default" ng-click="addItem(schema.id)">添加内容</button>
                         </div>
                         <input type='text' class='form-control' disabled ng-switch-default ng-model="record.data[schema.id]">
                     </div>
@@ -299,23 +294,14 @@
                                 <img flex-img="" />
                             </li>
                         </ul>
-                        <span ng-switch-when="file">
-                                <span ng-repeat="file in record.data[schema.id]">
+                        <div ng-switch-when="file">
+                            <span ng-repeat="file in record.data[schema.id]">
                                     <span ng-bind="file.url"></span>
-                        <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
-                            <source src="{{file.url}}" type="{{file.type}}" />
-                        </video>
-                        <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
+                            <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
+                                <source src="{{file.url}}" type="{{file.type}}" />
+                            </video>
+                            <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
                         </span>
-                        </span>
-                        <div ng-switch-when='multitext'>
-                            <div ng-repeat="item in record.data[schema.id]" style="margin-bottom:10px">
-                                <div class="input-group">
-                                    <input type='text' class='form-control' ng-model="item.value" />
-                                    <span class="input-group-btn"><button class="btn btn-default" ng-click="removeItem(record.data[schema.id], $index)"><i class="glyphicon glyphicon-trash"></i></button></span>
-                                </div>
-                            </div>
-                            <button class="btn btn-default" ng-click="addItem(schema.id)">添加内容</button>
                         </div>
                         <input type='text' class='form-control' disabled ng-switch-default ng-model="record.data[schema.id]">
                     </div>

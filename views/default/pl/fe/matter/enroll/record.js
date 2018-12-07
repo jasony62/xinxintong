@@ -1,11 +1,11 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRecord', ['$scope', '$timeout', '$location', '$uibModal', 'srvEnrollApp', 'srvEnrollRound', 'srvEnrollRecord', '$filter', 'http2', 'noticebox', 'tmsRowPicker', function($scope, $timeout, $location, $uibModal, srvEnrollApp, srvEnlRnd, srvEnrollRecord, $filter, http2, noticebox, tmsRowPicker) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', '$timeout', '$location', '$uibModal', 'srvEnrollApp', 'srvEnrollRound', 'srvEnrollRecord', '$filter', 'http2', 'noticebox', 'tmsRowPicker', function($scope, $timeout, $location, $uibModal, srvEnrollApp, srvEnlRnd, srvEnlRec, $filter, http2, noticebox, tmsRowPicker) {
         function fnSum4Schema() {
             var sum4SchemaAtPage;
             $scope.sum4SchemaAtPage = sum4SchemaAtPage = {};
             if ($scope.bRequireScore) {
-                srvEnrollRecord.sum4Schema().then(function(oResult) {
+                srvEnlRec.sum4Schema().then(function(oResult) {
                     $scope.sum4Schema = oResult;
                     for (var schemaId in oResult) {
                         if ($scope.records.length) {
@@ -42,7 +42,7 @@ define(['frame'], function(ngApp) {
             var score4SchemaAtPage;
             $scope.score4SchemaAtPage = score4SchemaAtPage = { sum: 0 };
             if ($scope.bRequireScore) {
-                srvEnrollRecord.score4Schema().then(function(result) {
+                srvEnlRec.score4Schema().then(function(result) {
                     $scope.score4Schema = result;
                     for (var schemaId in result) {
                         if ($scope.records.length) {
@@ -76,7 +76,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.doSearch = function(pageNumber) {
             $scope.rows.reset();
-            srvEnrollRecord.search(pageNumber).then(function() {
+            srvEnlRec.search(pageNumber).then(function() {
                 $scope.bRequireSum && fnSum4Schema();
                 $scope.bRequireScore && $timeout(function() {
                     fnScore4Schema();
@@ -93,7 +93,7 @@ define(['frame'], function(ngApp) {
             $scope.doSearch();
         });
         $scope.filter = function() {
-            srvEnrollRecord.filter().then(function() {
+            srvEnlRec.filter().then(function() {
                 $scope.rows.reset();
                 $scope.bRequireSum && fnSum4Schema();
                 $scope.bRequireScore && $timeout(function() {
@@ -108,28 +108,35 @@ define(['frame'], function(ngApp) {
         };
         $scope.batchTag = function() {
             if ($scope.rows.count) {
-                srvEnrollRecord.batchTag($scope.rows);
+                srvEnlRec.batchTag($scope.rows);
             }
         };
         $scope.removeRecord = function(record) {
-            srvEnrollRecord.remove(record);
+            srvEnlRec.remove(record);
+        };
+        $scope.batchRemove = function() {
+            if ($scope.rows.count) {
+                noticebox.confirm('删除选中的记录，确定？').then(function() {
+                    srvEnlRec.batchRemove($scope.rows);
+                });
+            }
         };
         $scope.empty = function() {
-            srvEnrollRecord.empty();
+            srvEnlRec.empty();
         };
         $scope.verifyAll = function() {
-            srvEnrollRecord.verifyAll();
+            srvEnlRec.verifyAll();
         };
         $scope.batchVerify = function() {
             if ($scope.rows.count) {
-                srvEnrollRecord.batchVerify($scope.rows);
+                srvEnlRec.batchVerify($scope.rows);
             }
         };
         $scope.export = function() {
-            srvEnrollRecord.export();
+            srvEnlRec.export();
         };
         $scope.exportImage = function() {
-            srvEnrollRecord.exportImage();
+            srvEnlRec.exportImage();
         };
         $scope.renewScore = function() {
             srvEnlRnd.list().then(function(oResult) {
@@ -150,24 +157,24 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.importByOther = function() {
-            srvEnrollRecord.importByOther().then(function() {
+            srvEnlRec.importByOther().then(function() {
                 $scope.rows.reset();
             });
         };
         $scope.exportToOther = function() {
-            srvEnrollRecord.exportToOther($scope.app, $scope.rows);
+            srvEnlRec.exportToOther($scope.app, $scope.rows);
         };
         $scope.transferVotes = function() {
-            srvEnrollRecord.transferVotes($scope.app);
+            srvEnlRec.transferVotes($scope.app);
         };
         $scope.transferSchemaAndVotes = function() {
-            srvEnrollRecord.transferSchemaAndVotes($scope.app);
+            srvEnlRec.transferSchemaAndVotes($scope.app);
         };
         $scope.transferGroupAndMarks = function() {
-            srvEnrollRecord.transferGroupAndMarks($scope.app);
+            srvEnlRec.transferGroupAndMarks($scope.app);
         };
         $scope.fillByOther = function() {
-            srvEnrollRecord.fillByOther($scope.app);
+            srvEnlRec.fillByOther($scope.app);
         };
         $scope.openFileUrl = function(file) {
             var url;
@@ -314,7 +321,7 @@ define(['frame'], function(ngApp) {
                 rsp.data.forEach(function(oSchema) {
                     oApp._unionSchemasById[oSchema.id] = oSchema;
                 });
-                srvEnrollRecord.init(oApp, $scope.page, $scope.criteria, $scope.records);
+                srvEnlRec.init(oApp, $scope.page, $scope.criteria, $scope.records);
                 // schemas
                 var recordSchemas = [],
                     recordSchemasExt = [],

@@ -15,7 +15,7 @@
                 </form>
                 <ul class="navbar-form navbar-right">
                     <button class='btn' ng-class="ep.$$modified?'btn-success':'btn-default'" ng-click="save()">保存修改</button>
-                    <button uib-popover-template="'pageSetting.html'" popover-append-to-body='true' popover-placement="left-top" popover-trigger="outsideClick" class="btn btn-default">高级设置 <span class="caret"></span></button>
+                    <button id='popoverPageSetting' uib-popover-template="'pageSetting.html'" popover-append-to-body='true' popover-placement="left-top" popover-trigger="'show'" ng-click="togglePageSetting($event)" class="btn btn-default">高级设置 <span class="caret"></span></button>
                 </ul>
             </div>
         </nav>
@@ -53,7 +53,7 @@
                 <!-- create button wrap -->
                 <div class='list-group-item'>
                     <div class='help-block'>在页面中添加操作</div>
-                    <button class='btn btn-default btn-block' ng-click="configButton()">设置页面操作<span ng-if="ep.actSchemas.length>0">（已有<span ng-bind="ep.actSchemas.length"></span>个）</span></button>
+                    <button class='btn btn-default btn-block' ng-click="configButton(ep)">设置页面操作<span ng-if="ep.actSchemas.length>0">（已有<span ng-bind="ep.actSchemas.length"></span>个）</span></button>
                 </div>
                 <!-- end create button wrap-->
                 <!-- embed inner matter -->

@@ -382,47 +382,19 @@ class record extends main_base {
 		}
 
 		$modelEnl = $this->model('matter\enroll');
-		$modelRec = $this->model('matter\enroll\record');
-		$modelUsr = $this->model('matter\enroll\user');
 
-		$oApp = $modelEnl->byId($app, ['fields' => 'siteid,state,mission_id,sync_mission_round']);
+		$oApp = $modelEnl->byId($app, ['fields' => 'siteid,state,mission_id,sync_mission_round,data_schemas']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-
 		$oTargetApp = $modelEnl->byId($targetApp, ['fields' => '*']);
 		if (false === $oTargetApp || $oTargetApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
-		foreach ($oPosted->eks as $ek) {
-			$oRecord = $modelRec->byId($ek, ['fields' => 'userid,nickname,data']);
-			if (!$oRecord) {
-				continue;
-			}
+		$count = $this->model('matter\enroll\record_copy')->exportToApp($oApp, $oTargetApp, $oPosted->eks, $oPosted->mappings);
 
-			/* 传递的数据 */
-			$oNewRecData = new \stdClass;
-			foreach ($oPosted->mappings as $targetSchemaId => $oMapping) {
-				if (isset($oMapping->value)) {
-					$oNewRecData->{$targetSchemaId} = $oMapping->value;
-				} else if (!empty($oMapping->from) && !empty($oRecord->data->{$oMapping->from})) {
-					$oNewRecData->{$targetSchemaId} = $oRecord->data->{$oMapping->from};
-				}
-			}
-
-			/* 模拟用户 */
-			$oMockUser = $modelUsr->byId($oTargetApp, $oRecord->userid, ['fields' => 'id,userid,group_id,nickname']);
-			if (false === $oMockUser) {
-				$oMockUser = $modelUsr->detail($oTargetApp, (object) ['uid' => $oRecord->userid], $oNewRecData);
-			}
-
-			/* 在目标活动中创建新记录 */
-			$oNewRec = $modelRec->enroll($oTargetApp, $oMockUser);
-			$modelRec->setData($oMockUser, $oTargetApp, $oNewRec->enroll_key, $oNewRecData, '', true);
-		}
-
-		return new \ResponseData('ok');
+		return new \ResponseData($count);
 	}
 	/**
 	 * 投票结果导出到其他活动作为记录
@@ -1029,19 +1001,19 @@ class record extends main_base {
 			return new \ResponseTimeout();
 		}
 
-		$oPosted = $this->getPostJson();
 		$modelEnl = $this->model('matter\enroll');
-		$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
-
 		$oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+
+		$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
 		$oBeforeRecord = $modelRec->byId($ek, ['verbose' => 'N']);
 		if (false === $oBeforeRecord || $oBeforeRecord->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
+		$oPosted = $this->getPostJson();
 		/* 更新记录数据 */
 		$oUpdated = new \stdClass;
 		$oUpdated->enroll_at = time();
@@ -1828,7 +1800,7 @@ class record extends main_base {
 		$columnNum1 = 0; //列号
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '登记时间');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '审核通过');
-		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '登记轮次');
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '填写轮次');
 
 		// 转换标题
 		$aNumberSum = []; // 数值型题目的合计
@@ -1920,9 +1892,9 @@ class record extends main_base {
 							}
 						}
 					}
-					if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
-						$cellValue .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
-					}
+					// if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
+					// 	$cellValue .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
+					// }
 					$cellValue = str_replace(['<br>', '</br>'], ["\n", ""], $cellValue);
 					$cellValue = strip_tags($cellValue);
 					$cellValue = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $cellValue);
@@ -1943,9 +1915,9 @@ class record extends main_base {
 						}
 					}
 					$cellValue = implode(',', $labels);
-					if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
-						$cellValue .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
-					}
+					// if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
+					// 	$cellValue .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
+					// }
 					$cellValue = str_replace(['<br>', '</br>'], ["\n", ""], $cellValue);
 					$cellValue = strip_tags($cellValue);
 					$cellValue = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $cellValue);
@@ -1965,9 +1937,9 @@ class record extends main_base {
 					break;
 				case 'image':
 					$v0 = '';
-					if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
-						$v0 .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
-					}
+					// if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
+					// 	$v0 .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
+					// }
 					$v0 = str_replace(['<br>', '</br>'], ["\n", ""], $v0);
 					$v0 = strip_tags($v0);
 					$v0 = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v0);
@@ -1976,9 +1948,9 @@ class record extends main_base {
 					break;
 				case 'file':
 					$v0 = '';
-					if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
-						$v0 .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
-					}
+					// if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
+					// 	$v0 .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
+					// }
 					$v0 = str_replace(['<br>', '</br>'], ["\n", ""], $v0);
 					$v0 = strip_tags($v0);
 					$v0 = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v0);

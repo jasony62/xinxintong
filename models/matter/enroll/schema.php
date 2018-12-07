@@ -170,6 +170,10 @@ class schema_model extends \TMS_MODEL {
 					}
 				}
 			}
+			/* 只有多项填写题才支持协作填写 */
+			if (isset($oSchema->cowork) && $oSchema->type !== 'multitext') {
+				unsset($oSchema->cowork);
+			}
 			/* 指定类型轮次下隐藏 */
 			if (isset($oSchema->hideByRoundPurpose)) {
 				if (!is_array($oSchema->hideByRoundPurpose) || empty($oSchema->hideByRoundPurpose)) {
@@ -271,18 +275,20 @@ class schema_model extends \TMS_MODEL {
 	 * 去除题目中的通讯录信息
 	 */
 	public function wipeMschema(&$oSchema, $oMschema) {
-		if ($oSchema->mschema_id === $oMschema->id) {
-			/* 更新题目 */
-			$oSchema->type = 'shorttext';
-			$oSchema->id = str_replace('member.', '', $oSchema->id);
-			if (in_array($oSchema->id, ['name', 'mobile', 'email'])) {
-				$oSchema->format = $oSchema->id;
-			} else {
-				$oSchema->format = '';
-			}
-			unset($oSchema->mschema_id);
+		if (isset($oSchema->mschema_id)) {
+			if ($oSchema->mschema_id === $oMschema->id) {
+				/* 更新题目 */
+				$oSchema->type = 'shorttext';
+				$oSchema->id = str_replace('member.', '', $oSchema->id);
+				if (in_array($oSchema->id, ['name', 'mobile', 'email'])) {
+					$oSchema->format = $oSchema->id;
+				} else {
+					$oSchema->format = '';
+				}
+				unset($oSchema->mschema_id);
 
-			return true;
+				return true;
+			}
 		}
 
 		return false;
@@ -391,7 +397,7 @@ class schema_model extends \TMS_MODEL {
 	public function wipeAssoc(&$oSchema, $aAssocAppIds) {
 		if (isset($oSchema->fromApp) && in_array($oSchema->fromApp, $aAssocAppIds)) {
 			unset($oSchema->fromApp);
-			unset($oSchema->requieCheck);
+			unset($oSchema->requireCheck);
 
 			return true;
 		}
@@ -1027,5 +1033,138 @@ class schema_model extends \TMS_MODEL {
 		}
 
 		return $aResult;
+	}
+	/**
+	 * 需要进行投票的题目
+	 */
+	public function getCanVote($oApp, $oRound = null) {
+		if (!isset($oApp->dynaDataSchemas) || !isset($oApp->voteConfig)) {
+			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,vote_config']);
+		}
+		if (empty($oRound)) {
+			$oRound = $oApp->appRound;
+		}
+
+		$fnValidConfig = function ($oVoteConfig) use ($oRound) {
+			if (empty($oVoteConfig->schemas)) {
+				return [false];
+			}
+			$current = time();
+			if ($oStartRule = $this->getDeepValue($oVoteConfig, 'start.time')) {
+				if ($this->getDeepValue($oStartRule, 'mode') === 'after_round_start_at') {
+					if ($this->getDeepValue($oStartRule, 'unit') === 'hour') {
+						$afterHours = (int) $this->getDeepValue($oStartRule, 'value');
+						if (empty($oRound->start_at) || ($current < $oRound->start_at + ($afterHours * 3600))) {
+							return [true, 'BS'];
+						}
+					}
+				}
+			}
+			if ($oEndRule = $this->getDeepValue($oVoteConfig, 'end.time')) {
+				if ($this->getDeepValue($oEndRule, 'mode') === 'after_round_start_at') {
+					if ($this->getDeepValue($oEndRule, 'unit') === 'hour') {
+						$afterHours = (int) $this->getDeepValue($oEndRule, 'value');
+						if (empty($oRound->start_at) || ($current > $oRound->start_at + ($afterHours * 3600))) {
+							return [true, 'AE'];
+						}
+					}
+				}
+			}
+
+			return [true, 'IP'];
+		};
+		$aVoteSchemas = [];
+		foreach ($oApp->voteConfig as $oVoteConfig) {
+			$aValid = $fnValidConfig($oVoteConfig);
+			if (false === $aValid[0]) {
+				continue;
+			}
+			foreach ($oApp->dynaDataSchemas as $oSchema) {
+				if (in_array($oSchema->id, $oVoteConfig->schemas)) {
+					$oVoteRule = new \stdClass;
+					$oVoteRule->state = $aValid[1];
+					$oVoteRule->limit = $this->getDeepValue($oVoteConfig, 'limit.num', 0);
+					$oVoteRule->groups = $this->getDeepValue($oVoteConfig, 'role.groups');
+					$oSchema->vote = $oVoteRule;
+					$aVoteSchemas[$oSchema->id] = $oSchema;
+				}
+			}
+		}
+
+		return $aVoteSchemas;
+	}
+	/**
+	 * 转换为关联数组的形式
+	 */
+	public function asAssoc($schemas, $aOptions = []) {
+		if (isset($aOptions['filter']) && is_callable($aOptions['filter'])) {
+			$fnFilter = $aOptions['filter'];
+		}
+		$aSchemas = [];
+		foreach ($schemas as $oSchema) {
+			if (!isset($fnFilter) || $fnFilter($oSchema)) {
+				$aSchemas[$oSchema->id] = $oSchema;
+			}
+		}
+
+		return $aSchemas;
+	}
+	/**
+	 * 填写记录的字符串表示
+	 */
+	public function strRecData($oRecData, $schemas, $aOptions = []) {
+		if (empty($schemas)) {
+			return '';
+		}
+
+		if (!empty($aOptions)) {
+			if (isset($aOptions['fnSchemaFilter'])) {
+				$fnSchemaFilter = $aOptions['fnSchemaFilter'];
+			}
+			if (isset($aOptions['fnDataFilter'])) {
+				$fnDataFilter = $aOptions['fnDataFilter'];
+			}
+		}
+
+		$str = '';
+		foreach ($schemas as $oSchema) {
+			if (empty($fnSchemaFilter) || $fnSchemaFilter($oSchema)) {
+				$schemaData = $this->getDeepValue($oRecData, $oSchema->id);
+				switch ($oSchema->type) {
+				case 'image':
+					if (is_array($schemaData) && count($schemaData)) {
+						$str .= implode(',', $schemaData);
+					}
+					break;
+				case 'file':
+					if (is_array($schemaData) && count($schemaData)) {
+						foreach ($schemaData as $oFile) {
+							$str .= $oFile->name;
+						};
+					}
+					break;
+				case 'date':
+					if ($schemaData > 0) {
+						$str .= date('y-m-j H:i', $schemaData);
+					}
+					break;
+				case 'shortext':
+				case 'longtext':
+					$str .= $schemaData;
+					break;
+				case 'multitext':
+					if (is_array($schemaData) && count($schemaData)) {
+						for ($i = count($schemaData) - 1; $i >= 0; $i--) {
+							if (empty($fnDataFilter) || $fnDataFilter($schemaData[$i]->id)) {
+								$str .= $schemaData[$i]->value;
+							}
+						}
+					}
+					break;
+				}
+			}
+		};
+
+		return $str;
 	}
 }

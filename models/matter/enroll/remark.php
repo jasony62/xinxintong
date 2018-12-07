@@ -157,8 +157,8 @@ class remark_model extends \TMS_MODEL {
 	/**
 	 * 获得指定登记记录的留言
 	 */
-	public function listByApp($oApp, $page = 1, $size = 10, $oOptions = []) {
-		$fields = isset($oOptions['fields']) ? $oOptions['fields'] : '*';
+	public function listByApp($oApp, $page = 1, $size = 10, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 
 		$oResult = new \stdClass;
 		$q = [
@@ -167,8 +167,8 @@ class remark_model extends \TMS_MODEL {
 			"aid='$oApp->id'",
 		];
 		/* filter */
-		if (isset($oOptions['criteria'])) {
-			$oCriteria = $oOptions['criteria'];
+		if (isset($aOptions['criteria'])) {
+			$oCriteria = $aOptions['criteria'];
 			if (isset($oCriteria->enrollee)) {
 				$q[2] .= " and enroll_userid='{$oCriteria->enrollee}'";
 			}
@@ -182,8 +182,8 @@ class remark_model extends \TMS_MODEL {
 
 		$q2 = [];
 		/* orderby */
-		if (isset($oOptions['criteria'])) {
-			$oCriteria = $oOptions['criteria'];
+		if (isset($aOptions['criteria'])) {
+			$oCriteria = $aOptions['criteria'];
 			if (isset($oCriteria->orderby)) {
 				$q2['o'] = $oCriteria->orderby . ' desc';
 			} else {
@@ -193,7 +193,9 @@ class remark_model extends \TMS_MODEL {
 			$q2['o'] = 'create_at desc';
 		}
 		/* pagination */
-		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		if (!empty($page) && !empty($size)) {
+			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		}
 
 		$aRemarks = $this->query_objs_ss($q, $q2);
 		$oAssocRecords = new \stdClass;
@@ -207,7 +209,7 @@ class remark_model extends \TMS_MODEL {
 			/* 处理获得的数据 */
 			$cachedData = new \stdClass;
 			$modelRec = $this->model('matter\enroll\record');
-			foreach ($aRemarks as &$oRemark) {
+			foreach ($aRemarks as $oRemark) {
 				foreach ($fnHandlers as $fnHandler) {
 					$fnHandler($oRemark);
 				}

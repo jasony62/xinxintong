@@ -143,14 +143,124 @@ button.option {
 }
 
 #filterQuick {
-    margin: 4px 8px;
-    padding: 4px 0;
-    overflow-x: auto;
-    overflow-y: hidden;
-    white-space: nowrap;
+    margin-bottom: 3px;
+    position: relative;
+    background-color: #fff;
 
     &>* {
         display: inline-block;
+    }
+
+    .glyphicon-menu-up {
+        transform:rotate(-180deg);
+    }
+
+    .site-dropdown.open, &.uib-dropdown-open>.pull-right {
+        .glyphicon-menu-up {
+            transform:rotate(0deg);
+        }
+    }
+
+    .site-dropdown {
+        display: inline-block;
+        background-color: #fff;
+
+        .site-dropdown-title {
+            display: block;
+            padding: 0px 10px;
+            font-size: 14px;
+            color: #333;
+            min-height: 40px;
+            line-height: 40px;
+        }
+        a:focus, a:hover {
+            text-decoration: none;
+        }
+        a.active {
+            color: #ff8018;
+        }
+    }
+
+    .site-dropdown-list {
+        width: 100% !important;
+        right: 0 !important;
+        left: auto !important;
+        background-color: #f5f5f5;
+        padding: 0;
+
+        .dropdown-list-wrapper {
+            width: 100%;
+            height: 25rem;
+            overflow: hidden;
+
+            .site-tabset {
+                display: flex;
+                height: 100%;
+
+                & > * {
+                    overflow-y: auto;
+                    border: 0 transparent;
+                }
+                .nav-pills {
+                    width: 8rem;
+
+                    a {
+                        color: #333;
+                    }
+
+                    div.checked {
+                        color: #ff8018;
+
+                        &:after {
+                            content: '.';
+                            color: #ff8018;
+                            position: absolute;
+                            top:0;
+                            left:5px;
+                            font-size: 20px;
+                        }
+                    }
+
+                    li.active {
+                        a, a:focus, a:hover {
+                            color: #ff8018;
+                            background-color: #fff;
+                        }
+                    }
+                }
+                .tab-content {
+                    flex: 1;
+                    background-color: #fff;
+
+                    .site-list-group-item {
+                        border: 0;
+                        overflow: hidden;
+                        white-space:nowrap;
+                        text-overflow:ellipsis;
+
+                        &:first-child {
+                            border-top-left-radius: 0;
+                            border-top-right-radius: 0;
+                        }
+
+                        &.active, &.active:focus, &.active:hover {
+                            color: #ff8018;
+                            background-color: #fff;
+                            border-color: #fff;
+                        }
+                    }
+                }
+            }
+        }
+
+        .dropdown-list-btn{
+            width: 100%;
+            display: flex;
+
+            button {
+                flex : 1;
+            }
+        }
     }
 
 }

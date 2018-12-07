@@ -41,15 +41,6 @@ class record_model extends \matter\enroll\record_base {
 			$record['verified'] = isset($data['verified']) ? $data['verified'] : 'N';
 			isset($data['verified_enroll_key']) && $record['verified_enroll_key'] = $data['verified_enroll_key'];
 
-			if (!empty($oUser)) {
-				$userOpenids = $this->model('site\user\account')->byId($oUser->uid, ['fields' => 'wx_openid,yx_openid,qy_openid,headimgurl']);
-				if ($userOpenids) {
-					$record['wx_openid'] = $userOpenids->wx_openid;
-					$record['yx_openid'] = $userOpenids->yx_openid;
-					$record['qy_openid'] = $userOpenids->qy_openid;
-					$record['headimgurl'] = $userOpenids->headimgurl;
-				}
-			}
 			/* 移动用户未签到的原因 */
 			if (!empty($oUser->uid)) {
 				if (isset($oApp->absent_cause->{$oUser->uid})) {
@@ -743,7 +734,7 @@ class record_model extends \matter\enroll\record_base {
 		$aAllUsrs = [];
 		if (!empty($oApp->entryRule->group->id)) {
 			$modelGrpUsr = $this->model('matter\group\player');
-			$aGrpUsrs = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['fields' => 'userid,nickname,wx_openid,yx_openid,qy_openid,is_leader,round_id,round_title']);
+			$aGrpUsrs = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['fields' => 'userid,nickname,is_leader,round_id,round_title']);
 			foreach ($aGrpUsrs->players as $oGrpUsr) {
 				if (false === in_array($oGrpUsr->userid, $oSigninedUsers)) {
 					$aAllUsrs[] = $oGrpUsr;

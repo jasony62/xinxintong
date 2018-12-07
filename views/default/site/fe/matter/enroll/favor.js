@@ -9,7 +9,6 @@ require('./_asset/ui.assoc.js');
 window.moduleAngularModules = ['repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll'];
 
 var ngApp = require('./main.js');
-ngApp.oUtilSchema = require('../_module/schema.util.js');
 ngApp.factory('TopicRepos', ['http2', '$q', '$sce', 'tmsLocation', function(http2, $q, $sce, LS) {
     var TopicRepos, _ins;
     TopicRepos = function(oApp, oTopic) {

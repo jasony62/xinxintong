@@ -11,7 +11,6 @@ include_once dirname(__FILE__) . '/db_schema_invite.php';
 include_once dirname(__FILE__) . '/db_schema_log.php';
 include_once dirname(__FILE__) . '/db_schema_lottery.php';
 include_once dirname(__FILE__) . '/db_schema_matter.php';
-include_once dirname(__FILE__) . '/db_schema_merchant.php';
 include_once dirname(__FILE__) . '/db_schema_mission.php';
 include_once dirname(__FILE__) . '/db_schema_reply.php';
 include_once dirname(__FILE__) . '/db_schema_shop.php';

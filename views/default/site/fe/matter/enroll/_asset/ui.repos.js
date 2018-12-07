@@ -1,7 +1,8 @@
 'use strict';
 
-var ngMod = angular.module('repos.ui.enroll', []);
-var oUtilSchema = require('../../_module/schema.util.js');
+require('../../../../../../../asset/js/xxt.ui.schema.js');
+
+var ngMod = angular.module('repos.ui.enroll', ['schema.ui.xxt']);
 ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache) {
     return {
         restrict: 'A',
@@ -10,7 +11,7 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
             schemas: '=',
             rec: '=record'
         },
-        controller: ['$scope', '$sce', 'tmsLocation', '$location',function($scope, $sce, LS, $location) {
+        controller: ['$scope', '$sce', '$location', 'tmsLocation', 'http2', 'noticebox', 'tmsSchema', function($scope, $sce, $location, LS, http2, noticebox, tmsSchema) {
             $scope.coworkRecord = function(oRecord) {
                 var url;
                 url = LS.j('', 'site', 'app');
@@ -18,6 +19,40 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
                 url += '&page=cowork';
                 url += '#cowork';
                 location.href = url;
+            };
+            $scope.vote = function(oRecData) {
+                http2.get(LS.j('data/vote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
+                    if (oRecData.voteResult) {
+                        oRecData.voteResult.vote_num++;
+                        oRecData.voteResult.vote_at = rsp.data[0].vote_at;
+                    } else {
+                        oRecData.vote_num++;
+                        oRecData.vote_at = rsp.data[0].vote_at;
+                    }
+                    var remainder = rsp.data[1][0] - rsp.data[1][1];
+                    if (remainder > 0) {
+                        noticebox.success('还需要投出【' + remainder + '】票');
+                    } else {
+                        noticebox.success('已完成全部投票');
+                    }
+                });
+            };
+            $scope.unvote = function(oRecData) {
+                http2.get(LS.j('data/unvote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
+                    if (oRecData.voteResult) {
+                        oRecData.voteResult.vote_num--;
+                        oRecData.voteResult.vote_at = 0;
+                    } else {
+                        oRecData.vote_num--;
+                        oRecData.vote_at = 0;
+                    }
+                    var remainder = rsp.data[0] - rsp.data[1];
+                    if (remainder > 0) {
+                        noticebox.success('还需要投出【' + remainder + '】票');
+                    } else {
+                        noticebox.success('已完成全部投票');
+                    }
+                });
             };
             $scope.open = function(file) {
                 var url, appID, data;
@@ -42,10 +77,10 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
                         if (schemaData = oRecord.data[oSchema.id]) {
                             switch (oSchema.type) {
                                 case 'longtext':
-                                    oRecord.data[oSchema.id] = oUtilSchema.txtSubstitute(schemaData);
+                                    oRecord.data[oSchema.id] = tmsSchema.txtSubstitute(schemaData);
                                     break;
                                 case 'url':
-                                    schemaData._text = oUtilSchema.urlSubstitute(schemaData);
+                                    schemaData._text = tmsSchema.urlSubstitute(schemaData);
                                     break;
                                 case 'file':
                                 case 'voice':
@@ -59,7 +94,7 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
                                 case 'single':
                                 case 'multiple':
                                 case 'score':
-                                    oRecord.data[oSchema.id] = $sce.trustAsHtml(oUtilSchema.optionsSubstitute(oSchema, schemaData));
+                                    oRecord.data[oSchema.id] = $sce.trustAsHtml(tmsSchema.optionsSubstitute(oSchema, schemaData));
                                     break;
                             }
                         }

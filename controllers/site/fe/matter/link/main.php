@@ -64,11 +64,7 @@ class main extends \site\fe\matter\base {
 
 		if (!$this->afterSnsOAuth()) {
 			/* 检查是否需要第三方社交帐号OAuth */
-			if ($oLink->urlsrc == 0 && $oLink->embedded === 'Y' && (strpos($oLink->url, 'https') === false)) {
-				$this->_requireSnsOAuth($site, $oLink->entryUrl);
-			} else {
-				$this->_requireSnsOAuth($site);
-			}
+			$this->_requireSnsOAuth($site, $oLink->entryUrl);
 		}
 
 		$this->checkEntryRule($oLink, true);

@@ -64,7 +64,11 @@ class main extends \site\fe\matter\base {
 
 		if (!$this->afterSnsOAuth()) {
 			/* 检查是否需要第三方社交帐号OAuth */
-			$this->_requireSnsOAuth($site);
+			if ($oLink->urlsrc == 0 && $oLink->embedded === 'Y' && (strpos($oLink->url, 'https') === false)) {
+				$this->_requireSnsOAuth($site, $oLink->entryUrl);
+			} else {
+				$this->_requireSnsOAuth($site);
+			}
 		}
 
 		$this->checkEntryRule($oLink, true);
@@ -226,20 +230,20 @@ class main extends \site\fe\matter\base {
 	 *
 	 * @param string $site
 	 */
-	private function _requireSnsOAuth($siteid) {
+	private function _requireSnsOAuth($siteid, $callbackUrl = '') {
 		if ($this->userAgent() === 'wx') {
 			if (!isset($this->who->sns->wx)) {
 				$modelWx = $this->model('sns\wx');
 				if (($wxConfig = $modelWx->bySite($siteid)) && $wxConfig->joined === 'Y') {
-					$this->snsOAuth($wxConfig, 'wx');
+					$this->snsOAuth($wxConfig, 'wx', $callbackUrl);
 				} else if (($wxConfig = $modelWx->bySite('platform')) && $wxConfig->joined === 'Y') {
-					$this->snsOAuth($wxConfig, 'wx');
+					$this->snsOAuth($wxConfig, 'wx', $callbackUrl);
 				}
 			}
 			if (!isset($this->who->sns->qy)) {
 				if ($qyConfig = $this->model('sns\qy')->bySite($siteid)) {
 					if ($qyConfig->joined === 'Y') {
-						$this->snsOAuth($qyConfig, 'qy');
+						$this->snsOAuth($qyConfig, 'qy', $callbackUrl);
 					}
 				}
 			}
@@ -247,7 +251,7 @@ class main extends \site\fe\matter\base {
 			if (!isset($this->who->sns->yx)) {
 				if ($yxConfig = $this->model('sns\yx')->bySite($siteid)) {
 					if ($yxConfig->joined === 'Y') {
-						$this->snsOAuth($yxConfig, 'yx');
+						$this->snsOAuth($yxConfig, 'yx', $callbackUrl);
 					}
 				}
 			}

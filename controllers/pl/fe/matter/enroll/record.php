@@ -392,9 +392,12 @@ class record extends main_base {
 			return new \ObjectNotFoundError();
 		}
 
-		$count = $this->model('matter\enroll\record_copy')->exportToApp($oApp, $oTargetApp, $oPosted->eks, $oPosted->mappings);
+		$aResult = $this->model('matter\enroll\record\copy')->toApp($oApp, $oTargetApp, $oPosted->eks, $oPosted->mappings);
+		if (false === $aResult[0]) {
+			return new \ResponseError($aResult[1]);
+		}
 
-		return new \ResponseData($count);
+		return new \ResponseData($aResult[1]);
 	}
 	/**
 	 * 投票结果导出到其他活动作为记录

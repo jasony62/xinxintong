@@ -1336,7 +1336,7 @@ service('tkEnrollApp', ['$q', '$uibModal', 'http2', function($q, $uibModal, http
         });
         return defer.promise;
     };
-    this.choose = function(oApp) {
+    this.choose = function(oApp, oOptions) {
         var defer;
         defer = $q.defer();
         http2.post('/rest/script/time', { html: { 'enrollApp': '/views/default/pl/fe/_module/chooseEnrollApp' } }).then(function(rsp) {

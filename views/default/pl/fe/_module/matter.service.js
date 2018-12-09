@@ -217,8 +217,15 @@ provider('srvSite', function() {
                 } else {
                     http2.get('/rest/pl/fe/site/snsList?site=' + (siteId || _siteId)).then(function(rsp) {
                         _aSns = rsp.data;
-                        _aSns.names = Object.keys(_aSns);
-                        _aSns.count = _aSns.names.length;
+                        if (_aSns) {
+                            _aSns.names = Object.keys(_aSns);
+                            _aSns.count = _aSns.names.length;
+                        } else {
+                            _aSns = {
+                                names: '',
+                                count: 0
+                            }
+                        }                        
                         defer.resolve(_aSns);
                     });
                 }

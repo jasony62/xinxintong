@@ -521,10 +521,10 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }, true);
         $scope.$watch('userGroups', function(userGroups) {
             if (userGroups && userGroups.length) {
-                userGroups.unshift({ value: null, title: '不限' });
                 angular.forEach(userGroups, function(userGroup) {
                     userGroup.value = userGroup.round_id;
                 });
+                userGroups.unshift({ value: null, title: '不限' });
                 filterData.unshift({
                     type: 'userGroup',
                     title: '分组',
@@ -539,10 +539,10 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         $scope.$watch('rounds', function(rounds) {
             if (!rounds) { return false; }
             if (rounds.length > 1) {
-                rounds.unshift({ value: null, title: '不限' });
                 angular.forEach(rounds, function(round) {
                     round.value = round.rid;
                 });
+                rounds.unshift({ value: null, title: '不限' });
                 filterData.unshift({
                     type: 'rid',
                     title: '轮次',

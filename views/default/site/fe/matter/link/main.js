@@ -124,7 +124,7 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt', 'snsshare.
                     type: 'link',
                     title: $scope.link.title
                 });
-                if (typeof window.screenX === "number") {
+                if (typeof window.screenX === "number" && $scope.isSmallLayout === true) {
                     document.querySelector("#btnFS").addEventListener("click", function(event) {
                         if (!$scope.isFull) {
                             document.querySelector('.col-md-3').style.display = 'none';

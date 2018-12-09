@@ -400,10 +400,10 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                     });
                     return deferred.promise;
                 },
-                renewScore: function(rid) {
+                renewScoreByRound: function(rid) {
                     var url, defer;
 
-                    url = '/rest/pl/fe/matter/enroll/record/renewScore';
+                    url = '/rest/pl/fe/matter/enroll/record/renewScoreByRound';
                     url += '?app=' + _appId;
                     if (rid) url += '&rid=' + rid;
                     defer = $q.defer();
@@ -788,6 +788,31 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                     return _ins._bBatchVerify(rows, url);
                 }
             };
+            _ins.renewScore = function(oTmsRows) {
+                function fnRenewScore(i) {
+                    if (i < eks.length) {
+                        http2.get(url + '&ek=' + eks[i]).then(function(rsp) {
+                            noticebox.success('第【' + (i + 1) + '】条记录更新完成');
+                            fnRenewScore(++i);
+                        });
+                    } else {
+                        defer.resolve();
+                    }
+                }
+                var eks, defer, url;
+
+                defer = $q.defer();
+                eks = oTmsRows.walk(_ins._aRecords, function(oRec) { return oRec.enroll_key; });
+                if (eks.length) {
+                    url = '/rest/pl/fe/matter/enroll/record/renewScore';
+                    url += '?app=' + _appId;
+                    fnRenewScore(0);
+                } else {
+                    defer.reject();
+                }
+
+                return defer.promise;
+            };
             _ins.notify = function(rows) {
                 var options = {
                     matterTypes: CstApp.notifyMatter,
@@ -1091,7 +1116,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                         });
                     });
                 }
-                
+
                 return defer.promise;
             };
             _ins.transferVotes = function(oApp) {

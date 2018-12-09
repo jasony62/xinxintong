@@ -266,6 +266,44 @@ class schema_model extends \TMS_MODEL {
 					}
 				}
 			}
+			/* 答案题 */
+			if (isset($oSchema->answer)) {
+				switch ($oSchema->type) {
+				case 'single':
+					if (!is_string($oSchema->answer)) {
+						unset($oSchema->answer);
+					} else {
+						$bExistent = false;
+						foreach ($oSchema->ops as $op) {
+							if ($oSchema->answer === $op->v) {
+								$bExistent = true;
+								break;
+							}
+						}
+						if (false === $bExistent) {
+							unset($oSchema->answer);
+						}
+					}
+					break;
+				case 'multiple':
+					if (!is_array($oSchema->answer)) {
+						unset($oSchema->answer);
+					} else {
+						$aCheckedAnswer = [];
+						foreach ($oSchema->answer as $a) {
+							foreach ($oSchema->ops as $op) {
+								if ($a === $op->v && !in_array($a, $aCheckedAnswer)) {
+									$aCheckedAnswer[] = $a;
+									break;
+								}
+							}
+						}
+						$oSchema->answer = $aCheckedAnswer;
+					}
+					break;
+				}
+			}
+
 			$purified[] = $oSchema;
 		}
 

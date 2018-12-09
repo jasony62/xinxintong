@@ -234,7 +234,7 @@ class record extends main_base {
 		$schemasById = $this->model('matter\enroll\schema')->asAssoc($oApp->dynaDataSchemas);
 
 		$modelRecDat = $this->model('matter\enroll\data');
-		$q = ['id,enroll_key,data,score', 'xxt_enroll_record', ['aid' => $oApp->id, 'enroll_key' => $ek]];
+		$q = ['id,enroll_key,userid,data,score', 'xxt_enroll_record', ['aid' => $oApp->id, 'enroll_key' => $ek]];
 		$oRecord = $modelApp->query_obj_ss($q);
 		if (!empty($oRecord->data)) {
 			$dbData = json_decode($oRecord->data);
@@ -253,7 +253,7 @@ class record extends main_base {
 		}
 
 		$modelUsr = $this->model('matter\enroll\user');
-		$aUpdatedResult = $modelUsr->renew($oApp);
+		$aUpdatedResult = $modelUsr->renew($oApp, '', $oRecord->userid);
 
 		// 记录操作日志
 		//$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'renewScore');

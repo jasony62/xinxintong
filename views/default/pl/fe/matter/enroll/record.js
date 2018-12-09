@@ -159,7 +159,7 @@ define(['frame'], function(ngApp) {
         $scope.renewScore = function() {
             srvEnlRec.renewScore($scope.rows).then(function() {
                 $scope.rows.reset();
-                $scope.doSearch(1);
+                $scope.doSearch();
             });
         };
         $scope.importByOther = function() {

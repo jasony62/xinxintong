@@ -195,8 +195,10 @@ class base extends \site\base {
 	 * $controller OAuth的回调地址
 	 * $state OAuth回调时携带的参数
 	 */
-	protected function snsOAuth(&$snsConfig, $snsName) {
-		$ruri = APP_PROTOCOL . APP_HTTP_HOST . $_SERVER['REQUEST_URI'];
+	protected function snsOAuth(&$snsConfig, $snsName, $ruri = '') {
+		if (empty($ruri)) {
+			$ruri = APP_PROTOCOL . APP_HTTP_HOST . $_SERVER['REQUEST_URI'];
+		}
 
 		switch ($snsName) {
 		case 'qy':

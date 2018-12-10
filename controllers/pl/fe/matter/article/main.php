@@ -50,7 +50,7 @@ class main extends \pl\fe\matter\main_base {
 		/**
 		 * where
 		 */
-		$w = "a.custom_body='N' and a.state=1 and finished='Y'";
+		$w = "a.custom_body='N' and a.state=1 and finished='Y' and exists(select 1 from xxt_site_admin sa where sa.siteid=a.siteid and uid='{$oUser->id}')";
 		/* 按名称过滤 */
 		if (!empty($oOptions->byTitle)) {
 			$w .= " and a.title like '%" . $modelArt->escape($oOptions->byTitle) . "%'";
@@ -65,7 +65,7 @@ class main extends \pl\fe\matter\main_base {
 			$w .= " and a.mission_id=$mission";
 		} else if ($platform === 'Y') {
 			$w .= " and exists(select 1 from xxt_home_matter where as_global='Y' and matter_type='article' and matter_id=a.id)";
-		} else {
+		} else if (!empty($site)) {
 			$w .= " and a.siteid='$site'";
 		}
 		/* 按频道过滤 */

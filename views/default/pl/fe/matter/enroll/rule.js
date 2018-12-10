@@ -196,20 +196,18 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.pickApp = function(oConfig) {
-            tkEnlApp.choose($scope.app).then(function(oResult) {
-                var oTargetApp, dataSchemas;
-                if (oTargetApp = oResult.app) {
-                    oConfig.app = { id: oTargetApp.id, title: oTargetApp.title };
-                    if (oTargetApp.data_schemas) {
-                        dataSchemas = [];
-                        oTargetApp.dataSchemas = JSON.parse(oTargetApp.data_schemas);
-                        oTargetApp.dataSchemas.forEach(function(oSchema) {
-                            if (!/html/.test(oSchema.type)) {
-                                dataSchemas.push(oSchema);
-                            }
-                        });
-                        _oAppDataSchemas[oTargetApp.id] = dataSchemas;
-                    }
+            tkEnlApp.choose($scope.app).then(function(oTargetApp) {
+                var dataSchemas;
+                oConfig.app = { id: oTargetApp.id, title: oTargetApp.title };
+                if (oTargetApp.data_schemas) {
+                    dataSchemas = [];
+                    oTargetApp.dataSchemas = JSON.parse(oTargetApp.data_schemas);
+                    oTargetApp.dataSchemas.forEach(function(oSchema) {
+                        if (!/html/.test(oSchema.type)) {
+                            dataSchemas.push(oSchema);
+                        }
+                    });
+                    _oAppDataSchemas[oTargetApp.id] = dataSchemas;
                 }
             });
         };

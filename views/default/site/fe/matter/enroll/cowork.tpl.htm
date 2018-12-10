@@ -156,7 +156,7 @@
                                         <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
                                             <li><a href ng-click="removeItem(schema,$index)"><span class='glyphicon glyphicon-trash'></span> 删除</a></li>
                                             <li><a href ng-click="editItem(schema,$index)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
-                                            <li><a href ng-click="assocMatter(item)"><span class='glyphicon glyphicon-link'></span> 关联</a></li>
+                                            <li ng-if="user.is_editor==='Y'"><a href ng-click="assocMatter(item)"><span class='glyphicon glyphicon-link'></span> 关联</a></li>
                                             <li ng-if="app.scenarioConfig.no_remark!=='Y'"><a href ng-click="coworkAsRemark(schema,$index)"><span class='glyphicon glyphicon-transfer'></span> 转为留言</a></li>
                                             <li ng-if="item.voteResult.state==='IP'&&item.voteResult.vote_at==0"><a href ng-click="vote(item)"><span class='glyphicon glyphicon-triangle-top'></span> 投票</a></li>
                                             <li ng-if="item.voteResult.state==='IP'&&item.voteResult.vote_at>0"><a href ng-click="unvote(item)"><span class='glyphicon glyphicon-triangle-bottom'></span> 取消投票</a></li>

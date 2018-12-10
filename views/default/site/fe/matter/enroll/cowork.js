@@ -107,18 +107,30 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
     /**
      * 加载关联数据
      */
-    function fnLoadAssoc(oRecord) {
+    function fnLoadAssoc(oRecord, oCachedAssoc) {
         var oDeferred;
         oDeferred = $q.defer();
         http2.get(LS.j('assoc/byRecord', 'site', 'ek')).then(function(rsp) {
             if (rsp.data.length) {
                 oRecord.assocs = [];
                 rsp.data.forEach(function(oAssoc) {
-                    if (oAssoc.entity_a_type === 'record' && oAssoc.entity_a_id == oRecord.id) {
-                        if (oAssoc.log && oAssoc.log.assoc_text) {
-                            oAssoc.assoc_text = oAssoc.log.assoc_text;
-                        }
-                        oRecord.assocs.push(oAssoc);
+                    if (oCachedAssoc[oAssoc.entity_a_type] === undefined)
+                        oCachedAssoc[oAssoc.entity_a_type] = {};
+
+                    switch (oAssoc.entity_a_type) {
+                        case 'record':
+                            if (oAssoc.entity_a_id == oRecord.id) {
+                                if (oAssoc.log && oAssoc.log.assoc_text) {
+                                    oAssoc.assoc_text = oAssoc.log.assoc_text;
+                                }
+                                oRecord.assocs.push(oAssoc);
+                            }
+                            break;
+                        case 'data':
+                            if (oCachedAssoc.data[oAssoc.entity_a_id] === undefined)
+                                oCachedAssoc.data[oAssoc.entity_a_id] = [];
+                            oCachedAssoc.data[oAssoc.entity_a_id].push(oAssoc);
+                            break;
                     }
                 });
             }
@@ -235,12 +247,12 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         noticebox.error('参数不完整');
         return;
     }
-    var _oApp, _oUser, ek, _oMocker, shareby;
-    ek = LS.s().ek;
+    var _oApp, _oUser, _oMocker, _oAssocs, shareby;
     shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
     $scope.coworkTasks = [];
     $scope.remarkTasks = [];
     $scope.newRemark = {};
+    $scope.assocs = _oAssocs = {};
     $scope.favorStack = {
         guiding: false,
         start: function(record, timer) {
@@ -656,6 +668,10 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             case 'topic':
                 url = LS.j('', 'site', 'app') + '&page=topic' + '&topic=' + oEntity.id;
                 break;
+            case 'article':
+                if (oEntity.entryUrl)
+                    url = oEntity.entryUrl;
+                break;
         }
         if (url) {
             location.href = url;
@@ -681,7 +697,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         $scope.coworkSchemas = aCoworkSchemas;
         fnLoadRecord(aCoworkSchemas).then(function(oRecord) {
             if (_oApp.scenarioConfig && _oApp.scenarioConfig.can_assoc === 'Y') {
-                fnLoadAssoc(oRecord).then(function() {
+                fnLoadAssoc(oRecord, _oAssocs).then(function() {
                     fnAfterRecordLoad(oRecord, _oUser);
                 });
             } else {
@@ -701,7 +717,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
 /**
  * 协作题
  */
-ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uibModal', 'tmsLocation', 'http2', 'noticebox', function($scope, $timeout, $anchorScroll, $uibModal, LS, http2, noticebox) {
+ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uibModal', 'tmsLocation', 'http2', 'noticebox', 'enlAssoc', function($scope, $timeout, $anchorScroll, $uibModal, LS, http2, noticebox, enlAssoc) {
     $scope.canSubmitCowork = true; // 是否允许提交协作数据
     $scope.addItem = function(oSchema) {
         if ($scope.setOperateLimit('add_cowork')) {
@@ -874,6 +890,24 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
             url += '&shareby=' + shareby;
         }
         location.href = url;
+    };
+    $scope.assocMatter = function(oItem) {
+        enlAssoc.assocMatter($scope.user, $scope.record, { id: oItem.id, type: 'data' }).then(function(oAssoc) {
+            var oCachedAssoc;
+            oCachedAssoc = $scope.assocs;
+            if (oCachedAssoc.data === undefined)
+                oCachedAssoc.data = {};
+            if (oCachedAssoc.data[oItem.id] === undefined)
+                oCachedAssoc.data[oItem.id] = [];
+            oCachedAssoc.data[oItem.id].push(oAssoc);
+        });
+    };
+    $scope.removeItemAssoc = function(oItem, oAssoc) {
+        noticebox.confirm('取消关联，确定？').then(function() {
+            http2.get(LS.j('assoc/unlink', 'site') + '&assoc=' + oAssoc.id).then(function() {
+                $scope.assocs.data[oItem.id].splice($scope.assocs.data[oItem.id].indexOf(oAssoc), 1);
+            });
+        });
     };
     $scope.$watch('record', function(oRecord) {
         if (oRecord) {

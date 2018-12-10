@@ -128,4 +128,46 @@ ngMod.service('enlAssoc', ['$q', '$uibModal', 'noticebox', 'http2', 'tmsLocation
         });
         return oDeferred.promise;
     };
+    /* 关联应用内素材 */
+    this.assocMatter = function(oUser, oRecord, oEntity) {
+        var oDeferred;
+        oDeferred = $q.defer();
+        $uibModal.open({
+            template: require('./assoc-matter.html'),
+            controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
+                var _oResult, _oPage, _oAssoc;
+                $scope.result = _oResult = { type: 'article' };
+                $scope.page = _oPage = {};
+                $scope.assoc = _oAssoc = { public: 'Y' };
+                $scope.doSearch = function() {
+                    var url;
+                    url = '/rest/pl/fe/matter/article/list';
+                    http2.post(url, { byTitle: _oResult.title }, { page: _oPage }).then(function(rsp) {
+                        $scope.matters = rsp.data.docs;
+                        if ($scope.matters.length)
+                            _oResult.matter = $scope.matters[0];
+                    });
+                };
+                $scope.ok = function() {
+                    var oPosted, oMatter;
+                    if (oMatter = _oResult.matter) {
+                        _oAssoc.text = oMatter.title;
+                        oPosted = {};
+                        oPosted.assoc = _oAssoc;
+                        oPosted.entityA = { id: oEntity.id, type: oEntity.type };
+                        oPosted.entityB = { id: oMatter.id, type: oMatter.type };
+                        http2.post(LS.j('assoc/link', 'site') + '&ek=' + oRecord.enroll_key, oPosted).then(function(rsp) {
+                            $mi.close(rsp.data);
+                        });
+                    }
+                };
+                $scope.cancel = function() { $mi.dismiss(); };
+            }],
+            backdrop: 'static',
+            windowClass: 'auto-height',
+        }).result.then(function(oAssoc) {
+            oDeferred.resolve(oAssoc);
+        });
+        return oDeferred.promise;
+    };
 }]);

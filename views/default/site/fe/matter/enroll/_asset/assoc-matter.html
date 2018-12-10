@@ -1,0 +1,43 @@
+<div class="modal-body">
+    <form class="form-horizontal">
+        <div class='form-group'>
+            <label class="col-md-3 control-label">类型</label>
+            <div class="col-md-9 ">
+                <select disabled class="form-control" ng-model="result.type">
+                    <option value='article'>单图文</option>
+                    <option value='channel'>频道</option>
+                    <option value='link'>链接</option>
+                </select>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class="col-md-3 control-label">名称</label>
+            <div class="col-md-9 ">
+                <div class='input-group'>
+                    <input type='text' class="form-control" ng-model="result.title" placeholder='输入素材名称' autofocus>
+                    <div class='input-group-btn'>
+                        <button class='btn btn-default' ng-click="doSearch()"><span class='glyphicon glyphicon-search'></span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class="col-md-3 control-label">目标</label>
+            <div class="col-md-9 ">
+                <select class="form-control" ng-model="result.matter" ng-options="matter.title for matter in matters" size='12'></select>
+                <div class='form-group'></div>
+                <div ng-if="page.total>page.size">
+                    <div class='pl-pagination'>
+                        <ul class='pagination-sm' uib-pagination boundary-links="false" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <div class='text-center'>
+        <button class="btn btn-default" ng-click="cancel()">取消</button>
+        <button class="btn btn-primary" ng-click="ok()">关联</button>
+    </div>
+</div>

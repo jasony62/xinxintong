@@ -1134,7 +1134,7 @@ class schema_model extends \TMS_MODEL {
 	/**
 	 * 转换为关联数组的形式
 	 */
-	public function asAssoc($schemas, $aOptions = []) {
+	public function asAssoc($schemas, $aOptions = [], $bOnlyFirst = false) {
 		if (isset($aOptions['filter']) && is_callable($aOptions['filter'])) {
 			$fnFilter = $aOptions['filter'];
 		}
@@ -1142,6 +1142,9 @@ class schema_model extends \TMS_MODEL {
 		foreach ($schemas as $oSchema) {
 			if (!isset($fnFilter) || $fnFilter($oSchema)) {
 				$aSchemas[$oSchema->id] = $oSchema;
+				if (true === $bOnlyFirst) {
+					break;
+				}
 			}
 		}
 
@@ -1192,11 +1195,14 @@ class schema_model extends \TMS_MODEL {
 					break;
 				case 'multitext':
 					if (is_array($schemaData) && count($schemaData)) {
+						/* 根题目 */
 						for ($i = count($schemaData) - 1; $i >= 0; $i--) {
 							if (empty($fnDataFilter) || $fnDataFilter($schemaData[$i]->id)) {
 								$str .= $schemaData[$i]->value;
 							}
 						}
+					} else if (is_string($schemaData)) {
+						$str .= $schemaData;
 					}
 					break;
 				}

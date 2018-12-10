@@ -169,10 +169,11 @@ define(['frame'], function(ngApp) {
             }, true);
         }
 
-        var _aConfigs, _oConfigsModified, _oAppDataSchemas;
+        var _aConfigs, _oConfigsModified, _oTargetDataSchemas, _aSourceDataSchemas;
         $scope.configs = _aConfigs = [];
         $scope.configsModified = _oConfigsModified = {};
-        $scope.appDataSchemas = _oAppDataSchemas = {};
+        $scope.sourceDataSchemas = _aSourceDataSchemas = [];
+        $scope.targetDataSchemas = _oTargetDataSchemas = {};
         $scope.addConfig = function() {
             _aConfigs.push({});
         };
@@ -207,28 +208,37 @@ define(['frame'], function(ngApp) {
                             dataSchemas.push(oSchema);
                         }
                     });
-                    _oAppDataSchemas[oTargetApp.id] = dataSchemas;
+                    _oTargetDataSchemas[oTargetApp.id] = dataSchemas;
                 }
             });
         };
         srvEnlApp.get().then(function(oApp) {
-            if (oApp.transmitConfig && oApp.transmitConfig.length) {
-                oApp.transmitConfig.forEach(function(oConfig, index) {
-                    var oCopied;
-                    oCopied = angular.copy(oConfig);
-                    _aConfigs.push(oCopied);
-                    fnWatchConfig(oCopied);
-                    tkEnlApp.get(oCopied.app.id).then(function(oTargetApp) {
-                        var dataSchemas;
-                        dataSchemas = [];
-                        oTargetApp.dataSchemas.forEach(function(oSchema) {
-                            if (!/html/.test(oSchema.type)) {
-                                dataSchemas.push(oSchema);
-                            }
-                        });
-                        _oAppDataSchemas[oTargetApp.id] = dataSchemas;
+            if (oApp) {
+                if (oApp.dataSchemas && oApp.dataSchemas.length) {
+                    oApp.dataSchemas.forEach(function(oSchema) {
+                        if (!/html/.test(oSchema.type)) {
+                            _aSourceDataSchemas.push(oSchema);
+                        }
                     });
-                });
+                }
+                if (oApp.transmitConfig && oApp.transmitConfig.length) {
+                    oApp.transmitConfig.forEach(function(oConfig, index) {
+                        var oCopied;
+                        oCopied = angular.copy(oConfig);
+                        _aConfigs.push(oCopied);
+                        fnWatchConfig(oCopied);
+                        tkEnlApp.get(oCopied.app.id).then(function(oTargetApp) {
+                            var dataSchemas;
+                            dataSchemas = [];
+                            oTargetApp.dataSchemas.forEach(function(oSchema) {
+                                if (!/html/.test(oSchema.type)) {
+                                    dataSchemas.push(oSchema);
+                                }
+                            });
+                            _oTargetDataSchemas[oTargetApp.id] = dataSchemas;
+                        });
+                    });
+                }
             }
         });
     }]);

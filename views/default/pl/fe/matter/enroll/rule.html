@@ -498,11 +498,11 @@
                                             <button class='btn btn-default' ng-click="pickApp(config)">选择</button>
                                         </div>
                                     </div>
-                                    <div ng-repeat="schema in appDataSchemas[config.app.id]">
+                                    <div ng-repeat="schema in targetDataSchemas[config.app.id]">
                                         <div class="form-group">
                                             <label class='form-label col-md-3' ng-bind="::schema.title"></label>
                                             <div ng-switch on="schema.type" class='col-md-9'>
-                                                <select class='form-control' ng-model="config.mappings[schema.id].from" ng-options="schema2.id as schema2.title for schema2 in app.dataSchemas">
+                                                <select class='form-control' ng-model="config.mappings[schema.id].from" ng-options="schema2.id as schema2.title for schema2 in sourceDataSchemas">
                                                     <option value=>不从当前活动记录中获取</option>
                                                 </select>
                                                 <textarea class='form-control' ng-switch-when="longtext" ng-model="config.mappings[schema.id].value"></textarea>

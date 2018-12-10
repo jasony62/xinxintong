@@ -117,13 +117,13 @@ class main extends main_base {
 		$q = [
 			"e.*",
 			'xxt_enroll e',
-			"state<>0",
+			"state<>0 and exists(select 1 from xxt_site_admin sa where sa.siteid=e.siteid and uid='{$oUser->id}')",
 		];
 		if (!empty($mission)) {
 			$q[2] .= " and mission_id=" . $mission;
 		} else if ($platform === 'Y') {
 			$q[2] .= " and exists(select 1 from xxt_home_matter where as_global='Y' and matter_type='enroll' and matter_id=e.id)";
-		} else {
+		} else if (!empty($site)) {
 			$q[2] .= " and siteid='" . $site . "'";
 		}
 		if (!empty($scenario)) {

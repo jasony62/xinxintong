@@ -117,13 +117,13 @@ class main extends main_base {
 		$q = [
 			"e.*",
 			'xxt_enroll e',
-			"state<>0",
+			"state<>0 and exists(select 1 from xxt_site_admin sa where sa.siteid=e.siteid and uid='{$oUser->id}')",
 		];
 		if (!empty($mission)) {
 			$q[2] .= " and mission_id=" . $mission;
 		} else if ($platform === 'Y') {
 			$q[2] .= " and exists(select 1 from xxt_home_matter where as_global='Y' and matter_type='enroll' and matter_id=e.id)";
-		} else {
+		} else if (!empty($site)) {
 			$q[2] .= " and siteid='" . $site . "'";
 		}
 		if (!empty($scenario)) {
@@ -531,7 +531,7 @@ class main extends main_base {
 		return new \ResponseData($oApp);
 	}
 	/**
-	 * 更新指定素材的进入规则
+	 * 更新记录的投票规则
 	 */
 	public function updateVoteConfig_action($app) {
 		if (false === ($oUser = $this->accountUser())) {
@@ -599,6 +599,72 @@ class main extends main_base {
 		$modelApp->modify($oUser, $oApp, (object) ['vote_config' => $modelApp->escape($modelApp->toJson($aAllVoteConfigs))], ['id' => $oApp->id]);
 		if ($method === 'save') {
 			return new \ResponseData($oVoteConfig);
+		} else {
+			return new \ResponseData('ok');
+		}
+	}
+	/**
+	 * 更新记录转发规则
+	 */
+	public function updateTransmitConfig_action($app) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$oPosted = $this->getPostJson();
+		$method = $this->getDeepValue($oPosted, 'method');
+		if (empty($method)) {
+			return new \ParameterError('（1）参数不完整');
+		}
+		$oTransmitConfig = $this->getDeepValue($oPosted, 'data');
+		if (empty($oTransmitConfig)) {
+			return new \ParameterError('（2）参数不完整');
+		}
+
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, 'id,state,siteid,title,summary,pic,scenario,start_at,end_at,mission_id,transmit_config');
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError('（3）活动不存在');
+		}
+		$aAllTransmitConfigs = $oApp->transmitConfig;
+
+		switch ($method) {
+		case 'save':
+			if (empty($oTransmitConfig->id)) {
+				$oTransmitConfig->id = uniqid();
+				$aAllTransmitConfigs[] = $oTransmitConfig;
+			} else {
+				$bExistent = false;
+				foreach ($aAllTransmitConfigs as $index => $oBefore) {
+					if ($oBefore->id === $oTransmitConfig->id) {
+						$aAllTransmitConfigs[$index] = $oTransmitConfig;
+						$bExistent = true;
+						break;
+					}
+				}
+				if (false === $bExistent) {
+					return new \ObjectNotFoundError('（4）更新的规则不存在');
+				}
+			}
+			break;
+		case 'delete':
+			$bExistent = false;
+			foreach ($aAllTransmitConfigs as $index => $oBefore) {
+				if ($oBefore->id === $oTransmitConfig->id) {
+					array_splice($aAllTransmitConfigs, $index, 1);
+					$bExistent = true;
+					break;
+				}
+			}
+			if (false === $bExistent) {
+				return new \ObjectNotFoundError('（5）删除的规则不存在');
+			}
+			break;
+		}
+
+		$modelApp->modify($oUser, $oApp, (object) ['transmit_config' => $modelApp->escape($modelApp->toJson($aAllTransmitConfigs))], ['id' => $oApp->id]);
+		if ($method === 'save') {
+			return new \ResponseData($oTransmitConfig);
 		} else {
 			return new \ResponseData('ok');
 		}

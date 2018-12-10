@@ -1,7 +1,6 @@
 define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlMain', ['$scope', 'http2', 'mediagallery', '$uibModal', 'srvTag', 'srvSite', function($scope, http2, mediagallery, $uibModal, srvTag, srvSite) {
-        var _oAppRule, _oBeforeRule, modifiedData = {};
-        $scope.rule = {};
+    ngApp.provider.controller('ctrlMain', ['$scope', 'http2', 'mediagallery', '$uibModal', 'srvTag', 'srvSite', 'tkEntryRule', function($scope, http2, mediagallery, $uibModal, srvTag, srvSite, tkEntryRule) {
+        var modifiedData = {};
         $scope.modified = false;
         $scope.urlsrcs = {
             '0': '外部链接',
@@ -42,9 +41,10 @@ define(['frame'], function(ngApp) {
                     $scope.mschemasById[mschema.id] = mschema;
                 });
             });
+            srvSite.snsList().then(function(oSns) {
+                $scope.tkEntryRule = new tkEntryRule(link, oSns, false, ['enroll']);
+            });
             $scope.editing = link;
-            $scope.rule = _oAppRule = link.entry_rule;
-            _oBeforeRule = angular.copy($scope.rule);
             $scope.persisted = angular.copy(link);
             $('[ng-model="editing.title"]').focus();
         };
@@ -70,113 +70,6 @@ define(['frame'], function(ngApp) {
                 $scope.modified = false;
             });
         };
-
-        function chooseGroupApp() {
-            return $uibModal.open({
-                templateUrl: 'chooseGroupApp.html',
-                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                    $scope2.app = $scope.editing;
-                    $scope2.data = {
-                        app: null,
-                        round: null
-                    };
-                    $scope.editing.mission && ($scope2.data.sameMission = 'Y');
-                    $scope2.cancel = function() {
-                        $mi.dismiss();
-                    };
-                    $scope2.ok = function() {
-                        $mi.close($scope2.data);
-                    };
-                    var url = '/rest/pl/fe/matter/group/list?site=' + $scope.editing.siteid + '&size=999&cascaded=Y';
-                    $scope.editing.mission && (url += '&mission=' + $scope.editing.mission.id);
-                    http2.get(url).then(function(rsp) {
-                        $scope2.apps = rsp.data.apps;
-                    });
-                }],
-                backdrop: 'static'
-            }).result;
-        }
-
-        function setMschemaEntry(mschemaId) {
-            if (!_oAppRule.member) {
-                _oAppRule.member = {};
-            }
-            if (!_oAppRule.member[mschemaId]) {
-                _oAppRule.member[mschemaId] = {
-                    entry: 'Y'
-                };
-                return true;
-            }
-            return false;
-        };
-
-        function setGroupEntry(oResult) {
-            if (oResult.app) {
-                _oAppRule.group = { id: oResult.app.id, title: oResult.app.title };
-                if (oResult.round) {
-                    _oAppRule.group.round = { id: oResult.round.round_id, title: oResult.round.title };
-                }
-                return true;
-            }
-            return false;
-        };
-
-        function _changeUserScope(ruleScope, oSiteSns) {
-            var oEntryRule = $scope.editing.entry_rule;
-            oEntryRule.scope = ruleScope;
-            $scope.update('entry_rule');
-            $scope.submit();
-            _oBeforeRule = angular.copy($scope.rule);
-        };
-        $scope.changeUserScope = function(scopeProp) {
-            switch (scopeProp) {
-                case 'sns':
-                    if ($scope.rule.scope[scopeProp] === 'Y') {
-                        if (!$scope.rule.sns) {
-                            $scope.rule.sns = {};
-                        }
-                        if ($scope.snsCount === 1) {
-                            $scope.rule.sns[Object.keys($scope.sns)[0]] = { 'entry': 'Y' };
-                        }
-                    }
-                    break;
-            }
-            _changeUserScope($scope.rule.scope, $scope.sns);
-        };
-        $scope.removeMschema = function(mschemaId) {
-            if (_oAppRule.member[mschemaId]) {
-                delete _oAppRule.member[mschemaId];
-                $scope.update('entry_rule');
-                $scope.submit();
-            }
-        };
-        $scope.editMschema = function(oMschema) {
-            if (oMschema.matter_id) {
-                if (oMschema.matter_type === 'mission') {
-                    location.href = '/rest/pl/fe/matter/mission/mschema?id=' + oMschema.matter_id + '&site=' + $scope.editing.siteid + '#' + oMschema.id;
-                } else {
-                    location.href = '/rest/pl/fe/site/mschema?site=' + $scope.editing.siteid + '#' + oMschema.id;
-                }
-            } else {
-                location.href = '/rest/pl/fe?view=main&scope=user&sid=' + $scope.editing.siteid + '&mschema=' + oMschema.id;
-            }
-        };
-        $scope.chooseMschema = function() {
-            srvSite.chooseMschema($scope.editing).then(function(result) {
-                if (setMschemaEntry(result.chosen.id)) {
-                    $scope.update('entry_rule');
-                    $scope.submit();
-                }
-            });
-        };
-        $scope.chooseGroupEditing = function() {
-            chooseGroupApp().then(function(result) {
-                if (setGroupEntry(result)) {
-                    $scope.update('entry_rule');
-                    $scope.submit();
-                }
-            });
-        }
         $scope.update = function(names) {
             angular.isString(names) && (names = [names]);
             names.forEach(function(n) {
@@ -351,6 +244,9 @@ define(['frame'], function(ngApp) {
                     }
                     break;
             }
+        });
+        http2.post('/rest/script/time', { html: { 'entryRule': '/views/default/pl/fe/_module/entryRule' } }).then(function(rsp) {
+            $scope.frameTemplates = { html: { 'entryRule': '/views/default/pl/fe/_module/entryRule.html?_=' + rsp.data.html.entryRule.time } };
         });
         getInitData();
     }]);

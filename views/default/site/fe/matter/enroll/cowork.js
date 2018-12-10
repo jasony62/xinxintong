@@ -548,6 +548,29 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         }
         location.href = url;
     };
+    $scope.transmitRecord = function(oRecord) {
+        $uibModal.open({
+            templateUrl: 'transmitRecord.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.result = {};
+                $scope2.transmitConfig = _oApp.transmitConfig;
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.ok = function() {
+                    if ($scope2.result.config) {
+                        $mi.close($scope2.result.config);
+                    }
+                };
+            }],
+            windowClass: 'modal-remark auto-height',
+            backdrop: 'static',
+        }).result.then(function(oConfig) {
+            if (oConfig && oConfig.id) {
+                http2.get(LS.j('record/transmit', 'site') + '&ek=' + oRecord.enroll_key + '&transmit=' + oConfig.id).then(function(rsp) {
+                    noticebox.success('记录发布成功！');
+                });
+            }
+        });
+    };
     $scope.likeItem = function(oItem) {
         if ($scope.setOperateLimit('like')) {
             http2.get(LS.j('data/like', 'site') + '&data=' + oItem.id).then(function(rsp) {

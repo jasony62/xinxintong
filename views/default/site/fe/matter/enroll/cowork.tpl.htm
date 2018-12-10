@@ -68,7 +68,7 @@
                     </blockquote>
                 </div>
                 <div class='bottom-bar small text-muted'>
-                    <div><span ng-if="record.enroll_at>0">{{record.enroll_at*1000|date:'MM-dd HH:mm'}}</span></div>
+                    <div><span ng-if="record.enroll_at>0">{{::record.enroll_at*1000|date:'MM-dd HH:mm'}}</span></div>
                     <a href ng-click="likeRecord()"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':record.like_log[user.uid]}"></span>&nbsp;<span ng-bind="record.like_num"></span></a>
                     <a href ng-click="dislikeRecord()"><span class='glyphicon glyphicon-thumbs-down' ng-class="{'like':record.dislike_log[user.uid]}"></span>&nbsp;<span ng-bind="record.dislike_num"></span></a>
                     <a href ng-if="app.scenarioConfig.no_remark!=='Y'&&params.entryRuleResult.passed==='Y'" ng-click="writeRemark()"><span class="glyphicon glyphicon-comment"></span>&nbsp;<span ng-bind="record.rec_remark_num"></span></a>
@@ -82,9 +82,10 @@
                             <li><a href ng-click="assignTag(record)"><span class='glyphicon glyphicon-tag'></span> 标签</a></li>
                             <li ng-if="record.favored"><a href ng-click="assignTopic(record)"><span class='glyphicon glyphicon-inbox'></span> 专题</a></li>
                             <li ng-if="record.userid===user.uid"><a href ng-click="editRecord($event)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
-                            <li ng-if="app.scenarioConfig.can_assoc === 'Y'" class='divider'></li>
-                            <li ng-if="app.scenarioConfig.can_assoc === 'Y'"><a href ng-click="copyRecord(record)"><span class='glyphicon glyphicon-copy'></span> 复制</a></li>
-                            <li ng-if="app.scenarioConfig.can_assoc === 'Y'"><a href ng-click="pasteRecord(record)"><span class='glyphicon glyphicon-paste'></span> 粘贴</a></li>
+                            <li ng-if="app.scenarioConfig.can_assoc==='Y'" class='divider'></li>
+                            <li ng-if="app.scenarioConfig.can_assoc==='Y'"><a href ng-click="copyRecord(record)"><span class='glyphicon glyphicon-copy'></span> 复制</a></li>
+                            <li ng-if="app.scenarioConfig.can_assoc==='Y'"><a href ng-click="pasteRecord(record)"><span class='glyphicon glyphicon-paste'></span> 粘贴</a></li>
+                            <li ng-if="app.transmitConfig.length&&user.is_editor==='Y'"><a href ng-click="transmitRecord(record)"><span class='glyphicon glyphicon-transfer'></span> 转发</a></li>
                         </ul>
                     </div>
                 </div>
@@ -260,6 +261,21 @@
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
+    <script type="text/ng-template" id="transmitRecord.html">
+        <div class="modal-body">
+            <div class='list-group'>
+                <div class='list-group-item' ng-class="{'active':result.config===config}" ng-click="result.config=config" ng-repeat="config in transmitConfig">
+                    <div>{{::config.app.title}}</div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer" tms-hide-parent-height='400'>
+            <div class='text-center'>
+                <button class="btn btn-default" ng-click="cancel()">取消</button>
+                <button class="btn btn-default" ng-click="ok()" ng-disabled="!result.config">转发记录到指定的活动</button>
+            </div>
+        </div>
+    </script>
     <script type="text/ng-template" id="writeItem.html">
         <div class="modal-body">
             <div id='remarkEditor' content='data.content' tms-editor></div>

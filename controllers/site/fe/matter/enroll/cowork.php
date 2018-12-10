@@ -103,7 +103,7 @@ class cowork extends base {
 			$agreed = 'D';
 		}
 
-		$oNewItem = $modelData->addCowork($oUser, $oApp, $oRecord, $oRecData, $oPosted->value, $agreed);
+		$oNewItem = $modelData->addCowork($oUser, $oApp, $oRecData, $oPosted->value, $agreed);
 
 		/* 更新用户汇总信息及积分 */
 		$modelEvt = $this->model('matter\enroll\event');

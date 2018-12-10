@@ -165,7 +165,7 @@ class record extends main_base {
 	/**
 	 * 更新指定活动下所有记录的得分
 	 */
-	public function renewScore_action($app, $rid = null) {
+	public function renewScoreByRound_action($app, $rid = null) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -215,6 +215,50 @@ class record extends main_base {
 		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'renewScore');
 
 		return new \ResponseData($renewCount);
+	}
+	/**
+	 * 更新指定活动下所有记录的得分
+	 */
+	public function renewScore_action($app, $ek) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		// 登记活动
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+
+		$schemasById = $this->model('matter\enroll\schema')->asAssoc($oApp->dynaDataSchemas);
+
+		$modelRecDat = $this->model('matter\enroll\data');
+		$q = ['id,enroll_key,userid,data,score', 'xxt_enroll_record', ['aid' => $oApp->id, 'enroll_key' => $ek]];
+		$oRecord = $modelApp->query_obj_ss($q);
+		if (!empty($oRecord->data)) {
+			$dbData = json_decode($oRecord->data);
+			/* 题目的得分 */
+			$oRecordScore = $modelRecDat->socreRecordData($oApp, $oRecord, $schemasById, $dbData);
+			if ($modelApp->update('xxt_enroll_record', ['score' => json_encode($oRecordScore)], ['id' => $oRecord->id])) {
+				unset($oRecordScore->sum);
+				foreach ($oRecordScore as $schemaId => $dataScore) {
+					$modelApp->update(
+						'xxt_enroll_record_data',
+						['score' => $dataScore],
+						['enroll_key' => $oRecord->enroll_key, 'schema_id' => $schemaId]
+					);
+				}
+			}
+		}
+
+		$modelUsr = $this->model('matter\enroll\user');
+		$aUpdatedResult = $modelUsr->renew($oApp, '', $oRecord->userid);
+
+		// 记录操作日志
+		//$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'renewScore');
+
+		return new \ResponseData('ok');
 	}
 	/**
 	 * 已删除的活动登记名单
@@ -392,9 +436,12 @@ class record extends main_base {
 			return new \ObjectNotFoundError();
 		}
 
-		$count = $this->model('matter\enroll\record_copy')->exportToApp($oApp, $oTargetApp, $oPosted->eks, $oPosted->mappings);
+		$aResult = $this->model('matter\enroll\record\copy')->toApp($oApp, $oTargetApp, $oPosted->eks, $oPosted->mappings);
+		if (false === $aResult[0]) {
+			return new \ResponseError($aResult[1]);
+		}
 
-		return new \ResponseData($count);
+		return new \ResponseData($aResult[1]);
 	}
 	/**
 	 * 投票结果导出到其他活动作为记录

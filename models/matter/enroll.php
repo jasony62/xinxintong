@@ -169,6 +169,14 @@ class enroll_model extends enroll_base {
 				}
 				unset($oApp->vote_config);
 			}
+			if ($fields === '*' || false !== strpos($fields, 'transmit_config')) {
+				if (!empty($oApp->transmit_config)) {
+					$oApp->transmitConfig = json_decode($oApp->transmit_config);
+				} else {
+					$oApp->transmitConfig = [];
+				}
+				unset($oApp->transmit_config);
+			}
 			if ($fields === '*' || false !== strpos($fields, 'round_cron')) {
 				if (!empty($oApp->round_cron)) {
 					$oApp->roundCron = json_decode($oApp->round_cron);

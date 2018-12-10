@@ -113,8 +113,6 @@ define(['require', 'schema', 'planService'], function(require, schemaLib) {
         });
         srvSite.snsList().then(function(oSns) {
             $scope.sns = oSns;
-            $scope.snsNames = Object.keys(oSns);
-            $scope.snsCount = Object.keys(oSns).length;
             srvPlanApp.get().then(function(oApp) {
                 oApp.scenario = 'quiz';
                 $scope.app = oApp;

@@ -879,6 +879,16 @@ factory('tmsRowPicker', function() {
                 this.reset();
             }
         };
+        this.walk = function(array, fnCallable) {
+            var _self = this,
+                _aResult = [];
+            Object.keys(_self.selected).forEach(function(key) {
+                if (_self.selected[key] === true) {
+                    _aResult.push(fnCallable(array[key]));
+                }
+            });
+            return _aResult;
+        };
     }
     return RowPicker;
 });

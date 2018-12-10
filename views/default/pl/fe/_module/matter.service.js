@@ -31,6 +31,13 @@ provider('srvSite', function() {
                 }
                 return defer.promise;
             },
+            list: function() {
+                var defer = $q.defer();
+                http2.get('/rest/pl/fe/site/list').then(function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+                return defer.promise;
+            },
             update: function(prop) {
                 var oUpdated = {},
                     defer = $q.defer();
@@ -217,8 +224,15 @@ provider('srvSite', function() {
                 } else {
                     http2.get('/rest/pl/fe/site/snsList?site=' + (siteId || _siteId)).then(function(rsp) {
                         _aSns = rsp.data;
-                        _aSns.names = Object.keys(_aSns);
-                        _aSns.count = _aSns.names.length;
+                        if (_aSns) {
+                            _aSns.names = Object.keys(_aSns);
+                            _aSns.count = _aSns.names.length;
+                        } else {
+                            _aSns = {
+                                names: '',
+                                count: 0
+                            }
+                        }
                         defer.resolve(_aSns);
                     });
                 }
@@ -1336,31 +1350,38 @@ service('tkEnrollApp', ['$q', '$uibModal', 'http2', function($q, $uibModal, http
         });
         return defer.promise;
     };
-    this.choose = function(oApp) {
+    this.choose = function(oApp, oOptions) {
         var defer;
         defer = $q.defer();
         http2.post('/rest/script/time', { html: { 'enrollApp': '/views/default/pl/fe/_module/chooseEnrollApp' } }).then(function(rsp) {
             return $uibModal.open({
                 templateUrl: '/views/default/pl/fe/_module/chooseEnrollApp.html?_=' + rsp.data.html.enrollApp.time,
                 controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
+                    var _oResult, _oPage;
                     $scope2.app = oApp;
-                    $scope2.data = {};
-                    oApp.mission && ($scope2.data.sameMission = 'Y');
-                    $scope2.cancel = function() {
-                        $mi.dismiss();
+                    $scope2.result = _oResult = {};
+                    $scope2.page = _oPage = {};
+                    oApp.mission && ($scope2.result.sameMission = 'Y');
+                    $scope2.doSearch = function() {
+                        var url;
+                        url = '/rest/pl/fe/matter/enroll/list';
+                        if (oApp.mission && _oResult.sameMission === 'Y')
+                            url += '?mission=' + oApp.mission.id;
+                        http2.post(url, { byTitle: _oResult.title }, { page: _oPage }).then(function(rsp) {
+                            $scope2.apps = rsp.data.apps;
+                            if ($scope2.apps.length)
+                                _oResult.app = $scope2.apps[0];
+                        });
                     };
+                    $scope2.cancel = function() { $mi.dismiss(); };
                     $scope2.ok = function() {
-                        $mi.close($scope2.data);
+                        if (_oResult.app)
+                            $mi.close(_oResult.app);
                     };
-                    var url = '/rest/pl/fe/matter/enroll/list?site=' + oApp.siteid + '&size=999';
-                    oApp.mission && (url += '&mission=' + oApp.mission.id);
-                    http2.get(url).then(function(rsp) {
-                        $scope2.apps = rsp.data.apps;
-                    });
                 }],
                 backdrop: 'static'
-            }).result.then(function(oResult) {
-                defer.resolve(oResult);
+            }).result.then(function(oApp) {
+                defer.resolve(oApp);
             });
         });
         return defer.promise;
@@ -1511,8 +1532,8 @@ factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite
             return true;
         };
         this.chooseEnrollApp = function() {
-            tkEnrollApp.choose(oMatter).then(function(oResult) {
-                _oRule.enroll = { id: oResult.app.id, title: oResult.app.title };
+            tkEnrollApp.choose(oMatter).then(function(oTargetApp) {
+                _oRule.enroll = { id: oTargetApp.id, title: oTargetApp.title };
             });
         };
         this.removeEnrollApp = function() {

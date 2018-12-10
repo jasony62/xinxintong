@@ -1213,4 +1213,39 @@ class record extends base {
 
 		return new \ResponseData($result);
 	}
+	/**
+	 * 将填写记录转发到其他活动
+	 */
+	public function transmit_action($ek, $transmit) {
+		$modelApp = $this->model('matter\enroll');
+		$modelRec = $this->model('matter\enroll\record');
+
+		$fields = 'id,aid,state';
+		$oRecord = $modelRec->byId($ek, ['fields' => $fields]);
+		if (false === $oRecord || $oRecord->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oApp = $modelApp->byId($oRecord->aid, ['cascaded' => 'N', 'fields' => 'siteid,state,mission_id,sync_mission_round,data_schemas,transmit_config']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oConfig = tms_array_search($oApp->transmitConfig, function ($oConfig) use ($transmit) {return $oConfig->id === $transmit;});
+		if (empty($oConfig->app->id) || !isset($oConfig->mappings)) {
+			return new \ResponseError('没有设置记录转发规则');
+		}
+
+		$oTargetApp = $modelApp->byId($oConfig->app->id, ['cascaded' => 'N', 'fields' => '*']);
+		if (false === $oTargetApp || $oTargetApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$aResult = $this->model('matter\enroll\record\copy')->toApp($oApp, $oTargetApp, [$ek], $oConfig->mappings);
+		if (false === $aResult[0]) {
+			return new \ResponseError($aResult[1]);
+		}
+
+		return new \ResponseData('ok');
+	}
 }

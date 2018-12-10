@@ -10,7 +10,7 @@ define(['require'], function(require) {
         $locationProvider.html5Mode(true);
         srvSiteProvider.config(_siteId);
     }]);
-    ngApp.controller('ctrlPlan', ['$scope', '$uibModal', 'http2', 'srvSite', function($scope, $uibModal, http2, srvSite) {
+    ngApp.controller('ctrlPlan', ['$scope', '$uibModal', 'http2', 'srvSite', 'tkEntryRule', function($scope, $uibModal, http2, srvSite, tkEntryRule) {
         var _oProto, _oEntryRule;
         $scope.proto = _oProto = {
             entryRule: {
@@ -23,18 +23,11 @@ define(['require'], function(require) {
         srvSite.get().then(function(oSite) {
             $scope.site = oSite;
         });
+        http2.post('/rest/script/time', { html: { 'entryRule': '/views/default/pl/fe/_module/entryRule' } }).then(function(rsp) {
+            $scope.frameTemplates = { html: { 'entryRule': '/views/default/pl/fe/_module/entryRule.html?_=' + rsp.data.html.entryRule.time } };
+        });
         srvSite.snsList().then(function(oSns) {
-            $scope.sns = oSns;
-            $scope.snsNames = Object.keys(oSns);
-            $scope.$watch('entryRule.scope.sns', function(valid) {
-                if ($scope.snsNames.length === 1) {
-                    if (valid === 'Y') {
-                        _oEntryRule.sns[$scope.snsNames[0]] = true;
-                    } else {
-                        _oEntryRule.sns[$scope.snsNames[0]] = false;
-                    }
-                }
-            });
+            $scope.tkEntryRule = new tkEntryRule(_oProto, oSns, true, ['enroll']);
         });
         if (_missionId) {
             http2.get('/rest/pl/fe/matter/mission/get?site=' + _siteId + '&id=' + _missionId).then(function(rsp) {

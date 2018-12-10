@@ -1,13 +1,13 @@
 <?php
-namespace matter\enroll;
+namespace matter\enroll\record;
 /**
  * 和记录复制相关的
  */
-class record_copy_model extends \TMS_MODEL {
+class copy_model extends \TMS_MODEL {
 	/**
 	 * 复制记录到指定活动
 	 */
-	public function exportToApp($oApp, $oTargetApp, $eks, $mappings) {
+	public function toApp($oApp, $oTargetApp, $eks, $mappings) {
 		$modelRec = $this->model('matter\enroll\record');
 		$modelDat = $this->model('matter\enroll\data');
 		$modelUsr = $this->model('matter\enroll\user');
@@ -99,6 +99,6 @@ class record_copy_model extends \TMS_MODEL {
 			$count++;
 		}
 
-		return $count;
+		return [true, $count];
 	}
 }

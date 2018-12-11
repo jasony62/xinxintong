@@ -81,7 +81,7 @@
                             <li ng-if="!record.favored"><a href ng-click="favorRecord(record)"><span class='glyphicon glyphicon-bookmark'></span> 收藏</a></li>
                             <li><a href ng-click="assignTag(record)"><span class='glyphicon glyphicon-tag'></span> 标签</a></li>
                             <li ng-if="record.favored"><a href ng-click="assignTopic(record)"><span class='glyphicon glyphicon-inbox'></span> 专题</a></li>
-                            <li ng-if="record.userid===user.uid"><a href ng-click="editRecord($event)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
+                            <li ng-if="record.userid===user.uid||user.is_editor==='Y'"><a href ng-click="editRecord($event)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
                             <li ng-if="app.scenarioConfig.can_assoc==='Y'" class='divider'></li>
                             <li ng-if="app.scenarioConfig.can_assoc==='Y'"><a href ng-click="copyRecord(record)"><span class='glyphicon glyphicon-copy'></span> 复制</a></li>
                             <li ng-if="app.scenarioConfig.can_assoc==='Y'"><a href ng-click="pasteRecord(record)"><span class='glyphicon glyphicon-paste'></span> 粘贴</a></li>
@@ -282,6 +282,9 @@
                 <div class='list-group-item' ng-class="{'active':result.config===config}" ng-click="result.config=config" ng-repeat="config in transmitConfig">
                     <div>{{::config.app.title}}</div>
                 </div>
+            </div>
+            <div class='checkbox'>
+                <label><input type='checkbox' ng-model="result.gotoNewRecord"> 转发后跳转到新记录</label>
             </div>
         </div>
         <div class="modal-footer" tms-hide-parent-height='400'>

@@ -42,7 +42,7 @@ class copy_model extends \TMS_MODEL {
 			$agreed = 'D';
 		}
 
-		$count = 0;
+		$oNewRecs = [];
 		foreach ($eks as $ek) {
 			$oRecord = $modelRec->byId($ek, ['fields' => 'userid,nickname,data']);
 			if (!$oRecord) {
@@ -66,6 +66,8 @@ class copy_model extends \TMS_MODEL {
 			/* 在目标活动中创建新记录 */
 			$oNewRec = $modelRec->enroll($oTargetApp, $oMockUser);
 			$modelRec->setData($oMockUser, $oTargetApp, $oNewRec->enroll_key, $oNewRecData, '', true);
+			$oNewRecs[] = $oNewRec;
+
 			/* 协作填写数据 */
 			foreach ($aCoworkPairs as $targetSchemaId => $sourceSchemaId) {
 				/* 补充创建新的题目数据 */
@@ -96,9 +98,8 @@ class copy_model extends \TMS_MODEL {
 				}
 			}
 
-			$count++;
 		}
 
-		return [true, $count];
+		return [true, $oNewRecs];
 	}
 }

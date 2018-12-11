@@ -204,9 +204,10 @@ class record extends base {
 			if ($aResultSetData[0] === true) {
 				/* 已经记录，更新原先提交的数据，只要进行更新操作就设置为未审核通过的状态 */
 				$aUpdatedEnrollRec['enroll_at'] = time();
-				$aUpdatedEnrollRec['userid'] = $oUser->uid;
-				$aUpdatedEnrollRec['group_id'] = empty($oUser->group_id) ? '' : $oUser->group_id;
-				$aUpdatedEnrollRec['nickname'] = $modelRec->escape($oUser->nickname);
+				if ($oBeforeRecord->userid === $oUser->uid) {
+					$aUpdatedEnrollRec['group_id'] = empty($oUser->group_id) ? '' : $oUser->group_id;
+					$aUpdatedEnrollRec['nickname'] = $modelRec->escape($oUser->nickname);
+				}
 				$aUpdatedEnrollRec['verified'] = 'N';
 			}
 		}
@@ -389,9 +390,9 @@ class record extends base {
 			/**
 			 * 检查提交人
 			 */
-			if (empty($oApp->scenarioConfig->can_cowork) || $oApp->scenarioConfig->can_cowork === 'N') {
+			if ($this->getDeepValue($oApp->scenarioConfig, 'can_cowork') !== 'Y') {
 				if ($oRecord = $modelRec->byId($ek, ['fields' => 'userid'])) {
-					if ($oRecord->userid !== $oUser->uid) {
+					if ($oRecord->userid !== $oUser->uid && $this->getDeepValue($oUser, 'is_editor') !== 'Y') {
 						return [false, ['不允许修改其他用户提交的数据']];
 					}
 				}
@@ -400,7 +401,7 @@ class record extends base {
 		/**
 		 * 检查提交数据的合法性
 		 */
-		foreach ($oApp->dataSchemas as $oSchema) {
+		foreach ($oApp->dynaDataSchemas as $oSchema) {
 			if (isset($oSchema->unique) && $oSchema->unique === 'Y') {
 				if (empty($oRecData->{$oSchema->id})) {
 					return [false, ['唯一项【' . $oSchema->title . '】不允许为空']];
@@ -1245,7 +1246,12 @@ class record extends base {
 		if (false === $aResult[0]) {
 			return new \ResponseError($aResult[1]);
 		}
+		if (count($aResult[1]) !== 1) {
+			return new \ResponseError('记录转发错误');
+		}
 
-		return new \ResponseData('ok');
+		$oNewRec = $aResult[1][0];
+
+		return new \ResponseData($oNewRec);
 	}
 }

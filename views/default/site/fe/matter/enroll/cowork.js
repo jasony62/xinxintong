@@ -538,19 +538,17 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         }
     };
     $scope.editRecord = function(event) {
-        if ($scope.record.userid !== $scope.user.uid) {
+        if ($scope.record.userid !== $scope.user.uid && $scope.user.is_editor !== 'Y') {
             noticebox.warn('不允许编辑其他用户提交的记录');
             return;
         }
-        var page;
         for (var i in $scope.app.pages) {
             var oPage = $scope.app.pages[i];
             if (oPage.type === 'I') {
-                page = oPage.name;
+                $scope.gotoPage(event, oPage.name, $scope.record.enroll_key);
                 break;
             }
         }
-        $scope.gotoPage(event, page, $scope.record.enroll_key);
     };
     $scope.shareRecord = function(oRecord) {
         var url;
@@ -569,16 +567,23 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.ok = function() {
                     if ($scope2.result.config) {
-                        $mi.close($scope2.result.config);
+                        $mi.close($scope2.result);
                     }
                 };
             }],
             windowClass: 'modal-remark auto-height',
             backdrop: 'static',
-        }).result.then(function(oConfig) {
-            if (oConfig && oConfig.id) {
+        }).result.then(function(oResult) {
+            var oConfig;
+            if ((oConfig = oResult.config) && oConfig.id) {
                 http2.get(LS.j('record/transmit', 'site') + '&ek=' + oRecord.enroll_key + '&transmit=' + oConfig.id).then(function(rsp) {
-                    noticebox.success('记录发布成功！');
+                    var oNewRec;
+                    if (oResult.gotoNewRecord) {
+                        oNewRec = rsp.data;
+                        location.href = LS.j() + '?site=' + oNewRec.site + '&app=' + oNewRec.aid + '&ek=' + oNewRec.enroll_key + '&page=cowork';
+                    } else {
+                        noticebox.success('记录转发成功！');
+                    }
                 });
             }
         });

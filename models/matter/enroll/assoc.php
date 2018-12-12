@@ -230,4 +230,23 @@ class assoc_model extends entity_model {
 
 		return $oAssocs;
 	}
+	/**
+	 *
+	 */
+	public function byEntityB($oEntity, $aOptions = []) {
+		$fields = empty($aOptions['fields']) ? '*' : $aOptions['fields'];
+
+		$q = [
+			$fields,
+			'xxt_enroll_assoc a',
+			['entity_b_id' => $oEntity->id, 'entity_b_type' => self::Type_StrToInt[$oEntity->type], 'public' => 'Y', 'assoc_num' => (object) ['op' => '>', 'pat' => 0]],
+		];
+
+		$assocs = $this->query_objs_ss($q);
+		foreach ($assocs as $oAssoc) {
+			$oAssoc->entity_a_type = self::Type_IntToStr[(int) $oAssoc->entity_a_type];
+		}
+
+		return $assocs;
+	}
 }

@@ -441,7 +441,7 @@ class record extends main_base {
 			return new \ResponseError($aResult[1]);
 		}
 
-		return new \ResponseData($aResult[1]);
+		return new \ResponseData(count($aResult[1]));
 	}
 	/**
 	 * 投票结果导出到其他活动作为记录

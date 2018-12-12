@@ -155,14 +155,14 @@ class data_model extends entity_model {
 				$valueModifyLogs[] = $oNewModifyLog;
 				$aSchemaData = [
 					'submit_at' => $oRecord->enroll_at,
-					'userid' => isset($oUser->uid) ? $oUser->uid : '',
-					'nickname' => $this->escape($oRecord->nickname),
-					'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 					'value' => $this->escape($treatedValue),
 					'modify_log' => $this->escape($this->toJson($valueModifyLogs)),
 					'multitext_seq' => 0,
 				];
-
+				if ($oBeforeSchemaVal->userid !== $oUser->uid) {
+					$aSchemaData['nickname'] = $this->escape($oRecord->nickname);
+					$aSchemaData['group_id'] = isset($oUser->group_id) ? $oUser->group_id : '';
+				}
 				$this->update(
 					'xxt_enroll_record_data',
 					$aSchemaData,
@@ -180,7 +180,7 @@ class data_model extends entity_model {
 			/* 记录的题目之前保存过的数据 */
 			$oLastSchemaValues = $this->query_objs_ss(
 				[
-					'id,submit_at,value,modify_log,score,multitext_seq,remark_num,like_num',
+					'id,userid,submit_at,value,modify_log,score,multitext_seq,remark_num,like_num',
 					'xxt_enroll_record_data',
 					['aid' => $oApp->id, 'rid' => $oRecord->rid, 'enroll_key' => $oRecord->enroll_key, 'schema_id' => $schemaId, 'state' => 1],
 				]
@@ -239,13 +239,14 @@ class data_model extends entity_model {
 					$valueModifyLogs[] = $oNewModifyLog;
 					$aSchemaData = [
 						'submit_at' => $oRecord->enroll_at,
-						'userid' => isset($oUser->uid) ? $oUser->uid : '',
-						'nickname' => $this->escape($oRecord->nickname),
-						'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 						'value' => $this->escape($treatedValue),
 						'modify_log' => $this->escape($this->toJson($valueModifyLogs)),
 						'score' => isset($oRecordScore->{$schemaId}) ? $oRecordScore->{$schemaId} : 0,
 					];
+					if ($oLastSchemaValues[0]->userid === $oUser->uid) {
+						$aSchemaData['nickname'] = $this->escape($oRecord->nickname);
+						$aSchemaData['group_id'] = isset($oUser->group_id) ? $oUser->group_id : '';
+					}
 				} else {
 					$aSchemaData = [
 						'score' => isset($oRecordScore->{$schemaId}) ? $oRecordScore->{$schemaId} : 0,

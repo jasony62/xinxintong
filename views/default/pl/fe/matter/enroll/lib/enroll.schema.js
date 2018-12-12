@@ -230,6 +230,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                 };
                                 http2.post('/rest/pl/fe/matter/enroll/attachment/add?site=' + oApp.siteid + '&app=' + oApp.id, posted).then(function(rsp) {
                                     $scope2.attachment = rsp.data;
+                                    noticebox.close();
                                 });
                             });
                         });

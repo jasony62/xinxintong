@@ -1,5 +1,6 @@
 'use strict';
 
+require('../../../../../../asset/js/xxt.ui.http.js');
 require('../../../../../../asset/js/xxt.ui.page.js');
 require('../../../../../../asset/js/xxt.ui.siteuser.js');
 require('../../../../../../asset/js/xxt.ui.subscribe.js');
@@ -9,7 +10,7 @@ require('../../../../../../asset/js/xxt.ui.coinpay.js');
 require('../../../../../../asset/js/xxt.ui.share.js');
 require('../../../../../../asset/js/xxt.ui.picviewer.js');
 
-var ngApp = angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'subscribe.ui.xxt', 'favor.ui.xxt', 'forward.ui.xxt', 'coinpay.ui.xxt', 'picviewer.ui.xxt']);
+var ngApp = angular.module('app', ['ui.bootstrap', 'http.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'subscribe.ui.xxt', 'favor.ui.xxt', 'forward.ui.xxt', 'coinpay.ui.xxt', 'picviewer.ui.xxt']);
 ngApp.config(['$controllerProvider', function($cp) {
     ngApp.provider = {
         controller: $cp.register
@@ -40,7 +41,7 @@ ngApp.directive('tmsScroll', [function() {
             }
         }
         target.__lastScrollTop = scrollTop;
-        
+
     }
 
     function _domReady($scope, elems) {
@@ -108,7 +109,7 @@ ngApp.filter('filesize', function() {
         return length + unit;
     };
 });
-ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage', 'tmsSubscribe', 'tmsSnsShare', 'tmsCoinPay', 'tmsFavor', 'tmsForward', 'tmsSiteUser', 'picviewer', function($scope, $http, $timeout, $q, tmsDynaPage, tmsSubscribe, tmsSnsShare, tmsCoinPay, tmsFavor, tmsForward, tmsSiteUser, picviewer) {
+ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsLocation', '$timeout', '$q', 'tmsDynaPage', 'tmsSubscribe', 'tmsSnsShare', 'tmsCoinPay', 'tmsFavor', 'tmsForward', 'tmsSiteUser', 'picviewer', function($scope, http2, LS, $timeout, $q, tmsDynaPage, tmsSubscribe, tmsSnsShare, tmsCoinPay, tmsFavor, tmsForward, tmsSiteUser, picviewer) {
     var width = document.body.clientWidth;
     $scope.width = width;
 
@@ -145,7 +146,7 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
 
     function loadArticle() {
         var deferred = $q.defer();
-        $http.get('/rest/site/fe/matter/article/get?site=' + siteId + '&id=' + id).success(function(rsp) {
+        http2.get('/rest/site/fe/matter/article/get?site=' + siteId + '&id=' + id).then(function(rsp) {
             var site = rsp.data.site,
                 mission = rsp.data.mission,
                 oArticle = rsp.data.article,
@@ -203,54 +204,16 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
                 tmsSnsShare.set(oArticle.title, sharelink, oArticle.summary, oArticle.pic);
             }
 
-            
-            //if (!document.querySelector('.tms-switch-favor')) {
-            //tmsFavor.showSwitch($scope.user, oArticle);
-            //} else {
-            // $scope.favor = function(user, article) {
-            //     if (!user.loginExpire) {
-            //         tmsDynaPage.openPlugin(location.protocol + '//' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
-            //             user.loginExpire = data.loginExpire;
-            //             tmsFavor.open(article);
-            //         });
-            //     } else {
-            //         tmsFavor.open(article);
-            //     }
-            // };
-            //}
-            // if (!document.querySelector('.tms-switch-forward')) {
-            //     tmsForward.showSwitch($scope.user, oArticle);
-            // } else {
-            //     $scope.forward = function(user, article) {
-            //         if (!user.loginExpire) {
-            //             tmsDynaPage.openPlugin(location.protocol + '//' + location.host + '/rest/site/fe/user/login?site=' + article.siteid).then(function(data) {
-            //                 user.loginExpire = data.loginExpire;
-            //                 tmsForward.open(article);
-            //             });
-            //         } else {
-            //             tmsForward.open(article);
-            //         }
-            //     };
-            // }
-            // if (oArticle.can_coinpay === 'Y') {
-            //     if (!document.querySelector('.tms-switch-coinpay')) {
-            //         tmsCoinPay.showSwitch(oArticle.siteid, 'article,' + oArticle.id);
-            //     }
-            // }
             if (oArticle.can_siteuser === 'Y') {
-                //if (!document.querySelector('.tms-switch-siteuser')) {
-                //    tmsSiteUser.showSwitch(oArticle.siteid, true);
-                //} else {
                 $scope.siteUser = function(siteId) {
                     var url = location.protocol + '//' + location.host;
                     url += '/rest/site/fe/user';
                     url += "?site=" + siteId;
                     location.href = url;
                 };
-                //}
             }
             if (!_bPreview) {
-                $http.post('/rest/site/fe/matter/logAccess?site=' + siteId, {
+                http2.post('/rest/site/fe/matter/logAccess?site=' + siteId, {
                     id: id,
                     type: 'article',
                     title: oArticle.title,
@@ -260,8 +223,11 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
                 });
             }
             $scope.dataReady = 'Y';
+            http2.get('/rest/site/fe/matter/enroll/assoc/records?entity=article,' + id).then(function(rsp) {
+                $scope.enrollAssocs = rsp.data;
+            });
             deferred.resolve();
-        }).error(function(content, httpCode) {
+        }, function(content, httpCode) {
             finish();
             if (httpCode === 401) {
                 tmsDynaPage.openPlugin(content).then(function() {
@@ -293,6 +259,10 @@ ngApp.controller('ctrlMain', ['$scope', '$http', '$timeout', '$q', 'tmsDynaPage'
     };
     $scope.openChannel = function(ch) {
         location.href = '/rest/site/fe/matter?site=' + siteId + '&type=channel&id=' + ch.id;
+    };
+    $scope.openEnrollAssoc = function(oEnrollAssoc) {
+        if (oEnrollAssoc.app && oEnrollAssoc.entityA)
+            location.href = '/rest/site/fe/matter/enroll?site=' + oEnrollAssoc.app.siteid + '&app=' + oEnrollAssoc.app.id + '&ek=' + oEnrollAssoc.entityA.enroll_key + '&page=cowork';
     };
     $scope.searchByTag = function(tag) {
         location.href = '/rest/site/fe/matter/article?site=' + siteId + '&tagid=' + tag.id;

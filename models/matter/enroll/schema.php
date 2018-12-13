@@ -629,12 +629,8 @@ class schema_model extends \TMS_MODEL {
 					$modelRec = $this->model('matter\enroll\record');
 					$modelSch = $this->model('matter\enroll\schema');
 					$aRecordCache = [];
-					$aLabelSchemas = []; // 表示记录的题目
-					foreach ($oTargetApp->dynaDataSchemas as $oDynaSchema) {
-						if ($oDynaSchema->type !== 'multitext' && $this->getDeepValue($oDynaSchema, 'shareable') === 'Y') {
-							$aLabelSchemas[$oDynaSchema->id] = $oDynaSchema;
-						}
-					}
+					// 表示记录的题目
+					$aLabelSchemas = $this->asAssoc($oTargetApp->dynaDataSchemas, ['filter' => function ($oDynaSchema) {return $oDynaSchema->type !== 'multitext' && $this->getDeepValue($oDynaSchema, 'shareable') === 'Y';}]);
 					foreach ($datas as $index => $oRecData) {
 						if (!isset($aRecordCache[$oRecData->enroll_key])) {
 							$oRecord = $modelRec->byId($oRecData->enroll_key, ['fields' => 'data']);

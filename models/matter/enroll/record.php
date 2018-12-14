@@ -94,7 +94,7 @@ class record_model extends record_base {
 		}
 		// 数据对应的记录记录
 		$oRecord = $this->byId($ek);
-		if (false === $oRecord || $oRecord->state !== '1') {
+		if (false === $oRecord || in_array($oRecord->state, ['1', '99'])) {
 			return [false, '指定的对象不存在'];
 		}
 		$oResult = $this->model('matter\enroll\data')->setData($oUser, $oApp, $oRecord, $submitData, $submitkey);

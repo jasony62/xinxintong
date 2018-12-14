@@ -34,7 +34,7 @@ class record extends base {
 
 		$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
 
-		$bSubmitNewRecord = empty($ek); // 是否为提交新纪录
+		$bSubmitNewRecord = empty($ek); // 是否为提交新记录
 
 		if (!$bSubmitNewRecord) {
 			$oBeforeRecord = $modelRec->byId($ek, ['state' => '1']);
@@ -56,11 +56,7 @@ class record extends base {
 		if (empty($oPosted) || count(get_object_vars($oPosted)) === 0) {
 			return new \ResponseError('没有提交有效数据');
 		}
-		if (isset($oPosted->data)) {
-			$oEnrolledData = $oPosted->data;
-		} else {
-			$oEnrolledData = $oPosted;
-		}
+		$oEnrolledData = isset($oPosted->data) ? $oPosted->data : $oPosted;
 
 		// 提交数据的用户
 		$oUser = $this->getUser($oEnrollApp, $oEnrolledData);
@@ -266,6 +262,79 @@ class record extends base {
 		if (isset($oEnrollApp->notifyConfig->submit->valid) && $oEnrollApp->notifyConfig->submit->valid === true) {
 			$this->_notifyReceivers($oEnrollApp, $oRecord);
 		}
+
+		return new \ResponseData($ek);
+	}
+	/**
+	 * 记录记录信息
+	 *
+	 * @param string $app
+	 * @param string $rid 指定在哪一个轮次上提交（仅限新建的情况）
+	 * @param string $ek enrollKey 如果要更新之前已经提交的数据，需要指定
+	 * @param string $submitkey 支持文件分段上传
+	 */
+	public function save_action($app, $rid = '', $ek = null, $submitkey = '') {
+		$modelEnl = $this->model('matter\enroll');
+		$oEnlApp = $modelEnl->byId($app, ['cascaded' => 'N']);
+		if (false === $oEnlApp || $oEnlApp->state !== '1') {
+			return new \ObjectNotFoundError('指定的活动不存在');
+		}
+
+		$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
+
+		$bSaveNewRecord = empty($ek); // 是否为提交新记录
+
+		if (!$bSaveNewRecord) {
+			$oBeforeRecord = $modelRec->byId($ek, ['state' => '99']);
+			if (false === $oBeforeRecord) {
+				return new \ObjectNotFoundError('指定的填写记录不存在');
+			}
+			$rid = $oBeforeRecord->rid;
+		}
+
+		// 保存轮次
+		$aResultSaveRid = $this->_getSubmitRecordRid($oEnlApp, $rid);
+		if (false === $aResultSaveRid[0]) {
+			return new \ResponseError($aResultSaveRid[1]);
+		}
+		$rid = $aResultSaveRid[1];
+
+		// 保存的数据
+		$oPosted = $this->getPostJson();
+		if (empty($oPosted->data) || count(get_object_vars($oPosted->data)) === 0) {
+			return new \ResponseError('没有保存有效数据');
+		}
+		$oEnlData = $oPosted->data;
+
+		// 保存数据的用户
+		$oUser = $this->getUser($oEnlApp, $oEnlData);
+
+		// 检查是否允许记录
+		$aResultCanSubmit = $this->_canSubmit($oEnlApp, $oUser, $oEnlData, $ek, $rid);
+		if ($aResultCanSubmit[0] === false) {
+			return new \ResponseError($aResultCanSubmit[1]);
+		}
+		/**
+		 * 保存记录数据
+		 */
+		$aUpdatedEnlRec = [];
+		if ($bSaveNewRecord) {
+			/* 插入记录数据 */
+			$oNewRec = $modelRec->enroll($oEnlApp, $oUser, ['nickname' => $oUser->nickname, 'assignedRid' => $rid, 'state' => '99']);
+			$ek = $oNewRec->enroll_key;
+		}
+		/* 保存数据 */
+		$aResultSetData = $modelRec->setData($oUser, $oEnlApp, $ek, $oEnlData, $submitkey, $bSaveNewRecord);
+		if (false === $aResultSetData[0]) {
+			return new \ResponseError($aResultSetData[1]);
+		}
+		/**
+		 * 保存补充说明
+		 */
+		if (isset($oPosted->supplement) && count(get_object_vars($oPosted->supplement))) {
+			$modelRec->setSupplement($oUser, $oEnlApp, $ek, $oPosted->supplement);
+		}
+		$oRecord = $modelRec->byId($ek);
 
 		return new \ResponseData($ek);
 	}

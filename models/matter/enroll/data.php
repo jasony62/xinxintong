@@ -48,6 +48,7 @@ class data_model extends entity_model {
 					'rid' => $oRecord->rid,
 					'purpose' => $oRecord->purpose,
 					'enroll_key' => $oRecord->enroll_key,
+					'state' => $oRecord->state,
 					'submit_at' => $oRecord->enroll_at,
 					'userid' => isset($oUser->uid) ? $oUser->uid : '',
 					'nickname' => $this->escape($oRecord->nickname),
@@ -86,6 +87,7 @@ class data_model extends entity_model {
 						'rid' => $oRecord->rid,
 						'purpose' => $oRecord->purpose,
 						'enroll_key' => $oRecord->enroll_key,
+						'state' => $oRecord->state,
 						'submit_at' => $oRecord->enroll_at,
 						'userid' => isset($oUser->uid) ? $oUser->uid : '',
 						'nickname' => $this->escape($oRecord->nickname),
@@ -110,6 +112,7 @@ class data_model extends entity_model {
 						$oNewModifyLog->value = $aBeforeSchemaItems[$oUpdatedItem->id]->value;
 						$valueModifyLogs[] = $oNewModifyLog;
 						$aSchemaData = [
+							'state' => $oRecord->state,
 							'submit_at' => $oRecord->enroll_at,
 							'value' => $this->escape($oUpdatedItem->value),
 							'modify_log' => $this->escape($this->toJson($valueModifyLogs)),
@@ -154,6 +157,7 @@ class data_model extends entity_model {
 				$oNewModifyLog->value = $oBeforeSchemaVal->value;
 				$valueModifyLogs[] = $oNewModifyLog;
 				$aSchemaData = [
+					'state' => $oRecord->state,
 					'submit_at' => $oRecord->enroll_at,
 					'value' => $this->escape($treatedValue),
 					'modify_log' => $this->escape($this->toJson($valueModifyLogs)),
@@ -207,6 +211,7 @@ class data_model extends entity_model {
 						'rid' => $oRecord->rid,
 						'purpose' => $oRecord->purpose,
 						'enroll_key' => $oRecord->enroll_key,
+						'state' => $oRecord->state,
 						'submit_at' => $oRecord->enroll_at,
 						'userid' => isset($oUser->uid) ? $oUser->uid : '',
 						'nickname' => $this->escape($oRecord->nickname),

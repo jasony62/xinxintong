@@ -50,7 +50,7 @@ class create extends main_base {
 		}
 
 		$modelApp = $this->model('matter\enroll');
-		$oSourceApp = $modelApp->byId($app, 'id,siteid,title,summary,pic,scenario,start_at,end_at,mission_id,data_schemas');
+		$oSourceApp = $modelApp->byId($app, 'id,siteid,title,summary,pic,scenario,start_at,end_at,mission_id,sync_mission_round,data_schemas');
 		if (false === $oSourceApp || $oSourceApp->state !== '1') {
 			return new \ObjectNotFoundError('指定的活动不存在');
 		}
@@ -80,6 +80,7 @@ class create extends main_base {
 
 		$oCustomConfig = new \stdClass;
 		$this->setDeepValue($oCustomConfig, 'proto.title', $this->getDeepValue($oProto, 'title', $oSourceApp->title . ' - ' . $oSourceSchema->title . '（打分）'));
+		$this->setDeepValue($oCustomConfig, 'proto.sync_mission_round', $oSourceApp->sync_mission_round);
 		// 不按照模板生成题目
 		$this->setDeepValue($oCustomConfig, 'proto.schema.default.empty', true);
 

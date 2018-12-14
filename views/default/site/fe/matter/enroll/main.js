@@ -339,6 +339,9 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
                             }
                         }
                         break;
+                    case 'scoreSchema':
+                        oAct = { title: '题目打分'};
+                        break;
                 }
                 if (oAct) {
                     if (oParamsByAct) {

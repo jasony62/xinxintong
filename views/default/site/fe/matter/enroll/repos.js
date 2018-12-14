@@ -32,12 +32,13 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
         return false;
     }
-    var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oMocker;
+    var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _oScoreableSchemas, _coworkRequireLikeNum, _oMocker;
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = {};
     $scope.filter = _oFilter = { isFilter: false }; // 过滤条件
     $scope.criteria = _oCriteria = {}; // 数据查询条件
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
+    _oScoreableSchemas = { length: 0, array: [] }; // 支持打分的题目
     $scope.repos = []; // 分享的记录
     $scope.reposLoading = false;
     $scope.appendToEle = angular.element(document.querySelector('#filterQuick'));
@@ -308,7 +309,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         enlAssoc.copy($scope.app, { id: oRecord.id, type: 'record' });
     };
     $scope.confirm = function(filterOpt) {
-
         _oFilter = angular.extend(_oFilter, filterOpt.filter);
         _oCriteria = angular.extend(_oCriteria, filterOpt.criteria);
         $scope.recordList(1);
@@ -320,25 +320,26 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     var count = 0;
     $scope.shiftTip = function(type) {
         _oCriteria[type] = _oFilter[type] = null;
+
         function objectKeyIsNull(obj) {
             var empty = null;
             for (var i in obj) {
-                if (i!=='isFilter' && i!=='tags') {
-                    if(obj[i] === null) {
+                if (i !== 'isFilter' && i !== 'tags') {
+                    if (obj[i] === null) {
                         empty = true;
-                    }else {
+                    } else {
                         empty = false;
                         break;
                     }
                 }
-                
+
             }
             return empty;
         }
         if (objectKeyIsNull(_oFilter)) {
             _oFilter.isFilter = false;
-        } 
-        $scope.recordList(1);   
+        }
+        $scope.recordList(1);
     }
     $scope.shiftTag = function(oTag, bToggle) {
         if (bToggle) {
@@ -437,6 +438,58 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             });
         }
     };
+    $scope.scoreSchema = function() {
+        if (_oScoreableSchemas.length === 1) {
+            $uibModal.open({
+                template: require('./_asset/score-app.html'),
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    var _oData, _oScoreApp, _oScoreRecord;
+                    $scope2.data = _oData = {};
+                    $scope2.cancel = function() { $mi.dismiss(); };
+                    $scope2.score = function(oSchema, opIndex, number) {
+                        var oOption;
+
+                        if (!(oOption = oSchema.ops[opIndex])) return;
+
+                        if (_oData[oSchema.id] === undefined) {
+                            _oData[oSchema.id] = {};
+                            oSchema.ops.forEach(function(oOp) {
+                                _oData[oSchema.id][oOp.v] = 0;
+                            });
+                        }
+
+                        _oData[oSchema.id][oOption.v] = number;
+                    };
+                    $scope2.lessScore = function(oSchema, opIndex, number) {
+                        var oOption;
+
+                        if (!(oOption = oSchema.ops[opIndex])) return false;
+                        if (_oData[oSchema.id] === undefined) {
+                            return false;
+                        }
+                        return _oData[oSchema.id][oOption.v] >= number;
+                    };
+                    $scope2.submit = function() {
+                        var url;
+                        url = LS.j('record/submit', 'site') + '&app=' + _oScoreApp.id;
+                        http2.post(url, { data: _oData }, { autoBreak: false }).then(function() {});
+                    };
+                    http2.get(LS.j('get', 'site') + '&app=' + _oScoreableSchemas.array[0].scoreApp.id).then(function(rsp) {
+                        _oScoreApp = rsp.data.app;
+                        $scope2.schemas = _oScoreApp.dynaDataSchemas;
+                        http2.get(LS.j('record/get', 'site') + '&app=' + _oScoreApp.id).then(function(rsp) {
+                            if (rsp.data.enroll_key) {
+                                _oScoreRecord = rsp.data;
+                                http2.merge(_oData, _oScoreRecord.data);
+                            }
+                        });
+                    });
+                }],
+                backdrop: 'static',
+                windowClass: 'auto-height'
+            });
+        }
+    };
     $scope.advCriteriaStatus = {
         opened: !$scope.isSmallLayout,
         dirOpen: false
@@ -464,9 +517,13 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                 }
             }
         }
-        _oApp.dynaDataSchemas.forEach(function(schema) {
-            if (schema.shareable && schema.shareable === 'Y') {
-                _oShareableSchemas[schema.id] = schema;
+        _oApp.dynaDataSchemas.forEach(function(oSchema) {
+            if (oSchema.shareable && oSchema.shareable === 'Y')
+                _oShareableSchemas[oSchema.id] = oSchema;
+            if (oSchema.scoreApp) {
+                _oScoreableSchemas[oSchema.id] = oSchema;
+                _oScoreableSchemas.length++;
+                _oScoreableSchemas.array.push(oSchema);
             }
         });
         $scope.userGroups = params.groups;
@@ -508,7 +565,15 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         /* 设置页面分享信息 */
         $scope.setSnsShare(null, null, { target_type: 'repos', target_id: _oApp.id });
         /* 设置页面操作 */
-        $scope.setPopAct(['addRecord', 'mocker'], 'cowork');
+        var popActs = ['addRecord', 'mocker'];
+        if (_oScoreableSchemas.length) {
+            popActs.push('scoreSchema');
+        }
+        $scope.setPopAct(popActs, 'cowork', {
+            func: {
+                scoreSchema: $scope.scoreSchema,
+            }
+        });
         /*设置页面导航*/
         $scope.setPopNav(['rank', 'kanban', 'event', 'favor'], 'repos');
         /* 页面阅读日志 */

@@ -214,7 +214,7 @@ class main extends base {
 		if ($oOpenPage === null) {
 			// 根据登记状态确定进入页面
 			$modelRec = $this->model('matter\enroll\record');
-			$userEnrolled = $modelRec->lastByUser($oApp, $oUser, ['rid' => $rid]);
+			$userEnrolled = $modelRec->lastByUser($oApp, $oUser, ['state' => '1', 'rid' => $rid]);
 			if ($userEnrolled) {
 				if (empty($oApp->enrolled_entry_page)) {
 					$pages = $modelPage->byApp($oApp->id);

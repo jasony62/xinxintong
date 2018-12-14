@@ -9,6 +9,10 @@ class event_model extends \TMS_MODEL {
 	 */
 	const SubmitEventName = 'site.matter.enroll.submit';
 	/**
+	 * 保存记录事件名称
+	 */
+	const SaveEventName = 'site.matter.enroll.save';
+	/**
 	 * 用户A提交的填写记录获得新协作填写数据项
 	 */
 	const GetSubmitCoworkEventName = 'site.matter.enroll.cowork.get.submit';
@@ -402,6 +406,28 @@ class event_model extends \TMS_MODEL {
 		$oEvent->at = $eventAt;
 		$oEvent->user = $oUser;
 		$oEvent->coin = isset($oUpdatedUsrData->user_total_coin) ? $oUpdatedUsrData->user_total_coin : 0;
+
+		$this->_logEvent($oApp, $oRecord->rid, $oRecord->enroll_key, $oTarget, $oEvent);
+
+		return true;
+	}
+	/**
+	 * 用户保存记录
+	 */
+	public function saveRecord($oApp, $oRecord, $oUser) {
+		$eventAt = isset($oRecord->enroll_at) ? $oRecord->enroll_at : time();
+
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRecord->id;
+		$oTarget->type = 'record';
+
+		$oEvent = new \stdClass;
+		$oEvent->name = self::SaveEventName;
+		$oEvent->op = 'Save';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oUser;
+		$oEvent->coin = 0;
 
 		$this->_logEvent($oApp, $oRecord->rid, $oRecord->enroll_key, $oTarget, $oEvent);
 

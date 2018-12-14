@@ -235,7 +235,7 @@ class log_model extends \TMS_MODEL {
 	/**
 	 * 用户操作素材日志
 	 */
-	public function addUserMatterOp($siteId, &$oUser, &$oMatter, &$oOperation, &$client, $referer = '') {
+	public function addUserMatterOp($siteId, $oUser, $oMatter, $oOperation, $client, $referer = '') {
 		// 避免数据库双机同步延迟问题
 		$this->setOnlyWriteDbConn(true);
 		// 素材累积执行指定操作的次数
@@ -267,14 +267,6 @@ class log_model extends \TMS_MODEL {
 			$userOpNum = (int) $userOpNum->user_op_num + 1;
 		} else {
 			$userOpNum = 1;
-		}
-		/* 如果是登记活动提交操作处理之前保存的数据 */
-		if ($oOperation->name === 'submit' || $oOperation->name === 'updateData' || $oOperation->name === 'undoSave') {
-			$this->update(
-				'xxt_log_user_matter',
-				['user_last_op' => 'N'],
-				['userid' => $oUser->userid, 'matter_id' => $oMatter->id, 'matter_type' => $oMatter->type, 'operation' => 'saveData', 'user_last_op' => 'Y']
-			);
 		}
 		// 新建日志
 		$aNewLog = [];

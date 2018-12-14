@@ -7,6 +7,40 @@ require_once dirname(__FILE__) . '/main_base.php';
  */
 class create extends main_base {
 	/**
+	 * 根据系统模板创建记录活动
+	 *
+	 * @param string $site site's id
+	 * @param string $mission mission's id
+	 * @param string $scenario scenario's name
+	 * @param string $template template's name
+	 *
+	 */
+	public function bySysTemplate_action($site, $mission = null, $scenario = 'common', $template = 'simple') {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$oSite = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
+		if (false === $oSite) {
+			return new \ObjectNotFoundError();
+		}
+		if (empty($mission)) {
+			$oMission = null;
+		} else {
+			$modelMis = $this->model('matter\mission');
+			$oMission = $modelMis->byId($mission);
+			if (false === $oMission) {
+				return new \ObjectNotFoundError();
+			}
+		}
+		$modelApp = $this->model('matter\enroll')->setOnlyWriteDbConn(true);
+
+		$oCustomConfig = $this->getPostJson();
+
+		$oNewApp = $modelApp->createByTemplate($oUser, $oSite, $oCustomConfig, $oMission, $scenario, $template);
+
+		return new \ResponseData($oNewApp);
+	}
+	/**
 	 * 创建指定活动指定题目的打分活动
 	 * 例如：给答案打分
 	 */

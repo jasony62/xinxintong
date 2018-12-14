@@ -59,7 +59,6 @@ ngApp.factory('Input', ['$parse', 'tmsLocation', 'http2', 'tmsSchema', function(
                 url = LS.j('record/' + (type || 'submit'), 'site', 'app', 'rid');
             }
         }
-        //url += type == 'save' ? '&subType=save' : '&subType=submit';
         for (var i in oPosted) {
             d = oPosted[i];
             if (angular.isArray(d) && d.length && d[0].imgSrc !== undefined && d[0].serverId !== undefined) {
@@ -963,7 +962,7 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         }
         if (!_oSubmitState.isRunning()) {
             _oSubmitState.start(event, _StateCacheKey, type);
-            if ($scope.record.round.purpose !== 'C' || true === (checkResult = _facInput.check($scope.data, $scope.app, $scope.page))) {
+            if ($scope.record.round.purpose !== 'C' || type === 'save' || true === (checkResult = _facInput.check($scope.data, $scope.app, $scope.page))) {
                 _tasksOfBeforeSubmit.length ? doTask(0, nextAction, type) : doSubmit(nextAction, type);
             } else {
                 _oSubmitState.finish();

@@ -306,7 +306,7 @@ class record extends base {
 		$oUser = $this->getUser($oEnlApp, $oEnlData);
 
 		// 检查是否允许记录
-		$aResultCanSubmit = $this->_canSubmit($oEnlApp, $oUser, $oEnlData, $ek, $rid);
+		$aResultCanSubmit = $this->_canSubmit($oEnlApp, $oUser, $oEnlData, $ek, $rid, false);
 		if ($aResultCanSubmit[0] === false) {
 			return new \ResponseError($aResultCanSubmit[1]);
 		}
@@ -392,7 +392,7 @@ class record extends base {
 	 * 3、多选题选项的数量（schema.limitChoice, schema.range）
 	 *
 	 */
-	private function _canSubmit($oApp, $oUser, $oRecData, $ek, $rid = '') {
+	private function _canSubmit($oApp, $oUser, $oRecData, $ek, $rid = '', $bCheckSchema = true) {
 		/**
 		 * 检查活动是否在进行过程中
 		 */
@@ -442,47 +442,49 @@ class record extends base {
 		/**
 		 * 检查提交数据的合法性
 		 */
-		foreach ($oApp->dynaDataSchemas as $oSchema) {
-			if (isset($oSchema->unique) && $oSchema->unique === 'Y') {
-				if (empty($oRecData->{$oSchema->id})) {
-					return [false, ['唯一项【' . $oSchema->title . '】不允许为空']];
-				}
-				$checked = new \stdClass;
-				$checked->{$oSchema->id} = $oRecData->{$oSchema->id};
-				$existings = $modelRec->byData($oApp, $checked, ['fields' => 'enroll_key']);
-				if (count($existings)) {
-					foreach ($existings as $existing) {
-						if ($existing->enroll_key !== $ek) {
-							return [false, ['唯一项【' . $oSchema->title . '】不允许重复，请检查填写的数据']];
+		if ($bCheckSchema === true) {
+			foreach ($oApp->dynaDataSchemas as $oSchema) {
+				if (isset($oSchema->unique) && $oSchema->unique === 'Y') {
+					if (empty($oRecData->{$oSchema->id})) {
+						return [false, ['唯一项【' . $oSchema->title . '】不允许为空']];
+					}
+					$checked = new \stdClass;
+					$checked->{$oSchema->id} = $oRecData->{$oSchema->id};
+					$existings = $modelRec->byData($oApp, $checked, ['fields' => 'enroll_key']);
+					if (count($existings)) {
+						foreach ($existings as $existing) {
+							if ($existing->enroll_key !== $ek) {
+								return [false, ['唯一项【' . $oSchema->title . '】不允许重复，请检查填写的数据']];
+							}
 						}
 					}
 				}
-			}
-			if (isset($oSchema->type)) {
-				switch ($oSchema->type) {
-				case 'multiple':
-					if (isset($oSchema->limitChoice) && $oSchema->limitChoice === 'Y' && isset($oSchema->range) && is_array($oSchema->range)) {
-						if (isset($oRecData->{$oSchema->id})) {
-							$submitVal = $oRecData->{$oSchema->id};
-							if (is_object($submitVal)) {
-								// 多选题，将选项合并为逗号分隔的字符串
-								$opCount = count(array_filter((array) $submitVal, function ($i) {return $i;}));
+				if (isset($oSchema->type)) {
+					switch ($oSchema->type) {
+					case 'multiple':
+						if (isset($oSchema->limitChoice) && $oSchema->limitChoice === 'Y' && isset($oSchema->range) && is_array($oSchema->range)) {
+							if (isset($oRecData->{$oSchema->id})) {
+								$submitVal = $oRecData->{$oSchema->id};
+								if (is_object($submitVal)) {
+									// 多选题，将选项合并为逗号分隔的字符串
+									$opCount = count(array_filter((array) $submitVal, function ($i) {return $i;}));
+								} else {
+									$opCount = 0;
+								}
 							} else {
 								$opCount = 0;
 							}
-						} else {
-							$opCount = 0;
+							if ($opCount < $oSchema->range[0] || $opCount > $oSchema->range[1]) {
+								return [false, ['【' . $oSchema->title . '】中最多只能选择(' . $oSchema->range[1] . ')项，最少需要选择(' . $oSchema->range[0] . ')项']];
+							}
 						}
-						if ($opCount < $oSchema->range[0] || $opCount > $oSchema->range[1]) {
-							return [false, ['【' . $oSchema->title . '】中最多只能选择(' . $oSchema->range[1] . ')项，最少需要选择(' . $oSchema->range[0] . ')项']];
+						break;
+					case 'voice':
+						if (!defined('WX_VOICE_AMR_2_MP3') || WX_VOICE_AMR_2_MP3 !== 'Y') {
+							return [false, '运行环境不支持处理微信录音文件，题目【' . $oSchema->title . '】无效'];
 						}
+						break;
 					}
-					break;
-				case 'voice':
-					if (!defined('WX_VOICE_AMR_2_MP3') || WX_VOICE_AMR_2_MP3 !== 'Y') {
-						return [false, '运行环境不支持处理微信录音文件，题目【' . $oSchema->title . '】无效'];
-					}
-					break;
 				}
 			}
 		}

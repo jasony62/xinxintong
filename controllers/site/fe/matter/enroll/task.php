@@ -149,9 +149,19 @@ class task extends base {
 			return false;
 		}
 
+		$aRunnings = [];
+		foreach ($aVoteSchemas as $oVoteSchema) {
+			if ($this->getDeepValue($oVoteSchema, 'vote.state') === 'IP') {
+				$aRunnings[$oVoteSchema->id] = $oVoteSchema;
+			}
+		}
+		if (empty($aRunnings)) {
+			return false;
+		}
+
 		$oTask = new \stdClass;
 		$oTask->name = 'vote';
-		$oTask->schemas = $aVoteSchemas;
+		$oTask->schemas = $aRunnings;
 
 		return $oTask;
 	}

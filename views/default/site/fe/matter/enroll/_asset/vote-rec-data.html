@@ -8,11 +8,11 @@
     <div class='list-group'>
         <div class='list-group-item' ng-repeat="rd in votingRecDatas">
             <div ng-bind="rd.view"></div>
-            <hr>
-            <div>
-                <span ng-if="rd.voteResult&&rd.voteResult.state!=='BS'">得票：<span ng-bind="rd.voteResult.vote_num"></span>&nbsp;&nbsp;</span>
-                <button ng-if="rd.voteResult.state==='IP'&&rd.voteResult.vote_at==0" class='btn btn-default btn-xs' ng-click="vote(rd)"><span class='glyphicon glyphicon-triangle-top'></span> 投票</button>
-                <button ng-if="rd.voteResult.state==='IP'&&rd.voteResult.vote_at>0" class='btn btn-default btn-xs' ng-click="unvote(rd)"><span class='glyphicon glyphicon-triangle-bottom'></span> 取消投票</button>
+            <div ng-if="rd.voteResult&&rd.voteResult.state==='IP'">
+                <hr>
+                <span>得票：<span ng-bind="rd.voteResult.vote_num"></span>&nbsp;&nbsp;</span>
+                <button ng-if="rd.voteResult.vote_at==0" class='btn btn-default btn-xs' ng-click="vote(rd)"><span class='glyphicon glyphicon-triangle-top'></span> 投票</button>
+                <button ng-if="rd.voteResult.vote_at>0" class='btn btn-default btn-xs' ng-click="unvote(rd)"><span class='glyphicon glyphicon-triangle-bottom'></span> 取消投票</button>
             </div>
         </div>
     </div>

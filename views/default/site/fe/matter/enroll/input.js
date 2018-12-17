@@ -48,18 +48,17 @@ ngApp.factory('Input', ['$parse', 'tmsLocation', 'http2', 'tmsSchema', function(
 
         if (oRecord.enroll_key) {
             /* 更新已有填写记录 */
-            url = LS.j('record/submit', 'site', 'app')
+            url = LS.j('record/' + (type || 'submit'), 'site', 'app')
             url += '&ek=' + oRecord.enroll_key;
         } else {
             /* 添加新记录 */
             if (oRecord.round) {
                 /* 指定了填写轮次 */
-                url = LS.j('record/submit', 'site', 'app') + '&rid=' + oRecord.round.rid;
+                url = LS.j('record/' + (type || 'submit'), 'site', 'app') + '&rid=' + oRecord.round.rid;
             } else {
-                url = LS.j('record/submit', 'site', 'app', 'rid');
+                url = LS.j('record/' + (type || 'submit'), 'site', 'app', 'rid');
             }
         }
-        url += type == 'save' ? '&subType=save' : '&subType=submit';
         for (var i in oPosted) {
             d = oPosted[i];
             if (angular.isArray(d) && d.length && d[0].imgSrc !== undefined && d[0].serverId !== undefined) {
@@ -750,7 +749,7 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         /*设置页面分享信息*/
         $scope.setSnsShare(oRecord, { 'newRecord': LS.s().newRecord });
         /*根据加载的数据设置页面*/
-        fnAfterLoad(_oApp, _oPage, $scope.data);
+        fnAfterLoad(_oApp, _oPage, oRecord, $scope.data);
     }
 
     /* 获得要编辑记录 */
@@ -804,7 +803,7 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
     }
 
     /* 页面和记录数据加载完成 */
-    function fnAfterLoad(oApp, oPage, oRecordData) {
+    function fnAfterLoad(oApp, oPage, oRecord, oRecordData) {
         var dataSchemas;
         dataSchemas = oPage.dataSchemas;
         // 设置题目的默认值
@@ -831,29 +830,37 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                 fnToggleAssocOptions(dataSchemas, oRecordData);
             }
         }, true);
+        /*设置页面导航*/
+        $scope.setPopNav(['votes', 'repos', 'rank', 'kanban', 'event'], 'input');
         /*设置页面操作*/
         var appActs = [];
         // 如果页面上有保存按钮，隐藏内置的保存按钮
-        if (oPage.act_schemas) {
-            var bHasSaveButton = false,
-                actSchemas = JSON.parse(oPage.act_schemas);
-            for (var i = actSchemas.length - 1; i >= 0; i--) {
-                if (actSchemas[i].name === 'save') {
-                    bHasSaveButton = true;
-                    break;
+        if (!oRecord || !oRecord.state || oRecord.state !== '1') {
+            if (oPage.act_schemas) {
+                var bHasSaveButton = false,
+                    actSchemas = JSON.parse(oPage.act_schemas);
+                for (var i = actSchemas.length - 1; i >= 0; i--) {
+                    if (actSchemas[i].name === 'save') {
+                        bHasSaveButton = true;
+                        break;
+                    }
                 }
             }
-        }
-        if (!bHasSaveButton) {
-            appActs.push('save');
-        }
-        appActs.push('newRecord');
-        $scope.setPopAct(appActs, 'input', {
-            func: {
-                newRecord: $scope.newRecord,
-                save: $scope.save
+            if (!bHasSaveButton) {
+                appActs.push('save');
             }
-        });
+        }
+        if (oApp.count_limit == 0 || oApp.count_limit > 1) {
+            appActs.push('newRecord');
+        }
+        if (appActs.length) {
+            $scope.setPopAct(appActs, 'input', {
+                func: {
+                    newRecord: $scope.newRecord,
+                    save: $scope.save
+                }
+            });
+        }
     }
 
     window.onbeforeunload = function(e) {
@@ -955,7 +962,7 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         }
         if (!_oSubmitState.isRunning()) {
             _oSubmitState.start(event, _StateCacheKey, type);
-            if ($scope.record.round.purpose !== 'C' || true === (checkResult = _facInput.check($scope.data, $scope.app, $scope.page))) {
+            if ($scope.record.round.purpose !== 'C' || type === 'save' || true === (checkResult = _facInput.check($scope.data, $scope.app, $scope.page))) {
                 _tasksOfBeforeSubmit.length ? doTask(0, nextAction, type) : doSubmit(nextAction, type);
             } else {
                 _oSubmitState.finish();
@@ -1126,8 +1133,6 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         _facRound.list().then(function(oResult) {
             $scope.rounds = oResult.rounds;
         });
-        /*设置页面导航*/
-        $scope.setPopNav(['votes', 'repos', 'rank', 'kanban', 'event'], 'input');
         /*页面阅读日志*/
         $scope.logAccess();
         /* 微信不支持上传文件，指导用户进行处理 */

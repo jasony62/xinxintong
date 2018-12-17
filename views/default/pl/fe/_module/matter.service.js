@@ -1328,6 +1328,28 @@ service('srvTimerNotice', ['$rootScope', '$parse', '$q', '$timeout', 'http2', 't
     };
 }]).
 /**
+ * data schema
+ */
+service('tkDataSchema', ['$q', '$uibModal', 'http2', function($q, $uibModal, http2) {
+    this.toObject = function(schemas, fnFilter, bOnlyFirst) {
+        if (!schemas || schemas.length === 0) {
+            return false;
+        }
+        var oSchema, oResult;
+        oResult = { length: 0, array: [] };
+        for (var i = schemas.length - 1; i >= 0; i--) {
+            oSchema = schemas[i];
+            if (!fnFilter || fnFilter(oSchema)) {
+                oResult[oSchema.id] = oSchema;
+                oResult.length++;
+                oResult.array.push(oSchema);
+                if (bOnlyFirst) break;
+            }
+        }
+        return oResult;
+    };
+}]).
+/**
  * enroll
  */
 service('tkEnrollApp', ['$q', '$uibModal', 'http2', function($q, $uibModal, http2) {

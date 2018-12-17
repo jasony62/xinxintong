@@ -472,7 +472,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                     $scope2.submit = function() {
                         var url;
                         url = LS.j('record/submit', 'site') + '&app=' + _oScoreApp.id;
-                        http2.post(url, { data: _oData }, { autoBreak: false }).then(function() {});
+                        http2.post(url, { data: _oData }, { autoBreak: false }).then(function(rsp) {
+
+                        });
                     };
                     http2.get(LS.j('get', 'site') + '&app=' + _oScoreableSchemas.array[0].scoreApp.id).then(function(rsp) {
                         _oScoreApp = rsp.data.app;

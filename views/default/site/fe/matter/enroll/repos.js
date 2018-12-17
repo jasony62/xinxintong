@@ -472,8 +472,12 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                     $scope2.submit = function() {
                         var url;
                         url = LS.j('record/submit', 'site') + '&app=' + _oScoreApp.id;
+                        if (_oScoreRecord)
+                            url += '&ek=' + _oScoreRecord.enroll_key;
                         http2.post(url, { data: _oData }, { autoBreak: false }).then(function(rsp) {
-
+                            http2.post(LS.j('marks/renewReferScore', 'site') + '&app=' + _oScoreApp.id, {
+                                /* 如何更新页面上已有的数据？ */
+                            });
                         });
                     };
                     http2.get(LS.j('get', 'site') + '&app=' + _oScoreableSchemas.array[0].scoreApp.id).then(function(rsp) {

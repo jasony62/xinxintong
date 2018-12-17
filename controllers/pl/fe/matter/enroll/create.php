@@ -96,6 +96,7 @@ class create extends main_base {
 		$oNewSchema->required = "Y";
 		$oNewSchema->type = "score";
 		$oNewSchema->unique = "N";
+		$oNewSchema->requireScore = "Y";
 
 		$oNewSchema->title = "打分题";
 		$oNewSchema->range = [1, 5];

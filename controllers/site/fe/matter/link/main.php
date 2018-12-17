@@ -61,10 +61,14 @@ class main extends \site\fe\matter\base {
 		if (!$passInvite) {
 			die('邀请验证令牌未通过验证或已过有效期');
 		}
-
 		if (!$this->afterSnsOAuth()) {
 			/* 检查是否需要第三方社交帐号OAuth */
-			$this->_requireSnsOAuth($site, $oLink->entryUrl);
+			if ($oLink->urlsrc == 0 && $oLink->embedded === 'Y' && (strpos($oLink->url, 'https') === false)) {
+				$callbackUrl = 'http://' . APP_HTTP_HOST . $_SERVER['REQUEST_URI'];
+			} else {
+				$callbackUrl = APP_PROTOCOL . APP_HTTP_HOST . $_SERVER['REQUEST_URI'];
+			}
+			$this->_requireSnsOAuth($site, $callbackUrl);
 		}
 
 		$this->checkEntryRule($oLink, true);

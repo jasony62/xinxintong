@@ -438,6 +438,43 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             });
         }
     };
+    $scope.voteRecData = function() {
+        $uibModal.open({
+            template: require('./_asset/vote-rec-data.html'),
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.vote = function(oRecData) {
+                    http2.get(LS.j('task/vote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
+                        oRecData.voteResult.vote_num++;
+                        oRecData.voteResult.vote_at = rsp.data[0].vote_at;
+                        var remainder = rsp.data[1][0] - rsp.data[1][1];
+                        if (remainder > 0) {
+                            noticebox.success('还需要投出【' + remainder + '】票');
+                        } else {
+                            noticebox.success('已完成全部投票');
+                        }
+                    });
+                };
+                $scope2.unvote = function(oRecData) {
+                    http2.get(LS.j('task/unvote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
+                        oRecData.voteResult.vote_num--;
+                        oRecData.voteResult.vote_at = 0;
+                        var remainder = rsp.data[0] - rsp.data[1];
+                        if (remainder > 0) {
+                            noticebox.success('还需要投出【' + remainder + '】票');
+                        } else {
+                            noticebox.success('已完成全部投票');
+                        }
+                    });
+                };
+                http2.get(LS.j('task/votingRecData', 'site', 'app')).then(function(rsp) {
+                    $scope2.votingRecDatas = rsp.data[Object.keys(rsp.data)[0]];
+                });
+            }],
+            backdrop: 'static',
+            windowClass: 'auto-height'
+        });
+    };
     $scope.scoreSchema = function() {
         if (_oScoreableSchemas.length === 1) {
             $uibModal.open({
@@ -503,9 +540,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         _oApp = params.app;
         /* 活动任务 */
+        var tasks, popActs;
         if (_oApp.actionRule) {
             /* 设置活动任务提示 */
-            var tasks = [];
             http2.get(LS.j('event/task', 'site', 'app')).then(function(rsp) {
                 if (rsp.data && rsp.data.length) {
                     rsp.data.forEach(function(oRule) {
@@ -515,7 +552,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                     });
                 }
             });
-            $scope.tasks = tasks;
             /* 开启协作填写需要的点赞数 */
             if (_oApp.actionRule.record && _oApp.actionRule.record.cowork && _oApp.actionRule.record.cowork.pre) {
                 if (_oApp.actionRule.record.cowork.pre.record && _oApp.actionRule.record.cowork.pre.record.likeNum !== undefined) {
@@ -523,6 +559,13 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                 }
             }
         }
+        http2.get(LS.j('task/list', 'site', 'app')).then(function(rsp) {
+            if (rsp.data.vote) {
+                tasks.push({ type: 'info', msg: '有投票任务', id: 'record.data.vote' });
+                popActs.push('voteRecData');
+            }
+        });
+        $scope.tasks = tasks = [];
         _oApp.dynaDataSchemas.forEach(function(oSchema) {
             if (oSchema.shareable && oSchema.shareable === 'Y')
                 _oShareableSchemas[oSchema.id] = oSchema;
@@ -571,12 +614,13 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         /* 设置页面分享信息 */
         $scope.setSnsShare(null, null, { target_type: 'repos', target_id: _oApp.id });
         /* 设置页面操作 */
-        var popActs = ['addRecord', 'mocker'];
+        popActs = ['addRecord', 'mocker'];
         if (_oScoreableSchemas.length) {
             popActs.push('scoreSchema');
         }
         $scope.setPopAct(popActs, 'cowork', {
             func: {
+                voteRecData: $scope.voteRecData,
                 scoreSchema: $scope.scoreSchema,
             }
         });

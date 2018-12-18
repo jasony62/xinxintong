@@ -19,7 +19,11 @@ class task extends base {
 
 		$tasks = new \stdClass;
 
+		// 投票任务
 		$tasks->vote = $this->_getVoteTask($oApp, $oUser);
+
+		// 打分任务
+		$tasks->score = $this->_getScoreTask($oApp, $oUser);
 
 		return new \ResponseData($tasks);
 	}
@@ -161,6 +165,34 @@ class task extends base {
 
 		$oTask = new \stdClass;
 		$oTask->name = 'vote';
+		$oTask->schemas = $aRunnings;
+
+		return $oTask;
+	}
+	/**
+	 * 投票任务
+	 */
+	private function _getScoreTask($oApp, $oUser) {
+		if (empty($oApp->scoreConfig)) {
+			return false;
+		}
+
+		$aScoreSchemas = $this->model('matter\enroll\schema')->getCanScore($oApp);
+		if (empty($aScoreSchemas)) {
+			return false;
+		}
+		$aRunnings = [];
+		foreach ($aScoreSchemas as $oScoreSchema) {
+			if ($this->getDeepValue($oScoreSchema, 'task.state') === 'IP') {
+				$aRunnings[$oScoreSchema->id] = $oScoreSchema;
+			}
+		}
+		if (empty($aRunnings)) {
+			return false;
+		}
+
+		$oTask = new \stdClass;
+		$oTask->name = 'score';
 		$oTask->schemas = $aRunnings;
 
 		return $oTask;

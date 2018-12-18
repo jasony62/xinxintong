@@ -564,6 +564,10 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                 tasks.push({ type: 'info', msg: '有投票任务', id: 'record.data.vote' });
                 popActs.push('voteRecData');
             }
+            if (rsp.data.score) {
+                tasks.push({ type: 'info', msg: '有打分任务', id: 'record.data.score' });
+                popActs.push('scoreSchema');
+            }
         });
         $scope.tasks = tasks = [];
         _oApp.dynaDataSchemas.forEach(function(oSchema) {
@@ -615,9 +619,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         $scope.setSnsShare(null, null, { target_type: 'repos', target_id: _oApp.id });
         /* 设置页面操作 */
         popActs = ['addRecord', 'mocker'];
-        if (_oScoreableSchemas.length) {
-            popActs.push('scoreSchema');
-        }
         $scope.setPopAct(popActs, 'cowork', {
             func: {
                 voteRecData: $scope.voteRecData,

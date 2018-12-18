@@ -169,6 +169,14 @@ class enroll_model extends enroll_base {
 				}
 				unset($oApp->vote_config);
 			}
+			if ($fields === '*' || false !== strpos($fields, 'score_config')) {
+				if (!empty($oApp->score_config)) {
+					$oApp->scoreConfig = json_decode($oApp->score_config);
+				} else {
+					$oApp->scoreConfig = [];
+				}
+				unset($oApp->score_config);
+			}
 			if ($fields === '*' || false !== strpos($fields, 'transmit_config')) {
 				if (!empty($oApp->transmit_config)) {
 					$oApp->transmitConfig = json_decode($oApp->transmit_config);

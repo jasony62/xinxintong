@@ -515,7 +515,7 @@ class main extends main_base {
 		}
 
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, 'id,state,siteid,title,summary,pic,scenario,start_at,end_at,mission_id,absent_cause,vote_config');
+		$oApp = $modelApp->byId($app, 'id,state,siteid,title,summary,pic,scenario,start_at,end_at,mission_id,vote_config');
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError('（3）活动不存在');
 		}
@@ -565,6 +565,72 @@ class main extends main_base {
 		$modelApp->modify($oUser, $oApp, (object) ['vote_config' => $modelApp->escape($modelApp->toJson($aAllVoteConfigs))], ['id' => $oApp->id]);
 		if ($method === 'save') {
 			return new \ResponseData($oVoteConfig);
+		} else {
+			return new \ResponseData('ok');
+		}
+	}
+	/**
+	 * 更新记录的打分规则
+	 */
+	public function updateScoreConfig_action($app) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$oPosted = $this->getPostJson();
+		$method = $this->getDeepValue($oPosted, 'method');
+		if (empty($method)) {
+			return new \ParameterError('（1）参数不完整');
+		}
+		$oScoreConfig = $this->getDeepValue($oPosted, 'data');
+		if (empty($oScoreConfig)) {
+			return new \ParameterError('（2）参数不完整');
+		}
+
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, 'id,state,siteid,title,summary,pic,scenario,start_at,end_at,mission_id,score_config');
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError('（3）活动不存在');
+		}
+		$aAllScoreConfigs = $oApp->scoreConfig;
+
+		switch ($method) {
+		case 'save':
+			if (empty($oScoreConfig->id)) {
+				$oScoreConfig->id = uniqid();
+				$aAllScoreConfigs[] = $oScoreConfig;
+			} else {
+				$bExistent = false;
+				foreach ($aAllScoreConfigs as $index => $oBefore) {
+					if ($oBefore->id === $oScoreConfig->id) {
+						$aAllScoreConfigs[$index] = $oScoreConfig;
+						$bExistent = true;
+						break;
+					}
+				}
+				if (false === $bExistent) {
+					return new \ObjectNotFoundError('（4）更新的规则不存在');
+				}
+			}
+			break;
+		case 'delete':
+			$bExistent = false;
+			foreach ($aAllScoreConfigs as $index => $oBefore) {
+				if ($oBefore->id === $oScoreConfig->id) {
+					array_splice($aAllScoreConfigs, $index, 1);
+					$bExistent = true;
+					break;
+				}
+			}
+			if (false === $bExistent) {
+				return new \ObjectNotFoundError('（5）删除的规则不存在');
+			}
+			break;
+		}
+
+		$modelApp->modify($oUser, $oApp, (object) ['score_config' => $modelApp->escape($modelApp->toJson($aAllScoreConfigs))], ['id' => $oApp->id]);
+		if ($method === 'save') {
+			return new \ResponseData($oScoreConfig);
 		} else {
 			return new \ResponseData('ok');
 		}

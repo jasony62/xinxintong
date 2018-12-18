@@ -21,7 +21,7 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
                 location.href = url;
             };
             $scope.vote = function(oRecData) {
-                http2.get(LS.j('data/vote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
+                http2.get(LS.j('task/vote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
                     if (oRecData.voteResult) {
                         oRecData.voteResult.vote_num++;
                         oRecData.voteResult.vote_at = rsp.data[0].vote_at;
@@ -38,7 +38,7 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
                 });
             };
             $scope.unvote = function(oRecData) {
-                http2.get(LS.j('data/unvote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
+                http2.get(LS.j('task/unvote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
                     if (oRecData.voteResult) {
                         oRecData.voteResult.vote_num--;
                         oRecData.voteResult.vote_at = 0;

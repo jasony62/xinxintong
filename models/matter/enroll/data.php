@@ -739,7 +739,7 @@ class data_model extends entity_model {
 		// 查询参数
 		$q = [
 			$fields,
-			"xxt_enroll_record_data",
+			"xxt_enroll_record_data rd",
 			"state=1 and aid='{$oApp->id}' and multitext_seq = 0",
 		];
 		if (empty($oOptions->keyword)) {
@@ -760,12 +760,12 @@ class data_model extends entity_model {
 		/* 限制填写轮次 */
 		if (!empty($rid)) {
 			if (strcasecmp($rid, 'all') !== 0) {
-				$q[2] .= " and rid='{$rid}'";
+				$q[2] .= " and (rid='{$rid}' or exists(select 1 from xxt_enroll_record_remark rr where rr.aid=rd.aid and rr.enroll_key=rd.enroll_key and rr.rid='$rid'))";
 			}
 		} else {
 			/* 没有指定轮次，就使用当前轮次 */
 			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
-				$q[2] .= " and rid='{$activeRound->rid}'";
+				$q[2] .= " and (rid='{$activeRound->rid}' or exists(select 1 from xxt_enroll_record_remark rr where rr.aid=rd.aid and rr.enroll_key=rd.enroll_key and rr.rid='{$activeRound->rid}'))";
 			}
 		}
 		/* 限制管理员态度 */
@@ -1022,7 +1022,7 @@ class data_model extends entity_model {
 			return [false, '指定的记录不存在'];
 		}
 
-		$aVoteSchemas = $this->model('matter\enroll\schema')->getCanVote($oApp, $oRecord->round);
+		$aVoteSchemas = $this->model('matter\enroll\schema')->getCanVote($oApp);
 		if (empty($aVoteSchemas[$oRecData->schema_id])) {
 			return [false, '指定的题目不支持投票'];
 		}
@@ -1050,10 +1050,11 @@ class data_model extends entity_model {
 				return [false, '不符合投票的用户分组规则，不能投票'];
 			}
 		}
+		$oActiveRnd = $oApp->appRound;
 		$q = [
 			'id,vote_at',
 			'xxt_enroll_vote',
-			['data_id' => $oRecData->id, 'rid' => $oRecData->rid, 'userid' => $oUser->uid, 'state' => 1],
+			['data_id' => $oRecData->id, 'rid' => $oActiveRnd->rid, 'userid' => $oUser->uid, 'state' => 1],
 		];
 		if ($oBefore = $this->query_obj_ss($q)) {
 			return [false, '已经投过票，不允许重复投票', $oBefore];
@@ -1062,7 +1063,7 @@ class data_model extends entity_model {
 		$q = [
 			'count(*)',
 			'xxt_enroll_vote',
-			['aid' => $oRecData->aid, 'rid' => $oRecData->rid, 'schema_id' => $oRecData->schema_id, 'userid' => $oUser->uid, 'state' => 1],
+			['aid' => $oRecData->aid, 'rid' => $oActiveRnd->rid, 'schema_id' => $oRecData->schema_id, 'userid' => $oUser->uid, 'state' => 1],
 		];
 		$beforeCount = (int) $this->query_val_ss($q);
 		if ($oCanVoteSchema->vote->limit > 0) {
@@ -1103,6 +1104,8 @@ class data_model extends entity_model {
 	 * 撤销对填写数据投票
 	 */
 	public function unvote($oApp, $recDataId, $oUser) {
+		$oActiveRnd = $oApp->appRound;
+
 		$oRecData = $this->byId($recDataId, ['fields' => 'id,aid,rid,enroll_key,schema_id,multitext_seq']);
 		if (false === $oRecData) {
 			return [false, '（1）指定的对象不存在或不可用'];
@@ -1110,7 +1113,7 @@ class data_model extends entity_model {
 		$q = [
 			'id,vote_at',
 			'xxt_enroll_vote',
-			['data_id' => $oRecData->id, 'rid' => $oRecData->rid, 'userid' => $oUser->uid, 'state' => 1],
+			['data_id' => $oRecData->id, 'rid' => $oActiveRnd->rid, 'userid' => $oUser->uid, 'state' => 1],
 		];
 		$oBefore = $this->query_obj_ss($q);
 		if (false === $oBefore) {
@@ -1156,7 +1159,7 @@ class data_model extends entity_model {
 		$q = [
 			'count(*)',
 			'xxt_enroll_vote',
-			['aid' => $oRecData->aid, 'rid' => $oRecData->rid, 'userid' => $oUser->uid, 'state' => 1],
+			['aid' => $oRecData->aid, 'rid' => $oActiveRnd->rid, 'userid' => $oUser->uid, 'state' => 1],
 		];
 		$beforeCount = (int) $this->query_val_ss($q);
 

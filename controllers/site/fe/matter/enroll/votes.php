@@ -3,7 +3,7 @@ namespace site\fe\matter\enroll;
 
 include_once dirname(__FILE__) . '/base.php';
 /**
- * 登记活动投票结果
+ * 记录活动投票结果
  */
 class votes extends base {
 	/**

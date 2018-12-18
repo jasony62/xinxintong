@@ -36,6 +36,8 @@
                 <span ng-switch-when="record.submit.end"><span ng-if="task.coin">每条记录可获得【{{task.coin}}个】积分</span><a href class="alert-link" ng-click="addRecord($event)"> 去添加</a></span>
                 <span ng-switch-when="record.like.pre"></span>
                 <span ng-switch-when="record.like.end"></span>
+                <span ng-switch-when="record.data.vote"><a href class="alert-link" ng-click="voteRecData()">，去投票</a></span>
+                <span ng-switch-when="record.data.score"><a href class="alert-link" ng-click="scoreSchema()">，去打分</a></span>
             </div>
         </div>
         <div class='row'>
@@ -101,7 +103,7 @@
                             <button class='btn btn-default' ng-click="recordList(1)"><span class='glyphicon glyphicon-search'></span></button>
                             <button class='btn btn-default' ng-click="addRecord($event)"><span class="glyphicon glyphicon-plus"></span> 记录</button>
                             <button id='advCriteriaSwitch' ng-if="dirSchemas.length" class="btn btn-default visible-xs-inline-block" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">
-                                <span class='glyphicon glyphicon-th-list' ng-class="{'opened':advCriteriaStatus.opened}"></span> 目录 
+                                <span class='glyphicon glyphicon-th-list' ng-class="{'opened':advCriteriaStatus.opened}"></span> 目录
                             </button>
                         </div>
                     </div>

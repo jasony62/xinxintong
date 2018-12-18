@@ -256,7 +256,7 @@ class record extends base {
 			$this->_notifyReceivers($oEnlApp, $oRecord);
 		}
 
-		return new \ResponseData($ek);
+		return new \ResponseData($oRecord);
 	}
 	/**
 	 * 记录记录信息

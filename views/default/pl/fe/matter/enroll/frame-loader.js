@@ -73,6 +73,7 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
             "statCtrl": '/views/default/pl/fe/matter/enroll/stat',
             "timeCtrl": '/views/default/pl/fe/matter/enroll/time',
             "voteCtrl": '/views/default/pl/fe/matter/enroll/vote',
+            "scoreCtrl": '/views/default/pl/fe/matter/enroll/score',
         },
         html: {
             "editor": '/views/default/pl/fe/matter/enroll/editor',
@@ -91,6 +92,7 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
             "stat": '/views/default/pl/fe/matter/enroll/stat',
             "time": '/views/default/pl/fe/matter/enroll/time',
             "vote": '/views/default/pl/fe/matter/enroll/vote',
+            "score": '/views/default/pl/fe/matter/enroll/score',
             "timerNotice": '/views/default/pl/fe/_module/timerNotice',
             "entryRule": '/views/default/pl/fe/_module/entryRule',
             "roundCron": '/views/default/pl/fe/_module/roundCron',

@@ -8,6 +8,19 @@
                         <label class='checkbox-inline'>
                             <input type='checkbox' value='{{::schema.id}}'><span>{{::schema.title}}</span>
                         </label>
+                        <div style='display:inline-block;'>
+                            <div class="input-group-btn">
+                                <button class='btn btn-default' ng-click="setScoreApp(schema)">设置打分活动</button>
+                                <button ng-if="schema.scoreApp" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                    <span class="caret"></span>
+                                    <span class="sr-only">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a href='/rest/pl/fe/matter/enroll?id={{schema.scoreApp.id}}&site={{app.siteid}}' target='_blank'>查看活动</a></li>
+                                    <li><a href ng-click="unlinkScoreApp(schema)">解除关联</a></li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

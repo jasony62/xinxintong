@@ -676,7 +676,7 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                 } else if (nextAction && nextAction.length) {
                     url = LS.j('', 'site', 'app');
                     url += '&page=' + nextAction;
-                    url += '&ek=' + rsp.data;
+                    url += '&ek=' + rsp.data.enroll_key;
                     location.replace(url);
                 } else {
                     if ($scope.record.enroll_key === undefined) {

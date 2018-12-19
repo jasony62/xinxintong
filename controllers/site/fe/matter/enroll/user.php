@@ -331,4 +331,61 @@ class user extends base {
 
 		return new \ResponseData($oResult);
 	}
+	/**
+	 *
+	 */
+	public function userinfoByActiveGet_action($app, $rid = '') {
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oUser = $this->getUser($oApp);
+		/*
+		 * 获取当前用户在登记活动中的数据
+		 */
+		$modelEnlUsr = $this->model('matter\enroll\user');
+		$oEnlRndUser = $modelEnlUsr->byId($oApp, $oUser->uid, ['rid' => empty($rid) ? $oApp->appRound->rid : $rid]);
+		if ($oEnlRndUser) {
+			$oEnlAppUser = $modelEnlUsr->byId($oApp, $oUser->uid, ['rid' => 'ALL', 'fields' => 'custom']);
+			$oEnlRndUser->custom = $oEnlAppUser->custom;
+		}
+		$oUser->enroll = $oEnlRndUser;
+
+		/**
+		 * 获得当前活动的分组和当前用户所属的分组，是否为组长，及同组成员
+		 */
+		if (!empty($oApp->entryRule->group->id)) {
+			$assocGroupAppId = $oApp->entryRule->group->id;
+			/* 用户所属分组 */
+			$modelGrpUsr = $this->model('matter\group\player');
+			$oGrpApp = (object) ['id' => $assocGroupAppId];
+			$oGrpUsr = $modelGrpUsr->byUser($oGrpApp, $oUser->uid, ['fields' => 'is_leader,round_id,round_title,role_rounds,userid,nickname', 'onlyOne' => true]);
+			if ($oGrpUsr) {
+				$oUser->group = $oGrpUsr;
+				if (!empty($oGrpUsr->role_rounds)) {
+					/* 获得的分组信息 */
+					$modelGrpRnd = $this->model('matter\group\round');
+					$rRounds = $modelGrpRnd->byApp($assocGroupAppId, ['fields' => "round_id,title", 'round_type' => 'R']);
+					foreach ($rRounds as $rRound) {
+						$rRounds[$rRound->round_id] = $rRound;
+					}
+					foreach ($oGrpUsr->role_rounds as $k => $usrRoleRound) {
+						$oGrpUsr->role_rounds[$k] = $rRounds[$usrRoleRound];
+					}
+				}
+				if (!empty($oGrpUsr->round_id)) {
+					$others = $modelGrpUsr->byRound($oGrpApp->id, $oGrpUsr->round_id, ['fields' => 'is_leader,userid,nickname']);
+					$oUser->groupOthers = [];
+					foreach ($others as $other) {
+						if ($other->userid !== $oGrpUsr->userid) {
+							$oUser->groupOthers[] = $other;
+						}
+					}
+				}
+			}
+		}
+
+		return new \ResponseData($oUser);
+	}
 }

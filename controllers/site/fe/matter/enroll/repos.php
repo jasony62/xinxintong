@@ -1024,35 +1024,34 @@ class repos extends base {
 	private function _packCriteria($oApp, $oUser, $criterias) {
 		$model = $this->model();
 		foreach ($criterias as $key => $criteria) {
-			//获取轮次 (只返回有数据的)
+			//获取轮次 
 			if ($criteria->type === 'rid') {
-				$q = [
-					'distinct ru.rid,ru.title',
-					'xxt_enroll_round ru,xxt_enroll_record r',
-					"ru.aid = '{$oApp->id}' and ru.state in ('1','2') and ru.rid = r.rid"
+				$modelRun = $this->model('matter\enroll\round');
+				$options = [
+					'fields' => 'rid,title',
+					'state' => ['1', '2'],
 				];
-				$p = ['o' => 'ru.create_at desc'];
-				$rounds = $model->query_objs_ss($q, $p);
-				if (count($rounds) == 1) {
+				$result = $modelRun->byApp($oApp, $options);
+				if (count($result->rounds) == 1) {
 					unset($criterias[$key]);
 				} else {
-					foreach ($rounds as $round) {
-						$criteria->menus[] = (object) ['id' => $round->rid, 'title' => $round->title];
+					foreach ($result->rounds as $round) {
+						if ($round->rid === $result->active->rid) {
+							$criteria->menus[] = (object) ['id' => $round->rid, 'title' => '(当前填写轮次) ' . $round->title];
+						} else {
+							$criteria->menus[] = (object) ['id' => $round->rid, 'title' => $round->title];
+						}
 					}
 				}
 			}
-			// 获取分组 (只返回有数据的)
+			// 获取分组
 			if ($criteria->type === 'userGroup') {
 				if (empty($oApp->entryRule->group->id)) {
 					unset($criterias[$key]);
 				} else {
 					$assocGroupAppId = $oApp->entryRule->group->id;
-					$q2 = [
-						'distinct g.round_id,g.title',
-						'xxt_group_round g,xxt_enroll_record r',
-						"g.aid = '{$assocGroupAppId}' and g.round_id = r.group_id"
-					];
-					$groups = $model->query_objs_ss($q2);
+					$modelGrpRnd = $this->model('matter\group\round');
+					$groups = $modelGrpRnd->byApp($assocGroupAppId, ['fields' => "round_id,title"]);
 					if (empty($groups)) {
 						unset($criterias[$key]);
 					} else {

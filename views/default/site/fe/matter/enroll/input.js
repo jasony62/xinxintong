@@ -681,7 +681,7 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                 } else {
                     if ($scope.record.enroll_key === undefined) {
                         $scope.record = {
-                            enroll_key: rsp.data
+                            enroll_key: rsp.data.enroll_key
                         }
                     }
                     $scope.$broadcast('xxt.app.enroll.submit.done', rsp.data);

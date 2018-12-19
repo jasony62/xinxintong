@@ -1013,15 +1013,15 @@ class repos extends base {
 
 		$oUser = $this->getUser($oApp);
 
-		$criterias = $this->_filtrateCriteria($oApp, $oUser);
+		$oCriterias = $this->_originCriteriaGet();
+		$criterias = $this->_packCriteria($oApp, $oUser, $oCriterias);
 
 		return new \ResponseData($criterias);
 	}
 	/**
 	 * 按当前用户角色过滤筛选条件
 	 */
-	private function _filtrateCriteria($oApp, $oUser) {
-		$criterias = $this->_originCriteriaGet();
+	private function _packCriteria($oApp, $oUser, $criterias) {
 		$model = $this->model();
 		foreach ($criterias as $key => $criteria) {
 			//获取轮次 (只返回有数据的)

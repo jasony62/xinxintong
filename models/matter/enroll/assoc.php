@@ -169,22 +169,24 @@ class assoc_model extends entity_model {
 		/* 更新关联数据 */
 		$oUpdated = ['assoc_num' => (object) ['op' => '-=', 'pat' => 1]];
 		if ($oAssoc->first_assoc_at === $oLinkLog->link_at) {
-			$oUpdated['first_assoc_at'] = $this->query_val_ss(
+			$firstAssocAt = $this->query_val_ss(
 				[
 					'min(link_at)',
 					'xxt_enroll_assoc_log',
 					['assoc_id' => $oAssoc->id, 'state' => 1, 'id' => (object) ['op' => '<>', 'pat' => $oLinkLog->id]],
 				]
 			);
+			$oUpdated['first_assoc_at'] = empty($firstAssocAt)? 0 : $firstAssocAt;
 		}
 		if ($oAssoc->last_assoc_at === $oLinkLog->link_at) {
-			$oUpdated['last_assoc_at'] = $this->query_val_ss(
+			$lastAssocAt = $this->query_val_ss(
 				[
 					'max(link_at)',
 					'xxt_enroll_assoc_log',
 					['assoc_id' => $oAssoc->id, 'state' => 1, 'id' => (object) ['op' => '<>', 'pat' => $oLinkLog->id]],
 				]
 			);
+			$oUpdated['last_assoc_at'] = empty($lastAssocAt)? 0 : $lastAssocAt;
 		}
 		$this->update(
 			'xxt_enroll_assoc',

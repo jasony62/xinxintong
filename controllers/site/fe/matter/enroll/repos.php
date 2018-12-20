@@ -1023,7 +1023,10 @@ class repos extends base {
 	 * 按当前用户角色过滤筛选条件
 	 */
 	private function _packCriteria($oApp, $oUser, $criterias) {
-		$model = $this->model();
+		if (!is_array($criterias)) {
+			return [];
+		}
+
 		foreach ($criterias as $key => $criteria) {
 			//获取轮次 
 			if ($criteria->type === 'rid') {
@@ -1072,7 +1075,7 @@ class repos extends base {
 					'xxt_enroll_record',
 					"aid = '{$oApp->id}' and agreed not in ('','A')"
 				];
-				$num = (int) $model->query_val_ss($q3);
+				$num = (int) $this->model()->query_val_ss($q3);
 				if ($num == 0) {
 					unset($criterias[$key]);
 				} else if (!empty($oUser->group_id) || !empty($oUser->role_rounds) || (isset($oUser->is_leader) && in_array($oUser->is_leader, ['Y', 'S'])) || (isset($oUser->is_editor) && $oUser->is_editor === 'Y')) {
@@ -1089,6 +1092,7 @@ class repos extends base {
 			}
 		}
 
+		$criterias = array_values($criterias);
 		return $criterias;
 	}
 	/**

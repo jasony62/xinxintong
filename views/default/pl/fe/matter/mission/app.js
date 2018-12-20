@@ -1,22 +1,14 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlApp', ['$scope', '$location', 'http2', 'facListFilter', 'CstNaming', '$uibModal', function($scope, $location, http2, facListFilter, CstNaming, $uibModal) {
+    ngApp.provider.controller('ctrlApp', ['$scope', 'http2', 'facListFilter', 'CstNaming', '$uibModal', function($scope, http2, facListFilter, CstNaming, $uibModal) {
         var _oMission, _oCriteria, hash;
         $scope.scenarioes = CstNaming.scenario;
-        if (hash = $location.hash()) {
-            if (/,/.test(hash)) {
-                hash = hash.split(',');
-                $scope.matterType = hash[0];
-            } else {
-                $scope.matterType = hash;
-            }
-        } else {
-            $scope.matterType = '';
-        }
         $scope.matterNames = CstNaming.matter;
         $scope.criteria = _oCriteria = {
+            byStar: 'N',
             pid: 'ALL',
-            filter: {}
+            filter: {},
+            matterType: ''
         };
         $scope.filter = facListFilter.init(function() {
             $scope.list();
@@ -46,14 +38,14 @@ define(['frame'], function(ngApp) {
         };
         $scope.addMatter = function(matterType) {
             if (!matterType) {
-                matterType = $scope.matterType;
+                matterType = _oCriteria.matterType;
             }
             $scope['add' + matterType[0].toUpperCase() + matterType.substr(1)]();
         };
-        $scope.openMatter = function(matter, subView) {
+        $scope.openMatter = function(oMatter, subView) {
             var url, type, id;
-            type = matter.type || $scope.matterType;
-            id = matter.id;
+            type = oMatter.type || _oCriteria.matterType;
+            id = oMatter.id;
             if (type === 'memberschema') {
                 url = '/rest/pl/fe/site/mschema?site=' + _oMission.siteid + '#' + id;
                 location.href = url;
@@ -66,8 +58,26 @@ define(['frame'], function(ngApp) {
                 location.href = url + '?id=' + id + '&site=' + _oMission.siteid;
             }
         };
+        $scope.toggleStar = function(oMatter) {
+            var url;
+            if (oMatter.star) {
+                if (oMatter.id && oMatter.type) {
+                    url = '/rest/pl/fe/delTop?site=' + oMatter.siteid + '&id=' + oMatter.id + '&type=' + oMatter.type;
+                    http2.get(url).then(function(rsp) {
+                        delete oMatter.star;
+                    });
+                }
+            } else {
+                if (oMatter.id && oMatter.type) {
+                    url = '/rest/pl/fe/top?site=' + oMatter.siteid + '&matterId=' + oMatter.id + '&matterType=' + oMatter.type + '&matterTitle=' + oMatter.title;
+                    http2.get(url).then(function(rsp) {
+                        oMatter.star = rsp.data;
+                    });
+                }
+            }
+        };
         $scope.removeMatter = function(evt, matter) {
-            var type = matter.type || $scope.matterType,
+            var type = matter.type || _oCriteria,
                 id = matter.id,
                 title = matter.title,
                 url = '/rest/pl/fe/matter/';
@@ -81,7 +91,7 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.copyMatter = function(evt, matter) {
-            var type = (matter.matter_type || matter.type || $scope.matterType),
+            var type = (matter.matter_type || matter.type || _oCriteria.matterType),
                 id = (matter.matter_id || matter.id),
                 siteid = matter.siteid,
                 url = '/rest/pl/fe/matter/';
@@ -143,28 +153,23 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.list = function() {
-            var url, data, matterType;
+            var url, data;
             data = {};
             if (_oCriteria.byTime) {
                 data.byTime = _oCriteria.byTime;
             }
+            if (_oCriteria.byStar) {
+                data.byStar = _oCriteria.byStar;
+            }
             if (_oCriteria.filter.by === 'title') {
                 data.byTitle = _oCriteria.filter.keyword;
             }
-            if ($scope.matterScenario !== '') {
-                data.byScenario = $scope.matterScenario;
-            }
-            matterType = $scope.matterType;
             url = '/rest/pl/fe/matter/mission/matter/list?id=' + _oMission.id;
-            if (matterType === '') {
-                url += '&matterType=app';
-            } else {
-                url += '&matterType=' + matterType;
-            }
+            url += '&matterType=' + (_oCriteria.matterType === '' ? 'app' : _oCriteria.matterType);
             http2.post(url, data).then(function(rsp) {
-                rsp.data.forEach(function(matter) {
-                    matter._operator = matter.modifier_name || matter.creater_name;
-                    matter._operateAt = matter.modifiy_at || matter.create_at;
+                rsp.data.forEach(function(oMatter) {
+                    oMatter._operator = oMatter.modifier_name || oMatter.creater_name;
+                    oMatter._operateAt = oMatter.modifiy_at || oMatter.create_at;
                 });
                 $scope.matters = rsp.data;
             });
@@ -182,9 +187,9 @@ define(['frame'], function(ngApp) {
         $scope.$watch('mission', function(nv) {
             if (!nv) return;
             _oMission = nv;
-            $scope.$watch('matterType', function(nv) {
+            $scope.$watch('criteria', function(nv) {
                 $scope.list();
-            });
+            }, true);
         });
     }]);
 });

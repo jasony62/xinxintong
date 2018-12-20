@@ -1,6 +1,7 @@
 <div class="col-md-12">
     <div class='form-group'>
         <div class='form-inline'>
+            <button class='btn btn-default' ng-click="criteria.byStar=criteria.byStar==='N'?'Y':'N'"><i class='glyphicon' ng-class="criteria.byStar==='Y'?'glyphicon-star':'glyphicon-star-empty'"></i> 星标</button>
             <div class='form-group'>
                 <select class="form-control" ng-model="criteria.byTime" ng-change="list()">
                     <option value=''>全部状态</option>
@@ -10,7 +11,7 @@
                 </select>
             </div>
             <div class='form-group'>
-                <select class="form-control" ng-model="matterType">
+                <select class="form-control" ng-model="criteria.matterType">
                     <option value=''>全部类型</option>
                     <option ng-repeat="mt in matterNames.appOrder" value="{{::mt}}">{{::matterNames.app[mt]}}</option>
                 </select>
@@ -40,6 +41,7 @@
                 <th style='width:120px'>结束时间</th>
                 <th style='width:74px'>用户可见</th>
                 <th style='width:140px'>创建人</th>
+                <th style='width:48px'>星标</th>
                 <th style='width:163px'>操作</th>
             </tr>
         </thead>
@@ -57,6 +59,9 @@
                 <td><span ng-if='m.end_at>0'>{{m.end_at*1000|date:'yy-MM-dd HH:mm'}}</span></td>
                 <td ng-click="togglePublic(m)"><i class='glyphicon' ng-class="m.is_public==='Y'?'glyphicon-eye-open':'glyphicon-eye-close'"></i></td>
                 <td>{{m.creater_name}}</td>
+                <td>
+                    <i class='glyphicon' ng-class="m.star?'glyphicon-star':'glyphicon-star-empty'" ng-click="toggleStar(m)"></i>
+                </td>
                 <td ng-switch on="m.type">
                     <div ng-switch-when="group">
                         <button class='btn btn-sm btn-default' ng-click="openMatter(m,'main')">定义</button>

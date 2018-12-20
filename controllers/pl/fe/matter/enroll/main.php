@@ -18,8 +18,6 @@ class main extends main_base {
 		if (false === ($oApp = $modelEnl->byId($app))) {
 			return new \ObjectNotFoundError();
 		}
-		unset($oApp->round_cron);
-		unset($oApp->rp_config);
 
 		/* channels */
 		$oApp->channels = $this->model('matter\channel')->byMatter($oApp->id, 'enroll');

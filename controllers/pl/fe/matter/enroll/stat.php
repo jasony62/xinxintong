@@ -268,8 +268,6 @@ class stat extends main_base {
 								}
 							}
 						}
-					} else {
-						//$sumNumber++;
 					}
 
 					$cell_w1 = floor(1.6 * 567);
@@ -279,8 +277,8 @@ class stat extends main_base {
 					$table1->addCell($cell_w1, $fancyTableCellStyle)->addText('序号', $firstStyle, $paragraphStyle);
 
 					//标识
-					if (!empty($oApp->rp_config)) {
-						$rpConfig = json_decode($oApp->rp_config);
+					if (!empty($oApp->rpConfig)) {
+						$rpConfig = $oApp->rpConfig;
 						if (!empty($rpConfig->marks)) {
 							foreach ($rpConfig->marks as $key => $mark) {
 								if ($schema->title !== $mark->title) {
@@ -290,13 +288,9 @@ class stat extends main_base {
 										$markTile = str_replace(['&'], ['&amp;'], $mark->title);
 										$table1->addCell($cell_w2, $fancyTableCellStyle)->addText($markTile, $firstStyle, $paragraphStyle);
 									}
-									//$sumNumber++;
 								}
 							}
 						}
-					} else {
-						//$table1->addCell($cell_w2, $fancyTableCellStyle)->addText('昵称', $firstStyle, $paragraphStyle);
-						//$sumNumber++;
 					}
 					$table1->addCell($cell_w2, $fancyTableCellStyle)->addText('登记内容', $firstStyle, $paragraphStyle);
 
@@ -604,11 +598,10 @@ class stat extends main_base {
 					$records = $textResult->records;
 					$html .= "<table><thead><tr>";
 					$html .= "<th>序号</th>";
-					//$html .= "<th>轮次</th>";
 					$sumNumber = 0; //数值型最后合计的列号
 					//标识
-					if (!empty($oApp->rp_config)) {
-						$rpConfig = json_decode($oApp->rp_config);
+					if (!empty($oApp->rpConfig)) {
+						$rpConfig = $oApp->rpConfig;
 						if (!empty($rpConfig->marks)) {
 							foreach ($rpConfig->marks as $key => $mark) {
 								if ($schema->title !== $mark->title) {

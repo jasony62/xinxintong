@@ -196,6 +196,7 @@ class enroll_model extends enroll_base {
 				} else {
 					$oApp->roundCron = [];
 				}
+				unset($oApp->round_cron);
 			}
 			if ($fields === '*' || false !== strpos($fields, 'notify_config')) {
 				if (!empty($oApp->notify_config)) {
@@ -211,6 +212,7 @@ class enroll_model extends enroll_base {
 				} else {
 					$oApp->rpConfig = new \stdClass;
 				}
+				unset($oApp->rp_config);
 			}
 			if ($fields === '*' || false !== strpos($fields, 'repos_config')) {
 				if (!empty($oApp->repos_config)) {

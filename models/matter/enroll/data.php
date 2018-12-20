@@ -1075,7 +1075,7 @@ class data_model extends entity_model {
 		/* 新建投票记录 */
 		$oNew = new \stdClass;
 		$oNew->aid = $oRecData->aid;
-		$oNew->rid = $oRecData->rid;
+		$oNew->rid = $oActiveRnd->rid;
 		$oNew->siteid = $oRecord->siteid;
 		$oNew->record_id = $oRecord->id;
 		$oNew->data_id = $oRecData->id;

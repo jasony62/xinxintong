@@ -1194,24 +1194,27 @@ class schema_model extends \TMS_MODEL {
 
 			return [true, 'IP'];
 		};
-		$aScoreSchemas = [];
+		$configs = [];
 		foreach ($oApp->scoreConfig as $oScoreConfig) {
 			$aValid = $fnValidConfig($oScoreConfig);
 			if (false === $aValid[0]) {
 				continue;
 			}
-			foreach ($oApp->dynaDataSchemas as $oSchema) {
-				if (in_array($oSchema->id, $oScoreConfig->schemas)) {
-					$oScoreRule = new \stdClass;
-					$oScoreRule->state = $aValid[1];
-					$oScoreRule->groups = $this->getDeepValue($oScoreConfig, 'role.groups');
-					$oSchema->task = $oScoreRule;
-					$aScoreSchemas[$oSchema->id] = $oSchema;
-				}
-			}
+			$oScoreConfig->state = $aValid[1];
+			// foreach ($oApp->dynaDataSchemas as $oSchema) {
+			// 	if (in_array($oSchema->id, $oScoreConfig->schemas)) {
+			// 		$oScoreRule = new \stdClass;
+			// 		$oScoreRule->state = $aValid[1];
+			// 		$oScoreRule->scoreApp = $this->getDeepValue($oScoreConfig, 'scoreApp');
+			// 		$oScoreRule->groups = $this->getDeepValue($oScoreConfig, 'role.groups');
+			// 		$oSchema->task = $oScoreRule;
+			// 		$aScoreSchemas[$oSchema->id] = $oSchema;
+			// 	}
+			// }
+			$configs[] = $oScoreConfig;
 		}
 
-		return $aScoreSchemas;
+		return $configs;
 	}
 	/**
 	 * 转换为关联数组的形式

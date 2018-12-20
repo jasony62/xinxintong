@@ -676,12 +676,12 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                 } else if (nextAction && nextAction.length) {
                     url = LS.j('', 'site', 'app');
                     url += '&page=' + nextAction;
-                    url += '&ek=' + rsp.data;
+                    url += '&ek=' + rsp.data.enroll_key;
                     location.replace(url);
                 } else {
                     if ($scope.record.enroll_key === undefined) {
                         $scope.record = {
-                            enroll_key: rsp.data
+                            enroll_key: rsp.data.enroll_key
                         }
                     }
                     $scope.$broadcast('xxt.app.enroll.submit.done', rsp.data);

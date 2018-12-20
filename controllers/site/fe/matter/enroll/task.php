@@ -177,23 +177,23 @@ class task extends base {
 			return false;
 		}
 
-		$aScoreSchemas = $this->model('matter\enroll\schema')->getCanScore($oApp);
-		if (empty($aScoreSchemas)) {
+		$configs = $this->model('matter\enroll\schema')->getCanScore($oApp);
+		if (empty($configs)) {
 			return false;
 		}
-		$aRunnings = [];
-		foreach ($aScoreSchemas as $oScoreSchema) {
-			if ($this->getDeepValue($oScoreSchema, 'task.state') === 'IP') {
-				$aRunnings[$oScoreSchema->id] = $oScoreSchema;
+		$runnings = [];
+		foreach ($configs as $oConfig) {
+			if ($this->getDeepValue($oConfig, 'state') === 'IP') {
+				$runnings[] = $oConfig;
 			}
 		}
-		if (empty($aRunnings)) {
+		if (empty($runnings)) {
 			return false;
 		}
 
 		$oTask = new \stdClass;
 		$oTask->name = 'score';
-		$oTask->schemas = $aRunnings;
+		$oTask->configs = $runnings;
 
 		return $oTask;
 	}

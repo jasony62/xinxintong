@@ -586,13 +586,47 @@ class main extends main_base {
 		if (empty($oScoreConfig)) {
 			return new \ParameterError('（2）参数不完整');
 		}
-
-		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, 'id,state,siteid,title,summary,pic,scenario,start_at,end_at,mission_id,score_config');
-		if (false === $oApp || $oApp->state !== '1') {
-			return new \ObjectNotFoundError('（3）活动不存在');
+		if (empty($oScoreConfig->scoreApp->id)) {
+			return new \ParameterError('（3）参数不完整');
 		}
-		$aAllScoreConfigs = $oApp->scoreConfig;
+		$modelApp = $this->model('matter\enroll');
+		$oScoreApp = $modelApp->byId($oScoreConfig->scoreApp->id, 'id,state,data_schemas');
+		if (false === $oScoreApp || $oScoreApp->state !== '1') {
+			return new \ObjectNotFoundError('（4）打分活动不存在或不可用');
+		}
+		$aScoreSchemas = $this->model('matter\enroll\schema')->asAssoc($oScoreApp->dataSchemas);
+
+		$oSourceApp = $modelApp->byId($app, 'id,state,siteid,title,summary,pic,scenario,start_at,end_at,mission_id,score_config,data_schemas');
+		if (false === $oSourceApp || $oSourceApp->state !== '1') {
+			return new \ObjectNotFoundError('（5）活动不存在');
+		}
+		$aAllScoreConfigs = $oSourceApp->scoreConfig;
+		$aSourceSchemas = $this->model('matter\enroll\schema')->asAssoc($oSourceApp->dataSchemas);
+
+		/* 记录修改的题目 */
+		$aUpdatedSourceSchemas = [];
+		$aUpdatedScoreSchemas = [];
+
+		/* 删除题目间的关联 */
+		$fnUnlinkSchema = function ($schemaIds) use ($oSourceApp, $aSourceSchemas, $aScoreSchemas, &$aUpdatedSourceSchemas, &$aUpdatedScoreSchemas) {
+			foreach ($schemaIds as $schemaId) {
+				if (isset($aSourceSchemas[$schemaId]->scoreApp)) {
+					$oSourceSchemaScoreApp = $aSourceSchemas[$schemaId]->scoreApp;
+					if (isset($oSourceSchemaScoreApp->schema->id)) {
+						$scoreSchemaId = $oSourceSchemaScoreApp->schema->id;
+						if (isset($aScoreSchemas[$scoreSchemaId]->dsSchema)) {
+							$oScoreSchemaDsSchema = $aScoreSchemas[$scoreSchemaId]->dsSchema;
+							if ($this->getDeepValue($oScoreSchemaDsSchema, 'app.id') === $oSourceApp->id && $this->getDeepValue($oScoreSchemaDsSchema, 'schema.id') === $schemaId) {
+								unset($aScoreSchemas[$scoreSchemaId]->dsSchema);
+								$aUpdatedScoreSchemas[$scoreSchemaId] = $aScoreSchemas[$scoreSchemaId];
+							}
+						}
+					}
+					unset($aSourceSchemas[$schemaId]->scoreApp);
+					$aUpdatedSourceSchemas[$schemaId] = $aSourceSchemas[$schemaId];
+				}
+			}
+		};
 
 		switch ($method) {
 		case 'save':
@@ -609,7 +643,11 @@ class main extends main_base {
 					}
 				}
 				if (false === $bExistent) {
-					return new \ObjectNotFoundError('（4）更新的规则不存在');
+					return new \ObjectNotFoundError('（6）更新的规则不存在');
+				}
+				$removedSchemaIds = array_diff($oBefore->schemas, $oScoreConfig->schemas);
+				if (!empty($removedSchemaIds)) {
+					$fnUnlinkSchema($removedSchemaIds);
 				}
 			}
 			break;
@@ -623,17 +661,26 @@ class main extends main_base {
 				}
 			}
 			if (false === $bExistent) {
-				return new \ObjectNotFoundError('（5）删除的规则不存在');
+				return new \ObjectNotFoundError('（7）删除的规则不存在');
+			}
+			if (count($oBefore->schemas)) {
+				$fnUnlinkSchema($oBefore->schemas);
 			}
 			break;
 		}
 
-		$modelApp->modify($oUser, $oApp, (object) ['score_config' => $modelApp->escape($modelApp->toJson($aAllScoreConfigs))], ['id' => $oApp->id]);
-		if ($method === 'save') {
-			return new \ResponseData($oScoreConfig);
-		} else {
-			return new \ResponseData('ok');
+		$oUpdated = new \stdClass;
+		$oUpdated->score_config = $modelApp->escape($modelApp->toJson($aAllScoreConfigs));
+		if (count($aUpdatedSourceSchemas)) {
+			$oUpdated->data_schemas = $modelApp->escape($modelApp->toJson($oSourceApp->dataSchemas));
 		}
+		$modelApp->modify($oUser, $oSourceApp, $oUpdated, ['id' => $oSourceApp->id]);
+
+		if (count($aUpdatedScoreSchemas)) {
+			$modelApp->modify($oUser, $oScoreApp, (object) ['data_schemas' => $modelApp->escape($modelApp->toJson($oScoreApp->dataSchemas))], ['id' => $oScoreApp->id]);
+		}
+
+		return new \ResponseData(['config' => $oScoreConfig, 'updatedSchemas' => $aUpdatedSourceSchemas]);
 	}
 	/**
 	 * 更新记录转发规则

@@ -197,7 +197,7 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsLocation', '$timeout', '$q'
                         url += "&title=" + oArticle.title;
                         url += "&shareto=" + shareto;
                         url += "&shareby=" + shareby;
-                        $http.get(url);
+                        http2.get(url);
                     },
                     jsApiList: ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage']
                 });

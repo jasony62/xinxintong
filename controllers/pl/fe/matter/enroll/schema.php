@@ -3,11 +3,11 @@ namespace pl\fe\matter\enroll;
 
 require_once dirname(__FILE__) . '/main_base.php';
 /**
- * 登记活动题目
+ * 记录活动题目
  */
 class schema extends main_base {
 	/**
-	 * 返回登记活动题目定义
+	 * 返回记录活动题目定义
 	 *
 	 * @param string $app
 	 * @param string $rid
@@ -33,8 +33,8 @@ class schema extends main_base {
 	/**
 	 * 由目标活动的选择题创建填写题
 	 *
-	 * @param string $app 需要创建题目的登记活动
-	 * @param string $targetApp 数据来源的登记活动
+	 * @param string $app 需要创建题目的记录活动
+	 * @param string $targetApp 数据来源的记录活动
 	 *
 	 */
 	public function inputByOption_action($app, $targetApp, $round = '') {
@@ -131,8 +131,8 @@ class schema extends main_base {
 	/**
 	 * 由目标活动的填写题创建选择题
 	 *
-	 * @param string $app 需要创建题目的登记活动
-	 * @param string $targetApp 数据来源的登记活动
+	 * @param string $app 需要创建题目的记录活动
+	 * @param string $targetApp 数据来源的记录活动
 	 *
 	 */
 	public function optionByInput_action($app, $targetApp, $round = '') {
@@ -237,8 +237,8 @@ class schema extends main_base {
 	/**
 	 * 由目标活动的填写题创建打分题
 	 *
-	 * @param string $app 需要创建题目的登记活动
-	 * @param string $targetApp 数据来源的登记活动
+	 * @param string $app 需要创建题目的记录活动
+	 * @param string $targetApp 数据来源的记录活动
 	 *
 	 */
 	public function scoreByInput_action($app, $targetApp, $round = '') {
@@ -340,8 +340,8 @@ class schema extends main_base {
 	/**
 	 * 由目标活动的打分题创建填写题
 	 *
-	 * @param string $app 需要创建题目的登记活动
-	 * @param string $targetApp 数据来源的登记活动
+	 * @param string $app 需要创建题目的记录活动
+	 * @param string $targetApp 数据来源的记录活动
 	 *
 	 */
 	public function inputByScore_action($app, $targetApp, $round = '') {
@@ -417,6 +417,67 @@ class schema extends main_base {
 		}
 
 		return new \ResponseData($newSchemas);
+	}
+	/**
+	 * 给指定的题目创建打分题
+	 */
+	public function scoreBySchema_action($sourceApp) {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		$oPosted = $this->getPostJson();
+		if (empty($oPosted)) {
+			return new \ParameterError('没有指定题目');
+		}
+
+		$modelEnl = $this->model('matter\enroll');
+
+		$oSourceApp = $modelEnl->byId($sourceApp, ['fields' => 'id,title,siteid,state,mission_id,sync_mission_round,data_schemas']);
+		if (false === $oSourceApp || $oSourceApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$protoSchemas = [];
+		$sourceSchemaIds = [];
+		foreach ($oPosted as $oProtoSchema) {
+			if (empty($oProtoSchema->dsSchema->schema->id)) {continue;}
+			$sourceSchemaIds[] = $oProtoSchema->dsSchema->schema->id;
+			$protoSchemas[] = $oProtoSchema;
+		}
+
+		$modelSch = $this->model('matter\enroll\schema');
+		$aSourceSchemas = $modelSch->asAssoc($oSourceApp->dataSchemas, ['filter' => function ($oSchema) use ($sourceSchemaIds) {return in_array($oSchema->id, $sourceSchemaIds);}]);
+
+		$aNewSchemas = [];
+		foreach ($protoSchemas as $oProtoSchema) {
+			$oSourceSchema = $aSourceSchemas[$oProtoSchema->dsSchema->schema->id];
+			$oNewSchema = new \stdClass;
+
+			$oNewSchema->dsSchema = (object) [
+				'app' => (object) ['id' => $oSourceApp->id, 'title' => $oSourceApp->title],
+				'schema' => (object) ['id' => $oSourceSchema->id, 'title' => $oSourceSchema->title, 'type' => $oSourceSchema->type],
+			];
+			$oNewSchema->id = 's' . uniqid();
+			$oNewSchema->required = "Y";
+			$oNewSchema->type = "score";
+			$oNewSchema->unique = "N";
+			$oNewSchema->requireScore = "Y";
+
+			$oNewSchema->title = $oSourceSchema->title;
+			$oNewSchema->range = [1, 5];
+			if (empty($oProtoSchema->ops)) {
+				$oNewSchema->ops = [(object) ['l' => '打分项1', 'v' => 'v1'], (object) ['l' => '打分项2', 'v' => 'v2']];
+			} else {
+				foreach ($oProtoSchema->ops as $index => $oOp) {
+					$seq = ++$index;
+					$oNewSchema->ops[] = (object) ['l' => $this->getDeepValue($oOp, 'l', '打分项' . $seq), 'v' => 'v' . $seq];
+				}
+			}
+			$aNewSchemas[$oSourceSchema->id] = $oNewSchema;
+		}
+
+		return new \ResponseData($aNewSchemas);
 	}
 	/**
 	 * 两个活动相互兼容的题目

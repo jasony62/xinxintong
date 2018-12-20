@@ -1015,16 +1015,23 @@ class repos extends base {
 		$oUser = $this->getUser($oApp);
 
 		$oCriterias = $this->_originCriteriaGet();
-		$criterias = $this->_packCriteria($oApp, $oUser, $oCriterias);
-
+		$result = $this->_packCriteria($oApp, $oUser, $oCriterias);
+		if ($result[0] === false) {
+			return new \ParameterError($result[1]);
+		}
+		
+		$criterias = $result[1];
 		return new \ResponseData($criterias);
 	}
 	/**
 	 * 按当前用户角色过滤筛选条件
 	 */
 	private function _packCriteria($oApp, $oUser, $criterias) {
-		if (!is_array($criterias)) {
-			return [];
+		$varType = gettype($criterias);
+		if ($varType === 'object') {
+			$criterias = (array) $criterias;
+		} else if ($varType !== 'array') {
+			return [false, '参数格式错误！'];
 		}
 
 		foreach ($criterias as $key => $criteria) {
@@ -1093,7 +1100,7 @@ class repos extends base {
 		}
 
 		$criterias = array_values($criterias);
-		return $criterias;
+		return [true, $criterias];
 	}
 	/**
 	 * 获得所有条件

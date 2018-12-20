@@ -34,7 +34,7 @@
         <div ng-switch-when="multitext">
             <div ng-repeat="item in rec.data[schema.id]">
                 <div class='top-bar tms-flex-row'>
-                    <div class='seq tms-flex-grow text-muted'>#<span ng-bind="item.multitext_seq"></span></div>
+                    <div class='seq tms-flex-grow text-muted' ng-if="item.multitext_seq">#<span ng-bind="item.multitext_seq"></span></div>
                     <span ng-if="item.voteResult&&item.voteResult.state!=='BS'">得票：<span ng-bind="item.voteResult.vote_num"></span>&nbsp;&nbsp;</span>
                     <button ng-if="item.voteResult.state==='IP'&&item.voteResult.vote_at==0" class='btn btn-default btn-xs' ng-click="vote(item)"><span class='glyphicon glyphicon-triangle-top'></span> 投票</button>
                     <button ng-if="item.voteResult.state==='IP'&&item.voteResult.vote_at>0" class='btn btn-default btn-xs' ng-click="unvote(item)"><span class='glyphicon glyphicon-triangle-bottom'></span> 取消投票</button>

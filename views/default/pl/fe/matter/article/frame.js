@@ -125,8 +125,8 @@ define(['require'], function() {
         });
         srvSite.snsList().then(function(oSns) {
             $scope.sns = oSns;
-            $scope.snsNames = Object.keys(oSns);
-            $scope.snsCount = Object.keys(oSns).length;
+            $scope.snsNames = oSns.names;
+            $scope.snsCount = oSns.count;
             srvApp.get().then(function(editing) {
                 $scope.editing = editing;
                 !editing.attachments && (editing.attachments = []);

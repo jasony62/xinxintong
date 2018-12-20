@@ -339,6 +339,12 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
                             }
                         }
                         break;
+                    case 'voteRecData':
+                        oAct = { title: '题目投票' };
+                        break;
+                    case 'scoreSchema':
+                        oAct = { title: '题目打分' };
+                        break;
                 }
                 if (oAct) {
                     if (oParamsByAct) {
@@ -423,7 +429,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
         var oApp, oUser, activeRid, oData, shareby;
         oApp = $scope.app;
         oUser = $scope.user;
-        activeRid = $scope.activeRid;
+        activeRid = $scope.activeRound.rid;
         shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
         oData = {
             search: location.search.replace('?', ''),
@@ -467,11 +473,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
         $scope.app = oApp;
         $scope.entryRuleResult = oEntryRuleResult;
         $scope.user = oUser;
-        $scope.activeRid = '';
-        if (params.activeRound) {
-            $scope.activeRound = params.activeRound;
-            $scope.activeRid = params.activeRound.rid;
-        }
         if (oApp.use_site_header === 'Y' && oSite && oSite.header_page) {
             tmsDynaPage.loadCode(ngApp, oSite.header_page);
         }
@@ -492,12 +493,16 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
         if (tasksOfOnReady.length) {
             angular.forEach(tasksOfOnReady, execTask);
         }
-        var eleLoading;
-        if (eleLoading = document.querySelector('.loading')) {
-            eleLoading.parentNode.removeChild(eleLoading);
-        }
-        $timeout(function() {
-            $scope.$broadcast('xxt.app.enroll.ready', params);
+        /* 当前工作轮次 */
+        http2.get(LS.j('round/getActive', 'app')).then(function(rsp) {
+            $scope.activeRound = rsp.data;
+            $timeout(function() {
+                $scope.$broadcast('xxt.app.enroll.ready', params);
+            });
+            var eleLoading;
+            if (eleLoading = document.querySelector('.loading')) {
+                eleLoading.parentNode.removeChild(eleLoading);
+            }
         });
     });
 }]);

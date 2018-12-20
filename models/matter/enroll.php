@@ -169,6 +169,22 @@ class enroll_model extends enroll_base {
 				}
 				unset($oApp->vote_config);
 			}
+			if ($fields === '*' || false !== strpos($fields, 'score_config')) {
+				if (!empty($oApp->score_config)) {
+					$oApp->scoreConfig = json_decode($oApp->score_config);
+				} else {
+					$oApp->scoreConfig = [];
+				}
+				unset($oApp->score_config);
+			}
+			if ($fields === '*' || false !== strpos($fields, 'transmit_config')) {
+				if (!empty($oApp->transmit_config)) {
+					$oApp->transmitConfig = json_decode($oApp->transmit_config);
+				} else {
+					$oApp->transmitConfig = [];
+				}
+				unset($oApp->transmit_config);
+			}
 			if ($fields === '*' || false !== strpos($fields, 'round_cron')) {
 				if (!empty($oApp->round_cron)) {
 					$oApp->roundCron = json_decode($oApp->round_cron);
@@ -468,11 +484,11 @@ class enroll_model extends enroll_base {
 		}
 		$nickname = '';
 		$oEntryRule = $oApp->entryRule;
-		if (isset($oEntryRule->anonymous) && $oEntryRule->anonymous === 'Y') {
+		if ($this->getDeepValue($oEntryRule, 'anonymous') === 'Y') {
 			/* 匿名访问 */
 			$nickname = '';
 		} else {
-			if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y' && isset($oEntryRule->member)) {
+			if ($this->getDeepValue($oEntryRule, 'scope.member') === 'Y' && isset($oEntryRule->member)) {
 				foreach ($oEntryRule->member as $schemaId => $rule) {
 					$modelMem = $this->model('site\user\member');
 					if (empty($oUser->unionid)) {
@@ -502,7 +518,7 @@ class enroll_model extends enroll_base {
 						}
 					}
 				}
-			} else if (isset($oEntryRule->scope->sns) && $oEntryRule->scope->sns === 'Y') {
+			} else if ($this->getDeepValue($oEntryRule, 'scope.sns') === 'Y') {
 				$modelAcnt = $this->model('site\user\account');
 				if ($siteUser = $modelAcnt->byId($oUser->uid)) {
 					foreach ($oEntryRule->sns as $snsName => $rule) {

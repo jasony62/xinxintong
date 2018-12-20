@@ -22,6 +22,7 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', '
             .when('/rest/pl/fe/matter/enroll/page', new RouteParam('page'))
             .when('/rest/pl/fe/matter/enroll/time', new RouteParam('time'))
             .when('/rest/pl/fe/matter/enroll/vote', new RouteParam('vote'))
+            .when('/rest/pl/fe/matter/enroll/score', new RouteParam('score'))
             .when('/rest/pl/fe/matter/enroll/preview', new RouteParam('preview'))
             .when('/rest/pl/fe/matter/enroll/entry', new RouteParam('entry'))
             .when('/rest/pl/fe/matter/enroll/record', new RouteParam('record'))
@@ -83,6 +84,7 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', '
                     break;
                 case 'time':
                 case 'vote':
+                case 'score':
                     $scope.opened = 'publish';
                     break;
                 case 'record':

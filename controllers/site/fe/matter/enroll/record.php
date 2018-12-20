@@ -27,25 +27,30 @@ class record extends base {
 	 */
 	public function submit_action($app, $rid = '', $ek = null, $submitkey = '', $subType = 'submit') {
 		$modelEnl = $this->model('matter\enroll');
-		$oEnrollApp = $modelEnl->byId($app, ['cascaded' => 'N']);
-		if (false === $oEnrollApp || $oEnrollApp->state !== '1') {
-			return new \ObjectNotFoundError('指定的活动不存在');
+		$oEnlApp = $modelEnl->byId($app, ['cascaded' => 'N']);
+		if (false === $oEnlApp || $oEnlApp->state !== '1') {
+			return new \ObjectNotFoundError('（1）指定的活动不存在');
 		}
 
 		$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
 
-		$bSubmitNewRecord = empty($ek); // 是否为提交新纪录
+		$bSubmitNewRecord = empty($ek); // 是否为新记录
 
 		if (!$bSubmitNewRecord) {
-			$oBeforeRecord = $modelRec->byId($ek, ['state' => '1']);
+			$oBeforeRecord = $modelRec->byId($ek, ['state' => ['1', '99']]);
 			if (false === $oBeforeRecord) {
-				return new \ObjectNotFoundError('指定的填写记录不存在');
+				return new \ObjectNotFoundError('（2）指定的填写记录不存在');
+			}
+			if ($oBeforeRecord->state === '99') {
+				/* 将之前保存的记录作为提交记录 */
+				$modelRec->update('xxt_enroll_record', ['state' => '1'], ['enroll_key' => $ek]);
+				$oBeforeRecord->state = '1';
 			}
 			$rid = $oBeforeRecord->rid;
 		}
 
 		// 提交轮次
-		$aResultSubmitRid = $this->_getSubmitRecordRid($oEnrollApp, $rid);
+		$aResultSubmitRid = $this->_getSubmitRecordRid($oEnlApp, $rid);
 		if (false === $aResultSubmitRid[0]) {
 			return new \ResponseError($aResultSubmitRid[1]);
 		}
@@ -53,43 +58,34 @@ class record extends base {
 
 		// 提交的数据
 		$oPosted = $this->getPostJson();
-		if (empty($oPosted) || count(get_object_vars($oPosted)) === 0) {
+		if (empty($oPosted->data) || count(get_object_vars($oPosted->data)) === 0) {
 			return new \ResponseError('没有提交有效数据');
 		}
-		if (isset($oPosted->data)) {
-			$oEnrolledData = $oPosted->data;
-		} else {
-			$oEnrolledData = $oPosted;
-		}
+		$oEnlData = $oPosted->data;
 
 		// 提交数据的用户
-		$oUser = $this->getUser($oEnrollApp, $oEnrolledData);
-
-		if ($subType === 'save') {
-			$logid = $this->_saveRecord($oUser, $oEnrollApp, $oEnrolledData, $oPosted);
-			return new \ResponseData($logid);
-		}
+		$oUser = $this->getUser($oEnlApp, $oEnlData);
 
 		// 检查是否允许记录
-		$aResultCanSubmit = $this->_canSubmit($oEnrollApp, $oUser, $oEnrolledData, $ek, $rid);
+		$aResultCanSubmit = $this->_canSubmit($oEnlApp, $oUser, $oEnlData, $ek, $rid);
 		if ($aResultCanSubmit[0] === false) {
 			return new \ResponseError($aResultCanSubmit[1]);
 		}
 		/**
 		 * 检查是否存在匹配的记录记录
 		 */
-		if (!empty($oEnrollApp->entryRule->enroll->id)) {
-			$oMatchApp = $modelEnl->byId($oEnrollApp->entryRule->enroll->id, ['cascaded' => 'N']);
+		if (!empty($oEnlApp->entryRule->enroll->id)) {
+			$oMatchApp = $modelEnl->byId($oEnlApp->entryRule->enroll->id, ['cascaded' => 'N']);
 			if (empty($oMatchApp)) {
 				return new \ParameterError('指定的记录匹配记录活动不存在');
 			}
 			/* 获得要检查的记录项 */
 			$requireCheckedData = new \stdClass;
-			$dataSchemas = $oEnrollApp->dataSchemas;
+			$dataSchemas = $oEnlApp->dataSchemas;
 			foreach ($dataSchemas as $oSchema) {
 				if (isset($oSchema->requireCheck) && $oSchema->requireCheck === 'Y') {
-					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oEnrollApp->entryRule->enroll->id) {
-						$requireCheckedData->{$oSchema->id} = $modelRec->getValueBySchema($oSchema, $oEnrolledData);
+					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oEnlApp->entryRule->enroll->id) {
+						$requireCheckedData->{$oSchema->id} = $modelRec->getValueBySchema($oSchema, $oEnlData);
 					}
 				}
 			}
@@ -120,29 +116,29 @@ class record extends base {
 			/* 将匹配的记录记录数据作为提交的记录数据的一部分 */
 			$oMatchedData = $oMatchedEnlRec->data;
 			foreach ($oMatchApp->dataSchemas as $oSchema) {
-				if (!isset($oEnrolledData->{$oSchema->id}) && isset($oMatchedData->{$oSchema->id})) {
-					$oEnrolledData->{$oSchema->id} = $oMatchedData->{$oSchema->id};
+				if (!isset($oEnlData->{$oSchema->id}) && isset($oMatchedData->{$oSchema->id})) {
+					$oEnlData->{$oSchema->id} = $oMatchedData->{$oSchema->id};
 				}
 			}
 		}
 		/**
 		 * 检查是否存在匹配的分组记录
 		 */
-		if (isset($oEnrollApp->entryRule->group->id)) {
+		if (isset($oEnlApp->entryRule->group->id)) {
 			/* 获得要检查的记录项 */
 			$countRequireCheckedData = 0;
 			$requireCheckedData = new \stdClass;
-			$dataSchemas = $oEnrollApp->dynaDataSchemas;
+			$dataSchemas = $oEnlApp->dynaDataSchemas;
 			foreach ($dataSchemas as $oSchema) {
 				if (isset($oSchema->requireCheck) && $oSchema->requireCheck === 'Y') {
-					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oEnrollApp->entryRule->group->id) {
+					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oEnlApp->entryRule->group->id) {
 						$countRequireCheckedData++;
-						$requireCheckedData->{$oSchema->id} = $modelRec->getValueBySchema($oSchema, $oEnrolledData);
+						$requireCheckedData->{$oSchema->id} = $modelRec->getValueBySchema($oSchema, $oEnlData);
 					}
 				}
 			}
 			if ($countRequireCheckedData > 0) {
-				$oGroupApp = $this->model('matter\group')->byId($oEnrollApp->entryRule->group->id);
+				$oGroupApp = $this->model('matter\group')->byId($oEnlApp->entryRule->group->id);
 				if (empty($oGroupApp)) {
 					return new \ParameterError('指定的记录匹配分组活动不存在');
 				}
@@ -170,44 +166,45 @@ class record extends base {
 				/* 将匹配的分组记录数据作为提交的记录数据的一部分 */
 				$oMatchedData = $oMatchedGrpRec->data;
 				foreach ($oGroupApp->dataSchemas as $oSchema) {
-					if (!isset($oEnrolledData->{$oSchema->id}) && isset($oMatchedData->{$oSchema->id})) {
-						$oEnrolledData->{$oSchema->id} = $oMatchedData->{$oSchema->id};
+					if (!isset($oEnlData->{$oSchema->id}) && isset($oMatchedData->{$oSchema->id})) {
+						$oEnlData->{$oSchema->id} = $oMatchedData->{$oSchema->id};
 					}
 				}
 				/* 所属分组id */
 				if (isset($oMatchedGrpRec->round_id)) {
-					$oUser->group_id = $oEnrolledData->_round_id = $oMatchedGrpRec->round_id;
+					$oUser->group_id = $oEnlData->_round_id = $oMatchedGrpRec->round_id;
 				}
 			}
 		}
 		/**
 		 * 提交记录数据
 		 */
-		$aUpdatedEnrollRec = [];
+		$aUpdatedEnlRec = [];
 		$bReviseRecordBeyondRound = false;
 		if ($bSubmitNewRecord) {
 			/* 插入记录数据 */
-			$oNewRec = $modelRec->enroll($oEnrollApp, $oUser, ['nickname' => $oUser->nickname, 'assignedRid' => $rid]);
+			$oNewRec = $modelRec->enroll($oEnlApp, $oUser, ['nickname' => $oUser->nickname, 'assignedRid' => $rid, 'state' => '1']);
 			$ek = $oNewRec->enroll_key;
 			/* 处理自定义信息 */
-			$aResultSetData = $modelRec->setData($oUser, $oEnrollApp, $ek, $oEnrolledData, $submitkey, true);
+			$aResultSetData = $modelRec->setData($oUser, $oEnlApp, $ek, $oEnlData, $submitkey, true);
 		} else {
 			/* 重新插入新提交的数据 */
-			$aResultSetData = $modelRec->setData($oUser, $oEnrollApp, $ek, $oEnrolledData, $submitkey);
+			$aResultSetData = $modelRec->setData($oUser, $oEnlApp, $ek, $oEnlData, $submitkey);
 			/* 修改后的记录在当前轮次可见 */
-			if (isset($oEnrollApp->scenarioConfig->visibleRevisedRecordAtRound) && $oEnrollApp->scenarioConfig->visibleRevisedRecordAtRound === 'Y') {
-				$aResult = $this->model('matter\enroll\round')->reviseRecord($oEnrollApp->appRound, $oBeforeRecord);
+			if ($this->getDeepValue($oEnlApp, 'scenarioConfig.visibleRevisedRecordAtRound') === 'Y') {
+				$aResult = $this->model('matter\enroll\round')->reviseRecord($oEnlApp->appRound, $oBeforeRecord);
 				if (true === $aResult[0]) {
 					$bReviseRecordBeyondRound = true;
 				}
 			}
 			if ($aResultSetData[0] === true) {
 				/* 已经记录，更新原先提交的数据，只要进行更新操作就设置为未审核通过的状态 */
-				$aUpdatedEnrollRec['enroll_at'] = time();
-				$aUpdatedEnrollRec['userid'] = $oUser->uid;
-				$aUpdatedEnrollRec['group_id'] = empty($oUser->group_id) ? '' : $oUser->group_id;
-				$aUpdatedEnrollRec['nickname'] = $modelRec->escape($oUser->nickname);
-				$aUpdatedEnrollRec['verified'] = 'N';
+				$aUpdatedEnlRec['enroll_at'] = time();
+				if ($oBeforeRecord->userid === $oUser->uid) {
+					$aUpdatedEnlRec['group_id'] = empty($oUser->group_id) ? '' : $oUser->group_id;
+					$aUpdatedEnlRec['nickname'] = $modelRec->escape($oUser->nickname);
+				}
+				$aUpdatedEnlRec['verified'] = 'N';
 			}
 		}
 		if (false === $aResultSetData[0]) {
@@ -217,21 +214,21 @@ class record extends base {
 		 * 提交补充说明
 		 */
 		if (isset($oPosted->supplement) && count(get_object_vars($oPosted->supplement))) {
-			$modelRec->setSupplement($oUser, $oEnrollApp, $ek, $oPosted->supplement);
+			$modelRec->setSupplement($oUser, $oEnlApp, $ek, $oPosted->supplement);
 		}
 		/**
 		 * 关联记录
 		 */
 		if (isset($oMatchedEnlRec)) {
-			$aUpdatedEnrollRec['matched_enroll_key'] = $oMatchedEnlRec->enroll_key;
+			$aUpdatedEnlRec['matched_enroll_key'] = $oMatchedEnlRec->enroll_key;
 		}
 		if (isset($oMatchedGrpRec)) {
-			$aUpdatedEnrollRec['group_enroll_key'] = $oMatchedGrpRec->enroll_key;
+			$aUpdatedEnlRec['group_enroll_key'] = $oMatchedGrpRec->enroll_key;
 		}
-		if (count($aUpdatedEnrollRec)) {
+		if (count($aUpdatedEnlRec)) {
 			$modelRec->update(
 				'xxt_enroll_record',
-				$aUpdatedEnrollRec,
+				$aUpdatedEnlRec,
 				['enroll_key' => $ek]
 			);
 		}
@@ -239,34 +236,108 @@ class record extends base {
 		/**
 		 * 处理用户按轮次汇总数据，积分数据
 		 */
-		$modelRec->setSummaryRec($oUser, $oEnrollApp, $oRecord->rid);
+		$modelRec->setSummaryRec($oUser, $oEnlApp, $oRecord->rid);
 		/**
 		 * 处理用户汇总数据，积分数据
 		 */
 		if ($bReviseRecordBeyondRound) {
 			$oRoundRecord = clone $oRecord;
-			$oRoundRecord->rid = $oEnrollApp->appRound->rid;
-			$this->model('matter\enroll\event')->submitRecord($oEnrollApp, $oRoundRecord, $oUser, $bSubmitNewRecord, true);
+			$oRoundRecord->rid = $oEnlApp->appRound->rid;
+			$this->model('matter\enroll\event')->submitRecord($oEnlApp, $oRoundRecord, $oUser, $bSubmitNewRecord, true);
 		} else {
-			$this->model('matter\enroll\event')->submitRecord($oEnrollApp, $oRecord, $oUser, $bSubmitNewRecord);
+			$this->model('matter\enroll\event')->submitRecord($oEnlApp, $oRecord, $oUser, $bSubmitNewRecord);
 		}
-
 		/* 生成提醒 */
 		if ($bSubmitNewRecord) {
-			$this->model('matter\enroll\notice')->addRecord($oEnrollApp, $oRecord, $oUser);
+			$this->model('matter\enroll\notice')->addRecord($oEnlApp, $oRecord, $oUser);
 		}
-
-		/* 抵消保存日志 */
-		$oOperation = new \stdClass;
-		$oOperation->name = 'submit';
-		$logid = $this->_logUserOp($oEnrollApp, $oOperation, $oUser);
-
 		/* 通知记录活动事件接收人 */
-		if (isset($oEnrollApp->notifyConfig->submit->valid) && $oEnrollApp->notifyConfig->submit->valid === true) {
-			$this->_notifyReceivers($oEnrollApp, $oRecord);
+		if ($this->getDeepValue($oEnlApp, 'notifyConfig.submit.valid') === true) {
+			$this->_notifyReceivers($oEnlApp, $oRecord);
 		}
 
-		return new \ResponseData($ek);
+		return new \ResponseData($oRecord);
+	}
+	/**
+	 * 记录记录信息
+	 *
+	 * @param string $app
+	 * @param string $rid 指定在哪一个轮次上提交（仅限新建的情况）
+	 * @param string $ek enrollKey 如果要更新之前已经提交的数据，需要指定
+	 * @param string $submitkey 支持文件分段上传
+	 */
+	public function save_action($app, $rid = '', $ek = null, $submitkey = '') {
+		$modelEnl = $this->model('matter\enroll');
+		$oEnlApp = $modelEnl->byId($app, ['cascaded' => 'N']);
+		if (false === $oEnlApp || $oEnlApp->state !== '1') {
+			return new \ObjectNotFoundError('指定的活动不存在');
+		}
+
+		$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
+
+		$bSaveNewRecord = empty($ek); // 是否为提交新记录
+
+		if (!$bSaveNewRecord) {
+			$oBeforeRecord = $modelRec->byId($ek, ['state' => ['1', '99']]);
+			if (false === $oBeforeRecord) {
+				return new \ObjectNotFoundError('指定的填写记录不存在');
+			}
+			if ($oBeforeRecord->state === '1') {
+				return new \ResponseError('记录已经提交，不能再进行保存操作');
+			}
+			$rid = $oBeforeRecord->rid;
+		}
+
+		// 保存轮次
+		$aResultSaveRid = $this->_getSubmitRecordRid($oEnlApp, $rid);
+		if (false === $aResultSaveRid[0]) {
+			return new \ResponseError($aResultSaveRid[1]);
+		}
+		$rid = $aResultSaveRid[1];
+
+		// 保存的数据
+		$oPosted = $this->getPostJson();
+		if (empty($oPosted->data) || count(get_object_vars($oPosted->data)) === 0) {
+			return new \ResponseError('没有保存有效数据');
+		}
+		$oEnlData = $oPosted->data;
+
+		// 保存数据的用户
+		$oUser = $this->getUser($oEnlApp, $oEnlData);
+
+		// 检查是否允许记录
+		$aResultCanSubmit = $this->_canSubmit($oEnlApp, $oUser, $oEnlData, $ek, $rid, false);
+		if ($aResultCanSubmit[0] === false) {
+			return new \ResponseError($aResultCanSubmit[1]);
+		}
+		/**
+		 * 保存记录数据
+		 */
+		$aUpdatedEnlRec = [];
+		if ($bSaveNewRecord) {
+			/* 插入记录数据 */
+			$oNewRec = $modelRec->enroll($oEnlApp, $oUser, ['nickname' => $oUser->nickname, 'assignedRid' => $rid, 'state' => '99']);
+			$ek = $oNewRec->enroll_key;
+		} else {
+			$modelRec->update('xxt_enroll_record', ['enroll_at' => time()], ['enroll_key' => $ek]);
+		}
+		/* 保存数据 */
+		$aResultSetData = $modelRec->setData($oUser, $oEnlApp, $ek, $oEnlData, $submitkey, $bSaveNewRecord);
+		if (false === $aResultSetData[0]) {
+			return new \ResponseError($aResultSetData[1]);
+		}
+		/**
+		 * 保存补充说明
+		 */
+		if (isset($oPosted->supplement) && count(get_object_vars($oPosted->supplement))) {
+			$modelRec->setSupplement($oUser, $oEnlApp, $ek, $oPosted->supplement);
+		}
+
+		$oRecord = $modelRec->byId($ek);
+
+		$this->model('matter\enroll\event')->saveRecord($oEnlApp, $oRecord, $oUser);
+
+		return new \ResponseData($oRecord);
 	}
 	/**
 	 * 返回当前轮次或者检查指定轮次是否有效
@@ -288,35 +359,6 @@ class record extends base {
 		}
 
 		return [true, $oRecordRnd->rid];
-	}
-	/**
-	 * 保存记录数据
-	 */
-	private function _saveRecord($oUser, $oEnrollApp, $oEnrolledData, $oPosted) {
-		if (empty($submitkey)) {
-			$submitkey = empty($oUser) ? '' : $oUser->uid;
-		}
-
-		$schemasById = []; // 方便获取记录项定义
-		foreach ($oEnrollApp->dataSchemas as $schema) {
-			$schemasById[$schema->id] = $schema;
-		}
-		$dbData = $this->model('matter\enroll\data')->disposRecrdData($oEnrollApp, $schemasById, $oEnrolledData, $submitkey);
-		if ($dbData[0] === false) {
-			return new \ResponseError($dbData[1]);
-		}
-		$dbData = $dbData[1];
-
-		$oPosted->data = $dbData;
-		!empty($rid) && $oPosted->rid = $rid;
-
-		/* 插入到用户对素材的行为日志中 */
-		$oOperation = new \stdClass;
-		$oOperation->name = 'saveData';
-		$oOperation->data = $oPosted;
-		$logid = $this->_logUserOp($oEnrollApp, $oOperation, $oUser);
-
-		return $logid;
 	}
 	/**
 	 * 记录用户提交日志
@@ -350,7 +392,7 @@ class record extends base {
 	 * 3、多选题选项的数量（schema.limitChoice, schema.range）
 	 *
 	 */
-	private function _canSubmit($oApp, $oUser, $oRecData, $ek, $rid = '') {
+	private function _canSubmit($oApp, $oUser, $oRecData, $ek, $rid = '', $bCheckSchema = true) {
 		/**
 		 * 检查活动是否在进行过程中
 		 */
@@ -389,9 +431,9 @@ class record extends base {
 			/**
 			 * 检查提交人
 			 */
-			if (empty($oApp->scenarioConfig->can_cowork) || $oApp->scenarioConfig->can_cowork === 'N') {
+			if ($this->getDeepValue($oApp->scenarioConfig, 'can_cowork') !== 'Y') {
 				if ($oRecord = $modelRec->byId($ek, ['fields' => 'userid'])) {
-					if ($oRecord->userid !== $oUser->uid) {
+					if ($oRecord->userid !== $oUser->uid && $this->getDeepValue($oUser, 'is_editor') !== 'Y') {
 						return [false, ['不允许修改其他用户提交的数据']];
 					}
 				}
@@ -400,47 +442,49 @@ class record extends base {
 		/**
 		 * 检查提交数据的合法性
 		 */
-		foreach ($oApp->dataSchemas as $oSchema) {
-			if (isset($oSchema->unique) && $oSchema->unique === 'Y') {
-				if (empty($oRecData->{$oSchema->id})) {
-					return [false, ['唯一项【' . $oSchema->title . '】不允许为空']];
-				}
-				$checked = new \stdClass;
-				$checked->{$oSchema->id} = $oRecData->{$oSchema->id};
-				$existings = $modelRec->byData($oApp, $checked, ['fields' => 'enroll_key']);
-				if (count($existings)) {
-					foreach ($existings as $existing) {
-						if ($existing->enroll_key !== $ek) {
-							return [false, ['唯一项【' . $oSchema->title . '】不允许重复，请检查填写的数据']];
+		if ($bCheckSchema === true) {
+			foreach ($oApp->dynaDataSchemas as $oSchema) {
+				if (isset($oSchema->unique) && $oSchema->unique === 'Y') {
+					if (empty($oRecData->{$oSchema->id})) {
+						return [false, ['唯一项【' . $oSchema->title . '】不允许为空']];
+					}
+					$checked = new \stdClass;
+					$checked->{$oSchema->id} = $oRecData->{$oSchema->id};
+					$existings = $modelRec->byData($oApp, $checked, ['fields' => 'enroll_key']);
+					if (count($existings)) {
+						foreach ($existings as $existing) {
+							if ($existing->enroll_key !== $ek) {
+								return [false, ['唯一项【' . $oSchema->title . '】不允许重复，请检查填写的数据']];
+							}
 						}
 					}
 				}
-			}
-			if (isset($oSchema->type)) {
-				switch ($oSchema->type) {
-				case 'multiple':
-					if (isset($oSchema->limitChoice) && $oSchema->limitChoice === 'Y' && isset($oSchema->range) && is_array($oSchema->range)) {
-						if (isset($oRecData->{$oSchema->id})) {
-							$submitVal = $oRecData->{$oSchema->id};
-							if (is_object($submitVal)) {
-								// 多选题，将选项合并为逗号分隔的字符串
-								$opCount = count(array_filter((array) $submitVal, function ($i) {return $i;}));
+				if (isset($oSchema->type)) {
+					switch ($oSchema->type) {
+					case 'multiple':
+						if (isset($oSchema->limitChoice) && $oSchema->limitChoice === 'Y' && isset($oSchema->range) && is_array($oSchema->range)) {
+							if (isset($oRecData->{$oSchema->id})) {
+								$submitVal = $oRecData->{$oSchema->id};
+								if (is_object($submitVal)) {
+									// 多选题，将选项合并为逗号分隔的字符串
+									$opCount = count(array_filter((array) $submitVal, function ($i) {return $i;}));
+								} else {
+									$opCount = 0;
+								}
 							} else {
 								$opCount = 0;
 							}
-						} else {
-							$opCount = 0;
+							if ($opCount < $oSchema->range[0] || $opCount > $oSchema->range[1]) {
+								return [false, ['【' . $oSchema->title . '】中最多只能选择(' . $oSchema->range[1] . ')项，最少需要选择(' . $oSchema->range[0] . ')项']];
+							}
 						}
-						if ($opCount < $oSchema->range[0] || $opCount > $oSchema->range[1]) {
-							return [false, ['【' . $oSchema->title . '】中最多只能选择(' . $oSchema->range[1] . ')项，最少需要选择(' . $oSchema->range[0] . ')项']];
+						break;
+					case 'voice':
+						if (!defined('WX_VOICE_AMR_2_MP3') || WX_VOICE_AMR_2_MP3 !== 'Y') {
+							return [false, '运行环境不支持处理微信录音文件，题目【' . $oSchema->title . '】无效'];
 						}
+						break;
 					}
-					break;
-				case 'voice':
-					if (!defined('WX_VOICE_AMR_2_MP3') || WX_VOICE_AMR_2_MP3 !== 'Y') {
-						return [false, '运行环境不支持处理微信录音文件，题目【' . $oSchema->title . '】无效'];
-					}
-					break;
 				}
 			}
 		}
@@ -539,54 +583,6 @@ class record extends base {
 		}
 	}
 	/**
-	 * 用保存的数据填写指定的记录数据
-	 */
-	private function _fillWithSaved($oApp, $oUser, &$oRecord) {
-		if (!empty($oUser->uid)) {
-			$oSaveLog = $this->model('matter\log')->lastByUser($oApp->id, 'enroll', $oUser->uid, ['byOp' => 'saveData']);
-			if (count($oSaveLog) == 1) {
-				$oSaveLog = $oSaveLog[0];
-				$oSaveLog->opData = json_decode($oSaveLog->operate_data);
-				$bMatched = true;
-				if (!empty($oRecord->rid) && (isset($oSaveLog->opData->rid) && $oSaveLog->opData->rid !== $oRecord->rid)) {
-					$bMatched = false;
-				}
-				if ($bMatched) {
-					$oLogData = $oSaveLog->opData;
-					if (isset($oLogData)) {
-						$oRecord->data = $oLogData->data;
-						$oRecord->supplement = $oLogData->supplement;
-
-						return true;
-					}
-				}
-			}
-		}
-
-		return false;
-	}
-	/**
-	 * 撤销保存
-	 */
-	public function undoSave_action($app) {
-		$modelApp = $this->model('matter\enroll');
-		$modelRec = $this->model('matter\enroll\record');
-
-		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
-		if (false === $oApp || $oApp->state !== '1') {
-			return new \ObjectNotFoundError();
-		}
-
-		$oUser = $this->getUser($oApp);
-
-		/* 插入到用户对素材的行为日志中 */
-		$oOperation = new \stdClass;
-		$oOperation->name = 'undoSave';
-		$logid = $this->_logUserOp($oApp, $oOperation, $oUser);
-
-		return new \ResponseData('ok');
-	}
-	/**
 	 * 返回指定记录或最后一条记录
 	 *
 	 * @param string $app
@@ -605,12 +601,13 @@ class record extends base {
 		}
 
 		$fields = 'id,aid,state,rid,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,data,supplement,score,like_num,like_log,remark_num';
+		$ValidRecStates = ['1', '99'];
 
 		if (empty($ek)) {
 			$oRecUser = $this->getUser($oApp);
 			if ($loadLast === 'Y') {
-				$oRecord = $modelRec->lastByUser($oApp, $oRecUser, ['rid' => $rid, 'verbose' => 'Y', 'fields' => $fields]);
-				if (false === $oRecord || $oRecord->state !== '1') {
+				$oRecord = $modelRec->lastByUser($oApp, $oRecUser, ['state' => $ValidRecStates, 'rid' => $rid, 'verbose' => 'Y', 'fields' => $fields]);
+				if (false === $oRecord) {
 					$oRecord = new \stdClass;
 					$oRecord->rid = empty($rid) ? $oApp->appRound->rid : $rid;
 				}
@@ -621,7 +618,7 @@ class record extends base {
 		} else {
 			$oRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'fields' => $fields]);
 			$oRecUser = new \stdClass;
-			if (false === $oRecord || $oRecord->state !== '1') {
+			if (false === $oRecord || !in_array($oRecord->state, $ValidRecStates)) {
 				$oRecord = new \stdClass;
 			} else {
 				if (!empty($oRecord->userid)) {
@@ -669,10 +666,6 @@ class record extends base {
 					}
 				}
 			}
-		}
-		/* 恢复用户保存的数据 */
-		if ($withSaved === 'Y') {
-			$this->_fillWithSaved($oApp, $oRecUser, $oRecord);
 		}
 
 		if (!empty($oRecord->rid)) {
@@ -1212,5 +1205,45 @@ class record extends base {
 		$result = $mdoelRec->list4Schema($enrollApp, $schema, $aOptions);
 
 		return new \ResponseData($result);
+	}
+	/**
+	 * 将填写记录转发到其他活动
+	 */
+	public function transmit_action($ek, $transmit) {
+		$modelApp = $this->model('matter\enroll');
+		$modelRec = $this->model('matter\enroll\record');
+
+		$fields = 'id,aid,state';
+		$oRecord = $modelRec->byId($ek, ['fields' => $fields]);
+		if (false === $oRecord || $oRecord->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oApp = $modelApp->byId($oRecord->aid, ['cascaded' => 'N', 'fields' => 'siteid,state,mission_id,sync_mission_round,data_schemas,transmit_config']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oConfig = tms_array_search($oApp->transmitConfig, function ($oConfig) use ($transmit) {return $oConfig->id === $transmit;});
+		if (empty($oConfig->app->id) || !isset($oConfig->mappings)) {
+			return new \ResponseError('没有设置记录转发规则');
+		}
+
+		$oTargetApp = $modelApp->byId($oConfig->app->id, ['cascaded' => 'N', 'fields' => '*']);
+		if (false === $oTargetApp || $oTargetApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$aResult = $this->model('matter\enroll\record\copy')->toApp($oApp, $oTargetApp, [$ek], $oConfig->mappings);
+		if (false === $aResult[0]) {
+			return new \ResponseError($aResult[1]);
+		}
+		if (count($aResult[1]) !== 1) {
+			return new \ResponseError('记录转发错误');
+		}
+
+		$oNewRec = $aResult[1][0];
+
+		return new \ResponseData($oNewRec);
 	}
 }

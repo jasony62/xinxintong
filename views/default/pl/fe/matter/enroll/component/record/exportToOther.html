@@ -4,24 +4,24 @@
 </div>
 <div class="modal-body">
     <div class='row'>
-        <div class='col-md-6'>
+        <div class='col-md-5'>
             <div class='form-group'>
                 <label>目标活动</label>
                 <div class='input-group'>
                     <input type='text' class='form-control' ng-model="filter.byTitle" placeholder="输入活动标题筛选">
-                    <span class='input-group-btn'>
-                <button class='btn btn-default' ng-click="doFilter()"><i class='glyphicon glyphicon-refresh'></i></button>
-            </span>
+                    <div class='input-group-btn'>
+                        <button class='btn btn-default' ng-click="doFilter()"><i class='glyphicon glyphicon-refresh'></i></button>
+                    </div>
                 </div>
                 <select class="form-control" ng-model="data.fromApp" ng-options="app.title for app in apps" size="10"></select>
             </div>
             <div class='form-group'>
                 <div class='pl-pagination'>
-                    <ul uib-pagination class='pull-right' ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+                    <ul uib-pagination ng-show="page.total>page.size" boundary-links="false" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
                 </div>
             </div>
         </div>
-        <div class='col-md-6'>
+        <div class='col-md-7'>
             <form class='form-horizontal'>
                 <div class="form-group" ng-if="rounds.length">
                     <label class='form-label col-md-3'>所属轮次</label>
@@ -36,11 +36,23 @@
                         </div>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label class='form-label col-md-3'>目标活动题目</label>
+                    <div class='col-md-9'>
+                        <label class='text-danger'>指定和当前活动对应的题目，或填写值</label>
+                    </div>
+                </div>
                 <div ng-repeat="schema in data.fromApp.dataSchemas" ng-if="schema.type!=='html'&&!schema.mschema_id">
                     <div class="form-group">
-                        <label class='form-label col-md-3' ng-bind="schema.title"></label>
+                        <label class='form-label col-md-3' ng-bind="::schema.title"></label>
                         <div ng-switch on="schema.type" class='col-md-9'>
+                            <select class='form-control' ng-model="data.mappings[schema.id].from" ng-options="schema2.id as schema2.title for schema2 in sourceApp.dataSchemas">
+                                <option value=>不从当前活动记录中获取</option>
+                            </select>
                             <textarea class='form-control' ng-switch-when="longtext" ng-model="data.mappings[schema.id].value"></textarea>
+                            <div ng-switch-when="shorttext">
+                                <input type='text' class='form-control' ng-model="data.mappings[schema.id].value">
+                            </div>
                             <select class='form-control' ng-switch-when="single" ng-model="data.mappings[schema.id].value" ng-options="op.v as op.l for op in schema.ops">
                                 <option value=></option>
                             </select>
@@ -50,12 +62,6 @@
                                         <input type="checkbox" name="{{schema.id}}" ng-model="data.mappings[schema.id].value[op.v]" /><span>{{op.l}}</span></label>
                                 </li>
                             </ul>
-                            <div ng-switch-when="shorttext">
-                                <input type='text' class='form-control' ng-model="data.mappings[schema.id].value">
-                            </div>
-                            <select class='form-control' ng-model="data.mappings[schema.id].from" ng-options="schema2.id as schema2.title for schema2 in sourceApp.dataSchemas">
-                                <option value=></option>
-                            </select>
                         </div>
                     </div>
                 </div>

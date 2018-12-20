@@ -20,6 +20,8 @@ $sql .= ",mission_id int not null default 0"; // 所属项目
 $sql .= ",scenario varchar(255) not null default ''"; // 记录活动场景
 $sql .= ",scenario_config text null"; // 记录活动场景的配置参数
 $sql .= ",vote_config text null"; // 记录活动投票设置
+$sql .= ",score_config text null"; // 记录活动打分设置
+$sql .= ",transmit_config text null"; // 记录转发设置
 $sql .= ",round_cron text null"; // 定时创建轮次规则
 $sql .= ",sync_mission_round char(1) not null default 'N'"; // 和项目轮次同步
 $sql .= ",count_limit int not null default 0"; // 限制登记次数，0不限制
@@ -108,7 +110,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 活动登记记录
+ * 活动填写记录
  */
 $sql = "create table if not exists xxt_enroll_record(";
 $sql .= "id int not null auto_increment";
@@ -127,13 +129,13 @@ $sql .= ",data_tag text null";
 $sql .= ",comment text null";
 $sql .= ",remark_num int not null default 0"; // 留言数
 $sql .= ",rec_remark_num int not null default 0"; // 留言数
-$sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除,101:用户删除;
+$sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,99:save,100:后台删除,101:用户删除;
 $sql .= ",referrer text null"; // should be removed
 $sql .= ",data longtext null"; // 登记的数据项
 $sql .= ",supplement longtext null"; // 补充说明
-$sql .= ",score text null"; // 测试活动，登记记录的得分
+$sql .= ",score text null"; // 测试活动，填写记录的得分
 $sql .= ",verified char(1) not null default 'N'"; // 记录是否已通过审核
-$sql .= ",matched_enroll_key varchar(32) not null default ''"; // 如果关联了记录活动，记录关联的登记记录
+$sql .= ",matched_enroll_key varchar(32) not null default ''"; // 如果关联了记录活动，记录关联的填写记录
 $sql .= ",group_enroll_key varchar(32) not null default ''"; // 如果关联了分组活动，记录关联的分组记录
 $sql .= ",submit_log text null"; // 数据提交日志
 $sql .= ",agreed char(1) not null default ''"; // 是否赞同（Y：推荐，N：屏蔽，A(ccept)：接受，D(iscuss)）
@@ -205,15 +207,15 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 活动登记记录间的关联
+ * 活动填写记录间的关联
  */
 $sql = "create table if not exists xxt_enroll_assoc(";
 $sql .= "id bigint not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",aid varchar(40) not null";
-$sql .= ",record_id int not null";
-$sql .= ",entity_a_id int not null";
-$sql .= ',entity_a_type tinyint not null';
+$sql .= ",record_id int not null"; // 发起关联的记录
+$sql .= ",entity_a_id int not null"; // 发起关联的对象
+$sql .= ',entity_a_type tinyint not null'; // 发起关联的对象类型
 $sql .= ",entity_b_id int not null";
 $sql .= ',entity_b_type tinyint not null';
 $sql .= ",assoc_mode tinyint not null default 0";
@@ -279,14 +281,14 @@ $sql .= ",aid varchar(40) not null";
 $sql .= ",rid varchar(13) not null default ''";
 $sql .= ",enroll_group_id varchar(32) not null default ''"; // 被留言内容所属的用户分组id
 $sql .= ",enroll_key varchar(32) not null"; // 被留言的记录
-$sql .= ",enroll_userid varchar(40) not null default ''"; // 提交登记记录的人
+$sql .= ",enroll_userid varchar(40) not null default ''"; // 提交填写记录的人
 $sql .= ",group_id varchar(32) not null default ''"; // 发表留言的人所属用户分组id
 $sql .= ",userid varchar(40) not null default ''"; // 发表留言的人
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",create_at int not null";
 $sql .= ",modify_at int not null default 0";
 $sql .= ",content text null";
-$sql .= ",schema_id varchar(40) not null default ''"; // 针对某条登记记录的某个登记项的留言
+$sql .= ",schema_id varchar(40) not null default ''"; // 针对某条填写记录的某个登记项的留言
 $sql .= ",data_id int not null default 0"; // xxt_enroll_record_data的id
 $sql .= ",remark_id int not null default 0"; // 是对哪条留言进行的留言
 $sql .= ",remark_num int not null default 0"; // 留言数
@@ -320,7 +322,7 @@ $sql .= ",entry_num int not null default 0"; // 进入活动的次数
 $sql .= ",last_entry_at int not null default 0"; // 最后一次进入时间
 $sql .= ",total_elapse int not null default 0"; // 参与活动的总时长
 $sql .= ",last_enroll_at int not null default 0"; // 最后一次登记时间
-$sql .= ",enroll_num int not null default 0"; // 登记记录的条数
+$sql .= ",enroll_num int not null default 0"; // 填写记录的条数
 $sql .= ",revise_num int not null default 0"; // 跨轮次修订的次数
 $sql .= ",last_cowork_at int not null default 0"; // 最后一次获得协作填写时间
 $sql .= ",cowork_num int not null default 0"; // 获得协作填写的数量
@@ -451,7 +453,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 活动登记记录主题
+ * 活动填写记录主题
  */
 $sql = "create table if not exists xxt_enroll_topic(";
 $sql .= "id int not null auto_increment";
@@ -473,7 +475,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 活动登记记录主题与记录
+ * 活动填写记录主题与记录
  */
 $sql = "create table if not exists xxt_enroll_topic_record(";
 $sql .= "id bigint not null auto_increment";
@@ -696,7 +698,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 签到登记记录
+ * 签到填写记录
  */
 $sql = "create table if not exists xxt_signin_record(";
 $sql .= "id int not null auto_increment";

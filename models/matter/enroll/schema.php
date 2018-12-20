@@ -30,7 +30,7 @@ class schema_model extends \TMS_MODEL {
 	 * mschema_id 通讯录id
 	 */
 	public function purify($aAppSchemas) {
-		$validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'hideByRoundPurpose', 'optGroups', 'defaultValue', 'cowork', 'filterWhiteSpace', 'ops', 'mschema_id', 'asdir'];
+		$validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'hideByRoundPurpose', 'optGroups', 'defaultValue', 'cowork', 'filterWhiteSpace', 'ops', 'mschema_id', 'asdir', 'scoreApp'];
 		$validPropsBySchema = [
 			'html' => ['id', 'type', 'content', 'title', 'visibility', 'hideByRoundPurpose'],
 		];
@@ -170,6 +170,10 @@ class schema_model extends \TMS_MODEL {
 					}
 				}
 			}
+			/* 只有多项填写题才支持协作填写 */
+			if (isset($oSchema->cowork) && $oSchema->type !== 'multitext') {
+				unsset($oSchema->cowork);
+			}
 			/* 指定类型轮次下隐藏 */
 			if (isset($oSchema->hideByRoundPurpose)) {
 				if (!is_array($oSchema->hideByRoundPurpose) || empty($oSchema->hideByRoundPurpose)) {
@@ -262,6 +266,44 @@ class schema_model extends \TMS_MODEL {
 					}
 				}
 			}
+			/* 答案题 */
+			if (isset($oSchema->answer)) {
+				switch ($oSchema->type) {
+				case 'single':
+					if (!is_string($oSchema->answer)) {
+						unset($oSchema->answer);
+					} else {
+						$bExistent = false;
+						foreach ($oSchema->ops as $op) {
+							if ($oSchema->answer === $op->v) {
+								$bExistent = true;
+								break;
+							}
+						}
+						if (false === $bExistent) {
+							unset($oSchema->answer);
+						}
+					}
+					break;
+				case 'multiple':
+					if (!is_array($oSchema->answer)) {
+						unset($oSchema->answer);
+					} else {
+						$aCheckedAnswer = [];
+						foreach ($oSchema->answer as $a) {
+							foreach ($oSchema->ops as $op) {
+								if ($a === $op->v && !in_array($a, $aCheckedAnswer)) {
+									$aCheckedAnswer[] = $a;
+									break;
+								}
+							}
+						}
+						$oSchema->answer = $aCheckedAnswer;
+					}
+					break;
+				}
+			}
+
 			$purified[] = $oSchema;
 		}
 
@@ -557,8 +599,12 @@ class schema_model extends \TMS_MODEL {
 					"xxt_enroll_record_data t0",
 					['state' => 1, 'aid' => $oSchema->dsSchema->app->id, 'schema_id' => $oTargetSchema->id],
 				];
+				if ($oTargetSchema->type === 'multitext') {
+					$q[2]['multitext_seq'] = (object) ['op' => '>', 'pat' => 0];
+				}
 				/* 设置轮次条件 */
 				if (!empty($oDsAppRnd)) {
+					/* 如果被评论了，作为当前轮次 */
 					$q[2]['rid'] = (object) ['op' => 'or', 'pat' => ["rid='{$oDsAppRnd->rid}'", "exists (select 1 from xxt_enroll_record_remark rr where t0.enroll_key=rr.enroll_key and rr.state=1 and rr.rid='{$oDsAppRnd->rid}')"]];
 				}
 				/* 设置过滤条件 */
@@ -579,18 +625,35 @@ class schema_model extends \TMS_MODEL {
 				}
 				/* 处理数据 */
 				$datas = $this->query_objs_ss($q);
-				foreach ($datas as $index => $oRecData) {
-					$oNewDynaSchema = clone $oSchema;
-					$oNewDynaSchema->cloneSchema = (object) ['id' => $oSchema->id, 'title' => $oSchema->title];
-					$oNewDynaSchema->id = 'dyna' . $oRecData->id;
-					$oNewDynaSchema->title = $oRecData->value;
-					$oNewDynaSchema->dynamic = 'Y';
-					/* 记录题目的数据来源 */
-					$oNewDynaSchema->referRecord = (object) [
-						'schema' => (object) ['id' => $oTargetSchema->id, 'type' => $oTargetSchema->type, 'title' => $oTargetSchema->title],
-						'ds' => (object) ['ek' => $oRecData->enroll_key, 'user' => $oRecData->userid, 'nickname' => $oRecData->nickname],
-					];
-					$dynaSchemasByIndex[$schemaIndex][] = $oNewDynaSchema;
+				if (count($datas)) {
+					$modelRec = $this->model('matter\enroll\record');
+					$modelSch = $this->model('matter\enroll\schema');
+					$aRecordCache = [];
+					// 表示记录的题目
+					$aLabelSchemas = $this->asAssoc($oTargetApp->dynaDataSchemas, ['filter' => function ($oDynaSchema) {return $oDynaSchema->type !== 'multitext' && $this->getDeepValue($oDynaSchema, 'shareable') === 'Y';}]);
+					foreach ($datas as $index => $oRecData) {
+						if (!isset($aRecordCache[$oRecData->enroll_key])) {
+							$oRecord = $modelRec->byId($oRecData->enroll_key, ['fields' => 'data']);
+							$aRecordCache[$oRecData->enroll_key] = $oRecord;
+						} else {
+							$oRecord = $aRecordCache[$oRecData->enroll_key];
+						}
+						$oNewDynaSchema = clone $oSchema;
+						$oNewDynaSchema->cloneSchema = (object) ['id' => $oSchema->id, 'title' => $oSchema->title];
+						$oNewDynaSchema->id = 'dyna' . $oRecData->id;
+						if ($oTargetSchema->type === 'multitext') {
+							$oNewDynaSchema->title = $modelSch->strRecData($oRecord->data, $aLabelSchemas) . ' : ' . $oRecData->value;
+						} else {
+							$oNewDynaSchema->title = $oRecData->value;
+						}
+						$oNewDynaSchema->dynamic = 'Y';
+						/* 记录题目的数据来源 */
+						$oNewDynaSchema->referRecord = (object) [
+							'schema' => (object) ['id' => $oTargetSchema->id, 'type' => $oTargetSchema->type, 'title' => $oTargetSchema->title],
+							'ds' => (object) ['ek' => $oRecData->enroll_key, 'data_id' => $oRecData->id, 'user' => $oRecData->userid, 'nickname' => $oRecData->nickname],
+						];
+						$dynaSchemasByIndex[$schemaIndex][] = $oNewDynaSchema;
+					}
 				}
 			}
 		};
@@ -784,6 +847,9 @@ class schema_model extends \TMS_MODEL {
 						} else {
 							$fnMakeDynaSchemaByData($oSchema, $oDsAppRnd, $schemaIndex, $dynaSchemasByIndex);
 						}
+						break;
+					case 'multitext':
+						$fnMakeDynaSchemaByData($oSchema, $oDsAppRnd, $schemaIndex, $dynaSchemasByIndex);
 						break;
 					case 'score':
 						$fnMakeDynaSchemaByScore($oSchema, $oDsAppRnd, $schemaIndex, $dynaSchemasByIndex);
@@ -1090,6 +1156,86 @@ class schema_model extends \TMS_MODEL {
 		return $aVoteSchemas;
 	}
 	/**
+	 * 需要进行打分的题目
+	 */
+	public function getCanScore($oApp, $oRound = null) {
+		if (!isset($oApp->dynaDataSchemas) || !isset($oApp->scoreConfig)) {
+			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,score_config']);
+		}
+		if (empty($oRound)) {
+			$oRound = $oApp->appRound;
+		}
+
+		$fnValidConfig = function ($oScoreConfig) use ($oRound) {
+			if (empty($oScoreConfig->schemas)) {
+				return [false];
+			}
+			$current = time();
+			if ($oStartRule = $this->getDeepValue($oScoreConfig, 'start.time')) {
+				if ($this->getDeepValue($oStartRule, 'mode') === 'after_round_start_at') {
+					if ($this->getDeepValue($oStartRule, 'unit') === 'hour') {
+						$afterHours = (int) $this->getDeepValue($oStartRule, 'value');
+						if (empty($oRound->start_at) || ($current < $oRound->start_at + ($afterHours * 3600))) {
+							return [true, 'BS'];
+						}
+					}
+				}
+			}
+			if ($oEndRule = $this->getDeepValue($oScoreConfig, 'end.time')) {
+				if ($this->getDeepValue($oEndRule, 'mode') === 'after_round_start_at') {
+					if ($this->getDeepValue($oEndRule, 'unit') === 'hour') {
+						$afterHours = (int) $this->getDeepValue($oEndRule, 'value');
+						if (empty($oRound->start_at) || ($current > $oRound->start_at + ($afterHours * 3600))) {
+							return [true, 'AE'];
+						}
+					}
+				}
+			}
+
+			return [true, 'IP'];
+		};
+		$configs = [];
+		foreach ($oApp->scoreConfig as $oScoreConfig) {
+			$aValid = $fnValidConfig($oScoreConfig);
+			if (false === $aValid[0]) {
+				continue;
+			}
+			$oScoreConfig->state = $aValid[1];
+			// foreach ($oApp->dynaDataSchemas as $oSchema) {
+			// 	if (in_array($oSchema->id, $oScoreConfig->schemas)) {
+			// 		$oScoreRule = new \stdClass;
+			// 		$oScoreRule->state = $aValid[1];
+			// 		$oScoreRule->scoreApp = $this->getDeepValue($oScoreConfig, 'scoreApp');
+			// 		$oScoreRule->groups = $this->getDeepValue($oScoreConfig, 'role.groups');
+			// 		$oSchema->task = $oScoreRule;
+			// 		$aScoreSchemas[$oSchema->id] = $oSchema;
+			// 	}
+			// }
+			$configs[] = $oScoreConfig;
+		}
+
+		return $configs;
+	}
+	/**
+	 * 转换为关联数组的形式
+	 */
+	public function asAssoc($schemas, $aOptions = [], $bOnlyFirst = false) {
+		if (isset($aOptions['filter']) && is_callable($aOptions['filter'])) {
+			$fnFilter = $aOptions['filter'];
+		}
+		$aSchemas = [];
+		foreach ($schemas as $oSchema) {
+			if (!isset($fnFilter) || $fnFilter($oSchema)) {
+				$aSchemas[$oSchema->id] = $oSchema;
+				if (true === $bOnlyFirst) {
+					break;
+				}
+			}
+		}
+
+		return $aSchemas;
+	}
+	/**
 	 * 填写记录的字符串表示
 	 */
 	public function strRecData($oRecData, $schemas, $aOptions = []) {
@@ -1134,11 +1280,14 @@ class schema_model extends \TMS_MODEL {
 					break;
 				case 'multitext':
 					if (is_array($schemaData) && count($schemaData)) {
+						/* 根题目 */
 						for ($i = count($schemaData) - 1; $i >= 0; $i--) {
 							if (empty($fnDataFilter) || $fnDataFilter($schemaData[$i]->id)) {
 								$str .= $schemaData[$i]->value;
 							}
 						}
+					} else if (is_string($schemaData)) {
+						$str .= $schemaData;
 					}
 					break;
 				}

@@ -37,12 +37,13 @@ class cowork extends base {
 			$oRecData->enroll_key = $oRecord->enroll_key;
 			$oRecData->submit_at = time();
 			$oRecData->userid = $oRecord->userid;
-			$oRecData->nickname = $oRecord->nickname;
+			$oRecData->nickname = $this->escape($oRecord->nickname);
 			$oRecData->group_id = $oRecord->group_id;
 			$oRecData->schema_id = $schema;
 			$oRecData->multitext_seq = 0;
 			$oRecData->value = '[]';
 			$oRecData->id = $modelData->insert('xxt_enroll_record_data', $oRecData, true);
+			$oRecData->nickname = $oRecord->nickname;
 			$oRecData->value = [];
 		}
 
@@ -96,63 +97,29 @@ class cowork extends base {
 		$oPosted = $this->getPostJson();
 		$current = time();
 
-		$oNewItem = new \stdClass;
-		$oNewItem->aid = $oApp->id;
-		$oNewItem->rid = $oRecData->rid;
-		$oNewItem->enroll_key = $oRecData->enroll_key;
-		$oNewItem->submit_at = $current;
-		$oNewItem->userid = isset($oUser->uid) ? $oUser->uid : '';
-		$oNewItem->nickname = isset($oUser->nickname) ? $oUser->nickname : '';
-		$oNewItem->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
-		$oNewItem->schema_id = $oUpdatedSchema->id;
-		$oNewItem->value = $this->escape($oPosted->value);
-		$oNewItem->multitext_seq = count($oRecData->value) + 1;
-
 		/* 默认协作填写的表态 */
-		if (isset($oApp->actionRule->cowork->default->agreed)) {
-			$agreed = $oApp->actionRule->cowork->default->agreed;
-			if (in_array($agreed, ['A', 'D'])) {
-				$oNewItem->agreed = $agreed;
-			}
-		} else if ($oRecord->agreed === 'D') {
-			$oNewItem->agreed = 'D';
+		$agreed = $this->getDeepValue($oApp, 'actionRule.cowork.default.agreed');
+		if (empty($agreed) && $oRecord->agreed === 'D') {
+			$agreed = 'D';
 		}
 
-		$oNewItem->id = $modelData->insert('xxt_enroll_record_data', $oNewItem, true);
-
-		/* 更新题目数据 */
-		$oRecData->value[] = (object) ['id' => $oNewItem->id, 'value' => $oNewItem->value];
-		$modelData->update(
-			'xxt_enroll_record_data',
-			['value' => $this->escape($modelData->toJson($oRecData->value))],
-			['id' => $oRecData->id]
-		);
-		/* 更新记录数据 */
-		$oRecord->data->{$oRecData->schema_id} = $oRecData->value;
-		$modelData->update(
-			'xxt_enroll_record',
-			['data' => $this->escape($modelData->toJson($oRecord->data))],
-			['id' => $oRecord->id]
-		);
-
-		$oNewItem = $modelData->byId($oNewItem->id, ['fields' => '*']);
+		$oNewItem = $modelData->addCowork($oUser, $oApp, $oRecData, $oPosted->value, $agreed);
 
 		/* 更新用户汇总信息及积分 */
 		$modelEvt = $this->model('matter\enroll\event');
 		$coworkResult = $modelEvt->submitCowork($oApp, $oRecData, $oNewItem, $oUser);
-		/* 生成提醒 */
-		$this->model('matter\enroll\notice')->addCowork($oApp, $oRecData, $oNewItem, $oUser);
 
 		/* 通知登记活动事件接收人 */
 		if (isset($oApp->notifyConfig->cowork->valid) && $oApp->notifyConfig->cowork->valid === true) {
 			$this->_notifyReceivers($oApp, $oRecord, $oNewItem);
 		}
 
-		$data = [];
-		$data['oNewItem'] = $oNewItem;
-		$data['oRecData'] = $oRecData;
-		$data['coworkResult'] = $coworkResult;
-		return new \ResponseData($data);
+		$aResult = [];
+		$aResult['oNewItem'] = $oNewItem;
+		$aResult['oRecData'] = $oRecData;
+		$aResult['coworkResult'] = $coworkResult;
+
+		return new \ResponseData($aResult);
 	}
 	/**
 	 * 通知协作填写记录事件
@@ -433,7 +400,7 @@ class cowork extends base {
 					/* 检查是否提交了协作填写数据，或进行了留言 */
 					if (!empty($oRule->cowork->num) || !empty($oRule->coworkOrRemark->num)) {
 						$modelData = $this->model('matter\enroll\data');
-						$items = $modelData->getMultitext($ek, $schema, ['excludeRoot' => true]);
+						$items = $modelData->getCowork($ek, $schema, ['excludeRoot' => true]);
 						$oStat->itemNum = count($items);
 						$oStat->items = $items;
 						if (!empty($oRule->cowork->num)) {
@@ -538,7 +505,7 @@ class cowork extends base {
 					if (!empty($oRule->cowork->num)) {
 						if (!isset($oStat->itemNum)) {
 							$modelData = $this->model('matter\enroll\data');
-							$items = $modelData->getMultitext($ek, $schema, ['excludeRoot' => true]);
+							$items = $modelData->getCowork($ek, $schema, ['excludeRoot' => true]);
 							$oStat->itemNum = count($items);
 							$oStat->items = $items;
 						}
@@ -565,7 +532,7 @@ class cowork extends base {
 					if (!empty($oRule->min)) {
 						if (!isset($oStat->items)) {
 							$modelData = $this->model('matter\enroll\data');
-							$items = $modelData->getMultitext($ek, $schema, ['excludeRoot' => true]);
+							$items = $modelData->getCowork($ek, $schema, ['excludeRoot' => true]);
 							$oStat->itemNum = count($items);
 							$oStat->items = $items;
 						}
@@ -618,7 +585,7 @@ class cowork extends base {
 					$oRule = $oActionRule->leader->cowork->agree->end;
 					if (!empty($oRule->min)) {
 						$modelData = $this->model('matter\enroll\data');
-						$items = $modelData->getMultitext($ek, $schema, ['excludeRoot' => true, 'agreed' => 'Y']);
+						$items = $modelData->getCowork($ek, $schema, ['excludeRoot' => true, 'agreed' => 'Y']);
 						$coworkNum = count($items);
 						if ($coworkNum >= $oRule->min) {
 							$oRule->_ok = [$coworkNum];

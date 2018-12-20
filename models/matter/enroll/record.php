@@ -19,7 +19,7 @@ class record_model extends record_base {
 
 		$ek = $this->genKey($oApp->siteid, $oApp->id);
 
-		$aRecord = [
+		$aNewRec = [
 			'aid' => $oApp->id,
 			'siteid' => $oApp->siteid,
 			'enroll_at' => $enrollAt,
@@ -29,35 +29,41 @@ class record_model extends record_base {
 			'group_id' => empty($oUser->group_id) ? '' : $oUser->group_id,
 			'referrer' => $referrer,
 		];
+		/* 记录的状态 */
+		if (isset($aOptions['state']) && in_array($aOptions['state'], ['1', '99'])) {
+			$aNewRec['state'] = $aOptions['state'];
+		} else {
+			$aNewRec['state'] = '1';
+		}
 		/* 记录所属轮次 */
 		$modelRnd = $this->model('matter\enroll\round');
 		if (isset($assignedRid)) {
 			$oAssignedRnd = $modelRnd->byId($assignedRid, ['rid,purpose']);
-			$aRecord['rid'] = $oAssignedRnd->rid;
-			$aRecord['purpose'] = $oAssignedRnd->purpose;
+			$aNewRec['rid'] = $oAssignedRnd->rid;
+			$aNewRec['purpose'] = $oAssignedRnd->purpose;
 		} else if ($oActiveRnd = $modelRnd->getActive($oApp)) {
-			$aRecord['rid'] = $oActiveRnd->rid;
-			$aRecord['purpose'] = $oActiveRnd->purpose;
+			$aNewRec['rid'] = $oActiveRnd->rid;
+			$aNewRec['purpose'] = $oActiveRnd->purpose;
 		}
 		/* 记录用户昵称 */
 		if (isset($aOptions['nickname'])) {
-			$aRecord['nickname'] = $this->escape($aOptions['nickname']);
+			$aNewRec['nickname'] = $this->escape($aOptions['nickname']);
 		} else {
 			$nickname = $this->model('matter\enroll')->getUserNickname($oApp, $oUser, $aOptions);
-			$aRecord['nickname'] = $this->escape($nickname);
+			$aNewRec['nickname'] = $this->escape($nickname);
 		}
 		/* 记录记录的表态 */
 		if (isset($oApp->actionRule->record->default->agreed)) {
 			$agreed = $oApp->actionRule->record->default->agreed;
 			if (in_array($agreed, ['A', 'D'])) {
-				$aRecord['agreed'] = $agreed;
+				$aNewRec['agreed'] = $agreed;
 			}
 		}
 		/* 移除用户未签到的原因 */
 		if (!empty($oUser->uid)) {
-			$rid = !empty($aRecord['rid']) ? $aRecord['rid'] : 'ALL';
+			$rid = !empty($aNewRec['rid']) ? $aNewRec['rid'] : 'ALL';
 			if (isset($oApp->absent_cause->{$oUser->uid}) && isset($oApp->absent_cause->{$oUser->uid}->{$rid})) {
-				$aRecord['comment'] = $this->escape($oApp->absent_cause->{$oUser->uid}->{$rid});
+				$aNewRec['comment'] = $this->escape($oApp->absent_cause->{$oUser->uid}->{$rid});
 				unset($oApp->absent_cause->{$oUser->uid}->{$rid});
 				if (count(get_object_vars($oApp->absent_cause->{$oUser->uid})) == 0) {
 					unset($oApp->absent_cause->{$oUser->uid});
@@ -72,13 +78,13 @@ class record_model extends record_base {
 			}
 		}
 
-		$this->insert('xxt_enroll_record', $aRecord, false);
+		$this->insert('xxt_enroll_record', $aNewRec, false);
 
 		/* 记录和轮次的关系 */
-		$oRecord = (object) $aRecord;
-		$modelRnd->createRecord($oRecord);
+		$oNewRec = (object) $aNewRec;
+		$modelRnd->createRecord($oNewRec);
 
-		return $oRecord;
+		return $oNewRec;
 	}
 	/**
 	 * 保存记录的数据
@@ -94,8 +100,8 @@ class record_model extends record_base {
 		}
 		// 数据对应的记录记录
 		$oRecord = $this->byId($ek);
-		if (false === $oRecord || $oRecord->state !== '1') {
-			return [false, '指定的对象不存在'];
+		if (false === $oRecord || !in_array($oRecord->state, ['1', '99'])) {
+			return [false, '指定的记录不存在'];
 		}
 		$oResult = $this->model('matter\enroll\data')->setData($oUser, $oApp, $oRecord, $submitData, $submitkey);
 		if (is_array($oResult) && false === $oResult[0]) {
@@ -296,9 +302,12 @@ class record_model extends record_base {
 		$q = [
 			$fields,
 			'xxt_enroll_record',
-			['aid' => $oApp->id, 'state' => 1, 'userid' => $oUser->uid],
+			['aid' => $oApp->id, 'userid' => $oUser->uid],
 		];
-
+		/* 指定记录状态 */
+		if (!empty($aOptions['state'])) {
+			$q[2]['state'] = $aOptions['state'];
+		}
 		/* 指定填写轮次 */
 		if (empty($assignedRid)) {
 			if (isset($oApp->appRound->rid)) {
@@ -749,7 +758,7 @@ class record_model extends record_base {
 		if (!empty($oOptions->fields)) {
 			$fields = $oOptions->fields;
 		} else {
-			$fields = 'id,enroll_key,rid,enroll_at,userid,group_id,nickname,verified,comment,data,score,supplement,agreed,like_num,like_log,remark_num,favor_num,dislike_num,dislike_log';
+			$fields = 'id,state,enroll_key,rid,enroll_at,userid,group_id,nickname,verified,comment,data,score,supplement,agreed,like_num,like_log,remark_num,favor_num,dislike_num,dislike_log';
 		}
 		$q = [$fields, "xxt_enroll_record r", $w];
 

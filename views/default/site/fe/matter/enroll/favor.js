@@ -84,8 +84,8 @@ ngApp.controller('ctrlFavor', ['$scope', '$uibModal', 'http2', 'tmsLocation', fu
     $scope.addTag = function() {
         $scope.$broadcast('xxt.matter.enroll.favor.tag.add');
     };
-    $scope.$watch('app', function(oApp) {
-        if (!oApp) return;
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        var oApp = params.app;
         /* 设置页面分享信息 */
         $scope.setSnsShare(); // 应该禁止分享
         /*设置页面导航*/

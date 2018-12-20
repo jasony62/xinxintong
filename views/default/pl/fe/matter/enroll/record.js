@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRecord', ['$scope', '$timeout', '$location', '$uibModal', 'srvEnrollApp', 'srvEnrollRound', 'srvEnrollRecord', '$filter', 'http2', 'noticebox', 'tmsRowPicker', function($scope, $timeout, $location, $uibModal, srvEnrollApp, srvEnlRnd, srvEnlRec, $filter, http2, noticebox, tmsRowPicker) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', '$timeout', '$location', '$uibModal', 'srvEnrollApp', 'srvEnrollRound', 'srvEnrollRecord', '$filter', 'http2', 'noticebox', 'tmsRowPicker', function($scope, $timeout, $location, $uibModal, srvEnlApp, srvEnlRnd, srvEnlRec, $filter, http2, noticebox, tmsRowPicker) {
         function fnSum4Schema() {
             var sum4SchemaAtPage;
             $scope.sum4SchemaAtPage = sum4SchemaAtPage = {};
@@ -138,14 +138,14 @@ define(['frame'], function(ngApp) {
         $scope.exportImage = function() {
             srvEnlRec.exportImage();
         };
-        $scope.renewScore = function() {
+        $scope.renewScoreByRound = function() {
             srvEnlRnd.list().then(function(oResult) {
                 var rounds = oResult.rounds;
 
                 function renewScoreByRound(i) {
                     var oRound;
                     if (i < rounds.length) {
-                        srvEnrollApp.renewScore(rounds[i].rid).then(function() {
+                        srvEnlApp.renewScoreByRound(rounds[i].rid).then(function() {
                             renewScoreByRound(++i);
                         });
                     } else {
@@ -154,6 +154,12 @@ define(['frame'], function(ngApp) {
                     }
                 }
                 renewScoreByRound(0);
+            });
+        };
+        $scope.renewScore = function() {
+            srvEnlRec.renewScore($scope.rows).then(function() {
+                $scope.rows.reset();
+                $scope.doSearch();
             });
         };
         $scope.importByOther = function() {
@@ -316,7 +322,7 @@ define(['frame'], function(ngApp) {
         $scope.criteria = {}; // 过滤条件
         $scope.records = []; // 登记记录
         $scope.tmsTableWrapReady = 'N';
-        srvEnrollApp.get().then(function(oApp) {
+        srvEnlApp.get().then(function(oApp) {
             http2.get('/rest/pl/fe/matter/enroll/schema/get?app=' + oApp.id).then(function(rsp) {
                 rsp.data.forEach(function(oSchema) {
                     oApp._unionSchemasById[oSchema.id] = oSchema;

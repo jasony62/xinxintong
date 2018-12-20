@@ -124,8 +124,9 @@
                 <div class='hint'>
                     <span class='text-danger small' ng-if="schema.required==='Y'">必填</span>
                     <span class='text-danger small' ng-if="schema.shareable==='Y'">共享</span>
+                    <span class='text-danger small' ng-if="schema.cowork==='Y'">协作</span>
                     <span class='text-danger small' ng-if="schema.visibility.rules.length">可见条件</span>
-                    <span class='text-danger small' ng-if="schema.requireScore==='Y'">计分</span>
+                    <span class='text-danger small' ng-if="schema.requireScore==='Y'">计分<span ng-if="schema.scoreMode==='question'">【<span ng-bind="schema.score"></span>】</span></span>
                     <span class='text-danger small' ng-if="schema.hideByRoundPurpose&&schema.hideByRoundPurpose.indexOf('C')!==-1">填写轮不显示</span>
                     <span class='text-danger small' ng-if="schema.hideByRoundPurpose&&schema.hideByRoundPurpose.indexOf('B')!==-1">目标轮不显示</span>
                     <span class='text-danger small' ng-if="schema.hideByRoundPurpose&&schema.hideByRoundPurpose.indexOf('S')!==-1">汇总轮不显示</span>

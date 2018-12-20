@@ -4,7 +4,7 @@ namespace matter\enroll;
 require_once dirname(__FILE__) . '/entity.php';
 
 /**
- * 登记活动记录
+ * 记录活动记录
  */
 abstract class record_base extends entity_model {
 	/**

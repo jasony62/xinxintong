@@ -81,7 +81,7 @@ class notice_model extends \TMS_MODEL {
 			$oTargetUsers[$oRecData->userid] = (object) ['nickname' => $oRecData->nickname, 'reason' => 'record.owner'];
 		}
 		/* 记录下其他提交答案的人 */
-		$others = $this->model('matter\enroll\data')->getMultitext($oRecData->enroll_key, $oRecData->schema_id, ['excludeRoot' => true, 'fields' => 'userid,nickname']);
+		$others = $this->model('matter\enroll\data')->getCowork($oRecData->enroll_key, $oRecData->schema_id, ['excludeRoot' => true, 'fields' => 'userid,nickname']);
 		foreach ($others as $oOther) {
 			if ($oUser->uid !== $oOther->userid) {
 				if (!isset($oTargetUsers[$oOther->userid])) {

@@ -117,13 +117,13 @@ class main extends main_base {
 		$q = [
 			"e.*",
 			'xxt_enroll e',
-			"state<>0",
+			"state<>0 and exists(select 1 from xxt_site_admin sa where sa.siteid=e.siteid and uid='{$oUser->id}')",
 		];
 		if (!empty($mission)) {
 			$q[2] .= " and mission_id=" . $mission;
 		} else if ($platform === 'Y') {
 			$q[2] .= " and exists(select 1 from xxt_home_matter where as_global='Y' and matter_type='enroll' and matter_id=e.id)";
-		} else {
+		} else if (!empty($site)) {
 			$q[2] .= " and siteid='" . $site . "'";
 		}
 		if (!empty($scenario)) {
@@ -174,40 +174,6 @@ class main extends main_base {
 		}
 
 		return new \ResponseData($result);
-	}
-	/**
-	 * 创建记录活动
-	 *
-	 * @param string $site site's id
-	 * @param string $mission mission's id
-	 * @param string $scenario scenario's name
-	 * @param string $template template's name
-	 *
-	 */
-	public function create_action($site, $mission = null, $scenario = 'common', $template = 'simple') {
-		if (false === ($oUser = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-		$oSite = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
-		if (false === $oSite) {
-			return new \ObjectNotFoundError();
-		}
-		if (empty($mission)) {
-			$oMission = null;
-		} else {
-			$modelMis = $this->model('matter\mission');
-			$oMission = $modelMis->byId($mission);
-			if (false === $oMission) {
-				return new \ObjectNotFoundError();
-			}
-		}
-		$modelApp = $this->model('matter\enroll')->setOnlyWriteDbConn(true);
-
-		$oCustomConfig = $this->getPostJson();
-
-		$oNewApp = $modelApp->createByTemplate($oUser, $oSite, $oCustomConfig, $oMission, $scenario, $template);
-
-		return new \ResponseData($oNewApp);
 	}
 	/**
 	 *
@@ -531,7 +497,7 @@ class main extends main_base {
 		return new \ResponseData($oApp);
 	}
 	/**
-	 * 更新指定素材的进入规则
+	 * 更新记录的投票规则
 	 */
 	public function updateVoteConfig_action($app) {
 		if (false === ($oUser = $this->accountUser())) {
@@ -549,7 +515,7 @@ class main extends main_base {
 		}
 
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, 'id,state,siteid,title,summary,pic,scenario,start_at,end_at,mission_id,absent_cause,vote_config');
+		$oApp = $modelApp->byId($app, 'id,state,siteid,title,summary,pic,scenario,start_at,end_at,mission_id,vote_config');
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError('（3）活动不存在');
 		}
@@ -599,6 +565,185 @@ class main extends main_base {
 		$modelApp->modify($oUser, $oApp, (object) ['vote_config' => $modelApp->escape($modelApp->toJson($aAllVoteConfigs))], ['id' => $oApp->id]);
 		if ($method === 'save') {
 			return new \ResponseData($oVoteConfig);
+		} else {
+			return new \ResponseData('ok');
+		}
+	}
+	/**
+	 * 更新记录的打分规则
+	 */
+	public function updateScoreConfig_action($app) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$oPosted = $this->getPostJson();
+		$method = $this->getDeepValue($oPosted, 'method');
+		if (empty($method)) {
+			return new \ParameterError('（1）参数不完整');
+		}
+		$oScoreConfig = $this->getDeepValue($oPosted, 'data');
+		if (empty($oScoreConfig)) {
+			return new \ParameterError('（2）参数不完整');
+		}
+		if (empty($oScoreConfig->scoreApp->id)) {
+			return new \ParameterError('（3）参数不完整');
+		}
+		$modelApp = $this->model('matter\enroll');
+		$oScoreApp = $modelApp->byId($oScoreConfig->scoreApp->id, 'id,state,data_schemas');
+		if (false === $oScoreApp || $oScoreApp->state !== '1') {
+			return new \ObjectNotFoundError('（4）打分活动不存在或不可用');
+		}
+		$aScoreSchemas = $this->model('matter\enroll\schema')->asAssoc($oScoreApp->dataSchemas);
+
+		$oSourceApp = $modelApp->byId($app, 'id,state,siteid,title,summary,pic,scenario,start_at,end_at,mission_id,score_config,data_schemas');
+		if (false === $oSourceApp || $oSourceApp->state !== '1') {
+			return new \ObjectNotFoundError('（5）活动不存在');
+		}
+		$aAllScoreConfigs = $oSourceApp->scoreConfig;
+		$aSourceSchemas = $this->model('matter\enroll\schema')->asAssoc($oSourceApp->dataSchemas);
+
+		/* 记录修改的题目 */
+		$aUpdatedSourceSchemas = [];
+		$aUpdatedScoreSchemas = [];
+
+		/* 删除题目间的关联 */
+		$fnUnlinkSchema = function ($schemaIds) use ($oSourceApp, $aSourceSchemas, $aScoreSchemas, &$aUpdatedSourceSchemas, &$aUpdatedScoreSchemas) {
+			foreach ($schemaIds as $schemaId) {
+				if (isset($aSourceSchemas[$schemaId]->scoreApp)) {
+					$oSourceSchemaScoreApp = $aSourceSchemas[$schemaId]->scoreApp;
+					if (isset($oSourceSchemaScoreApp->schema->id)) {
+						$scoreSchemaId = $oSourceSchemaScoreApp->schema->id;
+						if (isset($aScoreSchemas[$scoreSchemaId]->dsSchema)) {
+							$oScoreSchemaDsSchema = $aScoreSchemas[$scoreSchemaId]->dsSchema;
+							if ($this->getDeepValue($oScoreSchemaDsSchema, 'app.id') === $oSourceApp->id && $this->getDeepValue($oScoreSchemaDsSchema, 'schema.id') === $schemaId) {
+								unset($aScoreSchemas[$scoreSchemaId]->dsSchema);
+								$aUpdatedScoreSchemas[$scoreSchemaId] = $aScoreSchemas[$scoreSchemaId];
+							}
+						}
+					}
+					unset($aSourceSchemas[$schemaId]->scoreApp);
+					$aUpdatedSourceSchemas[$schemaId] = $aSourceSchemas[$schemaId];
+				}
+			}
+		};
+
+		switch ($method) {
+		case 'save':
+			if (empty($oScoreConfig->id)) {
+				$oScoreConfig->id = uniqid();
+				$aAllScoreConfigs[] = $oScoreConfig;
+			} else {
+				$bExistent = false;
+				foreach ($aAllScoreConfigs as $index => $oBefore) {
+					if ($oBefore->id === $oScoreConfig->id) {
+						$aAllScoreConfigs[$index] = $oScoreConfig;
+						$bExistent = true;
+						break;
+					}
+				}
+				if (false === $bExistent) {
+					return new \ObjectNotFoundError('（6）更新的规则不存在');
+				}
+				$removedSchemaIds = array_diff($oBefore->schemas, $oScoreConfig->schemas);
+				if (!empty($removedSchemaIds)) {
+					$fnUnlinkSchema($removedSchemaIds);
+				}
+			}
+			break;
+		case 'delete':
+			$bExistent = false;
+			foreach ($aAllScoreConfigs as $index => $oBefore) {
+				if ($oBefore->id === $oScoreConfig->id) {
+					array_splice($aAllScoreConfigs, $index, 1);
+					$bExistent = true;
+					break;
+				}
+			}
+			if (false === $bExistent) {
+				return new \ObjectNotFoundError('（7）删除的规则不存在');
+			}
+			if (count($oBefore->schemas)) {
+				$fnUnlinkSchema($oBefore->schemas);
+			}
+			break;
+		}
+
+		$oUpdated = new \stdClass;
+		$oUpdated->score_config = $modelApp->escape($modelApp->toJson($aAllScoreConfigs));
+		if (count($aUpdatedSourceSchemas)) {
+			$oUpdated->data_schemas = $modelApp->escape($modelApp->toJson($oSourceApp->dataSchemas));
+		}
+		$modelApp->modify($oUser, $oSourceApp, $oUpdated, ['id' => $oSourceApp->id]);
+
+		if (count($aUpdatedScoreSchemas)) {
+			$modelApp->modify($oUser, $oScoreApp, (object) ['data_schemas' => $modelApp->escape($modelApp->toJson($oScoreApp->dataSchemas))], ['id' => $oScoreApp->id]);
+		}
+
+		return new \ResponseData(['config' => $oScoreConfig, 'updatedSchemas' => $aUpdatedSourceSchemas]);
+	}
+	/**
+	 * 更新记录转发规则
+	 */
+	public function updateTransmitConfig_action($app) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$oPosted = $this->getPostJson();
+		$method = $this->getDeepValue($oPosted, 'method');
+		if (empty($method)) {
+			return new \ParameterError('（1）参数不完整');
+		}
+		$oTransmitConfig = $this->getDeepValue($oPosted, 'data');
+		if (empty($oTransmitConfig)) {
+			return new \ParameterError('（2）参数不完整');
+		}
+
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, 'id,state,siteid,title,summary,pic,scenario,start_at,end_at,mission_id,transmit_config');
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError('（3）活动不存在');
+		}
+		$aAllTransmitConfigs = $oApp->transmitConfig;
+
+		switch ($method) {
+		case 'save':
+			if (empty($oTransmitConfig->id)) {
+				$oTransmitConfig->id = uniqid();
+				$aAllTransmitConfigs[] = $oTransmitConfig;
+			} else {
+				$bExistent = false;
+				foreach ($aAllTransmitConfigs as $index => $oBefore) {
+					if ($oBefore->id === $oTransmitConfig->id) {
+						$aAllTransmitConfigs[$index] = $oTransmitConfig;
+						$bExistent = true;
+						break;
+					}
+				}
+				if (false === $bExistent) {
+					return new \ObjectNotFoundError('（4）更新的规则不存在');
+				}
+			}
+			break;
+		case 'delete':
+			$bExistent = false;
+			foreach ($aAllTransmitConfigs as $index => $oBefore) {
+				if ($oBefore->id === $oTransmitConfig->id) {
+					array_splice($aAllTransmitConfigs, $index, 1);
+					$bExistent = true;
+					break;
+				}
+			}
+			if (false === $bExistent) {
+				return new \ObjectNotFoundError('（5）删除的规则不存在');
+			}
+			break;
+		}
+
+		$modelApp->modify($oUser, $oApp, (object) ['transmit_config' => $modelApp->escape($modelApp->toJson($aAllTransmitConfigs))], ['id' => $oApp->id]);
+		if ($method === 'save') {
+			return new \ResponseData($oTransmitConfig);
 		} else {
 			return new \ResponseData('ok');
 		}

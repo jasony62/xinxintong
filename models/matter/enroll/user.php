@@ -42,7 +42,7 @@ class user_model extends \TMS_MODEL {
 		$oEntryRule = $oApp->entryRule;
 
 		/* 用户通讯录数据 */
-		if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y' && isset($oEntryRule->member)) {
+		if ($this->getDeepValue($oEntryRule, 'scope.member') === 'Y' && isset($oEntryRule->member)) {
 			$mschemaIds = array_keys(get_object_vars($oEntryRule->member));
 			if (count($mschemaIds)) {
 				$modelMem = $this->model('site\user\member');
@@ -826,7 +826,7 @@ class user_model extends \TMS_MODEL {
 	/**
 	 * 根据用户的填写记录更新用户数据
 	 */
-	public function renew($oApp, $rid = '') {
+	public function renew($oApp, $rid = '', $oAssignedUserid = '') {
 		$aUpdatedResult = [];
 		/**
 		 * 按轮次更新用户数据
@@ -836,6 +836,10 @@ class user_model extends \TMS_MODEL {
 			'xxt_enroll_user',
 			['aid' => $oApp->id, 'rid' => (object) ['op' => '<>', 'pat' => 'ALL']],
 		];
+		if (!empty($oAssignedUserid)) {
+			$q[2]['userid'] = $oAssignedUserid;
+		}
+
 		$enrollees = $this->query_objs_ss($q);
 		if (count($enrollees)) {
 			foreach ($enrollees as $oEnrollee) {
@@ -875,6 +879,10 @@ class user_model extends \TMS_MODEL {
 			'xxt_enroll_user',
 			['aid' => $oApp->id, 'rid' => 'ALL'],
 		];
+		if (!empty($oAssignedUserid)) {
+			$q[2]['userid'] = $oAssignedUserid;
+		}
+
 		$enrollees = $this->query_objs_ss($q);
 		if (count($enrollees)) {
 			foreach ($enrollees as $oEnrollee) {

@@ -10,12 +10,12 @@ class data_model extends entity_model {
 	/**
 	 * 缺省返回的列
 	 */
-	const DEFAULT_FIELDS = 'id,state,value,tag,supplement,rid,enroll_key,schema_id,userid,nickname,submit_at,score,remark_num,last_remark_at,like_num,like_log,modify_log,agreed,agreed_log,multitext_seq,vote_num';
+	const DEFAULT_FIELDS = 'id,state,value,tag,supplement,rid,enroll_key,schema_id,userid,group_id,nickname,submit_at,score,remark_num,last_remark_at,like_num,like_log,modify_log,agreed,agreed_log,multitext_seq,vote_num';
 	/**
 	 * 按题目记录数据
 	 * 不产生日志、积分等记录
 	 *
-	 * @param object $oUser ['uid','group_id']
+	 * @param object ['dbData', 'score']
 	 */
 	public function setData($oUser, $oApp, $oRecord, $submitData, $submitkey = '', $oAssignScore = null) {
 		if (empty($submitkey)) {
@@ -23,6 +23,7 @@ class data_model extends entity_model {
 		}
 
 		$schemasById = []; // 方便获取题目的定义
+		/* 以"member."开头的数据会记录在data.member中 */
 		foreach ($oApp->dynaDataSchemas as $oSchema) {
 			if (strpos($oSchema->id, 'member.') === 0) {
 				$oSchema->id = 'member';
@@ -47,6 +48,7 @@ class data_model extends entity_model {
 					'rid' => $oRecord->rid,
 					'purpose' => $oRecord->purpose,
 					'enroll_key' => $oRecord->enroll_key,
+					'state' => $oRecord->state,
 					'submit_at' => $oRecord->enroll_at,
 					'userid' => isset($oUser->uid) ? $oUser->uid : '',
 					'nickname' => $this->escape($oRecord->nickname),
@@ -85,6 +87,7 @@ class data_model extends entity_model {
 						'rid' => $oRecord->rid,
 						'purpose' => $oRecord->purpose,
 						'enroll_key' => $oRecord->enroll_key,
+						'state' => $oRecord->state,
 						'submit_at' => $oRecord->enroll_at,
 						'userid' => isset($oUser->uid) ? $oUser->uid : '',
 						'nickname' => $this->escape($oRecord->nickname),
@@ -109,10 +112,8 @@ class data_model extends entity_model {
 						$oNewModifyLog->value = $aBeforeSchemaItems[$oUpdatedItem->id]->value;
 						$valueModifyLogs[] = $oNewModifyLog;
 						$aSchemaData = [
+							'state' => $oRecord->state,
 							'submit_at' => $oRecord->enroll_at,
-							//'userid' => isset($oUser->uid) ? $oUser->uid : '',
-							//'nickname' => $this->escape($oRecord->nickname),
-							//'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 							'value' => $this->escape($oUpdatedItem->value),
 							'modify_log' => $this->escape($this->toJson($valueModifyLogs)),
 							'multitext_seq' => (int) $index + 1,
@@ -156,15 +157,16 @@ class data_model extends entity_model {
 				$oNewModifyLog->value = $oBeforeSchemaVal->value;
 				$valueModifyLogs[] = $oNewModifyLog;
 				$aSchemaData = [
+					'state' => $oRecord->state,
 					'submit_at' => $oRecord->enroll_at,
-					'userid' => isset($oUser->uid) ? $oUser->uid : '',
-					'nickname' => $this->escape($oRecord->nickname),
-					'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 					'value' => $this->escape($treatedValue),
 					'modify_log' => $this->escape($this->toJson($valueModifyLogs)),
 					'multitext_seq' => 0,
 				];
-
+				if ($oBeforeSchemaVal->userid !== $oUser->uid) {
+					$aSchemaData['nickname'] = $this->escape($oRecord->nickname);
+					$aSchemaData['group_id'] = isset($oUser->group_id) ? $oUser->group_id : '';
+				}
 				$this->update(
 					'xxt_enroll_record_data',
 					$aSchemaData,
@@ -182,7 +184,7 @@ class data_model extends entity_model {
 			/* 记录的题目之前保存过的数据 */
 			$oLastSchemaValues = $this->query_objs_ss(
 				[
-					'id,submit_at,value,modify_log,score,multitext_seq,remark_num,like_num',
+					'id,userid,submit_at,value,modify_log,score,multitext_seq,remark_num,like_num',
 					'xxt_enroll_record_data',
 					['aid' => $oApp->id, 'rid' => $oRecord->rid, 'enroll_key' => $oRecord->enroll_key, 'schema_id' => $schemaId, 'state' => 1],
 				]
@@ -209,6 +211,7 @@ class data_model extends entity_model {
 						'rid' => $oRecord->rid,
 						'purpose' => $oRecord->purpose,
 						'enroll_key' => $oRecord->enroll_key,
+						'state' => $oRecord->state,
 						'submit_at' => $oRecord->enroll_at,
 						'userid' => isset($oUser->uid) ? $oUser->uid : '',
 						'nickname' => $this->escape($oRecord->nickname),
@@ -241,13 +244,14 @@ class data_model extends entity_model {
 					$valueModifyLogs[] = $oNewModifyLog;
 					$aSchemaData = [
 						'submit_at' => $oRecord->enroll_at,
-						'userid' => isset($oUser->uid) ? $oUser->uid : '',
-						'nickname' => $this->escape($oRecord->nickname),
-						'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 						'value' => $this->escape($treatedValue),
 						'modify_log' => $this->escape($this->toJson($valueModifyLogs)),
 						'score' => isset($oRecordScore->{$schemaId}) ? $oRecordScore->{$schemaId} : 0,
 					];
+					if ($oLastSchemaValues[0]->userid === $oUser->uid) {
+						$aSchemaData['nickname'] = $this->escape($oRecord->nickname);
+						$aSchemaData['group_id'] = isset($oUser->group_id) ? $oUser->group_id : '';
+					}
 				} else {
 					$aSchemaData = [
 						'score' => isset($oRecordScore->{$schemaId}) ? $oRecordScore->{$schemaId} : 0,
@@ -735,7 +739,7 @@ class data_model extends entity_model {
 		// 查询参数
 		$q = [
 			$fields,
-			"xxt_enroll_record_data",
+			"xxt_enroll_record_data rd",
 			"state=1 and aid='{$oApp->id}' and multitext_seq = 0",
 		];
 		if (empty($oOptions->keyword)) {
@@ -756,12 +760,12 @@ class data_model extends entity_model {
 		/* 限制填写轮次 */
 		if (!empty($rid)) {
 			if (strcasecmp($rid, 'all') !== 0) {
-				$q[2] .= " and rid='{$rid}'";
+				$q[2] .= " and (rid='{$rid}' or exists(select 1 from xxt_enroll_record_remark rr where rr.aid=rd.aid and rr.enroll_key=rd.enroll_key and rr.rid='$rid'))";
 			}
 		} else {
 			/* 没有指定轮次，就使用当前轮次 */
 			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
-				$q[2] .= " and rid='{$activeRound->rid}'";
+				$q[2] .= " and (rid='{$activeRound->rid}' or exists(select 1 from xxt_enroll_record_remark rr where rr.aid=rd.aid and rr.enroll_key=rd.enroll_key and rr.rid='{$activeRound->rid}'))";
 			}
 		}
 		/* 限制管理员态度 */
@@ -909,15 +913,59 @@ class data_model extends entity_model {
 		return $oRecData;
 	}
 	/**
+	 * 添加协作填写项
+	 */
+	public function addCowork($oUser, $oApp, $oRecData, $value, $agreed) {
+		$oRecord = $this->model('matter\enroll\record')->byId($oRecData->enroll_key, ['fields' => 'id,data']);
+		if (false === $oRecord) {
+			return fasle;
+		}
+
+		$current = time();
+		$oNewItem = new \stdClass;
+		$oNewItem->aid = $oApp->id;
+		$oNewItem->rid = $oRecData->rid;
+		$oNewItem->enroll_key = $oRecData->enroll_key;
+		$oNewItem->submit_at = $current;
+		$oNewItem->userid = isset($oUser->uid) ? $oUser->uid : '';
+		$oNewItem->nickname = isset($oUser->nickname) ? $this->escape($oUser->nickname) : '';
+		$oNewItem->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
+		$oNewItem->schema_id = $oRecData->schema_id;
+		$oNewItem->value = $this->escape($value);
+		$oNewItem->agreed = $agreed;
+		$oNewItem->multitext_seq = count($oRecData->value) + 1;
+
+		$oNewItem->id = $this->insert('xxt_enroll_record_data', $oNewItem, true);
+
+		/* 更新题目数据 */
+		$oRecData->value[] = (object) ['id' => $oNewItem->id, 'value' => $oNewItem->value];
+		$this->update(
+			'xxt_enroll_record_data',
+			['value' => $this->escape($this->toJson($oRecData->value))],
+			['id' => $oRecData->id]
+		);
+		/* 更新记录数据 */
+		$oRecord->data->{$oRecData->schema_id} = $oRecData->value;
+		$this->update(
+			'xxt_enroll_record',
+			['data' => $this->escape($this->toJson($oRecord->data))],
+			['id' => $oRecord->id]
+		);
+
+		$oNewItem = $this->byId($oNewItem->id, ['fields' => '*']);
+
+		return $oNewItem;
+	}
+	/**
 	 * 获得多项填写题数据
 	 */
-	public function getMultitext($ek, $schema, $oOptions = []) {
+	public function getCowork($ek, $schemaId, $oOptions = []) {
 		$fields = isset($oOptions['fields']) ? $oOptions['fields'] : self::DEFAULT_FIELDS . ',multitext_seq';
 
 		$q = [
 			$fields,
 			'xxt_enroll_record_data',
-			['enroll_key' => $ek, 'state' => 1, 'schema_id' => $schema],
+			['enroll_key' => $ek, 'state' => 1, 'schema_id' => $schemaId],
 		];
 		if (isset($oOptions['excludeRoot']) && $oOptions['excludeRoot']) {
 			$q[2]['multitext_seq'] = (object) ['op' => '>', 'pat' => 0];
@@ -974,7 +1022,7 @@ class data_model extends entity_model {
 			return [false, '指定的记录不存在'];
 		}
 
-		$aVoteSchemas = $this->model('matter\enroll\schema')->getCanVote($oApp, $oRecord->round);
+		$aVoteSchemas = $this->model('matter\enroll\schema')->getCanVote($oApp);
 		if (empty($aVoteSchemas[$oRecData->schema_id])) {
 			return [false, '指定的题目不支持投票'];
 		}
@@ -1002,10 +1050,11 @@ class data_model extends entity_model {
 				return [false, '不符合投票的用户分组规则，不能投票'];
 			}
 		}
+		$oActiveRnd = $oApp->appRound;
 		$q = [
 			'id,vote_at',
 			'xxt_enroll_vote',
-			['data_id' => $oRecData->id, 'rid' => $oRecData->rid, 'userid' => $oUser->uid, 'state' => 1],
+			['data_id' => $oRecData->id, 'rid' => $oActiveRnd->rid, 'userid' => $oUser->uid, 'state' => 1],
 		];
 		if ($oBefore = $this->query_obj_ss($q)) {
 			return [false, '已经投过票，不允许重复投票', $oBefore];
@@ -1014,7 +1063,7 @@ class data_model extends entity_model {
 		$q = [
 			'count(*)',
 			'xxt_enroll_vote',
-			['aid' => $oRecData->aid, 'rid' => $oRecData->rid, 'schema_id' => $oRecData->schema_id, 'userid' => $oUser->uid, 'state' => 1],
+			['aid' => $oRecData->aid, 'rid' => $oActiveRnd->rid, 'schema_id' => $oRecData->schema_id, 'userid' => $oUser->uid, 'state' => 1],
 		];
 		$beforeCount = (int) $this->query_val_ss($q);
 		if ($oCanVoteSchema->vote->limit > 0) {
@@ -1026,7 +1075,7 @@ class data_model extends entity_model {
 		/* 新建投票记录 */
 		$oNew = new \stdClass;
 		$oNew->aid = $oRecData->aid;
-		$oNew->rid = $oRecData->rid;
+		$oNew->rid = $oActiveRnd->rid;
 		$oNew->siteid = $oRecord->siteid;
 		$oNew->record_id = $oRecord->id;
 		$oNew->data_id = $oRecData->id;
@@ -1055,6 +1104,8 @@ class data_model extends entity_model {
 	 * 撤销对填写数据投票
 	 */
 	public function unvote($oApp, $recDataId, $oUser) {
+		$oActiveRnd = $oApp->appRound;
+
 		$oRecData = $this->byId($recDataId, ['fields' => 'id,aid,rid,enroll_key,schema_id,multitext_seq']);
 		if (false === $oRecData) {
 			return [false, '（1）指定的对象不存在或不可用'];
@@ -1062,7 +1113,7 @@ class data_model extends entity_model {
 		$q = [
 			'id,vote_at',
 			'xxt_enroll_vote',
-			['data_id' => $oRecData->id, 'rid' => $oRecData->rid, 'userid' => $oUser->uid, 'state' => 1],
+			['data_id' => $oRecData->id, 'rid' => $oActiveRnd->rid, 'userid' => $oUser->uid, 'state' => 1],
 		];
 		$oBefore = $this->query_obj_ss($q);
 		if (false === $oBefore) {
@@ -1108,7 +1159,7 @@ class data_model extends entity_model {
 		$q = [
 			'count(*)',
 			'xxt_enroll_vote',
-			['aid' => $oRecData->aid, 'rid' => $oRecData->rid, 'userid' => $oUser->uid, 'state' => 1],
+			['aid' => $oRecData->aid, 'rid' => $oActiveRnd->rid, 'userid' => $oUser->uid, 'state' => 1],
 		];
 		$beforeCount = (int) $this->query_val_ss($q);
 

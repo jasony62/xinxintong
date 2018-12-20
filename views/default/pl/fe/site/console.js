@@ -259,7 +259,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                     });
                 } else if (choice.source === 'platform') {
                     var url, config, data = choice.data;
-                    url = '/rest/pl/fe/matter/enroll/create?site=' + $scope.siteId;
+                    url = '/rest/pl/fe/matter/enroll/create/bySysTemplate?site=' + $scope.siteId;
                     config = {};
                     if (data) {
                         url += '&scenario=' + data.scenario.name;
@@ -280,7 +280,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                 }
             } else {
                 var url;
-                url = '/rest/pl/fe/matter/enroll/create?site=' + $scope.siteId;
+                url = '/rest/pl/fe/matter/enroll/create/bySysTemplate?site=' + $scope.siteId;
                 http2.post(url, {}).then(function(rsp) {
                     location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
                 });

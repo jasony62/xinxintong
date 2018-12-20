@@ -24,7 +24,8 @@ define(['frame'], function(ngApp) {
             'verify.batch': '审核通过指定记录',
             'verify.all': '审核通过全部记录',
             'shareT': '分享',
-            'shareF': '转发'
+            'shareF': '转发',
+            'site.matter.enroll.schema.get.vote': '投票'
         };
         $scope.filter = function(type, criteria) {
             srvEnrollLog.filter(type, criteria).then(function(data) {

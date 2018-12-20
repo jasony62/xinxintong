@@ -1590,6 +1590,9 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
             }, {
                 value: 'site.matter.enroll.remark.as.cowork',
                 title: '将用户留言设置为协作记录'
+            }, {
+                value: 'site.matter.enroll.schema.get.vote',
+                title: '投票'
             }];
         };
         this.$get = ['$q', 'http2', '$uibModal', function($q, http2, $uibModal) {

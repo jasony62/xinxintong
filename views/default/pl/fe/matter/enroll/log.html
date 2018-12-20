@@ -69,6 +69,7 @@
                             <span ng-if="log.event_op=='N'&&log.operation.indexOf('agree')!==-1">-屏障</span>
                             <span ng-if="log.event_op=='A'">-接受</span>
                             <span ng-if="log.event_op=='D'">-讨论</span>
+                            <span ng-if="log.event_op=='N'&&log.operation=='site.matter.enroll.schema.get.vote'">-取消</span>
                         </td>
                     </tr>
                 </tbody>

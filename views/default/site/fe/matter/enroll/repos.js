@@ -533,6 +533,24 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             windowClass: 'auto-height'
         });
     };
+    /* 显示公共专题列表 */
+    $scope.showTopics = function(event) {
+        $uibModal.open({
+            template: require('./_asset/topic-list.html'),
+            resolve: {
+                topics: function() { return $scope.topics; }
+            },
+            controller: ['$scope', '$uibModalInstance', 'topics', function($scope2, $mi, topics) {
+                $scope2.topics = topics;
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.gotoTopic = function(oTopic) {
+                    location.href = LS.j('', 'site', 'app') + '&topic=' + oTopic.id + '&page=topic';
+                };
+            }],
+            backdrop: 'static',
+            windowClass: 'auto-height'
+        });
+    };
     $scope.advCriteriaStatus = {
         opened: !$scope.isSmallLayout,
         dirOpen: false
@@ -609,6 +627,12 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                     oDir.opened = false;
                     fnSetParentDir(oDir);
                 });
+            }
+        });
+        /* 共享专题 */
+        http2.get(LS.j('topic/listPublic', 'site', 'app')).then(function(rsp) {
+            if (rsp.data && rsp.data.topics) {
+                $scope.topics = rsp.data.topics;
             }
         });
         /* 设置页面分享信息 */

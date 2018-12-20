@@ -209,10 +209,13 @@
             <div class='form-group'>
                 <label>描述</label>
                 <textarea class='form-control' ng-model="topic.summary" ng-change="update('summary')"></textarea>
-            </div>
-            <div class='checkbox' ng-if="topic.group_id">
+            </div>            <div class='checkbox' ng-if="topic.group_id">
                 <label>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="topic.share_in_group" ng-change="update('share_in_group')"> 组内共享</label>
+            </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="topic.is_public" ng-change="update('is_public')"> 公共专题（显示在共享页，所有用户可见）</label>
             </div>
             <hr>
             <div class='records'>

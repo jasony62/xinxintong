@@ -102,6 +102,7 @@
                             <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';recordList(1)"><span class='glyphicon glyphicon-remove'></span></button>
                             <button class='btn btn-default' ng-click="recordList(1)"><span class='glyphicon glyphicon-search'></span></button>
                             <button class='btn btn-default' ng-click="addRecord($event)"><span class="glyphicon glyphicon-plus"></span> 记录</button>
+                            <button ng-if="topics.length" class='btn btn-default' ng-click="showTopics($event)">专题</button>
                             <button id='advCriteriaSwitch' ng-if="dirSchemas.length" class="btn btn-default visible-xs-inline-block" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">
                                 <span class='glyphicon glyphicon-th-list' ng-class="{'opened':advCriteriaStatus.opened}"></span> 目录
                             </button>

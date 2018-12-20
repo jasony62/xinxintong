@@ -12,7 +12,7 @@ require('./_asset/ui.filter.js');
 window.moduleAngularModules = ['filter.ui', 'dropdown.ui', 'round.ui.enroll', 'repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll'];
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', function($scope, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc) {
+ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', function($scope, $parse, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc) {
     /* 是否可以对记录进行表态 */
     function fnCanAgreeRecord(oRecord, oUser) {
         if (_oMocker && _oMocker.role && /visitor|member/.test(_oMocker.role)) {
@@ -32,13 +32,12 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
         return false;
     }
-    var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _oScoreableSchemas, _coworkRequireLikeNum, _oMocker;
+    var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oTasks, _oMocker;
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = {};
     $scope.filter = _oFilter = { isFilter: false }; // 过滤条件
     $scope.criteria = _oCriteria = {}; // 数据查询条件
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
-    _oScoreableSchemas = { length: 0, array: [] }; // 支持打分的题目
     $scope.repos = []; // 分享的记录
     $scope.reposLoading = false;
     $scope.appendToEle = angular.element(document.querySelector('#filterQuick'));
@@ -476,62 +475,63 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         });
     };
     $scope.scoreSchema = function() {
-        if (_oScoreableSchemas.length === 1) {
-            $uibModal.open({
-                template: require('./_asset/score-app.html'),
-                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                    var _oData, _oScoreApp, _oScoreRecord;
-                    $scope2.data = _oData = {};
-                    $scope2.cancel = function() { $mi.dismiss(); };
-                    $scope2.score = function(oSchema, opIndex, number) {
-                        var oOption;
+        var _oScoreApp;
+        _oScoreApp = $parse('score.configs[0].scoreApp')(_oTasks);
+        if (!_oScoreApp || !_oScoreApp.id) return;
+        $uibModal.open({
+            template: require('./_asset/score-app.html'),
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                var _oData, _oScoreRecord;
+                $scope2.data = _oData = {};
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.score = function(oSchema, opIndex, number) {
+                    var oOption;
 
-                        if (!(oOption = oSchema.ops[opIndex])) return;
+                    if (!(oOption = oSchema.ops[opIndex])) return;
 
-                        if (_oData[oSchema.id] === undefined) {
-                            _oData[oSchema.id] = {};
-                            oSchema.ops.forEach(function(oOp) {
-                                _oData[oSchema.id][oOp.v] = 0;
-                            });
-                        }
-
-                        _oData[oSchema.id][oOption.v] = number;
-                    };
-                    $scope2.lessScore = function(oSchema, opIndex, number) {
-                        var oOption;
-
-                        if (!(oOption = oSchema.ops[opIndex])) return false;
-                        if (_oData[oSchema.id] === undefined) {
-                            return false;
-                        }
-                        return _oData[oSchema.id][oOption.v] >= number;
-                    };
-                    $scope2.submit = function() {
-                        var url;
-                        url = LS.j('record/submit', 'site') + '&app=' + _oScoreApp.id;
-                        if (_oScoreRecord)
-                            url += '&ek=' + _oScoreRecord.enroll_key;
-                        http2.post(url, { data: _oData }, { autoBreak: false }).then(function(rsp) {
-                            http2.post(LS.j('marks/renewReferScore', 'site') + '&app=' + _oScoreApp.id, {
-                                /* 如何更新页面上已有的数据？ */
-                            });
+                    if (_oData[oSchema.id] === undefined) {
+                        _oData[oSchema.id] = {};
+                        oSchema.ops.forEach(function(oOp) {
+                            _oData[oSchema.id][oOp.v] = 0;
                         });
-                    };
-                    http2.get(LS.j('get', 'site') + '&app=' + _oScoreableSchemas.array[0].scoreApp.id).then(function(rsp) {
-                        _oScoreApp = rsp.data.app;
-                        $scope2.schemas = _oScoreApp.dynaDataSchemas;
-                        http2.get(LS.j('record/get', 'site') + '&app=' + _oScoreApp.id).then(function(rsp) {
-                            if (rsp.data.enroll_key) {
-                                _oScoreRecord = rsp.data;
-                                http2.merge(_oData, _oScoreRecord.data);
-                            }
+                    }
+
+                    _oData[oSchema.id][oOption.v] = number;
+                };
+                $scope2.lessScore = function(oSchema, opIndex, number) {
+                    var oOption;
+
+                    if (!(oOption = oSchema.ops[opIndex])) return false;
+                    if (_oData[oSchema.id] === undefined) {
+                        return false;
+                    }
+                    return _oData[oSchema.id][oOption.v] >= number;
+                };
+                $scope2.submit = function() {
+                    var url;
+                    url = LS.j('record/submit', 'site') + '&app=' + _oScoreApp.id;
+                    if (_oScoreRecord)
+                        url += '&ek=' + _oScoreRecord.enroll_key;
+                    http2.post(url, { data: _oData }, { autoBreak: false }).then(function(rsp) {
+                        http2.post(LS.j('marks/renewReferScore', 'site') + '&app=' + _oScoreApp.id, {
+                            /* 如何更新页面上已有的数据？ */
                         });
                     });
-                }],
-                backdrop: 'static',
-                windowClass: 'auto-height'
-            });
-        }
+                };
+                http2.get(LS.j('get', 'site') + '&app=' + _oScoreApp.id).then(function(rsp) {
+                    _oScoreApp = rsp.data.app;
+                    $scope2.schemas = _oScoreApp.dynaDataSchemas;
+                    http2.get(LS.j('record/get', 'site') + '&app=' + _oScoreApp.id).then(function(rsp) {
+                        if (rsp.data.enroll_key) {
+                            _oScoreRecord = rsp.data;
+                            http2.merge(_oData, _oScoreRecord.data);
+                        }
+                    });
+                });
+            }],
+            backdrop: 'static',
+            windowClass: 'auto-height'
+        });
     };
     $scope.advCriteriaStatus = {
         opened: !$scope.isSmallLayout,
@@ -560,6 +560,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             }
         }
         http2.get(LS.j('task/list', 'site', 'app')).then(function(rsp) {
+            _oTasks = rsp.data;
             if (rsp.data.vote) {
                 tasks.push({ type: 'info', msg: '有投票任务', id: 'record.data.vote' });
                 popActs.push('voteRecData');
@@ -573,11 +574,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         _oApp.dynaDataSchemas.forEach(function(oSchema) {
             if (oSchema.shareable && oSchema.shareable === 'Y')
                 _oShareableSchemas[oSchema.id] = oSchema;
-            if (oSchema.scoreApp) {
-                _oScoreableSchemas[oSchema.id] = oSchema;
-                _oScoreableSchemas.length++;
-                _oScoreableSchemas.array.push(oSchema);
-            }
         });
         $scope.userGroups = params.groups;
         $scope.groupUser = params.groupUser;

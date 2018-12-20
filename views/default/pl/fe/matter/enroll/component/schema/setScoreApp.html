@@ -7,13 +7,13 @@
         <label>活动名称</label>
         <input type='text' class='form-control' ng-model='result.title'>
     </div>
-    <div class='form-group'>
-        <label>打分项</label>
-        <div class='option' ng-class="{'entered':enter}" ng-repeat="op in result.schema.ops" ng-mouseenter="enter=true" ng-mouseleave="enter=false">
+    <div class='form-group' ng-repeat="schema in result.schemas">
+        <label>{{schema.title}}</label>
+        <div class='option' ng-class="{'entered':enter}" ng-repeat="op in schema.ops" ng-mouseenter="enter=true" ng-mouseleave="enter=false">
             <div tms-editable prop='l' obj='op' data-index="{{$index}}"></div>
         </div>
+        <button class='btn btn-default' ng-click="addOption(schema)"><span class='glyphicon glyphicon-plus'></span> 添加打分项</button>
     </div>
-    <button class='btn btn-default' ng-click="addOption()"><span class='glyphicon glyphicon-plus'></span>添加打分项</button>
 </div>
 <div class="modal-footer">
     <button class="btn" ng-class="{'btn-danger':disabled,'btn-success':!disabled}" ng-click="ok()" ng-disabled="disabled">设置</button>

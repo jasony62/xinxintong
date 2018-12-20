@@ -44,7 +44,7 @@ class create extends main_base {
 	 * 创建指定活动指定题目的打分活动
 	 * 例如：给答案打分
 	 */
-	public function scoreSchema_action($app, $schema) {
+	public function asScoreBySchema_action($app) {
 		if (false === ($oCreator = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -54,12 +54,25 @@ class create extends main_base {
 		if (false === $oSourceApp || $oSourceApp->state !== '1') {
 			return new \ObjectNotFoundError('指定的活动不存在');
 		}
+
+		$oProto = $this->getPostJson();
+		if (empty($oProto->schemas)) {
+			return new \ObjectNotFoundError('没有指定要打分的题目');
+		}
+
+		$protoSchemas = [];
+		$sourceSchemaIds = [];
+		foreach ($oProto->schemas as $oProtoSchema) {
+			if (empty($oProtoSchema->dsSchema->schema->id)) {continue;}
+			$sourceSchemaIds[] = $oProtoSchema->dsSchema->schema->id;
+			$protoSchemas[] = $oProtoSchema;
+		}
+
 		$modelSch = $this->model('matter\enroll\schema');
-		$oSourceSchema = $modelSch->asAssoc($oSourceApp->dataSchemas, ['filter' => function ($oSchema) use ($schema) {return $oSchema->id === $schema;}], true);
-		if (count($oSourceSchema) !== 1) {
+		$aSourceSchemas = $modelSch->asAssoc($oSourceApp->dataSchemas, ['filter' => function ($oSchema) use ($sourceSchemaIds) {return in_array($oSchema->id, $sourceSchemaIds);}]);
+		if (empty($aSourceSchemas)) {
 			return new \ResponseError('指定的题目不存在');
 		}
-		$oSourceSchema = array_values($oSourceSchema)[0];
 
 		$oSite = $this->model('site')->byId($oSourceApp->siteid, ['fields' => 'id,heading_pic']);
 		if (false === $oSite) {
@@ -76,44 +89,49 @@ class create extends main_base {
 			}
 		}
 
-		$oProto = $this->getPostJson();
-
 		$oCustomConfig = new \stdClass;
-		$this->setDeepValue($oCustomConfig, 'proto.title', $this->getDeepValue($oProto, 'title', $oSourceApp->title . ' - ' . $oSourceSchema->title . '（打分）'));
+		$this->setDeepValue($oCustomConfig, 'proto.title', $this->getDeepValue($oProto, 'title', $oSourceApp->title . '（打分）'));
 		$this->setDeepValue($oCustomConfig, 'proto.sync_mission_round', $oSourceApp->sync_mission_round);
 		// 不按照模板生成题目
 		$this->setDeepValue($oCustomConfig, 'proto.schema.default.empty', true);
 
 		$oNewApp = $modelApp->createByTemplate($oCreator, $oSite, $oCustomConfig, $oMission);
 
-		$oNewSchema = new \stdClass;
+		$newSchemas = [];
+		foreach ($protoSchemas as $oProtoSchema) {
+			if (!isset($aSourceSchemas[$oProtoSchema->dsSchema->schema->id])) {continue;}
 
-		$oNewSchema->dsSchema = (object) [
-			'app' => (object) ['id' => $oSourceApp->id, 'title' => $oSourceApp->title],
-			'schema' => (object) ['id' => $oSourceSchema->id, 'title' => $oSourceSchema->title, 'type' => $oSourceSchema->type],
-		];
-		$oNewSchema->id = 's' . uniqid();
-		$oNewSchema->required = "Y";
-		$oNewSchema->type = "score";
-		$oNewSchema->unique = "N";
-		$oNewSchema->requireScore = "Y";
+			$oSourceSchema = $aSourceSchemas[$oProtoSchema->dsSchema->schema->id];
+			$oNewSchema = new \stdClass;
 
-		$oNewSchema->title = "打分题";
-		$oNewSchema->range = [1, 5];
-		if (empty($oProto->schema->ops)) {
-			$oNewSchema->ops = [(object) ['l' => '打分项1', 'v' => 'v1'], (object) ['l' => '打分项2', 'v' => 'v2']];
-		} else {
-			foreach ($oProto->schema->ops as $index => $oOp) {
-				$seq = ++$index;
-				$oNewSchema->ops[] = (object) ['l' => $this->getDeepValue($oOp, 'l', '打分项' . $seq), 'v' => 'v' . $seq];
+			$oNewSchema->dsSchema = (object) [
+				'app' => (object) ['id' => $oSourceApp->id, 'title' => $oSourceApp->title],
+				'schema' => (object) ['id' => $oSourceSchema->id, 'title' => $oSourceSchema->title, 'type' => $oSourceSchema->type],
+			];
+			$oNewSchema->id = 's' . uniqid();
+			$oNewSchema->required = "Y";
+			$oNewSchema->type = "score";
+			$oNewSchema->unique = "N";
+			$oNewSchema->requireScore = "Y";
+
+			$oNewSchema->title = $oSourceSchema->title;
+			$oNewSchema->range = [1, 5];
+			if (empty($oProtoSchema->ops)) {
+				$oNewSchema->ops = [(object) ['l' => '打分项1', 'v' => 'v1'], (object) ['l' => '打分项2', 'v' => 'v2']];
+			} else {
+				foreach ($oProtoSchema->ops as $index => $oOp) {
+					$seq = ++$index;
+					$oNewSchema->ops[] = (object) ['l' => $this->getDeepValue($oOp, 'l', '打分项' . $seq), 'v' => 'v' . $seq];
+				}
 			}
+			$newSchemas[] = $oNewSchema;
+			$oSourceSchema->scoreApp = (object) ['id' => $oNewApp->id, 'schema' => (object) ['id' => $oNewSchema->id]];
 		}
 
-		$modelApp->modify($oCreator, $oNewApp, (object) ['data_schemas' => $this->escape($modelApp->toJson([$oNewSchema]))]);
+		$modelApp->modify($oCreator, $oNewApp, (object) ['data_schemas' => $this->escape($modelApp->toJson($newSchemas))]);
 
-		$oSourceSchema->scoreApp = (object) ['id' => $oNewApp->id, 'schema' => (object) ['id' => $oNewSchema->id]];
 		$modelApp->modify($oCreator, $oSourceApp, (object) ['data_schemas' => $this->escape($modelApp->toJson($oSourceApp->dataSchemas))]);
 
-		return new \ResponseData($oSourceSchema);
+		return new \ResponseData(['app' => (object) ['id' => $oNewApp->id], 'schemas' => $aSourceSchemas]);
 	}
 }

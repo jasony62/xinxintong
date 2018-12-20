@@ -13,6 +13,31 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                 }
             }, true);
         }
+
+        function fnPostScoreConfig(method, oConfig) {
+            http2.post('/rest/pl/fe/matter/enroll/updateScoreConfig?app=' + $scope.app.id, { method: method, data: oConfig }).then(function(rsp) {
+                if (rsp.data.config) {
+                    switch (method) {
+                        case 'save':
+                            http2.merge(oConfig, rsp.data.config);
+                            fnWatchConfig(oConfig);
+                            break;
+                        case 'delete':
+                            _aConfigs.splice(_aConfigs.indexOf(oConfig), 1);
+                            delete _oConfigsModified[oConfig.id];
+                            break;
+                    }
+                }
+                if (rsp.data.updatedSchemas && Object.keys(rsp.data.updatedSchemas).length) {
+                    $scope.app.dataSchemas.forEach(function(oSchema) {
+                        if (rsp.data.updatedSchemas[oSchema.id])
+                            http2.merge(oSchema, rsp.data.updatedSchemas[oSchema.id]);
+                    });
+                }
+                noticebox.success('已保存修改！');
+            });
+        }
+
         var _aConfigs, _oConfigsModified;
         $scope.configs = _aConfigs = [];
         $scope.configsModified = _oConfigsModified = {};
@@ -22,10 +47,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
         $scope.delConfig = function(oConfig) {
             noticebox.confirm('删除投票环节，确定？').then(function() {
                 if (oConfig.id) {
-                    http2.post('/rest/pl/fe/matter/enroll/updateScoreConfig?app=' + $scope.app.id, { method: 'delete', data: oConfig }).then(function() {
-                        _aConfigs.splice(_aConfigs.indexOf(oConfig), 1);
-                        delete _oConfigsModified[oConfig.id];
-                    });
+                    fnPostScoreConfig('delete', oConfig);
                 } else {
                     _aConfigs.splice(_aConfigs.indexOf(oConfig), 1);
                 }
@@ -34,67 +56,137 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
         /**
          * 设置题目的打分活动
          */
-        $scope.setScoreApp = function(oSchema) {
-            var _oApp;
-            _oApp = $scope.app;
+        $scope.setScoreApp = function(oConfig) {
+            var _oSourceApp, _aSourceSchemas;
+            if (!oConfig || !oConfig.schemas || oConfig.schemas.length === 0) {
+                return;
+            }
+            _oSourceApp = $scope.app;
+            _aSourceSchemas = _oSourceApp.dataSchemas.filter(function(oSourceSchema) { return oConfig.schemas.indexOf(oSourceSchema.id) !== -1; });
+            if (_aSourceSchemas.length === 0) {
+                return;
+            }
             http2.post('/rest/script/time', { html: { 'score': '/views/default/pl/fe/matter/enroll/component/schema/setScoreApp' } }).then(function(rsp) {
                 $uibModal.open({
                     templateUrl: '/views/default/pl/fe/matter/enroll/component/schema/setScoreApp.html?_=' + rsp.data.html.score.time,
                     controller: ['$scope', '$uibModalInstance', 'noticebox', 'tkEnrollApp', 'tkDataSchema', function($scope2, $mi, noticebox, tkEnlApp, tkSchema) {
-                        var _oResult, _oScoreApp;
-                        $scope2.schema = angular.copy(oSchema);
+                        function fnNewScoreSchema(oSourceSchema) {
+                            var oNewScoreSchema = {
+                                title: oSourceSchema.title,
+                                dsSchema: { schema: { id: oSourceSchema.id } }
+                            };
+                            $scope2.addOption(oNewScoreSchema);
+                            $scope2.addOption(oNewScoreSchema);
+                            return oNewScoreSchema;
+                        }
+
+                        var _oResult, _oScoreApp, _aAddedScoreSchemas;
+
                         $scope2.disabled = false;
                         $scope2.result = _oResult = {};
                         $scope2.$on('xxt.editable.remove', function(e, oOp) {
                             _oResult.schema.ops.splice(_oResult.schema.ops.indexOf(oOp), 1);
                         });
                         $scope2.cancel = function() { $mi.dismiss(); };
-                        $scope2.addOption = function() {
+                        $scope2.addOption = function(oSchema) {
                             var oNewOp;
-                            oNewOp = schemaLib.addOption(_oResult.schema);
+                            oNewOp = schemaLib.addOption(oSchema);
                             oNewOp.l = '打分项';
                         };
                         $scope2.ok = function() {
                             if (_oScoreApp) {
-                                tkEnlApp.update(_oScoreApp, { title: _oResult.title, dataSchemas: _oScoreApp.dataSchemas }).then(function() {
-                                    $mi.close();
-                                });
+                                if (_aAddedScoreSchemas) {
+                                    http2.post('/rest/pl/fe/matter/enroll/schema/scoreBySchema?sourceApp=' + _oSourceApp.id, _aAddedScoreSchemas).then(function(rsp) {
+                                        var newScoreSchemas;
+                                        if (rsp.data) {
+                                            angular.forEach(rsp.data, function(oScoreSchema, sourceSchemaId) {
+                                                _oScoreApp.dataSchemas.push(oScoreSchema);
+                                                for (var i = _aSourceSchemas.length - 1; i >= 0; i--) {
+                                                    if (_aSourceSchemas[i].id === sourceSchemaId) {
+                                                        _aSourceSchemas[i].scoreApp = { id: _oScoreApp.id, schema: { id: oScoreSchema.id } };
+                                                        break;
+                                                    }
+                                                }
+                                            });
+                                            /* 更新打分活动 */
+                                            tkEnlApp.update(_oScoreApp, { title: _oResult.title, dataSchemas: _oScoreApp.dataSchemas }).then(function() {
+                                                tkEnlApp.update(_oSourceApp, { dataSchemas: _oSourceApp.dataSchemas }).then(function() {
+                                                    $mi.close();
+                                                });
+                                            });
+                                        }
+                                    });
+                                } else {
+                                    /* 更新活动 */
+                                    tkEnlApp.update(_oScoreApp, { title: _oResult.title, dataSchemas: _oScoreApp.dataSchemas }).then(function() {
+                                        $mi.close();
+                                    });
+                                }
                             } else {
-                                http2.post('/rest/pl/fe/matter/enroll/create/scoreSchema?app=' + _oApp.id + '&schema=' + oSchema.id, _oResult).then(function(rsp) {
-                                    var oNewSchema;
-                                    oNewSchema = rsp.data;
-                                    http2.merge(oSchema, oNewSchema);
-                                    $mi.close();
+                                /* 新建活动 */
+                                http2.post('/rest/pl/fe/matter/enroll/create/asScoreBySchema?app=' + _oSourceApp.id, _oResult).then(function(rsp) {
+                                    var oNewSchemas;
+                                    _oScoreApp = rsp.data.app;
+                                    oConfig.scoreApp = { id: _oScoreApp.id };
+                                    oNewSchemas = rsp.data.schemas;
+                                    _aSourceSchemas.forEach(function(oSourceSchema) {
+                                        if (oNewSchemas[oSourceSchema.id]) {
+                                            http2.merge(oSourceSchema, oNewSchemas[oSourceSchema.id]);
+                                        }
+                                    });
+                                    $mi.close(oConfig);
                                 });
                             }
                         };
-                        if (oSchema.scoreApp && oSchema.scoreApp.id && oSchema.scoreApp.schema && oSchema.scoreApp.schema.id) {
-                            tkEnlApp.get(oSchema.scoreApp.id).then(function(oScoreApp) {
+                        if (oConfig.scoreApp && oConfig.scoreApp.id) {
+                            tkEnlApp.get(oConfig.scoreApp.id).then(function(oScoreApp) {
+                                var scoreSchemas, linkedSourceSchemaIds, newSourceSchemaIds;
                                 _oScoreApp = oScoreApp;
                                 _oResult.title = oScoreApp.title;
-                                var oMap = tkSchema.toObject(oScoreApp.dataSchemas, function(oScoreSchema) { return oScoreSchema.id = oSchema.scoreApp.schema.id; }, true);
-                                if (oMap && oMap.length === 1)
-                                    _oResult.schema = oMap.array[0];
+                                scoreSchemas = oScoreApp.dataSchemas.filter(function(oScoreSchema) { return oScoreSchema.dsSchema && oScoreSchema.dsSchema.app && oScoreSchema.dsSchema.app.id === _oSourceApp.id && oScoreSchema.dsSchema.schema; });
+                                if (_aSourceSchemas.length) {
+                                    linkedSourceSchemaIds = scoreSchemas.map(function(oScoreSchema) { return oScoreSchema.dsSchema.schema.id; });
+                                    _aSourceSchemas.forEach(function(oSourceSchema) {
+                                        var oNewScoreSchema;
+                                        if (linkedSourceSchemaIds.indexOf(oSourceSchema.id) === -1) {
+                                            oNewScoreSchema = fnNewScoreSchema(oSourceSchema);
+                                            scoreSchemas.push(oNewScoreSchema);
+                                            if (!_aAddedScoreSchemas) _aAddedScoreSchemas = [];
+                                            _aAddedScoreSchemas.push(oNewScoreSchema);
+                                        }
+                                    });
+                                }
+                                _oResult.schemas = scoreSchemas
                             });
                         } else {
-                            _oResult.title = _oApp.title + ' - ' + oSchema.title + '（打分）';
-                            _oResult.schema = {};
-                            $scope2.addOption(_oResult.schema);
-                            $scope2.addOption(_oResult.schema);
+                            _oResult.title = _oSourceApp.title + '（打分）';
+                            _oResult.schemas = [];
+                            _aSourceSchemas.forEach(function(oSourceSchema) {
+                                _oResult.schemas.push(fnNewScoreSchema(oSourceSchema));
+                            });
                         }
                     }],
                     backdrop: 'static',
                 }).result.then(function() {
-                    noticebox.success('完成设置！');
+                    $scope.save(oConfig);
                 });
             });
         };
-        $scope.unlinkScoreApp = function(oSchema) {
-            noticebox.confirm('解除题目和打分活动的关联，确定？').then(function() {
-                delete oSchema.scoreApp;
-                srvEnlSch.update(oSchema, null, 'scoreApp');
+        $scope.unlinkScoreApp = function(oConfig) {
+            noticebox.confirm('解除和打分活动的关联，确定？').then(function() {
+                var _oSourceApp;
+                if (oConfig && oConfig.schemas && oConfig.schemas.length) {
+                    _oSourceApp = $scope.app;
+                    _oSourceApp.dataSchemas.forEach(function(oSourceSchema) {
+                        if (oConfig.schemas.indexOf(oSourceSchema.id) !== -1) {
+                            delete oSourceSchema.scoreApp;
+                            srvEnlSch.update(oSourceSchema, null, 'scoreApp');
+                        }
+                    });
+                }
                 srvEnlSch.submitChange().then(function() {
-                    noticebox.success('完成设置！');
+                    delete oConfig.scoreApp;
+                    $scope.save(oConfig);
                 });
             });
         };
@@ -109,11 +201,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
             oConfig.role.groups.splice(oConfig.role.groups.indexOf(oVoteGroup), 1);
         };
         $scope.save = function(oConfig) {
-            http2.post('/rest/pl/fe/matter/enroll/updateScoreConfig?app=' + $scope.app.id, { method: 'save', data: oConfig }).then(function(rsp) {
-                http2.merge(oConfig, rsp.data);
-                fnWatchConfig(oConfig);
-                noticebox.success('保存成功！');
-            });
+            fnPostScoreConfig('save', oConfig);
         };
         srvEnlApp.get().then(function(oApp) {
             $scope.scoreSchemas = [];

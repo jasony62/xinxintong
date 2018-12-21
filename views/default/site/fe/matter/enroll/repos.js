@@ -12,7 +12,7 @@ require('./_asset/ui.filter.js');
 window.moduleAngularModules = ['filter.ui', 'dropdown.ui', 'round.ui.enroll', 'repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll'];
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', function($scope, $parse, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc) {
+ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', 'enlService', function($scope, $parse, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc, enlService) {
     /* 是否可以对记录进行表态 */
     function fnCanAgreeRecord(oRecord, oUser) {
         if (_oMocker && _oMocker.role && /visitor|member/.test(_oMocker.role)) {
@@ -32,7 +32,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         }
         return false;
     }
-    var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oTasks, _oMocker;
+    var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oTasks, _oMocker, _oUser;
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = {};
     $scope.filter = _oFilter = { isFilter: false }; // 过滤条件
@@ -61,7 +61,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                     if (_coworkRequireLikeNum > oRecord.like_num) {
                         oRecord._coworkRequireLikeNum = (_coworkRequireLikeNum > oRecord.like_num ? _coworkRequireLikeNum - oRecord.like_num : 0);
                     }
-                    oRecord._canAgree = fnCanAgreeRecord(oRecord, $scope.user);
+                    oRecord._canAgree = fnCanAgreeRecord(oRecord, _oUser);
                     $scope.repos.push(oRecord);
                 });
             }
@@ -208,7 +208,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         $scope.$parent.addRecord(event);
     };
     $scope.editRecord = function(event, oRecord) {
-        if (oRecord.userid !== $scope.user.uid) {
+        if (oRecord.userid !== _oUser.uid) {
             noticebox.warn('不允许编辑其他用户提交的记录');
             return;
         }
@@ -234,10 +234,8 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         _oCriteria[criteria.type] = criteria.id;
         $scope.recordList(1);
     };
-    var count = 0;
     $scope.shiftTip = function(type) {
         _oCriteria[type] = _oFilter[type] = null;
-
         function objectKeyIsNull(obj) {
             var empty = null;
             for (var i in obj) {
@@ -511,8 +509,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             if (oSchema.shareable && oSchema.shareable === 'Y')
                 _oShareableSchemas[oSchema.id] = oSchema;
         });
-        $scope.userGroups = params.groups;
-        $scope.groupUser = params.groupUser;
         var groupOthersById = {};
         if (params.groupOthers && params.groupOthers.length) {
             params.groupOthers.forEach(function(oOther) {
@@ -562,10 +558,14 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                 scoreSchema: $scope.scoreSchema,
             }
         });
-        /*设置页面导航*/
+        /* 设置页面导航 */
         $scope.setPopNav(['rank', 'kanban', 'event', 'favor'], 'repos');
         /* 页面阅读日志 */
         $scope.logAccess({ target_type: 'repos', target_id: _oApp.id });
+        /* 用户信息 */
+        enlService.user().then(function(data) {
+            $scope.user = _oUser = data;
+        });
         /* 作为可筛选的筛选项 */
         http2.get(LS.j('repos/criteriaGet', 'site', 'app')).then(function(rsp) {
             $scope.reposFilters = rsp.data;

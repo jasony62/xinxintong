@@ -285,8 +285,9 @@ class i extends TMS_CONTROLLER {
 	private function _requireSnsOAuth($siteid) {
 		$modelWay = $this->model('site\fe\way');
 		$user = $modelWay->who($siteid);
+		$userAgent = $this->userAgent();
 
-		if ($this->userAgent() === 'wx') {
+		if ($userAgent === 'wx') {
 			if (!isset($user->sns->wx)) {
 				$modelWx = $this->model('sns\wx');
 				if (($wxConfig = $modelWx->bySite($siteid)) && $wxConfig->joined === 'Y') {
@@ -302,7 +303,7 @@ class i extends TMS_CONTROLLER {
 					}
 				}
 			}
-		} else if ($this->userAgent() === 'yx') {
+		} else if ($userAgent === 'yx') {
 			if (!isset($user->sns->yx)) {
 				if ($yxConfig = $this->model('sns\yx')->bySite($siteid)) {
 					if ($yxConfig->joined === 'Y') {

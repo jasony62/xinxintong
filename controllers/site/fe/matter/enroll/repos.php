@@ -1076,7 +1076,7 @@ class repos extends base {
 			 *表态 当用户为编辑或者超级管理员或者有组时才会出现“接受”，“关闭” ，“讨论”，“未表态” ，否则只有推荐和不限两种
 			*/
 			if ($criteria->type === 'agreed') {
-				if (!empty($oUser->group_id) || !empty($oUser->role_rounds) || (isset($oUser->is_leader) && in_array($oUser->is_leader, ['Y', 'S'])) || (isset($oUser->is_editor) && $oUser->is_editor === 'Y')) {
+				if (!empty($oUser->group_id) || (isset($oUser->is_leader) && $oUser->is_leader === 'S') || (isset($oUser->is_editor) && $oUser->is_editor === 'Y')) {
 					$criteria->menus[] = (object)['id' => 'A', 'title' => '接受'];
 					$criteria->menus[] = (object)['id' => 'D', 'title' => '讨论'];
 					$criteria->menus[] = (object)['id' => 'N', 'title' => '关闭'];

@@ -278,9 +278,9 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
     /* 设置页面操作 */
     $scope.setPopAct = function(aNames, fromPage, oParamsByAct) {
         if (!fromPage || !aNames || aNames.length === 0) return;
-        enlService.user().then(function(data) {
+        if($scope.user2) {
             var oEnlUser, oCustom;
-            if (oEnlUser = data) {
+            if (oEnlUser = $scope.user2) {
                 oCustom = $parse(fromPage + '.act')(oEnlUser.custom);
             }
             if (!oCustom) {
@@ -361,15 +361,15 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
                     $scope.popAct.acts.push(oAct);
                 }
             });
-        });
+        }
     };
     /* 设置弹出导航页 */
     $scope.setPopNav = function(aNames, fromPage, oUser) {
         if (!fromPage || !aNames || aNames.length === 0) return;
-        enlService.user().then(function(data) {
+        if($scope.user2) {
             var oApp, oEnlUser, oCustom;
             oApp = $scope.app;
-            oEnlUser = data;
+            oEnlUser = $scope.user2;
             if (oEnlUser) {
                 oCustom = $parse(fromPage + '.nav')(oEnlUser.custom);
             }
@@ -415,7 +415,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
             if ($scope.mission) {
                 $scope.popNav.navs.push({ name: 'mission', title: '项目主页', url: '/rest/site/fe/matter/mission?site=' + oApp.siteid + '&mission=' + $scope.mission.id });
             }
-        });
+        }
         // if (oApp.scenarioConfig.can_action === 'Y') {
         //        /* 设置活动事件提醒 */
         //        http2.get(LS.j('notice/count', 'site', 'app')).then(function(rsp) {
@@ -494,6 +494,10 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
         if (tasksOfOnReady.length) {
             angular.forEach(tasksOfOnReady, execTask);
         }
+        /* 用户信息 */
+        enlService.user().then(function(data) {
+            $scope.user2 = data;
+        });
         /* 当前工作轮次 */
         http2.get(LS.j('round/getActive', 'app')).then(function(rsp) {
             $scope.activeRound = rsp.data;

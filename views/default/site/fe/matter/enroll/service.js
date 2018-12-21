@@ -12,8 +12,7 @@ ngMod.service('enlService', ['$q', 'http2', 'tmsLocation', function($q, http2, L
         }
         _getUserDeferred = $q.defer();
         http2.get(LS.j('user/get2', 'site', 'app')).then(function(rsp) {
-            _oUser = rsp.data;
-            _getUserDeferred.resolve(_oUser);
+            _getUserDeferred.resolve(rsp.data);
         });
 
         return _getUserDeferred.promise;

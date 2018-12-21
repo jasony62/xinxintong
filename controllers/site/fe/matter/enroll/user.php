@@ -334,7 +334,7 @@ class user extends base {
 	/**
 	 *
 	 */
-	public function userinfoByActiveGet_action($app, $rid = '') {
+	public function get2_action($app, $rid = '') {
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();

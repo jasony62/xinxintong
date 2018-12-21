@@ -110,15 +110,15 @@
                     </div>
                 </div>
                 <div id='filterQuick' ng-cloak>
-                    <div tms-dropdown data-source="reposFilters[0]" shift-menu="shiftMenu(criteria)"></div>
-                    <div tms-dropdown data-source="reposFilters[1]" shift-menu="shiftMenu(criteria)"></div>
-                    <div tms-filter data-source="multiWidthFilters" filter="{{filter}}" criteria="{{criteria}}" confirm="confirm(filterOpt)" class="pull-right"></div>
+                    <div tms-dropdown basic-data="reposFilters[0]" shift-menu="shiftMenu(criteria)"></div>
+                    <div tms-dropdown basic-data="reposFilters[1]" shift-menu="shiftMenu(criteria)"></div>
+                    <div tms-filter basic-data="multiFilters" filter="{{filter}}" criteria="{{criteria}}" confirm="confirm(filterOpt)" class="pull-right"></div>
                 </div>
                 <!-- end: filterQuick -->
                 <div id='filterTip' class="hidden-xs" ng-if="filter.isFilter||filter.tags.length">
-                    <div class="bg-info small" ng-repeat="data in filterData" ng-if="criteria[data.type]!==null">
-                        <span ng-repeat="menu in data.menus" ng-if="criteria[data.type]==menu.value" ng-bind="menu.title"></span>
-                        <button class="close" trace-biz ng-click="shiftTip(data.type)"><span>&times;</span></button>
+                    <div class="bg-info small" ng-repeat="multifilter in multiFilters" ng-if="criteria[multifilter.type]!==null">
+                        <span ng-repeat="menu in multifilter.menus" ng-if="criteria[multifilter.type]==menu.id" ng-bind="menu.title"></span>
+                        <button class="close" trace-biz ng-click="shiftTip(multifilter.type)"><span>&times;</span></button>
                     </div>
                     <div class="bg-info small" ng-repeat="tag in filter.tags">
                         <span ng-bind="tag.label"></span>

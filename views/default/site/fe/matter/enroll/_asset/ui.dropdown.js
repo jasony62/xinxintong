@@ -7,7 +7,7 @@ ngMod.directive('tmsDropdown', ['$templateCache', function($templateCache) {
         replace: true,
         template: require('./tms-dropdown.html'),
         scope: {
-            data: '=dataSource',
+            data: '=basicData',
             shiftMenu: '&'
         },
         link: function(scope, elems, attrs) {

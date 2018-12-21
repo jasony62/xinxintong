@@ -41,88 +41,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     $scope.repos = []; // 分享的记录
     $scope.reposLoading = false;
     $scope.appendToEle = angular.element(document.querySelector('#filterQuick'));
-    $scope.dropData = [{
-        type: 'orderby',
-        title: '排序',
-        default: {
-            value: 'lastest_first',
-            title: '最近提交'
-        },
-        menus: [{
-            value: 'lastest_first',
-            title: '最近提交'
-        }, {
-            value: 'earliest_first',
-            title: '最早提交'
-        }, {
-            value: 'mostliked',
-            title: '最多赞同'
-        }, , {
-            value: 'mostvoted',
-            title: '最多投票'
-        }]
-    }, {
-        type: 'coworkAgreed',
-        title: '协作',
-        default: {
-            value: null,
-            title: '所有问题'
-        },
-        menus: [{
-            value: null,
-            title: '所有问题'
-        }, {
-            value: 'answer',
-            title: '已回答'
-        }, {
-            value: 'unanswer',
-            title: '等待回答'
-        }]
-    }];
-    var filterData = [{
-        type: 'agreed',
-        title: '表态',
-        default: {
-            value: null,
-            title: '不限'
-        },
-        menus: [{
-            value: null,
-            title: '不限'
-        }, {
-            value: 'Y',
-            title: '推荐'
-        }, {
-            value: 'A',
-            title: '接受'
-        }, {
-            value: 'D',
-            title: '讨论'
-        }, {
-            value: 'N',
-            title: '关闭'
-        }]
-    }, {
-        type: 'mine',
-        title: '我的',
-        default: {
-            value: null,
-            title: '不限'
-        },
-        menus: [{
-            value: null,
-            title: '不限'
-        }, {
-            value: 'creator',
-            title: '我的记录'
-        }, {
-            value: 'favored',
-            title: '我的收藏'
-        }]
-    }];
-    angular.forEach($scope.dropData, function(data) {
-        _oCriteria[data.type] = data.default.value;
-    });
     $scope.recordList = function(pageAt) {
         var url, deferred;
         deferred = $q.defer();
@@ -313,7 +231,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         $scope.recordList(1);
     };
     $scope.shiftMenu = function(criteria) {
-        _oCriteria[criteria.type] = criteria.value;
+        _oCriteria[criteria.type] = criteria.id;
         $scope.recordList(1);
     };
     var count = 0;
@@ -602,7 +520,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             });
         }
         $scope.groupOthers = groupOthersById;
-        $scope.recordList(1);
         $scope.facRound = _facRound = new enlRound(_oApp);
         _facRound.list().then(function(result) {
             $scope.rounds = result.rounds;
@@ -629,17 +546,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                 });
             }
         });
-        /* 作为可筛选的筛选项 */
-        http2.get(LS.j('/repos/criteriaGet', 'site', 'app')).then(function(rsp) {
-            $scope.recordFilters = rsp.data;
-            $scope.multiWidthFilters = rsp.data.slice(2);
-            angular.forEach(rsp.data, function(data, index) {
-                _oCriteria[data.type] = data.default.id;
-                if(index < 2) {
-                    _oFilter[data.type] = data.default.id;
-                }
-            });
-        });
         /* 共享专题 */
         http2.get(LS.j('topic/listPublic', 'site', 'app')).then(function(rsp) {
             if (rsp.data && rsp.data.topics) {
@@ -660,51 +566,23 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         $scope.setPopNav(['rank', 'kanban', 'event', 'favor'], 'repos');
         /* 页面阅读日志 */
         $scope.logAccess({ target_type: 'repos', target_id: _oApp.id });
+        /* 作为可筛选的筛选项 */
+        http2.get(LS.j('repos/criteriaGet', 'site', 'app')).then(function(rsp) {
+            $scope.reposFilters = rsp.data;
+            $scope.multiFilters = rsp.data.slice(2);
+            angular.forEach(rsp.data, function(data, index) {
+                _oCriteria[data.type] = data.default.id;
+                if(index > 1) {
+                    _oFilter[data.type] = data.default.id;
+                }
+            });
+            $scope.recordList(1);
+        });
         $scope.$watch('mocker', function(nv, ov) {
             if (nv && nv !== ov) {
                 _oMocker = nv;
                 $scope.recordList(1);
             }
         }, true);
-        $scope.$watch('userGroups', function(userGroups) {
-            if (userGroups && userGroups.length) {
-                angular.forEach(userGroups, function(userGroup) {
-                    userGroup.value = userGroup.round_id;
-                });
-                userGroups.unshift({ value: null, title: '不限' });
-                filterData.unshift({
-                    type: 'userGroup',
-                    title: '分组',
-                    default: {
-                        value: null,
-                        title: '不限'
-                    },
-                    menus: userGroups
-                });
-            }
-        });
-        $scope.$watch('rounds', function(rounds) {
-            if (!rounds) { return false; }
-            if (rounds.length > 1) {
-                angular.forEach(rounds, function(round) {
-                    round.value = round.rid;
-                });
-                rounds.unshift({ value: null, title: '不限' });
-                filterData.unshift({
-                    type: 'rid',
-                    title: '轮次',
-                    default: {
-                        value: null,
-                        title: '不限'
-                    },
-                    menus: rounds
-                });
-            }
-            $scope.filterData = filterData;
-            angular.forEach(filterData, function(data) {
-                _oFilter[data.type] = data.default.value;
-                _oCriteria[data.type] = data.default.value;
-            });
-        });
     });
 }]);

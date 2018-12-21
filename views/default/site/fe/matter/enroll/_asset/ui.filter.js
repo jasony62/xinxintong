@@ -7,7 +7,7 @@ ngMod.directive('tmsFilter', ['$templateCache', '$timeout', function($templateCa
         replace: true,
         template: require('./tms-filter.html'),
         scope: {
-            datas: '=dataSource',
+            datas: '=basicData',
             filter: '@',
             criteria: '@',
             confirm: '&'

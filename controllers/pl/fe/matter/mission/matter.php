@@ -30,7 +30,7 @@ class matter extends \pl\fe\matter\base {
 		}
 
 		$oCriteria = $this->getPostJson();
-		$aOptions = [];
+		$aOptions = ['user' => $oUser];
 		if (!empty($oCriteria->byTitle)) {
 			$aOptions['byTitle'] = $oCriteria->byTitle;
 		}
@@ -39,6 +39,9 @@ class matter extends \pl\fe\matter\base {
 		}
 		if (!empty($oCriteria->byScenario)) {
 			$aOptions['byScenario'] = $oCriteria->byScenario;
+		}
+		if (!empty($oCriteria->byStar)) {
+			$aOptions['byStar'] = $oCriteria->byStar;
 		}
 
 		if (!empty($matterType)) {
@@ -49,7 +52,19 @@ class matter extends \pl\fe\matter\base {
 			}
 		}
 
-		$matters = $this->model('matter\mission\matter')->byMission($id, $matterType, $aOptions, $verbose);
+		$modelMM = $this->model('matter\mission\matter');
+		$matters = $modelMM->byMission($id, $matterType, $aOptions, $verbose);
+		foreach ($matters as $oMatter) {
+			/* 是否已经星标 */
+			$qStar = [
+				'id',
+				'xxt_account_topmatter',
+				['matter_id' => $oMatter->id, 'matter_type' => $oMatter->type, 'userid' => $oUser->id],
+			];
+			if ($oStar = $modelMM->query_obj_ss($qStar)) {
+				$oMatter->star = $oStar->id;
+			}
+		}
 
 		return new \ResponseData($matters);
 	}

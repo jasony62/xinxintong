@@ -1,0 +1,24 @@
+<div class="modal-body">
+    <div class='panel' ng-repeat="topic in topics">
+        <div class='panel-body'>
+            <div class='tms-flex-row smaill text-muted'>
+                <div class='tms-flex-grow' ng-bind-html="topic.nickname"></div>
+                <div ng-bind="topic.create_at*1000|date:'MM-dd HH:mm'"></div>
+            </div>
+            <hr>
+            <div ng-click="gotoTopic(topic)">
+                <div class='form-group'>
+                    <div ng-bind="topic.title"></div>
+                </div>
+                <div class='form-group' ng-if="topic.summary">
+                    <div class='text-muted small' ng-bind="topic.summary"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <div class='text-center'>
+        <button class="btn btn-default" ng-click="cancel()">关闭</button>
+    </div>
+</div>

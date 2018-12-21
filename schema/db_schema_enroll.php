@@ -469,6 +469,7 @@ $sql .= ",summary varchar(240) not null default ''"; // 分享或生成链接时
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal;
 $sql .= ",rec_num int not null default 0";
 $sql .= ",share_in_group char(1) not null default 'N'";
+$sql .= ",is_public char(1) not null default 'N'"; // 是否为公共专题
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

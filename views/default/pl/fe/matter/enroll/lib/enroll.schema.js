@@ -1575,23 +1575,30 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                     return '';
                 }
             };
-            $scope.upSchema = function(schema) {
+            $scope.upSchema = function(oSchema, bGotoTop) {
                 var schemas = $scope.app.dataSchemas,
-                    index = schemas.indexOf(schema);
+                    index = schemas.indexOf(oSchema);
 
                 if (index > 0) {
                     schemas.splice(index, 1);
-                    schemas.splice(index - 1, 0, schema);
-                    $scope._changeSchemaOrder(schema);
+                    if (bGotoTop) {
+                        schemas.splice(0, 0, oSchema);
+                    } else {
+                        schemas.splice(index - 1, 0, oSchema);
+                    }
+                    $scope._changeSchemaOrder(oSchema);
                 }
             };
-            $scope.downSchema = function(schema) {
+            $scope.downSchema = function(schema, bGotoBottom) {
                 var schemas = $scope.app.dataSchemas,
                     index = schemas.indexOf(schema);
-
                 if (index < schemas.length - 1) {
                     schemas.splice(index, 1);
-                    schemas.splice(index + 1, 0, schema);
+                    if (bGotoBottom) {
+                        schemas.push(schema);
+                    } else {
+                        schemas.splice(index + 1, 0, schema);
+                    }
                     $scope._changeSchemaOrder(schema);
                 }
             };

@@ -272,8 +272,6 @@ class main extends base {
 		if (isset($oApp->appRound->rid)) {
 			$rid = $oApp->appRound->rid;
 		}
-		unset($oApp->round_cron);
-		unset($oApp->rp_config);
 		$params['app'] = $oApp;
 
 		/* 当前访问用户的基本信息 */

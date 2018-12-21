@@ -39,6 +39,11 @@ class i extends TMS_CONTROLLER {
 			$this->outputError('指定编码【' . $code . '】的邀请不可用');
 		}
 
+		if (!$this->_afterSnsOAuth()) {
+			/* 检查是否需要第三方社交帐号OAuth */
+			$this->_requireSnsOAuth($oInvite->matter_siteid);
+		}
+
 		/* 要访问的素材 */
 		$modelMat = $this->model('matter\\' . $oInvite->matter_type);
 		switch ($oInvite->matter_type) {
@@ -219,5 +224,44 @@ class i extends TMS_CONTROLLER {
 		TPL::assign('body', $err);
 		TPL::output('error');
 		exit;
+	}
+	/**
+	 * 检查是否需要第三方社交帐号认证
+	 * 检查条件：
+	 * 0、应用是否设置了需要认证
+	 * 1、站点是否绑定了第三方社交帐号认证
+	 * 2、平台是否绑定了第三方社交帐号认证
+	 * 3、用户客户端是否可以发起认证
+	 *
+	 * @param string $site
+	 */
+	private function _requireSnsOAuth($siteid) {
+		if ($this->userAgent() === 'wx') {
+			if (!isset($this->who->sns->wx)) {
+				$modelWx = $this->model('sns\wx');
+				if (($wxConfig = $modelWx->bySite($siteid)) && $wxConfig->joined === 'Y') {
+					$this->snsOAuth($wxConfig, 'wx');
+				} else if (($wxConfig = $modelWx->bySite('platform')) && $wxConfig->joined === 'Y') {
+					$this->snsOAuth($wxConfig, 'wx');
+				}
+			}
+			if (!isset($this->who->sns->qy)) {
+				if ($qyConfig = $this->model('sns\qy')->bySite($siteid)) {
+					if ($qyConfig->joined === 'Y') {
+						$this->snsOAuth($qyConfig, 'qy');
+					}
+				}
+			}
+		} else if ($this->userAgent() === 'yx') {
+			if (!isset($this->who->sns->yx)) {
+				if ($yxConfig = $this->model('sns\yx')->bySite($siteid)) {
+					if ($yxConfig->joined === 'Y') {
+						$this->snsOAuth($yxConfig, 'yx');
+					}
+				}
+			}
+		}
+
+		return false;
 	}
 }

@@ -43,7 +43,7 @@ class user extends base {
 			$oEnlAppUser = $modelEnlUsr->byId($oApp, $oUser->uid, ['rid' => 'ALL', 'fields' => 'custom']);
 			$oEnlRndUser->custom = $oEnlAppUser->custom;
 		}
-		$oUser->enroll = $oEnlRndUser;
+		$oUser->enrollUser = $oEnlRndUser;
 
 		/**
 		 * 获得当前活动的分组和当前用户所属的分组，是否为组长，及同组成员

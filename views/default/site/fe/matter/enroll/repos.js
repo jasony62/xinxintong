@@ -629,6 +629,17 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                 });
             }
         });
+        /* 作为可筛选的筛选项 */
+        http2.get(LS.j('/repos/criteriaGet', 'site', 'app')).then(function(rsp) {
+            $scope.recordFilters = rsp.data;
+            $scope.multiWidthFilters = rsp.data.slice(2);
+            angular.forEach(rsp.data, function(data, index) {
+                _oCriteria[data.type] = data.default.id;
+                if(index < 2) {
+                    _oFilter[data.type] = data.default.id;
+                }
+            });
+        });
         /* 共享专题 */
         http2.get(LS.j('topic/listPublic', 'site', 'app')).then(function(rsp) {
             if (rsp.data && rsp.data.topics) {
@@ -639,7 +650,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         $scope.setSnsShare(null, null, { target_type: 'repos', target_id: _oApp.id });
         /* 设置页面操作 */
         popActs = ['addRecord', 'mocker'];
-        $scope.setPopAct(popActs, 'cowork', {
+        $scope.setPopAct(popActs, 'repos', {
             func: {
                 voteRecData: $scope.voteRecData,
                 scoreSchema: $scope.scoreSchema,

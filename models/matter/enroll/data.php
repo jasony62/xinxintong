@@ -409,23 +409,29 @@ class data_model extends entity_model {
 	}
 	/**
 	 * 计算题目的分数
+	 *
+	 * @param array $aOptimizedFormulas 记录题目权重公式，避免全局重复计算问题
 	 */
-	public function socreRecordData($oApp, $oRecord, $aSchemasById, $dbData, $oAssignScore = null) {
+	public function socreRecordData($oApp, $oRecord, $aSchemasById, $dbData, $oAssignScore, &$aOptimizedFormulas = null) {
 		$oRecordScore = new \stdClass; // 记录的得分数据
 		$oRecordScore->sum = 0; // 记录总分
 		$oQuizNum = new \stdClass;
 		$oQuizNum->schema = 0; // 测验题目的数量
 		$oQuizNum->correctSchema = 0; // 答对测验题目的数量
+
 		/* 评估 */
-		$fnEvaluation = function (&$oSchema, $treatedValue, &$oRecordScore) {
+		$oScoreContext = new \stdClass; // 实现在活动范围内计算得分
+		$oScoreContext->app = $oApp;
+		$oScoreContext->record = $oRecord;
+		$oScoreContext->optimizedFormulas = &$aOptimizedFormulas;
+
+		$fnEvaluation = function (&$oSchema, $treatedValue, &$oRecordScore) use ($oScoreContext) {
 			$schemaScore = null; // 题目的得分
 			switch ($oSchema->type) {
 			case 'shorttext';
 				if (isset($oSchema->format) && $oSchema->format === 'number') {
-					//$weight = (isset($oSchema->weight) && is_numeric($oSchema->weight)) ? $oSchema->weight : 1;
-					//$schemaScore = $treatedValue * $weight;
 					if (isset($oSchema->weight)) {
-						$schemaScore = $this->model('matter\enroll\schema')->scoreByWeight($oSchema->weight, $treatedValue);
+						$schemaScore = $this->model('matter\enroll\schema')->scoreByWeight($oSchema, $treatedValue, $oScoreContext);
 						if (false === $schemaScore) {
 							$schemaScore = $treatedValue;
 						}
@@ -720,6 +726,52 @@ class data_model extends entity_model {
 		$oResult->total = $total;
 
 		return $oResult;
+	}
+	/**
+	 * 返回最小值
+	 */
+	public function minBySchema($oApp, $oSchema, $oOptions = null) {
+		if ($oOptions) {
+			is_array($oOptions) && $oOptions = (object) $oOptions;
+			$rid = isset($oOptions->rid) ? $this->escape($oOptions->rid) : null;
+		}
+		$q = [
+			'min(value)',
+			"xxt_enroll_record_data d",
+			['state' => 1, 'aid' => $oApp->id, 'schema_id' => $oSchema->id],
+		];
+		if (!empty($rid) && $rid !== 'ALL') {
+			$q[2]['rid'] = $rid;
+		} else if (isset($oApp->appRound->rid)) {
+			$q[2]['rid'] = $oApp->appRound->rid;
+		}
+
+		$value = $this->query_val_ss($q);
+
+		return $value;
+	}
+	/**
+	 * 返回最小值
+	 */
+	public function maxBySchema($oApp, $oSchema, $oOptions = null) {
+		if ($oOptions) {
+			is_array($oOptions) && $oOptions = (object) $oOptions;
+			$rid = isset($oOptions->rid) ? $this->escape($oOptions->rid) : null;
+		}
+		$q = [
+			'max(value)',
+			"xxt_enroll_record_data d",
+			['state' => 1, 'aid' => $oApp->id, 'schema_id' => $oSchema->id],
+		];
+		if (!empty($rid) && $rid !== 'ALL') {
+			$q[2]['rid'] = $rid;
+		} else if (isset($oApp->appRound->rid)) {
+			$q[2]['rid'] = $oApp->appRound->rid;
+		}
+
+		$value = $this->query_val_ss($q);
+
+		return $value;
 	}
 	/**
 	 * 返回指定活动，填写的数据

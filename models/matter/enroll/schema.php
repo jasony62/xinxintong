@@ -103,7 +103,7 @@ class schema_model extends \TMS_MODEL {
 							$oSchema->weight = 1;
 						} else if (!is_numeric($oSchema->weight)) {
 							/* 检查是否为可运行的表达式 */
-							if (false === $this->scoreByWeight($oSchema->weight, 5)) {
+							if (false === $this->scoreByWeight($oSchema, 5)) {
 								$oSchema->weight = 1;
 							}
 						}
@@ -334,91 +334,110 @@ class schema_model extends \TMS_MODEL {
 	/**
 	 * 根据权重表达式计算得分
 	 *
+	 * @param array $aOptimizedFormulas
+	 *
 	 * 如果权重设置不符合要求返回false
 	 * 如果计算后的得分小于0，得分记为0
 	 *
+	 * 用分号（;）分割每1条子规则；
+	 * 子规则可以用?分割条件和计算方法；
+	 * 例如：<8?0;=8?5;>8?*1-3
+	 * 代表：
+	 * 小于8的时候得0分；
+	 * 等于8的时候得5分；
+	 * 大于8的时候每个得1分，超出每个得1分；（前8个一共5分，8乘了1，得了8分，最多得5分，所以要减去3
+	 *
+	 * 内置的公式：min,max
+	 *
 	 */
-	public function scoreByWeight($weight, $x) {
-		if (empty($weight) || empty($x) || !is_numeric($x)) {
+	public function scoreByWeight($oSchema, $x, &$oContext = null) {
+		if (empty($oSchema->weight) || empty($x) || !is_numeric($x)) {
 			return false;
 		}
+
+		$weight = $oSchema->weight;
 		if (is_numeric($weight)) {
 			return $weight * $x;
 		}
+		$aOptimizedFormulas = (isset($oContext->optimizedFormulas) && is_array($oContext->optimizedFormulas)) ? $oContext->optimizedFormulas : null;
+
 		if (is_string($weight)) {
-			/* 解析权重公式 */
-			$stackCases = [];
-			$cases = explode(';', $weight);
-			foreach ($cases as $cn => $case) {
-				list($condition, $equation) = (strpos($case, '?') ? explode('?', $case) : ['', $case]);
-				/* 适用条件 */
-				$stackCondition = [(string) $x, '', ''];
-				if (isset($condition)) {
-					$index = 0;
-					$length = strlen($condition);
-					while ($index < $length) {
-						$char = $condition[$index];
-						if (in_array($char, ['>', '<', '='])) {
-							if (!empty($stackCondition[2])) {
-								return false;
-							}
-							$stackCondition[1] .= $char;
-						} else if (is_numeric($char)) {
-							$stackCondition[2] .= $char;
-						} else {
-							return false;
-						}
-						$index++;
+			if (!isset($aOptimizedFormulas[$oSchema->id])) {
+				/* 解析权重公式 */
+				$stackCases = [];
+				$cases = explode(';', $weight);
+				foreach ($cases as $cn => $case) {
+					list($condition, $equation) = (strpos($case, '?') ? explode('?', $case) : ['', $case]);
+					if (empty($equation)) {
+						return false;
 					}
-					if ($stackCondition[1] === '=') {
-						$stackCondition[1] = '===';
-					}
-				}
-				/* 计算公式 */
-				$stackEquation = [];
-				if (is_numeric($equation)) {
-					$stackEquation[] = $equation;
-				} else {
-					$index = 0;
-					$length = strlen($equation);
-					$stackNumber = (string) $x;
-					while ($index < $length) {
-						$char = $equation[$index];
-						if (in_array($char, ['+', '-', '*', '/'])) {
-							if (empty($stackNumber)) {
-								return false;
-							}
-							$stackEquation[] = $stackNumber;
-							$stackEquation[] = $char;
-							$stackNumber = '';
-							$index++;
-						} else if (is_numeric($char)) {
-							$stackNumber .= $char;
-							$index++;
-							if ($index === $length) {
-								if (!empty($stackNumber)) {
-									$stackEquation[] = $stackNumber;
-									break;
+					/* 适用条件 */
+					$stackCondition = [(string) $x, '', ''];
+					if (isset($condition)) {
+						$index = 0;
+						$length = strlen($condition);
+						while ($index < $length) {
+							$char = $condition[$index];
+							if (in_array($char, ['>', '<', '='])) {
+								if (!empty($stackCondition[2])) {
+									return false;
 								}
+								$stackCondition[1] .= $char;
+							} else if (is_numeric($char)) {
+								$stackCondition[2] .= $char;
+							} else {
+								return false;
 							}
-						} else {
+							$index++;
+						}
+						if ($stackCondition[1] === '=') {
+							$stackCondition[1] = '===';
+						}
+					}
+					/* 计算公式 */
+					if (is_numeric($equation)) {
+						$equation = 'x*' . $equation;
+					} else {
+						require_once dirname(__FILE__) . '/formula.php';
+
+						/* 检查是否存在内置函数，如果有，计算后替换 */
+						$equation = formula::calcAndReplaceInnerFunc($equation, $oSchema, $oContext);
+
+						/* 处理省略x的公式 */
+						if (false === strpos($equation, 'x')) {
+							if (in_array($equation[0], ['+', '-', '*', '/'])) {
+								$equation = 'x' . $equation;
+							} else if ($equation[0] === '(') {
+								$equation = 'x*' . $equation;
+							}
+						}
+						if (empty(formula::parse_exp($equation))) {
 							return false;
 						}
 					}
+					// 全部计算规则
+					$stackCases[] = [$stackCondition, $equation];
 				}
-				// 全部计算规则
-				$stackCases[] = [$stackCondition, $stackEquation];
+				/* 保存计算后的结果，避免重复计算 */
+				if (isset($aOptimizedFormulas) && is_array($aOptimizedFormulas)) {
+					$aOptimizedFormulas[$oSchema->id] = $stackCases;
+				}
+			} else {
+				$stackCases = $aOptimizedFormulas[$oSchema->id];
 			}
+
 			if (empty($stackCases)) {
 				return false;
 			}
 			foreach ($stackCases as $aCase) {
+				/* 适用条件 */
 				if (strlen($aCase[0][1]) && strlen($aCase[0][2])) {
 					if (false === eval('return ' . implode('', $aCase[0]) . ';')) {
 						continue;
 					}
 				}
-				$score = eval('return ' . implode('', $aCase[1]) . ';');
+				/* 计算公式 */
+				$score = formula::calculate($aCase[1], ['x' => $x]);
 			}
 			if (!isset($score)) {
 				return false;
@@ -429,6 +448,7 @@ class schema_model extends \TMS_MODEL {
 
 		return false;
 	}
+
 	/**
 	 * 去除和其他活动的题目的关联
 	 */

@@ -1508,7 +1508,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                         templateUrl: '/views/default/pl/fe/matter/enroll/component/renewScore.html',
                                         controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                                             $scope2.ok = function() {
-                                                srvApp.renewScore().then(function() {
+                                                srvApp.renewScoreByRound().then(function() {
                                                     $mi.close();
                                                 });
                                             };

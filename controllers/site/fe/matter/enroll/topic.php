@@ -251,11 +251,6 @@ class topic extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oUser = $this->getUser($oApp);
-		if (empty($oUser->unionid)) {
-			return new \ResponseError('仅支持注册用户创建，请登录后再进行此操作');
-		}
-
 		$q = [
 			'id,create_at,title,summary,rec_num,userid,group_id,nickname,share_in_group,is_public',
 			'xxt_enroll_topic',

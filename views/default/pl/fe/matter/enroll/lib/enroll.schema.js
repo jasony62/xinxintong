@@ -1020,42 +1020,78 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 http2.post('/rest/script/time', { html: { 'source': '/views/default/pl/fe/matter/enroll/component/schema/setDataSource' } }).then(function(rsp) {
                     $uibModal.open({
                         templateUrl: '/views/default/pl/fe/matter/enroll/component/schema/setDataSource.html?' + rsp.data.html.source.time,
-                        controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                            var oPage, oResult, oFilter;
-                            $scope2.page = oPage = {};
-                            $scope2.result = oResult = {
+                        controller: ['$scope', '$uibModalInstance', 'tkEnrollApp', function($scope2, $mi, tkEnlApp) {
+                            var _oPage, _oResult, _oFilter;
+                            $scope2.page = _oPage = {};
+                            $scope2.result = _oResult = {
                                 reset: function() {
                                     this.type = null;
                                     this.selected = null;
                                 }
                             };
-                            $scope2.filter = oFilter = {};
+                            if (oSchema.ds) {
+                                if (oSchema.ds.app) {
+                                    tkEnlApp.get(oSchema.ds.app.id).then(function(oSourceApp) {
+                                        _oResult.fromApp = oSourceApp;
+                                        _oResult.type = oSchema.ds.type;
+                                        switch (_oResult.type) {
+                                            case 'score':
+                                                _oResult.selected = oSchema.ds.schema;
+                                                break;
+                                            case 'act':
+                                                _oResult.selected = oSchema.ds.name;
+                                                break;
+                                            case 'input':
+                                                _oResult.fromApp.dataSchemas.forEach(function(oSchema) {
+                                                    if ('shorttext' === oSchema.type && oSchema.format === 'number') {
+                                                        $scope2.schemas.push(oSchema);
+                                                        if (oSchema.ds.schema && oSchema.ds.schema.id === oSchema.id) {
+                                                            _oResult.selected = $scope2.schemas.length - 1;
+                                                        }
+                                                    }
+                                                });
+                                                break;
+                                            case 'option':
+                                                _oResult.fromApp.dataSchemas.forEach(function(oSchema) {
+                                                    if (/single|multiple/.test(oSchema.type) && oSchema.dsOps) {
+                                                        $scope2.schemas.push(oSchema);
+                                                        if (oSchema.ds.schema && oSchema.ds.schema.id === oSchema.id) {
+                                                            _oResult.selected = $scope2.schemas.length - 1;
+                                                        }
+                                                    }
+                                                });
+                                                break;
+                                        }
+                                    });
+                                }
+                            }
+                            $scope2.filter = _oFilter = {};
                             $scope2.schemas = [];
                             $scope2.selectApp = function() {
-                                if (angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
-                                    oResult.fromApp.dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
+                                if (angular.isString(_oResult.fromApp.data_schemas) && _oResult.fromApp.data_schemas) {
+                                    _oResult.fromApp.dataSchemas = JSON.parse(_oResult.fromApp.data_schemas);
                                 }
-                                oResult.reset();
+                                _oResult.reset();
                             };
                             $scope2.$watch('result.type', function(newType) {
                                 $scope2.schemas = [];
-                                if (newType) {
+                                if (newType && _oResult.fromApp) {
                                     switch (newType) {
                                         case 'input':
-                                            oResult.fromApp.dataSchemas.forEach(function(oSchema) {
+                                            _oResult.fromApp.dataSchemas.forEach(function(oSchema) {
                                                 if ('shorttext' === oSchema.type && oSchema.format === 'number') {
                                                     $scope2.schemas.push(oSchema);
                                                 }
                                             });
                                             break;
                                         case 'score':
-                                            oResult.fromApp.dataSchemas.forEach(function(oSchema) {
+                                            _oResult.fromApp.dataSchemas.forEach(function(oSchema) {
                                                 if (oSchema.requireScore === 'Y') {
                                                     $scope2.schemas.push(oSchema);
                                                 }
                                             });
                                         case 'option':
-                                            oResult.fromApp.dataSchemas.forEach(function(oSchema) {
+                                            _oResult.fromApp.dataSchemas.forEach(function(oSchema) {
                                                 if (/single|multiple/.test(oSchema.type) && oSchema.dsOps) {
                                                     $scope2.schemas.push(oSchema);
                                                 }
@@ -1066,30 +1102,30 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             });
                             $scope2.$watch('result', function(oNewResult) {
                                 $scope2.disabled = false;
-                                if (!oResult.fromApp) $scope2.disabled = true;
-                                if (!oResult.type) {
+                                if (!_oResult.fromApp) $scope2.disabled = true;
+                                if (!_oResult.type) {
                                     $scope2.disabled = true;
                                 } else {
-                                    if (/input|option/.test(oResult.type) && !oResult.selected) {
+                                    if (/input|option/.test(_oResult.type) && !_oResult.selected) {
                                         $scope2.disabled = true;
                                     }
                                 }
                             }, true);
                             $scope2.ok = function() {
                                 var fromApp, oConfig;
-                                if ((fromApp = oResult.fromApp)) {
-                                    oConfig = { app: { id: fromApp.id, title: fromApp.title }, type: oResult.type };
-                                    if (oResult.selected !== undefined) {
-                                        switch (oResult.type) {
+                                if ((fromApp = _oResult.fromApp)) {
+                                    oConfig = { app: { id: fromApp.id, title: fromApp.title }, type: _oResult.type };
+                                    if (_oResult.selected !== undefined) {
+                                        switch (_oResult.type) {
                                             case 'act':
-                                                oConfig.name = oResult.selected;
+                                                oConfig.name = _oResult.selected;
                                                 break;
                                             case 'score':
-                                                oConfig.schema = oResult.selected;
+                                                oConfig.schema = _oResult.selected;
                                                 break;
                                             case 'input':
                                             case 'option':
-                                                oConfig.schema = $scope2.schemas[parseInt(oResult.selected)];
+                                                oConfig.schema = $scope2.schemas[parseInt(_oResult.selected)];
                                                 break;
                                         }
                                     }
@@ -1100,7 +1136,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             };
                             $scope2.cancel = function() { $mi.dismiss(); };
                             $scope2.doFilter = function() {
-                                oPage.at = 1;
+                                _oPage.at = 1;
                                 $scope2.doSearch();
                             };
                             $scope2.doSearch = function() {
@@ -1109,12 +1145,14 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                     url += '&mission=' + _oApp.mission.id;
                                 }
                                 http2.post(url, {
-                                    byTitle: oFilter.byTitle
-                                }, { page: oPage }).then(function(rsp) {
+                                    byTitle: _oFilter.byTitle
+                                }, { page: _oPage }).then(function(rsp) {
                                     $scope2.apps = rsp.data.apps;
                                     if ($scope2.apps.length) {
-                                        oResult.fromApp = $scope2.apps[0];
-                                        $scope2.selectApp();
+                                        if (!_oResult.fromApp) {
+                                            _oResult.fromApp = $scope2.apps[0];
+                                            $scope2.selectApp();
+                                        }
                                     }
                                 });
                             };

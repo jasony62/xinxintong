@@ -22,13 +22,13 @@ class round_model extends \TMS_MODEL {
 	/**
 	 * 和指定项目轮次绑定的轮次
 	 */
-	public function byMissionRid($oApp, $missionRoundId, $aOptions = []) {
+	public function byMissionRid($oApp, $missionRid, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$state = isset($aOptions['state']) ? $aOptions['state'] : false;
 		$q = [
 			$fields,
 			'xxt_enroll_round',
-			['aid' => $oApp->id, 'mission_rid' => $missionRoundId],
+			['aid' => $oApp->id, 'mission_rid' => $missionRid],
 		];
 		$state && $q[2]['state'] = $state;
 

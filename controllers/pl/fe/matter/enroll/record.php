@@ -2358,7 +2358,7 @@ class record extends main_base {
 						}
 						break;
 					case 'score':
-						if (!empty($oSchema->ds->schema) && is_array($oSchema->ds->schem)) {
+						if (!empty($oSchema->ds->schema) && is_array($oSchema->ds->schema)) {
 							$dsSchemaIds = [];
 							foreach ($oDsApp->dataSchemas as $oDsSchema) {
 								if (in_array($oDsSchema->id, $oSchema->ds->schema)) {

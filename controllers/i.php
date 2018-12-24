@@ -16,11 +16,11 @@ class i extends TMS_CONTROLLER {
 	/**
 	 * 访问用户邀请页
 	 *
-	 * @param string $code 链接的编
+	 * @param string $inviteCode 链接的编码
 	 *
 	 */
-	public function index_action($code = null) {
-		if (empty($code)) {
+	public function index_action($inviteCode = null) {
+		if (empty($inviteCode)) {
 			TPL::assign('title', APP_TITLE);
 			TPL::output('site/fe/invite/entry');
 			exit;
@@ -29,17 +29,17 @@ class i extends TMS_CONTROLLER {
 		 * 检查邀请是否可用
 		 */
 		$modelInv = $this->model('invite');
-		$oInvite = $modelInv->byCode($code);
+		$oInvite = $modelInv->byCode($inviteCode);
 		if (false === $oInvite) {
 			TPL::assign('title', APP_TITLE);
-			$this->outputError('指定编码【' . $code . '】的邀请不存在');
+			$this->outputError('指定编码【' . $inviteCode . '】的邀请不存在');
 		}
 		if (empty($oInvite->matter_id) || empty($oInvite->matter_type)) {
 			TPL::assign('title', APP_TITLE);
-			$this->outputError('指定编码【' . $code . '】的邀请不可用');
+			$this->outputError('指定编码【' . $inviteCode . '】的邀请不可用');
 		}
 
-		if (!$this->_afterSnsOAuth()) {
+		if (!$this->_afterSnsOAuth($oInvite->matter_siteid)) {
 			/* 检查是否需要第三方社交帐号OAuth */
 			$this->_requireSnsOAuth($oInvite->matter_siteid);
 		}
@@ -62,7 +62,9 @@ class i extends TMS_CONTROLLER {
 		/* 被邀请的用户 */
 		$modelWay = $this->model('site\fe\way');
 		$oInvitee = $modelWay->who($oInvite->matter_siteid);
-
+		echo '111111111111111111111';
+		echo "<br/>";
+var_dump($oInvitee);
 		/* 如果当前用户已经被邀请过，就不再进行验证或记录日志 */
 		$modelInvLog = $this->model('invite\log');
 		$aInviteLogs = $modelInvLog->byUser($oMatter, $oInvitee->uid);
@@ -285,14 +287,15 @@ class i extends TMS_CONTROLLER {
 	private function _requireSnsOAuth($siteid) {
 		$modelWay = $this->model('site\fe\way');
 		$user = $modelWay->who($siteid);
+		var_dump($user);
 		$userAgent = $this->userAgent();
-
+$userAgent = 'wx';
 		if ($userAgent === 'wx') {
 			if (!isset($user->sns->wx)) {
 				$modelWx = $this->model('sns\wx');
 				if (($wxConfig = $modelWx->bySite($siteid)) && $wxConfig->joined === 'Y') {
 					$this->_snsOAuth($wxConfig, 'wx');
-				} else if (($wxConfig = $modelWx->bySite('platform')) && $wxConfig->joined === 'Y') {
+				} else if (($wxConfig = $modelWx->bySite('platform'))) {
 					$this->_snsOAuth($wxConfig, 'wx');
 				}
 			}
@@ -328,7 +331,7 @@ class i extends TMS_CONTROLLER {
 		if (empty($ruri)) {
 			$ruri = APP_PROTOCOL . APP_HTTP_HOST . $_SERVER['REQUEST_URI'];
 		}
-
+var_dump($ruri);
 		switch ($snsName) {
 		case 'qy':
 			$snsProxy = $this->model('sns\qy\proxy', $snsConfig);
@@ -350,7 +353,7 @@ class i extends TMS_CONTROLLER {
 		if (isset($oauthUrl)) {
 			/* 通过cookie判断是否是后退进入 */
 			$this->mySetcookie("_{$snsConfig->siteid}_oauthpending", 'Y');
-			$this->redirect($oauthUrl);
+			// $this->redirect($oauthUrl);
 		}
 
 		return false;

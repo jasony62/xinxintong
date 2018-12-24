@@ -16,11 +16,11 @@ class i extends TMS_CONTROLLER {
 	/**
 	 * 访问用户邀请页
 	 *
-	 * @param string $code 链接的编
+	 * @param string $inviteCode 链接的编码
 	 *
 	 */
-	public function index_action($code = null) {
-		if (empty($code)) {
+	public function index_action($inviteCode = null) {
+		if (empty($inviteCode)) {
 			TPL::assign('title', APP_TITLE);
 			TPL::output('site/fe/invite/entry');
 			exit;
@@ -29,17 +29,17 @@ class i extends TMS_CONTROLLER {
 		 * 检查邀请是否可用
 		 */
 		$modelInv = $this->model('invite');
-		$oInvite = $modelInv->byCode($code);
+		$oInvite = $modelInv->byCode($inviteCode);
 		if (false === $oInvite) {
 			TPL::assign('title', APP_TITLE);
-			$this->outputError('指定编码【' . $code . '】的邀请不存在');
+			$this->outputError('指定编码【' . $inviteCode . '】的邀请不存在');
 		}
 		if (empty($oInvite->matter_id) || empty($oInvite->matter_type)) {
 			TPL::assign('title', APP_TITLE);
-			$this->outputError('指定编码【' . $code . '】的邀请不可用');
+			$this->outputError('指定编码【' . $inviteCode . '】的邀请不可用');
 		}
 
-		if (!$this->_afterSnsOAuth()) {
+		if (!$this->_afterSnsOAuth($oInvite->matter_siteid)) {
 			/* 检查是否需要第三方社交帐号OAuth */
 			$this->_requireSnsOAuth($oInvite->matter_siteid);
 		}

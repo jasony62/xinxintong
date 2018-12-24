@@ -1007,7 +1007,7 @@ class repos extends base {
 	 */
 	public function criteriaGet_action($app) {
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, ['fields' => 'id,siteid,state,entry_rule,action_rule,mission_id,sync_mission_round,assigned_nickname,round_cron', 'cascaded' => 'N']);
+		$oApp = $modelApp->byId($app, ['fields' => 'id,siteid,state,data_schemas,entry_rule,action_rule,mission_id,sync_mission_round,assigned_nickname,round_cron', 'cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -1053,6 +1053,19 @@ class repos extends base {
 							$criteria->menus[] = (object) ['id' => $round->rid, 'title' => $round->title];
 						}
 					}
+				}
+			}
+			// 如果有答案的题型才显示筛选答案的按钮
+			if ($criteria->type === 'coworkAgreed') {
+				$coworkState = false;
+				foreach ($oApp->dynaDataSchemas as $oSchema) {
+					if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
+						$coworkState = true;
+						break;
+					}
+				}
+				if (!$coworkState) {
+					unset($criterias[$key]);
 				}
 			}
 			// 获取分组

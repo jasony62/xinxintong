@@ -196,7 +196,7 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             }
         });
         /*设置页面操作*/
-        $scope.setPopAct(['addRecord', 'mocker'], 'cowork');
+        $scope.setPopAct(['addRecord', 'mocker'], 'topic');
         /*设置页面导航*/
         $scope.setPopNav(['repos'], 'topic');
         /* 活动任务 */

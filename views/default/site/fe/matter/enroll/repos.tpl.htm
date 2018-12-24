@@ -122,15 +122,15 @@
                     </div>
                 </div>
                 <div id='filterQuick' ng-cloak>
-                    <div tms-dropdown data="dropData[0]" shift-menu="shiftMenu(criteria)"></div>
-                    <div tms-dropdown data="dropData[1]" shift-menu="shiftMenu(criteria)"></div>
-                    <div tms-filter source="filterData" filter="{{filter}}" criteria="{{criteria}}" confirm="confirm(filterOpt)" class="pull-right"></div>
+                    <div tms-dropdown basic-data="reposFilters[0]" shift-menu="shiftMenu(criteria)"></div>
+                    <div tms-dropdown basic-data="reposFilters[1]" shift-menu="shiftMenu(criteria)"></div>
+                    <div tms-filter basic-data="multiFilters" filter="{{filter}}" criteria="{{criteria}}" confirm="confirm(filterOpt)" class='pull-right' ng-if="multiFilters.length"></div>
                 </div>
                 <!-- end: filterQuick -->
                 <div id='filterTip' class="hidden-xs" ng-if="filter.isFilter||filter.tags.length">
-                    <div class="bg-info small" ng-repeat="data in filterData" ng-if="criteria[data.type]!==null">
-                        <span ng-repeat="menu in data.menus" ng-if="criteria[data.type]==menu.value" ng-bind="menu.title"></span>
-                        <button class="close" trace-biz ng-click="shiftTip(data.type)"><span>&times;</span></button>
+                    <div class="bg-info small" ng-repeat="multifilter in multiFilters" ng-if="criteria[multifilter.type]!==null">
+                        <span ng-repeat="menu in multifilter.menus" ng-if="criteria[multifilter.type]==menu.id" ng-bind="menu.title"></span>
+                        <button class="close" trace-biz ng-click="shiftTip(multifilter.type)"><span>&times;</span></button>
                     </div>
                     <div class="bg-info small" ng-repeat="tag in filter.tags">
                         <span ng-bind="tag.label"></span>
@@ -145,7 +145,7 @@
                                 <div class='nickname text-muted'>{{rec.nickname||'隐藏'}}</div>
                                 <button ng-if="rec.favored" class="btn btn-default btn-xs" ng-click="favorRecord(rec)">已收藏</button>
                                 <div ng-if="!rec._canAgree&&rec.agreed&&rec.agreed!=='A'">
-                                    <button ng-if="rec.agreed==='D'&&(rec.userid===user.uid||user.is_leader==='S'||user.is_editor==='Y'||(user.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid])))" class="btn btn-danger btn-xs">讨论</button>
+                                    <button ng-if="rec.agreed==='D'&&(rec.userid===user.uid||user.is_leader==='S'||user.is_editor==='Y'||(user.is_leader==='Y'&&(rec.userid===user.uid||groupOthers[rec.userid])))" class="btn btn-danger btn-xs">讨论</button>
                                     <button ng-if="rec.agreed==='Y'" class="btn btn-success btn-xs">推荐</button>
                                     <button ng-if="rec.agreed==='N'" class="btn btn-danger btn-xs">关闭</button>
                                 </div>

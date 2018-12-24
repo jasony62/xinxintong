@@ -23,9 +23,10 @@ require('../../../../../../asset/js/xxt.ui.nav.js');
 require('../../../../../../asset/js/xxt.ui.act.js');
 
 require('./directive.js');
+require('./service.js');
 
 /* 公共加载的模块 */
-var angularModules = ['ngSanitize', 'ui.bootstrap', 'notice.ui.xxt', 'http.ui.xxt', 'trace.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'directive.enroll', 'picviewer.ui.xxt', 'nav.ui.xxt', 'act.ui.xxt'];
+var angularModules = ['ngSanitize', 'ui.bootstrap', 'notice.ui.xxt', 'http.ui.xxt', 'trace.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'directive.enroll', 'picviewer.ui.xxt', 'nav.ui.xxt', 'act.ui.xxt', 'service.enroll'];
 /* 加载指定的模块 */
 if (window.moduleAngularModules) {
     window.moduleAngularModules.forEach(function(m) {
@@ -41,7 +42,7 @@ ngApp.config(['$controllerProvider', '$uibTooltipProvider', '$locationProvider',
     $uibTooltipProvider.setTriggers({ 'show': 'hide' });
     $locationProvider.html5Mode(true);
 }]);
-ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tmsLocation', 'tmsDynaPage', 'tmsSnsShare', 'tmsSiteUser', function($scope, $q, $parse, http2, $timeout, LS, tmsDynaPage, tmsSnsShare, tmsSiteUser) {
+ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tmsLocation', 'tmsDynaPage', 'tmsSnsShare', 'tmsSiteUser', 'enlService', function($scope, $q, $parse, http2, $timeout, LS, tmsDynaPage, tmsSnsShare, tmsSiteUser, enlService) {
     function refreshEntryRuleResult() {
         var url, defer;
         defer = $q.defer();
@@ -277,9 +278,9 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
     /* 设置页面操作 */
     $scope.setPopAct = function(aNames, fromPage, oParamsByAct) {
         if (!fromPage || !aNames || aNames.length === 0) return;
-        http2.get(LS.j('user/get', 'site', 'app')).then(function(rsp) {
+        if($scope.user) {
             var oEnlUser, oCustom;
-            if (oEnlUser = rsp.data) {
+            if (oEnlUser = $scope.user) {
                 oCustom = $parse(fromPage + '.act')(oEnlUser.custom);
             }
             if (!oCustom) {
@@ -308,7 +309,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
                             if (parseInt($scope.app.count_limit) === 0 || $scope.app.count_limit > oEnlUser.enroll_num) {
                                 /* 允许添加记录 */
                                 if ($parse('actionRule.record.submit.pre.editor')($scope.app)) {
-                                    if ($scope.user && $scope.user.is_editor && $scope.user.is_editor === 'Y') {
+                                    if (oEnlUser && oEnlUser.is_editor && oEnlUser.is_editor === 'Y') {
                                         oAct = { title: '添加记录', func: $scope.addRecord };
                                     }
                                 } else {
@@ -322,15 +323,15 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
                         break;
                     case 'mocker':
                         /* 是否允许切换用户角色 */
-                        if ($scope.user) {
-                            if ($scope.user.is_editor && $scope.user.is_editor === 'Y') {
+                        if (oEnlUser) {
+                            if (oEnlUser.is_editor && oEnlUser.is_editor === 'Y') {
                                 oAct = { title: '作为访客', toggle: function() { return $scope.mocker.role !== 'visitor'; }, func: function() { $scope.mocker.role = 'visitor'; } };
                                 $scope.popAct.acts.push(oAct);
                                 oAct = { title: '退出访客', toggle: function() { return $scope.mocker.role === 'visitor'; }, func: function() { $scope.mocker.role = ''; } };
                                 $scope.popAct.acts.push(oAct);
                                 oAct = null;
                             }
-                            if ($scope.user.is_leader && /Y|S/.test($scope.user.is_leader)) {
+                            if (oEnlUser.is_leader && /Y|S/.test(oEnlUser.is_leader)) {
                                 oAct = { title: '作为成员', toggle: function() { return $scope.mocker.role !== 'member'; }, func: function() { $scope.mocker.role = 'member'; } };
                                 $scope.popAct.acts.push(oAct);
                                 oAct = { title: '退出成员', toggle: function() { return $scope.mocker.role === 'member'; }, func: function() { $scope.mocker.role = ''; } };
@@ -360,15 +361,15 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
                     $scope.popAct.acts.push(oAct);
                 }
             });
-        });
+        }
     };
     /* 设置弹出导航页 */
-    $scope.setPopNav = function(aNames, fromPage) {
+    $scope.setPopNav = function(aNames, fromPage, oUser) {
         if (!fromPage || !aNames || aNames.length === 0) return;
-        http2.get(LS.j('user/get', 'site', 'app')).then(function(rsp) {
+        if($scope.user) {
             var oApp, oEnlUser, oCustom;
             oApp = $scope.app;
-            oEnlUser = rsp.data;
+            oEnlUser = $scope.user;
             if (oEnlUser) {
                 oCustom = $parse(fromPage + '.nav')(oEnlUser.custom);
             }
@@ -414,7 +415,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
             if ($scope.mission) {
                 $scope.popNav.navs.push({ name: 'mission', title: '项目主页', url: '/rest/site/fe/matter/mission?site=' + oApp.siteid + '&mission=' + $scope.mission.id });
             }
-        });
+        }
         // if (oApp.scenarioConfig.can_action === 'Y') {
         //        /* 设置活动事件提醒 */
         //        http2.get(LS.j('notice/count', 'site', 'app')).then(function(rsp) {
@@ -429,7 +430,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
         var oApp, oUser, activeRid, oData, shareby;
         oApp = $scope.app;
         oUser = $scope.user;
-        activeRid = $scope.activeRound.rid;
+        activeRid = oApp.appRound.rid;
         shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
         oData = {
             search: location.search.replace('?', ''),
@@ -460,7 +461,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
             oEntryRuleResult = params.entryRuleResult,
             oMission = params.mission,
             oPage = params.page,
-            oUser = params.user,
             schemasById = {};
 
         oApp.dynaDataSchemas.forEach(function(schema) {
@@ -472,7 +472,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
         $scope.mission = oMission;
         $scope.app = oApp;
         $scope.entryRuleResult = oEntryRuleResult;
-        $scope.user = oUser;
         if (oApp.use_site_header === 'Y' && oSite && oSite.header_page) {
             tmsDynaPage.loadCode(ngApp, oSite.header_page);
         }
@@ -493,9 +492,9 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
         if (tasksOfOnReady.length) {
             angular.forEach(tasksOfOnReady, execTask);
         }
-        /* 当前工作轮次 */
-        http2.get(LS.j('round/getActive', 'app')).then(function(rsp) {
-            $scope.activeRound = rsp.data;
+        /* 用户信息 */
+        enlService.user().then(function(data) {
+            $scope.user = data;
             $timeout(function() {
                 $scope.$broadcast('xxt.app.enroll.ready', params);
             });

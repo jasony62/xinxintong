@@ -430,7 +430,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
         var oApp, oUser, activeRid, oData, shareby;
         oApp = $scope.app;
         oUser = $scope.user;
-        activeRid = $scope.activeRound.rid;
+        activeRid = oApp.appRound.rid;
         shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
         oData = {
             search: location.search.replace('?', ''),
@@ -496,16 +496,12 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
         enlService.user().then(function(data) {
             $scope.user = data;
         });
-        /* 当前工作轮次 */
-        http2.get(LS.j('round/getActive', 'app')).then(function(rsp) {
-            $scope.activeRound = rsp.data;
-            $timeout(function() {
-                $scope.$broadcast('xxt.app.enroll.ready', params);
-            });
-            var eleLoading;
-            if (eleLoading = document.querySelector('.loading')) {
-                eleLoading.parentNode.removeChild(eleLoading);
-            }
+        var eleLoading;
+        if (eleLoading = document.querySelector('.loading')) {
+            eleLoading.parentNode.removeChild(eleLoading);
+        }
+        $timeout(function() {
+            $scope.$broadcast('xxt.app.enroll.ready', params);
         });
     });
 }]);

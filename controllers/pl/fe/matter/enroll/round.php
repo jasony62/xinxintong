@@ -232,6 +232,9 @@ class round extends \pl\fe\matter\base {
 			case 'end_at':
 				$oUpdate->{$prop} = (int) $value;
 				break;
+			case 'mission_rid':
+				$oUpdate->mission_rid = $value;
+				break;
 			}
 		}
 

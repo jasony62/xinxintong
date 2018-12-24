@@ -1017,119 +1017,116 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
             $scope.setDataSource = function(oSchema) {
                 var _oApp;
                 _oApp = $scope.app;
-                $uibModal.open({
-                    templateUrl: '/views/default/pl/fe/matter/enroll/component/schema/setDataSource.html?_=1',
-                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                        var oPage, oResult, oFilter;
-                        $scope2.page = oPage = {};
-                        $scope2.result = oResult = {
-                            reset: function() {
-                                this.type = null;
-                                this.selected = null;
-                            }
-                        };
-                        $scope2.filter = oFilter = {};
-                        $scope2.schemas = [];
-                        $scope2.selectApp = function() {
-                            if (angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
-                                oResult.fromApp.dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
-                            }
-                            oResult.reset();
-                        };
-                        $scope2.$watch('result.type', function(newType) {
+                http2.post('/rest/script/time', { html: { 'source': '/views/default/pl/fe/matter/enroll/component/schema/setDataSource' } }).then(function(rsp) {
+                    $uibModal.open({
+                        templateUrl: '/views/default/pl/fe/matter/enroll/component/schema/setDataSource.html?' + rsp.data.html.source.time,
+                        controller: ['$scope', '$uibModalInstance', 'tkEnrollApp', function($scope2, $mi, tkEnlApp) {
+                            var FnValidSchemas, _oPage, _oFilter, _oResult;
+                            FnValidSchemas = {
+                                score: function(oSchema2) { return oSchema2.requireScore === 'Y'; },
+                                input: function(oSchema2) { return 'shorttext' === oSchema2.type && oSchema2.format === 'number'; },
+                                option: function(oSchema2) { return /single|multiple/.test(oSchema2.type) && oSchema2.dsOps; }
+                            };
+                            $scope2.page = _oPage = {};
+                            $scope2.filter = _oFilter = {};
                             $scope2.schemas = [];
-                            if (newType) {
-                                switch (newType) {
-                                    case 'input':
-                                        oResult.fromApp.dataSchemas.forEach(function(oSchema) {
-                                            if ('shorttext' === oSchema.type && oSchema.format === 'number') {
-                                                $scope2.schemas.push(oSchema);
-                                            }
-                                        });
-                                        break;
-                                    case 'option':
-                                        oResult.fromApp.dataSchemas.forEach(function(oSchema) {
-                                            if (/single|multiple/.test(oSchema.type) && oSchema.dsOps) {
-                                                $scope2.schemas.push(oSchema);
-                                            }
-                                        });
-                                        break;
+                            $scope2.result = _oResult = {
+                                selected: [],
+                                reset: function() {
+                                    this.type = null;
+                                    this.selected = [];
+                                }
+                            };
+                            if (oSchema.ds) {
+                                if (oSchema.ds.app) {
+                                    tkEnlApp.get(oSchema.ds.app.id).then(function(oSourceApp) {
+                                        _oResult.fromApp = oSourceApp;
+                                        _oResult.type = oSchema.ds.type;
+                                        if (_oResult.type === 'act') {
+                                            _oResult.selected = oSchema.ds.name;
+                                        } else if (FnValidSchemas[_oResult.type]) {
+                                            $scope2.schemas = _oResult.fromApp.dataSchemas.filter(FnValidSchemas[_oResult.type]);
+                                            $scope2.schemas.forEach(function(oSchema2) {
+                                                if (oSchema.ds.schema.indexOf(oSchema2.id) !== -1) {
+                                                    _oResult.selected.push(oSchema2.id);
+                                                }
+                                            });
+                                        }
+                                    });
                                 }
                             }
-                        });
-                        $scope2.$watch('result', function(oNewResult) {
-                            $scope2.disabled = false;
-                            if (!oResult.fromApp) $scope2.disabled = true;
-                            if (!oResult.type) {
-                                $scope2.disabled = true;
-                            } else {
-                                if (/input|option/.test(oResult.type) && !oResult.selected) {
-                                    $scope2.disabled = true;
+                            $scope2.selectApp = function() {
+                                if (angular.isString(_oResult.fromApp.data_schemas) && _oResult.fromApp.data_schemas) {
+                                    _oResult.fromApp.dataSchemas = JSON.parse(_oResult.fromApp.data_schemas);
                                 }
-                            }
-                        }, true);
-                        $scope2.ok = function() {
-                            var fromApp, oConfig;
-                            if ((fromApp = oResult.fromApp)) {
-                                oConfig = { app: { id: fromApp.id, title: fromApp.title }, type: oResult.type };
-                                if (oResult.selected !== undefined) {
-                                    switch (oResult.type) {
-                                        case 'act':
-                                            oConfig.name = oResult.selected;
-                                            break;
-                                        case 'input':
-                                        case 'option':
-                                            oConfig.schema = $scope2.schemas[parseInt(oResult.selected)];
-                                            break;
+                                _oResult.reset();
+                            };
+                            $scope2.$watch('result.type', function(newType) {
+                                if (newType && _oResult.fromApp) {
+                                    if (FnValidSchemas[newType]) {
+                                        $scope2.schemas = _oResult.fromApp.dataSchemas.filter(FnValidSchemas[newType]);
                                     }
                                 }
-                                $mi.close(oConfig);
-                            } else {
-                                $mi.dismiss();
-                            }
-                        };
-                        $scope2.cancel = function() {
-                            $mi.dismiss();
-                        };
-                        $scope2.doFilter = function() {
-                            oPage.at = 1;
-                            $scope2.doSearch();
-                        };
-                        $scope2.doSearch = function() {
-                            var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid;
-                            if (_oApp.mission) {
-                                url += '&mission=' + _oApp.mission.id;
-                            }
-                            http2.post(url, {
-                                byTitle: oFilter.byTitle
-                            }, { page: oPage }).then(function(rsp) {
-                                $scope2.apps = rsp.data.apps;
-                                if ($scope2.apps.length) {
-                                    oResult.fromApp = $scope2.apps[0];
-                                    $scope2.selectApp();
-                                }
                             });
-                        };
-                        $scope2.disabled = true;
-                        $scope2.doSearch();
-                    }],
-                    backdrop: 'static',
-                    windowClass: 'auto-height',
-                    size: 'lg'
-                }).result.then(function(oResult) {
-                    if (oResult.app && oResult.type) {
-                        oSchema.ds = {
-                            app: { id: oResult.app.id, title: oResult.app.title },
-                            type: oResult.type,
+                            $scope2.$watch('result', function(oNewResult) {
+                                $scope2.disabled = false;
+                                if (!_oResult.fromApp) {
+                                    $scope2.disabled = true;
+                                } else if (!_oResult.type) {
+                                    $scope2.disabled = true;
+                                } else if (!_oResult.selected || _oResult.selected.length === 0) {
+                                    $scope2.disabled = true;
+                                }
+                            }, true);
+                            $scope2.ok = function() {
+                                var fromApp, oConfig;
+                                if (fromApp = _oResult.fromApp) {
+                                    oConfig = { app: { id: fromApp.id, title: fromApp.title }, type: _oResult.type, schema: _oResult.selected };
+                                    $mi.close(oConfig);
+                                }
+                            };
+                            $scope2.cancel = function() { $mi.dismiss(); };
+                            $scope2.doSearch = function(pageAt) {
+                                var url = '/rest/pl/fe/matter/enroll/list?site=' + _oApp.siteid;
+                                if (_oApp.mission) {
+                                    url += '&mission=' + _oApp.mission.id;
+                                }
+                                pageAt && (_oPage.at = pageAt);
+                                http2.post(url, {
+                                    byTitle: _oFilter.byTitle
+                                }, { page: _oPage }).then(function(rsp) {
+                                    $scope2.apps = rsp.data.apps;
+                                    if ($scope2.apps.length) {
+                                        if (!_oResult.fromApp) {
+                                            _oResult.fromApp = $scope2.apps[0];
+                                            $scope2.selectApp();
+                                        }
+                                    }
+                                });
+                            };
+                            $scope2.disabled = true;
+                            $scope2.doSearch();
+                        }],
+                        backdrop: 'static',
+                        windowClass: 'auto-height',
+                        size: 'lg'
+                    }).result.then(function(oResult) {
+                        if (oResult.app && oResult.type) {
+                            oSchema.ds = {
+                                app: { id: oResult.app.id, title: oResult.app.title },
+                                type: oResult.type,
+                                schema: oResult.schema
+                            }
+                            $scope.updSchema(oSchema);
                         }
-                        if (oResult.name) {
-                            oSchema.ds.name = oResult.name;
-                        } else if (oResult.schema) {
-                            oSchema.ds.schema = { id: oResult.schema.id, title: oResult.schema.title, type: oResult.schema.type };
-                        }
-                        $scope.updSchema(oSchema);
-                    }
-                });;
+                    });
+                });
+            };
+            $scope.removeDataSource = function(oSchema) {
+                if (oSchema.ds) {
+                    delete oSchema.ds;
+                    $scope.updSchema(oSchema);
+                }
             };
             $scope.setOptionsSource = function(oSchema) {
                 var _oApp;
@@ -1508,7 +1505,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                         templateUrl: '/views/default/pl/fe/matter/enroll/component/renewScore.html',
                                         controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                                             $scope2.ok = function() {
-                                                srvApp.renewScore().then(function() {
+                                                srvApp.renewScoreByRound().then(function() {
                                                     $mi.close();
                                                 });
                                             };

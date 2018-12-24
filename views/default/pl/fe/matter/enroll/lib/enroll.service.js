@@ -1378,9 +1378,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                         $scope2.ok = function() {
                             $mi.close(oResult);
                         };
-                        $scope2.cancel = function() {
-                            $mi.dismiss('cancel');
-                        };
+                        $scope2.cancel = function() { $mi.dismiss(); };
                         $scope2.doFilter = function() {
                             oPage.at = 1;
                             $scope2.doSearch();

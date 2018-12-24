@@ -262,109 +262,109 @@ define(['require'], function(require) {
                     return defer.promise;
                 },
                 add: function() {
-                    $uibModal.open({
-                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=2',
-                        backdrop: 'static',
-                        controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
-                            $scope.round = {
-                                state: '0',
-                                start_at: '0'
-                            };
-                            $scope.roundState = RoundState;
-                            $scope.$on('xxt.tms-datepicker.change', function(event, data) {
-                                if (data.state === 'start_at') {
-                                    if (data.obj[data.state] == 0 && data.value > 0) {
-                                        $scope.round.state = '1';
-                                    } else if (data.obj[data.state] > 0 && data.value == 0) {
-                                        $scope.round.state = '0';
+                    http2.post('/rest/script/time', { html: { 'editor': '/views/default/pl/fe/matter/enroll/component/roundEditor' } }).then(function(rsp) {
+                        $uibModal.open({
+                            templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=' + rsp.data.html.editor.time,
+                            backdrop: 'static',
+                            controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
+                                $scope.round = {
+                                    state: '0',
+                                    start_at: '0'
+                                };
+                                $scope.roundState = RoundState;
+                                $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+                                    if (data.state === 'start_at') {
+                                        if (data.obj[data.state] == 0 && data.value > 0) {
+                                            $scope.round.state = '1';
+                                        } else if (data.obj[data.state] > 0 && data.value == 0) {
+                                            $scope.round.state = '0';
+                                        }
                                     }
+                                    data.obj[data.state] = data.value;
+                                });
+                                $scope.close = function() { $mi.dismiss(); };
+                                $scope.ok = function() {
+                                    $mi.close($scope.round);
+                                };
+                                $scope.start = function() {
+                                    $scope.round.state = 1;
+                                    $mi.close($scope.round);
+                                };
+                            }]
+                        }).result.then(function(newRound) {
+                            http2.post(_RestURL + 'add?site=' + _siteId + '&mission=' + _missionId, newRound).then(function(rsp) {
+                                if (_rounds.length > 0 && rsp.data.state == 1) {
+                                    _rounds[0].state = 2;
                                 }
-                                data.obj[data.state] = data.value;
+                                _rounds.splice(0, 0, rsp.data);
+                                _oPage.total++;
                             });
-                            $scope.close = function() {
-                                $mi.dismiss();
-                            };
-                            $scope.ok = function() {
-                                $mi.close($scope.round);
-                            };
-                            $scope.start = function() {
-                                $scope.round.state = 1;
-                                $mi.close($scope.round);
-                            };
-                        }]
-                    }).result.then(function(newRound) {
-                        http2.post(_RestURL + 'add?site=' + _siteId + '&mission=' + _missionId, newRound).then(function(rsp) {
-                            if (_rounds.length > 0 && rsp.data.state == 1) {
-                                _rounds[0].state = 2;
-                            }
-                            _rounds.splice(0, 0, rsp.data);
-                            _oPage.total++;
                         });
                     });
                 },
-                edit: function(round) {
-                    $uibModal.open({
-                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=2',
-                        backdrop: 'static',
-                        controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
-                            $scope.round = { rid: round.rid, title: round.title, start_at: round.start_at, end_at: round.end_at, state: round.state };
-                            $scope.roundState = RoundState;
-                            $scope.$on('xxt.tms-datepicker.change', function(event, data) {
-                                if (data.state === 'start_at') {
-                                    if (data.obj[data.state] == 0 && data.value > 0) {
-                                        $scope.round.state = '1';
-                                    } else if (data.obj[data.state] > 0 && data.value == 0) {
-                                        $scope.round.state = '0';
+                edit: function(oRound) {
+                    http2.post('/rest/script/time', { html: { 'editor': '/views/default/pl/fe/matter/enroll/component/roundEditor' } }).then(function(rsp) {
+                        $uibModal.open({
+                            templateUrl: '/views/default/pl/fe/matter/enroll/component/roundEditor.html?_=' + rsp.data.html.editor.time,
+                            backdrop: 'static',
+                            controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
+                                $scope.round = { rid: oRound.rid, title: oRound.title, start_at: oRound.start_at, end_at: oRound.end_at, state: oRound.state };
+                                $scope.roundState = RoundState;
+                                $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+                                    if (data.state === 'start_at') {
+                                        if (data.obj[data.state] == 0 && data.value > 0) {
+                                            $scope.round.state = '1';
+                                        } else if (data.obj[data.state] > 0 && data.value == 0) {
+                                            $scope.round.state = '0';
+                                        }
                                     }
-                                }
-                                data.obj[data.state] = data.value;
-                            });
-                            $scope.close = function() {
-                                $mi.dismiss();
-                            };
-                            $scope.ok = function() {
-                                $mi.close({
-                                    action: 'update',
-                                    data: $scope.round
+                                    data.obj[data.state] = data.value;
                                 });
-                            };
-                            $scope.remove = function() {
-                                $mi.close({
-                                    action: 'remove'
+                                $scope.close = function() { $mi.dismiss(); };
+                                $scope.ok = function() {
+                                    $mi.close({
+                                        action: 'update',
+                                        data: $scope.round
+                                    });
+                                };
+                                $scope.remove = function() {
+                                    $mi.close({
+                                        action: 'remove'
+                                    });
+                                };
+                                $scope.stop = function() {
+                                    $scope.round.state = '2';
+                                    $mi.close({
+                                        action: 'update',
+                                        data: $scope.round
+                                    });
+                                };
+                                $scope.start = function() {
+                                    $scope.round.state = '1';
+                                    $mi.close({
+                                        action: 'update',
+                                        data: $scope.round
+                                    });
+                                };
+                            }]
+                        }).result.then(function(rst) {
+                            var url = _RestURL;
+                            if (rst.action === 'update') {
+                                url += 'update?site=' + _siteId + '&mission=' + _missionId + '&rid=' + oRound.rid;
+                                http2.post(url, rst.data).then(function(rsp) {
+                                    if (_rounds.length > 1 && rst.data.state === '1') {
+                                        _rounds[1].state = '2';
+                                    }
+                                    angular.extend(oRound, rsp.data);
                                 });
-                            };
-                            $scope.stop = function() {
-                                $scope.round.state = '2';
-                                $mi.close({
-                                    action: 'update',
-                                    data: $scope.round
+                            } else if (rst.action === 'remove') {
+                                url += 'remove?site=' + _siteId + '&mission=' + _missionId + '&rid=' + oRound.rid;
+                                http2.get(url).then(function(rsp) {
+                                    _rounds.splice(_rounds.indexOf(round), 1);
+                                    _oPage.total--;
                                 });
-                            };
-                            $scope.start = function() {
-                                $scope.round.state = '1';
-                                $mi.close({
-                                    action: 'update',
-                                    data: $scope.round
-                                });
-                            };
-                        }]
-                    }).result.then(function(rst) {
-                        var url = _RestURL;
-                        if (rst.action === 'update') {
-                            url += 'update?site=' + _siteId + '&mission=' + _missionId + '&rid=' + round.rid;
-                            http2.post(url, rst.data).then(function(rsp) {
-                                if (_rounds.length > 1 && rst.data.state === '1') {
-                                    _rounds[1].state = '2';
-                                }
-                                angular.extend(round, rsp.data);
-                            });
-                        } else if (rst.action === 'remove') {
-                            url += 'remove?site=' + _siteId + '&mission=' + _missionId + '&rid=' + round.rid;
-                            http2.get(url).then(function(rsp) {
-                                _rounds.splice(_rounds.indexOf(round), 1);
-                                _oPage.total--;
-                            });
-                        }
+                            }
+                        });
                     });
                 }
             };

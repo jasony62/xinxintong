@@ -23,7 +23,6 @@
                 <div class="input-group">
                     <input class='form-control' title="{{mission.userApp.title}}" value="{{mission.userApp.title}}" readonly="">
                     <div class="input-group-btn">
-                        <a class='btn btn-default' href="/rest/pl/fe/matter/{{mission.userApp.type}}?site={{mission.siteid}}&id={{mission.userApp.id}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                         <button class="btn btn-default" ng-click="cancelUserApp()" ng-if="mission.userApp">
                             <span class='glyphicon glyphicon-remove'></span>
                         </button>

@@ -251,15 +251,6 @@ class topic extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oUser = $this->getUser($oApp);
-		if (empty($oUser->unionid)) {
-			$oResult = new \stdClass;
-			$oResult->topics = [];
-			$oResult->total = 0;
-
-			return new \ResponseData($oResult);
-		}
-
 		$q = [
 			'id,create_at,title,summary,rec_num,userid,group_id,nickname,share_in_group,is_public',
 			'xxt_enroll_topic',

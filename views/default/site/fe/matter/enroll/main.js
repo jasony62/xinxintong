@@ -495,13 +495,13 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
         /* 用户信息 */
         enlService.user().then(function(data) {
             $scope.user = data;
-        });
-        var eleLoading;
-        if (eleLoading = document.querySelector('.loading')) {
-            eleLoading.parentNode.removeChild(eleLoading);
-        }
-        $timeout(function() {
-            $scope.$broadcast('xxt.app.enroll.ready', params);
+            $timeout(function() {
+                $scope.$broadcast('xxt.app.enroll.ready', params);
+            });
+            var eleLoading;
+            if (eleLoading = document.querySelector('.loading')) {
+                eleLoading.parentNode.removeChild(eleLoading);
+            }
         });
     });
 }]);

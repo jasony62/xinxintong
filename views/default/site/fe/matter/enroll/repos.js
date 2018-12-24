@@ -569,7 +569,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         /* 作为可筛选的筛选项 */
         http2.get(LS.j('repos/criteriaGet', 'site', 'app')).then(function(rsp) {
             $scope.reposFilters = rsp.data;
-            $scope.multiFilters = rsp.data.slice(2);
+            $scope.multiFilters = rsp.data.length>2 ? rsp.data.slice(2) : [];
             angular.forEach(rsp.data, function(data, index) {
                 _oCriteria[data.type] = data.default.id;
                 if(index > 1) {

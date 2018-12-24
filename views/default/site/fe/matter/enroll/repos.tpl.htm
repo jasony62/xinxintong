@@ -112,7 +112,7 @@
                 <div id='filterQuick' ng-cloak>
                     <div tms-dropdown basic-data="reposFilters[0]" shift-menu="shiftMenu(criteria)"></div>
                     <div tms-dropdown basic-data="reposFilters[1]" shift-menu="shiftMenu(criteria)"></div>
-                    <div tms-filter basic-data="multiFilters" filter="{{filter}}" criteria="{{criteria}}" confirm="confirm(filterOpt)" class="pull-right"></div>
+                    <div tms-filter basic-data="multiFilters" filter="{{filter}}" criteria="{{criteria}}" confirm="confirm(filterOpt)" class='pull-right' ng-if="multiFilters.length"></div>
                 </div>
                 <!-- end: filterQuick -->
                 <div id='filterTip' class="hidden-xs" ng-if="filter.isFilter||filter.tags.length">

@@ -21,7 +21,7 @@ ngMod.directive('tmsDropdown', ['$templateCache', function($templateCache) {
                 scope.shiftMenu({"criteria": {"id": id, "type": scope.data.type}});
             };
             scope.$watch('data', function(data) {
-                if( !data ) { return; }
+                if (!data) { return; }
                 scope.checked = {
                     id: scope.data.default.id,
                     title: scope.data.default.title

@@ -278,9 +278,9 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
     /* 设置页面操作 */
     $scope.setPopAct = function(aNames, fromPage, oParamsByAct) {
         if (!fromPage || !aNames || aNames.length === 0) return;
-        if($scope.user2) {
+        if($scope.user) {
             var oEnlUser, oCustom;
-            if (oEnlUser = $scope.user2) {
+            if (oEnlUser = $scope.user) {
                 oCustom = $parse(fromPage + '.act')(oEnlUser.custom);
             }
             if (!oCustom) {
@@ -366,10 +366,10 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
     /* 设置弹出导航页 */
     $scope.setPopNav = function(aNames, fromPage, oUser) {
         if (!fromPage || !aNames || aNames.length === 0) return;
-        if($scope.user2) {
+        if($scope.user) {
             var oApp, oEnlUser, oCustom;
             oApp = $scope.app;
-            oEnlUser = $scope.user2;
+            oEnlUser = $scope.user;
             if (oEnlUser) {
                 oCustom = $parse(fromPage + '.nav')(oEnlUser.custom);
             }
@@ -461,7 +461,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
             oEntryRuleResult = params.entryRuleResult,
             oMission = params.mission,
             oPage = params.page,
-            oUser = params.user,
             schemasById = {};
 
         oApp.dynaDataSchemas.forEach(function(schema) {
@@ -473,7 +472,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
         $scope.mission = oMission;
         $scope.app = oApp;
         $scope.entryRuleResult = oEntryRuleResult;
-        $scope.user = oUser;
         if (oApp.use_site_header === 'Y' && oSite && oSite.header_page) {
             tmsDynaPage.loadCode(ngApp, oSite.header_page);
         }
@@ -496,7 +494,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
         }
         /* 用户信息 */
         enlService.user().then(function(data) {
-            $scope.user2 = data;
+            $scope.user = data;
         });
         /* 当前工作轮次 */
         http2.get(LS.j('round/getActive', 'app')).then(function(rsp) {

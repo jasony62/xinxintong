@@ -253,7 +253,11 @@ class topic extends base {
 
 		$oUser = $this->getUser($oApp);
 		if (empty($oUser->unionid)) {
-			return new \ResponseError('仅支持注册用户创建，请登录后再进行此操作');
+			$oResult = new \stdClass;
+			$oResult->topics = [];
+			$oResult->total = 0;
+
+			return new \ResponseData($oResult);
 		}
 
 		$q = [

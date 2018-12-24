@@ -1007,7 +1007,7 @@ class repos extends base {
 	 */
 	public function criteriaGet_action($app) {
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, ['fields' => 'id,siteid,state,data_schemas,entry_rule,action_rule,mission_id,sync_mission_round,assigned_nickname,round_cron', 'cascaded' => 'N']);
+		$oApp = $modelApp->byId($app, ['fields' => 'id,siteid,state,repos_config,data_schemas,entry_rule,action_rule,mission_id,sync_mission_round,assigned_nickname,round_cron', 'cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -1035,6 +1035,17 @@ class repos extends base {
 		}
 
 		foreach ($criterias as $key => $criteria) {
+			// 默认排序
+			if ($criteria->type === 'orderby') {
+				if (!empty($oApp->reposConfig->defaultOrder)) {
+					foreach ($criteria->menus as $i => $v) {
+						if ($v->id === $oApp->reposConfig->defaultOrder) {
+							$criteria->default = $criteria->menus[$i];
+							break;
+						}
+					}
+				}
+			}
 			//获取轮次 
 			if ($criteria->type === 'rid') {
 				$modelRun = $this->model('matter\enroll\round');

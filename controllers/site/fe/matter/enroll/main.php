@@ -338,12 +338,14 @@ class main extends base {
 			$oGrpApp = (object) ['id' => $assocGroupAppId];
 			$oGrpUsr = $modelGrpUsr->byUser($oGrpApp, $oUser->uid, ['fields' => 'is_leader,round_id,round_title,userid,nickname', 'onlyOne' => true]);
 			if ($oGrpUsr) {
-				$others = $modelGrpUsr->byRound($oGrpApp->id, $oGrpUsr->round_id, ['fields' => 'is_leader,userid,nickname']);
 				$params['groupUser'] = $oGrpUsr;
 				$params['groupOthers'] = [];
-				foreach ($others as $other) {
-					if ($other->userid !== $oGrpUsr->userid) {
-						$params['groupOthers'][] = $other;
+				if (!empty($oGrpUsr->round_id)) {
+					$others = $modelGrpUsr->byRound($oGrpApp->id, $oGrpUsr->round_id, ['fields' => 'is_leader,userid,nickname']);
+					foreach ($others as $other) {
+						if ($other->userid !== $oGrpUsr->userid) {
+							$params['groupOthers'][] = $other;
+						}
 					}
 				}
 			}

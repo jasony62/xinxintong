@@ -619,7 +619,7 @@ class repos extends base {
 					return $remarks;
 				};
 				//if ($remarkReposLikeNum) {
-				//	$q[2] .= " and (agreedin ('" . implode("','", $remarkReposAgreed) . "') or like_num>={$remarkReposLikeNum})";
+				//	$q[2] .= " and (agreed in ('" . implode("','", $remarkReposAgreed) . "') or like_num>={$remarkReposLikeNum})";
 				//} else {
 				//	$q[2] .= " and agreed in ('" . implode("','", $remarkReposAgreed) . "')";
 				//}
@@ -1001,5 +1001,190 @@ class repos extends base {
 		}
 
 		return new \ResponseData($oRecord);
+	}
+	/**
+	 * 获取活动共享页筛选条件
+	 */
+	public function criteriaGet_action($app) {
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, ['fields' => 'id,siteid,state,repos_config,data_schemas,entry_rule,action_rule,mission_id,sync_mission_round,assigned_nickname,round_cron', 'cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oUser = $this->getUser($oApp);
+
+		$oCriterias = $this->_originCriteriaGet();
+		$result = $this->_packCriteria($oApp, $oUser, $oCriterias);
+		if ($result[0] === false) {
+			return new \ParameterError($result[1]);
+		}
+		
+		$criterias = $result[1];
+		return new \ResponseData($criterias);
+	}
+	/**
+	 * 按当前用户角色过滤筛选条件
+	 */
+	private function _packCriteria($oApp, $oUser, $criterias) {
+		$varType = gettype($criterias);
+		if ($varType === 'object') {
+			$criterias = (array) $criterias;
+		} else if ($varType !== 'array') {
+			return [false, '参数格式错误！'];
+		}
+
+		foreach ($criterias as $key => $criteria) {
+			// 默认排序
+			if ($criteria->type === 'orderby') {
+				if (!empty($oApp->reposConfig->defaultOrder)) {
+					foreach ($criteria->menus as $i => $v) {
+						if ($v->id === $oApp->reposConfig->defaultOrder) {
+							$criteria->default = $criteria->menus[$i];
+							break;
+						}
+					}
+				}
+			}
+			//获取轮次 
+			if ($criteria->type === 'rid') {
+				$modelRun = $this->model('matter\enroll\round');
+				$options = [
+					'fields' => 'rid,title',
+					'state' => ['1', '2'],
+				];
+				$result = $modelRun->byApp($oApp, $options);
+				if (count($result->rounds) == 1) {
+					unset($criterias[$key]);
+				} else {
+					foreach ($result->rounds as $round) {
+						if ($round->rid === $result->active->rid) {
+							$criteria->menus[] = (object) ['id' => $round->rid, 'title' => '(当前填写轮次) ' . $round->title];
+						} else {
+							$criteria->menus[] = (object) ['id' => $round->rid, 'title' => $round->title];
+						}
+					}
+				}
+			}
+			// 如果有答案的题型才显示筛选答案的按钮
+			if ($criteria->type === 'coworkAgreed') {
+				$coworkState = false;
+				foreach ($oApp->dynaDataSchemas as $oSchema) {
+					if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
+						$coworkState = true;
+						break;
+					}
+				}
+				if (!$coworkState) {
+					unset($criterias[$key]);
+				}
+			}
+			// 获取分组
+			if ($criteria->type === 'userGroup') {
+				if (empty($oApp->entryRule->group->id)) {
+					unset($criterias[$key]);
+				} else {
+					$assocGroupAppId = $oApp->entryRule->group->id;
+					$modelGrpRnd = $this->model('matter\group\round');
+					$groups = $modelGrpRnd->byApp($assocGroupAppId, ['fields' => "round_id,title"]);
+					if (empty($groups)) {
+						unset($criterias[$key]);
+					} else {
+						foreach ($groups as $group) {
+							$criteria->menus[] = (object) ['id' => $group->round_id, 'title' => $group->title];
+						}
+					}
+				}
+			}
+			/* 
+			 *表态 当用户为编辑或者超级管理员或者有组时才会出现“接受”，“关闭” ，“讨论”，“未表态” ，否则只有推荐和不限两种
+			*/
+			if ($criteria->type === 'agreed') {
+				if (!empty($oUser->group_id) || (isset($oUser->is_leader) && $oUser->is_leader === 'S') || (isset($oUser->is_editor) && $oUser->is_editor === 'Y')) {
+					$criteria->menus[] = (object)['id' => 'A', 'title' => '接受'];
+					$criteria->menus[] = (object)['id' => 'D', 'title' => '讨论'];
+					$criteria->menus[] = (object)['id' => 'N', 'title' => '关闭'];
+				}
+			}
+			// 只有登录用户才会显示我的记录和我的收藏
+			if ($criteria->type === 'mine') {
+				if (empty($oUser->unionid)) {
+					unset($criterias[$key]);
+				}
+			}
+		}
+
+		$criterias = array_values($criterias);
+		return [true, $criterias];
+	}
+	/**
+	 * 获得所有条件
+	 */
+	private function _originCriteriaGet() {
+		$criterias = [];
+		// 排序
+		$orderby = new \stdClass;
+		$orderby->type = 'orderby';
+		$orderby->title = '排序';
+		$orderby->menus = [
+			(object)['id' => 'lastest_first', 'title' => '最近提交'],
+			(object)['id' => 'earliest_first', 'title' => '最早提交'],
+			(object)['id' => 'mostliked', 'title' => '最多赞同'],
+			(object)['id' => 'mostvoted', 'title' => '最多投票']
+		];
+		$orderby->default = $orderby->menus[0];
+		$criterias[] = $orderby;
+		// 协作
+		$coworkAgreed = new \stdClass;
+		$coworkAgreed->type = 'coworkAgreed';
+		$coworkAgreed->title = '协作';
+		$coworkAgreed->menus = [
+			(object)['id' => null, 'title' => '所有问题'],
+			(object)['id' => 'answer', 'title' => '已回答'],
+			(object)['id' => 'unanswer', 'title' => '等待回答']
+		];
+		$coworkAgreed->default = $coworkAgreed->menus[0];
+		$criterias[] = $coworkAgreed;
+		// 轮次
+		$round = new \stdClass;
+		$round->type = 'rid';
+		$round->title = '轮次';
+		$round->menus = [
+			(object)['id' => null, 'title' => '不限轮次']
+		];
+		$round->default = $round->menus[0];
+		$criterias[] = $round;
+		// 分组
+		$group = new \stdClass;
+		$group->type = 'userGroup';
+		$group->title = '分组';
+		$group->menus = [
+			(object)['id' => null, 'title' => '不限分组']
+		];
+		$group->default = $group->menus[0];
+		$criterias[] = $group;
+		// 表态
+		$agreed = new \stdClass;
+		$agreed->type = 'agreed';
+		$agreed->title = '表态';
+		$agreed->menus = [
+			(object)['id' => null, 'title' => '不限表态'],
+			(object)['id' => 'Y', 'title' => '推荐'],
+		];
+		$agreed->default = $agreed->menus[0];
+		$criterias[] = $agreed;
+		// 我的
+		$mine = new \stdClass;
+		$mine->type = 'mine';
+		$mine->title = '我的';
+		$mine->menus = [
+			(object)['id' => null, 'title' => '不限'],
+			(object)['id' => 'creator', 'title' => '我的记录'],
+			(object)['id' => 'favored', 'title' => '我的收藏'],
+		];
+		$mine->default = $mine->menus[0];
+		$criterias[] = $mine;
+
+		return $criterias;
 	}
 }

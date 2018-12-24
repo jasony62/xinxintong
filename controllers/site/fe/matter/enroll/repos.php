@@ -1115,63 +1115,63 @@ class repos extends base {
 		$orderby = new \stdClass;
 		$orderby->type = 'orderby';
 		$orderby->title = '排序';
-		$orderby->default = (object) ['id' => 'lastest_first', 'title' => '最近提交'];
 		$orderby->menus = [
 			(object)['id' => 'lastest_first', 'title' => '最近提交'],
 			(object)['id' => 'earliest_first', 'title' => '最早提交'],
 			(object)['id' => 'mostliked', 'title' => '最多赞同'],
 			(object)['id' => 'mostvoted', 'title' => '最多投票']
 		];
+		$orderby->default = $orderby->menus[0];
 		$criterias[] = $orderby;
 		// 协作
 		$coworkAgreed = new \stdClass;
 		$coworkAgreed->type = 'coworkAgreed';
 		$coworkAgreed->title = '协作';
-		$coworkAgreed->default = (object) ['id' => null, 'title' => '所有问题'];
 		$coworkAgreed->menus = [
 			(object)['id' => null, 'title' => '所有问题'],
 			(object)['id' => 'answer', 'title' => '已回答'],
 			(object)['id' => 'unanswer', 'title' => '等待回答']
 		];
+		$coworkAgreed->default = $coworkAgreed->menus[0];
 		$criterias[] = $coworkAgreed;
 		// 轮次
 		$round = new \stdClass;
 		$round->type = 'rid';
 		$round->title = '轮次';
-		$round->default = (object) ['id' => null, 'title' => '不限'];
 		$round->menus = [
-			(object)['id' => null, 'title' => '不限']
+			(object)['id' => null, 'title' => '不限轮次']
 		];
+		$round->default = $round->menus[0];
 		$criterias[] = $round;
 		// 分组
 		$group = new \stdClass;
 		$group->type = 'userGroup';
 		$group->title = '分组';
-		$group->default = (object) ['id' => null, 'title' => '不限'];
 		$group->menus = [
-			(object)['id' => null, 'title' => '不限']
+			(object)['id' => null, 'title' => '不限分组']
 		];
+		$group->default = $group->menus[0];
 		$criterias[] = $group;
 		// 表态
 		$agreed = new \stdClass;
 		$agreed->type = 'agreed';
 		$agreed->title = '表态';
-		$agreed->default = (object) ['id' => null, 'title' => '不限'];
 		$agreed->menus = [
-			(object)['id' => null, 'title' => '不限'],
+			(object)['id' => null, 'title' => '不限表态'],
 			(object)['id' => 'Y', 'title' => '推荐'],
 		];
+		$agreed->default = $agreed->menus[0];
 		$criterias[] = $agreed;
 		// 我的
 		$mine = new \stdClass;
 		$mine->type = 'mine';
 		$mine->title = '我的';
-		$mine->default = (object) ['id' => null, 'title' => '不限'];
 		$mine->menus = [
 			(object)['id' => null, 'title' => '不限'],
 			(object)['id' => 'creator', 'title' => '我的记录'],
 			(object)['id' => 'favored', 'title' => '我的收藏'],
 		];
+		$mine->default = $mine->menus[0];
 		$criterias[] = $mine;
 
 		return $criterias;

@@ -231,9 +231,6 @@ class main extends \site\fe\matter\base {
 	 * @param string $site
 	 */
 	private function _requireSnsOAuth($siteid, $callbackUrl = '') {
-		echo '22222';
-		echo "<br/>";
-		var_dump($this->who);die;
 		if ($this->userAgent() === 'wx') {
 			if (!isset($this->who->sns->wx)) {
 				$modelWx = $this->model('sns\wx');

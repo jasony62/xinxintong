@@ -62,9 +62,6 @@ class i extends TMS_CONTROLLER {
 		/* 被邀请的用户 */
 		$modelWay = $this->model('site\fe\way');
 		$oInvitee = $modelWay->who($oInvite->matter_siteid);
-		echo '111111111111111111111';
-		echo "<br/>";
-var_dump($oInvitee);
 		/* 如果当前用户已经被邀请过，就不再进行验证或记录日志 */
 		$modelInvLog = $this->model('invite\log');
 		$aInviteLogs = $modelInvLog->byUser($oMatter, $oInvitee->uid);
@@ -269,7 +266,7 @@ var_dump($oInvitee);
 		if (!empty($aAuth)) {
 			// 如果获得了用户的身份信息，更新保留的用户信息
 			$modelWay = $this->model('site\fe\way');
-			$this->who = $modelWay->who($siteid, $aAuth);
+			$this->who = $modelWay->who($siteid, $aAuth, false);
 		}
 
 		return true;
@@ -287,15 +284,14 @@ var_dump($oInvitee);
 	private function _requireSnsOAuth($siteid) {
 		$modelWay = $this->model('site\fe\way');
 		$user = $modelWay->who($siteid);
-		var_dump($user);
 		$userAgent = $this->userAgent();
-$userAgent = 'wx';
+
 		if ($userAgent === 'wx') {
 			if (!isset($user->sns->wx)) {
 				$modelWx = $this->model('sns\wx');
 				if (($wxConfig = $modelWx->bySite($siteid)) && $wxConfig->joined === 'Y') {
 					$this->_snsOAuth($wxConfig, 'wx');
-				} else if (($wxConfig = $modelWx->bySite('platform'))) {
+				} else if (($wxConfig = $modelWx->bySite('platform')) && $wxConfig->joined === 'Y') {
 					$this->_snsOAuth($wxConfig, 'wx');
 				}
 			}
@@ -327,11 +323,9 @@ $userAgent = 'wx';
 	 * $controller OAuth的回调地址
 	 * $state OAuth回调时携带的参数
 	 */
-	private function _snsOAuth(&$snsConfig, $snsName, $ruri = '') {
-		if (empty($ruri)) {
-			$ruri = APP_PROTOCOL . APP_HTTP_HOST . $_SERVER['REQUEST_URI'];
-		}
-var_dump($ruri);
+	private function _snsOAuth(&$snsConfig, $snsName) {
+		$ruri = APP_PROTOCOL . APP_HTTP_HOST . $_SERVER['REQUEST_URI'];
+
 		switch ($snsName) {
 		case 'qy':
 			$snsProxy = $this->model('sns\qy\proxy', $snsConfig);
@@ -353,7 +347,7 @@ var_dump($ruri);
 		if (isset($oauthUrl)) {
 			/* 通过cookie判断是否是后退进入 */
 			$this->mySetcookie("_{$snsConfig->siteid}_oauthpending", 'Y');
-			// $this->redirect($oauthUrl);
+			$this->redirect($oauthUrl);
 		}
 
 		return false;

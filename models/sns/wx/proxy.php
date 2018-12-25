@@ -244,22 +244,15 @@ class proxy_model extends \sns\proxybase {
 	 */
 	public function getOAuthUser($code) {
 		/* 获得用户的openid */
-		// $cmd = "https://api.weixin.qq.com/sns/oauth2/access_token";
-		// $params["appid"] = $this->config->appid;
-		// $params["secret"] = $this->config->appsecret;
-		// $params["code"] = $code;
-		// $params["grant_type"] = "authorization_code";
-		// $rst = $this->httpGet($cmd, $params, false, false);
-		// if ($rst[0] === false) {
-		// 	return $rst;
-		// }
-		$rst = [];
-		$rst[] = true;
-$rst2 = new \stdClass;
-// $rst2->openid = 'oDLjOwtZPJnXl_aN6lMHCUIOsB0s';
-$rst2->openid = 'aaaaaaly';
-$rst2->scope = '2222222';
-$rst[] = $rst2;
+		$cmd = "https://api.weixin.qq.com/sns/oauth2/access_token";
+		$params["appid"] = $this->config->appid;
+		$params["secret"] = $this->config->appsecret;
+		$params["code"] = $code;
+		$params["grant_type"] = "authorization_code";
+		$rst = $this->httpGet($cmd, $params, false, false);
+		if ($rst[0] === false) {
+			return $rst;
+		}
 		$openid = $rst[1]->openid;
 		/* 获得用户的其它信息 */
 		if (false !== strpos($rst[1]->scope, 'snsapi_userinfo')) {

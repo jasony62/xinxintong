@@ -62,7 +62,6 @@ class i extends TMS_CONTROLLER {
 		/* 被邀请的用户 */
 		$modelWay = $this->model('site\fe\way');
 		$oInvitee = $modelWay->who($oInvite->matter_siteid);
-
 		/* 如果当前用户已经被邀请过，就不再进行验证或记录日志 */
 		$modelInvLog = $this->model('invite\log');
 		$aInviteLogs = $modelInvLog->byUser($oMatter, $oInvitee->uid);
@@ -267,7 +266,7 @@ class i extends TMS_CONTROLLER {
 		if (!empty($aAuth)) {
 			// 如果获得了用户的身份信息，更新保留的用户信息
 			$modelWay = $this->model('site\fe\way');
-			$this->who = $modelWay->who($siteid, $aAuth);
+			$this->who = $modelWay->who($siteid, $aAuth, false);
 		}
 
 		return true;
@@ -324,10 +323,8 @@ class i extends TMS_CONTROLLER {
 	 * $controller OAuth的回调地址
 	 * $state OAuth回调时携带的参数
 	 */
-	private function _snsOAuth(&$snsConfig, $snsName, $ruri = '') {
-		if (empty($ruri)) {
-			$ruri = APP_PROTOCOL . APP_HTTP_HOST . $_SERVER['REQUEST_URI'];
-		}
+	private function _snsOAuth(&$snsConfig, $snsName) {
+		$ruri = APP_PROTOCOL . APP_HTTP_HOST . $_SERVER['REQUEST_URI'];
 
 		switch ($snsName) {
 		case 'qy':

@@ -46,10 +46,6 @@
                     <div class='category-title'>
                         目录
                         <button class='close' ng-if="isSmallLayout" ng-click="advCriteriaStatus.dirOpen=!advCriteriaStatus.dirOpen"><span>&times;</span></button>
-                        <div class='pull-right' ng-if="!isSmallLayout">
-                            <button class='btn btn-default btn-sm' ng-if="activeDir1.op.childrenDir.length&&!activeDir1.opened" trace-biz ng-click="dirLevel.showDir(activeDir1)">展开<i class='glyphicon glyphicon-chevron-right'></i></button>
-                            <button class='btn btn-default btn-sm' ng-if="activeDir1.op.childrenDir.length&&activeDir1.opened" trace-biz ng-click="dirLevel.hideDir(activeDir1)">收起<i class='glyphicon glyphicon-chevron-left'></i></button>
-                        </div>
                     </div>
                     <div class='category-body' ng-if="advCriteriaStatus.dirOpen">
                         <div class='category-item'>
@@ -102,8 +98,12 @@
                     </div>
                     <button class='btn btn-default btn-block' ng-if="advCriteriaStatus.dirOpen" ng-click="shiftDir()">清除选择</button>
                 </div>
-                <div class='text-center' ng-if="isSmallLayout">
-                    <button class='btn btn-default btn-sm' ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">关闭</button>
+                <div class='text-center'>
+                    <button class='btn btn-default btn-sm' ng-if="isSmallLayout" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">关闭</button>
+                    <div ng-if="!isSmallLayout">
+                        <button class='btn btn-default btn-sm' ng-if="activeDir1.op.childrenDir.length&&!activeDir1.opened" trace-biz ng-click="dirLevel.showDir(activeDir1)">展开<i class='glyphicon glyphicon-chevron-right'></i></button>
+                        <button class='btn btn-default btn-sm' ng-if="activeDir1.op.childrenDir.length&&activeDir1.opened" trace-biz ng-click="dirLevel.hideDir(activeDir1)">收起<i class='glyphicon glyphicon-chevron-left'></i></button>
+                    </div>
                 </div>
             </div>
             <div class='records col-xs-12' ng-class="{'col-md-9':dirSchemas.length,'col-md-12':dirSchemas.length===0}">

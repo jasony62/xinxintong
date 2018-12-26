@@ -40,7 +40,6 @@ class record extends main_base {
 	}
 	/**
 	 * 活动的记录
-	 *
 	 */
 	public function list_action($app, $page = 1, $size = 30) {
 		if (false === $this->accountUser()) {
@@ -93,7 +92,6 @@ class record extends main_base {
 	}
 	/**
 	 * 指定活动轮次的记录的数量
-	 *
 	 */
 	public function countByRound_action($round) {
 		if (false === $this->accountUser()) {
@@ -2376,6 +2374,22 @@ class record extends main_base {
 							$this->_syncNumberWithScore($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oDsAssignedRnd);
 						}
 						break;
+					case 'score_rank':
+						$dsSchemaIds = [];
+						foreach ($oDsApp->dataSchemas as $oDsSchema) {
+							if (in_array($oDsSchema->id, $oSchema->ds->schema)) {
+								if ($this->getDeepValue($oDsSchema, 'requireScore') === 'Y') {
+									$dsSchemaIds[] = $oDsSchema->id;
+								}
+							}
+							if (count($oSchema->ds->schema) === count($dsSchemaIds)) {
+								break;
+							}
+						}
+						if (count($dsSchemaIds)) {
+							$this->_syncNumberWithScoreRank($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oDsAssignedRnd);
+						}
+						break;
 					case 'option':
 						$dsSchemas = [];
 						foreach ($oDsApp->dataSchemas as $oDsSchema) {
@@ -2529,6 +2543,46 @@ class record extends main_base {
 			$oRecUser = new \stdClass;
 			$q = [
 				'sum(score)',
+				'xxt_enroll_record_data',
+				['aid' => $oDsApp->id, 'state' => 1, 'schema_id' => $dsSchemaIds],
+			];
+			/* 限制数据源的轮次 */
+			if (!empty($oDsAssignedRnd->rid)) {
+				$q[2]['rid'] = $oDsAssignedRnd->rid;
+			}
+			foreach ($userRecords as $oUserRec) {
+				$oRecUser->uid = $oUserRec->userid;
+				$oRecUser->group_id = $oUserRec->group_id;
+				$oRecData = empty($oUserRec->data) ? new \stdClass : json_decode($oUserRec->data);
+				$q[2]['userid'] = $oUserRec->userid;
+				$score = $modelRec->query_val_ss($q);
+				$oRecData->{$oSchema->id} = $score;
+				$modelRec->setData($oRecUser, $oApp, $oUserRec->enroll_key, $oRecData);
+			}
+		}
+
+		return count($userRecords);
+	}
+	/**
+	 * 从题目指定的数据源中同步题目
+	 * 题目的数据
+	 */
+	private function _syncNumberWithScoreRank($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oAssignedRnd) {
+		$modelRec = $this->model('matter\enroll\record');
+		$q = [
+			'id,enroll_key,data,userid,group_id',
+			'xxt_enroll_record',
+			['aid' => $oApp->id, 'state' => 1],
+		];
+		/* 限制汇总数据的轮次 */
+		if (!empty($oAssignedRnd->rid)) {
+			$q[2]['rid'] = $oAssignedRnd;
+		}
+		$userRecords = $modelRec->query_objs_ss($q);
+		if (count($userRecords)) {
+			$oRecUser = new \stdClass;
+			$q = [
+				'sum(score_rank)',
 				'xxt_enroll_record_data',
 				['aid' => $oDsApp->id, 'state' => 1, 'schema_id' => $dsSchemaIds],
 			];

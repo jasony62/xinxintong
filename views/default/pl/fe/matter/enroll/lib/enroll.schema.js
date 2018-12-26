@@ -1024,6 +1024,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                             var FnValidSchemas, _oPage, _oFilter, _oResult;
                             FnValidSchemas = {
                                 score: function(oSchema2) { return oSchema2.requireScore === 'Y'; },
+                                score_rank: function(oSchema2) { return oSchema2.requireScore === 'Y'; },
                                 input: function(oSchema2) { return 'shorttext' === oSchema2.type && oSchema2.format === 'number'; },
                                 option: function(oSchema2) { return /single|multiple/.test(oSchema2.type) && oSchema2.dsOps; }
                             };

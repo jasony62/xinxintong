@@ -109,7 +109,11 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var oEditor;
         _oApp = params.app;
-        _oUser = params.user;
+/*        _oUser = params.user;*/
+        /* 用户信息 */
+        enlService.user().then(function(data) {
+            _oUser = data;
+        });
         if (_oApp.actionRule && _oApp.actionRule.role && _oApp.actionRule.role.editor) {
             if (_oApp.actionRule.role.editor.group && _oApp.actionRule.role.editor.nickname) {
                 oEditor = _oApp.actionRule.role.editor;

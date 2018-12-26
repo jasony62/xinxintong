@@ -7,7 +7,7 @@ ngMod.directive('tmsFilter', ['$templateCache', '$timeout', function($templateCa
         replace: true,
         template: require('./tms-filter.html'),
         scope: {
-            source: '=',
+            datas: '=basicData',
             filter: '@',
             criteria: '@',
             confirm: '&'
@@ -17,8 +17,8 @@ ngMod.directive('tmsFilter', ['$templateCache', '$timeout', function($templateCa
             scope.status = { isopen: false };
             scope.appendToEle = scope.$parent.appendToEle;
             scope.selected = function(data, menu) {
-                _oFiltered[data.type] = menu.value == null ? null : menu;
-                _oCriteriad[data.type] = menu.value;
+                _oFiltered[data.type] = menu.id == null ? null : menu;
+                _oCriteriad[data.type] = menu.id;
             }
             scope.ok = function(filterOpt) {
                 scope.status.isopen = !scope.status.isopen;
@@ -41,13 +41,13 @@ ngMod.directive('tmsFilter', ['$templateCache', '$timeout', function($templateCa
             };
             scope.clear = function() {
                 angular.forEach(scope.datas, function(data) {
-                    _oFiltered[data.type] = data.default.value;
-                    _oCriteriad[data.type] = data.default.value;
+                    _oFiltered[data.type] = data.default.id;
+                    _oCriteriad[data.type] = data.default.id;
                 });
             };
-            scope.$watch('source', function(source) {
-                if(!source) { return false; }
-                scope.datas = source;
+            scope.$watch('datas', function(datas) {
+                if(!datas) { return false; }
+                scope.datas = datas;
             });
             scope.$watch('filter', function(filter) {
                 if(!filter) { return false; }

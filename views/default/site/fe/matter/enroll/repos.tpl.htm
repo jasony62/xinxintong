@@ -42,36 +42,48 @@
         </div>
         <div class='row'>
             <div id='advCriteria' class='col-md-3' ng-if="advCriteriaStatus.opened&&dirSchemas.length" ng-cloak>
-                <div class="category">
-                    <div class="category-title">
+                <div class='category'>
+                    <div class='category-title'>
                         目录
-                        <button class="close" ng-if="isSmallLayout" ng-click="advCriteriaStatus.dirOpen=!advCriteriaStatus.dirOpen"><span>&times;</span></button>
-                        <div class="pull-right" ng-if="!isSmallLayout">
-                            <span class="glyphicon glyphicon-indent-right" ng-if="activeDir1.op.childrenDir.length&&activeDir1.opened" trace-biz ng-click="dirLevel.hideDir(activeDir1)"></span>
-                            <span class="glyphicon glyphicon-indent-left" ng-if="activeDir1.op.childrenDir.length&&!activeDir1.opened" trace-biz ng-click="dirLevel.showDir(activeDir1)"></span>
+                        <button class='close' ng-if="isSmallLayout" ng-click="advCriteriaStatus.dirOpen=!advCriteriaStatus.dirOpen"><span>&times;</span></button>
+                        <div class='pull-right' ng-if="!isSmallLayout">
+                            <button class='btn btn-default btn-sm' ng-if="activeDir1.op.childrenDir.length&&!activeDir1.opened" trace-biz ng-click="dirLevel.showDir(activeDir1)">展开<i class='glyphicon glyphicon-chevron-right'></i></button>
+                            <button class='btn btn-default btn-sm' ng-if="activeDir1.op.childrenDir.length&&activeDir1.opened" trace-biz ng-click="dirLevel.hideDir(activeDir1)">收起<i class='glyphicon glyphicon-chevron-left'></i></button>
                         </div>
                     </div>
-                    <div class="category-body" ng-if="advCriteriaStatus.dirOpen">
-                        <div class="category-item">
-                            <div class="item-inner">
+                    <div class='category-body' ng-if="advCriteriaStatus.dirOpen">
+                        <div class='category-item'>
+                            <div class='item-inner'>
                                 <div class='dir-level-1' ng-repeat="dir1 in dirSchemas">
-                                    <div class='dir' ng-click="shiftDir(dir1, 1)" ng-class="{active:dir1==activeDir1}">{{dir1.op.l}}<i class="icon-indicator" ng-class="{true:'glyphicon glyphicon-chevron-down', false:'glyphicon glyphicon-chevron-right'}[isSmallLayout]" ng-if="dir1.op.childrenDir.length"></i></div>
-                                    <div ng-if="dir1.op.childrenDir.length" class="childrenDir" ng-show="dir1.opened&&dir1==activeDir1">
-                                        <div class="item-inner">
+                                    <div class='dir' ng-click="shiftDir(dir1, 1)" ng-class="{active:dir1==activeDir1}" >
+                                        <span class='dir-title' title="{{dir1.op.l}}">{{dir1.op.l}}</span>
+                                        <i class='icon-indicator' ng-class="{true:'glyphicon glyphicon-chevron-down', false:'glyphicon glyphicon-chevron-right'}[isSmallLayout]" ng-if="dir1.op.childrenDir.length"></i>
+                                    </div>
+                                    <div class='childrenDir' ng-if="dir1.op.childrenDir.length" ng-show="dir1.opened&&dir1==activeDir1">
+                                        <div class='item-inner'>
                                             <div class='dir-level-2' ng-repeat="dir2 in dir1.op.childrenDir">
-                                                <div class='dir' ng-click="shiftDir(dir2, 2)" ng-class="{active:dir2===activeDir2}">{{dir2.op.l}}<i class="icon-indicator" ng-class="{true:'glyphicon glyphicon-chevron-down', false:'glyphicon glyphicon-chevron-right'}[isSmallLayout]" ng-if="dir2.op.childrenDir.length"></i></div>
-                                                <div ng-if="dir2.op.childrenDir.length" class="childrenDir" ng-show="dir2==activeDir2">
-                                                    <div class="item-inner">
+                                                <div class='dir' ng-class="{active:dir2===activeDir2}" ng-click="shiftDir(dir2, 2)">
+                                                    <span class='dir-title' title="{{dir2.op.l}}">{{dir2.op.l}}</span>
+                                                    <i class='icon-indicator' ng-class="{true:'glyphicon glyphicon-chevron-down', false:'glyphicon glyphicon-chevron-right'}[isSmallLayout]" ng-if="dir2.op.childrenDir.length"></i>
+                                                </div>
+                                                <div class='childrenDir' ng-if="dir2.op.childrenDir.length" ng-show="dir2==activeDir2">
+                                                    <div class='item-inner'>
                                                         <div class='dir-level-3' ng-repeat="dir3 in dir2.op.childrenDir">
-                                                            <div class='dir' ng-click="shiftDir(dir3, 3)" ng-class="{active:dir3===activeDir3}">{{dir3.op.l}}<i class="icon-indicator" ng-class="{true:'glyphicon glyphicon-chevron-down', false:'glyphicon glyphicon-chevron-right'}[isSmallLayout]" ng-if="dir3.op.childrenDir.length"></i></div>
-                                                            <div ng-if="dir3.op.childrenDir.length" class="childrenDir" ng-show="dir3==activeDir3">
-                                                                <div class="item-inner">
-                                                                    <div class="dir-level-4" ng-repeat="dir4 in dir3.op.childrenDir">
-                                                                        <div class="dir" ng-click="shiftDir(dir4, 4)" ng-class="{active:dir4==activeDir4}">{{dir4.op.l}}<i class="icon-indicator" ng-class="{true:'glyphicon glyphicon-chevron-down', false:'glyphicon glyphicon-chevron-right'}[isSmallLayout]" ng-if="dir4.op.childrenDir.length"></i></div>
-                                                                        <div ng-if="dir4.op.childrenDir.length" class="childrenDir" ng-show="dir4==activeDir4">
-                                                                            <div class="item-inner">
-                                                                                <div class="dir-level-5" ng-repeat="dir5 in dir4.op.childrenDir">
-                                                                                    <div class="dir" ng-click="shiftDir(dir5, 5)" ng-class="{active:dir5==activeDir5}">{{dir5.op.l}}</div>
+                                                            <div class='dir' ng-click="shiftDir(dir3, 3)" ng-class="{active:dir3===activeDir3}">
+                                                                <span class='dir-title' title="{{dir3.op.l}}">{{dir3.op.l}}</span>
+                                                                <i class='icon-indicator' ng-class="{true:'glyphicon glyphicon-chevron-down', false:'glyphicon glyphicon-chevron-right'}[isSmallLayout]" ng-if="dir3.op.childrenDir.length"></i>
+                                                            </div>
+                                                            <div class='childrenDir' ng-if="dir3.op.childrenDir.length" ng-show="dir3==activeDir3">
+                                                                <div class='item-inner'>
+                                                                    <div class='dir-level-4' ng-repeat="dir4 in dir3.op.childrenDir">
+                                                                        <div class='dir' ng-class="{active:dir4==activeDir4}" ng-click="shiftDir(dir4, 4)">
+                                                                            <span class='dir-title' title="{{dir4.op.l}}">{{dir4.op.l}}</span>
+                                                                            <i class='icon-indicator' ng-class="{true:'glyphicon glyphicon-chevron-down', false:'glyphicon glyphicon-chevron-right'}[isSmallLayout]" ng-if="dir4.op.childrenDir.length"></i>
+                                                                        </div>
+                                                                        <div class='childrenDir' ng-if="dir4.op.childrenDir.length" ng-show="dir4==activeDir4">
+                                                                            <div class='item-inner'>
+                                                                                <div class='dir-level-5' ng-repeat="dir5 in dir4.op.childrenDir">
+                                                                                    <div class='dir' ng-class="{active:dir5==activeDir5}" ng-click="shiftDir(dir5, 5)">{{dir5.op.l}}</div>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -90,7 +102,7 @@
                     </div>
                     <button class='btn btn-default btn-block' ng-if="advCriteriaStatus.dirOpen" ng-click="shiftDir()">清除选择</button>
                 </div>
-                <div class='text-center'>
+                <div class='text-center' ng-if="isSmallLayout">
                     <button class='btn btn-default btn-sm' ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">关闭</button>
                 </div>
             </div>
@@ -102,6 +114,7 @@
                             <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';recordList(1)"><span class='glyphicon glyphicon-remove'></span></button>
                             <button class='btn btn-default' ng-click="recordList(1)"><span class='glyphicon glyphicon-search'></span></button>
                             <button class='btn btn-default' ng-click="addRecord($event)"><span class="glyphicon glyphicon-plus"></span> 记录</button>
+                            <button ng-if="topics.length" class='btn btn-default' ng-click="showTopics($event)">专题</button>
                             <button id='advCriteriaSwitch' ng-if="dirSchemas.length" class="btn btn-default visible-xs-inline-block" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">
                                 <span class='glyphicon glyphicon-th-list' ng-class="{'opened':advCriteriaStatus.opened}"></span> 目录
                             </button>
@@ -109,15 +122,15 @@
                     </div>
                 </div>
                 <div id='filterQuick' ng-cloak>
-                    <div tms-dropdown data="dropData[0]" shift-menu="shiftMenu(criteria)"></div>
-                    <div tms-dropdown data="dropData[1]" shift-menu="shiftMenu(criteria)"></div>
-                    <div tms-filter source="filterData" filter="{{filter}}" criteria="{{criteria}}" confirm="confirm(filterOpt)" class="pull-right"></div>
+                    <div tms-dropdown basic-data="reposFilters[0]" shift-menu="shiftMenu(criteria)"></div>
+                    <div tms-dropdown basic-data="reposFilters[1]" shift-menu="shiftMenu(criteria)"></div>
+                    <div tms-filter basic-data="multiFilters" filter="{{filter}}" criteria="{{criteria}}" confirm="confirm(filterOpt)" class='pull-right' ng-if="multiFilters.length"></div>
                 </div>
                 <!-- end: filterQuick -->
                 <div id='filterTip' class="hidden-xs" ng-if="filter.isFilter||filter.tags.length">
-                    <div class="bg-info small" ng-repeat="data in filterData" ng-if="criteria[data.type]!==null">
-                        <span ng-repeat="menu in data.menus" ng-if="criteria[data.type]==menu.value" ng-bind="menu.title"></span>
-                        <button class="close" trace-biz ng-click="shiftTip(data.type)"><span>&times;</span></button>
+                    <div class="bg-info small" ng-repeat="multifilter in multiFilters" ng-if="criteria[multifilter.type]!==null">
+                        <span ng-repeat="menu in multifilter.menus" ng-if="criteria[multifilter.type]==menu.id" ng-bind="menu.title"></span>
+                        <button class="close" trace-biz ng-click="shiftTip(multifilter.type)"><span>&times;</span></button>
                     </div>
                     <div class="bg-info small" ng-repeat="tag in filter.tags">
                         <span ng-bind="tag.label"></span>
@@ -132,7 +145,7 @@
                                 <div class='nickname text-muted'>{{rec.nickname||'隐藏'}}</div>
                                 <button ng-if="rec.favored" class="btn btn-default btn-xs" ng-click="favorRecord(rec)">已收藏</button>
                                 <div ng-if="!rec._canAgree&&rec.agreed&&rec.agreed!=='A'">
-                                    <button ng-if="rec.agreed==='D'&&(rec.userid===user.uid||user.is_leader==='S'||user.is_editor==='Y'||(user.is_leader==='Y'&&(rec.userid===groupUser.userid||groupOthers[rec.userid])))" class="btn btn-danger btn-xs">讨论</button>
+                                    <button ng-if="rec.agreed==='D'&&(rec.userid===user.uid||user.is_leader==='S'||user.is_editor==='Y'||(user.is_leader==='Y'&&(rec.userid===user.uid||groupOthers[rec.userid])))" class="btn btn-danger btn-xs">讨论</button>
                                     <button ng-if="rec.agreed==='Y'" class="btn btn-success btn-xs">推荐</button>
                                     <button ng-if="rec.agreed==='N'" class="btn btn-danger btn-xs">关闭</button>
                                 </div>

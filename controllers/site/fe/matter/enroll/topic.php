@@ -175,7 +175,8 @@ class topic extends base {
 				$aUpdated[$prop] = $modelTop->escape($val);
 				break;
 			case 'share_in_group':
-				$aUpdated['share_in_group'] = in_array($val, ['Y', 'N']) ? $val : 'N';
+			case 'is_public':
+				$aUpdated[$prop] = in_array($val, ['Y', 'N']) ? $val : 'N';
 				break;
 			}
 		}
@@ -223,7 +224,7 @@ class topic extends base {
 		}
 		$w .= ")";
 		$q = [
-			'id,create_at,title,summary,rec_num,userid,group_id,nickname,share_in_group',
+			'id,create_at,title,summary,rec_num,userid,group_id,nickname,share_in_group,is_public',
 			'xxt_enroll_topic',
 			$w,
 		];
@@ -234,6 +235,30 @@ class topic extends base {
 				$oTopic->nickname = '我';
 			}
 		}
+		$oResult = new \stdClass;
+		$oResult->topics = $topics;
+		$oResult->total = count($topics);
+
+		return new \ResponseData($oResult);
+	}
+	/**
+	 * 公共专题列表
+	 */
+	public function listPublic_action($app) {
+		$modelEnl = $this->model('matter\enroll');
+		$oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$q = [
+			'id,create_at,title,summary,rec_num,userid,group_id,nickname,share_in_group,is_public',
+			'xxt_enroll_topic',
+			['state' => 1, 'aid' => $oApp->id, 'is_public' => 'Y'],
+		];
+		$q2 = ['o' => 'create_at desc'];
+		$topics = $modelEnl->query_objs_ss($q, $q2);
+
 		$oResult = new \stdClass;
 		$oResult->topics = $topics;
 		$oResult->total = count($topics);

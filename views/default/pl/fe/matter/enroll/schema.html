@@ -106,8 +106,10 @@
                     <button class='btn btn-sm btn-default' ng-if="'html'===schema.type" ng-click="makePagelet(schema)"><span class='glyphicon glyphicon-pencil'> 编辑</span></button>
                     <button class="btn btn-default btn-sm" ng-if="['single','multiple','score'].indexOf(schema.type)!==-1" ng-click="addOption(schema)">添加选项</button>
                     <button class="btn btn-default btn-sm" ng-click="copySchema(schema)">复制题目</button>
+                    <button class='btn navbar-btn btn-default' title='移动到顶部' ng-click="upSchema(schema,true)"><span class='glyphicon glyphicon-open'></span></button>
                     <button class='btn btn-sm btn-default' ng-click="upSchema(schema)"><span class='glyphicon glyphicon-arrow-up'></span></button>
                     <button class='btn btn-sm btn-default' ng-click="downSchema(schema)"><span class='glyphicon glyphicon-arrow-down'></span></button>
+                    <button class='btn navbar-btn btn-default' title='移动到底部' ng-click="downSchema(schema,true)"><span class='glyphicon glyphicon-save'></span></button>
                     <button class='btn btn-sm btn-default' ng-click="removeSchema(schema)"><span class='glyphicon glyphicon-trash'></span></button>
                     <button ng-if="schema.id==='_round_id'" class='btn btn-sm btn-default' ng-click="refreshSchema(schema)">刷新 <span class='glyphicon glyphicon-refresh'></span></button>
                 </div>
@@ -151,6 +153,7 @@
             <button class='btn navbar-btn btn-default' uib-popover-template="'schemaProto.html'" popover-placement="top-left" popover-trigger="show" popover-title="" ng-click="showSchemaProto($event)">添加</button>
             <button class="btn navbar-btn btn-default" ng-if="['single','multiple','score'].indexOf(activeSchema.type)!==-1 " ng-click="addOption(activeSchema) ">添加选项</button>
             <button class="btn navbar-btn btn-default" ng-click="copySchema(activeSchema)">复制</button>
+            <button class='btn navbar-btn btn-default' title='移动到顶部' ng-click="upSchema(activeSchema,true)"><span class='glyphicon glyphicon-open'></span></button>
             <button class='btn navbar-btn btn-default' ng-click="upSchema(activeSchema)"><span class='glyphicon glyphicon-arrow-up'></span></button>
             <button class='btn navbar-btn btn-default' ng-click="downSchema(activeSchema)"><span class='glyphicon glyphicon-arrow-down'></span></button>
             <button class='btn navbar-btn btn-default' ng-click="removeSchema(activeSchema)"><span class='glyphicon glyphicon-trash'></span></button>

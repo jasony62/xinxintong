@@ -8,7 +8,7 @@ namespace matter\enroll;
 class formula {
 
 	// 正则表达式，用于将表达式字符串，解析为单独的运算符和操作项
-	const PATTERN_EXP = '/((?:[a-zA-Z0-9_]+)|(?:[\(\)\+\-\*\/])){1}/';
+	const PATTERN_EXP = '/((?:[\.a-zA-Z0-9_]+)|(?:[\(\)\+\-\*\/])){1}/';
 	const EXP_PRIORITIES = ['+' => 1, '-' => 1, '*' => 2, '/' => 2, "(" => 0, ")" => 0];
 
 	/**

@@ -281,7 +281,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     $scope.dirLevel = {
         active: function(oDir, level) {
             if (oDir) {
-                oDir.opened = true;
+                oDir.opened = oDir.op.childrenDir && oDir.op.childrenDir.length? true : false;
                 switch (level) {
                     case 1:
                         $scope.activeDir1 = oDir;

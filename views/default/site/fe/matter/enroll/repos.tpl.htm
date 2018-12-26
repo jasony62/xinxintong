@@ -96,14 +96,16 @@
                             </div>
                         </div>
                     </div>
-                    <button class='btn btn-default btn-block' ng-if="advCriteriaStatus.dirOpen" ng-click="shiftDir()">清除选择</button>
+                    <div class="text-center">
+                        <button class='btn btn-default' ng-class="{true:'btn-block',false:'btn-sm'}[isSmallLayout]" ng-if="advCriteriaStatus.dirOpen" ng-click="shiftDir()">清除选择</button>
+                        <div ng-if="!isSmallLayout" ng-class="{'notClick':!activeDir1.op.childrenDir.length}" style="display:inline-block">
+                            <button class='btn btn-default btn-sm' ng-if="!activeDir1.opened" trace-biz ng-click="dirLevel.showDir(activeDir1)">展开<i class='glyphicon glyphicon-chevron-right'></i></button>
+                            <button class='btn btn-default btn-sm' ng-if="activeDir1.opened" trace-biz ng-click="dirLevel.hideDir(activeDir1)">收起<i class='glyphicon glyphicon-chevron-left'></i></button>
+                        </div>
+                    </div>
                 </div>
                 <div class='text-center'>
                     <button class='btn btn-default btn-sm' ng-if="isSmallLayout" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">关闭</button>
-                    <div ng-if="!isSmallLayout">
-                        <button class='btn btn-default btn-sm' ng-if="activeDir1.op.childrenDir.length&&!activeDir1.opened" trace-biz ng-click="dirLevel.showDir(activeDir1)">展开<i class='glyphicon glyphicon-chevron-right'></i></button>
-                        <button class='btn btn-default btn-sm' ng-if="activeDir1.op.childrenDir.length&&activeDir1.opened" trace-biz ng-click="dirLevel.hideDir(activeDir1)">收起<i class='glyphicon glyphicon-chevron-left'></i></button>
-                    </div>
                 </div>
             </div>
             <div class='records col-xs-12' ng-class="{'col-md-9':dirSchemas.length,'col-md-12':dirSchemas.length===0}">

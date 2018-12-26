@@ -1,5 +1,5 @@
 <?php
-require_once dirname(__FILE__) . 'site/base.php';
+require_once dirname(__FILE__) . '/site/base.php';
 /**
  * 用户邀请
  */
@@ -215,15 +215,6 @@ class i extends \site\base {
 		}
 
 		return $rst;
-	}
-	/**
-	 *
-	 */
-	protected function outputError($err, $title = '程序错误') {
-		TPL::assign('title', $title);
-		TPL::assign('body', $err);
-		TPL::output('error');
-		exit;
 	}
 	/**
 	 * 检查是否当前的请求是OAuth后返回的请求

@@ -7,7 +7,7 @@ class way_model extends \TMS_MODEL {
 	/**
 	 * 返回当前用户的访客账号信息
 	 */
-	public function who($siteId, $aSnsAuth = [], $snsSetCookie = true) {
+	public function who($siteId, $aSnsAuth = []) {
 		$modified = false;
 		/* cookie中缓存的用户信息 */
 		$oCookieUser = $this->getCookieUser($siteId);
@@ -66,10 +66,6 @@ class way_model extends \TMS_MODEL {
 		}
 		/* 将用户信息保存在cookie中 */
 		if ($modified) {
-			// 是否需要将sns信息缓存到cookie中
-			if (!$snsSetCookie && isset($oCookieUser->sns)) {
-				unset($oCookieUser->sns);
-			}
 			$this->setCookieUser($siteId, $oCookieUser);
 		}
 

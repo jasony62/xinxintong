@@ -266,7 +266,9 @@ class i extends TMS_CONTROLLER {
 		if (!empty($aAuth)) {
 			// 如果获得了用户的身份信息，更新保留的用户信息
 			$modelWay = $this->model('site\fe\way');
-			$this->who = $modelWay->who($siteid, $aAuth, false);
+			$oCookieUser = $modelWay->who($siteid, $aAuth);
+			unset($oCookieUser->sns);
+			$modelWay->setCookieUser($siteid, $oCookieUser);
 		}
 
 		return true;

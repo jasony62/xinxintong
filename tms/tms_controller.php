@@ -287,23 +287,4 @@ class TMS_CONTROLLER {
 		}
 		return true;
 	}
-	/**
-	 * 客户端应用名称
-	 */
-	protected function &userAgent() {
-		if (isset($_SERVER['HTTP_USER_AGENT'])) {
-			$user_agent = $_SERVER['HTTP_USER_AGENT'];
-			if (preg_match('/yixin/i', $user_agent)) {
-				$ca = 'yx';
-			} elseif (preg_match('/MicroMessenger/i', $user_agent)) {
-				$ca = 'wx';
-			} else {
-				$ca = false;
-			}
-		} else {
-			$ca = false;
-		}
-
-		return $ca;
-	}
 }

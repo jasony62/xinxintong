@@ -1,8 +1,9 @@
 <?php
+require_once dirname(__FILE__) . 'site/base.php';
 /**
  * 用户邀请
  */
-class i extends TMS_CONTROLLER {
+class i extends \site\base {
 	/**
 	 *
 	 */

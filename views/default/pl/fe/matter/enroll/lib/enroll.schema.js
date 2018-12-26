@@ -420,7 +420,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                 var dataSchemas;
                                 $scope2.dataSchemas = [];
                                 oResult.schemas = [];
-                                if (angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
+                                if (oResult.fromApp && angular.isString(oResult.fromApp.data_schemas) && oResult.fromApp.data_schemas) {
                                     dataSchemas = JSON.parse(oResult.fromApp.data_schemas);
                                     if (oResult.make === 'copy') {
                                         $scope2.dataSchemas = dataSchemas;

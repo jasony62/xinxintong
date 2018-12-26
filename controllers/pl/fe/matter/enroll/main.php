@@ -106,17 +106,21 @@ class main extends main_base {
 	 * @param string $onlySns 是否仅查询进入规则为仅限关注用户访问的活动列表
 	 */
 	public function list_action($site = null, $mission = null, $page = 1, $size = 30, $scenario = null, $onlySns = 'N', $platform = 'N') {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === ($oOperatotr = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$oFilter = $this->getPostJson();
+
 		$modelApp = $this->model('matter\enroll');
 		$q = [
 			"e.*",
 			'xxt_enroll e',
-			"state<>0 and exists(select 1 from xxt_site_admin sa where sa.siteid=e.siteid and uid='{$oUser->id}')",
+			"state<>0",
 		];
+		/* 控制访问权限 */
+		$q[2] .= " and (exists(select 1 from xxt_site_admin sa where sa.siteid=e.siteid and uid='{$oOperatotr->id}') or exists(select 1 from xxt_mission_acl a where a.mission_id=e.mission_id and a.coworker='{$oOperatotr->id}' and a.state=1 and coworker_role='C' and a.last_invite='Y'))";
+
 		if (!empty($mission)) {
 			$q[2] .= " and mission_id=" . $mission;
 		} else if ($platform === 'Y') {
@@ -139,16 +143,17 @@ class main extends main_base {
 			}
 		}
 		if (isset($oFilter->byStar) && $oFilter->byStar === 'Y') {
-			$q[2] .= " and exists(select 1 from xxt_account_topmatter t where t.matter_type='enroll' and t.matter_id=e.id and userid='{$oUser->id}')";
+			$q[2] .= " and exists(select 1 from xxt_account_topmatter t where t.matter_type='enroll' and t.matter_id=e.id and userid='{$oOperatotr->id}')";
 		}
 
 		$q2['o'] = 'e.modify_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
 
-		$result = ['apps' => null, 'total' => 0];
+		$aResult = ['apps' => null, 'total' => 0];
 
-		if ($apps = $modelApp->query_objs_ss($q, $q2)) {
+		$apps = $modelApp->query_objs_ss($q, $q2);
+		if (count($apps)) {
 			foreach ($apps as $oApp) {
 				$oApp->type = 'enroll';
 				$oApp->url = $modelApp->getEntryUrl($oApp->siteid, $oApp->id);
@@ -157,21 +162,20 @@ class main extends main_base {
 				$qStar = [
 					'id',
 					'xxt_account_topmatter',
-					['matter_id' => $oApp->id, 'matter_type' => 'enroll', 'userid' => $oUser->id],
+					['matter_id' => $oApp->id, 'matter_type' => 'enroll', 'userid' => $oOperatotr->id],
 				];
 				if ($oStar = $modelApp->query_obj_ss($qStar)) {
 					$oApp->star = $oStar->id;
 				}
 			}
-			$result['apps'] = $apps;
-		}
-		if (!empty($apps) || $page != 1) {
-			$q[0] = 'count(*)';
-			$total = (int) $modelApp->query_val_ss($q);
-			$result['total'] = $total;
+			$aResult['apps'] = $apps;
 		}
 
-		return new \ResponseData($result);
+		$q[0] = 'count(*)';
+		$total = (int) $modelApp->query_val_ss($q);
+		$aResult['total'] = $total;
+
+		return new \ResponseData($aResult);
 	}
 	/**
 	 *

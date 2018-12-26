@@ -4,7 +4,7 @@ namespace matter\enroll;
 require_once dirname(__FILE__) . '/entity.php';
 
 /**
- * 登记的数据项
+ * 数据项
  */
 class data_model extends entity_model {
 	/**
@@ -596,6 +596,34 @@ class data_model extends entity_model {
 		}
 
 		return $oRecordScore;
+	}
+	/**
+	 * 更新得分数据排名
+	 */
+	public function setScoreRank($oApp, $oSchema, $rid) {
+		$q = [
+			'id,score',
+			'xxt_enroll_record_data',
+			['aid' => $oApp->id, 'rid' => $rid, 'schema_id' => $oSchema->id, 'state' => 1],
+		];
+		$q2['o'] = 'score desc,submit_at asc';
+		$items = $this->query_objs_ss($q, $q2);
+		if (count($items)) {
+			$oItem = $items[0];
+			$rank = 1;
+			$this->update('xxt_enroll_record_data', ['score_rank' => $rank], ['id' => $oItem->id]);
+			$lastScore = $oItem->score;
+			for ($i = 1, $l = count($items); $i < $l; $i++) {
+				$oItem = $items[$i];
+				if ($oItem->score < $lastScore) {
+					$rank = $i + 1;
+				}
+				$this->update('xxt_enroll_record_data', ['score_rank' => $rank], ['id' => $oItem->id]);
+				$lastScore = $oItem->score;
+			}
+		}
+
+		return count($items);
 	}
 	/**
 	 * 获得指定登记记录登记数据的详细信息

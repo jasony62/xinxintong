@@ -183,6 +183,20 @@ class record_model extends record_base {
 		return [true, $oSumRec, $oSumRnd];
 	}
 	/**
+	 * 更新得分数据排名
+	 */
+	public function setScoreRank($oApp, $rid) {
+		$aScoreSchemas = $this->model('matter\enroll\schema')->asAssoc($oApp->dynaDataSchemas, ['filter' => function ($oSchema) {return $this->getDeepValue($oSchema, 'requireScore') === 'Y';}]);
+		if (count($aScoreSchemas)) {
+			$modelRecDat = $this->model('matter\enroll\data')->setOnlyWriteDbConn(true);
+			foreach ($aScoreSchemas as $oSchema) {
+				$modelRecDat->setScoreRank($oApp, $oSchema, $rid);
+			}
+		}
+
+		return count($aScoreSchemas);
+	}
+	/**
 	 * 保存记录的数据
 	 *
 	 * @param object $oUser [uid]

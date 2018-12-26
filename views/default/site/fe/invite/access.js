@@ -12,8 +12,9 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsSnsShare', function($scope,
         });
     };
     http2.get('/rest/site/fe/user/get').then(function(rsp) {
-        var oUser, unameType;
+        var oUser, unameType, inviteCode;
         $scope.loginUser = oUser = rsp.data;
+        inviteCode = location.search.match(/inviteCode=([^&]*)/)[1];
         if (oUser.unionid && oUser.uname) {
             if (/^1(3[0-9]|4[57]|5[0-35-9]|7[0135678]|8[0-9])\d{8}$/.test(oUser.uname)) {
                 unameType = 'mobile';
@@ -21,7 +22,7 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsSnsShare', function($scope,
                 unameType = 'email';
             }
         }
-        http2.get('/rest/site/fe/invite/get' + location.search).then(function(rsp) {
+        http2.get('/rest/site/fe/invite/get?inviteCode=' + inviteCode).then(function(rsp) {
             var oInvite = rsp.data;
             $scope.invite = oInvite;
             /* 设置分享 */

@@ -2344,7 +2344,7 @@ class record extends main_base {
 
 					switch ($oSchema->ds->type) {
 					case 'act':
-						$this->_syncNumberWithAct($oApp, $oSchema, $oDsApp, $oSchema->ds->schema, $oDsAssignedRnd);
+						$this->_syncNumberWithAct($oApp, $oSchema, $oDsApp, $oSchema->ds->schema, $oAssignedRnd, $oDsAssignedRnd);
 						break;
 					case 'input':
 						$dsSchemaIds = [];
@@ -2359,7 +2359,7 @@ class record extends main_base {
 							}
 						}
 						if (count($dsSchemaIds)) {
-							$this->_syncNumberWithInput($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oDsAssignedRnd);
+							$this->_syncNumberWithInput($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oAssignedRnd, $oDsAssignedRnd);
 						}
 						break;
 					case 'score':
@@ -2375,7 +2375,7 @@ class record extends main_base {
 							}
 						}
 						if (count($dsSchemaIds)) {
-							$this->_syncNumberWithScore($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oDsAssignedRnd);
+							$this->_syncNumberWithScore($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oAssignedRnd, $oDsAssignedRnd);
 						}
 						break;
 					case 'score_rank':

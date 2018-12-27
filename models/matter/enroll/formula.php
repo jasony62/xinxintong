@@ -6,11 +6,12 @@ namespace matter\enroll;
  * 将用户输入的表达式转为逆波兰表达式计算
  */
 class formula {
-
-	// 正则表达式，用于将表达式字符串，解析为单独的运算符和操作项
-	const PATTERN_EXP = '/((?:[a-zA-Z0-9_]+)|(?:[\(\)\+\-\*\/])){1}/';
+	/**
+	 * 正则表达式，用于将表达式字符串，解析为单独的运算符和操作项
+	 * (?:pattern)是非捕获型括号  匹配pattern，但不捕获匹配结果。让匹配结果仍然是完整的表达式。
+	 */
+	const PATTERN_EXP = '/(?:[a-zA-Z_]+|(?:\d+(?:\.\d+)?)|[\(\)\+\-\*\/]){1}/';
 	const EXP_PRIORITIES = ['+' => 1, '-' => 1, '*' => 2, '/' => 2, "(" => 0, ")" => 0];
-
 	/**
 	 *
 	 * @param string $exp-普通表达式，例如 a+b*(c+d)
@@ -19,22 +20,18 @@ class formula {
 	public static function calculate($exp, $exp_values) {
 		$exp_arr = self::parse_exp($exp); //将表达式字符串解析为列表
 		if (!is_array($exp_arr)) {
-			return NULL;
+			return null;
 		}
 		$output_queue = self::nifix2rpn($exp_arr);
-
 		return self::calculate_value($output_queue, $exp_values);
 	}
 
-	//将字符串中每个操作项和预算符都解析出来
+	//将字符串中每个操作项和运算符都解析出来
 	public static function parse_exp($exp) {
 		$match = [];
 		preg_match_all(self::PATTERN_EXP, $exp, $match);
-		if ($match) {
-			return $match[0];
-		} else {
-			return NULL;
-		}
+
+		return $match ? $match[0] : null;
 	}
 
 	//将中缀表达式转为后缀表达式
@@ -98,13 +95,14 @@ class formula {
 				array_push($res_stack, $res);
 			} else {
 				if (is_numeric($out)) {
-					array_push($res_stack, intval($out));
+					array_push($res_stack, floatval($out));
 				} else {
 					array_push($res_stack, $exp_values[$out]);
 				}
 			}
 		}
-		return count($res_stack) == 1 ? $res_stack[0] : NULL;
+
+		return count($res_stack) == 1 ? $res_stack[0] : null;
 	}
 	/**
 	 * 计算公式中内置函数的值并替换

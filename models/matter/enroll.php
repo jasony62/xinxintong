@@ -104,19 +104,25 @@ class enroll_model extends enroll_base {
 			if (isset($oApp->siteid) && isset($oApp->id)) {
 				$oApp->entryUrl = $this->getEntryUrl($oApp->siteid, $oApp->id);
 			}
-			if ($fields === '*' || false !== strpos($fields, 'entry_rule')) {
-				if (empty($oApp->entry_rule)) {
-					$oApp->entryRule = new \stdClass;
-				} else {
-					$oApp->entryRule = json_decode($oApp->entry_rule);
+
+			/* 数组类型 */
+			foreach (['vote_config', 'score_config', 'answer_config', 'transmit_config', 'recycle_schemas'] as $uscProp) {
+				if (property_exists($oApp, $uscProp)) {
+					$ccProp = preg_replace_callback('/(_(\w))/', function ($matches) {return strtoupper($matches[2]);}, $uscProp);
+					$oApp->{$ccProp} = empty($oApp->{$uscProp}) ? [] : json_decode($oApp->{$uscProp});
+					unset($oApp->{$uscProp});
 				}
-				unset($oApp->entry_rule);
 			}
-			if (property_exists($oApp, 'action_rule')) {
-				$oApp->actionRule = empty($oApp->action_rule) ? new \stdClass : json_decode($oApp->action_rule);
-				unset($oApp->action_rule);
+			/* 对象类型 */
+			foreach (['entry_rule', 'action_rule', 'scenario_config', 'notify_config', 'rp_config', 'repos_config', 'rank_config', 'absent_cause', 'assigned_nickname'] as $uscProp) {
+				if (property_exists($oApp, $uscProp)) {
+					$ccProp = preg_replace_callback('/(_(\w))/', function ($matches) {return strtoupper($matches[2]);}, $uscProp);
+					$oApp->{$ccProp} = empty($oApp->{$uscProp}) ? new \stdClass : json_decode($oApp->{$uscProp});
+					unset($oApp->{$uscProp});
+				}
 			}
-			if ($fields === '*' || false !== strpos($fields, 'data_schemas')) {
+
+			if (property_exists($oApp, 'data_schemas')) {
 				if (!empty($oApp->data_schemas)) {
 					$oApp->dataSchemas = json_decode($oApp->data_schemas);
 					if ($oApp->dataSchemas === null) {
@@ -138,54 +144,7 @@ class enroll_model extends enroll_base {
 				unset($oApp->data_schemas);
 			}
 
-			if ($fields === '*' || false !== strpos($fields, 'recycle_schemas')) {
-				if (!empty($oApp->recycle_schemas)) {
-					$oApp->recycleSchemas = json_decode($oApp->recycle_schemas);
-				} else {
-					$oApp->recycleSchemas = [];
-				}
-				unset($oApp->recycle_schemas);
-			}
-			if ($fields === '*' || false !== strpos($fields, 'assigned_nickname')) {
-				if (!empty($oApp->assigned_nickname)) {
-					$oApp->assignedNickname = json_decode($oApp->assigned_nickname);
-				} else {
-					$oApp->assignedNickname = new \stdClass;
-				}
-			}
-			if ($fields === '*' || false !== strpos($fields, 'scenario_config')) {
-				if (!empty($oApp->scenario_config)) {
-					$oApp->scenarioConfig = json_decode($oApp->scenario_config);
-				} else {
-					$oApp->scenarioConfig = new \stdClass;
-				}
-				unset($oApp->scenario_config);
-			}
-			if ($fields === '*' || false !== strpos($fields, 'vote_config')) {
-				if (!empty($oApp->vote_config)) {
-					$oApp->voteConfig = json_decode($oApp->vote_config);
-				} else {
-					$oApp->voteConfig = [];
-				}
-				unset($oApp->vote_config);
-			}
-			if ($fields === '*' || false !== strpos($fields, 'score_config')) {
-				if (!empty($oApp->score_config)) {
-					$oApp->scoreConfig = json_decode($oApp->score_config);
-				} else {
-					$oApp->scoreConfig = [];
-				}
-				unset($oApp->score_config);
-			}
-			if ($fields === '*' || false !== strpos($fields, 'transmit_config')) {
-				if (!empty($oApp->transmit_config)) {
-					$oApp->transmitConfig = json_decode($oApp->transmit_config);
-				} else {
-					$oApp->transmitConfig = [];
-				}
-				unset($oApp->transmit_config);
-			}
-			if ($fields === '*' || false !== strpos($fields, 'round_cron')) {
+			if (property_exists($oApp, 'round_cron')) {
 				if (!empty($oApp->round_cron)) {
 					$oApp->roundCron = json_decode($oApp->round_cron);
 					$modelRnd = $this->model('matter\enroll\round');
@@ -198,45 +157,7 @@ class enroll_model extends enroll_base {
 				}
 				unset($oApp->round_cron);
 			}
-			if ($fields === '*' || false !== strpos($fields, 'notify_config')) {
-				if (!empty($oApp->notify_config)) {
-					$oApp->notifyConfig = json_decode($oApp->notify_config);
-				} else {
-					$oApp->notifyConfig = new \stdClass;
-				}
-				unset($oApp->notify_config);
-			}
-			if ($fields === '*' || false !== strpos($fields, 'rp_config')) {
-				if (!empty($oApp->rp_config)) {
-					$oApp->rpConfig = json_decode($oApp->rp_config);
-				} else {
-					$oApp->rpConfig = new \stdClass;
-				}
-				unset($oApp->rp_config);
-			}
-			if ($fields === '*' || false !== strpos($fields, 'repos_config')) {
-				if (!empty($oApp->repos_config)) {
-					$oApp->reposConfig = json_decode($oApp->repos_config);
-				} else {
-					$oApp->reposConfig = new \stdClass;
-				}
-				unset($oApp->repos_config);
-			}
-			if ($fields === '*' || false !== strpos($fields, 'rank_config')) {
-				if (!empty($oApp->rank_config)) {
-					$oApp->rankConfig = json_decode($oApp->rank_config);
-				} else {
-					$oApp->rankConfig = new \stdClass;
-				}
-				unset($oApp->rank_config);
-			}
-			if ($fields === '*' || false !== strpos($fields, 'absent_cause')) {
-				if (!empty($oApp->absent_cause)) {
-					$oApp->absent_cause = json_decode($oApp->absent_cause);
-				} else {
-					$oApp->absent_cause = new \stdClass;
-				}
-			}
+
 			if (!empty($oApp->matter_mg_tag)) {
 				$oApp->matter_mg_tag = json_decode($oApp->matter_mg_tag);
 			}

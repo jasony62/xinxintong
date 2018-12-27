@@ -62,14 +62,14 @@ class record_model extends record_base {
 		/* 移除用户未签到的原因 */
 		if (!empty($oUser->uid)) {
 			$rid = !empty($aNewRec['rid']) ? $aNewRec['rid'] : 'ALL';
-			if (isset($oApp->absent_cause->{$oUser->uid}) && isset($oApp->absent_cause->{$oUser->uid}->{$rid})) {
-				$aNewRec['comment'] = $this->escape($oApp->absent_cause->{$oUser->uid}->{$rid});
-				unset($oApp->absent_cause->{$oUser->uid}->{$rid});
-				if (count(get_object_vars($oApp->absent_cause->{$oUser->uid})) == 0) {
-					unset($oApp->absent_cause->{$oUser->uid});
+			if (isset($oApp->absentCause->{$oUser->uid}) && isset($oApp->absentCause->{$oUser->uid}->{$rid})) {
+				$aNewRec['comment'] = $this->escape($oApp->absentCause->{$oUser->uid}->{$rid});
+				unset($oApp->absentCause->{$oUser->uid}->{$rid});
+				if (count(get_object_vars($oApp->absentCause->{$oUser->uid})) == 0) {
+					unset($oApp->absentCause->{$oUser->uid});
 				}
 				/* 更新原未签到记录 */
-				$newAbsentCause = $this->escape($this->toJson($oApp->absent_cause));
+				$newAbsentCause = $this->escape($this->toJson($oApp->absentCause));
 				$this->update(
 					'xxt_enroll',
 					['absent_cause' => $newAbsentCause],

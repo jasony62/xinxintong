@@ -471,21 +471,104 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         opened: !$scope.isSmallLayout,
         dirOpen: false
     };
+    function getScrollTop() {
+        var scrollTop = 0;
+        if (document.documentElement && document.documentElement.scrollTop) {
+            scrollTop = document.documentElement.scrollTop;
+        } else if (document.body) {
+            scrollTop = document.body.scrollTop;
+        }
+        return scrollTop;
+    }
+
+    function addToCache() {
+        sessionStorage.setItem('listStorageY', getScrollTop());
+        var cacheData = {
+            'reposFilters': $scope.reposFilters,
+            'tasks': $scope.tasks,
+            'repos': $scope.repos,
+            'currentFilter': _oFilter,
+            'currentCriteria': _oCriteria,
+            'rounds': $scope.rounds,
+            'topics': $scope.topics
+        }
+        sessionStorage.setItem('listStorage', JSON.stringify(cacheData));
+    };
+    $scope.remarkRecord = function(oRecord) {
+        addToCache();
+        var url;
+        url = LS.j('', 'site', 'app');
+        url += '&ek=' + oRecord.enroll_key;
+        url += '&page=cowork#remarks';
+        location.href = url;
+    };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        var tasks;
         _oApp = params.app;
-        /* 活动任务 */
-        var tasks, popActs;
-        if (_oApp.actionRule) {
-            /* 设置活动任务提示 */
-            http2.get(LS.j('event/task', 'site', 'app')).then(function(rsp) {
-                if (rsp.data && rsp.data.length) {
-                    rsp.data.forEach(function(oRule) {
-                        if (!oRule._ok) {
-                            tasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, gap: oRule._no ? oRule._no[0] : 0, coin: oRule.coin ? oRule.coin : 0 });
-                        }
-                    });
+        if(window.sessionStorage.length) {
+            var cacheData = JSON.parse(window.sessionStorage.listStorage);
+            $scope.tasks = cacheData.tasks;
+            $scope.reposFilters = cacheData.reposFilters;
+            $scope.multiFilters = cacheData.reposFilters.length > 2 ? cacheData.reposFilters.slice(2) : [];
+            $scope.repos = cacheData.repos;
+            $scope.filter = cacheData.currentFilter;
+            $scope.criteria = cacheData.currentCriteria;
+            $scope.rounds = cacheData.rounds;
+            $scope.topics = cacheData.topics;
+            $timeout(function() {
+                document.body.scrollTop = document.documentElement.scrollTop = parseInt(sessionStorage.listStorageY);
+                window.sessionStorage.clear();
+            });
+        } else {
+            if (_oApp.actionRule) {
+                /* 设置活动任务提示 */
+                http2.get(LS.j('event/task', 'site', 'app')).then(function(rsp) {
+                    if (rsp.data && rsp.data.length) {
+                        rsp.data.forEach(function(oRule) {
+                            if (!oRule._ok) {
+                                tasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, gap: oRule._no ? oRule._no[0] : 0, coin: oRule.coin ? oRule.coin : 0 });
+                            }
+                        });
+                    }
+                });
+            }
+            http2.get(LS.j('task/list', 'site', 'app')).then(function(rsp) {
+                _oTasks = rsp.data;
+                if (rsp.data.vote) {
+                    tasks.push({ type: 'info', msg: '有投票任务', id: 'record.data.vote' });
+                    popActs.push('voteRecData');
+                }
+                if (rsp.data.score) {
+                    tasks.push({ type: 'info', msg: '有打分任务', id: 'record.data.score' });
+                    popActs.push('scoreSchema');
                 }
             });
+            $scope.tasks = tasks = [];
+            $scope.facRound = _facRound = new enlRound(_oApp);
+            _facRound.list().then(function(result) {
+                $scope.rounds = result.rounds;
+            });
+            /* 共享专题 */
+            http2.get(LS.j('topic/listPublic', 'site', 'app')).then(function(rsp) {
+                if (rsp.data && rsp.data.topics) {
+                    $scope.topics = rsp.data.topics;
+                }
+            });
+            /* 作为可筛选的筛选项 */
+            http2.get(LS.j('repos/criteriaGet', 'site', 'app')).then(function(rsp) {
+                $scope.reposFilters = rsp.data;
+                $scope.multiFilters = rsp.data.length > 2 ? rsp.data.slice(2) : [];
+                angular.forEach(rsp.data, function(data, index) {
+                    _oCriteria[data.type] = data.default.id;
+                    if (index > 1) {
+                        _oFilter[data.type] = data.default.id;
+                    }
+                });
+                $scope.recordList(1);
+            });
+        }
+        /* 活动任务 */
+        if (_oApp.actionRule) {
             /* 开启协作填写需要的点赞数 */
             if (_oApp.actionRule.record && _oApp.actionRule.record.cowork && _oApp.actionRule.record.cowork.pre) {
                 if (_oApp.actionRule.record.cowork.pre.record && _oApp.actionRule.record.cowork.pre.record.likeNum !== undefined) {
@@ -493,25 +576,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                 }
             }
         }
-        http2.get(LS.j('task/list', 'site', 'app')).then(function(rsp) {
-            _oTasks = rsp.data;
-            if (rsp.data.vote) {
-                tasks.push({ type: 'info', msg: '有投票任务', id: 'record.data.vote' });
-                popActs.push('voteRecData');
-            }
-            if (rsp.data.score) {
-                tasks.push({ type: 'info', msg: '有打分任务', id: 'record.data.score' });
-                popActs.push('scoreSchema');
-            }
-        });
-        $scope.tasks = tasks = [];
         _oApp.dynaDataSchemas.forEach(function(oSchema) {
             if (oSchema.shareable && oSchema.shareable === 'Y')
                 _oShareableSchemas[oSchema.id] = oSchema;
-        });
-        $scope.facRound = _facRound = new enlRound(_oApp);
-        _facRound.list().then(function(result) {
-            $scope.rounds = result.rounds;
         });
         if (_oApp.reposConfig && _oApp.reposConfig.defaultOrder) {
             _oCriteria.orderby = _oApp.reposConfig.defaultOrder;
@@ -535,17 +602,10 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                 });
             }
         });
-        /* 共享专题 */
-        http2.get(LS.j('topic/listPublic', 'site', 'app')).then(function(rsp) {
-            if (rsp.data && rsp.data.topics) {
-                $scope.topics = rsp.data.topics;
-            }
-        });
         /* 设置页面分享信息 */
         $scope.setSnsShare(null, null, { target_type: 'repos', target_id: _oApp.id });
         /* 设置页面操作 */
-        popActs = ['addRecord', 'mocker'];
-        $scope.setPopAct(popActs, 'repos', {
+        $scope.setPopAct(['addRecord', 'mocker'], 'repos', {
             func: {
                 voteRecData: $scope.voteRecData,
                 scoreSchema: $scope.scoreSchema,
@@ -559,24 +619,12 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         enlService.user().then(function(data) {
             $scope.user = _oUser = data;
             var groupOthersById = {};
-            if (_oUser.groupOthers && _oUser.groupOthers.length) {
-                _oUser.groupOthers.forEach(function(oOther) {
+            if (data.groupOthers && data.groupOthers.length) {
+                data.groupOthers.forEach(function(oOther) {
                     groupOthersById[oOther.userid] = oOther;
                 });
             }
             $scope.groupOthers = groupOthersById;
-        });
-        /* 作为可筛选的筛选项 */
-        http2.get(LS.j('repos/criteriaGet', 'site', 'app')).then(function(rsp) {
-            $scope.reposFilters = rsp.data;
-            $scope.multiFilters = rsp.data.length>2 ? rsp.data.slice(2) : [];
-            angular.forEach(rsp.data, function(data, index) {
-                _oCriteria[data.type] = data.default.id;
-                if(index > 1) {
-                    _oFilter[data.type] = data.default.id;
-                }
-            });
-            $scope.recordList(1);
         });
         $scope.$watch('mocker', function(nv, ov) {
             if (nv && nv !== ov) {

@@ -41,9 +41,11 @@ provider('srvSite', function() {
             update: function(prop) {
                 var oUpdated = {},
                     defer = $q.defer();
-                oUpdated[prop] = _oSite[prop];
-                http2.post('/rest/pl/fe/site/update?site=' + _siteId, oUpdated).then(function(rsp) {
-                    defer.resolve(_oSite);
+                this.get().then(function(oSite) {
+                    oUpdated[prop] = oSite[prop];
+                    http2.post('/rest/pl/fe/site/update?site=' + _siteId, oUpdated).then(function(rsp) {
+                        defer.resolve(oSite);
+                    });
                 });
                 return defer.promise;
             },

@@ -159,6 +159,11 @@ class task extends base {
 		$aRunnings = [];
 		foreach ($aAnswerSchemas as $oAnswerSchema) {
 			if ($this->getDeepValue($oAnswerSchema, 'answer.state') === 'IP') {
+				if (isset($oAnswerSchema->answer->groups) && is_array($oAnswerSchema->answer->groups)) {
+					if (false === tms_array_search($oAnswerSchema->answer->groups, function ($oRule) use ($oUser) {return $oRule->do === $this->getDeepValue($oUser, 'group_id');})) {
+						continue;
+					}
+				}
 				$aRunnings[$oAnswerSchema->id] = $oAnswerSchema;
 			}
 		}

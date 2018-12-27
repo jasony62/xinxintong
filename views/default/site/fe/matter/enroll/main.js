@@ -280,7 +280,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
         if (!fromPage || !aNames || aNames.length === 0) return;
         if($scope.user) {
             var oEnlUser, oCustom;
-            if (oEnlUser = $scope.user) {
+            if (oEnlUser = $scope.user.enrollUser) {
                 oCustom = $parse(fromPage + '.act')(oEnlUser.custom);
             }
             if (!oCustom) {
@@ -291,10 +291,9 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
                 custom: oCustom
             };
             $scope.$watch('popAct.custom', function(nv, ov) {
-                var oCustom;
+                var oCustom = oEnlUser.custom;
                 if (nv !== ov) {
-                    oCustom = {};
-                    oCustom[fromPage] = { act: $scope.popAct.custom };
+                    oCustom[fromPage].act = $scope.popAct.custom;
                     http2.post(LS.j('user/updateCustom', 'site', 'app'), oCustom).then(function(rsp) {});
                 }
             }, true);
@@ -369,7 +368,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
         if($scope.user) {
             var oApp, oEnlUser, oCustom;
             oApp = $scope.app;
-            oEnlUser = $scope.user;
+            oEnlUser = $scope.user.enrollUser;
             if (oEnlUser) {
                 oCustom = $parse(fromPage + '.nav')(oEnlUser.custom);
             }
@@ -382,10 +381,9 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
                 custom: oCustom
             };
             $scope.$watch('popNav.custom', function(nv, ov) {
-                var oCustom;
+                var oCustom = oEnlUser.custom;
                 if (nv !== ov) {
-                    oCustom = {};
-                    oCustom[fromPage] = { nav: $scope.popNav.custom };
+                    oCustom[fromPage].nav = $scope.popNav.custom;
                     http2.post(LS.j('user/updateCustom', 'site', 'app'), oCustom).then(function(rsp) {});
                 }
             }, true);

@@ -282,7 +282,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     $scope.dirLevel = {
         active: function(oDir, level) {
             if (oDir) {
-                oDir.opened = true;
+                oDir.opened = oDir.op.childrenDir && oDir.op.childrenDir.length? true : false;
                 switch (level) {
                     case 1:
                         $scope.activeDir1 = oDir;
@@ -513,13 +513,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             if (oSchema.shareable && oSchema.shareable === 'Y')
                 _oShareableSchemas[oSchema.id] = oSchema;
         });
-        var groupOthersById = {};
-        if (params.groupOthers && params.groupOthers.length) {
-            params.groupOthers.forEach(function(oOther) {
-                groupOthersById[oOther.userid] = oOther;
-            });
-        }
-        $scope.groupOthers = groupOthersById;
         $scope.facRound = _facRound = new enlRound(_oApp);
         _facRound.list().then(function(result) {
             $scope.rounds = result.rounds;
@@ -569,6 +562,13 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         /* 用户信息 */
         enlService.user().then(function(data) {
             $scope.user = _oUser = data;
+            var groupOthersById = {};
+            if (_oUser.groupOthers && _oUser.groupOthers.length) {
+                _oUser.groupOthers.forEach(function(oOther) {
+                    groupOthersById[oOther.userid] = oOther;
+                });
+            }
+            $scope.groupOthers = groupOthersById;
         });
         /* 作为可筛选的筛选项 */
         http2.get(LS.j('repos/criteriaGet', 'site', 'app')).then(function(rsp) {

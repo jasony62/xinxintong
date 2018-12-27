@@ -154,20 +154,20 @@ class task extends base {
 			return false;
 		}
 
-		$aQuestionSchemas = $this->model('matter\enroll\schema')->getCanQuestion($oApp);
-		if (empty($aQuestionSchemas)) {
+		$aQuestionRules = $this->model('matter\enroll\schema')->getCanQuestion($oApp);
+		if (empty($aQuestionRules)) {
 			return false;
 		}
 
 		$aRunnings = [];
-		foreach ($aQuestionSchemas as $oQuestionSchema) {
-			if ($this->getDeepValue($oQuestionSchema, 'answer.state') === 'IP') {
-				if (isset($oQuestionSchema->answer->groups) && is_array($oQuestionSchema->answer->groups)) {
-					if (false === tms_array_search($oQuestionSchema->answer->groups, function ($oRule) use ($oUser) {return $oRule->do === $this->getDeepValue($oUser, 'group_id');})) {
+		foreach ($aQuestionRules as $oQuestionRule) {
+			if ($this->getDeepValue($oQuestionRule, 'state') === 'IP') {
+				if (isset($oQuestionRule->groups) && is_array($oQuestionRule->groups)) {
+					if (false === tms_array_search($oQuestionRule->groups, function ($oRule) use ($oUser) {return $oRule->do === $this->getDeepValue($oUser, 'group_id');})) {
 						continue;
 					}
 				}
-				$aRunnings[$oQuestionSchema->id] = $oQuestionSchema;
+				$aRunnings[$oQuestionRule->id] = $oQuestionRule;
 			}
 		}
 		if (empty($aRunnings)) {
@@ -175,8 +175,8 @@ class task extends base {
 		}
 
 		$oTask = new \stdClass;
-		$oTask->name = 'answer';
-		$oTask->schemas = $aRunnings;
+		$oTask->name = 'question';
+		$oTask->rules = $aRunnings;
 
 		return $oTask;
 	}

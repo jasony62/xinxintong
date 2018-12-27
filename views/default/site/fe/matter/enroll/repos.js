@@ -496,6 +496,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         }
         http2.get(LS.j('task/list', 'site', 'app')).then(function(rsp) {
             _oTasks = rsp.data;
+            if (rsp.data.question) {
+                tasks.push({ type: 'info', msg: '有提问任务', id: 'record.data.question' });
+            }
             if (rsp.data.answer) {
                 tasks.push({ type: 'info', msg: '有回答任务', id: 'record.data.answer' });
             }

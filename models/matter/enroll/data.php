@@ -599,31 +599,46 @@ class data_model extends entity_model {
 	}
 	/**
 	 * 更新得分数据排名
+	 * 如果有对应的汇总轮次，更新汇总轮次的排名
 	 */
 	public function setScoreRank($oApp, $oSchema, $rid) {
-		$q = [
-			'id,score',
-			'xxt_enroll_record_data',
-			['aid' => $oApp->id, 'rid' => $rid, 'schema_id' => $oSchema->id, 'state' => 1],
-		];
-		$q2['o'] = 'score desc,submit_at asc';
-		$items = $this->query_objs_ss($q, $q2);
-		if (count($items)) {
-			$oItem = $items[0];
-			$rank = 1;
-			$this->update('xxt_enroll_record_data', ['score_rank' => $rank], ['id' => $oItem->id]);
-			$lastScore = $oItem->score;
-			for ($i = 1, $l = count($items); $i < $l; $i++) {
-				$oItem = $items[$i];
-				if ($oItem->score < $lastScore) {
-					$rank = $i + 1;
-				}
+		/* 更新指定轮次的数据 */
+		$fnRankByRound = function ($assignedRid) use ($oApp, $oSchema) {
+			$q = [
+				'id,score',
+				'xxt_enroll_record_data',
+				['aid' => $oApp->id, 'rid' => $assignedRid, 'schema_id' => $oSchema->id, 'state' => 1],
+			];
+			$q2['o'] = 'score desc,submit_at asc';
+			$items = $this->query_objs_ss($q, $q2);
+			if (count($items)) {
+				$oItem = $items[0];
+				$rank = 1;
 				$this->update('xxt_enroll_record_data', ['score_rank' => $rank], ['id' => $oItem->id]);
 				$lastScore = $oItem->score;
+				for ($i = 1, $l = count($items); $i < $l; $i++) {
+					$oItem = $items[$i];
+					if ($oItem->score < $lastScore) {
+						$rank = $i + 1;
+					}
+					$this->update('xxt_enroll_record_data', ['score_rank' => $rank], ['id' => $oItem->id]);
+					$lastScore = $oItem->score;
+				}
+			}
+			return count($items);
+		};
+
+		/* 更新指定轮次 */
+		$cnt = $fnRankByRound($rid);
+		if ($cnt > 0) {
+			/* 更新汇总轮次 */
+			$oSumRnd = $this->model('matter\enroll\round')->getSummary($oApp, ['fields' => 'id,rid,title,start_at,state', 'assignedRid' => $rid]);
+			if ($oSumRnd) {
+				$fnRankByRound($oSumRnd->rid);
 			}
 		}
 
-		return count($items);
+		return $cnt;
 	}
 	/**
 	 * 获得指定登记记录登记数据的详细信息

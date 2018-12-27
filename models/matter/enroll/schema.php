@@ -1116,23 +1116,21 @@ class schema_model extends \TMS_MODEL {
 
 		return $aResult;
 	}
+
 	/**
 	 * 需要进行回答的题目
 	 */
-	public function getCanAnswer($oApp, $oRound = null) {
+	public function getCanQuestion($oApp, $oRound = null) {
 		if (!isset($oApp->dynaDataSchemas) || !isset($oApp->answerConfig)) {
-			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,answer_config']);
+			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,question_config']);
 		}
 		if (empty($oRound)) {
 			$oRound = $oApp->appRound;
 		}
 
-		$fnValidConfig = function ($oAnswerConfig) use ($oRound) {
-			if (empty($oAnswerConfig->schemas)) {
-				return [false];
-			}
+		$fnValidConfig = function ($oQuestionConfig) use ($oRound) {
 			$current = time();
-			if ($oStartRule = $this->getDeepValue($oAnswerConfig, 'start.time')) {
+			if ($oStartRule = $this->getDeepValue($oQuestionConfig, 'start.time')) {
 				if ($this->getDeepValue($oStartRule, 'mode') === 'after_round_start_at') {
 					if ($this->getDeepValue($oStartRule, 'unit') === 'hour') {
 						$afterHours = (int) $this->getDeepValue($oStartRule, 'value');
@@ -1142,7 +1140,7 @@ class schema_model extends \TMS_MODEL {
 					}
 				}
 			}
-			if ($oEndRule = $this->getDeepValue($oAnswerConfig, 'end.time')) {
+			if ($oEndRule = $this->getDeepValue($oQuestionConfig, 'end.time')) {
 				if ($this->getDeepValue($oEndRule, 'mode') === 'after_round_start_at') {
 					if ($this->getDeepValue($oEndRule, 'unit') === 'hour') {
 						$afterHours = (int) $this->getDeepValue($oEndRule, 'value');
@@ -1155,25 +1153,25 @@ class schema_model extends \TMS_MODEL {
 
 			return [true, 'IP'];
 		};
-		$aVoteSchemas = [];
-		foreach ($oApp->answerConfig as $oAnswerConfig) {
-			$aValid = $fnValidConfig($oAnswerConfig);
+		$aQuestionSchemas = [];
+		foreach ($oApp->answerConfig as $oQuestionConfig) {
+			$aValid = $fnValidConfig($oQuestionConfig);
 			if (false === $aValid[0]) {
 				continue;
 			}
 			foreach ($oApp->dynaDataSchemas as $oSchema) {
-				if (in_array($oSchema->id, $oAnswerConfig->schemas)) {
+				if (in_array($oSchema->id, $oQuestionConfig->schemas)) {
 					$oVoteRule = new \stdClass;
 					$oVoteRule->state = $aValid[1];
-					$oVoteRule->limit = $this->getDeepValue($oAnswerConfig, 'limit.num', 0);
-					$oVoteRule->groups = $this->getDeepValue($oAnswerConfig, 'role.groups');
+					$oVoteRule->limit = $this->getDeepValue($oQuestionConfig, 'limit.num', 0);
+					$oVoteRule->groups = $this->getDeepValue($oQuestionConfig, 'role.groups');
 					$oSchema->answer = $oVoteRule;
-					$aVoteSchemas[$oSchema->id] = $oSchema;
+					$aQuestionSchemas[$oSchema->id] = $oSchema;
 				}
 			}
 		}
 
-		return $aVoteSchemas;
+		return $aQuestionSchemas;
 	}
 	/**
 	 * 需要进行投票的题目

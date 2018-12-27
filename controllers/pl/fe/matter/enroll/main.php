@@ -682,6 +682,72 @@ class main extends main_base {
 		return new \ResponseData(['config' => $oScoreConfig, 'updatedSchemas' => $aUpdatedSourceSchemas]);
 	}
 	/**
+	 * 更新提问规则
+	 */
+	public function updateQuestionConfig_action($app) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$oPosted = $this->getPostJson();
+		$method = $this->getDeepValue($oPosted, 'method');
+		if (empty($method)) {
+			return new \ParameterError('（1）参数不完整');
+		}
+		$oQuestionConfig = $this->getDeepValue($oPosted, 'data');
+		if (empty($oQuestionConfig)) {
+			return new \ParameterError('（2）参数不完整');
+		}
+
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, 'id,state,siteid,title,summary,pic,scenario,start_at,end_at,mission_id,question_config');
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError('（3）活动不存在');
+		}
+		$aAllQuestionConfigs = $oApp->questionConfig;
+
+		switch ($method) {
+		case 'save':
+			if (empty($oQuestionConfig->id)) {
+				$oQuestionConfig->id = uniqid();
+				$aAllQuestionConfigs[] = $oQuestionConfig;
+			} else {
+				$bExistent = false;
+				foreach ($aAllQuestionConfigs as $index => $oBefore) {
+					if ($oBefore->id === $oQuestionConfig->id) {
+						$aAllQuestionConfigs[$index] = $oQuestionConfig;
+						$bExistent = true;
+						break;
+					}
+				}
+				if (false === $bExistent) {
+					return new \ObjectNotFoundError('（4）更新的规则不存在');
+				}
+			}
+			break;
+		case 'delete':
+			$bExistent = false;
+			foreach ($aAllQuestionConfigs as $index => $oBefore) {
+				if ($oBefore->id === $oQuestionConfig->id) {
+					array_splice($aAllQuestionConfigs, $index, 1);
+					$bExistent = true;
+					break;
+				}
+			}
+			if (false === $bExistent) {
+				return new \ObjectNotFoundError('（5）删除的规则不存在');
+			}
+			break;
+		}
+
+		$modelApp->modify($oUser, $oApp, (object) ['question_config' => $modelApp->escape($modelApp->toJson($aAllQuestionConfigs))], ['id' => $oApp->id]);
+		if ($method === 'save') {
+			return new \ResponseData($oQuestionConfig);
+		} else {
+			return new \ResponseData('ok');
+		}
+	}
+	/**
 	 * 更新记录的投票规则
 	 */
 	public function updateAnswerConfig_action($app) {

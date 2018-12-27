@@ -21,6 +21,7 @@ $sql .= ",scenario varchar(255) not null default ''"; // 记录活动场景
 $sql .= ",scenario_config text null"; // 记录活动场景的配置参数
 $sql .= ",vote_config text null"; // 记录活动投票设置
 $sql .= ",score_config text null"; // 记录活动打分设置
+$sql .= ",question_config text null"; // 记录活动提问设置
 $sql .= ",answer_config text null"; // 记录活动回答设置
 $sql .= ",transmit_config text null"; // 记录转发设置
 $sql .= ",round_cron text null"; // 定时创建轮次规则

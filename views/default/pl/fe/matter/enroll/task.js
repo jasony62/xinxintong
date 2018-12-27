@@ -1,6 +1,65 @@
 define(['frame', 'schema'], function(ngApp, schemaLib) {
     'use strict';
     ngApp.provider.controller('ctrlTask', [function() {}]);
+    ngApp.provider.controller('ctrlTaskQuestion', ['$scope', '$parse', 'http2', 'noticebox', 'srvEnrollApp', function($scope, $parse, http2, noticebox, srvEnlApp) {
+        function fnWatchConfig(oConfig) {
+            var $configScope;
+            $configScope = $scope.$new(true);
+            $configScope.config = oConfig;
+            if (oConfig.id)
+                _oConfigsModified[oConfig.id] = false;
+            $configScope.$watch('config', function(nv, ov) {
+                if (nv && nv !== ov && nv.id) {
+                    _oConfigsModified[nv.id] = true;
+                }
+            }, true);
+        }
+        var _aConfigs, _oConfigsModified;
+        $scope.configs = _aConfigs = [];
+        $scope.configsModified = _oConfigsModified = {};
+        $scope.addConfig = function() {
+            _aConfigs.push({});
+        };
+        $scope.delConfig = function(oConfig) {
+            noticebox.confirm('删除回答环节，确定？').then(function() {
+                if (oConfig.id) {
+                    http2.post('/rest/pl/fe/matter/enroll/updateQuestionConfig?app=' + $scope.app.id, { method: 'delete', data: oConfig }).then(function() {
+                        _aConfigs.splice(_aConfigs.indexOf(oConfig), 1);
+                        delete _oConfigsModified[oConfig.id];
+                    });
+                } else {
+                    _aConfigs.splice(_aConfigs.indexOf(oConfig), 1);
+                }
+            });
+        };
+        $scope.addQuestionGroup = function(oConfig) {
+            if (!$parse('role.groups')(oConfig)) {
+                $parse('role.groups').assign(oConfig, [{}]);
+            } else {
+                $parse('role.groups')(oConfig).push({});
+            }
+        };
+        $scope.delQuestionGroup = function(oConfig, oQuestionGroup) {
+            oConfig.role.groups.splice(oConfig.role.groups.indexOf(oQuestionGroup), 1);
+        };
+        $scope.save = function(oConfig) {
+            http2.post('/rest/pl/fe/matter/enroll/updateQuestionConfig?app=' + $scope.app.id, { method: 'save', data: oConfig }).then(function(rsp) {
+                http2.merge(oConfig, rsp.data);
+                fnWatchConfig(oConfig);
+                noticebox.success('保存成功！');
+            });
+        };
+        srvEnlApp.get().then(function(oApp) {
+            if (oApp.questionConfig && oApp.questionConfig.length) {
+                oApp.questionConfig.forEach(function(oConfig, index) {
+                    var oCopied;
+                    oCopied = angular.copy(oConfig);
+                    _aConfigs.push(oCopied);
+                    fnWatchConfig(oCopied);
+                });
+            }
+        });
+    }]);
     ngApp.provider.controller('ctrlTaskAnswer', ['$scope', '$parse', 'http2', 'noticebox', 'srvEnrollApp', function($scope, $parse, http2, noticebox, srvEnlApp) {
         function fnWatchConfig(oConfig) {
             var $configScope;

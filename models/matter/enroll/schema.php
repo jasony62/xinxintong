@@ -1117,6 +1117,65 @@ class schema_model extends \TMS_MODEL {
 		return $aResult;
 	}
 	/**
+	 * 需要进行回答的题目
+	 */
+	public function getCanAnswer($oApp, $oRound = null) {
+		if (!isset($oApp->dynaDataSchemas) || !isset($oApp->answerConfig)) {
+			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,answer_config']);
+		}
+		if (empty($oRound)) {
+			$oRound = $oApp->appRound;
+		}
+
+		$fnValidConfig = function ($oAnswerConfig) use ($oRound) {
+			if (empty($oAnswerConfig->schemas)) {
+				return [false];
+			}
+			$current = time();
+			if ($oStartRule = $this->getDeepValue($oAnswerConfig, 'start.time')) {
+				if ($this->getDeepValue($oStartRule, 'mode') === 'after_round_start_at') {
+					if ($this->getDeepValue($oStartRule, 'unit') === 'hour') {
+						$afterHours = (int) $this->getDeepValue($oStartRule, 'value');
+						if (empty($oRound->start_at) || ($current < $oRound->start_at + ($afterHours * 3600))) {
+							return [true, 'BS'];
+						}
+					}
+				}
+			}
+			if ($oEndRule = $this->getDeepValue($oAnswerConfig, 'end.time')) {
+				if ($this->getDeepValue($oEndRule, 'mode') === 'after_round_start_at') {
+					if ($this->getDeepValue($oEndRule, 'unit') === 'hour') {
+						$afterHours = (int) $this->getDeepValue($oEndRule, 'value');
+						if (empty($oRound->start_at) || ($current > $oRound->start_at + ($afterHours * 3600))) {
+							return [true, 'AE'];
+						}
+					}
+				}
+			}
+
+			return [true, 'IP'];
+		};
+		$aVoteSchemas = [];
+		foreach ($oApp->answerConfig as $oAnswerConfig) {
+			$aValid = $fnValidConfig($oAnswerConfig);
+			if (false === $aValid[0]) {
+				continue;
+			}
+			foreach ($oApp->dynaDataSchemas as $oSchema) {
+				if (in_array($oSchema->id, $oAnswerConfig->schemas)) {
+					$oVoteRule = new \stdClass;
+					$oVoteRule->state = $aValid[1];
+					$oVoteRule->limit = $this->getDeepValue($oAnswerConfig, 'limit.num', 0);
+					$oVoteRule->groups = $this->getDeepValue($oAnswerConfig, 'role.groups');
+					$oSchema->answer = $oVoteRule;
+					$aVoteSchemas[$oSchema->id] = $oSchema;
+				}
+			}
+		}
+
+		return $aVoteSchemas;
+	}
+	/**
 	 * 需要进行投票的题目
 	 */
 	public function getCanVote($oApp, $oRound = null) {

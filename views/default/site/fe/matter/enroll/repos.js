@@ -236,6 +236,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     };
     $scope.shiftTip = function(type) {
         _oCriteria[type] = _oFilter[type] = null;
+
         function objectKeyIsNull(obj) {
             var empty = null;
             for (var i in obj) {
@@ -495,6 +496,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         }
         http2.get(LS.j('task/list', 'site', 'app')).then(function(rsp) {
             _oTasks = rsp.data;
+            if (rsp.data.answer) {
+                tasks.push({ type: 'info', msg: '有回答任务', id: 'record.data.answer' });
+            }
             if (rsp.data.vote) {
                 tasks.push({ type: 'info', msg: '有投票任务', id: 'record.data.vote' });
                 popActs.push('voteRecData');
@@ -569,10 +573,10 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         /* 作为可筛选的筛选项 */
         http2.get(LS.j('repos/criteriaGet', 'site', 'app')).then(function(rsp) {
             $scope.reposFilters = rsp.data;
-            $scope.multiFilters = rsp.data.length>2 ? rsp.data.slice(2) : [];
+            $scope.multiFilters = rsp.data.length > 2 ? rsp.data.slice(2) : [];
             angular.forEach(rsp.data, function(data, index) {
                 _oCriteria[data.type] = data.default.id;
-                if(index > 1) {
+                if (index > 1) {
                     _oFilter[data.type] = data.default.id;
                 }
             });

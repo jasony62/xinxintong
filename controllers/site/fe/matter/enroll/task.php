@@ -19,6 +19,9 @@ class task extends base {
 
 		$tasks = new \stdClass;
 
+		// 回答任务
+		$tasks->answer = $this->_getAnswerTask($oApp, $oUser);
+
 		// 投票任务
 		$tasks->vote = $this->_getVoteTask($oApp, $oUser);
 
@@ -139,6 +142,35 @@ class task extends base {
 		}
 
 		return new \ResponseData($aVoteResult[1]);
+	}
+	/**
+	 * 回答任务
+	 */
+	private function _getAnswerTask($oApp, $oUser) {
+		if (empty($oApp->answerConfig)) {
+			return false;
+		}
+
+		$aAnswerSchemas = $this->model('matter\enroll\schema')->getCanAnswer($oApp);
+		if (empty($aAnswerSchemas)) {
+			return false;
+		}
+
+		$aRunnings = [];
+		foreach ($aAnswerSchemas as $oAnswerSchema) {
+			if ($this->getDeepValue($oAnswerSchema, 'answer.state') === 'IP') {
+				$aRunnings[$oAnswerSchema->id] = $oAnswerSchema;
+			}
+		}
+		if (empty($aRunnings)) {
+			return false;
+		}
+
+		$oTask = new \stdClass;
+		$oTask->name = 'answer';
+		$oTask->schemas = $aRunnings;
+
+		return $oTask;
 	}
 	/**
 	 * 投票任务

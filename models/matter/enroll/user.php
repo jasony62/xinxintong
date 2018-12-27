@@ -785,9 +785,9 @@ class user_model extends \TMS_MODEL {
 		$oAssignedUsrs = $oAssignedUsrsResult->users;
 		foreach ($oAssignedUsrs as $oAssignedUser) {
 			if ($tasks = $this->isUndone($oApp, $rid, $oAssignedUser)) {
-				if (isset($oApp->absent_cause->{$oAssignedUser->userid}->{$rid})) {
+				if (isset($oApp->absentCause->{$oAssignedUser->userid}->{$rid})) {
 					$oAssignedUser->absent_cause = new \stdClass;
-					$oAssignedUser->absent_cause->cause = $oApp->absent_cause->{$oAssignedUser->userid}->{$rid};
+					$oAssignedUser->absent_cause->cause = $oApp->absentCause->{$oAssignedUser->userid}->{$rid};
 					$oAssignedUser->absent_cause->rid = $rid;
 				}
 				if (true !== $tasks) {

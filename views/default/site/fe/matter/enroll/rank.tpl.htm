@@ -9,7 +9,7 @@
         <?php TPL::pt('title');?>
     </title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-    <link href='/static/css/site.fe.css?_=2' rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
 </head>
 
 <body ng-controller="ctrlRank" tms-trace send-url='/rest/site/fe/matter/enroll/analysis/submit?site={{app.siteid}}&app={{app.id}}&page=rank' ready-sign="app">
@@ -45,20 +45,20 @@
                 <div class='col-md-3 col-xs-4'>
                     <select class='form-control' ng-model="appState.criteria.orderby" ng-change="changeCriteria()">
                         <option value='enroll' ng-if="config.enroll">提交记录数量</option>
-                        <option value='remark' ng-if="config.remark">获得留言数量</option>
-                        <option value='vote_schema' ng-if="config.vote_schema">问题得票数量</option>
-                        <option value='vote_cowork' ng-if="config.vote_cowork">答案得票数量</option>
-                        <option value='like' ng-if="config.like">获得点赞数量</option>
-                        <option value='remark_other' ng-if="config.remark_other">发表留言数量</option>
-                        <option value='do_like' ng-if="config.do_like">进行点赞数量</option>
+                        <option value='remark' ng-if="config.remark&&appState.dimension!=='schema'">获得留言数量</option>
+                        <option value='vote_schema' ng-if="config.vote_schema&&appState.dimension!=='schema'">问题得票数量</option>
+                        <option value='vote_cowork' ng-if="config.vote_cowork&&appState.dimension!=='schema'">答案得票数量</option>
+                        <option value='like' ng-if="config.like&&appState.dimension!=='schema'">获得点赞数量</option>
+                        <option value='remark_other' ng-if="config.remark_other&&appState.dimension!=='schema'">发表留言数量</option>
+                        <option value='do_like' ng-if="config.do_like&&appState.dimension!=='schema'">进行点赞数量</option>
                         <option value='score' ng-if="config.score">得分</option>
-                        <option ng-if="appState.criteria.obj==='group'" value='average_score' ng-if="config.average_score">组员平均得分</option>
-                        <option value='total_coin' ng-if="app.scenarioConfig.can_coin==='Y'&&config.total_coin">积分</option>
+                        <option value='average_score' ng-if="appState.criteria.obj==='group'&&config.average_score&&appState.dimension!=='schema'">组员平均得分</option>
+                        <option value='total_coin' ng-if="app.scenarioConfig.can_coin==='Y'&&config.total_coin&&appState.dimension!=='schema'">积分</option>
                     </select>
                 </div>
             </div>
             <div class='row result'>
-                <div ng-switch on="appState.criteria.obj">
+                <div ng-switch on="appState.dimension">
                     <ul ng-switch-when="user">
                         <li class='hidden-xs'>
                             <div class='col-md-1'>序号</div>
@@ -67,8 +67,7 @@
                         </li>
                         <li ng-repeat="u in users" class='record'>
                             <div class='col-md-1 col-xs-1'>
-                                <span class='index-user-img' ng-if="$index<3" ng-class="{'first-user-img':$index=='0','second-user-img':$index=='1','third-user-img':$index=='2'}"></span>
-                                <span class='index-num' ng-if="$index>=3">{{(appState.page.at-1)*appState.page.size+$index+1}}</span>
+                                <span class='rank-num'>{{::$index+1}}</span>
                             </div>
                             <div class="col-md-9 col-xs-8 text-left">
                                 <img class='user-headimg' ng-src="{{::u.headimgurl}}" />
@@ -86,16 +85,15 @@
                         </li>
                         <li ng-repeat="g in groups" class='record'>
                             <div class='col-md-1 col-xs-1'>
-                                <span class='index-user-img mtb3' ng-if="$index<3" ng-class="{'first-user-img':$index=='0','second-user-img':$index=='1','third-user-img':$index=='2'}"></span>
-                                <span class='index-num' ng-if="$index>=3">{{(appState.page.at-1)*appState.page.size+$index+1}}</span>
+                                <span class='rank-num'>{{::$index+1}}</span>
                             </div>
                             <div class="col-md-9 col-xs-8 text-left">
                                 <span>{{::g.title}}</span>
                             </div>
-                            <div class='col-md-2 col-xs-1'><span ng-if="appState.criteria.orderby!=='score'">{{g.num}}</span><span ng-if="appState.criteria.orderby==='score'">{{g.num|number:2}}</span></div>
+                            <div class='col-md-2 col-xs-1'><span ng-if="appState.criteria.orderby!=='score'">{{::g.num}}</span><span ng-if="appState.criteria.orderby==='score'">{{g.num|number:2}}</span></div>
                         </li>
                     </ul>
-                    <ul ng-switch-default>
+                    <ul ng-switch-when="schema">
                         <li class='hidden-xs'>
                             <div class='col-md-1'>序号</div>
                             <div class='col-md-9 text-left'>选项</div>
@@ -103,8 +101,7 @@
                         </li>
                         <li ng-repeat="op in schemaOps" class='record'>
                             <div class='col-md-1 col-xs-1'>
-                                <span class='index-user-img mtb3' ng-if="$index<3" ng-class="{'first-user-img':$index=='0','second-user-img':$index=='1','third-user-img':$index=='2'}"></span>
-                                <span class='index-num' ng-if="$index>=3">{{(appState.page.at-1)*appState.page.size+$index+1}}</span>
+                                <span class='rank-num'>{{::$index+1}}</span>
                             </div>
                             <div class="col-md-9 col-xs-8 text-left">
                                 <span>{{::op.l}}</span>

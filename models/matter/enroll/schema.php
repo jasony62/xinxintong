@@ -1164,7 +1164,7 @@ class schema_model extends \TMS_MODEL {
 			$oQuestionRule = new \stdClass;
 			$oQuestionRule->id = $oQuestionConfig->id;
 			$oQuestionRule->state = $aValid[1];
-			$oQuestionRule->limit = $this->getDeepValue($oQuestionConfig, 'limit.num', 0);
+			$oQuestionRule->limit = $this->getDeepValue($oQuestionConfig, 'limit');
 			$oQuestionRule->groups = $this->getDeepValue($oQuestionConfig, 'role.groups');
 			$aQuestionRules[] = $oQuestionRule;
 		}
@@ -1192,7 +1192,7 @@ class schema_model extends \TMS_MODEL {
 				if (in_array($oSchema->id, $oAnswerConfig->schemas)) {
 					$oVoteRule = new \stdClass;
 					$oVoteRule->state = $aValid[1];
-					$oVoteRule->limit = $this->getDeepValue($oAnswerConfig, 'limit.num', 0);
+					$oVoteRule->limit = $this->getDeepValue($oAnswerConfig, 'limit');
 					$oVoteRule->groups = $this->getDeepValue($oAnswerConfig, 'role.groups');
 					$oSchema->answer = $oVoteRule;
 					$aVoteSchemas[$oSchema->id] = $oSchema;
@@ -1223,7 +1223,7 @@ class schema_model extends \TMS_MODEL {
 				if (in_array($oSchema->id, $oVoteConfig->schemas)) {
 					$oVoteRule = new \stdClass;
 					$oVoteRule->state = $aValid[1];
-					$oVoteRule->limit = $this->getDeepValue($oVoteConfig, 'limit.num', 0);
+					$oVoteRule->limit = $this->getDeepValue($oVoteConfig, 'limit');
 					$oVoteRule->groups = $this->getDeepValue($oVoteConfig, 'role.groups');
 					$oSchema->vote = $oVoteRule;
 					$aVoteSchemas[$oSchema->id] = $oSchema;

@@ -162,8 +162,8 @@ class task extends base {
 		$aRunnings = [];
 		foreach ($aQuestionRules as $oQuestionRule) {
 			if ($this->getDeepValue($oQuestionRule, 'state') === 'IP') {
-				if (isset($oQuestionRule->groups) && is_array($oQuestionRule->groups)) {
-					if (false === tms_array_search($oQuestionRule->groups, function ($oRule) use ($oUser) {return $oRule->do === $this->getDeepValue($oUser, 'group_id');})) {
+				if (isset($oQuestionRule->groups) && is_array($oQuestionRule->groups) && count($oQuestionRule->groups)) {
+					if (!in_array($this->getDeepValue($oUser, 'group_id'), $oQuestionRule->groups)) {
 						continue;
 					}
 				}
@@ -196,8 +196,13 @@ class task extends base {
 		$aRunnings = [];
 		foreach ($aAnswerSchemas as $oAnswerSchema) {
 			if ($this->getDeepValue($oAnswerSchema, 'answer.state') === 'IP') {
+				if (isset($oQuestionRule->groups) && is_array($oQuestionRule->groups) && count($oQuestionRule->groups)) {
+					if (!in_array($this->getDeepValue($oUser, 'group_id'), $oQuestionRule->groups)) {
+						continue;
+					}
+				}
 				if (isset($oAnswerSchema->answer->groups) && is_array($oAnswerSchema->answer->groups)) {
-					if (false === tms_array_search($oAnswerSchema->answer->groups, function ($oRule) use ($oUser) {return $oRule->do === $this->getDeepValue($oUser, 'group_id');})) {
+					if (!in_array($this->getDeepValue($oUser, 'group_id'), $oAnswerSchema->answer->groups)) {
 						continue;
 					}
 				}
@@ -236,7 +241,6 @@ class task extends base {
 		if (empty($aRunnings)) {
 			return false;
 		}
-
 		$oTask = new \stdClass;
 		$oTask->name = 'vote';
 		$oTask->schemas = $aRunnings;

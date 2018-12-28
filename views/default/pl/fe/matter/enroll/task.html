@@ -8,8 +8,10 @@
                         <div class='list-group-item' ng-repeat="config in configs">
                             <div class='form-group'>
                                 <div class='form-inline'>
-                                    <span>每人提问数量</span>
-                                    <input type='text' class='form-control' ng-model="config.limit.num" placeholder="输入数量">
+                                    <span>每人提问数量 最少</span>
+                                    <input type='text' class='form-control' ng-model="config.limit.min" placeholder="输入数量">
+                                    <span>最多</span>
+                                    <input type='text' class='form-control' ng-model="config.limit.max" placeholder="输入数量">
                                 </div>
                             </div>
                             <div class='form-group'>
@@ -40,17 +42,16 @@
                                     <input type='text' class='form-control' ng-model="config.end.time.value" placeholder="输入需要的时间">
                                 </div>
                             </div>
-                            <div class='form-group' ng-repeat="vg in config.role.groups">
-                                <div class='form-inline'>
-                                    <span>进行提问的分组</span>
-                                    <select class='form-control' ng-model="vg.do">
-                                        <option value=''>不指定</option>
-                                        <option ng-repeat="group in app.groups" value="{{group.round_id}}">{{group.title}}</option>
-                                    </select>
-                                    <button class='btn btn-default' ng-click="delQuestionGroup(config,vg)"><span class='glyphicon glyphicon-remove'></span></button>
+                            <div class='form-group'>
+                                <span>执行任务的用户</span>
+                                <div tms-array-checkbox model="config.role.groups">
+                                    <div class='checkbox' ng-repeat="group in app.groups">
+                                        <label class='checkbox-inline'>
+                                            <input type='checkbox' value='{{::group.round_id}}'><span>{{::group.title}}</span>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
-                            <button class='btn btn-default' ng-click="addQuestionGroup(config)">添加分组设置</button>
                             <hr>
                             <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
                             <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
@@ -97,12 +98,23 @@
                                         <input type='text' class='form-control' ng-model="config.target.num">
                                     </div>
                                 </div>
+                                <div>
+                                    <div tms-array-checkbox model="config.target.groups">
+                                        <div class='checkbox' ng-repeat="group in app.groups">
+                                            <label class='checkbox-inline'>
+                                                <input type='checkbox' value='{{::group.round_id}}'><span>{{::group.title}}</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <hr>
                             <div class='form-group'>
                                 <div class='form-inline'>
-                                    <span>每人回答数量</span>
-                                    <input type='text' class='form-control' ng-model="config.limit.num" placeholder="输入数量">
+                                    <span>每人回答数量 最少</span>
+                                    <input type='text' class='form-control' ng-model="config.limit.min" placeholder="输入数量">
+                                    <span>最多</span>
+                                    <input type='text' class='form-control' ng-model="config.limit.max" placeholder="输入数量">
                                 </div>
                             </div>
                             <div class='form-group'>
@@ -133,22 +145,16 @@
                                     <input type='text' class='form-control' ng-model="config.end.time.value" placeholder="输入需要的时间">
                                 </div>
                             </div>
-                            <div class='form-group' ng-repeat="vg in config.role.groups">
-                                <div class='form-inline'>
-                                    <span>进行回答的分组</span>
-                                    <select class='form-control' ng-model="vg.do">
-                                        <option value=''>不指定</option>
-                                        <option ng-repeat="group in app.groups" value="{{group.round_id}}">{{group.title}}</option>
-                                    </select>
-                                    <span>获得回答的分组</span>
-                                    <select class='form-control' ng-model="vg.get">
-                                        <option value=''>不指定</option>
-                                        <option ng-repeat="group in app.groups" value="{{group.round_id}}">{{group.title}}</option>
-                                    </select>
-                                    <button class='btn btn-default' ng-click="delAnswerGroup(config,vg)"><span class='glyphicon glyphicon-remove'></span></button>
+                            <div class='form-group'>
+                                <span>执行任务的用户</span>
+                                <div tms-array-checkbox model="config.role.groups">
+                                    <div class='checkbox' ng-repeat="group in app.groups">
+                                        <label class='checkbox-inline'>
+                                            <input type='checkbox' value='{{::group.round_id}}'><span>{{::group.title}}</span>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
-                            <button class='btn btn-default' ng-click="addAnswerGroup(config)">添加分组设置</button>
                             <hr>
                             <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
                             <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
@@ -179,8 +185,10 @@
                             <hr>
                             <div class='form-group'>
                                 <div class='form-inline'>
-                                    <span>每人投票数量</span>
-                                    <input type='text' class='form-control' ng-model="config.limit.num" placeholder="输入数量">
+                                    <span>每人投票数量 最少</span>
+                                    <input type='text' class='form-control' ng-model="config.limit.min" placeholder="输入数量">
+                                    <span>最多</span>
+                                    <input type='text' class='form-control' ng-model="config.limit.max" placeholder="输入数量">
                                 </div>
                             </div>
                             <div class='form-group'>
@@ -211,22 +219,16 @@
                                     <input type='text' class='form-control' ng-model="config.end.time.value" placeholder="输入需要的时间">
                                 </div>
                             </div>
-                            <div class='form-group' ng-repeat="vg in config.role.groups">
-                                <div class='form-inline'>
-                                    <span>进行投票的分组</span>
-                                    <select class='form-control' ng-model="vg.do">
-                                        <option value=''>不指定</option>
-                                        <option ng-repeat="group in app.groups" value="{{group.round_id}}">{{group.title}}</option>
-                                    </select>
-                                    <span>获得投票的分组</span>
-                                    <select class='form-control' ng-model="vg.get">
-                                        <option value=''>不指定</option>
-                                        <option ng-repeat="group in app.groups" value="{{group.round_id}}">{{group.title}}</option>
-                                    </select>
-                                    <button class='btn btn-default' ng-click="delVoteGroup(config,vg)"><span class='glyphicon glyphicon-remove'></span></button>
+                            <div class='form-group'>
+                                <span>执行任务的用户</span>
+                                <div tms-array-checkbox model="config.role.groups">
+                                    <div class='checkbox' ng-repeat="group in app.groups">
+                                        <label class='checkbox-inline'>
+                                            <input type='checkbox' value='{{::group.round_id}}'><span>{{::group.title}}</span>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
-                            <button class='btn btn-default' ng-click="addVoteGroup(config)">添加分组设置</button>
                             <hr>
                             <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
                             <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
@@ -296,22 +298,16 @@
                                     <input type='text' class='form-control' ng-model="config.end.time.value" placeholder="输入需要的时间">
                                 </div>
                             </div>
-                            <div class='form-group' ng-repeat="vg in config.role.groups">
-                                <div class='form-inline'>
-                                    <span>进行打分的分组</span>
-                                    <select class='form-control' ng-model="vg.do">
-                                        <option value=''>不指定</option>
-                                        <option ng-repeat="group in app.groups" value="{{group.round_id}}">{{group.title}}</option>
-                                    </select>
-                                    <span>获得打分的分组</span>
-                                    <select class='form-control' ng-model="vg.get">
-                                        <option value=''>不指定</option>
-                                        <option ng-repeat="group in app.groups" value="{{group.round_id}}">{{group.title}}</option>
-                                    </select>
-                                    <button class='btn btn-default' ng-click="delScoreGroup(config,vg)"><span class='glyphicon glyphicon-remove'></span></button>
+                            <div class='form-group'>
+                                <span>执行任务的用户</span>
+                                <div tms-array-checkbox model="config.role.groups">
+                                    <div class='checkbox' ng-repeat="group in app.groups">
+                                        <label class='checkbox-inline'>
+                                            <input type='checkbox' value='{{::group.round_id}}'><span>{{::group.title}}</span>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
-                            <button class='btn btn-default' ng-click="addScoreGroup(config)">添加分组设置</button>
                             <hr>
                             <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
                             <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>

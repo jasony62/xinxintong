@@ -39,6 +39,7 @@
                     <select class='form-control' ng-model="appState.criteria.obj">
                         <option value='user'>用户</option>
                         <option value='group' ng-if="app.entryRule.group.id">用户分组</option>
+                        <option value='{{::rs.id}}' ng-repeat="rs in rankSchemas">{{::rs.title}}</option>
                     </select>
                 </div>
                 <div class='col-md-3 col-xs-4'>
@@ -92,6 +93,23 @@
                                 <span>{{::g.title}}</span>
                             </div>
                             <div class='col-md-2 col-xs-1'><span ng-if="appState.criteria.orderby!=='score'">{{g.num}}</span><span ng-if="appState.criteria.orderby==='score'">{{g.num|number:2}}</span></div>
+                        </li>
+                    </ul>
+                    <ul ng-switch-default>
+                        <li class='hidden-xs'>
+                            <div class='col-md-1'>序号</div>
+                            <div class='col-md-9 text-left'>选项</div>
+                            <div class='col-md-2'>数量</div>
+                        </li>
+                        <li ng-repeat="op in schemaOps" class='record'>
+                            <div class='col-md-1 col-xs-1'>
+                                <span class='index-user-img mtb3' ng-if="$index<3" ng-class="{'first-user-img':$index=='0','second-user-img':$index=='1','third-user-img':$index=='2'}"></span>
+                                <span class='index-num' ng-if="$index>=3">{{(appState.page.at-1)*appState.page.size+$index+1}}</span>
+                            </div>
+                            <div class="col-md-9 col-xs-8 text-left">
+                                <span>{{::op.l}}</span>
+                            </div>
+                            <div class='col-md-2 col-xs-1'><span ng-if="appState.criteria.orderby!=='score'">{{::op.num}}</span><span ng-if="appState.criteria.orderby==='score'">{{::op.num|number:2}}</span></div>
                         </li>
                     </ul>
                 </div>

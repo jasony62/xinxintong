@@ -41,6 +41,11 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'e
                     defer.resolve(rsp.data)
                 });
                 break;
+            default:
+                http2.post('/rest/site/fe/matter/enroll/rank/schemaByApp?site=' + oApp.siteid + '&app=' + oApp.id + '&schema=' + oAppState.criteria.obj, oAppState.criteria).then(function(rsp) {
+                    defer.resolve(rsp.data)
+                });
+                break;
         }
         return defer.promise;
     }
@@ -67,6 +72,11 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'e
                         });
                     }
                     break;
+                default:
+                    data.forEach(function(oOp) {
+                        $scope.schemaOps.push(oOp);
+                    });
+                    break;
             }
             oAppState.page.total = data.total;
             angular.element(document).ready(function() {
@@ -77,6 +87,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'e
     $scope.changeCriteria = function() {
         $scope.users = [];
         $scope.groups = [];
+        $scope.schemaOps = [];
         $scope.doSearch(1);
     };
     $scope.doRound = function(rid) {
@@ -111,6 +122,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'e
         var oConfig, rankItems, dataSchemas;
         oApp = params.app;
         dataSchemas = oApp.dynaDataSchemas;
+        $scope.rankSchemas = dataSchemas.filter(function(oSchema) { return oSchema.type === 'single'; });
         /* 排行显示内容设置 */
         rankItems = ['enroll', 'remark', 'like', 'remark_other', 'do_like', 'total_coin', 'score', 'average_score', 'vote_schema', 'vote_cowork'];
         oConfig = {};

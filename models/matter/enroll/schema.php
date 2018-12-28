@@ -1147,7 +1147,7 @@ class schema_model extends \TMS_MODEL {
 	/**
 	 * 提问任务
 	 */
-	public function getCanQuestion($oApp, $oRound = null) {
+	public function getCanQuestion($oApp, $oUser = null, $oRound = null) {
 		if (!isset($oApp->dynaDataSchemas) || !isset($oApp->questionConfig)) {
 			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,question_config']);
 		}
@@ -1157,6 +1157,11 @@ class schema_model extends \TMS_MODEL {
 
 		$aQuestionRules = [];
 		foreach ($oApp->questionConfig as $oQuestionConfig) {
+			if (!empty($oQuestionConfig->role->groups)) {
+				if (empty($oUser->group_id) || !in_array($oUser->group_id, $oQuestionConfig->role->groups)) {
+					continue;
+				}
+			}
 			$aValid = $this->_checkTaskConfigByTime($oQuestionConfig, $oRound);
 			if (false === $aValid[0]) {
 				continue;
@@ -1174,7 +1179,7 @@ class schema_model extends \TMS_MODEL {
 	/**
 	 * 需要进行回答的题目
 	 */
-	public function getCanAnswer($oApp, $oRound = null) {
+	public function getCanAnswer($oApp, $oUser = null, $oRound = null) {
 		if (!isset($oApp->dynaDataSchemas) || !isset($oApp->answerConfig)) {
 			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,answer_config']);
 		}
@@ -1184,6 +1189,11 @@ class schema_model extends \TMS_MODEL {
 
 		$aVoteSchemas = [];
 		foreach ($oApp->answerConfig as $oAnswerConfig) {
+			if (!empty($oAnswerConfig->role->groups)) {
+				if (empty($oUser->group_id) || !in_array($oUser->group_id, $oAnswerConfig->role->groups)) {
+					continue;
+				}
+			}
 			$aValid = $this->_checkTaskConfigByTime($oAnswerConfig, $oRound);
 			if (false === $aValid[0]) {
 				continue;
@@ -1205,7 +1215,7 @@ class schema_model extends \TMS_MODEL {
 	/**
 	 * 需要进行投票的题目
 	 */
-	public function getCanVote($oApp, $oRound = null) {
+	public function getCanVote($oApp, $oUser = null, $oRound = null) {
 		if (!isset($oApp->dynaDataSchemas) || !isset($oApp->voteConfig)) {
 			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,vote_config']);
 		}
@@ -1215,6 +1225,11 @@ class schema_model extends \TMS_MODEL {
 
 		$aVoteSchemas = [];
 		foreach ($oApp->voteConfig as $oVoteConfig) {
+			if (!empty($oVoteConfig->role->groups)) {
+				if (empty($oUser->group_id) || !in_array($oUser->group_id, $oVoteConfig->role->groups)) {
+					continue;
+				}
+			}
 			$aValid = $this->_checkTaskConfigByTime($oVoteConfig, $oRound);
 			if (false === $aValid[0]) {
 				continue;
@@ -1236,7 +1251,7 @@ class schema_model extends \TMS_MODEL {
 	/**
 	 * 需要进行打分的题目
 	 */
-	public function getCanScore($oApp, $oRound = null) {
+	public function getCanScore($oApp, $oUser = null, $oRound = null) {
 		if (!isset($oApp->dynaDataSchemas) || !isset($oApp->scoreConfig)) {
 			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,score_config']);
 		}
@@ -1244,27 +1259,31 @@ class schema_model extends \TMS_MODEL {
 			$oRound = $oApp->appRound;
 		}
 
-		$configs = [];
+		$aScoreSchemas = [];
 		foreach ($oApp->scoreConfig as $oScoreConfig) {
+			if (!empty($oScoreConfig->role->groups)) {
+				if (empty($oUser->group_id) || !in_array($oUser->group_id, $oScoreConfig->role->groups)) {
+					continue;
+				}
+			}
 			$aValid = $this->_checkTaskConfigByTime($oScoreConfig, $oRound);
 			if (false === $aValid[0]) {
 				continue;
 			}
 			$oScoreConfig->state = $aValid[1];
-			// foreach ($oApp->dynaDataSchemas as $oSchema) {
-			// 	if (in_array($oSchema->id, $oScoreConfig->schemas)) {
-			// 		$oScoreRule = new \stdClass;
-			// 		$oScoreRule->state = $aValid[1];
-			// 		$oScoreRule->scoreApp = $this->getDeepValue($oScoreConfig, 'scoreApp');
-			// 		$oScoreRule->groups = $this->getDeepValue($oScoreConfig, 'role.groups');
-			// 		$oSchema->task = $oScoreRule;
-			// 		$aScoreSchemas[$oSchema->id] = $oSchema;
-			// 	}
-			// }
-			$configs[] = $oScoreConfig;
+			foreach ($oApp->dynaDataSchemas as $oSchema) {
+				if (in_array($oSchema->id, $oScoreConfig->schemas)) {
+					$oScoreRule = new \stdClass;
+					$oScoreRule->state = $aValid[1];
+					$oScoreRule->scoreApp = $this->getDeepValue($oScoreConfig, 'scoreApp');
+					$oScoreRule->groups = $this->getDeepValue($oScoreConfig, 'role.groups');
+					$oSchema->score = $oScoreRule;
+					$aScoreSchemas[$oSchema->id] = $oSchema;
+				}
+			}
 		}
 
-		return $configs;
+		return $aScoreSchemas;
 	}
 	/**
 	 * 转换为关联数组的形式

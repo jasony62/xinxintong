@@ -1129,12 +1129,11 @@ class data_model extends entity_model {
 			return [false, '投票已经结束'];
 		}
 
-		// if (!empty($oCanVoteSchema->vote->groups)) {
-		// 	$bMatched = false;
-		// 	if (false === $bMatched) {
-		// 		return [false, '不符合投票的用户分组规则，不能投票'];
-		// 	}
-		// }
+		if (!empty($oCanVoteSchema->vote->groups)) {
+			if (!in_array($this->getDeepValue($oUser, 'group_id'), $oCanVoteSchema->vote->groups)) {
+				return [false, '不符合投票的用户分组规则，不能投票'];
+			}
+		}
 
 		$oActiveRnd = $oApp->appRound;
 		$q = [
@@ -1250,6 +1249,6 @@ class data_model extends entity_model {
 		];
 		$beforeCount = (int) $this->query_val_ss($q);
 
-		return [true, [$oCanVoteSchema->vote->limit, $beforeCount]];
+		return [true, [$this->getDeepValue($oCanVoteSchema, 'vote.limit.max'), $beforeCount]];
 	}
 }

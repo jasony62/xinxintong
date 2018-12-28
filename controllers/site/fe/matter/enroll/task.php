@@ -196,12 +196,7 @@ class task extends base {
 		$aRunnings = [];
 		foreach ($aAnswerSchemas as $oAnswerSchema) {
 			if ($this->getDeepValue($oAnswerSchema, 'answer.state') === 'IP') {
-				if (isset($oQuestionRule->groups) && is_array($oQuestionRule->groups) && count($oQuestionRule->groups)) {
-					if (!in_array($this->getDeepValue($oUser, 'group_id'), $oQuestionRule->groups)) {
-						continue;
-					}
-				}
-				if (isset($oAnswerSchema->answer->groups) && is_array($oAnswerSchema->answer->groups)) {
+				if (!empty($oAnswerSchema->answer->groups)) {
 					if (!in_array($this->getDeepValue($oUser, 'group_id'), $oAnswerSchema->answer->groups)) {
 						continue;
 					}
@@ -235,6 +230,11 @@ class task extends base {
 		$aRunnings = [];
 		foreach ($aVoteSchemas as $oVoteSchema) {
 			if ($this->getDeepValue($oVoteSchema, 'vote.state') === 'IP') {
+				if (!empty($oVoteSchema->vote->groups)) {
+					if (!in_array($this->getDeepValue($oUser, 'group_id'), $oVoteSchema->vote->groups)) {
+						continue;
+					}
+				}
 				$aRunnings[$oVoteSchema->id] = $oVoteSchema;
 			}
 		}

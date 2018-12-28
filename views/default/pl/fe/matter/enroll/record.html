@@ -32,7 +32,7 @@
                     <li><a href ng-click="transferGroupAndMarks()">将题目组和打分结果作为其他活动的记录</a></li>
                     <li ng-if="app.scenario==='mis_user_score'" class="divider"></li>
                     <li ng-if="app.scenario==='mis_user_score'"><a href ng-click="syncMissionUser()">从项目同步用户数据</a></li>
-                    <li ng-if="app.scenario==='mis_user_score'"><a href ng-click="syncWithDataSource()">从关联的数据源中同步数据</a></li>
+                    <li ng-if="app.scenario==='mis_user_score'"><a href ng-click="syncWithDataSource()">从题目关联的数据源中同步数据</a></li>
                     <li class="divider"></li>
                     <li><a href ng-click="copyToUser()">复制记录给指定用户<span>（{{rows.count}}）</span></a></li>
                     <li ng-if="app.entryRule.group.id"><a href ng-click="syncWithGroupApp()">补填全部记录的分组数据</a></li>

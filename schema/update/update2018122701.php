@@ -3,7 +3,7 @@ require_once '../../db.php';
 
 $sqls = [];
 //
-$sqls[] = "ALTER TABLE xxt_home_matter add as_global char(1) not null default 'N' after approved";
+$sqls[] = "ALTER TABLE xxt_enroll add answer_config text null after score_config";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

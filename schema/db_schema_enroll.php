@@ -21,6 +21,8 @@ $sql .= ",scenario varchar(255) not null default ''"; // 记录活动场景
 $sql .= ",scenario_config text null"; // 记录活动场景的配置参数
 $sql .= ",vote_config text null"; // 记录活动投票设置
 $sql .= ",score_config text null"; // 记录活动打分设置
+$sql .= ",question_config text null"; // 记录活动提问设置
+$sql .= ",answer_config text null"; // 记录活动回答设置
 $sql .= ",transmit_config text null"; // 记录转发设置
 $sql .= ",round_cron text null"; // 定时创建轮次规则
 $sql .= ",sync_mission_round char(1) not null default 'N'"; // 和项目轮次同步
@@ -41,7 +43,7 @@ $sql .= ",category_tags text null"; // 素材分类标签
 $sql .= ",read_num int not null default 0"; // 阅读数
 $sql .= ",share_friend_num int not null default 0"; // 分享给好友数
 $sql .= ",share_timeline_num int not null default 0"; // 分享朋友圈数
-$sql .= ",data_schemas longtext null"; // 登记项定义
+$sql .= ",data_schemas longtext null"; // 填写项定义
 $sql .= ",recycle_schemas longtext null"; // 放入回收站的定义
 $sql .= ",use_site_header char(1) not null default 'Y'"; // 使用站点页眉
 $sql .= ",use_site_footer char(1) not null default 'Y'"; // 使用站点页脚
@@ -80,7 +82,7 @@ $sql .= ",share_summary varchar(240) not null default ''"; // 分享时的摘要
 $sql .= ",autoenroll_onenter char(1) not null default 'N'"; // 进入时自动登记
 $sql .= ",autoenroll_onshare char(1) not null default 'N'"; // 分享时自动登记
 $sql .= ",seq int not null"; //页面序号
-$sql .= ",data_schemas longtext"; // 登记项定义
+$sql .= ",data_schemas longtext"; // 填写项定义
 $sql .= ",act_schemas text"; // 登记操作定义
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
@@ -155,7 +157,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 登记项的数据
+ * 填写项的数据
  */
 $sql = "create table if not exists xxt_enroll_record_data(";
 $sql .= "id int not null auto_increment";
@@ -175,7 +177,8 @@ $sql .= ",supplement text null"; // 补充说明
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal
 $sql .= ",remark_num int not null default 0"; // 留言数
 $sql .= ",last_remark_at int not null default 0"; // 最后一次被留言的时间
-$sql .= ",score float not null default 0"; // 登记项获得的分数
+$sql .= ",score float not null default 0"; // 填写项获得的分数
+$sql .= ",score_rank int not null default 0"; // 得分在轮次中的排名
 $sql .= ",modify_log longtext null"; // 数据修改日志
 $sql .= ",like_log longtext null"; // 点赞日志 {userid:likeAt}
 $sql .= ",like_num int not null default 0"; // 点赞数
@@ -288,7 +291,7 @@ $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",create_at int not null";
 $sql .= ",modify_at int not null default 0";
 $sql .= ",content text null";
-$sql .= ",schema_id varchar(40) not null default ''"; // 针对某条填写记录的某个登记项的留言
+$sql .= ",schema_id varchar(40) not null default ''"; // 针对某条填写记录的某个填写项的留言
 $sql .= ",data_id int not null default 0"; // xxt_enroll_record_data的id
 $sql .= ",remark_id int not null default 0"; // 是对哪条留言进行的留言
 $sql .= ",remark_num int not null default 0"; // 留言数
@@ -382,6 +385,7 @@ $sql .= ",vote_cowork_num int not null default 0"; // 协作填写获得投票�
 $sql .= ",last_vote_cowork_at int not null default 0"; // 最后一次协作填写获得投票的时间
 $sql .= ",user_total_coin int not null default 0"; // 用户在活动中的轮次上的总积分
 $sql .= ",score float default 0 COMMENT '得分'"; //
+$sql .= ",score_rank int not null default 0"; // 得分在轮次中的排名
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除,101:用户删除;
 $sql .= ",modify_log longtext null"; // 数据修改日志
 $sql .= ",custom text null"; // 用户自定义设置
@@ -691,7 +695,7 @@ $sql .= ",name varchar(20) not null default ''";
 $sql .= ",code_id int not null default 0"; // from xxt_code_page
 $sql .= ",code_name varchar(13) not null default ''"; // from xxt_code_page
 $sql .= ",seq int not null"; //页面序号
-$sql .= ",data_schemas text"; // 登记项定义
+$sql .= ",data_schemas text"; // 填写项定义
 $sql .= ",act_schemas text"; // 登记操作定义
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

@@ -36,6 +36,7 @@
                 <span ng-switch-when="record.submit.end"><span ng-if="task.coin">每条记录可获得【{{task.coin}}个】积分</span><a href class="alert-link" ng-click="addRecord($event)"> 去添加</a></span>
                 <span ng-switch-when="record.like.pre"></span>
                 <span ng-switch-when="record.like.end"></span>
+                <span ng-switch-when="record.data.question"><a href class="alert-link" ng-click="addRecord($event)">，去提问</a></span>
                 <span ng-switch-when="record.data.vote"><a href class="alert-link" ng-click="voteRecData()">，去投票</a></span>
                 <span ng-switch-when="record.data.score"><a href class="alert-link" ng-click="scoreSchema()">，去打分</a></span>
             </div>
@@ -46,16 +47,12 @@
                     <div class='category-title'>
                         目录
                         <button class='close' ng-if="isSmallLayout" ng-click="advCriteriaStatus.dirOpen=!advCriteriaStatus.dirOpen"><span>&times;</span></button>
-                        <div class='pull-right' ng-if="!isSmallLayout">
-                            <button class='btn btn-default btn-sm' ng-if="activeDir1.op.childrenDir.length&&!activeDir1.opened" trace-biz ng-click="dirLevel.showDir(activeDir1)">展开<i class='glyphicon glyphicon-chevron-right'></i></button>
-                            <button class='btn btn-default btn-sm' ng-if="activeDir1.op.childrenDir.length&&activeDir1.opened" trace-biz ng-click="dirLevel.hideDir(activeDir1)">收起<i class='glyphicon glyphicon-chevron-left'></i></button>
-                        </div>
                     </div>
                     <div class='category-body' ng-if="advCriteriaStatus.dirOpen">
                         <div class='category-item'>
                             <div class='item-inner'>
                                 <div class='dir-level-1' ng-repeat="dir1 in dirSchemas">
-                                    <div class='dir' ng-click="shiftDir(dir1, 1)" ng-class="{active:dir1==activeDir1}" >
+                                    <div class='dir' ng-click="shiftDir(dir1, 1)" ng-class="{active:dir1==activeDir1}">
                                         <span class='dir-title' title="{{dir1.op.l}}">{{dir1.op.l}}</span>
                                         <i class='icon-indicator' ng-class="{true:'glyphicon glyphicon-chevron-down', false:'glyphicon glyphicon-chevron-right'}[isSmallLayout]" ng-if="dir1.op.childrenDir.length"></i>
                                     </div>
@@ -100,10 +97,16 @@
                             </div>
                         </div>
                     </div>
-                    <button class='btn btn-default btn-block' ng-if="advCriteriaStatus.dirOpen" ng-click="shiftDir()">清除选择</button>
+                    <div class="text-center">
+                        <button class='btn btn-default' ng-class="{true:'btn-block',false:'btn-sm'}[isSmallLayout]" ng-if="advCriteriaStatus.dirOpen" ng-click="shiftDir()">清除选择</button>
+                        <div ng-if="!isSmallLayout" ng-class="{'notClick':!activeDir1.op.childrenDir.length}" style="display:inline-block">
+                            <button class='btn btn-default btn-sm' ng-if="!activeDir1.opened" trace-biz ng-click="dirLevel.showDir(activeDir1)">展开<i class='glyphicon glyphicon-chevron-right'></i></button>
+                            <button class='btn btn-default btn-sm' ng-if="activeDir1.opened" trace-biz ng-click="dirLevel.hideDir(activeDir1)">收起<i class='glyphicon glyphicon-chevron-left'></i></button>
+                        </div>
+                    </div>
                 </div>
-                <div class='text-center' ng-if="isSmallLayout">
-                    <button class='btn btn-default btn-sm' ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">关闭</button>
+                <div class='text-center'>
+                    <button class='btn btn-default btn-sm' ng-if="isSmallLayout" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">关闭</button>
                 </div>
             </div>
             <div class='records col-xs-12' ng-class="{'col-md-9':dirSchemas.length,'col-md-12':dirSchemas.length===0}">

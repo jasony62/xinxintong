@@ -19,6 +19,12 @@ class task extends base {
 
 		$tasks = new \stdClass;
 
+		// 回答任务
+		$tasks->question = $this->_getQuestionTask($oApp, $oUser);
+
+		// 回答任务
+		$tasks->answer = $this->_getAnswerTask($oApp, $oUser);
+
 		// 投票任务
 		$tasks->vote = $this->_getVoteTask($oApp, $oUser);
 
@@ -139,6 +145,74 @@ class task extends base {
 		}
 
 		return new \ResponseData($aVoteResult[1]);
+	}
+	/**
+	 * 提问任务
+	 */
+	private function _getQuestionTask($oApp, $oUser) {
+		if (empty($oApp->questionConfig)) {
+			return false;
+		}
+
+		$aQuestionRules = $this->model('matter\enroll\schema')->getCanQuestion($oApp);
+		if (empty($aQuestionRules)) {
+			return false;
+		}
+
+		$aRunnings = [];
+		foreach ($aQuestionRules as $oQuestionRule) {
+			if ($this->getDeepValue($oQuestionRule, 'state') === 'IP') {
+				if (isset($oQuestionRule->groups) && is_array($oQuestionRule->groups)) {
+					if (false === tms_array_search($oQuestionRule->groups, function ($oRule) use ($oUser) {return $oRule->do === $this->getDeepValue($oUser, 'group_id');})) {
+						continue;
+					}
+				}
+				$aRunnings[$oQuestionRule->id] = $oQuestionRule;
+			}
+		}
+		if (empty($aRunnings)) {
+			return false;
+		}
+
+		$oTask = new \stdClass;
+		$oTask->name = 'question';
+		$oTask->rules = $aRunnings;
+
+		return $oTask;
+	}
+	/**
+	 * 回答任务
+	 */
+	private function _getAnswerTask($oApp, $oUser) {
+		if (empty($oApp->answerConfig)) {
+			return false;
+		}
+
+		$aAnswerSchemas = $this->model('matter\enroll\schema')->getCanAnswer($oApp);
+		if (empty($aAnswerSchemas)) {
+			return false;
+		}
+
+		$aRunnings = [];
+		foreach ($aAnswerSchemas as $oAnswerSchema) {
+			if ($this->getDeepValue($oAnswerSchema, 'answer.state') === 'IP') {
+				if (isset($oAnswerSchema->answer->groups) && is_array($oAnswerSchema->answer->groups)) {
+					if (false === tms_array_search($oAnswerSchema->answer->groups, function ($oRule) use ($oUser) {return $oRule->do === $this->getDeepValue($oUser, 'group_id');})) {
+						continue;
+					}
+				}
+				$aRunnings[$oAnswerSchema->id] = $oAnswerSchema;
+			}
+		}
+		if (empty($aRunnings)) {
+			return false;
+		}
+
+		$oTask = new \stdClass;
+		$oTask->name = 'answer';
+		$oTask->schemas = $aRunnings;
+
+		return $oTask;
 	}
 	/**
 	 * 投票任务

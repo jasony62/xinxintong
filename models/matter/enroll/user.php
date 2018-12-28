@@ -1,7 +1,7 @@
 <?php
 namespace matter\enroll;
 /**
- * 参加登记活动的用户
+ * 参加记录活动的用户
  */
 class user_model extends \TMS_MODEL {
 	/**
@@ -369,6 +369,43 @@ class user_model extends \TMS_MODEL {
 		}
 
 		return $oNewSumData;
+	}
+	/**
+	 * 更新得分数据排名
+	 */
+	public function setScoreRank($oApp, $rid) {
+		$fnSetRankByRound = function ($assignedRid) use ($oApp) {
+			$q = [
+				'id,score',
+				'xxt_enroll_user',
+				['aid' => $oApp->id, 'rid' => $assignedRid, 'state' => 1],
+			];
+			$q2['o'] = 'score desc';
+			$users = $this->query_objs_ss($q, $q2);
+			if (count($users)) {
+				$oUser = $users[0];
+				$rank = 1;
+				$this->update('xxt_enroll_user', ['score_rank' => $rank], ['id' => $oUser->id]);
+				$lastScore = $oUser->score;
+				for ($i = 1, $l = count($users); $i < $l; $i++) {
+					$oUser = $users[$i];
+					if ($oUser->score < $lastScore) {
+						$rank = $i + 1;
+					}
+					$this->update('xxt_enroll_user', ['score_rank' => $rank], ['id' => $oUser->id]);
+					$lastScore = $oUser->score;
+				}
+			}
+			return count($users);
+		};
+		/* 更新指定轮次的排名 */
+		$cnt = $fnSetRankByRound($rid);
+		if ($cnt > 0) {
+			/* 更新活动排名 */
+			$fnSetRankByRound('ALL');
+		}
+
+		return $cnt;
 	}
 	/**
 	 * 删除1条记录
@@ -748,9 +785,9 @@ class user_model extends \TMS_MODEL {
 		$oAssignedUsrs = $oAssignedUsrsResult->users;
 		foreach ($oAssignedUsrs as $oAssignedUser) {
 			if ($tasks = $this->isUndone($oApp, $rid, $oAssignedUser)) {
-				if (isset($oApp->absent_cause->{$oAssignedUser->userid}->{$rid})) {
+				if (isset($oApp->absentCause->{$oAssignedUser->userid}->{$rid})) {
 					$oAssignedUser->absent_cause = new \stdClass;
-					$oAssignedUser->absent_cause->cause = $oApp->absent_cause->{$oAssignedUser->userid}->{$rid};
+					$oAssignedUser->absent_cause->cause = $oApp->absentCause->{$oAssignedUser->userid}->{$rid};
 					$oAssignedUser->absent_cause->rid = $rid;
 				}
 				if (true !== $tasks) {

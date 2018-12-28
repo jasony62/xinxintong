@@ -1,9 +1,10 @@
 <?php
 require_once '../../db.php';
 
-$sqls = array();
+$sqls = [];
 //
-$sqls[] = "ALTER TABLE xxt_log_matter_share add share_url text NULL";
+$sqls[] = "ALTER TABLE xxt_enroll_record_data add score_rank int not null default 0 after score";
+$sqls[] = "ALTER TABLE xxt_enroll_user add score_rank int not null default 0 after score";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

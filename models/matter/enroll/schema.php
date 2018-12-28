@@ -1117,6 +1117,92 @@ class schema_model extends \TMS_MODEL {
 		return $aResult;
 	}
 	/**
+	 *
+	 */
+	private function _checkTaskConfigByTime($oTaskConfig, $oRound) {
+		$current = time();
+		if ($oStartRule = $this->getDeepValue($oTaskConfig, 'start.time')) {
+			if ($this->getDeepValue($oStartRule, 'mode') === 'after_round_start_at') {
+				if ($this->getDeepValue($oStartRule, 'unit') === 'hour') {
+					$afterHours = (int) $this->getDeepValue($oStartRule, 'value');
+					if (empty($oRound->start_at) || ($current < $oRound->start_at + ($afterHours * 3600))) {
+						return [true, 'BS'];
+					}
+				}
+			}
+		}
+		if ($oEndRule = $this->getDeepValue($oTaskConfig, 'end.time')) {
+			if ($this->getDeepValue($oEndRule, 'mode') === 'after_round_start_at') {
+				if ($this->getDeepValue($oEndRule, 'unit') === 'hour') {
+					$afterHours = (int) $this->getDeepValue($oEndRule, 'value');
+					if (empty($oRound->start_at) || ($current > $oRound->start_at + ($afterHours * 3600))) {
+						return [true, 'AE'];
+					}
+				}
+			}
+		}
+
+		return [true, 'IP'];
+	}
+	/**
+	 * 提问任务
+	 */
+	public function getCanQuestion($oApp, $oRound = null) {
+		if (!isset($oApp->dynaDataSchemas) || !isset($oApp->questionConfig)) {
+			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,question_config']);
+		}
+		if (empty($oRound)) {
+			$oRound = $oApp->appRound;
+		}
+
+		$aQuestionRules = [];
+		foreach ($oApp->questionConfig as $oQuestionConfig) {
+			$aValid = $this->_checkTaskConfigByTime($oQuestionConfig, $oRound);
+			if (false === $aValid[0]) {
+				continue;
+			}
+			$oQuestionRule = new \stdClass;
+			$oQuestionRule->id = $oQuestionConfig->id;
+			$oQuestionRule->state = $aValid[1];
+			$oQuestionRule->limit = $this->getDeepValue($oQuestionConfig, 'limit.num', 0);
+			$oQuestionRule->groups = $this->getDeepValue($oQuestionConfig, 'role.groups');
+			$aQuestionRules[] = $oQuestionRule;
+		}
+
+		return $aQuestionRules;
+	}
+	/**
+	 * 需要进行回答的题目
+	 */
+	public function getCanAnswer($oApp, $oRound = null) {
+		if (!isset($oApp->dynaDataSchemas) || !isset($oApp->answerConfig)) {
+			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,answer_config']);
+		}
+		if (empty($oRound)) {
+			$oRound = $oApp->appRound;
+		}
+
+		$aVoteSchemas = [];
+		foreach ($oApp->answerConfig as $oAnswerConfig) {
+			$aValid = $this->_checkTaskConfigByTime($oAnswerConfig, $oRound);
+			if (false === $aValid[0]) {
+				continue;
+			}
+			foreach ($oApp->dynaDataSchemas as $oSchema) {
+				if (in_array($oSchema->id, $oAnswerConfig->schemas)) {
+					$oVoteRule = new \stdClass;
+					$oVoteRule->state = $aValid[1];
+					$oVoteRule->limit = $this->getDeepValue($oAnswerConfig, 'limit.num', 0);
+					$oVoteRule->groups = $this->getDeepValue($oAnswerConfig, 'role.groups');
+					$oSchema->answer = $oVoteRule;
+					$aVoteSchemas[$oSchema->id] = $oSchema;
+				}
+			}
+		}
+
+		return $aVoteSchemas;
+	}
+	/**
 	 * 需要进行投票的题目
 	 */
 	public function getCanVote($oApp, $oRound = null) {
@@ -1127,37 +1213,9 @@ class schema_model extends \TMS_MODEL {
 			$oRound = $oApp->appRound;
 		}
 
-		$fnValidConfig = function ($oVoteConfig) use ($oRound) {
-			if (empty($oVoteConfig->schemas)) {
-				return [false];
-			}
-			$current = time();
-			if ($oStartRule = $this->getDeepValue($oVoteConfig, 'start.time')) {
-				if ($this->getDeepValue($oStartRule, 'mode') === 'after_round_start_at') {
-					if ($this->getDeepValue($oStartRule, 'unit') === 'hour') {
-						$afterHours = (int) $this->getDeepValue($oStartRule, 'value');
-						if (empty($oRound->start_at) || ($current < $oRound->start_at + ($afterHours * 3600))) {
-							return [true, 'BS'];
-						}
-					}
-				}
-			}
-			if ($oEndRule = $this->getDeepValue($oVoteConfig, 'end.time')) {
-				if ($this->getDeepValue($oEndRule, 'mode') === 'after_round_start_at') {
-					if ($this->getDeepValue($oEndRule, 'unit') === 'hour') {
-						$afterHours = (int) $this->getDeepValue($oEndRule, 'value');
-						if (empty($oRound->start_at) || ($current > $oRound->start_at + ($afterHours * 3600))) {
-							return [true, 'AE'];
-						}
-					}
-				}
-			}
-
-			return [true, 'IP'];
-		};
 		$aVoteSchemas = [];
 		foreach ($oApp->voteConfig as $oVoteConfig) {
-			$aValid = $fnValidConfig($oVoteConfig);
+			$aValid = $this->_checkTaskConfigByTime($oVoteConfig, $oRound);
 			if (false === $aValid[0]) {
 				continue;
 			}
@@ -1186,37 +1244,9 @@ class schema_model extends \TMS_MODEL {
 			$oRound = $oApp->appRound;
 		}
 
-		$fnValidConfig = function ($oScoreConfig) use ($oRound) {
-			if (empty($oScoreConfig->schemas)) {
-				return [false];
-			}
-			$current = time();
-			if ($oStartRule = $this->getDeepValue($oScoreConfig, 'start.time')) {
-				if ($this->getDeepValue($oStartRule, 'mode') === 'after_round_start_at') {
-					if ($this->getDeepValue($oStartRule, 'unit') === 'hour') {
-						$afterHours = (int) $this->getDeepValue($oStartRule, 'value');
-						if (empty($oRound->start_at) || ($current < $oRound->start_at + ($afterHours * 3600))) {
-							return [true, 'BS'];
-						}
-					}
-				}
-			}
-			if ($oEndRule = $this->getDeepValue($oScoreConfig, 'end.time')) {
-				if ($this->getDeepValue($oEndRule, 'mode') === 'after_round_start_at') {
-					if ($this->getDeepValue($oEndRule, 'unit') === 'hour') {
-						$afterHours = (int) $this->getDeepValue($oEndRule, 'value');
-						if (empty($oRound->start_at) || ($current > $oRound->start_at + ($afterHours * 3600))) {
-							return [true, 'AE'];
-						}
-					}
-				}
-			}
-
-			return [true, 'IP'];
-		};
 		$configs = [];
 		foreach ($oApp->scoreConfig as $oScoreConfig) {
-			$aValid = $fnValidConfig($oScoreConfig);
+			$aValid = $this->_checkTaskConfigByTime($oScoreConfig, $oRound);
 			if (false === $aValid[0]) {
 				continue;
 			}

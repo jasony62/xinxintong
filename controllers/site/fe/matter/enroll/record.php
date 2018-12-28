@@ -49,7 +49,7 @@ class record extends base {
 			$rid = $oBeforeRecord->rid;
 		}
 
-		// 提交轮次
+		// 检查或获得提交轮次
 		$aResultSubmitRid = $this->_getSubmitRecordRid($oEnlApp, $rid);
 		if (false === $aResultSubmitRid[0]) {
 			return new \ResponseError($aResultSubmitRid[1]);
@@ -59,14 +59,14 @@ class record extends base {
 		// 提交的数据
 		$oPosted = $this->getPostJson();
 		if (empty($oPosted->data) || count(get_object_vars($oPosted->data)) === 0) {
-			return new \ResponseError('没有提交有效数据');
+			return new \ResponseError('（3）没有提交有效数据');
 		}
 		$oEnlData = $oPosted->data;
 
 		// 提交数据的用户
 		$oUser = $this->getUser($oEnlApp, $oEnlData);
 
-		// 检查是否允许记录
+		// 检查是否允许提交记录
 		$aResultCanSubmit = $this->_canSubmit($oEnlApp, $oUser, $oEnlData, $ek, $rid);
 		if ($aResultCanSubmit[0] === false) {
 			return new \ResponseError($aResultCanSubmit[1]);
@@ -238,6 +238,10 @@ class record extends base {
 		 */
 		$modelRec->setSummaryRec($oUser, $oEnlApp, $oRecord->rid);
 		/**
+		 * 更新得分题目排名
+		 */
+		$modelRec->setScoreRank($oEnlApp, $oRecord->rid);
+		/**
 		 * 处理用户汇总数据，积分数据
 		 */
 		if ($bReviseRecordBeyondRound) {
@@ -247,6 +251,11 @@ class record extends base {
 		} else {
 			$this->model('matter\enroll\event')->submitRecord($oEnlApp, $oRecord, $oUser, $bSubmitNewRecord);
 		}
+		/**
+		 * 更新得分题目排名
+		 */
+		$modelEnlUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
+		$modelEnlUsr->setScoreRank($oEnlApp, $oRecord->rid);
 		/* 生成提醒 */
 		if ($bSubmitNewRecord) {
 			$this->model('matter\enroll\notice')->addRecord($oEnlApp, $oRecord, $oUser);

@@ -1,7 +1,7 @@
 define(['frame', 'schema'], function(ngApp, schemaLib) {
     'use strict';
     ngApp.provider.controller('ctrlTask', [function() {}]);
-    ngApp.provider.controller('ctrlTaskQuestion', ['$scope', '$parse', 'http2', 'noticebox', 'srvEnrollApp', function($scope, $parse, http2, noticebox, srvEnlApp) {
+    ngApp.provider.controller('ctrlTaskQuestion', ['$scope', 'http2', 'noticebox', 'srvEnrollApp', function($scope, http2, noticebox, srvEnlApp) {
         function fnWatchConfig(oConfig) {
             var $configScope;
             $configScope = $scope.$new(true);
@@ -32,16 +32,6 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                 }
             });
         };
-        $scope.addQuestionGroup = function(oConfig) {
-            if (!$parse('role.groups')(oConfig)) {
-                $parse('role.groups').assign(oConfig, [{}]);
-            } else {
-                $parse('role.groups')(oConfig).push({});
-            }
-        };
-        $scope.delQuestionGroup = function(oConfig, oQuestionGroup) {
-            oConfig.role.groups.splice(oConfig.role.groups.indexOf(oQuestionGroup), 1);
-        };
         $scope.save = function(oConfig) {
             http2.post('/rest/pl/fe/matter/enroll/updateQuestionConfig?app=' + $scope.app.id, { method: 'save', data: oConfig }).then(function(rsp) {
                 http2.merge(oConfig, rsp.data);
@@ -60,7 +50,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
             }
         });
     }]);
-    ngApp.provider.controller('ctrlTaskAnswer', ['$scope', '$parse', 'http2', 'noticebox', 'srvEnrollApp', function($scope, $parse, http2, noticebox, srvEnlApp) {
+    ngApp.provider.controller('ctrlTaskAnswer', ['$scope', 'http2', 'noticebox', 'srvEnrollApp', function($scope, http2, noticebox, srvEnlApp) {
         function fnWatchConfig(oConfig) {
             var $configScope;
             $configScope = $scope.$new(true);
@@ -91,16 +81,6 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                 }
             });
         };
-        $scope.addAnswerGroup = function(oConfig) {
-            if (!$parse('role.groups')(oConfig)) {
-                $parse('role.groups').assign(oConfig, [{}]);
-            } else {
-                $parse('role.groups')(oConfig).push({});
-            }
-        };
-        $scope.delAnswerGroup = function(oConfig, oAnswerGroup) {
-            oConfig.role.groups.splice(oConfig.role.groups.indexOf(oAnswerGroup), 1);
-        };
         $scope.save = function(oConfig) {
             http2.post('/rest/pl/fe/matter/enroll/updateAnswerConfig?app=' + $scope.app.id, { method: 'save', data: oConfig }).then(function(rsp) {
                 http2.merge(oConfig, rsp.data);
@@ -120,7 +100,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
             }
         });
     }]);
-    ngApp.provider.controller('ctrlTaskVote', ['$scope', '$parse', 'http2', 'noticebox', 'srvEnrollApp', function($scope, $parse, http2, noticebox, srvEnlApp) {
+    ngApp.provider.controller('ctrlTaskVote', ['$scope', 'http2', 'noticebox', 'srvEnrollApp', function($scope, http2, noticebox, srvEnlApp) {
         function fnWatchConfig(oConfig) {
             var $configScope;
             $configScope = $scope.$new(true);
@@ -151,16 +131,6 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                 }
             });
         };
-        $scope.addVoteGroup = function(oConfig) {
-            if (!$parse('role.groups')(oConfig)) {
-                $parse('role.groups').assign(oConfig, [{}]);
-            } else {
-                $parse('role.groups')(oConfig).push({});
-            }
-        };
-        $scope.delVoteGroup = function(oConfig, oVoteGroup) {
-            oConfig.role.groups.splice(oConfig.role.groups.indexOf(oVoteGroup), 1);
-        };
         $scope.save = function(oConfig) {
             http2.post('/rest/pl/fe/matter/enroll/updateVoteConfig?app=' + $scope.app.id, { method: 'save', data: oConfig }).then(function(rsp) {
                 http2.merge(oConfig, rsp.data);
@@ -185,7 +155,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
             }
         });
     }]);
-    ngApp.provider.controller('ctrlTaskScore', ['$scope', '$parse', '$uibModal', 'http2', 'noticebox', 'srvEnrollApp', 'srvEnrollSchema', function($scope, $parse, $uibModal, http2, noticebox, srvEnlApp, srvEnlSch) {
+    ngApp.provider.controller('ctrlTaskScore', ['$scope', '$uibModal', 'http2', 'noticebox', 'srvEnrollApp', 'srvEnrollSchema', function($scope, $uibModal, http2, noticebox, srvEnlApp, srvEnlSch) {
         function fnWatchConfig(oConfig) {
             var $configScope;
             $configScope = $scope.$new(true);
@@ -374,16 +344,6 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                     $scope.save(oConfig);
                 });
             });
-        };
-        $scope.addScoreGroup = function(oConfig) {
-            if (!$parse('role.groups')(oConfig)) {
-                $parse('role.groups').assign(oConfig, [{}]);
-            } else {
-                $parse('role.groups')(oConfig).push({});
-            }
-        };
-        $scope.delScoreGroup = function(oConfig, oVoteGroup) {
-            oConfig.role.groups.splice(oConfig.role.groups.indexOf(oVoteGroup), 1);
         };
         $scope.save = function(oConfig) {
             fnPostScoreConfig('save', oConfig);

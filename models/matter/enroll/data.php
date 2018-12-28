@@ -1128,23 +1128,14 @@ class data_model extends entity_model {
 		if ($oCanVoteSchema->vote->state === 'AE') {
 			return [false, '投票已经结束'];
 		}
-		if (!empty($oCanVoteSchema->vote->groups)) {
-			/* 只要有1个条件符合就可以 */
-			$bMatched = false;
-			foreach ($oCanVoteSchema->vote->groups as $oVoteGroup) {
-				if (!empty($oVoteGroup->do) && $this->getDeepValue($oUser, 'group_id') !== $oVoteGroup->do) {
-					continue;
-				}
-				if (!empty($oVoteGroup->get) && $oVoteGroup->get !== $oRecData->group_id) {
-					continue;
-				}
-				$bMatched = true;
-				break;
-			}
-			if (false === $bMatched) {
-				return [false, '不符合投票的用户分组规则，不能投票'];
-			}
-		}
+
+		// if (!empty($oCanVoteSchema->vote->groups)) {
+		// 	$bMatched = false;
+		// 	if (false === $bMatched) {
+		// 		return [false, '不符合投票的用户分组规则，不能投票'];
+		// 	}
+		// }
+
 		$oActiveRnd = $oApp->appRound;
 		$q = [
 			'id,vote_at',
@@ -1155,15 +1146,16 @@ class data_model extends entity_model {
 			return [false, '已经投过票，不允许重复投票', $oBefore];
 		}
 
+		$limitMax = $this->getDeepValue($oCanVoteSchema->vote, 'limit.max', 0);
 		$q = [
 			'count(*)',
 			'xxt_enroll_vote',
 			['aid' => $oRecData->aid, 'rid' => $oActiveRnd->rid, 'schema_id' => $oRecData->schema_id, 'userid' => $oUser->uid, 'state' => 1],
 		];
 		$beforeCount = (int) $this->query_val_ss($q);
-		if ($oCanVoteSchema->vote->limit > 0) {
-			if ($beforeCount >= $oCanVoteSchema->vote->limit) {
-				return [false, '最多可以投【' . $oCanVoteSchema->vote->limit . '】票，不能继续投票'];
+		if ($limitMax > 0) {
+			if ($beforeCount >= $limitMax) {
+				return [false, '最多可以投【' . $limitMax . '】票，不能继续投票'];
 			}
 		}
 
@@ -1193,7 +1185,7 @@ class data_model extends entity_model {
 
 		$beforeCount++;
 
-		return [true, $oNew, [$oCanVoteSchema->vote->limit, $beforeCount]];
+		return [true, $oNew, [$limitMax, $beforeCount]];
 	}
 	/**
 	 * 撤销对填写数据投票

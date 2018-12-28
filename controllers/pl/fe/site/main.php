@@ -33,41 +33,41 @@ class main extends \pl\fe\base {
 	 * 创建团队
 	 */
 	public function create_action() {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === ($oOperator = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		/*检查用户是否有创建团队的权限*/
 		$modelAcct = $this->model('account');
-		if (!$modelAcct->canManagePlatform($oUser->id)) {
+		if (!$modelAcct->canCreateSite($oOperator->id)) {
 			return new \ResponseError('当前账号没有开放创建团队权限，请联系系统管理员');
 		}
 
 		$modelSite = $this->model('site');
 		$oProto = $this->getPostJson();
 
-		$siteName = isset($oProto->name) ? $oProto->name : $oUser->name . '的团队';
+		$siteName = isset($oProto->name) ? $oProto->name : $oOperator->name . '的团队';
 		$siteSummary = isset($oProto->summary) ? $oProto->summary : '';
 
 		$oNewSite = new \stdClass;
 		$oNewSite->name = $modelSite->escape($siteName);
 		$oNewSite->summary = $modelSite->escape($siteSummary);
-		$oNewSite->id = $modelSite->create($oUser, $oNewSite);
+		$oNewSite->id = $modelSite->create($oOperator, $oNewSite);
 
 		/* 记录操作日志 */
 		$oMatter = new \stdClass;
 		$oMatter->id = $oNewSite->id;
 		$oMatter->type = 'site';
 		$oMatter->title = $siteName;
-		$this->model('matter\log')->matterOp($oNewSite->id, $oUser, $oMatter, 'C');
+		$this->model('matter\log')->matterOp($oNewSite->id, $oOperator, $oMatter, 'C');
 
 		/* 添加到团队的访问控制列表 */
 		$modelAdm = $this->model('site\admin');
 		$oAdmin = new \stdClass;
-		$oAdmin->uid = $oUser->id;
-		$oAdmin->ulabel = $modelAdm->escape($oUser->name);
+		$oAdmin->uid = $oOperator->id;
+		$oAdmin->ulabel = $modelAdm->escape($oOperator->name);
 		$oAdmin->urole = 'O';
-		$rst = $modelAdm->add($oUser, $oNewSite->id, $oAdmin);
+		$rst = $modelAdm->add($oOperator, $oNewSite->id, $oAdmin);
 
 		return new \ResponseData($oNewSite);
 	}
@@ -77,7 +77,7 @@ class main extends \pl\fe\base {
 	 * 不实际删除团队，只是打标记
 	 */
 	public function remove_action($site) {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === ($oOperator = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -86,7 +86,7 @@ class main extends \pl\fe\base {
 		if (false === $oSite || $oSite->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-		if ($oSite->creater !== $oUser->id) {
+		if ($oSite->creater !== $oOperator->id) {
 			return new \ParameterError('只有团队创建人可以删除团队');
 		}
 		/**
@@ -111,7 +111,7 @@ class main extends \pl\fe\base {
 	 *
 	 */
 	public function wasteList_action() {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === ($oOperator = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -120,7 +120,7 @@ class main extends \pl\fe\base {
 		$q = [
 			"*",
 			"xxt_site",
-			"creater = '{$oUser->id}' and state = 0",
+			"creater = '{$oOperator->id}' and state = 0",
 		];
 
 		if (!empty($oFilter->byTitle)) {
@@ -136,7 +136,7 @@ class main extends \pl\fe\base {
 	 * 恢复
 	 */
 	public function recover_action($site) {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === ($oOperator = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -145,7 +145,7 @@ class main extends \pl\fe\base {
 		$rst = $log->update(
 			'xxt_site',
 			['state' => 1],
-			['id' => $site, 'creater' => $oUser->id]
+			['id' => $site, 'creater' => $oOperator->id]
 		);
 		//恢复素材
 		if ($rst) {
@@ -161,7 +161,7 @@ class main extends \pl\fe\base {
 	 * 获取团队信息
 	 */
 	public function get_action($site) {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === ($oOperator = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -173,11 +173,11 @@ class main extends \pl\fe\base {
 		$oSite->homeUrl = APP_PROTOCOL . APP_HTTP_HOST . '/rest/site/home?site=' . $oSite->id;
 
 		/* 检查当前用户的角色 */
-		$oSite->uid = $oUser->id;
-		if ($oUser->id === $oSite->creater) {
+		$oSite->uid = $oOperator->id;
+		if ($oOperator->id === $oSite->creater) {
 			$oSite->yourRole = 'O';
 		} else {
-			if ($admin = $this->model('site\admin')->byUid($oSite->id, $oUser->id)) {
+			if ($admin = $this->model('site\admin')->byUid($oSite->id, $oOperator->id)) {
 				$oSite->yourRole = $admin->urole;
 			}
 		}
@@ -204,7 +204,7 @@ class main extends \pl\fe\base {
 	 * 有权管理的团队
 	 */
 	public function list_action() {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === ($oOperator = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -219,7 +219,7 @@ class main extends \pl\fe\base {
 			$options['byTitle'] = $modelSite->escape($filter->byTitle);
 		}
 
-		$mySites = $modelSite->byUser($oUser->id, $options);
+		$mySites = $modelSite->byUser($oOperator->id, $options);
 
 		return new \ResponseData($mySites);
 	}
@@ -227,7 +227,7 @@ class main extends \pl\fe\base {
 	 * 允许公开访问的团队
 	 */
 	public function publicList_action($page = 1, $size = 8) {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === ($oOperator = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -235,7 +235,7 @@ class main extends \pl\fe\base {
 		$result = $modelHome->atHome(['page' => ['at' => $page, 'size' => $size]]);
 		if ($result->total) {
 			$modelSite = $this->model('site');
-			$mySites = $modelSite->byUser($oUser->id);
+			$mySites = $modelSite->byUser($oOperator->id);
 			foreach ($result->sites as &$site) {
 				foreach ($mySites as $mySite) {
 					$rel = $modelSite->isFriend($site->siteid, $mySite->id);
@@ -250,12 +250,12 @@ class main extends \pl\fe\base {
 	 * 当前用户已经关注过的团队
 	 */
 	public function friendList_action() {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === ($oOperator = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelSite = $this->model('site');
-		$mySites = $modelSite->byUser($oUser->id);
+		$mySites = $modelSite->byUser($oOperator->id);
 		$mySiteIds = [];
 		foreach ($mySites as $mySite) {
 			$mySiteIds[] = $mySite->id;
@@ -279,7 +279,7 @@ class main extends \pl\fe\base {
 	 *
 	 */
 	public function subscriberList_action($site, $category = 'client', $page = 1, $size = 30) {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === ($oOperator = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$modelSite = $this->model('site');
@@ -307,7 +307,7 @@ class main extends \pl\fe\base {
 	 * 已经关注过的团队发布的消息
 	 */
 	public function matterList_action($site = null, $page = 1, $size = 10) {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === ($oOperator = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$result = new \stdClass;
@@ -315,7 +315,7 @@ class main extends \pl\fe\base {
 		$modelSite = $this->model('site');
 		$mySiteIds = [];
 		if (empty($site)) {
-			$mySites = $modelSite->byUser($oUser->id);
+			$mySites = $modelSite->byUser($oOperator->id);
 			foreach ($mySites as $mySite) {
 				$mySiteIds[] = $mySite->id;
 			}
@@ -365,7 +365,7 @@ class main extends \pl\fe\base {
 	 *
 	 */
 	public function update_action($site) {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === ($oOperator = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -390,7 +390,7 @@ class main extends \pl\fe\base {
 		/*记录操作日志*/
 		$matter = $modelSite->byId($site, ['fields' => 'id,name as title']);
 		$matter->type = 'site';
-		$this->model('matter\log')->matterOp($site, $oUser, $matter, 'U');
+		$this->model('matter\log')->matterOp($site, $oOperator, $matter, 'U');
 
 		return new \ResponseData($rst);
 	}
@@ -401,7 +401,7 @@ class main extends \pl\fe\base {
 	 * @param int 标签的分类
 	 */
 	public function applyToHome_action($site) {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === ($oOperator = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -411,7 +411,7 @@ class main extends \pl\fe\base {
 			return new \ObjectNotFoundError();
 		}
 
-		$reply = $modelHome->putSite($site, $oUser);
+		$reply = $modelHome->putSite($site, $oOperator);
 
 		return new \ResponseData($reply);
 	}
@@ -419,14 +419,14 @@ class main extends \pl\fe\base {
 	 * 创建团队首页页面
 	 */
 	public function pageCreate_action($site, $page, $template = 'basic') {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === ($oOperator = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$site = $this->model('site')->byId($site);
 
 		$data = $this->_makePage($site, $page, $template);
 
-		$code = $this->model('code\page')->create($site->id, $oUser->id, $data);
+		$code = $this->model('code\page')->create($site->id, $oOperator->id, $data);
 
 		$rst = $this->model()->update(
 			'xxt_site',
@@ -445,7 +445,7 @@ class main extends \pl\fe\base {
 	 * @param int $codeId
 	 */
 	public function pageReset_action($site, $page, $template = 'basic') {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === ($oOperator = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$site = $this->model('site')->byId($site);

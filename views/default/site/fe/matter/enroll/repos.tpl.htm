@@ -97,7 +97,7 @@
                         </div>
                     </div>
                     <div class="text-center">
-                        <button class='btn btn-default' ng-class="{true:'btn-block',false:'btn-sm'}[isSmallLayout]" ng-if="advCriteriaStatus.dirOpen" ng-click="shiftDir()">清除选择</button>
+                        <button class='btn btn-default' ng-class="{true:'btn-block',false:'btn-sm'}[isSmallLayout]" ng-click="shiftDir()">清除选择</button>
                         <div ng-if="!isSmallLayout" ng-class="{'notClick':!activeDir1.op.childrenDir.length}" style="display:inline-block">
                             <button class='btn btn-default btn-sm' ng-if="!activeDir1.opened" trace-biz ng-click="dirLevel.showDir(activeDir1)">展开<i class='glyphicon glyphicon-chevron-right'></i></button>
                             <button class='btn btn-default btn-sm' ng-if="activeDir1.opened" trace-biz ng-click="dirLevel.hideDir(activeDir1)">收起<i class='glyphicon glyphicon-chevron-left'></i></button>

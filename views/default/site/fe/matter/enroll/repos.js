@@ -32,7 +32,8 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         }
         return false;
     }
-    var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oTasks, _oMocker, _oUser;
+    var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oTasks, _oMocker, _oUser, _activeDirs;
+    _activeDirs = [];
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = {};
     $scope.filter = _oFilter = { isFilter: false }; // 过滤条件
@@ -44,6 +45,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     $scope.recordList = function(pageAt) {
         var url, deferred;
         deferred = $q.defer();
+
         pageAt ? _oPage.at = pageAt : _oPage.at++;
         if (_oPage.at == 1) {
             $scope.repos = [];
@@ -281,34 +283,37 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     $scope.dirLevel = {
         active: function(oDir, level) {
             if (oDir) {
-                oDir.opened = oDir.op.childrenDir && oDir.op.childrenDir.length? true : false;
                 switch (level) {
                     case 1:
+                        oDir.opened = oDir.op.childrenDir && oDir.op.childrenDir.length? true : false;
                         $scope.activeDir1 = oDir;
                         $scope.activeDir2 = '';
                         $scope.activeDir3 = '';
                         $scope.activeDir4 = '';
                         $scope.activeDir5 = '';
+                        _activeDirs.push({'schema_id':oDir.schema_id, 'v':oDir.op.v});
                         break;
                     case 2:
                         $scope.activeDir2 = oDir;
                         $scope.activeDir3 = '';
                         $scope.activeDir4 = '';
                         $scope.activeDir5 = '';
+                        _activeDirs.push({'schema_id':oDir.schema_id, 'v':oDir.op.v});
                         break;
                     case 3:
                         $scope.activeDir3 = oDir;
-
                         $scope.activeDir4 = '';
                         $scope.activeDir5 = '';
+                        _activeDirs.push({'schema_id':oDir.schema_id, 'v':oDir.op.v});
                         break;
                     case 4:
                         $scope.activeDir4 = oDir;
-
                         $scope.activeDir5 = '';
+                        _activeDirs.push({'schema_id':oDir.schema_id, 'v':oDir.op.v});
                         break;
                     case 5:
                         $scope.activeDir5 = oDir;
+                        _activeDirs.push({'schema_id':oDir.schema_id, 'v':oDir.op.v});
                         break;
                     default:
                 }
@@ -481,16 +486,19 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         return scrollTop;
     }
 
-    function addToCache() {
+    function addToCache() {  
         sessionStorage.setItem('listStorageY', getScrollTop());
         var cacheData = {
             'reposFilters': $scope.reposFilters,
             'tasks': $scope.tasks,
             'repos': $scope.repos,
-            'currentFilter': _oFilter,
-            'currentCriteria': _oCriteria,
+            'page': $scope.page,
+            'currentFilter': $scope.filter,
+            'currentCriteria': $scope.criteria,
             'rounds': $scope.rounds,
-            'topics': $scope.topics
+            'topics': $scope.topics,
+            'dirSchemas': $scope.dirSchemas,
+            'currentDirs': _activeDirs
         }
         sessionStorage.setItem('listStorage', JSON.stringify(cacheData));
     };
@@ -506,18 +514,56 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         var tasks;
         _oApp = params.app;
         if(window.sessionStorage.length) {
-            var cacheData = JSON.parse(window.sessionStorage.listStorage);
+            var cacheData;
+            cacheData = JSON.parse(sessionStorage.listStorage);
             $scope.tasks = cacheData.tasks;
             $scope.reposFilters = cacheData.reposFilters;
             $scope.multiFilters = cacheData.reposFilters.length > 2 ? cacheData.reposFilters.slice(2) : [];
             $scope.repos = cacheData.repos;
             $scope.filter = cacheData.currentFilter;
-            $scope.criteria = cacheData.currentCriteria;
+            $scope.criteria = _oCriteria = cacheData.currentCriteria;
+            $scope.page = _oPage = cacheData.page;
             $scope.rounds = cacheData.rounds;
             $scope.topics = cacheData.topics;
+            $scope.dirSchemas = cacheData.dirSchemas;
             $timeout(function() {
-                document.body.scrollTop = document.documentElement.scrollTop = parseInt(sessionStorage.listStorageY);
-                window.sessionStorage.clear();
+                if($scope.dirSchemas && $scope.dirSchemas.length) {
+                    $scope.advCriteriaStatus.dirOpen = true;
+                    if (cacheData.currentDirs.length) {
+                        var _oDirSchemas, _oCurrentDirs, _oDirFir;
+                        _oDirSchemas = $scope.dirSchemas;
+                        _oCurrentDirs = cacheData.currentDirs;
+                        
+                        _oCurrentDirs.forEach(function(oCurDir) {
+                            _oDirSchemas.forEach(function(oDir) {
+                                if(oDir.schema_id==oCurDir.schema_id && oDir.op.v==oCurDir.v) {
+                                    $scope.activeDir1 = _oDirFir = oDir;
+                                }
+                                return false;
+                            });
+                            return false;
+                        });
+
+                        $scope.dirSchemas.forEach(function(oDir) {
+                            if (oDir.schema_id==currentDirs[0].schema_id && oDir.op.v==currentDirs[0].v) {
+                                $scope.activeDir1 = oDir;
+                                if(currentDirs[1]) {
+                                    oDir.op.childrenDir.forEach(function(children) {
+                                        if(children.schema_id==currentDirs[1].schema_id&&oChildDir.op.v==currentDirs[1].v) {
+                                            $scope.active2 = children;
+
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
+                }
+                $scope.recordList(_oPage.at).then(function(rsp) {
+                    http2.merge($scope.repos, rsp.data.records);
+                    document.body.scrollTop = document.documentElement.scrollTop = parseInt(sessionStorage.listStorageY);
+                    window.sessionStorage.clear();
+                }); 
             });
         } else {
             if (_oApp.actionRule) {
@@ -566,6 +612,25 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                 });
                 $scope.recordList(1);
             });
+            /* 作为分类目录的题目 */
+            http2.get(LS.j('repos/dirSchemasGet', 'site', 'app')).then(function(rsp) {
+                $scope.dirSchemas = rsp.data;
+                if ($scope.dirSchemas && $scope.dirSchemas.length) {
+                    $scope.advCriteriaStatus.dirOpen = true;
+                    var fnSetParentDir = function(oDir) {
+                        if (oDir.op && oDir.op.childrenDir && oDir.op.childrenDir.length) {
+                            oDir.op.childrenDir.forEach(function(oChildDir) {
+                                oChildDir.parentDir = oDir;
+                                fnSetParentDir(oChildDir);
+                            });
+                        }
+                    };
+                    $scope.dirSchemas.forEach(function(oDir) {
+                        oDir.opened = false;
+                        /*fnSetParentDir(oDir);*/
+                    });
+                }
+            });
         }
         /* 活动任务 */
         if (_oApp.actionRule) {
@@ -583,25 +648,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         if (_oApp.reposConfig && _oApp.reposConfig.defaultOrder) {
             _oCriteria.orderby = _oApp.reposConfig.defaultOrder;
         }
-        /* 作为分类目录的题目 */
-        http2.get(LS.j('repos/dirSchemasGet', 'site', 'app')).then(function(rsp) {
-            $scope.dirSchemas = rsp.data;
-            if ($scope.dirSchemas && $scope.dirSchemas.length) {
-                $scope.advCriteriaStatus.dirOpen = true;
-                var fnSetParentDir = function(oDir) {
-                    if (oDir.op && oDir.op.childrenDir && oDir.op.childrenDir.length) {
-                        oDir.op.childrenDir.forEach(function(oChildDir) {
-                            oChildDir.parentDir = oDir;
-                            fnSetParentDir(oChildDir);
-                        });
-                    }
-                };
-                $scope.dirSchemas.forEach(function(oDir) {
-                    oDir.opened = false;
-                    fnSetParentDir(oDir);
-                });
-            }
-        });
         /* 设置页面分享信息 */
         $scope.setSnsShare(null, null, { target_type: 'repos', target_id: _oApp.id });
         /* 设置页面操作 */

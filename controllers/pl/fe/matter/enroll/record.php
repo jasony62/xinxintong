@@ -2334,7 +2334,7 @@ class record extends main_base {
 			return new \ObjectNotFoundError();
 		}
 		$modelRnd = $this->model('matter\enroll\round');
-		$oAssignedRnd = $$modelRnd->byId($round);
+		$oAssignedRnd = $modelRnd->byId($round);
 		if (false === $oAssignedRnd) {
 			return new \ObjectNotFoundError();
 		}

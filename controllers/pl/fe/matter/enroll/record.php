@@ -2362,7 +2362,7 @@ class record extends main_base {
 				$rounds = $oRndResult->rounds;
 			}
 			// 源活动中，根据开始时间，停止时间获得的被汇总轮次
-			if ($oAssignedRnd->purpose === 'C') {
+			if ($oAssignedRnd->purpose === 'S') {
 				$rounds = $modelRnd->getSummaryInclude($oDsApp, $oAssignedRnd->start_at, $oAssignedRnd->end_at);
 			}
 			if (empty($rounds)) {

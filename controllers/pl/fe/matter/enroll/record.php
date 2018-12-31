@@ -2373,6 +2373,8 @@ class record extends main_base {
 		};
 
 		$modelRecDat = $this->model('matter\enroll\data');
+		$oSyncResult = new \stdClass;
+		$oSyncResult->total = 0;
 		$aCachedDsApp = []; // 已经取过的活动
 		$aCachedDsAppRids = []; // 已经取过的活动轮次
 		foreach ($oApp->dataSchemas as $oSchema) {
@@ -2396,26 +2398,27 @@ class record extends main_base {
 					continue;
 				}
 
+				$syncRecordNum = 0;
 				switch ($oSchema->ds->type) {
 				case 'act':
-					$this->_syncNumberWithAct($oApp, $oSchema, $oDsApp, $oSchema->ds->schema, $oAssignedRnd, $oDsAssignedRids);
+					$syncRecordNum = $this->_syncNumberWithAct($oApp, $oSchema, $oDsApp, $oSchema->ds->schema, $oAssignedRnd, $oDsAssignedRids);
 					break;
 				case 'input':
 					$dsSchemaIds = $fnGetDsSchemaIds($oSchema, $oDsApp, function ($oDsSchema) {return $oDsSchema->type === 'shorttext' && $this->getDeepValue($oDsSchema, 'format') === 'number';});
 					if (count($dsSchemaIds)) {
-						$this->_syncNumberWithInput($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oAssignedRnd, $oDsAssignedRids);
+						$syncRecordNum = $this->_syncNumberWithInput($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oAssignedRnd, $oDsAssignedRids);
 					}
 					break;
 				case 'score':
 					$dsSchemaIds = $fnGetDsSchemaIds($oSchema, $oDsApp, function ($oDsSchema) {return $this->getDeepValue($oDsSchema, 'requireScore') === 'Y';});
 					if (count($dsSchemaIds)) {
-						$this->_syncNumberWithScore($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oAssignedRnd, $oDsAssignedRids);
+						$syncRecordNum = $this->_syncNumberWithScore($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oAssignedRnd, $oDsAssignedRids);
 					}
 					break;
 				case 'score_rank':
 					$dsSchemaIds = $fnGetDsSchemaIds($oSchema, $oDsApp, function ($oDsSchema) {return $this->getDeepValue($oDsSchema, 'requireScore') === 'Y';});
 					if (count($dsSchemaIds)) {
-						$this->_syncNumberWithScoreRank($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oAssignedRnd, $oDsAssignedRids);
+						$syncRecordNum = $this->_syncNumberWithScoreRank($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oAssignedRnd, $oDsAssignedRids);
 					}
 					break;
 				case 'option':
@@ -2442,6 +2445,9 @@ class record extends main_base {
 					// }
 					break;
 				}
+				/* 更新结果记录 */
+				$oSyncResult->{$oSchema->id} = $syncRecordNum;
+				$oSyncResult->total += $syncRecordNum;
 			}
 			/* 计算得分的排名 */
 			if ($this->getDeepValue($oSchema, 'requireScore') === 'Y') {
@@ -2449,7 +2455,7 @@ class record extends main_base {
 			}
 		}
 
-		return new \ResponseData('ok');
+		return new \ResponseData($oSyncResult);
 	}
 	/**
 	 * 从题目指定的数据源同步数据
@@ -2511,6 +2517,8 @@ class record extends main_base {
 				$modelRec->setData($oRecUser, $oApp, $oUserRec->enroll_key, $oRecData);
 			}
 		}
+
+		return count($oUserRecords);
 	}
 	/**
 	 * 从题目指定的数据源中同步题目

@@ -2663,7 +2663,7 @@ class record extends main_base {
 	/**
 	 * 从活动所属项目同步用户记录
 	 */
-	public function syncMissionUser_action($app) {
+	public function syncMissionUser_action($app, $round) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -2679,6 +2679,12 @@ class record extends main_base {
 		$modelMis = $this->model('matter\mission');
 		$oMission = $modelMis->byId($oApp->mission_id);
 		if (false === $oMission) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelRnd = $this->model('matter\enroll\round');
+		$oAssignedRnd = $modelRnd->byId($round);
+		if (false === $oAssignedRnd) {
 			return new \ObjectNotFoundError();
 		}
 
@@ -2708,39 +2714,19 @@ class record extends main_base {
 			return new \ParameterError('项目用户数据为空');
 		}
 
-		$oPosted = $this->getPostJson();
-
-		$oAssignedRnds = [];
-		$modelRnd = $this->model('matter\enroll\round');
-		if (empty($oPosted->rid)) {
-			$oAssignedRnd = $modelRnd->getActive($oApp, ['fields' => 'id,rid,mission_rid']);
-			if ($oAssignedRnd) {
-				$oAssignedRnds[] = $oAssignedRnd;
-			}
-		} else {
-			foreach ($oPosted->rid as $rid) {
-				$oAssignedRnd = $modelRnd->byId($rid, ['fields' => 'id,rid,mission_rid']);
-				if ($oAssignedRnd) {
-					$oAssignedRnds[] = $oAssignedRnd;
-				}
-			}
-		}
-
 		$newRecordCount = 0; // 新生成的记录数
 		$modelRec = $this->model('matter\enroll\record');
-		foreach ($oAssignedRnds as $oAssignedRnd) {
-			foreach ($misUsers as $oMisUser) {
-				if (empty($oMisUser->userid)) {
-					continue;
-				}
-				$oMockUser = new \stdClass;
-				$oMockUser->uid = $oMisUser->userid;
-				$records = $modelRec->byUser($oApp, $oMockUser, ['rid' => $oAssignedRnd->rid]);
-				if (empty($records)) {
-					$oMockUser->nickname = $oMisUser->nickname;
-					$modelRec->enroll($oApp, $oMockUser, ['nickname' => $oMockUser->nickname, 'assignedRid' => $oAssignedRnd->rid]);
-					$newRecordCount++;
-				}
+		foreach ($misUsers as $oMisUser) {
+			if (empty($oMisUser->userid)) {
+				continue;
+			}
+			$oMockUser = new \stdClass;
+			$oMockUser->uid = $oMisUser->userid;
+			$records = $modelRec->byUser($oApp, $oMockUser, ['rid' => $oAssignedRnd->rid]);
+			if (empty($records)) {
+				$oMockUser->nickname = $oMisUser->nickname;
+				$modelRec->enroll($oApp, $oMockUser, ['nickname' => $oMockUser->nickname, 'assignedRid' => $oAssignedRnd->rid]);
+				$newRecordCount++;
 			}
 		}
 

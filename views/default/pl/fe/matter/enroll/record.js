@@ -189,14 +189,35 @@ define(['frame'], function(ngApp) {
             window.open(url);
         }
         $scope.syncMissionUser = function() {
-            var oPosted = {};
-            if ($scope.criteria.record && $scope.criteria.record.rid) {
-                oPosted.rid = $scope.criteria.record.rid;
-            }
-            http2.post('/rest/pl/fe/matter/enroll/record/syncMissionUser?app=' + $scope.app.id, oPosted).then(function(rsp) {
-                if (rsp.data > 0) {
+            //var oPosted = {};
+            //if ($scope.criteria.record && $scope.criteria.record.rid) {
+            //    oPosted.rid = $scope.criteria.record.rid;
+            //}
+            http2.post('/rest/script/time', { html: { 'rounds': '/views/default/pl/fe/matter/enroll/component/roundPicker' } }).then(function(rsp) {
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/roundPicker.html?_=' + rsp.data.html.rounds.time,
+                    controller: ['$scope', '$uibModalInstance', 'tkEnrollRound', function($scope2, $mi, tkEnlRnd) {
+                        var _oPage, _oResult;
+                        $scope2.page = _oPage = {};
+                        $scope2.result = _oResult = {};
+                        $scope2.doSearch = function() {
+                            tkEnlRnd.list($scope.app, _oPage).then(function(oResult) {
+                                $scope2.rounds = oResult.rounds;
+                            });
+                        };
+                        $scope2.dismiss = function() { $mi.dismiss(); };
+                        $scope2.ok = function() {
+                            if (_oResult.rid) {
+                                http2.get('/rest/pl/fe/matter/enroll/record/syncMissionUser?app=' + $scope.app.id + '&round=' + _oResult.rid).then(function(rsp) {
+                                    rsp.data > 0 ? $mi.close() : $mi.dismiss();
+                                });
+                            }
+                        };
+                        $scope2.doSearch();
+                    }]
+                }).result.then(function() {
                     $scope.doSearch(1);
-                }
+                });
             });
         };
         $scope.syncWithDataSource = function() {

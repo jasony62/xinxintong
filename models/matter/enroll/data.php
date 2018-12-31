@@ -603,11 +603,11 @@ class data_model extends entity_model {
 	 */
 	public function setScoreRank($oApp, $oSchema, $rid) {
 		/* 更新指定轮次的数据 */
-		$fnRankByRound = function ($assignedRid) use ($oApp, $oSchema) {
+		$fnRankByRound = function ($oRnd) use ($oApp, $oSchema) {
 			$q = [
 				'id,score',
 				'xxt_enroll_record_data',
-				['aid' => $oApp->id, 'rid' => $assignedRid, 'schema_id' => $oSchema->id, 'state' => 1],
+				['aid' => $oApp->id, 'rid' => $oRnd->rid, 'schema_id' => $oSchema->id, 'state' => 1],
 			];
 			$q2['o'] = 'score desc,submit_at asc';
 			$items = $this->query_objs_ss($q, $q2);
@@ -628,13 +628,19 @@ class data_model extends entity_model {
 			return count($items);
 		};
 
+		/* 指定了需要汇总的轮次 */
+		$modelRnd = $this->model('matter\enroll\round');
+		$oAssignedRnd = $modelRnd->byId($rid, ['fields' => 'rid,start_at']);
+		if (false === $oAssignedRnd) {
+			return 0;
+		}
 		/* 更新指定轮次 */
-		$cnt = $fnRankByRound($rid);
+		$cnt = $fnRankByRound($oAssignedRnd);
 		if ($cnt > 0) {
 			/* 更新汇总轮次 */
-			$oSumRnd = $this->model('matter\enroll\round')->getSummary($oApp, ['fields' => 'id,rid,title,start_at,state', 'assignedRid' => $rid]);
-			if ($oSumRnd) {
-				$fnRankByRound($oSumRnd->rid);
+			$oSumRnds = $modelRnd->getSummary($oApp, $oAssignedRnd->start_at, ['fields' => 'id,rid,title,start_at,state', 'includeRounds' => 'N']);
+			if (!empty($oSumRnds)) {
+				array_walk($oSumRnds, $fnRankByRound);
 			}
 		}
 

@@ -200,8 +200,31 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.syncWithDataSource = function() {
-            http2.get('/rest/pl/fe/matter/enroll/record/syncWithDataSource?app=' + $scope.app.id).then(function(rsp) {
-                $scope.doSearch(1);
+            http2.post('/rest/script/time', { html: { 'rounds': '/views/default/pl/fe/matter/enroll/component/roundPicker' } }).then(function(rsp) {
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/roundPicker.html?_=' + rsp.data.html.rounds.time,
+                    controller: ['$scope', '$uibModalInstance', 'tkEnrollRound', function($scope2, $mi, tkEnlRnd) {
+                        var _oPage, _oResult;
+                        $scope2.page = _oPage = {};
+                        $scope2.result = _oResult = {};
+                        $scope2.doSearch = function() {
+                            tkEnlRnd.list($scope.app, _oPage).then(function(oResult) {
+                                $scope2.rounds = oResult.rounds;
+                            });
+                        };
+                        $scope2.dismiss = function() { $mi.dismiss(); };
+                        $scope2.ok = function() {
+                            if (_oResult.rid) {
+                                http2.get('/rest/pl/fe/matter/enroll/record/syncWithDataSource?app=' + $scope.app.id + '&round=' + _oResult.rid).then(function(rsp) {
+                                    $mi.close();
+                                });
+                            }
+                        };
+                        $scope2.doSearch();
+                    }]
+                }).result.then(function() {
+                    $scope.doSearch(1);
+                });
             });
         };
         $scope.syncWithGroupApp = function() {
@@ -209,12 +232,8 @@ define(['frame'], function(ngApp) {
                 templateUrl: 'syncWithGroupApp.html',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     $scope2.config = { $overwrite: 'N' };
-                    $scope2.ok = function() {
-                        $mi.close($scope2.config);
-                    };
-                    $scope2.cancel = function() {
-                        $mi.dismiss('cancel');
-                    };
+                    $scope2.ok = function() { $mi.close($scope2.config); };
+                    $scope2.cancel = function() { $mi.dismiss('cancel'); };
                 }],
                 backdrop: 'static',
             }).result.then(function(oConfig) {

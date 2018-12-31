@@ -498,6 +498,15 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
             var url = '/rest/pl/fe/matter/enroll/round/remove?app=' + oApp.id + '&rid=' + oRound.rid;
             return http2.get(url);
         };
+        this.list = function(oApp, oPage) {
+            var url, defer;
+            defer = $q.defer();
+            url = '/rest/pl/fe/matter/enroll/round/list?app=' + oApp.id;
+            http2.get(url, { page: oPage }).then(function(rsp) {
+                defer.resolve(rsp.data);
+            });
+            return defer.promise;
+        };
     }]);
     ngModule.provider('srvEnrollRound', function() {
         var _rounds, _oPage;

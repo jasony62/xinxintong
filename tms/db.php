@@ -433,14 +433,11 @@ class TMS_DB {
 							break;
 						case 'or':
 							if (is_array($v->pat) && count($v->pat) > 1) {
-								$orClauses = [];
-								foreach ($v->pat as $subClause) {
-									if (is_string($subClause)) {
-										$orClauses[] = $subClause;
-									}
+								$orClauses = array_filter($v->pat, function ($subClause) {return is_string($subClause);});
+								if (count($orClauses)) {
+									$clause = '(' . implode(' or ', $orClauses) . ')';
+									$clauses[] = $clause;
 								}
-								$clause = '(' . implode(' or ', $orClauses) . ')';
-								$clauses[] = $clause;
 							}
 							break;
 						case '>':

@@ -214,7 +214,7 @@ class event_model extends \TMS_MODEL {
 			return 0;
 		}
 		$sumRnds = $modelRnd->getSummary($oApp, $oAssignedRnd->start_at, ['fields' => 'id,rid,title,start_at,state', 'includeRounds' => 'N']);
-		if (count($sumRnds)) {
+		if (!empty($sumRnds)) {
 			foreach ($sumRnds as $oSumRnd) {
 				if ($oSumRnd && $oSumRnd->state === '1') {
 					$oUpdatedEnlUsrSumData = $modelUsr->sumByRound($oApp, $oUser, $oSumRnd, $oUpdatedEnlUsrData);

@@ -1,30 +1,37 @@
 define(['frame', 'groupService'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlEntry', ['$scope', 'mediagallery', '$timeout', 'srvEnrollApp', 'srvTimerNotice', function($scope, mediagallery, $timeout, srvEnrollApp, srvTimerNotice) {
-        srvEnrollApp.get().then(function(app) {
-            var oEntry;
-            oEntry = {
-                url: app.entryUrl,
-                qrcode: '/rest/site/fe/matter/enroll/qrcode?site=' + app.siteid + '&url=' + encodeURIComponent(app.entryUrl),
-                pages: []
-            };
-            $scope.entry = oEntry;
-        });
+    ngApp.provider.controller('ctrlEntry', ['$scope', 'mediagallery', '$timeout', '$uibModal', 'srvEnrollApp', 'srvTimerNotice', function($scope, mediagallery, $timeout, $uibModal, srvEnlApp, srvTimerNotice) {
         $scope.setPic = function() {
             var options = {
                 callback: function(url) {
                     $scope.app.pic = url + '?_=' + (new Date * 1);
-                    srvEnrollApp.update('pic');
+                    srvEnlApp.update('pic');
                 }
             };
             mediagallery.open($scope.app.siteid, options);
         };
         $scope.removePic = function() {
             $scope.app.pic = '';
-            srvEnrollApp.update('pic');
+            srvEnlApp.update('pic');
         };
         $scope.downloadQrcode = function(url) {
             $('<a href="' + url + '" download="登记二维码.png"></a>')[0].click();
+        };
+        $scope.openRankSetting = function() {
+            $uibModal.open({
+                templateUrl: 'rankSetting.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    var oApp = $scope.app;
+                    $scope2.rankConfig = oApp.rankConfig;
+                    $scope2.singleSchemas = oApp.dataSchemas.filter(function(oSchema) { return oSchema.type === 'single'; });
+                    $scope2.dismiss = function() { $mi.dismiss(); };
+                    $scope2.save = function() {
+                        $scope.update('rankConfig').then(function() {
+                            $mi.close();
+                        });
+                    };
+                }]
+            });
         };
         /* 定时任务服务 */
         $scope.srvTimer = srvTimerNotice;
@@ -34,6 +41,14 @@ define(['frame', 'groupService'], function(ngApp) {
             if (oTimer = $scope.srvTimer.timerById(data.state)) {
                 oTimer.task.task_expire_at = data.value;
             }
+        });
+        srvEnlApp.get().then(function(app) {
+            var oEntry;
+            oEntry = {
+                url: app.entryUrl,
+                qrcode: '/rest/site/fe/matter/enroll/qrcode?site=' + app.siteid + '&url=' + encodeURIComponent(app.entryUrl)
+            };
+            $scope.entry = oEntry;
         });
     }]);
     /**
@@ -60,7 +75,7 @@ define(['frame', 'groupService'], function(ngApp) {
     /**
      * 任务提醒
      */
-    ngApp.provider.controller('ctrlTaskRemind', ['$scope', '$parse', '$q', 'srvEnrollApp', 'tkGroupApp', function($scope, $parse, $q, srvEnrollApp, tkGroupApp) {
+    ngApp.provider.controller('ctrlTaskRemind', ['$scope', '$parse', '$q', 'srvEnrollApp', 'tkGroupApp', function($scope, $parse, $q, srvEnlApp, tkGroupApp) {
         function fnGetEntryRuleMschema() {
             var oAppEntryRule = $scope.app.entryRule;
             if (oAppEntryRule.scope && oAppEntryRule.scope.member === 'Y') {
@@ -127,7 +142,7 @@ define(['frame', 'groupService'], function(ngApp) {
                     break;
             }
         };
-        srvEnrollApp.get().then(function(oApp) {
+        srvEnlApp.get().then(function(oApp) {
             $scope.srvTimer.list(oApp, 'remind').then(function(timers) {
                 if (timers && timers.length) {
                     timers.forEach(function(oTimer) {
@@ -141,7 +156,7 @@ define(['frame', 'groupService'], function(ngApp) {
     /**
      * 任务提醒
      */
-    ngApp.provider.controller('ctrlUndoneRemind', ['$scope', '$parse', 'srvEnrollApp', 'tkGroupApp', function($scope, $parse, srvEnrollApp, tkGroupApp) {
+    ngApp.provider.controller('ctrlUndoneRemind', ['$scope', '$parse', 'srvEnrollApp', 'tkGroupApp', function($scope, $parse, srvEnlApp, tkGroupApp) {
         $scope.assignGroup = function(oTimer) {
             tkGroupApp.choose($scope.app).then(function(oResult) {
                 var oGrpApp;
@@ -155,7 +170,7 @@ define(['frame', 'groupService'], function(ngApp) {
                 }
             });
         };
-        srvEnrollApp.get().then(function(oApp) {
+        srvEnlApp.get().then(function(oApp) {
             $scope.srvTimer.list(oApp, 'undone').then(function(timers) {
                 $scope.timers = timers;
             });

@@ -1,11 +1,13 @@
 <div class="modal-header">
     <button class="close" ng-click="cancel()">×</button>
-    <h5 class="modal-title">设置数据来源</h5>
+    <h5 class="modal-title">设置数据来源【{{::schema.title}}】</h5>
 </div>
 <div class="modal-body">
     <div class='row'>
         <div class='col-md-12'>
-            <h4 style='display:inline-block'><span class='label label-default' ng-bind="result.fromApp.title"></span></h4>
+            <div class='form-group'>
+                <span class='label label-default' ng-bind="result.fromApp.title"></span>
+            </div>
         </div>
     </div>
     <div class='row'>
@@ -30,7 +32,7 @@
             <label>2.选择数据来源 <span ng-if="!result.type" class='text-danger glyphicon glyphicon-hand-left'></span></label>
             <div class='radio'>
                 <label>
-                    <input type='radio' value='input' ng-model="result.type">填写格式为数值的填写题</label>
+                    <input type='radio' value='input' ng-model="result.type">填写限制为数值的填写题</label>
             </div>
             <div class='radio'>
                 <label>
@@ -44,7 +46,7 @@
                 <label>
                     <input type='radio' value='act' ng-model="result.type">用户在活动中的行为数据</label>
             </div>
-            <div class='radio'>
+            <div class='radio hide'>
                 <label>
                     <input type='radio' value='option' ng-model="result.type">动态选项选择题中用户提供的选项获得的选择数</label>
             </div>

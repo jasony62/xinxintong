@@ -462,7 +462,7 @@ class repos extends base {
 			foreach ($oResult->records as $oRecord) {
 				/* 获取记录的投票信息 */
 				if (!empty($oApp->voteConfig)) {
-					$aCanVoteSchemas = $this->model('matter\enroll\schema')->getCanVote($oApp, $oRecord->round);
+					$aCanVoteSchemas = $this->model('matter\enroll\task')->getCanVote($oApp, $oUser, $oRecord->round);
 				}
 				$aCoworkState = [];
 				/* 清除非共享数据 */
@@ -984,7 +984,7 @@ class repos extends base {
 			}
 			/* 获取记录的投票信息 */
 			if (!empty($oApp->voteConfig)) {
-				$aCanVoteSchemas = $this->model('matter\enroll\schema')->getCanVote($oApp, $oRecord->round);
+				$aCanVoteSchemas = $this->model('matter\enroll\task')->getCanVote($oApp, $oUser, $oRecord->round);
 				$oVoteResult = new \stdClass;
 				foreach ($aCanVoteSchemas as $oCanVoteSchema) {
 					if ($this->getDeepValue($oCanVoteSchema, 'cowork') === 'Y') {continue;}

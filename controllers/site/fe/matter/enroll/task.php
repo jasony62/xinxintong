@@ -42,14 +42,14 @@ class task extends base {
 		if (false === $oApp || $oApp->state !== '1' || empty($oApp->voteConfig)) {
 			return new \ObjectNotFoundError();
 		}
+		$oUser = $this->getUser($oApp);
+
 		/* 获取记录的投票信息 */
-		$aCanVoteSchemas = $this->model('matter\enroll\schema')->getCanVote($oApp);
+		$aCanVoteSchemas = $this->model('matter\enroll\task')->getCanVote($oApp, $oUser);
 		if (empty($aCanVoteSchemas)) {
 			return new \ObjectNotFoundError('没有设置投票题目');
 		}
 		$oActiveRnd = $oApp->appRound;
-
-		$oUser = $this->getUser($oApp);
 
 		$modelRecDat = $this->model('matter\enroll\data');
 		$oResult = new \stdClass;
@@ -154,7 +154,7 @@ class task extends base {
 			return false;
 		}
 
-		$aQuestionRules = $this->model('matter\enroll\schema')->getCanQuestion($oApp);
+		$aQuestionRules = $this->model('matter\enroll\task')->getCanQuestion($oApp, $oUser);
 		if (empty($aQuestionRules)) {
 			return false;
 		}
@@ -162,11 +162,6 @@ class task extends base {
 		$aRunnings = [];
 		foreach ($aQuestionRules as $oQuestionRule) {
 			if ($this->getDeepValue($oQuestionRule, 'state') === 'IP') {
-				if (isset($oQuestionRule->groups) && is_array($oQuestionRule->groups)) {
-					if (false === tms_array_search($oQuestionRule->groups, function ($oRule) use ($oUser) {return $oRule->do === $this->getDeepValue($oUser, 'group_id');})) {
-						continue;
-					}
-				}
 				$aRunnings[$oQuestionRule->id] = $oQuestionRule;
 			}
 		}
@@ -188,7 +183,7 @@ class task extends base {
 			return false;
 		}
 
-		$aAnswerSchemas = $this->model('matter\enroll\schema')->getCanAnswer($oApp);
+		$aAnswerSchemas = $this->model('matter\enroll\task')->getCanAnswer($oApp, $oUser);
 		if (empty($aAnswerSchemas)) {
 			return false;
 		}
@@ -196,11 +191,6 @@ class task extends base {
 		$aRunnings = [];
 		foreach ($aAnswerSchemas as $oAnswerSchema) {
 			if ($this->getDeepValue($oAnswerSchema, 'answer.state') === 'IP') {
-				if (isset($oAnswerSchema->answer->groups) && is_array($oAnswerSchema->answer->groups)) {
-					if (false === tms_array_search($oAnswerSchema->answer->groups, function ($oRule) use ($oUser) {return $oRule->do === $this->getDeepValue($oUser, 'group_id');})) {
-						continue;
-					}
-				}
 				$aRunnings[$oAnswerSchema->id] = $oAnswerSchema;
 			}
 		}
@@ -222,7 +212,7 @@ class task extends base {
 			return false;
 		}
 
-		$aVoteSchemas = $this->model('matter\enroll\schema')->getCanVote($oApp);
+		$aVoteSchemas = $this->model('matter\enroll\task')->getCanVote($oApp, $oUser);
 		if (empty($aVoteSchemas)) {
 			return false;
 		}
@@ -236,7 +226,6 @@ class task extends base {
 		if (empty($aRunnings)) {
 			return false;
 		}
-
 		$oTask = new \stdClass;
 		$oTask->name = 'vote';
 		$oTask->schemas = $aRunnings;
@@ -251,23 +240,23 @@ class task extends base {
 			return false;
 		}
 
-		$configs = $this->model('matter\enroll\schema')->getCanScore($oApp);
-		if (empty($configs)) {
+		$aScoreSchemas = $this->model('matter\enroll\task')->getCanScore($oApp, $oUser);
+		if (empty($aScoreSchemas)) {
 			return false;
 		}
-		$runnings = [];
-		foreach ($configs as $oConfig) {
-			if ($this->getDeepValue($oConfig, 'state') === 'IP') {
-				$runnings[] = $oConfig;
+		$aRunnings = [];
+		foreach ($aScoreSchemas as $oScoreSchema) {
+			if ($this->getDeepValue($oScoreSchema, 'score.state') === 'IP') {
+				$aRunnings[] = $oScoreSchema;
 			}
 		}
-		if (empty($runnings)) {
+		if (empty($aRunnings)) {
 			return false;
 		}
 
 		$oTask = new \stdClass;
 		$oTask->name = 'score';
-		$oTask->configs = $runnings;
+		$oTask->schemas = $aRunnings;
 
 		return $oTask;
 	}

@@ -144,43 +144,49 @@ class record_model extends record_base {
 	 * @param string $childRid 需要进行汇总的轮次
 	 */
 	public function setSummaryRec($oUser, $oApp, $childRid) {
+		/* 指定了需要汇总的轮次 */
+		$modelRnd = $this->model('matter\enroll\round');
+		$oChildRnd = $modelRnd->byId($childRid, ['fields' => 'start_at']);
+		if (false === $oChildRnd) {
+			return [false, '指定的轮次不存在'];
+		}
 		/* 是否存在匹配的汇总轮次 */
-		$oSumRnd = $this->model('matter\enroll\round')->getSummary($oApp, ['fields' => 'id,rid,title,start_at,state', 'assignedRid' => $childRid]);
-		if (false === $oSumRnd) {
+		$oSumRnds = $modelRnd->getSummary($oApp, $oChildRnd->start_at, ['fields' => 'id,rid,title,start_at,state']);
+		if (empty($oSumRnds)) {
 			return [false, '不存在匹配的汇总轮次'];
 		}
-		/* 汇总轮次上是否已经有用户记录 */
-		$oSumRec = $this->lastByUser($oApp, $oUser, ['rid' => $oSumRnd->rid, ['enroll_key']]);
-		if (false === $oSumRec) {
-			$oSumRec = $this->enroll($oApp, $oUser, ['assignedRid' => $oSumRnd->rid]);
-		}
-		/* 汇总覆盖轮次的数据 */
-		$oNumberRecData = new \stdClass;
-		$q = [
-			'sum(value)',
-			'xxt_enroll_record_data',
-			['aid' => $oApp->id, 'userid' => $oUser->uid, 'state' => 1, 'purpose' => 'C'],
-		];
-		if (!empty($oSumRnd->includeRounds)) {
-			foreach ($oSumRnd->includeRounds as $oRnd) {
-				$q[2]['rid'][] = $oRnd->rid;
+		foreach ($oSumRnds as $oSumRnd) {
+			/* 汇总轮次上是否已经有用户记录 */
+			$oSumRec = $this->lastByUser($oApp, $oUser, ['rid' => $oSumRnd->rid, ['enroll_key']]);
+			if (false === $oSumRec) {
+				$oSumRec = $this->enroll($oApp, $oUser, ['assignedRid' => $oSumRnd->rid]);
 			}
-		}
-		/* 只有数值题可以有目标值 */
-		foreach ($oApp->dynaDataSchemas as $oSchema) {
-			if ($oSchema->type === 'shorttext' && $this->getDeepValue($oSchema, 'format') === 'number') {
-				$q[2]['schema_id'] = $oSchema->id;
-				$sumVal = $this->query_val_ss($q);
-				$oNumberRecData->{$oSchema->id} = $sumVal;
+			/* 汇总覆盖轮次的数据 */
+			$oNumberRecData = new \stdClass;
+			$q = [
+				'sum(value)',
+				'xxt_enroll_record_data',
+				['aid' => $oApp->id, 'userid' => $oUser->uid, 'state' => 1, 'purpose' => 'C'],
+			];
+			if (!empty($oSumRnd->includeRounds)) {
+				$q[2]['rid'] = array_map(function ($oRnd) {return $oRnd->rid;}, $oSumRnd->includeRounds);
 			}
+			/* 只有数值题可以有目标值 */
+			foreach ($oApp->dynaDataSchemas as $oSchema) {
+				if ($oSchema->type === 'shorttext' && $this->getDeepValue($oSchema, 'format') === 'number') {
+					$q[2]['schema_id'] = $oSchema->id;
+					$sumVal = $this->query_val_ss($q);
+					$oNumberRecData->{$oSchema->id} = $sumVal;
+				}
+			}
+
+			/* 更新用户汇总数据 */
+			$this->setData($oUser, $oApp, $oSumRec->enroll_key, $oNumberRecData, '', true);
+
+			$oSumRec = $this->byId($oSumRec->enroll_key);
 		}
 
-		/* 更新用户汇总数据 */
-		$this->setData($oUser, $oApp, $oSumRec->enroll_key, $oNumberRecData, '', true);
-
-		$oSumRec = $this->byId($oSumRec->enroll_key);
-
-		return [true, $oSumRec, $oSumRnd];
+		return [true];
 	}
 	/**
 	 * 更新得分数据排名

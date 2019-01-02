@@ -282,7 +282,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     $scope.dirLevel = {
         active: function(oDir, level) {
             if (oDir) {
-                oDir.opened = oDir.op.childrenDir && oDir.op.childrenDir.length? true : false;
+                oDir.opened = oDir.op.childrenDir && oDir.op.childrenDir.length ? true : false;
                 switch (level) {
                     case 1:
                         $scope.activeDir1 = oDir;
@@ -393,7 +393,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     };
     $scope.scoreSchema = function() {
         var _oScoreApp;
-        _oScoreApp = $parse('score.configs[0].scoreApp')(_oTasks);
+        _oScoreApp = $parse('score.schemas[0].scoreApp')(_oTasks);
         if (!_oScoreApp || !_oScoreApp.id) return;
         $uibModal.open({
             template: require('./_asset/score-app.html'),

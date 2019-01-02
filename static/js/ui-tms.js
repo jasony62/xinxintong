@@ -117,9 +117,6 @@ controller('ComboxController', ['$scope', function($scope) {
                         scope.obj[scope.prop] = scope.editing.value;
                         scope.valueChanged();
                     }
-                    //if (scope.obj[scope.prop] && scope.obj[scope.prop].length === 0) {
-                    //    scope.remove();
-                    //}
                 }
             }
 
@@ -173,18 +170,16 @@ controller('ComboxController', ['$scope', function($scope) {
                 }
             };
             scope.$on('xxt.editable.add', function(event, newObj) {
-                if (newObj === scope.obj) {
-                    scope.focus = true;
-                }
+                if (newObj === scope.obj) scope.focus = true;
             });
             scope.$watch('focus', function(nv, ov) {
-                if (nv) {
-                    $(elem).find('input').on('blur', onBlur).focus();
-                }
+                if (nv) $(elem).find('input').on('blur', onBlur).focus();
             }, true);
-            scope.editing = {
-                value: scope.obj[scope.prop]
-            };
+            scope.editing = {};
+            if (scope.obj && scope.prop) scope.editing.value = scope.obj[scope.prop];
+            scope.$watch('obj', function(nv, ov) {
+                if (nv && nv !== ov && angular.isObject(nv) && scope.prop) scope.editing.value = nv[scope.prop];
+            });
         }
     }
 }]).directive('tmsArrayCheckbox', ['$timeout', '$parse', function($timeout, $parse) {

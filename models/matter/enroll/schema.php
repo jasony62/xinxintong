@@ -103,7 +103,8 @@ class schema_model extends \TMS_MODEL {
 							$oSchema->weight = 1;
 						} else if (!is_numeric($oSchema->weight)) {
 							/* 检查是否为可运行的表达式 */
-							if (false === $this->scoreByWeight($oSchema, 5)) {
+							$aCheckResult = $this->scoreByWeight($oSchema, 5);
+							if (false === $aCheckResult[0]) {
 								$oSchema->weight = 1;
 							}
 						}
@@ -347,7 +348,7 @@ class schema_model extends \TMS_MODEL {
 	 */
 	public function scoreByWeight($oSchema, $x, &$oContext = null) {
 		if (empty($oSchema->weight) || empty($x) || !is_numeric($x)) {
-			return false;
+			return [false];
 		}
 
 		$weight = $oSchema->weight;
@@ -364,7 +365,7 @@ class schema_model extends \TMS_MODEL {
 				foreach ($cases as $cn => $case) {
 					list($condition, $equation) = (strpos($case, '?') ? explode('?', $case) : ['', $case]);
 					if (empty($equation)) {
-						return false;
+						return [false];
 					}
 					/* 适用条件 */
 					$stackCondition = [(string) $x, '', ''];
@@ -375,13 +376,13 @@ class schema_model extends \TMS_MODEL {
 							$char = $condition[$index];
 							if (in_array($char, ['>', '<', '='])) {
 								if (!empty($stackCondition[2])) {
-									return false;
+									return [false];
 								}
 								$stackCondition[1] .= $char;
 							} else if (is_numeric($char)) {
 								$stackCondition[2] .= $char;
 							} else {
-								return false;
+								return [false];
 							}
 							$index++;
 						}
@@ -407,7 +408,7 @@ class schema_model extends \TMS_MODEL {
 							}
 						}
 						if (empty(formula::parse_exp($equation))) {
-							return false;
+							return [false];
 						}
 					}
 					// 全部计算规则
@@ -422,7 +423,7 @@ class schema_model extends \TMS_MODEL {
 			}
 
 			if (empty($stackCases)) {
-				return false;
+				return [false];
 			}
 			foreach ($stackCases as $aCase) {
 				/* 适用条件 */
@@ -432,16 +433,17 @@ class schema_model extends \TMS_MODEL {
 					}
 				}
 				/* 计算公式 */
+				require_once dirname(__FILE__) . '/formula.php';
 				$score = formula::calculate($aCase[1], ['x' => $x]);
 			}
 			if (!isset($score)) {
-				return false;
+				return [true, false];
 			}
 
-			return $score;
+			return [true, $score];
 		}
 
-		return false;
+		return [false];
 	}
 
 	/**

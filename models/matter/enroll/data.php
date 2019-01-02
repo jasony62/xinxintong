@@ -431,8 +431,10 @@ class data_model extends entity_model {
 			case 'shorttext';
 				if (isset($oSchema->format) && $oSchema->format === 'number') {
 					if (isset($oSchema->weight)) {
-						$schemaScore = $this->model('matter\enroll\schema')->scoreByWeight($oSchema, $treatedValue, $oScoreContext);
-						if (false === $schemaScore) {
+						$aScoreResult = $this->model('matter\enroll\schema')->scoreByWeight($oSchema, $treatedValue, $oScoreContext);
+						if (true === $aScoreResult[0] && false !== $aScoreResult[1] && is_numeric($aScoreResult[1])) {
+							$schemaScore = $aScoreResult[1];
+						} else {
 							$schemaScore = $treatedValue;
 						}
 					} else {

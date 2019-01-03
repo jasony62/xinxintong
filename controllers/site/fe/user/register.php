@@ -53,26 +53,26 @@ class register extends \site\fe\base {
 		/* password */
 		$password = $data->password;
 
-		$options = [];
+		$aOptions = [];
 		/* nickname */
 		if (isset($data->nickname)) {
-			$options['nickname'] = $data->nickname;
+			$aOptions['nickname'] = $data->nickname;
 		} else if (isset($user->nickname)) {
-			$options['nickname'] = $user->nickname;
+			$aOptions['nickname'] = $user->nickname;
 		}
 		/* other options */
-		$options['from_ip'] = $this->client_ip();
+		$aOptions['from_ip'] = $this->client_ip();
 
 		/* create registration */
-		$registration = $modelReg->create($this->siteId, $uname, $password, $options);
-		if ($registration[0] === false) {
-			return new \ResponseError($registration[1]);
+		$oRegUser = $modelReg->create($this->siteId, $uname, $password, $aOptions);
+		if ($oRegUser[0] === false) {
+			return new \ResponseError($oRegUser[1]);
 		}
-		$registration = $registration[1];
+		$oRegUser = $oRegUser[1];
 
 		/* cookie中保留注册信息 */
-		$cookieRegUser = $modelWay->shiftRegUser($registration, false);
-		$cookieRegUser->login = (object) ['uname' => $uname, 'nickname' => $options['nickname']];
+		$cookieRegUser = $modelWay->shiftRegUser($oRegUser, false);
+		$cookieRegUser->login = (object) ['uname' => $uname, 'nickname' => $aOptions['nickname']];
 
 		if ($referer = $this->myGetCookie('_user_access_referer')) {
 			$cookieRegUser->_loginReferer = $referer;

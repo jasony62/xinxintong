@@ -592,15 +592,15 @@ class way_model extends \TMS_MODEL {
 			if (!$beforeCookieuser) {
 				continue;
 			}
-			$account = $modelAct->byId($beforeCookieuser->uid);
+			$oCookieAccount = $modelAct->byId($beforeCookieuser->uid);
 			if (isset($primaryAccounts[$siteId])) {
 				/* 指定站点下，已经存在主访客账号 */
-				if ($account) {
-					if (empty($account->unionid)) {
+				if ($oCookieAccount) {
+					if (empty($oCookieAccount->unionid)) {
 						/* 作为关联访客账号绑定到注册账号 */
 						$modelAct->update('xxt_site_account', ['unionid' => $oRegUser->unionid], ['uid' => $beforeCookieuser->uid]);
 					} else {
-						if ($account->unionid !== $oRegUser->unionid) {
+						if ($oCookieAccount->unionid !== $oRegUser->unionid) {
 							/* 同一个站点，绑定了不同注册账号，从cookie中清除 */
 							// cookie中对应的数据已经被数据库中的主访客账号覆盖
 						} else {
@@ -618,12 +618,12 @@ class way_model extends \TMS_MODEL {
 				}
 			} else {
 				/* 指定站点下，不存在主访客账号 */
-				if ($account) {
-					if (empty($account->unionid)) {
+				if ($oCookieAccount) {
+					if (empty($oCookieAccount->unionid)) {
 						// 站点下，新的主访客账号
 						$modelAct->update('xxt_site_account', ['unionid' => $oRegUser->unionid, 'is_reg_primary' => 'Y'], ['uid' => $beforeCookieuser->uid]);
 					} else {
-						if ($account->unionid !== $oRegUser->unionid) {
+						if ($oCookieAccount->unionid !== $oRegUser->unionid) {
 							/* 其他注册账号下的站点，当前注册账号没有访问过，从cookie中清除 */
 							$this->cleanCookieUser($siteId);
 						} else {

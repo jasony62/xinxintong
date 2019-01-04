@@ -46,7 +46,7 @@
                     <div class="tree-header">目录<button class='close' ng-if="isSmallLayout" ng-click="advCriteriaStatus.dirOpen=!advCriteriaStatus.dirOpen"><span>&times;</span></button></div>
                     <div class="tree-body" ng-if="advCriteriaStatus.dirOpen">
                         <div class="tree-wrap">
-                            <tms-tree tree-data="dirSchemas" checked-data="{{activeSchemas}}" item-clicked="itemClicked($item, $active)" item-icon="isSmallLayout"></tms-tree>
+                            <tms-tree tree-data="dirSchemas" checked-data="{{activeDirSchemas}}" dir-clicked="dirClicked($item, $active)" dir-icon="isSmallLayout"></tms-tree>
                         </div>
                     </div>
                 </div>

@@ -33,14 +33,14 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         }
         return false;
     }
-    var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oTasks, _oMocker, _oUser, _activeSchemas;
+    var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oTasks, _oMocker, _oUser, _activeDirSchemas;
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = {};
     $scope.filter = _oFilter = { isFilter: false }; // 过滤条件
     $scope.criteria = _oCriteria = {}; // 数据查询条件
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.repos = []; // 分享的记录
-    $scope.activeSchemas = _activeSchemas = {};
+    $scope.activeDirSchemas = _activeDirSchemas = {};
     $scope.reposLoading = false;
     $scope.appendToEle = angular.element(document.querySelector('#filterQuick'));
     $scope.recordList = function(pageAt) {
@@ -229,8 +229,8 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         enlAssoc.copy($scope.app, { id: oRecord.id, type: 'record' });
     };
     $scope.confirm = function(filterOpt) {
-        _oFilter = angular.extend(_oFilter, filterOpt.filter);
-        _oCriteria = angular.extend(_oCriteria, filterOpt.criteria);
+        $scope.filter = _oFilter = angular.extend(_oFilter, filterOpt.filter);
+        $scope.criteria = _oCriteria = angular.extend(_oCriteria, filterOpt.criteria);
         $scope.recordList(1);
     };
     $scope.shiftMenu = function(criteria) {
@@ -282,12 +282,12 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         }
         $scope.recordList(1);
     };
-    $scope.itemClicked = function(oDir, active) {
+    $scope.dirClicked = function(oDir, active) {
         _oCriteria.data = {};
         if (oDir) {
             _oCriteria.data[oDir.schema_id] = oDir.op.v;
         }
-        $scope.activeSchemas = _activeSchemas = active;
+        $scope.activeDirSchemas = _activeDirSchemas = active;
         $scope.recordList(1);
     };
     /* 关闭任务提示 */
@@ -424,30 +424,18 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         opened: !$scope.isSmallLayout,
         dirOpen: false
     };
-
-    function getScrollTop() {
-        var scrollTop = 0;
-        if (document.documentElement && document.documentElement.scrollTop) {
-            scrollTop = document.documentElement.scrollTop;
-        } else if (document.body) {
-            scrollTop = document.body.scrollTop;
-        }
-        return scrollTop;
-    }
-
     function addToCache() {
-        sessionStorage.setItem('listStorageY', getScrollTop());
+        sessionStorage.setItem('listStorageY', document.documentElement.scrollTop || document.body.scrollTop);
         var cacheData = {
             'reposFilters': $scope.reposFilters,
             'tasks': $scope.tasks,
-            'repos': $scope.repos,
             'page': $scope.page,
             'currentFilter': $scope.filter,
             'currentCriteria': $scope.criteria,
             'rounds': $scope.rounds,
             'topics': $scope.topics,
             'dirSchemas': $scope.dirSchemas,
-            'currentDirs': $scope.activeSchemas
+            'currentDirs': $scope.activeDirSchemas
         }
         sessionStorage.setItem('listStorage', JSON.stringify(cacheData));
     };
@@ -463,33 +451,35 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         var tasks;
         _oApp = params.app;
         if (window.sessionStorage.length) {
-            var cacheData, _oNewRepos = [];
+            var cacheData, _cPage;
             cacheData = JSON.parse(sessionStorage.listStorage);
             $scope.tasks = cacheData.tasks;
             $scope.reposFilters = cacheData.reposFilters;
             $scope.multiFilters = cacheData.reposFilters.length > 2 ? cacheData.reposFilters.slice(2) : [];
-            //$scope.repos = cacheData.repos;
             $scope.filter = cacheData.currentFilter;
             $scope.criteria = _oCriteria = cacheData.currentCriteria;
-            $scope.page = _oPage = cacheData.page;
             $scope.rounds = cacheData.rounds;
             $scope.topics = cacheData.topics;
             $scope.dirSchemas = cacheData.dirSchemas;
-            $scope.activeSchemas = cacheData.currentDirs;
+            $scope.activeDirSchemas = cacheData.currentDirs;
+            _cPage = cacheData.page;
             if ($scope.dirSchemas && $scope.dirSchemas.length) {
                 $scope.advCriteriaStatus.dirOpen = true;
             }
-            $scope.recordList(i).then(function(rsp) {
-                rsp.data.records.forEach(function(record) {
-                    _oNewRepos.push(record);
-                    console.log(_oNewRepos);
-                });
-            });            
-            $timeout(function() {
-                document.body.scrollTop = document.documentElement.scrollTop = parseInt(sessionStorage.listStorageY);
-                window.sessionStorage.clear();
-            });
-
+            function _getNewRepos(at) {
+                $scope.recordList(at).then(function() {
+                    if(at==_cPage.at) {
+                        $timeout(function() {
+                            document.body.scrollTop = document.documentElement.scrollTop = parseInt(sessionStorage.listStorageY);
+                            window.sessionStorage.clear();
+                        });
+                    }
+                }); 
+                
+            }
+            for (var i=1; i<=_cPage.at; i++) {
+                _getNewRepos(i);
+            }
         } else {
             if (_oApp.actionRule) {
                 /* 设置活动任务提示 */
@@ -585,11 +575,11 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             }
             $scope.groupOthers = groupOthersById;
         });
-        /*$scope.$watch('mocker', function(nv, ov) {
+        $scope.$watch('mocker', function(nv, ov) {
             if (nv && nv !== ov) {
                 _oMocker = nv;
                 $scope.recordList(1);
             }
-        }, true);*/
+        }, true);
     });
 }]);

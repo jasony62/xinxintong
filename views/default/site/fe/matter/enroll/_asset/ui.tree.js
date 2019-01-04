@@ -8,8 +8,8 @@ ngMod.directive('tmsTree', ['$templateCache', function($templateCache) {
         scope: {
             treeData: '=',
             checkedData: '@',
-            itemClicked: '&',
-            itemIcon: '='
+            dirClicked: '&',
+            dirIcon: '='
         },
         controller: ['$scope', '$q', function($scope, $q) {
             function _getMaxFloor(treeData) {
@@ -40,7 +40,12 @@ ngMod.directive('tmsTree', ['$templateCache', function($templateCache) {
             };
 
             $scope.itemExpended = function(item, $event) {
-                item.opened = !item.opened;
+                $scope.treeData.forEach(function(data) {
+                    if(data.schema_id==item.schema_id&&data.op.v==item.op.v) {
+                        data.opened = !data.opened;
+                        $scope.active[1] = data;
+                    }
+                });
                 $event.stopPropagation();
             };
 
@@ -63,7 +68,7 @@ ngMod.directive('tmsTree', ['$templateCache', function($templateCache) {
                     $scope.active = {};
                     ($scope[callback] || angular.noop)({
                         $item: null,
-                        $active: actived
+                        $active: $scope.active
                     });
                 }
             };
@@ -77,7 +82,7 @@ ngMod.directive('tmsTree', ['$templateCache', function($templateCache) {
                             for (var i = 1; i <= num; i++) {
                                 $scope.active[i] = '';
                             }
-                        }                     
+                        }                   
                     });
                 }
             });

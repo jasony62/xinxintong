@@ -1848,7 +1848,7 @@ class record extends main_base {
 
 		$objActiveSheet = $objPHPExcel->getActiveSheet();
 		$columnNum1 = 0; //列号
-		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '登记时间');
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '填写时间');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '审核通过');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '填写轮次');
 
@@ -1857,7 +1857,7 @@ class record extends main_base {
 		$aScoreSum = []; // 题目的分数合计
 		$columnNum4 = $columnNum1; //列号
 		$bRequireNickname = true;
-		if ((isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid !== 'Y') || isset($oApp->assignedNickname->schema->id)) {
+		if ($this->getDeepValue($oApp, 'assignedNickname.valid') !== 'Y' || isset($oApp->assignedNickname->schema->id)) {
 			$bRequireNickname = false;
 		}
 		$bRequireSum = false; // 是否需要计算合计
@@ -1880,8 +1880,12 @@ class record extends main_base {
 				$bRequireSum = true;
 			}
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, $oSchema->title);
+			/* 需要补充说明 */
+			if ($this->getDeepValue($oSchema, 'supplement') === 'Y') {
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '补充说明');
+			}
 			/* 需要计算得分 */
-			if ((isset($oSchema->requireScore) && $oSchema->requireScore === 'Y')) {
+			if ($this->getDeepValue($oSchema, 'requireScore') === 'Y') {
 				$aScoreSum[$columnNum4] = $oSchema->id;
 				$bRequireScore = true;
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '得分');
@@ -1895,7 +1899,7 @@ class record extends main_base {
 		}
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '备注');
 		// $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '标签');
-		$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '用户端用户标签');
+		// $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '用户端用户标签');
 		// 记录分数
 		if ($oApp->scenario === 'voting') {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '总分数');
@@ -1922,7 +1926,7 @@ class record extends main_base {
 			// 处理登记项
 			$oRecData = $oRecord->data;
 			$oRecScore = empty($oRecord->score) ? new \stdClass : $oRecord->score;
-			$supplement = $oRecord->supplement;
+			$oRecSupplement = $oRecord->supplement;
 			$oVerbose = isset($oRecord->verbose) ? $oRecord->verbose->data : false;
 			$i = 0; // 列序号
 			for ($i2 = 0, $ii = count($schemas); $i2 < $ii; $i2++) {
@@ -1942,9 +1946,6 @@ class record extends main_base {
 							}
 						}
 					}
-					// if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
-					// 	$cellValue .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
-					// }
 					$cellValue = str_replace(['<br>', '</br>'], ["\n", ""], $cellValue);
 					$cellValue = strip_tags($cellValue);
 					$cellValue = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $cellValue);
@@ -1965,9 +1966,6 @@ class record extends main_base {
 						}
 					}
 					$cellValue = implode(',', $labels);
-					// if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
-					// 	$cellValue .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
-					// }
 					$cellValue = str_replace(['<br>', '</br>'], ["\n", ""], $cellValue);
 					$cellValue = strip_tags($cellValue);
 					$cellValue = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $cellValue);
@@ -1987,9 +1985,6 @@ class record extends main_base {
 					break;
 				case 'image':
 					$v0 = '';
-					// if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
-					// 	$v0 .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
-					// }
 					$v0 = str_replace(['<br>', '</br>'], ["\n", ""], $v0);
 					$v0 = strip_tags($v0);
 					$v0 = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v0);
@@ -1998,9 +1993,6 @@ class record extends main_base {
 					break;
 				case 'file':
 					$v0 = '';
-					// if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
-					// 	$v0 .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
-					// }
 					$v0 = str_replace(['<br>', '</br>'], ["\n", ""], $v0);
 					$v0 = strip_tags($v0);
 					$v0 = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v0);
@@ -2008,7 +2000,7 @@ class record extends main_base {
 					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
 				case 'date':
-					!empty($v) && $v = date('y-m-j H:i', $v);
+					$v = (!empty($v) && is_numeric($v)) ? date('y-m-j H:i', $v) : '';
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
 				case 'shorttext':
@@ -2042,6 +2034,11 @@ class record extends main_base {
 					break;
 				}
 				$one = $i + $columnNum3;
+				// 补充说明
+				if ($this->getDeepValue($oSchema, 'supplement') === 'Y') {
+					$supplement = $this->getDeepValue($oRecSupplement, $oSchema->id, '');
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $supplement, \PHPExcel_Cell_DataType::TYPE_STRING);
+				}
 				// 分数
 				if ((isset($oSchema->requireScore) && $oSchema->requireScore === 'Y')) {
 					$cellScore = empty($oRecScore->{$oSchema->id}) ? 0 : $oRecScore->{$oSchema->id};
@@ -2062,27 +2059,27 @@ class record extends main_base {
 			// 标签
 			// $objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->tags);
 			// 用户端用户标签
-			if (!isset($who)) {
-				$modelWay = $this->model('site\fe\way');
-				$modelTag2 = $this->model('matter\enroll\tag2');
-				$who = $modelWay->who($oApp->siteid);
-			}
-			$oRecordTags = $modelTag2->byRecord($oRecord, $who, ['UserAndPublic' => true]);
-			$userTags = '';
-			if (!empty($oRecordTags->user)) {
-				foreach ($oRecordTags->user as $k => $val) {
-					$k > 0 && $userTags .= ',';
-					$userTags .= $val->label;
-				}
-			}
-			if (!empty($oRecordTags->public)) {
-				!empty($userTags) && $userTags .= ',';
-				foreach ($oRecordTags->public as $k => $val) {
-					$k > 0 && $userTags .= ',';
-					$userTags .= $val->label;
-				}
-			}
-			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $userTags);
+			// if (!isset($who)) {
+			// 	$modelWay = $this->model('site\fe\way');
+			// 	$modelTag2 = $this->model('matter\enroll\tag2');
+			// 	$who = $modelWay->who($oApp->siteid);
+			// }
+			// $oRecordTags = $modelTag2->byRecord($oRecord, $who, ['UserAndPublic' => true]);
+			// $userTags = '';
+			// if (!empty($oRecordTags->user)) {
+			// 	foreach ($oRecordTags->user as $k => $val) {
+			// 		$k > 0 && $userTags .= ',';
+			// 		$userTags .= $val->label;
+			// 	}
+			// }
+			// if (!empty($oRecordTags->public)) {
+			// 	!empty($userTags) && $userTags .= ',';
+			// 	foreach ($oRecordTags->public as $k => $val) {
+			// 		$k > 0 && $userTags .= ',';
+			// 		$userTags .= $val->label;
+			// 	}
+			// }
+			// $objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $userTags);
 			// 记录投票分数
 			if ($oApp->scenario === 'voting') {
 				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->_score);

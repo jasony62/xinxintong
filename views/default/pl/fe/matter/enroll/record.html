@@ -104,13 +104,13 @@
                             <div ng-switch-when="multitext">
                                 <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>
                             </div>
-                            <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-switch-when="date"><span ng-if="r._data[schema.id]">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span></span>
                             <span ng-switch-when="url" ng-bind-html="r._data[schema.id]._text"></span>
                             <span ng-switch-when="remark">{{r.verbose.data[schema.id].remark_num}}</span>
+                            <span ng-switch-when="supplement" ng-bind-html="r.supplement[schema.id]"></span>
                             <span ng-switch-when="calcScore">{{r.score[schema.id]}}</span>
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
                             <span ng-if="fromApp.fromApp&&schema.id==='_round_id'&&r.group_id!==r.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span>
-                            <p ng-if="['single', 'multiple', 'image', 'file'].indexOf(schema.type)!==-1&&r.supplement[schema.id].length">(补充说明：<span ng-bind-html="r.supplement[schema.id]"></span>)</p>
                         </td>
                         <td ng-if="bRequireScore" ng-bind="r.score.sum"></td>
                         <td class='matched enroll' ng-repeat="schema in enrollDataSchemas" ng-switch on="schema.type">
@@ -136,7 +136,7 @@
                             <div ng-switch-when="multitext">
                                 <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>
                             </div>
-                            <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-switch-when="date"><span ng-if="r._data[schema.id]">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span></span>
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
                         </td>
                         <td>{{r.verified}}</td>

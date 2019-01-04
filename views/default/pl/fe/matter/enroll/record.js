@@ -381,6 +381,8 @@ define(['frame'], function(ngApp) {
                         recordSchemas.push(oSchema);
                         recordSchemasExt.push(oSchema);
                     }
+                    if (oSchema.supplement && oSchema.supplement === 'Y')
+                        recordSchemasExt.push({ type: 'supplement', title: '补充说明', id: oSchema.id });
                     if (oSchema.requireScore && oSchema.requireScore === 'Y') {
                         recordSchemasExt.push({ type: 'calcScore', title: '得分', id: oSchema.id });
                         bRequireScore = true;

@@ -362,7 +362,7 @@ ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce,
                             data[oSchema.id] = multitexts;
                             break;
                         case 'date':
-                            data[oSchema.id] = oRecord.data[oSchema.id];
+                            data[oSchema.id] = (oRecord.data[oSchema.id] && angular.isNumber(oRecord.data[oSchema.id])) ? oRecord.data[oSchema.id] : 0;
                             break;
                         case 'url':
                             data[oSchema.id] = oRecord.data[oSchema.id];

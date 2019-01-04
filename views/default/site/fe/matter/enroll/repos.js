@@ -102,7 +102,26 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             });
         }
     };
-    $scope.remarkRecord = function(oRecord) {
+    function addToCache() {
+        sessionStorage.setItem('listStorageY', document.documentElement.scrollTop || document.body.scrollTop);
+        var cacheData = {
+            'reposFilters': $scope.reposFilters,
+            'tasks': $scope.tasks,
+            'page': $scope.page,
+            'currentFilter': $scope.filter,
+            'currentCriteria': $scope.criteria,
+            'rounds': $scope.rounds,
+            'topics': $scope.topics,
+            'dirSchemas': $scope.dirSchemas,
+            'currentDirs': $scope.activeDirSchemas
+        }
+        sessionStorage.setItem('listStorage', JSON.stringify(cacheData));
+    };
+    $scope.remarkRecord = function(oRecord, event) {
+        event.stopPropagation();
+        event.preventDefault();
+
+        addToCache();
         var url;
         url = LS.j('', 'site', 'app');
         url += '&ek=' + oRecord.enroll_key;
@@ -423,29 +442,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     $scope.advCriteriaStatus = {
         opened: !$scope.isSmallLayout,
         dirOpen: false
-    };
-    function addToCache() {
-        sessionStorage.setItem('listStorageY', document.documentElement.scrollTop || document.body.scrollTop);
-        var cacheData = {
-            'reposFilters': $scope.reposFilters,
-            'tasks': $scope.tasks,
-            'page': $scope.page,
-            'currentFilter': $scope.filter,
-            'currentCriteria': $scope.criteria,
-            'rounds': $scope.rounds,
-            'topics': $scope.topics,
-            'dirSchemas': $scope.dirSchemas,
-            'currentDirs': $scope.activeDirSchemas
-        }
-        sessionStorage.setItem('listStorage', JSON.stringify(cacheData));
-    };
-    $scope.remarkRecord = function(oRecord) {
-        addToCache();
-        var url;
-        url = LS.j('', 'site', 'app');
-        url += '&ek=' + oRecord.enroll_key;
-        url += '&page=cowork#remarks';
-        location.href = url;
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var tasks;

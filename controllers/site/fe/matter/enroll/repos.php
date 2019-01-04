@@ -462,7 +462,7 @@ class repos extends base {
 			foreach ($oResult->records as $oRecord) {
 				/* 获取记录的投票信息 */
 				if (!empty($oApp->voteConfig)) {
-					$aCanVoteSchemas = $this->model('matter\enroll\schema')->getCanVote($oApp, $oRecord->round);
+					$aCanVoteSchemas = $this->model('matter\enroll\task')->getCanVote($oApp, $oUser, $oRecord->round);
 				}
 				$aCoworkState = [];
 				/* 清除非共享数据 */
@@ -984,7 +984,7 @@ class repos extends base {
 			}
 			/* 获取记录的投票信息 */
 			if (!empty($oApp->voteConfig)) {
-				$aCanVoteSchemas = $this->model('matter\enroll\schema')->getCanVote($oApp, $oRecord->round);
+				$aCanVoteSchemas = $this->model('matter\enroll\task')->getCanVote($oApp, $oUser, $oRecord->round);
 				$oVoteResult = new \stdClass;
 				foreach ($aCanVoteSchemas as $oCanVoteSchema) {
 					if ($this->getDeepValue($oCanVoteSchema, 'cowork') === 'Y') {continue;}
@@ -1019,7 +1019,7 @@ class repos extends base {
 		if ($result[0] === false) {
 			return new \ParameterError($result[1]);
 		}
-		
+
 		$criterias = $result[1];
 		return new \ResponseData($criterias);
 	}
@@ -1046,7 +1046,7 @@ class repos extends base {
 					}
 				}
 			}
-			//获取轮次 
+			//获取轮次
 			if ($criteria->type === 'rid') {
 				$modelRun = $this->model('matter\enroll\round');
 				$options = [
@@ -1096,14 +1096,14 @@ class repos extends base {
 					}
 				}
 			}
-			/* 
-			 *表态 当用户为编辑或者超级管理员或者有组时才会出现“接受”，“关闭” ，“讨论”，“未表态” ，否则只有推荐和不限两种
+			/*
+				 *表态 当用户为编辑或者超级管理员或者有组时才会出现“接受”，“关闭” ，“讨论”，“未表态” ，否则只有推荐和不限两种
 			*/
 			if ($criteria->type === 'agreed') {
 				if (!empty($oUser->group_id) || (isset($oUser->is_leader) && $oUser->is_leader === 'S') || (isset($oUser->is_editor) && $oUser->is_editor === 'Y')) {
-					$criteria->menus[] = (object)['id' => 'A', 'title' => '接受'];
-					$criteria->menus[] = (object)['id' => 'D', 'title' => '讨论'];
-					$criteria->menus[] = (object)['id' => 'N', 'title' => '关闭'];
+					$criteria->menus[] = (object) ['id' => 'A', 'title' => '接受'];
+					$criteria->menus[] = (object) ['id' => 'D', 'title' => '讨论'];
+					$criteria->menus[] = (object) ['id' => 'N', 'title' => '关闭'];
 				}
 			}
 			// 只有登录用户才会显示我的记录和我的收藏
@@ -1127,10 +1127,10 @@ class repos extends base {
 		$orderby->type = 'orderby';
 		$orderby->title = '排序';
 		$orderby->menus = [
-			(object)['id' => 'lastest_first', 'title' => '最近提交'],
-			(object)['id' => 'earliest_first', 'title' => '最早提交'],
-			(object)['id' => 'mostliked', 'title' => '最多赞同'],
-			(object)['id' => 'mostvoted', 'title' => '最多投票']
+			(object) ['id' => 'lastest_first', 'title' => '最近提交'],
+			(object) ['id' => 'earliest_first', 'title' => '最早提交'],
+			(object) ['id' => 'mostliked', 'title' => '最多赞同'],
+			(object) ['id' => 'mostvoted', 'title' => '最多投票'],
 		];
 		$orderby->default = $orderby->menus[0];
 		$criterias[] = $orderby;
@@ -1139,9 +1139,9 @@ class repos extends base {
 		$coworkAgreed->type = 'coworkAgreed';
 		$coworkAgreed->title = '协作';
 		$coworkAgreed->menus = [
-			(object)['id' => null, 'title' => '所有问题'],
-			(object)['id' => 'answer', 'title' => '已回答'],
-			(object)['id' => 'unanswer', 'title' => '等待回答']
+			(object) ['id' => null, 'title' => '所有问题'],
+			(object) ['id' => 'answer', 'title' => '已回答'],
+			(object) ['id' => 'unanswer', 'title' => '等待回答'],
 		];
 		$coworkAgreed->default = $coworkAgreed->menus[0];
 		$criterias[] = $coworkAgreed;
@@ -1150,7 +1150,7 @@ class repos extends base {
 		$round->type = 'rid';
 		$round->title = '轮次';
 		$round->menus = [
-			(object)['id' => null, 'title' => '不限轮次']
+			(object) ['id' => null, 'title' => '不限轮次'],
 		];
 		$round->default = $round->menus[0];
 		$criterias[] = $round;
@@ -1159,7 +1159,7 @@ class repos extends base {
 		$group->type = 'userGroup';
 		$group->title = '分组';
 		$group->menus = [
-			(object)['id' => null, 'title' => '不限分组']
+			(object) ['id' => null, 'title' => '不限分组'],
 		];
 		$group->default = $group->menus[0];
 		$criterias[] = $group;
@@ -1168,8 +1168,8 @@ class repos extends base {
 		$agreed->type = 'agreed';
 		$agreed->title = '表态';
 		$agreed->menus = [
-			(object)['id' => null, 'title' => '不限表态'],
-			(object)['id' => 'Y', 'title' => '推荐'],
+			(object) ['id' => null, 'title' => '不限表态'],
+			(object) ['id' => 'Y', 'title' => '推荐'],
 		];
 		$agreed->default = $agreed->menus[0];
 		$criterias[] = $agreed;
@@ -1178,9 +1178,9 @@ class repos extends base {
 		$mine->type = 'mine';
 		$mine->title = '我的';
 		$mine->menus = [
-			(object)['id' => null, 'title' => '不限'],
-			(object)['id' => 'creator', 'title' => '我的记录'],
-			(object)['id' => 'favored', 'title' => '我的收藏'],
+			(object) ['id' => null, 'title' => '不限'],
+			(object) ['id' => 'creator', 'title' => '我的记录'],
+			(object) ['id' => 'favored', 'title' => '我的收藏'],
 		];
 		$mine->default = $mine->menus[0];
 		$criterias[] = $mine;

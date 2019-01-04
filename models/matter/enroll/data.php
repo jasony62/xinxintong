@@ -431,8 +431,10 @@ class data_model extends entity_model {
 			case 'shorttext';
 				if (isset($oSchema->format) && $oSchema->format === 'number') {
 					if (isset($oSchema->weight)) {
-						$schemaScore = $this->model('matter\enroll\schema')->scoreByWeight($oSchema, $treatedValue, $oScoreContext);
-						if (false === $schemaScore) {
+						$aScoreResult = $this->model('matter\enroll\schema')->scoreByWeight($oSchema, $treatedValue, $oScoreContext);
+						if (true === $aScoreResult[0] && false !== $aScoreResult[1] && is_numeric($aScoreResult[1])) {
+							$schemaScore = $aScoreResult[1];
+						} else {
 							$schemaScore = $treatedValue;
 						}
 					} else {
@@ -603,11 +605,11 @@ class data_model extends entity_model {
 	 */
 	public function setScoreRank($oApp, $oSchema, $rid) {
 		/* 更新指定轮次的数据 */
-		$fnRankByRound = function ($assignedRid) use ($oApp, $oSchema) {
+		$fnRankByRound = function ($oRnd) use ($oApp, $oSchema) {
 			$q = [
 				'id,score',
 				'xxt_enroll_record_data',
-				['aid' => $oApp->id, 'rid' => $assignedRid, 'schema_id' => $oSchema->id, 'state' => 1],
+				['aid' => $oApp->id, 'rid' => $oRnd->rid, 'schema_id' => $oSchema->id, 'state' => 1],
 			];
 			$q2['o'] = 'score desc,submit_at asc';
 			$items = $this->query_objs_ss($q, $q2);
@@ -628,13 +630,19 @@ class data_model extends entity_model {
 			return count($items);
 		};
 
+		/* 指定了需要汇总的轮次 */
+		$modelRnd = $this->model('matter\enroll\round');
+		$oAssignedRnd = $modelRnd->byId($rid, ['fields' => 'rid,start_at']);
+		if (false === $oAssignedRnd) {
+			return 0;
+		}
 		/* 更新指定轮次 */
-		$cnt = $fnRankByRound($rid);
+		$cnt = $fnRankByRound($oAssignedRnd);
 		if ($cnt > 0) {
 			/* 更新汇总轮次 */
-			$oSumRnd = $this->model('matter\enroll\round')->getSummary($oApp, ['fields' => 'id,rid,title,start_at,state', 'assignedRid' => $rid]);
-			if ($oSumRnd) {
-				$fnRankByRound($oSumRnd->rid);
+			$oSumRnds = $modelRnd->getSummary($oApp, $oAssignedRnd->start_at, ['fields' => 'id,rid,title,start_at,state', 'includeRounds' => 'N']);
+			if (!empty($oSumRnds)) {
+				array_walk($oSumRnds, $fnRankByRound);
 			}
 		}
 
@@ -1117,7 +1125,7 @@ class data_model extends entity_model {
 			return [false, '指定的记录不存在'];
 		}
 
-		$aVoteSchemas = $this->model('matter\enroll\schema')->getCanVote($oApp);
+		$aVoteSchemas = $this->model('matter\enroll\task')->getCanVote($oApp, $oUser);
 		if (empty($aVoteSchemas[$oRecData->schema_id])) {
 			return [false, '指定的题目不支持投票'];
 		}
@@ -1128,23 +1136,13 @@ class data_model extends entity_model {
 		if ($oCanVoteSchema->vote->state === 'AE') {
 			return [false, '投票已经结束'];
 		}
+
 		if (!empty($oCanVoteSchema->vote->groups)) {
-			/* 只要有1个条件符合就可以 */
-			$bMatched = false;
-			foreach ($oCanVoteSchema->vote->groups as $oVoteGroup) {
-				if (!empty($oVoteGroup->do) && $this->getDeepValue($oUser, 'group_id') !== $oVoteGroup->do) {
-					continue;
-				}
-				if (!empty($oVoteGroup->get) && $oVoteGroup->get !== $oRecData->group_id) {
-					continue;
-				}
-				$bMatched = true;
-				break;
-			}
-			if (false === $bMatched) {
+			if (!in_array($this->getDeepValue($oUser, 'group_id'), $oCanVoteSchema->vote->groups)) {
 				return [false, '不符合投票的用户分组规则，不能投票'];
 			}
 		}
+
 		$oActiveRnd = $oApp->appRound;
 		$q = [
 			'id,vote_at',
@@ -1155,15 +1153,16 @@ class data_model extends entity_model {
 			return [false, '已经投过票，不允许重复投票', $oBefore];
 		}
 
+		$limitMax = $this->getDeepValue($oCanVoteSchema->vote, 'limit.max', 0);
 		$q = [
 			'count(*)',
 			'xxt_enroll_vote',
 			['aid' => $oRecData->aid, 'rid' => $oActiveRnd->rid, 'schema_id' => $oRecData->schema_id, 'userid' => $oUser->uid, 'state' => 1],
 		];
 		$beforeCount = (int) $this->query_val_ss($q);
-		if ($oCanVoteSchema->vote->limit > 0) {
-			if ($beforeCount >= $oCanVoteSchema->vote->limit) {
-				return [false, '最多可以投【' . $oCanVoteSchema->vote->limit . '】票，不能继续投票'];
+		if ($limitMax > 0) {
+			if ($beforeCount >= $limitMax) {
+				return [false, '最多可以投【' . $limitMax . '】票，不能继续投票'];
 			}
 		}
 
@@ -1193,7 +1192,7 @@ class data_model extends entity_model {
 
 		$beforeCount++;
 
-		return [true, $oNew, [$oCanVoteSchema->vote->limit, $beforeCount]];
+		return [true, $oNew, [$limitMax, $beforeCount]];
 	}
 	/**
 	 * 撤销对填写数据投票
@@ -1225,7 +1224,7 @@ class data_model extends entity_model {
 			return [false, '指定的记录不存在'];
 		}
 
-		$aVoteSchemas = $this->model('matter\enroll\schema')->getCanVote($oApp, $oRecord->round);
+		$aVoteSchemas = $this->model('matter\enroll\task')->getCanVote($oApp, $oUser, $oRecord->round);
 		if (empty($aVoteSchemas[$oRecData->schema_id])) {
 			return [false, '指定的题目不支持投票'];
 		}
@@ -1258,6 +1257,6 @@ class data_model extends entity_model {
 		];
 		$beforeCount = (int) $this->query_val_ss($q);
 
-		return [true, [$oCanVoteSchema->vote->limit, $beforeCount]];
+		return [true, [$this->getDeepValue($oCanVoteSchema, 'vote.limit.max'), $beforeCount]];
 	}
 }

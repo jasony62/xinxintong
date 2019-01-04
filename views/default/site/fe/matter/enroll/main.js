@@ -292,7 +292,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
             $scope.$watch('popAct.custom', function(nv, ov) {
                 var oCustom = oEnlUser.custom;
                 if (nv !== ov) {
-                    oCustom[fromPage] ? oCustom[fromPage] : {};
+                    oCustom[fromPage] = oCustom[fromPage] ? oCustom[fromPage] : {};
                     oCustom[fromPage].act = $scope.popAct.custom;
                     http2.post(LS.j('user/updateCustom', 'site', 'app'), oCustom).then(function(rsp) {});
                 }
@@ -364,7 +364,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
             $scope.$watch('popNav.custom', function(nv, ov) {
                 var oCustom = oEnlUser.custom;
                 if (nv !== ov) {
-                    oCustom[fromPage] ? oCustom[fromPage] : {};
+                    oCustom[fromPage] = oCustom[fromPage] ? oCustom[fromPage] : {};
                     oCustom[fromPage].nav = $scope.popNav.custom;
                     http2.post(LS.j('user/updateCustom', 'site', 'app'), oCustom).then(function(rsp) {});
                 }

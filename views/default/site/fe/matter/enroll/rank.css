@@ -14,7 +14,7 @@ ol, ul {
 	overflow: hidden;
 }
 
-ul > li {
+ul>li {
 	text-align: center;
 	line-height: 1.8;
 	position: relative;
@@ -32,11 +32,11 @@ ul > li {
 	background-color: #fff;
 }
 
-.filter > .col-xs-4 .form-control {
+.filter>.col-xs-4 .form-control {
 	font-size: 16px;
 }
 
-.filter > .col-xs-4 .form-control:focus {
+.filter>.col-xs-4 .form-control:focus {
 	box-shadow: none;
 }
 
@@ -45,20 +45,20 @@ ul > li {
 	padding: 0 10px 20px;
 }
 
-.result > div> ul > li:nth-child(1) {
+.result>div>ul>li:nth-child(1) {
 	height: 50px;
 	line-height: 50px;
 	background-color: #2994D0;
 	color: #fff;
 }
 
-.result > div > ul > li.record {
+.result>div>ul>li.record {
 	padding: 10px 0;
 	border-bottom: 2px solid #f5f5f5;
 	cursor: pointer;
 }
 
-.result > div > ul > li.record:hover {
+.result>div>ul>li.record:hover {
 	background-color: #f5f5f5;
 }
 
@@ -82,64 +82,6 @@ ul > li {
 	margin-right: 5px;
 }
 
-.r-box {
-	width: 40px;
-	height: 40px;
-	color: #fff;
-	background-color: #F51A1A;
-	position: absolute;
-	top: 0;
-	left: 0;
-}
-
-.r-box:before {
-	content: '';
-	width: 0;
-	height: 0;
-	position: absolute;
-	top: 0;
-	left: 0;
-	border-top: 20px solid #fff;
-	border-right: 20px solid transparent;
-}
-
-.r-box:after {
-	content: '';
-	width: 0;
-	height: 0;
-	position: absolute;
-	bottom: 0;
-	right: 0;
-	border-bottom: 40px solid #fff;
-	border-left: 40px solid transparent;
-}
-
-.r-text {
-	position: absolute;
-	top: 6px;
-	left: 2px;
-	font-size: 12px;
-	color: #fff;
-	transform: rotate(-45deg);
-}
-
-.f-box {
-	width: 100%;
-}
-
-.s-box {
-	padding-top: 56.25%;
-	position: relative;
-}
-
-.c-box {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-}
-
 .mask {
 	width: 100%;
 	height: 15%;
@@ -159,17 +101,9 @@ ul > li {
 	font-size: 14px;
 }
 
-.tip > .glyphicon {
+.tip>.glyphicon {
 	top: 1px;
 	margin-right: 5px;
-}
-
-.text-cut {
-	overflow: hidden;
-	text-overflow: ellipsis;
-	display: -webkit-box;
-	-webkit-line-clamp: 2;
-	-webkit-box-orient: vertical;
 }
 
 @media screen and (max-width:768px) {
@@ -191,12 +125,12 @@ ul > li {
 		border-radius: 0;
 	}
 
-	.filter > .col-xs-4, .filter > .col-xs-6 {
+	.filter>.col-xs-4, .filter>.col-xs-6 {
 		padding-left: 0;
 		padding-right: 0;
 	}
 
-	.filter > .col-xs-4 .form-control {
+	.filter>.col-xs-4 .form-control {
 		padding-right: 0;
 		padding-left: 10px;
 		border: none;
@@ -210,7 +144,7 @@ ul > li {
 		font-size: 13px;
 	}
 
-	.result > div > ul > li.record {
+	.result>div>ul>li.record {
 		padding: 10px 10px;
 		margin-bottom: 5px;
 		background-color: #fff;
@@ -227,63 +161,14 @@ ul > li {
 
 }
 
-/* 小图标以及各颜色值 */
-.custom {
-	position: absolute;
-}
-
-.custom-entry {
-	top: 10px;
-	right: -5px;
-}
-
-.custom-md-like {
-	top: 5px;
-	left: 85px;
-}
-
-.index-num {
+.rank-num {
 	display: inline-block;
-	width: 18px;
-	height: 18px;
-	line-height: 18px;
-	color: #fff;
-	background-color: #2994d0;
+	line-height: 20px;
+	color: #333;
 	text-align: center;
-	border-radius: 50%;
+	font-weight: bold;
 }
 
-.index-user-img {
-	display: inline-block;
-	width: 15px;
-	height: 22px;
-	margin-top: 3px;
-	margin-bottom: -3px;
-	background: url('/static/img/site_fe_enroll.png') no-repeat;
-}
-
-.first-user-img {
-	background-position: 0 -25px;
-}
-
-.second-user-img {
-	background-position: -1px -89px;
-}
-
-.third-user-img {
-	background-position: -1px -162px;
-}
-
-.text-color {
-	color: #999999;
-	font-size: 12px;
-}
-
-.like-color {
-	width: 16px;
-	height: 16px;
-	color: #fff;
-	font-size: 12px;
-	line-height: 1.4;
-	background-color: #F51A1A;
+.record:nth-of-type(2) .rank-num, .record:nth-of-type(3) .rank-num, .record:nth-of-type(4) .rank-num {
+	color: #ff0000;
 }

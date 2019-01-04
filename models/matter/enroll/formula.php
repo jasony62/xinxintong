@@ -97,7 +97,7 @@ class formula {
 				if (is_numeric($out)) {
 					array_push($res_stack, floatval($out));
 				} else {
-					array_push($res_stack, $exp_values[$out]);
+					array_push($res_stack, isset($exp_values[$out]) ? $exp_values[$out] : 0);
 				}
 			}
 		}

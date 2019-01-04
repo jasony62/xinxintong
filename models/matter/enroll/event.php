@@ -206,23 +206,33 @@ class event_model extends \TMS_MODEL {
 			}
 			$modelUsr->modify($oEnlUsrRnd, $oUpdateUsrData1);
 		}
+
 		/* 如果存在匹配的汇总轮次，进行数据汇总 */
-		$oSumRnd = $this->model('matter\enroll\round')->getSummary($oApp, ['fields' => 'id,rid,title,start_at,state', 'assignedRid' => $rid]);
-		if ($oSumRnd && $oSumRnd->state === '1') {
-			$oUpdatedEnlUsrSumData = $modelUsr->sumByRound($oApp, $oUser, $oSumRnd, $oUpdatedEnlUsrData);
-			if ($oUpdatedEnlUsrSumData) {
-				/* 用户在汇总轮次中的数据汇总 */
-				$oEnlUsrSum = $modelUsr->byId($oApp, $userid, ['fields' => '*', 'rid' => $oSumRnd->rid]);
-				if (false === $oEnlUsrSum) {
-					if (!$bJumpCreate) {
-						$oUpdatedEnlUsrSumData->rid = $oSumRnd->rid;
-						$modelUsr->add($oApp, $oUser, $oUpdatedEnlUsrSumData);
+		$modelRnd = $this->model('matter\enroll\round');
+		$oAssignedRnd = $modelRnd->byId($rid, ['fields' => 'rid,start_at']);
+		if (false === $oAssignedRnd) {
+			return 0;
+		}
+		$sumRnds = $modelRnd->getSummary($oApp, $oAssignedRnd->start_at, ['fields' => 'id,rid,title,start_at,state', 'includeRounds' => 'N']);
+		if (!empty($sumRnds)) {
+			foreach ($sumRnds as $oSumRnd) {
+				if ($oSumRnd && $oSumRnd->state === '1') {
+					$oUpdatedEnlUsrSumData = $modelUsr->sumByRound($oApp, $oUser, $oSumRnd, $oUpdatedEnlUsrData);
+					if ($oUpdatedEnlUsrSumData) {
+						/* 用户在汇总轮次中的数据汇总 */
+						$oEnlUsrSum = $modelUsr->byId($oApp, $userid, ['fields' => '*', 'rid' => $oSumRnd->rid]);
+						if (false === $oEnlUsrSum) {
+							if (!$bJumpCreate) {
+								$oUpdatedEnlUsrSumData->rid = $oSumRnd->rid;
+								$modelUsr->add($oApp, $oUser, $oUpdatedEnlUsrSumData);
+							}
+						} else {
+							if ($oEnlUsrSum->state == 0) {
+								$oUpdatedEnlUsrSumData->state = 1;
+							}
+							$modelUsr->modify($oEnlUsrSum, $oUpdatedEnlUsrSumData);
+						}
 					}
-				} else {
-					if ($oEnlUsrSum->state == 0) {
-						$oUpdatedEnlUsrSumData->state = 1;
-					}
-					$modelUsr->modify($oEnlUsrSum, $oUpdatedEnlUsrSumData);
 				}
 			}
 		}

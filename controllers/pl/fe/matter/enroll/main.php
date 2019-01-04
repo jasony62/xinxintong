@@ -449,9 +449,6 @@ class main extends main_base {
 			case 'scenarioConfig':
 				$oUpdated->scenario_config = $modelApp->escape($modelApp->toJson($val));
 				break;
-			case 'voteConfig':
-				$oUpdated->vote_config = $modelApp->escape($modelApp->toJson($val));
-				break;
 			case 'notifyConfig':
 				$oPurifyResult = $modelApp->purifyNoticeConfig($oApp, $val);
 				if (false === $oPurifyResult[0]) {
@@ -470,7 +467,7 @@ class main extends main_base {
 				$oUpdated->rank_config = $modelApp->escape($modelApp->toJson($val));
 				break;
 			case 'absent_cause':
-				$absentCause = !empty($oApp->absent_cause) ? $oApp->absent_cause : new \stdClass;
+				$absentCause = !empty($oApp->absentCause) ? $oApp->absentCause : new \stdClass;
 				foreach ($val as $uid => $val2) {
 					!isset($absentCause->{$uid}) && $absentCause->{$uid} = new \stdClass;
 					$absentCause->{$uid}->{$val2->rid} = $val2->cause;
@@ -525,6 +522,7 @@ class main extends main_base {
 
 		switch ($method) {
 		case 'save':
+			$oVoteConfig = $this->model('matter\enroll\task')->purifyVote($oVoteConfig);
 			if (empty($oVoteConfig->id)) {
 				$oVoteConfig->id = uniqid();
 				$aAllVoteConfigs[] = $oVoteConfig;
@@ -683,6 +681,140 @@ class main extends main_base {
 		}
 
 		return new \ResponseData(['config' => $oScoreConfig, 'updatedSchemas' => $aUpdatedSourceSchemas]);
+	}
+	/**
+	 * 更新提问规则
+	 */
+	public function updateQuestionConfig_action($app) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$oPosted = $this->getPostJson();
+		$method = $this->getDeepValue($oPosted, 'method');
+		if (empty($method)) {
+			return new \ParameterError('（1）参数不完整');
+		}
+		$oQuestionConfig = $this->getDeepValue($oPosted, 'data');
+		if (empty($oQuestionConfig)) {
+			return new \ParameterError('（2）参数不完整');
+		}
+
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, 'id,state,siteid,title,summary,pic,scenario,start_at,end_at,mission_id,question_config');
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError('（3）活动不存在');
+		}
+		$aAllQuestionConfigs = $oApp->questionConfig;
+
+		switch ($method) {
+		case 'save':
+			$oQuestionConfig = $this->model('matter\enroll\task')->purifyQuestion($oQuestionConfig);
+			if (empty($oQuestionConfig->id)) {
+				$oQuestionConfig->id = uniqid();
+				$aAllQuestionConfigs[] = $oQuestionConfig;
+			} else {
+				$bExistent = false;
+				foreach ($aAllQuestionConfigs as $index => $oBefore) {
+					if ($oBefore->id === $oQuestionConfig->id) {
+						$aAllQuestionConfigs[$index] = $oQuestionConfig;
+						$bExistent = true;
+						break;
+					}
+				}
+				if (false === $bExistent) {
+					return new \ObjectNotFoundError('（4）更新的规则不存在');
+				}
+			}
+			break;
+		case 'delete':
+			$bExistent = false;
+			foreach ($aAllQuestionConfigs as $index => $oBefore) {
+				if ($oBefore->id === $oQuestionConfig->id) {
+					array_splice($aAllQuestionConfigs, $index, 1);
+					$bExistent = true;
+					break;
+				}
+			}
+			if (false === $bExistent) {
+				return new \ObjectNotFoundError('（5）删除的规则不存在');
+			}
+			break;
+		}
+
+		$modelApp->modify($oUser, $oApp, (object) ['question_config' => $modelApp->escape($modelApp->toJson($aAllQuestionConfigs))], ['id' => $oApp->id]);
+		if ($method === 'save') {
+			return new \ResponseData($oQuestionConfig);
+		} else {
+			return new \ResponseData('ok');
+		}
+	}
+	/**
+	 * 更新记录的投票规则
+	 */
+	public function updateAnswerConfig_action($app) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$oPosted = $this->getPostJson();
+		$method = $this->getDeepValue($oPosted, 'method');
+		if (empty($method)) {
+			return new \ParameterError('（1）参数不完整');
+		}
+		$oAnswerConfig = $this->getDeepValue($oPosted, 'data');
+		if (empty($oAnswerConfig)) {
+			return new \ParameterError('（2）参数不完整');
+		}
+
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, 'id,state,siteid,title,summary,pic,scenario,start_at,end_at,mission_id,answer_config');
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError('（3）活动不存在');
+		}
+		$aAllAnswerConfigs = $oApp->answerConfig;
+
+		switch ($method) {
+		case 'save':
+			$oAnswerConfig = $this->model('matter\enroll\task')->purifyAnswer($oAnswerConfig);
+			if (empty($oAnswerConfig->id)) {
+				$oAnswerConfig->id = uniqid();
+				$aAllAnswerConfigs[] = $oAnswerConfig;
+			} else {
+				$bExistent = false;
+				foreach ($aAllAnswerConfigs as $index => $oBefore) {
+					if ($oBefore->id === $oAnswerConfig->id) {
+						$aAllAnswerConfigs[$index] = $oAnswerConfig;
+						$bExistent = true;
+						break;
+					}
+				}
+				if (false === $bExistent) {
+					return new \ObjectNotFoundError('（4）更新的规则不存在');
+				}
+			}
+			break;
+		case 'delete':
+			$bExistent = false;
+			foreach ($aAllAnswerConfigs as $index => $oBefore) {
+				if ($oBefore->id === $oAnswerConfig->id) {
+					array_splice($aAllAnswerConfigs, $index, 1);
+					$bExistent = true;
+					break;
+				}
+			}
+			if (false === $bExistent) {
+				return new \ObjectNotFoundError('（5）删除的规则不存在');
+			}
+			break;
+		}
+
+		$modelApp->modify($oUser, $oApp, (object) ['answer_config' => $modelApp->escape($modelApp->toJson($aAllAnswerConfigs))], ['id' => $oApp->id]);
+		if ($method === 'save') {
+			return new \ResponseData($oAnswerConfig);
+		} else {
+			return new \ResponseData('ok');
+		}
 	}
 	/**
 	 * 更新记录转发规则

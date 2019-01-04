@@ -3,7 +3,7 @@ require_once '../../db.php';
 
 $sqls = [];
 //
-$sqls[] = "ALTER TABLE xxt_enroll_record add like_data_num int not null default 0";
+$sqls[] = "ALTER TABLE xxt_enroll add question_config text null after score_config";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

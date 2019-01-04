@@ -358,7 +358,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     };
     $scope.scoreSchema = function() {
         var _oScoreApp;
-        _oScoreApp = $parse('score.configs[0].scoreApp')(_oTasks);
+        _oScoreApp = $parse('score.schemas[0].scoreApp')(_oTasks);
         if (!_oScoreApp || !_oScoreApp.id) return;
         $uibModal.open({
             template: require('./_asset/score-app.html'),
@@ -485,6 +485,12 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             }
             http2.get(LS.j('task/list', 'site', 'app')).then(function(rsp) {
                 _oTasks = rsp.data;
+                if (rsp.data.question) {
+                    tasks.push({ type: 'info', msg: '有提问任务', id: 'record.data.question' });
+                }
+                if (rsp.data.answer) {
+                    tasks.push({ type: 'info', msg: '有回答任务', id: 'record.data.answer' });
+                }
                 if (rsp.data.vote) {
                     tasks.push({ type: 'info', msg: '有投票任务', id: 'record.data.vote' });
                     popActs.push('voteRecData');

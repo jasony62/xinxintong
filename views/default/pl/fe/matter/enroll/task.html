@@ -1,0 +1,323 @@
+<div class="col-md-8 col-md-offset-2">
+    <uib-tabset active="tabActive">
+        <uib-tab index="1">
+            <uib-tab-heading>提问</uib-tab-heading>
+            <div class='panel panel-default' ng-controller="ctrlTaskQuestion">
+                <div class='panel-body'>
+                    <div class='list-group'>
+                        <div class='list-group-item' ng-repeat="config in configs">
+                            <div class='form-group'>
+                                <div class='form-inline'>
+                                    <span>每人提问数量 最少</span>
+                                    <input type='text' class='form-control' ng-model="config.limit.min" placeholder="输入数量">
+                                    <span>最多</span>
+                                    <input type='text' class='form-control' ng-model="config.limit.max" placeholder="输入数量">
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <div class='form-inline'>
+                                    <span>提问开始时间</span>
+                                    <select class='form-control' ng-model="config.start.time.mode">
+                                        <option value=''>不设置</option>>
+                                        <option value='after_round_start_at'>填写轮次开始时间后</option>
+                                    </select>
+                                    <select class='form-control' ng-model="config.start.time.unit">
+                                        <option value=''>不设置</option>>
+                                        <option value='hour'>小时</option>
+                                    </select>
+                                    <input type='text' class='form-control' ng-model="config.start.time.value" placeholder="输入需要的时间">
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <div class='form-inline'>
+                                    <span>提问结束时间</span>
+                                    <select class='form-control' ng-model="config.end.time.mode">
+                                        <option value=''>不设置</option>>
+                                        <option value='after_round_start_at'>填写轮次开始时间后</option>
+                                    </select>
+                                    <select class='form-control' ng-model="config.end.time.unit">
+                                        <option value=''>不设置</option>>
+                                        <option value='hour'>小时</option>
+                                    </select>
+                                    <input type='text' class='form-control' ng-model="config.end.time.value" placeholder="输入需要的时间">
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <span>执行任务的用户</span>
+                                <div tms-array-checkbox model="config.role.groups">
+                                    <div class='checkbox' ng-repeat="group in app.groups">
+                                        <label class='checkbox-inline'>
+                                            <input type='checkbox' value='{{::group.round_id}}'><span>{{::group.title}}</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
+                            <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
+                        </div>
+                    </div>
+                    <div>
+                        <button class='btn btn-default' ng-click="addConfig()">添加提问环节</button>
+                    </div>
+                </div>
+            </div>
+        </uib-tab>
+        <uib-tab index="2">
+            <uib-tab-heading>回答</uib-tab-heading>
+            <div class='panel panel-default' ng-controller="ctrlTaskAnswer">
+                <div class='panel-body'>
+                    <div class='list-group'>
+                        <div class='list-group-item' ng-repeat="config in configs">
+                            <div class='form-group'>
+                                <label>回答题目</label>
+                                <div tms-array-checkbox model="config.schemas">
+                                    <div class='checkbox' ng-repeat="schema in answerSchemas">
+                                        <label class='checkbox-inline'>
+                                            <input type='checkbox' value='{{::schema.id}}'><span>{{::schema.title}}</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class='form-group'>
+                                <label>符合回答条件的提问</label>
+                                <div class='form-inline'>
+                                    <div class='form-group'>
+                                        <label>条件类型</label>
+                                        <select class='form-control' ng-model="config.target.mode">
+                                            <option value=''>无限制</option>
+                                            <option value='vote'>获得的投票数超过</option>
+                                            <option value='vote_rank'>获得的投票数排序前</option>
+                                            <option value='score'>获得的评分超过</option>
+                                            <option value='score_rank'>获得的评分排序前</option>
+                                        </select>
+                                    </div>
+                                    <div class='form-group'>
+                                        <label>要求数量</label>
+                                        <input type='text' class='form-control' ng-model="config.target.num">
+                                    </div>
+                                </div>
+                                <div>
+                                    <div tms-array-checkbox model="config.target.groups">
+                                        <div class='checkbox' ng-repeat="group in app.groups">
+                                            <label class='checkbox-inline'>
+                                                <input type='checkbox' value='{{::group.round_id}}'><span>{{::group.title}}</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class='form-group'>
+                                <div class='form-inline'>
+                                    <span>每人回答数量 最少</span>
+                                    <input type='text' class='form-control' ng-model="config.limit.min" placeholder="输入数量">
+                                    <span>最多</span>
+                                    <input type='text' class='form-control' ng-model="config.limit.max" placeholder="输入数量">
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <div class='form-inline'>
+                                    <span>回答开始时间</span>
+                                    <select class='form-control' ng-model="config.start.time.mode">
+                                        <option value=''>不设置</option>>
+                                        <option value='after_round_start_at'>填写轮次开始时间后</option>
+                                    </select>
+                                    <select class='form-control' ng-model="config.start.time.unit">
+                                        <option value=''>不设置</option>>
+                                        <option value='hour'>小时</option>
+                                    </select>
+                                    <input type='text' class='form-control' ng-model="config.start.time.value" placeholder="输入需要的时间">
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <div class='form-inline'>
+                                    <span>回答结束时间</span>
+                                    <select class='form-control' ng-model="config.end.time.mode">
+                                        <option value=''>不设置</option>>
+                                        <option value='after_round_start_at'>填写轮次开始时间后</option>
+                                    </select>
+                                    <select class='form-control' ng-model="config.end.time.unit">
+                                        <option value=''>不设置</option>>
+                                        <option value='hour'>小时</option>
+                                    </select>
+                                    <input type='text' class='form-control' ng-model="config.end.time.value" placeholder="输入需要的时间">
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <span>执行任务的用户</span>
+                                <div tms-array-checkbox model="config.role.groups">
+                                    <div class='checkbox' ng-repeat="group in app.groups">
+                                        <label class='checkbox-inline'>
+                                            <input type='checkbox' value='{{::group.round_id}}'><span>{{::group.title}}</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
+                            <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
+                        </div>
+                    </div>
+                    <div>
+                        <button class='btn btn-default' ng-click="addConfig()">添加回答环节</button>
+                    </div>
+                </div>
+            </div>
+        </uib-tab>
+        <uib-tab index="3">
+            <uib-tab-heading>投票</uib-tab-heading>
+            <div class='panel panel-default' ng-controller="ctrlTaskVote">
+                <div class='panel-body'>
+                    <div class='list-group'>
+                        <div class='list-group-item' ng-repeat="config in configs">
+                            <div class='form-group'>
+                                <label>投票题目</label>
+                                <div tms-array-checkbox model="config.schemas">
+                                    <div class='checkbox' ng-repeat="schema in votingSchemas">
+                                        <label class='checkbox-inline'>
+                                            <input type='checkbox' value='{{::schema.id}}'><span>{{::schema.title}}</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class='form-group'>
+                                <div class='form-inline'>
+                                    <span>每人投票数量 最少</span>
+                                    <input type='text' class='form-control' ng-model="config.limit.min" placeholder="输入数量">
+                                    <span>最多</span>
+                                    <input type='text' class='form-control' ng-model="config.limit.max" placeholder="输入数量">
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <div class='form-inline'>
+                                    <span>投票开始时间</span>
+                                    <select class='form-control' ng-model="config.start.time.mode">
+                                        <option value=''>不设置</option>>
+                                        <option value='after_round_start_at'>填写轮次开始时间后</option>
+                                    </select>
+                                    <select class='form-control' ng-model="config.start.time.unit">
+                                        <option value=''>不设置</option>>
+                                        <option value='hour'>小时</option>
+                                    </select>
+                                    <input type='text' class='form-control' ng-model="config.start.time.value" placeholder="输入需要的时间">
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <div class='form-inline'>
+                                    <span>投票结束时间</span>
+                                    <select class='form-control' ng-model="config.end.time.mode">
+                                        <option value=''>不设置</option>>
+                                        <option value='after_round_start_at'>填写轮次开始时间后</option>
+                                    </select>
+                                    <select class='form-control' ng-model="config.end.time.unit">
+                                        <option value=''>不设置</option>>
+                                        <option value='hour'>小时</option>
+                                    </select>
+                                    <input type='text' class='form-control' ng-model="config.end.time.value" placeholder="输入需要的时间">
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <span>执行任务的用户</span>
+                                <div tms-array-checkbox model="config.role.groups">
+                                    <div class='checkbox' ng-repeat="group in app.groups">
+                                        <label class='checkbox-inline'>
+                                            <input type='checkbox' value='{{::group.round_id}}'><span>{{::group.title}}</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
+                            <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
+                        </div>
+                    </div>
+                    <div>
+                        <button class='btn btn-default' ng-click="addConfig()">添加投票环节</button>
+                    </div>
+                </div>
+            </div>
+        </uib-tab>
+        <uib-tab index="4">
+            <uib-tab-heading>打分</uib-tab-heading>
+            <div class='panel panel-default' ng-controller="ctrlTaskScore">
+                <div class='panel-body'>
+                    <div class='list-group'>
+                        <div class='list-group-item' ng-repeat="config in configs">
+                            <div class='form-group'>
+                                <label>打分题目</label>
+                                <div tms-array-checkbox model="config.schemas">
+                                    <div class='checkbox' ng-repeat="schema in scoreSchemas">
+                                        <label class='checkbox-inline'>
+                                            <input type='checkbox' value='{{::schema.id}}'><span>{{::schema.title}}</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class='form-group'>
+                                <div class="input-group-btn">
+                                    <button class='btn btn-default' ng-click="setScoreApp(config)">设置打分活动</button>
+                                    <button ng-if="config.scoreApp" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                        <span class="caret"></span>
+                                        <span class="sr-only">Toggle Dropdown</span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a href='/rest/pl/fe/matter/enroll?id={{config.scoreApp.id}}&site={{app.siteid}}' target='_blank'>查看活动</a></li>
+                                        <li><a href ng-click="unlinkScoreApp(config)">解除关联</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <div class='form-inline'>
+                                    <span>打分开始时间</span>
+                                    <select class='form-control' ng-model="config.start.time.mode">
+                                        <option value=''>不设置</option>>
+                                        <option value='after_round_start_at'>填写轮次开始时间后</option>
+                                    </select>
+                                    <select class='form-control' ng-model="config.start.time.unit">
+                                        <option value=''>不设置</option>>
+                                        <option value='hour'>小时</option>
+                                    </select>
+                                    <input type='text' class='form-control' ng-model="config.start.time.value" placeholder="输入需要的时间">
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <div class='form-inline'>
+                                    <span>打分结束时间</span>
+                                    <select class='form-control' ng-model="config.end.time.mode">
+                                        <option value=''>不设置</option>>
+                                        <option value='after_round_start_at'>填写轮次开始时间后</option>
+                                    </select>
+                                    <select class='form-control' ng-model="config.end.time.unit">
+                                        <option value=''>不设置</option>>
+                                        <option value='hour'>小时</option>
+                                    </select>
+                                    <input type='text' class='form-control' ng-model="config.end.time.value" placeholder="输入需要的时间">
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <span>执行任务的用户</span>
+                                <div tms-array-checkbox model="config.role.groups">
+                                    <div class='checkbox' ng-repeat="group in app.groups">
+                                        <label class='checkbox-inline'>
+                                            <input type='checkbox' value='{{::group.round_id}}'><span>{{::group.title}}</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
+                            <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
+                        </div>
+                    </div>
+                    <div>
+                        <button class='btn btn-default' ng-click="addConfig()">添加打分环节</button>
+                    </div>
+                </div>
+            </div>
+        </uib-tab>
+    </uib-tabset>
+</div>

@@ -1,9 +1,9 @@
 <?php
 require_once '../../db.php';
 
-$sqls = array();
+$sqls = [];
 //
-$sqls[] = "ALTER TABLE xxt_log_matter_share add share_url text NULL";
+$sqls[] = "ALTER TABLE xxt_site_account add user_agent text null";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

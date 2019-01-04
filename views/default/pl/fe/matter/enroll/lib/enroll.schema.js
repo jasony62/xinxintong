@@ -1030,6 +1030,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                 input: function(oSchema2) { return 'shorttext' === oSchema2.type && oSchema2.format === 'number'; },
                                 option: function(oSchema2) { return /single|multiple/.test(oSchema2.type) && oSchema2.dsOps; }
                             };
+                            $scope2.schema = oSchema;
                             $scope2.page = _oPage = {};
                             $scope2.filter = _oFilter = {};
                             $scope2.schemas = [];

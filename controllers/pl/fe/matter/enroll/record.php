@@ -2321,7 +2321,7 @@ class record extends main_base {
 	/**
 	 * 从指定的数据源同步数据
 	 */
-	public function syncWithDataSource_action($app, $round = null) {
+	public function syncWithDataSource_action($app, $round) {
 		if (false === ($oOperator = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -2330,105 +2330,138 @@ class record extends main_base {
 		if (false === ($oApp = $modelApp->byId($app, ['fields' => 'id,data_schemas,scenario,mission_id,sync_mission_round,round_cron', 'appRid' => $round, 'cascaded' => 'N']))) {
 			return new \ObjectNotFoundError();
 		}
-		if (!empty($oApp->dataSchemas)) {
-			$modelRnd = $this->model('matter\enroll\round');
-			$oAssignedRnd = $oApp->appRound;
-			foreach ($oApp->dataSchemas as $oSchema) {
-				if (!empty($oSchema->ds->app->id) && !empty($oSchema->ds->type) && !empty($oSchema->ds->schema) && is_array($oSchema->ds->schema)) {
-					$oDsApp = $modelApp->byId($oSchema->ds->app->id, ['fields' => 'id,data_schemas', 'cascaded' => 'N']);
-					if (empty($oAssignedRnd->mission_rid)) {
-						$oDsAssignedRnd = null;
-					} else {
-						$oDsAssignedRnd = $modelRnd->byMissionRid($oDsApp, $oAssignedRnd->mission_rid, ['fields' => 'rid,mission_rid']);
-					}
+		if (empty($oApp->dataSchemas)) {
+			return new \ObjectNotFoundError();
+		}
+		$modelRnd = $this->model('matter\enroll\round');
+		$oAssignedRnd = $modelRnd->byId($round);
+		if (false === $oAssignedRnd) {
+			return new \ObjectNotFoundError();
+		}
 
-					switch ($oSchema->ds->type) {
-					case 'act':
-						$this->_syncNumberWithAct($oApp, $oSchema, $oDsApp, $oSchema->ds->schema, $oDsAssignedRnd);
-						break;
-					case 'input':
-						$dsSchemaIds = [];
-						foreach ($oDsApp->dataSchemas as $oDsSchema) {
-							if (in_array($oDsSchema->id, $oSchema->ds->schema)) {
-								if ($oDsSchema->type === 'shorttext' && $this->getDeepValue($oDsSchema, 'format') === 'number') {
-									$dsSchemaIds[] = $oDsSchema->id;
-								}
-							}
-							if (count($oSchema->ds->schema) === count($dsSchemaIds)) {
-								break;
-							}
-						}
-						if (count($dsSchemaIds)) {
-							$this->_syncNumberWithInput($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oDsAssignedRnd);
-						}
-						break;
-					case 'score':
-						$dsSchemaIds = [];
-						foreach ($oDsApp->dataSchemas as $oDsSchema) {
-							if (in_array($oDsSchema->id, $oSchema->ds->schema)) {
-								if ($this->getDeepValue($oDsSchema, 'requireScore') === 'Y') {
-									$dsSchemaIds[] = $oDsSchema->id;
-								}
-							}
-							if (count($oSchema->ds->schema) === count($dsSchemaIds)) {
-								break;
-							}
-						}
-						if (count($dsSchemaIds)) {
-							$this->_syncNumberWithScore($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oDsAssignedRnd);
-						}
-						break;
-					case 'score_rank':
-						$dsSchemaIds = [];
-						foreach ($oDsApp->dataSchemas as $oDsSchema) {
-							if (in_array($oDsSchema->id, $oSchema->ds->schema)) {
-								if ($this->getDeepValue($oDsSchema, 'requireScore') === 'Y') {
-									$dsSchemaIds[] = $oDsSchema->id;
-								}
-							}
-							if (count($oSchema->ds->schema) === count($dsSchemaIds)) {
-								break;
-							}
-						}
-						if (count($dsSchemaIds)) {
-							$this->_syncNumberWithScoreRank($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oAssignedRnd, $oDsAssignedRnd);
-						}
-						break;
-					case 'option':
-						$dsSchemas = [];
-						foreach ($oDsApp->dataSchemas as $oDsSchema) {
-							if (in_array($oDsSchema->id, $oSchema->ds->schema)) {
-								if (in_array($oDsSchema->type, ['single', 'multiple']) && !empty($oDsSchema->dsOps->app->id)) {
-									/* 设置动态选项 */
-									if (!isset($modelSch)) {
-										$modelSch = $this->model('matter\enroll\schema');
-									}
-									$modelSch->setDynaOptions($oDsApp, isset($oDsAssignedRnd) ? $oDsAssignedRnd : null);
-									if (!empty($oDsSchema->ops)) {
-										$dsSchemas[] = $oDsSchema;
-									}
-								}
-							}
-							if (count($oSchema->ds->schema) === count($dsSchemas)) {
-								break;
-							}
-						}
-						if (count($dsSchemas)) {
-							$this->_syncNumberWithOption($oApp, $oSchema, $oDsApp, $dsSchemas, $oDsAssignedRnd);
-						}
-						break;
+		$fnGetDsSchemaIds = function ($oSchema, $oDsApp, $fnFilter) {
+			$dsSchemaIds = [];
+			foreach ($oDsApp->dataSchemas as $oDsSchema) {
+				if (in_array($oDsSchema->id, $oSchema->ds->schema)) {
+					if ($fnFilter($oDsSchema)) {
+						$dsSchemaIds[] = $oDsSchema->id;
 					}
 				}
+				if (count($oSchema->ds->schema) === count($dsSchemaIds)) {
+					break;
+				}
+			}
+			return $dsSchemaIds;
+		};
+
+		/* 获得源活动中对应的同步轮次 */
+		$fnGetDsRids = function ($oDsApp) use ($oAssignedRnd, $modelRnd) {
+			// 源活动中，开始时间，停止时间和用途都相同轮次
+			$oRndResult = $modelRnd->byApp($oDsApp, ['start_at' => $oAssignedRnd->start_at, 'end_at' => $oAssignedRnd->end_at, 'purpose' => $oAssignedRnd->purpose, 'fields' => 'rid,start_at', 'withoutActive' => 'Y']);
+			if (count($oRndResult->rounds) === 1) {
+				$rounds = $oRndResult->rounds;
+			}
+			// 源活动中，根据开始时间，停止时间获得的被汇总轮次
+			if ($oAssignedRnd->purpose === 'S') {
+				$rounds = $modelRnd->getSummaryInclude($oDsApp, $oAssignedRnd->start_at, $oAssignedRnd->end_at);
+			}
+			if (empty($rounds)) {
+				return false;
+			}
+
+			return array_map(function ($oRnd) {return $oRnd->rid;}, $rounds);
+		};
+
+		$modelRecDat = $this->model('matter\enroll\data');
+		$oSyncResult = new \stdClass;
+		$oSyncResult->total = 0;
+		$aCachedDsApp = []; // 已经取过的活动
+		$aCachedDsAppRids = []; // 已经取过的活动轮次
+		foreach ($oApp->dataSchemas as $oSchema) {
+			if (!empty($oSchema->ds->app->id) && !empty($oSchema->ds->type) && !empty($oSchema->ds->schema) && is_array($oSchema->ds->schema)) {
+				if (isset($aCachedDsApp[$oSchema->ds->app->id])) {
+					$oDsApp = $aCachedDsApp[$oSchema->ds->app->id];
+				} else {
+					$oDsApp = $modelApp->byId($oSchema->ds->app->id, ['fields' => 'id,data_schemas', 'cascaded' => 'N']);
+					$aCachedDsApp[$oSchema->ds->app->id] = $oDsApp;
+				}
+				if (false === $oDsApp) {
+					continue;
+				}
+				if (isset($aCachedDsAppRids[$oDsApp->id])) {
+					$oDsAssignedRids = $aCachedDsAppRids[$oDsApp->id];
+				} else {
+					$oDsAssignedRids = $fnGetDsRids($oDsApp);
+					$aCachedDsAppRids[$oDsApp->id] = $oDsAssignedRids;
+				}
+				if (empty($oDsAssignedRids)) {
+					continue;
+				}
+
+				$syncRecordNum = 0;
+				switch ($oSchema->ds->type) {
+				case 'act':
+					$syncRecordNum = $this->_syncNumberWithAct($oApp, $oSchema, $oDsApp, $oSchema->ds->schema, $oAssignedRnd, $oDsAssignedRids);
+					break;
+				case 'input':
+					$dsSchemaIds = $fnGetDsSchemaIds($oSchema, $oDsApp, function ($oDsSchema) {return $oDsSchema->type === 'shorttext' && $this->getDeepValue($oDsSchema, 'format') === 'number';});
+					if (count($dsSchemaIds)) {
+						$syncRecordNum = $this->_syncNumberWithInput($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oAssignedRnd, $oDsAssignedRids);
+					}
+					break;
+				case 'score':
+					$dsSchemaIds = $fnGetDsSchemaIds($oSchema, $oDsApp, function ($oDsSchema) {return $this->getDeepValue($oDsSchema, 'requireScore') === 'Y';});
+					if (count($dsSchemaIds)) {
+						$syncRecordNum = $this->_syncNumberWithScore($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oAssignedRnd, $oDsAssignedRids);
+					}
+					break;
+				case 'score_rank':
+					$dsSchemaIds = $fnGetDsSchemaIds($oSchema, $oDsApp, function ($oDsSchema) {return $this->getDeepValue($oDsSchema, 'requireScore') === 'Y';});
+					if (count($dsSchemaIds)) {
+						$syncRecordNum = $this->_syncNumberWithScoreRank($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oAssignedRnd, $oDsAssignedRids);
+					}
+					break;
+				case 'option':
+					// $dsSchemas = [];
+					// foreach ($oDsApp->dataSchemas as $oDsSchema) {
+					// 	if (in_array($oDsSchema->id, $oSchema->ds->schema)) {
+					// 		if (in_array($oDsSchema->type, ['single', 'multiple']) && !empty($oDsSchema->dsOps->app->id)) {
+					// 			/* 设置动态选项 */
+					// 			if (!isset($modelSch)) {
+					// 				$modelSch = $this->model('matter\enroll\schema');
+					// 			}
+					// 			$modelSch->setDynaOptions($oDsApp, isset($oDsAssignedRids) ? $oDsAssignedRids : null);
+					// 			if (!empty($oDsSchema->ops)) {
+					// 				$dsSchemas[] = $oDsSchema;
+					// 			}
+					// 		}
+					// 	}
+					// 	if (count($oSchema->ds->schema) === count($dsSchemas)) {
+					// 		break;
+					// 	}
+					// }
+					// if (count($dsSchemas)) {
+					// 	$this->_syncNumberWithOption($oApp, $oSchema, $oDsApp, $dsSchemas, $oDsAssignedRids);
+					// }
+					break;
+				}
+				/* 更新结果记录 */
+				$oSyncResult->{$oSchema->id} = $syncRecordNum;
+				$oSyncResult->total += $syncRecordNum;
+			}
+			/* 计算得分的排名 */
+			if ($this->getDeepValue($oSchema, 'requireScore') === 'Y') {
+				$modelRecDat->setScoreRank($oApp, $oSchema, $oAssignedRnd->rid);
 			}
 		}
 
-		return new \ResponseData('ok');
+		return new \ResponseData($oSyncResult);
 	}
 	/**
 	 * 从题目指定的数据源同步数据
 	 * 从选择题数据源同步选项的选择数量数据
 	 */
-	private function _syncNumberWithOption($oApp, $oSchema, $oDsApp, $dsSchemas, $oDsAssignedRnd) {
+	private function _syncNumberWithOption($oApp, $oSchema, $oDsApp, $dsSchemas, $oDsAssignedRids) {
 		$modelRec = $this->model('matter\enroll\record');
 		$aDsOpDataByUser = [];
 		foreach ($dsSchemas as $oDsSchema) {
@@ -2448,10 +2481,8 @@ class record extends main_base {
 							"aid='{$oDsApp->id}' and state=1 and schema_id='{$oDsSchema->id}' and FIND_IN_SET('{$oDsOp->v}', value)",
 						];
 					}
-					/* 限制数据源的轮次 */
-					if (!empty($oDsAssignedRnd->rid)) {
-						$q[2] .= " and rid='{$oDsAssignedRnd->rid}'";
-					}
+					$q[2] .= " and rid in('" . implode("'", $oDsAssignedRids) . "')";
+
 					$count = (int) $modelRec->query_val_ss($q);
 					if (isset($aDsOpDataByUser[$oDsOp->ds->user])) {
 						$aDsOpDataByUser[$oDsOp->ds->user] += $count;
@@ -2486,12 +2517,14 @@ class record extends main_base {
 				$modelRec->setData($oRecUser, $oApp, $oUserRec->enroll_key, $oRecData);
 			}
 		}
+
+		return count($oUserRecords);
 	}
 	/**
 	 * 从题目指定的数据源中同步题目
 	 * 用户输入数据
 	 */
-	private function _syncNumberWithInput($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oAssignedRnd, $oDsAssignedRnd) {
+	private function _syncNumberWithInput($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oAssignedRnd, $oDsAssignedRids) {
 		$modelRec = $this->model('matter\enroll\record');
 		$q = [
 			'id,enroll_key,data,userid,group_id',
@@ -2509,19 +2542,8 @@ class record extends main_base {
 			$q = [
 				'sum(value)',
 				'xxt_enroll_record_data',
-				['aid' => $oDsApp->id, 'state' => 1, 'schema_id' => $dsSchemaIds],
+				['aid' => $oDsApp->id, 'state' => 1, 'schema_id' => $dsSchemaIds, 'rid' => $oDsAssignedRids],
 			];
-			/* 限制数据源的轮次 */
-			if (empty($oDsAssignedRnd->rid)) {
-				/* 是否存在匹配的汇总轮次 */
-				$oDsSumRnd = $this->model('matter\enroll\round')->getSummary($oDsApp, ['fields' => 'id,rid,title,start_at,state']);
-				if ($oDsSumRnd) {
-					$q[2]['rid'] = $oDsSumRnd->rid;
-				}
-			} else {
-				$q[2]['rid'] = $oDsAssignedRnd->rid;
-			}
-
 			foreach ($oUserRecords as $oUserRec) {
 				$oRecUser->uid = $oUserRec->userid;
 				$oRecUser->group_id = $oUserRec->group_id;
@@ -2539,7 +2561,7 @@ class record extends main_base {
 	 * 从题目指定的数据源中同步题目
 	 * 题目的数据
 	 */
-	private function _syncNumberWithScore($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oAssignedRnd, $oDsAssignedRnd) {
+	private function _syncNumberWithScore($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oAssignedRnd, $oDsAssignedRids) {
 		$modelRec = $this->model('matter\enroll\record');
 		$q = [
 			'id,enroll_key,data,userid,group_id',
@@ -2556,19 +2578,8 @@ class record extends main_base {
 			$q = [
 				'sum(score)',
 				'xxt_enroll_record_data',
-				['aid' => $oDsApp->id, 'state' => 1, 'schema_id' => $dsSchemaIds],
+				['aid' => $oDsApp->id, 'state' => 1, 'schema_id' => $dsSchemaIds, 'rid' => $oDsAssignedRids],
 			];
-			/* 限制数据源的轮次 */
-			if (empty($oDsAssignedRnd->rid)) {
-				/* 是否存在匹配的汇总轮次 */
-				$oDsSumRnd = $this->model('matter\enroll\round')->getSummary($oDsApp, ['fields' => 'id,rid,title,start_at,state']);
-				if ($oDsSumRnd) {
-					$q[2]['rid'] = $oDsSumRnd->rid;
-				}
-			} else {
-				$q[2]['rid'] = $oDsAssignedRnd->rid;
-			}
-
 			$oRecUser = new \stdClass;
 			foreach ($userRecords as $oUserRec) {
 				$oRecUser->uid = $oUserRec->userid;
@@ -2587,7 +2598,7 @@ class record extends main_base {
 	 * 从题目指定的数据源中同步题目
 	 * 题目的数据
 	 */
-	private function _syncNumberWithScoreRank($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oAssignedRnd, $oDsAssignedRnd) {
+	private function _syncNumberWithScoreRank($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oAssignedRnd, $oDsAssignedRids) {
 		$modelRec = $this->model('matter\enroll\record');
 		$q = [
 			'id,enroll_key,data,userid,group_id',
@@ -2604,19 +2615,8 @@ class record extends main_base {
 			$q = [
 				'sum(score_rank)',
 				'xxt_enroll_record_data',
-				['aid' => $oDsApp->id, 'state' => 1, 'schema_id' => $dsSchemaIds],
+				['aid' => $oDsApp->id, 'state' => 1, 'schema_id' => $dsSchemaIds, 'rid' => $oDsAssignedRids],
 			];
-			/* 限制数据源的轮次 */
-			if (empty($oDsAssignedRnd->rid)) {
-				/* 是否存在匹配的汇总轮次 */
-				$oDsSumRnd = $this->model('matter\enroll\round')->getSummary($oDsApp, ['fields' => 'id,rid,title,start_at,state']);
-				if ($oDsSumRnd) {
-					$q[2]['rid'] = $oDsSumRnd->rid;
-				}
-			} else {
-				$q[2]['rid'] = $oDsAssignedRnd->rid;
-			}
-
 			$oRecUser = new \stdClass;
 			foreach ($userRecords as $oUserRec) {
 				$oRecUser->uid = $oUserRec->userid;
@@ -2635,7 +2635,7 @@ class record extends main_base {
 	 * 从题目指定的数据源中同步题目
 	 * 用户行为数据
 	 */
-	private function _syncNumberWithAct($oApp, $oSchema, $oDsApp, $actNames, $oAssignedRnd, $oDsAssignedRnd) {
+	private function _syncNumberWithAct($oApp, $oSchema, $oDsApp, $actNames, $oAssignedRnd, $oDsAssignedRids) {
 		$modelRec = $this->model('matter\enroll\record');
 		$q = [
 			'id,enroll_key,data,userid,group_id',
@@ -2648,9 +2648,7 @@ class record extends main_base {
 		}
 		$oUserRecords = $modelRec->query_objs_ss($q);
 		if (count($oUserRecords)) {
-			$q = ['', 'xxt_enroll_user', ['aid' => $oDsApp->id, 'state' => 1]];
-			/* 限制数据源的轮次 */
-			$q[2]['rid'] = empty($oDsAssignedRnd->rid) ? 'ALL' : $oDsAssignedRnd->rid;
+			$q = ['', 'xxt_enroll_user', ['aid' => $oDsApp->id, 'state' => 1, 'rid' => $oDsAssignedRids]];
 
 			$oRecUser = new \stdClass;
 			foreach ($oUserRecords as $oUserRec) {
@@ -2673,7 +2671,7 @@ class record extends main_base {
 	/**
 	 * 从活动所属项目同步用户记录
 	 */
-	public function syncMissionUser_action($app) {
+	public function syncMissionUser_action($app, $round) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -2689,6 +2687,12 @@ class record extends main_base {
 		$modelMis = $this->model('matter\mission');
 		$oMission = $modelMis->byId($oApp->mission_id);
 		if (false === $oMission) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelRnd = $this->model('matter\enroll\round');
+		$oAssignedRnd = $modelRnd->byId($round);
+		if (false === $oAssignedRnd) {
 			return new \ObjectNotFoundError();
 		}
 
@@ -2718,39 +2722,19 @@ class record extends main_base {
 			return new \ParameterError('项目用户数据为空');
 		}
 
-		$oPosted = $this->getPostJson();
-
-		$oAssignedRnds = [];
-		$modelRnd = $this->model('matter\enroll\round');
-		if (empty($oPosted->rid)) {
-			$oAssignedRnd = $modelRnd->getActive($oApp, ['fields' => 'id,rid,mission_rid']);
-			if ($oAssignedRnd) {
-				$oAssignedRnds[] = $oAssignedRnd;
-			}
-		} else {
-			foreach ($oPosted->rid as $rid) {
-				$oAssignedRnd = $modelRnd->byId($rid, ['fields' => 'id,rid,mission_rid']);
-				if ($oAssignedRnd) {
-					$oAssignedRnds[] = $oAssignedRnd;
-				}
-			}
-		}
-
 		$newRecordCount = 0; // 新生成的记录数
 		$modelRec = $this->model('matter\enroll\record');
-		foreach ($oAssignedRnds as $oAssignedRnd) {
-			foreach ($misUsers as $oMisUser) {
-				if (empty($oMisUser->userid)) {
-					continue;
-				}
-				$oMockUser = new \stdClass;
-				$oMockUser->uid = $oMisUser->userid;
-				$records = $modelRec->byUser($oApp, $oMockUser, ['rid' => $oAssignedRnd->rid]);
-				if (empty($records)) {
-					$oMockUser->nickname = $oMisUser->nickname;
-					$modelRec->enroll($oApp, $oMockUser, ['nickname' => $oMockUser->nickname, 'assignedRid' => $oAssignedRnd->rid]);
-					$newRecordCount++;
-				}
+		foreach ($misUsers as $oMisUser) {
+			if (empty($oMisUser->userid)) {
+				continue;
+			}
+			$oMockUser = new \stdClass;
+			$oMockUser->uid = $oMisUser->userid;
+			$records = $modelRec->byUser($oApp, $oMockUser, ['rid' => $oAssignedRnd->rid]);
+			if (empty($records)) {
+				$oMockUser->nickname = $oMisUser->nickname;
+				$modelRec->enroll($oApp, $oMockUser, ['nickname' => $oMockUser->nickname, 'assignedRid' => $oAssignedRnd->rid]);
+				$newRecordCount++;
 			}
 		}
 

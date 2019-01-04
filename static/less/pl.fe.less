@@ -74,8 +74,7 @@ table.table {
 
 /* navbar */
 .navbar {
-    border-radius:0
-    .container-fluid {
+    border-radius:0 .container-fluid {
         padding-left: 0;
 
         .navbar-form:first-child {
@@ -397,40 +396,41 @@ table.table {
     overflow: hidden;
     z-index: 3999;
     text-align: center;
-    word-break: break-all
-}
+    word-break: break-all;
 
-.tms-notice-box.alert-progress {
-    color: #31708f;
-    background-color: #d9edf7;
-    border-color: #bce8f1;
-}
+    &.alert-progress {
+        color: #31708f;
+        background-color: #d9edf7;
+        border-color: #bce8f1;
+    }
 
-.tms-notice-box.alert-progress:after {
-    animation: noticeprogress 2s infinite;
-    animation-timing-function: linear;
-    -webkit-animation: noticeprogress 3s infinite;
-    -webkit-animation-timing-function: linear;
-    content: '';
-    display: inline-block;
-    position: absolute;
-    width: 36px;
-    height: 6px;
-    background: #337ab7;
-    bottom: -3px;
-    left: 0;
-    border-radius: 3px;
-}
+    &.alert-progress:after {
+        animation: noticeprogress 2s infinite;
+        animation-timing-function: linear;
+        -webkit-animation: noticeprogress 3s infinite;
+        -webkit-animation-timing-function: linear;
+        content: '';
+        display: inline-block;
+        position: absolute;
+        width: 36px;
+        height: 6px;
+        background: #337ab7;
+        bottom: -3px;
+        left: 0;
+        border-radius: 3px;
+    }
 
-.tms-notice-box pre {
-    background: rgba(0, 0, 0, 0);
-    max-height: 300px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    border: 0;
-    padding: 0;
-    margin: 0;
-    white-space: pre-wrap;
+    pre {
+        background: rgba(0, 0, 0, 0);
+        max-height: 300px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        border: 0;
+        padding: 0;
+        margin: 0;
+        white-space: pre-wrap;
+    }
+
 }
 
 @media screen and (min-device-height:768px) {
@@ -441,48 +441,55 @@ table.table {
 }
 
 /*modal*/
-.modal.auto-height .modal-dialog, .modal.auto-height .modal-dialog.modal-lg {
-    width: 900px;
-    left: 50%;
-    margin-left: -450px;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-}
+.modal.auto-height {
+    .modal-dialog, .modal-dialog.modal-lg {
+        width: 900px;
+        left: 50%;
+        margin-left: -450px;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+    }
 
-.modal.auto-height.middle-width .modal-dialog.modal-lg {
-    width: 600px;
-    margin-left: -300px;
-}
+    &.middle-width .modal-dialog.modal-lg {
+        width: 600px;
+        margin-left: -300px;
+    }
 
-.modal.auto-height.full-width .modal-dialog {
-    width: 98%;
-    left: 50%;
-    margin-left: -49%;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-}
+    &.full-width .modal-dialog {
+        width: 98%;
+        left: 50%;
+        margin-left: -49%;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+    }
 
-.modal.auto-height .modal-dialog .modal-content {
-    height: 100%
-}
+    .modal-dialog {
+        .modal-content {
+            height: 100%;
 
-.modal.auto-height .modal-dialog .modal-content .modal-body {
-    position: absolute;
-    top: 65px;
-    bottom: 65px;
-    left: 0;
-    right: 0;
-    overflow: auto
-}
+            .modal-body {
+                position: absolute;
+                top: 51px;
+                bottom: 65px;
+                left: 0;
+                right: 0;
+                overflow: auto;
+            }
 
-.modal.auto-height .modal-dialog .modal-content .modal-footer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin-top: 0
+        }
+
+        .modal-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin-top: 0;
+        }
+
+    }
+
 }
 
 @media screen and (max-width:768px) {

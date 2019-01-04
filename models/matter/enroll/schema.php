@@ -103,7 +103,8 @@ class schema_model extends \TMS_MODEL {
 							$oSchema->weight = 1;
 						} else if (!is_numeric($oSchema->weight)) {
 							/* 检查是否为可运行的表达式 */
-							if (false === $this->scoreByWeight($oSchema, 5)) {
+							$aCheckResult = $this->scoreByWeight($oSchema, 5);
+							if (false === $aCheckResult[0]) {
 								$oSchema->weight = 1;
 							}
 						}
@@ -341,18 +342,13 @@ class schema_model extends \TMS_MODEL {
 	 *
 	 * 用分号（;）分割每1条子规则；
 	 * 子规则可以用?分割条件和计算方法；
-	 * 例如：<8?0;=8?5;>8?*1-3
-	 * 代表：
-	 * 小于8的时候得0分；
-	 * 等于8的时候得5分；
-	 * 大于8的时候每个得1分，超出每个得1分；（前8个一共5分，8乘了1，得了8分，最多得5分，所以要减去3
-	 *
+
 	 * 内置的公式：min,max
 	 *
 	 */
 	public function scoreByWeight($oSchema, $x, &$oContext = null) {
 		if (empty($oSchema->weight) || empty($x) || !is_numeric($x)) {
-			return false;
+			return [false];
 		}
 
 		$weight = $oSchema->weight;
@@ -369,7 +365,7 @@ class schema_model extends \TMS_MODEL {
 				foreach ($cases as $cn => $case) {
 					list($condition, $equation) = (strpos($case, '?') ? explode('?', $case) : ['', $case]);
 					if (empty($equation)) {
-						return false;
+						return [false];
 					}
 					/* 适用条件 */
 					$stackCondition = [(string) $x, '', ''];
@@ -380,13 +376,13 @@ class schema_model extends \TMS_MODEL {
 							$char = $condition[$index];
 							if (in_array($char, ['>', '<', '='])) {
 								if (!empty($stackCondition[2])) {
-									return false;
+									return [false];
 								}
 								$stackCondition[1] .= $char;
 							} else if (is_numeric($char)) {
 								$stackCondition[2] .= $char;
 							} else {
-								return false;
+								return [false];
 							}
 							$index++;
 						}
@@ -412,7 +408,7 @@ class schema_model extends \TMS_MODEL {
 							}
 						}
 						if (empty(formula::parse_exp($equation))) {
-							return false;
+							return [false];
 						}
 					}
 					// 全部计算规则
@@ -427,7 +423,7 @@ class schema_model extends \TMS_MODEL {
 			}
 
 			if (empty($stackCases)) {
-				return false;
+				return [false];
 			}
 			foreach ($stackCases as $aCase) {
 				/* 适用条件 */
@@ -437,16 +433,17 @@ class schema_model extends \TMS_MODEL {
 					}
 				}
 				/* 计算公式 */
+				require_once dirname(__FILE__) . '/formula.php';
 				$score = formula::calculate($aCase[1], ['x' => $x]);
 			}
 			if (!isset($score)) {
-				return false;
+				return [true, false];
 			}
 
-			return $score;
+			return [true, $score];
 		}
 
-		return false;
+		return [false];
 	}
 
 	/**
@@ -1115,126 +1112,6 @@ class schema_model extends \TMS_MODEL {
 		}
 
 		return $aResult;
-	}
-	/**
-	 * 需要进行投票的题目
-	 */
-	public function getCanVote($oApp, $oRound = null) {
-		if (!isset($oApp->dynaDataSchemas) || !isset($oApp->voteConfig)) {
-			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,vote_config']);
-		}
-		if (empty($oRound)) {
-			$oRound = $oApp->appRound;
-		}
-
-		$fnValidConfig = function ($oVoteConfig) use ($oRound) {
-			if (empty($oVoteConfig->schemas)) {
-				return [false];
-			}
-			$current = time();
-			if ($oStartRule = $this->getDeepValue($oVoteConfig, 'start.time')) {
-				if ($this->getDeepValue($oStartRule, 'mode') === 'after_round_start_at') {
-					if ($this->getDeepValue($oStartRule, 'unit') === 'hour') {
-						$afterHours = (int) $this->getDeepValue($oStartRule, 'value');
-						if (empty($oRound->start_at) || ($current < $oRound->start_at + ($afterHours * 3600))) {
-							return [true, 'BS'];
-						}
-					}
-				}
-			}
-			if ($oEndRule = $this->getDeepValue($oVoteConfig, 'end.time')) {
-				if ($this->getDeepValue($oEndRule, 'mode') === 'after_round_start_at') {
-					if ($this->getDeepValue($oEndRule, 'unit') === 'hour') {
-						$afterHours = (int) $this->getDeepValue($oEndRule, 'value');
-						if (empty($oRound->start_at) || ($current > $oRound->start_at + ($afterHours * 3600))) {
-							return [true, 'AE'];
-						}
-					}
-				}
-			}
-
-			return [true, 'IP'];
-		};
-		$aVoteSchemas = [];
-		foreach ($oApp->voteConfig as $oVoteConfig) {
-			$aValid = $fnValidConfig($oVoteConfig);
-			if (false === $aValid[0]) {
-				continue;
-			}
-			foreach ($oApp->dynaDataSchemas as $oSchema) {
-				if (in_array($oSchema->id, $oVoteConfig->schemas)) {
-					$oVoteRule = new \stdClass;
-					$oVoteRule->state = $aValid[1];
-					$oVoteRule->limit = $this->getDeepValue($oVoteConfig, 'limit.num', 0);
-					$oVoteRule->groups = $this->getDeepValue($oVoteConfig, 'role.groups');
-					$oSchema->vote = $oVoteRule;
-					$aVoteSchemas[$oSchema->id] = $oSchema;
-				}
-			}
-		}
-
-		return $aVoteSchemas;
-	}
-	/**
-	 * 需要进行打分的题目
-	 */
-	public function getCanScore($oApp, $oRound = null) {
-		if (!isset($oApp->dynaDataSchemas) || !isset($oApp->scoreConfig)) {
-			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,score_config']);
-		}
-		if (empty($oRound)) {
-			$oRound = $oApp->appRound;
-		}
-
-		$fnValidConfig = function ($oScoreConfig) use ($oRound) {
-			if (empty($oScoreConfig->schemas)) {
-				return [false];
-			}
-			$current = time();
-			if ($oStartRule = $this->getDeepValue($oScoreConfig, 'start.time')) {
-				if ($this->getDeepValue($oStartRule, 'mode') === 'after_round_start_at') {
-					if ($this->getDeepValue($oStartRule, 'unit') === 'hour') {
-						$afterHours = (int) $this->getDeepValue($oStartRule, 'value');
-						if (empty($oRound->start_at) || ($current < $oRound->start_at + ($afterHours * 3600))) {
-							return [true, 'BS'];
-						}
-					}
-				}
-			}
-			if ($oEndRule = $this->getDeepValue($oScoreConfig, 'end.time')) {
-				if ($this->getDeepValue($oEndRule, 'mode') === 'after_round_start_at') {
-					if ($this->getDeepValue($oEndRule, 'unit') === 'hour') {
-						$afterHours = (int) $this->getDeepValue($oEndRule, 'value');
-						if (empty($oRound->start_at) || ($current > $oRound->start_at + ($afterHours * 3600))) {
-							return [true, 'AE'];
-						}
-					}
-				}
-			}
-
-			return [true, 'IP'];
-		};
-		$configs = [];
-		foreach ($oApp->scoreConfig as $oScoreConfig) {
-			$aValid = $fnValidConfig($oScoreConfig);
-			if (false === $aValid[0]) {
-				continue;
-			}
-			$oScoreConfig->state = $aValid[1];
-			// foreach ($oApp->dynaDataSchemas as $oSchema) {
-			// 	if (in_array($oSchema->id, $oScoreConfig->schemas)) {
-			// 		$oScoreRule = new \stdClass;
-			// 		$oScoreRule->state = $aValid[1];
-			// 		$oScoreRule->scoreApp = $this->getDeepValue($oScoreConfig, 'scoreApp');
-			// 		$oScoreRule->groups = $this->getDeepValue($oScoreConfig, 'role.groups');
-			// 		$oSchema->task = $oScoreRule;
-			// 		$aScoreSchemas[$oSchema->id] = $oSchema;
-			// 	}
-			// }
-			$configs[] = $oScoreConfig;
-		}
-
-		return $configs;
 	}
 	/**
 	 * 转换为关联数组的形式

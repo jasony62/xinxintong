@@ -19,6 +19,12 @@ class task extends base {
 
 		$tasks = new \stdClass;
 
+		// 回答任务
+		$tasks->question = $this->_getQuestionTask($oApp, $oUser);
+
+		// 回答任务
+		$tasks->answer = $this->_getAnswerTask($oApp, $oUser);
+
 		// 投票任务
 		$tasks->vote = $this->_getVoteTask($oApp, $oUser);
 
@@ -36,14 +42,14 @@ class task extends base {
 		if (false === $oApp || $oApp->state !== '1' || empty($oApp->voteConfig)) {
 			return new \ObjectNotFoundError();
 		}
+		$oUser = $this->getUser($oApp);
+
 		/* 获取记录的投票信息 */
-		$aCanVoteSchemas = $this->model('matter\enroll\schema')->getCanVote($oApp);
+		$aCanVoteSchemas = $this->model('matter\enroll\task')->getCanVote($oApp, $oUser);
 		if (empty($aCanVoteSchemas)) {
 			return new \ObjectNotFoundError('没有设置投票题目');
 		}
 		$oActiveRnd = $oApp->appRound;
-
-		$oUser = $this->getUser($oApp);
 
 		$modelRecDat = $this->model('matter\enroll\data');
 		$oResult = new \stdClass;
@@ -141,6 +147,64 @@ class task extends base {
 		return new \ResponseData($aVoteResult[1]);
 	}
 	/**
+	 * 提问任务
+	 */
+	private function _getQuestionTask($oApp, $oUser) {
+		if (empty($oApp->questionConfig)) {
+			return false;
+		}
+
+		$aQuestionRules = $this->model('matter\enroll\task')->getCanQuestion($oApp, $oUser);
+		if (empty($aQuestionRules)) {
+			return false;
+		}
+
+		$aRunnings = [];
+		foreach ($aQuestionRules as $oQuestionRule) {
+			if ($this->getDeepValue($oQuestionRule, 'state') === 'IP') {
+				$aRunnings[$oQuestionRule->id] = $oQuestionRule;
+			}
+		}
+		if (empty($aRunnings)) {
+			return false;
+		}
+
+		$oTask = new \stdClass;
+		$oTask->name = 'question';
+		$oTask->rules = $aRunnings;
+
+		return $oTask;
+	}
+	/**
+	 * 回答任务
+	 */
+	private function _getAnswerTask($oApp, $oUser) {
+		if (empty($oApp->answerConfig)) {
+			return false;
+		}
+
+		$aAnswerSchemas = $this->model('matter\enroll\task')->getCanAnswer($oApp, $oUser);
+		if (empty($aAnswerSchemas)) {
+			return false;
+		}
+
+		$aRunnings = [];
+		foreach ($aAnswerSchemas as $oAnswerSchema) {
+			if ($this->getDeepValue($oAnswerSchema, 'answer.state') === 'IP') {
+				$aRunnings[$oAnswerSchema->id] = $oAnswerSchema;
+			}
+		}
+		if (empty($aRunnings)) {
+			return false;
+		}
+
+		$oTask = new \stdClass;
+		$oTask->name = 'answer';
+		$oTask->schemas = $aRunnings;
+
+		return $oTask;
+	}
+	/**
 	 * 投票任务
 	 */
 	private function _getVoteTask($oApp, $oUser) {
@@ -148,7 +212,7 @@ class task extends base {
 			return false;
 		}
 
-		$aVoteSchemas = $this->model('matter\enroll\schema')->getCanVote($oApp);
+		$aVoteSchemas = $this->model('matter\enroll\task')->getCanVote($oApp, $oUser);
 		if (empty($aVoteSchemas)) {
 			return false;
 		}
@@ -162,7 +226,6 @@ class task extends base {
 		if (empty($aRunnings)) {
 			return false;
 		}
-
 		$oTask = new \stdClass;
 		$oTask->name = 'vote';
 		$oTask->schemas = $aRunnings;
@@ -177,23 +240,23 @@ class task extends base {
 			return false;
 		}
 
-		$configs = $this->model('matter\enroll\schema')->getCanScore($oApp);
-		if (empty($configs)) {
+		$aScoreSchemas = $this->model('matter\enroll\task')->getCanScore($oApp, $oUser);
+		if (empty($aScoreSchemas)) {
 			return false;
 		}
-		$runnings = [];
-		foreach ($configs as $oConfig) {
-			if ($this->getDeepValue($oConfig, 'state') === 'IP') {
-				$runnings[] = $oConfig;
+		$aRunnings = [];
+		foreach ($aScoreSchemas as $oScoreSchema) {
+			if ($this->getDeepValue($oScoreSchema, 'score.state') === 'IP') {
+				$aRunnings[] = $oScoreSchema;
 			}
 		}
-		if (empty($runnings)) {
+		if (empty($aRunnings)) {
 			return false;
 		}
 
 		$oTask = new \stdClass;
 		$oTask->name = 'score';
-		$oTask->configs = $runnings;
+		$oTask->schemas = $aRunnings;
 
 		return $oTask;
 	}

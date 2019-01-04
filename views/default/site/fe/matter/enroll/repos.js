@@ -16,9 +16,6 @@ var ngApp = require('./main.js');
 ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', 'enlService', function($scope, $parse, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc, enlService) {
     /* 是否可以对记录进行表态 */
     function fnCanAgreeRecord(oRecord, oUser) {
-        if (_oMocker && _oMocker.role && /visitor|member/.test(_oMocker.role)) {
-            return false;
-        }
         if (oUser.is_leader) {
             if (oUser.is_leader === 'S') {
                 return true;
@@ -33,7 +30,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         }
         return false;
     }
-    var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oTasks, _oMocker, _oUser, _activeDirSchemas;
+    var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oTasks, _oUser, _activeDirSchemas;
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = {};
     $scope.filter = _oFilter = { isFilter: false }; // 过滤条件
@@ -53,9 +50,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             _oPage.total = 0;
         }
         url = LS.j('repos/recordList', 'site', 'app');
-        if (_oMocker && _oMocker.role) {
-            url += '&role=' + _oMocker.role;
-        }
         $scope.reposLoading = true;
         $scope.flag = false;
         http2.post(url, _oCriteria, { page: _oPage }).then(function(result) {
@@ -550,7 +544,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         /* 设置页面分享信息 */
         $scope.setSnsShare(null, null, { target_type: 'repos', target_id: _oApp.id });
         /* 设置页面操作 */
-        $scope.setPopAct(['addRecord', 'mocker'], 'repos', {
+        $scope.setPopAct(['addRecord'], 'repos', {
             func: {
                 voteRecData: $scope.voteRecData,
                 scoreSchema: $scope.scoreSchema,
@@ -571,11 +565,5 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             }
             $scope.groupOthers = groupOthersById;
         });
-        $scope.$watch('mocker', function(nv, ov) {
-            if (nv && nv !== ov) {
-                _oMocker = nv;
-                $scope.recordList(1);
-            }
-        }, true);
     });
 }]);

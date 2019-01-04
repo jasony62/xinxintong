@@ -14,9 +14,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
     function listRemarks() {
         var url;
         url = LS.j('remark/list', 'site', 'ek', 'schema', 'data');
-        if (_oMocker && _oMocker.role) {
-            url += '&role=' + _oMocker.role;
-        }
+        
         http2.get(url).then(function(rsp) {
             var remarks, oRemark, oUpperRemark, oRemarks;
             remarks = rsp.data.remarks;
@@ -157,9 +155,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
                     });
                 }
                 url = LS.j('data/get', 'site', 'ek') + '&schema=' + oSchema.id + '&cascaded=Y';
-                if (_oMocker && _oMocker.role) {
-                    url += '&role=' + _oMocker.role;
-                }
+                
                 http2.get(url, { autoBreak: false, autoNotice: false }).then(function(rsp) {
                     var bRequireAnchorScroll;
                     oRecord.verbose[oSchema.id] = rsp.data.verbose[oSchema.id];
@@ -197,15 +193,12 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             }
         }
         /*设置页面操作*/
-        $scope.setPopAct(['addRecord', 'mocker'], 'cowork');
+        $scope.setPopAct(['addRecord'], 'cowork');
         /*设置页面导航*/
         $scope.setPopNav(['repos', 'favor', 'rank', 'kanban', 'event'], 'cowork');
     }
     /* 是否可以对记录进行表态 */
     function fnCanAgreeRecord(oRecord, oUser) {
-        if (_oMocker && _oMocker.role && /visitor|member/.test(_oMocker.role)) {
-            return false;
-        }
         if (oUser.is_leader) {
             if (oUser.is_leader === 'S') {
                 return true;
@@ -247,7 +240,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         noticebox.error('参数不完整');
         return;
     }
-    var _oApp, _oUser, _oMocker, _oAssocs, shareby;
+    var _oApp, _oUser, _oAssocs, shareby;
     shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
     $scope.coworkTasks = [];
     $scope.remarkTasks = [];
@@ -709,14 +702,6 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
                 fnAfterRecordLoad(oRecord, _oUser);
             }
         });
-        $scope.$watch('mocker', function(nv, ov) {
-            if (nv && nv !== ov) {
-                _oMocker = nv;
-                $scope.record._canAgree = fnCanAgreeRecord($scope.record, $scope.user);
-                fnLoadCowork($scope.record, $scope.coworkSchemas);
-                listRemarks();
-            }
-        }, true);
     });
 }]);
 /**

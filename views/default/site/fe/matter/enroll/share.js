@@ -1,7 +1,7 @@
 'use strict';
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsShare', 'http2', function($scope, $sce, $q, LS, tmsSnsShare, http2) {
+ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsShare', 'http2', 'enlService', function($scope, $sce, $q, LS, tmsSnsShare, http2, enlService) {
     function fnSetSnsShare(oApp, message, anchor) {
         function fnReadySnsShare() {
             if (window.__wxjs_environment === 'miniprogram') {

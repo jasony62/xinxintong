@@ -70,7 +70,7 @@ class remark extends base {
 	/**
 	 * 返回一条填写记录的所有留言
 	 */
-	public function list_action($ek, $schema = '', $data = '', $remarkId = '', $page = 1, $size = 99, $role = null) {
+	public function list_action($ek, $schema = '', $data = '', $remarkId = '', $page = 1, $size = 99) {
 		$recDataId = $data;
 
 		$modelRec = $this->model('matter\enroll\record');
@@ -117,19 +117,8 @@ class remark extends base {
 		if (!empty($remarkId)) {
 			$aOptions['remark_id'] = $remarkId;
 		}
-		/* 指定的用户身份 */
-		if ($role === 'visitor') {
-			$oMockUser = clone $oUser;
-			$oMockUser->is_leader = 'N';
-			$oMockUser->is_editor = 'N';
-		} else if ($role === 'member') {
-			$oMockUser = clone $oUser;
-			$oMockUser->is_leader = 'N';
-		} else {
-			$oMockUser = $oUser;
-		}
 
-		$oResult = $modelRem->listByRecord($oMockUser, $ek, $schema, $page, $size, $aOptions);
+		$oResult = $modelRem->listByRecord($oUser, $ek, $schema, $page, $size, $aOptions);
 		if (!empty($oResult->remarks)) {
 			$modelRecData = $this->model('matter\enroll\data');
 			foreach ($oResult->remarks as $oRemark) {

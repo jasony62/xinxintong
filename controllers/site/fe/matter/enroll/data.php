@@ -13,7 +13,7 @@ class data extends base {
 	 * @param string $schema
 	 * @param string $data
 	 */
-	public function get_action($ek, $schema = '', $data = '', $cascaded = 'N', $role = null) {
+	public function get_action($ek, $schema = '', $data = '', $cascaded = 'N') {
 		$oRecord = $this->model('matter\enroll\record')->byId($ek, ['fields' => 'id,aid,rid,enroll_key,userid,group_id,nickname,enroll_at']);
 		if (false === $oRecord) {
 			return new \ObjectNotFoundError('（1）指定的对象不存在或不可用');
@@ -25,17 +25,6 @@ class data extends base {
 		}
 
 		$oUser = $this->getUser($oApp);
-		/* 指定的用户身份 */
-		if ($role === 'visitor') {
-			$oMockUser = clone $oUser;
-			$oMockUser->is_leader = 'N';
-			$oMockUser->is_editor = 'N';
-		} else if ($role === 'member') {
-			$oMockUser = clone $oUser;
-			$oMockUser->is_leader = 'N';
-		} else {
-			$oMockUser = $oUser;
-		}
 
 		/* 是否限制了匿名规则 */
 		$bAnonymous = false;
@@ -137,20 +126,20 @@ class data extends base {
 							$coworkRemarkLikeNum = (int) $oRule->cowork->likeNum;
 						}
 						if ($coworkRemarkLikeNum) {
-							$q[2] .= " and (group_id='" . (empty($oMockUser->group_id) ? '' : $oMockUser->group_id) . "' or like_num>={$coworkRemarkLikeNum})";
+							$q[2] .= " and (group_id='" . (empty($oUser->group_id) ? '' : $oUser->group_id) . "' or like_num>={$coworkRemarkLikeNum})";
 						}
 					}
 					/* 根据状态和用户角色过滤答案 */
-					if ($oRecord->userid !== $oMockUser->uid) {
-						if (empty($oMockUser->is_leader) || $oMockUser->is_leader !== 'S') {
-							if (!empty($oMockUser->uid)) {
+					if ($oRecord->userid !== $oUser->uid) {
+						if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
+							if (!empty($oUser->uid)) {
 								$w = " and (";
 								$w .= "(agreed<>'N' and agreed<>'D')";
-								$w .= " or userid='{$oMockUser->uid}'";
-								if (!empty($oMockUser->group_id)) {
-									$w .= " or group_id='{$oMockUser->group_id}'";
+								$w .= " or userid='{$oUser->uid}'";
+								if (!empty($oUser->group_id)) {
+									$w .= " or group_id='{$oUser->group_id}'";
 								}
-								if (isset($oMockUser->is_editor) && $oMockUser->is_editor === 'Y') {
+								if (isset($oUser->is_editor) && $oUser->is_editor === 'Y') {
 									$w .= " or group_id=''";
 								}
 								$w .= ")";
@@ -158,11 +147,11 @@ class data extends base {
 							}
 						}
 					} else {
-						if (empty($oMockUser->is_leader) || $oMockUser->is_leader !== 'S') {
-							if (!empty($oMockUser->uid)) {
+						if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
+							if (!empty($oUser->uid)) {
 								$w = " and (";
 								$w .= "agreed<>'N'";
-								$w .= " or userid='{$oMockUser->uid}'";
+								$w .= " or userid='{$oUser->uid}'";
 								$w .= ")";
 								$q[2] .= $w;
 							}
@@ -179,7 +168,7 @@ class data extends base {
 							$oItem->nickname = '我';
 						} else if (preg_match('/用户[^\W_]{13}/', $oItem->nickname)) {
 							$oItem->nickname = '访客';
-						} else if (isset($oEditor) && (empty($oMockUser->is_editor) || $oMockUser->is_editor !== 'Y')) {
+						} else if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
 							/* 设置编辑统一昵称 */
 							if (!empty($oItem->group_id) && $oItem->group_id === $oEditor->group) {
 								$oItem->nickname = $oEditor->nickname;
@@ -207,7 +196,7 @@ class data extends base {
 					if ($oRecData->group_id === $oEditor->group) {
 						$oRecData->is_editor = 'Y';
 					}
-					if (empty($oMockUser->is_editor) || $oMockUser->is_editor !== 'Y') {
+					if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
 						/* 设置编辑统一昵称 */
 						if (!empty($oRecData->group_id) && $oRecData->group_id === $oEditor->group) {
 							$oRecData->nickname = $oEditor->nickname;

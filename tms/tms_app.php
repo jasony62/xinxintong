@@ -439,18 +439,18 @@ class TMS_APP {
 
 			/* check */
 			$modelAct = self::M('account');
-			$result = $modelAct->validate($oToken->email, $oToken->password);
-			if ($result->err_code != 0) {
+			$oValidResult = $modelAct->validate($oToken->email, $oToken->password);
+			if ($oValidResult->err_code != 0) {
 				return false;
 			}
-			$act = $result->data;
+			$oSiteAccount = $oValidResult->data;
 			/* cookie中保留注册信息 */
 			$modelWay = self::M('site\fe\way');
-			$registration = new \stdClass;
-			$registration->unionid = $act->uid;
-			$registration->uname = $act->email;
-			$registration->nickname = $act->nickname;
-			$cookieRegUser = $modelWay->shiftRegUser($registration);
+			$oRegUser = new \stdClass;
+			$oRegUser->unionid = $oSiteAccount->uid;
+			$oRegUser->uname = $oSiteAccount->email;
+			$oRegUser->nickname = $oSiteAccount->nickname;
+			$cookieRegUser = $modelWay->shiftRegUser($oRegUser);
 
 			return true;
 		}

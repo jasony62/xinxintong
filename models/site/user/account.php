@@ -180,148 +180,61 @@ class account_model extends \TMS_MODEL {
 		$uid = isset($props['uid']) ? $props['uid'] : uniqid();
 		/* new account */
 		$current = time();
-		$account = new \stdClass;
-		$account->siteid = $siteid;
-		$account->uid = $uid;
-		$account->unionid = isset($props['unionid']) ? $props['unionid'] : '';
-		$account->is_reg_primary = isset($props['is_reg_primary']) ? $props['is_reg_primary'] : 'N';
-		$account->level_id = self::DEFAULT_LEVEL;
-		$account->reg_time = $current;
+		$oNewAccount = new \stdClass;
+		$oNewAccount->siteid = $siteid;
+		$oNewAccount->uid = $uid;
+		$oNewAccount->unionid = isset($props['unionid']) ? $props['unionid'] : '';
+		$oNewAccount->is_reg_primary = isset($props['is_reg_primary']) ? $props['is_reg_primary'] : 'N';
+		$oNewAccount->level_id = self::DEFAULT_LEVEL;
+		$oNewAccount->reg_time = $current;
+		$oNewAccount->user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 
 		if (empty($props['nickname'])) {
-			$account->nickname = '用户' . $uid;
+			$oNewAccount->nickname = '用户' . $uid;
 		} else {
-			$account->nickname = $this->escape($props['nickname']);
+			$oNewAccount->nickname = $this->escape($props['nickname']);
 		}
 		if (isset($props['headimgurl'])) {
-			$account->headimgurl = $props['headimgurl'];
+			$oNewAccount->headimgurl = $props['headimgurl'];
 		}
 		if (isset($props['ufrom'])) {
-			$account->ufrom = $props['ufrom'];
+			$oNewAccount->ufrom = $props['ufrom'];
 		}
 		/* 检查：一个公众号用户（openid），在一个站点下，只能有一个主站点用户账号 */
 		if (isset($props['wx_openid'])) {
-			$account->wx_openid = $props['wx_openid'];
+			$oNewAccount->wx_openid = $props['wx_openid'];
 			if (isset($props['is_wx_primary'])) {
-				if ($this->byPrimaryOpenid($siteid, 'wx', $account->wx_openid)) {
+				if ($this->byPrimaryOpenid($siteid, 'wx', $oNewAccount->wx_openid)) {
 					throw new \Exception('数据错误，重复创建主公众号用户站点访客账号');
 				}
-				$account->is_wx_primary = $props['is_wx_primary'];
+				$oNewAccount->is_wx_primary = $props['is_wx_primary'];
 			}
 		}
 		if (isset($props['yx_openid'])) {
-			$account->yx_openid = $props['yx_openid'];
+			$oNewAccount->yx_openid = $props['yx_openid'];
 			if (isset($props['is_yx_primary'])) {
-				if ($this->byPrimaryOpenid($siteid, 'yx', $account->yx_openid)) {
+				if ($this->byPrimaryOpenid($siteid, 'yx', $oNewAccount->yx_openid)) {
 					throw new \Exception('数据错误，重复创建主公众号用户站点访客账号');
 				}
-				$account->is_yx_primary = $props['is_yx_primary'];
+				$oNewAccount->is_yx_primary = $props['is_yx_primary'];
 			}
 		}
 		if (isset($props['qy_openid'])) {
-			$account->qy_openid = $props['qy_openid'];
+			$oNewAccount->qy_openid = $props['qy_openid'];
 			if (isset($props['is_qy_primary'])) {
-				if ($this->byPrimaryOpenid($siteid, 'qy', $account->qy_openid)) {
+				if ($this->byPrimaryOpenid($siteid, 'qy', $oNewAccount->qy_openid)) {
 					throw new \Exception('数据错误，重复创建主公众号用户站点访客账号');
 				}
-				$account->is_qy_primary = $props['is_qy_primary'];
+				$oNewAccount->is_qy_primary = $props['is_qy_primary'];
 			}
 		}
 		if ($persisted === true) {
-			$this->insert('xxt_site_account', $account, false);
+			$this->insert('xxt_site_account', $oNewAccount, false);
 			//记录站点活跃数
-			$this->model('site\active')->add($siteid, $account, 0, 'createSiteUser');
+			$this->model('site\active')->add($siteid, $oNewAccount, 0, 'createSiteUser');
 		}
 
-		return $account;
-	}
-	/**
-	 * 创建站点访客用户帐号
-	 *
-	 * 数据合格性检查
-	 *
-	 * @param string $siteId
-	 */
-	public function &create($siteId, $uname, $password, $props = []) {
-		$current = time();
-		/*password*/
-		//$pw_salt = $this->gen_salt();
-		//$pw_hash = $this->compile_password($uname, $password, $pw_salt);
-		/*ip*/
-		$from_ip = empty($props['from_ip']) ? '' : $props['from_ip'];
-		$nickname = empty($props['nickname']) ? '' : $props['nickname'];
-		$unionid = empty($props['unionid']) ? '' : $props['unionid'];
-		$assoc_id = empty($props['assoc_id']) ? '' : $props['assoc_id'];
-		$is_reg_primary = empty($props['is_reg_primary']) ? '' : $props['is_reg_primary'];
-
-		if (isset($props['uid'])) {
-			/* 指定了用户ID */
-			$uid = $props['uid'];
-			if ($existed = $this->byId($uid)) {
-				$account = [
-					'unionid' => $unionid,
-					'assoc_id' => $assoc_id,
-					'is_reg_primary' => $is_reg_primary,
-					'nickname' => $nickname,
-					//'uname' => $uname,
-					//'password' => $pw_hash,
-					//'salt' => $pw_salt,
-					'reg_time' => $current,
-					'reg_ip' => $from_ip,
-					'last_login' => $current,
-					'last_ip' => $from_ip,
-					'last_active' => $current,
-				];
-				$rst = $this->update(
-					'xxt_site_account',
-					$account,
-					"siteid='$siteId' and uid='$uid'"
-				);
-			} else {
-				$account = [
-					'siteid' => $siteId,
-					'uid' => $uid,
-					'unionid' => $unionid,
-					'assoc_id' => $assoc_id,
-					'is_reg_primary' => $is_reg_primary,
-					'nickname' => $nickname,
-					//'uname' => $uname,
-					//'password' => $pw_hash,
-					//'salt' => $pw_salt,
-					'reg_time' => $current,
-					'reg_ip' => $from_ip,
-					'last_login' => $current,
-					'last_ip' => $from_ip,
-					'last_active' => $current,
-					'level_id' => self::DEFAULT_LEVEL,
-				];
-				$this->insert('xxt_site_account', $account, false);
-			}
-		} else {
-			/*new accouont key*/
-			$uid = uniqid();
-			$account = [
-				'siteid' => $siteId,
-				'uid' => $uid,
-				'unionid' => $unionid,
-				'assoc_id' => $assoc_id,
-				'is_reg_primary' => $is_reg_primary,
-				'nickname' => $nickname,
-				//'uname' => $uname,
-				//'password' => $pw_hash,
-				//'salt' => $pw_salt,
-				'reg_time' => $current,
-				'reg_ip' => $from_ip,
-				'last_login' => $current,
-				'last_ip' => $from_ip,
-				'last_active' => $current,
-				'level_id' => self::DEFAULT_LEVEL,
-			];
-			$this->insert('xxt_site_account', $account, false);
-		}
-		$account = (object) $account;
-
-		return $account;
+		return $oNewAccount;
 	}
 	/**
 	 * record last login information.

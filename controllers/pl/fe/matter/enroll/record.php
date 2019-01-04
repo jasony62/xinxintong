@@ -2037,6 +2037,10 @@ class record extends main_base {
 				// 补充说明
 				if ($this->getDeepValue($oSchema, 'supplement') === 'Y') {
 					$supplement = $this->getDeepValue($oRecSupplement, $oSchema->id, '');
+					$supplement = preg_replace('/<(style|script|iframe)[^>]*?>[\s\S]+?<\/\1\s*>/i', '', $supplement);
+					$supplement = preg_replace('/<[^>]+?>/', '', $supplement);
+					$supplement = preg_replace('/\s+/', '', $supplement);
+					$supplement = preg_replace('/>/', '', $supplement);
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $supplement, \PHPExcel_Cell_DataType::TYPE_STRING);
 				}
 				// 分数

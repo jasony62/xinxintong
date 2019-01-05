@@ -292,7 +292,7 @@ class repos extends base {
 	/**
 	 * 返回指定活动的填写记录的共享内容
 	 */
-	public function recordList_action($app, $page = 1, $size = 12, $role = null) {
+	public function recordList_action($app, $page = 1, $size = 12) {
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
@@ -415,20 +415,9 @@ class repos extends base {
 			}
 		}
 
-		/* 指定的用户身份 */
-		if ($role === 'visitor') {
-			$oMockUser = clone $oUser;
-			$oMockUser->is_leader = 'N';
-			$oMockUser->is_editor = 'N';
-		} else if ($role === 'member') {
-			$oMockUser = clone $oUser;
-			$oMockUser->is_leader = 'N';
-		} else {
-			$oMockUser = $oUser;
-		}
 		$oEditor = null; // 作为编辑用户的信息
 
-		$oResult = $modelRec->byApp($oApp, $oOptions, $oCriteria, $oMockUser);
+		$oResult = $modelRec->byApp($oApp, $oOptions, $oCriteria, $oUser);
 		if (!empty($oResult->records)) {
 			$modelData = $this->model('matter\enroll\data');
 			$modelTag = $this->model('matter\enroll\tag2');
@@ -642,7 +631,7 @@ class repos extends base {
 	/**
 	 * 返回指定活动的填写记录的共享内容
 	 */
-	public function recordByTopic_action($app, $topic, $page = 1, $size = 12, $role = null) {
+	public function recordByTopic_action($app, $topic, $page = 1, $size = 12) {
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
@@ -705,18 +694,6 @@ class repos extends base {
 				$oCriteria->GroupOrLikeNum->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
 				$oCriteria->GroupOrLikeNum->like_num = $recordReposLikeNum;
 			}
-		}
-
-		/* 指定的用户身份 */
-		if ($role === 'visitor') {
-			$oMockUser = clone $oUser;
-			$oMockUser->is_leader = 'N';
-			$oMockUser->is_editor = 'N';
-		} else if ($role === 'member') {
-			$oMockUser = clone $oUser;
-			$oMockUser->is_leader = 'N';
-		} else {
-			$oMockUser = $oUser;
 		}
 
 		$modelTop = $this->model('matter\enroll\topic');
@@ -816,11 +793,11 @@ class repos extends base {
 					unset($oRecord->nickname);
 				} else {
 					/* 修改默认访客昵称 */
-					if ($oRecord->userid === $oMockUser->uid) {
+					if ($oRecord->userid === $oUser->uid) {
 						$oRecord->nickname = '我';
 					} else if (preg_match('/用户[^\W_]{13}/', $oRecord->nickname)) {
 						$oRecord->nickname = '访客';
-					} else if (isset($oEditor) && (empty($oMockUser->is_editor) || $oMockUser->is_editor !== 'Y')) {
+					} else if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
 						/* 设置编辑统一昵称 */
 						if (!empty($oRecord->group_id) && $oRecord->group_id === $oEditor->group) {
 							$oRecord->nickname = $oEditor->nickname;
@@ -849,7 +826,7 @@ class repos extends base {
 				];
 				$oRecord->agreedRemarks = $modelRec->query_objs_ss($q, $q2);
 				foreach ($oRecord->agreedRemarks as $oRemark) {
-					if (isset($oEditor) && (empty($oMockUser->is_editor) || $oMockUser->is_editor !== 'Y')) {
+					if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
 						/* 设置编辑统一昵称 */
 						if (!empty($oRemark->group_id) && $oRemark->group_id === $oEditor->group) {
 							$oRemark->nickname = $oEditor->nickname;

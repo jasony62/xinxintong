@@ -274,7 +274,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
             }
         }
     };
-    $scope.mocker = {}; // 用户模拟用户身份
     /* 设置页面操作 */
     $scope.setPopAct = function(aNames, fromPage, oParamsByAct) {
         if (!fromPage || !aNames || aNames.length === 0) return;
@@ -293,6 +292,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
             $scope.$watch('popAct.custom', function(nv, ov) {
                 var oCustom = oEnlUser.custom;
                 if (nv !== ov) {
+                    oCustom[fromPage] = oCustom[fromPage] ? oCustom[fromPage] : {};
                     oCustom[fromPage].act = $scope.popAct.custom;
                     http2.post(LS.j('user/updateCustom', 'site', 'app'), oCustom).then(function(rsp) {});
                 }
@@ -319,25 +319,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
                         break;
                     case 'newRecord':
                         oAct = { title: '添加记录' };
-                        break;
-                    case 'mocker':
-                        /* 是否允许切换用户角色 */
-                        if (oEnlUser) {
-                            if (oEnlUser.is_editor && oEnlUser.is_editor === 'Y') {
-                                oAct = { title: '作为访客', toggle: function() { return $scope.mocker.role !== 'visitor'; }, func: function() { $scope.mocker.role = 'visitor'; } };
-                                $scope.popAct.acts.push(oAct);
-                                oAct = { title: '退出访客', toggle: function() { return $scope.mocker.role === 'visitor'; }, func: function() { $scope.mocker.role = ''; } };
-                                $scope.popAct.acts.push(oAct);
-                                oAct = null;
-                            }
-                            if (oEnlUser.is_leader && /Y|S/.test(oEnlUser.is_leader)) {
-                                oAct = { title: '作为成员', toggle: function() { return $scope.mocker.role !== 'member'; }, func: function() { $scope.mocker.role = 'member'; } };
-                                $scope.popAct.acts.push(oAct);
-                                oAct = { title: '退出成员', toggle: function() { return $scope.mocker.role === 'member'; }, func: function() { $scope.mocker.role = ''; } };
-                                $scope.popAct.acts.push(oAct);
-                                oAct = null;
-                            }
-                        }
                         break;
                     case 'voteRecData':
                         oAct = { title: '题目投票' };
@@ -383,6 +364,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
             $scope.$watch('popNav.custom', function(nv, ov) {
                 var oCustom = oEnlUser.custom;
                 if (nv !== ov) {
+                    oCustom[fromPage] = oCustom[fromPage] ? oCustom[fromPage] : {};
                     oCustom[fromPage].nav = $scope.popNav.custom;
                     http2.post(LS.j('user/updateCustom', 'site', 'app'), oCustom).then(function(rsp) {});
                 }

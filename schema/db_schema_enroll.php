@@ -112,6 +112,23 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
+ * 活动任务（提问、回答、投票、打分）
+ */
+$sql = "create table if not exists xxt_enroll_task(";
+$sql .= "id int not null auto_increment";
+$sql .= ",aid varchar(40) not null";
+$sql .= ",siteid varchar(32) not null default ''";
+$sql .= ",rid varchar(13) not null default ''";
+$sql .= ",config_type varchar(8) not null default ''"; // vote,score,question,answer
+$sql .= ",config_id varchar(13) not null default ''"; // vote_config,score_config,question_config,answer_config
+$sql .= ",start_at int not null"; // 轮次开始时间
+$sql .= ",end_at int not null"; // 轮次结束时间
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
  * 活动填写记录
  */
 $sql = "create table if not exists xxt_enroll_record(";

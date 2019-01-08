@@ -283,10 +283,10 @@ class rank extends base {
 					$q[2]['rid'] = $oCriteria->round;
 				}
 				foreach ($aSchemaOps as $opv => $opl) {
-					$q[2]['value'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_record_data rd2 where rd1.enroll_key=rd2.enroll_key and rd2.schema_id=\'' . $oRankSchema->id . '\' and rd2.value=\'' . $opv . '\''];
+					$q[2]['value'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_record_data rd2 where rd1.enroll_key=rd2.enroll_key and rd2.state=1 and rd2.schema_id=\'' . $oRankSchema->id . '\' and rd2.value=\'' . $opv . '\''];
 					$oNum = $modelApp->query_obj_ss($q);
 					$oNum->l = $opl;
-					if ($oCriteria->orderby) {
+					if ($oCriteria->orderby === 'average_score') {
 						if (!empty($oNum->num) && !empty($oNum->user_num)) {
 							$oNum->num = round((float) ($oNum->num / $oNum->user_num), 2);
 						}

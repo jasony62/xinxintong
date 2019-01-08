@@ -36,7 +36,7 @@ define(['frame'], function(ngApp) {
         });
         $scope.makePagelet = function(type) {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/mission/pagelet.html',
+                templateUrl: $scope.frameTemplates.url('pagelet'),
                 resolve: {
                     mission: function() {
                         return $scope.mission;

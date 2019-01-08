@@ -277,7 +277,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
     /* 设置页面操作 */
     $scope.setPopAct = function(aNames, fromPage, oParamsByAct) {
         if (!fromPage || !aNames || aNames.length === 0) return;
-        if($scope.user) {
+        if ($scope.user) {
             var oEnlUser, oCustom;
             if (oEnlUser = $scope.user.enrollUser) {
                 oCustom = $parse(fromPage + '.act')(oEnlUser.custom);
@@ -290,11 +290,14 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
                 custom: oCustom
             };
             $scope.$watch('popAct.custom', function(nv, ov) {
-                var oCustom = oEnlUser.custom;
-                if (nv !== ov) {
-                    oCustom[fromPage] = oCustom[fromPage] ? oCustom[fromPage] : {};
-                    oCustom[fromPage].act = $scope.popAct.custom;
-                    http2.post(LS.j('user/updateCustom', 'site', 'app'), oCustom).then(function(rsp) {});
+                var oCustom;
+                if (oEnlUser) {
+                    oCustom = oEnlUser.custom;
+                    if (nv !== ov) {
+                        oCustom[fromPage] = oCustom[fromPage] ? oCustom[fromPage] : {};
+                        oCustom[fromPage].act = $scope.popAct.custom;
+                        http2.post(LS.j('user/updateCustom', 'site', 'app'), oCustom).then(function(rsp) {});
+                    }
                 }
             }, true);
             aNames.forEach(function(name) {
@@ -304,7 +307,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
                         oAct = { title: '保存' };
                         break;
                     case 'addRecord':
-                        if ($scope.app) {
+                        if ($scope.app && oEnlUser) {
                             if (parseInt($scope.app.count_limit) === 0 || $scope.app.count_limit > oEnlUser.enroll_num) {
                                 /* 允许添加记录 */
                                 if ($parse('actionRule.record.submit.pre.editor')($scope.app)) {
@@ -346,7 +349,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
     /* 设置弹出导航页 */
     $scope.setPopNav = function(aNames, fromPage, oUser) {
         if (!fromPage || !aNames || aNames.length === 0) return;
-        if($scope.user) {
+        if ($scope.user) {
             var oApp, oEnlUser, oCustom;
             oApp = $scope.app;
             oEnlUser = $scope.user.enrollUser;
@@ -362,11 +365,14 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
                 custom: oCustom
             };
             $scope.$watch('popNav.custom', function(nv, ov) {
-                var oCustom = oEnlUser.custom;
-                if (nv !== ov) {
-                    oCustom[fromPage] = oCustom[fromPage] ? oCustom[fromPage] : {};
-                    oCustom[fromPage].nav = $scope.popNav.custom;
-                    http2.post(LS.j('user/updateCustom', 'site', 'app'), oCustom).then(function(rsp) {});
+                var oCustom;
+                if (oEnlUser) {
+                    oCustom = oEnlUser.custom;
+                    if (nv !== ov) {
+                        oCustom[fromPage] = oCustom[fromPage] ? oCustom[fromPage] : {};
+                        oCustom[fromPage].nav = $scope.popNav.custom;
+                        http2.post(LS.j('user/updateCustom', 'site', 'app'), oCustom).then(function(rsp) {});
+                    }
                 }
             }, true);
             if (oApp.scenario === 'voting' && aNames.indexOf('votes') !== -1) {

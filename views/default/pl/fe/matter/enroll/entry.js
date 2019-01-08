@@ -21,7 +21,8 @@ define(['frame', 'groupService'], function(ngApp) {
             $uibModal.open({
                 templateUrl: 'rankSetting.html',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                    var oApp = $scope.app;
+                    var oApp;
+                    $scope2.app = oApp = $scope.app;
                     $scope2.rankConfig = oApp.rankConfig;
                     $scope2.singleSchemas = oApp.dataSchemas.filter(function(oSchema) { return oSchema.type === 'single'; });
                     $scope2.dismiss = function() { $mi.dismiss(); };

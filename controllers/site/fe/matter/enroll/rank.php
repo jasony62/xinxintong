@@ -271,10 +271,10 @@ class rank extends base {
 			$q = [
 				'sum(score) num',
 				'xxt_enroll_record_data rd1',
-				['aid' => $oApp->id, 'state' => 1, 'schema_id' => $oRankSchema->id],
+				['aid' => $oApp->id, 'state' => 1],
 			];
 			foreach ($aSchemaOps as $opv => $opl) {
-				$q[2]['value'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_record_data rd2 where rd1.enroll_key=rd2.enroll_key and rd2.value=\'' . $opv . '\''];
+				$q[2]['value'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_record_data rd2 where rd1.enroll_key=rd2.enroll_key and rd2.schema_id=\'' . $oRankSchema->id . '\' and rd2.value=\'' . $opv . '\''];
 				$num = $modelApp->query_val_ss($q);
 				$oRankResult[] = (object) ['num' => $num, 'l' => $opl];
 			}

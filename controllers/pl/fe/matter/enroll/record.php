@@ -1655,7 +1655,7 @@ class record extends main_base {
 	/**
 	 * 根据记录的userid更新关联分组活动题目的数据
 	 */
-	public function syncGroup_action($app, $rid = '', $overwrite = 'N') {
+	public function syncGroup_action($app, $rid, $overwrite = 'N') {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
@@ -1686,7 +1686,7 @@ class record extends main_base {
 
 		$updatedCount = 0;
 		$modelRec = $this->model('matter\enroll\record');
-		$oResult = $modelRec->byApp($oEnlApp, null, (object) ['record' => (object) ['rid' => empty($rid) ? $oEnlApp->appRound->rid : 'all']]);
+		$oResult = $modelRec->byApp($oEnlApp, null, (object) ['record' => (object) ['rid' => $rid]]);
 		if (count($oResult->records)) {
 			$oGrpApp = (object) ['id' => $oEnlApp->entryRule->group->id];
 			$modelGrpUsr = $this->model('matter\group\user');
@@ -1730,7 +1730,7 @@ class record extends main_base {
 	/**
 	 * 根据记录的userid更新关联通信录题目的数据
 	 */
-	public function syncMschema_action($app, $rid = '', $overwrite = 'N') {
+	public function syncMschema_action($app, $rid, $overwrite = 'N') {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
@@ -1759,7 +1759,7 @@ class record extends main_base {
 
 		$updatedCount = 0;
 		$modelRec = $this->model('matter\enroll\record');
-		$oResult = $modelRec->byApp($oEnlApp, null, (object) ['record' => (object) ['rid' => empty($rid) ? $oEnlApp->appRound->rid : 'all']]);
+		$oResult = $modelRec->byApp($oEnlApp, null, (object) ['record' => (object) ['rid' => $rid]]);
 		if (count($oResult->records)) {
 			$modelMem = $this->model('site\user\member');
 			$oMocker = new \stdClass;
@@ -2456,6 +2456,10 @@ class record extends main_base {
 			}
 		}
 
+		/* 更新用户数据 */
+		$modelUsr = $this->model('matter\enroll\user');
+		$modelUsr->renew($oApp, $oAssignedRnd->rid);
+
 		return new \ResponseData($oSyncResult);
 	}
 	/**
@@ -2734,10 +2738,14 @@ class record extends main_base {
 			$records = $modelRec->byUser($oApp, $oMockUser, ['rid' => $oAssignedRnd->rid]);
 			if (empty($records)) {
 				$oMockUser->nickname = $oMisUser->nickname;
-				$modelRec->enroll($oApp, $oMockUser, ['nickname' => $oMockUser->nickname, 'assignedRid' => $oAssignedRnd->rid]);
+				$oNewRec = $modelRec->enroll($oApp, $oMockUser, ['nickname' => $oMockUser->nickname, 'assignedRid' => $oAssignedRnd->rid]);
+				$this->model('matter\enroll\event')->submitRecord($oApp, $oNewRec, $oMockUser, true);
 				$newRecordCount++;
 			}
 		}
+
+		/* 更新用户分组数据 */
+		$this->model('matter\enroll\user')->repairGroup($oApp);
 
 		return new \ResponseData($newRecordCount);
 	}

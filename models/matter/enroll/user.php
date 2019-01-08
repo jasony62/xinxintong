@@ -944,6 +944,39 @@ class user_model extends \TMS_MODEL {
 		return $aUpdatedResult;
 	}
 	/**
+	 * 更新用户对应的分组信息
+	 */
+	public function repairGroup($oApp) {
+		if (empty($oApp->entryRule->group->id)) {
+			return 0;
+		}
+
+		$updatedCount = 0;
+		$oAssocGrpApp = (object) ['id' => $oApp->entryRule->group->id];
+		$modelGrpUsr = $this->model('matter\group\player');
+		$q = [
+			'id,userid,group_id',
+			'xxt_enroll_user',
+			['aid' => $oApp->id, 'state' => 1],
+		];
+		$oEnrolleeGroups = new \stdClass; // 用户和分组的对应
+		$enrollees = $modelGrpUsr->query_objs_ss($q);
+		foreach ($enrollees as $oEnrollee) {
+			if (isset($oEnrolleeGroups->{$oEnrollee->userid})) {
+				$groupId = $oEnrolleeGroups->{$oEnrollee->userid};
+			} else {
+				$oGrpMemb = $modelGrpUsr->byUser($oAssocGrpApp, $oEnrollee->userid, ['fields' => 'round_id', 'onlyOne' => true]);
+				$groupId = $oEnrolleeGroups->{$oEnrollee->userid} = $oGrpMemb ? $oGrpMemb->round_id : '';
+			}
+			if ($oEnrollee->group_id !== $groupId) {
+				$modelGrpUsr->update('xxt_enroll_user', ['group_id' => $groupId], ['id' => $oEnrollee->id]);
+				$updatedCount++;
+			}
+		}
+
+		return $updatedCount;
+	}
+	/**
 	 * 活动用户获得奖励积分
 	 */
 	public function awardCoin($oApp, $userid, $rid, $coinEvent, $coinRules = null) {

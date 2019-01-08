@@ -78,7 +78,7 @@ class record_model extends record_base {
 			}
 		}
 
-		$this->insert('xxt_enroll_record', $aNewRec, false);
+		$aNewRec['id'] = $this->insert('xxt_enroll_record', $aNewRec, true);
 
 		/* 记录和轮次的关系 */
 		$oNewRec = (object) $aNewRec;

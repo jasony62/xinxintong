@@ -278,7 +278,7 @@ define(['frame'], function(ngApp) {
         $scope.syncWithMschema = function() {
             $uibModal.open({
                 templateUrl: 'syncWithMschema.html',
-                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                controller: ['$scope', '$uibModalInstance', 'tkEnrollRound', function($scope2, $mi, tkEnlRnd) {
                     var _oPage;
                     $scope2.page = _oPage = {};
                     $scope2.doSearch = function() {

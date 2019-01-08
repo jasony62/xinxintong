@@ -260,6 +260,9 @@ class rank extends base {
 				'xxt_enroll_record_data',
 				['aid' => $oApp->id, 'state' => 1, 'schema_id' => $oRankSchema->id, 'value' => (object) ['op' => '<>', 'pat' => '']],
 			];
+			if (!empty($oCriteria->round) && is_array($oCriteria->round) && !in_array('ALL', $oCriteria->round)) {
+				$q[2]['rid'] = $oCriteria->round;
+			}
 			$q2 = ['g' => 'value', 'o' => 'num desc'];
 			$oRankResult = $modelApp->query_objs_ss($q, $q2);
 			if (count($oRankResult)) {
@@ -273,6 +276,9 @@ class rank extends base {
 				'xxt_enroll_record_data rd1',
 				['aid' => $oApp->id, 'state' => 1],
 			];
+			if (!empty($oCriteria->round) && is_array($oCriteria->round) && !in_array('ALL', $oCriteria->round)) {
+				$q[2]['rid'] = $oCriteria->round;
+			}
 			foreach ($aSchemaOps as $opv => $opl) {
 				$q[2]['value'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_record_data rd2 where rd1.enroll_key=rd2.enroll_key and rd2.schema_id=\'' . $oRankSchema->id . '\' and rd2.value=\'' . $opv . '\''];
 				$num = $modelApp->query_val_ss($q);

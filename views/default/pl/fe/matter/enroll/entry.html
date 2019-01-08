@@ -145,7 +145,7 @@
                                 </label>
                             </div>
                         </div>
-                        <div class='form-group'>
+                        <div class='form-group' ng-if="singleSchemas.length">
                             <label>单选题作为排行对象</label>
                             <div tms-array-checkbox model="rankConfig.schemas">
                                 <div class='checkbox' ng-repeat="schema in singleSchemas">
@@ -161,8 +161,11 @@
                                 <label class='radio-inline'>
                                     <input type='radio' name='defaultRankObj' value='user' ng-model="rankConfig.defaultObj">用户
                                 </label>
-                                <label class='radio-inline'>
+                                <label class='radio-inline' ng-if="app.scenario!=='mis_user_score'&&app.entryRule.group.id">
                                     <input type='radio' name='defaultRankObj' value='group' ng-model="rankConfig.defaultObj">用户分组
+                                </label>
+                                <label class='radio-inline' ng-if="rankConfig.schemas.indexOf(schema.id)!==-1" ng-repeat="schema in singleSchemas">
+                                    <input type='radio' name='defaultRankObj' value='{{::schema.id}}' ng-model="rankConfig.defaultObj">{{::schema.title}}
                                 </label>
                             </div>
                         </div>

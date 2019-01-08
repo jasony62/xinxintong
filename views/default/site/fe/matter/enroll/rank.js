@@ -133,21 +133,28 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'e
                     if (!oApp.entryRule.group.id)
                         oAppState = null;
                 }
-                if (oAppState && !oAppState.dimension)
-                    oAppState.dimension = oAppState.criteria.obj;
             }
         }
         if (!oAppState)
             oAppState = {
-                dimension: 'user',
                 aid: oApp.id,
                 criteria: {
-                    obj: oRankConfig.defaultObj ? oRankConfig.defaultObj : 'user',
                     orderby: oRankConfig.defaultItem ? oRankConfig.defaultItem : 'enroll',
                     agreed: 'all',
                     round: ['ALL']
                 }
             };
+        if (!oAppState.criteria.obj && oRankConfig.defaultObj) {
+            oAppState.criteria.obj = oRankConfig.defaultObj;
+        }
+        if (/user|group/.test(oAppState.criteria.obj)) {
+            oAppState.dimension = oAppState.criteria.obj;
+        } else {
+            if (oRankConfig.schemas && oRankConfig.schemas.length && oRankConfig.schemas.indexOf(oAppState.criteria.obj) !== -1)
+                oAppState.dimension = 'schema';
+            else
+                oAppState.criteria.obj = oAppState.dimension = 'user';
+        }
 
         (new enlRound(oApp)).getRoundTitle(oAppState.criteria.round).then(function(titles) {
             $scope.checkedRoundTitles = titles;

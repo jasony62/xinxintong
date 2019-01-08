@@ -43,70 +43,16 @@
         </div>
         <div class='row'>
             <div id='advCriteria' class='col-md-3' ng-if="advCriteriaStatus.opened&&dirSchemas.length" ng-cloak>
-                <div class='category'>
-                    <div class='category-title'>
-                        目录
-                        <button class='close' ng-if="isSmallLayout" ng-click="advCriteriaStatus.dirOpen=!advCriteriaStatus.dirOpen"><span>&times;</span></button>
-                    </div>
-                    <div class='category-body' ng-if="advCriteriaStatus.dirOpen">
-                        <div class='category-item'>
-                            <div class='item-inner'>
-                                <div class='dir-level-1' ng-repeat="dir1 in dirSchemas">
-                                    <div class='dir' ng-click="shiftDir(dir1, 1)" ng-class="{active:dir1==activeDir1}">
-                                        <span class='dir-title' title="{{dir1.op.l}}">{{dir1.op.l}}</span>
-                                        <i class='icon-indicator' ng-class="{true:'glyphicon glyphicon-chevron-down', false:'glyphicon glyphicon-chevron-right'}[isSmallLayout]" ng-if="dir1.op.childrenDir.length"></i>
-                                    </div>
-                                    <div class='childrenDir' ng-if="dir1.op.childrenDir.length" ng-show="dir1.opened&&dir1==activeDir1">
-                                        <div class='item-inner'>
-                                            <div class='dir-level-2' ng-repeat="dir2 in dir1.op.childrenDir">
-                                                <div class='dir' ng-class="{active:dir2===activeDir2}" ng-click="shiftDir(dir2, 2)">
-                                                    <span class='dir-title' title="{{dir2.op.l}}">{{dir2.op.l}}</span>
-                                                    <i class='icon-indicator' ng-class="{true:'glyphicon glyphicon-chevron-down', false:'glyphicon glyphicon-chevron-right'}[isSmallLayout]" ng-if="dir2.op.childrenDir.length"></i>
-                                                </div>
-                                                <div class='childrenDir' ng-if="dir2.op.childrenDir.length" ng-show="dir2==activeDir2">
-                                                    <div class='item-inner'>
-                                                        <div class='dir-level-3' ng-repeat="dir3 in dir2.op.childrenDir">
-                                                            <div class='dir' ng-click="shiftDir(dir3, 3)" ng-class="{active:dir3===activeDir3}">
-                                                                <span class='dir-title' title="{{dir3.op.l}}">{{dir3.op.l}}</span>
-                                                                <i class='icon-indicator' ng-class="{true:'glyphicon glyphicon-chevron-down', false:'glyphicon glyphicon-chevron-right'}[isSmallLayout]" ng-if="dir3.op.childrenDir.length"></i>
-                                                            </div>
-                                                            <div class='childrenDir' ng-if="dir3.op.childrenDir.length" ng-show="dir3==activeDir3">
-                                                                <div class='item-inner'>
-                                                                    <div class='dir-level-4' ng-repeat="dir4 in dir3.op.childrenDir">
-                                                                        <div class='dir' ng-class="{active:dir4==activeDir4}" ng-click="shiftDir(dir4, 4)">
-                                                                            <span class='dir-title' title="{{dir4.op.l}}">{{dir4.op.l}}</span>
-                                                                            <i class='icon-indicator' ng-class="{true:'glyphicon glyphicon-chevron-down', false:'glyphicon glyphicon-chevron-right'}[isSmallLayout]" ng-if="dir4.op.childrenDir.length"></i>
-                                                                        </div>
-                                                                        <div class='childrenDir' ng-if="dir4.op.childrenDir.length" ng-show="dir4==activeDir4">
-                                                                            <div class='item-inner'>
-                                                                                <div class='dir-level-5' ng-repeat="dir5 in dir4.op.childrenDir">
-                                                                                    <div class='dir' ng-class="{active:dir5==activeDir5}" ng-click="shiftDir(dir5, 5)">{{dir5.op.l}}</div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-center">
-                        <button class='btn btn-default' ng-class="{true:'btn-block',false:'btn-sm'}[isSmallLayout]" ng-if="advCriteriaStatus.dirOpen" ng-click="shiftDir()">清除选择</button>
-                        <div ng-if="!isSmallLayout" ng-class="{'notClick':!activeDir1.op.childrenDir.length}" style="display:inline-block">
-                            <button class='btn btn-default btn-sm' ng-if="!activeDir1.opened" trace-biz ng-click="dirLevel.showDir(activeDir1)">展开<i class='glyphicon glyphicon-chevron-right'></i></button>
-                            <button class='btn btn-default btn-sm' ng-if="activeDir1.opened" trace-biz ng-click="dirLevel.hideDir(activeDir1)">收起<i class='glyphicon glyphicon-chevron-left'></i></button>
+                <div class="tree">
+                    <div class="tree-header">目录<button class='close' ng-if="isSmallLayout" ng-click="advCriteriaStatus.dirOpen=!advCriteriaStatus.dirOpen"><span>&times;</span></button></div>
+                    <div class="tree-body" ng-if="advCriteriaStatus.dirOpen">
+                        <div class="tree-wrap">
+                            <tms-tree tree-data="dirSchemas" checked-data="{{activeDirSchemas}}" dir-clicked="dirClicked($item, $active)" dir-icon="isSmallLayout"></tms-tree>
                         </div>
                     </div>
                 </div>
-                <div class='text-center'>
-                    <button class='btn btn-default btn-sm' ng-if="isSmallLayout" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">关闭</button>
+                <div class='text-center' ng-if="isSmallLayout">
+                    <button class='btn btn-default btn-sm' ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">关闭</button>
                 </div>
             </div>
             <div class='records col-xs-12' ng-class="{'col-md-9':dirSchemas.length,'col-md-12':dirSchemas.length===0}">
@@ -125,8 +71,8 @@
                     </div>
                 </div>
                 <div id='filterQuick' ng-cloak>
-                    <div tms-dropdown basic-data="reposFilters[0]" shift-menu="shiftMenu(criteria)"></div>
-                    <div tms-dropdown basic-data="reposFilters[1]" shift-menu="shiftMenu(criteria)"></div>
+                    <div tms-dropdown basic-data="reposFilters[0]" criteria="{{criteria}}" shift-menu="shiftMenu(criteria)"></div>
+                    <div tms-dropdown basic-data="reposFilters[1]" criteria="{{criteria}}" shift-menu="shiftMenu(criteria)"></div>
                     <div tms-filter basic-data="multiFilters" filter="{{filter}}" criteria="{{criteria}}" confirm="confirm(filterOpt)" class='pull-right' ng-if="multiFilters.length"></div>
                 </div>
                 <!-- end: filterQuick -->
@@ -172,7 +118,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class='data'>
+                            <div class='data' ng-click="remarkRecord(rec, $event)">
                                 <blockquote>
                                     <div tms-repos-record-data schemas="schemas" record="rec"></div>
                                 </blockquote>
@@ -181,7 +127,7 @@
                                 <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
                                 <a href ng-click="likeRecord(rec)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></a>
                                 <a href ng-click="dislikeRecord(rec)"><span class='glyphicon glyphicon-thumbs-down' ng-class="{'like':rec.dislike_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.dislike_num"></span></a>
-                                <a href ng-click="remarkRecord(rec)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></a>
+                                <a href ng-click="remarkRecord(rec, $event)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></a>
                                 <div class="btn-group" uib-dropdown>
                                     <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>
                                         <span class="glyphicon glyphicon-option-vertical"></span>

@@ -1,0 +1,26 @@
+<div class="tree-inner">
+    <div class="item-{{item.floor}}" ng-repeat="item in treeData" ng-include="'/treeItem.html'"></div>
+</div>
+<div class="tree-bottom">
+    <button class='btn btn-default' ng-class="{true:'btn-block',false:'btn-sm'}[dirIcon]" ng-click="wrapCallback('dirClicked')">清除选择</button>
+    <div ng-if="!dirIcon" ng-class="{'notClick':!active[1].op.childrenDir.length}" style="display:inline-block">
+        <button class='btn btn-default btn-sm' ng-if="!active[1].opened" trace-biz ng-click="itemExpended(active[1], $event)">展开<i class='glyphicon glyphicon-chevron-right'></i></button>
+        <button class='btn btn-default btn-sm' ng-if="active[1].opened" trace-biz ng-click="itemExpended(active[1], $event)">收起<i class='glyphicon glyphicon-chevron-left'></i></button>
+    </div>
+</div>
+<script type="text/ng-template" id="/treeItem.html">
+    <div class="item" ng-class="{'active':item.schema_id==active[item.floor].schema_id&&item.op.v==active[item.floor].op.v}" ng-click="wrapCallback('dirClicked', item, active)">
+        <span class="item-label" title="{{item.op.l}}">{{item.op.l}}</span>
+        <i class="item-icon" ng-class="{true:'glyphicon glyphicon-chevron-down', false:'glyphicon glyphicon-chevron-right'}[dirIcon]" ng-if="!hasChild(item)"></i>
+    </div>
+    <div class="item-children" ng-if="!hasChild(item)&&item.floor=='1'" ng-show="item.schema_id==active[item.floor].schema_id&&item.op.v==active[item.floor].op.v&&item.opened">
+        <div class="tree-inner">
+            <div class="item-{{item.floor}}" ng-repeat="item in item.op.childrenDir" ng-include="'/treeItem.html'"></div>
+        </div>
+    </div>
+    <div class="item-children" ng-if="!hasChild(item)&&item.floor!='1'" ng-show="item.schema_id==active[item.floor].schema_id&&item.op.v==active[item.floor].op.v">
+        <div class="tree-inner">
+            <div class="item-{{item.floor}}" ng-repeat="item in item.op.childrenDir" ng-include="'/treeItem.html'"></div>
+        </div>
+    </div>
+</script>

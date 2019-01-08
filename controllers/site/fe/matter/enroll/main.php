@@ -29,7 +29,8 @@ class main extends base {
 		if ($oApp === false || $oApp->state !== '1') {
 			$this->outputError('指定的记录活动不存在，请检查参数是否正确');
 		}
-		if (empty($oApp->appRound)) {
+
+		if (!empty($page) && !in_array($page, ['rank', 'stat']) && empty($oApp->appRound)) {
 			$this->outputError('【' . $oApp->title . '】没有可用的填写轮次，请检查');
 		}
 
@@ -77,6 +78,7 @@ class main extends base {
 			if (empty($page)) {
 				/* 计算打开哪个页面 */
 				$oOpenPage = $this->_defaultPage($oApp, $rid, true, $ignoretime);
+				$page = $oOpenPage->name;
 			} else {
 				$oOpenPage = $this->model('matter\enroll\page')->byName($oApp, $page);
 			}
@@ -95,9 +97,13 @@ class main extends base {
 			}
 		}
 
-		$user = $this->who;
-		if (isset($user->unionid)) {
-			$oAccount = $this->model('account')->byId($user->unionid, ['cascaded' => ['group']]);
+		if (!empty($page) && !in_array($page, ['rank', 'stat']) && empty($oApp->appRound)) {
+			$this->outputError('【' . $oApp->title . '】没有可用的填写轮次，请检查');
+		}
+
+		$oUser = $this->who;
+		if (isset($oUser->unionid)) {
+			$oAccount = $this->model('account')->byId($oUser->unionid, ['cascaded' => ['group']]);
 			if (isset($oAccount->group->view_name) && $oAccount->group->view_name !== TMS_APP_VIEW_NAME) {
 				\TPL::output($outputUrl, ['customViewName' => $oAccount->group->view_name]);
 				exit;

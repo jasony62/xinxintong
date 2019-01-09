@@ -38,7 +38,7 @@
                 <div class='col-md-2 col-xs-4'>
                     <select class='form-control' ng-model="appState.criteria.obj">
                         <option value='user'>用户</option>
-                        <option value='group' ng-if="app.scenario!=='mis_user_score'&&app.entryRule.group.id">用户分组</option>
+                        <option value='group' ng-if="app.entryRule.group.id">用户分组</option>
                         <option value='{{::rs.id}}' ng-repeat="rs in rankSchemas">{{::rs.title}}</option>
                     </select>
                 </div>
@@ -53,6 +53,7 @@
                         <option value='do_like' ng-if="config.do_like&&appState.dimension!=='schema'">进行点赞数量</option>
                         <option value='score' ng-if="config.score">得分</option>
                         <option value='average_score' ng-if="appState.criteria.obj==='group'&&config.average_score&&appState.dimension!=='schema'">组员平均得分</option>
+                        <option value='average_score' ng-if="config.average_score&&appState.dimension==='schema'">用户平均得分</option>
                         <option value='total_coin' ng-if="app.scenarioConfig.can_coin==='Y'&&config.total_coin&&appState.dimension!=='schema'">积分</option>
                     </select>
                 </div>

@@ -161,7 +161,7 @@
                                 <label class='radio-inline'>
                                     <input type='radio' name='defaultRankObj' value='user' ng-model="rankConfig.defaultObj">用户
                                 </label>
-                                <label class='radio-inline' ng-if="app.scenario!=='mis_user_score'&&app.entryRule.group.id">
+                                <label class='radio-inline' ng-if="app.entryRule.group.id">
                                     <input type='radio' name='defaultRankObj' value='group' ng-model="rankConfig.defaultObj">用户分组
                                 </label>
                                 <label class='radio-inline' ng-if="rankConfig.schemas.indexOf(schema.id)!==-1" ng-repeat="schema in singleSchemas">

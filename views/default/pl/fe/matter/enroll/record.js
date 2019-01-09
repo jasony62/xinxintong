@@ -251,45 +251,55 @@ define(['frame'], function(ngApp) {
         $scope.syncWithGroupApp = function() {
             $uibModal.open({
                 templateUrl: 'syncWithGroupApp.html',
-                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                controller: ['$scope', '$uibModalInstance', 'tkEnrollRound', function($scope2, $mi, tkEnlRnd) {
+                    var _oPage;
+                    $scope2.page = _oPage = {};
+                    $scope2.doSearch = function() {
+                        tkEnlRnd.list($scope.app, _oPage).then(function(oResult) {
+                            $scope2.rounds = oResult.rounds;
+                        });
+                    };
                     $scope2.config = { $overwrite: 'N' };
                     $scope2.ok = function() { $mi.close($scope2.config); };
                     $scope2.cancel = function() { $mi.dismiss('cancel'); };
+                    $scope2.doSearch();
                 }],
                 backdrop: 'static',
             }).result.then(function(oConfig) {
                 var url;
-                url = '/rest/pl/fe/matter/enroll/record/syncGroup?app=' + $scope.app.id + '&overwrite=' + oConfig.overwrite;
-                if ($scope.criteria.record && $scope.criteria.record.rid) {
-                    url += '&rid=' + $scope.criteria.record.rid;
+                if (oConfig.rid) {
+                    url = '/rest/pl/fe/matter/enroll/record/syncGroup?app=' + $scope.app.id + '&rid=' + oConfig.rid + '&overwrite=' + oConfig.overwrite;
+                    http2.get(url).then(function(rsp) {
+                        $scope.doSearch(1);
+                    });
                 }
-                http2.get(url).then(function(rsp) {
-                    $scope.doSearch(1);
-                });
             });
         };
         $scope.syncWithMschema = function() {
             $uibModal.open({
                 templateUrl: 'syncWithMschema.html',
-                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                controller: ['$scope', '$uibModalInstance', 'tkEnrollRound', function($scope2, $mi, tkEnlRnd) {
+                    var _oPage;
+                    $scope2.page = _oPage = {};
+                    $scope2.doSearch = function() {
+                        tkEnlRnd.list($scope.app, _oPage).then(function(oResult) {
+                            $scope2.rounds = oResult.rounds;
+                        });
+                    };
                     $scope2.config = { $overwrite: 'N' };
-                    $scope2.ok = function() {
-                        $mi.close($scope2.config);
-                    };
-                    $scope2.cancel = function() {
-                        $mi.dismiss('cancel');
-                    };
+                    $scope2.ok = function() { $mi.close($scope2.config); };
+                    $scope2.cancel = function() { $mi.dismiss('cancel'); };
+                    $scope2.doSearch();
                 }],
                 backdrop: 'static',
             }).result.then(function(oConfig) {
                 var url;
-                url = '/rest/pl/fe/matter/enroll/record/syncMschema?app=' + $scope.app.id + '&overwrite=' + oConfig.overwrite;
-                if ($scope.criteria.record && $scope.criteria.record.rid) {
-                    url += '&rid=' + $scope.criteria.record.rid;
+                if (oConfig.rid) {
+                    url = '/rest/pl/fe/matter/enroll/record/syncMschema?app=' + $scope.app.id + '&rid=' + oConfig.rid + '&overwrite=' + oConfig.overwrite;
+                    http2.get(url).then(function(rsp) {
+                        $scope.doSearch(1);
+                    });
                 }
-                http2.get(url).then(function(rsp) {
-                    $scope.doSearch(1);
-                });
             });
         };
         $scope.copyToUser = function() {

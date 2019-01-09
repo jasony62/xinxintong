@@ -51,7 +51,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         }
         url = LS.j('repos/recordList', 'site', 'app');
         $scope.reposLoading = true;
-        $scope.flag = false;
         http2.post(url, _oCriteria, { page: _oPage }).then(function(result) {
             if (result.data.records) {
                 result.data.records.forEach(function(oRecord) {

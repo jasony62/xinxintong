@@ -438,7 +438,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         dirOpen: false
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        var tasks;
+        var tasks, popActs;
         _oApp = params.app;
         if (window.sessionStorage.length) {
             var cacheData, _cPage;
@@ -550,7 +550,8 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         /* 设置页面分享信息 */
         $scope.setSnsShare(null, null, { target_type: 'repos', target_id: _oApp.id });
         /* 设置页面操作 */
-        $scope.setPopAct(['addRecord'], 'repos', {
+        popActs = ['addRecord'];
+        $scope.setPopAct(popActs, 'repos', {
             func: {
                 voteRecData: $scope.voteRecData,
                 scoreSchema: $scope.scoreSchema,

@@ -93,7 +93,7 @@ class data extends base {
 		}
 		/* 获取记录的投票信息 */
 		if (!empty($oApp->voteConfig)) {
-			$aCanVoteSchemas = $this->model('matter\enroll\task')->getCanVote($oApp, $oUser, $oRecord->round);
+			$aCanVoteSchemas = $this->model('matter\enroll\task', $oApp)->getCanVote($oUser, $oRecord->round);
 		}
 
 		$fields = 'id,state,userid,group_id,nickname,schema_id,multitext_seq,submit_at,agreed,value,supplement,like_num,like_log,remark_num,tag,score,dislike_num,dislike_log,vote_num';

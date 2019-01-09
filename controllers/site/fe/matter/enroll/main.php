@@ -57,7 +57,7 @@ class main extends base {
 				exit;
 			}
 			if (in_array($page, ['topic', 'share']) && !empty($topic)) {
-				$modelTop = $this->model('matter\enroll\topic');
+				$modelTop = $this->model('matter\enroll\topic', $oApp);
 				$oTopic = $modelTop->byId($topic, ['fields' => 'id,state,title']);
 				if ($oTopic && $oTopic->state === '1') {
 					$title = $oTopic->title . '|';
@@ -132,7 +132,7 @@ class main extends base {
 			$upUserData = new \stdClass;
 			$upUserData->do_topic_read_num = 1;
 			// 查询专题页创建者
-			$creater = $this->model('matter\enroll\topic')->byId($topic, ['fields' => 'userid uid,nickname']);
+			$creater = $this->model('matter\enroll\topic', $oApp)->byId($topic, ['fields' => 'userid uid,nickname']);
 			if ($creater) {
 				$upCreaterData = new \stdClass;
 				$upCreaterData->topic_read_num = 1;

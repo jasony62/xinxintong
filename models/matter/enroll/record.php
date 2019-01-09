@@ -1012,7 +1012,7 @@ class record_model extends record_base {
 					if (!isset($modelRnd)) {
 						$modelRnd = $this->model('matter\enroll\round');
 					}
-					$round = $modelRnd->byId($oRec->rid, ['fields' => 'title,purpose,start_at,end_at,state']);
+					$round = $modelRnd->byId($oRec->rid, ['fields' => 'rid,title,purpose,start_at,end_at,state']);
 					$aRoundsById[$oRec->rid] = $round;
 				} else {
 					$round = $aRoundsById[$oRec->rid];

@@ -1,9 +1,23 @@
 <?php
 namespace matter\enroll;
 /**
- * 活动任务
+ * 记录活动任务
  */
 class task_model extends \TMS_MODEL {
+	/**
+	 * 任务所在的记录活动
+	 */
+	private $_oApp;
+
+	public function __construct($oApp) {
+		$this->_oApp = $oApp;
+	}
+	/**
+	 *
+	 */
+	protected function table() {
+		return 'xxt_enroll_task';
+	}
 	/**
 	 * 去掉无效的内容
 	 */
@@ -85,13 +99,20 @@ class task_model extends \TMS_MODEL {
 	 *
 	 */
 	private function _checkTaskConfigByTime($oTaskConfig, $oRound) {
+		$taskState = 'IP';
+		$startAt = $endAt = 0;
 		$current = time();
 		if ($oStartRule = $this->getDeepValue($oTaskConfig, 'start.time')) {
 			if ($this->getDeepValue($oStartRule, 'mode') === 'after_round_start_at') {
 				if ($this->getDeepValue($oStartRule, 'unit') === 'hour') {
-					$afterHours = (int) $this->getDeepValue($oStartRule, 'value');
-					if (empty($oRound->start_at) || ($current < $oRound->start_at + ($afterHours * 3600))) {
-						return [true, 'BS'];
+					$afterHours = (int) $this->getDeepValue($oStartRule, 'value', 0);
+					if (!empty($oRound->start_at)) {
+						$startAt = $oRound->start_at + ($afterHours * 3600);
+						if ($current < $startAt) {
+							$taskState = 'BS';
+						}
+					} else {
+						$taskState = 'BS';
 					}
 				}
 			}
@@ -99,20 +120,26 @@ class task_model extends \TMS_MODEL {
 		if ($oEndRule = $this->getDeepValue($oTaskConfig, 'end.time')) {
 			if ($this->getDeepValue($oEndRule, 'mode') === 'after_round_start_at') {
 				if ($this->getDeepValue($oEndRule, 'unit') === 'hour') {
-					$afterHours = (int) $this->getDeepValue($oEndRule, 'value');
-					if (empty($oRound->start_at) || ($current > $oRound->start_at + ($afterHours * 3600))) {
-						return [true, 'AE'];
+					$afterHours = (int) $this->getDeepValue($oEndRule, 'value', 0);
+					if (!empty($oRound->start_at)) {
+						$endAt = $oRound->start_at + ($afterHours * 3600);
+						if ($current > $endAt) {
+							$taskState = 'AE';
+						}
+					} else {
+						$taskState = 'AE';
 					}
 				}
 			}
 		}
 
-		return [true, 'IP'];
+		return [true, ['state' => $taskState, 'start_at' => $startAt, 'end_at' => $endAt]];
 	}
 	/**
 	 * 提问任务
 	 */
-	public function getCanQuestion($oApp, $oUser = null, $oRound = null) {
+	public function getCanQuestion($oUser = null, $oRound = null) {
+		$oApp = $this->_oApp;
 		if (!isset($oApp->dynaDataSchemas) || !isset($oApp->questionConfig)) {
 			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,question_config']);
 		}
@@ -133,7 +160,9 @@ class task_model extends \TMS_MODEL {
 			}
 			$oQuestionRule = new \stdClass;
 			$oQuestionRule->id = $oQuestionConfig->id;
-			$oQuestionRule->state = $aValid[1];
+			$oQuestionRule->type = 'question';
+			$oQuestionRule->rid = $oRound->rid;
+			tms_object_merge($oQuestionRule, $aValid[1]);
 			$oQuestionRule->limit = $this->getDeepValue($oQuestionConfig, 'limit');
 			$oQuestionRule->groups = $this->getDeepValue($oQuestionConfig, 'role.groups');
 			$aQuestionRules[] = $oQuestionRule;
@@ -144,7 +173,8 @@ class task_model extends \TMS_MODEL {
 	/**
 	 * 需要进行回答的题目
 	 */
-	public function getCanAnswer($oApp, $oUser = null, $oRound = null) {
+	public function getCanAnswer($oUser = null, $oRound = null) {
+		$oApp = $this->_oApp;
 		if (!isset($oApp->dynaDataSchemas) || !isset($oApp->answerConfig)) {
 			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,answer_config']);
 		}
@@ -165,11 +195,14 @@ class task_model extends \TMS_MODEL {
 			}
 			foreach ($oApp->dynaDataSchemas as $oSchema) {
 				if (in_array($oSchema->id, $oAnswerConfig->schemas)) {
-					$oVoteRule = new \stdClass;
-					$oVoteRule->state = $aValid[1];
-					$oVoteRule->limit = $this->getDeepValue($oAnswerConfig, 'limit');
-					$oVoteRule->groups = $this->getDeepValue($oAnswerConfig, 'role.groups');
-					$oSchema->answer = $oVoteRule;
+					$oAnswerRule = new \stdClass;
+					$oAnswerRule->id = $oAnswerConfig->id;
+					$oAnswerRule->type = 'answer';
+					$oAnswerRule->rid = $oRound->rid;
+					tms_object_merge($oAnswerRule, $aValid[1]);
+					$oAnswerRule->limit = $this->getDeepValue($oAnswerConfig, 'limit');
+					$oAnswerRule->groups = $this->getDeepValue($oAnswerConfig, 'role.groups');
+					$oSchema->answer = $oAnswerRule;
 					$aVoteSchemas[$oSchema->id] = $oSchema;
 				}
 			}
@@ -180,7 +213,8 @@ class task_model extends \TMS_MODEL {
 	/**
 	 * 需要进行投票的题目
 	 */
-	public function getCanVote($oApp, $oUser = null, $oRound = null) {
+	public function getCanVote($oUser = null, $oRound = null) {
+		$oApp = $this->_oApp;
 		if (!isset($oApp->dynaDataSchemas) || !isset($oApp->voteConfig)) {
 			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,vote_config']);
 		}
@@ -202,7 +236,10 @@ class task_model extends \TMS_MODEL {
 			foreach ($oApp->dynaDataSchemas as $oSchema) {
 				if (in_array($oSchema->id, $oVoteConfig->schemas)) {
 					$oVoteRule = new \stdClass;
-					$oVoteRule->state = $aValid[1];
+					$oVoteRule->id = $oVoteConfig->id;
+					$oVoteRule->type = 'vote';
+					$oVoteRule->rid = $oRound->rid;
+					tms_object_merge($oVoteRule, $aValid[1]);
 					$oVoteRule->limit = $this->getDeepValue($oVoteConfig, 'limit');
 					$oVoteRule->groups = $this->getDeepValue($oVoteConfig, 'role.groups');
 					$oSchema->vote = $oVoteRule;
@@ -216,7 +253,8 @@ class task_model extends \TMS_MODEL {
 	/**
 	 * 需要进行打分的题目
 	 */
-	public function getCanScore($oApp, $oUser = null, $oRound = null) {
+	public function getCanScore($oUser = null, $oRound = null) {
+		$oApp = $this->_oApp;
 		if (!isset($oApp->dynaDataSchemas) || !isset($oApp->scoreConfig)) {
 			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,score_config']);
 		}
@@ -235,11 +273,13 @@ class task_model extends \TMS_MODEL {
 			if (false === $aValid[0]) {
 				continue;
 			}
-			$oScoreConfig->state = $aValid[1];
 			foreach ($oApp->dynaDataSchemas as $oSchema) {
 				if (in_array($oSchema->id, $oScoreConfig->schemas)) {
 					$oScoreRule = new \stdClass;
-					$oScoreRule->state = $aValid[1];
+					$oScoreRule->id = $oScoreConfig->id;
+					$oScoreRule->type = 'score';
+					$oScoreRule->rid = $oRound->rid;
+					tms_object_merge($oVoteRule, $aValid[1]);
 					$oScoreRule->scoreApp = $this->getDeepValue($oScoreConfig, 'scoreApp');
 					$oScoreRule->groups = $this->getDeepValue($oScoreConfig, 'role.groups');
 					$oSchema->score = $oScoreRule;
@@ -249,5 +289,62 @@ class task_model extends \TMS_MODEL {
 		}
 
 		return $aScoreSchemas;
+	}
+	/**
+	 * 获得指定规则生成的任务
+	 */
+	public function byRule($oRule, $aOptons = []) {
+		$fields = empty($aOptons['fields']) ? 'id,start_at,end_at' : $aOptons['fields'];
+		$bCreateIfNone = isset($aOptons['createIfNone']) ? $aOptons['createIfNone'] : false;
+		$q = [
+			$fields,
+			'xxt_enroll_task',
+			['config_type' => $oRule->type, 'config_id' => $oRule->id, 'aid' => $this->_oApp->id, 'rid' => $oRule->rid, 'state' => 1],
+		];
+		$oTask = $this->query_obj_ss($q);
+		if (false === $oTask) {
+			if (true === $bCreateIfNone) {
+				$oTask = new \stdClass;
+				$oTask->siteid = $this->_oApp->siteid;
+				$oTask->aid = $this->_oApp->id;
+				$oTask->rid = $oRule->rid;
+				$oTask->config_type = $oRule->type;
+				$oTask->config_id = $oRule->id;
+				$oTask->start_at = $oRule->start_at;
+				$oTask->end_at = $oRule->end_at;
+				$oTask->id = $this->insert('xxt_enroll_task', $oTask, true);
+			}
+		} else if (isset($oRule->start_at) || isset($oRule->end_at)) {
+			$aUpdated['start_at'] = $this->getDeepValue($oRule, 'start_at', 0);
+			$aUpdated['end_at'] = $this->getDeepValue($oRule, 'end_at', 0);
+			$this->update('xxt_enroll_task', $aUpdated, ['id' => $oTask->id]);
+			$oTask->start_at = $aUpdated['start_at'];
+			$oTask->end_at = $aUpdated['end_at'];
+		}
+
+		return $oTask;
+	}
+	/**
+	 * 指定用户当前是否存在任务
+	 */
+	public function currentByUser($oUser, $aOptions = []) {
+		$fields = empty($aOptons['fields']) ? 'id,start_at,end_at' : $aOptons['fields'];
+		$q = [
+			$fields,
+			'xxt_enroll_task',
+			['aid' => $this->_oApp->id, 'state' => 1],
+		];
+		if (!empty($aOptons['type'])) {
+			$q[2]['config_type'] = $aOptons['type'];
+		}
+
+		/* 任务时间段 */
+		$current = time();
+		$q[2]['start_at'] = (object) ['op' => '<=', 'pat' => $current];
+		$q[2]['end_at'] = (object) ['op' => '>=', 'pat' => $current];
+
+		$tasks = $this->query_objs_ss($q);
+
+		return $tasks;
 	}
 }

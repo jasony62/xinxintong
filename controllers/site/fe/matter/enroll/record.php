@@ -256,6 +256,21 @@ class record extends base {
 		 */
 		$modelEnlUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 		$modelEnlUsr->setScoreRank($oEnlApp, $oRecord->rid);
+		/**
+		 * 如果存在提问任务，将记录放到任务专题中
+		 */
+		if ($bSubmitNewRecord) {
+			$tasks = $this->model('matter\enroll\task', $oEnlApp)->currentByUser($oUser, ['type' => 'question']);
+			if (!empty($tasks)) {
+				$modelTop = $this->model('matter\enroll\topic', $oEnlApp);
+				$oTask = $tasks[0];
+				$oTopic = $modelTop->byTask($oTask);
+				if ($oTopic) {
+					$modelTop->assign($oTopic, $oRecord);
+				}
+			}
+		}
+
 		/* 生成提醒 */
 		if ($bSubmitNewRecord) {
 			$this->model('matter\enroll\notice')->addRecord($oEnlApp, $oRecord, $oUser);

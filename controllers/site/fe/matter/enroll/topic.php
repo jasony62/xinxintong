@@ -10,7 +10,7 @@ class topic extends base {
 	 *
 	 */
 	public function get_action($topic) {
-		$modelTop = $this->model('matter\enroll\topic');
+		$modelTop = $this->model('matter\enroll\topic', null);
 		$oTopic = $modelTop->byId($topic, ['fields' => 'id,siteid,aid,state,unionid,userid,group_id,nickname,create_at,title,summary,rec_num,share_in_group']);
 		if (false === $oTopic || $oTopic->state !== '1') {
 			return new \ObjectNotFoundError();
@@ -64,7 +64,7 @@ class topic extends base {
 	 * 专题的概要信息
 	 */
 	public function sketch_action($topic) {
-		$modelTop = $this->model('matter\enroll\topic');
+		$modelTop = $this->model('matter\enroll\topic', null);
 
 		$oSketch = new \stdClass;
 		$oTopic = $modelTop->byId($topic, ['fields' => 'id,state,aid,userid,group_id,nickname,title,summary,rec_num']);
@@ -125,7 +125,7 @@ class topic extends base {
 	 * 创建记录专题
 	 */
 	public function update_action($topic) {
-		$modelTop = $this->model('matter\enroll\topic');
+		$modelTop = $this->model('matter\enroll\topic', null);
 		$oTopic = $modelTop->byId($topic, ['fields' => 'id,unionid,state,aid,group_id,title']);
 		if (false === $oTopic || $oTopic->state !== '1') {
 			return new \ObjectNotFoundError();
@@ -186,7 +186,7 @@ class topic extends base {
 			return new \ResponseError('仅支持注册用户创建，请登录后再进行此操作');
 		}
 
-		$modelTop = $this->model('matter\enroll\topic');
+		$modelTop = $this->model('matter\enroll\topic', null);
 		$rst = $modelTop->update('xxt_enroll_topic', ['state' => 0], ['id' => $topic]);
 
 		return new \ResponseData($rst);
@@ -312,7 +312,7 @@ class topic extends base {
 			$aDelTopicIds = array_diff($aBeforeTopicIds, $aAfterTopicIds);
 		}
 
-		$modelTop = $this->model('matter\enroll\topic');
+		$modelTop = $this->model('matter\enroll\topic', null);
 		/* 新指定的专题 */
 		if (count($aNewTopicIds)) {
 			$oProtoNewRel = new \stdClass;
@@ -373,7 +373,7 @@ class topic extends base {
 			return new \ParameterError();
 		}
 
-		$modelTop = $this->model('matter\enroll\topic');
+		$modelTop = $this->model('matter\enroll\topic', null);
 		$oTopic = $modelTop->byId($topic, ['fields' => 'id,state,rec_num']);
 		if (false === $oTopic || $oTopic->state !== '1') {
 			return new \ObjectNotFoundError();
@@ -425,7 +425,7 @@ class topic extends base {
 		if (empty($oPosted->record)) {
 			return new \ParameterError();
 		}
-		$modelTop = $this->model('matter\enroll\topic');
+		$modelTop = $this->model('matter\enroll\topic', null);
 		$oTopic = $modelTop->byId($topic, ['fields' => 'id,state']);
 		if (false === $oTopic || $oTopic->state !== '1') {
 			return new \ObjectNotFoundError();

@@ -21,6 +21,16 @@ class task extends base {
 
 		// 回答任务
 		$tasks->question = $this->_getQuestionTask($oApp, $oUser);
+		if (!empty($tasks->question->rules)) {
+			$modelTsk = $this->model('matter\enroll\task', $oApp);
+			$modelTop = $this->model('matter\enroll\topic', $oApp);
+			foreach ($tasks->question->rules as $oRule) {
+				$oTask = $modelTsk->byRule($oRule, ['createIfNone' => true]);
+				if ($oTask) {
+					$oTopic = $modelTop->byTask($oTask, ['createIfNone' => true]);
+				}
+			}
+		}
 
 		// 回答任务
 		$tasks->answer = $this->_getAnswerTask($oApp, $oUser);
@@ -45,7 +55,7 @@ class task extends base {
 		$oUser = $this->getUser($oApp);
 
 		/* 获取记录的投票信息 */
-		$aCanVoteSchemas = $this->model('matter\enroll\task')->getCanVote($oApp, $oUser);
+		$aCanVoteSchemas = $this->model('matter\enroll\task', $oApp)->getCanVote($oUser);
 		if (empty($aCanVoteSchemas)) {
 			return new \ObjectNotFoundError('没有设置投票题目');
 		}
@@ -154,7 +164,7 @@ class task extends base {
 			return false;
 		}
 
-		$aQuestionRules = $this->model('matter\enroll\task')->getCanQuestion($oApp, $oUser);
+		$aQuestionRules = $this->model('matter\enroll\task', $oApp)->getCanQuestion($oUser);
 		if (empty($aQuestionRules)) {
 			return false;
 		}
@@ -183,7 +193,7 @@ class task extends base {
 			return false;
 		}
 
-		$aAnswerSchemas = $this->model('matter\enroll\task')->getCanAnswer($oApp, $oUser);
+		$aAnswerSchemas = $this->model('matter\enroll\task', $oApp)->getCanAnswer($oUser);
 		if (empty($aAnswerSchemas)) {
 			return false;
 		}
@@ -212,7 +222,7 @@ class task extends base {
 			return false;
 		}
 
-		$aVoteSchemas = $this->model('matter\enroll\task')->getCanVote($oApp, $oUser);
+		$aVoteSchemas = $this->model('matter\enroll\task', $oApp)->getCanVote($oUser);
 		if (empty($aVoteSchemas)) {
 			return false;
 		}
@@ -240,7 +250,7 @@ class task extends base {
 			return false;
 		}
 
-		$aScoreSchemas = $this->model('matter\enroll\task')->getCanScore($oApp, $oUser);
+		$aScoreSchemas = $this->model('matter\enroll\task', $oApp)->getCanScore($oUser);
 		if (empty($aScoreSchemas)) {
 			return false;
 		}

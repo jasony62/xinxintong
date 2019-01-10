@@ -52,16 +52,16 @@ class data extends \pl\fe\matter\base {
 		$oResult = $modelRec->byApp($oApp->id, null, $oCriteria);
 
 		foreach ($oResult->records as $oRecord) {
-			$oUser = new \stdClass;
-			$oUser->uid = $oRecord->userid;
-			$oUser->group_id = $oRecord->group_id;
+			$oMockUser = new \stdClass;
+			$oMockUser->uid = $oRecord->userid;
+			$oMockUser->group_id = $oRecord->group_id;
 
-			$modelRecDat->setData($oUser, $oApp, $oRecord, $oRecord->data);
+			$modelRecDat->setData($oMockUser, $oApp, $oRecord, $oRecord->data);
+			/**
+			 * 处理用户按轮次汇总数据，积分数据
+			 */
+			$modelRec->setSummaryRec($oMockUser, $oApp, $rid);
 		}
-		/**
-		 * 处理用户按轮次汇总数据，积分数据
-		 */
-		$modelRec->setSummaryRec($oUser, $oApp, $rid);
 		/**
 		 * 更新得分题目排名
 		 */

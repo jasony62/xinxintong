@@ -201,12 +201,14 @@ class record extends main_base {
 						$renewCount++;
 					}
 				}
+				/**
+				 * 处理用户按轮次汇总数据，积分数据
+				 */
+				$oMockUser = new \stdClass;
+				$oMockUser->uid = $oRecord->userid;
+				$oMockUser->group_id = $oRecord->group_id;
+				$modelRec->setSummaryRec($oMockUser, $oApp, $rid);
 			}
-
-			/**
-			 * 处理用户按轮次汇总数据，积分数据
-			 */
-			$modelRec->setSummaryRec($oUser, $oApp, $rid);
 			/**
 			 * 更新得分题目排名
 			 */
@@ -243,8 +245,9 @@ class record extends main_base {
 
 		$schemasById = $this->model('matter\enroll\schema')->asAssoc($oApp->dynaDataSchemas);
 
+		$modelRec = $this->model('matter\enroll\record');
 		$modelRecDat = $this->model('matter\enroll\data');
-		$q = ['id,enroll_key,userid,data,score', 'xxt_enroll_record', ['aid' => $oApp->id, 'enroll_key' => $ek]];
+		$q = ['id,enroll_key,rid,userid,group_id,data,score', 'xxt_enroll_record', ['aid' => $oApp->id, 'enroll_key' => $ek]];
 		$oRecord = $modelApp->query_obj_ss($q);
 		if ($oRecord) {
 			if (!empty($oRecord->data)) {
@@ -262,6 +265,13 @@ class record extends main_base {
 					}
 				}
 			}
+			/**
+			 * 处理用户按轮次汇总数据，积分数据
+			 */
+			$oMockUser = new \stdClass;
+			$oMockUser->uid = $oRecord->userid;
+			$oMockUser->group_id = $oRecord->group_id;
+			$modelRec->setSummaryRec($oMockUser, $oApp, $oRecord->rid);
 
 			$modelUsr = $this->model('matter\enroll\user');
 			$aUpdatedResult = $modelUsr->renew($oApp, '', $oRecord->userid);

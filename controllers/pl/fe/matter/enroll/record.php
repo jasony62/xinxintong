@@ -163,7 +163,7 @@ class record extends main_base {
 	/**
 	 * 更新指定活动下所有记录的得分
 	 */
-	public function renewScoreByRound_action($app, $rid = null) {
+	public function renewScoreByRound_action($app, $rid) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -182,10 +182,7 @@ class record extends main_base {
 
 		$modelRecData = $this->model('matter\enroll\data');
 		$renewCount = 0;
-		$q = ['id,enroll_key,data,score', 'xxt_enroll_record', ['aid' => $oApp->id]];
-		if (!empty($rid)) {
-			$q[2]['rid'] = $rid;
-		}
+		$q = ['id,enroll_key,data,score', 'xxt_enroll_record', ['aid' => $oApp->id, 'rid' => $rid]];
 		$records = $modelApp->query_objs_ss($q);
 		if (count($records)) {
 			$aOptimizedFormulas = []; // 保存优化后的得分计算公式
@@ -207,6 +204,20 @@ class record extends main_base {
 					}
 				}
 			}
+
+			/**
+			 * 处理用户按轮次汇总数据，积分数据
+			 */
+			$modelRec->setSummaryRec($oUser, $oApp, $rid);
+			/**
+			 * 更新得分题目排名
+			 */
+			$modelRec->setScoreRank($oApp, $rid);
+			/**
+			 * 更新用户得分排名
+			 */
+			$modelEnlUsr = $this->model('matter\enroll\user');
+			$modelEnlUsr->setScoreRank($oApp, $rid);
 
 			$modelUsr = $this->model('matter\enroll\user');
 			$aUpdatedResult = $modelUsr->renew($oApp);

@@ -3,7 +3,7 @@ namespace pl\fe\matter\enroll;
 
 require_once dirname(__FILE__) . '/main_base.php';
 /*
- * 登记数据
+ * 填写数据
  */
 class data extends \pl\fe\matter\base {
 	/**
@@ -35,7 +35,7 @@ class data extends \pl\fe\matter\base {
 	/**
 	 * 根据record中的data数据，修复reocrd_data
 	 */
-	public function repairByApp_action($app) {
+	public function repairByApp_action($app, $rid) {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
@@ -44,19 +44,35 @@ class data extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 
+		$oCriteria = new \stdClass;
+		$this->setDeepValue($oCriteria, 'record.rid', $rid);
+
 		$modelRec = $this->model('matter\enroll\record');
 		$modelRecDat = $this->model('matter\enroll\data');
-		$result = $modelRec->byApp($oApp->id);
+		$oResult = $modelRec->byApp($oApp->id, null, $oCriteria);
 
-		foreach ($result->records as $oRecord) {
+		foreach ($oResult->records as $oRecord) {
 			$oUser = new \stdClass;
 			$oUser->uid = $oRecord->userid;
 			$oUser->group_id = $oRecord->group_id;
 
 			$modelRecDat->setData($oUser, $oApp, $oRecord, $oRecord->data);
 		}
+		/**
+		 * 处理用户按轮次汇总数据，积分数据
+		 */
+		$modelRec->setSummaryRec($oUser, $oApp, $rid);
+		/**
+		 * 更新得分题目排名
+		 */
+		$modelRec->setScoreRank($oApp, $rid);
+		/**
+		 * 更新用户得分排名
+		 */
+		$modelEnlUsr = $this->model('matter\enroll\user');
+		$modelEnlUsr->setScoreRank($oApp, $rid);
 
-		return new \ResponseData(count($result->records));
+		return new \ResponseData(count($oResult->records));
 	}
 	/**
 	 * 推荐登记记录的题目
@@ -199,7 +215,7 @@ class data extends \pl\fe\matter\base {
 		// 登记活动
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['fields' => 'id,data_schemas', 'cascaded' => 'N']);
-		// 登记数据过滤条件
+		// 填写数据过滤条件
 		$oCriteria = $this->getPostJson();
 
 		// 登记记录过滤条件

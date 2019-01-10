@@ -96,7 +96,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         }
     };
     function addToCache() {
-        sessionStorage.setItem('listStorageY', document.documentElement.scrollTop||window.pageYOffset||document.body.scrollTop);
+        sessionStorage.setItem('listStorageY', document.getElementById('repos').scrollTop);
         var cacheData = {
             'reposFilters': $scope.reposFilters,
             'tasks': $scope.tasks,
@@ -459,7 +459,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                 $scope.recordList(at).then(function() {
                     if(at==_cPage.at) {
                         $timeout(function() {
-                            document.body.scrollTop = window.pageYOffset = document.documentElement.scrollTop = parseInt(sessionStorage.listStorageY);
+                            document.getElementById('repos').scrollTop = parseInt(sessionStorage.listStorageY);
                             window.sessionStorage.clear();
                         });
                     }

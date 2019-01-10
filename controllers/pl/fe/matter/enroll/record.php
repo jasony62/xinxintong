@@ -175,16 +175,14 @@ class record extends main_base {
 			return new \ObjectNotFoundError();
 		}
 
-		$schemasById = []; // 方便获取登记项定义
-		foreach ($oApp->dataSchemas as $schema) {
-			$schemasById[$schema->id] = $schema;
-		}
+		$schemasById = $this->model('matter\enroll\schema')->asAssoc($oApp->dynaDataSchemas);
 
-		$modelRecData = $this->model('matter\enroll\data');
 		$renewCount = 0;
 		$q = ['id,enroll_key,data,score', 'xxt_enroll_record', ['aid' => $oApp->id, 'rid' => $rid]];
 		$records = $modelApp->query_objs_ss($q);
 		if (count($records)) {
+			$modelRec = $this->model('matter\enroll\record');
+			$modelRecData = $this->model('matter\enroll\data');
 			$aOptimizedFormulas = []; // 保存优化后的得分计算公式
 			foreach ($records as $oRecord) {
 				if (!empty($oRecord->data)) {

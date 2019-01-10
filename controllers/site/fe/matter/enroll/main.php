@@ -51,7 +51,7 @@ class main extends base {
 		}
 
 		/* 返回记录活动页面 */
-		if (in_array($page, ['cowork', 'share', 'event', 'kanban', 'rank', 'score', 'votes', 'marks', 'repos', 'favor', 'topic', 'stat'])) {
+		if (in_array($page, ['cowork', 'share', 'task', 'event', 'kanban', 'rank', 'score', 'votes', 'marks', 'repos', 'favor', 'topic', 'stat'])) {
 			if ($page === 'topic' && empty($topic)) {
 				$this->outputError('参数不完整，无法访问专题页');
 				exit;
@@ -88,7 +88,7 @@ class main extends base {
 				$this->_pageReadlog($oApp, $oOpenPage->name, $rid, $ek, $topic);
 			}
 			\TPL::assign('title', $oApp->title);
-			if (in_array($oOpenPage->name, ['event', 'kanban', 'rank', 'score', 'votes', 'marks', 'repos', 'favor', 'topic', 'stat'])) {
+			if (in_array($oOpenPage->name, ['task', 'event', 'kanban', 'rank', 'score', 'votes', 'marks', 'repos', 'favor', 'topic', 'stat'])) {
 				$outputUrl = '/site/fe/matter/enroll/' . $oOpenPage->name;
 			} else if ($oOpenPage->type === 'I') {
 				$outputUrl = '/site/fe/matter/enroll/input';
@@ -310,7 +310,7 @@ class main extends base {
 		}
 
 		/* 要打开的页面 */
-		if (!in_array($page, ['event', 'kanban', 'repos', 'cowork', 'share', 'rank', 'score', 'votes', 'marks', 'favor', 'topic', 'stat'])) {
+		if (!in_array($page, ['task', 'event', 'kanban', 'repos', 'cowork', 'share', 'rank', 'score', 'votes', 'marks', 'favor', 'topic', 'stat'])) {
 			$modelPage = $this->model('matter\enroll\page');
 			$oUserEnrolled = $modelRec->lastByUser($oApp, $oUser, ['rid' => $rid]);
 			/* 计算打开哪个页面 */

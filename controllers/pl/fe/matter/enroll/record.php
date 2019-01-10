@@ -178,7 +178,7 @@ class record extends main_base {
 		$schemasById = $this->model('matter\enroll\schema')->asAssoc($oApp->dynaDataSchemas);
 
 		$renewCount = 0;
-		$q = ['id,enroll_key,data,score', 'xxt_enroll_record', ['aid' => $oApp->id, 'rid' => $rid]];
+		$q = ['id,enroll_key,userid,group_id,data,score', 'xxt_enroll_record', ['aid' => $oApp->id, 'rid' => $rid]];
 		$records = $modelApp->query_objs_ss($q);
 		if (count($records)) {
 			$modelRec = $this->model('matter\enroll\record');

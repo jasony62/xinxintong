@@ -355,7 +355,6 @@ class round_model extends \TMS_MODEL {
 	 * 根据指定的开始和停止时间获得被汇总的填写轮次
 	 */
 	public function getSummaryInclude($oApp, $sumStartAt, $sumEndEndAt) {
-		/* 和汇总轮次关联的填写轮次 */
 		$q = [
 			'rid,start_at',
 			'xxt_enroll_round',

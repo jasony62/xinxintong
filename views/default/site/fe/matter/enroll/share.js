@@ -113,14 +113,14 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
         /* 用户信息 */
         enlService.user().then(function(data) {
             _oUser = data;
+            if (oEditor && _oUser.is_editor === 'Y') {
+                _oOptions.canEditorAsInviter = true;
+            }
         });
         if (_oApp.actionRule && _oApp.actionRule.role && _oApp.actionRule.role.editor) {
             if (_oApp.actionRule.role.editor.group && _oApp.actionRule.role.editor.nickname) {
                 oEditor = _oApp.actionRule.role.editor;
             }
-        }
-        if (oEditor && _oUser.is_editor === 'Y') {
-            _oOptions.canEditorAsInviter = true;
         }
         if (LS.s().data) {
             http2.get(LS.j('data/get', 'site', 'ek', 'data')).then(function(rsp) {

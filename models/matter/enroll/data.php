@@ -613,16 +613,24 @@ class data_model extends entity_model {
 			$items = $this->query_objs_ss($q, $q2);
 			if (count($items)) {
 				$oItem = $items[0];
-				$rank = 1;
-				$this->update('xxt_enroll_record_data', ['score_rank' => $rank], ['id' => $oItem->id]);
-				$lastScore = $oItem->score;
-				for ($i = 1, $l = count($items); $i < $l; $i++) {
-					$oItem = $items[$i];
-					if ($oItem->score < $lastScore) {
-						$rank = $i + 1;
-					}
+				if (isset($oSchema->rankScoreAbove) && is_number($oSchema->rankScoreAbove) && $oItem->score <= $oSchema->rankScoreAbove) {
+					$this->update('xxt_enroll_record_data', ['score_rank' => 0], ['id' => $oItem->id]);
+				} else {
+					$rank = 1;
 					$this->update('xxt_enroll_record_data', ['score_rank' => $rank], ['id' => $oItem->id]);
 					$lastScore = $oItem->score;
+				}
+				for ($i = 1, $l = count($items); $i < $l; $i++) {
+					$oItem = $items[$i];
+					if (isset($oSchema->rankScoreAbove) && is_number($oSchema->rankScoreAbove) && $oItem->score <= $oSchema->rankScoreAbove) {
+						$this->update('xxt_enroll_record_data', ['score_rank' => 0], ['id' => $oItem->id]);
+					} else {
+						if ($oItem->score < $lastScore) {
+							$rank = $i + 1;
+						}
+						$this->update('xxt_enroll_record_data', ['score_rank' => $rank], ['id' => $oItem->id]);
+						$lastScore = $oItem->score;
+					}
 				}
 			}
 			return count($items);

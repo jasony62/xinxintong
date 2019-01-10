@@ -361,10 +361,11 @@ class round_model extends \TMS_MODEL {
 			'xxt_enroll_round',
 			['aid' => $oApp->id, 'state' => 1, 'purpose' => 'C'],
 		];
-		if ($sumStartAt > 0) {
+		if ($sumStartAt > 0 && $sumEndEndAt > 0) {
+			$q[2]['start_at'] = (object) ['op' => 'between', 'pat' => [$sumStartAt, $sumEndEndAt]];
+		} else if ($sumStartAt > 0) {
 			$q[2]['start_at'] = (object) ['op' => '>=', 'pat' => $sumStartAt];
-		}
-		if ($sumEndEndAt > 0) {
+		} else if ($sumEndEndAt > 0) {
 			$q[2]['start_at'] = (object) ['op' => '<=', 'pat' => $sumEndEndAt];
 		}
 

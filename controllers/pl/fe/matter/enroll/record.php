@@ -1922,7 +1922,7 @@ class record extends main_base {
 		}
 
 		$modelApp = $this->model('matter\enroll');
-		if (false === ($oApp = $modelApp->byId($app, ['fields' => 'id,data_schemas,scenario,mission_id,sync_mission_round,round_cron', 'appRid' => $round, 'cascaded' => 'N']))) {
+		if (false === ($oApp = $modelApp->byId($app, ['fields' => 'id,siteid,data_schemas,scenario,mission_id,sync_mission_round,round_cron', 'appRid' => $round, 'cascaded' => 'N']))) {
 			return new \ObjectNotFoundError();
 		}
 		if (empty($oApp->dataSchemas)) {

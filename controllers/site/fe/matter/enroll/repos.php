@@ -629,6 +629,13 @@ class repos extends base {
 			}
 		}
 
+		// 记录搜索事件
+		if (!empty($oPosted->keyword)) {
+			$rest = $this->model('matter\enroll\search')->addUserSearch($oApp, $oUser, $oPosted->keyword);
+			// 记录日志
+			$this->model('matter\enroll\event')->searchRecord($oApp, $rest['search'], $oUser);
+		}
+
 		return new \ResponseData($oResult);
 	}
 	/**

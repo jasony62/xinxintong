@@ -205,23 +205,21 @@ class data_model extends entity_model {
 						$treatedValue = $this->toJson($treatedValue);
 					}
 				}
-				if (!empty($treatedValue)) {
-					$aSchemaData = [
-						'aid' => $oApp->id,
-						'rid' => $oRecord->rid,
-						'purpose' => $oRecord->purpose,
-						'enroll_key' => $oRecord->enroll_key,
-						'state' => $oRecord->state,
-						'submit_at' => $oRecord->enroll_at,
-						'userid' => isset($oUser->uid) ? $oUser->uid : '',
-						'nickname' => $this->escape($oRecord->nickname),
-						'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
-						'schema_id' => $schemaId,
-						'value' => $this->escape($treatedValue),
-					];
-					isset($oRecordScore->{$schemaId}) && $aSchemaData['score'] = $oRecordScore->{$schemaId};
-					$this->insert('xxt_enroll_record_data', $aSchemaData, false);
-				}
+				$aSchemaData = [
+					'aid' => $oApp->id,
+					'rid' => $oRecord->rid,
+					'purpose' => $oRecord->purpose,
+					'enroll_key' => $oRecord->enroll_key,
+					'state' => $oRecord->state,
+					'submit_at' => $oRecord->enroll_at,
+					'userid' => isset($oUser->uid) ? $oUser->uid : '',
+					'nickname' => $this->escape($oRecord->nickname),
+					'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
+					'schema_id' => $schemaId,
+					'value' => $this->escape($treatedValue),
+				];
+				isset($oRecordScore->{$schemaId}) && $aSchemaData['score'] = $oRecordScore->{$schemaId};
+				$this->insert('xxt_enroll_record_data', $aSchemaData, false);
 			} else if (count($oLastSchemaValues) == 1) {
 				$aSchemaData = [];
 				if ($oSchema->type == 'multitext') {

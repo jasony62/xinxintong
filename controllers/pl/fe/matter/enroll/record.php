@@ -40,20 +40,19 @@ class record extends main_base {
 	}
 	/**
 	 * 活动的记录
-	 *
 	 */
 	public function list_action($app, $page = 1, $size = 30) {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
-		// 登记活动
+		// 记录活动
 		$modelApp = $this->model('matter\enroll');
 		$oEnrollApp = $modelApp->byId($app, ['cascaded' => 'N']);
 
 		// 登记数据过滤条件
 		$oCriteria = $this->getPostJson();
 
-		// 登记记录过滤条件
+		// 填写记录过滤条件
 		$aOptions = [
 			'page' => $page,
 			'size' => $size,
@@ -93,7 +92,6 @@ class record extends main_base {
 	}
 	/**
 	 * 指定活动轮次的记录的数量
-	 *
 	 */
 	public function countByRound_action($round) {
 		if (false === $this->accountUser()) {
@@ -121,7 +119,7 @@ class record extends main_base {
 			return new \ResponseTimeout();
 		}
 
-		// 登记活动
+		// 记录活动
 		$modelApp = $this->model('matter\enroll');
 		$enrollApp = $modelApp->byId($app, ['cascaded' => 'N']);
 		if (false === $enrollApp) {
@@ -147,7 +145,7 @@ class record extends main_base {
 			return new \ResponseTimeout();
 		}
 
-		// 登记活动
+		// 记录活动
 		$modelApp = $this->model('matter\enroll');
 		$enrollApp = $modelApp->byId($app, ['cascaded' => 'N']);
 		if (false === $enrollApp || $enrollApp->state !== '1') {
@@ -165,12 +163,12 @@ class record extends main_base {
 	/**
 	 * 更新指定活动下所有记录的得分
 	 */
-	public function renewScore_action($app, $rid = null) {
+	public function renewScoreByRound_action($app, $rid = null) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		// 登记活动
+		// 记录活动
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
 		if (false === $oApp) {
@@ -189,11 +187,61 @@ class record extends main_base {
 			$q[2]['rid'] = $rid;
 		}
 		$records = $modelApp->query_objs_ss($q);
-		foreach ($records as $oRecord) {
+		if (count($records)) {
+			$aOptimizedFormulas = []; // 保存优化后的得分计算公式
+			foreach ($records as $oRecord) {
+				if (!empty($oRecord->data)) {
+					$dbData = json_decode($oRecord->data);
+					/* 题目的得分 */
+					$oRecordScore = $modelRecData->socreRecordData($oApp, $oRecord, $schemasById, $dbData, null, $aOptimizedFormulas);
+					if ($modelApp->update('xxt_enroll_record', ['score' => json_encode($oRecordScore)], ['id' => $oRecord->id])) {
+						unset($oRecordScore->sum);
+						foreach ($oRecordScore as $schemaId => $dataScore) {
+							$modelApp->update(
+								'xxt_enroll_record_data',
+								['score' => $dataScore],
+								['enroll_key' => $oRecord->enroll_key, 'schema_id' => $schemaId]
+							);
+						}
+						$renewCount++;
+					}
+				}
+			}
+
+			$modelUsr = $this->model('matter\enroll\user');
+			$aUpdatedResult = $modelUsr->renew($oApp);
+		}
+
+		// 记录操作日志
+		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'renewScore');
+
+		return new \ResponseData($renewCount);
+	}
+	/**
+	 * 更新指定活动下所有记录的得分
+	 */
+	public function renewScore_action($app, $ek) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		// 记录活动
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+
+		$schemasById = $this->model('matter\enroll\schema')->asAssoc($oApp->dynaDataSchemas);
+
+		$modelRecDat = $this->model('matter\enroll\data');
+		$q = ['id,enroll_key,userid,data,score', 'xxt_enroll_record', ['aid' => $oApp->id, 'enroll_key' => $ek]];
+		$oRecord = $modelApp->query_obj_ss($q);
+		if ($oRecord) {
 			if (!empty($oRecord->data)) {
 				$dbData = json_decode($oRecord->data);
 				/* 题目的得分 */
-				$oRecordScore = $modelRecData->socreRecordData($oApp, $oRecord, $schemasById, $dbData);
+				$oRecordScore = $modelRecDat->socreRecordData($oApp, $oRecord, $schemasById, $dbData, null, null);
 				if ($modelApp->update('xxt_enroll_record', ['score' => json_encode($oRecordScore)], ['id' => $oRecord->id])) {
 					unset($oRecordScore->sum);
 					foreach ($oRecordScore as $schemaId => $dataScore) {
@@ -203,18 +251,17 @@ class record extends main_base {
 							['enroll_key' => $oRecord->enroll_key, 'schema_id' => $schemaId]
 						);
 					}
-					$renewCount++;
 				}
 			}
+
+			$modelUsr = $this->model('matter\enroll\user');
+			$aUpdatedResult = $modelUsr->renew($oApp, '', $oRecord->userid);
 		}
 
-		$modelUsr = $this->model('matter\enroll\user');
-		$aUpdatedResult = $modelUsr->renew($oApp);
-
 		// 记录操作日志
-		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'renewScore');
+		//$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'renewScore');
 
-		return new \ResponseData($renewCount);
+		return new \ResponseData('ok');
 	}
 	/**
 	 * 已删除的活动登记名单
@@ -224,14 +271,14 @@ class record extends main_base {
 			return new \ResponseTimeout();
 		}
 
-		// 登记记录过滤条件
+		// 填写记录过滤条件
 		$aOptions = [
 			'page' => $page,
 			'size' => $size,
 			'rid' => $rid,
 		];
 
-		// 登记活动
+		// 记录活动
 		$modelApp = $this->model('matter\enroll');
 		$enrollApp = $modelApp->byId($app);
 
@@ -249,7 +296,7 @@ class record extends main_base {
 			return new \ResponseTimeout();
 		}
 
-		// 登记记录过滤条件
+		// 填写记录过滤条件
 		$aOptions = [
 			'page' => $page,
 			'size' => $size,
@@ -258,7 +305,7 @@ class record extends main_base {
 			$aOptions['rid'] = $rid;
 		}
 
-		// 登记活动
+		// 记录活动
 		$modelApp = $this->model('matter\enroll');
 		$enrollApp = $modelApp->byId($app);
 
@@ -335,7 +382,7 @@ class record extends main_base {
 
 		$oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
 
-		/* 创建登记记录 */
+		/* 创建填写记录 */
 		$aOptions = [];
 		!empty($posted->rid) && $aOptions['assignedRid'] = $posted->rid;
 		$oNewRec = $modelRec->enroll($oApp, null, $aOptions);
@@ -392,9 +439,12 @@ class record extends main_base {
 			return new \ObjectNotFoundError();
 		}
 
-		$count = $this->model('matter\enroll\record_copy')->exportToApp($oApp, $oTargetApp, $oPosted->eks, $oPosted->mappings);
+		$aResult = $this->model('matter\enroll\record\copy')->toApp($oApp, $oTargetApp, $oPosted->eks, $oPosted->mappings);
+		if (false === $aResult[0]) {
+			return new \ResponseError($aResult[1]);
+		}
 
-		return new \ResponseData($count);
+		return new \ResponseData(count($aResult[1]));
 	}
 	/**
 	 * 投票结果导出到其他活动作为记录
@@ -991,7 +1041,7 @@ class record extends main_base {
 		return new \ResponseData($oResult);
 	}
 	/**
-	 * 更新登记记录
+	 * 更新填写记录
 	 *
 	 * @param string $app
 	 * @param $ek record's key
@@ -1405,7 +1455,7 @@ class record extends main_base {
 		return new \ResponseData('ok');
 	}
 	/**
-	 * 验证通过时，如果登记记录有对应的签到记录，且签到记录没有验证通过，那么验证通过
+	 * 验证通过时，如果填写记录有对应的签到记录，且签到记录没有验证通过，那么验证通过
 	 */
 	private function _whenVerifyRecord($oApp, $enrollKey) {
 		if ($oApp->mission_id) {
@@ -1507,7 +1557,7 @@ class record extends main_base {
 		return new \ResponseData('ok');
 	}
 	/**
-	 * 从关联的登记活动中查找匹配的记录
+	 * 从关联的记录活动中查找匹配的记录
 	 */
 	public function matchEnroll_action($site, $app) {
 		if (false === $this->accountUser()) {
@@ -1605,19 +1655,9 @@ class record extends main_base {
 	/**
 	 * 根据记录的userid更新关联分组活动题目的数据
 	 */
-	public function syncGroup_action($app, $rid = '', $overwrite = 'N') {
-		if (false === $this->accountUser()) {
-			return new \ResponseTimeout();
-		}
-
-		$modelApp = $this->model('matter\enroll');
-		$oEnlApp = $modelApp->byId($app, ['cascaded' => 'N']);
-		if (false === $oEnlApp || $oEnlApp->state !== '1') {
-			return new \ObjectNotFoundError();
-		}
-
+	private function _syncGroup($oEnlApp, $rid, $overwrite = 'N') {
 		if (empty($oEnlApp->entryRule->group->id)) {
-			return new \ParameterError('当前活动没有关联分组活动');
+			return [false, '当前活动没有关联分组活动'];
 		}
 
 		$aGrpSchemas = [];
@@ -1631,12 +1671,12 @@ class record extends main_base {
 			}
 		}
 		//if (empty($aGrpSchemas)) {
-		//	return new \ParameterError('当前活动没有指定和分组活动关联的题目');
+		//	return [false ,'当前活动没有指定和分组活动关联的题目'];
 		//}
 
 		$updatedCount = 0;
 		$modelRec = $this->model('matter\enroll\record');
-		$oResult = $modelRec->byApp($oEnlApp, null, (object) ['record' => (object) ['rid' => empty($rid) ? $oEnlApp->appRound->rid : 'all']]);
+		$oResult = $modelRec->byApp($oEnlApp, null, (object) ['record' => (object) ['rid' => $rid]]);
 		if (count($oResult->records)) {
 			$oGrpApp = (object) ['id' => $oEnlApp->entryRule->group->id];
 			$modelGrpUsr = $this->model('matter\group\user');
@@ -1675,12 +1715,12 @@ class record extends main_base {
 			}
 		}
 
-		return new \ResponseData($updatedCount);
+		return [true, $updatedCount];
 	}
 	/**
-	 * 根据记录的userid更新关联通信录题目的数据
+	 * 根据记录的userid更新关联分组活动题目的数据
 	 */
-	public function syncMschema_action($app, $rid = '', $overwrite = 'N') {
+	public function syncGroup_action($app, $rid, $overwrite = 'N') {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
@@ -1691,8 +1731,19 @@ class record extends main_base {
 			return new \ObjectNotFoundError();
 		}
 
+		$aSyncResult = $this->_syncGroup($oEnlApp, $rid, $overwrite);
+		if (false === $aSyncResult[0]) {
+			return new \ParameterError($aSyncResult[1]);
+		}
+
+		return new \ResponseData($aSyncResult[1]);
+	}
+	/**
+	 * 根据记录的userid更新关联通信录题目的数据
+	 */
+	private function _syncMschema($oEnlApp, $rid, $overwrite = 'N') {
 		if ($this->getDeepValue($oEnlApp->entryRule, 'scope.member') !== 'Y' || !isset($oEnlApp->entryRule->member)) {
-			return new \ParameterError('当前活动没有关联通信录');
+			return [false, '当前活动没有关联通信录'];
 		}
 
 		$aMsSchemas = [];
@@ -1704,12 +1755,12 @@ class record extends main_base {
 			}
 		}
 		if (empty($aMsSchemas)) {
-			return new \ParameterError('当前活动没有指定和通信录关联的题目');
+			return [false, '当前活动没有指定和通信录关联的题目'];
 		}
 
 		$updatedCount = 0;
 		$modelRec = $this->model('matter\enroll\record');
-		$oResult = $modelRec->byApp($oEnlApp, null, (object) ['record' => (object) ['rid' => empty($rid) ? $oEnlApp->appRound->rid : 'all']]);
+		$oResult = $modelRec->byApp($oEnlApp, null, (object) ['record' => (object) ['rid' => $rid]]);
 		if (count($oResult->records)) {
 			$modelMem = $this->model('site\user\member');
 			$oMocker = new \stdClass;
@@ -1742,437 +1793,31 @@ class record extends main_base {
 			}
 		}
 
-		return new \ResponseData($updatedCount);
+		return [true, $updatedCount];
 	}
 	/**
-	 * 填写记录导出
+	 * 根据记录的userid更新关联通信录题目的数据
 	 */
-	public function export_action($app, $filter = '') {
-		if (false === ($oUser = $this->accountUser())) {
+	public function syncMschema_action($app, $rid, $overwrite = 'N') {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
-		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,state,title,data_schemas,entry_rule,assigned_nickname,scenario,mission_id,sync_mission_round,round_cron', 'cascaded' => 'N']);
-		if (false === $oApp || $oApp->state !== '1') {
-			die('访问的对象不存在或不可用');
-		}
-		$schemas = $oApp->dynaDataSchemas;
-
-		$modelSch = $this->model('matter\enroll\schema');
-		// 加入关联活动的题目
-		$modelSch->getUnionSchemas($oApp, $schemas);
-		// 关联的分组题目
-		$oAssocGrpSchema = $modelSch->getAssocGroupSchema($oApp);
-
-		/* 获得所有有效的登记记录 */
-		$modelRec = $this->model('matter\enroll\record');
-
-		// 筛选条件
-		$filter = $modelRec->unescape($filter);
-		$oCriteria = empty($filter) ? new \stdClass : json_decode($filter);
-		$rid = empty($oCriteria->record->rid) ? '' : $oCriteria->record->rid;
-		if (!empty($oCriteria->record->group_id)) {
-			$gid = $oCriteria->record->group_id;
-		} else if (!empty($oCriteria->data->_round_id)) {
-			$gid = $oCriteria->data->_round_id;
-		} else {
-			$gid = '';
+		$modelApp = $this->model('matter\enroll');
+		$oEnlApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $oEnlApp || $oEnlApp->state !== '1') {
+			return new \ObjectNotFoundError();
 		}
 
-		$oResult = $modelRec->byApp($oApp, null, $oCriteria);
-		if ($oResult->total === 0) {
-			die('导出数据为空');
+		$aSyncResult = $this->_syncMschema($oEnlApp, $rid, $overwrite);
+		if (false === $aSyncResult[0]) {
+			return new \ResponseError($aSyncResult[1]);
 		}
 
-		$records = $oResult->records;
-		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
-
-		// Create new PHPExcel object
-		$objPHPExcel = new \PHPExcel();
-		// Set properties
-		$objPHPExcel->getProperties()->setCreator(APP_TITLE)
-			->setLastModifiedBy(APP_TITLE)
-			->setTitle($oApp->title)
-			->setSubject($oApp->title)
-			->setDescription($oApp->title);
-
-		$objActiveSheet = $objPHPExcel->getActiveSheet();
-		$columnNum1 = 0; //列号
-		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '登记时间');
-		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '审核通过');
-		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '填写轮次');
-
-		// 转换标题
-		$aNumberSum = []; // 数值型题目的合计
-		$aScoreSum = []; // 题目的分数合计
-		$columnNum4 = $columnNum1; //列号
-		$bRequireNickname = true;
-		if ((isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid !== 'Y') || isset($oApp->assignedNickname->schema->id)) {
-			$bRequireNickname = false;
-		}
-		$bRequireSum = false; // 是否需要计算合计
-		$bRequireScore = false; // 是否需要计算总分
-		for ($a = 0, $ii = count($schemas); $a < $ii; $a++) {
-			$oSchema = $schemas[$a];
-			/* 跳过图片,描述说明和文件 */
-			if (in_array($oSchema->type, ['html'])) {
-				continue;
-			}
-			if ($oSchema->type === 'shorttext') {
-				/* 数值型，需要计算合计 */
-				if (isset($oSchema->format) && $oSchema->format === 'number') {
-					$aNumberSum[$columnNum4] = $oSchema->id;
-					$bRequireSum = true;
-				}
-			} else if ($oSchema->type === 'score') {
-				/* 打分题，需要计算合计 */
-				$aNumberSum[$columnNum4] = $oSchema->id;
-				$bRequireSum = true;
-			}
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, $oSchema->title);
-			/* 需要计算得分 */
-			if ((isset($oSchema->requireScore) && $oSchema->requireScore === 'Y')) {
-				$aScoreSum[$columnNum4] = $oSchema->id;
-				$bRequireScore = true;
-				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '得分');
-			}
-		}
-		if ($bRequireNickname) {
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '昵称');
-		}
-		if (null === $oAssocGrpSchema) {
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '分组');
-		}
-		$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '备注');
-		// $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '标签');
-		$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '用户端用户标签');
-		// 记录分数
-		if ($oApp->scenario === 'voting') {
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '总分数');
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '平均分数');
-			$titles[] = '总分数';
-			$titles[] = '平均分数';
-		}
-		if ($bRequireScore) {
-			$aScoreSum[$columnNum4] = 'sum';
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '总分');
-			$titles[] = '总分';
-		}
-		// 转换数据
-		for ($j = 0, $jj = count($records); $j < $jj; $j++) {
-			$oRecord = $records[$j];
-			$rowIndex = $j + 2;
-			$columnNum2 = 0; //列号
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, date('y-m-j H:i', $oRecord->enroll_at));
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $oRecord->verified);
-			// 轮次名
-			if (isset($oRecord->round)) {
-				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $oRecord->round->title);
-			}
-			// 处理登记项
-			$oRecData = $oRecord->data;
-			$oRecScore = empty($oRecord->score) ? new \stdClass : $oRecord->score;
-			$supplement = $oRecord->supplement;
-			$oVerbose = isset($oRecord->verbose) ? $oRecord->verbose->data : false;
-			$i = 0; // 列序号
-			for ($i2 = 0, $ii = count($schemas); $i2 < $ii; $i2++) {
-				$columnNum3 = $columnNum2; //列号
-				$oSchema = $schemas[$i2];
-				if (in_array($oSchema->type, ['html'])) {
-					continue;
-				}
-				$v = $modelRec->getDeepValue($oRecData, $oSchema->id, '');
-				switch ($oSchema->type) {
-				case 'single':
-					$cellValue = '';
-					if (!empty($oSchema->ops)) {
-						foreach ($oSchema->ops as $op) {
-							if ($op->v === $v) {
-								$cellValue = $op->l;
-							}
-						}
-					}
-					// if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
-					// 	$cellValue .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
-					// }
-					$cellValue = str_replace(['<br>', '</br>'], ["\n", ""], $cellValue);
-					$cellValue = strip_tags($cellValue);
-					$cellValue = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $cellValue);
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $cellValue, \PHPExcel_Cell_DataType::TYPE_STRING);
-					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
-					break;
-				case 'multiple':
-					$labels = [];
-					if (!empty($oSchema->ops)) {
-						$v = explode(',', $v);
-						foreach ($v as $oneV) {
-							foreach ($oSchema->ops as $op) {
-								if ($op->v === $oneV) {
-									$labels[] = $op->l;
-									break;
-								}
-							}
-						}
-					}
-					$cellValue = implode(',', $labels);
-					// if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
-					// 	$cellValue .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
-					// }
-					$cellValue = str_replace(['<br>', '</br>'], ["\n", ""], $cellValue);
-					$cellValue = strip_tags($cellValue);
-					$cellValue = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $cellValue);
-					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, $cellValue);
-					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
-					break;
-				case 'score':
-					$labels = [];
-					if (!empty($oSchema->ops)) {
-						foreach ($oSchema->ops as $op) {
-							if (isset($v->{$op->v})) {
-								$labels[] = $op->l . ':' . $v->{$op->v};
-							}
-						}
-					}
-					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, implode(' / ', $labels));
-					break;
-				case 'image':
-					$v0 = '';
-					// if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
-					// 	$v0 .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
-					// }
-					$v0 = str_replace(['<br>', '</br>'], ["\n", ""], $v0);
-					$v0 = strip_tags($v0);
-					$v0 = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v0);
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
-					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
-					break;
-				case 'file':
-					$v0 = '';
-					// if (isset($oSchema->supplement) && $oSchema->supplement === 'Y') {
-					// 	$v0 .= " \n(补充说明：\n" . (isset($supplement) && isset($supplement->{$oSchema->id}) ? $supplement->{$oSchema->id} : '') . ")";
-					// }
-					$v0 = str_replace(['<br>', '</br>'], ["\n", ""], $v0);
-					$v0 = strip_tags($v0);
-					$v0 = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v0);
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
-					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
-					break;
-				case 'date':
-					!empty($v) && $v = date('y-m-j H:i', $v);
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
-					break;
-				case 'shorttext':
-					if (isset($oSchema->format) && $oSchema->format === 'number') {
-						$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
-					} else {
-						$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
-					}
-					break;
-				case 'multitext':
-					if (is_array($v)) {
-						$values = [];
-						foreach ($v as $val) {
-							$values[] = strip_tags($val->value);
-						}
-						$v = implode("\n", $values);
-					}
-					$v = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v);
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
-					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
-					break;
-				case 'url':
-					$v0 = '';
-					!empty($v->title) && $v0 .= '【' . $v->title . '】';
-					!empty($v->description) && $v0 .= $v->description;
-					!empty($v->url) && $v0 .= $v->url;
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
-					break;
-				default:
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
-					break;
-				}
-				$one = $i + $columnNum3;
-				// 分数
-				if ((isset($oSchema->requireScore) && $oSchema->requireScore === 'Y')) {
-					$cellScore = empty($oRecScore->{$oSchema->id}) ? 0 : $oRecScore->{$oSchema->id};
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $cellScore, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
-				}
-				$i++;
-			}
-			// 昵称
-			if ($bRequireNickname) {
-				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->nickname);
-			}
-			// 分组
-			if (null === $oAssocGrpSchema) {
-				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, isset($oRecord->group->title) ? $oRecord->group->title : '');
-			}
-			// 备注
-			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->comment);
-			// 标签
-			// $objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->tags);
-			// 用户端用户标签
-			if (!isset($who)) {
-				$modelWay = $this->model('site\fe\way');
-				$modelTag2 = $this->model('matter\enroll\tag2');
-				$who = $modelWay->who($oApp->siteid);
-			}
-			$oRecordTags = $modelTag2->byRecord($oRecord, $who, ['UserAndPublic' => true]);
-			$userTags = '';
-			if (!empty($oRecordTags->user)) {
-				foreach ($oRecordTags->user as $k => $val) {
-					$k > 0 && $userTags .= ',';
-					$userTags .= $val->label;
-				}
-			}
-			if (!empty($oRecordTags->public)) {
-				!empty($userTags) && $userTags .= ',';
-				foreach ($oRecordTags->public as $k => $val) {
-					$k > 0 && $userTags .= ',';
-					$userTags .= $val->label;
-				}
-			}
-			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $userTags);
-			// 记录投票分数
-			if ($oApp->scenario === 'voting') {
-				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->_score);
-				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, sprintf('%.2f', $oRecord->_average));
-			}
-			// 记录测验分数
-			if ($bRequireScore) {
-				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, isset($oRecScore->sum) ? $oRecScore->sum : '');
-			}
-		}
-		if (!empty($aNumberSum)) {
-			// 数值型合计
-			$rowIndex = count($records) + 2;
-			$oSum4Schema = $modelRec->sum4Schema($oApp, $rid, $gid);
-			$objActiveSheet->setCellValueByColumnAndRow(0, $rowIndex, '合计');
-			foreach ($aNumberSum as $key => $val) {
-				$objActiveSheet->setCellValueByColumnAndRow($key, $rowIndex, $oSum4Schema->$val);
-			}
-		}
-		if (!empty($aScoreSum)) {
-			// 分数合计
-			$rowIndex = count($records) + 2;
-			$oScore4Schema = $modelRec->score4Schema($oApp, $rid, $gid);
-			$objActiveSheet->setCellValueByColumnAndRow(0, $rowIndex, '合计');
-			foreach ($aScoreSum as $key => $val) {
-				$objActiveSheet->setCellValueByColumnAndRow($key, $rowIndex, isset($oScore4Schema->$val) ? $oScore4Schema->$val : '');
-			}
-		}
-		// 输出
-		header('Content-Type: application/vnd.ms-excel');
-		header('Cache-Control: max-age=0');
-		$filename = $oApp->title . '.xlsx';
-		\TMS_App::setContentDisposition($filename);
-
-		$objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-		$objWriter->save('php://output');
-		exit;
+		return new \ResponseData($aSyncResult[1]);
 	}
 	/**
-	 * 导出记录中的图片
-	 */
-	public function exportImage_action($site, $app) {
-		if (false === ($oUser = $this->accountUser())) {
-			die('请先登录系统');
-		}
-		if (defined('SAE_TMP_PATH')) {
-			die('部署环境不支持该功能');
-		}
-
-		$oNameSchema = null;
-		$imageSchemas = [];
-
-		// 记录活动
-		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario,sync_mission_round', 'cascaded' => 'N']);
-		$schemas = $oApp->dynaDataSchemas;
-		$modelSch = $this->model('matter\enroll\schema');
-		// 加入关联活动的题目
-		$modelSch->getUnionSchemas($oApp, $schemas);
-
-		foreach ($schemas as $schema) {
-			if ($schema->type === 'image') {
-				$imageSchemas[] = $schema;
-			} else if ($schema->id === 'name' || (in_array($schema->title, array('姓名', '名称')))) {
-				$oNameSchema = $schema;
-			}
-		}
-
-		if (count($imageSchemas) === 0) {
-			die('活动不包含图片数据');
-		}
-
-		// 获得所有有效的登记记录
-		$records = $this->model('matter\enroll\record')->byApp($oApp);
-		if ($records->total === 0) {
-			die('record empty');
-		}
-		$records = $records->records;
-
-		// 转换数据
-		$aImages = [];
-		for ($j = 0, $jj = count($records); $j < $jj; $j++) {
-			$record = $records[$j];
-			// 处理登记项
-			$oRecData = $record->data;
-			for ($i = 0, $ii = count($imageSchemas); $i < $ii; $i++) {
-				$schema = $imageSchemas[$i];
-				if (!empty($oRecData->{$schema->id})) {
-					$aImages[] = ['url' => $oRecData->{$schema->id}, 'schema' => $schema, 'data' => $oRecData];
-				}
-			}
-		}
-
-		// 输出
-		$usedRecordName = [];
-		// 输出打包文件
-		$zipFilename = tempnam('/tmp', $oApp->id);
-		$zip = new \ZipArchive;
-		if ($zip->open($zipFilename, \ZIPARCHIVE::CREATE) === false) {
-			die('无法打开压缩文件，或者文件创建失败');
-		}
-		foreach ($aImages as $image) {
-			$imageFilename = TMS_APP_DIR . '/' . $image['url'];
-			if (file_exists($imageFilename)) {
-				$imageName = basename($imageFilename);
-				/**
-				 * 图片文件名称替换
-				 */
-				if (isset($oNameSchema)) {
-					$data = $image['data'];
-					if (!empty($data->{$oNameSchema->id})) {
-						$recordName = $data->{$oNameSchema->id};
-						if (isset($usedRecordName[$recordName])) {
-							$usedRecordName[$recordName]++;
-							$recordName = $recordName . '_' . $usedRecordName[$recordName];
-						} else {
-							$usedRecordName[$recordName] = 0;
-						}
-						$imageName = $recordName . '.' . explode('.', $imageName)[1];
-					}
-				}
-				$zip->addFile($imageFilename, $image['schema']->title . '/' . $imageName);
-			}
-		}
-		$zip->close();
-
-		if (!file_exists($zipFilename)) {
-			exit("无法找到压缩文件");
-		}
-		header("Cache-Control: public");
-		header("Content-Description: File Transfer");
-		header('Content-disposition: attachment; filename=' . $oApp->title . '.zip');
-		header("Content-Type: application/zip");
-		header("Content-Transfer-Encoding: binary");
-		header('Content-Length: ' . filesize($zipFilename));
-		@readfile($zipFilename);
-
-		exit;
-	}
-	/**
-	 * 从其他的登记活动导入登记数据
+	 * 从其他的记录活动导入登记数据
 	 *
 	 * 导入的数据项定义必须兼容，兼容规则如下
 	 * 从目标应用中导入和指定应用的数据定义中名称（title）和类型（type）一致的项
@@ -2271,136 +1916,182 @@ class record extends main_base {
 	/**
 	 * 从指定的数据源同步数据
 	 */
-	public function syncWithDataSource_action($app, $round = null) {
-		if (false === ($oUser = $this->accountUser())) {
+	public function syncWithDataSource_action($app, $round) {
+		if (false === ($oOperator = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelApp = $this->model('matter\enroll');
-		if (false === ($oApp = $modelApp->byId($app, ['fields' => 'id,data_schemas,scenario,mission_id,sync_mission_round,round_cron', 'cascaded' => 'N']))) {
+		if (false === ($oApp = $modelApp->byId($app, ['fields' => 'id,data_schemas,scenario,mission_id,sync_mission_round,round_cron', 'appRid' => $round, 'cascaded' => 'N']))) {
+			return new \ObjectNotFoundError();
+		}
+		if (empty($oApp->dataSchemas)) {
 			return new \ObjectNotFoundError();
 		}
 		$modelRnd = $this->model('matter\enroll\round');
-		if (empty($round)) {
-			$oAssignedRnd = $modelRnd->getActive($oApp, ['fields' => 'id,rid,mission_rid']);
-		} else {
-			$oAssignedRnd = $modelRnd->byId($round, ['fields' => 'id,rid,mission_rid']);
+		$oAssignedRnd = $modelRnd->byId($round);
+		if (false === $oAssignedRnd) {
+			return new \ObjectNotFoundError();
 		}
-		if (!empty($oApp->dataSchemas)) {
-			foreach ($oApp->dataSchemas as $oSchema) {
-				if (!empty($oSchema->ds->app->id) && !empty($oSchema->ds->type)) {
-					$oDsApp = $modelApp->byId($oSchema->ds->app->id, ['fields' => 'id,data_schemas', 'cascaded' => 'N']);
-					$oDsAssignedRnd = $modelRnd->byMissionRid($oDsApp, $oAssignedRnd->mission_rid, ['fields' => 'rid,mission_rid']);
-					switch ($oSchema->ds->type) {
-					case 'act':
-						$this->_syncNumberWithAct($oApp, $oSchema, $oDsApp, $oSchema->ds->name, $oDsAssignedRnd);
-						break;
-					case 'input':
-						if (!empty($oSchema->ds->schema->id) && !empty($oDsApp->dataSchemas)) {
-							foreach ($oDsApp->dataSchemas as $oDsSchema) {
-								if ($oSchema->ds->schema->id !== $oDsSchema->id) {
-									continue;
-								}
-								if ($oDsSchema->type === 'shorttext' && isset($oDsSchema->format) && $oDsSchema->format === 'number') {
-									$this->_syncNumberWithInput($oApp, $oSchema, $oDsApp, $oDsSchem, $oDsAssignedRnd);
-								}
-								break;
-							}
-						}
-					case 'option':
-						if (!empty($oSchema->ds->schema->id) && !empty($oDsApp->dataSchemas)) {
-							foreach ($oDsApp->dataSchemas as $oDsSchema) {
-								if ($oSchema->ds->schema->id !== $oDsSchema->id) {
-									continue;
-								}
-								if (in_array($oDsSchema->type, ['single', 'multiple']) && !empty($oDsSchema->dsOps->app->id)) {
-									/* 设置动态选项 */
-									if (!isset($modelSch)) {
-										$modelSch = $this->model('matter\enroll\schema');
-									}
-									$modelSch->setDynaOptions($oDsApp, isset($oDsAssignedRnd) ? $oDsAssignedRnd : null);
-									if (!empty($oDsSchema->ops)) {
-										$this->_syncNumberWithOption($oApp, $oSchema, $oDsApp, $oDsSchem, $oDsAssignedRnd);
-									}
-								}
-								break;
-							}
-						}
-						break;
+
+		$fnGetDsSchemaIds = function ($oSchema, $oDsApp, $fnFilter) {
+			$dsSchemaIds = [];
+			foreach ($oDsApp->dataSchemas as $oDsSchema) {
+				if (in_array($oDsSchema->id, $oSchema->ds->schema)) {
+					if ($fnFilter($oDsSchema)) {
+						$dsSchemaIds[] = $oDsSchema->id;
 					}
 				}
+				if (count($oSchema->ds->schema) === count($dsSchemaIds)) {
+					break;
+				}
+			}
+			return $dsSchemaIds;
+		};
+
+		/* 获得源活动中对应的同步轮次 */
+		$fnGetDsRids = function ($oDsApp) use ($oAssignedRnd, $modelRnd) {
+			// 源活动中，开始时间，停止时间和用途都相同轮次
+			$oRndResult = $modelRnd->byApp($oDsApp, ['start_at' => $oAssignedRnd->start_at, 'end_at' => $oAssignedRnd->end_at, 'purpose' => $oAssignedRnd->purpose, 'fields' => 'rid,start_at', 'withoutActive' => 'Y']);
+			if (count($oRndResult->rounds) === 1) {
+				$rounds = $oRndResult->rounds;
+			}
+			// 源活动中，根据开始时间，停止时间获得的被汇总轮次
+			if ($oAssignedRnd->purpose === 'S') {
+				$rounds = $modelRnd->getSummaryInclude($oDsApp, $oAssignedRnd->start_at, $oAssignedRnd->end_at);
+			}
+			if (empty($rounds)) {
+				return false;
+			}
+
+			return array_map(function ($oRnd) {return $oRnd->rid;}, $rounds);
+		};
+
+		$modelRecDat = $this->model('matter\enroll\data');
+		$oSyncResult = new \stdClass;
+		$oSyncResult->total = 0;
+		$aCachedDsApp = []; // 已经取过的活动
+		$aCachedDsAppRids = []; // 已经取过的活动轮次
+		foreach ($oApp->dataSchemas as $oSchema) {
+			if (!empty($oSchema->ds->app->id) && !empty($oSchema->ds->type) && !empty($oSchema->ds->schema) && is_array($oSchema->ds->schema)) {
+				if (isset($aCachedDsApp[$oSchema->ds->app->id])) {
+					$oDsApp = $aCachedDsApp[$oSchema->ds->app->id];
+				} else {
+					$oDsApp = $modelApp->byId($oSchema->ds->app->id, ['fields' => 'id,data_schemas', 'cascaded' => 'N']);
+					$aCachedDsApp[$oSchema->ds->app->id] = $oDsApp;
+				}
+				if (false === $oDsApp) {
+					continue;
+				}
+				if (isset($aCachedDsAppRids[$oDsApp->id])) {
+					$oDsAssignedRids = $aCachedDsAppRids[$oDsApp->id];
+				} else {
+					$oDsAssignedRids = $fnGetDsRids($oDsApp);
+					$aCachedDsAppRids[$oDsApp->id] = $oDsAssignedRids;
+				}
+				if (empty($oDsAssignedRids)) {
+					continue;
+				}
+
+				$syncRecordNum = 0;
+				switch ($oSchema->ds->type) {
+				case 'act':
+					$syncRecordNum = $this->_syncNumberWithAct($oApp, $oSchema, $oDsApp, $oSchema->ds->schema, $oAssignedRnd, $oDsAssignedRids);
+					break;
+				case 'input':
+					$dsSchemaIds = $fnGetDsSchemaIds($oSchema, $oDsApp, function ($oDsSchema) {return $oDsSchema->type === 'shorttext' && $this->getDeepValue($oDsSchema, 'format') === 'number';});
+					if (count($dsSchemaIds)) {
+						$syncRecordNum = $this->_syncNumberWithInput($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oAssignedRnd, $oDsAssignedRids);
+					}
+					break;
+				case 'score':
+					$dsSchemaIds = $fnGetDsSchemaIds($oSchema, $oDsApp, function ($oDsSchema) {return $this->getDeepValue($oDsSchema, 'requireScore') === 'Y';});
+					if (count($dsSchemaIds)) {
+						$syncRecordNum = $this->_syncNumberWithScore($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oAssignedRnd, $oDsAssignedRids);
+					}
+					break;
+				case 'score_rank':
+					$dsSchemaIds = $fnGetDsSchemaIds($oSchema, $oDsApp, function ($oDsSchema) {return $this->getDeepValue($oDsSchema, 'requireScore') === 'Y';});
+					if (count($dsSchemaIds)) {
+						$syncRecordNum = $this->_syncNumberWithScoreRank($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oAssignedRnd, $oDsAssignedRids);
+					}
+					break;
+				case 'option':
+					// $dsSchemas = [];
+					// foreach ($oDsApp->dataSchemas as $oDsSchema) {
+					// 	if (in_array($oDsSchema->id, $oSchema->ds->schema)) {
+					// 		if (in_array($oDsSchema->type, ['single', 'multiple']) && !empty($oDsSchema->dsOps->app->id)) {
+					// 			/* 设置动态选项 */
+					// 			if (!isset($modelSch)) {
+					// 				$modelSch = $this->model('matter\enroll\schema');
+					// 			}
+					// 			$modelSch->setDynaOptions($oDsApp, isset($oDsAssignedRids) ? $oDsAssignedRids : null);
+					// 			if (!empty($oDsSchema->ops)) {
+					// 				$dsSchemas[] = $oDsSchema;
+					// 			}
+					// 		}
+					// 	}
+					// 	if (count($oSchema->ds->schema) === count($dsSchemas)) {
+					// 		break;
+					// 	}
+					// }
+					// if (count($dsSchemas)) {
+					// 	$this->_syncNumberWithOption($oApp, $oSchema, $oDsApp, $dsSchemas, $oDsAssignedRids);
+					// }
+					break;
+				}
+				/* 更新结果记录 */
+				$oSyncResult->{$oSchema->id} = $syncRecordNum;
+				$oSyncResult->total += $syncRecordNum;
+			}
+			/* 计算得分的排名 */
+			if ($this->getDeepValue($oSchema, 'requireScore') === 'Y') {
+				$modelRecDat->setScoreRank($oApp, $oSchema, $oAssignedRnd->rid);
 			}
 		}
 
-		return new \ResponseData('ok');
+		/* 更新用户数据 */
+		$modelUsr = $this->model('matter\enroll\user');
+		$modelUsr->renew($oApp, $oAssignedRnd->rid);
+
+		return new \ResponseData($oSyncResult);
 	}
 	/**
 	 * 从题目指定的数据源同步数据
 	 * 从选择题数据源同步选项的选择数量数据
 	 */
-	private function _syncNumberWithOption($oApp, $oSchema, $oDsApp, $oDsSchem, $oDsAssignedRnd) {
+	private function _syncNumberWithOption($oApp, $oSchema, $oDsApp, $dsSchemas, $oDsAssignedRids) {
 		$modelRec = $this->model('matter\enroll\record');
 		$aDsOpDataByUser = [];
-		foreach ($oDsSchema->ops as $oDsOp) {
-			/* 获得数据源的值 */
-			if (!empty($oDsOp->ds->user)) {
-				if ('single' === $oDsSchema->type) {
-					$q = [
-						'count(*)',
-						'xxt_enroll_record_data',
-						"aid='{$oDsApp->id}' and state=1 and schema_id='{$oDsSchema->id}' and value='{$oDsOp->v}'",
-					];
-				} else {
-					$q = [
-						'count(*)',
-						'xxt_enroll_record_data',
-						"aid='{$oDsApp->id}' and state=1 and schema_id='{$oDsSchema->id}' and FIND_IN_SET('{$oDsOp->v}', value)",
-					];
-				}
-				/* 限制数据源的轮次 */
-				if (!empty($oDsAssignedRnd->rid)) {
-					$q[2] .= " and rid='{$oDsAssignedRnd->rid}'";
-				}
-				$count = (int) $modelRec->query_val_ss($q);
-				if (isset($aDsOpDataByUser[$oDsOp->ds->user])) {
-					$aDsOpDataByUser[$oDsOp->ds->user] += $count;
-				} else {
-					$aDsOpDataByUser[$oDsOp->ds->user] = $count;
-				}
-			}
-			/* 更新获得记录的数值 */
-			$q = [
-				'id,enroll_key,data,userid,group_id',
-				'xxt_enroll_record',
-				['aid' => $oApp->id, 'state' => 1],
-			];
-			/* 限制汇总数据的轮次 */
-			if (!empty($oAssignedRnd->rid)) {
-				$q[2]['rid'] = $oAssignedRnd;
-			}
-			$oUserRecords = $modelRec->query_objs_ss($q);
-			if (!empty($oUserRecords)) {
-				$oRecUser = new \stdClass;
-				foreach ($oUserRecords as $oUserRec) {
-					$oRecUser->uid = $oUserRec->userid;
-					$oRecUser->group_id = $oUserRec->group_id;
-					$oRecData = empty($oUserRec->data) ? new \stdClass : json_decode($oUserRec->data);
-					if (isset($aDsOpDataByUser[$oUserRec->userid])) {
-						$oRecData->{$oSchema->id} = (string) $aDsOpDataByUser[$oUserRec->userid];
+		foreach ($dsSchemas as $oDsSchema) {
+			foreach ($oDsSchema->ops as $oDsOp) {
+				/* 获得数据源的值 */
+				if (!empty($oDsOp->ds->user)) {
+					if ('single' === $oDsSchema->type) {
+						$q = [
+							'count(*)',
+							'xxt_enroll_record_data',
+							"aid='{$oDsApp->id}' and state=1 and schema_id='{$oDsSchema->id}' and value='{$oDsOp->v}'",
+						];
 					} else {
-						unset($oRecData->{$oSchema->id});
+						$q = [
+							'count(*)',
+							'xxt_enroll_record_data',
+							"aid='{$oDsApp->id}' and state=1 and schema_id='{$oDsSchema->id}' and FIND_IN_SET('{$oDsOp->v}', value)",
+						];
 					}
-					$modelRec->setData($oRecUser, $oApp, $oUserRec->enroll_key, $oRecData);
+					$q[2] .= " and rid in('" . implode("'", $oDsAssignedRids) . "')";
+
+					$count = (int) $modelRec->query_val_ss($q);
+					if (isset($aDsOpDataByUser[$oDsOp->ds->user])) {
+						$aDsOpDataByUser[$oDsOp->ds->user] += $count;
+					} else {
+						$aDsOpDataByUser[$oDsOp->ds->user] = $count;
+					}
 				}
 			}
 		}
-	}
-	/**
-	 * 从题目指定的数据源中同步题目
-	 * 用户输入数据
-	 */
-	private function _syncNumberWithInput($oApp, $oSchema, $oDsApp, $oDsSchema, $oAssignedRnd) {
-		$modelRec = $this->model('matter\enroll\record');
+		/* 更新获得记录的数值 */
 		$q = [
 			'id,enroll_key,data,userid,group_id',
 			'xxt_enroll_record',
@@ -2413,15 +2104,45 @@ class record extends main_base {
 		$oUserRecords = $modelRec->query_objs_ss($q);
 		if (!empty($oUserRecords)) {
 			$oRecUser = new \stdClass;
+			foreach ($oUserRecords as $oUserRec) {
+				$oRecUser->uid = $oUserRec->userid;
+				$oRecUser->group_id = $oUserRec->group_id;
+				$oRecData = empty($oUserRec->data) ? new \stdClass : json_decode($oUserRec->data);
+				if (isset($aDsOpDataByUser[$oUserRec->userid])) {
+					$oRecData->{$oSchema->id} = (string) $aDsOpDataByUser[$oUserRec->userid];
+				} else {
+					unset($oRecData->{$oSchema->id});
+				}
+				$modelRec->setData($oRecUser, $oApp, $oUserRec->enroll_key, $oRecData);
+			}
+		}
+
+		return count($oUserRecords);
+	}
+	/**
+	 * 从题目指定的数据源中同步题目
+	 * 用户输入数据
+	 */
+	private function _syncNumberWithInput($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oAssignedRnd, $oDsAssignedRids) {
+		$modelRec = $this->model('matter\enroll\record');
+		$q = [
+			'id,enroll_key,data,userid,group_id',
+			'xxt_enroll_record',
+			['aid' => $oApp->id, 'state' => 1],
+		];
+		/* 限制汇总数据的轮次 */
+		if (!empty($oAssignedRnd->rid)) {
+			$q[2]['rid'] = $oAssignedRnd->rid;
+		}
+
+		$oUserRecords = $modelRec->query_objs_ss($q);
+		if (!empty($oUserRecords)) {
+			$oRecUser = new \stdClass;
 			$q = [
 				'sum(value)',
 				'xxt_enroll_record_data',
-				['aid' => $oDsApp->id, 'state' => 1, 'schema_id' => $oDsSchema->id],
+				['aid' => $oDsApp->id, 'state' => 1, 'schema_id' => $dsSchemaIds, 'rid' => $oDsAssignedRids],
 			];
-			/* 限制数据源的轮次 */
-			if (!empty($oDsAssignedRnd->rid)) {
-				$q[2]['rid'] = $oDsAssignedRnd->rid;
-			}
 			foreach ($oUserRecords as $oUserRec) {
 				$oRecUser->uid = $oUserRec->userid;
 				$oRecUser->group_id = $oUserRec->group_id;
@@ -2437,9 +2158,9 @@ class record extends main_base {
 	}
 	/**
 	 * 从题目指定的数据源中同步题目
-	 * 用户行为数据
+	 * 题目的数据
 	 */
-	private function _syncNumberWithAct($oApp, $oSchema, $oDsApp, $actName, $oDsAssignedRnd) {
+	private function _syncNumberWithScore($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oAssignedRnd, $oDsAssignedRids) {
 		$modelRec = $this->model('matter\enroll\record');
 		$q = [
 			'id,enroll_key,data,userid,group_id',
@@ -2448,24 +2169,97 @@ class record extends main_base {
 		];
 		/* 限制汇总数据的轮次 */
 		if (!empty($oAssignedRnd->rid)) {
-			$q[2]['rid'] = $oAssignedRnd;
+			$q[2]['rid'] = $oAssignedRnd->rid;
+		}
+
+		$userRecords = $modelRec->query_objs_ss($q);
+		if (count($userRecords)) {
+			$q = [
+				'sum(score)',
+				'xxt_enroll_record_data',
+				['aid' => $oDsApp->id, 'state' => 1, 'schema_id' => $dsSchemaIds, 'rid' => $oDsAssignedRids],
+			];
+			$oRecUser = new \stdClass;
+			foreach ($userRecords as $oUserRec) {
+				$oRecUser->uid = $oUserRec->userid;
+				$oRecUser->group_id = $oUserRec->group_id;
+				$oRecData = empty($oUserRec->data) ? new \stdClass : json_decode($oUserRec->data);
+				$q[2]['userid'] = $oUserRec->userid;
+				$score = $modelRec->query_val_ss($q);
+				$oRecData->{$oSchema->id} = $score;
+				$modelRec->setData($oRecUser, $oApp, $oUserRec->enroll_key, $oRecData);
+			}
+		}
+
+		return count($userRecords);
+	}
+	/**
+	 * 从题目指定的数据源中同步题目
+	 * 题目的数据
+	 */
+	private function _syncNumberWithScoreRank($oApp, $oSchema, $oDsApp, $dsSchemaIds, $oAssignedRnd, $oDsAssignedRids) {
+		$modelRec = $this->model('matter\enroll\record');
+		$q = [
+			'id,enroll_key,data,userid,group_id',
+			'xxt_enroll_record',
+			['aid' => $oApp->id, 'state' => 1],
+		];
+		/* 需要进行同步的记录 */
+		if (!empty($oAssignedRnd->rid)) {
+			$q[2]['rid'] = $oAssignedRnd->rid;
+		}
+
+		$userRecords = $modelRec->query_objs_ss($q);
+		if (count($userRecords)) {
+			$q = [
+				'sum(score_rank)',
+				'xxt_enroll_record_data',
+				['aid' => $oDsApp->id, 'state' => 1, 'schema_id' => $dsSchemaIds, 'rid' => $oDsAssignedRids],
+			];
+			$oRecUser = new \stdClass;
+			foreach ($userRecords as $oUserRec) {
+				$oRecUser->uid = $oUserRec->userid;
+				$oRecUser->group_id = $oUserRec->group_id;
+				$oRecData = empty($oUserRec->data) ? new \stdClass : json_decode($oUserRec->data);
+				$q[2]['userid'] = $oUserRec->userid;
+				$score = $modelRec->query_val_ss($q);
+				$oRecData->{$oSchema->id} = $score;
+				$modelRec->setData($oRecUser, $oApp, $oUserRec->enroll_key, $oRecData);
+			}
+		}
+
+		return count($userRecords);
+	}
+	/**
+	 * 从题目指定的数据源中同步题目
+	 * 用户行为数据
+	 */
+	private function _syncNumberWithAct($oApp, $oSchema, $oDsApp, $actNames, $oAssignedRnd, $oDsAssignedRids) {
+		$modelRec = $this->model('matter\enroll\record');
+		$q = [
+			'id,enroll_key,data,userid,group_id',
+			'xxt_enroll_record',
+			['aid' => $oApp->id, 'state' => 1],
+		];
+		/* 限制汇总数据的轮次 */
+		if (!empty($oAssignedRnd->rid)) {
+			$q[2]['rid'] = $oAssignedRnd->rid;
 		}
 		$oUserRecords = $modelRec->query_objs_ss($q);
-		if (!empty($oUserRecords)) {
-			$q = [
-				$actName,
-				'xxt_enroll_user',
-				['aid' => $oDsApp->id, 'state' => 1],
-			];
-			/* 限制数据源的轮次 */
-			$q[2]['rid'] = empty($oDsAssignedRnd->rid) ? 'ALL' : $oDsAssignedRnd->rid;
+		if (count($oUserRecords)) {
+			$q = ['', 'xxt_enroll_user', ['aid' => $oDsApp->id, 'state' => 1, 'rid' => $oDsAssignedRids]];
+
 			$oRecUser = new \stdClass;
 			foreach ($oUserRecords as $oUserRec) {
 				$oRecUser->uid = $oUserRec->userid;
 				$oRecUser->group_id = $oUserRec->group_id;
 				$oRecData = empty($oUserRec->data) ? new \stdClass : json_decode($oUserRec->data);
 				$q[2]['userid'] = $oUserRec->userid;
-				$number = (int) $modelRec->query_val_ss($q);
+				$number = 0;
+				foreach ($actNames as $actName) {
+					$q[0] = $actName;
+					$number += (int) $modelRec->query_val_ss($q);
+				}
 				$oRecData->{$oSchema->id} = $number;
 				$modelRec->setData($oRecUser, $oApp, $oUserRec->enroll_key, $oRecData);
 			}
@@ -2476,13 +2270,13 @@ class record extends main_base {
 	/**
 	 * 从活动所属项目同步用户记录
 	 */
-	public function syncMissionUser_action($app) {
+	public function syncMissionUser_action($app, $round) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, ['fields' => 'id,siteid,data_schemas,scenario,mission_id,sync_mission_round,round_cron', 'cascaded' => 'N']);
+		$oApp = $modelApp->byId($app, ['fields' => 'id,siteid,entry_rule,data_schemas,scenario,mission_id,sync_mission_round,round_cron', 'cascaded' => 'N']);
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
@@ -2492,6 +2286,12 @@ class record extends main_base {
 		$modelMis = $this->model('matter\mission');
 		$oMission = $modelMis->byId($oApp->mission_id);
 		if (false === $oMission) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelRnd = $this->model('matter\enroll\round');
+		$oAssignedRnd = $modelRnd->byId($round);
+		if (false === $oAssignedRnd) {
 			return new \ObjectNotFoundError();
 		}
 
@@ -2521,42 +2321,460 @@ class record extends main_base {
 			return new \ParameterError('项目用户数据为空');
 		}
 
-		$oPosted = $this->getPostJson();
-
-		$oAssignedRnds = [];
-		$modelRnd = $this->model('matter\enroll\round');
-		if (empty($oPosted->rid)) {
-			$oAssignedRnd = $modelRnd->getActive($oApp, ['fields' => 'id,rid,mission_rid']);
-			if ($oAssignedRnd) {
-				$oAssignedRnds[] = $oAssignedRnd;
-			}
-		} else {
-			foreach ($oPosted->rid as $rid) {
-				$oAssignedRnd = $modelRnd->byId($rid, ['fields' => 'id,rid,mission_rid']);
-				if ($oAssignedRnd) {
-					$oAssignedRnds[] = $oAssignedRnd;
-				}
-			}
-		}
-
 		$newRecordCount = 0; // 新生成的记录数
 		$modelRec = $this->model('matter\enroll\record');
-		foreach ($oAssignedRnds as $oAssignedRnd) {
-			foreach ($misUsers as $oMisUser) {
-				if (empty($oMisUser->userid)) {
+		foreach ($misUsers as $oMisUser) {
+			if (empty($oMisUser->userid)) {
+				continue;
+			}
+			$oMockUser = new \stdClass;
+			$oMockUser->uid = $oMisUser->userid;
+			$records = $modelRec->byUser($oApp, $oMockUser, ['rid' => $oAssignedRnd->rid]);
+			if (empty($records)) {
+				$oMockUser->nickname = $oMisUser->nickname;
+				$oNewRec = $modelRec->enroll($oApp, $oMockUser, ['nickname' => $oMockUser->nickname, 'assignedRid' => $oAssignedRnd->rid]);
+				$this->model('matter\enroll\event')->submitRecord($oApp, $oNewRec, $oMockUser, true);
+				$newRecordCount++;
+			}
+		}
+
+		/* 更新用户分组数据 */
+		$this->_syncGroup($oApp, $oAssignedRnd->rid);
+
+		/* 更新通信录数据 */
+		$this->_syncGroup($oApp, $oAssignedRnd->rid);
+
+		/* 更新用户分组数据 */
+		$this->model('matter\enroll\user')->repairGroup($oApp);
+
+		return new \ResponseData($newRecordCount);
+	}
+	/**
+	 * 填写记录导出
+	 */
+	public function export_action($app, $filter = '') {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,state,title,data_schemas,entry_rule,assigned_nickname,scenario,mission_id,sync_mission_round,round_cron', 'cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			die('访问的对象不存在或不可用');
+		}
+		$schemas = $oApp->dynaDataSchemas;
+
+		$modelSch = $this->model('matter\enroll\schema');
+		// 加入关联活动的题目
+		$modelSch->getUnionSchemas($oApp, $schemas);
+		// 关联的分组题目
+		$oAssocGrpSchema = $modelSch->getAssocGroupSchema($oApp);
+
+		/* 获得所有有效的填写记录 */
+		$modelRec = $this->model('matter\enroll\record');
+
+		// 筛选条件
+		$filter = $modelRec->unescape($filter);
+		$oCriteria = empty($filter) ? new \stdClass : json_decode($filter);
+		$rid = empty($oCriteria->record->rid) ? '' : $oCriteria->record->rid;
+		if (!empty($oCriteria->record->group_id)) {
+			$gid = $oCriteria->record->group_id;
+		} else if (!empty($oCriteria->data->_round_id)) {
+			$gid = $oCriteria->data->_round_id;
+		} else {
+			$gid = '';
+		}
+
+		$oResult = $modelRec->byApp($oApp, null, $oCriteria);
+		if ($oResult->total === 0) {
+			die('导出数据为空');
+		}
+
+		$records = $oResult->records;
+		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
+
+		// Create new PHPExcel object
+		$objPHPExcel = new \PHPExcel();
+		// Set properties
+		$objPHPExcel->getProperties()->setCreator(APP_TITLE)
+			->setLastModifiedBy(APP_TITLE)
+			->setTitle($oApp->title)
+			->setSubject($oApp->title)
+			->setDescription($oApp->title);
+
+		$objActiveSheet = $objPHPExcel->getActiveSheet();
+		$columnNum1 = 0; //列号
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '填写时间');
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '审核通过');
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '填写轮次');
+
+		// 转换标题
+		$aNumberSum = []; // 数值型题目的合计
+		$aScoreSum = []; // 题目的分数合计
+		$columnNum4 = $columnNum1; //列号
+		$bRequireNickname = true;
+		if ($this->getDeepValue($oApp, 'assignedNickname.valid') !== 'Y' || isset($oApp->assignedNickname->schema->id)) {
+			$bRequireNickname = false;
+		}
+		$bRequireSum = false; // 是否需要计算合计
+		$bRequireScore = false; // 是否需要计算总分
+		for ($a = 0, $ii = count($schemas); $a < $ii; $a++) {
+			$oSchema = $schemas[$a];
+			/* 跳过图片,描述说明和文件 */
+			if (in_array($oSchema->type, ['html'])) {
+				continue;
+			}
+			if ($oSchema->type === 'shorttext') {
+				/* 数值型，需要计算合计 */
+				if (isset($oSchema->format) && $oSchema->format === 'number') {
+					$aNumberSum[$columnNum4] = $oSchema->id;
+					$bRequireSum = true;
+				}
+			} else if ($oSchema->type === 'score') {
+				/* 打分题，需要计算合计 */
+				$aNumberSum[$columnNum4] = $oSchema->id;
+				$bRequireSum = true;
+			}
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, $oSchema->title);
+			/* 需要补充说明 */
+			if ($this->getDeepValue($oSchema, 'supplement') === 'Y') {
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '补充说明');
+			}
+			/* 需要计算得分 */
+			if ($this->getDeepValue($oSchema, 'requireScore') === 'Y') {
+				$aScoreSum[$columnNum4] = $oSchema->id;
+				$bRequireScore = true;
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '得分');
+			}
+		}
+		if ($bRequireNickname) {
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '昵称');
+		}
+		if (null === $oAssocGrpSchema) {
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '分组');
+		}
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '备注');
+		// $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '标签');
+		// $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '用户端用户标签');
+		// 记录分数
+		if ($oApp->scenario === 'voting') {
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '总分数');
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '平均分数');
+			$titles[] = '总分数';
+			$titles[] = '平均分数';
+		}
+		if ($bRequireScore) {
+			$aScoreSum[$columnNum4] = 'sum';
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '总分');
+			$titles[] = '总分';
+		}
+		// 转换数据
+		for ($j = 0, $jj = count($records); $j < $jj; $j++) {
+			$oRecord = $records[$j];
+			$rowIndex = $j + 2;
+			$columnNum2 = 0; //列号
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, date('y-m-j H:i', $oRecord->enroll_at));
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $oRecord->verified);
+			// 轮次名
+			if (isset($oRecord->round)) {
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $oRecord->round->title);
+			}
+			// 处理登记项
+			$oRecData = $oRecord->data;
+			$oRecScore = empty($oRecord->score) ? new \stdClass : $oRecord->score;
+			$oRecSupplement = $oRecord->supplement;
+			$oVerbose = isset($oRecord->verbose) ? $oRecord->verbose->data : false;
+			$i = 0; // 列序号
+			for ($i2 = 0, $ii = count($schemas); $i2 < $ii; $i2++) {
+				$columnNum3 = $columnNum2; //列号
+				$oSchema = $schemas[$i2];
+				if (in_array($oSchema->type, ['html'])) {
 					continue;
 				}
-				$oMockUser = new \stdClass;
-				$oMockUser->uid = $oMisUser->userid;
-				$records = $modelRec->byUser($oApp, $oMockUser, ['rid' => $oAssignedRnd->rid]);
-				if (empty($records)) {
-					$oMockUser->nickname = $oMisUser->nickname;
-					$modelRec->enroll($oApp, $oMockUser, ['nickname' => $oMockUser->nickname, 'assignedRid' => $oAssignedRnd->rid]);
-					$newRecordCount++;
+				$v = $modelRec->getDeepValue($oRecData, $oSchema->id, '');
+				switch ($oSchema->type) {
+				case 'single':
+					$cellValue = '';
+					if (!empty($oSchema->ops)) {
+						foreach ($oSchema->ops as $op) {
+							if ($op->v === $v) {
+								$cellValue = $op->l;
+							}
+						}
+					}
+					$cellValue = str_replace(['<br>', '</br>'], ["\n", ""], $cellValue);
+					$cellValue = strip_tags($cellValue);
+					$cellValue = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $cellValue);
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $cellValue, \PHPExcel_Cell_DataType::TYPE_STRING);
+					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
+					break;
+				case 'multiple':
+					$labels = [];
+					if (!empty($oSchema->ops)) {
+						$v = explode(',', $v);
+						foreach ($v as $oneV) {
+							foreach ($oSchema->ops as $op) {
+								if ($op->v === $oneV) {
+									$labels[] = $op->l;
+									break;
+								}
+							}
+						}
+					}
+					$cellValue = implode(',', $labels);
+					$cellValue = str_replace(['<br>', '</br>'], ["\n", ""], $cellValue);
+					$cellValue = strip_tags($cellValue);
+					$cellValue = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $cellValue);
+					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, $cellValue);
+					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
+					break;
+				case 'score':
+					$labels = [];
+					if (!empty($oSchema->ops)) {
+						foreach ($oSchema->ops as $op) {
+							if (isset($v->{$op->v})) {
+								$labels[] = $op->l . ':' . $v->{$op->v};
+							}
+						}
+					}
+					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, implode(' / ', $labels));
+					break;
+				case 'image':
+					$v0 = '';
+					$v0 = str_replace(['<br>', '</br>'], ["\n", ""], $v0);
+					$v0 = strip_tags($v0);
+					$v0 = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v0);
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
+					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
+					break;
+				case 'file':
+					$v0 = '';
+					$v0 = str_replace(['<br>', '</br>'], ["\n", ""], $v0);
+					$v0 = strip_tags($v0);
+					$v0 = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v0);
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
+					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
+					break;
+				case 'date':
+					$v = (!empty($v) && is_numeric($v)) ? date('y-m-j H:i', $v) : '';
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+					break;
+				case 'shorttext':
+					if (isset($oSchema->format) && $oSchema->format === 'number') {
+						$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
+					} else {
+						$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+					}
+					break;
+				case 'multitext':
+					if (is_array($v)) {
+						$values = [];
+						foreach ($v as $val) {
+							$values[] = strip_tags($val->value);
+						}
+						$v = implode("\n", $values);
+					}
+					$v = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v);
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
+					break;
+				case 'url':
+					$v0 = '';
+					!empty($v->title) && $v0 .= '【' . $v->title . '】';
+					!empty($v->description) && $v0 .= $v->description;
+					!empty($v->url) && $v0 .= $v->url;
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
+					break;
+				default:
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+					break;
+				}
+				$one = $i + $columnNum3;
+				// 补充说明
+				if ($this->getDeepValue($oSchema, 'supplement') === 'Y') {
+					$supplement = $this->getDeepValue($oRecSupplement, $oSchema->id, '');
+					$supplement = preg_replace('/<(style|script|iframe)[^>]*?>[\s\S]+?<\/\1\s*>/i', '', $supplement);
+					$supplement = preg_replace('/<[^>]+?>/', '', $supplement);
+					$supplement = preg_replace('/\s+/', '', $supplement);
+					$supplement = preg_replace('/>/', '', $supplement);
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $supplement, \PHPExcel_Cell_DataType::TYPE_STRING);
+				}
+				// 分数
+				if ((isset($oSchema->requireScore) && $oSchema->requireScore === 'Y')) {
+					$cellScore = empty($oRecScore->{$oSchema->id}) ? 0 : $oRecScore->{$oSchema->id};
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $cellScore, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
+				}
+				$i++;
+			}
+			// 昵称
+			if ($bRequireNickname) {
+				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->nickname);
+			}
+			// 分组
+			if (null === $oAssocGrpSchema) {
+				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, isset($oRecord->group->title) ? $oRecord->group->title : '');
+			}
+			// 备注
+			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->comment);
+			// 标签
+			// $objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->tags);
+			// 用户端用户标签
+			// if (!isset($who)) {
+			// 	$modelWay = $this->model('site\fe\way');
+			// 	$modelTag2 = $this->model('matter\enroll\tag2');
+			// 	$who = $modelWay->who($oApp->siteid);
+			// }
+			// $oRecordTags = $modelTag2->byRecord($oRecord, $who, ['UserAndPublic' => true]);
+			// $userTags = '';
+			// if (!empty($oRecordTags->user)) {
+			// 	foreach ($oRecordTags->user as $k => $val) {
+			// 		$k > 0 && $userTags .= ',';
+			// 		$userTags .= $val->label;
+			// 	}
+			// }
+			// if (!empty($oRecordTags->public)) {
+			// 	!empty($userTags) && $userTags .= ',';
+			// 	foreach ($oRecordTags->public as $k => $val) {
+			// 		$k > 0 && $userTags .= ',';
+			// 		$userTags .= $val->label;
+			// 	}
+			// }
+			// $objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $userTags);
+			// 记录投票分数
+			if ($oApp->scenario === 'voting') {
+				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->_score);
+				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, sprintf('%.2f', $oRecord->_average));
+			}
+			// 记录测验分数
+			if ($bRequireScore) {
+				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, isset($oRecScore->sum) ? $oRecScore->sum : '');
+			}
+		}
+		if (!empty($aNumberSum)) {
+			// 数值型合计
+			$rowIndex = count($records) + 2;
+			$oSum4Schema = $modelRec->sum4Schema($oApp, $rid, $gid);
+			$objActiveSheet->setCellValueByColumnAndRow(0, $rowIndex, '合计');
+			foreach ($aNumberSum as $key => $val) {
+				$objActiveSheet->setCellValueByColumnAndRow($key, $rowIndex, $oSum4Schema->$val);
+			}
+		}
+		if (!empty($aScoreSum)) {
+			// 分数合计
+			$rowIndex = count($records) + 2;
+			$oScore4Schema = $modelRec->score4Schema($oApp, $rid, $gid);
+			$objActiveSheet->setCellValueByColumnAndRow(0, $rowIndex, '合计');
+			foreach ($aScoreSum as $key => $val) {
+				$objActiveSheet->setCellValueByColumnAndRow($key, $rowIndex, isset($oScore4Schema->$val) ? $oScore4Schema->$val : '');
+			}
+		}
+		// 输出
+		header('Content-Type: application/vnd.ms-excel');
+		header('Cache-Control: max-age=0');
+		$filename = $oApp->title . '.xlsx';
+		\TMS_App::setContentDisposition($filename);
+
+		$objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+		$objWriter->save('php://output');
+		exit;
+	}
+	/**
+	 * 导出记录中的图片
+	 */
+	public function exportImage_action($site, $app) {
+		if (false === ($oUser = $this->accountUser())) {
+			die('请先登录系统');
+		}
+		if (defined('SAE_TMP_PATH')) {
+			die('部署环境不支持该功能');
+		}
+
+		$oNameSchema = null;
+		$imageSchemas = [];
+
+		// 记录活动
+		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario,sync_mission_round', 'cascaded' => 'N']);
+		$schemas = $oApp->dynaDataSchemas;
+		$modelSch = $this->model('matter\enroll\schema');
+		// 加入关联活动的题目
+		$modelSch->getUnionSchemas($oApp, $schemas);
+
+		foreach ($schemas as $schema) {
+			if ($schema->type === 'image') {
+				$imageSchemas[] = $schema;
+			} else if ($schema->id === 'name' || (in_array($schema->title, array('姓名', '名称')))) {
+				$oNameSchema = $schema;
+			}
+		}
+
+		if (count($imageSchemas) === 0) {
+			die('活动不包含图片数据');
+		}
+
+		// 获得所有有效的填写记录
+		$records = $this->model('matter\enroll\record')->byApp($oApp);
+		if ($records->total === 0) {
+			die('record empty');
+		}
+		$records = $records->records;
+
+		// 转换数据
+		$aImages = [];
+		for ($j = 0, $jj = count($records); $j < $jj; $j++) {
+			$record = $records[$j];
+			// 处理登记项
+			$oRecData = $record->data;
+			for ($i = 0, $ii = count($imageSchemas); $i < $ii; $i++) {
+				$schema = $imageSchemas[$i];
+				if (!empty($oRecData->{$schema->id})) {
+					$aImages[] = ['url' => $oRecData->{$schema->id}, 'schema' => $schema, 'data' => $oRecData];
 				}
 			}
 		}
 
-		return new \ResponseData($newRecordCount);
+		// 输出
+		$usedRecordName = [];
+		// 输出打包文件
+		$zipFilename = tempnam('/tmp', $oApp->id);
+		$zip = new \ZipArchive;
+		if ($zip->open($zipFilename, \ZIPARCHIVE::CREATE) === false) {
+			die('无法打开压缩文件，或者文件创建失败');
+		}
+		foreach ($aImages as $image) {
+			$imageFilename = TMS_APP_DIR . '/' . $image['url'];
+			if (file_exists($imageFilename)) {
+				$imageName = basename($imageFilename);
+				/**
+				 * 图片文件名称替换
+				 */
+				if (isset($oNameSchema)) {
+					$data = $image['data'];
+					if (!empty($data->{$oNameSchema->id})) {
+						$recordName = $data->{$oNameSchema->id};
+						if (isset($usedRecordName[$recordName])) {
+							$usedRecordName[$recordName]++;
+							$recordName = $recordName . '_' . $usedRecordName[$recordName];
+						} else {
+							$usedRecordName[$recordName] = 0;
+						}
+						$imageName = $recordName . '.' . explode('.', $imageName)[1];
+					}
+				}
+				$zip->addFile($imageFilename, $image['schema']->title . '/' . $imageName);
+			}
+		}
+		$zip->close();
+
+		if (!file_exists($zipFilename)) {
+			exit("无法找到压缩文件");
+		}
+		header("Cache-Control: public");
+		header("Content-Description: File Transfer");
+		header('Content-disposition: attachment; filename=' . $oApp->title . '.zip');
+		header("Content-Type: application/zip");
+		header("Content-Transfer-Encoding: binary");
+		header('Content-Length: ' . filesize($zipFilename));
+		@readfile($zipFilename);
+
+		exit;
 	}
 }

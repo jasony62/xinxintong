@@ -9,7 +9,7 @@ class topic extends base {
 	/**
 	 *
 	 */
-	public function get_action($topic, $role = '') {
+	public function get_action($topic) {
 		$modelTop = $this->model('matter\enroll\topic');
 		$oTopic = $modelTop->byId($topic, ['fields' => 'id,siteid,aid,state,unionid,userid,group_id,nickname,create_at,title,summary,rec_num,share_in_group']);
 		if (false === $oTopic || $oTopic->state !== '1') {
@@ -42,24 +42,13 @@ class topic extends base {
 		}
 
 		$oUser = $this->getUser($oApp);
-		/* 指定的用户身份 */
-		if ($role === 'visitor') {
-			$oMockUser = clone $oUser;
-			$oMockUser->is_leader = 'N';
-			$oMockUser->is_editor = 'N';
-		} else if ($role === 'member') {
-			$oMockUser = clone $oUser;
-			$oMockUser->is_leader = 'N';
-		} else {
-			$oMockUser = $oUser;
-		}
 
 		/* 修改默认访客昵称 */
-		if (isset($oMockUser->unionid) && $oTopic->unionid === $oMockUser->unionid) {
+		if (isset($oUser->unionid) && $oTopic->unionid === $oUser->unionid) {
 			$oTopic->nickname = '我';
 		} else if (isset($oEditor)) {
 			/* 设置编辑统一昵称 */
-			if (empty($oMockUser->is_editor) || $oMockUser->is_editor !== 'Y') {
+			if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
 				if (!empty($oTopic->group_id) && $oTopic->group_id === $oEditor->group) {
 					$oTopic->nickname = $oEditor->nickname;
 				} else if (isset($oEditorUsers) && isset($oEditorUsers->{$oTopic->userid})) {
@@ -175,7 +164,8 @@ class topic extends base {
 				$aUpdated[$prop] = $modelTop->escape($val);
 				break;
 			case 'share_in_group':
-				$aUpdated['share_in_group'] = in_array($val, ['Y', 'N']) ? $val : 'N';
+			case 'is_public':
+				$aUpdated[$prop] = in_array($val, ['Y', 'N']) ? $val : 'N';
 				break;
 			}
 		}
@@ -223,7 +213,7 @@ class topic extends base {
 		}
 		$w .= ")";
 		$q = [
-			'id,create_at,title,summary,rec_num,userid,group_id,nickname,share_in_group',
+			'id,create_at,title,summary,rec_num,userid,group_id,nickname,share_in_group,is_public',
 			'xxt_enroll_topic',
 			$w,
 		];
@@ -234,6 +224,30 @@ class topic extends base {
 				$oTopic->nickname = '我';
 			}
 		}
+		$oResult = new \stdClass;
+		$oResult->topics = $topics;
+		$oResult->total = count($topics);
+
+		return new \ResponseData($oResult);
+	}
+	/**
+	 * 公共专题列表
+	 */
+	public function listPublic_action($app) {
+		$modelEnl = $this->model('matter\enroll');
+		$oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$q = [
+			'id,create_at,title,summary,rec_num,userid,group_id,nickname,share_in_group,is_public',
+			'xxt_enroll_topic',
+			['state' => 1, 'aid' => $oApp->id, 'is_public' => 'Y'],
+		];
+		$q2 = ['o' => 'create_at desc'];
+		$topics = $modelEnl->query_objs_ss($q, $q2);
+
 		$oResult = new \stdClass;
 		$oResult->topics = $topics;
 		$oResult->total = count($topics);

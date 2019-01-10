@@ -29,6 +29,12 @@ class record_model extends record_base {
 			'group_id' => empty($oUser->group_id) ? '' : $oUser->group_id,
 			'referrer' => $referrer,
 		];
+		/* 记录的状态 */
+		if (isset($aOptions['state']) && in_array($aOptions['state'], ['1', '99'])) {
+			$aNewRec['state'] = $aOptions['state'];
+		} else {
+			$aNewRec['state'] = '1';
+		}
 		/* 记录所属轮次 */
 		$modelRnd = $this->model('matter\enroll\round');
 		if (isset($assignedRid)) {
@@ -56,14 +62,14 @@ class record_model extends record_base {
 		/* 移除用户未签到的原因 */
 		if (!empty($oUser->uid)) {
 			$rid = !empty($aNewRec['rid']) ? $aNewRec['rid'] : 'ALL';
-			if (isset($oApp->absent_cause->{$oUser->uid}) && isset($oApp->absent_cause->{$oUser->uid}->{$rid})) {
-				$aNewRec['comment'] = $this->escape($oApp->absent_cause->{$oUser->uid}->{$rid});
-				unset($oApp->absent_cause->{$oUser->uid}->{$rid});
-				if (count(get_object_vars($oApp->absent_cause->{$oUser->uid})) == 0) {
-					unset($oApp->absent_cause->{$oUser->uid});
+			if (isset($oApp->absentCause->{$oUser->uid}) && isset($oApp->absentCause->{$oUser->uid}->{$rid})) {
+				$aNewRec['comment'] = $this->escape($oApp->absentCause->{$oUser->uid}->{$rid});
+				unset($oApp->absentCause->{$oUser->uid}->{$rid});
+				if (count(get_object_vars($oApp->absentCause->{$oUser->uid})) == 0) {
+					unset($oApp->absentCause->{$oUser->uid});
 				}
 				/* 更新原未签到记录 */
-				$newAbsentCause = $this->escape($this->toJson($oApp->absent_cause));
+				$newAbsentCause = $this->escape($this->toJson($oApp->absentCause));
 				$this->update(
 					'xxt_enroll',
 					['absent_cause' => $newAbsentCause],
@@ -72,7 +78,7 @@ class record_model extends record_base {
 			}
 		}
 
-		$this->insert('xxt_enroll_record', $aNewRec, false);
+		$aNewRec['id'] = $this->insert('xxt_enroll_record', $aNewRec, true);
 
 		/* 记录和轮次的关系 */
 		$oNewRec = (object) $aNewRec;
@@ -94,8 +100,8 @@ class record_model extends record_base {
 		}
 		// 数据对应的记录记录
 		$oRecord = $this->byId($ek);
-		if (false === $oRecord || $oRecord->state !== '1') {
-			return [false, '指定的对象不存在'];
+		if (false === $oRecord || !in_array($oRecord->state, ['1', '99'])) {
+			return [false, '指定的记录不存在'];
 		}
 		$oResult = $this->model('matter\enroll\data')->setData($oUser, $oApp, $oRecord, $submitData, $submitkey);
 		if (is_array($oResult) && false === $oResult[0]) {
@@ -138,43 +144,63 @@ class record_model extends record_base {
 	 * @param string $childRid 需要进行汇总的轮次
 	 */
 	public function setSummaryRec($oUser, $oApp, $childRid) {
+		/* 指定了需要汇总的轮次 */
+		$modelRnd = $this->model('matter\enroll\round');
+		$oChildRnd = $modelRnd->byId($childRid, ['fields' => 'start_at']);
+		if (false === $oChildRnd) {
+			return [false, '指定的轮次不存在'];
+		}
 		/* 是否存在匹配的汇总轮次 */
-		$oSumRnd = $this->model('matter\enroll\round')->getSummary($oApp, ['fields' => 'id,rid,title,start_at,state', 'assignedRid' => $childRid]);
-		if (false === $oSumRnd) {
+		$oSumRnds = $modelRnd->getSummary($oApp, $oChildRnd->start_at, ['fields' => 'id,rid,title,start_at,state']);
+		if (empty($oSumRnds)) {
 			return [false, '不存在匹配的汇总轮次'];
 		}
-		/* 汇总轮次上是否已经有用户记录 */
-		$oSumRec = $this->lastByUser($oApp, $oUser, ['rid' => $oSumRnd->rid, ['enroll_key']]);
-		if (false === $oSumRec) {
-			$oSumRec = $this->enroll($oApp, $oUser, ['assignedRid' => $oSumRnd->rid]);
+		foreach ($oSumRnds as $oSumRnd) {
+			/* 汇总轮次上是否已经有用户记录 */
+			$oSumRec = $this->lastByUser($oApp, $oUser, ['rid' => $oSumRnd->rid, ['enroll_key']]);
+			if (false === $oSumRec) {
+				$oSumRec = $this->enroll($oApp, $oUser, ['assignedRid' => $oSumRnd->rid]);
+			}
+			/* 汇总覆盖轮次的数据 */
+			$oNumberRecData = new \stdClass;
+			$q = [
+				'sum(value)',
+				'xxt_enroll_record_data',
+				['aid' => $oApp->id, 'userid' => $oUser->uid, 'state' => 1, 'purpose' => 'C'],
+			];
+			if (!empty($oSumRnd->includeRounds)) {
+				$q[2]['rid'] = array_map(function ($oRnd) {return $oRnd->rid;}, $oSumRnd->includeRounds);
+			}
+			/* 只有数值题可以有目标值 */
+			foreach ($oApp->dynaDataSchemas as $oSchema) {
+				if ($oSchema->type === 'shorttext' && $this->getDeepValue($oSchema, 'format') === 'number') {
+					$q[2]['schema_id'] = $oSchema->id;
+					$sumVal = $this->query_val_ss($q);
+					$oNumberRecData->{$oSchema->id} = $sumVal;
+				}
+			}
+
+			/* 更新用户汇总数据 */
+			$this->setData($oUser, $oApp, $oSumRec->enroll_key, $oNumberRecData, '', true);
+
+			$oSumRec = $this->byId($oSumRec->enroll_key);
 		}
-		/* 汇总覆盖轮次的数据 */
-		$oNumberRecData = new \stdClass;
-		$q = [
-			'sum(value)',
-			'xxt_enroll_record_data',
-			['aid' => $oApp->id, 'userid' => $oUser->uid, 'state' => 1, 'purpose' => 'C'],
-		];
-		if (!empty($oSumRnd->includeRounds)) {
-			foreach ($oSumRnd->includeRounds as $oRnd) {
-				$q[2]['rid'][] = $oRnd->rid;
+
+		return [true];
+	}
+	/**
+	 * 更新得分数据排名
+	 */
+	public function setScoreRank($oApp, $rid) {
+		$aScoreSchemas = $this->model('matter\enroll\schema')->asAssoc($oApp->dynaDataSchemas, ['filter' => function ($oSchema) {return $this->getDeepValue($oSchema, 'requireScore') === 'Y';}]);
+		if (count($aScoreSchemas)) {
+			$modelRecDat = $this->model('matter\enroll\data')->setOnlyWriteDbConn(true);
+			foreach ($aScoreSchemas as $oSchema) {
+				$modelRecDat->setScoreRank($oApp, $oSchema, $rid);
 			}
 		}
-		/* 只有数值题可以有目标值 */
-		foreach ($oApp->dynaDataSchemas as $oSchema) {
-			if ($oSchema->type === 'shorttext' && $this->getDeepValue($oSchema, 'format') === 'number') {
-				$q[2]['schema_id'] = $oSchema->id;
-				$sumVal = $this->query_val_ss($q);
-				$oNumberRecData->{$oSchema->id} = $sumVal;
-			}
-		}
 
-		/* 更新用户汇总数据 */
-		$this->setData($oUser, $oApp, $oSumRec->enroll_key, $oNumberRecData, '', true);
-
-		$oSumRec = $this->byId($oSumRec->enroll_key);
-
-		return [true, $oSumRec, $oSumRnd];
+		return count($aScoreSchemas);
 	}
 	/**
 	 * 保存记录的数据
@@ -296,9 +322,12 @@ class record_model extends record_base {
 		$q = [
 			$fields,
 			'xxt_enroll_record',
-			['aid' => $oApp->id, 'state' => 1, 'userid' => $oUser->uid],
+			['aid' => $oApp->id, 'userid' => $oUser->uid],
 		];
-
+		/* 指定记录状态 */
+		if (!empty($aOptions['state'])) {
+			$q[2]['state'] = $aOptions['state'];
+		}
 		/* 指定填写轮次 */
 		if (empty($assignedRid)) {
 			if (isset($oApp->appRound->rid)) {
@@ -749,7 +778,7 @@ class record_model extends record_base {
 		if (!empty($oOptions->fields)) {
 			$fields = $oOptions->fields;
 		} else {
-			$fields = 'id,enroll_key,rid,enroll_at,userid,group_id,nickname,verified,comment,data,score,supplement,agreed,like_num,like_log,remark_num,favor_num,dislike_num,dislike_log';
+			$fields = 'id,state,enroll_key,rid,purpose,enroll_at,userid,group_id,nickname,verified,comment,data,score,supplement,agreed,like_num,like_log,remark_num,favor_num,dislike_num,dislike_log';
 		}
 		$q = [$fields, "xxt_enroll_record r", $w];
 

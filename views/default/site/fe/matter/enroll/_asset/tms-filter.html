@@ -6,10 +6,10 @@
                 <uib-tabset active="0" type="pills" vertical="true" class="site-tabset">
                     <uib-tab ng-repeat="data in datas" index="$index">
                         <uib-tab-heading>
-                            <div ng-class="{'checked': filtered[data.type]!==data.default.value}" ng-bind="data.title"></div>
+                            <div ng-class="{'checked': filtered[data.type]!==data.default.id}" ng-bind="data.title"></div>
                         </uib-tab-heading>
                         <div class="list-group">
-                            <a href class="list-group-item site-list-group-item" ng-repeat="menu in data.menus" ng-class="{'active':criteriad[data.type]==menu.value}" ng-click="selected(data, menu)" ng-bind="menu.title"></a>
+                            <a href class="list-group-item site-list-group-item" ng-repeat="menu in data.menus" ng-class="{'active':criteriad[data.type]==menu.id}" ng-click="selected(data, menu)" ng-bind="menu.title"></a>
                         </div>
                     </uib-tab>
                 </uib-tabset>

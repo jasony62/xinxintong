@@ -29,9 +29,6 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     function fnGetTopic() {
         var url;
         url = LS.j('topic/get', 'site', 'app', 'topic');
-        if (_oMocker && _oMocker.role) {
-            url += '&role=' + _oMocker.role;
-        }
         return http2.get(url);
     }
 
@@ -44,7 +41,7 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         location.href = url;
     };
 
-    var _oApp, _oPage, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oMocker, shareby;
+    var _oApp, _oPage, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, shareby;
     shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = {};
@@ -66,9 +63,6 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
         url = LS.j('repos/recordByTopic', 'site', 'app', 'topic');
         url += '&page=' + _oPage.at + '&size=' + _oPage.size;
-        if (_oMocker && _oMocker.role) {
-            url += '&role=' + _oMocker.role;
-        }
         $scope.reposLoading = true;
         http2.post(url, _oCriteria, { page: _oPage }).then(function(result) {
             if (result.data.records) {
@@ -196,7 +190,7 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             }
         });
         /*设置页面操作*/
-        $scope.setPopAct(['addRecord', 'mocker'], 'cowork');
+        $scope.setPopAct(['addRecord'], 'topic');
         /*设置页面导航*/
         $scope.setPopNav(['repos'], 'topic');
         /* 活动任务 */
@@ -216,14 +210,5 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             $scope.logAccess({ target_type: 'topic', target_id: rsp.data.id, title: rsp.data.title });
             $scope.recordList(1);
         });
-        $scope.$watch('mocker', function(nv, ov) {
-            if (nv && nv !== ov) {
-                _oMocker = nv;
-                fnGetTopic().then(function(rsp) {
-                    $scope.topic = rsp.data;
-                    $scope.recordList(1);
-                });
-            }
-        }, true);
     });
 }]);

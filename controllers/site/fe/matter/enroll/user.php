@@ -25,6 +25,63 @@ class user extends base {
 		return new \ResponseData($oEnlRndUser);
 	}
 	/**
+	 *
+	 */
+	public function get2_action($app, $rid = '') {
+		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oUser = $this->getUser($oApp);
+		/**
+		 * 获取当前用户在登记活动中的数据
+		 */
+		if (!empty($rid) || isset($oApp->appRound->rid)) {
+			$modelEnlUsr = $this->model('matter\enroll\user');
+			$oEnlRndUser = $modelEnlUsr->byId($oApp, $oUser->uid, ['rid' => empty($rid) ? $oApp->appRound->rid : $rid]);
+			if ($oEnlRndUser) {
+				$oEnlAppUser = $modelEnlUsr->byId($oApp, $oUser->uid, ['rid' => 'ALL', 'fields' => 'custom']);
+				$oEnlRndUser->custom = $oEnlAppUser->custom;
+			}
+			$oUser->enrollUser = $oEnlRndUser;
+		}
+		/**
+		 * 获得当前活动的分组和当前用户所属的分组，是否为组长，及同组成员
+		 */
+		if (!empty($oApp->entryRule->group->id)) {
+			$assocGroupAppId = $oApp->entryRule->group->id;
+			$modelGrpUsr = $this->model('matter\group\player');
+			$modelGrpRnd = $this->model('matter\group\round');
+			/* 用户所属分组信息 */
+			$oGrpApp = (object) ['id' => $assocGroupAppId];
+			if (!empty($oUser->group_id)) {
+				$GrpRoundTitle = $modelGrpRnd->byId($oUser->group_id, ['fields' => 'title']);
+				$oUser->group_title = $GrpRoundTitle->title;
+				// 同组成员
+				$others = $modelGrpUsr->byRound($oGrpApp->id, $oUser->group_id, ['fields' => 'is_leader,userid,nickname']);
+				$oUser->groupOthers = [];
+				foreach ($others as $other) {
+					if ($other->userid !== $oUser->uid) {
+						$oUser->groupOthers[] = $other;
+					}
+				}
+			}
+			/* 获得角色分组信息 */
+			if (!empty($oUser->role_rounds)) {
+				$roleRounds = $modelGrpRnd->byApp($assocGroupAppId, ['fields' => "round_id,title", 'round_type' => 'R']);
+				foreach ($roleRounds as $rRound) {
+					$roleRounds[$rRound->round_id] = $rRound;
+				}
+				foreach ($oUser->role_rounds as $k => $usrRoleRound) {
+					$oUser->role_rounds[$k] = $roleRounds[$usrRoleRound];
+				}
+			}
+		}
+
+		return new \ResponseData($oUser);
+	}
+	/**
 	 * 更新用户设置
 	 */
 	public function updateCustom_action($app) {

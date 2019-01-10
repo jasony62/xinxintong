@@ -9,6 +9,10 @@ class event_model extends \TMS_MODEL {
 	 */
 	const SubmitEventName = 'site.matter.enroll.submit';
 	/**
+	 * 保存记录事件名称
+	 */
+	const SaveEventName = 'site.matter.enroll.save';
+	/**
 	 * 用户A提交的填写记录获得新协作填写数据项
 	 */
 	const GetSubmitCoworkEventName = 'site.matter.enroll.cowork.get.submit';
@@ -202,23 +206,33 @@ class event_model extends \TMS_MODEL {
 			}
 			$modelUsr->modify($oEnlUsrRnd, $oUpdateUsrData1);
 		}
+
 		/* 如果存在匹配的汇总轮次，进行数据汇总 */
-		$oSumRnd = $this->model('matter\enroll\round')->getSummary($oApp, ['fields' => 'id,rid,title,start_at,state', 'assignedRid' => $rid]);
-		if ($oSumRnd && $oSumRnd->state === '1') {
-			$oUpdatedEnlUsrSumData = $modelUsr->sumByRound($oApp, $oUser, $oSumRnd, $oUpdatedEnlUsrData);
-			if ($oUpdatedEnlUsrSumData) {
-				/* 用户在汇总轮次中的数据汇总 */
-				$oEnlUsrSum = $modelUsr->byId($oApp, $userid, ['fields' => '*', 'rid' => $oSumRnd->rid]);
-				if (false === $oEnlUsrSum) {
-					if (!$bJumpCreate) {
-						$oUpdatedEnlUsrSumData->rid = $oSumRnd->rid;
-						$modelUsr->add($oApp, $oUser, $oUpdatedEnlUsrSumData);
+		$modelRnd = $this->model('matter\enroll\round');
+		$oAssignedRnd = $modelRnd->byId($rid, ['fields' => 'rid,start_at']);
+		if (false === $oAssignedRnd) {
+			return 0;
+		}
+		$sumRnds = $modelRnd->getSummary($oApp, $oAssignedRnd->start_at, ['fields' => 'id,rid,title,start_at,state', 'includeRounds' => 'N']);
+		if (!empty($sumRnds)) {
+			foreach ($sumRnds as $oSumRnd) {
+				if ($oSumRnd && $oSumRnd->state === '1') {
+					$oUpdatedEnlUsrSumData = $modelUsr->sumByRound($oApp, $oUser, $oSumRnd, $oUpdatedEnlUsrData);
+					if ($oUpdatedEnlUsrSumData) {
+						/* 用户在汇总轮次中的数据汇总 */
+						$oEnlUsrSum = $modelUsr->byId($oApp, $userid, ['fields' => '*', 'rid' => $oSumRnd->rid]);
+						if (false === $oEnlUsrSum) {
+							if (!$bJumpCreate) {
+								$oUpdatedEnlUsrSumData->rid = $oSumRnd->rid;
+								$modelUsr->add($oApp, $oUser, $oUpdatedEnlUsrSumData);
+							}
+						} else {
+							if ($oEnlUsrSum->state == 0) {
+								$oUpdatedEnlUsrSumData->state = 1;
+							}
+							$modelUsr->modify($oEnlUsrSum, $oUpdatedEnlUsrSumData);
+						}
 					}
-				} else {
-					if ($oEnlUsrSum->state == 0) {
-						$oUpdatedEnlUsrSumData->state = 1;
-					}
-					$modelUsr->modify($oEnlUsrSum, $oUpdatedEnlUsrSumData);
 				}
 			}
 		}
@@ -402,6 +416,28 @@ class event_model extends \TMS_MODEL {
 		$oEvent->at = $eventAt;
 		$oEvent->user = $oUser;
 		$oEvent->coin = isset($oUpdatedUsrData->user_total_coin) ? $oUpdatedUsrData->user_total_coin : 0;
+
+		$this->_logEvent($oApp, $oRecord->rid, $oRecord->enroll_key, $oTarget, $oEvent);
+
+		return true;
+	}
+	/**
+	 * 用户保存记录
+	 */
+	public function saveRecord($oApp, $oRecord, $oUser) {
+		$eventAt = isset($oRecord->enroll_at) ? $oRecord->enroll_at : time();
+
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $oRecord->id;
+		$oTarget->type = 'record';
+
+		$oEvent = new \stdClass;
+		$oEvent->name = self::SaveEventName;
+		$oEvent->op = 'Save';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oUser;
+		$oEvent->coin = 0;
 
 		$this->_logEvent($oApp, $oRecord->rid, $oRecord->enroll_key, $oTarget, $oEvent);
 

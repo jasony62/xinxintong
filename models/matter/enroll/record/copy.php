@@ -1,13 +1,13 @@
 <?php
-namespace matter\enroll;
+namespace matter\enroll\record;
 /**
  * 和记录复制相关的
  */
-class record_copy_model extends \TMS_MODEL {
+class copy_model extends \TMS_MODEL {
 	/**
 	 * 复制记录到指定活动
 	 */
-	public function exportToApp($oApp, $oTargetApp, $eks, $mappings) {
+	public function toApp($oApp, $oTargetApp, $eks, $mappings) {
 		$modelRec = $this->model('matter\enroll\record');
 		$modelDat = $this->model('matter\enroll\data');
 		$modelUsr = $this->model('matter\enroll\user');
@@ -15,17 +15,17 @@ class record_copy_model extends \TMS_MODEL {
 		$modelEvt = $this->model('matter\enroll\event');
 
 		// 源活动中的协作填写题
-		$aSourceCoworkSchemas = $modelSch->asAssoc($oApp->dynaDataSchemas, ['filter' => function ($oSchema) {return $oSchema->type = 'multitext' && isset($oSchema->cowork) && $oSchema->cowork === 'Y';}]);
+		$aSourceCoworkSchemas = $modelSch->asAssoc($oApp->dynaDataSchemas, ['filter' => function ($oSchema) {return $oSchema->type === 'multitext' && isset($oSchema->cowork) && $oSchema->cowork === 'Y';}]);
 
 		// 目标活动中的协作填写题
-		$aTargerCoworkSchemas = $modelSch->asAssoc($oApp->dynaDataSchemas, ['filter' => function ($oSchema) {return $oSchema->type = 'multitext' && isset($oSchema->cowork) && $oSchema->cowork === 'Y';}]);
+		$aTargerCoworkSchemas = $modelSch->asAssoc($oTargetApp->dynaDataSchemas, ['filter' => function ($oSchema) {return $oSchema->type === 'multitext' && isset($oSchema->cowork) && $oSchema->cowork === 'Y';}]);
 
 		// 预处理
 		$oProtoRecData = new \stdClass;
 		$aPlainPairs = [];
 		$aCoworkPairs = [];
 		foreach ($mappings as $targetSchemaId => $oMapping) {
-			if (isset($oMapping->value)) {
+			if (!empty($oMapping->value)) {
 				$oProtoRecData->{$targetSchemaId} = $oMapping->value;
 			} else if (!empty($oMapping->from)) {
 				if (!isset($aTargerCoworkSchemas[$targetSchemaId]) && !isset($aSourceCoworkSchemas[$oMapping->from])) {
@@ -38,15 +38,15 @@ class record_copy_model extends \TMS_MODEL {
 		}
 		/* 默认协作填写的表态 */
 		$agreed = $this->getDeepValue($oTargetApp, 'actionRule.cowork.default.agreed');
-		if (empty($agreed) && $oRecord->agreed === 'D') {
-			$agreed = 'D';
-		}
 
-		$count = 0;
+		$oNewRecs = [];
 		foreach ($eks as $ek) {
-			$oRecord = $modelRec->byId($ek, ['fields' => 'userid,nickname,data']);
+			$oRecord = $modelRec->byId($ek, ['fields' => 'userid,nickname,data,agreed']);
 			if (!$oRecord) {
 				continue;
+			}
+			if (empty($agreed) && $oRecord->agreed === 'D') {
+				$agreed = 'D';
 			}
 			/* 复制的数据 */
 			$oNewRecData = clone $oProtoRecData;
@@ -66,6 +66,8 @@ class record_copy_model extends \TMS_MODEL {
 			/* 在目标活动中创建新记录 */
 			$oNewRec = $modelRec->enroll($oTargetApp, $oMockUser);
 			$modelRec->setData($oMockUser, $oTargetApp, $oNewRec->enroll_key, $oNewRecData, '', true);
+			$oNewRecs[] = $oNewRec;
+
 			/* 协作填写数据 */
 			foreach ($aCoworkPairs as $targetSchemaId => $sourceSchemaId) {
 				/* 补充创建新的题目数据 */
@@ -96,9 +98,8 @@ class record_copy_model extends \TMS_MODEL {
 				}
 			}
 
-			$count++;
 		}
 
-		return $count;
+		return [true, $oNewRecs];
 	}
 }

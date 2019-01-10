@@ -70,3 +70,19 @@ class DatabaseError extends ResponseData {
 class UrlNotMatchException extends Exception {
 
 }
+/**
+ * 常用方法
+ */
+function tms_array_search($array, $callback) {
+	if (empty($array) || !is_array($array)) {
+		return false;
+	}
+
+	foreach ($array as $item) {
+		if ($callback($item)) {
+			return $item;
+		}
+	}
+
+	return false;
+}

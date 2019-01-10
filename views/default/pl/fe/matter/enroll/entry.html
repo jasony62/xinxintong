@@ -70,86 +70,109 @@
                 <div class='pl-input-group'>
                     <div class='form-control pl-line'>{{entry.url}}&page=rank</div>
                     <a class='btn btn-default' ng-href="{{entry.url}}&page=rank" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
-                    <button uib-popover-template="'rankSetting.html'" popover-placement="bottom" popover-append-to-body='true' popover-trigger="'outsideClick'" class='btn btn-default'><i class='glyphicon glyphicon-cog'></i></button>
+                    <button class='btn btn-default' ng-click="openRankSetting()"><i class='glyphicon glyphicon-cog'></i></button>
                 </div>
                 <script type="text/ng-template" id="rankSetting.html">
-                    <div class='form-group'>
-                        <label>排行榜显示的排行数据</label>
-                        <div>
-                            <label class='checkbox-inline'>
-                                <input type='checkbox' ng-model="app.rankConfig.scope.total_coin" ng-change="update('rankConfig')">积分
-                            </label>
-                            <label class='radio-inline'>
-                                <input type='radio' name='defaultRankItem' value='total_coin' ng-model="app.rankConfig.defaultItem" ng-change="update('rankConfig')">默认
-                            </label>
+                    <div class="modal-header">
+                        <button class="close" ng-click="dismiss()">×</button>
+                        <h5 class="modal-title">排行榜页面</h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class='form-group'>
+                            <label>排行榜显示的排行数据</label>
+                            <div>
+                                <label class='checkbox-inline'>
+                                    <input type='checkbox' ng-model="rankConfig.scope.total_coin">积分
+                                </label>
+                                <label class='radio-inline'>
+                                    <input type='radio' name='defaultRankItem' value='total_coin' ng-model="rankConfig.defaultItem">默认
+                                </label>
+                            </div>
+                            <div>
+                                <label class='checkbox-inline'>
+                                    <input type='checkbox' ng-model="rankConfig.scope.score">得分
+                                </label>
+                                <label class='radio-inline'>
+                                    <input type='radio' name='defaultRankItem' value='score' ng-model="rankConfig.defaultItem">默认
+                                </label>
+                            </div>
+                            <div>
+                                <label class='checkbox-inline'>
+                                    <input type='checkbox' ng-model="rankConfig.scope.average_score">平均得分
+                                </label>
+                                <label class='radio-inline'>
+                                    <input type='radio' name='defaultRankItem' value='average_score' ng-model="rankConfig.defaultItem">默认
+                                </label>
+                            </div>
+                            <div>
+                                <label class='checkbox-inline'>
+                                    <input type='checkbox' ng-model="rankConfig.scope.enroll">提交记录数量
+                                </label>
+                                <label class='radio-inline'>
+                                    <input type='radio' name='defaultRankItem' value='enroll' ng-model="rankConfig.defaultItem">默认
+                                </label>
+                            </div>
+                            <div>
+                                <label class='checkbox-inline'>
+                                    <input type='checkbox' ng-model="rankConfig.scope.remark">获得留言数量
+                                </label>
+                                <label class='radio-inline'>
+                                    <input type='radio' name='defaultRankItem' value='remark' ng-model="rankConfig.defaultItem">默认
+                                </label>
+                            </div>
+                            <div>
+                                <label class='checkbox-inline'>
+                                    <input type='checkbox' ng-model="rankConfig.scope.like">获得点赞数量
+                                </label>
+                                <label class='radio-inline'>
+                                    <input type='radio' name='defaultRankItem' value='like' ng-model="rankConfig.defaultItem">默认
+                                </label>
+                            </div>
+                            <div>
+                                <label class='checkbox-inline'>
+                                    <input type='checkbox' ng-model="rankConfig.scope.remark_other">发表留言数量
+                                </label>
+                                <label class='radio-inline'>
+                                    <input type='radio' name='defaultRankItem' value='remark_other' ng-model="rankConfig.defaultItem">默认
+                                </label>
+                            </div>
+                            <div>
+                                <label class='checkbox-inline'>
+                                    <input type='checkbox' ng-model="rankConfig.scope.do_like">进行点赞数量
+                                </label>
+                                <label class='radio-inline'>
+                                    <input type='radio' name='defaultRankItem' value='do_like' ng-model="rankConfig.defaultItem">默认
+                                </label>
+                            </div>
                         </div>
-                        <div>
-                            <label class='checkbox-inline'>
-                                <input type='checkbox' ng-model="app.rankConfig.scope.score" ng-change="update('rankConfig')">得分
-                            </label>
-                            <label class='radio-inline'>
-                                <input type='radio' name='defaultRankItem' value='score' ng-model="app.rankConfig.defaultItem" ng-change="update('rankConfig')">默认
-                            </label>
+                        <div class='form-group' ng-if="singleSchemas.length">
+                            <label>单选题作为排行对象</label>
+                            <div tms-array-checkbox model="rankConfig.schemas">
+                                <div class='checkbox' ng-repeat="schema in singleSchemas">
+                                    <label class='checkbox-inline'>
+                                        <input type='checkbox' value='{{::schema.id}}'><span>{{::schema.title}}</span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label class='checkbox-inline'>
-                                <input type='checkbox' ng-model="app.rankConfig.scope.average_score" ng-change="update('rankConfig')">平均得分
-                            </label>
-                            <label class='radio-inline'>
-                                <input type='radio' name='defaultRankItem' value='average_score' ng-model="app.rankConfig.defaultItem" ng-change="update('rankConfig')">默认
-                            </label>
-                        </div>
-                        <div>
-                            <label class='checkbox-inline'>
-                                <input type='checkbox' ng-model="app.rankConfig.scope.enroll" ng-change="update('rankConfig')">提交记录数量
-                            </label>
-                            <label class='radio-inline'>
-                                <input type='radio' name='defaultRankItem' value='enroll' ng-model="app.rankConfig.defaultItem" ng-change="update('rankConfig')">默认
-                            </label>
-                        </div>
-                        <div>
-                            <label class='checkbox-inline'>
-                                <input type='checkbox' ng-model="app.rankConfig.scope.remark" ng-change="update('rankConfig')">获得留言数量
-                            </label>
-                            <label class='radio-inline'>
-                                <input type='radio' name='defaultRankItem' value='remark' ng-model="app.rankConfig.defaultItem" ng-change="update('rankConfig')">默认
-                            </label>
-                        </div>
-                        <div>
-                            <label class='checkbox-inline'>
-                                <input type='checkbox' ng-model="app.rankConfig.scope.like" ng-change="update('rankConfig')">获得点赞数量
-                            </label>
-                            <label class='radio-inline'>
-                                <input type='radio' name='defaultRankItem' value='like' ng-model="app.rankConfig.defaultItem" ng-change="update('rankConfig')">默认
-                            </label>
-                        </div>
-                        <div>
-                            <label class='checkbox-inline'>
-                                <input type='checkbox' ng-model="app.rankConfig.scope.remark_other" ng-change="update('rankConfig')">发表留言数量
-                            </label>
-                            <label class='radio-inline'>
-                                <input type='radio' name='defaultRankItem' value='remark_other' ng-model="app.rankConfig.defaultItem" ng-change="update('rankConfig')">默认
-                            </label>
-                        </div>
-                        <div>
-                            <label class='checkbox-inline'>
-                                <input type='checkbox' ng-model="app.rankConfig.scope.do_like" ng-change="update('rankConfig')">进行点赞数量
-                            </label>
-                            <label class='radio-inline'>
-                                <input type='radio' name='defaultRankItem' value='do_like' ng-model="app.rankConfig.defaultItem" ng-change="update('rankConfig')">默认
-                            </label>
+                        <div class='form-group'>
+                            <label>排行榜默认排行对象</label>
+                            <div>
+                                <label class='radio-inline'>
+                                    <input type='radio' name='defaultRankObj' value='user' ng-model="rankConfig.defaultObj">用户
+                                </label>
+                                <label class='radio-inline' ng-if="app.entryRule.group.id">
+                                    <input type='radio' name='defaultRankObj' value='group' ng-model="rankConfig.defaultObj">用户分组
+                                </label>
+                                <label class='radio-inline' ng-if="rankConfig.schemas.indexOf(schema.id)!==-1" ng-repeat="schema in singleSchemas">
+                                    <input type='radio' name='defaultRankObj' value='{{::schema.id}}' ng-model="rankConfig.defaultObj">{{::schema.title}}
+                                </label>
+                            </div>
                         </div>
                     </div>
-                    <div class='form-group'>
-                        <label>排行榜默认排行对象</label>
-                        <div>
-                            <label class='radio-inline'>
-                                <input type='radio' name='defaultRankObj' value='user' ng-model="app.rankConfig.defaultObj" ng-change="update('rankConfig')">用户
-                            </label>
-                            <label class='radio-inline'>
-                                <input type='radio' name='defaultRankObj' value='group' ng-model="app.rankConfig.defaultObj" ng-change="update('rankConfig')">用户分组
-                            </label>
-                        </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" ng-click="save()">保存</button>
+                        <button class="btn btn-default" ng-click="dismiss()">关闭</button>
                     </div>
                 </script>
             </div>

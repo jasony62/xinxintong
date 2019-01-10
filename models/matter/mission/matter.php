@@ -30,7 +30,7 @@ class matter_model extends \TMS_MODEL {
 
 		$q = [
 			$fields,
-			'xxt_mission_matter',
+			'xxt_mission_matter mm',
 			["mission_id" => $missionId],
 		];
 
@@ -43,6 +43,11 @@ class matter_model extends \TMS_MODEL {
 		/* 按名称过滤 */
 		if (!empty($aOptions['byTitle'])) {
 			$q[2]["matter_title"] = (object) ['op' => 'like', 'pat' => '%' . $aOptions['byTitle'] . '%'];
+		}
+		/* 按星标过滤 */
+		if (isset($aOptions['byStar']) && $aOptions['byStar'] === 'Y' && isset($aOptions['user'])) {
+			$oUser = $aOptions['user'];
+			$q[2]['matter'] = (object) ['op' => 'exists', 'pat' => "select 1 from xxt_account_topmatter t where t.matter_type=mm.matter_type and t.matter_id=mm.matter_id and userid='{$oUser->id}'"];
 		}
 		/* 按开始结束时间过滤 */
 		if (!empty($aOptions['byTime'])) {

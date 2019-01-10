@@ -172,7 +172,7 @@ define(['require', 'frame/RouteParam', 'frame/const'], function(require, RoutePa
             url = '/rest/pl/fe/site/list';
             oPlSite = { id: '_coworker', name: '被邀合作项目' };
             http2.get(url + '?_=' + (new Date * 1)).then(function(rsp) {
-                var userSites;
+                var userSites, lsFrameState;
                 $scope.sites = userSites = rsp.data;
                 userSites.splice(0, 0, oPlSite);
                 /* 恢复上一次访问的状态 */
@@ -182,8 +182,8 @@ define(['require', 'frame/RouteParam', 'frame/const'], function(require, RoutePa
                             window.localStorage.setItem("pl.fe.frameState", JSON.stringify(nv));
                         }
                     }, true);
-                    if (_oFrameState = window.localStorage.getItem("pl.fe.frameState")) {
-                        _oFrameState = JSON.parse(_oFrameState);
+                    if (lsFrameState = window.localStorage.getItem("pl.fe.frameState")) {
+                        _oFrameState = JSON.parse(lsFrameState);
                     }
                 }
                 /* 通过参数指定的状态 */

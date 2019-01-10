@@ -49,12 +49,15 @@ class login extends \site\fe\base {
 			return new \ResponseError($oResult[1]);
 		}
 		$oRegistration = $oResult[1];
-		/* 记录登录状态 */
-		$fromip = $this->client_ip();
-		$modelReg->updateLastLogin($oRegistration->unionid, $fromip);
 
 		/* cookie中保留注册信息 */
 		$cookieRegUser = $modelWay->shiftRegUser($oRegistration);
+		/* 如果登录账号已经绑定过wx_openid，但是和当前用户的wx_openid不一致，不允许用户登录 */
+		//return new \ResponseError('1个注册账号，只能够和1个微信号绑定');
+
+		/* 记录登录状态 */
+		$fromip = $this->client_ip();
+		$modelReg->updateLastLogin($oRegistration->unionid, $fromip);
 
 		$cookieUser = $modelWay->who($this->siteId);
 		if ($referer = $this->myGetCookie('_user_access_referer')) {

@@ -1,9 +1,9 @@
 <?php
 require_once '../../db.php';
 
-$sqls = array();
+$sqls = [];
 //
-$sqls[] = "UPDATE xxt_home_matter h SET h.pic = (SELECT a.pic FROM xxt_article a WHERE a.id = h.matter_id) WHERE h.matter_type = 'article'";
+$sqls[] = "ALTER TABLE xxt_enroll_topic add is_public char(1) not null default 'N'";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

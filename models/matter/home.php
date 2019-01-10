@@ -180,10 +180,10 @@ class home_model extends \TMS_MODEL {
 			$current = time();
 
 			$item = [
-				'title' => $matter->title,
+				'title' => $this->escape($matter->title),
 				'pic' => $matter->pic,
-				'summary' => $matter->summary,
-				'site_name' => $site->name,
+				'summary' => $this->escape($matter->summary),
+				'site_name' => $this->escape($site->name),
 			];
 
 			$this->update(
@@ -197,16 +197,16 @@ class home_model extends \TMS_MODEL {
 
 			$item = [
 				'creater' => $account->id,
-				'creater_name' => $account->name,
+				'creater_name' => $this->escape($account->name),
 				'put_at' => $current,
 				'siteid' => $siteId,
 				'matter_type' => $matter->type,
 				'matter_id' => $matter->id,
 				'scenario' => empty($matter->scenario) ? '' : $matter->scenario,
-				'title' => $matter->title,
+				'title' => $this->escape($matter->title),
 				'pic' => $matter->pic,
-				'summary' => $matter->summary,
-				'site_name' => $site->name,
+				'summary' => $this->escape($matter->summary),
+				'site_name' => $this->escape($site->name),
 			];
 
 			$id = $this->insert('xxt_home_matter', $item, true);

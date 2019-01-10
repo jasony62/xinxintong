@@ -200,7 +200,15 @@
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.filterWhiteSpace' ng-change="updSchema(activeSchema)"> 粘贴时提示过滤空白字符</label>
     </div>
     <div class='form-group' ng-if="'shorttext'===activeSchema.type&&activeSchema.format==='number'">
-        <button class='btn btn-default' ng-click="setDataSource(activeSchema)">设置填写数据来源 <span ng-if="activeSchema.ds" class='glyphicon glyphicon-check'></span></button>
+        <div class="btn-group" uib-dropdown>
+            <button class='btn btn-default' ng-click="setDataSource(activeSchema)">设置填写数据来源</button>
+            <button class='btn btn-default' uib-dropdown-toggle ng-if="activeSchema.ds">
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" uib-dropdown-menu>
+                <li><a href ng-click="removeDataSource(activeSchema)">清除设置</a></li>
+            </ul>
+        </div>
     </div>
     <div class='form-group' ng-if="['single','multiple'].indexOf(activeSchema.type)!==-1">
         <button class='btn btn-default' ng-click="setOptionsSource(activeSchema)">设置题目选项来源 <span ng-if="activeSchema.dsOps" class='glyphicon glyphicon-check'></span></button>
@@ -214,6 +222,6 @@
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.showOpDsLink' ng-change="updSchema(activeSchema)"> 填写时跳转到选项来源记录</label>
     </div>
     <div class='form-group' ng-if="['single','multiple','score','longtext','html'].indexOf(activeSchema.type)!==-1">
-        <button class='btn btn-default' ng-click="setSchemaSource(activeSchema)">数量和标题从其它活动生成 <span ng-if="activeSchema.dsSchema" class='glyphicon glyphicon-check'></span></button>
+        <button class='btn btn-default' ng-click="setSchemaSource(activeSchema)">题目数量和标题从其它活动生成 <span ng-if="activeSchema.dsSchema" class='glyphicon glyphicon-check'></span></button>
     </div>
 </div>

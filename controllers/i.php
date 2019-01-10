@@ -1,8 +1,9 @@
 <?php
+require_once dirname(__FILE__) . '/site/base.php';
 /**
  * 用户邀请
  */
-class i extends TMS_CONTROLLER {
+class i extends \site\base {
 	/**
 	 *
 	 */
@@ -16,11 +17,11 @@ class i extends TMS_CONTROLLER {
 	/**
 	 * 访问用户邀请页
 	 *
-	 * @param string $code 链接的编
+	 * @param string $inviteCode 链接的编码
 	 *
 	 */
-	public function index_action($code = null) {
-		if (empty($code)) {
+	public function index_action($inviteCode = null) {
+		if (empty($inviteCode)) {
 			TPL::assign('title', APP_TITLE);
 			TPL::output('site/fe/invite/entry');
 			exit;
@@ -29,14 +30,19 @@ class i extends TMS_CONTROLLER {
 		 * 检查邀请是否可用
 		 */
 		$modelInv = $this->model('invite');
-		$oInvite = $modelInv->byCode($code);
+		$oInvite = $modelInv->byCode($inviteCode);
 		if (false === $oInvite) {
 			TPL::assign('title', APP_TITLE);
-			$this->outputError('指定编码【' . $code . '】的邀请不存在');
+			$this->outputError('指定编码【' . $inviteCode . '】的邀请不存在');
 		}
 		if (empty($oInvite->matter_id) || empty($oInvite->matter_type)) {
 			TPL::assign('title', APP_TITLE);
-			$this->outputError('指定编码【' . $code . '】的邀请不可用');
+			$this->outputError('指定编码【' . $inviteCode . '】的邀请不可用');
+		}
+
+		if (!$this->_afterSnsOAuth($oInvite->matter_siteid)) {
+			/* 检查是否需要第三方社交帐号OAuth */
+			$this->_requireSnsOAuth($oInvite->matter_siteid);
 		}
 
 		/* 要访问的素材 */
@@ -57,7 +63,6 @@ class i extends TMS_CONTROLLER {
 		/* 被邀请的用户 */
 		$modelWay = $this->model('site\fe\way');
 		$oInvitee = $modelWay->who($oInvite->matter_siteid);
-
 		/* 如果当前用户已经被邀请过，就不再进行验证或记录日志 */
 		$modelInvLog = $this->model('invite\log');
 		$aInviteLogs = $modelInvLog->byUser($oMatter, $oInvitee->uid);
@@ -212,12 +217,161 @@ class i extends TMS_CONTROLLER {
 		return $rst;
 	}
 	/**
-	 *
+	 * 检查是否当前的请求是OAuth后返回的请求
 	 */
-	protected function outputError($err, $title = '程序错误') {
-		TPL::assign('title', $title);
-		TPL::assign('body', $err);
-		TPL::output('error');
-		exit;
+	private function _afterSnsOAuth($siteid) {
+		$aAuth = []; // 当前用户的身份信息
+		if (isset($_GET['mocker'])) {
+			// 指定的模拟用户
+			list($snsName, $openid) = explode(',', $_GET['mocker']);
+			$snsUser = new \stdclass;
+			$snsUser->openid = $openid;
+			$aAuth['sns'][$snsName] = $snsUser;
+		} else {
+			$snsSiteId = false;
+			if ($this->myGetcookie("_{$siteid}_oauthpending") === 'Y') {
+				$snsSiteId = $siteid;
+			} else if ($this->myGetcookie("_platform_oauthpending") === 'Y') {
+				$snsSiteId = 'platform';
+			}
+			if (false === $snsSiteId) {
+				return false;
+			}
+			// oauth回调
+			$this->mySetcookie("_{$snsSiteId}_oauthpending", '', time() - 3600);
+			if (isset($_GET['state']) && isset($_GET['code'])) {
+				$state = $_GET['state'];
+				if (strpos($state, 'snsOAuth-') === 0) {
+					$code = $_GET['code'];
+					$snsName = explode('-', $state);
+					if (count($snsName) === 2) {
+						$snsName = $snsName[1];
+						if ($snsUser = $this->_snsOAuthUserByCode($snsSiteId, $code, $snsName)) {
+							/* 企业用户仅包含openid */
+							$aAuth['sns'][$snsName] = $snsUser;
+						}
+					}
+				}
+			}
+		}
+
+		if (!empty($aAuth)) {
+			// 如果获得了用户的身份信息，更新保留的用户信息
+			$modelWay = $this->model('site\fe\way');
+			$oCookieUser = $modelWay->who($siteid, $aAuth);
+			unset($oCookieUser->sns);
+			$modelWay->setCookieUser($siteid, $oCookieUser);
+		}
+
+		return true;
+	}
+	/**
+	 * 检查是否需要第三方社交帐号认证
+	 * 检查条件：
+	 * 0、应用是否设置了需要认证
+	 * 1、站点是否绑定了第三方社交帐号认证
+	 * 2、平台是否绑定了第三方社交帐号认证
+	 * 3、用户客户端是否可以发起认证
+	 *
+	 * @param string $site
+	 */
+	private function _requireSnsOAuth($siteid) {
+		$modelWay = $this->model('site\fe\way');
+		$user = $modelWay->who($siteid);
+		$userAgent = $this->userAgent();
+
+		if ($userAgent === 'wx') {
+			if (!isset($user->sns->wx)) {
+				$modelWx = $this->model('sns\wx');
+				if (($wxConfig = $modelWx->bySite($siteid)) && $wxConfig->joined === 'Y') {
+					$this->_snsOAuth($wxConfig, 'wx');
+				} else if (($wxConfig = $modelWx->bySite('platform')) && $wxConfig->joined === 'Y') {
+					$this->_snsOAuth($wxConfig, 'wx');
+				}
+			}
+			if (!isset($user->sns->qy)) {
+				if ($qyConfig = $this->model('sns\qy')->bySite($siteid)) {
+					if ($qyConfig->joined === 'Y') {
+						$this->_snsOAuth($qyConfig, 'qy');
+					}
+				}
+			}
+		} else if ($userAgent === 'yx') {
+			if (!isset($user->sns->yx)) {
+				if ($yxConfig = $this->model('sns\yx')->bySite($siteid)) {
+					if ($yxConfig->joined === 'Y') {
+						$this->_snsOAuth($yxConfig, 'yx');
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+	/**
+	 * 执行OAuth操作
+	 *
+	 * 会在cookie保留结果5分钟
+	 *
+	 * $site
+	 * $controller OAuth的回调地址
+	 * $state OAuth回调时携带的参数
+	 */
+	private function _snsOAuth(&$snsConfig, $snsName) {
+		$ruri = APP_PROTOCOL . APP_HTTP_HOST . $_SERVER['REQUEST_URI'];
+
+		switch ($snsName) {
+		case 'qy':
+			$snsProxy = $this->model('sns\qy\proxy', $snsConfig);
+			$oauthUrl = $snsProxy->oauthUrl($ruri, 'snsOAuth-' . $snsName);
+			break;
+		case 'wx':
+			if ($snsConfig->can_oauth === 'Y') {
+				$snsProxy = $this->model('sns\wx\proxy', $snsConfig);
+				$oauthUrl = $snsProxy->oauthUrl($ruri, 'snsOAuth-' . $snsName, 'snsapi_base');
+			}
+			break;
+		case 'yx':
+			if ($snsConfig->can_oauth === 'Y') {
+				$snsProxy = $this->model('sns\yx\proxy', $snsConfig);
+				$oauthUrl = $snsProxy->oauthUrl($ruri, 'snsOAuth-' . $snsName);
+			}
+			break;
+		}
+		if (isset($oauthUrl)) {
+			/* 通过cookie判断是否是后退进入 */
+			$this->mySetcookie("_{$snsConfig->siteid}_oauthpending", 'Y');
+			$this->redirect($oauthUrl);
+		}
+
+		return false;
+	}
+	/**
+	 * 通过OAuth接口获得用户信息
+	 *
+	 * @param string $site
+	 * @param string $code
+	 * @param string $snsName
+	 */
+	protected function _snsOAuthUserByCode($site, $code, $snsName) {
+		$modelSns = $this->model('sns\\' . $snsName);
+		$snsConfig = $modelSns->bySite($site);
+		if (($snsConfig === false || $snsConfig->joined !== 'Y') && $snsName === 'wx') {
+			$snsConfig = $modelSns->bySite('platform');
+		}
+		if ($snsConfig === false) {
+			$this->model('log')->log($site, 'snsOAuthUserByCode', 'snsConfig: false', null, $_SERVER['REQUEST_URI']);
+			return false;
+		}
+		$snsProxy = $this->model('sns\\' . $snsName . '\proxy', $snsConfig);
+		$rst = $snsProxy->getOAuthUser($code);
+		if ($rst[0] === false) {
+			$this->model('log')->log($site, 'snsOAuthUserByCode', 'xxt oauth2 failed: ' . $rst[1], null, $_SERVER['REQUEST_URI']);
+			$snsUser = false;
+		} else {
+			$snsUser = $rst[1];
+		}
+
+		return $snsUser;
 	}
 }

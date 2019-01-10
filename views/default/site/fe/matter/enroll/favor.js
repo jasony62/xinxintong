@@ -84,8 +84,8 @@ ngApp.controller('ctrlFavor', ['$scope', '$uibModal', 'http2', 'tmsLocation', fu
     $scope.addTag = function() {
         $scope.$broadcast('xxt.matter.enroll.favor.tag.add');
     };
-    $scope.$watch('app', function(oApp) {
-        if (!oApp) return;
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        var oApp = params.app;
         /* 设置页面分享信息 */
         $scope.setSnsShare(); // 应该禁止分享
         /*设置页面导航*/
@@ -114,7 +114,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
         return false;
     }
-    var _oApp, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oMocker, shareby;
+    var _oApp, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, shareby;
     shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = {};

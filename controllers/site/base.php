@@ -15,8 +15,8 @@ class base extends \TMS_CONTROLLER {
 		return $ruleAction;
 	}
 	/**
-	 * 客户端应用名称
-	 */
+	 * 客户端应用名称	
+	*/
 	protected function &userAgent() {
 		if (isset($_SERVER['HTTP_USER_AGENT'])) {
 			$user_agent = $_SERVER['HTTP_USER_AGENT'];

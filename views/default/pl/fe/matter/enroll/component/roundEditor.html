@@ -10,7 +10,7 @@
                 <input type='text' class="form-control" ng-model='round.title'>
             </div>
         </div>
-        <div>
+        <div class="form-group" ng-if="round.purpose">
             <label class="col-md-3 control-label">用途</label>
             <div class="col-md-9">
                 <div>
@@ -22,7 +22,7 @@
                     【目标】轮次用于设定用户的完成目标，填写轮次可以和目标轮次进行比较。目标轮次的得分不计入用户总分。
                 </div>
                 <div class='help-block'>
-                    【汇总】轮次用于将其开始时间之后到下一个汇总轮次之间的轮次的填写数据进行汇总。目标轮次的得分不计入用户总分。
+                    【汇总】轮次用于将汇总时段内（开始时间到停止时间）的填写轮次（检查轮次的开始时间）的填写数据进行汇总。目标轮次的得分不计入用户总分。
                 </div>
             </div>
         </div>

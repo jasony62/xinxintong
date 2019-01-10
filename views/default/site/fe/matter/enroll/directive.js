@@ -162,23 +162,20 @@ ngMod.directive('tmsScrollSpy', function() {
             toggleSpy: '='
         },
         link: function(scope, elems, attrs) {
-            if (scope.selector === 'window') {
-                window.addEventListener('scroll', function(event) {
-                    var eleScrolling;
-                    if (eleScrolling = event.target.scrollingElement) {
-                        if (scope.toggleSpy) {
-                            if (scope.onbottom && angular.isFunction(scope.onbottom)) {
-                                if (eleScrolling.clientHeight + eleScrolling.scrollTop + parseInt(scope.offset) >= eleScrolling.scrollHeight) {
-                                    scope.$apply(function() {
-                                        scope.toggleSpy = false;
-                                        scope.onbottom();
-                                    });
-                                }
+            var eleListen = scope.selector === 'window' ? window : document.querySelector(scope.selector);
+            eleListen.addEventListener('scroll', function(event) {
+                var eleScrolling = eleListen === window ? event.target.documentElement : event.target;
+                if (scope.toggleSpy) {
+                        if (scope.onbottom && angular.isFunction(scope.onbottom)) {
+                            if (eleScrolling.clientHeight + eleScrolling.scrollTop + parseInt(scope.offset) >= eleScrolling.scrollHeight) {
+                                scope.$apply(function() {
+                                    scope.toggleSpy = false;
+                                    scope.onbottom();
+                                });
                             }
                         }
                     }
-                });
-            }
+            });
         }
     }
 });

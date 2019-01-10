@@ -1,7 +1,7 @@
 <?php
 namespace matter\enroll;
 /**
- * 参加登记活动的用户
+ * 参加记录活动的用户
  */
 class user_model extends \TMS_MODEL {
 	/**
@@ -369,6 +369,43 @@ class user_model extends \TMS_MODEL {
 		}
 
 		return $oNewSumData;
+	}
+	/**
+	 * 更新得分数据排名
+	 */
+	public function setScoreRank($oApp, $rid) {
+		$fnSetRankByRound = function ($assignedRid) use ($oApp) {
+			$q = [
+				'id,score',
+				'xxt_enroll_user',
+				['aid' => $oApp->id, 'rid' => $assignedRid, 'state' => 1],
+			];
+			$q2['o'] = 'score desc';
+			$users = $this->query_objs_ss($q, $q2);
+			if (count($users)) {
+				$oUser = $users[0];
+				$rank = 1;
+				$this->update('xxt_enroll_user', ['score_rank' => $rank], ['id' => $oUser->id]);
+				$lastScore = $oUser->score;
+				for ($i = 1, $l = count($users); $i < $l; $i++) {
+					$oUser = $users[$i];
+					if ($oUser->score < $lastScore) {
+						$rank = $i + 1;
+					}
+					$this->update('xxt_enroll_user', ['score_rank' => $rank], ['id' => $oUser->id]);
+					$lastScore = $oUser->score;
+				}
+			}
+			return count($users);
+		};
+		/* 更新指定轮次的排名 */
+		$cnt = $fnSetRankByRound($rid);
+		if ($cnt > 0) {
+			/* 更新活动排名 */
+			$fnSetRankByRound('ALL');
+		}
+
+		return $cnt;
 	}
 	/**
 	 * 删除1条记录
@@ -748,9 +785,9 @@ class user_model extends \TMS_MODEL {
 		$oAssignedUsrs = $oAssignedUsrsResult->users;
 		foreach ($oAssignedUsrs as $oAssignedUser) {
 			if ($tasks = $this->isUndone($oApp, $rid, $oAssignedUser)) {
-				if (isset($oApp->absent_cause->{$oAssignedUser->userid}->{$rid})) {
+				if (isset($oApp->absentCause->{$oAssignedUser->userid}->{$rid})) {
 					$oAssignedUser->absent_cause = new \stdClass;
-					$oAssignedUser->absent_cause->cause = $oApp->absent_cause->{$oAssignedUser->userid}->{$rid};
+					$oAssignedUser->absent_cause->cause = $oApp->absentCause->{$oAssignedUser->userid}->{$rid};
 					$oAssignedUser->absent_cause->rid = $rid;
 				}
 				if (true !== $tasks) {
@@ -826,7 +863,7 @@ class user_model extends \TMS_MODEL {
 	/**
 	 * 根据用户的填写记录更新用户数据
 	 */
-	public function renew($oApp, $rid = '') {
+	public function renew($oApp, $rid = '', $oAssignedUserid = '') {
 		$aUpdatedResult = [];
 		/**
 		 * 按轮次更新用户数据
@@ -836,6 +873,10 @@ class user_model extends \TMS_MODEL {
 			'xxt_enroll_user',
 			['aid' => $oApp->id, 'rid' => (object) ['op' => '<>', 'pat' => 'ALL']],
 		];
+		if (!empty($oAssignedUserid)) {
+			$q[2]['userid'] = $oAssignedUserid;
+		}
+
 		$enrollees = $this->query_objs_ss($q);
 		if (count($enrollees)) {
 			foreach ($enrollees as $oEnrollee) {
@@ -875,6 +916,10 @@ class user_model extends \TMS_MODEL {
 			'xxt_enroll_user',
 			['aid' => $oApp->id, 'rid' => 'ALL'],
 		];
+		if (!empty($oAssignedUserid)) {
+			$q[2]['userid'] = $oAssignedUserid;
+		}
+
 		$enrollees = $this->query_objs_ss($q);
 		if (count($enrollees)) {
 			foreach ($enrollees as $oEnrollee) {
@@ -897,6 +942,39 @@ class user_model extends \TMS_MODEL {
 		}
 
 		return $aUpdatedResult;
+	}
+	/**
+	 * 更新用户对应的分组信息
+	 */
+	public function repairGroup($oApp) {
+		if (empty($oApp->entryRule->group->id)) {
+			return 0;
+		}
+
+		$updatedCount = 0;
+		$oAssocGrpApp = (object) ['id' => $oApp->entryRule->group->id];
+		$modelGrpUsr = $this->model('matter\group\player');
+		$q = [
+			'id,userid,group_id',
+			'xxt_enroll_user',
+			['aid' => $oApp->id, 'state' => 1],
+		];
+		$oEnrolleeGroups = new \stdClass; // 用户和分组的对应
+		$enrollees = $modelGrpUsr->query_objs_ss($q);
+		foreach ($enrollees as $oEnrollee) {
+			if (isset($oEnrolleeGroups->{$oEnrollee->userid})) {
+				$groupId = $oEnrolleeGroups->{$oEnrollee->userid};
+			} else {
+				$oGrpMemb = $modelGrpUsr->byUser($oAssocGrpApp, $oEnrollee->userid, ['fields' => 'round_id', 'onlyOne' => true]);
+				$groupId = $oEnrolleeGroups->{$oEnrollee->userid} = $oGrpMemb ? $oGrpMemb->round_id : '';
+			}
+			if ($oEnrollee->group_id !== $groupId) {
+				$modelGrpUsr->update('xxt_enroll_user', ['group_id' => $groupId], ['id' => $oEnrollee->id]);
+				$updatedCount++;
+			}
+		}
+
+		return $updatedCount;
 	}
 	/**
 	 * 活动用户获得奖励积分

@@ -22,7 +22,8 @@
                     <li><a href ng-click="batchRemove()">删除选中记录<span>（{{rows.count}}）</span></a></li>
                     <li><a href ng-click="empty()">清空记录</a></li>
                     <li class="divider"></li>
-                    <li><a href ng-click="renewScore()">更新全部记录得分</a></li>
+                    <li><a href ng-click="renewScoreByRound()">更新全部记录得分</a></li>
+                    <li><a href ng-click="renewScore()">更新选中记录得分<span>（{{rows.count}}）</span></a></li>
                     <li><a href ng-click="importByOther()">从其他活动导入记录</a></li>
                     <li><a href ng-click="exportToOther()">将记录导入其他活动<span>（{{rows.count}}）</span></a></li>
                     <li><a href ng-click="fillByOther()">用其他活动的数据填充到已有记录</a></li>
@@ -31,7 +32,7 @@
                     <li><a href ng-click="transferGroupAndMarks()">将题目组和打分结果作为其他活动的记录</a></li>
                     <li ng-if="app.scenario==='mis_user_score'" class="divider"></li>
                     <li ng-if="app.scenario==='mis_user_score'"><a href ng-click="syncMissionUser()">从项目同步用户数据</a></li>
-                    <li ng-if="app.scenario==='mis_user_score'"><a href ng-click="syncWithDataSource()">从关联的数据源中同步数据</a></li>
+                    <li ng-if="app.scenario==='mis_user_score'"><a href ng-click="syncWithDataSource()">从题目关联的数据源中同步数据</a></li>
                     <li class="divider"></li>
                     <li><a href ng-click="copyToUser()">复制记录给指定用户<span>（{{rows.count}}）</span></a></li>
                     <li ng-if="app.entryRule.group.id"><a href ng-click="syncWithGroupApp()">补填全部记录的分组数据</a></li>
@@ -103,13 +104,13 @@
                             <div ng-switch-when="multitext">
                                 <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>
                             </div>
-                            <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-switch-when="date"><span ng-if="r._data[schema.id]">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span></span>
                             <span ng-switch-when="url" ng-bind-html="r._data[schema.id]._text"></span>
                             <span ng-switch-when="remark">{{r.verbose.data[schema.id].remark_num}}</span>
+                            <span ng-switch-when="supplement" ng-bind-html="r.supplement[schema.id]"></span>
                             <span ng-switch-when="calcScore">{{r.score[schema.id]}}</span>
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
                             <span ng-if="fromApp.fromApp&&schema.id==='_round_id'&&r.group_id!==r.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span>
-                            <p ng-if="['single', 'multiple', 'image', 'file'].indexOf(schema.type)!==-1&&r.supplement[schema.id].length">(补充说明：<span ng-bind-html="r.supplement[schema.id]"></span>)</p>
                         </td>
                         <td ng-if="bRequireScore" ng-bind="r.score.sum"></td>
                         <td class='matched enroll' ng-repeat="schema in enrollDataSchemas" ng-switch on="schema.type">
@@ -135,7 +136,7 @@
                             <div ng-switch-when="multitext">
                                 <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>
                             </div>
-                            <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-switch-when="date"><span ng-if="r._data[schema.id]">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span></span>
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
                         </td>
                         <td>{{r.verified}}</td>
@@ -155,6 +156,7 @@
                         <td></td>
                         <td></td>
                         <td ng-if="bRequireNickname"></td>
+                        <td></td>
                         <td></td>
                         <td></td>
                         <td ng-repeat="schema in recordSchemasExt">
@@ -195,6 +197,15 @@
         <h5 class="modal-title">补填记录的分组数据</h5>
     </div>
     <div class="modal-body">
+        <div class='radio' ng-repeat="rnd in rounds">
+            <label><input name='rnd' type='radio' value='{{::rnd.rid}}' ng-model="config.rid">{{::rnd.title}}</label>
+        </div>
+        <div class='form-group' ng-if='page.total>page.size'>
+            <div class='pl-pagination'>
+                <span>总数：{{page.total}}</span>
+                <ul uib-pagination boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+            </div>
+        </div>
         <div class='checkbox'>
             <label>
                 <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="config.overwrite"> 覆盖已有数据</label>
@@ -207,9 +218,18 @@
 <script type="text/ng-template" id="syncWithMschema.html">
     <div class="modal-header">
         <button class="close" type="button" ng-click="cancel()">×</button>
-        <h5 class="modal-title">补填记录的分组数据</h5>
+        <h5 class="modal-title">补填记录的通讯录数据</h5>
     </div>
     <div class="modal-body">
+        <div class='radio' ng-repeat="rnd in rounds">
+            <label><input name='rnd' type='radio' value='{{::rnd.rid}}' ng-model="config.rid">{{::rnd.title}}</label>
+        </div>
+        <div class='form-group' ng-if='page.total>page.size'>
+            <div class='pl-pagination'>
+                <span>总数：{{page.total}}</span>
+                <ul uib-pagination boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+            </div>
+        </div>
         <div class='checkbox'>
             <label>
                 <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="config.overwrite"> 覆盖已有数据</label>

@@ -18,41 +18,41 @@ class log extends main_base {
 
 		$modelLog = $this->model('matter\log');
 		$criteria = $this->getPostJson();
-		$options = [];
+		$aOptions = [];
 		if (!empty($criteria->byUser)) {
-			$options['byUser'] = $modelLog->escape($criteria->byUser);
+			$aOptions['byUser'] = $modelLog->escape($criteria->byUser);
 		}
 		if (!empty($criteria->byOp) && (strcasecmp('all', $criteria->byOp) != 0)) {
-			$options['byOp'] = $modelLog->escape($criteria->byOp);
+			$aOptions['byOp'] = $modelLog->escape($criteria->byOp);
 		}
 		if (!empty($criteria->byRid) && (strcasecmp('all', $criteria->byRid) != 0)) {
-			$options['byRid'] = $modelLog->escape($criteria->byRid);
+			$aOptions['byRid'] = $modelLog->escape($criteria->byRid);
 		}
 		if (!empty($criteria->startAt)) {
-			$options['startAt'] = $modelLog->escape($criteria->startAt);
+			$aOptions['startAt'] = $modelLog->escape($criteria->startAt);
 		}
 		if (!empty($criteria->endAt)) {
-			$options['endAt'] = $modelLog->escape($criteria->endAt);
+			$aOptions['endAt'] = $modelLog->escape($criteria->endAt);
 		}
 
 		if ($logType === 'pl') {
-			$reads = $modelLog->listMatterOp($oApp->id, 'enroll', $options, $page, $size);
+			$reads = $modelLog->listMatterOp($oApp->id, 'enroll', $aOptions, $page, $size);
 		} else if ($logType === 'page') {
 			if (empty($criteria->target_type) || empty($criteria->target_id) || !in_array($criteria->target_type, ['topic', 'repos', 'cowork'])) {
 				return new \ResponseError('参数不完整或暂不支持此页面');
 			}
 			$target_id = $modelLog->escape($criteria->target_id);
 			$target_type = $modelLog->escape($criteria->target_type);
-			if (isset($options['byOp'])) {
-				$options['byEvent'] = $options['byOp'];
+			if (isset($aOptions['byOp'])) {
+				$aOptions['byEvent'] = $aOptions['byOp'];
 			}
 			if (!empty($page) && !empty($size)) {
-				$options['paging'] = ['page' => $page, 'size' => $size];
+				$aOptions['paging'] = ['page' => $page, 'size' => $size];
 			}
 
-			$reads = $modelLog->listMatterAction($oApp->siteid, 'enroll.' . $target_type, $target_id, $options);
+			$reads = $modelLog->listMatterAction($oApp->siteid, 'enroll.' . $target_type, $target_id, $aOptions);
 		} else {
-			$reads = $this->model('matter\enroll\log')->list($oApp->id, $options, $page, $size);
+			$reads = $this->model('matter\enroll\log')->list($oApp->id, $aOptions, $page, $size);
 		}
 
 		return new \ResponseData($reads);
@@ -83,7 +83,7 @@ class log extends main_base {
 		if (!empty($endAt)) {
 			$options['endAt'] = $endAt;
 		}
-		
+
 		if ($logType === 'pl') {
 			$reads = $modelLog->listMatterOp($oApp->id, 'enroll', $options, '', '');
 		} else if ($logType === 'page') {
@@ -117,31 +117,31 @@ class log extends main_base {
 		if ($logType === 'page') {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '来源');
 		}
-		
+
 		// 事件转换表
 		$operations = [];
 		$operations['read'] = '阅读';
-        $operations['site.matter.enroll.submit'] = '提交';
-        $operations['updateData'] = '修改记录';
-        $operations['removeData'] = '删除记录';
-        $operations['restoreData'] = '恢复记录';
-        $operations['site.matter.enroll.data.do.like'] = '表态其他人的填写内容';
-        $operations['site.matter.enroll.cowork.do.submit'] = '提交协作新内容';
-        $operations['site.matter.enroll.do.remark'] = '评论';
-        $operations['site.matter.enroll.cowork.do.like'] = '表态其他人填写的协作内容';
-        $operations['site.matter.enroll.remark.do.like'] = '表态其他人的评论';
-        $operations['site.matter.enroll.data.get.agree'] = '对记录表态';
-        $operations['site.matter.enroll.cowork.get.agree'] = '对协作记录表态';
-        $operations['site.matter.enroll.remark.get.agree'] = '对评论表态';
-        $operations['site.matter.enroll.remark.as.cowork'] = '将用户留言设置为协作记录';
-        $operations['site.matter.enroll.remove'] = '删除记录';
-        $operations['add'] = '新增记录';
-        $operations['U'] = '修改活动';
-        $operations['C'] = '创建活动';
-        $operations['verify.batch'] = '审核通过指定记录';
-        $operations['verify.all'] = '审核通过全部记录';
-        $operations['shareT'] = '分享';
-        $operations['shareF'] = '转发';
+		$operations['site.matter.enroll.submit'] = '提交';
+		$operations['updateData'] = '修改记录';
+		$operations['removeData'] = '删除记录';
+		$operations['restoreData'] = '恢复记录';
+		$operations['site.matter.enroll.data.do.like'] = '表态其他人的填写内容';
+		$operations['site.matter.enroll.cowork.do.submit'] = '提交协作新内容';
+		$operations['site.matter.enroll.do.remark'] = '评论';
+		$operations['site.matter.enroll.cowork.do.like'] = '表态其他人填写的协作内容';
+		$operations['site.matter.enroll.remark.do.like'] = '表态其他人的评论';
+		$operations['site.matter.enroll.data.get.agree'] = '对记录表态';
+		$operations['site.matter.enroll.cowork.get.agree'] = '对协作记录表态';
+		$operations['site.matter.enroll.remark.get.agree'] = '对评论表态';
+		$operations['site.matter.enroll.remark.as.cowork'] = '将用户留言设置为协作记录';
+		$operations['site.matter.enroll.remove'] = '删除记录';
+		$operations['add'] = '新增记录';
+		$operations['U'] = '修改活动';
+		$operations['C'] = '创建活动';
+		$operations['verify.batch'] = '审核通过指定记录';
+		$operations['verify.all'] = '审核通过全部记录';
+		$operations['shareT'] = '分享';
+		$operations['shareF'] = '转发';
 
 		// 转换数据
 		for ($j = 0, $jj = count($logs); $j < $jj; $j++) {
@@ -149,30 +149,30 @@ class log extends main_base {
 			$rowIndex = $j + 2;
 			$columnNum2 = 0; //列号
 			switch ($logType) {
-				case 'pl':
-				case 'site':
-					$action_at = $log->operate_at;
-					$event = $operations[$log->operation];
-					break;
-				default:
-					$action_at = $log->action_at;
-					if ($log->act_read > 0) {
-						$event = '阅读';
-					} else if ($log->act_share_timeline > 0) {
-						$event = '分享至朋友圈';
-					} else if ($log->act_share_friend > 0) {
-						$event = '转发给朋友';
-					} else {
-						$event = '未知';
-					}
-					break;
+			case 'pl':
+			case 'site':
+				$action_at = $log->operate_at;
+				$event = $operations[$log->operation];
+				break;
+			default:
+				$action_at = $log->action_at;
+				if ($log->act_read > 0) {
+					$event = '阅读';
+				} else if ($log->act_share_timeline > 0) {
+					$event = '分享至朋友圈';
+				} else if ($log->act_share_friend > 0) {
+					$event = '转发给朋友';
+				} else {
+					$event = '未知';
+				}
+				break;
 			}
 			$actionAt = date('Y-m-d H:i:s', $action_at);
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $actionAt);
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $log->nickname);
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $event);
 			if ($logType === 'page') {
-				$originNickname = isset($log->origin_nickname)? $log->origin_nickname : '';
+				$originNickname = isset($log->origin_nickname) ? $log->origin_nickname : '';
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $originNickname);
 			}
 		}

@@ -1,7 +1,9 @@
 <?php
 require_once '../../db.php';
+
+$sqls = [];
 //
-$sqls[] = "ALTER TABLE xxt_enroll_record_remark add as_cowork_id int not null default 0";
+$sqls[] = "ALTER TABLE xxt_enroll add score_config text null after vote_config";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

@@ -169,22 +169,24 @@ class assoc_model extends entity_model {
 		/* 更新关联数据 */
 		$oUpdated = ['assoc_num' => (object) ['op' => '-=', 'pat' => 1]];
 		if ($oAssoc->first_assoc_at === $oLinkLog->link_at) {
-			$oUpdated['first_assoc_at'] = $this->query_val_ss(
+			$firstAssocAt = $this->query_val_ss(
 				[
 					'min(link_at)',
 					'xxt_enroll_assoc_log',
 					['assoc_id' => $oAssoc->id, 'state' => 1, 'id' => (object) ['op' => '<>', 'pat' => $oLinkLog->id]],
 				]
 			);
+			$oUpdated['first_assoc_at'] = empty($firstAssocAt)? 0 : $firstAssocAt;
 		}
 		if ($oAssoc->last_assoc_at === $oLinkLog->link_at) {
-			$oUpdated['last_assoc_at'] = $this->query_val_ss(
+			$lastAssocAt = $this->query_val_ss(
 				[
 					'max(link_at)',
 					'xxt_enroll_assoc_log',
 					['assoc_id' => $oAssoc->id, 'state' => 1, 'id' => (object) ['op' => '<>', 'pat' => $oLinkLog->id]],
 				]
 			);
+			$oUpdated['last_assoc_at'] = empty($lastAssocAt)? 0 : $lastAssocAt;
 		}
 		$this->update(
 			'xxt_enroll_assoc',
@@ -229,5 +231,24 @@ class assoc_model extends entity_model {
 		$oAssocs = $this->query_objs_ss($q);
 
 		return $oAssocs;
+	}
+	/**
+	 *
+	 */
+	public function byEntityB($oEntity, $aOptions = []) {
+		$fields = empty($aOptions['fields']) ? '*' : $aOptions['fields'];
+
+		$q = [
+			$fields,
+			'xxt_enroll_assoc a',
+			['entity_b_id' => $oEntity->id, 'entity_b_type' => self::Type_StrToInt[$oEntity->type], 'public' => 'Y', 'assoc_num' => (object) ['op' => '>', 'pat' => 0]],
+		];
+
+		$assocs = $this->query_objs_ss($q);
+		foreach ($assocs as $oAssoc) {
+			$oAssoc->entity_a_type = self::Type_IntToStr[(int) $oAssoc->entity_a_type];
+		}
+
+		return $assocs;
 	}
 }

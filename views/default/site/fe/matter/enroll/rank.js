@@ -30,7 +30,7 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'e
 
     function list() {
         var defer = $q.defer();
-        switch (oAppState.criteria.obj) {
+        switch (oAppState.dimension) {
             case 'user':
                 http2.post('/rest/site/fe/matter/enroll/rank/userByApp?site=' + oApp.siteid + '&app=' + oApp.id, oAppState.criteria).then(function(rsp) {
                     defer.resolve(rsp.data)
@@ -41,17 +41,18 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'e
                     defer.resolve(rsp.data)
                 });
                 break;
+            case 'schema':
+                http2.post('/rest/site/fe/matter/enroll/rank/schemaByApp?site=' + oApp.siteid + '&app=' + oApp.id + '&schema=' + oAppState.criteria.obj, oAppState.criteria).then(function(rsp) {
+                    defer.resolve(rsp.data)
+                });
+                break;
         }
         return defer.promise;
     }
     var oApp, oAppState;
-    $scope.doSearch = function(pageAt) {
-        if (pageAt) {
-            oAppState.page.at = pageAt;
-        }
+    $scope.doSearch = function() {
         list().then(function(data) {
-            var oSchema;
-            switch (oAppState.criteria.obj) {
+            switch (oAppState.dimension) {
                 case 'user':
                     if (data.users) {
                         data.users.forEach(function(user) {
@@ -67,16 +68,18 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'e
                         });
                     }
                     break;
+                case 'schema':
+                    data.forEach(function(oOp) {
+                        $scope.schemaOps.push(oOp);
+                    });
+                    break;
             }
-            oAppState.page.total = data.total;
-            angular.element(document).ready(function() {
-                $scope.showFolder();
-            });
         });
     };
     $scope.changeCriteria = function() {
         $scope.users = [];
         $scope.groups = [];
+        $scope.schemaOps = [];
         $scope.doSearch(1);
     };
     $scope.doRound = function(rid) {
@@ -96,19 +99,8 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'e
             $scope.changeCriteria();
         });
     };
-    $scope.showFolder = function() {
-        var strBox, lastEle;
-        strBox = document.querySelectorAll('.content');
-        angular.forEach(strBox, function(str) {
-            if (str.offsetHeight >= 43) {
-                lastEle = str.parentNode.parentNode.lastElementChild;
-                lastEle.classList.remove('hidden');
-                str.classList.add('text-cut');
-            }
-        });
-    }
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        var oConfig, rankItems, dataSchemas;
+        var oRankConfig, oConfig, rankItems, dataSchemas;
         oApp = params.app;
         dataSchemas = oApp.dynaDataSchemas;
         /* 排行显示内容设置 */
@@ -117,47 +109,53 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'e
         rankItems.forEach(function(item) {
             oConfig[item] = true;
         });
-        if (oApp.rankConfig) {
-            if (oApp.rankConfig.scope) {
+        if (oRankConfig = oApp.rankConfig) {
+            if (oRankConfig.scope) {
                 rankItems.forEach(function(item) {
-                    oConfig[item] = !!oApp.rankConfig.scope[item];
+                    oConfig[item] = !!oRankConfig.scope[item];
                 });
             }
+            if (oRankConfig.schemas && oRankConfig.schemas.length)
+                $scope.rankSchemas = dataSchemas.filter(function(oSchema) { return oSchema.type === 'single' && oRankConfig.schemas.indexOf(oSchema.id) !== -1; });
         }
         $scope.config = oConfig;
         /* 恢复上一次访问的状态 */
         if (window.localStorage) {
             $scope.$watch('appState', function(nv) {
-                if (nv) {
+                if (nv)
                     window.localStorage.setItem("site.fe.matter.enroll.rank.appState", JSON.stringify(nv));
-                }
             }, true);
             if (oAppState = window.localStorage.getItem("site.fe.matter.enroll.rank.appState")) {
                 oAppState = JSON.parse(oAppState);
                 if (!oAppState.aid || oAppState.aid !== oApp.id) {
                     oAppState = null;
                 } else if (oAppState.criteria.obj === 'group') {
-                    if (!oApp.entryRule.group.id) {
+                    if (!oApp.entryRule.group.id)
                         oAppState = null;
-                    }
                 }
             }
         }
-        if (!oAppState) {
+        if (!oAppState)
             oAppState = {
                 aid: oApp.id,
                 criteria: {
-                    obj: oApp.rankConfig.defaultObj ? oApp.rankConfig.defaultObj : 'user',
-                    orderby: oApp.rankConfig.defaultItem ? oApp.rankConfig.defaultItem : 'enroll',
+                    orderby: oRankConfig.defaultItem ? oRankConfig.defaultItem : 'enroll',
                     agreed: 'all',
                     round: ['ALL']
-                },
-                page: {
-                    at: 1,
-                    size: 12
                 }
             };
+        if (!oAppState.criteria.obj && oRankConfig.defaultObj) {
+            oAppState.criteria.obj = oRankConfig.defaultObj;
         }
+        if (/user|group/.test(oAppState.criteria.obj)) {
+            oAppState.dimension = oAppState.criteria.obj;
+        } else {
+            if (oRankConfig.schemas && oRankConfig.schemas.length && oRankConfig.schemas.indexOf(oAppState.criteria.obj) !== -1)
+                oAppState.dimension = 'schema';
+            else
+                oAppState.criteria.obj = oAppState.dimension = 'user';
+        }
+
         (new enlRound(oApp)).getRoundTitle(oAppState.criteria.round).then(function(titles) {
             $scope.checkedRoundTitles = titles;
         });
@@ -166,11 +164,16 @@ ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'e
             if (oNew && oOld && oNew !== oOld) {
                 switch (oNew) {
                     case 'user':
-                        oAppState.criteria.orderby = oApp.rankConfig.defaultItem ? oApp.rankConfig.defaultItem : 'enroll';
+                        oAppState.dimension = 'user';
+                        oAppState.criteria.orderby = oRankConfig.defaultItem ? oRankConfig.defaultItem : 'enroll';
                         break;
                     case 'group':
-                        oAppState.criteria.orderby = oApp.rankConfig.defaultItem ? oApp.rankConfig.defaultItem : 'enroll';
+                        oAppState.dimension = 'group';
+                        oAppState.criteria.orderby = oRankConfig.defaultItem ? oRankConfig.defaultItem : 'enroll';
                         break;
+                    default:
+                        oAppState.dimension = 'schema';
+                        oAppState.criteria.orderby = oRankConfig.defaultItem ? oRankConfig.defaultItem : 'enroll';
                 }
                 $scope.changeCriteria();
             }

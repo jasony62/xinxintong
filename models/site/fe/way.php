@@ -92,6 +92,7 @@ class way_model extends \TMS_MODEL {
 				$dbSnsUser = $this->_getDbSnsUser($siteId, $snsName, $snsUser);
 				$modelSiteUser->bindSns($oSiteUser, $snsName, $dbSnsUser);
 			} else if ($oSiteUser->{$snsName . '_openid'} !== $snsUser->openid) {
+				/* 用户先用一个微信号做了访问，注册了账号；切换了微信号，用之前的账号做了登录 */
 				throw new \Exception('数据错误，注册主访客账号已经绑定其他公众号用户');
 			}
 		} else {
@@ -510,12 +511,47 @@ class way_model extends \TMS_MODEL {
 		return $fullUser;
 	}
 	/**
+	 * 检查是否可以切换当前客户端的注册用户
+	 *
+	 * 如果登录账号已经绑定过wx_openid，但是和当前用户的wx_openid不一致，不允许用户登录
+	 *
+	 * @param object $oRegUser
+	 *
+	 */
+	public function canShiftRegUser($oRegUser) {
+		$modelAct = $this->model('site\user\account');
+		/* 处理cookie中已经存在的访客用户信息 */
+		$sites = $this->siteList(true);
+		foreach ($sites as $siteId) {
+			$oRegPrimary = $modelAct->byPrimaryUnionid($siteId, $oRegUser->unionid);
+			if ($oRegPrimary) {
+				$oBeforeCookieuser = $this->getCookieUser($siteId);
+				if ($oBeforeCookieuser) {
+					$oCookieAccount = $modelAct->byId($oBeforeCookieuser->uid);
+					/* 指定站点下，已经存在主访客账号 */
+					if ($oCookieAccount) {
+						if ($oCookieAccount->wx_openid !== $oRegPrimary->wx_openid) {
+							return [false, '1个注册账号，只能够和1个微信号绑定'];
+						}
+					}
+				}
+			}
+		}
+
+		return [true];
+	}
+	/**
 	 * 切换当前客户端的注册用户
 	 *
 	 * @param object $oRegUser
 	 * @param boolean $loadFromDb 是否从数据库中加载访客账号
 	 */
 	public function shiftRegUser($oRegUser, $loadFromDb = true) {
+		$aTestResult = $this->canShiftRegUser($oRegUser);
+		if ($aTestResult[0] === false) {
+			throw new \Exception($aTestResult[1]);
+		}
+
 		$modelAct = $this->model('site\user\account');
 		$current = time();
 		$loginExpire = $current + (86400 * TMS_COOKIE_SITE_LOGIN_EXPIRE);
@@ -578,9 +614,6 @@ class way_model extends \TMS_MODEL {
 						}
 						$oCookieUser->sns->qy = $modelQyFan->byOpenid($account->siteid, $account->qy_openid, 'openid,nickname,headimgurl');
 					}
-					/* 在cookie中保留访客用户信息 */
-					/* 避免cookie过大的问题 */
-					//$this->setCookieUser($account->siteid, $oCookieUser);
 					/* 缓存数据，方便进行后续判断 */
 					$primaryAccounts[$account->siteid] = $oCookieUser;
 				}
@@ -592,15 +625,16 @@ class way_model extends \TMS_MODEL {
 			if (!$beforeCookieuser) {
 				continue;
 			}
-			$account = $modelAct->byId($beforeCookieuser->uid);
+			$oCookieAccount = $modelAct->byId($beforeCookieuser->uid);
 			if (isset($primaryAccounts[$siteId])) {
 				/* 指定站点下，已经存在主访客账号 */
-				if ($account) {
-					if (empty($account->unionid)) {
+				if ($oCookieAccount) {
+					if (empty($oCookieAccount->unionid)) {
+						/* 如果有wx_openid，但是和主注册账号的wx_opendi不一致怎么办？ */
 						/* 作为关联访客账号绑定到注册账号 */
 						$modelAct->update('xxt_site_account', ['unionid' => $oRegUser->unionid], ['uid' => $beforeCookieuser->uid]);
 					} else {
-						if ($account->unionid !== $oRegUser->unionid) {
+						if ($oCookieAccount->unionid !== $oRegUser->unionid) {
 							/* 同一个站点，绑定了不同注册账号，从cookie中清除 */
 							// cookie中对应的数据已经被数据库中的主访客账号覆盖
 						} else {
@@ -618,12 +652,12 @@ class way_model extends \TMS_MODEL {
 				}
 			} else {
 				/* 指定站点下，不存在主访客账号 */
-				if ($account) {
-					if (empty($account->unionid)) {
+				if ($oCookieAccount) {
+					if (empty($oCookieAccount->unionid)) {
 						// 站点下，新的主访客账号
 						$modelAct->update('xxt_site_account', ['unionid' => $oRegUser->unionid, 'is_reg_primary' => 'Y'], ['uid' => $beforeCookieuser->uid]);
 					} else {
-						if ($account->unionid !== $oRegUser->unionid) {
+						if ($oCookieAccount->unionid !== $oRegUser->unionid) {
 							/* 其他注册账号下的站点，当前注册账号没有访问过，从cookie中清除 */
 							$this->cleanCookieUser($siteId);
 						} else {

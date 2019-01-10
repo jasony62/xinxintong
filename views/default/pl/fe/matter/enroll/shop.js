@@ -48,7 +48,7 @@ ngApp.controller('ctrlSysTemplate', ['$scope', '$location', '$uibModal', 'http2'
     $scope.doCreate = function() {
         var url, data;
         var oConfig;
-        url = '/rest/pl/fe/matter/enroll/create?site=' + _siteId;
+        url = '/rest/pl/fe/matter/enroll/create/bySysTemplate?site=' + _siteId;
         if (_missionId) {
             url += '&mission=' + _missionId;
         }

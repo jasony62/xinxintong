@@ -230,162 +230,81 @@ class rank extends base {
 		return new \ResponseData($oResult);
 	}
 	/**
-	 * 记录内容排行榜
+	 * 题目排行榜（仅限单选题）
 	 */
-	public function dataByApp_action($app, $page = 1, $size = 20) {
-		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+	public function schemaByApp_action($app, $schema) {
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
 		if ($oApp === false || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-		// 是否需要分组信息
-		$oAssocGrpSchema = $this->model('matter\enroll\schema')->getAssocGroupSchema($oApp);
-		if ($oAssocGrpSchema) {
-			$aAssocGroups = [];
-			foreach ($oAssocGrpSchema->ops as $op) {
-				$aAssocGroups[$op->v] = $op->l;
-			}
+		$oRankSchema = tms_array_search($oApp->dynaDataSchemas, function ($oSchema) use ($schema) {return $oSchema->id === $schema;});
+		if (false === $oRankSchema) {
+			return new \ObjectNotFoundError('指定的题目不存在');
 		}
+		if ($oRankSchema->type !== 'single' || empty($oRankSchema->ops)) {
+			return new \ParameterError('指定的题目不支持进行排行');
+		}
+		$aSchemaOps = [];
+		array_walk($oRankSchema->ops, function ($oOp) use (&$aSchemaOps) {$aSchemaOps[$oOp->v] = $oOp->l;});
 
 		$oCriteria = $this->getPostJson();
 		if (empty($oCriteria->orderby)) {
 			return new \ParameterError();
 		}
-		$modelData = $this->model('matter\enroll\data');
 
-		$q = [
-			'd.id,d.value,d.enroll_key,d.schema_id,d.agreed,a.headimgurl,d.multitext_seq',
-			"xxt_enroll_record_data d left join xxt_site_account a on d.userid = a.uid and a.siteid = '{$oApp->siteid}'",
-			"d.aid='{$oApp->id}' and d.state=1",
-		];
-		if (!empty($aAssocGroups)) {
-			$q[0] .= ',d.group_id';
-		}
-		if (isset($oCriteria->agreed) && $oCriteria->agreed === 'Y') {
-			$q[2] .= " and d.agreed='Y'";
-		} else {
-			$q[2] .= " and d.multitext_seq = 0";
-		}
-		if (!empty($oCriteria->round)) {
-			if (is_string($oCriteria->round)) {
-				$oCriteria->round = explode(',', $oCriteria->round);
-			}
-			if (!in_array('ALL', $oCriteria->round)) {
-				$whereByRound = ' and rid in("';
-				$whereByRound .= implode('","', $oCriteria->round);
-				$whereByRound .= '")';
-				$q[2] .= $whereByRound;
-			}
-		}
 		switch ($oCriteria->orderby) {
-		case 'remark':
-			$q[0] .= ',d.remark_num';
-			$q[2] .= ' and d.remark_num>0';
-			$q2 = ['o' => 'd.remark_num desc,d.last_remark_at'];
-			break;
-		case 'like':
-			$q[0] .= ',d.like_num';
-			$q[2] .= ' and d.like_num>0';
-			$q2 = ['o' => 'd.like_num desc,d.submit_at'];
-			break;
-		}
-		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
-		$oResult = new \stdClass;
-		$records = $modelData->query_objs_ss($q, $q2);
-		if (count($records)) {
-			// 题目类型
-			$dataSchemas = new \stdClass;
-			if (isset($oApp->dataSchemas)) {
-				foreach ($oApp->dataSchemas as $dataSchema) {
-					$dataSchemas->{$dataSchema->id} = $dataSchema;
-				}
-			}
-
-			$modelRec = $this->model('matter\enroll\record');
-			foreach ($records as $oRecord) {
-				$oRec = $modelRec->byId($oRecord->enroll_key, ['fields' => 'nickname,supplement']);
-				if ($oRec) {
-					$oRecord->nickname = $oRec->nickname;
-					if (isset($oRec->supplement->{$oRecord->schema_id})) {
-						$oRecord->supplement = $oRec->supplement->{$oRecord->schema_id};
-					}
-				}
-				if (!empty($aAssocGroups) && !empty($oRecord->group_id)) {
-					$oRecord->group_title = isset($aAssocGroups[$oRecord->group_id]) ? $aAssocGroups[$oRecord->group_id] : '';
-				}
-				// 处理多项填写题
-				if (isset($oRecord->schema_id) && isset($dataSchemas->{$oRecord->schema_id}) && $dataSchemas->{$oRecord->schema_id}->type === 'multitext' && $oRecord->multitext_seq == 0) {
-					$oRecord->value = empty($oRecord->value) ? [] : json_decode($oRecord->value);
-				}
-			}
-		}
-		$oResult->records = $records;
-
-		$q[0] = 'count(*)';
-		$oResult->total = (int) $modelData->query_val_ss($q);
-
-		return new \ResponseData($oResult);
-	}
-	/**
-	 *
-	 */
-	public function remarkByApp_action($app, $page = 1, $size = 20) {
-		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		if ($oApp === false || $oApp->state !== '1') {
-			return new \ObjectNotFoundError();
-		}
-
-		$oCriteria = $this->getPostJson();
-		$modelRem = $this->model('matter\enroll\remark');
-
-		$q = [
-			'r.id,r.userid,r.nickname,r.content,r.enroll_key,r.schema_id,r.data_id,r.like_num,r.agreed,a.headimgurl',
-			"xxt_enroll_record_remark r left join xxt_site_account a on r.userid = a.uid and a.siteid = '{$oApp->siteid}'",
-			"r.aid='{$oApp->id}' and r.state=1 and r.like_num>0",
-		];
-		if (isset($oCriteria->agreed) && $oCriteria->agreed === 'Y') {
-			$q[2] .= " and r.agreed='Y'";
-		}
-		if (!empty($oCriteria->round)) {
-			if (is_string($oCriteria->round)) {
-				$oCriteria->round = explode(',', $oCriteria->round);
-			}
-			if (!in_array('ALL', $oCriteria->round)) {
-				$whereByRound = ' and rid in("';
-				$whereByRound .= implode('","', $oCriteria->round);
-				$whereByRound .= '")';
-				$q[2] .= $whereByRound;
-			}
-		}
-		$q2 = [
-			'o' => 'r.like_num desc,r.create_at',
-			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
-		];
-
-		$oResult = new \stdClass;
-		$remarks = $modelRem->query_objs_ss($q, $q2);
-		if (count($remarks) && !empty($oApp->entryRule->group->id)) {
+		case 'enroll': // 填写次数
 			$q = [
-				'userid,round_id,round_title',
-				'xxt_group_player',
-				['aid' => $oApp->entryRule->group->id],
+				'value,count(*) num',
+				'xxt_enroll_record_data',
+				['aid' => $oApp->id, 'state' => 1, 'schema_id' => $oRankSchema->id, 'value' => (object) ['op' => '<>', 'pat' => '']],
 			];
-			if ($userGroups = $modelRem->query_objs_ss($q)) {
-				$userGroups2 = new \stdClass;
-				foreach ($userGroups as $userGroup) {
-					$userGroups2->{$userGroup->userid} = new \stdClass;
-					$userGroups2->{$userGroup->userid}->round_id = $userGroup->round_id;
-					$userGroups2->{$userGroup->userid}->round_title = $userGroup->round_title;
-				}
-				foreach ($remarks as $remark) {
-					$remark->group = $userGroups2->{$remark->userid};
-				}
+			if (!empty($oCriteria->round) && is_array($oCriteria->round) && !in_array('ALL', $oCriteria->round)) {
+				$q[2]['rid'] = $oCriteria->round;
 			}
+			$q2 = ['g' => 'value', 'o' => 'num desc'];
+			$oRankResult = $modelApp->query_objs_ss($q, $q2);
+			if (count($oRankResult)) {
+				array_walk($oRankResult, function (&$oData) use ($aSchemaOps) {$oData->l = isset($aSchemaOps[$oData->value]) ? $aSchemaOps[$oData->value] : '!未知';unset($oData->value);});
+			}
+			break;
+		case 'score': // 总得分
+		case 'average_score':
+			$oRankResult = [];
+			$aScoreSchemas = $this->model('matter\enroll\schema')->asAssoc($oApp->dynaDataSchemas, ['filter' => function ($oSchema) {return $this->getDeepValue($oSchema, 'requireScore') === 'Y';}]);
+			if (count($aScoreSchemas)) {
+				$q = [
+					'sum(score) num,count(distinct userid) user_num',
+					'xxt_enroll_record_data rd1',
+					['aid' => $oApp->id, 'state' => 1, 'schema_id' => array_keys($aScoreSchemas)],
+				];
+				if (!empty($oCriteria->round) && is_array($oCriteria->round) && !in_array('ALL', $oCriteria->round)) {
+					$q[2]['rid'] = $oCriteria->round;
+				}
+				foreach ($aSchemaOps as $opv => $opl) {
+					$q[2]['value'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_record_data rd2 where rd1.enroll_key=rd2.enroll_key and rd2.state=1 and rd2.schema_id=\'' . $oRankSchema->id . '\' and rd2.value=\'' . $opv . '\''];
+					$oNum = $modelApp->query_obj_ss($q);
+					$oNum->l = $opl;
+					if ($oCriteria->orderby === 'average_score') {
+						if (!empty($oNum->num) && !empty($oNum->user_num)) {
+							$oNum->num = round((float) ($oNum->num / $oNum->user_num), 2);
+						}
+					}
+					$oRankResult[] = $oNum;
+				}
+				/* 数据排序 */
+				usort($oRankResult, function ($a, $b) {
+					return $a->num < $b->num ? 1 : -1;
+				});
+			} else {
+				return new \ParameterError('活动中没有打分题');
+			}
+			break;
+		default:
+			return new \ParameterError('不支持的排行指标类型【' . $oCriteria->orderby . '】');
 		}
-		$oResult->remarks = $remarks;
 
-		$q[0] = 'count(*)';
-		$oResult->total = (int) $modelRem->query_val_ss($q);
-
-		return new \ResponseData($oResult);
+		return new \ResponseData($oRankResult);
 	}
 }

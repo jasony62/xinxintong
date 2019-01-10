@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRule', ['$scope', 'http2', 'srvEnrollApp', function($scope, http2, srvEnrollApp) {
+    ngApp.provider.controller('ctrlRule', ['$scope', 'http2', 'srvEnrollApp', function($scope, http2, srvEnlApp) {
         var _oApp, logs;
         $scope.page = {};
         $scope.fetchLogs = function() {
@@ -12,12 +12,12 @@ define(['frame'], function(ngApp) {
                 }
             });
         };
-        srvEnrollApp.get().then(function(oApp) {
+        srvEnlApp.get().then(function(oApp) {
             _oApp = oApp;
             $scope.fetchLogs();
         });
     }]);
-    ngApp.provider.controller('ctrlActionRule', ['$scope', 'http2', 'srvEnrollApp', function($scope, http2, srvEnrollApp) {
+    ngApp.provider.controller('ctrlActionRule', ['$scope', 'http2', 'srvEnrollApp', function($scope, http2, srvEnlApp) {
         var _oApp, _oRule;
         $scope.rulesModified = false;
         $scope.save = function() {
@@ -26,7 +26,7 @@ define(['frame'], function(ngApp) {
                 $scope.rulesModified = false;
             });
         };
-        srvEnrollApp.get().then(function(oApp) {
+        srvEnlApp.get().then(function(oApp) {
             _oApp = oApp;
             $scope.rule = _oRule = oApp.actionRule;
             $scope.$watch('rule', function(nv, ov) {
@@ -36,7 +36,7 @@ define(['frame'], function(ngApp) {
             }, true);
         });
     }]);
-    ngApp.provider.controller('ctrlCoinRule', ['$scope', 'http2', 'srvEnrollApp', function($scope, http2, srvEnrollApp) {
+    ngApp.provider.controller('ctrlCoinRule', ['$scope', 'http2', 'srvEnrollApp', function($scope, http2, srvEnlApp) {
 
         function fetchAppRules() {
             var url;
@@ -147,11 +147,98 @@ define(['frame'], function(ngApp) {
                 $scope.rulesModified = false;
             });
         };
-        srvEnrollApp.get().then(function(oApp) {
+        srvEnlApp.get().then(function(oApp) {
             _oApp = oApp;
             fetchAppRules();
             if (_oApp.mission) {
                 fetchMissionRules();
+            }
+        });
+    }]);
+    ngApp.provider.controller('ctrlExportRule', ['$scope', 'noticebox', 'http2', 'srvEnrollApp', 'tkEnrollApp', function($scope, noticebox, http2, srvEnlApp, tkEnlApp) {
+        function fnWatchConfig(oConfig) {
+            var $configScope;
+            $configScope = $scope.$new(true);
+            $configScope.config = oConfig;
+            if (oConfig.id)
+                _oConfigsModified[oConfig.id] = false;
+            $configScope.$watch('config', function(nv, ov) {
+                if (nv && nv !== ov && nv.id) {
+                    _oConfigsModified[nv.id] = true;
+                }
+            }, true);
+        }
+
+        var _aConfigs, _oConfigsModified, _oTargetDataSchemas, _aSourceDataSchemas;
+        $scope.configs = _aConfigs = [];
+        $scope.configsModified = _oConfigsModified = {};
+        $scope.sourceDataSchemas = _aSourceDataSchemas = [];
+        $scope.targetDataSchemas = _oTargetDataSchemas = {};
+        $scope.addConfig = function() {
+            _aConfigs.push({});
+        };
+        $scope.delConfig = function(oConfig) {
+            noticebox.confirm('删除填写记录转发设置，确定？').then(function() {
+                if (oConfig.id) {
+                    http2.post('/rest/pl/fe/matter/enroll/updateTransmitConfig?app=' + $scope.app.id, { method: 'delete', data: oConfig }).then(function() {
+                        _aConfigs.splice(_aConfigs.indexOf(oConfig), 1);
+                        delete _oConfigsModified[oConfig.id];
+                    });
+                } else {
+                    _aConfigs.splice(_aConfigs.indexOf(oConfig), 1);
+                }
+            });
+        };
+        $scope.save = function(oConfig) {
+            http2.post('/rest/pl/fe/matter/enroll/updateTransmitConfig?app=' + $scope.app.id, { method: 'save', data: oConfig }).then(function(rsp) {
+                http2.merge(oConfig, rsp.data);
+                fnWatchConfig(oConfig);
+                noticebox.success('保存成功！');
+            });
+        };
+        $scope.pickApp = function(oConfig) {
+            tkEnlApp.choose($scope.app).then(function(oTargetApp) {
+                var dataSchemas;
+                oConfig.app = { id: oTargetApp.id, title: oTargetApp.title };
+                if (oTargetApp.data_schemas) {
+                    dataSchemas = [];
+                    oTargetApp.dataSchemas = JSON.parse(oTargetApp.data_schemas);
+                    oTargetApp.dataSchemas.forEach(function(oSchema) {
+                        if (!/html/.test(oSchema.type)) {
+                            dataSchemas.push(oSchema);
+                        }
+                    });
+                    _oTargetDataSchemas[oTargetApp.id] = dataSchemas;
+                }
+            });
+        };
+        srvEnlApp.get().then(function(oApp) {
+            if (oApp) {
+                if (oApp.dataSchemas && oApp.dataSchemas.length) {
+                    oApp.dataSchemas.forEach(function(oSchema) {
+                        if (!/html/.test(oSchema.type)) {
+                            _aSourceDataSchemas.push(oSchema);
+                        }
+                    });
+                }
+                if (oApp.transmitConfig && oApp.transmitConfig.length) {
+                    oApp.transmitConfig.forEach(function(oConfig, index) {
+                        var oCopied;
+                        oCopied = angular.copy(oConfig);
+                        _aConfigs.push(oCopied);
+                        fnWatchConfig(oCopied);
+                        tkEnlApp.get(oCopied.app.id).then(function(oTargetApp) {
+                            var dataSchemas;
+                            dataSchemas = [];
+                            oTargetApp.dataSchemas.forEach(function(oSchema) {
+                                if (!/html/.test(oSchema.type)) {
+                                    dataSchemas.push(oSchema);
+                                }
+                            });
+                            _oTargetDataSchemas[oTargetApp.id] = dataSchemas;
+                        });
+                    });
+                }
             }
         });
     }]);

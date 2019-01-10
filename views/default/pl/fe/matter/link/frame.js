@@ -73,8 +73,6 @@ define(['require'], function() {
         });
         srvSite.snsList().then(function(oSns) {
             $scope.sns = oSns;
-            $scope.snsNames = Object.keys(oSns);
-            $scope.snsCount = Object.keys(oSns).length;
         });
         http2.get('/rest/pl/fe/matter/link/get?site=' + $scope.siteId + '&id=' + $scope.id).then(function(rsp) {
             $scope.editing = rsp.data;

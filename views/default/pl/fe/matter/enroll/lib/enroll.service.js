@@ -400,10 +400,10 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                     });
                     return deferred.promise;
                 },
-                renewScore: function(rid) {
+                renewScoreByRound: function(rid) {
                     var url, defer;
 
-                    url = '/rest/pl/fe/matter/enroll/record/renewScore';
+                    url = '/rest/pl/fe/matter/enroll/record/renewScoreByRound';
                     url += '?app=' + _appId;
                     if (rid) url += '&rid=' + rid;
                     defer = $q.defer();
@@ -497,6 +497,15 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
         this.remove = function(oApp, oRound) {
             var url = '/rest/pl/fe/matter/enroll/round/remove?app=' + oApp.id + '&rid=' + oRound.rid;
             return http2.get(url);
+        };
+        this.list = function(oApp, oPage) {
+            var url, defer;
+            defer = $q.defer();
+            url = '/rest/pl/fe/matter/enroll/round/list?app=' + oApp.id;
+            http2.get(url, { page: oPage }).then(function(rsp) {
+                defer.resolve(rsp.data);
+            });
+            return defer.promise;
         };
     }]);
     ngModule.provider('srvEnrollRound', function() {
@@ -787,6 +796,31 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                     url = '/rest/pl/fe/matter/enroll/record/batchVerify?app=' + _appId;
                     return _ins._bBatchVerify(rows, url);
                 }
+            };
+            _ins.renewScore = function(oTmsRows) {
+                function fnRenewScore(i) {
+                    if (i < eks.length) {
+                        http2.get(url + '&ek=' + eks[i]).then(function(rsp) {
+                            noticebox.success('第【' + (i + 1) + '】条记录更新完成');
+                            fnRenewScore(++i);
+                        });
+                    } else {
+                        defer.resolve();
+                    }
+                }
+                var eks, defer, url;
+
+                defer = $q.defer();
+                eks = oTmsRows.walk(_ins._aRecords, function(oRec) { return oRec.enroll_key; });
+                if (eks.length) {
+                    url = '/rest/pl/fe/matter/enroll/record/renewScore';
+                    url += '?app=' + _appId;
+                    fnRenewScore(0);
+                } else {
+                    defer.reject();
+                }
+
+                return defer.promise;
             };
             _ins.notify = function(rows) {
                 var options = {
@@ -1091,7 +1125,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                         });
                     });
                 }
-                
+
                 return defer.promise;
             };
             _ins.transferVotes = function(oApp) {
@@ -1353,9 +1387,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                         $scope2.ok = function() {
                             $mi.close(oResult);
                         };
-                        $scope2.cancel = function() {
-                            $mi.dismiss('cancel');
-                        };
+                        $scope2.cancel = function() { $mi.dismiss(); };
                         $scope2.doFilter = function() {
                             oPage.at = 1;
                             $scope2.doSearch();
@@ -1565,6 +1597,9 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
             }, {
                 value: 'site.matter.enroll.remark.as.cowork',
                 title: '将用户留言设置为协作记录'
+            }, {
+                value: 'site.matter.enroll.schema.get.vote',
+                title: '投票'
             }];
         };
         this.$get = ['$q', 'http2', '$uibModal', function($q, http2, $uibModal) {

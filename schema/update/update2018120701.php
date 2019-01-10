@@ -3,7 +3,7 @@ require_once '../../db.php';
 
 $sqls = [];
 //
-$sqls[] = "ALTER TABLE xxt_short_url_token change code code varchar(40) not null";
+$sqls[] = "ALTER TABLE xxt_enroll add transmit_config text null after vote_config";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

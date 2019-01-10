@@ -29,7 +29,8 @@ class main extends base {
 		if ($oApp === false || $oApp->state !== '1') {
 			$this->outputError('指定的记录活动不存在，请检查参数是否正确');
 		}
-		if (empty($oApp->appRound)) {
+
+		if (!empty($page) && !in_array($page, ['rank', 'stat']) && empty($oApp->appRound)) {
 			$this->outputError('【' . $oApp->title . '】没有可用的填写轮次，请检查');
 		}
 
@@ -77,6 +78,7 @@ class main extends base {
 			if (empty($page)) {
 				/* 计算打开哪个页面 */
 				$oOpenPage = $this->_defaultPage($oApp, $rid, true, $ignoretime);
+				$page = $oOpenPage->name;
 			} else {
 				$oOpenPage = $this->model('matter\enroll\page')->byName($oApp, $page);
 			}
@@ -95,9 +97,13 @@ class main extends base {
 			}
 		}
 
-		$user = $this->who;
-		if (isset($user->unionid)) {
-			$oAccount = $this->model('account')->byId($user->unionid, ['cascaded' => ['group']]);
+		if (!empty($page) && !in_array($page, ['rank', 'stat']) && empty($oApp->appRound)) {
+			$this->outputError('【' . $oApp->title . '】没有可用的填写轮次，请检查');
+		}
+
+		$oUser = $this->who;
+		if (isset($oUser->unionid)) {
+			$oAccount = $this->model('account')->byId($oUser->unionid, ['cascaded' => ['group']]);
 			if (isset($oAccount->group->view_name) && $oAccount->group->view_name !== TMS_APP_VIEW_NAME) {
 				\TPL::output($outputUrl, ['customViewName' => $oAccount->group->view_name]);
 				exit;
@@ -214,7 +220,7 @@ class main extends base {
 		if ($oOpenPage === null) {
 			// 根据登记状态确定进入页面
 			$modelRec = $this->model('matter\enroll\record');
-			$userEnrolled = $modelRec->lastByUser($oApp, $oUser, ['rid' => $rid]);
+			$userEnrolled = $modelRec->lastByUser($oApp, $oUser, ['state' => '1', 'rid' => $rid]);
 			if ($userEnrolled) {
 				if (empty($oApp->enrolled_entry_page)) {
 					$pages = $modelPage->byApp($oApp->id);
@@ -272,8 +278,6 @@ class main extends base {
 		if (isset($oApp->appRound->rid)) {
 			$rid = $oApp->appRound->rid;
 		}
-		unset($oApp->round_cron);
-		unset($oApp->rp_config);
 		$params['app'] = $oApp;
 
 		/* 当前访问用户的基本信息 */
@@ -340,12 +344,14 @@ class main extends base {
 			$oGrpApp = (object) ['id' => $assocGroupAppId];
 			$oGrpUsr = $modelGrpUsr->byUser($oGrpApp, $oUser->uid, ['fields' => 'is_leader,round_id,round_title,userid,nickname', 'onlyOne' => true]);
 			if ($oGrpUsr) {
-				$others = $modelGrpUsr->byRound($oGrpApp->id, $oGrpUsr->round_id, ['fields' => 'is_leader,userid,nickname']);
 				$params['groupUser'] = $oGrpUsr;
 				$params['groupOthers'] = [];
-				foreach ($others as $other) {
-					if ($other->userid !== $oGrpUsr->userid) {
-						$params['groupOthers'][] = $other;
+				if (!empty($oGrpUsr->round_id)) {
+					$others = $modelGrpUsr->byRound($oGrpApp->id, $oGrpUsr->round_id, ['fields' => 'is_leader,userid,nickname']);
+					foreach ($others as $other) {
+						if ($other->userid !== $oGrpUsr->userid) {
+							$params['groupOthers'][] = $other;
+						}
 					}
 				}
 			}

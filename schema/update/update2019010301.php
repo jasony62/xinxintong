@@ -3,7 +3,7 @@ require_once '../../db.php';
 
 $sqls = [];
 //
-$sqls[] = "ALTER TABLE xxt_enroll_record add like_data_num int not null default 0";
+$sqls[] = "ALTER TABLE xxt_site_account add user_agent text null";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

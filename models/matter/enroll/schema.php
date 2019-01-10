@@ -30,7 +30,7 @@ class schema_model extends \TMS_MODEL {
 	 * mschema_id 通讯录id
 	 */
 	public function purify($aAppSchemas) {
-		$validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'shareable', 'supplement', 'history', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'hideByRoundPurpose', 'optGroups', 'defaultValue', 'cowork', 'filterWhiteSpace', 'ops', 'mschema_id', 'asdir'];
+		$validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'shareable', 'supplement', 'history', 'historyAssoc', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'hideByRoundPurpose', 'optGroups', 'defaultValue', 'cowork', 'filterWhiteSpace', 'ops', 'mschema_id', 'asdir', 'scoreApp'];
 		$validPropsBySchema = [
 			'html' => ['id', 'type', 'content', 'title', 'visibility', 'hideByRoundPurpose'],
 		];
@@ -103,7 +103,8 @@ class schema_model extends \TMS_MODEL {
 							$oSchema->weight = 1;
 						} else if (!is_numeric($oSchema->weight)) {
 							/* 检查是否为可运行的表达式 */
-							if (false === $this->scoreByWeight($oSchema->weight, 5)) {
+							$aCheckResult = $this->scoreByWeight($oSchema, 5);
+							if (false === $aCheckResult[0]) {
 								$oSchema->weight = 1;
 							}
 						}
@@ -266,6 +267,44 @@ class schema_model extends \TMS_MODEL {
 					}
 				}
 			}
+			/* 答案题 */
+			if (isset($oSchema->answer)) {
+				switch ($oSchema->type) {
+				case 'single':
+					if (!is_string($oSchema->answer)) {
+						unset($oSchema->answer);
+					} else {
+						$bExistent = false;
+						foreach ($oSchema->ops as $op) {
+							if ($oSchema->answer === $op->v) {
+								$bExistent = true;
+								break;
+							}
+						}
+						if (false === $bExistent) {
+							unset($oSchema->answer);
+						}
+					}
+					break;
+				case 'multiple':
+					if (!is_array($oSchema->answer)) {
+						unset($oSchema->answer);
+					} else {
+						$aCheckedAnswer = [];
+						foreach ($oSchema->answer as $a) {
+							foreach ($oSchema->ops as $op) {
+								if ($a === $op->v && !in_array($a, $aCheckedAnswer)) {
+									$aCheckedAnswer[] = $a;
+									break;
+								}
+							}
+						}
+						$oSchema->answer = $aCheckedAnswer;
+					}
+					break;
+				}
+			}
+
 			$purified[] = $oSchema;
 		}
 
@@ -296,101 +335,117 @@ class schema_model extends \TMS_MODEL {
 	/**
 	 * 根据权重表达式计算得分
 	 *
+	 * @param array $aOptimizedFormulas
+	 *
 	 * 如果权重设置不符合要求返回false
 	 * 如果计算后的得分小于0，得分记为0
 	 *
+	 * 用分号（;）分割每1条子规则；
+	 * 子规则可以用?分割条件和计算方法；
+
+	 * 内置的公式：min,max
+	 *
 	 */
-	public function scoreByWeight($weight, $x) {
-		if (empty($weight) || empty($x) || !is_numeric($x)) {
-			return false;
+	public function scoreByWeight($oSchema, $x, &$oContext = null) {
+		if (empty($oSchema->weight) || empty($x) || !is_numeric($x)) {
+			return [false];
 		}
+
+		$weight = $oSchema->weight;
 		if (is_numeric($weight)) {
 			return $weight * $x;
 		}
+		$aOptimizedFormulas = (isset($oContext->optimizedFormulas) && is_array($oContext->optimizedFormulas)) ? $oContext->optimizedFormulas : null;
+
 		if (is_string($weight)) {
-			/* 解析权重公式 */
-			$stackCases = [];
-			$cases = explode(';', $weight);
-			foreach ($cases as $cn => $case) {
-				list($condition, $equation) = (strpos($case, '?') ? explode('?', $case) : ['', $case]);
-				/* 适用条件 */
-				$stackCondition = [(string) $x, '', ''];
-				if (isset($condition)) {
-					$index = 0;
-					$length = strlen($condition);
-					while ($index < $length) {
-						$char = $condition[$index];
-						if (in_array($char, ['>', '<', '='])) {
-							if (!empty($stackCondition[2])) {
-								return false;
-							}
-							$stackCondition[1] .= $char;
-						} else if (is_numeric($char)) {
-							$stackCondition[2] .= $char;
-						} else {
-							return false;
-						}
-						$index++;
+			if (!isset($aOptimizedFormulas[$oSchema->id])) {
+				/* 解析权重公式 */
+				$stackCases = [];
+				$cases = explode(';', $weight);
+				foreach ($cases as $cn => $case) {
+					list($condition, $equation) = (strpos($case, '?') ? explode('?', $case) : ['', $case]);
+					if (empty($equation)) {
+						return [false];
 					}
-					if ($stackCondition[1] === '=') {
-						$stackCondition[1] = '===';
-					}
-				}
-				/* 计算公式 */
-				$stackEquation = [];
-				if (is_numeric($equation)) {
-					$stackEquation[] = $equation;
-				} else {
-					$index = 0;
-					$length = strlen($equation);
-					$stackNumber = (string) $x;
-					while ($index < $length) {
-						$char = $equation[$index];
-						if (in_array($char, ['+', '-', '*', '/'])) {
-							if (empty($stackNumber)) {
-								return false;
-							}
-							$stackEquation[] = $stackNumber;
-							$stackEquation[] = $char;
-							$stackNumber = '';
-							$index++;
-						} else if (is_numeric($char)) {
-							$stackNumber .= $char;
-							$index++;
-							if ($index === $length) {
-								if (!empty($stackNumber)) {
-									$stackEquation[] = $stackNumber;
-									break;
+					/* 适用条件 */
+					$stackCondition = [(string) $x, '', ''];
+					if (isset($condition)) {
+						$index = 0;
+						$length = strlen($condition);
+						while ($index < $length) {
+							$char = $condition[$index];
+							if (in_array($char, ['>', '<', '='])) {
+								if (!empty($stackCondition[2])) {
+									return [false];
 								}
+								$stackCondition[1] .= $char;
+							} else if (is_numeric($char)) {
+								$stackCondition[2] .= $char;
+							} else {
+								return [false];
 							}
-						} else {
-							return false;
+							$index++;
+						}
+						if ($stackCondition[1] === '=') {
+							$stackCondition[1] = '===';
 						}
 					}
+					/* 计算公式 */
+					if (is_numeric($equation)) {
+						$equation = 'x*' . $equation;
+					} else {
+						require_once dirname(__FILE__) . '/formula.php';
+
+						/* 检查是否存在内置函数，如果有，计算后替换 */
+						$equation = formula::calcAndReplaceInnerFunc($equation, $oSchema, $oContext);
+
+						/* 处理省略x的公式 */
+						if (false === strpos($equation, 'x')) {
+							if (in_array($equation[0], ['+', '-', '*', '/'])) {
+								$equation = 'x' . $equation;
+							} else if ($equation[0] === '(') {
+								$equation = 'x*' . $equation;
+							}
+						}
+						if (empty(formula::parse_exp($equation))) {
+							return [false];
+						}
+					}
+					// 全部计算规则
+					$stackCases[] = [$stackCondition, $equation];
 				}
-				// 全部计算规则
-				$stackCases[] = [$stackCondition, $stackEquation];
+				/* 保存计算后的结果，避免重复计算 */
+				if (isset($aOptimizedFormulas) && is_array($aOptimizedFormulas)) {
+					$aOptimizedFormulas[$oSchema->id] = $stackCases;
+				}
+			} else {
+				$stackCases = $aOptimizedFormulas[$oSchema->id];
 			}
+
 			if (empty($stackCases)) {
-				return false;
+				return [false];
 			}
 			foreach ($stackCases as $aCase) {
+				/* 适用条件 */
 				if (strlen($aCase[0][1]) && strlen($aCase[0][2])) {
 					if (false === eval('return ' . implode('', $aCase[0]) . ';')) {
 						continue;
 					}
 				}
-				$score = eval('return ' . implode('', $aCase[1]) . ';');
+				/* 计算公式 */
+				require_once dirname(__FILE__) . '/formula.php';
+				$score = formula::calculate($aCase[1], ['x' => $x]);
 			}
 			if (!isset($score)) {
-				return false;
+				return [true, false];
 			}
 
-			return $score;
+			return [true, $score];
 		}
 
-		return false;
+		return [false];
 	}
+
 	/**
 	 * 去除和其他活动的题目的关联
 	 */
@@ -561,8 +616,12 @@ class schema_model extends \TMS_MODEL {
 					"xxt_enroll_record_data t0",
 					['state' => 1, 'aid' => $oSchema->dsSchema->app->id, 'schema_id' => $oTargetSchema->id],
 				];
+				if ($oTargetSchema->type === 'multitext') {
+					$q[2]['multitext_seq'] = (object) ['op' => '>', 'pat' => 0];
+				}
 				/* 设置轮次条件 */
 				if (!empty($oDsAppRnd)) {
+					/* 如果被评论了，作为当前轮次 */
 					$q[2]['rid'] = (object) ['op' => 'or', 'pat' => ["rid='{$oDsAppRnd->rid}'", "exists (select 1 from xxt_enroll_record_remark rr where t0.enroll_key=rr.enroll_key and rr.state=1 and rr.rid='{$oDsAppRnd->rid}')"]];
 				}
 				/* 设置过滤条件 */
@@ -583,18 +642,35 @@ class schema_model extends \TMS_MODEL {
 				}
 				/* 处理数据 */
 				$datas = $this->query_objs_ss($q);
-				foreach ($datas as $index => $oRecData) {
-					$oNewDynaSchema = clone $oSchema;
-					$oNewDynaSchema->cloneSchema = (object) ['id' => $oSchema->id, 'title' => $oSchema->title];
-					$oNewDynaSchema->id = 'dyna' . $oRecData->id;
-					$oNewDynaSchema->title = $oRecData->value;
-					$oNewDynaSchema->dynamic = 'Y';
-					/* 记录题目的数据来源 */
-					$oNewDynaSchema->referRecord = (object) [
-						'schema' => (object) ['id' => $oTargetSchema->id, 'type' => $oTargetSchema->type, 'title' => $oTargetSchema->title],
-						'ds' => (object) ['ek' => $oRecData->enroll_key, 'user' => $oRecData->userid, 'nickname' => $oRecData->nickname],
-					];
-					$dynaSchemasByIndex[$schemaIndex][] = $oNewDynaSchema;
+				if (count($datas)) {
+					$modelRec = $this->model('matter\enroll\record');
+					$modelSch = $this->model('matter\enroll\schema');
+					$aRecordCache = [];
+					// 表示记录的题目
+					$aLabelSchemas = $this->asAssoc($oTargetApp->dynaDataSchemas, ['filter' => function ($oDynaSchema) {return $oDynaSchema->type !== 'multitext' && $this->getDeepValue($oDynaSchema, 'shareable') === 'Y';}]);
+					foreach ($datas as $index => $oRecData) {
+						if (!isset($aRecordCache[$oRecData->enroll_key])) {
+							$oRecord = $modelRec->byId($oRecData->enroll_key, ['fields' => 'data']);
+							$aRecordCache[$oRecData->enroll_key] = $oRecord;
+						} else {
+							$oRecord = $aRecordCache[$oRecData->enroll_key];
+						}
+						$oNewDynaSchema = clone $oSchema;
+						$oNewDynaSchema->cloneSchema = (object) ['id' => $oSchema->id, 'title' => $oSchema->title];
+						$oNewDynaSchema->id = 'dyna' . $oRecData->id;
+						if ($oTargetSchema->type === 'multitext') {
+							$oNewDynaSchema->title = $modelSch->strRecData($oRecord->data, $aLabelSchemas) . ' : ' . $oRecData->value;
+						} else {
+							$oNewDynaSchema->title = $oRecData->value;
+						}
+						$oNewDynaSchema->dynamic = 'Y';
+						/* 记录题目的数据来源 */
+						$oNewDynaSchema->referRecord = (object) [
+							'schema' => (object) ['id' => $oTargetSchema->id, 'type' => $oTargetSchema->type, 'title' => $oTargetSchema->title],
+							'ds' => (object) ['ek' => $oRecData->enroll_key, 'data_id' => $oRecData->id, 'user' => $oRecData->userid, 'nickname' => $oRecData->nickname],
+						];
+						$dynaSchemasByIndex[$schemaIndex][] = $oNewDynaSchema;
+					}
 				}
 			}
 		};
@@ -788,6 +864,9 @@ class schema_model extends \TMS_MODEL {
 						} else {
 							$fnMakeDynaSchemaByData($oSchema, $oDsAppRnd, $schemaIndex, $dynaSchemasByIndex);
 						}
+						break;
+					case 'multitext':
+						$fnMakeDynaSchemaByData($oSchema, $oDsAppRnd, $schemaIndex, $dynaSchemasByIndex);
 						break;
 					case 'score':
 						$fnMakeDynaSchemaByScore($oSchema, $oDsAppRnd, $schemaIndex, $dynaSchemasByIndex);
@@ -1035,68 +1114,9 @@ class schema_model extends \TMS_MODEL {
 		return $aResult;
 	}
 	/**
-	 * 需要进行投票的题目
-	 */
-	public function getCanVote($oApp, $oRound = null) {
-		if (!isset($oApp->dynaDataSchemas) || !isset($oApp->voteConfig)) {
-			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,vote_config']);
-		}
-		if (empty($oRound)) {
-			$oRound = $oApp->appRound;
-		}
-
-		$fnValidConfig = function ($oVoteConfig) use ($oRound) {
-			if (empty($oVoteConfig->schemas)) {
-				return [false];
-			}
-			$current = time();
-			if ($oStartRule = $this->getDeepValue($oVoteConfig, 'start.time')) {
-				if ($this->getDeepValue($oStartRule, 'mode') === 'after_round_start_at') {
-					if ($this->getDeepValue($oStartRule, 'unit') === 'hour') {
-						$afterHours = (int) $this->getDeepValue($oStartRule, 'value');
-						if (empty($oRound->start_at) || ($current < $oRound->start_at + ($afterHours * 3600))) {
-							return [true, 'BS'];
-						}
-					}
-				}
-			}
-			if ($oEndRule = $this->getDeepValue($oVoteConfig, 'end.time')) {
-				if ($this->getDeepValue($oEndRule, 'mode') === 'after_round_start_at') {
-					if ($this->getDeepValue($oEndRule, 'unit') === 'hour') {
-						$afterHours = (int) $this->getDeepValue($oEndRule, 'value');
-						if (empty($oRound->start_at) || ($current > $oRound->start_at + ($afterHours * 3600))) {
-							return [true, 'AE'];
-						}
-					}
-				}
-			}
-
-			return [true, 'IP'];
-		};
-		$aVoteSchemas = [];
-		foreach ($oApp->voteConfig as $oVoteConfig) {
-			$aValid = $fnValidConfig($oVoteConfig);
-			if (false === $aValid[0]) {
-				continue;
-			}
-			foreach ($oApp->dynaDataSchemas as $oSchema) {
-				if (in_array($oSchema->id, $oVoteConfig->schemas)) {
-					$oVoteRule = new \stdClass;
-					$oVoteRule->state = $aValid[1];
-					$oVoteRule->limit = $this->getDeepValue($oVoteConfig, 'limit.num', 0);
-					$oVoteRule->groups = $this->getDeepValue($oVoteConfig, 'role.groups');
-					$oSchema->vote = $oVoteRule;
-					$aVoteSchemas[$oSchema->id] = $oSchema;
-				}
-			}
-		}
-
-		return $aVoteSchemas;
-	}
-	/**
 	 * 转换为关联数组的形式
 	 */
-	public function asAssoc($schemas, $aOptions = []) {
+	public function asAssoc($schemas, $aOptions = [], $bOnlyFirst = false) {
 		if (isset($aOptions['filter']) && is_callable($aOptions['filter'])) {
 			$fnFilter = $aOptions['filter'];
 		}
@@ -1104,6 +1124,9 @@ class schema_model extends \TMS_MODEL {
 		foreach ($schemas as $oSchema) {
 			if (!isset($fnFilter) || $fnFilter($oSchema)) {
 				$aSchemas[$oSchema->id] = $oSchema;
+				if (true === $bOnlyFirst) {
+					break;
+				}
 			}
 		}
 
@@ -1154,11 +1177,14 @@ class schema_model extends \TMS_MODEL {
 					break;
 				case 'multitext':
 					if (is_array($schemaData) && count($schemaData)) {
+						/* 根题目 */
 						for ($i = count($schemaData) - 1; $i >= 0; $i--) {
 							if (empty($fnDataFilter) || $fnDataFilter($schemaData[$i]->id)) {
 								$str .= $schemaData[$i]->value;
 							}
 						}
+					} else if (is_string($schemaData)) {
+						$str .= $schemaData;
 					}
 					break;
 				}

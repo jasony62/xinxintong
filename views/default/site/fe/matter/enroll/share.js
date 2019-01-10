@@ -1,7 +1,7 @@
 'use strict';
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsShare', 'http2', function($scope, $sce, $q, LS, tmsSnsShare, http2) {
+ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsShare', 'http2', 'enlService', function($scope, $sce, $q, LS, tmsSnsShare, http2, enlService) {
     function fnSetSnsShare(oApp, message, anchor) {
         function fnReadySnsShare() {
             if (window.__wxjs_environment === 'miniprogram') {
@@ -109,14 +109,18 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var oEditor;
         _oApp = params.app;
-        _oUser = params.user;
+/*        _oUser = params.user;*/
+        /* 用户信息 */
+        enlService.user().then(function(data) {
+            _oUser = data;
+            if (oEditor && _oUser.is_editor === 'Y') {
+                _oOptions.canEditorAsInviter = true;
+            }
+        });
         if (_oApp.actionRule && _oApp.actionRule.role && _oApp.actionRule.role.editor) {
             if (_oApp.actionRule.role.editor.group && _oApp.actionRule.role.editor.nickname) {
                 oEditor = _oApp.actionRule.role.editor;
             }
-        }
-        if (oEditor && _oUser.is_editor === 'Y') {
-            _oOptions.canEditorAsInviter = true;
         }
         if (LS.s().data) {
             http2.get(LS.j('data/get', 'site', 'ek', 'data')).then(function(rsp) {

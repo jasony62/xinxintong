@@ -1,9 +1,9 @@
 <?php
 require_once '../../db.php';
 
+$sqls = [];
 //
-$sqls[] = "ALTER TABLE xxt_mission add wxacode_url text null";
-$sqls[] = "ALTER TABLE xxt_enroll add wxacode_url text null";
+$sqls[] = "ALTER TABLE xxt_enroll add question_config text null after score_config";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

@@ -253,7 +253,6 @@ class proxy_model extends \sns\proxybase {
 		if ($rst[0] === false) {
 			return $rst;
 		}
-
 		$openid = $rst[1]->openid;
 		/* 获得用户的其它信息 */
 		if (false !== strpos($rst[1]->scope, 'snsapi_userinfo')) {

@@ -1,16 +1,33 @@
 <div class="modal-header">
     <button class="close" type="button" ng-click="cancel()">×</button>
-    <h5 class="modal-title">关联记录活动</h5>
+    <h5 class="modal-title">选择记录活动</h5>
 </div>
 <div class="modal-body">
     <form class="form-horizontal">
         <div class='form-group'>
-            <label class="col-md-3 control-label">目标活动</label>
+            <label class="col-md-3 control-label">查找活动</label>
             <div class="col-md-9 ">
-                <select class="form-control" ng-model="data.app" ng-options="app.title for app in apps"></select>
+                <div class='input-group'>
+                    <input type='text' class="form-control" ng-model="result.title" placeholder='输入活动名称' autofocus>
+                    <div class='input-group-btn'>
+                        <button class='btn btn-default' ng-click="doSearch()"><span class='glyphicon glyphicon-search'></span></button>
+                    </div>
+                </div>
                 <div class='checkbox' ng-if="app.mission ">
                     <label>
-                        <input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'"> 选择同一个项目中的活动</label>
+                        <input type='checkbox' ng-model="result.sameMission" ng-true-value="'Y'" ng-false-value="'N'"> 选择同一个项目中的活动</label>
+                </div>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class="col-md-3 control-label">目标活动</label>
+            <div class="col-md-9 ">
+                <select class="form-control" ng-model="result.app" ng-options="app.title for app in apps" size='12'></select>
+                <div class='form-group'></div>
+                <div ng-if="page.total>page.size">
+                    <div class='pl-pagination'>
+                        <ul class='pagination-sm' uib-pagination boundary-links="false" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+                    </div>
                 </div>
             </div>
         </div>

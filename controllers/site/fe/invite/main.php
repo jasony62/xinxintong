@@ -79,11 +79,11 @@ class main extends \site\fe\base {
 	/**
 	 * 根据邀请的编码获得邀请
 	 */
-	public function get_action($code) {
-		$code = $this->escape($code);
+	public function get_action($inviteCode) {
+		$inviteCode = $this->escape($inviteCode);
 
 		$modelInv = $this->model('invite')->setOnlyWriteDbConn(true);
-		$oInvite = $modelInv->byCode($code);
+		$oInvite = $modelInv->byCode($inviteCode);
 		if (empty($oInvite->matter_type) || empty($oInvite->matter_id)) {
 			return new \ResponseError('邀请没有指定的素材');
 		}

@@ -613,7 +613,7 @@ class data_model extends entity_model {
 			$items = $this->query_objs_ss($q, $q2);
 			if (count($items)) {
 				$oItem = $items[0];
-				if (isset($oSchema->rankScoreAbove) && is_number($oSchema->rankScoreAbove) && $oItem->score <= $oSchema->rankScoreAbove) {
+				if (isset($oSchema->rankScoreAbove) && is_numeric($oSchema->rankScoreAbove) && $oItem->score <= $oSchema->rankScoreAbove) {
 					$this->update('xxt_enroll_record_data', ['score_rank' => 0], ['id' => $oItem->id]);
 				} else {
 					$rank = 1;
@@ -622,7 +622,7 @@ class data_model extends entity_model {
 				}
 				for ($i = 1, $l = count($items); $i < $l; $i++) {
 					$oItem = $items[$i];
-					if (isset($oSchema->rankScoreAbove) && is_number($oSchema->rankScoreAbove) && $oItem->score <= $oSchema->rankScoreAbove) {
+					if (isset($oSchema->rankScoreAbove) && is_numeric($oSchema->rankScoreAbove) && $oItem->score <= $oSchema->rankScoreAbove) {
 						$this->update('xxt_enroll_record_data', ['score_rank' => 0], ['id' => $oItem->id]);
 					} else {
 						if ($oItem->score < $lastScore) {

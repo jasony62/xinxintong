@@ -10,7 +10,7 @@ class search_model extends \TMS_MODEL {
 	public function listUserSearch($oApp, $oUser, $options= []) {
 		$q = [
 			'us.*,s.keyword',
-			'xxt_enroll_user_search us,xxt_enroll_search s'
+			'xxt_enroll_user_search us,xxt_enroll_search s',
 			"us.aid = '{$oApp->id}' and us.userid = '{$oUser->uid}' and us.state = 1 and us.search_id = s.id and s.state = 1"
 		];
 
@@ -45,16 +45,16 @@ class search_model extends \TMS_MODEL {
 		$agreedSearchs = $this->query_objs_ss($q2, $p2);
 
 		$searchs = new \stdClass;
-		$searchs->userSearchs = $userSearchs;
-		$searchs->agreedSearchs = $agreedSearchs;
+		$searchs->userSearch = $userSearchs;
+		$searchs->agreedSearch = $agreedSearchs;
 		return $searchs;
 	}
 	/**
 	 *
 	 */
 	public function addUserSearch($oApp, $oUser, $keyword) {
-		$oldSearch = $this->byKeyword($oApp->aid, $keyword, ['cascaded' => false]);
-		if ($oldSearch === false) {
+		$search = $this->byKeyword($oApp->id, $keyword, ['cascaded' => false]);
+		if ($search === false) {
 			$search = $this->addSearch($oApp, $keyword);
 			$userSearch = false; // 是否有用户使用
 		}
@@ -62,7 +62,7 @@ class search_model extends \TMS_MODEL {
 		if (!isset($userSearch)) {
 			$q = [
 				'id',
-				'xxt_enroll_user_search'
+				'xxt_enroll_user_search',
 				['userid' => $oUser->uid, 'search_id' => $search->id, 'state' => 1]
 			];
 			$userSearch = $this->query_obj_ss($q);

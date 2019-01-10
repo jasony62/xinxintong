@@ -10,15 +10,8 @@ class search extends base {
 	 *
 	 */
 	public function moveUserSearch_action($site, $app, $search) {
-		// $modelEnl = $this->model('matter\enroll');
-		// $oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
-		// if ($oApp === false || $oApp->state !== '1') {
-		// 	return new \ObjectNotFoundError('指定的活动不存在或以删除');
-		// }
-		// $search = $this->model('matter\enroll\search')->bySearchId($search);
-		// if ($search === false || $search->state !== '1') {
-		// 	return new \ObjectNotFoundError('关键词不存在或以删除');
-		// }
+		
+		return false;
 	}
 	/*
 	 *

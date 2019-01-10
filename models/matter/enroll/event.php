@@ -3384,7 +3384,7 @@ class event_model extends \TMS_MODEL {
 		$oTarget->type = 'search';
 		//
 		$oEvent = new \stdClass;
-		$oEvent->name = self::searchRecord;
+		$oEvent->name = self::SearchRecord;
 		$oEvent->op = 'Use';
 		$oEvent->at = $eventAt;
 		$oEvent->user = $oOperator;

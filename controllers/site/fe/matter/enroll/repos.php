@@ -1099,6 +1099,18 @@ class repos extends base {
 					unset($criterias[$key]);
 				}
 			}
+			// 搜索历史
+			if ($criteria->type === 'keyword') {
+				$search = $this->model('matter\enroll\search')->listUserSearch($oApp, $oUser);
+				$userSearchs = $search->userSearch;
+				if (count($userSearchs) == 0) {
+					unset($criterias[$key]);
+				} else {
+					foreach ($userSearchs as $userSearch) {
+						$criteria->menus[] = (object) ['id' => $userSearch->keyword, 'title' => $userSearch->keyword];
+					}
+				}
+			}
 		}
 
 		$criterias = array_values($criterias);
@@ -1132,6 +1144,15 @@ class repos extends base {
 		];
 		$coworkAgreed->default = $coworkAgreed->menus[0];
 		$criterias[] = $coworkAgreed;
+		// 搜索历史
+		$keyword = new \stdClass;
+		$keyword->type = 'keyword';
+		$keyword->title = '历史搜索';
+		$keyword->menus = [
+			(object) ['id' => null, 'title' => '不限关键词'],
+		];
+		$keyword->default = $keyword->menus[0];
+		$criterias[] = $keyword;
 		// 轮次
 		$round = new \stdClass;
 		$round->type = 'rid';

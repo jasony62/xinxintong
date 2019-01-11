@@ -51,7 +51,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         }
         url = LS.j('repos/recordList', 'site', 'app');
         $scope.reposLoading = true;
-        $scope.flag = false;
         http2.post(url, _oCriteria, { page: _oPage }).then(function(result) {
             if (result.data.records) {
                 result.data.records.forEach(function(oRecord) {
@@ -97,7 +96,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         }
     };
     function addToCache() {
-        sessionStorage.setItem('listStorageY', document.documentElement.scrollTop || document.body.scrollTop);
+        sessionStorage.setItem('listStorageY', document.getElementById('repos').scrollTop);
         var cacheData = {
             'reposFilters': $scope.reposFilters,
             'tasks': $scope.tasks,
@@ -438,7 +437,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         dirOpen: false
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        var tasks;
+        var tasks, popActs;
         _oApp = params.app;
         if (window.sessionStorage.length) {
             var cacheData, _cPage;
@@ -460,7 +459,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                 $scope.recordList(at).then(function() {
                     if(at==_cPage.at) {
                         $timeout(function() {
-                            document.body.scrollTop = document.documentElement.scrollTop = parseInt(sessionStorage.listStorageY);
+                            document.getElementById('repos').scrollTop = parseInt(sessionStorage.listStorageY);
                             window.sessionStorage.clear();
                         });
                     }
@@ -550,7 +549,8 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         /* 设置页面分享信息 */
         $scope.setSnsShare(null, null, { target_type: 'repos', target_id: _oApp.id });
         /* 设置页面操作 */
-        $scope.setPopAct(['addRecord'], 'repos', {
+        popActs = ['addRecord'];
+        $scope.setPopAct(popActs, 'repos', {
             func: {
                 voteRecData: $scope.voteRecData,
                 scoreSchema: $scope.scoreSchema,

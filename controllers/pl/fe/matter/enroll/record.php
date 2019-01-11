@@ -253,7 +253,8 @@ class record extends main_base {
 			if (!empty($oRecord->data)) {
 				$dbData = json_decode($oRecord->data);
 				/* 题目的得分 */
-				$oRecordScore = $modelRecDat->socreRecordData($oApp, $oRecord, $schemasById, $dbData, null, null);
+				$aOptimizedFormulas = [];
+				$oRecordScore = $modelRecDat->socreRecordData($oApp, $oRecord, $schemasById, $dbData, null, $aOptimizedFormulas);
 				if ($modelApp->update('xxt_enroll_record', ['score' => json_encode($oRecordScore)], ['id' => $oRecord->id])) {
 					unset($oRecordScore->sum);
 					foreach ($oRecordScore as $schemaId => $dataScore) {
@@ -272,6 +273,10 @@ class record extends main_base {
 			$oMockUser->uid = $oRecord->userid;
 			$oMockUser->group_id = $oRecord->group_id;
 			$modelRec->setSummaryRec($oMockUser, $oApp, $oRecord->rid);
+			/**
+			 * 更新得分题目排名
+			 */
+			$modelRec->setScoreRank($oApp, $oRecord->rid);
 
 			$modelUsr = $this->model('matter\enroll\user');
 			$aUpdatedResult = $modelUsr->renew($oApp, '', $oRecord->userid);

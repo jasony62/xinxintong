@@ -1147,7 +1147,7 @@ class repos extends base {
 		// 搜索历史
 		$keyword = new \stdClass;
 		$keyword->type = 'keyword';
-		$keyword->title = '历史搜索';
+		$keyword->title = '历史';
 		$keyword->menus = [
 			(object) ['id' => null, 'title' => '不限关键词'],
 		];

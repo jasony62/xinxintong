@@ -47,6 +47,15 @@ class search_model extends \TMS_MODEL {
 		$searchs = new \stdClass;
 		$searchs->userSearch = $userSearchs;
 		$searchs->agreedSearch = $agreedSearchs;
+		if (!empty($options['page']) && !empty($options['size'])) {
+			$q[0] = 'count(us.id)';
+			$searchs->userSearchTotal = $this->query_val_ss($q);
+			$q2[0] = 'count(id)';
+			$searchs->agreedSearchTotal = $this->query_val_ss($q2);
+		} else {
+			$searchs->userSearchTotal = count($searchs->userSearch);
+			$searchs->agreedSearchTotal = count($searchs->agreedSearch);
+		}
 		return $searchs;
 	}
 	/**

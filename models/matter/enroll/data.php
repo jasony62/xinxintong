@@ -199,6 +199,7 @@ class data_model extends entity_model {
 						$treatedValue = $fnNewItems($schemaId, $treatedValue);
 					} else {
 						unset($dbData->{$schemaId});
+						continue;
 					}
 				} else {
 					if (is_object($treatedValue) || is_array($treatedValue)) {

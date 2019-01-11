@@ -812,7 +812,7 @@ class player_model extends \TMS_MODEL {
 				'last_sync_at' => 0,
 				'source_app' => '{"id":"' . $byApp . '","type":"enroll"}',
 				'data_schemas' => $this->escape($this->toJson($aDataSchemas)),
-				'assigned_nickname' => $oSourceApp->assigned_nickname,
+				'assigned_nickname' => $oSourceApp->assignedNickname,
 			],
 			['id' => $oGrpApp->id]
 		);

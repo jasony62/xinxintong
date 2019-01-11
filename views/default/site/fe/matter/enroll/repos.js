@@ -13,23 +13,7 @@ require('./_asset/ui.tree.js');
 window.moduleAngularModules = ['tree.ui', 'filter.ui', 'dropdown.ui', 'round.ui.enroll', 'repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll'];
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', 'enlService', function($scope, $parse, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc, enlService) {
-    /* 是否可以对记录进行表态 */
-    function fnCanAgreeRecord(oRecord, oUser) {
-        if (oUser.is_leader) {
-            if (oUser.is_leader === 'S') {
-                return true;
-            }
-            if (oUser.is_leader === 'Y') {
-                if (oUser.group_id === oRecord.group_id) {
-                    return true;
-                } else if (oUser.is_editor && oUser.is_editor === 'Y') {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
+ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', 'enlService', function($scope, $parse, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc, enlService) {    
     var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oTasks, _oUser, _activeDirSchemas;
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = {};
@@ -40,6 +24,20 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     $scope.activeDirSchemas = _activeDirSchemas = {};
     $scope.reposLoading = false;
     $scope.appendToEle = angular.element(document.querySelector('#filterQuick'));
+    $scope.tabViews = [{
+        title: '问题',
+        url: '/views/default/site/fe/matter/enroll/template/repos-recordSchema.html'
+    },{
+        title: '答案',
+        url: '/views/default/site/fe/matter/enroll/template/repos-coworkSchema.html'
+    },{
+        title: '专题',
+        url: '/views/default/site/fe/matter/enroll/template/repos-publicTopic.html'
+    }];
+    $scope.selectedView = $scope.tabViews[0];
+    $scope.tabClick = function(view) {
+        $scope.selectedView = view;
+    }
     $scope.recordList = function(pageAt) {
         var url, deferred;
         deferred = $q.defer();
@@ -57,7 +55,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                     if (_coworkRequireLikeNum > oRecord.like_num) {
                         oRecord._coworkRequireLikeNum = (_coworkRequireLikeNum > oRecord.like_num ? _coworkRequireLikeNum - oRecord.like_num : 0);
                     }
-                    oRecord._canAgree = fnCanAgreeRecord(oRecord, _oUser);
                     $scope.repos.push(oRecord);
                 });
             }
@@ -120,17 +117,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         url += '&ek=' + oRecord.enroll_key;
         url += '&page=cowork#remarks';
         location.href = url;
-    };
-    $scope.setAgreed = function(oRecord, value) {
-        var url;
-        if (oRecord.agreed !== value) {
-            url = LS.j('record/agree', 'site');
-            url += '&ek=' + oRecord.enroll_key;
-            url += '&value=' + value;
-            http2.get(url).then(function(rsp) {
-                oRecord.agreed = value;
-            });
-        }
     };
     $scope.favorStack = {
         guiding: false,
@@ -414,24 +400,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             windowClass: 'auto-height'
         });
     };
-    /* 显示公共专题列表 */
-    $scope.showTopics = function(event) {
-        $uibModal.open({
-            template: require('./_asset/topic-list.html'),
-            resolve: {
-                topics: function() { return $scope.topics; }
-            },
-            controller: ['$scope', '$uibModalInstance', 'topics', function($scope2, $mi, topics) {
-                $scope2.topics = topics;
-                $scope2.cancel = function() { $mi.dismiss(); };
-                $scope2.gotoTopic = function(oTopic) {
-                    location.href = LS.j('', 'site', 'app') + '&topic=' + oTopic.id + '&page=topic';
-                };
-            }],
-            backdrop: 'static',
-            windowClass: 'auto-height'
-        });
-    };
     $scope.advCriteriaStatus = {
         opened: !$scope.isSmallLayout,
         dirOpen: false
@@ -504,12 +472,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             _facRound.list().then(function(result) {
                 $scope.rounds = result.rounds;
             });
-            /* 共享专题 */
-            http2.get(LS.j('topic/listPublic', 'site', 'app')).then(function(rsp) {
-                if (rsp.data && rsp.data.topics) {
-                    $scope.topics = rsp.data.topics;
-                }
-            });
             /* 作为可筛选的筛选项 */
             http2.get(LS.j('repos/criteriaGet', 'site', 'app')).then(function(rsp) {
                 $scope.reposFilters = rsp.data;
@@ -571,5 +533,21 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             }
             $scope.groupOthers = groupOthersById;
         });
+    });
+}]);
+ngApp.controller('ctrlRecordSchema', ['$scope', function($scope) {
+
+}]);
+ngApp.controller('ctrlCoworkSchema', ['$scope', function($scope) {
+
+}]);
+ngApp.controller('ctrlPublicTopic', ['$scope', 'http2', function($scope, http2) {
+    $scope.gotoTopic = function(oTopic) {
+        location.href = LS.j('', 'site', 'app') + '&topic=' + oTopic.id + '&page=topic';
+    };
+    http2.get(LS.j('topic/listPublic', 'site', 'app')).then(function(rsp) {
+        if (rsp.data && rsp.data.topics) {
+            $scope.topics = rsp.data.topics;
+        }
     });
 }]);

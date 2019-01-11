@@ -1,0 +1,34 @@
+<div class='records' ng-controller="ctrlCoworkSchema">
+    <div class='record' ng-repeat="rec in repos" ng-cloak>
+        <div class='top-bar'>
+            <div class='seq label label-default'>{{$index+1}}</div>
+            <div class='nickname text-muted'>{{rec.nickname||'隐藏'}}</div>
+            <button ng-if="rec.favored" class="btn btn-default btn-xs" ng-click="favorRecord(rec)">已收藏</button>
+            <div class="btn-group btn-group-xs" uib-dropdown>
+                <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                    <span ng-if="rec.agreed===''">未表态</span>
+                    <span ng-if="rec.agreed==='D'">讨论</span>
+                    <span ng-if="rec.agreed==='A'">接受</span>
+                    <span ng-if="rec.agreed==='Y'">推荐</span>
+                    <span ng-if="rec.agreed==='N'">关闭</span>
+                </button>
+            </div>
+        </div>
+        <div class='data' ng-click="remarkRecord(rec, $event)">
+            <blockquote>
+                <div tms-repos-record-data schemas="schemas" record="rec" tabview="cowork"></div>
+            </blockquote>
+        </div>
+        <div class='bottom-bar'>
+            <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
+            <a href ng-click="likeRecord(rec)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></a>
+            <a href ng-click="dislikeRecord(rec)"><span class='glyphicon glyphicon-thumbs-down' ng-class="{'like':rec.dislike_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.dislike_num"></span></a>
+            <a href ng-click="remarkRecord(rec, $event)"><span class="glyphicon glyphicon-comment"></span>&nbsp;<span ng-bind="rec.remark_num"></span></a>
+        </div>
+    </div>
+    <div class='record' ng-show="page.total>repos.length" ng-cloak>
+        <div class='text-center' tms-scroll-spy selector='#repos' onbottom='recordsScrollToBottom()' offset='70' toggle-spy="spyRecordsScroll">
+            <button style='border-radius:15px;' class='btn btn-default' ng-click="recordList()"><span ng-class="{'ele-running':reposLoading}"><i class='ele-running-indicator'><i></i></i></span> 更多【{{repos.length}}/{{page.total}}】 </button>
+        </div>
+    </div>
+</div>

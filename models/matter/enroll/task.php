@@ -182,7 +182,7 @@ class task_model extends \TMS_MODEL {
 			$oRound = $oApp->appRound;
 		}
 
-		$aVoteSchemas = [];
+		$aAnswerRules = [];
 		foreach ($oApp->answerConfig as $oAnswerConfig) {
 			if (!empty($oAnswerConfig->role->groups)) {
 				if (empty($oUser->group_id) || !in_array($oUser->group_id, $oAnswerConfig->role->groups)) {
@@ -202,13 +202,13 @@ class task_model extends \TMS_MODEL {
 					tms_object_merge($oAnswerRule, $aValid[1]);
 					$oAnswerRule->limit = $this->getDeepValue($oAnswerConfig, 'limit');
 					$oAnswerRule->groups = $this->getDeepValue($oAnswerConfig, 'role.groups');
-					$oSchema->answer = $oAnswerRule;
-					$aVoteSchemas[$oSchema->id] = $oSchema;
+					$oAnswerRule->schema = $oSchema;
+					$aAnswerRules[$oSchema->id] = $oAnswerRule;
 				}
 			}
 		}
 
-		return $aVoteSchemas;
+		return $aAnswerRules;
 	}
 	/**
 	 * 需要进行投票的题目
@@ -222,7 +222,7 @@ class task_model extends \TMS_MODEL {
 			$oRound = $oApp->appRound;
 		}
 
-		$aVoteSchemas = [];
+		$aVoteRules = [];
 		foreach ($oApp->voteConfig as $oVoteConfig) {
 			if (!empty($oVoteConfig->role->groups)) {
 				if (empty($oUser->group_id) || !in_array($oUser->group_id, $oVoteConfig->role->groups)) {
@@ -242,13 +242,13 @@ class task_model extends \TMS_MODEL {
 					tms_object_merge($oVoteRule, $aValid[1]);
 					$oVoteRule->limit = $this->getDeepValue($oVoteConfig, 'limit');
 					$oVoteRule->groups = $this->getDeepValue($oVoteConfig, 'role.groups');
-					$oSchema->vote = $oVoteRule;
-					$aVoteSchemas[$oSchema->id] = $oSchema;
+					$oVoteRule->schema = $oSchema;
+					$aVoteRules[$oSchema->id] = $oVoteRule;
 				}
 			}
 		}
 
-		return $aVoteSchemas;
+		return $aVoteRules;
 	}
 	/**
 	 * 需要进行打分的题目
@@ -262,7 +262,7 @@ class task_model extends \TMS_MODEL {
 			$oRound = $oApp->appRound;
 		}
 
-		$aScoreSchemas = [];
+		$aScoreRules = [];
 		foreach ($oApp->scoreConfig as $oScoreConfig) {
 			if (!empty($oScoreConfig->role->groups)) {
 				if (empty($oUser->group_id) || !in_array($oUser->group_id, $oScoreConfig->role->groups)) {
@@ -279,16 +279,16 @@ class task_model extends \TMS_MODEL {
 					$oScoreRule->id = $oScoreConfig->id;
 					$oScoreRule->type = 'score';
 					$oScoreRule->rid = $oRound->rid;
-					tms_object_merge($oVoteRule, $aValid[1]);
+					tms_object_merge($oScoreRule, $aValid[1]);
 					$oScoreRule->scoreApp = $this->getDeepValue($oScoreConfig, 'scoreApp');
 					$oScoreRule->groups = $this->getDeepValue($oScoreConfig, 'role.groups');
-					$oSchema->score = $oScoreRule;
-					$aScoreSchemas[$oSchema->id] = $oSchema;
+					$oScoreRule->schema = $oSchema;
+					$aScoreRules[$oSchema->id] = $oScoreRule;
 				}
 			}
 		}
 
-		return $aScoreSchemas;
+		return $aScoreRules;
 	}
 	/**
 	 * 获得指定规则生成的任务

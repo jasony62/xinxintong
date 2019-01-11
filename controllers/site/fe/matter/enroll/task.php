@@ -9,9 +9,9 @@ class task extends base {
 	/**
 	 * 当前用户需要完成的任务
 	 */
-	public function list_action($app) {
+	public function list_action($app, $rid = null) {
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'appRid' => $rid]);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -171,7 +171,7 @@ class task extends base {
 
 		$aRunnings = [];
 		foreach ($aQuestionRules as $oQuestionRule) {
-			if ($this->getDeepValue($oQuestionRule, 'state') === 'IP') {
+			if ($oQuestionRule->state === 'IP') {
 				$aRunnings[$oQuestionRule->id] = $oQuestionRule;
 			}
 		}
@@ -193,15 +193,15 @@ class task extends base {
 			return false;
 		}
 
-		$aAnswerSchemas = $this->model('matter\enroll\task', $oApp)->getCanAnswer($oUser);
-		if (empty($aAnswerSchemas)) {
+		$aAnswerRules = $this->model('matter\enroll\task', $oApp)->getCanAnswer($oUser);
+		if (empty($aAnswerRules)) {
 			return false;
 		}
 
 		$aRunnings = [];
-		foreach ($aAnswerSchemas as $oAnswerSchema) {
-			if ($this->getDeepValue($oAnswerSchema, 'answer.state') === 'IP') {
-				$aRunnings[$oAnswerSchema->id] = $oAnswerSchema;
+		foreach ($aAnswerRules as $oAnswerRule) {
+			if ($oAnswerRule->state === 'IP') {
+				$aRunnings[$oAnswerRule->id] = $oAnswerRule;
 			}
 		}
 		if (empty($aRunnings)) {
@@ -210,7 +210,7 @@ class task extends base {
 
 		$oTask = new \stdClass;
 		$oTask->name = 'answer';
-		$oTask->schemas = $aRunnings;
+		$oTask->rules = $aRunnings;
 
 		return $oTask;
 	}
@@ -222,23 +222,24 @@ class task extends base {
 			return false;
 		}
 
-		$aVoteSchemas = $this->model('matter\enroll\task', $oApp)->getCanVote($oUser);
-		if (empty($aVoteSchemas)) {
+		$aVoteRules = $this->model('matter\enroll\task', $oApp)->getCanVote($oUser);
+		if (empty($aVoteRules)) {
 			return false;
 		}
 
 		$aRunnings = [];
-		foreach ($aVoteSchemas as $oVoteSchema) {
-			if ($this->getDeepValue($oVoteSchema, 'vote.state') === 'IP') {
-				$aRunnings[$oVoteSchema->id] = $oVoteSchema;
+		foreach ($aVoteRules as $oVoteRule) {
+			if ($oVoteRule->state === 'IP') {
+				$aRunnings[$oVoteRule->id] = $oVoteRule;
 			}
 		}
 		if (empty($aRunnings)) {
 			return false;
 		}
+
 		$oTask = new \stdClass;
 		$oTask->name = 'vote';
-		$oTask->schemas = $aRunnings;
+		$oTask->rules = $aRunnings;
 
 		return $oTask;
 	}
@@ -250,14 +251,14 @@ class task extends base {
 			return false;
 		}
 
-		$aScoreSchemas = $this->model('matter\enroll\task', $oApp)->getCanScore($oUser);
-		if (empty($aScoreSchemas)) {
+		$aScoreRules = $this->model('matter\enroll\task', $oApp)->getCanScore($oUser);
+		if (empty($aScoreRules)) {
 			return false;
 		}
 		$aRunnings = [];
-		foreach ($aScoreSchemas as $oScoreSchema) {
-			if ($this->getDeepValue($oScoreSchema, 'score.state') === 'IP') {
-				$aRunnings[] = $oScoreSchema;
+		foreach ($aScoreRules as $oScoreRule) {
+			if ($oScoreRule->state === 'IP') {
+				$aRunnings[] = $oScoreRule;
 			}
 		}
 		if (empty($aRunnings)) {

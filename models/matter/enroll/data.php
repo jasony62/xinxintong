@@ -205,23 +205,21 @@ class data_model extends entity_model {
 						$treatedValue = $this->toJson($treatedValue);
 					}
 				}
-				if (!empty($treatedValue)) {
-					$aSchemaData = [
-						'aid' => $oApp->id,
-						'rid' => $oRecord->rid,
-						'purpose' => $oRecord->purpose,
-						'enroll_key' => $oRecord->enroll_key,
-						'state' => $oRecord->state,
-						'submit_at' => $oRecord->enroll_at,
-						'userid' => isset($oUser->uid) ? $oUser->uid : '',
-						'nickname' => $this->escape($oRecord->nickname),
-						'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
-						'schema_id' => $schemaId,
-						'value' => $this->escape($treatedValue),
-					];
-					isset($oRecordScore->{$schemaId}) && $aSchemaData['score'] = $oRecordScore->{$schemaId};
-					$this->insert('xxt_enroll_record_data', $aSchemaData, false);
-				}
+				$aSchemaData = [
+					'aid' => $oApp->id,
+					'rid' => $oRecord->rid,
+					'purpose' => $oRecord->purpose,
+					'enroll_key' => $oRecord->enroll_key,
+					'state' => $oRecord->state,
+					'submit_at' => $oRecord->enroll_at,
+					'userid' => isset($oUser->uid) ? $oUser->uid : '',
+					'nickname' => $this->escape($oRecord->nickname),
+					'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
+					'schema_id' => $schemaId,
+					'value' => $this->escape($treatedValue),
+				];
+				isset($oRecordScore->{$schemaId}) && $aSchemaData['score'] = $oRecordScore->{$schemaId};
+				$this->insert('xxt_enroll_record_data', $aSchemaData, false);
 			} else if (count($oLastSchemaValues) == 1) {
 				$aSchemaData = [];
 				if ($oSchema->type == 'multitext') {
@@ -615,16 +613,24 @@ class data_model extends entity_model {
 			$items = $this->query_objs_ss($q, $q2);
 			if (count($items)) {
 				$oItem = $items[0];
-				$rank = 1;
-				$this->update('xxt_enroll_record_data', ['score_rank' => $rank], ['id' => $oItem->id]);
-				$lastScore = $oItem->score;
-				for ($i = 1, $l = count($items); $i < $l; $i++) {
-					$oItem = $items[$i];
-					if ($oItem->score < $lastScore) {
-						$rank = $i + 1;
-					}
+				if (isset($oSchema->rankScoreAbove) && is_numeric($oSchema->rankScoreAbove) && $oItem->score <= $oSchema->rankScoreAbove) {
+					$this->update('xxt_enroll_record_data', ['score_rank' => 0], ['id' => $oItem->id]);
+				} else {
+					$rank = 1;
 					$this->update('xxt_enroll_record_data', ['score_rank' => $rank], ['id' => $oItem->id]);
 					$lastScore = $oItem->score;
+				}
+				for ($i = 1, $l = count($items); $i < $l; $i++) {
+					$oItem = $items[$i];
+					if (isset($oSchema->rankScoreAbove) && is_numeric($oSchema->rankScoreAbove) && $oItem->score <= $oSchema->rankScoreAbove) {
+						$this->update('xxt_enroll_record_data', ['score_rank' => 0], ['id' => $oItem->id]);
+					} else {
+						if ($oItem->score < $lastScore) {
+							$rank = $i + 1;
+						}
+						$this->update('xxt_enroll_record_data', ['score_rank' => $rank], ['id' => $oItem->id]);
+						$lastScore = $oItem->score;
+					}
 				}
 			}
 			return count($items);

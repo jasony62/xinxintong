@@ -345,6 +345,9 @@ class repos extends base {
 			case 'earliest':
 				$oOptions->orderby = ['enroll_at asc'];
 				break;
+			case 'lastest':
+				$oOptions->orderby = ['enroll_at'];
+				break;
 			case 'earliest_first':
 				$oOptions->orderby = ['first_enroll_at asc'];
 				break;
@@ -1104,8 +1107,8 @@ class repos extends base {
 		$orderby->type = 'orderby';
 		$orderby->title = '排序';
 		$orderby->menus = [
-			(object) ['id' => 'lastest_first', 'title' => '最近提交'],
-			(object) ['id' => 'earliest_first', 'title' => '最早提交'],
+			(object) ['id' => 'lastest', 'title' => '最近提交'],
+			(object) ['id' => 'earliest', 'title' => '最早提交'],
 			(object) ['id' => 'mostliked', 'title' => '最多赞同'],
 			(object) ['id' => 'mostvoted', 'title' => '最多投票'],
 		];

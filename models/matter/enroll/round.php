@@ -355,16 +355,16 @@ class round_model extends \TMS_MODEL {
 	 * 根据指定的开始和停止时间获得被汇总的填写轮次
 	 */
 	public function getSummaryInclude($oApp, $sumStartAt, $sumEndEndAt) {
-		/* 和汇总轮次关联的填写轮次 */
 		$q = [
 			'rid,start_at',
 			'xxt_enroll_round',
 			['aid' => $oApp->id, 'state' => 1, 'purpose' => 'C'],
 		];
-		if ($sumStartAt > 0) {
+		if ($sumStartAt > 0 && $sumEndEndAt > 0) {
+			$q[2]['start_at'] = (object) ['op' => 'between', 'pat' => [$sumStartAt, $sumEndEndAt]];
+		} else if ($sumStartAt > 0) {
 			$q[2]['start_at'] = (object) ['op' => '>=', 'pat' => $sumStartAt];
-		}
-		if ($sumEndEndAt > 0) {
+		} else if ($sumEndEndAt > 0) {
 			$q[2]['start_at'] = (object) ['op' => '<=', 'pat' => $sumEndEndAt];
 		}
 

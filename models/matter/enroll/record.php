@@ -778,7 +778,7 @@ class record_model extends record_base {
 		if (!empty($oOptions->fields)) {
 			$fields = $oOptions->fields;
 		} else {
-			$fields = 'id,state,enroll_key,rid,enroll_at,userid,group_id,nickname,verified,comment,data,score,supplement,agreed,like_num,like_log,remark_num,favor_num,dislike_num,dislike_log';
+			$fields = 'id,state,enroll_key,rid,purpose,enroll_at,userid,group_id,nickname,verified,comment,data,score,supplement,agreed,like_num,like_log,remark_num,favor_num,dislike_num,dislike_log';
 		}
 		$q = [$fields, "xxt_enroll_record r", $w];
 

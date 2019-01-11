@@ -163,7 +163,7 @@ class record extends main_base {
 	/**
 	 * 更新指定活动下所有记录的得分
 	 */
-	public function renewScoreByRound_action($app, $rid = null) {
+	public function renewScoreByRound_action($app, $rid) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -175,19 +175,14 @@ class record extends main_base {
 			return new \ObjectNotFoundError();
 		}
 
-		$schemasById = []; // 方便获取登记项定义
-		foreach ($oApp->dataSchemas as $schema) {
-			$schemasById[$schema->id] = $schema;
-		}
+		$schemasById = $this->model('matter\enroll\schema')->asAssoc($oApp->dynaDataSchemas);
 
-		$modelRecData = $this->model('matter\enroll\data');
 		$renewCount = 0;
-		$q = ['id,enroll_key,data,score', 'xxt_enroll_record', ['aid' => $oApp->id]];
-		if (!empty($rid)) {
-			$q[2]['rid'] = $rid;
-		}
+		$q = ['id,enroll_key,userid,group_id,data,score', 'xxt_enroll_record', ['aid' => $oApp->id, 'rid' => $rid]];
 		$records = $modelApp->query_objs_ss($q);
 		if (count($records)) {
+			$modelRec = $this->model('matter\enroll\record');
+			$modelRecData = $this->model('matter\enroll\data');
 			$aOptimizedFormulas = []; // 保存优化后的得分计算公式
 			foreach ($records as $oRecord) {
 				if (!empty($oRecord->data)) {
@@ -206,7 +201,23 @@ class record extends main_base {
 						$renewCount++;
 					}
 				}
+				/**
+				 * 处理用户按轮次汇总数据，积分数据
+				 */
+				$oMockUser = new \stdClass;
+				$oMockUser->uid = $oRecord->userid;
+				$oMockUser->group_id = $oRecord->group_id;
+				$modelRec->setSummaryRec($oMockUser, $oApp, $rid);
 			}
+			/**
+			 * 更新得分题目排名
+			 */
+			$modelRec->setScoreRank($oApp, $rid);
+			/**
+			 * 更新用户得分排名
+			 */
+			$modelEnlUsr = $this->model('matter\enroll\user');
+			$modelEnlUsr->setScoreRank($oApp, $rid);
 
 			$modelUsr = $this->model('matter\enroll\user');
 			$aUpdatedResult = $modelUsr->renew($oApp);
@@ -234,14 +245,16 @@ class record extends main_base {
 
 		$schemasById = $this->model('matter\enroll\schema')->asAssoc($oApp->dynaDataSchemas);
 
+		$modelRec = $this->model('matter\enroll\record');
 		$modelRecDat = $this->model('matter\enroll\data');
-		$q = ['id,enroll_key,userid,data,score', 'xxt_enroll_record', ['aid' => $oApp->id, 'enroll_key' => $ek]];
+		$q = ['id,enroll_key,rid,userid,group_id,data,score', 'xxt_enroll_record', ['aid' => $oApp->id, 'enroll_key' => $ek]];
 		$oRecord = $modelApp->query_obj_ss($q);
 		if ($oRecord) {
 			if (!empty($oRecord->data)) {
 				$dbData = json_decode($oRecord->data);
 				/* 题目的得分 */
-				$oRecordScore = $modelRecDat->socreRecordData($oApp, $oRecord, $schemasById, $dbData, null, null);
+				$aOptimizedFormulas = [];
+				$oRecordScore = $modelRecDat->socreRecordData($oApp, $oRecord, $schemasById, $dbData, null, $aOptimizedFormulas);
 				if ($modelApp->update('xxt_enroll_record', ['score' => json_encode($oRecordScore)], ['id' => $oRecord->id])) {
 					unset($oRecordScore->sum);
 					foreach ($oRecordScore as $schemaId => $dataScore) {
@@ -253,6 +266,17 @@ class record extends main_base {
 					}
 				}
 			}
+			/**
+			 * 处理用户按轮次汇总数据，积分数据
+			 */
+			$oMockUser = new \stdClass;
+			$oMockUser->uid = $oRecord->userid;
+			$oMockUser->group_id = $oRecord->group_id;
+			$modelRec->setSummaryRec($oMockUser, $oApp, $oRecord->rid);
+			/**
+			 * 更新得分题目排名
+			 */
+			$modelRec->setScoreRank($oApp, $oRecord->rid);
 
 			$modelUsr = $this->model('matter\enroll\user');
 			$aUpdatedResult = $modelUsr->renew($oApp, '', $oRecord->userid);
@@ -1922,7 +1946,7 @@ class record extends main_base {
 		}
 
 		$modelApp = $this->model('matter\enroll');
-		if (false === ($oApp = $modelApp->byId($app, ['fields' => 'id,data_schemas,scenario,mission_id,sync_mission_round,round_cron', 'appRid' => $round, 'cascaded' => 'N']))) {
+		if (false === ($oApp = $modelApp->byId($app, ['fields' => 'id,siteid,data_schemas,scenario,mission_id,sync_mission_round,round_cron', 'appRid' => $round, 'cascaded' => 'N']))) {
 			return new \ObjectNotFoundError();
 		}
 		if (empty($oApp->dataSchemas)) {

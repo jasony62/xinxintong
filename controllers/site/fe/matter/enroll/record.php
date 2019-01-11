@@ -252,7 +252,7 @@ class record extends base {
 			$this->model('matter\enroll\event')->submitRecord($oEnlApp, $oRecord, $oUser, $bSubmitNewRecord);
 		}
 		/**
-		 * 更新得分题目排名
+		 * 更新用户得分排名
 		 */
 		$modelEnlUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 		$modelEnlUsr->setScoreRank($oEnlApp, $oRecord->rid);

@@ -1149,7 +1149,7 @@ class repos extends base {
 		$keyword->type = 'keyword';
 		$keyword->title = '历史';
 		$keyword->menus = [
-			(object) ['id' => null, 'title' => '不限关键词'],
+			(object) ['id' => null, 'title' => '不限'],
 		];
 		$keyword->default = $keyword->menus[0];
 		$criterias[] = $keyword;
@@ -1158,7 +1158,7 @@ class repos extends base {
 		$round->type = 'rid';
 		$round->title = '轮次';
 		$round->menus = [
-			(object) ['id' => null, 'title' => '不限轮次'],
+			(object) ['id' => null, 'title' => '不限'],
 		];
 		$round->default = $round->menus[0];
 		$criterias[] = $round;
@@ -1167,7 +1167,7 @@ class repos extends base {
 		$group->type = 'userGroup';
 		$group->title = '分组';
 		$group->menus = [
-			(object) ['id' => null, 'title' => '不限分组'],
+			(object) ['id' => null, 'title' => '不限'],
 		];
 		$group->default = $group->menus[0];
 		$criterias[] = $group;
@@ -1176,7 +1176,7 @@ class repos extends base {
 		$agreed->type = 'agreed';
 		$agreed->title = '表态';
 		$agreed->menus = [
-			(object) ['id' => null, 'title' => '不限表态'],
+			(object) ['id' => null, 'title' => '不限'],
 			(object) ['id' => 'Y', 'title' => '推荐'],
 		];
 		$agreed->default = $agreed->menus[0];

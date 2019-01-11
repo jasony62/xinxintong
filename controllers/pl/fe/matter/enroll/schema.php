@@ -500,4 +500,30 @@ class schema extends main_base {
 
 		return new \ResponseData($aCompatibleSchemas);
 	}
+	/**
+	 * 测试题目得分
+	 */
+	public function score_action($app, $schema, $value) {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		// 记录活动
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp) {
+			return new \ObjectNotFoundError();
+		}
+
+		$schemasById = $this->model('matter\enroll\schema')->asAssoc($oApp->dynaDataSchemas, ['filter' => function ($oSchema) use ($schema) {return $oSchema->id === $schema;}], true);
+		if (!isset($schemasById[$schema])) {
+			return new \ObjectNotFoundError('指定的题目不存在');
+		}
+
+		$oSchema = $schemasById[$schema];
+
+		$aScoreResult = $this->model('matter\enroll\schema')->scoreByWeight($oSchema, $value);
+
+		return new \ResponseData($aScoreResult);
+	}
 }

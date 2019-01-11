@@ -357,7 +357,7 @@ class schema_model extends \TMS_MODEL {
 
 		$weight = $oSchema->weight;
 		if (is_numeric($weight)) {
-			return $weight * $x;
+			return [true, $weight * $x];
 		}
 		$aOptimizedFormulas = (isset($oContext->optimizedFormulas) && is_array($oContext->optimizedFormulas)) ? $oContext->optimizedFormulas : null;
 

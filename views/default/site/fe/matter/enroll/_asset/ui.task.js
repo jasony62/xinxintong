@@ -6,11 +6,12 @@ ngMod.factory('enlTask', ['http2', '$q', '$uibModal', 'tmsLocation', function(ht
     Task = function(oApp) {
         this.app = oApp;
     };
-    Task.prototype.list = function(type) {
+    Task.prototype.list = function(type, state) {
         var deferred, url;
         deferred = $q.defer();
         url = LS.j('task/list', 'site', 'app');
         if (type) url += '&type=' + type;
+        if (state) url += '&state=' + state;
         http2.get(url).then(function(rsp) {
             deferred.resolve(rsp.data);
         });

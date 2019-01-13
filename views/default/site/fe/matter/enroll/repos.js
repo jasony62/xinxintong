@@ -9,11 +9,12 @@ require('./_asset/ui.round.js');
 require('./_asset/ui.dropdown.js');
 require('./_asset/ui.filter.js');
 require('./_asset/ui.tree.js');
+require('./_asset/ui.task.js');
 
-window.moduleAngularModules = ['tree.ui', 'filter.ui', 'dropdown.ui', 'round.ui.enroll', 'repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll'];
+window.moduleAngularModules = ['tree.ui', 'filter.ui', 'dropdown.ui', 'round.ui.enroll', 'repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll', 'task.ui.enroll'];
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', 'enlService', function($scope, $parse, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc, enlService) {
+ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', 'enlTask', 'enlService', function($scope, $parse, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc, enlTask, enlService) {
     /* 是否可以对记录进行表态 */
     function fnCanAgreeRecord(oRecord, oUser) {
         if (oUser.is_leader) {
@@ -30,7 +31,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         }
         return false;
     }
-    var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oTasks, _oUser, _activeDirSchemas;
+    var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oUser, _activeDirSchemas;
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = {};
     $scope.filter = _oFilter = { isFilter: false }; // 过滤条件
@@ -356,9 +357,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             windowClass: 'auto-height'
         });
     };
-    $scope.scoreSchema = function() {
+    $scope.scoreSchema = function(oTask) {
         var _oScoreApp;
-        _oScoreApp = $parse('score.schemas[0].scoreApp')(_oTasks);
+        _oScoreApp = $parse('rule.scoreApp')(oTask);
         if (!_oScoreApp || !_oScoreApp.id) return;
         $uibModal.open({
             template: require('./_asset/score-app.html'),
@@ -484,10 +485,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                     }
                 });
             }
-            http2.get(LS.j('task/list', 'site', 'app')).then(function(rsp) {
-                _oTasks = rsp.data;
-                if (_oTasks.length) {
-                    _oTasks.forEach(function(oTask) {
+            new enlTask($scope.app).list(null, 'IP').then(function(ipTasks) {
+                if (ipTasks.length) {
+                    ipTasks.forEach(function(oTask) {
                         switch (oTask.rule.type) {
                             case 'question':
                                 tasks.push({ type: 'info', msg: '有提问任务', id: 'record.data.question', data: oTask });

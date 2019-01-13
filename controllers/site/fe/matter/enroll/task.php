@@ -9,7 +9,7 @@ class task extends base {
 	/**
 	 * 当前用户需要完成的任务
 	 */
-	public function list_action($app, $type = null, $rid = null) {
+	public function list_action($app, $type = null, $state = null, $rid = null) {
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'appRid' => $rid]);
 		if (false === $oApp || $oApp->state !== '1') {
@@ -17,12 +17,21 @@ class task extends base {
 		}
 		$oUser = $this->getUser($oApp);
 
+		/* 有效的任务类型 */
 		$aTaskTypes = ['question', 'answer', 'vote', 'score'];
 		if (!empty($type)) {
 			if (!in_array($type, $aTaskTypes)) {
-				return new \ParameterError('没有指定任务类型');
+				return new \ParameterError('没有指定有效的任务类型');
 			}
 			$aTaskTypes = [$type];
+		}
+		/* 有效的任务状态 */
+		$aTaskStates = ['IP', 'BS', 'AE'];
+		if (!empty($state)) {
+			if (!in_array($state, $aTaskStates)) {
+				return new \ParameterError('没有指定有效的任务状态');
+			}
+			$aTaskStates = [$state];
 		}
 
 		$modelTsk = $this->model('matter\enroll\task', $oApp);
@@ -31,6 +40,9 @@ class task extends base {
 			$rules = $modelTsk->getRule($taskType, $oUser);
 			if (!empty($rules)) {
 				foreach ($rules as $oRule) {
+					if (!in_array($oRule->state, $aTaskStates)) {
+						continue;
+					}
 					$oTask = $modelTsk->byRule($oRule, ['createIfNone' => true]);
 					if ($oTask) {
 						$oTask->rule = $oRule;

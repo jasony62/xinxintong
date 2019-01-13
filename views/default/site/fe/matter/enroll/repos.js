@@ -95,6 +95,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             });
         }
     };
+
     function addToCache() {
         sessionStorage.setItem('listStorageY', document.getElementById('repos').scrollTop);
         var cacheData = {
@@ -455,18 +456,19 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             if ($scope.dirSchemas && $scope.dirSchemas.length) {
                 $scope.advCriteriaStatus.dirOpen = true;
             }
+
             function _getNewRepos(at) {
                 $scope.recordList(at).then(function() {
-                    if(at==_cPage.at) {
+                    if (at == _cPage.at) {
                         $timeout(function() {
                             document.getElementById('repos').scrollTop = parseInt(sessionStorage.listStorageY);
                             window.sessionStorage.clear();
                         });
                     }
-                }); 
-                
+                });
+
             }
-            for (var i=1; i<=_cPage.at; i++) {
+            for (var i = 1; i <= _cPage.at; i++) {
                 _getNewRepos(i);
             }
         } else {
@@ -484,19 +486,25 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             }
             http2.get(LS.j('task/list', 'site', 'app')).then(function(rsp) {
                 _oTasks = rsp.data;
-                if (rsp.data.question) {
-                    tasks.push({ type: 'info', msg: '有提问任务', id: 'record.data.question' });
-                }
-                if (rsp.data.answer) {
-                    tasks.push({ type: 'info', msg: '有回答任务', id: 'record.data.answer' });
-                }
-                if (rsp.data.vote) {
-                    tasks.push({ type: 'info', msg: '有投票任务', id: 'record.data.vote' });
-                    popActs.push('voteRecData');
-                }
-                if (rsp.data.score) {
-                    tasks.push({ type: 'info', msg: '有打分任务', id: 'record.data.score' });
-                    popActs.push('scoreSchema');
+                if (_oTasks.length) {
+                    _oTasks.forEach(function(oTask) {
+                        switch (oTask.rule.type) {
+                            case 'question':
+                                tasks.push({ type: 'info', msg: '有提问任务', id: 'record.data.question' });
+                                break;
+                            case 'answer':
+                                tasks.push({ type: 'info', msg: '有回答任务', id: 'record.data.answer' });
+                                break;
+                            case 'vote':
+                                tasks.push({ type: 'info', msg: '有投票任务', id: 'record.data.vote' });
+                                popActs.push('voteRecData');
+                                break;
+                            case 'score':
+                                tasks.push({ type: 'info', msg: '有打分任务', id: 'record.data.score' });
+                                popActs.push('scoreSchema');
+                                break;
+                        }
+                    });
                 }
             });
             $scope.tasks = tasks = [];

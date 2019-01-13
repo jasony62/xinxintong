@@ -1132,7 +1132,7 @@ class data_model extends entity_model {
 			return [false, '指定的记录不存在'];
 		}
 
-		$aVoteSchemas = $this->model('matter\enroll\task', $oApp)->getCanVote($oUser);
+		$aVoteSchemas = $this->model('matter\enroll\task', $oApp)->getVoteRule($oUser);
 		if (empty($aVoteSchemas[$oRecData->schema_id])) {
 			return [false, '指定的题目不支持投票'];
 		}
@@ -1231,7 +1231,7 @@ class data_model extends entity_model {
 			return [false, '指定的记录不存在'];
 		}
 
-		$aVoteSchemas = $this->model('matter\enroll\task', $oApp)->getCanVote($oUser, $oRecord->round);
+		$aVoteSchemas = $this->model('matter\enroll\task', $oApp)->getVoteRule($oUser, $oRecord->round);
 		if (empty($aVoteSchemas[$oRecData->schema_id])) {
 			return [false, '指定的题目不支持投票'];
 		}

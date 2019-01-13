@@ -33,7 +33,7 @@ class task_model extends \TMS_MODEL {
 	 * 去掉无效的内容
 	 */
 	public function purifyQuestion($oConfig) {
-		$validProps = ['id', 'start', 'end', 'role', 'limit'];
+		$validProps = ['id', 'start', 'end', 'role', 'limit', 'enabled'];
 		foreach ($oConfig as $prop => $val) {
 			if (!in_array($prop, $validProps)) {
 				unset($oConfig->{$prop});
@@ -55,7 +55,7 @@ class task_model extends \TMS_MODEL {
 	 * 去掉无效的内容
 	 */
 	public function purifyAnswer($oConfig) {
-		$validProps = ['id', 'start', 'end', 'role', 'limit', 'schemas', 'target'];
+		$validProps = ['id', 'start', 'end', 'role', 'limit', 'schemas', 'target', 'enabled'];
 		foreach ($oConfig as $prop => $val) {
 			if (!in_array($prop, $validProps)) {
 				unset($oConfig->{$prop});
@@ -77,7 +77,7 @@ class task_model extends \TMS_MODEL {
 	 * 去掉无效的内容
 	 */
 	public function purifyVote($oConfig) {
-		$validProps = ['id', 'start', 'end', 'role', 'limit', 'schemas', 'target'];
+		$validProps = ['id', 'start', 'end', 'role', 'limit', 'schemas', 'target', 'enabled'];
 		foreach ($oConfig as $prop => $val) {
 			if (!in_array($prop, $validProps)) {
 				unset($oConfig->{$prop});
@@ -136,9 +136,17 @@ class task_model extends \TMS_MODEL {
 		return [true, ['state' => $taskState, 'start_at' => $startAt, 'end_at' => $endAt]];
 	}
 	/**
+	 * 获得定义的任务规则
+	 */
+	public function getRule($taskType, $oUser = null, $oRound = null) {
+		$rules = $this->{'get' . ucfirst($taskType) . 'Rule'}($oUser, $oRound);
+
+		return $rules;
+	}
+	/**
 	 * 提问任务
 	 */
-	public function getCanQuestion($oUser = null, $oRound = null) {
+	public function getQuestionRule($oUser = null, $oRound = null) {
 		$oApp = $this->_oApp;
 		if (!isset($oApp->dynaDataSchemas) || !isset($oApp->questionConfig)) {
 			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,question_config']);
@@ -149,6 +157,9 @@ class task_model extends \TMS_MODEL {
 
 		$aQuestionRules = [];
 		foreach ($oApp->questionConfig as $oQuestionConfig) {
+			if ($this->getDeepValue($oQuestionConfig, 'enabled') !== 'Y') {
+				continue;
+			}
 			if (!empty($oQuestionConfig->role->groups)) {
 				if (empty($oUser->group_id) || !in_array($oUser->group_id, $oQuestionConfig->role->groups)) {
 					continue;
@@ -173,7 +184,7 @@ class task_model extends \TMS_MODEL {
 	/**
 	 * 需要进行回答的题目
 	 */
-	public function getCanAnswer($oUser = null, $oRound = null) {
+	public function getAnswerRule($oUser = null, $oRound = null) {
 		$oApp = $this->_oApp;
 		if (!isset($oApp->dynaDataSchemas) || !isset($oApp->answerConfig)) {
 			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,answer_config']);
@@ -184,6 +195,9 @@ class task_model extends \TMS_MODEL {
 
 		$aAnswerRules = [];
 		foreach ($oApp->answerConfig as $oAnswerConfig) {
+			if ($this->getDeepValue($oAnswerConfig, 'enabled') !== 'Y') {
+				continue;
+			}
 			if (!empty($oAnswerConfig->role->groups)) {
 				if (empty($oUser->group_id) || !in_array($oUser->group_id, $oAnswerConfig->role->groups)) {
 					continue;
@@ -213,7 +227,7 @@ class task_model extends \TMS_MODEL {
 	/**
 	 * 需要进行投票的题目
 	 */
-	public function getCanVote($oUser = null, $oRound = null) {
+	public function getVoteRule($oUser = null, $oRound = null) {
 		$oApp = $this->_oApp;
 		if (!isset($oApp->dynaDataSchemas) || !isset($oApp->voteConfig)) {
 			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,vote_config']);
@@ -224,6 +238,9 @@ class task_model extends \TMS_MODEL {
 
 		$aVoteRules = [];
 		foreach ($oApp->voteConfig as $oVoteConfig) {
+			if ($this->getDeepValue($oVoteConfig, 'enabled') !== 'Y') {
+				continue;
+			}
 			if (!empty($oVoteConfig->role->groups)) {
 				if (empty($oUser->group_id) || !in_array($oUser->group_id, $oVoteConfig->role->groups)) {
 					continue;
@@ -253,7 +270,7 @@ class task_model extends \TMS_MODEL {
 	/**
 	 * 需要进行打分的题目
 	 */
-	public function getCanScore($oUser = null, $oRound = null) {
+	public function getScoreRule($oUser = null, $oRound = null) {
 		$oApp = $this->_oApp;
 		if (!isset($oApp->dynaDataSchemas) || !isset($oApp->scoreConfig)) {
 			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,score_config']);
@@ -264,6 +281,9 @@ class task_model extends \TMS_MODEL {
 
 		$aScoreRules = [];
 		foreach ($oApp->scoreConfig as $oScoreConfig) {
+			if ($this->getDeepValue($oScoreConfig, 'enabled') !== 'Y') {
+				continue;
+			}
 			if (!empty($oScoreConfig->role->groups)) {
 				if (empty($oUser->group_id) || !in_array($oUser->group_id, $oScoreConfig->role->groups)) {
 					continue;
@@ -328,7 +348,7 @@ class task_model extends \TMS_MODEL {
 	 * 指定用户当前是否存在任务
 	 */
 	public function currentByUser($oUser, $aOptions = []) {
-		$fields = empty($aOptons['fields']) ? 'id,start_at,end_at' : $aOptons['fields'];
+		$fields = empty($aOptons['fields']) ? 'id,start_at,end_at,config_type,config_id' : $aOptons['fields'];
 		$q = [
 			$fields,
 			'xxt_enroll_task',

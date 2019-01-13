@@ -255,7 +255,7 @@ class record_model extends record_base {
 			$oRecord->verbose = $this->model('matter\enroll\data')->byRecord($oRecord->enroll_key);
 		}
 		if (!empty($oRecord->rid)) {
-			if ($oRound = $this->model('matter\enroll\round')->byId($oRecord->rid, ['fields' => 'title,state,start_at,end_at,purpose'])) {
+			if ($oRound = $this->model('matter\enroll\round')->byId($oRecord->rid, ['fields' => 'id,rid,title,state,start_at,end_at,purpose'])) {
 				$oRecord->round = $oRound;
 			} else {
 				$oRecord->round = new \stdClass;

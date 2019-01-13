@@ -9,7 +9,7 @@ class task extends base {
 	/**
 	 * 当前用户需要完成的任务
 	 */
-	public function list_action($app, $rid = null) {
+	public function list_action($app, $type = null, $rid = null) {
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'appRid' => $rid]);
 		if (false === $oApp || $oApp->state !== '1') {
@@ -17,29 +17,42 @@ class task extends base {
 		}
 		$oUser = $this->getUser($oApp);
 
-		$tasks = new \stdClass;
+		$aTaskTypes = ['question', 'answer', 'vote', 'score'];
+		if (!empty($type)) {
+			if (!in_array($type, $aTaskTypes)) {
+				return new \ParameterError('没有指定任务类型');
+			}
+			$aTaskTypes = [$type];
+		}
 
-		// 回答任务
-		$tasks->question = $this->_getQuestionTask($oApp, $oUser);
-		if (!empty($tasks->question->rules)) {
-			$modelTsk = $this->model('matter\enroll\task', $oApp);
-			$modelTop = $this->model('matter\enroll\topic', $oApp);
-			foreach ($tasks->question->rules as $oRule) {
-				$oTask = $modelTsk->byRule($oRule, ['createIfNone' => true]);
-				if ($oTask) {
-					$oTopic = $modelTop->byTask($oTask, ['createIfNone' => true]);
+		$modelTsk = $this->model('matter\enroll\task', $oApp);
+		$tasks = [];
+		foreach ($aTaskTypes as $taskType) {
+			$rules = $modelTsk->getRule($taskType, $oUser);
+			if (!empty($rules)) {
+				foreach ($rules as $oRule) {
+					$oTask = $modelTsk->byRule($oRule, ['createIfNone' => true]);
+					if ($oTask) {
+						$oTask->rule = $oRule;
+						if (!isset($modelTop)) {
+							$modelTop = $this->model('matter\enroll\topic', $oApp);
+						}
+						$oTopic = $modelTop->byTask($oTask, ['createIfNone' => true]);
+						if ($oTopic) {
+							$oTask->topic = $oTopic;
+						}
+						$tasks[] = $oTask;
+					}
 				}
 			}
 		}
-
-		// 回答任务
-		$tasks->answer = $this->_getAnswerTask($oApp, $oUser);
-
-		// 投票任务
-		$tasks->vote = $this->_getVoteTask($oApp, $oUser);
-
-		// 打分任务
-		$tasks->score = $this->_getScoreTask($oApp, $oUser);
+		/* 按照任务的开始时间排序 */
+		usort($tasks, function ($a, $b) {
+			if ($a->start_at === $b->start_at) {
+				return 0;
+			}
+			return $a->start_at < $b->start_at ? -1 : 1;
+		});
 
 		return new \ResponseData($tasks);
 	}
@@ -55,7 +68,7 @@ class task extends base {
 		$oUser = $this->getUser($oApp);
 
 		/* 获取记录的投票信息 */
-		$aCanVoteSchemas = $this->model('matter\enroll\task', $oApp)->getCanVote($oUser);
+		$aCanVoteSchemas = $this->model('matter\enroll\task', $oApp)->getVoteRule($oUser);
 		if (empty($aCanVoteSchemas)) {
 			return new \ObjectNotFoundError('没有设置投票题目');
 		}
@@ -155,120 +168,5 @@ class task extends base {
 		}
 
 		return new \ResponseData($aVoteResult[1]);
-	}
-	/**
-	 * 提问任务
-	 */
-	private function _getQuestionTask($oApp, $oUser) {
-		if (empty($oApp->questionConfig)) {
-			return false;
-		}
-
-		$aQuestionRules = $this->model('matter\enroll\task', $oApp)->getCanQuestion($oUser);
-		if (empty($aQuestionRules)) {
-			return false;
-		}
-
-		$aRunnings = [];
-		foreach ($aQuestionRules as $oQuestionRule) {
-			if ($oQuestionRule->state === 'IP') {
-				$aRunnings[$oQuestionRule->id] = $oQuestionRule;
-			}
-		}
-		if (empty($aRunnings)) {
-			return false;
-		}
-
-		$oTask = new \stdClass;
-		$oTask->name = 'question';
-		$oTask->rules = $aRunnings;
-
-		return $oTask;
-	}
-	/**
-	 * 回答任务
-	 */
-	private function _getAnswerTask($oApp, $oUser) {
-		if (empty($oApp->answerConfig)) {
-			return false;
-		}
-
-		$aAnswerRules = $this->model('matter\enroll\task', $oApp)->getCanAnswer($oUser);
-		if (empty($aAnswerRules)) {
-			return false;
-		}
-
-		$aRunnings = [];
-		foreach ($aAnswerRules as $oAnswerRule) {
-			if ($oAnswerRule->state === 'IP') {
-				$aRunnings[$oAnswerRule->id] = $oAnswerRule;
-			}
-		}
-		if (empty($aRunnings)) {
-			return false;
-		}
-
-		$oTask = new \stdClass;
-		$oTask->name = 'answer';
-		$oTask->rules = $aRunnings;
-
-		return $oTask;
-	}
-	/**
-	 * 投票任务
-	 */
-	private function _getVoteTask($oApp, $oUser) {
-		if (empty($oApp->voteConfig)) {
-			return false;
-		}
-
-		$aVoteRules = $this->model('matter\enroll\task', $oApp)->getCanVote($oUser);
-		if (empty($aVoteRules)) {
-			return false;
-		}
-
-		$aRunnings = [];
-		foreach ($aVoteRules as $oVoteRule) {
-			if ($oVoteRule->state === 'IP') {
-				$aRunnings[$oVoteRule->id] = $oVoteRule;
-			}
-		}
-		if (empty($aRunnings)) {
-			return false;
-		}
-
-		$oTask = new \stdClass;
-		$oTask->name = 'vote';
-		$oTask->rules = $aRunnings;
-
-		return $oTask;
-	}
-	/**
-	 * 投票任务
-	 */
-	private function _getScoreTask($oApp, $oUser) {
-		if (empty($oApp->scoreConfig)) {
-			return false;
-		}
-
-		$aScoreRules = $this->model('matter\enroll\task', $oApp)->getCanScore($oUser);
-		if (empty($aScoreRules)) {
-			return false;
-		}
-		$aRunnings = [];
-		foreach ($aScoreRules as $oScoreRule) {
-			if ($oScoreRule->state === 'IP') {
-				$aRunnings[] = $oScoreRule;
-			}
-		}
-		if (empty($aRunnings)) {
-			return false;
-		}
-
-		$oTask = new \stdClass;
-		$oTask->name = 'score';
-		$oTask->schemas = $aRunnings;
-
-		return $oTask;
 	}
 }

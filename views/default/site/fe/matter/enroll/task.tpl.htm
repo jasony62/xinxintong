@@ -29,7 +29,7 @@
             </ul>
         </div>
     </nav>
-    <div class='app container'>
+    <div class='container'>
         <div class='form-group' ng-if="rounds.length>1">
             <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
                 <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
@@ -38,6 +38,22 @@
                 <ul class="dropdown-menu" uib-dropdown-menu>
                     <li ng-repeat="rnd in rounds"><a href ng-click="shiftRound(rnd)">{{rnd.title}}</a></li>
                 </ul>
+            </div>
+        </div>
+        <div class='tasks'>
+            <div class='task state-{{task.data.rule.state}} list-group-item ' ng-repeat="task in tasks">
+                <div ng-bind="::task.msg"></div>
+                <div>
+                    <span ng-if="task.data.start_at">开始：{{::task.data.start_at*1000|date:'MM-dd HH:mm'}}</span>
+                    <span ng-if="task.data.end_at">结束：{{::task.data.end_at*1000|date:'MM-dd HH:mm'}}</span>
+                    <span ng-bind="Label.task.state[task.data.rule.state]"></span>
+                </div>
+                <div ng-if="task.data.rule.state==='IP'">
+                    <span ng-if="task.data.rule.type==='question'"><a href class="alert-link" ng-click="question(task.data)">去提问</a></span>
+                    <span ng-if="task.data.rule.type==='answer'"><a href class="alert-link" ng-click="answer(task.data)">去回答</a></span>
+                    <span ng-if="task.data.rule.type==='vote'"><a href class="alert-link" ng-click="vote(task.data)">去投票</a></span>
+                    <span ng-if="task.data.rule.type==='score'"><a href class="alert-link" ng-click="score(task.data)">去打分</a></span>
+                </div>
             </div>
         </div>
     </div>

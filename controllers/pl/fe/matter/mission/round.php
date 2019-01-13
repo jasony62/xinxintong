@@ -57,7 +57,7 @@ class round extends \pl\fe\matter\base {
 		}
 
 		$rules[] = $oPosted->roundCron;
-		$rst = $modelRnd->byCron($rules);
+		$rst = $modelRnd->sampleByCron($rules);
 
 		return new \ResponseData($rst);
 	}
@@ -110,7 +110,7 @@ class round extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oSampleRnd = $modelRnd->byCron($oMission->roundCron);
+		$oSampleRnd = $modelRnd->sampleByCron($oMission->roundCron);
 
 		$modelRnd->update(
 			'xxt_mission_round',

@@ -150,7 +150,7 @@ class enroll_model extends enroll_base {
 					$modelRnd = $this->model('matter\enroll\round');
 					foreach ($oApp->roundCron as &$rec) {
 						$rules[0] = $rec;
-						$rec->case = $modelRnd->byCron($rules);
+						$rec->case = $modelRnd->sampleByCron($rules);
 					}
 				} else {
 					$oApp->roundCron = [];

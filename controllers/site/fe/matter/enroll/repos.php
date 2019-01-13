@@ -454,7 +454,7 @@ class repos extends base {
 			foreach ($oResult->records as $oRecord) {
 				/* 获取记录的投票信息 */
 				if (!empty($oApp->voteConfig)) {
-					$aCanVoteSchemas = $this->model('matter\enroll\task', $oApp)->getVoteRule($oUser, $oRecord->round);
+					$aVoteRules = $this->model('matter\enroll\task', $oApp)->getVoteRule($oUser, $oRecord->round);
 				}
 				$aCoworkState = [];
 				/* 清除非共享数据 */
@@ -508,13 +508,13 @@ class repos extends base {
 									$items = $reposItems;
 								}
 								/* 当前用户投票情况 */
-								if (!empty($aCanVoteSchemas[$oSchema->id])) {
+								if (!empty($aVoteRules[$oSchema->id])) {
 									foreach ($items as $oItem) {
 										$oVoteResult = new \stdClass;
 										$vote_at = (int) $modelData->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oItem->id, 'state' => 1, 'userid' => $oUser->uid]]);
 										$oVoteResult->vote_at = $vote_at;
 										$oVoteResult->vote_num = $oItem->vote_num;
-										$oVoteResult->state = $aCanVoteSchemas[$oSchema->id]->vote->state;
+										//$oVoteResult->state = $aVoteRules[$oSchema->id]->state;
 										unset($oItem->vote_num);
 										$oItem->voteResult = $oVoteResult;
 									}
@@ -530,16 +530,16 @@ class repos extends base {
 						$oRecord->coworkState = (object) $aCoworkState;
 					}
 					/* 获取记录的投票信息 */
-					if (!empty($aCanVoteSchemas)) {
+					if (!empty($aVoteRules)) {
 						$oVoteResult = new \stdClass;
-						foreach ($aCanVoteSchemas as $oCanVoteSchema) {
-							if ($this->getDeepValue($oCanVoteSchema, 'cowork') === 'Y') {continue;}
-							$oRecData = $modelData->byRecord($oRecord->enroll_key, ['schema' => $oCanVoteSchema->id, 'fields' => 'id,vote_num']);
+						foreach ($aVoteRules as $schemaId => $oVoteRule) {
+							if ($this->getDeepValue($oVoteRule->schema, 'cowork') === 'Y') {continue;}
+							$oRecData = $modelData->byRecord($oRecord->enroll_key, ['schema' => $schemaId, 'fields' => 'id,vote_num']);
 							if ($oRecData) {
 								$vote_at = (int) $modelData->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oRecData->id, 'state' => 1, 'userid' => $oUser->uid]]);
 								$oRecData->vote_at = $vote_at;
-								$oRecData->state = $oCanVoteSchema->vote->state;
-								$oVoteResult->{$oCanVoteSchema->id} = $oRecData;
+								$oRecData->state = $oVoteRule->state;
+								$oVoteResult->{$schemaId} = $oRecData;
 							}
 						}
 						$oRecord->voteResult = $oVoteResult;
@@ -964,16 +964,16 @@ class repos extends base {
 			}
 			/* 获取记录的投票信息 */
 			if (!empty($oApp->voteConfig)) {
-				$aCanVoteSchemas = $this->model('matter\enroll\task', $oApp)->getVoteRule($oUser, $oRecord->round);
+				$aVoteRules = $this->model('matter\enroll\task', $oApp)->getVoteRule($oUser, $oRecord->round);
 				$oVoteResult = new \stdClass;
-				foreach ($aCanVoteSchemas as $oCanVoteSchema) {
-					if ($this->getDeepValue($oCanVoteSchema, 'cowork') === 'Y') {continue;}
-					$oRecData = $modelRecDat->byRecord($oRecord->enroll_key, ['schema' => $oCanVoteSchema->id, 'fields' => 'id,vote_num']);
+				foreach ($aVoteRules as $schemaId => $oVoteRule) {
+					if ($this->getDeepValue($oVoteRule, 'schema.cowork') === 'Y') {continue;}
+					$oRecData = $modelRecDat->byRecord($oRecord->enroll_key, ['schema' => $schemaId, 'fields' => 'id,vote_num']);
 					if ($oRecData) {
 						$vote_at = (int) $modelRecDat->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oRecData->id, 'state' => 1, 'userid' => $oUser->uid]]);
 						$oRecData->vote_at = $vote_at;
-						$oRecData->state = $oCanVoteSchema->vote->state;
-						$oVoteResult->{$oCanVoteSchema->id} = $oRecData;
+						//$oRecData->state = $oVoteRule->state;
+						$oVoteResult->{$schemaId} = $oRecData;
 					}
 				}
 				$oRecord->voteResult = $oVoteResult;

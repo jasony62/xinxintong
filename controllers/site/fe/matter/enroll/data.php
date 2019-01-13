@@ -178,15 +178,15 @@ class data extends base {
 							}
 						}
 						/* 当前用户投票情况 */
-						if (!empty($aCanVoteSchemas[$oRecData->schema_id])) {
-							$oVoteResult = new \stdClass;
-							$vote_at = (int) $modelRecDat->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oItem->id, 'state' => 1, 'userid' => $oUser->uid]]);
-							$oVoteResult->vote_at = $vote_at;
-							$oVoteResult->vote_num = $oItem->vote_num;
-							$oVoteResult->state = $aCanVoteSchemas[$oRecData->schema_id]->vote->state;
-							unset($oItem->vote_num);
-							$oItem->voteResult = $oVoteResult;
-						}
+						//if (!empty($aCanVoteSchemas[$oRecData->schema_id])) {
+						$oVoteResult = new \stdClass;
+						$vote_at = (int) $modelRecDat->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oItem->id, 'state' => 1, 'userid' => $oUser->uid]]);
+						$oVoteResult->vote_at = $vote_at;
+						$oVoteResult->vote_num = $oItem->vote_num;
+						//$oVoteResult->state = $aCanVoteSchemas[$oRecData->schema_id]->vote->state;
+						unset($oItem->vote_num);
+						$oItem->voteResult = $oVoteResult;
+						//}
 					}
 				}
 			} else {

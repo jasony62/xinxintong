@@ -31,6 +31,16 @@
     </nav>
     <div ng-cloak class='ng-cloak app container'>
         <div class='row'>
+            <div ng-if="tasks.length" ng-cloak>
+                <div uib-alert ng-repeat="task in tasks" class='alert-info'>
+                    <div><label><input type='checkbox' name='forTask' ng-true-value="'{{task.id}}'" ng-model="forTask"> 问题留言后，题目作为任务提交</label></div>
+                    <div>
+                        <span ng-if="task.start_at">开始：{{::task.start_at*1000|date:'MM-dd HH:mm'}}</span>
+                        <span ng-if="task.end_at">，结束：{{::task.end_at*1000|date:'MM-dd HH:mm'}}</span>
+                        <span>，完成提问任务</span>
+                    </div>
+                </div>
+            </div>
             <div id='record' class='record'>
                 <div class='top-bar'>
                     <div class='nickname text-muted'><span class='glyphicon glyphicon-user'></span> {{record.nickname||'隐藏'}}</div>
@@ -296,7 +306,7 @@
     </script>
     <script type="text/ng-template" id="writeItem.html">
         <div class="modal-body">
-            <div id='remarkEditor' content='data.content' tms-editor></div>
+            <div id='itemEditor' content='data.content' tms-editor></div>
         </div>
         <div class="modal-footer" tms-hide-parent-height='400'>
             <div class='text-center'>

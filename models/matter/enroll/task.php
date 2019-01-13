@@ -96,9 +96,9 @@ class task_model extends \TMS_MODEL {
 		return $oConfig;
 	}
 	/**
-	 *
+	 * 获得指定任务定义的状态
 	 */
-	private function _checkTaskConfigByTime($oTaskConfig, $oRound) {
+	public function getRuleStateByRound($oTaskConfig, $oRound) {
 		$taskState = 'IP';
 		$startAt = $endAt = 0;
 		$current = time();
@@ -165,7 +165,7 @@ class task_model extends \TMS_MODEL {
 					continue;
 				}
 			}
-			$aValid = $this->_checkTaskConfigByTime($oQuestionConfig, $oRound);
+			$aValid = $this->getRuleStateByRound($oQuestionConfig, $oRound);
 			if (false === $aValid[0]) {
 				continue;
 			}
@@ -203,7 +203,7 @@ class task_model extends \TMS_MODEL {
 					continue;
 				}
 			}
-			$aValid = $this->_checkTaskConfigByTime($oAnswerConfig, $oRound);
+			$aValid = $this->getRuleStateByRound($oAnswerConfig, $oRound);
 			if (false === $aValid[0]) {
 				continue;
 			}
@@ -246,7 +246,7 @@ class task_model extends \TMS_MODEL {
 					continue;
 				}
 			}
-			$aValid = $this->_checkTaskConfigByTime($oVoteConfig, $oRound);
+			$aValid = $this->getRuleStateByRound($oVoteConfig, $oRound);
 			if (false === $aValid[0]) {
 				continue;
 			}
@@ -289,7 +289,7 @@ class task_model extends \TMS_MODEL {
 					continue;
 				}
 			}
-			$aValid = $this->_checkTaskConfigByTime($oScoreConfig, $oRound);
+			$aValid = $this->getRuleStateByRound($oScoreConfig, $oRound);
 			if (false === $aValid[0]) {
 				continue;
 			}
@@ -345,26 +345,35 @@ class task_model extends \TMS_MODEL {
 		return $oTask;
 	}
 	/**
+	 * 获得任务的规则定义
+	 */
+	public function ruleByTask($oApp, $oTask, $oRound) {
+		$oVoteRule = tms_array_search($oApp->voteConfig, function ($oRule) use ($oTask) {return $oRule->id === $oTask->config_id;});
+		if (false === $oVoteRule || empty($oVoteRule->schemas)) {
+			return [false, '（1）投票任务参数错误'];
+		}
+
+		$oVoateRuleState = $this->getRuleStateByRound($oVoteRule, $oRound);
+		if (false === $oVoateRuleState[0]) {
+			return [false, '（2）投票任务参数错误'];
+		}
+		tms_object_merge($oVoteRule, $oVoateRuleState[1]);
+
+		return [true, $oVoteRule];
+	}
+	/**
 	 * 指定用户当前是否存在任务
 	 */
-	public function currentByUser($oUser, $aOptions = []) {
+	public function byId($id, $aOptions = []) {
 		$fields = empty($aOptons['fields']) ? 'id,start_at,end_at,config_type,config_id' : $aOptons['fields'];
 		$q = [
 			$fields,
 			'xxt_enroll_task',
-			['aid' => $this->_oApp->id, 'state' => 1],
+			['aid' => $this->_oApp->id, 'id' => $id],
 		];
-		if (!empty($aOptons['type'])) {
-			$q[2]['config_type'] = $aOptons['type'];
-		}
 
-		/* 任务时间段 */
-		$current = time();
-		$q[2]['start_at'] = (object) ['op' => '<=', 'pat' => $current];
-		$q[2]['end_at'] = (object) ['op' => '>=', 'pat' => $current];
+		$oTask = $this->query_obj_ss($q);
 
-		$tasks = $this->query_objs_ss($q);
-
-		return $tasks;
+		return $oTask;
 	}
 }

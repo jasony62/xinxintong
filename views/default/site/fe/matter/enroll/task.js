@@ -53,7 +53,7 @@ ngApp.controller('ctrlTask', ['$scope', '$parse', '$q', '$uibModal', 'http2', 't
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.vote = function(oRecData) {
-                    http2.get(LS.j('task/vote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
+                    http2.get(LS.j('task/vote', 'site') + '&data=' + oRecData.id + '&task=' + oTask.id).then(function(rsp) {
                         oRecData.voteResult.vote_num++;
                         oRecData.voteResult.vote_at = rsp.data[0].vote_at;
                         var remainder = rsp.data[1][0] - rsp.data[1][1];
@@ -65,7 +65,7 @@ ngApp.controller('ctrlTask', ['$scope', '$parse', '$q', '$uibModal', 'http2', 't
                     });
                 };
                 $scope2.unvote = function(oRecData) {
-                    http2.get(LS.j('task/unvote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
+                    http2.get(LS.j('task/unvote', 'site') + '&data=' + oRecData.id + '&task=' + oTask.id).then(function(rsp) {
                         oRecData.voteResult.vote_num--;
                         oRecData.voteResult.vote_at = 0;
                         var remainder = rsp.data[0] - rsp.data[1];
@@ -76,7 +76,7 @@ ngApp.controller('ctrlTask', ['$scope', '$parse', '$q', '$uibModal', 'http2', 't
                         }
                     });
                 };
-                http2.get(LS.j('task/votingRecData', 'site', 'app')).then(function(rsp) {
+                http2.get(LS.j('task/votingRecData', 'site', 'app') + '&task=' + oTask.id).then(function(rsp) {
                     $scope2.votingRecDatas = rsp.data[Object.keys(rsp.data)[0]];
                 });
             }],

@@ -92,12 +92,20 @@ function tms_array_search($array, $callback) {
 /**
  * 合并对象
  */
-function tms_object_merge(&$oHost, $oNew) {
+function tms_object_merge(&$oHost, $oNew, $fromProps = []) {
 	if (empty($oHost) || empty($oNew) || !is_object($oHost)) {
 		return $oHost;
 	}
-	foreach ($oNew as $prop => $val) {
-		$oHost->{$prop} = $val;
+	if (empty($fromProps)) {
+		foreach ($oNew as $prop => $val) {
+			$oHost->{$prop} = $val;
+		}
+	} else {
+		foreach ($fromProps as $prop) {
+			if (isset($oNew->{$prop})) {
+				$oHost->{$prop} = $oNew->{$prop};
+			}
+		}
 	}
 
 	return $oHost;

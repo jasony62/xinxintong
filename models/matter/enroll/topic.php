@@ -43,7 +43,7 @@ class topic_model extends entity_model {
 			$oTopic->create_at = $current;
 			$oTopic->userid = '';
 			$oTopic->group_id = '';
-			//$oTopic->title = empty($oPosted->title) ? $oNewTopic->nickname . '的专题（' . date('y年n月d日', $current) . '）' : $modelEnl->escape($oPosted->title);
+			$oTopic->title = ['question' => '提问', 'answer' => '回答', 'vote' => '投票', 'score' => '打分'][$oTask->type] . '任务专题（' . date('y年n月d日', $oTask->start_at) . '）';
 			//$oTopic->summary = empty($oPosted->summary) ? $oNewTopic->title : $modelEnl->escape($oPosted->summary);
 			$oTopic->rec_num = 0;
 			$oTopic->id = $this->insert('xxt_enroll_topic', $oTopic, true);

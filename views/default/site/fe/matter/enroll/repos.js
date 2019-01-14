@@ -488,19 +488,19 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             new enlTask($scope.app).list(null, 'IP').then(function(ipTasks) {
                 if (ipTasks.length) {
                     ipTasks.forEach(function(oTask) {
-                        switch (oTask.rule.type) {
+                        switch (oTask.type) {
                             case 'question':
-                                tasks.push({ type: 'info', msg: '有提问任务', id: 'record.data.question', data: oTask });
+                                tasks.push({ type: 'info', msg: oTask.toString(), id: 'record.data.question', data: oTask });
                                 break;
                             case 'answer':
-                                tasks.push({ type: 'info', msg: '有回答任务', id: 'record.data.answer', data: oTask });
+                                tasks.push({ type: 'info', msg: oTask.toString(), id: 'record.data.answer', data: oTask });
                                 break;
                             case 'vote':
-                                tasks.push({ type: 'info', msg: '有投票任务', id: 'record.data.vote', data: oTask });
+                                tasks.push({ type: 'info', msg: oTask.toString(), id: 'record.data.vote', data: oTask });
                                 popActs.push('voteRecData');
                                 break;
                             case 'score':
-                                tasks.push({ type: 'info', msg: '有打分任务', id: 'record.data.score', data: oTask });
+                                tasks.push({ type: 'info', msg: oTask.toString(), id: 'record.data.score', data: oTask });
                                 popActs.push('scoreSchema');
                                 break;
                         }

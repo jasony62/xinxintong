@@ -45,7 +45,7 @@ class task extends base {
 					}
 					$oTask = $modelTsk->byRule($oRule, ['createIfNone' => true]);
 					if ($oTask) {
-						$oTask->rule = $oRule;
+						tms_object_merge($oTask, $oRule, ['type', 'state', 'limit', 'groups', 'schemas']);
 						if (!isset($modelTop)) {
 							$modelTop = $this->model('matter\enroll\topic', $oApp);
 						}

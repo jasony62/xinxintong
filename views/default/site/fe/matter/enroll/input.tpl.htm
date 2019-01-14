@@ -36,11 +36,7 @@
             <div ng-if="tasks.length" ng-cloak>
                 <div uib-alert ng-repeat="task in tasks" class='alert-info'>
                     <div><label><input type='checkbox' name='forTask' ng-true-value="'{{task.id}}'" ng-model="forTask"> 作为任务提交</label></div>
-                    <div>
-                        <span ng-if="task.start_at">开始：{{::task.start_at*1000|date:'MM-dd HH:mm'}}</span>
-                        <span ng-if="task.end_at">，结束：{{::task.end_at*1000|date:'MM-dd HH:mm'}}</span>
-                        <span>，提交问题</span>
-                    </div>
+                    <div ng-bind="task"></div>
                 </div>
             </div>
             <div class='form-group' ng-if="rounds.length>1">

@@ -416,6 +416,8 @@ class round_model extends \TMS_MODEL {
 	}
 	/**
 	 * 删除轮次
+	 *
+	 * @todo 不是在这个轮次里的，通过修改或评论的怎么算？
 	 */
 	public function remove($oApp, $oRound) {
 		/* 删除轮次下的记录 */

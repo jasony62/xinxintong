@@ -1,4 +1,5 @@
 'use strict';
+require('../../../../../../asset/css/buttons.css');
 require('./enroll.public.css');
 
 require('./_asset/ui.repos.js');
@@ -41,9 +42,8 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         location.href = url;
     };
 
-    var _oApp, _oPage, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, shareby;
+    var _oApp, _oPage, _oCriteria, _oShareableSchemas, shareby;
     shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
-    _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = {};
     $scope.criteria = _oCriteria = { rid: 'all', creator: false, favored: true, agreed: 'all', orderby: 'lastest' }; // 数据查询条件
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
@@ -67,9 +67,6 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         http2.post(url, _oCriteria, { page: _oPage }).then(function(result) {
             if (result.data.records) {
                 result.data.records.forEach(function(oRecord) {
-                    if (_coworkRequireLikeNum > oRecord.like_num) {
-                        oRecord._coworkRequireLikeNum = (_coworkRequireLikeNum > oRecord.like_num ? _coworkRequireLikeNum - oRecord.like_num : 0);
-                    }
                     oRecord._canAgree = fnCanAgreeRecord(oRecord, $scope.user);
                     $scope.repos.push(oRecord);
                 });
@@ -193,15 +190,6 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         $scope.setPopAct(['addRecord'], 'topic');
         /*设置页面导航*/
         $scope.setPopNav(['repos'], 'topic');
-        /* 活动任务 */
-        if (oApp.actionRule) {
-            /* 开启协作填写需要的点赞数 */
-            if (oApp.actionRule.record && oApp.actionRule.record.cowork && oApp.actionRule.record.cowork.pre) {
-                if (oApp.actionRule.record.cowork.pre.record && oApp.actionRule.record.cowork.pre.record.likeNum !== undefined) {
-                    _coworkRequireLikeNum = parseInt(oApp.actionRule.record.cowork.pre.record.likeNum);
-                }
-            }
-        }
         fnGetTopic().then(function(rsp) {
             $scope.topic = rsp.data;
             /* 设置页面分享信息 */

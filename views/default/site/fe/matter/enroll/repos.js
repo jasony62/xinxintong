@@ -320,6 +320,10 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             });
         }
     };
+    $scope.gotoTask = function(oTask) {
+        if (oTask && oTask.topic && oTask.topic.id)
+            location.href = LS.j('', 'site', 'app') + '&topic=' + oTask.topic.id + '&page=topic';
+    };
     $scope.voteRecData = function(oTask) {
         $uibModal.open({
             template: require('./_asset/vote-rec-data.html'),

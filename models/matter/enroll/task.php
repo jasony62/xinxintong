@@ -365,7 +365,7 @@ class task_model extends \TMS_MODEL {
 	 * 指定用户当前是否存在任务
 	 */
 	public function byId($id, $aOptions = []) {
-		$fields = empty($aOptons['fields']) ? 'id,start_at,end_at,config_type,config_id' : $aOptons['fields'];
+		$fields = empty($aOptons['fields']) ? 'id,rid,start_at,end_at,config_type,config_id' : $aOptons['fields'];
 		$q = [
 			$fields,
 			'xxt_enroll_task',
@@ -373,6 +373,20 @@ class task_model extends \TMS_MODEL {
 		];
 
 		$oTask = $this->query_obj_ss($q);
+		if ($oTask && isset($oTask->config_type) && isset($oTask->config_id)) {
+			if (!empty($this->_oApp->{$oTask->config_type . 'Config'})) {
+				$oRuleConfig = tms_array_search($this->_oApp->{$oTask->config_type . 'Config'}, function ($oConfig) use ($oTask) {return $oConfig->id === $oTask->config_id;});
+				if ($oRuleConfig && $this->getDeepValue($oRuleConfig, 'enabled') === 'Y') {
+					$oTaskRound = $this->model('matter\enroll\round')->byId($oTask->rid);
+					if ($oTaskRound) {
+						$oRuleState = $this->getRuleStateByRound($oRuleConfig, $oTaskRound);
+						if (true === $oRuleState[0]) {
+							tms_object_merge($oTask, $oRuleState[1], ['state']);
+						}
+					}
+				}
+			}
+		}
 
 		return $oTask;
 	}

@@ -101,9 +101,17 @@ function tms_object_merge(&$oHost, $oNew, $fromProps = []) {
 			$oHost->{$prop} = $val;
 		}
 	} else {
-		foreach ($fromProps as $prop) {
-			if (isset($oNew->{$prop})) {
-				$oHost->{$prop} = $oNew->{$prop};
+		if (is_object($oNew)) {
+			foreach ($fromProps as $prop) {
+				if (isset($oNew->{$prop})) {
+					$oHost->{$prop} = $oNew->{$prop};
+				}
+			}
+		} else if (is_array($oNew)) {
+			foreach ($fromProps as $prop) {
+				if (isset($oNew[$prop])) {
+					$oHost->{$prop} = $oNew[$prop];
+				}
 			}
 		}
 	}

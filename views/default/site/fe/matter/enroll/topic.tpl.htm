@@ -32,7 +32,7 @@
     <div class='app container'>
         <div class='panel'>
             <div class='panel-body ng-cloak' ng-if="topic" ng-cloak>
-                <div class='form-group'>
+                <div class='form-group' ng-if="topic.nickname">
                     <div class='text-muted' ng-bind="topic.nickname"></div>
                 </div>
                 <div class='form-group'>
@@ -121,6 +121,13 @@
             </div>
         </div>
     </div>
+    <nav class="navbar site-navbar-tab navbar-default navbar-fixed-bottom" ng-if="topic.task.config_type==='question'&&topic.task.state==='IP'">
+        <div class="container-fluid text-center">
+            <button class="button-highlight btn navbar-btn" ng-click="gotoPage($event,'repos')"><span>评论老问题</span></button>
+            <button class="button-highlight btn navbar-btn" ng-click="gotoPage($event,'repos')"><span>重提老问题</span></button>
+            <button class="button-highlight btn navbar-btn" ng-click="addRecord($event)"><span>提出新问题</span></button>
+        </div>
+    </nav>
     <div ng-if="popAct.acts.length" tms-pop-act acts="popAct.acts" custom="popAct.custom" close-after='5000'></div>
     <script type="text/ng-template" id="assignTopic.html">
         <div class="modal-body">

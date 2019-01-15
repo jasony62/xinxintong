@@ -399,13 +399,13 @@ class record_model extends record_base {
 	 *
 	 * @param string $roundId
 	 */
-	public function &byRound($roundId, $aOptions = []) {
+	public function byRound($rid, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		if ($fields === 'count(*)') {
 			$q = [
 				'count(*)',
 				'xxt_enroll_record',
-				["state" => 1, "rid" => $roundId],
+				['state' => 1, 'rid' => $rid],
 			];
 			$cnt = (int) $this->query_val_ss($q);
 
@@ -414,9 +414,8 @@ class record_model extends record_base {
 			$q = [
 				$fields,
 				'xxt_enroll_record',
-				["state" => 1, "rid" => $roundId],
+				['state' => 1, 'rid' => $rid],
 			];
-
 			$q2 = ['o' => 'enroll_at desc'];
 
 			$list = $this->query_objs_ss($q, $q2);
@@ -515,7 +514,7 @@ class record_model extends record_base {
 		$q = [
 			$fields,
 			'xxt_enroll_record',
-			["state" => 1, 'rid' => $oRound->rid, "userid" => $userid],
+			['state' => 1, 'rid' => $oRound->rid, "userid" => $userid],
 		];
 		$q2 = ['o' => 'enroll_at desc', 'r' => ['o' => 0, 'l' => 1]];
 

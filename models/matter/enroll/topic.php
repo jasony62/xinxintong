@@ -53,8 +53,18 @@ class topic_model extends entity_model {
 	}
 	/**
 	 * 返回专题下的记录
+	 *
+	 * 如果是任务专题，可能需要动态获取任务信息
 	 */
-	public function records($oApp, $oTopic) {
+	public function records($oTopic) {
+		if (!empty($oTopic->task_id)) {
+			$oTask = $this->model('matter\enroll\task', $this->_oApp)->byId($oTopic->task_id);
+			if ($oTask && $oTask->state === 'IP') {
+				/* 任务执行过程中，需要更新任务的专题 */
+				$this->_renewByTask($oTopic, $oTask);
+			}
+		}
+
 		$q = [
 			'r.*,tr.assign_at,tr.seq seq_in_topic',
 			'xxt_enroll_record r inner join xxt_enroll_topic_record tr on r.id=tr.record_id',
@@ -65,7 +75,7 @@ class topic_model extends entity_model {
 		$records = $this->query_objs_ss($q, $q2);
 		if (count($records)) {
 			$modelRec = $this->model('matter\enroll\record');
-			$modelRec->parse($oApp, $records);
+			$modelRec->parse($this->_oApp, $records);
 		}
 
 		$oResult = new \stdClass;
@@ -75,9 +85,45 @@ class topic_model extends entity_model {
 		return $oResult;
 	}
 	/**
-	 * 将记录放入专题
+	 * 更新专题中包含的记录
 	 */
-	public function assign($oTopic, $oRecord) {
+	private function _renewByTask($oTopic, $oTask) {
+		switch ($oTask->config_type) {
+		case 'vote':
+			$this->_renewByVoteTask($oTopic, $oTask);
+			break;
+		}
+	}
+	/**
+	 * 更新投票任务专题中包含的记录
+	 *
+	 * @param object $oTopic
+	 * @param object $oTask
+	 *
+	 */
+	private function _renewByVoteTask($oTopic, $oTask) {
+		if (empty($oTask->rid)) {
+			return false;
+		}
+		/* 任务轮次中的记录 */
+		$modelRec = $this->model('matter\enroll\record');
+		$records = $modelRec->byRound($oTask->rid, ['fields' => 'id,enroll_at']);
+		if (!empty($records)) {
+			foreach ($records as $oRecord) {
+				$this->assign($oTopic, $oRecord, max($oTask->start_at, $oRecord->enroll_at));
+			}
+		}
+
+		return true;
+	}
+	/**
+	 * 将记录放入专题
+	 *
+	 * @param object $oTopic[id]
+	 * @param object $oRecord[id]
+	 *
+	 */
+	public function assign($oTopic, $oRecord, $assignAt = null) {
 		$q = ['topic_id', 'xxt_enroll_topic_record', ['record_id' => $oRecord->id]];
 		$aBeforeTopicIds = $this->query_vals_ss($q);
 		if (in_array($oTopic->id, $aBeforeTopicIds)) {
@@ -92,7 +138,7 @@ class topic_model extends entity_model {
 		$oNewRel->aid = $this->_oApp->id;
 		$oNewRel->siteid = $this->_oApp->siteid;
 		$oNewRel->record_id = $oRecord->id;
-		$oNewRel->assign_at = time();
+		$oNewRel->assign_at = empty($assignAt) ? time() : $assignAt;
 		$oNewRel->topic_id = $oTopic->id;
 		$oNewRel->seq = $maxSeq + 1;
 		$this->insert('xxt_enroll_topic_record', $oNewRel, false);

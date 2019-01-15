@@ -33,6 +33,12 @@
     </nav>
     <div ng-cloak class='app ng-cloak'>
         <div id='enroll' class='container'>
+            <div ng-if="tasks.length" ng-cloak>
+                <div uib-alert ng-repeat="task in tasks" class='alert-info'>
+                    <div><label><input type='checkbox' name='forTask' ng-true-value="'{{task.id}}'" ng-model="forTask"> 作为任务提交</label></div>
+                    <div ng-bind="task"></div>
+                </div>
+            </div>
             <div class='form-group' ng-if="rounds.length>1">
                 <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
                     <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
@@ -132,7 +138,7 @@
     </script>
     <script type="text/ng-template" id="writeItem.html">
         <div class="modal-body">
-            <div id='remarkEditor' content='data.content' tms-editor></div>
+            <div content='data.content' tms-editor></div>
         </div>
         <div class="modal-footer" tms-hide-parent-height='400'>
             <div class='text-center'>

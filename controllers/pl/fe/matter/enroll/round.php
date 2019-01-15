@@ -14,7 +14,7 @@ class round extends \pl\fe\matter\base {
 	 *
 	 */
 	public function list_action($app, $checked = null, $page = 1, $size = 10) {
-		if (false === ($oUser = $this->accountUser())) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
@@ -25,11 +25,16 @@ class round extends \pl\fe\matter\base {
 
 		$modelRnd = $this->model('matter\enroll\round');
 
+		/* 自动生成汇总轮次和目标轮次 */
+		$modelRnd->byCron($oApp, 'S');
+		$modelRnd->byCron($oApp, 'B');
+
 		$oPage = new \stdClass;
 		$oPage->at = $page;
 		$oPage->size = $size;
 
 		$fields = 'id,state,rid,title,purpose,start_at,end_at,mission_rid';
+
 		$oResult = $modelRnd->byApp($oApp, ['page' => $oPage, 'fields' => $fields, 'state' => [0, 1, 2]]);
 		if (!empty($checked)) {
 			if ($oChecked = $modelRnd->byId($checked, ['fields' => $fields])) {
@@ -59,7 +64,7 @@ class round extends \pl\fe\matter\base {
 		}
 
 		$rules[] = $oPosted->roundCron;
-		$oExampleRnd = $modelRnd->byCron($rules);
+		$oExampleRnd = $modelRnd->sampleByCron($rules);
 
 		return new \ResponseData($oExampleRnd);
 	}
@@ -112,7 +117,7 @@ class round extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oSampleRnd = $modelRnd->byCron($oApp->roundCron);
+		$oSampleRnd = $modelRnd->sampleByCron($oApp->roundCron);
 
 		$modelRnd->update(
 			'xxt_enroll_round',

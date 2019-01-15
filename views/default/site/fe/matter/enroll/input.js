@@ -10,8 +10,9 @@ require('../../../../../../asset/js/xxt.ui.editor.js');
 require('../../../../../../asset/js/xxt.ui.schema.js');
 
 require('./_asset/ui.round.js');
+require('./_asset/ui.task.js');
 
-window.moduleAngularModules = ['round.ui.enroll', 'paste.ui.xxt', 'editor.ui.xxt', 'url.ui.xxt', 'schema.ui.xxt'];
+window.moduleAngularModules = ['round.ui.enroll', 'task.ui.enroll', 'paste.ui.xxt', 'editor.ui.xxt', 'url.ui.xxt', 'schema.ui.xxt'];
 
 var ngApp = require('./main.js');
 ngApp.oUtilSubmit = require('../_module/submit.util.js');
@@ -41,7 +42,7 @@ ngApp.factory('Input', ['$parse', 'tmsLocation', 'http2', 'tmsSchema', function(
         }
         return true;
     };
-    Input.prototype.submit = function(oRecord, oRecData, tags, oSupplement, type) {
+    Input.prototype.submit = function(oRecord, oRecData, tags, oSupplement, type, taskId) {
         var url, d, oPosted, tagsByScchema;
 
         oPosted = angular.copy(oRecData);
@@ -59,6 +60,8 @@ ngApp.factory('Input', ['$parse', 'tmsLocation', 'http2', 'tmsSchema', function(
                 url = LS.j('record/' + (type || 'submit'), 'site', 'app', 'rid');
             }
         }
+        /* 所属任务 */
+        if (taskId) url += '&task=' + taskId;
         for (var i in oPosted) {
             d = oPosted[i];
             if (angular.isArray(d) && d.length && d[0].imgSrc !== undefined && d[0].serverId !== undefined) {
@@ -394,7 +397,7 @@ ngApp.directive('tmsVoiceInput', ['$q', 'noticebox', function($q, noticebox) {
         }]
     }
 }]);
-ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout', 'Input', 'tmsLocation', 'http2', 'noticebox', 'tmsPaste', 'tmsUrl', 'tmsSchema', '$compile', 'enlRound', function($scope, $parse, $q, $uibModal, $timeout, Input, LS, http2, noticebox, tmsPaste, tmsUrl, tmsSchema, $compile, enlRound) {
+ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout', 'Input', 'tmsLocation', 'http2', 'noticebox', 'tmsPaste', 'tmsUrl', 'tmsSchema', '$compile', 'enlRound', 'enlTask', function($scope, $parse, $q, $uibModal, $timeout, Input, LS, http2, noticebox, tmsPaste, tmsUrl, tmsSchema, $compile, enlRound, enlTask) {
     function fnHidePageActions() {
         var domActs, domAct;
         if (domActs = document.querySelectorAll('[wrap=button]')) {
@@ -661,7 +664,7 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
     }
 
     function doSubmit(nextAction, type) {
-        _facInput.submit($scope.record, $scope.data, $scope.tag, $scope.supplement, type).then(function(rsp) {
+        _facInput.submit($scope.record, $scope.data, $scope.tag, $scope.supplement, type, $scope.forTask).then(function(rsp) {
             var url;
             if (type == 'save') {
                 noticebox.success('保存成功，关闭页面后，再次打开时自动恢复当前数据。确认数据填写完成后，请继续【提交】数据。');
@@ -875,7 +878,7 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         }
     };
 
-    var _facInput, _tasksOfBeforeSubmit, _oSubmitState, _oApp, _oPage, _StateCacheKey, _facRound;
+    var _facInput, _tasksOfBeforeSubmit, _oSubmitState, _oApp, _oPage, _StateCacheKey, _tkRound;
 
     _tasksOfBeforeSubmit = [];
     _facInput = Input.ins();
@@ -1129,8 +1132,15 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         /* 用户已经登记过或保存过，恢复之前的数据 */
         fnGetRecord();
         /* 活动轮次 */
-        _facRound = new enlRound(_oApp);
-        _facRound.list().then(function(oResult) {
+        new enlTask(_oApp).list('question').then(function(tasks) {
+            $scope.tasks = tasks;
+            if (tasks.length === 1) {
+                $scope.forTask = tasks[0].id;
+            }
+        });
+        /* 活动轮次 */
+        _tkRound = new enlRound(_oApp);
+        _tkRound.list().then(function(oResult) {
             $scope.rounds = oResult.rounds;
         });
         /*页面阅读日志*/

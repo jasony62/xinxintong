@@ -4,7 +4,7 @@ namespace matter\enroll;
 require_once dirname(__FILE__) . '/event.php';
 
 /**
- * 登记活动用户提醒
+ * 记录活动用户提醒
  */
 class notice_model extends \TMS_MODEL {
 	/**

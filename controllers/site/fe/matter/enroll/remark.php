@@ -154,7 +154,7 @@ class remark extends base {
 	 * @param $remark 被留言的留言
 	 *
 	 */
-	public function add_action($ek, $data = 0, $remark = 0) {
+	public function add_action($ek, $data = 0, $remark = 0, $task = null) {
 		$recDataId = $data;
 
 		$modelRec = $this->model('matter\enroll\record');
@@ -306,7 +306,21 @@ class remark extends base {
 		if ($oNewRemark->userid === $oRemarker->uid) {
 			$oNewRemark->nickname = '我';
 		}
-
+		/**
+		 * 如果存在提问任务，将记录放到任务专题中
+		 */
+		if (!empty($task)) {
+			$modelTsk = $this->model('matter\enroll\task', $oApp);
+			if ($oTask = $modelTsk->byId($task)) {
+				/* 检查任务是否有效 */
+				if ($oTask->config_type === 'question') {
+					$modelTop = $this->model('matter\enroll\topic', $oApp);
+					if ($oTopic = $modelTop->byTask($oTask)) {
+						$modelTop->assign($oTopic, $oRecord);
+					}
+				}
+			}
+		}
 		/* 通知登记活动事件接收人 */
 		if (isset($oApp->notifyConfig->remark->valid) && $oApp->notifyConfig->remark->valid === true) {
 			$this->_notifyReceivers($oApp, $oRecord, $oNewRemark);

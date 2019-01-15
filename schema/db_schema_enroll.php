@@ -116,6 +116,7 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_enroll_task(";
 $sql .= "id int not null auto_increment";
+$sql .= ",state tinyint not null default 1";
 $sql .= ",aid varchar(40) not null";
 $sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",rid varchar(13) not null default ''";
@@ -491,6 +492,7 @@ $sql .= ",state tinyint not null default 1"; //0:clean,1:normal;
 $sql .= ",rec_num int not null default 0";
 $sql .= ",share_in_group char(1) not null default 'N'";
 $sql .= ",is_public char(1) not null default 'N'"; // 是否为公共专题
+$sql .= ",task_id int not null default 0"; // 关联的活动任务
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

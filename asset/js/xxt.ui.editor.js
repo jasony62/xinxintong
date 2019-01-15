@@ -170,7 +170,7 @@ ngMod.directive('tmsEditor', ['$q', '$timeout', 'http2', 'tmsPaste', function($q
                         /* 是否进行了有效的移动 */
                         if (Math.abs(oTouchTracks.start.x - oTouchTracks.end.x) >= 16) {
                             _setSelectionByTouch(event.target, oTouchTracks);
-                        }　
+                        }
                         _divContent.contentEditable = true;
                         event.preventDefault();
                     }

@@ -445,23 +445,32 @@ class repos extends base {
 					}
 				}
 			}
-			$aSchareableSchemas = [];
-			foreach ($oApp->dynaDataSchemas as $oSchema) {
-				if (isset($oSchema->shareable) && $oSchema->shareable === 'Y') {
-					$aSchareableSchemas[] = $oSchema;
-				}
-			}
+
 			foreach ($oResult->records as $oRecord) {
 				/* 获取记录的投票信息 */
 				if (!empty($oApp->voteConfig)) {
 					$aVoteRules = $this->model('matter\enroll\task', $oApp)->getVoteRule($oUser, $oRecord->round);
 				}
 				$aCoworkState = [];
+				$recordDirs = [];
 				/* 清除非共享数据 */
 				if (isset($oRecord->data)) {
 					$oRecordData = new \stdClass;
-					foreach ($aSchareableSchemas as $oSchema) {
+					foreach ($oApp->dynaDataSchemas as $oSchema) {
 						$schemaId = $oSchema->id;
+						// 分类目录
+						if (!empty($oSchema->asdir) && $oSchema->asdir === 'Y' && !empty($oRecord->data->{$schemaId})) { 
+							foreach ($oSchema->ops as $op) {
+								if ($op->v === $oRecord->data->{$schemaId}) {
+									$recordDirs[] = $op->l;
+								}
+							}
+						}
+						/* 清除非共享数据 */
+						if (isset($oSchema->shareable) && $oSchema->shareable !== 'Y') {
+							continue;
+						}
+
 						if (strpos($schemaId, 'member.extattr.') === 0) {
 							$memberSchemaId = str_replace('member.extattr.', '', $schemaId);
 							if (!empty($oRecord->data->member->extattr->{$memberSchemaId})) {
@@ -484,42 +493,52 @@ class repos extends base {
 						} else if (!empty($oRecord->data->{$schemaId})) {
 							/* 协作填写题 */
 							if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
-								$aOptions = ['excludeRoot' => true, 'fields' => 'id,agreed,like_num,nickname,value,multitext_seq,vote_num,score'];
-								// 展示在共享页的协作数据表态类型
+								// $aOptions = ['excludeRoot' => true, 'fields' => 'id,agreed,like_num,nickname,value,multitext_seq,vote_num,score'];
+								// // 展示在共享页的协作数据表态类型
+								// if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
+								// 	$aOptions['agreed'] = $oApp->actionRule->cowork->repos->pre->cowork->agreed;
+								// } else {
+								// 	$aOptions['agreed'] = ['Y', 'A'];
+								// }
+								// $items = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, $aOptions);
+								// if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
+								// 	$countItems = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, ['agreed' => ['Y', 'A'], 'fields' => 'id']);
+								// 	$aCoworkState[$oSchema->id] = (object) ['length' => count($countItems)];
+								// } else {
+								// 	$aCoworkState[$oSchema->id] = (object) ['length' => count($items)];
+								// }
+								// if ($coworkReposLikeNum) {
+								// 	$reposItems = [];
+								// 	foreach ($items as $oItem) {
+								// 		if ($oItem->like_num >= $coworkReposLikeNum || $oItem->agreed === 'Y') {
+								// 			$reposItems[] = $oItem;
+								// 		}
+								// 	}
+								// 	$items = $reposItems;
+								// }
+								// /* 当前用户投票情况 */
+								// if (!empty($aVoteRules[$oSchema->id])) {
+								// 	foreach ($items as $oItem) {
+								// 		$oVoteResult = new \stdClass;
+								// 		$vote_at = (int) $modelData->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oItem->id, 'state' => 1, 'userid' => $oUser->uid]]);
+								// 		$oVoteResult->vote_at = $vote_at;
+								// 		$oVoteResult->vote_num = $oItem->vote_num;
+								// 		//$oVoteResult->state = $aVoteRules[$oSchema->id]->state;
+								// 		unset($oItem->vote_num);
+								// 		$oItem->voteResult = $oVoteResult;
+								// 	}
+								// }
+								// $oRecordData->{$schemaId} = $items;
+
+								$aOptions = ['fields' => 'id'];
 								if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
 									$aOptions['agreed'] = $oApp->actionRule->cowork->repos->pre->cowork->agreed;
 								} else {
 									$aOptions['agreed'] = ['Y', 'A'];
 								}
-								$items = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, $aOptions);
-								if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
-									$countItems = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, ['agreed' => ['Y', 'A'], 'fields' => 'id']);
-									$aCoworkState[$oSchema->id] = (object) ['length' => count($countItems)];
-								} else {
-									$aCoworkState[$oSchema->id] = (object) ['length' => count($items)];
-								}
-								if ($coworkReposLikeNum) {
-									$reposItems = [];
-									foreach ($items as $oItem) {
-										if ($oItem->like_num >= $coworkReposLikeNum || $oItem->agreed === 'Y') {
-											$reposItems[] = $oItem;
-										}
-									}
-									$items = $reposItems;
-								}
-								/* 当前用户投票情况 */
-								if (!empty($aVoteRules[$oSchema->id])) {
-									foreach ($items as $oItem) {
-										$oVoteResult = new \stdClass;
-										$vote_at = (int) $modelData->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oItem->id, 'state' => 1, 'userid' => $oUser->uid]]);
-										$oVoteResult->vote_at = $vote_at;
-										$oVoteResult->vote_num = $oItem->vote_num;
-										//$oVoteResult->state = $aVoteRules[$oSchema->id]->state;
-										unset($oItem->vote_num);
-										$oItem->voteResult = $oVoteResult;
-									}
-								}
-								$oRecordData->{$schemaId} = $items;
+								$countItems = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, $aOptions);
+								$aCoworkState[$oSchema->id] = (object) ['length' => count($countItems)];
+								continue;
 							} else {
 								$oRecordData->{$schemaId} = $oRecord->data->{$schemaId};
 							}
@@ -529,6 +548,9 @@ class repos extends base {
 					if (!empty($aCoworkState)) {
 						$oRecord->coworkState = (object) $aCoworkState;
 					}
+					if (!empty($recordDirs)) {
+						$oRecord->recordDir = (object) $recordDirs;
+					}
 					/* 获取记录的投票信息 */
 					if (!empty($aVoteRules)) {
 						$oVoteResult = new \stdClass;
@@ -536,9 +558,9 @@ class repos extends base {
 							if ($this->getDeepValue($oVoteRule->schema, 'cowork') === 'Y') {continue;}
 							$oRecData = $modelData->byRecord($oRecord->enroll_key, ['schema' => $schemaId, 'fields' => 'id,vote_num']);
 							if ($oRecData) {
-								$vote_at = (int) $modelData->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oRecData->id, 'state' => 1, 'userid' => $oUser->uid]]);
-								$oRecData->vote_at = $vote_at;
-								$oRecData->state = $oVoteRule->state;
+								// $vote_at = (int) $modelData->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oRecData->id, 'state' => 1, 'userid' => $oUser->uid]]);
+								// $oRecData->vote_at = $vote_at;
+								// $oRecData->state = $oVoteRule->state;
 								$oVoteResult->{$schemaId} = $oRecData;
 							}
 						}
@@ -615,17 +637,17 @@ class repos extends base {
 				//} else {
 				//	$q[2] .= " and agreed in ('" . implode("','", $remarkReposAgreed) . "')";
 				//}
-				/* 推荐的留言 */
-				if (in_array('Y', $remarkReposAgreed)) {
-					$oRecord->agreedRemarks = $fnRemarksByRecord($oRecord->enroll_key, 'Y');
-				}
-				/* 同一个轮次的留言 */
-				if (in_array('A', $remarkReposAgreed)) {
-					if (empty($oCriteria->record->rid) || 0 !== strcasecmp($oCriteria->record->rid, 'all')) {
-						$rid = empty($oCriteria->record->rid) ? $oApp->appRound->rid : $oCriteria->record->rid;
-						$oRecord->roundRemarks = $fnRemarksByRecord($oRecord->enroll_key, 'A', $rid);
-					}
-				}
+				// /* 推荐的留言 */
+				// if (in_array('Y', $remarkReposAgreed)) {
+				// 	$oRecord->agreedRemarks = $fnRemarksByRecord($oRecord->enroll_key, 'Y');
+				// }
+				// /* 同一个轮次的留言 */
+				// if (in_array('A', $remarkReposAgreed)) {
+				// 	if (empty($oCriteria->record->rid) || 0 !== strcasecmp($oCriteria->record->rid, 'all')) {
+				// 		$rid = empty($oCriteria->record->rid) ? $oApp->appRound->rid : $oCriteria->record->rid;
+				// 		$oRecord->roundRemarks = $fnRemarksByRecord($oRecord->enroll_key, 'A', $rid);
+				// 	}
+				// }
 			}
 		}
 
@@ -734,19 +756,27 @@ class repos extends base {
 				}
 			}
 
-			$aSchareableSchemas = [];
-			foreach ($oApp->dataSchemas as $oSchema) {
-				if (isset($oSchema->shareable) && $oSchema->shareable === 'Y') {
-					$aSchareableSchemas[] = $oSchema;
-				}
-			}
 			foreach ($oResult->records as $oRecord) {
 				$aCoworkState = [];
+				$recordDirs = [];
 				/* 清除非共享数据 */
 				if (isset($oRecord->data)) {
 					$oRecordData = new \stdClass;
-					foreach ($aSchareableSchemas as $oSchema) {
+					foreach ($oApp->dataSchemas as $oSchema) {
 						$schemaId = $oSchema->id;
+						// 分类目录
+						if (!empty($oSchema->asdir) && $oSchema->asdir === 'Y' && !empty($oRecord->data->{$schemaId})) { 
+							foreach ($oSchema->ops as $op) {
+								if ($op->v === $oRecord->data->{$schemaId}) {
+									$recordDirs[] = $op->l;
+								}
+							}
+						}
+						/* 清除非共享数据 */
+						if (isset($oSchema->shareable) && $oSchema->shareable !== 'Y') {
+							continue;
+						}
+
 						if (strpos($schemaId, 'member.extattr.') === 0) {
 							$memberSchemaId = str_replace('member.extattr.', '', $schemaId);
 							if (!empty($oRecord->data->member->extattr->{$memberSchemaId})) {
@@ -789,6 +819,9 @@ class repos extends base {
 					$oRecord->data = $oRecordData;
 					if (!empty($aCoworkState)) {
 						$oRecord->coworkState = (object) $aCoworkState;
+					}
+					if (!empty($recordDirs)) {
+						$oRecord->recordDir = (object) $recordDirs;
 					}
 				}
 				/* 是否已经被当前用户收藏 */
@@ -946,12 +979,24 @@ class repos extends base {
 				}
 				return true;
 			};
-			/* 清除非共享数据 */
+			/* 清除非共享数据 以及获取分类目录*/
+			$recordDirs = [];
 			$oShareableSchemas = new \stdClass;
 			foreach ($oApp->dynaDataSchemas as $oSchema) {
 				if (isset($oSchema->shareable) && $oSchema->shareable === 'Y') {
 					$oShareableSchemas->{$oSchema->id} = $oSchema;
 				}
+				$schemaId2 = $oSchema->id;
+				if (!empty($oSchema->asdir) && $oSchema->asdir === 'Y' && !empty($oRecord->data->{$schemaId2})) { 
+					foreach ($oSchema->ops as $op) {
+						if ($op->v === $oRecord->data->{$schemaId2}) {
+							$recordDirs[] = $op->l;
+						}
+					}
+				}
+			}
+			if (!empty($recordDirs)) {
+				$oRecord->recordDir = $recordDirs;
 			}
 			$modelRecDat = $this->model('matter\enroll\data');
 			/* 避免因为清除数据导致影响数据的可见关系 */

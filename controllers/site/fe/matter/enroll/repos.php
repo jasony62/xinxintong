@@ -1037,7 +1037,7 @@ class repos extends base {
 	/**
 	 * 获取活动共享页筛选条件
 	 */
-	public function criteriaGet_action($app) {
+	public function criteriaGet_action($app, $viweType = 'record') {
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['fields' => 'id,siteid,state,repos_config,data_schemas,entry_rule,action_rule,mission_id,sync_mission_round,assigned_nickname,round_cron', 'cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
@@ -1047,7 +1047,7 @@ class repos extends base {
 		$oUser = $this->getUser($oApp);
 
 		$oCriterias = $this->_originCriteriaGet();
-		$result = $this->_packCriteria($oApp, $oUser, $oCriterias);
+		$result = $this->_packCriteria($oApp, $oUser, $oCriterias, $viweType);
 		if ($result[0] === false) {
 			return new \ParameterError($result[1]);
 		}
@@ -1058,7 +1058,7 @@ class repos extends base {
 	/**
 	 * 按当前用户角色过滤筛选条件
 	 */
-	private function _packCriteria($oApp, $oUser, $criterias) {
+	private function _packCriteria($oApp, $oUser, $criterias, $viweType = 'record') {
 		$varType = gettype($criterias);
 		if ($varType === 'object') {
 			$criterias = (array) $criterias;
@@ -1101,10 +1101,12 @@ class repos extends base {
 			// 如果有答案的题型才显示筛选答案的按钮
 			if ($criteria->type === 'coworkAgreed') {
 				$coworkState = false;
-				foreach ($oApp->dynaDataSchemas as $oSchema) {
-					if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
-						$coworkState = true;
-						break;
+				if ($viweType === 'record') {
+					foreach ($oApp->dynaDataSchemas as $oSchema) {
+						if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
+							$coworkState = true;
+							break;
+						}
 					}
 				}
 				if (!$coworkState) {

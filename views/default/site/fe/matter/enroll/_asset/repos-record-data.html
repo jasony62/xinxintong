@@ -60,6 +60,6 @@
             </button>
         </div>
         <div ng-if="schema.supplement==='Y'&&rec.supplement[schema.id]" class='supplement' ng-bind-html="rec.supplement[schema.id]"></div>
-        <div ng-if="rec.voteResult[schema.id]"><span ng-if="rec.voteResult[schema.id].state!=='BS'">得票：<span ng-bind="rec.voteResult[schema.id].vote_num"></span></span></div>
+        <div ng-if="rec.voteResult[schema.id]"><span ng-if="rec.voteResult[schema.id].state!=='BS'">得票：<span ng-bind="rec.voteResult[schema.id].vote_num"></span></span><span ng-if="task"><span ng-if="rec.voteResult[schema.id].state==='IP'">&nbsp;&nbsp;<button ng-if="rec.voteResult[schema.id].vote_at==0" class='btn btn-default btn-xs' ng-click="vote(rec.voteResult[schema.id])"><span class='glyphicon glyphicon-triangle-top'></span> 投票</button><button ng-if="rec.voteResult[schema.id].vote_at>0" class='btn btn-default btn-xs' ng-click="unvote(rec.voteResult[schema.id])"><span class='glyphicon glyphicon-triangle-bottom'></span> 撤销投票</button></span></span></div>
     </div>
 </div>

@@ -324,43 +324,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         if (oTask && oTask.topic && oTask.topic.id)
             location.href = LS.j('', 'site', 'app') + '&topic=' + oTask.topic.id + '&page=topic';
     };
-    $scope.voteRecData = function(oTask) {
-        $uibModal.open({
-            template: require('./_asset/vote-rec-data.html'),
-            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                $scope2.cancel = function() { $mi.dismiss(); };
-                $scope2.vote = function(oRecData) {
-                    http2.get(LS.j('task/vote', 'site') + '&data=' + oRecData.id + '&task=' + oTask.id).then(function(rsp) {
-                        oRecData.voteResult.vote_num++;
-                        oRecData.voteResult.vote_at = rsp.data[0].vote_at;
-                        var remainder = rsp.data[1][0] - rsp.data[1][1];
-                        if (remainder > 0) {
-                            noticebox.success('还需要投出【' + remainder + '】票');
-                        } else {
-                            noticebox.success('已完成全部投票');
-                        }
-                    });
-                };
-                $scope2.unvote = function(oRecData) {
-                    http2.get(LS.j('task/unvote', 'site') + '&data=' + oRecData.id + '&task=' + oTask.id).then(function(rsp) {
-                        oRecData.voteResult.vote_num--;
-                        oRecData.voteResult.vote_at = 0;
-                        var remainder = rsp.data[0] - rsp.data[1];
-                        if (remainder > 0) {
-                            noticebox.success('还需要投出【' + remainder + '】票');
-                        } else {
-                            noticebox.success('已完成全部投票');
-                        }
-                    });
-                };
-                http2.get(LS.j('task/votingRecData', 'site', 'app') + '&task=' + oTask.id).then(function(rsp) {
-                    $scope2.votingRecDatas = rsp.data[Object.keys(rsp.data)[0]];
-                });
-            }],
-            backdrop: 'static',
-            windowClass: 'auto-height'
-        });
-    };
     $scope.scoreSchema = function(oTask) {
         var _oScoreApp;
         _oScoreApp = $parse('rule.scoreApp')(oTask);

@@ -734,6 +734,10 @@ class repos extends base {
 				}
 			}
 			foreach ($oResult->records as $oRecord) {
+				/* 获取记录的投票信息 */
+				if (!empty($oApp->voteConfig)) {
+					$aVoteRules = $this->model('matter\enroll\task', $oApp)->getVoteRule($oUser, $oRecord->round);
+				}
 				$aCoworkState = [];
 				/* 清除非共享数据 */
 				if (isset($oRecord->data)) {
@@ -839,6 +843,22 @@ class repos extends base {
 						}
 					}
 				}
+				/* 获取记录的投票信息 */
+				if (!empty($aVoteRules)) {
+					$oVoteResult = new \stdClass;
+					foreach ($aVoteRules as $schemaId => $oVoteRule) {
+						if ($this->getDeepValue($oVoteRule->schema, 'cowork') === 'Y') {continue;}
+						$oRecData = $modelData->byRecord($oRecord->enroll_key, ['schema' => $schemaId, 'fields' => 'id,vote_num']);
+						if ($oRecData) {
+							$vote_at = (int) $modelData->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oRecData->id, 'state' => 1, 'userid' => $oUser->uid]]);
+							$oRecData->vote_at = $vote_at;
+							$oRecData->state = $oVoteRule->state;
+							$oVoteResult->{$schemaId} = $oRecData;
+						}
+					}
+					$oRecord->voteResult = $oVoteResult;
+				}
+
 			}
 		}
 

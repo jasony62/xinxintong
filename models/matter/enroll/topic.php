@@ -105,9 +105,29 @@ class topic_model extends entity_model {
 		if (empty($oTask->rid)) {
 			return false;
 		}
-		/* 任务轮次中的记录 */
-		$modelRec = $this->model('matter\enroll\record');
-		$records = $modelRec->byRound($oTask->rid, ['fields' => 'id,enroll_at']);
+		if (isset($oTask->source->scope)) {
+			/* 指定了数据来源 */
+			if (in_array($oTask->source->scope, ['question']) && isset($oTask->source->config)) {
+				/* 同轮次中，指定任务专题中的记录 */
+				$oRule = (object) ['type' => $oTask->source->scope, 'id' => $oTask->source->config, 'rid' => $oTask->rid];
+				$oSrcTask = $this->model('matter\enroll\task', $this->_oApp)->byRule($oRule);
+				if (false === $oSrcTask) {
+					return false;
+				}
+				$oSrcTopic = $this->byTask($oSrcTask);
+				if (false === $oSrcTopic) {
+					return false;
+				}
+				$oTopicRecords = $this->records($oSrcTopic);
+				if (!empty($oTopicRecords->records)) {
+					$records = $oTopicRecords->records;
+				}
+			}
+		} else {
+			/* 任务轮次中的记录 */
+			$modelRec = $this->model('matter\enroll\record');
+			$records = $modelRec->byRound($oTask->rid, ['fields' => 'id,enroll_at']);
+		}
 		if (!empty($records)) {
 			foreach ($records as $oRecord) {
 				$this->assign($oTopic, $oRecord, max($oTask->start_at, $oRecord->enroll_at));

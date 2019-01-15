@@ -32,6 +32,17 @@ class task_model extends \TMS_MODEL {
 	/**
 	 * 去掉无效的内容
 	 */
+	private function _purifySource(&$oSource) {
+		foreach ($oSource as $prop => $val) {
+			if (!in_array($prop, ['scope', 'config'])) {
+				unset($oSource->{$prop});
+			}
+		}
+		return $oSource;
+	}
+	/**
+	 * 去掉无效的内容
+	 */
 	public function purifyQuestion($oConfig) {
 		$validProps = ['id', 'start', 'end', 'role', 'limit', 'enabled'];
 		foreach ($oConfig as $prop => $val) {
@@ -77,7 +88,7 @@ class task_model extends \TMS_MODEL {
 	 * 去掉无效的内容
 	 */
 	public function purifyVote($oConfig) {
-		$validProps = ['id', 'start', 'end', 'role', 'limit', 'schemas', 'target', 'enabled'];
+		$validProps = ['id', 'start', 'end', 'role', 'limit', 'schemas', 'target', 'enabled', 'source'];
 		foreach ($oConfig as $prop => $val) {
 			if (!in_array($prop, $validProps)) {
 				unset($oConfig->{$prop});
@@ -88,6 +99,17 @@ class task_model extends \TMS_MODEL {
 					$this->_purifyLimit($val);
 				} else {
 					unset($oConfig->limit);
+				}
+				break;
+			case 'source':
+				if (is_object($val)) {
+					if (isset($val->scope)) {
+						$this->_purifySource($val);
+					} else {
+						unset($oConfig->source);
+					}
+				} else {
+					unset($oConfig->source);
 				}
 				break;
 			}
@@ -312,6 +334,8 @@ class task_model extends \TMS_MODEL {
 	}
 	/**
 	 * 获得指定规则生成的任务
+	 *
+	 * @param object $oRule[type,id,rid,start_at,end_at] 如果不自动创建任务，不需要指定start_at和end_at
 	 */
 	public function byRule($oRule, $aOptons = []) {
 		$fields = empty($aOptons['fields']) ? 'id,start_at,end_at' : $aOptons['fields'];
@@ -381,6 +405,7 @@ class task_model extends \TMS_MODEL {
 					if ($oTaskRound) {
 						$oRuleState = $this->getRuleStateByRound($oRuleConfig, $oTaskRound);
 						if (true === $oRuleState[0]) {
+							tms_object_merge($oTask, $oRuleConfig, ['source']);
 							tms_object_merge($oTask, $oRuleState[1], ['state']);
 						}
 					}

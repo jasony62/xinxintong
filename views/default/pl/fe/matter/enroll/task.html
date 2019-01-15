@@ -192,6 +192,19 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class='form-group'>
+                                <label>投票对象</label>
+                                <div>
+                                    <label class='radio-inline'><input name='voteSourceScope' type='radio' ng-value ng-model="config.source.scope"> 任务轮次范围内</label>
+                                    <label class='radio-inline'><input name='voteSourceScope' type='radio' value='question' ng-model="config.source.scope"> 同轮次提问任务</label>
+                                </div>
+                            </div>
+                            <div class='form-group' ng-if="config.source.scope==='question'">
+                                <label>提问任务</label>
+                                <div>
+                                    <label class='radio-inline' ng-repeat="qc in app.questionConfig"><input name='voteSourceTask' type='radio' value='{{qc.id}}' ng-model="config.source.config"> 任务：<span>#{{::$index+1}}</span></label>
+                                </div>
+                            </div>
                             <hr>
                             <div class='form-group'>
                                 <div class='form-inline'>

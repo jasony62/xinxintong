@@ -62,8 +62,7 @@
                         <div class='input-group-btn'>
                             <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';recordList(1)"><span class='glyphicon glyphicon-remove'></span></button>
                             <button class='btn btn-default' ng-click="recordList(1)"><span class='glyphicon glyphicon-search'></span></button>
-                            <button class='btn btn-default' ng-click="addRecord($event)"><span class="glyphicon glyphicon-plus"></span> 记录</button>
-                            <button ng-if="topics.length" class='btn btn-default' ng-click="showTopics($event)">专题</button>
+                            <button class='btn btn-default' ng-click="addRecord($event)"><span class="glyphicon glyphicon-plus"></span> <span ng-show="hasCowork">问题</span><span ng-hide="hasCowork">记录</span></button>
                             <button id='advCriteriaSwitch' ng-if="dirSchemas.length" class="btn btn-default visible-xs-inline-block" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">
                                 <span class='glyphicon glyphicon-th-list' ng-class="{'opened':advCriteriaStatus.opened}"></span> 目录
                             </button>
@@ -81,9 +80,10 @@
                             </li>
                         </ul>
                     </div>
-                    <div tms-dropdown basic-data="reposFilters[0]" criteria="{{criteria}}" shift-menu="shiftMenu(criteria)"></div>
-                    <div tms-dropdown basic-data="reposFilters[1]" criteria="{{criteria}}" shift-menu="shiftMenu(criteria)"></div>
-                    <div tms-filter basic-data="multiFilters" filter="{{filter}}" criteria="{{criteria}}" confirm="confirm(filterOpt)" class='pull-right' ng-if="multiFilters.length"></div>
+                    <div ng-repeat="singleFilter in singleFilters" ng-if="selectedView.title!=='专题'">
+                        <div tms-dropdown basic-data="singleFilter" criteria="{{criteria}}" shift-menu="shiftMenu(criteria)"></div>
+                    </div>
+                    <div tms-filter basic-data="multiFilters" filter="{{filter}}" criteria="{{criteria}}" confirm="confirm(filterOpt)" class='pull-right' ng-if="selectedView.title!=='专题'"></div>
                 </div>
                 <!-- end: filterQuick -->
                 <div id='filterTip' class="hidden-xs" ng-if="filter.isFilter||filter.tags.length">

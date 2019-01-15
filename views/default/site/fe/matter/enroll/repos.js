@@ -14,6 +14,19 @@ window.moduleAngularModules = ['tree.ui', 'filter.ui', 'dropdown.ui', 'round.ui.
 
 var ngApp = require('./main.js');
 ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', 'enlService', function($scope, $parse, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc, enlService) {    
+    function fnGetCriteria(datas) {
+        $scope.singleFilters = [];
+        $scope.multiFilters = [];
+        angular.forEach(datas, function(data, index) {
+            _oCriteria[data.type] = data.default.id;
+            if(data.type=='orderby'||data.type=='coworkAgreed') {
+                $scope.singleFilters.push(data);
+            }else{
+                $scope.multiFilters.push(data);
+                _oFilter[data.type] = data.default.id;
+            }
+        });
+    }
     var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oTasks, _oUser, _activeDirSchemas;
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = {};
@@ -23,17 +36,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     $scope.repos = []; // 分享的记录
     $scope.activeDirSchemas = _activeDirSchemas = {};
     $scope.reposLoading = false;
+    $scope.hasCowork = false;
     $scope.appendToEle = angular.element(document.querySelector('#filterQuick'));
-    $scope.tabViews = [{
-        title: '问题',
-        url: '/views/default/site/fe/matter/enroll/template/repos-recordSchema.html'
-    },{
-        title: '答案',
-        url: '/views/default/site/fe/matter/enroll/template/repos-coworkSchema.html'
-    },{
-        title: '专题',
-        url: '/views/default/site/fe/matter/enroll/template/repos-publicTopic.html'
-    }];
+    $scope.tabViews = [{'title': '记录', 'url': '/views/default/site/fe/matter/enroll/template/repos-recordSchema.html'}];
     $scope.selectedView = $scope.tabViews[0];
     $scope.tabClick = function(view) {
         $scope.selectedView = view;
@@ -95,7 +100,10 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     function addToCache() {
         sessionStorage.setItem('listStorageY', document.getElementById('repos').scrollTop);
         var cacheData = {
-            'reposFilters': $scope.reposFilters,
+            'singleFilters': $scope.singleFilters,
+            'multiFilters': $scope.multiFilters,
+            'tabViews': $scope.tabViews,
+            'selectedView': $scope.selectedView,
             'tasks': $scope.tasks,
             'page': $scope.page,
             'currentFilter': $scope.filter,
@@ -292,18 +300,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     $scope.closeTask = function(index) {
         $scope.tasks.splice(index, 1);
     };
-    $scope.spyRecordsScroll = true; // 监控滚动事件
-    $scope.recordsScrollToBottom = function() {
-        if ($scope.repos.length < $scope.page.total) {
-            $scope.recordList().then(function() {
-                $timeout(function() {
-                    if ($scope.repos.length < $scope.page.total) {
-                        $scope.spyRecordsScroll = true;
-                    }
-                });
-            });
-        }
-    };
     $scope.voteRecData = function() {
         $uibModal.open({
             template: require('./_asset/vote-rec-data.html'),
@@ -411,8 +407,10 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             var cacheData, _cPage;
             cacheData = JSON.parse(sessionStorage.listStorage);
             $scope.tasks = cacheData.tasks;
-            $scope.reposFilters = cacheData.reposFilters;
-            $scope.multiFilters = cacheData.reposFilters.length > 2 ? cacheData.reposFilters.slice(2) : [];
+            $scope.singleFilters = cacheData.singleFilters;
+            $scope.multiFilters = cacheData.multiFilter;
+            $scope.tabViews = cacheData.tabViews;
+            $scope.selectedView = cacheData.selectedView;
             $scope.filter = cacheData.currentFilter;
             $scope.criteria = _oCriteria = cacheData.currentCriteria;
             $scope.rounds = cacheData.rounds;
@@ -472,17 +470,23 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             _facRound.list().then(function(result) {
                 $scope.rounds = result.rounds;
             });
+            /* 共享专题 */
+            http2.get(LS.j('topic/listPublic', 'site', 'app')).then(function(rsp) {
+                if (rsp.data && rsp.data.topics && rsp.data.topics.length) {
+                    $scope.topics = rsp.data.topics;
+                    $scope.tabViews.push({'title':'专题', 'url':'/views/default/site/fe/matter/enroll/template/repos-publicTopic.html'});
+                }
+            });
             /* 作为可筛选的筛选项 */
             http2.get(LS.j('repos/criteriaGet', 'site', 'app')).then(function(rsp) {
-                $scope.reposFilters = rsp.data;
-                $scope.multiFilters = rsp.data.length > 2 ? rsp.data.slice(2) : [];
-                angular.forEach(rsp.data, function(data, index) {
-                    _oCriteria[data.type] = data.default.id;
-                    if (index > 1) {
-                        _oFilter[data.type] = data.default.id;
+                if(rsp.data) {
+                    fnGetCriteria(rsp.data);    
+                }
+                $scope.recordList(1).then(function(rsp) {
+                    if($scope.hasCowork) {
+                        $scope.tabViews[0].title = '问题';
                     }
                 });
-                $scope.recordList(1);
             });
             /* 作为分类目录的题目 */
             http2.get(LS.j('repos/dirSchemasGet', 'site', 'app')).then(function(rsp) {
@@ -502,12 +506,17 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             }
         }
         _oApp.dynaDataSchemas.forEach(function(oSchema) {
-            if (oSchema.shareable && oSchema.shareable === 'Y')
+            if (oSchema.shareable && oSchema.shareable === 'Y') {
                 _oShareableSchemas[oSchema.id] = oSchema;
+            }
+            if (Object.keys(oSchema).indexOf('cowork')!==-1 && oSchema.cowork=='Y') {
+                $scope.hasCowork = true;
+            }
         });
         if (_oApp.reposConfig && _oApp.reposConfig.defaultOrder) {
             _oCriteria.orderby = _oApp.reposConfig.defaultOrder;
         }
+
         /* 设置页面分享信息 */
         $scope.setSnsShare(null, null, { target_type: 'repos', target_id: _oApp.id });
         /* 设置页面操作 */
@@ -535,19 +544,22 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         });
     });
 }]);
-ngApp.controller('ctrlRecordSchema', ['$scope', function($scope) {
-
+ngApp.controller('ctrlRecordSchema', ['$scope', '$timeout', function($scope, $timeout) {
+    $scope.spyRecordsScroll = true; // 监控滚动事件
+    $scope.recordsScrollToBottom = function() {
+        if ($scope.repos.length < $scope.page.total) {
+            $scope.recordList().then(function() {
+                $timeout(function() {
+                    if ($scope.repos.length < $scope.page.total) {
+                        $scope.spyRecordsScroll = true;
+                    }
+                });
+            });
+        }
+    };
 }]);
-ngApp.controller('ctrlCoworkSchema', ['$scope', function($scope) {
-
-}]);
-ngApp.controller('ctrlPublicTopic', ['$scope', 'http2', function($scope, http2) {
+ngApp.controller('ctrlPublicTopic', ['$scope', 'http2', 'tmsLocation', function($scope, http2, LS) {
     $scope.gotoTopic = function(oTopic) {
         location.href = LS.j('', 'site', 'app') + '&topic=' + oTopic.id + '&page=topic';
     };
-    http2.get(LS.j('topic/listPublic', 'site', 'app')).then(function(rsp) {
-        if (rsp.data && rsp.data.topics) {
-            $scope.topics = rsp.data.topics;
-        }
-    });
 }]);

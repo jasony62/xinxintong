@@ -9,8 +9,7 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
         template: require('./repos-record-data.html'),
         scope: {
             schemas: '=',
-            rec: '=record',
-            tabview: '='
+            rec: '=record'
         },
         controller: ['$scope', '$sce', '$location', 'tmsLocation', 'http2', 'noticebox', 'tmsSchema', function($scope, $sce, $location, LS, http2, noticebox, tmsSchema) {
             $scope.coworkRecord = function(oRecord) {

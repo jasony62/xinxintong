@@ -47,12 +47,13 @@ ngMod.directive('tmsFilter', ['$templateCache', '$timeout', function($templateCa
             };
             scope.$watch('datas', function(datas) {
                 if(!datas) { return false; }
-                scope.datas = datas;
+                scope.datas = datas;               
             });
             scope.$watch('filter', function(filter) {
                 if(!filter) { return false; }
                 scope.filtered = _oFiltered = angular.copy(angular.fromJson(scope.filter));
                 scope.criteriad = _oCriteriad = angular.copy(angular.fromJson(scope.criteria));
+                
             });
         }
     };

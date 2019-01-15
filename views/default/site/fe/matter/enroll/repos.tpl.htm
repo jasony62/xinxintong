@@ -56,19 +56,6 @@
                 </div>
             </div>
             <div class='main col-xs-12' ng-class="{'col-md-9':dirSchemas.length,'col-md-12':dirSchemas.length===0}">
-                <div id='filterCriteria'>
-                    <div class='input-group'>
-                        <input class='form-control' ng-model='criteria.keyword' placeholder='输入搜索关键字' trace-biz ng-click="toggleHistory('open', $event)">
-                        <div class='input-group-btn'>
-                            <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword='';recordList(1)"><span class='glyphicon glyphicon-remove'></span></button>
-                            <button class='btn btn-default' ng-click="recordList(1)"><span class='glyphicon glyphicon-search'></span></button>
-                            <button class='btn btn-default' ng-click="addRecord($event)"><span class="glyphicon glyphicon-plus"></span> <span ng-show="hasCowork">问题</span><span ng-hide="hasCowork">记录</span></button>
-                            <button id='advCriteriaSwitch' ng-if="dirSchemas.length" class="btn btn-default visible-xs-inline-block" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">
-                                <span class='glyphicon glyphicon-th-list' ng-class="{'opened':advCriteriaStatus.opened}"></span> 目录
-                            </button>
-                        </div>
-                    </div>
-                </div>
                 <div id='filterQuick' ng-cloak>
                     <div class="site-dropdown" uib-dropdown ng-if="tabViews.length>1">
                         <a href uib-dropdown-toggle class="site-dropdown-title">
@@ -80,10 +67,11 @@
                             </li>
                         </ul>
                     </div>
-                    <div ng-repeat="singleFilter in singleFilters" ng-if="selectedView.title!=='专题'">
+                    <div ng-if="selectedView.title!=='专题'" ng-repeat="singleFilter in singleFilters" >
                         <div tms-dropdown basic-data="singleFilter" criteria="{{criteria}}" shift-menu="shiftMenu(criteria)"></div>
                     </div>
-                    <div tms-filter basic-data="multiFilters" filter="{{filter}}" criteria="{{criteria}}" confirm="confirm(filterOpt)" class='pull-right' ng-if="selectedView.title!=='专题'"></div>
+                    <div ng-if="selectedView.title!=='专题'" tms-filter basic-data="multiFilters" filter="{{filter}}" criteria="{{criteria}}" confirm="confirm(filterOpt)"></div>
+                    <div ng-if="selectedView.title!=='专题'" ng-click="addRecord($event)">+<span ng-show="hasCowork">问题</span><span ng-hide="hasCowork">记录</span></div>
                 </div>
                 <!-- end: filterQuick -->
                 <div id='filterTip' class="hidden-xs" ng-if="filter.isFilter||filter.tags.length">
@@ -101,6 +89,7 @@
         </div>
     </div>
     <div ng-if="popAct.acts.length" tms-pop-act acts="popAct.acts" custom="popAct.custom" close-after='5000'></div>
+    
     <div id='favorGuide' ng-if="favorStack.guiding">
         <span>已收藏</span>
         <button class='btn btn-default' ng-click="assignTopic()">选择专题</button>

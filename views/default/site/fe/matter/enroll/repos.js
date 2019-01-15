@@ -75,28 +75,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
 
         return deferred.promise;
     }
-    $scope.likeRecord = function(oRecord) {
-        if ($scope.setOperateLimit('like')) {
-            var url;
-            url = LS.j('record/like', 'site');
-            url += '&ek=' + oRecord.enroll_key;
-            http2.get(url).then(function(rsp) {
-                oRecord.like_log = rsp.data.like_log;
-                oRecord.like_num = rsp.data.like_num;
-            });
-        }
-    };
-    $scope.dislikeRecord = function(oRecord) {
-        if ($scope.setOperateLimit('like')) {
-            var url;
-            url = LS.j('record/dislike', 'site');
-            url += '&ek=' + oRecord.enroll_key;
-            http2.get(url).then(function(rsp) {
-                oRecord.dislike_log = rsp.data.dislike_log;
-                oRecord.dislike_num = rsp.data.dislike_num;
-            });
-        }
-    };
     function addToCache() {
         sessionStorage.setItem('listStorageY', document.getElementById('repos').scrollTop);
         var cacheData = {

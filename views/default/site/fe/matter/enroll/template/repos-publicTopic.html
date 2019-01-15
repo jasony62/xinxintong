@@ -1,5 +1,5 @@
 <div class='topics' ng-controller="ctrlPublicTopic">
-    <div class='topic' ng-repeat="topic in topics" ng-click="gotoTopic(topic)" ng-cloak>
+    <div class='topic record' ng-repeat="topic in topics" ng-click="gotoTopic(topic)" ng-cloak>
     	<div class='tms-flex-row small text-muted'>
             <div class='tms-flex-grow' ng-bind-html="topic.nickname"></div>
             <div ng-bind="topic.create_at*1000|date:'MM-dd HH:mm'"></div>

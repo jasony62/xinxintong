@@ -2,11 +2,9 @@
     <div class="site-dropdown" uib-dropdown dropdown-append-to='appendToEle' auto-close="disabled" is-open="status.isopen">
         <a href uib-dropdown-toggle class="site-dropdown-title" ng-class="{'active':filtered.isFilter}"><i class="glyphicon glyphicon-search"></i></a>
         <ul class="dropdown-menu site-dropdown-list" uib-dropdown-menu>
-            <li class='input-group'>
+            <li class="dropdown-search">
                 <input class='form-control' ng-model='criteriad.keyword' placeholder='输入搜索关键字' trace-biz>
-                <div class='input-group-btn'>
-                    <button class='btn btn-default' ng-if="criteriad.keyword" ng-click="criteria.keyword=''"><span class='glyphicon glyphicon-remove'></span></button>
-                </div>
+                <button class='btn btn-default' ng-if="criteriad.keyword" ng-click="criteria.keyword=''"><span class='glyphicon glyphicon-remove'></span></button>
             </li>
             <li class="dropdown-list-wrapper">
                 <uib-tabset active="0" type="pills" vertical="true" class="site-tabset">

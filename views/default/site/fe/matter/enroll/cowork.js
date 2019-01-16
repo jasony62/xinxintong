@@ -192,8 +192,6 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
                 $scope.coworkTasks.push({ type: 'info', msg: oCoworkRule.desc, id: 'record.cowork.pre' });
             }
         }
-        /*设置页面操作*/
-        $scope.setPopAct(['addRecord'], 'cowork');
         /*设置页面导航*/
         $scope.setPopNav(['repos', 'favor', 'rank', 'kanban', 'event'], 'cowork');
     }

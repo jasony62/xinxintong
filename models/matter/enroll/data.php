@@ -1285,7 +1285,7 @@ class data_model extends entity_model {
 
 				// 将此答案添加道data中
 				$aRecData->data->{$aRecData->schema_id} = [$aRecData->value];
-				// unset($aRecData->value);
+				unset($aRecData->value);
 			}
 			
 			// 记录的分组

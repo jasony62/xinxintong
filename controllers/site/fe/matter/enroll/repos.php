@@ -537,7 +537,7 @@ class repos extends base {
 						$oRecord->coworkState = (object) $aCoworkState;
 					}
 					if (!empty($recordDirs)) {
-						$oRecord->recordDir = (object) $recordDirs;
+						$oRecord->recordDir = $recordDirs;
 					}
 					/* 获取记录的投票信息 */
 					if (!empty($aVoteRules)) {
@@ -809,7 +809,7 @@ class repos extends base {
 						$oRecord->coworkState = (object) $aCoworkState;
 					}
 					if (!empty($recordDirs)) {
-						$oRecord->recordDir = (object) $recordDirs;
+						$oRecord->recordDir = $recordDirs;
 					}
 				}
 				/* 是否已经被当前用户收藏 */

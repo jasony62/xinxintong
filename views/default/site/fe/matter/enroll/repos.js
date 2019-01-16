@@ -14,7 +14,7 @@ require('./_asset/ui.task.js');
 window.moduleAngularModules = ['tree.ui', 'filter.ui', 'dropdown.ui', 'round.ui.enroll', 'repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll', 'task.ui.enroll'];
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', 'enlService', function($scope, $parse, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc, enlService) {    
+ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', 'enlService', 'enlTask', function($scope, $parse, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc, enlService, enlTask) {    
     function fnGetCriteria(datas) {
         $scope.singleFilters = [];
         $scope.multiFilters = [];
@@ -216,7 +216,20 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     $scope.confirm = function(filterOpt) {
         $scope.filter = _oFilter = angular.extend(_oFilter, filterOpt.filter);
         $scope.criteria = _oCriteria = angular.extend(_oCriteria, filterOpt.criteria);
-        $scope.recordList(1);
+        $scope.recordList(1).then(function() {
+            http2.get(LS.j('repos/criteriaGet', 'site', 'app')).then(function(rsp) {
+                if(rsp.data) {
+                    $scope.multiFilters = [];
+                    angular.forEach(rsp.data, function(data) {
+                        if(data.type=='orderby'||data.type=='coworkAgreed') {
+                            return false;
+                        }else{
+                            $scope.multiFilters.push(data);   
+                        }
+                    });
+                }
+            });
+        });
     };
     $scope.shiftMenu = function(criteria) {
         _oCriteria[criteria.type] = criteria.id;
@@ -387,7 +400,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             cacheData = JSON.parse(sessionStorage.listStorage);
             $scope.tasks = cacheData.tasks;
             $scope.singleFilters = cacheData.singleFilters;
-            $scope.multiFilters = cacheData.multiFilter;
+            $scope.multiFilters = cacheData.multiFilters;
             $scope.tabViews = cacheData.tabViews;
             $scope.selectedView = cacheData.selectedView;
             $scope.filter = cacheData.currentFilter;

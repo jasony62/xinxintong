@@ -70,12 +70,12 @@
                     <div ng-if="selectedView.title!=='专题'" ng-repeat="singleFilter in singleFilters" >
                         <div tms-dropdown basic-data="singleFilter" criteria="{{criteria}}" shift-menu="shiftMenu(criteria)"></div>
                     </div>
-                    <div ng-if="selectedView.title!=='专题'" tms-filter basic-data="multiFilters" filter="{{filter}}" criteria="{{criteria}}" confirm="confirm(filterOpt)"></div>
+                    <div ng-if="selectedView.title!=='专题'" tms-filter basic-data="multiFilters" filter="filter" criteria="criteria" confirm="confirm(filterOpt)"></div>
                     <div ng-if="selectedView.title!=='专题'" ng-click="addRecord($event)">+<span ng-show="hasCowork">问题</span><span ng-hide="hasCowork">记录</span></div>
                 </div>
                 <!-- end: filterQuick -->
                 <div id='filterTip' class="hidden-xs" ng-if="filter.isFilter||filter.tags.length">
-                    <div class="bg-info small" ng-repeat="multifilter in multiFilters" ng-if="criteria[multifilter.type]!==null">
+                    <div class="bg-info small" ng-repeat="multifilter in multiFilters" ng-if="criteria[multifilter.type]!==null||criteria[multifilter.type]!==''">
                         <span ng-repeat="menu in multifilter.menus" ng-if="criteria[multifilter.type]==menu.id" ng-bind="menu.title"></span>
                         <button class="close" trace-biz ng-click="shiftTip(multifilter.type)"><span>&times;</span></button>
                     </div>

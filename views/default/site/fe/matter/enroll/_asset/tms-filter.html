@@ -1,26 +1,26 @@
 <div>
     <div class="site-dropdown" uib-dropdown dropdown-append-to='appendToEle' auto-close="disabled" is-open="status.isopen">
-        <a href uib-dropdown-toggle class="site-dropdown-title" ng-class="{'active':filtered.isFilter}"><i class="glyphicon glyphicon-search"></i></a>
+        <a href uib-dropdown-toggle class="site-dropdown-title" ng-class="{'active':filter.isFilter}"><i class="glyphicon glyphicon-search"></i></a>
         <ul class="dropdown-menu site-dropdown-list" uib-dropdown-menu>
             <li class="dropdown-search">
-                <input class='form-control' ng-model='criteriad.keyword' placeholder='输入搜索关键字' trace-biz>
-                <button class='btn btn-default' ng-if="criteriad.keyword" ng-click="criteria.keyword=''"><span class='glyphicon glyphicon-remove'></span></button>
+                <input class='form-control' ng-model="criteria.keyword" placeholder='输入搜索关键字' trace-biz>
+                <button class='btn btn-default' ng-if="criteria.keyword" ng-click="criteria.keyword=''"><span class='glyphicon glyphicon-remove'></span></button>
             </li>
             <li class="dropdown-list-wrapper">
                 <uib-tabset active="0" type="pills" vertical="true" class="site-tabset">
                     <uib-tab ng-repeat="data in datas" index="$index">
                         <uib-tab-heading>
-                            <div ng-class="{'checked': filtered[data.type]!==data.default.id}" ng-bind="data.title"></div>
+                            <div ng-class="{'checked': filter[data.type]!==data.default.id}" ng-bind="data.title"></div>
                         </uib-tab-heading>
                         <div class="list-group">
-                            <a href class="list-group-item site-list-group-item" ng-repeat="menu in data.menus" ng-class="{'active':criteriad[data.type]==menu.id}" ng-click="selected(data, menu)" ng-bind="menu.title"></a>
+                            <a href class="list-group-item site-list-group-item" ng-repeat="menu in data.menus" ng-class="{'active':criteria[data.type]==menu.id}" ng-click="selected(data, menu)" ng-bind="menu.title"></a>
                         </div>
                     </uib-tab>
                 </uib-tabset>
             </li>
             <li class="dropdown-list-btn btn-group">
                 <button class="btn btn-default" ng-click="clear()">清空选项</button>
-                <button class="btn btn-default" ng-click="ok(filtered)">确认</button>
+                <button class="btn btn-default" ng-click="ok(filter)">确认</button>
             </li>
         </ul>
     </div>

@@ -661,6 +661,214 @@ class repos extends base {
 		return new \ResponseData($oResult);
 	}
 	/**
+	 * 返回指定活动的填写记录的共享内容 
+	 * 答案视图
+	 */
+	public function coworkList_action($app, $page = 1, $size = 12) {
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oUser = $this->getUser($oApp);
+
+		$oActionRule = $oApp->actionRule;
+		/* 非同组记录显示在共享页需要的赞同数 */
+		// $recordReposLikeNum = 0;
+		// if (isset($oActionRule->record->repos->pre)) {
+		// 	$oRule = $oActionRule->record->repos->pre;
+		// 	if (!empty($oRule->record->likeNum)) {
+		// 		$recordReposLikeNum = (int) $oRule->record->likeNum;
+		// 	}
+		// }
+		/* 协作填写显示在共享页所需点赞数量 */
+		$coworkReposLikeNum = 0;
+		if (isset($oActionRule->cowork->repos->pre)) {
+			$oRule = $oActionRule->cowork->repos->pre;
+			if (!empty($oRule->cowork->likeNum)) {
+				$coworkReposLikeNum = (int) $oRule->cowork->likeNum;
+			}
+		}
+		// 填写记录过滤条件
+		$oPosted = $this->getPostJson();
+		// 填写记录过滤条件
+		$oOptions = new \stdClass;
+		$oOptions->page = $page;
+		$oOptions->size = $size;
+		$oOptions->regardRemarkRoundAsRecordRound = true; // 将留言的轮次作为记录的轮次
+
+		!empty($oPosted->keyword) && $oOptions->keyword = $oPosted->keyword;
+
+		if (!empty($oPosted->orderby)) {
+			switch ($oPosted->orderby) {
+			case 'earliest':
+				$oOptions->orderby = ['submit_at asc'];
+				break;
+			case 'lastest':
+				$oOptions->orderby = ['submit_at'];
+				break;
+			case 'mostvoted':
+				$oOptions->orderby = ['vote_num', 'submit_at'];
+				break;
+			case 'mostliked':
+				$oOptions->orderby = ['like_num', 'submit_at'];
+				break;
+			case 'agreed':
+				$oOptions->orderby = ['agreed', 'submit_at'];
+				break;
+			}
+		}
+
+		// 查询结果
+		$modelRec = $this->model('matter\enroll\data');
+		$oCriteria = new \stdClass;
+		$oCriteria->recordData = new \stdClass;
+		$oCriteria->recordData->rid = !empty($oPosted->rid) ? $oPosted->rid : 'all';
+
+		/* 用户分组限制 */
+		if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
+			$bSameGroup = $this->_requireSameGroup($oApp);
+			if ($bSameGroup) {
+				$oCriteria->recordData->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
+			} else if ($coworkReposLikeNum) {
+				/* 限制同组数据或赞同数大于等于 */
+				$oCriteria->GroupOrLikeNum = new \stdClass;
+				$oCriteria->GroupOrLikeNum->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
+				$oCriteria->GroupOrLikeNum->like_num = $coworkReposLikeNum;
+			}
+		}
+		/* 指定了分组过滤条件 */
+		if (!isset($oCriteria->recordData->group_id) && !isset($oCriteria->GroupOrLikeNum)) {
+			if (!empty($oPosted->userGroup)) {
+				$oCriteria->recordData->group_id = $oPosted->userGroup;
+			}
+		}
+		/* 记录的创建人 */
+		if (!empty($oPosted->mine) && $oPosted->mine === 'creator') {
+			$oCriteria->recordData->userid = $oUser->uid;
+		}
+		/* 记录的表态 */
+		if (!empty($oPosted->agreed) && stripos($oPosted->agreed, 'all') === false) {
+			$oCriteria->recordData->agreed = $oPosted->agreed;
+		}
+
+		$oEditor = null; // 作为编辑用户的信息
+
+		$oResult = $modelRec->coworkList($oApp, $oOptions, $oCriteria, $oUser);
+		if (!empty($oResult->recordDatas)) {
+			$modelData = $this->model('matter\enroll\data');
+			$modelTag = $this->model('matter\enroll\tag2');
+			/* 是否限制了匿名规则 */
+			$bAnonymous = $this->_requireAnonymous($oApp);
+			/* 是否设置了编辑组统一名称 */
+			if (isset($oActionRule->role->editor->group)) {
+				if (isset($oActionRule->role->editor->nickname)) {
+					$oEditor = new \stdClass;
+					$oEditor->group = $oActionRule->role->editor->group;
+					$oEditor->nickname = $oActionRule->role->editor->nickname;
+					// 如果记录活动指定了编辑组需要获取，编辑组中所有的用户
+					$modelGrpUsr = $this->model('matter\group\player');
+					$groupEditor = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
+					if (isset($groupEditor->players)) {
+						$groupEditorPlayers = $groupEditor->players;
+						$oEditorUsers = new \stdClass;
+						foreach ($groupEditorPlayers as $player) {
+							$oEditorUsers->{$player->userid} = $player->role_rounds;
+						}
+						unset($groupEditorPlayers);
+					}
+				}
+			}
+
+			foreach ($oResult->recordDatas as $recordData) {
+				/* 获取记录的投票信息 */
+				if (!empty($oApp->voteConfig)) {
+					$aVoteRules = $this->model('matter\enroll\task', $oApp)->getVoteRule($oUser, $recordData->round);
+				}
+				$aCoworkState = [];
+				$recordDirs = [];
+				/* 清除非共享数据 */
+				if (isset($recordData->data)) {
+					$newRecordData = new \stdClass;
+					foreach ($oApp->dynaDataSchemas as $oSchema) {
+						$schemaId = $oSchema->id;
+						// 分类目录
+						if (!empty($oSchema->asdir) && $oSchema->asdir === 'Y' && !empty($recordData->data->{$schemaId})) { 
+							foreach ($oSchema->ops as $op) {
+								if ($op->v === $recordData->data->{$schemaId}) {
+									$recordDirs[] = $op->l;
+								}
+							}
+						}
+						/* 清除非共享数据 */
+						if (isset($oSchema->shareable) && $oSchema->shareable !== 'Y') {
+							continue;
+						}
+
+						if (strpos($schemaId, 'member.extattr.') === 0) {
+							$memberSchemaId = str_replace('member.extattr.', '', $schemaId);
+							if (!empty($recordData->data->member->extattr->{$memberSchemaId})) {
+								if (!isset($newRecordData->member)) {
+									$newRecordData->member = new \stdClass;
+								}
+								if (!isset($newRecordData->member->extattr)) {
+									$newRecordData->member->extattr = new \stdClass;
+								}
+								$newRecordData->member->extattr->{$memberSchemaId} = $recordData->data->member->extattr->{$memberSchemaId};
+							}
+						} else if (strpos($schemaId, 'member.') === 0) {
+							$memberSchemaId = str_replace('member.', '', $schemaId);
+							if (!empty($recordData->data->member->{$memberSchemaId})) {
+								if (!isset($newRecordData->member)) {
+									$newRecordData->member = new \stdClass;
+								}
+								$newRecordData->member->{$memberSchemaId} = $recordData->data->member->{$memberSchemaId};
+							}
+						} else if (!empty($recordData->data->{$schemaId})) {
+							$newRecordData->{$schemaId} = $recordData->data->{$schemaId};
+						}
+					}
+					$recordData->data = $newRecordData;
+					if (!empty($recordDirs)) {
+						$recordData->recordDir = (object) $recordDirs;
+					}
+				}
+				/* 隐藏昵称 */
+				if ($bAnonymous) {
+					unset($recordData->nickname);
+				} else {
+					/* 修改默认访客昵称 */
+					if ($recordData->userid === $oUser->uid) {
+						$recordData->nickname = '我';
+					} else if (preg_match('/用户[^\W_]{13}/', $recordData->nickname)) {
+						$recordData->nickname = '访客';
+					} else if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
+						/* 设置编辑统一昵称 */
+						if (!empty($recordData->group_id) && $recordData->group_id === $oEditor->group) {
+							$recordData->nickname = $oEditor->nickname;
+						} else if (isset($oEditorUsers) && isset($oEditorUsers->{$recordData->userid})) {
+							// 记录提交者是否有编辑组角色
+							$recordData->nickname = $oEditor->nickname;
+						}
+					}
+				}
+				/* 清除不必要的内容 */
+				unset($recordData->comment);
+				unset($recordData->verified);
+			}
+		}
+
+		// 记录搜索事件
+		if (!empty($oPosted->keyword)) {
+			$rest = $this->model('matter\enroll\search')->addUserSearch($oApp, $oUser, $oPosted->keyword);
+			// 记录日志
+			$this->model('matter\enroll\event')->searchRecord($oApp, $rest['search'], $oUser);
+		}
+
+		return new \ResponseData($oResult);
+	}
+	/**
 	 * 返回指定活动的填写记录的共享内容
 	 */
 	public function recordByTopic_action($app, $topic, $page = 1, $size = 12) {

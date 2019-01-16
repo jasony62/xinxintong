@@ -1140,12 +1140,8 @@ class repos extends base {
 			if ($criteria->type === 'keyword') {
 				$search = $this->model('matter\enroll\search')->listUserSearch($oApp, $oUser);
 				$userSearchs = $search->userSearch;
-				if (count($userSearchs) == 0) {
-					unset($criterias[$key]);
-				} else {
-					foreach ($userSearchs as $userSearch) {
-						$criteria->menus[] = (object) ['id' => $userSearch->keyword, 'title' => $userSearch->keyword];
-					}
+				foreach ($userSearchs as $userSearch) {
+					$criteria->menus[] = (object) ['id' => $userSearch->keyword, 'title' => $userSearch->keyword];
 				}
 			}
 		}

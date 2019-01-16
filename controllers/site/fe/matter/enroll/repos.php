@@ -1144,6 +1144,8 @@ class repos extends base {
 			if ($criteria->type === 'mine') {
 				if (empty($oUser->unionid)) {
 					unset($criterias[$key]);
+				} else if ($viweType === 'record') {
+					$criteria->menus[] = (object) ['id' => 'favored', 'title' => '我的收藏'];
 				}
 			}
 			// 搜索历史
@@ -1235,7 +1237,6 @@ class repos extends base {
 		$mine->menus = [
 			(object) ['id' => null, 'title' => '不限'],
 			(object) ['id' => 'creator', 'title' => '我的记录'],
-			(object) ['id' => 'favored', 'title' => '我的收藏'],
 		];
 		$mine->default = $mine->menus[0];
 		$criterias[] = $mine;

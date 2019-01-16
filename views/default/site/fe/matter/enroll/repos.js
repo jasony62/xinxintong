@@ -214,8 +214,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         enlAssoc.copy($scope.app, { id: oRecord.id, type: 'record' });
     };
     $scope.confirm = function(filterOpt) {
-        $scope.filter = _oFilter = angular.extend(_oFilter, filterOpt.filter);
-        $scope.criteria = _oCriteria = angular.extend(_oCriteria, filterOpt.criteria);
         $scope.recordList(1).then(function() {
             http2.get(LS.j('repos/criteriaGet', 'site', 'app')).then(function(rsp) {
                 if(rsp.data) {

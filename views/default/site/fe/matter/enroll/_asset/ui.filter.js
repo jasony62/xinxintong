@@ -21,7 +21,11 @@ ngMod.directive('tmsFilter', ['$templateCache', '$timeout', function($templateCa
             }
             scope.ok = function(filterOpt) {
                 scope.status.isopen = !scope.status.isopen;
-                scope.criteria.keyword = filterOpt.keyword ? filterOpt.keyword : null;
+                if (scope.criteria.keyword) {
+                    scope.filter.keyword = {'title': scope.criteria.keyword, 'id': scope.criteria.keyword};
+                } else {
+                    scope.criteria.keyword = scope.filter.keyword = null;
+                }
                 function objectKeyIsNull(obj) {
                     var empty = null;
                     for (var i in obj) {

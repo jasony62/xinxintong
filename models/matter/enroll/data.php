@@ -199,6 +199,7 @@ class data_model extends entity_model {
 						$treatedValue = $fnNewItems($schemaId, $treatedValue);
 					} else {
 						unset($dbData->{$schemaId});
+						continue;
 					}
 				} else {
 					if (is_object($treatedValue) || is_array($treatedValue)) {
@@ -613,16 +614,24 @@ class data_model extends entity_model {
 			$items = $this->query_objs_ss($q, $q2);
 			if (count($items)) {
 				$oItem = $items[0];
-				$rank = 1;
-				$this->update('xxt_enroll_record_data', ['score_rank' => $rank], ['id' => $oItem->id]);
-				$lastScore = $oItem->score;
-				for ($i = 1, $l = count($items); $i < $l; $i++) {
-					$oItem = $items[$i];
-					if ($oItem->score < $lastScore) {
-						$rank = $i + 1;
-					}
+				if (isset($oSchema->rankScoreAbove) && is_numeric($oSchema->rankScoreAbove) && $oItem->score <= $oSchema->rankScoreAbove) {
+					$this->update('xxt_enroll_record_data', ['score_rank' => 0], ['id' => $oItem->id]);
+				} else {
+					$rank = 1;
 					$this->update('xxt_enroll_record_data', ['score_rank' => $rank], ['id' => $oItem->id]);
 					$lastScore = $oItem->score;
+				}
+				for ($i = 1, $l = count($items); $i < $l; $i++) {
+					$oItem = $items[$i];
+					if (isset($oSchema->rankScoreAbove) && is_numeric($oSchema->rankScoreAbove) && $oItem->score <= $oSchema->rankScoreAbove) {
+						$this->update('xxt_enroll_record_data', ['score_rank' => 0], ['id' => $oItem->id]);
+					} else {
+						if ($oItem->score < $lastScore) {
+							$rank = $i + 1;
+						}
+						$this->update('xxt_enroll_record_data', ['score_rank' => $rank], ['id' => $oItem->id]);
+						$lastScore = $oItem->score;
+					}
 				}
 			}
 			return count($items);
@@ -1107,7 +1116,7 @@ class data_model extends entity_model {
 	/**
 	 * 对填写数据投票
 	 */
-	public function vote($oApp, $recDataId, $oUser) {
+	public function vote($oApp, $oTask, $recDataId, $oUser) {
 		$oRecData = $this->byId($recDataId, ['fields' => 'id,aid,rid,group_id,enroll_key,schema_id,multitext_seq']);
 		if (false === $oRecData) {
 			return [false, '（1）指定的对象不存在或不可用'];
@@ -1122,26 +1131,30 @@ class data_model extends entity_model {
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return [false, '指定的记录不存在'];
 		}
+		$modelTsk = $this->model('matter\enroll\task', $oApp);
+		$oActiveRnd = $oApp->appRound;
 
-		$aVoteSchemas = $this->model('matter\enroll\task')->getCanVote($oApp, $oUser);
-		if (empty($aVoteSchemas[$oRecData->schema_id])) {
-			return [false, '指定的题目不支持投票'];
+		$oVoteRule = $modelTsk->ruleByTask($oApp, $oTask, $oActiveRnd);
+		if (false === $oVoteRule[0]) {
+			return new \ParameterError($oVoteRule[1]);
 		}
-		$oCanVoteSchema = $aVoteSchemas[$oRecData->schema_id];
-		if ($oCanVoteSchema->vote->state === 'BS') {
+		$oVoteRule = $oVoteRule[1];
+
+		if ($oVoteRule->state === 'BS') {
 			return [false, '投票还没有开始'];
 		}
-		if ($oCanVoteSchema->vote->state === 'AE') {
+		if ($oVoteRule->state === 'AE') {
 			return [false, '投票已经结束'];
 		}
-
-		if (!empty($oCanVoteSchema->vote->groups)) {
-			if (!in_array($this->getDeepValue($oUser, 'group_id'), $oCanVoteSchema->vote->groups)) {
+		if (!in_array($oRecData->schema_id, $oVoteRule->schemas)) {
+			return [false, '指定的题目不支持投票'];
+		}
+		if (!empty($oVoteRule->groups)) {
+			if (!in_array($this->getDeepValue($oUser, 'group_id'), $oVoteRule->groups)) {
 				return [false, '不符合投票的用户分组规则，不能投票'];
 			}
 		}
 
-		$oActiveRnd = $oApp->appRound;
 		$q = [
 			'id,vote_at',
 			'xxt_enroll_vote',
@@ -1151,7 +1164,7 @@ class data_model extends entity_model {
 			return [false, '已经投过票，不允许重复投票', $oBefore];
 		}
 
-		$limitMax = $this->getDeepValue($oCanVoteSchema->vote, 'limit.max', 0);
+		$limitMax = $this->getDeepValue($oVoteRule, 'limit.max', 0);
 		$q = [
 			'count(*)',
 			'xxt_enroll_vote',
@@ -1195,7 +1208,7 @@ class data_model extends entity_model {
 	/**
 	 * 撤销对填写数据投票
 	 */
-	public function unvote($oApp, $recDataId, $oUser) {
+	public function unvote($oApp, $oTask, $recDataId, $oUser) {
 		$oActiveRnd = $oApp->appRound;
 
 		$oRecData = $this->byId($recDataId, ['fields' => 'id,aid,rid,enroll_key,schema_id,multitext_seq']);
@@ -1222,16 +1235,27 @@ class data_model extends entity_model {
 			return [false, '指定的记录不存在'];
 		}
 
-		$aVoteSchemas = $this->model('matter\enroll\task')->getCanVote($oApp, $oUser, $oRecord->round);
-		if (empty($aVoteSchemas[$oRecData->schema_id])) {
-			return [false, '指定的题目不支持投票'];
+		$modelTsk = $this->model('matter\enroll\task', $oApp);
+
+		$oVoteRule = $modelTsk->ruleByTask($oApp, $oTask, $oActiveRnd);
+		if (false === $oVoteRule[0]) {
+			return new \ParameterError($oVoteRule[1]);
 		}
-		$oCanVoteSchema = $aVoteSchemas[$oRecData->schema_id];
-		if ($oCanVoteSchema->vote->state === 'BS') {
+		$oVoteRule = $oVoteRule[1];
+
+		if ($oVoteRule->state === 'BS') {
 			return [false, '投票还没有开始'];
 		}
-		if ($oCanVoteSchema->vote->state === 'AE') {
+		if ($oVoteRule->state === 'AE') {
 			return [false, '投票已经结束'];
+		}
+		if (!in_array($oRecData->schema_id, $oVoteRule->schemas)) {
+			return [false, '指定的题目不支持投票'];
+		}
+		if (!empty($oVoteRule->groups)) {
+			if (!in_array($this->getDeepValue($oUser, 'group_id'), $oVoteRule->groups)) {
+				return [false, '不符合投票的用户分组规则，不能投票'];
+			}
 		}
 
 		/* 更新投票记录 */
@@ -1255,6 +1279,6 @@ class data_model extends entity_model {
 		];
 		$beforeCount = (int) $this->query_val_ss($q);
 
-		return [true, [$this->getDeepValue($oCanVoteSchema, 'vote.limit.max'), $beforeCount]];
+		return [true, [$this->getDeepValue($oVoteRule, 'limit.max'), $beforeCount]];
 	}
 }

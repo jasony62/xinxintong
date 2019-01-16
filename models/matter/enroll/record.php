@@ -255,7 +255,7 @@ class record_model extends record_base {
 			$oRecord->verbose = $this->model('matter\enroll\data')->byRecord($oRecord->enroll_key);
 		}
 		if (!empty($oRecord->rid)) {
-			if ($oRound = $this->model('matter\enroll\round')->byId($oRecord->rid, ['fields' => 'title,state,start_at,end_at,purpose'])) {
+			if ($oRound = $this->model('matter\enroll\round')->byId($oRecord->rid, ['fields' => 'id,rid,title,state,start_at,end_at,purpose'])) {
 				$oRecord->round = $oRound;
 			} else {
 				$oRecord->round = new \stdClass;
@@ -778,7 +778,7 @@ class record_model extends record_base {
 		if (!empty($oOptions->fields)) {
 			$fields = $oOptions->fields;
 		} else {
-			$fields = 'id,state,enroll_key,rid,enroll_at,userid,group_id,nickname,verified,comment,data,score,supplement,agreed,like_num,like_log,remark_num,favor_num,dislike_num,dislike_log';
+			$fields = 'id,state,enroll_key,rid,purpose,enroll_at,userid,group_id,nickname,verified,comment,data,score,supplement,agreed,like_num,like_log,remark_num,favor_num,dislike_num,dislike_log';
 		}
 		$q = [$fields, "xxt_enroll_record r", $w];
 
@@ -1012,7 +1012,7 @@ class record_model extends record_base {
 					if (!isset($modelRnd)) {
 						$modelRnd = $this->model('matter\enroll\round');
 					}
-					$round = $modelRnd->byId($oRec->rid, ['fields' => 'title,purpose,start_at,end_at,state']);
+					$round = $modelRnd->byId($oRec->rid, ['fields' => 'rid,title,purpose,start_at,end_at,state']);
 					$aRoundsById[$oRec->rid] = $round;
 				} else {
 					$round = $aRoundsById[$oRec->rid];

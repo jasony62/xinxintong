@@ -522,7 +522,7 @@ class main extends main_base {
 
 		switch ($method) {
 		case 'save':
-			$oVoteConfig = $this->model('matter\enroll\task')->purifyVote($oVoteConfig);
+			$oVoteConfig = $this->model('matter\enroll\task', $oApp)->purifyVote($oVoteConfig);
 			if (empty($oVoteConfig->id)) {
 				$oVoteConfig->id = uniqid();
 				$aAllVoteConfigs[] = $oVoteConfig;
@@ -709,7 +709,7 @@ class main extends main_base {
 
 		switch ($method) {
 		case 'save':
-			$oQuestionConfig = $this->model('matter\enroll\task')->purifyQuestion($oQuestionConfig);
+			$oQuestionConfig = $this->model('matter\enroll\task', $oApp)->purifyQuestion($oQuestionConfig);
 			if (empty($oQuestionConfig->id)) {
 				$oQuestionConfig->id = uniqid();
 				$aAllQuestionConfigs[] = $oQuestionConfig;
@@ -776,7 +776,7 @@ class main extends main_base {
 
 		switch ($method) {
 		case 'save':
-			$oAnswerConfig = $this->model('matter\enroll\task')->purifyAnswer($oAnswerConfig);
+			$oAnswerConfig = $this->model('matter\enroll\task', $oApp)->purifyAnswer($oAnswerConfig);
 			if (empty($oAnswerConfig->id)) {
 				$oAnswerConfig->id = uniqid();
 				$aAllAnswerConfigs[] = $oAnswerConfig;

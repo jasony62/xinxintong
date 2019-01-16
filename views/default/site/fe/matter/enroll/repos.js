@@ -9,8 +9,9 @@ require('./_asset/ui.round.js');
 require('./_asset/ui.dropdown.js');
 require('./_asset/ui.filter.js');
 require('./_asset/ui.tree.js');
+require('./_asset/ui.task.js');
 
-window.moduleAngularModules = ['tree.ui', 'filter.ui', 'dropdown.ui', 'round.ui.enroll', 'repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll'];
+window.moduleAngularModules = ['tree.ui', 'filter.ui', 'dropdown.ui', 'round.ui.enroll', 'repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll', 'task.ui.enroll'];
 
 var ngApp = require('./main.js');
 ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', 'enlService', function($scope, $parse, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc, enlService) {    
@@ -27,7 +28,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             }
         });
     }
-    var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oTasks, _oUser, _activeDirSchemas;
+    var _oApp, _facRound, _oPage, _oFilter, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, _oUser, _activeDirSchemas;
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = {};
     $scope.filter = _oFilter = { isFilter: false }; // 过滤条件
@@ -284,7 +285,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                 $scope2.cancel = function() { $mi.dismiss(); };
                 $scope2.vote = function(oRecData) {
-                    http2.get(LS.j('task/vote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
+                    http2.get(LS.j('task/vote', 'site') + '&data=' + oRecData.id + '&task=' + oTask.id).then(function(rsp) {
                         oRecData.voteResult.vote_num++;
                         oRecData.voteResult.vote_at = rsp.data[0].vote_at;
                         var remainder = rsp.data[1][0] - rsp.data[1][1];
@@ -296,7 +297,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                     });
                 };
                 $scope2.unvote = function(oRecData) {
-                    http2.get(LS.j('task/unvote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
+                    http2.get(LS.j('task/unvote', 'site') + '&data=' + oRecData.id + '&task=' + oTask.id).then(function(rsp) {
                         oRecData.voteResult.vote_num--;
                         oRecData.voteResult.vote_at = 0;
                         var remainder = rsp.data[0] - rsp.data[1];
@@ -307,7 +308,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                         }
                     });
                 };
-                http2.get(LS.j('task/votingRecData', 'site', 'app')).then(function(rsp) {
+                http2.get(LS.j('task/votingRecData', 'site', 'app') + '&task=' + oTask.id).then(function(rsp) {
                     $scope2.votingRecDatas = rsp.data[Object.keys(rsp.data)[0]];
                 });
             }],
@@ -315,9 +316,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             windowClass: 'auto-height'
         });
     };
-    $scope.scoreSchema = function() {
+    $scope.scoreSchema = function(oTask) {
         var _oScoreApp;
-        _oScoreApp = $parse('score.schemas[0].scoreApp')(_oTasks);
+        _oScoreApp = $parse('rule.scoreApp')(oTask);
         if (!_oScoreApp || !_oScoreApp.id) return;
         $uibModal.open({
             template: require('./_asset/score-app.html'),
@@ -399,18 +400,19 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             if ($scope.dirSchemas && $scope.dirSchemas.length) {
                 $scope.advCriteriaStatus.dirOpen = true;
             }
+
             function _getNewRepos(at) {
                 $scope.recordList(at).then(function() {
-                    if(at==_cPage.at) {
+                    if (at == _cPage.at) {
                         $timeout(function() {
                             document.getElementById('repos').scrollTop = parseInt(sessionStorage.listStorageY);
                             window.sessionStorage.clear();
                         });
                     }
-                }); 
-                
+                });
+
             }
-            for (var i=1; i<=_cPage.at; i++) {
+            for (var i = 1; i <= _cPage.at; i++) {
                 _getNewRepos(i);
             }
         } else {
@@ -426,21 +428,26 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                     }
                 });
             }
-            http2.get(LS.j('task/list', 'site', 'app')).then(function(rsp) {
-                _oTasks = rsp.data;
-                if (rsp.data.question) {
-                    tasks.push({ type: 'info', msg: '有提问任务', id: 'record.data.question' });
-                }
-                if (rsp.data.answer) {
-                    tasks.push({ type: 'info', msg: '有回答任务', id: 'record.data.answer' });
-                }
-                if (rsp.data.vote) {
-                    tasks.push({ type: 'info', msg: '有投票任务', id: 'record.data.vote' });
-                    popActs.push('voteRecData');
-                }
-                if (rsp.data.score) {
-                    tasks.push({ type: 'info', msg: '有打分任务', id: 'record.data.score' });
-                    popActs.push('scoreSchema');
+            new enlTask($scope.app).list(null, 'IP').then(function(ipTasks) {
+                if (ipTasks.length) {
+                    ipTasks.forEach(function(oTask) {
+                        switch (oTask.type) {
+                            case 'question':
+                                tasks.push({ type: 'info', msg: oTask.toString(), id: 'record.data.question', data: oTask });
+                                break;
+                            case 'answer':
+                                tasks.push({ type: 'info', msg: oTask.toString(), id: 'record.data.answer', data: oTask });
+                                break;
+                            case 'vote':
+                                tasks.push({ type: 'info', msg: oTask.toString(), id: 'record.data.vote', data: oTask });
+                                popActs.push('voteRecData');
+                                break;
+                            case 'score':
+                                tasks.push({ type: 'info', msg: oTask.toString(), id: 'record.data.score', data: oTask });
+                                popActs.push('scoreSchema');
+                                break;
+                        }
+                    });
                 }
             });
             $scope.tasks = tasks = [];

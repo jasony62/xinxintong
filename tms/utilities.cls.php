@@ -70,8 +70,11 @@ class DatabaseError extends ResponseData {
 class UrlNotMatchException extends Exception {
 
 }
-/**
+/**************************
  * 常用方法
+ **************************/
+/**
+ * 数组中查找对象并返回
  */
 function tms_array_search($array, $callback) {
 	if (empty($array) || !is_array($array)) {
@@ -85,4 +88,25 @@ function tms_array_search($array, $callback) {
 	}
 
 	return false;
+}
+/**
+ * 合并对象
+ */
+function tms_object_merge(&$oHost, $oNew, $fromProps = []) {
+	if (empty($oHost) || empty($oNew) || !is_object($oHost)) {
+		return $oHost;
+	}
+	if (empty($fromProps)) {
+		foreach ($oNew as $prop => $val) {
+			$oHost->{$prop} = $val;
+		}
+	} else {
+		foreach ($fromProps as $prop) {
+			if (isset($oNew->{$prop})) {
+				$oHost->{$prop} = $oNew->{$prop};
+			}
+		}
+	}
+
+	return $oHost;
 }

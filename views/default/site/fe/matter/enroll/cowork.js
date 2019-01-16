@@ -7,14 +7,16 @@ require('./_asset/ui.tag.js');
 require('./_asset/ui.topic.js');
 require('./_asset/ui.assoc.js');
 
-window.moduleAngularModules = ['editor.ui.xxt', 'repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll'];
+require('./_asset/ui.task.js');
+
+window.moduleAngularModules = ['task.ui.enroll', 'editor.ui.xxt', 'repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll'];
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$anchorScroll', '$sce', '$uibModal', 'tmsLocation', 'http2', 'noticebox', 'tmsDynaPage', 'enlTag', 'enlTopic', 'enlAssoc', function($scope, $q, $timeout, $location, $anchorScroll, $sce, $uibModal, LS, http2, noticebox, tmsDynaPage, enlTag, enlTopic, enlAssoc) {
+ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$anchorScroll', '$sce', '$uibModal', 'tmsLocation', 'http2', 'noticebox', 'tmsDynaPage', 'enlTag', 'enlTopic', 'enlAssoc', 'enlTask', function($scope, $q, $timeout, $location, $anchorScroll, $sce, $uibModal, LS, http2, noticebox, tmsDynaPage, enlTag, enlTopic, enlAssoc, enlTask) {
     function listRemarks() {
         var url;
         url = LS.j('remark/list', 'site', 'ek', 'schema', 'data');
-        
+
         http2.get(url).then(function(rsp) {
             var remarks, oRemark, oUpperRemark, oRemarks;
             remarks = rsp.data.remarks;
@@ -61,9 +63,9 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
     function addRemark(content, oRemark) {
         var url;
         url = LS.j('remark/add', 'site', 'ek', 'data');
-        if (oRemark) {
-            url += '&remark=' + oRemark.id;
-        }
+        if (oRemark) url += '&remark=' + oRemark.id;
+        if ($scope.forTask) url += '&task=' + $scope.forTask;
+
         return http2.post(url, { content: content });
     }
     /**
@@ -155,7 +157,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
                     });
                 }
                 url = LS.j('data/get', 'site', 'ek') + '&schema=' + oSchema.id + '&cascaded=Y';
-                
+
                 http2.get(url, { autoBreak: false, autoNotice: false }).then(function(rsp) {
                     var bRequireAnchorScroll;
                     oRecord.verbose[oSchema.id] = rsp.data.verbose[oSchema.id];
@@ -450,9 +452,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             $uibModal.open({
                 templateUrl: 'writeRemark.html',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                    $scope2.data = {
-                        content: ''
-                    };
+                    $scope2.data = { content: '' };
                     $scope2.cancel = function() { $mi.dismiss(); };
                     $scope2.ok = function() {
                         var content;
@@ -595,34 +595,6 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             });
         }
     };
-    $scope.vote = function(oRecData) {
-        if (oRecData && oRecData.voteResult) {
-            http2.get(LS.j('data/vote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
-                oRecData.voteResult.vote_num++;
-                oRecData.voteResult.vote_at = rsp.data[0].vote_at;
-                var remainder = rsp.data[1][0] - rsp.data[1][1];
-                if (remainder > 0) {
-                    noticebox.success('还需要投出【' + remainder + '】票');
-                } else {
-                    noticebox.success('已完成全部投票');
-                }
-            });
-        }
-    };
-    $scope.unvote = function(oRecData) {
-        if (oRecData && oRecData.voteResult) {
-            http2.get(LS.j('data/unvote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
-                oRecData.voteResult.vote_num--;
-                oRecData.voteResult.vote_at = 0;
-                var remainder = rsp.data[0] - rsp.data[1];
-                if (remainder > 0) {
-                    noticebox.success('还需要投出【' + remainder + '】票');
-                } else {
-                    noticebox.success('已完成全部投票');
-                }
-            });
-        }
-    };
     $scope.gotoUpper = function(upperId) {
         var elRemark, offsetTop, parentNode;
         elRemark = document.querySelector('#remark-' + upperId);
@@ -698,6 +670,12 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
                 });
             } else {
                 fnAfterRecordLoad(oRecord, _oUser);
+            }
+        });
+        new enlTask($scope.app).list('question').then(function(tasks) {
+            $scope.tasks = tasks;
+            if (tasks.length === 1) {
+                $scope.forTask = tasks[0].id;
             }
         });
     });

@@ -55,7 +55,7 @@ class mission_model extends app_base {
 				if (!empty($oMission->round_cron)) {
 					$oMission->roundCron = json_decode($oMission->round_cron);
 					foreach ($oMission->roundCron as $oRule) {
-						$oRule->case = $modelRnd->byCron([$oRule]);
+						$oRule->case = $modelRnd->sampleByCron([$oRule]);
 					}
 				} else {
 					$oMission->roundCron = [];

@@ -12,7 +12,7 @@ trait Round {
 	 * @param array rules 定时生成轮次规则
 	 *
 	 */
-	public function byCron($rules) {
+	public function sampleByCron($rules) {
 		return $this->_lastRoundByCron($rules);
 	}
 	/**

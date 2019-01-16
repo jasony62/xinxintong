@@ -24,8 +24,10 @@ class record extends base {
 	 * @param string $rid 指定在哪一个轮次上提交（仅限新建的情况）
 	 * @param string $ek enrollKey 如果要更新之前已经提交的数据，需要指定
 	 * @param string $submitkey 支持文件分段上传
+	 * @param int $task 对应的任务
+	 *
 	 */
-	public function submit_action($app, $rid = '', $ek = null, $submitkey = '', $subType = 'submit') {
+	public function submit_action($app, $rid = '', $ek = null, $submitkey = '', $task = null) {
 		$modelEnl = $this->model('matter\enroll');
 		$oEnlApp = $modelEnl->byId($app, ['cascaded' => 'N']);
 		if (false === $oEnlApp || $oEnlApp->state !== '1') {
@@ -252,10 +254,26 @@ class record extends base {
 			$this->model('matter\enroll\event')->submitRecord($oEnlApp, $oRecord, $oUser, $bSubmitNewRecord);
 		}
 		/**
-		 * 更新得分题目排名
+		 * 更新用户得分排名
 		 */
 		$modelEnlUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 		$modelEnlUsr->setScoreRank($oEnlApp, $oRecord->rid);
+		/**
+		 * 如果存在提问任务，将记录放到任务专题中
+		 */
+		if (!empty($task)) {
+			$modelTsk = $this->model('matter\enroll\task', $oEnlApp);
+			if ($oTask = $modelTsk->byId($task)) {
+				/* 检查任务是否有效 */
+				if ($oTask->config_type === 'question') {
+					$modelTop = $this->model('matter\enroll\topic', $oEnlApp);
+					if ($oTopic = $modelTop->byTask($oTask)) {
+						$modelTop->assign($oTopic, $oRecord);
+					}
+				}
+			}
+		}
+
 		/* 生成提醒 */
 		if ($bSubmitNewRecord) {
 			$this->model('matter\enroll\notice')->addRecord($oEnlApp, $oRecord, $oUser);

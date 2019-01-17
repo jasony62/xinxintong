@@ -1,0 +1,77 @@
+<div class='records' ng-controller="ctrlRecordSchema">
+    <div class='record' ng-repeat="rec in repos" ng-cloak>
+        <div class='top-bar'>
+            <div class='seq label label-default'>{{$index+1}}</div>
+            <div class='nickname text-muted'>{{rec.nickname||'隐藏'}}</div>
+            <button ng-if="rec.favored" class="btn btn-default btn-xs" ng-click="favorRecord(rec)">已收藏</button>
+            <div ng-if="rec._canAgree">
+                <div class="btn-group btn-group-xs" uib-dropdown>
+                    <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                        <span ng-if="rec.agreed===''">未表态</span>
+                        <span ng-if="rec.agreed==='D'">讨论</span>
+                        <span ng-if="rec.agreed==='A'">接受</span>
+                        <span ng-if="rec.agreed==='Y'">推荐</span>
+                        <span ng-if="rec.agreed==='N'">关闭</span>
+                        <span class="caret"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class='data' ng-click="remarkRecord(rec, $event)">
+            <blockquote>
+                <div tms-repos-record-data schemas="schemas" record="rec"></div>
+            </blockquote>
+        </div>
+        <div class='bottom-bar'>
+            <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
+            <a href><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></a>
+            <a href><span class='glyphicon glyphicon-thumbs-down' ng-class="{'like':rec.dislike_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.dislike_num"></span></a>
+            <a href><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></a>
+            <div class="btn-group" uib-dropdown>
+                <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>
+                    <span class="glyphicon glyphicon-option-vertical"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right dropdown-menu-top" uib-dropdown-menu>
+                    <li><a href ng-click="shareRecord(rec)"><span class='glyphicon glyphicon-share'></span> 分享</a></li>
+                    <li ng-if="!rec.favored"><a href ng-click="favorRecord(rec)"><span class='glyphicon glyphicon-bookmark'></span> 收藏</a></li>
+                    <li><a href ng-click="assignTag(rec)"><span class='glyphicon glyphicon-tag'></span> 标签</a></li>
+                    <li ng-if="rec.favored"><a href ng-click="assignTopic(rec)"><span class='glyphicon glyphicon-inbox'></span> 专题</a></li>
+                    <li ng-if="rec.userid===user.uid"><a href ng-click="editRecord($event,rec)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
+                    <li ng-if="app.scenarioConfig.can_assoc === 'Y'" class='divider'></li>
+                    <li ng-if="app.scenarioConfig.can_assoc === 'Y'"><a href ng-click="copyRecord($event,rec)"><span class='glyphicon glyphicon-copy'></span> 复制</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class='tags' ng-if="rec.tags||rec.userTags">
+            <button class='btn btn-info btn-xs' ng-repeat="tag in rec.tags" ng-bind="tag.label" ng-click="shiftTag(tag,true)"></button>
+            <button class='btn btn-default btn-xs' ng-repeat="tag in rec.userTags" ng-bind="tag.label" ng-click="shiftTag(tag,true)"></button>
+        </div>
+        <div class='remarks agreed' ng-if="rec.agreedRemarks.length">
+            <div class='remark' ng-repeat="remark in rec.agreedRemarks">
+                <div class='top-bar text-muted'>
+                    <div ng-bind="remark.create_at*1000|date:'MM-dd HH:mm'"></div>
+                    <div ng-bind-html="remark.nickname"></div>
+                </div>
+                <blockquote>
+                    <div ng-bind-html="remark.content"></div>
+                </blockquote>
+            </div>
+        </div>
+        <div class='remarks round' ng-if="rec.roundRemarks.length">
+            <div class='remark' ng-repeat="remark in rec.roundRemarks">
+                <div class='top-bar text-muted'>
+                    <div ng-bind="remark.create_at*1000|date:'MM-dd HH:mm'"></div>
+                    <div ng-bind-html="remark.nickname"></div>
+                </div>
+                <blockquote>
+                    <div ng-bind-html="remark.content"></div>
+                </blockquote>
+            </div>
+        </div>
+    </div>
+    <div class='record' ng-show="page.total>repos.length" ng-cloak>
+        <div class='text-center' tms-scroll-spy selector='#repos' onbottom='recordsScrollToBottom()' offset='70' toggle-spy="spyRecordsScroll">
+            <button style='border-radius:15px;' class='btn btn-default' ng-click="recordList()"><span ng-class="{'ele-running':reposLoading}"><i class='ele-running-indicator'><i></i></i></span> 更多【{{repos.length}}/{{page.total}}】 </button>
+        </div>
+    </div>
+</div>

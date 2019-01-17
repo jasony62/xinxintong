@@ -105,6 +105,10 @@ class event_model extends \TMS_MODEL {
 	 */
 	const GetVoteCoworkEventName = 'site.matter.enroll.cowork.get.vote';
 	/**
+	 * 用户搜索记录
+	 */
+	const SearchRecord = 'site.matter.enroll.search';
+	/**
 	 *
 	 */
 	private function _getOperatorId($oOperator) {
@@ -3367,6 +3371,25 @@ class event_model extends \TMS_MODEL {
 		$this->_updateUsrData($oApp, $oRecData->rid, true, $oUser, $oUpdatedUsrData);
 
 		return $oUpdatedUsrData;
+	}
+	/*
+	 *
+	 */
+	public function searchRecord($oApp, $search, $oOperator) {
+		$rid = $oApp->appRound->rid;
+		$eventAt = time();
+		/* 记录事件日志 */
+		$oTarget = new \stdClass;
+		$oTarget->id = $search->id;
+		$oTarget->type = 'search';
+		//
+		$oEvent = new \stdClass;
+		$oEvent->name = self::SearchRecord;
+		$oEvent->op = 'Use';
+		$oEvent->at = $eventAt;
+		$oEvent->user = $oOperator;
+
+		$this->_logEvent($oApp, $rid, '', $oTarget, $oEvent);
 	}
 	/**
 	 * 返回活动事件日志

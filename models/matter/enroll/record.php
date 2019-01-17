@@ -862,7 +862,6 @@ class record_model extends record_base {
 			foreach ($oApp->dynaDataSchemas as $oSchema) {
 				if ($oSchema->type == 'shorttext' && isset($oSchema->format) && $oSchema->format === 'number') {
 					$bRequireScore = true;
-					break;
 				}
 				if (!empty($oSchema->visibility->rules)) {
 					$visibilitySchemas[] = $oSchema;

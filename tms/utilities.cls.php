@@ -118,3 +118,12 @@ function tms_object_merge(&$oHost, $oNew, $fromProps = []) {
 
 	return $oHost;
 }
+/**
+ * 时间变可读字符串
+ */
+function tms_time_to_str($timestamp) {
+	$WeekdayZh = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+	$str = date('y年n月d日', $timestamp) . ' ' . $WeekdayZh[date('w', $timestamp)] . ' ' . date('H:i', $timestamp);
+
+	return $str;
+}

@@ -49,7 +49,7 @@
         </div>
         <div class='row'>
             <div class='records col-xs-12'>
-                <div id='repos'>
+                <div id='repos' ng-if="!topic.task||topic.task.config_type!=='score'">
                     <div class='record' ng-repeat="rec in repos" ng-cloak>
                         <div class='top-bar'>
                             <div class='seq label label-default'>{{$index+1}}</div>
@@ -117,6 +117,9 @@
                             <button style='border-radius:15px;' class='btn btn-default' ng-click="recordList()"><span ng-class="{'ele-running':reposLoading}"><i class='ele-running-indicator'><i></i></i></span> 更多【{{repos.length}}/{{page.total}}】 </button>
                         </div>
                     </div>
+                </div>
+                <div ng-if="topic.task.config_type==='score'">
+                    <div tms-score-record-data task="topic.task"></div>
                 </div>
             </div>
         </div>

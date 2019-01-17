@@ -261,9 +261,10 @@ class main extends base {
 	 * @param string $rid
 	 * @param string $page page's name
 	 * @param string $ek record's enroll key
+	 * @param int $task 活动任务id
 	 *
 	 */
-	public function get_action($app, $rid = '', $page = null, $ek = null, $ignoretime = 'N', $cascaded = 'N') {
+	public function get_action($app, $rid = '', $page = null, $ek = null, $ignoretime = 'N', $cascaded = 'N', $task = null) {
 		$params = []; // 返回的结果
 		/* 要打开的记录 */
 		$modelRec = $this->model('matter\enroll\record');
@@ -271,7 +272,13 @@ class main extends base {
 			$oOpenedRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'state' => 1]);
 		}
 		/* 要打开的应用 */
-		$oApp = $this->modelApp->byId($app, ['cascaded' => $cascaded, 'fields' => '*', 'appRid' => empty($oOpenedRecord->rid) ? $rid : $oOpenedRecord->rid]);
+		$aOptions = ['cascaded' => $cascaded, 'fields' => '*', 'appRid' => empty($oOpenedRecord->rid) ? $rid : $oOpenedRecord->rid];
+		if (!empty($task)) {
+			if ($oTask = $this->model('matter\enroll\task')->byId($task)) {
+				$aOptions['task'] = $oTask;
+			}
+		}
+		$oApp = $this->modelApp->byId($app, $aOptions);
 		if ($oApp === false || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}

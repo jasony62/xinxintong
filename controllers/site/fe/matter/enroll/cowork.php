@@ -34,6 +34,7 @@ class cowork extends base {
 			$oRecData = new \stdClass;
 			$oRecData->aid = $oRecord->aid;
 			$oRecData->rid = $oRecord->rid;
+			$oRecData->record_id = $oRecord->id;
 			$oRecData->enroll_key = $oRecord->enroll_key;
 			$oRecData->submit_at = time();
 			$oRecData->userid = $oRecord->userid;

@@ -1500,6 +1500,7 @@ class main extends main_base {
 						$cd = [
 							'aid' => $oApp->id,
 							'rid' => $oApp->appRound->rid,
+							'record_id' => $oRecord->id,
 							'enroll_key' => $ek,
 							'schema_id' => $n,
 							'value' => $v,

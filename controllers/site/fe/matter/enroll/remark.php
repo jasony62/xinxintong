@@ -676,6 +676,7 @@ class remark extends base {
 		$oCowork = (object) [
 			'aid' => $oApp->id,
 			'rid' => $oRemark->rid,
+			'record_id' => $oRecord->id,
 			'enroll_key' => $oRemark->enroll_key,
 			'submit_at' => $current,
 			'userid' => $oRemark->userid,

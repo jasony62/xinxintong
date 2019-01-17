@@ -106,6 +106,7 @@ $sql .= ",summary varchar(240)"; // 分享或生成链接时的摘要
 $sql .= ",state tinyint not null default 0"; // 0:新建|1:启用|2:停用|100:删除
 $sql .= ",purpose char(1) not null default 'C'"; // Common:填写的|Baseline:目标的|Summary:汇总的
 $sql .= ",mission_rid varchar(13) not null default ''"; // 关联的项目轮次
+$sql .= ",task_id int not null default 0"; // 活动任务
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -183,6 +184,7 @@ $sql .= ",aid varchar(40) not null";
 $sql .= ",rid varchar(13) not null default ''";
 $sql .= ",purpose char(1) not null default 'C'"; // Common:填写的|Baseline:目标的|Summary:汇总的
 $sql .= ",group_id varchar(32) not null default ''"; // 用户分组id
+$sql .= ",record_id int not null"; // 记录的id
 $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",submit_at int not null default 0"; // 数据的提交时间，和modify_log中的数据对应
 $sql .= ",userid varchar(40) not null default ''";

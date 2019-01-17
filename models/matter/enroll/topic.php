@@ -27,6 +27,18 @@ class topic_model extends entity_model {
 		return $oTopic;
 	}
 	/**
+	 * 根据任务定义返回任务专题
+	 */
+	public function byRule($oRule) {
+		$oSrcTask = $this->model('matter\enroll\task', $this->_oApp)->byRule($oRule);
+		if (false === $oSrcTask) {
+			return false;
+		}
+		$oSrcTopic = $this->byTask($oSrcTask);
+
+		return $oSrcTopic;
+	}
+	/**
 	 * 和活动任务关联的专题
 	 */
 	public function byTask($oTask, $aOptons = []) {
@@ -92,6 +104,12 @@ class topic_model extends entity_model {
 		case 'vote':
 			$this->_renewByVoteTask($oTopic, $oTask);
 			break;
+		case 'answer':
+			$this->_renewByAnswerTask($oTopic, $oTask);
+			break;
+		case 'score':
+			$this->_renewByScoreTask($oTopic, $oTask);
+			break;
 		}
 	}
 	/**
@@ -110,11 +128,7 @@ class topic_model extends entity_model {
 			if (in_array($oTask->source->scope, ['question']) && isset($oTask->source->config)) {
 				/* 同轮次中，指定任务专题中的记录 */
 				$oRule = (object) ['type' => $oTask->source->scope, 'id' => $oTask->source->config, 'rid' => $oTask->rid];
-				$oSrcTask = $this->model('matter\enroll\task', $this->_oApp)->byRule($oRule);
-				if (false === $oSrcTask) {
-					return false;
-				}
-				$oSrcTopic = $this->byTask($oSrcTask);
+				$oSrcTopic = $this->byRule($oRule);
 				if (false === $oSrcTopic) {
 					return false;
 				}
@@ -130,6 +144,127 @@ class topic_model extends entity_model {
 		}
 		if (!empty($records)) {
 			foreach ($records as $oRecord) {
+				$this->assign($oTopic, $oRecord, max($oTask->start_at, $oRecord->enroll_at));
+			}
+		}
+
+		return true;
+	}
+	/**
+	 * 更新回答任务专题中包含的记录
+	 *
+	 * @param object $oTopic
+	 * @param object $oTask
+	 *
+	 */
+	private function _renewByAnswerTask($oTopic, $oTask) {
+		if (empty($oTask->rid)) {
+			return false;
+		}
+		if (isset($oTask->source->scope)) {
+			$oTaskSource = $oTask->source;
+			/* 指定了数据来源 */
+			if (in_array($oTaskSource->scope, ['vote']) && isset($oTaskSource->config)) {
+				/* 同轮次中，指定任务专题中的记录 */
+				$oSourceRule = $this->model('matter\enroll\task', $this->_oApp)->configById($oTaskSource->scope, $oTaskSource->config);
+				if (false === $oSourceRule) {
+					return false;
+				}
+				$oSourceRule->rid = $oTask->rid;
+				$oSrcTopic = $this->byRule($oSourceRule);
+				if (false === $oSrcTopic) {
+					return false;
+				}
+				if (isset($oTaskSource->limit->mode) && isset($oTaskSource->limit->min) && !empty($oSourceRule->schemas)) {
+					switch ($oTaskSource->limit->mode) {
+					case 'vote':
+						break;
+					case 'vote_rank':
+						$q = [
+							'record_id,vote_num',
+							'xxt_enroll_record_data rd',
+							['aid' => $this->_oApp->id, 'state' => 1, 'schema_id' => $oSourceRule->schemas],
+						];
+						$q[2]['enroll_key'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_topic_record tr where tr.topic_id=' . $oSrcTopic->id . ' and rd.record_id=tr.record_id'];
+						$q2 = ['o' => 'vote_num desc'];
+						$recdatas = $this->query_objs_ss($q, $q2);
+						if (count($recdatas)) {
+							$lastRank = 0;
+							$lastVoteNum = PHP_INT_MAX;
+							$ranked = [];
+							foreach ($recdatas as $oRecData) {
+								if ($oRecData->vote_num < $lastVoteNum) {
+									$lastRank++;
+								}
+								if ($lastRank > $oTaskSource->limit->min) {
+									break;
+								}
+								$lastVoteNum = $oRecData->vote_num;
+								$ranked[] = $oRecData->record_id;
+							}
+							$modelRec = $this->model('matter\enroll\record');
+							$taskRecords = array_map(function ($recId) use ($modelRec) {return $modelRec->byPlainId($recId);}, $ranked);
+						}
+						break;
+					case 'score':
+						break;
+					case 'score_rank':
+						break;
+					}
+				} else {
+					$oTopicRecords = $this->records($oSrcTopic);
+					if (!empty($oTopicRecords->records)) {
+						$taskRecords = $oTopicRecords->records;
+					}
+				}
+			}
+		} else {
+			/* 任务轮次中的记录 */
+			$modelRec = $this->model('matter\enroll\record');
+			$taskRecords = $modelRec->byRound($oTask->rid, ['fields' => 'id,enroll_at']);
+		}
+		if (!empty($taskRecords)) {
+			foreach ($taskRecords as $oRecord) {
+				$this->assign($oTopic, $oRecord, max($oTask->start_at, $oRecord->enroll_at));
+			}
+		}
+
+		return true;
+	}
+	/**
+	 * 更新投票任务专题中包含的记录
+	 *
+	 * @param object $oTopic
+	 * @param object $oTask
+	 *
+	 */
+	private function _renewByScoreTask($oTopic, $oTask) {
+		if (isset($oTask->source->scope)) {
+			$oTaskSource = $oTask->source;
+			/* 指定了数据来源 */
+			if (in_array($oTaskSource->scope, ['answer']) && isset($oTaskSource->config)) {
+				/* 同轮次中，指定任务专题中的记录 */
+				$oSourceRule = $this->model('matter\enroll\task', $this->_oApp)->configById($oTaskSource->scope, $oTaskSource->config);
+				if (false === $oSourceRule) {
+					return false;
+				}
+				$oSourceRule->rid = $oTask->rid;
+				$oSrcTopic = $this->byRule($oSourceRule);
+				if (false === $oSrcTopic) {
+					return false;
+				}
+				$oTopicRecords = $this->records($oSrcTopic);
+				if (!empty($oTopicRecords->records)) {
+					$taskRecords = $oTopicRecords->records;
+				}
+			}
+		} else {
+			/* 任务轮次中的记录 */
+			$modelRec = $this->model('matter\enroll\record');
+			$taskRecords = $modelRec->byRound($oTask->rid, ['fields' => 'id,enroll_at']);
+		}
+		if (!empty($taskRecords)) {
+			foreach ($taskRecords as $oRecord) {
 				$this->assign($oTopic, $oRecord, max($oTask->start_at, $oRecord->enroll_at));
 			}
 		}

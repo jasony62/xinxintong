@@ -3,10 +3,11 @@ require('../../../../../../asset/css/buttons.css');
 require('./enroll.public.css');
 
 require('./_asset/ui.repos.js');
+require('./_asset/ui.score.js');
 require('./_asset/ui.tag.js');
 require('./_asset/ui.topic.js');
 
-window.moduleAngularModules = ['repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll'];
+window.moduleAngularModules = ['repos.ui.enroll', 'score.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll'];
 
 var ngApp = require('./main.js');
 ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', '$timeout', 'picviewer', 'noticebox', function($scope, $sce, $q, $uibModal, http2, LS, $timeout, picviewer, noticebox) {

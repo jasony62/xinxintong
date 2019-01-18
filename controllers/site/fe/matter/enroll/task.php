@@ -85,7 +85,7 @@ class task extends base {
 			return new \ObjectNotFoundError('没有找到匹配的投票任务');
 		}
 
-		$oVoteRule = $modelTsk->ruleByTask($oApp, $oTask, $oActiveRnd);
+		$oVoteRule = $modelTsk->ruleByTask($oTask, $oActiveRnd);
 		if (false === $oVoteRule[0]) {
 			return new \ParameterError($oVoteRule[1]);
 		}

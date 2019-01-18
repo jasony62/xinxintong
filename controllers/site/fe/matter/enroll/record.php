@@ -34,6 +34,14 @@ class record extends base {
 			return new \ObjectNotFoundError('（1）指定的活动不存在');
 		}
 
+		if (!empty($task)) {
+			$modelTsk = $this->model('matter\enroll\task', $oEnlApp);
+			$oTask = $modelTsk->byId($task);
+			if (false === $oTask) {
+				return new \ObjectNotFoundError('指定的活动任务不存在');
+			}
+		}
+
 		$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
 
 		$bSubmitNewRecord = empty($ek); // 是否为新记录
@@ -52,7 +60,7 @@ class record extends base {
 		}
 
 		// 检查或获得提交轮次
-		$aResultSubmitRid = $this->_getSubmitRecordRid($oEnlApp, $rid);
+		$aResultSubmitRid = $this->_getSubmitRecordRid($oEnlApp, $rid, isset($oTask) ? $oTask : null);
 		if (false === $aResultSubmitRid[0]) {
 			return new \ResponseError($aResultSubmitRid[1]);
 		}
@@ -261,16 +269,14 @@ class record extends base {
 		/**
 		 * 如果存在提问任务，将记录放到任务专题中
 		 */
-		if (!empty($task)) {
-			$modelTsk = $this->model('matter\enroll\task', $oEnlApp);
-			if ($oTask = $modelTsk->byId($task)) {
-				/* 检查任务是否有效 */
-				if ($oTask->config_type === 'question') {
-					$modelTop = $this->model('matter\enroll\topic', $oEnlApp);
-					if ($oTopic = $modelTop->byTask($oTask)) {
-						$modelTop->assign($oTopic, $oRecord);
-					}
+		if (isset($oTask)) {
+			switch ($oTask->config_type) {
+			case 'question': // 提问任务
+				$modelTop = $this->model('matter\enroll\topic', $oEnlApp);
+				if ($oTopic = $modelTop->byTask($oTask)) {
+					$modelTop->assign($oTopic, $oRecord);
 				}
+				break;
 			}
 		}
 
@@ -369,20 +375,21 @@ class record extends base {
 	/**
 	 * 返回当前轮次或者检查指定轮次是否有效
 	 */
-	private function _getSubmitRecordRid($oApp, $rid = '') {
+	private function _getSubmitRecordRid($oApp, $rid = '', $oTask = null) {
 		$modelRnd = $this->model('matter\enroll\round');
-		if (empty($rid)) {
+		if (isset($oTask)) {
+			$oRecordRnd = $modelRnd->byTask($oApp, $oTask);
+		} else if (empty($rid)) {
 			$oRecordRnd = $modelRnd->getActive($oApp);
 		} else {
 			$oRecordRnd = $modelRnd->byId($rid);
 		}
 		if (empty($oRecordRnd)) {
 			return [false, '没有获得有效的活动轮次，请检查是否已经设置轮次，或者轮次是否已经启用'];
-		} else {
-			$now = time();
-			if ($oRecordRnd->end_at != 0 && $oRecordRnd->end_at < $now) {
-				return [false, '活动轮次【' . $oRecordRnd->title . '】已结束，不能提交、修改、保存或删除填写记录！'];
-			}
+		}
+		$now = time();
+		if ($oRecordRnd->end_at > 0 && $oRecordRnd->end_at < $now) {
+			return [false, '活动轮次【' . $oRecordRnd->title . '】已结束，不能提交、修改、保存或删除填写记录！'];
 		}
 
 		return [true, $oRecordRnd->rid];
@@ -618,7 +625,7 @@ class record extends base {
 	 * @param string $withSaved 是否获取保存数据
 	 *
 	 */
-	public function get_action($app, $ek = '', $rid = '', $loadLast = 'Y', $loadAssoc = 'Y', $withSaved = 'N') {
+	public function get_action($app, $ek = '', $rid = '', $loadLast = 'Y', $loadAssoc = 'Y', $withSaved = 'N', $task = null) {
 		$modelApp = $this->model('matter\enroll');
 		$modelRec = $this->model('matter\enroll\record');
 
@@ -627,12 +634,27 @@ class record extends base {
 			return new \ObjectNotFoundError();
 		}
 
+		if (!empty($task)) {
+			$modelTsk = $this->model('matter\enroll\task');
+			$oTask = $modelTsk->byId($task);
+			if (false === $oTask) {
+				return new \ObjectNotFoundError('指定的活动任务不存在');
+			}
+		}
+
 		$fields = 'id,aid,state,rid,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,data,supplement,score,like_num,like_log,remark_num';
 		$ValidRecStates = ['1', '99'];
 
 		if (empty($ek)) {
 			$oRecUser = $this->getUser($oApp);
 			if ($loadLast === 'Y') {
+				if (isset($oTask)) {
+					$oTaskRnd = $this->model('matter\enroll\round')->byTask($oApp, $oTask);
+					if (false === $oTaskRnd) {
+						return new \ObjectNotFoundError('指定的活动任务轮次不存在');
+					}
+					$rid = $oTaskRnd;
+				}
 				$oRecord = $modelRec->lastByUser($oApp, $oRecUser, ['state' => $ValidRecStates, 'rid' => $rid, 'verbose' => 'Y', 'fields' => $fields]);
 				if (false === $oRecord) {
 					$oRecord = new \stdClass;

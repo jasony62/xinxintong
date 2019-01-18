@@ -140,6 +140,7 @@ class round_model extends \TMS_MODEL {
 			'start_at' => empty($oProps->start_at) ? 0 : $oProps->start_at,
 			'end_at' => empty($oProps->end_at) ? 0 : $oProps->end_at,
 			'purpose' => empty($oProps->purpose) ? 'C' : (in_array($oProps->purpose, ['C', 'B', 'S']) ? $oProps->purpose : 'C'),
+			'task_id' => empty($oProps->task_id) ? 0 : $oProps->task_id,
 		];
 		$this->insert('xxt_enroll_round', $aNewRound, false);
 
@@ -292,6 +293,47 @@ class round_model extends \TMS_MODEL {
 		return $rounds;
 	}
 	/**
+	 * 和指定任务匹配的轮次
+	 */
+	public function byTask($oApp, $oTask) {
+		$oTaskRnd = $this->byId($oTask->rid);
+		if (false === $oTaskRnd) {
+			return null;
+		}
+		if ($oTaskRnd->aid === $oApp->id) {
+			/* 轮次是指定活动中的轮次 */
+			return $oTaskRnd;
+		}
+		/* 跨活动的轮次 */
+		$q = ['*', 'xxt_enroll_round', ['aid' => $oApp->id, 'task_id' => $oTask->id]];
+		if ($oAppRnd = $this->query_obj_ss($q)) {
+			return $oAppRnd;
+		}
+
+		if (!empty($oTaskRnd->mission_rid)) {
+			/* 如果任务活动和指定活动都同步了项目轮次，返回同步的轮次 */
+			if ($oAppRnd = $this->byMissionRid($oApp, $oTaskRnd->mission_rid)) {
+				$this->update('xxt_enroll_round', ['task_id' => $oTask->id], ['id' => $oAppRnd->id]);
+				return $oAppRnd;
+			}
+		}
+		/* 创建轮次 */
+		$oProps = new \stdClass;
+		$oProps->state = 1;
+		$oProps->start_at = $oTask->start_at;
+		$oProps->end_at = $oTask->end_at;
+		$oProps->task_id = $oTask->id;
+		$modelTsk = $this->model('matter\enroll\task');
+		$oProps->title = tms_time_to_str($oTask->start_at) . '【' . $modelTsk::TypeNameZh[$oTask->config_type] . '】';
+
+		$oAppRndResult = $this->create($oApp, $oProps);
+		if (false === $oAppRndResult[0]) {
+			return null;
+		}
+
+		return $oAppRndResult[1];
+	}
+	/**
 	 * 获得指定活动中的目标轮次
 	 */
 	public function getBaseline($oApp, $aOptions = []) {
@@ -416,6 +458,8 @@ class round_model extends \TMS_MODEL {
 	}
 	/**
 	 * 删除轮次
+	 *
+	 * @todo 不是在这个轮次里的，通过修改或评论的怎么算？
 	 */
 	public function remove($oApp, $oRound) {
 		/* 删除轮次下的记录 */

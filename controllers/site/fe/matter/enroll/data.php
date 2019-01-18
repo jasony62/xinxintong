@@ -224,7 +224,7 @@ class data extends base {
 	 */
 	public function submit_action($data) {
 		$modelData = $this->model('matter\enroll\data')->setOnlyWriteDbConn(true);
-		$oRecData = $modelData->byId($data, ['fields' => 'id,aid,rid,enroll_key,schema_id,multitext_seq']);
+		$oRecData = $modelData->byId($data, ['fields' => 'id,aid,rid,record_id,enroll_key,schema_id,multitext_seq']);
 		if (false === $oRecData) {
 			return new \ObjectNotFoundError();
 		}
@@ -284,6 +284,7 @@ class data extends base {
 						$aSchemaValue = [
 							'aid' => $oApp->id,
 							'rid' => $oRecData->rid,
+							'record_id' => $oRecData->record_id,
 							'enroll_key' => $oRecData->enroll_key,
 							'submit_at' => $current,
 							'userid' => isset($oUser->uid) ? $oUser->uid : '',

@@ -41,12 +41,13 @@ ngMod.factory('enlTask', ['http2', '$q', '$parse', '$filter', '$uibModal', 'tmsL
     Task = function(oApp) {
         this.app = oApp;
     };
-    Task.prototype.list = function(type, state) {
+    Task.prototype.list = function(type, state, rid) {
         var deferred, url;
         deferred = $q.defer();
         url = LS.j('task/list', 'site', 'app');
         if (type) url += '&type=' + type;
         if (state) url += '&state=' + state;
+        if (rid) url += '&rid=' + rid;
         http2.get(url).then(function(rsp) {
             if (rsp.data && rsp.data.length) {
                 rsp.data.forEach(function(oTask) { oTask.toString = fnTaskToString; });

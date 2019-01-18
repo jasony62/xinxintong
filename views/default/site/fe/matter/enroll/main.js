@@ -294,7 +294,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
                 if (oEnlUser) {
                     oCustom = oEnlUser.custom;
                     if (nv !== ov) {
-                        if(!oCustom[fromPage]) { oCustom[fromPage] = {};}
+                        if (!oCustom[fromPage]) { oCustom[fromPage] = {}; }
                         oCustom[fromPage].act = $scope.popAct.custom;
                         http2.post(LS.j('user/updateCustom', 'site', 'app'), oCustom).then(function(rsp) {});
                     }
@@ -369,7 +369,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
                 if (oEnlUser) {
                     oCustom = oEnlUser.custom;
                     if (nv !== ov) {
-                        if(!oCustom[fromPage]) { oCustom[fromPage] = {};}
+                        if (!oCustom[fromPage]) { oCustom[fromPage] = {}; }
                         oCustom[fromPage].nav = $scope.popNav.custom;
                         http2.post(LS.j('user/updateCustom', 'site', 'app'), oCustom).then(function(rsp) {});
                     }
@@ -397,6 +397,9 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
             }
             if (aNames.indexOf('favor') !== -1) {
                 $scope.popNav.navs.push({ name: 'favor', title: '收藏页', url: LS.j('', 'site', 'app') + '&page=favor' });
+            }
+            if (aNames.indexOf('task') !== -1 && (oApp.questionConfig.length || oApp.answerConfig.length || oApp.voteConfig.length || oApp.scoreConfig.length)) {
+                $scope.popNav.navs.push({ name: 'task', title: '任务页', url: LS.j('', 'site', 'app') + '&page=task' });
             }
             if ($scope.mission) {
                 $scope.popNav.navs.push({ name: 'mission', title: '项目主页', url: '/rest/site/fe/matter/mission?site=' + oApp.siteid + '&mission=' + $scope.mission.id });

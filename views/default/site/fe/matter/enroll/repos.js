@@ -445,7 +445,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             }
         });
         /* 设置页面导航 */
-        $scope.setPopNav(['rank', 'kanban', 'event', 'favor'], 'repos');
+        $scope.setPopNav(['rank', 'kanban', 'event', 'favor', 'task'], 'repos');
         /* 页面阅读日志 */
         $scope.logAccess({ target_type: 'repos', target_id: _oApp.id });
         /* 用户信息 */

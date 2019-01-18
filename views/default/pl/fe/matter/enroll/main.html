@@ -115,10 +115,6 @@
                 <label>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.sync_mission_round" ng-change="update('sync_mission_round')"> 活动轮次和项目轮次保持一致</label>
             </div>
-            <div class='checkbox'>
-                <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.visibleRevisedRecordAtRound" ng-change="update('scenarioConfig')"> 修改非当前轮次的记录后，记录在当前轮次中可见</label>
-            </div>
         </div>
     </div>
     <div id='main-access' class='panel panel-default' ng-controller='ctrlAccess'>
@@ -139,8 +135,7 @@
                         <tr>
                             <td>已填写过时进入</td>
                             <td style='padding:0'>
-                                <select style='border:0' class='form-control' ng-model='app.enrolled_entry_page' ng-options='page.name as page.title for page in jumpPages.all' ng-change="update('enrolled_entry_page')">
-                                </select>
+                                <select style='border:0' class='form-control' ng-model='app.enrolled_entry_page' ng-options='page.name as page.title for page in jumpPages.all' ng-change="update('enrolled_entry_page')"></select>
                             </td>
                         </tr>
                         <tr ng-if='isInputPage(app.enrolled_entry_page)'>

@@ -48,7 +48,7 @@
                     <span ng-if="task.end_at">结束：{{::task.end_at*1000|date:'MM-dd HH:mm'}}</span>
                     <span ng-bind="::Label.task.state[task.state]"></span>
                 </div>
-                <div ng-if="task.state==='IP'" ng-switch on="task.type">
+                <div ng-switch on="task.type">
                     <a href class="alert-link" ng-click="gotoTask(task)">
                         <span ng-switch-when="question">去提问</span>
                         <span ng-switch-when="answer">去回答</span>

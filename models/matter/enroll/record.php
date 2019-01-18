@@ -82,7 +82,6 @@ class record_model extends record_base {
 
 		/* 记录和轮次的关系 */
 		$oNewRec = (object) $aNewRec;
-		$modelRnd->createRecord($oNewRec);
 
 		return $oNewRec;
 	}
@@ -596,29 +595,18 @@ class record_model extends record_base {
 		if (empty($oCriteria->record->rid)) {
 			if (!empty($oApp->appRound->rid)) {
 				$rid = $oApp->appRound->rid;
-				//$w .= " and (r.rid='$rid'";
-				$w .= " and (exists(select 1 from xxt_enroll_record_round rrnd where rrnd.rid='$rid' and rrnd.enroll_key=r.enroll_key)";
-				if (isset($oOptions->regardRemarkRoundAsRecordRound) && $oOptions->regardRemarkRoundAsRecordRound === true) {
-					$w .= " or exists(select 1 from xxt_enroll_record_remark rr where rr.aid=r.aid and rr.enroll_key=r.enroll_key and rr.rid='$rid')";
-				}
-				$w .= ')';
+				$w .= " and (r.rid='$rid')";
 			}
 		} else {
 			if (is_string($oCriteria->record->rid)) {
 				if (strcasecmp('all', $oCriteria->record->rid) !== 0) {
 					$rid = $oCriteria->record->rid;
-					//$w .= " and (r.rid='$rid'";
-					$w .= " and (exists(select 1 from xxt_enroll_record_round rrnd where rrnd.rid='$rid' and rrnd.enroll_key=r.enroll_key)";
-					if (isset($oOptions->regardRemarkRoundAsRecordRound) && $oOptions->regardRemarkRoundAsRecordRound === true) {
-						$w .= " or exists(select 1 from xxt_enroll_record_remark rr where rr.aid=r.aid and rr.enroll_key=r.enroll_key and rr.rid='$rid')";
-					}
-					$w .= ')';
+					$w .= " and (r.rid='$rid')";
 				}
 			} else if (is_array($oCriteria->record->rid)) {
 				if (empty(array_intersect(['all', 'ALL'], $oCriteria->record->rid))) {
 					$rid = $oCriteria->record->rid;
-					//$w .= " and r.rid in('" . implode("','", $rid) . "')";
-					$w .= " and exists(select 1 from xxt_enroll_record_round rrnd where rrnd.rid in('" . implode("','", $rid) . "') and rrnd.enroll_key=r.enroll_key)";
+					$w .= " and r.rid in('" . implode("','", $rid) . "')";
 				}
 			}
 		}

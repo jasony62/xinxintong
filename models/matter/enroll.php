@@ -587,16 +587,16 @@ class enroll_model extends enroll_base {
 		$oNewApp->end_at = isset($oProto->end_at) ? $oProto->end_at : 0;
 		$oNewApp->entry_rule = $this->escape($this->toJson($oEntryRule));
 		/* 是否开放共享页 */
-		if (isset($oProto->scenarioConfig->can_repos) && in_array($oProto->scenarioConfig->can_repos, ['Y', 'N'])) {
-			$oScenarioConfig->can_repos = $oProto->scenarioConfig->can_repos;
+		if (isset($oProto->can_repos) && in_array($oProto->can_repos, ['Y', 'N'])) {
+			$oScenarioConfig->can_repos = $oProto->can_repos;
 		} else if (isset($oTemplateConfig->can_repos)) {
 			$oScenarioConfig->can_repos = $oTemplateConfig->can_repos;
 		} else {
 			$oScenarioConfig->can_repos = 'N';
 		}
 		/* 是否开放排行榜 */
-		if (isset($oProto->scenarioConfig->can_rank) && in_array($oProto->scenarioConfig->can_rank, ['Y', 'N'])) {
-			$oScenarioConfig->can_rank = $oProto->scenarioConfig->can_rank;
+		if (isset($oProto->can_rank) && in_array($oProto->can_rank, ['Y', 'N'])) {
+			$oScenarioConfig->can_rank = $oProto->can_rank;
 		} else if (isset($oTemplateConfig->can_rank)) {
 			$oScenarioConfig->can_rank = $oTemplateConfig->can_rank;
 		} else {

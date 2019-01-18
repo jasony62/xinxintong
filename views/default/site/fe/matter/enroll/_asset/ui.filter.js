@@ -22,18 +22,19 @@ ngMod.directive('tmsFilter', ['$templateCache', '$timeout', function($templateCa
             scope.ok = function(filterOpt) {
                 scope.status.isopen = !scope.status.isopen;
                 if (scope.criteria.keyword) {
-                    scope.filter.keyword = {'title': scope.criteria.keyword, 'id': scope.criteria.keyword};
+                    scope.filter.keyword = { 'title': scope.criteria.keyword, 'id': scope.criteria.keyword };
                 } else {
                     scope.criteria.keyword = scope.filter.keyword = null;
                 }
+
                 function objectKeyIsNull(obj) {
                     var empty = null;
                     for (var i in obj) {
-                        if (i!=='isFilter' && i!=='tags') {
-                            if(obj[i] !== null) {
+                        if (i !== 'isFilter' && i !== 'tags') {
+                            if (obj[i] !== null) {
                                 empty = true;
                                 break;
-                            }else {
+                            } else {
                                 empty = false;
                             }
                         }
@@ -41,7 +42,7 @@ ngMod.directive('tmsFilter', ['$templateCache', '$timeout', function($templateCa
                     return empty;
                 }
                 scope.filter.isFilter = objectKeyIsNull(scope.filter) ? true : false;
-                scope.confirm({"filterOpt": {"criteria": scope.criteria, "filter": scope.filter}});
+                scope.confirm({ "filterOpt": { "criteria": scope.criteria, "filter": scope.filter } });
             };
             scope.clear = function() {
                 angular.forEach(scope.datas, function(data) {
@@ -50,9 +51,10 @@ ngMod.directive('tmsFilter', ['$templateCache', '$timeout', function($templateCa
                 });
             };
             scope.$watch('datas', function(datas) {
-                if(!datas) { return false; }
-                scope.datas = datas;               
+                if (!datas) { return false; }
+                scope.datas = angular.fromJson(datas);
             });
+
         }
     };
 }]);

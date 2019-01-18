@@ -14,15 +14,15 @@ require('./_asset/ui.task.js');
 window.moduleAngularModules = ['tree.ui', 'filter.ui', 'dropdown.ui', 'round.ui.enroll', 'repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll', 'task.ui.enroll'];
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', 'enlService', 'enlTask', function($scope, $parse, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc, enlService, enlTask) {    
+ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', 'enlService', 'enlTask', function($scope, $parse, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc, enlService, enlTask) {
     function fnGetCriteria(datas) {
         $scope.singleFilters = [];
         $scope.multiFilters = [];
         angular.forEach(datas, function(data, index) {
             _oCriteria[data.type] = data.default.id;
-            if(data.type=='orderby'||data.type=='coworkAgreed') {
+            if (data.type === 'orderby' || data.type === 'coworkAgreed') {
                 $scope.singleFilters.push(data);
-            }else{
+            } else {
                 $scope.multiFilters.push(data);
                 _oFilter[data.type] = data.default.id;
             }
@@ -39,7 +39,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     $scope.reposLoading = false;
     $scope.hasCowork = false;
     $scope.appendToEle = angular.element(document.querySelector('#filterQuick'));
-    $scope.tabViews = [{'title': '记录', 'url': '/views/default/site/fe/matter/enroll/template/repos-recordSchema.html'}];
+    $scope.tabViews = [{ 'title': '记录', 'url': '/views/default/site/fe/matter/enroll/template/repos-recordSchema.html' }];
     $scope.selectedView = $scope.tabViews[0];
     $scope.tabClick = function(view) {
         $scope.selectedView = view;
@@ -76,6 +76,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
 
         return deferred.promise;
     }
+
     function addToCache() {
         sessionStorage.setItem('listStorageY', document.getElementById('repos').scrollTop);
         var cacheData = {
@@ -216,15 +217,16 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     $scope.confirm = function(filterOpt) {
         $scope.recordList(1).then(function() {
             http2.get(LS.j('repos/criteriaGet', 'site', 'app')).then(function(rsp) {
-                if(rsp.data) {
-                    $scope.multiFilters = [];
+                if (rsp.data) {
+                    var _oNew = [];
                     angular.forEach(rsp.data, function(data) {
-                        if(data.type=='orderby'||data.type=='coworkAgreed') {
+                        if (data.type === 'orderby' || data.type === 'coworkAgreed') {
                             return false;
-                        }else{
-                            $scope.multiFilters.push(data);   
+                        } else {
+                            _oNew.push(data);
                         }
                     });
+                    http2.merge($scope.multiFilters, _oNew);
                 }
             });
         });
@@ -470,16 +472,16 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             http2.get(LS.j('topic/listPublic', 'site', 'app')).then(function(rsp) {
                 if (rsp.data && rsp.data.topics && rsp.data.topics.length) {
                     $scope.topics = rsp.data.topics;
-                    $scope.tabViews.push({'title':'专题', 'url':'/views/default/site/fe/matter/enroll/template/repos-publicTopic.html'});
+                    $scope.tabViews.push({ 'title': '专题', 'url': '/views/default/site/fe/matter/enroll/template/repos-publicTopic.html' });
                 }
             });
             /* 作为可筛选的筛选项 */
             http2.get(LS.j('repos/criteriaGet', 'site', 'app')).then(function(rsp) {
-                if(rsp.data) {
-                    fnGetCriteria(rsp.data);    
+                if (rsp.data) {
+                    fnGetCriteria(rsp.data);
                 }
                 $scope.recordList(1).then(function(rsp) {
-                    if($scope.hasCowork) {
+                    if ($scope.hasCowork) {
                         $scope.tabViews[0].title = '问题';
                     }
                 });
@@ -505,7 +507,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             if (oSchema.shareable && oSchema.shareable === 'Y') {
                 _oShareableSchemas[oSchema.id] = oSchema;
             }
-            if (Object.keys(oSchema).indexOf('cowork')!==-1 && oSchema.cowork=='Y') {
+            if (Object.keys(oSchema).indexOf('cowork') !== -1 && oSchema.cowork === 'Y') {
                 $scope.hasCowork = true;
             }
         });

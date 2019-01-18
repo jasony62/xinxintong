@@ -1,5 +1,5 @@
 <div ng-if="rec">
-    <div><span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;<span ng-repeat="dir in rec.recordDir track by $index">{{dir}}<span ng-if="$index!==rec.recordDir.length-1"> / </span></span></div>
+    <div ng-if="rec.recordDir.length"><span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;<span ng-repeat="dir in rec.recordDir track by $index">{{dir}}<span ng-if="$index!==rec.recordDir.length-1"> / </span></span></div>
     <div ng-repeat="schema in schemas" class='schema' ng-class="{'cowork':schema.cowork==='Y'}" ng-if="rec.data[schema.id]||schema.cowork==='Y'" ng-switch on="schema.type">
         <div class='text-muted data-title'><span>{{::schema.title}}</span></div>
         <div ng-switch-when="file">

@@ -1,5 +1,5 @@
 <div ng-if="rec">
-    <div><span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;<span ng-repeat="dir in rec.recordDir track by $index">{{dir}}<span ng-if="$index!==rec.recordDir.length-1"> / </span></span></div>
+    <div ng-if="rec.recordDir.length"><span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;<span ng-repeat="dir in rec.recordDir track by $index">{{dir}}<span ng-if="$index!==rec.recordDir.length-1"> / </span></span></div>
     <div ng-repeat="schema in schemas" class='schema' ng-class="{'cowork':schema.cowork==='Y'}" ng-if="rec.data[schema.id]||schema.cowork==='Y'" ng-switch on="schema.type">
         <div class='text-muted data-title'><span>{{::schema.title}}</span></div>
         <div ng-switch-when="file">
@@ -61,6 +61,6 @@
             </button>
         </div>
         <div ng-if="schema.supplement==='Y'&&rec.supplement[schema.id]" class='supplement' ng-bind-html="rec.supplement[schema.id]"></div>
-        <div ng-if="rec.voteResult[schema.id]"><span ng-if="rec.voteResult[schema.id].state!=='BS'">得票：<span ng-bind="rec.voteResult[schema.id].vote_num"></span></span><span ng-if="task"><span ng-if="rec.voteResult[schema.id].state==='IP'">&nbsp;&nbsp;<button ng-if="rec.voteResult[schema.id].vote_at==0" class='btn btn-default btn-xs' ng-click="vote(rec.voteResult[schema.id])"><span class='glyphicon glyphicon-triangle-top'></span> 投票</button><button ng-if="rec.voteResult[schema.id].vote_at>0" class='btn btn-default btn-xs' ng-click="unvote(rec.voteResult[schema.id])"><span class='glyphicon glyphicon-triangle-bottom'></span> 撤销投票</button></span></span></div>
+        <div ng-if="rec.voteResult[schema.id]"><span ng-if="rec.voteResult[schema.id].state!=='BS'">得票：<span ng-bind="rec.voteResult[schema.id].vote_num"></span></span></div>
     </div>
 </div>

@@ -17,14 +17,14 @@
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <nav class='navbar site-navbar-default'>
         <div class='container' ng-cloak>
-            <div class="navbar-header">
-                <a href class="navbar-brand">
-                    <i class="glyphicon glyphicon-edit visible-lg-inline"></i> <span tms-pop-nav navs="popNav.navs" close-after='5000' custom="popNav.custom">共享页</span></span>
+            <div class='navbar-header'>
+                <a href class='navbar-brand'>
+                    <i class='glyphicon glyphicon-edit visible-lg-inline'></i> <span tms-pop-nav navs="popNav.navs" close-after='5000' custom="popNav.custom">共享页</span></span>
                 </a>
             </div>
-            <ul class="nav navbar-nav navbar-right">
-                <li class="pull-left">
-                    <a href ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline">我的</span></a>
+            <ul class='nav navbar-nav navbar-right'>
+                <li class='pull-left'>
+                    <a href ng-click="siteUser(app.siteid)" class='tms-switch-siteuser'><i class='glyphicon glyphicon-user'></i><span class='visible-lg-inline'>我的</span></a>
                 </li>
             </ul>
         </div>
@@ -33,7 +33,7 @@
         <div ng-if="tasks.length" ng-cloak>
             <div uib-alert ng-repeat="task in tasks" class='alert-info' close="closeTask($index)" ng-switch="task.id">
                 <span ng-bind="::task.msg"></span>
-                <span ng-switch-when="record.submit.end"><span ng-if="task.coin">每条记录可获得【{{task.coin}}个】积分</span><a href class="alert-link" ng-click="addRecord($event)"> 去添加</a></span>
+                <span ng-switch-when="record.submit.end"><span ng-if="task.coin">每条记录可获得【{{task.coin}}个】积分</span><a href class='alert-link' ng-click="addRecord($event)"> 去添加</a></span>
                 <span ng-switch-when="record.like.pre"></span>
                 <span ng-switch-when="record.like.end"></span>
                 <span ng-switch-when="record.data.question"><a href class="alert-link" ng-click="gotoTask(task.data)">去提问</a></span>
@@ -45,9 +45,9 @@
         <div class='row'>
             <div id='advCriteria' class='col-md-3' ng-if="advCriteriaStatus.opened&&dirSchemas.length" ng-cloak>
                 <div class="tree">
-                    <div class="tree-header">目录<button class='close' ng-if="isSmallLayout" ng-click="advCriteriaStatus.dirOpen=!advCriteriaStatus.dirOpen"><span>&times;</span></button></div>
-                    <div class="tree-body" ng-if="advCriteriaStatus.dirOpen">
-                        <div class="tree-wrap">
+                    <div class='tree-header'>目录<button class='close' ng-if="isSmallLayout" ng-click="advCriteriaStatus.dirOpen=!advCriteriaStatus.dirOpen"><span>&times;</span></button></div>
+                    <div class='tree-body' ng-if="advCriteriaStatus.dirOpen">
+                        <div class='tree-wrap'>
                             <tms-tree tree-data="dirSchemas" checked-data="{{activeDirSchemas}}" dir-clicked="dirClicked($item, $active)" dir-icon="isSmallLayout"></tms-tree>
                         </div>
                     </div>
@@ -58,11 +58,11 @@
             </div>
             <div class='main col-xs-12' ng-class="{'col-md-9':dirSchemas.length,'col-md-12':dirSchemas.length===0}">
                 <div id='filterQuick' ng-cloak>
-                    <div class="site-dropdown" uib-dropdown ng-if="tabViews.length>1">
-                        <a href uib-dropdown-toggle class="site-dropdown-title">
-                            <span>{{selectedView.title}}</span> <i class="glyphicon glyphicon-menu-up"></i>
+                    <div class='site-dropdown' uib-dropdown ng-if="tabViews.length>1">
+                        <a href uib-dropdown-toggle class='site-dropdown-title'>
+                            <span>{{selectedView.title}}</span> <i class='glyphicon glyphicon-menu-up'></i>
                         </a>
-                        <ul class="dropdown-menu site-dropdown-menu" uib-dropdown-menu>
+                        <ul class='dropdown-menu site-dropdown-menu' uib-dropdown-menu>
                             <li ng-repeat="tabView in tabViews">
                                 <a href ng-click="tabClick(tabView)" ng-bind="tabView.title"></a>
                             </li>
@@ -75,14 +75,14 @@
                     <div ng-if="selectedView.title!=='专题'" ng-click="addRecord($event)">+<span ng-show="hasCowork">问题</span><span ng-hide="hasCowork">记录</span></div>
                 </div>
                 <!-- end: filterQuick -->
-                <div id='filterTip' class="hidden-xs" ng-if="filter.isFilter||filter.tags.length">
-                    <div class="bg-info small" ng-repeat="multifilter in multiFilters" ng-if="criteria[multifilter.type]!==null">
+                <div id='filterTip' class='hidden-xs' ng-if="filter.isFilter||filter.tags.length">
+                    <div class='bg-info small' ng-repeat="multifilter in multiFilters" ng-if="criteria[multifilter.type]!==null">
                         <span ng-repeat="menu in multifilter.menus" ng-if="criteria[multifilter.type]==menu.id" ng-bind="menu.title"></span>
-                        <button class="close" trace-biz ng-click="shiftTip(multifilter.type)"><span>&times;</span></button>
+                        <button class='close' trace-biz ng-click="shiftTip(multifilter.type)"><span>&times;</span></button>
                     </div>
-                    <div class="bg-info small" ng-repeat="tag in filter.tags">
+                    <div class='bg-info small' ng-repeat="tag in filter.tags">
                         <span ng-bind="tag.label"></span>
-                        <button class="close" trace-biz ng-click="shiftTag(tag,false)"><span>&times;</span></button>
+                        <button class='close' trace-biz ng-click="shiftTag(tag,false)"><span>&times;</span></button>
                     </div>
                 </div>
                 <div id='repos' ng-include="selectedView.url"></div>

@@ -20,7 +20,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         $scope.multiFilters = [];
         angular.forEach(datas, function(data, index) {
             _oCriteria[data.type] = data.default.id;
-            if (data.type == 'orderby' || data.type == 'coworkAgreed') {
+            if (data.type === 'orderby' || data.type === 'coworkAgreed') {
                 $scope.singleFilters.push(data);
             } else {
                 $scope.multiFilters.push(data);
@@ -218,14 +218,15 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         $scope.recordList(1).then(function() {
             http2.get(LS.j('repos/criteriaGet', 'site', 'app')).then(function(rsp) {
                 if (rsp.data) {
-                    $scope.multiFilters = [];
+                    var _oNew = [];
                     angular.forEach(rsp.data, function(data) {
-                        if (data.type == 'orderby' || data.type == 'coworkAgreed') {
+                        if (data.type === 'orderby' || data.type === 'coworkAgreed') {
                             return false;
                         } else {
-                            $scope.multiFilters.push(data);
+                            _oNew.push(data);
                         }
                     });
+                    http2.merge($scope.multiFilters, _oNew);
                 }
             });
         });
@@ -426,7 +427,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             if (oSchema.shareable && oSchema.shareable === 'Y') {
                 _oShareableSchemas[oSchema.id] = oSchema;
             }
-            if (Object.keys(oSchema).indexOf('cowork') !== -1 && oSchema.cowork == 'Y') {
+            if (Object.keys(oSchema).indexOf('cowork') !== -1 && oSchema.cowork === 'Y') {
                 $scope.hasCowork = true;
             }
         });

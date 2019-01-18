@@ -19,7 +19,7 @@ ngMod.directive('tmsDropdown', ['$templateCache', function($templateCache) {
                         scope.checked.title = menu.title;
                     }
                 });
-                scope.shiftMenu({"criteria": {"id": id, "type": scope.data.type}});
+                scope.shiftMenu({ "criteria": { "id": id, "type": scope.data.type } });
             };
             scope.$watch('data', function(data) {
                 if (!data) { return false; }
@@ -27,7 +27,7 @@ ngMod.directive('tmsDropdown', ['$templateCache', function($templateCache) {
                     id: scope.criteria[data.type]
                 }
                 data.menus.forEach(function(menu) {
-                    if(menu.id==scope.checked.id) {
+                    if (menu.id == scope.checked.id) {
                         scope.checked.title = menu.title;
                         return false;
                     }

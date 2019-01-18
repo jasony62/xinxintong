@@ -24,9 +24,9 @@
         </div>
         <div class='bottom-bar'>
             <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
-            <a href><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></a>
-            <a href><span class='glyphicon glyphicon-thumbs-down' ng-class="{'like':rec.dislike_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.dislike_num"></span></a>
-            <a href><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></a>
+            <a href ng-if="rec.like_num!='0'"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></a>
+            <a href ng-if="rec.dislike_num!='0'"><span class='glyphicon glyphicon-thumbs-down' ng-class="{'like':rec.dislike_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.dislike_num"></span></a>
+            <a href ng-if="rec.remark_num!='0'"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></a>
             <div class="btn-group" uib-dropdown>
                 <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>
                     <span class="glyphicon glyphicon-option-vertical"></span>
@@ -45,28 +45,6 @@
         <div class='tags' ng-if="rec.tags||rec.userTags">
             <button class='btn btn-info btn-xs' ng-repeat="tag in rec.tags" ng-bind="tag.label" ng-click="shiftTag(tag,true)"></button>
             <button class='btn btn-default btn-xs' ng-repeat="tag in rec.userTags" ng-bind="tag.label" ng-click="shiftTag(tag,true)"></button>
-        </div>
-        <div class='remarks agreed' ng-if="rec.agreedRemarks.length">
-            <div class='remark' ng-repeat="remark in rec.agreedRemarks">
-                <div class='top-bar text-muted'>
-                    <div ng-bind="remark.create_at*1000|date:'MM-dd HH:mm'"></div>
-                    <div ng-bind-html="remark.nickname"></div>
-                </div>
-                <blockquote>
-                    <div ng-bind-html="remark.content"></div>
-                </blockquote>
-            </div>
-        </div>
-        <div class='remarks round' ng-if="rec.roundRemarks.length">
-            <div class='remark' ng-repeat="remark in rec.roundRemarks">
-                <div class='top-bar text-muted'>
-                    <div ng-bind="remark.create_at*1000|date:'MM-dd HH:mm'"></div>
-                    <div ng-bind-html="remark.nickname"></div>
-                </div>
-                <blockquote>
-                    <div ng-bind-html="remark.content"></div>
-                </blockquote>
-            </div>
         </div>
     </div>
     <div class='record' ng-show="page.total>repos.length" ng-cloak>

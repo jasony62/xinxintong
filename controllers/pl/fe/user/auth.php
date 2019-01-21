@@ -70,11 +70,15 @@ class auth extends \pl\fe\base {
 			$modelWay->quitRegUser();
 		}
 		/* cookie中保留注册信息 */
-		$registration = new \stdClass;
-		$registration->unionid = $act->uid;
-		$registration->uname = $act->email;
-		$registration->nickname = $act->nickname;
-		$cookieRegUser = $modelWay->shiftRegUser($registration);
+		$oRegistration = new \stdClass;
+		$oRegistration->unionid = $act->uid;
+		$oRegistration->uname = $act->email;
+		$oRegistration->nickname = $act->nickname;
+		$aResult = $modelWay->shiftRegUser($oRegistration);
+		if (false === $aResult[0]) {
+			return new \ResponseError($aResult[1]);
+		}
+		$cookieRegUser = $aResult[1];
 
 		// 页面跳转
 		if ($referer = $this->myGetCookie('_login_referer')) {

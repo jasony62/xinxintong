@@ -549,7 +549,7 @@ class way_model extends \TMS_MODEL {
 	public function shiftRegUser($oRegUser, $loadFromDb = true) {
 		$aTestResult = $this->canShiftRegUser($oRegUser);
 		if ($aTestResult[0] === false) {
-			throw new \Exception($aTestResult[1]);
+			return $aTestResult;
 		}
 
 		$modelAct = $this->model('site\user\account');
@@ -678,7 +678,7 @@ class way_model extends \TMS_MODEL {
 			}
 		}
 
-		return $oCookieRegUser;
+		return [true, $oCookieRegUser];
 	}
 	/**
 	 * 获得当前用户在平台对应的所有站点和站点访客用户信息

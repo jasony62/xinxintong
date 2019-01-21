@@ -450,7 +450,11 @@ class TMS_APP {
 			$oRegUser->unionid = $oSiteAccount->uid;
 			$oRegUser->uname = $oSiteAccount->email;
 			$oRegUser->nickname = $oSiteAccount->nickname;
-			$cookieRegUser = $modelWay->shiftRegUser($oRegUser);
+
+			$aResult = $modelWay->shiftRegUser($oRegUser);
+			if (false === $aResult[0]) {
+				return false;
+			}
 
 			return true;
 		}

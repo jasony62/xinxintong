@@ -1,0 +1,67 @@
+<div id='remarks' ng-if="app.scenarioConfig.no_remark!=='Y'">
+    <div class='remark' ng-if="remarkTasks.length">
+        <div uib-alert ng-repeat="task in remarkTasks" class='alert-info' close="closeRemarkTask($index)" ng-switch="task.id">
+            <span>{{task.msg}}</span>
+        </div>
+    </div>
+    <div ng-controller="ctrlRemark">
+        <div id="remark-{{remark.id}}" class='remark' ng-repeat="remark in remarks">
+            <div class='top-bar tms-flex-row'>
+                <div class='seq tms-flex-grow text-muted'>#<span ng-bind="remark.seq_in_record"></span> <span class='reply small' ng-if="remark.reply" ng-bind-html="remark.reply"></span></div>
+                <div ng-if="record._canAgree">
+                    <div class="btn-group" uib-dropdown>
+                        <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>
+                            <span ng-if="remark.agreed===''">未表态</span>
+                            <span ng-if="remark.agreed==='D'">讨论</span>
+                            <span ng-if="remark.agreed==='A'">接受</span>
+                            <span ng-if="remark.agreed==='Y'">推荐</span>
+                            <span ng-if="remark.agreed==='N'">关闭</span>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
+                            <li><a href ng-click="agreeRemark(remark,'')">不表态</a></li>
+                            <li><a href ng-click="agreeRemark(remark,'D')">讨论</a></li>
+                            <li><a href ng-click="agreeRemark(remark,'A')">接受</a></li>
+                            <li><a href ng-click="agreeRemark(remark,'Y')">推荐</a></li>
+                            <li><a href ng-click="agreeRemark(remark,'N')">关闭</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div ng-if="!record._canAgree&&(remark.agreed==='Y'||(remark.agreed==='D')||user.uid===remark.userid||user.is_editor==='Y')" ng-switch on="remark.agreed">
+                    <button ng-switch-when="D" class='btn btn-xs btn-danger'>讨论</button>
+                    <button ng-switch-when="Y" class='btn btn-xs btn-success'>推荐</button>
+                    <button ng-switch-when="N" class='btn btn-xs btn-danger'>关闭</button>
+                    <button ng-switch-when="" class='btn btn-xs btn-default'>未表态</button>
+                </div>
+                <div ng-if="remark.userid===user.uid">
+                    <div class="btn-group" uib-dropdown>
+                        <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>
+                            <span class="glyphicon glyphicon-option-vertical"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
+                            <li><a href ng-click="editRemark(remark)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
+                            <li class='divider'></li>
+                            <li><a href ng-click="removeRemark(remark)"><span class='glyphicon glyphicon-trash'></span> 删除</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <blockquote>
+                <p dynamic-html="remark.content"></p>
+                <footer>{{remark.nickname}}</footer>
+            </blockquote>
+            <div class='bottom-bar small text-muted'>
+                <div>{{remark.modify_at*1000|date:'MM-dd HH:mm'}}</div>
+                <a href ng-click="likeRemark(remark)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':remark.like_log[user.uid]}"></span>&nbsp;<span ng-bind="remark.like_num"></span></a>
+                <a href ng-click="dislikeRemark(remark)"><span class='glyphicon glyphicon-thumbs-down' ng-class="{'like':remark.dislike_log[user.uid]}"></span>&nbsp;<span ng-bind="remark.dislike_num"></span></a>
+                <a href ng-if="params.entryRuleResult.passed==='Y'" ng-click="writeRemark(remark)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="remark.remark_num"></span></a>
+                <a href ng-click="shareRemark(remark)"><span class='glyphicon glyphicon-share'></span></a>
+            </div>
+        </div>
+        <div class='remark'>
+            <div class='text-center'>
+                <button class='btn btn-primary' ng-click="writeRemark()"><span class='glyphicon glyphicon-pencil'></span> 写留言</button>
+            </div>
+        </div>
+    </div>
+</div>

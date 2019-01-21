@@ -33,7 +33,7 @@
         <div class='row'>
             <div ng-if="tasks.length" ng-cloak>
                 <div uib-alert ng-repeat="task in tasks" class='alert-info'>
-                    <div><label><input type='checkbox' name='forTask' ng-true-value="'{{task.id}}'" ng-model="forTask"> 问题留言后，题目作为任务提交</label></div>
+                    <div><label><input type='checkbox' name='forTask' ng-true-value="{{task.id}}" ng-model="options.forTask"> 问题留言后，题目作为任务提交</label></div>
                     <div ng-bind="task"></div>
                 </div>
             </div>

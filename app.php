@@ -49,8 +49,10 @@ function show_error($message) {
 	$agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 	$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 	if (isset($excep)) {
-		$excep = str_replace('<br>', "\n", $excep);
-		$modelLog->log('error', $method, $excep, $agent, $referer);
+		$msg = str_replace('<br>', "\n", $excep);
+	}
+	if ($message instanceof SiteUserException) {
+		$modelLog->log($message->getUserid(), $method, $msg, $agent, $referer);
 	} else {
 		$modelLog->log('error', $method, $msg, $agent, $referer);
 	}

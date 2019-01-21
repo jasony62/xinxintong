@@ -85,7 +85,7 @@ class way_model extends \TMS_MODEL {
 			$oSiteUser = $modelSiteUser->byPrimaryUnionid($siteId, $oCookieRegUser->unionid);
 			if ($oCookieUser) {
 				if ($oSiteUser->uid !== $oCookieUser->uid) {
-					throw new \Exception('数据错误，注册主访客账号与当前访客账号不一致');
+					throw new \SiteUserException('数据错误，注册主访客账号与当前访客账号不一致', $oSiteUser->uid);
 				}
 			}
 			if (empty($oSiteUser->{$snsName . '_openid'})) {
@@ -93,7 +93,7 @@ class way_model extends \TMS_MODEL {
 				$modelSiteUser->bindSns($oSiteUser, $snsName, $dbSnsUser);
 			} else if ($oSiteUser->{$snsName . '_openid'} !== $snsUser->openid) {
 				/* 用户先用一个微信号做了访问，注册了账号；切换了微信号，用之前的账号做了登录 */
-				throw new \Exception('数据错误，注册主访客账号已经绑定其他公众号用户');
+				throw new \SiteUserException('数据错误，注册主访客账号已经绑定其他公众号用户', $oSiteUser->uid);
 			}
 		} else {
 			if ($oCookieUser === false) {

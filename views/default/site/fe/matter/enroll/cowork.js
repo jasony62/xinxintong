@@ -674,9 +674,6 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         });
         new enlTask($scope.app).list('question').then(function(tasks) {
             $scope.tasks = tasks;
-            if (tasks.length === 1) {
-                $scope.forTask = tasks[0].id;
-            }
         });
     });
 }]);

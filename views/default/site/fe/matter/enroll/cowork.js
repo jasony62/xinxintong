@@ -805,4 +805,13 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
             });
         });
     };
+    $scope.asTask = function(oItem) {
+        if ($scope.answerTasks && $scope.answerTasks.length) {
+            if ($scope.answerTasks.length === 1) {
+                http2.post(LS.j('topic/assign', 'site') + '&record=' + $scope.record.id + '&data=' + oItem.id + '&task=' + $scope.answerTasks[0].id, {}).then(function() {
+                    noticebox.success('操作成功！');
+                });
+            }
+        }
+    };
 }]);

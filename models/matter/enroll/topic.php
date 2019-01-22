@@ -78,7 +78,7 @@ class topic_model extends entity_model {
 		}
 
 		$q = [
-			'r.*,tr.assign_at,tr.seq seq_in_topic',
+			'r.*,tr.assign_at,tr.id id_in_topic,tr.seq seq_in_topic',
 			'xxt_enroll_record r inner join xxt_enroll_topic_record tr on r.id=tr.record_id',
 			['tr.topic_id' => $oTopic->id, 'r.state' => 1],
 		];
@@ -144,7 +144,7 @@ class topic_model extends entity_model {
 		}
 		if (!empty($records)) {
 			foreach ($records as $oRecord) {
-				$this->assign($oTopic, $oRecord, max($oTask->start_at, $oRecord->enroll_at));
+				$this->assign($oTopic, $oRecord, null, max($oTask->start_at, $oRecord->enroll_at));
 			}
 		}
 
@@ -225,7 +225,7 @@ class topic_model extends entity_model {
 		}
 		if (!empty($taskRecords)) {
 			foreach ($taskRecords as $oRecord) {
-				$this->assign($oTopic, $oRecord, max($oTask->start_at, $oRecord->enroll_at));
+				$this->assign($oTopic, $oRecord, null, max($oTask->start_at, $oRecord->enroll_at));
 			}
 		}
 
@@ -265,7 +265,7 @@ class topic_model extends entity_model {
 		}
 		if (!empty($taskRecords)) {
 			foreach ($taskRecords as $oRecord) {
-				$this->assign($oTopic, $oRecord, max($oTask->start_at, $oRecord->enroll_at));
+				$this->assign($oTopic, $oRecord, null, max($oTask->start_at, $oRecord->enroll_at));
 			}
 		}
 
@@ -276,11 +276,16 @@ class topic_model extends entity_model {
 	 *
 	 * @param object $oTopic[id]
 	 * @param object $oRecord[id]
+	 * @param object $oRecData[id]
 	 *
 	 */
-	public function assign($oTopic, $oRecord, $assignAt = null) {
+	public function assign($oTopic, $oRecord, $oRecData = null, $assignAt = null) {
 		$q = ['topic_id', 'xxt_enroll_topic_record', ['record_id' => $oRecord->id]];
+		if (isset($oRecData->id)) {
+			$q[2]['data_id'] = $oRecData->id;
+		}
 		$aBeforeTopicIds = $this->query_vals_ss($q);
+		//die('sss:' . json_encode($aBeforeTopicIds));
 		if (in_array($oTopic->id, $aBeforeTopicIds)) {
 			return [false, '已经在专题中，不能重复添加'];
 		}
@@ -293,6 +298,7 @@ class topic_model extends entity_model {
 		$oNewRel->aid = $this->_oApp->id;
 		$oNewRel->siteid = $this->_oApp->siteid;
 		$oNewRel->record_id = $oRecord->id;
+		isset($oRecData->id) && $oNewRel->data_id = $oRecData->id;
 		$oNewRel->assign_at = empty($assignAt) ? time() : $assignAt;
 		$oNewRel->topic_id = $oTopic->id;
 		$oNewRel->seq = $maxSeq + 1;

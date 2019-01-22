@@ -516,16 +516,6 @@ class repos extends base {
 									$items = $reposItems;
 								}
 								$oRecordData->{$schemaId} = $items;
-
-								// $aOptions = ['fields' => 'id'];
-								// if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
-								// 	$aOptions['agreed'] = $oApp->actionRule->cowork->repos->pre->cowork->agreed;
-								// } else {
-								// 	$aOptions['agreed'] = ['Y', 'A'];
-								// }
-								// $countItems = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, $aOptions);
-								// $aCoworkState[$oSchema->id] = (object) ['length' => count($countItems)];
-								// continue;
 							} else {
 								$oRecordData->{$schemaId} = $oRecord->data->{$schemaId};
 							}
@@ -545,9 +535,6 @@ class repos extends base {
 							if ($this->getDeepValue($oVoteRule->schema, 'cowork') === 'Y') {continue;}
 							$oRecData = $modelData->byRecord($oRecord->enroll_key, ['schema' => $schemaId, 'fields' => 'id,vote_num']);
 							if ($oRecData) {
-								// $vote_at = (int) $modelData->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oRecData->id, 'state' => 1, 'userid' => $oUser->uid]]);
-								// $oRecData->vote_at = $vote_at;
-								// $oRecData->state = $oVoteRule->state;
 								$oVoteResult->{$schemaId} = $oRecData;
 							}
 						}
@@ -619,11 +606,6 @@ class repos extends base {
 					}
 					return $remarks;
 				};
-				// if ($remarkReposLikeNum) {
-				// 	$q[2] .= " and (agreed in ('" . implode("','", $remarkReposAgreed) . "') or like_num>={$remarkReposLikeNum})";
-				// } else {
-				// 	$q[2] .= " and agreed in ('" . implode("','", $remarkReposAgreed) . "')";
-				// }
 				/* 推荐的留言 */
 				if (in_array('Y', $remarkReposAgreed)) {
 					$oRecord->agreedRemarks = $fnRemarksByRecord($oRecord->enroll_key, 'Y');

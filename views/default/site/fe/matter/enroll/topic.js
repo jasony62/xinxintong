@@ -43,7 +43,7 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         location.href = url;
     };
     $scope.quitTopic = function(oRecord) {
-        http2.post(LS.j('topic/removeRec', 'site') + '&topic=' + $scope.topic.id, { record: oRecord.id }).then(function(rsp) {
+        http2.post(LS.j('topic/removeRec', 'site') + '&topic=' + $scope.topic.id, { id_in_topic: oRecord.id_in_topic }).then(function(rsp) {
             $scope.repos.splice($scope.repos.indexOf(oRecord), 1);
             _oPage.total--;
         });

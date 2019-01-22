@@ -124,7 +124,7 @@ class cowork extends base {
 		if (isset($oTask)) {
 			$modelTop = $this->model('matter\enroll\topic', $oApp);
 			if ($oTopic = $modelTop->byTask($oTask)) {
-				$modelTop->assign($oTopic, $oRecord);
+				$modelTop->assign($oTopic, $oRecord, $oRecData);
 			}
 		}
 		/* 通知登记活动事件接收人 */

@@ -22,10 +22,10 @@ ngApp.service('hisService', ['http2', '$q', function(http2, $q) {
 }]);
 ngApp.controller('ctrlMain', ['$scope', 'http2', 'hisService', function($scope, http2, hisService) {
     $scope.openApp = function(app) {
-        location.href = '/rest/site/fe/matter/' + app.matter_type + '?site=' + site + '&app=' + app.matter_id;
+        location.href = '/rest/site/fe/matter/' + app.matter_type + '?site=' + app.siteid + '&app=' + app.matter_id;
     };
     $scope.openMission = function(mission) {
-        location.href = '/rest/site/fe/matter/mission?site=' + site + '&mission=' + mission.mission_id;
+        location.href = '/rest/site/fe/matter/mission?site=' + mission.siteid + '&mission=' + mission.mission_id;
     };
     http2.get('/rest/site/fe/get?site=' + site).then(function(rsp) {
         hisService.myApps().then(function(apps) {

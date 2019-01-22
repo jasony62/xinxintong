@@ -661,7 +661,7 @@ class record extends base {
 					if (false === $oTaskRnd) {
 						return new \ObjectNotFoundError('指定的活动任务轮次不存在');
 					}
-					$rid = $oTaskRnd;
+					$rid = $oTaskRnd->rid;
 				}
 				$oRecord = $modelRec->lastByUser($oApp, $oRecUser, ['state' => $ValidRecStates, 'rid' => $rid, 'verbose' => 'Y', 'fields' => $fields]);
 				if (false === $oRecord) {

@@ -857,16 +857,15 @@ class schema_model extends \TMS_MODEL {
 			}
 			if (!empty($oSchema->dsSchema->app->id) && !empty($oSchema->dsSchema->schema->id) && !empty($oSchema->dsSchema->schema->type)) {
 				$oDsSchema = $oSchema->dsSchema;
-				//if (!empty($oAppRound->mission_rid)) {
 				if (!isset($modelRnd)) {
 					$modelRnd = $this->model('matter\enroll\round');
 				}
 				if (isset($oTask)) {
 					$oDsAppRnd = $modelRnd->byTask($oDsSchema->app, $oTask);
-				} else {
+				} else if (!empty($oAppRound->mission_rid)) {
 					$oDsAppRnd = $modelRnd->byMissionRid($oDsSchema->app, $oAppRound->mission_rid, ['fields' => 'rid,mission_rid']);
 				}
-				if ($oDsAppRnd) {
+				if (!empty($oDsAppRnd)) {
 					switch ($oDsSchema->schema->type) {
 					case 'shorttext':
 					case 'longtext':
@@ -889,7 +888,6 @@ class schema_model extends \TMS_MODEL {
 						break;
 					}
 				}
-				//}
 			}
 		}
 		/* 加入动态创建的题目 */

@@ -665,6 +665,9 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         $scope.visibleSchemas = aVisibleSchemas;
         $scope.coworkSchemas = aCoworkSchemas;
         fnLoadRecord(aCoworkSchemas).then(function(oRecord) {
+            new enlTask($scope.app).list('question', 'IP').then(function(tasks) {
+                $scope.tasks = tasks.filter(function(oTask) { return oTask.rid !== oRecord.rid; });
+            });
             if (_oApp.scenarioConfig && _oApp.scenarioConfig.can_assoc === 'Y') {
                 fnLoadAssoc(oRecord, _oAssocs).then(function() {
                     fnAfterRecordLoad(oRecord, _oUser);
@@ -672,9 +675,6 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             } else {
                 fnAfterRecordLoad(oRecord, _oUser);
             }
-        });
-        new enlTask($scope.app).list('question', 'IP').then(function(tasks) {
-            $scope.tasks = tasks;
         });
     });
 }]);

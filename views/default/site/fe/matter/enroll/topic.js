@@ -48,6 +48,13 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             _oPage.total--;
         });
     };
+    $scope.coworkRecord = function(oRecord) {
+        var url;
+        url = LS.j('', 'site', 'app');
+        url += '&ek=' + oRecord.enroll_key;
+        url += '&page=cowork';
+        location.href = url;
+    };
 
     var _oApp, _oPage, _oCriteria, _oShareableSchemas, shareby;
     shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';

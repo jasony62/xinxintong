@@ -20,11 +20,11 @@ ngMod.factory('enlTask', ['http2', '$q', '$parse', '$filter', '$uibModal', 'tmsL
             min, max, limit, str, weekday, oDateFilter;
 
         oDateFilter = $filter('date');
-        str = oDateFilter(oTask.start_at * 1000, 'M月d日H:mm（EEE）');
+        str = oDateFilter(oTask.start_at * 1000, 'M月d日（EEE）H:mm');
         weekday = oDateFilter(oTask.start_at * 1000, 'EEE');
         str = str.replace(weekday, i18n.weekday[weekday]);
         strs.push(str, '到');
-        str = oDateFilter(oTask.end_at * 1000, 'M月d日H:mm（EEE）');
+        str = oDateFilter(oTask.end_at * 1000, 'M月d日（EEE）H:mm');
         weekday = oDateFilter(oTask.end_at * 1000, 'EEE');
         str = str.replace(weekday, i18n.weekday[weekday]);
         strs.push(str);

@@ -97,6 +97,7 @@
                                 <ul class="dropdown-menu dropdown-menu-right dropdown-menu-top" uib-dropdown-menu>
                                     <li><a href ng-click="shareRecord(rec)"><span class='glyphicon glyphicon-share'></span> 分享</a></li>
                                     <li ng-if="!rec.favored"><a href ng-click="favorRecord(rec)"><span class='glyphicon glyphicon-bookmark'></span> 收藏</a></li>
+                                    <li ng-if="rec.userid===user.uid||user.is_editor==='Y'"><a href ng-click="quitTopic(rec)"><span class='glyphicon glyphicon-remove'></span> 移出专题</a></li>
                                 </ul>
                             </div>
                         </div>

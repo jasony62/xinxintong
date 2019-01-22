@@ -42,22 +42,27 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
         location.href = url;
     };
+    $scope.quitTopic = function(oRecord) {
+        http2.post(LS.j('topic/removeRec', 'site') + '&topic=' + $scope.topic.id, { record: oRecord.id }).then(function(rsp) {
+            $scope.repos.splice($scope.repos.indexOf(oRecord), 1);
+            _oPage.total--;
+        });
+    };
 
     var _oApp, _oPage, _oCriteria, _oShareableSchemas, shareby;
     shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
+    _oCriteria = { rid: 'all', creator: false, favored: true, agreed: 'all', orderby: 'lastest' }; // 数据查询条件
     $scope.page = _oPage = {};
-    $scope.criteria = _oCriteria = { rid: 'all', creator: false, favored: true, agreed: 'all', orderby: 'lastest' }; // 数据查询条件
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.repos = []; // 分享的记录
     $scope.reposLoading = false;
     $scope.recordList = function(pageAt) {
         var url, deferred;
         deferred = $q.defer();
-        if (pageAt) {
+        if (pageAt)
             _oPage.at = pageAt;
-        } else {
+        else
             _oPage.at++;
-        }
         if (_oPage.at == 1) {
             $scope.repos = [];
             _oPage.total = 0;
@@ -65,7 +70,7 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         url = LS.j('repos/recordByTopic', 'site', 'app', 'topic');
         url += '&page=' + _oPage.at + '&size=' + _oPage.size;
         $scope.reposLoading = true;
-        http2.post(url, _oCriteria, { page: _oPage }).then(function(result) {
+        http2.get(url, { page: _oPage }).then(function(result) {
             if (result.data.records) {
                 result.data.records.forEach(function(oRecord) {
                     oRecord._canAgree = fnCanAgreeRecord(oRecord, $scope.user);
@@ -161,10 +166,6 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             }
         }
         $scope.gotoPage(event, page, oRecord.enroll_key);
-    };
-    $scope.shiftAgreed = function(agreed) {
-        _oCriteria.agreed = agreed;
-        $scope.recordList(1);
     };
     $scope.spyRecordsScroll = true; // 监控滚动事件
     $scope.recordsScrollToBottom = function() {

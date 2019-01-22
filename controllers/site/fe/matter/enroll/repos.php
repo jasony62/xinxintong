@@ -688,9 +688,6 @@ class repos extends base {
 			}
 		}
 
-		// 登记数据过滤条件
-		$oPosted = $this->getPostJson();
-
 		// 填写记录过滤条件
 		$oOptions = new \stdClass;
 		$oOptions->page = $page;

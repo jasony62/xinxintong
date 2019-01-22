@@ -40,7 +40,7 @@ ngApp.factory('TopicRepos', ['http2', '$q', '$sce', 'tmsLocation', function(http
         }
         url = LS.j('repos/recordByTopic', 'site', 'app') + '&topic=' + this.oTopic.id;
 
-        http2.post(url, {}, { page: this.oPage }).then(function(oResult) {
+        http2.get(url, { page: this.oPage }).then(function(oResult) {
             if (oResult.data.records) {
                 oResult.data.records.forEach(function(oRecord) {
                     _this.repos.push(oRecord);

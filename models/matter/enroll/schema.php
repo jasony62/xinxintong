@@ -537,7 +537,7 @@ class schema_model extends \TMS_MODEL {
 	 *
 	 * @return object $oApp
 	 */
-	public function setDynaSchemas(&$oApp, $oTask) {
+	public function setDynaSchemas(&$oApp, $oTask = null) {
 		if (empty($oApp->appRound)) {
 			$modelRnd = $this->model('matter\enroll\round');
 			$oAppRound = $modelRnd->getActive($oApp, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);

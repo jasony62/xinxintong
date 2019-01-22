@@ -336,7 +336,6 @@ class repos extends base {
 		$oOptions = new \stdClass;
 		$oOptions->page = $page;
 		$oOptions->size = $size;
-		$oOptions->regardRemarkRoundAsRecordRound = true; // 将留言的轮次作为记录的轮次
 
 		!empty($oPosted->keyword) && $oOptions->keyword = $oPosted->keyword;
 
@@ -459,7 +458,7 @@ class repos extends base {
 					foreach ($oApp->dynaDataSchemas as $oSchema) {
 						$schemaId = $oSchema->id;
 						// 分类目录
-						if (!empty($oSchema->asdir) && $oSchema->asdir === 'Y' && !empty($oRecord->data->{$schemaId})) { 
+						if (!empty($oSchema->asdir) && $oSchema->asdir === 'Y' && !empty($oRecord->data->{$schemaId})) {
 							foreach ($oSchema->ops as $op) {
 								if ($op->v === $oRecord->data->{$schemaId}) {
 									$recordDirs[] = $op->l;
@@ -689,9 +688,6 @@ class repos extends base {
 			}
 		}
 
-		// 登记数据过滤条件
-		$oPosted = $this->getPostJson();
-
 		// 填写记录过滤条件
 		$oOptions = new \stdClass;
 		$oOptions->page = $page;
@@ -719,7 +715,7 @@ class repos extends base {
 		$modelTop = $this->model('matter\enroll\topic', $oApp);
 		$oTopic = $modelTop->byId($topic);
 
-		$oResult = $modelTop->records($oApp, $oTopic);
+		$oResult = $modelTop->records($oTopic);
 		if (!empty($oResult->records)) {
 			$modelData = $this->model('matter\enroll\data');
 			/* 是否限制了匿名规则 */
@@ -745,6 +741,10 @@ class repos extends base {
 			}
 
 			foreach ($oResult->records as $oRecord) {
+				/* 获取记录的投票信息 */
+				if (!empty($oApp->voteConfig)) {
+					$aVoteRules = $this->model('matter\enroll\task', $oApp)->getVoteRule($oUser, $oRecord->round);
+				}
 				$aCoworkState = [];
 				$recordDirs = [];
 				/* 清除非共享数据 */
@@ -753,7 +753,7 @@ class repos extends base {
 					foreach ($oApp->dataSchemas as $oSchema) {
 						$schemaId = $oSchema->id;
 						// 分类目录
-						if (!empty($oSchema->asdir) && $oSchema->asdir === 'Y' && !empty($oRecord->data->{$schemaId})) { 
+						if (!empty($oSchema->asdir) && $oSchema->asdir === 'Y' && !empty($oRecord->data->{$schemaId})) {
 							foreach ($oSchema->ops as $op) {
 								if ($op->v === $oRecord->data->{$schemaId}) {
 									$recordDirs[] = $op->l;
@@ -867,6 +867,22 @@ class repos extends base {
 						}
 					}
 				}
+				/* 获取记录的投票信息 */
+				if (!empty($aVoteRules)) {
+					$oVoteResult = new \stdClass;
+					foreach ($aVoteRules as $schemaId => $oVoteRule) {
+						if ($this->getDeepValue($oVoteRule->schema, 'cowork') === 'Y') {continue;}
+						$oRecData = $modelData->byRecord($oRecord->enroll_key, ['schema' => $schemaId, 'fields' => 'id,vote_num']);
+						if ($oRecData) {
+							$vote_at = (int) $modelData->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oRecData->id, 'state' => 1, 'userid' => $oUser->uid]]);
+							$oRecData->vote_at = $vote_at;
+							$oRecData->state = $oVoteRule->state;
+							$oVoteResult->{$schemaId} = $oRecData;
+						}
+					}
+					$oRecord->voteResult = $oVoteResult;
+				}
+
 			}
 		}
 
@@ -975,7 +991,7 @@ class repos extends base {
 					$oShareableSchemas->{$oSchema->id} = $oSchema;
 				}
 				$schemaId2 = $oSchema->id;
-				if (!empty($oSchema->asdir) && $oSchema->asdir === 'Y' && !empty($oRecord->data->{$schemaId2})) { 
+				if (!empty($oSchema->asdir) && $oSchema->asdir === 'Y' && !empty($oRecord->data->{$schemaId2})) {
 					foreach ($oSchema->ops as $op) {
 						if ($op->v === $oRecord->data->{$schemaId2}) {
 							$recordDirs[] = $op->l;

@@ -9,7 +9,8 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
         template: require('./repos-record-data.html'),
         scope: {
             schemas: '=',
-            rec: '=record'
+            rec: '=record',
+            task: '=task'
         },
         controller: ['$scope', '$sce', '$location', 'tmsLocation', 'http2', 'noticebox', 'tmsSchema', function($scope, $sce, $location, LS, http2, noticebox, tmsSchema) {
             $scope.coworkRecord = function(oRecord) {
@@ -21,38 +22,42 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
                 location.href = url;
             };
             $scope.vote = function(oRecData) {
-                http2.get(LS.j('task/vote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
-                    if (oRecData.voteResult) {
-                        oRecData.voteResult.vote_num++;
-                        oRecData.voteResult.vote_at = rsp.data[0].vote_at;
-                    } else {
-                        oRecData.vote_num++;
-                        oRecData.vote_at = rsp.data[0].vote_at;
-                    }
-                    var remainder = rsp.data[1][0] - rsp.data[1][1];
-                    if (remainder > 0) {
-                        noticebox.success('还需要投出【' + remainder + '】票');
-                    } else {
-                        noticebox.success('已完成全部投票');
-                    }
-                });
+                if ($scope.task) {
+                    http2.get(LS.j('task/vote', 'site') + '&data=' + oRecData.id + '&task=' + $scope.task.id).then(function(rsp) {
+                        if (oRecData.voteResult) {
+                            oRecData.voteResult.vote_num++;
+                            oRecData.voteResult.vote_at = rsp.data[0].vote_at;
+                        } else {
+                            oRecData.vote_num++;
+                            oRecData.vote_at = rsp.data[0].vote_at;
+                        }
+                        var remainder = rsp.data[1][0] - rsp.data[1][1];
+                        if (remainder > 0) {
+                            noticebox.success('还需要投出【' + remainder + '】票');
+                        } else {
+                            noticebox.success('已完成全部投票');
+                        }
+                    });
+                }
             };
             $scope.unvote = function(oRecData) {
-                http2.get(LS.j('task/unvote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
-                    if (oRecData.voteResult) {
-                        oRecData.voteResult.vote_num--;
-                        oRecData.voteResult.vote_at = 0;
-                    } else {
-                        oRecData.vote_num--;
-                        oRecData.vote_at = 0;
-                    }
-                    var remainder = rsp.data[0] - rsp.data[1];
-                    if (remainder > 0) {
-                        noticebox.success('还需要投出【' + remainder + '】票');
-                    } else {
-                        noticebox.success('已完成全部投票');
-                    }
-                });
+                if ($scope.task) {
+                    http2.get(LS.j('task/unvote', 'site') + '&data=' + oRecData.id + '&task=' + $scope.task.id).then(function(rsp) {
+                        if (oRecData.voteResult) {
+                            oRecData.voteResult.vote_num--;
+                            oRecData.voteResult.vote_at = 0;
+                        } else {
+                            oRecData.vote_num--;
+                            oRecData.vote_at = 0;
+                        }
+                        var remainder = rsp.data[0] - rsp.data[1];
+                        if (remainder > 0) {
+                            noticebox.success('还需要投出【' + remainder + '】票');
+                        } else {
+                            noticebox.success('已完成全部投票');
+                        }
+                    });
+                }
             };
             $scope.open = function(file) {
                 var url, appID, data;

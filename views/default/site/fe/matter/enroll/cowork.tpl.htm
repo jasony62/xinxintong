@@ -33,7 +33,7 @@
         <div class='row'>
             <div ng-if="tasks.length" ng-cloak>
                 <div uib-alert ng-repeat="task in tasks" class='alert-info'>
-                    <div><label><input type='checkbox' name='forTask' ng-true-value="'{{task.id}}'" ng-model="forTask"> 问题留言后，题目作为任务提交</label></div>
+                    <div><label><input type='checkbox' name='forTask' ng-true-value="{{task.id}}" ng-model="options.forTask"> 问题留言后，题目作为任务提交</label></div>
                     <div ng-bind="task"></div>
                 </div>
             </div>
@@ -270,7 +270,6 @@
                 </div>
             </div>
         </div>
-        <div ng-if="popAct.acts.length" tms-pop-act acts="popAct.acts" custom="popAct.custom" close-after='5000'></div>
         <div id='favorGuide' ng-if="favorStack.guiding">
             <span>已收藏</span>
             <button class='btn btn-default' ng-click="assignTopic()">选择专题</button>

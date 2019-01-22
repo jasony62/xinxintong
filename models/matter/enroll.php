@@ -132,7 +132,7 @@ class enroll_model extends enroll_base {
 						/* 应用的动态题目 */
 						$oApp2 = (object) ['id' => $oApp->id, 'appRound' => $oApp->appRound, 'dataSchemas' => json_decode($oApp->data_schemas), 'mission_id' => $oApp->mission_id];
 						$modelSch = $this->model('matter\enroll\schema');
-						$modelSch->setDynaSchemas($oApp2);
+						$modelSch->setDynaSchemas($oApp2, isset($aOptions['task']) ? $aOptions['task'] : null);
 						$oApp->dynaDataSchemas = $oApp2->dataSchemas;
 						/* 设置活动的动态选项 */
 						$modelSch->setDynaOptions($oApp, $oAppRnd);
@@ -148,9 +148,9 @@ class enroll_model extends enroll_base {
 				if (!empty($oApp->round_cron)) {
 					$oApp->roundCron = json_decode($oApp->round_cron);
 					$modelRnd = $this->model('matter\enroll\round');
-					foreach ($oApp->roundCron as &$rec) {
-						$rules[0] = $rec;
-						$rec->case = $modelRnd->sampleByCron($rules);
+					foreach ($oApp->roundCron as $rc) {
+						$rules[0] = $rc;
+						$rc->case = $modelRnd->sampleByCron($rules);
 					}
 				} else {
 					$oApp->roundCron = [];
@@ -587,16 +587,16 @@ class enroll_model extends enroll_base {
 		$oNewApp->end_at = isset($oProto->end_at) ? $oProto->end_at : 0;
 		$oNewApp->entry_rule = $this->escape($this->toJson($oEntryRule));
 		/* 是否开放共享页 */
-		if (isset($oProto->scenarioConfig->can_repos) && in_array($oProto->scenarioConfig->can_repos, ['Y', 'N'])) {
-			$oScenarioConfig->can_repos = $oProto->scenarioConfig->can_repos;
+		if (isset($oProto->can_repos) && in_array($oProto->can_repos, ['Y', 'N'])) {
+			$oScenarioConfig->can_repos = $oProto->can_repos;
 		} else if (isset($oTemplateConfig->can_repos)) {
 			$oScenarioConfig->can_repos = $oTemplateConfig->can_repos;
 		} else {
 			$oScenarioConfig->can_repos = 'N';
 		}
 		/* 是否开放排行榜 */
-		if (isset($oProto->scenarioConfig->can_rank) && in_array($oProto->scenarioConfig->can_rank, ['Y', 'N'])) {
-			$oScenarioConfig->can_rank = $oProto->scenarioConfig->can_rank;
+		if (isset($oProto->can_rank) && in_array($oProto->can_rank, ['Y', 'N'])) {
+			$oScenarioConfig->can_rank = $oProto->can_rank;
 		} else if (isset($oTemplateConfig->can_rank)) {
 			$oScenarioConfig->can_rank = $oTemplateConfig->can_rank;
 		} else {

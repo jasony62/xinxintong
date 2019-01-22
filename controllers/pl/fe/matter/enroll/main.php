@@ -1481,8 +1481,6 @@ class main extends main_base {
 			}
 			$id = $modelRec->insert('xxt_enroll_record', $aNewRec, true);
 			$aNewRec['id'] = $id;
-			/* 记录和轮次的关系 */
-			$modelRun->createRecord((object) $aNewRec);
 			/**
 			 * 登记数据
 			 */
@@ -1500,6 +1498,7 @@ class main extends main_base {
 						$cd = [
 							'aid' => $oApp->id,
 							'rid' => $oApp->appRound->rid,
+							'record_id' => $oRecord->id,
 							'enroll_key' => $ek,
 							'schema_id' => $n,
 							'value' => $v,

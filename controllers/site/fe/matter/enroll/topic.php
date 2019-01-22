@@ -11,7 +11,7 @@ class topic extends base {
 	 */
 	public function get_action($topic) {
 		$modelTop = $this->model('matter\enroll\topic', null);
-		$oTopic = $modelTop->byId($topic, ['fields' => 'id,siteid,aid,state,unionid,userid,group_id,nickname,create_at,title,summary,rec_num,share_in_group']);
+		$oTopic = $modelTop->byId($topic, ['fields' => 'id,siteid,aid,state,unionid,userid,group_id,nickname,create_at,title,summary,rec_num,share_in_group,task_id']);
 		if (false === $oTopic || $oTopic->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -19,6 +19,15 @@ class topic extends base {
 		$oApp = $this->model('matter\enroll')->byId($oTopic->aid, ['cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
+		}
+
+		/* 活动任务的专题 */
+		if (!empty($oTopic->task_id)) {
+			$modelTsk = $this->model('matter\enroll\task', $oApp);
+			$oTask = $modelTsk->byId($oTopic->task_id);
+			if ($oTask) {
+				$oTopic->task = $oTask;
+			}
 		}
 
 		/* 是否设置了编辑组统一名称 */

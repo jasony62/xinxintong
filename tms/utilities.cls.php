@@ -70,6 +70,24 @@ class DatabaseError extends ResponseData {
 class UrlNotMatchException extends Exception {
 
 }
+/**
+ * 包含用户信息的异常
+ */
+class SiteUserException extends Exception {
+	/**
+	 * 站点用户id
+	 */
+	protected $uid;
+
+	public function __construct($msg, $uid) {
+		parent::__construct($msg);
+		$this->uid = $uid;
+	}
+
+	final public function getUserid() {
+		return $this->uid;
+	}
+}
 /**************************
  * 常用方法
  **************************/
@@ -101,12 +119,29 @@ function tms_object_merge(&$oHost, $oNew, $fromProps = []) {
 			$oHost->{$prop} = $val;
 		}
 	} else {
-		foreach ($fromProps as $prop) {
-			if (isset($oNew->{$prop})) {
-				$oHost->{$prop} = $oNew->{$prop};
+		if (is_object($oNew)) {
+			foreach ($fromProps as $prop) {
+				if (isset($oNew->{$prop})) {
+					$oHost->{$prop} = $oNew->{$prop};
+				}
+			}
+		} else if (is_array($oNew)) {
+			foreach ($fromProps as $prop) {
+				if (isset($oNew[$prop])) {
+					$oHost->{$prop} = $oNew[$prop];
+				}
 			}
 		}
 	}
 
 	return $oHost;
+}
+/**
+ * 时间变可读字符串
+ */
+function tms_time_to_str($timestamp) {
+	$WeekdayZh = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+	$str = date('y年n月d日', $timestamp) . ' ' . $WeekdayZh[date('w', $timestamp)] . ' ' . date('H:i', $timestamp);
+
+	return $str;
 }

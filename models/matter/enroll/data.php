@@ -47,6 +47,7 @@ class data_model extends entity_model {
 					'aid' => $oApp->id,
 					'rid' => $oRecord->rid,
 					'purpose' => $oRecord->purpose,
+					'record_id' => $oRecord->id,
 					'enroll_key' => $oRecord->enroll_key,
 					'state' => $oRecord->state,
 					'submit_at' => $oRecord->enroll_at,
@@ -86,6 +87,7 @@ class data_model extends entity_model {
 						'aid' => $oApp->id,
 						'rid' => $oRecord->rid,
 						'purpose' => $oRecord->purpose,
+						'record_id' => $oRecord->id,
 						'enroll_key' => $oRecord->enroll_key,
 						'state' => $oRecord->state,
 						'submit_at' => $oRecord->enroll_at,
@@ -210,6 +212,7 @@ class data_model extends entity_model {
 					'aid' => $oApp->id,
 					'rid' => $oRecord->rid,
 					'purpose' => $oRecord->purpose,
+					'record_id' => $oRecord->id,
 					'enroll_key' => $oRecord->enroll_key,
 					'state' => $oRecord->state,
 					'submit_at' => $oRecord->enroll_at,
@@ -1035,6 +1038,7 @@ class data_model extends entity_model {
 		$oNewItem = new \stdClass;
 		$oNewItem->aid = $oApp->id;
 		$oNewItem->rid = $oRecData->rid;
+		$oNewItem->record_id = $oRecData->record_id;
 		$oNewItem->enroll_key = $oRecData->enroll_key;
 		$oNewItem->submit_at = $current;
 		$oNewItem->userid = isset($oUser->uid) ? $oUser->uid : '';
@@ -1134,7 +1138,7 @@ class data_model extends entity_model {
 		$modelTsk = $this->model('matter\enroll\task', $oApp);
 		$oActiveRnd = $oApp->appRound;
 
-		$oVoteRule = $modelTsk->ruleByTask($oApp, $oTask, $oActiveRnd);
+		$oVoteRule = $modelTsk->ruleByTask($oTask, $oActiveRnd);
 		if (false === $oVoteRule[0]) {
 			return new \ParameterError($oVoteRule[1]);
 		}
@@ -1237,7 +1241,7 @@ class data_model extends entity_model {
 
 		$modelTsk = $this->model('matter\enroll\task', $oApp);
 
-		$oVoteRule = $modelTsk->ruleByTask($oApp, $oTask, $oActiveRnd);
+		$oVoteRule = $modelTsk->ruleByTask($oTask, $oActiveRnd);
 		if (false === $oVoteRule[0]) {
 			return new \ParameterError($oVoteRule[1]);
 		}

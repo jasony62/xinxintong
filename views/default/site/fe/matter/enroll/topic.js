@@ -1,11 +1,13 @@
 'use strict';
+require('../../../../../../asset/css/buttons.css');
 require('./enroll.public.css');
 
 require('./_asset/ui.repos.js');
+require('./_asset/ui.score.js');
 require('./_asset/ui.tag.js');
 require('./_asset/ui.topic.js');
 
-window.moduleAngularModules = ['repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll'];
+window.moduleAngularModules = ['repos.ui.enroll', 'score.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll'];
 
 var ngApp = require('./main.js');
 ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', '$timeout', 'picviewer', 'noticebox', function($scope, $sce, $q, $uibModal, http2, LS, $timeout, picviewer, noticebox) {
@@ -40,23 +42,27 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
         location.href = url;
     };
+    $scope.quitTopic = function(oRecord) {
+        http2.post(LS.j('topic/removeRec', 'site') + '&topic=' + $scope.topic.id, { record: oRecord.id }).then(function(rsp) {
+            $scope.repos.splice($scope.repos.indexOf(oRecord), 1);
+            _oPage.total--;
+        });
+    };
 
-    var _oApp, _oPage, _oCriteria, _oShareableSchemas, _coworkRequireLikeNum, shareby;
+    var _oApp, _oPage, _oCriteria, _oShareableSchemas, shareby;
     shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
-    _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
+    _oCriteria = { rid: 'all', creator: false, favored: true, agreed: 'all', orderby: 'lastest' }; // 数据查询条件
     $scope.page = _oPage = {};
-    $scope.criteria = _oCriteria = { rid: 'all', creator: false, favored: true, agreed: 'all', orderby: 'lastest' }; // 数据查询条件
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.repos = []; // 分享的记录
     $scope.reposLoading = false;
     $scope.recordList = function(pageAt) {
         var url, deferred;
         deferred = $q.defer();
-        if (pageAt) {
+        if (pageAt)
             _oPage.at = pageAt;
-        } else {
+        else
             _oPage.at++;
-        }
         if (_oPage.at == 1) {
             $scope.repos = [];
             _oPage.total = 0;
@@ -64,12 +70,9 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         url = LS.j('repos/recordByTopic', 'site', 'app', 'topic');
         url += '&page=' + _oPage.at + '&size=' + _oPage.size;
         $scope.reposLoading = true;
-        http2.post(url, _oCriteria, { page: _oPage }).then(function(result) {
+        http2.get(url, { page: _oPage }).then(function(result) {
             if (result.data.records) {
                 result.data.records.forEach(function(oRecord) {
-                    if (_coworkRequireLikeNum > oRecord.like_num) {
-                        oRecord._coworkRequireLikeNum = (_coworkRequireLikeNum > oRecord.like_num ? _coworkRequireLikeNum - oRecord.like_num : 0);
-                    }
                     oRecord._canAgree = fnCanAgreeRecord(oRecord, $scope.user);
                     $scope.repos.push(oRecord);
                 });
@@ -164,10 +167,6 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
         $scope.gotoPage(event, page, oRecord.enroll_key);
     };
-    $scope.shiftAgreed = function(agreed) {
-        _oCriteria.agreed = agreed;
-        $scope.recordList(1);
-    };
     $scope.spyRecordsScroll = true; // 监控滚动事件
     $scope.recordsScrollToBottom = function() {
         if ($scope.repos.length < $scope.page.total) {
@@ -193,15 +192,6 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         $scope.setPopAct(['addRecord'], 'topic');
         /*设置页面导航*/
         $scope.setPopNav(['repos'], 'topic');
-        /* 活动任务 */
-        if (oApp.actionRule) {
-            /* 开启协作填写需要的点赞数 */
-            if (oApp.actionRule.record && oApp.actionRule.record.cowork && oApp.actionRule.record.cowork.pre) {
-                if (oApp.actionRule.record.cowork.pre.record && oApp.actionRule.record.cowork.pre.record.likeNum !== undefined) {
-                    _coworkRequireLikeNum = parseInt(oApp.actionRule.record.cowork.pre.record.likeNum);
-                }
-            }
-        }
         fnGetTopic().then(function(rsp) {
             $scope.topic = rsp.data;
             /* 设置页面分享信息 */

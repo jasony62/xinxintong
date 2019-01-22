@@ -51,17 +51,18 @@ class login extends \site\fe\base {
 		$oRegistration = $oResult[1];
 
 		/* cookie中保留注册信息 */
-		$cookieRegUser = $modelWay->shiftRegUser($oRegistration);
-		/* 如果登录账号已经绑定过wx_openid，但是和当前用户的wx_openid不一致，不允许用户登录 */
-		//return new \ResponseError('1个注册账号，只能够和1个微信号绑定');
+		$aResult = $modelWay->shiftRegUser($oRegistration);
+		if (false === $aResult[0]) {
+			return new \ResponseError($aResult[1]);
+		}
 
 		/* 记录登录状态 */
 		$fromip = $this->client_ip();
 		$modelReg->updateLastLogin($oRegistration->unionid, $fromip);
 
-		$cookieUser = $modelWay->who($this->siteId);
+		$oCookieUser = $modelWay->who($this->siteId);
 		if ($referer = $this->myGetCookie('_user_access_referer')) {
-			$cookieUser->_loginReferer = $referer;
+			$oCookieUser->_loginReferer = $referer;
 			$this->mySetCookie('_user_access_referer', null);
 		}
 		/**
@@ -83,7 +84,7 @@ class login extends \site\fe\base {
 			$this->mySetCookie('_login_token', $encoded, $expire);
 		}
 
-		return new \ResponseData($cookieUser);
+		return new \ResponseData($oCookieUser);
 	}
 	/**
 	 * 用指定注册账号和微信公众号openid登录

@@ -64,7 +64,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         var url;
         url = LS.j('remark/add', 'site', 'ek', 'data');
         if (oRemark) url += '&remark=' + oRemark.id;
-        if ($scope.forTask) url += '&task=' + $scope.forTask;
+        if ($scope.options.forTask) url += '&task=' + $scope.options.forTask;
 
         return http2.post(url, { content: content });
     }
@@ -194,8 +194,6 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
                 $scope.coworkTasks.push({ type: 'info', msg: oCoworkRule.desc, id: 'record.cowork.pre' });
             }
         }
-        /*设置页面操作*/
-        $scope.setPopAct(['addRecord'], 'cowork');
         /*设置页面导航*/
         $scope.setPopNav(['repos', 'favor', 'rank', 'kanban', 'event'], 'cowork');
     }
@@ -244,6 +242,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
     }
     var _oApp, _oUser, _oAssocs, shareby;
     shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
+    $scope.options = { forTask: false };
     $scope.coworkTasks = [];
     $scope.remarkTasks = [];
     $scope.newRemark = {};
@@ -674,11 +673,8 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
                 fnAfterRecordLoad(oRecord, _oUser);
             }
         });
-        new enlTask($scope.app).list('question').then(function(tasks) {
+        new enlTask($scope.app).list('question', 'IP').then(function(tasks) {
             $scope.tasks = tasks;
-            if (tasks.length === 1) {
-                $scope.forTask = tasks[0].id;
-            }
         });
     });
 }]);

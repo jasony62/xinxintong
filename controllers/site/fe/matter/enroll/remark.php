@@ -189,6 +189,19 @@ class remark extends base {
 		if (false === $oApp && $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+		/* 检查指定的任务 */
+		if (!empty($task)) {
+			$modelTsk = $this->model('matter\enroll\task', $oApp);
+			$oTask = $modelTsk->byId($task);
+			if (false === $oTask || $oTask->state !== 'IP') {
+				return new \ObjectNotFoundError('指定的任务不存在或不可用');
+			}
+			if ($oTask->config_type === 'question') {
+				if ($oTask->rid === $oRecord->rid) {
+					return new \ResponseError('不能通过对任务轮次中的记录进行留言完成提问任务');
+				}
+			}
+		}
 
 		$oPosted = $this->getPostJson();
 		if (empty($oPosted->content)) {
@@ -309,15 +322,11 @@ class remark extends base {
 		/**
 		 * 如果存在提问任务，将记录放到任务专题中
 		 */
-		if (!empty($task)) {
-			$modelTsk = $this->model('matter\enroll\task', $oApp);
-			if ($oTask = $modelTsk->byId($task)) {
-				/* 检查任务是否有效 */
-				if ($oTask->config_type === 'question') {
-					$modelTop = $this->model('matter\enroll\topic', $oApp);
-					if ($oTopic = $modelTop->byTask($oTask)) {
-						$modelTop->assign($oTopic, $oRecord);
-					}
+		if (isset($oTask)) {
+			if ($oTask->config_type === 'question') {
+				$modelTop = $this->model('matter\enroll\topic', $oApp);
+				if ($oTopic = $modelTop->byTask($oTask)) {
+					$modelTop->assign($oTopic, $oRecord);
 				}
 			}
 		}
@@ -676,6 +685,7 @@ class remark extends base {
 		$oCowork = (object) [
 			'aid' => $oApp->id,
 			'rid' => $oRemark->rid,
+			'record_id' => $oRecord->id,
 			'enroll_key' => $oRemark->enroll_key,
 			'submit_at' => $current,
 			'userid' => $oRemark->userid,

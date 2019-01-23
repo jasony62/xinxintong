@@ -613,7 +613,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             new enlTask($scope.app).list('question', 'IP').then(function(tasks) {
                 $scope.questionTasks = tasks;
             });
-            new enlTask($scope.app).list('answer', 'IP').then(function(tasks) {
+            new enlTask($scope.app).list('answer', 'IP', null, oRecord.enroll_key).then(function(tasks) {
                 $scope.answerTasks = tasks;
             });
             if (_oApp.scenarioConfig && _oApp.scenarioConfig.can_assoc === 'Y') {

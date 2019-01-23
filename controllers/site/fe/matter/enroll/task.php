@@ -9,12 +9,20 @@ class task extends base {
 	/**
 	 * 当前用户需要完成的任务
 	 */
-	public function list_action($app, $type = null, $state = null, $rid = null) {
+	public function list_action($app, $type = null, $state = null, $rid = null, $ek = null) {
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'appRid' => $rid]);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
+		/* 指定了记录 */
+		if (!empty($ek)) {
+			$oRecord = $this->model('matter\enroll\record')->byId($ek);
+			if (false === $oRecord || $oRecord->state !== '1') {
+				return new \ObjectNotFoundError();
+			}
+		}
+
 		$oUser = $this->getUser($oApp);
 
 		/* 有效的任务类型 */
@@ -49,10 +57,18 @@ class task extends base {
 						if (!isset($modelTop)) {
 							$modelTop = $this->model('matter\enroll\topic', $oApp);
 						}
-						$oTopic = $modelTop->byTask($oTask, ['createIfNone' => true]);
-						if ($oTopic) {
+						if ($oTopic = $modelTop->byTask($oTask, ['createIfNone' => true])) {
 							$oTask->topic = $oTopic;
+							/* 检查针对指定的记录，是否存在回答任务 */
+							if (isset($oRecord) && $oTask->type === 'answer') {
+								$oTaskRecordsResult = $modelTop->records($oTopic);
+								$oTaskRecord = tms_array_search($oTaskRecordsResult->records, function ($oTaskRecord) use ($oRecord) {return $oTaskRecord->id === $oRecord->id;});
+								if (!$oTaskRecord) {
+									continue;
+								}
+							}
 						}
+
 						$tasks[] = $oTask;
 					}
 				}

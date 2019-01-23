@@ -179,6 +179,68 @@ class user_model extends \TMS_MODEL {
 		return $users;
 	}
 	/**
+	 * 根据指定的数据查找匹配的记录
+	 */
+	public function byData($oApp, $data, $aOptions = []) {
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$records = false;
+
+		// 查找条件
+		$whereByData = '';
+		foreach ($data as $k => $v) {
+			if ($k === '_round_id') {
+				$whereByData .= ' and (';
+				$whereByData .= 'round_id="' . $v . '"';
+				$whereByData .= ')';
+			} else {
+				if (!empty($v)) {
+					/* 通讯录字段简化处理 */
+					if (strpos($k, 'member.') === 0) {
+						$k = str_replace('member.', '', $k);
+					}
+					$whereByData .= ' and (';
+					$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
+					$whereByData .= ')';
+				}
+			}
+		}
+
+		// 没有指定条件时就认为没有符合条件的记录
+		if (empty($whereByData)) {
+			return $records;
+		}
+
+		// 查找匹配条件的数据
+		$q = [
+			$fields,
+			'xxt_group_player',
+			"state=1 and aid='{$oApp->id}' $whereByData",
+		];
+		$records = $this->query_objs_ss($q);
+		foreach ($records as &$record) {
+			if (empty($record->data)) {
+				$record->data = new \stdClass;
+			} else {
+				$data = json_decode($record->data);
+				if ($data === null) {
+					$record->data = 'json error(' . json_last_error() . '):' . $r->data;
+				} else {
+					$record->data = $data;
+				}
+			}
+			if (empty($record->role_rounds)) {
+				$record->role_rounds = [];
+			} else {
+				$record->role_rounds = json_decode($record->role_rounds);
+			}
+		}
+
+		return $records;
+	}
+	/**
 	 * 指定用户是否属于指定用户组
 	 */
 	public function isInRound($roundId, $userid) {

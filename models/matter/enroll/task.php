@@ -8,8 +8,12 @@ class task_model extends \TMS_MODEL {
 	 * 任务所在的记录活动
 	 */
 	private $_oApp;
+	/**
+	 * 任务类型的中文名称
+	 */
+	const TypeNameZh = ['question' => '提问', 'answer' => '回答', 'vote' => '投票', 'score' => '打分'];
 
-	public function __construct($oApp) {
+	public function __construct($oApp = null) {
 		$this->_oApp = $oApp;
 	}
 	/**
@@ -28,6 +32,17 @@ class task_model extends \TMS_MODEL {
 			}
 		}
 		return $oLimit;
+	}
+	/**
+	 * 去掉无效的内容
+	 */
+	private function _purifySource(&$oSource) {
+		foreach ($oSource as $prop => $val) {
+			if (!in_array($prop, ['scope', 'config', 'limit'])) {
+				unset($oSource->{$prop});
+			}
+		}
+		return $oSource;
 	}
 	/**
 	 * 去掉无效的内容
@@ -55,7 +70,7 @@ class task_model extends \TMS_MODEL {
 	 * 去掉无效的内容
 	 */
 	public function purifyAnswer($oConfig) {
-		$validProps = ['id', 'start', 'end', 'role', 'limit', 'schemas', 'target', 'enabled'];
+		$validProps = ['id', 'start', 'end', 'role', 'limit', 'schemas', 'source', 'enabled'];
 		foreach ($oConfig as $prop => $val) {
 			if (!in_array($prop, $validProps)) {
 				unset($oConfig->{$prop});
@@ -68,6 +83,17 @@ class task_model extends \TMS_MODEL {
 					unset($oConfig->limit);
 				}
 				break;
+			case 'source':
+				if (is_object($val)) {
+					if (isset($val->scope)) {
+						$this->_purifySource($val);
+					} else {
+						unset($oConfig->source);
+					}
+				} else {
+					unset($oConfig->source);
+				}
+				break;
 			}
 		}
 
@@ -77,7 +103,7 @@ class task_model extends \TMS_MODEL {
 	 * 去掉无效的内容
 	 */
 	public function purifyVote($oConfig) {
-		$validProps = ['id', 'start', 'end', 'role', 'limit', 'schemas', 'target', 'enabled'];
+		$validProps = ['id', 'start', 'end', 'role', 'limit', 'schemas', 'target', 'enabled', 'source'];
 		foreach ($oConfig as $prop => $val) {
 			if (!in_array($prop, $validProps)) {
 				unset($oConfig->{$prop});
@@ -88,6 +114,17 @@ class task_model extends \TMS_MODEL {
 					$this->_purifyLimit($val);
 				} else {
 					unset($oConfig->limit);
+				}
+				break;
+			case 'source':
+				if (is_object($val)) {
+					if (isset($val->scope)) {
+						$this->_purifySource($val);
+					} else {
+						unset($oConfig->source);
+					}
+				} else {
+					unset($oConfig->source);
 				}
 				break;
 			}
@@ -312,9 +349,11 @@ class task_model extends \TMS_MODEL {
 	}
 	/**
 	 * 获得指定规则生成的任务
+	 *
+	 * @param object $oRule[type,id,rid,start_at,end_at] 如果不自动创建任务，不需要指定start_at和end_at
 	 */
 	public function byRule($oRule, $aOptons = []) {
-		$fields = empty($aOptons['fields']) ? 'id,start_at,end_at' : $aOptons['fields'];
+		$fields = empty($aOptons['fields']) ? 'id,rid,start_at,end_at' : $aOptons['fields'];
 		$bCreateIfNone = isset($aOptons['createIfNone']) ? $aOptons['createIfNone'] : false;
 		$q = [
 			$fields,
@@ -345,34 +384,62 @@ class task_model extends \TMS_MODEL {
 		return $oTask;
 	}
 	/**
+	 *
+	 */
+	public function configById($type, $id) {
+		$oConfig = tms_array_search($this->_oApp->{$type . 'Config'}, function ($oRule) use ($id) {return $oRule->id === $id;});
+		if ($oConfig) {
+			$oConfig->type = $type;
+		}
+
+		return $oConfig;
+	}
+	/**
 	 * 获得任务的规则定义
 	 */
-	public function ruleByTask($oApp, $oTask, $oRound) {
-		$oVoteRule = tms_array_search($oApp->voteConfig, function ($oRule) use ($oTask) {return $oRule->id === $oTask->config_id;});
-		if (false === $oVoteRule || empty($oVoteRule->schemas)) {
+	public function ruleByTask($oTask, $oRound) {
+		$oRule = $this->configById($oTask->config_type, $oTask->config_id);
+		if (false === $oRule) {
 			return [false, '（1）投票任务参数错误'];
 		}
 
-		$oVoateRuleState = $this->getRuleStateByRound($oVoteRule, $oRound);
-		if (false === $oVoateRuleState[0]) {
+		$oRuleState = $this->getRuleStateByRound($oRule, $oRound);
+		if (false === $oRuleState[0]) {
 			return [false, '（2）投票任务参数错误'];
 		}
-		tms_object_merge($oVoteRule, $oVoateRuleState[1]);
+		tms_object_merge($oRule, $oRuleState[1]);
 
-		return [true, $oVoteRule];
+		return [true, $oRule];
 	}
 	/**
 	 * 指定用户当前是否存在任务
 	 */
 	public function byId($id, $aOptions = []) {
-		$fields = empty($aOptons['fields']) ? 'id,start_at,end_at,config_type,config_id' : $aOptons['fields'];
+		$fields = empty($aOptons['fields']) ? 'id,aid,rid,start_at,end_at,config_type,config_id' : $aOptons['fields'];
 		$q = [
 			$fields,
 			'xxt_enroll_task',
-			['aid' => $this->_oApp->id, 'id' => $id],
+			['id' => $id],
 		];
-
 		$oTask = $this->query_obj_ss($q);
+		if ($oTask && isset($oTask->config_type) && isset($oTask->config_id)) {
+			if (empty($this->_oApp) && !empty($oTask->aid)) {
+				$this->_oApp = $this->model('matter\enroll')->byId($oTask->aid, ['fields' => '*']);
+			}
+			if (!empty($this->_oApp->{$oTask->config_type . 'Config'})) {
+				$oRuleConfig = $this->model('matter\enroll\task', $this->_oApp)->configById($oTask->config_type, $oTask->config_id);
+				if ($oRuleConfig && $this->getDeepValue($oRuleConfig, 'enabled') === 'Y') {
+					$oTaskRound = $this->model('matter\enroll\round')->byId($oTask->rid);
+					if ($oTaskRound) {
+						$oRuleState = $this->getRuleStateByRound($oRuleConfig, $oTaskRound);
+						if (true === $oRuleState[0]) {
+							tms_object_merge($oTask, $oRuleConfig, ['source', 'scoreApp']);
+							tms_object_merge($oTask, $oRuleState[1], ['state']);
+						}
+					}
+				}
+			}
+		}
 
 		return $oTask;
 	}

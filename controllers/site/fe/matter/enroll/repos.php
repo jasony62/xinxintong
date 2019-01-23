@@ -1142,18 +1142,6 @@ class repos extends base {
 					$criteria->menus[] = (object) ['id' => $userSearch->keyword, 'title' => $userSearch->keyword];
 				}
 			}
-			// 搜索历史
-			if ($criteria->type === 'keyword') {
-				$search = $this->model('matter\enroll\search')->listUserSearch($oApp, $oUser);
-				$userSearchs = $search->userSearch;
-				if (count($userSearchs) == 0) {
-					unset($criterias[$key]);
-				} else {
-					foreach ($userSearchs as $userSearch) {
-						$criteria->menus[] = (object) ['id' => $userSearch->keyword, 'title' => $userSearch->keyword];
-					}
-				}
-			}
 		}
 
 		$criterias = array_values($criterias);

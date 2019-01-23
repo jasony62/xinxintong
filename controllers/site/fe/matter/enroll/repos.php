@@ -722,11 +722,11 @@ class repos extends base {
 				}
 			}
 
+			/* 获取记录的投票信息 */
+			if (!empty($oApp->voteConfig)) {
+				$aVoteRules = $this->model('matter\enroll\task', $oApp)->getVoteRule($oUser);
+			}
 			foreach ($oResult->records as $oRecord) {
-				/* 获取记录的投票信息 */
-				if (!empty($oApp->voteConfig)) {
-					$aVoteRules = $this->model('matter\enroll\task', $oApp)->getVoteRule($oUser, $oRecord->round);
-				}
 				$aCoworkState = [];
 				$recordDirs = [];
 				/* 清除非共享数据 */

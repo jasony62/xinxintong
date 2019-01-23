@@ -33,7 +33,7 @@
         <div class='row'>
             <div ng-if="questionTasks.length" ng-cloak>
                 <div uib-alert ng-repeat="task in questionTasks" class='alert-info'>
-                    <div><label><input type='checkbox' name='forQuestionTask' ng-true-value="{{task.id}}" ng-model="options.forQuestionTask"> 通过对问题留言，完成提问任务</label></div>
+                    <div ng-if="task.rid!==record.rid"><label><input type='checkbox' name='forQuestionTask' ng-true-value="{{task.id}}" ng-model="options.forQuestionTask"> 通过对问题留言，完成提问任务</label></div>
                     <div ng-bind="task"></div>
                 </div>
             </div>
@@ -92,6 +92,7 @@
                             <li ng-if="app.scenarioConfig.can_assoc==='Y'"><a href ng-click="copyRecord(record)"><span class='glyphicon glyphicon-copy'></span> 复制</a></li>
                             <li ng-if="app.scenarioConfig.can_assoc==='Y'"><a href ng-click="pasteRecord(record)"><span class='glyphicon glyphicon-paste'></span> 粘贴</a></li>
                             <li ng-if="app.transmitConfig.length&&user.is_editor==='Y'"><a href ng-click="transmitRecord(record)"><span class='glyphicon glyphicon-transfer'></span> 转发</a></li>
+                            <li ng-if="record.userid===user.uid||user.is_editor==='Y'"><a href ng-click="doQuestionTask(record)">作为任务</a></li>
                         </ul>
                     </div>
                 </div>
@@ -166,7 +167,7 @@
                                             <li ng-if="app.scenarioConfig.no_remark!=='Y'"><a href ng-click="coworkAsRemark(schema,$index)"><span class='glyphicon glyphicon-transfer'></span> 转为留言</a></li>
                                             <li ng-if="item.voteResult.state==='IP'&&item.voteResult.vote_at==0"><a href ng-click="vote(item)"><span class='glyphicon glyphicon-triangle-top'></span> 投票</a></li>
                                             <li ng-if="item.voteResult.state==='IP'&&item.voteResult.vote_at>0"><a href ng-click="unvote(item)"><span class='glyphicon glyphicon-triangle-bottom'></span> 取消投票</a></li>
-                                            <li ng-if="answerTasks.length"><a href ng-click="asTask(item)">作为任务</a></li>
+                                            <li ng-if="answerTasks.length"><a href ng-click="doAnswerTask(item)">作为任务</a></li>
                                         </ul>
                                     </div>
                                 </div>

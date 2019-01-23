@@ -529,6 +529,15 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             }
         });
     };
+    $scope.doQuestionTask = function(oRecord) {
+        //if ($scope.questionTasks && $scope.questionTasks.length) {
+        if ($scope.questionTasks.length === 1) {
+            http2.post(LS.j('topic/assign', 'site') + '&record=' + oRecord.id + '&task=' + $scope.questionTasks[0].id, {}).then(function() {
+                noticebox.success('操作成功！');
+            });
+        }
+        //}
+    };
     $scope.likeItem = function(oItem) {
         if ($scope.setOperateLimit('like')) {
             http2.get(LS.j('data/like', 'site') + '&data=' + oItem.id).then(function(rsp) {
@@ -602,7 +611,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         fnLoadRecord(aCoworkSchemas).then(function(oRecord) {
             /* 通过留言完成提问任务 */
             new enlTask($scope.app).list('question', 'IP').then(function(tasks) {
-                $scope.questionTasks = tasks.filter(function(oTask) { return oTask.rid !== oRecord.rid; });
+                $scope.questionTasks = tasks;
             });
             new enlTask($scope.app).list('answer', 'IP').then(function(tasks) {
                 $scope.answerTasks = tasks;
@@ -805,7 +814,7 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
             });
         });
     };
-    $scope.asTask = function(oItem) {
+    $scope.doAnswerTask = function(oItem) {
         if ($scope.answerTasks && $scope.answerTasks.length) {
             if ($scope.answerTasks.length === 1) {
                 http2.post(LS.j('topic/assign', 'site') + '&record=' + $scope.record.id + '&data=' + oItem.id + '&task=' + $scope.answerTasks[0].id, {}).then(function() {

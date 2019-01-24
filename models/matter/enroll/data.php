@@ -1012,7 +1012,7 @@ class data_model extends entity_model {
 	 * records 数据列表
 	 * total 数据总条数
 	 */
-	public function coworkList($oApp, $oOptions = null, $oCriteria = null, $oUser = null) {
+	public function byApp2($oApp, $oOptions = null, $oCriteria = null, $oUser = null) {
 		if (is_string($oApp)) {
 			$oApp = $this->model('matter\enroll')->byId($oApp, ['cascaded' => 'N']);
 		}
@@ -1022,21 +1022,18 @@ class data_model extends entity_model {
 		if ($oOptions && is_array($oOptions)) {
 			$oOptions = (object) $oOptions;
 		}
-		$coworkSchemaIds = [];
-		foreach ($oApp->dynaDataSchemas as $oSchema) {
-			if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
-				$coworkSchemaIds[] = $oSchema->id;
-			}
-		}
-		if (empty($coworkSchemaIds)) {
-			return false;
-		}
 
 		// 指定记录活动下的记录记录
 		$w = "rd.state=1 and rd.aid='{$oApp->id}'";
-		$coworkSchemaIds = "('" . implode("','", $coworkSchemaIds) . "')";
-		$w .= " and rd.schema_id in {$coworkSchemaIds}";
-		$w .= " and rd.multitext_seq > 0";
+		if (!empty($oCriteria->schemaId)) {
+			if (is_array($oCriteria->schemaId)) {
+				$schemaId = implode("','", $oCriteria->schemaId);
+			}
+			$w .= " and rd.schema_id in ('" . $schemaId . "')";
+		}
+		if (!empty($oCriteria->onlyMultitextValue)) {
+			$w .= " and rd.multitext_seq > 0";
+		}
 
 		/* 指定轮次，或者当前激活轮次 */
 		if (empty($oCriteria->recordData->rid)) {
@@ -1119,18 +1116,23 @@ class data_model extends entity_model {
 		}
 
 		// 指定了按关键字过滤
-		if (empty($oOptions->keyword)) {
+		if (empty($oCriteria->keyword)) {
 			$w .= " and rd.value<>''";
 		} else {
-			$w .= " and (rd.value like '%" . $this->escape($oOptions->keyword) . "%' or rd.supplement like '%" . $this->escape($oOptions->keyword) . "%')";
+			$w .= " and (rd.value like '%" . $this->escape($oCriteria->keyword) . "%' or rd.supplement like '%" . $this->escape($oCriteria->keyword) . "%')";
 		}
 
 		// 查询参数
-		$fields = 'rd.id,rd.state,rd.enroll_key,rd.rid,rd.purpose,rd.submit_at enroll_at,rd.userid,rd.group_id,rd.nickname,rd.schema_id,rd.value,rd.score,rd.agreed,rd.like_num,rd.like_log,rd.remark_num,rd.dislike_num,rd.dislike_log,r.data';
+		$fields = 'rd.id,rd.state,rd.enroll_key,rd.rid,rd.purpose,rd.submit_at enroll_at,rd.userid,rd.group_id,rd.nickname,rd.schema_id,rd.value,rd.score,rd.agreed,rd.like_num,rd.like_log,rd.remark_num,rd.dislike_num,rd.dislike_log';
+		$table = "xxt_enroll_record_data rd";
 
-		$w .= " and rd.enroll_key = r.enroll_key and r.state = 1";
-		$q = [$fields, "xxt_enroll_record_data rd,xxt_enroll_record r", $w];
+		if (!empty($oOptions->joinDataByRecord)) {
+			$fields .= ',r.data';
+			$table .= ",xxt_enroll_record r";
+			$w .= " and rd.enroll_key = r.enroll_key and r.state = 1";
+		}
 
+		$q = [$fields, $table, $w];
 		$q2 = [];
 		// 查询结果分页
 		if (!empty($oOptions->page) && !empty($oOptions->size)) {
@@ -1252,43 +1254,45 @@ class data_model extends entity_model {
 				$aRecData->dislike_log = empty($aRecData->dislike_log) ? new \stdClass : json_decode($aRecData->dislike_log);
 			}
 
-			$data = str_replace("\n", ' ', $aRecData->data);
-			$data = json_decode($data);
-			if ($data === null) {
-				$aRecData->data = 'json error(' . json_last_error_msg() . '):' . $aRecData->data;
-			} else {
-				$aRecData->data = $data;
-				/* 处理提交数据后分组的问题 */
-				if (!empty($aRecData->group_id) && !isset($aRecData->data->_round_id)) {
-					$aRecData->data->_round_id = $aRecData->group_id;
-				}
-				/* 处理提交数据后指定昵称题的问题 */
-				if ($aRecData->nickname && isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') {
-					if (isset($oApp->assignedNickname->schema->id)) {
-						$nicknameSchemaId = $oApp->assignedNickname->schema->id;
-						if (0 === strpos($nicknameSchemaId, 'member.')) {
-							$nicknameSchemaId = explode('.', $nicknameSchemaId);
-							if (!isset($aRecData->data->member)) {
-								$aRecData->data->member = new \stdClass;
-							}
-							if (!isset($aRecData->data->member->{$nicknameSchemaId[1]})) {
-								$aRecData->data->member->{$nicknameSchemaId[1]} = $aRecData->nickname;
-							}
-						} else {
-							if (!isset($aRecData->data->{$nicknameSchemaId})) {
-								$aRecData->data->{$nicknameSchemaId} = $oRec->nickname;
+			if (!empty($aRecData->data)) {
+				$data = str_replace("\n", ' ', $aRecData->data);
+				$data = json_decode($data);
+				if ($data === null) {
+					$aRecData->data = 'json error(' . json_last_error_msg() . '):' . $aRecData->data;
+				} else {
+					$aRecData->data = $data;
+					/* 处理提交数据后分组的问题 */
+					if (!empty($aRecData->group_id) && !isset($aRecData->data->_round_id)) {
+						$aRecData->data->_round_id = $aRecData->group_id;
+					}
+					/* 处理提交数据后指定昵称题的问题 */
+					if ($aRecData->nickname && isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') {
+						if (isset($oApp->assignedNickname->schema->id)) {
+							$nicknameSchemaId = $oApp->assignedNickname->schema->id;
+							if (0 === strpos($nicknameSchemaId, 'member.')) {
+								$nicknameSchemaId = explode('.', $nicknameSchemaId);
+								if (!isset($aRecData->data->member)) {
+									$aRecData->data->member = new \stdClass;
+								}
+								if (!isset($aRecData->data->member->{$nicknameSchemaId[1]})) {
+									$aRecData->data->member->{$nicknameSchemaId[1]} = $aRecData->nickname;
+								}
+							} else {
+								if (!isset($aRecData->data->{$nicknameSchemaId})) {
+									$aRecData->data->{$nicknameSchemaId} = $oRec->nickname;
+								}
 							}
 						}
 					}
-				}
-				/* 根据题目的可见性处理数据 */
-				if (count($visibilitySchemas)) {
-					$fnCheckSchemaVisibility($visibilitySchemas, $aRecData->data);
-				}
+					/* 根据题目的可见性处理数据 */
+					if (count($visibilitySchemas)) {
+						$fnCheckSchemaVisibility($visibilitySchemas, $aRecData->data);
+					}
 
-				// 将此答案添加道data中
-				$aRecData->data->{$aRecData->schema_id} = [$aRecData->value];
-				unset($aRecData->value);
+					// 将此答案添加道data中
+					$aRecData->data->{$aRecData->schema_id} = [$aRecData->value];
+					unset($aRecData->value);
+				}
 			}
 			
 			// 记录的分组
@@ -1306,7 +1310,6 @@ class data_model extends entity_model {
 					$aRecData->group = $oGroup;
 				}
 			}
-			// 用户的分组
 
 			// 记录的记录轮次
 			if (!empty($aRecData->rid)) {

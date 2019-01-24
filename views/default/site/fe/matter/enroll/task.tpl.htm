@@ -41,18 +41,20 @@
             </div>
         </div>
         <div class='tasks'>
-            <div class='task state-{{task.data.rule.state}} list-group-item ' ng-repeat="task in tasks">
-                <div ng-bind="::task.msg"></div>
+            <div class='task state-{{task.state}} list-group-item ' ng-repeat="task in tasks">
+                <div ng-bind="::task"></div>
                 <div>
-                    <span ng-if="task.data.start_at">开始：{{::task.data.start_at*1000|date:'MM-dd HH:mm'}}</span>
-                    <span ng-if="task.data.end_at">结束：{{::task.data.end_at*1000|date:'MM-dd HH:mm'}}</span>
-                    <span ng-bind="Label.task.state[task.data.rule.state]"></span>
+                    <span ng-if="task.start_at">开始：{{::task.start_at*1000|date:'MM-dd HH:mm'}}</span>
+                    <span ng-if="task.end_at">结束：{{::task.end_at*1000|date:'MM-dd HH:mm'}}</span>
+                    <span ng-bind="::Label.task.state[task.state]"></span>
                 </div>
-                <div ng-if="task.data.rule.state==='IP'">
-                    <span ng-if="task.data.rule.type==='question'"><a href class="alert-link" ng-click="question(task.data)">去提问</a></span>
-                    <span ng-if="task.data.rule.type==='answer'"><a href class="alert-link" ng-click="answer(task.data)">去回答</a></span>
-                    <span ng-if="task.data.rule.type==='vote'"><a href class="alert-link" ng-click="vote(task.data)">去投票</a></span>
-                    <span ng-if="task.data.rule.type==='score'"><a href class="alert-link" ng-click="score(task.data)">去打分</a></span>
+                <div ng-switch on="task.type">
+                    <a href class="alert-link" ng-click="gotoTask(task)">
+                        <span ng-switch-when="question">去提问</span>
+                        <span ng-switch-when="answer">去回答</span>
+                        <span ng-switch-when="vote">去投票</span>
+                        <span ng-switch-when="score">去打分</span>
+                    </a>
                 </div>
             </div>
         </div>

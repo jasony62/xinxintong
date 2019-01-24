@@ -684,6 +684,7 @@ class record extends main_base {
 			$oRecData = new \stdClass;
 			$oRecData->aid = $oTargetApp->id;
 			$oRecData->rid = empty($oTargetAppRnd->rid) ? '' : $oTargetAppRnd->rid;
+			$oRecData->record_id = $oNewRec->id;
 			$oRecData->enroll_key = $oNewRec->enroll_key;
 			$oRecData->submit_at = $current;
 			$oRecData->userid = isset($oMockRecUser->uid) ? $oMockRecUser->uid : '';
@@ -716,6 +717,7 @@ class record extends main_base {
 				$oNewItem = new \stdClass;
 				$oNewItem->aid = $oRecData->aid;
 				$oNewItem->rid = $oRecData->rid;
+				$oNewItem->record_id = $oRecData->record_id;
 				$oNewItem->enroll_key = $oRecData->enroll_key;
 				$oNewItem->submit_at = $current;
 				$oNewItem->userid = isset($oMockAnswerUser->uid) ? $oMockAnswerUser->uid : '';
@@ -847,6 +849,7 @@ class record extends main_base {
 			$oRecData = new \stdClass;
 			$oRecData->aid = $oTargetApp->id;
 			$oRecData->rid = empty($oTargetAppRnd->rid) ? '' : $oTargetAppRnd->rid;
+			$oRecData->record_id = $oNewRec->id;
 			$oRecData->enroll_key = $oNewRec->enroll_key;
 			$oRecData->submit_at = $current;
 			$oRecData->userid = isset($oMockRecUser->uid) ? $oMockRecUser->uid : '';
@@ -872,6 +875,7 @@ class record extends main_base {
 				$oRecCowork = new \stdClass;
 				$oRecCowork->aid = $oRecData->aid;
 				$oRecCowork->rid = $oRecData->rid;
+				$oRecCowork->record_id = $oRecData->record_id;
 				$oRecCowork->enroll_key = $oRecData->enroll_key;
 				$oRecCowork->submit_at = $current;
 				$oRecCowork->userid = isset($oMockAnswerUser->uid) ? $oMockAnswerUser->uid : '';

@@ -74,6 +74,7 @@ class copy_model extends \TMS_MODEL {
 				$oRecData = new \stdClass;
 				$oRecData->aid = $oNewRec->aid;
 				$oRecData->rid = $oNewRec->rid;
+				$oRecData->record_id = $oNewRec->id;
 				$oRecData->enroll_key = $oNewRec->enroll_key;
 				$oRecData->submit_at = time();
 				$oRecData->userid = $oNewRec->userid;

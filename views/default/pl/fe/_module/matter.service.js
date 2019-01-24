@@ -1402,6 +1402,7 @@ service('tkEnrollApp', ['$q', '$uibModal', 'http2', function($q, $uibModal, http
                         if (_oResult.app)
                             $mi.close(_oResult.app);
                     };
+                    $scope2.doSearch();
                 }],
                 backdrop: 'static'
             }).result.then(function(oApp) {

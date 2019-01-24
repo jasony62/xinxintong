@@ -22,7 +22,7 @@ class history extends \site\fe\base {
 	public function appList_action($site = '', $matterType = 'enroll,signin', $userid = '') {
 		$modelAct = $this->model('site\user\account');
 		$q = [
-			'matter_id,matter_type,matter_title,operate_at',
+			'matter_id,matter_type,matter_title,operate_at,siteid',
 			'xxt_log_user_matter',
 			"user_last_op='Y' and operation='submit'",
 		];
@@ -114,7 +114,7 @@ class history extends \site\fe\base {
 	public function missionList_action($site, $userid = '') {
 		$modelAct = $this->model('site\user\account');
 		$q = [
-			'distinct mission_id,mission_title',
+			'distinct mission_id,mission_title,siteid',
 			'xxt_log_user_matter',
 			"mission_id<>0 and user_last_op='Y'",
 		];

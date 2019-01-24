@@ -32,10 +32,10 @@
 </div>
 <div class='checkbox' ng-if="-1===tkEntryRule.excludeRules.indexOf('enroll')">
     <label>
-        <input type='checkbox' ng-true-value="'Y'" ng-model="tkEntryRule.rule.scope.enroll" ng-change="tkEntryRule.changeUserScope('enroll')">用户参与活动前需要在登记活动</label><span class='badge' ng-if="tkEntryRule.rule.scope.enroll==='Y'"><a href='/rest/pl/fe/matter/enroll?site={{tkEntryRule.matter.siteid}}&id={{tkEntryRule.rule.enroll.id}}' target='_blank'>{{tkEntryRule.rule.enroll.title}}</a></span>中有填写记录 <a ng-if="tkEntryRule.rule.scope.enroll==='Y'" href ng-click="tkEntryRule.chooseEnrollApp()">指定</a>
+        <input type='checkbox' ng-true-value="'Y'" ng-model="tkEntryRule.rule.scope.enroll" ng-change="tkEntryRule.changeUserScope('enroll')">用户参与活动前需要在记录活动</label><span class='badge' ng-if="tkEntryRule.rule.scope.enroll==='Y'"><a href='/rest/pl/fe/matter/enroll?site={{tkEntryRule.matter.siteid}}&id={{tkEntryRule.rule.enroll.id}}' target='_blank'>{{tkEntryRule.rule.enroll.title}}</a></span>中有填写记录 <a ng-if="tkEntryRule.rule.scope.enroll==='Y'" href ng-click="tkEntryRule.chooseEnrollApp()">指定</a>
     <div style='margin-left:20px'>
         <label class='checkbox-inline'>
-            <input type='checkbox' ng-true-value="'Y'" ng-model="tkEntryRule.rule.optional.enroll" ng-change="tkEntryRule.changeUserScope('enroll')">不强制要求用户在登记活动中</label>
+            <input type='checkbox' ng-true-value="'Y'" ng-model="tkEntryRule.rule.optional.enroll" ng-change="tkEntryRule.changeUserScope('enroll')">不强制要求用户在记录活动中</label>
     </div>
 </div>
 <div ng-if="!tkEntryRule.noSave">

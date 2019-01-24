@@ -71,14 +71,19 @@ class register extends \site\fe\base {
 		$oRegUser = $oRegUser[1];
 
 		/* cookie中保留注册信息 */
-		$cookieRegUser = $modelWay->shiftRegUser($oRegUser, false);
-		$cookieRegUser->login = (object) ['uname' => $uname, 'nickname' => $aOptions['nickname']];
+		$aResult = $modelWay->shiftRegUser($oRegUser, false);
+		if (false === $aResult[0]) {
+			return new \ResponseError($aResult[1]);
+		}
+		$oCookieRegUser = $aResult[1];
+
+		$oCookieRegUser->login = (object) ['uname' => $uname, 'nickname' => $aOptions['nickname']];
 
 		if ($referer = $this->myGetCookie('_user_access_referer')) {
-			$cookieRegUser->_loginReferer = $referer;
+			$oCookieRegUser->_loginReferer = $referer;
 			$this->mySetCookie('_user_access_referer', null);
 		}
 
-		return new \ResponseData($cookieRegUser);
+		return new \ResponseData($oCookieRegUser);
 	}
 }

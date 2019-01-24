@@ -11,7 +11,7 @@ class topic extends base {
 	 */
 	public function get_action($topic) {
 		$modelTop = $this->model('matter\enroll\topic', null);
-		$oTopic = $modelTop->byId($topic, ['fields' => 'id,siteid,aid,state,unionid,userid,group_id,nickname,create_at,title,summary,rec_num,share_in_group']);
+		$oTopic = $modelTop->byId($topic, ['fields' => 'id,siteid,aid,state,unionid,userid,group_id,nickname,create_at,title,summary,rec_num,share_in_group,task_id']);
 		if (false === $oTopic || $oTopic->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -19,6 +19,15 @@ class topic extends base {
 		$oApp = $this->model('matter\enroll')->byId($oTopic->aid, ['cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
+		}
+
+		/* 活动任务的专题 */
+		if (!empty($oTopic->task_id)) {
+			$modelTsk = $this->model('matter\enroll\task', $oApp);
+			$oTask = $modelTsk->byId($oTopic->task_id);
+			if ($oTask) {
+				$oTopic->task = $oTask;
+			}
 		}
 
 		/* 是否设置了编辑组统一名称 */
@@ -277,12 +286,39 @@ class topic extends base {
 	}
 	/**
 	 * 指定记录的专题
+	 *
+	 * @param int $task 放入指定任务的专题
 	 */
-	public function assign_action($record) {
-		$oPosted = $this->getPostJson();
-		$aAfterTopicIds = $oPosted->topic;
-		if (!isset($aAfterTopicIds) || !is_array($aAfterTopicIds)) {
-			return new \ParameterError('没有指定专题');
+	public function assign_action($record, $data = null, $task = null) {
+		$modelRec = $this->model('matter\enroll\record');
+		$q = ['id,aid,siteid,state', 'xxt_enroll_record', ['id' => $record]];
+		$oRecord = $modelRec->query_obj_ss($q);
+		if (false === $oRecord || $oRecord->state !== '1') {
+			return new \ObjectNotFoundError('指定的记录不存在或不可用');
+		}
+		$oApp = $this->model('matter\enroll')->byId($oRecord->aid, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelTop = $this->model('matter\enroll\topic', $oApp);
+		if (isset($task)) {
+			$modelTsk = $this->model('matter\enroll\task', $oApp);
+			$oTask = $modelTsk->byId($task);
+			if (false === $oTask || $oTask->state !== 'IP') {
+				return new \ObjectNotFoundError('指定的任务不存在或不可用（1）');
+			}
+			$oTopic = $modelTop->byTask($oTask);
+			if (false === $oTopic) {
+				return new \ObjectNotFoundError('指定的任务不存在或不可用（1）');
+			}
+			$aAfterTopicIds = [$oTopic->id];
+		} else {
+			$oPosted = $this->getPostJson();
+			$aAfterTopicIds = $oPosted->topic;
+			if (!isset($aAfterTopicIds) || !is_array($aAfterTopicIds)) {
+				return new \ParameterError('没有指定专题');
+			}
 		}
 
 		$oUser = $this->who;
@@ -290,14 +326,17 @@ class topic extends base {
 			return new \ResponseError('仅支持注册用户创建，请登录后再进行此操作');
 		}
 
-		$modelRec = $this->model('matter\enroll\record');
-		$q = ['id,aid,siteid,state', 'xxt_enroll_record', ['id' => $record]];
-		$oRecord = $modelRec->query_obj_ss($q);
-		if (false === $oRecord || $oRecord->state !== '1') {
-			return new \ObjectNotFoundError();
+		if (!empty($data)) {
+			$modelDat = $this->model('matter\enroll\data');
+			$oRecData = $modelDat->byId($data, ['fields' => '*']);
+			if (false === $oRecData || $oRecData->state !== '1') {
+				return new \ObjectNotFoundError('指定的数据不存在或不可用');
+			}
 		}
 
 		$q = ['topic_id', 'xxt_enroll_topic_record', ['record_id' => $oRecord->id]];
+		$q[2]['data_id'] = isset($oRecData) ? $oRecData->id : 0;
+
 		$aBeforeTopicIds = $modelRec->query_vals_ss($q);
 
 		$countOfNew = 0;
@@ -312,13 +351,13 @@ class topic extends base {
 			$aDelTopicIds = array_diff($aBeforeTopicIds, $aAfterTopicIds);
 		}
 
-		$modelTop = $this->model('matter\enroll\topic', null);
 		/* 新指定的专题 */
 		if (count($aNewTopicIds)) {
 			$oProtoNewRel = new \stdClass;
 			$oProtoNewRel->aid = $oRecord->aid;
 			$oProtoNewRel->siteid = $oRecord->siteid;
 			$oProtoNewRel->record_id = $oRecord->id;
+			isset($oRecData) && $oProtoNewRel->data_id = $oRecData->id;
 			$oProtoNewRel->assign_at = time();
 			foreach ($aNewTopicIds as $topicId) {
 				$oProtoNewRel->topic_id = $topicId;
@@ -379,7 +418,9 @@ class topic extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oRecInTop = $modelTop->query_obj_ss(['id,seq', 'xxt_enroll_topic_record', ['record_id' => $modelTop->escape($oPosted->record), 'topic_id' => $oTopic->id]]);
+		$q = ['id,seq', 'xxt_enroll_topic_record', ['record_id' => $modelTop->escape($oPosted->record), 'topic_id' => $oTopic->id]];
+		$q[2]['data_id'] = 0;
+		$oRecInTop = $modelTop->query_obj_ss($q);
 		if (false === $oRecInTop) {
 			return new \ObjectNotFoundError();
 		}
@@ -422,7 +463,7 @@ class topic extends base {
 			return new \ResponseError('仅支持注册用户修改，请登录后再进行此操作');
 		}
 		$oPosted = $this->getPostJson();
-		if (empty($oPosted->record)) {
+		if (empty($oPosted->id_in_topic)) {
 			return new \ParameterError();
 		}
 		$modelTop = $this->model('matter\enroll\topic', null);
@@ -431,7 +472,8 @@ class topic extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oRecInTop = $modelTop->query_obj_ss(['id,seq', 'xxt_enroll_topic_record', ['record_id' => $modelTop->escape($oPosted->record), 'topic_id' => $oTopic->id]]);
+		$q = ['id,seq', 'xxt_enroll_topic_record', ['id' => $modelTop->escape($oPosted->id_in_topic), 'topic_id' => $oTopic->id]];
+		$oRecInTop = $modelTop->query_obj_ss($q);
 		if (false === $oRecInTop) {
 			return new \ObjectNotFoundError();
 		}

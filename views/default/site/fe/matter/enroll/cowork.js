@@ -24,7 +24,8 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             var oRecord;
             oRecord = rsp.data;
             oRecord._canAgree = fnCanAgreeRecord(oRecord, _oUser);
-            $scope.record = oRecord
+            console.log(oRecord);
+            $scope.record = oRecord;
             /* 设置页面分享信息 */
             $scope.setSnsShare(oRecord, null, { target_type: 'cowork', target_id: oRecord.id });
             /*页面阅读日志*/
@@ -360,7 +361,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         }
     };
     $scope.listRemark = function(oRecord) {
-        $scope.$broadcast('transfer.param', { 0: 'record', 1: oRecord });
+        $scope.transferParam = { 0: 'record', 1: oRecord };
         $scope.selectedView.url = '/views/default/site/fe/matter/enroll/template/cowork-remark.html';
     };
     $scope.likeRecord = function() {
@@ -476,6 +477,9 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             location.href = url;
         }
     };
+    $scope.$on('transfer.param', function(event, data) {
+        $scope.transferParam = data;
+    });
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var oSchemasById, aCoworkSchemas, aVisibleSchemas, templateUrl;
         _oApp = params.app;
@@ -643,7 +647,7 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
         }
     };
     $scope.listItemRemark = function(oItem) {
-        $rootScope.$broadcast('transfer.param', { 0: 'coworkData', 1: oItem });
+        $scope.$emit('transfer.param', { 0: 'coworkData', 1: oItem });
         $scope.selectedView.url = '/views/default/site/fe/matter/enroll/template/cowork-remark.html';
     };
     $scope.shareItem = function(oItem) {
@@ -938,24 +942,32 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$location', '$uibModal', '$anch
         }
         location.href = url;
     };
-    $scope.writeRemark = function() {
-        switch (oType) {
-            case 'record':
+    $scope.writeRemark = function(oUpperRemark) {
+        if (oUpperRemark) {
+            writeRemark(oUpperRemark);
+        } else {
+            if (!oType) {
                 writeRemark();
-                break;
-            case 'coworkData':
-                writeItemRemark(oData);
-                break;
-            case 'remark':
-                writeRemark();
-                break;
+            } else {
+                switch (oType) {
+                    case 'record':
+                        writeRemark();
+                        break;
+                    case 'coworkData':
+                        writeItemRemark(oData);
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
     };
 
     var oType, oData;
-    $scope.$on('transfer.param', function(event, data) {
-        oType = data[0];
-        oData = data[1];
+    $scope.$watch('transferParam', function(nv) {
+        if (!nv) { return false; }
+        oType = nv[0];
+        oData = nv[1];
     });
     $scope.$watch('record', function(oRecord) {
         listRemarks();

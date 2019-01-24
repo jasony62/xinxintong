@@ -1,1 +1,3738 @@
-!function(e){function t(i){if(n[i])return n[i].exports;var o=n[i]={i:i,l:!1,exports:{}};return e[i].call(o.exports,o,o.exports,t),o.l=!0,o.exports}var n={};t.m=e,t.c=n,t.i=function(e){return e},t.d=function(e,n,i){t.o(e,n)||Object.defineProperty(e,n,{configurable:!1,enumerable:!0,get:i})},t.n=function(e){var n=e&&e.__esModule?function(){return e.default}:function(){return e};return t.d(n,"a",n),n},t.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},t.p="",t(t.s=136)}({0:function(e,t){function n(e,t){var n=e[1]||"",o=e[3];if(!o)return n;if(t&&"function"==typeof btoa){var a=i(o);return[n].concat(o.sources.map(function(e){return"/*# sourceURL="+o.sourceRoot+e+" */"})).concat([a]).join("\n")}return[n].join("\n")}function i(e){return"/*# sourceMappingURL=data:application/json;charset=utf-8;base64,"+btoa(unescape(encodeURIComponent(JSON.stringify(e))))+" */"}e.exports=function(e){var t=[];return t.toString=function(){return this.map(function(t){var i=n(t,e);return t[2]?"@media "+t[2]+"{"+i+"}":i}).join("")},t.i=function(e,n){"string"==typeof e&&(e=[[null,e,""]]);for(var i={},o=0;o<this.length;o++){var a=this[o][0];"number"==typeof a&&(i[a]=!0)}for(o=0;o<e.length;o++){var r=e[o];"number"==typeof r[0]&&i[r[0]]||(n&&!r[2]?r[2]=n:n&&(r[2]="("+r[2]+") and ("+n+")"),t.push(r))}},t}},1:function(e,t,n){function i(e,t){for(var n=0;n<e.length;n++){var i=e[n],o=m[i.id];if(o){o.refs++;for(var a=0;a<o.parts.length;a++)o.parts[a](i.parts[a]);for(;a<i.parts.length;a++)o.parts.push(d(i.parts[a],t))}else{for(var r=[],a=0;a<i.parts.length;a++)r.push(d(i.parts[a],t));m[i.id]={id:i.id,refs:1,parts:r}}}}function o(e,t){for(var n=[],i={},o=0;o<e.length;o++){var a=e[o],r=t.base?a[0]+t.base:a[0],s=a[1],c=a[2],l=a[3],d={css:s,media:c,sourceMap:l};i[r]?i[r].parts.push(d):n.push(i[r]={id:r,parts:[d]})}return n}function a(e,t){var n=f(e.insertInto);if(!n)throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");var i=b[b.length-1];if("top"===e.insertAt)i?i.nextSibling?n.insertBefore(t,i.nextSibling):n.appendChild(t):n.insertBefore(t,n.firstChild),b.push(t);else{if("bottom"!==e.insertAt)throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");n.appendChild(t)}}function r(e){if(null===e.parentNode)return!1;e.parentNode.removeChild(e);var t=b.indexOf(e);t>=0&&b.splice(t,1)}function s(e){var t=document.createElement("style");return e.attrs.type="text/css",l(t,e.attrs),a(e,t),t}function c(e){var t=document.createElement("link");return e.attrs.type="text/css",e.attrs.rel="stylesheet",l(t,e.attrs),a(e,t),t}function l(e,t){Object.keys(t).forEach(function(n){e.setAttribute(n,t[n])})}function d(e,t){var n,i,o,a;if(t.transform&&e.css){if(!(a=t.transform(e.css)))return function(){};e.css=a}if(t.singleton){var l=x++;n=v||(v=s(t)),i=u.bind(null,n,l,!1),o=u.bind(null,n,l,!0)}else e.sourceMap&&"function"==typeof URL&&"function"==typeof URL.createObjectURL&&"function"==typeof URL.revokeObjectURL&&"function"==typeof Blob&&"function"==typeof btoa?(n=c(t),i=p.bind(null,n,t),o=function(){r(n),n.href&&URL.revokeObjectURL(n.href)}):(n=s(t),i=h.bind(null,n),o=function(){r(n)});return i(e),function(t){if(t){if(t.css===e.css&&t.media===e.media&&t.sourceMap===e.sourceMap)return;i(e=t)}else o()}}function u(e,t,n,i){var o=n?"":i.css;if(e.styleSheet)e.styleSheet.cssText=y(t,o);else{var a=document.createTextNode(o),r=e.childNodes;r[t]&&e.removeChild(r[t]),r.length?e.insertBefore(a,r[t]):e.appendChild(a)}}function h(e,t){var n=t.css,i=t.media;if(i&&e.setAttribute("media",i),e.styleSheet)e.styleSheet.cssText=n;else{for(;e.firstChild;)e.removeChild(e.firstChild);e.appendChild(document.createTextNode(n))}}function p(e,t,n){var i=n.css,o=n.sourceMap,a=void 0===t.convertToAbsoluteUrls&&o;(t.convertToAbsoluteUrls||a)&&(i=w(i)),o&&(i+="\n/*# sourceMappingURL=data:application/json;base64,"+btoa(unescape(encodeURIComponent(JSON.stringify(o))))+" */");var r=new Blob([i],{type:"text/css"}),s=e.href;e.href=URL.createObjectURL(r),s&&URL.revokeObjectURL(s)}var m={},g=function(e){var t;return function(){return void 0===t&&(t=e.apply(this,arguments)),t}}(function(){return window&&document&&document.all&&!window.atob}),f=function(e){var t={};return function(n){return void 0===t[n]&&(t[n]=e.call(this,n)),t[n]}}(function(e){return document.querySelector(e)}),v=null,x=0,b=[],w=n(4);e.exports=function(e,t){if("undefined"!=typeof DEBUG&&DEBUG&&"object"!=typeof document)throw new Error("The style-loader cannot be used in a non-browser environment");t=t||{},t.attrs="object"==typeof t.attrs?t.attrs:{},t.singleton||(t.singleton=g()),t.insertInto||(t.insertInto="head"),t.insertAt||(t.insertAt="bottom");var n=o(e,t);return i(n,t),function(e){for(var a=[],r=0;r<n.length;r++){var s=n[r],c=m[s.id];c.refs--,a.push(c)}if(e){i(o(e,t),t)}for(var r=0;r<a.length;r++){var c=a[r];if(0===c.refs){for(var l=0;l<c.parts.length;l++)c.parts[l]();delete m[c.id]}}}};var y=function(){var e=[];return function(t,n){return e[t]=n,e.filter(Boolean).join("\n")}}()},10:function(e,t,n){"use strict";function i(e,t){var n,i,o;n=document.createDocumentFragment(),i=document.createElement("div"),i.setAttribute("id","frmPlugin"),o=document.createElement("iframe"),i.appendChild(o),i.onclick=function(){i.parentNode.removeChild(i)},n.appendChild(i),document.body.appendChild(n),0===e.indexOf("http")?(window.onClosePlugin=function(){i.parentNode.removeChild(i),t&&t()},o.setAttribute("src",e)):o.contentDocument&&o.contentDocument.body&&(o.contentDocument.body.innerHTML=e)}angular.module("coinpay.ui.xxt",[]).service("tmsCoinPay",function(){this.showSwitch=function(e,t){var n;n=document.createElement("div"),n.classList.add("tms-switch","tms-switch-coinpay"),n.addEventListener("click",function(n){n.preventDefault(),n.stopPropagation();var o=location.protocol+"//"+location.host;o+="/rest/site/fe/coin/pay",o+="?site="+e,o+="&matter="+t,i(o)},!0),document.body.appendChild(n)}})},11:function(e,t,n){"use strict";angular.module("picviewer.ui.xxt",[]).factory("picviewer",["$q",function(e){var t={isArray:function(e){return"[object Array]"==Object.prototype.toString.call(e)},all:function(e,t){var n,i=[];return n=t?t.querySelectorAll(e):document.querySelectorAll(e),n&&n.length>0&&(i=Array.prototype.slice.call(n)),i},delegate:function(e,t,n,i){var o=this;e&&e.addEventListener(t,function(t){var a=o.all(n,e);if(a)for(var r=0;r<a.length;r++)for(var s=t.target;s;){if(s==a[r]){i.call(s,t);break}if((s=s.parentNode)==e)break}},!1)}},n=function(){this.winw=window.innerWidth||document.body.clientWidth,this.winh=window.innerHeight+1||document.body.clientHeight,this.originWinw=this.winw,this.originWinh=this.winh,this.marginRight=15,this.imageChageMoveX=this.marginRight+this.winw,this.imageChageNeedX=Math.floor(.5*this.winw),this.cssprefix=["","webkit","Moz","ms","o"],this.imgLoadCache=new Object,this.scale=1,this.maxScale=4,this.maxOverScale=6,this.openTime=.3,this.slipTime=.5,this.maxOverWidthPercent=.5,this.box=!1,this.isPreview=!1,this.container=document.createElement("div"),this.container.setAttribute("id","previewImage-container"),this.container.style.width=this.winw+"px",this.container.style.height=this.winh+"px",document.body.appendChild(this.container),this.bind()};return n.prototype.bind=function(){var e=this,n=this.container,i=function(){e.setCloseStatus.call(e)},o=function(){e.touchStartFun.call(e)},a=function(){e.touchMoveFun.call(e)},r=function(){e.touchEndFun.call(e)},s=function(){var e=this;e.winw=window.innerWidth||document.body.clientWidth,e.winh=window.innerHeight||document.body.clientHeight,e.originWinw=e.winw,e.originWinh=e.winh,e.container.style.width=e.winw+"px",e.container.style.height=e.winh+"px",e.imageChageMoveX=e.marginRight+e.winw;var t=-e.imageChageMoveX*e.index;try{e.boxData.x=t,e.translateScale(e.bIndex,0)}catch(e){}}.bind(this),c=function(){37==event.keyCode?this.prev&&this.prev():39==event.keyCode&&this.next&&this.next()}.bind(this);window.addEventListener("resize",s,!1),document.addEventListener("keydown",c,!1),t.delegate(n,"click",".previewImage-item",i),t.delegate(n,"touchstart",".previewImage-item",o),t.delegate(n,"touchmove",".previewImage-item",a),t.delegate(n,"touchend",".previewImage-item",r),t.delegate(n,"touchcancel",".previewImage-item",r)},n.prototype.setCloseStatus=function(){this.winw>992?1==this.urls.length||this.index==this.maxLen?this.closePreview():this.next&&this.next():this.closePreview()},n.prototype.closePreview=function(){var e=this;this.imgStatusCache[this.cIndex].x=this.winw,this.translateScale(this.cIndex,this.openTime),this.imgStatusRewrite(),this.translateScale(this.index,this.slipTime),setTimeout(function(){e.container.style.display="none",document.body.style.overflow="auto"},1e3*this.slipTime),e.isPreview=!1},n.prototype.touchStartFun=function(e){this.ts=this.getTouches(),this.allowMove=!0,this.statusX=0,this.statusY=0},n.prototype.touchMoveFun=function(e){this.tm=this.getTouches();var t=this.tm,n=this.ts;this.moveAction(n,t)},n.prototype.touchEndFun=function(e){this.container,this.te=this.getTouches(),this.endAction(this.ts,this.te)},n.prototype.moveAction=function(e,t){if(!this.allowMove)return!1;var n,i,o,a,r,s,c,l;if(n=this.getIndexImage(),i=.3*this.winw/n.scale,o=t.x0-e.x0,a=t.y0-e.y0,Math.abs(a)>0&&event.preventDefault(),r=n.x+o,s=n.y+a,c=this.getAllow(this.index),l=this.allowX=c.x,this.allowY=c.y0,o<=0&&(this.allowX=-l),a<=0&&(this.allowY=c.y1),1==t.length)if(n.scale>1){if(s>=c.y0){this.statusY=1;var d=s-c.y0;n.my=c.y0-n.y+this.getSlowlyNum(d,i)}else if(s<=c.y1){this.statusY=1;var d=s-c.y1;n.my=c.y1-n.y+this.getSlowlyNum(d,i)}else this.statusY=2,n.my=a;if(o<0&&n.x<=-l)this.statusX=1,this.boxData.m=o,this.index==this.maxLen&&(this.boxData.m=this.getSlowlyNum(o)),this.translateScale(this.bIndex,0),this.translateScale(this.index,0);else if(o>0&&n.x>=l)this.statusX=2,this.boxData.m=o,0==this.index&&(this.boxData.m=this.getSlowlyNum(o)),this.translateScale(this.bIndex,0),this.translateScale(this.index,0);else{if(0==o)return;if(this.statusX=3,n.m=o,r>=l){this.statusX=4;var u=r-l;n.m=l-n.x+this.getSlowlyNum(u,i)}if(r<=-l){this.statusX=4;var u=r+l;n.m=-l-n.x+this.getSlowlyNum(u,i)}this.translateScale(this.index,0)}}else if(Math.abs(a)>5&&5!=this.statusX){var h=this.getJqElem(this.index),p=h.height-this.winh;if(a>0&&s>0)this.statusX=7,this.allowY=0,n.my=-n.y+this.getSlowlyNum(s,i);else if(a<0&&s<-p)if(this.statusX=7,h.height>this.winh){var d=s+p;this.allowY=-p,n.my=-p-n.y+this.getSlowlyNum(d,i)}else this.allowY=0,n.my=-n.y+this.getSlowlyNum(s,i);else this.statusX=6,n.my=a;this.translateScale(this.index,0)}else{if(6==this.statusX)return;this.statusX=5,0==this.index&&o>0||this.index==this.maxLen&&o<0?this.boxData.m=this.getSlowlyNum(o):this.boxData.m=o,this.translateScale(this.bIndex,0)}else{var m=this.getScale(e,t),g=m*n.scale;if(g>=this.maxScale){var f=g-this.maxScale;g=this.maxScale+this.getSlowlyNum(f,this.maxOverScale),m=g/n.scale}n.scalem=m,this.translateScale(this.index,0)}},n.prototype.endAction=function(e,t){var n,i,o,a;if(n=this.getIndexImage(),i=t.x0-e.x0,t.y0,e.y0,o=t.time-e.time,a=0,this.allowMove=!1,1==e.length){switch(Math.abs(i)>10&&event.preventDefault(),this.statusY){case 1:n.y=this.allowY,n.my=0,a=this.slipTime;break;case 2:n.y=n.y+n.my,n.my=0}switch(this.statusX){case 1:this.index!=this.maxLen&&(i<=-this.imageChageNeedX||o<200&&i<-30)?this.changeIndex(1):(this.changeIndex(0),0!=a&&this.translateScale(this.index,a));break;case 2:0!=this.index&&(i>=this.imageChageNeedX||o<200&&i>30)?this.changeIndex(-1):(this.changeIndex(0),0!=a&&this.translateScale(this.index,a));break;case 3:n.x=n.x+n.m,n.m=0,this.translateScale(this.index,a);break;case 4:n.x=this.allowX,n.m=0,a=this.slipTime,this.translateScale(this.index,a);break;case 5:i>=this.imageChageNeedX||o<200&&i>30?this.changeIndex(-1):i<=-this.imageChageNeedX||o<200&&i<-30?this.changeIndex(1):this.changeIndex(0);break;case 6:n.y=n.y+n.my,n.my=0;break;case 7:n.y=this.allowY,n.my=0,this.translateScale(this.index,this.slipTime)}}else{event.preventDefault();var r=n.scale*n.scalem,s=this.getJqElem(this.index);n.scale=r;var c=this.getAllow(this.index);n.x>c.x?(a=this.slipTime,n.x=c.x):n.x<-c.x&&(a=this.slipTime,n.x=-c.x),n.y>c.y0?(a=this.slipTime,n.y=c.y0):n.y<c.y1&&(a=this.slipTime,n.y=c.y1),s.height*n.scale<=this.winh&&(n.y=0),s.width*n.scale<=this.winw&&(n.x=0),n.scalem=1,r>this.maxScale?(n.scale=this.maxScale,a=this.slipTime):r<1&&(this.imgStatusRewrite(),a=this.slipTime),0!=a&&(this.changeIndex(0),this.translateScale(this.index,a))}},n.prototype.changeIndex=function(e){var t,n,i;this.getIndexImage(),t=this.index,0==this.index&&-1==e?this.index=this.index:this.index==this.maxLen&&1==e?this.index=this.index:(this.index+=e,this.ePage.innerHTML=this.index+1+"/"+(this.maxLen+1),n=this.imgStatusCache[this.index].hash,i=this.imgLoadCache[n],i.isload||(i.elem.src=this.urls[this.index],i.elem.onload=function(){i.isload=!0})),this.setActionStatus(),this.boxData.x=-this.imageChageMoveX*this.index,this.boxData.m=0,t!=this.index&&this.imgStatusRewrite(t),this.translateScale(this.bIndex,this.slipTime)},n.prototype.setActionStatus=function(){0==this.index?(this.ePrev.classList.add("hide"),this.eNext.classList.remove("hide")):this.index==this.maxLen?(this.ePrev.classList.remove("hide"),this.eNext.classList.add("hide")):(this.ePrev.classList.remove("hide"),this.eNext.classList.remove("hide"))},n.prototype.getTouches=function(e){var t=event.touches.length>0?event.touches:event.changedTouches,n={touches:t,length:t.length};return n.x0=t[0].pageX,n.y0=t[0].pageY,n.time=(new Date).getTime(),t.length>=2&&(n.x1=t[0].pageX,n.y1=t[1].pageY),n},n.prototype.getIndexImage=function(e){var e=void 0==e?this.index:e;return this.imgStatusCache[this.index]},n.prototype.getAllow=function(e){var t,n,i,o,a;return t=this.getJqElem(e),n=this.getIndexImage(e),i=Math.floor((t.width*n.scale-this.winw)/(2*n.scale)),t.height*n.scale<=this.winh?(o=0,a=0):t.height<=this.winh?(o=Math.floor((t.height*n.scale-this.winh)/(2*n.scale)),a=-o):(o=Math.floor(t.height*(n.scale-1)/(2*n.scale)),a=-Math.floor((t.height*(n.scale+1)-2*this.winh)/(2*n.scale))),{x:i,y0:o,y1:a}},n.prototype.getSlowlyNum=function(e,t){var t=t||this.winw*this.maxOverWidthPercent;return e<0?-(1-(e=-e)/(t+e))*e:(1-e/(t+e))*e},n.prototype.getScale=function(e,t){var n;return n=Math.sqrt(Math.pow(e.x1-e.x0,2)+Math.pow(e.y1-e.y0,2)),Math.sqrt(Math.pow(t.x1-t.x0,2)+Math.pow(t.y1-t.y0,2))/n},n.prototype.imgStatusRewrite=function(e){var t=void 0===e?this.index:e,n=this.imgStatusCache[t],i=n.scale,o=n.x,a=n.y;n.x=0,n.y=0,n.m=0,n.my=0,n.scale=1,n.scalem=1,t!=this.index&&(this.winw>992&&(n.scale=i,n.x=o,n.y=a),this.translateScale(t,this.slipTime))},n.prototype.translateScale=function(e,t){var n,i,o,a,r,s,c,l;n=this.imgStatusCache[e],i=this.getJqElem(e),o=n.scale*n.scalem,a=n.x+n.m,r=n.y+n.my,s="0px 0px 0px",c="scale3d("+o+","+o+",1) translate3d("+a+"px,"+r+"px,0px)",l="transform "+t+"s ease-out",this.winw>992&&(this.addCssPrefix(i,"transform-origin",s),c="translate3d("+a+"px,"+r+"px,0px) scale3d("+o+","+o+",1)"),this.addCssPrefix(i,"transition",l),this.addCssPrefix(i,"transform",c)},n.prototype.getJqElem=function(e){var t,e,n;return e=void 0==e?this.index:e,e<=this.maxLen?(n=this.imgStatusCache[e].hash,t=this.imgLoadCache[n].elem):t=this.imgStatusCache[e].elem,t},n.prototype.addCssPrefix=function(e,t,n){for(var i in this.cssprefix)if(t=""===this.cssprefix[i]?t.toLowerCase():t.substr(0,1).toUpperCase()+t.substr(1,t.length).toLowerCase(),void 0!==document.body.style[t])return e.style[t]=n,!1},n.prototype.prev=function(){this.index>0&&this.changeIndex(-1)},n.prototype.next=function(){this.index<this.maxLen&&this.changeIndex(1)},n.prototype.render=function(){var e=this;document.body.style.overflow="hidden",!1===this.box?(this.box=document.createElement("div"),this.box.setAttribute("class","previewImage-box")):this.box.innerHTML="",this.text=document.createElement("div"),this.text.setAttribute("class","previewImage-text"),this.text.innerHTML="<span class='page'>"+(this.index+1)+"/"+(this.maxLen+1)+"</span><span class='prev'><i class='glyphicon glyphicon-menu-left'></i></span><span class='next'><i class='glyphicon glyphicon-menu-right'></i></span><span class='exit'><i class='glyphicon glyphicon-remove'></i></span>",this.containerData=this.imgStatusCache[this.cIndex]={elem:this.container,x:this.winw,y:0,m:0,my:0,scale:1,scalem:1},this.boxData=this.imgStatusCache[this.bIndex]={elem:this.box,x:0,y:0,m:0,my:0,scale:1,scalem:1},this.urls.forEach(function(t,n){var i,o,a,r;i=document.createElement("div"),o=window.md5?md5(t+n):t+n,r=e.imgLoadCache[o],r&&r.isload?a=r.elem:(a=new Image,a.setAttribute("class","previewImage-image"),e.imgLoadCache[o]={isload:!1,elem:a},n==e.index&&(a.src=t,a.onload=function(){e.imgLoadCache[o].isload=!0})),e.imgStatusCache[n]={hash:o,x:0,m:0,y:0,my:0,scale:e.scale,scalem:1},i.setAttribute("class","previewImage-item"),i.appendChild(a),e.box.appendChild(i)}),this.container.appendChild(this.box),this.container.appendChild(this.text),this.ePage=document.querySelector(".previewImage-text span.page"),this.ePrev=document.querySelector(".previewImage-text span.prev"),this.eNext=document.querySelector(".previewImage-text span.next"),this.eCloser=document.querySelector(".previewImage-text span.exit");var t=-this.imageChageMoveX*this.index;this.boxData.x=t,this.containerData.x=0,this.container.style.display="block",setTimeout(function(){e.setActionStatus(),e.winw>992&&e.urls.forEach(function(t,n){var i,o,a,r,s,c,l=e;i=l.selectorEleAll[n],o=Math.min(l.winw/i.naturalWidth,l.winh/i.naturalHeight),a=r=0,a>0&&(a=0),s=Math.round(l.winw-function(){return i.naturalWidth*o}()),a<s&&(a=s<0?s:s/2),r>0&&(r=0),c=Math.round(l.winh-function(){return i.naturalHeight*o}()),r<c&&(r=c<0?c:c/2),l.imgStatusCache[n].x=a,l.imgStatusCache[n].y=r,l.imgStatusCache[n].scale=o,l.translateScale(n,0)}),e.translateScale(e.bIndex,0),e.translateScale(e.cIndex,e.openTime),e.isPreview=!0,e.ePrev.addEventListener("click",function(t){return t.preventDefault(),e.prev(),!1},!1),e.eNext.addEventListener("click",function(t){return t.preventDefault(),e.next(),!1},!1),e.eCloser.addEventListener("click",function(t){return t.preventDefault(),e.closePreview(),!1},!1)},50)},n.prototype.start=function(e){if(this.container.innerHTML="",!e.urls||!t.isArray(e.urls)||0==e.urls.length)return alert("urls must be a Array and the minimum length more than zero"),!1;if(e.current){var n=e.urls.indexOf(e.current);n<0&&(n=0,console.warn("current isnot on urls,it will be the first value of urls!")),this.index=n}else this.index=0,console.warn("current is empty,it will be the first value of urls!");this.selectorEleAll=e.elems,this.urls=e.urls,this.maxLen=e.urls.length-1,this.cIndex=this.maxLen+1,this.bIndex=this.maxLen+2,this.imgStatusCache=new Object,this.render()},n.prototype.init=function(e){var t=[],n=this;angular.forEach(e,function(i,o){t.push(i.src),i.addEventListener("click",function(){var i={elems:e,urls:t,current:this.src};n.start(i)})})},new n}])},111:function(e,t,n){var i=n(93);"string"==typeof i&&(i=[[e.i,i,""]]);var o={};o.transform=void 0;n(1)(i,o);i.locals&&(e.exports=i.locals)},12:function(e,t,n){"use strict";function i(e,t){var n,i,o;n=document.createDocumentFragment(),i=document.createElement("div"),i.setAttribute("id","frmPlugin"),o=document.createElement("iframe"),i.appendChild(o),i.onclick=function(){i.parentNode.removeChild(i)},n.appendChild(i),document.body.appendChild(n),0===e.indexOf("http")?(window.onClosePlugin=function(){i.parentNode.removeChild(i),t&&t()},o.setAttribute("src",e)):o.contentDocument&&o.contentDocument.body&&(o.contentDocument.body.innerHTML=e)}angular.module("siteuser.ui.xxt",[]).service("tmsSiteUser",function(){this.showSwitch=function(e,t){var n;n=document.createElement("div"),n.classList.add("tms-switch","tms-switch-siteuser"),n.addEventListener("click",function(n){n.preventDefault(),n.stopPropagation();var o=location.protocol+"//"+location.host;o+="/rest/site/fe/user",o+="?site="+e,t?location.href=o:i(o)},!0),document.body.appendChild(n)}})},13:function(e,t,n){t=e.exports=n(0)(void 0),t.push([e.i,"body,html{font-family:Microsoft Yahei,Arial;width:100%;height:100%}body{position:relative;font-size:16px;padding:0}footer img,header img{max-width:100%}.ng-cloak{display:none}.container{position:relative}.navbar-default .navbar-brand,.site-navbar-default .navbar-default .navbar-nav>li>a{color:#fff}.site-navbar-default .navbar-brand{padding:15px}.main-navbar .navbar-brand:hover{color:#fff}@media screen and (min-width:768px){.site-navbar-default .navbar-nav>li>a{padding:15px;line-height:1}}@media screen and (max-width:768px){.site-navbar-default .navbar-brand{width:100%;text-align:center}.site-navbar-default .navbar-brand>.icon-note{display:inline-block;width:124px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.site-navbar-default .navbar-nav{margin:8px 0;position:absolute;top:0;right:0}.site-navbar-default .nav>li>a{padding:10px}}.tms-flex-row{display:flex;align-items:center}.tms-flex-row .tms-flex-grow{flex:1}.dropdown-menu{min-width:auto}.dropdown-menu-top{bottom:100%;top:auto}#previewImage-container{-ms-touch-action:none;touch-action:none;-webkit-touch-action:none;line-height:100vh;background-color:#000;width:100vw;height:100vh;position:fixed;overflow:hidden;top:0;left:0;z-index:1050;transition:transform .3s;-ms-transition:transform .3s;-moz-transition:transform .3s;-webkit-transition:transform .3s;-o-transition:transform .3s;transform:translate3d(100%,0,0);-webkit-transform:translate3d(100%,0,0);-ms-transform:translate3d(100%,0,0);-o-transform:translate3d(100%,0,0);-moz-transform:translate3d(100%,0,0)}#previewImage-container .previewImage-text{position:absolute;bottom:5px;left:8px;right:8px;z-index:1060;height:36px}.previewImage-text span{display:inline-block;width:36px;height:36px;line-height:25px;border-radius:18px;font-size:25px;text-align:center;color:#bbb}.previewImage-text span.page{position:absolute;left:50%;margin-left:-18px;font-size:18px}.previewImage-text span.prev{position:absolute;left:50%;margin-left:-72px}.previewImage-text span.next{position:absolute;left:50%;margin-left:36px}.previewImage-text span.exit{position:absolute;right:0}.previewImage-text span.exit>i{text-shadow:0 0 .1em #fff,0 0 .1em #fff}#previewImage-container .previewImage-box{width:999999rem;height:100vh}#previewImage-container .previewImage-box .previewImage-item{width:100vw;height:100vh;margin-right:15px;float:left;text-align:center}@media screen and (min-width:992px){#previewImage-container .previewImage-box .previewImage-item .previewImage-image{display:block}}@media screen and (max-width:992px){#previewImage-container .previewImage-box .previewImage-item .previewImage-image{width:100%}}",""])},136:function(e,t,n){e.exports=n(70)},14:function(e,t,n){var i=n(13);"string"==typeof i&&(i=[[e.i,i,""]]);var o={};o.transform=void 0;n(1)(i,o);i.locals&&(e.exports=i.locals)},15:function(e,t,n){"use strict";angular.module("act.ui.xxt",["ui.bootstrap"]).directive("tmsPopAct",["$templateCache","$timeout",function(e,t){var n;return n="<div class='tms-act-popover-wrap'>",n+='<div ng-repeat="act in acts" ng-if="!act.toggle||act.toggle()"><button class=\'btn btn-default btn-block\' ng-click="doAct($event,act)">{{act.title}}</button></div>',n+='<div ng-if="custom" class="checkbox"><label style="color:#000;"" ng-click="setCustom($event)"><input type="checkbox" ng-model="custom.stopTip" ng-click="setCustom($event)"> 不再提示</label></div>',n+="</div>",e.put("popActTemplate.html",n),{restrict:"A",replace:!0,transclude:!0,scope:{acts:"=acts",custom:"=custom"},template:'<button uib-popover-template="\'popActTemplate.html\'" popover-placement="top-right" popover-trigger="\'show\'" popover-append-to-body="true" class="tms-act-toggle" popover-class="tms-act-popover"><span class=\'glyphicon glyphicon-option-vertical\'></span></button>',link:function(e,n,i){var o,a,r;a=function(){var e;o=n[0].children[0],e=document.createEvent("HTMLEvents"),e.initEvent("show",!0,!1),o.dispatchEvent(e)},r=function(){var e;e=document.createEvent("HTMLEvents"),e.initEvent("hide",!0,!1),o.dispatchEvent(e),document.body.removeEventListener("click",r)},n[0].addEventListener("click",function(e){e.stopPropagation(),e.preventDefault(),a(),document.body.addEventListener("click",r)}),e.$watch("custom",function(e){e&&!1===e.stopTip&&(a(),document.body.addEventListener("click",r),i.closeAfter&&parseInt(i.closeAfter)&&t(function(){r()},i.closeAfter))})},controller:["$scope",function(e){e.setCustom=function(e,t){e.stopPropagation()},e.doAct=function(e,t){t.func&&t.func(e)}}]}}])},16:function(e,t,n){"use strict";angular.module("nav.ui.xxt",["ui.bootstrap"]).directive("tmsPopNav",["$templateCache","$timeout",function(e,t){var n;return n="<div class='tms-nav-target'>",n+='<div ng-repeat="nav in navs"><button class=\'btn btn-default btn-block\' ng-click="navTo($event,nav)">{{nav.title}}</button></div>',n+='<div ng-if="custom" class="checkbox"><label style="color:#000;"" ng-click="setCustom($event)"><input type="checkbox" ng-model="custom.stopTip" ng-click="setCustom($event)"> 不再提示</label></div>',n+="</div>",e.put("popNavTemplate.html",n),{restrict:"A",replace:!0,transclude:!0,scope:{navs:"=navs",custom:"=custom"},template:'<span><span ng-if="!navs||navs.length===0" ng-transclude></span><span ng-if="navs.length" uib-popover-template="\'popNavTemplate.html\'" popover-placement="bottom" popover-trigger="\'show\'"><span ng-transclude></span><span class="caret"></span></span></span>',link:function(e,n,i){var o,a,r;a=function(){var e;o=n[0].children[0],e=document.createEvent("HTMLEvents"),e.initEvent("show",!0,!1),o.dispatchEvent(e)},r=function(){var e;e=document.createEvent("HTMLEvents"),e.initEvent("hide",!0,!1),o.dispatchEvent(e),document.body.removeEventListener("click",r)},n[0].addEventListener("click",function(e){e.stopPropagation(),e.preventDefault(),a(),document.body.addEventListener("click",r)}),e.$watch("custom",function(e){e&&!1===e.stopTip&&(a(),document.body.addEventListener("click",r),i.closeAfter&&parseInt(i.closeAfter)&&t(function(){r()},i.closeAfter))})},controller:["$scope",function(e){e.setCustom=function(e,t){e.stopPropagation()},e.navTo=function(t,n){n.url?location.href=n.url:e.$parent.gotoNav&&e.$parent.gotoNav(t,n)}}]}}])},17:function(e,t,n){"use strict";angular.module("trace.ui.xxt",["http.ui.xxt"]).directive("tmsTrace",["$q","$timeout","http2",function(e,t,n){var i,o,a,r="/xxt/site/matter/enroll/trace",s=function(e,t,n,i,o){this.type=t,this.elapse=n||1*new Date-e,this.biz=i,o&&(this.text=o)},c=function(){function e(e){var t,n;e.sendUrl&&(t=window.localStorage)&&(n=t.getItem(r),n=n?JSON.parse(n):{},n[e.sendUrl]=e,t.setItem(r,JSON.stringify(n)))}this.start=0,this.events=[],this.setSendUrl=function(t){this.sendUrl=t,e(this)},this.pushEvent=function(t,n,i){var o,a;0===this.events.length?(this.start=1*new Date,o=new s(this.start,t,0,n,i),this.events.push(o),e(this)):(o=new s(this.start,t,null,n,i),a=this.events[this.events.length-1],(a.type!==o.type||o.elapse-a.elapse>1e3)&&(this.events.push(o),e(this)))},this.stop=function(){this.closing="Y",e(this),this.start=0,this.events=[]}},l=function(e){var i;this.begin=function(){this.cancel(i),i=t(function(){var t,i,o;e.stop(),e.sendUrl&&(t=window.localStorage)&&(i=t.getItem(r),i=JSON.parse(i),o=i[e.sendUrl],delete i[e.sendUrl],i=t.setItem(r,JSON.stringify(i)),n.post(e.sendUrl,{start:o.start,events:o.events},{showProgress:!1}))},5e3)},this.cancel=function(){i&&(t.cancel(i),i=null)}};if((i=window.localStorage)&&(o=i.getItem(r),o=o?JSON.parse(o):{}))for(var d in o)o&&o[d]&&(a=o[d],a.closing&&"Y"===a.closing&&(delete o[d],o=i.setItem(r,JSON.stringify(o)),n.post(a.sendUrl,{start:a.start,events:a.events}).then(function(){})));return{restrict:"A",link:function(e,n,i){var o=new c,a=new l(o);!i.readySign&&i.sendUrl&&(o.sendUrl=i.sendUrl),o.pushEvent("load"),n.on("click",function(e){var t,n,i;t=e.target,t.hasAttribute("trace-biz")&&(n=t.getAttribute("trace-biz"),!n&&t.hasAttribute("ng-click")&&(n=t.getAttribute("ng-click")),n&&(n=n.replace(/'|"/g,"")),i=t.innerText),o.pushEvent("click",n,i),a.begin()}),n.on("touchend",function(e){o.pushEvent("touchend"),a.begin()}),window.addEventListener("scroll",function(e){o.pushEvent("scroll"),a.begin()}),window.addEventListener("beforeunload",function(e){o.pushEvent("beforeunload"),o.stop(),a.cancel()}),i.readySign&&e.$watch(i.readySign,function(e){e&&t(function(){o.setSendUrl(i.sendUrl)})}),a.begin()}}}])},18:function(e,t,n){"use strict";n(5),/MicroMessenger/i.test(navigator.userAgent)&&window.signPackage&&window.wx?window.wx.ready(function(){window.wx.showOptionMenu()}):/YiXin/i.test(navigator.userAgent)&&document.addEventListener("YixinJSBridgeReady",function(){YixinJSBridge.call("showOptionMenu")},!1),n(8),n(14),n(17),n(6),n(3),n(2),n(12),n(10),n(11),n(16),n(15),n(9),n(19);var i=["ngSanitize","ui.bootstrap","notice.ui.xxt","http.ui.xxt","trace.ui.xxt","page.ui.xxt","snsshare.ui.xxt","siteuser.ui.xxt","directive.enroll","picviewer.ui.xxt","nav.ui.xxt","act.ui.xxt","service.enroll"];window.moduleAngularModules&&window.moduleAngularModules.forEach(function(e){i.push(e)});var o=angular.module("app",i);o.config(["$controllerProvider","$uibTooltipProvider","$locationProvider",function(e,t,n){o.provider={controller:e.register},t.setTriggers({show:"hide"}),n.html5Mode(!0)}]),o.controller("ctrlMain",["$scope","$q","$parse","http2","$timeout","tmsLocation","tmsDynaPage","tmsSnsShare","tmsSiteUser","enlService",function(e,t,n,i,a,r,s,c,l,d){function u(){var n,o;return o=t.defer(),n=r.j("entryRule","site","app"),i.get(n).then(function(t){e.params.entryRuleResult=t.data,o.resolve(t.data)})}function h(e,t){var n,i,o;n=document.body,i=document.createElement("div"),i.setAttribute("id","frmPlugin"),i.height=n.clientHeight,o=document.createElement("iframe"),i.appendChild(o),n.scrollTop=0,n.appendChild(i),window.onClosePlugin=function(){t?t().then(function(e){i.parentNode.removeChild(i)}):i.parentNode.removeChild(i)},i.onclick=function(){onClosePlugin()},e&&o.setAttribute("src",e),i.style.display="block"}function p(t){var n,i,o,a;a=!0,n=e,o=t.match(/\((.*?)\)/)[1].replace(/'|"/g,"").split(","),angular.forEach(t.replace(/\(.*?\)/,"").split("."),function(e){if(i&&(n=i),!n[e])return void(a=!1);i=n[e]}),a&&i.apply(n,o)}var m=[];e.closeWindow=function(){/MicroMessenger/i.test(navigator.userAgent)?window.wx.closeWindow():/YiXin/i.test(navigator.userAgent)&&window.YixinJSBridge.call("closeWebView")},e.askFollowSns=function(){var t;e.app.entryRule&&"Y"===e.app.entryRule.scope.sns&&(t=r.j("askFollow","site"),t+="&sns="+Object.keys(e.app.entryRule.sns).join(","),h(t,u))},e.askBecomeMember=function(){var t,n;e.app.entryRule&&"Y"===e.app.entryRule.scope.member&&(n=Object.keys(e.app.entryRule.member),1===n.length?(t="/rest/site/fe/user/member?site="+e.app.siteid,t+="&schema="+n[0]):n.length>1&&(t="/rest/site/fe/user/memberschema?site="+e.app.siteid,t+="&schema="+n.join(",")),h(t,u))},e.addRecord=function(t,n){if(n)e.gotoPage(t,n,null,null,"Y");else for(var i in e.app.pages){var o=e.app.pages[i];if("I"===o.type){e.gotoPage(t,o.name,null,null,"Y");break}}},e.siteUser=function(){var e=location.protocol+"//"+location.host;e+="/rest/site/fe/user",e+="?site="+r.s().site,location.href=e},e.gotoApp=function(t){location.replace(e.app.entryUrl)},e.gotoPage=function(e,t,n,i,o){e&&(e.preventDefault(),e.stopPropagation());var a=r.j("","site","app");n?a+="&ek="+n:"cowork"===t&&(a+="&ek="+r.s().ek),i&&(a+="&rid="+i),t&&(a+="&page="+t),o&&"Y"===o&&(a+="&newRecord=Y"),location=a},e.openMatter=function(e,t,n,i){var o="/rest/site/fe/matter?site="+r.s().site+"&id="+e+"&type="+t;n?location.replace(o):!1===i?location.href=o:window.open(o)},e.onReady=function(t){e.params?p(t):m.push(t)},e.setOperateLimit=function(t){return!(!e.app.entryRule.exclude_action||"Y"!==e.app.entryRule.exclude_action[t])||("N"!=e.entryRuleResult.passed||(s.openPlugin(e.entryRuleResult.passUrl).then(function(e){return location.reload(),!0}),!1))},e.setSnsShare=function(t,n,o){function a(){if("miniprogram"!==window.__wxjs_environment){var a,s,l,d,u,h,p;a=e.app,s=e.page,l=e.user,d=location.protocol+"//"+location.host+r.j("","site","app","rid"),s&&s.share_page&&"Y"===s.share_page?d+="&page="+s.name:r.s().page&&(d+="&page="+r.s().page),t&&t.enroll_key&&(d+="&ek="+t.enroll_key),n&&angular.forEach(n,function(e,t){void 0!==e&&(d+="&"+t+"="+e)}),u=l.uid+"_"+1*new Date,h=location.search.match(/shareby=([^&]*)/)?location.search.match(/shareby=([^&]*)/)[1]:"",d+="&shareby="+u,p=a.summary,s&&s.share_summary&&s.share_summary.length&&t&&t.data&&t.data[s.share_summary]&&(p=t.data[s.share_summary]),window.shareCounter=0,c.config({siteId:a.siteid,logger:function(e){var t;t="/rest/site/fe/matter/logShare",t+="?shareid="+u,t+="&site="+a.siteid,t+="&id="+a.id,t+="&type=enroll",o&&o.title?t+="&title="+o.title:t+="&title="+a.title,o&&(t+="&target_type="+o.target_type,t+="&target_id="+o.target_id),t+="&shareby="+h,t+="&shareto="+e,i.get(t),window.shareCounter++,window.onshare&&window.onshare(window.shareCounter)},jsApiList:["hideOptionMenu","onMenuShareTimeline","onMenuShareAppMessage","chooseImage","uploadImage","getLocation","startRecord","stopRecord","onVoiceRecordEnd","playVoice","pauseVoice","stopVoice","onVoicePlayEnd","uploadVoice","downloadVoice"]}),c.set(a.title,d,p,a.pic)}}/MicroMessenger|Yixin/i.test(navigator.userAgent)&&(window.WeixinJSBridge&&WeixinJSBridge.invoke?a():document.addEventListener("WeixinJSBridgeReady",a,!1))},e.setPopAct=function(t,o,a){if(o&&t&&0!==t.length&&e.user){var s,c;(s=e.user.enrollUser)&&(c=n(o+".act")(s.custom)),c||(c={stopTip:!1}),e.popAct={acts:[],custom:c},e.$watch("popAct.custom",function(t,n){var a;s&&(a=s.custom,t!==n&&(a[o]||(a[o]={}),a[o].act=e.popAct.custom,i.post(r.j("user/updateCustom","site","app"),a).then(function(e){})))},!0),t.forEach(function(t){var i;switch(t){case"save":i={title:"保存"};break;case"addRecord":e.app&&s&&(0===parseInt(e.app.count_limit)||e.app.count_limit>s.enroll_num)&&(n("actionRule.record.submit.pre.editor")(e.app)?s&&s.is_editor&&"Y"===s.is_editor&&(i={title:"添加记录",func:e.addRecord}):i={title:"添加记录",func:e.addRecord});break;case"newRecord":i={title:"添加记录"};break;case"voteRecData":i={title:"题目投票"};break;case"scoreSchema":i={title:"题目打分"}}i&&(a&&(a.func&&a.func[t]&&(i.func=a.func[t]),!i.func&&e[t]&&(i.func=e[t]),a.toggle&&a.toggle[t]&&(i.toggle=a.toggle[t])),e.popAct.acts.push(i))})}},e.setPopNav=function(t,o,a){if(o&&t&&0!==t.length&&e.user){var s,c,l;s=e.app,c=e.user.enrollUser,c&&(l=n(o+".nav")(c.custom)),l||(l={stopTip:!1}),e.popNav={navs:[],custom:l},e.$watch("popNav.custom",function(t,n){var a;c&&(a=c.custom,t!==n&&(a[o]||(a[o]={}),a[o].nav=e.popNav.custom,i.post(r.j("user/updateCustom","site","app"),a).then(function(e){})))},!0),"voting"===s.scenario&&-1!==t.indexOf("votes")&&e.popNav.navs.push({name:"votes",title:"投票榜",url:r.j("","site","app")+"&page=votes"}),s.scenarioConfig&&("Y"===s.scenarioConfig.can_repos&&-1!==t.indexOf("repos")&&e.popNav.navs.push({name:"repos",title:"共享页",url:r.j("","site","app")+"&page=repos"}),"Y"===s.scenarioConfig.can_rank&&-1!==t.indexOf("rank")&&e.popNav.navs.push({name:"rank",title:"排行页",url:r.j("","site","app")+"&page=rank"}),"Y"===s.scenarioConfig.can_stat&&"stat"!==o&&e.popNav.navs.push({name:"stat",title:"统计页",url:r.j("","site","app")+"&page=stat"}),"Y"===s.scenarioConfig.can_kanban&&-1!==t.indexOf("kanban")&&e.popNav.navs.push({name:"kanban",title:"看板页",url:r.j("","site","app")+"&page=kanban"}),"Y"===s.scenarioConfig.can_action&&-1!==t.indexOf("event")&&e.popNav.navs.push({name:"event",title:"动态页",url:r.j("","site","app")+"&page=event"})),-1!==t.indexOf("favor")&&e.popNav.navs.push({name:"favor",title:"收藏页",url:r.j("","site","app")+"&page=favor"}),-1!==t.indexOf("task")&&(s.questionConfig.length||s.answerConfig.length||s.voteConfig.length||s.scoreConfig.length)&&e.popNav.navs.push({name:"task",title:"任务页",url:r.j("","site","app")+"&page=task"}),e.mission&&e.popNav.navs.push({name:"mission",title:"项目主页",url:"/rest/site/fe/matter/mission?site="+s.siteid+"&mission="+e.mission.id})}},e.logAccess=function(t){var n,o,a,r,s;n=e.app,o=e.user,a=n.appRound.rid,s=location.search.match(/shareby=([^&]*)/)?location.search.match(/shareby=([^&]*)/)[1]:"",r={search:location.search.replace("?",""),referer:document.referrer,rid:a,assignedNickname:o.nickname,id:n.id,type:"enroll",title:n.title,shareby:s},t&&(t.title&&(r.title=t.title),r.target_type=t.target_type,r.target_id=t.target_id),i.post("/rest/site/fe/matter/logAccess?site="+n.siteid,r)},e.isSmallLayout=!1,window.screen&&window.screen.width<992&&(e.isSmallLayout=!0),i.get(r.j("get","site","app","rid","page","ek","newRecord")).then(function(t){var n=t.data,i=n.site,r=n.app,c=n.entryRuleResult,l=n.mission,u=(n.page,{});r.dynaDataSchemas.forEach(function(e){u[e.id]=e}),r._schemasById=u,e.params=n,e.site=i,e.mission=l,e.app=r,e.entryRuleResult=c,"Y"===r.use_site_header&&i&&i.header_page&&s.loadCode(o,i.header_page),"Y"===r.use_mission_header&&l&&l.header_page&&s.loadCode(o,l.header_page),"Y"===r.use_mission_footer&&l&&l.footer_page&&s.loadCode(o,l.footer_page),"Y"===r.use_site_footer&&i&&i.footer_page&&s.loadCode(o,i.footer_page),n.page&&s.loadCode(o,n.page).then(function(){e.page=n.page}),m.length&&angular.forEach(m,p),d.user().then(function(t){e.user=t,a(function(){e.$broadcast("xxt.app.enroll.ready",n)});var i;(i=document.querySelector(".loading"))&&i.parentNode.removeChild(i)})})}]),e.exports=o},19:function(e,t,n){"use strict";angular.module("service.enroll",[]).service("enlService",["$q","http2","tmsLocation",function(e,t,n){var i;i=!1,this.user=function(){return i?i.promise:(i=e.defer(),t.get(n.j("user/get2","site","app")).then(function(e){i.resolve(e.data)}),i.promise)}}])},2:function(module,exports,__webpack_require__){"use strict";var ngMod=angular.module("page.ui.xxt",[]);ngMod.directive("dynamicHtml",["$compile",function(e){return{restrict:"EA",replace:!0,link:function(t,n,i){t.$watch(i.dynamicHtml,function(i){i&&i.length&&(n.html(i),e(n.contents())(t))})}}}]),ngMod.service("tmsDynaPage",["$q",function($q){this.loadCss=function(e){var t,n;t=document.createElement("style"),t.innerHTML=e,n=document.querySelector("head"),n.appendChild(t)},this.loadExtCss=function(e){var t,n;t=document.createElement("link"),t.href=e,t.rel="stylesheet",n=document.querySelector("head"),n.appendChild(t)},this.loadJs=function(ngApp,js){!function(ngApp){eval(js)}(ngApp)},this.loadScript=function(e){var t,n,i=$q.defer();return n=function(){var o;o=document.createElement("script"),o.src=e[t],o.onload=function(){t++,t<e.length?n():i.resolve()},document.body.appendChild(o)},e&&(angular.isString(e)&&(e=[e]),e.length&&(t=0,n())),i.promise},this.loadExtJs=function(e,t){var n,i=this,o=$q.defer(),a=t.ext_js.length;return n=function(n){var r;r=document.createElement("script"),r.src=n.url,r.onload=function(){0===--a&&(t.js&&t.js.length&&i.loadJs(e,t.js),o.resolve())},document.body.appendChild(r)},t.ext_js&&t.ext_js.length&&t.ext_js.forEach(n),o.promise},this.loadCode=function(e,t){var n=this,i=$q.defer();return t.ext_css&&t.ext_css.length&&t.ext_css.forEach(function(e){n.loadExtCss(e.url)}),t.css&&t.css.length&&this.loadCss(t.css),t.ext_js&&t.ext_js.length?n.loadExtJs(e,t).then(function(){i.resolve()}):(t.js&&t.js.length&&n.loadJs(e,t.js),i.resolve()),i.promise},this.openPlugin=function(e){var t,n,i,o,a,r;return r=$q.defer(),e||(console.log("参数为空"),r.reject()),document.documentElement.clientWidth>768?document.documentElement.scrollTop=0:document.body.scrollTop=0,a=document.getElementsByTagName("body")[0],o=document.getElementsByTagName("html")[0],o.style.cssText="height:100%;",a.style.cssText="height:100%;overflow-y:hidden",t=document.createDocumentFragment(),n=document.createElement("div"),n.setAttribute("id","frmPlugin"),i=document.createElement("iframe"),n.appendChild(i),n.onclick=function(){n.parentNode.removeChild(n),a.style.cssText="overflow-y:auto"},t.appendChild(n),document.body.appendChild(t),0===e.indexOf("http")?(window.onClosePlugin=function(e){n.parentNode.removeChild(n),a.style.cssText="overflow-y:auto",r.resolve(e)},i.setAttribute("src",e)):i.contentDocument&&i.contentDocument.body&&(i.contentDocument.body.innerHTML=e),r.promise}}])},20:function(e,t){e.exports='<div class="modal-header">\r\n    <button class="close" type="button" ng-click="cancel()">×</button>\r\n    <h5 class="modal-title">选择轮次</h5>\r\n</div>\r\n<div class="modal-body">\r\n    <div class=\'form-group\'>\r\n        <button class=\'btn btn-default btn-sm\' ng-click="clean()">清除<span>已选的{{countOfChecked}}项</span></button>\r\n    </div>\r\n    <div class=\'form-group\' style=\'height:230px;overflow-y:auto\'>\r\n        <div ng-if="!options.excludeAll">\r\n            <label class=\'checkbox-inline\'>\r\n                <input type=\'checkbox\' ng-model="checkedRounds.ALL" ng-change="toggleCheckedRound(\'ALL\')">全部轮次</label>\r\n        </div>\r\n        <div ng-if="activeRound">\r\n            <label class=\'checkbox-inline\'>\r\n                <input type=\'checkbox\' ng-model="checkedRounds[activeRound.rid]" ng-change="toggleCheckedRound(activeRound.rid)">{{activeRound.title}}<span>（启用）</span></label>\r\n        </div>\r\n        <div ng-repeat="rnd in rounds">\r\n            <label class=\'checkbox-inline\'>\r\n                <input type=\'checkbox\' ng-model="checkedRounds[rnd.rid]" ng-change="toggleCheckedRound(rnd.id)">{{rnd.title}}</label>\r\n        </div>\r\n    </div>\r\n    <div ng-show="pageOfRound.total>pageOfRound.size">\r\n        <span class=\'hidden-xs\' style=\'line-height:30px\'>总数：{{pageOfRound.total}}</span>\r\n        <ul uib-pagination class=\'pagination-sm\' style="margin:0;vertical-align:bottom;cursor:pointer" boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>\r\n    </div>\r\n</div>\r\n<div class="modal-footer">\r\n    <button class="btn btn-primary" ng-click="ok()">确定</button>\r\n</div>'},21:function(e,t,n){"use strict";angular.module("round.ui.enroll",[]).factory("enlRound",["http2","$q","$uibModal","tmsLocation",function(e,t,i,o){var a;return a=function(e){this.app=e,this.page={}},a.prototype.get=function(n){var i;return i=t.defer(),-1!==n.indexOf("ALL")?i.resolve({rid:"ALL",title:"全部轮次"}):e.get(o.j("round/get","site","app")+"&rid="+n).then(function(e){i.resolve(e.data)}),i.promise},a.prototype.list=function(){var n=t.defer();return e.get(o.j("round/list","site","app"),{page:this.page}).then(function(e){n.resolve(e.data)}),n.promise},a.prototype.getRoundTitle=function(n){var i;if(i=t.defer(),-1!==n.indexOf("ALL"))i.resolve("全部轮次");else{var a;e.get(o.j("round/get","site","app")+"&rid="+n).then(function(e){1===e.data.length?a=e.data[0].title:2===e.data.length?a=e.data[0].title+","+e.data[1].title:e.data.length>2&&(a=e.data[0].title+"-"+e.data[e.data.length-1].title),i.resolve(a)})}return i.promise},a.prototype.pick=function(e,t){var o=this;return i.open({template:n(20),backdrop:"static",controller:["$scope","$uibModalInstance",function(n,i){var a;n.pageOfRound=o.page,n.checkedRounds=a={},n.countOfChecked=0,n.options={},t&&angular.extend(n.options,t),n.toggleCheckedRound=function(e){"ALL"===e?a.ALL?n.checkedRounds=a={ALL:!0}:n.checkedRounds=a={}:a[e]?delete a.ALL:delete a[e],n.countOfChecked=Object.keys(a).length},n.clean=function(){n.checkedRounds=a={}},n.ok=function(){var e=[];Object.keys(a).length&&angular.forEach(a,function(t,n){t&&e.push(n)}),o.getRoundTitle(e).then(function(t){i.close({ids:e,titles:t})})},n.cancel=function(){i.dismiss("cancel")},n.doSearch=function(){o.list().then(function(e){if(n.activeRound=e.active,n.activeRound){var t=[];e.rounds.forEach(function(e){e.rid!==n.activeRound.rid&&t.push(e)}),n.rounds=t}else n.rounds=e.rounds})},angular.isArray(e)&&e.length&&e.forEach(function(e){a[e]=!0}),n.countOfChecked=Object.keys(a).length,n.doSearch()}]}).result},a}])},3:function(e,t,n){"use strict";var i=angular.module("http.ui.xxt",[]);i.provider("tmsLocation",function(){var e;this.config=function(t){e=t||location.pathname},this.$get=["$location",function(t){return e||(e=location.pathname),{s:function(){return t.search()},j:function(n){var i=e,o=[];n&&n.length&&(i+="/"+n);for(var a=1,r=arguments.length;a<r;a++)o.push(arguments[a]+"="+(t.search()[arguments[a]]||""));return o.length&&(i+="?"+o.join("&")),i}}}]}),i.service("http2",["$rootScope","$http","$timeout","$q","$sce","$compile",function(e,t,n,i,o,a){function r(t,n,i){var r;return o.trustAsHtml(t),r=angular.element("<div></div>"),r.attr({class:"tms-notice-box alert alert-"+(n||"info"),"ng-style":"{'z-index':1099}"}).html(t),i||r[0].addEventListener("click",function(){document.body.removeChild(r[0])},!0),a(r)(e),document.body.appendChild(r[0]),r[0]}function s(e){e&&document.body.removeChild(e)}function c(e){return!(!e.page||!angular.isObject(e.page))&&(void 0===e.page.at&&(e.page.at=1),void 0===e.page.size&&(e.page.size=12),void 0!==e.page.j&&angular.isFunction(e.page.j)||(e.page.j=function(){return"page="+this.at+"&size="+this.size}),!0)}function l(e,t,n){if(e){if(angular.isArray(e)){e.length>t.length&&e.splice(t.length-1,e.length-t.length);for(var i=0,o=t.length;i<o;i++)i<e.length?l(e[i],t[i]):e.push(t[i])}else if(angular.isObject(e)){for(var a in e)n&&-1!==n.indexOf(a)||(void 0===t[a]?delete e[a]:angular.isObject(t[a])&&angular.isObject(e[a])?l(e[a],t[a]):e[a]=t[a]);for(var a in t)n&&-1!==n.indexOf(a)||void 0===e[a]&&(e[a]=t[a])}}else e=t;return!0}this.get=function(e,o){var a,l,d=i.defer();return o=angular.extend({headers:{accept:"application/json"},parseResponse:!0,autoBreak:!0,autoNotice:!0,showProgress:!0,showProgressDelay:500,showProgressText:"正在获取数据..."},o),!0===o.showProgress&&(l=n(function(){l=null,a=r(o.showProgressText,"info")},o.showProgressDelay)),c(o)&&(e+=(-1===e.indexOf("?")?"?":"&")+o.page.j()),t.get(e,o).success(function(e){if(o.page&&void 0!==e.data.total&&(o.page.total=e.data.total),!0===o.showProgress&&(l&&n.cancel(l),a&&(s(a),a=null)),o.parseResponse)if(angular.isString(e)){if(o.autoNotice&&r(e,"warning"),o.autoBreak)return;d.reject(e)}else if(0!=e.err_code){if(o.autoNotice){var t;t=angular.isString(e.err_msg)?e.err_msg:angular.isArray(e.err_msg)?e.err_msg.join("<br>"):JSON.stringify(e.err_msg),r(t,"warning")}if(o.autoBreak)return;d.reject(e)}else d.resolve(e);else d.resolve(e)}).error(function(e,t){!0===o.showProgress&&(l&&n.cancel(l),a&&(s(a),a=null)),r(null===e?"网络不可用":e,"danger")}),d.promise},this.post=function(e,o,a){var l,d,u=i.defer();return a=angular.extend({headers:{accept:"application/json"},parseResponse:!0,autoBreak:!0,autoNotice:!0,showProgress:!0,showProgressDelay:500,showProgressText:"正在获取数据..."},a),!0===a.showProgress&&(d=n(function(){d=null,l=r(a.showProgressText,"info")},a.showProgressDelay)),c(a)&&(e+=(-1===e.indexOf("?")?"?":"&")+a.page.j()),t.post(e,o,a).success(function(e){if(a.page&&void 0!==e.data.total&&(a.page.total=e.data.total),!0===a.showProgress&&(d&&n.cancel(d),l&&(s(l),l=null)),a.parseResponse)if(angular.isString(e)){if(a.autoNotice&&(r(e,"warning"),l=null),a.autoBreak)return;u.reject(e)}else if(0!=e.err_code){if(a.autoNotice){var t;t=angular.isString(e.err_msg)?e.err_msg:angular.isArray(e.err_msg)?e.err_msg.join("<br>"):JSON.stringify(e.err_msg),r(t,"warning")}if(a.autoBreak)return;u.reject(e)}else u.resolve(e);else u.resolve(e)}).error(function(e,t){!0===a.showProgress&&(d&&n.cancel(d),l&&(s(l),l=null)),r(null===e?"网络不可用":e,"danger")}),u.promise},this.merge=function(e,t,n){return!angular.equals(e,t)&&l(e,t,n)}}])},4:function(e,t){e.exports=function(e){var t="undefined"!=typeof window&&window.location;if(!t)throw new Error("fixUrls requires window.location");if(!e||"string"!=typeof e)return e;var n=t.protocol+"//"+t.host,i=n+t.pathname.replace(/\/[^\/]*$/,"/");return e.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi,function(e,t){var o=t.trim().replace(/^"(.*)"$/,function(e,t){return t}).replace(/^'(.*)'$/,function(e,t){return t});if(/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/)/i.test(o))return e;var a;return a=0===o.indexOf("//")?o:0===o.indexOf("/")?n+o:i+o.replace(/^\.\//,""),"url("+JSON.stringify(a)+")"})}},5:function(module,exports,__webpack_require__){"use strict";var ngMod=angular.module("snsshare.ui.xxt",[]);ngMod.service("tmsSnsShare",["$http",function($http){function setWxShare(e,t,n,i,o){window.wx.onMenuShareTimeline({title:o.descAsTitle?n:e,link:t,imgUrl:i,success:function(){try{o.logger&&o.logger("T")}catch(e){alert("share failed:"+e.message)}},cancel:function(){},fail:function(){alert("shareT: fail")}}),window.wx.onMenuShareAppMessage({title:e,desc:n,link:t,imgUrl:i,success:function(){try{o.logger&&o.logger("F")}catch(e){alert("share failed:"+e.message)}},cancel:function(){},fail:function(){alert("shareF: fail")}})}function setYxShare(e,t,n,i,o){var a={img_url:i,link:t,title:e,desc:n};window.YixinJSBridge.on("menu:share:appmessage",function(e){try{o.logger&&o.logger("F")}catch(e){alert("share failed:"+e.message)}window.YixinJSBridge.invoke("sendAppMessage",a,function(e){})}),window.YixinJSBridge.on("menu:share:timeline",function(e){try{o.logger&&o.logger("T")}catch(e){alert("share failed:"+e.message)}window.YixinJSBridge.invoke("shareTimeline",a,function(e){})})}var _isReady=!1;this.config=function(e){this.options=e},this.set=function(title,link,desc,img,fnOther){var _this=this;if(img&&-1===img.indexOf(location.protocol)&&(img=location.protocol+"//"+location.host+img),_isReady)/MicroMessenger/i.test(navigator.userAgent)?setWxShare(title,link,desc,img,_this.options):/Yixin/i.test(navigator.userAgent)?setYxShare(title,link,desc,img,_this.options):fnOther&&"function"==typeof fnOther&&fnOther(title,link,desc,img);else if(/MicroMessenger/i.test(navigator.userAgent)){var script;script=document.createElement("script"),script.src=location.protocol+"//res.wx.qq.com/open/js/jweixin-1.0.0.js",script.onload=function(){var xhr,url;xhr=new XMLHttpRequest,url="/rest/site/fe/wxjssdksignpackage?site="+_this.options.siteId+"&url="+encodeURIComponent(location.href.split("#")[0]),xhr.open("GET",url,!0),xhr.onreadystatechange=function(){if(4==xhr.readyState)if(xhr.status>=200&&xhr.status<400){var signPackage;try{eval("("+xhr.responseText+")"),signPackage&&(signPackage.debug=!1,signPackage.jsApiList=_this.options.jsApiList,wx.config(signPackage),wx.ready(function(){setWxShare(title,link,desc,img,_this.options),_isReady=!0}),wx.error(function(e){alert(JSON.stringify(e))}))}catch(e){alert("local error:"+e.toString())}}else alert("http error:"+xhr.statusText)},xhr.send()},document.body.appendChild(script)}else/Yixin/i.test(navigator.userAgent)?void 0===window.YixinJSBridge?document.addEventListener("YixinJSBridgeReady",function(){setYxShare(title,link,desc,img,_this.options),_isReady=!0},!1):(setYxShare(title,link,desc,img,_this.options),_isReady=!0):fnOther&&"function"==typeof fnOther&&(fnOther(title,link,desc,img),_isReady=!0)}}])},6:function(e,t,n){"use strict";angular.module("notice.ui.xxt",["ngSanitize"]).service("noticebox",["$timeout","$interval","$q",function(e,t,n){var i="tmsbox"+1*new Date,o={type:"",timer:null},a=function(e,t){var n;return n=document.querySelector("#"+i),null===n?(n=document.createElement("div"),n.setAttribute("id",i),n.classList.add("tms-notice-box","alert","alert-"+e),n.innerHTML="<div>"+t+"</div>",document.body.appendChild(n),o.type=e):(o.type!==e&&(n.classList.remove("alert-"+e),o.type=e),n.childNodes[0].innerHTML=t),n};this.close=function(){var e;(e=document.querySelector("#"+i))&&document.body.removeChild(e)},this.error=function(t){var n,i;o.timer&&(e.cancel(o.timer),o.timer=null),n=a("danger",t),i=document.createElement("button"),i.classList.add("close"),i.innerHTML="<span>&times;</span>",n.insertBefore(i,n.childNodes[0]),i.addEventListener("click",function(){document.body.removeChild(n)})},this.warn=function(t){var n,i;o.timer&&(e.cancel(o.timer),o.timer=null),n=a("warning",t),i=document.createElement("button"),i.classList.add("close"),i.innerHTML="<span>&times;</span>",n.insertBefore(i,n.childNodes[0]),i.addEventListener("click",function(){document.body.removeChild(n)})},this.success=function(t){var n;o.timer&&e.cancel(o.timer),n=a("success",t),o.timer=e(function(){n.parentNode&&n.parentNode===document.body&&document.body.removeChild(n),o.timer=null},2e3)},this.info=function(t){var n;o.timer&&e.cancel(o.timer),n=a("info",t),o.timer=e(function(){n.parentNode&&n.parentNode===document.body&&document.body.removeChild(n),o.timer=null},2e3)},this.progress=function(e){a("progress",e)},this.confirm=function(i,r){var s,c,l;return s=n.defer(),o.timer&&(e.cancel(o.timer),o.timer=null),c=a("warning",i),r&&r.length?r.forEach(function(n){if(l=document.createElement("button"),l.classList.add("btn","btn-default","btn-sm"),l.innerHTML=n.label,c.appendChild(l,c.childNodes[0]),l.addEventListener("click",function(){document.body.removeChild(c),s.resolve(n.value)}),n.execWait){var i=Math.ceil(n.execWait/500),a=document.createElement("span");a.classList.add("countdown"),a.innerHTML=i,l.appendChild(a),t(function(){a.innerHTML=--i},500),o.timer=e(function(){c.parentNode&&c.parentNode===document.body&&document.body.removeChild(c),o.timer=null,s.resolve(n.value)},n.execWait)}}):(l=document.createElement("button"),l.classList.add("btn","btn-default","btn-sm"),l.innerHTML="是",c.appendChild(l,c.childNodes[0]),l.addEventListener("click",function(){document.body.removeChild(c),s.resolve()}),l=document.createElement("button"),l.classList.add("btn","btn-default","btn-sm"),l.innerHTML="否",c.appendChild(l,c.childNodes[0]),l.addEventListener("click",function(){document.body.removeChild(c),s.reject()})),s.promise}}])},7:function(e,t,n){t=e.exports=n(0)(void 0),t.push([e.i,'.dialog.mask{position:fixed;background:rgba(0,0,0,.3);top:0;left:0;bottom:0;right:0;overflow:auto;z-index:1060}.dialog.dlg{position:absolute;background:#fff;left:0;right:0;bottom:0;margin:15px}.dialog .dlg-body,.dialog .dlg-header{padding:15px 15px 0}.dialog .dlg-footer{text-align:right;padding:15px}.dialog .dlg-footer button{border-radius:0}div[wrap=filter] .detail{background:#ccc}div[wrap=filter] .detail .options .label{display:inline-block;margin:.5em;padding-top:.3em;font-size:100%}div[wrap=filter] .detail .actions .btn{border-radius:0}.tms-act-toggle{position:fixed;right:15px;bottom:8px;width:48px;height:48px;line-height:48px;box-shadow:0 2px 6px rgba(18,27,32,.425);color:#fff;background:#ff8018;border:1px solid #ff8018;border-radius:24px;font-size:20px;text-align:center;cursor:pointer;z-index:1050}.tms-nav-target>*+*{margin-top:.5em}.tms-act-popover-wrap>div+div{margin-top:8px}#frmPlugin{position:absolute;top:0;bottom:0;left:0;right:0;width:100%;height:100%;border:none;z-index:1060;box-sizing:border-box;padding-bottom:48px;background:#fff}#frmPlugin iframe{width:100%;height:100%;border:0}#frmPlugin:after{content:"\\5173\\95ED";position:absolute;width:100px;text-align:center;left:50%;margin-left:-50px;bottom:4px;padding:5px 6px 3px;border:1px solid #ccc;border-radius:4px}div[wrap]>.description{word-wrap:break-word}',""])},70:function(e,t,n){"use strict";n(111),n(21),window.moduleAngularModules=["round.ui.enroll"],n(18).controller("ctrlRank",["$scope","$q","$sce","http2","tmsLocation","enlRound",function(e,t,n,i,o,a){function r(){var e=t.defer();switch(c.dimension){case"user":i.post("/rest/site/fe/matter/enroll/rank/userByApp?site="+s.siteid+"&app="+s.id,c.criteria).then(function(t){e.resolve(t.data)});break;case"group":i.post("/rest/site/fe/matter/enroll/rank/groupByApp?site="+s.siteid+"&app="+s.id,c.criteria).then(function(t){e.resolve(t.data)});break;case"schema":i.post("/rest/site/fe/matter/enroll/rank/schemaByApp?site="+s.siteid+"&app="+s.id+"&schema="+c.criteria.obj,c.criteria).then(function(t){e.resolve(t.data)})}return e.promise}var s,c;e.doSearch=function(){r().then(function(t){switch(c.dimension){case"user":t.users&&t.users.forEach(function(t){t.headimgurl=t.headimgurl?t.headimgurl:"/static/img/avatar.png",e.users.push(t)});break;case"group":t.groups&&t.groups.forEach(function(t){e.groups.push(t)});break;case"schema":t.forEach(function(t){e.schemaOps.push(t)})}})},e.changeCriteria=function(){e.users=[],e.groups=[],e.schemaOps=[],e.doSearch(1)},e.doRound=function(t){"more"==t?e.setRound():e.changeCriteria()},e.setRound=function(){new a(e.app).pick(c.criteria.round).then(function(t){c.criteria.round=t.ids,e.checkedRoundTitles=t.titles,e.changeCriteria()})},e.$on("xxt.app.enroll.ready",function(t,n){var i,o,r,l;s=n.app,l=s.dynaDataSchemas,r=["enroll","remark","like","remark_other","do_like","total_coin","score","average_score","vote_schema","vote_cowork"],o={},r.forEach(function(e){o[e]=!0}),(i=s.rankConfig)&&(i.scope&&r.forEach(function(e){o[e]=!!i.scope[e]}),i.schemas&&i.schemas.length&&(e.rankSchemas=l.filter(function(e){return"single"===e.type&&-1!==i.schemas.indexOf(e.id)}))),e.config=o,window.localStorage&&(e.$watch("appState",function(e){e&&window.localStorage.setItem("site.fe.matter.enroll.rank.appState",JSON.stringify(e))},!0),(c=window.localStorage.getItem("site.fe.matter.enroll.rank.appState"))&&(c=JSON.parse(c),c.aid&&c.aid===s.id?"group"===c.criteria.obj&&(s.entryRule.group.id||(c=null)):c=null)),c||(c={aid:s.id,criteria:{orderby:i.defaultItem?i.defaultItem:"enroll",agreed:"all",round:["ALL"]}}),!c.criteria.obj&&i.defaultObj&&(c.criteria.obj=i.defaultObj),/user|group/.test(c.criteria.obj)?c.dimension=c.criteria.obj:i.schemas&&i.schemas.length&&-1!==i.schemas.indexOf(c.criteria.obj)?c.dimension="schema":c.criteria.obj=c.dimension="user",new a(s).getRoundTitle(c.criteria.round).then(function(t){e.checkedRoundTitles=t}),e.appState=c,e.$watch("appState.criteria.obj",function(t,n){if(t&&n&&t!==n){switch(t){case"user":c.dimension="user",c.criteria.orderby=i.defaultItem?i.defaultItem:"enroll";break;case"group":c.dimension="group",c.criteria.orderby=i.defaultItem?i.defaultItem:"enroll";break;default:c.dimension="schema",c.criteria.orderby=i.defaultItem?i.defaultItem:"enroll"}e.changeCriteria()}}),e.changeCriteria(),e.setSnsShare(),e.setPopAct(["addRecord"],"rank"),e.setPopNav(["repos","kanban","favor","event"],"rank"),e.logAccess()})}])},8:function(e,t,n){var i=n(7);"string"==typeof i&&(i=[[e.i,i,""]]);var o={};o.transform=void 0;n(1)(i,o);i.locals&&(e.exports=i.locals)},9:function(e,t,n){"use strict";window.__util={},window.__util.makeDialog=function(e,t){var n,i;return i=document.createElement("div"),i.setAttribute("id",e),i.classList.add("dialog","mask"),n="<div class='dialog dlg'>",t.header&&t.header.length&&(n+="<div class='dlg-header'>"+t.header+"</div>"),n+="<div class='dlg-body'>"+t.body+"</div>",t.footer&&t.footer.length&&(n+="<div class='dlg-footer'>"+t.footer+"</div>"),n+="</div>",i.innerHTML=n,document.body.appendChild(i),i.children};var i=angular.module("directive.enroll",[]);i.directive("tmsDate",["$compile",function(e){return{restrict:"A",scope:{value:"=tmsDateValue"},controller:["$scope",function(e){e.close=function(){var t;t=document.querySelector("#"+e.dialogID),document.body.removeChild(t),e.opened=!1},e.ok=function(){var t;t=new Date,t.setTime(0),t.setFullYear(e.data.year),t.setMonth(e.data.month-1),t.setDate(e.data.date),t.setHours(e.data.hour),t.setMinutes(e.data.minute),e.value=parseInt(t.getTime()/1e3),e.close()}}],link:function(t,n,i){var o,a,r,s;void 0===t.value&&(t.value=1*new Date/1e3),a=new Date,a.setTime(1e3*t.value),t.options={years:[2014,2015,2016,2017,2018,2019,2020],months:[1,2,3,4,5,6,7,8,9,10,11,12],dates:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],hours:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23],minutes:[0,5,10,15,20,25,30,35,40,45,50,55]},r=5*Math.round(a.getMinutes()/5),t.data={year:a.getFullYear(),month:a.getMonth()+1,date:a.getDate(),hour:a.getHours(),minute:r},-1===t.options.minutes.indexOf(r)&&t.options.minutes.push(r),s='<div class="form-group"><select class="form-control" ng-model="data.year" ng-options="y for y in options.years"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.month" ng-options="m for m in options.months"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.date" ng-options="d for d in options.dates"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.hour" ng-options="h for h in options.hours"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.minute" ng-options="mi for mi in options.minutes"></select></div>',o=function(n){if(n.preventDefault(),n.stopPropagation(),!t.opened){var i,o;o="_dlg-"+1*new Date,i={header:"",body:s,footer:'<button class="btn btn-default" ng-click="close()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button>'},i=__util.makeDialog(o,i),t.opened=!0,t.dialogID=o,e(i)(t)}},n[0].querySelector("[ng-bind]").addEventListener("click",o)}}}]),i.directive("flexImg",function(){return{restrict:"A",replace:!0,template:"<img ng-src='{{img.imgSrc}}'>",link:function(e,t,n){angular.element(t).on("load",function(){var e,t,n=this.clientWidth,i=this.clientHeight;n>i?(e=n/i*80,angular.element(this).css({height:"100%",width:e+"px",top:"0",left:"50%","margin-left":-1*e/2+"px"})):(t=i/n*80,angular.element(this).css({width:"100%",height:t+"px",left:"0",top:"50%","margin-top":-1*t/2+"px"}))})}}}),i.directive("tmsHideParentHeight",function(){return{restrict:"A",link:function(e,t,n){var i,o;if(n.tmsHideParentHeight){i=n.tmsHideParentHeight;for(var a=0,r=t.length;a<r;a++)o=t[a],o.parentElement&&window.addEventListener("resize",function(){o.classList.toggle("hidden",o.parentElement.clientHeight<i)})}}}}),i.directive("tmsScrollSpy",function(){return{restrict:"A",scope:{selector:"@selector",offset:"@",onbottom:"&",toggleSpy:"="},link:function(e,t,n){var i="window"===e.selector?window:document.querySelector(e.selector);i.addEventListener("scroll",function(t){var n=i===window?t.target.documentElement:t.target;e.toggleSpy&&e.onbottom&&angular.isFunction(e.onbottom)&&n.clientHeight+n.scrollTop+parseInt(e.offset)>=n.scrollHeight&&e.$apply(function(){e.toggleSpy=!1,e.onbottom()})})}}})},93:function(e,t,n){t=e.exports=n(0)(void 0),t.push([e.i,"body,html{background-color:#f5f5f5}body{position:relative;font-size:14px}ol,ul{list-style:none;margin:0;padding:0}ol,ul,ul>li{overflow:hidden}ul>li{text-align:center;line-height:1.8;position:relative}.app{margin-bottom:64px;color:#333}.filter{margin-top:10px;padding:20px 0 40px;background-color:#fff}.filter>.col-xs-4 .form-control{font-size:16px}.filter>.col-xs-4 .form-control:focus{box-shadow:none}.result{background-color:#fff;padding:0 10px 20px}.result>div>ul>li:first-child{height:50px;line-height:50px;background-color:#2994d0;color:#fff}.result>div>ul>li.record{padding:10px 0;border-bottom:2px solid #f5f5f5;cursor:pointer}.result>div>ul>li.record:hover{background-color:#f5f5f5}.user-info{color:#666;font-size:12px;text-align:left}.data-headimg{width:20px;height:20px}.data-headimg,.user-headimg{border-radius:50%;margin-right:5px}.user-headimg{width:35px;height:35px}.mask{width:100%;height:15%;margin-bottom:0;left:0;bottom:0;background-color:#2f2933;opacity:.6}.mask,.tip{position:absolute}.tip{bottom:1px;right:5px;color:#fff;font-size:14px}.tip>.glyphicon{top:1px;margin-right:5px}@media screen and (max-width:768px){.site-navbar-default{margin-bottom:0}.filter{margin-bottom:10px;margin-top:0;padding:0}.filter>div+div .form-control{border-left:0}.filter .form-control{border-radius:0}.filter>.col-xs-4,.filter>.col-xs-6{padding-left:0;padding-right:0}.filter>.col-xs-4 .form-control{padding-right:0;padding-left:10px;border:none;border-radius:0;font-size:14px}.result{background-color:#f5f5f5;padding:0;font-size:13px}.result>div>ul>li.record{padding:10px;margin-bottom:5px;background-color:#fff;border-bottom:none}.col-xs-12{margin-top:10px}.hidden{display:none!important}}.rank-num{display:inline-block;line-height:20px;color:#333;text-align:center;font-weight:700}.record:nth-of-type(2) .rank-num,.record:nth-of-type(3) .rank-num,.record:nth-of-type(4) .rank-num{color:red}",""])}});
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	__webpack_require__.i = function(value) { return value; };
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 136);
+/******/ })
+/************************************************************************/
+/******/ ({
+
+/***/ 0:
+/***/ (function(module, exports) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+module.exports = function(useSourceMap) {
+	var list = [];
+
+	// return the list of modules as css string
+	list.toString = function toString() {
+		return this.map(function (item) {
+			var content = cssWithMappingToString(item, useSourceMap);
+			if(item[2]) {
+				return "@media " + item[2] + "{" + content + "}";
+			} else {
+				return content;
+			}
+		}).join("");
+	};
+
+	// import a list of modules into the list
+	list.i = function(modules, mediaQuery) {
+		if(typeof modules === "string")
+			modules = [[null, modules, ""]];
+		var alreadyImportedModules = {};
+		for(var i = 0; i < this.length; i++) {
+			var id = this[i][0];
+			if(typeof id === "number")
+				alreadyImportedModules[id] = true;
+		}
+		for(i = 0; i < modules.length; i++) {
+			var item = modules[i];
+			// skip already imported module
+			// this implementation is not 100% perfect for weird media query combinations
+			//  when a module is imported multiple times with different media queries.
+			//  I hope this will never occur (Hey this way we have smaller bundles)
+			if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+				if(mediaQuery && !item[2]) {
+					item[2] = mediaQuery;
+				} else if(mediaQuery) {
+					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+				}
+				list.push(item);
+			}
+		}
+	};
+	return list;
+};
+
+function cssWithMappingToString(item, useSourceMap) {
+	var content = item[1] || '';
+	var cssMapping = item[3];
+	if (!cssMapping) {
+		return content;
+	}
+
+	if (useSourceMap && typeof btoa === 'function') {
+		var sourceMapping = toComment(cssMapping);
+		var sourceURLs = cssMapping.sources.map(function (source) {
+			return '/*# sourceURL=' + cssMapping.sourceRoot + source + ' */'
+		});
+
+		return [content].concat(sourceURLs).concat([sourceMapping]).join('\n');
+	}
+
+	return [content].join('\n');
+}
+
+// Adapted from convert-source-map (MIT)
+function toComment(sourceMap) {
+	// eslint-disable-next-line no-undef
+	var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap))));
+	var data = 'sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64;
+
+	return '/*# ' + data + ' */';
+}
+
+
+/***/ }),
+
+/***/ 1:
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+
+var stylesInDom = {};
+
+var	memoize = function (fn) {
+	var memo;
+
+	return function () {
+		if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+		return memo;
+	};
+};
+
+var isOldIE = memoize(function () {
+	// Test for IE <= 9 as proposed by Browserhacks
+	// @see http://browserhacks.com/#hack-e71d8692f65334173fee715c222cb805
+	// Tests for existence of standard globals is to allow style-loader
+	// to operate correctly into non-standard environments
+	// @see https://github.com/webpack-contrib/style-loader/issues/177
+	return window && document && document.all && !window.atob;
+});
+
+var getElement = (function (fn) {
+	var memo = {};
+
+	return function(selector) {
+		if (typeof memo[selector] === "undefined") {
+			memo[selector] = fn.call(this, selector);
+		}
+
+		return memo[selector]
+	};
+})(function (target) {
+	return document.querySelector(target)
+});
+
+var singleton = null;
+var	singletonCounter = 0;
+var	stylesInsertedAtTop = [];
+
+var	fixUrls = __webpack_require__(4);
+
+module.exports = function(list, options) {
+	if (typeof DEBUG !== "undefined" && DEBUG) {
+		if (typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+	}
+
+	options = options || {};
+
+	options.attrs = typeof options.attrs === "object" ? options.attrs : {};
+
+	// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+	// tags it will allow on a page
+	if (!options.singleton) options.singleton = isOldIE();
+
+	// By default, add <style> tags to the <head> element
+	if (!options.insertInto) options.insertInto = "head";
+
+	// By default, add <style> tags to the bottom of the target
+	if (!options.insertAt) options.insertAt = "bottom";
+
+	var styles = listToStyles(list, options);
+
+	addStylesToDom(styles, options);
+
+	return function update (newList) {
+		var mayRemove = [];
+
+		for (var i = 0; i < styles.length; i++) {
+			var item = styles[i];
+			var domStyle = stylesInDom[item.id];
+
+			domStyle.refs--;
+			mayRemove.push(domStyle);
+		}
+
+		if(newList) {
+			var newStyles = listToStyles(newList, options);
+			addStylesToDom(newStyles, options);
+		}
+
+		for (var i = 0; i < mayRemove.length; i++) {
+			var domStyle = mayRemove[i];
+
+			if(domStyle.refs === 0) {
+				for (var j = 0; j < domStyle.parts.length; j++) domStyle.parts[j]();
+
+				delete stylesInDom[domStyle.id];
+			}
+		}
+	};
+};
+
+function addStylesToDom (styles, options) {
+	for (var i = 0; i < styles.length; i++) {
+		var item = styles[i];
+		var domStyle = stylesInDom[item.id];
+
+		if(domStyle) {
+			domStyle.refs++;
+
+			for(var j = 0; j < domStyle.parts.length; j++) {
+				domStyle.parts[j](item.parts[j]);
+			}
+
+			for(; j < item.parts.length; j++) {
+				domStyle.parts.push(addStyle(item.parts[j], options));
+			}
+		} else {
+			var parts = [];
+
+			for(var j = 0; j < item.parts.length; j++) {
+				parts.push(addStyle(item.parts[j], options));
+			}
+
+			stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+		}
+	}
+}
+
+function listToStyles (list, options) {
+	var styles = [];
+	var newStyles = {};
+
+	for (var i = 0; i < list.length; i++) {
+		var item = list[i];
+		var id = options.base ? item[0] + options.base : item[0];
+		var css = item[1];
+		var media = item[2];
+		var sourceMap = item[3];
+		var part = {css: css, media: media, sourceMap: sourceMap};
+
+		if(!newStyles[id]) styles.push(newStyles[id] = {id: id, parts: [part]});
+		else newStyles[id].parts.push(part);
+	}
+
+	return styles;
+}
+
+function insertStyleElement (options, style) {
+	var target = getElement(options.insertInto)
+
+	if (!target) {
+		throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");
+	}
+
+	var lastStyleElementInsertedAtTop = stylesInsertedAtTop[stylesInsertedAtTop.length - 1];
+
+	if (options.insertAt === "top") {
+		if (!lastStyleElementInsertedAtTop) {
+			target.insertBefore(style, target.firstChild);
+		} else if (lastStyleElementInsertedAtTop.nextSibling) {
+			target.insertBefore(style, lastStyleElementInsertedAtTop.nextSibling);
+		} else {
+			target.appendChild(style);
+		}
+		stylesInsertedAtTop.push(style);
+	} else if (options.insertAt === "bottom") {
+		target.appendChild(style);
+	} else {
+		throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
+	}
+}
+
+function removeStyleElement (style) {
+	if (style.parentNode === null) return false;
+	style.parentNode.removeChild(style);
+
+	var idx = stylesInsertedAtTop.indexOf(style);
+	if(idx >= 0) {
+		stylesInsertedAtTop.splice(idx, 1);
+	}
+}
+
+function createStyleElement (options) {
+	var style = document.createElement("style");
+
+	options.attrs.type = "text/css";
+
+	addAttrs(style, options.attrs);
+	insertStyleElement(options, style);
+
+	return style;
+}
+
+function createLinkElement (options) {
+	var link = document.createElement("link");
+
+	options.attrs.type = "text/css";
+	options.attrs.rel = "stylesheet";
+
+	addAttrs(link, options.attrs);
+	insertStyleElement(options, link);
+
+	return link;
+}
+
+function addAttrs (el, attrs) {
+	Object.keys(attrs).forEach(function (key) {
+		el.setAttribute(key, attrs[key]);
+	});
+}
+
+function addStyle (obj, options) {
+	var style, update, remove, result;
+
+	// If a transform function was defined, run it on the css
+	if (options.transform && obj.css) {
+	    result = options.transform(obj.css);
+
+	    if (result) {
+	    	// If transform returns a value, use that instead of the original css.
+	    	// This allows running runtime transformations on the css.
+	    	obj.css = result;
+	    } else {
+	    	// If the transform function returns a falsy value, don't add this css.
+	    	// This allows conditional loading of css
+	    	return function() {
+	    		// noop
+	    	};
+	    }
+	}
+
+	if (options.singleton) {
+		var styleIndex = singletonCounter++;
+
+		style = singleton || (singleton = createStyleElement(options));
+
+		update = applyToSingletonTag.bind(null, style, styleIndex, false);
+		remove = applyToSingletonTag.bind(null, style, styleIndex, true);
+
+	} else if (
+		obj.sourceMap &&
+		typeof URL === "function" &&
+		typeof URL.createObjectURL === "function" &&
+		typeof URL.revokeObjectURL === "function" &&
+		typeof Blob === "function" &&
+		typeof btoa === "function"
+	) {
+		style = createLinkElement(options);
+		update = updateLink.bind(null, style, options);
+		remove = function () {
+			removeStyleElement(style);
+
+			if(style.href) URL.revokeObjectURL(style.href);
+		};
+	} else {
+		style = createStyleElement(options);
+		update = applyToTag.bind(null, style);
+		remove = function () {
+			removeStyleElement(style);
+		};
+	}
+
+	update(obj);
+
+	return function updateStyle (newObj) {
+		if (newObj) {
+			if (
+				newObj.css === obj.css &&
+				newObj.media === obj.media &&
+				newObj.sourceMap === obj.sourceMap
+			) {
+				return;
+			}
+
+			update(obj = newObj);
+		} else {
+			remove();
+		}
+	};
+}
+
+var replaceText = (function () {
+	var textStore = [];
+
+	return function (index, replacement) {
+		textStore[index] = replacement;
+
+		return textStore.filter(Boolean).join('\n');
+	};
+})();
+
+function applyToSingletonTag (style, index, remove, obj) {
+	var css = remove ? "" : obj.css;
+
+	if (style.styleSheet) {
+		style.styleSheet.cssText = replaceText(index, css);
+	} else {
+		var cssNode = document.createTextNode(css);
+		var childNodes = style.childNodes;
+
+		if (childNodes[index]) style.removeChild(childNodes[index]);
+
+		if (childNodes.length) {
+			style.insertBefore(cssNode, childNodes[index]);
+		} else {
+			style.appendChild(cssNode);
+		}
+	}
+}
+
+function applyToTag (style, obj) {
+	var css = obj.css;
+	var media = obj.media;
+
+	if(media) {
+		style.setAttribute("media", media)
+	}
+
+	if(style.styleSheet) {
+		style.styleSheet.cssText = css;
+	} else {
+		while(style.firstChild) {
+			style.removeChild(style.firstChild);
+		}
+
+		style.appendChild(document.createTextNode(css));
+	}
+}
+
+function updateLink (link, options, obj) {
+	var css = obj.css;
+	var sourceMap = obj.sourceMap;
+
+	/*
+		If convertToAbsoluteUrls isn't defined, but sourcemaps are enabled
+		and there is no publicPath defined then lets turn convertToAbsoluteUrls
+		on by default.  Otherwise default to the convertToAbsoluteUrls option
+		directly
+	*/
+	var autoFixUrls = options.convertToAbsoluteUrls === undefined && sourceMap;
+
+	if (options.convertToAbsoluteUrls || autoFixUrls) {
+		css = fixUrls(css);
+	}
+
+	if (sourceMap) {
+		// http://stackoverflow.com/a/26603875
+		css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+	}
+
+	var blob = new Blob([css], { type: "text/css" });
+
+	var oldSrc = link.href;
+
+	link.href = URL.createObjectURL(blob);
+
+	if(oldSrc) URL.revokeObjectURL(oldSrc);
+}
+
+
+/***/ }),
+
+/***/ 10:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+function openPlugin(content, cb) {
+    var frag, wrap, frm;
+    frag = document.createDocumentFragment();
+    wrap = document.createElement('div');
+    wrap.setAttribute('id', 'frmPlugin');
+    frm = document.createElement('iframe');
+    wrap.appendChild(frm);
+    wrap.onclick = function() {
+        wrap.parentNode.removeChild(wrap);
+    };
+    frag.appendChild(wrap);
+    document.body.appendChild(frag);
+    if (content.indexOf('http') === 0) {
+        window.onClosePlugin = function() {
+            wrap.parentNode.removeChild(wrap);
+            cb && cb();
+        };
+        frm.setAttribute('src', content);
+    } else {
+        if (frm.contentDocument && frm.contentDocument.body) {
+            frm.contentDocument.body.innerHTML = content;
+        }
+    }
+}
+
+var ngMod = angular.module('coinpay.ui.xxt', []);
+ngMod.service('tmsCoinPay', function() {
+    this.showSwitch = function(siteId, matter) {
+        var eSwitch;
+        eSwitch = document.createElement('div');
+        eSwitch.classList.add('tms-switch', 'tms-switch-coinpay');
+        eSwitch.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            var url = location.protocol + '//' + location.host;
+            url += '/rest/site/fe/coin/pay';
+            url += "?site=" + siteId;
+            url += "&matter=" + matter;
+            openPlugin(url);
+        }, true);
+        document.body.appendChild(eSwitch);
+    }
+});
+
+
+/***/ }),
+
+/***/ 11:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var ngMod = angular.module('picviewer.ui.xxt', []);
+ngMod.factory('picviewer', ['$q', function($q) {
+    /*私有方法*/
+    var _method = {
+        isArray: function(value) {
+            return Object.prototype.toString.call(value) == '[object Array]';
+        },
+        all: function(selector, contextElement) {
+            var nodeList,
+                list = [];
+            if (contextElement) {
+                nodeList = contextElement.querySelectorAll(selector);
+            } else {
+                nodeList = document.querySelectorAll(selector);
+            }
+            if (nodeList && nodeList.length > 0) {
+                list = Array.prototype.slice.call(nodeList);
+            }
+            return list;
+        },
+        delegate: function(ele, eventType, selector, fn) {
+            var _this = this;
+            if (!ele) { return; }
+            ele.addEventListener(eventType, function(e) {
+                var targets = _this.all(selector, ele);
+                if (!targets) {
+                    return;
+                }
+                for (var i = 0; i < targets.length; i++) {
+                    var node = e.target;
+                    while (node) {
+                        if (node == targets[i]) {
+                            fn.call(node, e);
+                            break;
+                        }
+                        node = node.parentNode;
+                        if (node == ele) {
+                            break;
+                        }
+                    }
+                }
+            }, false);
+        }
+    }
+
+    /*初始化*/
+    var _picviewer = function() {
+        this.winw = window.innerWidth || document.body.clientWidth; 
+        this.winh = (window.innerHeight+1) || document.body.clientHeight;
+        this.originWinw = this.winw;
+        this.originWinh = this.winh;
+        this.marginRight = 15;
+        this.imageChageMoveX = this.marginRight + this.winw;
+        this.imageChageNeedX = Math.floor(this.winw * (0.5));
+        this.cssprefix = ["", "webkit", "Moz", "ms", "o"];
+        this.imgLoadCache = new Object();
+        this.scale = 1;
+        this.maxScale = 4;
+        this.maxOverScale = 6;
+        this.openTime = 0.3;
+        this.slipTime = 0.5;
+        this.maxOverWidthPercent = 0.5;
+        this.box = false;
+        this.isPreview = false;
+        this.container = document.createElement('div');
+        this.container.setAttribute('id', 'previewImage-container');
+        this.container.style.width = this.winw + 'px';
+        this.container.style.height = this.winh + 'px'; 
+        document.body.appendChild(this.container); 
+        this.bind();  
+    };
+
+    /*绑定事件*/
+    _picviewer.prototype.bind = function() {
+        var _this = this;
+        var container = this.container;
+
+        var closePreview = function() {
+            _this.setCloseStatus.call(_this);
+        }
+        var touchStartFun = function() {
+            _this.touchStartFun.call(_this);
+        }
+        var touchMoveFun = function() {
+            _this.touchMoveFun.call(_this);
+        }
+        var touchEndFun = function() {
+            _this.touchEndFun.call(_this);
+        }
+        var reSizeFun = function() {
+            var _this = this;
+            _this.winw = window.innerWidth || document.body.clientWidth; 
+            _this.winh = window.innerHeight || document.body.clientHeight;
+            _this.originWinw = _this.winw; 
+            _this.originWinh = _this.winh; 
+            _this.container.style.width = _this.winw + 'px';
+            _this.container.style.height = _this.winh + 'px'; 
+            _this.imageChageMoveX = _this.marginRight + _this.winw;
+            var offsetX = -_this.imageChageMoveX * _this.index; 
+            try {
+                _this.boxData.x = offsetX;
+                _this.translateScale(_this.bIndex, 0);
+            } catch (e) {}
+        }.bind(this);
+        var keyDownFun = function(){
+            var _this = this;
+            if (event.keyCode == 37) {
+                this.prev &&  this.prev();
+            } else if(event.keyCode == 39) {
+                this.next && this.next();
+            }
+        }.bind(this);
+
+        window.addEventListener("resize", reSizeFun, false);
+        document.addEventListener("keydown", keyDownFun, false);
+        _method.delegate(container, 'click', '.previewImage-item', closePreview);
+        _method.delegate(container, 'touchstart', '.previewImage-item', touchStartFun);
+        _method.delegate(container, 'touchmove', '.previewImage-item', touchMoveFun);
+        _method.delegate(container, 'touchend', '.previewImage-item', touchEndFun);
+        _method.delegate(container, 'touchcancel', '.previewImage-item', touchEndFun);
+    };
+    _picviewer.prototype.setCloseStatus = function() {
+        if(this.winw > 992) {
+            if(this.urls.length == 1 || this.index == this.maxLen) {
+                this.closePreview();
+            }else {
+                this.next && this.next();
+            }
+        }else{
+            this.closePreview();
+        }
+    };
+    _picviewer.prototype.closePreview = function(){
+        var _this = this;
+        this.imgStatusCache[this.cIndex].x = this.winw;
+        this.translateScale(this.cIndex,this.openTime);
+        this.imgStatusRewrite();
+        this.translateScale(this.index,this.slipTime);
+        setTimeout(function(){
+            _this.container.style.display = "none";
+            document.body.style.overflow = 'auto';
+        },this.slipTime*1000);
+        _this.isPreview = false;
+    };
+    _picviewer.prototype.touchStartFun = function(imgitem){
+        this.ts = this.getTouches();
+        this.allowMove = true; 
+        this.statusX = 0; 
+        this.statusY = 0; 
+    };
+    _picviewer.prototype.touchMoveFun = function(imgitem){
+        this.tm = this.getTouches();
+        var tm = this.tm;
+        var ts = this.ts;
+        this.moveAction(ts,tm);
+    };
+    _picviewer.prototype.touchEndFun = function(imgitem){
+        var container = this.container;
+        this.te = this.getTouches();
+        this.endAction(this.ts,this.te);
+    };
+    
+    /*被调用的方法*/
+    _picviewer.prototype.moveAction = function(ts,tm){
+        if(!this.allowMove){ return false; }
+        var imgStatus, maxWidth, x0_offset, y0_offset, imgPositionX, imgPositionY, allow, allowX, allowY;
+        imgStatus = this.getIndexImage();
+        maxWidth = this.winw*0.3/imgStatus.scale;
+        x0_offset = tm.x0 - ts.x0;
+        y0_offset = tm.y0 - ts.y0;
+        if(Math.abs(y0_offset)>0){  
+            event.preventDefault();
+        }
+        imgPositionX = imgStatus.x+x0_offset;
+        imgPositionY = imgStatus.y+y0_offset;
+        allow = this.getAllow(this.index);
+        allowX = this.allowX = allow.x;
+        allowY = this.allowY = allow.y0;
+        if(x0_offset<=0){ 
+            this.allowX = -allowX;
+        }
+        if(y0_offset<=0){   
+            allowY = this.allowY = allow.y1;
+        }
+        if(tm.length==1){   
+            if(imgStatus.scale>1){
+                if(imgPositionY>=allow.y0){  
+                    this.statusY = 1;
+                    var overY = imgPositionY - allow.y0;
+                    imgStatus.my = allow.y0-imgStatus.y+this.getSlowlyNum(overY,maxWidth);
+                }else if(imgPositionY<=allow.y1){ 
+                    this.statusY = 1;
+                    var overY = imgPositionY - allow.y1;
+                    imgStatus.my = allow.y1-imgStatus.y+this.getSlowlyNum(overY,maxWidth);
+                }else{
+                    this.statusY = 2;
+                    imgStatus.my = y0_offset;
+                }
+
+            
+                if(x0_offset<0&&imgStatus.x<=-allowX){ 
+                    this.statusX = 1;
+                    this.boxData.m = x0_offset; 
+                    if(this.index==this.maxLen){ 
+                        this.boxData.m = this.getSlowlyNum(x0_offset);  
+                    }
+                    this.translateScale(this.bIndex,0);
+                    this.translateScale(this.index,0);
+                }else if(x0_offset>0&&imgStatus.x>=allowX){   
+                    this.statusX = 2;
+                    this.boxData.m = x0_offset;
+                    if(this.index==0){ 
+                        this.boxData.m = this.getSlowlyNum(x0_offset); 
+                    }
+                    this.translateScale(this.bIndex,0);
+                    this.translateScale(this.index,0);
+                }else{  
+                    if(x0_offset==0){
+                        return
+                    }
+                    this.statusX = 3;
+                    imgStatus.m = x0_offset;
+                    if(imgPositionX>=allowX){   
+                        this.statusX = 4;
+                        var overX = imgPositionX - allowX;
+                        imgStatus.m = allowX-imgStatus.x+this.getSlowlyNum(overX,maxWidth);
+                    }
+                    if(imgPositionX<=-allowX){  
+                        this.statusX = 4;
+                        var overX = imgPositionX + allowX;
+                        imgStatus.m = -allowX-imgStatus.x+this.getSlowlyNum(overX,maxWidth);
+                    }
+                    this.translateScale(this.index,0);
+                }
+            }else{ 
+                if(Math.abs(y0_offset)>5&&this.statusX != 5){  
+                    var $img = this.getJqElem(this.index);
+                    var imgBottom = $img.height-this.winh;
+                    if(y0_offset>0&&imgPositionY>0){
+                        this.statusX = 7;
+                        this.allowY = 0;
+                        imgStatus.my = - imgStatus.y + this.getSlowlyNum(imgPositionY,maxWidth);
+                    }else if(y0_offset<0&&imgPositionY<-imgBottom){
+                        this.statusX = 7;
+                        if($img.height>this.winh){
+                            var overY = imgPositionY + imgBottom;
+                            this.allowY = -imgBottom;
+                            imgStatus.my = -imgBottom - imgStatus.y + this.getSlowlyNum(overY,maxWidth);
+                        }else{
+                            this.allowY = 0;
+                            imgStatus.my = - imgStatus.y + this.getSlowlyNum(imgPositionY,maxWidth);
+                        }
+                    }else{
+
+                        this.statusX = 6;
+                        imgStatus.my = y0_offset;
+                    }
+                    this.translateScale(this.index,0);
+                }else{
+                    if(this.statusX == 6){
+                        return
+                    }
+                    this.statusX = 5;
+                    if((this.index==0&&x0_offset>0)||(this.index==this.maxLen&&x0_offset<0)){
+                        this.boxData.m = this.getSlowlyNum(x0_offset);
+                    }else{
+                        this.boxData.m = x0_offset;
+                    }
+                    this.translateScale(this.bIndex,0);
+                }
+            }
+        }else{  
+            var scalem = this.getScale(ts,tm)
+            var scale = scalem*imgStatus.scale;
+            if(scale>=this.maxScale){  
+                var over = scale - this.maxScale;
+                scale = this.maxScale+this.getSlowlyNum(over,this.maxOverScale);
+                scalem = scale/imgStatus.scale;
+            }
+            imgStatus.scalem = scalem;
+            this.translateScale(this.index,0);
+        }
+    };
+    _picviewer.prototype.endAction = function(ts,te){
+        var imgStatus, x0_offset, y0_offset, time, slipTime;
+        imgStatus = this.getIndexImage();
+        x0_offset = te.x0 - ts.x0;
+        y0_offset = te.y0 - ts.y0;
+        time = te.time - ts.time;
+        slipTime = 0;
+        this.allowMove = false; 
+        if(ts.length==1){     
+            if(Math.abs(x0_offset)>10){
+                event.preventDefault();
+            }
+            switch(this.statusY){
+                case 1:
+                    imgStatus.y = this.allowY;
+                    imgStatus.my = 0;
+                    slipTime = this.slipTime;
+                break
+                case 2:
+                    imgStatus.y = imgStatus.y+imgStatus.my;
+                    imgStatus.my = 0;
+                break
+            }
+
+            switch(this.statusX){
+                case 1: 
+                    if(this.index!=this.maxLen&&(x0_offset<=-this.imageChageNeedX||(time<200&&x0_offset<-30))){   
+                        this.changeIndex(1);
+                    }else{
+                        this.changeIndex(0);
+                        if(slipTime!=0){
+                            this.translateScale(this.index,slipTime);
+                        }
+                    }
+                break
+                case 2: 
+                    if(this.index!=0&&(x0_offset>=this.imageChageNeedX||(time<200&&x0_offset>30))){ 
+                        this.changeIndex(-1);
+                    }else{
+                        this.changeIndex(0);
+                        if(slipTime!=0){
+                            this.translateScale(this.index,slipTime);
+                        }
+                    }
+                break
+                case 3: 
+                    imgStatus.x = imgStatus.x+imgStatus.m;
+                    imgStatus.m = 0;
+                    this.translateScale(this.index,slipTime);
+                break
+                case 4:
+                    imgStatus.x = this.allowX;
+                    imgStatus.m = 0;
+                    slipTime = this.slipTime;
+                    this.translateScale(this.index,slipTime);
+                break
+                case 5: 
+                    if(x0_offset>=this.imageChageNeedX||(time<200&&x0_offset>30)){    
+                        this.changeIndex(-1);
+                    }else if(x0_offset<=-this.imageChageNeedX||(time<200&&x0_offset<-30)){ 
+                        this.changeIndex(1);
+                    }else{
+                        this.changeIndex(0);
+                    }
+                break
+                case 6:
+                    imgStatus.y = imgStatus.y+imgStatus.my;
+                    imgStatus.my = 0;
+                break
+                case 7: 
+                    imgStatus.y = this.allowY;
+                    imgStatus.my = 0;
+                    this.translateScale(this.index,this.slipTime);
+                break
+            }
+        }else{  
+            event.preventDefault();
+
+            var scale = imgStatus.scale*imgStatus.scalem;
+            var $img = this.getJqElem(this.index);
+            imgStatus.scale = scale;
+            var allow = this.getAllow(this.index);
+
+            if(imgStatus.x>allow.x){
+                slipTime = this.slipTime;
+                imgStatus.x = allow.x;
+            }else if(imgStatus.x<-allow.x){
+                slipTime = this.slipTime;
+                imgStatus.x = -allow.x;
+            }
+
+            if(imgStatus.y>allow.y0){
+                slipTime = this.slipTime;
+                imgStatus.y = allow.y0;
+            }else if(imgStatus.y<allow.y1){
+                slipTime = this.slipTime;
+                imgStatus.y = allow.y1;
+            }
+
+            if($img.height*imgStatus.scale<=this.winh){
+                imgStatus.y = 0;
+            }
+
+            if($img.width*imgStatus.scale<=this.winw){
+                imgStatus.x = 0;
+            }
+
+            imgStatus.scalem = 1;
+            if(scale>this.maxScale){     
+                imgStatus.scale = this.maxScale;
+                slipTime = this.slipTime;
+            }else if(scale<1){
+                this.imgStatusRewrite();
+                slipTime = this.slipTime;
+            }
+            if(slipTime!=0){
+                this.changeIndex(0);
+                this.translateScale(this.index,slipTime);
+            }
+        }
+    };
+    _picviewer.prototype.changeIndex = function(x){
+        var imgStatus, oldIndex, _this, hash, imgCache;
+        imgStatus = this.getIndexImage();
+        oldIndex = this.index;
+        _this = this;
+
+        if(this.index==0&&x==-1){
+            this.index = this.index;
+        }else if(this.index==this.maxLen&&x==1){
+            this.index = this.index;
+        }else{
+            this.index+=x;
+            this.ePage.innerHTML = (this.index + 1) + '/' + (this.maxLen + 1);
+            hash = this.imgStatusCache[this.index].hash;
+            imgCache = this.imgLoadCache[hash];
+            if(!imgCache.isload){    
+                imgCache.elem.src = this.urls[this.index];
+                imgCache.elem.onload = function(){
+                    imgCache.isload = true;
+                }
+            }
+        }
+        this.setActionStatus();
+        this.boxData.x = -this.imageChageMoveX*this.index;
+        this.boxData.m = 0;
+        if(oldIndex!=this.index){
+            this.imgStatusRewrite(oldIndex);
+        }
+        this.translateScale(this.bIndex,this.slipTime);
+    };
+    _picviewer.prototype.setActionStatus = function(){
+        if (this.index==0) {
+            this.ePrev.classList.add('hide');
+            this.eNext.classList.remove('hide');
+        } else if (this.index==this.maxLen) {
+            this.ePrev.classList.remove('hide');
+            this.eNext.classList.add('hide');
+        } else {
+            this.ePrev.classList.remove('hide');
+            this.eNext.classList.remove('hide');
+        }
+    };
+    _picviewer.prototype.getTouches = function(e){
+        var touches = event.touches.length>0?event.touches:event.changedTouches;
+        var obj = {touches:touches,length:touches.length};
+            obj.x0 = touches[0].pageX
+            obj.y0 = touches[0].pageY;
+            obj.time = new Date().getTime();
+        if(touches.length>=2){
+            obj.x1 = touches[0].pageX
+            obj.y1 = touches[1].pageY
+        }
+        return obj;
+    };
+    _picviewer.prototype.getIndexImage = function(index){
+        var index = index==undefined?this.index:index;
+        return  this.imgStatusCache[this.index];
+    };
+    _picviewer.prototype.getAllow = function(index){
+        var $img, imgStatus, allowX, allowY0, allowY1;
+        $img = this.getJqElem(index);
+        imgStatus = this.getIndexImage(index);
+        allowX = Math.floor(($img.width*imgStatus.scale-this.winw)/(2*imgStatus.scale));
+        if($img.height*imgStatus.scale<=this.winh){
+            allowY0 = 0;
+            allowY1 = 0;
+        }else if($img.height<=this.winh){
+            allowY0 = Math.floor(($img.height*imgStatus.scale-this.winh)/(2*imgStatus.scale));
+            allowY1 = -allowY0;
+        }else{
+            allowY0 = Math.floor($img.height*(imgStatus.scale-1)/(2*imgStatus.scale));
+            allowY1 = -Math.floor(($img.height*(imgStatus.scale+1)-2*this.winh)/(2*imgStatus.scale));
+        }
+        return {
+            x:allowX,
+            y0:allowY0,
+            y1:allowY1,
+        };
+    };
+    _picviewer.prototype.getSlowlyNum = function(x,maxOver){
+        var maxOver = maxOver||this.winw*this.maxOverWidthPercent;
+        if(x<0){
+            x = -x;
+            return -(1-(x/(maxOver+x)))*x;
+        }else{
+            return (1-(x/(maxOver+x)))*x;
+        }
+    };
+    _picviewer.prototype.getScale = function(ts,tm){
+        var fingerRangeS, fingerRangeM, range;
+        fingerRangeS = Math.sqrt(Math.pow((ts.x1 - ts.x0),2)+Math.pow((ts.y1-ts.y0),2)); 
+        fingerRangeM = Math.sqrt(Math.pow((tm.x1 - tm.x0),2)+Math.pow((tm.y1-tm.y0),2));
+        range = fingerRangeM/fingerRangeS;
+        return range;
+    };
+    _picviewer.prototype.imgStatusRewrite = function(idx){
+        var index=idx===undefined?this.index:idx;
+        var imgStatus=this.imgStatusCache[index], currentScale=imgStatus.scale,
+            currentX=imgStatus.x, currentY=imgStatus.y;
+        imgStatus.x = 0;
+        imgStatus.y = 0;
+        imgStatus.m = 0;
+        imgStatus.my = 0;
+        imgStatus.scale = 1;
+        imgStatus.scalem = 1;
+        if(index!=this.index){
+            if(this.winw > 992) {
+                imgStatus.scale = currentScale;
+                imgStatus.x = currentX;
+                imgStatus.y = currentY;
+            }
+            this.translateScale(index,this.slipTime);
+        }
+    };
+    _picviewer.prototype.translateScale = function (index,duration){
+        var imgStatus, $elem, scale, offsetX, offsetY, tran_origin, tran_3d, transition;
+        imgStatus = this.imgStatusCache[index];
+        $elem = this.getJqElem(index);
+        scale = imgStatus.scale*imgStatus.scalem;
+        offsetX = imgStatus.x+imgStatus.m;
+        offsetY = imgStatus.y+imgStatus.my;
+        tran_origin = '0px 0px 0px';
+        tran_3d='scale3d('+scale+','+scale+','+'1)' + ' translate3d(' + offsetX + 'px,' + offsetY + 'px,0px)';
+        transition = 'transform '+duration+'s ease-out';
+        if(this.winw > 992) {
+            this.addCssPrefix($elem,'transform-origin',tran_origin);
+            tran_3d='translate3d(' + offsetX + 'px,' + offsetY + 'px,0px)' + ' scale3d('+scale+','+scale+','+'1)';
+        }
+        this.addCssPrefix($elem,'transition',transition);
+        this.addCssPrefix($elem,'transform',tran_3d);
+    };
+    _picviewer.prototype.getJqElem = function(index){
+        var $elem, index, hash;
+        index = index == undefined?this.index:index;
+        if(index<=this.maxLen){
+            hash = this.imgStatusCache[index].hash;
+            $elem = this.imgLoadCache[hash].elem;
+        }else{
+            $elem = this.imgStatusCache[index].elem;
+        }
+        return $elem;
+    };
+    _picviewer.prototype.addCssPrefix = function(elem,prop,value){
+        for(var i in this.cssprefix){
+            var cssprefix = this.cssprefix[i];
+            if(cssprefix===""){
+                prop = prop.toLowerCase();
+            }else{
+                prop = prop.substr(0,1).toUpperCase()+prop.substr(1,prop.length).toLowerCase()
+            }
+            if(document.body.style[prop]!==undefined){
+                elem.style[prop] = value;
+                return false;
+            }
+        }
+    };
+    _picviewer.prototype.prev = function(){
+        if (this.index > 0) {
+            this.changeIndex(-1);
+        }
+    };
+    _picviewer.prototype.next = function(){
+        if (this.index < this.maxLen) {
+            this.changeIndex(1);
+        }
+    };
+    /*开始和渲染*/
+    _picviewer.prototype.render = function(){
+        var _this = this;
+        document.body.style.overflow = 'hidden';
+        if(this.box===false){ 
+            this.box = document.createElement('div');
+            this.box.setAttribute('class', 'previewImage-box'); 
+        }else{
+            this.box.innerHTML = ''; 
+        }
+        this.text = document.createElement('div');   
+        this.text.setAttribute('class', 'previewImage-text');
+        this.text.innerHTML = "<span class='page'>"+(this.index+1)+"/"+(this.maxLen+1)+"</span><span class='prev'><i class='glyphicon glyphicon-menu-left'></i></span><span class='next'><i class='glyphicon glyphicon-menu-right'></i></span><span class='exit'><i class='glyphicon glyphicon-remove'></i></span>";
+        this.containerData = this.imgStatusCache[this.cIndex] = {elem:this.container,x:this.winw,y:0,m:0,my:0,scale:1,scalem:1}; 
+        this.boxData = this.imgStatusCache[this.bIndex] = {elem:this.box,x:0,y:0,m:0,my:0,scale:1,scalem:1};   
+        this.urls.forEach(function(v,i){    
+            var div, hash, img, imgCache;
+            div = document.createElement('div');
+            hash = window.md5?md5(v+i):v+i;
+            imgCache = _this.imgLoadCache[hash];
+            if(imgCache&&imgCache.isload){   
+                img = imgCache.elem;
+            }else{  
+                img = new Image();
+                img.setAttribute('class', 'previewImage-image');
+                _this.imgLoadCache[hash] = {isload:false,elem:img};
+                if(i == _this.index){  
+                    img.src = v;
+                    img.onload = function(){
+                        _this.imgLoadCache[hash].isload = true;
+                    }
+                }
+            }
+            _this.imgStatusCache[i] = {hash:hash,x:0,m:0,y:0,my:0,scale:_this.scale,scalem:1};
+            div.setAttribute('class', 'previewImage-item');
+            div.appendChild(img);
+            _this.box.appendChild(div);
+        })
+
+        this.container.appendChild(this.box);  
+        this.container.appendChild(this.text);   
+        this.ePage = document.querySelector('.previewImage-text span.page');
+        this.ePrev = document.querySelector('.previewImage-text span.prev');
+        this.eNext = document.querySelector('.previewImage-text span.next');
+        this.eCloser = document.querySelector('.previewImage-text span.exit');
+
+        var offsetX = -this.imageChageMoveX*this.index;  
+        this.boxData.x = offsetX;  
+        this.containerData.x = 0;  
+        this.container.style.display = "block";
+        setTimeout(function(){
+            _this.setActionStatus();
+            if(_this.winw  > 992) {
+                _this.urls.forEach(function(v, i) {
+                    var that = _this, elImg, currentScale, toX, toY, overrideWidth, overrideHeight;
+                    elImg = that.selectorEleAll[i];
+                    currentScale = Math.min(that.winw / elImg.naturalWidth, that.winh / elImg.naturalHeight);
+                    toX = toY = 0;
+                    function imgHeight() {
+                        return elImg.naturalHeight * currentScale;
+                    }
+
+                    function imgWidth() {
+                        return elImg.naturalWidth * currentScale;
+                    }
+
+                    toX > 0 && (toX = 0);
+                    overrideWidth = Math.round(that.winw - imgWidth());
+                    if (toX < overrideWidth) {
+                        toX = overrideWidth < 0 ? overrideWidth : overrideWidth / 2;
+                    }
+                    toY > 0 && (toY = 0);
+                    overrideHeight = Math.round(that.winh - imgHeight());
+                    if (toY < overrideHeight) {
+                        toY = overrideHeight < 0 ? overrideHeight : overrideHeight / 2;
+                    }
+                    that.imgStatusCache[i].x = toX;
+                    that.imgStatusCache[i].y = toY;
+
+                    that.imgStatusCache[i].scale = currentScale;
+                    that.translateScale(i, 0);
+                });
+            }
+            _this.translateScale(_this.bIndex,0);
+            _this.translateScale(_this.cIndex,_this.openTime);
+
+            _this.isPreview = true;
+            _this.ePrev.addEventListener('click', function(e) {
+                e.preventDefault();
+                _this.prev();
+                return false;
+            }, false);
+            _this.eNext.addEventListener('click', function(e) {
+                e.preventDefault();
+                _this.next();
+                return false;
+            }, false);
+            _this.eCloser.addEventListener('click', function(e) {
+                e.preventDefault();
+                _this.closePreview();
+                return false;
+            }, false);
+        },50);
+    };
+    _picviewer.prototype.start = function(obj){
+        this.container.innerHTML = '';
+        if (!obj.urls || !_method.isArray(obj.urls) || obj.urls.length == 0) { 
+            alert("urls must be a Array and the minimum length more than zero");
+            return false;
+        }
+        if (!obj.current) {
+            this.index = 0;
+            console.warn("current is empty,it will be the first value of urls!");
+        } else {
+            var index = obj.urls.indexOf(obj.current);
+            if (index < 0) {
+                index = 0;
+                console.warn("current isnot on urls,it will be the first value of urls!");
+            }
+            this.index = index; 
+        }
+        this.selectorEleAll = obj.elems;
+        this.urls = obj.urls; 
+        this.maxLen = obj.urls.length - 1;
+        this.cIndex = this.maxLen + 1; 
+        this.bIndex = this.maxLen + 2; 
+        this.imgStatusCache = new Object(); 
+        this.render(); 
+    };
+    _picviewer.prototype.init = function(selectorAll){
+        var urls = [], _this = this;
+        angular.forEach(selectorAll, function(selector, index) {
+            urls.push(selector.src);
+            selector.addEventListener('click', function() {
+                var obj = {
+                    elems: selectorAll,
+                    urls: urls,
+                    current: this.src
+                }
+                _this.start(obj);
+            });
+        });
+    }
+    var picviewer = new _picviewer();
+
+    return picviewer;
+}]);
+
+/***/ }),
+
+/***/ 111:
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(93);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./rank.css", function() {
+			var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./rank.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+
+/***/ 12:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+function openPlugin(content, cb) {
+    var frag, wrap, frm;
+    frag = document.createDocumentFragment();
+    wrap = document.createElement('div');
+    wrap.setAttribute('id', 'frmPlugin');
+    frm = document.createElement('iframe');
+    wrap.appendChild(frm);
+    wrap.onclick = function() {
+        wrap.parentNode.removeChild(wrap);
+    };
+    frag.appendChild(wrap);
+    document.body.appendChild(frag);
+    if (content.indexOf('http') === 0) {
+        window.onClosePlugin = function() {
+            wrap.parentNode.removeChild(wrap);
+            cb && cb();
+        };
+        frm.setAttribute('src', content);
+    } else {
+        if (frm.contentDocument && frm.contentDocument.body) {
+            frm.contentDocument.body.innerHTML = content;
+        }
+    }
+}
+
+var ngMod = angular.module('siteuser.ui.xxt', []);
+ngMod.service('tmsSiteUser', function() {
+    this.showSwitch = function(siteId, redirect) {
+        var eSwitch;
+        eSwitch = document.createElement('div');
+        eSwitch.classList.add('tms-switch', 'tms-switch-siteuser');
+        eSwitch.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            var url = location.protocol + '//' + location.host;
+            url += '/rest/site/fe/user';
+            url += "?site=" + siteId;
+            if (redirect) {
+                location.href = url;
+            } else {
+                openPlugin(url);
+            }
+        }, true);
+        document.body.appendChild(eSwitch);
+    }
+});
+
+/***/ }),
+
+/***/ 13:
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "html,body{font-family:Microsoft Yahei,Arial;width:100%;height:100%;}\r\nbody{position:relative;font-size:16px;padding:0;}\r\nheader img,footer img{max-width:100%}\r\n.ng-cloak{display:none;}\r\n.container{position:relative;}\r\n.site-navbar-default .navbar-default .navbar-nav>li>a,.navbar-default .navbar-brand{color:#fff;}\r\n.site-navbar-default .navbar-brand{padding:15px 15px;}\r\n.main-navbar .navbar-brand:hover{color:#fff;}\r\n@media screen and (min-width:768px){\r\n\t.site-navbar-default .navbar-nav>li>a{padding:15px 15px;line-height:1;}\r\n}\r\n@media screen and (max-width:768px){\r\n\t.site-navbar-default .navbar-brand{width:100%;text-align:center;}\r\n\t.site-navbar-default .navbar-brand>.icon-note{display:inline-block;width:124px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}\r\n\t.site-navbar-default .navbar-nav{margin:8px 0;position:absolute;top:0;right:0;}\r\n\t.site-navbar-default .nav>li>a{padding:10px 10px;}\r\n}\r\n.tms-flex-row{display:flex;align-items:center;}\r\n.tms-flex-row .tms-flex-grow{flex:1;}\r\n.dropdown-menu{min-width:auto;}\r\n.dropdown-menu-top{bottom:100%;top:auto;}\r\n\r\n/*picviewer*/\r\n#previewImage-container{-ms-touch-action:none;touch-action:none;-webkit-touch-action:none;line-height:100vh;background-color:#000;width:100vw;height:100vh;position:fixed;overflow:hidden;top:0;left:0;z-index:1050;transition:transform .3s;-ms-transition:transform .3s;-moz-transition:transform .3s;-webkit-transition:transform .3s;-o-transition:transform .3s;transform:translate3d(100%,0,0);-webkit-transform:translate3d(100%,0,0);-ms-transform:translate3d(100%,0,0);-o-transform:translate3d(100%,0,0);-moz-transform:translate3d(100%,0,0)}\r\n#previewImage-container .previewImage-text{position:absolute;bottom:5px;left:8px;right:8px;z-index:1060;height:36px}\r\n.previewImage-text span{display:inline-block;width:36px;height:36px;line-height:25px;border-radius:18px;font-size:25px;text-align:center;color:#bbb}\r\n.previewImage-text span.page{position:absolute;left:50%;margin-left:-18px;font-size:18px}\r\n.previewImage-text span.prev{position:absolute;left:50%;margin-left:-72px}\r\n.previewImage-text span.next{position:absolute;left:50%;margin-left:36px}\r\n.previewImage-text span.exit{position:absolute;right:0}\r\n.previewImage-text span.exit>i{text-shadow:0 0 .1em #fff,-0 -0 .1em #fff}\r\n#previewImage-container .previewImage-box{width:999999rem;height:100vh}\r\n#previewImage-container .previewImage-box .previewImage-item{width:100vw;height:100vh;margin-right:15px;float:left;text-align:center}\r\n@media screen and (min-width:992px){\r\n\t#previewImage-container .previewImage-box .previewImage-item .previewImage-image{display:block;}\r\n}\r\n@media screen and (max-width:992px){\r\n\t#previewImage-container .previewImage-box .previewImage-item .previewImage-image{width:100%}\r\n}\r\n", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ 136:
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(70);
+
+
+/***/ }),
+
+/***/ 14:
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(13);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./main.css", function() {
+			var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./main.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+
+/***/ 15:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var ngMod = angular.module('act.ui.xxt', ['ui.bootstrap']);
+ngMod.directive('tmsPopAct', ['$templateCache', '$timeout', function($templateCache, $timeout) {
+    var html;
+    html = "<div class='tms-act-popover-wrap'>";
+    html += "<div ng-repeat=\"act in acts\" ng-if=\"!act.toggle||act.toggle()\"><button class='btn btn-default btn-block' ng-click=\"doAct($event,act)\">{{act.title}}</button></div>";
+    html += '<div ng-if="custom" class=\"checkbox\"><label style=\"color:#000;\"" ng-click=\"setCustom($event)\"><input type=\"checkbox\" ng-model=\"custom.stopTip\" ng-click=\"setCustom($event)\"> 不再提示</label></div>';
+    html += "</div>";
+    $templateCache.put('popActTemplate.html', html);
+    return {
+        restrict: 'A',
+        replace: true,
+        transclude: true,
+        scope: {
+            acts: '=acts',
+            custom: '=custom'
+        },
+        template: "<button uib-popover-template=\"'popActTemplate.html'\" popover-placement=\"top-right\" popover-trigger=\"'show'\" popover-append-to-body=\"true\" class=\"tms-act-toggle\" popover-class=\"tms-act-popover\"><span class='glyphicon glyphicon-option-vertical'></span></button>",
+        link: function(scope, elem, attrs) {
+            var elePopover, fnOpenPopover, fnClosePopover;
+            fnOpenPopover = function() {
+                var popoverEvt;
+                elePopover = elem[0].children[0];
+                popoverEvt = document.createEvent("HTMLEvents");
+                popoverEvt.initEvent('show', true, false);
+                elePopover.dispatchEvent(popoverEvt);
+            };
+            fnClosePopover = function() {
+                var popoverEvt;
+                popoverEvt = document.createEvent("HTMLEvents");
+                popoverEvt.initEvent('hide', true, false);
+                elePopover.dispatchEvent(popoverEvt);
+                document.body.removeEventListener('click', fnClosePopover);
+            };
+            elem[0].addEventListener('click', function(event) {
+                event.stopPropagation();
+                event.preventDefault();
+                fnOpenPopover();
+                document.body.addEventListener('click', fnClosePopover);
+            });
+            scope.$watch('custom', function(nv) {
+                if (nv && nv.stopTip === false) {
+                    fnOpenPopover();
+                    document.body.addEventListener('click', fnClosePopover);
+                    if (attrs.closeAfter && parseInt(attrs.closeAfter)) {
+                        $timeout(function() {
+                            fnClosePopover();
+                        }, attrs.closeAfter);
+                    }
+                }
+            });
+        },
+        controller: ['$scope', function($scope) {
+            $scope.setCustom = function($event, prop) {
+                $event.stopPropagation();
+            };
+            $scope.doAct = function(event, oAct) {
+                if (oAct.func) {
+                    oAct.func(event);
+                }
+            };
+        }]
+    };
+}]);
+
+/***/ }),
+
+/***/ 16:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var ngMod = angular.module('nav.ui.xxt', ['ui.bootstrap']);
+ngMod.directive('tmsPopNav', ['$templateCache', '$timeout', function($templateCache, $timeout) {
+    var html;
+    html = "<div class='tms-nav-target'>";
+    html += "<div ng-repeat=\"nav in navs\"><button class='btn btn-default btn-block' ng-click=\"navTo($event,nav)\">{{nav.title}}</button></div>";
+    html += '<div ng-if="custom" class=\"checkbox\"><label style=\"color:#000;\"" ng-click=\"setCustom($event)\"><input type=\"checkbox\" ng-model=\"custom.stopTip\" ng-click=\"setCustom($event)\"> 不再提示</label></div>';
+    html += "</div>";
+    $templateCache.put('popNavTemplate.html', html);
+    return {
+        restrict: 'A',
+        replace: true,
+        transclude: true,
+        scope: {
+            navs: '=navs',
+            custom: '=custom'
+        },
+        template: "<span><span ng-if=\"!navs||navs.length===0\" ng-transclude></span><span ng-if=\"navs.length\" uib-popover-template=\"'popNavTemplate.html'\" popover-placement=\"bottom\" popover-trigger=\"'show'\"><span ng-transclude></span><span class=\"caret\"></span></span></span>",
+        link: function(scope, elem, attrs) {
+            var elePopover, fnOpenPopover, fnClosePopover;
+            fnOpenPopover = function() {
+                var popoverEvt;
+                elePopover = elem[0].children[0];
+                popoverEvt = document.createEvent("HTMLEvents");
+                popoverEvt.initEvent('show', true, false);
+                elePopover.dispatchEvent(popoverEvt);
+            };
+            fnClosePopover = function() {
+                var popoverEvt;
+                popoverEvt = document.createEvent("HTMLEvents");
+                popoverEvt.initEvent('hide', true, false);
+                elePopover.dispatchEvent(popoverEvt);
+                document.body.removeEventListener('click', fnClosePopover);
+            };
+            elem[0].addEventListener('click', function(event) {
+                event.stopPropagation();
+                event.preventDefault();
+                fnOpenPopover();
+                document.body.addEventListener('click', fnClosePopover);
+            });
+            scope.$watch('custom', function(nv) {
+                if (nv && nv.stopTip === false) {
+                    fnOpenPopover();
+                    document.body.addEventListener('click', fnClosePopover);
+                    if (attrs.closeAfter && parseInt(attrs.closeAfter)) {
+                        $timeout(function() {
+                            fnClosePopover();
+                        }, attrs.closeAfter);
+                    }
+                }
+            });
+        },
+        controller: ['$scope', function($scope) {
+            $scope.setCustom = function($event, prop) {
+                $event.stopPropagation();
+            };
+            $scope.navTo = function(event, oNav) {
+                if (oNav.url) {
+                    location.href = oNav.url;
+                } else if ($scope.$parent.gotoNav) {
+                    $scope.$parent.gotoNav(event, oNav);
+                }
+            };
+        }]
+    };
+}]);
+
+/***/ }),
+
+/***/ 17:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/**
+ * 页面事件追踪
+ */
+var ngMod = angular.module('trace.ui.xxt', ['http.ui.xxt']);
+ngMod.directive('tmsTrace', ['$q', '$timeout', 'http2', function($q, $timeout, http2) {
+    var EventInterval = 1000; // 有效的事件间隔
+    var IdleInterval = 5000; // 有效的事件间隔
+    var StoreKey = '/xxt/site/matter/enroll/trace';
+    var TraceEvent = function(start, type, elapse, biz, text) {
+        this.type = type;
+        this.elapse = elapse || ((new Date * 1) - start);
+        this.biz = biz;
+        if (text) this.text = text;
+    };
+    var TraceStack = function() {
+        function storeTrace(oTrace) {
+            var oStorage, oCached;
+            if (oTrace.sendUrl && (oStorage = window.localStorage)) {
+                oCached = oStorage.getItem(StoreKey);
+                oCached = oCached ? JSON.parse(oCached) : {};
+                oCached[oTrace.sendUrl] = oTrace;
+                oStorage.setItem(StoreKey, JSON.stringify(oCached));
+            }
+        }
+        this.start = 0;
+        this.events = [];
+        this.setSendUrl = function(url) {
+            this.sendUrl = url;
+            storeTrace(this);
+        };
+        this.pushEvent = function(type, traceBiz, traceText) {
+            var oNewEvent, oLastEvent;
+            if (this.events.length === 0) {
+                this.start = new Date * 1;
+                oNewEvent = new TraceEvent(this.start, type, 0, traceBiz, traceText);
+                this.events.push(oNewEvent)
+                storeTrace(this);
+            } else {
+                oNewEvent = new TraceEvent(this.start, type, null, traceBiz, traceText);
+                oLastEvent = this.events[this.events.length - 1];
+                if (oLastEvent.type !== oNewEvent.type || (oNewEvent.elapse - oLastEvent.elapse > EventInterval)) {
+                    this.events.push(oNewEvent)
+                    storeTrace(this);
+                }
+            }
+        };
+        this.stop = function() {
+            this.closing = 'Y';
+            storeTrace(this);
+            this.start = 0;
+            this.events = [];
+        };
+    };
+    var IdleWatcher = function(oTraceStack) {
+        var _timer;
+        this.begin = function() {
+            this.cancel(_timer);
+            _timer = $timeout(function() {
+                /* 指定的时间段内没有发生用户的交互，自动停止事件追踪，并且提交数据 */
+                var oStorage, oCached, oCachedTrack;
+                oTraceStack.stop();
+                if (oTraceStack.sendUrl) {
+                    if (oStorage = window.localStorage) {
+                        oCached = oStorage.getItem(StoreKey);
+                        oCached = JSON.parse(oCached);
+                        oCachedTrack = oCached[oTraceStack.sendUrl];
+                        delete oCached[oTraceStack.sendUrl];
+                        oCached = oStorage.setItem(StoreKey, JSON.stringify(oCached));
+                        http2.post(oTraceStack.sendUrl, { start: oCachedTrack.start, events: oCachedTrack.events }, { showProgress: false });
+                    }
+                }
+            }, IdleInterval);
+        };
+        this.cancel = function() {
+            if (_timer) {
+                $timeout.cancel(_timer);
+                _timer = null;
+            }
+        }
+    };
+    /**
+     * 如果有已经结束但是没有提交进行提交
+     */
+    var oStorage, oCached, oTrace;
+    if (oStorage = window.localStorage) {
+        oCached = oStorage.getItem(StoreKey);
+        oCached = oCached ? JSON.parse(oCached) : {};
+        if (oCached) {
+            for (var i in oCached) {
+                if (oCached && oCached[i]) {
+                    oTrace = oCached[i];
+                    if (oTrace.closing && oTrace.closing === 'Y') {
+                        delete oCached[i];
+                        oCached = oStorage.setItem(StoreKey, JSON.stringify(oCached));
+                        http2.post(oTrace.sendUrl, { start: oTrace.start, events: oTrace.events }).then(function() {});
+                    }
+                }
+            }
+        }
+    }
+
+    return {
+        restrict: 'A',
+        link: function(scope, elem, attrs) {
+            var oTraceStack = new TraceStack();
+            var oIdleWatcher = new IdleWatcher(oTraceStack);
+            if (!attrs.readySign && attrs.sendUrl) {
+                oTraceStack.sendUrl = attrs.sendUrl;
+            }
+            /* 打开页面 */
+            oTraceStack.pushEvent('load');
+            /* 用户点击页面 */
+            elem.on('click', function(event) {
+                var evtTarget, traceBiz, traceText;
+                evtTarget = event.target;
+                if (evtTarget.hasAttribute('trace-biz')) {
+                    traceBiz = evtTarget.getAttribute('trace-biz');
+                    if (!traceBiz && evtTarget.hasAttribute('ng-click')) {
+                        traceBiz = evtTarget.getAttribute('ng-click');
+                    }
+                    if (traceBiz) {
+                        traceBiz = traceBiz.replace(/'|"/g, '');
+                    }
+                    traceText = evtTarget.innerText;
+                }
+                oTraceStack.pushEvent('click', traceBiz, traceText);
+                oIdleWatcher.begin();
+            });
+            /* 用户点击页面 */
+            elem.on('touchend', function(event) {
+                oTraceStack.pushEvent('touchend');
+                oIdleWatcher.begin();
+            });
+            /* 用户滚动页面 */
+            window.addEventListener('scroll', function(event) {
+                oTraceStack.pushEvent('scroll');
+                oIdleWatcher.begin();
+            });
+            /* 离开页面 */
+            window.addEventListener('beforeunload', function(event) {
+                oTraceStack.pushEvent('beforeunload');
+                oTraceStack.stop();
+                oIdleWatcher.cancel();
+            });
+            if (attrs.readySign) {
+                scope.$watch(attrs.readySign, function(oSign) {
+                    if (oSign) {
+                        $timeout(function() {
+                            oTraceStack.setSendUrl(attrs.sendUrl);
+                        });
+                    }
+                });
+            }
+            oIdleWatcher.begin();
+        }
+    };
+}]);
+
+/***/ }),
+
+/***/ 18:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(5);
+if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.wx) {
+    window.wx.ready(function() {
+        window.wx.showOptionMenu();
+    });
+} else if (/YiXin/i.test(navigator.userAgent)) {
+    document.addEventListener('YixinJSBridgeReady', function() {
+        YixinJSBridge.call('showOptionMenu');
+    }, false);
+}
+
+__webpack_require__(8);
+__webpack_require__(14);
+__webpack_require__(17);
+__webpack_require__(6);
+__webpack_require__(3);
+__webpack_require__(2);
+__webpack_require__(12);
+__webpack_require__(10);
+__webpack_require__(11);
+__webpack_require__(16);
+__webpack_require__(15);
+
+__webpack_require__(9);
+__webpack_require__(19);
+
+/* 公共加载的模块 */
+var angularModules = ['ngSanitize', 'ui.bootstrap', 'notice.ui.xxt', 'http.ui.xxt', 'trace.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'directive.enroll', 'picviewer.ui.xxt', 'nav.ui.xxt', 'act.ui.xxt', 'service.enroll'];
+/* 加载指定的模块 */
+if (window.moduleAngularModules) {
+    window.moduleAngularModules.forEach(function(m) {
+        angularModules.push(m);
+    });
+}
+
+var ngApp = angular.module('app', angularModules);
+ngApp.config(['$controllerProvider', '$uibTooltipProvider', '$locationProvider', function($cp, $uibTooltipProvider, $locationProvider) {
+    ngApp.provider = {
+        controller: $cp.register
+    };
+    $uibTooltipProvider.setTriggers({ 'show': 'hide' });
+    $locationProvider.html5Mode(true);
+}]);
+ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tmsLocation', 'tmsDynaPage', 'tmsSnsShare', 'tmsSiteUser', 'enlService', function($scope, $q, $parse, http2, $timeout, LS, tmsDynaPage, tmsSnsShare, tmsSiteUser, enlService) {
+    function refreshEntryRuleResult() {
+        var url, defer;
+        defer = $q.defer();
+        url = LS.j('entryRule', 'site', 'app');
+        return http2.get(url).then(function(rsp) {
+            $scope.params.entryRuleResult = rsp.data;
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function openPlugin(url, fnCallback) {
+        var body, elWrap, elIframe;
+        body = document.body;
+        elWrap = document.createElement('div');
+        elWrap.setAttribute('id', 'frmPlugin');
+        elWrap.height = body.clientHeight;
+        elIframe = document.createElement('iframe');
+        elWrap.appendChild(elIframe);
+        body.scrollTop = 0;
+        body.appendChild(elWrap);
+        window.onClosePlugin = function() {
+            if (fnCallback) {
+                fnCallback().then(function(data) {
+                    elWrap.parentNode.removeChild(elWrap);
+                });
+            } else {
+                elWrap.parentNode.removeChild(elWrap);
+            }
+        };
+        elWrap.onclick = function() {
+            onClosePlugin();
+        };
+        if (url) {
+            elIframe.setAttribute('src', url);
+        }
+        elWrap.style.display = 'block';
+    }
+
+    function execTask(task) {
+        var obj, fn, args, valid;
+        valid = true;
+        obj = $scope;
+        args = task.match(/\((.*?)\)/)[1].replace(/'|"/g, "").split(',');
+        angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function(attr) {
+            if (fn) obj = fn;
+            if (!obj[attr]) {
+                valid = false;
+                return;
+            }
+            fn = obj[attr];
+        });
+        if (valid) {
+            fn.apply(obj, args);
+        }
+    }
+    var tasksOfOnReady = [];
+    $scope.closeWindow = function() {
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+            window.wx.closeWindow();
+        } else if (/YiXin/i.test(navigator.userAgent)) {
+            window.YixinJSBridge.call('closeWebView');
+        }
+    };
+    $scope.askFollowSns = function() {
+        var url;
+        if ($scope.app.entryRule && $scope.app.entryRule.scope.sns === 'Y') {
+            url = LS.j('askFollow', 'site');
+            url += '&sns=' + Object.keys($scope.app.entryRule.sns).join(',');
+            openPlugin(url, refreshEntryRuleResult);
+        }
+    };
+    $scope.askBecomeMember = function() {
+        var url, mschemaIds;
+        if ($scope.app.entryRule && $scope.app.entryRule.scope.member === 'Y') {
+            mschemaIds = Object.keys($scope.app.entryRule.member);
+            if (mschemaIds.length === 1) {
+                url = '/rest/site/fe/user/member?site=' + $scope.app.siteid;
+                url += '&schema=' + mschemaIds[0];
+            } else if (mschemaIds.length > 1) {
+                url = '/rest/site/fe/user/memberschema?site=' + $scope.app.siteid;
+                url += '&schema=' + mschemaIds.join(',');
+            }
+            openPlugin(url, refreshEntryRuleResult);
+        }
+    };
+    $scope.addRecord = function(event, page) {
+        if (page) {
+            $scope.gotoPage(event, page, null, null, 'Y');
+        } else {
+            for (var i in $scope.app.pages) {
+                var oPage = $scope.app.pages[i];
+                if (oPage.type === 'I') {
+                    $scope.gotoPage(event, oPage.name, null, null, 'Y');
+                    break;
+                }
+            }
+        }
+    };
+    $scope.siteUser = function() {
+        var url = location.protocol + '//' + location.host;
+        url += '/rest/site/fe/user';
+        url += "?site=" + LS.s().site;
+        location.href = url;
+    };
+    $scope.gotoApp = function(event) {
+        location.replace($scope.app.entryUrl);
+    };
+    $scope.gotoPage = function(event, page, ek, rid, newRecord) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        var url = LS.j('', 'site', 'app');
+        if (ek) {
+            url += '&ek=' + ek;
+        } else if (page === 'cowork') {
+            url += '&ek=' + LS.s().ek;
+        }
+        rid && (url += '&rid=' + rid);
+        page && (url += '&page=' + page);
+        newRecord && newRecord === 'Y' && (url += '&newRecord=Y');
+        location = url;
+        //location.replace(url);
+    };
+    $scope.openMatter = function(id, type, replace, newWindow) {
+        var url = '/rest/site/fe/matter?site=' + LS.s().site + '&id=' + id + '&type=' + type;
+        if (replace) {
+            location.replace(url);
+        } else {
+            if (newWindow === false) {
+                location.href = url;
+            } else {
+                window.open(url);
+            }
+        }
+    };
+    $scope.onReady = function(task) {
+        if ($scope.params) {
+            execTask(task);
+        } else {
+            tasksOfOnReady.push(task);
+        }
+    };
+    /* 设置限制通讯录访问时的状态*/
+    $scope.setOperateLimit = function(operate) {
+        if (!$scope.app.entryRule.exclude_action || $scope.app.entryRule.exclude_action[operate] !== "Y") {
+            if ($scope.entryRuleResult.passed == 'N') {
+                tmsDynaPage.openPlugin($scope.entryRuleResult.passUrl).then(function(data) {
+                    location.reload();
+                    return true;
+                });
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return true;
+        }
+    }
+    /* 设置公众号分享信息 */
+    $scope.setSnsShare = function(oRecord, oParams, oData) {
+        function fnReadySnsShare() {
+            if (window.__wxjs_environment === 'miniprogram') {
+                return;
+            }
+            var oApp, oPage, oUser, sharelink, shareid, shareby, summary;
+            oApp = $scope.app;
+            oPage = $scope.page;
+            oUser = $scope.user;
+            /* 设置活动的当前链接 */
+            sharelink = location.protocol + '//' + location.host + LS.j('', 'site', 'app', 'rid');
+            if (oPage && oPage.share_page && oPage.share_page === 'Y') {
+                sharelink += '&page=' + oPage.name;
+            } else if (LS.s().page) {
+                sharelink += '&page=' + LS.s().page;
+            }
+            oRecord && oRecord.enroll_key && (sharelink += '&ek=' + oRecord.enroll_key);
+            if (oParams) {
+                angular.forEach(oParams, function(v, k) {
+                    if (v !== undefined) {
+                        sharelink += '&' + k + '=' + v;
+                    }
+                });
+            }
+            shareid = oUser.uid + '_' + (new Date * 1);
+            shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
+            sharelink += "&shareby=" + shareid;
+            /* 设置分享 */
+            summary = oApp.summary;
+            if (oPage && oPage.share_summary && oPage.share_summary.length && oRecord && oRecord.data && oRecord.data[oPage.share_summary]) {
+                summary = oRecord.data[oPage.share_summary];
+            }
+            /* 分享次数计数器 */
+            window.shareCounter = 0;
+            tmsSnsShare.config({
+                siteId: oApp.siteid,
+                logger: function(shareto) {
+                    var url;
+                    url = "/rest/site/fe/matter/logShare";
+                    url += "?shareid=" + shareid;
+                    url += "&site=" + oApp.siteid;
+                    url += "&id=" + oApp.id;
+                    url += "&type=enroll";
+                    if (oData && oData.title) {
+                        url += "&title=" + oData.title;
+                    } else {
+                        url += "&title=" + oApp.title;
+                    }
+                    if (oData) {
+                        url += "&target_type=" + oData.target_type;
+                        url += "&target_id=" + oData.target_id;
+                    }
+                    url += "&shareby=" + shareby;
+                    url += "&shareto=" + shareto;
+                    http2.get(url);
+                    window.shareCounter++;
+                    window.onshare && window.onshare(window.shareCounter);
+                },
+                jsApiList: ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'chooseImage', 'uploadImage', 'getLocation', 'startRecord', 'stopRecord', 'onVoiceRecordEnd', 'playVoice', 'pauseVoice', 'stopVoice', 'onVoicePlayEnd', 'uploadVoice', 'downloadVoice']
+            });
+            tmsSnsShare.set(oApp.title, sharelink, summary, oApp.pic);
+        }
+        if (/MicroMessenger|Yixin/i.test(navigator.userAgent)) {
+            if (!window.WeixinJSBridge || !WeixinJSBridge.invoke) {
+                document.addEventListener('WeixinJSBridgeReady', fnReadySnsShare, false);
+            } else {
+                fnReadySnsShare();
+            }
+        }
+    };
+    /* 设置页面操作 */
+    $scope.setPopAct = function(aNames, fromPage, oParamsByAct) {
+        if (!fromPage || !aNames || aNames.length === 0) return;
+        if ($scope.user) {
+            var oEnlUser, oCustom;
+            if (oEnlUser = $scope.user.enrollUser) {
+                oCustom = $parse(fromPage + '.act')(oEnlUser.custom);
+            }
+            if (!oCustom) {
+                oCustom = { stopTip: false };
+            }
+            $scope.popAct = {
+                acts: [],
+                custom: oCustom
+            };
+            $scope.$watch('popAct.custom', function(nv, ov) {
+                var oCustom;
+                if (oEnlUser) {
+                    oCustom = oEnlUser.custom;
+                    if (nv !== ov) {
+                        if (!oCustom[fromPage]) { oCustom[fromPage] = {}; }
+                        oCustom[fromPage].act = $scope.popAct.custom;
+                        http2.post(LS.j('user/updateCustom', 'site', 'app'), oCustom).then(function(rsp) {});
+                    }
+                }
+            }, true);
+            aNames.forEach(function(name) {
+                var oAct;
+                switch (name) {
+                    case 'save':
+                        oAct = { title: '保存' };
+                        break;
+                    case 'addRecord':
+                        if ($scope.app && oEnlUser) {
+                            if (parseInt($scope.app.count_limit) === 0 || $scope.app.count_limit > oEnlUser.enroll_num) {
+                                /* 允许添加记录 */
+                                if ($parse('actionRule.record.submit.pre.editor')($scope.app)) {
+                                    if (oEnlUser && oEnlUser.is_editor && oEnlUser.is_editor === 'Y') {
+                                        oAct = { title: '添加记录', func: $scope.addRecord };
+                                    }
+                                } else {
+                                    oAct = { title: '添加记录', func: $scope.addRecord };
+                                }
+                            }
+                        }
+                        break;
+                    case 'newRecord':
+                        oAct = { title: '添加记录' };
+                        break;
+                    case 'voteRecData':
+                        oAct = { title: '题目投票' };
+                        break;
+                    case 'scoreSchema':
+                        oAct = { title: '题目打分' };
+                        break;
+                }
+                if (oAct) {
+                    if (oParamsByAct) {
+                        if (oParamsByAct.func)
+                            if (oParamsByAct.func[name])
+                                oAct.func = oParamsByAct.func[name];
+                        if (!oAct.func && $scope[name])
+                            oAct.func = $scope[name];
+                        if (oParamsByAct.toggle)
+                            if (oParamsByAct.toggle[name])
+                                oAct.toggle = oParamsByAct.toggle[name];
+                    }
+                    $scope.popAct.acts.push(oAct);
+                }
+            });
+        }
+    };
+    /* 设置弹出导航页 */
+    $scope.setPopNav = function(aNames, fromPage, oUser) {
+        if (!fromPage || !aNames || aNames.length === 0) return;
+        if ($scope.user) {
+            var oApp, oEnlUser, oCustom;
+            oApp = $scope.app;
+            oEnlUser = $scope.user.enrollUser;
+            if (oEnlUser) {
+                oCustom = $parse(fromPage + '.nav')(oEnlUser.custom);
+            }
+            if (!oCustom) {
+                oCustom = { stopTip: false };
+            }
+            /*设置页面导航*/
+            $scope.popNav = {
+                navs: [],
+                custom: oCustom
+            };
+            $scope.$watch('popNav.custom', function(nv, ov) {
+                var oCustom;
+                if (oEnlUser) {
+                    oCustom = oEnlUser.custom;
+                    if (nv !== ov) {
+                        if (!oCustom[fromPage]) { oCustom[fromPage] = {}; }
+                        oCustom[fromPage].nav = $scope.popNav.custom;
+                        http2.post(LS.j('user/updateCustom', 'site', 'app'), oCustom).then(function(rsp) {});
+                    }
+                }
+            }, true);
+            if (oApp.scenario === 'voting' && aNames.indexOf('votes') !== -1) {
+                $scope.popNav.navs.push({ name: 'votes', title: '投票榜', url: LS.j('', 'site', 'app') + '&page=votes' });
+            }
+            if (oApp.scenarioConfig) {
+                if (oApp.scenarioConfig.can_repos === 'Y' && aNames.indexOf('repos') !== -1) {
+                    $scope.popNav.navs.push({ name: 'repos', title: '共享页', url: LS.j('', 'site', 'app') + '&page=repos' });
+                }
+                if (oApp.scenarioConfig.can_rank === 'Y' && aNames.indexOf('rank') !== -1) {
+                    $scope.popNav.navs.push({ name: 'rank', title: '排行页', url: LS.j('', 'site', 'app') + '&page=rank' });
+                }
+                if (oApp.scenarioConfig.can_stat === 'Y' && fromPage !== 'stat') {
+                    $scope.popNav.navs.push({ name: 'stat', title: '统计页', url: LS.j('', 'site', 'app') + '&page=stat' });
+                }
+                if (oApp.scenarioConfig.can_kanban === 'Y' && aNames.indexOf('kanban') !== -1) {
+                    $scope.popNav.navs.push({ name: 'kanban', title: '看板页', url: LS.j('', 'site', 'app') + '&page=kanban' });
+                }
+                if (oApp.scenarioConfig.can_action === 'Y' && aNames.indexOf('event') !== -1) {
+                    $scope.popNav.navs.push({ name: 'event', title: '动态页', url: LS.j('', 'site', 'app') + '&page=event' });
+                }
+            }
+            if (aNames.indexOf('favor') !== -1) {
+                $scope.popNav.navs.push({ name: 'favor', title: '收藏页', url: LS.j('', 'site', 'app') + '&page=favor' });
+            }
+            if (aNames.indexOf('task') !== -1 && (oApp.questionConfig.length || oApp.answerConfig.length || oApp.voteConfig.length || oApp.scoreConfig.length)) {
+                $scope.popNav.navs.push({ name: 'task', title: '任务页', url: LS.j('', 'site', 'app') + '&page=task' });
+            }
+            if ($scope.mission) {
+                $scope.popNav.navs.push({ name: 'mission', title: '项目主页', url: '/rest/site/fe/matter/mission?site=' + oApp.siteid + '&mission=' + $scope.mission.id });
+            }
+        }
+        // if (oApp.scenarioConfig.can_action === 'Y') {
+        //        /* 设置活动事件提醒 */
+        //        http2.get(LS.j('notice/count', 'site', 'app')).then(function(rsp) {
+        //            $scope.noticeCount = rsp.data;
+        //        });
+        //        oAppNavs.event = {};
+        //        oApp.length++;
+        //    }
+    };
+    /* 设置记录阅读日志信息 */
+    $scope.logAccess = function(oParams) {
+        var oApp, oUser, activeRid, oData, shareby;
+        oApp = $scope.app;
+        oUser = $scope.user;
+        activeRid = oApp.appRound.rid;
+        shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
+        oData = {
+            search: location.search.replace('?', ''),
+            referer: document.referrer,
+            rid: activeRid,
+            assignedNickname: oUser.nickname,
+            id: oApp.id,
+            type: 'enroll',
+            title: oApp.title,
+            shareby: shareby
+        }
+
+        if (oParams) {
+            if (oParams.title) { oData.title = oParams.title; }
+            oData.target_type = oParams.target_type;
+            oData.target_id = oParams.target_id;
+        }
+        http2.post('/rest/site/fe/matter/logAccess?site=' + oApp.siteid, oData);
+    };
+    $scope.isSmallLayout = false;
+    if (window.screen && window.screen.width < 992) {
+        $scope.isSmallLayout = true;
+    }
+    http2.get(LS.j('get', 'site', 'app', 'rid', 'page', 'ek', 'newRecord')).then(function success(rsp) {
+        var params = rsp.data,
+            oSite = params.site,
+            oApp = params.app,
+            oEntryRuleResult = params.entryRuleResult,
+            oMission = params.mission,
+            oPage = params.page,
+            schemasById = {};
+
+        oApp.dynaDataSchemas.forEach(function(schema) {
+            schemasById[schema.id] = schema;
+        });
+        oApp._schemasById = schemasById;
+        $scope.params = params;
+        $scope.site = oSite;
+        $scope.mission = oMission;
+        $scope.app = oApp;
+        $scope.entryRuleResult = oEntryRuleResult;
+        if (oApp.use_site_header === 'Y' && oSite && oSite.header_page) {
+            tmsDynaPage.loadCode(ngApp, oSite.header_page);
+        }
+        if (oApp.use_mission_header === 'Y' && oMission && oMission.header_page) {
+            tmsDynaPage.loadCode(ngApp, oMission.header_page);
+        }
+        if (oApp.use_mission_footer === 'Y' && oMission && oMission.footer_page) {
+            tmsDynaPage.loadCode(ngApp, oMission.footer_page);
+        }
+        if (oApp.use_site_footer === 'Y' && oSite && oSite.footer_page) {
+            tmsDynaPage.loadCode(ngApp, oSite.footer_page);
+        }
+        if (params.page) {
+            tmsDynaPage.loadCode(ngApp, params.page).then(function() {
+                $scope.page = params.page;
+            });
+        }
+        if (tasksOfOnReady.length) {
+            angular.forEach(tasksOfOnReady, execTask);
+        }
+        /* 用户信息 */
+        enlService.user().then(function(data) {
+            $scope.user = data;
+            $timeout(function() {
+                $scope.$broadcast('xxt.app.enroll.ready', params);
+            });
+            var eleLoading;
+            if (eleLoading = document.querySelector('.loading')) {
+                eleLoading.parentNode.removeChild(eleLoading);
+            }
+        });
+    });
+}]);
+module.exports = ngApp;
+
+/***/ }),
+
+/***/ 19:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var ngMod = angular.module('service.enroll', []);
+ngMod.service('enlService', ['$q', 'http2', 'tmsLocation', function($q, http2, LS) {
+    var _self, _getUserDeferred;
+	_self = this;
+	_getUserDeferred = false;
+
+	this.user = function() {
+		if (_getUserDeferred) {
+            return _getUserDeferred.promise;
+        }
+        _getUserDeferred = $q.defer();
+        http2.get(LS.j('user/get2', 'site', 'app')).then(function(rsp) {
+            _getUserDeferred.resolve(rsp.data);
+        });
+
+        return _getUserDeferred.promise;
+	}
+}]);
+
+/***/ }),
+
+/***/ 2:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('page.ui.xxt', []);
+ngMod.directive('dynamicHtml', ['$compile', function($compile) {
+    return {
+        restrict: 'EA',
+        replace: true,
+        link: function(scope, ele, attrs) {
+            scope.$watch(attrs.dynamicHtml, function(html) {
+                if (html && html.length) {
+                    ele.html(html);
+                    $compile(ele.contents())(scope);
+                }
+            });
+        }
+    };
+}]);
+ngMod.service('tmsDynaPage', ['$q', function($q) {
+    this.loadCss = function(css) {
+        var style, head;
+        style = document.createElement('style');
+        style.innerHTML = css;
+        head = document.querySelector('head');
+        head.appendChild(style);
+    };
+    this.loadExtCss = function(url) {
+        var link, head;
+        link = document.createElement('link');
+        link.href = url;
+        link.rel = 'stylesheet';
+        head = document.querySelector('head');
+        head.appendChild(link);
+    };
+    this.loadJs = function(ngApp, js) {
+        (function(ngApp) {
+            eval(js);
+        })(ngApp);
+    };
+    this.loadScript = function(urls) {
+        var index, fnLoad, deferred = $q.defer();
+        fnLoad = function() {
+            var script;
+            script = document.createElement('script');
+            script.src = urls[index];
+            script.onload = function() {
+                index++;
+                if (index < urls.length) {
+                    fnLoad();
+                } else {
+                    deferred.resolve();
+                }
+            };
+            document.body.appendChild(script);
+        };
+        if (urls) {
+            angular.isString(urls) && (urls = [urls]);
+            if (urls.length) {
+                index = 0;
+                fnLoad();
+            }
+        }
+
+        return deferred.promise;
+    };
+    this.loadExtJs = function(ngApp, code) {
+        var _self = this,
+            deferred = $q.defer(),
+            jslength = code.ext_js.length,
+            loadScript2;
+        loadScript2 = function(js) {
+            var script;
+            script = document.createElement('script');
+            script.src = js.url;
+            script.onload = function() {
+                jslength--;
+                if (jslength === 0) {
+                    if (code.js && code.js.length) {
+                        _self.loadJs(ngApp, code.js);
+                    }
+                    deferred.resolve();
+                }
+            };
+            document.body.appendChild(script);
+        };
+        if (code.ext_js && code.ext_js.length) {
+            code.ext_js.forEach(loadScript2);
+        }
+        return deferred.promise;
+    };
+    this.loadCode = function(ngApp, code) {
+        var _self = this,
+            deferred = $q.defer();
+        if (code.ext_css && code.ext_css.length) {
+            code.ext_css.forEach(function(css) {
+                _self.loadExtCss(css.url);
+            });
+        }
+        if (code.css && code.css.length) {
+            this.loadCss(code.css);
+        }
+        if (code.ext_js && code.ext_js.length) {
+            _self.loadExtJs(ngApp, code).then(function() {
+                deferred.resolve();
+            });
+        } else {
+            if (code.js && code.js.length) {
+                _self.loadJs(ngApp, code.js);
+            }
+            deferred.resolve();
+        }
+        return deferred.promise;
+    };
+    this.openPlugin = function(content) {
+        var frag, wrap, frm, html, body, deferred;
+        deferred = $q.defer();
+        if (!content) {
+            console.log('参数为空');
+            deferred.reject();
+        }
+        if (document.documentElement.clientWidth > 768) {
+            document.documentElement.scrollTop = 0;
+        } else {
+            document.body.scrollTop = 0;
+        }
+        body = document.getElementsByTagName('body')[0];
+        html = document.getElementsByTagName('html')[0];
+        html.style.cssText = "height:100%;"
+        body.style.cssText = "height:100%;overflow-y:hidden";
+        frag = document.createDocumentFragment();
+        wrap = document.createElement('div');
+        wrap.setAttribute('id', 'frmPlugin');
+        frm = document.createElement('iframe');
+        wrap.appendChild(frm);
+        wrap.onclick = function() {
+            wrap.parentNode.removeChild(wrap);
+            body.style.cssText = "overflow-y:auto";
+        };
+        frag.appendChild(wrap);
+        document.body.appendChild(frag);
+        if (content.indexOf('http') === 0) {
+            window.onClosePlugin = function(result) {
+                wrap.parentNode.removeChild(wrap);
+                body.style.cssText = "overflow-y:auto";
+                deferred.resolve(result);
+            };
+            frm.setAttribute('src', content);
+        } else {
+            if (frm.contentDocument && frm.contentDocument.body) {
+                frm.contentDocument.body.innerHTML = content;
+            }
+        }
+        return deferred.promise;
+    };
+}]);
+
+/***/ }),
+
+/***/ 20:
+/***/ (function(module, exports) {
+
+module.exports = "<div class=\"modal-header\">\r\n    <button class=\"close\" type=\"button\" ng-click=\"cancel()\">×</button>\r\n    <h5 class=\"modal-title\">选择轮次</h5>\r\n</div>\r\n<div class=\"modal-body\">\r\n    <div class='form-group'>\r\n        <button class='btn btn-default btn-sm' ng-click=\"clean()\">清除<span>已选的{{countOfChecked}}项</span></button>\r\n    </div>\r\n    <div class='form-group' style='height:230px;overflow-y:auto'>\r\n        <div ng-if=\"!options.excludeAll\">\r\n            <label class='checkbox-inline'>\r\n                <input type='checkbox' ng-model=\"checkedRounds.ALL\" ng-change=\"toggleCheckedRound('ALL')\">全部轮次</label>\r\n        </div>\r\n        <div ng-if=\"activeRound\">\r\n            <label class='checkbox-inline'>\r\n                <input type='checkbox' ng-model=\"checkedRounds[activeRound.rid]\" ng-change=\"toggleCheckedRound(activeRound.rid)\">{{activeRound.title}}<span>（启用）</span></label>\r\n        </div>\r\n        <div ng-repeat=\"rnd in rounds\">\r\n            <label class='checkbox-inline'>\r\n                <input type='checkbox' ng-model=\"checkedRounds[rnd.rid]\" ng-change=\"toggleCheckedRound(rnd.id)\">{{rnd.title}}</label>\r\n        </div>\r\n    </div>\r\n    <div ng-show=\"pageOfRound.total>pageOfRound.size\">\r\n        <span class='hidden-xs' style='line-height:30px'>总数：{{pageOfRound.total}}</span>\r\n        <ul uib-pagination class='pagination-sm' style=\"margin:0;vertical-align:bottom;cursor:pointer\" boundary-links=\"true\" total-items=\"pageOfRound.total\" max-size=\"5\" items-per-page=\"pageOfRound.size\" rotate=\"false\" ng-model=\"pageOfRound.at\" previous-text=\"&lsaquo;\" next-text=\"&rsaquo;\" first-text=\"&laquo;\" last-text=\"&raquo;\" ng-change=\"doSearch()\"></ul>\r\n    </div>\r\n</div>\r\n<div class=\"modal-footer\">\r\n    <button class=\"btn btn-primary\" ng-click=\"ok()\">确定</button>\r\n</div>"
+
+/***/ }),
+
+/***/ 21:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var ngMod = angular.module('round.ui.enroll', []);
+ngMod.factory('enlRound', ['http2', '$q', '$uibModal', 'tmsLocation', function(http2, $q, $uibModal, LS) {
+    var Round;
+    Round = function(oApp) {
+        this.app = oApp;
+        this.page = {};
+    };
+    Round.prototype.get = function(aRids) {
+        var defer;
+        defer = $q.defer();
+        if (aRids.indexOf('ALL') !== -1) {
+            defer.resolve({ rid: 'ALL', title: '全部轮次' });
+        } else {
+            http2.get(LS.j('round/get', 'site', 'app') + '&rid=' + aRids).then(function(rsp) {
+                defer.resolve(rsp.data);
+            });
+        }
+
+        return defer.promise;
+    };
+    Round.prototype.list = function() {
+        var deferred = $q.defer();
+        http2.get(LS.j('round/list', 'site', 'app'), { page: this.page }).then(function(rsp) {
+            deferred.resolve(rsp.data);
+        });
+        return deferred.promise;
+    };
+    Round.prototype.getRoundTitle = function(aRids) {
+        var defer;
+        defer = $q.defer();
+        if (aRids.indexOf('ALL') !== -1) {
+            defer.resolve('全部轮次');
+        } else {
+            var titles;
+            http2.get(LS.j('round/get', 'site', 'app') + '&rid=' + aRids).then(function(rsp) {
+                if (rsp.data.length === 1) {
+                    titles = rsp.data[0].title;
+                } else if (rsp.data.length === 2) {
+                    titles = rsp.data[0].title + ',' + rsp.data[1].title;
+                } else if (rsp.data.length > 2) {
+                    titles = rsp.data[0].title + '-' + rsp.data[rsp.data.length - 1].title;
+                }
+                defer.resolve(titles);
+            });
+        }
+
+        return defer.promise;
+    };
+    Round.prototype.pick = function(aCheckedRounds, oOptions) {
+        var _self = this;
+        return $uibModal.open({
+            template: __webpack_require__(20),
+            backdrop: 'static',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                var oCheckedRounds;
+                $scope2.pageOfRound = _self.page;
+                $scope2.checkedRounds = oCheckedRounds = {};
+                $scope2.countOfChecked = 0;
+                $scope2.options = {};
+                if (oOptions) angular.extend($scope2.options, oOptions);
+                $scope2.toggleCheckedRound = function(rid) {
+                    if (rid === 'ALL') {
+                        if (oCheckedRounds.ALL) {
+                            $scope2.checkedRounds = oCheckedRounds = { ALL: true };
+                        } else {
+                            $scope2.checkedRounds = oCheckedRounds = {};
+                        }
+                    } else {
+                        if (oCheckedRounds[rid]) {
+                            delete oCheckedRounds.ALL;
+                        } else {
+                            delete oCheckedRounds[rid];
+                        }
+                    }
+                    $scope2.countOfChecked = Object.keys(oCheckedRounds).length;
+                };
+                $scope2.clean = function() {
+                    $scope2.checkedRounds = oCheckedRounds = {};
+                };
+                $scope2.ok = function() {
+                    var checkedRoundIds = [];
+                    if (Object.keys(oCheckedRounds).length) {
+                        angular.forEach(oCheckedRounds, function(v, k) {
+                            if (v) {
+                                checkedRoundIds.push(k);
+                            }
+                        });
+                    }
+                    _self.getRoundTitle(checkedRoundIds).then(function(titles) {
+                        $mi.close({ ids: checkedRoundIds, titles: titles });
+                    });
+                };
+                $scope2.cancel = function() {
+                    $mi.dismiss('cancel');
+                };
+                $scope2.doSearch = function() {
+                    _self.list().then(function(result) {
+                        $scope2.activeRound = result.active;
+                        if ($scope2.activeRound) {
+                            var otherRounds = [];
+                            result.rounds.forEach(function(oRound) {
+                                if (oRound.rid !== $scope2.activeRound.rid) {
+                                    otherRounds.push(oRound);
+                                }
+                            });
+                            $scope2.rounds = otherRounds;
+                        } else {
+                            $scope2.rounds = result.rounds;
+                        }
+
+                    });
+                };
+                if (angular.isArray(aCheckedRounds)) {
+                    if (aCheckedRounds.length) {
+                        aCheckedRounds.forEach(function(rid) {
+                            oCheckedRounds[rid] = true;;
+                        });
+                    }
+                }
+                $scope2.countOfChecked = Object.keys(oCheckedRounds).length;
+                $scope2.doSearch();
+            }]
+        }).result;
+    };
+
+    return Round;
+}]);
+
+/***/ }),
+
+/***/ 3:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('http.ui.xxt', []);
+ngMod.provider('tmsLocation', function() {
+    var _baseUrl;
+
+    this.config = function(baseUrl) {
+        _baseUrl = baseUrl || location.pathname;
+    };
+
+    this.$get = ['$location', function($location) {
+        if (!_baseUrl) {
+            _baseUrl = location.pathname;
+        }
+        return {
+            s: function() {
+                return $location.search();
+            },
+            j: function(method) {
+                var url = _baseUrl,
+                    search = [];
+                method && method.length && (url += '/' + method);
+                for (var i = 1, l = arguments.length; i < l; i++) {
+                    search.push(arguments[i] + '=' + ($location.search()[arguments[i]] || ''));
+                };
+                search.length && (url += '?' + search.join('&'));
+                return url;
+            }
+        };
+    }];
+});
+ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compile', function($rootScope, $http, $timeout, $q, $sce, $compile) {
+    function _fnCreateAlert(msg, type, keep) {
+        var alertDomEl;
+        /* backdrop */
+        $sce.trustAsHtml(msg);
+        alertDomEl = angular.element('<div></div>');
+        alertDomEl.attr({
+            'class': 'tms-notice-box alert alert-' + (type ? type : 'info'),
+            'ng-style': '{\'z-index\':1099}'
+        }).html(msg);
+        if (!keep) {
+            alertDomEl[0].addEventListener('click', function() {
+                document.body.removeChild(alertDomEl[0]);
+            }, true);
+        }
+        $compile(alertDomEl)($rootScope);
+        document.body.appendChild(alertDomEl[0]);
+
+        return alertDomEl[0];
+    }
+
+    function _fnRemoveAlert(alertDomEl) {
+        if (alertDomEl) {
+            document.body.removeChild(alertDomEl);
+        }
+    }
+
+    function _requirePagination(oOptions) {
+        if (oOptions.page && angular.isObject(oOptions.page)) {
+            if (oOptions.page.at === undefined) oOptions.page.at = 1;
+            if (oOptions.page.size === undefined) oOptions.page.size = 12;
+            if (oOptions.page.j === undefined || !angular.isFunction(oOptions.page.j)) {
+                oOptions.page.j = function() {
+                    return 'page=' + this.at + '&size=' + this.size;
+                };
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 合并两个对象
+     * 解决将通过http获得的数据和本地数据合并的问题
+     */
+    function _fnMerge(oOld, oNew, aExcludeProps) {
+        if (!oOld) {
+            oOld = oNew;
+        } else if (angular.isArray(oOld)) {
+            if (oOld.length > oNew.length) {
+                oOld.splice(oNew.length - 1, oOld.length - oNew.length);
+            }
+            for (var i = 0, ii = oNew.length; i < ii; i++) {
+                if (i < oOld.length) {
+                    _fnMerge(oOld[i], oNew[i]);
+                } else {
+                    oOld.push(oNew[i]);
+                }
+            }
+        } else if (angular.isObject(oOld)) {
+            for (var prop in oOld) {
+                if (aExcludeProps && aExcludeProps.indexOf(prop) !== -1) {
+                    continue;
+                }
+                if (oNew[prop] === undefined) {
+                    delete oOld[prop];
+                } else {
+                    if (angular.isObject(oNew[prop]) && angular.isObject(oOld[prop])) {
+                        _fnMerge(oOld[prop], oNew[prop]);
+                    } else {
+                        oOld[prop] = oNew[prop];
+                    }
+                }
+            }
+            for (var prop in oNew) {
+                if (aExcludeProps && aExcludeProps.indexOf(prop) !== -1) {
+                    continue;
+                }
+                if (oOld[prop] === undefined) {
+                    oOld[prop] = oNew[prop];
+                }
+            }
+        }
+
+        return true;
+    }
+
+    this.get = function(url, oOptions) {
+        var _alert, _timer, _defer = $q.defer();
+        oOptions = angular.extend({
+            'headers': {
+                'accept': 'application/json'
+            },
+            'parseResponse': true,
+            'autoBreak': true,
+            'autoNotice': true,
+            'showProgress': true,
+            'showProgressDelay': 500,
+            'showProgressText': '正在获取数据...',
+        }, oOptions);
+        if (oOptions.showProgress === true) {
+            _timer = $timeout(function() {
+                _timer = null;
+                _alert = _fnCreateAlert(oOptions.showProgressText, 'info');
+            }, oOptions.showProgressDelay);
+        }
+        if (_requirePagination(oOptions)) {
+            url += (url.indexOf('?') === -1 ? '?' : '&') + oOptions.page.j();
+        }
+        $http.get(url, oOptions).success(function(rsp) {
+            if (oOptions.page && rsp.data.total !== undefined) {
+                oOptions.page.total = rsp.data.total;
+            }
+            if (oOptions.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    _fnRemoveAlert(_alert);
+                    _alert = null;
+                }
+            }
+            if (!oOptions.parseResponse) {
+                _defer.resolve(rsp);
+            } else {
+                if (angular.isString(rsp)) {
+                    if (oOptions.autoNotice) {
+                        _fnCreateAlert(rsp, 'warning');
+                    }
+                    if (oOptions.autoBreak) {
+                        return
+                    } else {
+                        _defer.reject(rsp);
+                    }
+                } else if (rsp.err_code != 0) {
+                    if (oOptions.autoNotice) {
+                        var errmsg;
+                        if (angular.isString(rsp.err_msg)) {
+                            errmsg = rsp.err_msg;
+                        } else if (angular.isArray(rsp.err_msg)) {
+                            errmsg = rsp.err_msg.join('<br>');
+                        } else {
+                            errmsg = JSON.stringify(rsp.err_msg);
+                        }
+                        _fnCreateAlert(errmsg, 'warning');
+                    }
+                    if (oOptions.autoBreak) {
+                        return
+                    } else {
+                        _defer.reject(rsp);
+                    }
+                } else {
+                    _defer.resolve(rsp);
+                }
+            }
+        }).error(function(data, status) {
+            if (oOptions.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    _fnRemoveAlert(_alert);
+                    _alert = null;
+                }
+            }
+            _fnCreateAlert(data === null ? '网络不可用' : data, 'danger');
+        });
+
+        return _defer.promise;
+    };
+    this.post = function(url, posted, oOptions) {
+        var _alert, _timer, _defer = $q.defer();
+        oOptions = angular.extend({
+            'headers': {
+                'accept': 'application/json'
+            },
+            'parseResponse': true,
+            'autoBreak': true,
+            'autoNotice': true,
+            'showProgress': true,
+            'showProgressDelay': 500,
+            'showProgressText': '正在获取数据...',
+        }, oOptions);
+        if (oOptions.showProgress === true) {
+            _timer = $timeout(function() {
+                _timer = null;
+                _alert = _fnCreateAlert(oOptions.showProgressText, 'info');
+            }, oOptions.showProgressDelay);
+        }
+        if (_requirePagination(oOptions)) {
+            url += (url.indexOf('?') === -1 ? '?' : '&') + oOptions.page.j();
+        }
+        $http.post(url, posted, oOptions).success(function(rsp) {
+            if (oOptions.page && rsp.data.total !== undefined) {
+                oOptions.page.total = rsp.data.total;
+            }
+            if (oOptions.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    _fnRemoveAlert(_alert);
+                    _alert = null;
+                }
+            }
+            if (!oOptions.parseResponse) {
+                _defer.resolve(rsp);
+            } else {
+                if (angular.isString(rsp)) {
+                    if (oOptions.autoNotice) {
+                        _fnCreateAlert(rsp, 'warning');
+                        _alert = null;
+                    }
+                    if (oOptions.autoBreak) {
+                        return
+                    } else {
+                        _defer.reject(rsp);
+                    }
+                } else if (rsp.err_code != 0) {
+                    if (oOptions.autoNotice) {
+                        var errmsg;
+                        if (angular.isString(rsp.err_msg)) {
+                            errmsg = rsp.err_msg;
+                        } else if (angular.isArray(rsp.err_msg)) {
+                            errmsg = rsp.err_msg.join('<br>');
+                        } else {
+                            errmsg = JSON.stringify(rsp.err_msg);
+                        }
+                        _fnCreateAlert(errmsg, 'warning');
+                    }
+                    if (oOptions.autoBreak) {
+                        return
+                    } else {
+                        _defer.reject(rsp);
+                    }
+                } else {
+                    _defer.resolve(rsp);
+                }
+            }
+        }).error(function(data, status) {
+            if (oOptions.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    _fnRemoveAlert(_alert);
+                    _alert = null;
+                }
+            }
+            _fnCreateAlert(data === null ? '网络不可用' : data, 'danger');
+        });
+
+        return _defer.promise;
+    };
+    /**
+     * 合并两个对象
+     * 解决将通过http获得的数据和本地数据合并的问题
+     */
+    this.merge = function(oOld, oNew, aExcludeProps) {
+        if (angular.equals(oOld, oNew)) {
+            return false;
+        }
+        return _fnMerge(oOld, oNew, aExcludeProps);
+    };
+}]);
+
+/***/ }),
+
+/***/ 4:
+/***/ (function(module, exports) {
+
+
+/**
+ * When source maps are enabled, `style-loader` uses a link element with a data-uri to
+ * embed the css on the page. This breaks all relative urls because now they are relative to a
+ * bundle instead of the current page.
+ *
+ * One solution is to only use full urls, but that may be impossible.
+ *
+ * Instead, this function "fixes" the relative urls to be absolute according to the current page location.
+ *
+ * A rudimentary test suite is located at `test/fixUrls.js` and can be run via the `npm test` command.
+ *
+ */
+
+module.exports = function (css) {
+  // get current location
+  var location = typeof window !== "undefined" && window.location;
+
+  if (!location) {
+    throw new Error("fixUrls requires window.location");
+  }
+
+	// blank or null?
+	if (!css || typeof css !== "string") {
+	  return css;
+  }
+
+  var baseUrl = location.protocol + "//" + location.host;
+  var currentDir = baseUrl + location.pathname.replace(/\/[^\/]*$/, "/");
+
+	// convert each url(...)
+	/*
+	This regular expression is just a way to recursively match brackets within
+	a string.
+
+	 /url\s*\(  = Match on the word "url" with any whitespace after it and then a parens
+	   (  = Start a capturing group
+	     (?:  = Start a non-capturing group
+	         [^)(]  = Match anything that isn't a parentheses
+	         |  = OR
+	         \(  = Match a start parentheses
+	             (?:  = Start another non-capturing groups
+	                 [^)(]+  = Match anything that isn't a parentheses
+	                 |  = OR
+	                 \(  = Match a start parentheses
+	                     [^)(]*  = Match anything that isn't a parentheses
+	                 \)  = Match a end parentheses
+	             )  = End Group
+              *\) = Match anything and then a close parens
+          )  = Close non-capturing group
+          *  = Match anything
+       )  = Close capturing group
+	 \)  = Match a close parens
+
+	 /gi  = Get all matches, not the first.  Be case insensitive.
+	 */
+	var fixedCss = css.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi, function(fullMatch, origUrl) {
+		// strip quotes (if they exist)
+		var unquotedOrigUrl = origUrl
+			.trim()
+			.replace(/^"(.*)"$/, function(o, $1){ return $1; })
+			.replace(/^'(.*)'$/, function(o, $1){ return $1; });
+
+		// already a full url? no change
+		if (/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/)/i.test(unquotedOrigUrl)) {
+		  return fullMatch;
+		}
+
+		// convert the url to a full url
+		var newUrl;
+
+		if (unquotedOrigUrl.indexOf("//") === 0) {
+		  	//TODO: should we add protocol?
+			newUrl = unquotedOrigUrl;
+		} else if (unquotedOrigUrl.indexOf("/") === 0) {
+			// path should be relative to the base url
+			newUrl = baseUrl + unquotedOrigUrl; // already starts with '/'
+		} else {
+			// path should be relative to current directory
+			newUrl = currentDir + unquotedOrigUrl.replace(/^\.\//, ""); // Strip leading './'
+		}
+
+		// send back the fixed url(...)
+		return "url(" + JSON.stringify(newUrl) + ")";
+	});
+
+	// send back the fixed css
+	return fixedCss;
+};
+
+
+/***/ }),
+
+/***/ 5:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+ 
+ var ngMod = angular.module('snsshare.ui.xxt', []);
+ ngMod.service('tmsSnsShare', ['$http', function($http) {
+     function setWxShare(title, link, desc, img, options) {
+         var _this = this;
+         window.wx.onMenuShareTimeline({
+             title: options.descAsTitle ? desc : title,
+             link: link,
+             imgUrl: img,
+             success: function() {
+                 try {
+                     options.logger && options.logger('T');
+                 } catch (ex) {
+                     alert('share failed:' + ex.message);
+                 }
+             },
+             cancel: function() {},
+             fail: function() {
+                 alert('shareT: fail');
+             }
+         });
+         window.wx.onMenuShareAppMessage({
+             title: title,
+             desc: desc,
+             link: link,
+             imgUrl: img,
+             success: function() {
+                 try {
+                     options.logger && options.logger('F');
+                 } catch (ex) {
+                     alert('share failed:' + ex.message);
+                 }
+             },
+             cancel: function() {},
+             fail: function() {
+                 alert('shareF: fail');
+             }
+         });
+     }
+
+     function setYxShare(title, link, desc, img, options) {
+         var _this = this,
+             shareData = {
+                 'img_url': img,
+                 'link': link,
+                 'title': title,
+                 'desc': desc
+             };
+
+         window.YixinJSBridge.on('menu:share:appmessage', function(argv) {
+             try {
+                 options.logger && options.logger('F');
+             } catch (ex) {
+                 alert('share failed:' + ex.message);
+             }
+             window.YixinJSBridge.invoke('sendAppMessage', shareData, function(res) {});
+         });
+         window.YixinJSBridge.on('menu:share:timeline', function(argv) {
+             try {
+                 options.logger && options.logger('T');
+             } catch (ex) {
+                 alert('share failed:' + ex.message);
+             }
+             window.YixinJSBridge.invoke('shareTimeline', shareData, function(res) {});
+         });
+     }
+     var _isReady = false;
+     this.config = function(options) {
+         this.options = options;
+     };
+     this.set = function(title, link, desc, img, fnOther) {
+         var _this = this;
+         // 将图片的相对地址改为绝对地址
+         img && img.indexOf(location.protocol) === -1 && (img = location.protocol + '//' + location.host + img);
+         if (_isReady) {
+             if (/MicroMessenger/i.test(navigator.userAgent)) {
+                 setWxShare(title, link, desc, img, _this.options);
+             } else if (/Yixin/i.test(navigator.userAgent)) {
+                 setYxShare(title, link, desc, img, _this.options);
+             } else if (fnOther && typeof fnOther === 'function') {
+                 fnOther(title, link, desc, img);
+             }
+         } else {
+             if (/MicroMessenger/i.test(navigator.userAgent)) {
+                 var script;
+                 script = document.createElement('script');
+                 script.src = location.protocol + '//res.wx.qq.com/open/js/jweixin-1.0.0.js';
+                 script.onload = function() {
+                     var xhr, url;
+                     xhr = new XMLHttpRequest();
+                     url = "/rest/site/fe/wxjssdksignpackage?site=" + _this.options.siteId + "&url=" + encodeURIComponent(location.href.split('#')[0]);
+                     xhr.open('GET', url, true);
+                     xhr.onreadystatechange = function() {
+                         if (xhr.readyState == 4) {
+                             if (xhr.status >= 200 && xhr.status < 400) {
+                                 var signPackage;
+                                 try {
+                                     eval("(" + xhr.responseText + ')');
+                                     if (signPackage) {
+                                         signPackage.debug = false;
+                                         signPackage.jsApiList = _this.options.jsApiList;
+                                         wx.config(signPackage);
+                                         wx.ready(function() {
+                                             setWxShare(title, link, desc, img, _this.options);
+                                             _isReady = true;
+                                         });
+                                         wx.error(function(res) {
+                                             alert(JSON.stringify(res));
+                                         });
+                                     }
+                                 } catch (e) {
+                                     alert('local error:' + e.toString());
+                                 }
+                             } else {
+                                 alert('http error:' + xhr.statusText);
+                             }
+                         };
+                     }
+                     xhr.send();
+                 };
+                 document.body.appendChild(script);
+             } else if (/Yixin/i.test(navigator.userAgent)) {
+                 if (window.YixinJSBridge === undefined) {
+                     document.addEventListener('YixinJSBridgeReady', function() {
+                         setYxShare(title, link, desc, img, _this.options);
+                         _isReady = true;
+                     }, false);
+                 } else {
+                     setYxShare(title, link, desc, img, _this.options);
+                     _isReady = true;
+                 }
+             } else if (fnOther && typeof fnOther === 'function') {
+                 fnOther(title, link, desc, img);
+                 _isReady = true;
+             }
+         }
+     };
+ }]);
+
+/***/ }),
+
+/***/ 6:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('notice.ui.xxt', ['ngSanitize']);
+ngMod.service('noticebox', ['$timeout', '$interval', '$q', function($timeout, $interval, $q) {
+    var _boxId = 'tmsbox' + (new Date * 1),
+        _last = {
+            type: '',
+            timer: null
+        },
+        _getBox = function(type, msg) {
+            var box;
+            box = document.querySelector('#' + _boxId);
+            if (box === null) {
+                box = document.createElement('div');
+                box.setAttribute('id', _boxId);
+                box.classList.add('tms-notice-box', 'alert', 'alert-' + type);
+                box.innerHTML = '<div>' + msg + '</div>';
+                document.body.appendChild(box);
+                _last.type = type;
+            } else {
+                if (_last.type !== type) {
+                    box.classList.remove('alert-' + type);
+                    _last.type = type;
+                }
+                box.childNodes[0].innerHTML = msg;
+            }
+
+            return box;
+        };
+
+    this.close = function() {
+        var box;
+        box = document.querySelector('#' + _boxId);
+        if (box) {
+            document.body.removeChild(box);
+        }
+    };
+    this.error = function(msg) {
+        var box, btn;
+
+        /*取消自动关闭*/
+        if (_last.timer) {
+            $timeout.cancel(_last.timer);
+            _last.timer = null;
+        }
+        /*显示消息框*/
+        box = _getBox('danger', msg);
+        /*手工关闭*/
+        btn = document.createElement('button');
+        btn.classList.add('close');
+        btn.innerHTML = '<span>&times;</span>';
+        box.insertBefore(btn, box.childNodes[0]);
+        btn.addEventListener('click', function() {
+            document.body.removeChild(box);
+        });
+    };
+    this.warn = function(msg) {
+        var box, btn;
+
+        /*取消自动关闭*/
+        if (_last.timer) {
+            $timeout.cancel(_last.timer);
+            _last.timer = null;
+        }
+        /*显示消息框*/
+        box = _getBox('warning', msg);
+        /*手工关闭*/
+        btn = document.createElement('button');
+        btn.classList.add('close');
+        btn.innerHTML = '<span>&times;</span>';
+        box.insertBefore(btn, box.childNodes[0]);
+        btn.addEventListener('click', function() {
+            document.body.removeChild(box);
+        });
+    };
+    this.success = function(msg) {
+        var box;
+        /*取消自动关闭*/
+        _last.timer && $timeout.cancel(_last.timer);
+        /*显示消息框*/
+        box = _getBox('success', msg);
+        /*保持2秒钟后自动关闭*/
+        _last.timer = $timeout(function() {
+            if (box.parentNode && box.parentNode === document.body) {
+                document.body.removeChild(box);
+            }
+            _last.timer = null;
+        }, 2000);
+    };
+    this.info = function(msg) {
+        var box;
+        /*取消自动关闭*/
+        _last.timer && $timeout.cancel(_last.timer);
+        /*显示消息框*/
+        box = _getBox('info', msg);
+        /*保持2秒钟后自动关闭*/
+        _last.timer = $timeout(function() {
+            if (box.parentNode && box.parentNode === document.body) {
+                document.body.removeChild(box);
+            }
+            _last.timer = null;
+        }, 2000);
+    };
+    this.progress = function(msg) {
+        /*显示消息框*/
+        _getBox('progress', msg);
+    };
+    this.confirm = function(msg, buttons) {
+        var defer, box, btn;
+        defer = $q.defer();
+        /*取消自动关闭*/
+        if (_last.timer) {
+            $timeout.cancel(_last.timer);
+            _last.timer = null;
+        }
+        /*显示消息框*/
+        box = _getBox('warning', msg);
+        /*添加操作*/
+        if (buttons && buttons.length) {
+            buttons.forEach(function(oButton) {
+                btn = document.createElement('button');
+                btn.classList.add('btn', 'btn-default', 'btn-sm');
+                btn.innerHTML = oButton.label;
+                box.appendChild(btn, box.childNodes[0]);
+                btn.addEventListener('click', function() {
+                    document.body.removeChild(box);
+                    defer.resolve(oButton.value);
+                });
+                if (oButton.execWait) {
+                    var counter = Math.ceil(oButton.execWait / 500);
+                    var countdown = document.createElement('span');
+                    countdown.classList.add('countdown');
+                    countdown.innerHTML = counter;
+                    btn.appendChild(countdown);
+                    $interval(function() {
+                        countdown.innerHTML = --counter;
+                    }, 500);
+                    /* 自动关闭 */
+                    _last.timer = $timeout(function() {
+                        if (box.parentNode && box.parentNode === document.body) {
+                            document.body.removeChild(box);
+                        }
+                        _last.timer = null;
+                        defer.resolve(oButton.value);
+                    }, oButton.execWait);
+                }
+            });
+        } else {
+            btn = document.createElement('button');
+            btn.classList.add('btn', 'btn-default', 'btn-sm');
+            btn.innerHTML = '是';
+            box.appendChild(btn, box.childNodes[0]);
+            btn.addEventListener('click', function() {
+                document.body.removeChild(box);
+                defer.resolve();
+            });
+            btn = document.createElement('button');
+            btn.classList.add('btn', 'btn-default', 'btn-sm');
+            btn.innerHTML = '否';
+            box.appendChild(btn, box.childNodes[0]);
+            btn.addEventListener('click', function() {
+                document.body.removeChild(box);
+                defer.reject();
+            });
+        }
+
+        return defer.promise;
+    };
+}]);
+
+/***/ }),
+
+/***/ 7:
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, ".dialog.mask{position:fixed;background:rgba(0,0,0,.3);top:0;left:0;bottom:0;right:0;overflow:auto;z-index:1060}.dialog.dlg{position:absolute;background:#fff;left:0;right:0;bottom:0;margin:15px}.dialog .dlg-header{padding:15px 15px 0 15px}.dialog .dlg-body{padding:15px 15px 0 15px}.dialog .dlg-footer{text-align:right;padding:15px}.dialog .dlg-footer button{border-radius:0}div[wrap=filter] .detail{background:#ccc}div[wrap=filter] .detail .options .label{display:inline-block;margin:.5em;padding-top:.3em;font-size:100%}div[wrap=filter] .detail .actions .btn{border-radius:0}.tms-act-toggle{position:fixed;right:15px;bottom:8px;width:48px;height:48px;line-height:48px;box-shadow:0 2px 6px rgba(18,27,32,.425);color:#fff;background:#ff8018;border:1px solid #ff8018;border-radius:24px;font-size:20px;text-align:center;cursor:pointer;z-index:1050}.tms-nav-target>*+*{margin-top:.5em}.tms-act-popover-wrap>div+div{margin-top:8px}#frmPlugin{position:absolute;top:0;bottom:0;left:0;right:0;width:100%;height:100%;border:none;z-index:1060;box-sizing:border-box;padding-bottom:48px;background:#fff}#frmPlugin iframe{width:100%;height:100%;border:0}#frmPlugin:after{content:'\\5173\\95ED';position:absolute;width:100px;text-align:center;left:50%;margin-left:-50px;bottom:4px;padding:5px 6px 3px;border:1px solid #ccc;border-radius:4px}div[wrap]>.description{word-wrap:break-word}", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ 70:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(111);
+
+__webpack_require__(21);
+
+window.moduleAngularModules = ['round.ui.enroll'];
+
+var ngApp = __webpack_require__(18);
+ngApp.controller('ctrlRank', ['$scope', '$q', '$sce', 'http2', 'tmsLocation', 'enlRound', function($scope, $q, $sce, http2, LS, enlRound) {
+    function fnRoundTitle(aRids) {
+        var defer;
+        defer = $q.defer();
+        if (aRids.indexOf('ALL') !== -1) {
+            defer.resolve('全部轮次');
+        } else {
+            var titles;
+            http2.get('/rest/site/fe/matter/enroll/round/get?site=' + oApp.siteid + '&app=' + oApp.id + '&rid=' + aRids).then(function(rsp) {
+                if (rsp.data.length === 1) {
+                    titles = rsp.data[0].title;
+                } else if (rsp.data.length === 2) {
+                    titles = rsp.data[0].title + ',' + rsp.data[1].title;
+                } else if (rsp.data.length > 2) {
+                    titles = rsp.data[0].title + '-' + rsp.data[rsp.data.length - 1].title;
+                }
+                defer.resolve(titles);
+            });
+        }
+        return defer.promise;
+    }
+
+    function list() {
+        var defer = $q.defer();
+        switch (oAppState.dimension) {
+            case 'user':
+                http2.post('/rest/site/fe/matter/enroll/rank/userByApp?site=' + oApp.siteid + '&app=' + oApp.id, oAppState.criteria).then(function(rsp) {
+                    defer.resolve(rsp.data)
+                });
+                break;
+            case 'group':
+                http2.post('/rest/site/fe/matter/enroll/rank/groupByApp?site=' + oApp.siteid + '&app=' + oApp.id, oAppState.criteria).then(function(rsp) {
+                    defer.resolve(rsp.data)
+                });
+                break;
+            case 'schema':
+                http2.post('/rest/site/fe/matter/enroll/rank/schemaByApp?site=' + oApp.siteid + '&app=' + oApp.id + '&schema=' + oAppState.criteria.obj, oAppState.criteria).then(function(rsp) {
+                    defer.resolve(rsp.data)
+                });
+                break;
+        }
+        return defer.promise;
+    }
+    var oApp, oAppState;
+    $scope.doSearch = function() {
+        list().then(function(data) {
+            switch (oAppState.dimension) {
+                case 'user':
+                    if (data.users) {
+                        data.users.forEach(function(user) {
+                            user.headimgurl = user.headimgurl ? user.headimgurl : '/static/img/avatar.png';
+                            $scope.users.push(user);
+                        });
+                    }
+                    break;
+                case 'group':
+                    if (data.groups) {
+                        data.groups.forEach(function(group) {
+                            $scope.groups.push(group);
+                        });
+                    }
+                    break;
+                case 'schema':
+                    data.forEach(function(oOp) {
+                        $scope.schemaOps.push(oOp);
+                    });
+                    break;
+            }
+        });
+    };
+    $scope.changeCriteria = function() {
+        $scope.users = [];
+        $scope.groups = [];
+        $scope.schemaOps = [];
+        $scope.doSearch(1);
+    };
+    $scope.doRound = function(rid) {
+        if (rid == 'more') {
+            $scope.setRound();
+        } else {
+            $scope.changeCriteria();
+        }
+    };
+    /**
+     * 设置轮次条件
+     */
+    $scope.setRound = function() {
+        (new enlRound($scope.app)).pick(oAppState.criteria.round).then(function(oResult) {
+            oAppState.criteria.round = oResult.ids;
+            $scope.checkedRoundTitles = oResult.titles;
+            $scope.changeCriteria();
+        });
+    };
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        var oRankConfig, oConfig, rankItems, dataSchemas;
+        oApp = params.app;
+        dataSchemas = oApp.dynaDataSchemas;
+        /* 排行显示内容设置 */
+        rankItems = ['enroll', 'remark', 'like', 'remark_other', 'do_like', 'total_coin', 'score', 'average_score', 'vote_schema', 'vote_cowork'];
+        oConfig = {};
+        rankItems.forEach(function(item) {
+            oConfig[item] = true;
+        });
+        if (oRankConfig = oApp.rankConfig) {
+            if (oRankConfig.scope) {
+                rankItems.forEach(function(item) {
+                    oConfig[item] = !!oRankConfig.scope[item];
+                });
+            }
+            if (oRankConfig.schemas && oRankConfig.schemas.length)
+                $scope.rankSchemas = dataSchemas.filter(function(oSchema) { return oSchema.type === 'single' && oRankConfig.schemas.indexOf(oSchema.id) !== -1; });
+        }
+        $scope.config = oConfig;
+        /* 恢复上一次访问的状态 */
+        if (window.localStorage) {
+            $scope.$watch('appState', function(nv) {
+                if (nv)
+                    window.localStorage.setItem("site.fe.matter.enroll.rank.appState", JSON.stringify(nv));
+            }, true);
+            if (oAppState = window.localStorage.getItem("site.fe.matter.enroll.rank.appState")) {
+                oAppState = JSON.parse(oAppState);
+                if (!oAppState.aid || oAppState.aid !== oApp.id) {
+                    oAppState = null;
+                } else if (oAppState.criteria.obj === 'group') {
+                    if (!oApp.entryRule.group.id)
+                        oAppState = null;
+                }
+            }
+        }
+        if (!oAppState)
+            oAppState = {
+                aid: oApp.id,
+                criteria: {
+                    orderby: oRankConfig.defaultItem ? oRankConfig.defaultItem : 'enroll',
+                    agreed: 'all',
+                    round: ['ALL']
+                }
+            };
+        if (!oAppState.criteria.obj && oRankConfig.defaultObj) {
+            oAppState.criteria.obj = oRankConfig.defaultObj;
+        }
+        if (/user|group/.test(oAppState.criteria.obj)) {
+            oAppState.dimension = oAppState.criteria.obj;
+        } else {
+            if (oRankConfig.schemas && oRankConfig.schemas.length && oRankConfig.schemas.indexOf(oAppState.criteria.obj) !== -1)
+                oAppState.dimension = 'schema';
+            else
+                oAppState.criteria.obj = oAppState.dimension = 'user';
+        }
+
+        (new enlRound(oApp)).getRoundTitle(oAppState.criteria.round).then(function(titles) {
+            $scope.checkedRoundTitles = titles;
+        });
+        $scope.appState = oAppState;
+        $scope.$watch('appState.criteria.obj', function(oNew, oOld) {
+            if (oNew && oOld && oNew !== oOld) {
+                switch (oNew) {
+                    case 'user':
+                        oAppState.dimension = 'user';
+                        oAppState.criteria.orderby = oRankConfig.defaultItem ? oRankConfig.defaultItem : 'enroll';
+                        break;
+                    case 'group':
+                        oAppState.dimension = 'group';
+                        oAppState.criteria.orderby = oRankConfig.defaultItem ? oRankConfig.defaultItem : 'enroll';
+                        break;
+                    default:
+                        oAppState.dimension = 'schema';
+                        oAppState.criteria.orderby = oRankConfig.defaultItem ? oRankConfig.defaultItem : 'enroll';
+                }
+                $scope.changeCriteria();
+            }
+        });
+        $scope.changeCriteria();
+        /*设置页面分享信息*/
+        $scope.setSnsShare();
+        /*设置页面操作*/
+        $scope.setPopAct(['addRecord'], 'rank');
+        /*设置页面导航*/
+        $scope.setPopNav(['repos', 'kanban', 'favor', 'event'], 'rank');
+        /*页面阅读日志*/
+        $scope.logAccess();
+    });
+}]);
+
+/***/ }),
+
+/***/ 8:
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(7);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!./directive.css", function() {
+			var newContent = require("!!../../../../../../node_modules/css-loader/index.js!./directive.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+
+/***/ 9:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+window.__util = {};
+window.__util.makeDialog = function(id, html) {
+    var dlg, mask;
+
+    mask = document.createElement('div');
+    mask.setAttribute('id', id);
+    mask.classList.add('dialog', 'mask');
+
+    dlg = "<div class='dialog dlg'>";
+    html.header && html.header.length && (dlg += "<div class='dlg-header'>" + html.header + "</div>");
+    dlg += "<div class='dlg-body'>" + html.body + "</div>";
+    html.footer && html.footer.length && (dlg += "<div class='dlg-footer'>" + html.footer + "</div>");
+    dlg += "</div>";
+
+    mask.innerHTML = dlg;
+
+    document.body.appendChild(mask);
+
+    return mask.children;
+};
+
+var ngMod = angular.module('directive.enroll', []);
+ngMod.directive('tmsDate', ['$compile', function($compile) {
+    return {
+        restrict: 'A',
+        scope: {
+            value: '=tmsDateValue'
+        },
+        controller: ['$scope', function($scope) {
+            $scope.close = function() {
+                var mask;
+                mask = document.querySelector('#' + $scope.dialogID);
+                document.body.removeChild(mask);
+                $scope.opened = false;
+            };
+            $scope.ok = function() {
+                var dtObject;
+                dtObject = new Date();
+                dtObject.setTime(0);
+                dtObject.setFullYear($scope.data.year);
+                dtObject.setMonth($scope.data.month - 1);
+                dtObject.setDate($scope.data.date);
+                dtObject.setHours($scope.data.hour);
+                dtObject.setMinutes($scope.data.minute);
+                $scope.value = parseInt(dtObject.getTime() / 1000);
+                $scope.close();
+            };
+        }],
+        link: function(scope, elem, attrs) {
+            var fnOpenPicker, dtObject, dtMinute, htmlBody;
+            scope.value === undefined && (scope.value = (new Date() * 1) / 1000);
+            dtObject = new Date();
+            dtObject.setTime(scope.value * 1000);
+            scope.options = {
+                years: [2014, 2015, 2016, 2017, 2018, 2019, 2020],
+                months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                dates: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+                hours: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+                minutes: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
+            };
+            dtMinute = Math.round(dtObject.getMinutes() / 5) * 5;
+            scope.data = {
+                year: dtObject.getFullYear(),
+                month: dtObject.getMonth() + 1,
+                date: dtObject.getDate(),
+                hour: dtObject.getHours(),
+                minute: dtMinute
+            };
+            scope.options.minutes.indexOf(dtMinute) === -1 && scope.options.minutes.push(dtMinute);
+            htmlBody = '<div class="form-group"><select class="form-control" ng-model="data.year" ng-options="y for y in options.years"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.month" ng-options="m for m in options.months"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.date" ng-options="d for d in options.dates"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.hour" ng-options="h for h in options.hours"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.minute" ng-options="mi for mi in options.minutes"></select></div>';
+            fnOpenPicker = function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                if (scope.opened) return;
+                var html, id;
+                id = '_dlg-' + (new Date() * 1);
+                html = {
+                    header: '',
+                    body: htmlBody,
+                    footer: '<button class="btn btn-default" ng-click="close()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button>'
+                };
+                html = __util.makeDialog(id, html);
+                scope.opened = true;
+                scope.dialogID = id;
+                $compile(html)(scope);
+            };
+            elem[0].querySelector('[ng-bind]').addEventListener('click', fnOpenPicker);
+        }
+    }
+}]);
+ngMod.directive('flexImg', function() {
+    return {
+        restrict: 'A',
+        replace: true,
+        template: "<img ng-src='{{img.imgSrc}}'>",
+        link: function(scope, elem, attrs) {
+            angular.element(elem).on('load', function() {
+                var w = this.clientWidth,
+                    h = this.clientHeight,
+                    sw, sh;
+                if (w > h) {
+                    sw = w / h * 80;
+                    angular.element(this).css({
+                        'height': '100%',
+                        'width': sw + 'px',
+                        'top': '0',
+                        'left': '50%',
+                        'margin-left': (-1 * sw / 2) + 'px'
+                    });
+                } else {
+                    sh = h / w * 80;
+                    angular.element(this).css({
+                        'width': '100%',
+                        'height': sh + 'px',
+                        'left': '0',
+                        'top': '50%',
+                        'margin-top': (-1 * sh / 2) + 'px'
+                    });
+                }
+            })
+        }
+    }
+});
+/**
+ * 根据父元素的高度决定是否隐藏
+ */
+ngMod.directive('tmsHideParentHeight', function() {
+    return {
+        restrict: 'A',
+        link: function(scope, elems, attrs) {
+            var heightLimit, elem;
+            if (attrs.tmsHideParentHeight) {
+                heightLimit = attrs.tmsHideParentHeight;
+                for (var i = 0, ii = elems.length; i < ii; i++) {
+                    elem = elems[i];
+                    if (elem.parentElement) {
+                        window.addEventListener('resize', function() {
+                            elem.classList.toggle('hidden', elem.parentElement.clientHeight < heightLimit);
+                        });
+                    }
+                }
+            }
+        }
+    }
+});
+/**
+ * 监听元素的滚动事件并做出相应
+ */
+ngMod.directive('tmsScrollSpy', function() {
+    return {
+        restrict: 'A',
+        scope: {
+            selector: '@selector',
+            offset: '@',
+            onbottom: '&',
+            toggleSpy: '='
+        },
+        link: function(scope, elems, attrs) {
+            var eleListen = scope.selector === 'window' ? window : document.querySelector(scope.selector);
+            eleListen.addEventListener('scroll', function(event) {
+                var eleScrolling = eleListen === window ? event.target.documentElement : event.target;
+                if (scope.toggleSpy) {
+                        if (scope.onbottom && angular.isFunction(scope.onbottom)) {
+                            if (eleScrolling.clientHeight + eleScrolling.scrollTop + parseInt(scope.offset) >= eleScrolling.scrollHeight) {
+                                scope.$apply(function() {
+                                    scope.toggleSpy = false;
+                                    scope.onbottom();
+                                });
+                            }
+                        }
+                    }
+            });
+        }
+    }
+});
+
+/***/ }),
+
+/***/ 93:
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "html, body {\r\n\tbackground-color: #f5f5f5;\r\n}\r\n\r\nbody {\r\n\tposition: relative;\r\n\tfont-size: 14px;\r\n}\r\n\r\nol, ul {\r\n\tlist-style: none;\r\n\tmargin: 0;\r\n\tpadding: 0;\r\n\toverflow: hidden;\r\n}\r\n\r\nul>li {\r\n\ttext-align: center;\r\n\tline-height: 1.8;\r\n\tposition: relative;\r\n\toverflow: hidden;\r\n}\r\n\r\n.app {\r\n\tmargin-bottom: 64px;\r\n\tcolor: #333;\r\n}\r\n\r\n.filter {\r\n\tmargin-top: 10px;\r\n\tpadding: 20px 0 40px;\r\n\tbackground-color: #fff;\r\n}\r\n\r\n.filter>.col-xs-4 .form-control {\r\n\tfont-size: 16px;\r\n}\r\n\r\n.filter>.col-xs-4 .form-control:focus {\r\n\tbox-shadow: none;\r\n}\r\n\r\n.result {\r\n\tbackground-color: #fff;\r\n\tpadding: 0 10px 20px;\r\n}\r\n\r\n.result>div>ul>li:nth-child(1) {\r\n\theight: 50px;\r\n\tline-height: 50px;\r\n\tbackground-color: #2994D0;\r\n\tcolor: #fff;\r\n}\r\n\r\n.result>div>ul>li.record {\r\n\tpadding: 10px 0;\r\n\tborder-bottom: 2px solid #f5f5f5;\r\n\tcursor: pointer;\r\n}\r\n\r\n.result>div>ul>li.record:hover {\r\n\tbackground-color: #f5f5f5;\r\n}\r\n\r\n.user-info {\r\n\tcolor: #666;\r\n\tfont-size: 12px;\r\n\ttext-align: left;\r\n}\r\n\r\n.data-headimg {\r\n\twidth: 20px;\r\n\theight: 20px;\r\n\tborder-radius: 50%;\r\n\tmargin-right: 5px;\r\n}\r\n\r\n.user-headimg {\r\n\twidth: 35px;\r\n\theight: 35px;\r\n\tborder-radius: 50%;\r\n\tmargin-right: 5px;\r\n}\r\n\r\n.mask {\r\n\twidth: 100%;\r\n\theight: 15%;\r\n\tmargin-bottom: 0;\r\n\tposition: absolute;\r\n\tleft: 0;\r\n\tbottom: 0;\r\n\tbackground-color: #2f2933;\r\n\topacity: 0.6;\r\n}\r\n\r\n.tip {\r\n\tposition: absolute;\r\n\tbottom: 1px;\r\n\tright: 5px;\r\n\tcolor: #fff;\r\n\tfont-size: 14px;\r\n}\r\n\r\n.tip>.glyphicon {\r\n\ttop: 1px;\r\n\tmargin-right: 5px;\r\n}\r\n\r\n@media screen and (max-width:768px) {\r\n\t.site-navbar-default {\r\n\t\tmargin-bottom: 0;\r\n\t}\r\n\r\n\t.filter {\r\n\t\tmargin-bottom: 10px;\r\n\t\tmargin-top: 0;\r\n\t\tpadding: 0;\r\n\t}\r\n\r\n\t.filter>div+div .form-control {\r\n\t\tborder-left: 0;\r\n\t}\r\n\r\n\t.filter .form-control {\r\n\t\tborder-radius: 0;\r\n\t}\r\n\r\n\t.filter>.col-xs-4, .filter>.col-xs-6 {\r\n\t\tpadding-left: 0;\r\n\t\tpadding-right: 0;\r\n\t}\r\n\r\n\t.filter>.col-xs-4 .form-control {\r\n\t\tpadding-right: 0;\r\n\t\tpadding-left: 10px;\r\n\t\tborder: none;\r\n\t\tborder-radius: 0;\r\n\t\tfont-size: 14px;\r\n\t}\r\n\r\n\t.result {\r\n\t\tbackground-color: #f5f5f5;\r\n\t\tpadding: 0;\r\n\t\tfont-size: 13px;\r\n\t}\r\n\r\n\t.result>div>ul>li.record {\r\n\t\tpadding: 10px 10px;\r\n\t\tmargin-bottom: 5px;\r\n\t\tbackground-color: #fff;\r\n\t\tborder-bottom: none;\r\n\t}\r\n\r\n\t.col-xs-12 {\r\n\t\tmargin-top: 10px;\r\n\t}\r\n\r\n\t.hidden {\r\n\t\tdisplay: none !important;\r\n\t}\r\n\r\n}\r\n\r\n.rank-num {\r\n\tdisplay: inline-block;\r\n\tline-height: 20px;\r\n\tcolor: #333;\r\n\ttext-align: center;\r\n\tfont-weight: bold;\r\n}\r\n\r\n.record:nth-of-type(2) .rank-num, .record:nth-of-type(3) .rank-num, .record:nth-of-type(4) .rank-num {\r\n\tcolor: #ff0000;\r\n}\r\n", ""]);
+
+// exports
+
+
+/***/ })
+
+/******/ });

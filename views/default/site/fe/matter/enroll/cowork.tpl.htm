@@ -37,7 +37,7 @@
                     <div ng-bind="task"></div>
                 </div>
             </div>
-            <div ng-include="selectedView"></div>
+            <div ng-include="selectedView.url"></div>
         </div>
         <div id='favorGuide' ng-if="favorStack.guiding">
             <span>已收藏</span>

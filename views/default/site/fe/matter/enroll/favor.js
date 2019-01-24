@@ -312,7 +312,7 @@ ngApp.controller('ctrlTopic', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'n
                 $scope2.schemas = _oTopicRepos.shareableSchemas;
                 _oTopicRepos.list(1).then(function() {});
                 $scope2.quitRec = function(oRecord, index) {
-                    http2.post(LS.j('topic/removeRec', 'site') + '&topic=' + oTopic.id, { record: oRecord.id }).then(function(rsp) {
+                    http2.post(LS.j('topic/removeRec', 'site') + '&topic=' + oTopic.id, { id_in_topic: oRecord.id_in_topic }).then(function(rsp) {
                         $scope2.repos.splice(index, 1);
                     });
                 };

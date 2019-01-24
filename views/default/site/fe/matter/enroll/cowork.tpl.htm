@@ -31,9 +31,9 @@
     </nav>
     <div ng-cloak class='ng-cloak app container'>
         <div class='row'>
-            <div ng-if="tasks.length" ng-cloak>
-                <div uib-alert ng-repeat="task in tasks" class='alert-info'>
-                    <div><label><input type='checkbox' name='forTask' ng-true-value="{{task.id}}" ng-model="options.forTask"> 问题留言后，题目作为任务提交</label></div>
+            <div ng-if="questionTasks.length" ng-cloak>
+                <div uib-alert ng-repeat="task in questionTasks" class='alert-info'>
+                    <div ng-if="task.rid!==record.rid"><label><input type='checkbox' name='forQuestionTask' ng-true-value="{{task.id}}" ng-model="options.forQuestionTask"> 通过对问题留言，完成提问任务</label></div>
                     <div ng-bind="task"></div>
                 </div>
             </div>
@@ -92,6 +92,7 @@
                             <li ng-if="app.scenarioConfig.can_assoc==='Y'"><a href ng-click="copyRecord(record)"><span class='glyphicon glyphicon-copy'></span> 复制</a></li>
                             <li ng-if="app.scenarioConfig.can_assoc==='Y'"><a href ng-click="pasteRecord(record)"><span class='glyphicon glyphicon-paste'></span> 粘贴</a></li>
                             <li ng-if="app.transmitConfig.length&&user.is_editor==='Y'"><a href ng-click="transmitRecord(record)"><span class='glyphicon glyphicon-transfer'></span> 转发</a></li>
+                            <li ng-if="record.userid===user.uid||user.is_editor==='Y'"><a href ng-click="doQuestionTask(record)">作为任务</a></li>
                         </ul>
                     </div>
                 </div>
@@ -115,10 +116,10 @@
                 </div>
             </div>
             <div id='cowork' ng-if="coworkSchemas.length">
-                <div ng-if="coworkTasks.length">
-                    <div uib-alert ng-repeat="task in coworkTasks" class='alert-info' close="closeCoworkTask($index)" ng-switch="task.id">
-                        <span>{{task.msg}}</span>
-                        <span ng-switch-when="cowork.submit.end"></span>
+                <div ng-if="answerTasks.length" ng-cloak>
+                    <div uib-alert ng-repeat="task in answerTasks" class='alert-info'>
+                        <div><label><input type='checkbox' name='forAnswerTask' ng-true-value="{{task.id}}" ng-model="options.forAnswerTask"> 回答作为任务提交</label></div>
+                        <div ng-bind="task"></div>
                     </div>
                 </div>
                 <div class='schemaList' ng-controller="ctrlCoworkData">
@@ -166,6 +167,7 @@
                                             <li ng-if="app.scenarioConfig.no_remark!=='Y'"><a href ng-click="coworkAsRemark(schema,$index)"><span class='glyphicon glyphicon-transfer'></span> 转为留言</a></li>
                                             <li ng-if="item.voteResult.state==='IP'&&item.voteResult.vote_at==0"><a href ng-click="vote(item)"><span class='glyphicon glyphicon-triangle-top'></span> 投票</a></li>
                                             <li ng-if="item.voteResult.state==='IP'&&item.voteResult.vote_at>0"><a href ng-click="unvote(item)"><span class='glyphicon glyphicon-triangle-bottom'></span> 取消投票</a></li>
+                                            <li ng-if="answerTasks.length"><a href ng-click="doAnswerTask(item)">作为任务</a></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -198,18 +200,13 @@
                         </div>
                         <div class='text-center' ng-if="canSubmitCowork">
                             <hr>
-                            <button class="btn btn-primary" ng-click="addItem(schema)"><span class='glyphicon glyphicon-plus'></span> 添加 <span class='text-muted' ng-if="constraint">（还需要{{constraint.gap}}<span class='glyphicon glyphicon-thumbs-up'></span>）</span>
+                            <button class="btn btn-primary" ng-click="addItem(schema)"><span class='glyphicon glyphicon-plus'></span> 添加</span>
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
             <div id='remarks' ng-if="app.scenarioConfig.no_remark!=='Y'">
-                <div class='remark' ng-if="remarkTasks.length">
-                    <div uib-alert ng-repeat="task in remarkTasks" class='alert-info' close="closeRemarkTask($index)" ng-switch="task.id">
-                        <span>{{task.msg}}</span>
-                    </div>
-                </div>
                 <div id="remark-{{remark.id}}" class='remark' ng-repeat="remark in remarks">
                     <div class='top-bar tms-flex-row'>
                         <div class='seq tms-flex-grow text-muted'>#<span ng-bind="remark.seq_in_record"></span> <span class='reply small' ng-if="remark.reply" ng-bind-html="remark.reply"></span></div>

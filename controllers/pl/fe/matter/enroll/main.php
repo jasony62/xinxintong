@@ -590,7 +590,7 @@ class main extends main_base {
 			return new \ParameterError('（3）参数不完整');
 		}
 		$modelApp = $this->model('matter\enroll');
-		$oScoreApp = $modelApp->byId($oScoreConfig->scoreApp->id, 'id,state,data_schemas');
+		$oScoreApp = $modelApp->byId($oScoreConfig->scoreApp->id, ['fields' => 'id,state,data_schemas']);
 		if (false === $oScoreApp || $oScoreApp->state !== '1') {
 			return new \ObjectNotFoundError('（4）打分活动不存在或不可用');
 		}

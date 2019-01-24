@@ -48,7 +48,7 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             _oPage.total--;
         });
     };
-    $scope.coworkRecord = function(oRecord) {
+    $scope.coworkRecord = function(event, oRecord) {
         var url;
         url = LS.j('', 'site', 'app');
         url += '&ek=' + oRecord.enroll_key;

@@ -271,27 +271,33 @@ class topic_model extends entity_model {
 	 * 把任务中的记录放入专题
 	 */
 	private function _assignByTaskRecords($oTopic, $oTask, $taskRecords) {
-		$modelDat = $this->model('matter\enroll\data');
-		foreach ($taskRecords as $oRecord) {
-			/* 需要在专题中记录到数据 */
-			if (empty($oRecord->data_id)) {
-				if (!empty($oTask->schemas)) {
-					foreach ($oTask->schemas as $schemaId) {
-						$recdatas = $modelDat->byRecord($oRecord->enroll_key, ['fields' => 'id', 'schema' => $schemaId, 'excludeRoot' => true]);
-						array_walk($recdatas, function ($oRecData) use ($oRecord, $oTask, $oTopic) {
-							$this->assign($oTopic, $oRecord, $oRecData, max($oTask->start_at, $oRecord->enroll_at));
-						});
+		if ($oTask->config_type === 'answer' && (empty($oTask->source->scope) || $oTask->source->scope === 'question')) {
+			/* 任务的对象是记录 */
+			$fnHandle = function ($oRecord) use ($oTopic, $oTask) {
+				$this->assign($oTopic, $oRecord, null, max($oTask->start_at, $oRecord->enroll_at));
+			};
+		} else {
+			/* 任务的对象是数据 */
+			if (!empty($oTask->schemas)) {
+				$modelDat = $this->model('matter\enroll\data');
+				$fnHandle = function ($oRecord) use ($oTopic, $oTask, $modelDat) {
+					if (empty($oRecord->data_id)) {
+						foreach ($oTask->schemas as $schemaId) {
+							$recdatas = $modelDat->byRecord($oRecord->enroll_key, ['fields' => 'id', 'schema' => $schemaId, 'excludeRoot' => true]);
+							array_walk($recdatas, function ($oRecData) use ($oRecord, $oTask, $oTopic) {
+								$this->assign($oTopic, $oRecord, $oRecData, max($oTask->start_at, $oRecord->enroll_at));
+							});
+						}
+					} else {
+						$oRecData = $modelDat->byId($oRecord->data_id, ['fields' => 'id,schema_id,submit_at']);
+						if ($oRecData && in_array($oRecData->schema_id, $oTask->schemas)) {
+							$this->assign($oTopic, $oRecord, $oRecData, max($oTask->start_at, $oRecData->submit_at));
+						}
 					}
-				}
-			} else {
-				if (!empty($oTask->schemas)) {
-					$oRecData = $modelDat->byId($oRecord->data_id, ['fields' => 'id,schema_id,submit_at']);
-					if ($oRecData && in_array($oRecData->schema_id, $oTask->schemas)) {
-						$this->assign($oTopic, $oRecord, $oRecData, max($oTask->start_at, $oRecData->submit_at));
-					}
-				}
+				};
 			}
 		}
+		isset($fnHandle) && array_walk($taskRecords, $fnHandle);
 
 		return true;
 	}

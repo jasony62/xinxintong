@@ -479,6 +479,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
  * 协作题
  */
 ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uibModal', 'tmsLocation', 'http2', 'noticebox', 'enlAssoc', function($scope, $timeout, $anchorScroll, $uibModal, LS, http2, noticebox, enlAssoc) {
+    $scope.canSubmitCowork = true; // 是否允许提交协作数据
     $scope.addItem = function(oSchema) {
         if ($scope.setOperateLimit('add_cowork')) {
             $uibModal.open({
@@ -636,9 +637,6 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
         }
     };
     $scope.$watch('record', function(oRecord) {
-        if (oRecord) {
-            $scope.constraint = $scope.ruleCowork(oRecord);
-        }
         var oActionRule;
         if ($scope.app) {
             if (oActionRule = $scope.app.actionRule) {
@@ -697,7 +695,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$location', '$uibModal', '$anch
         }
 
         http2.get(url).then(function(rsp) {
-            var remarks, oRemark, oUpperRemark, oRemarks;
+            var remarks, oRemark, oUpperRemark, oCoworkRemark, oRemarks;
             remarks = rsp.data.remarks;
             if (remarks && remarks.length) {
                 oRemarks = {};
@@ -709,11 +707,9 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$location', '$uibModal', '$anch
                     if (oRemark.content) {
                         oRemark.content = oRemark.content.replace(/\n/g, '<br/>');
                     }
-                    if (oRemark.data) {
-                        oRemark.reply = '<a href="#item-' + oRemark.data.id + '">回复' + oRemark.nickname + '的' + ($scope.schemasById[oRemark.data.schema_id] ? $scope.schemasById[oRemark.data.schema_id].title : '数据') + (oRemark.data.multitext_seq > 0 ? (' #' + oRemark.data.multitext_seq) : '') + '</a>';
-                    } else if (oRemark.remark_id !== '0') {
+                    if (oRemark.remark_id !== '0') {
                         if (oUpperRemark = oRemarks[oRemark.remark_id]) {
-                            oRemark.reply = '<a href="#remark-' + oRemark.remark_id + '">回复' + oUpperRemark.nickname + '的留言 #' + oUpperRemark.seq_in_record + '</a>';
+                            oRemark.reply = '<a href="#remark-' + oRemark.remark_id + '">回复' + oUpperRemark.nickname + '的留言 #' + (oRemark.data_id === '0' ? oUpperRemark.seq_in_record : oUpperRemark.seq_in_data) + '</a>';
                         }
                     }
                 }
@@ -929,8 +925,8 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$location', '$uibModal', '$anch
     var oType, oData;
     $scope.$watch('transferParam', function(nv) {
         if (!nv) { return false; }
-        oType = nv[0];
-        oData = nv[1];
+        $scope.transferType = oType = nv[0];
+        $scope.transferData = oData = nv[1];
         switch (oType) {
             case 'record':
                 listRemarks('record');

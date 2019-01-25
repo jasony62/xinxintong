@@ -2,7 +2,7 @@
     <button class='btn btn-primary' ng-click="goback()"><span class='glyphicon glyphicon-menu-left'></span> 返回</button>
     <div id="remark-{{remark.id}}" class='remark' ng-repeat="remark in remarks">
         <div class='top-bar tms-flex-row'>
-            <div class='seq tms-flex-grow text-muted'>#<span ng-bind="remark.seq_in_record"></span> <span class='reply small' ng-if="remark.reply" ng-bind-html="remark.reply"></span></div>
+            <div class='seq tms-flex-grow text-muted'>#<span ng-bind="remark.seq_in_record" ng-if="transferType=='record'"></span> <span ng-bind="remark.seq_in_data" ng-if="transferType=='coworkData'"></span></span><span class='reply small' ng-if="remark.reply" ng-bind-html="remark.reply"></span></div>
             <div ng-if="record._canAgree">
                 <div class="btn-group" uib-dropdown>
                     <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>

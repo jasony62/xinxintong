@@ -119,10 +119,10 @@ class remark extends base {
 			$aOptions['remark_id'] = $remarkId;
 		}
 		// 是否仅仅返回针对记录本身的评论
-		if ($onlyRecord === true) {
+		if ($onlyRecord == true) {
 			// 针对记录本身的评论不属于某一个题
 			if (empty($recDataId) && empty($schema)) {
-				$aOptions['onlyRecord'] = $onlyRecord;
+				$aOptions['onlyRecord'] = true;
 			}
 		}
 

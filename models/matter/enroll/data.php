@@ -1178,7 +1178,7 @@ class data_model extends entity_model {
 		$oResult = new \stdClass; // 返回的结果
 		if ($aRecDatas = $this->query_objs_ss($q, $q2)) {
 			//
-			$oResult->recordDatas = $this->parse($oApp, $aRecDatas);
+			$oResult->recordDatas = $this->_parse($oApp, $aRecDatas);
 		} else {
 			$oResult->recordDatas = [];
 		}
@@ -1192,7 +1192,7 @@ class data_model extends entity_model {
 	/**
 	 * 解析记录的内容，将数据库中的格式转换为应用格式
 	 */
-	public function parse($oApp, &$aRecDatas) {
+	private function _parse($oApp, &$aRecDatas) {
 		$visibilitySchemas = []; // 设置了可见性规则的题目
 		if (!empty($oApp->dynaDataSchemas)) {
 			foreach ($oApp->dynaDataSchemas as $oSchema) {

@@ -76,16 +76,15 @@ class topic_model extends entity_model {
 				$this->_renewByTask($oTopic, $oTask);
 			}
 		}
-
 		$q = [
-			'r.*,tr.assign_at,tr.id id_in_topic,tr.seq seq_in_topic',
+			'r.*,tr.assign_at,tr.id id_in_topic,tr.seq seq_in_topic,tr.data_id',
 			'xxt_enroll_record r inner join xxt_enroll_topic_record tr on r.id=tr.record_id',
 			['tr.topic_id' => $oTopic->id, 'r.state' => 1],
 		];
 		$q2 = ['o' => 'tr.seq'];
 
 		$records = $this->query_objs_ss($q, $q2);
-		if (count($records)) {
+		if (!empty($records)) {
 			$modelRec = $this->model('matter\enroll\record');
 			$modelRec->parse($this->_oApp, $records);
 		}
@@ -265,7 +264,16 @@ class topic_model extends entity_model {
 		}
 		if (!empty($taskRecords)) {
 			foreach ($taskRecords as $oRecord) {
-				$this->assign($oTopic, $oRecord, null, max($oTask->start_at, $oRecord->enroll_at));
+				if (empty($oRecord->data_id)) {
+					if (!empty($oTask->schemas)) {
+						if (!isset($modelDat)) {
+							$modelDat = $this->model('matter\enroll\data');
+						}
+						$recdatas = $modelDat->byRecord($oRecord->enroll_key, ['fields' => 'id', 'schema']);
+					}
+				} else {
+					$this->assign($oTopic, $oRecord, (object) ['id' => $oRecord->data_id], max($oTask->start_at, $oRecord->enroll_at));
+				}
 			}
 		}
 
@@ -285,7 +293,6 @@ class topic_model extends entity_model {
 			$q[2]['data_id'] = $oRecData->id;
 		}
 		$aBeforeTopicIds = $this->query_vals_ss($q);
-		//die('sss:' . json_encode($aBeforeTopicIds));
 		if (in_array($oTopic->id, $aBeforeTopicIds)) {
 			return [false, '已经在专题中，不能重复添加'];
 		}

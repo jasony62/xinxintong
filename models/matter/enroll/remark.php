@@ -63,7 +63,15 @@ class remark_model extends \TMS_MODEL {
 	 * 获得指定登记记录的留言
 	 */
 	public function listByRecord($oUser, $ek, $schemaId = '', $page = 1, $size = 10, $oOptions = []) {
-		$fields = isset($oOptions['fields']) ? $oOptions['fields'] : '*';
+		$fields = !empty($oOptions['fields']) ? $oOptions['fields'] : '*';
+		// 是否仅仅返回针对记录本身的评论
+		$onlyRecord = empty($oOptions['onlyRecord']) ? false : true;
+		if ($onlyRecord === true) {
+			// 针对记录本身的评论不属于某一个题
+			if (!empty($schemaId) || !empty($oOptions['data_id'])) {
+				$onlyRecord = false;
+			}
+		}
 
 		$oRecord = $this->model('matter\enroll\record')->byId($ek, ['fields' => 'rid,userid,state']);
 		if (false === $oRecord || $oRecord->state !== '1') {
@@ -76,9 +84,23 @@ class remark_model extends \TMS_MODEL {
 			'xxt_enroll_record_remark',
 			"enroll_key='$ek' and state=1",
 		];
-		if (!empty($schemaId)) {
-			$q[2] .= " and schema_id='$schemaId'";
+
+		if ($onlyRecord === true) {
+			$q[2] .= " and schema_id = '' and data_id = 0";
+		} else {
+			if (!empty($schemaId)) {
+				$q[2] .= " and schema_id='{$schemaId}'";
+			}
+			if (!empty($oOptions['data_id'])) {
+				$rdId = $oOptions['data_id'];
+				if (is_array($rdId)) {
+					$rdId = implode('","', $oOptions['data_id']);
+				}
+				$rdId = '("' . $rdId . '")';
+				$q[2] .= " and data_id in $rdId";
+			}
 		}
+
 		/* 根据数据状态或分组显示可见性 */
 		if (!empty($oUser->uid) && $oRecord->userid !== $oUser->uid) {
 			if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
@@ -98,15 +120,8 @@ class remark_model extends \TMS_MODEL {
 		if (isset($oOptions['agreed']) && $oOptions['agreed'] === 'Y') {
 			$q[2] .= " and agreed='Y'";
 		}
-		if (isset($oOptions['data_id'])) {
-			$rdId = $oOptions['data_id'];
-			if (is_array($rdId)) {
-				$rdId = implode('","', $oOptions['data_id']);
-			}
-			$rdId = '("' . $rdId . '")';
-			$q[2] .= " and data_id in $rdId";
-		}
-		if (isset($oOptions['remark_id'])) {
+
+		if (!empty($oOptions['remark_id'])) {
 			$remark_id = $oOptions['remark_id'];
 			$q[2] .= " and remark_id = {$remark_id}";
 		}
@@ -114,7 +129,7 @@ class remark_model extends \TMS_MODEL {
 		// $q2 = [
 		// 	'o' => 'agreed desc,create_at desc',
 		// ];
-		if (isset($oOptions['data_id'])) {
+		if (!empty($oOptions['data_id'])) {
 			$q2 = [
 				'o' => 'seq_in_data',
 			];
@@ -123,7 +138,7 @@ class remark_model extends \TMS_MODEL {
 				'o' => 'seq_in_record',
 			];
 		}
-		if (isset($page) && isset($size)) {
+		if (!empty($page) && !empty($size)) {
 			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		}
 		$aRemarks = $this->query_objs_ss($q, $q2);

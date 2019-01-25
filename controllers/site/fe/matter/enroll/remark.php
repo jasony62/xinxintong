@@ -69,8 +69,9 @@ class remark extends base {
 	}
 	/**
 	 * 返回一条填写记录的所有留言
+	 * $onlyRecord 记录只获取记录的评论不包括答案的
 	 */
-	public function list_action($ek, $schema = '', $data = '', $remarkId = '', $page = 1, $size = 99) {
+	public function list_action($ek, $schema = '', $data = '', $remarkId = '', $onlyRecord = false, $page = 1, $size = 99) {
 		$recDataId = $data;
 
 		$modelRec = $this->model('matter\enroll\record');
@@ -116,6 +117,13 @@ class remark extends base {
 		}
 		if (!empty($remarkId)) {
 			$aOptions['remark_id'] = $remarkId;
+		}
+		// 是否仅仅返回针对记录本身的评论
+		if ($onlyRecord == true) {
+			// 针对记录本身的评论不属于某一个题
+			if (empty($recDataId) && empty($schema)) {
+				$aOptions['onlyRecord'] = true;
+			}
 		}
 
 		$oResult = $modelRem->listByRecord($oUser, $ek, $schema, $page, $size, $aOptions);

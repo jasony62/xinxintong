@@ -133,19 +133,16 @@ class topic_model extends entity_model {
 				}
 				$oTopicRecords = $this->records($oSrcTopic);
 				if (!empty($oTopicRecords->records)) {
-					$records = $oTopicRecords->records;
+					$taskRecords = $oTopicRecords->records;
 				}
 			}
 		} else {
 			/* 任务轮次中的记录 */
 			$modelRec = $this->model('matter\enroll\record');
-			$records = $modelRec->byRound($oTask->rid, ['fields' => 'id,enroll_at']);
+			$taskRecords = $modelRec->byRound($oTask->rid, ['fields' => 'id,enroll_at']);
 		}
-		if (!empty($records)) {
-			foreach ($records as $oRecord) {
-				$this->assign($oTopic, $oRecord, null, max($oTask->start_at, $oRecord->enroll_at));
-			}
-		}
+
+		!empty($taskRecords) && $this->_assignByTaskRecords($oTopic, $oTask, $taskRecords);
 
 		return true;
 	}
@@ -180,11 +177,11 @@ class topic_model extends entity_model {
 						break;
 					case 'vote_rank':
 						$q = [
-							'record_id,vote_num',
+							'id,record_id,vote_num',
 							'xxt_enroll_record_data rd',
 							['aid' => $this->_oApp->id, 'state' => 1, 'schema_id' => $oSourceRule->schemas],
 						];
-						$q[2]['enroll_key'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_topic_record tr where tr.topic_id=' . $oSrcTopic->id . ' and rd.record_id=tr.record_id'];
+						$q[2]['id'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_topic_record tr where tr.topic_id=' . $oSrcTopic->id . ' and rd.id=tr.data_id'];
 						$q2 = ['o' => 'vote_num desc'];
 						$recdatas = $this->query_objs_ss($q, $q2);
 						if (count($recdatas)) {
@@ -199,10 +196,14 @@ class topic_model extends entity_model {
 									break;
 								}
 								$lastVoteNum = $oRecData->vote_num;
-								$ranked[] = $oRecData->record_id;
+								$ranked[] = $oRecData;
 							}
 							$modelRec = $this->model('matter\enroll\record');
-							$taskRecords = array_map(function ($recId) use ($modelRec) {return $modelRec->byPlainId($recId);}, $ranked);
+							$taskRecords = array_map(function ($oRecData) use ($modelRec) {
+								$oRecord = $modelRec->byPlainId($oRecData->record_id);
+								$oRecord->data_id = $oRecData->id;
+								return $oRecord;
+							}, $ranked);
 						}
 						break;
 					case 'score':
@@ -222,16 +223,15 @@ class topic_model extends entity_model {
 			$modelRec = $this->model('matter\enroll\record');
 			$taskRecords = $modelRec->byRound($oTask->rid, ['fields' => 'id,enroll_at']);
 		}
-		if (!empty($taskRecords)) {
-			foreach ($taskRecords as $oRecord) {
-				$this->assign($oTopic, $oRecord, null, max($oTask->start_at, $oRecord->enroll_at));
-			}
-		}
+
+		!empty($taskRecords) && $this->_assignByTaskRecords($oTopic, $oTask, $taskRecords);
 
 		return true;
 	}
 	/**
 	 * 更新投票任务专题中包含的记录
+	 *
+	 * 只支持对数据进行打分，不支持对记录打分
 	 *
 	 * @param object $oTopic
 	 * @param object $oTask
@@ -260,19 +260,33 @@ class topic_model extends entity_model {
 		} else {
 			/* 任务轮次中的记录 */
 			$modelRec = $this->model('matter\enroll\record');
-			$taskRecords = $modelRec->byRound($oTask->rid, ['fields' => 'id,enroll_at']);
+			$taskRecords = $modelRec->byRound($oTask->rid, ['fields' => 'id,enroll_key,enroll_at']);
 		}
-		if (!empty($taskRecords)) {
+
+		!empty($taskRecords) && $this->_assignByTaskRecords($oTopic, $oTask, $taskRecords);
+
+		return true;
+	}
+	/**
+	 * 把任务中的记录放入专题
+	 */
+	private function _assignByTaskRecords($oTopic, $oTask, $taskRecords) {
+		if (!empty($oTask->schemas)) {
+			$modelDat = $this->model('matter\enroll\data');
 			foreach ($taskRecords as $oRecord) {
+				/* 需要在专题中记录到数据 */
 				if (empty($oRecord->data_id)) {
-					if (!empty($oTask->schemas)) {
-						if (!isset($modelDat)) {
-							$modelDat = $this->model('matter\enroll\data');
-						}
-						$recdatas = $modelDat->byRecord($oRecord->enroll_key, ['fields' => 'id', 'schema']);
+					foreach ($oTask->schemas as $schemaId) {
+						$recdatas = $modelDat->byRecord($oRecord->enroll_key, ['fields' => 'id', 'schema' => $schemaId, 'excludeRoot' => true]);
+						array_walk($recdatas, function ($oRecData) use ($oRecord, $oTask, $oTopic) {
+							$this->assign($oTopic, $oRecord, $oRecData, max($oTask->start_at, $oRecord->enroll_at));
+						});
 					}
 				} else {
-					$this->assign($oTopic, $oRecord, (object) ['id' => $oRecord->data_id], max($oTask->start_at, $oRecord->enroll_at));
+					$oRecData = $modelDat->byId($oRecord->data_id, ['fields' => 'id,schema_id,submit_at']);
+					if ($oRecData && in_array($oRecData->schema_id, $oTask->schemas)) {
+						$this->assign($oTopic, $oRecord, $oRecData, max($oTask->start_at, $oRecData->submit_at));
+					}
 				}
 			}
 		}

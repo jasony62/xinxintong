@@ -492,40 +492,30 @@ class repos extends base {
 						} else if (!empty($oRecord->data->{$schemaId})) {
 							/* 协作填写题 */
 							if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
-							// 	$aOptions = ['excludeRoot' => true, 'fields' => 'id,agreed,like_num,nickname,value,multitext_seq,vote_num,score'];
-							// 	// 展示在共享页的协作数据表态类型
-							// 	if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
-							// 		$aOptions['agreed'] = $oApp->actionRule->cowork->repos->pre->cowork->agreed;
-							// 	} else {
-							// 		$aOptions['agreed'] = ['Y', 'A'];
-							// 	}
-							// 	$items = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, $aOptions);
-							// 	if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
-							// 		$countItems = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, ['agreed' => ['Y', 'A'], 'fields' => 'id']);
-							// 		$aCoworkState[$oSchema->id] = (object) ['length' => count($countItems)];
-							// 	} else {
-							// 		$aCoworkState[$oSchema->id] = (object) ['length' => count($items)];
-							// 	}
-							// 	if ($coworkReposLikeNum) {
-							// 		$reposItems = [];
-							// 		foreach ($items as $oItem) {
-							// 			if ($oItem->like_num >= $coworkReposLikeNum || $oItem->agreed === 'Y') {
-							// 				$reposItems[] = $oItem;
-							// 			}
-							// 		}
-							// 		$items = $reposItems;
-							// 	}
-							// 	$oRecordData->{$schemaId} = $items;
-
-								$aOptions = ['fields' => 'id'];
+								$aOptions = ['excludeRoot' => true, 'fields' => 'id,agreed,like_num,nickname,value,multitext_seq,vote_num,score'];
+								// 展示在共享页的协作数据表态类型
 								if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
 									$aOptions['agreed'] = $oApp->actionRule->cowork->repos->pre->cowork->agreed;
 								} else {
 									$aOptions['agreed'] = ['Y', 'A'];
 								}
-								$countItems = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, $aOptions);
-								$aCoworkState[$oSchema->id] = (object) ['length' => count($countItems)];
-								continue;
+								$items = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, $aOptions);
+								if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
+									$countItems = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, ['agreed' => ['Y', 'A'], 'fields' => 'id']);
+									$aCoworkState[$oSchema->id] = (object) ['length' => count($countItems)];
+								} else {
+									$aCoworkState[$oSchema->id] = (object) ['length' => count($items)];
+								}
+								if ($coworkReposLikeNum) {
+									$reposItems = [];
+									foreach ($items as $oItem) {
+										if ($oItem->like_num >= $coworkReposLikeNum || $oItem->agreed === 'Y') {
+											$reposItems[] = $oItem;
+										}
+									}
+									$items = $reposItems;
+								}
+								$oRecordData->{$schemaId} = $items;
 							} else {
 								$oRecordData->{$schemaId} = $oRecord->data->{$schemaId};
 							}
@@ -590,43 +580,43 @@ class repos extends base {
 				unset($oRecord->verified);
 
 				/* 获得推荐的评论数据 */
-				// $fnRemarksByRecord = function ($ek, $agreed, $rid = '') use ($modelRec, $oEditor, $oUser) {
-				// 	$q = [
-				// 		'id,group_id,agreed,like_num,like_log,userid,nickname,content,create_at',
-				// 		'xxt_enroll_record_remark',
-				// 		['enroll_key' => $ek, 'state' => 1, 'agreed' => $agreed],
-				// 	];
-				// 	if (!empty($rid)) {
-				// 		$q[2]['rid'] = $rid;
-				// 	}
-				// 	$q2 = [
-				// 		'o' => 'agreed desc,like_num desc,create_at desc',
-				// 	];
-				// 	$remarks = $modelRec->query_objs_ss($q, $q2);
-				// 	foreach ($remarks as $oRemark) {
-				// 		if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
-				// 			/* 设置编辑统一昵称 */
-				// 			if (!empty($oRemark->group_id) && $oRemark->group_id === $oEditor->group) {
-				// 				$oRemark->nickname = $oEditor->nickname;
-				// 			} else if (isset($oEditorUsers) && isset($oEditorUsers->{$oRemark->userid})) {
-				// 				// 记录提交者是否有编辑组角色
-				// 				$oRemark->nickname = $oEditor->nickname;
-				// 			}
-				// 		}
-				// 	}
-				// 	return $remarks;
-				// };
-				// /* 推荐的留言 */
-				// if (in_array('Y', $remarkReposAgreed)) {
-				// 	$oRecord->agreedRemarks = $fnRemarksByRecord($oRecord->enroll_key, 'Y');
-				// }
-				// /* 同一个轮次的留言 */
-				// if (in_array('A', $remarkReposAgreed)) {
-				// 	if (empty($oCriteria->record->rid) || 0 !== strcasecmp($oCriteria->record->rid, 'all')) {
-				// 		$rid = empty($oCriteria->record->rid) ? $oApp->appRound->rid : $oCriteria->record->rid;
-				// 		$oRecord->roundRemarks = $fnRemarksByRecord($oRecord->enroll_key, 'A', $rid);
-				// 	}
-				// }
+				$fnRemarksByRecord = function ($ek, $agreed, $rid = '') use ($modelRec, $oEditor, $oUser) {
+					$q = [
+						'id,group_id,agreed,like_num,like_log,userid,nickname,content,create_at',
+						'xxt_enroll_record_remark',
+						['enroll_key' => $ek, 'state' => 1, 'agreed' => $agreed],
+					];
+					if (!empty($rid)) {
+						$q[2]['rid'] = $rid;
+					}
+					$q2 = [
+						'o' => 'agreed desc,like_num desc,create_at desc',
+					];
+					$remarks = $modelRec->query_objs_ss($q, $q2);
+					foreach ($remarks as $oRemark) {
+						if (isset($oEditor) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
+							/* 设置编辑统一昵称 */
+							if (!empty($oRemark->group_id) && $oRemark->group_id === $oEditor->group) {
+								$oRemark->nickname = $oEditor->nickname;
+							} else if (isset($oEditorUsers) && isset($oEditorUsers->{$oRemark->userid})) {
+								// 记录提交者是否有编辑组角色
+								$oRemark->nickname = $oEditor->nickname;
+							}
+						}
+					}
+					return $remarks;
+				};
+				/* 推荐的留言 */
+				if (in_array('Y', $remarkReposAgreed)) {
+					$oRecord->agreedRemarks = $fnRemarksByRecord($oRecord->enroll_key, 'Y');
+				}
+				/* 同一个轮次的留言 */
+				if (in_array('A', $remarkReposAgreed)) {
+					if (empty($oCriteria->record->rid) || 0 !== strcasecmp($oCriteria->record->rid, 'all')) {
+						$rid = empty($oCriteria->record->rid) ? $oApp->appRound->rid : $oCriteria->record->rid;
+						$oRecord->roundRemarks = $fnRemarksByRecord($oRecord->enroll_key, 'A', $rid);
+					}
+				}
 			}
 		}
 

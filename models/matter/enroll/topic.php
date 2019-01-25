@@ -271,18 +271,20 @@ class topic_model extends entity_model {
 	 * 把任务中的记录放入专题
 	 */
 	private function _assignByTaskRecords($oTopic, $oTask, $taskRecords) {
-		if (!empty($oTask->schemas)) {
-			$modelDat = $this->model('matter\enroll\data');
-			foreach ($taskRecords as $oRecord) {
-				/* 需要在专题中记录到数据 */
-				if (empty($oRecord->data_id)) {
+		$modelDat = $this->model('matter\enroll\data');
+		foreach ($taskRecords as $oRecord) {
+			/* 需要在专题中记录到数据 */
+			if (empty($oRecord->data_id)) {
+				if (!empty($oTask->schemas)) {
 					foreach ($oTask->schemas as $schemaId) {
 						$recdatas = $modelDat->byRecord($oRecord->enroll_key, ['fields' => 'id', 'schema' => $schemaId, 'excludeRoot' => true]);
 						array_walk($recdatas, function ($oRecData) use ($oRecord, $oTask, $oTopic) {
 							$this->assign($oTopic, $oRecord, $oRecData, max($oTask->start_at, $oRecord->enroll_at));
 						});
 					}
-				} else {
+				}
+			} else {
+				if (!empty($oTask->schemas)) {
 					$oRecData = $modelDat->byId($oRecord->data_id, ['fields' => 'id,schema_id,submit_at']);
 					if ($oRecData && in_array($oRecData->schema_id, $oTask->schemas)) {
 						$this->assign($oTopic, $oRecord, $oRecData, max($oTask->start_at, $oRecData->submit_at));

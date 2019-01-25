@@ -692,6 +692,7 @@ class remark extends base {
 			'nickname' => $this->escape($oRemark->nickname),
 			'group_id' => $oRemark->group_id,
 			'schema_id' => $oRecData->schema_id,
+			'is_multitext_root' => 'N',
 			'multitext_seq' => count($oRecData->value) + 1,
 			'value' => $this->escape($oRemark->content),
 			'agreed' => 'A',

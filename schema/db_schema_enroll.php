@@ -190,6 +190,7 @@ $sql .= ",submit_at int not null default 0"; // 数据的提交时间，和modif
 $sql .= ",userid varchar(40) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",schema_id varchar(40) not null";
+$sql .= ",is_multitext_root char(1) not null default 'N'"; // 多项填写题的根题目
 $sql .= ",multitext_seq int not null default 0";
 $sql .= ",value text null";
 $sql .= ",tag text null"; // 标签的id，json格式的数组

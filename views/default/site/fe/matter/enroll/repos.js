@@ -103,7 +103,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         var url;
         url = LS.j('', 'site', 'app');
         url += '&ek=' + oRecord.enroll_key;
-        url += '&page=cowork#remarks';
+        url += '&page=cowork';
         location.href = url;
     };
     $scope.favorStack = {
@@ -291,18 +291,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     /* 关闭任务提示 */
     $scope.closeTask = function(index) {
         $scope.tasks.splice(index, 1);
-    };
-    $scope.spyRecordsScroll = true; // 监控滚动事件
-    $scope.recordsScrollToBottom = function() {
-        if ($scope.repos.length < $scope.page.total) {
-            $scope.recordList().then(function() {
-                $timeout(function() {
-                    if ($scope.repos.length < $scope.page.total) {
-                        $scope.spyRecordsScroll = true;
-                    }
-                });
-            });
-        }
     };
     $scope.gotoTask = function(oTask) {
         if (oTask && oTask.topic && oTask.topic.id)

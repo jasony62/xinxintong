@@ -70,6 +70,24 @@ class DatabaseError extends ResponseData {
 class UrlNotMatchException extends Exception {
 
 }
+/**
+ * 包含用户信息的异常
+ */
+class SiteUserException extends Exception {
+	/**
+	 * 站点用户id
+	 */
+	protected $uid;
+
+	public function __construct($msg, $uid) {
+		parent::__construct($msg);
+		$this->uid = $uid;
+	}
+
+	final public function getUserid() {
+		return $this->uid;
+	}
+}
 /**************************
  * 常用方法
  **************************/

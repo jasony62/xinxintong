@@ -353,7 +353,7 @@ class task_model extends \TMS_MODEL {
 	 * @param object $oRule[type,id,rid,start_at,end_at] 如果不自动创建任务，不需要指定start_at和end_at
 	 */
 	public function byRule($oRule, $aOptons = []) {
-		$fields = empty($aOptons['fields']) ? 'id,start_at,end_at' : $aOptons['fields'];
+		$fields = empty($aOptons['fields']) ? 'id,rid,start_at,end_at' : $aOptons['fields'];
 		$bCreateIfNone = isset($aOptons['createIfNone']) ? $aOptons['createIfNone'] : false;
 		$q = [
 			$fields,
@@ -433,7 +433,7 @@ class task_model extends \TMS_MODEL {
 					if ($oTaskRound) {
 						$oRuleState = $this->getRuleStateByRound($oRuleConfig, $oTaskRound);
 						if (true === $oRuleState[0]) {
-							tms_object_merge($oTask, $oRuleConfig, ['source', 'scoreApp']);
+							tms_object_merge($oTask, $oRuleConfig, ['source', 'scoreApp', 'schemas']);
 							tms_object_merge($oTask, $oRuleState[1], ['state']);
 						}
 					}

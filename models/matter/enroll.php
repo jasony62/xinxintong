@@ -148,9 +148,9 @@ class enroll_model extends enroll_base {
 				if (!empty($oApp->round_cron)) {
 					$oApp->roundCron = json_decode($oApp->round_cron);
 					$modelRnd = $this->model('matter\enroll\round');
-					foreach ($oApp->roundCron as &$rec) {
-						$rules[0] = $rec;
-						$rec->case = $modelRnd->sampleByCron($rules);
+					foreach ($oApp->roundCron as $rc) {
+						$rules[0] = $rc;
+						$rc->case = $modelRnd->sampleByCron($rules);
 					}
 				} else {
 					$oApp->roundCron = [];

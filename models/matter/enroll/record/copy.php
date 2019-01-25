@@ -81,6 +81,7 @@ class copy_model extends \TMS_MODEL {
 				$oRecData->nickname = $oNewRec->nickname;
 				$oRecData->group_id = $this->escape($oNewRec->group_id);
 				$oRecData->schema_id = $targetSchemaId;
+				$oRecData->is_multitext_root = 'Y';
 				$oRecData->multitext_seq = 0;
 				$oRecData->value = '[]';
 				$oRecData->id = $this->insert('xxt_enroll_record_data', $oRecData, true);

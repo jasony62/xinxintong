@@ -40,7 +40,7 @@ ngApp.factory('TopicRepos', ['http2', '$q', '$sce', 'tmsLocation', function(http
         }
         url = LS.j('repos/recordByTopic', 'site', 'app') + '&topic=' + this.oTopic.id;
 
-        http2.post(url, {}, { page: this.oPage }).then(function(oResult) {
+        http2.get(url, { page: this.oPage }).then(function(oResult) {
             if (oResult.data.records) {
                 oResult.data.records.forEach(function(oRecord) {
                     _this.repos.push(oRecord);
@@ -312,7 +312,7 @@ ngApp.controller('ctrlTopic', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'n
                 $scope2.schemas = _oTopicRepos.shareableSchemas;
                 _oTopicRepos.list(1).then(function() {});
                 $scope2.quitRec = function(oRecord, index) {
-                    http2.post(LS.j('topic/removeRec', 'site') + '&topic=' + oTopic.id, { record: oRecord.id }).then(function(rsp) {
+                    http2.post(LS.j('topic/removeRec', 'site') + '&topic=' + oTopic.id, { id_in_topic: oRecord.id_in_topic }).then(function(rsp) {
                         $scope2.repos.splice(index, 1);
                     });
                 };

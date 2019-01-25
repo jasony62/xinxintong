@@ -55,6 +55,7 @@ class data_model extends entity_model {
 					'nickname' => $this->escape($oRecord->nickname),
 					'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 					'schema_id' => $schemaId,
+					'is_multitext_root' => 'N',
 					'multitext_seq' => (int) $index + 1,
 					'value' => $this->escape($oNewItem->value),
 				];
@@ -95,6 +96,7 @@ class data_model extends entity_model {
 						'nickname' => $this->escape($oRecord->nickname),
 						'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 						'schema_id' => $schemaId,
+						'is_multitext_root' => 'N',
 						'multitext_seq' => (int) $index + 1,
 						'value' => $this->escape($oUpdatedItem->value),
 					];
@@ -222,6 +224,11 @@ class data_model extends entity_model {
 					'schema_id' => $schemaId,
 					'value' => $this->escape($treatedValue),
 				];
+				if ($oSchema->type == 'multitext') {
+					/* 多项填写题根数据 */
+					$aSchemaData['is_multitext_root'] = 'Y';
+					$aSchemaData['multitext_seq'] = 0;
+				}
 				isset($oRecordScore->{$schemaId}) && $aSchemaData['score'] = $oRecordScore->{$schemaId};
 				$this->insert('xxt_enroll_record_data', $aSchemaData, false);
 			} else if (count($oLastSchemaValues) == 1) {

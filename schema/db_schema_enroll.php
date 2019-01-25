@@ -190,6 +190,7 @@ $sql .= ",submit_at int not null default 0"; // 数据的提交时间，和modif
 $sql .= ",userid varchar(40) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",schema_id varchar(40) not null";
+$sql .= ",is_multitext_root char(1) not null default 'N'"; // 多项填写题的根题目
 $sql .= ",multitext_seq int not null default 0";
 $sql .= ",value text null";
 $sql .= ",tag text null"; // 标签的id，json格式的数组
@@ -509,6 +510,7 @@ $sql .= ",aid varchar(40) not null";
 $sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",topic_id int not null";
 $sql .= ",record_id int not null";
+$sql .= ",data_id int not null default 0"; // xxt_enroll_record_data的id
 $sql .= ",assign_at int not null"; // 指定时间
 $sql .= ",seq int not null default 0";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
@@ -883,7 +885,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 
+ *
  */
 $sql = "create table if not exists xxt_enroll_search(";
 $sql .= "id int not null auto_increment";
@@ -908,7 +910,7 @@ $sql .= ",siteid varchar(32) not null";
 $sql .= ",aid varchar(40) not null";
 $sql .= ",userid varchar(40) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
-$sql .= ",create_at int not null default 0"; 
+$sql .= ",create_at int not null default 0";
 $sql .= ",last_use_at int not null default 0"; // 最后使用时间
 $sql .= ",search_id int not null default 0"; //
 $sql .= ",used_num int not null default 0"; // 使用总数

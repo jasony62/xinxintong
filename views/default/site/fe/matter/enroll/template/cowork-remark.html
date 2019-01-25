@@ -1,9 +1,4 @@
 <div id='remarks' ng-if="app.scenarioConfig.no_remark!=='Y'" ng-controller="ctrlRemark">
-    <div class='remark' ng-if="remarkTasks.length">
-        <div uib-alert ng-repeat="task in remarkTasks" class='alert-info' close="closeRemarkTask($index)" ng-switch="task.id">
-            <span>{{task.msg}}</span>
-        </div>
-    </div>
     <button class='btn btn-primary' ng-click="goback()"><span class='glyphicon glyphicon-menu-left'></span> 返回</button>
     <div id="remark-{{remark.id}}" class='remark' ng-repeat="remark in remarks">
         <div class='top-bar tms-flex-row'>

@@ -21,7 +21,10 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
                 url += '#cowork';
                 location.href = url;
             };
-            $scope.vote = function(oRecData) {
+            $scope.vote = function(oRecData, event) {
+                event.preventDefault();
+                event.stopPropagation();
+
                 if ($scope.task) {
                     http2.get(LS.j('task/vote', 'site') + '&data=' + oRecData.id + '&task=' + $scope.task.id).then(function(rsp) {
                         if (oRecData.voteResult) {
@@ -40,7 +43,10 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
                     });
                 }
             };
-            $scope.unvote = function(oRecData) {
+            $scope.unvote = function(oRecData, event) {
+                event.preventDefault();
+                event.stopPropagation();
+                
                 if ($scope.task) {
                     http2.get(LS.j('task/unvote', 'site') + '&data=' + oRecData.id + '&task=' + $scope.task.id).then(function(rsp) {
                         if (oRecData.voteResult) {

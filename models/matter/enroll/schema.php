@@ -537,7 +537,7 @@ class schema_model extends \TMS_MODEL {
 	 *
 	 * @return object $oApp
 	 */
-	public function setDynaSchemas(&$oApp, $oTask) {
+	public function setDynaSchemas(&$oApp, $oTask = null) {
 		if (empty($oApp->appRound)) {
 			$modelRnd = $this->model('matter\enroll\round');
 			$oAppRound = $modelRnd->getActive($oApp, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
@@ -626,7 +626,7 @@ class schema_model extends \TMS_MODEL {
 				/* 设置轮次条件 */
 				if (!empty($oTask)) {
 					$oTopic = $this->model('matter\enroll\topic', $oTargetApp)->byTask($oTask, ['createIfNone' => false]);
-					$q[2]['record_id'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_topic_record tr where t0.record_id=tr.record_id and tr.topic_id=' . $oTopic->id];
+					$q[2]['record_id'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_topic_record tr where ((tr.data_id=0 and t0.record_id=tr.record_id) or (tr.data_id<>0 and tr.data_id=t0.id)) and tr.topic_id=' . $oTopic->id];
 				} else if (!empty($oDsAppRnd)) {
 					/* 如果被评论了，作为当前轮次 */
 					$q[2]['rid'] = (object) ['op' => 'or', 'pat' => ["rid='{$oDsAppRnd->rid}'", "exists (select 1 from xxt_enroll_record_remark rr where t0.enroll_key=rr.enroll_key and rr.state=1 and rr.rid='{$oDsAppRnd->rid}')"]];
@@ -857,16 +857,15 @@ class schema_model extends \TMS_MODEL {
 			}
 			if (!empty($oSchema->dsSchema->app->id) && !empty($oSchema->dsSchema->schema->id) && !empty($oSchema->dsSchema->schema->type)) {
 				$oDsSchema = $oSchema->dsSchema;
-				//if (!empty($oAppRound->mission_rid)) {
 				if (!isset($modelRnd)) {
 					$modelRnd = $this->model('matter\enroll\round');
 				}
 				if (isset($oTask)) {
 					$oDsAppRnd = $modelRnd->byTask($oDsSchema->app, $oTask);
-				} else {
+				} else if (!empty($oAppRound->mission_rid)) {
 					$oDsAppRnd = $modelRnd->byMissionRid($oDsSchema->app, $oAppRound->mission_rid, ['fields' => 'rid,mission_rid']);
 				}
-				if ($oDsAppRnd) {
+				if (!empty($oDsAppRnd)) {
 					switch ($oDsSchema->schema->type) {
 					case 'shorttext':
 					case 'longtext':
@@ -889,7 +888,6 @@ class schema_model extends \TMS_MODEL {
 						break;
 					}
 				}
-				//}
 			}
 		}
 		/* 加入动态创建的题目 */

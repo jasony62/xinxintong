@@ -681,7 +681,7 @@ class record extends main_base {
 
 			/* 写入答案 */
 			$current = time();
-			$oRecData = new \stdClass;
+			$oRecData = new \stdClass; // 根结点
 			$oRecData->aid = $oTargetApp->id;
 			$oRecData->rid = empty($oTargetAppRnd->rid) ? '' : $oTargetAppRnd->rid;
 			$oRecData->record_id = $oNewRec->id;
@@ -691,6 +691,7 @@ class record extends main_base {
 			$oRecData->nickname = isset($oMockRecUser->nickname) ? $modelData->escape($oMockRecUser->nickname) : '';
 			$oRecData->group_id = isset($oMockRecUser->group_id) ? $oMockRecUser->group_id : '';
 			$oRecData->schema_id = $oPosted->answerSchema;
+			$oRecData->is_multitext_root = 'Y';
 			$oRecData->multitext_seq = 0;
 			$oRecData->value = [];
 
@@ -725,6 +726,7 @@ class record extends main_base {
 				$oNewItem->group_id = isset($oMockAnswerUser->group_id) ? $oMockAnswerUser->group_id : '';
 				$oNewItem->schema_id = $oPosted->answerSchema;
 				$oNewItem->value = $this->escape($oQualifiedOp->l);
+				$oNewItem->is_multitext_root = 'N';
 				$oNewItem->multitext_seq = count($oRecData->value) + 1;
 				$oNewItem->id = $modelData->insert('xxt_enroll_record_data', $oNewItem, true);
 
@@ -856,6 +858,7 @@ class record extends main_base {
 			$oRecData->nickname = isset($oMockRecUser->nickname) ? $modelData->escape($oMockRecUser->nickname) : '';
 			$oRecData->group_id = isset($oMockRecUser->group_id) ? $oMockRecUser->group_id : '';
 			$oRecData->schema_id = $oPosted->answerSchema;
+			$oRecData->is_multitext_root = 'Y';
 			$oRecData->multitext_seq = 0;
 			$oRecData->value = [];
 			$oRecDataValue = [];
@@ -883,6 +886,7 @@ class record extends main_base {
 				$oRecCowork->group_id = isset($oMockAnswerUser->group_id) ? $oMockAnswerUser->group_id : '';
 				$oRecCowork->schema_id = $oPosted->answerSchema;
 				$oRecCowork->value = $this->escape($oScoreSchema->title);
+				$oRecCowork->is_multitext_root = 'Y';
 				$oRecCowork->multitext_seq = count($oRecData->value) + 1;
 				$oRecCowork->id = $modelData->insert('xxt_enroll_record_data', $oRecCowork, true);
 

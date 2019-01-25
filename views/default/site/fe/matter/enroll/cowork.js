@@ -24,7 +24,6 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             var oRecord;
             oRecord = rsp.data;
             oRecord._canAgree = fnCanAgreeRecord(oRecord, _oUser);
-            console.log(oRecord);
             $scope.record = oRecord;
             /* 设置页面分享信息 */
             $scope.setSnsShare(oRecord, null, { target_type: 'cowork', target_id: oRecord.id });
@@ -728,9 +727,15 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$location', '$uibModal', '$anch
         });
     }
 
-    function listRemarks() {
+    function listRemarks(type, data) {
         var url;
         url = LS.j('remark/list', 'site', 'ek', 'schema', 'data');
+
+        if (type == 'record') {
+            url += '&onlyRecord=true';
+        } else if (type == 'coworkData') {
+            url += data.id;
+        }
 
         http2.get(url).then(function(rsp) {
             var remarks, oRemark, oUpperRemark, oRemarks;
@@ -962,14 +967,27 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$location', '$uibModal', '$anch
             }
         }
     };
-
     var oType, oData;
     $scope.$watch('transferParam', function(nv) {
         if (!nv) { return false; }
         oType = nv[0];
         oData = nv[1];
+        switch (oType) {
+            case 'record':
+                listRemarks('record');
+                break;
+            case 'coworkData':
+                listRemarks('coworkData', oData);
+                break;
+            default:
+                break;
+        }
     });
-    $scope.$watch('record', function(oRecord) {
-        listRemarks();
-    }, true);
+    if ($scope.fileName == 'remark') {
+        $scope.$watch('record', function(oRecord) {
+            if (oRecord) {
+                listRemarks();
+            }
+        }, true);
+    }
 }]);

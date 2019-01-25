@@ -253,20 +253,27 @@ ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce,
         if (val = value) {
             if (oSchema.ops && oSchema.ops.length) {
                 if (oSchema.type === 'score') {
-                    var label = '';
+                    var label = '', flag = false;
                     oSchema.ops.forEach(function(op, index) {
                         if (val[op.v] !== undefined) {
                             label += '<div>' + op.l + ':' + val[op.v] + '</div>';
+                            flag = false;
+                        } else {
+                            return flag = true;
                         }
                     });
-                    label = label.replace(/\s\/\s$/, '');
+                    label = flag ? val : label.replace(/\s\/\s$/, '');
                     return label;
-                } else if (angular.isString(val)) {
-                    aVal = val.split(',');
-                    oSchema.ops.forEach(function(op) {
-                        aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
-                    });
-                    val = aLab.join(',');
+                } else if (oSchema.type === 'single' || oSchema.type === 'multiple') {
+                    if (angular.isString(val)) {
+                        aVal = val.split(',');
+                        oSchema.ops.forEach(function(op) {
+                            aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
+                        });
+                        val = aLab.join(',');
+                    } else {
+                        return val;
+                    }
                 } else if (angular.isObject(val) || angular.isArray(val)) {
                     val = JSON.stringify(val);
                 }

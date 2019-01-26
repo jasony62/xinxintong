@@ -44,12 +44,11 @@
             <div class='task state-{{task.state}} list-group-item ' ng-repeat="task in tasks">
                 <div ng-bind="::task"></div>
                 <div>
-                    <span ng-if="task.start_at">开始：{{::task.start_at*1000|date:'MM-dd HH:mm'}}</span>
-                    <span ng-if="task.end_at">结束：{{::task.end_at*1000|date:'MM-dd HH:mm'}}</span>
                     <span ng-bind="::Label.task.state[task.state]"></span>
                 </div>
                 <div ng-switch on="task.type">
                     <a href class="alert-link" ng-click="gotoTask(task)">
+                        <span ng-switch-when="baseline">去制定目标</span>
                         <span ng-switch-when="question">去提问</span>
                         <span ng-switch-when="answer">去回答</span>
                         <span ng-switch-when="vote">去投票</span>

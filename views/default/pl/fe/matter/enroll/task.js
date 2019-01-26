@@ -1,19 +1,21 @@
 define(['frame', 'schema'], function(ngApp, schemaLib) {
     'use strict';
+
+    function fnWatchConfig($scope, oConfig, oConfigsModified) {
+        var $configScope;
+        $configScope = $scope.$new(true);
+        $configScope.config = oConfig;
+        if (oConfig.id)
+            oConfigsModified[oConfig.id] = false;
+        $configScope.$watch('config', function(nv, ov) {
+            if (nv && nv !== ov && nv.id) {
+                oConfigsModified[nv.id] = true;
+            }
+        }, true);
+    }
+    
     ngApp.provider.controller('ctrlTask', [function() {}]);
-    ngApp.provider.controller('ctrlTaskQuestion', ['$scope', 'http2', 'noticebox', 'srvEnrollApp', function($scope, http2, noticebox, srvEnlApp) {
-        function fnWatchConfig(oConfig) {
-            var $configScope;
-            $configScope = $scope.$new(true);
-            $configScope.config = oConfig;
-            if (oConfig.id)
-                _oConfigsModified[oConfig.id] = false;
-            $configScope.$watch('config', function(nv, ov) {
-                if (nv && nv !== ov && nv.id) {
-                    _oConfigsModified[nv.id] = true;
-                }
-            }, true);
-        }
+    ngApp.provider.controller('ctrlTaskBaseline', ['$scope', 'http2', 'noticebox', 'srvEnrollApp', function($scope, http2, noticebox, srvEnlApp) {
         var _aConfigs, _oConfigsModified;
         $scope.configs = _aConfigs = [];
         $scope.configsModified = _oConfigsModified = {};
@@ -21,7 +23,44 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
             _aConfigs.push({});
         };
         $scope.delConfig = function(oConfig) {
-            noticebox.confirm('删除回答环节，确定？').then(function() {
+            noticebox.confirm('删除设置目标环节，确定？').then(function() {
+                if (oConfig.id) {
+                    http2.post('/rest/pl/fe/matter/enroll/updateBaselineConfig?app=' + $scope.app.id, { method: 'delete', data: oConfig }).then(function() {
+                        _aConfigs.splice(_aConfigs.indexOf(oConfig), 1);
+                        delete _oConfigsModified[oConfig.id];
+                    });
+                } else {
+                    _aConfigs.splice(_aConfigs.indexOf(oConfig), 1);
+                }
+            });
+        };
+        $scope.save = function(oConfig) {
+            http2.post('/rest/pl/fe/matter/enroll/updateBaselineConfig?app=' + $scope.app.id, { method: 'save', data: oConfig }).then(function(rsp) {
+                http2.merge(oConfig, rsp.data);
+                fnWatchConfig($scope, oConfig, _oConfigsModified);
+                noticebox.success('保存成功！');
+            });
+        };
+        srvEnlApp.get().then(function(oApp) {
+            if (oApp.baselineConfig && oApp.baselineConfig.length) {
+                oApp.baselineConfig.forEach(function(oConfig, index) {
+                    var oCopied;
+                    oCopied = angular.copy(oConfig);
+                    _aConfigs.push(oCopied);
+                    fnWatchConfig($scope, oCopied, _oConfigsModified);
+                });
+            }
+        });
+    }]);
+    ngApp.provider.controller('ctrlTaskQuestion', ['$scope', 'http2', 'noticebox', 'srvEnrollApp', function($scope, http2, noticebox, srvEnlApp) {
+        var _aConfigs, _oConfigsModified;
+        $scope.configs = _aConfigs = [];
+        $scope.configsModified = _oConfigsModified = {};
+        $scope.addConfig = function() {
+            _aConfigs.push({});
+        };
+        $scope.delConfig = function(oConfig) {
+            noticebox.confirm('删除提问环节，确定？').then(function() {
                 if (oConfig.id) {
                     http2.post('/rest/pl/fe/matter/enroll/updateQuestionConfig?app=' + $scope.app.id, { method: 'delete', data: oConfig }).then(function() {
                         _aConfigs.splice(_aConfigs.indexOf(oConfig), 1);
@@ -35,7 +74,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
         $scope.save = function(oConfig) {
             http2.post('/rest/pl/fe/matter/enroll/updateQuestionConfig?app=' + $scope.app.id, { method: 'save', data: oConfig }).then(function(rsp) {
                 http2.merge(oConfig, rsp.data);
-                fnWatchConfig(oConfig);
+                fnWatchConfig($scope, oConfig, _oConfigsModified);
                 noticebox.success('保存成功！');
             });
         };
@@ -45,24 +84,12 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                     var oCopied;
                     oCopied = angular.copy(oConfig);
                     _aConfigs.push(oCopied);
-                    fnWatchConfig(oCopied);
+                    fnWatchConfig($scope, oCopied, _oConfigsModified);
                 });
             }
         });
     }]);
     ngApp.provider.controller('ctrlTaskAnswer', ['$scope', 'http2', 'noticebox', 'srvEnrollApp', function($scope, http2, noticebox, srvEnlApp) {
-        function fnWatchConfig(oConfig) {
-            var $configScope;
-            $configScope = $scope.$new(true);
-            $configScope.config = oConfig;
-            if (oConfig.id)
-                _oConfigsModified[oConfig.id] = false;
-            $configScope.$watch('config', function(nv, ov) {
-                if (nv && nv !== ov && nv.id) {
-                    _oConfigsModified[nv.id] = true;
-                }
-            }, true);
-        }
         var _aConfigs, _oConfigsModified;
         $scope.configs = _aConfigs = [];
         $scope.configsModified = _oConfigsModified = {};
@@ -84,7 +111,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
         $scope.save = function(oConfig) {
             http2.post('/rest/pl/fe/matter/enroll/updateAnswerConfig?app=' + $scope.app.id, { method: 'save', data: oConfig }).then(function(rsp) {
                 http2.merge(oConfig, rsp.data);
-                fnWatchConfig(oConfig);
+                fnWatchConfig($scope, oConfig, _oConfigsModified);
                 noticebox.success('保存成功！');
             });
         };
@@ -95,24 +122,12 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                     var oCopied;
                     oCopied = angular.copy(oConfig);
                     _aConfigs.push(oCopied);
-                    fnWatchConfig(oCopied);
+                    fnWatchConfig($scope, oCopied, _oConfigsModified);
                 });
             }
         });
     }]);
     ngApp.provider.controller('ctrlTaskVote', ['$scope', 'http2', 'noticebox', 'srvEnrollApp', function($scope, http2, noticebox, srvEnlApp) {
-        function fnWatchConfig(oConfig) {
-            var $configScope;
-            $configScope = $scope.$new(true);
-            $configScope.config = oConfig;
-            if (oConfig.id)
-                _oConfigsModified[oConfig.id] = false;
-            $configScope.$watch('config', function(nv, ov) {
-                if (nv && nv !== ov && nv.id) {
-                    _oConfigsModified[nv.id] = true;
-                }
-            }, true);
-        }
         var _aConfigs, _oConfigsModified;
         $scope.configs = _aConfigs = [];
         $scope.configsModified = _oConfigsModified = {};
@@ -134,7 +149,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
         $scope.save = function(oConfig) {
             http2.post('/rest/pl/fe/matter/enroll/updateVoteConfig?app=' + $scope.app.id, { method: 'save', data: oConfig }).then(function(rsp) {
                 http2.merge(oConfig, rsp.data);
-                fnWatchConfig(oConfig);
+                fnWatchConfig($scope, oConfig, _oConfigsModified);
                 noticebox.success('保存成功！');
             });
         };
@@ -150,32 +165,19 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                     var oCopied;
                     oCopied = angular.copy(oConfig);
                     _aConfigs.push(oCopied);
-                    fnWatchConfig(oCopied);
+                    fnWatchConfig($scope, oCopied, _oConfigsModified);
                 });
             }
         });
     }]);
     ngApp.provider.controller('ctrlTaskScore', ['$scope', '$uibModal', 'http2', 'noticebox', 'srvEnrollApp', 'srvEnrollSchema', function($scope, $uibModal, http2, noticebox, srvEnlApp, srvEnlSch) {
-        function fnWatchConfig(oConfig) {
-            var $configScope;
-            $configScope = $scope.$new(true);
-            $configScope.config = oConfig;
-            if (oConfig.id)
-                _oConfigsModified[oConfig.id] = false;
-            $configScope.$watch('config', function(nv, ov) {
-                if (nv && nv !== ov && nv.id) {
-                    _oConfigsModified[nv.id] = true;
-                }
-            }, true);
-        }
-
         function fnPostScoreConfig(method, oConfig) {
             http2.post('/rest/pl/fe/matter/enroll/updateScoreConfig?app=' + $scope.app.id, { method: method, data: oConfig }).then(function(rsp) {
                 if (rsp.data.config) {
                     switch (method) {
                         case 'save':
                             http2.merge(oConfig, rsp.data.config);
-                            fnWatchConfig(oConfig);
+                            fnWatchConfig($scope, oConfig, _oConfigsModified);
                             break;
                         case 'delete':
                             _aConfigs.splice(_aConfigs.indexOf(oConfig), 1);
@@ -360,7 +362,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                     var oCopied;
                     oCopied = angular.copy(oConfig);
                     _aConfigs.push(oCopied);
-                    fnWatchConfig(oCopied);
+                    fnWatchConfig($scope, oCopied, _oConfigsModified);
                 });
             }
         });

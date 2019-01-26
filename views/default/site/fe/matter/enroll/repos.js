@@ -353,6 +353,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                 if (ipTasks.length) {
                     ipTasks.forEach(function(oTask) {
                         switch (oTask.type) {
+                            case 'baseline':
+                                tasks.push({ type: 'info', msg: oTask.toString(), id: 'record.data.baseline', data: oTask });
+                                break;
                             case 'question':
                                 tasks.push({ type: 'info', msg: oTask.toString(), id: 'record.data.question', data: oTask });
                                 break;

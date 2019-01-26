@@ -23,6 +23,7 @@ $sql .= ",vote_config text null"; // 记录活动投票设置
 $sql .= ",score_config text null"; // 记录活动打分设置
 $sql .= ",question_config text null"; // 记录活动提问设置
 $sql .= ",answer_config text null"; // 记录活动回答设置
+$sql .= ",baseline_config text null"; // 记录活动目标设置
 $sql .= ",transmit_config text null"; // 记录转发设置
 $sql .= ",round_cron text null"; // 定时创建轮次规则
 $sql .= ",sync_mission_round char(1) not null default 'N'"; // 和项目轮次同步

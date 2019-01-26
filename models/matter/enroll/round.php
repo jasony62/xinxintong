@@ -117,6 +117,11 @@ class round_model extends \TMS_MODEL {
 		// 结束数据库读写分离带来的问题
 		$this->setOnlyWriteDbConn(true);
 
+		if (!isset($oApp->siteid)) {
+			$oApp2 = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'siteid']);
+			tms_object_merge($oApp, $oApp2);
+		}
+
 		/* 只允许有一个指定启动轮次 */
 		if (isset($oProps->state) && (int) $oProps->state === 1 && isset($oProps->start_at) && (int) $oProps->start_at === 0) {
 			if ($oLastRound = $this->getAssignedActive($oApp)) {
@@ -259,10 +264,16 @@ class round_model extends \TMS_MODEL {
 	 * 根据活动的定时规则生成轮次
 	 */
 	public function byCron($oApp, $purpose, $startAt = 0) {
-		if (empty($oApp->roundCron)) {
+		/* 轮次用户 */
+		if (!in_array($purpose, ['S', 'B', 'C'])) {
 			return false;
 		}
-		if (!in_array($purpose, ['S', 'B', 'C'])) {
+		/* 时间规则 */
+		if (!isset($oApp->roundCron)) {
+			$oApp2 = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'round_cron']);
+			tms_object_merge($oApp, $oApp2);
+		}
+		if (empty($oApp->roundCron)) {
 			return false;
 		}
 		$aCron = $oApp->roundCron;

@@ -33,9 +33,9 @@
     </nav>
     <div ng-cloak class='app ng-cloak'>
         <div id='enroll' class='container'>
-            <div ng-if="tasks.length" ng-cloak>
-                <div uib-alert ng-repeat="task in tasks" class='alert-info'>
-                    <div><label><input type='checkbox' name='forTask' ng-true-value="'{{task.id}}'" ng-model="forTask"> 作为任务提交</label></div>
+            <div ng-if="record.round.purpose==='C'&&questionTasks.length" ng-cloak>
+                <div uib-alert ng-repeat="task in questionTasks" class='alert-info'>
+                    <div><label><input type='checkbox' name='forQuestionTask' ng-true-value="'{{task.id}}'" ng-model="forQuestionTask"> 作为提问任务提交</label></div>
                     <div ng-bind="task"></div>
                 </div>
             </div>

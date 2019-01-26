@@ -293,8 +293,13 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         $scope.tasks.splice(index, 1);
     };
     $scope.gotoTask = function(oTask) {
-        if (oTask && oTask.topic && oTask.topic.id)
-            location.href = LS.j('', 'site', 'app') + '&topic=' + oTask.topic.id + '&page=topic';
+        if (oTask) {
+            if (oTask.type === 'baseline') {
+                location.href = LS.j('', 'site', 'app') + '&rid=' + oTask.rid + '&page=enroll';
+            } else if (oTask.topic && oTask.topic.id) {
+                location.href = LS.j('', 'site', 'app') + '&topic=' + oTask.topic.id + '&page=topic';
+            }
+        }
     };
     $scope.advCriteriaStatus = {
         opened: !$scope.isSmallLayout,

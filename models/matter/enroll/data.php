@@ -1077,7 +1077,7 @@ class data_model extends entity_model {
 		}
 
 		/**
-		 * 记录推荐状态
+		 * 推荐状态
 		 */
 		if (isset($oCriteria->recordData->agreed)) {
 			$w .= " and rd.agreed='{$oCriteria->recordData->agreed}'";
@@ -1120,6 +1120,15 @@ class data_model extends entity_model {
 			$w .= " and rd.value<>''";
 		} else {
 			$w .= " and (rd.value like '%" . $this->escape($oCriteria->keyword) . "%' or rd.supplement like '%" . $this->escape($oCriteria->keyword) . "%')";
+		}
+
+		if (!empty($oCriteria->data)) {
+			$whereByData = [];
+			foreach ($oCriteria->data as $schId => $v) {
+				$whereByData[] = "(rd2.schema_id = '{$schId}' and rd2.value = '{$v}')";
+			}
+			$whereByData = implode(' or ', $whereByData);
+			$w .= " and (EXISTS(select 1 from xxt_enroll_record_data rd2 where ({$whereByData}))) and rd2.enroll_key = rd.enroll_key";
 		}
 
 		// 查询参数

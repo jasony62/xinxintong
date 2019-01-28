@@ -735,6 +735,8 @@ class repos extends base {
 		if (!empty($oPosted->agreed) && stripos($oPosted->agreed, 'all') === false) {
 			$oCriteria->recordData->agreed = $oPosted->agreed;
 		}
+		// 按指定题的值筛选
+		!empty($oPosted->data) && $oCriteria->data = $oPosted->data;
 
 		$oEditor = null; // 作为编辑用户的信息
 

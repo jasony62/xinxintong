@@ -1180,7 +1180,7 @@ class repos extends base {
 	/**
 	 * 获取活动共享页筛选条件
 	 */
-	public function criteriaGet_action($app, $viweType = 'record') {
+	public function criteriaGet_action($app, $viewType = 'record') {
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['fields' => 'id,siteid,state,repos_config,data_schemas,entry_rule,action_rule,mission_id,sync_mission_round,assigned_nickname,round_cron', 'cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
@@ -1190,7 +1190,7 @@ class repos extends base {
 		$oUser = $this->getUser($oApp);
 
 		$oCriterias = $this->_originCriteriaGet();
-		$result = $this->_packCriteria($oApp, $oUser, $oCriterias, $viweType);
+		$result = $this->_packCriteria($oApp, $oUser, $oCriterias, $viewType);
 		if ($result[0] === false) {
 			return new \ParameterError($result[1]);
 		}
@@ -1201,7 +1201,7 @@ class repos extends base {
 	/**
 	 * 按当前用户角色过滤筛选条件
 	 */
-	private function _packCriteria($oApp, $oUser, $criterias, $viweType = 'record') {
+	private function _packCriteria($oApp, $oUser, $criterias, $viewType = 'record') {
 		$varType = gettype($criterias);
 		if ($varType === 'object') {
 			$criterias = (array) $criterias;
@@ -1244,7 +1244,7 @@ class repos extends base {
 			// 如果有答案的题型才显示筛选答案的按钮
 			if ($criteria->type === 'coworkAgreed') {
 				$coworkState = false;
-				if ($viweType === 'record') {
+				if ($viewType === 'record') {
 					foreach ($oApp->dynaDataSchemas as $oSchema) {
 						if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
 							$coworkState = true;
@@ -1287,10 +1287,10 @@ class repos extends base {
 			if ($criteria->type === 'mine') {
 				if (empty($oUser->unionid)) {
 					unset($criterias[$key]);
-				} else if ($viweType === 'record') {
+				} else if ($viewType === 'record') {
 					$criteria->menus[] = (object) ['id' => 'creator', 'title' => '我的记录'];
 					$criteria->menus[] = (object) ['id' => 'favored', 'title' => '我的收藏'];
-				} else if ($viweType === 'coworkData') {
+				} else if ($viewType === 'coworkData') {
 					$criteria->menus[] = (object) ['id' => 'creator', 'title' => '我的回答'];
 				} else {
 					unset($criterias[$key]);

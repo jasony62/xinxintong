@@ -854,7 +854,7 @@ class repos extends base {
 	 * 返回指定活动的填写记录的共享内容 
 	 * 答案视图
 	 */
-	public function coworkList_action($app, $page = 1, $size = 12) {
+	public function coworkList2_action($app, $page = 1, $size = 12) {
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
@@ -949,7 +949,7 @@ class repos extends base {
 
 		$oEditor = null; // 作为编辑用户的信息
 
-		$oResult = $modelRecDat->byApp2($oApp, $oOptions, $oCriteria, $oUser, 'cowork');
+		$oResult = $modelRecDat->coworkList($oApp, $oOptions, $oCriteria, $oUser, 'cowork');
 		if (!empty($oResult->recordDatas)) {
 			$modelData = $this->model('matter\enroll\data');
 			$modelTag = $this->model('matter\enroll\tag2');

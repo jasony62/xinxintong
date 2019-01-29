@@ -6,17 +6,29 @@ include_once dirname(__FILE__) . '/config.php';
 /***************************
  * error and exception handle
  ***************************/
+/**
+ * file
+ * line
+ * function
+ * args
+ * type
+ * class
+ */
 function show_error($message) {
 	require_once 'tms/tms_app.php';
 	$modelLog = TMS_APP::M('log');
 	if ($message instanceof UrlNotMatchException) {
 		$msg = $message->getMessage();
 	} else if ($message instanceof Exception) {
-		$excep = $message->getMessage() . "\n";
+		$excep = $message->getMessage();
 		$trace = $message->getTrace();
 		foreach ($trace as $t) {
+			$excep .= '<br>';
 			foreach ($t as $k => $v) {
-				$excep .= $k . ':' . $modelLog->toJson($v) . "\n";
+				if (!in_array($k, ['file', 'line'])) {
+					continue;
+				}
+				$excep .= $modelLog->toJson($v) . ' ';
 			}
 		}
 		if (defined('TMS_APP_EXCEPTION_TRACE') && TMS_APP_EXCEPTION_TRACE === 'Y') {
@@ -37,7 +49,10 @@ function show_error($message) {
 	$agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 	$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 	if (isset($excep)) {
-		$modelLog->log('error', $method, $excep, $agent, $referer);
+		$msg = str_replace('<br>', "\n", $excep);
+	}
+	if ($message instanceof SiteUserException) {
+		$modelLog->log($message->getUserid(), $method, $msg, $agent, $referer);
 	} else {
 		$modelLog->log('error', $method, $msg, $agent, $referer);
 	}

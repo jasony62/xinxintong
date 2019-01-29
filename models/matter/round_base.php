@@ -12,7 +12,7 @@ trait Round {
 	 * @param array rules 定时生成轮次规则
 	 *
 	 */
-	public function byCron($rules) {
+	public function sampleByCron($rules) {
 		return $this->_lastRoundByCron($rules);
 	}
 	/**
@@ -126,7 +126,7 @@ trait Round {
 			}
 			//算出开始的日期
 			$mday = (int) $oRule->mday;
-			$oRule->end_mday = empty($oRule->end_mday) ? 1 : $oRule->end_mday;
+			$oRule->end_mday = empty($oRule->end_mday) ? '1' : $oRule->end_mday;
 			$hour = empty($oRule->hour) ? 0 : (int) $oRule->hour;
 			if (isset($oRule->end_hour) && strlen($oRule->end_hour)) {
 				$end_hour = (int) $oRule->end_hour;
@@ -186,7 +186,6 @@ trait Round {
 			}
 			/* 轮次结束时间 */
 			if (isset($oRule->end_wday) && strlen($oRule->end_wday)) {
-				$oRule->end_wday = (int) $oRule->end_wday;
 				$end_hour = empty($oRule->end_hour) ? 0 : (int) $oRule->end_hour;
 				if ($oRule->wday == $oRule->end_wday) {
 					if ($hour < $end_hour) {

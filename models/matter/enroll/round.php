@@ -117,6 +117,11 @@ class round_model extends \TMS_MODEL {
 		// 结束数据库读写分离带来的问题
 		$this->setOnlyWriteDbConn(true);
 
+		if (!isset($oApp->siteid)) {
+			$oApp2 = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'siteid']);
+			tms_object_merge($oApp, $oApp2);
+		}
+
 		/* 只允许有一个指定启动轮次 */
 		if (isset($oProps->state) && (int) $oProps->state === 1 && isset($oProps->start_at) && (int) $oProps->start_at === 0) {
 			if ($oLastRound = $this->getAssignedActive($oApp)) {
@@ -140,6 +145,7 @@ class round_model extends \TMS_MODEL {
 			'start_at' => empty($oProps->start_at) ? 0 : $oProps->start_at,
 			'end_at' => empty($oProps->end_at) ? 0 : $oProps->end_at,
 			'purpose' => empty($oProps->purpose) ? 'C' : (in_array($oProps->purpose, ['C', 'B', 'S']) ? $oProps->purpose : 'C'),
+			'task_id' => empty($oProps->task_id) ? 0 : $oProps->task_id,
 		];
 		$this->insert('xxt_enroll_round', $aNewRound, false);
 
@@ -166,7 +172,7 @@ class round_model extends \TMS_MODEL {
 		return $oRound;
 	}
 	/**
-	 * 获得指定记录活动中启用状态的轮次
+	 * 获得指定记录活动中启用状态的填写轮次
 	 *
 	 * 没有指定开始和结束时间，且状态为启用状态的轮次优先
 	 * 如果记录活动设置了轮次定时生成规则，需要检查是否需要自动生成轮次
@@ -227,12 +233,7 @@ class round_model extends \TMS_MODEL {
 		/* 根据活动的轮次规则生成轮次 */
 		if (!empty($oApp->roundCron)) {
 			/* 有效的定时规则 */
-			$enabledRules = [];
-			foreach ($oApp->roundCron as $rule) {
-				if (isset($rule->enabled) && $rule->enabled === 'Y' && (empty($rule->purpose) || $rule->purpose === 'C')) {
-					$enabledRules[] = $rule;
-				}
-			}
+			$enabledRules = array_filter($oApp->roundCron, function ($oRule) {return $this->getDeepValue($oRule, 'enabled') === 'Y' && $this->getDeepValue($oRule, 'purpose') === 'C';});
 		}
 		if (empty($enabledRules)) {
 			/* 根据轮次开始时间获得轮次，但是必须是常规轮次 */
@@ -260,30 +261,97 @@ class round_model extends \TMS_MODEL {
 		return $oAppRound;
 	}
 	/**
+	 * 根据活动的定时规则生成轮次
+	 */
+	public function byCron($oApp, $purpose, $startAt = 0) {
+		/* 轮次用户 */
+		if (!in_array($purpose, ['S', 'B', 'C'])) {
+			return false;
+		}
+		/* 时间规则 */
+		if (!isset($oApp->roundCron)) {
+			$oApp2 = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'round_cron']);
+			tms_object_merge($oApp, $oApp2);
+		}
+		if (empty($oApp->roundCron)) {
+			return false;
+		}
+		$aCron = $oApp->roundCron;
+
+		/* 有效的定时规则 */
+		$enabledRules = array_filter($aCron, function ($oRule) use ($purpose) {return $this->getDeepValue($oRule, 'enabled') === 'Y' && $this->getDeepValue($oRule, 'purpose') === $purpose;});
+		if (empty($enabledRules)) {
+			return false;
+		}
+
+		$rounds = [];
+		switch ($purpose) {
+		case 'S':
+		case 'B':
+			/* 根据定时规则获得轮次，可能同时存在多个匹配的汇总轮次 */
+			$aCronOptions = [];
+			if ($startAt > 0) {
+				$aCronOptions['timestamp'] = $startAt;
+			}
+			foreach ($enabledRules as $oRule) {
+				$rounds[] = $this->_getRoundByCron($oApp, [$oRule], $aCronOptions);
+			}
+			break;
+		case 'C':
+			break;
+		}
+
+		return $rounds;
+	}
+	/**
+	 * 和指定任务匹配的轮次
+	 */
+	public function byTask($oApp, $oTask) {
+		$oTaskRnd = $this->byId($oTask->rid);
+		if (false === $oTaskRnd) {
+			return null;
+		}
+		if ($oTaskRnd->aid === $oApp->id) {
+			/* 轮次是指定活动中的轮次 */
+			return $oTaskRnd;
+		}
+		/* 跨活动的轮次 */
+		$q = ['*', 'xxt_enroll_round', ['aid' => $oApp->id, 'task_id' => $oTask->id]];
+		if ($oAppRnd = $this->query_obj_ss($q)) {
+			return $oAppRnd;
+		}
+
+		if (!empty($oTaskRnd->mission_rid)) {
+			/* 如果任务活动和指定活动都同步了项目轮次，返回同步的轮次 */
+			if ($oAppRnd = $this->byMissionRid($oApp, $oTaskRnd->mission_rid)) {
+				$this->update('xxt_enroll_round', ['task_id' => $oTask->id], ['id' => $oAppRnd->id]);
+				return $oAppRnd;
+			}
+		}
+		/* 创建轮次 */
+		$oProps = new \stdClass;
+		$oProps->state = 1;
+		$oProps->start_at = $oTask->start_at;
+		$oProps->end_at = $oTask->end_at;
+		$oProps->task_id = $oTask->id;
+		$modelTsk = $this->model('matter\enroll\task');
+		$oProps->title = tms_time_to_str($oTask->start_at) . '【' . $modelTsk::TypeNameZh[$oTask->config_type] . '】';
+
+		$oAppRndResult = $this->create($oApp, $oProps);
+		if (false === $oAppRndResult[0]) {
+			return null;
+		}
+
+		return $oAppRndResult[1];
+	}
+	/**
 	 * 获得指定活动中的目标轮次
 	 */
 	public function getBaseline($oApp, $aOptions = []) {
 		if (!empty($aOptions['assignedRid'])) {
 			$oAssignedRnd = $this->byId($aOptions['assignedRid'], ['fields' => 'start_at']);
 		}
-		/* 根据活动的轮次规则生成轮次 */
-		if (!empty($oApp->roundCron)) {
-			/* 有效的定时规则 */
-			$enabledRules = [];
-			foreach ($oApp->roundCron as $rule) {
-				if (isset($rule->enabled) && $rule->enabled === 'Y' && !empty($rule->purpose) && $rule->purpose === 'B') {
-					$enabledRules[] = $rule;
-				}
-			}
-			if (count($enabledRules)) {
-				/* 根据定时规则获得轮次 */
-				$aCronOptions = [];
-				if (isset($oAssignedRnd) && $oAssignedRnd->start_at > 0) {
-					$aCronOptions['timestamp'] = $oAssignedRnd->start_at;
-				}
-				$this->_getRoundByCron($oApp, $enabledRules, $aCronOptions);
-			}
-		}
+		$this->byCron($oApp, 'B', empty($oAssignedRnd->start_at) ? 0 : $oAssignedRnd->start_at);
 
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 
@@ -292,7 +360,7 @@ class round_model extends \TMS_MODEL {
 			'xxt_enroll_round',
 			['aid' => $oApp->id, 'state' => 1, 'purpose' => 'B'],
 		];
-		if (isset($oAssignedRnd) && $oAssignedRnd->start_at > 0) {
+		if (!empty($oAssignedRnd->start_at)) {
 			$q[2]['start_at'] = (object) ['op' => '<=', 'pat' => $oAssignedRnd->start_at];
 		}
 		$q2 = [
@@ -306,20 +374,9 @@ class round_model extends \TMS_MODEL {
 	/**
 	 * 获得指定活动中的汇总轮次
 	 */
-	public function getSummary($oApp, $rndStartAt, $aOptions = []) {
+	public function getSummary($oApp, $rndStartAt = 0, $aOptions = []) {
 		/* 根据活动的轮次规则生成汇总轮次 */
-		if (!empty($oApp->roundCron)) {
-			/* 有效的定时规则 */
-			$enabledRules = array_filter($oApp->roundCron, function ($oRule) {return $this->getDeepValue($oRule, 'enabled') === 'Y' && $this->getDeepValue($oRule, 'purpose') === 'S';});
-			if (count($enabledRules)) {
-				/* 根据定时规则获得轮次 */
-				$aCronOptions = [];
-				if ($rndStartAt > 0) {
-					$aCronOptions['timestamp'] = $rndStartAt;
-				}
-				$this->_getRoundByCron($oApp, $enabledRules, $aCronOptions);
-			}
-		}
+		$this->byCron($oApp, 'S', $rndStartAt);
 
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 
@@ -355,16 +412,16 @@ class round_model extends \TMS_MODEL {
 	 * 根据指定的开始和停止时间获得被汇总的填写轮次
 	 */
 	public function getSummaryInclude($oApp, $sumStartAt, $sumEndEndAt) {
-		/* 和汇总轮次关联的填写轮次 */
 		$q = [
 			'rid,start_at',
 			'xxt_enroll_round',
 			['aid' => $oApp->id, 'state' => 1, 'purpose' => 'C'],
 		];
-		if ($sumStartAt > 0) {
+		if ($sumStartAt > 0 && $sumEndEndAt > 0) {
+			$q[2]['start_at'] = (object) ['op' => 'between', 'pat' => [$sumStartAt, $sumEndEndAt]];
+		} else if ($sumStartAt > 0) {
 			$q[2]['start_at'] = (object) ['op' => '>=', 'pat' => $sumStartAt];
-		}
-		if ($sumEndEndAt > 0) {
+		} else if ($sumEndEndAt > 0) {
 			$q[2]['start_at'] = (object) ['op' => '<=', 'pat' => $sumEndEndAt];
 		}
 
@@ -412,6 +469,8 @@ class round_model extends \TMS_MODEL {
 	}
 	/**
 	 * 删除轮次
+	 *
+	 * @todo 不是在这个轮次里的，通过修改或评论的怎么算？
 	 */
 	public function remove($oApp, $oRound) {
 		/* 删除轮次下的记录 */
@@ -436,53 +495,5 @@ class round_model extends \TMS_MODEL {
 		}
 
 		return $rst;
-	}
-	/**
-	 * 记录轮次下创建的记录
-	 *
-	 * 1条记录可以属于多个轮次
-	 */
-	public function createRecord($oRecord) {
-		$oRecordRound = new \stdClass;
-		$oRecordRound->siteid = $oRecord->siteid;
-		$oRecordRound->aid = $oRecord->aid;
-		$oRecordRound->rid = $oRecord->rid;
-		$oRecordRound->enroll_key = $oRecord->enroll_key;
-		$oRecordRound->userid = isset($oRecord->userid) ? $oRecord->userid : '';
-		$oRecordRound->add_at = isset($oRecord->first_enroll_at) ? $oRecord->first_enroll_at : current();
-		$oRecordRound->add_cause = 'C';
-
-		$oRecordRound->id = $this->insert('xxt_enroll_record_round', $oRecordRound, false);
-
-		return $oRecordRound;
-	}
-	/**
-	 * 修改记录
-	 */
-	public function reviseRecord($oRound, $oRecord) {
-		if ($oRound->rid === $oRecord->rid) {
-			return [false, '记录已经在轮次中'];
-		}
-		$q = [
-			'count(*)',
-			'xxt_enroll_record_round',
-			['rid' => $oRound->rid, 'enroll_key' => $oRecord->enroll_key],
-		];
-		if ((int) $this->query_val_ss($q) > 0) {
-			return [false, '修改记录已经在轮次中'];
-		}
-
-		$oRecordRound = new \stdClass;
-		$oRecordRound->siteid = $oRecord->siteid;
-		$oRecordRound->aid = $oRecord->aid;
-		$oRecordRound->rid = $oRound->rid;
-		$oRecordRound->enroll_key = $oRecord->enroll_key;
-		$oRecordRound->userid = isset($oRecord->userid) ? $oRecord->userid : '';
-		$oRecordRound->add_at = isset($oRecord->enroll_at) ? $oRecord->enroll_at : current();
-		$oRecordRound->add_cause = 'R';
-
-		$oRecordRound->id = $this->insert('xxt_enroll_record_round', $oRecordRound, false);
-
-		return [true, $oRecordRound];
 	}
 }

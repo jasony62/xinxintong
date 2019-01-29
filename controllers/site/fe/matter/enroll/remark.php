@@ -69,8 +69,9 @@ class remark extends base {
 	}
 	/**
 	 * 返回一条填写记录的所有留言
+	 * $onlyRecord 记录只获取记录的评论不包括答案的
 	 */
-	public function list_action($ek, $schema = '', $data = '', $remarkId = '', $page = 1, $size = 99) {
+	public function list_action($ek, $schema = '', $data = '', $remarkId = '', $onlyRecord = false, $page = 1, $size = 99) {
 		$recDataId = $data;
 
 		$modelRec = $this->model('matter\enroll\record');
@@ -117,6 +118,13 @@ class remark extends base {
 		if (!empty($remarkId)) {
 			$aOptions['remark_id'] = $remarkId;
 		}
+		// 是否仅仅返回针对记录本身的评论
+		if ($onlyRecord == true) {
+			// 针对记录本身的评论不属于某一个题
+			if (empty($recDataId) && empty($schema)) {
+				$aOptions['onlyRecord'] = true;
+			}
+		}
 
 		$oResult = $modelRem->listByRecord($oUser, $ek, $schema, $page, $size, $aOptions);
 		if (!empty($oResult->remarks)) {
@@ -154,7 +162,7 @@ class remark extends base {
 	 * @param $remark 被留言的留言
 	 *
 	 */
-	public function add_action($ek, $data = 0, $remark = 0) {
+	public function add_action($ek, $data = 0, $remark = 0, $task = null) {
 		$recDataId = $data;
 
 		$modelRec = $this->model('matter\enroll\record');
@@ -188,6 +196,19 @@ class remark extends base {
 		$oApp = $modelEnl->byId($oRecord->aid, ['cascaded' => 'N']);
 		if (false === $oApp && $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
+		}
+		/* 检查指定的任务 */
+		if (!empty($task)) {
+			$modelTsk = $this->model('matter\enroll\task', $oApp);
+			$oTask = $modelTsk->byId($task);
+			if (false === $oTask || $oTask->state !== 'IP') {
+				return new \ObjectNotFoundError('指定的任务不存在或不可用');
+			}
+			if ($oTask->config_type === 'question') {
+				if ($oTask->rid === $oRecord->rid) {
+					return new \ResponseError('不能通过对任务轮次中的记录进行留言完成提问任务');
+				}
+			}
 		}
 
 		$oPosted = $this->getPostJson();
@@ -306,7 +327,17 @@ class remark extends base {
 		if ($oNewRemark->userid === $oRemarker->uid) {
 			$oNewRemark->nickname = '我';
 		}
-
+		/**
+		 * 如果存在提问任务，将记录放到任务专题中
+		 */
+		if (isset($oTask)) {
+			if ($oTask->config_type === 'question') {
+				$modelTop = $this->model('matter\enroll\topic', $oApp);
+				if ($oTopic = $modelTop->byTask($oTask)) {
+					$modelTop->assign($oTopic, $oRecord);
+				}
+			}
+		}
 		/* 通知登记活动事件接收人 */
 		if (isset($oApp->notifyConfig->remark->valid) && $oApp->notifyConfig->remark->valid === true) {
 			$this->_notifyReceivers($oApp, $oRecord, $oNewRemark);
@@ -662,12 +693,14 @@ class remark extends base {
 		$oCowork = (object) [
 			'aid' => $oApp->id,
 			'rid' => $oRemark->rid,
+			'record_id' => $oRecord->id,
 			'enroll_key' => $oRemark->enroll_key,
 			'submit_at' => $current,
 			'userid' => $oRemark->userid,
 			'nickname' => $this->escape($oRemark->nickname),
 			'group_id' => $oRemark->group_id,
 			'schema_id' => $oRecData->schema_id,
+			'is_multitext_root' => 'N',
 			'multitext_seq' => count($oRecData->value) + 1,
 			'value' => $this->escape($oRemark->content),
 			'agreed' => 'A',
@@ -699,64 +732,5 @@ class remark extends base {
 		$modelEvt->remarkAsCowork($oApp, $oRecData, $oCowork, $oRemark, $oUser);
 
 		return new \ResponseData($oCowork);
-	}
-	/**
-	 * 和留言相关的任务
-	 */
-	public function task_action($app, $ek) {
-		$modelApp = $this->model('matter\enroll');
-
-		$oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,siteid,state,entry_rule,action_rule']);
-		if (false === $oApp || $oApp->state !== '1') {
-			return new \ObjectNotFoundError();
-		}
-		$oUser = $this->getUser($oApp);
-
-		$tasks = [];
-		if (isset($oApp->actionRule)) {
-			$oActionRule = $oApp->actionRule;
-			/* 留言出现在共享数据页 */
-			if (isset($oActionRule->remark->repos->pre)) {
-				$oRule = $oActionRule->remark->repos->pre;
-				if (!empty($oRule->remark->likeNum)) {
-					if (empty($oRule->desc)) {
-						$oRule->desc = '留言获得【' . $oRule->remark->likeNum . '个】点赞（投票）后会显示在共享页。';
-					}
-					$oRule->id = 'remark.repos.pre';
-					$tasks[] = $oRule;
-				}
-			}
-			/* 对组长的任务要求 */
-			if (!empty($oUser->group_id) && isset($oUser->is_leader) && $oUser->is_leader === 'Y') {
-				/* 对组长推荐记录的要求 */
-				if (isset($oActionRule->leader->remark->agree->end)) {
-					$oRule = $oActionRule->leader->remark->agree->end;
-					if (!empty($oRule->min)) {
-						$modelRem = $this->model('matter\enroll\remark');
-						$remarks = $modelRem->listByRecord(null, $ek, null, null, null, ['agreed' => 'Y']);
-						$remarkNum = count($remarks);
-						if ($remarkNum >= $oRule->min) {
-							$oRule->_ok = [$remarkNum];
-						} else {
-							$oRule->_no = [(int) $oRule->min - $remarkNum];
-							if (empty($oRule->desc)) {
-								$desc = '组长需要选择【' . $oRule->min . ($oRule->max > $oRule->min ? ('-' . $oRule->max) : '') . '条】留言推荐，';
-							} else {
-								$desc = $oRule->desc;
-								if (!in_array(mb_substr($desc, -1), ['。', '，', '；', '.', ',', ';'])) {
-									$desc .= '，';
-								}
-							}
-							$oRule->desc .= $desc . '还需【' . $oRule->_no[0] . '条】。';
-						}
-						$oRule->id = 'leader.remark.agree.end';
-						$tasks[] = $oRule;
-					}
-				}
-			}
-		}
-
-		return new \ResponseData($tasks);
-
 	}
 }

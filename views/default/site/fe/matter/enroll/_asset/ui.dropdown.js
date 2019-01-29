@@ -8,7 +8,7 @@ ngMod.directive('tmsDropdown', ['$templateCache', function($templateCache) {
         template: require('./tms-dropdown.html'),
         scope: {
             data: '=basicData',
-            criteria: '@',
+            criteria: '=',
             shiftMenu: '&'
         },
         link: function(scope, elems, attrs) {
@@ -19,16 +19,15 @@ ngMod.directive('tmsDropdown', ['$templateCache', function($templateCache) {
                         scope.checked.title = menu.title;
                     }
                 });
-                scope.shiftMenu({"criteria": {"id": id, "type": scope.data.type}});
+                scope.shiftMenu({ "criteria": { "id": id, "type": scope.data.type } });
             };
             scope.$watch('data', function(data) {
-                if (!data) { return; }
-                scope.criteriad = angular.copy(angular.fromJson(scope.criteria));
+                if (!data) { return false; }
                 scope.checked = {
-                    id: scope.criteriad[data.type]
+                    id: scope.criteria[data.type]
                 }
                 data.menus.forEach(function(menu) {
-                    if(menu.id==scope.checked.id) {
+                    if (menu.id == scope.checked.id) {
                         scope.checked.title = menu.title;
                         return false;
                     }

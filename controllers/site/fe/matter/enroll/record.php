@@ -24,12 +24,22 @@ class record extends base {
 	 * @param string $rid 指定在哪一个轮次上提交（仅限新建的情况）
 	 * @param string $ek enrollKey 如果要更新之前已经提交的数据，需要指定
 	 * @param string $submitkey 支持文件分段上传
+	 * @param int $task 对应的任务
+	 *
 	 */
-	public function submit_action($app, $rid = '', $ek = null, $submitkey = '', $subType = 'submit') {
+	public function submit_action($app, $rid = '', $ek = null, $submitkey = '', $task = null) {
 		$modelEnl = $this->model('matter\enroll');
 		$oEnlApp = $modelEnl->byId($app, ['cascaded' => 'N']);
 		if (false === $oEnlApp || $oEnlApp->state !== '1') {
 			return new \ObjectNotFoundError('（1）指定的活动不存在');
+		}
+
+		if (!empty($task)) {
+			$modelTsk = $this->model('matter\enroll\task', $oEnlApp);
+			$oTask = $modelTsk->byId($task);
+			if (false === $oTask) {
+				return new \ObjectNotFoundError('（2）指定的活动任务不存在');
+			}
 		}
 
 		$modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
@@ -39,7 +49,7 @@ class record extends base {
 		if (!$bSubmitNewRecord) {
 			$oBeforeRecord = $modelRec->byId($ek, ['state' => ['1', '99']]);
 			if (false === $oBeforeRecord) {
-				return new \ObjectNotFoundError('（2）指定的填写记录不存在');
+				return new \ObjectNotFoundError('（3）指定的填写记录不存在');
 			}
 			if ($oBeforeRecord->state === '99') {
 				/* 将之前保存的记录作为提交记录 */
@@ -50,7 +60,7 @@ class record extends base {
 		}
 
 		// 检查或获得提交轮次
-		$aResultSubmitRid = $this->_getSubmitRecordRid($oEnlApp, $rid);
+		$aResultSubmitRid = $this->_getSubmitRecordRid($oEnlApp, $rid, isset($oTask) ? $oTask : null);
 		if (false === $aResultSubmitRid[0]) {
 			return new \ResponseError($aResultSubmitRid[1]);
 		}
@@ -59,128 +69,38 @@ class record extends base {
 		// 提交的数据
 		$oPosted = $this->getPostJson();
 		if (empty($oPosted->data) || count(get_object_vars($oPosted->data)) === 0) {
-			return new \ResponseError('（3）没有提交有效数据');
+			return new \ResponseError('（4）没有提交有效数据');
 		}
 		$oEnlData = $oPosted->data;
 
 		// 提交数据的用户
 		$oUser = $this->getUser($oEnlApp, $oEnlData);
 
-		// 检查是否允许提交记录
+		/* 检查是否允许提交记录 */
 		$aResultCanSubmit = $this->_canSubmit($oEnlApp, $oUser, $oEnlData, $ek, $rid);
 		if ($aResultCanSubmit[0] === false) {
 			return new \ResponseError($aResultCanSubmit[1]);
 		}
-		/**
-		 * 检查是否存在匹配的记录记录
-		 */
+		/* 检查是否存在匹配的记录记录 */
 		if (!empty($oEnlApp->entryRule->enroll->id)) {
-			$oMatchApp = $modelEnl->byId($oEnlApp->entryRule->enroll->id, ['cascaded' => 'N']);
-			if (empty($oMatchApp)) {
-				return new \ParameterError('指定的记录匹配记录活动不存在');
+			$aMatchResult = $this->_matchEnlRec($oUser, $oEnlApp, $oEnlApp->entryRule->enroll->id, $oEnlData);
+			if (false === $aMatchResult[0]) {
+				return new \ParameterError($aMatchResult[1]);
 			}
-			/* 获得要检查的记录项 */
-			$requireCheckedData = new \stdClass;
-			$dataSchemas = $oEnlApp->dataSchemas;
-			foreach ($dataSchemas as $oSchema) {
-				if (isset($oSchema->requireCheck) && $oSchema->requireCheck === 'Y') {
-					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oEnlApp->entryRule->enroll->id) {
-						$requireCheckedData->{$oSchema->id} = $modelRec->getValueBySchema($oSchema, $oEnlData);
-					}
-				}
-			}
-			/* 在指定的记录活动中检查数据 */
-			$modelMatchRec = $this->model('matter\enroll\record');
-			$matchedRecords = $modelMatchRec->byData($oMatchApp, $requireCheckedData);
-			if (empty($matchedRecords)) {
-				return new \ParameterError('未在指定的记录活动［' . $oMatchApp->title . '］中找到与提交数据相匹配的记录');
-			}
-			/* 如果匹配的分组数据不唯一，怎么办？ */
-			if (count($matchedRecords) > 1) {
-				return new \ParameterError('在指定的记录活动［' . $oMatchApp->title . '］中找到多条与提交数据相匹配的记录，匹配关系不唯一');
-			}
-			$oMatchedEnlRec = $matchedRecords[0];
-			if ($oMatchedEnlRec->verified !== 'Y') {
-				return new \ParameterError('在指定的记录活动［' . $oMatchApp->title . '］中与提交数据匹配的记录未通过验证');
-			}
-			/* 如果记录数据中未包含用户信息，更新用户信息 */
-			if (empty($oMatchedEnlRec->userid)) {
-				$oUserAcnt = $this->model('site\user\account')->byId($oUser->uid, ['fields' => 'wx_openid,yx_openid,qy_openid,headimgurl']);
-				if (false === $oUserAcnt) {
-					$oUserAcnt = new \stdClass;
-				}
-				$oUserAcnt->userid = $oUser->uid;
-				$oUserAcnt->nickname = $modelMatchRec->escape($oUser->nickname);
-				$modelMatchRec->update('xxt_enroll_record', $oUserAcnt, ['id' => $oMatchedEnlRec->id]);
-			}
-			/* 将匹配的记录记录数据作为提交的记录数据的一部分 */
-			$oMatchedData = $oMatchedEnlRec->data;
-			foreach ($oMatchApp->dataSchemas as $oSchema) {
-				if (!isset($oEnlData->{$oSchema->id}) && isset($oMatchedData->{$oSchema->id})) {
-					$oEnlData->{$oSchema->id} = $oMatchedData->{$oSchema->id};
-				}
-			}
+			$oMatchedEnlRec = $aMatchResult[1];
 		}
-		/**
-		 * 检查是否存在匹配的分组记录
-		 */
+		/* 检查是否存在匹配的分组记录 */
 		if (isset($oEnlApp->entryRule->group->id)) {
-			/* 获得要检查的记录项 */
-			$countRequireCheckedData = 0;
-			$requireCheckedData = new \stdClass;
-			$dataSchemas = $oEnlApp->dynaDataSchemas;
-			foreach ($dataSchemas as $oSchema) {
-				if (isset($oSchema->requireCheck) && $oSchema->requireCheck === 'Y') {
-					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oEnlApp->entryRule->group->id) {
-						$countRequireCheckedData++;
-						$requireCheckedData->{$oSchema->id} = $modelRec->getValueBySchema($oSchema, $oEnlData);
-					}
-				}
+			$aMatchResult = $this->_matchGrpUsr($oUser, $oEnlApp, $oEnlApp->entryRule->group->id, $oEnlData);
+			if (false === $aMatchResult[0]) {
+				return new \ParameterError($aMatchResult[1]);
 			}
-			if ($countRequireCheckedData > 0) {
-				$oGroupApp = $this->model('matter\group')->byId($oEnlApp->entryRule->group->id);
-				if (empty($oGroupApp)) {
-					return new \ParameterError('指定的记录匹配分组活动不存在');
-				}
-				/* 在指定的分组活动中检查数据 */
-				$modelMatchRec = $this->model('matter\group\player');
-				$groupRecords = $modelMatchRec->byData($oGroupApp, $requireCheckedData);
-				if (empty($groupRecords)) {
-					return new \ParameterError('未在指定的分组活动［' . $oGroupApp->title . '］中找到与提交数据相匹配的记录');
-				}
-				/* 如果匹配的分组数据不唯一，怎么办？ */
-				if (count($groupRecords) > 1) {
-					return new \ParameterError('在指定的分组活动［' . $oGroupApp->title . '］中找到多条与提交数据相匹配的记录，匹配关系不唯一');
-				}
-				$oMatchedGrpRec = $groupRecords[0];
-				/* 如果分组数据中未包含用户信息，更新用户信息 */
-				if (empty($oMatchedGrpRec->userid)) {
-					$oUserAcnt = $this->model('site\user\account')->byId($oUser->uid, ['fields' => 'wx_openid,yx_openid,qy_openid,headimgurl']);
-					if (false === $oUserAcnt) {
-						$oUserAcnt = new \stdClass;
-					}
-					$oUserAcnt->userid = $oUser->uid;
-					$oUserAcnt->nickname = $modelMatchRec->escape($oUser->nickname);
-					$modelMatchRec->update('xxt_group_player', $oUserAcnt, ['id' => $oMatchedGrpRec->id]);
-				}
-				/* 将匹配的分组记录数据作为提交的记录数据的一部分 */
-				$oMatchedData = $oMatchedGrpRec->data;
-				foreach ($oGroupApp->dataSchemas as $oSchema) {
-					if (!isset($oEnlData->{$oSchema->id}) && isset($oMatchedData->{$oSchema->id})) {
-						$oEnlData->{$oSchema->id} = $oMatchedData->{$oSchema->id};
-					}
-				}
-				/* 所属分组id */
-				if (isset($oMatchedGrpRec->round_id)) {
-					$oUser->group_id = $oEnlData->_round_id = $oMatchedGrpRec->round_id;
-				}
-			}
+			$oMatchedGrpRec = $aMatchResult[1];
 		}
 		/**
 		 * 提交记录数据
 		 */
 		$aUpdatedEnlRec = [];
-		$bReviseRecordBeyondRound = false;
 		if ($bSubmitNewRecord) {
 			/* 插入记录数据 */
 			$oNewRec = $modelRec->enroll($oEnlApp, $oUser, ['nickname' => $oUser->nickname, 'assignedRid' => $rid, 'state' => '1']);
@@ -190,13 +110,6 @@ class record extends base {
 		} else {
 			/* 重新插入新提交的数据 */
 			$aResultSetData = $modelRec->setData($oUser, $oEnlApp, $ek, $oEnlData, $submitkey);
-			/* 修改后的记录在当前轮次可见 */
-			if ($this->getDeepValue($oEnlApp, 'scenarioConfig.visibleRevisedRecordAtRound') === 'Y') {
-				$aResult = $this->model('matter\enroll\round')->reviseRecord($oEnlApp->appRound, $oBeforeRecord);
-				if (true === $aResult[0]) {
-					$bReviseRecordBeyondRound = true;
-				}
-			}
 			if ($aResultSetData[0] === true) {
 				/* 已经记录，更新原先提交的数据，只要进行更新操作就设置为未审核通过的状态 */
 				$aUpdatedEnlRec['enroll_at'] = time();
@@ -244,18 +157,26 @@ class record extends base {
 		/**
 		 * 处理用户汇总数据，积分数据
 		 */
-		if ($bReviseRecordBeyondRound) {
-			$oRoundRecord = clone $oRecord;
-			$oRoundRecord->rid = $oEnlApp->appRound->rid;
-			$this->model('matter\enroll\event')->submitRecord($oEnlApp, $oRoundRecord, $oUser, $bSubmitNewRecord, true);
-		} else {
-			$this->model('matter\enroll\event')->submitRecord($oEnlApp, $oRecord, $oUser, $bSubmitNewRecord);
-		}
+		$this->model('matter\enroll\event')->submitRecord($oEnlApp, $oRecord, $oUser, $bSubmitNewRecord);
 		/**
 		 * 更新用户得分排名
 		 */
 		$modelEnlUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 		$modelEnlUsr->setScoreRank($oEnlApp, $oRecord->rid);
+		/**
+		 * 如果存在提问任务，将记录放到任务专题中
+		 */
+		if (isset($oTask)) {
+			switch ($oTask->config_type) {
+			case 'question': // 提问任务
+				$modelTop = $this->model('matter\enroll\topic', $oEnlApp);
+				if ($oTopic = $modelTop->byTask($oTask)) {
+					$modelTop->assign($oTopic, $oRecord);
+				}
+				break;
+			}
+		}
+
 		/* 生成提醒 */
 		if ($bSubmitNewRecord) {
 			$this->model('matter\enroll\notice')->addRecord($oEnlApp, $oRecord, $oUser);
@@ -266,6 +187,117 @@ class record extends base {
 		}
 
 		return new \ResponseData($oRecord);
+	}
+	/**
+	 * 检查是否存在匹配的记录
+	 */
+	private function _matchEnlRec($oUser, $oSrcApp, $targetAppId, &$oEnlData) {
+		$oMatchApp = $this->model('matter\enroll')->byId($targetAppId, ['cascaded' => 'N']);
+		if (empty($oMatchApp)) {
+			return [false, '指定的记录匹配记录活动不存在'];
+		}
+		$modelRec = $this->model('matter\enroll\record');
+
+		/* 获得要检查的记录项 */
+		$countRequireCheckedData = 0;
+		$requireCheckedData = new \stdClass;
+		$dataSchemas = $oSrcApp->dynaDataSchemas;
+		foreach ($dataSchemas as $oSchema) {
+			if ($this->getDeepValue($oSchema, 'requireCheck') === 'Y') {
+				if ($this->getDeepValue($oSchema, 'fromApp') === $oMatchApp->id) {
+					$countRequireCheckedData++;
+					$requireCheckedData->{$oSchema->id} = $modelRec->getValueBySchema($oSchema, $oEnlData);
+				}
+			}
+		}
+		if ($countRequireCheckedData === 0) {
+			return [true, null];
+		}
+		/* 在指定的记录活动中检查数据 */
+		$matchedRecords = $modelRec->byData($oMatchApp, $requireCheckedData);
+		if (empty($matchedRecords)) {
+			return [false, '未在指定的记录活动［' . $oMatchApp->title . '］中找到与提交数据相匹配的记录'];
+		}
+		/* 如果匹配的分组数据不唯一，怎么办？ */
+		if (count($matchedRecords) > 1) {
+			return [false, '在指定的记录活动［' . $oMatchApp->title . '］中找到多条与提交数据相匹配的记录，匹配关系不唯一'];
+		}
+		$oMatchedEnlRec = $matchedRecords[0];
+		if ($oMatchedEnlRec->verified !== 'Y') {
+			return [false, '在指定的记录活动［' . $oMatchApp->title . '］中与提交数据匹配的记录未通过验证'];
+		}
+		/* 如果记录数据中未包含用户信息，更新用户信息 */
+		if (empty($oMatchedEnlRec->userid)) {
+			$oUserAcnt = new \stdClass;
+			$oUserAcnt->userid = $oUser->uid;
+			$oUserAcnt->nickname = $modelRec->escape($oUser->nickname);
+			$modelRec->update('xxt_enroll_record', $oUserAcnt, ['id' => $oMatchedEnlRec->id]);
+		}
+		/* 将匹配的记录记录数据作为提交的记录数据的一部分 */
+		$oMatchedData = $oMatchedEnlRec->data;
+		foreach ($oMatchApp->dynaDataSchemas as $oSchema) {
+			if (!isset($oEnlData->{$oSchema->id}) && isset($oMatchedData->{$oSchema->id})) {
+				$oEnlData->{$oSchema->id} = $oMatchedData->{$oSchema->id};
+			}
+		}
+
+		return [true, $oMatchedEnlRec];
+	}
+	/**
+	 * 检查是否存在匹配的分组记录
+	 */
+	private function _matchGrpUsr($oUser, $oSrcApp, $targetAppId, &$oEnlData) {
+		/* 获得要检查的记录项 */
+		$modelRec = $this->model('matter\enroll\record');
+		$countRequireCheckedData = 0;
+		$requireCheckedData = new \stdClass;
+		$dataSchemas = $oSrcApp->dynaDataSchemas;
+		foreach ($dataSchemas as $oSchema) {
+			if ($this->getDeepValue($oSchema, 'requireCheck') === 'Y') {
+				if ($this->getDeepValue($oSchema, 'fromApp') === $targetAppId) {
+					$countRequireCheckedData++;
+					$requireCheckedData->{$oSchema->id} = $modelRec->getValueBySchema($oSchema, $oEnlData);
+				}
+			}
+		}
+		if ($countRequireCheckedData === 0) {
+			return [true, null];
+		}
+		$oGroupApp = $this->model('matter\group')->byId($targetAppId);
+		if (empty($oGroupApp)) {
+			return [false, '指定的记录匹配分组活动不存在'];
+		}
+		/* 在指定的分组活动中检查数据 */
+		$modelMatchUsr = $this->model('matter\group\user');
+		$groupUsers = $modelMatchUsr->byData($oGroupApp, $requireCheckedData);
+		if (empty($groupUsers)) {
+			return [false, '未在指定的分组活动［' . $oGroupApp->title . '］中找到与提交数据相匹配的记录'];
+		}
+		/* 如果匹配的分组数据不唯一，怎么办？ */
+		if (count($groupUsers) > 1) {
+			return [false, '在指定的分组活动［' . $oGroupApp->title . '］中找到多条与提交数据相匹配的记录，匹配关系不唯一'];
+		}
+		$oMatchedGrpUsr = $groupUsers[0];
+		/* 如果分组数据中未包含用户信息，更新用户信息 */
+		if (empty($oMatchedGrpUsr->userid)) {
+			$oUserAcnt = new \stdClass;
+			$oUserAcnt->userid = $oUser->uid;
+			$oUserAcnt->nickname = $modelMatchUsr->escape($oUser->nickname);
+			$modelMatchUsr->update('xxt_group_player', $oUserAcnt, ['id' => $oMatchedGrpUsr->id]);
+		}
+		/* 将匹配的分组记录数据作为提交的记录数据的一部分 */
+		$oMatchedData = $oMatchedGrpUsr->data;
+		foreach ($oGroupApp->dataSchemas as $oSchema) {
+			if (!isset($oEnlData->{$oSchema->id}) && isset($oMatchedData->{$oSchema->id})) {
+				$oEnlData->{$oSchema->id} = $oMatchedData->{$oSchema->id};
+			}
+		}
+		/* 所属分组id */
+		if (isset($oMatchedGrpUsr->round_id)) {
+			$oUser->group_id = $oEnlData->_round_id = $oMatchedGrpUsr->round_id;
+		}
+
+		return [true, $oMatchedGrpUsr];
 	}
 	/**
 	 * 记录记录信息
@@ -351,20 +383,21 @@ class record extends base {
 	/**
 	 * 返回当前轮次或者检查指定轮次是否有效
 	 */
-	private function _getSubmitRecordRid($oApp, $rid = '') {
+	private function _getSubmitRecordRid($oApp, $rid = '', $oTask = null) {
 		$modelRnd = $this->model('matter\enroll\round');
-		if (empty($rid)) {
+		if (isset($oTask)) {
+			$oRecordRnd = $modelRnd->byTask($oApp, $oTask);
+		} else if (empty($rid)) {
 			$oRecordRnd = $modelRnd->getActive($oApp);
 		} else {
 			$oRecordRnd = $modelRnd->byId($rid);
 		}
 		if (empty($oRecordRnd)) {
 			return [false, '没有获得有效的活动轮次，请检查是否已经设置轮次，或者轮次是否已经启用'];
-		} else {
-			$now = time();
-			if ($oRecordRnd->end_at != 0 && $oRecordRnd->end_at < $now) {
-				return [false, '活动轮次【' . $oRecordRnd->title . '】已结束，不能提交、修改、保存或删除填写记录！'];
-			}
+		}
+		$now = time();
+		if ($oRecordRnd->end_at > 0 && $oRecordRnd->end_at < $now) {
+			return [false, '活动轮次【' . $oRecordRnd->title . '】已结束，不能提交、修改、保存或删除填写记录！'];
 		}
 
 		return [true, $oRecordRnd->rid];
@@ -600,7 +633,7 @@ class record extends base {
 	 * @param string $withSaved 是否获取保存数据
 	 *
 	 */
-	public function get_action($app, $ek = '', $rid = '', $loadLast = 'Y', $loadAssoc = 'Y', $withSaved = 'N') {
+	public function get_action($app, $ek = '', $rid = '', $loadLast = 'Y', $loadAssoc = 'Y', $withSaved = 'N', $task = null) {
 		$modelApp = $this->model('matter\enroll');
 		$modelRec = $this->model('matter\enroll\record');
 
@@ -609,12 +642,27 @@ class record extends base {
 			return new \ObjectNotFoundError();
 		}
 
+		if (!empty($task)) {
+			$modelTsk = $this->model('matter\enroll\task');
+			$oTask = $modelTsk->byId($task);
+			if (false === $oTask) {
+				return new \ObjectNotFoundError('指定的活动任务不存在');
+			}
+		}
+
 		$fields = 'id,aid,state,rid,enroll_key,userid,group_id,nickname,verified,enroll_at,first_enroll_at,data,supplement,score,like_num,like_log,remark_num';
 		$ValidRecStates = ['1', '99'];
 
 		if (empty($ek)) {
 			$oRecUser = $this->getUser($oApp);
 			if ($loadLast === 'Y') {
+				if (isset($oTask)) {
+					$oTaskRnd = $this->model('matter\enroll\round')->byTask($oApp, $oTask);
+					if (false === $oTaskRnd) {
+						return new \ObjectNotFoundError('指定的活动任务轮次不存在');
+					}
+					$rid = $oTaskRnd->rid;
+				}
 				$oRecord = $modelRec->lastByUser($oApp, $oRecUser, ['state' => $ValidRecStates, 'rid' => $rid, 'verbose' => 'Y', 'fields' => $fields]);
 				if (false === $oRecord) {
 					$oRecord = new \stdClass;

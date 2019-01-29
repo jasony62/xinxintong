@@ -47,6 +47,7 @@ class data_model extends entity_model {
 					'aid' => $oApp->id,
 					'rid' => $oRecord->rid,
 					'purpose' => $oRecord->purpose,
+					'record_id' => $oRecord->id,
 					'enroll_key' => $oRecord->enroll_key,
 					'state' => $oRecord->state,
 					'submit_at' => $oRecord->enroll_at,
@@ -54,6 +55,7 @@ class data_model extends entity_model {
 					'nickname' => $this->escape($oRecord->nickname),
 					'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 					'schema_id' => $schemaId,
+					'is_multitext_root' => 'N',
 					'multitext_seq' => (int) $index + 1,
 					'value' => $this->escape($oNewItem->value),
 				];
@@ -86,6 +88,7 @@ class data_model extends entity_model {
 						'aid' => $oApp->id,
 						'rid' => $oRecord->rid,
 						'purpose' => $oRecord->purpose,
+						'record_id' => $oRecord->id,
 						'enroll_key' => $oRecord->enroll_key,
 						'state' => $oRecord->state,
 						'submit_at' => $oRecord->enroll_at,
@@ -93,6 +96,7 @@ class data_model extends entity_model {
 						'nickname' => $this->escape($oRecord->nickname),
 						'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 						'schema_id' => $schemaId,
+						'is_multitext_root' => 'N',
 						'multitext_seq' => (int) $index + 1,
 						'value' => $this->escape($oUpdatedItem->value),
 					];
@@ -199,6 +203,7 @@ class data_model extends entity_model {
 						$treatedValue = $fnNewItems($schemaId, $treatedValue);
 					} else {
 						unset($dbData->{$schemaId});
+						continue;
 					}
 				} else {
 					if (is_object($treatedValue) || is_array($treatedValue)) {
@@ -209,6 +214,7 @@ class data_model extends entity_model {
 					'aid' => $oApp->id,
 					'rid' => $oRecord->rid,
 					'purpose' => $oRecord->purpose,
+					'record_id' => $oRecord->id,
 					'enroll_key' => $oRecord->enroll_key,
 					'state' => $oRecord->state,
 					'submit_at' => $oRecord->enroll_at,
@@ -218,6 +224,11 @@ class data_model extends entity_model {
 					'schema_id' => $schemaId,
 					'value' => $this->escape($treatedValue),
 				];
+				if ($oSchema->type == 'multitext') {
+					/* 多项填写题根数据 */
+					$aSchemaData['is_multitext_root'] = 'Y';
+					$aSchemaData['multitext_seq'] = 0;
+				}
 				isset($oRecordScore->{$schemaId}) && $aSchemaData['score'] = $oRecordScore->{$schemaId};
 				$this->insert('xxt_enroll_record_data', $aSchemaData, false);
 			} else if (count($oLastSchemaValues) == 1) {
@@ -613,16 +624,24 @@ class data_model extends entity_model {
 			$items = $this->query_objs_ss($q, $q2);
 			if (count($items)) {
 				$oItem = $items[0];
-				$rank = 1;
-				$this->update('xxt_enroll_record_data', ['score_rank' => $rank], ['id' => $oItem->id]);
-				$lastScore = $oItem->score;
-				for ($i = 1, $l = count($items); $i < $l; $i++) {
-					$oItem = $items[$i];
-					if ($oItem->score < $lastScore) {
-						$rank = $i + 1;
-					}
+				if (isset($oSchema->rankScoreAbove) && is_numeric($oSchema->rankScoreAbove) && $oItem->score <= $oSchema->rankScoreAbove) {
+					$this->update('xxt_enroll_record_data', ['score_rank' => 0], ['id' => $oItem->id]);
+				} else {
+					$rank = 1;
 					$this->update('xxt_enroll_record_data', ['score_rank' => $rank], ['id' => $oItem->id]);
 					$lastScore = $oItem->score;
+				}
+				for ($i = 1, $l = count($items); $i < $l; $i++) {
+					$oItem = $items[$i];
+					if (isset($oSchema->rankScoreAbove) && is_numeric($oSchema->rankScoreAbove) && $oItem->score <= $oSchema->rankScoreAbove) {
+						$this->update('xxt_enroll_record_data', ['score_rank' => 0], ['id' => $oItem->id]);
+					} else {
+						if ($oItem->score < $lastScore) {
+							$rank = $i + 1;
+						}
+						$this->update('xxt_enroll_record_data', ['score_rank' => $rank], ['id' => $oItem->id]);
+						$lastScore = $oItem->score;
+					}
 				}
 			}
 			return count($items);
@@ -651,14 +670,21 @@ class data_model extends entity_model {
 	 */
 	public function byRecord($ek, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : self::DEFAULT_FIELDS;
+		$bExcludeRoot = isset($aOptions['excludeRoot']) ? isset($aOptions['excludeRoot']) : false;
 
 		$q = [
 			$fields,
 			'xxt_enroll_record_data',
-			['enroll_key' => $ek, 'state' => 1, 'multitext_seq' => 0],
+			['enroll_key' => $ek, 'state' => 1],
 		];
 
-		$fnHandler = function (&$oData) {
+		if ($bExcludeRoot) {
+			$q[2]['is_multitext_root'] = 'N';
+		} else {
+			$q[2]['multitext_seq'] = 0;
+		}
+
+		$fnHandleData = function (&$oData) {
 			if (property_exists($oData, 'tag')) {
 				$oData->tag = empty($oData->tag) ? [] : json_decode($oData->tag);
 			}
@@ -669,48 +695,58 @@ class data_model extends entity_model {
 				$oData->agreed_log = empty($oData->agreed_log) ? new \stdClass : json_decode($oData->agreed_log);
 			}
 		};
-
-		if (isset($aOptions['schema'])) {
-			if (is_array($aOptions['schema'])) {
-				$oResult = new \stdClass;
-				$q[2]['schema_id'] = $aOptions['schema'];
-				$data = $this->query_objs_ss($q);
-				if (count($data)) {
-					foreach ($data as $schemaData) {
-						if (isset($fnHandler)) {
-							$fnHandler($schemaData);
-						}
-						$schemaId = $schemaData->schema_id;
-						unset($schemaData->schema_id);
-						$oResult->{$schemaId} = $schemaData;
-					}
-				}
-				return $oResult;
-			} else {
-				$q[2]['schema_id'] = $aOptions['schema'];
-				if ($data = $this->query_obj_ss($q)) {
-					if (isset($fnHandler)) {
-						$fnHandler($data);
-					}
-				}
-				return $data;
-			}
-		} else {
+		$fnHandleResult = function ($data) use ($bExcludeRoot, $fnHandleData) {
 			$oResult = new \stdClass;
-			$data = $this->query_objs_ss($q);
 			if (count($data)) {
-				foreach ($data as $schemaData) {
-					if (isset($fnHandler)) {
-						$fnHandler($schemaData);
+				foreach ($data as $oSchemaData) {
+					$fnHandleData($oSchemaData);
+					$schemaId = $oSchemaData->schema_id;
+					unset($oSchemaData->schema_id);
+					if ($bExcludeRoot) {
+						if ($oSchemaData->multitext_seq > 0) {
+							$oResult->{$schemaId}[] = $oSchemaData;
+						} else {
+							unset($oSchemaData->multitext_seq);
+							$oResult->{$schemaId} = $oSchemaData;
+						}
+					} else {
+						$oResult->{$schemaId} = $oSchemaData;
 					}
-					$schemaId = $schemaData->schema_id;
-					unset($schemaData->schema_id);
-					$oResult->{$schemaId} = $schemaData;
 				}
 			}
 
 			return $oResult;
+		};
+		if (!isset($aOptions['schema']) || is_array($aOptions['schema'])) {
+			false === strpos($fields, 'schema_id') && $q[0] .= ',schema_id';
+			false === strpos($fields, 'multitext_seq') && $q[0] .= ',multitext_seq';
+			if (isset($aOptions['schema']) && is_array($aOptions['schema'])) {
+				$q[2]['schema_id'] = $aOptions['schema'];
+			}
+			$data = $this->query_objs_ss($q);
+
+			$mixResult = $fnHandleResult($data);
+		} else {
+			$q[2]['schema_id'] = $aOptions['schema'];
+			if ($bExcludeRoot) {
+				false === strpos($fields, 'multitext_seq') && $q[0] .= ',multitext_seq';
+				$data = $this->query_objs_ss($q);
+				array_walk($data, $fnHandleData);
+				if (count($data) === 1 && $data[0]->multitext_seq === 0) {
+					$fnHandleData($data);
+					$mixResult = $data[0];
+				} else {
+					$mixResult = $data;
+				}
+			} else {
+				if ($data = $this->query_obj_ss($q)) {
+					$fnHandleData($data);
+				}
+				$mixResult = $data;
+			}
 		}
+
+		return $mixResult;
 	}
 	/**
 	 * 返回指定活动，指定登记项的填写数据
@@ -985,6 +1021,344 @@ class data_model extends entity_model {
 		return $oResult;
 	}
 	/**
+	 * 记录清单
+	 *
+	 * @param object/string 记录活动/记录活动的id
+	 * @param object/array $oOptions
+	 * --page
+	 * --size
+	 * --kw 检索关键词
+	 * --by 检索字段
+	 * @param object $oCriteria 记录数据过滤条件
+	 * @param object $oUser ['uid','group_id']
+	 *
+	 * @return object
+	 * records 数据列表
+	 * total 数据总条数
+	 */
+	public function byApp2($oApp, $oOptions = null, $oCriteria = null, $oUser = null) {
+		if (is_string($oApp)) {
+			$oApp = $this->model('matter\enroll')->byId($oApp, ['cascaded' => 'N']);
+		}
+		if (false === $oApp && empty($oApp->dynaDataSchemas)) {
+			return false;
+		}
+		if ($oOptions && is_array($oOptions)) {
+			$oOptions = (object) $oOptions;
+		}
+
+		// 指定记录活动下的记录记录
+		$w = "rd.state=1 and rd.aid='{$oApp->id}'";
+		if (!empty($oCriteria->schemaId)) {
+			if (is_array($oCriteria->schemaId)) {
+				$schemaId = implode("','", $oCriteria->schemaId);
+			}
+			$w .= " and rd.schema_id in ('" . $schemaId . "')";
+		}
+		if (!empty($oCriteria->onlyMultitextValue)) {
+			$w .= " and rd.multitext_seq > 0";
+		}
+
+		/* 指定轮次，或者当前激活轮次 */
+		if (empty($oCriteria->recordData->rid)) {
+			if (!empty($oApp->appRound->rid)) {
+				$rid = $oApp->appRound->rid;
+				//$w .= " and (r.rid='$rid'";
+				$w .= " and (exists(select 1 from xxt_enroll_record_round rrnd where rrnd.rid='$rid' and rrnd.enroll_key=rd.enroll_key)";
+				if (isset($oOptions->regardRemarkRoundAsRecordRound) && $oOptions->regardRemarkRoundAsRecordRound === true) {
+					$w .= " or exists(select 1 from xxt_enroll_record_remark rr where rr.aid=rd.aid and rr.enroll_key=rd.enroll_key and rr.rid='$rid')";
+				}
+				$w .= ')';
+			}
+		} else {
+			if (is_string($oCriteria->recordData->rid)) {
+				if (strcasecmp('all', $oCriteria->recordData->rid) !== 0) {
+					$rid = $oCriteria->recordData->rid;
+					//$w .= " and (r.rid='$rid'";
+					$w .= " and (exists(select 1 from xxt_enroll_record_round rrnd where rrnd.rid='$rid' and rrnd.enroll_key=rd.enroll_key)";
+					if (isset($oOptions->regardRemarkRoundAsRecordRound) && $oOptions->regardRemarkRoundAsRecordRound === true) {
+						$w .= " or exists(select 1 from xxt_enroll_record_remark rr where rr.aid=rd.aid and rr.enroll_key=rd.enroll_key and rr.rid='$rid')";
+					}
+					$w .= ')';
+				}
+			} else if (is_array($oCriteria->recordData->rid)) {
+				if (empty(array_intersect(['all', 'ALL'], $oCriteria->recordData->rid))) {
+					$rid = $oCriteria->recordData->rid;
+					//$w .= " and r.rid in('" . implode("','", $rid) . "')";
+					$w .= " and exists(select 1 from xxt_enroll_record_round rrnd where rrnd.rid in('" . implode("','", $rid) . "') and rrnd.enroll_key=rd.enroll_key)";
+				}
+			}
+		}
+
+		// 根据用户分组过滤
+		if (isset($oCriteria->recordData->group_id)) {
+			$w .= " and rd.group_id='{$oCriteria->recordData->group_id}'";
+		}
+
+		// 根据填写人筛选（填写端列表页需要）
+		if (!empty($oCriteria->recordData->userid)) {
+			$w .= " and rd.userid='{$oCriteria->recordData->userid}'";
+		}
+
+		/**
+		 * 记录推荐状态
+		 */
+		if (isset($oCriteria->recordData->agreed)) {
+			$w .= " and rd.agreed='{$oCriteria->recordData->agreed}'";
+		} else {
+			// 屏蔽状态的记录默认不可见
+			$w .= " and rd.agreed<>'N'";
+		}
+		// 讨论状态的记录仅提交人，同组用户或超级用户可见
+		if (isset($oUser)) {
+			// 当前用户角色
+			if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
+				if (!empty($oUser->uid)) {
+					$w .= " and (";
+					$w .= " (rd.agreed<>'D'";
+					if (isset($oUser->is_editor) && $oUser->is_editor !== 'Y') {
+						$w .= " and rd.agreed<>''"; // 如果活动指定了编辑，未表态的数据默认不公开
+					}
+					$w .= ")";
+					$w .= " or rd.userid='{$oUser->uid}'";
+					if (!empty($oUser->group_id)) {
+						$w .= " or rd.group_id='{$oUser->group_id}'";
+					}
+					if (isset($oUser->is_editor) && $oUser->is_editor === 'Y') {
+						$w .= " or rd.group_id=''";
+					}
+					$w .= ")";
+				}
+			}
+		}
+
+		// 预制条件：指定分组或赞同数大于
+		if (isset($oCriteria->GroupOrLikeNum) && is_object($oCriteria->GroupOrLikeNum)) {
+			if (!empty($oCriteria->GroupOrLikeNum->group_id) && isset($oCriteria->GroupOrLikeNum->like_num)) {
+				$w .= " and (rd.group_id='{$oCriteria->GroupOrLikeNum->group_id}' or rd.like_num>={$oCriteria->GroupOrLikeNum->like_num})";
+			}
+		}
+
+		// 指定了按关键字过滤
+		if (empty($oCriteria->keyword)) {
+			$w .= " and rd.value<>''";
+		} else {
+			$w .= " and (rd.value like '%" . $this->escape($oCriteria->keyword) . "%' or rd.supplement like '%" . $this->escape($oCriteria->keyword) . "%')";
+		}
+
+		// 查询参数
+		$fields = 'rd.id,rd.state,rd.enroll_key,rd.rid,rd.purpose,rd.submit_at enroll_at,rd.userid,rd.group_id,rd.nickname,rd.schema_id,rd.value,rd.score,rd.agreed,rd.like_num,rd.like_log,rd.remark_num,rd.dislike_num,rd.dislike_log';
+		$table = "xxt_enroll_record_data rd";
+
+		if (!empty($oOptions->joinDataByRecord)) {
+			$fields .= ',r.data';
+			$table .= ",xxt_enroll_record r";
+			$w .= " and rd.enroll_key = r.enroll_key and r.state = 1";
+		}
+
+		$q = [$fields, $table, $w];
+		$q2 = [];
+		// 查询结果分页
+		if (!empty($oOptions->page) && !empty($oOptions->size)) {
+			$q2['r'] = ['o' => ($oOptions->page - 1) * $oOptions->size, 'l' => $oOptions->size];
+		}
+
+		// 查询结果排序
+		if (!empty($oOptions->orderby)) {
+			$fnOrderBy = function ($orderbys) {
+				is_string($orderbys) && $orderbys = [$orderbys];
+				$sqls = [];
+				foreach ($orderbys as $orderby) {
+					switch ($orderby) {
+					case 'sum':
+						$sqls[] = 'rd.score desc';
+						break;
+					case 'agreed':
+						$sqls[] = 'rd.agreed desc';
+						break;
+					case 'vote_num':
+						$sqls[] = 'rd.vote_num desc';
+						break;
+					case 'like_num':
+						$sqls[] = 'rd.like_num desc';
+						break;
+					case 'submit_at':
+						$sqls[] = 'rd.submit_at desc';
+						break;
+					case 'submit_at asc':
+						$sqls[] = 'rd.submit_at';
+						break;
+					}
+				}
+				return implode(',', $sqls);
+			};
+			$q2['o'] = $fnOrderBy($oOptions->orderby);
+		} else {
+			$q2['o'] = 'rd.submit_at desc';
+		}
+		/**
+		 * 处理获得的数据
+		 */
+		$oResult = new \stdClass; // 返回的结果
+		if ($aRecDatas = $this->query_objs_ss($q, $q2)) {
+			//
+			$oResult->recordDatas = $this->_parse($oApp, $aRecDatas);
+		} else {
+			$oResult->recordDatas = [];
+		}
+		// 符合条件的数据总数
+		$q[0] = 'count(*)';
+		$total = (int) $this->query_val_ss($q);
+		$oResult->total = $total;
+
+		return $oResult;
+	}
+	/**
+	 * 解析记录的内容，将数据库中的格式转换为应用格式
+	 */
+	private function _parse($oApp, &$aRecDatas) {
+		$visibilitySchemas = []; // 设置了可见性规则的题目
+		if (!empty($oApp->dynaDataSchemas)) {
+			foreach ($oApp->dynaDataSchemas as $oSchema) {
+				if (!empty($oSchema->visibility->rules)) {
+					$visibilitySchemas[] = $oSchema;
+				}
+			}
+		}
+
+		$aGroupsById = []; // 缓存分组数据
+		$aRoundsById = []; // 缓存轮次数据
+		$oGroupsByUser = []; // 缓存分组用户
+
+		$fnCheckSchemaVisibility = function ($oSchemas, &$oRecordData) {
+			foreach ($oSchemas as $oSchema) {
+				foreach ($oSchema->visibility->rules as $oRule) {
+					if (strpos($oSchema->id, 'member.extattr') === 0) {
+						$memberSchemaId = str_replace('member.extattr.', '', $oSchema->id);
+						if (!isset($oRecordData->member->extattr->{$memberSchemaId}) || ($oRecordData->member->extattr->{$memberSchemaId} !== $oRule->op && empty($oRecordData->member->extattr->{$memberSchemaId}))) {
+							unset($oRecordData->{$oSchema->id});
+							break;
+						}
+					} else if (!isset($oRecordData->{$oRule->schema}) || ($oRecordData->{$oRule->schema} !== $oRule->op && empty($oRecordData->{$oRule->schema}->{$oRule->op}))) {
+						unset($oRecordData->{$oSchema->id});
+						break;
+					}
+				}
+			}
+		};
+
+		$aFnHandlers = []; // 记录处理函数
+		/* 用户所属分组 */
+		if (!empty($oApp->entryRule->group->id)) {
+			$groupAppId = $oApp->entryRule->group->id;
+			$modelGrpUser = $this->model('matter\group\user');
+			$aFnHandlers[] = function ($aRecData) use ($groupAppId, $modelGrpUser) {
+				if (!empty($aRecData->userid)) {
+					if (!isset($oGroupsByUser[$aRecData->userid])) {
+						$oGrpUser = $modelGrpUser->byUser((object) ['id' => $groupAppId], $aRecData->userid, ['fields' => 'round_id,round_title', 'onlyOne' => true]);
+						$oGroupsByUser[$aRecData->userid] = $oGrpUser;
+					} else {
+						$oGrpUser = $oGroupsByUser[$aRecData->userid];
+					}
+					if ($oGrpUser) {
+						if (!isset($aRecData->user)) {
+							$aRecData->user = new \stdClass;
+						}
+						$aRecData->user->group = (object) ['id' => $oGrpUser->round_id, 'title' => $oGrpUser->round_title];
+					}
+				}
+			};
+		}
+
+		foreach ($aRecDatas as $aRecData) {
+			if (property_exists($aRecData, 'like_log')) {
+				$aRecData->like_log = empty($aRecData->like_log) ? new \stdClass : json_decode($aRecData->like_log);
+			}
+			if (property_exists($aRecData, 'dislike_log')) {
+				$aRecData->dislike_log = empty($aRecData->dislike_log) ? new \stdClass : json_decode($aRecData->dislike_log);
+			}
+
+			if (!empty($aRecData->data)) {
+				$data = str_replace("\n", ' ', $aRecData->data);
+				$data = json_decode($data);
+				if ($data === null) {
+					$aRecData->data = 'json error(' . json_last_error_msg() . '):' . $aRecData->data;
+				} else {
+					$aRecData->data = $data;
+					/* 处理提交数据后分组的问题 */
+					if (!empty($aRecData->group_id) && !isset($aRecData->data->_round_id)) {
+						$aRecData->data->_round_id = $aRecData->group_id;
+					}
+					/* 处理提交数据后指定昵称题的问题 */
+					if ($aRecData->nickname && isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') {
+						if (isset($oApp->assignedNickname->schema->id)) {
+							$nicknameSchemaId = $oApp->assignedNickname->schema->id;
+							if (0 === strpos($nicknameSchemaId, 'member.')) {
+								$nicknameSchemaId = explode('.', $nicknameSchemaId);
+								if (!isset($aRecData->data->member)) {
+									$aRecData->data->member = new \stdClass;
+								}
+								if (!isset($aRecData->data->member->{$nicknameSchemaId[1]})) {
+									$aRecData->data->member->{$nicknameSchemaId[1]} = $aRecData->nickname;
+								}
+							} else {
+								if (!isset($aRecData->data->{$nicknameSchemaId})) {
+									$aRecData->data->{$nicknameSchemaId} = $oRec->nickname;
+								}
+							}
+						}
+					}
+					/* 根据题目的可见性处理数据 */
+					if (count($visibilitySchemas)) {
+						$fnCheckSchemaVisibility($visibilitySchemas, $aRecData->data);
+					}
+
+					// 将此答案添加道data中
+					$aRecData->data->{$aRecData->schema_id} = [$aRecData->value];
+					unset($aRecData->value);
+				}
+			}
+			
+			// 记录的分组
+			if (!empty($aRecData->group_id)) {
+				if (!isset($aGroupsById[$aRecData->group_id])) {
+					if (!isset($modelGrpRnd)) {
+						$modelGrpRnd = $this->model('matter\group\round');
+					}
+					$oGroup = $modelGrpRnd->byId($aRecData->group_id, ['fields' => 'title']);
+					$aGroupsById[$aRecData->group_id] = $oGroup;
+				} else {
+					$oGroup = $aGroupsById[$aRecData->group_id];
+				}
+				if ($oGroup) {
+					$aRecData->group = $oGroup;
+				}
+			}
+
+			// 记录的记录轮次
+			if (!empty($aRecData->rid)) {
+				if (!isset($aRoundsById[$aRecData->rid])) {
+					if (!isset($modelRnd)) {
+						$modelRnd = $this->model('matter\enroll\round');
+					}
+					$round = $modelRnd->byId($aRecData->rid, ['fields' => 'rid,title,purpose,start_at,end_at,state']);
+					$aRoundsById[$aRecData->rid] = $round;
+				} else {
+					$round = $aRoundsById[$aRecData->rid];
+				}
+				if ($round) {
+					$aRecData->round = $round;
+				}
+			}
+
+			foreach ($aFnHandlers as $fnHandler) {
+				$fnHandler($aRecData);
+			}
+		}
+
+		return $aRecDatas;
+	}
+	/**
 	 * 返回指定活动，指定数据项的填写数据
 	 */
 	public function byId($id, $aOptions = []) {
@@ -1026,6 +1400,7 @@ class data_model extends entity_model {
 		$oNewItem = new \stdClass;
 		$oNewItem->aid = $oApp->id;
 		$oNewItem->rid = $oRecData->rid;
+		$oNewItem->record_id = $oRecData->record_id;
 		$oNewItem->enroll_key = $oRecData->enroll_key;
 		$oNewItem->submit_at = $current;
 		$oNewItem->userid = isset($oUser->uid) ? $oUser->uid : '';
@@ -1107,7 +1482,7 @@ class data_model extends entity_model {
 	/**
 	 * 对填写数据投票
 	 */
-	public function vote($oApp, $recDataId, $oUser) {
+	public function vote($oApp, $oTask, $recDataId, $oUser) {
 		$oRecData = $this->byId($recDataId, ['fields' => 'id,aid,rid,group_id,enroll_key,schema_id,multitext_seq']);
 		if (false === $oRecData) {
 			return [false, '（1）指定的对象不存在或不可用'];
@@ -1122,26 +1497,30 @@ class data_model extends entity_model {
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return [false, '指定的记录不存在'];
 		}
+		$modelTsk = $this->model('matter\enroll\task', $oApp);
+		$oActiveRnd = $oApp->appRound;
 
-		$aVoteSchemas = $this->model('matter\enroll\task')->getCanVote($oApp, $oUser);
-		if (empty($aVoteSchemas[$oRecData->schema_id])) {
-			return [false, '指定的题目不支持投票'];
+		$oVoteRule = $modelTsk->ruleByTask($oTask, $oActiveRnd);
+		if (false === $oVoteRule[0]) {
+			return new \ParameterError($oVoteRule[1]);
 		}
-		$oCanVoteSchema = $aVoteSchemas[$oRecData->schema_id];
-		if ($oCanVoteSchema->vote->state === 'BS') {
+		$oVoteRule = $oVoteRule[1];
+
+		if ($oVoteRule->state === 'BS') {
 			return [false, '投票还没有开始'];
 		}
-		if ($oCanVoteSchema->vote->state === 'AE') {
+		if ($oVoteRule->state === 'AE') {
 			return [false, '投票已经结束'];
 		}
-
-		if (!empty($oCanVoteSchema->vote->groups)) {
-			if (!in_array($this->getDeepValue($oUser, 'group_id'), $oCanVoteSchema->vote->groups)) {
+		if (!in_array($oRecData->schema_id, $oVoteRule->schemas)) {
+			return [false, '指定的题目不支持投票'];
+		}
+		if (!empty($oVoteRule->groups)) {
+			if (!in_array($this->getDeepValue($oUser, 'group_id'), $oVoteRule->groups)) {
 				return [false, '不符合投票的用户分组规则，不能投票'];
 			}
 		}
 
-		$oActiveRnd = $oApp->appRound;
 		$q = [
 			'id,vote_at',
 			'xxt_enroll_vote',
@@ -1151,7 +1530,7 @@ class data_model extends entity_model {
 			return [false, '已经投过票，不允许重复投票', $oBefore];
 		}
 
-		$limitMax = $this->getDeepValue($oCanVoteSchema->vote, 'limit.max', 0);
+		$limitMax = $this->getDeepValue($oVoteRule, 'limit.max', 0);
 		$q = [
 			'count(*)',
 			'xxt_enroll_vote',
@@ -1195,7 +1574,7 @@ class data_model extends entity_model {
 	/**
 	 * 撤销对填写数据投票
 	 */
-	public function unvote($oApp, $recDataId, $oUser) {
+	public function unvote($oApp, $oTask, $recDataId, $oUser) {
 		$oActiveRnd = $oApp->appRound;
 
 		$oRecData = $this->byId($recDataId, ['fields' => 'id,aid,rid,enroll_key,schema_id,multitext_seq']);
@@ -1222,16 +1601,27 @@ class data_model extends entity_model {
 			return [false, '指定的记录不存在'];
 		}
 
-		$aVoteSchemas = $this->model('matter\enroll\task')->getCanVote($oApp, $oUser, $oRecord->round);
-		if (empty($aVoteSchemas[$oRecData->schema_id])) {
-			return [false, '指定的题目不支持投票'];
+		$modelTsk = $this->model('matter\enroll\task', $oApp);
+
+		$oVoteRule = $modelTsk->ruleByTask($oTask, $oActiveRnd);
+		if (false === $oVoteRule[0]) {
+			return new \ParameterError($oVoteRule[1]);
 		}
-		$oCanVoteSchema = $aVoteSchemas[$oRecData->schema_id];
-		if ($oCanVoteSchema->vote->state === 'BS') {
+		$oVoteRule = $oVoteRule[1];
+
+		if ($oVoteRule->state === 'BS') {
 			return [false, '投票还没有开始'];
 		}
-		if ($oCanVoteSchema->vote->state === 'AE') {
+		if ($oVoteRule->state === 'AE') {
 			return [false, '投票已经结束'];
+		}
+		if (!in_array($oRecData->schema_id, $oVoteRule->schemas)) {
+			return [false, '指定的题目不支持投票'];
+		}
+		if (!empty($oVoteRule->groups)) {
+			if (!in_array($this->getDeepValue($oUser, 'group_id'), $oVoteRule->groups)) {
+				return [false, '不符合投票的用户分组规则，不能投票'];
+			}
 		}
 
 		/* 更新投票记录 */
@@ -1255,6 +1645,6 @@ class data_model extends entity_model {
 		];
 		$beforeCount = (int) $this->query_val_ss($q);
 
-		return [true, [$this->getDeepValue($oCanVoteSchema, 'vote.limit.max'), $beforeCount]];
+		return [true, [$this->getDeepValue($oVoteRule, 'limit.max'), $beforeCount]];
 	}
 }

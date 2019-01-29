@@ -7,65 +7,12 @@ require('./_asset/ui.tag.js');
 require('./_asset/ui.topic.js');
 require('./_asset/ui.assoc.js');
 
-window.moduleAngularModules = ['editor.ui.xxt', 'repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll'];
+require('./_asset/ui.task.js');
+
+window.moduleAngularModules = ['task.ui.enroll', 'editor.ui.xxt', 'repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll'];
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$anchorScroll', '$sce', '$uibModal', 'tmsLocation', 'http2', 'noticebox', 'tmsDynaPage', 'enlTag', 'enlTopic', 'enlAssoc', function($scope, $q, $timeout, $location, $anchorScroll, $sce, $uibModal, LS, http2, noticebox, tmsDynaPage, enlTag, enlTopic, enlAssoc) {
-    function listRemarks() {
-        var url;
-        url = LS.j('remark/list', 'site', 'ek', 'schema', 'data');
-        
-        http2.get(url).then(function(rsp) {
-            var remarks, oRemark, oUpperRemark, oRemarks;
-            remarks = rsp.data.remarks;
-            if (remarks && remarks.length) {
-                oRemarks = {};
-                remarks.forEach(function(oRemark) {
-                    oRemarks[oRemark.id] = oRemark;
-                });
-                for (var i = remarks.length - 1; i >= 0; i--) {
-                    oRemark = remarks[i];
-                    if (oRemark.content) {
-                        oRemark.content = oRemark.content.replace(/\n/g, '<br/>');
-                    }
-                    if (oRemark.data) {
-                        oRemark.reply = '<a href="#item-' + oRemark.data.id + '">回复' + oRemark.nickname + '的' + ($scope.schemasById[oRemark.data.schema_id] ? $scope.schemasById[oRemark.data.schema_id].title : '数据') + (oRemark.data.multitext_seq > 0 ? (' #' + oRemark.data.multitext_seq) : '') + '</a>';
-                    } else if (oRemark.remark_id !== '0') {
-                        if (oUpperRemark = oRemarks[oRemark.remark_id]) {
-                            oRemark.reply = '<a href="#remark-' + oRemark.remark_id + '">回复' + oUpperRemark.nickname + '的留言 #' + oUpperRemark.seq_in_record + '</a>';
-                        }
-                    }
-                }
-            }
-            $scope.remarks = remarks;
-            if ($location.hash() === 'remarks') {
-                $timeout(function() {
-                    $anchorScroll.yOffset = 30;
-                    $anchorScroll();
-                });
-            } else if (/remark-.+/.test($location.hash())) {
-                $timeout(function() {
-                    var elRemark;
-                    if (elRemark = document.querySelector('#' + $location.hash())) {
-                        $anchorScroll();
-                        elRemark.classList.toggle('blink', true);
-                        $timeout(function() {
-                            elRemark.classList.toggle('blink', false);
-                        }, 1000);
-                    }
-                });
-            }
-        });
-    }
-
-    function addRemark(content, oRemark) {
-        var url;
-        url = LS.j('remark/add', 'site', 'ek', 'data');
-        if (oRemark) {
-            url += '&remark=' + oRemark.id;
-        }
-        return http2.post(url, { content: content });
-    }
+ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$anchorScroll', '$sce', '$uibModal', 'tmsLocation', 'http2', 'noticebox', 'tmsDynaPage', 'enlTag', 'enlTopic', 'enlAssoc', 'enlTask', function($scope, $q, $timeout, $location, $anchorScroll, $sce, $uibModal, LS, http2, noticebox, tmsDynaPage, enlTag, enlTopic, enlAssoc, enlTask) {
     /**
      * 加载整条记录
      */
@@ -76,7 +23,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             var oRecord;
             oRecord = rsp.data;
             oRecord._canAgree = fnCanAgreeRecord(oRecord, _oUser);
-            $scope.record = oRecord
+            $scope.record = oRecord;
             /* 设置页面分享信息 */
             $scope.setSnsShare(oRecord, null, { target_type: 'cowork', target_id: oRecord.id });
             /*页面阅读日志*/
@@ -86,16 +33,6 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
                 oRecord.verbose = {};
                 fnLoadCowork(oRecord, aCoworkSchemas);
             }
-            // 留言任务说明
-            http2.get(LS.j('remark/task', 'site', 'app') + '&ek=' + oRecord.enroll_key).then(function(rsp) {
-                if (rsp.data && rsp.data.length) {
-                    rsp.data.forEach(function(oRule) {
-                        $scope.remarkTasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, coin: oRule.coin ? oRule.coin : 0 });
-                    });
-                }
-            });
-            //
-            listRemarks();
             //
             oDeferred.resolve(oRecord);
         });
@@ -145,55 +82,35 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         if (/item-.+/.test($location.hash())) {
             anchorItemId = $location.hash().substr(5);
         }
-        $scope.coworkTasks.splice(0, $scope.coworkTasks.length);
         aCoworkSchemas.forEach(function(oSchema) {
-            url = LS.j('cowork/task', 'site', 'app', 'ek') + '&schema=' + oSchema.id;
-            http2.get(url).then(function(rsp) {
-                if (rsp.data && rsp.data.length) {
-                    rsp.data.forEach(function(oRule) {
-                        $scope.coworkTasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, coin: oRule.coin ? oRule.coin : 0 });
-                    });
-                }
-                url = LS.j('data/get', 'site', 'ek') + '&schema=' + oSchema.id + '&cascaded=Y';
-                
-                http2.get(url, { autoBreak: false, autoNotice: false }).then(function(rsp) {
-                    var bRequireAnchorScroll;
-                    oRecord.verbose[oSchema.id] = rsp.data.verbose[oSchema.id];
-                    oRecord.verbose[oSchema.id].items.forEach(function(oItem) {
-                        if (oItem.userid !== $scope.user.uid) {
-                            oItem._others = true;
-                        }
-                        if (anchorItemId && oItem.id === anchorItemId) {
-                            bRequireAnchorScroll = true;
-                        }
-                    });
-                    if (bRequireAnchorScroll) {
-                        $timeout(function() {
-                            var elItem;
-                            $anchorScroll();
-                            elItem = document.querySelector('#item-' + anchorItemId);
-                            elItem.classList.toggle('blink', true);
-                            $timeout(function() {
-                                elItem.classList.toggle('blink', false);
-                            }, 1000);
-                        });
+            url = LS.j('data/get', 'site', 'ek') + '&schema=' + oSchema.id + '&cascaded=Y';
+            http2.get(url, { autoBreak: false, autoNotice: false }).then(function(rsp) {
+                var bRequireAnchorScroll;
+                oRecord.verbose[oSchema.id] = rsp.data.verbose[oSchema.id];
+                oRecord.verbose[oSchema.id].items.forEach(function(oItem) {
+                    if (oItem.userid !== $scope.user.uid) {
+                        oItem._others = true;
+                    }
+                    if (anchorItemId && oItem.id === anchorItemId) {
+                        bRequireAnchorScroll = true;
                     }
                 });
+                if (bRequireAnchorScroll) {
+                    $timeout(function() {
+                        var elItem;
+                        $anchorScroll();
+                        elItem = document.querySelector('#item-' + anchorItemId);
+                        elItem.classList.toggle('blink', true);
+                        $timeout(function() {
+                            elItem.classList.toggle('blink', false);
+                        }, 1000);
+                    });
+                }
             });
         });
     }
 
     function fnAfterRecordLoad(oRecord, oUser) {
-        /*设置任务提示*/
-        if (_oApp.actionRule) {
-            var oCoworkRule;
-            oCoworkRule = $scope.ruleCowork(oRecord);
-            if (oCoworkRule) {
-                $scope.coworkTasks.push({ type: 'info', msg: oCoworkRule.desc, id: 'record.cowork.pre' });
-            }
-        }
-        /*设置页面操作*/
-        $scope.setPopAct(['addRecord'], 'cowork');
         /*设置页面导航*/
         $scope.setPopNav(['repos', 'favor', 'rank', 'kanban', 'event'], 'cowork');
     }
@@ -236,16 +153,26 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         });
     }
 
+    function fnAssignTag(oRecord) {
+        enlTag.assignTag(oRecord).then(function(rsp) {
+            if (rsp.data.user && rsp.data.user.length) {
+                oRecord.userTags = rsp.data.user;
+            } else {
+                delete oRecord.userTags;
+            }
+        });
+    }
+
     if (!LS.s().ek) {
         noticebox.error('参数不完整');
         return;
     }
-    var _oApp, _oUser, _oAssocs, shareby;
-    shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
-    $scope.coworkTasks = [];
-    $scope.remarkTasks = [];
+    var _oApp, _oUser, _oAssocs, _shareby;
+    _shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
+    $scope.options = { forQuestionTask: false, forAnswerTask: false };
     $scope.newRemark = {};
     $scope.assocs = _oAssocs = {};
+    $scope.canSubmitCowork = true; // 是否允许提交协作数据
     $scope.favorStack = {
         guiding: false,
         start: function(record, timer) {
@@ -301,16 +228,6 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             });
         }
     };
-
-    function fnAssignTag(oRecord) {
-        enlTag.assignTag(oRecord).then(function(rsp) {
-            if (rsp.data.user && rsp.data.user.length) {
-                oRecord.userTags = rsp.data.user;
-            } else {
-                delete oRecord.userTags;
-            }
-        });
-    }
     $scope.assignTag = function(oRecord) {
         if (oRecord) {
             fnAssignTag(oRecord);
@@ -345,27 +262,6 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             $scope.favorStack.end();
         }
     };
-    $scope.ruleCowork = function(oRecord) {
-        var desc, gap;
-        if (_oApp.actionRule) {
-            var actionRule;
-            actionRule = _oApp.actionRule;
-            if (actionRule.record && actionRule.record.cowork && actionRule.record.cowork.pre) {
-                if (actionRule.record.cowork.pre.record && actionRule.record.cowork.pre.record.likeNum) {
-                    if (actionRule.record.cowork.pre.record.likeNum > oRecord.like_num) {
-                        gap = actionRule.record.cowork.pre.record.likeNum - oRecord.like_num;
-                        if (actionRule.record.cowork.pre.desc) {
-                            desc = actionRule.record.cowork.pre.desc;
-                        }
-                    }
-                }
-            }
-        }
-        if (!desc) {
-            return false;
-        }
-        return { desc: desc, gap: gap };
-    };
     $scope.setAgreed = function(value) {
         var url, oRecord;
         oRecord = $scope.record;
@@ -374,39 +270,6 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             url += '&value=' + value;
             http2.get(url).then(function(rsp) {
                 oRecord.agreed = value;
-            });
-        }
-    };
-    $scope.agreeRemark = function(oRemark, value) {
-        var url;
-        if (oRemark.agreed !== value) {
-            url = LS.j('remark/agree', 'site');
-            url += '&remark=' + oRemark.id;
-            url += '&value=' + value;
-            http2.get(url).then(function(rsp) {
-                oRemark.agreed = rsp.data;
-            });
-        }
-    };
-    $scope.likeRemark = function(oRemark) {
-        if ($scope.setOperateLimit('like')) {
-            var url;
-            url = LS.j('remark/like', 'site');
-            url += '&remark=' + oRemark.id;
-            http2.get(url).then(function(rsp) {
-                oRemark.like_log = rsp.data.like_log;
-                oRemark.like_num = rsp.data.like_num;
-            });
-        }
-    };
-    $scope.dislikeRemark = function(oRemark) {
-        if ($scope.setOperateLimit('like')) {
-            var url;
-            url = LS.j('remark/dislike', 'site');
-            url += '&remark=' + oRemark.id;
-            http2.get(url).then(function(rsp) {
-                oRemark.dislike_log = rsp.data.dislike_log;
-                oRemark.dislike_num = rsp.data.dislike_num;
             });
         }
     };
@@ -447,68 +310,9 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             alert('需要指定对应的题目！');
         }
     };
-    $scope.writeRemark = function(oUpperRemark) {
-        if ($scope.setOperateLimit('add_remark')) {
-            $uibModal.open({
-                templateUrl: 'writeRemark.html',
-                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                    $scope2.data = {
-                        content: ''
-                    };
-                    $scope2.cancel = function() { $mi.dismiss(); };
-                    $scope2.ok = function() {
-                        var content;
-                        if (window.tmsEditor && window.tmsEditor.finish) {
-                            content = window.tmsEditor.finish();
-                            $scope2.data.content = content;
-                            $mi.close({ content: content });
-                        }
-                    };
-                }],
-                windowClass: 'modal-remark auto-height',
-                backdrop: 'static',
-            }).result.then(function(data) {
-                if (!data.content) return;
-                addRemark(data.content, oUpperRemark).then(function(rsp) {
-                    fnAppendRemark(rsp.data, oUpperRemark);
-                    if (rsp.data.remarkResult.user_total_coin) {
-                        noticebox.info('您获得【' + rsp.data.remarkResult.user_total_coin + '】分');
-                    }
-                });
-            });
-        }
-    };
-    $scope.editRemark = function(oRemark) {
-        $uibModal.open({
-            templateUrl: 'writeRemark.html',
-            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                $scope2.data = {
-                    content: oRemark.content
-                };
-                $scope2.cancel = function() { $mi.dismiss(); };
-                $scope2.ok = function() {
-                    var content;
-                    if (window.tmsEditor && window.tmsEditor.finish) {
-                        content = window.tmsEditor.finish();
-                        $scope2.data.content = content;
-                        $mi.close({ content: content });
-                    }
-                };
-            }],
-            windowClass: 'modal-remark auto-height',
-            backdrop: 'static',
-        }).result.then(function(data) {
-            http2.post(LS.j('remark/update', 'site') + '&remark=' + oRemark.id, { content: data.content }).then(function(rsp) {
-                oRemark.content = data.content;
-            });
-        });
-    };
-    $scope.removeRemark = function(oRemark) {
-        noticebox.confirm('撤销留言，确定？').then(function() {
-            http2.post(LS.j('remark/remove', 'site') + '&remark=' + oRemark.id).then(function(rsp) {
-                $scope.remarks.splice($scope.remarks.indexOf(oRemark), 1);
-            });
-        });
+    $scope.listRemark = function(oRecord) {
+        $scope.transferParam = { 0: 'record', 1: oRecord };
+        $scope.selectedView.url = '/views/default/site/fe/matter/enroll/template/cowork-remark.html';
     };
     $scope.likeRecord = function() {
         if ($scope.setOperateLimit('like')) {
@@ -546,10 +350,17 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
     $scope.shareRecord = function(oRecord) {
         var url;
         url = LS.j('', 'site', 'app') + '&ek=' + oRecord.enroll_key + '&page=share';
-        if (shareby) {
-            url += '&shareby=' + shareby;
-        }
+        if (_shareby) url += '&shareby=' + _shareby;
         location.href = url;
+    };
+    $scope.doQuestionTask = function(oRecord) {
+        //if ($scope.questionTasks && $scope.questionTasks.length) {
+        if ($scope.questionTasks.length === 1) {
+            http2.post(LS.j('topic/assign', 'site') + '&record=' + oRecord.id + '&task=' + $scope.questionTasks[0].id, {}).then(function() {
+                noticebox.success('操作成功！');
+            });
+        }
+        //}
     };
     $scope.transmitRecord = function(oRecord) {
         $uibModal.open({
@@ -581,50 +392,6 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             }
         });
     };
-    $scope.likeItem = function(oItem) {
-        if ($scope.setOperateLimit('like')) {
-            http2.get(LS.j('data/like', 'site') + '&data=' + oItem.id).then(function(rsp) {
-                oItem.like_log = rsp.data.like_log;
-                oItem.like_num = rsp.data.like_num;
-            });
-        }
-    };
-    $scope.dislikeItem = function(oItem) {
-        if ($scope.setOperateLimit('like')) {
-            http2.get(LS.j('data/dislike', 'site') + '&data=' + oItem.id).then(function(rsp) {
-                oItem.dislike_log = rsp.data.dislike_log;
-                oItem.dislike_num = rsp.data.dislike_num;
-            });
-        }
-    };
-    $scope.vote = function(oRecData) {
-        if (oRecData && oRecData.voteResult) {
-            http2.get(LS.j('data/vote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
-                oRecData.voteResult.vote_num++;
-                oRecData.voteResult.vote_at = rsp.data[0].vote_at;
-                var remainder = rsp.data[1][0] - rsp.data[1][1];
-                if (remainder > 0) {
-                    noticebox.success('还需要投出【' + remainder + '】票');
-                } else {
-                    noticebox.success('已完成全部投票');
-                }
-            });
-        }
-    };
-    $scope.unvote = function(oRecData) {
-        if (oRecData && oRecData.voteResult) {
-            http2.get(LS.j('data/unvote', 'site') + '&data=' + oRecData.id).then(function(rsp) {
-                oRecData.voteResult.vote_num--;
-                oRecData.voteResult.vote_at = 0;
-                var remainder = rsp.data[0] - rsp.data[1];
-                if (remainder > 0) {
-                    noticebox.success('还需要投出【' + remainder + '】票');
-                } else {
-                    noticebox.success('已完成全部投票');
-                }
-            });
-        }
-    };
     $scope.gotoUpper = function(upperId) {
         var elRemark, offsetTop, parentNode;
         elRemark = document.querySelector('#remark-' + upperId);
@@ -647,36 +414,26 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
     $scope.closeRemarkTask = function(index) {
         $scope.remarkTasks.splice(index, 1);
     };
-    $scope.shareRemark = function(oRemark) {
-        var url;
-        url = LS.j('', 'site', 'app', 'ek') + '&remark=' + oRemark.id + '&page=share';
-        if (shareby) {
-            url += '&shareby=' + shareby;
-        }
-        location.href = url;
-    };
     $scope.gotoAssoc = function(oEntity) {
         var url;
         switch (oEntity.type) {
             case 'record':
-                if (oEntity.enroll_key) {
-                    url = LS.j('', 'site', 'app', 'page') + '&ek=' + oEntity.enroll_key;
-                }
+                if (oEntity.enroll_key) url = LS.j('', 'site', 'app', 'page') + '&ek=' + oEntity.enroll_key;
                 break;
             case 'topic':
                 url = LS.j('', 'site', 'app') + '&page=topic' + '&topic=' + oEntity.id;
                 break;
             case 'article':
-                if (oEntity.entryUrl)
-                    url = oEntity.entryUrl;
+                if (oEntity.entryUrl) url = oEntity.entryUrl;
                 break;
         }
-        if (url) {
-            location.href = url;
-        }
+        if (url) location.href = url;
     };
+    $scope.$on('transfer.param', function(event, data) {
+        $scope.transferParam = data;
+    });
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        var oSchemasById, aCoworkSchemas, aVisibleSchemas;
+        var oSchemasById, aCoworkSchemas, aVisibleSchemas, templateUrl;
         _oApp = params.app;
         _oUser = params.user;
         aVisibleSchemas = [];
@@ -693,7 +450,21 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         $scope.schemasById = oSchemasById;
         $scope.visibleSchemas = aVisibleSchemas;
         $scope.coworkSchemas = aCoworkSchemas;
+        if (aCoworkSchemas.length) {
+            $scope.fileName = 'coworkData';
+        } else {
+            $scope.fileName = 'remark';
+        }
+        templateUrl = '/views/default/site/fe/matter/enroll/template/cowork-record-' + $scope.fileName + '.html'
+        $scope.selectedView = { 'url': templateUrl };
         fnLoadRecord(aCoworkSchemas).then(function(oRecord) {
+            /* 通过留言完成提问任务 */
+            new enlTask($scope.app).list('question', 'IP').then(function(tasks) {
+                $scope.questionTasks = tasks;
+            });
+            new enlTask($scope.app).list('answer', 'IP', null, oRecord.enroll_key).then(function(tasks) {
+                $scope.answerTasks = tasks;
+            });
             if (_oApp.scenarioConfig && _oApp.scenarioConfig.can_assoc === 'Y') {
                 fnLoadAssoc(oRecord, _oAssocs).then(function() {
                     fnAfterRecordLoad(oRecord, _oUser);
@@ -711,11 +482,6 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
     $scope.canSubmitCowork = true; // 是否允许提交协作数据
     $scope.addItem = function(oSchema) {
         if ($scope.setOperateLimit('add_cowork')) {
-            var oCoworkRule;
-            if (oCoworkRule = $scope.ruleCowork($scope.record)) {
-                noticebox.warn(oCoworkRule.desc);
-                return;
-            }
             $uibModal.open({
                 templateUrl: 'writeItem.html',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
@@ -743,6 +509,7 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
                 };
                 url = LS.j('cowork/add', 'site');
                 url += '&ek=' + $scope.record.enroll_key + '&schema=' + oSchema.id;
+                if ($scope.options.forAnswerTask) url += '&task=' + $scope.options.forAnswerTask;
                 http2.post(url, oNewItem).then(function(rsp) {
                     var oNewItem;
                     oNewItem = rsp.data.oNewItem;
@@ -813,7 +580,192 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
             });
         }
     };
-    $scope.writeItemRemark = function(oItem) {
+    $scope.likeItem = function(oItem) {
+        if ($scope.setOperateLimit('like')) {
+            http2.get(LS.j('data/like', 'site') + '&data=' + oItem.id).then(function(rsp) {
+                oItem.like_log = rsp.data.like_log;
+                oItem.like_num = rsp.data.like_num;
+            });
+        }
+    };
+    $scope.dislikeItem = function(oItem) {
+        if ($scope.setOperateLimit('like')) {
+            http2.get(LS.j('data/dislike', 'site') + '&data=' + oItem.id).then(function(rsp) {
+                oItem.dislike_log = rsp.data.dislike_log;
+                oItem.dislike_num = rsp.data.dislike_num;
+            });
+        }
+    };
+    $scope.listItemRemark = function(oItem) {
+        $scope.$emit('transfer.param', { 0: 'coworkData', 1: oItem });
+        $scope.selectedView.url = '/views/default/site/fe/matter/enroll/template/cowork-remark.html';
+    };
+    $scope.shareItem = function(oItem) {
+        var url, shareby;
+        url = LS.j('', 'site', 'app', 'ek') + '&data=' + oItem.id + '&page=share';
+        shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
+        if (shareby) {
+            url += '&shareby=' + shareby;
+        }
+        location.href = url;
+    };
+    $scope.assocMatter = function(oItem) {
+        enlAssoc.assocMatter($scope.user, $scope.record, { id: oItem.id, type: 'data' }).then(function(oAssoc) {
+            var oCachedAssoc;
+            oCachedAssoc = $scope.assocs;
+            if (oCachedAssoc.data === undefined)
+                oCachedAssoc.data = {};
+            if (oCachedAssoc.data[oItem.id] === undefined)
+                oCachedAssoc.data[oItem.id] = [];
+            oCachedAssoc.data[oItem.id].push(oAssoc);
+        });
+    };
+    $scope.removeItemAssoc = function(oItem, oAssoc) {
+        noticebox.confirm('取消关联，确定？').then(function() {
+            http2.get(LS.j('assoc/unlink', 'site') + '&assoc=' + oAssoc.id).then(function() {
+                $scope.assocs.data[oItem.id].splice($scope.assocs.data[oItem.id].indexOf(oAssoc), 1);
+            });
+        });
+    };
+    $scope.doAnswerTask = function(oItem) {
+        if ($scope.answerTasks && $scope.answerTasks.length) {
+            if ($scope.answerTasks.length === 1) {
+                http2.post(LS.j('topic/assign', 'site') + '&record=' + $scope.record.id + '&data=' + oItem.id + '&task=' + $scope.answerTasks[0].id, {}).then(function() {
+                    noticebox.success('操作成功！');
+                });
+            }
+        }
+    };
+    $scope.$watch('record', function(oRecord) {
+        var oActionRule;
+        if ($scope.app) {
+            if (oActionRule = $scope.app.actionRule) {
+                if (oActionRule.cowork && oActionRule.cowork.submit && oActionRule.cowork.submit.pre && oActionRule.cowork.submit.pre.editor) {
+                    if (!$scope.user.is_editor || $scope.user.is_editor !== 'Y') {
+                        $scope.canSubmitCowork = false;
+                    }
+                }
+            }
+        }
+    }, true);
+}]);
+/**
+ * 留言
+ */
+ngApp.controller('ctrlRemark', ['$scope', '$q', '$location', '$uibModal', '$anchorScroll', '$timeout', 'http2', 'tmsLocation', 'noticebox', function($scope, $q, $location, $uibModal, $anchorScroll, $timeout, http2, LS, noticebox) {
+    function addRemark(content, oRemark) {
+        var url;
+        url = LS.j('remark/add', 'site', 'ek', 'data');
+        if (oRemark) url += '&remark=' + oRemark.id;
+        if ($scope.options.forQuestionTask) url += '&task=' + $scope.options.forQuestionTask;
+
+        return http2.post(url, { content: content });
+    }
+
+    function fnAppendRemark(oNewRemark, oUpperRemark) {
+        var oNewRemark;
+        oNewRemark.content = oNewRemark.content.replace(/\\n/g, '<br/>');
+        if (oUpperRemark) {
+            oNewRemark.reply = '<a href="#remark-' + oUpperRemark.id + '">回复' + oUpperRemark.nickname + '的留言 #' + oUpperRemark.seq_in_record + '</a>';
+        }
+        $scope.remarks.push(oNewRemark);
+        if (!oUpperRemark) {
+            $scope.record.rec_remark_num++;
+        }
+        $timeout(function() {
+            var elRemark;
+            $location.hash('remark-' + oNewRemark.id);
+            $anchorScroll();
+            elRemark = document.querySelector('#remark-' + oNewRemark.id);
+            elRemark.classList.toggle('blink', true);
+            $timeout(function() {
+                elRemark.classList.toggle('blink', false);
+            }, 1000);
+        });
+    }
+
+    function listRemarks(type, data) {
+        var url;
+        url = LS.j('remark/list', 'site', 'ek', 'schema', 'data');
+
+        if (type == 'record') {
+            url += '&onlyRecord=true';
+        } else if (type == 'coworkData') {
+            url += data.id;
+        }
+
+        http2.get(url).then(function(rsp) {
+            var remarks, oRemark, oUpperRemark, oCoworkRemark, oRemarks;
+            remarks = rsp.data.remarks;
+            if (remarks && remarks.length) {
+                oRemarks = {};
+                remarks.forEach(function(oRemark) {
+                    oRemarks[oRemark.id] = oRemark;
+                });
+                for (var i = remarks.length - 1; i >= 0; i--) {
+                    oRemark = remarks[i];
+                    if (oRemark.content) {
+                        oRemark.content = oRemark.content.replace(/\n/g, '<br/>');
+                    }
+                    if (oRemark.remark_id !== '0') {
+                        if (oUpperRemark = oRemarks[oRemark.remark_id]) {
+                            oRemark.reply = '<a href="#remark-' + oRemark.remark_id + '">回复' + oUpperRemark.nickname + '的留言 #' + (oRemark.data_id === '0' ? oUpperRemark.seq_in_record : oUpperRemark.seq_in_data) + '</a>';
+                        }
+                    }
+                }
+            }
+            $scope.remarks = remarks;
+            if ($location.hash() === 'remarks') {
+                $timeout(function() {
+                    $anchorScroll.yOffset = 30;
+                    $anchorScroll();
+                });
+            } else if (/remark-.+/.test($location.hash())) {
+                $timeout(function() {
+                    var elRemark;
+                    if (elRemark = document.querySelector('#' + $location.hash())) {
+                        $anchorScroll();
+                        elRemark.classList.toggle('blink', true);
+                        $timeout(function() {
+                            elRemark.classList.toggle('blink', false);
+                        }, 1000);
+                    }
+                });
+            }
+        });
+    }
+
+    function writeRemark(oUpperRemark) {
+        if ($scope.setOperateLimit('add_remark')) {
+            $uibModal.open({
+                templateUrl: 'writeRemark.html',
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.data = { content: '' };
+                    $scope2.cancel = function() { $mi.dismiss(); };
+                    $scope2.ok = function() {
+                        var content;
+                        if (window.tmsEditor && window.tmsEditor.finish) {
+                            content = window.tmsEditor.finish();
+                            $scope2.data.content = content;
+                            $mi.close({ content: content });
+                        }
+                    };
+                }],
+                windowClass: 'modal-remark auto-height',
+                backdrop: 'static',
+            }).result.then(function(data) {
+                if (!data.content) return;
+                addRemark(data.content, oUpperRemark).then(function(rsp) {
+                    fnAppendRemark(rsp.data, oUpperRemark);
+                    if (rsp.data.remarkResult.user_total_coin) {
+                        noticebox.info('您获得【' + rsp.data.remarkResult.user_total_coin + '】分');
+                    }
+                });
+            });
+        }
+    }
+
+    function writeItemRemark(oItem) {
         if ($scope.setOperateLimit('add_remark')) {
             var itemRemarks;
             if ($scope.remarks && $scope.remarks.length) {
@@ -871,47 +823,126 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
                 });
             });
         }
+    }
+
+    $scope.goback = function() {
+        var templateUrl = '/views/default/site/fe/matter/enroll/template/cowork-record-' + $scope.fileName + '.html';
+        $scope.selectedView.url = templateUrl;
     };
-    $scope.shareItem = function(oItem) {
-        var url, shareby;
-        url = LS.j('', 'site', 'app', 'ek') + '&data=' + oItem.id + '&page=share';
-        shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
+    $scope.editRemark = function(oRemark) {
+        $uibModal.open({
+            templateUrl: 'writeRemark.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.data = {
+                    content: oRemark.content
+                };
+                $scope2.cancel = function() { $mi.dismiss(); };
+                $scope2.ok = function() {
+                    var content;
+                    if (window.tmsEditor && window.tmsEditor.finish) {
+                        content = window.tmsEditor.finish();
+                        $scope2.data.content = content;
+                        $mi.close({ content: content });
+                    }
+                };
+            }],
+            windowClass: 'modal-remark auto-height',
+            backdrop: 'static',
+        }).result.then(function(data) {
+            http2.post(LS.j('remark/update', 'site') + '&remark=' + oRemark.id, { content: data.content }).then(function(rsp) {
+                oRemark.content = data.content;
+            });
+        });
+    };
+    $scope.removeRemark = function(oRemark) {
+        noticebox.confirm('撤销留言，确定？').then(function() {
+            http2.post(LS.j('remark/remove', 'site') + '&remark=' + oRemark.id).then(function(rsp) {
+                $scope.remarks.splice($scope.remarks.indexOf(oRemark), 1);
+            });
+        });
+    };
+    $scope.agreeRemark = function(oRemark, value) {
+        var url;
+        if (oRemark.agreed !== value) {
+            url = LS.j('remark/agree', 'site');
+            url += '&remark=' + oRemark.id;
+            url += '&value=' + value;
+            http2.get(url).then(function(rsp) {
+                oRemark.agreed = rsp.data;
+            });
+        }
+    };
+    $scope.likeRemark = function(oRemark) {
+        if ($scope.setOperateLimit('like')) {
+            var url;
+            url = LS.j('remark/like', 'site');
+            url += '&remark=' + oRemark.id;
+            http2.get(url).then(function(rsp) {
+                oRemark.like_log = rsp.data.like_log;
+                oRemark.like_num = rsp.data.like_num;
+            });
+        }
+    };
+    $scope.dislikeRemark = function(oRemark) {
+        if ($scope.setOperateLimit('like')) {
+            var url;
+            url = LS.j('remark/dislike', 'site');
+            url += '&remark=' + oRemark.id;
+            http2.get(url).then(function(rsp) {
+                oRemark.dislike_log = rsp.data.dislike_log;
+                oRemark.dislike_num = rsp.data.dislike_num;
+            });
+        }
+    };
+    $scope.shareRemark = function(oRemark) {
+        var url;
+        url = LS.j('', 'site', 'app', 'ek') + '&remark=' + oRemark.id + '&page=share';
         if (shareby) {
             url += '&shareby=' + shareby;
         }
         location.href = url;
     };
-    $scope.assocMatter = function(oItem) {
-        enlAssoc.assocMatter($scope.user, $scope.record, { id: oItem.id, type: 'data' }).then(function(oAssoc) {
-            var oCachedAssoc;
-            oCachedAssoc = $scope.assocs;
-            if (oCachedAssoc.data === undefined)
-                oCachedAssoc.data = {};
-            if (oCachedAssoc.data[oItem.id] === undefined)
-                oCachedAssoc.data[oItem.id] = [];
-            oCachedAssoc.data[oItem.id].push(oAssoc);
-        });
-    };
-    $scope.removeItemAssoc = function(oItem, oAssoc) {
-        noticebox.confirm('取消关联，确定？').then(function() {
-            http2.get(LS.j('assoc/unlink', 'site') + '&assoc=' + oAssoc.id).then(function() {
-                $scope.assocs.data[oItem.id].splice($scope.assocs.data[oItem.id].indexOf(oAssoc), 1);
-            });
-        });
-    };
-    $scope.$watch('record', function(oRecord) {
-        if (oRecord) {
-            $scope.constraint = $scope.ruleCowork(oRecord);
-        }
-        var oActionRule;
-        if ($scope.app) {
-            if (oActionRule = $scope.app.actionRule) {
-                if (oActionRule.cowork && oActionRule.cowork.submit && oActionRule.cowork.submit.pre && oActionRule.cowork.submit.pre.editor) {
-                    if (!$scope.user.is_editor || $scope.user.is_editor !== 'Y') {
-                        $scope.canSubmitCowork = false;
-                    }
+    $scope.writeRemark = function(oUpperRemark) {
+        if (oUpperRemark) {
+            writeRemark(oUpperRemark);
+        } else {
+            if (!oType) {
+                writeRemark();
+            } else {
+                switch (oType) {
+                    case 'record':
+                        writeRemark();
+                        break;
+                    case 'coworkData':
+                        writeItemRemark(oData);
+                        break;
+                    default:
+                        break;
                 }
             }
         }
-    }, true);
+    };
+    var oType, oData;
+    $scope.$watch('transferParam', function(nv) {
+        if (!nv) { return false; }
+        $scope.transferType = oType = nv[0];
+        $scope.transferData = oData = nv[1];
+        switch (oType) {
+            case 'record':
+                listRemarks('record');
+                break;
+            case 'coworkData':
+                listRemarks('coworkData', oData);
+                break;
+            default:
+                break;
+        }
+    });
+    if ($scope.fileName == 'remark') {
+        $scope.$watch('record', function(oRecord) {
+            if (oRecord) {
+                listRemarks();
+            }
+        }, true);
+    }
 }]);

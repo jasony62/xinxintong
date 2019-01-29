@@ -248,7 +248,10 @@ class main extends \site\fe\base {
 
 		/* cookie中保留注册信息 */
 		$modelWay = $this->model('site\fe\way');
-		$modelWay->shiftRegUser($oTargetRegAnt);
+		$aResult = $modelWay->shiftRegUser($oTargetRegAnt);
+		if (false === $aResult[0]) {
+			return new \ResponseError($aResult[1]);
+		}
 
 		return new \ResponseData($oTargetRegAnt);
 	}

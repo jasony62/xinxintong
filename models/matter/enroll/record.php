@@ -82,7 +82,6 @@ class record_model extends record_base {
 
 		/* 记录和轮次的关系 */
 		$oNewRec = (object) $aNewRec;
-		$modelRnd->createRecord($oNewRec);
 
 		return $oNewRec;
 	}
@@ -255,7 +254,7 @@ class record_model extends record_base {
 			$oRecord->verbose = $this->model('matter\enroll\data')->byRecord($oRecord->enroll_key);
 		}
 		if (!empty($oRecord->rid)) {
-			if ($oRound = $this->model('matter\enroll\round')->byId($oRecord->rid, ['fields' => 'title,state,start_at,end_at,purpose'])) {
+			if ($oRound = $this->model('matter\enroll\round')->byId($oRecord->rid, ['fields' => 'id,rid,title,state,start_at,end_at,purpose'])) {
 				$oRecord->round = $oRound;
 			} else {
 				$oRecord->round = new \stdClass;
@@ -399,13 +398,13 @@ class record_model extends record_base {
 	 *
 	 * @param string $roundId
 	 */
-	public function &byRound($roundId, $aOptions = []) {
+	public function byRound($rid, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		if ($fields === 'count(*)') {
 			$q = [
 				'count(*)',
 				'xxt_enroll_record',
-				["state" => 1, "rid" => $roundId],
+				['state' => 1, 'rid' => $rid],
 			];
 			$cnt = (int) $this->query_val_ss($q);
 
@@ -414,9 +413,8 @@ class record_model extends record_base {
 			$q = [
 				$fields,
 				'xxt_enroll_record',
-				["state" => 1, "rid" => $roundId],
+				['state' => 1, 'rid' => $rid],
 			];
-
 			$q2 = ['o' => 'enroll_at desc'];
 
 			$list = $this->query_objs_ss($q, $q2);
@@ -515,7 +513,7 @@ class record_model extends record_base {
 		$q = [
 			$fields,
 			'xxt_enroll_record',
-			["state" => 1, 'rid' => $oRound->rid, "userid" => $userid],
+			['state' => 1, 'rid' => $oRound->rid, "userid" => $userid],
 		];
 		$q2 = ['o' => 'enroll_at desc', 'r' => ['o' => 0, 'l' => 1]];
 
@@ -597,29 +595,18 @@ class record_model extends record_base {
 		if (empty($oCriteria->record->rid)) {
 			if (!empty($oApp->appRound->rid)) {
 				$rid = $oApp->appRound->rid;
-				//$w .= " and (r.rid='$rid'";
-				$w .= " and (exists(select 1 from xxt_enroll_record_round rrnd where rrnd.rid='$rid' and rrnd.enroll_key=r.enroll_key)";
-				if (isset($oOptions->regardRemarkRoundAsRecordRound) && $oOptions->regardRemarkRoundAsRecordRound === true) {
-					$w .= " or exists(select 1 from xxt_enroll_record_remark rr where rr.aid=r.aid and rr.enroll_key=r.enroll_key and rr.rid='$rid')";
-				}
-				$w .= ')';
+				$w .= " and (r.rid='$rid')";
 			}
 		} else {
 			if (is_string($oCriteria->record->rid)) {
 				if (strcasecmp('all', $oCriteria->record->rid) !== 0) {
 					$rid = $oCriteria->record->rid;
-					//$w .= " and (r.rid='$rid'";
-					$w .= " and (exists(select 1 from xxt_enroll_record_round rrnd where rrnd.rid='$rid' and rrnd.enroll_key=r.enroll_key)";
-					if (isset($oOptions->regardRemarkRoundAsRecordRound) && $oOptions->regardRemarkRoundAsRecordRound === true) {
-						$w .= " or exists(select 1 from xxt_enroll_record_remark rr where rr.aid=r.aid and rr.enroll_key=r.enroll_key and rr.rid='$rid')";
-					}
-					$w .= ')';
+					$w .= " and (r.rid='$rid')";
 				}
 			} else if (is_array($oCriteria->record->rid)) {
 				if (empty(array_intersect(['all', 'ALL'], $oCriteria->record->rid))) {
 					$rid = $oCriteria->record->rid;
-					//$w .= " and r.rid in('" . implode("','", $rid) . "')";
-					$w .= " and exists(select 1 from xxt_enroll_record_round rrnd where rrnd.rid in('" . implode("','", $rid) . "') and rrnd.enroll_key=r.enroll_key)";
+					$w .= " and r.rid in('" . implode("','", $rid) . "')";
 				}
 			}
 		}
@@ -863,7 +850,6 @@ class record_model extends record_base {
 			foreach ($oApp->dynaDataSchemas as $oSchema) {
 				if ($oSchema->type == 'shorttext' && isset($oSchema->format) && $oSchema->format === 'number') {
 					$bRequireScore = true;
-					break;
 				}
 				if (!empty($oSchema->visibility->rules)) {
 					$visibilitySchemas[] = $oSchema;
@@ -1012,7 +998,7 @@ class record_model extends record_base {
 					if (!isset($modelRnd)) {
 						$modelRnd = $this->model('matter\enroll\round');
 					}
-					$round = $modelRnd->byId($oRec->rid, ['fields' => 'title,purpose,start_at,end_at,state']);
+					$round = $modelRnd->byId($oRec->rid, ['fields' => 'rid,title,purpose,start_at,end_at,state']);
 					$aRoundsById[$oRec->rid] = $round;
 				} else {
 					$round = $aRoundsById[$oRec->rid];

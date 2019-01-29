@@ -30,7 +30,7 @@ class schema_model extends \TMS_MODEL {
 	 * mschema_id 通讯录id
 	 */
 	public function purify($aAppSchemas) {
-		$validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'shareable', 'supplement', 'history', 'historyAssoc', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'hideByRoundPurpose', 'optGroups', 'defaultValue', 'cowork', 'filterWhiteSpace', 'ops', 'mschema_id', 'asdir', 'scoreApp'];
+		$validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'limitChoice', 'range', 'required', 'unique', 'shareable', 'supplement', 'history', 'historyAssoc', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'hideByRoundPurpose', 'optGroups', 'defaultValue', 'cowork', 'filterWhiteSpace', 'ops', 'mschema_id', 'asdir', 'scoreApp', 'rankScoreAbove'];
 		$validPropsBySchema = [
 			'html' => ['id', 'type', 'content', 'title', 'visibility', 'hideByRoundPurpose'],
 		];
@@ -304,6 +304,10 @@ class schema_model extends \TMS_MODEL {
 					break;
 				}
 			}
+			/* 是否参与打分排名 */
+			if (isset($oSchema->rankScoreAbove) && !is_numeric($oSchema->rankScoreAbove)) {
+				unset($oSchema->rankScoreAbove);
+			}
 
 			$purified[] = $oSchema;
 		}
@@ -353,7 +357,7 @@ class schema_model extends \TMS_MODEL {
 
 		$weight = $oSchema->weight;
 		if (is_numeric($weight)) {
-			return $weight * $x;
+			return [true, $weight * $x];
 		}
 		$aOptimizedFormulas = (isset($oContext->optimizedFormulas) && is_array($oContext->optimizedFormulas)) ? $oContext->optimizedFormulas : null;
 
@@ -529,11 +533,11 @@ class schema_model extends \TMS_MODEL {
 	 * 设置活动动态题目
 	 *
 	 * @param object $oApp
-	 * @param object $oAppRound
+	 * @param object $oTask
 	 *
 	 * @return object $oApp
 	 */
-	public function setDynaSchemas(&$oApp) {
+	public function setDynaSchemas(&$oApp, $oTask = null) {
 		if (empty($oApp->appRound)) {
 			$modelRnd = $this->model('matter\enroll\round');
 			$oAppRound = $modelRnd->getActive($oApp, ['fields' => 'id,rid,title,start_at,end_at,mission_rid']);
@@ -587,7 +591,7 @@ class schema_model extends \TMS_MODEL {
 		};
 
 		/* 根据填写数据生成题目 */
-		$fnMakeDynaSchemaByData = function ($oSchema, $oDsAppRnd, $schemaIndex, &$dynaSchemasByIndex) {
+		$fnMakeDynaSchemaByData = function ($oSchema, $oDsAppRnd, $schemaIndex, &$dynaSchemasByIndex, $oTask = null) {
 			/* 如果题目本身是动态题目，需要先生成题目 */
 			$targetSchemas = [];
 			if (!empty($oSchema->dsSchema->app->id)) {
@@ -620,7 +624,10 @@ class schema_model extends \TMS_MODEL {
 					$q[2]['multitext_seq'] = (object) ['op' => '>', 'pat' => 0];
 				}
 				/* 设置轮次条件 */
-				if (!empty($oDsAppRnd)) {
+				if (!empty($oTask)) {
+					$oTopic = $this->model('matter\enroll\topic', $oTargetApp)->byTask($oTask, ['createIfNone' => false]);
+					$q[2]['record_id'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_topic_record tr where ((tr.data_id=0 and t0.record_id=tr.record_id) or (tr.data_id<>0 and tr.data_id=t0.id)) and tr.topic_id=' . $oTopic->id];
+				} else if (!empty($oDsAppRnd)) {
 					/* 如果被评论了，作为当前轮次 */
 					$q[2]['rid'] = (object) ['op' => 'or', 'pat' => ["rid='{$oDsAppRnd->rid}'", "exists (select 1 from xxt_enroll_record_remark rr where t0.enroll_key=rr.enroll_key and rr.state=1 and rr.rid='{$oDsAppRnd->rid}')"]];
 				}
@@ -850,11 +857,15 @@ class schema_model extends \TMS_MODEL {
 			}
 			if (!empty($oSchema->dsSchema->app->id) && !empty($oSchema->dsSchema->schema->id) && !empty($oSchema->dsSchema->schema->type)) {
 				$oDsSchema = $oSchema->dsSchema;
-				if (!empty($oAppRound->mission_rid)) {
-					if (!isset($modelRnd)) {
-						$modelRnd = $this->model('matter\enroll\round');
-					}
+				if (!isset($modelRnd)) {
+					$modelRnd = $this->model('matter\enroll\round');
+				}
+				if (isset($oTask)) {
+					$oDsAppRnd = $modelRnd->byTask($oDsSchema->app, $oTask);
+				} else if (!empty($oAppRound->mission_rid)) {
 					$oDsAppRnd = $modelRnd->byMissionRid($oDsSchema->app, $oAppRound->mission_rid, ['fields' => 'rid,mission_rid']);
+				}
+				if (!empty($oDsAppRnd)) {
 					switch ($oDsSchema->schema->type) {
 					case 'shorttext':
 					case 'longtext':
@@ -866,7 +877,7 @@ class schema_model extends \TMS_MODEL {
 						}
 						break;
 					case 'multitext':
-						$fnMakeDynaSchemaByData($oSchema, $oDsAppRnd, $schemaIndex, $dynaSchemasByIndex);
+						$fnMakeDynaSchemaByData($oSchema, $oDsAppRnd, $schemaIndex, $dynaSchemasByIndex, $oTask);
 						break;
 					case 'score':
 						$fnMakeDynaSchemaByScore($oSchema, $oDsAppRnd, $schemaIndex, $dynaSchemasByIndex);

@@ -1,6 +1,56 @@
 <div class="col-md-8 col-md-offset-2">
     <uib-tabset active="tabActive">
         <uib-tab index="1">
+            <uib-tab-heading>目标</uib-tab-heading>
+            <div class='panel panel-default' ng-controller="ctrlTaskBaseline">
+                <div class='panel-body'>
+                    <div class='list-group'>
+                        <div class='list-group-item' ng-repeat="config in configs">
+                            <div class='form-group'>
+                                <div class='form-inline'>
+                                    <span>开始设置时间</span>
+                                    <select class='form-control' ng-model="config.start.time.mode">
+                                        <option value=''>不设置</option>>
+                                        <option value='after_round_start_at'>目标轮次开始时间后</option>
+                                    </select>
+                                    <select class='form-control' ng-model="config.start.time.unit">
+                                        <option value=''>不设置</option>>
+                                        <option value='hour'>小时</option>
+                                    </select>
+                                    <input type='text' class='form-control' ng-model="config.start.time.value" placeholder="输入需要的时间">
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <div class='form-inline'>
+                                    <span>结束设置时间</span>
+                                    <select class='form-control' ng-model="config.end.time.mode">
+                                        <option value=''>不设置</option>>
+                                        <option value='after_round_start_at'>目标轮次开始时间后</option>
+                                    </select>
+                                    <select class='form-control' ng-model="config.end.time.unit">
+                                        <option value=''>不设置</option>>
+                                        <option value='hour'>小时</option>
+                                    </select>
+                                    <input type='text' class='form-control' ng-model="config.end.time.value" placeholder="输入需要的时间">
+                                </div>
+                            </div>
+                            <hr>
+                            <div class='form-inline'>
+                                <div class="checkbox">
+                                    <input type='checkbox' bs-switch switch-label-width="2em" switch-on-text="启用" switch-off-text="停用" ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'">
+                                </div>
+                                <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
+                                <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class='btn btn-default' ng-click="addConfig()">添加设置目标环节</button>
+                    </div>
+                </div>
+            </div>
+        </uib-tab>
+        <uib-tab index="2">
             <uib-tab-heading>提问</uib-tab-heading>
             <div class='panel panel-default' ng-controller="ctrlTaskQuestion">
                 <div class='panel-body'>
@@ -53,8 +103,13 @@
                                 </div>
                             </div>
                             <hr>
-                            <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
-                            <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
+                            <div class='form-inline'>
+                                <div class="checkbox">
+                                    <input type='checkbox' bs-switch switch-label-width="2em" switch-on-text="启用" switch-off-text="停用" ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'">
+                                </div>
+                                <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
+                                <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
+                            </div>
                         </div>
                     </div>
                     <div>
@@ -63,7 +118,7 @@
                 </div>
             </div>
         </uib-tab>
-        <uib-tab index="2">
+        <uib-tab index="3">
             <uib-tab-heading>回答</uib-tab-heading>
             <div class='panel panel-default' ng-controller="ctrlTaskAnswer">
                 <div class='panel-body'>
@@ -79,13 +134,26 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class='form-group'>
+                                <label>投票对象</label>
+                                <div>
+                                    <label class='radio-inline'><input name='answerSourceScope' type='radio' ng-value ng-model="config.source.scope"> 任务轮次范围内</label>
+                                    <label class='radio-inline'><input name='answerSourceScope' type='radio' value='vote' ng-model="config.source.scope"> 同轮次投票任务</label>
+                                </div>
+                            </div>
+                            <div class='form-group' ng-if="config.source.scope==='vote'">
+                                <label>提问任务</label>
+                                <div>
+                                    <label class='radio-inline' ng-repeat="vc in app.voteConfig"><input name='answerSourceTask' type='radio' value='{{vc.id}}' ng-model="config.source.config"> 任务：<span>#{{::$index+1}}</span></label>
+                                </div>
+                            </div>
                             <hr>
                             <div class='form-group'>
                                 <label>符合回答条件的提问</label>
                                 <div class='form-inline'>
                                     <div class='form-group'>
                                         <label>条件类型</label>
-                                        <select class='form-control' ng-model="config.target.mode">
+                                        <select class='form-control' ng-model="config.source.limit.mode">
                                             <option value=''>无限制</option>
                                             <option value='vote'>获得的投票数超过</option>
                                             <option value='vote_rank'>获得的投票数排序前</option>
@@ -95,11 +163,11 @@
                                     </div>
                                     <div class='form-group'>
                                         <label>要求数量</label>
-                                        <input type='text' class='form-control' ng-model="config.target.num">
+                                        <input type='text' class='form-control' ng-model="config.source.limit.min">
                                     </div>
                                 </div>
                                 <div>
-                                    <div tms-array-checkbox model="config.target.groups">
+                                    <div tms-array-checkbox model="config.source.limit.groups">
                                         <div class='checkbox' ng-repeat="group in app.groups">
                                             <label class='checkbox-inline'>
                                                 <input type='checkbox' value='{{::group.round_id}}'><span>{{::group.title}}</span>
@@ -156,8 +224,13 @@
                                 </div>
                             </div>
                             <hr>
-                            <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
-                            <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
+                            <div class='form-inline'>
+                                <div class="checkbox">
+                                    <input type='checkbox' bs-switch switch-label-width="2em" switch-on-text="启用" switch-off-text="停用" ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'">
+                                </div>
+                                <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
+                                <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
+                            </div>
                         </div>
                     </div>
                     <div>
@@ -166,7 +239,7 @@
                 </div>
             </div>
         </uib-tab>
-        <uib-tab index="3">
+        <uib-tab index="4">
             <uib-tab-heading>投票</uib-tab-heading>
             <div class='panel panel-default' ng-controller="ctrlTaskVote">
                 <div class='panel-body'>
@@ -180,6 +253,19 @@
                                             <input type='checkbox' value='{{::schema.id}}'><span>{{::schema.title}}</span>
                                         </label>
                                     </div>
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <label>投票对象</label>
+                                <div>
+                                    <label class='radio-inline'><input name='voteSourceScope' type='radio' ng-value ng-model="config.source.scope"> 任务轮次范围内</label>
+                                    <label class='radio-inline'><input name='voteSourceScope' type='radio' value='question' ng-model="config.source.scope"> 同轮次提问任务</label>
+                                </div>
+                            </div>
+                            <div class='form-group' ng-if="config.source.scope==='question'">
+                                <label>提问任务</label>
+                                <div>
+                                    <label class='radio-inline' ng-repeat="qc in app.questionConfig"><input name='voteSourceTask' type='radio' value='{{qc.id}}' ng-model="config.source.config"> 任务：<span>#{{::$index+1}}</span></label>
                                 </div>
                             </div>
                             <hr>
@@ -230,8 +316,13 @@
                                 </div>
                             </div>
                             <hr>
-                            <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
-                            <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
+                            <div class='form-inline'>
+                                <div class="checkbox">
+                                    <input type='checkbox' bs-switch switch-label-width="2em" switch-on-text="启用" switch-off-text="停用" ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'">
+                                </div>
+                                <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
+                                <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
+                            </div>
                         </div>
                     </div>
                     <div>
@@ -240,7 +331,7 @@
                 </div>
             </div>
         </uib-tab>
-        <uib-tab index="4">
+        <uib-tab index="5">
             <uib-tab-heading>打分</uib-tab-heading>
             <div class='panel panel-default' ng-controller="ctrlTaskScore">
                 <div class='panel-body'>
@@ -254,6 +345,19 @@
                                             <input type='checkbox' value='{{::schema.id}}'><span>{{::schema.title}}</span>
                                         </label>
                                     </div>
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <label>打分对象</label>
+                                <div>
+                                    <label class='radio-inline'><input name='scoreSourceScope' type='radio' ng-value ng-model="config.source.scope"> 任务轮次范围内</label>
+                                    <label class='radio-inline'><input name='scoreSourceScope' type='radio' value='answer' ng-model="config.source.scope"> 同轮次回答任务</label>
+                                </div>
+                            </div>
+                            <div class='form-group' ng-if="config.source.scope==='answer'">
+                                <label>回答任务</label>
+                                <div>
+                                    <label class='radio-inline' ng-repeat="ac in app.answerConfig"><input name='scoreSourceTask' type='radio' value='{{ac.id}}' ng-model="config.source.config"> 任务：<span>#{{::$index+1}}</span></label>
                                 </div>
                             </div>
                             <hr>
@@ -309,8 +413,13 @@
                                 </div>
                             </div>
                             <hr>
-                            <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
-                            <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
+                            <div class='form-inline'>
+                                <div class="checkbox">
+                                    <input type='checkbox' bs-switch switch-label-width="2em" switch-on-text="启用" switch-off-text="停用" ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'">
+                                </div>
+                                <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
+                                <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
+                            </div>
                         </div>
                     </div>
                     <div>

@@ -51,13 +51,13 @@ class main extends base {
 		}
 
 		/* 返回记录活动页面 */
-		if (in_array($page, ['cowork', 'share', 'event', 'kanban', 'rank', 'score', 'votes', 'marks', 'repos', 'favor', 'topic', 'stat'])) {
+		if (in_array($page, ['cowork', 'share', 'task', 'event', 'kanban', 'rank', 'score', 'votes', 'marks', 'repos', 'favor', 'topic', 'stat'])) {
 			if ($page === 'topic' && empty($topic)) {
 				$this->outputError('参数不完整，无法访问专题页');
 				exit;
 			}
 			if (in_array($page, ['topic', 'share']) && !empty($topic)) {
-				$modelTop = $this->model('matter\enroll\topic');
+				$modelTop = $this->model('matter\enroll\topic', $oApp);
 				$oTopic = $modelTop->byId($topic, ['fields' => 'id,state,title']);
 				if ($oTopic && $oTopic->state === '1') {
 					$title = $oTopic->title . '|';
@@ -88,7 +88,7 @@ class main extends base {
 				$this->_pageReadlog($oApp, $oOpenPage->name, $rid, $ek, $topic);
 			}
 			\TPL::assign('title', $oApp->title);
-			if (in_array($oOpenPage->name, ['event', 'kanban', 'rank', 'score', 'votes', 'marks', 'repos', 'favor', 'topic', 'stat'])) {
+			if (in_array($oOpenPage->name, ['task', 'event', 'kanban', 'rank', 'score', 'votes', 'marks', 'repos', 'favor', 'topic', 'stat'])) {
 				$outputUrl = '/site/fe/matter/enroll/' . $oOpenPage->name;
 			} else if ($oOpenPage->type === 'I') {
 				$outputUrl = '/site/fe/matter/enroll/input';
@@ -132,7 +132,7 @@ class main extends base {
 			$upUserData = new \stdClass;
 			$upUserData->do_topic_read_num = 1;
 			// 查询专题页创建者
-			$creater = $this->model('matter\enroll\topic')->byId($topic, ['fields' => 'userid uid,nickname']);
+			$creater = $this->model('matter\enroll\topic', $oApp)->byId($topic, ['fields' => 'userid uid,nickname']);
 			if ($creater) {
 				$upCreaterData = new \stdClass;
 				$upCreaterData->topic_read_num = 1;
@@ -261,9 +261,10 @@ class main extends base {
 	 * @param string $rid
 	 * @param string $page page's name
 	 * @param string $ek record's enroll key
+	 * @param int $task 活动任务id
 	 *
 	 */
-	public function get_action($app, $rid = '', $page = null, $ek = null, $ignoretime = 'N', $cascaded = 'N') {
+	public function get_action($app, $rid = '', $page = null, $ek = null, $ignoretime = 'N', $cascaded = 'N', $task = null) {
 		$params = []; // 返回的结果
 		/* 要打开的记录 */
 		$modelRec = $this->model('matter\enroll\record');
@@ -271,7 +272,13 @@ class main extends base {
 			$oOpenedRecord = $modelRec->byId($ek, ['verbose' => 'Y', 'state' => 1]);
 		}
 		/* 要打开的应用 */
-		$oApp = $this->modelApp->byId($app, ['cascaded' => $cascaded, 'fields' => '*', 'appRid' => empty($oOpenedRecord->rid) ? $rid : $oOpenedRecord->rid]);
+		$aOptions = ['cascaded' => $cascaded, 'fields' => '*', 'appRid' => empty($oOpenedRecord->rid) ? $rid : $oOpenedRecord->rid];
+		if (!empty($task)) {
+			if ($oTask = $this->model('matter\enroll\task')->byId($task)) {
+				$aOptions['task'] = $oTask;
+			}
+		}
+		$oApp = $this->modelApp->byId($app, $aOptions);
 		if ($oApp === false || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
@@ -310,7 +317,7 @@ class main extends base {
 		}
 
 		/* 要打开的页面 */
-		if (!in_array($page, ['event', 'kanban', 'repos', 'cowork', 'share', 'rank', 'score', 'votes', 'marks', 'favor', 'topic', 'stat'])) {
+		if (!in_array($page, ['task', 'event', 'kanban', 'repos', 'cowork', 'share', 'rank', 'score', 'votes', 'marks', 'favor', 'topic', 'stat'])) {
 			$modelPage = $this->model('matter\enroll\page');
 			$oUserEnrolled = $modelRec->lastByUser($oApp, $oUser, ['rid' => $rid]);
 			/* 计算打开哪个页面 */

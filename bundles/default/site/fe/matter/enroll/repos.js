@@ -4002,7 +4002,7 @@ exports = module.exports = __webpack_require__(0)(undefined);
 
 
 // module
-exports.push([module.i, "img{max-width:100%}hr{margin:12px 0 12px}p{word-break:break-all}blockquote{font-size:16px;margin-bottom:8px}button.option{padding:0}.navbar-header .page-title{display:inline-block}.navbar-header .page-title .notice-count{display:inline-block;background:red;color:#fff;line-height:14px;min-width:14px;border-radius:7px;font-size:8px;vertical-align:middle;margin-left:4px}.navbar-header .page-title .caret{margin-left:4px}.tms-nav-target .btn .notice-count{background:red;color:#fff;line-height:14px;min-width:14px;border-radius:7px;font-size:8px;vertical-align:middle;margin-left:4px}body.enroll-repos{display:flex;flex-direction:column}body.enroll-repos .app{flex-grow:1;display:flex;flex-direction:column}body.enroll-repos .app .row{flex-grow:1;display:flex}body.enroll-repos .app .row .main{flex-grow:1;display:flex;flex-direction:column}body.enroll-repos .app .row .main #repos{flex-grow:1;display:flex;flex-direction:column;overflow-y:auto}#advCriteria{width:200px;height:100%;padding:0;cursor:pointer;z-index:3}#advCriteria .tree{border-radius:3px;margin-bottom:8px;border:1px solid #d3d3d3}#advCriteria .tree .notClick{pointer-events:none;opacity:.5}#advCriteria .tree .tree-header{height:28px;padding:6px 10px;line-height:26px;font-weight:700;font-size:16px;background-color:#f1f1f1;border-bottom:1px solid #d3d3d3;box-sizing:content-box}#advCriteria .tree .tree-body{width:100%;height:45vh;color:#000;background-color:#fff;position:relative}#advCriteria .tree .tree-body *{box-sizing:content-box}#advCriteria .tree .tree-body .tree-wrap{height:100%;overflow:hidden}#advCriteria .tree .tree-body .tree-wrap .tree-inner{margin-right:-25px;padding-right:25px;overflow-y:auto;height:100%}#advCriteria .tree .tree-body .tree-wrap .item{height:26px;line-height:26px;font-size:16px;padding:6px 10px}#advCriteria .tree .tree-body .tree-wrap .item .item-label{width:90%;height:100%;float:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#advCriteria .tree .tree-body .tree-wrap .item .item-icon{float:right;margin-top:4px}#advCriteria .tree .tree-body .tree-wrap .item.active{color:#ff8018}#advCriteria .tree .tree-body .tree-wrap .item-children{position:absolute;top:-1px;left:100%;width:200px;height:100%;background-color:#fff;border:1px solid #d3d3d3}#advCriteria .tree .tree-body .tree-wrap .tree-bottom{width:100%;text-align:center;position:absolute;bottom:0;background:#f1f1f1}#filterQuick{margin-bottom:3px;position:relative;background-color:#fff}#filterQuick>*{display:inline-block}#filterQuick .glyphicon-menu-up{transform:rotate(-180deg)}#filterQuick .site-dropdown.open .glyphicon-menu-up,#filterQuick.uib-dropdown-open>.pull-right .glyphicon-menu-up{transform:rotate(0)}#filterQuick .site-dropdown{display:inline-block;background-color:#fff}#filterQuick .site-dropdown .site-dropdown-title{display:block;padding:0 10px;font-size:14px;color:#333;min-height:40px;line-height:40px}#filterQuick .site-dropdown a:focus,#filterQuick .site-dropdown a:hover{text-decoration:none}#filterQuick .site-dropdown a.active{color:#ff8018}#filterQuick .site-dropdown-list{width:100%!important;right:0!important;left:auto!important;background-color:#f5f5f5;padding:0}#filterQuick .site-dropdown-list .dropdown-search{position:relative}#filterQuick .site-dropdown-list .dropdown-search .btn{position:absolute;top:0;right:0}#filterQuick .site-dropdown-list .dropdown-list-wrapper{width:100%;height:25rem;overflow:hidden}#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset{display:flex;height:100%}#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset>*{overflow-y:auto;border:0 transparent}#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .nav-pills{width:8rem}#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .nav-pills a{color:#333}#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .nav-pills div.checked{color:#ff8018}#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .nav-pills div.checked:after{content:'.';color:#ff8018;position:absolute;top:0;left:5px;font-size:20px}#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .nav-pills li.active a,#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .nav-pills li.active a:focus,#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .nav-pills li.active a:hover{color:#ff8018;background-color:#fff}#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .tab-content{flex:1;background-color:#fff}#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .tab-content .site-list-group-item{border:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .tab-content .site-list-group-item:first-child{border-top-left-radius:0;border-top-right-radius:0}#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .tab-content .site-list-group-item.active,#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .tab-content .site-list-group-item.active:focus,#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .tab-content .site-list-group-item.active:hover{color:#ff8018;background-color:#fff;border-color:#fff}#filterQuick .site-dropdown-list .dropdown-list-btn{width:100%;display:flex}#filterQuick .site-dropdown-list .dropdown-list-btn button{flex:1}#filterTip{margin:4px 8px;padding:4px 0}#filterTip>*{display:inline-block;padding:4px 8px}#filterTip>* .close{margin-left:4px}#filterTip>*+*{margin-left:4px}.record,.topic{background:#fff;border-bottom:1px solid #ddd;padding:8px 16px}.record>*{margin:8px 0}.record .data blockquote .schema+.schema{margin-top:8px;padding-top:8px;border-top:1px dashed #ddd}.record .data blockquote .schema>div+div{margin-top:4px}.record .data .datetime{font-size:.8em}.record .tags>button+button{margin-left:4px}.record .remarks{font-size:.9em;border-top:1px dashed #ddd;margin-top:16px;padding:1rem 0 0 2rem;position:relative}.record .remarks:before{position:absolute;left:50%;margin-left:-2em;top:-.7em;color:#999}.record .remarks .remark .top-bar{display:flex}.record .remarks .remark .top-bar>:first-child{flex:1}.record .remarks .remark+.remark{margin-bottom:1em}.record .remarks.agreed:before{content:'\\63A8\\8350\\7559\\8A00'}.record .remarks.round:before{content:'\\8F6E\\6B21\\7559\\8A00'}.top-bar{display:flex}.top-bar .seq{margin-right:8px}.top-bar .label{padding-top:.3em}.top-bar .nickname{flex-grow:1;text-align:left;font-size:.9em}.top-bar>*+*{padding-left:8px}.data-title:before{content:' ';display:inline-block;width:12px;height:12px;border-top:6px solid #fff;border-right:6px solid #fff;border-bottom:6px solid #fff;border-left:6px solid #ff8018}.bottom-bar{display:flex;align-items:center;font-size:.9em;color:#777}.bottom-bar>*+*{margin-left:16px}.bottom-bar>*+* .like{color:#ff8018}.bottom-bar>:first-child{flex:1}.bottom-bar a{text-decoration:none;color:#777}.bottom-bar .btn-default{color:#777}.bottom-bar .dropdown button{border:0}.tag{background:#3af;padding:4px 6px;margin:4px;border-radius:2px;font-size:.8em;color:#fff}#favorGuide{position:fixed;align-items:center;z-index:1051;width:100%;bottom:0;display:flex;border:1px solid #bce8f1;background:#d9edf7;padding:8px 16px;color:#31708f}#favorGuide>:first-child{flex-grow:1}#favorGuide>:last-child{margin-left:4px}.navbar.site-navbar-tab{min-height:unset;border-bottom:0}.navbar.site-navbar-tab .navbar-nav{float:left;margin:0}.navbar.site-navbar-tab .navbar-nav>li{float:left}.navbar.site-navbar-tab .navbar-btn{margin:0}#cowork,#record,#remarks{padding:16px;background:#fff}#record .title{margin:0 -1rem .5rem -1rem;background:#ddd;padding:.5rem 1rem;border-bottom:1px solid #ccc}#record .title .dropdown-menu{right:0;left:auto;min-width:auto}#record .data blockquote>div+div{margin-top:8px}#record .assocs,#record .tags{margin-top:8px}#record .tags>button+button{margin-left:4px}#record .assocs>div{padding:8px 0}#record .assocs>div .assoc-reason{border:1px solid #ccc;border-radius:4px;margin-right:8px;padding:0 4px}#record .assocs>div .assoc-text{cursor:pointer}#cowork{position:relative;margin-top:1rem}#cowork .item{position:relative;transition:background 1s}#cowork .blink{background:#d9edf7}#cowork .assocs>div{padding:8px 0}#cowork .assocs>div .assoc-reason{border:1px solid #ccc;border-radius:4px;margin-right:8px;padding:0 4px}#cowork .assocs>div .assoc-text{cursor:pointer}#remarks{position:relative;margin-top:3rem}#remarks:before{content:'\\7559\\8A00';position:absolute;left:50%;margin-left:-1em;top:-2em;font-size:.7em;color:#eee;padding:.2em 1em;background:#666;border-radius:1em}#remarks .remarkList{background:#fff;min-height:167px;margin-bottom:30px}#remarks .remark{position:relative;background:#fff;border-bottom:1px solid #ddd;transition:background 1s;padding:8px 0}#remarks .remark:last-child{border-bottom:0}#remarks .remark>*{margin:1em 0 .2em}#remarks .blink{background:#d9edf7}#remarks .form-control{border-radius:0}.modal-edit-topic .record{padding-left:0;padding-right:0}.tms-editor{position:absolute;top:8px;bottom:8px;left:8px;right:8px;display:flex;flex-direction:column}.tms-editor>:first-child{position:relative;flex-grow:1;margin-bottom:8px;border:1px solid #ddd;border-radius:4px;overflow-y:auto}.tms-editor>:first-child iframe{display:block;width:100%;border:0}@media screen and (max-width:768px){.site-navbar-default{margin-bottom:0}#advCriteria{position:absolute;top:34px;right:0;margin-top:1px;width:300px;height:auto;background:#fff;padding:0 0 8px;border:1px solid #ccc;border-top:0;z-index:1000}#advCriteria .tree .tree-body .tree-wrap .item-children{position:static;left:0;width:100%;border:none}#advCriteria .tree .tree-body .item-2,#advCriteria .tree .tree-body .item-3,#advCriteria .tree .tree-body .item-4,#advCriteria .tree .tree-body .item-5{margin-left:1em}.app .main.col-xs-12,.app .tags.col-xs-12,.app .topics.col-xs-12{padding:0}#filterCriteria{margin-left:-1px;margin-right:-1px}#filterCriteria .form-control,#filterCriteria .input-group-btn .btn{border-radius:0}}", ""]);
+exports.push([module.i, "img{max-width:100%}hr{margin:12px 0 12px}p{word-break:break-all}blockquote{font-size:16px;margin-bottom:8px}button.option{padding:0}.navbar-header .page-title{display:inline-block}.navbar-header .page-title .notice-count{display:inline-block;background:red;color:#fff;line-height:14px;min-width:14px;border-radius:7px;font-size:8px;vertical-align:middle;margin-left:4px}.navbar-header .page-title .caret{margin-left:4px}.tms-nav-target .btn .notice-count{background:red;color:#fff;line-height:14px;min-width:14px;border-radius:7px;font-size:8px;vertical-align:middle;margin-left:4px}body.enroll-repos{display:flex;flex-direction:column}body.enroll-repos .app{flex-grow:1;display:flex;flex-direction:column}body.enroll-repos .app .row{flex-grow:1;display:flex}body.enroll-repos .app .row .main{flex-grow:1;display:flex}body.enroll-repos .app .row .main .wrap{flex-grow:1;display:flex;flex-direction:column}body.enroll-repos .app .row .main .wrap #repos{flex-grow:1;display:flex;flex-direction:column;overflow-y:auto}#advCriteria{width:200px;height:100%;padding:0;cursor:pointer;z-index:3}#advCriteria .tree{border-radius:3px;margin-bottom:8px;border:1px solid #d3d3d3}#advCriteria .tree .notClick{pointer-events:none;opacity:.5}#advCriteria .tree .tree-header{height:28px;padding:6px 10px;line-height:26px;font-weight:700;font-size:16px;background-color:#f1f1f1;border-bottom:1px solid #d3d3d3;box-sizing:content-box}#advCriteria .tree .tree-body{width:100%;height:45vh;color:#000;background-color:#fff;position:relative}#advCriteria .tree .tree-body *{box-sizing:content-box}#advCriteria .tree .tree-body .tree-wrap{height:100%;overflow:hidden}#advCriteria .tree .tree-body .tree-wrap .tree-inner{margin-right:-25px;padding-right:25px;overflow-y:auto;height:100%}#advCriteria .tree .tree-body .tree-wrap .item{height:26px;line-height:26px;font-size:16px;padding:6px 10px}#advCriteria .tree .tree-body .tree-wrap .item .item-label{width:90%;height:100%;float:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#advCriteria .tree .tree-body .tree-wrap .item .item-icon{float:right;margin-top:4px}#advCriteria .tree .tree-body .tree-wrap .item.active{color:#ff8018}#advCriteria .tree .tree-body .tree-wrap .item-children{position:absolute;top:-1px;left:100%;width:200px;height:100%;background-color:#fff;border:1px solid #d3d3d3}#advCriteria .tree .tree-body .tree-wrap .tree-bottom{width:100%;text-align:center;position:absolute;bottom:0;background:#f1f1f1}#filterQuick{margin-bottom:3px;position:relative;background-color:#fff}#filterQuick>*{display:inline-block}#filterQuick .glyphicon-menu-up{transform:rotate(-180deg)}#filterQuick .site-dropdown.open .glyphicon-menu-up,#filterQuick.uib-dropdown-open>.pull-right .glyphicon-menu-up{transform:rotate(0)}#filterQuick .site-dropdown{display:inline-block;background-color:#fff}#filterQuick .site-dropdown .site-dropdown-title{display:block;padding:0 10px;font-size:14px;color:#333;min-height:40px;line-height:40px}#filterQuick .site-dropdown a:focus,#filterQuick .site-dropdown a:hover{text-decoration:none}#filterQuick .site-dropdown a.active{color:#ff8018}#filterQuick .site-dropdown-list{width:100%!important;right:0!important;left:auto!important;background-color:#f5f5f5;padding:0}#filterQuick .site-dropdown-list .dropdown-search{position:relative}#filterQuick .site-dropdown-list .dropdown-search .btn{position:absolute;top:0;right:0}#filterQuick .site-dropdown-list .dropdown-list-wrapper{width:100%;height:25rem;overflow:hidden}#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset{display:flex;height:100%}#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset>*{overflow-y:auto;border:0 transparent}#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .nav-pills{width:8rem}#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .nav-pills a{color:#333}#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .nav-pills div.checked{color:#ff8018}#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .nav-pills div.checked:after{content:'.';color:#ff8018;position:absolute;top:0;left:5px;font-size:20px}#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .nav-pills li.active a,#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .nav-pills li.active a:focus,#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .nav-pills li.active a:hover{color:#ff8018;background-color:#fff}#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .tab-content{flex:1;background-color:#fff}#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .tab-content .site-list-group-item{border:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .tab-content .site-list-group-item:first-child{border-top-left-radius:0;border-top-right-radius:0}#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .tab-content .site-list-group-item.active,#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .tab-content .site-list-group-item.active:focus,#filterQuick .site-dropdown-list .dropdown-list-wrapper .site-tabset .tab-content .site-list-group-item.active:hover{color:#ff8018;background-color:#fff;border-color:#fff}#filterQuick .site-dropdown-list .dropdown-list-btn{width:100%;display:flex}#filterQuick .site-dropdown-list .dropdown-list-btn button{flex:1}#filterTip{margin:4px 8px;padding:4px 0}#filterTip>*{display:inline-block;padding:4px 8px}#filterTip>* .close{margin-left:4px}#filterTip>*+*{margin-left:4px}.record,.topic{background:#fff;border-bottom:1px solid #ddd;padding:8px 16px}.record>*{margin:8px 0}.record .data blockquote .schema+.schema{margin-top:8px;padding-top:8px;border-top:1px dashed #ddd}.record .data blockquote .schema>div+div{margin-top:4px}.record .data .datetime{font-size:.8em}.record .tags>button+button{margin-left:4px}.record .remarks{font-size:.9em;border-top:1px dashed #ddd;margin-top:16px;padding:1rem 0 0 2rem;position:relative}.record .remarks:before{position:absolute;left:50%;margin-left:-2em;top:-.7em;color:#999}.record .remarks .remark .top-bar{display:flex}.record .remarks .remark .top-bar>:first-child{flex:1}.record .remarks .remark+.remark{margin-bottom:1em}.record .remarks.agreed:before{content:'\\63A8\\8350\\7559\\8A00'}.record .remarks.round:before{content:'\\8F6E\\6B21\\7559\\8A00'}.top-bar{display:flex}.top-bar .seq{margin-right:8px}.top-bar .label{padding-top:.3em}.top-bar .nickname{flex-grow:1;text-align:left;font-size:.9em}.top-bar>*+*{padding-left:8px}.data-title:before{content:' ';display:inline-block;width:12px;height:12px;border-top:6px solid #fff;border-right:6px solid #fff;border-bottom:6px solid #fff;border-left:6px solid #ff8018}.bottom-bar{display:flex;align-items:center;font-size:.9em;color:#777}.bottom-bar>*+*{margin-left:16px}.bottom-bar>*+* .like{color:#ff8018}.bottom-bar>:first-child{flex:1}.bottom-bar a{text-decoration:none;color:#777}.bottom-bar .btn-default{color:#777}.bottom-bar .dropdown button{border:0}.tag{background:#3af;padding:4px 6px;margin:4px;border-radius:2px;font-size:.8em;color:#fff}#favorGuide{position:fixed;align-items:center;z-index:1051;width:100%;bottom:0;display:flex;border:1px solid #bce8f1;background:#d9edf7;padding:8px 16px;color:#31708f}#favorGuide>:first-child{flex-grow:1}#favorGuide>:last-child{margin-left:4px}.navbar.site-navbar-tab{min-height:unset;border-bottom:0}.navbar.site-navbar-tab .navbar-nav{float:left;margin:0}.navbar.site-navbar-tab .navbar-nav>li{float:left}.navbar.site-navbar-tab .navbar-btn{margin:0}#cowork,#record,#remarks{padding:16px;background:#fff}#record .title{margin:0 -1rem .5rem -1rem;background:#ddd;padding:.5rem 1rem;border-bottom:1px solid #ccc}#record .title .dropdown-menu{right:0;left:auto;min-width:auto}#record .data blockquote>div+div{margin-top:8px}#record .assocs,#record .tags{margin-top:8px}#record .tags>button+button{margin-left:4px}#record .assocs>div{padding:8px 0}#record .assocs>div .assoc-reason{border:1px solid #ccc;border-radius:4px;margin-right:8px;padding:0 4px}#record .assocs>div .assoc-text{cursor:pointer}#cowork{position:relative;margin-top:1rem}#cowork .item{position:relative;transition:background 1s}#cowork .blink{background:#d9edf7}#cowork .assocs>div{padding:8px 0}#cowork .assocs>div .assoc-reason{border:1px solid #ccc;border-radius:4px;margin-right:8px;padding:0 4px}#cowork .assocs>div .assoc-text{cursor:pointer}#remarks{position:relative;margin-top:3rem}#remarks:before{content:'\\7559\\8A00';position:absolute;left:50%;margin-left:-1em;top:-2em;font-size:.7em;color:#eee;padding:.2em 1em;background:#666;border-radius:1em}#remarks .remarkList{background:#fff;min-height:167px;margin-bottom:30px}#remarks .remark{position:relative;background:#fff;border-bottom:1px solid #ddd;transition:background 1s;padding:8px 0}#remarks .remark:last-child{border-bottom:0}#remarks .remark>*{margin:1em 0 .2em}#remarks .blink{background:#d9edf7}#remarks .form-control{border-radius:0}.modal-edit-topic .record{padding-left:0;padding-right:0}.tms-editor{position:absolute;top:8px;bottom:8px;left:8px;right:8px;display:flex;flex-direction:column}.tms-editor>:first-child{position:relative;flex-grow:1;margin-bottom:8px;border:1px solid #ddd;border-radius:4px;overflow-y:auto}.tms-editor>:first-child iframe{display:block;width:100%;border:0}@media screen and (max-width:768px){.site-navbar-default{margin-bottom:0}#advCriteria{position:absolute;top:34px;right:0;margin-top:1px;width:300px;height:auto;background:#fff;padding:0 0 8px;border:1px solid #ccc;border-top:0;z-index:1000}#advCriteria .tree .tree-body .tree-wrap .item-children{position:static;left:0;width:100%;border:none}#advCriteria .tree .tree-body .item-2,#advCriteria .tree .tree-body .item-3,#advCriteria .tree .tree-body .item-4,#advCriteria .tree .tree-body .item-5{margin-left:1em}.app .main.col-xs-12,.app .tags.col-xs-12,.app .topics.col-xs-12{padding:0}#filterCriteria{margin-left:-1px;margin-right:-1px}#filterCriteria .form-control,#filterCriteria .input-group-btn .btn{border-radius:0}}", ""]);
 
 // exports
 
@@ -4636,24 +4636,302 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.activeDirSchemas = _activeDirSchemas = {};
     $scope.hasCowork = false;
-    $scope.appendToEle = angular.element(document.querySelector('#filterQuick'));
-    $scope.tabs = [{ 'title':'记录', 'id':'record', 'url':'/views/default/site/fe/matter/enroll/template/repos-recordSchema.html' }];
+    $scope.tabs = [{ 'title': '记录', 'id': 'record', 'url': '/views/default/site/fe/matter/enroll/template/repos-recordSchema.html' }];
     $scope.selectedTab = $scope.tabs[0];
     $scope.tabClick = function(view) {
         $scope.selectedTab = view;
     }
+    $scope.addRecord = function(event) {
+        $scope.$parent.addRecord(event);
+    };
+    $scope.dirClicked = function(oDir, active) {
+        if ($scope.selectedTab.id !== 'topic') {
+            $scope.$broadcast('to-child', { 0: oDir, 1: active });
+        }
+    };
+    /* 关闭任务提示 */
+    $scope.closeTask = function(index) {
+        $scope.tasks.splice(index, 1);
+    };
+    $scope.gotoTask = function(oTask) {
+        if (oTask && oTask.topic && oTask.topic.id)
+            location.href = LS.j('', 'site', 'app') + '&topic=' + oTask.topic.id + '&page=topic';
+    };
+    $scope.advCriteriaStatus = {
+        opened: !$scope.isSmallLayout,
+        dirOpen: false
+    };
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        var tasks, popActs;
+        _oApp = params.app;
+        if (window.sessionStorage.length) {
+            var cacheData, _cPage;
+            cacheData = JSON.parse(window.sessionStorage.listStorage);
+            $scope.tasks = cacheData.tasks;
+            $scope.tabs = cacheData.tabs;
+            $scope.selectedTab = cacheData.selectedTab;
+            $scope.rounds = cacheData.rounds;
+            $scope.topics = cacheData.topics;
+            $scope.schemas = cacheData.schemas;
+            $scope.dirSchemas = cacheData.dirSchemas;
+            $scope.activeDirSchemas = cacheData.currentDirs;
+            if ($scope.dirSchemas && $scope.dirSchemas.length) {
+                $scope.advCriteriaStatus.dirOpen = true;
+            }
+        } else {
+            if (_oApp.actionRule) {
+                /* 设置活动任务提示 */
+                http2.get(LS.j('event/task', 'site', 'app')).then(function(rsp) {
+                    if (rsp.data && rsp.data.length) {
+                        rsp.data.forEach(function(oRule) {
+                            if (!oRule._ok) {
+                                tasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, gap: oRule._no ? oRule._no[0] : 0, coin: oRule.coin ? oRule.coin : 0 });
+                            }
+                        });
+                    }
+                });
+            }
+            new enlTask($scope.app).list(null, 'IP').then(function(ipTasks) {
+                if (ipTasks.length) {
+                    ipTasks.forEach(function(oTask) {
+                        switch (oTask.type) {
+                            case 'question':
+                                tasks.push({ type: 'info', msg: oTask.toString(), id: 'record.data.question', data: oTask });
+                                break;
+                            case 'answer':
+                                tasks.push({ type: 'info', msg: oTask.toString(), id: 'record.data.answer', data: oTask });
+                                break;
+                            case 'vote':
+                                tasks.push({ type: 'info', msg: oTask.toString(), id: 'record.data.vote', data: oTask });
+                                popActs.push('voteRecData');
+                                break;
+                            case 'score':
+                                tasks.push({ type: 'info', msg: oTask.toString(), id: 'record.data.score', data: oTask });
+                                popActs.push('scoreSchema');
+                                break;
+                        }
+                    });
+                }
+            });
+            $scope.tasks = tasks = [];
+            $scope.facRound = _facRound = new enlRound(_oApp);
+            _facRound.list().then(function(result) {
+                $scope.rounds = result.rounds;
+            });
+            _oApp.dynaDataSchemas.forEach(function(oSchema) {
+                if (oSchema.shareable && oSchema.shareable === 'Y') {
+                    _oShareableSchemas[oSchema.id] = oSchema;
+                }
+                if (Object.keys(oSchema).indexOf('cowork') !== -1 && oSchema.cowork === 'Y') {
+                    $scope.hasCowork = true;
+                    $scope.tabs[0].title = '问题';
+                    $scope.tabs.push({ 'title': '答案', 'id': 'coworkData', 'url': '/views/default/site/fe/matter/enroll/template/repos-coworkSchema.html' });
+                }
+            });
+            /* 共享专题 */
+            http2.get(LS.j('topic/listPublic', 'site', 'app')).then(function(rsp) {
+                if (rsp.data && rsp.data.topics && rsp.data.topics.length) {
+                    $scope.topics = rsp.data.topics;
+                    $scope.tabs.push({ 'title': '专题', 'id': 'topic', 'url': '/views/default/site/fe/matter/enroll/template/repos-publicTopic.html' });
+                }
+            });
+            /* 作为分类目录的题目 */
+            http2.get(LS.j('repos/dirSchemasGet', 'site', 'app')).then(function(rsp) {
+                $scope.dirSchemas = rsp.data;
+                if ($scope.dirSchemas && $scope.dirSchemas.length) {
+                    $scope.advCriteriaStatus.dirOpen = true;
+                }
+            });
+
+        }
+        /* 活动任务 */
+        if (_oApp.actionRule) {
+            /* 开启协作填写需要的点赞数 */
+            if (_oApp.actionRule.record && _oApp.actionRule.record.cowork && _oApp.actionRule.record.cowork.pre) {
+                if (_oApp.actionRule.record.cowork.pre.record && _oApp.actionRule.record.cowork.pre.record.likeNum !== undefined) {
+                    _coworkRequireLikeNum = parseInt(_oApp.actionRule.record.cowork.pre.record.likeNum);
+                }
+            }
+        }
+        if (_oApp.reposConfig && _oApp.reposConfig.defaultOrder) {
+            _oCriteria.orderby = _oApp.reposConfig.defaultOrder;
+        }
+
+        /* 设置页面分享信息 */
+        $scope.setSnsShare(null, null, { target_type: 'repos', target_id: _oApp.id });
+        /* 设置页面操作 */
+        popActs = ['addRecord'];
+        $scope.setPopAct(popActs, 'repos', {
+            func: {
+                voteRecData: $scope.voteRecData,
+                scoreSchema: $scope.scoreSchema,
+            }
+        });
+        /* 设置页面导航 */
+        $scope.setPopNav(['rank', 'kanban', 'event', 'favor', 'task'], 'repos');
+        /* 页面阅读日志 */
+        $scope.logAccess({ target_type: 'repos', target_id: _oApp.id });
+        /* 用户信息 */
+        enlService.user().then(function(data) {
+            $scope.user = _oUser = data;
+            var groupOthersById = {};
+            if (data.groupOthers && data.groupOthers.length) {
+                data.groupOthers.forEach(function(oOther) {
+                    groupOthersById[oOther.userid] = oOther;
+                });
+            }
+            $scope.groupOthers = groupOthersById;
+        });
+    });
+}]);
+ngApp.controller('ctrlRecordSchema', ['$scope', '$timeout', '$q', 'http2', 'tmsLocation', 'picviewer', 'enlAssoc', function($scope, $timeout, $q, http2, LS, picviewer, enlAssoc) {
+    function fnGetCriteria(datas) {
+        $scope.singleFilters = [];
+        $scope.multiFilters = [];
+        angular.forEach(datas, function(data, index) {
+            _oCriteria[data.type] = data.default.id;
+            if (data.type === 'orderby') {
+                $scope.singleFilters.push(data);
+            } else {
+                $scope.multiFilters.push(data);
+                _oFilter[data.type] = data.default.id;
+            }
+        });
+    }
+    var _oPage, _oFilter, _oCriteria;
+    $scope.page = _oPage = {};
+    $scope.filter = _oFilter = { isFilter: false };
+    $scope.criteria = _oCriteria = {};
+    $scope.repos = [];
+    $scope.reposLoading = false;
+    $scope.appendToEle = angular.element(document.querySelector('#filterQuick'));
+    $scope.getCriteria = function() {
+        var url;
+        url = LS.j('repos/criteriaGet', 'site', 'app') + '&viewType=record';
+        http2.get(url).then(function(rsp) {
+            if (rsp.data) {
+                fnGetCriteria(rsp.data);
+            }
+            $scope.recordList(1);
+        });
+    };
+    $scope.recordList = function(pageAt) {
+        var url, deferred;
+        deferred = $q.defer();
+
+        pageAt ? _oPage.at = pageAt : _oPage.at++;
+        if (_oPage.at == 1) {
+            $scope.repos = [];
+            _oPage.total = 0;
+        }
+        url = LS.j('repos/recordList', 'site', 'app');
+        $scope.reposLoading = true;
+        http2.post(url, _oCriteria, { page: _oPage }).then(function(result) {
+            if (result.data.records) {
+                result.data.records.forEach(function(oRecord) {
+                    $scope.repos.push(oRecord);
+                });
+            }
+            $timeout(function() {
+                var imgs;
+                if (imgs = document.querySelectorAll('.data img')) {
+                    picviewer.init(imgs);
+                }
+            });
+            $scope.reposLoading = false;
+            deferred.resolve(result);
+        });
+
+        return deferred.promise;
+    };
+    $scope.dirClicked = function(oDir, active) {
+        _oCriteria.data = {};
+        if (oDir) {
+            _oCriteria.data[oDir.schema_id] = oDir.op.v;
+        }
+        $scope.activeDirSchemas = _activeDirSchemas = active;
+        $scope.recordList(1);
+    };
+    $scope.shiftMenu = function(criteria) {
+        _oCriteria[criteria.type] = criteria.id;
+        $scope.recordList(1);
+    };
+    $scope.confirm = function(filterOpt) {
+        $scope.recordList(1).then(function() {
+            http2.get(LS.j('repos/criteriaGet', 'site', 'app')).then(function(rsp) {
+                if (rsp.data) {
+                    var _oNew = [];
+                    angular.forEach(rsp.data, function(data) {
+                        if (data.type === 'orderby' || data.type === 'coworkAgreed') {
+                            return false;
+                        } else {
+                            _oNew.push(data);
+                        }
+                    });
+                    http2.merge($scope.multiFilters, _oNew);
+                }
+            });
+        });
+    };
+    $scope.shiftTip = function(type) {
+        _oCriteria[type] = _oFilter[type] = null;
+
+        function objectKeyIsNull(obj) {
+            var empty = null;
+            for (var i in obj) {
+                if (i !== 'isFilter' && i !== 'tags') {
+                    if (obj[i] === null) {
+                        empty = true;
+                    } else {
+                        empty = false;
+                        break;
+                    }
+                }
+
+            }
+            return empty;
+        }
+        if (objectKeyIsNull(_oFilter)) {
+            _oFilter.isFilter = false;
+        }
+        $scope.recordList(1);
+    };
+    $scope.shiftTag = function(oTag, bToggle) {
+        if (bToggle) {
+            if (!_oFilter.tags) {
+                _oFilter.tags = [oTag];
+            } else {
+                if (_oFilter.tags.indexOf(oTag) === -1) {
+                    _oFilter.tags.push(oTag);
+                }
+            }
+            if (!_oCriteria.tags) {
+                _oCriteria.tags = [oTag.tag_id];
+            } else {
+                if (_oCriteria.tags.indexOf(oTag.tag_id) === -1) {
+                    _oCriteria.tags.push(oTag.tag_id);
+                }
+            }
+        } else {
+            _oFilter.tags.splice(_oFilter.tags.indexOf(oTag), 1);
+            _oCriteria.tags.splice(_oFilter.tags.indexOf(oTag.tag_id), 1);
+        }
+        $scope.recordList(1);
+    };
+
     function addToCache() {
         sessionStorage.setItem('listStorageY', document.getElementById('repos').scrollTop);
         var cacheData = {
             'singleFilters': $scope.singleFilters,
             'multiFilters': $scope.multiFilters,
-            'tabs': $scope.tabs,
-            'selectedTab': $scope.selectedTab,
-            'tasks': $scope.tasks,
             'page': $scope.page,
             'currentFilter': $scope.filter,
             'currentCriteria': $scope.criteria,
+            'tabs': $scope.tabs,
+            'selectedTab': $scope.selectedTab,
+            'schemas': $scope.schemas,
             'rounds': $scope.rounds,
+            'tasks': $scope.tasks,
             'topics': $scope.topics,
             'dirSchemas': $scope.dirSchemas,
             'currentDirs': $scope.activeDirSchemas
@@ -4669,6 +4947,15 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         url = LS.j('', 'site', 'app');
         url += '&ek=' + oRecord.enroll_key;
         url += '&page=cowork';
+        location.href = url;
+    };
+    $scope.shareRecord = function(oRecord) {
+        var url, shareby;
+        url = LS.j('', 'site', 'app') + '&ek=' + oRecord.enroll_key + '&page=share';
+        shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
+        if (shareby) {
+            url += '&shareby=' + shareby;
+        }
         location.href = url;
     };
     $scope.favorStack = {
@@ -4749,18 +5036,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             $scope.favorStack.end();
         }
     };
-    $scope.shareRecord = function(oRecord) {
-        var url, shareby;
-        url = LS.j('', 'site', 'app') + '&ek=' + oRecord.enroll_key + '&page=share';
-        shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
-        if (shareby) {
-            url += '&shareby=' + shareby;
-        }
-        location.href = url;
-    };
-    $scope.addRecord = function(event) {
-        $scope.$parent.addRecord(event);
-    };
     $scope.editRecord = function(event, oRecord) {
         if (oRecord.userid !== _oUser.uid) {
             noticebox.warn('不允许编辑其他用户提交的记录');
@@ -4779,6 +5054,116 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     $scope.copyRecord = function(event, oRecord) {
         enlAssoc.copy($scope.app, { id: oRecord.id, type: 'record' });
     };
+    $scope.spyRecordsScroll = true; // 监控滚动事件
+    $scope.recordsScrollToBottom = function() {
+        if ($scope.repos.length < $scope.page.total) {
+            $scope.recordList().then(function() {
+                $timeout(function() {
+                    if ($scope.repos.length < $scope.page.total) {
+                        $scope.spyRecordsScroll = true;
+                    }
+                });
+            });
+        }
+    };
+    $scope.$on('to-child', function(event, data) {
+        $scope.dirClicked(data[0], data[1]);
+    });
+    if (window.sessionStorage.length) {
+        var cacheData, _cPage;
+        cacheData = JSON.parse(window.sessionStorage.listStorage);
+        $scope.singleFilters = cacheData.singleFilters;
+        $scope.multiFilters = cacheData.multiFilters;
+        $scope.filter = cacheData.currentFilter;
+        $scope.criteria = _oCriteria = cacheData.currentCriteria;
+        _cPage = cacheData.page;
+
+        function _getNewRepos(at) {
+            $scope.recordList(at).then(function() {
+                if (at == _cPage.at) {
+                    $timeout(function() {
+                        document.getElementById('repos').scrollTop = parseInt(window.sessionStorage.listStorageY);
+                        window.sessionStorage.clear();
+                    });
+                }
+            });
+
+        }
+        for (var i = 1; i <= _cPage.at; i++) {
+            _getNewRepos(i);
+        }
+    } else {
+        $scope.getCriteria();
+    }
+}]);
+ngApp.controller('ctrlCoworkSchema', ['$scope', '$timeout', '$q', 'http2', 'tmsLocation', 'picviewer', function($scope, $timeout, $q, http2, LS, picviewer) {
+    function fnGetCriteria(datas) {
+        $scope.singleFilters = [];
+        $scope.multiFilters = [];
+        angular.forEach(datas, function(data, index) {
+            _oCriteria[data.type] = data.default.id;
+            if (data.type === 'orderby') {
+                $scope.singleFilters.push(data);
+            } else {
+                $scope.multiFilters.push(data);
+                _oFilter[data.type] = data.default.id;
+            }
+        });
+    }
+    var _oPage, _oFilter, _oCriteria, _coworkRequireLikeNum;
+    _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
+    $scope.page = _oPage = {};
+    $scope.filter = _oFilter = { isFilter: false };
+    $scope.criteria = _oCriteria = {};
+    $scope.repos = [];
+    $scope.reposLoading = false;
+    $scope.appendToEle = angular.element(document.querySelector('#filterQuick'));
+    $scope.getCriteria = function() {
+        var url;
+        url = LS.j('repos/criteriaGet', 'site', 'app') + '&viewType=coworkData';
+        http2.get(url).then(function(rsp) {
+            if (rsp.data) {
+                fnGetCriteria(rsp.data);
+            }
+            $scope.recordList(1);
+        });
+    };
+    $scope.recordList = function(pageAt) {
+        var url, deferred;
+        deferred = $q.defer();
+
+        pageAt ? _oPage.at = pageAt : _oPage.at++;
+        if (_oPage.at == 1) {
+            $scope.repos = [];
+            _oPage.total = 0;
+        }
+        url = LS.j('repos/coworkDataList', 'site', 'app');
+        $scope.reposLoading = true;
+        http2.post(url, _oCriteria, { page: _oPage }).then(function(result) {
+            if (result.data.recordDatas) {
+                result.data.recordDatas.forEach(function(oRecord) {
+                    if (_coworkRequireLikeNum > oRecord.like_num) {
+                        oRecord._coworkRequireLikeNum = (_coworkRequireLikeNum > oRecord.like_num ? _coworkRequireLikeNum - oRecord.like_num : 0);
+                    }
+                    $scope.repos.push(oRecord);
+                });
+            }
+            $timeout(function() {
+                var imgs;
+                if (imgs = document.querySelectorAll('.data img')) {
+                    picviewer.init(imgs);
+                }
+            });
+            $scope.reposLoading = false;
+            deferred.resolve(result);
+        });
+
+        return deferred.promise;
+    };
+    $scope.shiftMenu = function(criteria) {
+        _oCriteria[criteria.type] = criteria.id;
+        $scope.recordList(1);
+    };
     $scope.confirm = function(filterOpt) {
         $scope.recordList(1).then(function() {
             http2.get(LS.j('repos/criteriaGet', 'site', 'app')).then(function(rsp) {
@@ -4795,10 +5180,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                 }
             });
         });
-    };
-    $scope.shiftMenu = function(criteria) {
-        _oCriteria[criteria.type] = criteria.id;
-        $scope.recordList(1);
     };
     $scope.shiftTip = function(type) {
         _oCriteria[type] = _oFilter[type] = null;
@@ -4822,344 +5203,80 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             _oFilter.isFilter = false;
         }
         $scope.recordList(1);
-    }
-    $scope.shiftTag = function(oTag, bToggle) {
-        if (bToggle) {
-            if (!_oFilter.tags) {
-                _oFilter.tags = [oTag];
-            } else {
-                if (_oFilter.tags.indexOf(oTag) === -1) {
-                    _oFilter.tags.push(oTag);
-                }
-            }
-            if (!_oCriteria.tags) {
-                _oCriteria.tags = [oTag.tag_id];
-            } else {
-                if (_oCriteria.tags.indexOf(oTag.tag_id) === -1) {
-                    _oCriteria.tags.push(oTag.tag_id);
-                }
-            }
-        } else {
-            _oFilter.tags.splice(_oFilter.tags.indexOf(oTag), 1);
-            _oCriteria.tags.splice(_oFilter.tags.indexOf(oTag.tag_id), 1);
-        }
-        $scope.recordList(1);
     };
-    $scope.dirClicked = function(oDir, active) {
-        _oCriteria.data = {};
-        if (oDir) {
-            _oCriteria.data[oDir.schema_id] = oDir.op.v;
-        }
-        $scope.activeDirSchemas = _activeDirSchemas = active;
-        $scope.recordList(1);
-    };
-    /* 关闭任务提示 */
-    $scope.closeTask = function(index) {
-        $scope.tasks.splice(index, 1);
-    };
-    $scope.gotoTask = function(oTask) {
-        if (oTask && oTask.topic && oTask.topic.id)
-            location.href = LS.j('', 'site', 'app') + '&topic=' + oTask.topic.id + '&page=topic';
-    };
-    $scope.advCriteriaStatus = {
-        opened: !$scope.isSmallLayout,
-        dirOpen: false
-    };
-    $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        var tasks, popActs;
-        _oApp = params.app;
-        if (window.sessionStorage.length) {
-            var cacheData, _cPage;
-            cacheData = JSON.parse(sessionStorage.listStorage);
-            $scope.tasks = cacheData.tasks;
-            $scope.singleFilters = cacheData.singleFilters;
-            $scope.multiFilters = cacheData.multiFilters;
-            $scope.tabs = cacheData.tabs;
-            $scope.selectedTab = cacheData.selectedTab;
-            $scope.filter = cacheData.currentFilter;
-            $scope.criteria = _oCriteria = cacheData.currentCriteria;
-            $scope.rounds = cacheData.rounds;
-            $scope.topics = cacheData.topics;
-            $scope.dirSchemas = cacheData.dirSchemas;
-            $scope.activeDirSchemas = cacheData.currentDirs;
-            _cPage = cacheData.page;
-            if ($scope.dirSchemas && $scope.dirSchemas.length) {
-                $scope.advCriteriaStatus.dirOpen = true;
-            }
 
-            function _getNewRepos(at) {
-                $scope.recordList(at).then(function() {
-                    if (at == _cPage.at) {
-                        $timeout(function() {
-                            document.getElementById('repos').scrollTop = parseInt(sessionStorage.listStorageY);
-                            window.sessionStorage.clear();
-                        });
+    function addToCache() {
+        sessionStorage.setItem('listStorageY', document.getElementById('repos').scrollTop);
+        var cacheData = {
+            'singleFilters': $scope.singleFilters,
+            'multiFilters': $scope.multiFilters,
+            'page': $scope.page,
+            'currentFilter': $scope.filter,
+            'currentCriteria': $scope.criteria,
+            'tabs': $scope.tabs,
+            'selectedTab': $scope.selectedTab,
+            'schemas': $scope.schemas,
+            'rounds': $scope.rounds,
+            'tasks': $scope.tasks,
+            'topics': $scope.topics,
+            'dirSchemas': $scope.dirSchemas,
+            'currentDirs': $scope.activeDirSchemas
+        }
+        sessionStorage.setItem('listStorage', JSON.stringify(cacheData));
+    };
+    $scope.remarkRecord = function(oRecord, event) {
+        event.stopPropagation();
+        event.preventDefault();
+
+        addToCache();
+        var url;
+        url = LS.j('', 'site', 'app');
+        url += '&ek=' + oRecord.enroll_key;
+        url += '&page=cowork';
+        location.href = url;
+    };
+    $scope.spyRecordsScroll = true; // 监控滚动事件
+    $scope.recordsScrollToBottom = function() {
+        if ($scope.repos.length < $scope.page.total) {
+            $scope.recordList().then(function() {
+                $timeout(function() {
+                    if ($scope.repos.length < $scope.page.total) {
+                        $scope.spyRecordsScroll = true;
                     }
                 });
-
-            }
-            for (var i = 1; i <= _cPage.at; i++) {
-                _getNewRepos(i);
-            }
-        } else {
-            if (_oApp.actionRule) {
-                /* 设置活动任务提示 */
-                http2.get(LS.j('event/task', 'site', 'app')).then(function(rsp) {
-                    if (rsp.data && rsp.data.length) {
-                        rsp.data.forEach(function(oRule) {
-                            if (!oRule._ok) {
-                                tasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, gap: oRule._no ? oRule._no[0] : 0, coin: oRule.coin ? oRule.coin : 0 });
-                            }
-                        });
-                    }
-                });
-            }
-            new enlTask($scope.app).list(null, 'IP').then(function(ipTasks) {
-                if (ipTasks.length) {
-                    ipTasks.forEach(function(oTask) {
-                        switch (oTask.type) {
-                            case 'question':
-                                tasks.push({ type: 'info', msg: oTask.toString(), id: 'record.data.question', data: oTask });
-                                break;
-                            case 'answer':
-                                tasks.push({ type: 'info', msg: oTask.toString(), id: 'record.data.answer', data: oTask });
-                                break;
-                            case 'vote':
-                                tasks.push({ type: 'info', msg: oTask.toString(), id: 'record.data.vote', data: oTask });
-                                popActs.push('voteRecData');
-                                break;
-                            case 'score':
-                                tasks.push({ type: 'info', msg: oTask.toString(), id: 'record.data.score', data: oTask });
-                                popActs.push('scoreSchema');
-                                break;
-                        }
-                    });
-                }
-            });
-            $scope.tasks = tasks = [];
-            $scope.facRound = _facRound = new enlRound(_oApp);
-            _facRound.list().then(function(result) {
-                $scope.rounds = result.rounds;
-            });
-            /* 共享专题 */
-            http2.get(LS.j('topic/listPublic', 'site', 'app')).then(function(rsp) {
-                if (rsp.data && rsp.data.topics && rsp.data.topics.length) {
-                    $scope.topics = rsp.data.topics;
-                    $scope.tabs.push({ 'title':'专题', 'id':'topic', 'url':'/views/default/site/fe/matter/enroll/template/repos-publicTopic.html' });
-                }
-            });
-            /* 作为分类目录的题目 */
-            http2.get(LS.j('repos/dirSchemasGet', 'site', 'app')).then(function(rsp) {
-                $scope.dirSchemas = rsp.data;
-                if ($scope.dirSchemas && $scope.dirSchemas.length) {
-                    $scope.advCriteriaStatus.dirOpen = true;
-                }
             });
         }
-        /* 活动任务 */
-        if (_oApp.actionRule) {
-            /* 开启协作填写需要的点赞数 */
-            if (_oApp.actionRule.record && _oApp.actionRule.record.cowork && _oApp.actionRule.record.cowork.pre) {
-                if (_oApp.actionRule.record.cowork.pre.record && _oApp.actionRule.record.cowork.pre.record.likeNum !== undefined) {
-                    _coworkRequireLikeNum = parseInt(_oApp.actionRule.record.cowork.pre.record.likeNum);
-                }
-            }
-        }
-        _oApp.dynaDataSchemas.forEach(function(oSchema) {
-            if (oSchema.shareable && oSchema.shareable === 'Y') {
-                _oShareableSchemas[oSchema.id] = oSchema;
-            }
-            if (Object.keys(oSchema).indexOf('cowork') !== -1 && oSchema.cowork === 'Y') {
-                $scope.hasCowork = true;
-                $scope.tabs[0].title = '问题';
-                $scope.tabs.push({ 'title':'答案', 'id':'cowordData', 'url':'/views/default/site/fe/matter/enroll/template/repos-coworkSchema.html' });
-            }
-        });
-        if (_oApp.reposConfig && _oApp.reposConfig.defaultOrder) {
-            _oCriteria.orderby = _oApp.reposConfig.defaultOrder;
-        }
-
-        /* 设置页面分享信息 */
-        $scope.setSnsShare(null, null, { target_type: 'repos', target_id: _oApp.id });
-        /* 设置页面操作 */
-        popActs = ['addRecord'];
-        $scope.setPopAct(popActs, 'repos', {
-            func: {
-                voteRecData: $scope.voteRecData,
-                scoreSchema: $scope.scoreSchema,
-            }
-        });
-        /* 设置页面导航 */
-        $scope.setPopNav(['rank', 'kanban', 'event', 'favor', 'task'], 'repos');
-        /* 页面阅读日志 */
-        $scope.logAccess({ target_type: 'repos', target_id: _oApp.id });
-        /* 用户信息 */
-        enlService.user().then(function(data) {
-            $scope.user = _oUser = data;
-            var groupOthersById = {};
-            if (data.groupOthers && data.groupOthers.length) {
-                data.groupOthers.forEach(function(oOther) {
-                    groupOthersById[oOther.userid] = oOther;
-                });
-            }
-            $scope.groupOthers = groupOthersById;
-        });
+    };
+    $scope.$on('to-child', function(event, data) {
+        $scope.dirClicked(data[0], data[1]);
     });
-
-}]);
-ngApp.controller('ctrlRecordSchema', ['$scope', '$timeout', '$q', 'http2', 'tmsLocation', 'picviewer', function($scope, $timeout, $q, http2, LS, picviewer) {
-    function fnGetCriteria(datas) {
-        $scope.singleFilters = [];
-        $scope.multiFilters = [];
-        angular.forEach(datas, function(data, index) {
-            _oCriteria[data.type] = data.default.id;
-            if (data.type === 'orderby') {
-                $scope.singleFilters.push(data);
-            } else {
-                $scope.multiFilters.push(data);
-                _oFilter[data.type] = data.default.id;
-            }
-        });
-    }
-    var _oPage, _oFilter, _oCriteria;
-    $scope.page = _oPage = {};
-    $scope.filter = _oFilter = { isFilter: false }; 
-    $scope.criteria = _oCriteria = {};
-    $scope.repos = [];
-    $scope.reposLoading = false;
-    $scope.getCriteria = function() {
-        var url;
-        url = LS.j('repos/criteriaGet', 'site', 'app') + '&type=record';
-        http2.get(url).then(function(rsp) {
-            if (rsp.data) {
-                fnGetCriteria(rsp.data);
-            }
-            $scope.recordList(1);
-        });
-    };
-    $scope.recordList = function(pageAt) {
-        var url, deferred;
-        deferred = $q.defer();
-
-        pageAt ? _oPage.at = pageAt : _oPage.at++;
-        if (_oPage.at == 1) {
-            $scope.repos = [];
-            _oPage.total = 0;
-        }
-        url = LS.j('repos/recordList', 'site', 'app');
-        $scope.reposLoading = true;
-        http2.post(url, _oCriteria, { page: _oPage }).then(function(result) {
-            if (result.data.records) {
-                result.data.records.forEach(function(oRecord) {
-                    $scope.repos.push(oRecord);
-                });
-            }
-            $timeout(function() {
-                var imgs;
-                if (imgs = document.querySelectorAll('.data img')) {
-                    picviewer.init(imgs);
-                }
-            });
-            $scope.reposLoading = false;
-            deferred.resolve(result);
-        });
-
-        return deferred.promise;
-    }
-    $scope.spyRecordsScroll = true; // 监控滚动事件
-    $scope.recordsScrollToBottom = function() {
-        if ($scope.repos.length < $scope.page.total) {
-            $scope.recordList().then(function() {
-                $timeout(function() {
-                    if ($scope.repos.length < $scope.page.total) {
-                        $scope.spyRecordsScroll = true;
-                    }
-                });
-            });
-        }
-    };
-    $scope.getCriteria();
-}]);
-ngApp.controller('ctrlCoworkSchema', ['$scope', '$timeout', '$q', 'http2', 'tmsLocation', 'picviewer', function($scope, $timeout, $q, http2, LS, picviewer) {
-    function fnGetCriteria(datas) {
-        $scope.singleFilters = [];
-        $scope.multiFilters = [];
-        angular.forEach(datas, function(data, index) {
-            _oCriteria[data.type] = data.default.id;
-            if (data.type === 'orderby') {
-                $scope.singleFilters.push(data);
-            } else {
-                $scope.multiFilters.push(data);
-                _oFilter[data.type] = data.default.id;
-            }
-        });
-    }
-    var _oPage, _oFilter, _oCriteria, _coworkRequireLikeNum;
-    _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
-    $scope.page = _oPage = {};
-    $scope.filter = _oFilter = { isFilter: false }; 
-    $scope.criteria = _oCriteria = {};
-    $scope.repos = [];
-    $scope.reposLoading = false;
-    $scope.getCriteria = function() {
-        var url;
-        url = LS.j('repos/criteriaGet', 'site', 'app') + '&type=coworkData';
-        http2.get(url).then(function(rsp) {
-            if (rsp.data) {
-                fnGetCriteria(rsp.data);
-            }
-            $scope.recordList(1);
-        });
-    };
-    $scope.recordList = function(pageAt) {
-        var url, deferred;
-        deferred = $q.defer();
-
-        pageAt ? _oPage.at = pageAt : _oPage.at++;
-        if (_oPage.at == 1) {
-            $scope.repos = [];
-            _oPage.total = 0;
-        }
-        url = LS.j('repos/coworkList', 'site', 'app');
-        $scope.reposLoading = true;
-        http2.post(url, _oCriteria, { page: _oPage }).then(function(result) {
-            if (result.data.records) {
-                result.data.records.forEach(function(oRecord) {
-                    if (_coworkRequireLikeNum > oRecord.like_num) {
-                        oRecord._coworkRequireLikeNum = (_coworkRequireLikeNum > oRecord.like_num ? _coworkRequireLikeNum - oRecord.like_num : 0);
-                    }
-                    $scope.repos.push(oRecord);
-                });
-            }
-            $timeout(function() {
-                var imgs;
-                if (imgs = document.querySelectorAll('.data img')) {
-                    picviewer.init(imgs);
-                }
-            });
-            $scope.reposLoading = false;
-            deferred.resolve(result);
-        });
-
-        return deferred.promise;
-    };
-    $scope.spyRecordsScroll = true; // 监控滚动事件
-    $scope.recordsScrollToBottom = function() {
-        if ($scope.repos.length < $scope.page.total) {
-            $scope.recordList().then(function() {
-                $timeout(function() {
-                    if ($scope.repos.length < $scope.page.total) {
-                        $scope.spyRecordsScroll = true;
-                    }
-                });
-            });
-        }
-    };
     $scope.getCriteria();
 }]);
 ngApp.controller('ctrlPublicTopic', ['$scope', 'http2', 'tmsLocation', function($scope, http2, LS) {
-    $scope.gotoTopic = function(oTopic) {
+    function addToCache() {
+        sessionStorage.setItem('listStorageY', document.getElementById('topic').scrollTop);
+        var cacheData = {
+            'tabs': $scope.tabs,
+            'selectedTab': $scope.selectedTab,
+            'schemas': $scope.schemas,
+            'rounds': $scope.rounds,
+            'tasks': $scope.tasks,
+            'topics': $scope.topics,
+            'dirSchemas': $scope.dirSchemas,
+            'currentDirs': $scope.activeDirSchemas
+        }
+        sessionStorage.setItem('listStorage', JSON.stringify(cacheData));
+    };
+    $scope.gotoTopic = function(oTopic, event) {
+        event.stopPropagation();
+        event.preventDefault();
+
+        addToCache();
         location.href = LS.j('', 'site', 'app') + '&topic=' + oTopic.id + '&page=topic';
+    };
+    if (window.sessionStorage.length) {
+        document.getElementById('topic').scrollTop = parseInt(window.sessionStorage.listStorageY);
+        window.sessionStorage.clear();
     };
 }]);
 
@@ -5205,7 +5322,7 @@ module.exports = "<div>\r\n    <div class='site-dropdown' uib-dropdown >\r\n    
 /* 105 */
 /***/ (function(module, exports) {
 
-module.exports = "<div>\r\n    <div class='site-dropdown' uib-dropdown dropdown-append-to='appendToEle' auto-close=\"disabled\" is-open=\"status.isopen\">\r\n        <a href uib-dropdown-toggle class='site-dropdown-title' ng-class=\"{'active':filter.isFilter}\"><i class='glyphicon glyphicon-search'></i></a>\r\n        <ul class='dropdown-menu site-dropdown-list' uib-dropdown-menu>\r\n            <li class='dropdown-search'>\r\n                <input class='form-control' ng-model=\"criteria.keyword\" placeholder='输入搜索关键字' trace-biz>\r\n                <button class='btn btn-default' ng-if=\"criteria.keyword\" ng-click=\"criteria.keyword=''\"><span class='glyphicon glyphicon-remove'></span></button>\r\n            </li>\r\n            <li class='dropdown-list-wrapper'>\r\n                <uib-tabset active=\"0\" type=\"pills\" vertical=\"true\" class='site-tabset'>\r\n                    <uib-tab ng-repeat=\"data in datas\" index=\"$index\" select=\"alertMe($index)\">\r\n                        <uib-tab-heading>\r\n                            <div ng-class=\"{'checked': filter[data.type]!==data.default.id}\" ng-bind=\"data.title\"></div>\r\n                        </uib-tab-heading>\r\n                        <div class='list-group'>\r\n                            <a href class='list-group-item site-list-group-item' ng-repeat=\"menu in data.menus\" ng-class=\"{'active':criteria[data.type]==menu.id}\" ng-click=\"selected(data, menu)\" ng-bind=\"menu.title\"></a>\r\n                        </div>\r\n                    </uib-tab>\r\n                </uib-tabset>\r\n            </li>\r\n            <li class='dropdown-list-btn btn-group'>\r\n                <button class='btn btn-default' ng-click=\"clear()\">清空选项</button>\r\n                <button class='btn btn-default' ng-click=\"ok(filter)\">确认</button>\r\n            </li>\r\n        </ul>\r\n    </div>\r\n</div>"
+module.exports = "<div>\r\n    <div class='site-dropdown' uib-dropdown dropdown-append-to='elem' auto-close=\"disabled\" is-open=\"status.isopen\">\r\n        <a href uib-dropdown-toggle class='site-dropdown-title' ng-class=\"{'active':filter.isFilter}\"><span>筛选 </span><i class=\"glyphicon glyphicon-menu-up\"></i></a>\r\n        <ul class='dropdown-menu site-dropdown-list' uib-dropdown-menu>\r\n            <li class='dropdown-search'>\r\n                <input class='form-control' ng-model=\"criteria.keyword\" placeholder='输入搜索关键字' trace-biz>\r\n                <button class='btn btn-default' ng-if=\"criteria.keyword\" ng-click=\"criteria.keyword=''\"><span class='glyphicon glyphicon-remove'></span></button>\r\n            </li>\r\n            <li class='dropdown-list-wrapper'>\r\n                <uib-tabset active=\"0\" type=\"pills\" vertical=\"true\" class='site-tabset'>\r\n                    <uib-tab ng-repeat=\"data in datas\" index=\"$index\" select=\"alertMe($index)\">\r\n                        <uib-tab-heading>\r\n                            <div ng-class=\"{'checked': filter[data.type]!==data.default.id}\" ng-bind=\"data.title\"></div>\r\n                        </uib-tab-heading>\r\n                        <div class='list-group'>\r\n                            <a href class='list-group-item site-list-group-item' ng-repeat=\"menu in data.menus\" ng-class=\"{'active':criteria[data.type]==menu.id}\" ng-click=\"selected(data, menu)\" ng-bind=\"menu.title\"></a>\r\n                        </div>\r\n                    </uib-tab>\r\n                </uib-tabset>\r\n            </li>\r\n            <li class='dropdown-list-btn btn-group'>\r\n                <button class='btn btn-default' ng-click=\"clear()\">清空选项</button>\r\n                <button class='btn btn-default' ng-click=\"ok(filter)\">确认</button>\r\n            </li>\r\n        </ul>\r\n    </div>\r\n</div>"
 
 /***/ }),
 /* 106 */
@@ -5285,6 +5402,7 @@ ngMod.directive('tmsFilter', ['$templateCache', '$timeout', function($templateCa
         replace: true,
         template: __webpack_require__(105),
         scope: {
+            elem: '=appendToEle',
             datas: '=basicData',
             filter: '=',
             criteria: '=',
@@ -5292,7 +5410,7 @@ ngMod.directive('tmsFilter', ['$templateCache', '$timeout', function($templateCa
         },
         link: function(scope, elems, attrs) {
             scope.status = { isopen: false };
-            scope.appendToEle = scope.$parent.appendToEle;
+            //scope.appendToEle = scope.$parent.appendToEle;
             scope.selected = function(data, menu) {
                 scope.filter[data.type] = menu.id == null ? null : menu;
                 scope.criteria[data.type] = menu.id;

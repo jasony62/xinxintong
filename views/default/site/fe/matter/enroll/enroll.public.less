@@ -78,13 +78,18 @@ body.enroll-repos {
             .main {
                 flex-grow: 1;
                 display: flex;
-                flex-direction: column;
-
-                #repos {
+                
+                .wrap {
                     flex-grow: 1;
                     display: flex;
                     flex-direction: column;
-                    overflow-y: auto;
+
+                    #repos {
+                        flex-grow: 1;
+                        display: flex;
+                        flex-direction: column;
+                        overflow-y: auto;
+                    }
                 }
             }
         }

@@ -1021,22 +1021,9 @@ class data_model extends entity_model {
 		return $oResult;
 	}
 	/**
-	 * 记录清单
-	 *
-	 * @param object/string 记录活动/记录活动的id
-	 * @param object/array $oOptions
-	 * --page
-	 * --size
-	 * --kw 检索关键词
-	 * --by 检索字段
-	 * @param object $oCriteria 记录数据过滤条件
-	 * @param object $oUser ['uid','group_id']
-	 *
-	 * @return object
-	 * records 数据列表
-	 * total 数据总条数
+	 * 答案清单
 	 */
-	public function answerList($oApp, $oOptions = null, $oCriteria = null, $oUser = null) {
+	public function answerByApp($oApp, $oOptions = null, $oCriteria = null, $oUser = null) {
 		if (is_string($oApp)) {
 			$oApp = $this->model('matter\enroll')->byId($oApp, ['cascaded' => 'N']);
 		}

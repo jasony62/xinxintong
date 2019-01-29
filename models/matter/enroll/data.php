@@ -1036,7 +1036,7 @@ class data_model extends entity_model {
 	 * records 数据列表
 	 * total 数据总条数
 	 */
-	public function coworkList($oApp, $oOptions = null, $oCriteria = null, $oUser = null) {
+	public function answerList($oApp, $oOptions = null, $oCriteria = null, $oUser = null) {
 		if (is_string($oApp)) {
 			$oApp = $this->model('matter\enroll')->byId($oApp, ['cascaded' => 'N']);
 		}

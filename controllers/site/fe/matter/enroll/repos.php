@@ -673,7 +673,7 @@ class repos extends base {
 
 		$oEditor = null; // 作为编辑用户的信息
 
-		$oResult = $modelRecDat->coworkList($oApp, $oOptions, $oCriteria, $oUser, 'cowork');
+		$oResult = $modelRecDat->answerList($oApp, $oOptions, $oCriteria, $oUser, 'cowork');
 		if (!empty($oResult->recordDatas)) {
 			$modelData = $this->model('matter\enroll\data');
 			$modelTag = $this->model('matter\enroll\tag2');

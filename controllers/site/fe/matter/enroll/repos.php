@@ -666,7 +666,6 @@ class repos extends base {
 		$oOptions->page = $page;
 		$oOptions->size = $size;
 		$oOptions->regardRemarkRoundAsRecordRound = true; // 将留言的轮次作为记录的轮次
-		$oOptions->joinDataByRecord = true; // 查询record表中的data
 
 		$oPosted = $this->getPostJson();
 		if (!empty($oPosted->orderby)) {
@@ -692,9 +691,9 @@ class repos extends base {
 		// 查询结果
 		$modelRecDat = $this->model('matter\enroll\data');
 		$oCriteria = new \stdClass;
-		$oCriteria->schemaId = $coworkSchemaIds;
-		$oCriteria->onlyMultitextValue = true; // 只获取多项题的值
 		!empty($oPosted->keyword) && $oCriteria->keyword = $oPosted->keyword;
+		// 按指定题的值筛选
+		!empty($oPosted->data) && $oCriteria->data = $oPosted->data;
 
 		$oActionRule = $oApp->actionRule;
 		/* 协作填写显示在共享页所需点赞数量 */
@@ -716,13 +715,13 @@ class repos extends base {
 				$oCriteria->recordData->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
 			} else if ($coworkReposLikeNum) {
 				/* 限制同组数据或赞同数大于等于 */
-				$oCriteria->GroupOrLikeNum = new \stdClass;
-				$oCriteria->GroupOrLikeNum->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
-				$oCriteria->GroupOrLikeNum->like_num = $coworkReposLikeNum;
+				$oCriteria->recordData->GroupOrLikeNum = new \stdClass;
+				$oCriteria->recordData->GroupOrLikeNum->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
+				$oCriteria->recordData->GroupOrLikeNum->like_num = $coworkReposLikeNum;
 			}
 		}
 		/* 指定了分组过滤条件 */
-		if (!isset($oCriteria->recordData->group_id) && !isset($oCriteria->GroupOrLikeNum)) {
+		if (!isset($oCriteria->recordData->group_id) && !isset($oCriteria->recordData->GroupOrLikeNum)) {
 			if (!empty($oPosted->userGroup)) {
 				$oCriteria->recordData->group_id = $oPosted->userGroup;
 			}
@@ -735,12 +734,10 @@ class repos extends base {
 		if (!empty($oPosted->agreed) && stripos($oPosted->agreed, 'all') === false) {
 			$oCriteria->recordData->agreed = $oPosted->agreed;
 		}
-		// 按指定题的值筛选
-		!empty($oPosted->data) && $oCriteria->data = $oPosted->data;
 
 		$oEditor = null; // 作为编辑用户的信息
 
-		$oResult = $modelRecDat->byApp2($oApp, $oOptions, $oCriteria, $oUser, 'cowork');
+		$oResult = $modelRecDat->coworkList($oApp, $oOptions, $oCriteria, $oUser, 'cowork');
 		if (!empty($oResult->recordDatas)) {
 			$modelData = $this->model('matter\enroll\data');
 			$modelTag = $this->model('matter\enroll\tag2');

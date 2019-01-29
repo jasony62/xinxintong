@@ -1012,7 +1012,7 @@ class data_model extends entity_model {
 	 * records 数据列表
 	 * total 数据总条数
 	 */
-	public function byApp2($oApp, $oOptions = null, $oCriteria = null, $oUser = null) {
+	public function coworkList($oApp, $oOptions = null, $oCriteria = null, $oUser = null) {
 		if (is_string($oApp)) {
 			$oApp = $this->model('matter\enroll')->byId($oApp, ['cascaded' => 'N']);
 		}
@@ -1022,18 +1022,23 @@ class data_model extends entity_model {
 		if ($oOptions && is_array($oOptions)) {
 			$oOptions = (object) $oOptions;
 		}
+		// 活动中是否存在协作填写题
+		$oSchemasById = new \stdClass; // 方便查找题目
+		$coworkSchemaIds = [];
+		foreach ($oApp->dynaDataSchemas as $oSchema) {
+			$oSchemasById->{$oSchema->id} = $oSchema;
+			if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
+				$coworkSchemaIds[] = $oSchema->id;
+			}
+		}
+		if (empty($coworkSchemaIds)) {
+			return false;
+		}
 
 		// 指定记录活动下的记录记录
-		$w = "rd.state=1 and rd.aid='{$oApp->id}'";
-		if (!empty($oCriteria->schemaId)) {
-			if (is_array($oCriteria->schemaId)) {
-				$schemaId = implode("','", $oCriteria->schemaId);
-			}
-			$w .= " and rd.schema_id in ('" . $schemaId . "')";
-		}
-		if (!empty($oCriteria->onlyMultitextValue)) {
-			$w .= " and rd.multitext_seq > 0";
-		}
+		$w = "rd.state=1 and rd.aid='{$oApp->id}' and rd.multitext_seq > 0 and rd.value<>''";
+		$coworkSchemaId = implode("','", $coworkSchemaIds);
+		$w .= " and rd.schema_id in ('" . $coworkSchemaId . "')";
 
 		/* 指定轮次，或者当前激活轮次 */
 		if (empty($oCriteria->recordData->rid)) {
@@ -1109,37 +1114,68 @@ class data_model extends entity_model {
 		}
 
 		// 预制条件：指定分组或赞同数大于
-		if (isset($oCriteria->GroupOrLikeNum) && is_object($oCriteria->GroupOrLikeNum)) {
-			if (!empty($oCriteria->GroupOrLikeNum->group_id) && isset($oCriteria->GroupOrLikeNum->like_num)) {
-				$w .= " and (rd.group_id='{$oCriteria->GroupOrLikeNum->group_id}' or rd.like_num>={$oCriteria->GroupOrLikeNum->like_num})";
+		if (isset($oCriteria->recordData->GroupOrLikeNum) && is_object($oCriteria->recordData->GroupOrLikeNum)) {
+			if (!empty($oCriteria->recordData->GroupOrLikeNum->group_id) && isset($oCriteria->recordData->GroupOrLikeNum->like_num)) {
+				$w .= " and (rd.group_id='{$oCriteria->recordData->GroupOrLikeNum->group_id}' or rd.like_num>={$oCriteria->recordData->GroupOrLikeNum->like_num})";
 			}
 		}
 
 		// 指定了按关键字过滤
-		if (empty($oCriteria->keyword)) {
-			$w .= " and rd.value<>''";
-		} else {
-			$w .= " and (rd.value like '%" . $this->escape($oCriteria->keyword) . "%' or rd.supplement like '%" . $this->escape($oCriteria->keyword) . "%')";
+		if (!empty($oCriteria->keyword)) {
+			$w .= " and (r.data like '%{$oCriteria->keyword}%')";
 		}
-
-		if (!empty($oCriteria->data)) {
-			$whereByData = [];
-			foreach ($oCriteria->data as $schId => $v) {
-				$whereByData[] = "(rd2.schema_id = '{$schId}' and rd2.value = '{$v}')";
+		// 指定了记录数据过滤条件
+		if (isset($oCriteria->data)) {
+			$whereByData = '';
+			foreach ($oCriteria->data as $k => $v) {
+				if (!empty($v) && isset($oSchemasById->{$k})) {
+					$oSchema = $oSchemasById->{$k};
+					$whereByData .= ' and (';
+					if ($oSchema->type === 'multiple') {
+						// 选项ID是否互斥，不存在，例如：v1和v11
+						$bOpExclusive = true;
+						$strOpVals = '';
+						foreach ($oSchema->ops as $op) {
+							$strOpVals .= ',' . $op->v;
+						}
+						foreach ($oSchema->ops as $op) {
+							if (false !== strpos($strOpVals, $op->v)) {
+								$bOpExclusive = false;
+								break;
+							}
+						}
+						// 拼写sql
+						$v2 = explode(',', $v);
+						foreach ($v2 as $index => $v2v) {
+							if ($index > 0) {
+								$whereByData .= ' and ';
+							}
+							// 获得和题目匹配的子字符串
+							$dataBySchema = 'substr(substr(r.data,locate(\'"' . $k . '":"\',r.data)),1,locate(\'"\',substr(r.data,locate(\'"' . $k . '":"\',r.data)),' . (strlen($k) + 5) . '))';
+							$whereByData .= '(';
+							if ($bOpExclusive) {
+								$whereByData .= $dataBySchema . ' like \'%' . $v2v . '%\'';
+							} else {
+								$whereByData .= $dataBySchema . ' like \'%"' . $v2v . '"%\'';
+								$whereByData .= ' or ' . $dataBySchema . ' like \'%"' . $v2v . ',%\'';
+								$whereByData .= ' or ' . $dataBySchema . ' like \'%,' . $v2v . ',%\'';
+								$whereByData .= ' or ' . $dataBySchema . ' like \'%,' . $v2v . '"%\'';
+							}
+							$whereByData .= ')';
+						}
+					} else {
+						$whereByData .= 'r.data like \'%"' . $k . '":"' . $v . '"%\'';
+					}
+					$whereByData .= ')';
+				}
 			}
-			$whereByData = implode(' or ', $whereByData);
-			$w .= " and (EXISTS(select 1 from xxt_enroll_record_data rd2 where ({$whereByData}))) and rd2.enroll_key = rd.enroll_key";
+			$w .= $whereByData;
 		}
 
 		// 查询参数
-		$fields = 'rd.id,rd.state,rd.enroll_key,rd.rid,rd.purpose,rd.submit_at enroll_at,rd.userid,rd.group_id,rd.nickname,rd.schema_id,rd.value,rd.score,rd.agreed,rd.like_num,rd.like_log,rd.remark_num,rd.dislike_num,rd.dislike_log';
-		$table = "xxt_enroll_record_data rd";
-
-		if (!empty($oOptions->joinDataByRecord)) {
-			$fields .= ',r.data';
-			$table .= ",xxt_enroll_record r";
-			$w .= " and rd.enroll_key = r.enroll_key and r.state = 1";
-		}
+		$fields = 'r.id,rd.id dataId,rd.enroll_key,rd.rid,rd.purpose,rd.submit_at enroll_at,rd.userid,rd.group_id,rd.nickname,rd.schema_id,rd.value,rd.score,rd.agreed,rd.like_num,rd.like_log,rd.remark_num,rd.dislike_num,rd.dislike_log,r.data';
+		$table = "xxt_enroll_record_data rd,xxt_enroll_record r";
+		$w .= " and rd.enroll_key = r.enroll_key and r.state = 1";
 
 		$q = [$fields, $table, $w];
 		$q2 = [];
@@ -1299,7 +1335,10 @@ class data_model extends entity_model {
 					}
 
 					// 将此答案添加道data中
-					$aRecData->data->{$aRecData->schema_id} = [$aRecData->value];
+					$recData2 = new \stdClass;
+					$recData2->id = $aRecData->dataId;
+					$recData2->value = $aRecData->value;
+					$aRecData->data->{$aRecData->schema_id} = [$recData2];
 					unset($aRecData->value);
 				}
 			}

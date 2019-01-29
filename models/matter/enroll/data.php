@@ -1068,29 +1068,18 @@ class data_model extends entity_model {
 		if (empty($oCriteria->recordData->rid)) {
 			if (!empty($oApp->appRound->rid)) {
 				$rid = $oApp->appRound->rid;
-				//$w .= " and (r.rid='$rid'";
-				$w .= " and (exists(select 1 from xxt_enroll_record_round rrnd where rrnd.rid='$rid' and rrnd.enroll_key=rd.enroll_key)";
-				if (isset($oOptions->regardRemarkRoundAsRecordRound) && $oOptions->regardRemarkRoundAsRecordRound === true) {
-					$w .= " or exists(select 1 from xxt_enroll_record_remark rr where rr.aid=rd.aid and rr.enroll_key=rd.enroll_key and rr.rid='$rid')";
-				}
-				$w .= ')';
+				$w .= " and (rd.rid='$rid')";
 			}
 		} else {
 			if (is_string($oCriteria->recordData->rid)) {
 				if (strcasecmp('all', $oCriteria->recordData->rid) !== 0) {
 					$rid = $oCriteria->recordData->rid;
-					//$w .= " and (r.rid='$rid'";
-					$w .= " and (exists(select 1 from xxt_enroll_record_round rrnd where rrnd.rid='$rid' and rrnd.enroll_key=rd.enroll_key)";
-					if (isset($oOptions->regardRemarkRoundAsRecordRound) && $oOptions->regardRemarkRoundAsRecordRound === true) {
-						$w .= " or exists(select 1 from xxt_enroll_record_remark rr where rr.aid=rd.aid and rr.enroll_key=rd.enroll_key and rr.rid='$rid')";
-					}
-					$w .= ')';
+					$w .= " and (rd.rid='$rid')";
 				}
 			} else if (is_array($oCriteria->recordData->rid)) {
 				if (empty(array_intersect(['all', 'ALL'], $oCriteria->recordData->rid))) {
 					$rid = $oCriteria->recordData->rid;
-					//$w .= " and r.rid in('" . implode("','", $rid) . "')";
-					$w .= " and exists(select 1 from xxt_enroll_record_round rrnd where rrnd.rid in('" . implode("','", $rid) . "') and rrnd.enroll_key=rd.enroll_key)";
+					$w .= " and rd.rid in('" . implode("','", $rid) . "')";
 				}
 			}
 		}

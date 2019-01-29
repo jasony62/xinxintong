@@ -1023,7 +1023,7 @@ class data_model extends entity_model {
 	/**
 	 * 答案清单
 	 */
-	public function answerByApp($oApp, $oOptions = null, $oCriteria = null, $oUser = null) {
+	public function coworkDataByApp($oApp, $oOptions = null, $oCriteria = null, $oUser = null) {
 		if (is_string($oApp)) {
 			$oApp = $this->model('matter\enroll')->byId($oApp, ['cascaded' => 'N']);
 		}

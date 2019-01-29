@@ -579,7 +579,7 @@ class repos extends base {
 	 * 返回指定活动的填写记录的共享内容 
 	 * 答案视图
 	 */
-	public function answerList_action($app, $page = 1, $size = 12) {
+	public function coworkDataList_action($app, $page = 1, $size = 12) {
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
@@ -673,7 +673,7 @@ class repos extends base {
 
 		$oEditor = null; // 作为编辑用户的信息
 
-		$oResult = $modelRecDat->answerByApp($oApp, $oOptions, $oCriteria, $oUser, 'cowork');
+		$oResult = $modelRecDat->coworkDataByApp($oApp, $oOptions, $oCriteria, $oUser, 'cowork');
 		if (!empty($oResult->recordDatas)) {
 			$modelData = $this->model('matter\enroll\data');
 			$modelTag = $this->model('matter\enroll\tag2');
@@ -1288,7 +1288,12 @@ class repos extends base {
 				if (empty($oUser->unionid)) {
 					unset($criterias[$key]);
 				} else if ($viweType === 'record') {
+					$criteria->menus[] = (object) ['id' => 'creator', 'title' => '我的记录'];
 					$criteria->menus[] = (object) ['id' => 'favored', 'title' => '我的收藏'];
+				} else if ($viweType === 'coworkData') {
+					$criteria->menus[] = (object) ['id' => 'creator', 'title' => '我的回答'];
+				} else {
+					unset($criterias[$key]);
 				}
 			}
 			// 搜索历史
@@ -1375,7 +1380,6 @@ class repos extends base {
 		$mine->title = '我的';
 		$mine->menus = [
 			(object) ['id' => null, 'title' => '不限'],
-			(object) ['id' => 'creator', 'title' => '我的记录'],
 		];
 		$mine->default = $mine->menus[0];
 		$criterias[] = $mine;

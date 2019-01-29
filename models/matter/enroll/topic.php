@@ -139,7 +139,7 @@ class topic_model extends entity_model {
 		} else {
 			/* 任务轮次中的记录 */
 			$modelRec = $this->model('matter\enroll\record');
-			$taskRecords = $modelRec->byRound($oTask->rid, ['fields' => 'id,enroll_at']);
+			$taskRecords = $modelRec->byRound($oTask->rid, ['fields' => 'id,enroll_at,enroll_key']);
 		}
 
 		!empty($taskRecords) && $this->_assignByTaskRecords($oTopic, $oTask, $taskRecords);

@@ -1068,7 +1068,7 @@ class repos extends base {
 						if ($this->getDeepValue($oVoteRule->schema, 'cowork') === 'Y') {continue;}
 						$oRecData = $modelData->byRecord($oRecord->enroll_key, ['schema' => $schemaId, 'fields' => 'id,vote_num']);
 						if ($oRecData) {
-							$vote_at = (int) $modelData->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oRecData->id, 'state' => 1, 'userid' => $oUser->uid]]);
+							$vote_at = (int) $modelData->query_val_ss(['vote_at', 'xxt_enroll_vote', ['rid' => $oApp->appRound->rid, 'data_id' => $oRecData->id, 'state' => 1, 'userid' => $oUser->uid]]);
 							$oRecData->vote_at = $vote_at;
 							$oRecData->state = $oVoteRule->state;
 							$oVoteResult->{$schemaId} = $oRecData;

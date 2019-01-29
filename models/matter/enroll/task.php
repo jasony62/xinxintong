@@ -47,6 +47,19 @@ class task_model extends \TMS_MODEL {
 	/**
 	 * 去掉无效的内容
 	 */
+	public function purifyBaseline($oConfig) {
+		$validProps = ['id', 'start', 'end', 'enabled'];
+		foreach ($oConfig as $prop => $val) {
+			if (!in_array($prop, $validProps)) {
+				unset($oConfig->{$prop});
+			}
+		}
+
+		return $oConfig;
+	}
+	/**
+	 * 去掉无效的内容
+	 */
 	public function purifyQuestion($oConfig) {
 		$validProps = ['id', 'start', 'end', 'role', 'limit', 'enabled'];
 		foreach ($oConfig as $prop => $val) {
@@ -179,6 +192,41 @@ class task_model extends \TMS_MODEL {
 		$rules = $this->{'get' . ucfirst($taskType) . 'Rule'}($oUser, $oRound);
 
 		return $rules;
+	}
+	/**
+	 * 目标任务
+	 */
+	public function getBaselineRule($oUser = null, $oRound = null) {
+		$oApp = $this->_oApp;
+		if (!isset($oApp->baselineConfig)) {
+			$oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,baseline_config']);
+		}
+		if (empty($oRound)) {
+			$oRound = $oApp->appRound;
+		}
+		$oBaselineRnd = $this->model('matter\enroll\round')->getBaseline($this->_oApp, ['assignedRid' => $oRound->rid]);
+		if (false === $oBaselineRnd) {
+			return [];
+		}
+
+		$aBaselineRules = [];
+		foreach ($oApp->baselineConfig as $oBaselineConfig) {
+			if ($this->getDeepValue($oBaselineConfig, 'enabled') !== 'Y') {
+				continue;
+			}
+			$aValid = $this->getRuleStateByRound($oBaselineConfig, $oBaselineRnd);
+			if (false === $aValid[0]) {
+				continue;
+			}
+			$oBaselineRule = new \stdClass;
+			$oBaselineRule->id = $oBaselineConfig->id;
+			$oBaselineRule->type = 'baseline';
+			$oBaselineRule->rid = $oBaselineRnd->rid;
+			tms_object_merge($oBaselineRule, $aValid[1]);
+			$aBaselineRules[] = $oBaselineRule;
+		}
+
+		return $aBaselineRules;
 	}
 	/**
 	 * 提问任务
@@ -433,7 +481,7 @@ class task_model extends \TMS_MODEL {
 					if ($oTaskRound) {
 						$oRuleState = $this->getRuleStateByRound($oRuleConfig, $oTaskRound);
 						if (true === $oRuleState[0]) {
-							tms_object_merge($oTask, $oRuleConfig, ['source', 'scoreApp']);
+							tms_object_merge($oTask, $oRuleConfig, ['source', 'scoreApp', 'schemas']);
 							tms_object_merge($oTask, $oRuleState[1], ['state']);
 						}
 					}

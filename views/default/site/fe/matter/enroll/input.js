@@ -664,7 +664,7 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
     }
 
     function doSubmit(nextAction, type) {
-        _facInput.submit($scope.record, $scope.data, $scope.tag, $scope.supplement, type, $scope.forTask).then(function(rsp) {
+        _facInput.submit($scope.record, $scope.data, $scope.tag, $scope.supplement, type, $scope.forQuestionTask).then(function(rsp) {
             var url;
             if (type == 'save') {
                 noticebox.success('保存成功，关闭页面后，再次打开时自动恢复当前数据。确认数据填写完成后，请继续【提交】数据。');
@@ -1133,9 +1133,9 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         fnGetRecord();
         /* 活动轮次 */
         new enlTask(_oApp).list('question').then(function(tasks) {
-            $scope.tasks = tasks;
+            $scope.questionTasks = tasks;
             if (tasks.length === 1) {
-                $scope.forTask = tasks[0].id;
+                $scope.forQuestionTask = tasks[0].id;
             }
         });
         /* 活动轮次 */

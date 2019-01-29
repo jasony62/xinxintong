@@ -55,6 +55,7 @@ class data_model extends entity_model {
 					'nickname' => $this->escape($oRecord->nickname),
 					'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 					'schema_id' => $schemaId,
+					'is_multitext_root' => 'N',
 					'multitext_seq' => (int) $index + 1,
 					'value' => $this->escape($oNewItem->value),
 				];
@@ -95,6 +96,7 @@ class data_model extends entity_model {
 						'nickname' => $this->escape($oRecord->nickname),
 						'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 						'schema_id' => $schemaId,
+						'is_multitext_root' => 'N',
 						'multitext_seq' => (int) $index + 1,
 						'value' => $this->escape($oUpdatedItem->value),
 					];
@@ -222,6 +224,11 @@ class data_model extends entity_model {
 					'schema_id' => $schemaId,
 					'value' => $this->escape($treatedValue),
 				];
+				if ($oSchema->type == 'multitext') {
+					/* 多项填写题根数据 */
+					$aSchemaData['is_multitext_root'] = 'Y';
+					$aSchemaData['multitext_seq'] = 0;
+				}
 				isset($oRecordScore->{$schemaId}) && $aSchemaData['score'] = $oRecordScore->{$schemaId};
 				$this->insert('xxt_enroll_record_data', $aSchemaData, false);
 			} else if (count($oLastSchemaValues) == 1) {
@@ -663,14 +670,21 @@ class data_model extends entity_model {
 	 */
 	public function byRecord($ek, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : self::DEFAULT_FIELDS;
+		$bExcludeRoot = isset($aOptions['excludeRoot']) ? isset($aOptions['excludeRoot']) : false;
 
 		$q = [
 			$fields,
 			'xxt_enroll_record_data',
-			['enroll_key' => $ek, 'state' => 1, 'multitext_seq' => 0],
+			['enroll_key' => $ek, 'state' => 1],
 		];
 
-		$fnHandler = function (&$oData) {
+		if ($bExcludeRoot) {
+			$q[2]['is_multitext_root'] = 'N';
+		} else {
+			$q[2]['multitext_seq'] = 0;
+		}
+
+		$fnHandleData = function (&$oData) {
 			if (property_exists($oData, 'tag')) {
 				$oData->tag = empty($oData->tag) ? [] : json_decode($oData->tag);
 			}
@@ -681,48 +695,58 @@ class data_model extends entity_model {
 				$oData->agreed_log = empty($oData->agreed_log) ? new \stdClass : json_decode($oData->agreed_log);
 			}
 		};
-
-		if (isset($aOptions['schema'])) {
-			if (is_array($aOptions['schema'])) {
-				$oResult = new \stdClass;
-				$q[2]['schema_id'] = $aOptions['schema'];
-				$data = $this->query_objs_ss($q);
-				if (count($data)) {
-					foreach ($data as $schemaData) {
-						if (isset($fnHandler)) {
-							$fnHandler($schemaData);
-						}
-						$schemaId = $schemaData->schema_id;
-						unset($schemaData->schema_id);
-						$oResult->{$schemaId} = $schemaData;
-					}
-				}
-				return $oResult;
-			} else {
-				$q[2]['schema_id'] = $aOptions['schema'];
-				if ($data = $this->query_obj_ss($q)) {
-					if (isset($fnHandler)) {
-						$fnHandler($data);
-					}
-				}
-				return $data;
-			}
-		} else {
+		$fnHandleResult = function ($data) use ($bExcludeRoot, $fnHandleData) {
 			$oResult = new \stdClass;
-			$data = $this->query_objs_ss($q);
 			if (count($data)) {
-				foreach ($data as $schemaData) {
-					if (isset($fnHandler)) {
-						$fnHandler($schemaData);
+				foreach ($data as $oSchemaData) {
+					$fnHandleData($oSchemaData);
+					$schemaId = $oSchemaData->schema_id;
+					unset($oSchemaData->schema_id);
+					if ($bExcludeRoot) {
+						if ($oSchemaData->multitext_seq > 0) {
+							$oResult->{$schemaId}[] = $oSchemaData;
+						} else {
+							unset($oSchemaData->multitext_seq);
+							$oResult->{$schemaId} = $oSchemaData;
+						}
+					} else {
+						$oResult->{$schemaId} = $oSchemaData;
 					}
-					$schemaId = $schemaData->schema_id;
-					unset($schemaData->schema_id);
-					$oResult->{$schemaId} = $schemaData;
 				}
 			}
 
 			return $oResult;
+		};
+		if (!isset($aOptions['schema']) || is_array($aOptions['schema'])) {
+			false === strpos($fields, 'schema_id') && $q[0] .= ',schema_id';
+			false === strpos($fields, 'multitext_seq') && $q[0] .= ',multitext_seq';
+			if (isset($aOptions['schema']) && is_array($aOptions['schema'])) {
+				$q[2]['schema_id'] = $aOptions['schema'];
+			}
+			$data = $this->query_objs_ss($q);
+
+			$mixResult = $fnHandleResult($data);
+		} else {
+			$q[2]['schema_id'] = $aOptions['schema'];
+			if ($bExcludeRoot) {
+				false === strpos($fields, 'multitext_seq') && $q[0] .= ',multitext_seq';
+				$data = $this->query_objs_ss($q);
+				array_walk($data, $fnHandleData);
+				if (count($data) === 1 && $data[0]->multitext_seq === 0) {
+					$fnHandleData($data);
+					$mixResult = $data[0];
+				} else {
+					$mixResult = $data;
+				}
+			} else {
+				if ($data = $this->query_obj_ss($q)) {
+					$fnHandleData($data);
+				}
+				$mixResult = $data;
+			}
 		}
+
+		return $mixResult;
 	}
 	/**
 	 * 返回指定活动，指定登记项的填写数据

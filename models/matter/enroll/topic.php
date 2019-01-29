@@ -55,7 +55,7 @@ class topic_model extends entity_model {
 			$oTopic->create_at = $current;
 			$oTopic->userid = '';
 			$oTopic->group_id = '';
-			$oTopic->title = ['question' => '提问', 'answer' => '回答', 'vote' => '投票', 'score' => '打分'][$oTask->type] . '任务专题（' . date('y年n月d日', $oTask->start_at) . '）';
+			$oTopic->title = ['question' => '提问', 'answer' => '回答', 'vote' => '投票', 'score' => '打分', 'baseline' => '目标'][$oTask->type] . '任务专题（' . date('y年n月d日', $oTask->start_at) . '）';
 			//$oTopic->summary = empty($oPosted->summary) ? $oNewTopic->title : $modelEnl->escape($oPosted->summary);
 			$oTopic->rec_num = 0;
 			$oTopic->id = $this->insert('xxt_enroll_topic', $oTopic, true);
@@ -76,16 +76,15 @@ class topic_model extends entity_model {
 				$this->_renewByTask($oTopic, $oTask);
 			}
 		}
-
 		$q = [
-			'r.*,tr.assign_at,tr.id id_in_topic,tr.seq seq_in_topic',
+			'r.*,tr.assign_at,tr.id id_in_topic,tr.seq seq_in_topic,tr.data_id',
 			'xxt_enroll_record r inner join xxt_enroll_topic_record tr on r.id=tr.record_id',
 			['tr.topic_id' => $oTopic->id, 'r.state' => 1],
 		];
 		$q2 = ['o' => 'tr.seq'];
 
 		$records = $this->query_objs_ss($q, $q2);
-		if (count($records)) {
+		if (!empty($records)) {
 			$modelRec = $this->model('matter\enroll\record');
 			$modelRec->parse($this->_oApp, $records);
 		}
@@ -134,19 +133,16 @@ class topic_model extends entity_model {
 				}
 				$oTopicRecords = $this->records($oSrcTopic);
 				if (!empty($oTopicRecords->records)) {
-					$records = $oTopicRecords->records;
+					$taskRecords = $oTopicRecords->records;
 				}
 			}
 		} else {
 			/* 任务轮次中的记录 */
 			$modelRec = $this->model('matter\enroll\record');
-			$records = $modelRec->byRound($oTask->rid, ['fields' => 'id,enroll_at']);
+			$taskRecords = $modelRec->byRound($oTask->rid, ['fields' => 'id,enroll_at']);
 		}
-		if (!empty($records)) {
-			foreach ($records as $oRecord) {
-				$this->assign($oTopic, $oRecord, null, max($oTask->start_at, $oRecord->enroll_at));
-			}
-		}
+
+		!empty($taskRecords) && $this->_assignByTaskRecords($oTopic, $oTask, $taskRecords);
 
 		return true;
 	}
@@ -181,11 +177,11 @@ class topic_model extends entity_model {
 						break;
 					case 'vote_rank':
 						$q = [
-							'record_id,vote_num',
+							'id,record_id,vote_num',
 							'xxt_enroll_record_data rd',
 							['aid' => $this->_oApp->id, 'state' => 1, 'schema_id' => $oSourceRule->schemas],
 						];
-						$q[2]['enroll_key'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_topic_record tr where tr.topic_id=' . $oSrcTopic->id . ' and rd.record_id=tr.record_id'];
+						$q[2]['id'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_topic_record tr where tr.topic_id=' . $oSrcTopic->id . ' and rd.id=tr.data_id'];
 						$q2 = ['o' => 'vote_num desc'];
 						$recdatas = $this->query_objs_ss($q, $q2);
 						if (count($recdatas)) {
@@ -200,10 +196,14 @@ class topic_model extends entity_model {
 									break;
 								}
 								$lastVoteNum = $oRecData->vote_num;
-								$ranked[] = $oRecData->record_id;
+								$ranked[] = $oRecData;
 							}
 							$modelRec = $this->model('matter\enroll\record');
-							$taskRecords = array_map(function ($recId) use ($modelRec) {return $modelRec->byPlainId($recId);}, $ranked);
+							$taskRecords = array_map(function ($oRecData) use ($modelRec) {
+								$oRecord = $modelRec->byPlainId($oRecData->record_id);
+								$oRecord->data_id = $oRecData->id;
+								return $oRecord;
+							}, $ranked);
 						}
 						break;
 					case 'score':
@@ -223,16 +223,15 @@ class topic_model extends entity_model {
 			$modelRec = $this->model('matter\enroll\record');
 			$taskRecords = $modelRec->byRound($oTask->rid, ['fields' => 'id,enroll_at']);
 		}
-		if (!empty($taskRecords)) {
-			foreach ($taskRecords as $oRecord) {
-				$this->assign($oTopic, $oRecord, null, max($oTask->start_at, $oRecord->enroll_at));
-			}
-		}
+
+		!empty($taskRecords) && $this->_assignByTaskRecords($oTopic, $oTask, $taskRecords);
 
 		return true;
 	}
 	/**
 	 * 更新投票任务专题中包含的记录
+	 *
+	 * 只支持对数据进行打分，不支持对记录打分
 	 *
 	 * @param object $oTopic
 	 * @param object $oTask
@@ -261,13 +260,44 @@ class topic_model extends entity_model {
 		} else {
 			/* 任务轮次中的记录 */
 			$modelRec = $this->model('matter\enroll\record');
-			$taskRecords = $modelRec->byRound($oTask->rid, ['fields' => 'id,enroll_at']);
+			$taskRecords = $modelRec->byRound($oTask->rid, ['fields' => 'id,enroll_key,enroll_at']);
 		}
-		if (!empty($taskRecords)) {
-			foreach ($taskRecords as $oRecord) {
+
+		!empty($taskRecords) && $this->_assignByTaskRecords($oTopic, $oTask, $taskRecords);
+
+		return true;
+	}
+	/**
+	 * 把任务中的记录放入专题
+	 */
+	private function _assignByTaskRecords($oTopic, $oTask, $taskRecords) {
+		if ($oTask->config_type === 'answer' && (empty($oTask->source->scope) || $oTask->source->scope === 'question')) {
+			/* 任务的对象是记录 */
+			$fnHandle = function ($oRecord) use ($oTopic, $oTask) {
 				$this->assign($oTopic, $oRecord, null, max($oTask->start_at, $oRecord->enroll_at));
+			};
+		} else {
+			/* 任务的对象是数据 */
+			if (!empty($oTask->schemas)) {
+				$modelDat = $this->model('matter\enroll\data');
+				$fnHandle = function ($oRecord) use ($oTopic, $oTask, $modelDat) {
+					if (empty($oRecord->data_id)) {
+						foreach ($oTask->schemas as $schemaId) {
+							$recdatas = $modelDat->byRecord($oRecord->enroll_key, ['fields' => 'id', 'schema' => $schemaId, 'excludeRoot' => true]);
+							array_walk($recdatas, function ($oRecData) use ($oRecord, $oTask, $oTopic) {
+								$this->assign($oTopic, $oRecord, $oRecData, max($oTask->start_at, $oRecord->enroll_at));
+							});
+						}
+					} else {
+						$oRecData = $modelDat->byId($oRecord->data_id, ['fields' => 'id,schema_id,submit_at']);
+						if ($oRecData && in_array($oRecData->schema_id, $oTask->schemas)) {
+							$this->assign($oTopic, $oRecord, $oRecData, max($oTask->start_at, $oRecData->submit_at));
+						}
+					}
+				};
 			}
 		}
+		isset($fnHandle) && array_walk($taskRecords, $fnHandle);
 
 		return true;
 	}
@@ -285,7 +315,6 @@ class topic_model extends entity_model {
 			$q[2]['data_id'] = $oRecData->id;
 		}
 		$aBeforeTopicIds = $this->query_vals_ss($q);
-		//die('sss:' . json_encode($aBeforeTopicIds));
 		if (in_array($oTopic->id, $aBeforeTopicIds)) {
 			return [false, '已经在专题中，不能重复添加'];
 		}

@@ -26,7 +26,7 @@ class task extends base {
 		$oUser = $this->getUser($oApp);
 
 		/* 有效的任务类型 */
-		$aTaskTypes = ['question', 'answer', 'vote', 'score'];
+		$aTaskTypes = ['baseline', 'question', 'answer', 'vote', 'score'];
 		if (!empty($type)) {
 			if (!in_array($type, $aTaskTypes)) {
 				return new \ParameterError('没有指定有效的任务类型');

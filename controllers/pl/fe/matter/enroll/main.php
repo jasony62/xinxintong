@@ -555,13 +555,6 @@ class main extends main_base {
 			break;
 		}
 
-		//$aScanResult = $modelApp->scanVoteConfig($oEntryRule);
-		//if (false === $aScanResult[0]) {
-		//	return new \ResponseError($aScanResult[1]);
-		//}
-
-		//$oScaned = $aScanResult[1];
-
 		$modelApp->modify($oUser, $oApp, (object) ['vote_config' => $modelApp->escape($modelApp->toJson($aAllVoteConfigs))], ['id' => $oApp->id]);
 		if ($method === 'save') {
 			return new \ResponseData($oVoteConfig);
@@ -812,6 +805,73 @@ class main extends main_base {
 		$modelApp->modify($oUser, $oApp, (object) ['answer_config' => $modelApp->escape($modelApp->toJson($aAllAnswerConfigs))], ['id' => $oApp->id]);
 		if ($method === 'save') {
 			return new \ResponseData($oAnswerConfig);
+		} else {
+			return new \ResponseData('ok');
+		}
+	}
+	/**
+	 * 更新设定目标规则
+	 */
+	public function updateBaselineConfig_action($app) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$oPosted = $this->getPostJson();
+		$method = $this->getDeepValue($oPosted, 'method');
+		if (empty($method)) {
+			return new \ParameterError('（1）参数不完整');
+		}
+		$oBaselineConfig = $this->getDeepValue($oPosted, 'data');
+		if (empty($oBaselineConfig)) {
+			return new \ParameterError('（2）参数不完整');
+		}
+
+		$modelApp = $this->model('matter\enroll');
+		$oApp = $modelApp->byId($app, 'id,state,siteid,title,summary,pic,scenario,start_at,end_at,mission_id,baseline_config');
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError('（3）活动不存在');
+		}
+		$aAllBaselineConfigs = $oApp->baselineConfig;
+
+		switch ($method) {
+		case 'save':
+			$oBaselineConfig = $this->model('matter\enroll\task', $oApp)->purifyBaseline($oBaselineConfig);
+			if (empty($oBaselineConfig->id)) {
+				$oBaselineConfig->id = uniqid();
+				$aAllBaselineConfigs[] = $oBaselineConfig;
+			} else {
+				$bExistent = false;
+				foreach ($aAllBaselineConfigs as $index => $oBefore) {
+					if ($oBefore->id === $oBaselineConfig->id) {
+						$aAllBaselineConfigs[$index] = $oBaselineConfig;
+						$bExistent = true;
+						break;
+					}
+				}
+				if (false === $bExistent) {
+					return new \ObjectNotFoundError('（4）更新的规则不存在');
+				}
+			}
+			break;
+		case 'delete':
+			$bExistent = false;
+			foreach ($aAllBaselineConfigs as $index => $oBefore) {
+				if ($oBefore->id === $oBaselineConfig->id) {
+					array_splice($aAllBaselineConfigs, $index, 1);
+					$bExistent = true;
+					break;
+				}
+			}
+			if (false === $bExistent) {
+				return new \ObjectNotFoundError('（5）删除的规则不存在');
+			}
+			break;
+		}
+
+		$modelApp->modify($oUser, $oApp, (object) ['baseline_config' => $modelApp->escape($modelApp->toJson($aAllBaselineConfigs))], ['id' => $oApp->id]);
+		if ($method === 'save') {
+			return new \ResponseData($oBaselineConfig);
 		} else {
 			return new \ResponseData('ok');
 		}

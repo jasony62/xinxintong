@@ -103,7 +103,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         var url;
         url = LS.j('', 'site', 'app');
         url += '&ek=' + oRecord.enroll_key;
-        url += '&page=cowork#remarks';
+        url += '&page=cowork';
         location.href = url;
     };
     $scope.favorStack = {
@@ -292,21 +292,14 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     $scope.closeTask = function(index) {
         $scope.tasks.splice(index, 1);
     };
-    $scope.spyRecordsScroll = true; // 监控滚动事件
-    $scope.recordsScrollToBottom = function() {
-        if ($scope.repos.length < $scope.page.total) {
-            $scope.recordList().then(function() {
-                $timeout(function() {
-                    if ($scope.repos.length < $scope.page.total) {
-                        $scope.spyRecordsScroll = true;
-                    }
-                });
-            });
-        }
-    };
     $scope.gotoTask = function(oTask) {
-        if (oTask && oTask.topic && oTask.topic.id)
-            location.href = LS.j('', 'site', 'app') + '&topic=' + oTask.topic.id + '&page=topic';
+        if (oTask) {
+            if (oTask.type === 'baseline') {
+                location.href = LS.j('', 'site', 'app') + '&rid=' + oTask.rid + '&page=enroll';
+            } else if (oTask.topic && oTask.topic.id) {
+                location.href = LS.j('', 'site', 'app') + '&topic=' + oTask.topic.id + '&page=topic';
+            }
+        }
     };
     $scope.advCriteriaStatus = {
         opened: !$scope.isSmallLayout,
@@ -365,6 +358,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                 if (ipTasks.length) {
                     ipTasks.forEach(function(oTask) {
                         switch (oTask.type) {
+                            case 'baseline':
+                                tasks.push({ type: 'info', msg: oTask.toString(), id: 'record.data.baseline', data: oTask });
+                                break;
                             case 'question':
                                 tasks.push({ type: 'info', msg: oTask.toString(), id: 'record.data.question', data: oTask });
                                 break;

@@ -106,7 +106,7 @@ class enroll_model extends enroll_base {
 			}
 
 			/* 数组类型 */
-			foreach (['vote_config', 'score_config', 'question_config', 'answer_config', 'transmit_config', 'recycle_schemas'] as $uscProp) {
+			foreach (['vote_config', 'score_config', 'question_config', 'answer_config', 'baseline_config', 'transmit_config', 'recycle_schemas'] as $uscProp) {
 				if (property_exists($oApp, $uscProp)) {
 					$ccProp = preg_replace_callback('/(_(\w))/', function ($matches) {return strtoupper($matches[2]);}, $uscProp);
 					$oApp->{$ccProp} = empty($oApp->{$uscProp}) ? [] : json_decode($oApp->{$uscProp});

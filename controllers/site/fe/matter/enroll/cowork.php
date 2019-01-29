@@ -41,6 +41,7 @@ class cowork extends base {
 			$oRecData->nickname = $this->escape($oRecord->nickname);
 			$oRecData->group_id = $oRecord->group_id;
 			$oRecData->schema_id = $schema;
+			$oRecData->is_multitext_root = 'Y';
 			$oRecData->multitext_seq = 0;
 			$oRecData->value = '[]';
 			$oRecData->id = $modelData->insert('xxt_enroll_record_data', $oRecData, true);
@@ -124,7 +125,7 @@ class cowork extends base {
 		if (isset($oTask)) {
 			$modelTop = $this->model('matter\enroll\topic', $oApp);
 			if ($oTopic = $modelTop->byTask($oTask)) {
-				$modelTop->assign($oTopic, $oRecord, $oRecData);
+				$modelTop->assign($oTopic, $oRecord, $oNewItem);
 			}
 		}
 		/* 通知登记活动事件接收人 */

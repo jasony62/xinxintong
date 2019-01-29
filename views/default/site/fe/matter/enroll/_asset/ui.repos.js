@@ -96,7 +96,7 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
                                 case 'file':
                                 case 'voice':
                                     schemaData.forEach(function(oFile) {
-                                        if (oFile.url) {
+                                        if (oFile.url && !angular.isObject(oFile.url)) {
                                             oFile.oUrl = oFile.url;
                                             oFile.url = $sce.trustAsResourceUrl(oFile.url);
                                         }
@@ -105,7 +105,8 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
                                 case 'single':
                                 case 'multiple':
                                 case 'score':
-                                    oRecord.data[oSchema.id] = $sce.trustAsHtml(tmsSchema.optionsSubstitute(oSchema, schemaData));
+                                    var _result = tmsSchema.optionsSubstitute(oSchema, schemaData);
+                                    oRecord.data[oSchema.id] = angular.isObject(_result) ? _result : $sce.trustAsHtml(_result);
                                     break;
                             }
                         }

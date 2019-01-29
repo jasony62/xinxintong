@@ -26,8 +26,12 @@ ngApp.controller('ctrlTask', ['$scope', '$parse', '$q', '$uibModal', 'http2', 't
         fnGetTasks(oRound);
     };
     $scope.gotoTask = function(oTask) {
-        if (oTask.topic) {
-            location.href = LS.j('', 'site', 'app') + '&topic=' + oTask.topic.id + '&page=topic';
+        if (oTask) {
+            if (oTask.type === 'baseline') {
+                location.href = LS.j('', 'site', 'app') + '&rid=' + oTask.rid + '&page=enroll';
+            } else if (oTask.topic && oTask.topic.id) {
+                location.href = LS.j('', 'site', 'app') + '&topic=' + oTask.topic.id + '&page=topic';
+            }
         }
     };
     $scope.$on('xxt.app.enroll.ready', function(event, params) {

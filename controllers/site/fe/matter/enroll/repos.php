@@ -492,15 +492,30 @@ class repos extends base {
 						} else if (!empty($oRecord->data->{$schemaId})) {
 							/* 协作填写题 */
 							if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
-								$aOptions = ['fields' => 'id'];
+								$aOptions = ['excludeRoot' => true, 'fields' => 'id,agreed,like_num,nickname,value,multitext_seq,vote_num,score'];
+								// 展示在共享页的协作数据表态类型
 								if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
 									$aOptions['agreed'] = $oApp->actionRule->cowork->repos->pre->cowork->agreed;
 								} else {
 									$aOptions['agreed'] = ['Y', 'A'];
 								}
-								$countItems = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, $aOptions);
-								$aCoworkState[$oSchema->id] = (object) ['length' => count($countItems)];
-								continue;
+								$items = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, $aOptions);
+								if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
+									$countItems = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, ['agreed' => ['Y', 'A'], 'fields' => 'id']);
+									$aCoworkState[$oSchema->id] = (object) ['length' => count($countItems)];
+								} else {
+									$aCoworkState[$oSchema->id] = (object) ['length' => count($items)];
+								}
+								if ($coworkReposLikeNum) {
+									$reposItems = [];
+									foreach ($items as $oItem) {
+										if ($oItem->like_num >= $coworkReposLikeNum || $oItem->agreed === 'Y') {
+											$reposItems[] = $oItem;
+										}
+									}
+									$items = $reposItems;
+								}
+								$oRecordData->{$schemaId} = $items;
 							} else {
 								$oRecordData->{$schemaId} = $oRecord->data->{$schemaId};
 							}

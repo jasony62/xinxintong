@@ -1326,6 +1326,15 @@ class repos extends base {
 		];
 		$orderby->default = $orderby->menus[0];
 		$criterias[] = $orderby;
+		// 搜索历史
+		$keyword = new \stdClass;
+		$keyword->type = 'keyword';
+		$keyword->title = '历史';
+		$keyword->menus = [
+			(object) ['id' => null, 'title' => '不限'],
+		];
+		$keyword->default = $keyword->menus[0];
+		$criterias[] = $keyword;
 		// 协作
 		$coworkAgreed = new \stdClass;
 		$coworkAgreed->type = 'coworkAgreed';
@@ -1337,15 +1346,6 @@ class repos extends base {
 		];
 		$coworkAgreed->default = $coworkAgreed->menus[0];
 		$criterias[] = $coworkAgreed;
-		// 搜索历史
-		$keyword = new \stdClass;
-		$keyword->type = 'keyword';
-		$keyword->title = '历史';
-		$keyword->menus = [
-			(object) ['id' => null, 'title' => '不限'],
-		];
-		$keyword->default = $keyword->menus[0];
-		$criterias[] = $keyword;
 		// 轮次
 		$round = new \stdClass;
 		$round->type = 'rid';

@@ -20,7 +20,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     $scope.activeDirSchemas = {};
     $scope.hasCowork = false;
     $scope.tabs = [{ 'title': '记录', 'id': 'record', 'url': '/views/default/site/fe/matter/enroll/template/repos-recordSchema.html' }];
-    $scope.selectedTab = $scope.tabs[0];
     $scope.tabClick = function(view) {
         $scope.selectedTab = view;
     }
@@ -111,6 +110,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                     $scope.tabs.push({ 'title': '答案', 'id': 'coworkData', 'url': '/views/default/site/fe/matter/enroll/template/repos-coworkSchema.html' });
                 }
             });
+            $scope.selectedTab = $scope.hasCowork ? $scope.tabs[1] : $scope.tabs[0];
             /* 共享专题 */
             http2.get(LS.j('topic/listPublic', 'site', 'app')).then(function(rsp) {
                 if (rsp.data && rsp.data.topics && rsp.data.topics.length) {
@@ -245,7 +245,7 @@ ngApp.controller('ctrlRecordSchema', ['$scope', '$timeout', '$q', 'http2', 'tmsL
                 if (rsp.data) {
                     var _oNew = [];
                     angular.forEach(rsp.data, function(data) {
-                        if (data.type === 'orderby' || data.type === 'coworkAgreed') {
+                        if (data.type === 'orderby') {
                             return false;
                         } else {
                             _oNew.push(data);
@@ -557,11 +557,12 @@ ngApp.controller('ctrlCoworkSchema', ['$scope', '$timeout', '$q', 'http2', 'tmsL
     };
     $scope.confirm = function(filterOpt) {
         $scope.recordList(1).then(function() {
-            http2.get(LS.j('repos/criteriaGet', 'site', 'app')).then(function(rsp) {
+            var url = LS.j('repos/criteriaGet', 'site', 'app') + '&viewType=coworkData';
+            http2.get(url).then(function(rsp) {
                 if (rsp.data) {
                     var _oNew = [];
                     angular.forEach(rsp.data, function(data) {
-                        if (data.type === 'orderby' || data.type === 'coworkAgreed') {
+                        if (data.type === 'orderby') {
                             return false;
                         } else {
                             _oNew.push(data);
@@ -641,7 +642,32 @@ ngApp.controller('ctrlCoworkSchema', ['$scope', '$timeout', '$q', 'http2', 'tmsL
     $scope.$on('to-child', function(event, data) {
         $scope.dirClicked(data[0], data[1]);
     });
-    $scope.getCriteria();
+    if (window.sessionStorage.length) {
+        var cacheData, _cPage;
+        cacheData = JSON.parse(window.sessionStorage.listStorage);
+        $scope.singleFilters = cacheData.singleFilters;
+        $scope.multiFilters = cacheData.multiFilters;
+        $scope.filter = cacheData.currentFilter;
+        $scope.criteria = _oCriteria = cacheData.currentCriteria;
+        _cPage = cacheData.page;
+
+        function _getNewRepos(at) {
+            $scope.recordList(at).then(function() {
+                if (at == _cPage.at) {
+                    $timeout(function() {
+                        document.getElementById('repos').scrollTop = parseInt(window.sessionStorage.listStorageY);
+                        window.sessionStorage.clear();
+                    });
+                }
+            });
+
+        }
+        for (var i = 1; i <= _cPage.at; i++) {
+            _getNewRepos(i);
+        }
+    } else {
+        $scope.getCriteria();
+    }
 }]);
 ngApp.controller('ctrlPublicTopic', ['$scope', 'http2', 'tmsLocation', function($scope, http2, LS) {
     function addToCache() {

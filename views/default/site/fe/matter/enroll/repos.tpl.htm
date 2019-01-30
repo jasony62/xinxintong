@@ -57,7 +57,7 @@
                     <button class='btn btn-default btn-sm' ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">关闭</button>
                 </div>
             </div>
-            <div class='site-dropdown' uib-dropdown ng-if="tabs.length>1" style="position:absolute;right:0;z-index:10">
+            <div class='site-dropdown' uib-dropdown ng-if="tabs.length>1" style="position:absolute;right:80px;z-index:10">
                 <a href uib-dropdown-toggle class='site-dropdown-title'>
                     <span>{{selectedTab.title}}</span> <i class='glyphicon glyphicon-menu-up'></i>
                 </a>
@@ -66,8 +66,8 @@
                         <a href ng-click="tabClick(tab)" ng-bind="tab.title"></a>
                     </li>
                 </ul>
-            </div>
-            <div ng-if="selectedTab.id!=='topic'" ng-click="addRecord($event)" style="position:absolute;right:100px;z-index:10">+<span ng-show="hasCowork">问题</span><span ng-hide="hasCowork">记录</span></div>
+            </div> 
+            <div ng-if="selectedTab.id!=='topic'" ng-click="addRecord($event)" style="position:absolute;right:25px;z-index:10;top:8px">+<span ng-show="hasCowork">问题</span><span ng-hide="hasCowork">记录</span></div>           
             <div class='main col-xs-12' ng-class="{'col-md-9':dirSchemas.length,'col-md-12':dirSchemas.length===0}" ng-include="selectedTab.url"></div>
         </div>
     </div>

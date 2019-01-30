@@ -15,9 +15,9 @@ window.moduleAngularModules = ['tree.ui', 'filter.ui', 'dropdown.ui', 'round.ui.
 
 var ngApp = require('./main.js');
 ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', 'enlService', 'enlTask', function($scope, $parse, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc, enlService, enlTask) {
-    var _oApp, _facRound, _oShareableSchemas, _oUser, _activeDirSchemas;
+    var _oApp, _facRound, _oShareableSchemas, _oUser;
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
-    $scope.activeDirSchemas = _activeDirSchemas = {};
+    $scope.activeDirSchemas = {};
     $scope.hasCowork = false;
     $scope.tabs = [{ 'title': '记录', 'id': 'record', 'url': '/views/default/site/fe/matter/enroll/template/repos-recordSchema.html' }];
     $scope.selectedTab = $scope.tabs[0];
@@ -232,7 +232,7 @@ ngApp.controller('ctrlRecordSchema', ['$scope', '$timeout', '$q', 'http2', 'tmsL
         if (oDir) {
             _oCriteria.data[oDir.schema_id] = oDir.op.v;
         }
-        $scope.activeDirSchemas = _activeDirSchemas = active;
+        $scope.activeDirSchemas = active;
         $scope.recordList(1);
     };
     $scope.shiftMenu = function(criteria) {
@@ -542,6 +542,14 @@ ngApp.controller('ctrlCoworkSchema', ['$scope', '$timeout', '$q', 'http2', 'tmsL
         });
 
         return deferred.promise;
+    };
+    $scope.dirClicked = function(oDir, active) {
+        _oCriteria.data = {};
+        if (oDir) {
+            _oCriteria.data[oDir.schema_id] = oDir.op.v;
+        }
+        $scope.activeDirSchemas = active;
+        $scope.recordList(1);
     };
     $scope.shiftMenu = function(criteria) {
         _oCriteria[criteria.type] = criteria.id;

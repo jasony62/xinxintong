@@ -3,7 +3,7 @@
         <div ng-repeat="singleFilter in singleFilters">
             <div tms-dropdown basic-data="singleFilter" criteria="criteria" shift-menu="shiftMenu(criteria)"></div>
         </div>
-        <div tms-filter append-to-ele="appendToEle" basic-data="multiFilters" filter="filter" criteria="criteria" confirm="confirm(filterOpt)"></div>
+        <div tms-filter append-to-ele="appendToEle" basic-data="multiFilters" filter="filter" criteria="criteria" confirm="confirm(filterOpt)" class='tmsFilter'></div>
     </div>
     <div id='filterTip' class='hidden-xs' ng-if="filter.isFilter||filter.tags.length">
         <div class='bg-info small' ng-repeat="multifilter in multiFilters" ng-if="criteria[multifilter.type]!==null">

@@ -777,7 +777,7 @@ class repos extends base {
 					}
 					$recordData->data = $newRecordData;
 					if (!empty($recordDirs)) {
-						$recordData->recordDir = (object) $recordDirs;
+						$recordData->recordDir = $recordDirs;
 					}
 				}
 				/* 答案 */

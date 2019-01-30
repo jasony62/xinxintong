@@ -1333,13 +1333,6 @@ class data_model extends entity_model {
 					if (count($visibilitySchemas)) {
 						$fnCheckSchemaVisibility($visibilitySchemas, $aRecData->data);
 					}
-
-					// 将此答案添加道data中
-					$recData2 = new \stdClass;
-					$recData2->id = $aRecData->dataId;
-					$recData2->value = $aRecData->value;
-					$aRecData->data->{$aRecData->schema_id} = [$recData2];
-					unset($aRecData->value);
 				}
 			}
 			

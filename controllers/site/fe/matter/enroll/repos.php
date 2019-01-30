@@ -492,30 +492,39 @@ class repos extends base {
 						} else if (!empty($oRecord->data->{$schemaId})) {
 							/* 协作填写题 */
 							if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
-								$aOptions = ['excludeRoot' => true, 'fields' => 'id,agreed,like_num,nickname,value,multitext_seq,vote_num,score'];
-								// 展示在共享页的协作数据表态类型
+								// $aOptions = ['excludeRoot' => true, 'fields' => 'id,agreed,like_num,nickname,value,multitext_seq,vote_num,score'];
+								// // 展示在共享页的协作数据表态类型
+								// if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
+								// 	$aOptions['agreed'] = $oApp->actionRule->cowork->repos->pre->cowork->agreed;
+								// } else {
+								// 	$aOptions['agreed'] = ['Y', 'A'];
+								// }
+								// $items = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, $aOptions);
+								// if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
+								// 	$countItems = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, ['agreed' => ['Y', 'A'], 'fields' => 'id']);
+								// 	$aCoworkState[$oSchema->id] = (object) ['length' => count($countItems)];
+								// } else {
+								// 	$aCoworkState[$oSchema->id] = (object) ['length' => count($items)];
+								// }
+								// if ($coworkReposLikeNum) {
+								// 	$reposItems = [];
+								// 	foreach ($items as $oItem) {
+								// 		if ($oItem->like_num >= $coworkReposLikeNum || $oItem->agreed === 'Y') {
+								// 			$reposItems[] = $oItem;
+								// 		}
+								// 	}
+								// 	$items = $reposItems;
+								// }
+								// $oRecordData->{$schemaId} = $items;
+								$aOptions = ['fields' => 'id'];
 								if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
 									$aOptions['agreed'] = $oApp->actionRule->cowork->repos->pre->cowork->agreed;
 								} else {
 									$aOptions['agreed'] = ['Y', 'A'];
 								}
-								$items = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, $aOptions);
-								if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
-									$countItems = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, ['agreed' => ['Y', 'A'], 'fields' => 'id']);
-									$aCoworkState[$oSchema->id] = (object) ['length' => count($countItems)];
-								} else {
-									$aCoworkState[$oSchema->id] = (object) ['length' => count($items)];
-								}
-								if ($coworkReposLikeNum) {
-									$reposItems = [];
-									foreach ($items as $oItem) {
-										if ($oItem->like_num >= $coworkReposLikeNum || $oItem->agreed === 'Y') {
-											$reposItems[] = $oItem;
-										}
-									}
-									$items = $reposItems;
-								}
-								$oRecordData->{$schemaId} = $items;
+								$countItems = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, $aOptions);
+								$aCoworkState[$oSchema->id] = (object) ['length' => count($countItems)];
+								continue;
 							} else {
 								$oRecordData->{$schemaId} = $oRecord->data->{$schemaId};
 							}
@@ -719,7 +728,6 @@ class repos extends base {
 				if (!empty($oApp->voteConfig)) {
 					$aVoteRules = $this->model('matter\enroll\task', $oApp)->getVoteRule($oUser, $recordData->round);
 				}
-				$aCoworkState = [];
 				$recordDirs = [];
 				/* 清除非共享数据 */
 				if (isset($recordData->data)) {
@@ -759,13 +767,25 @@ class repos extends base {
 								$newRecordData->member->{$memberSchemaId} = $recordData->data->member->{$memberSchemaId};
 							}
 						} else if (!empty($recordData->data->{$schemaId})) {
-							$newRecordData->{$schemaId} = $recordData->data->{$schemaId};
+							/* 协作填写题 */
+							if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
+								continue;
+							} else {
+								$newRecordData->{$schemaId} = $recordData->data->{$schemaId};
+							}
 						}
 					}
 					$recordData->data = $newRecordData;
 					if (!empty($recordDirs)) {
 						$recordData->recordDir = (object) $recordDirs;
 					}
+				}
+				/* 答案 */
+				if (!empty($recordData->value)) {
+					$item = new \stdClass;
+					$item->value = $recordData->value;
+					$recordData->answer = $item;
+					unset($recordData->value);
 				}
 				/* 隐藏昵称 */
 				if ($bAnonymous) {
@@ -786,9 +806,6 @@ class repos extends base {
 						}
 					}
 				}
-				/* 清除不必要的内容 */
-				unset($recordData->comment);
-				unset($recordData->verified);
 			}
 		}
 

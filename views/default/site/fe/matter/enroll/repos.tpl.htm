@@ -57,40 +57,21 @@
                     <button class='btn btn-default btn-sm' ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">关闭</button>
                 </div>
             </div>
-            <div class='main col-xs-12' ng-class="{'col-md-9':dirSchemas.length,'col-md-12':dirSchemas.length===0}">
-                <div id='filterQuick' ng-cloak>
-                    <div class='site-dropdown' uib-dropdown ng-if="tabViews.length>1">
-                        <a href uib-dropdown-toggle class='site-dropdown-title'>
-                            <span>{{selectedView.title}}</span> <i class='glyphicon glyphicon-menu-up'></i>
-                        </a>
-                        <ul class='dropdown-menu site-dropdown-menu' uib-dropdown-menu>
-                            <li ng-repeat="tabView in tabViews">
-                                <a href ng-click="tabClick(tabView)" ng-bind="tabView.title"></a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div ng-if="selectedView.title!=='专题'" ng-repeat="singleFilter in singleFilters" >
-                        <div tms-dropdown basic-data="singleFilter" criteria="criteria" shift-menu="shiftMenu(criteria)"></div>
-                    </div>
-                    <div ng-if="selectedView.title!=='专题'" tms-filter basic-data="multiFilters" filter="filter" criteria="criteria" confirm="confirm(filterOpt)"></div>
-                    <div ng-if="selectedView.title!=='专题'" ng-click="addRecord($event)">+<span ng-show="hasCowork">问题</span><span ng-hide="hasCowork">记录</span></div>
-                </div>
-                <!-- end: filterQuick -->
-                <div id='filterTip' class='hidden-xs' ng-if="filter.isFilter||filter.tags.length">
-                    <div class='bg-info small' ng-repeat="multifilter in multiFilters" ng-if="criteria[multifilter.type]!==null">
-                        <span ng-repeat="menu in multifilter.menus" ng-if="criteria[multifilter.type]==menu.id" ng-bind="menu.title"></span>
-                        <button class='close' trace-biz ng-click="shiftTip(multifilter.type)"><span>&times;</span></button>
-                    </div>
-                    <div class='bg-info small' ng-repeat="tag in filter.tags">
-                        <span ng-bind="tag.label"></span>
-                        <button class='close' trace-biz ng-click="shiftTag(tag,false)"><span>&times;</span></button>
-                    </div>
-                </div>
-                <div id='repos' ng-include="selectedView.url"></div>
-            </div>
+            <div class='site-dropdown tabs' uib-dropdown ng-if="tabs.length>1">
+                <a href uib-dropdown-toggle class='site-dropdown-title'>
+                    <span>{{selectedTab.title}}</span> <i class='glyphicon glyphicon-menu-down'></i>
+                </a>
+                <ul class='dropdown-menu site-dropdown-menu' uib-dropdown-menu>
+                    <li ng-repeat="tab in tabs">
+                        <a href ng-click="tabClick(tab)" ng-bind="tab.title"></a>
+                    </li>
+                </ul>
+            </div> 
+            <div class='addRecord' ng-if="selectedTab.id!=='topic'" ng-click="addRecord($event)"><i class='glyphicon glyphicon-plus'></i><span ng-show="hasCowork">问题</span><span ng-hide="hasCowork">记录</span></div>           
+            <div class='main col-xs-12' ng-class="{'col-md-9':dirSchemas.length,'col-md-12':dirSchemas.length===0}" ng-include="selectedTab.url"></div>
         </div>
     </div>
-    <button popover-placement="top-right" popover-trigger="'show'" popover-append-to-body="true" class="tms-act-toggle visible-xs-inline-block" popover-class="tms-act-popover" ng-if="dirSchemas.length&&selectedView.title!=='专题'" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened"><span class='glyphicon glyphicon-folder-open' ng-class="{'opened':advCriteriaStatus.opened}"></span> 目录</button>
+    <button popover-placement="top-right" popover-trigger="'show'" popover-append-to-body="true" class="tms-act-toggle visible-xs-inline-block" popover-class="tms-act-popover" ng-if="dirSchemas.length&&selectedTab.title!=='专题'" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened"><span class='glyphicon glyphicon-folder-open' ng-class="{'opened':advCriteriaStatus.opened}"></span> 目录</button>
     <div id='favorGuide' ng-if="favorStack.guiding">
         <span>已收藏</span>
         <button class='btn btn-default' ng-click="assignTopic()">选择专题</button>

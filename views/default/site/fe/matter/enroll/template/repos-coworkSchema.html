@@ -1,4 +1,4 @@
-<div class='wrap' ng-controller="ctrlRecordSchema">
+<div class='wrap' ng-controller="ctrlCoworkSchema">
     <div id='filterQuick' ng-cloak>
         <div ng-repeat="singleFilter in singleFilters">
             <div tms-dropdown basic-data="singleFilter" criteria="criteria" shift-menu="shiftMenu(criteria)"></div>
@@ -28,7 +28,7 @@
                 </div>
                 <div class='data' ng-click="remarkRecord(rec, $event)">
                     <blockquote>
-                        <div tms-repos-record-data schemas="schemas" record="rec"></div>
+                        <div tms-repos-record-data schemas="schemas" record="rec" has-cowork="hasCowork"></div>
                     </blockquote>
                 </div>
                 <div class='bottom-bar'>
@@ -36,24 +36,6 @@
                     <a href ng-if="rec.like_num!='0'"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></a>
                     <a href ng-if="rec.dislike_num!='0'"><span class='glyphicon glyphicon-thumbs-down' ng-class="{'like':rec.dislike_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.dislike_num"></span></a>
                     <a href ng-if="rec.remark_num!='0'"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></a>
-                    <div class="btn-group" uib-dropdown>
-                        <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>
-                            <span class="glyphicon glyphicon-option-vertical"></span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-right dropdown-menu-top" uib-dropdown-menu>
-                            <li><a href ng-click="shareRecord(rec)"><span class='glyphicon glyphicon-share'></span> 分享</a></li>
-                            <li ng-if="!rec.favored"><a href ng-click="favorRecord(rec)"><span class='glyphicon glyphicon-bookmark'></span> 收藏</a></li>
-                            <li><a href ng-click="assignTag(rec)"><span class='glyphicon glyphicon-tag'></span> 标签</a></li>
-                            <li ng-if="rec.favored"><a href ng-click="assignTopic(rec)"><span class='glyphicon glyphicon-inbox'></span> 专题</a></li>
-                            <li ng-if="rec.userid===user.uid"><a href ng-click="editRecord($event,rec)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
-                            <li ng-if="app.scenarioConfig.can_assoc === 'Y'" class='divider'></li>
-                            <li ng-if="app.scenarioConfig.can_assoc === 'Y'"><a href ng-click="copyRecord($event,rec)"><span class='glyphicon glyphicon-copy'></span> 复制</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class='tags' ng-if="rec.tags||rec.userTags">
-                    <button class='btn btn-info btn-xs' ng-repeat="tag in rec.tags" ng-bind="tag.label" ng-click="shiftTag(tag,true)"></button>
-                    <button class='btn btn-default btn-xs' ng-repeat="tag in rec.userTags" ng-bind="tag.label" ng-click="shiftTag(tag,true)"></button>
                 </div>
             </div>
             <div class='record' ng-show="page.total>repos.length" ng-cloak>

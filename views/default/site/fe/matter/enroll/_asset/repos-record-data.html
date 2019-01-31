@@ -67,4 +67,7 @@
             <button class='btn btn-default btn-xs' ng-if="rec.voteResult[schema.id].state==='IP'&&rec.voteResult[schema.id].vote_at!==0" ng-click="unvote(rec.voteResult[schema.id], $event)"><span class='glyphicon glyphicon-triangle-bottom'></span> 撤销投票</button>
         </div>
     </div>
+    <div class="answer" ng-if="hasCowork">
+        答案：<span ng-bind="rec.answer.value"></span>
+    </div>
 </div>

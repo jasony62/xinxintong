@@ -78,17 +78,35 @@ body.enroll-repos {
             .main {
                 flex-grow: 1;
                 display: flex;
-                flex-direction: column;
 
-                #repos {
+                .wrap {
                     flex-grow: 1;
                     display: flex;
                     flex-direction: column;
-                    overflow-y: auto;
+
+                    #repos {
+                        flex-grow: 1;
+                        display: flex;
+                        flex-direction: column;
+                        overflow-y: auto;
+                    }
                 }
             }
         }
     }
+}
+
+.tabs {
+    position: absolute;
+    left: 220px;
+    z-index: 10;
+}
+
+.addRecord {
+    position: absolute;
+    top: 8px;
+    right: 30px;
+    z-index: 10;
 }
 
 #advCriteria {
@@ -139,6 +157,10 @@ body.enroll-repos {
                     padding-right: 25px;
                     overflow-y: auto;
                     height: 100%;
+
+                    &>div {
+                        width: 200px;
+                    }
                 }
 
                 .item {
@@ -194,6 +216,7 @@ body.enroll-repos {
 }
 
 #filterQuick {
+    text-align: center;
     margin-bottom: 3px;
     position: relative;
     background-color: #fff;
@@ -202,58 +225,23 @@ body.enroll-repos {
         display: inline-block;
     }
 
-    .glyphicon-menu-up {
-        transform: rotate(-180deg);
-    }
-
-    .site-dropdown.open,
-    &.uib-dropdown-open>.pull-right {
-        .glyphicon-menu-up {
-            transform: rotate(0deg);
-        }
-
-    }
-
-    .site-dropdown {
-        display: inline-block;
-        background-color: #fff;
-
-        .site-dropdown-title {
-            display: block;
-            padding: 0px 10px;
-            font-size: 14px;
-            color: #333;
-            min-height: 40px;
-            line-height: 40px;
-        }
-
-        a:focus,
-        a:hover {
-            text-decoration: none;
-        }
-
-        a.active {
-            color: #ff8018;
-        }
-
-    }
-
     .site-dropdown-list {
         width: 100% !important;
         right: 0 !important;
         left: auto !important;
         background-color: #f5f5f5;
         padding: 0;
-        
+
         .dropdown-search {
             position: relative;
 
             .btn {
                 position: absolute;
-                top:0;
-                right:0;
+                top: 0;
+                right: 0;
             }
         }
+
         .dropdown-list-wrapper {
             width: 100%;
             height: 25rem;
@@ -344,6 +332,29 @@ body.enroll-repos {
         }
 
     }
+}
+
+.site-dropdown {
+    display: inline-block;
+    background-color: #fff;
+
+    .site-dropdown-title {
+        display: block;
+        padding: 0px 10px;
+        font-size: 14px;
+        color: #333;
+        min-height: 40px;
+        line-height: 40px;
+    }
+
+    a:focus,
+    a:hover {
+        text-decoration: none;
+    }
+
+    a.active {
+        color: #ff8018;
+    }
 
 }
 
@@ -367,7 +378,8 @@ body.enroll-repos {
 
 }
 
-.record, .topic {
+.record,
+.topic {
     background: #fff;
     border-bottom: 1px solid #ddd;
     padding: 8px 16px;
@@ -388,6 +400,14 @@ body.enroll-repos {
 
             .schema>div+div {
                 margin-top: 4px;
+            }
+
+            .answer {
+                margin-top: 20px;
+
+                 span{
+                    font-size: 18px;
+                 }
             }
 
         }
@@ -746,6 +766,14 @@ body.enroll-repos {
 @media screen and (max-width:768px) {
     .site-navbar-default {
         margin-bottom: 0;
+    }
+
+    .tabs {
+        left: 0;
+    }
+
+    .addRecord {
+        right: 10px;
     }
 
     #advCriteria {

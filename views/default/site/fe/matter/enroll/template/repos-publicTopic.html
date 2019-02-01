@@ -1,4 +1,9 @@
 <div class='wrap' ng-controller="ctrlPublicTopic">
+    <div id='filterQuick' ng-cloak>
+        <div ng-repeat="singleFilter in singleFilters">
+            <div tms-dropdown basic-data="singleFilter" criteria="criteria" shift-menu="shiftMenu(criteria)"></div>
+        </div>
+    </div>
     <div class='topics' id='topic'>
         <div class='topic' ng-repeat="topic in topics" ng-click="gotoTopic(topic, $event)" ng-cloak>
             <div class='tms-flex-row small text-muted'>

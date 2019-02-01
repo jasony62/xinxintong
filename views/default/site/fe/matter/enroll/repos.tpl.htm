@@ -66,8 +66,12 @@
                         <a href ng-click="tabClick(tab)" ng-bind="tab.title"></a>
                     </li>
                 </ul>
-            </div> 
-            <div class='addRecord' ng-if="selectedTab.id!=='topic'" ng-click="addRecord($event)"><i class='glyphicon glyphicon-plus'></i><span ng-show="hasCowork">问题</span><span ng-hide="hasCowork">记录</span></div>           
+            </div>
+            <div class='addRecord' ng-if="selectedTab.id!=='topic'" ng-click="addRecord($event)">
+                <i class='glyphicon glyphicon-plus'></i>
+                <span ng-if="selectedTab.id==='coworkData'">问题</span>
+                <span ng-if="selectedTab.id==='record'">{{selectedTab.title}}</span>
+            </div>
             <div class='main col-xs-12' ng-class="{'col-md-9':dirSchemas.length,'col-md-12':dirSchemas.length===0}" ng-include="selectedTab.url"></div>
         </div>
     </div>

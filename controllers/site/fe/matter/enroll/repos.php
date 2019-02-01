@@ -509,6 +509,12 @@ class repos extends base {
 					$oRecord->data = $oRecordData;
 					if (!empty($aCoworkState)) {
 						$oRecord->coworkState = (object) $aCoworkState;
+						// 协作填写题数据总数量
+						$sum = 0;
+						foreach ($aCoworkState as $k => $v) {
+							$sum += (int) $v->length;
+						}
+						$oRecord->coworkDataTotal = $sum;
 					}
 					if (!empty($recordDirs)) {
 						$oRecord->recordDir = $recordDirs;

@@ -11,7 +11,7 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
             schemas: '=',
             rec: '=record',
             task: '=task',
-            hasCowork: '='
+            currentTab: '='
         },
         controller: ['$scope', '$sce', '$location', 'tmsLocation', 'http2', 'noticebox', 'tmsSchema', function($scope, $sce, $location, LS, http2, noticebox, tmsSchema) {
             $scope.coworkRecord = function(oRecord) {

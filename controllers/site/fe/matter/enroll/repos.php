@@ -509,6 +509,12 @@ class repos extends base {
 					$oRecord->data = $oRecordData;
 					if (!empty($aCoworkState)) {
 						$oRecord->coworkState = (object) $aCoworkState;
+						// 协作填写题数据总数量
+						$sum = 0;
+						foreach ($aCoworkState as $k => $v) {
+							$sum += (int) $v->length;
+						}
+						$oRecord->coworkDataTotal = $sum;
 					}
 					if (!empty($recordDirs)) {
 						$oRecord->recordDir = $recordDirs;
@@ -745,7 +751,11 @@ class repos extends base {
 						} else if (!empty($recordData->data->{$schemaId})) {
 							/* 协作填写题 */
 							if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
-								continue;
+								$item = new \stdClass;
+								$item->id = $recordData->dataId;
+								$item->value = $recordData->value;
+								$newRecordData->{$schemaId} = [$item];
+								unset($recordData->value);
 							} else {
 								$newRecordData->{$schemaId} = $recordData->data->{$schemaId};
 							}
@@ -755,14 +765,6 @@ class repos extends base {
 					if (!empty($recordDirs)) {
 						$recordData->recordDir = $recordDirs;
 					}
-				}
-				/* 答案 */
-				if (!empty($recordData->value)) {
-					$item = new \stdClass;
-					$item->id = $recordData->dataId;
-					$item->value = $recordData->value;
-					$recordData->answer = $item;
-					unset($recordData->value);
 				}
 				/* 隐藏昵称 */
 				if ($bAnonymous) {
@@ -1022,7 +1024,7 @@ class repos extends base {
 						if ($this->getDeepValue($oVoteRule->schema, 'cowork') === 'Y') {continue;}
 						$oRecData = $modelData->byRecord($oRecord->enroll_key, ['schema' => $schemaId, 'fields' => 'id,vote_num']);
 						if ($oRecData) {
-							$vote_at = (int) $modelData->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oRecData->id, 'state' => 1, 'userid' => $oUser->uid]]);
+							$vote_at = (int) $modelData->query_val_ss(['vote_at', 'xxt_enroll_vote', ['rid' => $oApp->appRound->rid, 'data_id' => $oRecData->id, 'state' => 1, 'userid' => $oUser->uid]]);
 							$oRecData->vote_at = $vote_at;
 							$oRecData->state = $oVoteRule->state;
 							$oVoteResult->{$schemaId} = $oRecData;
@@ -1221,31 +1223,42 @@ class repos extends base {
 		foreach ($criterias as $key => $criteria) {
 			// 默认排序
 			if ($criteria->type === 'orderby') {
-				if (!empty($oApp->reposConfig->defaultOrder)) {
-					foreach ($criteria->menus as $i => $v) {
-						if ($v->id === $oApp->reposConfig->defaultOrder) {
-							$criteria->default = $criteria->menus[$i];
-							break;
+				if ($viewType === 'topic') {
+					$criteria->menus = [];
+					$criteria->menus[] = (object) ['id' => 'lastest', 'title' => '最近创建'];
+					$criteria->menus[] = (object) ['id' => 'earliest', 'title' => '最早创建'];
+					$criteria->default = $criteria->menus[0];
+				} else {
+					if (!empty($oApp->reposConfig->defaultOrder)) {
+						foreach ($criteria->menus as $i => $v) {
+							if ($v->id === $oApp->reposConfig->defaultOrder) {
+								$criteria->default = $criteria->menus[$i];
+								break;
+							}
 						}
 					}
 				}
 			}
 			//获取轮次
 			if ($criteria->type === 'rid') {
-				$modelRun = $this->model('matter\enroll\round');
-				$options = [
-					'fields' => 'rid,title',
-					'state' => ['1', '2'],
-				];
-				$result = $modelRun->byApp($oApp, $options);
-				if (count($result->rounds) == 1) {
+				if ($viewType === 'topic') {
 					unset($criterias[$key]);
 				} else {
-					foreach ($result->rounds as $round) {
-						if ($round->rid === $result->active->rid) {
-							$criteria->menus[] = (object) ['id' => $round->rid, 'title' => '(当前填写轮次) ' . $round->title];
-						} else {
-							$criteria->menus[] = (object) ['id' => $round->rid, 'title' => $round->title];
+					$modelRun = $this->model('matter\enroll\round');
+					$options = [
+						'fields' => 'rid,title',
+						'state' => ['1', '2'],
+					];
+					$result = $modelRun->byApp($oApp, $options);
+					if (count($result->rounds) == 1) {
+						unset($criterias[$key]);
+					} else {
+						foreach ($result->rounds as $round) {
+							if ($round->rid === $result->active->rid) {
+								$criteria->menus[] = (object) ['id' => $round->rid, 'title' => '(当前填写轮次) ' . $round->title];
+							} else {
+								$criteria->menus[] = (object) ['id' => $round->rid, 'title' => $round->title];
+							}
 						}
 					}
 				}
@@ -1267,7 +1280,9 @@ class repos extends base {
 			}
 			// 获取分组
 			if ($criteria->type === 'userGroup') {
-				if (empty($oApp->entryRule->group->id)) {
+				if ($viewType === 'topic') {
+					unset($criterias[$key]);
+				} else if (empty($oApp->entryRule->group->id)) {
 					unset($criterias[$key]);
 				} else {
 					$assocGroupAppId = $oApp->entryRule->group->id;
@@ -1286,7 +1301,9 @@ class repos extends base {
 				 *表态 当用户为编辑或者超级管理员或者有组时才会出现“接受”，“关闭” ，“讨论”，“未表态” ，否则只有推荐和不限两种
 			*/
 			if ($criteria->type === 'agreed') {
-				if (!empty($oUser->group_id) || (isset($oUser->is_leader) && $oUser->is_leader === 'S') || (isset($oUser->is_editor) && $oUser->is_editor === 'Y')) {
+				if ($viewType === 'topic') {
+					unset($criterias[$key]);
+				} else if (!empty($oUser->group_id) || (isset($oUser->is_leader) && $oUser->is_leader === 'S') || (isset($oUser->is_editor) && $oUser->is_editor === 'Y')) {
 					$criteria->menus[] = (object) ['id' => 'A', 'title' => '接受'];
 					$criteria->menus[] = (object) ['id' => 'D', 'title' => '讨论'];
 					$criteria->menus[] = (object) ['id' => 'N', 'title' => '关闭'];
@@ -1307,10 +1324,14 @@ class repos extends base {
 			}
 			// 搜索历史
 			if ($criteria->type === 'keyword') {
-				$search = $this->model('matter\enroll\search')->listUserSearch($oApp, $oUser);
-				$userSearchs = $search->userSearch;
-				foreach ($userSearchs as $userSearch) {
-					$criteria->menus[] = (object) ['id' => $userSearch->keyword, 'title' => $userSearch->keyword];
+				if ($viewType === 'topic') {
+					unset($criterias[$key]);
+				} else {
+					$search = $this->model('matter\enroll\search')->listUserSearch($oApp, $oUser);
+					$userSearchs = $search->userSearch;
+					foreach ($userSearchs as $userSearch) {
+						$criteria->menus[] = (object) ['id' => $userSearch->keyword, 'title' => $userSearch->keyword];
+					}
 				}
 			}
 		}

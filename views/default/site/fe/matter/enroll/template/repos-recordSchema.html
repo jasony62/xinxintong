@@ -28,13 +28,14 @@
                 </div>
                 <div class='data' ng-click="remarkRecord(rec, $event)">
                     <blockquote>
-                        <div tms-repos-record-data schemas="schemas" record="rec"></div>
+                        <div tms-repos-record-data schemas="schemas" record="rec" current-tab="selectedTab"></div>
                     </blockquote>
                 </div>
                 <div class='bottom-bar'>
                     <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
                     <a href ng-if="rec.like_num!='0'"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></a>
                     <a href ng-if="rec.dislike_num!='0'"><span class='glyphicon glyphicon-thumbs-down' ng-class="{'like':rec.dislike_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.dislike_num"></span></a>
+                    <a href ng-if="rec.coworkDataTotal&&rec.coworkDataTotal!='0'"><span>答</span>&nbsp;<span ng-bind="rec.coworkDataTotal"></span></a>
                     <a href ng-if="rec.remark_num!='0'"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></a>
                     <div class="btn-group" uib-dropdown>
                         <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>

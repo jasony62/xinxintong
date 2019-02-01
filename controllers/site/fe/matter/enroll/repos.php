@@ -745,7 +745,11 @@ class repos extends base {
 						} else if (!empty($recordData->data->{$schemaId})) {
 							/* 协作填写题 */
 							if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
-								continue;
+								$item = new \stdClass;
+								$item->id = $recordData->dataId;
+								$item->value = $recordData->value;
+								$newRecordData->{$schemaId} = [$item];
+								unset($recordData->value);
 							} else {
 								$newRecordData->{$schemaId} = $recordData->data->{$schemaId};
 							}
@@ -755,14 +759,6 @@ class repos extends base {
 					if (!empty($recordDirs)) {
 						$recordData->recordDir = $recordDirs;
 					}
-				}
-				/* 答案 */
-				if (!empty($recordData->value)) {
-					$item = new \stdClass;
-					$item->id = $recordData->dataId;
-					$item->value = $recordData->value;
-					$recordData->answer = $item;
-					unset($recordData->value);
 				}
 				/* 隐藏昵称 */
 				if ($bAnonymous) {

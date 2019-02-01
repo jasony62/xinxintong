@@ -583,10 +583,7 @@ class record_model extends record_base {
 			$oOptions = (object) $oOptions;
 		}
 
-		$oSchemasById = new \stdClass; // 方便查找题目
-		foreach ($oApp->dataSchemas as $oSchema) {
-			$oSchemasById->{$oSchema->id} = $oSchema;
-		}
+		$oSchemasById = $this->model('matter\enroll\schema')->asAssoc($oApp->dynaDataSchemas);
 
 		// 指定记录活动下的记录记录
 		$w = "r.state=1 and r.aid='{$oApp->id}'";
@@ -967,7 +964,7 @@ class record_model extends record_base {
 							}
 						}
 						/* 根据题目的可见性处理数据 */
-						if (count($visibilitySchemas)) {
+						if ($this->getDeepValue($oRec, 'purpose') === 'C' && count($visibilitySchemas)) {
 							$fnCheckSchemaVisibility($visibilitySchemas, $oRec->data);
 						}
 					}
@@ -990,8 +987,6 @@ class record_model extends record_base {
 					$oRec->group = $oGroup;
 				}
 			}
-			// 用户的分组
-
 			// 记录的记录轮次
 			if (!empty($oRec->rid)) {
 				if (!isset($aRoundsById[$oRec->rid])) {

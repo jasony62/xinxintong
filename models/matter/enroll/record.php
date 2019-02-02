@@ -682,9 +682,9 @@ class record_model extends record_base {
 		}
 
 		// 指定了记录数据过滤条件
-		if (isset($oCriteria->data)) {
+		if (isset($oCriteria->record->data)) {
 			$whereByData = '';
-			foreach ($oCriteria->data as $k => $v) {
+			foreach ($oCriteria->record->data as $k => $v) {
 				if (!empty($v) && isset($oSchemasById->{$k})) {
 					$oSchema = $oSchemasById->{$k};
 					$whereByData .= ' and (';

@@ -109,30 +109,32 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
         this._bFilter = function(srvEnlRnd) {
             var defer = $q.defer(),
                 that = this;
-            $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordFilter.html?_=6',
-                controller: 'ctrlEnrollFilter',
-                windowClass: 'auto-height',
-                backdrop: 'static',
-                resolve: {
-                    app: function() {
-                        return that._oApp;
-                    },
-                    dataSchemas: function() {
-                        return that._oApp.dataSchemas;
-                    },
-                    criteria: function() {
-                        return angular.copy(that._oCriteria);
-                    },
-                    srvEnlRnd: function() {
-                        return srvEnlRnd;
+            http2.post('/rest/script/time', { html: { 'filter': '/views/default/pl/fe/matter/enroll/component/recordFilter' } }).then(function(rsp) {
+                $uibModal.open({
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/recordFilter.html?_' + rsp.data.html.filter.time,
+                    controller: 'ctrlEnrollFilter',
+                    windowClass: 'auto-height',
+                    backdrop: 'static',
+                    resolve: {
+                        app: function() {
+                            return that._oApp;
+                        },
+                        dataSchemas: function() {
+                            return that._oApp.dataSchemas;
+                        },
+                        criteria: function() {
+                            return angular.copy(that._oCriteria);
+                        },
+                        srvEnlRnd: function() {
+                            return srvEnlRnd;
+                        }
                     }
-                }
-            }).result.then(function(oCriteria) {
-                defer.resolve();
-                angular.extend(that._oCriteria, oCriteria);
-                that.search(1).then(function() {
+                }).result.then(function(oCriteria) {
                     defer.resolve();
+                    angular.extend(that._oCriteria, oCriteria);
+                    that.search(1).then(function() {
+                        defer.resolve();
+                    });
                 });
             });
             return defer.promise;

@@ -74,7 +74,6 @@
                         <th class='matched group' ng-repeat="schema in groupDataSchemas" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
                         <th style='width:80px'>审核通过</th>
                         <th style='width:80px'>获得赞同</th>
-                        <th style='width:140px' ng-if="app.tags.length">标签</th>
                         <th style='width:140px'>备注</th>
                         <th style='width:48px'>操作</th>
                     </tr>
@@ -89,11 +88,11 @@
                         <td>
                             <input type='checkbox' ng-model="rows.selected[$index]" ng-change="rows.change($index)">
                         </td>
-                        <td>{{(page.at-1)*page.size+$index+1}}</td>
-                        <td ng-if="bRequireNickname"><span>{{r.nickname}}</span></td>
-                        <td ng-if="bRequireGroup"><span>{{r.group.title}}</span> <span ng-if="r.group_id!==r.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span></td>
-                        <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
-                        <td>{{r.round.title}}</td>
+                        <td>{{::(page.at-1)*page.size+$index+1}}</td>
+                        <td ng-if="bRequireNickname"><span>{{::r.nickname}}</span></td>
+                        <td ng-if="bRequireGroup"><span>{{::r.group.title}}</span> <span ng-if="r.group_id!==r.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span></td>
+                        <td>{{::(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
+                        <td>{{::r.round.title}}</td>
                         <td ng-repeat="schema in recordSchemasExt" ng-switch on="schema.type">
                             <div ng-switch-when="image">
                                 <span><img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' /></span>
@@ -112,7 +111,7 @@
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
                             <span ng-if="fromApp.fromApp&&schema.id==='_round_id'&&r.group_id!==r.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span>
                         </td>
-                        <td ng-if="bRequireScore" ng-bind="r.score.sum"></td>
+                        <td ng-if="bRequireScore" ng-bind="::r.score.sum"></td>
                         <td class='matched enroll' ng-repeat="schema in enrollDataSchemas" ng-switch on="schema.type">
                             <div ng-switch-when="image">
                                 <span><img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' /></span>
@@ -139,10 +138,9 @@
                             <span ng-switch-when="date"><span ng-if="r._data[schema.id]">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span></span>
                             <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
                         </td>
-                        <td>{{r.verified}}</td>
-                        <td>{{r.like_num}}</td>
-                        <td ng-if="app.tags.length">{{r.tags}}</td>
-                        <td>{{r.comment}}</td>
+                        <td>{{::r.verified}}</td>
+                        <td>{{::r.like_num}}</td>
+                        <td>{{::r.comment}}</td>
                         <td>
                             <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
                                 <span class='glyphicon glyphicon-remove'></span>
@@ -156,26 +154,25 @@
                         <td></td>
                         <td></td>
                         <td ng-if="bRequireNickname"></td>
-                        <td></td>
+                        <td ng-if="bRequireGroup"></td>
                         <td></td>
                         <td></td>
                         <td ng-repeat="schema in recordSchemasExt">
                             <div ng-if="schema.format==='number'||schema.type==='score'">
-                                {{sum4SchemaAtPage[schema.id]}}/{{sum4Schema[schema.id]}}
+                                {{::sum4SchemaAtPage[schema.id]}}/{{::sum4Schema[schema.id]}}
                             </div>
                             <div ng-if="schema.type==='calcScore'">
-                                {{score4SchemaAtPage[schema.id]}}/{{score4Schema[schema.id]}}
+                                {{::score4SchemaAtPage[schema.id]}}/{{::score4Schema[schema.id]}}
                             </div>
                         </td>
                         <td>
                             <div ng-if="bRequireScore">
-                                {{score4SchemaAtPage.sum}}/{{score4Schema.sum}}
+                                {{::score4SchemaAtPage.sum}}/{{::score4Schema.sum}}
                             </div>
                         </td>
                         <td class='matched enroll' ng-repeat="schema in enrollDataSchemas"></td>
                         <td class='matched group' ng-repeat="schema in groupDataSchemas"></td>
                         <td></td>
-                        <td ng-if="app.tags.length"></td>
                         <td></td>
                         <td></td>
                     </tr>

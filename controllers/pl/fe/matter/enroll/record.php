@@ -2485,8 +2485,6 @@ class record extends main_base {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '分组');
 		}
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '备注');
-		// $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '标签');
-		// $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '用户端用户标签');
 		// 记录分数
 		if ($oApp->scenario === 'voting') {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '总分数');
@@ -2503,21 +2501,19 @@ class record extends main_base {
 		for ($j = 0, $jj = count($records); $j < $jj; $j++) {
 			$oRecord = $records[$j];
 			$rowIndex = $j + 2;
-			$columnNum2 = 0; //列号
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, date('y-m-j H:i', $oRecord->enroll_at));
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $oRecord->verified);
+			$recColNum = 0; // 记录列号
+			$objActiveSheet->setCellValueByColumnAndRow($recColNum++, $rowIndex, date('y-m-j H:i', $oRecord->enroll_at));
+			$objActiveSheet->setCellValueByColumnAndRow($recColNum++, $rowIndex, $oRecord->verified);
 			// 轮次名
 			if (isset($oRecord->round)) {
-				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $oRecord->round->title);
+				$objActiveSheet->setCellValueByColumnAndRow($recColNum++, $rowIndex, $oRecord->round->title);
 			}
 			// 处理登记项
 			$oRecData = $oRecord->data;
 			$oRecScore = empty($oRecord->score) ? new \stdClass : $oRecord->score;
 			$oRecSupplement = $oRecord->supplement;
 			$oVerbose = isset($oRecord->verbose) ? $oRecord->verbose->data : false;
-			$i = 0; // 列序号
 			for ($i2 = 0, $ii = count($schemas); $i2 < $ii; $i2++) {
-				$columnNum3 = $columnNum2; //列号
 				$oSchema = $schemas[$i2];
 				if (in_array($oSchema->type, ['html'])) {
 					continue;
@@ -2536,8 +2532,8 @@ class record extends main_base {
 					$cellValue = str_replace(['<br>', '</br>'], ["\n", ""], $cellValue);
 					$cellValue = strip_tags($cellValue);
 					$cellValue = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $cellValue);
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $cellValue, \PHPExcel_Cell_DataType::TYPE_STRING);
-					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $cellValue, \PHPExcel_Cell_DataType::TYPE_STRING);
+					$objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
 				case 'multiple':
 					$labels = [];
@@ -2556,8 +2552,8 @@ class record extends main_base {
 					$cellValue = str_replace(['<br>', '</br>'], ["\n", ""], $cellValue);
 					$cellValue = strip_tags($cellValue);
 					$cellValue = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $cellValue);
-					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, $cellValue);
-					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
+					$objActiveSheet->setCellValueByColumnAndRow($recColNum++, $rowIndex, $cellValue);
+					$objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
 				case 'score':
 					$labels = [];
@@ -2568,33 +2564,33 @@ class record extends main_base {
 							}
 						}
 					}
-					$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum3++, $rowIndex, implode(' / ', $labels));
+					$objActiveSheet->setCellValueByColumnAndRow($recColNum++, $rowIndex, implode(' / ', $labels));
 					break;
 				case 'image':
 					$v0 = '';
 					$v0 = str_replace(['<br>', '</br>'], ["\n", ""], $v0);
 					$v0 = strip_tags($v0);
 					$v0 = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v0);
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
-					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
+					$objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
 				case 'file':
 					$v0 = '';
 					$v0 = str_replace(['<br>', '</br>'], ["\n", ""], $v0);
 					$v0 = strip_tags($v0);
 					$v0 = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v0);
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
-					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
+					$objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
 				case 'date':
 					$v = (!empty($v) && is_numeric($v)) ? date('y-m-j H:i', $v) : '';
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
 				case 'shorttext':
 					if (isset($oSchema->format) && $oSchema->format === 'number') {
-						$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
+						$objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
 					} else {
-						$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+						$objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
 					}
 					break;
 				case 'multitext':
@@ -2606,21 +2602,20 @@ class record extends main_base {
 						$v = implode("\n", $values);
 					}
 					$v = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v);
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
-					$objActiveSheet->getStyleByColumnAndRow($i + $columnNum3 - 1, $rowIndex)->getAlignment()->setWrapText(true);
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+					$objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
 				case 'url':
 					$v0 = '';
 					!empty($v->title) && $v0 .= '【' . $v->title . '】';
 					!empty($v->description) && $v0 .= $v->description;
 					!empty($v->url) && $v0 .= $v->url;
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
 				default:
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i + $columnNum3++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
 					break;
 				}
-				$one = $i + $columnNum3;
 				// 补充说明
 				if ($this->getDeepValue($oSchema, 'supplement') === 'Y') {
 					$supplement = $this->getDeepValue($oRecSupplement, $oSchema->id, '');
@@ -2628,57 +2623,32 @@ class record extends main_base {
 					$supplement = preg_replace('/<[^>]+?>/', '', $supplement);
 					$supplement = preg_replace('/\s+/', '', $supplement);
 					$supplement = preg_replace('/>/', '', $supplement);
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $supplement, \PHPExcel_Cell_DataType::TYPE_STRING);
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $supplement, \PHPExcel_Cell_DataType::TYPE_STRING);
 				}
 				// 分数
-				if ((isset($oSchema->requireScore) && $oSchema->requireScore === 'Y')) {
-					$cellScore = empty($oRecScore->{$oSchema->id}) ? 0 : $oRecScore->{$oSchema->id};
-					$objActiveSheet->setCellValueExplicitByColumnAndRow($i++ + $columnNum3++, $rowIndex, $cellScore, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
+				if ($this->getDeepValue($oSchema, 'requireScore') === 'Y') {
+					$cellScore = $this->getDeepValue($oRecScore, $oSchema->id, 0);
+					$objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $cellScore, \PHPExcel_Cell_DataType::TYPE_NUMERIC);
 				}
-				$i++;
 			}
 			// 昵称
 			if ($bRequireNickname) {
-				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->nickname);
+				$objActiveSheet->setCellValueByColumnAndRow($recColNum++, $rowIndex, $oRecord->nickname);
 			}
 			// 分组
 			if (null === $oAssocGrpSchema) {
-				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, isset($oRecord->group->title) ? $oRecord->group->title : '');
+				$objActiveSheet->setCellValueByColumnAndRow($recColNum++, $rowIndex, isset($oRecord->group->title) ? $oRecord->group->title : '');
 			}
 			// 备注
-			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->comment);
-			// 标签
-			// $objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->tags);
-			// 用户端用户标签
-			// if (!isset($who)) {
-			// 	$modelWay = $this->model('site\fe\way');
-			// 	$modelTag2 = $this->model('matter\enroll\tag2');
-			// 	$who = $modelWay->who($oApp->siteid);
-			// }
-			// $oRecordTags = $modelTag2->byRecord($oRecord, $who, ['UserAndPublic' => true]);
-			// $userTags = '';
-			// if (!empty($oRecordTags->user)) {
-			// 	foreach ($oRecordTags->user as $k => $val) {
-			// 		$k > 0 && $userTags .= ',';
-			// 		$userTags .= $val->label;
-			// 	}
-			// }
-			// if (!empty($oRecordTags->public)) {
-			// 	!empty($userTags) && $userTags .= ',';
-			// 	foreach ($oRecordTags->public as $k => $val) {
-			// 		$k > 0 && $userTags .= ',';
-			// 		$userTags .= $val->label;
-			// 	}
-			// }
-			// $objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $userTags);
+			$objActiveSheet->setCellValueByColumnAndRow($recColNum++, $rowIndex, $oRecord->comment);
 			// 记录投票分数
 			if ($oApp->scenario === 'voting') {
-				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->_score);
-				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, sprintf('%.2f', $oRecord->_average));
+				$objActiveSheet->setCellValueByColumnAndRow($recColNum++, $rowIndex, $oRecord->_score);
+				$objActiveSheet->setCellValueByColumnAndRow($recColNum++, $rowIndex, sprintf('%.2f', $oRecord->_average));
 			}
 			// 记录测验分数
 			if ($bRequireScore) {
-				$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, isset($oRecScore->sum) ? $oRecScore->sum : '');
+				$objActiveSheet->setCellValueByColumnAndRow($recColNum++, $rowIndex, isset($oRecScore->sum) ? $oRecScore->sum : '');
 			}
 		}
 		if (!empty($aNumberSum)) {

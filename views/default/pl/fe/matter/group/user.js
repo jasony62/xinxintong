@@ -1,8 +1,8 @@
 define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlUser', ['$scope', 'noticebox', 'srvGroupApp', 'srvGroupRound', 'srvGroupPlayer', 'srvMemberPicker', 'facListFilter', function($scope, noticebox, srvGroupApp, srvGroupRound, srvGrpUsr, srvMemberPicker, facListFilter) {
+    ngApp.provider.controller('ctrlUser', ['$scope', 'noticebox', 'srvGroupApp', 'srvGroupTeam', 'srvGroupUser', 'srvMemberPicker', 'facListFilter', function($scope, noticebox, srvGroupApp, srvGroupTeam, srvGrpUsr, srvMemberPicker, facListFilter) {
         $scope.syncByApp = function(data) {
             srvGroupApp.syncByApp().then(function(count) {
-                $scope.list('round');
+                $scope.list('team');
             });
         };
         $scope.chooseAppUser = function() {
@@ -20,7 +20,7 @@ define(['frame'], function(ngApp) {
                             type: 'group'
                         }
                         srvMemberPicker.open(matter, oSourceApp).then(function() {
-                            $scope.list('round');
+                            $scope.list('team');
                         });
                         break;
                 }
@@ -33,9 +33,9 @@ define(['frame'], function(ngApp) {
             srvGrpUsr.execute();
         };
         $scope.list = function(arg) {
-            if (_oCriteria[arg].round_id === 'all') {
+            if (_oCriteria[arg].team_id === 'all') {
                 srvGrpUsr.list(null, arg);
-            } else if (_oCriteria[arg].round_id === 'pending') {
+            } else if (_oCriteria[arg].team_id === 'pending') {
                 srvGrpUsr.list(false, arg);
             } else {
                 srvGrpUsr.list(_oCriteria[arg], arg);
@@ -48,7 +48,7 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.addUser = function() {
-            srvGrpUsr.edit({ tags: '', role_rounds: [] }).then(function(updated) {
+            srvGrpUsr.edit({ tags: '', role_teams: [] }).then(function(updated) {
                 srvGrpUsr.add(updated.player);
             });
         };
@@ -61,17 +61,17 @@ define(['frame'], function(ngApp) {
             srvGrpUsr.empty();
         };
         $scope.selectUser = function(oUser) {
-            var players = $scope.rows.players,
-                i = players.indexOf(oUser);
-            i === -1 ? players.push(oUser) : players.splice(i, 1);
+            var users = $scope.rows.users,
+                i = users.indexOf(oUser);
+            i === -1 ? users.push(oUser) : users.splice(i, 1);
         };
         // 选中或取消选中所有行
         $scope.selectAllRows = function(checked) {
             var index = 0;
             if (checked === 'Y') {
-                $scope.rows.players = [];
+                $scope.rows.users = [];
                 while (index < $scope.players.length) {
-                    $scope.rows.players.push($scope.players[index]);
+                    $scope.rows.users.push($scope.players[index]);
                     $scope.rows.selected[index++] = true;
                 }
             } else if (checked === 'N') {
@@ -95,27 +95,27 @@ define(['frame'], function(ngApp) {
         $scope.notify = function(isBatch) {
             srvGrpUsr.notify(isBatch ? $scope.rows : undefined);
         };
-        var players, _oCriteria;
-        $scope.players = players = [];
+        var _users, _oCriteria;
+        $scope.users = _users = [];
         // 表格定义是否准备完毕
         $scope.tableReady = 'N';
         // 当前选中的行
         $scope.rows = {
             allSelected: 'N',
             selected: {},
-            players: [],
+            users: [],
             reset: function() {
                 this.allSelected = 'N';
                 this.selected = {};
-                this.players = [];
+                this.users = [];
             }
         };
         $scope.criteria = _oCriteria = {
-            round: { round_id: 'all' },
-            roleRound: { round_id: 'all' }
+            team: { team_id: 'all' },
+            roleTeam: { team_id: 'all' }
         };
         $scope.filter = facListFilter.init(function(oFilterData, filterByProp, filterByKeyword) {
-            if (/round|roleRound/.test(filterByProp)) {
+            if (/team|roleTeam/.test(filterByProp)) {
                 $scope.list(filterByProp);
             } else if ('nickname' === filterByProp) {
                 srvGrpUsr.list(null, 'round', { by: filterByProp, kw: filterByKeyword });
@@ -126,21 +126,21 @@ define(['frame'], function(ngApp) {
             if (oApp.assignedNickname) {
                 $scope.bRequireNickname = oApp.assignedNickname.valid !== 'Y' || !oApp.assignedNickname.schema;
             }
-            srvGrpUsr.init(players).then(function() {
-                $scope.list('round');
+            srvGrpUsr.init(_users).then(function() {
+                $scope.list('team');
                 $scope.tableReady = 'Y';
             });
         });
-        srvGroupRound.list().then(function(rounds) {
-            $scope.teamRounds = [];
-            $scope.roleRounds = [];
-            rounds.forEach(function(oRound) {
-                switch (oRound.round_type) {
+        srvGroupTeam.list().then(function(teams) {
+            $scope.teams = [];
+            $scope.roleTeams = [];
+            teams.forEach(function(oTeam) {
+                switch (oTeam.team_type) {
                     case 'T':
-                        $scope.teamRounds.push(oRound);
+                        $scope.teams.push(oTeam);
                         break;
                     case 'R':
-                        $scope.roleRounds.push(oRound);
+                        $scope.roleTeams.push(oTeam);
                         break;
                 }
             });

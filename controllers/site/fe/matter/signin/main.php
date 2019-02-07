@@ -184,19 +184,19 @@ class main extends base {
 				/* 关联了分组活动 */
 				if (!empty($oApp->entryRule->group->id)) {
 					$oGrpApp = $this->model('matter\group')->byId($oApp->entryRule->group->id, ['cascaded' => 'N']);
-					$oGrpPlayer = $this->model('matter\group\player')->byUser($oGrpApp, $oUser->uid);
+					$oGrpPlayer = $this->model('matter\group\user')->byUser($oGrpApp, $oUser->uid);
 					if (count($oGrpPlayer) === 1) {
 						if (!empty($oGrpPlayer[0]->data)) {
 							if (!empty($oUserRecord)) {
 								$oAssocData = json_decode($oGrpPlayer[0]->data);
-								$oUserRecord->data->_round_id = $oGrpPlayer[0]->round_id;
+								$oUserRecord->data->_round_id = $oGrpPlayer[0]->team_id;
 								foreach ($oAssocData as $k => $v) {
 									$oUserRecord->data->{$k} = $v;
 								}
 							} else {
 								$oUserRecord = new \stdClass;
 								$oUserRecord->data = json_decode($oGrpPlayer[0]->data);
-								$oUserRecord->data->_round_id = $oGrpPlayer[0]->round_id;
+								$oUserRecord->data->_round_id = $oGrpPlayer[0]->team_id;
 							}
 						}
 					}

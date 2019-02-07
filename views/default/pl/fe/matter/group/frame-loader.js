@@ -51,13 +51,13 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
             "frame": '/views/default/pl/fe/matter/group/frame',
             "mainCtrl": '/views/default/pl/fe/matter/group/main',
             "noticeCtrl": '/views/default/pl/fe/matter/group/notice',
-            "roundCtrl": '/views/default/pl/fe/matter/group/round',
+            "teamCtrl": '/views/default/pl/fe/matter/group/team',
             "userCtrl": '/views/default/pl/fe/matter/group/user',
         },
         html: {
             "main": '/views/default/pl/fe/matter/group/main',
             "notice": '/views/default/pl/fe/matter/group/notice',
-            "round": '/views/default/pl/fe/matter/group/round',
+            "team": '/views/default/pl/fe/matter/group/team',
             "user": '/views/default/pl/fe/matter/group/user',
             "compUsers": '/views/default/pl/fe/matter/group/component/users',
         }

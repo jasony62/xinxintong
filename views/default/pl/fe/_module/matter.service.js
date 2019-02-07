@@ -1434,7 +1434,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                 };
                 $scope2.$watch('data.app', function(oGrpApp) {
                     if (oGrpApp) {
-                        var url = '/rest/pl/fe/matter/group/round/list?app=' + oGrpApp.id + '&roundType=';
+                        var url = '/rest/pl/fe/matter/group/team/list?app=' + oGrpApp.id + '&teamType=';
                         http2.get(url).then(function(rsp) {
                             $scope2.rounds = rsp.data;
                         });
@@ -1529,7 +1529,7 @@ factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite
                 if (oResult.app) {
                     _oRule.group = { id: oResult.app.id, title: oResult.app.title };
                     if (oResult.round) {
-                        _oRule.group.round = { id: oResult.round.round_id, title: oResult.round.title };
+                        _oRule.group.round = { id: oResult.round.team_id, title: oResult.round.title };
                     }
                 }
             });

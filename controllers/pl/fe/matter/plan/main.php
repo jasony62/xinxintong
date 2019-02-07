@@ -52,9 +52,9 @@ class main extends \pl\fe\matter\main_base {
 					if ($oGroupApp) {
 						$oRuleApp->title = $oGroupApp->title;
 						if (!empty($oRuleApp->round->id)) {
-							$oGroupRnd = $this->model('matter\group\round')->byId($oRuleApp->round->id, ['fields' => 'title']);
-							if ($oGroupRnd) {
-								$oRuleApp->round->title = $oGroupRnd->title;
+							$oGroupTeam = $this->model('matter\group\team')->byId($oRuleApp->round->id, ['fields' => 'title']);
+							if ($oGroupTeam) {
+								$oRuleApp->round->title = $oGroupTeam->title;
 							}
 						}
 						$oApp->groupApp = $oGroupApp;

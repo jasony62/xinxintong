@@ -80,7 +80,7 @@ class remind_model extends \TMS_MODEL {
 			case 'group':
 				$q = [
 					'distinct userid,enroll_key assoc_with',
-					'xxt_group_player',
+					'xxt_group_user',
 					['state' => 1, 'aid' => $oMatter->user_app_id],
 				];
 				$receivers = $modelMission->query_objs_ss($q);
@@ -171,16 +171,16 @@ class remind_model extends \TMS_MODEL {
 						if (empty($oArguments->receiver->app->round->id)) {
 							$q = [
 								'distinct userid',
-								'xxt_group_player',
+								'xxt_group_user',
 								['state' => 1, 'aid' => $oArguments->receiver->app->id],
 							];
 							$receivers = $modelEnl->query_objs_ss($q);
 							$oTmplTimerTaskParams->receiver = $oGrpApp->title;
 						} else {
-							$oGrpAppRnd = $this->model('matter\group\round')->byId($oArguments->receiver->app->round->id);
-							if ($oGrpAppRnd) {
+							$oGrpAppTeam = $this->model('matter\group\team')->byId($oArguments->receiver->app->round->id);
+							if ($oGrpAppTeam) {
 								$receivers = $this->model('matter\group\user')->byRound($oArguments->receiver->app->round->id, ['fields' => 'userid']);
-								$oTmplTimerTaskParams->receiver = $oGrpAppRnd->title;
+								$oTmplTimerTaskParams->receiver = $oGrpAppTeam->title;
 							}
 						}
 					}
@@ -191,16 +191,16 @@ class remind_model extends \TMS_MODEL {
 					if (empty($oMatter->entryRule->group->round->id)) {
 						$q = [
 							'distinct userid',
-							'xxt_group_player',
+							'xxt_group_user',
 							['state' => 1, 'aid' => $oMatter->entryRule->group->id],
 						];
 						$receivers = $modelEnl->query_objs_ss($q);
 						$oTmplTimerTaskParams->receiver = $oGrpApp->title;
 					} else {
-						$oGrpAppRnd = $this->model('matter\group\round')->byId($oMatter->entryRule->group->round->id);
-						if ($oGrpAppRnd) {
+						$oGrpAppTeam = $this->model('matter\group\team')->byId($oMatter->entryRule->group->round->id);
+						if ($oGrpAppTeam) {
 							$receivers = $this->model('matter\group\user')->byRound($oMatter->entryRule->group->round->id, ['fields' => 'userid']);
-							$oTmplTimerTaskParams->receiver = $oGrpAppRnd->title;
+							$oTmplTimerTaskParams->receiver = $oGrpAppTeam->title;
 						}
 					}
 				}

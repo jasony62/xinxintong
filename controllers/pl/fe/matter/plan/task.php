@@ -311,8 +311,8 @@ class task extends \pl\fe\matter\base {
 				if (!empty($oRuleApp->id)) {
 					$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'title', 'cascaded' => 'Y']);
 					$groupRounds = [];
-					foreach ($oGroupApp->rounds as $oGroupRound) {
-						$groupRounds[$oGroupRound->round_id] = $oGroupRound->title;
+					foreach ($oGroupApp->rounds as $oGroupTeam) {
+						$groupRounds[$oGroupTeam->team_id] = $oGroupTeam->title;
 					}
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '分组');
 				}

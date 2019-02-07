@@ -51,12 +51,12 @@ class user extends base {
 		 */
 		if (!empty($oApp->entryRule->group->id)) {
 			$assocGroupAppId = $oApp->entryRule->group->id;
-			$modelGrpUsr = $this->model('matter\group\player');
-			$modelGrpRnd = $this->model('matter\group\round');
+			$modelGrpUsr = $this->model('matter\group\user');
+			$modelGrpTeam = $this->model('matter\group\team');
 			/* 用户所属分组信息 */
 			$oGrpApp = (object) ['id' => $assocGroupAppId];
 			if (!empty($oUser->group_id)) {
-				$GrpRoundTitle = $modelGrpRnd->byId($oUser->group_id, ['fields' => 'title']);
+				$GrpRoundTitle = $modelGrpTeam->byId($oUser->group_id, ['fields' => 'title']);
 				$oUser->group_title = $GrpRoundTitle->title;
 				// 同组成员
 				$others = $modelGrpUsr->byRound($oGrpApp->id, $oUser->group_id, ['fields' => 'is_leader,userid,nickname']);
@@ -68,13 +68,13 @@ class user extends base {
 				}
 			}
 			/* 获得角色分组信息 */
-			if (!empty($oUser->role_rounds)) {
-				$roleRounds = $modelGrpRnd->byApp($assocGroupAppId, ['fields' => "round_id,title", 'round_type' => 'R']);
-				foreach ($roleRounds as $rRound) {
-					$roleRounds[$rRound->round_id] = $rRound;
+			if (!empty($oUser->role_teams)) {
+				$roleTeams = $modelGrpTeam->byApp($assocGroupAppId, ['fields' => "team_id,title", 'team_type' => 'R']);
+				foreach ($roleTeams as $oRoleTeam) {
+					$roleTeams[$oRoleTeam->team_id] = $oRoleTeam;
 				}
-				foreach ($oUser->role_rounds as $k => $usrRoleRound) {
-					$oUser->role_rounds[$k] = $roleRounds[$usrRoleRound];
+				foreach ($oUser->role_teams as $k => $oUsrRoleTeam) {
+					$oUser->role_teams[$k] = $roleTeams[$oUsrRoleTeam];
 				}
 			}
 		}

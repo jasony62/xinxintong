@@ -88,7 +88,7 @@ define(['angular', 'xxt-page'], function(angular, uiPage) {
                     uid: winner.userid,
                     nickname: winner.nickname,
                     ek: winner.enroll_key,
-                    rid: winner.round_id,
+                    rid: winner.team_id,
                 });
             });
             $http.post(url, posted).success(function(rsp) {

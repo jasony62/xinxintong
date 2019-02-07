@@ -1,7 +1,0 @@
-body{font-family:"Microsoft YaHei";color:#666;}
-table td:first-child{font-weight:700;color:red;}
-#players{margin-bottom:60px;}
-#players .player{display:inline-block;padding:.3em .6em;line-height:1;color:#fff;text-align:center;white-space:nowrap;vertical-align:baseline;border-radius:.25em;margin-right:.5em;margin-bottom:.5em;background-color:#777;}
-@media screen and (max-width:768px){
-	.navbar-form{width:auto;border:0;margin-left:0;margin-right:0;padding-top:0;padding-bottom:0;-webkit-box-shadow:none;box-shadow:none;text-align:right;}
-}

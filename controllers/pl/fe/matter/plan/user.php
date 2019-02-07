@@ -25,12 +25,12 @@ class user extends \pl\fe\matter\base {
 		$oGroup = new \stdClass;
 		/* 限分组用户访问 */
 		$oGroupApp = $oEntryRule->group;
-		$oGroupUsr = $this->model('matter\group\player')->byUser($oGroupApp, $oUser->uid, ['fields' => 'round_id,round_title']);
+		$oGroupUsr = $this->model('matter\group\user')->byUser($oGroupApp, $oUser->uid, ['fields' => 'team_id,team_title']);
 
 		if (count($oGroupUsr)) {
 			$oGroupUsr = $oGroupUsr[0];
 			if (isset($oGroupApp->round->id)) {
-				if ($oGroupUsr->round_id === $oGroupApp->round->id) {
+				if ($oGroupUsr->team_id === $oGroupApp->round->id) {
 					return $oGroupUsr;
 				}
 			} else {
@@ -69,8 +69,8 @@ class user extends \pl\fe\matter\base {
 				$oUser = $modelAct->byId($oMember->userid, ['uid,nickname']);
 				/* 用户的分组信息 */
 				if ($oGroup = $this->_getUserGroup($oApp, $oUser)) {
-					$oUser->group_id = $oGroup->round_id;
-					$oUser->group_title = $oGroup->round_title;
+					$oUser->group_id = $oGroup->team_id;
+					$oUser->group_title = $oGroup->team_title;
 				}
 				if (false === $modelUsr->byUser($oApp, $oUser, ['fields' => 'id'])) {
 					$users[] = $modelUsr->createOrUpdate($oApp, $oUser);
@@ -151,15 +151,15 @@ class user extends \pl\fe\matter\base {
 		];
 		$q2 = ['o' => 'last_enroll_at desc'];
 		if (!empty($page) && !empty($size)) {
-			$q2['r'] = ['o' => ($page - 1)  * $size, 'l' => $size];
+			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		}
 		$users = $modelUsr->query_objs_ss($q, $q2);
 		$oEntryRule = $oApp->entryRule;
 		if (!empty($oEntryRule->scope->group) && $oEntryRule->scope->group === 'Y' && !empty($oEntryRule->group->id)) {
-			$modelGrpRnd = $this->model('matter\group\round');
+			$modelGrpTeam = $this->model('matter\group\team');
 			foreach ($users as $oUser) {
 				if (!empty($oUser->group_id)) {
-					$oGroupRnd = $modelGrpRnd->byId($oUser->group_id, ['fields' => 'title']);
+					$oGroupRnd = $modelGrpTeam->byId($oUser->group_id, ['fields' => 'title']);
 					$oUser->group_title = $oGroupRnd->title;
 				}
 			}

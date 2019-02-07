@@ -678,8 +678,8 @@ class record extends \pl\fe\matter\base {
 			foreach ($absentUsers as $k => $absentUser) {
 				$colNumber = 0;
 				$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $k + 1);
-				if (isset($absentUser->round_title)) {
-					$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $absentUser->round_title);
+				if (isset($absentUser->team_title)) {
+					$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $absentUser->team_title);
 				} else {
 					$objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
 				}

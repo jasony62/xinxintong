@@ -42,29 +42,29 @@ class main extends \pl\fe\matter\main_base {
 			/*关联分组活动*/
 			if (!empty($oEntryRule->group->id)) {
 				$oRuleApp = $oEntryRule->group;
-				$modelGrpRnd = $this->model('matter\group\round');
+				$modelGrpTeam = $this->model('matter\group\team');
 				$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
 				if ($oGroupApp) {
 					$oRuleApp->title = $oGroupApp->title;
 					if (!empty($oRuleApp->round->id)) {
-						$oGroupRnd = $modelGrpRnd->byId($oRuleApp->round->id, ['fields' => 'title']);
+						$oGroupRnd = $modelGrpTeam->byId($oRuleApp->round->id, ['fields' => 'title']);
 						if ($oGroupRnd) {
 							$oRuleApp->round->title = $oGroupRnd->title;
 						}
 					}
 					/* 获得当前活动的分组 */
-					$groups = $modelGrpRnd->byApp($oGroupApp->id, ['fields' => 'round_id,round_type,title', 'round_type' => '']);
+					$teams = $modelGrpTeam->byApp($oGroupApp->id, ['fields' => 'team_id,team_type,title', 'team_type' => '']);
 					$oGroupDS = new \stdClass;
 					$oGroupDS->id = '_round_id';
 					$oGroupDS->type = 'single';
 					$oGroupDS->title = '分组名称';
 					$ops = [];
 					/* 获得的分组信息 */
-					foreach ($groups as $oGroup) {
-						if ($oGroup->round_type === 'T') {
+					foreach ($teams as $oTeam) {
+						if ($oTeam->team_type === 'T') {
 							$ops[] = (object) [
-								'v' => $oGroup->round_id,
-								'l' => $oGroup->title,
+								'v' => $oTeam->team_id,
+								'l' => $oTeam->title,
 							];
 						}
 					}
@@ -73,7 +73,7 @@ class main extends \pl\fe\matter\main_base {
 					$oGroupApp->dataSchemas = array_merge([$oGroupDS], $oGroupApp->dataSchemas);
 
 					$oApp->groupApp = $oGroupApp;
-					$oApp->groups = $groups;
+					$oApp->groups = $teams;
 				}
 			}
 		}

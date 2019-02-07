@@ -1,36 +1,36 @@
 define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlRound', ['$scope', '$anchorScroll', '$timeout', '$location', '$uibModal', 'srvGroupRound', 'tmsSchema', function($scope, $anchorScroll, $timeout, $location, $uibModal, srvGroupRound, tmsSchema) {
-        srvGroupRound.list().then(function(rounds) {
-            $scope.rounds = rounds;
-            rounds.forEach(function(oRound) {
-                oRound._before = angular.copy(oRound);
+    ngApp.provider.controller('ctrlTeam', ['$scope', '$anchorScroll', '$timeout', '$location', '$uibModal', 'srvGroupTeam', 'tmsSchema', function($scope, $anchorScroll, $timeout, $location, $uibModal, srvGrpTeam, tmsSchema) {
+        srvGrpTeam.list().then(function(teams) {
+            $scope.teams = teams;
+            teams.forEach(function(oTeam) {
+                oTeam._before = angular.copy(oTeam);
             });
         });
         $scope.configRule = function() {
-            srvGroupRound.config().then(function() {
-                srvGroupRound.list().then(function(rounds) {
-                    $scope.rounds = rounds;
+            srvGrpTeam.config().then(function() {
+                srvGrpTeam.list().then(function(teams) {
+                    $scope.teams = teams;
                 });
             });
         };
         $scope.emptyRule = function() {
-            srvGroupRound.empty();
+            srvGrpTeam.empty();
         };
-        $scope.addRound = function() {
-            srvGroupRound.add().then(function(oNewRound) {
+        $scope.addTeam = function() {
+            srvGrpTeam.add().then(function(oNewTeam) {
                 $timeout(function() {
-                    $location.hash(oNewRound.round_id);
+                    $location.hash(oNewTeam.team_id);
                     $anchorScroll();
                 });
             });
         };
-        $scope.removeRound = function(oRound) {
-            srvGroupRound.remove(oRound);
+        $scope.removeTeam = function(oTeam) {
+            srvGrpTeam.remove(oTeam);
         };
-        $scope.updateRound = function(oRound, name) {
-            srvGroupRound.update(oRound, name);
+        $scope.updateTeam = function(oTeam, name) {
+            srvGrpTeam.update(oTeam, name);
         };
-        $scope.addTarget = function(oRound) {
+        $scope.addTarget = function(oTeam) {
             $uibModal.open({
                 templateUrl: 'targetEditor.html',
                 resolve: {
@@ -41,42 +41,40 @@ define(['frame'], function(ngApp) {
                 controller: ['$uibModalInstance', '$scope', 'schemas', function($mi, $scope, schemas) {
                     $scope.schemas = schemas;
                     $scope.target = {};
-                    $scope.cancel = function() {
-                        $mi.dismiss();
-                    };
+                    $scope.cancel = function() { $mi.dismiss(); };
                     $scope.ok = function() {
                         $mi.close($scope.target);
                     };
                 }],
                 backdrop: 'static',
             }).result.then(function(target) {
-                oRound.targets.push(target);
-                $scope.saveTargets(oRound);
+                oTeam.targets.push(target);
+                $scope.saveTargets(oTeam);
             });
         };
-        $scope.moveUpTarget = function(oRound, oTarget) {
-            var targets = oRound.targets,
+        $scope.moveUpTarget = function(oTeam, oTarget) {
+            var targets = oTeam.targets,
                 index = targets.indexOf(oTarget);
 
             if (index > 0) {
                 targets.splice(index, 1);
                 targets.splice(index - 1, 0, oTarget);
-                $scope.saveTargets(oRound);
+                $scope.saveTargets(oTeam);
             }
         };
-        $scope.moveDownTarget = function(oRound, oTarget) {
-            var targets = oRound.targets,
+        $scope.moveDownTarget = function(oTeam, oTarget) {
+            var targets = oTeam.targets,
                 index = targets.indexOf(oTarget);
 
             if (index < targets.length - 1) {
                 targets.splice(index, 1);
                 targets.splice(index + 1, 0, oTarget);
-                $scope.saveTargets(oRound);
+                $scope.saveTargets(oTeam);
             }
         };
-        $scope.removeTarget = function(oRound, i) {
-            oRound.targets.splice(i, 1);
-            $scope.saveTargets(oRound);
+        $scope.removeTarget = function(oTeam, i) {
+            oTeam.targets.splice(i, 1);
+            $scope.saveTargets(oTeam);
         };
         $scope.labelTarget = function(target) {
             var schema, labels = [];
@@ -89,8 +87,8 @@ define(['frame'], function(ngApp) {
             });
             return labels.join(',');
         };
-        $scope.saveTargets = function(oRound) {
-            $scope.updateRound(oRound, 'targets');
+        $scope.saveTargets = function(oTeam) {
+            $scope.updateRound(oTeam, 'targets');
         };
     }]);
 });

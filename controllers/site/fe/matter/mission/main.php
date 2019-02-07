@@ -48,11 +48,11 @@ class main extends \site\fe\matter\base {
 		 * 如果项目指定了分组活动作为项目的用户名单，获得当前用户所属的分组，是否为组长，及同组成员
 		 */
 		if ($oMission->user_app_type === 'group') {
-			$modelGrpUsr = $this->model('matter\group\player');
+			$modelGrpUsr = $this->model('matter\group\user');
 			$oGrpApp = (object) ['id' => $oMission->user_app_id];
-			$oGrpUsr = $modelGrpUsr->byUser($oGrpApp, $oUser->uid, ['fields' => 'is_leader,round_id,round_title,userid,nickname', 'onlyOne' => true]);
+			$oGrpUsr = $modelGrpUsr->byUser($oGrpApp, $oUser->uid, ['fields' => 'is_leader,team_id,team_title,userid,nickname', 'onlyOne' => true]);
 			if ($oGrpUsr) {
-				$others = $modelGrpUsr->byRound($oMission->user_app_id, $oGrpUsr->round_id, ['fields' => 'is_leader,userid,nickname']);
+				$others = $modelGrpUsr->byRound($oMission->user_app_id, $oGrpUsr->team_id, ['fields' => 'is_leader,userid,nickname']);
 				$oMission->groupUser = $oGrpUsr;
 				$oMission->groupOthers = [];
 				foreach ($others as $other) {
@@ -87,14 +87,14 @@ class main extends \site\fe\matter\base {
 			if ($oMission->user_app_type !== 'group') {
 				return new \ParameterError('只有指定了分组活动作为用户名单的项目才能查看同组成员的数据');
 			}
-			$modelGrpUsr = $this->model('matter\group\player');
+			$modelGrpUsr = $this->model('matter\group\user');
 			$oGrpApp = (object) ['id' => $oMission->user_app_id];
-			$oGrpLeader = $modelGrpUsr->byUser($oGrpApp, $this->who->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
+			$oGrpLeader = $modelGrpUsr->byUser($oGrpApp, $this->who->uid, ['fields' => 'is_leader,team_id', 'onlyOne' => true]);
 			if (false === $oGrpLeader || $oGrpLeader->is_leader !== 'Y') {
 				return new \ParameterError('只有组长才能查看组内成员的数据');
 			}
-			$oGrpUser = $modelGrpUsr->byUser($oGrpApp, $user, ['fields' => 'round_id', 'onlyOne' => true]);
-			if (false === $oGrpUser || $oGrpLeader->round_id !== $oGrpUser->round_id) {
+			$oGrpUser = $modelGrpUsr->byUser($oGrpApp, $user, ['fields' => 'team_id', 'onlyOne' => true]);
+			if (false === $oGrpUser || $oGrpLeader->team_id !== $oGrpUser->team_id) {
 				return new \ParameterError('只能查看同组内成员的数据');
 			}
 			$oUser = (object) ['uid' => $user];
@@ -113,7 +113,7 @@ class main extends \site\fe\matter\base {
 					if ($oMatter->type !== 'enroll') {
 						continue;
 					}
-					if ($this->getDeepValue($oMatter->entryRule, 'group.round.id') !== $oGrpLeader->round_id) {
+					if ($this->getDeepValue($oMatter->entryRule, 'group.round.id') !== $oGrpLeader->team_id) {
 						continue;
 					}
 				}
@@ -124,12 +124,12 @@ class main extends \site\fe\matter\base {
 						$oEntryRule = $oMatter->entryRule;
 						if (isset($oEntryRule->group->id)) {
 							$oGroupApp = $oEntryRule->group;
-							$oGroupUsr = $this->model('matter\group\user')->byUser($oGroupApp, $oUser->uid, ['fields' => 'round_id,round_title,role_rounds', 'onlyOne' => true]);
+							$oGroupUsr = $this->model('matter\group\user')->byUser($oGroupApp, $oUser->uid, ['fields' => 'team_id,team_title,role_teams', 'onlyOne' => true]);
 							if ($oGroupUsr) {
 								if (isset($oGroupApp->round->id)) {
-									if ($oGroupUsr->round_id === $oGroupApp->round->id) {
+									if ($oGroupUsr->team_id === $oGroupApp->round->id) {
 										$bMatched = true;
-									} else if (count($oGroupUsr->role_rounds) && in_array($oGroupApp->round->id, $oGroupUsr->role_rounds)) {
+									} else if (count($oGroupUsr->role_teams) && in_array($oGroupApp->round->id, $oGroupUsr->role_teams)) {
 										$bMatched = true;
 									}
 								} else {
@@ -203,7 +203,7 @@ class main extends \site\fe\matter\base {
 					$matter->record = $modelSigRec->byUser($this->who, $oApp);
 				} else if ($matter->type === 'group') {
 					if (!isset($modelGrpRec)) {
-						$modelGrpRec = $this->model('matter\group\player');
+						$modelGrpRec = $this->model('matter\group\user');
 					}
 					$matter->records = [];
 					$records = $modelGrpRec->byUser($matter, $this->who->uid);
@@ -265,7 +265,7 @@ class main extends \site\fe\matter\base {
 		}
 
 		$appIds = [];
-		$modelGrpRec = $this->model('matter\group\player');
+		$modelGrpRec = $this->model('matter\group\user');
 		$records = $modelGrpRec->byMission($mission, ['userid' => $this->who->uid]);
 		if (count($records)) {
 			$result->group = new \stdClass;

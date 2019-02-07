@@ -733,9 +733,9 @@ class record_model extends \matter\enroll\record_base {
 		}
 		$aAllUsrs = [];
 		if (!empty($oApp->entryRule->group->id)) {
-			$modelGrpUsr = $this->model('matter\group\player');
-			$aGrpUsrs = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['fields' => 'userid,nickname,is_leader,round_id,round_title']);
-			foreach ($aGrpUsrs->players as $oGrpUsr) {
+			$modelGrpUsr = $this->model('matter\group\user');
+			$oGrpUsrsResult = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['fields' => 'userid,nickname,is_leader,team_id,team_title']);
+			foreach ($oGrpUsrsResult->users as $oGrpUsr) {
 				if (false === in_array($oGrpUsr->userid, $oSigninedUsers)) {
 					$aAllUsrs[] = $oGrpUsr;
 				}

@@ -47,8 +47,8 @@ $sql[] = 'drop table if exists xxt_signin_log';
 //
 $sql[] = 'drop table if exists xxt_group';
 $sql[] = 'drop table if exists xxt_group_round';
-$sql[] = 'drop table if exists xxt_group_player';
-$sql[] = 'drop table if exists xxt_group_player_data';
+$sql[] = 'drop table if exists xxt_group_user';
+$sql[] = 'drop table if exists xxt_group_user_data';
 /**
  * log
  */

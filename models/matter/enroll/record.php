@@ -907,12 +907,12 @@ class record_model extends record_base {
 			$modelGrpUser = $this->model('matter\group\user');
 			$aFnHandlers[] = function ($oRec) use ($groupAppId, $modelGrpUser) {
 				if (!empty($oRec->userid)) {
-					$oGrpUser = $modelGrpUser->byUser((object) ['id' => $groupAppId], $oRec->userid, ['fields' => 'round_id,round_title', 'onlyOne' => true]);
+					$oGrpUser = $modelGrpUser->byUser((object) ['id' => $groupAppId], $oRec->userid, ['fields' => 'team_id,team_title', 'onlyOne' => true]);
 					if ($oGrpUser) {
 						if (!isset($oRec->user)) {
 							$oRec->user = new \stdClass;
 						}
-						$oRec->user->group = (object) ['id' => $oGrpUser->round_id, 'title' => $oGrpUser->round_title];
+						$oRec->user->group = (object) ['id' => $oGrpUser->team_id, 'title' => $oGrpUser->team_title];
 					}
 				}
 			};
@@ -978,10 +978,10 @@ class record_model extends record_base {
 			// 记录的分组
 			if (!empty($oRec->group_id)) {
 				if (!isset($aGroupsById[$oRec->group_id])) {
-					if (!isset($modelGrpRnd)) {
-						$modelGrpRnd = $this->model('matter\group\round');
+					if (!isset($modelGrpTeam)) {
+						$modelGrpTeam = $this->model('matter\group\team');
 					}
-					$oGroup = $modelGrpRnd->byId($oRec->group_id, ['fields' => 'title']);
+					$oGroup = $modelGrpTeam->byId($oRec->group_id, ['fields' => 'title']);
 					$aGroupsById[$oRec->group_id] = $oGroup;
 				} else {
 					$oGroup = $aGroupsById[$oRec->group_id];

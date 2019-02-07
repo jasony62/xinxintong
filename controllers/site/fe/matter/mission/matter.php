@@ -183,7 +183,7 @@ class matter extends \site\fe\matter\base {
 		/* 如果项目用户名单是分组活动，获得分组信息 */
 		if ($oMission->user_app_type === 'group' && !empty($oMission->user_app_id)) {
 			$oMisUsrGrpApp = (object) ['id' => $oMission->user_app_id];
-			$modelGrpUsr = $this->model('matter\group\player');
+			$modelGrpUsr = $this->model('matter\group\user');
 		}
 
 		$modelMisMat = $this->model('matter\mission\matter');
@@ -207,7 +207,7 @@ class matter extends \site\fe\matter\base {
 			$oEnlAppsById = new \stdClass;
 			$modelEnl = $this->model('matter\enroll');
 			$modelEnlUsr = $this->model('matter\enroll\user');
-			$modelGrpRnd = $this->model('matter\group\round');
+			$modelGrpTeam = $this->model('matter\group\team');
 			$modelSiteAct = $this->model('site\user\account');
 			$oOptions = ['cascaded' => 'N', 'fields' => 'id,title,data_schemas'];
 			foreach ($aRecDatas as $oRecData) {
@@ -239,19 +239,19 @@ class matter extends \site\fe\matter\base {
 				}
 				/* group */
 				if (!empty($oRecData->group_id)) {
-					$oGrpRnd = $modelGrpRnd->byId($oRecData->group_id, ['fields' => 'title']);
+					$oGrpRnd = $modelGrpTeam->byId($oRecData->group_id, ['fields' => 'title']);
 					if ($oGrpRnd) {
 						$oRecData->group = (object) ['id' => $oRecData->group_id, 'title' => $oGrpRnd->title];
 					}
 				} else if (!empty($oEnlUser->group_id)) {
-					$oGrpRnd = $modelGrpRnd->byId($oEnlUser->group_id, ['fields' => 'title']);
+					$oGrpRnd = $modelGrpTeam->byId($oEnlUser->group_id, ['fields' => 'title']);
 					if ($oGrpRnd) {
 						$oRecData->group = (object) ['id' => $oEnlUser->group_id, 'title' => $oGrpRnd->title];
 					}
 				} else if (isset($oMisUsrGrpApp)) {
-					$oGrpUsr = $modelGrpUsr->byUser($oMisUsrGrpApp, $oRecData->userid, ['fields' => 'round_id,round_title', 'onlyOne' => true]);
+					$oGrpUsr = $modelGrpUsr->byUser($oMisUsrGrpApp, $oRecData->userid, ['fields' => 'team_id,team_title', 'onlyOne' => true]);
 					if ($oGrpUsr) {
-						$oRecData->group = (object) ['id' => $oGrpUsr->round_id, 'title' => $oGrpUsr->round_title];
+						$oRecData->group = (object) ['id' => $oGrpUsr->team_id, 'title' => $oGrpUsr->team_title];
 					}
 				}
 				unset($oRecData->group_id);

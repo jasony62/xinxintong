@@ -104,7 +104,7 @@ define(['require'], function(require) {
                 if (result.app) {
                     _oEntryRule.group = { id: result.app.id, title: result.app.title };
                     if (result.round) {
-                        _oEntryRule.group.round = { id: result.round.round_id, title: result.round.title };
+                        _oEntryRule.group.round = { id: result.round.team_id, title: result.round.title };
                     }
                 }
             });

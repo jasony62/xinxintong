@@ -1,30 +1,30 @@
 <div class='col-md-6 col-md-offset-3'>
     <div class='form-group'>
         <button class='btn btn-default' ng-click="configRule()">分组规则</button>
-        <button class='btn btn-default' ng-click="addRound()">添加分组</button>
+        <button class='btn btn-default' ng-click="addTeam()">添加分组</button>
         <button class='btn btn-default' ng-click="emptyRule()">清除分组</button>
     </div>
 </div>
 <div class='col-md-6 col-md-offset-3'>
-    <div id="{{rnd.round_id}}" class='panel pl-panel-default' ng-repeat="rnd in rounds">
+    <div id="{{::team.team_id}}" class='panel pl-panel-default' ng-repeat="team in teams">
         <div class='panel-body'>
             <div class='row'>
                 <div class='col-md-6'>
                     <div class='form-group'>
                         <label>名称</label>
-                        <input type='text' class='form-control' ng-model='rnd.title' tms-auto-update tms-wait=1000 tms-update="updateRound(rnd,'title')">
+                        <input type='text' class='form-control' ng-model='team.title' tms-auto-update tms-wait=1000 tms-update="updateTeam(team,'title')">
                     </div>
                 </div>
                 <div class='col-md-3'>
                     <div class='form-group'>
                         <label>人数</label>
-                        <input type='text' class='form-control' ng-model='rnd.times' tms-auto-update tms-wait=1000 tms-update="updateRound(rnd,'times')">
+                        <input type='text' class='form-control' ng-model='team.times' tms-auto-update tms-wait=1000 tms-update="updateTeam(team,'times')">
                     </div>
                 </div>
                 <div class='col-md-3'>
                     <div class='form-group'>
                         <label>类型</label>
-                        <select class='form-control' ng-model='rnd.round_type' ng-change="updateRound(rnd,'round_type')">
+                        <select class='form-control' ng-model='team.team_type' ng-change="updateTeam(team,'team_type')">
                             <option value='T'>主分组</option>
                             <option value='R'>辅助分组</option>
                         </select>
@@ -35,19 +35,15 @@
                 <div class='col-md-6'>
                     <div class='form-group'>
                         <label>扩展属性1</label>
-                        <input type="text" class="form-control" ng-model="rnd.extattrs.attr1" tms-auto-update tms-wait=1000 tms-update="updateRound(rnd,'extattrs')">
+                        <input type="text" class="form-control" ng-model="team.extattrs.attr1" tms-auto-update tms-wait=1000 tms-update="updateTeam(team,'extattrs')">
                     </div>
                 </div>
                 <div class='col-md-6'>
                     <div class='form-group'>
                         <label>扩展属性2</label>
-                        <input type="text" class="form-control" ng-model="rnd.extattrs.attr2" tms-auto-update tms-wait=1000 tms-update="updateRound(rnd,'extattrs')">
+                        <input type="text" class="form-control" ng-model="team.extattrs.attr2" tms-auto-update tms-wait=1000 tms-update="updateTeam(team,'extattrs')">
                     </div>
                 </div>
-            </div>
-            <div class='checkbox' ng-if="app.scenario==='extract'">
-                <label>
-                    <input type='checkbox' ng-model='rnd.autoplay' ng-true-value="'Y'" ng-false-value="'N'" ng-change="updateRound(rnd,'autoplay')">自动抽取</label>
             </div>
             <table class='table table-bordered'>
                 <thead>
@@ -59,31 +55,31 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="t in rnd.targets">
+                    <tr ng-repeat="t in team.targets">
                         <td>{{$index+1}}</td>
                         <td>{{labelTarget(t)}}</td>
                         <td>
-                            <button class='btn btn-default btn-sm' ng-click="moveUpTarget(rnd,t)">
+                            <button class='btn btn-default btn-sm' ng-click="moveUpTarget(team,t)">
                                 <span class='glyphicon glyphicon-arrow-up'></span>
                             </button>
-                            <button class='btn btn-default btn-sm' ng-click="moveDownTarget(rnd,t)">
+                            <button class='btn btn-default btn-sm' ng-click="moveDownTarget(team,t)">
                                 <span class='glyphicon glyphicon-arrow-down'></span>
                             </button>
                         </td>
                         <td>
-                            <button class='btn btn-default btn-sm' ng-click="removeTarget(rnd,$index)">
+                            <button class='btn btn-default btn-sm' ng-click="removeTarget(team,$index)">
                                 <span class='glyphicon glyphicon-remove'></span>
                             </button>
                         </td>
                     </tr>
                     <tr>
                         <td colspan=4>
-                            <button class='btn btn-primary pull-right' ng-click="addTarget(rnd)">添加规则</button>
+                            <button class='btn btn-primary pull-right' ng-click="addTarget(team)">添加规则</button>
                         </td>
                     </tr>
                 </tbody>
             </table>
-            <button class='btn btn-default pl-btn-remove' ng-click="removeRound(rnd)"><i class='glyphicon glyphicon-remove'></i></button>
+            <button class='btn btn-default pl-btn-remove' ng-click="removeTeam(team)"><i class='glyphicon glyphicon-remove'></i></button>
         </div>
     </div>
 </div>

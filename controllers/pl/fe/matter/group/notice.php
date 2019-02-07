@@ -26,31 +26,31 @@ class notice extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$modelRec = $this->model('matter\group\player');
-		$posted = $this->getPostJson();
-		if (empty($posted->app) || empty($posted->tmplmsg)) {
+		$modelRec = $this->model('matter\group\user');
+		$oPosted = $this->getPostJson();
+		if (empty($oPosted->app) || empty($oPosted->tmplmsg)) {
 			return new \ResponseError('参数不完整');
 		}
-		$app = $modelRec->escape($posted->app);
-		$tmplmsg = $modelRec->escape($posted->tmplmsg);
-		
+		$app = $modelRec->escape($oPosted->app);
+		$tmplmsg = $modelRec->escape($oPosted->tmplmsg);
+
 		$oApp = $this->model('matter\group')->byId($app);
 		if (false === $oApp) {
 			return new \ObjectNotFountError();
 		}
 
-		if (empty($posted->users)) {
+		if (empty($oPosted->users)) {
 			// 筛选条件
 			$options = new \stdClass;
-			isset($posted->tags) && $options->tags = $posted->tags;
-			$users = $modelRec->byApp($oApp, $options)->players;
+			isset($oPosted->tags) && $options->tags = $oPosted->tags;
+			$users = $modelRec->byApp($oApp, $options)->users;
 		} else {
 			// 直接指定
-			$users = $posted->users;
+			$users = $oPosted->users;
 		}
 
 		if (count($users)) {
-			$params = $posted->message;
+			$params = $oPosted->message;
 			$rst = $this->_notifyWithMatter($oApp->siteid, $app, $users, $tmplmsg, $params);
 			if ($rst[0] === false) {
 				return new \ResponseError($rst[1]);
@@ -109,7 +109,7 @@ class notice extends \pl\fe\matter\base {
 
 		/* 和登记记录进行关联 */
 		if (count($logs)) {
-			$modelRec = $this->model('matter\group\player');
+			$modelRec = $this->model('matter\group\user');
 			$records = [];
 			$records2 = [];
 			foreach ($logs as &$log) {

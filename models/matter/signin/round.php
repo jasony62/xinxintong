@@ -14,7 +14,7 @@ class round_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_signin_round',
-			"rid='$roundId'",
+			['rid' => $roundId],
 		];
 		$round = $this->query_obj_ss($q);
 

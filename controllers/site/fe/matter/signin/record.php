@@ -83,7 +83,7 @@ class record extends base {
 				}
 			}
 			/* 在指定的分组活动中检查数据 */
-			$modelMatchRec = $this->model('matter\group\player');
+			$modelMatchRec = $this->model('matter\group\user');
 			$groupRecords = $modelMatchRec->byData($oGroupApp, $requireCheckedData);
 			if (empty($groupRecords)) {
 				return new \ParameterError('未在分组活动［' . $oGroupApp->title . '］中找到与提交数据相匹配的记录');
@@ -101,15 +101,15 @@ class record extends base {
 				}
 				$oUserAcnt->userid = $oUser->uid;
 				$oUserAcnt->nickname = $modelMatchRec->escape($oUser->nickname);
-				$modelMatchRec->update('xxt_group_player', $oUserAcnt, ['id' => $oGroupRecord->id]);
+				$modelMatchRec->update('xxt_group_user', $oUserAcnt, ['id' => $oGroupRecord->id]);
 			}
 			/* 将匹配的分组记录数据作为提交的登记数据的一部分 */
 			$matchedData = $oGroupRecord->data;
 			foreach ($matchedData as $n => $v) {
 				!isset($oSigninData->{$n}) && $oSigninData->{$n} = $v;
 			}
-			if (isset($oGroupRecord->round_id)) {
-				$oSigninData->_round_id = $oGroupRecord->round_id;
+			if (isset($oGroupRecord->team_id)) {
+				$oSigninData->_round_id = $oGroupRecord->team_id;
 			}
 		}
 		/**
@@ -217,13 +217,13 @@ class record extends base {
 				$oMission = $this->model('matter\mission')->byId($oSigninApp->mission_id, ['fields' => 'siteid,id,user_app_type,user_app_id']);
 				if ($oMission->user_app_type === 'group') {
 					$oMisUsrGrpApp = (object) ['id' => $oMission->user_app_id];
-					$oMisGrpUser = $this->model('matter\group\player')->byUser($oMisUsrGrpApp, $oUser->uid, ['onlyOne' => true, 'round_id']);
+					$oMisGrpUser = $this->model('matter\group\user')->byUser($oMisUsrGrpApp, $oUser->uid, ['onlyOne' => true, 'team_id']);
 				}
 				$oMisUsr = $modelMisUsr->byId($oMission, $oUser->uid, ['fields' => 'id,nickname,group_id,last_signin_at,signin_num,user_total_coin']);
 				if (false === $oMisUsr) {
 					$aNewMisUser = ['last_signin_at' => time(), 'signin_num' => 1];
-					if (!empty($oMisGrpUser->round_id)) {
-						$aNewMisUser['group_id'] = $oMisGrpUser->round_id;
+					if (!empty($oMisGrpUser->team_id)) {
+						$aNewMisUser['group_id'] = $oMisGrpUser->team_id;
 					}
 					if (!empty($aCoinRules)) {
 						$aNewMisUser['user_total_coin'] = 0;
@@ -237,9 +237,9 @@ class record extends base {
 					if ($oMisUsr->nickname !== $oUser->nickname) {
 						$aUpdMisUser['nickname'] = $oUser->nickname;
 					}
-					if (isset($oMisGrpUser->round_id)) {
-						if ($oMisUsr->group_id !== $oMisGrpUser->round_id) {
-							$aUpdMisUser['group_id'] = $oMisGrpUser->round_id;
+					if (isset($oMisGrpUser->team_id)) {
+						if ($oMisUsr->group_id !== $oMisGrpUser->team_id) {
+							$aUpdMisUser['group_id'] = $oMisGrpUser->team_id;
 						}
 					}
 					if (!empty($aCoinRules)) {

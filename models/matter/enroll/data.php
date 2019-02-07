@@ -1276,7 +1276,7 @@ class data_model extends entity_model {
 			$aFnHandlers[] = function ($aRecData) use ($groupAppId, $modelGrpUser) {
 				if (!empty($aRecData->userid)) {
 					if (!isset($oGroupsByUser[$aRecData->userid])) {
-						$oGrpUser = $modelGrpUser->byUser((object) ['id' => $groupAppId], $aRecData->userid, ['fields' => 'round_id,round_title', 'onlyOne' => true]);
+						$oGrpUser = $modelGrpUser->byUser((object) ['id' => $groupAppId], $aRecData->userid, ['fields' => 'team_id,team_title', 'onlyOne' => true]);
 						$oGroupsByUser[$aRecData->userid] = $oGrpUser;
 					} else {
 						$oGrpUser = $oGroupsByUser[$aRecData->userid];
@@ -1285,7 +1285,7 @@ class data_model extends entity_model {
 						if (!isset($aRecData->user)) {
 							$aRecData->user = new \stdClass;
 						}
-						$aRecData->user->group = (object) ['id' => $oGrpUser->round_id, 'title' => $oGrpUser->round_title];
+						$aRecData->user->group = (object) ['id' => $oGrpUser->team_id, 'title' => $oGrpUser->team_title];
 					}
 				}
 			};
@@ -1335,14 +1335,14 @@ class data_model extends entity_model {
 					}
 				}
 			}
-			
+
 			// 记录的分组
 			if (!empty($aRecData->group_id)) {
 				if (!isset($aGroupsById[$aRecData->group_id])) {
-					if (!isset($modelGrpRnd)) {
-						$modelGrpRnd = $this->model('matter\group\round');
+					if (!isset($modelGrpTeam)) {
+						$modelGrpTeam = $this->model('matter\group\team');
 					}
-					$oGroup = $modelGrpRnd->byId($aRecData->group_id, ['fields' => 'title']);
+					$oGroup = $modelGrpTeam->byId($aRecData->group_id, ['fields' => 'title']);
 					$aGroupsById[$aRecData->group_id] = $oGroup;
 				} else {
 					$oGroup = $aGroupsById[$aRecData->group_id];

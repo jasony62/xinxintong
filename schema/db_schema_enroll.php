@@ -828,19 +828,19 @@ if (!$mysqli->query($sql)) {
 	echo 'database error(xxt_group): ' . $mysqli->error;
 }
 /**
- * 分组轮次
+ * 分组团队
  */
-$sql = "create table if not exists xxt_group_round(";
+$sql = "create table if not exists xxt_group_team(";
 $sql .= "aid varchar(40) not null";
-$sql .= ",round_id varchar(32) not null";
-$sql .= ",round_type char(1) not null default 'T'"; // 分组类型 T：团队，R：角色
+$sql .= ",team_id varchar(32) not null";
+$sql .= ",team_type char(1) not null default 'T'"; // 分组类型 T：团队，R：角色
 $sql .= ",create_at int not null";
 $sql .= ",title varchar(40) not null";
 $sql .= ",autoplay char(1) not null default 'N'"; // 自动抽取直到达到抽取次数
 $sql .= ",times int not null default 1"; // 抽取次数
 $sql .= ",targets text null";
 $sql .= ",extattrs text null"; //扩展属性
-$sql .= ",primary key(aid,round_id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+$sql .= ",primary key(aid,team_id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error: ' . $mysqli->error;
@@ -848,7 +848,7 @@ if (!$mysqli->query($sql)) {
 /**
  * 分组活动用户记录
  */
-$sql = "create table if not exists xxt_group_player(";
+$sql = "create table if not exists xxt_group_user(";
 $sql .= "id int not null auto_increment";
 $sql .= ",aid varchar(40) not null";
 $sql .= ",siteid varchar(32) not null default ''";
@@ -861,9 +861,9 @@ $sql .= ",tags text null";
 $sql .= ",comment text null";
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal,2:as invite log
 $sql .= ",referrer text null"; //
-$sql .= ",round_id varchar(32) not null default ''"; // 团队分组
-$sql .= ",round_title varchar(40) not null default ''";
-$sql .= ",role_rounds varchar(255) not null default ''"; // 角色分组
+$sql .= ",team_id varchar(32) not null default ''"; // 团队分组
+$sql .= ",team_title varchar(40) not null default ''";
+$sql .= ",role_teams varchar(255) not null default ''"; // 角色分组
 $sql .= ",draw_at int not null"; // 加入人员分组的时间
 $sql .= ",data text null"; // 登记的数据项
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
@@ -874,7 +874,7 @@ if (!$mysqli->query($sql)) {
 /**
  * 自定义登记数据
  */
-$sql = "create table if not exists xxt_group_player_data(";
+$sql = "create table if not exists xxt_group_user_data(";
 $sql .= "aid varchar(40) not null";
 $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",name varchar(40) not null";

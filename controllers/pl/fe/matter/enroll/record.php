@@ -1672,11 +1672,11 @@ class record extends main_base {
 		if (!$bEmpty) {
 			// 查找匹配的数据
 			$oGroupApp = $this->model('matter\group')->byId($oEnlApp->entryRule->group->id, ['cascaded' => 'N']);
-			$modelGrpRec = $this->model('matter\group\player');
-			$matchedRecords = $modelGrpRec->byData($oGroupApp, $oMatchCriteria);
+			$modelGrpUsr = $this->model('matter\group\user');
+			$matchedRecords = $modelGrpUsr->byData($oGroupApp, $oMatchCriteria);
 			foreach ($matchedRecords as $matchedRec) {
-				if (isset($matchedRec->round_id)) {
-					$matchedRec->data->_round_id = $matchedRec->round_id;
+				if (isset($matchedRec->team_id)) {
+					$matchedRec->data->_round_id = $matchedRec->team_id;
 				}
 				$aResult[] = $matchedRec->data;
 			}
@@ -1715,18 +1715,18 @@ class record extends main_base {
 			$oMocker = new \stdClass;
 			foreach ($oResult->records as $oRec) {
 				$oUpdatedData = $oRec->data;
-				$oGrpUsr = $modelGrpUsr->byUser($oGrpApp, $oRec->userid, ['onlyOne' => true, 'fields' => 'round_id,data']);
+				$oGrpUsr = $modelGrpUsr->byUser($oGrpApp, $oRec->userid, ['onlyOne' => true, 'fields' => 'team_id,data']);
 				if (false === $oGrpUsr) {
 					continue;
 				}
-				$bModified = ($oRec->group_id !== $oGrpUsr->round_id);
+				$bModified = ($oRec->group_id !== $oGrpUsr->team_id);
 				foreach ($aGrpSchemas as $oGrpSchema) {
 					$enlVal = $this->getDeepValue($oUpdatedData, $oGrpSchema->id);
 					if ($overwrite === 'N' && !empty($enlVal)) {
 						continue;
 					}
 					if ($oGrpSchema->id === '_round_id') {
-						$grpVal = $oGrpUsr->round_id;
+						$grpVal = $oGrpUsr->team_id;
 					} else {
 						$grpVal = $this->getDeepValue($oGrpUsr->data, $oGrpSchema->id);
 					}
@@ -1739,7 +1739,7 @@ class record extends main_base {
 					continue;
 				}
 				$oMocker->uid = $oRec->userid;
-				$oMocker->group_id = $oGrpUsr->round_id;
+				$oMocker->group_id = $oGrpUsr->team_id;
 				$modelRec->setData($oMocker, $oEnlApp, $oRec->enroll_key, $oUpdatedData);
 				$modelRec->update('xxt_enroll_record', ['group_id' => $oMocker->group_id], ['enroll_key' => $oRec->enroll_key]);
 
@@ -2335,8 +2335,8 @@ class record extends main_base {
 			switch ($oUserSource->type) {
 			case 'group':
 				$oGrpApp = $this->model('matter\group')->byId($oUserSource->id, ['fields' => 'assigned_nickname', 'cascaded' => 'N']);
-				$users = $this->model('matter\group\player')->byApp($oUserSource, (object) ['fields' => 'userid,nickname']);
-				$misUsers = isset($users->players) ? $users->players : [];
+				$oResult = $this->model('matter\group\user')->byApp($oUserSource, (object) ['fields' => 'userid,nickname']);
+				$misUsers = isset($oResult->users) ? $oResult->users : [];
 				break;
 			case 'enroll':
 				$misUsers = $this->model('matter\enroll\user')->enrolleeByApp($oUserSource, '', '', ['fields' => 'userid,nickname', 'cascaded' => 'N']);

@@ -432,13 +432,13 @@ class repos extends base {
 					$oEditor->group = $oActionRule->role->editor->group;
 					$oEditor->nickname = $oActionRule->role->editor->nickname;
 					// 如果记录活动指定了编辑组需要获取，编辑组中所有的用户
-					$modelGrpUsr = $this->model('matter\group\player');
-					$groupEditor = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
-					if (isset($groupEditor->players)) {
-						$groupEditorPlayers = $groupEditor->players;
+					$modelGrpUsr = $this->model('matter\group\user');
+					$groupEditor = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['roleTeamId' => $oEditor->group, 'fields' => 'role_teams,userid']);
+					if (isset($groupEditor->users)) {
+						$groupEditorPlayers = $groupEditor->users;
 						$oEditorUsers = new \stdClass;
 						foreach ($groupEditorPlayers as $player) {
-							$oEditorUsers->{$player->userid} = $player->role_rounds;
+							$oEditorUsers->{$player->userid} = $player->role_teams;
 						}
 						unset($groupEditorPlayers);
 					}
@@ -576,7 +576,7 @@ class repos extends base {
 		return new \ResponseData($oResult);
 	}
 	/**
-	 * 返回指定活动的填写记录的共享内容 
+	 * 返回指定活动的填写记录的共享内容
 	 * 答案视图
 	 */
 	public function coworkDataList_action($app, $page = 1, $size = 12) {
@@ -686,13 +686,13 @@ class repos extends base {
 					$oEditor->group = $oActionRule->role->editor->group;
 					$oEditor->nickname = $oActionRule->role->editor->nickname;
 					// 如果记录活动指定了编辑组需要获取，编辑组中所有的用户
-					$modelGrpUsr = $this->model('matter\group\player');
-					$groupEditor = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
-					if (isset($groupEditor->players)) {
-						$groupEditorPlayers = $groupEditor->players;
+					$modelGrpUsr = $this->model('matter\group\user');
+					$groupEditor = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['roleTeamId' => $oEditor->group, 'fields' => 'role_teams,userid']);
+					if (isset($groupEditor->users)) {
+						$groupEditorPlayers = $groupEditor->users;
 						$oEditorUsers = new \stdClass;
 						foreach ($groupEditorPlayers as $player) {
-							$oEditorUsers->{$player->userid} = $player->role_rounds;
+							$oEditorUsers->{$player->userid} = $player->role_teams;
 						}
 						unset($groupEditorPlayers);
 					}
@@ -711,7 +711,7 @@ class repos extends base {
 					foreach ($oApp->dynaDataSchemas as $oSchema) {
 						$schemaId = $oSchema->id;
 						// 分类目录
-						if (!empty($oSchema->asdir) && $oSchema->asdir === 'Y' && !empty($recordData->data->{$schemaId})) { 
+						if (!empty($oSchema->asdir) && $oSchema->asdir === 'Y' && !empty($recordData->data->{$schemaId})) {
 							foreach ($oSchema->ops as $op) {
 								if ($op->v === $recordData->data->{$schemaId}) {
 									$recordDirs[] = $op->l;
@@ -875,13 +875,13 @@ class repos extends base {
 					$oEditor->group = $oApp->actionRule->role->editor->group;
 					$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
 					// 如果记录活动指定了编辑组需要获取，编辑组中所有的用户
-					$modelGrpUsr = $this->model('matter\group\player');
-					$groupEditor = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
-					if (isset($groupEditor->players)) {
-						$groupEditorPlayers = $groupEditor->players;
+					$modelGrpUsr = $this->model('matter\group\user');
+					$groupEditor = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['roleTeamId' => $oEditor->group, 'fields' => 'role_teams,userid']);
+					if (isset($groupEditor->users)) {
+						$groupEditorPlayers = $groupEditor->users;
 						$oEditorUsers = new \stdClass;
 						foreach ($groupEditorPlayers as $player) {
-							$oEditorUsers->{$player->userid} = $player->role_rounds;
+							$oEditorUsers->{$player->userid} = $player->role_teams;
 						}
 						unset($groupEditorPlayers);
 					}
@@ -1063,12 +1063,12 @@ class repos extends base {
 				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
 				// 如果记录活动指定了编辑组需要获取，编辑组中所有的用户
 				$modelGrpUsr = $this->model('matter\group\user');
-				$groupEditor = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
+				$groupEditor = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['roleTeamId' => $oEditor->group, 'fields' => 'role_teams,userid']);
 				if (isset($groupEditor->users)) {
 					$groupEditorUsers = $groupEditor->users;
 					$oEditorUsers = new \stdClass;
 					foreach ($groupEditorUsers as $player) {
-						$oEditorUsers->{$player->userid} = $player->role_rounds;
+						$oEditorUsers->{$player->userid} = $player->role_teams;
 					}
 					unset($groupEditorUsers);
 				}
@@ -1218,20 +1218,20 @@ class repos extends base {
 			return [false, '参数格式错误！'];
 		}
 
-		foreach ($criterias as $key => $criteria) {
+		foreach ($criterias as $key => $oCriteria) {
 			// 默认排序
-			if ($criteria->type === 'orderby') {
+			if ($oCriteria->type === 'orderby') {
 				if (!empty($oApp->reposConfig->defaultOrder)) {
-					foreach ($criteria->menus as $i => $v) {
+					foreach ($oCriteria->menus as $i => $v) {
 						if ($v->id === $oApp->reposConfig->defaultOrder) {
-							$criteria->default = $criteria->menus[$i];
+							$oCriteria->default = $oCriteria->menus[$i];
 							break;
 						}
 					}
 				}
 			}
 			//获取轮次
-			if ($criteria->type === 'rid') {
+			if ($oCriteria->type === 'rid') {
 				$modelRun = $this->model('matter\enroll\round');
 				$options = [
 					'fields' => 'rid,title',
@@ -1239,19 +1239,19 @@ class repos extends base {
 				];
 				$result = $modelRun->byApp($oApp, $options);
 				if (count($result->rounds) == 1) {
-					unset($criterias[$key]);
+					unset($oCriterias[$key]);
 				} else {
 					foreach ($result->rounds as $round) {
 						if ($round->rid === $result->active->rid) {
-							$criteria->menus[] = (object) ['id' => $round->rid, 'title' => '(当前填写轮次) ' . $round->title];
+							$oCriteria->menus[] = (object) ['id' => $round->rid, 'title' => '(当前填写轮次) ' . $round->title];
 						} else {
-							$criteria->menus[] = (object) ['id' => $round->rid, 'title' => $round->title];
+							$oCriteria->menus[] = (object) ['id' => $round->rid, 'title' => $round->title];
 						}
 					}
 				}
 			}
 			// 如果有答案的题型才显示筛选答案的按钮
-			if ($criteria->type === 'coworkAgreed') {
+			if ($oCriteria->type === 'coworkAgreed') {
 				$coworkState = false;
 				if ($viewType === 'record') {
 					foreach ($oApp->dynaDataSchemas as $oSchema) {
@@ -1262,22 +1262,22 @@ class repos extends base {
 					}
 				}
 				if (!$coworkState) {
-					unset($criterias[$key]);
+					unset($oCriterias[$key]);
 				}
 			}
 			// 获取分组
-			if ($criteria->type === 'userGroup') {
+			if ($oCriteria->type === 'userGroup') {
 				if (empty($oApp->entryRule->group->id)) {
-					unset($criterias[$key]);
+					unset($oCriterias[$key]);
 				} else {
 					$assocGroupAppId = $oApp->entryRule->group->id;
-					$modelGrpRnd = $this->model('matter\group\round');
-					$groups = $modelGrpRnd->byApp($assocGroupAppId, ['fields' => "round_id,title"]);
+					$modelGrpTeam = $this->model('matter\group\team');
+					$groups = $modelGrpTeam->byApp($assocGroupAppId, ['fields' => "team_id,title"]);
 					if (empty($groups)) {
-						unset($criterias[$key]);
+						unset($oCriterias[$key]);
 					} else {
 						foreach ($groups as $group) {
-							$criteria->menus[] = (object) ['id' => $group->round_id, 'title' => $group->title];
+							$oCriteria->menus[] = (object) ['id' => $group->team_id, 'title' => $group->title];
 						}
 					}
 				}
@@ -1285,37 +1285,38 @@ class repos extends base {
 			/*
 				 *表态 当用户为编辑或者超级管理员或者有组时才会出现“接受”，“关闭” ，“讨论”，“未表态” ，否则只有推荐和不限两种
 			*/
-			if ($criteria->type === 'agreed') {
+			if ($oCriteria->type === 'agreed') {
 				if (!empty($oUser->group_id) || (isset($oUser->is_leader) && $oUser->is_leader === 'S') || (isset($oUser->is_editor) && $oUser->is_editor === 'Y')) {
-					$criteria->menus[] = (object) ['id' => 'A', 'title' => '接受'];
-					$criteria->menus[] = (object) ['id' => 'D', 'title' => '讨论'];
-					$criteria->menus[] = (object) ['id' => 'N', 'title' => '关闭'];
+					$oCriteria->menus[] = (object) ['id' => 'A', 'title' => '接受'];
+					$oCriteria->menus[] = (object) ['id' => 'D', 'title' => '讨论'];
+					$oCriteria->menus[] = (object) ['id' => 'N', 'title' => '关闭'];
 				}
 			}
 			// 只有登录用户才会显示我的记录和我的收藏
-			if ($criteria->type === 'mine') {
+			if ($oCriteria->type === 'mine') {
 				if (empty($oUser->unionid)) {
-					unset($criterias[$key]);
+					unset($oCriterias[$key]);
 				} else if ($viewType === 'record') {
-					$criteria->menus[] = (object) ['id' => 'creator', 'title' => '我的记录'];
-					$criteria->menus[] = (object) ['id' => 'favored', 'title' => '我的收藏'];
+					$oCriteria->menus[] = (object) ['id' => 'creator', 'title' => '我的记录'];
+					$oCriteria->menus[] = (object) ['id' => 'favored', 'title' => '我的收藏'];
 				} else if ($viewType === 'coworkData') {
-					$criteria->menus[] = (object) ['id' => 'creator', 'title' => '我的回答'];
+					$oCriteria->menus[] = (object) ['id' => 'creator', 'title' => '我的回答'];
 				} else {
-					unset($criterias[$key]);
+					unset($oCriterias[$key]);
 				}
 			}
 			// 搜索历史
-			if ($criteria->type === 'keyword') {
+			if ($oCriteria->type === 'keyword') {
 				$search = $this->model('matter\enroll\search')->listUserSearch($oApp, $oUser);
 				$userSearchs = $search->userSearch;
 				foreach ($userSearchs as $userSearch) {
-					$criteria->menus[] = (object) ['id' => $userSearch->keyword, 'title' => $userSearch->keyword];
+					$oCriteria->menus[] = (object) ['id' => $userSearch->keyword, 'title' => $userSearch->keyword];
 				}
 			}
 		}
 
 		$criterias = array_values($criterias);
+
 		return [true, $criterias];
 	}
 	/**

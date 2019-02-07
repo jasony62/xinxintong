@@ -55,16 +55,16 @@ class data extends base {
 				$oEditor->group = $oApp->actionRule->role->editor->group;
 				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
 				// 如果登记活动指定了编辑组需要获取，编辑组中所有的用户
-				$modelGrpUsr = $this->model('matter\group\player');
+				$modelGrpUsr = $this->model('matter\group\user');
 				$assocGroupId = $oApp->entryRule->group->id;
-				$groupEditor = $modelGrpUsr->byApp($assocGroupId, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
-				if (isset($groupEditor->players)) {
-					$groupEditorPlayers = $groupEditor->players;
+				$oGrpUserResult = $modelGrpUsr->byApp($assocGroupId, ['roleTeamId' => $oEditor->group, 'fields' => 'role_teams,userid']);
+				if (isset($oGrpUserResult->users)) {
+					$oGrpUsers = $oGrpUserResult->users;
 					$oEditorUsers = new \stdClass;
-					foreach ($groupEditorPlayers as $player) {
-						$oEditorUsers->{$player->userid} = $player->role_rounds;
+					foreach ($oGrpUsers as $oGrpUser) {
+						$oEditorUsers->{$oGrpUser->userid} = $oGrpUser->role_teams;
 					}
-					unset($groupEditorPlayers);
+					unset($oGrpUsers);
 				}
 			}
 		}
@@ -383,18 +383,18 @@ class data extends base {
 		}
 		//
 		if ($oUserCoworkAgreedPower === false) {
-			$modelGrpUsr = $this->model('matter\group\player');
+			$modelGrpUsr = $this->model('matter\group\user');
 			/* 当前操作用户所属分组及角色 */
-			$oGrpLeader = $modelGrpUsr->byUser($oApp->entryRule->group, $oUser->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
+			$oGrpLeader = $modelGrpUsr->byUser($oApp->entryRule->group, $oUser->uid, ['fields' => 'is_leader,team_id', 'onlyOne' => true]);
 			if (false === $oGrpLeader || !in_array($oGrpLeader->is_leader, ['Y', 'S'])) {
 				return new \ParameterError('只允许组长进行推荐');
 			}
 			/* 检查是否在同一分组内 */
 			if ($oGrpLeader->is_leader === 'Y') {
-				$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oRecData->userid, ['fields' => 'round_id', 'onlyOne' => true]);
-				if ($oGrpMemb && !empty($oGrpMemb->round_id)) {
+				$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oRecData->userid, ['fields' => 'team_id', 'onlyOne' => true]);
+				if ($oGrpMemb && !empty($oGrpMemb->team_id)) {
 					/* 填写记录的用户属于一个分组 */
-					if ($oGrpMemb->round_id !== $oGrpLeader->round_id) {
+					if ($oGrpMemb->team_id !== $oGrpLeader->team_id) {
 						return new \ParameterError('只允许组长对本组成员的数据表态');
 					}
 				} else {

@@ -62,7 +62,7 @@ class upgrade extends \TMS_CONTROLLER {
 	public function do20161005_action($site = null, $app = null, $ek = null, $force = 'N') {
 		$model = $this->model();
 
-		$q = ['enroll_key', 'xxt_group_player'];
+		$q = ['enroll_key', 'xxt_group_user'];
 		$q[2] = $force === 'N' ? "data is null" : '1=1';
 		if (!empty($site)) {
 			$site = $model->escape($site);
@@ -81,7 +81,7 @@ class upgrade extends \TMS_CONTROLLER {
 		foreach ($records as $record) {
 			$qc = [
 				'name,value',
-				'xxt_group_player_data',
+				'xxt_group_user_data',
 				"enroll_key='{$record->enroll_key}'",
 			];
 			$cds = $model->query_objs_ss($qc);
@@ -96,7 +96,7 @@ class upgrade extends \TMS_CONTROLLER {
 			}
 			$data = $model->toJson($data);
 
-			$model->update('xxt_group_player', ['data' => $data], "enroll_key='{$record->enroll_key}'");
+			$model->update('xxt_group_user', ['data' => $data], "enroll_key='{$record->enroll_key}'");
 		}
 
 		return new \ResponseData('ok');

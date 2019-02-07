@@ -138,7 +138,7 @@ define(['frame'], function(ngApp) {
             if (oResult.app) {
                 $scope[type].group = { id: oResult.app.id, title: oResult.app.title };
                 if (oResult.round) {
-                    $scope[type].group.round = { id: oResult.round.round_id, title: oResult.round.title };
+                    $scope[type].group.round = { id: oResult.round.team_id, title: oResult.round.title };
                 }
                 return true;
             }

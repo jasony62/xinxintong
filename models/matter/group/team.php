@@ -1,39 +1,39 @@
 <?php
 namespace matter\group;
 
-class round_model extends \TMS_MODEL {
+require_once dirname(dirname(__FILE__)) . '/base.php';
+
+class team_model extends \matter\base_model {
 	/**
 	 *
 	 */
-	public function &byId($id, $aOptions = []) {
-		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
-		$q = [
-			$fields,
-			'xxt_group_round',
-			["round_id" => $id],
-		];
-		$round = $this->query_obj_ss($q);
-
-		return $round;
+	protected function id() {
+		return 'team_id';
+	}
+	/**
+	 *
+	 */
+	protected function table() {
+		return 'xxt_group_team';
 	}
 	/**
 	 * 创建轮次
 	 */
 	public function &create($app, $prototype = array()) {
 		$targets = isset($prototype['targets']) ? $this->toJson($prototype['targets']) : '[]';
-		$round = array(
+		$aNewTeam = [
 			'aid' => $app,
-			'round_id' => uniqid(),
+			'team_id' => uniqid(),
 			'create_at' => time(),
 			'title' => isset($prototype['title']) ? $prototype['title'] : '新分组',
 			'times' => isset($prototype['times']) ? $prototype['times'] : 0,
 			'targets' => $targets,
-		);
-		$this->insert('xxt_group_round', $round, false);
+		];
+		$this->insert('xxt_group_team', $aNewTeam, false);
 
-		$round = (object) $round;
+		$oNewTeam = (object) $aNewTeam;
 
-		return $round;
+		return $oNewTeam;
 	}
 	/**
 	 * 获得抽奖的轮次
@@ -43,30 +43,30 @@ class round_model extends \TMS_MODEL {
 	 */
 	public function &byApp($appId, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
-		$roundType = isset($aOptions['round_type']) ? $aOptions['round_type'] : 'T';
+		$teamType = isset($aOptions['team_type']) ? $aOptions['team_type'] : 'T';
 		$cascade = isset($aOptions['cascade']) ? $aOptions['cascade'] : '';
 		$cascade = explode(',', $cascade);
 
 		$q = [
 			$fields,
-			'xxt_group_round',
+			'xxt_group_team',
 			['aid' => $appId],
 		];
-		if (!empty($roundType)) {
-			$q[2]['round_type'] = $roundType;
+		if (!empty($teamType)) {
+			$q[2]['team_type'] = $teamType;
 		}
-		$rounds = $this->query_objs_ss($q);
+		$teams = $this->query_objs_ss($q);
 		/* 获得指定的级联数据 */
-		if (count($rounds) && count($cascade)) {
-			$modelUsr = $this->model('matter\group\player');
-			foreach ($rounds as $oRound) {
+		if (count($teams) && count($cascade)) {
+			$modelUsr = $this->model('matter\group\user');
+			foreach ($teams as $oTeam) {
 				if (in_array('playerCount', $cascade)) {
-					$oRound->playerCount = $modelUsr->countByRound($appId, $oRound->round_id);
+					$oTeam->playerCount = $modelUsr->countByRound($appId, $oTeam->team_id);
 				}
 			}
 		}
 
-		return $rounds;
+		return $teams;
 	}
 	/**
 	 * 清除轮次结果
@@ -75,10 +75,10 @@ class round_model extends \TMS_MODEL {
 	 */
 	public function clean($appId) {
 		$rst = $this->update(
-			'xxt_group_player',
+			'xxt_group_user',
 			[
-				'round_id' => 0,
-				'round_title' => '',
+				'team_id' => 0,
+				'team_title' => '',
 			],
 			['aid' => $appId]
 		);

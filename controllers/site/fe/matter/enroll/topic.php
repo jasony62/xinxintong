@@ -37,13 +37,13 @@ class topic extends base {
 				$oEditor->group = $oApp->actionRule->role->editor->group;
 				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
 				// 如果登记活动指定了编辑组需要获取，编辑组中所有的用户
-				$modelGrpUsr = $this->model('matter\group\player');
-				$groupEditor = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
-				if (isset($groupEditor->players)) {
-					$groupEditorPlayers = $groupEditor->players;
+				$modelGrpUsr = $this->model('matter\group\user');
+				$groupEditor = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['roleTeamId' => $oEditor->group, 'fields' => 'role_teams,userid']);
+				if (isset($groupEditor->users)) {
+					$groupEditorPlayers = $groupEditor->users;
 					$oEditorUsers = new \stdClass;
 					foreach ($groupEditorPlayers as $player) {
-						$oEditorUsers->{$player->userid} = $player->role_rounds;
+						$oEditorUsers->{$player->userid} = $player->role_teams;
 					}
 					unset($groupEditorPlayers);
 				}

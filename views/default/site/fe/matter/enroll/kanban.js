@@ -21,7 +21,7 @@ ngApp.controller('ctrlKanban', ['$scope', '$q', '$parse', '$uibModal', 'tmsLocat
         defer = $q.defer();
         url = LS.j('user/kanban', 'site', 'app');
         url += '&rid=' + _oFilter.round.rid;
-        _oFilter.group && (url += '&gid=' + _oFilter.group.round_id);
+        _oFilter.group && (url += '&gid=' + _oFilter.group.team_id);
         http2.get(url).then(function(rsp) {
             var oUndoneByUserid = {};
             if (rsp.data.users && rsp.data.users.length) {

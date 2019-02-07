@@ -57,7 +57,7 @@ define(['frame'], function(ngApp) {
             if (oResult.app) {
                 _oEntryRule.group = { id: oResult.app.id, title: oResult.app.title };
                 if (oResult.round) {
-                    _oEntryRule.group.round = { id: oResult.round.round_id, title: oResult.round.title };
+                    _oEntryRule.group.round = { id: oResult.round.team_id, title: oResult.round.title };
                 }
                 return true;
             }

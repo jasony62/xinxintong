@@ -5,6 +5,12 @@ namespace matter;
  */
 class base_model extends \TMS_MODEL {
 	/**
+	 * byId方法中的id字段
+	 */
+	protected function id() {
+		return 'id';
+	}
+	/**
 	 * 素材类型名称
 	 */
 	public function getTypeName() {
@@ -87,7 +93,7 @@ class base_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			$this->table(),
-			["id" => $id],
+			[$this->id() => $id],
 		];
 		if ($oMatter = $this->query_obj_ss($q)) {
 			$oMatter->type = $this->getTypeName();

@@ -213,7 +213,7 @@ abstract class enroll_base extends app_base {
 		if (!empty($oGroupApp->rounds)) {
 			foreach ($oGroupApp->rounds as $oRound) {
 				$op = new \stdClass;
-				$op->v = $oRound->round_id;
+				$op->v = $oRound->team_id;
 				$op->l = $oRound->title;
 				$oRoundSchema->ops[] = $op;
 			}

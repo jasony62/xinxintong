@@ -54,8 +54,8 @@ class main extends base {
 		$modelUsr = $this->model('matter\plan\user');
 		$oAppUsr = $modelUsr->byUser($oApp, $this->who, ['fields' => 'nickname,group_id,start_at,last_enroll_at,task_num,score,coin']);
 		if (!empty($oAppUsr->group_id)) {
-			$modelGrpRnd = $this->model('matter\group\round');
-			$oGroupRnd = $modelGrpRnd->byId($oAppUsr->group_id, ['fields' => 'title']);
+			$modelGrpTeam = $this->model('matter\group\team');
+			$oGroupRnd = $modelGrpTeam->byId($oAppUsr->group_id, ['fields' => 'title']);
 			if ($oGroupRnd) {
 				$oAppUsr->group_title = $oGroupRnd->title;
 			}

@@ -1053,8 +1053,8 @@ class user_model extends \TMS_MODEL {
 				'xxt_group_user',
 				['state' => 1, 'aid' => $oRule->receiver->group->id, 'userid' => (object) ['op' => '<>', 'pat' => $oRecord->userid]],
 			];
-			if (!empty($oRule->receiver->group->round->id)) {
-				$q[2]['team_id'] = (object) ['op' => 'or', 'pat' => ["team_id = '{$oRule->receiver->group->round->id}'", "role_teams like '%\"" . $oRule->receiver->group->round->id . "\"%'"]];
+			if (!empty($oRule->receiver->group->team->id)) {
+				$q[2]['team_id'] = (object) ['op' => 'or', 'pat' => ["team_id = '{$oRule->receiver->group->team->id}'", "role_teams like '%\"" . $oRule->receiver->group->team->id . "\"%'"]];
 			}
 			$receivers = $this->query_objs_ss($q);
 		}
@@ -1127,8 +1127,8 @@ class user_model extends \TMS_MODEL {
 				'xxt_group_user',
 				['state' => 1, 'aid' => $oRule->receiver->group->id, 'userid' => (object) ['op' => '<>', 'pat' => $oItem->userid]],
 			];
-			if (!empty($oRule->receiver->group->round->id)) {
-				$q[2]['team_id'] = (object) ['op' => 'or', 'pat' => ["team_id = '{$oRule->receiver->group->round->id}'", "role_teams like '%\"" . $oRule->receiver->group->round->id . "\"%'"]];
+			if (!empty($oRule->receiver->group->team->id)) {
+				$q[2]['team_id'] = (object) ['op' => 'or', 'pat' => ["team_id = '{$oRule->receiver->group->team->id}'", "role_teams like '%\"" . $oRule->receiver->group->team->id . "\"%'"]];
 			}
 			$receivers = $this->query_objs_ss($q);
 		}
@@ -1162,8 +1162,8 @@ class user_model extends \TMS_MODEL {
 				'xxt_group_user',
 				['state' => 1, 'aid' => $oRule->receiver->group->id, 'userid' => (object) ['op' => '<>', 'pat' => $oRemark->userid]],
 			];
-			if (!empty($oRule->receiver->group->round->id)) {
-				$q[2]['team_id'] = (object) ['op' => 'or', 'pat' => ["team_id='{$oRule->receiver->group->round->id}'", "role_teams like '%\"" . $oRule->receiver->group->round->id . "\"%'"]];
+			if (!empty($oRule->receiver->group->team->id)) {
+				$q[2]['team_id'] = (object) ['op' => 'or', 'pat' => ["team_id='{$oRule->receiver->group->team->id}'", "role_teams like '%\"" . $oRule->receiver->group->team->id . "\"%'"]];
 			}
 			$receivers = $this->query_objs_ss($q);
 		}

@@ -193,8 +193,8 @@ class main extends \pl\fe\matter\main_base {
 					if (isset($v->group->title)) {
 						unset($v->group->title);
 					}
-					if (isset($v->group->round->title)) {
-						unset($v->group->round->title);
+					if (isset($v->group->team->title)) {
+						unset($v->group->team->title);
 					}
 				}
 				$oUpdated->entry_rule = $modelLink->escape($modelLink->toJson($v));

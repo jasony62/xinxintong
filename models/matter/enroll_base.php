@@ -25,8 +25,8 @@ abstract class enroll_base extends app_base {
 			if ($this->getDeepValue($oEntryRule, 'scope.group') === 'Y') {
 				if (!empty($oProtoEntryRule->group->id)) {
 					$oEntryRule->group = (object) ['id' => $oProtoEntryRule->group->id];
-					if (!empty($oProtoEntryRule->group->round->id)) {
-						$oEntryRule->group->round = (object) ['id' => $oProtoEntryRule->group->round->id];
+					if (!empty($oProtoEntryRule->group->team->id)) {
+						$oEntryRule->group->team = (object) ['id' => $oProtoEntryRule->group->team->id];
 					}
 				}
 			}

@@ -186,8 +186,8 @@ class base extends \site\fe\base {
 					$oGroupUsr = $this->model('matter\group\user')->byUser($oGroupApp, $oUser->uid, ['fields' => 'team_id,team_title']);
 					if (count($oGroupUsr)) {
 						$oGroupUsr = $oGroupUsr[0];
-						if (isset($oEntryRule->group->round->id)) {
-							if ($oGroupUsr->team_id === $oEntryRule->group->round->id) {
+						if (isset($oEntryRule->group->team->id)) {
+							if ($oGroupUsr->team_id === $oEntryRule->group->team->id) {
 								$bMatched = true;
 							}
 						} else {

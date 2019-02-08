@@ -188,7 +188,7 @@ class remind_model extends \TMS_MODEL {
 			} else if (!empty($oMatter->entryRule->group->id)) {
 				$oGrpApp = $this->model('matter\group')->byId($oMatter->entryRule->group->id, ['fields' => 'title']);
 				if ($oGrpApp) {
-					if (empty($oMatter->entryRule->group->round->id)) {
+					if (empty($oMatter->entryRule->group->team->id)) {
 						$q = [
 							'distinct userid',
 							'xxt_group_user',
@@ -197,9 +197,9 @@ class remind_model extends \TMS_MODEL {
 						$receivers = $modelEnl->query_objs_ss($q);
 						$oTmplTimerTaskParams->receiver = $oGrpApp->title;
 					} else {
-						$oGrpAppTeam = $this->model('matter\group\team')->byId($oMatter->entryRule->group->round->id);
+						$oGrpAppTeam = $this->model('matter\group\team')->byId($oMatter->entryRule->group->team->id);
 						if ($oGrpAppTeam) {
-							$receivers = $this->model('matter\group\user')->byRound($oMatter->entryRule->group->round->id, ['fields' => 'userid']);
+							$receivers = $this->model('matter\group\user')->byRound($oMatter->entryRule->group->team->id, ['fields' => 'userid']);
 							$oTmplTimerTaskParams->receiver = $oGrpAppTeam->title;
 						}
 					}

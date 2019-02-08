@@ -1528,8 +1528,8 @@ factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite
             tkGroupApp.choose(oMatter).then(function(oResult) {
                 if (oResult.app) {
                     _oRule.group = { id: oResult.app.id, title: oResult.app.title };
-                    if (oResult.round) {
-                        _oRule.group.round = { id: oResult.round.team_id, title: oResult.round.title };
+                    if (oResult.team) {
+                        _oRule.group.team = { id: oResult.team.team_id, title: oResult.team.title };
                     }
                 }
             });

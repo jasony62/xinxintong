@@ -113,7 +113,7 @@ class main extends \site\fe\matter\base {
 					if ($oMatter->type !== 'enroll') {
 						continue;
 					}
-					if ($this->getDeepValue($oMatter->entryRule, 'group.round.id') !== $oGrpLeader->team_id) {
+					if ($this->getDeepValue($oMatter->entryRule, 'group.team.id') !== $oGrpLeader->team_id) {
 						continue;
 					}
 				}

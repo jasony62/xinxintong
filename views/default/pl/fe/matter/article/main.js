@@ -137,8 +137,8 @@ define(['frame'], function(ngApp) {
         function setGroupEntry(oResult, type) {
             if (oResult.app) {
                 $scope[type].group = { id: oResult.app.id, title: oResult.app.title };
-                if (oResult.round) {
-                    $scope[type].group.round = { id: oResult.round.team_id, title: oResult.round.title };
+                if (oResult.team) {
+                    $scope[type].group.team = { id: oResult.team.team_id, title: oResult.team.title };
                 }
                 return true;
             }

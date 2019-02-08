@@ -73,8 +73,8 @@ class base extends \site\fe\matter\base {
 
 		if (count($oGroupUsr)) {
 			$oGroupUsr = $oGroupUsr[0];
-			if (isset($oGroupApp->round->id)) {
-				if ($oGroupUsr->team_id === $oGroupApp->round->id) {
+			if (isset($oGroupApp->team->id)) {
+				if ($oGroupUsr->team_id === $oGroupApp->team->id) {
 					return $oGroupUsr;
 				}
 			} else {

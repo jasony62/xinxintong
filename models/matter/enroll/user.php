@@ -608,7 +608,7 @@ class user_model extends \TMS_MODEL {
 		if (!empty($oEntryRule->group->id)) {
 			$oGrpApp = $oEntryRule->group;
 			$modelGrpUsr = $this->model('matter\group\user');
-			if (empty($oGrpApp->round->id)) {
+			if (empty($oGrpApp->team->id)) {
 				$aGrpUsrOptions = ['fields' => 'userid,nickname,team_id,team_title'];
 				if (isset($aOptions['inGroupTeam']) && true === $aOptions['inGroupTeam']) {
 					/* 主分组用户 */
@@ -624,11 +624,11 @@ class user_model extends \TMS_MODEL {
 			} else {
 				$aGrpUsrs = $modelGrpUsr->byRound(
 					$oGrpApp->id,
-					$oGrpApp->round->id,
+					$oGrpApp->team->id,
 					['fields' => 'userid,nickname,team_title']
 				);
 				foreach ($aGrpUsrs as $oGrpUsr) {
-					$oGrpUsr->group = (object) ['id' => $oGrpApp->round->id, 'title' => $oGrpUsr->team_title];
+					$oGrpUsr->group = (object) ['id' => $oGrpApp->team->id, 'title' => $oGrpUsr->team_title];
 					unset($oGrpUsr->team_title);
 					$aAssignedUsrs[] = $oGrpUsr;
 				}

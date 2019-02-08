@@ -126,10 +126,10 @@ class main extends \site\fe\matter\base {
 							$oGroupApp = $oEntryRule->group;
 							$oGroupUsr = $this->model('matter\group\user')->byUser($oGroupApp, $oUser->uid, ['fields' => 'team_id,team_title,role_teams', 'onlyOne' => true]);
 							if ($oGroupUsr) {
-								if (isset($oGroupApp->round->id)) {
-									if ($oGroupUsr->team_id === $oGroupApp->round->id) {
+								if (isset($oGroupApp->team->id)) {
+									if ($oGroupUsr->team_id === $oGroupApp->team->id) {
 										$bMatched = true;
-									} else if (count($oGroupUsr->role_teams) && in_array($oGroupApp->round->id, $oGroupUsr->role_teams)) {
+									} else if (count($oGroupUsr->role_teams) && in_array($oGroupApp->team->id, $oGroupUsr->role_teams)) {
 										$bMatched = true;
 									}
 								} else {

@@ -46,10 +46,10 @@ class main extends \pl\fe\matter\main_base {
 				$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
 				if ($oGroupApp) {
 					$oRuleApp->title = $oGroupApp->title;
-					if (!empty($oRuleApp->round->id)) {
-						$oGroupRnd = $modelGrpTeam->byId($oRuleApp->round->id, ['fields' => 'title']);
-						if ($oGroupRnd) {
-							$oRuleApp->round->title = $oGroupRnd->title;
+					if (!empty($oRuleApp->team->id)) {
+						$oGrpTeam = $modelGrpTeam->byId($oRuleApp->team->id, ['fields' => 'title']);
+						if ($oGrpTeam) {
+							$oRuleApp->team->title = $oGrpTeam->title;
 						}
 					}
 					/* 获得当前活动的分组 */

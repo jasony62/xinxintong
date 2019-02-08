@@ -1690,7 +1690,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 var oApp;
                 oApp = $scope.app;
                 if (oSchema.id === '_round_id' && oApp.groupApp) {
-                    http2.get('/rest/pl/fe/matter/group/team/list?site=' + oApp.siteid + '&app=' + oApp.groupApp.id).then(function(rsp) {
+                    http2.get('/rest/pl/fe/matter/group/team/list?app=' + oApp.groupApp.id).then(function(rsp) {
                         var newOp, opById;
                         if (rsp.data.length) {
                             opById = {};

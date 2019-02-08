@@ -51,10 +51,10 @@ class main extends \pl\fe\matter\main_base {
 					$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'title', 'cascaded' => 'Y']);
 					if ($oGroupApp) {
 						$oRuleApp->title = $oGroupApp->title;
-						if (!empty($oRuleApp->round->id)) {
-							$oGroupTeam = $this->model('matter\group\team')->byId($oRuleApp->round->id, ['fields' => 'title']);
-							if ($oGroupTeam) {
-								$oRuleApp->round->title = $oGroupTeam->title;
+						if (!empty($oRuleApp->team->id)) {
+							$oGrpTeam = $this->model('matter\group\team')->byId($oRuleApp->team->id, ['fields' => 'title']);
+							if ($oGrpTeam) {
+								$oRuleApp->team->title = $oGrpTeam->title;
 							}
 						}
 						$oApp->groupApp = $oGroupApp;

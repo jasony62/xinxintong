@@ -30,20 +30,20 @@ class main extends \pl\fe\matter\main_base {
 		$model = $this->model();
 		$options = $this->getPostJson();
 
-		$link = $this->model('matter\link')->byIdWithParams($id);
+		$oLink = $this->model('matter\link')->byIdWithParams($id);
 		/* 指定分组活动访问 */
-		if (isset($link->entry_rule->scope->group) && $link->entry_rule->scope->group === 'Y') {
-			if (isset($link->entry_rule->group)) {
-				!is_object($link->entry_rule->group) && $link->entry_rule->group = (object) $link->entry_rule->group;
-				$oRuleApp = $link->entry_rule->group;
+		if (isset($oLink->entry_rule->scope->group) && $oLink->entry_rule->scope->group === 'Y') {
+			if (isset($oLink->entry_rule->group)) {
+				!is_object($oLink->entry_rule->group) && $oLink->entry_rule->group = (object) $oLink->entry_rule->group;
+				$oRuleApp = $oLink->entry_rule->group;
 				if (!empty($oRuleApp->id)) {
 					$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'title', 'cascaded' => 'N']);
 					if ($oGroupApp) {
 						$oRuleApp->title = $oGroupApp->title;
-						if (!empty($oRuleApp->round->id)) {
-							$oGroupTeam = $this->model('matter\group\team')->byId($oRuleApp->round->id, ['fields' => 'title']);
-							if ($oGroupTeam) {
-								$oRuleApp->round->title = $oGroupTeam->title;
+						if (!empty($oRuleApp->team->id)) {
+							$oGrpTeam = $this->model('matter\group\team')->byId($oRuleApp->team->id, ['fields' => 'title']);
+							if ($oGrpTeam) {
+								$oRuleApp->team->title = $oGrpTeam->title;
 							}
 						}
 					}
@@ -51,7 +51,7 @@ class main extends \pl\fe\matter\main_base {
 			}
 		}
 
-		return new \ResponseData($link);
+		return new \ResponseData($oLink);
 	}
 	/**
 	 *

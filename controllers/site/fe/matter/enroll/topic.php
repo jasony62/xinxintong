@@ -222,12 +222,30 @@ class topic extends base {
 			return new \ObjectNotFoundError();
 		}
 
+		$oPosted = $this->getPostJson();
+		if (!empty($oPosted->orderby)) {
+			switch ($oPosted->orderby) {
+			case 'earliest':
+				$orderby = ['create_at asc'];
+				break;
+			case 'lastest':
+				$orderby = ['create_at desc'];
+				break;
+			}
+		}
+
 		$q = [
 			'id,create_at,title,summary,rec_num,userid,group_id,nickname,share_in_group,is_public',
 			'xxt_enroll_topic',
 			['state' => 1, 'aid' => $oApp->id, 'is_public' => 'Y'],
 		];
-		$q2 = ['o' => 'create_at desc'];
+		$q2 = [];
+		if (isset($orderby)) {
+			$q2['o'] = $orderby;
+		} else {
+			$q2['o'] = ['create_at desc'];
+		}
+
 		$topics = $modelEnl->query_objs_ss($q, $q2);
 
 		$oResult = new \stdClass;

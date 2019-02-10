@@ -642,7 +642,7 @@ class record_model extends record_base {
 			$oOptions = (object) $oOptions;
 		}
 
-		$oSchemasById = $this->model('matter\enroll\schema')->asObject($oApp->dynaDataSchemas);
+		$aSchemasById = $this->model('matter\enroll\schema')->asAssoc($oApp->dynaDataSchemas);
 
 		// 指定记录活动下的记录记录
 		$w = "r.state=1 and r.aid='{$oApp->id}'";
@@ -744,8 +744,8 @@ class record_model extends record_base {
 		if (isset($oCriteria->data)) {
 			$whereByData = '';
 			foreach ($oCriteria->data as $k => $v) {
-				if (!empty($v) && isset($oSchemasById->{$k})) {
-					$oSchema = $oSchemasById->{$k};
+				if (!empty($v) && isset($aSchemasById[$k])) {
+					$oSchema = $aSchemasById[$k];
 					$whereByData .= ' and (';
 					if ($oSchema->type === 'multiple') {
 						// 选项ID是否互斥，不存在，例如：v1和v11
@@ -795,7 +795,7 @@ class record_model extends record_base {
 		// 筛选答案
 		if (isset($oCriteria->cowork)) {
 			$coworkSchemaIds = [];
-			foreach ($oSchemasById as $oSchemaId => $oSchema) {
+			foreach ($aSchemasById as $oSchemaId => $oSchema) {
 				if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
 					$coworkSchemaIds[] = $oSchemaId;
 				}
@@ -1016,7 +1016,7 @@ class record_model extends record_base {
 							}
 						}
 						/* 根据题目的可见性处理数据 */
-						if (count($visibilitySchemas)) {
+						if ($this->getDeepValue($oRec, 'purpose') === 'C' && count($visibilitySchemas)) {
 							$fnCheckSchemaVisibility($visibilitySchemas, $oRec->data);
 						}
 					}

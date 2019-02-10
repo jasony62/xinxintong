@@ -5,13 +5,6 @@
                 <label>活动名称</label>
                 <input type='text' class='form-control' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
             </div>
-            <div class='form-group'>
-                <label>分组方式</label>
-                <select class='form-control' ng-model='app.scenario' ng-change="update('scenario');">
-                    <option value='split'>拆分</option>
-                    <option value='extract'>抽取</option>
-                </select>
-            </div>
             <div class='row'>
                 <div class='col-md-6'>
                     <div class='form-group'>
@@ -26,13 +19,7 @@
                     </div>
                 </div>
             </div>
-            <div class='form-group'>
-                <label class='help-block'>管理标签（可选）</label>
-                <p class="form-control" ng-click="tagMatter('M')">
-                    <span class="tag" ng-repeat="t in app.matter_mg_tag" ng-bind="t.title"></span>
-                </p>
-            </div>
-            <div class='form-group' ng-if="!app.mission">
+            <div class='form-group' ng-if="app&&!app.mission">
                 <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
             </div>
             <div class='form-group' ng-if="app.mission">
@@ -51,9 +38,9 @@
             </div>
         </div>
     </div>
-    <div class='panel panel-default '>
+    <div class='panel panel-default ng-cloak'>
         <div class='panel-body'>
-            <div class='form-group' ng-if="!app.sourceApp">
+            <div class='form-group' ng-if="app&&!app.sourceApp">
                 <button class='btn btn-block btn-success' ng-click="assocWithApp()">导入用户</button>
             </div>
             <div class='form-group' ng-if="app.sourceApp">

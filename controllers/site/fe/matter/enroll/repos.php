@@ -471,6 +471,12 @@ class repos extends base {
 					$oRecord->data = $oRecordData;
 					if (!empty($aCoworkState)) {
 						$oRecord->coworkState = (object) $aCoworkState;
+						// 协作填写题数据总数量
+						$sum = 0;
+						foreach ($aCoworkState as $k => $v) {
+							$sum += (int) $v->length;
+						}
+						$oRecord->coworkDataTotal = $sum;
 					}
 					if (!empty($recordDirs)) {
 						$oRecord->recordDir = $recordDirs;
@@ -655,6 +661,11 @@ class repos extends base {
 						/* 协作填写题 */
 						if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
 							continue;
+							$item = new \stdClass;
+							$item->id = $recordData->dataId;
+							$item->value = $recordData->value;
+							$newRecordData->{$schemaId} = [$item];
+							unset($recordData->value);
 						}
 						if (null !== ($recDataVal = $this->getDeepValue($oRecData->data, $schemaId, null))) {
 							$this->setDeepValue($oNewRecData, $schemaId, $recDataVal);
@@ -861,7 +872,7 @@ class repos extends base {
 						if ($this->getDeepValue($oVoteRule->schema, 'cowork') === 'Y') {continue;}
 						$oRecData = $modelData->byRecord($oRecord->enroll_key, ['schema' => $schemaId, 'fields' => 'id,vote_num']);
 						if ($oRecData) {
-							$vote_at = (int) $modelData->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oRecData->id, 'state' => 1, 'userid' => $oUser->uid]]);
+							$vote_at = (int) $modelData->query_val_ss(['vote_at', 'xxt_enroll_vote', ['rid' => $oApp->appRound->rid, 'data_id' => $oRecData->id, 'state' => 1, 'userid' => $oUser->uid]]);
 							$oRecData->vote_at = $vote_at;
 							$oRecData->state = $oVoteRule->state;
 							$oVoteResult->{$schemaId} = $oRecData;
@@ -1021,31 +1032,42 @@ class repos extends base {
 		foreach ($criterias as $key => $oCriteria) {
 			// 默认排序
 			if ($oCriteria->type === 'orderby') {
-				if (!empty($oApp->reposConfig->defaultOrder)) {
-					foreach ($oCriteria->menus as $i => $v) {
-						if ($v->id === $oApp->reposConfig->defaultOrder) {
-							$oCriteria->default = $oCriteria->menus[$i];
-							break;
+				if ($viewType === 'topic') {
+					$oCriteria->menus = [];
+					$oCriteria->menus[] = (object) ['id' => 'lastest', 'title' => '最近创建'];
+					$oCriteria->menus[] = (object) ['id' => 'earliest', 'title' => '最早创建'];
+					$oCriteria->default = $oCriteria->menus[0];
+				} else {
+					if (!empty($oApp->reposConfig->defaultOrder)) {
+						foreach ($oCriteria->menus as $i => $v) {
+							if ($v->id === $oApp->reposConfig->defaultOrder) {
+								$oCriteria->default = $oCriteria->menus[$i];
+								break;
+							}
 						}
 					}
 				}
 			}
 			//获取轮次
 			if ($oCriteria->type === 'rid') {
-				$modelRun = $this->model('matter\enroll\round');
-				$options = [
-					'fields' => 'rid,title',
-					'state' => ['1', '2'],
-				];
-				$result = $modelRun->byApp($oApp, $options);
-				if (count($result->rounds) == 1) {
-					unset($oCriterias[$key]);
+				if ($viewType === 'topic') {
+					unset($criterias[$key]);
 				} else {
-					foreach ($result->rounds as $round) {
-						if ($round->rid === $result->active->rid) {
-							$oCriteria->menus[] = (object) ['id' => $round->rid, 'title' => '(当前填写轮次) ' . $round->title];
-						} else {
-							$oCriteria->menus[] = (object) ['id' => $round->rid, 'title' => $round->title];
+					$modelRun = $this->model('matter\enroll\round');
+					$options = [
+						'fields' => 'rid,title',
+						'state' => ['1', '2'],
+					];
+					$result = $modelRun->byApp($oApp, $options);
+					if (count($result->rounds) == 1) {
+						unset($criterias[$key]);
+					} else {
+						foreach ($result->rounds as $round) {
+							if ($round->rid === $result->active->rid) {
+								$oCriteria->menus[] = (object) ['id' => $round->rid, 'title' => '(当前填写轮次) ' . $round->title];
+							} else {
+								$oCriteria->menus[] = (object) ['id' => $round->rid, 'title' => $round->title];
+							}
 						}
 					}
 				}
@@ -1067,7 +1089,9 @@ class repos extends base {
 			}
 			// 获取分组
 			if ($oCriteria->type === 'userGroup') {
-				if (empty($oApp->entryRule->group->id)) {
+				if ($viewType === 'topic') {
+					unset($criterias[$key]);
+				} else if (empty($oApp->entryRule->group->id)) {
 					unset($criterias[$key]);
 				} else {
 					$assocGroupAppId = $oApp->entryRule->group->id;
@@ -1086,7 +1110,9 @@ class repos extends base {
 				 *表态 当用户为编辑或者超级管理员或者有组时才会出现“接受”，“关闭” ，“讨论”，“未表态” ，否则只有推荐和不限两种
 			*/
 			if ($oCriteria->type === 'agreed') {
-				if (!empty($oUser->group_id) || (isset($oUser->is_leader) && $oUser->is_leader === 'S') || (isset($oUser->is_editor) && $oUser->is_editor === 'Y')) {
+				if ($viewType === 'topic') {
+					unset($criterias[$key]);
+				} else if (!empty($oUser->group_id) || (isset($oUser->is_leader) && $oUser->is_leader === 'S') || (isset($oUser->is_editor) && $oUser->is_editor === 'Y')) {
 					$oCriteria->menus[] = (object) ['id' => 'A', 'title' => '接受'];
 					$oCriteria->menus[] = (object) ['id' => 'D', 'title' => '讨论'];
 					$oCriteria->menus[] = (object) ['id' => 'N', 'title' => '关闭'];
@@ -1107,10 +1133,14 @@ class repos extends base {
 			}
 			// 搜索历史
 			if ($oCriteria->type === 'keyword') {
-				$search = $this->model('matter\enroll\search')->listUserSearch($oApp, $oUser);
-				$userSearchs = $search->userSearch;
-				foreach ($userSearchs as $userSearch) {
-					$oCriteria->menus[] = (object) ['id' => $userSearch->keyword, 'title' => $userSearch->keyword];
+				if ($viewType === 'topic') {
+					unset($criterias[$key]);
+				} else {
+					$search = $this->model('matter\enroll\search')->listUserSearch($oApp, $oUser);
+					$userSearchs = $search->userSearch;
+					foreach ($userSearchs as $userSearch) {
+						$oCriteria->menus[] = (object) ['id' => $userSearch->keyword, 'title' => $userSearch->keyword];
+					}
 				}
 			}
 		}

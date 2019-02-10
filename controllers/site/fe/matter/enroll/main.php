@@ -347,14 +347,14 @@ class main extends base {
 			$groups = $modelGrpTeam->byApp($assocGroupAppId, ['fields' => "team_id,title,team_type"]);
 			$params['groups'] = $groups;
 			/* 用户所属分组 */
-			$modelGrpUsr = $this->model('matter\group\user');
+			$modelGrpRec = $this->model('matter\group\record');
 			$oGrpApp = (object) ['id' => $assocGroupAppId];
-			$oGrpUsr = $modelGrpUsr->byUser($oGrpApp, $oUser->uid, ['fields' => 'is_leader,team_id,team_title,userid,nickname', 'onlyOne' => true]);
+			$oGrpUsr = $modelGrpRec->byUser($oGrpApp, $oUser->uid, ['fields' => 'is_leader,team_id,team_title,userid,nickname', 'onlyOne' => true]);
 			if ($oGrpUsr) {
 				$params['groupUser'] = $oGrpUsr;
 				$params['groupOthers'] = [];
 				if (!empty($oGrpUsr->team_id)) {
-					$others = $modelGrpUsr->byRound($oGrpApp->id, $oGrpUsr->team_id, ['fields' => 'is_leader,userid,nickname']);
+					$others = $modelGrpRec->byTeam($oGrpUsr->team_id, ['fields' => 'is_leader,userid,nickname']);
 					foreach ($others as $other) {
 						if ($other->userid !== $oGrpUsr->userid) {
 							$params['groupOthers'][] = $other;

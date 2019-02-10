@@ -80,7 +80,7 @@ class remind_model extends \TMS_MODEL {
 			case 'group':
 				$q = [
 					'distinct userid,enroll_key assoc_with',
-					'xxt_group_user',
+					'xxt_group_record',
 					['state' => 1, 'aid' => $oMatter->user_app_id],
 				];
 				$receivers = $modelMission->query_objs_ss($q);
@@ -171,7 +171,7 @@ class remind_model extends \TMS_MODEL {
 						if (empty($oArguments->receiver->app->team->id)) {
 							$q = [
 								'distinct userid',
-								'xxt_group_user',
+								'xxt_group_record',
 								['state' => 1, 'aid' => $oArguments->receiver->app->id],
 							];
 							$receivers = $modelEnl->query_objs_ss($q);
@@ -179,7 +179,7 @@ class remind_model extends \TMS_MODEL {
 						} else {
 							$oGrpAppTeam = $this->model('matter\group\team')->byId($oArguments->receiver->app->team->id);
 							if ($oGrpAppTeam) {
-								$receivers = $this->model('matter\group\user')->byRound($oArguments->receiver->app->team->id, ['fields' => 'userid']);
+								$receivers = $this->model('matter\group\record')->byTeam($oArguments->receiver->app->team->id, ['fields' => 'userid']);
 								$oTmplTimerTaskParams->receiver = $oGrpAppTeam->title;
 							}
 						}
@@ -191,7 +191,7 @@ class remind_model extends \TMS_MODEL {
 					if (empty($oMatter->entryRule->group->team->id)) {
 						$q = [
 							'distinct userid',
-							'xxt_group_user',
+							'xxt_group_record',
 							['state' => 1, 'aid' => $oMatter->entryRule->group->id],
 						];
 						$receivers = $modelEnl->query_objs_ss($q);
@@ -199,7 +199,7 @@ class remind_model extends \TMS_MODEL {
 					} else {
 						$oGrpAppTeam = $this->model('matter\group\team')->byId($oMatter->entryRule->group->team->id);
 						if ($oGrpAppTeam) {
-							$receivers = $this->model('matter\group\user')->byRound($oMatter->entryRule->group->team->id, ['fields' => 'userid']);
+							$receivers = $this->model('matter\group\record')->byTeam($oMatter->entryRule->group->team->id, ['fields' => 'userid']);
 							$oTmplTimerTaskParams->receiver = $oGrpAppTeam->title;
 						}
 					}

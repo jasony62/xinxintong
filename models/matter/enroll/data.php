@@ -1238,15 +1238,10 @@ class data_model extends entity_model {
 	 * 解析记录的内容，将数据库中的格式转换为应用格式
 	 */
 	private function _parse($oApp, &$aRecDatas) {
-		$visibilitySchemas = []; // 设置了可见性规则的题目
-		if (!empty($oApp->dynaDataSchemas)) {
-			foreach ($oApp->dynaDataSchemas as $oSchema) {
-				if (!empty($oSchema->visibility->rules)) {
-					$visibilitySchemas[] = $oSchema;
-				}
-			}
-		}
-
+		// 设置了可见性规则的题目
+		$visibilitySchemas = array_filter($oApp->dynaDataSchemas, function ($oSchema) {return !empty($oSchema->visibility->rules);});
+		// 关联的分组题
+		$oAssocGrpTeamSchema = $this->model('matter\enroll\schema')->getAssocGroupTeamSchema($oApp);
 		$aGroupsById = []; // 缓存分组数据
 		$aRoundsById = []; // 缓存轮次数据
 		$oGroupsByUser = []; // 缓存分组用户
@@ -1272,7 +1267,7 @@ class data_model extends entity_model {
 		/* 用户所属分组 */
 		if (!empty($oApp->entryRule->group->id)) {
 			$groupAppId = $oApp->entryRule->group->id;
-			$modelGrpUser = $this->model('matter\group\user');
+			$modelGrpUser = $this->model('matter\group\record');
 			$aFnHandlers[] = function ($aRecData) use ($groupAppId, $modelGrpUser) {
 				if (!empty($aRecData->userid)) {
 					if (!isset($oGroupsByUser[$aRecData->userid])) {
@@ -1307,8 +1302,10 @@ class data_model extends entity_model {
 				} else {
 					$aRecData->data = $data;
 					/* 处理提交数据后分组的问题 */
-					if (!empty($aRecData->group_id) && !isset($aRecData->data->_round_id)) {
-						$aRecData->data->_round_id = $aRecData->group_id;
+					if (isset($oAssocGrpTeamSchema)) {
+						if (!empty($aRecData->group_id) && !isset($aRecData->data->{$oAssocGrpTeamSchema->id})) {
+							$aRecData->data->{$oAssocGrpTeamSchema->id} = $aRecData->group_id;
+						}
 					}
 					/* 处理提交数据后指定昵称题的问题 */
 					if ($aRecData->nickname && isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') {

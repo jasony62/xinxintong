@@ -69,7 +69,7 @@ class base extends \site\fe\matter\base {
 
 		/* 限分组用户访问 */
 		$oGroupApp = $oEntryRule->group;
-		$oGroupUsr = $this->model('matter\group\user')->byUser($oGroupApp, $oUser->uid, ['fields' => 'team_id,team_title']);
+		$oGroupUsr = $this->model('matter\group\record')->byUser($oGroupApp, $oUser->uid, ['fields' => 'team_id,team_title']);
 
 		if (count($oGroupUsr)) {
 			$oGroupUsr = $oGroupUsr[0];

@@ -52,14 +52,14 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
             "mainCtrl": '/views/default/pl/fe/matter/group/main',
             "noticeCtrl": '/views/default/pl/fe/matter/group/notice',
             "teamCtrl": '/views/default/pl/fe/matter/group/team',
-            "userCtrl": '/views/default/pl/fe/matter/group/user',
+            "recordCtrl": '/views/default/pl/fe/matter/group/record',
         },
         html: {
             "main": '/views/default/pl/fe/matter/group/main',
             "notice": '/views/default/pl/fe/matter/group/notice',
             "team": '/views/default/pl/fe/matter/group/team',
-            "user": '/views/default/pl/fe/matter/group/user',
-            "compUsers": '/views/default/pl/fe/matter/group/component/users',
+            "record": '/views/default/pl/fe/matter/group/record',
+            "compRecords": '/views/default/pl/fe/matter/group/component/records',
         }
     }
     tms.bootstrap(_oRawPathes);

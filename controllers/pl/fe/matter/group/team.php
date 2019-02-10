@@ -77,20 +77,11 @@ class team extends \pl\fe\matter\base {
 		}
 		$oPosted = $this->getPostJson();
 		if (isset($oPosted->team_type) && $oPosted->team_type !== $oTeam->team_type) {
-			/**
-			 * 已过已经有分组用户不允许修改
-			 */
-			$teamUserCnt = 0;
-			$modelUsr = $this->model('matter\group\user');
-			switch ($oTeam->team_type) {
-			case 'T':
-				$teamUserCnt = $modelUsr->countByRound($oTeam->aid, $oTeam->team_id);
-				break;
-			case 'R':
-				$teamUserCnt = $modelUsr->countByRoleRound($oTeam->aid, $oTeam->team_id);
-				break;
-			}
-			if ($teamUserCnt > 0) {
+			/* 已过已经有分组记录不允许修改类型 */
+			$teamRecCnt = 0;
+			$modelGrpRec = $this->model('matter\group\record');
+			$teamRecCnt = $modelGrpRec->countByTeam($oTeam->team_id);
+			if (false !== $teamRecCnt && $teamRecCnt > 0) {
 				return new \ResponseError('已经有分组数据，不允许修改分组类型！');
 			}
 		}
@@ -111,7 +102,7 @@ class team extends \pl\fe\matter\base {
 		/* 更新级联信息 */
 		if ($rst && isset($oPosted->title) && $oTeam->team_type === 'T') {
 			$modelTeam->update(
-				'xxt_group_user',
+				'xxt_group_record',
 				['team_title' => $oPosted->title],
 				['aid' => $oTeam->aid, 'team_id' => $oTeam->team_id]
 			);
@@ -138,7 +129,7 @@ class team extends \pl\fe\matter\base {
 		 */
 		$q = [
 			'count(*)',
-			'xxt_group_user',
+			'xxt_group_record',
 			['team_id' => $tid, 'state' => 1],
 		];
 		if (0 < (int) $modelTeam->query_val_ss($q)) {
@@ -151,21 +142,5 @@ class team extends \pl\fe\matter\base {
 		);
 
 		return new \ResponseData($rst);
-	}
-	/**
-	 * 属于指定分组的人
-	 * $teamType 分组类型 “T” 团队分组，"R" 角色分组
-	 */
-	public function winnersGet_action($app, $rid = null, $teamType = 'T') {
-		if (false === $this->accountUser()) {
-			return new \ResponseTimeout();
-		}
-		if ($teamType === 'R') {
-			$oResult = $this->model('matter\group\user')->byRoleRound($app, $rid);
-		} else {
-			$oResult = $this->model('matter\group\user')->byRound($app, $rid);
-		}
-
-		return new \ResponseData($oResult);
 	}
 }

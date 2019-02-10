@@ -525,6 +525,65 @@ class record_model extends record_base {
 		return false;
 	}
 	/**
+	 * 检查是否存在匹配的分组记录
+	 */
+	public function matchGrpUsr($oUser, $oSrcApp, $targetAppId, &$oEnlData) {
+		/* 获得要检查的记录项 */
+		$countRequireCheckedData = 0;
+		$oRequireCheckedData = new \stdClass;
+		$dataSchemas = $oSrcApp->dynaDataSchemas;
+		foreach ($dataSchemas as $oSchema) {
+			if ($this->getDeepValue($oSchema, 'requireCheck') === 'Y' && $this->getDeepValue($oSchema, 'fromApp') === $targetAppId) {
+				$countRequireCheckedData++;
+				$val = $this->getValueBySchema($oSchema, $oEnlData);
+				if (!empty($val)) {
+					$oRequireCheckedData->{$oSchema->id} = $val;
+				}
+			}
+		}
+		if ($countRequireCheckedData === 0) {
+			return [true, null];
+		}
+		$oGroupApp = $this->model('matter\group')->byId($targetAppId);
+		if (empty($oGroupApp)) {
+			return [false, '指定的记录匹配分组活动不存在'];
+		}
+		/* 在指定的分组活动中检查数据 */
+		$modelMatchUsr = $this->model('matter\group\record');
+		$groupUsers = $modelMatchUsr->byData($oGroupApp, $oRequireCheckedData);
+		if (empty($groupUsers)) {
+			return [false, '未在指定的分组活动［' . $oGroupApp->title . '］中找到与提交数据相匹配的记录'];
+		}
+		/* 如果匹配的分组数据不唯一，怎么办？ */
+		if (count($groupUsers) > 1) {
+			return [false, '在指定的分组活动［' . $oGroupApp->title . '］中找到多条与提交数据相匹配的记录，匹配关系不唯一'];
+		}
+		$oMatchedGrpUsr = $groupUsers[0];
+		/* 如果分组数据中未包含用户信息，更新用户信息 */
+		if (isset($oUser->uid) && empty($oMatchedGrpUsr->userid)) {
+			$oUserAcnt = new \stdClass;
+			$oUserAcnt->userid = $oUser->uid;
+			$oUserAcnt->nickname = $modelMatchUsr->escape($oUser->nickname);
+			$modelMatchUsr->update('xxt_group_record', $oUserAcnt, ['id' => $oMatchedGrpUsr->id]);
+		}
+		/* 将匹配的分组记录数据作为提交的记录数据的一部分 */
+		$oMatchedData = $oMatchedGrpUsr->data;
+		foreach ($oGroupApp->dataSchemas as $oSchema) {
+			if (!isset($oEnlData->{$oSchema->id}) && isset($oMatchedData->{$oSchema->id})) {
+				$oEnlData->{$oSchema->id} = $oMatchedData->{$oSchema->id};
+			}
+		}
+		/* 所属分组id */
+		if (isset($oMatchedGrpUsr->team_id)) {
+			$oAssocGrpTeamSchema = $this->model('matter\enroll\schema')->getAssocGroupTeamSchema($oSrcApp);
+			if ($oAssocGrpTeamSchema) {
+				$oEnlData->{$oAssocGrpTeamSchema->id} = $oMatchedGrpUsr->data->{$oAssocGrpTeamSchema->id} = $oMatchedGrpUsr->team_id;
+			}
+		}
+
+		return [true, $oMatchedGrpUsr];
+	}
+	/**
 	 * 为了计算每条记录的分数，转换schema的形式
 	 */
 	private function _mapOfScoreSchema(&$oApp) {
@@ -583,10 +642,7 @@ class record_model extends record_base {
 			$oOptions = (object) $oOptions;
 		}
 
-		$oSchemasById = new \stdClass; // 方便查找题目
-		foreach ($oApp->dataSchemas as $oSchema) {
-			$oSchemasById->{$oSchema->id} = $oSchema;
-		}
+		$oSchemasById = $this->model('matter\enroll\schema')->asObject($oApp->dynaDataSchemas);
 
 		// 指定记录活动下的记录记录
 		$w = "r.state=1 and r.aid='{$oApp->id}'";
@@ -829,10 +885,9 @@ class record_model extends record_base {
 		 * 处理获得的数据
 		 */
 		$oResult = new \stdClass; // 返回的结果
-		if ($records = $this->query_objs_ss($q, $q2)) {
-			/* 检查题目是否可见 */
-			$oResult->records = $this->parse($oApp, $records);
-		}
+		$records = $this->query_objs_ss($q, $q2);
+		/* 检查题目是否可见 */
+		$oResult->records = $this->parse($oApp, $records);
 		// 符合条件的数据总数
 		$q[0] = 'count(*)';
 		$total = (int) $this->query_val_ss($q);
@@ -848,7 +903,7 @@ class record_model extends record_base {
 		$visibilitySchemas = []; // 设置了可见性规则的题目
 		if (!empty($oApp->dynaDataSchemas)) {
 			foreach ($oApp->dynaDataSchemas as $oSchema) {
-				if ($oSchema->type == 'shorttext' && isset($oSchema->format) && $oSchema->format === 'number') {
+				if ($oSchema->type == 'shorttext' && $this->getDeepValue($oSchema, 'format') === 'number') {
 					$bRequireScore = true;
 				}
 				if (!empty($oSchema->visibility->rules)) {
@@ -857,6 +912,8 @@ class record_model extends record_base {
 			}
 		}
 
+		// 关联的分组题
+		$oAssocGrpTeamSchema = $this->model('matter\enroll\schema')->getAssocGroupTeamSchema($oApp);
 		$aGroupsById = []; // 缓存分组数据
 		$aRoundsById = []; // 缓存轮次数据
 
@@ -904,7 +961,7 @@ class record_model extends record_base {
 		/* 用户所属分组 */
 		if (!empty($oApp->entryRule->group->id)) {
 			$groupAppId = $oApp->entryRule->group->id;
-			$modelGrpUser = $this->model('matter\group\user');
+			$modelGrpUser = $this->model('matter\group\record');
 			$aFnHandlers[] = function ($oRec) use ($groupAppId, $modelGrpUser) {
 				if (!empty($oRec->userid)) {
 					$oGrpUser = $modelGrpUser->byUser((object) ['id' => $groupAppId], $oRec->userid, ['fields' => 'team_id,team_title', 'onlyOne' => true]);
@@ -944,25 +1001,17 @@ class record_model extends record_base {
 					} else {
 						$oRec->data = $data;
 						/* 处理提交数据后分组的问题 */
-						if (!empty($oRec->group_id) && !isset($oRec->data->_round_id)) {
-							$oRec->data->_round_id = $oRec->group_id;
+						if (isset($oAssocGrpTeamSchema)) {
+							if (!empty($oRec->group_id) && !isset($oRec->data->{$oAssocGrpTeamSchema->id})) {
+								$oRec->data->{$oAssocGrpTeamSchema->id} = $oRec->group_id;
+							}
 						}
 						/* 处理提交数据后指定昵称题的问题 */
 						if ($oRec->nickname && isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') {
 							if (isset($oApp->assignedNickname->schema->id)) {
 								$nicknameSchemaId = $oApp->assignedNickname->schema->id;
-								if (0 === strpos($nicknameSchemaId, 'member.')) {
-									$nicknameSchemaId = explode('.', $nicknameSchemaId);
-									if (!isset($oRec->data->member)) {
-										$oRec->data->member = new \stdClass;
-									}
-									if (!isset($oRec->data->member->{$nicknameSchemaId[1]})) {
-										$oRec->data->member->{$nicknameSchemaId[1]} = $oRec->nickname;
-									}
-								} else {
-									if (!isset($oRec->data->{$nicknameSchemaId})) {
-										$oRec->data->{$nicknameSchemaId} = $oRec->nickname;
-									}
+								if (!$this->getDeepValue($oRec->data, $nicknameSchemaId)) {
+									$this->setDeepValue($oRec->data, $nicknameSchemaId, $oRec->nickname);
 								}
 							}
 						}
@@ -982,6 +1031,7 @@ class record_model extends record_base {
 						$modelGrpTeam = $this->model('matter\group\team');
 					}
 					$oGroup = $modelGrpTeam->byId($oRec->group_id, ['fields' => 'title']);
+					unset($oGroup->type);
 					$aGroupsById[$oRec->group_id] = $oGroup;
 				} else {
 					$oGroup = $aGroupsById[$oRec->group_id];
@@ -990,8 +1040,6 @@ class record_model extends record_base {
 					$oRec->group = $oGroup;
 				}
 			}
-			// 用户的分组
-
 			// 记录的记录轮次
 			if (!empty($oRec->rid)) {
 				if (!isset($aRoundsById[$oRec->rid])) {
@@ -1343,12 +1391,6 @@ class record_model extends record_base {
 		$last = $this->lastByUser($oApp, $oUser);
 
 		return $last ? $last->enroll_key : false;
-	}
-	/**
-	 * 生成活动记录的key
-	 */
-	public function genKey($siteId, $aid) {
-		return md5(uniqid() . $siteId . $aid);
 	}
 	/**
 	 *

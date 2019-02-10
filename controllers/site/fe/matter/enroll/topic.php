@@ -30,41 +30,14 @@ class topic extends base {
 			}
 		}
 
-		/* 是否设置了编辑组统一名称 */
-		if (isset($oApp->actionRule->role->editor->group)) {
-			if (isset($oApp->actionRule->role->editor->nickname)) {
-				$oEditor = new \stdClass;
-				$oEditor->group = $oApp->actionRule->role->editor->group;
-				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
-				// 如果登记活动指定了编辑组需要获取，编辑组中所有的用户
-				$modelGrpUsr = $this->model('matter\group\user');
-				$groupEditor = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['roleTeamId' => $oEditor->group, 'fields' => 'role_teams,userid']);
-				if (isset($groupEditor->users)) {
-					$groupEditorPlayers = $groupEditor->users;
-					$oEditorUsers = new \stdClass;
-					foreach ($groupEditorPlayers as $player) {
-						$oEditorUsers->{$player->userid} = $player->role_teams;
-					}
-					unset($groupEditorPlayers);
-				}
-			}
-		}
-
 		$oUser = $this->getUser($oApp);
 
 		/* 修改默认访客昵称 */
-		if (isset($oUser->unionid) && $oTopic->unionid === $oUser->unionid) {
+		if ($this->getDeepValue($oUser, 'unionid') === $oTopic->unionid) {
 			$oTopic->nickname = '我';
-		} else if (isset($oEditor)) {
-			/* 设置编辑统一昵称 */
-			if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
-				if (!empty($oTopic->group_id) && $oTopic->group_id === $oEditor->group) {
-					$oTopic->nickname = $oEditor->nickname;
-				} else if (isset($oEditorUsers) && isset($oEditorUsers->{$oTopic->userid})) {
-					// 记录提交者是否有编辑组角色
-					$oTopic->nickname = $oEditor->nickname;
-				}
-			}
+		} else {
+			$oEditorGrp = $this->getEditorGroup($oApp);
+			$this->setNickname($oTopic, $oUser, $oEditorGrp);
 		}
 
 		return new \ResponseData($oTopic);

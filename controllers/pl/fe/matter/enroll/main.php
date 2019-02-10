@@ -44,7 +44,7 @@ class main extends main_base {
 			if (isset($oEntryRule->group->id)) {
 				$oRuleApp = $oEntryRule->group;
 				$modelGrpTeam = $this->model('matter\group\team');
-				$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+				$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'Y']);
 				if ($oGroupApp) {
 					$oRuleApp->title = $oGroupApp->title;
 					if (!empty($oRuleApp->team->id)) {
@@ -53,28 +53,10 @@ class main extends main_base {
 							$oRuleApp->team->title = $oGrpTeam->title;
 						}
 					}
-					/* 获得当前活动的分组 */
-					$teams = $modelGrpTeam->byApp($oGroupApp->id, ['fields' => 'team_id,team_type,title', 'team_type' => '']);
-					$oGroupDS = new \stdClass;
-					$oGroupDS->id = '_round_id';
-					$oGroupDS->type = 'single';
-					$oGroupDS->title = '分组名称';
-					$ops = [];
-					/* 获得的分组信息 */
-					foreach ($teams as $oTeam) {
-						if ($oTeam->team_type === 'T') {
-							$ops[] = (object) [
-								'v' => $oTeam->team_id,
-								'l' => $oTeam->title,
-							];
-						}
-					}
-					$oGroupDS->ops = $ops;
-
-					$oGroupApp->dataSchemas = array_merge([$oGroupDS], $oGroupApp->dataSchemas);
+					/* 设置分组题 */
+					$this->model('matter\group\schema')->setGroupSchema($oGroupApp);
 
 					$oApp->groupApp = $oGroupApp;
-					$oApp->groups = $teams;
 				}
 			}
 		}
@@ -1239,8 +1221,8 @@ class main extends main_base {
 		switch ($oUserSource->type) {
 		case 'group':
 			$oGrpApp = $this->model('matter\group')->byId($oUserSource->id, ['fields' => 'assigned_nickname', 'cascaded' => 'N']);
-			$oResult = $this->model('matter\group\user')->byApp($oUserSource, (object) ['fields' => 'userid,nickname']);
-			$misUsers = isset($oResult->users) ? $oResult->users : [];
+			$oResult = $this->model('matter\group\record')->byApp($oUserSource, (object) ['fields' => 'userid,nickname']);
+			$misUsers = isset($oResult->records) ? $oResult->records : [];
 			break;
 		case 'enroll':
 			$misUsers = $this->model('matter\enroll\user')->enrolleeByApp($oUserSource, '', '', ['fields' => 'userid,nickname', 'cascaded' => 'N']);

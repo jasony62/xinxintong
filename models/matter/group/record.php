@@ -1,15 +1,11 @@
 <?php
 namespace matter\group;
+
+require_once dirname(dirname(__FILE__)) . '/enroll/record_base.php';
 /**
- * 分组活动用户
+ * 分组活动记录
  */
-class user_model extends \TMS_MODEL {
-	/**
-	 * 生成活动登记的key
-	 */
-	public function genKey($siteId, $aid) {
-		return md5(uniqid() . $siteId . $aid);
-	}
+class record_model extends \matter\enroll\record_base {
 	/**
 	 * 用户登记（不包括登记数据）
 	 *
@@ -29,22 +25,22 @@ class user_model extends \TMS_MODEL {
 			$ek = $this->genKey($oApp->siteid, $oApp->id);
 		}
 		$current = time();
-		$aNewPlayer = [
+		$aNewRec = [
 			'aid' => $oApp->id,
 			'siteid' => $oApp->siteid,
 			'enroll_key' => $ek,
 			'userid' => $oUser->uid,
 			'nickname' => $this->escape($oUser->nickname),
 		];
-		$aNewPlayer['enroll_at'] = isset($aOptions['enroll_at']) ? $aOptions['enroll_at'] : $current;
-		$aNewPlayer['draw_at'] = isset($aOptions['draw_at']) ? $aOptions['draw_at'] : $current;
-		isset($aOptions['team_id']) && $aNewPlayer['team_id'] = $aOptions['team_id'];
-		isset($aOptions['team_title']) && $aNewPlayer['team_title'] = $this->escape($aOptions['team_title']);
-		isset($aOptions['comment']) && $aNewPlayer['comment'] = $this->escape($aOptions['comment']);
-		isset($aOptions['tags']) && $aNewPlayer['tags'] = $this->escape($aOptions['tags']);
-		isset($aOptions['referrer']) && $aNewPlayer['referrer'] = $aOptions['referrer'];
+		$aNewRec['enroll_at'] = isset($aOptions['enroll_at']) ? $aOptions['enroll_at'] : $current;
+		$aNewRec['draw_at'] = isset($aOptions['draw_at']) ? $aOptions['draw_at'] : $current;
+		isset($aOptions['team_id']) && $aNewRec['team_id'] = $aOptions['team_id'];
+		isset($aOptions['team_title']) && $aNewRec['team_title'] = $this->escape($aOptions['team_title']);
+		isset($aOptions['comment']) && $aNewRec['comment'] = $this->escape($aOptions['comment']);
+		isset($aOptions['tags']) && $aNewRec['tags'] = $this->escape($aOptions['tags']);
+		isset($aOptions['referrer']) && $aNewRec['referrer'] = $aOptions['referrer'];
 
-		$this->insert('xxt_group_user', $aNewPlayer, false);
+		$this->insert('xxt_group_record', $aNewRec, false);
 
 		return $ek;
 	}
@@ -58,13 +54,10 @@ class user_model extends \TMS_MODEL {
 		// 处理后的登记记录
 		$dbData = new \stdClass;
 
-		$schemasById = [];
-		foreach ($oApp->dataSchemas as $schema) {
-			$schemasById[$schema->id] = $schema;
-		}
+		$aSchemasById = $this->model('matter\enroll\schema')->asAssoc($oApp->dataSchemas);
 
 		/* 已有的登记数据 */
-		$fields = $this->query_vals_ss(['name', 'xxt_group_user_data', "aid='{$oApp->id}' and enroll_key='$ek'"]);
+		$fields = $this->query_vals_ss(['name', 'xxt_group_record_data', "aid='{$oApp->id}' and enroll_key='$ek'"]);
 
 		foreach ($data as $n => $v) {
 			if ($n === 'member' && is_object($v)) {
@@ -83,10 +76,10 @@ class user_model extends \TMS_MODEL {
 				}
 				$treatedValue = urldecode(json_encode($treatedValue));
 			} else {
-				if (!isset($schemasById[$n])) {
+				if (!isset($aSchemasById[$n])) {
 					continue;
 				}
-				$schema = $schemasById[$n];
+				$schema = $aSchemasById[$n];
 				/**
 				 * 插入自定义属性
 				 */
@@ -118,7 +111,7 @@ class user_model extends \TMS_MODEL {
 				}
 				if (!empty($fields) && in_array($n, $fields)) {
 					$this->update(
-						'xxt_group_user_data',
+						'xxt_group_record_data',
 						['value' => $treatedValue],
 						['aid' => $oApp->id, 'enroll_key' => $ek, 'name' => $n]
 					);
@@ -130,14 +123,14 @@ class user_model extends \TMS_MODEL {
 						'name' => $n,
 						'value' => $treatedValue,
 					];
-					$this->insert('xxt_group_user_data', $ic, false);
+					$this->insert('xxt_group_record_data', $ic, false);
 				}
 			}
 		}
 		// 记录数据
 		$dbData = $this->escape($this->toJson($dbData));
 		$this->update(
-			'xxt_group_user',
+			'xxt_group_record',
 			['enroll_at' => time(), 'data' => $dbData],
 			['enroll_key' => $ek]
 		);
@@ -153,7 +146,7 @@ class user_model extends \TMS_MODEL {
 
 		$q = [
 			$fields,
-			'xxt_group_user',
+			'xxt_group_record',
 			['aid' => $aid, 'enroll_key' => $ek, 'state' => 1],
 		];
 		if (($oRecord = $this->query_obj_ss($q)) && $cascaded === 'Y') {
@@ -186,7 +179,7 @@ class user_model extends \TMS_MODEL {
 		}
 		$q = [
 			$fields,
-			'xxt_group_user',
+			'xxt_group_record',
 			["enroll_key" => $ek, "state" => 1],
 		];
 		if (empty($aid)) {
@@ -212,7 +205,7 @@ class user_model extends \TMS_MODEL {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$q = [
 			$fields,
-			'xxt_group_user r',
+			'xxt_group_record r',
 		];
 		$missionId = $this->escape($missionId);
 		$where = "state=1 and exists(select 1 from xxt_group g where r.aid=g.id and g.mission_id={$missionId})";
@@ -225,14 +218,14 @@ class user_model extends \TMS_MODEL {
 		$list = $this->query_objs_ss($q);
 		if (count($list)) {
 			if ($fields === '*' || strpos($fields, 'data') !== false || strpos($fields, 'role_teams') !== false) {
-				foreach ($list as &$record) {
-					if (!empty($record->data)) {
-						$record->data = json_decode($record->data);
+				foreach ($list as &$oRecord) {
+					if (!empty($oRecord->data)) {
+						$oRecord->data = json_decode($oRecord->data);
 					}
-					if (!empty($record->role_teams)) {
-						$record->role_teams = json_decode($record->role_teams);
+					if (!empty($oRecord->role_teams)) {
+						$oRecord->role_teams = json_decode($oRecord->role_teams);
 					} else {
-						$record->role_teams = [];
+						$oRecord->role_teams = [];
 					}
 				}
 			}
@@ -286,7 +279,7 @@ class user_model extends \TMS_MODEL {
 		}
 		$q = [
 			$fields,
-			'xxt_group_user',
+			'xxt_group_record',
 			$w,
 		];
 		/* 分页参数 */
@@ -299,24 +292,24 @@ class user_model extends \TMS_MODEL {
 		$q2['o'] = 'team_id asc,enroll_at desc';
 
 		$oResult = new \stdClass; // 返回的结果
-		$users = $this->query_objs_ss($q, $q2);
-		if (count($users)) {
+		$records = $this->query_objs_ss($q, $q2);
+		if (count($records)) {
 			/* record data */
 			if ($fields === '*' || false !== strpos($fields, 'data') || false !== strpos($fields, 'role_teams')) {
-				foreach ($users as $oUser) {
-					if (!empty($oUser->data)) {
-						$oUser->data = json_decode($oUser->data);
+				foreach ($records as $oRecord) {
+					if (!empty($oRecord->data)) {
+						$oRecord->data = json_decode($oRecord->data);
 					}
-					if (!empty($oUser->role_teams)) {
-						$oUser->role_teams = json_decode($oUser->role_teams);
+					if (!empty($oRecord->role_teams)) {
+						$oRecord->role_teams = json_decode($oRecord->role_teams);
 					} else {
-						$oUser->role_teams = [];
+						$oRecord->role_teams = [];
 					}
 				}
 			}
 
 		}
-		$oResult->users = $users;
+		$oResult->records = $records;
 
 		/* total */
 		$q[0] = 'count(*)';
@@ -336,7 +329,7 @@ class user_model extends \TMS_MODEL {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$q = [
 			$fields,
-			'xxt_group_user',
+			'xxt_group_record',
 			['state' => 1, 'aid' => $oApp->id, 'userid' => $userid],
 		];
 		$q2 = ['o' => 'enroll_at desc'];
@@ -348,18 +341,18 @@ class user_model extends \TMS_MODEL {
 		if (count($list)) {
 			$aRecHandler = [];
 			if ($fields === '*' || false !== strpos($fields, 'data')) {
-				$aRecHandler[] = function (&$oUser) {
-					$oUser->data = empty($oUser->data) ? new \stdClass : json_decode($oUser->data);
+				$aRecHandler[] = function (&$oRecord) {
+					$oRecord->data = empty($oRecord->data) ? new \stdClass : json_decode($oRecord->data);
 				};
 			}
 			if ($fields === '*' || false !== strpos($fields, 'role_teams')) {
-				$aRecHandler[] = function (&$oUser) {
-					$oUser->role_teams = empty($oUser->role_teams) ? [] : json_decode($oUser->role_teams);
+				$aRecHandler[] = function (&$oRecord) {
+					$oRecord->role_teams = empty($oRecord->role_teams) ? [] : json_decode($oRecord->role_teams);
 				};
 			}
-			foreach ($list as $oUser) {
+			foreach ($list as $oRecord) {
 				foreach ($aRecHandler as $fnHandler) {
-					$fnHandler($oUser);
+					$fnHandler($oRecord);
 				}
 			}
 		}
@@ -372,8 +365,8 @@ class user_model extends \TMS_MODEL {
 	/**
 	 * 获得指定分组内的用户
 	 */
-	public function byRound($rid, $aOptions = []) {
-		$oTeam = $this->model('matter\group\team')->byId($rid, ['fields' => 'aid,team_id,team_type']);
+	public function byTeam($tid, $aOptions = []) {
+		$oTeam = $this->model('matter\group\team')->byId($tid, ['fields' => 'aid,team_id,team_type']);
 		if (false === $oTeam) {
 			return false;
 		}
@@ -381,7 +374,7 @@ class user_model extends \TMS_MODEL {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$q = [
 			$fields,
-			'xxt_group_user',
+			'xxt_group_record',
 			['aid' => $oTeam->aid, 'state' => 1],
 		];
 		switch ($oTeam->team_type) {
@@ -397,56 +390,22 @@ class user_model extends \TMS_MODEL {
 
 		$q2 = ['o' => 'team_id,draw_at'];
 
-		if ($users = $this->query_objs_ss($q, $q2)) {
+		if ($records = $this->query_objs_ss($q, $q2)) {
 			if ($fields === '*' || false !== strpos($fields, 'data') || false !== strpos($fields, 'role_teams')) {
-				foreach ($users as $oUser) {
-					if (!empty($oUser->data)) {
-						$oUser->data = json_decode($oUser->data);
+				foreach ($records as $oRecord) {
+					if (!empty($oRecord->data)) {
+						$oRecord->data = json_decode($oRecord->data);
 					}
-					if (!empty($oUser->role_teams)) {
-						$oUser->role_teams = json_decode($oUser->role_teams);
+					if (!empty($oRecord->role_teams)) {
+						$oRecord->role_teams = json_decode($oRecord->role_teams);
 					} else {
-						$oUser->role_teams = [];
+						$oRecord->role_teams = [];
 					}
 				}
 			}
 		}
 
-		return $users;
-	}
-	/**
-	 * 指定角色分组内的用户(角色分组)
-	 */
-	public function byRoleRound($appId, $tid = null, $aOptions = []) {
-		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
-		$q = [
-			$fields,
-			'xxt_group_user',
-			"aid='$appId' and state=1",
-		];
-		if (!empty($tid)) {
-			$q[2] .= " and role_teams like '%\"" . $tid . "\"%'";
-		} else {
-			$q[2] .= " and (role_teams <> '' or role_teams <> '[]'";
-		}
-		$q2 = ['o' => 'team_id,draw_at'];
-
-		if ($grpUsers = $this->query_objs_ss($q, $q2)) {
-			if ($fields === '*' || false !== strpos($fields, 'data') || false !== strpos($fields, 'role_teams')) {
-				foreach ($grpUsers as $oPlayer) {
-					if (!empty($oPlayer->data)) {
-						$oPlayer->data = json_decode($oPlayer->data);
-					}
-					if (!empty($oPlayer->role_teams)) {
-						$oPlayer->role_teams = json_decode($oPlayer->role_teams);
-					} else {
-						$oPlayer->role_teams = [];
-					}
-				}
-			}
-		}
-
-		return $grpUsers;
+		return $records;
 	}
 	/**
 	 * 根据指定的数据查找匹配的记录
@@ -486,7 +445,7 @@ class user_model extends \TMS_MODEL {
 		// 查找匹配条件的数据
 		$q = [
 			$fields,
-			'xxt_group_user',
+			'xxt_group_record',
 			"state=1 and aid='{$oApp->id}' $whereByData",
 		];
 		$records = $this->query_objs_ss($q);
@@ -511,31 +470,89 @@ class user_model extends \TMS_MODEL {
 		return $records;
 	}
 	/**
+	 * 检查是否存在匹配的分组记录
+	 */
+	public function matchByData($targetAppId, $oSrcApp, &$oEnlData, $oUser = null) {
+		/* 获得要检查的记录项 */
+		$countRequireCheckedData = 0;
+		$oRequireCheckedData = new \stdClass;
+		$dataSchemas = isset($oSrcApp->dynaDataSchemas) ? $oSrcApp->dynaDataSchemas : $oSrcApp->dataSchemas;
+		foreach ($dataSchemas as $oSchema) {
+			if ($this->getDeepValue($oSchema, 'requireCheck') === 'Y' && $this->getDeepValue($oSchema, 'fromApp') === $targetAppId) {
+				$countRequireCheckedData++;
+				$val = $this->getValueBySchema($oSchema, $oEnlData);
+				if (!empty($val)) {
+					$oRequireCheckedData->{$oSchema->id} = $val;
+				}
+			}
+		}
+		if ($countRequireCheckedData === 0) {
+			return [true, null];
+		}
+		$oGroupApp = $this->model('matter\group')->byId($targetAppId);
+		if (empty($oGroupApp)) {
+			return [false, '指定的记录匹配分组活动不存在'];
+		}
+		/* 在指定的分组活动中检查数据 */
+		$groupUsers = $this->byData($oGroupApp, $oRequireCheckedData);
+		if (empty($groupUsers)) {
+			return [false, '未在指定的分组活动［' . $oGroupApp->title . '］中找到与提交数据相匹配的记录'];
+		}
+		/* 如果匹配的分组数据不唯一，怎么办？ */
+		if (count($groupUsers) > 1) {
+			return [false, '在指定的分组活动［' . $oGroupApp->title . '］中找到多条与提交数据相匹配的记录，匹配关系不唯一'];
+		}
+		$oMatchedGrpUsr = $groupUsers[0];
+		/* 如果分组数据中未包含用户信息，更新用户信息 */
+		if (isset($oUser->uid) && empty($oMatchedGrpUsr->userid)) {
+			$oUserAcnt = new \stdClass;
+			$oUserAcnt->userid = $oUser->uid;
+			$oUserAcnt->nickname = $this->escape($oUser->nickname);
+			$this->update('xxt_group_record', $oUserAcnt, ['id' => $oMatchedGrpUsr->id]);
+		}
+		/* 将匹配的分组记录数据作为提交的记录数据的一部分 */
+		$oMatchedData = $oMatchedGrpUsr->data;
+		foreach ($oGroupApp->dataSchemas as $oSchema) {
+			if (!isset($oEnlData->{$oSchema->id}) && isset($oMatchedData->{$oSchema->id})) {
+				$oEnlData->{$oSchema->id} = $oMatchedData->{$oSchema->id};
+			}
+		}
+		/* 所属分组id */
+		if (isset($oMatchedGrpUsr->team_id)) {
+			$oAssocGrpTeamSchema = $this->model('matter\enroll\schema')->getAssocGroupTeamSchema($oSrcApp);
+			if ($oAssocGrpTeamSchema) {
+				$oEnlData->{$oAssocGrpTeamSchema->id} = $oMatchedGrpUsr->data->{$oAssocGrpTeamSchema->id} = $oMatchedGrpUsr->team_id;
+			}
+		}
+
+		return [true, $oMatchedGrpUsr];
+	}
+	/**
 	 * 有资格参加指定轮次分组的用户(团队分组)
 	 */
 	public function &pendings($appId) {
 		/* 没有抽中过的用户 */
 		$q = [
 			'id,enroll_key,nickname,userid,enroll_at,data,tags,comment,role_teams',
-			'xxt_group_user',
+			'xxt_group_record',
 			"aid='$appId' and state=1 and team_id=0",
 		];
 		$q2['o'] = 'enroll_at desc';
 		/* 获得用户的登记数据 */
-		if (($grpUsers = $this->query_objs_ss($q, $q2)) && !empty($grpUsers)) {
-			foreach ($grpUsers as &$player) {
-				if (!empty($player->data)) {
-					$player->data = json_decode($player->data);
+		if (($records = $this->query_objs_ss($q, $q2)) && !empty($records)) {
+			foreach ($records as $oRecord) {
+				if (!empty($oRecord->data)) {
+					$oRecord->data = json_decode($oRecord->data);
 				}
-				if (!empty($player->role_teams)) {
-					$player->role_teams = json_decode($player->role_teams);
+				if (!empty($oRecord->role_teams)) {
+					$oRecord->role_teams = json_decode($oRecord->role_teams);
 				} else {
-					$player->role_teams = [];
+					$oRecord->role_teams = [];
 				}
 			}
 		}
 
-		return $grpUsers;
+		return $records;
 	}
 	/**
 	 * 没有参加角色分组的用户(角色分组)
@@ -544,48 +561,52 @@ class user_model extends \TMS_MODEL {
 		/* 没有抽中过的用户 */
 		$q = [
 			'id,enroll_key,nickname,userid,enroll_at,data,tags,comment,role_teams',
-			'xxt_group_user',
+			'xxt_group_record',
 			"aid='$appId' and state=1 and (role_teams = '' or role_teams = '[]')",
 		];
 		$q2['o'] = 'enroll_at desc';
 		/* 获得用户的登记数据 */
-		if (($grpUsers = $this->query_objs_ss($q, $q2)) && !empty($grpUsers)) {
-			foreach ($grpUsers as &$player) {
-				if (!empty($player->data)) {
-					$player->data = json_decode($player->data);
+		if (($records = $this->query_objs_ss($q, $q2)) && !empty($records)) {
+			foreach ($records as $oRecord) {
+				if (!empty($oRecord->data)) {
+					$oRecord->data = json_decode($oRecord->data);
 				}
-				if (!empty($player->role_teams)) {
-					$player->role_teams = json_decode($player->role_teams);
+				if (!empty($oRecord->role_teams)) {
+					$oRecord->role_teams = json_decode($oRecord->role_teams);
 				} else {
-					$player->role_teams = [];
+					$oRecord->role_teams = [];
 				}
 			}
 		}
 
-		return $grpUsers;
+		return $records;
 	}
 	/**
 	 * 获得分组内用户的数量（团队分组）
 	 */
-	public function countByRound($appId, $tid) {
-		$q = [
-			'count(*)',
-			'xxt_group_user',
-			['aid' => $appId, 'team_id' => $tid, 'state' => 1],
-		];
-		$cnt = (int) $this->query_val_ss($q);
+	public function countByTeam($tid) {
+		$oTeam = $this->model('matter\group\team')->byId($tid, ['fields' => 'aid,team_id,team_type']);
+		if (false === $oTeam) {
+			return false;
+		}
 
-		return $cnt;
-	}
-	/**
-	 * 获得角色分组内用户的数量（角色分组）
-	 */
-	public function countByRoleRound($appId, $tid) {
 		$q = [
 			'count(*)',
-			'xxt_group_user',
-			"aid = '{$appId}' and state = 1 and role_teams like '%\"" . $tid . "\"%'",
+			'xxt_group_record',
+			['aid' => $oTeam->aid, 'state' => 1],
 		];
+
+		switch ($oTeam->team_type) {
+		case 'T':
+			$q[2]['team_id'] = $oTeam->team_id;
+			break;
+		case 'R':
+			$q[2]['role_teams'] = (object) ['op' => 'like', 'pat' => '%' . $oTeam->team_id . '%'];
+			break;
+		default:
+			return false;
+		}
+
 		$cnt = (int) $this->query_val_ss($q);
 
 		return $cnt;
@@ -593,12 +614,12 @@ class user_model extends \TMS_MODEL {
 	/**
 	 * 指定用户是否属于指定用户组
 	 */
-	public function isInRound($roundId, $userid) {
+	public function isInTeam($tid, $userid) {
 		/* 主分组 */
 		$q = [
 			'1',
-			'xxt_group_user',
-			['userid' => $userid, 'state' => 1, 'team_id' => $roundId],
+			'xxt_group_record',
+			['userid' => $userid, 'state' => 1, 'team_id' => $tid],
 		];
 		$oUser = $this->query_obj_ss($q);
 		if ($oUser) {
@@ -606,7 +627,7 @@ class user_model extends \TMS_MODEL {
 		}
 		/* 辅助分组 */
 		unset($q[2]['team_id']);
-		$q[2]['role_teams'] = (object) ['op' => 'like', 'pat' => '%' . $roundId . '%'];
+		$q[2]['role_teams'] = (object) ['op' => 'like', 'pat' => '%' . $tid . '%'];
 		$oUser = $this->query_obj_ss($q);
 		if ($oUser) {
 			return true;
@@ -622,7 +643,7 @@ class user_model extends \TMS_MODEL {
 		switch ($oTeam->team_type) {
 		case 'T':
 			$rst = $this->update(
-				'xxt_group_user',
+				'xxt_group_record',
 				[
 					'team_id' => $oTeam->team_id,
 					'team_title' => $oTeam->title,
@@ -635,7 +656,7 @@ class user_model extends \TMS_MODEL {
 			if ($oUser && !in_array($oTeam->team_id, $oUser->role_teams)) {
 				$oUser->role_teams[] = $oTeam->team_id;
 				$rst = $this->update(
-					'xxt_group_user',
+					'xxt_group_record',
 					[
 						'role_teams' => json_encode($oUser->role_teams),
 					],
@@ -652,7 +673,7 @@ class user_model extends \TMS_MODEL {
 	 */
 	public function quitGroup($appId, $ek) {
 		$rst = $this->update(
-			'xxt_group_user',
+			'xxt_group_record',
 			[
 				'team_id' => 0,
 				'team_title' => '',
@@ -724,7 +745,7 @@ class user_model extends \TMS_MODEL {
 	 */
 	private function _modify($ek, $oData) {
 		$rst = $this->update(
-			'xxt_group_user',
+			'xxt_group_record',
 			$oData,
 			['enroll_key' => $ek]
 		);
@@ -933,21 +954,21 @@ class user_model extends \TMS_MODEL {
 	public function remove($appId, $ek, $byDelete = false) {
 		if ($byDelete) {
 			$rst = $this->delete(
-				'xxt_group_user_data',
+				'xxt_group_record_data',
 				['aid' => $appId, 'enroll_key' => $ek]
 			);
 			$rst = $this->delete(
-				'xxt_group_user',
+				'xxt_group_record',
 				['aid' => $appId, 'enroll_key' => $ek]
 			);
 		} else {
 			$rst = $this->update(
-				'xxt_group_user_data',
+				'xxt_group_record_data',
 				['state' => 100],
 				['aid' => $appId, 'enroll_key' => $ek]
 			);
 			$rst = $this->update(
-				'xxt_group_user',
+				'xxt_group_record',
 				['state' => 100],
 				['aid' => $appId, 'enroll_key' => $ek]
 			);
@@ -963,21 +984,21 @@ class user_model extends \TMS_MODEL {
 	public function clean($appId, $byDelete = false) {
 		if ($byDelete) {
 			$rst = $this->delete(
-				'xxt_group_user_data',
+				'xxt_group_record_data',
 				['aid' => $appId]
 			);
 			$rst = $this->delete(
-				'xxt_group_user',
+				'xxt_group_record',
 				['aid' => $appId]
 			);
 		} else {
 			$rst = $this->update(
-				'xxt_group_user_data',
+				'xxt_group_record_data',
 				['state' => 0],
 				['aid' => $appId]
 			);
 			$rst = $this->update(
-				'xxt_group_user',
+				'xxt_group_record',
 				['state' => 0],
 				['aid' => $appId]
 			);

@@ -184,20 +184,19 @@ class main extends base {
 				/* 关联了分组活动 */
 				if (!empty($oApp->entryRule->group->id)) {
 					$oGrpApp = $this->model('matter\group')->byId($oApp->entryRule->group->id, ['cascaded' => 'N']);
-					$oGrpUser = $this->model('matter\group\user')->byUser($oGrpApp, $oUser->uid);
-					if (count($oGrpUser) === 1) {
-						if (!empty($oGrpUser[0]->data)) {
-							if (!empty($oUserRecord)) {
-								$oAssocData = json_decode($oGrpUser[0]->data);
-								$oUserRecord->data->_round_id = $oGrpUser[0]->team_id;
-								foreach ($oAssocData as $k => $v) {
-									$oUserRecord->data->{$k} = $v;
-								}
-							} else {
-								$oUserRecord = new \stdClass;
-								$oUserRecord->data = json_decode($oGrpUser[0]->data);
-								$oUserRecord->data->_round_id = $oGrpUser[0]->team_id;
+					$oGrpRec = $this->model('matter\group\record')->byUser($oGrpApp, $oUser->uid, ['onlyOne' => true]);
+					if ($oGrpRec && !empty($oGrpRec->data)) {
+						if (!empty($oUserRecord)) {
+							foreach ($oGrpRec->data as $k => $v) {
+								$oUserRecord->data->{$k} = $v;
 							}
+						} else {
+							$oUserRecord = new \stdClass;
+							$oUserRecord->data = $oGrpRec->data;
+						}
+						$oAssocGrpTeamSchema = $this->model('matter\enroll\schema')->getAssocGroupTeamSchema($oApp);
+						if ($oAssocGrpTeamSchema) {
+							$oUserRecord->data->{$oAssocGrpTeamSchema->id} = $oGrpRec->team_id;
 						}
 					}
 				}

@@ -46,28 +46,28 @@ ul.img-tiles li.img-picker button span {
         <div class="form-group" ng-repeat="schema in app.dataSchemas">
             <label class="col-md-3 control-label">{{schema.title}}</label>
             <div class="col-md-9" ng-switch on="schema.type">
-                <textarea class='form-control' ng-switch-when="longtext" ng-model="player.data[schema.id]"></textarea>
-                <select class='form-control' ng-switch-when="single" ng-model="player.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
+                <textarea class='form-control' ng-switch-when="longtext" ng-model="record.data[schema.id]"></textarea>
+                <select class='form-control' ng-switch-when="single" ng-model="record.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
                     <option></option>
                 </select>
                 <ul ng-switch-when="multiple">
                     <li class='checkbox' ng-repeat="op in schema.ops">
                         <label>
-                            <input type="checkbox" name="{{schema.id}}" ng-model="player.data[schema.id][op.v]" /><span>{{op.l}}</span></label>
+                            <input type="checkbox" name="{{schema.id}}" ng-model="record.data[schema.id][op.v]" /><span>{{op.l}}</span></label>
                     </li>
                 </ul>
                 <div ng-switch-when="score">
                     <div ng-repeat="op in schema.ops">
                         <div>{{op.l}}</div>
-                        <select class='form-control' ng-model="player.data[schema.id][op.v]" ng-options="number as number for number in scoreRangeArray(schema)">
+                        <select class='form-control' ng-model="record.data[schema.id][op.v]" ng-options="number as number for number in scoreRangeArray(schema)">
                             <option></option>
                         </select>
                     </div>
                 </div>
                 <ul ng-switch-when="image" class="img-tiles clearfix">
-                    <li wrap="img" ng-repeat="img in player.data[schema.id]" class="img-thumbnail" title="图片">
+                    <li wrap="img" ng-repeat="img in record.data[schema.id]" class="img-thumbnail" title="图片">
                         <img flex-img="" />
-                        <button class="btn btn-default btn-xs" ng-click="removeImage(player.data[schema.id],$index)"><span class="glyphicon glyphicon-remove"></span></button>
+                        <button class="btn btn-default btn-xs" ng-click="removeImage(record.data[schema.id],$index)"><span class="glyphicon glyphicon-remove"></span></button>
                     </li>
                     <li class="img-picker">
                         <button class="btn btn-default" ng-click="chooseImage(schema.id,1)"><span class="glyphicon glyphicon-picture"></span>
@@ -75,7 +75,7 @@ ul.img-tiles li.img-picker button span {
                     </li>
                 </ul>
                 <div ng-switch-when="file">
-                    <div ng-repeat="file in player.data[schema.id]">
+                    <div ng-repeat="file in record.data[schema.id]">
                         <span ng-bind="file.url"></span>
                         <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
                             <source src="{{file.url}}" type="{{file.type}}" />
@@ -83,17 +83,17 @@ ul.img-tiles li.img-picker button span {
                         <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
                     </div>
                     </div>
-                    <input type='text' class='form-control' ng-switch-when="member" ng-model="player.data.member[schema.id.substr(7)]">
+                    <input type='text' class='form-control' ng-switch-when="member" ng-model="record.data.member[schema.id.substr(7)]">
                     <div ng-switch-default>
-                        <input type='text' class='form-control' ng-if="schema.id.indexOf('member.')===0" ng-model="player.data.member[schema.id.substr(7)]">
-                        <input type='text' class='form-control' ng-if="schema.id.indexOf('member.')!==0" ng-model="player.data[schema.id]">
+                        <input type='text' class='form-control' ng-if="schema.id.indexOf('member.')===0" ng-model="record.data.member[schema.id.substr(7)]">
+                        <input type='text' class='form-control' ng-if="schema.id.indexOf('member.')!==0" ng-model="record.data[schema.id]">
                     </div>
                 </div>
             </div>
             <div class="form-group">
                 <label class="col-md-3 control-label">所属团队分组</label>
                 <div class="col-md-9">
-                    <select class='form-control' ng-model="player.team_id" ng-options="r.team_id as r.title for r in teamRounds">
+                    <select class='form-control' ng-model="record.team_id" ng-options="r.team_id as r.title for r in teamRounds">
                         <option></option>
                     </select>
                 </div>
@@ -103,11 +103,11 @@ ul.img-tiles li.img-picker button span {
                 <div class="col-md-9">
                     <div class='radio'>
                         <label class='inline-radio'>
-                            <input type='radio' name='is_leader' value='N' ng-model="player.is_leader">组员</label>
+                            <input type='radio' name='is_leader' value='N' ng-model="record.is_leader">组员</label>
                         <label class='inline-radio'>
-                            <input type='radio' name='is_leader' value='Y' ng-model="player.is_leader">组长</label>
+                            <input type='radio' name='is_leader' value='Y' ng-model="record.is_leader">组长</label>
                         <label class='inline-radio'>
-                            <input type='radio' name='is_leader' value='S' ng-model="player.is_leader">超级用户</label>
+                            <input type='radio' name='is_leader' value='S' ng-model="record.is_leader">超级用户</label>
                     </div>
                 </div>
             </div>
@@ -117,7 +117,7 @@ ul.img-tiles li.img-picker button span {
                     <ul>
                         <li class='checkbox' ng-repeat="round in roleTeams">
                             <label>
-                                <input type="checkbox" name="{{player.id}}" ng-model="player._role_teams[round.team_id]" /><span>{{round.title}}</span></label>
+                                <input type="checkbox" name="{{record.id}}" ng-model="record._role_teams[round.team_id]" /><span>{{round.title}}</span></label>
                         </li>
                     </ul>
                 </div>
@@ -125,13 +125,13 @@ ul.img-tiles li.img-picker button span {
             <div class="form-group">
                 <label class="col-md-3 control-label">用户标签</label>
                 <div class="col-md-9">
-                    <combox evt-prefix='tag' existing='player.aTags' options='aTags'></combox>
+                    <combox evt-prefix='tag' existing='record.aTags' options='aTags'></combox>
                 </div>
             </div>
             <div class="form-group">
                 <label class="col-md-3 control-label">备注</label>
                 <div class="col-md-9">
-                    <textarea class='form-control' ng-model="player.comment"></textarea>
+                    <textarea class='form-control' ng-model="record.comment"></textarea>
                 </div>
             </div>
     </form>

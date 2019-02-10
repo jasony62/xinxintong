@@ -175,6 +175,52 @@ class base extends \site\fe\matter\base {
 		return $oResult;
 	}
 	/**
+	 * 编辑用户的定义及用户列表
+	 */
+	protected function getEditorGroup($oApp) {
+		$oEditor = null;
+		$oActionRule = $oApp->actionRule;
+		if (isset($oActionRule->role->editor->group) && isset($oActionRule->role->editor->nickname)) {
+			$oEditor = new \stdClass;
+			$oEditor->group = $oActionRule->role->editor->group;
+			$oEditor->nickname = $oActionRule->role->editor->nickname;
+			// 如果记录活动指定了编辑组需要获取，编辑组中所有的用户
+			$modelGrpRec = $this->model('matter\group\record');
+			$oGrpRecResult = $modelGrpRec->byApp($oApp->entryRule->group->id, ['roleTeamId' => $oEditor->group, 'fields' => 'role_teams,userid']);
+			if (isset($oGrpRecResult->records)) {
+				$oEditor->users = new \stdClass;
+				foreach ($oGrpRecResult->records as $oRec) {
+					$oEditor->users->{$oRec->userid} = $oRec->role_teams;
+				}
+			}
+		}
+
+		return $oEditor;
+	}
+	/**
+	 * 设置记录的昵称
+	 *
+	 * @param mixed $oObj 记录|数据|评论|专题
+	 */
+	protected function setNickname($oObj, $oUser, $oEditorGrp) {
+		/* 修改默认访客昵称 */
+		if (isset($oObj->userid) && $oObj->userid === $oUser->uid) {
+			$oObj->nickname = '我';
+		} else if (isset($oObj->nickname) && preg_match('/用户[^\W_]{13}/', $oObj->nickname)) {
+			$oObj->nickname = '访客';
+		} else if (isset($oEditorGrp) && (empty($oUser->is_editor) || $oUser->is_editor !== 'Y')) {
+			/* 设置编辑统一昵称 */
+			if (!empty($oObj->group_id) && $oObj->group_id === $oEditorGrp->group) {
+				$oObj->nickname = $oEditorGrp->nickname;
+			} else if (isset($oEditorGrp->users) && isset($oEditorGrp->users->{$oObj->userid})) {
+				// 记录提交者是否有编辑组角色
+				$oObj->nickname = $oEditorGrp->nickname;
+			}
+		}
+
+		return $oObj;
+	}
+	/**
 	 * 返回全局的邀请关注页面（覆盖基类的方法）
 	 */
 	public function askFollow_action($site, $sns) {

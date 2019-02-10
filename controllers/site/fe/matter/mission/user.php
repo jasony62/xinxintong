@@ -85,7 +85,7 @@ class user extends \site\fe\matter\base {
 		/* 如果项目用户名单是分组活动，获得分组信息 */
 		if ($oMission->user_app_type === 'group' && !empty($oMission->user_app_id)) {
 			$oMisUsrGrpApp = (object) ['id' => $oMission->user_app_id];
-			$modelGrpUsr = $this->model('matter\group\user');
+			$modelGrpUsr = $this->model('matter\group\record');
 		}
 
 		$modelMisUsr = $this->model('matter\mission\user');

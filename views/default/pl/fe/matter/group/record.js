@@ -1,7 +1,7 @@
 define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlUser', ['$scope', 'noticebox', 'srvGroupApp', 'srvGroupTeam', 'srvGroupUser', 'srvMemberPicker', 'facListFilter', function($scope, noticebox, srvGroupApp, srvGroupTeam, srvGrpUsr, srvMemberPicker, facListFilter) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', 'noticebox', 'srvGroupApp', 'srvGroupTeam', 'srvGroupRec', 'srvMemberPicker', 'facListFilter', function($scope, noticebox, srvGrpApp, srvGrpTeam, srvGrpRec, srvMemberPicker, facListFilter) {
         $scope.syncByApp = function(data) {
-            srvGroupApp.syncByApp().then(function(count) {
+            srvGrpApp.syncByApp().then(function(count) {
                 $scope.list('team');
             });
         };
@@ -27,89 +27,87 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.export = function() {
-            srvGroupApp.export();
+            srvGrpApp.export();
         };
         $scope.execute = function() {
-            srvGrpUsr.execute();
+            srvGrpRec.execute();
         };
         $scope.list = function(arg) {
             if (_oCriteria[arg].team_id === 'all') {
-                srvGrpUsr.list(null, arg);
+                srvGrpRec.list(null, arg);
             } else if (_oCriteria[arg].team_id === 'pending') {
-                srvGrpUsr.list(false, arg);
+                srvGrpRec.list(false, arg);
             } else {
-                srvGrpUsr.list(_oCriteria[arg], arg);
+                srvGrpRec.list(_oCriteria[arg], arg);
             }
         };
-        $scope.editUser = function(oUser) {
-            srvGrpUsr.edit(oUser).then(function(updated) {
-                srvGrpUsr.update(oUser, updated.player);
-                srvGroupApp.update('tags');
+        $scope.editRec = function(oRecord) {
+            srvGrpRec.edit(oRecord).then(function(oResult) {
+                srvGrpRec.update(oRecord, oResult.record);
+                srvGrpApp.update('tags');
             });
         };
-        $scope.addUser = function() {
-            srvGrpUsr.edit({ tags: '', role_teams: [] }).then(function(updated) {
-                srvGrpUsr.add(updated.player);
+        $scope.addRec = function() {
+            srvGrpRec.edit({ tags: '', role_teams: [] }).then(function(oResult) {
+                srvGrpRec.add(oResult.record);
             });
         };
-        $scope.removeUser = function(oUser) {
+        $scope.removeRec = function(oRecord) {
             if (window.confirm('确认删除？')) {
-                srvGrpUsr.remove(oUser);
+                srvGrpRec.remove(oRecord);
             }
         };
         $scope.empty = function() {
-            srvGrpUsr.empty();
+            srvGrpRec.empty();
         };
-        $scope.selectUser = function(oUser) {
-            var users = $scope.rows.users,
-                i = users.indexOf(oUser);
-            i === -1 ? users.push(oUser) : users.splice(i, 1);
+        $scope.selectRec = function(oRecord) {
+            var records = $scope.rows.records,
+                i = records.indexOf(oRecord);
+            i === -1 ? records.push(oRecord) : records.splice(i, 1);
         };
         // 选中或取消选中所有行
         $scope.selectAllRows = function(checked) {
             var index = 0;
             if (checked === 'Y') {
-                $scope.rows.users = [];
-                while (index < $scope.players.length) {
-                    $scope.rows.users.push($scope.players[index]);
+                $scope.rows.records = [];
+                while (index < $scope.records.length) {
+                    $scope.rows.records.push($scope.records[index]);
                     $scope.rows.selected[index++] = true;
                 }
             } else if (checked === 'N') {
                 $scope.rows.reset();
             }
         };
-        $scope.quitGroup = function(users) {
-            if (users.length) {
-                srvGrpUsr.quitGroup(users).then(function() {
+        $scope.quitGroup = function(records) {
+            if (records.length) {
+                srvGrpRec.quitGroup(records).then(function() {
                     $scope.rows.reset();
                 });
             }
         };
-        $scope.joinGroup = function(oRound, users) {
-            if (users.length && oRound) {
-                srvGrpUsr.joinGroup(oRound, users).then(function() {
+        $scope.joinGroup = function(oTeam, records) {
+            if (records.length && oTeam) {
+                srvGrpRec.joinGroup(oTeam, records).then(function() {
                     $scope.rows.reset();
                 });
             }
         };
         $scope.notify = function(isBatch) {
-            srvGrpUsr.notify(isBatch ? $scope.rows : undefined);
+            srvGrpRec.notify(isBatch ? $scope.rows : undefined);
         };
-        var _users, _oCriteria;
-        $scope.users = _users = [];
+        var _records, _oCriteria;
+        $scope.records = _records = [];
         // 表格定义是否准备完毕
         $scope.tableReady = 'N';
         // 当前选中的行
         $scope.rows = {
-            allSelected: 'N',
-            selected: {},
-            users: [],
             reset: function() {
                 this.allSelected = 'N';
                 this.selected = {};
-                this.users = [];
+                this.records = [];
             }
         };
+        $scope.rows.reset();
         $scope.criteria = _oCriteria = {
             team: { team_id: 'all' },
             roleTeam: { team_id: 'all' }
@@ -118,20 +116,20 @@ define(['frame'], function(ngApp) {
             if (/team|roleTeam/.test(filterByProp)) {
                 $scope.list(filterByProp);
             } else if ('nickname' === filterByProp) {
-                srvGrpUsr.list(null, 'round', { by: filterByProp, kw: filterByKeyword });
+                srvGrpRec.list(null, 'round', { by: filterByProp, kw: filterByKeyword });
             }
         }, _oCriteria);
 
-        srvGroupApp.get().then(function(oApp) {
+        srvGrpApp.get().then(function(oApp) {
             if (oApp.assignedNickname) {
                 $scope.bRequireNickname = oApp.assignedNickname.valid !== 'Y' || !oApp.assignedNickname.schema;
             }
-            srvGrpUsr.init(_users).then(function() {
+            srvGrpRec.init(_records).then(function() {
                 $scope.list('team');
                 $scope.tableReady = 'Y';
             });
         });
-        srvGroupTeam.list().then(function(teams) {
+        srvGrpTeam.list().then(function(teams) {
             $scope.teams = [];
             $scope.roleTeams = [];
             teams.forEach(function(oTeam) {

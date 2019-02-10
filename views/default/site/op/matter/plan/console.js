@@ -235,15 +235,15 @@ define(["require", "angular", "planService"], function(require, angular) {
                     }
                 }
             }
-            $scope.$watch('app', function(app) {
-                if (!app) return;
-                if (app.entryRule.scope.group && app.entryRule.scope.group == 'Y' && app.groupApp.rounds.length) {
-                    app.groupApp.rounds.forEach(function(oTeam) {
+            $scope.$watch('app', function(oApp) {
+                if (!oApp) return;
+                if (oApp.entryRule.scope.group && oApp.entryRule.scope.group == 'Y' && oApp.groupApp.teams.length) {
+                    oApp.groupApp.teams.forEach(function(oTeam) {
                         _oGroup[oTeam.team_id] = round;
                     });
                 }
-                app._rounds = _oGroup;
-                _oApp = app;
+                oApp._groups = _oGroup;
+                _oApp = oApp;
                 // schemas
                 $scope.getRecords(1);
                 window.loading.finish();

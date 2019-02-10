@@ -33,8 +33,7 @@ class group_model extends app_base {
 		if ($oApp = $this->query_obj_ss($q)) {
 			$oApp->type = 'group';
 			if ($cascaded === 'Y') {
-				$teams = $this->model('matter\group\team')->byApp($aid);
-				$oApp->rounds = $teams;
+				$oApp->teams = $this->model('matter\group\team')->byApp($aid);
 			}
 			if ($fields === '*' || false !== strpos($fields, 'data_schemas')) {
 				if (!empty($oApp->data_schemas)) {
@@ -154,8 +153,8 @@ class group_model extends app_base {
 			return [false, '没有指定分组'];
 		}
 
-		$modelPly = \TMS_APP::M('matter\group\user');
-		$players = $modelPly->pendings($appId);
+		$modelGrpRec = \TMS_APP::M('matter\group\record');
+		$players = $modelGrpRec->pendings($appId);
 
 		$lenOfRounds = count($rounds);
 		$lenOfPlayers = count($players);
@@ -180,7 +179,7 @@ class group_model extends app_base {
 						'team_title' => $round->title,
 						'draw_at' => $current,
 					);
-					$modelPly->update('xxt_group_user', $winner, "aid='$appId' and enroll_key='{$winner4Round->enroll_key}'");
+					$modelGrpRec->update('xxt_group_record', $winner, "aid='$appId' and enroll_key='{$winner4Round->enroll_key}'");
 					/*轮次是否还可以继续放用户*/
 					if ($round->times > count($round->winners)) {
 						$hasSpace = true;
@@ -264,9 +263,9 @@ class group_model extends app_base {
 	 * 指定用户的行为报告
 	 */
 	public function reportByUser($oApp, $oUser) {
-		$modelPly = $this->model('matter\group\user');
+		$modelGrpRec = $this->model('matter\group\record');
 
-		$result = $modelPly->byUser($oApp, $oUser->userid, ['fields' => 'id,team_id,team_title,comment']);
+		$result = $modelGrpRec->byUser($oApp, $oUser->userid, ['fields' => 'id,team_id,team_title,comment']);
 
 		return $result;
 	}
@@ -306,7 +305,7 @@ class group_model extends app_base {
 		if (isset($oCustomConfig->proto->sourceApp)) {
 			$oSourceApp = $oCustomConfig->proto->sourceApp;
 			if (!empty($oSourceApp->id) && !empty($oSourceApp->type)) {
-				$modelGrpUsr = $this->model('matter\group\user');
+				$modelGrpUsr = $this->model('matter\group\record');
 				switch ($oSourceApp->type) {
 				case 'enroll':
 				case 'registration':

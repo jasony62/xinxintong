@@ -10,9 +10,9 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates'], function(RoutePar
         $routeProvider
             .when('/rest/pl/fe/matter/group/main', new RouteParam('main'))
             .when('/rest/pl/fe/matter/group/team', new RouteParam('team'))
-            .when('/rest/pl/fe/matter/group/user', new RouteParam('user'))
+            .when('/rest/pl/fe/matter/group/record', new RouteParam('record'))
             .when('/rest/pl/fe/matter/group/notice', new RouteParam('notice'))
-            .otherwise(new RouteParam('user'));
+            .otherwise(new RouteParam('record'));
 
         $locationProvider.html5Mode(true);
         $uibTooltipProvider.setTriggers({
@@ -44,7 +44,7 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates'], function(RoutePar
                 case 'team':
                     $scope.opened = 'edit';
                     break;
-                case 'user':
+                case 'record':
                     $scope.opened = 'data';
                     break;
                 case 'notice':

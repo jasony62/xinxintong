@@ -161,12 +161,12 @@ define(['frame'], function(ngApp) {
             window.open(url);
         };
         srvPlanApp.get().then(function(oApp) {
-            if (oApp.entryRule.scope.group && oApp.entryRule.scope.group == 'Y' && oApp.groupApp.rounds.length) {
-                oApp.groupApp.rounds.forEach(function(round) {
-                    _oGroup[round.team_id] = round;
+            if (oApp.entryRule.scope.group && oApp.entryRule.scope.group == 'Y' && oApp.groupApp.teams.length) {
+                oApp.groupApp.teams.forEach(function(oTeam) {
+                    _oGroup[oTeam.team_id] = oTeam;
                 });
             }
-            oApp._rounds = _oGroup;
+            oApp._groups = _oGroup;
             _oApp = oApp;
             $scope.tmsTableWrapReady = 'Y';
             $scope.doSearch();

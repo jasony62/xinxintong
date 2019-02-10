@@ -55,11 +55,11 @@ class data extends base {
 				$oEditor->group = $oApp->actionRule->role->editor->group;
 				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
 				// 如果登记活动指定了编辑组需要获取，编辑组中所有的用户
-				$modelGrpUsr = $this->model('matter\group\user');
+				$modelGrpUsr = $this->model('matter\group\record');
 				$assocGroupId = $oApp->entryRule->group->id;
-				$oGrpUserResult = $modelGrpUsr->byApp($assocGroupId, ['roleTeamId' => $oEditor->group, 'fields' => 'role_teams,userid']);
-				if (isset($oGrpUserResult->users)) {
-					$oGrpUsers = $oGrpUserResult->users;
+				$oGrpRecResult = $modelGrpUsr->byApp($assocGroupId, ['roleTeamId' => $oEditor->group, 'fields' => 'role_teams,userid']);
+				if (isset($oGrpRecResult->records)) {
+					$oGrpUsers = $oGrpRecResult->records;
 					$oEditorUsers = new \stdClass;
 					foreach ($oGrpUsers as $oGrpUser) {
 						$oEditorUsers->{$oGrpUser->userid} = $oGrpUser->role_teams;
@@ -383,7 +383,7 @@ class data extends base {
 		}
 		//
 		if ($oUserCoworkAgreedPower === false) {
-			$modelGrpUsr = $this->model('matter\group\user');
+			$modelGrpUsr = $this->model('matter\group\record');
 			/* 当前操作用户所属分组及角色 */
 			$oGrpLeader = $modelGrpUsr->byUser($oApp->entryRule->group, $oUser->uid, ['fields' => 'is_leader,team_id', 'onlyOne' => true]);
 			if (false === $oGrpLeader || !in_array($oGrpLeader->is_leader, ['Y', 'S'])) {

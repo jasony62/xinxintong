@@ -412,7 +412,7 @@ class member_model extends \TMS_MODEL {
 		$users[] = $user;
 
 		$modelGrp = $this->model('matter\group');
-		$modelUsr = $this->model('matter\group\user');
+		$modelUsr = $this->model('matter\group\record');
 		$modelTeam = $this->model('matter\group\team');
 		$groups = $modelGrp->bySchemaApp($schemaId, ['autoSync' => 'Y']);
 		$groupIds = [];

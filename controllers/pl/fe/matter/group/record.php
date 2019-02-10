@@ -5,7 +5,7 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
 /*
  * 分组活动控制器
  */
-class user extends \pl\fe\matter\base {
+class record extends \pl\fe\matter\base {
 	/**
 	 * 返回视图
 	 */
@@ -22,7 +22,6 @@ class user extends \pl\fe\matter\base {
 		}
 
 		$modelGrp = $this->model('matter\group');
-
 		$oApp = $modelGrp->byId($app);
 		if (false === $oApp && $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
@@ -32,17 +31,17 @@ class user extends \pl\fe\matter\base {
 
 		$aOptions = [];
 		if (isset($oPosted->roleTeamId)) {
-			$aOptions['roleTeamId'] = $modelPlayer->escape($oPosted->roleTeamId);
+			$aOptions['roleTeamId'] = $this->escape($oPosted->roleTeamId);
 		}
 		if (isset($oPosted->teamId)) {
-			$aOptions['teamId'] = $modelPlayer->escape($oPosted->teamId);
+			$aOptions['teamId'] = $this->escape($oPosted->teamId);
 		}
 		if (!empty($oPosted->kw) && !empty($oPosted->by)) {
 			$aOptions[$oPosted->by] = $oPosted->kw;
 		}
 
-		$modelGrpUsr = $this->model('matter\group\user');
-		$oResult = $modelGrpUsr->byApp($oApp, $aOptions);
+		$modelGrpRec = $this->model('matter\group\record');
+		$oResult = $modelGrpRec->byApp($oApp, $aOptions);
 
 		return new \ResponseData($oResult);
 	}
@@ -56,13 +55,31 @@ class user extends \pl\fe\matter\base {
 
 		$q = [
 			'count(*)',
-			"xxt_group_user",
+			"xxt_group_record",
 			['aid' => $app, 'state' => 1],
 		];
 
 		$cnt = (int) $this->model()->query_val_ss($q);
 
 		return new \ResponseData($cnt);
+	}
+	/**
+	 * 属于指定分组的人
+	 */
+	public function byTeam_action($app, $tid) {
+		if (false === $this->accountUser()) {
+			return new \ResponseTimeout();
+		}
+
+		$oTeam = $this->model('matter\group\team')->byId($tid);
+		if (false === $oTeam) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelGrpRec = $this->model('matter\group\record');
+		$oResult = $modelGrpRec->byTeam($oTeam->team_id);
+
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 从其他活动导入数据
@@ -80,15 +97,15 @@ class user extends \pl\fe\matter\base {
 		$oParams = $this->getPostJson();
 		$oSourceApp = null;
 		if (!empty($oParams->app)) {
-			$modelGrpUsr = $this->model('matter\group\user');
+			$modelGrpRec = $this->model('matter\group\record');
 			if ($oParams->appType === 'registration') {
-				$oSourceApp = $modelGrpUsr->assocWithEnroll($oApp, $oParams->app);
+				$oSourceApp = $modelGrpRec->assocWithEnroll($oApp, $oParams->app);
 			} else if ($oParams->appType === 'signin') {
-				$oSourceApp = $modelGrpUsr->assocWithSignin($oApp, $oParams->app);
+				$oSourceApp = $modelGrpRec->assocWithSignin($oApp, $oParams->app);
 			} else if ($oParams->appType === 'wall') {
-				$oSourceApp = $modelGrpUsr->assocWithWall($oApp, $oParams->app, $oParams->onlySpeaker);
+				$oSourceApp = $modelGrpRec->assocWithWall($oApp, $oParams->app, $oParams->onlySpeaker);
 			} else if ($oParams->appType === 'mschema') {
-				$oSourceApp = $modelGrpUsr->assocWithMschema($oApp, $oParams->app);
+				$oSourceApp = $modelGrpRec->assocWithMschema($oApp, $oParams->app);
 			}
 		}
 
@@ -118,7 +135,7 @@ class user extends \pl\fe\matter\base {
 		}
 
 		$oResult = new \stdClass;
-		$modelUsr = $this->model('matter\group\user');
+		$modelUsr = $this->model('matter\group\record');
 		foreach ($eks as $ek) {
 			if ($oUser = $modelUsr->byId($oApp->id, $ek)) {
 				if ($modelUsr->joinGroup($oApp->id, $oTeam, $ek)) {
@@ -153,7 +170,7 @@ class user extends \pl\fe\matter\base {
 		}
 
 		$oResult = new \stdClass;
-		$modelUsr = $this->model('matter\group\user');
+		$modelUsr = $this->model('matter\group\record');
 		foreach ($eks as $ek) {
 			if ($oUser = $modelUsr->byId($oApp->id, $ek)) {
 				if ($modelUsr->quitGroup($oApp->id, $ek)) {
@@ -185,69 +202,69 @@ class user extends \pl\fe\matter\base {
 
 		$oPosted = $this->getPostJson();
 		$modelGrp = $this->model('matter\group');
-		$modelUsr = $this->model('matter\group\user');
+		$modelGrpRec = $this->model('matter\group\record');
 
 		$oApp = $modelGrp->byId($app);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-		$oBeforeUser = $modelUsr->byId($oApp->id, $ek, ['fields' => 'userid,state']);
-		if (false === $oBeforeUser || $oBeforeUser->state !== '1') {
+		$oBeforeRec = $modelGrpRec->byId($oApp->id, $ek, ['fields' => 'userid,state']);
+		if (false === $oBeforeRec || $oBeforeRec->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
 		/* 更新记录数据 */
-		$oNewPlayer = new \stdClass;
+		$oNewRec = new \stdClass;
 		if (isset($oPosted->is_leader)) {
-			$oNewPlayer->is_leader = in_array($oPosted->is_leader, ['Y', 'N', 'S']) ? $oPosted->is_leader : 'N';
+			$oNewRec->is_leader = in_array($oPosted->is_leader, ['Y', 'N', 'S']) ? $oPosted->is_leader : 'N';
 		}
 		if (isset($oPosted->comment)) {
-			$oNewPlayer->comment = $oPosted->comment;
+			$oNewRec->comment = $oPosted->comment;
 		}
 		if (isset($oPosted->tags)) {
-			$oNewPlayer->tags = $modelUsr->escape($oPosted->tags);
+			$oNewRec->tags = $modelGrpRec->escape($oPosted->tags);
 		}
 		if (empty($oPosted->team_id)) {
-			$oNewPlayer->team_id = '';
-			$oNewPlayer->team_title = '';
+			$oNewRec->team_id = '';
+			$oNewRec->team_title = '';
 		} else {
 			$modelTeam = $this->model('matter\group\team');
 			if ($oTeam = $modelTeam->byId($oPosted->team_id)) {
-				$oNewPlayer->team_id = $oPosted->team_id;
-				$oNewPlayer->team_title = $oTeam->title;
+				$oNewRec->team_id = $oPosted->team_id;
+				$oNewRec->team_title = $oTeam->title;
 			}
 		}
 		if (empty($oPosted->role_teams)) {
-			$oNewPlayer->role_teams = '';
-		} else if (!empty($oBeforeUser->userid)) {
+			$oNewRec->role_teams = '';
+		} else if (!empty($oBeforeRec->userid)) {
 			$roleTeams = array_map(function ($oTeam) {return $oTeam;}, $oPosted->role_teams);
-			$oNewPlayer->role_teams = json_encode($roleTeams);
+			$oNewRec->role_teams = json_encode($roleTeams);
 		}
 
-		$modelUsr->update(
-			'xxt_group_user',
-			$oNewPlayer,
+		$modelGrpRec->update(
+			'xxt_group_record',
+			$oNewRec,
 			["aid" => $oApp->id, "enroll_key" => $ek]
 		);
 		/* 更新用户数据 */
-		$aResult = $modelUsr->setData($oApp, $ek, $oPosted->data);
+		$aResult = $modelGrpRec->setData($oApp, $ek, $oPosted->data);
 		if (false === $aResult[0]) {
 			return new \ResponseError($aResult[1]);
 		}
 
-		$oNewPlayer = $modelUsr->byId($oApp->id, $ek);
+		$oNewRec = $modelGrpRec->byId($oApp->id, $ek);
 
 		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'update', $oNewPlayer);
+		$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'update', $oNewRec);
 
-		return new \ResponseData($oNewPlayer);
+		return new \ResponseData($oNewRec);
 	}
 	/**
 	 * 手工添加分组用户信息
 	 *
 	 * @param string $app
 	 */
-	public function add_action($site, $app) {
+	public function add_action($app) {
 		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
@@ -255,10 +272,10 @@ class user extends \pl\fe\matter\base {
 		$oPosted = $this->getPostJson();
 		$current = time();
 		$modelGrp = $this->model('matter\group');
-		$modelUsr = $this->model('matter\group\user');
+		$modelGrpRec = $this->model('matter\group\record');
 
 		$oApp = $modelGrp->byId($app);
-		$ek = $modelUsr->genKey($oApp->siteid, $oApp->id);
+		$ek = $modelGrpRec->genKey($oApp->siteid, $oApp->id);
 		/**
 		 * 分组用户登记数据
 		 */
@@ -281,8 +298,8 @@ class user extends \pl\fe\matter\base {
 			$oGrpUser->team_title = $oTeam->title;
 		}
 
-		$modelUsr->enroll($oApp, $oEnrollee, $oGrpUser);
-		$aResult = $modelUsr->setData($oApp, $ek, $oPosted->data);
+		$modelGrpRec->enroll($oApp, $oEnrollee, $oGrpUser);
+		$aResult = $modelGrpRec->setData($oApp, $ek, $oPosted->data);
 		if (false === $aResult[0]) {
 			return new \ResponseError($aResult[1]);
 		}
@@ -299,7 +316,7 @@ class user extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$rst = $this->model('matter\group\user')->remove($app, $ek, $keepData === 'N');
+		$rst = $this->model('matter\group\record')->remove($app, $ek, $keepData === 'N');
 
 		return new \ResponseData($rst);
 	}
@@ -310,10 +327,10 @@ class user extends \pl\fe\matter\base {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$modelGrpUsr = $this->model('matter\group\user');
-		$modelGrpUsr->clean($app, $keepData === 'N');
+		$modelGrpRec = $this->model('matter\group\record');
+		$modelGrpRec->clean($app, $keepData === 'N');
 
-		$rst = $modelGrpUsr->update('xxt_group', ['last_sync_at' => 0], ['id' => $app]);
+		$rst = $modelGrpRec->update('xxt_group', ['last_sync_at' => 0], ['id' => $app]);
 
 		return new \ResponseData($rst);
 	}
@@ -368,9 +385,9 @@ class user extends \pl\fe\matter\base {
 		];
 		$records = $modelRec->query_objs_ss($q);
 
-		$modelUsr = $this->model('matter\group\user');
+		$modelGrpRec = $this->model('matter\group\record');
 
-		return $modelUsr->syncRecord($siteId, $objGrp, $records, $modelRec, 'mschema');
+		return $modelGrpRec->syncRecord($siteId, $objGrp, $records, $modelRec, 'mschema');
 	}
 	/**
 	 * 从登记活动导入数据
@@ -387,9 +404,9 @@ class user extends \pl\fe\matter\base {
 		];
 		$records = $modelRec->query_objs_ss($q);
 
-		$modelUsr = $this->model('matter\group\user');
+		$modelGrpRec = $this->model('matter\group\record');
 
-		return $modelUsr->syncRecord($siteId, $objGrp, $records, $modelRec);
+		return $modelGrpRec->syncRecord($siteId, $objGrp, $records, $modelRec);
 	}
 	/**
 	 * 从签到活动导入数据
@@ -406,9 +423,9 @@ class user extends \pl\fe\matter\base {
 		);
 		$records = $modelRec->query_objs_ss($q);
 
-		$modelUsr = $this->model('matter\group\user');
+		$modelGrpRec = $this->model('matter\group\record');
 
-		return $modelUsr->syncRecord($siteId, $objGrp, $records, $modelRec);
+		return $modelGrpRec->syncRecord($siteId, $objGrp, $records, $modelRec);
 	}
 	/**
 	 * 同步在最后一次同步之后的数据
@@ -426,20 +443,20 @@ class user extends \pl\fe\matter\base {
 		}
 		$wallUsers = $this->model()->query_objs_ss($u);
 
-		$modelUsr = $this->model('matter\group\user');
+		$modelGrpRec = $this->model('matter\group\record');
 		if (!empty($wallUsers)) {
 			foreach ($wallUsers as $wallUser) {
 				$wallUser->data = empty($wallUser->data) ? '' : json_decode($wallUser->data);
 				$oUser = new \stdClass;
 				$oUser->uid = $wallUser->userid;
 				$oUser->nickname = $wallUser->nickname;
-				if ($modelUsr->byId($objGrp->id, $wallUser->enroll_key, ['cascaded' => 'N'])) {
+				if ($modelGrpRec->byId($objGrp->id, $wallUser->enroll_key, ['cascaded' => 'N'])) {
 					// 已经同步过的用户
-					$modelUsr->setData($objGrp, $wallUser->enroll_key, $wallUser->data);
+					$modelGrpRec->setData($objGrp, $wallUser->enroll_key, $wallUser->data);
 				} else {
 					// 新用户
-					$modelUsr->enroll($objGrp, $oUser, ['enroll_key' => $wallUser->enroll_key, 'enroll_at' => $wallUser->join_at]);
-					$modelUsr->setData($objGrp, $wallUser->enroll_key, $wallUser->data);
+					$modelGrpRec->enroll($objGrp, $oUser, ['enroll_key' => $wallUser->enroll_key, 'enroll_at' => $wallUser->join_at]);
+					$modelGrpRec->setData($objGrp, $wallUser->enroll_key, $wallUser->data);
 				}
 			}
 		}
@@ -484,9 +501,9 @@ class user extends \pl\fe\matter\base {
 		];
 		$records = $modelRec->query_objs_ss($q);
 
-		$modelUsr = $this->model('matter\group\user');
+		$modelGrpRec = $this->model('matter\group\record');
 
-		return $modelUsr->syncRecord($oGrpApp->siteid, $oGrpApp, $records, $modelRec, 'mschema');
+		return $modelGrpRec->syncRecord($oGrpApp->siteid, $oGrpApp, $records, $modelRec, 'mschema');
 	}
 	/**
 	 * 未分组的人
@@ -495,9 +512,9 @@ class user extends \pl\fe\matter\base {
 	 */
 	public function pendingsGet_action($app, $rid = null, $teamType = 'T') {
 		if ($teamType === 'R') {
-			$result = $this->model('matter\group\user')->pendingsRole($app);
+			$result = $this->model('matter\group\record')->pendingsRole($app);
 		} else {
-			$result = $this->model('matter\group\user')->pendings($app);
+			$result = $this->model('matter\group\record')->pendings($app);
 		}
 
 		return new \ResponseData($result);
@@ -514,11 +531,11 @@ class user extends \pl\fe\matter\base {
 
 		$oApp = $modelGrp->byId($app);
 		$schemas = $oApp->dataSchemas;
-		$oResult = $this->model('matter\group\user')->byApp($app);
+		$oResult = $this->model('matter\group\record')->byApp($app);
 		if ($oResult->total == 0) {
 			die('users empty');
 		}
-		$grpUsers = $oResult->users;
+		$grpUsers = $oResult->records;
 
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
 

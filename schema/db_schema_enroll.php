@@ -637,6 +637,42 @@ if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error: ' . $mysqli->error;
 }
+/**
+ *
+ */
+$sql = "create table if not exists xxt_enroll_search(";
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",aid varchar(40) not null";
+$sql .= ",keyword varchar(255) not null";
+$sql .= ",user_num int not null default 0"; // 使用人数
+$sql .= ",used_num int not null default 0"; // 使用总数
+$sql .= ",agreed char(1) not null default ''"; // 是否推荐（Y：推荐）
+$sql .= ",state tinyint not null default 1"; //0:remove,1:normal
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ *
+ */
+$sql = "create table if not exists xxt_enroll_user_search(";
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",aid varchar(40) not null";
+$sql .= ",userid varchar(40) not null default ''";
+$sql .= ",nickname varchar(255) not null default ''";
+$sql .= ",create_at int not null default 0";
+$sql .= ",last_use_at int not null default 0"; // 最后使用时间
+$sql .= ",search_id int not null default 0"; //
+$sql .= ",used_num int not null default 0"; // 使用总数
+$sql .= ",state tinyint not null default 1"; //0:remove,1:normal
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
 /************************************************
  *签到活动
  ************************************************/
@@ -848,7 +884,7 @@ if (!$mysqli->query($sql)) {
 /**
  * 分组活动用户记录
  */
-$sql = "create table if not exists xxt_group_user(";
+$sql = "create table if not exists xxt_group_record(";
 $sql .= "id int not null auto_increment";
 $sql .= ",aid varchar(40) not null";
 $sql .= ",siteid varchar(32) not null default ''";
@@ -861,9 +897,9 @@ $sql .= ",tags text null";
 $sql .= ",comment text null";
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal,2:as invite log
 $sql .= ",referrer text null"; //
-$sql .= ",team_id varchar(32) not null default ''"; // 团队分组
+$sql .= ",team_id varchar(32) not null default ''"; // 主分组
 $sql .= ",team_title varchar(40) not null default ''";
-$sql .= ",role_teams varchar(255) not null default ''"; // 角色分组
+$sql .= ",role_teams varchar(255) not null default ''"; // 辅助分组
 $sql .= ",draw_at int not null"; // 加入人员分组的时间
 $sql .= ",data text null"; // 登记的数据项
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
@@ -874,49 +910,13 @@ if (!$mysqli->query($sql)) {
 /**
  * 自定义登记数据
  */
-$sql = "create table if not exists xxt_group_user_data(";
+$sql = "create table if not exists xxt_group_record_data(";
 $sql .= "aid varchar(40) not null";
 $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",name varchar(40) not null";
 $sql .= ",value text";
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal
 $sql .= ",primary key(aid,enroll_key,name,state)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
-}
-/**
- *
- */
-$sql = "create table if not exists xxt_enroll_search(";
-$sql .= "id int not null auto_increment";
-$sql .= ",siteid varchar(32) not null";
-$sql .= ",aid varchar(40) not null";
-$sql .= ",keyword varchar(255) not null";
-$sql .= ",user_num int not null default 0"; // 使用人数
-$sql .= ",used_num int not null default 0"; // 使用总数
-$sql .= ",agreed char(1) not null default ''"; // 是否推荐（Y：推荐）
-$sql .= ",state tinyint not null default 1"; //0:remove,1:normal
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
-}
-/**
- *
- */
-$sql = "create table if not exists xxt_enroll_user_search(";
-$sql .= "id int not null auto_increment";
-$sql .= ",siteid varchar(32) not null";
-$sql .= ",aid varchar(40) not null";
-$sql .= ",userid varchar(40) not null default ''";
-$sql .= ",nickname varchar(255) not null default ''";
-$sql .= ",create_at int not null default 0";
-$sql .= ",last_use_at int not null default 0"; // 最后使用时间
-$sql .= ",search_id int not null default 0"; //
-$sql .= ",used_num int not null default 0"; // 使用总数
-$sql .= ",state tinyint not null default 1"; //0:remove,1:normal
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error: ' . $mysqli->error;

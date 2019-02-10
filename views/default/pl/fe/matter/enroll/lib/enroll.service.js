@@ -949,21 +949,12 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                     }
                 });
             };
-            _ins.syncByGroup = function(record) {
+            _ins.syncByGroup = function(oRecord) {
                 var url;
-
-                url = '/rest/pl/fe/matter/enroll/record/matchGroup';
-                url += '?site=' + _siteId;
-                url += '&app=' + _appId;
-
-                http2.post(url, record.data).then(function(rsp) {
-                    var matched;
-                    if (rsp.data && rsp.data.length === 1) {
-                        matched = rsp.data[0];
-                        angular.extend(record.data, matched);
-                    } else {
-                        noticebox.warn('没有找到匹配的记录，请检查数据是否一致');
-                    }
+                url = '/rest/pl/fe/matter/enroll/record/matchGroup?app=' + _appId;
+                http2.post(url, oRecord.data).then(function(rsp) {
+                    angular.extend(oRecord.data, rsp.data.data);
+                    noticebox.success('找到匹配记录');
                 });
             };
             /**
@@ -2048,7 +2039,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
 
         if (oApp.entryRule && oApp.entryRule.scope && oApp.entryRule.scope.group === 'Y' && oApp.entryRule.group && oApp.entryRule.group.id) {
             $scope.bRequireGroup = true;
-            $scope.groups = oApp.groups;
+            $scope.groups = oApp.groupApp.teams;
         }
         dataSchemas.forEach(function(schema) {
             if (false === /image|file|score|html/.test(schema.type) && schema.id.indexOf('member') !== 0) {

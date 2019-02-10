@@ -183,7 +183,7 @@ class base extends \site\fe\base {
 					$msg = '【' . $oMatter->title . '】指定的分组活动不可访问，请联系活动的组织者解决。';
 				} else {
 					$bMatched = false;
-					$oGroupUsr = $this->model('matter\group\user')->byUser($oGroupApp, $oUser->uid, ['fields' => 'team_id,team_title']);
+					$oGroupUsr = $this->model('matter\group\record')->byUser($oGroupApp, $oUser->uid, ['fields' => 'team_id,team_title']);
 					if (count($oGroupUsr)) {
 						$oGroupUsr = $oGroupUsr[0];
 						if (isset($oEntryRule->group->team->id)) {

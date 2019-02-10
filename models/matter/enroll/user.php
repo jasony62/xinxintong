@@ -101,8 +101,8 @@ class user_model extends \TMS_MODEL {
 
 		/* 获得用户所属分组 */
 		if (isset($oApp->entryRule->group->id)) {
-			$modelGrpUsr = $this->model('matter\group\user');
-			$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oUser->uid, ['fields' => 'team_id,is_leader,role_teams', 'onlyOne' => true]);
+			$modelGrpRec = $this->model('matter\group\record');
+			$oGrpMemb = $modelGrpRec->byUser($oApp->entryRule->group, $oUser->uid, ['fields' => 'team_id,is_leader,role_teams', 'onlyOne' => true]);
 			if ($oGrpMemb) {
 				$oUser->group_id = $oGrpMemb->team_id;
 				$oUser->is_leader = $oGrpMemb->is_leader;
@@ -503,7 +503,7 @@ class user_model extends \TMS_MODEL {
 			$aHandlers = [];
 			/* 用户的分组信息 */
 			if (!empty($oApp->entryRule->group->id)) {
-				$modelGrpUser = $this->model('matter\group\user');
+				$modelGrpUser = $this->model('matter\group\record');
 				$fnHandler = function ($oUser) use ($oApp, $modelGrpUser) {
 					$oGrpUser = $modelGrpUser->byUser((object) ['id' => $oApp->entryRule->group->id], $oUser->userid, ['fields' => 'team_id,team_title', 'onlyOne' => true]);
 					if ($oGrpUser && !empty($oGrpUser->team_id)) {
@@ -607,30 +607,29 @@ class user_model extends \TMS_MODEL {
 		$oEntryRule = $oApp->entryRule;
 		if (!empty($oEntryRule->group->id)) {
 			$oGrpApp = $oEntryRule->group;
-			$modelGrpUsr = $this->model('matter\group\user');
+			$modelGrpRec = $this->model('matter\group\record');
 			if (empty($oGrpApp->team->id)) {
 				$aGrpUsrOptions = ['fields' => 'userid,nickname,team_id,team_title'];
 				if (isset($aOptions['inGroupTeam']) && true === $aOptions['inGroupTeam']) {
 					/* 主分组用户 */
 					$aGrpUsrOptions['teamId'] = 'inTeam';
 				}
-				$aGrpUsrs = $modelGrpUsr->byApp($oGrpApp->id, $aGrpUsrOptions);
-				foreach ($aGrpUsrs->users as $oGrpUsr) {
-					$oGrpUsr->group = (object) ['id' => $oGrpUsr->team_id, 'title' => $oGrpUsr->team_title];
-					unset($oGrpUsr->team_id);
-					unset($oGrpUsr->team_title);
-					$aAssignedUsrs[] = $oGrpUsr;
+				$oGrpRecResult = $modelGrpRec->byApp($oGrpApp->id, $aGrpUsrOptions);
+				foreach ($oGrpRecResult->records as $oGrpRec) {
+					$oGrpRec->group = (object) ['id' => $oGrpRec->team_id, 'title' => $oGrpRec->team_title];
+					unset($oGrpRec->team_id);
+					unset($oGrpRec->team_title);
+					$aAssignedUsrs[] = $oGrpRec;
 				}
 			} else {
-				$aGrpUsrs = $modelGrpUsr->byRound(
-					$oGrpApp->id,
+				$aGrpRecs = $modelGrpRec->byTeam(
 					$oGrpApp->team->id,
 					['fields' => 'userid,nickname,team_title']
 				);
-				foreach ($aGrpUsrs as $oGrpUsr) {
-					$oGrpUsr->group = (object) ['id' => $oGrpApp->team->id, 'title' => $oGrpUsr->team_title];
-					unset($oGrpUsr->team_title);
-					$aAssignedUsrs[] = $oGrpUsr;
+				foreach ($aGrpRecs as $oGrpRec) {
+					$oGrpRec->group = (object) ['id' => $oGrpApp->team->id, 'title' => $oGrpRec->team_title];
+					unset($oGrpRec->team_title);
+					$aAssignedUsrs[] = $oGrpRec;
 				}
 			}
 			$oReferenceApp = $this->model('matter\group')->byId($oGrpApp->id, ['fields' => 'id,title,data_schemas']);
@@ -677,10 +676,10 @@ class user_model extends \TMS_MODEL {
 						}
 					}
 				} else if ($oMission->user_app_type === 'group') {
-					$modelRec = $this->model('matter\group\user');
-					$aGrpUsrs = $modelRec->byApp($oMission->user_app_id);
-					if (!empty($aGrpUsrs->players)) {
-						foreach ($aGrpUsrs->players as $oRec) {
+					$modelRec = $this->model('matter\group\record');
+					$aGrpRecs = $modelRec->byApp($oMission->user_app_id);
+					if (!empty($aGrpRecs->records)) {
+						foreach ($aGrpRecs->records as $oRec) {
 							$aAssignedUsrs[] = $oRec;
 						}
 					}
@@ -953,23 +952,23 @@ class user_model extends \TMS_MODEL {
 
 		$updatedCount = 0;
 		$oAssocGrpApp = (object) ['id' => $oApp->entryRule->group->id];
-		$modelGrpUsr = $this->model('matter\group\user');
+		$modelGrpRec = $this->model('matter\group\record');
 		$q = [
 			'id,userid,group_id',
 			'xxt_enroll_user',
 			['aid' => $oApp->id, 'state' => 1],
 		];
 		$oEnrolleeGroups = new \stdClass; // 用户和分组的对应
-		$enrollees = $modelGrpUsr->query_objs_ss($q);
+		$enrollees = $modelGrpRec->query_objs_ss($q);
 		foreach ($enrollees as $oEnrollee) {
 			if (isset($oEnrolleeGroups->{$oEnrollee->userid})) {
 				$groupId = $oEnrolleeGroups->{$oEnrollee->userid};
 			} else {
-				$oGrpMemb = $modelGrpUsr->byUser($oAssocGrpApp, $oEnrollee->userid, ['fields' => 'team_id', 'onlyOne' => true]);
+				$oGrpMemb = $modelGrpRec->byUser($oAssocGrpApp, $oEnrollee->userid, ['fields' => 'team_id', 'onlyOne' => true]);
 				$groupId = $oEnrolleeGroups->{$oEnrollee->userid} = $oGrpMemb ? $oGrpMemb->team_id : '';
 			}
 			if ($oEnrollee->group_id !== $groupId) {
-				$modelGrpUsr->update('xxt_enroll_user', ['group_id' => $groupId], ['id' => $oEnrollee->id]);
+				$modelGrpRec->update('xxt_enroll_user', ['group_id' => $groupId], ['id' => $oEnrollee->id]);
 				$updatedCount++;
 			}
 		}
@@ -1050,7 +1049,7 @@ class user_model extends \TMS_MODEL {
 		if (in_array('group', $oRule->receiver->scope) && !empty($oRule->receiver->group->id)) {
 			$q = [
 				'distinct userid',
-				'xxt_group_user',
+				'xxt_group_record',
 				['state' => 1, 'aid' => $oRule->receiver->group->id, 'userid' => (object) ['op' => '<>', 'pat' => $oRecord->userid]],
 			];
 			if (!empty($oRule->receiver->group->team->id)) {
@@ -1062,14 +1061,14 @@ class user_model extends \TMS_MODEL {
 		if (in_array('leader', $oRule->receiver->scope) && !empty($oRecord->userid) && !empty($oApp->entryRule->group->id)) {
 			$q = [
 				'team_id',
-				'xxt_group_user',
+				'xxt_group_record',
 				['state' => 1, 'aid' => $oApp->entryRule->group->id, 'userid' => $oRecord->userid],
 			];
 			$oUserRounds = $this->query_objs_ss($q);
 			if (!empty($oUserRounds)) {
 				$q = [
 					'distinct userid',
-					'xxt_group_user',
+					'xxt_group_record',
 					['state' => 1, 'aid' => $oApp->entryRule->group->id, 'team_id' => $oUserRounds[0]->team_id, 'is_leader' => 'Y', 'userid' => (object) ['op' => '<>', 'pat' => $oRecord->userid]],
 				];
 				if (empty($receivers)) {
@@ -1096,14 +1095,14 @@ class user_model extends \TMS_MODEL {
 		if (!empty($oApp->entryRule->group->id)) {
 			$q = [
 				'userid,team_id',
-				'xxt_group_user',
+				'xxt_group_record',
 				['state' => 1, 'aid' => $oApp->entryRule->group->id, 'userid' => $aUserids],
 			];
 			$oUserTeams = $this->query_objs_ss($q);
 			foreach ($oUserTeams as $oUserTeam) {
 				$q = [
 					'distinct userid',
-					'xxt_group_user',
+					'xxt_group_record',
 					['state' => 1, 'aid' => $oApp->entryRule->group->id, 'team_id' => $oUserTeam->team_id, 'is_leader' => 'Y'],
 				];
 				$leaders = $this->query_objs_ss($q);
@@ -1124,7 +1123,7 @@ class user_model extends \TMS_MODEL {
 		if (in_array('group', $oRule->receiver->scope) && !empty($oRule->receiver->group->id)) {
 			$q = [
 				'distinct userid',
-				'xxt_group_user',
+				'xxt_group_record',
 				['state' => 1, 'aid' => $oRule->receiver->group->id, 'userid' => (object) ['op' => '<>', 'pat' => $oItem->userid]],
 			];
 			if (!empty($oRule->receiver->group->team->id)) {
@@ -1159,7 +1158,7 @@ class user_model extends \TMS_MODEL {
 		if (in_array('group', $oRule->receiver->scope) && !empty($oRule->receiver->group->id)) {
 			$q = [
 				'distinct userid',
-				'xxt_group_user',
+				'xxt_group_record',
 				['state' => 1, 'aid' => $oRule->receiver->group->id, 'userid' => (object) ['op' => '<>', 'pat' => $oRemark->userid]],
 			];
 			if (!empty($oRule->receiver->group->team->id)) {

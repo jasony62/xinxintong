@@ -27,7 +27,7 @@ class notice_model extends \TMS_MODEL {
 		if (!empty($targetGroupId)) {
 			$q = [
 				'userid,nickname',
-				'xxt_group_user',
+				'xxt_group_record',
 				['team_id' => $targetGroupId, 'state' => 1, 'userid' => (object) ['op' => '<>', 'pat' => $oRecord->userid]],
 			];
 			$grpUsers = $this->query_objs_ss($q);
@@ -36,7 +36,7 @@ class notice_model extends \TMS_MODEL {
 				$noticeReason = 'as.super';
 				$q = [
 					'userid,nickname',
-					'xxt_group_user',
+					'xxt_group_record',
 					['aid' => $oApp->entryRule->group->id, 'state' => 1, 'is_leader' => 'S', 'userid' => (object) ['op' => '<>', 'pat' => $oRecord->userid]],
 				];
 				$grpUsers = $this->query_objs_ss($q);
@@ -91,7 +91,7 @@ class notice_model extends \TMS_MODEL {
 		if (!empty($oRecData->group_id)) {
 			$q = [
 				'userid,nickname',
-				'xxt_group_user',
+				'xxt_group_record',
 				['team_id' => $oRecData->group_id, 'state' => 1, 'userid' => (object) ['op' => '<>', 'pat' => $oUser->uid]],
 			];
 			$grpUsers = $this->query_objs_ss($q);

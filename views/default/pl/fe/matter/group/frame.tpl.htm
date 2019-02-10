@@ -35,10 +35,10 @@
                     </ul>
                 </li>
                 <li ng-class="{'opened':opened==='data'}">
-                    <a href='' ng-click="opened=opened==='data'?false:'data';switchTo('user')">数据 <span class="caret"></span></a>
+                    <a href='' ng-click="opened=opened==='data'?false:'data';switchTo('record')">数据 <span class="caret"></span></a>
                     <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='data'?'41px':'0'}">
-                        <li ng-class="{'active':subView==='user'}">
-                            <a href='' ng-click="switchTo('user')">结果</a>
+                        <li ng-class="{'active':subView==='record'}">
+                            <a href='' ng-click="switchTo('record')">结果</a>
                         </li>
                     </ul>
                 </li>

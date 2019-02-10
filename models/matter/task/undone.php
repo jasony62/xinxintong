@@ -101,7 +101,7 @@ class undone_model extends \TMS_MODEL {
 						/* 分组活动内的用户 */
 						$q = [
 							'distinct userid',
-							'xxt_group_user',
+							'xxt_group_record',
 							['state' => 1, 'aid' => $oTaskArgs->receiver->group->id],
 						];
 						$aGrpUsers = $modelEnl->query_objs_ss($q);
@@ -110,7 +110,7 @@ class undone_model extends \TMS_MODEL {
 						/* 指定分组的用户 */
 						$oGrpAppTeam = $this->model('matter\group\team')->byId($oTaskArgs->receiver->group->team->id);
 						if ($oGrpAppTeam) {
-							$aGrpUsers = $this->model('matter\group\user')->byRound($oTaskArgs->receiver->group->team->id, ['fields' => 'userid']);
+							$aGrpUsers = $this->model('matter\group\record')->byTeam($oTaskArgs->receiver->group->team->id, ['fields' => 'userid']);
 							$oTmplTimerTaskParams->receiver = $oGrpAppTeam->title;
 						}
 					}

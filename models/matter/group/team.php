@@ -58,10 +58,10 @@ class team_model extends \matter\base_model {
 		$teams = $this->query_objs_ss($q);
 		/* 获得指定的级联数据 */
 		if (count($teams) && count($cascade)) {
-			$modelUsr = $this->model('matter\group\user');
+			$modelGrpRec = $this->model('matter\group\record');
 			foreach ($teams as $oTeam) {
 				if (in_array('playerCount', $cascade)) {
-					$oTeam->playerCount = $modelUsr->countByRound($appId, $oTeam->team_id);
+					$oTeam->playerCount = $modelGrpRec->countByTeam($oTeam->team_id);
 				}
 			}
 		}
@@ -75,7 +75,7 @@ class team_model extends \matter\base_model {
 	 */
 	public function clean($appId) {
 		$rst = $this->update(
-			'xxt_group_user',
+			'xxt_group_record',
 			[
 				'team_id' => 0,
 				'team_title' => '',

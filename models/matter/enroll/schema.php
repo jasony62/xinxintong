@@ -989,11 +989,28 @@ class schema_model extends \TMS_MODEL {
 		}
 	}
 	/**
+	 * 生成分组题
+	 */
+	public function newAssocGroupSchema($oGroupApp) {
+		$oGrpSchema = new \stdClass;
+		$oGrpSchema->id = '_round_id';
+		$oGrpSchema->type = 'single';
+		$oGrpSchema->title = '分组名称';
+		$oGrpSchema->required = 'Y';
+		$oGrpSchema->fromApp = $oGroupApp->id;
+		$oGrpSchema->requireCheck = 'Y';
+		$oGrpSchema->ops = empty($oGroupApp->teams) ? [] : array_map(function ($oTeam) {
+			return (object) ['v' => $oTeam->team_id, 'l' => $oTeam->title];
+		}, $oGroupApp->teams);
+
+		return $oGrpSchema;
+	}
+	/**
 	 * 获得分组题
 	 *
 	 * @return false 不支持分组活动；null 没有关联分组题；分组题
 	 */
-	public function getAssocGroupSchema($oApp) {
+	public function getAssocGroupTeamSchema($oApp) {
 		if (empty($oApp->entryRule->group->id)) {
 			/* 没有关联分组活动 */
 			return false;
@@ -1001,19 +1018,37 @@ class schema_model extends \TMS_MODEL {
 		if (empty($oApp->dataSchemas)) {
 			return null;
 		}
-		$oGroupSchema = null;
+		$oGrpSchema = null;
 		foreach ($oApp->dataSchemas as $oSchema) {
 			if ($oSchema->id === '_round_id') {
-				if (isset($oSchema->requireCheck) && $oSchema->requireCheck === 'Y') {
+				if ($this->getDeepValue($oSchema, 'requireCheck') === 'Y') {
 					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oApp->entryRule->group->id) {
-						$oGroupSchema = $oSchema;
+						$oGrpSchema = $oSchema;
 						break;
 					}
 				}
 			}
 		}
 
-		return $oGroupSchema;
+		return $oGrpSchema;
+	}
+	/**
+	 * 所有和分组活动关联的题目
+	 */
+	public function getAssocSchemasByGroup($schemas, $groupAppId) {
+		if (empty($schemas) || empty($groupAppId)) {
+			return [];
+		}
+		$aAssocSchemas = array_filter($schemas, function ($oSchema) {
+			if ($this->getDeepValue($oSchema, 'requireCheck') === 'Y') {
+				if ($this->getDeepValue($oSchema, 'fromApp') === $groupAppId) {
+					return true;
+				}
+			}
+			return false;
+		});
+
+		return $aAssocGrpSchemas;
 	}
 	/**
 	 * 获得活动的所有题目，包含关联活动中的题目
@@ -1142,6 +1177,25 @@ class schema_model extends \TMS_MODEL {
 		}
 
 		return $aSchemas;
+	}
+	/**
+	 * 转换为对象的形式
+	 */
+	public function asObject($schemas, $aOptions = [], $bOnlyFirst = false) {
+		if (isset($aOptions['filter']) && is_callable($aOptions['filter'])) {
+			$fnFilter = $aOptions['filter'];
+		}
+		$oSchemas = new \stdClass;
+		foreach ($schemas as $oSchema) {
+			if (!isset($fnFilter) || $fnFilter($oSchema)) {
+				$oSchemas->{$oSchema->id} = $oSchema;
+				if (true === $bOnlyFirst) {
+					break;
+				}
+			}
+		}
+
+		return $oSchemas;
 	}
 	/**
 	 * 填写记录的字符串表示

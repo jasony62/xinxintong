@@ -202,26 +202,11 @@ abstract class enroll_base extends app_base {
 			}
 		}
 		/* 分组活动轮次 */
-		$oRoundSchema = new \stdClass;
-		$oRoundSchema->id = '_round_id';
-		$oRoundSchema->type = 'single';
-		$oRoundSchema->title = '分组名称';
-		$oRoundSchema->required = 'Y';
-		$oRoundSchema->fromApp = $groupAppId;
-		$oRoundSchema->requireCheck = 'Y';
-		$oRoundSchema->ops = [];
-		if (!empty($oGroupApp->rounds)) {
-			foreach ($oGroupApp->rounds as $oRound) {
-				$op = new \stdClass;
-				$op->v = $oRound->team_id;
-				$op->l = $oRound->title;
-				$oRoundSchema->ops[] = $op;
-			}
-		}
+		$oGrpSchema = $this->model('matter\enroll\schema')->newAssocGroupSchema($oGroupApp);
 		if (empty($oTemplateConfig->schema)) {
-			$oTemplateConfig->schema = [$oRoundSchema];
+			$oTemplateConfig->schema = [$oGrpSchema];
 		} else {
-			array_splice($oTemplateConfig->schema, 0, 0, [$oRoundSchema]);
+			array_splice($oTemplateConfig->schema, 0, 0, [$oGrpSchema]);
 		}
 		/**
 		 * 处理页面数据定义
@@ -233,7 +218,7 @@ abstract class enroll_base extends app_base {
 					$oSchemaRoundConfig = new \stdClass;
 					$oSchemaRoundConfig->component = 'R';
 					$oSchemaRoundConfig->align = 'V';
-					$newPageSchema->schema = $oRoundSchema;
+					$newPageSchema->schema = $oGrpSchema;
 					$newPageSchema->config = $oSchemaRoundConfig;
 					array_splice($oAppPage->data_schemas, 0, 0, [$newPageSchema]);
 				} else if ($oAppPage->type === 'V') {
@@ -242,7 +227,7 @@ abstract class enroll_base extends app_base {
 					$oSchemaRoundConfig->id = 'V' . time();
 					$oSchemaRoundConfig->pattern = 'record';
 					$oSchemaRoundConfig->splitLine = 'Y';
-					$newPageSchema->schema = $oRoundSchema;
+					$newPageSchema->schema = $oGrpSchema;
 					$newPageSchema->config = $oSchemaRoundConfig;
 					array_splice($oAppPage->data_schemas, 0, 0, [$newPageSchema]);
 				}

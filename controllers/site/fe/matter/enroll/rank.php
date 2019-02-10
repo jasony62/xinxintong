@@ -94,7 +94,7 @@ class rank extends base {
 		if (count($users) && !empty($oApp->entryRule->group->id)) {
 			$q = [
 				'userid,team_id,team_title',
-				'xxt_group_user',
+				'xxt_group_record',
 				['aid' => $oApp->entryRule->group->id],
 			];
 			$userGroups = $modelUsr->query_objs_ss($q);

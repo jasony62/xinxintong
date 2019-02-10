@@ -292,8 +292,8 @@ class task extends \pl\fe\matter\base {
 		// Create new PHPExcel object
 		$objPHPExcel = new \PHPExcel();
 		// Set properties
-		$objPHPExcel->getProperties()->setCreator("信信通")
-			->setLastModifiedBy("信信通")
+		$objPHPExcel->getProperties()->setCreator($oApp->title)
+			->setLastModifiedBy($oApp->title)
 			->setTitle($oApp->title)
 			->setSubject($oApp->title)
 			->setDescription($oApp->title);
@@ -310,9 +310,9 @@ class task extends \pl\fe\matter\base {
 				$oRuleApp = $oEntryRule->group;
 				if (!empty($oRuleApp->id)) {
 					$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'title', 'cascaded' => 'Y']);
-					$groupRounds = [];
-					foreach ($oGroupApp->rounds as $oGroupTeam) {
-						$groupRounds[$oGroupTeam->team_id] = $oGroupTeam->title;
+					$aGrpTeamsById = [];
+					foreach ($oGroupApp->teams as $oGrpTeam) {
+						$aGrpTeamsById[$oGrpTeam->team_id] = $oGrpTeam->title;
 					}
 					$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '分组');
 				}
@@ -341,19 +341,8 @@ class task extends \pl\fe\matter\base {
 				$bRequireSum = true;
 			}
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, $schema->title);
-			/* 需要计算得分 */
-			// if ((isset($schema->requireScore) && $schema->requireScore === 'Y') || (isset($schema->format) && $schema->format === 'number')) {
-			// 	$aScoreSum[$columnNum4] = $schema->id;
-			// 	$bRequireScore = true;
-			// 	$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '得分');
-			// }
 		}
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '备注');
-		// if ($bRequireScore) {
-		// 	$aScoreSum[$columnNum4] = 'sum';
-		// 	$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '总分');
-		// 	$titles[] = '总分';
-		// }
 		// 转换数据
 		for ($j = 0, $jj = count($tasks); $j < $jj; $j++) {
 			$oRecord = $tasks[$j];
@@ -361,10 +350,10 @@ class task extends \pl\fe\matter\base {
 			$columnNum2 = 0; //列号
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $j + 1);
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $oRecord->nickname);
-			if (isset($groupRounds)) {
+			if (isset($aGrpTeamsById)) {
 				if (!empty($oRecord->group_id)) {
-					if (isset($groupRounds[$oRecord->group_id])) {
-						$val = $groupRounds[$oRecord->group_id];
+					if (isset($aGrpTeamsById[$oRecord->group_id])) {
+						$val = $aGrpTeamsById[$oRecord->group_id];
 					} else {
 						$val = '未分组';
 					}
@@ -499,29 +488,7 @@ class task extends \pl\fe\matter\base {
 			}
 			// 备注
 			$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, $oRecord->comment);
-			// 记录测验分数
-			// if ($bRequireScore) {
-			// 	$objActiveSheet->setCellValueByColumnAndRow($i + $columnNum2++, $rowIndex, isset($oRecScore->sum) ? $oRecScore->sum : '');
-			// }
 		}
-		// if (!empty($aNumberSum)) {
-		// 	// 数值型合计
-		// 	$rowIndex = count($tasks) + 2;
-		// 	$oSum4Schema = $this->model('matter\plan\action')->sum4Schema($oApp, $taskId);
-		// 	$objActiveSheet->setCellValueByColumnAndRow(0, $rowIndex, '合计');
-		// 	foreach ($aNumberSum as $key => $val) {
-		// 		$objActiveSheet->setCellValueByColumnAndRow($key, $rowIndex, $oSum4Schema->$val);
-		// 	}
-		// }
-		// if (!empty($aScoreSum)) {
-		// 	// 分数合计
-		// 	$rowIndex = count($tasks) + 2;
-		// 	$oScore4Schema = $this->model('matter\plan\action')->score4Schema($oApp, $taskId);
-		// 	$objActiveSheet->setCellValueByColumnAndRow(0, $rowIndex, '合计');
-		// 	foreach ($aScoreSum as $key => $val) {
-		// 		$objActiveSheet->setCellValueByColumnAndRow($key, $rowIndex, $oScore4Schema->$val);
-		// 	}
-		// }
 		// 输出
 		header('Content-Type: application/vnd.ms-excel');
 		header('Cache-Control: max-age=0');

@@ -16,23 +16,23 @@ class notice extends \pl\fe\matter\base {
 	/**
 	 * 给分组活动的参与人发消息
 	 *
-	 * @param string $site site'id
 	 * @param string $app app'id
 	 * @param string $tmplmsg 模板消息id
 	 *
 	 */
 	public function send_action() {
-		if (false === ($user = $this->accountUser())) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
-		$modelRec = $this->model('matter\group\user');
 		$oPosted = $this->getPostJson();
 		if (empty($oPosted->app) || empty($oPosted->tmplmsg)) {
 			return new \ResponseError('参数不完整');
 		}
-		$app = $modelRec->escape($oPosted->app);
-		$tmplmsg = $modelRec->escape($oPosted->tmplmsg);
+
+		$modelGrpRec = $this->model('matter\group\record');
+		$app = $modelGrpRec->escape($oPosted->app);
+		$tmplmsg = $modelGrpRec->escape($oPosted->tmplmsg);
 
 		$oApp = $this->model('matter\group')->byId($app);
 		if (false === $oApp) {
@@ -41,9 +41,9 @@ class notice extends \pl\fe\matter\base {
 
 		if (empty($oPosted->users)) {
 			// 筛选条件
-			$options = new \stdClass;
-			isset($oPosted->tags) && $options->tags = $oPosted->tags;
-			$users = $modelRec->byApp($oApp, $options)->users;
+			$oOptions = new \stdClass;
+			isset($oPosted->tags) && $oOptions->tags = $oPosted->tags;
+			$users = $modelGrpRec->byApp($oApp, $oOptions)->records;
 		} else {
 			// 直接指定
 			$users = $oPosted->users;
@@ -109,7 +109,7 @@ class notice extends \pl\fe\matter\base {
 
 		/* 和登记记录进行关联 */
 		if (count($logs)) {
-			$modelRec = $this->model('matter\group\user');
+			$modelRec = $this->model('matter\group\record');
 			$records = [];
 			$records2 = [];
 			foreach ($logs as &$log) {

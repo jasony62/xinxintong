@@ -79,7 +79,7 @@
                         <label>默认同步到</label>
                         <select class="form-control" ng-model="app.sync_round" ng-change="update('sync_round')">
                             <option value="">无</option>
-                            <option value="{{round.team_id}}" ng-repeat="round in app.rounds">{{round.title}}</option>
+                            <option value="{{round.team_id}}" ng-repeat="team in app.teams">{{team.title}}</option>
                         </select>
                     </div>
                 </div>

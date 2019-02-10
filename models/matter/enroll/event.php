@@ -279,7 +279,7 @@ class event_model extends \TMS_MODEL {
 			/* 用户在项目中的所属分组 */
 			if ($oMission->user_app_type === 'group') {
 				$oMisUsrGrpApp = (object) ['id' => $oMission->user_app_id];
-				$oMisGrpUser = $this->model('matter\group\user')->byUser($oMisUsrGrpApp, $oUser->uid, ['onlyOne' => true, 'team_id']);
+				$oMisGrpUser = $this->model('matter\group\record')->byUser($oMisUsrGrpApp, $oUser->uid, ['onlyOne' => true, 'team_id']);
 				if (isset($oMisGrpUser->team_id)) {
 					$oUpdatedMisUsrData->group_id = $oMisGrpUser->team_id;
 				}
@@ -316,7 +316,7 @@ class event_model extends \TMS_MODEL {
 		/* 用户在项目中的所属分组 */
 		if ($oMission->user_app_type === 'group') {
 			$oMisUsrGrpApp = (object) ['id' => $oMission->user_app_id];
-			$oMisGrpUser = $this->model('matter\group\user')->byUser($oMisUsrGrpApp, $oUser->uid, ['onlyOne' => true, 'team_id']);
+			$oMisGrpUser = $this->model('matter\group\record')->byUser($oMisUsrGrpApp, $oUser->uid, ['onlyOne' => true, 'team_id']);
 			if (isset($oMisGrpUser->team_id)) {
 				$oUpdatedMisUsrData->group_id = $oMisGrpUser->team_id;
 			}

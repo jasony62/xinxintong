@@ -88,28 +88,28 @@ class main extends \pl\fe\matter\main_base {
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
 
-		$result = ['apps' => null, 'total' => 0];
+		$aResult = ['apps' => null, 'total' => 0];
 
 		if ($apps = $modelGrp->query_objs_ss($q, $q2)) {
 			$modelGrpTeam = $this->model('matter\group\team');
 			foreach ($apps as &$oApp) {
 				$oApp->type = 'group';
 				if ($cascaded === 'Y') {
-					$rounds = $modelGrpTeam->byApp($oApp->id);
-					$oApp->rounds = $rounds;
+					$teams = $modelGrpTeam->byApp($oApp->id);
+					$oApp->teams = $teams;
 				}
 			}
-			$result['apps'] = $apps;
+			$aResult['apps'] = $apps;
 		}
 		if ($page == 1) {
-			$result['total'] = count($apps) > 0 ? count($apps) : 0;
+			$aResult['total'] = count($apps) > 0 ? count($apps) : 0;
 		} else {
 			$q[0] = 'count(*)';
 			$total = (int) $modelGrp->query_val_ss($q);
-			$result['total'] = $total;
+			$aResult['total'] = $total;
 		}
 
-		return new \ResponseData($result);
+		return new \ResponseData($aResult);
 	}
 	/**
 	 * 创建分组活动
@@ -233,7 +233,7 @@ class main extends \pl\fe\matter\main_base {
 
 		$modelGrpTeam = $this->model('matter\group\team');
 		// 清除现有分组结果
-		$modelGrpTeam->update('xxt_group_user', ['team_id' => '', 'team_title' => ''], ['aid' => $oApp->id]);
+		$modelGrpTeam->update('xxt_group_record', ['team_id' => '', 'team_title' => ''], ['aid' => $oApp->id]);
 		// 清除原有的规则
 		$modelGrpTeam->delete(
 			'xxt_group_team',
@@ -300,7 +300,7 @@ class main extends \pl\fe\matter\main_base {
 
 		$q = [
 			'count(*)',
-			'xxt_group_user',
+			'xxt_group_record',
 			["aid" => $oApp->id],
 		];
 		if ((int) $modelGrp->query_val_ss($q) > 0) {

@@ -440,7 +440,7 @@ class repos extends base {
 					foreach ($oApp->dynaDataSchemas as $oSchema) {
 						$schemaId = $oSchema->id;
 						// 分类目录
-						if (!empty($oSchema->asdir) && $oSchema->asdir === 'Y' && !empty($oRecord->data->{$schemaId})) {
+						if ($this->getDeepValue($oSchema, 'asdir') === 'Y' && !empty($oSchema->ops) && !empty($oRecord->data->{$schemaId})) {
 							foreach ($oSchema->ops as $op) {
 								if ($op->v === $oRecord->data->{$schemaId}) {
 									$recordDirs[] = $op->l;

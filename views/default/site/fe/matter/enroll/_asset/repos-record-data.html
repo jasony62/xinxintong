@@ -1,7 +1,7 @@
 <div ng-if="rec">
     <div class='dir' ng-if="rec.recordDir.length"><span class="text-muted glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;<span ng-repeat="dir in rec.recordDir track by $index">{{dir}}<span ng-if="$index!==rec.recordDir.length-1"> / </span></span></div>
     <div ng-repeat="schema in schemas" class='schema' ng-class="{'cowork':schema.cowork==='Y'}" ng-if="rec.data[schema.id]||(schema.cowork==='Y'&& currentTab.id==='coworkData')" ng-switch on="schema.type">
-        <div class='text-muted data-title' ng-if="schemas.length>1"><span>{{::schema.title}}</span></div>
+        <div class='text-muted data-title'><span>{{::schema.title}}</span></div>
         <div ng-switch-when="file">
             <div ng-repeat="file in rec.data[schema.id]" ng-switch on="file.type">
                 <video ng-switch-when="video" controls="controls" preload="none">

@@ -1308,21 +1308,10 @@ class data_model extends entity_model {
 						}
 					}
 					/* 处理提交数据后指定昵称题的问题 */
-					if ($aRecData->nickname && isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') {
-						if (isset($oApp->assignedNickname->schema->id)) {
-							$nicknameSchemaId = $oApp->assignedNickname->schema->id;
-							if (0 === strpos($nicknameSchemaId, 'member.')) {
-								$nicknameSchemaId = explode('.', $nicknameSchemaId);
-								if (!isset($aRecData->data->member)) {
-									$aRecData->data->member = new \stdClass;
-								}
-								if (!isset($aRecData->data->member->{$nicknameSchemaId[1]})) {
-									$aRecData->data->member->{$nicknameSchemaId[1]} = $aRecData->nickname;
-								}
-							} else {
-								if (!isset($aRecData->data->{$nicknameSchemaId})) {
-									$aRecData->data->{$nicknameSchemaId} = $oRec->nickname;
-								}
+					if ($aRecData->nickname && $this->getDeepValue($oApp, 'assignedNickname.valid') === 'Y') {
+						if ($nicknameSchemaId = $this->getDeepValue($oApp, 'assignedNickname.schema.id')) {
+							if (null === $this->getDeepValue($aRecData->data, $nicknameSchemaId, null)) {
+								$this->setDeepValue($aRecData->data, $nicknameSchemaId, $aRecData->nickname);
 							}
 						}
 					}

@@ -15,8 +15,8 @@ window.moduleAngularModules = ['tree.ui', 'filter.ui', 'dropdown.ui', 'round.ui.
 
 var ngApp = require('./main.js');
 ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', 'enlService', 'enlTask', function($scope, $parse, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc, enlService, enlTask) {
-    var _oApp, _facRound, _oShareableSchemas;
-    $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
+    var _oApp, _facRound, _aShareableSchemas;
+    $scope.schemas = _aShareableSchemas = []; // 支持分享的题目
     $scope.activeDirSchemas = {};
     $scope.tabs = [{ 'title': '记录', 'id': 'record', 'url': '/views/default/site/fe/matter/enroll/template/repos-recordSchema.html' }];
     $scope.tabClick = function(view) {
@@ -100,8 +100,8 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                 $scope.rounds = result.rounds;
             });
             _oApp.dynaDataSchemas.forEach(function(oSchema) {
-                if (oSchema.shareable && oSchema.shareable === 'Y') {
-                    _oShareableSchemas[oSchema.id] = oSchema;
+                if (oSchema.shareable === 'Y') {
+                    _aShareableSchemas.push(oSchema);
                 }
                 if (Object.keys(oSchema).indexOf('cowork') !== -1 && oSchema.cowork === 'Y') {
                     $scope.tabs[0].title = '问题';

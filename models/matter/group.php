@@ -112,7 +112,7 @@ class group_model extends app_base {
 		return $apps;
 	}
 	/**
-	 * 更新登记活动标签
+	 * 更新记录活动标签
 	 */
 	public function updateTags($aid, $tags) {
 		if (empty($tags)) {

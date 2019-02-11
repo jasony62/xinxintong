@@ -82,7 +82,7 @@ class news_model extends article_base {
 			}
 		}
 		/**
-		 * 登记活动
+		 * 记录活动
 		 */
 		$q = [
 			"e.id,e.siteid,e.title,e.pic,e.summary,e.create_at,nm.seq,'enroll' type",
@@ -94,21 +94,6 @@ class news_model extends article_base {
 			foreach ($apps as &$a) {
 				$matters[(int) $a->seq] = $a;
 			}
-		}
-		/**
-		 * 抽奖活动
-		 */
-		$q = [
-			"l.id,l.siteid,l.title,l.pic,l.summary,l.create_at,nm.seq,'lottery' type",
-			'xxt_lottery l,xxt_news_matter nm',
-			"nm.matter_type='lottery' and nm.news_id=$news_id and nm.matter_id=l.id",
-		];
-		$q2 = ['o' => 'nm.seq'];
-		if ($lots = $this->query_objs_ss($q, $q2)) {
-			foreach ($lots as &$l) {
-				$matters[(int) $l->seq] = $l;
-			}
-
 		}
 		ksort($matters);
 

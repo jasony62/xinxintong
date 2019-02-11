@@ -390,7 +390,7 @@ class record extends \pl\fe\matter\base {
 		return $modelGrpRec->syncRecord($siteId, $objGrp, $records, $modelRec, 'mschema');
 	}
 	/**
-	 * 从登记活动导入数据
+	 * 从记录活动导入数据
 	 *
 	 * 同步在最后一次同步之后的数据或已经删除的数据
 	 */

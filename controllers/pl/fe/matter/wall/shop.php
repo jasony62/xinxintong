@@ -3,7 +3,7 @@ namespace pl\fe\matter\wall;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /*
- * 创建登记活动
+ * 创建记录活动
  */
 class shop extends \pl\fe\matter\base {
 	/**

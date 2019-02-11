@@ -24,7 +24,7 @@ class main extends \pl\fe\matter\main_base {
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-		/*关联登记活动*/
+		/*关联记录活动*/
 		if (isset($oApp->entryRule) && $oEntryRule = $oApp->entryRule) {
 			if (isset($oEntryRule->member) && is_object($oEntryRule->member)) {
 				$modelMs = $this->model('site\user\memberschema');
@@ -145,7 +145,7 @@ class main extends \pl\fe\matter\main_base {
 	}
 	/**
 	 *
-	 * 复制一个登记活动
+	 * 复制一个记录活动
 	 *
 	 * @param string $site
 	 * @param string $app

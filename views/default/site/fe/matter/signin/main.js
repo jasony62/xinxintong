@@ -146,11 +146,6 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'tms
             }
         }
     };
-    $scope.gotoLottery = function(event, lottery, ek) {
-        event.preventDefault();
-        event.stopPropagation();
-        location.replace('/rest/app/lottery?mpid=' + LS.s().mpid + '&lottery=' + lottery + '&enrollKey=' + ek);
-    };
     $scope.followMp = function(event, page) {
         if (/YiXin/i.test(navigator.userAgent)) {
             location.href = 'yixin://opencard?pid=' + $scope.mpa.yx_cardid;

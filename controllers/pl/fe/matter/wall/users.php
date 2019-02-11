@@ -27,7 +27,7 @@ class users extends \pl\fe\matter\base {
 		return new \ResponseData($users);
 	}
 	/**
-	 * 从登记活动和签到活动导入用户
+	 * 从记录活动和签到活动导入用户
 	 *
 	 * @param string $wall
 	 * @param string $app
@@ -55,7 +55,7 @@ class users extends \pl\fe\matter\base {
 		return new \ResponseData($sourceApp);
 	}
 	/**
-	 * 从登记活动导入数据
+	 * 从记录活动导入数据
 	 */
 	private function &_importByEnroll($site, $app, $byApp) {
 		$sync_at = time();
@@ -185,7 +185,7 @@ class users extends \pl\fe\matter\base {
 		return $num;
 	}
 	/**
-	 * 用户导出到登记活动
+	 * 用户导出到记录活动
 	 *
 	 * @param string $wall
 	 * @param string $app
@@ -275,7 +275,7 @@ class users extends \pl\fe\matter\base {
 		return new \ResponseData($count);
 	}
 	/**
-	 * 从登记活动导入数据
+	 * 从记录活动导入数据
 	 *
 	 * 同步在最后一次同步之后的数据或已经删除的数据
 	 */

@@ -440,7 +440,7 @@ class record extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		// 登记活动
+		// 记录活动
 		$modelApp = $this->model('matter\signin');
 		$oSigninApp = $modelApp->byId(
 			$app,
@@ -712,7 +712,7 @@ class record extends \pl\fe\matter\base {
 		$oNameSchema = null;
 		$imageSchemas = [];
 
-		// 登记活动
+		// 记录活动
 		$modelApp = $this->model('matter\signin');
 		$oSigninApp = $modelApp->byId(
 			$app,
@@ -720,7 +720,7 @@ class record extends \pl\fe\matter\base {
 		);
 		$schemas = $oSigninApp->dataSchemas;
 
-		// 关联的登记活动
+		// 关联的记录活动
 		if (!empty($oSigninApp->entryRule->enroll->id)) {
 			$oEnrollApp = $this->model('matter\enroll')->byId($oSigninApp->entryRule->enroll->id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
 			$enrollSchemas = $oEnrollApp->dataSchemas;

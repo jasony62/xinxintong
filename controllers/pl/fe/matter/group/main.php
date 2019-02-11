@@ -145,7 +145,7 @@ class main extends \pl\fe\matter\main_base {
 	}
 	/**
 	 *
-	 * 复制一个登记活动
+	 * 复制一个记录活动
 	 *
 	 * @param string $site
 	 * @param string $app

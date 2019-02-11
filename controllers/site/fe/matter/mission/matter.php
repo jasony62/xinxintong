@@ -57,7 +57,7 @@ class matter extends \site\fe\matter\base {
 		return $oMisAgreed;
 	}
 	/**
-	 * 获得登记活动的记录
+	 * 获得记录活动的记录
 	 */
 	private function _getEnlRecord(&$oMisAgreed) {
 		if (!isset($this->_modelEnlRec)) {
@@ -80,7 +80,7 @@ class matter extends \site\fe\matter\base {
 		return $oMisAgreed;
 	}
 	/**
-	 * 获得登记活动的记录的题目
+	 * 获得记录活动的记录的题目
 	 */
 	private function _getEnlRecData(&$oMisAgreed) {
 		if (!isset($this->_modelEnlDat)) {
@@ -135,7 +135,7 @@ class matter extends \site\fe\matter\base {
 		return $oMisAgreed;
 	}
 	/**
-	 * 获得指定项目下登记活动中的推荐内容
+	 * 获得指定项目下记录活动中的推荐内容
 	 *
 	 * @param int $mission
 	 */
@@ -170,7 +170,7 @@ class matter extends \site\fe\matter\base {
 		return new \ResponseData($oResult);
 	}
 	/**
-	 * 获得指定项目下登记活动中的推荐内容
+	 * 获得指定项目下记录活动中的推荐内容
 	 *
 	 * @param int $mission
 	 */
@@ -264,7 +264,7 @@ class matter extends \site\fe\matter\base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 转换登记活动的值
+	 * 转换记录活动的值
 	 *
 	 * @param string $value
 	 * @param object $oSchema

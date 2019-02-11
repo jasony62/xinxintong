@@ -212,7 +212,7 @@ class data extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		// 登记活动
+		// 记录活动
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['fields' => 'id,data_schemas', 'cascaded' => 'N']);
 		// 填写数据过滤条件

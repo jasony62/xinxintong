@@ -10,7 +10,7 @@ class entity_model extends \TMS_MODEL {
 	const Type_IntToStr = [1 => 'record', 2 => 'data', 3 => 'remark', 4 => 'topic', 5 => 'tag', 101 => 'article'];
 	const Type_StrToInt = ['record' => 1, 'data' => 2, 'remark' => 3, 'topic' => 4, 'tag' => 5, 'article' => 101];
 	/**
-	 * 获得登记活动实体对象
+	 * 获得记录活动实体对象
 	 */
 	public function findEntity($id, $type, $aOptions = []) {
 		switch ($type) {

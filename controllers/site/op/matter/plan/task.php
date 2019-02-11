@@ -107,7 +107,7 @@ class task extends \site\op\base {
 		return new \ResponseData($rst);
 	}
 	/*
-	*
+		*
 	*/
 	public function listSchema_action($app, $checkSchmId, $taskSchmId = '', $actSchmId = '', $page = '', $size = '') {
 		if (!$this->checkAccessToken()) {
@@ -178,7 +178,7 @@ class task extends \site\op\base {
 			return new \InvalidAccessToken();
 		}
 
-		// 登记活动
+		// 记录活动
 		$modelApp = $this->model('matter\plan');
 		$oApp = $modelApp->byId($app, ['fields' => 'id,state,check_schemas']);
 		if (false === $oApp || $oApp->state !== '1') {

@@ -3,7 +3,7 @@ namespace pl\fe\matter\enroll;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /*
- * 登记活动附件
+ * 记录活动附件
  */
 class attachment extends \pl\fe\matter\base {
 	/**

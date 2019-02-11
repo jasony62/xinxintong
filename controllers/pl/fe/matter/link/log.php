@@ -3,7 +3,7 @@ namespace pl\fe\matter\link;
 
 require_once dirname(dirname(__FILE__)) . '/main_base.php';
 /*
- * 登记活动日志控制器
+ * 记录活动日志控制器
  */
 class log extends \pl\fe\matter\main_base {
 	/**
@@ -90,7 +90,7 @@ class log extends \pl\fe\matter\main_base {
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '用户名');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '操作');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '来源');
-		
+
 		// 转换数据
 		for ($j = 0, $jj = count($logs); $j < $jj; $j++) {
 			$log = $logs[$j];
@@ -109,7 +109,7 @@ class log extends \pl\fe\matter\main_base {
 				$event = '未知';
 			}
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $event);
-			$originNickname = isset($log->origin_nickname)? $log->origin_nickname : '';
+			$originNickname = isset($log->origin_nickname) ? $log->origin_nickname : '';
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $originNickname);
 		}
 		// 输出

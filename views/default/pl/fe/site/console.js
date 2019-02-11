@@ -69,7 +69,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             case 'enroll':
             case 'signin':
             case 'group':
-            case 'lottery':
             case 'link':
             case 'wall':
                 location.href = url + '?id=' + id + '&site=' + $scope.siteId;
@@ -88,7 +87,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
         if ($scope.matterType === 'recent') {
             http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date() * 1)).then(function(rsp) {
                 $scope.matters = rsp.data.matters;
-                //$scope.page.total = rsp.data.total;
             });
         } else if ($scope.matterType === 'recycle') {
             http2.get('/rest/pl/fe/site/console/recycle?site=' + $scope.siteId + '&_=' + (new Date() * 1)).then(function(rsp) {
@@ -132,7 +130,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                 case 'signin':
                 case 'group':
                 case 'wall':
-                case 'lottery':
                     url += type + '/remove?app=' + id + '&site=' + $scope.siteId;
                     break;
                 default:
@@ -245,7 +242,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             location.href = '/rest/pl/fe/matter/channel?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
-    //研究项目-登记活动
+    //研究项目-记录活动
     $scope.addEnrollByTemplate = function(scenario) {
         templateShop.choose($scope.siteId, 'enroll', scenario).then(function(choice) {
             if (choice) {
@@ -295,11 +292,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
     $scope.addGroup = function() {
         http2.get('/rest/pl/fe/matter/group/create?site=' + $scope.siteId + '&scenario=split').then(function(rsp) {
             location.href = '/rest/pl/fe/matter/group/main?site=' + $scope.siteId + '&id=' + rsp.data.id;
-        });
-    };
-    $scope.addLottery = function() {
-        http2.get('/rest/pl/fe/matter/lottery/create?site=' + $scope.siteId).then(function(rsp) {
-            location.href = '/rest/pl/fe/matter/lottery?site=' + $scope.siteId + '&id=' + rsp.data;
         });
     };
     $scope.addMission = function() {

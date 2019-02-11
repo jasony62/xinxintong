@@ -175,7 +175,7 @@ class enroll_model extends enroll_base {
 		return $oApp;
 	}
 	/**
-	 * 返回登记活动列表
+	 * 返回记录活动列表
 	 */
 	public function &bySite($site, $page = 1, $size = 30, $mission = null, $scenario = null) {
 		$result = array();
@@ -204,7 +204,7 @@ class enroll_model extends enroll_base {
 		return $result;
 	}
 	/**
-	 * 返回登记活动列表
+	 * 返回记录活动列表
 	 */
 	public function &byMission($mission, $scenario = null, $page = 1, $size = 30) {
 		$result = new \stdClass;
@@ -233,7 +233,7 @@ class enroll_model extends enroll_base {
 		return $result;
 	}
 	/**
-	 * 更新登记活动标签
+	 * 更新记录活动标签
 	 */
 	public function updateTags($aid, $tags) {
 		if (empty($tags)) {
@@ -266,7 +266,7 @@ class enroll_model extends enroll_base {
 		return true;
 	}
 	/**
-	 * 登记活动运行情况摘要
+	 * 记录活动运行情况摘要
 	 *
 	 * @param object $oApp
 	 *
@@ -396,7 +396,7 @@ class enroll_model extends enroll_base {
 		return $result;
 	}
 	/**
-	 * 获得参加登记活动的用户的昵称
+	 * 获得参加记录活动的用户的昵称
 	 *
 	 * @param object $oApp
 	 * @param object $oUser [uid,nickname]
@@ -482,7 +482,7 @@ class enroll_model extends enroll_base {
 		return $nickname;
 	}
 	/**
-	 * 创建登记活动
+	 * 创建记录活动
 	 *
 	 * @param string $site site's id
 	 * @param string $mission mission's id
@@ -612,7 +612,7 @@ class enroll_model extends enroll_base {
 		return $oNewApp;
 	}
 	/**
-	 * 获得系统内置登记活动模板
+	 * 获得系统内置记录活动模板
 	 * 如果没有指定场景或模板，那么就使用系统的缺省模板
 	 *
 	 * @param string $scenario scenario's name

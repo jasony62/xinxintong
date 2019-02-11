@@ -3,7 +3,7 @@ namespace pl\fe\matter\article;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /*
- * 登记活动积分管理控制器
+ * 记录活动积分管理控制器
  */
 class coin extends \pl\fe\matter\base {
 	/**

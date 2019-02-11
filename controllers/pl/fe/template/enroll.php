@@ -3,7 +3,7 @@ namespace pl\fe\template;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /**
- * 登记活动模板管理控制器
+ * 记录活动模板管理控制器
  */
 class enroll extends \pl\fe\base {
 	/**

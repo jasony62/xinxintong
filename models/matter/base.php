@@ -36,7 +36,6 @@ class base_model extends \TMS_MODEL {
 			'enroll' => 'app',
 			'signin' => 'app',
 			'group' => 'app',
-			'lottery' => 'app',
 			'wall' => 'app',
 		];
 

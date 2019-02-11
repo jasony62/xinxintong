@@ -207,7 +207,7 @@ class main extends base {
 		return new \ResponseData($params);
 	}
 	/**
-	 * 从关联的登记活动中获得匹配的数据
+	 * 从关联的记录活动中获得匹配的数据
 	 */
 	private function _recordByEnroll($oSigninApp, $oUser) {
 		$modelEnlRec = $this->model('matter\enroll\record');

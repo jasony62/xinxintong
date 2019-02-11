@@ -64,7 +64,6 @@ ngApp.controller('ctrlNews', ['$scope', '$location', 'http2', function($scope, $
     });
 }]);
 ngApp.controller('ctrlSetting', ['$scope', 'http2', 'srvSite', '$uibModal', 'srvTag', function($scope, http2, srvSite, $uibModal, srvTag) {
-
     var modifiedData = {};
     $scope.modified = false;
     $scope.matterTypes = [{
@@ -85,11 +84,7 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'srvSite', '$uibModal', 'srv
         url: '/rest/pl/fe/matter'
     }, {
         value: 'enroll',
-        title: '登记活动',
-        url: '/rest/pl/fe/matter'
-    }, {
-        value: 'lottery',
-        title: '抽奖活动',
+        title: '记录活动',
         url: '/rest/pl/fe/matter'
     }];
     var updateMatters = function() {

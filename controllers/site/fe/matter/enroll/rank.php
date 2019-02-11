@@ -3,7 +3,7 @@ namespace site\fe\matter\enroll;
 
 include_once dirname(__FILE__) . '/base.php';
 /**
- * 登记活动排行榜
+ * 记录活动排行榜
  */
 class rank extends base {
 	/**

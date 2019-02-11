@@ -3,7 +3,7 @@ namespace pl\fe\matter\enroll;
 
 require_once dirname(dirname(__FILE__)) . '/main_base.php';
 /*
- * 登记活动主控制器
+ * 记录活动主控制器
  */
 abstract class main_base extends \pl\fe\matter\main_base {
 	/**

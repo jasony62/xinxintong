@@ -14,7 +14,7 @@ class import extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		// 登记活动
+		// 记录活动
 		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'id,state,title,data_schemas,scenario', 'cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
@@ -67,7 +67,7 @@ class import extends \pl\fe\matter\base {
 			return new \ResponseError('not support');
 		}
 
-		// 登记活动
+		// 记录活动
 		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'id,siteid,state', 'cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();

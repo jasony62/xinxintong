@@ -29,7 +29,7 @@ class base extends \site\fe\matter\base {
 		return $oUser;
 	}
 	/**
-	 * 检查登记活动参与规则
+	 * 检查记录活动参与规则
 	 *
 	 * @param object $oApp
 	 * @param boolean $bRedirect
@@ -51,7 +51,7 @@ class base extends \site\fe\matter\base {
 		return [true, $page];
 	}
 	/**
-	 * 检查登记活动操作规则
+	 * 检查记录活动操作规则
 	 *
 	 * @param object $oApp
 	 *

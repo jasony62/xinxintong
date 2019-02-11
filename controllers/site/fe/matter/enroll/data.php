@@ -54,7 +54,7 @@ class data extends base {
 				$oEditor = new \stdClass;
 				$oEditor->group = $oApp->actionRule->role->editor->group;
 				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
-				// 如果登记活动指定了编辑组需要获取，编辑组中所有的用户
+				// 如果记录活动指定了编辑组需要获取，编辑组中所有的用户
 				$modelGrpUsr = $this->model('matter\group\record');
 				$assocGroupId = $oApp->entryRule->group->id;
 				$oGrpRecResult = $modelGrpUsr->byApp($assocGroupId, ['roleTeamId' => $oEditor->group, 'fields' => 'role_teams,userid']);
@@ -366,7 +366,7 @@ class data extends base {
 		}
 		if (empty($oApp->entryRule->group->id)) {
 			if (empty($oApp->actionRule->cowork->agreed->pre->author)) {
-				return new \ParameterError('只有进入条件为分组活动的登记活动才允许组长表态 或 【允许对协作填写(答案)表态的成员】的配置中勾选了允许提问者表态');
+				return new \ParameterError('只有进入条件为分组活动的记录活动才允许组长表态 或 【允许对协作填写(答案)表态的成员】的配置中勾选了允许提问者表态');
 			}
 		}
 		// 获取记录信息

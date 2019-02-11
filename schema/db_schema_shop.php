@@ -14,7 +14,7 @@ require_once '../db.php';
 // $sql .= ",siteid varchar(32) not null";
 // $sql .= ",matter_id varchar(40) not null";
 // $sql .= ",matter_type varchar(20) not null";
-// $sql .= ",scenario varchar(255) not null default ''"; // 登记活动场景
+// $sql .= ",scenario varchar(255) not null default ''"; // 记录活动场景
 // $sql .= ",title varchar(70) not null default ''";
 // $sql .= ',pic text';
 // $sql .= ',summary varchar(240) not null';
@@ -36,7 +36,7 @@ require_once '../db.php';
 // $sql .= ",shop_matter_id int not null";
 // $sql .= ",matter_id varchar(40) not null";
 // $sql .= ",matter_type varchar(20) not null";
-// $sql .= ",scenario varchar(255) not null default ''"; // 登记活动场景
+// $sql .= ",scenario varchar(255) not null default ''"; // 记录活动场景
 // $sql .= ",creater varchar(40) not null default ''"; // 分享的创建者
 // $sql .= ",create_at int not null"; // 分享时间
 // $sql .= ",receiver varchar(40) not null default ''"; // 合作者
@@ -59,7 +59,7 @@ $sql .= ",create_at int not null";
 $sql .= ",put_at int not null default 0";
 $sql .= ",matter_id varchar(40) not null default ''";
 $sql .= ",matter_type varchar(20) not null default ''";
-$sql .= ",scenario varchar(255) not null default ''"; // 登记活动场景
+$sql .= ",scenario varchar(255) not null default ''"; // 记录活动场景
 $sql .= ",title varchar(70) not null default ''";
 $sql .= ",pic text";
 $sql .= ",summary varchar(240) not null default ''";
@@ -79,7 +79,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error(xxt_template): ' . $mysqli->error;
 }
 /**
- * 模板（登记活动）
+ * 模板（记录活动）
  */
 $sql = "create table if not exists xxt_template_enroll (";
 $sql .= "id int not null auto_increment";
@@ -89,7 +89,7 @@ $sql .= ",modifier varchar(40) not null"; // 版本创建者
 $sql .= ",modifier_name varchar(255) not null default ''"; // 版本创建者账号
 $sql .= ",create_at int not null";
 $sql .= ",template_id int not null";
-$sql .= ",scenario_config text"; // 登记活动场景的配置参数
+$sql .= ",scenario_config text"; // 记录活动场景的配置参数
 $sql .= ",enrolled_entry_page varchar(20) not null default ''"; //已填写时进入
 $sql .= ",open_lastroll char(1) not null default 'Y'"; // 打开最后一条登记记录，还是编辑新的
 $sql .= ",data_schemas longtext"; // 登记项定义
@@ -109,7 +109,7 @@ $sql .= "id int not null auto_increment";
 $sql .= ",template_id int not null";
 $sql .= ",matter_id varchar(40) not null default ''";
 $sql .= ",matter_type varchar(20) not null default ''";
-$sql .= ",scenario varchar(255) not null default ''"; // 登记活动场景
+$sql .= ",scenario varchar(255) not null default ''"; // 记录活动场景
 $sql .= ",creater varchar(40) not null default ''"; // 分享的创建者
 $sql .= ",creater_name varchar(255) not null default ''";
 $sql .= ",create_at int not null"; // 分享时间
@@ -134,7 +134,7 @@ $sql .= ",from_siteid varchar(32) not null"; // 提供模板的站点
 $sql .= ",from_site_name varchar(50) not null"; // 提供模板的站点
 $sql .= ",matter_id varchar(40) not null default ''";
 $sql .= ",matter_type varchar(20) not null default ''";
-$sql .= ",scenario varchar(255) not null default ''"; // 登记活动场景
+$sql .= ",scenario varchar(255) not null default ''"; // 记录活动场景
 $sql .= ",title varchar(70) not null default ''";
 $sql .= ',pic text';
 $sql .= ",summary varchar(240) not null default ''";

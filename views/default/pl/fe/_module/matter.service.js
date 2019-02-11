@@ -132,7 +132,7 @@ provider('srvSite', function() {
                             params.byTitle = $scope.filter.byTitle ? $scope.filter.byTitle : '';
                             url += '/' + matter.value;
                             url += '/list?site=' + _siteId + '&page=' + $scope.page.at + '&size=' + $scope.page.size + '&fields=' + fields;
-                            /*指定登记活动场景*/
+                            /*指定记录活动场景*/
                             if (matter.value === 'enroll' && matter.scenario) {
                                 url += '&scenario=' + matter.scenario;
                             }

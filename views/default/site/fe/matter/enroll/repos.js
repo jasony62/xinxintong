@@ -15,7 +15,7 @@ window.moduleAngularModules = ['tree.ui', 'filter.ui', 'dropdown.ui', 'round.ui.
 
 var ngApp = require('./main.js');
 ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', 'enlService', 'enlTask', function($scope, $parse, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc, enlService, enlTask) {
-    var _oApp, _facRound, _oShareableSchemas, _oUser;
+    var _oApp, _facRound, _oShareableSchemas;
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.activeDirSchemas = {};
     $scope.tabs = [{ 'title': '记录', 'id': 'record', 'url': '/views/default/site/fe/matter/enroll/template/repos-recordSchema.html' }];
@@ -156,7 +156,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         $scope.logAccess({ target_type: 'repos', target_id: _oApp.id });
         /* 用户信息 */
         enlService.user().then(function(data) {
-            $scope.user = _oUser = data;
+            $scope.user = data;
             var groupOthersById = {};
             if (data.groupOthers && data.groupOthers.length) {
                 data.groupOthers.forEach(function(oOther) {
@@ -420,7 +420,7 @@ ngApp.controller('ctrlRecordSchema', ['$scope', '$timeout', '$q', 'http2', 'tmsL
         }
     };
     $scope.editRecord = function(event, oRecord) {
-        if (oRecord.userid !== _oUser.uid) {
+        if (oRecord.userid !== $scope.user.uid) {
             noticebox.warn('不允许编辑其他用户提交的记录');
             return;
         }
@@ -739,7 +739,7 @@ ngApp.controller('ctrlPublicTopic', ['$scope', 'http2', 'tmsLocation', function(
         $scope.multiFilters = cacheData.multiFilters;
         $scope.filter = cacheData.currentFilter;
         $scope.criteria = _oCriteria = cacheData.currentCriteria;
-        
+
         document.getElementById('topic').scrollTop = parseInt(window.sessionStorage.listStorageY);
         window.sessionStorage.clear();
     } else {

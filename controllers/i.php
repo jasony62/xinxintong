@@ -23,7 +23,7 @@ class i extends \site\base {
 	public function index_action($inviteCode = null) {
 		if (empty($inviteCode)) {
 			TPL::assign('title', APP_TITLE);
-			TPL::output('site/fe/invite/entry');
+			TPL::output('site/fe/invite/access');
 			exit;
 		}
 		/**
@@ -48,12 +48,12 @@ class i extends \site\base {
 		/* 要访问的素材 */
 		$modelMat = $this->model('matter\\' . $oInvite->matter_type);
 		switch ($oInvite->matter_type) {
-			case 'channel':
-				$fields = 'id,state,siteid';
-				break;
-			default:
-				$fields = 'id,state,siteid,entry_rule';
-				break;
+		case 'channel':
+			$fields = 'id,state,siteid';
+			break;
+		default:
+			$fields = 'id,state,siteid,entry_rule';
+			break;
 		}
 		$oMatter = $modelMat->byId($oInvite->matter_id, ['fields' => $fields]);
 		if (false === $oMatter || $oMatter->state !== '1') {
@@ -99,12 +99,12 @@ class i extends \site\base {
 		/* 要访问的素材 */
 		$modelMat = $this->model('matter\\' . $oInvite->matter_type);
 		switch ($oInvite->matter_type) {
-			case 'channel':
-				$fields = 'id,state,siteid';
-				break;
-			default:
-				$fields = 'id,state,siteid,entry_rule';
-				break;
+		case 'channel':
+			$fields = 'id,state,siteid';
+			break;
+		default:
+			$fields = 'id,state,siteid,entry_rule';
+			break;
 		}
 		$oMatter = $modelMat->byId($oInvite->matter_id, ['fields' => $fields]);
 		if (false === $oMatter || $oMatter->state !== '1') {
@@ -114,7 +114,7 @@ class i extends \site\base {
 		$modelWay = $this->model('site\fe\way');
 		$oInvitee = $modelWay->who($oInvite->matter_siteid);
 
-		$posted = $this->getPostJson();
+		$oPosted = $this->getPostJson();
 
 		/* 检查进入规则 */
 		if (isset($oMatter->entry_rule)) {
@@ -146,10 +146,10 @@ class i extends \site\base {
 					}
 					if (false === $isMember) {
 						/* 需要提交通讯录用户信息 */
-						if (empty($posted->member)) {
+						if (empty($oPosted->member)) {
 							return new \ResponseError('参数不完整，没有提交通讯录所需信息');
 						}
-						$rst = $this->_submitMember($oMatter->siteid, $posted->member, $oInvitee);
+						$rst = $this->_submitMember($oMatter->siteid, $oPosted->member, $oInvitee);
 						if (false === $rst[0]) {
 							return new ResponseError($rst[1]);
 						}
@@ -162,16 +162,16 @@ class i extends \site\base {
 		}
 
 		/* 检查邀请码 */
-		if (empty($posted->inviteCode)) {
+		if (empty($oPosted->inviteCode)) {
 			return new \ResponseError('请提供邀请码');
 		}
-		$inviteCode = $posted->inviteCode;
+		$inviteCode = $oPosted->inviteCode;
 		$modelCode = $this->model('invite\code');
-		$result = $modelCode->checkAndUse($oInvite, $inviteCode, $oInvitee);
-		if (false === $result[0]) {
-			return new \ResponseError($result[1]);
+		$aCheckResult = $modelCode->checkAndUse($oInvite, $inviteCode, $oInvitee);
+		if (false === $aCheckResult[0]) {
+			return new \ResponseError($aCheckResult[1]);
 		}
-		$oInviteLog = $result[1];
+		$oInviteLog = $aCheckResult[1];
 
 		/* 更新邀请访问数据 */
 		$modelInv->addInviterCount($oInvite);

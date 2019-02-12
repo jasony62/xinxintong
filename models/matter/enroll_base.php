@@ -53,12 +53,6 @@ abstract class enroll_base extends app_base {
 					} else if (($wx = $modelWx->bySite('platform', $wxOptions)) && $wx->joined === 'Y') {
 						$oSns->wx = $oRule;
 					}
-					$yxOptions = ['fields' => 'joined'];
-					if ($yx = $this->model('sns\yx')->bySite($oSite->id, $yxOptions)) {
-						if ($yx->joined === 'Y') {
-							$oSns->yx = $oRule;
-						}
-					}
 					if ($qy = $this->model('sns\qy')->bySite($oSite->id, ['fields' => 'joined'])) {
 						if ($qy->joined === 'Y') {
 							$oSns->qy = $oRule;

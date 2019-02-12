@@ -240,8 +240,6 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
                 if ($scope.user.sns) {
                     if ($scope.user.sns.wx) {
                         $scope.loginUser.nickname = $scope.user.sns.wx.nickname;
-                    } else if ($scope.user.sns.yx) {
-                        $scope.loginUser.nickname = $scope.user.sns.yx.nickname;
                     }
                 }
                 $timeout(function() {

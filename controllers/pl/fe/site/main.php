@@ -341,14 +341,6 @@ class main extends \pl\fe\base {
 			$wx->platform = 'Y';
 			$sns['wx'] = $wx;
 		}
-
-		$yxOptions = ['fields' => 'title,joined,can_qrcode'];
-		if ($yx = $this->model('sns\yx')->bySite($site, $yxOptions)) {
-			if ($yx->joined === 'Y') {
-				$sns['yx'] = $yx;
-			}
-		}
-
 		if ($qy = $this->model('sns\qy')->bySite($site, ['fields' => 'title,joined'])) {
 			if ($qy->joined === 'Y') {
 				$sns['qy'] = $qy;

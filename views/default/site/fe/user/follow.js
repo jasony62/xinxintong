@@ -22,8 +22,6 @@ define(["angular"], function(angular) {
         $scope.userAgent = {};
         if (/MicroMessenger/i.test(navigator.userAgent)) {
             $scope.userAgent.wx = true;
-        } else if (/YiXin/i.test(navigator.userAgent)) {
-            $scope.userAgent.yx = true;
         }
         http2.get(url).then(function(rsp) {
             params = rsp.data;

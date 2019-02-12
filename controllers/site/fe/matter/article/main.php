@@ -95,10 +95,6 @@ class main extends \site\fe\matter\base {
 			$oSite = $this->model('site')->byId($site);
 		}
 		$aData['site'] = $oSite;
-		$userAgent = $_SERVER['HTTP_USER_AGENT'];
-		if (preg_match('/yixin/i', $userAgent)) {
-			$oSite->yx = $this->model('sns\yx')->bySite($oSite->id, 'cardname,cardid');
-		}
 		/*项目页面设置*/
 		if ($oArticle->use_mission_header === 'Y' || $oArticle->use_mission_footer === 'Y') {
 			if ($oArticle->mission_id) {

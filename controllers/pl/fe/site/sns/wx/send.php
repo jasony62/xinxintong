@@ -156,9 +156,6 @@ class send extends \pl\fe\base {
 				$message = $model->forWxGroupPush($this->mpid, $matterId);
 			}
 			$rst = $this->send2WxuserByPreview($this->mpid, $message, $openids);
-		} else if ($mpaccount->mpsrc === 'yx') {
-			$message = $this->assemble_custom_message($matter);
-			$rst = $this->sent2YxUserByp2p($this->mpid, $message, $openids);
 		} else if ($mpaccount->mpsrc === 'qy') {
 		}
 		if (empty($message)) {

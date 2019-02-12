@@ -122,7 +122,7 @@ define(['frame'], function(ngApp) {
             //普通用户的标识，对当前公众号唯一 openid
             var url = baseURL + 'fans/refreshOne?site=' + $scope.siteId + '&openid=' + openId;
             http2.get(url).then(function(rsp) {
-                type === 'wx' ? $scope.wx = rsp.data : type === 'qy' ? $scope.qy = rsp.data : $scope.yx = rsp.data;
+                type === 'wx' ? $scope.wx = rsp.data : $scope.qy = rsp.data;
                 noticebox.success('完成同步');
             })
         }

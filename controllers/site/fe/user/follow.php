@@ -90,8 +90,8 @@ class follow extends \site\fe\base {
 			if (count($matter) === 2) {
 				list($type, $id) = $matter;
 				/* 加入素材的场景二维码 */
-				if (in_array($sns, ['wx', 'yx'])) {
-					$modelQrcode = $this->model('sns\\' . $sns . '\\call\qrcode');
+				if ($sns === 'wx') {
+					$modelQrcode = $this->model('sns\wx\call\qrcode');
 					$qrcodes = $modelQrcode->byMatter($type, $id);
 					if (count($qrcodes) === 1) {
 						$oQrcode = $qrcodes[0];

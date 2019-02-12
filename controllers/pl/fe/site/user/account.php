@@ -25,7 +25,7 @@ class account extends \pl\fe\base {
 		$oPosted = $this->getPostJson();
 
 		$q = [
-			'uid,reg_time,last_active,nickname,headimgurl,ufrom,coin,unionid,is_reg_primary,wx_openid,yx_openid,read_num,favor_num',
+			'uid,reg_time,last_active,nickname,headimgurl,ufrom,coin,unionid,is_reg_primary,wx_openid,read_num,favor_num',
 			'xxt_site_account',
 			['siteid' => $oSite->id],
 		];

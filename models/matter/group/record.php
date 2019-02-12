@@ -760,7 +760,7 @@ class record_model extends \matter\enroll\record_base {
 		/* 获取变化的登记数据 */
 		$modelRec = $this->model('site\user\member');
 		$q = [
-			'm.id enroll_key,m.modify_at enroll_at,m.name nickname,m.name,m.mobile,m.email,m.extattr,m.forbidden,m.userid,a.wx_openid,a.yx_openid,a.qy_openid,a.headimgurl',
+			'm.id enroll_key,m.modify_at enroll_at,m.name nickname,m.name,m.mobile,m.email,m.extattr,m.forbidden,m.userid,a.wx_openid,a.qy_openid,a.headimgurl',
 			'xxt_site_member m,xxt_site_account a',
 			"m.id = $id and a.uid = m.userid",
 		];

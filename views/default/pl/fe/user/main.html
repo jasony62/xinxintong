@@ -78,95 +78,67 @@
                         <div class='col-md-10'>
                             <img ng-src="{{wx.headimgurl}}" alt="" />
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-2 control-label">昵称</label>
-                        <div class='col-md-10'>
-                            <p class="form-control-static" ng-bind="wx.nickname"></p>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-2 control-label">昵称</label>
+                            <div class='col-md-10'>
+                                <p class="form-control-static" ng-bind="wx.nickname"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-2 control-label">性别</label>
+                            <div class='col-md-10' ng-switch on="wx.sex">
+                                <p class="form-control-static" ng-switch-when="1">男</p>
+                                <p class="form-control-static" ng-switch-when="2">女</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-2 control-label">城市</label>
+                            <div class='col-md-10'>
+                                <p class="form-control-static" ng-bind="wx.province">{{}}</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-2 control-label">关注日期</label>
+                            <div class='col-md-10'>
+                                <p class="form-control-static" ng-bind="wx.subscribe_at*1000|date:'yyyy-MM-dd HH:mm'"></p>
+                            </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="col-md-2 control-label">性别</label>
-                        <div class='col-md-10' ng-switch on="wx.sex">
-                            <p class="form-control-static" ng-switch-when="1">男</p>
-                            <p class="form-control-static" ng-switch-when="2">女</p>
+                </div>
+            </div>
+            <div class="panel panel-default" ng-if="qy">
+                <div class="panel-heading">
+                    <span>微信企业号信息</span>
+                    <a href="javascript:void(0)" class="pull-right" ng-click="sync(qy.openid,'qy')">同步信息</a>
+                </div>
+                <div class="panel-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-md-2 control-label">头像</label>
+                            <div class='col-md-10'>
+                                <img class="img-thumbnail" ng-src="{{qy.headimgurl}}" style="width: 50px" alt="" />
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-2 control-label">城市</label>
-                        <div class='col-md-10'>
-                            <p class="form-control-static" ng-bind="wx.province">{{}}</p>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-2 control-label">关注日期</label>
-                        <div class='col-md-10'>
-                            <p class="form-control-static" ng-bind="wx.subscribe_at*1000|date:'yyyy-MM-dd HH:mm'"></p>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-2 control-label">昵称</label>
+                                <div class='col-md-10'>
+                                    <p class="form-control-static" ng-bind="qy.nickname"></p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-2 control-label">关注日期</label>
+                                <div class='col-md-10'>
+                                    <p class="form-control-static" ng-bind="qy.subscribe_at*1000|date:'yyyy-MM-dd HH:mm'"></p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="panel panel-default" ng-if="qy">
-            <div class="panel-heading">
-                <span>微信企业号信息</span>
-                <a href="javascript:void(0)" class="pull-right" ng-click="sync(qy.openid,'qy')">同步信息</a>
-            </div>
-            <div class="panel-body">
-                <div class="form-horizontal">
-                    <div class="form-group">
-                        <label class="col-md-2 control-label">头像</label>
-                        <div class='col-md-10'>
-                            <img class="img-thumbnail" ng-src="{{qy.headimgurl}}" style="width: 50px" alt="" />
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-2 control-label">昵称</label>
-                        <div class='col-md-10'>
-                            <p class="form-control-static" ng-bind="qy.nickname"></p>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-2 control-label">关注日期</label>
-                        <div class='col-md-10'>
-                            <p class="form-control-static" ng-bind="qy.subscribe_at*1000|date:'yyyy-MM-dd HH:mm'"></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="panel panel-default" ng-if="yx">
-            <div class="panel-heading">
-                <span>易信公众号信息</span>
-                <a href="javascript:void(0)" class="pull-right" ng-click="sync(yx.openid,'yx')">同步信息</a>
-            </div>
-            <div class="panel-body">
-                <div class="form-horizontal">
-                    <div class="form-group">
-                        <label class="col-md-2 control-label">头像</label>
-                        <div class='col-md-10'>
-                            <img ng-src="{{yx.headimgurl}}" alt="" />
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-2 control-label">昵称</label>
-                        <div class='col-md-10'>
-                            <p class="form-control-static" ng-bind="yx.nickname"></p>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-2 control-label">关注日期</label>
-                        <div class='col-md-10'>
-                            <p class="form-control-static" ng-bind="yx.subscribe_at*1000|date:'yyyy-MM-dd HH:mm'"></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<script type="text/ng-template" id="memberEditor.html">
-    <div class="modal-header">
+        <script type="text/ng-template" id="memberEditor.html">
+            <div class="modal-header">
         <button class="close" type="button" ng-click="close()">×</button>
         <h5 class="modal-title">{{schema.title}}</h5>
     </div>

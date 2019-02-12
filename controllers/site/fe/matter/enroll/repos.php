@@ -647,7 +647,7 @@ class repos extends base {
 					foreach ($oApp->dynaDataSchemas as $oSchema) {
 						$schemaId = $oSchema->id;
 						// 分类目录
-						if (!empty($oSchema->asdir) && $oSchema->asdir === 'Y' && !empty($oRecData->data->{$schemaId})) {
+						if ($this->getDeepValue($oSchema, 'asdir') === 'Y' && !empty($oSchema->ops) && !empty($oRecData->data->{$schemaId})) {
 							foreach ($oSchema->ops as $op) {
 								if ($op->v === $oRecData->data->{$schemaId}) {
 									$recordDirs[] = $op->l;
@@ -655,19 +655,17 @@ class repos extends base {
 							}
 						}
 						/* 清除非共享数据 */
-						if (isset($oSchema->shareable) && $oSchema->shareable !== 'Y') {
+						if ($this->getDeepValue($oSchema, 'shareable') !== 'Y') {
 							continue;
 						}
 						/* 协作填写题 */
-						if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
-							continue;
+						if ($this->getDeepValue($oSchema, 'cowork') === 'Y') {
 							$item = new \stdClass;
-							$item->id = $recordData->dataId;
-							$item->value = $recordData->value;
-							$newRecordData->{$schemaId} = [$item];
-							unset($recordData->value);
-						}
-						if (null !== ($recDataVal = $this->getDeepValue($oRecData->data, $schemaId, null))) {
+							$item->id = $oRecData->dataId;
+							$item->value = $oRecData->value;
+							$this->setDeepValue($oNewRecData, $schemaId, [$item]);
+							unset($oRecData->value);
+						} else if (null !== ($recDataVal = $this->getDeepValue($oRecData->data, $schemaId, null))) {
 							$this->setDeepValue($oNewRecData, $schemaId, $recDataVal);
 						}
 					}
@@ -675,14 +673,6 @@ class repos extends base {
 					if (!empty($recordDirs)) {
 						$oRecData->recordDir = $recordDirs;
 					}
-				}
-				/* 答案 */
-				if (!empty($oRecData->value)) {
-					$item = new \stdClass;
-					$item->id = $oRecData->dataId;
-					$item->value = $oRecData->value;
-					$oRecData->answer = $item;
-					unset($oRecData->value);
 				}
 				/* 设置昵称 */
 				if ($bAnonymous) {

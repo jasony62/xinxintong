@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html ng-app='app' ng-controller="ctrlBase">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href="/" />
+    <title>
+        <?php TPL::pt('title');?>
+    </title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
+</head>
+
+<body ng-controller="ctrlTeam">
+    <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
+    <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
+    <nav class='navbar site-navbar-default'>
+        <div class='container' ng-cloak>
+        </div>
+    </nav>
+    <div class='container'>
+        <div class="row" ng-view></div>
+    </div>
+    <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
+    <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
+    <div class="loading">
+        <div class='loading-indicator'><i></i></div>
+    </div>
+    <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-route.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="<?php echo auto_version('/bundles/default/site/fe/matter/group/team.js');?>"></script>
+</body>
+
+</html>

@@ -13,7 +13,15 @@ ngMod.provider('tmsLocation', function() {
         }
         return {
             s: function() {
-                return $location.search();
+                var ls = $location.search();
+                if (arguments.length) {
+                    var ss = [];
+                    for (var i = 0, l = arguments.length; i < l; i++) {
+                        ss.push(arguments[i] + '=' + (ls[arguments[i]] || ''));
+                    };
+                    return ss.join('&');
+                }
+                return ls;
             },
             j: function(method) {
                 var url = _baseUrl,

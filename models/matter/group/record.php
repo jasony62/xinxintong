@@ -36,6 +36,7 @@ class record_model extends \matter\enroll\record_base {
 		$aNewRec['draw_at'] = isset($aOptions['draw_at']) ? $aOptions['draw_at'] : $current;
 		isset($aOptions['team_id']) && $aNewRec['team_id'] = $aOptions['team_id'];
 		isset($aOptions['team_title']) && $aNewRec['team_title'] = $this->escape($aOptions['team_title']);
+		isset($aOptions['is_leader']) && $aNewRec['is_leader'] = $aOptions['is_leader'];
 		isset($aOptions['comment']) && $aNewRec['comment'] = $this->escape($aOptions['comment']);
 		isset($aOptions['tags']) && $aNewRec['tags'] = $this->escape($aOptions['tags']);
 		isset($aOptions['referrer']) && $aNewRec['referrer'] = $aOptions['referrer'];
@@ -621,15 +622,15 @@ class record_model extends \matter\enroll\record_base {
 			'xxt_group_record',
 			['userid' => $userid, 'state' => 1, 'team_id' => $tid],
 		];
-		$oUser = $this->query_obj_ss($q);
-		if ($oUser) {
+		$oUsers = $this->query_objs_ss($q);
+		if (count($oUsers)) {
 			return true;
 		}
 		/* 辅助分组 */
 		unset($q[2]['team_id']);
 		$q[2]['role_teams'] = (object) ['op' => 'like', 'pat' => '%' . $tid . '%'];
-		$oUser = $this->query_obj_ss($q);
-		if ($oUser) {
+		$oUsers = $this->query_obj_ss($q);
+		if ($oUsers) {
 			return true;
 		}
 

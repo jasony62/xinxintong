@@ -47,7 +47,7 @@
                 <div id='qrCode' class='hidden-xs hidden-sm'>
                     <span><img ng-src="{{qrcode}}"></span>
                 </div>
-                <div class='hidden-xs hidden-sm hm-tile'>
+                <div class='hidden-xs hidden-sm hm-tile' ng-if="link.config.nav.app.length">
                     <div><span class='hm-tile-title'>相关资料</span></div>
                     <div ng-repeat="app in link.config.nav.app"><a class="matter"  href="#" ng-click="gotoNavApp(app)" ng-bind="app.title"></a></div>
                 </div>
@@ -61,19 +61,7 @@
                     <span> 邀请体验</span>
                 </a>
                 </div>
-                <div id="behavior" class="behavior">
-                    <div id="action">
-                        <a href="" ng-click="siteUser(siteInfo.id)">
-                        <i class="glyphicon glyphicon-user"></i>
-                        <span> 个人中心</span>
-                    </a>
-                        <a href="" ng-click="favor(user,link)">
-                        <i class="glyphicon glyphicon-star-empty"></i>
-                        <span> 收藏</span>
-                    </a>
-                    </div>
-                </div>
-                <div id="matters" class="visible-xs visible-sm">
+                <div id="matters" class="visible-xs visible-sm" ng-if="link.config.nav.app.length">
                     <div ng-repeat="app in link.config.nav.app"><a class="matter"  href="#" ng-click="gotoNavApp(app)" ng-bind="app.title"></a></div>
                 </div>
             </div>

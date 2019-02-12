@@ -628,7 +628,6 @@ class repos extends base {
 		$oResult = $modelRecDat->coworkDataByApp($oApp, $oOptions, $oCriteria, $oUser, 'cowork');
 		if (!empty($oResult->recordDatas)) {
 			$modelData = $this->model('matter\enroll\data');
-			$modelTag = $this->model('matter\enroll\tag2');
 			/* 是否限制了匿名规则 */
 			$bAnonymous = $this->_requireAnonymous($oApp);
 			if (false === $bAnonymous) {
@@ -661,7 +660,7 @@ class repos extends base {
 						/* 协作填写题 */
 						if ($this->getDeepValue($oSchema, 'cowork') === 'Y') {
 							$item = new \stdClass;
-							$item->id = $oRecData->dataId;
+							$item->id = $oRecData->data_id;
 							$item->value = $oRecData->value;
 							$this->setDeepValue($oNewRecData, $schemaId, [$item]);
 							unset($oRecData->value);
@@ -680,6 +679,28 @@ class repos extends base {
 				} else {
 					$this->setNickname($oRecData, $oUser, isset($oEditorGrp) ? $oEditorGrp : null);
 				}
+				/* 答案关联素材 */
+				if (!isset($modelAss)) {
+					$modelAss = $this->model('matter\enroll\assoc');
+					$oAssocsOptions = [
+						'fields' => 'id,assoc_mode,assoc_num,first_assoc_at,last_assoc_at,entity_a_id,entity_a_type,entity_b_id,entity_b_type,public,assoc_text,assoc_reason'
+					];
+				}
+				$entityA = new \stdClass;
+				$entityA->id = $oRecData->data_id;
+				$entityA->type = 'data';
+				$oAssocsOptions['entityA'] = $entityA;
+				$record = new \stdClass;
+				$record->id = $oRecData->record_id;
+				$oAssocs = $modelAss->byRecord($record, $oUser, $oAssocsOptions);
+				if (count($oAssocs)) {
+					foreach ($oAssocs as $oAssoc) {
+						$modelAss->adapt($oAssoc);
+					}
+				}
+				$oRecData->oAssocs = $oAssocs;
+				//
+				$oRecData->id = $oRecData->record_id;
 			}
 		}
 

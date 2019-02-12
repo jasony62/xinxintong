@@ -60,14 +60,6 @@ class base extends \site\base {
 					}
 				}
 			}
-		} else if ($this->userAgent() === 'yx') {
-			if (!isset($this->who->sns->yx)) {
-				if ($yxConfig = $this->model('sns\yx')->bySite($siteid)) {
-					if ($yxConfig->joined === 'Y') {
-						$this->snsOAuth($yxConfig, 'yx');
-					}
-				}
-			}
 		}
 
 		return false;
@@ -132,12 +124,8 @@ class base extends \site\base {
 				$openid = $this->who->sns->qy->openid;
 				$fan = false;
 			}
-		} else if ($this->userAgent() === 'yx') {
-			if (isset($this->who->sns->yx)) {
-				$openid = $this->who->sns->yx->openid;
-				$fan = $this->model('sns\yx\fan')->byOpenid($siteId, $openid, '*', 'Y');
-			}
 		}
+
 		return $fan;
 	}
 	/**
@@ -211,12 +199,6 @@ class base extends \site\base {
 				$oauthUrl = $snsProxy->oauthUrl($ruri, 'snsOAuth-' . $snsName, 'snsapi_userinfo');
 			}
 			break;
-		case 'yx':
-			if ($snsConfig->can_oauth === 'Y') {
-				$snsProxy = $this->model('sns\yx\proxy', $snsConfig);
-				$oauthUrl = $snsProxy->oauthUrl($ruri, 'snsOAuth-' . $snsName);
-			}
-			break;
 		}
 		if (isset($oauthUrl)) {
 			/* 通过cookie判断是否是后退进入 */
@@ -265,18 +247,6 @@ class base extends \site\base {
 		$rst = array(false);
 
 		switch ($snsName) {
-		case 'yx':
-			if ($snsConfig = $this->model('sns\yx')->bySite($siteId)) {
-				if ($snsConfig->joined === 'Y') {
-					$proxy = $this->model('sns\yx\proxy', $snsConfig);
-					if ($snsConfig->can_p2p === 'Y') {
-						$rst = $proxy->messageSend($message, array($snsUser->openid));
-					} else {
-						$rst = $proxy->messageCustomSend($message, $snsUser->openid);
-					}
-				}
-			}
-			break;
 		case 'wx':
 			if ($snsConfig = $this->model('sns\wx')->bySite($siteId)) {
 				if ($snsConfig->joined === 'Y') {

@@ -126,7 +126,7 @@ class record extends base {
 						}
 						/* 如果登记数据中未包含用户信息，更新用户信息 */
 						if (empty($oEnrollRecord->userid)) {
-							$oUserAcnt = $this->model('site\user\account')->byId($oUser->uid, ['fields' => 'wx_openid,yx_openid,qy_openid,headimgurl']);
+							$oUserAcnt = $this->model('site\user\account')->byId($oUser->uid, ['fields' => 'wx_openid,qy_openid,headimgurl']);
 							if (false === $oUserAcnt) {
 								$oUserAcnt = new \stdClass;
 							}

@@ -367,24 +367,6 @@ class main extends \pl\fe\matter\main_base {
 		return new \ResponseData($qrcodes);
 	}
 	/**
-	 * 应用的易信二维码
-	 *
-	 * @param string $site
-	 * @param string $app
-	 *
-	 */
-	public function yxQrcode_action($site, $app) {
-		if (false === ($oUser = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$modelQrcode = $this->model('sns\yx\call\qrcode');
-
-		$qrcode = $modelQrcode->byMatter('signin', $app);
-
-		return new \ResponseData($qrcode);
-	}
-	/**
 	 * 删除一个活动
 	 *
 	 * 如果没有登记数据，就将活动彻底删除

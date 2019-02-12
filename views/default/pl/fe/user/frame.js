@@ -74,7 +74,6 @@ define(['require'], function(require) {
             $scope.fans = rsp.data;
             $scope.fans.wx && ($scope.wx = $scope.fans.wx);
             $scope.fans.qy && ($scope.qy = $scope.fans.qy);
-            $scope.fans.yx && ($scope.yx = $scope.fans.yx);
         });
     }]);
     /***/

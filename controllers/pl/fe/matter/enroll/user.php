@@ -135,7 +135,7 @@ class user extends main_base {
 
 		$modelUsr = $this->model('matter\enroll\user');
 		//判断关联公众号
-		$road = ['wx', 'qy', 'yx'];
+		$road = ['wx', 'qy'];
 		$sns = new \stdClass;
 		foreach ($road as $v) {
 			$arr = array();
@@ -181,9 +181,6 @@ class user extends main_base {
 		if (isset($sns->wx->joined) && $sns->wx->joined === 'Y') {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '已关联微信');
 		}
-		if (isset($sns->yx->joined) && $sns->yx->joined === 'Y') {
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '已关联易信');
-		}
 		if (isset($sns->qy->joined) && $sns->qy->joined === 'Y') {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '已关联微企');
 		}
@@ -209,9 +206,6 @@ class user extends main_base {
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $oUser->score);
 			if (isset($sns->wx->joined) && $sns->wx->joined === 'Y') {
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, !empty($oUser->wx_openid) ? "是" : '');
-			}
-			if (isset($sns->yx->joined) && $sns->yx->joined === 'Y') {
-				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, !empty($oUser->yx_openid) ? "是" : '');
 			}
 			if (isset($sns->qy->joined) && $sns->qy->joined === 'Y') {
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, !empty($oUser->qy_openid) ? "是" : '');

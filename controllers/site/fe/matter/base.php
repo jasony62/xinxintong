@@ -45,7 +45,7 @@ class base extends \site\fe\base {
 		$oScope = $oEntryRule->scope;
 
 		$userAgent = $this->userAgent(); // 客户端类型
-		if (!in_array($userAgent, ['wx', 'yx'])) {
+		if ($userAgent !== 'wx') {
 			return false;
 		}
 
@@ -81,11 +81,6 @@ class base extends \site\fe\base {
 					}
 				}
 			}
-			if ($userAgent === 'yx' && !empty($oEntryRule->sns->yx->entry)) {
-				if (!isset($this->who->sns->yx)) {
-					$aRequireSns['yx'] = true;
-				}
-			}
 		}
 
 		if (empty($aRequireSns)) {
@@ -105,13 +100,6 @@ class base extends \site\fe\base {
 			if ($qyConfig = $this->model('sns\qy')->bySite($oMatter->siteid)) {
 				if ($qyConfig->joined === 'Y') {
 					$this->snsOAuth($qyConfig, 'qy');
-				}
-			}
-		}
-		if (!empty($aRequireSns['yx'])) {
-			if ($yxConfig = $this->model('sns\yx')->bySite($oMatter->siteid)) {
-				if ($yxConfig->joined === 'Y') {
-					$this->snsOAuth($yxConfig, 'yx');
 				}
 			}
 		}
@@ -260,8 +248,6 @@ class base extends \site\fe\base {
 					$this->snsWxQrcodeFollow($oMatter);
 				} else if (!empty($oEntryRule->sns->qy->entry)) {
 					$this->snsFollow($oMatter->siteid, 'qy', $oMatter);
-				} else if (!empty($oEntryRule->sns->yx->entry)) {
-					$this->snsFollow($oMatter->siteid, 'yx', $oMatter);
 				} else {
 					$this->outputInfo($msg);
 				}

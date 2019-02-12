@@ -147,9 +147,7 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'tms
         }
     };
     $scope.followMp = function(event, page) {
-        if (/YiXin/i.test(navigator.userAgent)) {
-            location.href = 'yixin://opencard?pid=' + $scope.mpa.yx_cardid;
-        } else if (page !== undefined && page.length) {
+        if (page !== undefined && page.length) {
             $scope.gotoPage(event, page);
         } else {
             alert('请在易信中打开页面');

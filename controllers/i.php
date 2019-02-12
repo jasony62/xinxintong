@@ -296,14 +296,6 @@ class i extends \site\base {
 					}
 				}
 			}
-		} else if ($userAgent === 'yx') {
-			if (!isset($user->sns->yx)) {
-				if ($yxConfig = $this->model('sns\yx')->bySite($siteid)) {
-					if ($yxConfig->joined === 'Y') {
-						$this->_snsOAuth($yxConfig, 'yx');
-					}
-				}
-			}
 		}
 
 		return false;
@@ -329,12 +321,6 @@ class i extends \site\base {
 			if ($snsConfig->can_oauth === 'Y') {
 				$snsProxy = $this->model('sns\wx\proxy', $snsConfig);
 				$oauthUrl = $snsProxy->oauthUrl($ruri, 'snsOAuth-' . $snsName, 'snsapi_base');
-			}
-			break;
-		case 'yx':
-			if ($snsConfig->can_oauth === 'Y') {
-				$snsProxy = $this->model('sns\yx\proxy', $snsConfig);
-				$oauthUrl = $snsProxy->oauthUrl($ruri, 'snsOAuth-' . $snsName);
 			}
 			break;
 		}

@@ -941,7 +941,7 @@ class repos extends base {
 					$oShareableSchemas->{$oSchema->id} = $oSchema;
 				}
 				$schemaId2 = $oSchema->id;
-				if (!empty($oSchema->asdir) && $oSchema->asdir === 'Y' && !empty($oRecord->data->{$schemaId2})) {
+				if (!empty($oSchema->asdir) && $oSchema->asdir === 'Y' && !empty($oSchema->ops) && !empty($oRecord->data->{$schemaId2})) {
 					foreach ($oSchema->ops as $op) {
 						if ($op->v === $oRecord->data->{$schemaId2}) {
 							$recordDirs[] = $op->l;

@@ -53,10 +53,10 @@ class user_model extends \TMS_MODEL {
 			$q2['r']['l'] = $aOptions['paging']['size'];
 		}
 		$oAppUsrs = $this->query_objs_ss($q, $q2);
-		
+
 		foreach ($oAppUsrs as $oUser) {
 			$p = [
-				'wx_openid,yx_openid,qy_openid',
+				'wx_openid,qy_openid',
 				"xxt_site_account",
 				['uid' => $oUser->userid],
 			];
@@ -71,19 +71,8 @@ class user_model extends \TMS_MODEL {
 						$oUser->wxfan = $oWxfan;
 					}
 				}
-				$oUser->yx_openid = $oOpenid->yx_openid;
-				if (!empty($oOpenid->yx_openid)) {
-					if (!isset($modelYxfan)) {
-						$modelYxfan = $this->model('sns\yx\fan');
-					}
-					$oYxfan = $modelYxfan->byOpenid($oApp->siteid, $oOpenid->yx_openid, 'nickname,headimgurl', 'Y');
-					if ($oYxfan) {
-						$oUser->yxfan = $oYxfan;
-					}
-				}
 			} else {
 				$oUser->wx_openid = '';
-				$oUser->yx_openid = '';
 			}
 		}
 

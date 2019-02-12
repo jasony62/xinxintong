@@ -56,8 +56,6 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
 
     if (/MicroMessenger/i.test(navigator.userAgent)) {
         $scope.userAgent = 'wx';
-    } else if (/Yixin/i.test(navigator.userAgent)) {
-        $scope.userAgent = 'yx';
     }
 
     var _oApp, _oUser, _oOptions, _oMessage, _oDeferred;
@@ -109,7 +107,7 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var oEditor;
         _oApp = params.app;
-/*        _oUser = params.user;*/
+        /*        _oUser = params.user;*/
         /* 用户信息 */
         enlService.user().then(function(data) {
             _oUser = data;

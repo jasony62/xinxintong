@@ -15,28 +15,19 @@ class xxt_base extends TMS_CONTROLLER {
 			$user = $model->query_obj_ss([
 				'ufrom',
 				'xxt_site_account',
-				"siteid='$mpid' and (wx_openid='$openid' or yx_openid='$openid' or qy_openid='$openid')",
+				"siteid='$mpid' and (wx_openid='$openid' or qy_openid='$openid')",
 			]);
 			$mpa = $this->model("sns\\" . $user->ufrom)->bySite($mpid);
 			$mpproxy = $this->model('sns\\' . $user->ufrom . '\\proxy', $mpa);
-			$mpa->yx_p2p = $mpa->can_p2p;
 			$mpa->mpsrc = $user->ufrom;
 		} else {
 			switch ($openid_src) {
-			case 'yx':
-				$mpa = $this->model('sns\yx')->bySite($mpid);
-				$mpproxy = $this->model('sns\yx\proxy', $mpa);
-				$mpa->yx_p2p = $mpa->can_p2p;
-				$mpa->mpsrc = 'yx';
-				break;
-
 			case 'qy':
 				$mpa = $this->model('sns\qy')->bySite($mpid);
 				$mpproxy = $this->model('sns\qy\proxy', $mpa);
 				$mpa->qy_agentid = $mpa->agentid;
 				$mpa->mpsrc = 'qy';
 				break;
-
 			case 'wx':
 				$mpa = $this->model('sns\wx')->bySite($mpid);
 				$mpproxy = $this->model('sns\wx\proxy', $mpa);
@@ -46,13 +37,6 @@ class xxt_base extends TMS_CONTROLLER {
 		}
 
 		switch ($mpa->mpsrc) {
-		case 'yx':
-			if ($mpa->mpsrc === 'yx' && $mpa->yx_p2p === 'Y') {
-				$rst = $mpproxy->messageSend($message, array($openid));
-			} else {
-				$rst = $mpproxy->messageCustomSend($message, $openid);
-			}
-			break;
 		case 'wx':
 			$rst = $mpproxy->messageCustomSend($message, $openid);
 			break;
@@ -71,7 +55,7 @@ class xxt_base extends TMS_CONTROLLER {
 	 * $tmplmsgId
 	 * $openid
 	 */
-	public function tmplmsgSendByOpenid($mpid, $tmplmsgId, $openid, $data, $url) {
+	public function tmplmsgSendByOpenid($siteId, $tmplmsgId, $openid, $data, $url) {
 		/*模板定义*/
 		is_object($data) && $data = (array) $data;
 		$tmpl = $this->model('matter\tmplmsg')->byId($tmplmsgId, array('cascaded' => 'Y'));
@@ -90,7 +74,7 @@ class xxt_base extends TMS_CONTROLLER {
 					$msg['data'][$p->pname] = array('value' => $value, 'color' => '#173177');
 				}
 			}
-			$config = $this->model('sns\\wx')->bySite($mpid);
+			$config = $this->model('sns\\wx')->bySite($siteId);
 			$mpproxy = $this->model('sns\\wx\\proxy', $config);
 			$rst = $mpproxy->messageTemplateSend($msg);
 			if ($rst[0] === false) {
@@ -102,7 +86,7 @@ class xxt_base extends TMS_CONTROLLER {
 			$user = $model->query_obj_ss([
 				'ufrom',
 				'xxt_site_account',
-				"siteid='$mpid' and (wx_openid='$openid' or yx_openid='$openid' or qy_openid='$openid')",
+				"siteid='$siteId' and (wx_openid='$openid' or qy_openid='$openid')",
 			]);
 			$txt = array();
 			$txt[] = $tmpl->title;
@@ -113,11 +97,7 @@ class xxt_base extends TMS_CONTROLLER {
 				}
 			}
 			if (!empty($url)) {
-				if (isset($user->ufrom) && $user->ufrom === 'yx') {
-					$txt[] = '查看详情：\n' . $url;
-				} else {
-					$txt[] = " <a href='" . $url . "'>查看详情</a>";
-				}
+				$txt[] = " <a href='" . $url . "'>查看详情</a>";
 			}
 			$txt = implode("\n", $txt);
 			$msg = array(
@@ -126,13 +106,13 @@ class xxt_base extends TMS_CONTROLLER {
 					"content" => $txt,
 				),
 			);
-			$this->sendByOpenid($mpid, $openid, $msg, $user->ufrom);
+			$this->sendByOpenid($siteId, $openid, $msg, $user->ufrom);
 			$msg['template_id'] = 0;
 			$msgid = 0;
 		}
 		/*记录日志*/
 		$log = array(
-			'mpid' => $mpid,
+			'mpid' => $siteId,
 			'openid' => $openid,
 			'tmplmsg_id' => $tmplmsgId,
 			'template_id' => $msg['template_id'],

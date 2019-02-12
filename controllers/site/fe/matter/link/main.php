@@ -247,14 +247,6 @@ class main extends \site\fe\matter\base {
 					}
 				}
 			}
-		} else if ($this->userAgent() === 'yx') {
-			if (!isset($this->who->sns->yx)) {
-				if ($yxConfig = $this->model('sns\yx')->bySite($siteid)) {
-					if ($yxConfig->joined === 'Y') {
-						$this->snsOAuth($yxConfig, 'yx', $callbackUrl);
-					}
-				}
-			}
 		}
 
 		return false;
@@ -270,11 +262,8 @@ class main extends \site\fe\matter\base {
 			if (isset($this->who->sns->qy)) {
 				return $this->who->sns->qy->openid;
 			}
-		} else if ($this->userAgent() === 'yx') {
-			if (isset($this->who->sns->yx)) {
-				return $this->who->sns->yx->openid;
-			}
 		}
+
 		return '';
 	}
 	/**

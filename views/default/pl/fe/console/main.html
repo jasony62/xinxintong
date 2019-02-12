@@ -141,9 +141,6 @@
                                 <button class='btn btn-sm btn-default' ng-click="openMatter(m,'entry')">发放</button>
                                 <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
                             </span>
-                            <span ng-switch-when="wall">
-                                <button class='btn btn-sm btn-default' ng-click="copyMatter($event,m)">复制</button>
-                            </span>
                         </td>
                     </tr>
                 </tbody>
@@ -178,7 +175,6 @@
                             </div>
                         </div>
                     </div>
-                    
                     <button ng-if="criteria.matter.type" class='btn btn-default' ng-click="addMatter(criteria.matter.type)"><i class='glyphicon glyphicon-plus'></i> <span>新建<span ng-bind="matterNames.doc[criteria.matter.type]"></span></span>
                     </button>
                     <div ng-if="!criteria.matter.type" class="btn-group" uib-dropdown>

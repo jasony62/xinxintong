@@ -314,9 +314,6 @@ class group_model extends app_base {
 				case 'signin':
 					$modelGrpUsr->assocWithSignin($oNewApp, $oSourceApp->id);
 					break;
-				case 'wall':
-					break;
-					$modelGrpUsr->assocWithWall($oNewApp, $oSourceApp->id, $oSourceApp->onlySpeaker);
 				case 'mschema':
 					$modelGrpUsr->assocWithMschema($oNewApp, $oSourceApp->id);
 					break;

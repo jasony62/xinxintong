@@ -28,10 +28,6 @@ define(['require'], function() {
             value: 'signin',
             title: '签到',
             url: '/rest/pl/fe/matter'
-        }, {
-            value: 'wall',
-            title: '信息墙',
-            url: '/rest/pl/fe/matter'
         }],
     });
     ngApp.config(['$routeProvider', '$locationProvider', '$controllerProvider', 'srvSiteProvider', 'srvAppProvider', 'srvTagProvider', function($routeProvider, $locationProvider, $controllerProvider, srvSiteProvider, srvAppProvider, srvTagProvider) {

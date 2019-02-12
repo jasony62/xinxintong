@@ -1,9 +1,0 @@
-.tag {background: #337ab7;padding: 3px 6px;margin: 4px;border-radius: 4px;color: #fff;}
-#detail ul {padding-left: 0}
-#detail ul.img-tiles li {position: relative;display: inline-block;overflow: hidden;width: 125px;height: 134px;margin: 0px;padding: 0px;float: left}
-#detail ul.img-tiles.boxImg li{width:195px;height:210px;}
-#detail ul.img-tiles li.img-thumbnail img {display: inline-block;position: absolute}
-#detail ul.img-tiles li.img-thumbnail button, #detail ul.list-group button {position: absolute;top: 0;right: 0}
-#detail ul.img-tiles li.img-picker button {position: auto;width: 100%;height: 100%}
-#detail ul.img-tiles li.img-picker button span {font-size: 36px}
-#detail ul.img-tiles.boxImg li.img-picker button span{font-size: 50px}

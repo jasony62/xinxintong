@@ -15,10 +15,6 @@ define(['require'], function() {
             title: '签到活动',
             url: '/rest/pl/fe/matter'
         }, {
-            value: 'wall',
-            title: '信息墙',
-            url: '/rest/pl/fe/matter'
-        }, {
             value: 'link',
             title: '链接',
             url: '/rest/pl/fe/matter'

@@ -12,10 +12,9 @@ constant('CstNaming', {
             'signin': '签到',
             'group': '分组',
             'plan': '计划',
-            'wall': '信息墙',
             'memberschema': '通讯录'
         },
-        appOrder: ['enroll', 'signin', 'group', 'plan', 'wall', 'memberschema']
+        appOrder: ['enroll', 'signin', 'group', 'plan', 'memberschema']
     },
     scenario: {
         enroll: {

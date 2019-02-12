@@ -143,9 +143,6 @@ define(['require', 'frame/RouteParam', 'frame/const'], function(require, RoutePa
                     location.href = '/rest/pl/fe/matter/custom?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
-            addWall: function(site, scenario) {
-                location.href = '/rest/pl/fe/matter/wall/shop?site=' + site.id + '&scenario=' + (scenario || '');
-            },
             addText: function(site) {
                 location.href = '/rest/pl/fe/matter/text?site=' + site.id;
             }

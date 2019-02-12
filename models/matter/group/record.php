@@ -917,36 +917,6 @@ class record_model extends \matter\enroll\record_base {
 		return $oSourceApp;
 	}
 	/**
-	 * 从信息墙导入数据
-	 * $onlySpeaker 是否为发言的用户
-	 */
-	public function assocWithWall($oGrpApp, $byApp, $onlySpeaker) {
-		$modelWall = $this->model('matter\wall');
-		$oSourceApp = $modelWall->byId($byApp, ['fields' => 'data_schemas']);
-		$aSourceDataSchemas = $oSourceApp->dataSchemas;
-
-		/* 移除题目中和其他活动、通讯录的关联信息 */
-		$modelWall->replaceAssocSchema($aSourceDataSchemas);
-		$modelWall->replaceMemberSchema($aSourceDataSchemas, null, true);
-
-		/* 导入活动定义 */
-		$this->update(
-			'xxt_group',
-			[
-				'last_sync_at' => 0,
-				'source_app' => '{"id":"' . $byApp . '","type":"wall"}',
-				'data_schemas' => $this->escape($this->toJson($aSourceDataSchemas)),
-			],
-			['id' => $oGrpApp->id]
-		);
-		$oGrpApp->dataSchemas = $aSourceDataSchemas;
-
-		/* 清空已有分组数据 */
-		$this->clean($oGrpApp->id, true);
-
-		return $oSourceApp;
-	}
-	/**
 	 * 删除一个分组用户
 	 *
 	 * @param string $appId

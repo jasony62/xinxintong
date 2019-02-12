@@ -70,7 +70,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             case 'signin':
             case 'group':
             case 'link':
-            case 'wall':
                 location.href = url + '?id=' + id + '&site=' + $scope.siteId;
                 break;
             case 'mission':
@@ -129,7 +128,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                 case 'enroll':
                 case 'signin':
                 case 'group':
-                case 'wall':
                     url += type + '/remove?app=' + id + '&site=' + $scope.siteId;
                     break;
                 default:
@@ -152,7 +150,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                 url += type + '/copy?id=' + id + '&site=' + $scope.siteId;
                 break;
             case 'enroll':
-            case 'wall':
             case 'signin':
             case 'group':
                 url += type + '/copy?app=' + id + '&site=' + $scope.siteId;
@@ -303,10 +300,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
         http2.get('/rest/pl/fe/matter/custom/create?site=' + $scope.siteId).then(function(rsp) {
             location.href = '/rest/pl/fe/matter/custom?site=' + $scope.siteId + '&id=' + rsp.data;
         });
-    };
-    //信息墙
-    $scope.addWall = function() {
-        location.href = '/rest/pl/fe/matter/wall/shop?site=' + $scope.siteId;
     };
     http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date() * 1)).then(function(rsp) {
         $scope.matters = rsp.data.matters;

@@ -32,14 +32,6 @@ constant('matterTypes', [{
     title: '签到活动',
     url: '/rest/pl/fe/matter'
 }, {
-    value: 'wall',
-    title: '信息墙',
-    url: '/rest/pl/fe/matter'
-}, {
-    value: 'joinwall',
-    title: '进入信息墙',
-    url: '/rest/pl/fe/matter'
-}, {
     value: 'inner',
     title: '内置回复',
     url: '/rest/pl/fe/matter'

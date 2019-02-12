@@ -135,7 +135,6 @@ class channel_model extends article_base {
 				//'channel' => 'xxt_channel',
 				//'news' => 'xxt_news',
 				'link' => 'xxt_link',
-				'wall' => 'xxt_wall',
 				'mission' => 'xxt_mission',
 			];
 		} else {

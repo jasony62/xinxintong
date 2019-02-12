@@ -102,8 +102,6 @@ class record extends \pl\fe\matter\base {
 				$oSourceApp = $modelGrpRec->assocWithEnroll($oApp, $oParams->app);
 			} else if ($oParams->appType === 'signin') {
 				$oSourceApp = $modelGrpRec->assocWithSignin($oApp, $oParams->app);
-			} else if ($oParams->appType === 'wall') {
-				$oSourceApp = $modelGrpRec->assocWithWall($oApp, $oParams->app, $oParams->onlySpeaker);
 			} else if ($oParams->appType === 'mschema') {
 				$oSourceApp = $modelGrpRec->assocWithMschema($oApp, $oParams->app);
 			}
@@ -355,8 +353,6 @@ class record extends \pl\fe\matter\base {
 				$count = $this->_syncByEnroll($oApp->siteid, $oApp, $sourceApp->id);
 			} else if ($sourceApp->type === 'signin') {
 				$count = $this->_syncBySignin($oApp->siteid, $oApp, $sourceApp->id);
-			} else if ($sourceApp->type === 'wall') {
-				$count = $this->_syncByWall($oApp->siteid, $oApp, $sourceApp->id, $onlySpeaker);
 			} else if ($sourceApp->type === 'mschema') {
 				$count = $this->_syncByMschema($oApp->siteid, $oApp, $sourceApp->id);
 			}
@@ -426,42 +422,6 @@ class record extends \pl\fe\matter\base {
 		$modelGrpRec = $this->model('matter\group\record');
 
 		return $modelGrpRec->syncRecord($siteId, $objGrp, $records, $modelRec);
-	}
-	/**
-	 * 同步在最后一次同步之后的数据
-	 * $onlySpeaker 是否为发言的用户
-	 */
-	private function _syncByWall($siteId, &$objGrp, $byApp, $onlySpeaker) {
-		//获取新增用户数据
-		$u = array(
-			'*',
-			'xxt_wall_enroll',
-			"wid = '{$byApp}' and siteid = '{$siteId}' and join_at > {$objGrp->last_sync_at} ",
-		);
-		if ($onlySpeaker === 'Y') {
-			$u[2] .= " and last_msg_at>0";
-		}
-		$wallUsers = $this->model()->query_objs_ss($u);
-
-		$modelGrpRec = $this->model('matter\group\record');
-		if (!empty($wallUsers)) {
-			foreach ($wallUsers as $wallUser) {
-				$wallUser->data = empty($wallUser->data) ? '' : json_decode($wallUser->data);
-				$oUser = new \stdClass;
-				$oUser->uid = $wallUser->userid;
-				$oUser->nickname = $wallUser->nickname;
-				if ($modelGrpRec->byId($objGrp->id, $wallUser->enroll_key, ['cascaded' => 'N'])) {
-					// 已经同步过的用户
-					$modelGrpRec->setData($objGrp, $wallUser->enroll_key, $wallUser->data);
-				} else {
-					// 新用户
-					$modelGrpRec->enroll($objGrp, $oUser, ['enroll_key' => $wallUser->enroll_key, 'enroll_at' => $wallUser->join_at]);
-					$modelGrpRec->setData($objGrp, $wallUser->enroll_key, $wallUser->data);
-				}
-			}
-		}
-
-		return count($wallUsers);
 	}
 	/**
 	 * 从关联活动同步数据

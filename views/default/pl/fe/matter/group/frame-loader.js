@@ -40,8 +40,7 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
         importSource: [
             { v: 'mschema', l: '通讯录联系人' },
             { v: 'registration', l: '报名' },
-            { v: 'signin', l: '签到' },
-            { v: 'wall', l: '信息墙' }
+            { v: 'signin', l: '签到' }
         ],
         naming: {}
     });

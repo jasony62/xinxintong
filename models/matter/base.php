@@ -36,7 +36,6 @@ class base_model extends \TMS_MODEL {
 			'enroll' => 'app',
 			'signin' => 'app',
 			'group' => 'app',
-			'wall' => 'app',
 		];
 
 		return isset($map[$matterType]) ? $map[$matterType] : '';
@@ -45,14 +44,8 @@ class base_model extends \TMS_MODEL {
 	 * 根据类型和ID获得素材
 	 */
 	public function getCardInfoById($type, $id) {
-		switch ($type) {
-		case 'joinwall':
-			$q = ['id,title,summary,pic', 'xxt_wall', ["id" => $id]];
-			break;
-		default:
-			$table = 'xxt_' . $type;
-			$q = ['id,title,summary,pic', $table, ["id" => $id]];
-		}
+		$table = 'xxt_' . $type;
+		$q = ['id,title,summary,pic', $table, ["id" => $id]];
 		if ($matter = $this->query_obj_ss($q)) {
 			$matter->type = $type;
 		}
@@ -66,9 +59,6 @@ class base_model extends \TMS_MODEL {
 		switch ($type) {
 		case 'text':
 			$q = ['id,title', 'xxt_text', ["id" => $id]];
-			break;
-		case 'joinwall':
-			$q = ['id,title', 'xxt_wall', ["id" => $id]];
 			break;
 		case 'mschema':
 			$q = ['id,title', 'xxt_site_member_schema', ["id" => $id]];

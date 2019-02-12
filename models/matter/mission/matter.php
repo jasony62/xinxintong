@@ -91,9 +91,6 @@ class matter_model extends \TMS_MODEL {
 					}
 					//
 					$options2 = ['fields' => $fields, 'cascaded' => 'N'];
-				} else if (in_array($mm->matter_type, ['wall'])) {
-					$fields = 'siteid,id,title,summary,pic,create_at,creater_name,start_at,end_at';
-					$options2 = ['fields' => $fields];
 				} else if ($mm->matter_type === 'memberschema') {
 					$fields = 'siteid,id,title,create_at,start_at,end_at,url';
 					$options2 = ['fields' => $fields, 'cascaded' => 'N'];

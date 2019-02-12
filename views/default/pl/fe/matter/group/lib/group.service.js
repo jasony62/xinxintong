@@ -124,8 +124,6 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                                 } else if (appType === 'signin') {
                                     url = '/rest/pl/fe/matter/signin/list?site=' + _siteId + '&size=999';
                                     $scope2.data.includeEnroll = 'Y';
-                                } else {
-                                    url = '/rest/pl/fe/matter/wall/list?site=' + _siteId + '&size=999';
                                 }
                                 oMission && (url += '&mission=' + oMission.id);
                                 http2.get(url).then(function(rsp) {
@@ -143,7 +141,6 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                             appType: data.appType
                         };
                         data.appType === 'signin' && (params.includeEnroll = data.includeEnroll);
-                        data.appType === 'wall' && (params.onlySpeaker = data.onlySpeaker);
                         if (notSync) {
                             params.appTitle = data.app.title;
                             defer.resolve(params);
@@ -169,13 +166,6 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                 var defer = $q.defer();
                 if (_oApp.sourceApp) {
                     var url = '/rest/pl/fe/matter/group/record/syncByApp?app=' + _appId
-                    if (_oApp.sourceApp.type === 'wall') {
-                        if (window.confirm('仅同步发言用户用，请按确认！\n同步所有用户，请按取消!')) {
-                            url += '&onlySpeaker=Y';
-                        } else {
-                            url += '&onlySpeaker=N';
-                        }
-                    }
                     http2.get(url).then(function(rsp) {
                         noticebox.success('同步' + rsp.data + '个用户');
                         defer.resolve(rsp.data);

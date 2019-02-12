@@ -3,11 +3,11 @@ namespace site\fe\matter\enroll;
 
 include_once dirname(__FILE__) . '/base.php';
 /**
- * 登记活动
+ * 记录活动
  */
 class schema extends base {
 	/**
-	 * 返回登记活动题目定义
+	 * 返回记录活动题目定义
 	 *
 	 * @param string $app
 	 * @param string $rid

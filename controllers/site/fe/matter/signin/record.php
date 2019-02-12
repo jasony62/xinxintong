@@ -28,12 +28,6 @@ class record extends base {
 	 *
 	 */
 	public function submit_action($site, $app, $submitkey = '') {
-		/* support CORS */
-		//header('Access-Control-Allow-Origin:*');
-		//header('Access-Control-Allow-Methods:POST');
-		//header('Access-Control-Allow-Headers:Content-Type');
-		//$_SERVER['REQUEST_METHOD'] === 'OPTIONS' && exit;
-
 		if (empty($site)) {
 			header('HTTP/1.0 500 parameter error:site is empty.');
 			die('参数错误！');
@@ -69,47 +63,16 @@ class record extends base {
 		 * 检查是否存在匹配的分组记录
 		 */
 		if (!empty($oSigninApp->entryRule->group->id)) {
-			$oGroupApp = $this->model('matter\group')->byId($oSigninApp->entryRule->group->id);
-			if (empty($oGroupApp)) {
-				return new \ParameterError('指定的登记匹配分组活动不存在');
+			$modelGrpUsr = $this->model('matter\group\record');
+			$aMatchResult = $modelGrpUsr->matchByData($oSigninApp->entryRule->group->id, $oSigninApp, $oSigninData, $oUser);
+			if (false === $aMatchResult[0]) {
+				return new \ParameterError($aMatchResult[1]);
 			}
-			/* 获得要检查的登记项 */
-			$requireCheckedData = new \stdClass;
-			foreach ($oSigninApp->dataSchemas as $oSchema) {
-				if (isset($oSchema->requireCheck) && $oSchema->requireCheck === 'Y') {
-					if (isset($oSchema->fromApp) && $oSchema->fromApp === $oSigninApp->entryRule->group->id) {
-						$requireCheckedData->{$oSchema->id} = $mdoelSigRec->getValueBySchema($oSchema, $oSigninData);
-					}
-				}
-			}
-			/* 在指定的分组活动中检查数据 */
-			$modelMatchRec = $this->model('matter\group\player');
-			$groupRecords = $modelMatchRec->byData($oGroupApp, $requireCheckedData);
-			if (empty($groupRecords)) {
-				return new \ParameterError('未在分组活动［' . $oGroupApp->title . '］中找到与提交数据相匹配的记录');
-			}
-			/* 如果匹配的分组数据不唯一，怎么办？ */
-			if (count($groupRecords) > 1) {
-				return new \ParameterError('在分组活动［' . $oGroupApp->title . '］中找到多条与提交数据相匹配的记录，匹配关系不唯一');
-			}
-			$oGroupRecord = $groupRecords[0];
-			/* 如果分组数据中未包含用户信息，更新用户信息 */
-			if (empty($oGroupRecord->userid)) {
-				$oUserAcnt = $this->model('site\user\account')->byId($oUser->uid, ['fields' => 'wx_openid,yx_openid,qy_openid,headimgurl']);
-				if (false === $oUserAcnt) {
-					$oUserAcnt = new \stdClass;
-				}
-				$oUserAcnt->userid = $oUser->uid;
-				$oUserAcnt->nickname = $modelMatchRec->escape($oUser->nickname);
-				$modelMatchRec->update('xxt_group_player', $oUserAcnt, ['id' => $oGroupRecord->id]);
-			}
+			$oGroupRecord = $aMatchResult[1];
 			/* 将匹配的分组记录数据作为提交的登记数据的一部分 */
 			$matchedData = $oGroupRecord->data;
 			foreach ($matchedData as $n => $v) {
 				!isset($oSigninData->{$n}) && $oSigninData->{$n} = $v;
-			}
-			if (isset($oGroupRecord->round_id)) {
-				$oSigninData->_round_id = $oGroupRecord->round_id;
 			}
 		}
 		/**
@@ -217,13 +180,13 @@ class record extends base {
 				$oMission = $this->model('matter\mission')->byId($oSigninApp->mission_id, ['fields' => 'siteid,id,user_app_type,user_app_id']);
 				if ($oMission->user_app_type === 'group') {
 					$oMisUsrGrpApp = (object) ['id' => $oMission->user_app_id];
-					$oMisGrpUser = $this->model('matter\group\player')->byUser($oMisUsrGrpApp, $oUser->uid, ['onlyOne' => true, 'round_id']);
+					$oMisGrpUser = $this->model('matter\group\record')->byUser($oMisUsrGrpApp, $oUser->uid, ['onlyOne' => true, 'team_id']);
 				}
 				$oMisUsr = $modelMisUsr->byId($oMission, $oUser->uid, ['fields' => 'id,nickname,group_id,last_signin_at,signin_num,user_total_coin']);
 				if (false === $oMisUsr) {
 					$aNewMisUser = ['last_signin_at' => time(), 'signin_num' => 1];
-					if (!empty($oMisGrpUser->round_id)) {
-						$aNewMisUser['group_id'] = $oMisGrpUser->round_id;
+					if (!empty($oMisGrpUser->team_id)) {
+						$aNewMisUser['group_id'] = $oMisGrpUser->team_id;
 					}
 					if (!empty($aCoinRules)) {
 						$aNewMisUser['user_total_coin'] = 0;
@@ -237,9 +200,9 @@ class record extends base {
 					if ($oMisUsr->nickname !== $oUser->nickname) {
 						$aUpdMisUser['nickname'] = $oUser->nickname;
 					}
-					if (isset($oMisGrpUser->round_id)) {
-						if ($oMisUsr->group_id !== $oMisGrpUser->round_id) {
-							$aUpdMisUser['group_id'] = $oMisGrpUser->round_id;
+					if (isset($oMisGrpUser->team_id)) {
+						if ($oMisUsr->group_id !== $oMisGrpUser->team_id) {
+							$aUpdMisUser['group_id'] = $oMisGrpUser->team_id;
 						}
 					}
 					if (!empty($aCoinRules)) {

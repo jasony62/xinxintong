@@ -183,11 +183,11 @@ class base extends \site\fe\base {
 					$msg = '【' . $oMatter->title . '】指定的分组活动不可访问，请联系活动的组织者解决。';
 				} else {
 					$bMatched = false;
-					$oGroupUsr = $this->model('matter\group\player')->byUser($oGroupApp, $oUser->uid, ['fields' => 'round_id,round_title']);
+					$oGroupUsr = $this->model('matter\group\record')->byUser($oGroupApp, $oUser->uid, ['fields' => 'team_id,team_title']);
 					if (count($oGroupUsr)) {
 						$oGroupUsr = $oGroupUsr[0];
-						if (isset($oEntryRule->group->round->id)) {
-							if ($oGroupUsr->round_id === $oEntryRule->group->round->id) {
+						if (isset($oEntryRule->group->team->id)) {
+							if ($oGroupUsr->team_id === $oEntryRule->group->team->id) {
 								$bMatched = true;
 							}
 						} else {
@@ -212,18 +212,18 @@ class base extends \site\fe\base {
 		return [true];
 	}
 	/**
-	 * 检查登记活动作为进入规则
+	 * 检查记录活动作为进入规则
 	 */
 	protected function checkEnrollEntryRule($oMatter, $bRedirect) {
 		$oEntryRule = $oMatter->entryRule;
 		if ($this->getDeepValue($oEntryRule, 'optional.enroll') !== 'Y') {
 			$oUser = $this->who;
 			if (empty($oEntryRule->enroll->id)) {
-				$msg = '没有指定作为进入规则的登记活动，请联系活动的组织者解决。';
+				$msg = '没有指定作为进入规则的记录活动，请联系活动的组织者解决。';
 			} else {
 				$oEnlApp = $this->model('matter\enroll')->byId($oEntryRule->enroll->id, ['fields' => 'id,state,title']);
 				if (false === $oEnlApp && $oEnlApp->state !== '1') {
-					$msg = '指定作为进入规则的登记活动不存在，请联系活动的组织者解决。';
+					$msg = '指定作为进入规则的记录活动不存在，请联系活动的组织者解决。';
 				}
 			}
 			$oEnlUsr = $this->model('matter\enroll\user')->byId($oEnlApp, $oUser->uid, ['fields' => 'enroll_num']);

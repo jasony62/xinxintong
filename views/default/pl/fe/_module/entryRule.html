@@ -24,7 +24,7 @@
 </div>
 <div class='checkbox' ng-if="-1===tkEntryRule.excludeRules.indexOf('group')">
     <label>
-        <input type='checkbox' ng-true-value="'Y'" ng-model="tkEntryRule.rule.scope.group" ng-change="tkEntryRule.changeUserScope('group')">用户参与活动前需要在分组活动</label><span class='badge' ng-if="tkEntryRule.rule.scope.group==='Y'"><a href='/rest/pl/fe/matter/group?site={{tkEntryRule.matter.siteid}}&id={{tkEntryRule.rule.group.id}}' target='_blank'><span>{{tkEntryRule.rule.group.title}}</span><span ng-if="tkEntryRule.rule.group.round.title"> - {{tkEntryRule.rule.group.round.title}}</span></a></span>中分组 <a ng-if="tkEntryRule.rule.scope.group==='Y'" href ng-click="tkEntryRule.chooseGroupApp()">指定</a>
+        <input type='checkbox' ng-true-value="'Y'" ng-model="tkEntryRule.rule.scope.group" ng-change="tkEntryRule.changeUserScope('group')">用户参与活动前需要在分组活动</label><span class='badge' ng-if="tkEntryRule.rule.scope.group==='Y'"><a href='/rest/pl/fe/matter/group?site={{tkEntryRule.matter.siteid}}&id={{tkEntryRule.rule.group.id}}' target='_blank'><span>{{tkEntryRule.rule.group.title}}</span><span ng-if="tkEntryRule.rule.group.team.title"> - {{tkEntryRule.rule.group.team.title}}</span></a></span>中分组 <a ng-if="tkEntryRule.rule.scope.group==='Y'" href ng-click="tkEntryRule.chooseGroupApp()">指定</a>
     <div style='margin-left:20px'>
         <label class='checkbox-inline'>
             <input type='checkbox' ng-true-value="'Y'" ng-model="tkEntryRule.rule.optional.group" ng-change="tkEntryRule.changeUserScope('group')">不强制要求用户在分组活动中</label>

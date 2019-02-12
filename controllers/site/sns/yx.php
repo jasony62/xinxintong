@@ -50,93 +50,24 @@ class yx extends \xxt_base {
 		$modelLog = $this->model('log');
 		$msg = $call->to_array();
 		$msg['siteid'] = $site;
-		/**
-		 * 对于易信来说，由于msgid可能重复造成不能回复 先暂时把去重检查注释掉同时先记录日志，以后再完善
-		 *
-		 *
-		if (!empty($msg['msgid']) && $modelLog->hasReceived($msg)) {
-		die('');
-		}
-		 */
 		$modelLog->receive($msg);
 		/**
-		 * 消息分流处理
-		 * 【信息墙】需要从现有信息处理流程中形成分支，分支中进行处理就可以了。
-		 * 如果分支进行了处理，可以通过返回值告知是否还需要进行处理
+		 * 处理消息
 		 */
-		if ($this->_fork($msg)) {
-			/**
-			 * 分支活动负责处理
-			 */
-			die('');
-		} else {
-			/**
-			 * 处理消息
-			 */
-			switch ($msg['type']) {
-			case 'text':
-				$this->_textCall($msg);
-				break;
-			case 'event':
-				$this->_eventCall($msg);
-				break;
-			case 'location':
-				if ($reply = $this->model('sns\yx\event')->otherCall($site, 'location')) {
-					$r = $this->model('sns\reply\\' . $reply->matter_type, $msg, $reply->matter_id);
-					$r->exec();
-				}
+		switch ($msg['type']) {
+		case 'text':
+			$this->_textCall($msg);
+			break;
+		case 'event':
+			$this->_eventCall($msg);
+			break;
+		case 'location':
+			if ($reply = $this->model('sns\yx\event')->otherCall($site, 'location')) {
+				$r = $this->model('sns\reply\\' . $reply->matter_type, $msg, $reply->matter_id);
+				$r->exec();
 			}
-			die('');
 		}
-	}
-	/**
-	 * 消息分流处理
-	 */
-	private function _fork($msg) {
-		if ($fa = $this->_currentForkActivity($msg)) {
-			/**
-			 * 由分支活动负责处理消息
-			 */
-			$reply = $fa[1]->handle($fa[0], $msg, $this);
-			if (is_string($reply)) {
-				/**
-				 * 返回分支活动的回复
-				 */
-				$tr = $this->model('sns\reply\text', $msg, $reply, false);
-				$tr->exec();
-			} else {
-				/**
-				 * 只允许在一个活动中进行处理
-				 */
-				return $reply;
-			}
-		} else {
-			/**
-			 * 没有进行处理
-			 */
-			return false;
-		}
-	}
-	/**
-	 * 获得有效的分支活动
-	 *
-	 * 目前只有信息墙一种活动
-	 * 判断当前用户是否已经加入了活动，且仍然处于活动状态
-	 *
-	 * return array 0：活动的ID，1：活动实例
-	 *
-	 */
-	private function _currentForkActivity($msg) {
-		$siteId = $msg['siteid'];
-		$openid = $msg['from_user'];
-		$fromSrc = $msg['src'];
-		$wall = $this->model('matter\wall');
-
-		if ($wid = $wall->joined($siteId, $openid, $fromSrc)) {
-			return array($wid, $wall);
-		} else {
-			return false;
-		}
+		die('');
 	}
 	/**
 	 * 事件消息处理
@@ -334,18 +265,6 @@ class yx extends \xxt_base {
 			}
 
 			switch ($reply->matter_type) {
-			case 'joinwall': // 加入信息墙
-				$r = $this->model('sns\reply\joinwall', $call, $reply->matter_id);
-				$tip = $r->exec(false);
-				if (!empty($tip)) {
-					$message = array(
-						"msgtype" => "text",
-						"text" => array(
-							"content" => $tip,
-						),
-					);
-				}
-				break;
 			case 'enrollreceiver':
 				$r = $this->model('sns\reply\enrollreceiver', $call, $reply->matter_id);
 				$tip = $r->exec(false);

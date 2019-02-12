@@ -132,11 +132,9 @@ class channel_model extends article_base {
 				'article' => 'xxt_article',
 				'enroll' => 'xxt_enroll',
 				'signin' => 'xxt_signin',
-				'lottery' => 'xxt_lottery',
 				//'channel' => 'xxt_channel',
 				//'news' => 'xxt_news',
 				'link' => 'xxt_link',
-				'wall' => 'xxt_wall',
 				'mission' => 'xxt_mission',
 			];
 		} else {
@@ -178,7 +176,6 @@ class channel_model extends article_base {
 				break;
 			case 'enroll':
 			case 'signin':
-			case 'lottery':
 				$qaw .= " and m.state<>0";
 				break;
 			default:
@@ -376,7 +373,6 @@ class channel_model extends article_base {
 				switch ($sm->matter_type) {
 				case 'enroll':
 				case 'signin':
-				case 'lottery':
 					if ($fullMatter->state !== '1' && $fullMatter->state !== '2') {
 						$valid = false;
 					}

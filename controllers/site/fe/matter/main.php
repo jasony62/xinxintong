@@ -257,7 +257,7 @@ class main extends \site\fe\matter\base {
 		$logClient->agent = $_SERVER['HTTP_USER_AGENT'];
 		$logClient->ip = $this->client_ip();
 
-		// 登记活动的专题页和讨论页和共享页需要单独记录
+		// 记录活动的专题页和讨论页和共享页需要单独记录
 		if ($type === 'enroll') {
 			$targets = ['topic', 'repos', 'cowork'];
 			if (!empty($options['target_type']) && in_array($options['target_type'], $targets) && !empty($options['target_id'])) {
@@ -290,16 +290,7 @@ class main extends \site\fe\matter\base {
 	 *
 	 */
 	public function logShare_action($shareid, $site, $id, $type, $title, $shareto, $shareby = '', $shareUrl = '', $rid = '', $target_type = '', $target_id = '') {
-		//header('Access-Control-Allow-Origin:*');
-
 		$model = $this->model();
-		/* 检查请求是否由客户端发起 */
-		if ($type === 'lottery') {
-			if (!$this->_isAgentEnter($id)) {
-				return new \ResponseError('请从指定客户端发起请求');
-			}
-		}
-
 		switch ($type) {
 		case 'article':
 			$table = 'xxt_article';
@@ -312,9 +303,6 @@ class main extends \site\fe\matter\base {
 			break;
 		case 'enroll':
 			$table = 'xxt_enroll';
-			break;
-		case 'lottery':
-			$table = 'xxt_lottery';
 			break;
 		default:
 			return new \ResponseError('不支持的类型');
@@ -355,7 +343,7 @@ class main extends \site\fe\matter\base {
 				}
 			}
 
-			// 登记活动的专题页和讨论页和共享页需要单独记录
+			// 记录活动的专题页和讨论页和共享页需要单独记录
 			$targets = ['topic', 'repos', 'cowork'];
 			if (!empty($target_type) && in_array($target_type, $targets) && !empty($target_id)) {
 				$logMatter->id = $target_id;

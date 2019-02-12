@@ -92,7 +92,6 @@ define(['frame'], function(ngApp) {
                     });
                     break;
                 case 'signin':
-                case 'wall':
                 case 'group':
                     url += type + '/copy?app=' + id + '&site=' + siteid;
                     break;

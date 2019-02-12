@@ -18,23 +18,22 @@ class group_model extends app_base {
 	}
 	/**
 	 *
-	 * $aid string
-	 * $options array
+	 * @param $aid string
+	 * @param $aOptions array
 	 */
 	public function &byId($aid, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$cascaded = isset($aOptions['cascaded']) ? $aOptions['cascaded'] : 'Y';
 		$q = [
 			$fields,
-			'xxt_group',
+			$this->table(),
 			['id' => $aid],
 		];
 
 		if ($oApp = $this->query_obj_ss($q)) {
 			$oApp->type = 'group';
 			if ($cascaded === 'Y') {
-				$rounds = $this->model('matter\group\round')->byApp($aid);
-				$oApp->rounds = $rounds;
+				$oApp->teams = $this->model('matter\group\team')->byApp($aid);
 			}
 			if ($fields === '*' || false !== strpos($fields, 'data_schemas')) {
 				if (!empty($oApp->data_schemas)) {
@@ -113,7 +112,7 @@ class group_model extends app_base {
 		return $apps;
 	}
 	/**
-	 * 更新登记活动标签
+	 * 更新记录活动标签
 	 */
 	public function updateTags($aid, $tags) {
 		if (empty($tags)) {
@@ -145,17 +144,17 @@ class group_model extends app_base {
 	 * 进行分组
 	 */
 	public function execute($appId) {
-		$app = \TMS_APP::M('matter\group')->byId($appId);
+		$app = $this->model('matter\group')->byId($appId);
 
-		$modelRnd = \TMS_APP::M('matter\group\round');
-		$rst = $modelRnd->clean($appId);
-		$rounds = $modelRnd->byApp($appId);
+		$modelTeam = $this->model('matter\group\team');
+		$rst = $modelTeam->clean($appId);
+		$rounds = $modelTeam->byApp($appId);
 		if (empty($rounds)) {
 			return [false, '没有指定分组'];
 		}
 
-		$modelPly = \TMS_APP::M('matter\group\player');
-		$players = $modelPly->pendings($appId);
+		$modelGrpRec = \TMS_APP::M('matter\group\record');
+		$players = $modelGrpRec->pendings($appId);
 
 		$lenOfRounds = count($rounds);
 		$lenOfPlayers = count($players);
@@ -172,15 +171,15 @@ class group_model extends app_base {
 				$round->times == 0 && ($round->times = $spaceOfRound);
 				if ($round->times > count($round->winners)) {
 					$winner4Round = $this->_getWinner4Round($round, $players);
-					$winner4Round->round_id = $round->round_id;
+					$winner4Round->team_id = $round->team_id;
 					$submittedWinners[] = $winner4Round;
 					/*保存结果*/
 					$winner = array(
-						'round_id' => $round->round_id,
-						'round_title' => $round->title,
+						'team_id' => $round->team_id,
+						'team_title' => $round->title,
 						'draw_at' => $current,
 					);
-					$modelPly->update('xxt_group_player', $winner, "aid='$appId' and enroll_key='{$winner4Round->enroll_key}'");
+					$modelGrpRec->update('xxt_group_record', $winner, "aid='$appId' and enroll_key='{$winner4Round->enroll_key}'");
 					/*轮次是否还可以继续放用户*/
 					if ($round->times > count($round->winners)) {
 						$hasSpace = true;
@@ -256,17 +255,17 @@ class group_model extends app_base {
 	 */
 	public function &opData($app) {
 		$aOptions = ['cascade' => 'playerCount'];
-		$rounds = $this->model('matter\group\round')->byApp($app->id, $aOptions);
+		$teams = $this->model('matter\group\team')->byApp($app->id, $aOptions);
 
-		return $rounds;
+		return $teams;
 	}
 	/**
 	 * 指定用户的行为报告
 	 */
 	public function reportByUser($oApp, $oUser) {
-		$modelPly = $this->model('matter\group\player');
+		$modelGrpRec = $this->model('matter\group\record');
 
-		$result = $modelPly->byUser($oApp, $oUser->userid, ['fields' => 'id,round_id,round_title,comment']);
+		$result = $modelGrpRec->byUser($oApp, $oUser->userid, ['fields' => 'id,team_id,team_title,comment']);
 
 		return $result;
 	}
@@ -306,7 +305,7 @@ class group_model extends app_base {
 		if (isset($oCustomConfig->proto->sourceApp)) {
 			$oSourceApp = $oCustomConfig->proto->sourceApp;
 			if (!empty($oSourceApp->id) && !empty($oSourceApp->type)) {
-				$modelGrpUsr = $this->model('matter\group\player');
+				$modelGrpUsr = $this->model('matter\group\record');
 				switch ($oSourceApp->type) {
 				case 'enroll':
 				case 'registration':
@@ -315,9 +314,6 @@ class group_model extends app_base {
 				case 'signin':
 					$modelGrpUsr->assocWithSignin($oNewApp, $oSourceApp->id);
 					break;
-				case 'wall':
-					break;
-					$modelGrpUsr->assocWithWall($oNewApp, $oSourceApp->id, $oSourceApp->onlySpeaker);
 				case 'mschema':
 					$modelGrpUsr->assocWithMschema($oNewApp, $oSourceApp->id);
 					break;

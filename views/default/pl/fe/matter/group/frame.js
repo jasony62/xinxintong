@@ -2,17 +2,17 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates'], function(RoutePar
     'use strict';
     var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'notice.ui.xxt', 'notice.ui.xxt', 'schema.ui.xxt', 'service.matter', 'service.group']);
     ngApp.constant('cstApp', CstApp);
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvQuickEntryProvider', 'srvSiteProvider', 'srvGroupAppProvider', 'srvGroupRoundProvider', 'srvTagProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvQuickEntryProvider, srvSiteProvider, srvGroupAppProvider, srvGroupRoundProvider, srvTagProvider) {
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvQuickEntryProvider', 'srvSiteProvider', 'srvGroupAppProvider', 'srvGroupTeamProvider', 'srvTagProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvQuickEntryProvider, srvSiteProvider, srvGroupAppProvider, srvGroupTeamProvider, srvTagProvider) {
         ngApp.provider = {
             controller: $controllerProvider.register,
             directive: $compileProvider.directive
         };
         $routeProvider
             .when('/rest/pl/fe/matter/group/main', new RouteParam('main'))
-            .when('/rest/pl/fe/matter/group/round', new RouteParam('round'))
-            .when('/rest/pl/fe/matter/group/user', new RouteParam('user'))
+            .when('/rest/pl/fe/matter/group/team', new RouteParam('team'))
+            .when('/rest/pl/fe/matter/group/record', new RouteParam('record'))
             .when('/rest/pl/fe/matter/group/notice', new RouteParam('notice'))
-            .otherwise(new RouteParam('user'));
+            .otherwise(new RouteParam('record'));
 
         $locationProvider.html5Mode(true);
         $uibTooltipProvider.setTriggers({
@@ -28,11 +28,11 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates'], function(RoutePar
             srvSiteProvider.config(siteId);
             srvTagProvider.config(siteId);
             srvGroupAppProvider.config(siteId, appId);
-            srvGroupRoundProvider.config(siteId, appId);
+            srvGroupTeamProvider.config(siteId, appId);
             srvQuickEntryProvider.setSiteId(siteId);
         })();
     }]);
-    ngApp.controller('ctrlApp', ['$scope', 'cstApp', 'srvSite', 'srvGroupApp', 'tkGroupRnd', '$location', function($scope, cstApp, srvSite, srvGroupApp, tkGroupRnd, $location) {
+    ngApp.controller('ctrlApp', ['$scope', 'cstApp', 'srvSite', 'srvGroupApp', '$location', function($scope, cstApp, srvSite, srvGroupApp, $location) {
         $scope.cstApp = cstApp;
         $scope.frameTemplates = frameTemplates;
         $scope.opened = '';
@@ -41,10 +41,10 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates'], function(RoutePar
             $scope.subView = subView[1] === 'group' ? 'user' : subView[1];
             switch ($scope.subView) {
                 case 'main':
-                case 'round':
+                case 'team':
                     $scope.opened = 'edit';
                     break;
-                case 'user':
+                case 'record':
                     $scope.opened = 'data';
                     break;
                 case 'notice':

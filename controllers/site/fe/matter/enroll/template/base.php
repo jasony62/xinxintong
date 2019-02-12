@@ -2,7 +2,7 @@
 namespace site\fe\matter\enroll\template;
 
 /**
- * 登记活动模板
+ * 记录活动模板
  */
 class base extends \TMS_CONTROLLER {
 	/**

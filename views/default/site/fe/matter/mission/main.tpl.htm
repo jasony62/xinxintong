@@ -103,7 +103,7 @@
             <nav style='margin-bottom:20px;' ng-if="groupUsers.length&&mission.groupUser.is_leader==='Y'">
                 <form class='form-inline'>
                     <div>
-                        <label>查看【{{mission.groupUser.round_title}}】成员</label>
+                        <label>查看【{{mission.groupUser.team_title}}】成员</label>
                         <select class='form-control' ng-model="criteria.groupUser" ng-options="usr.nickname for usr in groupUsers" ng-change="shiftGroupUser(criteria.groupUser)"></select>
                     </div>
                 </form>

@@ -51,10 +51,10 @@ class main extends \pl\fe\matter\main_base {
 					$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'title', 'cascaded' => 'Y']);
 					if ($oGroupApp) {
 						$oRuleApp->title = $oGroupApp->title;
-						if (!empty($oRuleApp->round->id)) {
-							$oGroupRnd = $this->model('matter\group\round')->byId($oRuleApp->round->id, ['fields' => 'title']);
-							if ($oGroupRnd) {
-								$oRuleApp->round->title = $oGroupRnd->title;
+						if (!empty($oRuleApp->team->id)) {
+							$oGrpTeam = $this->model('matter\group\team')->byId($oRuleApp->team->id, ['fields' => 'title']);
+							if ($oGrpTeam) {
+								$oRuleApp->team->title = $oGrpTeam->title;
 							}
 						}
 						$oApp->groupApp = $oGroupApp;
@@ -169,7 +169,7 @@ class main extends \pl\fe\matter\main_base {
 	}
 	/**
 	 *
-	 * 复制一个登记活动
+	 * 复制一个记录活动
 	 *
 	 * @param string $site
 	 * @param string $app
@@ -237,8 +237,8 @@ class main extends \pl\fe\matter\main_base {
 					if (isset($v->group->title)) {
 						unset($v->group->title);
 					}
-					if (isset($v->group->round->title)) {
-						unset($v->group->round->title);
+					if (isset($v->group->team->title)) {
+						unset($v->group->team->title);
 					}
 				}
 				$oUpdated->entry_rule = $modelApp->escape($modelApp->toJson($v));

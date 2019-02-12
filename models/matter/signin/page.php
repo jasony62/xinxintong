@@ -63,7 +63,7 @@ class page_model extends \TMS_MODEL {
 		return $oPage;
 	}
 	/**
-	 * 返回指定登记活动的页面
+	 * 返回指定记录活动的页面
 	 */
 	public function &byApp($appId, $options = [], $published = 'N') {
 		$cascade = isset($options['cascade']) ? $options['cascade'] : 'Y';

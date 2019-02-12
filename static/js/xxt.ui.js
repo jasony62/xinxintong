@@ -25,23 +25,11 @@ constant('matterTypes', [{
     url: '/rest/pl/fe/matter'
 }, {
     value: 'enroll',
-    title: '登记活动',
+    title: '记录活动',
     url: '/rest/pl/fe/matter'
 }, {
     value: 'signin',
     title: '签到活动',
-    url: '/rest/pl/fe/matter'
-}, {
-    value: 'lottery',
-    title: '抽奖活动',
-    url: '/rest/pl/fe/matter'
-}, {
-    value: 'wall',
-    title: '信息墙',
-    url: '/rest/pl/fe/matter'
-}, {
-    value: 'joinwall',
-    title: '进入信息墙',
     url: '/rest/pl/fe/matter'
 }, {
     value: 'inner',

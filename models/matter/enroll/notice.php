@@ -25,23 +25,21 @@ class notice_model extends \TMS_MODEL {
 			$noticeReason = 'as.editor'; // 用户提交新记录，去处理
 		}
 		if (!empty($targetGroupId)) {
-			$modelGrpUsr = $this->model('matter\group\player');
 			$q = [
 				'userid,nickname',
-				'xxt_group_player',
-				['round_id' => $targetGroupId, 'state' => 1, 'userid' => (object) ['op' => '<>', 'pat' => $oRecord->userid]],
+				'xxt_group_record',
+				['team_id' => $targetGroupId, 'state' => 1, 'userid' => (object) ['op' => '<>', 'pat' => $oRecord->userid]],
 			];
-			$grpUsers = $modelGrpUsr->query_objs_ss($q);
+			$grpUsers = $this->query_objs_ss($q);
 		} else {
 			if (isset($oApp->entryRule->group->id)) {
 				$noticeReason = 'as.super';
-				$modelGrpUsr = $this->model('matter\group\player');
 				$q = [
 					'userid,nickname',
-					'xxt_group_player',
+					'xxt_group_record',
 					['aid' => $oApp->entryRule->group->id, 'state' => 1, 'is_leader' => 'S', 'userid' => (object) ['op' => '<>', 'pat' => $oRecord->userid]],
 				];
-				$grpUsers = $modelGrpUsr->query_objs_ss($q);
+				$grpUsers = $this->query_objs_ss($q);
 			}
 		}
 		/* 生成通知 */
@@ -91,13 +89,12 @@ class notice_model extends \TMS_MODEL {
 		}
 		/* 记录提交者的同组用户 */
 		if (!empty($oRecData->group_id)) {
-			$modelGrpUsr = $this->model('matter\group\player');
 			$q = [
 				'userid,nickname',
-				'xxt_group_player',
-				['round_id' => $oRecData->group_id, 'state' => 1, 'userid' => (object) ['op' => '<>', 'pat' => $oUser->uid]],
+				'xxt_group_record',
+				['team_id' => $oRecData->group_id, 'state' => 1, 'userid' => (object) ['op' => '<>', 'pat' => $oUser->uid]],
 			];
-			$grpUsers = $modelGrpUsr->query_objs_ss($q);
+			$grpUsers = $this->query_objs_ss($q);
 			foreach ($grpUsers as $oGrpUser) {
 				if (!isset($oTargetUsers[$oGrpUser->userid])) {
 					$oTargetUsers[$oGrpUser->userid] = (object) ['nickname' => $oGrpUser->nickname, 'reason' => 'same.group'];

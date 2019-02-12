@@ -3,7 +3,7 @@ namespace site\fe\matter\enroll;
 
 include_once dirname(__FILE__) . '/base.php';
 /**
- * 登记活动排行榜
+ * 记录活动排行榜
  */
 class rank extends base {
 	/**
@@ -93,8 +93,8 @@ class rank extends base {
 		$users = $modelUsr->query_objs_ss($q, $q2);
 		if (count($users) && !empty($oApp->entryRule->group->id)) {
 			$q = [
-				'userid,round_id,round_title',
-				'xxt_group_player',
+				'userid,team_id,team_title',
+				'xxt_group_record',
 				['aid' => $oApp->entryRule->group->id],
 			];
 			$userGroups = $modelUsr->query_objs_ss($q);
@@ -103,8 +103,8 @@ class rank extends base {
 				foreach ($userGroups as $oUserGroup) {
 					if (!empty($oUserGroup->userid)) {
 						$userGroups2->{$oUserGroup->userid} = new \stdClass;
-						$userGroups2->{$oUserGroup->userid}->round_id = $oUserGroup->round_id;
-						$userGroups2->{$oUserGroup->userid}->round_title = $oUserGroup->round_title;
+						$userGroups2->{$oUserGroup->userid}->team_id = $oUserGroup->team_id;
+						$userGroups2->{$oUserGroup->userid}->team_title = $oUserGroup->team_title;
 					}
 				}
 				foreach ($users as $oUser) {
@@ -128,9 +128,9 @@ class rank extends base {
 		if ($oApp === false || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-		$modelGrpRnd = $this->model('matter\group\round');
+		$modelGrpTeam = $this->model('matter\group\team');
 		if (!empty($oApp->entryRule->group->id)) {
-			$rounds = $modelGrpRnd->byApp($oApp->entryRule->group->id, ['cascade' => 'playerCount']);
+			$rounds = $modelGrpTeam->byApp($oApp->entryRule->group->id, ['cascade' => 'playerCount']);
 		}
 		if (empty($rounds)) {
 			return new \ObjectNotFoundError();
@@ -139,7 +139,7 @@ class rank extends base {
 		$userGroups = [];
 		foreach ($rounds as $oRound) {
 			$oNewGroup = new \stdClass;
-			$oNewGroup->v = $oRound->round_id;
+			$oNewGroup->v = $oRound->team_id;
 			$oNewGroup->l = $oRound->title;
 			$oNewGroup->playerCount = $oRound->playerCount;
 			$userGroups[] = $oNewGroup;

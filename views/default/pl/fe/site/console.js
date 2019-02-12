@@ -69,9 +69,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             case 'enroll':
             case 'signin':
             case 'group':
-            case 'lottery':
             case 'link':
-            case 'wall':
                 location.href = url + '?id=' + id + '&site=' + $scope.siteId;
                 break;
             case 'mission':
@@ -88,7 +86,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
         if ($scope.matterType === 'recent') {
             http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date() * 1)).then(function(rsp) {
                 $scope.matters = rsp.data.matters;
-                //$scope.page.total = rsp.data.total;
             });
         } else if ($scope.matterType === 'recycle') {
             http2.get('/rest/pl/fe/site/console/recycle?site=' + $scope.siteId + '&_=' + (new Date() * 1)).then(function(rsp) {
@@ -131,8 +128,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                 case 'enroll':
                 case 'signin':
                 case 'group':
-                case 'wall':
-                case 'lottery':
                     url += type + '/remove?app=' + id + '&site=' + $scope.siteId;
                     break;
                 default:
@@ -155,7 +150,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                 url += type + '/copy?id=' + id + '&site=' + $scope.siteId;
                 break;
             case 'enroll':
-            case 'wall':
             case 'signin':
             case 'group':
                 url += type + '/copy?app=' + id + '&site=' + $scope.siteId;
@@ -245,7 +239,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             location.href = '/rest/pl/fe/matter/channel?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
-    //研究项目-登记活动
+    //研究项目-记录活动
     $scope.addEnrollByTemplate = function(scenario) {
         templateShop.choose($scope.siteId, 'enroll', scenario).then(function(choice) {
             if (choice) {
@@ -297,11 +291,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             location.href = '/rest/pl/fe/matter/group/main?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
-    $scope.addLottery = function() {
-        http2.get('/rest/pl/fe/matter/lottery/create?site=' + $scope.siteId).then(function(rsp) {
-            location.href = '/rest/pl/fe/matter/lottery?site=' + $scope.siteId + '&id=' + rsp.data;
-        });
-    };
     $scope.addMission = function() {
         http2.get('/rest/pl/fe/matter/mission/create?site=' + $scope.siteId).then(function(rsp) {
             location.href = '/rest/pl/fe/matter/mission?site=' + $scope.siteId + '&id=' + rsp.data.id;
@@ -311,10 +300,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
         http2.get('/rest/pl/fe/matter/custom/create?site=' + $scope.siteId).then(function(rsp) {
             location.href = '/rest/pl/fe/matter/custom?site=' + $scope.siteId + '&id=' + rsp.data;
         });
-    };
-    //信息墙
-    $scope.addWall = function() {
-        location.href = '/rest/pl/fe/matter/wall/shop?site=' + $scope.siteId;
     };
     http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date() * 1)).then(function(rsp) {
         $scope.matters = rsp.data.matters;

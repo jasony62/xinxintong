@@ -27,6 +27,9 @@ module.exports = {
         '/default/site/fe/matter/signin/signin': ['./views/default/site/fe/matter/signin/signin.js'],
         '/default/site/fe/matter/signin/view': ['./views/default/site/fe/matter/signin/view.js'],
         '/default/site/fe/matter/signin/preview': ['./views/default/site/fe/matter/signin/preview.js'],
+        '/default/site/fe/matter/group/main': ['./views/default/site/fe/matter/group/main.js'],
+        '/default/site/fe/matter/group/team': ['./views/default/site/fe/matter/group/team.js'],
+        '/default/site/fe/matter/group/invite': ['./views/default/site/fe/matter/group/invite.js'],
         '/default/site/fe/matter/plan/main': ['./views/default/site/fe/matter/plan/main.js'],
         '/default/site/fe/invite/access': ['./views/default/site/fe/invite/access.js']
     },

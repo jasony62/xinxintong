@@ -16,41 +16,41 @@ class notice extends \pl\fe\matter\base {
 	/**
 	 * 给分组活动的参与人发消息
 	 *
-	 * @param string $site site'id
 	 * @param string $app app'id
 	 * @param string $tmplmsg 模板消息id
 	 *
 	 */
 	public function send_action() {
-		if (false === ($user = $this->accountUser())) {
+		if (false === $this->accountUser()) {
 			return new \ResponseTimeout();
 		}
 
-		$modelRec = $this->model('matter\group\player');
-		$posted = $this->getPostJson();
-		if (empty($posted->app) || empty($posted->tmplmsg)) {
+		$oPosted = $this->getPostJson();
+		if (empty($oPosted->app) || empty($oPosted->tmplmsg)) {
 			return new \ResponseError('参数不完整');
 		}
-		$app = $modelRec->escape($posted->app);
-		$tmplmsg = $modelRec->escape($posted->tmplmsg);
-		
+
+		$modelGrpRec = $this->model('matter\group\record');
+		$app = $modelGrpRec->escape($oPosted->app);
+		$tmplmsg = $modelGrpRec->escape($oPosted->tmplmsg);
+
 		$oApp = $this->model('matter\group')->byId($app);
 		if (false === $oApp) {
 			return new \ObjectNotFountError();
 		}
 
-		if (empty($posted->users)) {
+		if (empty($oPosted->users)) {
 			// 筛选条件
-			$options = new \stdClass;
-			isset($posted->tags) && $options->tags = $posted->tags;
-			$users = $modelRec->byApp($oApp, $options)->players;
+			$oOptions = new \stdClass;
+			isset($oPosted->tags) && $oOptions->tags = $oPosted->tags;
+			$users = $modelGrpRec->byApp($oApp, $oOptions)->records;
 		} else {
 			// 直接指定
-			$users = $posted->users;
+			$users = $oPosted->users;
 		}
 
 		if (count($users)) {
-			$params = $posted->message;
+			$params = $oPosted->message;
 			$rst = $this->_notifyWithMatter($oApp->siteid, $app, $users, $tmplmsg, $params);
 			if ($rst[0] === false) {
 				return new \ResponseError($rst[1]);
@@ -109,7 +109,7 @@ class notice extends \pl\fe\matter\base {
 
 		/* 和登记记录进行关联 */
 		if (count($logs)) {
-			$modelRec = $this->model('matter\group\player');
+			$modelRec = $this->model('matter\group\record');
 			$records = [];
 			$records2 = [];
 			foreach ($logs as &$log) {

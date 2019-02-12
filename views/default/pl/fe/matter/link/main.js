@@ -183,7 +183,7 @@ define(['frame'], function(ngApp) {
             var oOptions = {
                 matterTypes: [{
                     value: 'enroll',
-                    title: '登记活动',
+                    title: '记录活动',
                     url: '/rest/pl/fe/matter'
                 },{
                     value: 'article',

@@ -449,12 +449,6 @@ class record_model extends \matter\enroll\record_base {
 		return $records;
 	}
 	/**
-	 * 生成活动登记的key
-	 */
-	public function genKey($siteId, $appId) {
-		return md5(uniqid() . $siteId . $appId);
-	}
-	/**
 	 * 清除一条用户记录
 	 *
 	 * @param object $oApp
@@ -731,27 +725,17 @@ class record_model extends \matter\enroll\record_base {
 				$oSigninedUsers[] = $oUser->userid;
 			}
 		}
-		$aAllUsrs = [];
 		if (!empty($oApp->entryRule->group->id)) {
-			$modelGrpUsr = $this->model('matter\group\player');
-			$aGrpUsrs = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['fields' => 'userid,nickname,is_leader,round_id,round_title']);
-			foreach ($aGrpUsrs->players as $oGrpUsr) {
-				if (false === in_array($oGrpUsr->userid, $oSigninedUsers)) {
-					$aAllUsrs[] = $oGrpUsr;
-				}
-			}
+			$modelGrpRec = $this->model('matter\group\record');
+			$oGrpUsrsResult = $modelGrpRec->byApp($oApp->entryRule->group->id, ['fields' => 'userid,nickname,is_leader,team_id,team_title']);
+			$aAllUsrs = array_filter($oGrpUsrsResult->records, function ($oGrpRec) use ($oSigninedUsers) {return false === in_array($oGrpRec->userid, $oSigninedUsers);});
 		} else if (!empty($oApp->entryRule->enroll->id)) {
 			$modelRec = $this->model('matter\enroll\record');
-			$result = $modelRec->byApp($oApp->entryRule->enroll->id);
-			if (!empty($result->records)) {
-				foreach ($result->records as $oRec) {
-					if (false === in_array($oRec->userid, $oSigninedUsers)) {
-						$aAllUsrs[] = $oRec;
-					}
-				}
-			}
+			$oResult = $modelRec->byApp($oApp->entryRule->enroll->id);
+			$aAllUsrs = array_filter($oResult->records, function ($oRec) use ($oSigninedUsers) {return false === in_array($oRec->userid, $oSigninedUsers);});
 		} else if (isset($oApp->entryRule->scope->member) && $oApp->entryRule->scope->member === 'Y' && !empty($oApp->entryRule->member)) {
 			$modelMem = $this->model('site\user\member');
+			$aAllUsrs = [];
 			foreach ($oApp->entryRule->member as $mschemaId => $rule) {
 				$members = $modelMem->byMschema($mschemaId);
 				foreach ($members as $oMember) {
@@ -766,21 +750,23 @@ class record_model extends \matter\enroll\record_base {
 		}
 		/* userid去重 */
 		$aAbsentUsrs = [];
-		foreach ($aAllUsrs as $aAbsentUsr) {
-			$isNew = true;
-			foreach ($aAbsentUsrs as $aAbsentUsr2) {
-				if ($aAbsentUsr->userid === $aAbsentUsr2->userid || empty($aAbsentUsr->userid)) {
-					$isNew = false;
-					break;
+		if (!empty($aAllUsrs)) {
+			foreach ($aAllUsrs as $aAbsentUsr) {
+				$isNew = true;
+				foreach ($aAbsentUsrs as $aAbsentUsr2) {
+					if ($aAbsentUsr->userid === $aAbsentUsr2->userid || empty($aAbsentUsr->userid)) {
+						$isNew = false;
+						break;
+					}
 				}
-			}
-			if ($isNew) {
-				if (isset($oApp->absent_cause->{$aAbsentUsr->userid})) {
-					$aAbsentUsr->absent_cause = $oApp->absent_cause->{$aAbsentUsr->userid};
-				} else {
-					$aAbsentUsr->absent_cause = '';
+				if ($isNew) {
+					if (isset($oApp->absent_cause->{$aAbsentUsr->userid})) {
+						$aAbsentUsr->absent_cause = $oApp->absent_cause->{$aAbsentUsr->userid};
+					} else {
+						$aAbsentUsr->absent_cause = '';
+					}
+					$aAbsentUsrs[] = $aAbsentUsr;
 				}
-				$aAbsentUsrs[] = $aAbsentUsr;
 			}
 		}
 

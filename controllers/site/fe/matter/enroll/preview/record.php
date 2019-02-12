@@ -1,7 +1,7 @@
 <?php
 namespace site\fe\matter\enroll\preview;
 /**
- * 登记活动预览
+ * 记录活动预览
  */
 class record extends \TMS_CONTROLLER {
 	/**

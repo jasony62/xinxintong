@@ -3,19 +3,19 @@ namespace site\fe\matter\enroll;
 
 include_once dirname(__FILE__) . '/base.php';
 /**
- * 登记活动标签
+ * 记录活动标签
  */
 class search extends base {
 	/*
-	 *
-	 */
+		 *
+	*/
 	public function moveUserSearch_action($site, $app, $search) {
-		
+
 		return false;
 	}
 	/*
-	 *
-	 */
+		 *
+	*/
 	public function listUserSearch_action($site, $app, $page = 1, $size = 10) {
 		$modelEnl = $this->model('matter\enroll');
 		$oApp = $modelEnl->byId($app, ['cascaded' => 'N']);

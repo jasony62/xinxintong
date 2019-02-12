@@ -3,7 +3,7 @@ namespace site\fe\matter\enroll;
 
 include_once dirname(__FILE__) . '/base.php';
 /**
- * 登记活动填写记录留言
+ * 记录活动填写记录留言
  */
 class remark extends base {
 	/**
@@ -91,17 +91,15 @@ class remark extends base {
 				$oEditor = new \stdClass;
 				$oEditor->group = $oApp->actionRule->role->editor->group;
 				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
-				// 如果登记活动指定了编辑组需要获取，编辑组中所有的用户
-				$modelGrpUsr = $this->model('matter\group\player');
+				// 如果记录活动指定了编辑组需要获取，编辑组中所有的用户
+				$modelGrpUsr = $this->model('matter\group\record');
 				$assocGroupId = $oApp->entryRule->group->id;
-				$groupEditor = $modelGrpUsr->byApp($assocGroupId, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
-				if (isset($groupEditor->players)) {
-					$groupEditorPlayers = $groupEditor->players;
+				$$oGrpRecResult = $modelGrpUsr->byApp($assocGroupId, ['roleTeamId' => $oEditor->group, 'fields' => 'role_teams,userid']);
+				if (isset($$oGrpRecResult->records)) {
 					$oEditorUsers = new \stdClass;
-					foreach ($groupEditorPlayers as $player) {
-						$oEditorUsers->{$player->userid} = $player->role_rounds;
+					foreach ($$oGrpRecResult->records as $oGrpUser) {
+						$oEditorUsers->{$oGrpUser->userid} = $oGrpUser->role_teams;
 					}
-					unset($groupEditorPlayers);
 				}
 			}
 		}
@@ -338,7 +336,7 @@ class remark extends base {
 				}
 			}
 		}
-		/* 通知登记活动事件接收人 */
+		/* 通知记录活动事件接收人 */
 		if (isset($oApp->notifyConfig->remark->valid) && $oApp->notifyConfig->remark->valid === true) {
 			$this->_notifyReceivers($oApp, $oRecord, $oNewRemark);
 		}
@@ -603,18 +601,18 @@ class remark extends base {
 
 		$oUser = $this->getUser($oApp);
 
-		$modelGrpUsr = $this->model('matter\group\player');
+		$modelGrpUsr = $this->model('matter\group\record');
 		/* 当前用户所属分组及角色 */
-		$oGrpLeader = $modelGrpUsr->byUser($oApp->entryRule->group, $oUser->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
+		$oGrpLeader = $modelGrpUsr->byUser($oApp->entryRule->group, $oUser->uid, ['fields' => 'is_leader,team_id', 'onlyOne' => true]);
 		if (false === $oGrpLeader || !in_array($oGrpLeader->is_leader, ['Y', 'S'])) {
 			return new \ParameterError('只允许组长进行推荐');
 		}
 		/* 填写记录用户所属分组 */
 		if ($oGrpLeader->is_leader === 'Y') {
-			$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oRemark->userid, ['fields' => 'round_id', 'onlyOne' => true]);
-			if ($oGrpMemb && !empty($oGrpMemb->round_id)) {
+			$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oRemark->userid, ['fields' => 'team_id', 'onlyOne' => true]);
+			if ($oGrpMemb && !empty($oGrpMemb->team_id)) {
 				/* 填写记录的用户属于一个分组 */
-				if ($oGrpMemb->round_id !== $oGrpLeader->round_id) {
+				if ($oGrpMemb->team_id !== $oGrpLeader->team_id) {
 					return new \ParameterError('只允许组长对本组成员的留言表态');
 				}
 			} else {

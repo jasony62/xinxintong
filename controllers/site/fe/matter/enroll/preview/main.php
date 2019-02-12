@@ -1,7 +1,7 @@
 <?php
 namespace site\fe\matter\enroll\preview;
 /**
- * 登记活动预览
+ * 记录活动预览
  */
 class main extends \TMS_CONTROLLER {
 	/**
@@ -42,10 +42,10 @@ class main extends \TMS_CONTROLLER {
 
 		$modelApp = $this->model('matter\enroll');
 
-		/* 登记活动定义 */
+		/* 记录活动定义 */
 		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
 		if ($oApp === false) {
-			return new \ResponseError('指定的登记活动不存在，请检查参数是否正确');
+			return new \ResponseError('指定的记录活动不存在，请检查参数是否正确');
 		}
 		$params['app'] = &$oApp;
 

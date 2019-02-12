@@ -3,7 +3,7 @@ namespace pl\fe\matter\enroll;
 
 require_once dirname(__FILE__) . '/main_base.php';
 /*
- * 登记活动日志控制器
+ * 记录活动日志控制器
  */
 class log extends main_base {
 	/**

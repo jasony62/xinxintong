@@ -85,7 +85,7 @@ class user extends \site\fe\matter\base {
 		/* 如果项目用户名单是分组活动，获得分组信息 */
 		if ($oMission->user_app_type === 'group' && !empty($oMission->user_app_id)) {
 			$oMisUsrGrpApp = (object) ['id' => $oMission->user_app_id];
-			$modelGrpUsr = $this->model('matter\group\player');
+			$modelGrpUsr = $this->model('matter\group\record');
 		}
 
 		$modelMisUsr = $this->model('matter\mission\user');
@@ -104,7 +104,7 @@ class user extends \site\fe\matter\base {
 		$oResult = new \stdClass;
 		$oResult->users = $modelMisUsr->query_objs_ss($q, $q2);
 		if (count($oResult->users)) {
-			$modelGrpRnd = $this->model('matter\group\round');
+			$modelGrpTeam = $this->model('matter\group\team');
 			$modelSiteAct = $this->model('site\user\account');
 			foreach ($oResult->users as $oUser) {
 				/* user */
@@ -114,14 +114,14 @@ class user extends \site\fe\matter\base {
 				}
 				/* group */
 				if (!empty($oUser->group_id)) {
-					$oGrpRnd = $modelGrpRnd->byId($oUser->group_id, ['fields' => 'title']);
+					$oGrpRnd = $modelGrpTeam->byId($oUser->group_id, ['fields' => 'title']);
 					if ($oGrpRnd) {
 						$oUser->group = (object) ['id' => $oUser->group_id, 'title' => $oGrpRnd->title];
 					}
 				} else if (isset($oMisUsrGrpApp)) {
-					$oGrpUsr = $modelGrpUsr->byUser($oMisUsrGrpApp, $oUser->userid, ['fields' => 'round_id,round_title', 'onlyOne' => true]);
+					$oGrpUsr = $modelGrpUsr->byUser($oMisUsrGrpApp, $oUser->userid, ['fields' => 'team_id,team_title', 'onlyOne' => true]);
 					if ($oGrpUsr) {
-						$oUser->group = (object) ['id' => $oGrpUsr->round_id, 'title' => $oGrpUsr->round_title];
+						$oUser->group = (object) ['id' => $oGrpUsr->team_id, 'title' => $oGrpUsr->team_title];
 					}
 				}
 				unset($oUser->group_id);

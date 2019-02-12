@@ -138,18 +138,10 @@ define(['require', 'frame/RouteParam', 'frame/const'], function(require, RoutePa
             addGroup: function(site) {
                 location.href = '/rest/pl/fe/matter/group/plan?site=' + site.id;
             },
-            addLottery: function(site) {
-                http2.get('/rest/pl/fe/matter/lottery/create?site=' + site.id).then(function(rsp) {
-                    location.href = '/rest/pl/fe/matter/lottery?site=' + site.id + '&id=' + rsp.data.id;
-                });
-            },
             addCustom: function(site) {
                 http2.get('/rest/pl/fe/matter/custom/create?site=' + site.id).then(function(rsp) {
                     location.href = '/rest/pl/fe/matter/custom?site=' + site.id + '&id=' + rsp.data.id;
                 });
-            },
-            addWall: function(site, scenario) {
-                location.href = '/rest/pl/fe/matter/wall/shop?site=' + site.id + '&scenario=' + (scenario || '');
             },
             addText: function(site) {
                 location.href = '/rest/pl/fe/matter/text?site=' + site.id;

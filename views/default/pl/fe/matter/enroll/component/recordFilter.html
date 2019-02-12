@@ -1,5 +1,5 @@
 <style>
-#recordFilter ul {
+    #recordFilter ul {
     padding-left: 0;
 }
 </style>
@@ -44,12 +44,8 @@
         <label>分组</label>
         <select class='form-control' ng-model="criteria.record.group_id">
             <option value=''>全部</option>
-            <option value="{{group.round_id}}" ng-repeat="group in groups">{{group.title}}</option>
+            <option value="{{group.team_id}}" ng-repeat="group in groups">{{group.title}}</option>
         </select>
-        <div class='pl-pagination' ng-show="pageOfRound.total>pageOfRound.size">
-            <span>总数：{{pageOfRound.total}}</span>
-            <ul uib-pagination boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
-        </div>
     </div>
     <div class="form-group" ng-repeat="schema in schemas" id="recordFilter">
         <label>{{schema.title}}</label>

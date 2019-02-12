@@ -88,28 +88,28 @@ class main extends \pl\fe\matter\main_base {
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
 
-		$result = ['apps' => null, 'total' => 0];
+		$aResult = ['apps' => null, 'total' => 0];
 
 		if ($apps = $modelGrp->query_objs_ss($q, $q2)) {
-			$modelGrpRnd = $this->model('matter\group\round');
+			$modelGrpTeam = $this->model('matter\group\team');
 			foreach ($apps as &$oApp) {
 				$oApp->type = 'group';
 				if ($cascaded === 'Y') {
-					$rounds = $modelGrpRnd->byApp($oApp->id);
-					$oApp->rounds = $rounds;
+					$teams = $modelGrpTeam->byApp($oApp->id);
+					$oApp->teams = $teams;
 				}
 			}
-			$result['apps'] = $apps;
+			$aResult['apps'] = $apps;
 		}
 		if ($page == 1) {
-			$result['total'] = count($apps) > 0 ? count($apps) : 0;
+			$aResult['total'] = count($apps) > 0 ? count($apps) : 0;
 		} else {
 			$q[0] = 'count(*)';
 			$total = (int) $modelGrp->query_val_ss($q);
-			$result['total'] = $total;
+			$aResult['total'] = $total;
 		}
 
-		return new \ResponseData($result);
+		return new \ResponseData($aResult);
 	}
 	/**
 	 * 创建分组活动
@@ -145,7 +145,7 @@ class main extends \pl\fe\matter\main_base {
 	}
 	/**
 	 *
-	 * 复制一个登记活动
+	 * 复制一个记录活动
 	 *
 	 * @param string $site
 	 * @param string $app
@@ -191,12 +191,12 @@ class main extends \pl\fe\matter\main_base {
 	 * @param string $app app's id
 	 *
 	 */
-	public function update_action($site, $app) {
-		if (false === ($oUser = $this->accountUser())) {
+	public function update_action($app) {
+		if (false === ($oOpUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$modelApp = $this->model('matter\group')->setOnlyWriteDbConn(true);
-		$oMatter = $modelApp->byId($app, 'id,title,summary,pic,scenario,start_at,end_at,mission_id');
+		$oMatter = $modelApp->byId($app, 'id,siteid,title,summary,pic,scenario,start_at,end_at,mission_id');
 		if (false === $oMatter) {
 			return new \ObjectNotFoundError();
 		}
@@ -205,14 +205,14 @@ class main extends \pl\fe\matter\main_base {
 		 */
 		$oUpdated = $this->getPostJson();
 		foreach ($oUpdated as $n => $v) {
-			if (in_array($n, ['title'])) {
+			if (in_array($n, ['title', 'summary'])) {
 				$oUpdated->{$n} = $modelApp->escape($v);
 			}
 			$oMatter->{$n} = $v;
 		}
 
-		if ($oMatter = $modelApp->modify($oUser, $oMatter, $oUpdated)) {
-			$this->model('matter\log')->matterOp($site, $oUser, $oMatter, 'U');
+		if ($oMatter = $modelApp->modify($oOpUser, $oMatter, $oUpdated)) {
+			$this->model('matter\log')->matterOp($oMatter->siteid, $oOpUser, $oMatter, 'U');
 		}
 
 		return new \ResponseData($oMatter);
@@ -220,7 +220,7 @@ class main extends \pl\fe\matter\main_base {
 	/**
 	 * 更新分组规则
 	 */
-	public function configRule_action($site, $app) {
+	public function configRule_action($app) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -231,12 +231,12 @@ class main extends \pl\fe\matter\main_base {
 			return new \ObjectNotFoundError();
 		}
 
-		$modelRnd = $this->model('matter\group\round');
+		$modelGrpTeam = $this->model('matter\group\team');
 		// 清除现有分组结果
-		$modelRnd->update('xxt_group_player', ['round_id' => '', 'round_title' => ''], ['aid' => $oApp->id]);
+		$modelGrpTeam->update('xxt_group_record', ['team_id' => '', 'team_title' => ''], ['aid' => $oApp->id]);
 		// 清除原有的规则
-		$modelRnd->delete(
-			'xxt_group_round',
+		$modelGrpTeam->delete(
+			'xxt_group_team',
 			["aid" => $oApp->id]
 		);
 
@@ -265,15 +265,15 @@ class main extends \pl\fe\matter\main_base {
 					'targets' => $targets,
 					'times' => $rule->times,
 				];
-				$round = $modelRnd->create($oApp->id, $prototype);
+				$round = $modelGrpTeam->create($oApp->id, $prototype);
 				$round->targets = json_decode($round->targets);
 				$rounds[] = $round;
 			}
 		}
 		// 记录规则
-		$rst = $modelRnd->update(
+		$rst = $modelGrpTeam->update(
 			'xxt_group',
-			['group_rule' => $modelRnd->toJson($rule)],
+			['group_rule' => $modelGrpTeam->toJson($rule)],
 			["id" => $oApp->id]
 		);
 
@@ -282,11 +282,10 @@ class main extends \pl\fe\matter\main_base {
 	/**
 	 * 删除一个活动
 	 *
-	 * @param string $site
 	 * @param string $app
 	 */
-	public function remove_action($site, $app) {
-		if (false === ($oUser = $this->accountUser())) {
+	public function remove_action($app) {
+		if (false === ($oOpUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -295,24 +294,23 @@ class main extends \pl\fe\matter\main_base {
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
-		if ($oApp->creater !== $oUser->id) {
+		if ($oApp->creater !== $oOpUser->id) {
 			return new \ResponseError('没有删除数据的权限');
 		}
 
-		/* check */
 		$q = [
 			'count(*)',
-			'xxt_group_player',
+			'xxt_group_record',
 			["aid" => $oApp->id],
 		];
 		if ((int) $modelGrp->query_val_ss($q) > 0) {
-			$rst = $modelGrp->remove($oUser, $oApp, 'Recycle');
+			$rst = $modelGrp->remove($oOpUser, $oApp, 'Recycle');
 		} else {
 			$modelGrp->delete(
-				'xxt_group_round',
+				'xxt_group_team',
 				["aid" => $oApp->id]
 			);
-			$rst = $modelGrp->remove($oUser, $oApp, 'D');
+			$rst = $modelGrp->remove($oOpUser, $oApp, 'D');
 		}
 
 		return new \ResponseData($rst);
@@ -320,8 +318,8 @@ class main extends \pl\fe\matter\main_base {
 	/**
 	 * 进行分组
 	 */
-	public function execute_action($site, $app) {
-		if (false === ($oUser = $this->accountUser())) {
+	public function execute_action($app) {
+		if (false === ($oOpUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 

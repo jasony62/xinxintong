@@ -24,7 +24,7 @@ class main extends \pl\fe\matter\main_base {
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-		/*关联登记活动*/
+		/*关联记录活动*/
 		if (isset($oApp->entryRule) && $oEntryRule = $oApp->entryRule) {
 			if (isset($oEntryRule->member) && is_object($oEntryRule->member)) {
 				$modelMs = $this->model('site\user\memberschema');
@@ -42,38 +42,20 @@ class main extends \pl\fe\matter\main_base {
 			/*关联分组活动*/
 			if (!empty($oEntryRule->group->id)) {
 				$oRuleApp = $oEntryRule->group;
-				$modelGrpRnd = $this->model('matter\group\round');
-				$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+				$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'Y']);
 				if ($oGroupApp) {
+					$modelGrpTeam = $this->model('matter\group\team');
 					$oRuleApp->title = $oGroupApp->title;
-					if (!empty($oRuleApp->round->id)) {
-						$oGroupRnd = $modelGrpRnd->byId($oRuleApp->round->id, ['fields' => 'title']);
-						if ($oGroupRnd) {
-							$oRuleApp->round->title = $oGroupRnd->title;
+					if (!empty($oRuleApp->team->id)) {
+						$oGrpTeam = $modelGrpTeam->byId($oRuleApp->team->id, ['fields' => 'title']);
+						if ($oGrpTeam) {
+							$oRuleApp->team->title = $oGrpTeam->title;
 						}
 					}
-					/* 获得当前活动的分组 */
-					$groups = $modelGrpRnd->byApp($oGroupApp->id, ['fields' => 'round_id,round_type,title', 'round_type' => '']);
-					$oGroupDS = new \stdClass;
-					$oGroupDS->id = '_round_id';
-					$oGroupDS->type = 'single';
-					$oGroupDS->title = '分组名称';
-					$ops = [];
-					/* 获得的分组信息 */
-					foreach ($groups as $oGroup) {
-						if ($oGroup->round_type === 'T') {
-							$ops[] = (object) [
-								'v' => $oGroup->round_id,
-								'l' => $oGroup->title,
-							];
-						}
-					}
-					$oGroupDS->ops = $ops;
-
-					$oGroupApp->dataSchemas = array_merge([$oGroupDS], $oGroupApp->dataSchemas);
+					/* 设置分组题 */
+					$this->model('matter\group\schema')->setGroupSchema($oGroupApp);
 
 					$oApp->groupApp = $oGroupApp;
-					$oApp->groups = $groups;
 				}
 			}
 		}
@@ -163,7 +145,7 @@ class main extends \pl\fe\matter\main_base {
 	}
 	/**
 	 *
-	 * 复制一个登记活动
+	 * 复制一个记录活动
 	 *
 	 * @param string $site
 	 * @param string $app

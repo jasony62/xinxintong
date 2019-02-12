@@ -5,7 +5,7 @@ namespace matter\enroll;
  */
 class log_model extends \TMS_MODEL {
 	/**
-	 * 返回登记活动用户互动日志
+	 * 返回记录活动用户互动日志
 	 *
 	 * @param $act
 	 * @param $oApp

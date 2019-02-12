@@ -21,7 +21,7 @@ $sql .= ",end_at int not null default 0"; // 结束时间
 $sql .= ",header_page_name varchar(13) not null default ''"; // 通用页头
 $sql .= ",footer_page_name varchar(13) not null default ''"; // 通用页尾
 $sql .= ",extattrs text null"; //扩展属性
-$sql .= ",user_app_id varchar(40) not null default ''"; // 项目的用户名单。项目中的登记活动，例如：报名活动。
+$sql .= ",user_app_id varchar(40) not null default ''"; // 项目的用户名单。项目中的记录活动，例如：报名活动。
 $sql .= ",user_app_type varchar(10) not null default ''"; // 项目的用户名单应用的类型，例如：enroll，signin
 $sql .= ",entry_rule text null"; // 参与规则
 $sql .= ",round_cron text null"; // 定时创建轮次规则
@@ -84,7 +84,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error(xxt_mission): ' . $mysqli->error;
 }
 /**
- * 登记活动的参与人及行为汇总，包含：登记人和留言人
+ * 记录活动的参与人及行为汇总，包含：登记人和留言人
  */
 $sql = "create table if not exists xxt_mission_user(";
 $sql .= "id int not null auto_increment";

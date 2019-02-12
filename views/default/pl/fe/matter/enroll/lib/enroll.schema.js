@@ -1690,7 +1690,7 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                 var oApp;
                 oApp = $scope.app;
                 if (oSchema.id === '_round_id' && oApp.groupApp) {
-                    http2.get('/rest/pl/fe/matter/group/round/list?site=' + oApp.siteid + '&app=' + oApp.groupApp.id).then(function(rsp) {
+                    http2.get('/rest/pl/fe/matter/group/team/list?app=' + oApp.groupApp.id).then(function(rsp) {
                         var newOp, opById;
                         if (rsp.data.length) {
                             opById = {};
@@ -1702,10 +1702,10 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                 });
                             }
                             rsp.data.forEach(function(oRound) {
-                                if (undefined === opById[oRound.round_id]) {
+                                if (undefined === opById[oRound.team_id]) {
                                     newOp = {};
                                     newOp.l = oRound.title;
-                                    newOp.v = oRound.round_id;
+                                    newOp.v = oRound.team_id;
                                     oSchema.ops.push(newOp);
                                 }
                             });

@@ -263,7 +263,7 @@ $sql .= ",offset_min int not null default 0"; // 和参考时间偏差的分钟�
 $sql .= ",offset_hour int not null default 0"; // 和参考时间偏差的小时数
 $sql .= ",left_count int not null default 1"; // 任务过期时间
 $sql .= ",task_model varchar(20) not null default ''"; // 执行任务的对象
-$sql .= ",task_arguments text"; // 执行任务的参数
+$sql .= ",task_arguments text null"; // 执行任务的参数
 $sql .= ",task_expire_at int not null default 0"; // 任务过期时间
 $sql .= ",invalid_cause text null"; // 任务失效的原因
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";

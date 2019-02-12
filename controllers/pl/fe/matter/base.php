@@ -80,9 +80,6 @@ class base extends \pl\fe\base {
 		}
 
 		$aOptions = ['cascaded' => 'N', 'fields' => 'siteid,id,title,mission_id'];
-		if ($matterType === 'lottery') {
-			unset($aOptions['cascaded']);
-		}
 		$oMatter = $this->model('matter\\' . $matterType)->byId($matterId, $aOptions);
 		if (!$oMatter) {
 			return [false, '指定的素材不存在'];

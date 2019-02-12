@@ -98,18 +98,10 @@ class tag_model extends TMS_MODEL {
 		}
 
 		$addTags = json_encode($addTags);
-		//记录活动标签
-		switch ($matter->type) {
-		case 'wall':
-			$upData = [];
-			break;
-		default:
-			$upData = [];
-			$upData['modifier'] = $user->id;
-			$upData['modifier_name'] = $user->name;
-			$upData['modify_at'] = $current;
-			break;
-		}
+		$upData = [];
+		$upData['modifier'] = $user->id;
+		$upData['modifier_name'] = $user->name;
+		$upData['modify_at'] = $current;
 		if ($subType === 'C') {
 			$upData['matter_cont_tag'] = $addTags;
 		} elseif ($subType === 'M') {

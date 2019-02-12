@@ -68,7 +68,7 @@
             </div>
             <div class='checkbox'>
                 <label>
-                    <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.group" ng-change="changeUserScope('group')">用户参与活动前需要在<span ng-if="entryRule.scope.group==='Y'">【{{entryRule.group.title}} - {{entryRule.group.round.title}}】</span>分组活动中分组</label> <a ng-if="entryRule.scope.group==='Y'" href ng-click="chooseGroupApp()">指定</a>
+                    <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.group" ng-change="changeUserScope('group')">用户参与活动前需要在<span ng-if="entryRule.scope.group==='Y'">【{{entryRule.group.title}} - {{entryRule.group.team.title}}】</span>分组活动中分组</label> <a ng-if="entryRule.scope.group==='Y'" href ng-click="chooseGroupApp()">指定</a>
             </div>
         </div>
     </div>

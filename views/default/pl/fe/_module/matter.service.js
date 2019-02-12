@@ -132,7 +132,7 @@ provider('srvSite', function() {
                             params.byTitle = $scope.filter.byTitle ? $scope.filter.byTitle : '';
                             url += '/' + matter.value;
                             url += '/list?site=' + _siteId + '&page=' + $scope.page.at + '&size=' + $scope.page.size + '&fields=' + fields;
-                            /*指定登记活动场景*/
+                            /*指定记录活动场景*/
                             if (matter.value === 'enroll' && matter.scenario) {
                                 url += '&scenario=' + matter.scenario;
                             }
@@ -1434,7 +1434,7 @@ service('tkGroupApp', ['$uibModal', function($uibModal) {
                 };
                 $scope2.$watch('data.app', function(oGrpApp) {
                     if (oGrpApp) {
-                        var url = '/rest/pl/fe/matter/group/round/list?app=' + oGrpApp.id + '&roundType=';
+                        var url = '/rest/pl/fe/matter/group/team/list?app=' + oGrpApp.id + '&teamType=';
                         http2.get(url).then(function(rsp) {
                             $scope2.rounds = rsp.data;
                         });
@@ -1528,8 +1528,8 @@ factory('tkEntryRule', ['$rootScope', '$timeout', 'noticebox', 'http2', 'srvSite
             tkGroupApp.choose(oMatter).then(function(oResult) {
                 if (oResult.app) {
                     _oRule.group = { id: oResult.app.id, title: oResult.app.title };
-                    if (oResult.round) {
-                        _oRule.group.round = { id: oResult.round.round_id, title: oResult.round.title };
+                    if (oResult.team) {
+                        _oRule.group.team = { id: oResult.team.team_id, title: oResult.team.title };
                     }
                 }
             });

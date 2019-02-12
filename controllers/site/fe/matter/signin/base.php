@@ -3,7 +3,7 @@ namespace site\fe\matter\signin;
 
 include_once dirname(dirname(__FILE__)) . '/base.php';
 /**
- * 登记活动
+ * 记录活动
  */
 class base extends \site\fe\matter\base {
 

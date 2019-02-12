@@ -80,7 +80,7 @@ class remind_model extends \TMS_MODEL {
 			case 'group':
 				$q = [
 					'distinct userid,enroll_key assoc_with',
-					'xxt_group_player',
+					'xxt_group_record',
 					['state' => 1, 'aid' => $oMatter->user_app_id],
 				];
 				$receivers = $modelMission->query_objs_ss($q);
@@ -168,19 +168,19 @@ class remind_model extends \TMS_MODEL {
 				if (!empty($oArguments->receiver->app->id)) {
 					$oGrpApp = $this->model('matter\group')->byId($oArguments->receiver->app->id, ['fields' => 'title']);
 					if ($oGrpApp) {
-						if (empty($oArguments->receiver->app->round->id)) {
+						if (empty($oArguments->receiver->app->team->id)) {
 							$q = [
 								'distinct userid',
-								'xxt_group_player',
+								'xxt_group_record',
 								['state' => 1, 'aid' => $oArguments->receiver->app->id],
 							];
 							$receivers = $modelEnl->query_objs_ss($q);
 							$oTmplTimerTaskParams->receiver = $oGrpApp->title;
 						} else {
-							$oGrpAppRnd = $this->model('matter\group\round')->byId($oArguments->receiver->app->round->id);
-							if ($oGrpAppRnd) {
-								$receivers = $this->model('matter\group\user')->byRound($oArguments->receiver->app->round->id, ['fields' => 'userid']);
-								$oTmplTimerTaskParams->receiver = $oGrpAppRnd->title;
+							$oGrpAppTeam = $this->model('matter\group\team')->byId($oArguments->receiver->app->team->id);
+							if ($oGrpAppTeam) {
+								$receivers = $this->model('matter\group\record')->byTeam($oArguments->receiver->app->team->id, ['fields' => 'userid']);
+								$oTmplTimerTaskParams->receiver = $oGrpAppTeam->title;
 							}
 						}
 					}
@@ -188,19 +188,19 @@ class remind_model extends \TMS_MODEL {
 			} else if (!empty($oMatter->entryRule->group->id)) {
 				$oGrpApp = $this->model('matter\group')->byId($oMatter->entryRule->group->id, ['fields' => 'title']);
 				if ($oGrpApp) {
-					if (empty($oMatter->entryRule->group->round->id)) {
+					if (empty($oMatter->entryRule->group->team->id)) {
 						$q = [
 							'distinct userid',
-							'xxt_group_player',
+							'xxt_group_record',
 							['state' => 1, 'aid' => $oMatter->entryRule->group->id],
 						];
 						$receivers = $modelEnl->query_objs_ss($q);
 						$oTmplTimerTaskParams->receiver = $oGrpApp->title;
 					} else {
-						$oGrpAppRnd = $this->model('matter\group\round')->byId($oMatter->entryRule->group->round->id);
-						if ($oGrpAppRnd) {
-							$receivers = $this->model('matter\group\user')->byRound($oMatter->entryRule->group->round->id, ['fields' => 'userid']);
-							$oTmplTimerTaskParams->receiver = $oGrpAppRnd->title;
+						$oGrpAppTeam = $this->model('matter\group\team')->byId($oMatter->entryRule->group->team->id);
+						if ($oGrpAppTeam) {
+							$receivers = $this->model('matter\group\record')->byTeam($oMatter->entryRule->group->team->id, ['fields' => 'userid']);
+							$oTmplTimerTaskParams->receiver = $oGrpAppTeam->title;
 						}
 					}
 				}

@@ -3,7 +3,7 @@ namespace site\op\matter\plan;
 
 require_once TMS_APP_DIR . '/controllers/site/op/base.php';
 /**
- * 登记活动报表
+ * 记录活动报表
  */
 class report extends \site\op\base {
 	/**
@@ -46,8 +46,8 @@ class report extends \site\op\base {
 		}
 
 		$taskSchmId = isset($oApp->rpConfig->taskSchmId) ? $oApp->rpConfig->taskSchmId : '';
-		$actSchmId = isset($oApp->rpConfig->actSchmId)? $oApp->rpConfig->actSchmId : '';
-		
+		$actSchmId = isset($oApp->rpConfig->actSchmId) ? $oApp->rpConfig->actSchmId : '';
+
 		// 如果指定了行动项需要获取行动项中得题目
 		if (!empty($taskSchmId) && !empty($actSchmId)) {
 			$modelTkSchm = $this->model('matter\plan\schema\task');

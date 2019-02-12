@@ -253,7 +253,8 @@ ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce,
         if (val = value) {
             if (oSchema.ops && oSchema.ops.length) {
                 if (oSchema.type === 'score') {
-                    var label = '', flag = false;
+                    var label = '',
+                        flag = false;
                     oSchema.ops.forEach(function(op, index) {
                         if (val[op.v] !== undefined) {
                             label += '<div>' + op.l + ':' + val[op.v] + '</div>';
@@ -358,9 +359,13 @@ ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce,
                             if (multitexts = oRecord.data[oSchema.id]) {
                                 /* 为什么需要进行两次转换？ */
                                 if (angular.isString(multitexts)) {
-                                    multitexts = JSON.parse(multitexts);
-                                    if (angular.isString(multitexts)) {
+                                    try {
                                         multitexts = JSON.parse(multitexts);
+                                        if (angular.isString(multitexts)) {
+                                            multitexts = JSON.parse(multitexts);
+                                        }
+                                    } catch (e) {
+                                        multitexts = [];
                                     }
                                 }
                             } else {

@@ -45,9 +45,10 @@
                     <div ng-bind="link.summary"></div>
                 </div>
                 <div id='qrCode' class='hidden-xs hidden-sm'>
-                    <img ng-src="{{qrcode}}">
+                    <span><img ng-src="{{qrcode}}"></span>
                 </div>
-                <div class='hidden-xs hidden-sm'>
+                <div class='hidden-xs hidden-sm hm-tile'>
+                    <div><span class='hm-tile-title'>相关资料</span></div>
                     <div ng-repeat="app in link.config.nav.app"><a class="matter"  href="#" ng-click="gotoNavApp(app)" ng-bind="app.title"></a></div>
                 </div>
             </div>
@@ -56,20 +57,20 @@
                 <iframe></iframe>
                 <div id="invite" class="invite">
                     <a href="" ng-click="invite(user,link)" ng-if="link.invite">
-                        <i class="icon_invite"></i>
-                        <span> 邀请体验</span>
-                    </a>
+                    <i class="icon_invite"></i>
+                    <span> 邀请体验</span>
+                </a>
                 </div>
                 <div id="behavior" class="behavior">
                     <div id="action">
                         <a href="" ng-click="siteUser(siteInfo.id)">
-                            <i class="glyphicon glyphicon-user"></i>
-                            <span> 个人中心</span>
-                        </a>
+                        <i class="glyphicon glyphicon-user"></i>
+                        <span> 个人中心</span>
+                    </a>
                         <a href="" ng-click="favor(user,link)">
-                            <i class="glyphicon glyphicon-star-empty"></i>
-                            <span> 收藏</span>
-                        </a>
+                        <i class="glyphicon glyphicon-star-empty"></i>
+                        <span> 收藏</span>
+                    </a>
                     </div>
                 </div>
                 <div id="matters" class="visible-xs visible-sm">

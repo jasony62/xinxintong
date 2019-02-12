@@ -81,13 +81,13 @@
                             <button class="btn btn-custom-default" ng-repeat="c in article.channels" ng-click="openChannel(c)" ng-bind="c.title"></button>
                             <button class="btn btn-custom-default" ng-repeat="t in article.tags" ng-click="searchByTag(t)" ng-bind="t.title"></button>
                         </div>
-                        <div id="enrollAssocs" ng-if="enrollAssocs.length">
+                        <div class='hide' id="enrollAssocs" ng-if="enrollAssocs.length">
                             <hr>
                             <p class='assoc site-line' ng-repeat='assoc in enrollAssocs'>
                                 <a href ng-click="openEnrollAssoc(assoc)"><span ng-bind="::assoc.app.title"></span>：<span ng-bind="::assoc.entity_a_str"></span></a>
                             </p>
                         </div>
-                        <div id="action">
+                        <div id="action" class='hide'>
                             <a href ng-click="siteUser(site.id)">
                                 <i class="glyphicon glyphicon-user"></i>
                                 <span> 个人中心</span>

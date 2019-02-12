@@ -60,6 +60,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                 $scope.advCriteriaStatus.dirOpen = true;
             }
         } else {
+            $scope.selectedTab = $scope.tabs[0];
             if (_oApp.actionRule) {
                 /* 设置活动任务提示 */
                 http2.get(LS.j('event/task', 'site', 'app')).then(function(rsp) {
@@ -107,8 +108,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                     $scope.tabs[0].title = '问题';
                     $scope.tabs.push({ 'title': '答案', 'id': 'coworkData', 'url': '/views/default/site/fe/matter/enroll/template/repos-coworkSchema.html' });
                     $scope.selectedTab = $scope.tabs[1];
-                } else {
-                    $scope.selectedTab = $scope.tabs[0];
                 }
             });
             /* 共享专题 */

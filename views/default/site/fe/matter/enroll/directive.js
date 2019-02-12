@@ -162,6 +162,7 @@ ngMod.directive('tmsScrollSpy', function() {
             toggleSpy: '='
         },
         link: function(scope, elems, attrs) {
+            console.log(scope.selector);
             var eleListen = scope.selector === 'window' ? window : document.querySelector(scope.selector);
             eleListen.addEventListener('scroll', function(event) {
                 var eleScrolling = eleListen === window ? event.target.documentElement : event.target;

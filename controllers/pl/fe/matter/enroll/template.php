@@ -7,7 +7,7 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class template extends \pl\fe\matter\base {
 	/**
-	 * 返回登记活动模板
+	 * 返回记录活动模板
 	 */
 	public function list_action() {
 		$templates = file_get_contents(TMS_APP_TEMPLATE . '/pl/fe/matter/enroll/scenario/manifest.json');

@@ -29,7 +29,7 @@ class template_model extends \TMS_MODEL {
 		];
 		$template->acl = $this->query_objs_ss($v);
 
-		//登记活动
+		//记录活动
 		if (isset($template->matter_type) && $template->matter_type === 'enroll') {
 			//获取版本
 			$p = [

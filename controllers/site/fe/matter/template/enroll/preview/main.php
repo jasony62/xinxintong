@@ -1,7 +1,7 @@
 <?php
 namespace site\fe\matter\template\enroll\preview;
 /**
- * 登记活动预览
+ * 记录活动预览
  */
 class main extends \TMS_CONTROLLER {
 	/**
@@ -37,7 +37,7 @@ class main extends \TMS_CONTROLLER {
 
 		$modelTmp = $this->model('matter\template');
 
-		/* 登记活动定义 */
+		/* 记录活动定义 */
 		if (false === ($template = $modelTmp->byId($tid, $vid))) {
 			return new \ResponseError('指定的模板不存在，请检查参数是否正确');
 		}

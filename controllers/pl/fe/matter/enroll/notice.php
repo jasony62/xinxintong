@@ -7,7 +7,7 @@ require_once dirname(__FILE__) . '/main_base.php';
  */
 class notice extends main_base {
 	/**
-	 * 给登记活动的参与人发消息
+	 * 给记录活动的参与人发消息
 	 *
 	 * @param string $app app'id
 	 * @param string $tmplmsg 模板消息id

@@ -73,7 +73,7 @@
                             <div class="col-md-9 col-xs-8 text-left">
                                 <img class='user-headimg' ng-src="{{::u.headimgurl}}" />
                                 <span>{{::u.nickname}}</span>
-                                <span ng-if="app.entryRule.group.id">-{{::u.group.round_title}}</span>
+                                <span ng-if="app.entryRule.group.id">-{{::u.group.team_title}}</span>
                             </div>
                             <div class='col-md-2 col-xs-1'><span ng-if="appState.criteria.orderby!=='score'">{{u[appState.criteria.orderby+'_num']||u.user_total_coin}}</span><span ng-if="appState.criteria.orderby==='score'">{{u.score|number:2}}</span></div>
                         </li>

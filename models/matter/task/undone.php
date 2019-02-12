@@ -97,21 +97,21 @@ class undone_model extends \TMS_MODEL {
 				$oGrpApp = $this->model('matter\group')->byId($oTaskArgs->receiver->group->id, ['fields' => 'title']);
 				if ($oGrpApp) {
 					$oTmplTimerTaskParams = new \stdClass;
-					if (empty($oTaskArgs->receiver->group->round->id)) {
+					if (empty($oTaskArgs->receiver->group->team->id)) {
 						/* 分组活动内的用户 */
 						$q = [
 							'distinct userid',
-							'xxt_group_player',
+							'xxt_group_record',
 							['state' => 1, 'aid' => $oTaskArgs->receiver->group->id],
 						];
 						$aGrpUsers = $modelEnl->query_objs_ss($q);
 						$oTmplTimerTaskParams->receiver = $oGrpApp->title;
 					} else {
 						/* 指定分组的用户 */
-						$oGrpAppRnd = $this->model('matter\group\round')->byId($oTaskArgs->receiver->group->round->id);
-						if ($oGrpAppRnd) {
-							$aGrpUsers = $this->model('matter\group\user')->byRound($oTaskArgs->receiver->group->round->id, ['fields' => 'userid']);
-							$oTmplTimerTaskParams->receiver = $oGrpAppRnd->title;
+						$oGrpAppTeam = $this->model('matter\group\team')->byId($oTaskArgs->receiver->group->team->id);
+						if ($oGrpAppTeam) {
+							$aGrpUsers = $this->model('matter\group\record')->byTeam($oTaskArgs->receiver->group->team->id, ['fields' => 'userid']);
+							$oTmplTimerTaskParams->receiver = $oGrpAppTeam->title;
 						}
 					}
 					if (empty($aGrpUsers)) {

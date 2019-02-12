@@ -4,7 +4,7 @@ namespace site\fe\matter\enroll;
 include_once dirname(__FILE__) . '/base.php';
 
 /**
- * 登记活动附件
+ * 记录活动附件
  */
 class attachment extends base {
 	/**
@@ -14,7 +14,7 @@ class attachment extends base {
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
 		if ($oApp === false || $oApp->state !== '1') {
-			$this->outputError('指定的登记活动不存在，请检查参数是否正确');
+			$this->outputError('指定的记录活动不存在，请检查参数是否正确');
 		}
 		/**
 		 * 获取附件
@@ -57,7 +57,7 @@ class attachment extends base {
 		$modelApp = $this->model('matter\enroll');
 		$oApp = $modelApp->byId($app, ['cascaded' => 'N']);
 		if ($oApp === false || $oApp->state !== '1') {
-			die('指定的登记活动不存在，请检查参数是否正确');
+			die('指定的记录活动不存在，请检查参数是否正确');
 		}
 		if (empty($file)) {
 			die('参数错误');
@@ -72,28 +72,28 @@ class attachment extends base {
 			die('指定的附件不存在');
 		}
 
-        //设置脚本的最大执行时间，设置为0则无时间限制
-        set_time_limit(0);
+		//设置脚本的最大执行时间，设置为0则无时间限制
+		set_time_limit(0);
 
 		header("Content-Type: $file->type");
-		Header( "Accept-Ranges: bytes" );
+		Header("Accept-Ranges: bytes");
 		header('Content-Length: ' . $file->size);
 		header("Content-Disposition: attachment; filename=" . $file->name);
-		
-        //针对大文件，规定每次读取文件的字节数为4096字节，直接输出数据
-        $read_buffer=4096;
-        $handle=fopen($file->url, 'rb');
-        //总的缓冲的字节数
-        $sum_buffer=0;
 
-        //只要没到文件尾，就一直读取
-        while(!feof($handle) && $sum_buffer<$file->size) {           
-            echo fread($handle,$read_buffer);
-            $sum_buffer+=$read_buffer;
-        }
+		//针对大文件，规定每次读取文件的字节数为4096字节，直接输出数据
+		$read_buffer = 4096;
+		$handle = fopen($file->url, 'rb');
+		//总的缓冲的字节数
+		$sum_buffer = 0;
 
-        //关闭句柄
-        fclose($handle);
-        exit;
+		//只要没到文件尾，就一直读取
+		while (!feof($handle) && $sum_buffer < $file->size) {
+			echo fread($handle, $read_buffer);
+			$sum_buffer += $read_buffer;
+		}
+
+		//关闭句柄
+		fclose($handle);
+		exit;
 	}
 }

@@ -50,10 +50,10 @@ class main extends \site\op\base {
 					$oGroupApp = $this->model('matter\group')->byId($oRuleApp->id, ['fields' => 'title', 'cascaded' => 'Y']);
 					if ($oGroupApp) {
 						$oRuleApp->title = $oGroupApp->title;
-						if (!empty($oRuleApp->round->id)) {
-							$oGroupRnd = $this->model('matter\group\round')->byId($oRuleApp->round->id, ['fields' => 'title']);
-							if ($oGroupRnd) {
-								$oRuleApp->round->title = $oGroupRnd->title;
+						if (!empty($oRuleApp->team->id)) {
+							$oGrpTeam = $this->model('matter\group\team')->byId($oRuleApp->team->id, ['fields' => 'title']);
+							if ($oGrpTeam) {
+								$oRuleApp->team->title = $oGrpTeam->title;
 							}
 						}
 						$oApp->groupApp = $oGroupApp;

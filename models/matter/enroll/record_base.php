@@ -8,6 +8,12 @@ require_once dirname(__FILE__) . '/entity.php';
  */
 abstract class record_base extends entity_model {
 	/**
+	 * 生成活动记录的key
+	 */
+	public function genKey($siteId, $aid) {
+		return md5(uniqid() . $siteId . $aid);
+	}
+	/**
 	 * 根据题目获得在记录中的值
 	 */
 	public function getValueBySchema($oSchema, $oData) {

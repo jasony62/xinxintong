@@ -11,7 +11,7 @@ define(['require', 'angular'], function(require, angular) {
         $scope.oSite = _oSite = {};
         $scope.matterTypes = {
            'article': '单图文',
-           'enroll': '登记活动',
+           'enroll': '记录活动',
            'signin': '签到活动',
            'plan': '计划'
         };

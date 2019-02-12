@@ -22,14 +22,6 @@ class send extends \pl\fe\base {
 		$model = $this->model();
 
 		switch ($openid_src) {
-		case 'yx':
-			$config = $this->model('sns\yx')->bySite($site);
-			if ($config->joined === 'Y' && $config->can_p2p === 'Y') {
-				$rst = $this->model('sns\yx\proxy', $config)->messageSend($message, array($openid));
-			} else {
-				$rst = $this->model('sns\yx\proxy', $config)->messageCustomSend($message, $openid);
-			}
-			break;
 		case 'wx':
 			$config = $this->model('sns\wx')->bySite($site);
 			$rst = $this->model('sns\wx\proxy', $config)->messageCustomSend($message, $openid);
@@ -55,17 +47,14 @@ class send extends \pl\fe\base {
 		/**
 		 * 检查是否开通了群发接口
 		 */
-		if ($src == 'wx' || $src == 'yx') {
+		if ($src == 'wx') {
 			$config = $model->query_obj_ss(['*', 'xxt_site_' . $src, "siteid='$site'"]);
-
 			if (empty($config)) {
 				return new \ResponseError('没有绑定公众号信息');
 			}
-
 			if ($config->can_custom_push === 'N') {
 				return new \ResponseError('未开通群发高级接口，请检查！');
 			}
-
 			$group_id = $model->query_val_ss(['groupid', 'xxt_site_' . $src . 'fan', "siteid='$site' and openid='$openid'"]);
 		}
 		/**
@@ -183,7 +172,7 @@ class send extends \pl\fe\base {
 				$member = $model->query_obj_ss(['*', 'xxt_site_member', "siteid='$site' and id='$mid'"]);
 
 				$fan = $model->query_obj_ss([
-					'ufrom,yx_openid,wx_openid,qy_openid',
+					'ufrom,wx_openid,qy_openid',
 					'xxt_site_account',
 					"siteid='$site' and uid='$member->userid'",
 				]);
@@ -247,9 +236,6 @@ class send extends \pl\fe\base {
 				} else if (in_array($matter->type, array('article', 'news', 'channel'))) {
 					$message = $model->forWxGroupPush($site, $matter->id, 'OLD');
 				}
-
-			} else if ($src === 'yx') {
-				$message = $this->assemble_custom_message($site, $matter);
 			}
 			if (empty($message)) {
 				return new \ResponseError('指定的素材无法向微信用户群发！');
@@ -275,12 +261,6 @@ class send extends \pl\fe\base {
 						);
 						$this->send2group($src, $site, $message, $matter, $warning);
 					}
-				} else if ($src === 'yx') {
-					$message = $this->assemble_custom_message($site, $matter);
-					foreach ($userSet as $us) {
-						$message['group'] = $us->label;
-						$this->send2group($src, $site, $message, $matter, $warning);
-					}
 				}
 			}
 		} else {
@@ -295,57 +275,6 @@ class send extends \pl\fe\base {
 		}
 	}
 	/**
-	 * 群发消息
-	 * 开通了点对点认证接口的易信公众号
-	 */
-	public function yxmember_action($site, $phase = 0, $sizeOfBatch = 20) {
-		if ($phase == 0) {
-			$matter = $this->getPostJson();
-			if (empty($matter->targetUser) || empty($matter->userSet)) {
-				return new \ResponseError('请指定接收消息的用户');
-			}
-			/*消息*/
-			$model = $this->model('matter\\' . $matter->type);
-			$message = $model->forCustomPush($site, $matter->id);
-			/*用户*/
-			$userSet = $matter->userSet;
-			$rst = $this->getOpenid($userSet);
-			if ($rst[0] === false) {
-				return new \ResponseError($rst[1]);
-			}
-			$openids = $rst[1];
-			$_SESSION['message'] = &$message;
-			$_SESSION['openids'] = &$openids;
-			$countOfOpenids = count($openids);
-
-			return new \ResponseData(array('nextPhase' => 1, 'countOfOpenids' => $countOfOpenids));
-		}
-		if ($phase == 1) {
-			$warning = isset($_SESSION['warning']) ? $_SESSION['warning'] : array();
-			$message = $_SESSION['message'];
-			$openids = $_SESSION['openids'];
-			$batch = array_slice($openids, 0, $sizeOfBatch);
-			/*发送*/
-			$rst = $this->send2YxUserByP2p($site, $message, $batch);
-			if (false === $rst[0]) {
-				$warning = array_merge($warning, $rst[1]);
-			}
-			if (count($openids) > $sizeOfBatch) {
-				$openids = array_splice($openids, $sizeOfBatch);
-				$_SESSION['openids'] = &$openids;
-				$countOfOpenids = count($openids);
-				$_SESSION['warning'] = $warning;
-				return new \ResponseData(array('nextPhase' => 1, 'countOfOpenids' => $countOfOpenids));
-			}
-		}
-		/*结束*/
-		unset($_SESSION['warning']);
-		unset($_SESSION['openids']);
-		unset($_SESSION['message']);
-
-		return new \ResponseData($warning);
-	}
-	/**
 	 * 通过微信
 	 */
 	public function send2WxuserByPreview($site, $message, $openid) {
@@ -353,21 +282,6 @@ class send extends \pl\fe\base {
 		$proxy = $this->model('sns\\wx\\proxy', $config);
 
 		$rst = $proxy->messageMassPreview($message, $openid);
-
-		return $rst;
-	}
-	/**
-	 * 通过易信点对点接口向用户发送消息
-	 *
-	 * $mpid
-	 * $message
-	 * $openids
-	 */
-	public function send2YxUserByP2p($site, $message, $openids) {
-		$config = $this->model()->query_obj_ss(['*', 'xxt_site_yx', "siteid='$site'"]);
-		$proxy = $this->model('sns\\yx\\proxy', $config);
-
-		$rst = $proxy->messageSend($message, $openids);
 
 		return $rst;
 	}
@@ -390,9 +304,6 @@ class send extends \pl\fe\base {
 				$message = $model->forWxGroupPush($site, $matterId);
 			}
 			$rst = $this->send2WxuserByPreview($site, $message, $openids);
-		} else if ($src === 'yx') {
-			$message = $this->assemble_custom_message($site, $matter);
-			$rst = $this->send2YxUserByP2p($site, $message, $openids);
 		} else if ($src === 'qy') {
 		}
 		if (empty($message)) {

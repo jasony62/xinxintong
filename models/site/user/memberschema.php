@@ -89,11 +89,6 @@ class memberschema_model extends \TMS_MODEL {
 		} else {
 			$oNewMschema->is_wx_fan = 'N';
 		}
-		if (($yx = $this->model('sns\yx')->bySite($oSite->id, ['fields' => 'joined'])) && $yx->joined === 'Y') {
-			$oNewMschema->is_yx_fan = 'Y';
-		} else {
-			$oNewMschema->is_yx_fan = 'N';
-		}
 
 		$oNewMschema->id = $this->insert('xxt_site_member_schema', $oNewMschema, true);
 		$oNewMschema->type = 'memberschema';
@@ -133,7 +128,7 @@ class memberschema_model extends \TMS_MODEL {
 	 */
 	public function overview($schemaId) {
 		$q = [
-			'id,matter_id,matter_type,title,require_invite,is_qy_fan,is_wx_fan,is_yx_fan,attr_mobile,attr_email,attr_name,extattr',
+			'id,matter_id,matter_type,title,require_invite,is_qy_fan,is_wx_fan,attr_mobile,attr_email,attr_name,extattr',
 			'xxt_site_member_schema',
 			['id' => $schemaId],
 		];

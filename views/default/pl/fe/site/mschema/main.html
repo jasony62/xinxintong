@@ -55,8 +55,6 @@
                         <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.is_wx_fan' ng-change="updSchema('is_wx_fan')">限微信公众号【{{sns.wx.title}}】关注用户</label>
                     <label class='checkbox-inline' ng-if="sns.qy||choosedSchema.is_qy_fan==='Y'">
                         <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.is_qy_fan' ng-change="updSchema('is_qy_fan')">是微信企业号关注用户</label>
-                    <label class='checkbox-inline' ng-if="sns.yx">
-                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='choosedSchema.is_yx_fan' ng-change="updSchema('is_yx_fan')">限易信公众号【{{sns.yx.title}}】关注用户</label>
                 </div>
             </div>
             <div class='form-group'>

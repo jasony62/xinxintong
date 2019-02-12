@@ -10,8 +10,7 @@ define(['require'], function(require) {
         importSource: [
             { v: 'mschema', l: '通讯录联系人' },
             { v: 'registration', l: '报名' },
-            { v: 'signin', l: '签到' },
-            { v: 'wall', l: '信息墙' }
+            { v: 'signin', l: '签到' }
         ],
     });
     ngApp.config(['$locationProvider', 'srvSiteProvider', 'srvGroupAppProvider', function($locationProvider, srvSiteProvider, srvGroupAppProvider) {

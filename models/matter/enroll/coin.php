@@ -5,7 +5,7 @@ namespace matter\enroll;
  */
 class coin_model extends \TMS_MODEL {
 	/**
-	 * 返回登记活动对应的积分规则
+	 * 返回记录活动对应的积分规则
 	 *
 	 * @param $act
 	 * @param $oApp
@@ -41,7 +41,7 @@ class coin_model extends \TMS_MODEL {
 		return $rules;
 	}
 	/**
-	 * 返回登记活动对应的积分
+	 * 返回记录活动对应的积分
 	 *
 	 * @param $coinEvent
 	 * @param $oApp

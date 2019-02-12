@@ -126,7 +126,7 @@
                 </div>
                 <div class='checkbox'>
                     <label>
-                        <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.group" ng-change="changeUserScope('group', 'entryRule')">用户参与活动前需要在分组活动</label><span class='badge' ng-if="entryRule.scope.group==='Y'"><a href='/rest/pl/fe/matter/group?site={{editing.siteid}}&id={{editing.entryRule.group.id}}' target='_self'>{{editing.entryRule.group.title}} - {{editing.entryRule.group.round.title}}</a></span>中分组 <a ng-if="entryRule.scope.group==='Y'" href ng-click="chooseGroupApp('entryRule')">指定</a>
+                        <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.group" ng-change="changeUserScope('group', 'entryRule')">用户参与活动前需要在分组活动</label><span class='badge' ng-if="entryRule.scope.group==='Y'"><a href='/rest/pl/fe/matter/group?site={{editing.siteid}}&id={{editing.entryRule.group.id}}' target='_self'>{{editing.entryRule.group.title}} - {{editing.entryRule.group.team.title}}</a></span>中分组 <a ng-if="entryRule.scope.group==='Y'" href ng-click="chooseGroupApp('entryRule')">指定</a>
                 </div>
             </div>
         </div>
@@ -158,7 +158,7 @@
                 </div>
                 <div class='checkbox'>
                     <label>
-                        <input type='checkbox' ng-true-value="'Y'" ng-model="downloadRule.scope.group" ng-change="changeUserScope('group', 'downloadRule')">用户参与活动前需要在分组活动</label><span class='badge' ng-if="downloadRule.scope.group==='Y'"><a href='/rest/pl/fe/matter/group?site={{editing.siteid}}&id={{editing.downloadRule.group.id}}' target='_self'>{{editing.downloadRule.group.title}} - {{editing.downloadRule.group.round.title}}</a></span>中分组 <a ng-if="downloadRule.scope.group==='Y'" href ng-click="chooseGroupApp('downloadRule')">指定</a>
+                        <input type='checkbox' ng-true-value="'Y'" ng-model="downloadRule.scope.group" ng-change="changeUserScope('group', 'downloadRule')">用户参与活动前需要在分组活动</label><span class='badge' ng-if="downloadRule.scope.group==='Y'"><a href='/rest/pl/fe/matter/group?site={{editing.siteid}}&id={{editing.downloadRule.group.id}}' target='_self'>{{editing.downloadRule.group.title}} - {{editing.downloadRule.group.team.title}}</a></span>中分组 <a ng-if="downloadRule.scope.group==='Y'" href ng-click="chooseGroupApp('downloadRule')">指定</a>
                 </div>
             </div>
         </div>

@@ -192,7 +192,7 @@ class signin_model extends enroll_base {
 		return $result;
 	}
 	/**
-	 * 更新登记活动标签
+	 * 更新记录活动标签
 	 */
 	public function updateTags($aid, $tags) {
 		if (empty($tags)) {
@@ -388,7 +388,7 @@ class signin_model extends enroll_base {
 		return $result;
 	}
 	/**
-	 * 获得参加登记活动的用户的昵称
+	 * 获得参加记录活动的用户的昵称
 	 *
 	 * @param object $oApp
 	 * @param object $oUser [uid,nickname]

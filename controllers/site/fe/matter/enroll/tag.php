@@ -3,7 +3,7 @@ namespace site\fe\matter\enroll;
 
 include_once dirname(__FILE__) . '/base.php';
 /**
- * 登记活动标签
+ * 记录活动标签
  */
 class tag extends base {
 	/**

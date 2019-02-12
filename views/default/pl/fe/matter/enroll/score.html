@@ -58,12 +58,12 @@
                     <span>进行打分的分组</span>
                     <select class='form-control' ng-model="vg.do">
                         <option value=''>不指定</option>
-                        <option ng-repeat="group in app.groups" value="{{group.round_id}}">{{group.title}}</option>
+                        <option ng-repeat="group in app.groups" value="{{group.team_id}}">{{group.title}}</option>
                     </select>
                     <span>获得打分的分组</span>
                     <select class='form-control' ng-model="vg.get">
                         <option value=''>不指定</option>
-                        <option ng-repeat="group in app.groups" value="{{group.round_id}}">{{group.title}}</option>
+                        <option ng-repeat="group in app.groups" value="{{group.team_id}}">{{group.title}}</option>
                     </select>
                     <button class='btn btn-default' ng-click="delScoreGroup(config,vg)"><span class='glyphicon glyphicon-remove'></span></button>
                 </div>

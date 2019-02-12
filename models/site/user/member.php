@@ -412,8 +412,8 @@ class member_model extends \TMS_MODEL {
 		$users[] = $user;
 
 		$modelGrp = $this->model('matter\group');
-		$modelPly = $this->model('matter\group\player');
-		$modelRound = $this->model('matter\group\round');
+		$modelUsr = $this->model('matter\group\record');
+		$modelTeam = $this->model('matter\group\team');
 		$groups = $modelGrp->bySchemaApp($schemaId, ['autoSync' => 'Y']);
 		$groupIds = [];
 		if (!empty($groups)) {
@@ -425,15 +425,15 @@ class member_model extends \TMS_MODEL {
 				}
 				$assignRound = '';
 				if (!empty($group->sync_round)) {
-					$round = $modelRound->byId($group->sync_round, ['fields' => 'round_id,title']);
+					$round = $modelTeam->byId($group->sync_round, ['fields' => 'team_id,title']);
 					if ($round !== false) {
 						$assignRound = new \stdClass;
-						$assignRound->round_id = $round->round_id;
+						$assignRound->team_id = $round->team_id;
 						$assignRound->title = $round->title;
 					}
 				}
 
-				$cnt = $modelPly->_syncRecord($group->siteid, $group, $users, $this, 'mschema', $assignRound);
+				$cnt = $modelUsr->syncRecord($group->siteid, $group, $users, $this, 'mschema', $assignRound);
 
 				$groupIds[$group->id] = $cnt;
 			}

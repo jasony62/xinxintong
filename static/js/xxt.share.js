@@ -28,30 +28,6 @@
             cancel: function() {}
         });
     };
-    var setYxShare = function(title, link, desc, img) {
-        var shareData = {
-            'img_url': img,
-            'link': link,
-            'title': title,
-            'desc': desc
-        };
-        window.YixinJSBridge.on('menu:share:appmessage', function(argv) {
-            try {
-                window.xxt.share.options.logger && window.xxt.share.options.logger('F');
-            } catch (ex) {
-                alert('share failed:' + ex.message);
-            }
-            window.YixinJSBridge.invoke('sendAppMessage', shareData, function(res) {});
-        });
-        window.YixinJSBridge.on('menu:share:timeline', function(argv) {
-            try {
-                window.xxt.share.options.logger && window.xxt.share.options.logger('T');
-            } catch (ex) {
-                alert('share failed:' + ex.message);
-            }
-            window.YixinJSBridge.invoke('shareTimeline', shareData, function(res) {});
-        });
-    };
     window.xxt === undefined && (window.xxt = {});
     window.xxt.share = {
         options: {},
@@ -62,14 +38,6 @@
                     window.wx.ready(function() {
                         setWxShare(title, link, desc, img);
                     });
-                } else if (/YiXin/i.test(navigator.userAgent)) {
-                    if (window.YixinJSBridge === undefined) {
-                        document.addEventListener('YixinJSBridgeReady', function() {
-                            setYxShare(title, link, desc, img);
-                        }, false);
-                    } else {
-                        setYxShare(title, link, desc, img);
-                    }
                 } else if (fnOther && typeof fnOther === 'function') {
                     fnOther(title, link, desc, img);
                 }

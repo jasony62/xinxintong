@@ -91,7 +91,8 @@ class record extends base {
 		}
 		/* 检查是否存在匹配的分组记录 */
 		if (isset($oEnlApp->entryRule->group->id)) {
-			$aMatchResult = $this->_matchGrpUsr($oUser, $oEnlApp, $oEnlApp->entryRule->group->id, $oEnlData);
+			$modelGrpUsr = $this->model('matter\group\record');
+			$aMatchResult = $modelGrpUsr->matchByData($oEnlApp->entryRule->group->id, $oEnlApp, $oEnlData, $oUser);
 			if (false === $aMatchResult[0]) {
 				return new \ParameterError($aMatchResult[1]);
 			}
@@ -242,62 +243,6 @@ class record extends base {
 		}
 
 		return [true, $oMatchedEnlRec];
-	}
-	/**
-	 * 检查是否存在匹配的分组记录
-	 */
-	private function _matchGrpUsr($oUser, $oSrcApp, $targetAppId, &$oEnlData) {
-		/* 获得要检查的记录项 */
-		$modelRec = $this->model('matter\enroll\record');
-		$countRequireCheckedData = 0;
-		$requireCheckedData = new \stdClass;
-		$dataSchemas = $oSrcApp->dynaDataSchemas;
-		foreach ($dataSchemas as $oSchema) {
-			if ($this->getDeepValue($oSchema, 'requireCheck') === 'Y') {
-				if ($this->getDeepValue($oSchema, 'fromApp') === $targetAppId) {
-					$countRequireCheckedData++;
-					$requireCheckedData->{$oSchema->id} = $modelRec->getValueBySchema($oSchema, $oEnlData);
-				}
-			}
-		}
-		if ($countRequireCheckedData === 0) {
-			return [true, null];
-		}
-		$oGroupApp = $this->model('matter\group')->byId($targetAppId);
-		if (empty($oGroupApp)) {
-			return [false, '指定的记录匹配分组活动不存在'];
-		}
-		/* 在指定的分组活动中检查数据 */
-		$modelMatchUsr = $this->model('matter\group\user');
-		$groupUsers = $modelMatchUsr->byData($oGroupApp, $requireCheckedData);
-		if (empty($groupUsers)) {
-			return [false, '未在指定的分组活动［' . $oGroupApp->title . '］中找到与提交数据相匹配的记录'];
-		}
-		/* 如果匹配的分组数据不唯一，怎么办？ */
-		if (count($groupUsers) > 1) {
-			return [false, '在指定的分组活动［' . $oGroupApp->title . '］中找到多条与提交数据相匹配的记录，匹配关系不唯一'];
-		}
-		$oMatchedGrpUsr = $groupUsers[0];
-		/* 如果分组数据中未包含用户信息，更新用户信息 */
-		if (empty($oMatchedGrpUsr->userid)) {
-			$oUserAcnt = new \stdClass;
-			$oUserAcnt->userid = $oUser->uid;
-			$oUserAcnt->nickname = $modelMatchUsr->escape($oUser->nickname);
-			$modelMatchUsr->update('xxt_group_player', $oUserAcnt, ['id' => $oMatchedGrpUsr->id]);
-		}
-		/* 将匹配的分组记录数据作为提交的记录数据的一部分 */
-		$oMatchedData = $oMatchedGrpUsr->data;
-		foreach ($oGroupApp->dataSchemas as $oSchema) {
-			if (!isset($oEnlData->{$oSchema->id}) && isset($oMatchedData->{$oSchema->id})) {
-				$oEnlData->{$oSchema->id} = $oMatchedData->{$oSchema->id};
-			}
-		}
-		/* 所属分组id */
-		if (isset($oMatchedGrpUsr->round_id)) {
-			$oUser->group_id = $oEnlData->_round_id = $oMatchedGrpUsr->round_id;
-		}
-
-		return [true, $oMatchedGrpUsr];
 	}
 	/**
 	 * 记录记录信息
@@ -708,16 +653,21 @@ class record extends base {
 			if (!empty($oApp->entryRule->group->id)) {
 				$oGrpApp = $this->model('matter\group')->byId($oApp->entryRule->group->id, ['cascaded' => 'N']);
 				if ($oGrpApp) {
-					$oGrpUsr = $this->model('matter\group\user')->byUser($oGrpApp, $oRecUser->uid, ['onlyOne' => true, 'fields' => 'round_id,data']);
+					$oGrpUsr = $this->model('matter\group\record')->byUser($oGrpApp, $oRecUser->uid, ['onlyOne' => true, 'fields' => 'team_id,data']);
 					if ($oGrpUsr) {
 						if (!isset($oRecord->data)) {
 							$oRecord->data = new \stdClass;
 						}
 						$oAssocRecData = $oGrpUsr->data;
-						$oAssocRecData->_round_id = $oGrpUsr->round_id;
 						foreach ($oAssocRecData as $k => $v) {
 							if (!isset($oRecord->data->{$k})) {
 								$oRecord->data->{$k} = $v;
+							}
+						}
+						$oAssocGrpTeamSchema = $this->model('matter\enroll\schema')->getAssocGroupTeamSchema($oApp);
+						if ($oAssocGrpTeamSchema) {
+							if (!isset($oGrpUsr->data->{$oAssocGrpTeamSchema->id})) {
+								$oGrpUsr->data->{$oAssocGrpTeamSchema->id} = $oGrpUsr->team_id;
 							}
 						}
 					}
@@ -1105,18 +1055,18 @@ class record extends base {
 		}
 		$oUser = $this->getUser($oApp);
 
-		$modelGrpUsr = $this->model('matter\group\player');
+		$modelGrpUsr = $this->model('matter\group\record');
 		/* 当前用户所属分组及角色 */
-		$oGrpLeader = $modelGrpUsr->byUser($oApp->entryRule->group, $oUser->uid, ['fields' => 'is_leader,round_id', 'onlyOne' => true]);
+		$oGrpLeader = $modelGrpUsr->byUser($oApp->entryRule->group, $oUser->uid, ['fields' => 'is_leader,team_id', 'onlyOne' => true]);
 		if (false === $oGrpLeader || !in_array($oGrpLeader->is_leader, ['Y', 'S'])) {
 			return new \ParameterError('只允许组长进行表态');
 		}
 		/* 组长只能表态本组用户的数据，或者不属于任何分组的数据 */
 		if ($oGrpLeader->is_leader === 'Y') {
-			$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oRecord->userid, ['fields' => 'round_id', 'onlyOne' => true]);
-			if ($oGrpMemb && !empty($oGrpMemb->round_id)) {
+			$oGrpMemb = $modelGrpUsr->byUser($oApp->entryRule->group, $oRecord->userid, ['fields' => 'team_id', 'onlyOne' => true]);
+			if ($oGrpMemb && !empty($oGrpMemb->team_id)) {
 				/* 填写记录的用户属于一个分组 */
-				if ($oGrpMemb->round_id !== $oGrpLeader->round_id) {
+				if ($oGrpMemb->team_id !== $oGrpLeader->team_id) {
 					return new \ParameterError('只允许组长对本组成员的数据表态');
 				}
 			} else {

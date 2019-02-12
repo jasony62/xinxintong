@@ -3,7 +3,7 @@ namespace pl\fe\matter\signin;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /*
- * 登记活动主控制器
+ * 记录活动主控制器
  */
 class page extends \pl\fe\matter\base {
 	/**

@@ -1,15 +1,22 @@
-<div class='topics' ng-controller="ctrlPublicTopic">
-    <div class='topic' ng-repeat="topic in topics" ng-click="gotoTopic(topic)" ng-cloak>
-    	<div class='tms-flex-row small text-muted'>
-            <div class='tms-flex-grow' ng-bind-html="topic.nickname"></div>
-            <div ng-bind="topic.create_at*1000|date:'MM-dd HH:mm'"></div>
+<div class='wrap' ng-controller="ctrlPublicTopic">
+    <div id='filterQuick' ng-cloak>
+        <div ng-repeat="singleFilter in singleFilters">
+            <div tms-dropdown basic-data="singleFilter" criteria="criteria" shift-menu="shiftMenu(criteria)"></div>
         </div>
-        <hr>
-        <div class='form-group'>
-            <div ng-bind="topic.title"></div>
-        </div>
-        <div class='form-group' ng-if="topic.summary">
-            <div class='text-muted small' ng-bind="topic.summary"></div>
+    </div>
+    <div class='topics' id='topic'>
+        <div class='topic' ng-repeat="topic in topics" ng-click="gotoTopic(topic, $event)" ng-cloak>
+            <div class='tms-flex-row small text-muted'>
+                <div class='tms-flex-grow' ng-bind-html="topic.nickname"></div>
+                <div ng-bind="topic.create_at*1000|date:'MM-dd HH:mm'"></div>
+            </div>
+            <hr>
+            <div class='form-group'>
+                <div ng-bind="topic.title"></div>
+            </div>
+            <div class='form-group' ng-if="topic.summary">
+                <div class='text-muted small' ng-bind="topic.summary"></div>
+            </div>
         </div>
     </div>
 </div>

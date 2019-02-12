@@ -111,8 +111,8 @@ class task extends base {
 
 		/* 用户的分组信息 */
 		if ($oGroup = $this->getUserGroup($oApp)) {
-			$oUser->group_id = $oGroup->round_id;
-			$oUser->group_title = $oGroup->round_title;
+			$oUser->group_id = $oGroup->team_id;
+			$oUser->group_title = $oGroup->team_title;
 		} else {
 			$oUser->group_id = '';
 			$oUser->group_title = '';

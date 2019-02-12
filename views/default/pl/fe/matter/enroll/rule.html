@@ -13,7 +13,7 @@
                                         <label>指定活动编辑组</label>
                                         <select class='form-control' ng-model="rule.role.editor.group">
                                             <option value=''>不指定</option>
-                                            <option ng-repeat="group in app.groups" value="{{group.round_id}}">{{group.title}}</option>
+                                            <option ng-repeat="group in app.groups" value="{{group.team_id}}">{{group.title}}</option>
                                         </select>
                                         <div class='help-block'>可以见处理所有不是分组内的记录和数据</div>
                                     </div>
@@ -26,7 +26,7 @@
                                         <label>可以查看活动看板的用户组</label>
                                         <select class='form-control' ng-model="rule.role.kanban.group">
                                             <option value=''>所有用户</option>
-                                            <option ng-repeat="group in app.groups" value="{{group.round_id}}">{{group.title}}</option>
+                                            <option ng-repeat="group in app.groups" value="{{group.team_id}}">{{group.title}}</option>
                                         </select>
                                         <div class='help-block'>超级用户不受次限制</div>
                                     </div>

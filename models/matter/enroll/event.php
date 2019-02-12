@@ -1,7 +1,7 @@
 <?php
 namespace matter\enroll;
 /**
- * 登记活动用户事件
+ * 记录活动用户事件
  */
 class event_model extends \TMS_MODEL {
 	/**
@@ -176,7 +176,7 @@ class event_model extends \TMS_MODEL {
 	public function _updateUsrData($oApp, $rid, $bJumpCreate, $oUser, $oUsrEventData, $fnUsrRndData = null, $fnUsrAppData = null, $fnUsrMisData = null) {
 		$userid = $this->_getOperatorId($oUser);
 
-		/* 登记活动中需要额外更新的数据 */
+		/* 记录活动中需要额外更新的数据 */
 		$oUpdatedEnlUsrData = clone $oUsrEventData;
 		if (isset($oUser->group_id)) {
 			$oUpdatedEnlUsrData->group_id = $oUser->group_id;
@@ -279,9 +279,9 @@ class event_model extends \TMS_MODEL {
 			/* 用户在项目中的所属分组 */
 			if ($oMission->user_app_type === 'group') {
 				$oMisUsrGrpApp = (object) ['id' => $oMission->user_app_id];
-				$oMisGrpUser = $this->model('matter\group\user')->byUser($oMisUsrGrpApp, $oUser->uid, ['onlyOne' => true, 'round_id']);
-				if (isset($oMisGrpUser->round_id)) {
-					$oUpdatedMisUsrData->group_id = $oMisGrpUser->round_id;
+				$oMisGrpUser = $this->model('matter\group\record')->byUser($oMisUsrGrpApp, $oUser->uid, ['onlyOne' => true, 'team_id']);
+				if (isset($oMisGrpUser->team_id)) {
+					$oUpdatedMisUsrData->group_id = $oMisGrpUser->team_id;
 				}
 			}
 			if (false === $oMisUser) {
@@ -316,9 +316,9 @@ class event_model extends \TMS_MODEL {
 		/* 用户在项目中的所属分组 */
 		if ($oMission->user_app_type === 'group') {
 			$oMisUsrGrpApp = (object) ['id' => $oMission->user_app_id];
-			$oMisGrpUser = $this->model('matter\group\user')->byUser($oMisUsrGrpApp, $oUser->uid, ['onlyOne' => true, 'round_id']);
-			if (isset($oMisGrpUser->round_id)) {
-				$oUpdatedMisUsrData->group_id = $oMisGrpUser->round_id;
+			$oMisGrpUser = $this->model('matter\group\record')->byUser($oMisUsrGrpApp, $oUser->uid, ['onlyOne' => true, 'team_id']);
+			if (isset($oMisGrpUser->team_id)) {
+				$oUpdatedMisUsrData->group_id = $oMisGrpUser->team_id;
 			}
 		}
 		if (false === $oMisUser) {
@@ -3373,8 +3373,8 @@ class event_model extends \TMS_MODEL {
 		return $oUpdatedUsrData;
 	}
 	/*
-	 *
-	 */
+		 *
+	*/
 	public function searchRecord($oApp, $search, $oOperator) {
 		$rid = $oApp->appRound->rid;
 		$eventAt = time();

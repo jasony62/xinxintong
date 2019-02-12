@@ -5,7 +5,7 @@ namespace matter\plan;
  */
 class coin_model extends \TMS_MODEL {
 	/**
-	 * 返回登记活动对应的积分规则
+	 * 返回记录活动对应的积分规则
 	 *
 	 * @param $act
 	 * @param $oApp

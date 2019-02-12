@@ -10,10 +10,6 @@
                 <label class='radio-inline' ng-repeat="is in sourceTypes">
                     <input type='radio' name='appType' value='{{is.v}}' ng-model="data.appType">{{is.l}}</label>
             </div>
-            <div class="col-md-9 col-md-offset-3" ng-if="data.appType==='wall'">
-                <label class='checkbox-inline'>
-                    <input type='checkbox' ng-model='data.onlySpeaker' ng-true-value="'Y'" ng-false-value="'N'">仅包含发言用户</label>
-            </div>
         </div>
         <div class='form-group'>
             <label class="col-md-3 control-label">目标活动</label>

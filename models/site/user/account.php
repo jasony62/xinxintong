@@ -11,7 +11,7 @@ class account_model extends \TMS_MODEL {
 	/**
 	 * 缺省属性列表
 	 */
-	const DEFAULT_FIELDS = 'siteid,uid,nickname,is_wx_primary,wx_openid,is_yx_primary,yx_openid,is_qy_primary,qy_openid,unionid,is_reg_primary,headimgurl';
+	const DEFAULT_FIELDS = 'siteid,uid,nickname,is_wx_primary,wx_openid,is_qy_primary,qy_openid,unionid,is_reg_primary,headimgurl';
 	/**
 	 *
 	 *
@@ -208,15 +208,6 @@ class account_model extends \TMS_MODEL {
 					throw new \Exception('数据错误，重复创建主公众号用户站点访客账号');
 				}
 				$oNewAccount->is_wx_primary = $props['is_wx_primary'];
-			}
-		}
-		if (isset($props['yx_openid'])) {
-			$oNewAccount->yx_openid = $props['yx_openid'];
-			if (isset($props['is_yx_primary'])) {
-				if ($this->byPrimaryOpenid($siteid, 'yx', $oNewAccount->yx_openid)) {
-					throw new \Exception('数据错误，重复创建主公众号用户站点访客账号');
-				}
-				$oNewAccount->is_yx_primary = $props['is_yx_primary'];
 			}
 		}
 		if (isset($props['qy_openid'])) {

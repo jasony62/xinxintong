@@ -33,7 +33,7 @@
                         <td>{{$index+1}}</td>
                         <td>{{r._noticeStatus[0]}}</td>
                         <td style='color:red'>{{r._noticeStatus[1]}}</td>
-                        <td ng-if="null===activeRound">{{r.round_title}}</td>
+                        <td ng-if="null===activeRound">{{r.team_title}}</td>
                         <td ng-repeat="schema in recordSchemas" ng-switch on="schema.type">
                             <span ng-switch-when="image">
                                     <img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' />

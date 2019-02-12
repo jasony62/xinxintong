@@ -26,46 +26,46 @@ define(['frame'], function(ngApp) {
             desc: '计划活动————用户A完成某项任务',
         }, {
             data: { act: 'site.matter.enroll.submit', matter_type: 'enroll' },
-            desc: '登记活动————用户A提交新填写记录',
+            desc: '记录活动————用户A提交新填写记录',
         }, {
             data: { act: 'site.matter.enroll.cowork.get.submit', matter_type: 'enroll' },
-            desc: '登记活动————用户A提交的填写记录获得新协作填写数据',
+            desc: '记录活动————用户A提交的填写记录获得新协作填写数据',
         }, {
             data: { act: 'site.matter.enroll.cowork.do.submit', matter_type: 'enroll' },
-            desc: '登记活动————用户A提交新协作填写数据',
+            desc: '记录活动————用户A提交新协作填写数据',
         }, {
             data: { act: 'site.matter.enroll.share.friend', matter_type: 'enroll' },
-            desc: '登记活动————用户A分享活动给微信好友',
+            desc: '记录活动————用户A分享活动给微信好友',
         }, {
             data: { act: 'site.matter.enroll.share.timeline', matter_type: 'enroll' },
-            desc: '登记活动————用户A分享活动至朋友圈',
+            desc: '记录活动————用户A分享活动至朋友圈',
         }, {
             data: { act: 'site.matter.enroll.data.get.like', matter_type: 'enroll' },
-            desc: '登记活动————用户A填写数据获得赞同',
+            desc: '记录活动————用户A填写数据获得赞同',
         }, {
             data: { act: 'site.matter.enroll.cowork.get.like', matter_type: 'enroll' },
-            desc: '登记活动————用户A填写的协作数据获得赞同',
+            desc: '记录活动————用户A填写的协作数据获得赞同',
         }, {
             data: { act: 'site.matter.enroll.data.get.remark', matter_type: 'enroll' },
-            desc: '登记活动————用户A填写数据获得留言',
+            desc: '记录活动————用户A填写数据获得留言',
         }, {
             data: { act: 'site.matter.enroll.cowork.get.remark', matter_type: 'enroll' },
-            desc: '登记活动————用户A填写协作数据获得留言',
+            desc: '记录活动————用户A填写协作数据获得留言',
         }, {
             data: { act: 'site.matter.enroll.do.remark', matter_type: 'enroll' },
-            desc: '登记活动————用户A发表留言',
+            desc: '记录活动————用户A发表留言',
         }, {
             data: { act: 'site.matter.enroll.remark.get.like', matter_type: 'enroll' },
-            desc: '登记活动————用户A发表的留言获得赞同',
+            desc: '记录活动————用户A发表的留言获得赞同',
         }, {
             data: { act: 'site.matter.enroll.data.get.agree', matter_type: 'enroll' },
-            desc: '登记活动————用户A填写的数据获得推荐',
+            desc: '记录活动————用户A填写的数据获得推荐',
         }, {
             data: { act: 'site.matter.enroll.cowork.get.agree', matter_type: 'enroll' },
-            desc: '登记活动————用户A发表的协作填写记录获得推荐',
+            desc: '记录活动————用户A发表的协作填写记录获得推荐',
         }, {
             data: { act: 'site.matter.enroll.remark.get.agree', matter_type: 'enroll' },
-            desc: '登记活动————用户A发表的留言获得推荐',
+            desc: '记录活动————用户A发表的留言获得推荐',
         }];
         $scope.rules = {};
         _aDefaultActions.forEach(function(oRule) {

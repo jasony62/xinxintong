@@ -5,6 +5,12 @@ namespace matter;
  */
 class base_model extends \TMS_MODEL {
 	/**
+	 * byId方法中的id字段
+	 */
+	protected function id() {
+		return 'id';
+	}
+	/**
 	 * 素材类型名称
 	 */
 	public function getTypeName() {
@@ -30,8 +36,6 @@ class base_model extends \TMS_MODEL {
 			'enroll' => 'app',
 			'signin' => 'app',
 			'group' => 'app',
-			'lottery' => 'app',
-			'wall' => 'app',
 		];
 
 		return isset($map[$matterType]) ? $map[$matterType] : '';
@@ -40,14 +44,8 @@ class base_model extends \TMS_MODEL {
 	 * 根据类型和ID获得素材
 	 */
 	public function getCardInfoById($type, $id) {
-		switch ($type) {
-		case 'joinwall':
-			$q = ['id,title,summary,pic', 'xxt_wall', ["id" => $id]];
-			break;
-		default:
-			$table = 'xxt_' . $type;
-			$q = ['id,title,summary,pic', $table, ["id" => $id]];
-		}
+		$table = 'xxt_' . $type;
+		$q = ['id,title,summary,pic', $table, ["id" => $id]];
 		if ($matter = $this->query_obj_ss($q)) {
 			$matter->type = $type;
 		}
@@ -61,9 +59,6 @@ class base_model extends \TMS_MODEL {
 		switch ($type) {
 		case 'text':
 			$q = ['id,title', 'xxt_text', ["id" => $id]];
-			break;
-		case 'joinwall':
-			$q = ['id,title', 'xxt_wall', ["id" => $id]];
 			break;
 		case 'mschema':
 			$q = ['id,title', 'xxt_site_member_schema', ["id" => $id]];
@@ -87,7 +82,7 @@ class base_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			$this->table(),
-			["id" => $id],
+			[$this->id() => $id],
 		];
 		if ($oMatter = $this->query_obj_ss($q)) {
 			$oMatter->type = $this->getTypeName();

@@ -102,7 +102,7 @@ define(["require", "angular", "planService"], function(require, angular) {
         $scope.getRecords = function(pageNumber) {
             $scope.rows.reset();
             pageNumber && ($scope.page.at = pageNumber);
-            var url = '/rest/site/op/matter/plan/task/list?site=' +  _oApp.siteid +'&app=' + _oApp.id + '&accessToken=' + accessId + $scope.page.j();
+            var url = '/rest/site/op/matter/plan/task/list?site=' + _oApp.siteid + '&app=' + _oApp.id + '&accessToken=' + accessId + $scope.page.j();
             http2.post(url, _oCriteria, function(rsp) {
                 var tasks, oSchemasById;
                 tasks = rsp.data.tasks;
@@ -136,7 +136,7 @@ define(["require", "angular", "planService"], function(require, angular) {
                 }
             }
             if (ids.length) {
-                http2.post('/rest/site/op/matter/plan/task/batchVerify?site='+ _oApp.siteid + '&app=' + _oApp.id + '&accessToken=' + accessId, {
+                http2.post('/rest/site/op/matter/plan/task/batchVerify?site=' + _oApp.siteid + '&app=' + _oApp.id + '&accessToken=' + accessId, {
                     ids: ids
                 }, function(rsp) {
                     selectedTasks.forEach(function(oTask) {
@@ -235,15 +235,15 @@ define(["require", "angular", "planService"], function(require, angular) {
                     }
                 }
             }
-            $scope.$watch('app', function(app) {
-                if(!app) return;
-                if(app.entryRule.scope.group && app.entryRule.scope.group=='Y' && app.groupApp.rounds.length) {
-                    app.groupApp.rounds.forEach(function(round) {
-                        _oGroup[round.round_id] = round;
+            $scope.$watch('app', function(oApp) {
+                if (!oApp) return;
+                if (oApp.entryRule.scope.group && oApp.entryRule.scope.group == 'Y' && oApp.groupApp.teams.length) {
+                    oApp.groupApp.teams.forEach(function(oTeam) {
+                        _oGroup[oTeam.team_id] = round;
                     });
                 }
-                app._rounds = _oGroup;
-                _oApp = app;
+                oApp._groups = _oGroup;
+                _oApp = oApp;
                 // schemas
                 $scope.getRecords(1);
                 window.loading.finish();
@@ -259,7 +259,7 @@ define(["require", "angular", "planService"], function(require, angular) {
             });
         }
 
-        function doSave (){
+        function doSave() {
             //oRecord 原始数据
             //updated 上传数据包
             var updated = {},
@@ -615,7 +615,7 @@ define(["require", "angular", "planService"], function(require, angular) {
                 if (requireGet) {
                     /member/.test(schema.id) && (schema.id = 'member');
                     url = '/rest/site/op/matter/plan/task/listSchema';
-                    url += '?site=' + $scope.app.siteid +'&app=' + $scope.app.id + '&checkSchmId=' + schema.id;
+                    url += '?site=' + $scope.app.siteid + '&app=' + $scope.app.id + '&checkSchmId=' + schema.id;
                     url += '&accessToken=' + $scope.accessToken;
                     url += '&taskSchmId=' + ($scope.app.rpConfig.taskSchmId ? $scope.app.rpConfig.taskSchmId : '');
                     url += '&actSchmId=' + ($scope.app.rpConfig.actSchmId ? $scope.app.rpConfig.actSchmId : '');

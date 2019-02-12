@@ -29,19 +29,19 @@ class notice extends \pl\fe\matter\base {
 		$modelRec = $this->model('matter\signin\record');
 		$site = $modelRec->escape($site);
 		$app = $modelRec->escape($app);
-		$posted = $this->getPostJson();
-		$params = $posted->message;
+		$oPosted = $this->getPostJson();
+		$params = $oPosted->message;
 
-		if (isset($posted->criteria)) {
+		if (isset($oPosted->criteria)) {
 			// 筛选条件
-			$criteria = $posted->criteria;
-			$options = [
+			$criteria = $oPosted->criteria;
+			$aOptions = [
 				'rid' => $rid,
 			];
-			$participants = $modelRec->byApp($app, $options, $criteria);
-		} else if (isset($posted->users)) {
+			$participants = $modelRec->byApp($app, $aOptions, $criteria);
+		} else if (isset($oPosted->users)) {
 			// 直接指定
-			$participants = $posted->users;
+			$participants = $oPosted->users;
 		}
 
 		if (count($participants)) {

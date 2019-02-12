@@ -30,41 +30,14 @@ class topic extends base {
 			}
 		}
 
-		/* 是否设置了编辑组统一名称 */
-		if (isset($oApp->actionRule->role->editor->group)) {
-			if (isset($oApp->actionRule->role->editor->nickname)) {
-				$oEditor = new \stdClass;
-				$oEditor->group = $oApp->actionRule->role->editor->group;
-				$oEditor->nickname = $oApp->actionRule->role->editor->nickname;
-				// 如果登记活动指定了编辑组需要获取，编辑组中所有的用户
-				$modelGrpUsr = $this->model('matter\group\player');
-				$groupEditor = $modelGrpUsr->byApp($oApp->entryRule->group->id, ['roleRoundId' => $oEditor->group, 'fields' => 'role_rounds,userid']);
-				if (isset($groupEditor->players)) {
-					$groupEditorPlayers = $groupEditor->players;
-					$oEditorUsers = new \stdClass;
-					foreach ($groupEditorPlayers as $player) {
-						$oEditorUsers->{$player->userid} = $player->role_rounds;
-					}
-					unset($groupEditorPlayers);
-				}
-			}
-		}
-
 		$oUser = $this->getUser($oApp);
 
 		/* 修改默认访客昵称 */
-		if (isset($oUser->unionid) && $oTopic->unionid === $oUser->unionid) {
+		if ($this->getDeepValue($oUser, 'unionid') === $oTopic->unionid) {
 			$oTopic->nickname = '我';
-		} else if (isset($oEditor)) {
-			/* 设置编辑统一昵称 */
-			if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
-				if (!empty($oTopic->group_id) && $oTopic->group_id === $oEditor->group) {
-					$oTopic->nickname = $oEditor->nickname;
-				} else if (isset($oEditorUsers) && isset($oEditorUsers->{$oTopic->userid})) {
-					// 记录提交者是否有编辑组角色
-					$oTopic->nickname = $oEditor->nickname;
-				}
-			}
+		} else {
+			$oEditorGrp = $this->getEditorGroup($oApp);
+			$this->setNickname($oTopic, $oUser, $oEditorGrp);
 		}
 
 		return new \ResponseData($oTopic);
@@ -249,12 +222,30 @@ class topic extends base {
 			return new \ObjectNotFoundError();
 		}
 
+		$oPosted = $this->getPostJson();
+		if (!empty($oPosted->orderby)) {
+			switch ($oPosted->orderby) {
+			case 'earliest':
+				$orderby = ['create_at asc'];
+				break;
+			case 'lastest':
+				$orderby = ['create_at desc'];
+				break;
+			}
+		}
+
 		$q = [
 			'id,create_at,title,summary,rec_num,userid,group_id,nickname,share_in_group,is_public',
 			'xxt_enroll_topic',
 			['state' => 1, 'aid' => $oApp->id, 'is_public' => 'Y'],
 		];
-		$q2 = ['o' => 'create_at desc'];
+		$q2 = [];
+		if (isset($orderby)) {
+			$q2['o'] = $orderby;
+		} else {
+			$q2['o'] = ['create_at desc'];
+		}
+
 		$topics = $modelEnl->query_objs_ss($q, $q2);
 
 		$oResult = new \stdClass;

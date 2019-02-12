@@ -57,7 +57,7 @@
                         </td>
                         <td data-th='分组名称' ng-if="app.entryRule.scope.group&&app.entryRule.scope.group=='Y'">
                             <div>
-                                <span ng-if="task.group_id!==''">{{app._rounds[task.group_id].title}}</span>
+                                <span ng-if="task.group_id!==''">{{app._groups[task.group_id].title}}</span>
                                 <span ng-if="task.group_id===''">未分组</span>
                             </div>
                         </td>
@@ -65,16 +65,16 @@
                             <div ng-switch-when="image">
                                 <img ng-repeat="img in task._data[schema.id]" ng-src='{{img}}' />
                             </div>
-                            <div ng-switch-when="file">
-                                <span ng-repeat='file in task._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
-                            </div>
-                            <div ng-switch-when="date">
-                                {{(task._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}
-                            </div>
-                            <div ng-switch-default ng-bind-html="task._data[schema.id]"></div>
-                            <div ng-if="['single','multiple','image','file'].indexOf(schema.type)!==-1&&task.supplement[schema.id].length">
-                                (补充说明：{{task.supplement[schema.id]}})
-                            </div>
+                                <div ng-switch-when="file">
+                                    <span ng-repeat='file in task._data[schema.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                                </div>
+                                <div ng-switch-when="date">
+                                    {{(task._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}
+                                </div>
+                                <div ng-switch-default ng-bind-html="task._data[schema.id]"></div>
+                                <div ng-if="['single','multiple','image','file'].indexOf(schema.type)!==-1&&task.supplement[schema.id].length">
+                                    (补充说明：{{task.supplement[schema.id]}})
+                                </div>
                         </td>
                         <td data-th='备注'>
                             <div>{{task.comment}}</div>

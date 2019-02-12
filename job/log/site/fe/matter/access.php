@@ -59,7 +59,7 @@ class access extends \TMS_MODEL {
 		$logClient->ip = $clientIp;
 		$logClient->agent = $HTTP_USER_AGENT;
 
-		// 登记活动的专题页和讨论页和共享页需要单独记录
+		// 记录活动的专题页和讨论页和共享页需要单独记录
 		if ($type === 'enroll') {
 			$targets = ['topic', 'repos', 'cowork'];
 			if (!empty($this->args['target_type']) && in_array($this->args['target_type'], $targets) && !empty($this->args['target_id'])) {

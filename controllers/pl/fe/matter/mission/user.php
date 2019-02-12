@@ -76,12 +76,12 @@ class user extends \pl\fe\matter\base {
 			/* 填充分组信息 */
 			if (!empty($oMission->user_app_type) && $oMission->user_app_type === 'group') {
 				if (!empty($oMission->user_app_id)) {
-					$modelGrpRnd = $this->model('matter\group\round');
-					$fnHander = function ($oMission, $oEnrollee) use ($modelGrpRnd) {
+					$modelGrpTeam = $this->model('matter\group\team');
+					$fnHander = function ($oMission, $oEnrollee) use ($modelGrpTeam) {
 						if (empty($oEnrollee->group_id)) {
 							return;
 						}
-						$oGrpRnd = $modelGrpRnd->byId($oEnrollee->group_id, ['fields' => 'title']);
+						$oGrpRnd = $modelGrpTeam->byId($oEnrollee->group_id, ['fields' => 'title']);
 						if ($oGrpRnd) {
 							$oEnrollee->group = $oGrpRnd;
 						}
@@ -96,10 +96,10 @@ class user extends \pl\fe\matter\base {
 			}
 		}
 
-		$result = new \stdClass;
-		$result->enrollees = $enrollees;
+		$oResult = new \stdClass;
+		$oResult->enrollees = $enrollees;
 
-		return new \ResponseData($result);
+		return new \ResponseData($oResult);
 	}
 	/**
 	 * 更新用户在项目中的累计得分数据

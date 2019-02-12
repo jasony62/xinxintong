@@ -13,9 +13,6 @@ define(['frame'], function(ngApp) {
         $scope.filter = facListFilter.init(function() {
             $scope.list();
         }, _oCriteria.filter);
-        $scope.addWall = function(assignedScenario) {
-            location.href = '/rest/pl/fe/matter/wall/shop?site=' + _oMission.siteid + '&mission=' + _oMission.id;
-        };
         $scope.addEnroll = function() {
             location.href = '/rest/pl/fe/matter/enroll/shop?site=' + _oMission.siteid + '&mission=' + _oMission.id;
         };

@@ -128,7 +128,7 @@ class cowork extends base {
 				$modelTop->assign($oTopic, $oRecord, $oNewItem);
 			}
 		}
-		/* 通知登记活动事件接收人 */
+		/* 通知记录活动事件接收人 */
 		if (isset($oApp->notifyConfig->cowork->valid) && $oApp->notifyConfig->cowork->valid === true) {
 			$this->_notifyReceivers($oApp, $oRecord, $oNewItem);
 		}

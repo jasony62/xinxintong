@@ -97,7 +97,7 @@ class page_model extends page_base {
 		return $oPage;
 	}
 	/**
-	 * 返回指定登记活动的页面
+	 * 返回指定记录活动的页面
 	 */
 	public function &byApp($appId, $options = array(), $published = 'N') {
 		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';

@@ -497,11 +497,6 @@ class way_model extends \TMS_MODEL {
 			$modelWxFan = \TMS_App::M('sns\wx\fan');
 			$fullUser->sns->wx = $modelWxFan->byOpenid($oSiteUser->siteid, $oSiteUser->wx_openid);
 		}
-		/* yx用户 */
-		if (!empty($oSiteUser->yx_openid)) {
-			$modelYxFan = \TMS_App::M('sns\yx\fan');
-			$fullUser->sns->yx = $modelYxFan->byOpenid($oSiteUser->siteid, $oSiteUser->yx_openid);
-		}
 		/* qy用户 */
 		if (!empty($oSiteUser->qy_openid)) {
 			$modelQyFan = \TMS_App::M('sns\qy\fan');
@@ -599,13 +594,6 @@ class way_model extends \TMS_MODEL {
 							$modelWxFan = \TMS_App::M('sns\wx\fan');
 						}
 						$oCookieUser->sns->wx = $modelWxFan->byOpenid($account->siteid, $account->wx_openid, 'openid,nickname,headimgurl');
-					}
-					/* yx用户 */
-					if (!empty($account->yx_openid)) {
-						if (!isset($modelYxFan)) {
-							$modelYxFan = \TMS_App::M('sns\yx\fan');
-						}
-						$oCookieUser->sns->yx = $modelYxFan->byOpenid($account->siteid, $account->yx_openid, 'openid,nickname,headimgurl');
 					}
 					/* qy用户 */
 					if (!empty($account->qy_openid)) {

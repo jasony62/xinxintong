@@ -3,7 +3,7 @@ namespace pl\fe\matter\plan;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /*
- * 登记活动日志控制器
+ * 记录活动日志控制器
  */
 class log extends \pl\fe\matter\base {
 	/**
@@ -31,7 +31,7 @@ class log extends \pl\fe\matter\base {
 		if (!empty($criteria->byRid) && (strcasecmp('all', $criteria->byRid) != 0)) {
 			$options['byTask'] = $modelLog->escape($criteria->byRid);
 		}
-		
+
 		if ($logType === 'pl') {
 			$reads = $modelLog->listMatterOp($app, 'plan', $options, $page, $size);
 		} else {

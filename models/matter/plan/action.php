@@ -232,7 +232,7 @@ class action_model extends \TMS_MODEL {
 					$dbData->{$schemaId} = $treatedValue = $submitVal;
 				}
 			} else {
-				/* 如果登记活动指定匹配清单，那么提交数据会包含匹配登记记录的数据，但是这些数据不在登记项定义中 */
+				/* 如果记录活动指定匹配清单，那么提交数据会包含匹配登记记录的数据，但是这些数据不在登记项定义中 */
 				$dbData->{$schemaId} = $treatedValue = $submitVal;
 			}
 		}

@@ -78,7 +78,6 @@
                                 <th style='width:150px'>讨论页浏览累计时间</th>
                                 <th style='width:160px'>讨论页被浏览累计时间</th>
                                 <th ng-if="sns.wx.joined=='Y'">微信昵称</th>
-                                <th ng-if="sns.yx.joined=='Y'">易信昵称</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -128,9 +127,6 @@
                                 <td>{{m.cowork_read_elapse | filterTime}}</td>
                                 <td ng-if="sns.wx.joined=='Y'">
                                     <div ng-show="m.wx_openid">{{m.wxfan.nickname}}</div>
-                                </td>
-                                <td ng-if="sns.yx.joined=='Y'">
-                                    <div ng-show="m.yx_openid">{{m.yxfan.nickname}}</div>
                                 </td>
                             </tr>
                         </tbody>

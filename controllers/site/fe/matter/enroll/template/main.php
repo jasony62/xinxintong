@@ -3,7 +3,7 @@ namespace site\fe\matter\enroll\template;
 
 require_once dirname(__FILE__) . "/base.php";
 /**
- * 登记活动模板
+ * 记录活动模板
  */
 class main extends base {
 	/**

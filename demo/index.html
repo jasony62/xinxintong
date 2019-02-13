@@ -49,9 +49,9 @@
                         <p>会话编号： <span ng-bind="record.fileUrl.sessionid"></span></p>
                         <p>主叫号码： <span>01058552614</span></p>
                         <p>被叫号码： <span ng-bind="calledNum"></span></p>
-                        <p>开始时间： <span ng-bind="{record.billed.statTime*1000|date:'MM-dd HH:mm:ss'}"></span></p>
-                        <p>结束时间： <span ng-bind="{record.billed.endTime*1000|date:'MM-dd HH:mm:ss'}"></span></p>
-                        <p>通话时长： <span ng-bind="{record.billed.duration*1000|date:'MM-dd HH:mm:ss'}"></span></p>
+                        <p>开始时间： <span ng-bind="record.billed.statTime"></span></p>
+                        <p>结束时间： <span ng-bind="record.billed.endTime"></span></p>
+                        <p>通话时长： <span ng-bind="record.billed.duration"></span></p>
                         <span><audio ng-src="{{record.fileUrl.voiceAddress}}" controls="controls">Your browser does not support the audio element.</audio></span>
                     </div>
                 </div>

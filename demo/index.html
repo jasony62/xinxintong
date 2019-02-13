@@ -50,13 +50,13 @@
                         <button type="button" class="btn btn-warning btn-sm pull-right" data-placement="left" data-toggle="tooltip" title="通过能力平台提供的【推送录音文件API】，客户应用可获得录音文件的下载地址和描述信息">API</button>
                     </div>
                     <div class="panel-body">
-                        <p>会话编号： <span ng-bind="record.num"></span></p>
+                        <p>会话编号： <span ng-bind="record.sessionid"></span></p>
                         <p>主叫号码： <span>01058552614</span></p>
                         <p>被叫号码： <span ng-bind="calledNum"></span></p>
-                        <p>开始时间： <span ng-bind="record.startTime"></span></p>
-                        <p>结束时间： <span ng-bind="record.endTime"></span></p>
-                        <p>通话时长： <span ng-bind="record.time"></span></p>
-                        <span><audio ng-src="record.src" controls="controls">Your browser does not support the audio element.</audio></span>
+                        <!-- <p>开始时间： <span ng-bind="record.startTime"></span></p>
+                        <p>结束时间： <span ng-bind="record.endTime"></span></p> 
+                        <p>通话时长： <span ng-bind="record.time"></span></p>-->
+                        <span><audio ng-src="{{record.voiceAddress}}" controls="controls">Your browser does not support the audio element.</audio></span>
                     </div>
                 </div>
             </div>

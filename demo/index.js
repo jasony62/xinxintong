@@ -60,8 +60,8 @@ ngApp.controller('ctrlApp', ['$scope', '$http', function($scope, $http) {
                             timer2 = setInterval(function() {
                                 getAddrUrl = '/rest/demo/getCallFileUrl?sessionid=' + sessionId;
                                 $http.get(getAddrUrl).success(function(rsp) {
-                                    if (rsp.data.length) {
-                                        $scope.record = rsp.data[0];
+                                    if (rsp.data) {
+                                        $scope.record = rsp.data;
                                         window.clearInterval(timer2);
                                     }
                                 });

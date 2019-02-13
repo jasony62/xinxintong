@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html ng-app='app'>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+    <base href="/" />
+    <title>录音体验页</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/demo/index.css" rel="stylesheet">
+</head>
+
+<body ng-controller="ctrlApp">
+    <div ng-cloak class='ng-cloak container'>
+        <div class="row">
+            <div class="col-md-12">
+                <form name="demo" class="demo">
+                    <div class="input-group dialing">
+                        <span class="input-group-addon">主叫号码</span>
+                        <input class="form-control" type="text" name="tel" value="01058552614" maxlength="12" readonly="readonly">
+                    </div>
+                    <p class="help-block small"> 注：已开通云录音功能的号码</p>
+                    <div class="input-group called">
+                        <span class="input-group-addon">被叫号码</span>
+                        <input class="form-control" type="text" name="phone" maxlength="12" placeholder="请输入手机号或带区号的固话号码（固话格式：01088888888）" ng-model="calledNum">
+                    </div>
+                    <button class="btn btn-warning btn-block" ng-click="call()"><span class="glyphicon glyphicon-earphone"></span> 开始呼叫</button>
+                </form>
+            </div>
+            <div class="col-md-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <span class="panel-title">通话状态</span>
+                        <button type="button" class="btn btn-warning btn-sm pull-right" data-placement="left" data-toggle="tooltip" title="通过能力平台提供的【推送通话状态API】，客户应用可获得通话过程的完整信息">API</button>
+                    </div>
+                    <div class="panel-body">
+                        <p ng-class="{'0':'text-muted','9':'text-orange','10':'text-primary'}[status]">发起呼叫<span class="pull-right" ng-bind="dial.time_ready"></span></p>
+                        <p ng-class="{'0':'text-muted','10':'text-orange','13':'text-primary'}[status]">振铃开始<span class="pull-right" ng-bind="dial.time_ringing"></span></p>
+                        <p ng-class="{'0':'text-muted','13':'text-orange','100':'text-primary'}[status]">通话开始<span class="pull-right" ng-bind="dial.time_callstart"></span></p>
+                        <p ng-class="{'0':'text-muted','100':'text-orange'}[status]">通话结束<span class="pull-right" ng-bind="dial.time_callend"></span></p>
+                    </div>
+                </div>
+                <div class="panel panel-primary" ng-show="status==='100'">
+                    <div class="panel-heading">
+                        <span class="panel-title">录音文件</span>
+                        <button type="button" class="btn btn-warning btn-sm pull-right" data-placement="left" data-toggle="tooltip" title="通过能力平台提供的【推送录音文件API】，客户应用可获得录音文件的下载地址和描述信息">API</button>
+                    </div>
+                    <div class="panel-body">
+                        <p>会话编号： <span ng-bind=""></span></p>
+                        <p>主叫号码： <span>01058552614</span></p>
+                        <p>被叫号码： <span ng-bind=""></span></p>
+                        <p>开始时间： <span ng-bind=""></span></p>
+                        <p>结束时间： <span ng-bind=""></span></p>
+                        <p>通话时长： <span ng-bind=""></span></p>
+                        <span><audio ng-src="" controls="controls">Your browser does not support the audio element.</audio></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/demo/index.js"></script>
+</body>
+
+</html>

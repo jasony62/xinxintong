@@ -1,0 +1,25 @@
+body {
+    padding-top: 15px;
+    background-color: #fff;
+}
+
+form button {
+    margin-top: 20px;
+}
+
+.panel {
+    margin-top: 15px;
+}
+
+.panel>.panel-heading>.btn-sm {
+    line-height: 1;
+}
+
+.panel>.panel-body>p {
+    font-size: 13px;
+    margin-bottom: 15px;
+}
+
+.text-orange {
+    color: #f3ab26
+}

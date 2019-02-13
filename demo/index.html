@@ -53,9 +53,6 @@
                         <p>会话编号： <span ng-bind="record.sessionid"></span></p>
                         <p>主叫号码： <span>01058552614</span></p>
                         <p>被叫号码： <span ng-bind="calledNum"></span></p>
-                        <!-- <p>开始时间： <span ng-bind="record.startTime"></span></p>
-                        <p>结束时间： <span ng-bind="record.endTime"></span></p> 
-                        <p>通话时长： <span ng-bind="record.time"></span></p>-->
                         <span><audio ng-src="{{record.voiceAddress}}" controls="controls">Your browser does not support the audio element.</audio></span>
                     </div>
                 </div>

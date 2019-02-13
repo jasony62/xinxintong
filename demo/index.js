@@ -46,13 +46,13 @@ ngApp.controller('ctrlApp', ['$scope', '$http', function($scope, $http) {
                     if (rsp.data.length) {
                         $scope.status = rsp.data[0].status;
                         id = rsp.data[0].id;
-                        if (status == '9') {
+                        if ($scope.status == '9') {
                             $scope.time_ready = getStatusRecievedTimeStamp(new Date().valueOf(), initTimeStamp);
-                        } else if (status == '10') {
+                        } else if ($scope.status == '10') {
                             $scope.time_ringing = getStatusRecievedTimeStamp(new Date().valueOf(), initTimeStamp);
-                        } else if (status == '13') {
+                        } else if ($scope.status == '13') {
                             $scope.time_callstart = getStatusRecievedTimeStamp(new Date().valueOf(), initTimeStamp);
-                        } else if (status == '15') {
+                        } else if ($scope.status == '15') {
                             $scope.time_callend = getStatusRecievedTimeStamp(new Date().valueOf(), initTimeStamp);
                         }
                         if ($scope.status == '15') {

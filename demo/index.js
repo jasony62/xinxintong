@@ -2,7 +2,6 @@
 var ngApp = angular.module('app', ['ui.bootstrap']);
 ngApp.controller('ctrlApp', ['$scope', '$http', function($scope, $http) {
     var sessionId, status;
-    $scope.status = status = 0;
     $scope.dial = {
         'time_ready': '00:00',
         'time_ringing': '00:00',
@@ -33,35 +32,40 @@ ngApp.controller('ctrlApp', ['$scope', '$http', function($scope, $http) {
         return "Time Limited!"
     }
     $scope.call = function() {
-        var sessionId='', initTimeStamp, url1, url2, timer1, timer2;
-        initTimeStamp = new Date().valueOf();
-        timer1 = setInterval(function() {
-            url1 = '/rest/demo/call?zj=01058552614' + '&bj=' + calledNum + '&sessionId=' + sessionId;
-            $http.get(url).success(function(rsp) {
-                $scope.status = status = rsp.data.code;
-                if (status === '9') {
-                    $scope.time_ready = getStatusRecievedTimeStamp(new Date().valueOf(), initTimeStamp);
-                } else if (status === '10') {
-                    $scope.time_ringing = getStatusRecievedTimeStamp(new Date().valueOf(), initTimeStamp);
-                } else if (status === '13') {
-                    $scope.time_callstart = getStatusRecievedTimeStamp(new Date().valueOf(), initTimeStamp);
-                } else if (statis === '14') {
-                    
-                }
-                sessionId = rsp.data.sessionId;
-                if ($scope.status == '14') {
-                    window.clearInterval(timer1);
-                    timer2 = setInterval(function() {
-                        $http.get(url).success(function(rsp) {
-                            if (rsp.data) {
-                                $scope.record = rsp.data;
-                                $scope.status = '100';
-                                window.clearInterval(timer2);
-                            }
-                        });
-                    }, 1000);
-                }
-            });
-        }, 1000);
+        var getSessionUrl = '/rest/demo/call?zj=01058552614' + '&bj=' + $scope.calledNum;
+        $http.get(getSessionUrl).success(function(rsp) {
+            sessionId = rsp.data.sessionid;
+
+            var getStatusUrl, getAddrUrl, timer1, timer2, id;
+            timer1 = setInterval(function() {
+            	getStatusUrl = 'rest/demo/getCallState?sessionid=' + sessionId + '&id=' + id;
+                $http.get(getStatusUrl).success(function(rsp) {
+                    $scope.status = status = rsp.data[0].code;
+                    id = rsp.data[0].id;
+                    if (status === '9') {
+                        $scope.time_ready = getStatusRecievedTimeStamp(new Date().valueOf(), initTimeStamp);
+                    } else if (status === '10') {
+                        $scope.time_ringing = getStatusRecievedTimeStamp(new Date().valueOf(), initTimeStamp);
+                    } else if (status === '13') {
+                        $scope.time_callstart = getStatusRecievedTimeStamp(new Date().valueOf(), initTimeStamp);
+                    } else if (status === '15') {
+                        $scope.time_callend = getStatusRecievedTimeStamp(new Date().valueOf(), initTimeStamp);
+                    }
+                    if ($scope.status == '15') {
+                        window.clearInterval(timer1);
+                    }
+                });
+            }, 1000);
+            timer2 = setInterval(function() {
+            	getAddrUrl = '/rest/demo/getCallFileUrl?sessionid=' + sessionId;
+                $http.get(getAddrUrl).success(function(rsp) {
+                    if (rsp.data) {
+                        $scope.record = rsp.data;
+                        window.clearInterval(timer2);
+                    }
+                });
+            }, 1000);
+        });
+
     }
 }]);

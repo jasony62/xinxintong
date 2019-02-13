@@ -34,25 +34,29 @@
                         <button type="button" class="btn btn-warning btn-sm pull-right" data-placement="left" data-toggle="tooltip" title="通过能力平台提供的【推送通话状态API】，客户应用可获得通话过程的完整信息">API</button>
                     </div>
                     <div class="panel-body">
-                        <p ng-class="{'0':'text-muted','9':'text-orange','10':'text-primary'}[status]">发起呼叫<span class="pull-right" ng-bind="dial.time_ready"></span></p>
+                        <!-- <p ng-class="{'0':'text-muted','9':'text-orange','10':'text-primary'}[status]">发起呼叫<span class="pull-right" ng-bind="dial.time_ready"></span></p>
                         <p ng-class="{'0':'text-muted','10':'text-orange','13':'text-primary'}[status]">振铃开始<span class="pull-right" ng-bind="dial.time_ringing"></span></p>
-                        <p ng-class="{'0':'text-muted','13':'text-orange','100':'text-primary'}[status]">通话开始<span class="pull-right" ng-bind="dial.time_callstart"></span></p>
-                        <p ng-class="{'0':'text-muted','100':'text-orange'}[status]">通话结束<span class="pull-right" ng-bind="dial.time_callend"></span></p>
+                        <p ng-class="{'0':'text-muted','13':'text-orange','15':'text-primary'}[status]">通话开始<span class="pull-right" ng-bind="dial.time_callstart"></span></p>
+                        <p ng-class="{'0':'text-muted','15':'text-orange'}[status]">通话结束<span class="pull-right" ng-bind="dial.time_callend"></span></p> -->
+                        <p class="text-muted" ng-class="{'9':'text-orange','10':'text-primary'}[status]">发起呼叫<span class="pull-right" ng-bind="dial.time_ready"></span></p>
+                        <p class="text-muted" ng-class="{'10':'text-orange','13':'text-primary'}[status]">振铃开始<span class="pull-right" ng-bind="dial.time_ringing"></span></p>
+                        <p class="text-muted" ng-class="{'13':'text-orange','15':'text-primary'}[status]">通话开始<span class="pull-right" ng-bind="dial.time_callstart"></span></p>
+                        <p class="text-muted" ng-class="{'15':'text-orange'}[status]">通话结束<span class="pull-right" ng-bind="dial.time_callend"></span></p>
                     </div>
                 </div>
-                <div class="panel panel-primary" ng-show="status==='100'">
+                <div class="panel panel-primary" ng-if="record">
                     <div class="panel-heading">
                         <span class="panel-title">录音文件</span>
                         <button type="button" class="btn btn-warning btn-sm pull-right" data-placement="left" data-toggle="tooltip" title="通过能力平台提供的【推送录音文件API】，客户应用可获得录音文件的下载地址和描述信息">API</button>
                     </div>
                     <div class="panel-body">
-                        <p>会话编号： <span ng-bind=""></span></p>
+                        <p>会话编号： <span ng-bind="record.num"></span></p>
                         <p>主叫号码： <span>01058552614</span></p>
-                        <p>被叫号码： <span ng-bind=""></span></p>
-                        <p>开始时间： <span ng-bind=""></span></p>
-                        <p>结束时间： <span ng-bind=""></span></p>
-                        <p>通话时长： <span ng-bind=""></span></p>
-                        <span><audio ng-src="" controls="controls">Your browser does not support the audio element.</audio></span>
+                        <p>被叫号码： <span ng-bind="calledNum"></span></p>
+                        <p>开始时间： <span ng-bind="record.startTime"></span></p>
+                        <p>结束时间： <span ng-bind="record.endTime"></span></p>
+                        <p>通话时长： <span ng-bind="record.time"></span></p>
+                        <span><audio ng-src="record.src" controls="controls">Your browser does not support the audio element.</audio></span>
                     </div>
                 </div>
             </div>

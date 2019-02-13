@@ -65,6 +65,9 @@ ngApp.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'tmsSnsShare', fun
         if ($scope.loginUser.unionid) {
             http2.get('/rest/site/fe/invite/listInviteMatter' + location.search).then(function(rsp) {
                 $scope.matterList = rsp.data;
+                if (rsp.data.length === 1) {
+                    $scope.criteria.id = rsp.data[0].id;
+                }
                 $scope.matterList.forEach(function(matter) {
                     _oMatterList[matter.id] = matter;
                 });

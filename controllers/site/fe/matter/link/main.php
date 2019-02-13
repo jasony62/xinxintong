@@ -11,7 +11,7 @@ class main extends \site\fe\matter\base {
 	 */
 	private function _checkInviteToken($userid, $oMatter) {
 		if (empty($_GET['inviteToken'])) {
-			die('参数不完整，未通过邀请访问控制');
+			return [false, '参数不完整，未通过邀请访问控制'];
 		}
 		$inviteToken = $_GET['inviteToken'];
 
@@ -40,6 +40,9 @@ class main extends \site\fe\matter\base {
 					if ($rst[0]) {
 						$passInvite = true;
 						break;
+					} else {
+						// 获取频道的邀请链接 如果有多个频道时默认最后一个频道？？
+						$passInviteUrl = $modelInvite->getEntryUrl($oInvite);
 					}
 				}
 			}
@@ -50,6 +53,8 @@ class main extends \site\fe\matter\base {
 				$rst = $this->_checkInviteToken($this->who->uid, $oLink);
 				if ($rst[0]) {
 					$passInvite = true;
+				} else {
+					$passInviteUrl = $modelInvite->getEntryUrl($oInvite);
 				}
 			} else {
 				// 如果都没有开启邀请则通过
@@ -59,7 +64,7 @@ class main extends \site\fe\matter\base {
 			}
 		}
 		if (!$passInvite) {
-			die('邀请验证令牌未通过验证或已过有效期');
+			$this->redirect($passInviteUrl);
 		}
 		if (!$this->afterSnsOAuth()) {
 			/* 检查是否需要第三方社交帐号OAuth */

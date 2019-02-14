@@ -1109,6 +1109,21 @@ class data_model extends entity_model {
 						$w .= " or rd.group_id=''";
 					}
 					$w .= ")";
+					// 判断记录的状态能不能显示
+					$w .= " and (";
+					$w .= " (r.agreed<>'D'";
+					if (isset($oUser->is_editor) && $oUser->is_editor !== 'Y') {
+						$w .= " and r.agreed<>''"; // 如果活动指定了编辑，未表态的数据默认不公开
+					}
+					$w .= ")";
+					$w .= " or r.userid='{$oUser->uid}'";
+					if (!empty($oUser->group_id)) {
+						$w .= " or r.group_id='{$oUser->group_id}'";
+					}
+					if (isset($oUser->is_editor) && $oUser->is_editor === 'Y') {
+						$w .= " or r.group_id=''";
+					}
+					$w .= ")";
 				}
 			}
 		}

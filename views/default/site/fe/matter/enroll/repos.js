@@ -30,6 +30,84 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             $scope.$broadcast('to-child', { 0: oDir, 1: active });
         }
     };
+    $scope.favorStack = {
+        guiding: false,
+        start: function(record, timer) {
+            this.guiding = true;
+            this.record = record;
+            this.timer = timer;
+        },
+        end: function() {
+            this.guiding = false;
+            delete this.record;
+            delete this.timer;
+        }
+    };
+    $scope.favorRecord = function(oRecord) {
+        var url;
+        if (!oRecord.favored) {
+            url = LS.j('favor/add', 'site');
+            url += '&ek=' + oRecord.enroll_key;
+            http2.get(url).then(function(rsp) {
+                oRecord.favored = true;
+                $scope.favorStack.start(oRecord, $timeout(function() {
+                    $scope.favorStack.end();
+                }, 3000));
+            });
+        } else {
+            noticebox.confirm('取消收藏，确定？').then(function() {
+                url = LS.j('favor/remove', 'site');
+                url += '&ek=' + oRecord.enroll_key;
+                http2.get(url).then(function(rsp) {
+                    delete oRecord.favored;
+                });
+            });
+        }
+    };
+
+    function fnAssignTag(oRecord) {
+        enlTag.assignTag(oRecord).then(function(rsp) {
+            if (rsp.data.user && rsp.data.user.length) {
+                oRecord.userTags = rsp.data.user;
+            } else {
+                delete oRecord.userTags;
+            }
+        });
+    };
+    $scope.assignTag = function(oRecord) {
+        if (oRecord) {
+            fnAssignTag(oRecord);
+        } else {
+            $scope.favorStack.timer && $timeout.cancel($scope.favorStack.timer);
+            if (oRecord = $scope.favorStack.record) {
+                fnAssignTag(oRecord);
+            }
+            $scope.favorStack.end();
+        }
+    };
+
+    function fnAssignTopic(oRecord) {
+        http2.get(LS.j('topic/list', 'site', 'app')).then(function(rsp) {
+            var topics;
+            if (rsp.data.total === 0) {
+                location.href = LS.j('', 'site', 'app') + '&page=favor#topic';
+            } else {
+                topics = rsp.data.topics;
+                enlTopic.assignTopic(oRecord);
+            }
+        });
+    };
+    $scope.assignTopic = function(oRecord) {
+        if (oRecord) {
+            fnAssignTopic(oRecord);
+        } else {
+            $scope.favorStack.timer && $timeout.cancel($scope.favorStack.timer);
+            if (oRecord = $scope.favorStack.record) {
+                fnAssignTopic(oRecord);
+            }
+            $scope.favorStack.end();
+        }
+    };
     /* 关闭任务提示 */
     $scope.closeTask = function(index) {
         $scope.tasks.splice(index, 1);
@@ -166,7 +244,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         });
     });
 }]);
-ngApp.controller('ctrlRecordSchema', ['$scope', '$timeout', '$q', 'http2', 'tmsLocation', 'picviewer', 'enlAssoc', function($scope, $timeout, $q, http2, LS, picviewer, enlAssoc) {
+ngApp.controller('ctrlRecordSchema', ['$scope', '$timeout', '$q', 'http2', 'noticebox', 'tmsLocation', 'picviewer', 'enlAssoc', function($scope, $timeout, $q, http2, noticebox, LS, picviewer, enlAssoc) {
     function fnGetCriteria(datas) {
         $scope.singleFilters = [];
         $scope.multiFilters = [];
@@ -340,84 +418,7 @@ ngApp.controller('ctrlRecordSchema', ['$scope', '$timeout', '$q', 'http2', 'tmsL
         }
         location.href = url;
     };
-    $scope.favorStack = {
-        guiding: false,
-        start: function(record, timer) {
-            this.guiding = true;
-            this.record = record;
-            this.timer = timer;
-        },
-        end: function() {
-            this.guiding = false;
-            delete this.record;
-            delete this.timer;
-        }
-    };
-    $scope.favorRecord = function(oRecord) {
-        var url;
-        if (!oRecord.favored) {
-            url = LS.j('favor/add', 'site');
-            url += '&ek=' + oRecord.enroll_key;
-            http2.get(url).then(function(rsp) {
-                oRecord.favored = true;
-                $scope.favorStack.start(oRecord, $timeout(function() {
-                    $scope.favorStack.end();
-                }, 3000));
-            });
-        } else {
-            noticebox.confirm('取消收藏，确定？').then(function() {
-                url = LS.j('favor/remove', 'site');
-                url += '&ek=' + oRecord.enroll_key;
-                http2.get(url).then(function(rsp) {
-                    delete oRecord.favored;
-                });
-            });
-        }
-    };
 
-    function fnAssignTag(oRecord) {
-        enlTag.assignTag(oRecord).then(function(rsp) {
-            if (rsp.data.user && rsp.data.user.length) {
-                oRecord.userTags = rsp.data.user;
-            } else {
-                delete oRecord.userTags;
-            }
-        });
-    };
-    $scope.assignTag = function(oRecord) {
-        if (oRecord) {
-            fnAssignTag(oRecord);
-        } else {
-            $scope.favorStack.timer && $timeout.cancel($scope.favorStack.timer);
-            if (oRecord = $scope.favorStack.record) {
-                fnAssignTag(oRecord);
-            }
-            $scope.favorStack.end();
-        }
-    };
-
-    function fnAssignTopic(oRecord) {
-        http2.get(LS.j('topic/list', 'site', 'app')).then(function(rsp) {
-            var topics;
-            if (rsp.data.total === 0) {
-                location.href = LS.j('', 'site', 'app') + '&page=favor#topic';
-            } else {
-                topics = rsp.data.topics;
-                enlTopic.assignTopic(oRecord);
-            }
-        });
-    };
-    $scope.assignTopic = function(oRecord) {
-        if (oRecord) {
-            fnAssignTopic(oRecord);
-        } else {
-            $scope.favorStack.timer && $timeout.cancel($scope.favorStack.timer);
-            if (oRecord = $scope.favorStack.record) {
-                fnAssignTopic(oRecord);
-            }
-            $scope.favorStack.end();
-        }
-    };
     $scope.editRecord = function(event, oRecord) {
         if (oRecord.userid !== $scope.user.uid) {
             noticebox.warn('不允许编辑其他用户提交的记录');

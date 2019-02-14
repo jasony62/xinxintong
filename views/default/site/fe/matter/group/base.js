@@ -56,10 +56,10 @@ ngApp.factory('facGroupTeam', ['$q', 'http2', 'tmsLocation', function($q, http2,
         });
         return oDeferred.promise;
     };
-    _oInstance.create = function() {
+    _oInstance.create = function(oTeam, oMember) {
         var oDeferred;
         oDeferred = $q.defer();
-        http2.post('/rest/site/fe/matter/group/team/add?' + LS.s('site', 'app'), {}).then(function(rsp) {
+        http2.post('/rest/site/fe/matter/group/team/add?' + LS.s('site', 'app'), { team: oTeam, member: oMember }).then(function(rsp) {
             oDeferred.resolve(rsp.data);
         });
         return oDeferred.promise;
@@ -72,10 +72,10 @@ ngApp.factory('facGroupTeam', ['$q', 'http2', 'tmsLocation', function($q, http2,
         });
         return oDeferred.promise;
     };
-    _oInstance.join = function() {
+    _oInstance.join = function(oMember) {
         var oDeferred;
         oDeferred = $q.defer();
-        http2.post('/rest/site/fe/matter/group/invite/join?' + LS.s('site', 'app', 'team'), {}).then(function(rsp) {
+        http2.post('/rest/site/fe/matter/group/invite/join?' + LS.s('site', 'app', 'team'), oMember).then(function(rsp) {
             oDeferred.resolve(rsp.data);
         });
         return oDeferred.promise;

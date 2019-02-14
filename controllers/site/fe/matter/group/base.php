@@ -26,7 +26,7 @@ class base extends \site\fe\matter\base {
 	/**
 	 * 加入团队
 	 */
-	protected function join($oTeam, $oUser, $aOptions = []) {
+	protected function join($oTeam, $oUser, $oData, $aOptions = []) {
 		// 是否为组长
 		$isLeader = isset($aOptions['isLeader']) ? (in_array($aOptions['isLeader'], ['Y', 'N']) ? $aOptions['isLeader'] : 'N') : 'N';
 
@@ -37,20 +37,20 @@ class base extends \site\fe\matter\base {
 
 		$current = time();
 		$ek = $modelGrpRec->genKey($this->groupApp->siteid, $this->groupApp->id);
-		$oGrpUser = new \stdClass;
-		$oGrpUser->enroll_key = $ek;
-		$oGrpUser->enroll_at = $current;
-		$oGrpUser->team_id = $oTeam->team_id;
-		$oGrpUser->team_title = $oTeam->title;
-		$oGrpUser->is_leader = $isLeader;
+		$oGrpMem = new \stdClass;
+		$oGrpMem->enroll_key = $ek;
+		$oGrpMem->enroll_at = $current;
+		$oGrpMem->team_id = $oTeam->team_id;
+		$oGrpMem->team_title = $oTeam->title;
+		$oGrpMem->is_leader = $isLeader;
 
-		$modelGrpRec->enroll($this->groupApp, $this->who, $oGrpUser);
-		// $aResult = $modelGrpRec->setData($this->groupApp, $ek, $oPosted->data);
-		// if (false === $aResult[0]) {
-		// 	return new \ResponseError($aResult[1]);
-		// }
-		// $oGrpUser->data = json_decode($aResult[1]);
-		// $oGrpUser->role_teams = [];
+		$modelGrpRec->enroll($this->groupApp, $this->who, $oGrpMem);
+		$aResult = $modelGrpRec->setData($this->groupApp, $ek, $oData);
+		if (false === $aResult[0]) {
+			return new \ResponseError($aResult[1]);
+		}
+		$oGrpMem->data = json_decode($aResult[1]);
+		//$oGrpMem->role_teams = [];
 
 		$modelGrpRec->joinGroup($this->groupApp->id, $oTeam, $ek);
 

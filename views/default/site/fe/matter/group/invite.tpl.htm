@@ -25,6 +25,41 @@
                 <div class='form-group'>
                     <label ng-bind="::team.title"></label>
                 </div>
+                <div class='form-group' ng-repeat="schema in schemas" ng-switch on="schema.type">
+                    <label ng-bind="schema.title" ng-if="schema.type!=='html'"></label>
+                    <input type='text' class='form-control' ng-model="member[schema.id]" ng-switch-when="shorttext">
+                    <textarea class="form-control" ng-model="member[schema.id]" rows="3" ng-switch-when="longtext"></textarea>
+                    <ul class='list-unstyled' ng-switch-when="single">
+                        <li class="radio" ng-repschemat="op in schema.ops">
+                            <label>
+                                <input type="radio" name="{{action.id+'_'+schema.id}}" value="{{op.v}}" ng-model="member[schema.id]"><span>{{op.l}}</span></label>
+                        </li>
+                    </ul>
+                    <ul class='list-unstyled' ng-switch-when="multiple">
+                        <li class="checkbox" ng-repschemat="op in schema.ops">
+                            <label>
+                                <input type="checkbox" ng-model="member[schema.id][op.v]"><span>{{op.l}}</span></label>
+                        </li>
+                    </ul>
+                    <div ng-switch-when="date" tms-date="Y" tms-date-value="member[schema.id]">
+                        <div ng-bind="member[schema.id]*1000|date:'yy-MM-dd HH:mm'" class="form-control"></div>
+                    </div>
+                    <div tms-image-input="Y" ng-switch-when="image">
+                        <ul class="img-tiles clschemarfix list-unstyled" name="{{schema.id}}">
+                            <li wrap="img" ng-repschemat="img in member[schema.id]" class="img-thumbnail">
+                                <img flex-img>
+                                <button class="btn btn-default btn-xs" ng-click="removeImage(schema,$index)"><span class="glyphicon glyphicon-remove"></span></button>
+                            </li>
+                            <li class="img-picker">
+                                <button class="btn btn-default" ng-click="chooseImage(schema)"><span class="glyphicon glyphicon-picture"></span>
+                                    <br>选择图片</button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div ng-switch-when="html">
+                        <div ng-bind-html="schema.content"></div>
+                    </div>
+                </div>
                 <div class='form-group'>
                     <button class='btn btn-default' ng-click="accept()">加入团队</button>
                 </div>

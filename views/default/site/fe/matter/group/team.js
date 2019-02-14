@@ -9,13 +9,17 @@ ngApp.config(['$routeProvider', function($routeProvider) {
         .when('/rest/site/fe/matter/group/team/config', { template: require('./team/config.html'), controller: 'ctrlTeamConfig' })
         .otherwise({ template: require('./team/home.html'), controller: 'ctrlTeamHome' });
 }]);
-ngApp.controller('ctrlTeam', ['$scope', 'tmsLocation', function($scope, LS) {
+ngApp.controller('ctrlTeam', ['$scope', 'tmsLocation', 'facGroupApp', function($scope, LS, facGrpApp) {
     $scope.gotoHome = function() {
         location.href = '/rest/site/fe/matter/group?' + LS.s('site', 'app');
     };
     $scope.gotoTeamHome = function() {
         LS.path('/rest/site/fe/matter/group/team/home');
     };
+    facGrpApp.get().then(function(oApp) {
+        $scope.app = oApp;
+        $scope.schemas = oApp.dataSchemas;
+    });
 }]);
 ngApp.controller('ctrlTeamHome', ['$scope', '$uibModal', 'tmsLocation', 'facGroupTeam', 'facGroupRecord', function($scope, $uibModal, LS, facGrpTeam, facGrpRec) {
     $scope.config = function() {
@@ -39,12 +43,14 @@ ngApp.controller('ctrlTeamHome', ['$scope', '$uibModal', 'tmsLocation', 'facGrou
 }]);
 ngApp.controller('ctrlTeamCreate', ['$scope', '$location', 'facGroupTeam', function($scope, $location, facGrpTeam) {
     $scope.submit = function() {
-        facGrpTeam.create().then(function(oNewTeam) {
+        facGrpTeam.create($scope.team, $scope.member).then(function(oNewTeam) {
             var s = $location.search();
             s.team = oNewTeam.team_id;
             $scope.gotoTeamHome();
         });
     };
+    $scope.team = {};
+    $scope.member = {};
 }]);
 ngApp.controller('ctrlTeamConfig', ['$scope', '$location', 'facGroupTeam', function($scope, $location, facGrpTeam) {
     var _oBeforeSubmitted, _oUpdated;

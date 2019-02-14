@@ -54,6 +54,8 @@ class team extends base {
 		$modelGrpTeam = $this->model('matter\group\team');
 
 		$oPosted = $this->getPostJson();
+		$oTeam = $oPosted->team;
+		$oMember = $oPosted->member;
 		$current = time();
 		$aNewTeam = [
 			'aid' => $this->groupApp->id,
@@ -61,7 +63,7 @@ class team extends base {
 			'create_at' => $current,
 			'creator' => $this->who->uid,
 			'creator_name' => $this->who->nickname,
-			'title' => empty($oPosted->title) ? $this->who->nickname . '的团队' : $oPosted->title,
+			'title' => empty($oTeam->title) ? $this->who->nickname . '的团队' : $oTeam->title,
 			'times' => 1,
 			'team_type' => 'T',
 			'targets' => '',
@@ -71,7 +73,7 @@ class team extends base {
 
 		$oNewTeam = $modelGrpTeam->byId($aNewTeam['team_id']);
 
-		$aJoinResult = $this->join($oNewTeam, $this->who, ['isLeader' => 'Y']);
+		$aJoinResult = $this->join($oNewTeam, $this->who, $oMember, ['isLeader' => 'Y']);
 		if (false === $aJoinResult[0]) {
 			return new \ParameterError($aJoinResult[1]);
 		}

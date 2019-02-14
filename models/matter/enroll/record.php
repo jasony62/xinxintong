@@ -722,13 +722,6 @@ class record_model extends record_base {
 			$w .= " and exists(select 1 from xxt_enroll_topic_record t where r.id=t.record_id and t.topic_id='{$oCriteria->record->topic}')";
 		}
 
-		// 预制条件：指定分组或赞同数大于
-		if (isset($oCriteria->GroupOrLikeNum) && is_object($oCriteria->GroupOrLikeNum)) {
-			if (!empty($oCriteria->GroupOrLikeNum->group_id) && isset($oCriteria->GroupOrLikeNum->like_num)) {
-				$w .= " and (r.group_id='{$oCriteria->GroupOrLikeNum->group_id}' or r.like_num>={$oCriteria->GroupOrLikeNum->like_num})";
-			}
-		}
-
 		// 指定了记录标签
 		if (!empty($oCriteria->record->tags)) {
 			if (is_array($oCriteria->record->tags)) {

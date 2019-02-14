@@ -78,4 +78,41 @@ class team extends base {
 
 		return new \ResponseData($aNewTeam);
 	}
+	/**
+	 * 更新
+	 */
+	public function update_action($team) {
+		if (!$this->groupApp) {
+			return new \ObjectNotFoundError();
+		}
+
+		$modelGrpTeam = $this->model('matter\group\team');
+		$oTeam = $modelGrpTeam->byId($team);
+		if (false === $oTeam) {
+			return new \ObjectNotFoundError();
+		}
+		if ($oTeam->creator !== $this->who->uid) {
+			return new \ResponseError('只允许团队的创建人设置团队');
+		}
+
+		$oPosted = $this->getPostJson();
+
+		$aUpdated = [];
+		foreach ($oPosted as $prop => $val) {
+			switch ($prop) {
+			case 'title':
+				$aUpdated[$prop] = $this->escape($val);
+				break;
+			}
+		}
+		if (empty($aUpdated)) {
+			return new \ResponseError('没有指定有效的更新数据');
+		}
+
+		$modelGrpTeam->update('xxt_group_team', $aUpdated, ['team_id' => $oTeam->team_id]);
+
+		$oTeam = $modelGrpTeam->byId($oTeam->team_id);
+
+		return new \ResponseData($oTeam);
+	}
 }

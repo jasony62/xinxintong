@@ -64,10 +64,31 @@ ngApp.factory('facGroupTeam', ['$q', 'http2', 'tmsLocation', function($q, http2,
         });
         return oDeferred.promise;
     };
+    _oInstance.update = function(oUpdated) {
+        var oDeferred;
+        oDeferred = $q.defer();
+        http2.post('/rest/site/fe/matter/group/team/update?' + LS.s('site', 'app', 'team'), oUpdated).then(function(rsp) {
+            oDeferred.resolve(rsp.data);
+        });
+        return oDeferred.promise;
+    };
     _oInstance.join = function() {
         var oDeferred;
         oDeferred = $q.defer();
         http2.post('/rest/site/fe/matter/group/invite/join?' + LS.s('site', 'app', 'team'), {}).then(function(rsp) {
+            oDeferred.resolve(rsp.data);
+        });
+        return oDeferred.promise;
+    };
+
+    return _oInstance;
+}]);
+ngApp.factory('facGroupRecord', ['$q', 'http2', 'tmsLocation', function($q, http2, LS) {
+    var _oInstance = {};
+    _oInstance.list = function() {
+        var oDeferred;
+        oDeferred = $q.defer();
+        http2.get('/rest/site/fe/matter/group/record/list?' + LS.s('site', 'app', 'team')).then(function(rsp) {
             oDeferred.resolve(rsp.data);
         });
         return oDeferred.promise;

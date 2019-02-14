@@ -203,15 +203,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             });
 
         }
-        /* 活动任务 */
-        if (_oApp.actionRule) {
-            /* 开启协作填写需要的点赞数 */
-            if (_oApp.actionRule.record && _oApp.actionRule.record.cowork && _oApp.actionRule.record.cowork.pre) {
-                if (_oApp.actionRule.record.cowork.pre.record && _oApp.actionRule.record.cowork.pre.record.likeNum !== undefined) {
-                    _coworkRequireLikeNum = parseInt(_oApp.actionRule.record.cowork.pre.record.likeNum);
-                }
-            }
-        }
         if (_oApp.reposConfig && _oApp.reposConfig.defaultOrder) {
             _oCriteria.orderby = _oApp.reposConfig.defaultOrder;
         }
@@ -492,8 +483,7 @@ ngApp.controller('ctrlCoworkSchema', ['$scope', '$timeout', '$q', 'http2', 'tmsL
             }
         });
     }
-    var _oPage, _oFilter, _oCriteria, _coworkRequireLikeNum;
-    _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
+    var _oPage, _oFilter, _oCriteria;
     $scope.page = _oPage = {};
     $scope.filter = _oFilter = { isFilter: false };
     $scope.criteria = _oCriteria = {};
@@ -524,9 +514,6 @@ ngApp.controller('ctrlCoworkSchema', ['$scope', '$timeout', '$q', 'http2', 'tmsL
         http2.post(url, _oCriteria, { page: _oPage }).then(function(result) {
             if (result.data.recordDatas) {
                 result.data.recordDatas.forEach(function(oRecord) {
-                    if (_coworkRequireLikeNum > oRecord.like_num) {
-                        oRecord._coworkRequireLikeNum = (_coworkRequireLikeNum > oRecord.like_num ? _coworkRequireLikeNum - oRecord.like_num : 0);
-                    }
                     $scope.repos.push(oRecord);
                 });
             }
@@ -728,6 +715,7 @@ ngApp.controller('ctrlPublicTopic', ['$scope', 'http2', '$timeout', 'tmsLocation
             if (rsp.data) {
                 fnGetCriteria(rsp.data);
             }
+            $scope.recordList(1);
         });
     };
     $scope.shiftMenu = function(criteria) {

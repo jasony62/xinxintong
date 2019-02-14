@@ -87,10 +87,7 @@ class team extends base {
 		if (!$this->groupApp) {
 			return new \ObjectNotFoundError();
 		}
-
-		$modelGrpTeam = $this->model('matter\group\team');
-		$oTeam = $modelGrpTeam->byId($team);
-		if (false === $oTeam) {
+		if (!$this->team) {
 			return new \ObjectNotFoundError();
 		}
 		if ($oTeam->creator !== $this->who->uid) {
@@ -111,10 +108,30 @@ class team extends base {
 			return new \ResponseError('没有指定有效的更新数据');
 		}
 
+		$modelGrpTeam = $this->model('matter\group\team');
 		$modelGrpTeam->update('xxt_group_team', $aUpdated, ['team_id' => $oTeam->team_id]);
 
 		$oTeam = $modelGrpTeam->byId($oTeam->team_id);
 
 		return new \ResponseData($oTeam);
+	}
+	/**
+	 *
+	 */
+	public function quit_action($team, $ek) {
+		if (!$this->groupApp) {
+			return new \ObjectNotFoundError();
+		}
+		if (!$this->team) {
+			return new \ObjectNotFoundError();
+		}
+		if ($this->team->creator !== $this->who->uid) {
+			return new \ResponseError('只允许团队的创建人移出成员');
+		}
+
+		$modelGrpMem = $this->model('matter\group\record');
+		$rst = $modelGrpMem->remove($this->groupApp->id, $ek);
+
+		return new \ResponseData($rst);
 	}
 }

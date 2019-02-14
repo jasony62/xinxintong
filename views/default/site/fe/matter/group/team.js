@@ -34,10 +34,15 @@ ngApp.controller('ctrlTeamHome', ['$scope', '$uibModal', 'tmsLocation', 'facGrou
             }]
         });
     };
+    $scope.quit = function(oMember) {
+        facGrpTeam.quit(oMember).then(function() {
+            $scope.members.splice($scope.members.indexOf(oMember), 1);
+        });
+    };
     facGrpTeam.get().then(function(oTeam) {
         $scope.team = oTeam;
-        facGrpRec.list().then(function(records) {
-            $scope.records = records;
+        facGrpRec.list().then(function(members) {
+            $scope.members = members;
         });
     });
 }]);

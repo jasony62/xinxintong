@@ -11,16 +11,26 @@ class base extends \site\fe\matter\base {
 	 */
 	protected $groupApp;
 	/**
+	 * 分组活动
+	 */
+	protected $team;
+	/**
 	 * 获得分组活动定义
 	 */
 	public function __construct() {
 		parent::__construct();
 		if (!empty($_GET['app'])) {
-			$oApp = $this->model('matter\group')->byId($_GET['app']);
+			$appId = $this->escape($_GET['app']);
+			$oApp = $this->model('matter\group')->byId($appId);
 			if ($oApp && $oApp->state !== '1') {
 				$oApp = false;
 			}
 			$this->groupApp = $oApp;
+		}
+		if (!empty($_GET['team'])) {
+			$teamId = $this->escape($_GET['team']);
+			$oTeam = $this->model('matter\group\team')->byId($teamId);
+			$this->team = $oTeam;
 		}
 	}
 	/**

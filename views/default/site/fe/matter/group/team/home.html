@@ -12,8 +12,8 @@
         <button class='btn btn-default' ng-click="invite()">发起邀请</button>
     </div>
     <div class='list-group'>
-        <div class='list-group-item' ng-repeat="rec in records">
-            <span ng-bind="::rec.nickname"></span><span ng-if="rec.is_leader==='Y'">（组长）</span>
+        <div class='list-group-item' ng-repeat="mem in members">
+            <span ng-bind="::mem.nickname"></span><span ng-if="mem.is_leader==='Y'">（组长）</span><button ng-if="mem.is_leader==='N'" class='btn btn-default btn-xs pull-right' ng-click="quit(mem)">移出</button>
         </div>
     </div>
 </div>

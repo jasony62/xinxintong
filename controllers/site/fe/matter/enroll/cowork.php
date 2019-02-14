@@ -73,12 +73,6 @@ class cowork extends base {
 			}
 		}
 
-		if (!empty($oApp->actionRule->cowork->submit->pre->editor)) {
-			if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
-				return new \ParameterError('仅限活动编辑组用户提交填写数据');
-			}
-		}
-
 		$oUpdatedSchema = null;
 		foreach ($oApp->dataSchemas as $oSchema) {
 			if ($oSchema->id === $oRecData->schema_id) {

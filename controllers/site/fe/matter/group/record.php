@@ -14,7 +14,7 @@ class record extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		$records = $this->model('matter\group\record')->byTeam($team, ['fields' => 'id,userid,draw_at,enroll_at,is_leader,nickname']);
+		$records = $this->model('matter\group\record')->byTeam($team, ['fields' => 'id,userid,enroll_key,draw_at,enroll_at,is_leader,nickname']);
 
 		return new \ResponseData($records);
 	}

@@ -223,6 +223,12 @@ class assoc_model extends entity_model {
 		$w .= " and(public='Y'";
 		$w .= " or exists(select 1 from xxt_enroll_assoc_log l where l.state=1 and l.assoc_id=a.id and l.userid='{$oUser->uid}')";
 		$w .= ")";
+		if (isset($aOptions['entityA']) && is_object($aOptions['entityA'])) {
+			$entityA = $aOptions['entityA'];
+			if ($this->getDeepValue($entityA, 'id') && $this->getDeepValue($entityA, 'type')) {
+				$w .= " and entity_a_id = " . $this->getDeepValue($entityA, 'id') . " and entity_a_type = " . self::Type_StrToInt[$this->getDeepValue($entityA, 'type')];
+			}
+		}
 		$q = [
 			$fields,
 			'xxt_enroll_assoc a',

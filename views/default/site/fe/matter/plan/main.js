@@ -261,7 +261,7 @@ ngApp.controller('ctrlMain', ['$scope', '$location', 'http2', 'tmsLocation', 'tm
             _oApp._taskSchemasById[oTaskSchema.id] = oTaskSchema;
         });
 
-        if (/MicroMessenger|Yixin/i.test(navigator.userAgent)) {
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
             tmsSnsShare.config({
                 siteId: _oApp.siteid,
                 logger: function(shareto) {},

@@ -28,6 +28,12 @@
                 </div>
                 <div class='data' ng-click="remarkRecord(rec, $event)">
                     <div tms-repos-record-data schemas="schemas" record="rec" current-tab="selectedTab"></div>
+                    <div class='assocs' ng-if="rec.oAssocs.length">
+                        <div ng-repeat="assoc in rec.oAssocs" ng-if="assoc.entityB" class='tms-flex-row small'>
+                            <div ng-if="assoc.assoc_reason" class='assoc-reason'><span ng-bind="assoc.assoc_reason"></span></div>
+                            <div ng-click="gotoAssoc(assoc.entityB, $event)" class='tms-flex-grow assoc-text'><i class='glyphicon glyphicon-link text-muted'></i> <span ng-bind="assoc.assoc_text"></span></div>
+                        </div>
+                    </div>
                 </div>
                 <div class='bottom-bar'>
                     <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>

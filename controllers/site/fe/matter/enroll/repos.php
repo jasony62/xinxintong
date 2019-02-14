@@ -302,34 +302,6 @@ class repos extends base {
 		$oUser = $this->getUser($oApp);
 
 		$oActionRule = $oApp->actionRule;
-		/* 非同组记录显示在共享页需要的赞同数 */
-		$recordReposLikeNum = 0;
-		if (isset($oActionRule->record->repos->pre)) {
-			$oRule = $oActionRule->record->repos->pre;
-			if (!empty($oRule->record->likeNum)) {
-				$recordReposLikeNum = (int) $oRule->record->likeNum;
-			}
-		}
-		/* 协作填写显示在共享页所需点赞数量 */
-		$coworkReposLikeNum = 0;
-		if (isset($oActionRule->cowork->repos->pre)) {
-			$oRule = $oActionRule->cowork->repos->pre;
-			if (!empty($oRule->cowork->likeNum)) {
-				$coworkReposLikeNum = (int) $oRule->cowork->likeNum;
-			}
-		}
-		/* 留言显示在共享页所需点赞数量 */
-		$remarkReposAgreed = ['Y'];
-		$remarkReposLikeNum = 0;
-		if (isset($oActionRule->remark->repos->pre)) {
-			$oRule = $oActionRule->remark->repos->pre;
-			if (!empty($oRule->remark->likeNum)) {
-				$remarkReposLikeNum = (int) $oRule->remark->likeNum;
-			}
-			if (!empty($oRule->remark->agreed) && is_array($oRule->remark->agreed)) {
-				$remarkReposAgreed = $oRule->remark->agreed;
-			}
-		}
 		// 填写记录过滤条件
 		$oPosted = $this->getPostJson();
 		// 填写记录过滤条件
@@ -376,15 +348,10 @@ class repos extends base {
 			$bSameGroup = $this->_requireSameGroup($oApp);
 			if ($bSameGroup) {
 				$oCriteria->record->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
-			} else if ($recordReposLikeNum) {
-				/* 限制同组数据或赞同数大于等于 */
-				$oCriteria->GroupOrLikeNum = new \stdClass;
-				$oCriteria->GroupOrLikeNum->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
-				$oCriteria->GroupOrLikeNum->like_num = $recordReposLikeNum;
 			}
 		}
 		/* 指定了分组过滤条件 */
-		if (!isset($oCriteria->record->group_id) && !isset($oCriteria->GroupOrLikeNum)) {
+		if (!isset($oCriteria->record->group_id)) {
 			if (!empty($oPosted->userGroup)) {
 				$oCriteria->record->group_id = $oPosted->userGroup;
 			}
@@ -453,12 +420,7 @@ class repos extends base {
 						}
 						/* 协作填写题 */
 						if ($this->getDeepValue($oSchema, 'cowork') === 'Y') {
-							$aOptions = ['fields' => 'id'];
-							if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
-								$aOptions['agreed'] = $oApp->actionRule->cowork->repos->pre->cowork->agreed;
-							} else {
-								$aOptions['agreed'] = ['Y', 'A'];
-							}
+							$aOptions = ['fields' => 'id', 'agreed' => ['Y', 'A']];
 							$countItems = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, $aOptions);
 							$aCoworkState[$oSchema->id] = (object) ['length' => count($countItems)];
 							continue;
@@ -586,14 +548,6 @@ class repos extends base {
 		!empty($oPosted->data) && $oCriteria->data = $oPosted->data;
 
 		$oActionRule = $oApp->actionRule;
-		/* 协作填写显示在共享页所需点赞数量 */
-		$coworkReposLikeNum = 0;
-		if (isset($oActionRule->cowork->repos->pre)) {
-			$oRule = $oActionRule->cowork->repos->pre;
-			if (!empty($oRule->cowork->likeNum)) {
-				$coworkReposLikeNum = (int) $oRule->cowork->likeNum;
-			}
-		}
 
 		$oCriteria->recordData = new \stdClass;
 		$oCriteria->recordData->rid = !empty($oPosted->rid) ? $oPosted->rid : 'all';
@@ -603,15 +557,10 @@ class repos extends base {
 			$bSameGroup = $this->_requireSameGroup($oApp);
 			if ($bSameGroup) {
 				$oCriteria->recordData->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
-			} else if ($coworkReposLikeNum) {
-				/* 限制同组数据或赞同数大于等于 */
-				$oCriteria->recordData->GroupOrLikeNum = new \stdClass;
-				$oCriteria->recordData->GroupOrLikeNum->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
-				$oCriteria->recordData->GroupOrLikeNum->like_num = $coworkReposLikeNum;
 			}
 		}
 		/* 指定了分组过滤条件 */
-		if (!isset($oCriteria->recordData->group_id) && !isset($oCriteria->recordData->GroupOrLikeNum)) {
+		if (!isset($oCriteria->recordData->group_id)) {
 			if (!empty($oPosted->userGroup)) {
 				$oCriteria->recordData->group_id = $oPosted->userGroup;
 			}
@@ -628,7 +577,6 @@ class repos extends base {
 		$oResult = $modelRecDat->coworkDataByApp($oApp, $oOptions, $oCriteria, $oUser, 'cowork');
 		if (!empty($oResult->recordDatas)) {
 			$modelData = $this->model('matter\enroll\data');
-			$modelTag = $this->model('matter\enroll\tag2');
 			/* 是否限制了匿名规则 */
 			$bAnonymous = $this->_requireAnonymous($oApp);
 			if (false === $bAnonymous) {
@@ -661,7 +609,7 @@ class repos extends base {
 						/* 协作填写题 */
 						if ($this->getDeepValue($oSchema, 'cowork') === 'Y') {
 							$item = new \stdClass;
-							$item->id = $oRecData->dataId;
+							$item->id = $oRecData->data_id;
 							$item->value = $oRecData->value;
 							$this->setDeepValue($oNewRecData, $schemaId, [$item]);
 							unset($oRecData->value);
@@ -680,6 +628,28 @@ class repos extends base {
 				} else {
 					$this->setNickname($oRecData, $oUser, isset($oEditorGrp) ? $oEditorGrp : null);
 				}
+				/* 答案关联素材 */
+				if (!isset($modelAss)) {
+					$modelAss = $this->model('matter\enroll\assoc');
+					$oAssocsOptions = [
+						'fields' => 'id,assoc_mode,assoc_num,first_assoc_at,last_assoc_at,entity_a_id,entity_a_type,entity_b_id,entity_b_type,public,assoc_text,assoc_reason'
+					];
+				}
+				$entityA = new \stdClass;
+				$entityA->id = $oRecData->data_id;
+				$entityA->type = 'data';
+				$oAssocsOptions['entityA'] = $entityA;
+				$record = new \stdClass;
+				$record->id = $oRecData->record_id;
+				$oAssocs = $modelAss->byRecord($record, $oUser, $oAssocsOptions);
+				if (count($oAssocs)) {
+					foreach ($oAssocs as $oAssoc) {
+						$modelAss->adapt($oAssoc);
+					}
+				}
+				$oRecData->oAssocs = $oAssocs;
+				//
+				$oRecData->id = $oRecData->record_id;
 			}
 		}
 
@@ -704,35 +674,6 @@ class repos extends base {
 
 		$oUser = $this->getUser($oApp);
 
-		/* 非同组记录显示在共享页需要的赞同数 */
-		$recordReposLikeNum = 0;
-		if (isset($oApp->actionRule->record->repos->pre)) {
-			$oRule = $oApp->actionRule->record->repos->pre;
-			if (!empty($oRule->record->likeNum)) {
-				$recordReposLikeNum = (int) $oRule->record->likeNum;
-			}
-		}
-		/* 协作填写显示在共享页所需点赞数量 */
-		$coworkReposLikeNum = 0;
-		if (isset($oApp->actionRule->cowork->repos->pre)) {
-			$oRule = $oApp->actionRule->cowork->repos->pre;
-			if (!empty($oRule->cowork->likeNum)) {
-				$coworkReposLikeNum = (int) $oRule->cowork->likeNum;
-			}
-		}
-		/* 留言显示在共享页所需点赞数量 */
-		$remarkReposAgreed = ['Y'];
-		$remarkReposLikeNum = 0;
-		if (isset($oApp->actionRule->remark->repos->pre)) {
-			$oRule = $oApp->actionRule->remark->repos->pre;
-			if (!empty($oRule->remark->likeNum)) {
-				$remarkReposLikeNum = (int) $oRule->remark->likeNum;
-			}
-			if (!empty($oRule->remark->agreed)) {
-				$remarkReposAgreed = $oRule->remark->agreed;
-			}
-		}
-
 		// 填写记录过滤条件
 		$oOptions = new \stdClass;
 		$oOptions->page = $page;
@@ -749,11 +690,6 @@ class repos extends base {
 			$bSameGroup = $this->_requireSameGroup($oApp);
 			if ($bSameGroup) {
 				$oCriteria->record->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
-			} else if ($recordReposLikeNum) {
-				/* 限制同组数据或赞同数大于等于 */
-				$oCriteria->GroupOrLikeNum = new \stdClass;
-				$oCriteria->GroupOrLikeNum->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
-				$oCriteria->GroupOrLikeNum->like_num = $recordReposLikeNum;
 			}
 		}
 
@@ -797,15 +733,6 @@ class repos extends base {
 						if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
 							$items = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, ['excludeRoot' => true, 'agreed' => ['Y', 'A'], 'fields' => 'id,agreed,like_num,nickname,value']);
 							$aCoworkState[$oSchema->id] = (object) ['length' => count($items)];
-							if ($coworkReposLikeNum) {
-								$reposItems = [];
-								foreach ($items as $oItem) {
-									if ($oItem->like_num >= $coworkReposLikeNum || $oItem->agreed === 'Y') {
-										$reposItems[] = $oItem;
-									}
-								}
-								$items = $reposItems;
-							}
 							$oRecordData->{$schemaId} = $items;
 						} else {
 							if (null !== ($recDataVal = $this->getDeepValue($oRecord->data, $schemaId, null))) {
@@ -837,24 +764,6 @@ class repos extends base {
 				/* 清除不必要的内容 */
 				unset($oRecord->comment);
 				unset($oRecord->verified);
-				/* 获得推荐的评论数据 */
-				$q = [
-					'id,group_id,agreed,like_num,like_log,userid,nickname,content,create_at',
-					'xxt_enroll_record_remark',
-					"enroll_key='{$oRecord->enroll_key}' and state=1",
-				];
-				if ($remarkReposLikeNum) {
-					$q[2] .= " and (agreedin ('" . implode("','", $remarkReposAgreed) . "') or like_num>={$remarkReposLikeNum})";
-				} else {
-					$q[2] .= " and agreed in ('" . implode("','", $remarkReposAgreed) . "')";
-				}
-				$q2 = [
-					'o' => 'agreed desc,like_num desc,create_at desc',
-				];
-				$oRecord->agreedRemarks = $modelRec->query_objs_ss($q, $q2);
-				foreach ($oRecord->agreedRemarks as $oRemark) {
-					$this->setNickname($oRemark, $oUser, isset($oEditorGrp) ? $oEditorGrp : null);
-				}
 				/* 获取记录的投票信息 */
 				if (!empty($aVoteRules)) {
 					$oVoteResult = new \stdClass;

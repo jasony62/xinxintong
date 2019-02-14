@@ -130,7 +130,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             $scope.tabs = cacheData.tabs;
             $scope.selectedTab = cacheData.selectedTab;
             $scope.rounds = cacheData.rounds;
-            $scope.topics = cacheData.topics;
             $scope.schemas = cacheData.schemas;
             $scope.dirSchemas = cacheData.dirSchemas;
             $scope.activeDirSchemas = cacheData.currentDirs;
@@ -596,6 +595,23 @@ ngApp.controller('ctrlCoworkSchema', ['$scope', '$timeout', '$q', 'http2', 'tmsL
         }
         $scope.recordList(1);
     };
+    $scope.gotoAssoc = function(oEntity, event) {
+        event.stopPropagation();
+
+        var url;
+        switch (oEntity.type) {
+            case 'record':
+                if (oEntity.enroll_key) url = LS.j('', 'site', 'app', 'page') + '&ek=' + oEntity.enroll_key;
+                break;
+            case 'topic':
+                url = LS.j('', 'site', 'app') + '&page=topic' + '&topic=' + oEntity.id;
+                break;
+            case 'article':
+                if (oEntity.entryUrl) url = oEntity.entryUrl;
+                break;
+        }
+        if (url) location.href = url;
+    };
 
     function addToCache() {
         sessionStorage.setItem('listStorageY', document.getElementById('repos').scrollTop);
@@ -669,7 +685,7 @@ ngApp.controller('ctrlCoworkSchema', ['$scope', '$timeout', '$q', 'http2', 'tmsL
         $scope.getCriteria();
     }
 }]);
-ngApp.controller('ctrlPublicTopic', ['$scope', 'http2', 'tmsLocation', function($scope, http2, LS) {
+ngApp.controller('ctrlPublicTopic', ['$scope', 'http2', '$timeout', 'tmsLocation', function($scope, http2, $timeout, LS) {
     function fnGetCriteria(datas) {
         $scope.singleFilters = [];
         $scope.multiFilters = [];
@@ -719,7 +735,7 @@ ngApp.controller('ctrlPublicTopic', ['$scope', 'http2', 'tmsLocation', function(
         $scope.recordList(1);
     };
     $scope.recordList = function(pageAt) {
-        http2.get(LS.j('topic/listPublic', 'site', 'app'), _oCriteria).then(function(rsp) {
+        http2.post(LS.j('topic/listPublic', 'site', 'app'), _oCriteria).then(function(rsp) {
             if (rsp.data && rsp.data.topics && rsp.data.topics.length) {
                 $scope.topics = rsp.data.topics;
             }
@@ -739,9 +755,11 @@ ngApp.controller('ctrlPublicTopic', ['$scope', 'http2', 'tmsLocation', function(
         $scope.multiFilters = cacheData.multiFilters;
         $scope.filter = cacheData.currentFilter;
         $scope.criteria = _oCriteria = cacheData.currentCriteria;
-
-        document.getElementById('topic').scrollTop = parseInt(window.sessionStorage.listStorageY);
-        window.sessionStorage.clear();
+        $scope.topics = cacheData.topics;
+        $timeout(function() {
+            document.getElementById('topic').scrollTop = parseInt(window.sessionStorage.listStorageY);
+            window.sessionStorage.clear();
+        });
     } else {
         $scope.getCriteria();
     }

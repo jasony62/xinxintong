@@ -8,10 +8,11 @@ ngMod.provider('tmsLocation', function() {
     };
 
     this.$get = ['$location', function($location) {
+        var myLoc;
         if (!_baseUrl) {
             _baseUrl = location.pathname;
         }
-        return {
+        myLoc = {
             s: function() {
                 var ls = $location.search();
                 if (arguments.length) {
@@ -32,8 +33,13 @@ ngMod.provider('tmsLocation', function() {
                 };
                 search.length && (url += '?' + search.join('&'));
                 return url;
+            },
+            path: function() {
+                return arguments.length ? $location.path(arguments[0]) : $location.path();
             }
         };
+
+        return myLoc;
     }];
 });
 ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compile', function($rootScope, $http, $timeout, $q, $sce, $compile) {

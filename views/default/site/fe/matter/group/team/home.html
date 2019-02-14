@@ -12,14 +12,8 @@
         <button class='btn btn-default' ng-click="invite()">发起邀请</button>
     </div>
     <div class='list-group'>
-        <div class='list-group-item'>
-            成员1（组长）
-        </div>
-        <div class='list-group-item'>
-            成员2
-        </div>
-        <div class='list-group-item'>
-            成员3
+        <div class='list-group-item' ng-repeat="rec in records">
+            <span ng-bind="::rec.nickname"></span><span ng-if="rec.is_leader==='Y'">（组长）</span>
         </div>
     </div>
 </div>

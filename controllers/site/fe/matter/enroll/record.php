@@ -391,11 +391,6 @@ class record extends base {
 			return [false, ['活动已经结束，不允许修改数据']];
 		}
 
-		if (!empty($oApp->actionRule->record->submit->pre->editor)) {
-			if (empty($oUser->is_editor) || $oUser->is_editor !== 'Y') {
-				return [false, '仅限活动编辑组用户提交填写记录'];
-			}
-		}
 		if (empty($oApp->entryRule->exclude_action->submit_record) || $oApp->entryRule->exclude_action->submit_record != "Y") {
 			$checkEntryRule = $this->checkEntryRule($oApp, false, $oUser);
 			if ($checkEntryRule[0] === false) {

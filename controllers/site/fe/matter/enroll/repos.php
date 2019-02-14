@@ -302,18 +302,6 @@ class repos extends base {
 		$oUser = $this->getUser($oApp);
 
 		$oActionRule = $oApp->actionRule;
-		/* 留言显示在共享页所需点赞数量 */
-		$remarkReposAgreed = ['Y'];
-		$remarkReposLikeNum = 0;
-		if (isset($oActionRule->remark->repos->pre)) {
-			$oRule = $oActionRule->remark->repos->pre;
-			if (!empty($oRule->remark->likeNum)) {
-				$remarkReposLikeNum = (int) $oRule->remark->likeNum;
-			}
-			if (!empty($oRule->remark->agreed) && is_array($oRule->remark->agreed)) {
-				$remarkReposAgreed = $oRule->remark->agreed;
-			}
-		}
 		// 填写记录过滤条件
 		$oPosted = $this->getPostJson();
 		// 填写记录过滤条件
@@ -432,12 +420,7 @@ class repos extends base {
 						}
 						/* 协作填写题 */
 						if ($this->getDeepValue($oSchema, 'cowork') === 'Y') {
-							$aOptions = ['fields' => 'id'];
-							if (!empty($oApp->actionRule->cowork->repos->pre->cowork->agreed)) {
-								$aOptions['agreed'] = $oApp->actionRule->cowork->repos->pre->cowork->agreed;
-							} else {
-								$aOptions['agreed'] = ['Y', 'A'];
-							}
+							$aOptions = ['fields' => 'id', 'agreed' => ['Y', 'A']];
 							$countItems = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, $aOptions);
 							$aCoworkState[$oSchema->id] = (object) ['length' => count($countItems)];
 							continue;
@@ -691,19 +674,6 @@ class repos extends base {
 
 		$oUser = $this->getUser($oApp);
 
-		/* 留言显示在共享页所需点赞数量 */
-		$remarkReposAgreed = ['Y'];
-		$remarkReposLikeNum = 0;
-		if (isset($oApp->actionRule->remark->repos->pre)) {
-			$oRule = $oApp->actionRule->remark->repos->pre;
-			if (!empty($oRule->remark->likeNum)) {
-				$remarkReposLikeNum = (int) $oRule->remark->likeNum;
-			}
-			if (!empty($oRule->remark->agreed)) {
-				$remarkReposAgreed = $oRule->remark->agreed;
-			}
-		}
-
 		// 填写记录过滤条件
 		$oOptions = new \stdClass;
 		$oOptions->page = $page;
@@ -794,24 +764,6 @@ class repos extends base {
 				/* 清除不必要的内容 */
 				unset($oRecord->comment);
 				unset($oRecord->verified);
-				/* 获得推荐的评论数据 */
-				$q = [
-					'id,group_id,agreed,like_num,like_log,userid,nickname,content,create_at',
-					'xxt_enroll_record_remark',
-					"enroll_key='{$oRecord->enroll_key}' and state=1",
-				];
-				if ($remarkReposLikeNum) {
-					$q[2] .= " and (agreedin ('" . implode("','", $remarkReposAgreed) . "') or like_num>={$remarkReposLikeNum})";
-				} else {
-					$q[2] .= " and agreed in ('" . implode("','", $remarkReposAgreed) . "')";
-				}
-				$q2 = [
-					'o' => 'agreed desc,like_num desc,create_at desc',
-				];
-				$oRecord->agreedRemarks = $modelRec->query_objs_ss($q, $q2);
-				foreach ($oRecord->agreedRemarks as $oRemark) {
-					$this->setNickname($oRemark, $oUser, isset($oEditorGrp) ? $oEditorGrp : null);
-				}
 				/* 获取记录的投票信息 */
 				if (!empty($aVoteRules)) {
 					$oVoteResult = new \stdClass;

@@ -1113,13 +1113,6 @@ class data_model extends entity_model {
 			}
 		}
 
-		// 预制条件：指定分组或赞同数大于
-		if (isset($oCriteria->recordData->GroupOrLikeNum) && is_object($oCriteria->recordData->GroupOrLikeNum)) {
-			if (!empty($oCriteria->recordData->GroupOrLikeNum->group_id) && isset($oCriteria->recordData->GroupOrLikeNum->like_num)) {
-				$w .= " and (rd.group_id='{$oCriteria->recordData->GroupOrLikeNum->group_id}' or rd.like_num>={$oCriteria->recordData->GroupOrLikeNum->like_num})";
-			}
-		}
-
 		// 指定了按关键字过滤
 		if (!empty($oCriteria->keyword)) {
 			$w .= " and (r.data like '%{$oCriteria->keyword}%')";

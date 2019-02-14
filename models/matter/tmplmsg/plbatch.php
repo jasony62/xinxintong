@@ -114,16 +114,6 @@ class plbatch_model extends \TMS_MODEL {
 
 				$rst = $this->_sendTxtByOpenid($siteId, $user->qy_openid, 'qy', $txtTmplMsg, $log);
 			}
-			/* 易信用户，将模板消息转换文本消息 */
-			if (!empty($user->yx_openid)) {
-				$log['openid'] = $user->yx_openid;
-				if (!empty($url)) {
-					$txtTmplMsg[] = '查看详情：\n' . $url;
-				}
-				$log['data'] = $modelTmpl->escape($modelTmpl->toJson($txtTmplMsg));
-
-				$rst = $this->_sendTxtByOpenid($siteId, $user->yx_openid, 'yx', $txtTmplMsg, $log);
-			}
 		}
 	}
 	/**
@@ -157,19 +147,6 @@ class plbatch_model extends \TMS_MODEL {
 			],
 		];
 		switch ($openidSrc) {
-		case 'yx':
-			$log['send_to'] = 'yx';
-			$snsConfig = $this->model('sns\yx')->bySite($siteId);
-			$snsProxy = $this->model('sns\yx\proxy', $snsConfig);
-			if ($snsConfig->can_p2p === 'Y') {
-				$rst = $snsProxy->messageSend($message, array($openid));
-				if (false === $rst[0]) {
-					$rst = array(false, $rst[1][0][$openid]);
-				}
-			} else {
-				$rst = $snsProxy->messageCustomSend($message, $openid);
-			}
-			break;
 		case 'qy':
 			$log['send_to'] = 'qy';
 			$snsConfig = $this->model('sns\qy')->bySite($siteId);

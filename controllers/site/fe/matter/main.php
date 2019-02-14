@@ -134,14 +134,6 @@ class main extends \site\fe\matter\base {
 					}
 				}
 			}
-		} else if ($this->userAgent() === 'yx') {
-			if (!isset($this->who->sns->yx)) {
-				if ($yxConfig = $this->model('sns\yx')->bySite($siteid)) {
-					if ($yxConfig->joined === 'Y') {
-						$this->snsOAuth($yxConfig, 'yx');
-					}
-				}
-			}
 		}
 
 		return false;
@@ -150,14 +142,6 @@ class main extends \site\fe\matter\base {
 	 * 记录访问日志
 	 */
 	public function logAccess_action($site) {
-		/* support CORS */
-		//header('Access-Control-Allow-Origin:*');
-		//header('Access-Control-Allow-Methods:POST');
-		//header('Access-Control-Allow-Headers:Content-Type');
-		//if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-		//	exit;
-		//}
-
 		$user = $this->who;
 		$model = $this->model();
 		$post = $this->getPostJson();

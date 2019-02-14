@@ -47,10 +47,9 @@ define(['frame'], function(ngApp) {
                 obj = {};
             $scope.selSync = [];
             //代码不执行 定义状态
-            if (!(fans.wx || fans.qy || fans.yx)) { $scope.page.state = 1; return; } else { $scope.page.state = 2 }
+            if (!(fans.wx || fans.qy)) { $scope.page.state = 1; return; } else { $scope.page.state = 2 }
             fans.wx && (data.wx = fans.wx);
             fans.qy && (data.qy = fans.qy);
-            fans.yx && (data.yx = fans.yx);
             angular.forEach(data, function(d, key) {
                 if (key === 'wx') {
                     obj.title = '微信公众号';
@@ -60,10 +59,6 @@ define(['frame'], function(ngApp) {
                     obj.title = '微信企业号';
                     obj.content = '微信企业号信息';
                     obj.src = 'qy';
-                } else if (key === 'yx') {
-                    obj.title = '易信公众号';
-                    obj.content = '易信公众号信息';
-                    obj.src = 'yx';
                 }
                 obj.openId = d.openid;
                 $scope.selSync.push(obj);

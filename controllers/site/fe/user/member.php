@@ -23,7 +23,7 @@ class member extends \site\fe\base {
 	 *
 	 */
 	public function index_action($schema) {
-		$oMschema = $this->model('site\user\memberschema')->byId($schema, ['fields' => 'id,siteid,title,valid,is_wx_fan,is_yx_fan,is_qy_fan']);
+		$oMschema = $this->model('site\user\memberschema')->byId($schema, ['fields' => 'id,siteid,title,valid,is_wx_fan,is_qy_fan']);
 		if ($oMschema === false || $oMschema->valid === 'N') {
 			die('访问的对象不存在或已不可用');
 		}
@@ -33,7 +33,7 @@ class member extends \site\fe\base {
 			$this->requireSnsOAuth($oMschema->siteid);
 		}
 
-		if ($oMschema->is_wx_fan === 'Y' || $oMschema->is_qy_fan === 'Y' || $oMschema->is_yx_fan === 'Y') {
+		if ($oMschema->is_wx_fan === 'Y' || $oMschema->is_qy_fan === 'Y') {
 			$cookieUser = $this->who;
 			$modelSiteUser = $this->model('site\user\account');
 			$siteUser = $modelSiteUser->byId($cookieUser->uid);
@@ -86,16 +86,6 @@ class member extends \site\fe\base {
 					$modelSnsUser = $this->model('sns\qy\fan');
 					if (false === $modelSnsUser->isFollow($oMschema->siteid, $siteUser->qy_openid)) {
 						$this->snsFollow($oMschema->siteid, 'qy', $oMschema2);
-					}
-				}
-			}
-			if ($oMschema->is_yx_fan === 'Y') {
-				if (empty($siteUser->yx_openid)) {
-					$this->snsFollow($oMschema->siteid, 'yx');
-				} else {
-					$modelSnsUser = $this->model('sns\yx\fan');
-					if (false === $modelSnsUser->isFollow($oMschema->siteid, $siteUser->yx_openid)) {
-						$this->snsFollow($oMschema->siteid, 'yx', $oMschema2);
 					}
 				}
 			}

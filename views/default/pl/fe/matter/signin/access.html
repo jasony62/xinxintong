@@ -66,14 +66,6 @@
                         </select>
                     </td>
                 </tr>
-                <tr ng-if="sns.yx">
-                    <td>易信公众号关注用户</td>
-                    <td style='padding:0'>
-                        <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entryRule.sns.yx.entry' ng-options='p.name as p.title for p in jumpPages.inapp'>
-                            <option value=''>忽略</option>
-                        </select>
-                    </td>
-                </tr>
                 <tr>
                     <td>不满足条件用户</td>
                     <td style='padding:0'>

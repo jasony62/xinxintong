@@ -38,32 +38,6 @@
          });
      }
 
-     function setYxShare(title, link, desc, img, options) {
-         var _this = this,
-             shareData = {
-                 'img_url': img,
-                 'link': link,
-                 'title': title,
-                 'desc': desc
-             };
-
-         window.YixinJSBridge.on('menu:share:appmessage', function(argv) {
-             try {
-                 options.logger && options.logger('F');
-             } catch (ex) {
-                 alert('share failed:' + ex.message);
-             }
-             window.YixinJSBridge.invoke('sendAppMessage', shareData, function(res) {});
-         });
-         window.YixinJSBridge.on('menu:share:timeline', function(argv) {
-             try {
-                 options.logger && options.logger('T');
-             } catch (ex) {
-                 alert('share failed:' + ex.message);
-             }
-             window.YixinJSBridge.invoke('shareTimeline', shareData, function(res) {});
-         });
-     }
      var _isReady = false;
      this.config = function(options) {
          this.options = options;
@@ -75,8 +49,6 @@
          if (_isReady) {
              if (/MicroMessenger/i.test(navigator.userAgent)) {
                  setWxShare(title, link, desc, img, _this.options);
-             } else if (/Yixin/i.test(navigator.userAgent)) {
-                 setYxShare(title, link, desc, img, _this.options);
              } else if (fnOther && typeof fnOther === 'function') {
                  fnOther(title, link, desc, img);
              }
@@ -119,16 +91,6 @@
                      xhr.send();
                  };
                  document.body.appendChild(script);
-             } else if (/Yixin/i.test(navigator.userAgent)) {
-                 if (window.YixinJSBridge === undefined) {
-                     document.addEventListener('YixinJSBridgeReady', function() {
-                         setYxShare(title, link, desc, img, _this.options);
-                         _isReady = true;
-                     }, false);
-                 } else {
-                     setYxShare(title, link, desc, img, _this.options);
-                     _isReady = true;
-                 }
              } else if (fnOther && typeof fnOther === 'function') {
                  fnOther(title, link, desc, img);
                  _isReady = true;

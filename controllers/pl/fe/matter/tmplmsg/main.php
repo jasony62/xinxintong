@@ -304,19 +304,11 @@ class main extends \pl\fe\matter\base {
 			$openid_src = $model->query_val_ss([
 				'ufrom',
 				'xxt_site_account',
-				"siteid='$site' and (wx_openid='$openid' or qy_openid='$openid' or yx_openid='$openid')",
+				"siteid='$site' and (wx_openid='$openid' or qy_openid='$openid')",
 			]);
 		}
 
 		switch ($openid_src) {
-		case 'yx':
-			$config = $this->model('sns\yx')->bySite($site);
-			if ($config->joined === 'Y' && $config->can_p2p === 'Y') {
-				$rst = $this->model('sns\yx\proxy', $config)->messageSend($message, array($openid));
-			} else {
-				$rst = $this->model('sns\yx\proxy', $config)->messageCustomSend($message, $openid);
-			}
-			break;
 		case 'wx':
 			$config = $this->model('sns\wx')->bySite($site);
 			$rst = $this->model('sns\wx\proxy', $config)->messageCustomSend($message, $openid);
@@ -352,7 +344,7 @@ class main extends \pl\fe\matter\base {
 		$ufrom = $modelTmpl->query_val_ss([
 			'ufrom',
 			'xxt_site_account',
-			"siteid='$site' and (wx_openid='$openid' or qy_openid='$openid' or yx_openid='$openid')",
+			"siteid='$site' and (wx_openid='$openid' or qy_openid='$openid')",
 		]);
 		/*发送消息*/
 		if (!empty($tmpl->templateid) && $ufrom === 'wx') {
@@ -388,11 +380,7 @@ class main extends \pl\fe\matter\base {
 				}
 			}
 			if (!empty($url)) {
-				if ($ufrom === 'yx') {
-					$txt[] = '查看详情：\n' . $url;
-				} else {
-					$txt[] = " <a href='" . $url . "'>查看详情</a>";
-				}
+				$txt[] = " <a href='" . $url . "'>查看详情</a>";
 			}
 			$txt = implode("\n", $txt);
 			$msg = array(

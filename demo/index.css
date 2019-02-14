@@ -17,9 +17,12 @@ form button {
 
 .panel>.panel-body>p {
     font-size: 13px;
-    margin-bottom: 15px;
+    padding: 4px 0;
+    margin-bottom: 8px;
+    border-bottom: 3px solid #fff;
 }
 
-.text-orange {
+.panel>.panel-body>p.text-orange {
     color: #f3ab26;
+    border-bottom: 3px solid #f3ab26;
 }

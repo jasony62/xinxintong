@@ -31,7 +31,7 @@
                 <div class="panel panel-primary">
                     <div class="panel-heading">
                         <span class="panel-title">通话状态</span>
-                        <button type="button" class="btn btn-warning btn-sm pull-right" data-placement="left" data-toggle="tooltip" title="通过能力平台提供的【推送通话状态API】，客户应用可获得通话过程的完整信息">API</button>
+                        <button type="button" class="btn btn-warning btn-sm pull-right" tooltip-placement="left" uib-tooltip="通过能力平台提供的【推送通话状态API】，客户应用可获得通话过程的完整信息">API</button>
                     </div>
                     <div class="panel-body">
                         <p class="text-muted" ng-class="{'text-orange': status=='9','text-primary':status=='10'||status=='13'||status=='15'}">发起呼叫<span class="pull-right" ng-bind="dial.time_ready"></span></p>
@@ -43,7 +43,7 @@
                 <div class="panel panel-primary" >
                     <div class="panel-heading">
                         <span class="panel-title">录音文件</span>
-                        <button type="button" class="btn btn-warning btn-sm pull-right" data-placement="left" data-toggle="tooltip" title="通过能力平台提供的【推送录音文件API】，客户应用可获得录音文件的下载地址和描述信息">API</button>
+                        <button type="button" class="btn btn-warning btn-sm pull-right" tooltip-placement="left" uib-tooltip="通过能力平台提供的【推送录音文件API】，客户应用可获得录音文件的下载地址和描述信息">API</button>
                     </div>
                     <div class="panel-body">
                         <p>会话编号： <span ng-bind="record.fileUrl.sessionid"></span></p>
@@ -51,7 +51,7 @@
                         <p>被叫号码： <span ng-bind="calledNum"></span></p>
                         <p>开始时间： <span ng-bind="record.billed.startTime"></span></p>
                         <p>结束时间： <span ng-bind="record.billed.endTime"></span></p>
-                        <p>通话时长： <span ng-bind="record.billed.duration"></span></p>
+                        <p>通话时长： <span ng-bind="record.billed.duration"></span>秒</p>
                         <span><audio id="audioAddr" controls="controls"></audio></span>
                     </div>
                 </div>

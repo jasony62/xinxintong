@@ -302,14 +302,6 @@ class repos extends base {
 		$oUser = $this->getUser($oApp);
 
 		$oActionRule = $oApp->actionRule;
-		/* 非同组记录显示在共享页需要的赞同数 */
-		$recordReposLikeNum = 0;
-		if (isset($oActionRule->record->repos->pre)) {
-			$oRule = $oActionRule->record->repos->pre;
-			if (!empty($oRule->record->likeNum)) {
-				$recordReposLikeNum = (int) $oRule->record->likeNum;
-			}
-		}
 		/* 协作填写显示在共享页所需点赞数量 */
 		$coworkReposLikeNum = 0;
 		if (isset($oActionRule->cowork->repos->pre)) {
@@ -376,15 +368,10 @@ class repos extends base {
 			$bSameGroup = $this->_requireSameGroup($oApp);
 			if ($bSameGroup) {
 				$oCriteria->record->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
-			} else if ($recordReposLikeNum) {
-				/* 限制同组数据或赞同数大于等于 */
-				$oCriteria->GroupOrLikeNum = new \stdClass;
-				$oCriteria->GroupOrLikeNum->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
-				$oCriteria->GroupOrLikeNum->like_num = $recordReposLikeNum;
 			}
 		}
 		/* 指定了分组过滤条件 */
-		if (!isset($oCriteria->record->group_id) && !isset($oCriteria->GroupOrLikeNum)) {
+		if (!isset($oCriteria->record->group_id)) {
 			if (!empty($oPosted->userGroup)) {
 				$oCriteria->record->group_id = $oPosted->userGroup;
 			}
@@ -725,14 +712,6 @@ class repos extends base {
 
 		$oUser = $this->getUser($oApp);
 
-		/* 非同组记录显示在共享页需要的赞同数 */
-		$recordReposLikeNum = 0;
-		if (isset($oApp->actionRule->record->repos->pre)) {
-			$oRule = $oApp->actionRule->record->repos->pre;
-			if (!empty($oRule->record->likeNum)) {
-				$recordReposLikeNum = (int) $oRule->record->likeNum;
-			}
-		}
 		/* 协作填写显示在共享页所需点赞数量 */
 		$coworkReposLikeNum = 0;
 		if (isset($oApp->actionRule->cowork->repos->pre)) {
@@ -770,11 +749,6 @@ class repos extends base {
 			$bSameGroup = $this->_requireSameGroup($oApp);
 			if ($bSameGroup) {
 				$oCriteria->record->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
-			} else if ($recordReposLikeNum) {
-				/* 限制同组数据或赞同数大于等于 */
-				$oCriteria->GroupOrLikeNum = new \stdClass;
-				$oCriteria->GroupOrLikeNum->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
-				$oCriteria->GroupOrLikeNum->like_num = $recordReposLikeNum;
 			}
 		}
 

@@ -829,48 +829,6 @@ class record extends base {
 			}
 		}
 
-		if (!empty($oApp->actionRule->record->like->pre)) {
-			/* 当前轮次，当前组已经提交的记录数 */
-			$oRule = $oApp->actionRule->record->like->pre;
-			if (!empty($oRule->record->num)) {
-				$oCriteria = new \stdClass;
-				$oCriteria->record = new \stdClass;
-				$oCriteria->record->group_id = $oRecord->group_id;
-				$oResult = $modelRec->byApp($oApp, ['fields' => 'id'], $oCriteria);
-				if ((int) $oResult->total < (int) $oRule->record->num) {
-					$desc = empty($oRule->desc) ? ('提交【' . $oRule->record->num . '条】记录后开启点赞（投票）') : $oRule->desc;
-					if (!in_array(mb_substr($desc, -1), ['。', '，', '；', '.', ',', ';'])) {
-						$desc .= '，';
-					}
-					$desc .= '还需提交【' . ((int) $oRule->record->num - (int) $oResult->total) . '条】记录。';
-					return new \ResponseError($desc);
-				}
-			}
-			if (!empty($oRule->record->submit->end)) {
-				if (!empty($oApp->actionRule->record->submit->end->time)) {
-					$oTimeRule = $oApp->actionRule->record->submit->end->time;
-					if (!empty($oTimeRule->mode) && !empty($oTimeRule->unit) && !empty($oTimeRule->value)) {
-						if ($oTimeRule->mode === 'after_round_start_at') {
-							if ($oTimeRule->unit === 'hour') {
-								$oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp);
-								if ($oActiveRnd && !empty($oActiveRnd->start_at)) {
-									if (((int) $oActiveRnd->start_at + ($oTimeRule->value * 3600)) > time()) {
-										$desc = empty($oRule->desc) ? ('提交记录结束后开启点赞（投票）') : $oRule->desc;
-										if (!in_array(mb_substr($desc, -1), ['。', '，', '；', '.', ',', ';'])) {
-											$desc .= '，';
-										}
-										$endDate = date('y-m-j H:i', (int) $oActiveRnd->start_at + ($oTimeRule->value * 3600));
-										$desc .= '结束时间【' . $endDate . '】。';
-										return new \ResponseError($desc);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
 		$oLikeLog = $oRecord->like_log;
 		if (isset($oLikeLog->{$oUser->uid})) {
 			unset($oLikeLog->{$oUser->uid});
@@ -878,20 +836,6 @@ class record extends base {
 		} else {
 			$oLikeLog->{$oUser->uid} = time();
 			$incLikeNum = 1;
-		}
-		/* 检查数量限制 */
-		if ($incLikeNum > 0) {
-			if (isset($oApp->actionRule->record->like->end)) {
-				$oRule = $oApp->actionRule->record->like->end;
-				/* 限制了最多点赞次数 */
-				if (!empty($oRule->max)) {
-					$oAppUser = $this->model('matter\enroll\user')->byId($oApp, $oUser->uid, ['fields' => 'id,do_like_num', 'rid' => $oRecord->rid]);
-					if ($oAppUser && (int) $oAppUser->do_like_num >= (int) $oRule->max) {
-						$desc = empty($oRule->desc) ? ('点赞次数最多【' . $oRule->max . '】') : $oRule->desc;
-						return new \ResponseError($desc);
-					}
-				}
-			}
 		}
 
 		$likeNum = $oRecord->like_num + $incLikeNum;
@@ -943,48 +887,6 @@ class record extends base {
 			}
 		}
 
-		// if (!empty($oApp->actionRule->record->like->pre)) {
-		// 	/* 当前轮次，当前组已经提交的记录数 */
-		// 	$oRule = $oApp->actionRule->record->like->pre;
-		// 	if (!empty($oRule->record->num)) {
-		// 		$oCriteria = new \stdClass;
-		// 		$oCriteria->record = new \stdClass;
-		// 		$oCriteria->record->group_id = $oRecord->group_id;
-		// 		$oResult = $modelRec->byApp($oApp, ['fields' => 'id'], $oCriteria);
-		// 		if ((int) $oResult->total < (int) $oRule->record->num) {
-		// 			$desc = empty($oRule->desc) ? ('提交【' . $oRule->record->num . '条】记录后开启点赞（投票）') : $oRule->desc;
-		// 			if (!in_array(mb_substr($desc, -1), ['。', '，', '；', '.', ',', ';'])) {
-		// 				$desc .= '，';
-		// 			}
-		// 			$desc .= '还需提交【' . ((int) $oRule->record->num - (int) $oResult->total) . '条】记录。';
-		// 			return new \ResponseError($desc);
-		// 		}
-		// 	}
-		// 	if (!empty($oRule->record->submit->end)) {
-		// 		if (!empty($oApp->actionRule->record->submit->end->time)) {
-		// 			$oTimeRule = $oApp->actionRule->record->submit->end->time;
-		// 			if (!empty($oTimeRule->mode) && !empty($oTimeRule->unit) && !empty($oTimeRule->value)) {
-		// 				if ($oTimeRule->mode === 'after_round_start_at') {
-		// 					if ($oTimeRule->unit === 'hour') {
-		// 						$oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp);
-		// 						if ($oActiveRnd && !empty($oActiveRnd->start_at)) {
-		// 							if (((int) $oActiveRnd->start_at + ($oTimeRule->value * 3600)) > time()) {
-		// 								$desc = empty($oRule->desc) ? ('提交记录结束后开启点赞（投票）') : $oRule->desc;
-		// 								if (!in_array(mb_substr($desc, -1), ['。', '，', '；', '.', ',', ';'])) {
-		// 									$desc .= '，';
-		// 								}
-		// 								$endDate = date('y-m-j H:i', (int) $oActiveRnd->start_at + ($oTimeRule->value * 3600));
-		// 								$desc .= '结束时间【' . $endDate . '】。';
-		// 								return new \ResponseError($desc);
-		// 							}
-		// 						}
-		// 					}
-		// 				}
-		// 			}
-		// 		}
-		// 	}
-		// }
-
 		$oDislikeLog = $oRecord->dislike_log;
 		if (isset($oDislikeLog->{$oUser->uid})) {
 			unset($oDislikeLog->{$oUser->uid});
@@ -993,20 +895,6 @@ class record extends base {
 			$oDislikeLog->{$oUser->uid} = time();
 			$incDislikeNum = 1;
 		}
-		/* 检查数量限制 */
-		// if ($incDislikeNum > 0) {
-		// 	if (isset($oApp->actionRule->record->like->end)) {
-		// 		$oRule = $oApp->actionRule->record->like->end;
-		// 		/* 限制了最多点赞次数 */
-		// 		if (!empty($oRule->max)) {
-		// 			$oAppUser = $this->model('matter\enroll\user')->byId($oApp, $oUser->uid, ['fields' => 'id,do_dislike_num', 'rid' => $oRecord->rid]);
-		// 			if ($oAppUser && (int) $oAppUser->do_dislike_num >= (int) $oRule->max) {
-		// 				$desc = empty($oRule->desc) ? ('点赞次数最多【' . $oRule->max . '】') : $oRule->desc;
-		// 				return new \ResponseError($desc);
-		// 			}
-		// 		}
-		// 	}
-		// }
 
 		$dislikeNum = $oRecord->dislike_num + $incDislikeNum;
 		$modelRec->update(

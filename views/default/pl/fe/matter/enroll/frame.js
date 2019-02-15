@@ -1,6 +1,6 @@
 define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', 'enrollSchema', 'enrollPage', 'groupService'], function(RouteParam, CstApp, frameTemplates) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'http.ui.xxt', 'notice.ui.xxt', 'schema.ui.xxt', 'tmplshop.ui.xxt', 'pl.const', 'service.matter', 'service.enroll', 'schema.enroll', 'page.enroll', 'tinymce.enroll', 'service.group', 'ui.xxt', 'sys.chart']);
+    var ngApp = angular.module('app', ['ngRoute', 'toggle-switch', 'ui.tms', 'http.ui.xxt', 'notice.ui.xxt', 'schema.ui.xxt', 'tmplshop.ui.xxt', 'pl.const', 'service.matter', 'service.enroll', 'schema.enroll', 'page.enroll', 'tinymce.enroll', 'service.group', 'ui.xxt', 'sys.chart']);
     ngApp.constant('CstApp', CstApp);
     ngApp.filter('filterTime', function() {
         return function(e) {

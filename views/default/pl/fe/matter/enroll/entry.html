@@ -346,9 +346,7 @@
                 </div>
                 <hr>
                 <div class='form-inline'>
-                    <div class='checkbox'>
-                        <input type='checkbox' bs-switch data-on-text="启用" data-off-text="停用" ng-model="config.submit.valid">
-                    </div>
+                    <tms-toggle-switch ng-model="config.submit.valid" on-label="启用" off-label="停用"></tms-toggle-switch>
                     <button class='btn' ng-class="{'btn-default':!modified, 'btn-success':modified}" ng-disabled="!modified" ng-click="save()">保存</button>
                     <button class='btn btn-danger' ng-click="remove('submit')">删除</button>
                 </div>
@@ -393,9 +391,7 @@
                 </div>
                 <hr>
                 <div class='form-inline'>
-                    <div class='checkbox'>
-                        <input type='checkbox' bs-switch data-on-text="启用" data-off-text="停用" ng-model="config.cowork.valid">
-                    </div>
+                    <tms-toggle-switch ng-model="config.cowork.valid" on-label="启用" off-label="停用"></tms-toggle-switch>
                     <button class='btn' ng-class="{'btn-default':!modified, 'btn-success':modified}" ng-disabled="!modified" ng-click="save()">保存</button>
                     <button class='btn btn-danger' ng-click="remove('cowork')">删除</button>
                 </div>
@@ -440,9 +436,7 @@
                 </div>
                 <hr>
                 <div class='form-inline'>
-                    <div class='checkbox'>
-                        <input type='checkbox' bs-switch data-on-text="启用" data-off-text="停用" ng-model="config.remark.valid">
-                    </div>
+                    <tms-toggle-switch ng-model="config.remark.valid" on-label="启用" off-label="停用"></tms-toggle-switch>
                     <button class='btn' ng-class="{'btn-default':!modified, 'btn-success':modified}" ng-disabled="!modified" ng-click="save()">保存</button>
                     <button class='btn btn-danger' ng-click="remove('remark')">删除</button>
                 </div>

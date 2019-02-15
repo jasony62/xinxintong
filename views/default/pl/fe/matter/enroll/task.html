@@ -36,9 +36,7 @@
                             </div>
                             <hr>
                             <div class='form-inline'>
-                                <div class="checkbox">
-                                    <toggle-switch ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'" on-label="启用" off-label="停用"></toggle-switch>
-                                </div>
+                                <tms-toggle-switch ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'" on-label="启用" off-label="停用"></tms-toggle-switch>
                                 <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
                                 <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
                             </div>
@@ -104,7 +102,7 @@
                             </div>
                             <hr>
                             <div class='form-inline'>
-                                <toggle-switch ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'" on-label="启用" off-label="停用"></toggle-switch>
+                                <tms-toggle-switch ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'" on-label="启用" off-label="停用"></tms-toggle-switch>
                                 <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
                                 <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
                             </div>
@@ -223,7 +221,7 @@
                             </div>
                             <hr>
                             <div class='form-inline'>
-                                <toggle-switch ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'" on-label="启用" off-label="停用"></toggle-switch>
+                                <tms-toggle-switch ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'" on-label="启用" off-label="停用"></tms-toggle-switch>
                                 <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
                                 <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
                             </div>
@@ -313,7 +311,7 @@
                             </div>
                             <hr>
                             <div class='form-inline'>
-                                <toggle-switch ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'" on-label="启用" off-label="停用"></toggle-switch>
+                                <tms-toggle-switch ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'" on-label="启用" off-label="停用"></tms-toggle-switch>
                                 <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
                                 <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
                             </div>
@@ -408,7 +406,7 @@
                             </div>
                             <hr>
                             <div class='form-inline'>
-                                <toggle-switch ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'" on-label="启用" off-label="停用"></toggle-switch>
+                                <tms-toggle-switch ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'" on-label="启用" off-label="停用"></tms-toggle-switch>
                                 <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
                                 <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
                             </div>

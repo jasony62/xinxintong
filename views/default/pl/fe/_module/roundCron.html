@@ -185,7 +185,7 @@
     <hr>
     <div class='form-group'>
         <div class='form-inline'>
-            <input type='checkbox' bs-switch data-on-text="启用" data-off-text="停用" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.enabled">
+            <tms-toggle-switch on-label="启用" off-label="停用" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.enabled"></tms-toggle-switch>
             <button class='btn btn-danger' ng-click="tkRndCron.removeRule(rule)">删除</button>
             <button class='btn' ng-disabled="!tkRndCron.editing.modified" ng-class="tkRndCron.editing.modified?'btn-success':'btn-default'" ng-click="save()">保存</button>
         </div>

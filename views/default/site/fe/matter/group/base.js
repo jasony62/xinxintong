@@ -1,4 +1,7 @@
 'use strict';
+
+require('./base.css');
+
 require('../../../../../../asset/js/xxt.ui.share.js');
 if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.wx) {
     window.wx.ready(function() {

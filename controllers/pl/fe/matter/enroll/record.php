@@ -1977,6 +1977,7 @@ class record extends main_base {
 		if (empty($dsSchemas)) {
 			return new \ResponseError('没有需要同步数据的题目');
 		}
+		$dsSchemas = array_values($dsSchemas);
 
 		$oSyncResult = new \stdClass;
 		$oSyncResult->steps = count($dsSchemas) + 1;

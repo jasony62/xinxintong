@@ -271,7 +271,7 @@ class topic_model extends entity_model {
 	 * 把任务中的记录放入专题
 	 */
 	private function _assignByTaskRecords($oTopic, $oTask, $taskRecords) {
-		if ($oTask->config_type === 'answer' && (empty($oTask->source->scope) || $oTask->source->scope === 'question')) {
+		if ($oTask->config_type === 'answer' && (empty($oTask->source->scope) || in_array($oTask->source->scope, ['question', 'vote']))) {
 			/* 任务的对象是记录 */
 			$fnHandle = function ($oRecord) use ($oTopic, $oTask) {
 				$this->assign($oTopic, $oRecord, null, max($oTask->start_at, $oRecord->enroll_at));

@@ -13,12 +13,11 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
             }
         }, true);
     }
-    
-    ngApp.provider.controller('ctrlTask', [function() {}]);
-    ngApp.provider.controller('ctrlTaskBaseline', ['$scope', 'http2', 'noticebox', 'srvEnrollApp', function($scope, http2, noticebox, srvEnlApp) {
+    ngApp.provider.controller('ctrlTask', ['$scope', function($scope) {}]);
+    ngApp.provider.controller('ctrlTaskBaseline', ['$scope', '$timeout', 'http2', 'noticebox', 'srvEnrollApp', function($scope, $timeout, http2, noticebox, srvEnlApp) {
         var _aConfigs, _oConfigsModified;
         $scope.configs = _aConfigs = [];
-        $scope.configsModified = _oConfigsModified = {};
+        $scope.configsModified = _oConfigsModified = { '1': false };
         $scope.addConfig = function() {
             _aConfigs.push({});
         };

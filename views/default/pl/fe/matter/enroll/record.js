@@ -224,7 +224,7 @@ define(['frame'], function(ngApp) {
             http2.post('/rest/script/time', { html: { 'rounds': '/views/default/pl/fe/matter/enroll/component/roundPicker' } }).then(function(rsp) {
                 $uibModal.open({
                     templateUrl: '/views/default/pl/fe/matter/enroll/component/roundPicker.html?_=' + rsp.data.html.rounds.time,
-                    controller: ['$scope', '$uibModalInstance', 'tkEnrollRound', function($scope2, $mi, tkEnlRnd) {
+                    controller: ['$scope', '$q', '$uibModalInstance', 'tkEnrollRound', 'noticebox', function($scope2, $q, $mi, tkEnlRnd, noticebox) {
                         var _oPage, _oResult;
                         $scope2.page = _oPage = {};
                         $scope2.result = _oResult = {};
@@ -235,8 +235,26 @@ define(['frame'], function(ngApp) {
                         };
                         $scope2.dismiss = function() { $mi.dismiss(); };
                         $scope2.ok = function() {
+                            var fnSync, url;
                             if (_oResult.rid) {
-                                http2.get('/rest/pl/fe/matter/enroll/record/syncWithDataSource?app=' + $scope.app.id + '&round=' + _oResult.rid).then(function(rsp) {
+                                url = '/rest/pl/fe/matter/enroll/record/syncWithDataSource?app=' + $scope.app.id + '&round=' + _oResult.rid;
+                                fnSync = function(step) {
+                                    var defer;
+                                    defer = $q.defer();
+                                    http2.get(url + '&step=' + step).then(function(rsp) {
+                                        if (rsp.data.left > 0) {
+                                            noticebox.progress(rsp.data.left + '/' + rsp.data.steps);
+                                            fnSync(rsp.data.step + 1).then(function(rsp) {
+                                                defer.resolve(rsp);
+                                            });
+                                        } else {
+                                            defer.resolve(rsp);
+                                        }
+                                    });
+                                    return defer.promise;
+                                }
+                                fnSync(1).then(function() {
+                                    noticebox.close();
                                     $mi.close();
                                 });
                             }

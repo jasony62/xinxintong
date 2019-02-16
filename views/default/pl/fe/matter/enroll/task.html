@@ -93,7 +93,7 @@
                             <div class='form-group'>
                                 <span>执行任务的用户</span>
                                 <div tms-array-checkbox model="config.role.groups">
-                                    <div class='checkbox' ng-repeat="group in app.groups">
+                                    <div class='checkbox' ng-repeat="group in app.groupApp.teams">
                                         <label class='checkbox-inline'>
                                             <input type='checkbox' value='{{::group.team_id}}'><span>{{::group.title}}</span>
                                         </label>
@@ -212,7 +212,7 @@
                             <div class='form-group'>
                                 <span>执行任务的用户</span>
                                 <div tms-array-checkbox model="config.role.groups">
-                                    <div class='checkbox' ng-repeat="group in app.groups">
+                                    <div class='checkbox' ng-repeat="group in app.groupApp.teams">
                                         <label class='checkbox-inline'>
                                             <input type='checkbox' value='{{::group.team_id}}'><span>{{::group.title}}</span>
                                         </label>
@@ -302,7 +302,7 @@
                             <div class='form-group'>
                                 <span>执行任务的用户</span>
                                 <div tms-array-checkbox model="config.role.groups">
-                                    <div class='checkbox' ng-repeat="group in app.groups">
+                                    <div class='checkbox' ng-repeat="group in app.groupApp.teams">
                                         <label class='checkbox-inline'>
                                             <input type='checkbox' value='{{::group.team_id}}'><span>{{::group.title}}</span>
                                         </label>
@@ -397,7 +397,7 @@
                             <div class='form-group'>
                                 <span>执行任务的用户</span>
                                 <div tms-array-checkbox model="config.role.groups">
-                                    <div class='checkbox' ng-repeat="group in app.groups">
+                                    <div class='checkbox' ng-repeat="group in app.groupApp.teams">
                                         <label class='checkbox-inline'>
                                             <input type='checkbox' value='{{::group.team_id}}'><span>{{::group.title}}</span>
                                         </label>

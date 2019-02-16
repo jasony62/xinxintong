@@ -68,7 +68,7 @@ class topic_model extends entity_model {
 	 *
 	 * 如果是任务专题，可能需要动态获取任务信息
 	 */
-	public function records($oTopic) {
+	public function records($oTopic, $aOptions = []) {
 		if (!empty($oTopic->task_id)) {
 			$oTask = $this->model('matter\enroll\task', $this->_oApp)->byId($oTopic->task_id);
 			if ($oTask && $oTask->state === 'IP') {
@@ -76,8 +76,14 @@ class topic_model extends entity_model {
 				$this->_renewByTask($oTopic, $oTask);
 			}
 		}
+		if (empty($aOptions['fields'])) {
+			$fields = 'r.*';
+		} else {
+			$fields = explode(',', $aOptions['fields']);
+			$fields = implode(',', array_map(function ($field) {return 'r.' . $field;}, $fields));
+		}
 		$q = [
-			'r.*,tr.assign_at,tr.id id_in_topic,tr.seq seq_in_topic,tr.data_id',
+			$fields . ',tr.assign_at,tr.id id_in_topic,tr.seq seq_in_topic,tr.data_id',
 			'xxt_enroll_record r inner join xxt_enroll_topic_record tr on r.id=tr.record_id',
 			['tr.topic_id' => $oTopic->id, 'r.state' => 1],
 		];

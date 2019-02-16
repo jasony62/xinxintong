@@ -2388,7 +2388,7 @@ class record extends main_base {
 		$rid = empty($oCriteria->record->rid) ? '' : $oCriteria->record->rid;
 		if (!empty($oCriteria->record->group_id)) {
 			$gid = $oCriteria->record->group_id;
-		} else if (isset($oAssocGrpTeamSchema) && !empty($oCriteria->data->{$oAssocGrpTeamSchema->id})) {
+		} else if (!empty($oAssocGrpTeamSchema) && !empty($oCriteria->data->{$oAssocGrpTeamSchema->id})) {
 			$gid = $oCriteria->data->{$oAssocGrpTeamSchema->id};
 		} else {
 			$gid = '';

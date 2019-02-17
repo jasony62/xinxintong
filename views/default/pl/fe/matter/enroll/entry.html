@@ -200,7 +200,7 @@
             <hr>
             <!--begin timer-->
             <div class='timer' ng-repeat="timer in timers">
-                <div class='form-group'>
+                <div class='form-group' ng-if="!timer.task.task_arguments.taskConfig">
                     <label class='radio-inline'>
                         <input type='radio' value='' ng-model="timer.task.task_arguments.page">按照活动进入规则</label>
                     <label class='radio-inline'>
@@ -211,6 +211,9 @@
                         <input type='radio' value='rank' ng-model="timer.task.task_arguments.page">排行榜</label>
                     <label class='radio-inline'>
                         <input type='radio' value='stat' ng-model="timer.task.task_arguments.page">统计页</label>
+                </div>
+                <div class='form-group' ng-if="timer.task.task_arguments.taskConfig" ng-switch on="timer.task.task_arguments.taskConfig.type">
+                    <div>【<span ng-switch-when="question">提问</span>】任务提醒</div>
                 </div>
                 <div class='form-group'>
                     <label class='radio-inline'>
@@ -237,8 +240,8 @@
                         </div>
                         <div class='col-md-5'>
                             <div class='pl-input-group'>
-                                <div ng-if="timer._temp" class='form-control pl-line' ng-bind="timer._temp.group.team.title"></div>
-                                <div ng-if="!timer._temp" class='form-control pl-line' ng-bind="timer.task.task_arguments.receiver.app.round.title"></div>
+                                <div ng-if="timer._temp" class='form-control pl-line' ng-bind="timer._temp.group.teams.title"></div>
+                                <div ng-if="!timer._temp" class='form-control pl-line' ng-bind="timer.task.task_arguments.receiver.app.teams.title"></div>
                             </div>
                         </div>
                     </div>
@@ -292,7 +295,7 @@
                         </div>
                         <div class='col-md-5'>
                             <div class='pl-input-group'>
-                                <div class='form-control pl-line' ng-bind="timer.task.task_arguments.receiver.group.team.title"></div>
+                                <div class='form-control pl-line' ng-bind="timer.task.task_arguments.receiver.group.teams.title"></div>
                             </div>
                         </div>
                     </div>

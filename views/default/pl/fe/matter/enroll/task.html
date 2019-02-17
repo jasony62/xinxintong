@@ -64,6 +64,17 @@
                             </div>
                             <div class='form-group'>
                                 <div class='form-inline'>
+                                    <span>指定相对轮次生成规则</span>
+                                    <div class='form-group'>
+                                        <div class='pl-input-group'>
+                                            <div class='form-control pl-line' ng-bind="config.time.surface.offset.matter.name"></div>
+                                            <button class='btn btn-default' ng-click="setTimeOffsetRoundCron(config)"><i class='glyphicon glyphicon-edit'></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <div class='form-inline'>
                                     <span>提问开始时间</span>
                                     <select class='form-control' ng-model="config.start.time.mode">
                                         <option value=''>不设置</option>>
@@ -74,6 +85,8 @@
                                         <option value='hour'>小时</option>
                                     </select>
                                     <input type='text' class='form-control' ng-model="config.start.time.value" placeholder="输入需要的时间">
+                                    <button ng-if="!configTimers[config.id].start" class='btn btn-default' ng-click="addTimer(config,'start')">添加任务定时提醒</button>
+                                    <button ng-if="configTimers[config.id].start" class='btn btn-default' ng-click="delTimer(config,'start')">删除任务定时提醒</button>
                                 </div>
                             </div>
                             <div class='form-group'>
@@ -88,6 +101,8 @@
                                         <option value='hour'>小时</option>
                                     </select>
                                     <input type='text' class='form-control' ng-model="config.end.time.value" placeholder="输入需要的时间">
+                                    <button ng-if="!configTimers[config.id].end" class='btn btn-default' ng-click="addTimer(config,'end')">添加任务定时提醒</button>
+                                    <button ng-if="configTimers[config.id].end" class='btn btn-default' ng-click="delTimer(config,'end')">删除任务定时提醒</button>
                                 </div>
                             </div>
                             <div class='form-group'>

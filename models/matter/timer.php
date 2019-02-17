@@ -30,7 +30,16 @@ class timer_model extends base_model {
 		if (!empty($aOptions['model'])) {
 			$q[2]['task_model'] = $aOptions['model'];
 		}
-
+		if (isset($aOptions['taskArguments'])) {
+			$taskArguments = $aOptions['taskArguments'];
+			if (is_object($taskArguments) || is_array($taskArguments)) {
+				$likeCauses = [];
+				foreach ($taskArguments as $prop => $val) {
+					$likeCauses[] = 'task_arguments like \'%"' . $this->escape($prop) . '":' . $this->toJson($val) . '%\'';
+				}
+				$q[2]['task_arguments'] = (object) ['op' => 'and', 'pat' => $likeCauses];
+			}
+		}
 		$tasks = $this->query_objs_ss($q);
 		foreach ($tasks as $oTask) {
 			if (property_exists($oTask, 'task_arguments')) {
@@ -69,7 +78,7 @@ class timer_model extends base_model {
 		$q = [
 			'*',
 			'xxt_timer_task',
-			"enabled='Y' and task_expire_at>={$now}",
+			"enabled='Y' and (task_expire_at>={$now} or task_expire_at=0)",
 		];
 		$q[2] .= " and (min=-1 or min=$min)";
 		$q[2] .= " and (hour=-1 or hour=$hour)";
@@ -124,6 +133,7 @@ class timer_model extends base_model {
 	 */
 	public function updateByRoundCron($oMatter) {
 		if (empty($oMatter->roundCron)) {
+			/* 更新所有和轮次规则关联的定时任务 */
 			$this->update(
 				$this->table(),
 				['enabled' => 'N', 'offset_matter_id' => ''],

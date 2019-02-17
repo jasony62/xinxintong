@@ -14,12 +14,24 @@
                 </div>
             </div>
         </div>
-        <div class='form-group'>
+        <div class='form-group' ng-if="!multiple">
             <label class="col-md-3 control-label">目标分组</label>
             <div class="col-md-9">
-                <select class="form-control" ng-model="data.round" ng-options="rnd.title for rnd in rounds">
+                <select class="form-control" ng-model="data.team" ng-options="team.title for team in teams">
                     <option>全部分组</option>
                 </select>
+            </div>
+        </div>
+        <div class='form-group' ng-if="multiple">
+            <label class="col-md-3 control-label">目标分组</label>
+            <div class="col-md-9" ng-if="teams.length">
+                <div tms-array-checkbox model="data.teams">
+                    <div class='checkbox' ng-repeat="team in teams">
+                        <label class='checkbox-inline'>
+                            <input type='checkbox' value='{{::team.team_id}}'><span>{{::team.title}}</span>
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
     </form>

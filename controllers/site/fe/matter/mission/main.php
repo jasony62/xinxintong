@@ -105,7 +105,7 @@ class main extends \site\fe\matter\base {
 		$mattersByMis = $modelMisMat->byMission($oMission->id, null, ['is_public' => 'Y', 'byTime' => 'running']);
 		if (count($mattersByMis)) {
 			foreach ($mattersByMis as $oMatter) {
-				if (!in_array($oMatter->type, ['enroll', 'signin', 'plan', 'article', 'memberschema'])) {
+				if (!in_array($oMatter->type, ['enroll', 'signin', 'group', 'plan', 'article', 'memberschema'])) {
 					continue;
 				}
 				if (isset($oGrpLeader)) {
@@ -117,19 +117,20 @@ class main extends \site\fe\matter\base {
 						continue;
 					}
 				}
-				if ($oMatter->type === 'enroll') {
+				switch ($oMatter->type) {
+				case 'enroll':
 					/* 用户身份是否匹配活动进入规则 */
 					if ($this->getDeepValue($oMatter->entryRule, 'scope.group') === 'Y') {
 						$bMatched = false;
 						$oEntryRule = $oMatter->entryRule;
 						if (isset($oEntryRule->group->id)) {
 							$oGroupApp = $oEntryRule->group;
-							$oGroupUsr = $this->model('matter\group\record')->byUser($oGroupApp, $oUser->uid, ['fields' => 'team_id,team_title,role_teams', 'onlyOne' => true]);
-							if ($oGroupUsr) {
+							$oGrpMem = $this->model('matter\group\record')->byUser($oGroupApp, $oUser->uid, ['fields' => 'team_id,team_title,role_teams', 'onlyOne' => true]);
+							if ($oGrpMem) {
 								if (isset($oGroupApp->team->id)) {
-									if ($oGroupUsr->team_id === $oGroupApp->team->id) {
+									if ($oGrpMem->team_id === $oGroupApp->team->id) {
 										$bMatched = true;
-									} else if (count($oGroupUsr->role_teams) && in_array($oGroupApp->team->id, $oGroupUsr->role_teams)) {
+									} else if (count($oGrpMem->role_teams) && in_array($oGroupApp->team->id, $oGrpMem->role_teams)) {
 										$bMatched = true;
 									}
 								} else {
@@ -154,13 +155,15 @@ class main extends \site\fe\matter\base {
 					unset($oUserData->id);
 
 					$oMatter->user = $oUserData;
-				} else if ($oMatter->type === 'signin') {
+					break;
+				case 'signin':
 					if (!isset($modelSigRec)) {
 						$modelSigRec = $this->model('matter\signin\record');
 					}
 					$oApp = new \stdClass;
 					$oApp->id = $oMatter->id;
 					$oMatter->record = $modelSigRec->byUser($oUser, $oApp);
+					break;
 				}
 
 				/* 清理不必要的数据 */

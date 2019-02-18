@@ -96,7 +96,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
             }
             for (var i = 0, ii = oNew.length; i < ii; i++) {
                 if (i < oOld.length) {
-                    _fnMerge(oOld[i], oNew[i]);
+                    _fnMerge(oOld[i], oNew[i], aExcludeProps);
                 } else {
                     oOld.push(oNew[i]);
                 }
@@ -110,7 +110,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
                     delete oOld[prop];
                 } else {
                     if (angular.isObject(oNew[prop]) && angular.isObject(oOld[prop])) {
-                        _fnMerge(oOld[prop], oNew[prop]);
+                        _fnMerge(oOld[prop], oNew[prop], aExcludeProps);
                     } else {
                         oOld[prop] = oNew[prop];
                     }

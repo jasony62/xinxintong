@@ -45,7 +45,7 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
             });
             tmsSnsShare.set(oApp.title, sharelink, message, oApp.pic);
         }
-        if (/MicroMessenger|Yixin/i.test(navigator.userAgent)) {
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
             if (!window.WeixinJSBridge || !WeixinJSBridge.invoke) {
                 document.addEventListener('WeixinJSBridgeReady', fnReadySnsShare, false);
             } else {

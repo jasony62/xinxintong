@@ -34,8 +34,17 @@ class timer extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
+		$aOptions = ['model' => $model];
+
+		$oPosted = $this->getPostJson();
+		if ($oPosted) {
+			if (isset($oPosted->taskArguments)) {
+				$aOptions['taskArguments'] = $oPosted->taskArguments;
+			}
+		}
+
 		$modelTim = $this->model('matter\timer');
-		$tasks = $modelTim->byMatter($type, $id, ['model' => $model]);
+		$tasks = $modelTim->byMatter($type, $id, $aOptions);
 
 		return new \ResponseData($tasks);
 	}
@@ -71,23 +80,27 @@ class timer extends \pl\fe\base {
 
 		if (isset($oConfig->timer)) {
 			isset($oConfig->timer->offset_matter_type) && $oNewTimer->offset_matter_type = $oConfig->timer->offset_matter_type;
+			isset($oConfig->timer->offset_matter_id) && $oNewTimer->offset_matter_id = $oConfig->timer->offset_matter_id;
+			$oNewTimer->offset_mode = isset($oConfig->timer->offset_mode) ? $oConfig->timer->offset_mode : 'AS';
+			$oNewTimer->offset_hour = isset($oConfig->timer->offset_hour) ? $oConfig->timer->offset_hour : 0;
+			$oNewTimer->offset_min = isset($oConfig->timer->offset_min) ? $oConfig->timer->offset_min : 0;
 			isset($oConfig->timer->min) && $oNewTimer->min = $oConfig->timer->min;
 			isset($oConfig->timer->hour) && $oNewTimer->hour = $oConfig->timer->hour;
 			isset($oConfig->timer->mday) && $oNewTimer->mday = $oConfig->timer->mday;
 			isset($oConfig->timer->mon) && $oNewTimer->mon = $oConfig->timer->mon;
 			isset($oConfig->timer->wday) && $oNewTimer->wday = $oConfig->timer->wday;
-			$oNewTimer->wday = isset($oConfig->timer->wday) ? $oConfig->timer->wday : 'Y';
+			$oNewTimer->enabled = isset($oConfig->timer->enabled) ? $oConfig->timer->enabled : 'N';
 		} else {
 			$oNewTimer->pattern = 'W';
 			$oNewTimer->mday = $oNewTimer->mon = $oNewTimer->wday = -1;
 			$oNewTimer->min = 0;
 			$oNewTimer->hour = 8;
-			$oNewTimer->notweekend = 'Y';
 			$oNewTimer->offset_matter_type = 'N'; // 固定时间，没有参照对象
 			$oNewTimer->offset_mode = 'AS';
 			$oNewTimer->offset_hour = 0;
 			$oNewTimer->offset_min = 0;
 		}
+		$oNewTimer->notweekend = 'Y';
 
 		$oNewTimer->id = $modelTim->insert('xxt_timer_task', $oNewTimer, true);
 		if (!empty($oNewTimer->task_arguments)) {
@@ -116,10 +129,10 @@ class timer extends \pl\fe\base {
 		if (empty($oNewUpdate->offset_matter_type) || !in_array($oNewUpdate->offset_matter_type, ['N', 'RC'])) {
 			return new \ParameterError('没有指定定时任务的相对时间模式');
 		}
-		if (empty($oNewUpdate->pattern)) {
+		if ($oNewUpdate->offset_matter_type === 'N' && empty($oNewUpdate->pattern)) {
 			return new \ParameterError('没有指定定时任务时间周期');
 		}
-		if (empty($oNewUpdate->task_expire_at)) {
+		if ($oNewUpdate->offset_matter_type === 'N' && empty($oNewUpdate->task_expire_at)) {
 			return new \ParameterError('没有指定定时任务的【终止时间】');
 		}
 

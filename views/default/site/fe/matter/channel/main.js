@@ -135,7 +135,7 @@ angular.module('app', ['ui.bootstrap', 'infinite-scroll', 'page.ui.xxt', 'snssha
             $scope.user = rsp.data.user;
             $scope.channel = rsp.data.channel;
             $scope.qrcode = '/rest/site/fe/matter/channel/qrcode?site=' + siteId + '&url=' + encodeURIComponent(location.href);
-            if (/MicroMessenge|Yixin/i.test(navigator.userAgent)) {
+            if (/MicroMessenge/i.test(navigator.userAgent)) {
                 setShare();
             }
             deferred.resolve();

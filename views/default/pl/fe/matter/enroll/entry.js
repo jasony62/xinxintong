@@ -76,7 +76,7 @@ define(['frame', 'groupService'], function(ngApp) {
     /**
      * 任务提醒
      */
-    ngApp.provider.controller('ctrlTaskRemind', ['$scope', '$parse', '$q', 'srvEnrollApp', 'tkGroupApp', function($scope, $parse, $q, srvEnlApp, tkGroupApp) {
+    ngApp.provider.controller('ctrlTaskRemind', ['$scope', '$parse', '$q', 'srvEnrollApp', 'tkGroupApp', function($scope, $parse, $q, srvEnlApp, tkGrpApp) {
         function fnGetEntryRuleMschema() {
             var oAppEntryRule = $scope.app.entryRule;
             if (oAppEntryRule.scope && oAppEntryRule.scope.member === 'Y') {
@@ -115,12 +115,16 @@ define(['frame', 'groupService'], function(ngApp) {
             return defer.promise;
         });
         $scope.assignGroup = function(oTimer) {
-            tkGroupApp.choose($scope.app).then(function(oResult) {
+            tkGrpApp.choose($scope.app, true).then(function(oResult) {
                 var oGrpApp;
                 if (oResult.app) {
                     oGrpApp = { id: oResult.app.id, title: oResult.app.title };
-                    if (oResult.round) {
-                        oGrpApp.round = { id: oResult.round.team_id, title: oResult.round.title };
+                    if (oResult.teams && oResult.teams.length) {
+                        oGrpApp.teams = { id: [], title: [] };
+                        oResult.teams.forEach(function(oTeam) {
+                            oGrpApp.teams.id.push(oTeam.team_id);
+                            oGrpApp.teams.title.push(oTeam.title);
+                        });
                     }
                     $parse('_temp.group').assign(oTimer, oGrpApp);
                     oTimer.modified = true;
@@ -129,18 +133,20 @@ define(['frame', 'groupService'], function(ngApp) {
         };
         $scope.defaultReceiver = function(oTimer) {
             var oRule = $parse('task.task_arguments.receiver')(oTimer);
-            switch (oRule.scope) {
-                case 'mschema':
-                    var oMschema;
-                    if (oMschema = fnGetEntryRuleMschema()) {
-                        $parse('_temp.mschema').assign(oTimer, { title: oMschema.title, auto: true });
-                    }
-                    break;
-                case 'group':
-                    if (!oRule.app && $scope.app.entryRule.group) {
-                        $parse('_temp.group').assign(oTimer, { id: $scope.app.entryRule.group.id, title: $scope.app.entryRule.group.title, auto: true });
-                    }
-                    break;
+            if (oRule && oRule.scope) {
+                switch (oRule.scope) {
+                    case 'mschema':
+                        var oMschema;
+                        if (oMschema = fnGetEntryRuleMschema()) {
+                            $parse('_temp.mschema').assign(oTimer, { title: oMschema.title, auto: true });
+                        }
+                        break;
+                    case 'group':
+                        if (!oRule.app && $scope.app.entryRule.group) {
+                            $parse('_temp.group').assign(oTimer, { id: $scope.app.entryRule.group.id, title: $scope.app.entryRule.group.title, auto: true });
+                        }
+                        break;
+                }
             }
         };
         srvEnlApp.get().then(function(oApp) {
@@ -157,14 +163,18 @@ define(['frame', 'groupService'], function(ngApp) {
     /**
      * 任务提醒
      */
-    ngApp.provider.controller('ctrlUndoneRemind', ['$scope', '$parse', 'srvEnrollApp', 'tkGroupApp', function($scope, $parse, srvEnlApp, tkGroupApp) {
+    ngApp.provider.controller('ctrlUndoneRemind', ['$scope', '$parse', 'srvEnrollApp', 'tkGroupApp', function($scope, $parse, srvEnlApp, tkGrpApp) {
         $scope.assignGroup = function(oTimer) {
-            tkGroupApp.choose($scope.app).then(function(oResult) {
+            tkGrpApp.choose($scope.app, true).then(function(oResult) {
                 var oGrpApp;
                 if (oResult.app) {
                     oGrpApp = { id: oResult.app.id, title: oResult.app.title };
-                    if (oResult.round) {
-                        oGrpApp.round = { id: oResult.round.team_id, title: oResult.round.title };
+                    if (oResult.teams && oResult.teams.length) {
+                        oGrpApp.teams = { id: [], title: [] };
+                        oResult.teams.forEach(function(oTeam) {
+                            oGrpApp.teams.id.push(oTeam.team_id);
+                            oGrpApp.teams.title.push(oTeam.title);
+                        });
                     }
                     $parse('task.task_arguments.receiver.group').assign(oTimer, oGrpApp);
                     oTimer.modified = true;
@@ -180,7 +190,7 @@ define(['frame', 'groupService'], function(ngApp) {
     /**
      * 事件提醒
      */
-    ngApp.provider.controller('ctrlEventRemind', ['$scope', '$parse', 'http2', '$timeout', 'srvEnrollApp', 'tkGroupApp', 'tkEnrollApp', function($scope, $parse, http2, $timeout, srvEnlApp, tkGroupApp, tkEnrollApp) {
+    ngApp.provider.controller('ctrlEventRemind', ['$scope', '$parse', 'http2', '$timeout', 'srvEnrollApp', 'tkGroupApp', 'tkEnrollApp', function($scope, $parse, http2, $timeout, srvEnlApp, tkGrpApp, tkEnrollApp) {
         var _oConfig;
         $scope.modified = false;
         $scope.config = null;
@@ -196,7 +206,7 @@ define(['frame', 'groupService'], function(ngApp) {
             }
         };
         $scope.assignGroup = function(oRule) {
-            tkGroupApp.choose($scope.app).then(function(oResult) {
+            tkGrpApp.choose($scope.app).then(function(oResult) {
                 var oGrpApp;
                 if (oResult.app) {
                     oGrpApp = { id: oResult.app.id, title: oResult.app.title };

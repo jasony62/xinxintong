@@ -113,7 +113,7 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt', 'snsshare.
                         $scope.link.fullUrl = $scope.link.fullUrl + 'inviteToken=' + invite_token;
                     }
                 }
-                if (/MicroMessenge|Yixin/i.test(navigator.userAgent)) {
+                if (/MicroMessenge/i.test(navigator.userAgent)) {
                     setShare();
                 }
                 document.querySelector('#link>iframe').setAttribute('src', $scope.link.fullUrl);

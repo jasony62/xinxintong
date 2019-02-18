@@ -11,7 +11,7 @@ class task_model extends \TMS_MODEL {
 	/**
 	 * 任务类型的中文名称
 	 */
-	const TypeNameZh = ['question' => '提问', 'answer' => '回答', 'vote' => '投票', 'score' => '打分'];
+	const TypeNameZh = ['baseline' => '目标', 'question' => '提问', 'answer' => '回答', 'vote' => '投票', 'score' => '打分'];
 
 	public function __construct($oApp = null) {
 		$this->_oApp = $oApp;
@@ -21,6 +21,26 @@ class task_model extends \TMS_MODEL {
 	 */
 	protected function table() {
 		return 'xxt_enroll_task';
+	}
+	/**
+	 * 去掉无效的内容
+	 * offset.matter.id
+	 * offset.matter.type RC round_cron
+	 */
+	private function _purifyTime(&$oTime) {
+		foreach ($oTime as $prop => $val) {
+			if (!in_array($prop, ['offset'])) {
+				unset($oTime->{$prop});
+			}
+			switch ($prop) {
+			case 'offset':
+				if (empty($oTime->offset->matter->id) || $this->getDeepValue($oTime, 'offset.matter.type') !== 'RC') {
+					return false;
+				}
+				break;
+			}
+		}
+		return $oTime;
 	}
 	/**
 	 * 去掉无效的内容
@@ -61,12 +81,22 @@ class task_model extends \TMS_MODEL {
 	 * 去掉无效的内容
 	 */
 	public function purifyQuestion($oConfig) {
-		$validProps = ['id', 'start', 'end', 'role', 'limit', 'enabled'];
+		$validProps = ['id', 'time', 'start', 'end', 'role', 'limit', 'enabled'];
 		foreach ($oConfig as $prop => $val) {
 			if (!in_array($prop, $validProps)) {
 				unset($oConfig->{$prop});
 			}
 			switch ($prop) {
+			case 'time':
+				if (is_object($val)) {
+					if (false === $this->_purifyTime($val)) {
+						unset($oConfig->time);
+					}
+				} else {
+					unset($oConfig->time);
+				}
+				break;
+				break;
 			case 'limit':
 				if (is_object($val)) {
 					$this->_purifyLimit($val);
@@ -245,9 +275,11 @@ class task_model extends \TMS_MODEL {
 			if ($this->getDeepValue($oQuestionConfig, 'enabled') !== 'Y') {
 				continue;
 			}
-			if (!empty($oQuestionConfig->role->groups)) {
-				if (empty($oUser->group_id) || !in_array($oUser->group_id, $oQuestionConfig->role->groups)) {
-					continue;
+			if ($oUser !== false) {
+				if (!empty($oQuestionConfig->role->groups)) {
+					if (empty($oUser->group_id) || !in_array($oUser->group_id, $oQuestionConfig->role->groups)) {
+						continue;
+					}
 				}
 			}
 			$aValid = $this->getRuleStateByRound($oQuestionConfig, $oRound);

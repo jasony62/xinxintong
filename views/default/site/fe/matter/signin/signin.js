@@ -107,16 +107,6 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
                         return;
                     }
                 }
-                if (window.YixinJSBridge) {
-                    if (from === undefined) {
-                        $scope.cachedImgFieldName = imgFieldName;
-                        openPickFrom($scope);
-                        return;
-                    }
-                    imgFieldName = $scope.cachedImgFieldName;
-                    $scope.cachedImgFieldName = null;
-                    angular.element('#pickImageFrom').remove();
-                }
                 window.xxt.image.choose($q.defer(), from).then(function(imgs) {
                     var phase, i, j, img;
                     phase = $scope.$root.$$phase;
@@ -130,9 +120,7 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
                     $timeout(function() {
                         for (i = 0, j = imgs.length; i < j; i++) {
                             img = imgs[i];
-                            //if (window.wx !== undefined) {
                             document.querySelector('ul[name="' + imgFieldName + '"] li:nth-last-child(2) img').setAttribute('src', img.imgSrc);
-                            //}
                         }
                         $scope.$broadcast('xxt.signin.image.choose.done', imgFieldName);
                     });

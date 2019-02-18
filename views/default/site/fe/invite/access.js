@@ -26,7 +26,7 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsSnsShare', function($scope,
             var oInvite = rsp.data;
             $scope.invite = oInvite;
             /* 设置分享 */
-            if (/MicroMessenger|Yixin/i.test(navigator.userAgent)) {
+            if (/MicroMessenger/i.test(navigator.userAgent)) {
                 var shareid, sharelink, shareby;
                 shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
                 shareid = $scope.loginUser.uid + '_' + (new Date() * 1);

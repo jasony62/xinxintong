@@ -18,28 +18,28 @@ ngApp.controller('ctrlMain', ['$scope', '$parse', 'tmsLocation', 'http2', functi
             var mattersByTime, orderedTimes;
             mattersByTime = {};
             orderedTimes = [];
-            rsp.data.forEach(function(matter) {
-                if (matter.start_at > 0) {
-                    if (!mattersByTime[matter.start_at]) {
-                        orderedTimes.push(matter.start_at);
-                        mattersByTime[matter.start_at] = [matter];
+            rsp.data.forEach(function(oMatter) {
+                if (oMatter.start_at > 0) {
+                    if (!mattersByTime[oMatter.start_at]) {
+                        orderedTimes.push(oMatter.start_at);
+                        mattersByTime[oMatter.start_at] = [oMatter];
                     } else {
-                        mattersByTime[matter.start_at].push(matter);
+                        mattersByTime[oMatter.start_at].push(oMatter);
                     }
                 } else {
-                    mattersByTime['0'] ? mattersByTime['0'].push(matter) : mattersByTime['0'] = [matter];
+                    mattersByTime['0'] ? mattersByTime['0'].push(oMatter) : mattersByTime['0'] = [oMatter];
                 }
-                if (matter.type === 'enroll') {
+                if (oMatter.type === 'enroll') {
                     var oIndicator = { state: 'running' };
-                    if (/quiz|score_sheet/.test(matter)) {
+                    if (/quiz|score_sheet/.test(oMatter.scenario)) {
                         oIndicator.score = true;
                     }
                     /* 时间状态 */
-                    if (matter.start_at * 1000 > (new Date * 1)) {
+                    if (oMatter.start_at * 1000 > (new Date * 1)) {
                         oIndicator.state = 'pending';
                     } else {
-                        if (matter.end_at > 0) {
-                            if (matter.end_at * 1000 > (new Date * 1)) {
+                        if (oMatter.end_at > 0) {
+                            if (oMatter.end_at * 1000 > (new Date * 1)) {
                                 oIndicator.end = 'R';
                             } else {
                                 oIndicator.end = 'E';
@@ -47,11 +47,11 @@ ngApp.controller('ctrlMain', ['$scope', '$parse', 'tmsLocation', 'http2', functi
                             }
                         }
                     }
-                    matter.indicator = oIndicator;
-                } else if (matter.type === 'signin') {
-                    if (matter.record.signin_log) {
-                        matter.rounds.forEach(function(round) {
-                            var record = matter.record,
+                    oMatter.indicator = oIndicator;
+                } else if (oMatter.type === 'signin') {
+                    if (oMatter.record.signin_log) {
+                        oMatter.rounds.forEach(function(round) {
+                            var record = oMatter.record,
                                 signinLog = record.signin_log;
                             record._signinLate = {};
                             if (signinLog && signinLog[round.rid]) {
@@ -74,13 +74,12 @@ ngApp.controller('ctrlMain', ['$scope', '$parse', 'tmsLocation', 'http2', functi
     $scope.siteUser = function() {
         var url;
         url = location.protocol + '//' + location.host;
-        url += '/rest/site/fe/user';
-        url += "?site=" + LS.s().site;
+        url += '/rest/site/fe/user?' + LS.s('site');
         location.href = url;
     };
-    $scope.gotoMatter = function(matter) {
-        if (matter.entryUrl) {
-            location.href = matter.entryUrl;
+    $scope.gotoMatter = function(oMatter) {
+        if (oMatter.entryUrl) {
+            location.href = oMatter.entryUrl;
         }
     };
     $scope.shiftGroupUser = function(oGrpUser) {
@@ -99,7 +98,7 @@ ngApp.controller('ctrlMain', ['$scope', '$parse', 'tmsLocation', 'http2', functi
                 $scope.groupUsers = groupUsers;
                 _oCriteria.groupUser = groupUsers[0];
             }
-            http2.post('/rest/site/fe/matter/logAccess?site=' + LS.s().site, {
+            http2.post('/rest/site/fe/matter/logAccess?' + LS.s('site'), {
                 id: LS.s().mission,
                 type: 'mission',
                 title: _oMission.title,

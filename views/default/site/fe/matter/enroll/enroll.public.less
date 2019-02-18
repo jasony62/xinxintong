@@ -85,7 +85,7 @@ body.enroll-repos {
                     display: flex;
                     flex-direction: column;
 
-                    #repos {
+                    #repos, #topic {
                         flex-grow: 1;
                         display: flex;
                         flex-direction: column;
@@ -286,7 +286,10 @@ body.enroll-repos {
                     }
 
                     li.active {
-                        a, a:focus, a:hover {
+
+                        a,
+                        a:focus,
+                        a:hover {
                             color: #ff8018;
                             background-color: #fff;
                         }
@@ -310,7 +313,9 @@ body.enroll-repos {
                             border-top-right-radius: 0;
                         }
 
-                        &.active, &.active:focus, &.active:hover {
+                        &.active,
+                        &.active:focus,
+                        &.active:hover {
                             color: #ff8018;
                             background-color: #fff;
                             border-color: #fff;
@@ -351,7 +356,8 @@ body.enroll-repos {
         line-height: 40px;
     }
 
-    a:focus, a:hover {
+    a:focus,
+    a:hover {
         text-decoration: none;
     }
 
@@ -381,18 +387,25 @@ body.enroll-repos {
 
 }
 
-.record, .topic {
+.topic {
     background: #fff;
     border-bottom: 1px solid #ddd;
     padding: 8px 16px;
+    cursor: pointer;
 }
 
 .record {
+    background: #fff;
+    border-bottom: 1px solid #ddd;
+    padding: 8px 16px;
+
     &>* {
         margin: 8px 0;
     }
 
     .data {
+        cursor: pointer;
+
         .dir {
             padding-top: 8px;
             padding-bottom: 8px;
@@ -585,13 +598,17 @@ body.enroll-repos {
 
     }
 
-    .navbar-btn {
-        margin: 0;
+    &.small {
+        .navbar-btn {
+            margin: 0;
+        }
     }
 
 }
 
-#record, #cowork, #remarks {
+#record,
+#cowork,
+#remarks {
     padding: 16px;
     background: #fff;
 }
@@ -615,7 +632,8 @@ body.enroll-repos {
         margin-top: 8px;
     }
 
-    .tags, .assocs {
+    .tags,
+    .assocs {
         margin-top: 8px;
     }
 
@@ -800,7 +818,10 @@ body.enroll-repos {
 
                 }
 
-                .item-2, .item-3, .item-4, .item-5 {
+                .item-2,
+                .item-3,
+                .item-4,
+                .item-5 {
                     margin-left: 1em;
                 }
 
@@ -811,7 +832,10 @@ body.enroll-repos {
     }
 
     .app {
-        .main.col-xs-12, .tags.col-xs-12, .topics.col-xs-12 {
+
+        .main.col-xs-12,
+        .tags.col-xs-12,
+        .topics.col-xs-12 {
             padding: 0;
         }
 
@@ -821,7 +845,8 @@ body.enroll-repos {
         margin-left: -1px;
         margin-right: -1px;
 
-        .form-control, .input-group-btn .btn {
+        .form-control,
+        .input-group-btn .btn {
             border-radius: 0;
         }
 

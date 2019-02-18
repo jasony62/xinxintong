@@ -49,7 +49,7 @@ angular.module('xxt', []).config(['$locationProvider', function($locationProvide
             } else {
                 $scope.user = rsp.data.user;
                 $scope.news = news;
-                if (/MicroMessenge|Yixin/i.test(navigator.userAgent)) {
+                if (/MicroMessenge/i.test(navigator.userAgent)) {
                     setShare();
                 }
                 deferred.resolve();

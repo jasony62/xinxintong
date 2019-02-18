@@ -1039,7 +1039,7 @@ class schema_model extends \TMS_MODEL {
 		if (empty($schemas) || empty($groupAppId)) {
 			return [];
 		}
-		$aAssocSchemas = array_filter($schemas, function ($oSchema) {
+		$aAssocSchemas = array_filter($schemas, function ($oSchema) use ($groupAppId) {
 			if ($this->getDeepValue($oSchema, 'requireCheck') === 'Y') {
 				if ($this->getDeepValue($oSchema, 'fromApp') === $groupAppId) {
 					return true;

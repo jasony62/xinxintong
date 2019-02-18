@@ -1048,7 +1048,7 @@ class schema_model extends \TMS_MODEL {
 			return false;
 		});
 
-		return $aAssocGrpSchemas;
+		return $aAssocSchemas;
 	}
 	/**
 	 * 获得活动的所有题目，包含关联活动中的题目

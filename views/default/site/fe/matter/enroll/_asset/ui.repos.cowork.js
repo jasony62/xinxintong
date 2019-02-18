@@ -9,7 +9,8 @@ ngMod.directive('tmsReposCowork', ['$templateCache', function($templateCache) {
         template: require('./repos-cowork-schema.html'),
         scope: {
             schemas: '=',
-            rec: '=record'
+            rec: '=record',
+            schemaCounter: '='
         },
         controller: ['$scope', '$sce', '$location', 'tmsLocation', 'http2', 'noticebox', 'tmsSchema', function($scope, $sce, $location, LS, http2, noticebox, tmsSchema) {
             $scope.open = function(file) {
@@ -27,6 +28,7 @@ ngMod.directive('tmsReposCowork', ['$templateCache', function($templateCache) {
             }
             $scope.$watch('rec', function(oRecord) {
                 if (!oRecord) { return; }
+                console.log($scope.schemaCounter);
                 $scope.$watch('schemas', function(schemas) {
                     if (!schemas) { return; }
                     var oSchema, schemaData;

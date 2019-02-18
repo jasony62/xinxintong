@@ -9,7 +9,8 @@ ngMod.directive('tmsReposRecord', ['$templateCache', function($templateCache) {
         template: require('./repos-record-schema.html'),
         scope: {
             schemas: '=',
-            rec: '=record'
+            rec: '=record',
+            schemaCounter: '='
         },
         controller: ['$scope', '$sce', '$location', 'tmsLocation', 'http2', 'noticebox', 'tmsSchema', function($scope, $sce, $location, LS, http2, noticebox, tmsSchema) {
             $scope.open = function(file) {

@@ -27,7 +27,7 @@
                     </div>
                 </div>
                 <div class='data' ng-click="remarkRecord(rec, $event)">
-                    <div tms-repos-cowork schemas="schemas" record="rec"></div>
+                    <div tms-repos-cowork schemas="schemas" record="rec" schema-counter="schemaCounter"></div>
                     <div class='assocs' ng-if="rec.oAssocs.length">
                         <div ng-repeat="assoc in rec.oAssocs" ng-if="assoc.entityB" class='tms-flex-row small'>
                             <div ng-if="assoc.assoc_reason" class='assoc-reason'><span ng-bind="assoc.assoc_reason"></span></div>

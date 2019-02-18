@@ -27,7 +27,7 @@
                     </div>
                 </div>
                 <div class='data' ng-click="remarkRecord(rec, $event)">
-                    <div tms-repos-record schemas="schemas" record="rec"></div>
+                    <div tms-repos-record schemas="schemas" record="rec" schema-counter="schemaCounter"></div>
                 </div>
                 <div class='bottom-bar'>
                     <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>

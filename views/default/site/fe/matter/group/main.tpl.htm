@@ -22,12 +22,32 @@
     <div class='container'>
         <div class="row">
             <div class='col-md-12'>
-                <div class='list-group'>
-                    <div class='list-group-item' ng-click="gotoTeam(team)" ng-repeat="team in teams">
-                        {{::team.title}}
+                <div class='panel panel-default'>
+                    <div class='panel-body'>
+                        <div class='form-group'>
+                            <div ng-bind="app.title"></div>
+                        </div>
+                        <div class='form-group' ng-if="app.pic">
+                            <div class='app-pic'>
+                                <div class='img-thumbnail' ng-style="{'background-image':'url('+matter.pic+')'}"></div>
+                            </div>
+                        </div>
+                        <div ng-if="app.summary">
+                            <div class='text-muted' ng-bind="app.summary"></div>
+                        </div>
                     </div>
                 </div>
-                <button class='btn btn-default' ng-click="createTeam()">组建团队</button>
+                <div class="panel panel-default">
+                    <div class="panel-heading">已有团队</div>
+                    <div class="panel-body">
+                        <div class='list-group'>
+                            <div class='list-group-item' ng-click="gotoTeam(team)" ng-repeat="team in teams">
+                                {{::team.title}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class='btn btn-default' ng-click="createTeam()"><span class='glyphicon glyphicon-plus'></span> 组建团队</button>
             </div>
         </div>
     </div>

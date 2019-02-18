@@ -129,14 +129,42 @@ class remind_model extends \TMS_MODEL {
 		/* 获得活动的进入链接 */
 		$noticeURL = $oMatter->entryUrl;
 		$noticeURL .= '&origin=timer';
+		/* 进入的活动页面 */
 		if (!empty($oArguments->page)) {
 			$noticeURL .= '&page=' . $oArguments->page;
 			$aPageNames = ['repos' => '共享页', 'rank' => '排行榜', 'event' => '动态页', 'stat' => '统计页'];
 			if (isset($aPageNames[$oArguments->page])) {
 				$oTmplTimerTaskParams->page = $aPageNames[$oArguments->page];
 			}
+		} else if (!empty($oArguments->taskConfig->id) && !empty($oArguments->taskConfig->type)) {
+			/* 进入任务的专题页 */
+			$modelTsk = $this->model('matter\enroll\task', $oMatter);
+			$rules = $modelTsk->getRule($oArguments->taskConfig->type, false);
+			if (!empty($rules)) {
+				$oRule = tms_array_search($rules, function ($oRule) use ($oArguments) {
+					return $oRule->id === $oArguments->taskConfig->id && $oRule->state === 'IP';
+				});
+				if ($oRule) {
+					$oTask = $modelTsk->byRule($oRule, ['createIfNone' => true]);
+					if ($oTask) {
+						tms_object_merge($oTask, $oRule, ['type', 'state', 'limit', 'groups', 'schemas']);
+						$modelTop = $this->model('matter\enroll\topic', $oMatter);
+						$oTopic = $modelTop->byTask($oTask, ['createIfNone' => true]);
+					}
+				}
+			}
+			if (in_array($oArguments->taskConfig->type, ['question', 'vote', 'answer', 'score'])) {
+				if (empty($oTopic)) {
+					return [false, '指定的任务专题(' . $oArguments->taskConfig->id . ')不可用'];
+				}
+				$noticeURL .= '&page=topic&topic=' . $oTopic->id;
+			} else if ($oArguments->taskConfig->type === 'baseline') {
+				if (empty($oTask)) {
+					return [false, '指定的任务(' . $oArguments->taskConfig->id . ')不可用'];
+				}
+				$noticeURL .= '&page=enroll&rid=' . $oTask->rid;
+			}
 		}
-
 		/* 通知接收人范围 */
 		$receiverScope = empty($oArguments->receiver->scope) ? 'enroll' : $oArguments->receiver->scope;
 
@@ -165,23 +193,39 @@ class remind_model extends \TMS_MODEL {
 			break;
 		case 'group':
 			if (isset($oArguments->receiver->app)) {
-				if (!empty($oArguments->receiver->app->id)) {
-					$oGrpApp = $this->model('matter\group')->byId($oArguments->receiver->app->id, ['fields' => 'title']);
+				$oRecvApp = $oArguments->receiver->app;
+				if (!empty($oRecvApp->id)) {
+					$oGrpApp = $this->model('matter\group')->byId($oRecvApp->id, ['fields' => 'title']);
 					if ($oGrpApp) {
-						if (empty($oArguments->receiver->app->team->id)) {
+						$modelGrpTeam = $this->model('matter\group\team');
+						if (isset($oRecvApp->team->id)) {
+							$oGrpAppTeam = $modelGrpTeam->byId($oRecvApp->team->id);
+							if ($oGrpAppTeam) {
+								$receivers = $this->model('matter\group\record')->byTeam($oGrpAppTeam->team_id, ['fields' => 'userid']);
+								$oTmplTimerTaskParams->receiver = $oGrpAppTeam->title;
+							}
+						} else if (isset($oRecvApp->teams->id)) {
+							if (is_array($oRecvApp->teams->id) && count($oRecvApp->teams->id)) {
+								$receivers = [];
+								$receiverTeams = [];
+								foreach ($oRecvApp->teams->id as $teamId) {
+									$oGrpAppTeam = $modelGrpTeam->byId($teamId);
+									if ($oGrpAppTeam) {
+										$teamReceivers = $this->model('matter\group\record')->byTeam($oGrpAppTeam->team_id, ['fields' => 'userid']);
+										$receivers = array_merge($receivers, $teamReceivers);
+										$receiverTeams[] = $oGrpAppTeam->title;
+									}
+								}
+								$oTmplTimerTaskParams->receiver = implode(',', $receiverTeams);
+							}
+						} else {
 							$q = [
 								'distinct userid',
 								'xxt_group_record',
-								['state' => 1, 'aid' => $oArguments->receiver->app->id],
+								['state' => 1, 'aid' => $oRecvApp->id],
 							];
-							$receivers = $modelEnl->query_objs_ss($q);
+							$receivers = $modelGrpTeam->query_objs_ss($q);
 							$oTmplTimerTaskParams->receiver = $oGrpApp->title;
-						} else {
-							$oGrpAppTeam = $this->model('matter\group\team')->byId($oArguments->receiver->app->team->id);
-							if ($oGrpAppTeam) {
-								$receivers = $this->model('matter\group\record')->byTeam($oArguments->receiver->app->team->id, ['fields' => 'userid']);
-								$oTmplTimerTaskParams->receiver = $oGrpAppTeam->title;
-							}
 						}
 					}
 				}

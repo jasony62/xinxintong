@@ -1039,7 +1039,7 @@ class schema_model extends \TMS_MODEL {
 		if (empty($schemas) || empty($groupAppId)) {
 			return [];
 		}
-		$aAssocSchemas = array_filter($schemas, function ($oSchema) {
+		$aAssocSchemas = array_filter($schemas, function ($oSchema) use ($groupAppId) {
 			if ($this->getDeepValue($oSchema, 'requireCheck') === 'Y') {
 				if ($this->getDeepValue($oSchema, 'fromApp') === $groupAppId) {
 					return true;
@@ -1048,7 +1048,7 @@ class schema_model extends \TMS_MODEL {
 			return false;
 		});
 
-		return $aAssocGrpSchemas;
+		return $aAssocSchemas;
 	}
 	/**
 	 * 获得活动的所有题目，包含关联活动中的题目

@@ -4,10 +4,6 @@ if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.
     window.wx.ready(function() {
         window.wx.showOptionMenu();
     });
-} else if (/YiXin/i.test(navigator.userAgent)) {
-    document.addEventListener('YixinJSBridgeReady', function() {
-        YixinJSBridge.call('showOptionMenu');
-    }, false);
 }
 
 require('./directive.css');
@@ -111,8 +107,6 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'tms
     $scope.closeWindow = function() {
         if (/MicroMessenger/i.test(navigator.userAgent)) {
             window.wx.closeWindow();
-        } else if (/YiXin/i.test(navigator.userAgent)) {
-            window.YixinJSBridge.call('closeWebView');
         }
     };
     $scope.addRecord = function(event, page) {

@@ -1,3 +1,14 @@
 <div class='col-md-12'>
-	<button class='btn btn-default' ng-click="submit()">完成设置</button>
+    <div class='form-group'>
+        <button class='btn btn-default' ng-click="gotoTeamHome()"><span class='glyphicon glyphicon-arrow-left'></span> 返回</button>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class='form-group'>
+                <label>团队名称</label>
+                <input type='text' class='form-control' ng-model="team.title" ng-change="update('title')">
+            </div>
+        </div>
+    </div>
+    <button class='btn' ng-class="modified?'btn-success':'btn-default'" ng-disabled="!modified" ng-click="submit()">完成设置</button>
 </div>

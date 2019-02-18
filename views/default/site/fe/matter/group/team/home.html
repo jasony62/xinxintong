@@ -1,25 +1,26 @@
 <div class='col-md-12'>
     <div class='form-group'>
-        <a href ng-click="gotoHome()">活动首页</a>
+        <button class='btn btn-default' ng-click="gotoHome()"><span class='glyphicon glyphicon-arrow-left'></span> 活动首页</button>
+        <button class='btn btn-default' ng-click="config()"><span class='glyphicon glyphicon-cog'></span> 团队设置</button>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class='form-group'>
+                <label ng-bind="::team.title"></label>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">已有成员</div>
+        <div class="panel-body">
+            <div class='list-group'>
+                <div class='list-group-item' ng-repeat="mem in members">
+                    <span ng-bind="::mem.nickname"></span><span ng-if="mem.is_leader==='Y'">（组长）</span><button ng-if="mem.is_leader==='N'" class='btn btn-default btn-xs pull-right' ng-click="quit(mem)">移出</button>
+                </div>
+            </div>
+        </div>
     </div>
     <div class='form-group'>
-        <label ng-bind="::team.title"></label>
-    </div>
-    <div class='form-group'>
-        <button class='btn btn-default' ng-click="config()">团队设置</button>
-    </div>
-    <div class='form-group'>
-        <button class='btn btn-default' ng-click="invite()">发起邀请</button>
-    </div>
-    <div class='list-group'>
-        <div class='list-group-item'>
-            成员1（组长）
-        </div>
-        <div class='list-group-item'>
-            成员2
-        </div>
-        <div class='list-group-item'>
-            成员3
-        </div>
+        <button class='btn btn-default' ng-click="invite()"><span class='glyphicon glyphicon-share-alt'></span> 发起邀请</button>
     </div>
 </div>

@@ -36,9 +36,7 @@
                             </div>
                             <hr>
                             <div class='form-inline'>
-                                <div class="checkbox">
-                                    <input type='checkbox' bs-switch switch-label-width="2em" switch-handle-width="2em" switch-on-text="启用" switch-off-text="停用" ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'">
-                                </div>
+                                <tms-toggle-switch ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'" on-label="启用" off-label="停用"></tms-toggle-switch>
                                 <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
                                 <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
                             </div>
@@ -66,6 +64,17 @@
                             </div>
                             <div class='form-group'>
                                 <div class='form-inline'>
+                                    <span>指定相对轮次生成规则</span>
+                                    <div class='form-group'>
+                                        <div class='pl-input-group'>
+                                            <div class='form-control pl-line' ng-bind="config.time.surface.offset.matter.name"></div>
+                                            <button class='btn btn-default' ng-click="setTimeOffsetRoundCron(config)"><i class='glyphicon glyphicon-edit'></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <div class='form-inline'>
                                     <span>提问开始时间</span>
                                     <select class='form-control' ng-model="config.start.time.mode">
                                         <option value=''>不设置</option>>
@@ -76,6 +85,8 @@
                                         <option value='hour'>小时</option>
                                     </select>
                                     <input type='text' class='form-control' ng-model="config.start.time.value" placeholder="输入需要的时间">
+                                    <button ng-if="!configTimers[config.id].start" class='btn btn-default' ng-click="addTimer(config,'start')">添加任务定时提醒</button>
+                                    <button ng-if="configTimers[config.id].start" class='btn btn-default' ng-click="delTimer(config,'start')">删除任务定时提醒</button>
                                 </div>
                             </div>
                             <div class='form-group'>
@@ -90,12 +101,14 @@
                                         <option value='hour'>小时</option>
                                     </select>
                                     <input type='text' class='form-control' ng-model="config.end.time.value" placeholder="输入需要的时间">
+                                    <button ng-if="!configTimers[config.id].end" class='btn btn-default' ng-click="addTimer(config,'end')">添加任务定时提醒</button>
+                                    <button ng-if="configTimers[config.id].end" class='btn btn-default' ng-click="delTimer(config,'end')">删除任务定时提醒</button>
                                 </div>
                             </div>
                             <div class='form-group'>
                                 <span>执行任务的用户</span>
                                 <div tms-array-checkbox model="config.role.groups">
-                                    <div class='checkbox' ng-repeat="group in app.groups">
+                                    <div class='checkbox' ng-repeat="group in app.groupApp.teams">
                                         <label class='checkbox-inline'>
                                             <input type='checkbox' value='{{::group.team_id}}'><span>{{::group.title}}</span>
                                         </label>
@@ -104,9 +117,7 @@
                             </div>
                             <hr>
                             <div class='form-inline'>
-                                <div class="checkbox">
-                                    <input type='checkbox' bs-switch switch-label-width="2em" switch-handle-width="2em" switch-on-text="启用" switch-off-text="停用" ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'">
-                                </div>
+                                <tms-toggle-switch ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'" on-label="启用" off-label="停用"></tms-toggle-switch>
                                 <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
                                 <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
                             </div>
@@ -216,7 +227,7 @@
                             <div class='form-group'>
                                 <span>执行任务的用户</span>
                                 <div tms-array-checkbox model="config.role.groups">
-                                    <div class='checkbox' ng-repeat="group in app.groups">
+                                    <div class='checkbox' ng-repeat="group in app.groupApp.teams">
                                         <label class='checkbox-inline'>
                                             <input type='checkbox' value='{{::group.team_id}}'><span>{{::group.title}}</span>
                                         </label>
@@ -225,9 +236,7 @@
                             </div>
                             <hr>
                             <div class='form-inline'>
-                                <div class="checkbox">
-                                    <input type='checkbox' bs-switch switch-label-width="2em" switch-handle-width="2em" switch-on-text="启用" switch-off-text="停用" ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'">
-                                </div>
+                                <tms-toggle-switch ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'" on-label="启用" off-label="停用"></tms-toggle-switch>
                                 <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
                                 <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
                             </div>
@@ -308,7 +317,7 @@
                             <div class='form-group'>
                                 <span>执行任务的用户</span>
                                 <div tms-array-checkbox model="config.role.groups">
-                                    <div class='checkbox' ng-repeat="group in app.groups">
+                                    <div class='checkbox' ng-repeat="group in app.groupApp.teams">
                                         <label class='checkbox-inline'>
                                             <input type='checkbox' value='{{::group.team_id}}'><span>{{::group.title}}</span>
                                         </label>
@@ -317,9 +326,7 @@
                             </div>
                             <hr>
                             <div class='form-inline'>
-                                <div class="checkbox">
-                                    <input type='checkbox' bs-switch switch-label-width="2em" switch-handle-width="2em" switch-on-text="启用" switch-off-text="停用" ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'">
-                                </div>
+                                <tms-toggle-switch ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'" on-label="启用" off-label="停用"></tms-toggle-switch>
                                 <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
                                 <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
                             </div>
@@ -405,7 +412,7 @@
                             <div class='form-group'>
                                 <span>执行任务的用户</span>
                                 <div tms-array-checkbox model="config.role.groups">
-                                    <div class='checkbox' ng-repeat="group in app.groups">
+                                    <div class='checkbox' ng-repeat="group in app.groupApp.teams">
                                         <label class='checkbox-inline'>
                                             <input type='checkbox' value='{{::group.team_id}}'><span>{{::group.title}}</span>
                                         </label>
@@ -414,9 +421,7 @@
                             </div>
                             <hr>
                             <div class='form-inline'>
-                                <div class="checkbox">
-                                    <input type='checkbox' bs-switch switch-label-width="2em" switch-handle-width="2em" switch-on-text="启用" switch-off-text="停用" ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'">
-                                </div>
+                                <tms-toggle-switch ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'" on-label="启用" off-label="停用"></tms-toggle-switch>
                                 <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
                                 <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
                             </div>

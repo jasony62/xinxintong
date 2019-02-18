@@ -8,10 +8,11 @@ ngMod.provider('tmsLocation', function() {
     };
 
     this.$get = ['$location', function($location) {
+        var myLoc;
         if (!_baseUrl) {
             _baseUrl = location.pathname;
         }
-        return {
+        myLoc = {
             s: function() {
                 var ls = $location.search();
                 if (arguments.length) {
@@ -32,8 +33,13 @@ ngMod.provider('tmsLocation', function() {
                 };
                 search.length && (url += '?' + search.join('&'));
                 return url;
+            },
+            path: function() {
+                return arguments.length ? $location.path(arguments[0]) : $location.path();
             }
         };
+
+        return myLoc;
     }];
 });
 ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compile', function($rootScope, $http, $timeout, $q, $sce, $compile) {
@@ -90,7 +96,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
             }
             for (var i = 0, ii = oNew.length; i < ii; i++) {
                 if (i < oOld.length) {
-                    _fnMerge(oOld[i], oNew[i]);
+                    _fnMerge(oOld[i], oNew[i], aExcludeProps);
                 } else {
                     oOld.push(oNew[i]);
                 }
@@ -104,7 +110,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
                     delete oOld[prop];
                 } else {
                     if (angular.isObject(oNew[prop]) && angular.isObject(oOld[prop])) {
-                        _fnMerge(oOld[prop], oNew[prop]);
+                        _fnMerge(oOld[prop], oNew[prop], aExcludeProps);
                     } else {
                         oOld[prop] = oNew[prop];
                     }

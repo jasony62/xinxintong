@@ -18,22 +18,6 @@
                         deferred.resolve(imgs);
                     }
                 });
-            } else if (window.YixinJSBridge) {
-                window.YixinJSBridge.invoke(
-                    'pickImage', {
-                        type: from,
-                        quality: 100
-                    },
-                    function(result) {
-                        var img;
-                        if (result.data && result.data.length) {
-                            img = {
-                                imgSrc: 'data:' + result.mime + ';base64,' + result.data
-                            };
-                            imgs.push(img);
-                        }
-                        deferred.resolve(imgs);
-                    });
             } else {
                 var ele = document.createElement('input');
                 ele.setAttribute('type', 'file');
@@ -46,7 +30,7 @@
                             ".jp": "image/jpeg",
                             ".pn": "image/png",
                             ".gi": "image/gif"
-                        }[f.name.match(/\.(\w){2}/g)[0] || ".jp"];
+                        } [f.name.match(/\.(\w){2}/g)[0] || ".jp"];
                         f.type2 = f.type || type;
                         var reader = new FileReader();
                         reader.onload = (function(theFile) {

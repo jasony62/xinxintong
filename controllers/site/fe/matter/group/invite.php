@@ -31,7 +31,9 @@ class invite extends base {
 			return new \ObjectNotFoundError();
 		}
 
-		$aJoinResult = $this->join($oTeam, $this->who);
+		$oMember = $this->getPostJson();
+
+		$aJoinResult = $this->join($oTeam, $this->who, $oMember);
 		if (false === $aJoinResult[0]) {
 			return new \ParameterError($aJoinResult[1]);
 		}

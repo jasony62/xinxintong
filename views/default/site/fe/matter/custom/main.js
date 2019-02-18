@@ -34,7 +34,7 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
             xxtShare.set($scope.article.title, sharelink, $scope.article.summary, $scope.article.pic);
         };
         var articleLoaded = function() {
-            /MicroMessenge|Yixin/i.test(navigator.userAgent) && require(['xxt-share'], function(xxtShare) {
+            /MicroMessenge/i.test(navigator.userAgent) && require(['xxt-share'], function(xxtShare) {
                 setMpShare(xxtShare);
             });
             window.loading.finish();

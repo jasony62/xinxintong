@@ -10,7 +10,7 @@
                         </div>
                         <div class='checkbox pull-right' ng-if="app.mission">
                             <label>和项目轮次一致</label>
-                            <input type='checkbox' bs-switch switch-on-text="是" switch-off-text="否" ng-true-value="'Y'" ng-false-value="'N'" ng-model="options.sync_mission_round" ng-change="toggleSyncMissionRound()">
+                            <tms-toggle-switch ng-model="options.sync_mission_round" on-label="是" off-label="否" ng-true-value="'Y'" ng-false-value="'N'" ng-change="toggleSyncMissionRound()"></toggle-switch>
                         </div>
                     </div>
                 </div>

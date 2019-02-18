@@ -1109,14 +1109,22 @@ class data_model extends entity_model {
 						$w .= " or rd.group_id=''";
 					}
 					$w .= ")";
+					// 判断记录的状态能不能显示
+					$w .= " and (";
+					$w .= " (r.agreed<>'D'";
+					if (isset($oUser->is_editor) && $oUser->is_editor !== 'Y') {
+						$w .= " and r.agreed<>''"; // 如果活动指定了编辑，未表态的数据默认不公开
+					}
+					$w .= ")";
+					$w .= " or r.userid='{$oUser->uid}'";
+					if (!empty($oUser->group_id)) {
+						$w .= " or r.group_id='{$oUser->group_id}'";
+					}
+					if (isset($oUser->is_editor) && $oUser->is_editor === 'Y') {
+						$w .= " or r.group_id=''";
+					}
+					$w .= ")";
 				}
-			}
-		}
-
-		// 预制条件：指定分组或赞同数大于
-		if (isset($oCriteria->recordData->GroupOrLikeNum) && is_object($oCriteria->recordData->GroupOrLikeNum)) {
-			if (!empty($oCriteria->recordData->GroupOrLikeNum->group_id) && isset($oCriteria->recordData->GroupOrLikeNum->like_num)) {
-				$w .= " and (rd.group_id='{$oCriteria->recordData->GroupOrLikeNum->group_id}' or rd.like_num>={$oCriteria->recordData->GroupOrLikeNum->like_num})";
 			}
 		}
 
@@ -1173,7 +1181,7 @@ class data_model extends entity_model {
 		}
 
 		// 查询参数
-		$fields = 'r.id,rd.id dataId,rd.enroll_key,rd.rid,rd.purpose,rd.submit_at enroll_at,rd.userid,rd.group_id,rd.nickname,rd.schema_id,rd.value,rd.score,rd.agreed,rd.like_num,rd.like_log,rd.remark_num,rd.dislike_num,rd.dislike_log,r.data';
+		$fields = 'r.id record_id,rd.id data_id,rd.enroll_key,rd.rid,rd.purpose,rd.submit_at enroll_at,rd.userid,rd.group_id,rd.nickname,rd.schema_id,rd.value,rd.score,rd.agreed,rd.like_num,rd.like_log,rd.remark_num,rd.dislike_num,rd.dislike_log,r.data';
 		$table = "xxt_enroll_record_data rd,xxt_enroll_record r";
 		$w .= " and rd.enroll_key = r.enroll_key and r.state = 1";
 

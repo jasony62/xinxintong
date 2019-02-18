@@ -178,7 +178,7 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsLocation', '$timeout', '$q'
             $scope.article = oArticle;
             $scope.user = rsp.data.user;
             /* 设置分享 */
-            if (/MicroMessenger|Yixin/i.test(navigator.userAgent)) {
+            if (/MicroMessenger/i.test(navigator.userAgent)) {
                 var shareid, sharelink;
                 shareid = $scope.user.uid + '_' + (new Date() * 1);
                 sharelink = location.protocol + '//' + location.hostname + '/rest/site/fe/matter';

@@ -7,6 +7,10 @@ require_once dirname(__FILE__) . '/record_base.php';
  */
 class record_model extends record_base {
 	/**
+	 * 共享页用到的字段
+	 */
+	const REPOS_FIELDS = 'id,enroll_key,aid,rid,purpose,userid,nickname,group_id,first_enroll_at,enroll_at,enroll_key,data,agreed,agreed_log,dislike_data_num,dislike_log,dislike_num,favor_num,like_data_num,like_log,like_num,rec_remark_num,remark_num,score,supplement,tags,vote_cowork_num,vote_schema_num';
+	/**
 	 * 活动记录（不包括记录数据）
 	 *
 	 * @param object $app
@@ -720,13 +724,6 @@ class record_model extends record_base {
 		// 指定了专题的
 		if (!empty($oCriteria->record->topic)) {
 			$w .= " and exists(select 1 from xxt_enroll_topic_record t where r.id=t.record_id and t.topic_id='{$oCriteria->record->topic}')";
-		}
-
-		// 预制条件：指定分组或赞同数大于
-		if (isset($oCriteria->GroupOrLikeNum) && is_object($oCriteria->GroupOrLikeNum)) {
-			if (!empty($oCriteria->GroupOrLikeNum->group_id) && isset($oCriteria->GroupOrLikeNum->like_num)) {
-				$w .= " and (r.group_id='{$oCriteria->GroupOrLikeNum->group_id}' or r.like_num>={$oCriteria->GroupOrLikeNum->like_num})";
-			}
 		}
 
 		// 指定了记录标签

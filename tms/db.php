@@ -440,6 +440,15 @@ class TMS_DB {
 								}
 							}
 							break;
+						case 'and':
+							if (is_array($v->pat) && count($v->pat)) {
+								$andClauses = array_filter($v->pat, function ($subClause) {return is_string($subClause);});
+								if (count($andClauses)) {
+									$clause = '(' . implode(' and ', $andClauses) . ')';
+									$clauses[] = $clause;
+								}
+							}
+							break;
 						case '>':
 						case '>=':
 						case '<':

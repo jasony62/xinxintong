@@ -192,9 +192,7 @@
 <hr>
 <div class='form-group'>
     <div class='form-inline'>
-        <div class="checkbox">
-            <input type='checkbox' bs-switch switch-on-text="启用" switch-off-text="停用" ng-model="timer.task.enabled" ng-true-value="'Y'" ng-false-value="'N'">
-        </div>
+        <tms-toggle-switch on-label="启用" off-label="停用" ng-model="timer.task.enabled" ng-true-value="'Y'" ng-false-value="'N'"></tms-toggle-switch>
         <button class='btn' ng-class="timer.modified?'btn-success':'btn-default'" ng-disabled="!timer.modified" ng-click="srvTimer.save(timer)">保存</button>
         <button class='btn btn-danger' ng-click="srvTimer.del(timers,$index)">删除</button>
     </div>

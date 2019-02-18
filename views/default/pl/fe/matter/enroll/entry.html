@@ -200,7 +200,7 @@
             <hr>
             <!--begin timer-->
             <div class='timer' ng-repeat="timer in timers">
-                <div class='form-group'>
+                <div class='form-group' ng-if="!timer.task.task_arguments.taskConfig">
                     <label class='radio-inline'>
                         <input type='radio' value='' ng-model="timer.task.task_arguments.page">按照活动进入规则</label>
                     <label class='radio-inline'>
@@ -211,6 +211,9 @@
                         <input type='radio' value='rank' ng-model="timer.task.task_arguments.page">排行榜</label>
                     <label class='radio-inline'>
                         <input type='radio' value='stat' ng-model="timer.task.task_arguments.page">统计页</label>
+                </div>
+                <div class='form-group' ng-if="timer.task.task_arguments.taskConfig" ng-switch on="timer.task.task_arguments.taskConfig.type">
+                    <div>【<span ng-switch-when="baseline">目标</span><span ng-switch-when="question">提问</span><span ng-switch-when="answer">回答</span><span ng-switch-when="vote">投票</span>】任务提醒</div>
                 </div>
                 <div class='form-group'>
                     <label class='radio-inline'>
@@ -237,8 +240,8 @@
                         </div>
                         <div class='col-md-5'>
                             <div class='pl-input-group'>
-                                <div ng-if="timer._temp" class='form-control pl-line' ng-bind="timer._temp.group.team.title"></div>
-                                <div ng-if="!timer._temp" class='form-control pl-line' ng-bind="timer.task.task_arguments.receiver.app.round.title"></div>
+                                <div ng-if="timer._temp" class='form-control pl-line' ng-bind="timer._temp.group.teams.title"></div>
+                                <div ng-if="!timer._temp" class='form-control pl-line' ng-bind="timer.task.task_arguments.receiver.app.teams.title"></div>
                             </div>
                         </div>
                     </div>
@@ -292,7 +295,7 @@
                         </div>
                         <div class='col-md-5'>
                             <div class='pl-input-group'>
-                                <div class='form-control pl-line' ng-bind="timer.task.task_arguments.receiver.group.team.title"></div>
+                                <div class='form-control pl-line' ng-bind="timer.task.task_arguments.receiver.group.teams.title"></div>
                             </div>
                         </div>
                     </div>
@@ -346,9 +349,7 @@
                 </div>
                 <hr>
                 <div class='form-inline'>
-                    <div class='checkbox'>
-                        <input type='checkbox' bs-switch data-on-text="启用" data-off-text="停用" ng-model="config.submit.valid">
-                    </div>
+                    <tms-toggle-switch ng-model="config.submit.valid" on-label="启用" off-label="停用"></tms-toggle-switch>
                     <button class='btn' ng-class="{'btn-default':!modified, 'btn-success':modified}" ng-disabled="!modified" ng-click="save()">保存</button>
                     <button class='btn btn-danger' ng-click="remove('submit')">删除</button>
                 </div>
@@ -393,9 +394,7 @@
                 </div>
                 <hr>
                 <div class='form-inline'>
-                    <div class='checkbox'>
-                        <input type='checkbox' bs-switch data-on-text="启用" data-off-text="停用" ng-model="config.cowork.valid">
-                    </div>
+                    <tms-toggle-switch ng-model="config.cowork.valid" on-label="启用" off-label="停用"></tms-toggle-switch>
                     <button class='btn' ng-class="{'btn-default':!modified, 'btn-success':modified}" ng-disabled="!modified" ng-click="save()">保存</button>
                     <button class='btn btn-danger' ng-click="remove('cowork')">删除</button>
                 </div>
@@ -440,9 +439,7 @@
                 </div>
                 <hr>
                 <div class='form-inline'>
-                    <div class='checkbox'>
-                        <input type='checkbox' bs-switch data-on-text="启用" data-off-text="停用" ng-model="config.remark.valid">
-                    </div>
+                    <tms-toggle-switch ng-model="config.remark.valid" on-label="启用" off-label="停用"></tms-toggle-switch>
                     <button class='btn' ng-class="{'btn-default':!modified, 'btn-success':modified}" ng-disabled="!modified" ng-click="save()">保存</button>
                     <button class='btn btn-danger' ng-click="remove('remark')">删除</button>
                 </div>

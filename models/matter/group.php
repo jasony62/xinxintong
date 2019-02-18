@@ -18,6 +18,24 @@ class group_model extends app_base {
 	}
 	/**
 	 *
+	 */
+	public function getEntryUrl($siteId, $id) {
+		if ($siteId === 'platform') {
+			$oApp = $this->byId($id, ['cascaded' => 'N', 'fields' => 'id,siteid', 'cascaded' => 'N']);
+			if (false === $oApp) {
+				return APP_PROTOCOL . APP_HTTP_HOST . '/404.html';
+			}
+			$siteId = $oApp->siteid;
+		}
+
+		$url = APP_PROTOCOL . APP_HTTP_HOST;
+		$url .= '/rest/site/fe/matter/group';
+		$url .= "?site={$siteId}&app=" . $id;
+
+		return $url;
+	}
+	/**
+	 *
 	 * @param $aid string
 	 * @param $aOptions array
 	 */
@@ -32,6 +50,9 @@ class group_model extends app_base {
 
 		if ($oApp = $this->query_obj_ss($q)) {
 			$oApp->type = 'group';
+			if (isset($oApp->siteid) && isset($oApp->id)) {
+				$oApp->entryUrl = $this->getEntryUrl($oApp->siteid, $oApp->id);
+			}
 			if ($cascaded === 'Y') {
 				$oApp->teams = $this->model('matter\group\team')->byApp($aid);
 			}

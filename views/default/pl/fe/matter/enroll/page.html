@@ -30,7 +30,7 @@
                         <div class='list-group-item schema' ng-repeat="s in app.dataSchemas">
                             <span ng-bind="s.title"></span>
                             <span class='schema-switch'>
-                            <input type='checkbox' bs-switch switch-size="mini" data-on-text="显" data-off-text="隐" ng-model="chooseState[s.id]" ng-change="choose(s)">
+                                <tms-toggle-switch class='switch-mini' ng-model="chooseState[s.id]" on-label="显" off-label="隐" ng-change="choose(s)"></tms-toggle-switch>
                         </span>
                         </div>
                     </div>
@@ -39,13 +39,13 @@
                     <div class='list-group-item' ng-repeat="s in app.dataSchemas">
                         <span ng-bind-html="s.title"></span>
                         <span class='schema-switch'>
-                        <input type='checkbox' bs-switch switch-size="mini" data-on-text="显" data-off-text="隐" ng-model="chooseState[s.id]" ng-change="choose(s)">
+                            <tms-toggle-switch class='switch-mini' ng-model="chooseState[s.id]" on-label="显" off-label="隐" ng-change="choose(s)"></tms-toggle-switch>
                     </span>
                     </div>
                     <div class='list-group-item' ng-repeat="s in otherSchemas">
                         <span ng-bind="s.title"></span>
                         <span class='schema-switch'>
-                        <input type='checkbox' bs-switch switch-size="mini" data-on-text="显" data-off-text="隐" ng-model="chooseState[s.id]" ng-change="choose(s)">
+                            <tms-toggle-switch class='switch-mini' ng-model="chooseState[s.id]" on-label="显" off-label="隐" ng-change="choose(s)"></tms-toggle-switch>
                     </span>
                     </div>
                 </div>

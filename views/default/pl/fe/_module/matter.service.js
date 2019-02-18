@@ -1248,18 +1248,22 @@ service('srvTimerNotice', ['$rootScope', '$parse', '$q', '$timeout', 'http2', 't
     $scope.watcher = oWatcher = {};
     var fnBeforeSaves = []; // 保存数据前进行处理
     /* 添加定时任务 */
-    this.add = function(oMatter, timers, model, oArgs) {
-        var oConfig;
+    this.add = function(oMatter, timers, model, oArgs, oTimerProto) {
+        var oConfig, defer;
         oConfig = {
             matter: { id: oMatter.id, type: oMatter.type },
             task: { model: model }
         };
-        if (oArgs) oConfig.task.arguments = oArgs;
+        defer = $q.defer();
+        oArgs && (oConfig.task.arguments = oArgs);
+        oTimerProto && (oConfig.timer = oTimerProto);
         http2.post('/rest/pl/fe/matter/timer/create', oConfig).then(function(rsp) {
             var oNewTimer;
             oNewTimer = fnAppendLocal(rsp.data, oMatter);
-            timers.push(oNewTimer);
+            timers && angular.isArray(timers) && timers.push(oNewTimer);
+            defer.resolve(oNewTimer);
         });
+        return defer.promise;
     };
     /* 保存定时任务设置 */
     this.save = function(oTimer) {
@@ -1300,6 +1304,22 @@ service('srvTimerNotice', ['$rootScope', '$parse', '$q', '$timeout', 'http2', 't
             });
         }
     };
+    this.update = function(oTimer) {
+        var defer = $q.defer();
+        http2.post('/rest/pl/fe/matter/timer/update?id=' + oTimer.id, oTimer.task).then(function(rsp) {
+            defer.resolve();
+        });
+        return defer.promise;
+    };
+    this.remove = function(oTimer, bJumpConfirm) {
+        var defer = $q.defer();
+        if (bJumpConfirm || window.confirm('确定删除定时规则？')) {
+            http2.get('/rest/pl/fe/matter/timer/remove?id=' + oTimer.id).then(function(rsp) {
+                defer.resolve();
+            });
+        }
+        return defer.promise;
+    };
     /* 设置偏移的素材 */
     this.setOffsetMatter = function(oTimer) {
         if (oTimer.task.offset_matter_type === 'RC') {
@@ -1314,9 +1334,11 @@ service('srvTimerNotice', ['$rootScope', '$parse', '$q', '$timeout', 'http2', 't
         return oWatcher[id];
     };
     /* 定时任务列表 */
-    this.list = function(oMatter, model) {
-        var defer = $q.defer();
-        http2.get('/rest/pl/fe/matter/timer/byMatter?type=' + oMatter.type + '&id=' + oMatter.id + '&model=' + model).then(function(rsp) {
+    this.list = function(oMatter, model, taskArguments) {
+        var defer = $q.defer(),
+            oPosted = {};
+        taskArguments && (oPosted.taskArguments = taskArguments);
+        http2.post('/rest/pl/fe/matter/timer/byMatter?type=' + oMatter.type + '&id=' + oMatter.id + '&model=' + model, oPosted).then(function(rsp) {
             var timers = [];
             rsp.data.forEach(function(oTask) {
                 var oNewTimer;
@@ -1415,39 +1437,65 @@ service('tkEnrollApp', ['$q', '$uibModal', 'http2', function($q, $uibModal, http
 /**
  * group app
  */
-service('tkGroupApp', ['$uibModal', function($uibModal) {
-    this.choose = function(oMatter) {
-        return $uibModal.open({
-            templateUrl: '/views/default/pl/fe/matter/enroll/component/chooseGroupApp.html',
-            controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
-                $scope2.app = oMatter;
-                $scope2.data = {
-                    app: null,
-                    round: null
-                };
-                oMatter.mission && ($scope2.data.sameMission = 'Y');
-                $scope2.cancel = function() {
-                    $mi.dismiss();
-                };
-                $scope2.ok = function() {
-                    $mi.close($scope2.data);
-                };
-                $scope2.$watch('data.app', function(oGrpApp) {
-                    if (oGrpApp) {
-                        var url = '/rest/pl/fe/matter/group/team/list?app=' + oGrpApp.id + '&teamType=';
-                        http2.get(url).then(function(rsp) {
-                            $scope2.rounds = rsp.data;
-                        });
-                    }
-                });
-                var url = '/rest/pl/fe/matter/group/list?site=' + oMatter.siteid + '&size=999';
-                oMatter.mission && (url += '&mission=' + oMatter.mission.id);
-                http2.get(url).then(function(rsp) {
-                    $scope2.apps = rsp.data.apps;
-                });
-            }],
-            backdrop: 'static'
-        }).result;
+service('tkGroupApp', ['$q', '$uibModal', 'http2', function($q, $uibModal, http2) {
+    this.choose = function(oMatter, bMultiple) {
+        var defer;
+        defer = $q.defer();
+        http2.post('/rest/script/time', { html: { 'groupApp': '/views/default/pl/fe/matter/enroll/component/chooseGroupApp.html' } }).then(function(rsp) {
+            return $uibModal.open({
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/chooseGroupApp.html?_=' + rsp.data.html.groupApp.time,
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    var _oData, _oTeamsById;
+                    $scope2.app = oMatter;
+                    $scope2.data = _oData = {
+                        app: null,
+                    };
+                    $scope2.multiple = !!bMultiple;
+                    if (bMultiple)
+                        _oData.teams = [];
+                    else
+                        _oData.team = null;
+
+                    oMatter.mission && (_oData.sameMission = 'Y');
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        if (bMultiple && _oData.teams.length) {
+                            var teams = [];
+                            _oData.teams.forEach(function(teamId) {
+                                teams.push(_oTeamsById[teamId]);
+                            });
+                            _oData.teams = teams;
+                        }
+                        $mi.close(_oData);
+                    };
+                    $scope2.$watch('data.app', function(oGrpApp) {
+                        if (oGrpApp) {
+                            var url = '/rest/pl/fe/matter/group/team/list?app=' + oGrpApp.id + '&teamType=';
+                            http2.get(url).then(function(rsp) {
+                                if (bMultiple) {
+                                    _oTeamsById = {};
+                                    rsp.data.forEach(function(oTeam) {
+                                        _oTeamsById[oTeam.team_id] = oTeam;
+                                    });
+                                }
+                                $scope2.teams = rsp.data;
+                            });
+                        }
+                    });
+                    var url = '/rest/pl/fe/matter/group/list?site=' + oMatter.siteid + '&size=999';
+                    oMatter.mission && (url += '&mission=' + oMatter.mission.id);
+                    http2.get(url).then(function(rsp) {
+                        $scope2.apps = rsp.data.apps;
+                    });
+                }],
+                backdrop: 'static'
+            }).result.then(function(oResult) {
+                defer.resolve(oResult);
+            });
+        });
+        return defer.promise;
     };
 }]).
 /**

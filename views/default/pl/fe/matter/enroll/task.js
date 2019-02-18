@@ -7,16 +7,148 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
         $configScope.config = oConfig;
         if (oConfig.id)
             oConfigsModified[oConfig.id] = false;
+        /* 参照轮次规则 */
+        if (oConfig.time && $scope.app.roundCron) {
+            if (oConfig.time.offset.matter.type === 'RC' && oConfig.time.offset.matter.id && $scope.app.roundCron && $scope.app.roundCron.length) {
+                var rules = $scope.app.roundCron;
+                for (var i = 0, ii = rules.length; i < ii; i++) {
+                    if (rules[i].id === oConfig.time.offset.matter.id) {
+                        var $parse = angular.injector(['ng']).get('$parse');
+                        $parse('time.surface.offset.matter').assign(oConfig, { name: rules[i].name });
+                        break;
+                    }
+                }
+            }
+        }
         $configScope.$watch('config', function(nv, ov) {
             if (nv && nv !== ov && nv.id) {
                 oConfigsModified[nv.id] = true;
             }
         }, true);
     }
-    
-    ngApp.provider.controller('ctrlTask', [function() {}]);
-    ngApp.provider.controller('ctrlTaskBaseline', ['$scope', 'http2', 'noticebox', 'srvEnrollApp', function($scope, http2, noticebox, srvEnlApp) {
-        var _aConfigs, _oConfigsModified;
+
+
+    var _srvTimer; // 定时提醒服务实例
+    /**
+     * 任务定时提醒
+     */
+    var TaskTimer = function(oApp, taskType, oCachedTimers) {
+        /* 更新参数设置 */
+        function fnSetTimerTaskArgs(oConfig, taskEventName) {
+            var oTaskArgs, oReceiver, oTeamsById;
+            oTaskArgs = { taskConfig: { id: oConfig.id, type: taskType, 'event': taskEventName } };
+            if (oConfig.role && oConfig.role.groups) {
+                oTaskArgs.receiver = oReceiver = { scope: 'group', app: { id: oApp.groupApp.id, title: oApp.groupApp.title } };
+                if (oConfig.role.groups.length) {
+                    oTeamsById = {};
+                    oApp.groupApp.teams.forEach(function(oTeam) {
+                        oTeamsById[oTeam.team_id] = oTeam;
+                    });
+                    oReceiver.app.teams = { id: [], title: [] };
+                    oConfig.role.groups.forEach(function(id) {
+                        oReceiver.app.teams.id.push(id);
+                        oReceiver.app.teams.title.push(oTeamsById[id].title);
+                    });
+                }
+            }
+            return oTaskArgs;
+        }
+
+        this.app = oApp;
+        this.taskType = taskType;
+        this.timers = oCachedTimers ? oCachedTimers : {};
+        this.getTimers = function(oConfig) {
+            var _this = this;
+            /* 获得任务提醒 */
+            _srvTimer.list(oApp, 'remind', { id: oConfig.id, type: taskType }).then(function(timers) {
+                _this.timers[oConfig.id] = {};
+                timers.forEach(function(oTimer) {
+                    var oTaskConfig;
+                    if (oTaskConfig = oTimer.task.task_arguments.taskConfig) {
+                        if (oTaskConfig.type === taskType) {
+                            _this.timers[oConfig.id][oTaskConfig.event] = oTimer;
+                        }
+                    }
+                });
+            });
+        };
+        this.add = function(oConfig, taskEventName) {
+            var _this, oTaskArgs, oProto;
+
+            _this = this;
+            oTaskArgs = fnSetTimerTaskArgs(oConfig, taskEventName);
+            oProto = { enabled: 'Y', offset_matter_type: 'RC', offset_matter_id: oConfig.time.offset.matter.id };
+            oProto.offset_hour = oConfig[taskEventName].time.value;
+            _srvTimer.add(oApp, null, 'remind', oTaskArgs, oProto).then(function(oNewTimer) {
+                !_this.timers[oConfig.id] && (_this.timers[oConfig.id] = {});
+                _this.timers[oConfig.id][taskEventName] = oNewTimer;
+            });
+        };
+        this.del = function(oConfig, taskEventName) {
+            var _this, oTimer;
+            _this = this;
+            if (oTimer = this.timers[oConfig.id][taskEventName]) {
+                _srvTimer.remove(oTimer).then(function() {
+                    delete _this.timers[oConfig.id][taskEventName];
+                });
+            }
+        };
+        /*删除定时任务*/
+        this.delAll = function(oConfig, fnAfterDo) {
+            if (this.timers[oConfig.id]) {
+                (function(oTimers) {
+                    var timerNames = Object.keys(oTimers[oConfig.id]);
+                    var i = 0;
+
+                    function fnDoOnce() {
+                        var oTimer;
+                        oTimer = oTimers[oConfig.id][timerNames[i]];
+                        _srvTimer.remove(oTimer, true).then(function() {
+                            delete oTimers[oConfig.id][timerNames[i]];
+                            if (i + 1 < timerNames.length) {
+                                i++;
+                                fnDoOnce();
+                            } else {
+                                fnAfterDo();
+                            }
+                        });
+                    }
+                    fnDoOnce();
+                })(this.timers);
+            } else {
+                fnAfterDo();
+            }
+        };
+        /*更新定时任务*/
+        this.upd = function(oConfig) {
+            var _this = this;
+            if (_this.timers[oConfig.id]) {
+                ['start', 'end'].forEach(function(taskEventName) {
+                    var oTimer;
+                    if (oTimer = _this.timers[oConfig.id][taskEventName]) {
+                        oTimer.task.task_arguments = fnSetTimerTaskArgs(oConfig, taskEventName);
+                        oTimer.task.offset_hour = oConfig[taskEventName].time.value;
+                        _srvTimer.update(oTimer);
+                    }
+
+                });
+            }
+        }
+    };
+
+    ngApp.provider.controller('ctrlTask', ['$scope', '$parse', 'srvTimerNotice', 'tkRoundCron', function($scope, $parse, srvTimerNotice, tkRndCron) {
+        /* 设置偏移的素材 */
+        $scope.setTimeOffsetRoundCron = function(oConfig) {
+            tkRndCron.choose($scope.app).then(function(oRule) {
+                $parse('time.offset.matter').assign(oConfig, { id: oRule.id, type: 'RC' });
+                $parse('time.surface.offset.matter').assign(oConfig, { name: oRule.name });
+            });
+        };
+        /* 定时任务服务 */
+        _srvTimer = srvTimerNotice;
+    }]);
+    ngApp.provider.controller('ctrlTaskBaseline', ['$scope', '$timeout', 'http2', 'noticebox', 'srvEnrollApp', function($scope, $timeout, http2, noticebox, srvEnlApp) {
+        var _aConfigs, _oConfigsModified, _oTaskTimer;
         $scope.configs = _aConfigs = [];
         $scope.configsModified = _oConfigsModified = {};
         $scope.addConfig = function() {
@@ -25,10 +157,13 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
         $scope.delConfig = function(oConfig) {
             noticebox.confirm('删除设置目标环节，确定？').then(function() {
                 if (oConfig.id) {
-                    http2.post('/rest/pl/fe/matter/enroll/updateBaselineConfig?app=' + $scope.app.id, { method: 'delete', data: oConfig }).then(function() {
-                        _aConfigs.splice(_aConfigs.indexOf(oConfig), 1);
-                        delete _oConfigsModified[oConfig.id];
-                    });
+                    function fnAfterDoDelTimers() {
+                        http2.post('/rest/pl/fe/matter/enroll/updateBaselineConfig?app=' + $scope.app.id, { method: 'delete', data: oConfig }).then(function() {
+                            _aConfigs.splice(_aConfigs.indexOf(oConfig), 1);
+                            delete _oConfigsModified[oConfig.id];
+                        });
+                    }
+                    _oTaskTimer.delAll(oConfig, fnAfterDoDelTimers);
                 } else {
                     _aConfigs.splice(_aConfigs.indexOf(oConfig), 1);
                 }
@@ -36,24 +171,30 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
         };
         $scope.save = function(oConfig) {
             http2.post('/rest/pl/fe/matter/enroll/updateBaselineConfig?app=' + $scope.app.id, { method: 'save', data: oConfig }).then(function(rsp) {
-                http2.merge(oConfig, rsp.data);
+                http2.merge(oConfig, rsp.data, ['surface']);
                 fnWatchConfig($scope, oConfig, _oConfigsModified);
+                /*更新定时任务*/
+                _oTaskTimer.upd(oConfig);
                 noticebox.success('保存成功！');
             });
         };
-        srvEnlApp.get().then(function(oApp) {
+        $scope.$watch('app', function(oApp) {
+            if (!oApp) return;
+            $scope.taskTimer = _oTaskTimer = new TaskTimer(oApp, 'baseline');
             if (oApp.baselineConfig && oApp.baselineConfig.length) {
                 oApp.baselineConfig.forEach(function(oConfig, index) {
                     var oCopied;
                     oCopied = angular.copy(oConfig);
                     _aConfigs.push(oCopied);
                     fnWatchConfig($scope, oCopied, _oConfigsModified);
+                    /* 获得任务提醒 */
+                    _oTaskTimer.getTimers(oCopied);
                 });
             }
         });
     }]);
-    ngApp.provider.controller('ctrlTaskQuestion', ['$scope', 'http2', 'noticebox', 'srvEnrollApp', function($scope, http2, noticebox, srvEnlApp) {
-        var _aConfigs, _oConfigsModified;
+    ngApp.provider.controller('ctrlTaskQuestion', ['$scope', '$parse', 'http2', 'noticebox', 'srvEnrollApp', function($scope, $parse, http2, noticebox, srvEnlApp) {
+        var _aConfigs, _oConfigsModified, _oTaskTimer;
         $scope.configs = _aConfigs = [];
         $scope.configsModified = _oConfigsModified = {};
         $scope.addConfig = function() {
@@ -62,10 +203,13 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
         $scope.delConfig = function(oConfig) {
             noticebox.confirm('删除提问环节，确定？').then(function() {
                 if (oConfig.id) {
-                    http2.post('/rest/pl/fe/matter/enroll/updateQuestionConfig?app=' + $scope.app.id, { method: 'delete', data: oConfig }).then(function() {
-                        _aConfigs.splice(_aConfigs.indexOf(oConfig), 1);
-                        delete _oConfigsModified[oConfig.id];
-                    });
+                    function fnAfterDoDelTimers() {
+                        http2.post('/rest/pl/fe/matter/enroll/updateQuestionConfig?app=' + $scope.app.id, { method: 'delete', data: oConfig }).then(function() {
+                            _aConfigs.splice(_aConfigs.indexOf(oConfig), 1);
+                            delete _oConfigsModified[oConfig.id];
+                        });
+                    }
+                    _oTaskTimer.delAll(oConfig, fnAfterDoDelTimers);
                 } else {
                     _aConfigs.splice(_aConfigs.indexOf(oConfig), 1);
                 }
@@ -73,24 +217,30 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
         };
         $scope.save = function(oConfig) {
             http2.post('/rest/pl/fe/matter/enroll/updateQuestionConfig?app=' + $scope.app.id, { method: 'save', data: oConfig }).then(function(rsp) {
-                http2.merge(oConfig, rsp.data);
+                http2.merge(oConfig, rsp.data, ['surface']);
                 fnWatchConfig($scope, oConfig, _oConfigsModified);
+                /*更新定时任务*/
+                _oTaskTimer.upd(oConfig);
                 noticebox.success('保存成功！');
             });
         };
-        srvEnlApp.get().then(function(oApp) {
+        $scope.$watch('app', function(oApp) {
+            if (!oApp) return;
+            $scope.taskTimer = _oTaskTimer = new TaskTimer(oApp, 'question');
             if (oApp.questionConfig && oApp.questionConfig.length) {
-                oApp.questionConfig.forEach(function(oConfig, index) {
+                oApp.questionConfig.forEach(function(oConfig) {
                     var oCopied;
                     oCopied = angular.copy(oConfig);
                     _aConfigs.push(oCopied);
                     fnWatchConfig($scope, oCopied, _oConfigsModified);
+                    /* 获得任务提醒 */
+                    _oTaskTimer.getTimers(oCopied);
                 });
             }
         });
     }]);
     ngApp.provider.controller('ctrlTaskAnswer', ['$scope', 'http2', 'noticebox', 'srvEnrollApp', function($scope, http2, noticebox, srvEnlApp) {
-        var _aConfigs, _oConfigsModified;
+        var _aConfigs, _oConfigsModified, _oTaskTimer;
         $scope.configs = _aConfigs = [];
         $scope.configsModified = _oConfigsModified = {};
         $scope.addConfig = function() {
@@ -99,10 +249,13 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
         $scope.delConfig = function(oConfig) {
             noticebox.confirm('删除回答环节，确定？').then(function() {
                 if (oConfig.id) {
-                    http2.post('/rest/pl/fe/matter/enroll/updateAnswerConfig?app=' + $scope.app.id, { method: 'delete', data: oConfig }).then(function() {
-                        _aConfigs.splice(_aConfigs.indexOf(oConfig), 1);
-                        delete _oConfigsModified[oConfig.id];
-                    });
+                    function fnAfterDoDelTimers() {
+                        http2.post('/rest/pl/fe/matter/enroll/updateAnswerConfig?app=' + $scope.app.id, { method: 'delete', data: oConfig }).then(function() {
+                            _aConfigs.splice(_aConfigs.indexOf(oConfig), 1);
+                            delete _oConfigsModified[oConfig.id];
+                        });
+                    }
+                    _oTaskTimer.delAll(oConfig, fnAfterDoDelTimers);
                 } else {
                     _aConfigs.splice(_aConfigs.indexOf(oConfig), 1);
                 }
@@ -112,10 +265,14 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
             http2.post('/rest/pl/fe/matter/enroll/updateAnswerConfig?app=' + $scope.app.id, { method: 'save', data: oConfig }).then(function(rsp) {
                 http2.merge(oConfig, rsp.data);
                 fnWatchConfig($scope, oConfig, _oConfigsModified);
+                /*更新定时任务*/
+                _oTaskTimer.upd(oConfig);
                 noticebox.success('保存成功！');
             });
         };
-        srvEnlApp.get().then(function(oApp) {
+        $scope.$watch('app', function(oApp) {
+            if (!oApp) return;
+            $scope.taskTimer = _oTaskTimer = new TaskTimer(oApp, 'answer');
             $scope.answerSchemas = oApp.dataSchemas.filter(function(oSchema) { return oSchema.type === 'multitext' && oSchema.cowork === 'Y'; });
             if (oApp.answerConfig && oApp.answerConfig.length) {
                 oApp.answerConfig.forEach(function(oConfig, index) {
@@ -123,12 +280,14 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                     oCopied = angular.copy(oConfig);
                     _aConfigs.push(oCopied);
                     fnWatchConfig($scope, oCopied, _oConfigsModified);
+                    /* 获得任务提醒 */
+                    _oTaskTimer.getTimers(oCopied);
                 });
             }
         });
     }]);
     ngApp.provider.controller('ctrlTaskVote', ['$scope', 'http2', 'noticebox', 'srvEnrollApp', function($scope, http2, noticebox, srvEnlApp) {
-        var _aConfigs, _oConfigsModified;
+        var _aConfigs, _oConfigsModified, _oTaskTimer;
         $scope.configs = _aConfigs = [];
         $scope.configsModified = _oConfigsModified = {};
         $scope.addConfig = function() {
@@ -137,10 +296,13 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
         $scope.delConfig = function(oConfig) {
             noticebox.confirm('删除投票环节，确定？').then(function() {
                 if (oConfig.id) {
-                    http2.post('/rest/pl/fe/matter/enroll/updateVoteConfig?app=' + $scope.app.id, { method: 'delete', data: oConfig }).then(function() {
-                        _aConfigs.splice(_aConfigs.indexOf(oConfig), 1);
-                        delete _oConfigsModified[oConfig.id];
-                    });
+                    function fnAfterDoDelTimers() {
+                        http2.post('/rest/pl/fe/matter/enroll/updateVoteConfig?app=' + $scope.app.id, { method: 'delete', data: oConfig }).then(function() {
+                            _aConfigs.splice(_aConfigs.indexOf(oConfig), 1);
+                            delete _oConfigsModified[oConfig.id];
+                        });
+                    }
+                    _oTaskTimer.delAll(oConfig, fnAfterDoDelTimers);
                 } else {
                     _aConfigs.splice(_aConfigs.indexOf(oConfig), 1);
                 }
@@ -150,10 +312,14 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
             http2.post('/rest/pl/fe/matter/enroll/updateVoteConfig?app=' + $scope.app.id, { method: 'save', data: oConfig }).then(function(rsp) {
                 http2.merge(oConfig, rsp.data);
                 fnWatchConfig($scope, oConfig, _oConfigsModified);
+                /*更新定时任务*/
+                _oTaskTimer.upd(oConfig);
                 noticebox.success('保存成功！');
             });
         };
-        srvEnlApp.get().then(function(oApp) {
+        $scope.$watch('app', function(oApp) {
+            if (!oApp) return;
+            $scope.taskTimer = _oTaskTimer = new TaskTimer(oApp, 'vote');
             $scope.votingSchemas = [];
             oApp.dataSchemas.forEach(function(oSchema) {
                 if (!/html|single|multiplue|score/.test(oSchema.type)) {
@@ -166,6 +332,8 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                     oCopied = angular.copy(oConfig);
                     _aConfigs.push(oCopied);
                     fnWatchConfig($scope, oCopied, _oConfigsModified);
+                    /* 获得任务提醒 */
+                    _oTaskTimer.getTimers(oCopied);
                 });
             }
         });
@@ -350,7 +518,8 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
         $scope.save = function(oConfig) {
             fnPostScoreConfig('save', oConfig);
         };
-        srvEnlApp.get().then(function(oApp) {
+        $scope.$watch('app', function(oApp) {
+            if (!oApp) return;
             $scope.scoreSchemas = [];
             oApp.dataSchemas.forEach(function(oSchema) {
                 if (!/html|single|multiplue|score/.test(oSchema.type)) {

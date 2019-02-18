@@ -632,7 +632,7 @@ class repos extends base {
 				if (!isset($modelAss)) {
 					$modelAss = $this->model('matter\enroll\assoc');
 					$oAssocsOptions = [
-						'fields' => 'id,assoc_mode,assoc_num,first_assoc_at,last_assoc_at,entity_a_id,entity_a_type,entity_b_id,entity_b_type,public,assoc_text,assoc_reason'
+						'fields' => 'id,assoc_mode,assoc_num,first_assoc_at,last_assoc_at,entity_a_id,entity_a_type,entity_b_id,entity_b_type,public,assoc_text,assoc_reason',
 					];
 				}
 				$entityA = new \stdClass;
@@ -696,7 +696,7 @@ class repos extends base {
 		$modelTop = $this->model('matter\enroll\topic', $oApp);
 		$oTopic = $modelTop->byId($topic);
 
-		$oResult = $modelTop->records($oTopic);
+		$oResult = $modelTop->records($oTopic, ['fields' => $modelRec::REPOS_FIELDS]);
 		if (!empty($oResult->records)) {
 			$modelData = $this->model('matter\enroll\data');
 			/* 是否限制了匿名规则 */
@@ -714,11 +714,11 @@ class repos extends base {
 				$recordDirs = [];
 				/* 清除非共享数据 */
 				if (isset($oRecord->data)) {
-					$oRecordData = new \stdClass;
-					foreach ($oApp->dataSchemas as $oSchema) {
+					$oRecData = new \stdClass;
+					foreach ($oApp->dynaDataSchemas as $oSchema) {
 						$schemaId = $oSchema->id;
-						// 分类目录
-						if (!empty($oSchema->asdir) && $oSchema->asdir === 'Y' && !empty($oRecord->data->{$schemaId})) {
+						/* 分类目录 */
+						if ($this->getDeepValue($oSchema, 'asdir') === 'Y' && !empty($oRecord->data->{$schemaId})) {
 							foreach ($oSchema->ops as $op) {
 								if ($op->v === $oRecord->data->{$schemaId}) {
 									$recordDirs[] = $op->l;
@@ -726,21 +726,21 @@ class repos extends base {
 							}
 						}
 						/* 清除非共享数据 */
-						if (isset($oSchema->shareable) && $oSchema->shareable !== 'Y') {
+						if ($this->getDeepValue($oSchema, 'shareable') !== 'Y') {
 							continue;
 						}
 						/* 协作填写题 */
-						if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
+						if ($this->getDeepValue($oSchema, 'cowork') === 'Y') {
 							$items = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, ['excludeRoot' => true, 'agreed' => ['Y', 'A'], 'fields' => 'id,agreed,like_num,nickname,value']);
 							$aCoworkState[$oSchema->id] = (object) ['length' => count($items)];
-							$oRecordData->{$schemaId} = $items;
+							$oRecData->{$schemaId} = $items;
 						} else {
 							if (null !== ($recDataVal = $this->getDeepValue($oRecord->data, $schemaId, null))) {
-								$this->setDeepValue($oRecordData, $schemaId, $recDataVal);
+								$this->setDeepValue($oRecData, $schemaId, $recDataVal);
 							}
 						}
 					}
-					$oRecord->data = $oRecordData;
+					$oRecord->data = $oRecData;
 					if (!empty($aCoworkState)) {
 						$oRecord->coworkState = (object) $aCoworkState;
 					}
@@ -761,9 +761,6 @@ class repos extends base {
 				} else {
 					$this->setNickname($oRecord, $oUser, isset($oEditorGrp) ? $oEditorGrp : null);
 				}
-				/* 清除不必要的内容 */
-				unset($oRecord->comment);
-				unset($oRecord->verified);
 				/* 获取记录的投票信息 */
 				if (!empty($aVoteRules)) {
 					$oVoteResult = new \stdClass;
@@ -779,7 +776,23 @@ class repos extends base {
 					}
 					$oRecord->voteResult = $oVoteResult;
 				}
-
+			}
+			/**
+			 * 根据任务进行排序
+			 * 1、投票任务结束后，根据投票数排序
+			 */
+			if (!empty($oTopic->task_id)) {
+				$oTask = $this->model('matter\enroll\task', $oApp)->byId($oTopic->task_id);
+				if ($oTask->state === 'AE') {
+					if ($oTask->config_type === 'vote' && !empty($oTask->schemas)) {
+						$p = 'voteResult.' . $oTask->schemas[0] . '.vote_num';
+						usort($oResult->records, function ($a, $b) use ($p) {
+							$anum = $this->getDeepValue($a, $p, 0);
+							$bnum = $this->getDeepValue($b, $p, 0);
+							return $bnum - $anum;
+						});
+					}
+				}
 			}
 		}
 

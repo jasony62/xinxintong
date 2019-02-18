@@ -292,7 +292,7 @@ class repos extends base {
 	/**
 	 * 处理数据
 	 */
-	private function _processDatas($oApp, $oUser, &$rawDatas, $rawDataType = 'record', $voteRules = null) {
+	private function _processDatas($oApp, $oUser, &$rawDatas, $processType = 'record', $voteRules = null) {
 		$modelData = $this->model('matter\enroll\data');
 		if (!empty($oApp->voteConfig)) {
 			$modelTask = $this->model('matter\enroll\task', $oApp);
@@ -331,13 +331,18 @@ class repos extends base {
 					if (isset($oSchema->shareable) && $oSchema->shareable !== 'Y') {
 						continue;
 					}
+					// 空数据
+					$dataVal = $this->getDeepValue($rawData->data, $schemaId, null);
+					if (null === $dataVal) {
+						continue;
+					}
 					/* 协作填写题 */
 					if ($this->getDeepValue($oSchema, 'cowork') === 'Y') {
-						if ($rawDataType === 'topic') {
+						if ($processType === 'topic') {
 							$items = $modelData->getCowork($rawData->enroll_key, $oSchema->id, ['excludeRoot' => true, 'agreed' => ['Y', 'A'], 'fields' => 'id,agreed,like_num,nickname,value']);
 							$aCoworkState[$oSchema->id] = (object) ['length' => count($items)];
 							$processedData->{$schemaId} = $items;
-						} else if ($rawDataType === 'cowork') {
+						} else if ($processType === 'cowork') {
 							$item = new \stdClass;
 							$item->id = $rawData->data_id;
 							$item->value = $rawData->value;
@@ -348,8 +353,44 @@ class repos extends base {
 							$countItems = $modelData->getCowork($rawData->enroll_key, $oSchema->id, $aOptions);
 							$aCoworkState[$oSchema->id] = (object) ['length' => count($countItems)];
 						}
-					} else if (null !== ($recDataVal = $this->getDeepValue($rawData->data, $schemaId, null))) {
-						$this->setDeepValue($processedData, $schemaId, $recDataVal);
+					} else if ($this->getDeepValue($oSchema, 'type') === 'multitext') {
+						$newData = [];
+						foreach ($dataVal as $val) {
+							$newData[] = $val->value;
+						}
+						$this->setDeepValue($processedData, $schemaId, $newData);
+					} else if ($this->getDeepValue($oSchema, 'type') === 'single') {
+						foreach ($oSchema->ops as $val) {
+							if ($val->v === $dataVal) {
+								$this->setDeepValue($processedData, $schemaId, $val->l);
+							}
+						}
+					} else if ($this->getDeepValue($oSchema, 'type') === 'score') {
+						$ops = new \stdClass;
+						foreach ($oSchema->ops as $val) {
+							$ops->{$val->v} = $val->l;
+						}
+						$newData = [];
+						foreach ($dataVal as $key => $val) {
+							$data2 = new \stdClass;
+							$data2->title = $ops->{$key};
+							$data2->score = $val;
+							$newData[] = $data2;
+						}
+						$this->setDeepValue($processedData, $schemaId, $newData);
+					} else if ($this->getDeepValue($oSchema, 'type') === 'multiple') {
+						$dataVal2 = explode(',', $dataVal);
+						$ops = new \stdClass;
+						foreach ($oSchema->ops as $val) {
+							$ops->{$val->v} = $val->l;
+						}
+						$newData = [];
+						foreach ($dataVal2 as $val) {
+							$newData[] = $ops->{$val};
+						}
+						$this->setDeepValue($processedData, $schemaId, $newData);
+					} else {
+						$this->setDeepValue($processedData, $schemaId, $dataVal);
 					}
 				}
 				$rawData->data = $processedData;
@@ -369,9 +410,9 @@ class repos extends base {
 				if (!empty($aVoteRules)) {
 					$oVoteResult = new \stdClass;
 					foreach ($aVoteRules as $schemaId => $oVoteRule) {
-						if ($rawDataType === 'cowork') {
+						if ($processType === 'cowork') {
 
-						} else if ($rawDataType === 'topic') {
+						} else if ($processType === 'topic') {
 							if ($this->getDeepValue($oVoteRule->schema, 'cowork') === 'Y') {continue;}
 							$oRecData = $modelData->byRecord($rawData->enroll_key, ['schema' => $schemaId, 'fields' => 'id,vote_num']);
 							if ($oRecData) {
@@ -403,7 +444,7 @@ class repos extends base {
 			unset($rawData->verified);
 
 			/* 是否已经被当前用户收藏 */
-			if ($rawDataType === 'record' || $rawDataType === 'topic') {
+			if ($processType === 'record' || $processType === 'topic') {
 				if (!empty($oUser->unionid) && $rawData->favor_num > 0) {
 					$q = ['id', 'xxt_enroll_record_favor', ['record_id' => $rawData->id, 'favor_unionid' => $oUser->unionid, 'state' => 1]];
 					if ($modelData->query_obj_ss($q)) {
@@ -412,7 +453,7 @@ class repos extends base {
 				}
 			}
 			/* 记录的标签 */
-			if ($rawDataType === 'record') {
+			if ($processType === 'record') {
 				if (!isset($modelTag)) {
 					$modelTag = $this->model('matter\enroll\tag2');
 				}
@@ -425,7 +466,7 @@ class repos extends base {
 				}
 			}
 			/* 答案关联素材 */
-			if ($rawDataType === 'cowork') {
+			if ($processType === 'cowork') {
 				if (!isset($modelAss)) {
 					$modelAss = $this->model('matter\enroll\assoc');
 					$oAssocsOptions = [

@@ -52,13 +52,13 @@
                             <hr>
                             <div class='form-inline'>
                                 <tms-toggle-switch ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'" on-label="启用" off-label="停用"></tms-toggle-switch>
-                                <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
-                                <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
+                                <button class='btn btn-default' ng-click="taskConfig.del(config)">删除</button>
+                                <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="taskConfig.save(config)">保存</button>
                             </div>
                         </div>
                     </div>
                     <div>
-                        <button class='btn btn-default' ng-click="addConfig()">添加设置目标环节</button>
+                        <button class='btn btn-default' ng-click="taskConfig.add()">添加设置目标环节</button>
                     </div>
                 </div>
             </div>
@@ -133,13 +133,13 @@
                             <hr>
                             <div class='form-inline'>
                                 <tms-toggle-switch ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'" on-label="启用" off-label="停用"></tms-toggle-switch>
-                                <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
-                                <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
+                                <button class='btn btn-default' ng-click="taskConfig.del(config)">删除</button>
+                                <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="taskConfig.save(config)">保存</button>
                             </div>
                         </div>
                     </div>
                     <div>
-                        <button class='btn btn-default' ng-click="addConfig()">添加提问环节</button>
+                        <button class='btn btn-default' ng-click="taskConfig.add()">添加提问环节</button>
                     </div>
                 </div>
             </div>
@@ -267,13 +267,13 @@
                             <hr>
                             <div class='form-inline'>
                                 <tms-toggle-switch ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'" on-label="启用" off-label="停用"></tms-toggle-switch>
-                                <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
-                                <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
+                                <button class='btn btn-default' ng-click="taskConfig.del(config)">删除</button>
+                                <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="taskConfig.save(config)">保存</button>
                             </div>
                         </div>
                     </div>
                     <div>
-                        <button class='btn btn-default' ng-click="addConfig()">添加回答环节</button>
+                        <button class='btn btn-default' ng-click="taskConfig.add()">添加回答环节</button>
                     </div>
                 </div>
             </div>
@@ -372,13 +372,13 @@
                             <hr>
                             <div class='form-inline'>
                                 <tms-toggle-switch ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'" on-label="启用" off-label="停用"></tms-toggle-switch>
-                                <button class='btn btn-default' ng-click="delConfig(config)">删除</button>
-                                <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="save(config)">保存</button>
+                                <button class='btn btn-default' ng-click="taskConfig.del(config)">删除</button>
+                                <button class='btn' ng-class="{'btn-default':configsModified[config.id]===false,'btn-success':configsModified[config.id]!==false}" ng-click="taskConfig.save(config)">保存</button>
                             </div>
                         </div>
                     </div>
                     <div>
-                        <button class='btn btn-default' ng-click="addConfig()">添加投票环节</button>
+                        <button class='btn btn-default' ng-click="taskConfig.add()">添加投票环节</button>
                     </div>
                 </div>
             </div>

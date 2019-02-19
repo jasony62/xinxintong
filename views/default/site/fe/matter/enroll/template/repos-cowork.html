@@ -22,9 +22,8 @@
                     <div class='seq label label-default'>{{$index+1}}</div>
                     <div class='nickname text-muted'>{{rec.nickname||'隐藏'}}</div>
                     <button ng-if="rec.favored" class="btn btn-default btn-xs" ng-click="favorRecord(rec)">已收藏</button>
-                    <div>
-                        <button class="btn btn-xs btn-success" ng-if="rec.agreed==='Y'">推荐</button>
-                        <button class="btn btn-xs btn-success" ng-if="rec.agreed==='D'">讨论</button>
+                    <div ng-if="rec.agreed==='Y'">
+                        <button class="btn btn-xs btn-success" >推荐</button>
                     </div>
                 </div>
                 <div class='data' ng-click="remarkRecord(rec, $event)">

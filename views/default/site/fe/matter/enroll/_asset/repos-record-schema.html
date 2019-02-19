@@ -34,20 +34,20 @@
         </div>
         <div ng-switch-when="score">
             <div ng-repeat="item in rec.data[schema.id]">
-                <span ng-bind="item.title"></span>:<span ng-bind="item.score"></span><span ng-hide="$index==rec.data[schema.id].length-1">;</span>
+                <span ng-bind="item.title"></span>:<span ng-bind="item.score"></span>;
             </div>
         </div>
         <div ng-switch-when="multitext">
-            <div ng-repeat="item in rec.data[schema.id]">
-                <span ng-bind="item"></span><span ng-hide="$index==rec.data[schema.id].length-1">;</span>
-            </div>
-        </div>
-        <div ng-switch-when="multiple">
-            <div ng-repeat="item in rec.data[schema.id]">
-                <span ng-bind="item"></span><span ng-hide="$index==rec.data[schema.id].length-1">,</span>
-            </div>
+            <span ng-repeat="item in rec.data[schema.id]">
+                <span ng-bind="item.value"></span><span ng-hide="$index==rec.data[schema.id].length-1">;</span>
+            </span>
         </div>
         <div ng-switch-when="single"><span ng-bind="rec.data[schema.id]"></span></div>
+        <div ng-switch-when="multiple">
+            <span ng-repeat="item in rec.data[schema.id]">
+                <span ng-bind="item"></span><span ng-hide="$index==rec.data[schema.id].length-1">,</span>
+            </span>
+        </div>
         <div ng-switch-when="longtext">
             <span ng-bind-html="rec.data[schema.id]"></span>
         </div>

@@ -14,14 +14,6 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
             currentTab: '='
         },
         controller: ['$scope', '$sce', '$location', 'tmsLocation', 'http2', 'noticebox', 'tmsSchema', function($scope, $sce, $location, LS, http2, noticebox, tmsSchema) {
-            $scope.coworkRecord = function(oRecord) {
-                var url;
-                url = LS.j('', 'site', 'app');
-                url += '&ek=' + oRecord.enroll_key;
-                url += '&page=cowork';
-                url += '#cowork';
-                location.href = url;
-            };
             $scope.vote = function(oRecData, event) {
                 event.preventDefault();
                 event.stopPropagation();
@@ -102,12 +94,6 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache
                                             oFile.url = $sce.trustAsResourceUrl(oFile.url);
                                         }
                                     });
-                                    break;
-                                case 'single':
-                                case 'multiple':
-                                case 'score':
-                                    var _result = tmsSchema.optionsSubstitute(oSchema, schemaData);
-                                    oRecord.data[oSchema.id] = angular.isObject(_result) ? _result : $sce.trustAsHtml(_result);
                                     break;
                             }
                         }

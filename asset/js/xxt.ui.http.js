@@ -1,5 +1,5 @@
 'use strict';
-var ngMod = angular.module('http.ui.xxt', []);
+var ngMod = angular.module('http.ui.xxt', ['ng']);
 ngMod.provider('tmsLocation', function() {
     var _baseUrl;
 

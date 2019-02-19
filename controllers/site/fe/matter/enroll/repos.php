@@ -363,7 +363,7 @@ class repos extends base {
 						} else if ($processType === 'cowork') {
 							$item = new \stdClass;
 							$item->id = $rawData->data_id;
-							$item->value = $rawData->value;
+							$item->value = $this->replaceHTMLTags($rawData->value);
 							$this->setDeepValue($processedData, $schemaId, [$item]);
 							unset($rawData->value);
 						} else {
@@ -371,6 +371,15 @@ class repos extends base {
 							$countItems = $modelData->getCowork($rawData->enroll_key, $schemaId, $aOptions);
 							$aCoworkState[$schemaId] = (object) ['length' => count($countItems)];
 						}
+					} else if ($this->getDeepValue($oSchema, 'type') === 'multitext') {
+						$newData = [];
+						foreach ($rawDataVal as &$val) {
+							$val2 = new \stdClass;
+							$val2->id = $val->id;
+							$val2->value = $this->replaceHTMLTags($val->value);
+							$newData[] = $val2;
+						}
+						$this->setDeepValue($processedData, $schemaId, $newData);
 					} else if ($this->getDeepValue($oSchema, 'type') === 'single') {
 						foreach ($oSchema->ops as $val) {
 							if ($val->v === $rawDataVal) {

@@ -433,4 +433,19 @@ class TMS_MODEL {
 
 		return $deepObj;
 	}
+	/**
+	 * 替换字符串中的html标签
+	 * $brValue <br>标签要替换成的值
+	 */
+	public static function replaceHTMLTags($text, $brValue = '') {
+		if (!is_string($text)) {
+			return false;
+		}
+
+		$text = str_replace(['<br>', '</br>'], [$brValue, ""], $text);
+		$text = strip_tags($text);
+		$text = str_replace(['&nbsp;', '&amp;'], ['', '&'], $text);
+
+		return $text;
+	}
 }

@@ -18,7 +18,7 @@ window.xxt.image = {
                     ".gi": "image/gif"
                 } [f.name.match(/\.(\w){2}/g)[0] || ".jp"];
                 f.type2 = f.type || type;
-                var oReader = new FileoReader();
+                var oReader = new FileReader();
                 oReader.onload = (function(theFile) {
                     return function(e) {
                         var img = {};

@@ -2,62 +2,17 @@
 
 require('../../../../../../../asset/js/xxt.ui.schema.js');
 
-var ngMod = angular.module('repos.ui.enroll', ['schema.ui.xxt']);
-ngMod.directive('tmsReposRecordData', ['$templateCache', function($templateCache) {
+var ngMod = angular.module('record.repos.ui.enroll', ['schema.ui.xxt']);
+ngMod.directive('tmsReposRecord', ['$templateCache', function($templateCache) {
     return {
         restrict: 'A',
-        template: require('./repos-record-data.html'),
+        template: require('./repos-record-schema.html'),
         scope: {
             schemas: '=',
             rec: '=record',
-            task: '=task',
-            currentTab: '='
+            schemaCounter: '='
         },
         controller: ['$scope', '$sce', '$location', 'tmsLocation', 'http2', 'noticebox', 'tmsSchema', function($scope, $sce, $location, LS, http2, noticebox, tmsSchema) {
-            $scope.vote = function(oRecData, event) {
-                event.preventDefault();
-                event.stopPropagation();
-
-                if ($scope.task) {
-                    http2.get(LS.j('task/vote', 'site') + '&data=' + oRecData.id + '&task=' + $scope.task.id).then(function(rsp) {
-                        if (oRecData.voteResult) {
-                            oRecData.voteResult.vote_num++;
-                            oRecData.voteResult.vote_at = rsp.data[0].vote_at;
-                        } else {
-                            oRecData.vote_num++;
-                            oRecData.vote_at = rsp.data[0].vote_at;
-                        }
-                        var remainder = rsp.data[1][0] - rsp.data[1][1];
-                        if (remainder > 0) {
-                            noticebox.success('还需要投出【' + remainder + '】票');
-                        } else {
-                            noticebox.success('已完成全部投票');
-                        }
-                    });
-                }
-            };
-            $scope.unvote = function(oRecData, event) {
-                event.preventDefault();
-                event.stopPropagation();
-                
-                if ($scope.task) {
-                    http2.get(LS.j('task/unvote', 'site') + '&data=' + oRecData.id + '&task=' + $scope.task.id).then(function(rsp) {
-                        if (oRecData.voteResult) {
-                            oRecData.voteResult.vote_num--;
-                            oRecData.voteResult.vote_at = 0;
-                        } else {
-                            oRecData.vote_num--;
-                            oRecData.vote_at = 0;
-                        }
-                        var remainder = rsp.data[0] - rsp.data[1];
-                        if (remainder > 0) {
-                            noticebox.success('还需要投出【' + remainder + '】票');
-                        } else {
-                            noticebox.success('已完成全部投票');
-                        }
-                    });
-                }
-            };
             $scope.open = function(file) {
                 var url, appID, data;
                 appID = $location.search().app;

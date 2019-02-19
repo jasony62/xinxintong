@@ -1,7 +1,8 @@
 'use strict';
 require('./enroll.public.css');
 
-require('./_asset/ui.repos.js');
+require('./_asset/ui.repos.record.js');
+require('./_asset/ui.repos.cowork.js');
 require('./_asset/ui.tag.js');
 require('./_asset/ui.topic.js');
 require('./_asset/ui.assoc.js');
@@ -11,14 +12,15 @@ require('./_asset/ui.filter.js');
 require('./_asset/ui.tree.js');
 require('./_asset/ui.task.js');
 
-window.moduleAngularModules = ['tree.ui', 'filter.ui', 'dropdown.ui', 'round.ui.enroll', 'repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll', 'task.ui.enroll'];
+window.moduleAngularModules = ['tree.ui', 'filter.ui', 'dropdown.ui', 'round.ui.enroll', 'record.repos.ui.enroll', 'cowork.repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll', 'task.ui.enroll'];
 
 var ngApp = require('./main.js');
 ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', 'enlService', 'enlTask', function($scope, $parse, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc, enlService, enlTask) {
     var _oApp, _facRound, _aShareableSchemas;
     $scope.schemas = _aShareableSchemas = []; // 支持分享的题目
     $scope.activeDirSchemas = {};
-    $scope.tabs = [{ 'title': '记录', 'id': 'record', 'url': '/views/default/site/fe/matter/enroll/template/repos-recordSchema.html' }];
+    $scope.schemaCounter = 0;
+    $scope.tabs = [{ 'title': '记录', 'id': 'record', 'url': '/views/default/site/fe/matter/enroll/template/repos-record.html' }];
     $scope.tabClick = function(view) {
         $scope.selectedTab = view;
     }
@@ -126,6 +128,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         if (window.sessionStorage.length) {
             var cacheData, _cPage;
             cacheData = JSON.parse(window.sessionStorage.listStorage);
+            $scope.schemaCounter = cacheData.schemaCounter;
             $scope.tasks = cacheData.tasks;
             $scope.tabs = cacheData.tabs;
             $scope.selectedTab = cacheData.selectedTab;
@@ -179,13 +182,16 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             });
             _oApp.dynaDataSchemas.forEach(function(oSchema) {
                 if (oSchema.shareable === 'Y') {
+                    $scope.schemaCounter++;
                     _aShareableSchemas.push(oSchema);
                 }
                 if (Object.keys(oSchema).indexOf('cowork') !== -1 && oSchema.cowork === 'Y') {
+                    $scope.schemaCounter--;
                     $scope.tabs[0].title = '问题';
-                    $scope.tabs.push({ 'title': '答案', 'id': 'coworkData', 'url': '/views/default/site/fe/matter/enroll/template/repos-coworkSchema.html' });
+                    $scope.tabs.push({ 'title': '答案', 'id': 'coworkData', 'url': '/views/default/site/fe/matter/enroll/template/repos-cowork.html' });
                     $scope.selectedTab = $scope.tabs[1];
                 }
+
             });
             /* 共享专题 */
             http2.get(LS.j('topic/listPublic', 'site', 'app')).then(function(rsp) {
@@ -234,7 +240,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         });
     });
 }]);
-ngApp.controller('ctrlRecordSchema', ['$scope', '$timeout', '$q', 'http2', 'noticebox', 'tmsLocation', 'picviewer', 'enlAssoc', function($scope, $timeout, $q, http2, noticebox, LS, picviewer, enlAssoc) {
+ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'noticebox', 'tmsLocation', 'picviewer', 'enlAssoc', function($scope, $timeout, $q, http2, noticebox, LS, picviewer, enlAssoc) {
     function fnGetCriteria(datas) {
         $scope.singleFilters = [];
         $scope.multiFilters = [];
@@ -372,6 +378,7 @@ ngApp.controller('ctrlRecordSchema', ['$scope', '$timeout', '$q', 'http2', 'noti
     function addToCache() {
         sessionStorage.setItem('listStorageY', document.getElementById('repos').scrollTop);
         var cacheData = {
+            'schemaCounter': $scope.schemaCounter,
             'singleFilters': $scope.singleFilters,
             'multiFilters': $scope.multiFilters,
             'page': $scope.page,
@@ -469,7 +476,7 @@ ngApp.controller('ctrlRecordSchema', ['$scope', '$timeout', '$q', 'http2', 'noti
         $scope.getCriteria();
     }
 }]);
-ngApp.controller('ctrlCoworkSchema', ['$scope', '$timeout', '$q', 'http2', 'tmsLocation', 'picviewer', function($scope, $timeout, $q, http2, LS, picviewer) {
+ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLocation', 'picviewer', function($scope, $timeout, $q, http2, LS, picviewer) {
     function fnGetCriteria(datas) {
         $scope.singleFilters = [];
         $scope.multiFilters = [];
@@ -603,6 +610,7 @@ ngApp.controller('ctrlCoworkSchema', ['$scope', '$timeout', '$q', 'http2', 'tmsL
     function addToCache() {
         sessionStorage.setItem('listStorageY', document.getElementById('repos').scrollTop);
         var cacheData = {
+            'schemaCounter': $scope.schemaCounter,
             'singleFilters': $scope.singleFilters,
             'multiFilters': $scope.multiFilters,
             'page': $scope.page,
@@ -693,6 +701,7 @@ ngApp.controller('ctrlPublicTopic', ['$scope', 'http2', '$timeout', 'tmsLocation
     function addToCache() {
         sessionStorage.setItem('listStorageY', document.getElementById('topic').scrollTop);
         var cacheData = {
+            'schemaCounter': $scope.schemaCounter,
             'singleFilters': $scope.singleFilters,
             'multiFilters': $scope.multiFilters,
             'currentFilter': $scope.filter,

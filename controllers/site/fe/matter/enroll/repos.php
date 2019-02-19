@@ -418,12 +418,13 @@ class repos extends base {
 				if (!empty($recordDirs)) {
 					$rawData->recordDir = $recordDirs;
 				}
+
 				/* 获取记录的投票信息 */
 				if (!empty($aVoteRules)) {
 					$oVoteResult = new \stdClass;
 					foreach ($aVoteRules as $schemaId => $oVoteRule) {
 						if ($processType === 'cowork') {
-
+							continue;
 						} else if ($processType === 'topic') {
 							if ($this->getDeepValue($oVoteRule->schema, 'cowork') === 'Y') {continue;}
 							$oRecData = $modelData->byRecord($rawData->enroll_key, ['schema' => $schemaId, 'fields' => 'id,vote_num']);

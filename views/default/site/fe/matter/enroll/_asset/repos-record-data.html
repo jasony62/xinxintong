@@ -39,14 +39,7 @@
         </div>
         <div ng-switch-when="multitext">
             <div ng-repeat="item in rec.data[schema.id]">
-                <div class='top-bar tms-flex-row'>
-                    <div class='seq tms-flex-grow text-muted' ng-if="item.multitext_seq">#<span ng-bind="item.multitext_seq"></span></div>
-                    <span ng-if="item.voteResult&&item.voteResult.state!=='BS'">得票：<span ng-bind="item.voteResult.vote_num"></span>&nbsp;&nbsp;</span>
-                    <span ng-if="item.score>0" style='font-size:80%'>得分：<span ng-bind="item.score"></span></span>
-                </div>
-                <blockquote>
-                    <p dynamic-html="item.value"></p>
-                </blockquote>
+                <span ng-bind="item.value"></span><span ng-hide="$index==rec.data[schema.id].length-1">;</span>
             </div>
         </div>
         <div ng-switch-when="single"><span ng-bind="rec.data[schema.id]"></span></div>

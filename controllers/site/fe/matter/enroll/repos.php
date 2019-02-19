@@ -353,12 +353,6 @@ class repos extends base {
 							$countItems = $modelData->getCowork($rawData->enroll_key, $oSchema->id, $aOptions);
 							$aCoworkState[$oSchema->id] = (object) ['length' => count($countItems)];
 						}
-					} else if ($this->getDeepValue($oSchema, 'type') === 'multitext') {
-						$newData = [];
-						foreach ($rawDataVal as $val) {
-							$newData[] = $val->value;
-						}
-						$this->setDeepValue($processedData, $schemaId, $newData);
 					} else if ($this->getDeepValue($oSchema, 'type') === 'single') {
 						foreach ($oSchema->ops as $val) {
 							if ($val->v === $rawDataVal) {

@@ -94,10 +94,10 @@ class remark extends base {
 				// 如果记录活动指定了编辑组需要获取，编辑组中所有的用户
 				$modelGrpUsr = $this->model('matter\group\record');
 				$assocGroupId = $oApp->entryRule->group->id;
-				$$oGrpRecResult = $modelGrpUsr->byApp($assocGroupId, ['roleTeamId' => $oEditor->group, 'fields' => 'role_teams,userid']);
-				if (isset($$oGrpRecResult->records)) {
+				$oGrpRecResult = $modelGrpUsr->byApp($assocGroupId, ['roleTeamId' => $oEditor->group, 'fields' => 'role_teams,userid']);
+				if (isset($oGrpRecResult->records)) {
 					$oEditorUsers = new \stdClass;
-					foreach ($$oGrpRecResult->records as $oGrpUser) {
+					foreach ($oGrpRecResult->records as $oGrpUser) {
 						$oEditorUsers->{$oGrpUser->userid} = $oGrpUser->role_teams;
 					}
 				}

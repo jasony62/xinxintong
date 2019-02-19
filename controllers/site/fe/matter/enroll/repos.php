@@ -292,7 +292,7 @@ class repos extends base {
 	/**
 	 * 处理数据
 	 */
-	private function _processDatas($oApp, $oUser, &$rawDatas, $processType = 'record', $voteRules = null) {
+	private function _processDatas($oApp, $oUser, &$rawDatas, $processType = 'recordList', $voteRules = null) {
 		$modelData = $this->model('matter\enroll\data');
 		if (!empty($oApp->voteConfig)) {
 			$modelTask = $this->model('matter\enroll\task', $oApp);
@@ -356,14 +356,14 @@ class repos extends base {
 
 					/* 协作填写题 */
 					if ($this->getDeepValue($oSchema, 'cowork') === 'Y') {
-						if ($processType === 'topic') {
+						if ($processType === 'recordByTopic') {
 							$items = $modelData->getCowork($rawData->enroll_key, $schemaId, ['excludeRoot' => true, 'agreed' => ['Y', 'A'], 'fields' => 'id,agreed,like_num,nickname,value']);
 							$aCoworkState[$schemaId] = (object) ['length' => count($items)];
 							$processedData->{$schemaId} = $items;
-						} else if ($processType === 'cowork') {
+						} else if ($processType === 'coworkDataList') {
 							$item = new \stdClass;
 							$item->id = $rawData->data_id;
-							$item->value = $rawData->value;
+							$item->value = $this->replaceHTMLTags($rawData->value);
 							$this->setDeepValue($processedData, $schemaId, [$item]);
 							unset($rawData->value);
 						} else {
@@ -371,6 +371,15 @@ class repos extends base {
 							$countItems = $modelData->getCowork($rawData->enroll_key, $schemaId, $aOptions);
 							$aCoworkState[$schemaId] = (object) ['length' => count($countItems)];
 						}
+					} else if ($this->getDeepValue($oSchema, 'type') === 'multitext') {
+						$newData = [];
+						foreach ($rawDataVal as &$val) {
+							$val2 = new \stdClass;
+							$val2->id = $val->id;
+							$val2->value = $this->replaceHTMLTags($val->value);
+							$newData[] = $val2;
+						}
+						$this->setDeepValue($processedData, $schemaId, $newData);
 					} else if ($this->getDeepValue($oSchema, 'type') === 'single') {
 						foreach ($oSchema->ops as $val) {
 							if ($val->v === $rawDataVal) {
@@ -423,9 +432,9 @@ class repos extends base {
 				if (!empty($aVoteRules)) {
 					$oVoteResult = new \stdClass;
 					foreach ($aVoteRules as $schemaId => $oVoteRule) {
-						if ($processType === 'cowork') {
+						if ($processType === 'coworkDataList') {
 							continue;
-						} else if ($processType === 'topic') {
+						} else if ($processType === 'recordByTopic') {
 							if ($this->getDeepValue($oVoteRule->schema, 'cowork') === 'Y') {continue;}
 							$oRecData = $modelData->byRecord($rawData->enroll_key, ['schema' => $schemaId, 'fields' => 'id,vote_num']);
 							if ($oRecData) {
@@ -457,7 +466,7 @@ class repos extends base {
 			unset($rawData->verified);
 
 			/* 是否已经被当前用户收藏 */
-			if ($processType === 'record' || $processType === 'topic') {
+			if ($processType === 'recordList' || $processType === 'recordByTopic') {
 				if (!empty($oUser->unionid) && $rawData->favor_num > 0) {
 					$q = ['id', 'xxt_enroll_record_favor', ['record_id' => $rawData->id, 'favor_unionid' => $oUser->unionid, 'state' => 1]];
 					if ($modelData->query_obj_ss($q)) {
@@ -466,7 +475,7 @@ class repos extends base {
 				}
 			}
 			/* 记录的标签 */
-			if ($processType === 'record') {
+			if ($processType === 'recordList') {
 				if (!isset($modelTag)) {
 					$modelTag = $this->model('matter\enroll\tag2');
 				}
@@ -479,7 +488,7 @@ class repos extends base {
 				}
 			}
 			/* 答案关联素材 */
-			if ($processType === 'cowork') {
+			if ($processType === 'coworkDataList') {
 				if (!isset($modelAss)) {
 					$modelAss = $this->model('matter\enroll\assoc');
 					$oAssocsOptions = [
@@ -603,7 +612,7 @@ class repos extends base {
 
 		$oResult = $modelRec->byApp($oApp, $oOptions, $oCriteria, $oUser);
 		if (!empty($oResult->records)) {
-			$this->_processDatas($oApp, $oUser, $oResult->records, 'record');
+			$this->_processDatas($oApp, $oUser, $oResult->records, 'recordList');
 		}
 
 		// 记录搜索事件
@@ -701,7 +710,7 @@ class repos extends base {
 		$oResult = $modelRecDat->coworkDataByApp($oApp, $oOptions, $oCriteria, $oUser, 'cowork');
 		if (!empty($oResult->recordDatas)) {
 			// 处理数据
-			$this->_processDatas($oApp, $oUser, $oResult->recordDatas, 'cowork');
+			$this->_processDatas($oApp, $oUser, $oResult->recordDatas, 'coworkDataList');
 		}
 
 		// 记录搜索事件
@@ -756,7 +765,7 @@ class repos extends base {
 				$aVoteRules = null;
 			}
 			// 处理数据
-			$this->_processDatas($oApp, $oUser, $oResult->records, 'topic', $aVoteRules);
+			$this->_processDatas($oApp, $oUser, $oResult->records, 'recordByTopic', $aVoteRules);
 			/**
 			 * 根据任务进行排序
 			 * 1、投票任务结束后，根据投票数排序
@@ -797,7 +806,7 @@ class repos extends base {
 		$oUser = $this->getUser($oApp);
 
 		$oRecords = [&$oRecord];
-		$this->_processDatas($oApp, $oUser, $oRecords, 'record');
+		$this->_processDatas($oApp, $oUser, $oRecords, 'recordList');
 
 		return new \ResponseData($oRecord);
 	}

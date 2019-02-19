@@ -127,6 +127,12 @@ class TMS_CONTROLLER {
 		return TMS_MODEL::setDeepValue($deepObj, $deepProp, $setVal);
 	}
 	/**
+	 *
+	 */
+	public static function replaceHTMLTags($text, $brValue = '') {
+		return TMS_MODEL::replaceHTMLTags($text, $brValue);
+	}
+	/**
 	 * 获得URL对应的view
 	 *
 	 * 查找规则：

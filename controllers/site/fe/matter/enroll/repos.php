@@ -752,6 +752,8 @@ class repos extends base {
 			/* 获取记录的投票信息 */
 			if (!empty($oApp->voteConfig)) {
 				$aVoteRules = $this->model('matter\enroll\task', $oApp)->getVoteRule($oUser);
+			} else {
+				$aVoteRules = null;
 			}
 			// 处理数据
 			$this->_processDatas($oApp, $oUser, $oResult->records, 'topic', $aVoteRules);

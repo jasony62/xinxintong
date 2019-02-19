@@ -331,9 +331,9 @@ class repos extends base {
 					if (isset($oSchema->shareable) && $oSchema->shareable !== 'Y') {
 						continue;
 					}
-					// 空数据
-					$dataVal = $this->getDeepValue($rawData->data, $schemaId, null);
-					if (null === $dataVal) {
+					// 过滤空数据
+					$rawDataVal = $this->getDeepValue($rawData->data, $schemaId, null);
+					if (null === $rawDataVal) {
 						continue;
 					}
 					/* 协作填写题 */
@@ -355,13 +355,13 @@ class repos extends base {
 						}
 					} else if ($this->getDeepValue($oSchema, 'type') === 'multitext') {
 						$newData = [];
-						foreach ($dataVal as $val) {
+						foreach ($rawDataVal as $val) {
 							$newData[] = $val->value;
 						}
 						$this->setDeepValue($processedData, $schemaId, $newData);
 					} else if ($this->getDeepValue($oSchema, 'type') === 'single') {
 						foreach ($oSchema->ops as $val) {
-							if ($val->v === $dataVal) {
+							if ($val->v === $rawDataVal) {
 								$this->setDeepValue($processedData, $schemaId, $val->l);
 							}
 						}
@@ -371,7 +371,7 @@ class repos extends base {
 							$ops->{$val->v} = $val->l;
 						}
 						$newData = [];
-						foreach ($dataVal as $key => $val) {
+						foreach ($rawDataVal as $key => $val) {
 							$data2 = new \stdClass;
 							$data2->title = $ops->{$key};
 							$data2->score = $val;
@@ -379,18 +379,18 @@ class repos extends base {
 						}
 						$this->setDeepValue($processedData, $schemaId, $newData);
 					} else if ($this->getDeepValue($oSchema, 'type') === 'multiple') {
-						$dataVal2 = explode(',', $dataVal);
+						$rawDataVal2 = explode(',', $rawDataVal);
 						$ops = new \stdClass;
 						foreach ($oSchema->ops as $val) {
 							$ops->{$val->v} = $val->l;
 						}
 						$newData = [];
-						foreach ($dataVal2 as $val) {
+						foreach ($rawDataVal2 as $val) {
 							$newData[] = $ops->{$val};
 						}
 						$this->setDeepValue($processedData, $schemaId, $newData);
 					} else {
-						$this->setDeepValue($processedData, $schemaId, $dataVal);
+						$this->setDeepValue($processedData, $schemaId, $rawDataVal);
 					}
 				}
 				$rawData->data = $processedData;

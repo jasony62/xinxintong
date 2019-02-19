@@ -328,7 +328,7 @@ class repos extends base {
 						}
 					}
 					/* 清除非共享数据 */
-					if (isset($oSchema->shareable) && $oSchema->shareable !== 'Y') {
+					if (!isset($oSchema->shareable) || $oSchema->shareable !== 'Y') {
 						continue;
 					}
 					// 过滤空数据
@@ -336,11 +336,29 @@ class repos extends base {
 					if (null === $rawDataVal) {
 						continue;
 					}
+					// 选择题题目可见性规则
+					if (!empty($oSchema->visibility->rules)) {
+						$checkSchemaVisibility = true;
+						foreach ($oSchema->visibility->rules as $oRule) {
+							if (strpos($schemaId, 'member.extattr') === 0) {
+								$memberSchemaId = str_replace('member.extattr.', '', $schemaId);
+								if (!isset($rawData->data->member->extattr->{$memberSchemaId}) || ($rawData->data->member->extattr->{$memberSchemaId} !== $oRule->op && empty($rawData->data->member->extattr->{$memberSchemaId}))) {
+									$checkSchemaVisibility =  false;
+								}
+							} else if (!isset($rawData->data->{$oRule->schema}) || ($rawData->data->{$oRule->schema} !== $oRule->op && empty($rawData->data->{$oRule->schema}->{$oRule->op}))) {
+								$checkSchemaVisibility = false;
+							}
+						}
+						if ($checkSchemaVisibility === false) {
+							continue;
+						}
+					}
+
 					/* 协作填写题 */
 					if ($this->getDeepValue($oSchema, 'cowork') === 'Y') {
 						if ($processType === 'topic') {
-							$items = $modelData->getCowork($rawData->enroll_key, $oSchema->id, ['excludeRoot' => true, 'agreed' => ['Y', 'A'], 'fields' => 'id,agreed,like_num,nickname,value']);
-							$aCoworkState[$oSchema->id] = (object) ['length' => count($items)];
+							$items = $modelData->getCowork($rawData->enroll_key, $schemaId, ['excludeRoot' => true, 'agreed' => ['Y', 'A'], 'fields' => 'id,agreed,like_num,nickname,value']);
+							$aCoworkState[$schemaId] = (object) ['length' => count($items)];
 							$processedData->{$schemaId} = $items;
 						} else if ($processType === 'cowork') {
 							$item = new \stdClass;
@@ -350,8 +368,8 @@ class repos extends base {
 							unset($rawData->value);
 						} else {
 							$aOptions = ['fields' => 'id', 'agreed' => ['Y', 'A']];
-							$countItems = $modelData->getCowork($rawData->enroll_key, $oSchema->id, $aOptions);
-							$aCoworkState[$oSchema->id] = (object) ['length' => count($countItems)];
+							$countItems = $modelData->getCowork($rawData->enroll_key, $schemaId, $aOptions);
+							$aCoworkState[$schemaId] = (object) ['length' => count($countItems)];
 						}
 					} else if ($this->getDeepValue($oSchema, 'type') === 'single') {
 						foreach ($oSchema->ops as $val) {
@@ -484,6 +502,8 @@ class repos extends base {
 				$rawData->id = $rawData->record_id;
 			}
 		}
+
+		return $rawDatas;
 	}
 	/**
 	 * 返回指定活动的填写记录的共享内容
@@ -771,98 +791,10 @@ class repos extends base {
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-
 		$oUser = $this->getUser($oApp);
 
-		if (!empty($oUser->unionid) && $oRecord->favor_num > 0) {
-			$q = ['id', 'xxt_enroll_record_favor', ['record_id' => $oRecord->id, 'favor_unionid' => $oUser->unionid, 'state' => 1]];
-			if ($modelRec->query_obj_ss($q)) {
-				$oRecord->favored = true;
-			}
-		}
-
-		/* 记录的标签 */
-		$modelTag = $this->model('matter\enroll\tag2');
-		$oRecordTags = $modelTag->byRecord($oRecord, $oUser);
-		if (!empty($oRecordTags->user)) {
-			$oRecord->userTags = $oRecordTags->user;
-		}
-
-		/* 设置昵称 */
-		if ($this->_requireAnonymous($oApp)) {
-			unset($oRecord->nickname);
-		} else {
-			$oEditorGrp = $this->getEditorGroup($oApp);
-			$this->setNickname($oRecord, $oUser, $oEditorGrp);
-		}
-
-		if (isset($oRecord->data) && !empty($oApp->dynaDataSchemas)) {
-			$fnCheckSchemaVisibility = function ($oSchema, $oRecordData) {
-				if (!empty($oSchema->visibility->rules)) {
-					foreach ($oSchema->visibility->rules as $oRule) {
-						if (strpos($oSchema->id, 'member.extattr') === 0) {
-							$memberSchemaId = str_replace('member.extattr.', '', $oSchema->id);
-							if (!isset($oRecordData->member->extattr->{$memberSchemaId}) || ($oRecordData->member->extattr->{$memberSchemaId} !== $oRule->op && empty($oRecordData->member->extattr->{$memberSchemaId}))) {
-								return false;
-							}
-						} else if (!isset($oRecordData->{$oRule->schema}) || ($oRecordData->{$oRule->schema} !== $oRule->op && empty($oRecordData->{$oRule->schema}->{$oRule->op}))) {
-							return false;
-						}
-					}
-				}
-				return true;
-			};
-			/* 清除非共享数据 以及获取分类目录*/
-			$recordDirs = [];
-			$oShareableSchemas = new \stdClass;
-			foreach ($oApp->dynaDataSchemas as $oSchema) {
-				if (isset($oSchema->shareable) && $oSchema->shareable === 'Y') {
-					$oShareableSchemas->{$oSchema->id} = $oSchema;
-				}
-				$schemaId2 = $oSchema->id;
-				if (!empty($oSchema->asdir) && $oSchema->asdir === 'Y' && !empty($oSchema->ops) && !empty($oRecord->data->{$schemaId2})) {
-					foreach ($oSchema->ops as $op) {
-						if ($op->v === $oRecord->data->{$schemaId2}) {
-							$recordDirs[] = $op->l;
-						}
-					}
-				}
-			}
-			if (!empty($recordDirs)) {
-				$oRecord->recordDir = $recordDirs;
-			}
-			$modelRecDat = $this->model('matter\enroll\data');
-			/* 避免因为清除数据导致影响数据的可见关系 */
-			$oFullRecData = clone $oRecord->data;
-			foreach ($oRecord->data as $schemaId => $value) {
-				/* 清除空值 */
-				if (!isset($oShareableSchemas->{$schemaId})) {
-					unset($oRecord->data->{$schemaId});
-					continue;
-				}
-				/* 清除不可见的题 */
-				$oSchema = $oShareableSchemas->{$schemaId};
-				if (!$fnCheckSchemaVisibility($oSchema, $oFullRecData)) {
-					unset($oRecord->data->{$schemaId});
-					continue;
-				}
-			}
-			/* 获取记录的投票信息 */
-			if (!empty($oApp->voteConfig)) {
-				$aVoteRules = $this->model('matter\enroll\task', $oApp)->getVoteRule($oUser, $oRecord->round);
-				$oVoteResult = new \stdClass;
-				foreach ($aVoteRules as $schemaId => $oVoteRule) {
-					if ($this->getDeepValue($oVoteRule, 'schema.cowork') === 'Y') {continue;}
-					$oRecData = $modelRecDat->byRecord($oRecord->enroll_key, ['schema' => $schemaId, 'fields' => 'id,vote_num']);
-					if ($oRecData) {
-						$vote_at = (int) $modelRecDat->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oRecData->id, 'state' => 1, 'userid' => $oUser->uid]]);
-						$oRecData->vote_at = $vote_at;
-						$oVoteResult->{$schemaId} = $oRecData;
-					}
-				}
-				$oRecord->voteResult = $oVoteResult;
-			}
-		}
+		$oRecords = [&$oRecord];
+		$this->_processDatas($oApp, $oUser, $oRecords, 'record');
 
 		return new \ResponseData($oRecord);
 	}

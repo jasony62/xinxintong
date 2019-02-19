@@ -28,7 +28,6 @@ ngMod.directive('tmsReposCowork', ['$templateCache', function($templateCache) {
             }
             $scope.$watch('rec', function(oRecord) {
                 if (!oRecord) { return; }
-                console.log($scope.schemaCounter);
                 $scope.$watch('schemas', function(schemas) {
                     if (!schemas) { return; }
                     var oSchema, schemaData;

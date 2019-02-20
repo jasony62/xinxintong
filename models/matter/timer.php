@@ -45,6 +45,7 @@ class timer_model extends base_model {
 			if (property_exists($oTask, 'task_arguments')) {
 				$oTask->task_arguments = empty($oTask->task_arguments) ? new \stdClass : json_decode($oTask->task_arguments);
 			}
+			$oTask->name = $this->readableTaskName($oTask);
 		}
 
 		return $tasks;
@@ -182,6 +183,13 @@ class timer_model extends base_model {
 	 * 根据轮次的定时规则设置任务的执行时间
 	 */
 	public function setTimeByRoundCron($oTask, $oCron, $bPersit = true) {
+		if (isset($oTask->offset_hour)) {
+			$offset_days = floor($oTask->offset_hour / 24);
+			$offset_hours = $oTask->offset_hour - ($offset_days * 24);
+		} else {
+			$offset_days = $offset_hours = 0;
+		}
+
 		$oNewUpdate = new \stdClass;
 		switch ($oCron->period) {
 		case 'D':
@@ -190,7 +198,7 @@ class timer_model extends base_model {
 			break;
 		case 'W':
 			$oNewUpdate->pattern = 'W';
-			$oNewUpdate->wday = $oCron->wday;
+			$oNewUpdate->wday = ($oCron->wday + $offset_days) % 7;
 			break;
 		case 'M':
 			$oNewUpdate->pattern = 'M';
@@ -199,26 +207,21 @@ class timer_model extends base_model {
 		}
 		switch ($oTask->offset_mode) {
 		case 'AS':
-			$oNewUpdate->hour = $oCron->hour + (isset($oTask->offset_hour) ? $oTask->offset_hour : 0);
+			$oNewUpdate->hour = (int) $oCron->hour + $offset_hours;
 			if ($oNewUpdate->hour > 23) {
-				return [false, '定时任务的相对时间设置超出范围'];
+				return [false, '定时任务的相对时间【' . $oNewUpdate->hour . '】设置超出范围'];
 			}
-			$oNewUpdate->min = isset($oTask->offset_min) ? $oTask->offset_min : 0;
+			$oNewUpdate->min = 0;
 			break;
 		case 'BE':
 			if (!isset($oCron->end_hour) || strlen($oCron->end_hour) === 0) {
 				return [false, '轮次生成规则没有指定结束时间，无法生成任务执行时间'];
 			}
-			$oNewUpdate->hour = $oCron->end_hour - (isset($oTask->offset_hour) ? $oTask->offset_hour : 0);
-			if (isset($oTask->offset_min) && $oTask->offset_min > 0) {
-				$oNewUpdate->hour--;
-				$oNewUpdate->min = 60 - (isset($oTask->offset_min) ? $oTask->offset_min : 0);
-			} else {
-				$oNewUpdate->min = 0;
-			}
+			$oNewUpdate->hour = (int) $oCron->end_hour - $offset_hours;
 			if ($oNewUpdate->hour < 0) {
-				return [false, '定时任务的相对时间设置超出范围'];
+				return [false, '定时任务的相对时间【' . $oNewUpdate->hour . '】设置超出范围'];
 			}
+			$oNewUpdate->min = 0;
 			break;
 		}
 		if ($bPersit) {
@@ -226,5 +229,38 @@ class timer_model extends base_model {
 		}
 
 		return [true, $oNewUpdate];
+	}
+	/**
+	 * 定时任务名称
+	 */
+	public function readableTaskName($oTask) {
+		$names = [];
+		switch ($oTask->pattern) {
+		case 'Y':
+			if ($this->getDeepValue($oTask, 'mon', -1) >= 1) {
+				$names[] = '每年' . $oTask->mon . '月';
+			} else {
+				$names[] = '每年';
+				$names[] = '每月';
+			}
+			$names[] = $this->getDeepValue($oTask, 'mday', -1) >= 1 ? ('每月' . $oTask->mday) . '日' : '每日';
+			break;
+		case 'M':
+			$names[] = $this->getDeepValue($oTask, 'mday', -1) >= 1 ? ('每月' . $oTask->mday) . '日' : '每日';
+			break;
+		case 'W':
+			if (isset($oTask->wday) && $oTask->wday >= 0) {
+				$names[] = '每周' . ['日', '一', '二', '三', '四', '五', '六'][$oTask->wday];
+			} else {
+				$names[] = '每天';
+			}
+			break;
+		}
+		// 小时
+		$names[] = $this->getDeepValue($oTask, 'hour', -1) >= 0 ? ($oTask->hour . '点') : '每小时';
+		// 分钟
+		$names[] = $this->getDeepValue($oTask, 'min', -1) >= 0 ? ($oTask->min . '分') : '每分钟';
+
+		return implode(',', $names);
 	}
 }

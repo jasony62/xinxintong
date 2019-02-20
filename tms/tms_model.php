@@ -444,7 +444,7 @@ class TMS_MODEL {
 
 		$text = str_replace(['<br>', '</br>'], [$brValue, ""], $text);
 		$text = strip_tags($text);
-		$text = str_replace(['&nbsp;', '&amp;'], ['', '&'], $text);
+		$text = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $text);
 
 		return $text;
 	}

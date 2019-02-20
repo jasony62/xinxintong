@@ -38,9 +38,9 @@
             </div>
         </div>
         <div ng-switch-when="multitext">
-            <div ng-repeat="item in rec.data[schema.id]">
+            <span ng-repeat="item in rec.data[schema.id]">
                 <span ng-bind="item.value"></span><span ng-hide="$index==rec.data[schema.id].length-1">;</span>
-            </div>
+            </span>
         </div>
         <div ng-switch-when="single"><span ng-bind="rec.data[schema.id]"></span></div>
         <div ng-switch-when="multiple">

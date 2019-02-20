@@ -143,9 +143,17 @@ class enroll_model extends enroll_base {
 				/* 清除数据 */
 				unset($oApp->data_schemas);
 			}
-
+			/* 轮次生成规则 */
 			if (property_exists($oApp, 'round_cron')) {
-				if (!empty($oApp->round_cron)) {
+				if ($this->getDeepValue($oApp, 'sync_mission_round') === 'Y') {
+					if (!empty($oApp->mission_id)) {
+						/* 使用项目的轮次生成规则 */
+						$oMission = $this->model('matter\mission')->byId($oApp->mission_id, ['fields' => 'round_cron']);
+						$oApp->roundCron = $oMission->roundCron;
+					} else {
+						$oApp->roundCron = [];
+					}
+				} else if (!empty($oApp->round_cron)) {
 					$oApp->roundCron = json_decode($oApp->round_cron);
 					$modelRnd = $this->model('matter\enroll\round');
 					foreach ($oApp->roundCron as $rc) {

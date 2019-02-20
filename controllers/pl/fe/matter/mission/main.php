@@ -321,37 +321,45 @@ class main extends \pl\fe\matter\main_base {
 
 		/* data */
 		$oPosted = $this->getPostJson();
-
-		if (isset($oPosted->title)) {
-			$oPosted->title = $modelMis->escape($oPosted->title);
-		}
-		if (isset($oPosted->summary)) {
-			$oPosted->summary = $modelMis->escape($oPosted->summary);
-		}
-		if (isset($oPosted->entryRule)) {
-			$oPosted->entry_rule = $modelMis->escape($modelMis->toJson($oPosted->entryRule));
-			unset($oPosted->entryRule);
-		}
-		if (isset($oPosted->round_cron)) {
-			$oPosted->round_cron = $modelMis->escape($modelMis->toJson($oPosted->round_cron));
-		}
-		if (isset($oPosted->extattrs)) {
-			$oPosted->extattrs = $modelMis->escape($modelMis->toJson($oPosted->extattrs));
+		/* 处理数据 */
+		$oUpdated = new \stdClass;
+		foreach ($oPosted as $prop => $val) {
+			switch ($prop) {
+			case 'title':
+			case 'summary':
+				$oUpdated->title = $this->escape($val);
+				break;
+			case 'entryRule':
+				$oUpdated->entry_rule = $this->escape($modelMis->toJson($oPosted->entryRule));
+				break;
+			case 'extattrs':
+				$oUpdated->extattrs = $this->escape($modelMis->toJson($oPosted->extattrs));
+				break;
+			case 'round_cron':
+				$aCheckResult = $this->model('matter\mission\round')->checkCron($val);
+				if ($aCheckResult[0] === false) {
+					return new \ResponseError($aCheckResult[1]);
+				}
+				$oUpdated->round_cron = $this->escape($modelMis->toJson($val));
+				break;
+			default:
+				$oUpdated->{$prop} = $val;
+			}
 		}
 		/* modifier */
-		$oPosted->modifier = $oUser->id;
-		$oPosted->modifier_name = $modelMis->escape($oUser->name);
-		$oPosted->modify_at = time();
+		$oUpdated->modifier = $oUser->id;
+		$oUpdated->modifier_name = $this->escape($oUser->name);
+		$oUpdated->modify_at = time();
 
 		/* update */
-		$rst = $modelMis->update('xxt_mission', $oPosted, ["id" => $oMission->id]);
+		$rst = $modelMis->update('xxt_mission', $oUpdated, ["id" => $oMission->id]);
 		if (!$rst) {
 			return new \ResponseError('更新失败！');
 		}
 
 		$oMission = $modelMis->byId($oMission->id);
 		/*记录操作日志*/
-		$this->model('matter\log')->matterOp($oMission->siteid, $oUser, $oMission, 'U', $oPosted);
+		$this->model('matter\log')->matterOp($oMission->siteid, $oUser, $oMission, 'U', $oUpdated);
 		/*更新acl*/
 		$this->model('matter\mission\acl')->updateMission($oMission);
 

@@ -272,7 +272,7 @@ define(['frame'], function(ngApp) {
                 if (_oCriteria.matter.type) {
                     url = '/rest/pl/fe/matter/' + _oCriteria.matter.type + '/list?site=' + _oCriteria.bySite + '&_=' + t;
                     _oCriteria.matter.type == 'channel' && (url += '&cascade=N');
-                    http2.post(url, { byTitle: _oCriteria.filter.keyword, byStar: _oCriteria.byStar }, { paga: _oPage }).then(function(rsp) {
+                    http2.post(url, { byTitle: _oCriteria.filter.keyword, byStar: _oCriteria.byStar }, { page: _oPage }).then(function(rsp) {
                         $scope.matters = rsp.data.docs || rsp.data.apps;
                     });
                 } else {

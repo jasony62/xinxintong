@@ -1200,6 +1200,7 @@ service('srvTimerNotice', ['$rootScope', '$parse', '$q', '$timeout', 'http2', 't
             oLocal.task[prop] = '' + oDb[prop];
         });
         oLocal.task.task_arguments = oDb.task_arguments ? oDb.task_arguments : { page: '' };
+        if (oDb.name !== undefined) oLocal.name = oDb.name;
     }
 
     function fnAppendLocal(oDbTimer, oMatter) {

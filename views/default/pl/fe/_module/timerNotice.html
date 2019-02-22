@@ -137,46 +137,10 @@
     </div>
     <div class='form-group'>
         <div class='form-inline'>
-            <select class='form-control' ng-model="timer.task.offset_hour">
-                <option value='0'>0小时</option>
-                <option value='1'>1小时</option>
-                <option value='2'>2小时</option>
-                <option value='3'>3小时</option>
-                <option value='4'>4小时</option>
-                <option value='5'>5小时</option>
-                <option value='6'>6小时</option>
-                <option value='7'>7小时</option>
-                <option value='8'>8小时</option>
-                <option value='9'>9小时</option>
-                <option value='10'>10小时</option>
-                <option value='11'>11小时</option>
-                <option value='12'>12小时</option>
-                <option value='13'>13小时</option>
-                <option value='14'>14小时</option>
-                <option value='15'>15小时</option>
-                <option value='16'>16小时</option>
-                <option value='17'>17小时</option>
-                <option value='18'>18小时</option>
-                <option value='19'>19小时</option>
-                <option value='20'>20小时</option>
-                <option value='21'>21小时</option>
-                <option value='22'>22小时</option>
-                <option value='23'>23小时</option>
-            </select>
-            <select class='form-control' ng-model="timer.task.offset_min">
-                <option value='0'>0分钟</option>
-                <option value='5'>5分钟</option>
-                <option value='10'>10分钟</option>
-                <option value='15'>15分钟</option>
-                <option value='20'>20分钟</option>
-                <option value='25'>25分钟</option>
-                <option value='30'>30分钟</option>
-                <option value='35'>35分钟</option>
-                <option value='40'>40分钟</option>
-                <option value='45'>45分钟</option>
-                <option value='50'>50分钟</option>
-                <option value='55'>55分钟</option>
-            </select>
+            <div class='form-group'>
+                <span>小时</span>
+                <input class='form-control' type='text' size='5' ng-model="timer.task.offset_hour">
+            </div>
         </div>
     </div>
 </div>
@@ -192,6 +156,7 @@
 <hr>
 <div class='form-group'>
     <div class='form-inline'>
+        <span ng-bind="timer.name"></span>
         <tms-toggle-switch on-label="启用" off-label="停用" ng-model="timer.task.enabled" ng-true-value="'Y'" ng-false-value="'N'"></tms-toggle-switch>
         <button class='btn' ng-class="timer.modified?'btn-success':'btn-default'" ng-disabled="!timer.modified" ng-click="srvTimer.save(timer)">保存</button>
         <button class='btn btn-danger' ng-click="srvTimer.del(timers,$index)">删除</button>

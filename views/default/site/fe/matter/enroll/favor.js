@@ -275,15 +275,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     $scope.$watch('app', function(oApp) {
         if (!oApp) return;
         _oApp = oApp;
-        /* 活动任务 */
-        if (_oApp.actionRule) {
-            /* 开启协作填写需要的点赞数 */
-            if (_oApp.actionRule.record && _oApp.actionRule.record.cowork && _oApp.actionRule.record.cowork.pre) {
-                if (_oApp.actionRule.record.cowork.pre.record && _oApp.actionRule.record.cowork.pre.record.likeNum !== undefined) {
-                    _coworkRequireLikeNum = parseInt(_oApp.actionRule.record.cowork.pre.record.likeNum);
-                }
-            }
-        }
         _oApp.dynaDataSchemas.forEach(function(schema) {
             if (schema.shareable && schema.shareable === 'Y') {
                 _oShareableSchemas[schema.id] = schema;

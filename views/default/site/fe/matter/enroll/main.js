@@ -304,13 +304,7 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
                         if ($scope.app && oEnlUser) {
                             if (parseInt($scope.app.count_limit) === 0 || $scope.app.count_limit > oEnlUser.enroll_num) {
                                 /* 允许添加记录 */
-                                if ($parse('actionRule.record.submit.pre.editor')($scope.app)) {
-                                    if (oEnlUser && oEnlUser.is_editor && oEnlUser.is_editor === 'Y') {
-                                        oAct = { title: '添加记录', func: $scope.addRecord };
-                                    }
-                                } else {
-                                    oAct = { title: '添加记录', func: $scope.addRecord };
-                                }
+                                oAct = { title: '添加记录', func: $scope.addRecord };
                             }
                         }
                         break;

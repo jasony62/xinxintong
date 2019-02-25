@@ -172,7 +172,6 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
     $scope.options = { forQuestionTask: false, forAnswerTask: false };
     $scope.newRemark = {};
     $scope.assocs = _oAssocs = {};
-    $scope.canSubmitCowork = true; // 是否允许提交协作数据
     $scope.favorStack = {
         guiding: false,
         start: function(record, timer) {
@@ -479,7 +478,6 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
  * 协作题
  */
 ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uibModal', 'tmsLocation', 'http2', 'noticebox', 'enlAssoc', function($scope, $timeout, $anchorScroll, $uibModal, LS, http2, noticebox, enlAssoc) {
-    $scope.canSubmitCowork = true; // 是否允许提交协作数据
     $scope.addItem = function(oSchema) {
         if ($scope.setOperateLimit('add_cowork')) {
             $uibModal.open({
@@ -636,18 +634,6 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
             }
         }
     };
-    $scope.$watch('record', function(oRecord) {
-        var oActionRule;
-        if ($scope.app) {
-            if (oActionRule = $scope.app.actionRule) {
-                if (oActionRule.cowork && oActionRule.cowork.submit && oActionRule.cowork.submit.pre && oActionRule.cowork.submit.pre.editor) {
-                    if (!$scope.user.is_editor || $scope.user.is_editor !== 'Y') {
-                        $scope.canSubmitCowork = false;
-                    }
-                }
-            }
-        }
-    }, true);
 }]);
 /**
  * 留言

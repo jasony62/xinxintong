@@ -204,90 +204,222 @@ class repos extends base {
 		return new \ResponseData($oResult);
 	}
 	/**
-	 * 按照活动规则是否需要隐藏记录的用户名称
+	 * 处理数据
 	 */
-	private function _requireAnonymous($oApp) {
-		$bAnonymous = false;
-		if (isset($oApp->actionRule->record->anonymous)) {
-			$oRule = $oApp->actionRule->record->anonymous;
-			/* 记录点赞截止时间关联 */
-			if (!empty($oRule->time->record->like->end)) {
-				if (isset($oApp->actionRule->record->like->end->time)) {
-					$oRule2 = $oApp->actionRule->record->like->end->time;
-					if (isset($oRule2->mode) && isset($oRule2->unit) && isset($oRule2->value)) {
-						if ($oRule2->mode === 'after_round_start_at') {
-							$modelRnd = $this->model('matter\enroll\round');
-							$oActiveRnd = $modelRnd->getActive($oApp);
-							if ($oActiveRnd && !empty($oActiveRnd->start_at)) {
-								$endtime = (int) $oActiveRnd->start_at + (3600 * $oRule2->value);
-								$bAnonymous = time() < $endtime;
+	private function _processDatas($oApp, $oUser, &$rawDatas, $processType = 'recordList', $voteRules = null) {
+		$modelData = $this->model('matter\enroll\data');
+		if (!empty($oApp->voteConfig)) {
+			$modelTask = $this->model('matter\enroll\task', $oApp);
+		}
+		/* 是否设置了编辑组 */
+		$oEditorGrp = $this->getEditorGroup($oApp);
+
+		foreach ($rawDatas as &$rawData) {
+			/* 获取记录的投票信息 */
+			if (!empty($oApp->voteConfig)) {
+				if (empty($voteRules)) {
+					$aVoteRules = $modelTask->getVoteRule($oUser, $rawData->round);
+				} else {
+					$aVoteRules = $voteRules;
+				}
+			}
+			$aCoworkState = [];
+			$recordDirs = [];
+			if (isset($rawData->data)) {
+				$processedData = new \stdClass;
+				foreach ($oApp->dynaDataSchemas as $oSchema) {
+					$schemaId = $oSchema->id;
+					// 分类目录
+					if ($this->getDeepValue($oSchema, 'asdir') === 'Y' && !empty($oSchema->ops) && !empty($rawData->data->{$schemaId})) {
+						foreach ($oSchema->ops as $op) {
+							if ($op->v === $rawData->data->{$schemaId}) {
+								$recordDirs[] = $op->l;
 							}
 						}
+					}
+					/* 清除非共享数据 */
+					if (!isset($oSchema->shareable) || $oSchema->shareable !== 'Y') {
+						continue;
+					}
+					// 过滤空数据
+					$rawDataVal = $this->getDeepValue($rawData->data, $schemaId, null);
+					if (null === $rawDataVal) {
+						continue;
+					}
+					// 选择题题目可见性规则
+					if (!empty($oSchema->visibility->rules)) {
+						$checkSchemaVisibility = true;
+						foreach ($oSchema->visibility->rules as $oRule) {
+							if (strpos($schemaId, 'member.extattr') === 0) {
+								$memberSchemaId = str_replace('member.extattr.', '', $schemaId);
+								if (!isset($rawData->data->member->extattr->{$memberSchemaId}) || ($rawData->data->member->extattr->{$memberSchemaId} !== $oRule->op && empty($rawData->data->member->extattr->{$memberSchemaId}))) {
+									$checkSchemaVisibility =  false;
+								}
+							} else if (!isset($rawData->data->{$oRule->schema}) || ($rawData->data->{$oRule->schema} !== $oRule->op && empty($rawData->data->{$oRule->schema}->{$oRule->op}))) {
+								$checkSchemaVisibility = false;
+							}
+						}
+						if ($checkSchemaVisibility === false) {
+							continue;
+						}
+					}
+
+					/* 协作填写题 */
+					if ($this->getDeepValue($oSchema, 'cowork') === 'Y') {
+						if ($processType === 'recordByTopic') {
+							$items = $modelData->getCowork($rawData->enroll_key, $schemaId, ['excludeRoot' => true, 'agreed' => ['Y', 'A'], 'fields' => 'id,agreed,like_num,nickname,value']);
+							$aCoworkState[$schemaId] = (object) ['length' => count($items)];
+							$processedData->{$schemaId} = $items;
+						} else if ($processType === 'coworkDataList') {
+							$item = new \stdClass;
+							$item->id = $rawData->data_id;
+							$item->value = $this->replaceHTMLTags($rawData->value);
+							$this->setDeepValue($processedData, $schemaId, [$item]);
+							unset($rawData->value);
+						} else {
+							$aOptions = ['fields' => 'id', 'agreed' => ['Y', 'A']];
+							$countItems = $modelData->getCowork($rawData->enroll_key, $schemaId, $aOptions);
+							$aCoworkState[$schemaId] = (object) ['length' => count($countItems)];
+						}
+					} else if ($this->getDeepValue($oSchema, 'type') === 'multitext') {
+						$newData = [];
+						foreach ($rawDataVal as &$val) {
+							$val2 = new \stdClass;
+							$val2->id = $val->id;
+							$val2->value = $this->replaceHTMLTags($val->value);
+							$newData[] = $val2;
+						}
+						$this->setDeepValue($processedData, $schemaId, $newData);
+					} else if ($this->getDeepValue($oSchema, 'type') === 'single') {
+						foreach ($oSchema->ops as $val) {
+							if ($val->v === $rawDataVal) {
+								$this->setDeepValue($processedData, $schemaId, $val->l);
+							}
+						}
+					} else if ($this->getDeepValue($oSchema, 'type') === 'score') {
+						$ops = new \stdClass;
+						foreach ($oSchema->ops as $val) {
+							$ops->{$val->v} = $val->l;
+						}
+						$newData = [];
+						foreach ($rawDataVal as $key => $val) {
+							$data2 = new \stdClass;
+							$data2->title = $ops->{$key};
+							$data2->score = $val;
+							$newData[] = $data2;
+						}
+						$this->setDeepValue($processedData, $schemaId, $newData);
+					} else if ($this->getDeepValue($oSchema, 'type') === 'multiple') {
+						$rawDataVal2 = explode(',', $rawDataVal);
+						$ops = new \stdClass;
+						foreach ($oSchema->ops as $val) {
+							$ops->{$val->v} = $val->l;
+						}
+						$newData = [];
+						foreach ($rawDataVal2 as $val) {
+							$newData[] = $ops->{$val};
+						}
+						$this->setDeepValue($processedData, $schemaId, $newData);
+					} else {
+						$this->setDeepValue($processedData, $schemaId, $rawDataVal);
+					}
+				}
+				$rawData->data = $processedData;
+				if (!empty($aCoworkState)) {
+					$rawData->coworkState = (object) $aCoworkState;
+					// 协作填写题数据总数量
+					$sum = 0;
+					foreach ($aCoworkState as $k => $v) {
+						$sum += (int) $v->length;
+					}
+					$rawData->coworkDataTotal = $sum;
+				}
+				if (!empty($recordDirs)) {
+					$rawData->recordDir = $recordDirs;
+				}
+
+				/* 获取记录的投票信息 */
+				if (!empty($aVoteRules)) {
+					$oVoteResult = new \stdClass;
+					foreach ($aVoteRules as $schemaId => $oVoteRule) {
+						if ($processType === 'coworkDataList') {
+							continue;
+						} else if ($processType === 'recordByTopic') {
+							if ($this->getDeepValue($oVoteRule->schema, 'cowork') === 'Y') {continue;}
+							$oRecData = $modelData->byRecord($rawData->enroll_key, ['schema' => $schemaId, 'fields' => 'id,vote_num']);
+							if ($oRecData) {
+								$vote_at = (int) $modelData->query_val_ss(['vote_at', 'xxt_enroll_vote', ['rid' => $oApp->appRound->rid, 'data_id' => $oRecData->id, 'state' => 1, 'userid' => $oUser->uid]]);
+								$oRecData->vote_at = $vote_at;
+								$oRecData->state = $oVoteRule->state;
+								$oVoteResult->{$schemaId} = $oRecData;
+							}
+						} else {
+							$oVoteResult = new \stdClass;
+							if ($this->getDeepValue($oVoteRule->schema, 'cowork') === 'Y') {continue;}
+							$oRecData = $modelData->byRecord($rawData->enroll_key, ['schema' => $schemaId, 'fields' => 'id,vote_num']);
+							if ($oRecData) {
+								$oVoteResult->{$schemaId} = $oRecData;
+							}
+						}
+					}
+					$rawData->voteResult = $oVoteResult;
+				}
+			}
+			/* 设置昵称 */
+			$this->setNickname($rawData, $oUser, isset($oEditorGrp) ? $oEditorGrp : null);
+			/* 清除不必要的内容 */
+			unset($rawData->comment);
+			unset($rawData->verified);
+
+			/* 是否已经被当前用户收藏 */
+			if ($processType === 'recordList' || $processType === 'recordByTopic') {
+				if (!empty($oUser->unionid) && $rawData->favor_num > 0) {
+					$q = ['id', 'xxt_enroll_record_favor', ['record_id' => $rawData->id, 'favor_unionid' => $oUser->unionid, 'state' => 1]];
+					if ($modelData->query_obj_ss($q)) {
+						$rawData->favored = true;
 					}
 				}
 			}
-			/* 协作点赞截止时间 */
-			if (!empty($oRule->time->cowork->like->end)) {
-				if (isset($oApp->actionRule->cowork->like->end->time)) {
-					$oRule2 = $oApp->actionRule->cowork->like->end->time;
-					if (isset($oRule2->mode) && isset($oRule2->unit) && isset($oRule2->value)) {
-						if ($oRule2->mode === 'after_round_start_at') {
-							$modelRnd = $this->model('matter\enroll\round');
-							$oActiveRnd = $modelRnd->getActive($oApp);
-							if ($oActiveRnd && !empty($oActiveRnd->start_at)) {
-								$endtime = (int) $oActiveRnd->start_at + (3600 * $oRule2->value);
-								$bAnonymous = time() < $endtime;
-							}
-						}
+			/* 记录的标签 */
+			if ($processType === 'recordList') {
+				if (!isset($modelTag)) {
+					$modelTag = $this->model('matter\enroll\tag2');
+				}
+				$oRecordTags = $modelTag->byRecord($rawData, $oUser, ['UserAndPublic' => empty($oPosted->favored)]);
+				if (!empty($oRecordTags->user)) {
+					$rawData->userTags = $oRecordTags->user;
+				}
+				if (!empty($oRecordTags->public)) {
+					$rawData->tags = $oRecordTags->public;
+				}
+			}
+			/* 答案关联素材 */
+			if ($processType === 'coworkDataList') {
+				if (!isset($modelAss)) {
+					$modelAss = $this->model('matter\enroll\assoc');
+					$oAssocsOptions = [
+						'fields' => 'id,assoc_mode,assoc_num,first_assoc_at,last_assoc_at,entity_a_id,entity_a_type,entity_b_id,entity_b_type,public,assoc_text,assoc_reason',
+					];
+				}
+				$entityA = new \stdClass;
+				$entityA->id = $rawData->data_id;
+				$entityA->type = 'data';
+				$oAssocsOptions['entityA'] = $entityA;
+				$record = new \stdClass;
+				$record->id = $rawData->record_id;
+				$oAssocs = $modelAss->byRecord($record, $oUser, $oAssocsOptions);
+				if (count($oAssocs)) {
+					foreach ($oAssocs as $oAssoc) {
+						$modelAss->adapt($oAssoc);
 					}
 				}
+				$rawData->oAssocs = $oAssocs;
+				//
+				$rawData->id = $rawData->record_id;
 			}
 		}
 
-		return $bAnonymous;
-	}
-	/**
-	 * 按照活动规则是否只能查看同组数据
-	 */
-	private function _requireSameGroup($oApp) {
-		$bSameGroup = false;
-		if (isset($oApp->actionRule->record->group)) {
-			$oRule = $oApp->actionRule->record->group;
-			/* 记录点赞截止时间关联 */
-			if (!empty($oRule->time->record->like->end)) {
-				if (isset($oApp->actionRule->record->like->end->time)) {
-					$oRule2 = $oApp->actionRule->record->like->end->time;
-					if (isset($oRule2->mode) && isset($oRule2->unit) && isset($oRule2->value)) {
-						if ($oRule2->mode === 'after_round_start_at') {
-							$modelRnd = $this->model('matter\enroll\round');
-							$oActiveRnd = $modelRnd->getActive($oApp);
-							if ($oActiveRnd && !empty($oActiveRnd->start_at)) {
-								$endtime = (int) $oActiveRnd->start_at + (3600 * $oRule2->value);
-								$bSameGroup = time() < $endtime;
-							}
-						}
-					}
-				}
-			}
-			/* 协作点赞截止时间 */
-			if (!empty($oRule->time->cowork->like->end)) {
-				if (isset($oApp->actionRule->cowork->like->end->time)) {
-					$oRule2 = $oApp->actionRule->cowork->like->end->time;
-					if (isset($oRule2->mode) && isset($oRule2->unit) && isset($oRule2->value)) {
-						if ($oRule2->mode === 'after_round_start_at') {
-							$modelRnd = $this->model('matter\enroll\round');
-							$oActiveRnd = $modelRnd->getActive($oApp);
-							if ($oActiveRnd && !empty($oActiveRnd->start_at)) {
-								$endtime = (int) $oActiveRnd->start_at + (3600 * $oRule2->value);
-								$bSameGroup = time() < $endtime;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		return $bSameGroup;
+		return $rawDatas;
 	}
 	/**
 	 * 返回指定活动的填写记录的共享内容
@@ -301,7 +433,6 @@ class repos extends base {
 
 		$oUser = $this->getUser($oApp);
 
-		$oActionRule = $oApp->actionRule;
 		// 填写记录过滤条件
 		$oPosted = $this->getPostJson();
 		// 填写记录过滤条件
@@ -343,18 +474,9 @@ class repos extends base {
 		$oCriteria->record = new \stdClass;
 		$oCriteria->record->rid = !empty($oPosted->rid) ? $oPosted->rid : 'all';
 
-		/* 用户分组限制 */
-		if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
-			$bSameGroup = $this->_requireSameGroup($oApp);
-			if ($bSameGroup) {
-				$oCriteria->record->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
-			}
-		}
 		/* 指定了分组过滤条件 */
-		if (!isset($oCriteria->record->group_id)) {
-			if (!empty($oPosted->userGroup)) {
-				$oCriteria->record->group_id = $oPosted->userGroup;
-			}
+		if (!empty($oPosted->userGroup)) {
+			$oCriteria->record->group_id = $oPosted->userGroup;
 		}
 		/* 记录的创建人 */
 		if (!empty($oPosted->mine) && $oPosted->mine === 'creator') {
@@ -386,102 +508,9 @@ class repos extends base {
 
 		$oResult = $modelRec->byApp($oApp, $oOptions, $oCriteria, $oUser);
 		if (!empty($oResult->records)) {
-			$modelData = $this->model('matter\enroll\data');
-			$modelTag = $this->model('matter\enroll\tag2');
-			/* 是否限制了匿名规则 */
-			$bAnonymous = $this->_requireAnonymous($oApp);
-			if (false === $bAnonymous) {
-				/* 是否设置了编辑组 */
-				$oEditorGrp = $this->getEditorGroup($oApp);
-			}
-			foreach ($oResult->records as $oRecord) {
-				/* 获取记录的投票信息 */
-				if (!empty($oApp->voteConfig)) {
-					$aVoteRules = $this->model('matter\enroll\task', $oApp)->getVoteRule($oUser, $oRecord->round);
-				}
-				$aCoworkState = [];
-				$recordDirs = [];
-				/* 清除非共享数据 */
-				if (isset($oRecord->data)) {
-					$oRecordData = new \stdClass;
-					foreach ($oApp->dynaDataSchemas as $oSchema) {
-						$schemaId = $oSchema->id;
-						// 分类目录
-						if ($this->getDeepValue($oSchema, 'asdir') === 'Y' && !empty($oSchema->ops) && !empty($oRecord->data->{$schemaId})) {
-							foreach ($oSchema->ops as $op) {
-								if ($op->v === $oRecord->data->{$schemaId}) {
-									$recordDirs[] = $op->l;
-								}
-							}
-						}
-						/* 清除非共享数据 */
-						if (isset($oSchema->shareable) && $oSchema->shareable !== 'Y') {
-							continue;
-						}
-						/* 协作填写题 */
-						if ($this->getDeepValue($oSchema, 'cowork') === 'Y') {
-							$aOptions = ['fields' => 'id', 'agreed' => ['Y', 'A']];
-							$countItems = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, $aOptions);
-							$aCoworkState[$oSchema->id] = (object) ['length' => count($countItems)];
-							continue;
-						} else {
-							if (null !== ($recDataVal = $this->getDeepValue($oRecord->data, $schemaId, null))) {
-								$this->setDeepValue($oRecordData, $schemaId, $recDataVal);
-							}
-						}
-					}
-					$oRecord->data = $oRecordData;
-					if (!empty($aCoworkState)) {
-						$oRecord->coworkState = (object) $aCoworkState;
-						// 协作填写题数据总数量
-						$sum = 0;
-						foreach ($aCoworkState as $k => $v) {
-							$sum += (int) $v->length;
-						}
-						$oRecord->coworkDataTotal = $sum;
-					}
-					if (!empty($recordDirs)) {
-						$oRecord->recordDir = $recordDirs;
-					}
-					/* 获取记录的投票信息 */
-					if (!empty($aVoteRules)) {
-						$oVoteResult = new \stdClass;
-						foreach ($aVoteRules as $schemaId => $oVoteRule) {
-							if ($this->getDeepValue($oVoteRule->schema, 'cowork') === 'Y') {continue;}
-							$oRecData = $modelData->byRecord($oRecord->enroll_key, ['schema' => $schemaId, 'fields' => 'id,vote_num']);
-							if ($oRecData) {
-								$oVoteResult->{$schemaId} = $oRecData;
-							}
-						}
-						$oRecord->voteResult = $oVoteResult;
-					}
-				}
-				/* 是否已经被当前用户收藏 */
-				if (!empty($oUser->unionid) && $oRecord->favor_num > 0) {
-					$q = ['id', 'xxt_enroll_record_favor', ['record_id' => $oRecord->id, 'favor_unionid' => $oUser->unionid, 'state' => 1]];
-					if ($modelRec->query_obj_ss($q)) {
-						$oRecord->favored = true;
-					}
-				}
-				/* 记录的标签 */
-				$oRecordTags = $modelTag->byRecord($oRecord, $oUser, ['UserAndPublic' => empty($oPosted->favored)]);
-				if (!empty($oRecordTags->user)) {
-					$oRecord->userTags = $oRecordTags->user;
-				}
-				if (!empty($oRecordTags->public)) {
-					$oRecord->tags = $oRecordTags->public;
-				}
-				/* 设置昵称 */
-				if ($bAnonymous) {
-					unset($oRecord->nickname);
-				} else {
-					$this->setNickname($oRecord, $oUser, isset($oEditorGrp) ? $oEditorGrp : null);
-				}
-				/* 清除不必要的内容 */
-				unset($oRecord->comment);
-				unset($oRecord->verified);
-			}
+			$this->_processDatas($oApp, $oUser, $oResult->records, 'recordList');
 		}
+
 		// 记录搜索事件
 		if (!empty($oPosted->keyword)) {
 			$rest = $this->model('matter\enroll\search')->addUserSearch($oApp, $oUser, $oPosted->keyword);
@@ -547,23 +576,12 @@ class repos extends base {
 		// 按指定题的值筛选
 		!empty($oPosted->data) && $oCriteria->data = $oPosted->data;
 
-		$oActionRule = $oApp->actionRule;
-
 		$oCriteria->recordData = new \stdClass;
 		$oCriteria->recordData->rid = !empty($oPosted->rid) ? $oPosted->rid : 'all';
 
-		/* 用户分组限制 */
-		if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
-			$bSameGroup = $this->_requireSameGroup($oApp);
-			if ($bSameGroup) {
-				$oCriteria->recordData->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
-			}
-		}
 		/* 指定了分组过滤条件 */
-		if (!isset($oCriteria->recordData->group_id)) {
-			if (!empty($oPosted->userGroup)) {
-				$oCriteria->recordData->group_id = $oPosted->userGroup;
-			}
+		if (!empty($oPosted->userGroup)) {
+			$oCriteria->recordData->group_id = $oPosted->userGroup;
 		}
 		/* 答案的创建人 */
 		if (!empty($oPosted->mine) && $oPosted->mine === 'creator') {
@@ -576,81 +594,8 @@ class repos extends base {
 
 		$oResult = $modelRecDat->coworkDataByApp($oApp, $oOptions, $oCriteria, $oUser, 'cowork');
 		if (!empty($oResult->recordDatas)) {
-			$modelData = $this->model('matter\enroll\data');
-			/* 是否限制了匿名规则 */
-			$bAnonymous = $this->_requireAnonymous($oApp);
-			if (false === $bAnonymous) {
-				$oEditorGrp = $this->getEditorGroup($oApp);
-			}
-
-			foreach ($oResult->recordDatas as $oRecData) {
-				/* 获取记录的投票信息 */
-				if (!empty($oApp->voteConfig)) {
-					$aVoteRules = $this->model('matter\enroll\task', $oApp)->getVoteRule($oUser, $oRecData->round);
-				}
-				$recordDirs = [];
-				/* 清除非共享数据 */
-				if (isset($oRecData->data)) {
-					$oNewRecData = new \stdClass;
-					foreach ($oApp->dynaDataSchemas as $oSchema) {
-						$schemaId = $oSchema->id;
-						// 分类目录
-						if ($this->getDeepValue($oSchema, 'asdir') === 'Y' && !empty($oSchema->ops) && !empty($oRecData->data->{$schemaId})) {
-							foreach ($oSchema->ops as $op) {
-								if ($op->v === $oRecData->data->{$schemaId}) {
-									$recordDirs[] = $op->l;
-								}
-							}
-						}
-						/* 清除非共享数据 */
-						if ($this->getDeepValue($oSchema, 'shareable') !== 'Y') {
-							continue;
-						}
-						/* 协作填写题 */
-						if ($this->getDeepValue($oSchema, 'cowork') === 'Y') {
-							$item = new \stdClass;
-							$item->id = $oRecData->data_id;
-							$item->value = $oRecData->value;
-							$this->setDeepValue($oNewRecData, $schemaId, [$item]);
-							unset($oRecData->value);
-						} else if (null !== ($recDataVal = $this->getDeepValue($oRecData->data, $schemaId, null))) {
-							$this->setDeepValue($oNewRecData, $schemaId, $recDataVal);
-						}
-					}
-					$oRecData->data = $oNewRecData;
-					if (!empty($recordDirs)) {
-						$oRecData->recordDir = $recordDirs;
-					}
-				}
-				/* 设置昵称 */
-				if ($bAnonymous) {
-					unset($oRecData->nickname);
-				} else {
-					$this->setNickname($oRecData, $oUser, isset($oEditorGrp) ? $oEditorGrp : null);
-				}
-				/* 答案关联素材 */
-				if (!isset($modelAss)) {
-					$modelAss = $this->model('matter\enroll\assoc');
-					$oAssocsOptions = [
-						'fields' => 'id,assoc_mode,assoc_num,first_assoc_at,last_assoc_at,entity_a_id,entity_a_type,entity_b_id,entity_b_type,public,assoc_text,assoc_reason',
-					];
-				}
-				$entityA = new \stdClass;
-				$entityA->id = $oRecData->data_id;
-				$entityA->type = 'data';
-				$oAssocsOptions['entityA'] = $entityA;
-				$record = new \stdClass;
-				$record->id = $oRecData->record_id;
-				$oAssocs = $modelAss->byRecord($record, $oUser, $oAssocsOptions);
-				if (count($oAssocs)) {
-					foreach ($oAssocs as $oAssoc) {
-						$modelAss->adapt($oAssoc);
-					}
-				}
-				$oRecData->oAssocs = $oAssocs;
-				//
-				$oRecData->id = $oRecData->record_id;
-			}
+			// 处理数据
+			$this->_processDatas($oApp, $oUser, $oResult->recordDatas, 'coworkDataList');
 		}
 
 		// 记录搜索事件
@@ -681,102 +626,19 @@ class repos extends base {
 
 		// 查询结果
 		$modelRec = $this->model('matter\enroll\record');
-		$oCriteria = new \stdClass;
-		$oCriteria->record = new \stdClass;
-		$oCriteria->record->topic = $topic;
-
-		/* 用户分组限制 */
-		if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
-			$bSameGroup = $this->_requireSameGroup($oApp);
-			if ($bSameGroup) {
-				$oCriteria->record->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
-			}
-		}
-
 		$modelTop = $this->model('matter\enroll\topic', $oApp);
 		$oTopic = $modelTop->byId($topic);
 
 		$oResult = $modelTop->records($oTopic, ['fields' => $modelRec::REPOS_FIELDS]);
 		if (!empty($oResult->records)) {
-			$modelData = $this->model('matter\enroll\data');
-			/* 是否限制了匿名规则 */
-			$bAnonymous = $this->_requireAnonymous($oApp);
-			/* 是否设置了编辑组 */
-			if (false === $bAnonymous) {
-				$oEditorGrp = $this->getEditorGroup($oApp);
-			}
 			/* 获取记录的投票信息 */
 			if (!empty($oApp->voteConfig)) {
 				$aVoteRules = $this->model('matter\enroll\task', $oApp)->getVoteRule($oUser);
+			} else {
+				$aVoteRules = null;
 			}
-			foreach ($oResult->records as $oRecord) {
-				$aCoworkState = [];
-				$recordDirs = [];
-				/* 清除非共享数据 */
-				if (isset($oRecord->data)) {
-					$oRecData = new \stdClass;
-					foreach ($oApp->dynaDataSchemas as $oSchema) {
-						$schemaId = $oSchema->id;
-						/* 分类目录 */
-						if ($this->getDeepValue($oSchema, 'asdir') === 'Y' && !empty($oRecord->data->{$schemaId})) {
-							foreach ($oSchema->ops as $op) {
-								if ($op->v === $oRecord->data->{$schemaId}) {
-									$recordDirs[] = $op->l;
-								}
-							}
-						}
-						/* 清除非共享数据 */
-						if ($this->getDeepValue($oSchema, 'shareable') !== 'Y') {
-							continue;
-						}
-						/* 协作填写题 */
-						if ($this->getDeepValue($oSchema, 'cowork') === 'Y') {
-							$items = $modelData->getCowork($oRecord->enroll_key, $oSchema->id, ['excludeRoot' => true, 'agreed' => ['Y', 'A'], 'fields' => 'id,agreed,like_num,nickname,value']);
-							$aCoworkState[$oSchema->id] = (object) ['length' => count($items)];
-							$oRecData->{$schemaId} = $items;
-						} else {
-							if (null !== ($recDataVal = $this->getDeepValue($oRecord->data, $schemaId, null))) {
-								$this->setDeepValue($oRecData, $schemaId, $recDataVal);
-							}
-						}
-					}
-					$oRecord->data = $oRecData;
-					if (!empty($aCoworkState)) {
-						$oRecord->coworkState = (object) $aCoworkState;
-					}
-					if (!empty($recordDirs)) {
-						$oRecord->recordDir = $recordDirs;
-					}
-				}
-				/* 是否已经被当前用户收藏 */
-				if (!empty($oUser->unionid) && $oRecord->favor_num > 0) {
-					$q = ['id', 'xxt_enroll_record_favor', ['record_id' => $oRecord->id, 'favor_unionid' => $oUser->unionid, 'state' => 1]];
-					if ($modelRec->query_obj_ss($q)) {
-						$oRecord->favored = true;
-					}
-				}
-				/* 设置昵称 */
-				if ($bAnonymous) {
-					unset($oRecord->nickname);
-				} else {
-					$this->setNickname($oRecord, $oUser, isset($oEditorGrp) ? $oEditorGrp : null);
-				}
-				/* 获取记录的投票信息 */
-				if (!empty($aVoteRules)) {
-					$oVoteResult = new \stdClass;
-					foreach ($aVoteRules as $schemaId => $oVoteRule) {
-						if ($this->getDeepValue($oVoteRule->schema, 'cowork') === 'Y') {continue;}
-						$oRecData = $modelData->byRecord($oRecord->enroll_key, ['schema' => $schemaId, 'fields' => 'id,vote_num']);
-						if ($oRecData) {
-							$vote_at = (int) $modelData->query_val_ss(['vote_at', 'xxt_enroll_vote', ['rid' => $oApp->appRound->rid, 'data_id' => $oRecData->id, 'state' => 1, 'userid' => $oUser->uid]]);
-							$oRecData->vote_at = $vote_at;
-							$oRecData->state = $oVoteRule->state;
-							$oVoteResult->{$schemaId} = $oRecData;
-						}
-					}
-					$oRecord->voteResult = $oVoteResult;
-				}
-			}
+			// 处理数据
+			$this->_processDatas($oApp, $oUser, $oResult->records, 'recordByTopic', $aVoteRules);
 			/**
 			 * 根据任务进行排序
 			 * 1、投票任务结束后，根据投票数排序
@@ -814,98 +676,10 @@ class repos extends base {
 		if (false === $oRecord || $oRecord->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-
 		$oUser = $this->getUser($oApp);
 
-		if (!empty($oUser->unionid) && $oRecord->favor_num > 0) {
-			$q = ['id', 'xxt_enroll_record_favor', ['record_id' => $oRecord->id, 'favor_unionid' => $oUser->unionid, 'state' => 1]];
-			if ($modelRec->query_obj_ss($q)) {
-				$oRecord->favored = true;
-			}
-		}
-
-		/* 记录的标签 */
-		$modelTag = $this->model('matter\enroll\tag2');
-		$oRecordTags = $modelTag->byRecord($oRecord, $oUser);
-		if (!empty($oRecordTags->user)) {
-			$oRecord->userTags = $oRecordTags->user;
-		}
-
-		/* 设置昵称 */
-		if ($this->_requireAnonymous($oApp)) {
-			unset($oRecord->nickname);
-		} else {
-			$oEditorGrp = $this->getEditorGroup($oApp);
-			$this->setNickname($oRecord, $oUser, $oEditorGrp);
-		}
-
-		if (isset($oRecord->data) && !empty($oApp->dynaDataSchemas)) {
-			$fnCheckSchemaVisibility = function ($oSchema, $oRecordData) {
-				if (!empty($oSchema->visibility->rules)) {
-					foreach ($oSchema->visibility->rules as $oRule) {
-						if (strpos($oSchema->id, 'member.extattr') === 0) {
-							$memberSchemaId = str_replace('member.extattr.', '', $oSchema->id);
-							if (!isset($oRecordData->member->extattr->{$memberSchemaId}) || ($oRecordData->member->extattr->{$memberSchemaId} !== $oRule->op && empty($oRecordData->member->extattr->{$memberSchemaId}))) {
-								return false;
-							}
-						} else if (!isset($oRecordData->{$oRule->schema}) || ($oRecordData->{$oRule->schema} !== $oRule->op && empty($oRecordData->{$oRule->schema}->{$oRule->op}))) {
-							return false;
-						}
-					}
-				}
-				return true;
-			};
-			/* 清除非共享数据 以及获取分类目录*/
-			$recordDirs = [];
-			$oShareableSchemas = new \stdClass;
-			foreach ($oApp->dynaDataSchemas as $oSchema) {
-				if (isset($oSchema->shareable) && $oSchema->shareable === 'Y') {
-					$oShareableSchemas->{$oSchema->id} = $oSchema;
-				}
-				$schemaId2 = $oSchema->id;
-				if (!empty($oSchema->asdir) && $oSchema->asdir === 'Y' && !empty($oSchema->ops) && !empty($oRecord->data->{$schemaId2})) {
-					foreach ($oSchema->ops as $op) {
-						if ($op->v === $oRecord->data->{$schemaId2}) {
-							$recordDirs[] = $op->l;
-						}
-					}
-				}
-			}
-			if (!empty($recordDirs)) {
-				$oRecord->recordDir = $recordDirs;
-			}
-			$modelRecDat = $this->model('matter\enroll\data');
-			/* 避免因为清除数据导致影响数据的可见关系 */
-			$oFullRecData = clone $oRecord->data;
-			foreach ($oRecord->data as $schemaId => $value) {
-				/* 清除空值 */
-				if (!isset($oShareableSchemas->{$schemaId})) {
-					unset($oRecord->data->{$schemaId});
-					continue;
-				}
-				/* 清除不可见的题 */
-				$oSchema = $oShareableSchemas->{$schemaId};
-				if (!$fnCheckSchemaVisibility($oSchema, $oFullRecData)) {
-					unset($oRecord->data->{$schemaId});
-					continue;
-				}
-			}
-			/* 获取记录的投票信息 */
-			if (!empty($oApp->voteConfig)) {
-				$aVoteRules = $this->model('matter\enroll\task', $oApp)->getVoteRule($oUser, $oRecord->round);
-				$oVoteResult = new \stdClass;
-				foreach ($aVoteRules as $schemaId => $oVoteRule) {
-					if ($this->getDeepValue($oVoteRule, 'schema.cowork') === 'Y') {continue;}
-					$oRecData = $modelRecDat->byRecord($oRecord->enroll_key, ['schema' => $schemaId, 'fields' => 'id,vote_num']);
-					if ($oRecData) {
-						$vote_at = (int) $modelRecDat->query_val_ss(['vote_at', 'xxt_enroll_vote', ['data_id' => $oRecData->id, 'state' => 1, 'userid' => $oUser->uid]]);
-						$oRecData->vote_at = $vote_at;
-						$oVoteResult->{$schemaId} = $oRecData;
-					}
-				}
-				$oRecord->voteResult = $oVoteResult;
-			}
-		}
+		$oRecords = [&$oRecord];
+		$this->_processDatas($oApp, $oUser, $oRecords, 'recordList');
 
 		return new \ResponseData($oRecord);
 	}

@@ -87,18 +87,6 @@ class cowork extends base {
 			return new \ParameterError('题目的类型不是多项填写题');
 		}
 
-		/* 检查数量限制 */
-		if (isset($oApp->actionRule->record->cowork->pre)) {
-			$oRule = $oApp->actionRule->record->cowork->pre;
-			/* 限制了最多点赞次数 */
-			if (!empty($oRule->record->likeNum)) {
-				if ((int) $oRecord->like_num < (int) $oRule->record->likeNum) {
-					$desc = empty($oRule->desc) ? ('点赞次数至少【' . $oRule->record->likeNum . '】个') : $oRule->desc;
-					return new \ResponseError($desc);
-				}
-			}
-		}
-
 		$oPosted = $this->getPostJson();
 		$current = time();
 

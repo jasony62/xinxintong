@@ -1,5 +1,5 @@
 'use strict';
-var ngMod = angular.module('notice.ui.xxt', ['ngSanitize']);
+var ngMod = angular.module('notice.ui.xxt', ['ng', 'ngSanitize']);
 ngMod.service('noticebox', ['$timeout', '$interval', '$q', function($timeout, $interval, $q) {
     var _boxId = 'tmsbox' + (new Date * 1),
         _last = {

@@ -68,10 +68,21 @@ class task_model extends \TMS_MODEL {
 	 * 去掉无效的内容
 	 */
 	public function purifyBaseline($oConfig) {
-		$validProps = ['id', 'start', 'end', 'enabled'];
+		$validProps = ['id', 'time', 'start', 'end', 'enabled'];
 		foreach ($oConfig as $prop => $val) {
 			if (!in_array($prop, $validProps)) {
 				unset($oConfig->{$prop});
+			}
+			switch ($prop) {
+			case 'time':
+				if (is_object($val)) {
+					if (false === $this->_purifyTime($val)) {
+						unset($oConfig->time);
+					}
+				} else {
+					unset($oConfig->time);
+				}
+				break;
 			}
 		}
 
@@ -96,7 +107,6 @@ class task_model extends \TMS_MODEL {
 					unset($oConfig->time);
 				}
 				break;
-				break;
 			case 'limit':
 				if (is_object($val)) {
 					$this->_purifyLimit($val);
@@ -113,12 +123,21 @@ class task_model extends \TMS_MODEL {
 	 * 去掉无效的内容
 	 */
 	public function purifyAnswer($oConfig) {
-		$validProps = ['id', 'start', 'end', 'role', 'limit', 'schemas', 'source', 'enabled'];
+		$validProps = ['id', 'time', 'start', 'end', 'role', 'limit', 'schemas', 'source', 'enabled'];
 		foreach ($oConfig as $prop => $val) {
 			if (!in_array($prop, $validProps)) {
 				unset($oConfig->{$prop});
 			}
 			switch ($prop) {
+			case 'time':
+				if (is_object($val)) {
+					if (false === $this->_purifyTime($val)) {
+						unset($oConfig->time);
+					}
+				} else {
+					unset($oConfig->time);
+				}
+				break;
 			case 'limit':
 				if (is_object($val)) {
 					$this->_purifyLimit($val);
@@ -146,12 +165,21 @@ class task_model extends \TMS_MODEL {
 	 * 去掉无效的内容
 	 */
 	public function purifyVote($oConfig) {
-		$validProps = ['id', 'start', 'end', 'role', 'limit', 'schemas', 'target', 'enabled', 'source'];
+		$validProps = ['id', 'time', 'start', 'end', 'role', 'limit', 'schemas', 'target', 'enabled', 'source'];
 		foreach ($oConfig as $prop => $val) {
 			if (!in_array($prop, $validProps)) {
 				unset($oConfig->{$prop});
 			}
 			switch ($prop) {
+			case 'time':
+				if (is_object($val)) {
+					if (false === $this->_purifyTime($val)) {
+						unset($oConfig->time);
+					}
+				} else {
+					unset($oConfig->time);
+				}
+				break;
 			case 'limit':
 				if (is_object($val)) {
 					$this->_purifyLimit($val);

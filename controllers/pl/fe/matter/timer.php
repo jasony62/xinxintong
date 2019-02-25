@@ -61,7 +61,7 @@ class timer extends \pl\fe\base {
 		if (empty($oConfig->matter->type) || empty($oConfig->matter->id)) {
 			return new \ParameterError();
 		}
-		$oMatter = $this->model('matter\\' . $oConfig->matter->type)->byId($oConfig->matter->id, ['fields' => 'id,siteid', 'cascaded' => 'N']);
+		$oMatter = $this->model('matter\\' . $oConfig->matter->type)->byId($oConfig->matter->id, ['fields' => 'id,siteid,round_cron', 'cascaded' => 'N']);
 		if (false === $oMatter) {
 			return new \ObjectNotFoundError();
 		}
@@ -102,10 +102,31 @@ class timer extends \pl\fe\base {
 		}
 		$oNewTimer->notweekend = 'Y';
 
+		switch ($oNewTimer->offset_matter_type) {
+		case 'RC':
+			foreach ($oMatter->roundCron as $oRule) {
+				if ($oRule->id === $oNewTimer->offset_matter_id) {
+					$oReferCron = $oRule;
+					break;
+				}
+			}
+			if (!isset($oReferCron)) {
+				return new \ParameterError('定时任务的相对时间参照的【填写轮次生成规则】不存在');
+			}
+			$oResult = $modelTim->setTimeByRoundCron($oNewTimer, $oReferCron, false);
+			if (false === $oResult[0]) {
+				return new \ParameterError($oResult[1]);
+			}
+			tms_object_merge($oNewTimer, $oResult[1]);
+			break;
+		}
+
 		$oNewTimer->id = $modelTim->insert('xxt_timer_task', $oNewTimer, true);
 		if (!empty($oNewTimer->task_arguments)) {
 			$oNewTimer->task_arguments = $oConfig->task->arguments;
 		}
+
+		$oNewTimer->name = $modelTim->readableTaskName($oNewTimer);
 
 		return new \ResponseData($oNewTimer);
 	}
@@ -202,6 +223,8 @@ class timer extends \pl\fe\base {
 		if (isset($oTaskArguments)) {
 			$oNewUpdate->task_arguments = $oTaskArguments;
 		}
+
+		$oNewUpdate->name = $modelTim->readableTaskName($oNewUpdate);
 
 		return new \ResponseData($oNewUpdate);
 	}

@@ -1,7 +1,7 @@
 <div ng-if="rec">
-    <div class='dir' ng-if="rec.recordDir.length"><span class="text-muted glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;<span ng-repeat="dir in rec.recordDir track by $index">{{dir}}<span ng-if="$index!==rec.recordDir.length-1"> / </span></span></div>
-    <div ng-repeat="schema in schemas" class='schema' ng-class="{'cowork':schema.cowork==='Y'}" ng-if="rec.data[schema.id]||(schema.cowork==='Y'&& currentTab.id==='coworkData')" ng-switch on="schema.type">
-        <div class='text-muted data-title'><span>{{::schema.title}}</span></div>
+    <div class='dir' ng-if="rec.recordDir.length"><span class='text-muted glyphicon glyphicon-folder-open'></span>&nbsp;&nbsp;<span ng-repeat="dir in rec.recordDir track by $index">{{dir}}<span ng-if="$index!==rec.recordDir.length-1"> / </span></span></div>
+    <div ng-repeat="schema in schemas" class='schema' ng-class="{'cowork':schema.cowork==='Y'}" ng-if="rec.data[schema.id]" ng-switch on="schema.type">
+        <div class='text-muted' ng-class="{true:'data-title-one', false:'data-title-zero title'}[schemaCounter>1]"><span>{{::schema.title}}</span></div>
         <div ng-switch-when="file">
             <div ng-repeat="file in rec.data[schema.id]" ng-switch on="file.type">
                 <video ng-switch-when="video" controls="controls" preload="none">
@@ -37,15 +37,10 @@
                 <span ng-bind="item.title"></span>:<span ng-bind="item.score"></span>;
             </div>
         </div>
-        <div ng-switch-when="multitext" ng-if="!schema.cowork||schema.cowork!=='Y'">
-            <span ng-repeat="item in rec.data[schema.id]" >
+        <div ng-switch-when="multitext">
+            <span ng-repeat="item in rec.data[schema.id]">
                 <span ng-bind="item.value"></span><span ng-hide="$index==rec.data[schema.id].length-1">;</span>
             </span>
-        </div>
-        <div ng-switch-when="multitext" ng-if="schema.cowork==='Y'" style="display:block;">
-            <p ng-repeat="item in rec.data[schema.id]">
-                <span dynamic-html="item.value"></span>
-            </p>
         </div>
         <div ng-switch-when="single"><span ng-bind="rec.data[schema.id]"></span></div>
         <div ng-switch-when="multiple">
@@ -65,8 +60,6 @@
         <div ng-if="schema.supplement==='Y'&&rec.supplement[schema.id]" class='supplement' ng-bind-html="rec.supplement[schema.id]"></div>
         <div ng-if="rec.voteResult[schema.id]" class='small'>
             <span ng-if="rec.voteResult[schema.id].state!=='BS'">得票：<span ng-bind="rec.voteResult[schema.id].vote_num"></span></span>
-            <button class='btn btn-success btn-xs' ng-if="rec.voteResult[schema.id].state==='IP'&&rec.voteResult[schema.id].vote_at===0" ng-click="vote(rec.voteResult[schema.id], $event)"><span class='glyphicon glyphicon-triangle-top'></span> 投票</button>
-            <button class='btn btn-default btn-xs' ng-if="rec.voteResult[schema.id].state==='IP'&&rec.voteResult[schema.id].vote_at!==0" ng-click="unvote(rec.voteResult[schema.id], $event)"><span class='glyphicon glyphicon-triangle-bottom'></span> 撤销投票</button>
         </div>
     </div>
 </div>

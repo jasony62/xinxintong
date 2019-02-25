@@ -213,7 +213,7 @@
                         <input type='radio' value='stat' ng-model="timer.task.task_arguments.page">统计页</label>
                 </div>
                 <div class='form-group' ng-if="timer.task.task_arguments.taskConfig" ng-switch on="timer.task.task_arguments.taskConfig.type">
-                    <div>【<span ng-switch-when="question">提问</span>】任务提醒</div>
+                    <div>【<span ng-switch-when="baseline">目标</span><span ng-switch-when="question">提问</span><span ng-switch-when="answer">回答</span><span ng-switch-when="vote">投票</span>】任务提醒</div>
                 </div>
                 <div class='form-group'>
                     <label class='radio-inline'>

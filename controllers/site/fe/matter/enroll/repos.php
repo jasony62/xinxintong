@@ -204,92 +204,6 @@ class repos extends base {
 		return new \ResponseData($oResult);
 	}
 	/**
-	 * 按照活动规则是否需要隐藏记录的用户名称
-	 */
-	private function _requireAnonymous($oApp) {
-		$bAnonymous = false;
-		if (isset($oApp->actionRule->record->anonymous)) {
-			$oRule = $oApp->actionRule->record->anonymous;
-			/* 记录点赞截止时间关联 */
-			if (!empty($oRule->time->record->like->end)) {
-				if (isset($oApp->actionRule->record->like->end->time)) {
-					$oRule2 = $oApp->actionRule->record->like->end->time;
-					if (isset($oRule2->mode) && isset($oRule2->unit) && isset($oRule2->value)) {
-						if ($oRule2->mode === 'after_round_start_at') {
-							$modelRnd = $this->model('matter\enroll\round');
-							$oActiveRnd = $modelRnd->getActive($oApp);
-							if ($oActiveRnd && !empty($oActiveRnd->start_at)) {
-								$endtime = (int) $oActiveRnd->start_at + (3600 * $oRule2->value);
-								$bAnonymous = time() < $endtime;
-							}
-						}
-					}
-				}
-			}
-			/* 协作点赞截止时间 */
-			if (!empty($oRule->time->cowork->like->end)) {
-				if (isset($oApp->actionRule->cowork->like->end->time)) {
-					$oRule2 = $oApp->actionRule->cowork->like->end->time;
-					if (isset($oRule2->mode) && isset($oRule2->unit) && isset($oRule2->value)) {
-						if ($oRule2->mode === 'after_round_start_at') {
-							$modelRnd = $this->model('matter\enroll\round');
-							$oActiveRnd = $modelRnd->getActive($oApp);
-							if ($oActiveRnd && !empty($oActiveRnd->start_at)) {
-								$endtime = (int) $oActiveRnd->start_at + (3600 * $oRule2->value);
-								$bAnonymous = time() < $endtime;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		return $bAnonymous;
-	}
-	/**
-	 * 按照活动规则是否只能查看同组数据
-	 */
-	private function _requireSameGroup($oApp) {
-		$bSameGroup = false;
-		if (isset($oApp->actionRule->record->group)) {
-			$oRule = $oApp->actionRule->record->group;
-			/* 记录点赞截止时间关联 */
-			if (!empty($oRule->time->record->like->end)) {
-				if (isset($oApp->actionRule->record->like->end->time)) {
-					$oRule2 = $oApp->actionRule->record->like->end->time;
-					if (isset($oRule2->mode) && isset($oRule2->unit) && isset($oRule2->value)) {
-						if ($oRule2->mode === 'after_round_start_at') {
-							$modelRnd = $this->model('matter\enroll\round');
-							$oActiveRnd = $modelRnd->getActive($oApp);
-							if ($oActiveRnd && !empty($oActiveRnd->start_at)) {
-								$endtime = (int) $oActiveRnd->start_at + (3600 * $oRule2->value);
-								$bSameGroup = time() < $endtime;
-							}
-						}
-					}
-				}
-			}
-			/* 协作点赞截止时间 */
-			if (!empty($oRule->time->cowork->like->end)) {
-				if (isset($oApp->actionRule->cowork->like->end->time)) {
-					$oRule2 = $oApp->actionRule->cowork->like->end->time;
-					if (isset($oRule2->mode) && isset($oRule2->unit) && isset($oRule2->value)) {
-						if ($oRule2->mode === 'after_round_start_at') {
-							$modelRnd = $this->model('matter\enroll\round');
-							$oActiveRnd = $modelRnd->getActive($oApp);
-							if ($oActiveRnd && !empty($oActiveRnd->start_at)) {
-								$endtime = (int) $oActiveRnd->start_at + (3600 * $oRule2->value);
-								$bSameGroup = time() < $endtime;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		return $bSameGroup;
-	}
-	/**
 	 * 处理数据
 	 */
 	private function _processDatas($oApp, $oUser, &$rawDatas, $processType = 'recordList', $voteRules = null) {
@@ -297,12 +211,8 @@ class repos extends base {
 		if (!empty($oApp->voteConfig)) {
 			$modelTask = $this->model('matter\enroll\task', $oApp);
 		}
-		/* 是否限制了匿名规则 */
-		$bAnonymous = $this->_requireAnonymous($oApp);
-		if (false === $bAnonymous) {
-			/* 是否设置了编辑组 */
-			$oEditorGrp = $this->getEditorGroup($oApp);
-		}
+		/* 是否设置了编辑组 */
+		$oEditorGrp = $this->getEditorGroup($oApp);
 
 		foreach ($rawDatas as &$rawData) {
 			/* 获取记录的投票信息 */
@@ -456,11 +366,7 @@ class repos extends base {
 				}
 			}
 			/* 设置昵称 */
-			if ($bAnonymous) {
-				unset($rawData->nickname);
-			} else {
-				$this->setNickname($rawData, $oUser, isset($oEditorGrp) ? $oEditorGrp : null);
-			}
+			$this->setNickname($rawData, $oUser, isset($oEditorGrp) ? $oEditorGrp : null);
 			/* 清除不必要的内容 */
 			unset($rawData->comment);
 			unset($rawData->verified);
@@ -527,7 +433,6 @@ class repos extends base {
 
 		$oUser = $this->getUser($oApp);
 
-		$oActionRule = $oApp->actionRule;
 		// 填写记录过滤条件
 		$oPosted = $this->getPostJson();
 		// 填写记录过滤条件
@@ -569,18 +474,9 @@ class repos extends base {
 		$oCriteria->record = new \stdClass;
 		$oCriteria->record->rid = !empty($oPosted->rid) ? $oPosted->rid : 'all';
 
-		/* 用户分组限制 */
-		if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
-			$bSameGroup = $this->_requireSameGroup($oApp);
-			if ($bSameGroup) {
-				$oCriteria->record->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
-			}
-		}
 		/* 指定了分组过滤条件 */
-		if (!isset($oCriteria->record->group_id)) {
-			if (!empty($oPosted->userGroup)) {
-				$oCriteria->record->group_id = $oPosted->userGroup;
-			}
+		if (!empty($oPosted->userGroup)) {
+			$oCriteria->record->group_id = $oPosted->userGroup;
 		}
 		/* 记录的创建人 */
 		if (!empty($oPosted->mine) && $oPosted->mine === 'creator') {
@@ -680,23 +576,12 @@ class repos extends base {
 		// 按指定题的值筛选
 		!empty($oPosted->data) && $oCriteria->data = $oPosted->data;
 
-		$oActionRule = $oApp->actionRule;
-
 		$oCriteria->recordData = new \stdClass;
 		$oCriteria->recordData->rid = !empty($oPosted->rid) ? $oPosted->rid : 'all';
 
-		/* 用户分组限制 */
-		if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
-			$bSameGroup = $this->_requireSameGroup($oApp);
-			if ($bSameGroup) {
-				$oCriteria->recordData->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
-			}
-		}
 		/* 指定了分组过滤条件 */
-		if (!isset($oCriteria->recordData->group_id)) {
-			if (!empty($oPosted->userGroup)) {
-				$oCriteria->recordData->group_id = $oPosted->userGroup;
-			}
+		if (!empty($oPosted->userGroup)) {
+			$oCriteria->recordData->group_id = $oPosted->userGroup;
 		}
 		/* 答案的创建人 */
 		if (!empty($oPosted->mine) && $oPosted->mine === 'creator') {
@@ -741,18 +626,6 @@ class repos extends base {
 
 		// 查询结果
 		$modelRec = $this->model('matter\enroll\record');
-		$oCriteria = new \stdClass;
-		$oCriteria->record = new \stdClass;
-		$oCriteria->record->topic = $topic;
-
-		/* 用户分组限制 */
-		if (empty($oUser->is_leader) || $oUser->is_leader !== 'S') {
-			$bSameGroup = $this->_requireSameGroup($oApp);
-			if ($bSameGroup) {
-				$oCriteria->record->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
-			}
-		}
-
 		$modelTop = $this->model('matter\enroll\topic', $oApp);
 		$oTopic = $modelTop->byId($topic);
 

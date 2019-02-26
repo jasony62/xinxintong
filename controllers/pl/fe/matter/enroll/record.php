@@ -65,28 +65,6 @@ class record extends main_base {
 		// 查询结果
 		$modelRec = $this->model('matter\enroll\record');
 		$oResult = $modelRec->byApp($oEnrollApp, $aOptions, $oCriteria);
-		if (!empty($oResult->records)) {
-			$bRequireScore = false;
-			foreach ($oEnrollApp->dynaDataSchemas as $oSchema) {
-				if (isset($oSchema->requireScore) && $oSchema->requireScore == 'Y') {
-					$bRequireScore = true;
-				}
-			}
-			if ($bRequireScore) {
-				foreach ($oResult->records as $oRec) {
-					$one = $modelRec->query_obj_ss([
-						'id,score',
-						'xxt_enroll_record',
-						['siteid' => $oEnrollApp->siteid, 'enroll_key' => $oRec->enroll_key],
-					]);
-					if (count($one)) {
-						$oRec->score = json_decode($one->score);
-					} else {
-						$oRec->score = new \stdClass;
-					}
-				}
-			}
-		}
 
 		return new \ResponseData($oResult);
 	}
@@ -2422,7 +2400,7 @@ class record extends main_base {
 		$aScoreSum = []; // 题目的分数合计
 		$columnNum4 = $columnNum1; //列号
 		$bRequireNickname = true;
-		if ($this->getDeepValue($oApp, 'assignedNickname.valid') !== 'Y' || isset($oApp->assignedNickname->schema->id)) {
+		if ($this->getDeepValue($oApp, 'assignedNickname.valid') === 'Y' || isset($oApp->assignedNickname->schema->id)) {
 			$bRequireNickname = false;
 		}
 		$bRequireSum = false; // 是否需要计算合计
@@ -2547,7 +2525,7 @@ class record extends main_base {
 								$labelsSum += $v->{$op->v};
 								$objActiveSheet->setCellValueByColumnAndRow($recColNum2 + $opi + 1, $rowIndex, $v->{$op->v});
 							} else {
-								$objActiveSheet->setCellValueByColumnAndRow($recColNum2 + $opi + 1, $rowIndex, 0);
+								$objActiveSheet->setCellValueByColumnAndRow($recColNum2 + $opi + 1, $rowIndex, '');
 							}
 							$recColNum++;
 						}

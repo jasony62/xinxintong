@@ -2547,7 +2547,7 @@ class record extends main_base {
 								$labelsSum += $v->{$op->v};
 								$objActiveSheet->setCellValueByColumnAndRow($recColNum2 + $opi + 1, $rowIndex, $v->{$op->v});
 							} else {
-								$objActiveSheet->setCellValueByColumnAndRow($recColNum2 + $opi + 1, $rowIndex, '');
+								$objActiveSheet->setCellValueByColumnAndRow($recColNum2 + $opi + 1, $rowIndex, 0);
 							}
 							$recColNum++;
 						}

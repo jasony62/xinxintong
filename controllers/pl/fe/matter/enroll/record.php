@@ -2439,12 +2439,20 @@ class record extends main_base {
 					$aNumberSum[$columnNum4] = $oSchema->id;
 					$bRequireSum = true;
 				}
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, $oSchema->title);
 			} else if ($oSchema->type === 'score') {
 				/* 打分题，需要计算合计 */
 				$aNumberSum[$columnNum4] = $oSchema->id;
 				$bRequireSum = true;
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, $oSchema->title);
+				if (!empty($oSchema->ops)) {
+					foreach ($oSchema->ops as $op) {
+						$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, $op->l);
+					}
+				}
+			} else {
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, $oSchema->title);
 			}
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, $oSchema->title);
 			/* 需要补充说明 */
 			if ($this->getDeepValue($oSchema, 'supplement') === 'Y') {
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '补充说明');
@@ -2534,15 +2542,22 @@ class record extends main_base {
 					$objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
 				case 'score':
-					$labels = [];
+					$recColNum2 = $recColNum;
+					$labelsSum = 0;
 					if (!empty($oSchema->ops)) {
-						foreach ($oSchema->ops as $op) {
+						for ($opi = 0; $opi < count($oSchema->ops); $opi++) {
+							$op = $oSchema->ops[$opi];
 							if (isset($v->{$op->v})) {
-								$labels[] = $op->l . ':' . $v->{$op->v};
+								$labelsSum += $v->{$op->v};
+								$objActiveSheet->setCellValueByColumnAndRow($recColNum2 + $opi + 1, $rowIndex, $v->{$op->v});
+							} else {
+								$objActiveSheet->setCellValueByColumnAndRow($recColNum2 + $opi + 1, $rowIndex, '');
 							}
+							$recColNum++;
 						}
 					}
-					$objActiveSheet->setCellValueByColumnAndRow($recColNum++, $rowIndex, implode(' / ', $labels));
+					$objActiveSheet->setCellValueByColumnAndRow($recColNum2, $rowIndex, $labelsSum);
+					$recColNum++;
 					break;
 				case 'image':
 					$v0 = '';

@@ -2515,9 +2515,7 @@ class record extends main_base {
 							}
 						}
 					}
-					$cellValue = str_replace(['<br>', '</br>'], ["\n", ""], $cellValue);
-					$cellValue = strip_tags($cellValue);
-					$cellValue = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $cellValue);
+					$cellValue = $this->replaceHTMLTags($cellValue, "\n");
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $cellValue, \PHPExcel_Cell_DataType::TYPE_STRING);
 					$objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
@@ -2535,9 +2533,7 @@ class record extends main_base {
 						}
 					}
 					$cellValue = implode(',', $labels);
-					$cellValue = str_replace(['<br>', '</br>'], ["\n", ""], $cellValue);
-					$cellValue = strip_tags($cellValue);
-					$cellValue = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $cellValue);
+					$cellValue = $this->replaceHTMLTags($cellValue, "\n");
 					$objActiveSheet->setCellValueByColumnAndRow($recColNum++, $rowIndex, $cellValue);
 					$objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
@@ -2561,17 +2557,13 @@ class record extends main_base {
 					break;
 				case 'image':
 					$v0 = '';
-					$v0 = str_replace(['<br>', '</br>'], ["\n", ""], $v0);
-					$v0 = strip_tags($v0);
-					$v0 = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v0);
+					$v0 = $this->replaceHTMLTags($v0, "\n");
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
 					$objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
 				case 'file':
 					$v0 = '';
-					$v0 = str_replace(['<br>', '</br>'], ["\n", ""], $v0);
-					$v0 = strip_tags($v0);
-					$v0 = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v0);
+					$v0 = $this->replaceHTMLTags($v0, "\n");
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
 					$objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;

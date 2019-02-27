@@ -126,6 +126,18 @@
                             </div>
                         </div>
                     </div>
+                    <div ng-switch-when="site.matter.enroll.data.do.dislike">
+                        <div ng-switch on="log.event_op">
+                            <div ng-switch-when="Y">
+                                <span class='nickname'>{{log.nickname}}</span> 对
+                                <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的记录点踩
+                            </div>
+                            <div ng-switch-when="N">
+                                <span class='nickname'>{{log.nickname}}</span> 对
+                                <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的记录取消点踩
+                            </div>
+                        </div>
+                    </div>
                     <div ng-switch-when="site.matter.enroll.cowork.do.like">
                         <div ng-switch on="log.event_op">
                             <div ng-switch-when="Y">
@@ -138,6 +150,18 @@
                             </div>
                         </div>
                     </div>
+                    <div ng-switch-when="site.matter.enroll.cowork.do.dislike">
+                        <div ng-switch on="log.event_op">
+                            <div ng-switch-when="Y">
+                                <span class='nickname'>{{log.nickname}}</span> 对
+                                <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的数据点踩
+                            </div>
+                            <div ng-switch-when="N">
+                                <span class='nickname'>{{log.nickname}}</span> 对
+                                <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的数据取消点踩
+                            </div>
+                        </div>
+                    </div>
                     <div ng-switch-when="site.matter.enroll.remark.do.like">
                         <div ng-switch on="log.event_op">
                             <div ng-switch-when="Y">
@@ -147,6 +171,18 @@
                             <div ng-switch-when="N">
                                 <span class='nickname'>{{log.nickname}}</span> 对
                                 <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的留言取消点赞
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-switch-when="site.matter.enroll.remark.do.dislike">
+                        <div ng-switch on="log.event_op">
+                            <div ng-switch-when="Y">
+                                <span class='nickname'>{{log.nickname}}</span> 对
+                                <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的留言点踩
+                            </div>
+                            <div ng-switch-when="N">
+                                <span class='nickname'>{{log.nickname}}</span> 对
+                                <span class='nickname' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的留言取消点踩
                             </div>
                         </div>
                     </div>

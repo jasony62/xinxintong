@@ -1,4 +1,6 @@
 'use strict';
+require('./activities.css');
+
 require('./_asset/ui.round.js');
 require('./_asset/ui.task.js');
 

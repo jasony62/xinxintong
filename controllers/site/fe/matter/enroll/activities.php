@@ -108,7 +108,7 @@ class activities extends base {
 
 		/* 返回记录活动页面 */
 		$outputTitle = $oApp->title;
-		$outputUrl = '/site/fe/matter/enroll/activities/' . $page;
+		$outputUrl = '/site/fe/matter/enroll/activities';
 		$customViewName = TMS_APP_VIEW_NAME;
 
 		$oUser = $this->who;

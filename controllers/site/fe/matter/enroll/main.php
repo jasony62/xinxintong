@@ -97,10 +97,6 @@ class main extends base {
 			}
 		}
 
-		if (!empty($page) && !in_array($page, ['rank', 'stat']) && empty($oApp->appRound)) {
-			$this->outputError('【' . $oApp->title . '】没有可用的填写轮次，请检查');
-		}
-
 		$oUser = $this->who;
 		if (isset($oUser->unionid)) {
 			$oAccount = $this->model('account')->byId($oUser->unionid, ['cascaded' => ['group']]);

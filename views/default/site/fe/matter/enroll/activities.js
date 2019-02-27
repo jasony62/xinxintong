@@ -162,7 +162,7 @@ ngApp.controller('ctrlActivitiesKanban', ['$scope', '$parse', '$q', '$uibModal',
         });
     });
 }]);
-ngApp.controller('ctrlActivitiesEvent', ['$scope', '$q', 'http2', 'tmsLocation', function($scope, $q, http2, tmsLocation) {
+ngApp.controller('ctrlActivitiesEvent', ['$scope', '$q', 'http2', 'tmsLocation', function($scope, $q, http2, LS) {
     function fnCloseNotice(oNotice) {
         var url, defer;
         defer = $q.defer();

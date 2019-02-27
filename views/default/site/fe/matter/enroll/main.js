@@ -31,12 +31,18 @@ if (window.moduleAngularModules) {
 }
 
 var ngApp = angular.module('app', angularModules);
-ngApp.config(['$controllerProvider', '$uibTooltipProvider', '$locationProvider', function($cp, $uibTooltipProvider, $locationProvider) {
+ngApp.config(['$controllerProvider', '$uibTooltipProvider', '$locationProvider', 'tmsLocationProvider', function($cp, $uibTooltipProvider, $locationProvider, tmsLocationProvider) {
     ngApp.provider = {
         controller: $cp.register
     };
     $uibTooltipProvider.setTriggers({ 'show': 'hide' });
     $locationProvider.html5Mode(true);
+    (function() {
+        var baseUrl;
+        baseUrl = '/rest/site/fe/matter/enroll'
+        //
+        tmsLocationProvider.config(baseUrl);
+    })();
 }]);
 ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tmsLocation', 'tmsDynaPage', 'tmsSnsShare', 'tmsSiteUser', 'enlService', function($scope, $q, $parse, http2, $timeout, LS, tmsDynaPage, tmsSnsShare, tmsSiteUser, enlService) {
     function refreshEntryRuleResult() {

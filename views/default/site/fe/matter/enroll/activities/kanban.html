@@ -1,0 +1,268 @@
+<div class='col-md-12'>
+    <div class='form-group'>
+        <div class='form-inline'>
+            <div ng-if="rounds.length>1" class="btn-group" uib-dropdown dropdown-append-to-body='true'>
+                <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                    <span ng-bind="filter.round.title"></span>
+                    <span class="glyphicon glyphicon-filter"></span>
+                </button>
+                <ul class="dropdown-menu" uib-dropdown-menu>
+                    <li><a href ng-click="shiftRound({rid:'ALL',title:'全部'})">全部</a></li>
+                    <li ng-repeat="rnd in rounds"><a href ng-click="shiftRound(rnd)">{{rnd.title}}</a></li>
+                </ul>
+            </div>
+            <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
+                <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                    <span ng-if="criteria.orderby==='score'">得分</span>
+                    <span ng-if="criteria.orderby==='user_total_coin'">积分</span>
+                    <span ng-if="criteria.orderby==='entry_num'">访问次数</span>
+                    <span ng-if="criteria.orderby==='total_elapse'">投入时间</span>
+                    <span ng-if="criteria.orderby==='devote'">贡献次数</span>
+                    <span class="glyphicon glyphicon-sort"></span>
+                </button>
+                <ul class="dropdown-menu" uib-dropdown-menu>
+                    <li><a href ng-click="shiftOrderby('score')">得分</a></li>
+                    <li ng-if="app.scenarioConfig.can_coin==='Y'"><a href ng-click="shiftOrderby('user_total_coin')">积分</a></li>
+                    <li><a href ng-click="shiftOrderby('entry_num')">访问次数</a></li>
+                    <li><a href ng-click="shiftOrderby('total_elapse')">投入时间</a></li>
+                    <li><a href ng-click="shiftOrderby('devote')">贡献次数</a></li>
+                </ul>
+            </div>
+            <div ng-if="userGroups.length" class="btn-group" uib-dropdown dropdown-append-to-body='true'>
+                <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                    <span ng-if="filter.group">{{filter.group.title}}</span>
+                    <span ng-if="!filter.group">全部分组</span>
+                    <span class="glyphicon glyphicon-filter"></span>
+                </button>
+                <ul class="dropdown-menu" uib-dropdown-menu>
+                    <li><a href ng-click="shiftUserGroup()">全部</a></li>
+                    <li ng-repeat="ug in userGroups"><a href ng-click="shiftUserGroup(ug)">{{ug.title}}</a></li>
+                </ul>
+            </div>
+            <button ng-show="subView==='users'" class='btn btn-default' ng-click="subView='undone'">查看未完成<span ng-bind="kanban.undone.length"></span>人</button>
+            <button ng-show="subView==='undone'" class='btn btn-default' ng-click="subView='users'">查看整体情况</button>
+        </div>
+    </div>
+    <div id='kanban' ng-if="subView==='users'">
+        <!-- users -->
+        <div class='wrap'>
+            <div class='user list-group-item'>
+                <div>
+                </div>
+                <div class='data'>
+                    <div>
+                        <div></div>
+                        <div>
+                            <div>排名</div>
+                            <div>数值</div>
+                            <div>与最大值的比</div>
+                            <div>与平均值的比</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='user list-group-item' ng-repeat='u in kanban.users'>
+                <div class='who' ng-click="viewDetail(u)">
+                    <div><span>{{u.nickname}}</span><span ng-if="user.uid===u.userid">（我）</span></div>
+                    <div ng-if='app.entryRule.group.id'>
+                        <div class='text-muted small'>{{u.group.title}}</div>
+                    </div>
+                    <div ng-if="user.uid===u.userid">
+                        <button class='btn btn-default btn-sm' ng-click="toggleProfilePublic($event,u)">设置为<span ng-if="!u.custom.profile.public">公开</span><span ng-if="u.custom.profile.public">隐身</span></button>
+                    </div>
+                </div>
+                <div class='data'>
+                    <div ng-class="{'ordered':criteria.orderby==='score'}">
+                        <div>得分</div>
+                        <div>
+                            <div><span class='pos'>{{u.score.pos}}</span></div>
+                            <div><span>{{u.score.val}}</span></div>
+                            <div><span ng-if="kanban.stat.score.max">{{u.score.val/kanban.stat.score.max|number:2}}</span></div>
+                            <div><span ng-if="kanban.stat.score.mean">{{u.score.val/kanban.stat.score.mean|number:2}}</span></div>
+                        </div>
+                    </div>
+                    <div ng-if="app.scenarioConfig.can_coin==='Y'" ng-class="{'ordered':criteria.orderby==='user_total_coin'}">
+                        <div>积分</div>
+                        <div>
+                            <div><span class='pos'>{{u.user_total_coin.pos}}</span></div>
+                            <div><span>{{u.user_total_coin.val}}</span></div>
+                            <div><span ng-if="kanban.stat.user_total_coin.max">{{u.user_total_coin.val/kanban.stat.user_total_coin.max|number:2}}</span></div>
+                            <div><span ng-if="kanban.stat.user_total_coin.mean">{{u.user_total_coin.val/kanban.stat.user_total_coin.mean|number:2}}</span></div>
+                        </div>
+                    </div>
+                    <div ng-class="{'ordered':criteria.orderby==='entry_num'}">
+                        <div>访问次数</div>
+                        <div>
+                            <div><span class='pos'>{{u.entry_num.pos}}</span></div>
+                            <div><span>{{u.entry_num.val}}</span></div>
+                            <div><span ng-if="kanban.stat.entry_num.max">{{u.entry_num.val/kanban.stat.entry_num.max|number:2}}</span></div>
+                            <div><span ng-if="kanban.stat.entry_num.mean">{{u.entry_num.val/kanban.stat.entry_num.mean|number:2}}</span></div>
+                        </div>
+                    </div>
+                    <div ng-class="{'ordered':criteria.orderby==='total_elapse'}">
+                        <div>投入时间</div>
+                        <div>
+                            <div><span class='pos'>{{u.total_elapse.pos}}</span></div>
+                            <div><span>{{u.total_elapse.val|filterTime}}</span></div>
+                            <div><span ng-if="kanban.stat.total_elapse.max">{{u.total_elapse.val/kanban.stat.total_elapse.max|number:2}}</span></div>
+                            <div><span ng-if="kanban.stat.total_elapse.mean">{{u.total_elapse.val/kanban.stat.total_elapse.mean|number:2}}</span></div>
+                        </div>
+                    </div>
+                    <div ng-class="{'ordered':criteria.orderby==='devote'}">
+                        <div>贡献次数</div>
+                        <div>
+                            <div><span class='pos'>{{u.devote.pos}}</span></div>
+                            <div><span>{{u.devote.val}}</span></div>
+                            <div><span ng-if="kanban.stat.devote.max">{{u.devote.val/kanban.stat.devote.max|number:2}}</span></div>
+                            <div><span ng-if="kanban.stat.devote.mean">{{u.devote.val/kanban.stat.devote.mean|number:2}}</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end users -->
+    </div>
+    <div class='table-responsive' ng-if="subView==='undone'">
+        <table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th style='width:48px'>序号</th>
+                    <th>姓名</th>
+                    <th ng-if="app.entryRule.group.id">分组</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat='u in kanban.undone'>
+                    <td>{{$index+1}}</td>
+                    <td>{{u.nickname}}</td>
+                    <td ng-if='app.entryRule.group.id'>
+                        <div ng-if='u.group'>{{u.group.title}}</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script type="text/ng-template" id="userDetail.html">
+    <div class="modal-header">
+        <button class="close" ng-click="cancel()">×</button>
+        <h5 class="modal-title">详细</h5>
+    </div>
+    <div id='user-detail' class="modal-body">
+        <div>
+            <div>姓名</div>
+            <div>{{user.nickname}}</div>
+        </div>
+        <div ng-if='app.entryRule.group.id'>
+            <div>分组</div>
+            <div>{{user.group.title}}</div>
+        </div>
+        <hr>
+        <div>
+            <div>得分</div>
+            <div><span>{{user.score.val}}</span></div>
+        </div>
+        <div ng-if="app.scenarioConfig.can_coin==='Y'">
+            <div>积分</div>
+            <div><span>{{user.user_total_coin.val}}</span></div>
+        </div>
+        <div>
+            <div>访问次数</div>
+            <div><span>{{user.entry_num.val}}</span></div>
+        </div>
+        <div>
+            <div>投入时间</div>
+            <div><span>{{user.total_elapse.val|filterTime}}</span></div>
+        </div>
+        <div>
+            <div>贡献次数</div>
+            <div><span>{{user.devote.val}}</span></div>
+        </div>
+        <hr>
+        <div ng-class="{'undone':user.undone.enroll_num[0]===true}">
+            <div>填写记录</div>
+            <div><span>{{user.enroll_num}}</span></div>
+        </div>
+        <div ng-class="{'undone':user.undone.revise_num[0]===true}">
+            <div>跨轮次修改</div>
+            <div ng-if='user.revise_num'>{{user.revise_num}}</div>
+        </div>
+        <div>
+            <div>最后填写时间</div>
+            <div><span ng-if='user.last_enroll_at>0'>{{user.last_enroll_at*1000|date:'MM-dd HH:mm'}}</span></div>
+        </div>
+        <div>
+            <div>协作填写</div>
+            <div><span>{{user.do_cowork_num}}</span></div>
+        </div>
+        <div ng-class="{'undone':user.undone.do_remark_num[0]===true}">
+            <div>发表留言</div>
+            <div><span>{{user.do_remark_num}}</span></div>
+        </div>
+        <div>
+            <div>发表点赞</div>
+            <div><span>{{user.do_like_num}}</span></div>
+        </div>
+        <div>
+            <div>获得推荐</div>
+            <div><span>{{user.agree_num}}</span></div>
+        </div>
+        <div>
+            <div>获得协作</div>
+            <div><span>{{user.cowork_num}}</span></div>
+        </div>
+        <div>
+            <div>获得留言</div>
+            <div><span>{{user.remark_num}}</span></div>
+        </div>
+        <div>
+            <div>获得赞同</div>
+            <div><span>{{user.like_num}}</span></div>
+        </div>
+        <div>
+            <div>浏览共享页次数</div>
+            <div><span>{{user.do_repos_read_num}}</span></div>
+        </div>
+        <div>
+            <div>浏览专题页次数</div>
+            <div><span>{{user.do_topic_read_num}}</span></div>
+        </div>
+        <div>
+            <div>专题页被浏览次数</div>
+            <div><span>{{user.topic_read_num}}</span></div>
+        </div>
+        <div>
+            <div>浏览讨论页次数</div>
+            <div><span>{{user.do_cowork_read_num}}</span></div>
+        </div>
+        <div>
+            <div>讨论页被浏览次数</div>
+            <div><span>{{user.cowork_read_num}}</span></div>
+        </div>
+        <div>
+            <div>共享页浏览累计时间</div>
+            <div><span>{{user.do_repos_read_elapse|filterTime}}</span></div>
+        </div>
+        <div>
+            <div>专题页浏览累计时间</div>
+            <div><span>{{user.do_topic_read_elapse|filterTime}}</span></div>
+        </div>
+        <div>
+            <div>专题页被浏览累计时间</div>
+            <div><span>{{user.topic_read_elapse|filterTime}}</span></div>
+        </div>
+        <div>
+            <div>讨论页浏览累计时间</div>
+            <div><span>{{user.do_cowork_read_elapse|filterTime}}</span></div>
+        </div>
+        <div>
+            <div>讨论页被浏览累计时间</div>
+            <div><span>{{user.cowork_read_elapse|filterTime}}</span></div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class='text-center'>
+            <button class="btn btn-default" ng-click="cancel()">关闭</button>
+        </div>
+    </div>
+</script>

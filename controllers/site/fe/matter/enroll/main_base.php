@@ -48,7 +48,7 @@ class main_base extends base {
 		} else if (in_array($page, ['rank', 'votes', 'marks', 'stat'])) {
 			$module = 'summary';
 		} else if (in_array($page, ['user', 'favor'])) {
-			$module = 'prople';
+			$module = 'people';
 		} else {
 			return (object) ['state' => false, 'msg' => '未找到指定页面'];
 		}

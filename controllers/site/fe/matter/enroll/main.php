@@ -78,7 +78,6 @@ class main extends base {
 			if (empty($page)) {
 				/* 计算打开哪个页面 */
 				$oOpenPage = $this->_defaultPage($oApp, $rid, true, $ignoretime);
-				$page = $oOpenPage->name;
 			} else {
 				$oOpenPage = $this->model('matter\enroll\page')->byName($oApp, $page);
 			}
@@ -88,8 +87,14 @@ class main extends base {
 				$this->_pageReadlog($oApp, $oOpenPage->name, $rid, $ek, $topic);
 			}
 			\TPL::assign('title', $oApp->title);
-			if (in_array($oOpenPage->name, ['task', 'event', 'kanban', 'rank', 'score', 'votes', 'marks', 'repos', 'favor', 'topic', 'stat'])) {
+			if (in_array($oOpenPage->name, ['score', 'repos', 'topic'])) {
 				$outputUrl = '/site/fe/matter/enroll/' . $oOpenPage->name;
+			} else if (in_array($oOpenPage->name, ['task', 'event', 'kanban'])) {
+				$outputUrl = '/site/fe/matter/enroll/activities';
+			} else if (in_array($oOpenPage->name, ['rank', 'marks', 'votes', 'stat'])) {
+				$outputUrl = '/site/fe/matter/enroll/summary';
+			} else if (in_array($oOpenPage->name, ['favor', 'user'])) {
+				$outputUrl = '/site/fe/matter/enroll/people';
 			} else if ($oOpenPage->type === 'I') {
 				$outputUrl = '/site/fe/matter/enroll/input';
 			} else if ($oOpenPage->type === 'V') {

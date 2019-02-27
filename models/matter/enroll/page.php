@@ -79,7 +79,7 @@ class page_model extends page_base {
 	public function byName($oApp, $name, $aOptions = []) {
 		$published = isset($aOptions['published']) ? ($aOptions['published'] === 'Y' ? 'Y' : 'N') : 'N';
 
-		if (in_array($name, ['repos', 'rank', 'votes', 'marks', 'event', 'score', 'topic', 'share', 'favor'])) {
+		if (in_array($name, ['repos', 'rank', 'votes', 'marks', 'event', 'score', 'topic', 'share', 'favor', 'kanban', 'task'])) {
 			$oPage = new \stdClass;
 			$oPage->name = $name;
 			$oPage->type = '';

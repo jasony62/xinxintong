@@ -5,33 +5,26 @@ include_once dirname(__FILE__) . '/main_base.php';
 /**
  * 任务控制器
  */
-class activities extends main_base {
+class people extends main_base {
 	/*
 	 *
 	 */
 	public function index_action($app) {
-		$page = 'task';
+		$page = 'favor';
 		$this->_outputPage($app, $page);
 	}
 	/*
 	 *
 	 */
-	public function task_action($app) {
-		$page = 'task';
+	public function user_action($app) {
+		$page = 'user';
 		$this->_outputPage($app, $page);
 	}
 	/*
 	 *
 	 */
-	public function kanban_action($app) {
-		$page = 'kanban';
-		$this->_outputPage($app, $page);
-	}
-	/*
-	 *
-	 */
-	public function event_action($app) {
-		$page = 'event';
+	public function favor_action($app) {
+		$page = 'favor';
 		$this->_outputPage($app, $page);
 	}
 }

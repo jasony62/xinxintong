@@ -30,7 +30,7 @@ class main extends main_base {
 		/*  *******************************************************
 			为了兼容当前版本注释此段代码，等新版本发布后将运用此段代码 
 			*******************************************************  */
-		
+
 		// if (in_array($page, ['task', 'kanban', 'event'])) {
 		// 	$this->redirect("/rest/site/fe/matter/enroll/activities/" . $page . "?site={$this->siteId}&app={$app}&rid={$rid}&page={$page}&ek={$ek}&topic={$topic}&ignoretime={$ignoretime}");
 		// } else if (in_array($page, ['rank', 'votes', 'marks', 'stat'])) {

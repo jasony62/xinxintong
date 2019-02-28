@@ -16,9 +16,9 @@ class summary extends main_base {
 	/*
 	 *
 	 */
-	public function stat_action($app) {
+	public function stat_action($app, $rid = '') {
 		$page = 'stat';
-		$this->_outputPage($app, $page);
+		$this->_outputPage($app, $page, $rid);
 	}
 	/*
 	 *

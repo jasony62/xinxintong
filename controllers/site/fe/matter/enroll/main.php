@@ -14,7 +14,25 @@ class main extends main_base {
 	 *
 	 */
 	public function index_action($app, $rid = '', $page = '', $ek = null, $topic = null, $ignoretime = 'N') {
-		$this->_outputPage($app, $page, $rid, $ek, $topic, $ignoretime);
+		$oApp = $this->modelApp->byId($app, ['cascaded' => 'N']);
+		if ($oApp === false || $oApp->state !== '1') {
+			$this->outputError('指定的记录活动不存在，请检查参数是否正确');
+		}
+
+		if (empty($page)) {
+			/* 计算打开哪个页面 */
+			$oOpenPage = $this->_defaultPage($oApp, $rid, true, $ignoretime);
+			$page = $oOpenPage->name;
+		}
+		if (in_array($page, ['task', 'kanban', 'event'])) {
+			$this->redirect("/rest/site/fe/matter/enroll/activities/" . $page . "?site={$this->siteId}&app={$app}&rid={$rid}&page={$page}&ek={$ek}&topic={$topic}&ignoretime={$ignoretime}");
+		} else if (in_array($page, ['rank', 'votes', 'marks', 'stat'])) {
+			$this->redirect("/rest/site/fe/matter/enroll/summary/" . $page . "?site={$this->siteId}&app={$app}&rid={$rid}&page={$page}&ek={$ek}&topic={$topic}&ignoretime={$ignoretime}");
+		} else if (in_array($page, ['user', 'favor'])) {
+			$this->redirect("/rest/site/fe/matter/enroll/people/" . $page . "?site={$this->siteId}&app={$app}&rid={$rid}&page={$page}&ek={$ek}&topic={$topic}&ignoretime={$ignoretime}");
+		}
+
+		$this->_outputPage($oApp, $page, $rid, $ek, $topic, $ignoretime);
 	}
 	/**
 	 * 返回记录活动定义

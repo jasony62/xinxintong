@@ -21,7 +21,11 @@ class main_base extends base {
 	 *
 	 */
 	protected function _outputPage($app, $page = '', $rid = '', $ek = null, $topic = null, $ignoretime = 'N') {
-		$oApp = $this->modelApp->byId($app, ['cascaded' => 'N']);
+		if (is_string($app)) {
+			$oApp = $this->modelApp->byId($app, ['cascaded' => 'N']);
+		} else {
+			$oApp = $app;
+		}
 		if ($oApp === false || $oApp->state !== '1') {
 			$this->outputError('指定的记录活动不存在，请检查参数是否正确');
 		}

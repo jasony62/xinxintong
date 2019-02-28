@@ -277,8 +277,20 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsLocation', '$timeout', '$q'
         }
     };
     $scope.gotoNavApp = function(oNavApp) {
-        if (oNavApp.id) {
-            location.href = '/rest/site/fe/matter/enroll?site=' + $scope.article.siteid + '&app=' + oNavApp.id;
+        switch (oNavApp.type) {
+            case 'enroll':
+                location.href = '/rest/site/fe/matter/enroll?site=' + oNavApp.siteid + '&app=' + oNavApp.id;
+                break;
+            case 'article':
+            case 'channel':
+                location.href = '/rest/site/fe/matter?site=' + oNavApp.siteid + '&id=' + oNavApp.id + '&type=' + oNavApp.type;
+                break;
+            case 'link':
+                location.href = '/rest/site/fe/matter/link?site=' + oNavApp.siteid + '&id=' + oNavApp.id + '&type=' + oNavApp.type;
+                break;
+            default:
+                alert("不支持此类型");
+                break;
         }
     };
     $scope.subscribeSite = function() {

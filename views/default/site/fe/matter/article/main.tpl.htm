@@ -47,80 +47,83 @@
                     <div id='qrCode' class='hidden-xs hidden-sm'>
                         <img ng-src="{{code}}">
                     </div>
-                </div>
-                <div class="article col-md-9 col-md-pull-3 col-xs-12">
-                    <h2 id="title" class="inline-block" ng-bind='article.title'></h2>
-                    <div id="attribute">
-                        <span>{{article.author}}</span>
-                        <span class="time" ng-bind="article.modify_at*1000|date:'yy-MM-dd'"></span>
-                        <span class="read">阅读 {{article.read_num}}</span>
+                        <div class='hidden-xs hidden-sm hm-tile' ng-if="article.config.nav.app.length">
+                            <div><span class='hm-tile-title'>相关资料</span></div>
+                            <div ng-repeat="app in article.config.nav.app">
+                                <a class='matter' href="#" ng-click="gotoNavApp(app)" ng-bind="app.title"></a>
+                            </div>
+                        </div>
                     </div>
-                    <div id='summary' ng-if="article.summary">
-                        <blockquote>
-                            <div ng-bind="article.summary"></div>
-                        </blockquote>
+                    <div class="article col-md-9 col-md-pull-3 col-xs-12">
+                        <h2 id="title" class="inline-block" ng-bind='article.title'></h2>
+                        <div id="attribute">
+                            <span>{{article.author}}</span>
+                            <span class="time" ng-bind="article.modify_at*1000|date:'yy-MM-dd'"></span>
+                            <span class="read">阅读 {{article.read_num}}</span>
+                        </div>
+                        <div id='summary' ng-if="article.summary">
+                            <blockquote>
+                                <div ng-bind="article.summary"></div>
+                            </blockquote>
+                        </div>
+                        <div class="headpic" ng-if="article.hide_pic!=='Y'">
+                            <img ng-src="{{article.pic}}">
                     </div>
-                    <div class="headpic" ng-if="article.hide_pic!=='Y'">
-                        <img ng-src="{{article.pic}}">
-                    </div>
-                    <div id="content" class="content wrap" dynamic-html='article.body'></div>
-                    <p class="url" ng-if="article.url">
-                        <a ng-href="{{article.url}}" target="_self">阅读原文</a>
-                    </p>
-                    <div id="behavior" class="behavior">
-                        <div id="attachment" ng-if="article.attachments">
-                            <p ng-repeat='a in article.attachments'>
-                                <a ng-href="{{'/rest/site/fe/matter/article/attachmentGet?site='+article.siteid+'&articleid='+article.id+'&attachmentid='+a.id}}" target='_blank'>
+                            <div id="content" class="content wrap" dynamic-html='article.body'></div>
+                            <p class="url" ng-if="article.url">
+                                <a ng-href="{{article.url}}" target="_self">阅读原文</a>
+                            </p>
+                            <div id="behavior" class="behavior">
+                                <div id="attachment" ng-if="article.attachments">
+                                    <p ng-repeat='a in article.attachments'>
+                                        <a ng-href="{{'/rest/site/fe/matter/article/attachmentGet?site='+article.siteid+'&articleid='+article.id+'&attachmentid='+a.id}}" target='_blank'>
                                 <span>附件：</span>
                                 <span>{{a.name}} ——</span>
                                 <span ng-bind='a.size|filesize'></span>
                             </a>
-                            </p>
-                        </div>
-                        <div id='tag' class="clearfix" ng-if="article.channels.length||article.tags.length">
-                            <button class="btn btn-custom-default" ng-repeat="c in article.channels" ng-click="openChannel(c)" ng-bind="c.title"></button>
-                            <button class="btn btn-custom-default" ng-repeat="t in article.tags" ng-click="searchByTag(t)" ng-bind="t.title"></button>
-                        </div>
-                        <div class='hide' id="enrollAssocs" ng-if="enrollAssocs.length">
-                            <hr>
-                            <p class='assoc site-line' ng-repeat='assoc in enrollAssocs'>
-                                <a href ng-click="openEnrollAssoc(assoc)"><span ng-bind="::assoc.app.title"></span>：<span ng-bind="::assoc.entity_a_str"></span></a>
-                            </p>
-                        </div>
-                        <div id="action" class='hide'>
-                            <a href ng-click="siteUser(site.id)">
+                                    </p>
+                                </div>
+                                <div id='tag' class="clearfix" ng-if="article.channels.length||article.tags.length">
+                                    <button class="btn btn-custom-default" ng-repeat="c in article.channels" ng-click="openChannel(c)" ng-bind="c.title"></button>
+                                    <button class="btn btn-custom-default" ng-repeat="t in article.tags" ng-click="searchByTag(t)" ng-bind="t.title"></button>
+                                </div>
+                                <div class='hide' id="enrollAssocs" ng-if="enrollAssocs.length">
+                                    <hr>
+                                    <p class='assoc site-line' ng-repeat='assoc in enrollAssocs'>
+                                        <a href ng-click="openEnrollAssoc(assoc)"><span ng-bind="::assoc.app.title"></span>：<span ng-bind="::assoc.entity_a_str"></span></a>
+                                    </p>
+                                </div>
+                                <div id="action" class='hide'>
+                                    <a href ng-click="siteUser(site.id)">
                                 <i class="glyphicon glyphicon-user"></i>
                                 <span> 个人中心</span>
                             </a>
-                            <a href ng-click="favor(user,article)">
+                                    <a href ng-click="favor(user,article)">
                                 <i class="glyphicon glyphicon-star-empty"></i>
                                 <span> 收藏</span>
                             </a>
-                            <a ng-if="article.config.nav.app.length" uib-popover-template="'optionTemplate.html'" popover-placement="top-right" popover-trigger="'outsideClick'" popover-append-to-body="true">
-                                <i class="glyphicon glyphicon-option-vertical"></i>
-                            </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <footer ng-if="article.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
+                <footer ng-if="article.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
             </div>
-        </div>
-        <footer ng-if="article.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
-        <footer ng-if="article.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
-    </div>
-    <script type="text/ng-template" id="optionTemplate.html">
-        <div>
+            <script type="text/ng-template" id="optionTemplate.html">
+                <div>
             <div ng-repeat="app in article.config.nav.app">
                 <button class='btn btn-default btn-sm btn-block' ng-click="gotoNavApp(app)">{{app.title}}</button>
             </div>
         </div>
     </script>
-    <div class="loading">
-        <div class='loading-indicator'><i></i></div>
-    </div>
-    <script src="/static/js/xxt.ui.error.js"></script>
-    <script src="/static/js/angular.min.js"></script>
-    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-    <script src="<?php echo auto_version('/bundles/default/site/fe/matter/article/main.js');?>"></script>
+            <div class="loading">
+                <div class='loading-indicator'><i></i></div>
+            </div>
+            <script src="/static/js/xxt.ui.error.js"></script>
+            <script src="/static/js/angular.min.js"></script>
+            <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+            <script src="<?php echo auto_version('/bundles/default/site/fe/matter/article/main.js');?>"></script>
 </body>
 
 </html>

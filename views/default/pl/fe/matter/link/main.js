@@ -220,6 +220,14 @@ define(['frame'], function(ngApp) {
             }
             $scope.update('config');
         };
+        $scope.delAttachment = function(index, att) {
+            http2.get('/rest/pl/fe/matter/link/attachment/del?site=' + $scope.siteid + '&id=' + att.id).then(function(rsp) {
+                $scope.editing.attachments.splice(index, 1);
+            });
+        };
+        $scope.downloadUrl = function(att) {
+            return '/rest/site/fe/matter/link/attachmentGet?site=' + $scope.siteid + '&linkid=' + $scope.editing.id + '&attachmentid=' + att.id;
+        };
         $scope.$watch('editing.urlsrc', function(nv) {
             switch (nv) {
                 case '1':

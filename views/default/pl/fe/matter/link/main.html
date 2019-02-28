@@ -155,6 +155,26 @@
             </div>
         </div>
     </div>
+    <div class="panel panel-default" ng-if="editing.embedded==='Y'">
+        <div class="panel-body">
+            <div class='form-group'>
+                <label>附件</label>
+                <div>
+                    <button id='addAttachment' class='btn btn-default btn-sm'>
+                        <span class='glyphicon glyphicon-plus'></span> 附件（可选）
+                    </button>
+                    <ul class='list-group' style='margin-bottom:0'>
+                        <li class='list-group-item' ng-repeat='a in editing.attachments' ng-mouseenter="enter=true" ng-mouseleave="enter=false">
+                            <span><a ng-href='{{downloadUrl(a)}}' target='_blank'>{{a.name}}</a></span>
+                            <button class='btn btn-default btn-xs pull-right' ng-if='enter' ng-click='delAttachment($index,a)'>
+                                <span class='glyphicon glyphicon-remove'></span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class='panel panel-default'>
         <button class='btn btn-block' ng-click="submit()" ng-disabled='!modified' ng-class="modified?'btn-success':'btn-default'">保存</button>
         <button class='btn btn-block btn-default' ng-click="remove()">删除</button>

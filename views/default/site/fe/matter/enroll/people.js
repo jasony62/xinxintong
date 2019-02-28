@@ -63,11 +63,7 @@ ngApp.factory('TopicRepos', ['http2', '$q', '$sce', 'tmsLocation', function(http
         }
     };
 }]);
-ngApp.controller('ctrlPeople', ['$scope', 'tmsLocation', function($scope, LS) {
-    $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        $scope.app = params.app;
-    });
-}]);
+ngApp.controller('ctrlPeople', ['$scope', 'tmsLocation', function($scope, LS) {}]);
 ngApp.controller('ctrlPeopleFavor', ['$scope', '$uibModal', 'http2', 'tmsLocation', function($scope, $uibModal, http2, LS) {
     var _oApp;
     if (location.hash && /repos|tag|topic/.test(location.hash)) {
@@ -95,9 +91,8 @@ ngApp.controller('ctrlPeopleFavor', ['$scope', '$uibModal', 'http2', 'tmsLocatio
     $scope.addTag = function() {
         $scope.$broadcast('xxt.matter.enroll.favor.tag.add');
     };
-    $scope.$watch('app', function(oApp) {
-        if (!oApp) return;
-        _oApp = oApp;
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        _oApp = params.app;
         /* 设置页面分享信息 */
         $scope.setSnsShare(); // 应该禁止分享
         /*页面阅读日志*/
@@ -282,9 +277,8 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             });
         }
     };
-    $scope.$watch('app', function(oApp) {
-        if (!oApp) return;
-        _oApp = oApp;
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        _oApp = params.app;
         _oApp.dynaDataSchemas.forEach(function(schema) {
             if (schema.shareable && schema.shareable === 'Y') {
                 _oShareableSchemas[schema.id] = schema;

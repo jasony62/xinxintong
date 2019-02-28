@@ -22,12 +22,7 @@ ngApp.filter('filterTime', function() {
         return result = h + ":" + m + ":" + s;
     }
 });
-ngApp.controller('ctrlActivities', ['$scope', 'tmsLocation', function($scope, LS) {
-    $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        $scope.app = params.app;
-        $scope.userGroups = params.groups;
-    });
-}]);
+ngApp.controller('ctrlActivities', ['$scope', 'tmsLocation', function($scope, LS) {}]);
 ngApp.controller('ctrlActivitiesTask', ['$scope', '$parse', '$q', '$uibModal', 'http2', 'tmsLocation', 'noticebox', 'enlRound', 'enlTask', function($scope, $parse, $q, $uibModal, http2, LS, noticebox, enlRound, enlTask) {
     function fnGetTasks(oRound) {
         _tasks.splice(0, _tasks.length);
@@ -55,9 +50,8 @@ ngApp.controller('ctrlActivitiesTask', ['$scope', '$parse', '$q', '$uibModal', '
             }
         }
     };
-    $scope.$watch('app', function(oApp) {
-        if (!oApp) return;
-        _oApp = oApp;
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        _oApp = params.app;
         _enlTask = new enlTask(_oApp);
         var facRound = new enlRound(_oApp);
         facRound.list().then(function(oResult) {
@@ -152,9 +146,8 @@ ngApp.controller('ctrlActivitiesKanban', ['$scope', '$parse', '$q', '$uibModal',
             $parse('custom.profile.public').assign(oEnlUser, bPublic);
         });
     };
-    $scope.$watch('app', function(oApp) {
-        if (!oApp) return;
-        _oApp = oApp;
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        _oApp = params.app;
         _oFilter.round = _oApp.appRound;
         (new enlRound(_oApp)).list().then(function(result) {
             $scope.rounds = result.rounds;
@@ -220,9 +213,8 @@ ngApp.controller('ctrlActivitiesEvent', ['$scope', '$q', 'http2', 'tmsLocation',
             location.href = url;
         }
     };
-    $scope.$watch('app', function(oApp) {
-        if (!oApp) return;
-        _oApp = oApp;
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        _oApp = params.app;
         /* 活动任务 */
         if (_oApp.actionRule) {
             /* 设置活动任务提示 */

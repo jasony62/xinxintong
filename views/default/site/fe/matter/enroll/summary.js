@@ -1,4 +1,6 @@
 'use strict';
+require('./summary.css');
+
 require('./_asset/ui.round.js');
 
 window.moduleAngularModules = ['round.ui.enroll', 'schema.ui.xxt', 'sys.chart', 'ngRoute'];
@@ -7,15 +9,11 @@ var ngApp = require('./main.js');
 ngApp.config(['$routeProvider', function($routeProvider) {
     $routeProvider
         .when('/rest/site/fe/matter/enroll/summary/votes', { template: require('./summary/votes.html'), controller: 'ctrlSummaryVotes' })
-        .when('/rest/site/fe/matter/enroll/summary/marks', { template: require('./summary/marks.html'), controller: 'ctrlSummaryMark' })
+        .when('/rest/site/fe/matter/enroll/summary/marks', { template: require('./summary/marks.html'), controller: 'ctrlSummaryMarks' })
         .when('/rest/site/fe/matter/enroll/summary/stat', { template: require('./summary/stat.html'), controller: 'ctrlSummaryStat' })
         .otherwise({ template: require('./summary/rank.html'), controller: 'ctrlSummaryRank' });
 }]);
-ngApp.controller('ctrlSummary', ['$scope', 'tmsLocation', function($scope, LS) {
-    $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        $scope.app = params.app;
-    });
-}]);
+ngApp.controller('ctrlSummary', ['$scope', 'tmsLocation', function($scope, LS) {}]);
 ngApp.controller('ctrlSummaryRank', ['$scope', '$q', '$sce', 'tmsLocation', 'http2', 'enlRound', function($scope, $q, $sce, LS, http2, enlRound) {
     function fnRoundTitle(aRids) {
         var defer;
@@ -60,7 +58,7 @@ ngApp.controller('ctrlSummaryRank', ['$scope', '$q', '$sce', 'tmsLocation', 'htt
         return defer.promise;
     }
 
-    var _oApp, oAppState;
+    var oApp, oAppState;
     $scope.doSearch = function() {
         list().then(function(data) {
             switch (oAppState.dimension) {
@@ -110,9 +108,8 @@ ngApp.controller('ctrlSummaryRank', ['$scope', '$q', '$sce', 'tmsLocation', 'htt
             $scope.changeCriteria();
         });
     };
-    $scope.$watch('app', function(oApp) {
-        if (!oApp) return;
-        _oApp = oApp;
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        oApp = params.app;
         var oRankConfig, oConfig, rankItems, dataSchemas;
         dataSchemas = oApp.dynaDataSchemas;
         /* 排行显示内容设置 */
@@ -261,9 +258,8 @@ ngApp.controller('ctrlSummaryVotes', ['$scope', '$q', '$timeout', 'tmsLocation',
         _oCriteria.rid = oRound ? oRound.rid : 'all';
         $scope.getVotes();
     };
-    $scope.$watch('app', function(oApp) {
-        if (!oApp) return;
-        _oApp = oApp;
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        _oApp = params.app;
         $scope.facRound = _facRound = new enlRound(_oApp);
         _facRound.list().then(function(result) {
             if (result.active) {
@@ -347,9 +343,8 @@ ngApp.controller('ctrlSummaryMarks', ['$scope', '$q', '$timeout', '$filter', 'tm
         _oCriteria.rid = oRound ? oRound.rid : 'all';
         $scope.getMarks();
     };
-    $scope.$watch('app', function(oApp) {
-        if (!oApp) return;
-        _oApp = oApp;
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        _oApp = params.app;
         $scope.facRound = _facRound = new enlRound(_oApp);
         _facRound.list().then(function(result) {
             if (result.active) {
@@ -440,9 +435,8 @@ ngApp.controller('ctrlSummaryStat', ['$scope', '$timeout', '$uibModal', '$q', 't
     $scope.shiftRound = function(oRound) {
         location.href = LS.j('', 'site', 'app') + '&rid=' + oRound.rid + '&page=stat';
     };
-    $scope.$watch('app', function(oApp) {
-        if (!oApp) return;
-        _oApp = oApp;
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        _oApp = params.app;
 
         function fnDrawChart() {
             var item, scoreSummary = [],
@@ -539,5 +533,6 @@ ngApp.controller('ctrlSummaryStat', ['$scope', '$timeout', '$uibModal', '$q', 't
         _facRound.list().then(function(oResult) {
             $scope.rounds = oResult.rounds;
         });
+
     });
 }]);

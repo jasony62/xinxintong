@@ -74,7 +74,7 @@ class main_base extends base {
 	/**
 	 *
 	 */
-	private function _checkOpenRule($oApp, $page) {
+	protected function _checkOpenRule($oApp, $page) {
 		switch ($page) {
 			case 'kanban':
 				if (empty($oApp->scenarioConfig->can_kanban) || $oApp->scenarioConfig->can_kanban !== 'Y') {

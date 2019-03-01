@@ -65,28 +65,6 @@ class record extends main_base {
 		// 查询结果
 		$modelRec = $this->model('matter\enroll\record');
 		$oResult = $modelRec->byApp($oEnrollApp, $aOptions, $oCriteria);
-		if (!empty($oResult->records)) {
-			$bRequireScore = false;
-			foreach ($oEnrollApp->dynaDataSchemas as $oSchema) {
-				if (isset($oSchema->requireScore) && $oSchema->requireScore == 'Y') {
-					$bRequireScore = true;
-				}
-			}
-			if ($bRequireScore) {
-				foreach ($oResult->records as $oRec) {
-					$one = $modelRec->query_obj_ss([
-						'id,score',
-						'xxt_enroll_record',
-						['siteid' => $oEnrollApp->siteid, 'enroll_key' => $oRec->enroll_key],
-					]);
-					if (count($one)) {
-						$oRec->score = json_decode($one->score);
-					} else {
-						$oRec->score = new \stdClass;
-					}
-				}
-			}
-		}
 
 		return new \ResponseData($oResult);
 	}
@@ -2422,7 +2400,7 @@ class record extends main_base {
 		$aScoreSum = []; // 题目的分数合计
 		$columnNum4 = $columnNum1; //列号
 		$bRequireNickname = true;
-		if ($this->getDeepValue($oApp, 'assignedNickname.valid') !== 'Y' || isset($oApp->assignedNickname->schema->id)) {
+		if ($this->getDeepValue($oApp, 'assignedNickname.valid') === 'Y' || isset($oApp->assignedNickname->schema->id)) {
 			$bRequireNickname = false;
 		}
 		$bRequireSum = false; // 是否需要计算合计
@@ -2439,12 +2417,20 @@ class record extends main_base {
 					$aNumberSum[$columnNum4] = $oSchema->id;
 					$bRequireSum = true;
 				}
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, $oSchema->title);
 			} else if ($oSchema->type === 'score') {
 				/* 打分题，需要计算合计 */
 				$aNumberSum[$columnNum4] = $oSchema->id;
 				$bRequireSum = true;
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, $oSchema->title);
+				if (!empty($oSchema->ops)) {
+					foreach ($oSchema->ops as $op) {
+						$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, $op->l);
+					}
+				}
+			} else {
+				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, $oSchema->title);
 			}
-			$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, $oSchema->title);
 			/* 需要补充说明 */
 			if ($this->getDeepValue($oSchema, 'supplement') === 'Y') {
 				$objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '补充说明');
@@ -2507,9 +2493,7 @@ class record extends main_base {
 							}
 						}
 					}
-					$cellValue = str_replace(['<br>', '</br>'], ["\n", ""], $cellValue);
-					$cellValue = strip_tags($cellValue);
-					$cellValue = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $cellValue);
+					$cellValue = $this->replaceHTMLTags($cellValue, "\n");
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $cellValue, \PHPExcel_Cell_DataType::TYPE_STRING);
 					$objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
@@ -2527,36 +2511,37 @@ class record extends main_base {
 						}
 					}
 					$cellValue = implode(',', $labels);
-					$cellValue = str_replace(['<br>', '</br>'], ["\n", ""], $cellValue);
-					$cellValue = strip_tags($cellValue);
-					$cellValue = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $cellValue);
+					$cellValue = $this->replaceHTMLTags($cellValue, "\n");
 					$objActiveSheet->setCellValueByColumnAndRow($recColNum++, $rowIndex, $cellValue);
 					$objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
 				case 'score':
-					$labels = [];
+					$recColNum2 = $recColNum;
+					$labelsSum = 0;
 					if (!empty($oSchema->ops)) {
-						foreach ($oSchema->ops as $op) {
+						for ($opi = 0; $opi < count($oSchema->ops); $opi++) {
+							$op = $oSchema->ops[$opi];
 							if (isset($v->{$op->v})) {
-								$labels[] = $op->l . ':' . $v->{$op->v};
+								$labelsSum += $v->{$op->v};
+								$objActiveSheet->setCellValueByColumnAndRow($recColNum2 + $opi + 1, $rowIndex, $v->{$op->v});
+							} else {
+								$objActiveSheet->setCellValueByColumnAndRow($recColNum2 + $opi + 1, $rowIndex, '');
 							}
+							$recColNum++;
 						}
 					}
-					$objActiveSheet->setCellValueByColumnAndRow($recColNum++, $rowIndex, implode(' / ', $labels));
+					$objActiveSheet->setCellValueByColumnAndRow($recColNum2, $rowIndex, $labelsSum);
+					$recColNum++;
 					break;
 				case 'image':
 					$v0 = '';
-					$v0 = str_replace(['<br>', '</br>'], ["\n", ""], $v0);
-					$v0 = strip_tags($v0);
-					$v0 = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v0);
+					$v0 = $this->replaceHTMLTags($v0, "\n");
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
 					$objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;
 				case 'file':
 					$v0 = '';
-					$v0 = str_replace(['<br>', '</br>'], ["\n", ""], $v0);
-					$v0 = strip_tags($v0);
-					$v0 = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v0);
+					$v0 = $this->replaceHTMLTags($v0, "\n");
 					$objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
 					$objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
 					break;

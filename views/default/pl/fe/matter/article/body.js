@@ -231,6 +231,9 @@ define(['frame'], function(ngApp) {
             r.on('progress', function(file, event) {
                 $scope.$apply(function() {
                     noticebox.progress('正在上传文件：' + Math.floor(r.progress() * 100) + '%');
+                    if (Math.floor(r.progress() * 100) === 100) {
+                        noticebox.close();
+                    }
                 });
             });
             r.on('complete', function() {

@@ -1,32 +1,33 @@
 @import "../../../../../../static/less/site.fe.base.less";
 
-html, body {
-	height: 100%;
-	width: 100%;
-	position: relative;
-	overflow: hidden;
+html,
+body {
+    height: 100%;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
 }
 
 .ng-cloak {
-	display: none;
+    display: none;
 }
 
 body>div:first-child {
-	position: relative;
-	height: 100%;
-	box-sizing: border-box;
-	overflow-y: auto;
-	white-space: normal;
-	word-wrap: break-word;
-	word-break: break-all
+    position: relative;
+    height: 100%;
+    box-sizing: border-box;
+    overflow-y: auto;
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-all
 }
 
 blockquote {
-	background-color: #fafafa;
+    background-color: #fafafa;
 }
 
 header img {
-	max-width: 100%;
+    max-width: 100%;
 }
 
 .site-line {
@@ -37,49 +38,49 @@ header img {
 
 /* left-column */
 #title {
-	font-size: 28px;
-	font-weight: 700;
-	margin-top: 24px;
+    font-size: 28px;
+    font-weight: 700;
+    margin-top: 24px;
 }
 
 #attribute {
-	margin-top: 10px;
-	margin-bottom: 30px;
-	padding: 0;
+    margin-top: 10px;
+    margin-bottom: 30px;
+    padding: 0;
 }
 
 #attribute>span {
-	margin-right: 15px;
-	color: #999;
+    margin-right: 15px;
+    color: #999;
 }
 
 .article {
-	background-color: #fff;
+    background-color: #fff;
 }
 
 .article .headpic {
-	margin: 10px 0
+    margin: 10px 0
 }
 
 .article img {
-	display: block;
-	max-width: 100%;
-	margin: 5px auto;
+    display: block;
+    max-width: 100%;
+    margin: 5px auto;
 }
 
 .article .content {
-	margin: 12pt 0 30pt 0;
+    margin: 12pt 0 30pt 0;
 }
 
 .article .content p {
-	margin: 0 0 12pt;
-	line-height: 2em
+    margin: 0 0 12pt;
+    line-height: 2em
 }
 
 .article .content table {
-	width: 100%;
+    width: 100%;
 
-	border: solid 1px #ddd;
+    border: solid 1px #ddd;
     border-top: 0;
     border-left: 0;
     border-collapse: collapse;
@@ -87,143 +88,163 @@ header img {
     position: relative;
     table-layout: fixed;
     text-align: center;
-	
-	th, td {
-		border-left: 1px solid #ddd;
-	    border-top: 1px solid #ddd;
-	    padding: 5px;
-	    empty-cells: show;
-	}
+
+    th,
+    td {
+        border-left: 1px solid #ddd;
+        border-top: 1px solid #ddd;
+        padding: 5px;
+        empty-cells: show;
+    }
 }
 
 
 .article .url {
-	margin-top: 20px
+    margin-top: 20px
 }
 
 .behavior {
-	position: relative;
-	padding: 24px 0;
-	border-top: 1px dashed #999;
+    position: relative;
+    padding: 24px 0;
+    border-top: 1px dashed #999;
 }
 
 .behavior>div+div {
-	margin-top: 24px;
+    margin-top: 24px;
 }
 
 #action {
-	text-align: right;
+    text-align: right;
 }
 
 #action>a {
-	display: inline-block;
-	color: #999;
-	border: 1px solid #999;
-	border-radius: 16px;
-	padding: 8px 16px;
+    display: inline-block;
+    color: #999;
+    border: 1px solid #999;
+    border-radius: 16px;
+    padding: 8px 16px;
 }
 
 #action>a+a {
-	margin-left: 16px;
+    margin-left: 16px;
 }
 
 .behavior .md-attr {
-	position: absolute;
-	top: 20px;
-	right: 0;
+    position: absolute;
+    top: 20px;
+    right: 0;
 }
 
 .btn-custom-default {
-	padding: 8px 10px;
-	margin: 0 5px 5px 0;
-	border: 1px solid #2994d0;
-	background-color: #fff;
-	color: #2994d0;
+    padding: 8px 10px;
+    margin: 0 5px 5px 0;
+    border: 1px solid #2994d0;
+    background-color: #fff;
+    color: #2994d0;
 }
 
-.btn-custom-default:hover, .btn-custom-default:active, .btn-custom-default:focus {
-	color: #fff;
-	background-color: #2994d0;
+.btn-custom-default:hover,
+.btn-custom-default:active,
+.btn-custom-default:focus {
+    color: #fff;
+    background-color: #2994d0;
 }
 
 @media screen and (max-width:768px) {
-	.behavior {
-		padding-bottom: 0;
-	}
+    .behavior {
+        padding-bottom: 0;
+    }
 
-	.article {
-		padding: 0 16px;
-	}
+    .article {
+        padding: 0 16px;
+    }
 
-	#title {
-		font-size: 24px;
-		font-weight: 500;
-	}
+    #title {
+        font-size: 24px;
+        font-weight: 500;
+    }
 
-	.behavior .xs-attr {
-		width: 100%;
-		position: absolute;
-		bottom: 5px;
-		left: 0;
-	}
+    .behavior .xs-attr {
+        width: 100%;
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+    }
 
-	#action {
-		display: flex;
-	}
+    #action {
+        display: flex;
+    }
 
-	#action>a {
-		flex-grow: 1;
-		border: 0;
-		border-radius: 0;
-		padding: 0;
-		font-size: 21px;
-		text-align: center;
-		margin-right: 0px;
-	}
+    #action>a {
+        flex-grow: 1;
+        border: 0;
+        border-radius: 0;
+        padding: 0;
+        font-size: 21px;
+        text-align: center;
+        margin-right: 0px;
+    }
 
-	#action>a>span {
-		display: none;
-	}
+    #action>a>span {
+        display: none;
+    }
 
 }
 
 /* qrcode */
 #qrCode {
-	text-align: center;
+    text-align: center;
 }
 
-#qrCode>img {
-	width: 75%;
+#qrCode img {
+    width: 75%;
+}
+
+.matter {
+    display: block;
+    font-size: 14px;
+    height: 26px;
+    line-height: 26px;
+    padding: 5px 0px;
+    box-sizing: content-box;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 @media screen and (max-width:768px) {
-	#qrCode {
-		display: none;
-	}
+    #qrCode {
+        display: none;
+    }
 
+    .hm-tile {
+        padding: 0;
+    }
 }
 
 .tms-act-toggle {
-	position: fixed;
-	right: 15px;
-	bottom: 8px;
-	width: 48px;
-	height: 48px;
-	line-height: 48px;
-	box-shadow: 0px 2px 6px rgba(18, 27, 32, 0.425);
-	color: #fff;
-	background: @brand-primary;
-	border: 1px solid @brand-primary-border;
-	border-radius: 24px;
-	font-size: 20px;
-	text-align: center;
-	cursor: pointer;
-	z-index: 1050;
+    position: fixed;
+    right: 15px;
+    bottom: 8px;
+    width: 48px;
+    height: 48px;
+    line-height: 48px;
+    box-shadow: 0px 2px 6px rgba(18, 27, 32, 0.425);
+    color: #fff;
+    background: @brand-primary;
+    border: 1px solid @brand-primary-border;
+    border-radius: 24px;
+    font-size: 20px;
+    text-align: center;
+    cursor: pointer;
+    z-index: 1050;
 }
 
 /*switch*/
-.tms-switch-favor, .tms-switch-forward, .tms-switch-siteuser {
-	margin-right: 40px;
+.tms-switch-favor,
+.tms-switch-forward,
+.tms-switch-siteuser {
+    margin-right: 40px;
 }
 
 /*picviewer*/
@@ -251,6 +272,7 @@ header img {
     -o-transform: translate3d(100%, 0, 0);
     -moz-transform: translate3d(100%, 0, 0)
 }
+
 #previewImage-container .previewImage-text {
     position: absolute;
     bottom: 5px;
@@ -259,6 +281,7 @@ header img {
     z-index: 1060;
     height: 36px
 }
+
 .previewImage-text span {
     display: inline-block;
     width: 36px;
@@ -269,33 +292,40 @@ header img {
     text-align: center;
     color: #bbb;
 }
+
 .previewImage-text span.page {
     position: absolute;
     left: 50%;
     margin-left: -18px;
     font-size: 18px
 }
+
 .previewImage-text span.prev {
     position: absolute;
     left: 50%;
     margin-left: -72px
 }
+
 .previewImage-text span.next {
     position: absolute;
     left: 50%;
     margin-left: 36px
 }
+
 .previewImage-text span.exit {
     position: absolute;
     right: 0
 }
+
 .previewImage-text span.exit>i {
     text-shadow: 0 0 0.1em #fff, -0 -0 0.1em #fff;
 }
+
 #previewImage-container .previewImage-box {
     width: 999999rem;
     height: 100vh
 }
+
 #previewImage-container .previewImage-box .previewImage-item {
     width: 100vw;
     height: 100vh;
@@ -303,11 +333,13 @@ header img {
     float: left;
     text-align: center;
 }
+
 @media screen and (min-width:992px) {
     #previewImage-container .previewImage-box .previewImage-item .previewImage-image {
         display: block;
     }
 }
+
 @media screen and (max-width:992px) {
     #previewImage-container .previewImage-box .previewImage-item .previewImage-image {
         width: 100%
@@ -315,34 +347,34 @@ header img {
 }
 
 #frmPlugin {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	width: 100%;
-	height: 100%;
-	border: none;
-	z-index: 999;
-	box-sizing: border-box;
-	padding-bottom: 48px;
-	background: #fff;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    z-index: 999;
+    box-sizing: border-box;
+    padding-bottom: 48px;
+    background: #fff;
 }
 
 #frmPlugin iframe {
-	width: 100%;
-	height: 100%;
+    width: 100%;
+    height: 100%;
 }
 
 #frmPlugin:after {
-	content: '关闭';
-	position: absolute;
-	width: 100px;
-	text-align: center;
-	left: 50%;
-	margin-left: -50px;
-	bottom: 4px;
-	padding: 5px 6px 3px;
-	border: 1px solid #ccc;
-	border-radius: 4px;
+    content: '关闭';
+    position: absolute;
+    width: 100px;
+    text-align: center;
+    left: 50%;
+    margin-left: -50px;
+    bottom: 4px;
+    padding: 5px 6px 3px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }

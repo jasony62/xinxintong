@@ -46,16 +46,31 @@ define(['frame'], function(ngApp) {
                     value: 'enroll',
                     title: '记录活动',
                     url: '/rest/pl/fe/matter'
+                },{
+                    value: 'article',
+                    title: '单图文',
+                    url: '/rest/pl/fe/matter'
+                },{
+                    value: 'channel',
+                    title: '频道',
+                    url: '/rest/pl/fe/matter'
+                },{
+                    value: 'link',
+                    title: '链接',
+                    url: '/rest/pl/fe/matter'
                 }],
                 singleMatter: true
             };
             srvSite.openGallery(oOptions).then(function(result) {
                 if (result.matters && result.matters.length === 1) {
+                    console.log(result.matters);
                     !_oEditing.config.nav && (_oEditing.config.nav = {});
                     !_oEditing.config.nav.app && (_oEditing.config.nav.app = []);
                     _oEditing.config.nav.app.push({
                         id: result.matters[0].id,
-                        title: result.matters[0].title
+                        title: result.matters[0].title,
+                        siteid: result.matters[0].siteid,
+                        type: result.matters[0].type
                     });
                     srvApp.update('config');
                 }

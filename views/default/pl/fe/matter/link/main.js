@@ -241,7 +241,8 @@ define(['frame'], function(ngApp) {
                     $scope.editing.config.nav.app.push({
                         type: result.matters[0].type,
                         id: result.matters[0].id,
-                        title: result.matters[0].title
+                        title: result.matters[0].title,
+                        siteid: result.matters[0].siteid
                     });
                     $scope.update('config');
                 }

@@ -154,7 +154,8 @@ class main extends \site\fe\matter\base {
 	 * 返回链接定义
 	 */
 	public function get_action($id) {
-		$oLink = $this->model('matter\link')->byIdWithParams($id);
+		$modelLink = $this->model('matter\link');
+		$oLink = $modelLink->byIdWithParams($id);
 		if (false === $oLink) {
 			return new \ObjectNotFoundError();
 		}
@@ -218,6 +219,14 @@ class main extends \site\fe\matter\base {
 			}
 			$oLink->config->nav->app = $aNavApps;
 		}
+		// 附件
+		$oLink->attachments = $modelLink->query_objs_ss(
+			[
+				'*',
+				'xxt_matter_attachment',
+				['matter_id' => $id, 'matter_type' => 'link'],
+			]
+		);
 
 		$data = [];
 		$data['link'] = $oLink;
@@ -292,5 +301,69 @@ class main extends \site\fe\matter\base {
 		$spliced = implode('&', $pairs);
 
 		return $spliced;
+	}
+	/**
+	 * 下载附件
+	 */
+	public function attachmentGet_action($site, $linkid, $attachmentid) {
+		if (empty($site) || empty($linkid) || empty($attachmentid)) {
+			die('没有指定有效的附件');
+		}
+
+		$user = $this->who;
+		/**
+		 * 访问控制
+		 */
+		$modelLink = $this->model('matter\link');
+		$oLink = $modelLink->byId($linkid);
+		// $this->checkDownloadRule($oLink, true);
+		/**
+		 * 获取附件
+		 */
+		$q = [
+			'*',
+			'xxt_matter_attachment',
+			['matter_id' => $linkid, 'matter_type' => 'link', 'id' => $attachmentid],
+		];
+		if (false === ($att = $modelLink->query_obj_ss($q))) {
+			die('指定的附件不存在');
+		}
+		/**
+		 * 记录日志
+		 */
+		// $modelLink->update("update xxt_article set download_num=download_num+1 where id='$linkid'");
+		// $log = [
+		// 	'userid' => $user->uid,
+		// 	'nickname' => $user->nickname,
+		// 	'download_at' => time(),
+		// 	'siteid' => $site,
+		// 	'article_id' => $linkid,
+		// 	'attachment_id' => $attachmentid,
+		// 	'user_agent' => $_SERVER['HTTP_USER_AGENT'],
+		// 	'client_ip' => $this->client_ip(),
+		// ];
+		// $modelLink->insert('xxt_article_download_log', $log, false);
+
+		if (strpos($att->url, 'alioss') === 0) {
+			$fsAlioss = \TMS_APP::M('fs/alioss', $this->siteId, '_attachment');
+			$downloadUrl = $fsAlioss->getHostUrl() . '/' . $site . '/_attachment/article/' . $linkid . '/' . urlencode($att->name);
+			$this->redirect($downloadUrl);
+		} else if (strpos($att->url, 'local') === 0) {
+			$fs = $this->model('fs/local', $site, '附件');
+			//header("Content-Type: application/force-download");
+			header("Content-Type: $att->type");
+			header("Content-Disposition: attachment; filename=" . $att->name);
+			header('Content-Length: ' . $att->size);
+			echo $fs->read(str_replace('local://', '', $att->url));
+		} else {
+			$fs = $this->model('fs/saestore', $site);
+			//header("Content-Type: application/force-download");
+			header("Content-Type: $att->type");
+			header("Content-Disposition: attachment; filename=" . $att->name);
+			header('Content-Length: ' . $att->size);
+			echo $fs->read($att->url);
+		}
+
+		exit;
 	}
 }

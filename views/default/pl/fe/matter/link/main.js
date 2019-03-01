@@ -47,6 +47,40 @@ define(['frame'], function(ngApp) {
             $scope.editing = link;
             $scope.persisted = angular.copy(link);
             $('[ng-model="editing.title"]').focus();
+            var r = new Resumable({
+                target: '/rest/pl/fe/matter/link/attachment/upload?site=' + $scope.editing.siteid + '&linkid=' + $scope.editing.id,
+                testChunks: false,
+            });
+            r.assignBrowse(document.getElementById('addAttachment'));
+            r.on('fileAdded', function(file, event) {
+                $scope.$apply(function() {
+                    noticebox.progress('开始上传文件');
+                });
+                r.upload();
+            });
+            r.on('progress', function(file, event) {
+                $scope.$apply(function() {
+                    noticebox.progress('正在上传文件：' + Math.floor(r.progress() * 100) + '%');
+                    if (Math.floor(r.progress() * 100) === 100) {
+                        noticebox.close();
+                    }
+                });
+            });
+            r.on('complete', function() {
+                var f, lastModified, posted;
+                f = r.files.pop().file;
+                lastModified = f.lastModified ? f.lastModified : (f.lastModifiedDate ? f.lastModifiedDate.getTime() : 0);
+                posted = {
+                    name: f.name,
+                    size: f.size,
+                    type: f.type,
+                    lastModified: lastModified,
+                    uniqueIdentifier: f.uniqueIdentifier,
+                };
+                http2.post('/rest/pl/fe/matter/link/attachment/add?site=' + $scope.editing.siteid + '&id=' + $scope.editing.id, posted).then(function(rsp) {
+                    $scope.editing.attachments.push(rsp.data);
+                });
+            });
         };
         window.onbeforeunload = function(e) {
             var message;
@@ -185,15 +219,15 @@ define(['frame'], function(ngApp) {
                     value: 'enroll',
                     title: '记录活动',
                     url: '/rest/pl/fe/matter'
-                },{
+                }, {
                     value: 'article',
                     title: '单图文',
                     url: '/rest/pl/fe/matter'
-                },{
+                }, {
                     value: 'channel',
                     title: '频道',
                     url: '/rest/pl/fe/matter'
-                },{
+                }, {
                     value: 'link',
                     title: '链接',
                     url: '/rest/pl/fe/matter'

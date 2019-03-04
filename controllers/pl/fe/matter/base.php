@@ -107,4 +107,83 @@ class base extends \pl\fe\base {
 
 		return [false, '访问控制未通过'];
 	}
+	/**
+	 * 上传附件
+	 */
+	protected function attachmentUpload($oApp, $data) {
+		$dest = '/' . $oApp->type . '/' . $oApp->id . '/' . $data['resumableFilename'];
+		$oResumable = $this->model('fs/resumable', $oApp->siteid, $dest, '_attachment');
+		$oResumable->handleRequest($data);
+
+		return 'ok';
+	}
+	/**
+	 * 上传成功后将附件信息保存到数据库中
+	 */
+	protected function attachmentAdd($oApp, $oFile) {
+		if (defined('APP_FS_USER') && APP_FS_USER === 'ali-oss') {
+			/* 文件存储在阿里 */
+			$url = 'alioss://' . $oApp->type . '/' . $oApp->id . '/' . $oFile->name;
+		} else {
+			/* 文件存储在本地 */
+			$modelRes = $this->model('fs/local', $oApp->siteid, '_resumable');
+			$modelAtt = $this->model('fs/local', $oApp->siteid, '附件');
+			$fileUploaded = $modelRes->rootDir . '/' . $oApp->type . '/' . $oApp->id . '/' . $oFile->name;
+
+			$targetDir = $modelAtt->rootDir . '/' . $oApp->type . '/' . date('Ym');
+			if (!file_exists($targetDir)) {
+				mkdir($targetDir, 0777, true);
+			}
+			$fileUploaded2 = $targetDir . '/' . $oApp->id . '_' . $modelApp->toLocalEncoding($oFile->name);
+			if (false === rename($fileUploaded, $fileUploaded2)) {
+				return [false, '移动上传文件失败'];
+			}
+			$url = 'local://' . $oApp->type . '/' . date('Ym') . '/' . $oApp->id . '_' . $oFile->name;
+		}
+
+		$oAtt = new \stdClass;
+		$oAtt->matter_id = $oApp->id;
+		$oAtt->matter_type = $oApp->type;
+		$oAtt->name = $oFile->name;
+		$oAtt->type = $oFile->type;
+		$oAtt->size = $oFile->size;
+		$oAtt->last_modified = $oFile->lastModified;
+		$oAtt->url = $url;
+
+		$oAtt->id = $modelApp->insert('xxt_matter_attachment', $oAtt, true);
+
+		return [true, $oAtt];
+	}
+	/**
+	 * 删除附件
+	 */
+	protected function attachmentDel($siteId, $attId) {
+		$model = $this->model();
+		// 附件对象
+		$att = $model->query_obj_ss(['matter_id,matter_type,name,url', 'xxt_matter_attachment', "id='$attId'"]);
+		if ($att === false) {
+			return [false, '未找到附件'];
+		}
+		/**
+		 * remove from fs
+		 */
+		if (strpos($att->url, 'alioss') === 0) {
+			$fs = $this->model('fs/alioss', $site, 'attachment');
+			$object = $siteId . '/' . $att->matter_type . '/' . $att->matter_id . '/' . $att->name;
+			$rsp = $fs->delete_object($object);
+		} else if (strpos($att->url, 'local') === 0) {
+			$fs = $this->model('fs/local', $siteId, '附件');
+			$path = '' . $att->matter_type . '_' . $att->matter_id . '_' . $att->name;
+			$rsp = $fs->delete($path);
+		} else {
+			$fs = $this->model('fs/saestore', $siteId);
+			$fs->delete($att->url);
+		}
+		/**
+		 * remove from local
+		 */
+		$rst = $model->delete('xxt_matter_attachment', "id='$attId'");
+		
+		return [true, $rst];
+	}
 }

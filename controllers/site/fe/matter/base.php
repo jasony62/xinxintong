@@ -558,4 +558,55 @@ class base extends \site\fe\base {
 
 		return $result;
 	}
+	/**
+	 * 下载附件
+	 */
+	public function attachmentGet($oApp, $attachmentid) {
+		$user = $this->who;
+		/**
+		 * 获取附件
+		 */
+		$q = [
+			'*',
+			'xxt_matter_attachment',
+			['matter_id' => $oApp->id, 'matter_type' => $oApp->type, 'id' => $attachmentid],
+		];
+		if (false === ($att = $modelArticle->query_obj_ss($q))) {
+			die('指定的附件不存在');
+		}
+		$log = [
+			'userid' => $user->uid,
+			'nickname' => $user->nickname,
+			'download_at' => time(),
+			'siteid' => $oApp->siteid,
+			'matter_id' => $oApp->id,
+			'matter_type' => $oApp->type,
+			'attachment_id' => $attachmentid,
+			'user_agent' => $_SERVER['HTTP_USER_AGENT'],
+			'client_ip' => $this->client_ip(),
+		];
+		$modelArticle->insert('xxt_matter_download_log', $log, false);
+
+		if (strpos($att->url, 'alioss') === 0) {
+			$fsAlioss = \TMS_APP::M('fs/alioss', $oApp->siteid, '_attachment');
+			$downloadUrl = $fsAlioss->getHostUrl() . '/' . $oApp->siteid . '/_attachment/' . $oApp->type . '/' . $oApp->id . '/' . urlencode($att->name);
+			$this->redirect($downloadUrl);
+		} else if (strpos($att->url, 'local') === 0) {
+			$fs = $this->model('fs/local', $oApp->siteid, '附件');
+			//header("Content-Type: application/force-download");
+			header("Content-Type: $att->type");
+			header("Content-Disposition: attachment; filename=" . $att->name);
+			header('Content-Length: ' . $att->size);
+			echo $fs->read(str_replace('local://', '', $att->url));
+		} else {
+			$fs = $this->model('fs/saestore', $oApp->siteid);
+			//header("Content-Type: application/force-download");
+			header("Content-Type: $att->type");
+			header("Content-Disposition: attachment; filename=" . $att->name);
+			header('Content-Length: ' . $att->size);
+			echo $fs->read($att->url);
+		}
+
+		exit;
+	}
 }

@@ -56,14 +56,16 @@
                 <button id="btnFS" class="btn btn-success" ng-if="isSmallLayout">开始体验</button>
                 <iframe></iframe>
                 <div id="invite" class="invite">
-                    <a href="" ng-click="invite(user,link)" ng-if="link.invite">
-                    <i class="icon_invite"></i>
-                    <span> 邀请体验</span>
-                </a>
+                    <a href="" ng-click="invite(user,link)" ng-if="link.invite"><i class="icon_invite"></i><span> 邀请体验</span></a>
+                </div>
+                <div id="attachment" ng-if="link.attachments">
+                    <p ng-repeat='a in link.attachments'>
+                        <a ng-href="{{'/rest/site/fe/matter/link/attachmentGet?site='+link.siteid+'&linkid='+article.id+'&attachmentid='+a.id}}" target='_blank'><span>附件：</span><span>{{a.name}} ——</span><span ng-bind='a.size|filesize'></span></a>
+                    </p>
                 </div>
                 <div id="matters" class="visible-xs visible-sm hm-tile" ng-if="link.config.nav.app.length">
                     <div><span class='hm-tile-title'>相关资料</span></div>
-                    <div ng-repeat="app in link.config.nav.app"><a class="matter"  href="#" ng-click="gotoNavApp(app)" ng-bind="app.title"></a></div>
+                    <div ng-repeat="app in link.config.nav.app"><a class="matter" ng-click="gotoNavApp(app)" ng-bind="app.title"></a></div>
                 </div>
             </div>
         </div>

@@ -126,6 +126,22 @@ angular.module('app', ['ui.bootstrap', 'infinite-scroll', 'page.ui.xxt', 'snssha
             location.href = "/rest/site/fe/invite?matter=channel," + channel.id + '&inviteToken=' + invite_token;
         }
     };
+    $scope.gotoNavApp = function(oNavApp) {
+        switch (oNavApp.type) {
+            case 'enroll':
+                location.href = '/rest/site/fe/matter/enroll?site=' + oNavApp.siteid + '&app=' + oNavApp.id;
+                break;
+            case 'article':
+            case 'channel':
+                location.href = '/rest/site/fe/matter?site=' + oNavApp.siteid + '&id=' + oNavApp.id + '&type=' + oNavApp.type;
+                break;
+            case 'link':
+                location.href = '/rest/site/fe/matter/link?site=' + oNavApp.siteid + '&id=' + oNavApp.id + '&type=' + oNavApp.type;
+                break;
+            default:
+                break;
+        }
+    };
     var getChannel = function() {
         var deferred = $q.defer();
         $http.get('/rest/site/home/get?site=' + siteId).success(function(rsp) {

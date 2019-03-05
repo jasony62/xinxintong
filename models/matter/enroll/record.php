@@ -900,7 +900,7 @@ class record_model extends record_base {
 		$visibilitySchemas = []; // 设置了可见性规则的题目
 		if (!empty($oApp->dynaDataSchemas)) {
 			foreach ($oApp->dynaDataSchemas as $oSchema) {
-				if ($oSchema->type == 'shorttext' && $this->getDeepValue($oSchema, 'format') === 'number') {
+				if ($this->getDeepValue($oSchema, 'requireScore') === 'Y') {
 					$bRequireScore = true;
 				}
 				if (!empty($oSchema->visibility->rules)) {
@@ -935,7 +935,7 @@ class record_model extends record_base {
 		if (isset($oApp->scenario)) {
 			/* 记录得分 */
 			$aFnHandlers[] = function ($oRec) use ($oApp, $bRequireScore) {
-				if (($oApp->scenario === 'quiz' || $bRequireScore) && !empty($oRec->score)) {
+				if ($bRequireScore && !empty($oRec->score)) {
 					$score = str_replace("\n", ' ', $oRec->score);
 					$score = json_decode($score);
 					if ($score === null) {
@@ -998,7 +998,7 @@ class record_model extends record_base {
 					} else {
 						$oRec->data = $data;
 						/* 处理提交数据后分组的问题 */
-						if (isset($oAssocGrpTeamSchema)) {
+						if (!empty($oAssocGrpTeamSchema)) {
 							if (!empty($oRec->group_id) && !isset($oRec->data->{$oAssocGrpTeamSchema->id})) {
 								$oRec->data->{$oAssocGrpTeamSchema->id} = $oRec->group_id;
 							}

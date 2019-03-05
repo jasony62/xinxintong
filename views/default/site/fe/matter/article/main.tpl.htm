@@ -13,8 +13,8 @@
     <link href="<?php echo auto_version('/views/default/site/fe/matter/article/main.css');?>" rel="stylesheet">
 </head>
 
-<body class="matter_article">
-    <div class="ng-cloak" ng-cloak>
+<body class='matter_article'>
+    <div class='ng-cloak' ng-cloak>
         <nav class='navbar hm-navbar-default'>
             <div class='container-fluid'>
                 <div class="navbar-header">
@@ -42,13 +42,19 @@
                                 </ul>
                             </div>
                         </div>
-                        <p class="site-summary" ng-bind="site.summary"></p>
+                        <p class='site-summary' ng-bind="site.summary"></p>
                     </div>
                     <div id='qrCode' class='hidden-xs hidden-sm'>
-                        <img ng-src="{{code}}">
+                        <span><img ng-src="{{code}}"></span>
+                    </div>
+                    <div class='hidden-xs hidden-sm hm-tile' ng-if="article.config.nav.app.length">
+                        <div><span class='hm-tile-title'>相关资料</span></div>
+                        <div ng-repeat="app in article.config.nav.app">
+                            <a class='matter' href="#" ng-click="gotoNavApp(app, $event)" ng-bind="app.title"></a>
+                        </div>
                     </div>
                 </div>
-                <div class="article col-md-9 col-md-pull-3 col-xs-12">
+                <div class='article col-md-9 col-md-pull-3 col-xs-12'>
                     <h2 id="title" class="inline-block" ng-bind='article.title'></h2>
                     <div id="attribute">
                         <span>{{article.author}}</span>
@@ -61,7 +67,7 @@
                         </blockquote>
                     </div>
                     <div class="headpic" ng-if="article.hide_pic!=='Y'">
-                        <img ng-src="{{article.pic}}">
+                        <span><img ng-src="{{article.pic}}"></span>
                     </div>
                     <div id="content" class="content wrap" dynamic-html='article.body'></div>
                     <p class="url" ng-if="article.url">
@@ -96,9 +102,12 @@
                                 <i class="glyphicon glyphicon-star-empty"></i>
                                 <span> 收藏</span>
                             </a>
-                            <a ng-if="article.config.nav.app.length" uib-popover-template="'optionTemplate.html'" popover-placement="top-right" popover-trigger="'outsideClick'" popover-append-to-body="true">
-                                <i class="glyphicon glyphicon-option-vertical"></i>
-                            </a>
+                        </div>
+                        <div class='visible-xs visible-sm hm-tile' ng-if="article.config.nav.app.length">
+                            <div><span class='hm-tile-title'>相关资料</span></div>
+                            <div ng-repeat="app in article.config.nav.app">
+                                <a class='matter' href="#" ng-click="gotoNavApp(app, $event)" ng-bind="app.title"></a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -107,13 +116,6 @@
         <footer ng-if="article.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
         <footer ng-if="article.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
     </div>
-    <script type="text/ng-template" id="optionTemplate.html">
-        <div>
-            <div ng-repeat="app in article.config.nav.app">
-                <button class='btn btn-default btn-sm btn-block' ng-click="gotoNavApp(app)">{{app.title}}</button>
-            </div>
-        </div>
-    </script>
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>

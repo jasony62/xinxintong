@@ -291,7 +291,6 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsLocation', '$timeout', '$q'
                 location.href = '/rest/site/fe/matter/link?site=' + oNavApp.siteid + '&id=' + oNavApp.id + '&type=' + oNavApp.type;
                 break;
             default:
-                location.href = '/rest/site/fe/matter/enroll?site=' + $scope.article.siteid + '&app=' + oNavApp.id;
                 break;
         }
     };

@@ -65,7 +65,10 @@ define(['frame'], function(ngApp) {
                 });
             }
         };
-        $scope.fetchRules();
-        cLog.list();
+        $scope.$watch('editing', function(nv) {
+            if (!nv) return;
+            $scope.fetchRules();
+            $scope.cLog.list();
+        });
     }]);
 });

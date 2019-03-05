@@ -998,7 +998,7 @@ class record_model extends record_base {
 					} else {
 						$oRec->data = $data;
 						/* 处理提交数据后分组的问题 */
-						if (isset($oAssocGrpTeamSchema)) {
+						if (!empty($oAssocGrpTeamSchema)) {
 							if (!empty($oRec->group_id) && !isset($oRec->data->{$oAssocGrpTeamSchema->id})) {
 								$oRec->data->{$oAssocGrpTeamSchema->id} = $oRec->group_id;
 							}

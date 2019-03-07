@@ -21,6 +21,43 @@ button.option {
     padding: 0;
 }
 
+.site-navbar-light {
+    background-color: #fff;
+    border-color: #fff;
+    border-width: 0;
+
+    .site-navbar-nav {
+        display: flex;
+
+        >li {
+            flex-grow: 1;
+
+            >a {
+                padding-top: 5px;
+                padding-bottom: 5px;
+                font-size: 12px;
+                color: #333;
+                text-align: center;
+
+                >i {
+                    font-size: 20px;
+                }
+
+                &:focus,
+                &:hover {
+                    background-color: #fff;
+                }
+            }
+
+            &.active {
+                >a {
+                    color: #ff9527;
+                }
+            }
+        }
+    }
+}
+
 .navbar-header {
     .page-title {
         display: inline-block;
@@ -443,10 +480,10 @@ body.enroll-repos {
             border-top: 1px dashed #ddd;
         }
 
-        .schema>div+div{
+        .schema>div+div {
             margin-top: 4px;
         }
-        
+
         .schema>div.data-title-one+div,
         .schema>div.data-title-zero+div,
         .schema.cowork>div.title+div {

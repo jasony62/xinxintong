@@ -21,40 +21,80 @@ button.option {
     padding: 0;
 }
 
+.site-navbar-light.navbar {
+    min-height: 50px;
+}
+
 .site-navbar-light {
     background-color: #fff;
     border-color: #fff;
-    border-width: 0;
 
-    .site-navbar-nav {
+    .site-nav {
         display: flex;
 
         >li {
             flex-grow: 1;
 
             >a {
+                text-align: center;
+                color: #333;
+                font-size: 12px;
                 padding-top: 5px;
                 padding-bottom: 5px;
-                font-size: 12px;
-                color: #333;
-                text-align: center;
+
+                &:hover,
+                &:focus {
+                    background-color: #fff;
+                }
 
                 >i {
                     font-size: 20px;
                 }
-
-                &:focus,
-                &:hover {
-                    background-color: #fff;
-                }
             }
 
-            &.active {
-                >a {
-                    color: #ff9527;
-                }
+            &.active>a {
+                color: #ff9527;
             }
         }
+
+    }
+}
+
+.site-navbar-orange.navbar {
+    min-height: 44px;
+}
+
+.site-navbar-orange {
+    background-color: #ff9527;
+    border-color: #ff9527;
+
+    .site-nav {
+        display: flex;
+
+        >li {
+            flex-grow: 1;
+
+            >a {
+                text-align: center;
+                font-size: 14px;
+                color: #ffdcb7;
+                padding-top: 10px;
+                padding-bottom: 10px;
+
+                &:hover,
+                &:focus {
+                    background-color: #ff9527;
+                }
+            }
+
+            &.active>a>span {
+                color: #fff;
+                display: inline-block;
+                padding-bottom: 2px;
+                border-bottom: 2px solid #fff;
+            }
+        }
+
     }
 }
 

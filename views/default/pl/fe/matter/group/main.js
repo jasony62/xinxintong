@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlMain', ['cstApp', '$scope', 'http2', '$q', 'srvSite', 'noticebox', 'srvGroupApp', '$uibModal', 'srvTag', function(cstApp, $scope, http2, $q, srvSite, noticebox, srvGrpApp, $uibModal, srvTag) {
+    ngApp.provider.controller('ctrlMain', ['cstApp', '$scope', 'http2', '$q', 'srvSite', 'noticebox', 'srvGroupApp', '$uibModal', 'srvTag', 'mediagallery', function(cstApp, $scope, http2, $q, srvSite, noticebox, srvGrpApp, $uibModal, srvTag, mediagallery) {
         $scope.update = function(names) {
             srvGrpApp.update(names).then(function(rsp) {
                 noticebox.success('完成保存');

@@ -87,7 +87,7 @@ class team extends base {
 		if (!$this->groupApp) {
 			return new \ObjectNotFoundError();
 		}
-		if (!$this->team) {
+		if (!($oTeam = $this->team)) {
 			return new \ObjectNotFoundError();
 		}
 		if ($oTeam->creator !== $this->who->uid) {
@@ -100,6 +100,7 @@ class team extends base {
 		foreach ($oPosted as $prop => $val) {
 			switch ($prop) {
 			case 'title':
+			case 'summary':
 				$aUpdated[$prop] = $this->escape($val);
 				break;
 			}

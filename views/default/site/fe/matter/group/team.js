@@ -9,7 +9,7 @@ ngApp.config(['$routeProvider', function($routeProvider) {
         .when('/rest/site/fe/matter/group/team/config', { template: require('./team/config.html'), controller: 'ctrlTeamConfig' })
         .otherwise({ template: require('./team/home.html'), controller: 'ctrlTeamHome' });
 }]);
-ngApp.controller('ctrlTeam', ['$scope', 'tmsLocation', 'facGroupApp', function($scope, LS, facGrpApp) {
+ngApp.controller('ctrlTeam', ['$scope', 'tmsLocation', 'facGroupApp', 'facGroupUser', function($scope, LS, facGrpApp, facGroupUser) {
     $scope.gotoHome = function() {
         location.href = '/rest/site/fe/matter/group?' + LS.s('site', 'app');
     };
@@ -19,6 +19,9 @@ ngApp.controller('ctrlTeam', ['$scope', 'tmsLocation', 'facGroupApp', function($
     facGrpApp.get().then(function(oApp) {
         $scope.app = oApp;
         $scope.schemas = oApp.dataSchemas;
+        facGroupUser.get().then(function(oUser) {
+            $scope.user = oUser;
+        });
     });
 }]);
 ngApp.controller('ctrlTeamHome', ['$scope', '$uibModal', 'tmsLocation', 'facGroupTeam', 'facGroupRecord', function($scope, $uibModal, LS, facGrpTeam, facGrpRec) {

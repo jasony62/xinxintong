@@ -15,7 +15,7 @@ define(['frame', 'groupService'], function(ngApp) {
             srvEnlApp.update('pic');
         };
         $scope.downloadQrcode = function(url) {
-            $('<a href="' + url + '" download="登记二维码.png"></a>')[0].click();
+            $('<a href="' + url + '" download="' + $scope.app.title + '-二维码.png"></a>')[0].click();
         };
         $scope.openRankSetting = function() {
             $uibModal.open({

@@ -1,0 +1,29 @@
+<div class="col-md-12">
+    <div class='form-group' ng-if="rounds.length>1">
+        <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
+            <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                <span ng-bind="selectedRound.title"></span> <span class="glyphicon glyphicon-triangle-bottom"></span>
+            </button>
+            <ul class="dropdown-menu" uib-dropdown-menu>
+                <li ng-repeat="rnd in rounds"><a href ng-click="shiftRound(rnd)">{{rnd.title}}</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class='tasks'>
+        <div class='task state-{{task.state}} list-group-item ' ng-repeat="task in tasks">
+            <div ng-bind="::task"></div>
+            <div>
+                <span ng-bind="::Label.task.state[task.state]"></span>
+            </div>
+            <div ng-switch on="task.type">
+                <a href class="alert-link" ng-click="gotoTask(task)">
+                <span ng-switch-when="baseline">去制定目标</span>
+                <span ng-switch-when="question">去提问</span>
+                <span ng-switch-when="answer">去回答</span>
+                <span ng-switch-when="vote">去投票</span>
+                <span ng-switch-when="score">去打分</span>
+            </a>
+            </div>
+        </div>
+    </div>
+</div>

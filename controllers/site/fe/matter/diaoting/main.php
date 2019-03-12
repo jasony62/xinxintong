@@ -1,12 +1,12 @@
 <?php
-namespace site\fe;
-require_once dirname(__FILE__) . '/base.php';
-require_once dirname(dirname(dirname(dirname(__FILE__)))) . '/vendor/autoload.php';
+namespace site\fe\matter\diaoting;
+include_once dirname(dirname(__FILE__)) . '/base.php';
+include_once TMS_APP_DIR . '/vendor/autoload.php';
 use Aws\S3\S3Client;
 /**
  * 用户邀请
  */
-class oos extends base {
+class main extends \site\fe\matter\base {
 	//天翼云的API服务器
 	private $endpoint = 'https://oos-js.ctyunapi.cn/';
 	//Access Key 在天翼云门户网站-帐户管理-API密钥管理中获取

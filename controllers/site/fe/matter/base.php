@@ -495,11 +495,16 @@ class base extends \site\fe\base {
 	 * @param object $oUser
 	 *
 	 */
-	protected function checkEntryRule($oMatter, $bRedirect = false, $oUser = null) {
+	protected function checkEntryRule($oMatter, $bRedirect = false, $oUser = null, $page = null) {
+		if (!empty($page) && !empty($oMatter->entryRule->exclude)) {
+			if (in_array($page, $oMatter->entryRule->exclude)) {
+				return [true];
+			}
+		}
 		if (!isset($oMatter->entryRule->scope)) {
 			return [true];
 		}
-		$oUser = isset($oUser) ? $oUser : $this->who;
+		$oUser = !empty($oUser) ? $oUser : $this->who;
 		$oEntryRule = $oMatter->entryRule;
 		$oScope = $oEntryRule->scope;
 

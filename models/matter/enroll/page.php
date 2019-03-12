@@ -79,7 +79,7 @@ class page_model extends page_base {
 	public function byName($oApp, $name, $aOptions = []) {
 		$published = isset($aOptions['published']) ? ($aOptions['published'] === 'Y' ? 'Y' : 'N') : 'N';
 
-		if (in_array($name, ['repos', 'rank', 'votes', 'marks', 'event', 'score', 'topic', 'share', 'favor'])) {
+		if (in_array($name, ['repos', 'rank', 'votes', 'marks', 'event', 'score', 'topic', 'share', 'favor', 'kanban', 'task', 'stat'])) {
 			$oPage = new \stdClass;
 			$oPage->name = $name;
 			$oPage->type = '';
@@ -378,7 +378,7 @@ class page_model extends page_base {
 	 * 设置动态题目
 	 */
 	public function setDynaSchemas($oApp, &$oPage) {
-		if (in_array($oPage->name, ['event', 'repos', 'cowork', 'share', 'rank', 'score', 'votes', 'marks', 'favor', 'topic'])) {
+		if (in_array($oPage->name, ['event', 'repos', 'cowork', 'share', 'rank', 'score', 'votes', 'marks', 'favor', 'topic', 'kanban', 'task', 'stat'])) {
 			return $oPage;
 		}
 

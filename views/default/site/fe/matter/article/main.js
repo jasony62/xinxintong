@@ -276,9 +276,22 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsLocation', '$timeout', '$q'
             location.href = '/rest/site/fe/matter/' + type + '?site=' + siteId + '&app=' + id;
         }
     };
-    $scope.gotoNavApp = function(oNavApp) {
-        if (oNavApp.id) {
-            location.href = '/rest/site/fe/matter/enroll?site=' + $scope.article.siteid + '&app=' + oNavApp.id;
+    $scope.gotoNavApp = function(oNavApp, event) {
+        event.preventDefault();
+        event.stopPropagation();
+        switch (oNavApp.type) {
+            case 'enroll':
+                location.href = '/rest/site/fe/matter/enroll?site=' + oNavApp.siteid + '&app=' + oNavApp.id;
+                break;
+            case 'article':
+            case 'channel':
+                location.href = '/rest/site/fe/matter?site=' + oNavApp.siteid + '&id=' + oNavApp.id + '&type=' + oNavApp.type;
+                break;
+            case 'link':
+                location.href = '/rest/site/fe/matter/link?site=' + oNavApp.siteid + '&id=' + oNavApp.id + '&type=' + oNavApp.type;
+                break;
+            default:
+                break;
         }
     };
     $scope.subscribeSite = function() {

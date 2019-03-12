@@ -84,17 +84,16 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt', 'snsshare.
     $scope.gotoNavApp = function(oNavApp) {
         switch (oNavApp.type) {
             case 'enroll':
-                location.href = '/rest/site/fe/matter/enroll?site=' + $scope.link.siteid + '&app=' + oNavApp.id;
+                location.href = '/rest/site/fe/matter/enroll?site=' + oNavApp.siteid + '&app=' + oNavApp.id;
                 break;
             case 'article':
             case 'channel':
-                location.href = '/rest/site/fe/matter?site=' + $scope.link.siteid + '&id=' + oNavApp.id + '&type=' + oNavApp.type;
+                location.href = '/rest/site/fe/matter?site=' + oNavApp.siteid + '&id=' + oNavApp.id + '&type=' + oNavApp.type;
                 break;
             case 'link':
-                location.href = '/rest/site/fe/matter/link?site=' + $scope.link.siteid + '&id=' + oNavApp.id + '&type=' + oNavApp.type;
+                location.href = '/rest/site/fe/matter/link?site=' + oNavApp.siteid + '&id=' + oNavApp.id + '&type=' + oNavApp.type;
                 break;
             default:
-                alert("不支持此类型");
                 break;
         }
     };
@@ -125,10 +124,11 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt', 'snsshare.
                     title: $scope.link.title
                 });
                 if (typeof window.screenX === "number" && $scope.isSmallLayout === true) {
-                    var flag, btnEle, cur, nx, ny, dx, dy, x, y; 
+                    var flag, btnEle, cur, nx, ny, dx, dy, x, y;
                     flag = false;
-                    btnEle = document.getElementById("btnFS"); 
-                    cur = {x: 0,y: 0 };
+                    btnEle = document.getElementById("btnFS");
+                    cur = { x: 0, y: 0 };
+
                     function down() {
                         var touch = event.touches[0];
                         flag = true;
@@ -137,47 +137,49 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt', 'snsshare.
                         dx = btnEle.offsetLeft;
                         dy = btnEle.offsetTop;
                     }
-                    function move(){
-                        if(flag){
+
+                    function move() {
+                        if (flag) {
                             var touch = event.touches[0];
                             nx = touch.clientX - cur.x;
                             ny = touch.clientY - cur.y;
                             x = dx + nx;
                             y = dy + ny;
-                            if(Math.abs(nx)) {
-                                 event.preventDefault();
+                            if (Math.abs(nx)) {
+                                event.preventDefault();
                             }
-                            if (x<=0) {
+                            if (x <= 0) {
                                 x = 0;
-                            } else if(x>=btnEle.parentNode.offsetWidth - btnEle.offsetWidth) {
+                            } else if (x >= btnEle.parentNode.offsetWidth - btnEle.offsetWidth) {
                                 x = btnEle.parentNode.offsetWidth - btnEle.offsetWidth;
                             } else {
                                 x = x;
                             }
 
-                            if (y<=0) {
+                            if (y <= 0) {
                                 y = 0;
-                            } else if(y>=btnEle.parentNode.offsetHeight - btnEle.offsetHeight) {
+                            } else if (y >= btnEle.parentNode.offsetHeight - btnEle.offsetHeight) {
                                 y = btnEle.parentNode.offsetHeight - btnEle.offsetHeight;
                             } else {
                                 y = y;
                             }
-                            btnEle.style.left = x +"px";
-                            btnEle.style.top = y +"px";
+                            btnEle.style.left = x + "px";
+                            btnEle.style.top = y + "px";
                         }
                     }
-                    function end(){
-                        flag = false; 
+
+                    function end() {
+                        flag = false;
                     }
-                    btnEle.addEventListener("touchstart",function(){
+                    btnEle.addEventListener("touchstart", function() {
                         down();
-                    },false);
-                    btnEle.addEventListener("touchmove",function(){
+                    }, false);
+                    btnEle.addEventListener("touchmove", function() {
                         move();
-                    },false);
-                    btnEle.addEventListener("touchend",function(){
+                    }, false);
+                    btnEle.addEventListener("touchend", function() {
                         end();
-                    },false);
+                    }, false);
                     btnEle.addEventListener("click", function(event) {
                         if (!$scope.isFull) {
                             document.querySelector('.col-md-3').style.display = 'none';

@@ -29,7 +29,7 @@
                         </div>
                         <div class='form-group' ng-if="app.pic">
                             <div class='app-pic'>
-                                <div class='img-thumbnail' ng-style="{'background-image':'url('+matter.pic+')'}"></div>
+                                <div class='img-thumbnail' ng-style="{'background-image':'url('+app.pic+')'}"></div>
                             </div>
                         </div>
                         <div ng-if="app.summary">
@@ -42,7 +42,8 @@
                     <div class="panel-body">
                         <div class='list-group'>
                             <div class='list-group-item' ng-click="gotoTeam(team)" ng-repeat="team in teams">
-                                {{::team.title}}
+                                <span>{{::team.title}}</span>
+                                <span ng-if="team.is_leader==='Y'">（我是组长）</span>
                             </div>
                         </div>
                     </div>

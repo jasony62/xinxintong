@@ -8,6 +8,9 @@
             <div class='form-group'>
                 <label ng-bind="::team.title"></label>
             </div>
+            <div class='form-group'>
+                <div class='help-block' ng-bind="::team.summary"></div>
+            </div>
         </div>
     </div>
     <div class="panel panel-default">
@@ -15,7 +18,7 @@
         <div class="panel-body">
             <div class='list-group'>
                 <div class='list-group-item' ng-repeat="mem in members">
-                    <span ng-bind="::mem.nickname"></span><span ng-if="mem.is_leader==='Y'">（组长）</span><button ng-if="mem.is_leader==='N'" class='btn btn-default btn-xs pull-right' ng-click="quit(mem)">移出</button>
+                    <span ng-bind="::mem.nickname"></span><span ng-if="mem.is_leader==='Y'">（组长）</span><button ng-if="mem.is_leader==='N'&&user.records[team.team_id].is_leader==='Y'" class='btn btn-default btn-xs pull-right' ng-click="quit(mem)">移出</button>
                 </div>
             </div>
         </div>

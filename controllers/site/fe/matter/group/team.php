@@ -63,7 +63,8 @@ class team extends base {
 			'create_at' => $current,
 			'creator' => $this->who->uid,
 			'creator_name' => $this->who->nickname,
-			'title' => empty($oTeam->title) ? $this->who->nickname . '的团队' : $oTeam->title,
+			'title' => empty($oTeam->title) ? $this->escape($this->who->nickname) . '的团队' : $this->escape($oTeam->title),
+			'summary' => empty($oTeam->summary) ? '' : $this->escape($oTeam->summary),
 			'times' => 1,
 			'team_type' => 'T',
 			'targets' => '',
@@ -87,7 +88,7 @@ class team extends base {
 		if (!$this->groupApp) {
 			return new \ObjectNotFoundError();
 		}
-		if (!$this->team) {
+		if (!($oTeam = $this->team)) {
 			return new \ObjectNotFoundError();
 		}
 		if ($oTeam->creator !== $this->who->uid) {
@@ -100,6 +101,7 @@ class team extends base {
 		foreach ($oPosted as $prop => $val) {
 			switch ($prop) {
 			case 'title':
+			case 'summary':
 				$aUpdated[$prop] = $this->escape($val);
 				break;
 			}

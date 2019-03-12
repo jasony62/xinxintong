@@ -2,7 +2,6 @@
 namespace site\fe\matter\diaoting;
 include_once dirname(dirname(__FILE__)) . '/base.php';
 include_once TMS_APP_DIR . '/vendor/autoload.php';
-use Aws\S3\S3Client;
 /**
  * 用户邀请
  */

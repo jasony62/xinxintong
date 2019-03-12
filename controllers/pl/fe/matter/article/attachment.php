@@ -57,6 +57,8 @@ class attachment extends \pl\fe\matter\base {
 	 * 删除附件
 	 */
 	public function del_action($site, $id) {
+		$model = $this->model();
+		
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}

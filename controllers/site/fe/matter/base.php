@@ -567,6 +567,7 @@ class base extends \site\fe\base {
 	 * 下载附件
 	 */
 	public function attachmentGet($oApp, $attachmentid) {
+		$model = $this->model();
 		$user = $this->who;
 		/**
 		 * 获取附件
@@ -576,7 +577,7 @@ class base extends \site\fe\base {
 			'xxt_matter_attachment',
 			['matter_id' => $oApp->id, 'matter_type' => $oApp->type, 'id' => $attachmentid],
 		];
-		if (false === ($att = $modelArticle->query_obj_ss($q))) {
+		if (false === ($att = $model->query_obj_ss($q))) {
 			die('指定的附件不存在');
 		}
 		$log = [
@@ -590,7 +591,7 @@ class base extends \site\fe\base {
 			'user_agent' => $_SERVER['HTTP_USER_AGENT'],
 			'client_ip' => $this->client_ip(),
 		];
-		$modelArticle->insert('xxt_matter_download_log', $log, false);
+		$model->insert('xxt_matter_download_log', $log, false);
 
 		if (strpos($att->url, 'alioss') === 0) {
 			$fsAlioss = \TMS_APP::M('fs/alioss', $oApp->siteid, '_attachment');

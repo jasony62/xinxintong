@@ -3,8 +3,8 @@ require_once '../../db.php';
 
 $sqls = [];
 //
-$sqls[] = "";
-$sqls[] = "";
+$sqls[] = "alter table xxt_article_download_log rename xxt_matter_download_log";
+$sqls[] = "alter table xxt_matter_download_log change article_id matter_id int not null";
 $sqls[] = "ALTER TABLE xxt_matter_download_log add matter_type varchar(20) not null default '' after matter_id";
 $sqls[] = "update xxt_matter_download_log set matter_type = 'article'";
 //

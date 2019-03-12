@@ -121,6 +121,8 @@ class base extends \pl\fe\base {
 	 * 上传成功后将附件信息保存到数据库中
 	 */
 	protected function attachmentAdd($oApp, $oFile) {
+		$model = $this->model();
+		
 		if (defined('APP_FS_USER') && APP_FS_USER === 'ali-oss') {
 			/* 文件存储在阿里 */
 			$url = 'alioss://' . $oApp->type . '/' . $oApp->id . '/' . $oFile->name;
@@ -134,7 +136,7 @@ class base extends \pl\fe\base {
 			if (!file_exists($targetDir)) {
 				mkdir($targetDir, 0777, true);
 			}
-			$fileUploaded2 = $targetDir . '/' . $oApp->id . '_' . $modelApp->toLocalEncoding($oFile->name);
+			$fileUploaded2 = $targetDir . '/' . $oApp->id . '_' . $model->toLocalEncoding($oFile->name);
 			if (false === rename($fileUploaded, $fileUploaded2)) {
 				return [false, '移动上传文件失败'];
 			}
@@ -150,7 +152,7 @@ class base extends \pl\fe\base {
 		$oAtt->last_modified = $oFile->lastModified;
 		$oAtt->url = $url;
 
-		$oAtt->id = $modelApp->insert('xxt_matter_attachment', $oAtt, true);
+		$oAtt->id = $model->insert('xxt_matter_attachment', $oAtt, true);
 
 		return [true, $oAtt];
 	}

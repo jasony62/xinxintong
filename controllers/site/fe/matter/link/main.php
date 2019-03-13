@@ -305,8 +305,8 @@ class main extends \site\fe\matter\base {
 	/**
 	 * 下载附件
 	 */
-	public function attachmentGet_action($site, $linkId, $attachmentid) {
-		if (empty($site) || empty($linkId) || empty($attachmentid)) {
+	public function attachmentGet_action($site, $linkid, $attachmentid) {
+		if (empty($site) || empty($linkid) || empty($attachmentid)) {
 			die('参数不完整');
 		}
 
@@ -315,13 +315,11 @@ class main extends \site\fe\matter\base {
 		 * 访问控制
 		 */
 		$modelArticle = $this->model('matter\link');
-		$oLink = $modelArticle->byId($linkId);
+		$oLink = $modelArticle->byId($linkid);
 		if ($oLink === false || $oLink->state !== '1') {
 			die('指定的活动不存在，请检查参数是否正确');
 		}
-		/**
-		 * 记录日志
-		 */
+		
 		$this->attachmentGet($oLink, $attachmentid);
 	}
 }

@@ -9,13 +9,13 @@ class attachment extends \pl\fe\matter\base {
 	/**
 	 * 分段上传附件
 	 */
-	public function upload_action($site, $linkId) {
+	public function upload_action($site, $linkid) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelApp = $this->model('matter\link');
-		$oApp = $modelApp->byId($linkId);
+		$oApp = $modelApp->byId($linkid);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}

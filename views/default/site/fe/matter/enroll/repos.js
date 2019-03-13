@@ -260,7 +260,7 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
     $scope.criteria = _oCriteria = {};
     $scope.repos = [];
     $scope.reposLoading = false;
-    $scope.appendToEle = angular.element(document.querySelector('#filterQuick'));
+    $scope.appendToEle = angular.element(document.querySelector('#nav_container'));
     $scope.getCriteria = function() {
         var url;
         url = LS.j('repos/criteriaGet', 'site', 'app') + '&viewType=record';
@@ -496,7 +496,7 @@ ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLo
     $scope.criteria = _oCriteria = {};
     $scope.repos = [];
     $scope.reposLoading = false;
-    $scope.appendToEle = angular.element(document.querySelector('#filterQuick'));
+    $scope.appendToEle = angular.element(document.querySelector('#nav_container'));
     $scope.getCriteria = function() {
         var url;
         url = LS.j('repos/criteriaGet', 'site', 'app') + '&viewType=coworkData';

@@ -1,10 +1,28 @@
 <div class='wrap' ng-controller="ctrlReposRecord">
-    <div id='filterQuick' ng-cloak>
-        <div ng-repeat="singleFilter in singleFilters">
-            <div tms-dropdown basic-data="singleFilter" criteria="criteria" shift-menu="shiftMenu(criteria)"></div>
+    <nav class="nav site-navbar-orange navbar-fixed-top">
+        <div class="container" id="nav_container">
+            <div class="row">
+                <div class="col-md-7 col-xs-7">
+                    <ul class='nav site-nav'>
+                        <li class='active' ng-click="navTo($event,nav)"><a href><span>问题</span></a></li>
+                        <li ng-click="navTo($event,nav)"><a href><span>答案</span></a></li>
+                        <li ng-click="navTo($event,nav)"><a href><span>专题</span></a></li>
+                    </ul>
+                </div>
+                <div class="col-md-5 col-xs-5">
+                    <div id='filterQuick' ng-cloak>
+                        <div ng-repeat="singleFilter in singleFilters">
+                            <div tms-dropdown basic-data="singleFilter" criteria="criteria" shift-menu="shiftMenu(criteria)"></div>
+                        </div>
+                        <div tms-filter append-to-ele="appendToEle" basic-data="multiFilters" filter="filter" criteria="criteria" confirm="confirm(filterOpt)" class='tmsFilter'></div>
+                        <div id='advCriteriaSwitch' ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened" class='visible-xs-block'>
+                            <i class='glyphicon glyphicon-th-large'></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div tms-filter append-to-ele="appendToEle" basic-data="multiFilters" filter="filter" criteria="criteria" confirm="confirm(filterOpt)" class='tmsFilter'></div>
-    </div>
+    </nav>
     <div id='filterTip' class='hidden-xs' ng-if="filter.isFilter||filter.tags.length">
         <div class='bg-info small' ng-repeat="multifilter in multiFilters" ng-if="criteria[multifilter.type]!==null">
             <span ng-repeat="menu in multifilter.menus" ng-if="criteria[multifilter.type]==menu.id" ng-bind="menu.title"></span>

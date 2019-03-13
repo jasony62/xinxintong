@@ -134,4 +134,45 @@ class log extends \pl\fe\matter\main_base {
 		$objWriter->save('php://output');
 		exit;
 	}
+	/**
+	 * 附件下载日志
+	 */
+	public function attachmentLog_action($appId, $page = 1, $size = 30) {
+		$modelLink = $this->model('matter\link');
+		$oLink = $modelLink->byId($appId, ['fields' => 'id,title,state']);
+		if ($oLink === false || $oLink->state != 1) {
+			return new \ObjectNotFoundError();
+		}
+
+		$filter = $this->getPostJson();
+
+		$q = [
+			'ml.id,ml.userid,ml.openid,ml.nickname,ml.download_at,ml.attachment_id,m.name',
+			'xxt_matter_download_log ml,xxt_matter_attachment m',
+			"ml.matter_id = '{$appId}' and ml.matter_type = 'link' and ml.attachment_id = m.id",
+		];
+		if (!empty($filter->start)) {
+			$q[2] .= " and ml.download_at > " . $modelLink->escape($filter->start);
+		}
+		if (!empty($filter->end)) {
+			$q[2] .= " and ml.download_at < " . $modelLink->escape($filter->end);
+		}
+		if (!empty($filter->byUser)) {
+			$q[2] .= " and ml.nickname like '%" . $modelLink->escape($filter->byUser) . "%'";
+		}
+
+		$p = ['o' => 'ml.download_at desc'];
+		if (!empty($page) && !empty($size)) {
+			$p['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		}
+
+		$logs = $modelLink->query_objs_ss($q, $p);
+
+		$data = new \stdClass;
+		$data->logs = $logs;
+		$q[0] = 'count(ml.id)';
+		$data->total = $modelLink->query_val_ss($q);
+
+		return new \ResponseData($data);
+	}
 }

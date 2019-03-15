@@ -29,6 +29,7 @@ button.option {
 
 .site-navbar-light.navbar {
     height: 50px;
+    line-height: 1;
     padding-top: 8px;
     padding-bottom: 8px;
 }
@@ -48,7 +49,6 @@ button.option {
                 text-align: center;
                 color: #333;
                 padding: 0;
-                line-height: 1;
 
                 &:hover,
                 &:focus {
@@ -77,8 +77,10 @@ button.option {
     }
 }
 
-.site-navbar-orange.navbar {
-    min-height: 44px;
+.site-navbar-orange.nav {
+    height: 44px;
+    line-height: 1;
+    padding-top: 12px;
 }
 
 .site-navbar-orange {
@@ -95,18 +97,19 @@ button.option {
         }
 
         .site-nav {
-            width: 100%;
             margin-right: -15px;
             white-space: nowrap;
+            font-size: 14px;
+            line-height: 1;
 
             >li {
                 display: inline-block;
-                width: 25%;
+                margin-right: 5%;
 
                 >a {
-                    font-size: 14px;
+                    height: 14px;
                     color: #ffdcb7;
-                    padding: 10px 0;
+                    padding: 0;
 
                     &:hover,
                     &:focus {
@@ -114,11 +117,23 @@ button.option {
                     }
                 }
 
-                &.active>a>span {
-                    color: #fff;
-                    display: inline-block;
-                    padding-bottom: 2px;
-                    border-bottom: 2px solid #fff;
+                >span {
+                    display: none;
+                    width: 60%;
+                    height: 2px;
+                    background-color: #fff;
+                    margin: auto;
+                    margin-top: 4px;
+                }
+
+                &.active {
+                    >a {
+                        color: #fff;
+                    }
+
+                    >span {
+                        display: block;
+                    }
                 }
             }
         }
@@ -331,8 +346,6 @@ body.enroll-repos {
 
 #filterQuick {
     display: flex;
-    height: 100%;
-    margin-left: -15px;
 
     &>* {
         flex-grow: 1;
@@ -340,7 +353,6 @@ body.enroll-repos {
 
     #advCriteriaSwitch i {
         color: #fff;
-        line-height: 44px;
     }
 }
 
@@ -458,12 +470,8 @@ body.enroll-repos {
     background-color: #ff9527;
 
     .site-dropdown-title {
-        display: block;
-        padding: 0px 10px;
         font-size: 14px;
         color: #fff;
-        min-height: 44px;
-        line-height: 44px;
     }
 
     a:focus,
@@ -472,7 +480,7 @@ body.enroll-repos {
     }
 
     a.active {
-        color: #ff8018;
+        color: #ff8080;
     }
 
 }

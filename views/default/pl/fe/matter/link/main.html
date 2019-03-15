@@ -155,13 +155,13 @@
             </div>
         </div>
     </div>
-    <div class="panel panel-default" ng-hide="true">
+    <div class="panel panel-default" ng-show="editing.embedded==='Y'">
         <div class="panel-body">
             <div class='form-group'>
                 <label>附件</label>
                 <div>
                     <button id='addAttachment' class='btn btn-default btn-sm'>
-                        <span class='glyphicon glyphicon-plus'></span> 附件（可选）
+                        <span class='glyphicon glyphicon-plus'></span> 附件
                     </button>
                     <ul class='list-group' style='margin-bottom:0'>
                         <li class='list-group-item' ng-repeat='a in editing.attachments' ng-mouseenter="enter=true" ng-mouseleave="enter=false">

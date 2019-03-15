@@ -47,7 +47,7 @@ class registration_model extends \TMS_MODEL {
 	/**
 	 * 注册用户帐号
 	 */
-	public function create($siteId, $uname, $password, $aOptions = array()) {
+	public function create($siteId, $uname, $password, $aOptions = []) {
 		$this->setOnlyWriteDbConn(true);
 		if ($this->checkUname($uname)) {
 			return [false, '注册账号已经存在，不能重复注册'];
@@ -86,8 +86,8 @@ class registration_model extends \TMS_MODEL {
 		/* 指定缺省用户组 */
 		$account_group = [
 			'account_uid' => $unionid,
-			'group_id' => 1,
 		];
+		$account_group['group_id'] = empty($aOptions['group_id'])? 1 : $aOptions['group_id'];
 		$this->insert('account_in_group', $account_group, false);
 
 		return [true, $registration];

@@ -147,6 +147,196 @@ class login extends \site\fe\base {
 		return new \ResponseData('ok');
 	}
 	/**
+	 * 执行第三方登录
+	 */
+	public function byRegAndAuthApp_action($authAppId) {
+		$modelAcc = $this->model('account');
+		$modelWay = $this->model('site\fe\way');
+		$modelReg = $this->model('site\user\registration');
+
+		$cookieRegUser = $modelWay->getCookieRegUser();
+		if ($cookieRegUser) {
+			if (isset($cookieRegUser->loginExpire)) {
+				return new \ResponseError("请退出当前账号再登录");
+			}
+			$modelWay->quitRegUser();
+		}
+
+		// 获取第三方应用信息
+		$q = [
+			'*',
+			'xxt_account_third',
+			['id' => $authAppId]
+		];
+		$authApp = $modelWay->query_obj_ss($q);
+		if ($authApp === false || $authApp->state != 1) {
+			return new \ObjectNotFoundError();
+		}
+
+		/* 检查是否需要第三方应用授权登录 */
+		if ($this->myGetcookie("_account_register_oauthpending") !== 'Y') {
+			$this->requirRegOauth($authApp);
+		}
+		// 获得第三方应用用户信息
+		$authAppUser = $this->_afterRegOauth();
+		if ($authAppUser[0] === false) {
+			return new \ResponseError($authAppUser[1]);
+		}
+
+		// 查看此用户是否已经注册过
+		$oRegistration = $modelAcc->byAuthedId($authAppUser->openid, $authApp->id, ['fields' => 'a.uid unionid,a.email uname,a.nickname,a.password,a.salt,a.from_siteid', 'forbidden' => 0]);
+		// 是否已绑定账号 登录账号
+		if ($oRegistration) {
+			/* cookie中保留注册信息 */
+			$aResult = $modelWay->shiftRegUser($oRegistration);
+			if (false === $aResult[0]) {
+				return new \ResponseError($aResult[1]);
+			}
+
+			/* 记录登录状态 */
+			$fromip = $this->client_ip();
+			$modelReg->updateLastLogin($oRegistration->unionid, $fromip);
+		} else {
+			// 没有绑定账号 创建账号
+			$user = $this->who;
+			/* uname */
+			$uname = $user->uid;
+			/* password */
+			$password = '123456';
+
+			$aOptions = [];
+			/* nickname */
+			if (!empty($authAppUser->nickname)) {
+				$aOptions['nickname'] = $authAppUser->nickname;
+			} else if (isset($user->nickname)) {
+				$aOptions['nickname'] = $user->nickname;
+			}
+			/* other options */
+			$aOptions['from_ip'] = $this->client_ip();
+			$aOptions['group_id'] = 101;
+			/* create registration */
+			$oRegUser = $modelReg->create($this->siteId, $uname, $password, $aOptions);
+			if ($oRegUser[0] === false) {
+				return new \ResponseError($oRegUser[1]);
+			}
+			$oRegUser = $oRegUser[1];
+			/* cookie中保留注册信息 */
+			$aResult = $modelWay->shiftRegUser($oRegUser, false);
+			if (false === $aResult[0]) {
+				return new \ResponseError($aResult[1]);
+			}
+
+			// 将用户插入到xxt_account_third_user表中 unionid
+
+
+
+
+
+
+
+		}
+
+		$oCookieUser = $modelWay->who($this->siteId);
+		if ($referer = $this->myGetCookie('_user_access_referer')) {
+			$oCookieUser->_loginReferer = $referer;
+			$this->mySetCookie('_user_access_referer', null);
+		}
+
+		return new \ResponseData($oCookieUser);
+	}
+	/**
+	 *
+	 */
+	private function _afterRegOauth() {
+		// oauth回调
+		$this->mySetcookie("_account_register_oauthpending", '', time() - 3600);
+		if (isset($_GET['state']) && isset($_GET['code'])) {
+			$state = $_GET['state'];
+			if (strpos($state, 'regOAuth-') === 0) {
+				$code = $_GET['code'];
+				$authAppUser = $this->getAuthAppUserByCode($code);
+
+				return $authAppUser;
+			} else {
+				return [false, '非登录授权'];
+			}
+		} else {
+			return [false, '获取code失败'];
+		}
+	}
+	/**
+	 * 
+	 */
+	protected function requirRegOauth($authApp) {
+		$ruri = APP_PROTOCOL . APP_HTTP_HOST . $_SERVER['REQUEST_URI'];
+		$oauthUrl = "";
+		/* 通过cookie判断是否是后退进入 */
+		$this->mySetcookie("_account_register_oauthpending", 'Y');
+		$this->redirect($oauthUrl);
+	}
+	/**
+	 * 获得第三方应用用户信息
+	 */
+	public function getAuthAppUserByCode($code) {
+		/* 获得用户的openid */
+		$cmd = "https://api.weixin.qq.com/sns/oauth2/access_token";
+		$params["appid"] = $this->config->appid;
+		$params["secret"] = $this->config->appsecret;
+		$params["code"] = $code;
+		$params["grant_type"] = "authorization_code";
+		$rst = $this->httpGet($cmd, $params, false, false);
+		if ($rst[0] === false) {
+			return $rst;
+		}
+		$openid = $rst[1]->openid;
+		/* 获得用户的其它信息 */
+		if (false !== strpos($rst[1]->scope, 'snsapi_userinfo')) {
+			$accessToken = $rst[1]->access_token;
+			$cmd = 'https://api.weixin.qq.com/sns/userinfo';
+			$params = array(
+				'access_token' => $accessToken,
+				'openid' => $openid,
+				'lang' => 'zh_CN',
+			);
+			/* user info */
+			$userRst = $this->httpGet($cmd, $params, false, false);
+			if ($userRst[0] === false) {
+				if (strpos($userRst[1], 'json failed:') === 0) {
+					\TMS_APP::model('log')->log($this->config->siteid, 'getAuthAppUserByCode', 'userinfo json failed: ' . $userRst[1], null, $_SERVER['REQUEST_URI']);
+					$user = new \stdClass;
+					$json = str_replace(array('json failed:', '{', '}'), '', $userRst[1]);
+					$data = explode(',', $json);
+					foreach ($data as $pv) {
+						$pv = explode(':', $pv);
+						$p = str_replace('"', '', $pv[0]);
+						$v = str_replace('"', '', $pv[1]);
+						$user->{$p} = $v;
+					}
+
+					if (isset($user->nickname)) {
+						$user->nickname = \TMS_APP::model()->cleanEmoji($user->nickname, true);
+					}
+					$userRst[0] = true;
+					$userRst[1] = $user;
+					return $userRst;
+				} else {
+					return array(false, $userRst[1]);
+				}
+			} else {
+				$user = $userRst[1];
+			}
+		} else {
+			$user = new \stdClass;
+			$user->openid = $openid;
+		}
+
+		if (isset($user->nickname)) {
+			$user->nickname = \TMS_APP::model()->cleanEmoji($user->nickname, true);
+		}
+
+		return array(true, $user);
+	}
+	/**
 	 * 获取验证码
 	 * $codelen  验证码的个数
 	 * $width  验证码的宽度

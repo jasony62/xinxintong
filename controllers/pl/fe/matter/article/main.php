@@ -161,7 +161,7 @@ class main extends \pl\fe\matter\main_base {
 			$oArticle->channels = $this->model('matter\channel')->byMatter($id, 'article');
 			/* attachments */
 			if ($oArticle->has_attachment === 'Y') {
-				$oArticle->attachments = $modelAct->query_objs_ss(['*', 'xxt_matter_attachment', ['matter_id' => $id]]);
+				$oArticle->attachments = $modelAct->query_objs_ss(['*', 'xxt_matter_attachment', ['matter_id' => $id, 'matter_type' => 'article']]);
 			}
 			/* 所属项目 */
 			if ($oArticle->mission_id) {

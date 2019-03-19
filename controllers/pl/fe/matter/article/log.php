@@ -171,21 +171,21 @@ class log extends \pl\fe\matter\base {
 		$filter = $this->getPostJson();
 
 		$q = [
-			'ar.id,ar.userid,ar.openid,ar.nickname,ar.download_at,ar.attachment_id,m.name',
-			'xxt_article_download_log ar,xxt_matter_attachment m',
-			"ar.article_id = $appId and ar.attachment_id = m.id",
+			'ml.id,ml.userid,ml.openid,ml.nickname,ml.download_at,ml.attachment_id,m.name',
+			'xxt_matter_download_log ml,xxt_matter_attachment m',
+			"ml.matter_id = '{$appId}' and ml.matter_type = 'article' and ml.attachment_id = m.id",
 		];
 		if (!empty($filter->start)) {
-			$q[2] .= " and ar.download_at > $model->escape($filter->start)";
+			$q[2] .= " and ml.download_at > " . $model->escape($filter->start);
 		}
 		if (!empty($filter->end)) {
-			$q[2] .= " and ar.download_at < $model->escape($filter->end)";
+			$q[2] .= " and ml.download_at < " . $model->escape($filter->end);
 		}
 		if (!empty($filter->byUser)) {
-			$q[2] .= " and ar.nickname like '%" . $model->escape($filter->byUser) . "%'";
+			$q[2] .= " and ml.nickname like '%" . $model->escape($filter->byUser) . "%'";
 		}
 
-		$p = ['o' => 'ar.download_at desc'];
+		$p = ['o' => 'ml.download_at desc'];
 		if (!empty($page) && !empty($size)) {
 			$p['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		}
@@ -194,7 +194,7 @@ class log extends \pl\fe\matter\base {
 
 		$data = new \stdClass;
 		$data->logs = $logs;
-		$q[0] = 'count(ar.id)';
+		$q[0] = 'count(ml.id)';
 		$data->total = $model->query_val_ss($q);
 
 		return new \ResponseData($data);

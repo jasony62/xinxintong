@@ -16,13 +16,13 @@
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <div class='app container'>
-        <div class='row' ng-include="selectedTab.url"></div>
+        <div class='row' ng-include="activeView.url"></div>
     </div>
     <nav class="navbar site-navbar-light navbar-fixed-bottom">
         <div class="container">
             <ul class='nav site-nav'>
-                <li ng-repeat="nav in navs" ng-class="{'active': activeNav.id===nav.id}" ng-click="navTo($event, nav)">
-                    <a href><i class=""></i><span ng-bind="nav.title"></span></a>
+                <li ng-repeat="nav in navs" ng-class="{'active': activeNav.type===nav.type}">
+                    <a ng-href="{{nav.url}}"><i ng-class="nav.class"></i><span ng-bind="nav.title"></span></a>
                 </li>
             </ul>
         </div>

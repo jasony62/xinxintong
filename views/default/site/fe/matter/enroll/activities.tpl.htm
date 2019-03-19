@@ -22,6 +22,17 @@
     <div class='container'>
         <div class="row" ng-view></div>
     </div>
+    <nav class="navbar site-navbar-light navbar-fixed-bottom">
+        <div class="container">
+            <ul class='nav site-nav'>
+                <li class='active' ng-click="navTo($event,'repos')"><a href><i class='glyphicon glyphicon-home'></i><span>首页</span></a></li>
+                <li ng-if="mission" ng-click="navTo($event,'mission')"><a href><i class='glyphicon glyphicon-th-large'></i><span>项目</span></a></li>
+                <li ng-click="navTo($event,'summary')"><a href><i class='glyphicon glyphicon-stats'></i><span>汇总</span></a></li>
+                <li ng-click="navTo($event,'activities')"><a href><i class='glyphicon glyphicon-tasks'></i><span>任务</span></a></li>
+                <li ng-click="siteUser(app.siteid)"><a href><i class='glyphicon glyphicon-user'></i><span>我的</span></a></li>
+            </ul>
+        </div>
+    </nav>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
     <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
     <div class="loading">

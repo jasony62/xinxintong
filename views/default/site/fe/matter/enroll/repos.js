@@ -16,13 +16,30 @@ window.moduleAngularModules = ['tree.ui', 'filter.ui', 'dropdown.ui', 'round.ui.
 
 var ngApp = require('./main.js');
 ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', 'enlService', 'enlTask', function($scope, $parse, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc, enlService, enlTask) {
-    var _oApp, _facRound, _aShareableSchemas;
+    var _oApp, _oMission, _facRound, _aShareableSchemas;
     $scope.schemas = _aShareableSchemas = []; // 支持分享的题目
     $scope.activeDirSchemas = {};
     $scope.schemaCounter = 0;
-    $scope.tabs = [{ 'title': '记录', 'id': 'record', 'url': '/views/default/site/fe/matter/enroll/template/repos-record.html' }];
-    $scope.tabClick = function(view) {
-        $scope.selectedTab = view;
+    $scope.navTo = function($event, nav) {
+        var url = '/rest/site/fe/matter/enroll';
+        switch(nav) {
+            case 'repos':
+                url += '?site=' + _oApp.siteid + '&app=' + _oApp.id + '&page=repos';
+            break;
+            case 'mission':
+                url = '/rest/site/fe/matter/mission?site=' + _oMission.siteid + '&mission=' + _oMission.id;
+            break;
+            case 'summary':
+                url += '/summary?site=' + _oApp.siteid + '&app=' + _oApp.id;
+            break;
+            case 'activities':
+                url += '/activities?site=' + _oApp.siteid + '&app=' + _oApp.id;
+            break;
+            default:
+                url = '';
+            break;
+        }
+        location.href = url;
     }
     $scope.addRecord = function(event) {
         $scope.$parent.addRecord(event);
@@ -125,12 +142,13 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var tasks, popActs;
         _oApp = params.app;
+        _oMission = params.mission;
         if (window.sessionStorage.length) {
             var cacheData, _cPage;
             cacheData = JSON.parse(window.sessionStorage.listStorage);
             $scope.schemaCounter = cacheData.schemaCounter;
             $scope.tasks = cacheData.tasks;
-            $scope.tabs = cacheData.tabs;
+            
             $scope.selectedTab = cacheData.selectedTab;
             $scope.rounds = cacheData.rounds;
             $scope.schemas = cacheData.schemas;

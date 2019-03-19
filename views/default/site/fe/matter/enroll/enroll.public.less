@@ -24,7 +24,7 @@ button.option {
 .nav .open>a,
 .nav .open>a:focus,
 .nav .open>a:hover {
-    background-color: #ff9527;
+    background-color: #0084ff;
 }
 
 .site-navbar-light.navbar {
@@ -47,6 +47,7 @@ button.option {
 
             >a {
                 text-align: center;
+                letter-spacing: 2px;
                 color: #333;
                 padding: 0;
 
@@ -61,6 +62,7 @@ button.option {
                     margin-bottom: 4px;
                     font-size: 18px;
                     top: 0;
+                    left: -2px;
                 }
 
                 >span {
@@ -70,22 +72,22 @@ button.option {
             }
 
             &.active>a {
-                color: #ff9527;
+                color: #0084ff;
             }
         }
 
     }
 }
 
-.site-navbar-orange.nav {
+.site-navbar-primary.nav {
     height: 44px;
     line-height: 1;
     padding-top: 12px;
 }
 
-.site-navbar-orange {
-    background-color: #ff9527;
-    border-color: #ff9527;
+.site-navbar-primary {
+    background-color: #0084ff;
+    border-color: #0084ff;
 
     .col-md-7.col-xs-7 {
         width: 100%;
@@ -108,12 +110,13 @@ button.option {
 
                 >a {
                     height: 14px;
-                    color: #ffdcb7;
+                    color: #a6d4ff;
+                    letter-spacing: 2px;
                     padding: 0;
 
                     &:hover,
                     &:focus {
-                        background-color: #ff9527;
+                        background-color: #0084ff;
                     }
                 }
 
@@ -129,6 +132,7 @@ button.option {
                 &.active {
                     >a {
                         color: #fff;
+                        font-weight: 600;
                     }
 
                     >span {
@@ -467,20 +471,24 @@ body.enroll-repos {
 
 .site-dropdown {
     display: inline-block;
-    background-color: #ff9527;
-
-    .site-dropdown-title {
-        font-size: 14px;
-        color: #fff;
-    }
+    background-color: #0084ff;
 
     a:focus,
     a:hover {
         text-decoration: none;
     }
 
-    a.active {
-        color: #ff8080;
+    .site-dropdown-title {
+        font-size: 14px;
+        color: #a6d4ff;
+
+        &.active {
+            color: #fff;
+        }
+    }
+
+    .dropdown-menu>li>a.active {
+        color: #a6d4ff;
     }
 
 }

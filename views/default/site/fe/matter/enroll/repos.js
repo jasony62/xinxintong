@@ -16,10 +16,13 @@ window.moduleAngularModules = ['tree.ui', 'filter.ui', 'dropdown.ui', 'round.ui.
 
 var ngApp = require('./main.js');
 ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', 'enlService', 'enlTask', function($scope, $parse, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc, enlService, enlTask) {
-    var _oApp, _oMission, _facRound, _aShareableSchemas;
+    var _oApp, _facRound, _aShareableSchemas;
     $scope.schemas = _aShareableSchemas = []; // 支持分享的题目
     $scope.activeDirSchemas = {};
     $scope.schemaCounter = 0;
+    $scope.navTo = function(event, nav) {
+        location.href = nav.url;
+    };
     $scope.addRecord = function(event) {
         $scope.$parent.addRecord(event);
     };
@@ -119,7 +122,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var tasks, popActs;
         _oApp = params.app;
-        _oMission = params.mission;
         if (window.sessionStorage.length) {
             var cacheData, _cPage;
             cacheData = JSON.parse(window.sessionStorage.listStorage);
@@ -206,11 +208,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                             data.class = 'glyphicon glyphicon-home';
                             $scope.activeNav = data;
                             data.views.forEach(function(view) {
-                                if (view.type === 'answer') {
-                                    view.url = '/views/default/site/fe/matter/enroll/template/repos-cowork.html';
-                                } else {
-                                    view.url = '/views/default/site/fe/matter/enroll/template/repos-' + view.type + '.html';
-                                }
+                                view.url = '/views/default/site/fe/matter/enroll/template/repos-' + view.type + '.html';
                                 if (data.defaultView.type === view.type) {
                                     $scope.activeView = view;
                                 }

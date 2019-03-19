@@ -15,21 +15,40 @@
 <body ng-controller="ctrlActivities">
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
-    <nav class='navbar site-navbar-default'>
-        <div class='container' ng-cloak>
+    <nav class="nav site-navbar-primary navbar-fixed-top">
+        <div class="container" ng-cloak>
+            <div class="row">
+                <div class="col-md-12 col-xs-12">
+                    <ul class='nav site-nav'>
+                        <li ng-repeat="view in activeNav.views" ng-class="{'active': view.type===subView}" ng-click="viewTo($event, view)"><a href ng-bind="view.title"></a><span></span></li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </nav>
     <div class='container'>
         <div class="row" ng-view></div>
     </div>
     <nav class="navbar site-navbar-light navbar-fixed-bottom">
-        <div class="container">
+        <div class="container" ng-cloak>
             <ul class='nav site-nav'>
-                <li class='active' ng-click="navTo($event,'repos')"><a href><i class='glyphicon glyphicon-home'></i><span>首页</span></a></li>
-                <li ng-if="mission" ng-click="navTo($event,'mission')"><a href><i class='glyphicon glyphicon-th-large'></i><span>项目</span></a></li>
-                <li ng-click="navTo($event,'summary')"><a href><i class='glyphicon glyphicon-stats'></i><span>汇总</span></a></li>
-                <li ng-click="navTo($event,'activities')"><a href><i class='glyphicon glyphicon-tasks'></i><span>任务</span></a></li>
-                <li ng-click="siteUser(app.siteid)"><a href><i class='glyphicon glyphicon-user'></i><span>我的</span></a></li>
+                <li ng-repeat="nav in navs" ng-class="{'active': activeNav.type===nav.type}" ng-switch on="nav.type" ng-click="navTo($event, nav)">
+                    <a ng-href="{{nav.url}}" ng-switch-when="mission">
+                        <i  class="glyphicon glyphicon-th-list"></i><span ng-bind="nav.title"></span>
+                    </a>
+                    <a ng-href="{{nav.url}}" ng-switch-when="repos">
+                        <i  class="glyphicon glyphicon-home"></i><span ng-bind="nav.title"></span>
+                    </a>
+                    <a ng-href="{{nav.url}}" ng-switch-when="activities">
+                        <i  class="glyphicon glyphicon-tasks"></i><span ng-bind="nav.title"></span>
+                    </a>
+                    <a ng-href="{{nav.url}}" ng-switch-when="summary">
+                        <i  class="glyphicon glyphicon-stats"></i><span ng-bind="nav.title"></span>
+                    </a>
+                    <a ng-href="{{nav.url}}" ng-switch-when="people">
+                        <i  class="glyphicon glyphicon-user"></i><span ng-bind="nav.title"></span>
+                    </a>
+                </li>
             </ul>
         </div>
     </nav>

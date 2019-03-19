@@ -22,7 +22,32 @@ ngApp.filter('filterTime', function() {
         return result = h + ":" + m + ":" + s;
     }
 });
-ngApp.controller('ctrlActivities', ['$scope', 'tmsLocation', function($scope, LS) {}]);
+ngApp.controller('ctrlActivities', ['$scope', '$location', 'tmsLocation', 'http2', function($scope, $location, LS, http2) {
+    $scope.navTo = function(event, nav) {
+        location.href = nav.url;
+    };
+    $scope.viewTo = function(event, subView) {
+        $scope.activeView = subView;
+        var url = '/rest/site/fe/matter/enroll/activities/' + subView.type;
+        LS.path(url);
+    };
+    $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+        var subView = currentRoute.match(/([^\/]+?)\?/);
+        $scope.subView = subView[1] === 'task' ? 'task' : subView[1];
+    });
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        $scope.oApp = params.app;
+        /* 请求导航 */
+        http2.get(LS.j('navs', 'site', 'app')).then(function(rsp) {
+            $scope.navs = rsp.data;
+            rsp.data.forEach(function(data) {
+                if (data.type === 'activities') {
+                    $scope.activeNav = data;
+                }
+            });
+        });
+    });
+}]);
 ngApp.controller('ctrlActivitiesTask', ['$scope', '$parse', '$q', '$uibModal', 'http2', 'tmsLocation', 'noticebox', 'enlRound', 'enlTask', function($scope, $parse, $q, $uibModal, http2, LS, noticebox, enlRound, enlTask) {
     function fnGetTasks(oRound) {
         _tasks.splice(0, _tasks.length);
@@ -50,14 +75,102 @@ ngApp.controller('ctrlActivitiesTask', ['$scope', '$parse', '$q', '$uibModal', '
             }
         }
     };
-    $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        _oApp = params.app;
+    $scope.$watch('oApp', function(nv) {
+        if (!nv) { return; }
+        _oApp = nv;
         _enlTask = new enlTask(_oApp);
         var facRound = new enlRound(_oApp);
         facRound.list().then(function(oResult) {
             $scope.rounds = oResult.rounds;
             if ($scope.rounds.length) $scope.shiftRound($scope.rounds[0]);
         });
+    });
+}]);
+ngApp.controller('ctrlActivitiesEvent', ['$scope', '$q', 'http2', 'tmsLocation', function($scope, $q, http2, LS) {
+    function fnCloseNotice(oNotice) {
+        var url, defer;
+        defer = $q.defer();
+        url = LS.j('notice/close', 'site', 'app');
+        url += '&notice=' + oNotice.id;
+        http2.get(url).then(function(rsp) {
+            $scope.notices.splice($scope.notices.indexOf(oNotice), 1);
+            defer.resolve();
+        });
+        return defer.promise;
+    }
+
+    var _oApp, _aLogs, _oPage, _oFilter;
+    $scope.page = _oPage = { size: 30 };
+    $scope.subView = 'timeline.html';
+    $scope.filter = _oFilter = { scope: 'N' };
+    $scope.searchEvent = function(pageAt) {
+        var url, defer;
+        pageAt && (_oPage.at = pageAt);
+        defer = $q.defer();
+        url = LS.j('event/timeline', 'site', 'app');
+        url += '&scope=' + _oFilter.scope;
+        http2.get(url, { page: _oPage }).then(function(rsp) {
+            $scope.logs = _aLogs = rsp.data.logs;
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    };
+    $scope.searchNotice = function(pageAt) {
+        var url, defer;
+        pageAt && (_oPage.at = pageAt);
+        defer = $q.defer();
+        url = LS.j('notice/list', 'site', 'app');
+        http2.get(url, { page: _oPage }).then(function(rsp) {
+            $scope.notices = rsp.data.notices;
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    };
+    $scope.closeNotice = function(oNotice, bGotoCowork) {
+        fnCloseNotice(oNotice).then(function() {
+            if (bGotoCowork) {
+                $scope.gotoCowork(oNotice.enroll_key);
+            }
+        });
+    };
+    $scope.gotoCowork = function(ek) {
+        var url;
+        if (ek) {
+            url = LS.j('', 'site', 'app');
+            url += '&ek=' + ek;
+            url += '&page=cowork';
+            location.href = url;
+        }
+    };
+    $scope.$watch('oApp', function(nv) {
+        if (!nv) { return; }
+        _oApp = nv;
+        /* 活动任务 */
+        if (_oApp.actionRule) {
+            /* 设置活动任务提示 */
+            var tasks = [];
+            http2.get(LS.j('event/task', 'site', 'app')).then(function(rsp) {
+                if (rsp.data && rsp.data.length) {
+                    rsp.data.forEach(function(oRule) {
+                        if (!oRule._ok) {
+                            tasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, gap: oRule._no ? oRule._no[0] : 0, coin: oRule.coin ? oRule.coin : 0 });
+                        }
+                    });
+                }
+            });
+            $scope.tasks = tasks;
+        }
+        $scope.$watch('filter', function(nv, ov) {
+            if (nv) {
+                if (/N/.test(nv.scope)) {
+                    $scope.subView = 'timeline.html';
+                    $scope.searchNotice(1);
+                } else {
+                    $scope.subView = 'timeline.html';
+                    $scope.searchEvent(1);
+                }
+            }
+        }, true);
     });
 }]);
 ngApp.controller('ctrlActivitiesKanban', ['$scope', '$parse', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', function($scope, $parse, $q, $uibModal, http2, LS, enlRound) {
@@ -146,8 +259,9 @@ ngApp.controller('ctrlActivitiesKanban', ['$scope', '$parse', '$q', '$uibModal',
             $parse('custom.profile.public').assign(oEnlUser, bPublic);
         });
     };
-    $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        _oApp = params.app;
+    $scope.$watch('oApp', function(nv) {
+        if (!nv) { return; }
+        _oApp = nv;
         _oFilter.round = _oApp.appRound;
         (new enlRound(_oApp)).list().then(function(result) {
             $scope.rounds = result.rounds;
@@ -155,91 +269,5 @@ ngApp.controller('ctrlActivitiesKanban', ['$scope', '$parse', '$q', '$uibModal',
         fnGetKanban().then(function() {
             $scope.shiftOrderby('score');
         });
-    });
-}]);
-ngApp.controller('ctrlActivitiesEvent', ['$scope', '$q', 'http2', 'tmsLocation', function($scope, $q, http2, LS) {
-    function fnCloseNotice(oNotice) {
-        var url, defer;
-        defer = $q.defer();
-        url = LS.j('notice/close', 'site', 'app');
-        url += '&notice=' + oNotice.id;
-        http2.get(url).then(function(rsp) {
-            $scope.notices.splice($scope.notices.indexOf(oNotice), 1);
-            defer.resolve();
-        });
-        return defer.promise;
-    }
-
-    var _oApp, _aLogs, _oPage, _oFilter;
-    $scope.page = _oPage = { size: 30 };
-    $scope.subView = 'timeline.html';
-    $scope.filter = _oFilter = { scope: 'N' };
-    $scope.searchEvent = function(pageAt) {
-        var url, defer;
-        pageAt && (_oPage.at = pageAt);
-        defer = $q.defer();
-        url = LS.j('event/timeline', 'site', 'app');
-        url += '&scope=' + _oFilter.scope;
-        http2.get(url, { page: _oPage }).then(function(rsp) {
-            $scope.logs = _aLogs = rsp.data.logs;
-            defer.resolve(rsp.data);
-        });
-        return defer.promise;
-    };
-    $scope.searchNotice = function(pageAt) {
-        var url, defer;
-        pageAt && (_oPage.at = pageAt);
-        defer = $q.defer();
-        url = LS.j('notice/list', 'site', 'app');
-        http2.get(url, { page: _oPage }).then(function(rsp) {
-            $scope.notices = rsp.data.notices;
-            defer.resolve(rsp.data);
-        });
-        return defer.promise;
-    };
-    $scope.closeNotice = function(oNotice, bGotoCowork) {
-        fnCloseNotice(oNotice).then(function() {
-            if (bGotoCowork) {
-                $scope.gotoCowork(oNotice.enroll_key);
-            }
-        });
-    };
-    $scope.gotoCowork = function(ek) {
-        var url;
-        if (ek) {
-            url = LS.j('', 'site', 'app');
-            url += '&ek=' + ek;
-            url += '&page=cowork';
-            location.href = url;
-        }
-    };
-    $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        _oApp = params.app;
-        /* 活动任务 */
-        if (_oApp.actionRule) {
-            /* 设置活动任务提示 */
-            var tasks = [];
-            http2.get(LS.j('event/task', 'site', 'app')).then(function(rsp) {
-                if (rsp.data && rsp.data.length) {
-                    rsp.data.forEach(function(oRule) {
-                        if (!oRule._ok) {
-                            tasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, gap: oRule._no ? oRule._no[0] : 0, coin: oRule.coin ? oRule.coin : 0 });
-                        }
-                    });
-                }
-            });
-            $scope.tasks = tasks;
-        }
-        $scope.$watch('filter', function(nv, ov) {
-            if (nv) {
-                if (/N/.test(nv.scope)) {
-                    $scope.subView = 'timeline.html';
-                    $scope.searchNotice(1);
-                } else {
-                    $scope.subView = 'timeline.html';
-                    $scope.searchEvent(1);
-                }
-            }
-        }, true);
     });
 }]);

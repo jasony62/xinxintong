@@ -470,6 +470,7 @@ class main extends main_base {
 			$views[] = $vieKanban;
 		}
 		$activities->views = $views;
+		// 有至少一个视图时才有此导航页
 		if (!empty($views)) {
 			$activities->defaultView = $views[0];
 			if (count($views) === 1) {
@@ -516,6 +517,7 @@ class main extends main_base {
 			$views[] = $vieStat;
 		}
 		$summary->views = $views;
+		// 有至少一个视图时才有此导航页
 		if (!empty($views)) {
 			$summary->defaultView = $views[0];
 			if (count($views) === 1) {

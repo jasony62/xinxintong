@@ -360,28 +360,8 @@ class main extends main_base {
 		$oUser = $this->getUser($oApp);
 
 		$scenarioConfig = $oApp->scenarioConfig;
-		// 配置导航栏
-		$navs = [];
-		$url = [];
-		$url[] = APP_PROTOCOL . APP_HTTP_HOST;
-		$url[] = "/rest/site/fe/matter/enroll";
-		$url[] = "?site={$site}&app=" . $oApp->id;
-		// 项目
-		if ($oApp->mission_id) {
-			$misApp = $this->model('matter\mission')->byId($oApp->mission_id,['fields' => 'siteid,id']);
-			$mis = new \stdClass;
-			$mis->title = '项目';
-			$mis->type = 'mission';
-			$mis->url = $misApp->entryUrl;
-			$navs[] = $mis;
-		}
-		// 共享页
-		if ($this->getDeepValue($scenarioConfig, 'can_repos') === 'Y') {
-			$repos = new \stdClass;
-			$repos->title = '首页';
-			$repos->type = 'repos';
-			$repos->url = implode('', $url) . '&page=repos';
-			// 视图
+		// 获得共享页视图
+		$getReposViews = function () use ($oApp) {
 			$views = [];
 			// 答案视图
 			$can_cowork = 'N';
@@ -417,143 +397,187 @@ class main extends main_base {
 				$vieTopic->type = 'publicTopic';
 				$views[] = $vieTopic;
 			}
-			$repos->views = $views;
-			$repos->defaultView = $repos->views[0];
-			$navs[] = $repos;
-			unset($views);
+
+			return $views;
+		};
+		// 获得任务页视图
+		$getActiViews = function () use ($oApp, $scenarioConfig, $oUser) {
+			$views = [];
+			// 是否有任务
+			$can_task = 'N';
+			$aTaskTypes = ['baseline', 'question', 'answer', 'vote', 'score'];
+			$aTaskStates = ['IP', 'BS', 'AE'];
+			$modelTsk = $this->model('matter\enroll\task', $oApp);
+			foreach ($aTaskTypes as $taskType) {
+				$rules = $modelTsk->getRule($taskType, $oUser);
+				if (!empty($rules)) {
+					foreach ($rules as $oRule) {
+						if (!in_array($oRule->state, $aTaskStates)) {
+							continue;
+						}
+						$oTask = $modelTsk->byRule($oRule, ['createIfNone' => true]);
+						if ($oTask) {
+							$can_task = 'Y';
+							break;
+						}
+					}
+				}
+			}
+			// 任务视图
+			if ($can_task === 'Y') {
+				$vieTask = new \stdClass;
+				$vieTask->title = '任务';
+				$vieTask->type = 'task';
+				$views[] = $vieTask;
+			}
+			// 动态视图
+			if ($this->getDeepValue($scenarioConfig, 'can_action') === 'Y') {
+				$vieEvent = new \stdClass;
+				$vieEvent->title = '动态';
+				$vieEvent->type = 'event';
+				$views[] = $vieEvent;
+			}
+			// 看板视图
+			if ($this->getDeepValue($scenarioConfig, 'can_kanban') === 'Y') {
+				$vieKanban = new \stdClass;
+				$vieKanban->title = '看板';
+				$vieKanban->type = 'kanban';
+				$views[] = $vieKanban;
+			}
+
+			return $views;
+		};
+		// 获得汇总页视图
+		$getSummViews = function () use ($scenarioConfig) {
+			$views = [];
+			// 排行榜
+			if ($this->getDeepValue($scenarioConfig, 'can_rank') === 'Y') {
+				$vieRank = new \stdClass;
+				$vieRank->title = '排行';
+				$vieRank->type = 'rank';
+				$views[] = $vieRank;
+			}
+			// 投票榜
+			if ($this->getDeepValue($scenarioConfig, 'can_votes') === 'Y') {
+				$vieVotes = new \stdClass;
+				$vieVotes->title = '投票榜';
+				$vieVotes->type = 'votes';
+				$views[] = $vieVotes;
+			}
+			// 打分榜
+			if ($this->getDeepValue($scenarioConfig, 'can_marks') === 'Y') {
+				$vieMarks = new \stdClass;
+				$vieMarks->title = '打分榜';
+				$vieMarks->type = 'marks';
+				$views[] = $vieMarks;
+			}
+			// 统计
+			if ($this->getDeepValue($scenarioConfig, 'can_stat') === 'Y') {
+				$vieStat = new \stdClass;
+				$vieStat->title = '统计';
+				$vieStat->type = 'stat';
+				$views[] = $vieStat;
+			}
+
+			return $views;
+		};
+		// 获得个人中心视图
+		$getPeoViews = function () {
+			$views = [];
+			// 收藏
+			$vieFavor = new \stdClass;
+			$vieFavor->title = '收藏';
+			$vieFavor->type = 'favor';
+			$views[] = $vieFavor;
+			// 个人
+			$vieUser = new \stdClass;
+			$vieUser->title = '个人';
+			$vieUser->type = 'user';
+			$views[] = $vieUser;
+
+			return $views;
+		};
+
+		// 配置导航栏
+		$navs = [];
+		$url = [];
+		$url[] = APP_PROTOCOL . APP_HTTP_HOST;
+		$url[] = "/rest/site/fe/matter/enroll";
+		$url[] = "?site={$site}&app=" . $oApp->id;
+		// 项目
+		if ($oApp->mission_id) {
+			$misApp = $this->model('matter\mission')->byId($oApp->mission_id,['fields' => 'siteid,id']);
+			$mis = new \stdClass;
+			$mis->title = '项目';
+			$mis->type = 'mission';
+			$mis->url = $misApp->entryUrl;
+			$navs[] = $mis;
 		}
+
+		// 共享页
+		if ($this->getDeepValue($scenarioConfig, 'can_repos') === 'Y') {
+			$repos = new \stdClass;
+			$repos->title = '首页';
+			$repos->type = 'repos';
+			$repos->url = implode('', $url) . '&page=repos';
+			// 视图
+			$repos->views = $getReposViews();
+			if (!empty($repos->views)) {
+				$repos->defaultView = $repos->views[0];
+				$navs[] = $repos;
+			}
+		}
+
 		// 任务页
 		$activities = new \stdClass;
 		$activities->title = '任务';
 		$activities->type = 'activities';
-		$views = [];
-		// 用户是否有任务
-		$can_task = 'N';
-		$aTaskTypes = ['baseline', 'question', 'answer', 'vote', 'score'];
-		/* 有效的任务状态 */
-		$aTaskStates = ['IP', 'BS', 'AE'];
-		$modelTsk = $this->model('matter\enroll\task', $oApp);
-		foreach ($aTaskTypes as $taskType) {
-			$rules = $modelTsk->getRule($taskType, $oUser);
-			if (!empty($rules)) {
-				foreach ($rules as $oRule) {
-					if (!in_array($oRule->state, $aTaskStates)) {
-						continue;
-					}
-					$oTask = $modelTsk->byRule($oRule, ['createIfNone' => true]);
-					if ($oTask) {
-						$can_task = 'Y';
-						break;
-					}
-				}
-			}
-		}
-		// 任务视图
-		if ($can_task === 'Y') {
-			$vieTask = new \stdClass;
-			$vieTask->title = '任务';
-			$vieTask->type = 'task';
-			$views[] = $vieTask;
-		}
-		// 动态视图
-		if ($this->getDeepValue($scenarioConfig, 'can_action') === 'Y') {
-			$vieEvent = new \stdClass;
-			$vieEvent->title = '动态';
-			$vieEvent->type = 'event';
-			$views[] = $vieEvent;
-		}
-		// 看板视图
-		if ($this->getDeepValue($scenarioConfig, 'can_kanban') === 'Y') {
-			$vieKanban = new \stdClass;
-			$vieKanban->title = '看板';
-			$vieKanban->type = 'kanban';
-			$views[] = $vieKanban;
-		}
-		$activities->views = $views;
+		// 视图
+		$activities->views = $getActiViews();
 		// 有至少一个视图时才有此导航页
-		if (!empty($views)) {
-			$activities->defaultView = $views[0];
-			if (count($views) === 1) {
-				$activities->title = $views[0]->title;
+		if (!empty($activities->views)) {
+			$activities->defaultView = $activities->views[0];
+			if (count($activities->views) === 1) {
+				$activities->title = $activities->defaultView->title;
 			}
 			$urlActi = $url;
 			$urlActi[1] = "/rest/site/fe/matter/enroll/activities/" . $activities->defaultView->type;
 			$activities->url = implode('', $urlActi);
 			$navs[] = $activities;
 		}
-		unset($views);
+
 		// 汇总页
 		$summary = new \stdClass;
 		$summary->title = '汇总';
 		$summary->type = 'summary';
 		// 视图
-		$views = [];
-		// 排行榜
-		if ($this->getDeepValue($scenarioConfig, 'can_rank') === 'Y') {
-			$vieRank = new \stdClass;
-			$vieRank->title = '排行';
-			$vieRank->type = 'rank';
-			$views[] = $vieRank;
-		}
-		// 投票榜
-		if ($this->getDeepValue($scenarioConfig, 'can_votes') === 'Y') {
-			$vieVotes = new \stdClass;
-			$vieVotes->title = '投票榜';
-			$vieVotes->type = 'votes';
-			$views[] = $vieVotes;
-		}
-		// 打分榜
-		if ($this->getDeepValue($scenarioConfig, 'can_marks') === 'Y') {
-			$vieMarks = new \stdClass;
-			$vieMarks->title = '打分榜';
-			$vieMarks->type = 'marks';
-			$views[] = $vieMarks;
-		}
-		// 统计
-		if ($this->getDeepValue($scenarioConfig, 'can_stat') === 'Y') {
-			$vieStat = new \stdClass;
-			$vieStat->title = '统计';
-			$vieStat->type = 'stat';
-			$views[] = $vieStat;
-		}
-		$summary->views = $views;
+		$summary->views = $getSummViews();
 		// 有至少一个视图时才有此导航页
-		if (!empty($views)) {
-			$summary->defaultView = $views[0];
-			if (count($views) === 1) {
-				$summary->title = $views[0]->title;
+		if (!empty($summary->views)) {
+			$summary->defaultView = $summary->views[0];
+			if (count($summary->views) === 1) {
+				$summary->title = $summary->defaultView->title;
 			}
 			$urlSum = $url;
 			$urlSum[1] = "/rest/site/fe/matter/enroll/summary/" . $summary->defaultView->type;
 			$summary->url = implode('', $urlSum);
 			$navs[] = $summary;
 		}
-		unset($views);
+
 		// 我的
 		$people = new \stdClass;
 		$people->title = '我的';
 		$people->type = 'people';
 		// 视图
-		$views = [];
-		// 收藏
-		$vieFavor = new \stdClass;
-		$vieFavor->title = '收藏';
-		$vieFavor->type = 'favor';
-		$views[] = $vieFavor;
-		// 个人
-		$vieUser = new \stdClass;
-		$vieUser->title = '个人';
-		$vieUser->type = 'user';
-		$views[] = $vieUser;
-		// 
-		$people->views = $views;
-		$people->defaultView = $people->views[0];
-		$urlPep = $url;
-		$urlPep[1] = "/rest/site/fe/matter/enroll/people/" . $people->defaultView->type;
-		$people->url = implode('', $urlPep);
-		//
-		$navs[] = $people;
-		unset($views);
+		$people->views = $getPeoViews();
+		if (!empty($people->views)) {
+			$people->defaultView = $people->views[0];
+			$urlPep = $url;
+			$urlPep[1] = "/rest/site/fe/matter/enroll/people/" . $people->defaultView->type;
+			$people->url = implode('', $urlPep);
+			//
+			$navs[] = $people;
+		}
 
 		return new \ResponseData($navs);
 	}

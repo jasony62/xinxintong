@@ -126,6 +126,9 @@ class base extends \site\fe\base {
 						$modelMs = $this->model('site\user\memberschema');
 						foreach ($oEntryRule->member as $mschemaId => $oRule) {
 							$oMschema = $modelMs->byId($mschemaId, ['fields' => 'is_wx_fan', 'cascaded' => 'N']);
+							if (empty($oMschema)) {
+								continue;
+							}
 							if ($oMschema->is_wx_fan === 'Y') {
 								$oApp2 = clone $oMatter;
 								$oApp2->entryRule = new \stdClass;
@@ -137,7 +140,11 @@ class base extends \site\fe\base {
 							}
 							$aMemberSchemaIds[] = $mschemaId;
 						}
-						$this->gotoMember($oMatter, $aMemberSchemaIds);
+						if (empty($aMemberSchemaIds)) {
+							$msg = '获得指定的通讯录不存在，请联系活动的组织者解决。';
+						} else {
+							$this->gotoMember($oMatter, $aMemberSchemaIds);
+						}
 					} else {
 						$msg = '您【ID:' . $this->who->uid . '】没有填写通讯录信息，不满足【' . $oMatter->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
 					}
@@ -299,6 +306,8 @@ class base extends \site\fe\base {
 						$oFollowedRule = $rule;
 						break;
 					}
+					/* 缓存中的信息没有通过验证，记录调试日志 */
+					$this->model('log')->log($oUser->uid, 'enterAsSns', $snsUser->openid, $oMatter->type . ':' . $oMatter->id, isset($oUser->nickname) ? $oUser->nickname : '');
 				} else {
 					$modelAcnt = $this->model('site\user\account');
 					$propSnsOpenid = $snsName . '_openid';

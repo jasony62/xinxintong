@@ -22,7 +22,11 @@ abstract class page_base extends \TMS_MODEL {
 			array_splice($aProps, array_search('html', $aProps), 1);
 		}
 		foreach ($aProps as $prop) {
-			$aUpdated[$prop] = $oNewPage->{$prop};
+			if ($prop === 'data_schemas') {
+				$aUpdated['data_schemas'] = $this->escape($this->toJson($oNewPage->dataSchemas));
+			} else {
+				$aUpdated[$prop] = $oNewPage->{$prop};
+			}
 		}
 		$rst = $this->update($this->table(), $aUpdated, ['id' => $oNewPage->id]);
 

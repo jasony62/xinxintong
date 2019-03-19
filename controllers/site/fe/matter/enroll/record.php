@@ -763,6 +763,9 @@ class record extends base {
 
 		// 填写记录过滤条件
 		$oCriteria = $this->getPostJson();
+		if (empty($oCriteria)) {
+			$oCriteria = new \stdClass;
+		}
 
 		switch ($owner) {
 		case 'A':

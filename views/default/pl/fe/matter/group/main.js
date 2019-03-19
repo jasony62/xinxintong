@@ -1,13 +1,29 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlMain', ['cstApp', '$scope', 'http2', '$q', 'srvSite', 'noticebox', 'srvGroupApp', '$uibModal', 'srvTag', function(cstApp, $scope, http2, $q, srvSite, noticebox, srvGroupApp, $uibModal, srvTag) {
+    ngApp.provider.controller('ctrlMain', ['cstApp', '$scope', 'http2', '$q', 'srvSite', 'noticebox', 'srvGroupApp', '$uibModal', 'srvTag', 'mediagallery', function(cstApp, $scope, http2, $q, srvSite, noticebox, srvGrpApp, $uibModal, srvTag, mediagallery) {
         $scope.update = function(names) {
-            srvGroupApp.update(names).then(function(rsp) {
+            srvGrpApp.update(names).then(function(rsp) {
                 noticebox.success('完成保存');
             });
         };
+        $scope.setPic = function() {
+            var oOptions = {
+                callback: function(url) {
+                    $scope.app.pic = url + '?_=' + (new Date * 1);
+                    $scope.update('pic');
+                }
+            };
+            mediagallery.open($scope.app.siteid, oOptions);
+        };
+        $scope.removePic = function() {
+            $scope.app.pic = '';
+            $scope.update('pic');
+        };
+        $scope.downloadQrcode = function(url) {
+            $('<a href="' + url + '" download="' + $scope.app.title + '-二维码.png"></a>')[0].click();
+        };
         $scope.assocWithApp = function() {
-            srvGroupApp.assocWithApp(cstApp.importSource).then(function(data) {
+            srvGrpApp.assocWithApp(cstApp.importSource).then(function(data) {
                 $scope.chooseAssocWitchApp = data;
             });
         };
@@ -45,7 +61,7 @@ define(['frame'], function(ngApp) {
                     http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.app.siteid + '&id=' + result.matters[0].id, app).then(function(rsp) {
                         $scope.app.mission = rsp.data;
                         $scope.app.mission_id = rsp.data.id;
-                        srvGroupApp.update('mission_id');
+                        srvGrpApp.update('mission_id');
                     });
                 }
             });
@@ -61,7 +77,7 @@ define(['frame'], function(ngApp) {
                 http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + oApp.siteid + '&id=' + oApp.mission_id, matter).then(function(rsp) {
                     delete oApp.mission;
                     oApp.mission_id = 0;
-                    srvGroupApp.update(['mission_id']);
+                    srvGrpApp.update(['mission_id']);
                 });
             }
         };

@@ -107,6 +107,31 @@ ngApp.factory('facGroupRecord', ['$q', 'http2', 'tmsLocation', function($q, http
 
     return _oInstance;
 }]);
+ngApp.factory('facGroupUser', ['$q', 'http2', 'tmsLocation', function($q, http2, LS) {
+    var _oInstance = {};
+    _oInstance.get = function() {
+        var oDeferred;
+        oDeferred = $q.defer();
+        http2.get('/rest/site/fe/matter/group/user/get?' + LS.s('site', 'app')).then(function(rsp) {
+            var oUser = rsp.data;
+            var oUserRecordByTeam;
+            if (oUser) {
+                oUserRecordByTeam = { teams: [] };
+                if (oUser.records && oUser.records.length) {
+                    oUser.records.forEach(function(oRec) {
+                        oUserRecordByTeam[oRec.team_id] = oRec;
+                        oUserRecordByTeam.teams.push(oRec.team_id);
+                    });
+                }
+                oUser.records = oUserRecordByTeam;
+            }
+            oDeferred.resolve(oUser);
+        });
+        return oDeferred.promise;
+    };
+
+    return _oInstance;
+}]);
 ngApp.controller('ctrlBase', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tmsLocation', 'tmsSnsShare', 'tmsSiteUser', function($scope, $q, $parse, http2, $timeout, LS, tmsSnsShare, tmsSiteUser) {
     $scope.isSmallLayout = false;
     if (window.screen && window.screen.width < 992) {

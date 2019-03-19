@@ -874,6 +874,7 @@ $sql .= ",create_at int not null";
 $sql .= ",creator varchar(40) not null default ''";
 $sql .= ",creator_name varchar(255) not null default ''";
 $sql .= ",title varchar(40) not null";
+$sql .= ",summary text null"; // 分组介绍
 $sql .= ",autoplay char(1) not null default 'N'"; // 自动抽取直到达到抽取次数
 $sql .= ",times int not null default 1"; // 抽取次数
 $sql .= ",targets text null";

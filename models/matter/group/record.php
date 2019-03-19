@@ -800,7 +800,7 @@ class record_model extends \matter\enroll\record_base {
 			$dataSchema->format = 'mobile';
 			$dataSchemas[] = $dataSchema;
 		}
-		if ($oMschema->attr_mobile[0] === '0') {
+		if ($oMschema->attr_email[0] === '0') {
 			$dataSchema = new \stdClass;
 			$dataSchema->id = 'ms_' . $mschemaId . '_email';
 			$dataSchema->type = 'shorttext';
@@ -808,7 +808,7 @@ class record_model extends \matter\enroll\record_base {
 			$dataSchema->format = 'email';
 			$dataSchemas[] = $dataSchema;
 		}
-		if ($oMschema->attr_mobile[0] === '0') {
+		if ($oMschema->attr_name[0] === '0') {
 			$dataSchema = new \stdClass;
 			$dataSchema->id = 'ms_' . $mschemaId . '_name';
 			$dataSchema->type = 'shorttext';

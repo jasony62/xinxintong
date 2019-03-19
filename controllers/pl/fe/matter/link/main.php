@@ -31,6 +31,9 @@ class main extends \pl\fe\matter\main_base {
 		$options = $this->getPostJson();
 
 		$oLink = $this->model('matter\link')->byIdWithParams($id);
+		if ($oLink === false) {
+			return new \ObjectNotFoundError();
+		}
 		/* 指定分组活动访问 */
 		if (isset($oLink->entry_rule->scope->group) && $oLink->entry_rule->scope->group === 'Y') {
 			if (isset($oLink->entry_rule->group)) {
@@ -50,6 +53,7 @@ class main extends \pl\fe\matter\main_base {
 				}
 			}
 		}
+		$oLink->attachments = $model->query_objs_ss(['*', 'xxt_matter_attachment', ['matter_id' => $id, 'matter_type' => 'link']]);
 
 		return new \ResponseData($oLink);
 	}

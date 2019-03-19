@@ -18,17 +18,22 @@ class main extends main_base {
 		if ($oApp === false || $oApp->state !== '1') {
 			$this->outputError('指定的记录活动不存在，请检查参数是否正确');
 		}
-		if (empty($oApp->appRound)) {
-			$this->outputError('【' . $oApp->title . '】没有可用的填写轮次，请检查');
-		}
 
 		if (empty($page)) {
 			/* 计算打开哪个页面 */
 			$oOpenPage = $this->_defaultPage($oApp, $rid, true, $ignoretime);
 			$page = $oOpenPage->name;
 		}
+
+		/*页面是否要求必须存在填写轮次*/
+		if (!in_array($page, ['rank'])) {
+			if (empty($oApp->appRound)) {
+				$this->outputError('【' . $oApp->title . '】没有可用的填写轮次，请检查');
+			}
+		}
+
 		/*  *******************************************************
-			为了兼容当前版本注释此段代码，等新版本发布后将运用此段代码 
+			为了兼容当前版本注释此段代码，等新版本发布后将运用此段代码
 			*******************************************************  */
 
 		// if (in_array($page, ['task', 'kanban', 'event'])) {

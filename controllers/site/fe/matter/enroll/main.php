@@ -359,12 +359,6 @@ class main extends main_base {
 		}
 		$oUser = $this->getUser($oApp);
 
-		$can_cowork = 'N';
-		foreach ($oApp->dynaDataSchemas as $oSchema) {
-			if ($this->getDeepValue($oSchema, 'cowork') === 'Y') {
-				$can_cowork = 'Y';
-			}
-		}
 		$scenarioConfig = $oApp->scenarioConfig;
 		// 配置导航栏
 		$navs = [];
@@ -390,6 +384,12 @@ class main extends main_base {
 			// 视图
 			$views = [];
 			// 答案视图
+			$can_cowork = 'N';
+			foreach ($oApp->dynaDataSchemas as $oSchema) {
+				if ($this->getDeepValue($oSchema, 'cowork') === 'Y') {
+					$can_cowork = 'Y';
+				}
+			}
 			if ($can_cowork === 'Y') {
 				$vieAns = new \stdClass;
 				$vieAns->title = '答案';
@@ -448,18 +448,21 @@ class main extends main_base {
 				}
 			}
 		}
+		// 任务视图
 		if ($can_task === 'Y') {
 			$vieTask = new \stdClass;
 			$vieTask->title = '任务';
 			$vieTask->type = 'task';
 			$views[] = $vieTask;
 		}
+		// 动态视图
 		if ($this->getDeepValue($scenarioConfig, 'can_action') === 'Y') {
 			$vieEvent = new \stdClass;
 			$vieEvent->title = '动态';
 			$vieEvent->type = 'event';
 			$views[] = $vieEvent;
 		}
+		// 看板视图
 		if ($this->getDeepValue($scenarioConfig, 'can_kanban') === 'Y') {
 			$vieKanban = new \stdClass;
 			$vieKanban->title = '看板';

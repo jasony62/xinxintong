@@ -1,22 +1,11 @@
 <?php
 namespace site\fe\matter\enroll;
 
-include_once dirname(__FILE__) . '/base.php';
+include_once dirname(__FILE__) . '/main_base.php';
 /**
  * 记录活动
  */
-class main extends base {
-	/**
-	 *
-	 */
-	private $modelApp;
-	/**
-	 *
-	 */
-	public function __construct() {
-		parent::__construct();
-		$this->modelApp = $this->model('matter\enroll');
-	}
+class main extends main_base {
 	/**
 	 * 返回活动页
 	 *
@@ -30,8 +19,76 @@ class main extends base {
 			$this->outputError('指定的记录活动不存在，请检查参数是否正确');
 		}
 
-		if (!empty($page) && !in_array($page, ['rank', 'stat']) && empty($oApp->appRound)) {
-			$this->outputError('【' . $oApp->title . '】没有可用的填写轮次，请检查');
+		if (empty($page)) {
+			/* 计算打开哪个页面 */
+			$oOpenPage = $this->_defaultPage($oApp, $rid, true, $ignoretime);
+			$page = $oOpenPage->name;
+		}
+
+		/*页面是否要求必须存在填写轮次*/
+		if (!in_array($page, ['rank'])) {
+			if (empty($oApp->appRound)) {
+				$this->outputError('【' . $oApp->title . '】没有可用的填写轮次，请检查');
+			}
+		}
+
+		/*  *******************************************************
+			为了兼容当前版本注释此段代码，等新版本发布后将运用此段代码
+			*******************************************************  */
+
+		// if (in_array($page, ['task', 'kanban', 'event'])) {
+		// 	$this->redirect("/rest/site/fe/matter/enroll/activities/" . $page . "?site={$this->siteId}&app={$app}&rid={$rid}&page={$page}&ek={$ek}&topic={$topic}&ignoretime={$ignoretime}");
+		// } else if (in_array($page, ['rank', 'votes', 'marks', 'stat'])) {
+		// 	$this->redirect("/rest/site/fe/matter/enroll/summary/" . $page . "?site={$this->siteId}&app={$app}&rid={$rid}&page={$page}&ek={$ek}&topic={$topic}&ignoretime={$ignoretime}");
+		// } else if (in_array($page, ['user', 'favor'])) {
+		// 	$this->redirect("/rest/site/fe/matter/enroll/people/" . $page . "?site={$this->siteId}&app={$app}&rid={$rid}&page={$page}&ek={$ek}&topic={$topic}&ignoretime={$ignoretime}");
+		// }
+
+		// $this->_outputPage($oApp, $page, $rid, $ek, $topic, $ignoretime);
+
+		// 处理输出页面信息
+		$outputTitle = '';
+		$outputUrl = '/site/fe/matter/enroll/';
+		if (in_array($page, ['cowork', 'share', 'score', 'repos', 'topic', 'task', 'kanban', 'event', 'rank', 'votes', 'marks', 'stat', 'user', 'favor'])) {
+			if ($page === 'topic' && empty($topic)) {
+				$this->outputError('参数不完整，无法访问专题页');
+			}
+			if (in_array($page, ['topic', 'share']) && !empty($topic)) {
+				$modelTop = $this->model('matter\enroll\topic', $oApp);
+				$oTopic = $modelTop->byId($topic, ['fields' => 'id,state,title']);
+				if ($oTopic && $oTopic->state === '1') {
+					$outputTitle = $oTopic->title . '|';
+				} else {
+					$this->outputError('专题页已删除');
+				}
+			} else if (in_array($page, ['cowork', 'share']) && !empty($ek)) {
+				$modelRec = $this->model('matter\enroll\record');
+				$oRecord = $modelRec->byId($ek, ['fields' => 'id,state']);
+				if ($oRecord && $oRecord->state === '1') {
+					$outputTitle = '记录' . $oRecord->id . '|';
+				} else {
+					$this->outputError('记录已删除');
+				}
+			}
+			$outputUrl .= $page;
+		} else {
+			$oOpenPage = $this->model('matter\enroll\page')->byName($oApp, $page);
+			if (empty($oOpenPage)) {
+				$this->outputError('没有可访问的页面');
+			}
+			$page = $oOpenPage->name;
+			if ($oOpenPage->type === 'I') {
+				$outputUrl .= 'input';
+			} else if ($oOpenPage->type === 'V') {
+				$outputUrl .= 'view';
+			} else {
+				$this->outputError('没有可访问的页面');
+			}
+		}
+
+		// 页面是否开放
+		if (!$this->_checkOpenRule($oApp, $page)) {
+			$this->outputError('页面未开放, 请联系系统管理员');
 		}
 
 		/* 检查是否需要第三方社交帐号OAuth */
@@ -39,220 +96,27 @@ class main extends base {
 			$this->requireSnsOAuth($oApp);
 		}
 
-		$bSkipEntryCheck = false;
-		if (!empty($page) && !empty($oApp->entryRule->exclude)) {
-			if (in_array($page, $oApp->entryRule->exclude)) {
-				$bSkipEntryCheck = true;
-			}
-		}
+		$oUser = $this->who;
 		// 检查进入活动规则
-		if (!$bSkipEntryCheck) {
-			$this->checkEntryRule($oApp, true);
+		$this->checkEntryRule($oApp, true, $oUser, $page);
+		// 记录日志
+		if (in_array($page, ['topic', 'repos', 'cowork'])) {
+			$this->_pageReadlog($oApp, $page, $rid, $ek, $topic);
 		}
 
 		/* 返回记录活动页面 */
-		if (in_array($page, ['cowork', 'share', 'task', 'event', 'kanban', 'rank', 'score', 'votes', 'marks', 'repos', 'favor', 'topic', 'stat'])) {
-			if ($page === 'topic' && empty($topic)) {
-				$this->outputError('参数不完整，无法访问专题页');
-				exit;
-			}
-			if (in_array($page, ['topic', 'share']) && !empty($topic)) {
-				$modelTop = $this->model('matter\enroll\topic', $oApp);
-				$oTopic = $modelTop->byId($topic, ['fields' => 'id,state,title']);
-				if ($oTopic && $oTopic->state === '1') {
-					$title = $oTopic->title . '|';
-				}
-			} else if (in_array($page, ['cowork', 'share']) && !empty($ek)) {
-				$modelRec = $this->model('matter\enroll\record');
-				$oRecord = $modelRec->byId($ek, ['fields' => 'id,state']);
-				if ($oRecord && $oRecord->state === '1') {
-					$title = '记录' . $oRecord->id . '|';
-				}
-			}
-			if (in_array($page, ['topic', 'repos', 'cowork'])) {
-				$this->_pageReadlog($oApp, $page, $rid, $ek, $topic);
-			}
-			\TPL::assign('title', empty($title) ? $oApp->title : ($title . $oApp->title));
-			$outputUrl = '/site/fe/matter/enroll/' . $page;
-		} else {
-			if (empty($page)) {
-				/* 计算打开哪个页面 */
-				$oOpenPage = $this->_defaultPage($oApp, $rid, true, $ignoretime);
-				$page = $oOpenPage->name;
-			} else {
-				$oOpenPage = $this->model('matter\enroll\page')->byName($oApp, $page);
-			}
-			empty($oOpenPage) && $this->outputError('没有可访问的页面');
-			// 访问专题页和共享页和讨论页需要记录数据
-			if (in_array($oOpenPage->name, ['repos'])) {
-				$this->_pageReadlog($oApp, $oOpenPage->name, $rid, $ek, $topic);
-			}
-			\TPL::assign('title', $oApp->title);
-			if (in_array($oOpenPage->name, ['task', 'event', 'kanban', 'rank', 'score', 'votes', 'marks', 'repos', 'favor', 'topic', 'stat'])) {
-				$outputUrl = '/site/fe/matter/enroll/' . $oOpenPage->name;
-			} else if ($oOpenPage->type === 'I') {
-				$outputUrl = '/site/fe/matter/enroll/input';
-			} else if ($oOpenPage->type === 'V') {
-				$outputUrl = '/site/fe/matter/enroll/view';
-			}
-		}
-
-		if (!empty($page) && !in_array($page, ['rank', 'stat']) && empty($oApp->appRound)) {
-			$this->outputError('【' . $oApp->title . '】没有可用的填写轮次，请检查');
-		}
-
-		$oUser = $this->who;
+		$customViewName = TMS_APP_VIEW_NAME;
 		if (isset($oUser->unionid)) {
 			$oAccount = $this->model('account')->byId($oUser->unionid, ['cascaded' => ['group']]);
 			if (isset($oAccount->group->view_name) && $oAccount->group->view_name !== TMS_APP_VIEW_NAME) {
-				\TPL::output($outputUrl, ['customViewName' => $oAccount->group->view_name]);
-				exit;
+				$customViewName = $oAccount->group->view_name;
 			}
 		}
 
-		\TPL::output($outputUrl);
+		\TPL::assign('title', $outputTitle . $oApp->title);
+		\TPL::output($outputUrl, ['customViewName' => $customViewName]);
 		exit;
-	}
-	/**
-	 *
-	 */
-	private function _pageReadlog($oApp, $page, $rid = '', $ek = null, $topic = null) {
-		// 获得当前获得所属轮次
-		if ($rid === 'ALL') {
-			$rid = '';
-		}
-		if (empty($rid)) {
-			if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
-				$rid = $activeRound->rid;
-			}
-		}
-		$oUser = $this->getUser($oApp);
-		// 修改阅读数'topic', 'repos', 'cowork'
-		if ($page === 'topic') {
-			$upUserData = new \stdClass;
-			$upUserData->do_topic_read_num = 1;
-			// 查询专题页创建者
-			$creater = $this->model('matter\enroll\topic', $oApp)->byId($topic, ['fields' => 'userid uid,nickname']);
-			if ($creater) {
-				$upCreaterData = new \stdClass;
-				$upCreaterData->topic_read_num = 1;
-			}
-		} else if ($page === 'cowork') {
-			$upUserData = new \stdClass;
-			$upUserData->do_cowork_read_num = 1;
-			// 查询记录提交者
-			$creater = $this->model('matter\enroll\record')->byId($ek, ['fields' => 'userid uid,rid,nickname', 'verbose' => 'N']);
-			if ($creater) {
-				$upCreaterData = new \stdClass;
-				$upCreaterData->cowork_read_num = 1;
-				$rid = $creater->rid;
-			}
-		} else {
-			$upUserData = new \stdClass;
-			$upUserData->do_repos_read_num = 1;
-		}
 
-		// 更新用户轮次数据
-		$modelEvent = $this->model('matter\enroll\event');
-		$modelEvent->_updateUsrData($oApp, $rid, false, $oUser, $upUserData);
-		// 更新被阅读者轮次数据
-		if (!empty($upCreaterData)) {
-			$modelEvent->_updateUsrData($oApp, $rid, false, $creater, $upCreaterData);
-		}
-
-		return [true];
-	}
-	/**
-	 * 记录活动是否可用
-	 *
-	 * @param object $app 记录活动
-	 */
-	private function _isValid(&$oApp) {
-		$tipPage = false;
-		$current = time();
-		if ($oApp->start_at != 0 && $current < $oApp->start_at) {
-			if (empty($oApp->before_start_page)) {
-				return [false, '【' . $oApp->title . '】没有开始'];
-			} else {
-				$tipPage = $oApp->before_start_page;
-			}
-		} else if ($oApp->end_at != 0 && $current > $oApp->end_at) {
-			if (empty($oApp->after_end_page)) {
-				return [false, '【' . $oApp->title . '】已经结束'];
-			} else {
-				$tipPage = $oApp->after_end_page;
-			}
-		}
-		if ($tipPage !== false) {
-			$modelPage = $this->model('matter\enroll\page');
-			$oOpenPage = $modelPage->byName($oApp, $tipPage);
-			return [false, $oOpenPage];
-		}
-
-		return [true];
-	}
-	/**
-	 * 当前用户的缺省页面
-	 *
-	 * 1、如果没有登记过，根据设置的进入规则获得指定页面
-	 * 2、如果已经登记过，且指定了登记过访问页面，进入指定的页面
-	 * 3、如果已经登记过，且没有指定登记过访问页面，进入第一个查看页
-	 */
-	private function _defaultPage($oApp, $rid = '', $redirect = false, $ignoretime = 'N') {
-		$oUser = $this->getUser($oApp);
-		$oOpenPage = null;
-		$modelPage = $this->model('matter\enroll\page');
-
-		if ($ignoretime === 'N') {
-			$rst = $this->_isValid($oApp);
-			if ($rst[0] === false) {
-				if (is_string($rst[1])) {
-					if ($redirect === true) {
-						$this->outputError($rst[1], $oApp->title);
-					}
-					return null;
-				} else {
-					$oOpenPage = $rst[1];
-				}
-			}
-		}
-
-		if ($oOpenPage === null) {
-			// 根据登记状态确定进入页面
-			$modelRec = $this->model('matter\enroll\record');
-			$userEnrolled = $modelRec->lastByUser($oApp, $oUser, ['state' => '1', 'rid' => $rid]);
-			if ($userEnrolled) {
-				if (empty($oApp->enrolled_entry_page)) {
-					$pages = $modelPage->byApp($oApp->id);
-					foreach ($pages as $p) {
-						if ($p->type === 'V') {
-							$oOpenPage = $modelPage->byId($oApp, $p->id);
-							break;
-						}
-					}
-				} else {
-					$oOpenPage = $modelPage->byName($oApp, $oApp->enrolled_entry_page);
-				}
-			}
-		}
-
-		if ($oOpenPage === null) {
-			// 根据进入规则确定进入页面
-			$aResult = $this->checkEntryRule($oApp, $redirect);
-			if (true === $aResult[0]) {
-				if (!empty($aResult[1])) {
-					$oOpenPage = $modelPage->byName($oApp, $aResult[1]);
-				}
-			}
-		}
-
-		if ($oOpenPage === null) {
-			if ($redirect === true) {
-				$this->outputError('没有获得活动的默认页面，请联系活动管理员解决。');
-			}
-		}
-
-		return $oOpenPage;
 	}
 	/**
 	 * 返回记录活动定义

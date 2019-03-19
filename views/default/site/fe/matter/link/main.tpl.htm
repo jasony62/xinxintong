@@ -60,7 +60,7 @@
                 </div>
                 <div id="attachment" ng-if="link.attachments">
                     <p ng-repeat='a in link.attachments'>
-                        <a ng-href="{{'/rest/site/fe/matter/link/attachmentGet?site='+link.siteid+'&linkid='+article.id+'&attachmentid='+a.id}}" target='_blank'><span>附件：</span><span>{{a.name}} ——</span><span ng-bind='a.size|filesize'></span></a>
+                        <a ng-href="{{'/rest/site/fe/matter/link/attachmentGet?site='+link.siteid+'&linkid='+link.id+'&attachmentid='+a.id}}" target='_blank'><span>附件：</span><span>{{a.name}} ——</span><span ng-bind='a.size|filesize'></span></a>
                     </p>
                 </div>
                 <div id="matters" class="visible-xs visible-sm hm-tile" ng-if="link.config.nav.app.length">

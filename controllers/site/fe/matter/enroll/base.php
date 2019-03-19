@@ -36,11 +36,11 @@ class base extends \site\fe\matter\base {
 	 * @param object $oUser
 	 *
 	 */
-	protected function checkEntryRule($oApp, $bRedirect = false, $oUser = null) {
+	protected function checkEntryRule($oApp, $bRedirect = false, $oUser = null, $page = null) {
 		if (empty($oUser)) {
 			$oUser = $this->getUser($oApp);
 		}
-		$aCheckResult = parent::checkEntryRule($oApp, $bRedirect, $oUser);
+		$aCheckResult = parent::checkEntryRule($oApp, $bRedirect, $oUser, $page);
 		if (false === $aCheckResult[0]) {
 			return $aCheckResult;
 		}

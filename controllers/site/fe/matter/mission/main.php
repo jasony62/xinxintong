@@ -52,12 +52,14 @@ class main extends \site\fe\matter\base {
 			$oGrpApp = (object) ['id' => $oMission->user_app_id];
 			$oGrpUsr = $modelGrpRec->byUser($oGrpApp, $oUser->uid, ['fields' => 'is_leader,team_id,team_title,userid,nickname', 'onlyOne' => true]);
 			if ($oGrpUsr) {
-				$others = $modelGrpRec->byTeam($oGrpUsr->team_id, ['fields' => 'is_leader,userid,nickname']);
 				$oMission->groupUser = $oGrpUsr;
-				$oMission->groupOthers = [];
-				foreach ($others as $other) {
-					if ($other->userid !== $oGrpUsr->userid) {
-						$oMission->groupOthers[] = $other;
+				$others = $modelGrpRec->byTeam($oGrpUsr->team_id, ['fields' => 'is_leader,userid,nickname']);
+				if (!empty($others)) {
+					$oMission->groupOthers = [];
+					foreach ($others as $other) {
+						if ($other->userid !== $oGrpUsr->userid) {
+							$oMission->groupOthers[] = $other;
+						}
 					}
 				}
 			}

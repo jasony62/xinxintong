@@ -460,6 +460,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             /* 通过留言完成提问任务 */
             new enlTask($scope.app).list('question', 'IP').then(function(tasks) {
                 $scope.questionTasks = tasks;
+                console.log($scope.questionTasks);
             });
             new enlTask($scope.app).list('answer', 'IP', null, oRecord.enroll_key).then(function(tasks) {
                 $scope.answerTasks = tasks;

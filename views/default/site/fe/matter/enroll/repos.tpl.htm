@@ -16,31 +16,14 @@
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <div class='app container'>
-        <div class='row'>
-            <div id='advCriteria' class='col-md-3' ng-if="advCriteriaStatus.opened&&dirSchemas.length" ng-cloak>
-                <div class="tree">
-                    <div class='tree-header'>目录<button class='close' ng-if="isSmallLayout" ng-click="advCriteriaStatus.dirOpen=!advCriteriaStatus.dirOpen"><span>&times;</span></button></div>
-                    <div class='tree-body' ng-if="advCriteriaStatus.dirOpen">
-                        <div class='tree-wrap'>
-                            <tms-tree tree-data="dirSchemas" checked-data="{{activeDirSchemas}}" dir-clicked="dirClicked($item, $active)" dir-icon="isSmallLayout"></tms-tree>
-                        </div>
-                    </div>
-                </div>
-                <div class='text-center' ng-if="isSmallLayout">
-                    <button class='btn btn-default btn-sm' ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">关闭</button>
-                </div>
-            </div>
-            <div class='main col-xs-12' ng-class="{'col-md-9':dirSchemas.length,'col-md-12':dirSchemas.length===0}" ng-include="selectedTab.url"></div>
-        </div>
+        <div class='row' ng-include="selectedTab.url"></div>
     </div>
     <nav class="navbar site-navbar-light navbar-fixed-bottom">
         <div class="container">
             <ul class='nav site-nav'>
-                <li class='active' ng-click="navTo($event,'repos')"><a href><i class='glyphicon glyphicon-home'></i><span>首页</span></a></li>
-                <li ng-if="mission" ng-click="navTo($event,'mission')"><a href><i class='glyphicon glyphicon-th-large'></i><span>项目</span></a></li>
-                <li ng-click="navTo($event,'summary')"><a href><i class='glyphicon glyphicon-stats'></i><span>汇总</span></a></li>
-                <li ng-click="navTo($event,'activities')"><a href><i class='glyphicon glyphicon-tasks'></i><span>任务</span></a></li>
-                <li ng-click="siteUser(app.siteid)"><a href><i class='glyphicon glyphicon-user'></i><span>我的</span></a></li>
+                <li ng-repeat="nav in navs" ng-class="{'active': activeNav.id===nav.id}" ng-click="navTo($event, nav)">
+                    <a href><i class=""></i><span ng-bind="nav.title"></span></a>
+                </li>
             </ul>
         </div>
     </nav>

@@ -193,22 +193,19 @@ body.enroll-repos {
     .app {
         flex-grow: 1;
         display: flex;
-        flex-direction: column;
 
         .row {
-            position: relative;
             flex-grow: 1;
             display: flex;
 
-            .main {
+            .wrapper {
                 flex-grow: 1;
                 display: flex;
 
-                .wrap {
+                .main {
                     flex-grow: 1;
                     display: flex;
                     flex-direction: column;
-                    width: 100%;
 
                     #repos,
                     #topic {
@@ -218,8 +215,8 @@ body.enroll-repos {
                         overflow-y: auto;
                     }
 
+                    
                 }
-
             }
 
         }

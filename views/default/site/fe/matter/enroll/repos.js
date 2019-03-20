@@ -749,7 +749,7 @@ ngApp.controller('ctrlPublicTopic', ['$scope', 'http2', '$timeout', 'tmsLocation
         addToCache();
         location.href = LS.j('', 'site', 'app') + '&topic=' + oTopic.id + '&page=topic';
     };
-    if (window.sessionStorage.length && $scope.selectedTab.id === 'topic') {
+    if (window.sessionStorage.length && $scope.activeView.type === 'topic') {
         var cacheData;
         cacheData = JSON.parse(window.sessionStorage.listStorage);
         $scope.singleFilters = cacheData.singleFilters;

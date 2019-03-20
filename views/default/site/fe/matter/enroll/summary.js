@@ -27,8 +27,8 @@ ngApp.controller('ctrlSummary', ['$scope', 'tmsLocation', '$location', 'http2', 
         $scope.subView = subView[1] === 'rank' ? 'rank' : subView[1];
     });
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        $scope.oApp = params.app;
         /* 请求导航 */
+        $scope.oApp = params.app;
         http2.get(LS.j('navs', 'site', 'app')).then(function(rsp) {
             $scope.navs = rsp.data;
             rsp.data.forEach(function(data) {
@@ -284,9 +284,9 @@ ngApp.controller('ctrlSummaryVotes', ['$scope', '$q', '$timeout', 'tmsLocation',
         _oCriteria.rid = oRound ? oRound.rid : 'all';
         $scope.getVotes();
     };
-    $scope.$watch('oApp', function(nv) {
-        if (!nv) { return; }
-        _oApp = nv;
+    $scope.$watch('app', function(oApp) {
+        if (!oApp) { return; }
+        _oApp = oApp;
         $scope.facRound = _facRound = new enlRound(_oApp);
         _facRound.list().then(function(result) {
             if (result.active) {
@@ -370,9 +370,9 @@ ngApp.controller('ctrlSummaryMarks', ['$scope', '$q', '$timeout', '$filter', 'tm
         _oCriteria.rid = oRound ? oRound.rid : 'all';
         $scope.getMarks();
     };
-    $scope.$watch('oApp', function(nv) {
-        if (!nv) { return; }
-        _oApp = nv;
+    $scope.$watch('app', function(oApp) {
+        if (!oApp) { return; }
+        _oApp = oApp;
         $scope.facRound = _facRound = new enlRound(_oApp);
         _facRound.list().then(function(result) {
             if (result.active) {
@@ -463,9 +463,9 @@ ngApp.controller('ctrlSummaryStat', ['$scope', '$timeout', '$uibModal', '$q', 't
     $scope.shiftRound = function(oRound) {
         location.href = LS.j('', 'site', 'app') + '&rid=' + oRound.rid + '&page=stat';
     };
-    $scope.$watch('oApp', function(nv) {
-        if (!nv) { return; }
-        _oApp = nv;
+    $scope.$watch('app', function(oApp) {
+        if (!oApp) { return; }
+        _oApp = oApp;
 
         function fnDrawChart() {
             var item, scoreSummary = [],

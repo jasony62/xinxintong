@@ -867,9 +867,7 @@ body.enroll-repos {
 #remarks {
     position: relative;
     margin-top: 3rem;
-}
 
-#remarks {
     &:before {
         content: '留言';
         position: absolute;
@@ -916,6 +914,14 @@ body.enroll-repos {
 
 }
 
+#favor.people-favor {
+    padding: 54px 0 60px 0;
+    
+    >.view {
+        overflow: hidden;
+    }
+}
+
 .modal-edit-topic {
     .record {
         padding-left: 0;
@@ -952,10 +958,6 @@ body.enroll-repos {
 }
 
 @media screen and (max-width:768px) {
-    .site-navbar-default {
-        margin-bottom: 0;
-    }
-
     .tabs {
         left: 0;
     }

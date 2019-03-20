@@ -117,9 +117,9 @@ ngApp.controller('ctrlPeopleFavor', ['$scope', '$uibModal', 'http2', 'tmsLocatio
     $scope.addTag = function() {
         $scope.$broadcast('xxt.matter.enroll.favor.tag.add');
     };
-    $scope.$watch('oApp', function(nv) {
-        if (!nv) { return; }
-        _oApp = nv;
+
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        _oApp = params.app;
         /* 设置页面分享信息 */
         $scope.setSnsShare(); // 应该禁止分享
         /*页面阅读日志*/
@@ -305,8 +305,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             });
         }
     };
-    $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        _oApp = params.app;
+    $scope.$watch('app', function(oApp) {
+        if (!oApp) return;
+        _oApp = oApp;
         _oApp.dynaDataSchemas.forEach(function(schema) {
             if (schema.shareable && schema.shareable === 'Y') {
                 _oShareableSchemas[schema.id] = schema;
@@ -314,6 +315,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         });
         $scope.recordList(1);
     });
+    
 }]);
 /**
  * 专题

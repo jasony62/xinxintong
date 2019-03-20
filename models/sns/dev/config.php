@@ -1,4 +1,6 @@
 <?php
+namespace sns\dev;
+
 /**
  * 获取能力开放平台accessToken的接口地址
  */

@@ -1,17 +1,19 @@
 <?php
 namespace site\fe\matter\diaoting;
+
 include_once dirname(dirname(__FILE__)) . '/base.php';
+include_once dirname(__FILE__) . '/config.php';
 include_once TMS_APP_DIR . '/vendor/autoload.php';
 /**
  * 用户邀请
  */
 class main extends \site\fe\matter\base {
 	//天翼云的API服务器
-	private $endpoint = 'https://oos-js.ctyunapi.cn/';
+	private $endpoint = OOS_ENDPOINT;
 	//Access Key 在天翼云门户网站-帐户管理-API密钥管理中获取
-	private $accessKey = "5b79c659ce70ace89ce2";
+	private $accessKey = OOS_ACCESS_KEY;
 	//Access Secret 在天翼云门户网站-帐户管理-API密钥管理中获取
-	private $accessSecret = "4493e6cc8c992cb194cfdd8760949becc6029223";
+	private $accessSecret = OOS_ACCESS_SECRET;
 	/**
 	 * 链接天翼云接口
 	 */

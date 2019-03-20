@@ -18,6 +18,21 @@ class login extends \site\fe\base {
 		return $rule_action;
 	}
 	/**
+	 * 获取支持的第三方登录应用列表
+	 */
+	public function thirdList_action() {
+		$q = [
+			'id,creater,create_at,appname,pic',
+			'xxt_account_third',
+			["state" => 1]
+		];
+		$p = ['o' => 'create_at desc'];
+
+		$thirdApps = $this->model()->query_objs_ss($q, $p);
+
+		return new \ResponseData($thirdApps);
+	}
+	/**
 	 * 执行登录
 	 */
 	public function do_action() {
@@ -149,10 +164,8 @@ class login extends \site\fe\base {
 	/**
 	 * 执行第三方登录
 	 */
-	public function byRegAndAuthApp_action($authAppId) {
-		$modelAcc = $this->model('account');
+	public function byRegAndThird_action($thirdId) {
 		$modelWay = $this->model('site\fe\way');
-		$modelReg = $this->model('site\user\registration');
 
 		$cookieRegUser = $modelWay->getCookieRegUser();
 		if ($cookieRegUser) {
@@ -163,79 +176,26 @@ class login extends \site\fe\base {
 		}
 
 		// 获取第三方应用信息
-		$q = [
-			'*',
-			'xxt_account_third',
-			['id' => $authAppId]
-		];
-		$authApp = $modelWay->query_obj_ss($q);
-		if ($authApp === false || $authApp->state != 1) {
+		$thirdApp = $this->model('sns\dev')->byId($thirdId);
+		if ($thirdApp === false || $thirdApp->state != 1) {
 			return new \ObjectNotFoundError();
 		}
 
 		/* 检查是否需要第三方应用授权登录 */
 		if ($this->myGetcookie("_account_register_oauthpending") !== 'Y') {
-			$this->requirRegOauth($authApp);
+			$this->requirLoginOauth($thirdApp);
 		}
 		// 获得第三方应用用户信息
-		$authAppUser = $this->_afterRegOauth();
-		if ($authAppUser[0] === false) {
-			return new \ResponseError($authAppUser[1]);
+		$oThirdAppUser = $this->_userInfoByCode();
+		if ($oThirdAppUser[0] === false) {
+			return new \ResponseError($oThirdAppUser[1]);
 		}
-
-		// 查看此用户是否已经注册过
-		$oRegistration = $modelAcc->byAuthedId($authAppUser->openid, $authApp->id, ['fields' => 'a.uid unionid,a.email uname,a.nickname,a.password,a.salt,a.from_siteid', 'forbidden' => 0]);
-		// 是否已绑定账号 登录账号
-		if ($oRegistration) {
-			/* cookie中保留注册信息 */
-			$aResult = $modelWay->shiftRegUser($oRegistration);
-			if (false === $aResult[0]) {
-				return new \ResponseError($aResult[1]);
-			}
-
-			/* 记录登录状态 */
-			$fromip = $this->client_ip();
-			$modelReg->updateLastLogin($oRegistration->unionid, $fromip);
-		} else {
-			// 没有绑定账号 创建账号
-			$user = $this->who;
-			/* uname */
-			$uname = $user->uid;
-			/* password */
-			$password = '123456';
-
-			$aOptions = [];
-			/* nickname */
-			if (!empty($authAppUser->nickname)) {
-				$aOptions['nickname'] = $authAppUser->nickname;
-			} else if (isset($user->nickname)) {
-				$aOptions['nickname'] = $user->nickname;
-			}
-			/* other options */
-			$aOptions['from_ip'] = $this->client_ip();
-			$aOptions['group_id'] = 101;
-			/* create registration */
-			$oRegUser = $modelReg->create($this->siteId, $uname, $password, $aOptions);
-			if ($oRegUser[0] === false) {
-				return new \ResponseError($oRegUser[1]);
-			}
-			$oRegUser = $oRegUser[1];
-			/* cookie中保留注册信息 */
-			$aResult = $modelWay->shiftRegUser($oRegUser, false);
-			if (false === $aResult[0]) {
-				return new \ResponseError($aResult[1]);
-			}
-
-			// 将用户插入到xxt_account_third_user表中 unionid
-
-
-
-
-
-
-
+		// 获取用户信息后，后续处理
+		$result = $this->_afterThirdLoginOauth($thirdApp, $oThirdAppUser);
+		if ($result[0] === false) {
+			return new \ResponseError($result[1]);
 		}
-
+		// 获取用户的cookie
 		$oCookieUser = $modelWay->who($this->siteId);
 		if ($referer = $this->myGetCookie('_user_access_referer')) {
 			$oCookieUser->_loginReferer = $referer;
@@ -245,18 +205,33 @@ class login extends \site\fe\base {
 		return new \ResponseData($oCookieUser);
 	}
 	/**
-	 *
+	 *  跳转到第三方登陆页面
 	 */
-	private function _afterRegOauth() {
+	protected function requirLoginOauth($devConfig) {
+		$ruri = APP_PROTOCOL . APP_HTTP_HOST . $_SERVER['REQUEST_URI'];
+
+		$snsProxy = $this->model('sns\dev\proxy', $devConfig);
+		$oauthUrl = $snsProxy->oauthUrl($ruri, 'snsOAuth-dev-login');
+		if (isset($oauthUrl)) {
+			/* 通过cookie判断是否是后退进入 */
+			$this->mySetcookie("_account_register_oauthpending", 'Y');
+			$this->redirect($oauthUrl);
+		}
+
+		return false;
+	}
+	/**
+	 * 通过回调code获取第三方用户信息
+	 */
+	private function _userInfoByCode() {
 		// oauth回调
 		$this->mySetcookie("_account_register_oauthpending", '', time() - 3600);
 		if (isset($_GET['state']) && isset($_GET['code'])) {
 			$state = $_GET['state'];
-			if (strpos($state, 'regOAuth-') === 0) {
+			if ($state === 'snsOAuth-dev-login') {
 				$code = $_GET['code'];
-				$authAppUser = $this->getAuthAppUserByCode($code);
-
-				return $authAppUser;
+				$oThirdAppUser = $this->model('sns\dev\proxy')->userInfoByCode($code);
+				return $oThirdAppUser;
 			} else {
 				return [false, '非登录授权'];
 			}
@@ -265,76 +240,92 @@ class login extends \site\fe\base {
 		}
 	}
 	/**
-	 * 
+	 * 第三方登录完成后执行后续处理
+	 * 根据openid检查本站是否有账号，有账号登录此账号没有账号就自动创建
 	 */
-	protected function requirRegOauth($authApp) {
-		$ruri = APP_PROTOCOL . APP_HTTP_HOST . $_SERVER['REQUEST_URI'];
-		$oauthUrl = "";
-		/* 通过cookie判断是否是后退进入 */
-		$this->mySetcookie("_account_register_oauthpending", 'Y');
-		$this->redirect($oauthUrl);
-	}
-	/**
-	 * 获得第三方应用用户信息
-	 */
-	public function getAuthAppUserByCode($code) {
-		/* 获得用户的openid */
-		$cmd = "https://api.weixin.qq.com/sns/oauth2/access_token";
-		$params["appid"] = $this->config->appid;
-		$params["secret"] = $this->config->appsecret;
-		$params["code"] = $code;
-		$params["grant_type"] = "authorization_code";
-		$rst = $this->httpGet($cmd, $params, false, false);
-		if ($rst[0] === false) {
-			return $rst;
-		}
-		$openid = $rst[1]->openid;
-		/* 获得用户的其它信息 */
-		if (false !== strpos($rst[1]->scope, 'snsapi_userinfo')) {
-			$accessToken = $rst[1]->access_token;
-			$cmd = 'https://api.weixin.qq.com/sns/userinfo';
-			$params = array(
-				'access_token' => $accessToken,
-				'openid' => $openid,
-				'lang' => 'zh_CN',
-			);
-			/* user info */
-			$userRst = $this->httpGet($cmd, $params, false, false);
-			if ($userRst[0] === false) {
-				if (strpos($userRst[1], 'json failed:') === 0) {
-					\TMS_APP::model('log')->log($this->config->siteid, 'getAuthAppUserByCode', 'userinfo json failed: ' . $userRst[1], null, $_SERVER['REQUEST_URI']);
-					$user = new \stdClass;
-					$json = str_replace(array('json failed:', '{', '}'), '', $userRst[1]);
-					$data = explode(',', $json);
-					foreach ($data as $pv) {
-						$pv = explode(':', $pv);
-						$p = str_replace('"', '', $pv[0]);
-						$v = str_replace('"', '', $pv[1]);
-						$user->{$p} = $v;
+	private function _afterThirdLoginOauth($thirdApp, $oThirdAppUser) {
+		$modelWay = $this->model('site\fe\way');
+		$modelAcc = $this->model('account');
+		$modelReg = $this->model('site\user\registration');
+		// 查看此用户是否已经注册过
+		$registered = false;
+		$q = [
+			"*",
+			"xxt_account_third_user",
+			["third_id" => $third_id->id, "openid" => $oThirdAppUser->openid, "forbidden" => 'N']
+		];
+		$thirdUser = $modelAcc->query_obj_ss($q);
+		if ($thirdUser) {
+			// 如果已经绑定账号 登录账号
+			if (!empty($thirdUser->unionid)) {
+				$oRegistration = $modelReg->byId($thirdUser->unionid);
+				if ($oRegistration) {	
+					/* cookie中保留注册信息 */
+					$aResult = $modelWay->shiftRegUser($oRegistration);
+					if (false === $aResult[0]) {
+						return $aResult;
 					}
+					/* 记录登录状态 */
+					$fromip = $this->client_ip();
+					$modelReg->updateLastLogin($oRegistration->unionid, $fromip);
 
-					if (isset($user->nickname)) {
-						$user->nickname = \TMS_APP::model()->cleanEmoji($user->nickname, true);
-					}
-					$userRst[0] = true;
-					$userRst[1] = $user;
-					return $userRst;
-				} else {
-					return array(false, $userRst[1]);
+					$registered = true;
 				}
-			} else {
-				$user = $userRst[1];
 			}
-		} else {
-			$user = new \stdClass;
-			$user->openid = $openid;
+		}
+		// 没有注册需要创建账号并绑定用户
+		if ($registered === false) {
+			$user = $this->who;
+			/* uname */
+			$uname = isset($oThirdAppUser->moble) ? $oThirdAppUser->moble : (isset($oThirdAppUser->email) ? $oThirdAppUser->email : $user->uid);
+			/* password */
+			$password = '123456';
+
+			$aOptions = [];
+			/* nickname */
+			if (!empty($oThirdAppUser->nickname)) {
+				$aOptions['nickname'] = $oThirdAppUser->nickname;
+			} else if (isset($user->nickname)) {
+				$aOptions['nickname'] = $user->nickname;
+			}
+			/* other options */
+			$aOptions['from_ip'] = $this->client_ip();
+			$aOptions['group_id'] = 101;
+			/* create registration */
+			$oRegUser = $modelReg->create($this->siteId, $uname, $password, $aOptions);
+			if ($oRegUser[0] === false) {
+				return $oRegUser;
+			}
+			$oRegUser = $oRegUser[1];
+
+			// 将用户插入到xxt_account_third_user表中
+			// 如果已经存在则更新
+			$updata = [
+				"reg_time" => time(),
+				"headimgurl" => isset($oThirdAppUser->headimgurl) ? $oThirdAppUser->headimgurl : '',
+				"nickname" => isset($oThirdAppUser->nickname) ? $oThirdAppUser->nickname : '',
+				"sex" => isset($oThirdAppUser->sex) ? $oThirdAppUser->sex : 0,
+				"city" => isset($oThirdAppUser->city) ? $oThirdAppUser->city : '',
+				"province" => isset($oThirdAppUser->province) ? $oThirdAppUser->province : '',
+				"country" => isset($oThirdAppUser->country) ? $oThirdAppUser->country : '',
+				"unionid" => $oRegUser->unionid,
+			];
+			if ($thirdUser) {
+				$modelReg->update("xxt_account_third_user", $updata, ["id" => $thirdUser->id]);
+			} else {
+				$updata["third_id"] = $thirdApp->id;
+				$updata["openid"] = $oThirdAppUser->openid;
+				$modelReg->insert('xxt_account_third_user', $updata, false);
+			}
+
+			/* cookie中保留注册信息 */
+			$aResult = $modelWay->shiftRegUser($oRegUser, false);
+			if (false === $aResult[0]) {
+				return $aResult;
+			}
 		}
 
-		if (isset($user->nickname)) {
-			$user->nickname = \TMS_APP::model()->cleanEmoji($user->nickname, true);
-		}
-
-		return array(true, $user);
+		return [true];
 	}
 	/**
 	 * 获取验证码

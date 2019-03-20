@@ -12,10 +12,9 @@ $sql .= ",create_at int(11) NOT NULL";
 $sql .= ",appname varchar(50) NOT NULL default ''"; //第三方名称
 $sql .= ",pic text null"; // head image.
 $sql .= ",appid varchar(100) NOT NULL default ''"; // 
-$sql .= ",appsecret varchar(100) NOT NULL default ''"; // 
-$sql .= ",scope varchar(20) NOT NULL default ''"; // 获取身份权限
-$sql .= ",authloginurl  varchar(255) NOT NULL default ''"; // 用户授权地址
-$sql .= ",authuserinfourl  varchar(255) NOT NULL default ''"; // 用户信息地址
+$sql .= ",appsecret varchar(100) NOT NULL default ''"; //
+$sql .= ",access_token text";
+$sql .= ",access_token_expire_at int not null default 0";
 $sql .= ",state tinyint not null default 1";
 $sql .= ",primary key (id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 $sqls[] = $sql;

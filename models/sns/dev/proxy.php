@@ -2,6 +2,7 @@
 namespace sns\dev;
 
 require_once dirname(dirname(__FILE__)) . '/proxybase.php';
+require_once dirname(__FILE__) . '/config.php';
 /**
  * 微信公众号代理类
  */
@@ -13,11 +14,11 @@ class proxy_model extends \sns\proxybase {
 	//
 	private $accessToken;
 	//
-	private $authAccessTokenUrl = 'http://api.developer.189.cn/api/token';
+	private $getAccessTokenUrl = DEV_GET_ACCESSTOKEN_URL;
 	//
-	private $authloginurl = '';
+	private $authloginUrl = DEV_AUTH_LOGIN_URL;
 	//
-	private $authuserinfourl = '';
+	private $authUserinfoUrl = DEV_AUTH_USERINFO_URL;
 	/**
 	 *
 	 * $siteid
@@ -71,7 +72,7 @@ class proxy_model extends \sns\proxybase {
 		$header = [];
 		$header[] = "Content-type: application/x-www-form-urlencoded; charset=UTF-8";
 		$header[] = "Authorization: Basic " . $authorization;
-		$response = $this->_curlPost($this->authAccessTokenUrl, $header);
+		$response = $this->_curlPost($this->getAccessTokenUrl, $header);
 		if ($response[0] === false) {
 			return $response;
 		}
@@ -97,7 +98,7 @@ class proxy_model extends \sns\proxybase {
 	 *
 	 */
 	public function oauthUrl($redirect, $state = null) {
-		$oauth = $this->authloginurl;
+		$oauth = $this->authloginUrl;
 		$oauth .= "?accessToken=" . $this->accessToken();
 		$oauth .= "&redirect_uri=" . urlencode($redirect);
 		!empty($state) && $oauth .= "&state=$state";
@@ -109,7 +110,7 @@ class proxy_model extends \sns\proxybase {
 	 */
 	public function userInfoByCode($code) {
 		/* 获得用户的openid */
-		$cmd = $this->authuserinfourl;
+		$cmd = $this->authUserinfoUrl;
 		$params["accessToken"] = $this->accessToken();
 		$params["code"] = $code;
 		$rst = $this->httpGet($cmd, $params, false, false);

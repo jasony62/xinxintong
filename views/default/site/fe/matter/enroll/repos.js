@@ -203,31 +203,16 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             http2.get(LS.j('navs', 'site', 'app')).then(function(rsp) {
                 $scope.navs = rsp.data;
                 rsp.data.forEach(function(data) {
-                    switch (data.type) {
-                        case 'repos':
-                            data.class = 'glyphicon glyphicon-home';
-                            $scope.activeNav = data;
-                            data.views.forEach(function(view) {
-                                view.url = '/views/default/site/fe/matter/enroll/template/repos-' + view.type + '.html';
-                                if (data.defaultView.type === view.type) {
-                                    $scope.activeView = view;
-                                }
-                            });
-                            break;
-                        case 'mission':
-                            data.class = 'glyphicon glyphicon-home';
-                            break;
-                        case 'summary':
-                            data.class = 'glyphicon glyphicon-stats';
-                            break;
-                        case 'activities':
-                            data.class = 'glyphicon glyphicon-tasks';
-                            break;
-                        case 'people':
-                            data.class = 'glyphicon glyphicon-user';
-                            break;
+                    if (data.type === 'repos') {
+                        $scope.activeNav = data;
+                        data.views.forEach(function(view) {
+                            view.url = '/views/default/site/fe/matter/enroll/template/repos-' + view.type + '.html';
+                            if (data.defaultView.type === view.type) {
+                                $scope.activeView = view;
+                            }
+                        });
                     }
-                })
+                });
             });
         }
         if (_oApp.reposConfig && _oApp.reposConfig.defaultOrder) {
@@ -272,7 +257,7 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
     $scope.reposLoading = false;
     $scope.appendToEle = angular.element(document.querySelector('#nav_container'));
     $scope.viewTo = function($event, view) {
-        $scope.$emit('transfer.view', view);  
+        $scope.$emit('transfer.view', view);
     };
     $scope.getCriteria = function() {
         var url;
@@ -509,7 +494,7 @@ ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLo
     $scope.reposLoading = false;
     $scope.appendToEle = angular.element(document.querySelector('#nav_container'));
     $scope.viewTo = function($event, view) {
-        $scope.$emit('transfer.view', view);  
+        $scope.$emit('transfer.view', view);
     };
     $scope.getCriteria = function() {
         var url;
@@ -713,8 +698,9 @@ ngApp.controller('ctrlPublicTopic', ['$scope', 'http2', '$timeout', 'tmsLocation
     $scope.filter = _oFilter = { isFilter: false };
     $scope.criteria = _oCriteria = {};
     $scope.viewTo = function($event, view) {
-        $scope.$emit('transfer.view', view);  
+        $scope.$emit('transfer.view', view);
     };
+
     function addToCache() {
         sessionStorage.setItem('listStorageY', document.getElementById('topic').scrollTop);
         var cacheData = {

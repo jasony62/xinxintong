@@ -3,9 +3,8 @@ require('./activities.css');
 
 require('./_asset/ui.round.js');
 require('./_asset/ui.task.js');
-require('./_asset/ui.bottom.nav.js');
 
-window.moduleAngularModules = ['nav.bottom.ui', 'round.ui.enroll', 'task.ui.enroll', 'ngRoute'];
+window.moduleAngularModules = ['round.ui.enroll', 'task.ui.enroll', 'ngRoute'];
 
 var ngApp = require('./main.js');
 ngApp.config(['$routeProvider', function($routeProvider) {

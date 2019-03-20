@@ -29,8 +29,7 @@
     <div class='container'>
         <div class="row" ng-view></div>
     </div>
-    <tms-bottom-nav navs="navs" switch-nav="navTo($event, nav)" type="activities"></tms-bottom-nav>
-    <!-- <nav class="navbar site-navbar-light navbar-fixed-bottom">
+    <nav class="navbar site-navbar-light navbar-fixed-bottom">
         <div class="container" ng-cloak>
             <ul class='nav site-nav'>
                 <li ng-repeat="nav in navs" ng-class="{'active': activeNav.type===nav.type}" ng-switch on="nav.type" ng-click="navTo($event, nav)">
@@ -73,7 +72,7 @@
                 </li>
             </ul>
         </div>
-    </nav> -->
+    </nav>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
     <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
     <div class="loading">

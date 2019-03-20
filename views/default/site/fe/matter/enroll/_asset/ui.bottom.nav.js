@@ -12,9 +12,6 @@ ngMod.directive('tmsBottomNav', ['$templateCache', function($templateCache) {
             type: '@'
         },
         link: function(scope, elems, attrs) {
-            scope.select = function(id) {
-                scope.shiftMenu({ "criteria": { "id": id, "type": scope.data.type } });
-            };
             scope.$watch('navs', function(navs) {
                 if (!navs) { return false; }
                 navs.forEach(function(nav) {

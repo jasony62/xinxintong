@@ -12,7 +12,6 @@ var ngApp = require('./main.js');
 ngApp.config(['$routeProvider', function($routeProvider) {
     $routeProvider
         .when('/rest/site/fe/matter/enroll/people/favor', { template: require('./people/favor.html'), controller: 'ctrlPeopleFavor' })
-        
 }]);
 ngApp.factory('TopicRepos', ['http2', '$q', '$sce', 'tmsLocation', function(http2, $q, $sce, LS) {
     var TopicRepos, _ins;
@@ -63,7 +62,34 @@ ngApp.factory('TopicRepos', ['http2', '$q', '$sce', 'tmsLocation', function(http
         }
     };
 }]);
-ngApp.controller('ctrlPeople', ['$scope', 'tmsLocation', function($scope, LS) {}]);
+ngApp.controller('ctrlPeople', ['$scope', '$location', 'tmsLocation', 'http2', function($scope, $location, LS, http2) {
+    $scope.navTo = function(event, nav) {
+        location.href = nav.url;
+    };
+    $scope.viewTo = function(event, subView) {
+        if (subView.type === 'user') {
+            location.href = '/rest/site/fe/user?site=' + $scope.oApp.siteid;
+        } else {
+            $scope.activeView = subView;
+        }
+    };
+    $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+        var subView = currentRoute.match(/([^\/]+?)\?/);
+        $scope.subView = subView[1] === 'favor' ? 'favor' : subView[1];
+    });
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        $scope.oApp = params.app;
+        /* 请求导航 */
+        http2.get(LS.j('navs', 'site', 'app')).then(function(rsp) {
+            $scope.navs = rsp.data;
+            rsp.data.forEach(function(data) {
+                if (data.type === 'people') {
+                    $scope.activeNav = data;
+                }
+            });
+        });
+    });
+}]);
 ngApp.controller('ctrlPeopleFavor', ['$scope', '$uibModal', 'http2', 'tmsLocation', function($scope, $uibModal, http2, LS) {
     var _oApp;
     if (location.hash && /repos|tag|topic/.test(location.hash)) {
@@ -91,14 +117,16 @@ ngApp.controller('ctrlPeopleFavor', ['$scope', '$uibModal', 'http2', 'tmsLocatio
     $scope.addTag = function() {
         $scope.$broadcast('xxt.matter.enroll.favor.tag.add');
     };
-    $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        _oApp = params.app;
+    $scope.$watch('oApp', function(nv) {
+        if (!nv) { return; }
+        _oApp = nv;
         /* 设置页面分享信息 */
         $scope.setSnsShare(); // 应该禁止分享
         /*页面阅读日志*/
         $scope.logAccess();
     });
 }]);
+ngApp.controller('ctrlPeopleUser', ['$scope', 'http2', 'tmsLocation', function($scope, http2, LS) {}]);
 /**
  * 记录
  */

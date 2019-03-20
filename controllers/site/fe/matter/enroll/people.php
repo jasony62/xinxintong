@@ -18,7 +18,7 @@ class people extends main_base {
 	 */
 	public function user_action($app) {
 		$page = 'user';
-		$this->_outputPage($app, $page);
+		$this->redirect("/rest/site/fe/user?site={$this->siteId}");
 	}
 	/*
 	 *

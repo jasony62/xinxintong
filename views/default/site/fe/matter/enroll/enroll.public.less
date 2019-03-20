@@ -29,7 +29,6 @@ button.option {
 
 .site-navbar-light.navbar {
     height: 50px;
-    line-height: 1;
     padding-top: 8px;
     padding-bottom: 8px;
 }
@@ -40,6 +39,7 @@ button.option {
 
     .site-nav {
         display: flex;
+        line-height: 1;
 
         >li {
             flex-grow: 1;
@@ -62,7 +62,7 @@ button.option {
                     margin-bottom: 4px;
                     font-size: 18px;
                     top: 0;
-                    left: -2px;
+                    left: -1px;
                 }
 
                 >span {
@@ -81,7 +81,6 @@ button.option {
 
 .site-navbar-primary.nav {
     height: 44px;
-    line-height: 1;
     padding-top: 12px;
 }
 
@@ -215,7 +214,7 @@ body.enroll-repos {
                         overflow-y: auto;
                     }
 
-                    
+
                 }
             }
 
@@ -350,9 +349,14 @@ body.enroll-repos {
 
     &>* {
         flex-grow: 1;
+        line-height: 1;
     }
 
-    #advCriteriaSwitch i {
+    #advCriteriaSwitch>i {
+        color: #a6d4ff;
+    }
+
+    #advCriteriaSwitch.active>i {
         color: #fff;
     }
 }
@@ -962,7 +966,7 @@ body.enroll-repos {
 
     #advCriteria {
         position: absolute;
-        top: 34px;
+        top: -12px;
         right: 0;
         margin-top: 1px;
         width: 300px;

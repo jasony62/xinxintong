@@ -18,23 +18,45 @@
     <div class='app container'>
         <div class='row' ng-include="activeView.url"></div>
     </div>
+    <tms-bottom-nav navs="navs" active-nav="avtiveNav" switch-nav="navTo($event, nav)"></tms-bottom-nav>
     <nav class="navbar site-navbar-light navbar-fixed-bottom">
         <div class="container">
             <ul class='nav site-nav'>
                 <li ng-repeat="nav in navs" ng-class="{'active': activeNav.type===nav.type}" ng-switch on="nav.type" ng-click="navTo($event, nav)">
-                    <a ng-href="{{nav.url}}" ng-switch-when="mission">
+                    <a href ng-switch-when="mission">
                         <i  class="glyphicon glyphicon-th-list"></i><span ng-bind="nav.title"></span>
                     </a>
-                    <a ng-href="{{nav.url}}" ng-switch-when="repos">
+                    <a href ng-switch-when="repos">
                         <i  class="glyphicon glyphicon-home"></i><span ng-bind="nav.title"></span>
                     </a>
-                    <a ng-href="{{nav.url}}" ng-switch-when="activities">
+                    <a href ng-switch-when="activities">
                         <i  class="glyphicon glyphicon-tasks"></i><span ng-bind="nav.title"></span>
                     </a>
-                    <a ng-href="{{nav.url}}" ng-switch-when="summary">
+                    <a href ng-switch-when="task">
+                        <i  class="glyphicon glyphicon-tasks"></i><span ng-bind="nav.title"></span>
+                    </a>
+                    <a href ng-switch-when="event">
+                        <i  class="glyphicon glyphicon-tasks"></i><span ng-bind="nav.title"></span>
+                    </a>
+                    <a href ng-switch-when="kanban">
+                        <i  class="glyphicon glyphicon-tasks"></i><span ng-bind="nav.title"></span>
+                    </a>
+                    <a href ng-switch-when="summary">
                         <i  class="glyphicon glyphicon-stats"></i><span ng-bind="nav.title"></span>
                     </a>
-                    <a ng-href="{{nav.url}}" ng-switch-when="people">
+                    <a href ng-switch-when="rank">
+                        <i  class="glyphicon glyphicon-stats"></i><span ng-bind="nav.title"></span>
+                    </a>
+                    <a href ng-switch-when="votes">
+                        <i  class="glyphicon glyphicon-stats"></i><span ng-bind="nav.title"></span>
+                    </a>
+                    <a href ng-switch-when="marks">
+                        <i  class="glyphicon glyphicon-stats"></i><span ng-bind="nav.title"></span>
+                    </a>
+                    <a href ng-switch-when="stat">
+                        <i  class="glyphicon glyphicon-stats"></i><span ng-bind="nav.title"></span>
+                    </a>
+                    <a href ng-switch-when="people">
                         <i  class="glyphicon glyphicon-user"></i><span ng-bind="nav.title"></span>
                     </a>
                 </li>

@@ -174,7 +174,7 @@ class topic extends base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 专题列表
+	 * 我的专题列表
 	 */
 	public function list_action($app) {
 		$modelEnl = $this->model('matter\enroll');
@@ -248,6 +248,74 @@ class topic extends base {
 
 		$topics = $modelEnl->query_objs_ss($q, $q2);
 
+		$oResult = new \stdClass;
+		$oResult->topics = $topics;
+		$oResult->total = count($topics);
+
+		return new \ResponseData($oResult);
+	}
+	/**
+	 * 所有专题列表
+	 */
+	public function listAll_action($app) {
+		$modelEnl = $this->model('matter\enroll');
+		$oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
+		if (false === $oApp || $oApp->state !== '1') {
+			return new \ObjectNotFoundError();
+		}
+
+		$oPosted = $this->getPostJson();
+		$oUser = $this->getUser($oApp);
+
+		$w = "state=1 and aid='{$oApp->id}'";
+		$w .= " and (";
+		// 
+		if (!empty($oPosted->mine) && $oPosted->mine === 'creator') {
+			if (empty($oUser->unionid)) {
+				return new \ResponseError('仅支持注册用户创建，请登录后再进行此操作');
+			}
+			$w .= "unionid='{$oUser->unionid}'";
+			if (isset($oUser->group_id)) {
+				$w .= " or (share_in_group='Y' and group_id='{$oUser->group_id}')";
+			}
+		} else if (!empty($oPosted->mine) && $oPosted->mine === 'public') {
+			// 公共专题
+			$w .= "is_public = 'Y'";
+		} else {
+			$w .= "is_public = 'Y'";
+			if (!empty($oUser->unionid)) {
+				$w .= " or unionid='{$oUser->unionid}'";
+				if (isset($oUser->group_id)) {
+					$w .= " or (share_in_group='Y' and group_id='{$oUser->group_id}')";
+				}
+			}
+		}
+		$w .= ")";
+		$q = [
+			'id,create_at,title,summary,rec_num,userid,group_id,nickname,share_in_group,is_public',
+			'xxt_enroll_topic',
+			$w,
+		];
+
+		if (!empty($oPosted->orderby)) {
+			switch ($oPosted->orderby) {
+			case 'earliest':
+				$orderby = ['create_at asc'];
+				break;
+			case 'lastest':
+				$orderby = ['create_at desc'];
+				break;
+			}
+		} else {
+			$orderby = ['create_at desc'];
+		}
+		$q2 = ['o' => $orderby];
+		$topics = $modelEnl->query_objs_ss($q, $q2);
+		foreach ($topics as $oTopic) {
+			if ($oTopic->userid === $oUser->uid) {
+				$oTopic->nickname = '我';
+			}
+		}
 		$oResult = new \stdClass;
 		$oResult->topics = $topics;
 		$oResult->total = count($topics);

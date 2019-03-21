@@ -813,6 +813,9 @@ class repos extends base {
 					$oCriteria->menus[] = (object) ['id' => 'favored', 'title' => '我的收藏'];
 				} else if ($viewType === 'coworkData') {
 					$oCriteria->menus[] = (object) ['id' => 'creator', 'title' => '我的回答'];
+				} else if ($viewType === 'topic') {
+					$oCriteria->menus[] = (object) ['id' => 'creator', 'title' => '我的专题'];
+					$oCriteria->menus[] = (object) ['id' => 'public', 'title' => '公共专题'];
 				} else {
 					unset($criterias[$key]);
 				}

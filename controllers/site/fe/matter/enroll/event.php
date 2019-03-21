@@ -24,6 +24,8 @@ class event extends base {
 			$oOptions['user'] = $oUser;
 		}
 		$oOptions['page'] = (object) ['at' => $page, 'size' => $size];
+		// 过滤不必要的事件
+		$oOptions['notTargetType'] = ['search'];
 
 		$oResult = $modelEvt->logByApp($oApp, $oOptions);
 		if (count($oResult->logs)) {

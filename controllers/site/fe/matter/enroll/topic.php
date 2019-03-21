@@ -269,7 +269,7 @@ class topic extends base {
 
 		$w = "state=1 and aid='{$oApp->id}'";
 		if (!empty($oPosted->keyword)) {
-			$w .= " and title like '%" . $modelEnl->escape($oPosted->keyword) . "%'";
+			$w .= " and (title like '%" . $modelEnl->escape($oPosted->keyword) . "%' or summary like '%" . $modelEnl->escape($oPosted->keyword) . "%')";
 		}
 		// 
 		$w .= " and (";
@@ -322,6 +322,13 @@ class topic extends base {
 		$oResult = new \stdClass;
 		$oResult->topics = $topics;
 		$oResult->total = count($topics);
+
+		// 记录搜索事件
+		if (!empty($oPosted->keyword)) {
+			$rest = $this->model('matter\enroll\search')->addUserSearch($oApp, $oUser, $oPosted->keyword);
+			// 记录日志
+			$this->model('matter\enroll\event')->searchRecord($oApp, $rest['search'], $oUser);
+		}
 
 		return new \ResponseData($oResult);
 	}

@@ -322,7 +322,7 @@ class main extends main_base {
 			if (($val = $this->modelApp->query_val_ss($q)) > 0) {
 				$vieTopic = new \stdClass;
 				$vieTopic->title = '专题';
-				$vieTopic->type = 'publicTopic';
+				$vieTopic->type = 'topic';
 				$views[] = $vieTopic;
 			}
 

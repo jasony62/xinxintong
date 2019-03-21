@@ -30,13 +30,6 @@ class main extends main_base {
 			$page = $oOpenPage->name;
 		}
 
-		/*页面是否要求必须存在填写轮次*/
-		if (!in_array($page, ['rank'])) {
-			if (empty($oApp->appRound)) {
-				$this->outputError('【' . $oApp->title . '】没有可用的填写轮次，请检查');
-			}
-		}
-
 		if (in_array($page, ['task', 'kanban', 'event'])) {
 			$this->redirect("/rest/site/fe/matter/enroll/activities/" . $page . "?site={$this->siteId}&app={$app}");
 		} else if (in_array($page, ['rank', 'votes', 'marks', 'stat'])) {

@@ -785,7 +785,7 @@ provider('srvMemberPicker', function() {
                                     };
 
                                     function matterUser() {
-                                        http2.post('/rest/pl/fe/matter/group/record/addByApp?app=' + oMatter.id, ids).then(function(rsp) {
+                                        http2.post('/rest/pl/fe/matter/group/player/addByApp?app=' + oMatter.id, ids).then(function(rsp) {
                                             noticebox.success('加入【' + rsp.data + '】个用户');
                                             defer.resolve(rsp.data);
                                         });

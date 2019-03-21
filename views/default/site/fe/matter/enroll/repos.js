@@ -22,7 +22,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     $scope.activeDirSchemas = {};
     $scope.schemaCounter = 0;
     $scope.activeNav = '';
-    $scope.activeView = '';
     $scope.addRecord = function(event) {
         $scope.$parent.addRecord(event);
     };
@@ -186,12 +185,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                     $scope.schemaCounter--;
                 }
             });
-            /* 共享专题 */
-            http2.get(LS.j('topic/listPublic', 'site', 'app')).then(function(rsp) {
-                if (rsp.data && rsp.data.topics && rsp.data.topics.length) {
-                    $scope.topics = rsp.data.topics;
-                }
-            });
             /* 作为分类目录的题目 */
             http2.get(LS.j('repos/dirSchemasGet', 'site', 'app')).then(function(rsp) {
                 $scope.dirSchemas = rsp.data;
@@ -202,11 +195,23 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             /* 请求导航 */
             http2.get(LS.j('navs', 'site', 'app')).then(function(rsp) {
                 $scope.navs = rsp.data;
+                $scope.navs.forEach(function(nav) {
+                    if (nav.type === 'repos') {
+                        nav.views.forEach(function(view) {
+                            view.url = '/views/default/site/fe/matter/enroll/template/repos-' + view.type + '.html';
+                            if (nav.defaultView.type === view.type) {
+                                $scope.activeView = view;
+                            }
+                        });
+                    } 
+                });
+
             });
         }
         if (_oApp.reposConfig && _oApp.reposConfig.defaultOrder) {
             _oCriteria.orderby = _oApp.reposConfig.defaultOrder;
         }
+
         /* 设置页面分享信息 */
         $scope.setSnsShare(null, null, { target_type: 'repos', target_id: _oApp.id });
         /* 页面阅读日志 */
@@ -724,6 +729,29 @@ ngApp.controller('ctrlReposTopic', ['$scope', '$q', 'http2', '$timeout', 'tmsLoc
         _oCriteria[criteria.type] = criteria.id;
         $scope.recordList(1);
     };
+    $scope.shiftTip = function(type) {
+        _oCriteria[type] = _oFilter[type] = null;
+
+        function objectKeyIsNull(obj) {
+            var empty = null;
+            for (var i in obj) {
+                if (i !== 'isFilter' && i !== 'tags') {
+                    if (obj[i] === null) {
+                        empty = true;
+                    } else {
+                        empty = false;
+                        break;
+                    }
+                }
+
+            }
+            return empty;
+        }
+        if (objectKeyIsNull(_oFilter)) {
+            _oFilter.isFilter = false;
+        }
+        $scope.recordList(1);
+    };
     $scope.confirm = function(filterOpt) {
         $scope.recordList(1).then(function() {
             var url = LS.j('repos/criteriaGet', 'site', 'app') + '&viewType=topic';
@@ -745,7 +773,7 @@ ngApp.controller('ctrlReposTopic', ['$scope', '$q', 'http2', '$timeout', 'tmsLoc
     $scope.recordList = function(pageAt) {
         var deferred = $q.defer();
         http2.post(LS.j('topic/listAll', 'site', 'app'), _oCriteria).then(function(rsp) {
-            if (rsp.data && rsp.data.topics && rsp.data.topics.length) {
+            if (rsp.data && rsp.data.topics) {
                 $scope.topics = rsp.data.topics;
             }
             deferred.resolve(rsp);

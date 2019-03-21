@@ -1,4 +1,4 @@
-<div class='wrapper' ng-controller="ctrlReposTopic">
+<div class='wrapper topic-view' ng-controller="ctrlReposTopic">
     <nav class="nav site-navbar-orange navbar-fixed-top">
         <div class="container" id="nav_container">
             <div class="row">
@@ -12,12 +12,22 @@
                         <div ng-repeat="singleFilter in singleFilters">
                             <div tms-dropdown basic-data="singleFilter" criteria="criteria" shift-menu="shiftMenu(criteria)"></div>
                         </div>
-                        <div tms-filter append-to-ele="appendToEle" basic-data="multiFilters" filter="filter" criteria="criteria" confirm="confirm(filterOpt)" class='tmsFilter'></div>
+                        <div tms-filter append-to-ele="appendToEle" basic-data="multiFilters" filter="filter" criteria="criteria" confirm="confirm(filterOpt)" class='tmsFilter' ng-if="multiFilters.length"></div>
                     </div>
                 </div>
             </div>
         </div>
     </nav>
+    <div id='filterTip' class='hidden-xs' ng-if="filter.isFilter||filter.tags.length">
+        <div class='bg-info small' ng-repeat="multifilter in multiFilters" ng-if="criteria[multifilter.type]!==null">
+            <span ng-repeat="menu in multifilter.menus" ng-if="criteria[multifilter.type]==menu.id" ng-bind="menu.title"></span>
+            <button class='close' trace-biz ng-click="shiftTip(multifilter.type)"><span>&times;</span></button>
+        </div>
+        <div class='bg-info small' ng-repeat="tag in filter.tags">
+            <span ng-bind="tag.label"></span>
+            <button class='close' trace-biz ng-click="shiftTag(tag,false)"><span>&times;</span></button>
+        </div>
+    </div>
     <div class='main col-xs-12 col-md-12'>
         <div class='topics' id='topic'>
             <div class='topic' ng-repeat="topic in topics" ng-click="gotoTopic(topic, $event)" ng-cloak>

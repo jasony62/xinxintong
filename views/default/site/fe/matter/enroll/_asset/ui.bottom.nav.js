@@ -9,7 +9,6 @@ ngMod.directive('tmsBottomNav', ['$templateCache', function($templateCache) {
         scope: {
             navs: '=',
             activeNav: '=',
-            activeView: '=',
             type: '@'
         },
         link: function(scope, elems, attrs) {
@@ -21,14 +20,6 @@ ngMod.directive('tmsBottomNav', ['$templateCache', function($templateCache) {
                 navs.forEach(function(nav) {
                     if (nav.type === scope.type) {
                         scope.activeNav = nav;
-                    }
-                    if (nav.type === 'repos') {
-                        nav.views.forEach(function(view) {
-                            view.url = '/views/default/site/fe/matter/enroll/template/repos-' + view.type + '.html';
-                            if (nav.defaultView.type === view.type) {
-                                scope.activeView = view;
-                            }
-                        });
                     }
                 });
             });

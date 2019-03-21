@@ -19,6 +19,11 @@ class main extends main_base {
 			$this->outputError('指定的记录活动不存在，请检查参数是否正确');
 		}
 
+		/* 检查是否需要第三方社交帐号OAuth */
+		if (!$this->afterSnsOAuth()) {
+			$this->requireSnsOAuth($oApp);
+		}
+
 		if (empty($page)) {
 			/* 计算打开哪个页面 */
 			$oOpenPage = $this->_defaultPage($oApp, $rid, true, $ignoretime);
@@ -89,11 +94,6 @@ class main extends main_base {
 		// 页面是否开放
 		if (!$this->_checkOpenRule($oApp, $page)) {
 			$this->outputError('页面未开放, 请联系系统管理员');
-		}
-
-		/* 检查是否需要第三方社交帐号OAuth */
-		if (!$this->afterSnsOAuth()) {
-			$this->requireSnsOAuth($oApp);
 		}
 
 		$oUser = $this->who;

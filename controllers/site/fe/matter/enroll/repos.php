@@ -822,14 +822,10 @@ class repos extends base {
 			}
 			// 搜索历史
 			if ($oCriteria->type === 'keyword') {
-				if ($viewType === 'topic') {
-					unset($criterias[$key]);
-				} else {
-					$search = $this->model('matter\enroll\search')->listUserSearch($oApp, $oUser);
-					$userSearchs = $search->userSearch;
-					foreach ($userSearchs as $userSearch) {
-						$oCriteria->menus[] = (object) ['id' => $userSearch->keyword, 'title' => $userSearch->keyword];
-					}
+				$search = $this->model('matter\enroll\search')->listUserSearch($oApp, $oUser);
+				$userSearchs = $search->userSearch;
+				foreach ($userSearchs as $userSearch) {
+					$oCriteria->menus[] = (object) ['id' => $userSearch->keyword, 'title' => $userSearch->keyword];
 				}
 			}
 		}

@@ -268,8 +268,11 @@ class topic extends base {
 		$oUser = $this->getUser($oApp);
 
 		$w = "state=1 and aid='{$oApp->id}'";
-		$w .= " and (";
+		if (!empty($oPosted->keyword)) {
+			$w .= " and title like '%" . $modelEnl->escape($oPosted->keyword) . "%'";
+		}
 		// 
+		$w .= " and (";
 		if (!empty($oPosted->mine) && $oPosted->mine === 'creator') {
 			if (empty($oUser->unionid)) {
 				return new \ResponseError('仅支持注册用户创建，请登录后再进行此操作');

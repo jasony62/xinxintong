@@ -3,6 +3,7 @@ require('./enroll.public.css');
 
 require('./_asset/ui.repos.record.js');
 require('./_asset/ui.repos.cowork.js');
+require('./_asset/ui.bottom.nav.js');
 require('./_asset/ui.tag.js');
 require('./_asset/ui.topic.js');
 require('./_asset/ui.assoc.js');
@@ -12,7 +13,7 @@ require('./_asset/ui.filter.js');
 require('./_asset/ui.tree.js');
 require('./_asset/ui.task.js');
 
-window.moduleAngularModules = ['tree.ui', 'filter.ui', 'dropdown.ui', 'round.ui.enroll', 'record.repos.ui.enroll', 'cowork.repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll', 'task.ui.enroll'];
+window.moduleAngularModules = ['nav.bottom.ui', 'tree.ui', 'filter.ui', 'dropdown.ui', 'round.ui.enroll', 'record.repos.ui.enroll', 'cowork.repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll', 'task.ui.enroll'];
 
 var ngApp = require('./main.js');
 ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', 'enlService', 'enlTask', function($scope, $parse, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc, enlService, enlTask) {
@@ -20,9 +21,8 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     $scope.schemas = _aShareableSchemas = []; // 支持分享的题目
     $scope.activeDirSchemas = {};
     $scope.schemaCounter = 0;
-    $scope.navTo = function(event, nav) {
-        location.href = nav.url;
-    };
+    $scope.activeNav = '';
+    $scope.activeView = '';
     $scope.addRecord = function(event) {
         $scope.$parent.addRecord(event);
     };
@@ -202,17 +202,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             /* 请求导航 */
             http2.get(LS.j('navs', 'site', 'app')).then(function(rsp) {
                 $scope.navs = rsp.data;
-                rsp.data.forEach(function(data) {
-                    if (data.type === 'repos') {
-                        $scope.activeNav = data;
-                        data.views.forEach(function(view) {
-                            view.url = '/views/default/site/fe/matter/enroll/template/repos-' + view.type + '.html';
-                            if (data.defaultView.type === view.type) {
-                                $scope.activeView = view;
-                            }
-                        });
-                    }
-                });
             });
         }
         if (_oApp.reposConfig && _oApp.reposConfig.defaultOrder) {
@@ -680,7 +669,7 @@ ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLo
         $scope.getCriteria();
     }
 }]);
-ngApp.controller('ctrlPublicTopic', ['$scope', 'http2', '$timeout', 'tmsLocation', function($scope, http2, $timeout, LS) {
+ngApp.controller('ctrlReposTopic', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation', function($scope, $q, http2, $timeout, LS) {
     function fnGetCriteria(datas) {
         $scope.singleFilters = [];
         $scope.multiFilters = [];
@@ -697,10 +686,10 @@ ngApp.controller('ctrlPublicTopic', ['$scope', 'http2', '$timeout', 'tmsLocation
     var _oFilter, _oCriteria;
     $scope.filter = _oFilter = { isFilter: false };
     $scope.criteria = _oCriteria = {};
+    $scope.appendToEle = angular.element(document.querySelector('#nav_container'));
     $scope.viewTo = function($event, view) {
         $scope.$emit('transfer.view', view);
     };
-
     function addToCache() {
         sessionStorage.setItem('listStorageY', document.getElementById('topic').scrollTop);
         var cacheData = {
@@ -735,12 +724,33 @@ ngApp.controller('ctrlPublicTopic', ['$scope', 'http2', '$timeout', 'tmsLocation
         _oCriteria[criteria.type] = criteria.id;
         $scope.recordList(1);
     };
+    $scope.confirm = function(filterOpt) {
+        $scope.recordList(1).then(function() {
+            var url = LS.j('repos/criteriaGet', 'site', 'app') + '&viewType=topic';
+            http2.get(url).then(function(rsp) {
+                if (rsp.data) {
+                    var _oNew = [];
+                    angular.forEach(rsp.data, function(data) {
+                        if (data.type === 'orderby') {
+                            return false;
+                        } else {
+                            _oNew.push(data);
+                        }
+                    });
+                    http2.merge($scope.multiFilters, _oNew);
+                }
+            });
+        });
+    };
     $scope.recordList = function(pageAt) {
-        http2.post(LS.j('topic/listPublic', 'site', 'app'), _oCriteria).then(function(rsp) {
+        var deferred = $q.defer();
+        http2.post(LS.j('topic/listAll', 'site', 'app'), _oCriteria).then(function(rsp) {
             if (rsp.data && rsp.data.topics && rsp.data.topics.length) {
                 $scope.topics = rsp.data.topics;
             }
+            deferred.resolve(rsp);
         });
+        return deferred.promise;
     }
     $scope.gotoTopic = function(oTopic, event) {
         event.stopPropagation();

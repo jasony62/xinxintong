@@ -1,12 +1,12 @@
 'use strict';
 require('./enroll.public.css');
-
+require('./_asset/ui.bottom.nav.js');
 require('./_asset/ui.repos.js');
 require('./_asset/ui.tag.js');
 require('./_asset/ui.topic.js');
 require('./_asset/ui.assoc.js');
 
-window.moduleAngularModules = ['repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll', 'ngRoute'];
+window.moduleAngularModules = ['nav.bottom.ui', 'repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll', 'ngRoute'];
 
 var ngApp = require('./main.js');
 ngApp.config(['$routeProvider', function($routeProvider) {
@@ -63,9 +63,7 @@ ngApp.factory('TopicRepos', ['http2', '$q', '$sce', 'tmsLocation', function(http
     };
 }]);
 ngApp.controller('ctrlPeople', ['$scope', '$location', 'tmsLocation', 'http2', function($scope, $location, LS, http2) {
-    $scope.navTo = function(event, nav) {
-        location.href = nav.url;
-    };
+    $scope.activeNav = '';
     $scope.viewTo = function(event, subView) {
         if (subView.type === 'user') {
             location.href = '/rest/site/fe/user?site=' + $scope.oApp.siteid;
@@ -82,11 +80,6 @@ ngApp.controller('ctrlPeople', ['$scope', '$location', 'tmsLocation', 'http2', f
         /* 请求导航 */
         http2.get(LS.j('navs', 'site', 'app')).then(function(rsp) {
             $scope.navs = rsp.data;
-            rsp.data.forEach(function(data) {
-                if (data.type === 'people') {
-                    $scope.activeNav = data;
-                }
-            });
         });
     });
 }]);

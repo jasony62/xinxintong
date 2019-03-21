@@ -1,9 +1,9 @@
 'use strict';
 require('./summary.css');
-
+require('./_asset/ui.bottom.nav.js');
 require('./_asset/ui.round.js');
 
-window.moduleAngularModules = ['round.ui.enroll', 'schema.ui.xxt', 'sys.chart', 'ngRoute'];
+window.moduleAngularModules = ['nav.bottom.ui', 'round.ui.enroll', 'schema.ui.xxt', 'sys.chart', 'ngRoute'];
 
 var ngApp = require('./main.js');
 ngApp.config(['$routeProvider', function($routeProvider) {
@@ -14,9 +14,7 @@ ngApp.config(['$routeProvider', function($routeProvider) {
         .otherwise({ template: require('./summary/rank.html'), controller: 'ctrlSummaryRank' });
 }]);
 ngApp.controller('ctrlSummary', ['$scope', 'tmsLocation', '$location', 'http2', function($scope, LS, $location, http2) {
-    $scope.navTo = function(event, nav) {
-        location.href = nav.url;
-    };
+    $scope.activeNav = '';
     $scope.viewTo = function(event, subView) {
         $scope.activeView = subView;
         var url = '/rest/site/fe/matter/enroll/summary/' + subView.type;
@@ -31,11 +29,6 @@ ngApp.controller('ctrlSummary', ['$scope', 'tmsLocation', '$location', 'http2', 
         $scope.oApp = params.app;
         http2.get(LS.j('navs', 'site', 'app')).then(function(rsp) {
             $scope.navs = rsp.data;
-            rsp.data.forEach(function(data) {
-                if (data.type === 'summary') {
-                    $scope.activeNav = data;
-                }
-            });
         });
     });
 }]);

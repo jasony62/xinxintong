@@ -1,10 +1,10 @@
 'use strict';
 require('./activities.css');
-
+require('./_asset/ui.bottom.nav.js');
 require('./_asset/ui.round.js');
 require('./_asset/ui.task.js');
 
-window.moduleAngularModules = ['round.ui.enroll', 'task.ui.enroll', 'ngRoute'];
+window.moduleAngularModules = ['nav.bottom.ui', 'round.ui.enroll', 'task.ui.enroll', 'ngRoute'];
 
 var ngApp = require('./main.js');
 ngApp.config(['$routeProvider', function($routeProvider) {
@@ -23,9 +23,7 @@ ngApp.filter('filterTime', function() {
     }
 });
 ngApp.controller('ctrlActivities', ['$scope', '$location', 'tmsLocation', 'http2', function($scope, $location, LS, http2) {
-    $scope.navTo = function(event, nav) {
-        location.href = nav.url;
-    };
+    $scope.activeNav = '';
     $scope.viewTo = function(event, subView) {
         $scope.activeView = subView;
         var url = '/rest/site/fe/matter/enroll/activities/' + subView.type;
@@ -39,11 +37,6 @@ ngApp.controller('ctrlActivities', ['$scope', '$location', 'tmsLocation', 'http2
         /* 请求导航 */
         http2.get(LS.j('navs', 'site', 'app')).then(function(rsp) {
             $scope.navs = rsp.data;
-            rsp.data.forEach(function(data) {
-                if (data.type === 'activities') {
-                    $scope.activeNav = data;
-                }
-            });
         });
     });
 }]);

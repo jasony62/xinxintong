@@ -1,5 +1,5 @@
-<div class='wrapper' ng-controller="ctrlPublicTopic">
-    <nav class="nav site-navbar-primary navbar-fixed-top">
+<div class='wrapper' ng-controller="ctrlReposTopic">
+    <nav class="nav site-navbar-orange navbar-fixed-top">
         <div class="container" id="nav_container">
             <div class="row">
                 <div class="col-md-7 col-xs-7">
@@ -12,6 +12,7 @@
                         <div ng-repeat="singleFilter in singleFilters">
                             <div tms-dropdown basic-data="singleFilter" criteria="criteria" shift-menu="shiftMenu(criteria)"></div>
                         </div>
+                        <div tms-filter append-to-ele="appendToEle" basic-data="multiFilters" filter="filter" criteria="criteria" confirm="confirm(filterOpt)" class='tmsFilter'></div>
                     </div>
                 </div>
             </div>

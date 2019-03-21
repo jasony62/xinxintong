@@ -12,6 +12,10 @@ ngMod.directive('tmsDropdown', ['$templateCache', function($templateCache) {
             shiftMenu: '&'
         },
         link: function(scope, elems, attrs) {
+            scope.isSmallLayout = false;
+            if (window.screen && window.screen.width < 992) {
+                scope.isSmallLayout = true;
+            }
             scope.select = function(id) {
                 scope.checked.id = id;
                 angular.forEach(scope.data.menus, function(menu) {

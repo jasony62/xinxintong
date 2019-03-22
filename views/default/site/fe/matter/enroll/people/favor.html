@@ -1,21 +1,23 @@
-<div ng-include="subView"></div>
-<nav class="navbar site-navbar-tab navbar-default navbar-fixed-bottom small">
-    <div class="container-fluid" style='display:flex;align-items:center;'>
-        <ul class="nav navbar-nav">
-            <li ng-class="{'active':subView==='repos.html'}"><a href ng-click="subView='repos.html'"><i class='glyphicon glyphicon-bookmark'></i> 收藏</a></li>
-            <li ng-class="{'active':subView==='tag.html'}"><a href ng-click="subView='tag.html'"><i class='glyphicon glyphicon-tag'></i> 标签</a></li>
-            <li ng-class="{'active':subView==='topic.html'}"><a href ng-click="subView='topic.html'"><i class='glyphicon glyphicon-inbox'></i> 专题</a></li>
-        </ul>
-        <div ng-if="subView==='topic.html'" style='margin-left:16px;'>
-            <button class="btn btn-default btn-sm navbar-btn" ng-click="addTopic()"><i class='glyphicon glyphicon-plus'></i>创建</button>
+<div class='people-favor' id="favor">
+    <nav class="navbar site-navbar-tab navbar-default small">
+        <div class="container-fluid" style='display:flex;align-items:center;'>
+            <ul class="nav navbar-nav">
+                <li ng-class="{'active':subView==='repos.html'}"><a href ng-click="subView='repos.html'"><i class='glyphicon glyphicon-bookmark'></i> 收藏</a></li>
+                <li ng-class="{'active':subView==='tag.html'}"><a href ng-click="subView='tag.html'"><i class='glyphicon glyphicon-tag'></i> 标签</a></li>
+                <li ng-class="{'active':subView==='topic.html'}"><a href ng-click="subView='topic.html'"><i class='glyphicon glyphicon-inbox'></i> 专题</a></li>
+            </ul>
+            <div ng-if="subView==='topic.html'" style='margin-left:16px;'>
+                <button class="btn btn-default btn-sm navbar-btn" ng-click="addTopic()"><i class='glyphicon glyphicon-plus'></i>创建</button>
+            </div>
+            <div ng-if="subView==='tag.html'" style='margin-left:16px;'>
+                <button class="btn btn-default btn-sm navbar-btn" ng-click="addTag()"><i class='glyphicon glyphicon-plus'></i>创建</button>
+            </div>
         </div>
-        <div ng-if="subView==='tag.html'" style='margin-left:16px;'>
-            <button class="btn btn-default btn-sm navbar-btn" ng-click="addTag()"><i class='glyphicon glyphicon-plus'></i>创建</button>
-        </div>
-    </div>
-</nav>
+    </nav>
+    <div class='view' ng-include="subView"></div>
+</div>
 <script type="text/ng-template" id="repos.html">
-<div ng-controller="ctrlRepos" class='records col-xs-12'>
+    <div ng-controller="ctrlRepos" class='records col-xs-12'>
         <div id='filterQuick' ng-cloak>
             <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
                 <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>

@@ -15,67 +15,11 @@
 <body ng-controller="ctrlRepos" tms-trace send-url='/rest/site/fe/matter/enroll/analysis/submit?site={{app.siteid}}&app={{app.id}}&page=repos' ready-sign="app" class='enroll-repos'>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
-    <nav class='navbar site-navbar-default'>
-        <div class='container' ng-cloak>
-            <div class='navbar-header'>
-                <a href class='navbar-brand'>
-                    <i class='glyphicon glyphicon-edit visible-lg-inline'></i> <span tms-pop-nav navs="popNav.navs" close-after='5000' custom="popNav.custom">共享页</span></span>
-                </a>
-            </div>
-            <ul class='nav navbar-nav navbar-right'>
-                <li class='pull-left'>
-                    <a href ng-click="siteUser(app.siteid)" class='tms-switch-siteuser'><i class='glyphicon glyphicon-user'></i><span class='visible-lg-inline'>我的</span></a>
-                </li>
-            </ul>
-        </div>
-    </nav>
     <div class='app container'>
-        <div ng-if="tasks.length" ng-cloak>
-            <div uib-alert ng-repeat="task in tasks" class='alert-info' close="closeTask($index)" ng-switch="task.id">
-                <span ng-bind="::task.msg"></span>
-                <span ng-switch-when="record.submit.end"><span ng-if="task.coin">每条记录可获得【{{task.coin}}个】积分</span><a href class='alert-link' ng-click="addRecord($event)"> 去添加</a></span>
-                <span ng-switch-when="record.like.pre"></span>
-                <span ng-switch-when="record.like.end"></span>
-                <span ng-switch-when="record.data.baseline"><a href class="alert-link" ng-click="gotoTask(task.data)">去制定目标</a></span>
-                <span ng-switch-when="record.data.question"><a href class="alert-link" ng-click="gotoTask(task.data)">去提问</a></span>
-                <span ng-switch-when="record.data.answer"><a href class="alert-link" ng-click="gotoTask(task.data)">去回答</a></span>
-                <span ng-switch-when="record.data.vote"><a href class="alert-link" ng-click="gotoTask(task.data)">去投票</a></span>
-                <span ng-switch-when="record.data.score"><a href class="alert-link" ng-click="gotoTask(task.data)">去打分</a></span>
-            </div>
-        </div>
-        <div class='row'>
-            <div id='advCriteria' class='col-md-3' ng-if="advCriteriaStatus.opened&&dirSchemas.length" ng-cloak>
-                <div class="tree">
-                    <div class='tree-header'>目录<button class='close' ng-if="isSmallLayout" ng-click="advCriteriaStatus.dirOpen=!advCriteriaStatus.dirOpen"><span>&times;</span></button></div>
-                    <div class='tree-body' ng-if="advCriteriaStatus.dirOpen">
-                        <div class='tree-wrap'>
-                            <tms-tree tree-data="dirSchemas" checked-data="{{activeDirSchemas}}" dir-clicked="dirClicked($item, $active)" dir-icon="isSmallLayout"></tms-tree>
-                        </div>
-                    </div>
-                </div>
-                <div class='text-center' ng-if="isSmallLayout">
-                    <button class='btn btn-default btn-sm' ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened">关闭</button>
-                </div>
-            </div>
-            <div class='site-dropdown tabs' uib-dropdown ng-if="tabs.length>1">
-                <a href uib-dropdown-toggle class='site-dropdown-title'>
-                    <span>{{selectedTab.title}}</span> <i class='glyphicon glyphicon-menu-down'></i>
-                </a>
-                <ul class='dropdown-menu site-dropdown-menu' uib-dropdown-menu>
-                    <li ng-repeat="tab in tabs">
-                        <a href ng-click="tabClick(tab)" ng-bind="tab.title"></a>
-                    </li>
-                </ul>
-            </div>
-            <div class='addRecord' ng-if="selectedTab.id!=='topic'" ng-click="addRecord($event)">
-                <i class='glyphicon glyphicon-plus'></i>
-                <span ng-if="selectedTab.id==='coworkData'">问题</span>
-                <span ng-if="selectedTab.id==='record'">{{selectedTab.title}}</span>
-            </div>
-            <div class='main col-xs-12' ng-class="{'col-md-9':dirSchemas.length,'col-md-12':dirSchemas.length===0}" ng-include="selectedTab.url"></div>
-        </div>
+        <div class='row' ng-include="activeView.url"></div>
     </div>
-    <button popover-placement="top-right" popover-trigger="'show'" popover-append-to-body="true" class="tms-act-toggle visible-xs-inline-block" popover-class="tms-act-popover" ng-if="dirSchemas.length&&selectedTab.title!=='专题'" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened"><span class='glyphicon glyphicon-folder-open' ng-class="{'opened':advCriteriaStatus.opened}"></span> 目录</button>
+    <tms-bottom-nav navs="navs" active-nav="activeNav" type="repos"></tms-bottom-nav> 
+    <button popover-placement="top-right" popover-trigger="'show'" popover-append-to-body="true" class="tms-act-toggle" popover-class="tms-act-popover" ng-if="selectedTab.id!=='topic'" ng-click="addRecord($event)" style="bottom:64px;"><span class='glyphicon glyphicon-plus'></span></button>
     <div id='favorGuide' ng-if="favorStack.guiding">
         <span>已收藏</span>
         <button class='btn btn-default' ng-click="assignTopic()">选择专题</button>

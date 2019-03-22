@@ -15,7 +15,10 @@ ngMod.directive('tmsFilter', ['$templateCache', '$timeout', function($templateCa
         },
         link: function(scope, elems, attrs) {
             scope.status = { isopen: false };
-            //scope.appendToEle = scope.$parent.appendToEle;
+            scope.isSmallLayout = false;
+            if (window.screen && window.screen.width < 992) {
+                scope.isSmallLayout = true;
+            }
             scope.selected = function(data, menu) {
                 scope.filter[data.type] = menu.id == null ? null : menu;
                 scope.criteria[data.type] = menu.id;

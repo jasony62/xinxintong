@@ -1,4 +1,4 @@
-<div class="col-md-12">
+<div class="app" id="tasks">
     <div class='form-group' ng-if="rounds.length>1">
         <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
             <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
@@ -17,12 +17,12 @@
             </div>
             <div ng-switch on="task.type">
                 <a href class="alert-link" ng-click="gotoTask(task)">
-                <span ng-switch-when="baseline">去制定目标</span>
-                <span ng-switch-when="question">去提问</span>
-                <span ng-switch-when="answer">去回答</span>
-                <span ng-switch-when="vote">去投票</span>
-                <span ng-switch-when="score">去打分</span>
-            </a>
+                        <span ng-switch-when="baseline">去制定目标</span>
+                        <span ng-switch-when="question">去提问</span>
+                        <span ng-switch-when="answer">去回答</span>
+                        <span ng-switch-when="vote">去投票</span>
+                        <span ng-switch-when="score">去打分</span>
+                    </a>
             </div>
         </div>
     </div>

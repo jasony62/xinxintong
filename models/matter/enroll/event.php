@@ -3409,6 +3409,12 @@ class event_model extends \TMS_MODEL {
 				$q[2] .= " and(userid='{$oUser->uid}' or owner_userid='{$oUser->uid}')";
 			}
 		}
+		if (isset($oOptions['notTargetType'])) {
+			if (is_array($oOptions['notTargetType'])) {
+				$notType = implode("','", $oOptions['notTargetType']);
+				$q[2] .= " and target_type not in ('" . $notType . "')";
+			}
+		}
 		$q2 = ['o' => 'event_at desc'];
 
 		/* 查询结果分页 */

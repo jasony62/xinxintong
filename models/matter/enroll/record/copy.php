@@ -66,6 +66,7 @@ class copy_model extends \TMS_MODEL {
 			// 记录是否有关联关系
 			$oRecordAcs = new \stdClass;// 问题的关联
 			$oCoworkAcs = new \stdClass;// 答案的关联
+			// 是否只能转发公共的关联素材？？？
 			$oAssocs = $modelAss->byRecord($oRecord, $oMockUser);
 			if (count($oAssocs)) {
 				foreach ($oAssocs as $oAssoc) {

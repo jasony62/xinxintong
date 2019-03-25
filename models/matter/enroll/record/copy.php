@@ -13,6 +13,7 @@ class copy_model extends \TMS_MODEL {
 		$modelUsr = $this->model('matter\enroll\user');
 		$modelSch = $this->model('matter\enroll\schema');
 		$modelEvt = $this->model('matter\enroll\event');
+		$modelAss = $this->model('matter\enroll\assoc');
 
 		// 源活动中的协作填写题
 		$aSourceCoworkSchemas = $modelSch->asAssoc($oApp->dynaDataSchemas, ['filter' => function ($oSchema) {return $oSchema->type === 'multitext' && isset($oSchema->cowork) && $oSchema->cowork === 'Y';}]);
@@ -41,7 +42,7 @@ class copy_model extends \TMS_MODEL {
 
 		$oNewRecs = [];
 		foreach ($eks as $ek) {
-			$oRecord = $modelRec->byId($ek, ['fields' => 'userid,nickname,data,agreed']);
+			$oRecord = $modelRec->byId($ek, ['fields' => 'id,userid,nickname,data,agreed']);
 			if (!$oRecord) {
 				continue;
 			}
@@ -62,12 +63,29 @@ class copy_model extends \TMS_MODEL {
 			} else {
 				$oMockUser->uid = $oMockUser->userid;
 			}
-
+			// 记录是否有关联关系
+			$oRecordAcs = new \stdClass;// 问题的关联
+			$oCoworkAcs = new \stdClass;// 答案的关联
+			$oAssocs = $modelAss->byRecord($oRecord, $oMockUser);
+			if (count($oAssocs)) {
+				foreach ($oAssocs as $oAssoc) {
+					if ($oAssoc->entity_a_type == 1) {
+						if (!isset($oRecordAcs->{$oAssoc->entity_a_id})) {
+							$oRecordAcs->{$oAssoc->entity_a_id} = [];
+						}
+						$oRecordAcs->{$oAssoc->entity_a_id}[] = $oAssoc;
+					} else if ($oAssoc->entity_a_type == 2) {
+						if (!isset($oCoworkAcs->{$oAssoc->entity_a_id})) {
+							$oCoworkAcs->{$oAssoc->entity_a_id} = [];
+						}
+						$oCoworkAcs->{$oAssoc->entity_a_id}[] = $oAssoc;
+					}
+				}
+			}
 			/* 在目标活动中创建新记录 */
 			$oNewRec = $modelRec->enroll($oTargetApp, $oMockUser);
 			$modelRec->setData($oMockUser, $oTargetApp, $oNewRec->enroll_key, $oNewRecData, '', true);
 			$oNewRecs[] = $oNewRec;
-
 			/* 协作填写数据 */
 			foreach ($aCoworkPairs as $targetSchemaId => $sourceSchemaId) {
 				/* 补充创建新的题目数据 */
@@ -97,9 +115,72 @@ class copy_model extends \TMS_MODEL {
 					$oNewItem = $modelDat->addCowork($oMockUser2, $oTargetApp, $oRecData, $oItem->value, $agreed);
 					/* 更新用户汇总信息及积分 */
 					$coworkResult = $modelEvt->submitCowork($oTargetApp, $oRecData, $oNewItem, $oMockUser2);
+					/* 更新关联关系 */
+					if (isset($oCoworkAcs->{$oItem->id})) {
+						$current = time();
+						foreach ($oCoworkAcs->{$oItem->id} as $oldCoworkAc) {
+							$oAssoc = new \stdClass;
+							$oAssoc->siteid = $oNewRec->siteid;
+							$oAssoc->aid = $oNewRec->aid;
+							$oAssoc->record_id = $oNewRec->id;
+							$oAssoc->entity_a_id = $oNewItem->id;
+							$oAssoc->entity_a_type = $oldCoworkAc->entity_a_type;
+							$oAssoc->entity_b_id = $oldCoworkAc->entity_b_id;
+							$oAssoc->entity_b_type = $oldCoworkAc->entity_b_type;
+							$oAssoc->first_assoc_at = $oAssoc->last_assoc_at = $current;
+							$oAssoc->public = $oldCoworkAc->public;
+							$oAssoc->assoc_text = $oldCoworkAc->assoc_text;
+							$oAssoc->assoc_reason = $oldCoworkAc->assoc_reason;
+							$oAssoc->assoc_mode = $oldCoworkAc->assoc_mode;
+							$oAssoc->assoc_num = 1;
+							$oAssoc->id = $this->insert('xxt_enroll_assoc', $oAssoc, true);
+							/* 记录用户日志 */
+							$oLog = new \stdClass;
+							$oLog->siteid = $oAssoc->siteid;
+							$oLog->aid = $oAssoc->aid;
+							$oLog->record_id = $oAssoc->record_id;
+							$oLog->assoc_id = $oAssoc->id;
+							$oLog->assoc_text = $oAssoc->assoc_text;
+							$oLog->assoc_reason = $oAssoc->assoc_reason;
+							$oLog->userid = $oItem->userid;
+							$oLog->link_at = $current;
+							$this->insert('xxt_enroll_assoc_log', $oLog, false);
+						}
+					}
 				}
 			}
-
+			// 记录的关联
+			if (isset($oRecordAcs->{$oRecord->id})) {
+				$current = time();
+				foreach ($oRecordAcs->{$oRecord->id} as $oldRecAc) {
+					$oAssoc = new \stdClass;
+					$oAssoc->siteid = $oNewRec->siteid;
+					$oAssoc->aid = $oNewRec->aid;
+					$oAssoc->record_id = $oNewRec->id;
+					$oAssoc->entity_a_id = $oNewRec->id;
+					$oAssoc->entity_a_type = $oldRecAc->entity_a_type;
+					$oAssoc->entity_b_id = $oldRecAc->entity_b_id;
+					$oAssoc->entity_b_type = $oldRecAc->entity_b_type;
+					$oAssoc->first_assoc_at = $oAssoc->last_assoc_at = $current;
+					$oAssoc->public = $oldRecAc->public;
+					$oAssoc->assoc_text = $oldRecAc->assoc_text;
+					$oAssoc->assoc_reason = $oldRecAc->assoc_reason;
+					$oAssoc->assoc_mode = $oldRecAc->assoc_mode;
+					$oAssoc->assoc_num = 1;
+					$oAssoc->id = $this->insert('xxt_enroll_assoc', $oAssoc, true);
+					/* 记录用户日志 */
+					$oLog = new \stdClass;
+					$oLog->siteid = $oAssoc->siteid;
+					$oLog->aid = $oAssoc->aid;
+					$oLog->record_id = $oAssoc->record_id;
+					$oLog->assoc_id = $oAssoc->id;
+					$oLog->assoc_text = $oAssoc->assoc_text;
+					$oLog->assoc_reason = $oAssoc->assoc_reason;
+					$oLog->userid = $oNewRec->userid;
+					$oLog->link_at = $current;
+					$this->insert('xxt_enroll_assoc_log', $oLog, false);
+				}
+			}
 		}
 
 		return [true, $oNewRecs];

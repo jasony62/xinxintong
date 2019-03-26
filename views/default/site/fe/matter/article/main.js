@@ -223,7 +223,7 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsLocation', '$timeout', '$q'
                 });
             }
             $scope.dataReady = 'Y';
-            http2.get('/rest/site/fe/matter/enroll/assoc/records?entity=article,' + id).then(function(rsp) {
+            http2.get('/rest/site/fe/matter/article/assocRecords?id=' + id + '&site=' + siteId).then(function(rsp) {
                 $scope.enrollAssocs = rsp.data;
             });
             deferred.resolve();

@@ -87,10 +87,10 @@
                             <button class="btn btn-custom-default" ng-repeat="c in article.channels" ng-click="openChannel(c)" ng-bind="c.title"></button>
                             <button class="btn btn-custom-default" ng-repeat="t in article.tags" ng-click="searchByTag(t)" ng-bind="t.title"></button>
                         </div>
-                        <div class='hide' id="enrollAssocs" ng-if="enrollAssocs.length">
+                        <div id="enrollAssocs" ng-if="enrollAssocs.length">
                             <hr>
                             <p class='assoc site-line' ng-repeat='assoc in enrollAssocs'>
-                                <a href ng-click="openEnrollAssoc(assoc)"><span ng-bind="::assoc.app.title"></span>：<span ng-bind="::assoc.entity_a_str"></span></a>
+                                <a href ng-click="openEnrollAssoc(assoc)"><span ng-bind="::assoc.app.title"></span>：<span dynamic-html="::assoc.entity_a_str"></span></a>
                             </p>
                         </div>
                         <div id="action" class='hide'>

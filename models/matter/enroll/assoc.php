@@ -243,16 +243,52 @@ class assoc_model extends entity_model {
 	 */
 	public function byEntityB($oEntity, $aOptions = []) {
 		$fields = empty($aOptions['fields']) ? '*' : $aOptions['fields'];
+		$cascaded = isset($aOptions['cascaded']) ? $aOptions['cascaded'] : 'N';
 
 		$q = [
 			$fields,
 			'xxt_enroll_assoc a',
 			['entity_b_id' => $oEntity->id, 'entity_b_type' => self::Type_StrToInt[$oEntity->type], 'public' => 'Y', 'assoc_num' => (object) ['op' => '>', 'pat' => 0]],
 		];
+		if (!empty($aOptions['byApp'])) {
+			if (is_array($aOptions['byApp'])) {
+				$q[2]['aid'] = $aOptions['byApp'];
+			}
+		}
 
 		$assocs = $this->query_objs_ss($q);
 		foreach ($assocs as $oAssoc) {
-			$oAssoc->entity_a_type = self::Type_IntToStr[(int) $oAssoc->entity_a_type];
+			if (property_exists($oAssoc, 'entity_a_type')) {
+				$oAssoc->entity_a_type = self::Type_IntToStr[(int) $oAssoc->entity_a_type];
+				if ($cascaded === 'Y') {
+					switch ($oAssoc->entity_a_type) {
+					case 'data':
+						if (!isset($modelApp)) {
+							$modelApp = $this->model('matter\enroll');
+						}
+						if (!isset($modelDat)) {
+							$modelDat = $this->model('matter\enroll\data');
+						}
+						if (!isset($modelSch)) {
+							$modelSch = $this->model('matter\enroll\schema');
+						}
+						$oRecData = $modelDat->byId($oAssoc->entity_a_id, ['fields' => 'id,aid,schema_id,enroll_key,value']);
+						if ($oRecData) {
+							$oApp = $modelApp->byId($oRecData->aid, ['fields' => 'siteid,title,data_schemas', 'cascaded' => 'N']);
+							if ($oApp) {
+								$oRecData->siteid = $oApp->siteid;
+								$aSchemaById = $modelSch->asAssoc($oApp->dynaDataSchemas, ['filter' => function ($oSchema) use ($oRecData) {return $oSchema->id === $oRecData->schema_id;}], true);
+								$oData = (object) [$oRecData->schema_id => $oRecData->value];
+								$oAssoc->app = (object) ['title' => $oApp->title, 'siteid' => $oApp->siteid, 'id' => $oRecData->aid];
+								unset($oRecData->aid);
+								$oAssoc->entityA = $oRecData;
+								$oAssoc->entity_a_str = $modelSch->strRecData($oData, $aSchemaById);
+							}
+						}
+						break;
+					}
+				}
+			}
 		}
 
 		return $assocs;

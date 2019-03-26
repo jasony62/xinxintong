@@ -90,7 +90,7 @@
                         <div id="enrollAssocs" ng-if="enrollAssocs.length">
                             <hr>
                             <p class='assoc site-line' ng-repeat='assoc in enrollAssocs'>
-                                <a href ng-click="openEnrollAssoc(assoc)"><span ng-bind="::assoc.app.title"></span>：<span dynamic-html="::assoc.entity_a_str"></span></a>
+                                <a href ng-click="openEnrollAssoc(assoc)"><span ng-bind="::assoc.app.title"></span>：<span ng-bind="::assoc.entity_a_str"></span></a>
                             </p>
                         </div>
                         <div id="action" class='hide'>
@@ -121,6 +121,7 @@
     </div>
     <script src="/static/js/xxt.ui.error.js"></script>
     <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/article/main.js');?>"></script>
 </body>

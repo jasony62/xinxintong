@@ -10,7 +10,7 @@ require('../../../../../../asset/js/xxt.ui.coinpay.js');
 require('../../../../../../asset/js/xxt.ui.share.js');
 require('../../../../../../asset/js/xxt.ui.picviewer.js');
 
-var ngApp = angular.module('app', ['ui.bootstrap', 'http.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'subscribe.ui.xxt', 'favor.ui.xxt', 'forward.ui.xxt', 'coinpay.ui.xxt', 'picviewer.ui.xxt']);
+var ngApp = angular.module('app', ['ui.bootstrap', 'http.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'subscribe.ui.xxt', 'favor.ui.xxt', 'forward.ui.xxt', 'coinpay.ui.xxt', 'picviewer.ui.xxt', 'ngSanitize']);
 ngApp.config(['$controllerProvider', function($cp) {
     ngApp.provider = {
         controller: $cp.register
@@ -225,6 +225,9 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsLocation', '$timeout', '$q'
             $scope.dataReady = 'Y';
             http2.get('/rest/site/fe/matter/article/assocRecords?id=' + id + '&site=' + siteId).then(function(rsp) {
                 $scope.enrollAssocs = rsp.data;
+                angular.forEach(rsp.data, function(data) {
+                    data.entity_a_str = data.entity_a_str.replace(/[^\u4e00-\u9fa5]/gi,"");
+                })
             });
             deferred.resolve();
         }, function(content, httpCode) {

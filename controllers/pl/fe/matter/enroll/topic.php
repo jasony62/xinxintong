@@ -14,7 +14,7 @@ class topic extends main_base {
 		$post = $this->getPostJson();
 
 		$q = [
-			'id,create_at,title,summary,rec_num,userid,group_id,nickname,share_in_group,is_public',
+			'id,siteid,aid,create_at,title,summary,rec_num,userid,group_id,nickname,share_in_group,is_public',
 			'xxt_enroll_topic',
 			['state' => 1, 'siteid' => $site, 'is_public' => 'Y'],
 		];
@@ -38,7 +38,7 @@ class topic extends main_base {
 		foreach ($topics as $topic) {
 			$topic->type = 'topic';
 		}
-		
+
 		$oResult = new \stdClass;
 		$oResult->topics = $topics;
 		if (!empty($page) && !empty($size) && count($topics) >= $size) {

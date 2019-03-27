@@ -35,7 +35,10 @@ class topic extends main_base {
 		}
 
 		$topics = $model->query_objs_ss($q, $q2);
-
+		foreach ($topics as $topic) {
+			$topic->type = 'topic';
+		}
+		
 		$oResult = new \stdClass;
 		$oResult->topics = $topics;
 		if (!empty($page) && !empty($size) && count($topics) >= $size) {

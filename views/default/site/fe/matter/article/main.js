@@ -10,7 +10,7 @@ require('../../../../../../asset/js/xxt.ui.coinpay.js');
 require('../../../../../../asset/js/xxt.ui.share.js');
 require('../../../../../../asset/js/xxt.ui.picviewer.js');
 
-var ngApp = angular.module('app', ['ui.bootstrap', 'http.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'subscribe.ui.xxt', 'favor.ui.xxt', 'forward.ui.xxt', 'coinpay.ui.xxt', 'picviewer.ui.xxt']);
+var ngApp = angular.module('app', ['ui.bootstrap', 'http.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'subscribe.ui.xxt', 'favor.ui.xxt', 'forward.ui.xxt', 'coinpay.ui.xxt', 'picviewer.ui.xxt', 'ngSanitize']);
 ngApp.config(['$controllerProvider', function($cp) {
     ngApp.provider = {
         controller: $cp.register
@@ -223,8 +223,13 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsLocation', '$timeout', '$q'
                 });
             }
             $scope.dataReady = 'Y';
-            http2.get('/rest/site/fe/matter/enroll/assoc/records?entity=article,' + id).then(function(rsp) {
+            http2.get('/rest/site/fe/matter/article/assocRecords?id=' + id + '&site=' + siteId).then(function(rsp) {
                 $scope.enrollAssocs = rsp.data;
+                angular.forEach(rsp.data, function(data) {
+                    if(data.entity_a_str) {
+                        data.entity_a_str = data.entity_a_str.replace(/<[^>]+>/g,"");
+                    }
+                })
             });
             deferred.resolve();
         }, function(content, httpCode) {
@@ -289,6 +294,9 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsLocation', '$timeout', '$q'
                 break;
             case 'link':
                 location.href = '/rest/site/fe/matter/link?site=' + oNavApp.siteid + '&id=' + oNavApp.id + '&type=' + oNavApp.type;
+                break;
+            case 'topic':
+                location.href = '/rest/site/fe/matter/enroll?site=' + oNavApp.siteid + '&app=' + oNavApp.aid + '&topic=' + oNavApp.id + '&page=topic';
                 break;
             default:
                 break;

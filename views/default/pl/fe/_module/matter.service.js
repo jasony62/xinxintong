@@ -130,8 +130,13 @@ provider('srvSite', function() {
 
                             pageAt && ($scope.page.at = pageAt);
                             params.byTitle = $scope.filter.byTitle ? $scope.filter.byTitle : '';
-                            url += '/' + matter.value;
-                            url += '/list?site=' + _siteId + '&page=' + $scope.page.at + '&size=' + $scope.page.size + '&fields=' + fields;
+                            /* 指定公共专题 */
+                            if (matter.value === 'topic') {
+                                url += '/enroll/' + matter.value + '/listPublicBySite';
+                            } else {
+                                url += '/' + matter.value + '/list';
+                            }
+                            url += '?site=' + _siteId + '&page=' + $scope.page.at + '&size=' + $scope.page.size + '&fields=' + fields;
                             /*指定记录活动场景*/
                             if (matter.value === 'enroll' && matter.scenario) {
                                 url += '&scenario=' + matter.scenario;
@@ -144,7 +149,7 @@ provider('srvSite', function() {
                                 url += '&platform=Y';
                             }
                             $http.post(url, params).success(function(rsp) {
-                                $scope.matters = rsp.data.docs || rsp.data.apps || rsp.data.missions;
+                                $scope.matters = rsp.data.docs || rsp.data.apps || rsp.data.missions || rsp.data.topics;
                                 $scope.page.total = rsp.data.total;
                             });
                         };

@@ -3,7 +3,7 @@ namespace pl\fe\matter\enroll;
 
 require_once dirname(__FILE__) . '/main_base.php';
 /*
- * 记录活动积分管理控制器
+ * 专题管理控制器
  */
 class topic extends main_base {
 	/**

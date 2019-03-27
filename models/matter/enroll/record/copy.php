@@ -66,7 +66,7 @@ class copy_model extends \TMS_MODEL {
 			// 记录是否有关联关系
 			$oRecordAcs = new \stdClass;// 问题的关联
 			$oCoworkAcs = new \stdClass;// 答案的关联
-			$oAssocs = $modelAss->byRecord($oRecord, $oMockUser);
+			$oAssocs = $modelAss->byRecord($oRecord, $oMockUser, ['getAll' => true]);
 			if (count($oAssocs)) {
 				foreach ($oAssocs as $oAssoc) {
 					if ($oAssoc->entity_a_type == 1) {

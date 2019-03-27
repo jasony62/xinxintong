@@ -226,7 +226,9 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsLocation', '$timeout', '$q'
             http2.get('/rest/site/fe/matter/article/assocRecords?id=' + id + '&site=' + siteId).then(function(rsp) {
                 $scope.enrollAssocs = rsp.data;
                 angular.forEach(rsp.data, function(data) {
-                    data.entity_a_str = data.entity_a_str.replace(/[^\u4e00-\u9fa5]/gi,"");
+                    if(data.entity_a_str) {
+                        data.entity_a_str = data.entity_a_str.replace(/<[^>]+>/g,"");
+                    }
                 })
             });
             deferred.resolve();

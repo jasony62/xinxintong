@@ -123,6 +123,51 @@ class main extends \site\fe\matter\base {
 		return new \ResponseData($result);
 	}
 	/**
+	 * 根据被关联的对象，获得建立关联的记录
+	 */
+	public function assocRecords_action($site, $id) {
+		$modelArticle = $this->model('matter\article');
+		$oArticle = $modelArticle->byId($id);
+		if ($oArticle === false || $oArticle->state !== '1') {
+			return new \ResponseError('指定的活动不存在，请检查参数是否正确');
+		}
+
+		$navApps = [];
+		/* 单图文所属的频道 */
+		$oArticle->channels = $this->model('matter\channel')->byMatter($oArticle->id, 'article', ['public_visible' => 'Y']);
+		foreach ($oArticle->channels as $oChannel) {
+			if (!empty($oChannel->config->nav->app)) {
+				$navApps = array_merge($navApps, $oChannel->config->nav->app);
+			}
+		}
+		if (!empty($oArticle->config->nav->app)) {
+			$navApps = array_merge($navApps, $oArticle->config->nav->app);
+		}
+
+		// 是否指定了关联记录所在的活动
+		$assocsApps = [];
+		foreach ($navApps as $navApp) {
+			if ($navApp->type === 'enroll') {
+				$assocsApps[] = $navApp->id;
+			}
+		}
+		// 没有指定返回空数组
+		if (empty($assocsApps)) {
+			return new \ResponseData([]);
+		}
+
+		$modelAss = $this->model('matter\enroll\assoc');
+		$oMatter = (object) ['id' => $id, 'type' => 'article'];
+		$aOptions = [
+			'fields' => 'id,entity_a_id,entity_a_type',
+			'byApp' => array_unique($assocsApps),
+			'cascaded' => 'Y',
+		];
+		$assocs = $modelAss->byEntityB($oMatter, $aOptions);
+
+		return new \ResponseData($assocs);
+	}
+	/**
 	 * 下载附件
 	 */
 	public function attachmentGet_action($site, $articleid, $attachmentid) {

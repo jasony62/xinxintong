@@ -184,30 +184,9 @@ class assoc extends base {
 		$modelAss = $this->model('matter\enroll\assoc');
 		$aOptions = [
 			'fields' => 'id,entity_a_id,entity_a_type',
+			'cascaded' => 'Y',
 		];
 		$assocs = $modelAss->byEntityB($oMatter, $aOptions);
-		foreach ($assocs as $oAssoc) {
-			switch ($oAssoc->entity_a_type) {
-			case 'data':
-				$modelApp = $this->model('matter\enroll');
-				$modelDat = $this->model('matter\enroll\data');
-				$modelSch = $this->model('matter\enroll\schema');
-				$oRecData = $modelDat->byId($oAssoc->entity_a_id, ['fields' => 'id,aid,schema_id,enroll_key,value']);
-				if ($oRecData) {
-					$oApp = $modelApp->byId($oRecData->aid, ['fields' => 'siteid,title,data_schemas', 'cascaded' => 'N']);
-					if ($oApp) {
-						$oRecData->siteid = $oApp->siteid;
-						$aSchemaById = $modelSch->asAssoc($oApp->dynaDataSchemas, ['filter' => function ($oSchema) use ($oRecData) {return $oSchema->id === $oRecData->schema_id;}], true);
-						$oData = (object) [$oRecData->schema_id => $oRecData->value];
-						$oAssoc->app = (object) ['title' => $oApp->title, 'siteid' => $oApp->siteid, 'id' => $oRecData->aid];
-						unset($oRecData->aid);
-						$oAssoc->entityA = $oRecData;
-						$oAssoc->entity_a_str = $modelSch->strRecData($oData, $aSchemaById);
-					}
-				}
-				break;
-			}
-		}
 
 		return new \ResponseData($assocs);
 	}

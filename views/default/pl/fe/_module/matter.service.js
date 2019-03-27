@@ -132,7 +132,7 @@ provider('srvSite', function() {
                             params.byTitle = $scope.filter.byTitle ? $scope.filter.byTitle : '';
                             /* 指定公共专题 */
                             if (matter.value === 'topic') {
-                                url += '/enroll' + matter.value + '/listPublicBySite';
+                                url += '/enroll/' + matter.value + '/listPublicBySite';
                             } else {
                                 url += '/' + matter.value + '/list';
                             }
@@ -149,7 +149,7 @@ provider('srvSite', function() {
                                 url += '&platform=Y';
                             }
                             $http.post(url, params).success(function(rsp) {
-                                $scope.matters = rsp.data.docs || rsp.data.apps || rsp.data.missions;
+                                $scope.matters = rsp.data.docs || rsp.data.apps || rsp.data.missions || rsp.data.topics;
                                 $scope.page.total = rsp.data.total;
                             });
                         };

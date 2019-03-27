@@ -293,6 +293,9 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsLocation', '$timeout', '$q'
             case 'link':
                 location.href = '/rest/site/fe/matter/link?site=' + oNavApp.siteid + '&id=' + oNavApp.id + '&type=' + oNavApp.type;
                 break;
+            case 'topic':
+                location.href = '/rest/site/fe/matter/enroll?site=' + oNavApp.siteid + '&app=' + oNavApp.aid + '&topic=' + oNavApp.id + '&page=topic';
+                break;
             default:
                 break;
         }

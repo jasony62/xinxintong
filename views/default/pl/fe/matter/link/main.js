@@ -232,6 +232,10 @@ define(['frame'], function(ngApp) {
                     value: 'link',
                     title: '链接',
                     url: '/rest/pl/fe/matter'
+                }, {
+                    value: 'topic',
+                    title: '公共专题',
+                    url: '/rest/pl/fe/matter'
                 }],
                 singleMatter: true
             };
@@ -243,7 +247,8 @@ define(['frame'], function(ngApp) {
                         type: result.matters[0].type,
                         id: result.matters[0].id,
                         title: result.matters[0].title,
-                        siteid: result.matters[0].siteid
+                        siteid: result.matters[0].siteid,
+                        aid: result.matters[0].aid
                     });
                     $scope.update('config');
                 }

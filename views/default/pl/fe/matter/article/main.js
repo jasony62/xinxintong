@@ -67,18 +67,15 @@ define(['frame'], function(ngApp) {
             };
             srvSite.openGallery(oOptions).then(function(result) {
                 if (result.matters && result.matters.length === 1) {
-                    console.log(result.matters);
                     !_oEditing.config.nav && (_oEditing.config.nav = {});
                     !_oEditing.config.nav.app && (_oEditing.config.nav.app = []);
                     _oEditing.config.nav.app.push({
                         id: result.matters[0].id,
                         title: result.matters[0].title,
                         siteid: result.matters[0].siteid,
-                        type: result.matters[0].type
+                        type: result.matters[0].type,
+                        aid: result.matters[0].aid
                     });
-                    if(result.matters[0].type==='topic') {
-                        _oEditing.config.nav.app.push({aid: result.matters[0].id});
-                    }
                     srvApp.update('config');
                 }
             });

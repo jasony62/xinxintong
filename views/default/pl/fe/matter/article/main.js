@@ -58,6 +58,10 @@ define(['frame'], function(ngApp) {
                     value: 'link',
                     title: '链接',
                     url: '/rest/pl/fe/matter'
+                },{
+                    value: 'topic',
+                    title: '公共专题',
+                    url: '/rest/pl/fe/matter'
                 }],
                 singleMatter: true
             };
@@ -72,6 +76,9 @@ define(['frame'], function(ngApp) {
                         siteid: result.matters[0].siteid,
                         type: result.matters[0].type
                     });
+                    if(result.matters[0].type==='topic') {
+                        _oEditing.config.nav.app.push({aid: result.matters[0].id});
+                    }
                     srvApp.update('config');
                 }
             });

@@ -243,13 +243,23 @@ define(['frame'], function(ngApp) {
                 if (result.matters && result.matters.length === 1) {
                     !$scope.editing.config.nav && ($scope.editing.config.nav = {});
                     !$scope.editing.config.nav.app && ($scope.editing.config.nav.app = []);
-                    $scope.editing.config.nav.app.push({
-                        type: result.matters[0].type,
-                        id: result.matters[0].id,
-                        title: result.matters[0].title,
-                        siteid: result.matters[0].siteid,
-                        aid: result.matters[0].aid
-                    });
+                    if (result.matters[0].type === 'topic') {
+                        $scope.editing.config.nav.app.push({
+                            id: result.matters[0].id,
+                            title: result.matters[0].title,
+                            siteid: result.matters[0].siteid,
+                            type: result.matters[0].type,
+                            aid: result.matters[0].aid
+                        });
+                    } else {
+                        $scope.editing.config.nav.app.push({
+                            id: result.matters[0].id,
+                            title: result.matters[0].title,
+                            siteid: result.matters[0].siteid,
+                            type: result.matters[0].type,
+
+                        });
+                    }
                     $scope.update('config');
                 }
             });

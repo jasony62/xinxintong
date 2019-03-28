@@ -83,7 +83,7 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.cancelGlobal = function(oMatter) {
-            var url = '/rest/pl/be/home/recommend/canelGlobal?application=' + oMatter.id;
+            var url = '/rest/pl/be/home/recommend/cancelGlobal?application=' + oMatter.id;
             http2.post(url, {}).then(function(rsp) {
                 oMatter.as_global = 'N';
             });

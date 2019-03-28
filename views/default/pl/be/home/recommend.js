@@ -5,48 +5,6 @@ define(['frame'], function(ngApp) {
             category: 'article'
         };
     }]);
-    ngApp.provider.controller('ctrlTemplate', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
-        $scope.page = {
-            at: 1,
-            size: 8,
-            j: function() {
-                return '&page=' + this.at + '&size=' + this.size;
-            }
-        };
-        $scope.searchTemplate = function() {
-            var url = '/rest/pl/fe/template/platform/list?matterType=enroll' + $scope.page.j();
-            http2.get(url).then(function(rsp) {
-                $scope.templates = rsp.data.templates;
-                $scope.page.total = rsp.data.total;
-            });
-        };
-        $scope.preview = function(template) {
-            $uibModal.open({
-                templateUrl: 'previewTemplate.html',
-                controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
-                    $scope.cancel = function() {
-                        $mi.dismiss();
-                    };
-                    $scope.ok = function() {
-                        $mi.close($scope.data);
-                    };
-                }],
-                backdrop: 'static'
-            }).result.then(function(data) {
-                var url = '/rest/pl/be/home/recommend/pushTemplate?template=' + template.id;
-                http2.post(url, {}).then(function(rsp) {
-                    template.push_home = 'Y';
-                });
-            });
-        };
-        $scope.pullHome = function(template) {
-            var url = '/rest/pl/be/home/recommend/pullTemplate?template=' + template.id;
-            http2.post(url, {}).then(function(rsp) {
-                template.push_home = 'N';
-            });
-        };
-        $scope.searchTemplate();
-    }]);
     ngApp.provider.controller('ctrlMatter', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
         $scope.page = {
             at: 1,
@@ -81,7 +39,7 @@ define(['frame'], function(ngApp) {
                     $scope2.cancel = function() {
                         $mi.dismiss();
                     };
-                    $scope2.pushHome = function() {
+                    $scope2.carryHome = function() {
                         $mi.close();
                     };
                     $scope2.asGlobal = function() {
@@ -106,13 +64,13 @@ define(['frame'], function(ngApp) {
                 });
             });
         };
-        $scope.pullHome = function(oMatter) {
+        $scope.cancelHome = function(oMatter) {
             var url = '/rest/pl/be/home/recommend/pullMatter?application=' + oMatter.id;
             http2.post(url, {}).then(function(rsp) {
                 oMatter.approved = 'N';
             });
         };
-        $scope.carryHome = function(oMatter) {
+        $scope.carryTop = function(oMatter) {
             var url = '/rest/pl/be/home/recommend/pushMatterTop?application=' + oMatter.id;
             http2.post(url, {}).then(function(rsp) {
                 oMatter.weight = '1';
@@ -150,28 +108,72 @@ define(['frame'], function(ngApp) {
         $scope.open = function(application) {
             $uibModal.open({
                 templateUrl: 'previewMatter.html',
-                controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.application = angular.copy(application);
+                    $scope2.filter = $scope.criteria;
+                    $scope2.carryHome = function() {
+                        $mi.close();
+                    };
                     $scope.cancel = function() {
                         $mi.dismiss();
                     };
-                    $scope.ok = function() {
-                        $mi.close($scope.data);
-                    };
                 }],
                 backdrop: 'static'
-            }).result.then(function(data) {
+            }).result.then(function() {
                 var url = '/rest/pl/be/home/recommend/pushSite?application=' + application.id;
                 http2.post(url, {}).then(function(rsp) {
                     application.approved = 'Y';
                 });
             });
         };
-        $scope.pullHome = function(application) {
+        $scope.cancelHome = function(application) {
             var url = '/rest/pl/be/home/recommend/pullSite?application=' + application.id;
             http2.post(url, {}).then(function(rsp) {
                 application.approved = 'N';
             });
         };
         $scope.searchApplication();
+    }]);
+    ngApp.provider.controller('ctrlTemplate', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
+        $scope.page = {
+            at: 1,
+            size: 8,
+            j: function() {
+                return '&page=' + this.at + '&size=' + this.size;
+            }
+        };
+        $scope.searchTemplate = function() {
+            var url = '/rest/pl/fe/template/platform/list?matterType=enroll' + $scope.page.j();
+            http2.get(url).then(function(rsp) {
+                $scope.templates = rsp.data.templates;
+                $scope.page.total = rsp.data.total;
+            });
+        };
+        $scope.preview = function(template) {
+            $uibModal.open({
+                templateUrl: 'previewTemplate.html',
+                controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
+                    $scope.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope.carryHome = function() {
+                        $mi.close($scope.data);
+                    };
+                }],
+                backdrop: 'static'
+            }).result.then(function(data) {
+                var url = '/rest/pl/be/home/recommend/pushTemplate?template=' + template.id;
+                http2.post(url, {}).then(function(rsp) {
+                    template.push_home = 'Y';
+                });
+            });
+        };
+        $scope.cancelHome = function(template) {
+            var url = '/rest/pl/be/home/recommend/pullTemplate?template=' + template.id;
+            http2.post(url, {}).then(function(rsp) {
+                template.push_home = 'N';
+            });
+        };
+        $scope.searchTemplate();
     }]);
 });

@@ -138,7 +138,7 @@ class favor extends base {
 		}
 		// 查询条件
 		$q = [
-			'r.id,r.state,r.enroll_key,r.rid,r.purpose,r.enroll_at,r.userid,r.group_id,r.nickname,r.verified,r.comment,r.data,r.score,r.supplement,r.agreed,r.like_num,r.like_log,r.remark_num,r.favor_num,r.dislike_num,r.dislike_log',
+			'f.favor_at,r.id,r.state,r.enroll_key,r.rid,r.purpose,r.enroll_at,r.userid,r.group_id,r.nickname,r.verified,r.comment,r.data,r.score,r.supplement,r.agreed,r.like_num,r.like_log,r.remark_num,r.favor_num,r.dislike_num,r.dislike_log',
 			"xxt_enroll_record_favor f,xxt_enroll_record r",
 			$w,
 		];

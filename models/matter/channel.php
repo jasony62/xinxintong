@@ -128,95 +128,29 @@ class channel_model extends article_base {
 			return $matters;
 		}
 
-		// 过滤不可用的素材
-		$filterMatters = function ($typeMatters) {
-			$typeMatters2 = [];
-			foreach ($typeMatters as $typeMatter) {
-				/* 检查素材是否可用 */
-				$valid = true;
-				if ($typeMatter->matter_type !== 'article') {
-					$fullMatter = $this->model('matter\\' . $typeMatter->matter_type)->byId($typeMatter->matter_id);
-				} else {
-					$q = [
-						"a.id,a.title,a.creater_name,a.create_at,a.summary,a.pic,a.state,'article' type,a.matter_cont_tag,a.matter_mg_tag,s.name site_name,s.id siteid,s.heading_pic",
-						'xxt_article a, xxt_site s',
-						"a.id = $typeMatter->matter_id and a.state = 1 and a.approved = 'Y' and a.siteid=s.id and s.state = 1",
-					];
-					$fullMatter = $this->query_obj_ss($q);
-				}
-
-				if (false === $fullMatter) {
-					continue;
-				}
-
-				switch ($typeMatter->matter_type) {
-				case 'enroll':
-				case 'signin':
-					if ($fullMatter->state !== '1' && $fullMatter->state !== '2') {
-						$valid = false;
-					}
-					break;
-				default:
-					if ($fullMatter->state !== '1') {
-						$valid = false;
-					}
-				}
-				if (!$valid) {
-					continue;
-				}
-
-				$fullMatter->type = $typeMatter->matter_type;
-				$fullMatter->seq = $typeMatter->seq;
-				$fullMatter->add_at = $typeMatter->add_at;
-				$typeMatters2[] = $fullMatter;
-			}
-
-			return $typeMatters2;
-		};
-
-		/**
-		 * 获取置顶和置底的素材 top、bottom
-		 */
-		$qtb = [
-			'create_at add_at,matter_type,matter_id,seq',
-			'xxt_channel_matter',
-			['seq' => (object) ['op' => '<>', 'pat' => 10000], 'channel_id' => $channel_id]
-		];
-		if (!empty($channel->matter_type)) {
-			$q[2]['matter_type'] = $channel->matter_type;
+		if (empty($channel->matter_type)) {
+			$matterTypes = [
+				'article' => 'xxt_article',
+				'enroll' => 'xxt_enroll',
+				'signin' => 'xxt_signin',
+				//'channel' => 'xxt_channel',
+				//'news' => 'xxt_news',
+				'link' => 'xxt_link',
+				'mission' => 'xxt_mission',
+			];
+		} else {
+			$matterTypes = [$channel->matter_type => 'xxt_' . $channel->matter_type];
 		}
-		$ptb['o'] = "seq,create_at desc,matter_id desc,matter_type desc";
-		$ptb['r']['o'] = 0;
-		$ptb['r']['l'] = $channel->volume;
-		$TBMatters = $this->query_objs_ss($qtb, $ptb);
-		// 过滤已删除的素材
-		$TBMatters = $filterMatters($TBMatters);
-		//已有素材数量
-		$fixed_num = count($TBMatters);
 
-		if ($fixed_num < $channel->volume) {
-			// 还差素材数量
-			$centre_num = (int) $channel->volume - $fixed_num;
-			// 获取部分素材
-			if (empty($channel->matter_type)) {
-				$matterTypes = [
-					'article' => 'xxt_article',
-					'enroll' => 'xxt_enroll',
-					'signin' => 'xxt_signin',
-					//'channel' => 'xxt_channel',
-					//'news' => 'xxt_news',
-					'link' => 'xxt_link',
-					'mission' => 'xxt_mission',
-				];
-			} else {
-				$matterTypes = [$channel->matter_type => 'xxt_' . $channel->matter_type];
-			}
+		// 获取素材
+		$getTypeMatters = function ($seq, $num, $orderby = '', $sort = true) use ($channel, $matterTypes, $channel_id) {
 			$typeMatters = [];
 			foreach ($matterTypes as $type => $table) {
 				$q1 = [];
-				$q1[] = $this->matterColumns($type) . ",cm.create_at add_at";
+				$q1[] = $this->matterColumns($type) . ",cm.create_at add_at,cm.seq";
 				$q1[] = "$table m,xxt_channel_matter cm";
-				$qaw = "cm.channel_id=$channel_id and m.id=cm.matter_id and cm.matter_type='$type' and cm.seq=10000";
+				$qaw = "cm.channel_id=$channel_id and m.id=cm.matter_id and cm.matter_type='$type'";
+				$qaw .= " and " . $seq;
 				switch ($type) {
 				case 'article':
 					$qaw .= " and m.state<>0 and m.approved='Y'";
@@ -232,20 +166,40 @@ class channel_model extends article_base {
 				$q1[] = $qaw;
 				$q2 = [];
 				//order by
-				$q2['o'] = $this->matterOrderby($type, $channel->orderby, 'cm.create_at desc');
+				if (empty($orderby)) {
+					$q2['o'] = $this->matterOrderby($type, $channel->orderby, 'cm.create_at desc');
+				} else {
+					$q2['o'] = $orderby;
+				}
 				$q2['r']['o'] = 0;
-				$q2['r']['l'] = $centre_num;
+				$q2['r']['l'] = $num;
 				$rst = $this->query_objs_ss($q1, $q2);
 				$typeMatters = array_merge($typeMatters, $rst);
 			}
 			//order by add_at
-			if (count($matterTypes) > 1) {
+			if (count($matterTypes) > 1 && $sort) {
 				usort($typeMatters, function ($a, $b) {
 					return $b->add_at - $a->add_at;
 				});
 			}
 			// 截取指定数量
-			$typeMatters = array_slice($typeMatters, 0, $centre_num);
+			$typeMatters = array_slice($typeMatters, 0, $num);
+
+			return $typeMatters;
+		};
+		// -------------------------------
+		/**
+		 * 获取置顶和置底的素材 top、bottom
+		 */
+		$TBMatters = $getTypeMatters('cm.seq <> 10000', $channel->volume, 'cm.seq,cm.create_at desc,cm.matter_id desc,cm.matter_type desc', false);
+		//已有素材数量
+		$fixed_num = count($TBMatters);
+
+		if ($fixed_num < $channel->volume) {
+			// 还差素材数量
+			$centre_num = (int) $channel->volume - $fixed_num;
+			// 获取部分素材
+			$typeMatters = $getTypeMatters('cm.seq = 10000', $centre_num);
 			// 组合素材
 			$topMatters = [];
 			$botmMatters = [];

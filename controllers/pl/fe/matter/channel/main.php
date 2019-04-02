@@ -255,7 +255,7 @@ class main extends \pl\fe\matter\main_base {
 					$newc['creater_name'] = $oUser->name;
 					$newc['channel_id'] = $id;
 					$newc['seq'] = ++$maxSeq;
-					$this->insert('xxt_channel_matter', $newc, false);
+					$modelChn->insert('xxt_channel_matter', $newc, false);
 				}
 			}
 		} else if ($pos === 'bottom') {
@@ -289,7 +289,7 @@ class main extends \pl\fe\matter\main_base {
 					$newc['creater_name'] = $oUser->name;
 					$newc['channel_id'] = $id;
 					$newc['seq'] = ++$maxSeq;
-					$this->insert('xxt_channel_matter', $newc, false);
+					$modelChn->insert('xxt_channel_matter', $newc, false);
 				}
 			}
 		}

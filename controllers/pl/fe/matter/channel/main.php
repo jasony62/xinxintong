@@ -323,16 +323,12 @@ class main extends \pl\fe\matter\main_base {
 					$modelCh->addMatter($channel->id, $matter, $oUser->id, $oUser->name);
 				}
 			}
-
-			return new \ResponseData('ok');
 		} else {
 			foreach ($matters as $matter) {
 				$modelCh->addMatter($channel, $matter, $oUser->id, $oUser->name);
 			}
-			$matters = $modelCh->getMatters($channel);
-
-			return new \ResponseData($matters);
 		}
+		return new \ResponseData('ok');
 	}
 	/**
 	 *

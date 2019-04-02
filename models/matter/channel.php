@@ -297,11 +297,13 @@ class channel_model extends article_base {
 	 *
 	 * @return 频道包含的所有条目
 	 */
-	public function &getMattersNoLimit($channel_id, $userid, $params) {
+	public function &getMattersNoLimit($channel_id, $userid, $params, $channel = '') {
 		/**
 		 * load channel.
 		 */
-		$channel = $this->byId($channel_id, ['fields' => 'matter_type,orderby,volume']);
+		if (empty($channel)) {
+			$channel = $this->byId($channel_id, ['fields' => 'matter_type,orderby,volume']);
+		}
 		/**
 		 * in channel
 		 */
@@ -312,7 +314,19 @@ class channel_model extends article_base {
 			$q1[] = "m.id,m.title,m.summary,m.pic,m.create_at,m.creater_name,cm.create_at add_at,'article' type,m.remark_num,st.name site_name,st.id siteid,st.heading_pic,m.matter_cont_tag,m.matter_mg_tag,cm.seq";
 			$q1[] = "xxt_article m,xxt_channel_matter cm,xxt_site st";
 			$q1[] = "m.state=1 and m.approved='Y' and cm.channel_id=$channel_id and m.id=cm.matter_id and cm.matter_type='article' and m.siteid=st.id";
-
+			if (!empty($params->weight)) {
+				switch ($params->weight) {
+					case 'top':
+						$q1[2] .= "cm.seq < 10000";
+						break;
+					case 'bottom':
+						$q1[2] .= "cm.seq > 20000";
+						break;
+					default:
+						$q1[2] .= "cm.seq = 10000";
+						break;
+				}
+			}
 			$q2 = array();
 			$q2['o'] = 'cm.seq,' . $this->matterOrderby('article', $orderby, 'cm.create_at desc');
 
@@ -347,6 +361,19 @@ class channel_model extends article_base {
 				'xxt_channel_matter cm',
 				["cm.channel_id" => $channel_id],
 			];
+			if (!empty($params->weight)) {
+				switch ($params->weight) {
+					case 'top':
+						$q1[2]['cm.seq'] = (object) ['op' => '<', 'pat' => 10000];
+						break;
+					case 'bottom':
+						$q1[2]['cm.seq'] = (object) ['op' => '>', 'pat' => 20000];
+						break;
+					default:
+						$q1[2]['cm.seq'] = 10000;
+						break;
+				}
+			}
 			$q2['o'] = 'cm.seq, cm.create_at desc , cm.matter_id desc , cm.matter_type desc';
 
 			// 分页获取，如果素材已经删除，或者素材尚未批准的情况下，分页会导致返回的数量不正确
@@ -430,6 +457,7 @@ class channel_model extends article_base {
 		$newc['create_at'] = $current;
 		$newc['creater'] = $createrId;
 		$newc['creater_name'] = $createrName;
+		$newc['seq'] = 10000;
 
 		/* 是否已经加入到频道中 */
 		$q = [

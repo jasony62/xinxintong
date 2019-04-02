@@ -1,9 +1,9 @@
 'use strict';
 require('./summary.css');
-
+require('./_asset/ui.bottom.nav.js');
 require('./_asset/ui.round.js');
 
-window.moduleAngularModules = ['round.ui.enroll', 'schema.ui.xxt', 'sys.chart', 'ngRoute'];
+window.moduleAngularModules = ['nav.bottom.ui', 'round.ui.enroll', 'schema.ui.xxt', 'sys.chart', 'ngRoute'];
 
 var ngApp = require('./main.js');
 ngApp.config(['$routeProvider', function($routeProvider) {
@@ -13,7 +13,25 @@ ngApp.config(['$routeProvider', function($routeProvider) {
         .when('/rest/site/fe/matter/enroll/summary/stat', { template: require('./summary/stat.html'), controller: 'ctrlSummaryStat' })
         .otherwise({ template: require('./summary/rank.html'), controller: 'ctrlSummaryRank' });
 }]);
-ngApp.controller('ctrlSummary', ['$scope', 'tmsLocation', function($scope, LS) {}]);
+ngApp.controller('ctrlSummary', ['$scope', 'tmsLocation', '$location', 'http2', function($scope, LS, $location, http2) {
+    $scope.activeNav = '';
+    $scope.viewTo = function(event, subView) {
+        $scope.activeView = subView;
+        var url = '/rest/site/fe/matter/enroll/summary/' + subView.type;
+        LS.path(url);
+    };
+    $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+        var subView = currentRoute.match(/([^\/]+?)\?/);
+        $scope.subView = subView[1] === 'rank' ? 'rank' : subView[1];
+    });
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        /* 请求导航 */
+        $scope.oApp = params.app;
+        http2.get(LS.j('navs', 'site', 'app')).then(function(rsp) {
+            $scope.navs = rsp.data;
+        });
+    });
+}]);
 ngApp.controller('ctrlSummaryRank', ['$scope', '$q', '$sce', 'tmsLocation', 'http2', 'enlRound', function($scope, $q, $sce, LS, http2, enlRound) {
     function fnRoundTitle(aRids) {
         var defer;
@@ -108,8 +126,9 @@ ngApp.controller('ctrlSummaryRank', ['$scope', '$q', '$sce', 'tmsLocation', 'htt
             $scope.changeCriteria();
         });
     };
-    $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        oApp = params.app;
+    $scope.$watch('oApp', function(nv) {
+        if (!nv) { return; }
+        oApp = nv;
         var oRankConfig, oConfig, rankItems, dataSchemas;
         dataSchemas = oApp.dynaDataSchemas;
         /* 排行显示内容设置 */
@@ -258,8 +277,9 @@ ngApp.controller('ctrlSummaryVotes', ['$scope', '$q', '$timeout', 'tmsLocation',
         _oCriteria.rid = oRound ? oRound.rid : 'all';
         $scope.getVotes();
     };
-    $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        _oApp = params.app;
+    $scope.$watch('app', function(oApp) {
+        if (!oApp) { return; }
+        _oApp = oApp;
         $scope.facRound = _facRound = new enlRound(_oApp);
         _facRound.list().then(function(result) {
             if (result.active) {
@@ -343,8 +363,9 @@ ngApp.controller('ctrlSummaryMarks', ['$scope', '$q', '$timeout', '$filter', 'tm
         _oCriteria.rid = oRound ? oRound.rid : 'all';
         $scope.getMarks();
     };
-    $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        _oApp = params.app;
+    $scope.$watch('app', function(oApp) {
+        if (!oApp) { return; }
+        _oApp = oApp;
         $scope.facRound = _facRound = new enlRound(_oApp);
         _facRound.list().then(function(result) {
             if (result.active) {
@@ -435,8 +456,9 @@ ngApp.controller('ctrlSummaryStat', ['$scope', '$timeout', '$uibModal', '$q', 't
     $scope.shiftRound = function(oRound) {
         location.href = LS.j('', 'site', 'app') + '&rid=' + oRound.rid + '&page=stat';
     };
-    $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        _oApp = params.app;
+    $scope.$watch('app', function(oApp) {
+        if (!oApp) { return; }
+        _oApp = oApp;
 
         function fnDrawChart() {
             var item, scoreSummary = [],

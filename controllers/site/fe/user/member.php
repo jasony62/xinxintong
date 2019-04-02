@@ -72,7 +72,7 @@ class member extends \site\fe\base {
 				if (false === $bFollowed) {
 					$rst = $this->model('sns\wx\call\qrcode')->createOneOff($oMschema->siteid, $oMschema2);
 					if ($rst[0] === false) {
-						$this->snsFollow($oMschema->siteid, 'wx', $oMschema);
+						$this->snsFollow($oMschema->siteid, 'wx', $oMschema2);
 					} else {
 						$sceneId = $rst[1]->scene_id;
 						$this->snsFollow($oMschema->siteid, 'wx', false, $sceneId);

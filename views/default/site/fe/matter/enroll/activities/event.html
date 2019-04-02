@@ -1,4 +1,4 @@
-<div class="col-md-12">
+<div class="app" id="event">
     <div ng-if="tasks.length">
         <div uib-alert ng-repeat="task in tasks" class='alert-info' close="closeTask($index)" ng-switch="task.id">
             <span>{{task.msg}}</span>
@@ -7,19 +7,15 @@
             <span ng-switch-when="record.like.end"></span>
         </div>
     </div>
-    <div class='row'>
-        <div class='col-md-12'>
-            <div class='form-group'>
-                <label class='radio-inline'>
-                    <input type='radio' name='scope' value='N' ng-model="filter.scope">通知</label>
-                <label class='radio-inline'>
-                    <input type='radio' name='scope' value='M' ng-model="filter.scope">我的</label>
-                <label class='radio-inline'>
-                    <input type='radio' name='scope' value='A' ng-model="filter.scope">全部</label>
-            </div>
-            <div ng-include="subView"></div>
-        </div>
+    <div class='form-group'>
+        <label class='radio-inline'>
+            <input type='radio' name='scope' value='N' ng-model="filter.scope">通知</label>
+        <label class='radio-inline'>
+            <input type='radio' name='scope' value='M' ng-model="filter.scope">我的</label>
+        <label class='radio-inline'>
+            <input type='radio' name='scope' value='A' ng-model="filter.scope">全部</label>
     </div>
+    <div ng-include="subView"></div>
 </div>
 <script type="text/ng-template" id="timeline.html">
     <!--notice list-->

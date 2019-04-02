@@ -1310,7 +1310,7 @@ class data_model extends entity_model {
 				} else {
 					$aRecData->data = $data;
 					/* 处理提交数据后分组的问题 */
-					if (isset($oAssocGrpTeamSchema)) {
+					if (!empty($oAssocGrpTeamSchema)) {
 						if (!empty($aRecData->group_id) && !isset($aRecData->data->{$oAssocGrpTeamSchema->id})) {
 							$aRecData->data->{$oAssocGrpTeamSchema->id} = $aRecData->group_id;
 						}

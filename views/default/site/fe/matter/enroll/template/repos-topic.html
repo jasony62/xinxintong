@@ -1,0 +1,48 @@
+<div class='wrapper topic-view' ng-controller="ctrlReposTopic">
+    <nav class="nav site-navbar-orange navbar-fixed-top">
+        <div class="container" id="nav_container">
+            <div class="row">
+                <div class="col-md-7 col-xs-7">
+                    <ul class='nav site-nav'>
+                        <li ng-repeat="view in activeNav.views" ng-class="{'active': view.type===activeView.type}" ng-click="viewTo($event, view)"><a href ng-bind="view.title"></a><span></span></li>
+                    </ul>
+                </div>
+                <div class="col-md-5 col-xs-5">
+                    <div id='filterQuick' ng-cloak>
+                        <div ng-repeat="singleFilter in singleFilters">
+                            <div tms-dropdown basic-data="singleFilter" criteria="criteria" shift-menu="shiftMenu(criteria)"></div>
+                        </div>
+                        <div tms-filter append-to-ele="appendToEle" basic-data="multiFilters" filter="filter" criteria="criteria" confirm="confirm(filterOpt)" class='tmsFilter' ng-if="multiFilters.length"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div id='filterTip' class='hidden-xs' ng-if="filter.isFilter||filter.tags.length">
+        <div class='bg-info small' ng-repeat="multifilter in multiFilters" ng-if="criteria[multifilter.type]!==null">
+            <span ng-repeat="menu in multifilter.menus" ng-if="criteria[multifilter.type]==menu.id" ng-bind="menu.title"></span>
+            <button class='close' trace-biz ng-click="shiftTip(multifilter.type)"><span>&times;</span></button>
+        </div>
+        <div class='bg-info small' ng-repeat="tag in filter.tags">
+            <span ng-bind="tag.label"></span>
+            <button class='close' trace-biz ng-click="shiftTag(tag,false)"><span>&times;</span></button>
+        </div>
+    </div>
+    <div class='main col-xs-12 col-md-12'>
+        <div class='topics' id='topic'>
+            <div class='topic' ng-repeat="topic in topics" ng-click="gotoTopic(topic, $event)" ng-cloak>
+                <div class='tms-flex-row small text-muted'>
+                    <div class='tms-flex-grow' ng-bind-html="topic.nickname"></div>
+                    <div ng-bind="topic.create_at*1000|date:'MM-dd HH:mm'"></div>
+                </div>
+                <hr>
+                <div class='form-group'>
+                    <div ng-bind="topic.title"></div>
+                </div>
+                <div class='form-group' ng-if="topic.summary">
+                    <div class='text-muted small' ng-bind="topic.summary"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

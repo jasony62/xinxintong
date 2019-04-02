@@ -482,7 +482,7 @@ class main extends \pl\fe\matter\main_base {
 		}
 		
 		$params = new \stdClass;
-		$params->weight = 'top';
+		$params->weight = $weight;
 		$matters = $modelChn->getMattersNoLimit($id, $user->id, $params);
 
 		return new \ResponseData($matters);

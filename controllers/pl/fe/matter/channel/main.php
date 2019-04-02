@@ -474,7 +474,7 @@ class main extends \pl\fe\matter\main_base {
 			$newc['creater_name'] = $user->name;
 			$newc['channel_id'] = $id;
 			$newc['seq'] = ++$seq;
-			$this->insert('xxt_channel_matter', $newc, false);
+			$modelChn->insert('xxt_channel_matter', $newc, false);
 		}
 		
 		$params = new \stdClass;

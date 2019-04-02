@@ -75,6 +75,7 @@ define(['require'], function() {
             $scope.subView = subView[1] === 'channel' ? 'main' : subView[1];
             switch ($scope.subView) {
                 case 'main':
+                case 'matter':
                     $scope.opened = 'edit';
                     break;
                 case 'preview':

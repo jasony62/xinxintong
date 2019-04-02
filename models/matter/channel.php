@@ -187,11 +187,14 @@ class channel_model extends article_base {
 
 			return $typeMatters;
 		};
-		// -------------------------------
-		/**
+		/** -------------------------------
+		 *
 		 * 获取置顶和置底的素材 top、bottom
 		 */
 		$TBMatters = $getTypeMatters('cm.seq <> 10000', $channel->volume, 'cm.seq,cm.create_at desc,cm.matter_id desc,cm.matter_type desc', false);
+		usort($TBMatters, function ($a, $b) {
+			return $a->seq - $b->seq;
+		});
 		//已有素材数量
 		$fixed_num = count($TBMatters);
 

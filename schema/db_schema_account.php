@@ -72,7 +72,7 @@ $sqls[] = $sql;
  */
 $sql = "create table if not exists xxt_account_third (";
 $sql .= "id int(11) unsigned NOT NULL AUTO_INCREMENT";
-$sql .= ",creater varchar(50) NOT NULL";
+$sql .= ",creator varchar(50) NOT NULL";
 $sql .= ",create_at int(11) NOT NULL";
 $sql .= ",appname varchar(50) NOT NULL default ''"; //第三方名称
 $sql .= ",pic text null"; // head image.

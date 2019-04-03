@@ -40,7 +40,7 @@ class proxy_model extends \sns\proxybase {
 	 */
 	public function accessToken($newAccessToken = false) {
 		if ($newAccessToken === false) {
-			if (isset($this->accessToken) && time() < $this->accessToken['expire_at'] - 60) {
+			if (!empty($this->accessToken) && time() < $this->accessToken['expire_at'] - 60) {
 				/**
 				 * 在同一次请求中可以重用
 				 */
@@ -76,7 +76,8 @@ class proxy_model extends \sns\proxybase {
 		if ($response[0] === false) {
 			return $response;
 		}
-		$response = $response[0];
+		$response = $response[1];
+		
 		$token = $response->access_token;
 		/**
 		 * 保存获得的token
@@ -99,8 +100,8 @@ class proxy_model extends \sns\proxybase {
 	 */
 	public function oauthUrl($redirect, $state = null) {
 		$oauth = $this->authloginUrl;
-		$oauth .= "?accessToken=" . $this->accessToken();
-		$oauth .= "&redirect_uri=" . urlencode($redirect);
+		$oauth .= "?access_token=" . $this->accessToken();
+		$oauth .= "&redirect_url=" . $redirect;
 		!empty($state) && $oauth .= "&state=$state";
 
 		return $oauth;
@@ -111,14 +112,17 @@ class proxy_model extends \sns\proxybase {
 	public function userInfoByCode($code) {
 		/* 获得用户的openid */
 		$cmd = $this->authUserinfoUrl;
-		$params["accessToken"] = $this->accessToken();
+		$params["access_token"] = $this->accessToken();
 		$params["code"] = $code;
 		$rst = $this->httpGet($cmd, $params, false, false);
 		if ($rst[0] === false) {
 			return $rst;
 		}
 		$user = $rst[1];
-		if (isset($user->nickname)) {
+		if ($user->returnCode != '0') {
+			return [false, json_encode($user)];	
+		}
+		if (isset($user->custName)) {
 			$user->nickname = \TMS_APP::model()->cleanEmoji($user->nickname, true);
 		}
 
@@ -154,6 +158,9 @@ class proxy_model extends \sns\proxybase {
 			curl_close($ch);
 		}
 		$token = json_decode($response);
+		if ($token->returnCode != 0) {
+			return [false, $response];
+		}
 
 		return [true, $token];
 	}

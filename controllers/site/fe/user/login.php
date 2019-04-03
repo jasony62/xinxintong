@@ -22,7 +22,7 @@ class login extends \site\fe\base {
 	 */
 	public function thirdList_action() {
 		$q = [
-			'id,creater,create_at,appname,pic',
+			'id,creator,create_at,appname,pic',
 			'xxt_account_third',
 			["state" => 1]
 		];
@@ -176,24 +176,39 @@ class login extends \site\fe\base {
 		}
 
 		// 获取第三方应用信息
-		$thirdApp = $this->model('sns\dev')->byId($thirdId);
+		$thirdApp = $this->model('sns\dev189')->byId($thirdId);
 		if ($thirdApp === false || $thirdApp->state != 1) {
 			return new \ObjectNotFoundError();
 		}
 
-		/* 检查是否需要第三方应用授权登录 */
-		if ($this->myGetcookie("_account_register_oauthpending") !== 'Y') {
-			$this->requirLoginOauth($thirdApp);
+		/* 执行第三方应用授权登录 */
+		$this->requirLoginOauth($thirdApp);
+
+		return new \ResponseError("跳转失败");
+	}
+	/**
+	 * 执行第三方登录后续操作
+	 */
+	public function thirdCallback_action($code = '', $state = '') {
+		if (empty($code) || empty($state)) {
+			die('为获取到授权参数');
 		}
+		$stateArr = explode('-', $state);
+		$thirdId = end($stateArr);
+		$thirdApp = $this->model('sns\dev189')->byId($thirdId);
+		if ($thirdApp === false) {
+			die('未找到指定第三方应用');
+		}
+
 		// 获得第三方应用用户信息
-		$oThirdAppUser = $this->_userInfoByCode();
+		$oThirdAppUser = $this->_userInfoByCode($code, $state);
 		if ($oThirdAppUser[0] === false) {
-			return new \ResponseError($oThirdAppUser[1]);
+			die($oThirdAppUser[1]);
 		}
 		// 获取用户信息后，后续处理
 		$result = $this->_afterThirdLoginOauth($thirdApp, $oThirdAppUser);
 		if ($result[0] === false) {
-			return new \ResponseError($result[1]);
+			die($result[1]);
 		}
 		// 获取用户的cookie
 		$oCookieUser = $modelWay->who($this->siteId);
@@ -208,13 +223,11 @@ class login extends \site\fe\base {
 	 *  跳转到第三方登陆页面
 	 */
 	protected function requirLoginOauth($devConfig) {
-		$ruri = APP_PROTOCOL . APP_HTTP_HOST . $_SERVER['REQUEST_URI'];
+		$ruri = APP_PROTOCOL . APP_HTTP_HOST . '/rest/site/fe/user/login/thirdCallback';
 
-		$snsProxy = $this->model('sns\dev\proxy', $devConfig);
-		$oauthUrl = $snsProxy->oauthUrl($ruri, 'snsOAuth-dev-login');
+		$snsProxy = $this->model('sns\dev189\proxy', $devConfig);
+		$oauthUrl = $snsProxy->oauthUrl($ruri, 'snsOAuth-dev-login-' . $devConfig->id);
 		if (isset($oauthUrl)) {
-			/* 通过cookie判断是否是后退进入 */
-			$this->mySetcookie("_account_register_oauthpending", 'Y');
 			$this->redirect($oauthUrl);
 		}
 
@@ -223,14 +236,11 @@ class login extends \site\fe\base {
 	/**
 	 * 通过回调code获取第三方用户信息
 	 */
-	private function _userInfoByCode() {
+	private function _userInfoByCode($code, $state) {
 		// oauth回调
-		$this->mySetcookie("_account_register_oauthpending", '', time() - 3600);
-		if (isset($_GET['state']) && isset($_GET['code'])) {
-			$state = $_GET['state'];
-			if ($state === 'snsOAuth-dev-login') {
-				$code = $_GET['code'];
-				$oThirdAppUser = $this->model('sns\dev\proxy')->userInfoByCode($code);
+		if (!empty($state) && !empty($code)) {
+			if (strpos($state, 'snsOAuth-dev-login') === 0) {
+				$oThirdAppUser = $this->model('sns\dev189\proxy')->userInfoByCode($code);
 				return $oThirdAppUser;
 			} else {
 				return [false, '非登录授权'];
@@ -252,7 +262,7 @@ class login extends \site\fe\base {
 		$q = [
 			"*",
 			"xxt_account_third_user",
-			["third_id" => $third_id->id, "openid" => $oThirdAppUser->openid, "forbidden" => 'N']
+			["third_id" => $thirdApp->id, "openid" => $oThirdAppUser->custId, "forbidden" => 'N']
 		];
 		$thirdUser = $modelAcc->query_obj_ss($q);
 		if ($thirdUser) {
@@ -277,20 +287,22 @@ class login extends \site\fe\base {
 		if ($registered === false) {
 			$user = $this->who;
 			/* uname */
-			$uname = isset($oThirdAppUser->moble) ? $oThirdAppUser->moble : (isset($oThirdAppUser->email) ? $oThirdAppUser->email : $user->uid);
+			$uname = $user->uid;
 			/* password */
 			$password = '123456';
 
 			$aOptions = [];
 			/* nickname */
 			if (!empty($oThirdAppUser->nickname)) {
-				$aOptions['nickname'] = $oThirdAppUser->nickname;
+				$aOptions['nickname'] = $oThirdAppUser->custName;
 			} else if (isset($user->nickname)) {
 				$aOptions['nickname'] = $user->nickname;
 			}
 			/* other options */
 			$aOptions['from_ip'] = $this->client_ip();
-			$aOptions['group_id'] = 101;
+			if (defined('THIRDLOGIN_DEFAULT_ACCOUNT_GROUP')) {
+				$aOptions['group_id'] = THIRDLOGIN_DEFAULT_ACCOUNT_GROUP;
+			}
 			/* create registration */
 			$oRegUser = $modelReg->create($this->siteId, $uname, $password, $aOptions);
 			if ($oRegUser[0] === false) {
@@ -303,7 +315,7 @@ class login extends \site\fe\base {
 			$updata = [
 				"reg_time" => time(),
 				"headimgurl" => isset($oThirdAppUser->headimgurl) ? $oThirdAppUser->headimgurl : '',
-				"nickname" => isset($oThirdAppUser->nickname) ? $oThirdAppUser->nickname : '',
+				"nickname" => isset($oThirdAppUser->custName) ? $oThirdAppUser->custName : '',
 				"sex" => isset($oThirdAppUser->sex) ? $oThirdAppUser->sex : 0,
 				"city" => isset($oThirdAppUser->city) ? $oThirdAppUser->city : '',
 				"province" => isset($oThirdAppUser->province) ? $oThirdAppUser->province : '',
@@ -313,8 +325,8 @@ class login extends \site\fe\base {
 			if ($thirdUser) {
 				$modelReg->update("xxt_account_third_user", $updata, ["id" => $thirdUser->id]);
 			} else {
-				$updata["third_id"] = $thirdApp->id;
-				$updata["openid"] = $oThirdAppUser->openid;
+				$updata["thirdApp"] = $thirdApp->id;
+				$updata["openid"] = $oThirdAppUser->custId;
 				$modelReg->insert('xxt_account_third_user', $updata, false);
 			}
 

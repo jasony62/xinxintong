@@ -16,6 +16,6 @@ class dev_model extends \TMS_MODEL {
 		);
 		$dev = $this->query_obj_ss($q);
 
-		return $wx;
+		return $dev;
 	}
 }

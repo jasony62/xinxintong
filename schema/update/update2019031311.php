@@ -7,13 +7,13 @@ $sqls = [];
  */
 $sql = "create table if not exists xxt_account_third (";
 $sql .= "id int(11) unsigned NOT NULL AUTO_INCREMENT";
-$sql .= ",creater varchar(50) NOT NULL";
+$sql .= ",creator varchar(50) NOT NULL";
 $sql .= ",create_at int(11) NOT NULL";
 $sql .= ",appname varchar(50) NOT NULL default ''"; //第三方名称
 $sql .= ",pic text null"; // head image.
 $sql .= ",appid varchar(100) NOT NULL default ''"; // 
 $sql .= ",appsecret varchar(100) NOT NULL default ''"; //
-$sql .= ",access_token text";
+$sql .= ",access_token varchar(100)";
 $sql .= ",access_token_expire_at int not null default 0";
 $sql .= ",state tinyint not null default 1";
 $sql .= ",primary key (id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";

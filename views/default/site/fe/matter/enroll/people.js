@@ -161,7 +161,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             $scope.repos = [];
             _oPage.total = 0;
         }
-        url = LS.j('repos/recordList', 'site', 'app');
+        url = LS.j('favor/list', 'site', 'app');
         $scope.reposLoading = true;
         http2.post(url, _oCriteria, { page: _oPage }).then(function(result) {
             if (result.data.records) {

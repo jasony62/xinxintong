@@ -78,8 +78,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class='form-group'>
-                        <button class='btn btn-default btn-block' ng-if="Matter.end" ng-click="Matter.nextPage()">更多</button>
+                    <div class='form-group' ng-if="!Matter.end">
+                        <button class='btn btn-default btn-block' ng-click="Matter.nextPage()">更多</button>
                     </div>
                     <div id="behavior" class="behavior">
                         <div id="action" class='hide'>

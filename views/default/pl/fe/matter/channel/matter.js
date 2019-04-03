@@ -1,66 +1,61 @@
 define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlMain', ['$scope', 'http2', 'mediagallery', 'srvSite', '$uibModal', 'srvTag', 'cstApp', function($scope, http2, mediagallery, srvSite, $uibModal, srvTag, cstApp) {
-        function arrangeMatters() {
-            $scope.matters = _oEditing.matters;
-            if (_oEditing.top_type) {
-                $scope.topMatter = $scope.matters[0];
-                $scope.matters = $scope.matters.slice(1);
-            } else {
-                $scope.topMatter = false;
-            }
-            if (_oEditing.bottom_type) {
-                var l = $scope.matters.length;
-                $scope.bottomMatter = $scope.matters[l - 1];
-                $scope.matters = $scope.matters.slice(0, l - 1);
-            } else {
-                $scope.bottomMatter = false;
-            }
-        }
-
-        function postFixed(pos, params) {
-            http2.post('/rest/pl/fe/matter/channel/setfixed?site=' + $scope.siteId + '&id=' + $scope.id + '&pos=' + pos, params).then(function(rsp) {
-                if (pos === 'top') {
-                    _oEditing.top_type = params.t;
-                    _oEditing.top_id = params.id;
-                } else if (pos === 'bottom') {
-                    _oEditing.bottom_type = params.t;
-                    _oEditing.bottom_id = params.id;
-                }
-                _oEditing.matters = rsp.data;
-                arrangeMatters();
-            });
-        }
+    ngApp.provider.controller('ctrlMatter', ['$scope', 'http2', 'mediagallery', 'srvSite', '$uibModal', 'cstApp', function($scope, http2, mediagallery, srvSite, $uibModal, cstApp) {
         var _oEditing, _oPage;
         $scope.matterTypes = cstApp.matterTypes;
         $scope.page = _oPage = {
             at: 1,
-            size: 10,
-            j: function() {
-                return '?page=' + this.at + '&size=' + this.size;
-            }
+            size: 12
         };
-        $scope.setFixed = function(pos, clean) {
-            if (!clean) {
-                srvSite.openGallery({
-                    matterTypes: $scope.matterTypes,
-                    singleMatter: true
-                }).then(function(result) {
-                    if (result.matters.length === 1) {
-                        var params = {
-                            t: result.type,
-                            id: result.matters[0].id
-                        };
-                        postFixed(pos, params);
-                    }
+        $scope.createArticle = function() {
+            http2.get('/rest/pl/fe/matter/article/create?site=' + $scope.siteId).then(function(rsp) {
+                var article = rsp.data,
+                    relations = { matter: [article] };
+                http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId + '&channel=' + _oEditing.id, relations).then(function(rsp) {
+                    location.href = '/rest/pl/fe/matter/article?site=' + $scope.siteId + '&id=' + article.id;
                 });
-            } else {
-                var params = {
-                    t: null,
-                    id: null
-                };
-                postFixed(pos, params);
-            }
+            });
         };
+        $scope.createLink = function() {
+            http2.get('/rest/pl/fe/matter/link/create?site=' + $scope.siteId).then(function(rsp) {
+                var link = rsp.data,
+                    relations = { matter: [link] };
+                http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId + '&channel=' + _oEditing.id, relations).then(function(rsp) {
+                    location.href = '/rest/pl/fe/matter/link?site=' + $scope.siteId + '&id=' + link.id;
+                });
+            });
+        };
+        $scope.setFixed = function(pos) {
+            srvSite.openGallery({
+                matterTypes: $scope.matterTypes
+            }).then(function(result) {
+                if (result.matters && result.matters.length) {
+                    result.matters.forEach(function(matter) {
+                        matter.type = result.type;
+                    });
+                    http2.post('/rest/pl/fe/matter/channel/setfixed?site=' + $scope.siteId + '&id=' + $scope.id + '&pos=' + pos, result.matters).then(function(rsp) {
+                        if (pos === 'top') {
+                            $scope.topMatters = rsp.data.matters;
+                        } else if (pos === 'bottom') {
+                            $scope.bottomMatters = rsp.data.matters;
+                        }
+                    });
+                }
+            });
+        };
+        $scope.cancelFixed = function(matter, pos) {
+            var cancled = {
+                id: matter.id,
+                type: matter.type.toLowerCase()
+            }
+            http2.post('/rest/pl/fe/matter/channel/unfixed?site=' + $scope.siteId + '&id=' + $scope.id + '&pos=' + pos, cancled).then(function(rsp) {
+                if (pos === 'top') {
+                    $scope.topMatters = rsp.data.matters;
+                } else if (pos === 'bottom') {
+                    $scope.bottomMatters = rsp.data.matters;
+                }
+                $scope.getMatters();
+            });
+        }
         $scope.addMatter = function() {
             srvSite.openGallery({
                 matterTypes: $scope.matterTypes
@@ -72,49 +67,58 @@ define(['frame'], function(ngApp) {
                     });
                     relations = { matter: result.matters };
                     http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId + '&channel=' + _oEditing.id, relations).then(function(rsp) {
-                        _oEditing.matters = rsp.data;
-                        arrangeMatters();
+                        if (rsp.data === 'ok') {
+                            $scope.getMatters();
+                        }
                     });
                 }
             });
-        };
-        $scope.update = function(name) {
-            var modifiedData = {};
-            modifiedData[name] = _oEditing[name];
-            http2.post('/rest/pl/fe/matter/channel/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData).then(function() {
-                if (name === 'orderby') {
-                    http2.get('/rest/pl/fe/matter/channel/get?site=' + $scope.siteId + '&id=' + $scope.id).then(function(rsp) {
-                        _oEditing = rsp.data;
-                    });
-                }
-            });
-        };
-        $scope.gotoMatter = function(matter) {
-            location.href = '/rest/pl/fe/matter/' + matter.type + '?site=' + $scope.siteId + '&id=' + matter.id;
         };
         $scope.removeMatter = function(matter) {
             var removed = {
                 id: matter.id,
                 type: matter.type.toLowerCase()
             };
-            http2.post('/rest/pl/fe/matter/channel/removeMatter?site=' + $scope.siteId + '&reload=Y&id=' + $scope.id, removed).then(function(rsp) {
-                _oEditing.matters = rsp.data;
-                arrangeMatters();
+            http2.post('/rest/pl/fe/matter/channel/removeMatter?site=' + $scope.siteId + '&id=' + $scope.id, removed).then(function(rsp) {
+                $scope.getMatters();
             });
         };
+        $scope.gotoMatter = function(matter) {
+            location.href = '/rest/pl/fe/matter/' + matter.type + '?site=' + $scope.siteId + '&id=' + matter.id;
+        };
+        $scope.getTopMatters = function() {
+            http2.get('/rest/pl/fe/matter/channel/mattersList?site=' + _oEditing.siteid + '&id=' + _oEditing.id + '&weight=top').then(function(rsp) {
+                $scope.topMatters = rsp.data.matters;
+            });
+        };
+        $scope.getMatters = function(pageAt) {
+            pageAt && (_oPage.at = pageAt);
+            http2.get('/rest/pl/fe/matter/channel/mattersList?site=' + _oEditing.siteid + '&id=' + _oEditing.id + '&weight=center' + '&page=' + _oPage.at + '&size=' + _oPage.size).then(function(rsp) {
+                $scope.matters = rsp.data.matters;
+                $scope.page.total = rsp.data.total;
+            });
+        };
+        $scope.getBottomMatters = function() {
+            http2.get('/rest/pl/fe/matter/channel/mattersList?site=' + _oEditing.siteid + '&id=' + _oEditing.id + '&weight=bottom').then(function(rsp) {
+                $scope.bottomMatters = rsp.data.matters;
+            });
+        };
+        $scope.$on('my-sorted', function(ev, val) {
+            // rearrange $scope.items
+            $scope.topMatters.splice(val.to, 0, $scope.topMatters.splice(val.from, 1)[0]);
+            for (var i = 0; i < $scope.topMatters.length; i++) {
+                $scope.topMatters[i].seq = i;
+            }
+            http2.post('/rest/pl/fe/matter/channel/sortMatters?id=' + _oEditing.id + '&weight=top', $scope.topMatters).then(function(rsp) {
+
+            });
+        });
         $scope.$watch('editing', function(nv) {
             if (!nv) return;
             _oEditing = nv;
-            http2.get('/rest/pl/fe/matter/channel/mattersList?site=' + _oEditing.siteid + '&id=' + _oEditing.id + '&weight=top').then(function(data) {
-                $scope.topMatters = data;
-            });
-            http2.get('/rest/pl/fe/matter/channel/mattersList?site=' + _oEditing.siteid + '&id=' + _oEditing.id + '&weight=center' + page.j()).then(function(data) {
-                $scope.topMatters = data.matters;
-                $scope.page.total = data.total;
-            });
-            http2.get('/rest/pl/fe/matter/channel/mattersList?site=' + _oEditing.siteid + '&id=' + _oEditing.id + '&weight=bottom').then(function(data) {
-                $scope.bottomMatters = data;
-            });
+            $scope.getMatters();
+            $scope.getTopMatters();
+            $scope.getBottomMatters();
         });
     }]);
 });

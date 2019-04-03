@@ -16,6 +16,19 @@
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <div class='app container'>
+        <div ng-if="tasks.length" ng-cloak>
+            <div uib-alert ng-repeat="task in tasks" class='alert-info' close="closeTask($index)" ng-switch="task.id">
+                <span ng-bind="::task.msg"></span>
+                <span ng-switch-when="record.submit.end"><span ng-if="task.coin">每条记录可获得【{{task.coin}}个】积分</span><a href class='alert-link' ng-click="addRecord($event)"> 去添加</a></span>
+                <span ng-switch-when="record.like.pre"></span>
+                <span ng-switch-when="record.like.end"></span>
+                <span ng-switch-when="record.data.baseline"><a href class="alert-link" ng-click="gotoTask(task.data)">去制定目标</a></span>
+                <span ng-switch-when="record.data.question"><a href class="alert-link" ng-click="gotoTask(task.data)">去提问</a></span>
+                <span ng-switch-when="record.data.answer"><a href class="alert-link" ng-click="gotoTask(task.data)">去回答</a></span>
+                <span ng-switch-when="record.data.vote"><a href class="alert-link" ng-click="gotoTask(task.data)">去投票</a></span>
+                <span ng-switch-when="record.data.score"><a href class="alert-link" ng-click="gotoTask(task.data)">去打分</a></span>
+            </div>
+        </div>
         <div class='row' ng-include="activeView.url"></div>
     </div>
     <tms-bottom-nav navs="navs" active-nav="activeNav" type="repos"></tms-bottom-nav> 

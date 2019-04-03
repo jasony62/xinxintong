@@ -81,6 +81,15 @@
                 <label>显示数量</label>
                 <select class='form-control' ng-model='editing.volume' ng-change="update('volume')" ng-options='v for v in volumes'></select>
             </div>
+            <div class='form-group'>
+                <label>公众号卡片内容</label>
+                <ul class='list-group' style='margin-top:10px'>
+                    <li class='list-group-item' ng-repeat="m in matters" ng-mouseenter='hover=true' ng-mouseleave='hover=false' title='{{m.type|typetitle}}'>
+                        <a href='' ng-click="gotoMatter(m)">{{m.title}}</a>
+                        <button class='btn btn-xs btn-default pull-right' ng-if="hover">删除</button>
+                    </li>
+                </ul>
+            </div>
             <div class='form-group' ng-show="editing.matter_type==='article'">
                 <label>排序规则</label>
                 <div>

@@ -4,6 +4,9 @@ define(['frame'], function(ngApp) {
         $scope.matterTypes = cstApp.matterTypes;
         $scope.acceptMatterTypes = cstApp.acceptMatterTypes;
         $scope.volumes = ['1', '2', '3', '4', '5', '6', '7', '8'];
+        $scope.gotoMatter = function(matter) {
+            location.href = '/rest/pl/fe/matter/' + matter.type + '?site=' + $scope.siteId + '&id=' + matter.id;
+        };
         $scope.update = function(name) {
             var modifiedData = {};
             modifiedData[name] = _oEditing[name];
@@ -85,6 +88,7 @@ define(['frame'], function(ngApp) {
         $scope.$watch('editing', function(nv) {
             if (!nv) return;
             _oEditing = nv;
+            $scope.matters = _oEditing.matters;
         });
     }]);
 });

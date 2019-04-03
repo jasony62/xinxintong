@@ -458,11 +458,11 @@ class main extends \pl\fe\matter\main_base {
 		}
 
 		$matters = $this->getPostJson();
-		if (empty($matters) || count(get_object_vars($matters)) === 0) {
+		if (empty($matters) || count($matters) === 0) {
 			return new \ResponseError('指定素材数量错误');
 		}
 		// 要修改的素材数量
-		$mattersNum = count(get_object_vars($matters));
+		$mattersNum = count($matters);
 
 		// 获取已有置顶素材数量
 		$where = ['channel_id' => $id]; 

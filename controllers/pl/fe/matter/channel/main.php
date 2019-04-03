@@ -465,11 +465,11 @@ class main extends \pl\fe\matter\main_base {
 		$mattersNum = count($matters);
 
 		// 获取已有置顶素材数量
-		$where = ['channel_id' => $id]; 
+		$where = "channel_id = {$oChannel->id}"; 
 		if ($weight === 'top') {
-			$where["seq"] = (object) ['op' => '<', 'pat' => 10000];
+			$where .= " and seq < 10000";
 		} else {
-			$where["seq"] = (object) ['op' => '>', 'pat' => 20000];
+			$where .= " and seq > 20000";
 		}
 		$q = [
 			"count(channel_id)",

@@ -317,13 +317,13 @@ class channel_model extends article_base {
 			if (!empty($params->weight)) {
 				switch ($params->weight) {
 					case 'top':
-						$q1[2] .= "cm.seq < 10000";
+						$q1[2] .= " and cm.seq < 10000";
 						break;
 					case 'bottom':
-						$q1[2] .= "cm.seq > 20000";
+						$q1[2] .= " and cm.seq > 20000";
 						break;
 					default:
-						$q1[2] .= "cm.seq = 10000";
+						$q1[2] .= " and cm.seq = 10000";
 						break;
 				}
 			}

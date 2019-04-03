@@ -461,24 +461,13 @@ class main extends \pl\fe\matter\main_base {
 		if (empty($matters) || count($matters) === 0) {
 			return new \ResponseError('指定素材数量错误');
 		}
-		// 要修改的素材数量
-		$mattersNum = count($matters);
 
-		// 获取已有置顶素材数量
+		// 
 		$where = "channel_id = {$oChannel->id}"; 
 		if ($weight === 'top') {
 			$where .= " and seq < 10000";
 		} else {
 			$where .= " and seq > 20000";
-		}
-		$q = [
-			"count(channel_id)",
-			"xxt_channel_matter",
-			$where
-		];
-		$oNum = (int) $modelChn->query_val_ss($q);
-		if ($mattersNum !== $oNum) {
-			return new \ResponseError('指定素材数量错误2');
 		}
 		/**
 		 * delete relation.
@@ -489,7 +478,7 @@ class main extends \pl\fe\matter\main_base {
 		 */
 		$current = time();
 		if ($weight === 'top') {
-			$seq = 1;
+			$seq = 0;
 		} else {
 			$seq = 20000;
 		}

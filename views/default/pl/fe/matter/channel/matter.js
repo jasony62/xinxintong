@@ -109,9 +109,7 @@ define(['frame'], function(ngApp) {
             for (var i = 0; i < $scope.topMatters.length; i++) {
                 $scope.topMatters[i].seq = i;
             }
-            http2.post('/rest/pl/fe/matter/channel/sortMatters?id=' + _oEditing.id + '&weight=top', $scope.topMatters).then(function(rsp) {
-
-            });
+            http2.post('/rest/pl/fe/matter/channel/sortMatters?id=' + _oEditing.id + '&weight=top', $scope.topMatters).then(function(rsp) {});
         });
         $scope.$watch('editing', function(nv) {
             if (!nv) return;

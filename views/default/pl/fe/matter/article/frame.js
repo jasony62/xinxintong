@@ -16,13 +16,7 @@ define(['require'], function() {
             url: '/rest/pl/fe/matter'
         }, {
             value: 'enroll',
-            scenario: 'registration',
-            title: '报名',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'enroll',
-            scenario: 'voting',
-            title: '投票',
+            title: '记录',
             url: '/rest/pl/fe/matter'
         }, {
             value: 'signin',

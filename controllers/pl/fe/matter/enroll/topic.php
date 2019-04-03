@@ -41,7 +41,7 @@ class topic extends main_base {
 
 		$oResult = new \stdClass;
 		$oResult->topics = $topics;
-		if (!empty($page) && !empty($size) && count($topics) >= $size) {
+		if (!empty($page) && !empty($size)) {
 			$q[0] = 'count(id)';
 			$oResult->total = (int) $model->query_val_ss($q);
 		} else {

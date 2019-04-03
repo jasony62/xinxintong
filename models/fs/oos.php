@@ -1,23 +1,32 @@
 <?php
-namespace site\fe\matter\diaoting;
+namespace fs;
 
-include_once dirname(dirname(__FILE__)) . '/base.php';
-include_once dirname(__FILE__) . '/config.php';
+// include_once dirname(dirname(__FILE__)) . '/base.php';
+// include_once dirname(__FILE__) . '/config.php';
 include_once TMS_APP_DIR . '/vendor/autoload.php';
-/**
- * 用户邀请
+
+/** 
+ * 天翼云存储
  */
-class main extends \site\fe\matter\base {
+class oos_model {
 	//天翼云的API服务器
-	private $endpoint = OOS_ENDPOINT;
+	private $endpoint;
 	//Access Key 在天翼云门户网站-帐户管理-API密钥管理中获取
-	private $accessKey = OOS_ACCESS_KEY;
+	private $accessKey;
 	//Access Secret 在天翼云门户网站-帐户管理-API密钥管理中获取
-	private $accessSecret = OOS_ACCESS_SECRET;
+	private $accessSecret;
+	/**
+	 *
+	 */
+	public function __construct($endpoint, $accessKey, $accessSecret) {
+		$this->endpoint = $endpoint;
+		$this->accessKey = $accessKey;
+		$this->accessSecret = $accessSecret;
+	}
 	/**
 	 * 链接天翼云接口
 	 */
-	private function S3OOS() {
+	private function S2AMZ() {
 		//创建S3 client 对象
 		$client = \Aws\S3\S3Client::factory([
 			'endpoint' => $this->endpoint,  //声明使用指定的endpoint
@@ -42,24 +51,23 @@ class main extends \site\fe\matter\base {
 			}
 		}
 
-		return $data2;
+		return $data2->data;
 	}
 	/**
 	 * 容器列表
 	 */
-	public function bucketList_action() {
-		$buckets = $this->S3OOS()->listBuckets();
+	public function bucketList() {
+		$buckets = $this->S2AMZ()->listBuckets();
 		$data = $this->disposeData($buckets);
-		
-		return new \ResponseData($data);
+
+		return [true, $data];
 	}
 	/**
 	 * 容器列表
 	 */
-	public function objectList_action() {
-		$post = $this->getPostJson();
+	public function objectList($post) {
 		if (empty($post->bucket)) {
-			return new \ParameterError();
+			return [false, '未找到bucket'];
 		}
 		
 		$options = [
@@ -81,53 +89,37 @@ class main extends \site\fe\matter\base {
 		if (!empty($post->size)) {
 			$options['MaxKeys'] = $post->size;
 		}
-		$objects = $this->S3OOS()->listObjects($options);
+		$objects = $this->S2AMZ()->listObjects($options);
 		$data = $this->disposeData($objects);
 
-		if (!empty($data->data['Contents'])) {
-			$Contents = &$data->data['Contents'];
-			foreach ($Contents as $key => &$val) {
-				if (strlen($val['Key']) > strlen($prefix) + 27) {
-					$fileName = substr($val['Key'], strlen($prefix), 23);
-					$fileType = substr($val['Key'], strrpos($val['Key'], '.'));
-					$val['fileName'] = $fileName . $fileType;
-				} else {
-					$val['fileName'] = $val['Key'];
-				}
-			}
-		}
-		return new \ResponseData($data);
+		return [true, $data];
 	}
 	/**
 	*
 	*/
-	public function getObject_action() {
-		$post = $this->getPostJson();
+	public function getObject($post) {
 		if (empty($post->bucket) || empty($post->fileName)) {
-			return new \ParameterError();
+			return [false, "未找到bucket或文件名"];
 		}
 
-		$file = $this->S3OOS()->getObject([
+		$file = $this->S2AMZ()->getObject([
 				'Bucket' => $post->bucket,
 				'Key' => $post->fileName
 		]);
 		$data = $this->disposeData($file);
 
-		return new \ResponseData($data);
+		return [true, $data];
 	}
 	/**
 	 * 获取文件下载地址
 	 */
-	public function getObjectUrl_action() {
-		$post = $this->getPostJson();
+	public function getObjectUrl($post) {
 		if (empty($post->bucket) || empty($post->fileName)) {
-			return new \ParameterError();
+			return [false, "未找到bucket或文件名"];
 		}
 
-		$url = $this->S3OOS()->getObjectUrl($post->bucket, $post->fileName, '+10 minutes'); // 下载对象
+		$url = $this->S2AMZ()->getObjectUrl($post->bucket, $post->fileName, '+10 minutes'); // 下载对象
 
-		$data = new \stdClass;
-		$data->url = urlencode($url);
-		return new \ResponseData($data);
+		return [true, urlencode($url)];
 	}
 }

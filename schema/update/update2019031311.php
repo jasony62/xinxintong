@@ -37,7 +37,7 @@ $sql .= ",unionid varchar(32) not null default '' comment '用户的注册id'";
 $sql .= ",primary key (id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 $sqls[] = $sql;
 //
-$sqls[] = "INSERT INTO account_group(group_id,group_name,asdefault,p_mpgroup_create,p_mp_create,p_mp_permission,p_platform_manage) VALUES(101,'第三方登录用户',0,0,0,0,0)";;
+$sqls[] = "INSERT INTO account_group(group_id,group_name,asdefault,p_mpgroup_create,p_mp_create,p_mp_permission,p_platform_manage) VALUES(101,'第三方登录用户',0,0,0,0,0)";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

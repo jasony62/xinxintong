@@ -301,6 +301,35 @@ class main extends \pl\fe\matter\main_base {
 		return new \ResponseData($matters);
 	}
 	/**
+	 *
+	 * $id channel's id.
+	 * $pos top|bottom
+	 *
+	 * post
+	 * $t matter's type.
+	 * $id matter's id.
+	 *
+	 */
+	public function unfixed_action($site, $id, $pos) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$matter = $this->getPostJson();
+		if (empty($matter->id) || empty($matter->type)) {
+			return new \ResponseError('参数错误');
+		}
+
+		$modelChn = $this->model('matter\channel')->setOnlyWriteDbConn(true);
+		$modelChn->update('xxt_channel_matter' ,['seq' => 10000] ,["matter_id" => $matter->id, "matter_type" => $matter->type, "channel_id" => $id]);
+
+		$params = new \stdClass;
+		$params->weight = $pos;
+		$matters = $modelChn->getMattersNoLimit($id, $oUser->id, $params);
+
+		return new \ResponseData($matters);
+	}
+	/**
 	 * 建立频道和素材的关联
 	 *
 	 * @param string $site site's id

@@ -1,0 +1,53 @@
+<div class='col-md-6 col-md-offset-3'>
+    <div class='panel panel-default'>
+        <div class='panel-heading'><label>公众号卡片推送置顶图文（可选）</label></div>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <button class='btn btn-default btn-sm' ng-click="setFixed('top')">选择图文</button>
+                <ul class='list-group' ng-if='topMatters' sortable style='margin-top:10px;'>
+                    <li class='list-group-item' ng-repeat="topMatter in topMatters" ng-mouseenter="hover=true" ng-mouseleave="hover=false" stuff="s" title='{{topMatter.type|typetitle}}'>
+                        <a href='' ng-click="gotoMatter(topMatter)">{{topMatter.title}}</a>
+                        <button class='btn btn-xs btn-default pull-right' ng-if="hover" ng-click="cancelFixed(topMatter, 'top')">取消</button>
+                    </li>
+                </ul>
+                <span class='small'>注：按住每条图文空白处并拖动，可排序</span>
+            </div>
+        </div>
+    </div>
+    <div class='panel panel-default'>
+        <div class='panel-heading'><label>已有图文</label></div>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <button class='btn btn-default btn-sm' ng-click="addMatter()">选择素材</button>
+                <button class='btn btn-default btn-sm' ng-click="createArticle()">新建图文</button>
+                <button class='btn btn-default btn-sm' ng-click="createLink()">新建外部链接</button>
+                <ul class='list-group' style='margin-top:10px' ng-if="matters">
+                    <li class='list-group-item' ng-repeat="m in matters" ng-mouseenter='hover=true' ng-mouseleave='hover=false' title='{{m.type|typetitle}}'>
+                        <a href='' ng-click="gotoMatter(m)">{{m.title}}</a>
+                        <button class='btn btn-xs btn-default pull-right' ng-if="hover" ng-click="removeMatter(m)">删除</button>
+                    </li>
+                </ul>
+                <div class='form-group clearfix' style='margin-bottom:0'>
+                    <div class='pl-pagination'>
+                        <span>总数：{{page.total}}</span>
+                        <ul uib-pagination class='pull-right' ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getMatters()"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='panel panel-default'>
+        <div class='panel-heading'><label>公众号卡片推送置底图文（可选）</label></div>
+        <div class='panel-body'>
+            <div class='form-group'>
+                <button class='btn btn-default btn-sm' ng-click="setFixed('bottom',false)">选择图文</button>
+                <ul class='list-group' ng-if='bottomMatters' style='margin-top:10px;margin-bottom:0;'>
+                    <li class='list-group-item' ng-repeat="bottomMatter in bottomMatters" ng-mouseenter="hover=true" ng-mouseleave="hover=false" title='{{bottomMatter.type|typetitle}}'>
+                        <a href='' ng-click="gotoMatter(bottomMatter)">{{bottomMatter.title}}</a>
+                        <button class='btn btn-xs btn-default pull-right' ng-if="hover" ng-click="cancelFixed(bottomMatter,'bottom')">取消</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

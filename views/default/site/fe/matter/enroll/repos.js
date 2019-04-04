@@ -169,6 +169,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                                 break;
                         }
                     });
+                    
                 }
             });
             $scope.tasks = tasks = [];

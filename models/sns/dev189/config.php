@@ -1,5 +1,5 @@
 <?php
-namespace sns\dev;
+namespace sns\dev189;
 
 /**
  * 获取能力开放平台accessToken的接口地址
@@ -8,8 +8,8 @@ namespace sns\dev;
 /**
  * 能力开放平台登录页面地址
  */
-!defined('DEV_AUTH_LOGIN_URL') && define('DEV_AUTH_LOGIN_URL', '');
+!defined('DEV_AUTH_LOGIN_URL') && define('DEV_AUTH_LOGIN_URL', 'http://42.99.2.53/service/serviceLogin');
 /**
  * 通过code获取能力开放平台用户信息的接口地址
  */
-!defined('DEV_AUTH_USERINFO_URL') && define('DEV_AUTH_USERINFO_URL', '');
+!defined('DEV_AUTH_USERINFO_URL') && define('DEV_AUTH_USERINFO_URL', 'http://42.99.2.53/service/serviceLogin/getUserInfo');

@@ -3,7 +3,7 @@ namespace sns;
 /**
  * 微信公众号
  */
-class dev_model extends \TMS_MODEL {
+class dev189_model extends \TMS_MODEL {
 	/**
 	 * 站点绑定的公众号
 	 */

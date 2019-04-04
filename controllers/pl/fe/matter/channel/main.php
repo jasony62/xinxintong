@@ -98,6 +98,32 @@ class main extends \pl\fe\matter\main_base {
 		return new \ResponseData(['docs' => $channels, 'total' => count($channels)]);
 	}
 	/**
+	 * 频道素材
+	 */
+	public function mattersList_action($id, $weight = '', $page = '', $size = '') {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelChn = $this->model('matter\channel');
+		$oChannel = $modelChn->byId($id, ['fields' => 'id,matter_type,orderby,volume,state']);
+		if ($oChannel === false || $oChannel->state != 1) {
+			return new \ParameterError();
+		}
+
+		$params = new \stdClass;
+		if (!empty($page) && !empty($size)) {
+			$params->page = $page;
+			$params->size = $size;
+		}
+		if (!empty($weight)) {
+			$params->weight = $weight;
+		}
+		$matters = $modelChn->getMattersNoLimit($oChannel->id, $user->id, $params, $oChannel);
+
+		return new \ResponseData($matters);
+	}
+	/**
 	 * 在指定团队下创建频道素材
 	 */
 	public function create_action($site = null, $mission = null) {
@@ -197,28 +223,109 @@ class main extends \pl\fe\matter\main_base {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$matter = $this->getPostJson();
+		$current = time();
+		$matters = $this->getPostJson();
 		$modelChn = $this->model('matter\channel')->setOnlyWriteDbConn(true);
 
 		if ($pos === 'top') {
-			$modelChn->update('xxt_channel',
-				[
-					'top_type' => $matter->t,
-					'top_id' => $matter->id,
-				],
-				['siteid' => $site, 'id' => $id]
-			);
+			// 获取置顶最大排序
+			$q = [
+				"max(seq)",
+				'xxt_channel_matter',
+				["channel_id" => $id, "seq" => (object) ['op' => '<', 'pat' => 10000]]
+			];
+			$maxSeq = (int) $modelChn->query_val_ss($q);
+			foreach ($matters as $matter) {
+				/* 是否已经加入到频道中 */
+				$q2 = [
+					'channel_id',
+					'xxt_channel_matter',
+					["matter_id" => $matter->id, "matter_type" => $matter->type, "channel_id" => $id],
+				];
+				$oMatter = $modelChn->query_obj_ss($q2);
+				if ($oMatter) {
+					$modelChn->update('xxt_channel_matter' ,['seq' => ++$maxSeq] ,["matter_id" => $matter->id, "matter_type" => $matter->type, "channel_id" => $id]);
+				} else {
+					// 如果没有数据就加入到频道中
+					$newc = [];
+					$newc['matter_id'] = $matter->id;
+					$newc['matter_type'] = $matter->type;
+					$newc['create_at'] = $current;
+					$newc['creater'] = $oUser->id;
+					$newc['creater_name'] = $oUser->name;
+					$newc['channel_id'] = $id;
+					$newc['seq'] = ++$maxSeq;
+					$modelChn->insert('xxt_channel_matter', $newc, false);
+				}
+			}
 		} else if ($pos === 'bottom') {
-			$modelChn->update('xxt_channel',
-				[
-					'bottom_type' => $matter->t,
-					'bottom_id' => $matter->id,
-				],
-				['siteid' => $site, 'id' => $id]
-			);
+			// 获取置底最大排序
+			$q = [
+				"max(seq)",
+				'xxt_channel_matter',
+				["channel_id" => $id, "seq" => (object) ['op' => '>', 'pat' => 20000]]
+			];
+			$maxSeq = (int) $modelChn->query_val_ss($q);
+			if ($maxSeq == 0) {
+				$maxSeq = 20000;
+			}
+			foreach ($matters as $matter) {
+				/* 是否已经加入到频道中 */
+				$q2 = [
+					'channel_id',
+					'xxt_channel_matter',
+					["matter_id" => $matter->id, "matter_type" => $matter->type, "channel_id" => $id],
+				];
+				$oMatter = $modelChn->query_obj_ss($q2);
+				if ($oMatter) {
+					$modelChn->update('xxt_channel_matter' ,['seq' => ++$maxSeq] ,["matter_id" => $matter->id, "matter_type" => $matter->type, "channel_id" => $id]);
+				} else {
+					// 如果没有数据就加入到频道中
+					$newc = [];
+					$newc['matter_id'] = $matter->id;
+					$newc['matter_type'] = $matter->type;
+					$newc['create_at'] = $current;
+					$newc['creater'] = $oUser->id;
+					$newc['creater_name'] = $oUser->name;
+					$newc['channel_id'] = $id;
+					$newc['seq'] = ++$maxSeq;
+					$modelChn->insert('xxt_channel_matter', $newc, false);
+				}
+			}
 		}
 
-		$matters = $modelChn->getMatters($id);
+		$params = new \stdClass;
+		$params->weight = $pos;
+		$matters = $modelChn->getMattersNoLimit($id, $oUser->id, $params);
+
+		return new \ResponseData($matters);
+	}
+	/**
+	 *
+	 * $id channel's id.
+	 * $pos top|bottom
+	 *
+	 * post
+	 * $t matter's type.
+	 * $id matter's id.
+	 *
+	 */
+	public function unfixed_action($site, $id, $pos) {
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$matter = $this->getPostJson();
+		if (empty($matter->id) || empty($matter->type)) {
+			return new \ResponseError('参数错误');
+		}
+
+		$modelChn = $this->model('matter\channel')->setOnlyWriteDbConn(true);
+		$modelChn->update('xxt_channel_matter' ,['seq' => 10000] ,["matter_id" => $matter->id, "matter_type" => $matter->type, "channel_id" => $id]);
+
+		$params = new \stdClass;
+		$params->weight = $pos;
+		$matters = $modelChn->getMattersNoLimit($id, $oUser->id, $params);
 
 		return new \ResponseData($matters);
 	}
@@ -245,16 +352,12 @@ class main extends \pl\fe\matter\main_base {
 					$modelCh->addMatter($channel->id, $matter, $oUser->id, $oUser->name);
 				}
 			}
-
-			return new \ResponseData('ok');
 		} else {
 			foreach ($matters as $matter) {
 				$modelCh->addMatter($channel, $matter, $oUser->id, $oUser->name);
 			}
-			$matters = $modelCh->getMatters($channel);
-
-			return new \ResponseData($matters);
 		}
+		return new \ResponseData('ok');
 	}
 	/**
 	 *
@@ -336,5 +439,66 @@ class main extends \pl\fe\matter\main_base {
 		$rst = $modelCode->modify($code->id, $data);
 
 		return new \ResponseData($rst);
+	}
+	/**
+	 * 置顶素材排序
+	 */
+	public function sortMatters_action($id, $weight = '') {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		if (!in_array($weight, ['top', 'bottom'])) {
+			return new \ResponseError('只支持置顶或置底素材排序');
+		}
+		$modelChn = $this->model('matter\channel');
+		$oChannel = $modelChn->byId($id, ['fields' => 'id,matter_type,orderby,volume,state']);
+		if ($oChannel === false || $oChannel->state != 1) {
+			return new \ParameterError();
+		}
+
+		$matters = $this->getPostJson();
+		if (empty($matters) || count($matters) === 0) {
+			return new \ResponseError('指定素材数量错误');
+		}
+
+		// 
+		$where = "channel_id = {$oChannel->id}"; 
+		if ($weight === 'top') {
+			$where .= " and seq < 10000";
+		} else {
+			$where .= " and seq > 20000";
+		}
+		/**
+		 * delete relation.
+		 */
+		$modelChn->delete('xxt_channel_matter', $where);
+		/**
+		 * insert new relation.
+		 */
+		$current = time();
+		if ($weight === 'top') {
+			$seq = 0;
+		} else {
+			$seq = 20000;
+		}
+		foreach ($matters as $matter) {
+			// 如果没有数据就加入到频道中
+			$newc = [];
+			$newc['matter_id'] = $matter->id;
+			$newc['matter_type'] = $matter->type;
+			$newc['create_at'] = $current;
+			$newc['creater'] = $user->id;
+			$newc['creater_name'] = $user->name;
+			$newc['channel_id'] = $id;
+			$newc['seq'] = ++$seq;
+			$modelChn->insert('xxt_channel_matter', $newc, false);
+		}
+		
+		$params = new \stdClass;
+		$params->weight = $weight;
+		$matters = $modelChn->getMattersNoLimit($id, $user->id, $params);
+
+		return new \ResponseData($matters);
 	}
 }

@@ -154,7 +154,8 @@ class main extends \site\fe\matter\base {
 	 * 返回链接定义
 	 */
 	public function get_action($id) {
-		$oLink = $this->model('matter\link')->byIdWithParams($id);
+		$modelLink = $this->model('matter\link');
+		$oLink = $modelLink->byIdWithParams($id);
 		if (false === $oLink) {
 			return new \ObjectNotFoundError();
 		}
@@ -218,6 +219,14 @@ class main extends \site\fe\matter\base {
 			}
 			$oLink->config->nav->app = $aNavApps;
 		}
+		// 附件
+		$oLink->attachments = $modelLink->query_objs_ss(
+			[
+				'*',
+				'xxt_matter_attachment',
+				['matter_id' => $id, 'matter_type' => 'link'],
+			]
+		);
 
 		$data = [];
 		$data['link'] = $oLink;
@@ -292,5 +301,25 @@ class main extends \site\fe\matter\base {
 		$spliced = implode('&', $pairs);
 
 		return $spliced;
+	}
+	/**
+	 * 下载附件
+	 */
+	public function attachmentGet_action($site, $linkid, $attachmentid) {
+		if (empty($site) || empty($linkid) || empty($attachmentid)) {
+			die('参数不完整');
+		}
+
+		$user = $this->who;
+		/**
+		 * 访问控制
+		 */
+		$modelArticle = $this->model('matter\link');
+		$oLink = $modelArticle->byId($linkid);
+		if ($oLink === false || $oLink->state !== '1') {
+			die('指定的活动不存在，请检查参数是否正确');
+		}
+		
+		$this->attachmentGet($oLink, $attachmentid);
 	}
 }

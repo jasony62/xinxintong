@@ -260,6 +260,7 @@ $sql .= ",creater_name varchar(255) not null default ''"; //from account or fans
 $sql .= ",create_at int not null";
 $sql .= ",matter_id varchar(40) not null";
 $sql .= ",matter_type varchar(20)"; // article,kink
+$sql .= ",seq int not null default 10000"; // 置顶小于10000， 置底大于20000
 $sql .= ",primary key(channel_id,matter_id,matter_type)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

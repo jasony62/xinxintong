@@ -3,6 +3,7 @@ require('./enroll.public.css');
 
 require('./_asset/ui.repos.record.js');
 require('./_asset/ui.repos.cowork.js');
+require('./_asset/ui.bottom.nav.js');
 require('./_asset/ui.tag.js');
 require('./_asset/ui.topic.js');
 require('./_asset/ui.assoc.js');
@@ -12,7 +13,7 @@ require('./_asset/ui.filter.js');
 require('./_asset/ui.tree.js');
 require('./_asset/ui.task.js');
 
-window.moduleAngularModules = ['tree.ui', 'filter.ui', 'dropdown.ui', 'round.ui.enroll', 'record.repos.ui.enroll', 'cowork.repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll', 'task.ui.enroll'];
+window.moduleAngularModules = ['nav.bottom.ui', 'tree.ui', 'filter.ui', 'dropdown.ui', 'round.ui.enroll', 'record.repos.ui.enroll', 'cowork.repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll', 'task.ui.enroll'];
 
 var ngApp = require('./main.js');
 ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', 'enlService', 'enlTask', function($scope, $parse, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc, enlService, enlTask) {
@@ -20,17 +21,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     $scope.schemas = _aShareableSchemas = []; // 支持分享的题目
     $scope.activeDirSchemas = {};
     $scope.schemaCounter = 0;
-    $scope.tabs = [{ 'title': '记录', 'id': 'record', 'url': '/views/default/site/fe/matter/enroll/template/repos-record.html' }];
-    $scope.tabClick = function(view) {
-        $scope.selectedTab = view;
-    }
+    $scope.activeNav = '';
     $scope.addRecord = function(event) {
         $scope.$parent.addRecord(event);
-    };
-    $scope.dirClicked = function(oDir, active) {
-        if ($scope.selectedTab.id !== 'topic') {
-            $scope.$broadcast('to-child', { 0: oDir, 1: active });
-        }
     };
     $scope.favorStack = {
         guiding: false,
@@ -122,6 +115,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         opened: !$scope.isSmallLayout,
         dirOpen: false
     };
+    $scope.$on('transfer.view', function(event, data) {
+        $scope.activeView = data;
+    });
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var tasks, popActs;
         _oApp = params.app;
@@ -130,8 +126,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             cacheData = JSON.parse(window.sessionStorage.listStorage);
             $scope.schemaCounter = cacheData.schemaCounter;
             $scope.tasks = cacheData.tasks;
-            $scope.tabs = cacheData.tabs;
-            $scope.selectedTab = cacheData.selectedTab;
+            $scope.navs = cacheData.navs;
+            $scope.activeNav = cacheData.activeNav;
+            $scope.activeView = cacheData.activeView;
             $scope.rounds = cacheData.rounds;
             $scope.schemas = cacheData.schemas;
             $scope.dirSchemas = cacheData.dirSchemas;
@@ -140,7 +137,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                 $scope.advCriteriaStatus.dirOpen = true;
             }
         } else {
-            $scope.selectedTab = $scope.tabs[0];
             if (_oApp.actionRule) {
                 /* 设置活动任务提示 */
                 http2.get(LS.j('event/task', 'site', 'app')).then(function(rsp) {
@@ -173,6 +169,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                                 break;
                         }
                     });
+                    
                 }
             });
             $scope.tasks = tasks = [];
@@ -187,17 +184,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                 }
                 if (Object.keys(oSchema).indexOf('cowork') !== -1 && oSchema.cowork === 'Y') {
                     $scope.schemaCounter--;
-                    $scope.tabs[0].title = '问题';
-                    $scope.tabs.push({ 'title': '答案', 'id': 'coworkData', 'url': '/views/default/site/fe/matter/enroll/template/repos-cowork.html' });
-                    $scope.selectedTab = $scope.tabs[1];
-                }
-
-            });
-            /* 共享专题 */
-            http2.get(LS.j('topic/listPublic', 'site', 'app')).then(function(rsp) {
-                if (rsp.data && rsp.data.topics && rsp.data.topics.length) {
-                    $scope.topics = rsp.data.topics;
-                    $scope.tabs.push({ 'title': '专题', 'id': 'topic', 'url': '/views/default/site/fe/matter/enroll/template/repos-publicTopic.html' });
                 }
             });
             /* 作为分类目录的题目 */
@@ -207,7 +193,21 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                     $scope.advCriteriaStatus.dirOpen = true;
                 }
             });
+            /* 请求导航 */
+            http2.get(LS.j('navs', 'site', 'app')).then(function(rsp) {
+                $scope.navs = rsp.data;
+                $scope.navs.forEach(function(nav) {
+                    if (nav.type === 'repos') {
+                        nav.views.forEach(function(view) {
+                            view.url = '/views/default/site/fe/matter/enroll/template/repos-' + view.type + '.html';
+                            if (nav.defaultView.type === view.type) {
+                                $scope.activeView = view;
+                            }
+                        });
+                    } 
+                });
 
+            });
         }
         if (_oApp.reposConfig && _oApp.reposConfig.defaultOrder) {
             _oCriteria.orderby = _oApp.reposConfig.defaultOrder;
@@ -215,16 +215,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
 
         /* 设置页面分享信息 */
         $scope.setSnsShare(null, null, { target_type: 'repos', target_id: _oApp.id });
-        /* 设置页面操作 */
-        popActs = ['addRecord'];
-        $scope.setPopAct(popActs, 'repos', {
-            func: {
-                voteRecData: $scope.voteRecData,
-                scoreSchema: $scope.scoreSchema,
-            }
-        });
-        /* 设置页面导航 */
-        $scope.setPopNav(['rank', 'kanban', 'event', 'favor', 'task'], 'repos');
         /* 页面阅读日志 */
         $scope.logAccess({ target_type: 'repos', target_id: _oApp.id });
         /* 用户信息 */
@@ -260,7 +250,10 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
     $scope.criteria = _oCriteria = {};
     $scope.repos = [];
     $scope.reposLoading = false;
-    $scope.appendToEle = angular.element(document.querySelector('#filterQuick'));
+    $scope.appendToEle = angular.element(document.querySelector('#nav_container'));
+    $scope.viewTo = function($event, view) {
+        $scope.$emit('transfer.view', view);
+    };
     $scope.getCriteria = function() {
         var url;
         url = LS.j('repos/criteriaGet', 'site', 'app') + '&viewType=record';
@@ -384,8 +377,9 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
             'page': $scope.page,
             'currentFilter': $scope.filter,
             'currentCriteria': $scope.criteria,
-            'tabs': $scope.tabs,
-            'selectedTab': $scope.selectedTab,
+            'navs': $scope.navs,
+            'activeNav': $scope.activeNav,
+            'activeView': $scope.activeView,
             'schemas': $scope.schemas,
             'rounds': $scope.rounds,
             'tasks': $scope.tasks,
@@ -446,10 +440,7 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
             });
         }
     };
-    $scope.$on('to-child', function(event, data) {
-        $scope.dirClicked(data[0], data[1]);
-    });
-    if (window.sessionStorage.length && $scope.selectedTab.id === 'record') {
+    if (window.sessionStorage.length && $scope.activeView.type === 'record') {
         var cacheData, _cPage;
         cacheData = JSON.parse(window.sessionStorage.listStorage);
         $scope.singleFilters = cacheData.singleFilters;
@@ -496,7 +487,10 @@ ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLo
     $scope.criteria = _oCriteria = {};
     $scope.repos = [];
     $scope.reposLoading = false;
-    $scope.appendToEle = angular.element(document.querySelector('#filterQuick'));
+    $scope.appendToEle = angular.element(document.querySelector('#nav_container'));
+    $scope.viewTo = function($event, view) {
+        $scope.$emit('transfer.view', view);
+    };
     $scope.getCriteria = function() {
         var url;
         url = LS.j('repos/criteriaGet', 'site', 'app') + '&viewType=coworkData';
@@ -616,8 +610,9 @@ ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLo
             'page': $scope.page,
             'currentFilter': $scope.filter,
             'currentCriteria': $scope.criteria,
-            'tabs': $scope.tabs,
-            'selectedTab': $scope.selectedTab,
+            'navs': $scope.navs,
+            'activeNav': $scope.activeNav,
+            'activeView': $scope.activeView,
             'schemas': $scope.schemas,
             'rounds': $scope.rounds,
             'tasks': $scope.tasks,
@@ -653,7 +648,7 @@ ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLo
     $scope.$on('to-child', function(event, data) {
         $scope.dirClicked(data[0], data[1]);
     });
-    if (window.sessionStorage.length && $scope.selectedTab.id === 'coworkData') {
+    if (window.sessionStorage.length && $scope.activeView.type === 'cowork') {
         var cacheData, _cPage;
         cacheData = JSON.parse(window.sessionStorage.listStorage);
         $scope.singleFilters = cacheData.singleFilters;
@@ -680,7 +675,7 @@ ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLo
         $scope.getCriteria();
     }
 }]);
-ngApp.controller('ctrlPublicTopic', ['$scope', 'http2', '$timeout', 'tmsLocation', function($scope, http2, $timeout, LS) {
+ngApp.controller('ctrlReposTopic', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation', function($scope, $q, http2, $timeout, LS) {
     function fnGetCriteria(datas) {
         $scope.singleFilters = [];
         $scope.multiFilters = [];
@@ -697,7 +692,10 @@ ngApp.controller('ctrlPublicTopic', ['$scope', 'http2', '$timeout', 'tmsLocation
     var _oFilter, _oCriteria;
     $scope.filter = _oFilter = { isFilter: false };
     $scope.criteria = _oCriteria = {};
-
+    $scope.appendToEle = angular.element(document.querySelector('#nav_container'));
+    $scope.viewTo = function($event, view) {
+        $scope.$emit('transfer.view', view);
+    };
     function addToCache() {
         sessionStorage.setItem('listStorageY', document.getElementById('topic').scrollTop);
         var cacheData = {
@@ -706,8 +704,9 @@ ngApp.controller('ctrlPublicTopic', ['$scope', 'http2', '$timeout', 'tmsLocation
             'multiFilters': $scope.multiFilters,
             'currentFilter': $scope.filter,
             'currentCriteria': $scope.criteria,
-            'tabs': $scope.tabs,
-            'selectedTab': $scope.selectedTab,
+            'navs': $scope.navs,
+            'activeNav': $scope.activeNav,
+            'activeView': $scope.activeView,
             'schemas': $scope.schemas,
             'rounds': $scope.rounds,
             'tasks': $scope.tasks,
@@ -731,12 +730,56 @@ ngApp.controller('ctrlPublicTopic', ['$scope', 'http2', '$timeout', 'tmsLocation
         _oCriteria[criteria.type] = criteria.id;
         $scope.recordList(1);
     };
+    $scope.shiftTip = function(type) {
+        _oCriteria[type] = _oFilter[type] = null;
+
+        function objectKeyIsNull(obj) {
+            var empty = null;
+            for (var i in obj) {
+                if (i !== 'isFilter' && i !== 'tags') {
+                    if (obj[i] === null) {
+                        empty = true;
+                    } else {
+                        empty = false;
+                        break;
+                    }
+                }
+
+            }
+            return empty;
+        }
+        if (objectKeyIsNull(_oFilter)) {
+            _oFilter.isFilter = false;
+        }
+        $scope.recordList(1);
+    };
+    $scope.confirm = function(filterOpt) {
+        $scope.recordList(1).then(function() {
+            var url = LS.j('repos/criteriaGet', 'site', 'app') + '&viewType=topic';
+            http2.get(url).then(function(rsp) {
+                if (rsp.data) {
+                    var _oNew = [];
+                    angular.forEach(rsp.data, function(data) {
+                        if (data.type === 'orderby') {
+                            return false;
+                        } else {
+                            _oNew.push(data);
+                        }
+                    });
+                    http2.merge($scope.multiFilters, _oNew);
+                }
+            });
+        });
+    };
     $scope.recordList = function(pageAt) {
-        http2.post(LS.j('topic/listPublic', 'site', 'app'), _oCriteria).then(function(rsp) {
-            if (rsp.data && rsp.data.topics && rsp.data.topics.length) {
+        var deferred = $q.defer();
+        http2.post(LS.j('topic/listAll', 'site', 'app'), _oCriteria).then(function(rsp) {
+            if (rsp.data && rsp.data.topics) {
                 $scope.topics = rsp.data.topics;
             }
+            deferred.resolve(rsp);
         });
+        return deferred.promise;
     }
     $scope.gotoTopic = function(oTopic, event) {
         event.stopPropagation();
@@ -745,7 +788,7 @@ ngApp.controller('ctrlPublicTopic', ['$scope', 'http2', '$timeout', 'tmsLocation
         addToCache();
         location.href = LS.j('', 'site', 'app') + '&topic=' + oTopic.id + '&page=topic';
     };
-    if (window.sessionStorage.length && $scope.selectedTab.id === 'topic') {
+    if (window.sessionStorage.length && $scope.activeView.type === 'topic') {
         var cacheData;
         cacheData = JSON.parse(window.sessionStorage.listStorage);
         $scope.singleFilters = cacheData.singleFilters;

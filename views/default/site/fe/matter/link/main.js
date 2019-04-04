@@ -93,6 +93,9 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt', 'snsshare.
             case 'link':
                 location.href = '/rest/site/fe/matter/link?site=' + oNavApp.siteid + '&id=' + oNavApp.id + '&type=' + oNavApp.type;
                 break;
+            case 'topic':
+                location.href = '/rest/site/fe/matter/enroll?site=' + oNavApp.siteid + '&app=' + oNavApp.aid + '&topic=' + oNavApp.id + '&page=topic';
+                break;
             default:
                 break;
         }
@@ -199,4 +202,22 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt', 'snsshare.
             }
         }).error(function(content, httpCode) {});
     });
-}]);
+}]).filter('filesize', function() {
+    return function(length) {
+        var unit;
+        if (length / 1024 < 1) {
+            unit = 'B';
+        } else {
+            length = length / 1024;
+            if (length / 1024 < 1) {
+                unit = 'K';
+            } else {
+                length = length / 1024;
+                unit = 'M';
+            }
+        }
+        length = (new Number(length)).toFixed(2);
+
+        return length + unit;
+    };
+});;

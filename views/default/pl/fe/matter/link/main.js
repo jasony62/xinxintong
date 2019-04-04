@@ -1,5 +1,5 @@
 define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlMain', ['$scope', 'http2', 'mediagallery', '$uibModal', 'srvTag', 'srvSite', 'tkEntryRule', function($scope, http2, mediagallery, $uibModal, srvTag, srvSite, tkEntryRule) {
+    ngApp.provider.controller('ctrlMain', ['$scope', 'http2', 'mediagallery', 'noticebox', '$uibModal', 'srvTag', 'srvSite', 'tkEntryRule', function($scope, http2, mediagallery, noticebox, $uibModal, srvTag, srvSite, tkEntryRule) {
         var modifiedData = {};
         $scope.modified = false;
         $scope.urlsrcs = {
@@ -45,6 +45,7 @@ define(['frame'], function(ngApp) {
                 $scope.tkEntryRule = new tkEntryRule(link, oSns, false, ['enroll']);
             });
             $scope.editing = link;
+            !$scope.editing.attachments && ($scope.editing.attachments = []);
             $scope.persisted = angular.copy(link);
             $('[ng-model="editing.title"]').focus();
             var r = new Resumable({
@@ -231,6 +232,10 @@ define(['frame'], function(ngApp) {
                     value: 'link',
                     title: '链接',
                     url: '/rest/pl/fe/matter'
+                }, {
+                    value: 'topic',
+                    title: '公共专题',
+                    url: '/rest/pl/fe/matter'
                 }],
                 singleMatter: true
             };
@@ -238,12 +243,23 @@ define(['frame'], function(ngApp) {
                 if (result.matters && result.matters.length === 1) {
                     !$scope.editing.config.nav && ($scope.editing.config.nav = {});
                     !$scope.editing.config.nav.app && ($scope.editing.config.nav.app = []);
-                    $scope.editing.config.nav.app.push({
-                        type: result.matters[0].type,
-                        id: result.matters[0].id,
-                        title: result.matters[0].title,
-                        siteid: result.matters[0].siteid
-                    });
+                    if (result.matters[0].type === 'topic') {
+                        $scope.editing.config.nav.app.push({
+                            id: result.matters[0].id,
+                            title: result.matters[0].title,
+                            siteid: result.matters[0].siteid,
+                            type: result.matters[0].type,
+                            aid: result.matters[0].aid
+                        });
+                    } else {
+                        $scope.editing.config.nav.app.push({
+                            id: result.matters[0].id,
+                            title: result.matters[0].title,
+                            siteid: result.matters[0].siteid,
+                            type: result.matters[0].type,
+
+                        });
+                    }
                     $scope.update('config');
                 }
             });
@@ -258,6 +274,7 @@ define(['frame'], function(ngApp) {
         $scope.delAttachment = function(index, att) {
             http2.get('/rest/pl/fe/matter/link/attachment/del?site=' + $scope.siteid + '&id=' + att.id).then(function(rsp) {
                 $scope.editing.attachments.splice(index, 1);
+                $scope.modified = false;
             });
         };
         $scope.downloadUrl = function(att) {

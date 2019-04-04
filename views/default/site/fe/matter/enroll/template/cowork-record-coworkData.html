@@ -108,7 +108,7 @@
                             </ul>
                         </div>
                     </div>
-                    <div ng-if="!(&user.uid==record.userid)&&!record._canAgree&&(item.agreed==='Y'||(item.agreed==='D'&&user.uid===record.userid)||user.uid===item.userid||user.is_editor==='Y')" ng-switch on="item.agreed">
+                    <div ng-if="!(user.uid==record.userid)&&!record._canAgree&&(item.agreed==='Y'||(item.agreed==='D'&&user.uid===record.userid)||user.uid===item.userid||user.is_editor==='Y')" ng-switch on="item.agreed">
                         <button ng-switch-when="D" class='btn btn-xs btn-danger'>讨论</button>
                         <button ng-switch-when="Y" class='btn btn-xs btn-success'>推荐</button>
                         <button ng-switch-when="N" class='btn btn-xs btn-danger'>关闭</button>
@@ -159,7 +159,7 @@
             </div>
             <div class='text-center'>
                 <hr>
-                <button class="btn btn-primary" ng-click="addItem(schema)"><span class='glyphicon glyphicon-plus'></span> 添加</span>
+                <button class="btn btn-primary" ng-click="addItem(schema)"><span class='glyphicon glyphicon-plus'></span> 写答案</span>
                 </button>
             </div>
         </div>

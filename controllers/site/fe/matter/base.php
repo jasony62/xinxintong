@@ -126,6 +126,9 @@ class base extends \site\fe\base {
 						$modelMs = $this->model('site\user\memberschema');
 						foreach ($oEntryRule->member as $mschemaId => $oRule) {
 							$oMschema = $modelMs->byId($mschemaId, ['fields' => 'is_wx_fan', 'cascaded' => 'N']);
+							if (empty($oMschema)) {
+								continue;
+							}
 							if ($oMschema->is_wx_fan === 'Y') {
 								$oApp2 = clone $oMatter;
 								$oApp2->entryRule = new \stdClass;
@@ -137,7 +140,11 @@ class base extends \site\fe\base {
 							}
 							$aMemberSchemaIds[] = $mschemaId;
 						}
-						$this->gotoMember($oMatter, $aMemberSchemaIds);
+						if (empty($aMemberSchemaIds)) {
+							$msg = '获得指定的通讯录不存在，请联系活动的组织者解决。';
+						} else {
+							$this->gotoMember($oMatter, $aMemberSchemaIds);
+						}
 					} else {
 						$msg = '您【ID:' . $this->who->uid . '】没有填写通讯录信息，不满足【' . $oMatter->title . '】的参与规则，无法访问，请联系活动的组织者解决。';
 					}
@@ -299,6 +306,11 @@ class base extends \site\fe\base {
 						$oFollowedRule = $rule;
 						break;
 					}
+					/* 缓存中的信息没有通过验证，记录调试日志 */
+					$this->model('log')->log($oUser->uid, 'enterAsSns', $snsUser->openid, $oMatter->type . ':' . $oMatter->id, isset($oUser->nickname) ? $oUser->nickname : '');
+					/* 如果缓存的用户数据没有关注，清空数据 */
+					unset($oUser->sns->{$snsName});
+					$this->model('site\fe\way')->setCookieUser($oMatter->siteid, $oUser);
 				} else {
 					$modelAcnt = $this->model('site\user\account');
 					$propSnsOpenid = $snsName . '_openid';
@@ -562,5 +574,57 @@ class base extends \site\fe\base {
 		$result = [$bCheckRegister];
 
 		return $result;
+	}
+	/**
+	 * 下载附件
+	 */
+	public function attachmentGet($oApp, $attachmentid) {
+		$model = $this->model();
+		$user = $this->who;
+		/**
+		 * 获取附件
+		 */
+		$q = [
+			'*',
+			'xxt_matter_attachment',
+			['matter_id' => $oApp->id, 'matter_type' => $oApp->type, 'id' => $attachmentid],
+		];
+		if (false === ($att = $model->query_obj_ss($q))) {
+			die('指定的附件不存在');
+		}
+		$log = [
+			'userid' => $user->uid,
+			'nickname' => $user->nickname,
+			'download_at' => time(),
+			'siteid' => $oApp->siteid,
+			'matter_id' => $oApp->id,
+			'matter_type' => $oApp->type,
+			'attachment_id' => $attachmentid,
+			'user_agent' => $_SERVER['HTTP_USER_AGENT'],
+			'client_ip' => $this->client_ip(),
+		];
+		$model->insert('xxt_matter_download_log', $log, false);
+
+		if (strpos($att->url, 'alioss') === 0) {
+			$fsAlioss = \TMS_APP::M('fs/alioss', $oApp->siteid, '_attachment');
+			$downloadUrl = $fsAlioss->getHostUrl() . '/' . $oApp->siteid . '/_attachment/' . $oApp->type . '/' . $oApp->id . '/' . urlencode($att->name);
+			$this->redirect($downloadUrl);
+		} else if (strpos($att->url, 'local') === 0) {
+			$fs = $this->model('fs/local', $oApp->siteid, '附件');
+			//header("Content-Type: application/force-download");
+			header("Content-Type: $att->type");
+			header("Content-Disposition: attachment; filename=" . $att->name);
+			header('Content-Length: ' . $att->size);
+			echo $fs->read(str_replace('local://', '', $att->url));
+		} else {
+			$fs = $this->model('fs/saestore', $oApp->siteid);
+			//header("Content-Type: application/force-download");
+			header("Content-Type: $att->type");
+			header("Content-Disposition: attachment; filename=" . $att->name);
+			header('Content-Length: ' . $att->size);
+			echo $fs->read($att->url);
+		}
+
+		exit;
 	}
 }

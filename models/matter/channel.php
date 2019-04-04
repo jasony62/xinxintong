@@ -127,6 +127,7 @@ class channel_model extends article_base {
 		if ($channel === false) {
 			return $matters;
 		}
+
 		if (empty($channel->matter_type)) {
 			$matterTypes = [
 				'article' => 'xxt_article',
@@ -141,79 +142,86 @@ class channel_model extends article_base {
 			$matterTypes = [$channel->matter_type => 'xxt_' . $channel->matter_type];
 		}
 
-		$fixed_num = 0;
-		/**
-		 * top matter
-		 */
-		if (!empty($channel->top_type) && isset($matterTypes[$channel->top_type])) {
-			$qt[] = $this->matterColumns($channel->top_type, '');
-			$qt[] = $matterTypes[$channel->top_type];
-			$qt[] = "id='$channel->top_id'";
-			$top = $this->query_obj_ss($qt);
-			$fixed_num++;
-		}
-		/**
-		 * bottom matter
-		 */
-		if (!empty($channel->bottom_type) && isset($matterTypes[$channel->top_type])) {
-			$qb[] = $this->matterColumns($channel->bottom_type, '');
-			$qb[] = $matterTypes[$channel->bottom_type];
-			$qb[] = "id='$channel->bottom_id'";
-			$bottom = $this->query_obj_ss($qb);
-			$fixed_num++;
-		}
-		/**
-		 * in channel
-		 */
-		foreach ($matterTypes as $type => $table) {
-			$q1 = [];
-			$q1[] = $this->matterColumns($type) . ",cm.create_at add_at";
-			$q1[] = "$table m,xxt_channel_matter cm";
-			$qaw = "cm.channel_id=$channel_id and m.id=cm.matter_id and cm.matter_type='$type'";
-			switch ($type) {
-			case 'article':
-				$qaw .= " and m.state<>0 and m.approved='Y'";
-				break;
-			case 'enroll':
-			case 'signin':
-				$qaw .= " and m.state<>0";
-				break;
-			default:
-				$qaw .= " and m.state=1";
+		// 获取素材
+		$getTypeMatters = function ($seq, $num, $orderby = '', $sort = true) use ($channel, $matterTypes, $channel_id) {
+			$typeMatters = [];
+			foreach ($matterTypes as $type => $table) {
+				$q1 = [];
+				$q1[] = $this->matterColumns($type) . ",cm.create_at add_at,cm.seq";
+				$q1[] = "$table m,xxt_channel_matter cm";
+				$qaw = "cm.channel_id=$channel_id and m.id=cm.matter_id and cm.matter_type='$type'";
+				$qaw .= " and " . $seq;
+				switch ($type) {
+				case 'article':
+					$qaw .= " and m.state<>0 and m.approved='Y'";
+					break;
+				case 'enroll':
+				case 'signin':
+					$qaw .= " and m.state<>0";
+					break;
+				default:
+					$qaw .= " and m.state=1";
+				}
+
+				$q1[] = $qaw;
+				$q2 = [];
+				//order by
+				if (empty($orderby)) {
+					$q2['o'] = $this->matterOrderby($type, $channel->orderby, 'cm.create_at desc');
+				} else {
+					$q2['o'] = $orderby;
+				}
+				$q2['r']['o'] = 0;
+				$q2['r']['l'] = $num;
+				$rst = $this->query_objs_ss($q1, $q2);
+				$typeMatters = array_merge($typeMatters, $rst);
 			}
+			//order by add_at
+			if (count($matterTypes) > 1 && $sort) {
+				usort($typeMatters, function ($a, $b) {
+					return $b->add_at - $a->add_at;
+				});
+			}
+			// 截取指定数量
+			$typeMatters = array_slice($typeMatters, 0, $num);
 
-			!empty($top) && $top->type === $type && $qaw .= " and m.id<>'$top->id'";
-
-			!empty($bottom) && $bottom->type === $type && $qaw .= " and m.id<>'$bottom->id'";
-
-			$q1[] = $qaw;
-			$q2 = [];
-			/**
-			 * order by
-			 */
-			$q2['o'] = $this->matterOrderby($type, $channel->orderby, 'cm.create_at desc');
-			/**
-			 * $size
-			 */
-			$q2['r']['o'] = 0;
-			$q2['r']['l'] = $channel->volume - $fixed_num;
-			$typeMatters = $this->query_objs_ss($q1, $q2);
-
-			$matters = array_merge($matters, $typeMatters);
-		}
-		if (count($matterTypes) > 1) {
-			/**
-			 * order by add_at
-			 */
-			usort($matters, function ($a, $b) {
-				return $b->add_at - $a->add_at;
-			});
-		}
-		/**
-		 * add top and bottom.
+			return $typeMatters;
+		};
+		/** -------------------------------
+		 *
+		 * 获取置顶和置底的素材 top、bottom
 		 */
-		!empty($top) && $matters = array_merge(array($top), $matters);
-		!empty($bottom) && $matters = array_merge($matters, array($bottom));
+		$TBMatters = $getTypeMatters('cm.seq <> 10000', $channel->volume, 'cm.seq,cm.create_at desc,cm.matter_id desc,cm.matter_type desc', false);
+		usort($TBMatters, function ($a, $b) {
+			return $a->seq - $b->seq;
+		});
+		//已有素材数量
+		$fixed_num = count($TBMatters);
+
+		if ($fixed_num < $channel->volume) {
+			// 还差素材数量
+			$centre_num = (int) $channel->volume - $fixed_num;
+			// 获取部分素材
+			$typeMatters = $getTypeMatters('cm.seq = 10000', $centre_num);
+			// 组合素材
+			$topMatters = [];
+			$botmMatters = [];
+			foreach ($TBMatters as $TBMatter) {
+				// 置顶素材
+				if ($TBMatter->seq < 10000) {
+					$topMatters[] = $TBMatter;
+				} else {
+					// 置底素材
+					$botmMatters[] = $TBMatter;
+				}
+			}
+			$matters = array_merge($topMatters, $typeMatters);
+			$matters = array_merge($matters, $botmMatters);
+		} else if ($fixed_num > $channel->volume) {
+			$matters = array_slice($TBMatters, 0, $fixed_num);
+		} else {
+			$matters = $TBMatters;
+		}
 
 		return $matters;
 	}
@@ -289,11 +297,13 @@ class channel_model extends article_base {
 	 *
 	 * @return 频道包含的所有条目
 	 */
-	public function &getMattersNoLimit($channel_id, $userid, $params) {
+	public function &getMattersNoLimit($channel_id, $userid, $params, $channel = '') {
 		/**
 		 * load channel.
 		 */
-		$channel = $this->byId($channel_id, ['fields' => 'matter_type,orderby,volume']);
+		if (empty($channel)) {
+			$channel = $this->byId($channel_id, ['fields' => 'matter_type,orderby,volume']);
+		}
 		/**
 		 * in channel
 		 */
@@ -301,12 +311,24 @@ class channel_model extends article_base {
 			$orderby = $channel->orderby;
 			$channel_id = $this->escape($channel_id);
 			$q1 = array();
-			$q1[] = "m.id,m.title,m.summary,m.pic,m.create_at,m.creater_name,cm.create_at add_at,'article' type,m.remark_num,st.name site_name,st.id siteid,st.heading_pic,m.matter_cont_tag,m.matter_mg_tag";
+			$q1[] = "m.id,m.title,m.summary,m.pic,m.create_at,m.creater_name,cm.create_at add_at,'article' type,m.remark_num,st.name site_name,st.id siteid,st.heading_pic,m.matter_cont_tag,m.matter_mg_tag,cm.seq";
 			$q1[] = "xxt_article m,xxt_channel_matter cm,xxt_site st";
 			$q1[] = "m.state=1 and m.approved='Y' and cm.channel_id=$channel_id and m.id=cm.matter_id and cm.matter_type='article' and m.siteid=st.id";
-
+			if (!empty($params->weight)) {
+				switch ($params->weight) {
+					case 'top':
+						$q1[2] .= " and cm.seq < 10000";
+						break;
+					case 'bottom':
+						$q1[2] .= " and cm.seq > 20000";
+						break;
+					default:
+						$q1[2] .= " and cm.seq = 10000";
+						break;
+				}
+			}
 			$q2 = array();
-			$q2['o'] = $this->matterOrderby('article', $orderby, 'cm.create_at desc');
+			$q2['o'] = 'cm.seq,' . $this->matterOrderby('article', $orderby, 'cm.create_at desc');
 
 			if (isset($params->page) && isset($params->size)) {
 				$q2['r'] = array(
@@ -335,11 +357,24 @@ class channel_model extends article_base {
 			return $data;
 		} else {
 			$q1 = [
-				'cm.create_at,cm.matter_type,cm.matter_id',
+				'cm.create_at,cm.matter_type,cm.matter_id,cm.seq',
 				'xxt_channel_matter cm',
 				["cm.channel_id" => $channel_id],
 			];
-			$q2['o'] = 'cm.create_at desc , cm.matter_id desc , cm.matter_type desc';
+			if (!empty($params->weight)) {
+				switch ($params->weight) {
+					case 'top':
+						$q1[2]['cm.seq'] = (object) ['op' => '<', 'pat' => 10000];
+						break;
+					case 'bottom':
+						$q1[2]['cm.seq'] = (object) ['op' => '>', 'pat' => 20000];
+						break;
+					default:
+						$q1[2]['cm.seq'] = 10000;
+						break;
+				}
+			}
+			$q2['o'] = 'cm.seq, cm.create_at desc , cm.matter_id desc , cm.matter_type desc';
 
 			// 分页获取，如果素材已经删除，或者素材尚未批准的情况下，分页会导致返回的数量不正确
 			if (isset($params->page) && isset($params->size)) {
@@ -388,6 +423,7 @@ class channel_model extends article_base {
 
 				$fullMatter->type = $sm->matter_type;
 				$fullMatter->add_at = $sm->create_at;
+				$fullMatter->seq = $sm->seq;
 				if (!empty($fullMatter->matter_cont_tag) && is_string($fullMatter->matter_cont_tag)) {
 					$fullMatter->matter_cont_tag = json_decode($fullMatter->matter_cont_tag);
 				}
@@ -421,6 +457,7 @@ class channel_model extends article_base {
 		$newc['create_at'] = $current;
 		$newc['creater'] = $createrId;
 		$newc['creater_name'] = $createrName;
+		$newc['seq'] = 10000;
 
 		/* 是否已经加入到频道中 */
 		$q = [

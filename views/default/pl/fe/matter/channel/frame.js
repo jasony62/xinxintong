@@ -52,6 +52,7 @@ define(['require'], function() {
             controller: $controllerProvider.register
         };
         $routeProvider
+            .when('/rest/pl/fe/matter/channel/matter', new RouteParam('matter'))
             .when('/rest/pl/fe/matter/channel/preview', new RouteParam('preview'))
             .when('/rest/pl/fe/matter/channel/invite', new RouteParam('invite', '/views/default/pl/fe/_module/'))
             .when('/rest/pl/fe/matter/channel/log', new RouteParam('log'))
@@ -66,6 +67,30 @@ define(['require'], function() {
             srvInviteProvider.config('channel', id);
         })();
     }]);
+    ngApp.directive('sortable', function() {
+        return {
+            link: function(scope, el, attrs) {
+                el.sortable({
+                    revert: 50
+                });
+                el.disableSelection();
+                el.on("sortdeactivate", function(event, ui) {
+                    var from = angular.element(ui.item).scope().$index;
+                    var to = el.children('li').index(ui.item);
+                    if (to >= 0) {
+                        scope.$apply(function() {
+                            if (from >= 0) {
+                                scope.$emit('my-sorted', {
+                                    from: from,
+                                    to: to
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        };
+    });
     ngApp.controller('ctrlChannel', ['$scope', '$location', 'http2', 'srvSite', function($scope, $location, http2, srvSite) {
         var ls = $location.search();
         $scope.id = ls.id;
@@ -75,6 +100,7 @@ define(['require'], function() {
             $scope.subView = subView[1] === 'channel' ? 'main' : subView[1];
             switch ($scope.subView) {
                 case 'main':
+                case 'matter':
                     $scope.opened = 'edit';
                     break;
                 case 'preview':

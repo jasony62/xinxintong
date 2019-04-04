@@ -20,17 +20,12 @@ class main_base extends base {
 	/**
 	 *
 	 */
-	protected function _outputPage($app, $page = '', $rid = '', $ek = null, $topic = null, $ignoretime = 'N') {
-		if (is_string($app)) {
-			$oApp = $this->modelApp->byId($app, ['cascaded' => 'N']);
-		} else {
-			$oApp = $app;
-		}
-		if ($oApp === false || $oApp->state !== '1') {
-			$this->outputError('指定的记录活动不存在，请检查参数是否正确');
-		}
-		if (empty($oApp->appRound)) {
-			$this->outputError('【' . $oApp->title . '】没有可用的填写轮次，请检查');
+	protected function _outputPage($oApp, $page = '', $rid = '', $ek = null, $topic = null, $ignoretime = 'N') {
+		/*页面是否要求必须存在填写轮次*/
+		if (!in_array($page, ['rank'])) {
+			if (empty($oApp->appRound)) {
+				$this->outputError('【' . $oApp->title . '】没有可用的填写轮次，请检查');
+			}
 		}
 
 		// 处理输出页面信息
@@ -43,11 +38,6 @@ class main_base extends base {
 		// 页面是否开放
 		if (!$this->_checkOpenRule($oApp, $page)) {
 			$this->outputError('页面未开放, 请联系系统管理员');
-		}
-
-		/* 检查是否需要第三方社交帐号OAuth */
-		if (!$this->afterSnsOAuth()) {
-			$this->requireSnsOAuth($oApp);
 		}
 
 		$oUser = $this->who;
@@ -93,6 +83,16 @@ class main_base extends base {
 				break;
 			case 'rank':
 				if (empty($oApp->scenarioConfig->can_rank) || $oApp->scenarioConfig->can_rank !== 'Y') {
+					return false;
+				}
+				break;
+			case 'votes':
+				if (empty($oApp->scenarioConfig->can_votes) || $oApp->scenarioConfig->can_votes !== 'Y') {
+					return false;
+				}
+				break;
+			case 'marks':
+				if (empty($oApp->scenarioConfig->can_marks) || $oApp->scenarioConfig->can_marks !== 'Y') {
 					return false;
 				}
 				break;

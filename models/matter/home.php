@@ -184,6 +184,7 @@ class home_model extends \TMS_MODEL {
 				'pic' => $matter->pic,
 				'summary' => $this->escape($matter->summary),
 				'site_name' => $this->escape($site->name),
+				'put_at' => $current,
 			];
 
 			$this->update(
@@ -258,7 +259,7 @@ class home_model extends \TMS_MODEL {
 	public function cancelGlobal($applicationId) {
 		$rst = $this->update(
 			'xxt_home_matter',
-			['approved' => 'N'],
+			['as_global' => 'N'],
 			["id" => $applicationId]
 		);
 

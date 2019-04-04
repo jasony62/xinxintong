@@ -460,9 +460,9 @@ class task_model extends \TMS_MODEL {
 	 *
 	 * @param object $oRule[type,id,rid,start_at,end_at] 如果不自动创建任务，不需要指定start_at和end_at
 	 */
-	public function byRule($oRule, $aOptons = []) {
-		$fields = empty($aOptons['fields']) ? 'id,rid,start_at,end_at' : $aOptons['fields'];
-		$bCreateIfNone = isset($aOptons['createIfNone']) ? $aOptons['createIfNone'] : false;
+	public function byRule($oRule, $aOptions = []) {
+		$fields = empty($aOptions['fields']) ? 'id,rid,start_at,end_at' : $aOptions['fields'];
+		$bCreateIfNone = isset($aOptions['createIfNone']) ? $aOptions['createIfNone'] : false;
 		$q = [
 			$fields,
 			'xxt_enroll_task',
@@ -523,7 +523,7 @@ class task_model extends \TMS_MODEL {
 	 * 指定用户当前是否存在任务
 	 */
 	public function byId($id, $aOptions = []) {
-		$fields = empty($aOptons['fields']) ? 'id,aid,rid,start_at,end_at,config_type,config_id' : $aOptons['fields'];
+		$fields = empty($aOptions['fields']) ? 'id,aid,rid,start_at,end_at,config_type,config_id' : $aOptions['fields'];
 		$q = [
 			$fields,
 			'xxt_enroll_task',

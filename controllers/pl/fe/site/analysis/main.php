@@ -44,6 +44,13 @@ class main extends \pl\fe\base {
 		if ($stat = $model->query_objs_ss($q, $q2)) {
 			$b = new \stdClass;
 			foreach ($stat as $k => $v) {
+				if ($v->matter_type === 'article') {
+					$v->matter_title = $model->query_val_ss([
+						'title',
+						'xxt_article',
+						["id" => $v->matter_id],
+					]);
+				}
 				$v->fav_num = $model->query_val_ss([
 					'count(*)',
 					'xxt_site_favor',

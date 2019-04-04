@@ -1,26 +1,28 @@
-<div id='filterQuick' ng-cloak>
-    <div ng-if="rounds.length" class="btn-group" uib-dropdown dropdown-append-to-body='true'>
-        <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
-            <span>轮次</span>
-            <span class="glyphicon glyphicon-filter"></span>
-        </button>
-        <ul class="dropdown-menu" uib-dropdown-menu>
-            <li ng-repeat="rnd in rounds"><a href ng-click="shiftRound(rnd)">{{rnd.title}}</a></li>
-        </ul>
+<div class='app' is="votes">
+    <div id='filterQuick' ng-cloak>
+        <div ng-if="rounds.length" class="btn-group" uib-dropdown dropdown-append-to-body='true'>
+            <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                <span>轮次</span>
+                <span class="glyphicon glyphicon-filter"></span>
+            </button>
+            <ul class="dropdown-menu" uib-dropdown-menu>
+                <li ng-repeat="rnd in rounds"><a href ng-click="shiftRound(rnd)">{{rnd.title}}</a></li>
+            </ul>
+        </div>
     </div>
-</div>
-<div id='filterTip' ng-if="filter.round">
-    <div class="bg-info small" ng-if="filter.round">
-        <span>{{filter.round.title}}</span>
+    <div id='filterTip' ng-if="filter.round">
+        <div class="bg-info small" ng-if="filter.round">
+            <span>{{filter.round.title}}</span>
+        </div>
     </div>
-</div>
-<div class='schema' ng-repeat="schema in votes">
-    <div ng-bind="schema.title"></div>
-    <div class='option' ng-repeat="op in schema.ops">
-        <div><span ng-bind="op.l"></span><small class='option-link' ng-if="op.referRecord.ds.ek" ng-click="gotoOptionLink(schema,op)">[详情]</small></div>
-        <div ng-bind="op.c"></div>
-        <div class='text-muted'>
-            <span ng-if="op.p"><span ng-bind="op.p"></span>%</span>
+    <div class='schema' ng-repeat="schema in votes">
+        <div ng-bind="schema.title"></div>
+        <div class='option' ng-repeat="op in schema.ops">
+            <div><span ng-bind="op.l"></span><small class='option-link' ng-if="op.referRecord.ds.ek" ng-click="gotoOptionLink(schema,op)">[详情]</small></div>
+            <div ng-bind="op.c"></div>
+            <div class='text-muted'>
+                <span ng-if="op.p"><span ng-bind="op.p"></span>%</span>
+            </div>
         </div>
     </div>
 </div>

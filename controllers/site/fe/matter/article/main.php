@@ -123,6 +123,51 @@ class main extends \site\fe\matter\base {
 		return new \ResponseData($result);
 	}
 	/**
+	 * 根据被关联的对象，获得建立关联的记录
+	 */
+	public function assocRecords_action($site, $id) {
+		$modelArticle = $this->model('matter\article');
+		$oArticle = $modelArticle->byId($id);
+		if ($oArticle === false || $oArticle->state !== '1') {
+			return new \ResponseError('指定的活动不存在，请检查参数是否正确');
+		}
+
+		$navApps = [];
+		/* 单图文所属的频道 */
+		$oArticle->channels = $this->model('matter\channel')->byMatter($oArticle->id, 'article', ['public_visible' => 'Y']);
+		foreach ($oArticle->channels as $oChannel) {
+			if (!empty($oChannel->config->nav->app)) {
+				$navApps = array_merge($navApps, $oChannel->config->nav->app);
+			}
+		}
+		if (!empty($oArticle->config->nav->app)) {
+			$navApps = array_merge($navApps, $oArticle->config->nav->app);
+		}
+
+		// 是否指定了关联记录所在的活动
+		$assocsApps = [];
+		foreach ($navApps as $navApp) {
+			if ($navApp->type === 'enroll') {
+				$assocsApps[] = $navApp->id;
+			}
+		}
+		// 没有指定返回空数组
+		if (empty($assocsApps)) {
+			return new \ResponseData([]);
+		}
+
+		$modelAss = $this->model('matter\enroll\assoc');
+		$oMatter = (object) ['id' => $id, 'type' => 'article'];
+		$aOptions = [
+			'fields' => 'id,entity_a_id,entity_a_type',
+			'byApp' => array_unique($assocsApps),
+			'cascaded' => 'Y',
+		];
+		$assocs = $modelAss->byEntityB($oMatter, $aOptions);
+
+		return new \ResponseData($assocs);
+	}
+	/**
 	 * 下载附件
 	 */
 	public function attachmentGet_action($site, $articleid, $attachmentid) {
@@ -136,55 +181,15 @@ class main extends \site\fe\matter\base {
 		 */
 		$modelArticle = $this->model('matter\article');
 		$oArticle = $modelArticle->byId($articleid);
-		$this->checkDownloadRule($oArticle, true);
-		/**
-		 * 获取附件
-		 */
-		$q = [
-			'*',
-			'xxt_matter_attachment',
-			['matter_id' => $articleid, 'matter_type' => 'article', 'id' => $attachmentid],
-		];
-		if (false === ($att = $modelArticle->query_obj_ss($q))) {
-			die('指定的附件不存在');
+		if ($oArticle === false || $oArticle->state !== '1') {
+			die('指定的活动不存在，请检查参数是否正确');
 		}
+		$this->checkDownloadRule($oArticle, true);
 		/**
 		 * 记录日志
 		 */
 		$modelArticle->update("update xxt_article set download_num=download_num+1 where id='$articleid'");
-		$log = [
-			'userid' => $user->uid,
-			'nickname' => $user->nickname,
-			'download_at' => time(),
-			'siteid' => $site,
-			'article_id' => $articleid,
-			'attachment_id' => $attachmentid,
-			'user_agent' => $_SERVER['HTTP_USER_AGENT'],
-			'client_ip' => $this->client_ip(),
-		];
-		$modelArticle->insert('xxt_article_download_log', $log, false);
-
-		if (strpos($att->url, 'alioss') === 0) {
-			$fsAlioss = \TMS_APP::M('fs/alioss', $this->siteId, '_attachment');
-			$downloadUrl = $fsAlioss->getHostUrl() . '/' . $site . '/_attachment/article/' . $articleid . '/' . urlencode($att->name);
-			$this->redirect($downloadUrl);
-		} else if (strpos($att->url, 'local') === 0) {
-			$fs = $this->model('fs/local', $site, '附件');
-			//header("Content-Type: application/force-download");
-			header("Content-Type: $att->type");
-			header("Content-Disposition: attachment; filename=" . $att->name);
-			header('Content-Length: ' . $att->size);
-			echo $fs->read(str_replace('local://', '', $att->url));
-		} else {
-			$fs = $this->model('fs/saestore', $site);
-			//header("Content-Type: application/force-download");
-			header("Content-Type: $att->type");
-			header("Content-Disposition: attachment; filename=" . $att->name);
-			header('Content-Length: ' . $att->size);
-			echo $fs->read($att->url);
-		}
-
-		exit;
+		$this->attachmentGet($oArticle, $attachmentid);
 	}
 	/**
 	 * 检查附件下载规则

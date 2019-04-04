@@ -14,6 +14,9 @@ class login extends \site\fe\base {
 		$rule_action['actions'][] = 'do';
 		$rule_action['actions'][] = 'byRegAndWxopenid';
 		$rule_action['actions'][] = 'getCaptcha';
+		$rule_action['actions'][] = 'thirdList';
+		$rule_action['actions'][] = 'byRegAndThird';
+		$rule_action['actions'][] = 'thirdCallback';
 
 		return $rule_action;
 	}
@@ -182,7 +185,7 @@ class login extends \site\fe\base {
 		}
 
 		/* 执行第三方应用授权登录 */
-		$this->requirLoginOauth($thirdApp);
+		$this->_requirLoginOauth($thirdApp);
 
 		return new \ResponseError("跳转失败");
 	}
@@ -222,7 +225,7 @@ class login extends \site\fe\base {
 	/**
 	 *  跳转到第三方登陆页面
 	 */
-	protected function requirLoginOauth($devConfig) {
+	private function _requirLoginOauth($devConfig) {
 		$ruri = APP_PROTOCOL . APP_HTTP_HOST . '/rest/site/fe/user/login/thirdCallback';
 
 		$snsProxy = $this->model('sns\dev189\proxy', $devConfig);

@@ -310,7 +310,7 @@ class base extends \site\fe\base {
 					$this->model('log')->log($oUser->uid, 'enterAsSns', $snsUser->openid, $oMatter->type . ':' . $oMatter->id, isset($oUser->nickname) ? $oUser->nickname : '');
 					/* 如果缓存的用户数据没有关注，清空数据 */
 					unset($oUser->sns->{$snsName});
-					$this->setCookieUser($oMatter->siteid, $oUser);
+					$this->model('site\fe\way')->setCookieUser($oMatter->siteid, $oUser);
 				} else {
 					$modelAcnt = $this->model('site\user\account');
 					$propSnsOpenid = $snsName . '_openid';

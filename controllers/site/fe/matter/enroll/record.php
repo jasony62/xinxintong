@@ -674,8 +674,8 @@ class record extends base {
 						}
 						$oAssocGrpTeamSchema = $this->model('matter\enroll\schema')->getAssocGroupTeamSchema($oApp);
 						if ($oAssocGrpTeamSchema) {
-							if (!isset($oGrpUsr->data->{$oAssocGrpTeamSchema->id})) {
-								$oGrpUsr->data->{$oAssocGrpTeamSchema->id} = $oGrpUsr->team_id;
+							if (!isset($oRecord->data->{$oAssocGrpTeamSchema->id})) {
+								$oRecord->data->{$oAssocGrpTeamSchema->id} = $oGrpUsr->team_id;
 							}
 						}
 					}

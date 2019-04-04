@@ -223,7 +223,7 @@ class main extends \pl\fe\matter\main_base {
 				$this->setDeepValue($oMisEntryRule, 'scope.sns', 'Y');
 				$oMisEntryRule->sns = new \stdClass;
 				foreach ($oProto->entryRule->sns as $snsName => $valid) {
-					if ($valid === 'Y') {
+					if ($this->getDeepValue($valid, 'entry') === 'Y') {
 						$oMisEntryRule->sns->{$snsName} = (object) ['entry' => 'Y'];
 					}
 				}

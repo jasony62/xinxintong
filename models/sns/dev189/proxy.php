@@ -1,5 +1,5 @@
 <?php
-namespace sns\dev;
+namespace sns\dev189;
 
 require_once dirname(dirname(__FILE__)) . '/proxybase.php';
 require_once dirname(__FILE__) . '/config.php';
@@ -76,9 +76,7 @@ class proxy_model extends \sns\proxybase {
 		if ($response[0] === false) {
 			return $response;
 		}
-		$response = $response[1];
-		
-		$token = $response->access_token;
+		$token = $response[1];
 		/**
 		 * 保存获得的token
 		 */
@@ -86,7 +84,7 @@ class proxy_model extends \sns\proxybase {
 		$u["access_token"] = $token->access_token;
 		$u["access_token_expire_at"] = (int) $token->expires_in + time();
 
-		$this->model()->update('xxt_account_third', $u, "id='{$this->config->id}'");
+		\TMS_APP::model()->update('xxt_account_third', $u, "id='{$this->config->id}'");
 
 		$this->accessToken = [
 			'value' => $u["access_token"],
@@ -100,7 +98,7 @@ class proxy_model extends \sns\proxybase {
 	 */
 	public function oauthUrl($redirect, $state = null) {
 		$oauth = $this->authloginUrl;
-		$oauth .= "?access_token=" . $this->accessToken();
+		$oauth .= "?access_token=" . $this->accessToken()[1];
 		$oauth .= "&redirect_url=" . $redirect;
 		!empty($state) && $oauth .= "&state=$state";
 
@@ -112,8 +110,8 @@ class proxy_model extends \sns\proxybase {
 	public function userInfoByCode($code) {
 		/* 获得用户的openid */
 		$cmd = $this->authUserinfoUrl;
-		$params["access_token"] = $this->accessToken();
 		$params["code"] = $code;
+		$params["access_token"] = $this->accessToken()[1];
 		$rst = $this->httpGet($cmd, $params, false, false);
 		if ($rst[0] === false) {
 			return $rst;
@@ -122,8 +120,9 @@ class proxy_model extends \sns\proxybase {
 		if ($user->returnCode != '0') {
 			return [false, json_encode($user)];	
 		}
+
 		if (isset($user->custName)) {
-			$user->nickname = \TMS_APP::model()->cleanEmoji($user->nickname, true);
+			$user->nickname = \TMS_APP::model()->cleanEmoji($user->custName, true);
 		}
 
 		return [true, $user];
@@ -157,11 +156,11 @@ class proxy_model extends \sns\proxybase {
 		} else {
 			curl_close($ch);
 		}
-		$token = json_decode($response);
-		if ($token->returnCode != 0) {
+		$data = json_decode($response);
+		if (isset($data->returnCode) && $data->returnCode != 0) {
 			return [false, $response];
 		}
 
-		return [true, $token];
+		return [true, $data];
 	}
 }

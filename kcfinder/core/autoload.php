@@ -52,6 +52,8 @@ function __autoload($class) {
         require "core/browser.php";
     elseif ($class == "browser_alioss")
         require "core/browser_alioss.php";
+    elseif ($class == "browser_tyoos")
+        require "core/browser_tyoos.php";
     elseif (file_exists("core/types/$class.php"))
         require "core/types/$class.php";
     elseif (file_exists("lib/class_$class.php"))

@@ -192,35 +192,50 @@ class login extends \site\fe\base {
 	/**
 	 * 执行第三方登录后续操作
 	 */
-	public function thirdCallback_action($code = '', $state = '') {
-		if (empty($code) || empty($state)) {
-			die('为获取到授权参数');
+	public function thirdCallback_action($code = '') {
+		if (empty($code)) {
+			die('未获取到授权参数');
 		}
-		$stateArr = explode('-', $state);
-		$thirdId = end($stateArr);
+		$thirdId = $this->myGetcookie("_thirdlogin_oauthpending");
+		if (empty($thirdId)) {
+			die('未获取到第三方应用');
+		}
+		// 清楚cookie
+		$this->mySetcookie("_thirdlogin_oauthpending", '', time() - 3600);
+		// $stateArr = explode('-', $state);
+		// $thirdId = end($stateArr);
 		$thirdApp = $this->model('sns\dev189')->byId($thirdId);
 		if ($thirdApp === false) {
-			die('未找到指定第三方应用');
+			die('未找到指定第三方应用ID');
 		}
 
 		// 获得第三方应用用户信息
-		$oThirdAppUser = $this->_userInfoByCode($code, $state);
+		$oThirdAppUser = $this->_userInfoByCode($thirdApp, $code);
 		if ($oThirdAppUser[0] === false) {
 			die($oThirdAppUser[1]);
 		}
+		$oThirdAppUser = $oThirdAppUser[1];
 		// 获取用户信息后，后续处理
 		$result = $this->_afterThirdLoginOauth($thirdApp, $oThirdAppUser);
 		if ($result[0] === false) {
 			die($result[1]);
 		}
 		// 获取用户的cookie
-		$oCookieUser = $modelWay->who($this->siteId);
+		$oCookieUser = $this->model('site\fe\way')->who($this->siteId);
 		if ($referer = $this->myGetCookie('_user_access_referer')) {
 			$oCookieUser->_loginReferer = $referer;
 			$this->mySetCookie('_user_access_referer', null);
 		}
 
-		return new \ResponseData($oCookieUser);
+		$callbackURL = $this->myGetCookie('_thirdlogin_oauth_callbackURL');
+		if (empty($callbackURL)) {
+			$callbackURL = APP_PROTOCOL . APP_HTTP_HOST . "/rest/home/home";
+		} else {
+			// 清楚cookie
+			$this->mySetcookie("_thirdlogin_oauth_callbackURL", '', time() - 3600);
+		}
+
+		$this->redirect($callbackURL);
 	}
 	/**
 	 *  跳转到第三方登陆页面
@@ -231,6 +246,8 @@ class login extends \site\fe\base {
 		$snsProxy = $this->model('sns\dev189\proxy', $devConfig);
 		$oauthUrl = $snsProxy->oauthUrl($ruri, 'snsOAuth-dev-login-' . $devConfig->id);
 		if (isset($oauthUrl)) {
+			/* 通过cookie判断是否是后退进入 */
+			$this->mySetcookie("_thirdlogin_oauthpending", $devConfig->id, time() + 600);
 			$this->redirect($oauthUrl);
 		}
 
@@ -239,18 +256,14 @@ class login extends \site\fe\base {
 	/**
 	 * 通过回调code获取第三方用户信息
 	 */
-	private function _userInfoByCode($code, $state) {
-		// oauth回调
-		if (!empty($state) && !empty($code)) {
-			if (strpos($state, 'snsOAuth-dev-login') === 0) {
-				$oThirdAppUser = $this->model('sns\dev189\proxy')->userInfoByCode($code);
-				return $oThirdAppUser;
-			} else {
-				return [false, '非登录授权'];
-			}
-		} else {
+	private function _userInfoByCode($thirdApp, $code) {
+		if (empty($code)) {
 			return [false, '获取code失败'];
 		}
+
+		$oThirdAppUser = $this->model('sns\dev189\proxy', $thirdApp)->userInfoByCode($code);
+
+		return $oThirdAppUser;
 	}
 	/**
 	 * 第三方登录完成后执行后续处理
@@ -328,7 +341,7 @@ class login extends \site\fe\base {
 			if ($thirdUser) {
 				$modelReg->update("xxt_account_third_user", $updata, ["id" => $thirdUser->id]);
 			} else {
-				$updata["thirdApp"] = $thirdApp->id;
+				$updata["third_id"] = $thirdApp->id;
 				$updata["openid"] = $oThirdAppUser->custId;
 				$modelReg->insert('xxt_account_third_user', $updata, false);
 			}

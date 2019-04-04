@@ -15,7 +15,19 @@ file_exists(dirname(__FILE__).'/cus/config.php') && include_once dirname(__FILE_
 
 require dirname(__FILE__)."/core/autoload.php";
 
-if (defined('KCFINDER_STORE_AT') && KCFINDER_STORE_AT === 'local') {
+if (isset($_GET['type']) && $_GET['type'] === 'ylylisten') {
+	if (!defined('OOS_ENDPOINT')) {
+		throw new Exception('天翼云的API服务器');
+	}
+	if (!defined('OOS_ACCESS_KEY')) {
+		throw new Exception('未指定API参数1');
+	}
+	if (!defined('OOS_ACCESS_SECRET')) {
+		throw new Exception('未指定API参数2');
+	}
+
+	$browser = new browser_tyoos(OOS_ENDPOINT, OOS_ACCESS_KEY, OOS_ACCESS_SECRET);
+} else if (defined('KCFINDER_STORE_AT') && KCFINDER_STORE_AT === 'local') {
     $browser = new browser();
 } else {
     $browser = new browser_alioss();

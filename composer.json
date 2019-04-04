@@ -23,5 +23,9 @@
             "type": "composer",
             "url": "https://packagist.phpcomposer.com"
         }
+    },
+    "require":
+    {
+        "aws/aws-sdk-php": "2.*"
     }
 }

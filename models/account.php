@@ -43,12 +43,17 @@ class account_model extends TMS_MODEL {
 	 *
 	 * return account
 	 */
-	public function byAuthedId($authid, $authed_from) {
+	public function byAuthedId($authid, $authed_from, $options = []) {
+		$fields = empty($options['fields']) ? 'a.uid,a.nickname,a.email,a.password,a.salt' : $options['fields'];
 		$q = array(
-			'a.uid,a.nickname,a.email,a.password,a.salt',
+			$fields,
 			'account a,account_in_group ag,account_group g',
-			"a.uid=ag.account_uid and ag.group_id=g.group_id and a.authed_id='$authid' and a.authed_from='$authed_from'",
+			"a.uid=ag.account_uid and ag.group_id=g.group_id and a.authed_id='" . $this->eacape($authid) . "' and a.authed_from='" . $this->escape($authed_from) . "'",
 		);
+		if (isset($options['forbidden'])) {
+			$q[2] .= " and a.forbidden = " . $this->escape($options['forbidden']);
+		}
+
 		if ($act = $this->query_obj_ss($q)) {
 			return $act;
 		} else {

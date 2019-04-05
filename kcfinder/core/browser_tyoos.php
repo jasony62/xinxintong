@@ -120,21 +120,26 @@ class browser_tyoos extends browser {
 				$dirs[] = (object) $d;
 			}
 		} else {
+			if (empty($this->session['mpid'])) {
+				die('未获取到用户ID');
+			}
+			// 查询条件
+			$Prefix = $this->session['mpid'] . '/';
 			$filter = new \stdClass;
 			$filter->bucket = OOS_BUCKET;
-			// $filter->prefix = $Prefix;
+			$filter->prefix = $Prefix;
 			$filter->size = 100;
 			$rst = $OOS->objectList($filter);
 			if ($rst[0] === false) {
 				die('错误2' . $rst[1]);
 			}
 			$objects = $rst[1];
-			$CommonPrefixes = $objects['CommonPrefixes'];
 			//dirs
 			$dirs = [];
+			$CommonPrefixes = isset($objects['CommonPrefixes']) ? $objects['CommonPrefixes'] : [];
 			foreach ($CommonPrefixes as $val) {
 				$d = [];
-				$d['name'] = substr($val['Prefix'], 0, -1);
+				$d['name'] = substr(str_replace($filter->prefix, '', $val['Prefix']), 0, -1);;
 				$d['readable'] = true;
 				$d['writable'] = false;
 				$d['removable'] = false;
@@ -143,9 +148,8 @@ class browser_tyoos extends browser {
 				$dirs[] = (object) $d;
 			}
 			// files
-			$Contents = $objects['Contents'];
-			// var_dump($Contents);die;
 			$files = [];
+			$Contents = isset($objects['Contents']) ? $objects['Contents'] : [];
 			foreach ($Contents as $o) {
 				$f['name'] = $o['Key'];
 				$f['size'] = (int) $o['Size'];
@@ -187,13 +191,23 @@ class browser_tyoos extends browser {
 	}
 	// 获取下级目录
 	protected function act_expand() {
+		if (empty($this->session['mpid'])) {
+			die('未获取到用户ID');
+		}
+		if (empty($this->post['dir'])) {
+			die('未获取到目录参数');
+		}
+
 		// 加载oos api
 		include_once dirname(__FILE__) . '/oos.php';
 		$OOS = new oos(OOS_ENDPOINT, OOS_ACCESS_KEY, OOS_ACCESS_SECRET);
 		$dirWritable = true;
+
+		//
+		$Prefix = $this->session['mpid'] . '/' . $this->post['dir'] . '/';
 		$filter = new \stdClass;
 		$filter->bucket = OOS_BUCKET;
-		$filter->prefix = empty($this->post['dir']) ? '' : $this->post['dir'] . '/';
+		$filter->prefix = $Prefix;
 		$filter->size = 1000;
 		$rst = $OOS->objectList($filter);
 		if ($rst[0] === false) {
@@ -224,14 +238,23 @@ class browser_tyoos extends browser {
 	}
 	// 获取文件
 	protected function act_chDir() {
+		if (empty($this->session['mpid'])) {
+			die('未获取到用户ID');
+		}
+		if (empty($this->post['dir'])) {
+			die('未获取到目录参数');
+		}
+		
 		// 加载oos api
 		include_once dirname(__FILE__) . '/oos.php';
 		$OOS = new oos(OOS_ENDPOINT, OOS_ACCESS_KEY, OOS_ACCESS_SECRET);
 		$dirWritable = true;
 
+		//
+		$Prefix = $this->session['mpid'] . '/' . $this->post['dir'] . '/';
 		$filter = new \stdClass;
 		$filter->bucket = OOS_BUCKET;
-		$filter->prefix = empty($this->post['dir']) ? '' : $this->post['dir'] . '/';
+		$filter->prefix = $Prefix;
 		$filter->size = 1000;
 		$rst = $OOS->objectList($filter);
 		if ($rst[0] === false) {
@@ -257,6 +280,7 @@ class browser_tyoos extends browser {
 			$f['bigIcon'] = true;
 			$f['smallIcon'] = true;
 			$f['thumb'] = false;
+			$f['xiazai'] = true;
 			$f['smallthumb'] = false;
 			$files[] = $f;
 		}
@@ -310,5 +334,69 @@ class browser_tyoos extends browser {
 		}
 
 		return $info;
+	}
+	//
+	protected function act_thumb() {
+		// 加载oos api
+		include_once dirname(__FILE__) . '/oos.php';
+		$OOS = new oos(OOS_ENDPOINT, OOS_ACCESS_KEY, OOS_ACCESS_SECRET);
+		$filter = new \stdClass;
+		$filter->bucket = OOS_BUCKET;
+		$filter->fileName = $this->get['dir'] . '/' . $this->get['file'];
+		$file = $OOS->getObject($filter);
+		if ($file[0] === false) {
+			die('错误4' . $file[1]);
+		}
+		$file = $file[1];
+
+		// url
+		$fileUrl = $OOS->getObjectUrl($filter);
+		if ($fileUrl[0] === false) {
+			die('错误5' . $fileUrl[1]);
+		}
+		$fileUrl = $fileUrl[1];
+
+		file_get_contents($fileUrl);
+
+		header("Content-Type: " . $file['ContentType']);
+        header("Expires: " . $file['LastModified']);
+        // header("Cache-Control: max-age=");
+        header("Pragma: !invalid");
+        header("Content-Length: " . $file['ContentLength']);
+        echo $content;
+	}
+	// xiazai
+	protected function act_download() {
+		if (empty($this->session['mpid'])) {
+			die('未获取到用户ID');
+		}
+
+		// 加载oos api
+		include_once dirname(__FILE__) . '/oos.php';
+		$OOS = new oos(OOS_ENDPOINT, OOS_ACCESS_KEY, OOS_ACCESS_SECRET);
+
+		//
+		$filter = new \stdClass;
+		$filter->bucket = OOS_BUCKET;
+		$filter->fileName = $this->session['mpid'] . '/' . $this->post['dir'] . '/' . $this->post['file'];
+		$file = $OOS->getObject($filter);
+		if ($file[0] === false) {
+			die('错误4' . $file[1]);
+		}
+		$file = $file[1];
+
+		// url
+		$fileUrl = $OOS->getObjectUrl($filter);
+		if ($fileUrl[0] === false) {
+			die('错误5' . $fileUrl[1]);
+		}
+		$fileUrl = $fileUrl[1];
+
+		header("Content-type: " . $file['ContentType']);
+		header("Accept-Ranges:bytes");
+		header("Accept-Length: " . $file['ContentLength']);
+		header("Content-Disposition:attachment;filename=" . $this->post['file']);
+		readfile($fileUrl);
+		exit();
 	}
 }

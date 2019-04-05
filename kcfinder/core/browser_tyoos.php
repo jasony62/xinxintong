@@ -9,123 +9,11 @@
  * 天翼云存储
  */
 class browser_tyoos extends browser {
-	//天翼云的API服务器
-	private $endpoint;
-	//Access Key 在天翼云门户网站-帐户管理-API密钥管理中获取
-	private $accessKey;
-	//Access Secret 在天翼云门户网站-帐户管理-API密钥管理中获取
-	private $accessSecret;
-	/**
-	 *
-	 */
-	public function __construct($endpoint, $accessKey, $accessSecret) {
+
+	public function __construct() {
 		parent::__construct();
-
-		$this->endpoint = $endpoint;
-		$this->accessKey = $accessKey;
-		$this->accessSecret = $accessSecret;
 	}
-	/**
-	 * 链接天翼云接口
-	 */
-	private function _S2AMZ() {
-		//创建S3 client 对象
-include_once dirname(dirname(dirname(__FILE__))) . '/vendor/autoload.php';
-		$client = \Aws\S3\S3Client::factory([
-			'endpoint' => $this->endpoint,  //声明使用指定的endpoint
-			'key'      => $this->accessKey,
-			'secret'   => $this->accessSecret
-		]);
-
-		return $client;
-	}
-	/**
-	 * 处理天翼云返回的数据
-	 */
-	private function _disposeData($data) {
-		$data = (array) $data;
-		$data2 = new \stdClass;
-		foreach ($data as $key => $value) {
-			if (strpos($key, '*') === 1) {
-				$key2 = substr($key, 3);
-				$data2->{$key2} = $value;
-			} else {
-				$data2->{$key} = $value;
-			}
-		}
-
-		return $data2->data;
-	}
-	/**
-	 * 容器列表
-	 */
-	private function _bucketList() {
-		$buckets = $this->S2AMZ()->listBuckets();
-		$data = $this->disposeData($buckets);
-
-		return [true, $data];
-	}
-	/**
-	 * 容器列表
-	 */
-	private function _objectList($post) {
-		if (empty($post->bucket)) {
-			return [false, '未找到bucket'];
-		}
-		
-		$options = [
-				'Bucket' => $post->bucket,
-				'MaxKeys' => 5,
-				'Delimiter' => '/',
-		];
-		//指定以什么字符串开头
-		$prefix = '';
-		if (!empty($post->prefix)) {
-			$prefix = $post->prefix;
-		}
-		$options['Prefix'] = $prefix;
-		//page 分页 是上一页的最后对象的name
-		if (!empty($post->marker)) {
-			$options['Marker'] = $post->marker;
-		}
-		//获取的个数,每页显示数量
-		if (!empty($post->size)) {
-			$options['MaxKeys'] = $post->size;
-		}
-		$objects = $this->S2AMZ()->listObjects($options);
-		$data = $this->disposeData($objects);
-
-		return [true, $data];
-	}
-	/**
-	*
-	*/
-	private function _getObject($post) {
-		if (empty($post->bucket) || empty($post->fileName)) {
-			return [false, "未找到bucket或文件名"];
-		}
-
-		$file = $this->S2AMZ()->getObject([
-				'Bucket' => $post->bucket,
-				'Key' => $post->fileName
-		]);
-		$data = $this->disposeData($file);
-
-		return [true, $data];
-	}
-	/**
-	 * 获取文件下载地址
-	 */
-	private function _getObjectUrl($post) {
-		if (empty($post->bucket) || empty($post->fileName)) {
-			return [false, "未找到bucket或文件名"];
-		}
-
-		$url = $this->S2AMZ()->getObjectUrl($post->bucket, $post->fileName, '+10 minutes'); // 下载对象
-
-		return [true, urlencode($url)];
-	}
-
+	
 	public function action() {
 		$act = isset($this->get['act']) ? $this->get['act'] : "ylylisten";
 		if (!method_exists($this, "act_$act")) {
@@ -188,138 +76,219 @@ include_once dirname(dirname(dirname(__FILE__))) . '/vendor/autoload.php';
 	}
 
 	protected function act_init() {
-		var_dump($this->typeDir);die;
+		// 加载oos api
+		include_once dirname(__FILE__) . '/oos.php';
+
 		$tree = $this->getDirInfo($this->typeDir);
-		$tree['dirs'] = $this->getTree($this->session['dir']);
+		$data = $this->getTree();
+		$tree['dirs'] = $data->dirs;
 		if (!is_array($tree['dirs']) || !count($tree['dirs'])) {
 			unset($tree['dirs']);
 		}
 
-		$files = $this->getFiles($this->session['dir']);
-		//$dirWritable = dir::isWritable("{$this->config['uploadDir']}/{$this->session['dir']}");
+		$files = [];
+		if (isset($data->files)) {
+			$files = $data->files;
+		}
 		$dirWritable = true;
 		$data = array(
 			'tree' => &$tree,
 			'files' => &$files,
 			'dirWritable' => $dirWritable,
 		);
+		// var_dump($data);die;
 		return json_encode($data);
 	}
-
-	protected function act_chDir() {
-		$this->postDir(); // Just for existing check
-		if (empty($this->post['dir'])) {
-			$this->session['dir'] = $this->type;
+	// 获取目录结构
+	protected function getTree($dir = '', $index = 0) {
+		$OOS = new oos(OOS_ENDPOINT, OOS_ACCESS_KEY, OOS_ACCESS_SECRET);
+		if (!defined('OOS_BUCKET') || empty(OOS_BUCKET)) {
+			$rst = $OOS->bucketList();
+			if ($rst[0] === false) {
+				die('获取容器错误' . $rst[1]);
+			}
+			$Buckets = $rst[1]['Buckets'];
+			$dirs = [];
+			foreach ($Buckets as $val) {
+				$d = [];
+				$d['name'] = $val['Name'];
+				$d['readable'] = true;
+				$d['writable'] = false;
+				$d['removable'] = false;
+				
+				$d['hasDirs'] = $this->getDirsFromOss($OOS, $val['Name']);
+				$dirs[] = (object) $d;
+			}
 		} else {
-			$this->session['dir'] = $this->type . "/" . $this->post['dir'];
+			$filter = new \stdClass;
+			$filter->bucket = OOS_BUCKET;
+			// $filter->prefix = $Prefix;
+			$filter->size = 100;
+			$rst = $OOS->objectList($filter);
+			if ($rst[0] === false) {
+				die('错误2' . $rst[1]);
+			}
+			$objects = $rst[1];
+			$CommonPrefixes = $objects['CommonPrefixes'];
+			//dirs
+			$dirs = [];
+			foreach ($CommonPrefixes as $val) {
+				$d = [];
+				$d['name'] = substr($val['Prefix'], 0, -1);
+				$d['readable'] = true;
+				$d['writable'] = false;
+				$d['removable'] = false;
+				
+				$d['hasDirs'] = $this->getDirsFromOss($OOS, OOS_BUCKET, $val['Prefix']);
+				$dirs[] = (object) $d;
+			}
+			// files
+			$Contents = $objects['Contents'];
+			// var_dump($Contents);die;
+			$files = [];
+			foreach ($Contents as $o) {
+				$f['name'] = $o['Key'];
+				$f['size'] = (int) $o['Size'];
+				$lm = strtotime((string) $o['LastModified']);
+				$f['mtime'] = $lm;
+				$f['readable'] = false;
+				$f['writable'] = false;
+				$f['bigIcon'] = true;
+				$f['smallIcon'] = true;
+				$f['thumb'] = false;
+				$f['smallthumb'] = false;
+				$files[] = $f;
+			}
 		}
 
+		// $mpid = $this->session['mpid'];
+		$data = new \stdClass;
+		$data->dirs = $dirs;
+		isset($files) && $data->files = $files;
+		return $data;
+	}
+
+	protected function getDirsFromOss($OOS, $bucket, $Prefix = '') {
+		$filter = new \stdClass;
+		$filter->bucket = $bucket;
+		$filter->prefix = $Prefix;
+		$filter->size = 100;
+		$dirs = $OOS->objectList($filter);
+		if ($dirs[0] === false) {
+			return false;
+		}
+		$dirs = $dirs[1];
+		// var_dump($dirs);
+		if (!empty($dirs['CommonPrefixes'])) {
+			return true; 
+		} else {
+			return false;
+		}
+	}
+	// 获取下级目录
+	protected function act_expand() {
+		// 加载oos api
+		include_once dirname(__FILE__) . '/oos.php';
+		$OOS = new oos(OOS_ENDPOINT, OOS_ACCESS_KEY, OOS_ACCESS_SECRET);
 		$dirWritable = true;
+		$filter = new \stdClass;
+		$filter->bucket = OOS_BUCKET;
+		$filter->prefix = empty($this->post['dir']) ? '' : $this->post['dir'] . '/';
+		$filter->size = 1000;
+		$rst = $OOS->objectList($filter);
+		if ($rst[0] === false) {
+			die('错误3' . $rst[1]);
+		}
+		$objects = $rst[1];
+		if (empty($objects['CommonPrefixes'])) {
+				return json_encode(array(
+				'dirs' => [],
+			));
+		}
+		$CommonPrefixes = $objects['CommonPrefixes'];
+		$dirs = [];
+		foreach ($CommonPrefixes as $val) {
+			$d = [];
+			$d['name'] = substr(str_replace($filter->prefix, '', $val['Prefix']), 0, -1);
+			$d['readable'] = false;
+			$d['writable'] = false;
+			$d['removable'] = false;
+			
+			$d['hasDirs'] = $this->getDirsFromOss($OOS, OOS_BUCKET, $val['Prefix']);
+			$dirs[] = (object) $d;
+		}
+
 		return json_encode(array(
-			'files' => $this->getFiles($this->session['dir']),
+			'dirs' => $dirs,
+		));
+	}
+	// 获取文件
+	protected function act_chDir() {
+		// 加载oos api
+		include_once dirname(__FILE__) . '/oos.php';
+		$OOS = new oos(OOS_ENDPOINT, OOS_ACCESS_KEY, OOS_ACCESS_SECRET);
+		$dirWritable = true;
+
+		$filter = new \stdClass;
+		$filter->bucket = OOS_BUCKET;
+		$filter->prefix = empty($this->post['dir']) ? '' : $this->post['dir'] . '/';
+		$filter->size = 1000;
+		$rst = $OOS->objectList($filter);
+		if ($rst[0] === false) {
+			die('错误3' . $rst[1]);
+		}
+		$objects = $rst[1];
+		if (empty($objects['Contents'])) {
+				return json_encode(array(
+				'files' => [],
+				'dirWritable' => $dirWritable,
+			));
+		}
+		// files
+		$Contents = $objects['Contents'];
+		$files = [];
+		foreach ($Contents as $o) {
+			$f['name'] = str_replace($filter->prefix, '', $o['Key']);
+			$f['size'] = (int) $o['Size'];
+			$lm = strtotime((string) $o['LastModified']);
+			$f['mtime'] = $lm;
+			$f['readable'] = false;
+			$f['writable'] = false;
+			$f['bigIcon'] = true;
+			$f['smallIcon'] = true;
+			$f['thumb'] = false;
+			$f['smallthumb'] = false;
+			$files[] = $f;
+		}
+
+		return json_encode(array(
+			'files' => $files,
 			'dirWritable' => $dirWritable,
 		));
 	}
 
-	protected function act_thumb() {
-		//$this->getDir($this->get['dir'], true);
-		if (!isset($this->get['file']) || !isset($this->get['dir'])) {
-			$this->sendDefaultThumb();
-		}
-
-		$file = $this->get['file'];
-		if ($this->my_basename($file) != $file) {
-			$this->sendDefaultThumb();
-		}
-
-		$mpid = $this->session['mpid'];
-		$thumb = "$mpid/{$this->config['thumbsDir']}/{$this->type}";
-		!empty($this->get['dir']) && $thumb .= '/' . $this->get['dir'];
-		$thumb .= '/' . $file;
-
-		$bucket = 'xinxintong';
-		$alioss = $this->get_alioss();
-		$rsp = $alioss->get_object($bucket, $thumb);
-
-		header("Content-Type: image/jpeg");
-		die($rsp->body);
-	}
-
 	protected function act_download() {
-		$dir = $this->postDir();
-		if (!isset($this->post['dir']) ||
-			!isset($this->post['file']) ||
-			(false === ($file = "$dir/{$this->post['file']}"))) {
-			$this->errorMsg("Unknown error.");
-		}
+		// $dir = $this->postDir();
+		// if (!isset($this->post['dir']) ||
+		// 	!isset($this->post['file']) ||
+		// 	(false === ($file = "$dir/{$this->post['file']}"))) {
+		// 	$this->errorMsg("Unknown error.");
+		// }
 
-		$bucket = 'xinxintong';
-		$alioss = $this->get_alioss();
-		$rsp = $alioss->get_object($bucket, $file);
+		// $bucket = 'xinxintong';
+		// $alioss = $this->get_alioss();
+		// $rsp = $alioss->get_object($bucket, $file);
 
-		header("Pragma: public");
-		header("Expires: 0");
-		header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-		header("Cache-Control: private", false);
-		header("Content-Type: application/octet-stream");
-		header('Content-Disposition: attachment; filename="' . $this->post['file'] . '"');
-		header("Content-Transfer-Encoding:­ binary");
-		header("Content-Length: " . (string) $rsp->header['content-length']);
-		die($rsp->body);
-	}
-	
-	protected function getFiles($dir) {
-		$files = array();
-		$bucket = 'xinxintong';
-		$mpid = $this->session['mpid'];
-		$prefix = "$mpid/$dir/";
-		$options = array(
-			'prefix' => $prefix,
-			'delimiter' => '/',
-			'max-keys' => 100);
-
-		$alioss = $this->get_alioss();
-		$rsp = $alioss->list_object($bucket, $options);
-		$xmlBody = simplexml_load_string($rsp->body);
-		$objects = $xmlBody->Contents;
-		foreach ($objects as $o) {
-			if ($o->Key == $prefix) {
-				continue;
-			}
-			$f['name'] = str_replace($prefix, '', $o->Key);
-			$f['size'] = (int) $o->Size;
-			$lm = strtotime((string) $o->LastModified);
-			$f['mtime'] = $lm;
-			$f['date'] = @strftime($this->dateTimeSmall, $lm);
-			$f['readable'] = true;
-			$f['writable'] = true;
-			$f['bigIcon'] = true;
-			$f['smallIcon'] = true;
-			$f['thumb'] = true;
-			$f['smallthumb'] = false;
-			$files[] = $f;
-		}
-		return $files;
-	}
-
-	protected function getTree($dir, $index = 0) {
-		$mpid = $this->session['mpid'];
-		$prefix = $mpid . '/' . $dir . '/';
-
-		return $this->getDirsFromOss($prefix);
-	}
-
-	protected function getDirs($dir) {
-		$mpid = $this->session['mpid'];
-		$root_dir = $mpid . '/' . $this->type; // hidden dir.
-		$working_dir = $this->post['dir'];
-		if (empty($working_dir)) {
-			$prefix = "$root_dir/";
-		} else {
-			$prefix = "$root_dir/$working_dir/";
-		}
-
-		return $this->getDirsFromOss($prefix);
+		// header("Pragma: public");
+		// header("Expires: 0");
+		// header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+		// header("Cache-Control: private", false);
+		// header("Content-Type: application/octet-stream");
+		// header('Content-Disposition: attachment; filename="' . $this->post['file'] . '"');
+		// header("Content-Transfer-Encoding:­ binary");
+		// header("Content-Length: " . (string) $rsp->header['content-length']);
+		// die($rsp->body);
+		die(111);
 	}
 	/**
 	 *

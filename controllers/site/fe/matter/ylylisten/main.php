@@ -30,9 +30,8 @@ class main extends \site\fe\matter\base {
 
 		// 返回前端页面，跳转到什么页面由前端控制
 		if ($thirdUser) {
-			var_dump($thirdUser, 11); die;
-			// $url = APP_PROTOCOL . APP_HTTP_HOST . "/kcfinder/browse_tyoos.php?lang=zh-cn&type=ylylisten&mpid=" . $thirdUser->openid . "&act=ylylisten";
-			// $this->redirect($url);
+			$url = APP_PROTOCOL . APP_HTTP_HOST . "/kcfinder/browse.php?lang=zh-cn&type=ylylisten&mpid=" . $thirdUser->openid . "&act=ylylisten";
+			$this->redirect($url);
 		} else {
 			var_dump($thirdUser, 22); die;
 			// echo '<script language="JavaScript">;alert("只支持用能力开放平台账号登录的用户查看,请退出后重新登陆！！");</script>';

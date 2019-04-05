@@ -26,6 +26,9 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
         $scope.supportLocalStorage = 'N';
         document.querySelector('[ng-model="data.uname"]').focus();
     }
+    $scope.openUrl = function() {
+        
+    }
     $scope.login = function() {
         $http.post('/rest/site/fe/user/login/do?site=' + _siteId, $scope.loginData).success(function(rsp) {
             if (rsp.err_code != 0) {

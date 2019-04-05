@@ -115,8 +115,8 @@ class oos {
 			return [false, "未找到bucket或文件名"];
 		}
 
-		$url = $this->_S2AMZ()->getObjectUrl($post->bucket, $post->fileName, '+10 minutes'); // 下载对象
+		$url = $this->_S2AMZ()->getObjectUrl($post->bucket, $post->fileName, '+5 minutes'); // 下载对象
 
-		return [true, urlencode($url)];
+		return [true, $url];
 	}
 }

@@ -266,29 +266,32 @@ class browser_tyoos extends browser {
 			'dirWritable' => $dirWritable,
 		));
 	}
+	// get object
+	protected function act_getFile() {
+		// 加载oos api
+		include_once dirname(__FILE__) . '/oos.php';
+		$OOS = new oos(OOS_ENDPOINT, OOS_ACCESS_KEY, OOS_ACCESS_SECRET);
+		$filter = new \stdClass;
+		$filter->bucket = OOS_BUCKET;
+		$filter->fileName = $this->get['dir'] . '/' . $this->get['file'];
+		$file = $OOS->getObject($filter);
+		if ($file[0] === false) {
+			die('错误4' . $file[1]);
+		}
+		$file = $file[1];
 
-	protected function act_download() {
-		// $dir = $this->postDir();
-		// if (!isset($this->post['dir']) ||
-		// 	!isset($this->post['file']) ||
-		// 	(false === ($file = "$dir/{$this->post['file']}"))) {
-		// 	$this->errorMsg("Unknown error.");
-		// }
+		// url
+		$fileUrl = $OOS->getObjectUrl($filter);
+		if ($fileUrl[0] === false) {
+			die('错误5' . $fileUrl[1]);
+		}
+		$fileUrl = $fileUrl[1];
 
-		// $bucket = 'xinxintong';
-		// $alioss = $this->get_alioss();
-		// $rsp = $alioss->get_object($bucket, $file);
+		$data = [];
+		$data['file'] = $file;
+		$data['url'] = urlencode($fileUrl);
 
-		// header("Pragma: public");
-		// header("Expires: 0");
-		// header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-		// header("Cache-Control: private", false);
-		// header("Content-Type: application/octet-stream");
-		// header('Content-Disposition: attachment; filename="' . $this->post['file'] . '"');
-		// header("Content-Transfer-Encoding:­ binary");
-		// header("Content-Length: " . (string) $rsp->header['content-length']);
-		// die($rsp->body);
-		die(111);
+		return json_encode($data);
 	}
 	/**
 	 *

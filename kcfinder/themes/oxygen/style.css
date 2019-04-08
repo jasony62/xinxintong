@@ -394,6 +394,11 @@ tr.selected:hover > td {
     background-image: url(img/icons/view.png);
 }
 
+.menu a[href="kcact:play"] {
+    background-image: url(img/icons/view.png);
+}
+
+
 .menu a[href="kcact:cpcbd"] {
     background-image: url(img/icons/copy.png);
 }

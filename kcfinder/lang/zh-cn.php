@@ -189,6 +189,7 @@ $lang = array(
     "Select Thumbnail" => "选择缩略图",
     "View" => "查看",
     "Download" => "下载",
+    "Play" => "播放",
     "Clipboard" => "剪贴板",
 
     // VERSION 2 NEW LABELS

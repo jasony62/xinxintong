@@ -67,7 +67,7 @@ $_CONFIG = array(
 		'图片' => "*img",
 		'音频' => "mp3",
 		'文件' => "",
-		'ylylisten' => "",
+		'ylylisten' => "wav",
 	),
 
 	'filenameChangeChars' => array( /*

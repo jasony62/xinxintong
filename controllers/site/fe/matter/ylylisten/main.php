@@ -16,7 +16,8 @@ class main extends \site\fe\matter\base {
 			$callbackUrl = $this->getRequestUrl();
 			// 将返回地址存在cookie中
 			$this->mySetcookie("_thirdlogin_oauth_callbackURL", $callbackUrl);
-			$authUrl = 'http://' . APP_HTTP_HOST . '/rest/site/fe/user/access?site=platform';
+			// $authUrl = 'http://' . APP_HTTP_HOST . '/rest/site/fe/user/access?site=platform';
+			$authUrl = 'http://' . APP_HTTP_HOST . '/rest/site/fe/user/login/byRegAndThird?thirdId=2';
 			$this->redirect($authUrl);
 		}
 
@@ -34,10 +35,8 @@ $thirdUser->openid = '3983f28ad03adb69fdf3-test';
 			$url = APP_PROTOCOL . APP_HTTP_HOST . "/kcfinder/browse.php?lang=zh-cn&type=ylylisten&mpid=" . $thirdUser->openid . "&act=ylylisten";
 			$this->redirect($url);
 		} else {
-			var_dump($thirdUser, 22); die;
-			// echo '<script language="JavaScript">;alert("只支持用能力开放平台账号登录的用户查看,请退出后重新登陆！！");</script>';
-			// sleep(5);
-			// $this->redirect('http://' . APP_HTTP_HOST . '/rest/site/fe/user?site=platform');
+			echo '<script language="JavaScript">;alert("只支持用能力开放平台账号登录的用户查看,请退出后重新登陆！！");</script>';
+			die;
 		}
 	}
 }

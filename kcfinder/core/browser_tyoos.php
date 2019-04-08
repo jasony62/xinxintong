@@ -275,6 +275,7 @@ class browser_tyoos extends browser {
 			$f['size'] = (int) $o['Size'];
 			$lm = strtotime((string) $o['LastModified']);
 			$f['mtime'] = $lm;
+			$f['date'] = date('Y-m-d H:i:s', $lm);
 			$f['readable'] = false;
 			$f['writable'] = false;
 			$f['bigIcon'] = true;
@@ -398,5 +399,27 @@ class browser_tyoos extends browser {
 		header("Content-Disposition:attachment;filename=" . $this->post['file']);
 		readfile($fileUrl);
 		exit();
+	}
+	// 预览
+	protected function act_view() {
+		if (empty($this->session['mpid'])) {
+			die('未获取到用户ID');
+		}
+		// 加载oos api
+		include_once dirname(__FILE__) . '/oos.php';
+		$OOS = new oos(OOS_ENDPOINT, OOS_ACCESS_KEY, OOS_ACCESS_SECRET);
+
+		//
+		$filter = new \stdClass;
+		$filter->bucket = OOS_BUCKET;
+		$filter->fileName = $this->session['mpid'] . '/' . $this->post['dir'] . '/' . $this->post['file'];
+		// url
+		$fileUrl = $OOS->getObjectUrl($filter);
+		if ($fileUrl[0] === false) {
+			die('错误5' . $fileUrl[1]);
+		}
+		$fileUrl = $fileUrl[1];
+
+		return $fileUrl;
 	}
 }

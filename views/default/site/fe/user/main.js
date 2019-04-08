@@ -72,6 +72,9 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'use
             alert('修改成功');
         });
     };
+    $scope.openThirdAppUrl = function(thirdApp) {
+        location.href = '/rest/site/fe/user/login/byRegAndThird?thirdId=' + thirdApp.id;
+    };
     $scope.logout = function() {
         http2.get('/rest/site/fe/user/logout/do?site=' + LS.s().site).then(function(rsp) {
             location.replace('/rest/site/fe/user?site=' + LS.s().site);
@@ -101,6 +104,9 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'use
     };
     http2.get('/rest/site/fe/get?site=' + LS.s().site).then(function(rsp) {
         $scope.site = rsp.data;
+        http2.get('/rest/site/fe/user/login/thirdList').then(function(rsp) {
+            $scope.thirdApps = rsp.data;
+        });
         userService.get().then(function(oUser) {
             $scope.user = oUser;
             if (oUser.unionid) {

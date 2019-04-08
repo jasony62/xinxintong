@@ -241,7 +241,8 @@ class login extends \site\fe\base {
 	 *  跳转到第三方登陆页面
 	 */
 	private function _requirLoginOauth($devConfig) {
-		$ruri = APP_PROTOCOL . APP_HTTP_HOST . '/rest/site/fe/user/login/thirdCallback';
+		// $ruri = APP_PROTOCOL . APP_HTTP_HOST . '/rest/site/fe/user/login/thirdCallback';
+		$ruri = 'http://' . APP_HTTP_HOST . '/rest/site/fe/user/login/thirdCallback';
 
 		$snsProxy = $this->model('sns\dev189\proxy', $devConfig);
 		$oauthUrl = $snsProxy->oauthUrl($ruri, 'snsOAuth-dev-login-' . $devConfig->id);

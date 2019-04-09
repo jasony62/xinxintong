@@ -57,8 +57,7 @@ ngApp.factory('TopicRepos', ['http2', '$q', '$sce', 'tmsLocation', function(http
     };
     return {
         ins: function(oApp, oTopic) {
-            _ins = _ins ? _ins : new TopicRepos(oApp, oTopic);
-            return _ins;
+            return new TopicRepos(oApp, oTopic);
         }
     };
 }]);
@@ -308,7 +307,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         });
         $scope.recordList(1);
     });
-    
+
 }]);
 /**
  * 专题
@@ -325,7 +324,7 @@ ngApp.controller('ctrlTopic', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'n
                 $scope2.topic = _oCached;
                 $scope2.countUpdated = 0;
                 _oTopicRepos = TopicRepos.ins($scope.app, oTopic);
-                $scope2.page = _oTopicRepos.page;
+                $scope2.page = _oTopicRepos.oPage;
                 $scope2.repos = _oTopicRepos.repos;
                 $scope2.schemas = _oTopicRepos.shareableSchemas;
                 _oTopicRepos.list(1).then(function() {});

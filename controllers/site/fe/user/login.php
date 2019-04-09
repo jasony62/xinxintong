@@ -222,17 +222,13 @@ class login extends \site\fe\base {
 		}
 		// 获取用户的cookie
 		$oCookieUser = $this->model('site\fe\way')->who($this->siteId);
-		if ($referer = $this->myGetCookie('_user_access_referer')) {
-			$oCookieUser->_loginReferer = $referer;
-			$this->mySetCookie('_user_access_referer', null);
-		}
 
-		$callbackURL = $this->myGetCookie('_thirdlogin_oauth_callbackURL');
+		$callbackURL = $this->myGetCookie('_user_access_referer');
 		if (empty($callbackURL)) {
 			$callbackURL = APP_PROTOCOL . APP_HTTP_HOST . "/rest/home/home";
 		} else {
 			// 清楚cookie
-			$this->mySetcookie("_thirdlogin_oauth_callbackURL", '', time() - 3600);
+			$this->mySetcookie("_user_access_referer", '', time() - 3600);
 		}
 
 		$this->redirect($callbackURL);
@@ -241,7 +237,8 @@ class login extends \site\fe\base {
 	 *  跳转到第三方登陆页面
 	 */
 	private function _requirLoginOauth($devConfig) {
-		$ruri = APP_PROTOCOL . APP_HTTP_HOST . '/rest/site/fe/user/login/thirdCallback';
+		// $ruri = APP_PROTOCOL . APP_HTTP_HOST . '/rest/site/fe/user/login/thirdCallback';
+		$ruri = 'http://' . APP_HTTP_HOST . '/rest/site/fe/user/login/thirdCallback';
 
 		$snsProxy = $this->model('sns\dev189\proxy', $devConfig);
 		$oauthUrl = $snsProxy->oauthUrl($ruri, 'snsOAuth-dev-login-' . $devConfig->id);

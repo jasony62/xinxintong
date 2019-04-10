@@ -309,6 +309,11 @@ define(['frame'], function(ngApp) {
             $scope.list(1);
         }, true);
     }]);
+    ngApp.provider.controller('ctrlApp', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
+        $scope.openMatter = function() {
+            location.href = '/rest/pl/fe/matter/ylylisten';
+        }
+    }]);
     ngApp.provider.controller('ctrlSiteSubscribe', ['$scope', '$uibModal', 'http2', 'facListFilter', function($scope, $uibModal, http2, facListFilter) {
         var _oFilter, _oPage;
         _oFilter = {};

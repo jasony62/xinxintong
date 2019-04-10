@@ -45,6 +45,7 @@ define(['require', 'frame/RouteParam', 'frame/const'], function(require, RoutePa
                 case 'activity':
                 case 'doc':
                 case 'recycle':
+                case 'app':
                     $scope.opened = 'main';
                     break;
                 case 'account':

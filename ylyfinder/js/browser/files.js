@@ -39,7 +39,7 @@ browser.initFiles = function() {
     $('.operate a[href="kcact:view"]').click(function(e) {
         browser.hideDialog();
         var data, ts;
-        data = $(this).parent('.file').data();
+        data = $(this).parents('.file').data();
         ts = new Date().getTime();
         var showAudio = function(data) {
             $('#loading').html(browser.label("Loading audio..."));
@@ -113,10 +113,10 @@ browser.initFiles = function() {
     });
     $('.operate a[href="kcact:download"]').click(function(e) {
         var data, file;
-        file = $(this).parent('.file');
+        file = $(this).parents('.file');
         data = file.data();
         
-        $('.file').removeClass('selected')
+        $('.file').removeClass('selected');
         file.addClass('selected');
         $('#fileinfo').html(data.name + ' (' + browser.humanSize(data.size) + ', ' + data.date + ')');
        

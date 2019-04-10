@@ -26,10 +26,11 @@
             <ul class="nav nav-tabs nav-stacked">
                 <li ng-class="{'opened':opened==='main'}">
                     <a href='/rest/pl/fe' ng-click="opened=opened==='main'?false:'main'">协作 <span class="caret"></span></a>
-                    <ul class="nav nav-tabs nav-stacked" ng-if="frameState.sid!=='_coworker'" ng-style="{'height':opened==='main'?'123px':'0'}">
+                    <ul class="nav nav-tabs nav-stacked" ng-if="frameState.sid!=='_coworker'" ng-style="{'height':opened==='main'?'164px':'0'}">
                         <li ng-class="{'active':frameState.scope==='mission'}"><a href='' ng-click="changeScope('mission')">项目</a></li>
                         <li ng-class="{'active':frameState.scope==='activity'}"><a href='' ng-click="changeScope('activity')">活动</a></li>
                         <li ng-class="{'active':frameState.scope==='doc'}"><a href='' ng-click="changeScope('doc')">资料</a></li>
+                        <li ng-class="{'active':frameState.scope==='app'}"><a href='' ng-click="changeScope('app')">应用</a></li>
                     </ul>
                     <ul class="nav nav-tabs nav-stacked" ng-if="frameState.sid==='_coworker'" ng-style="{'height':opened==='main'?'41px':'0'}">
                         <li ng-class="{'active':frameState.scope==='mission'}"><a href='' ng-click="changeScope('mission')">项目</a></li>

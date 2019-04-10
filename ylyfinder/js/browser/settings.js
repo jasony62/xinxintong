@@ -52,7 +52,6 @@ browser.initSettings = function() {
     }
 
     var orders = this.orders;
-    console.log(_.kuki);
 
     if (!_.kuki.isSet('order'))
         _.kuki.set('order', 'name');

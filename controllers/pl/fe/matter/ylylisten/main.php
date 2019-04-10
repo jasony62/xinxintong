@@ -75,7 +75,7 @@ class main extends \pl\fe\matter\main_base {
 		// 测试openid
 		$thirdUser->openid = '3983f28ad03adb69fdf3-test';
 
-		$url = APP_PROTOCOL . APP_HTTP_HOST . "/ylyfinder/browse.php?lang=zh-cn&type=ylylisten&mpid=" . $thirdUser->openid . "&act=ylylisten";
+		$url = APP_PROTOCOL . APP_HTTP_HOST . "/ylyfinder/browse.php?lang=zh-cn&type=tyyoos&mpid=" . $thirdUser->openid;
 		$data->entryUrl = $url;
 
 		return new \ResponseData($data);

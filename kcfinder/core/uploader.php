@@ -220,9 +220,7 @@ class uploader {
 		}
 
 		// upload url
-		if (isset($this->get['type']) && $this->get['type'] === 'ylylisten') {
-			$this->config['uploadURL'] .= "";
-		} else if (defined('KCFINDER_STORE_AT') && KCFINDER_STORE_AT === 'local') {
+		if (defined('KCFINDER_STORE_AT') && KCFINDER_STORE_AT === 'local') {
 			$this->config['uploadURL'] .= "/$mpid";
 		} else {
 			$this->config['uploadURL'] = "http://xinxintong.oss-cn-hangzhou.aliyuncs.com/$mpid";

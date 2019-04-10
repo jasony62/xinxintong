@@ -42,6 +42,7 @@ $sql .= ",p_mp_create tinyint not null default 0 comment '创建公众号'";
 $sql .= ",p_mp_permission tinyint not null default 0 comment '设置公众号权限'";
 $sql .= ",p_platform_manage tinyint  not null default 0 comment '平台管理'";
 $sql .= ",p_create_site tinyint not null default 0 comment '创建团队'";
+$sql .= ",p_dev189_service tinyint not null default 0 comment '能力平台服务'";
 $sql .= ",view_name varchar(10) not null default 'default'";
 $sql .= ",primary key (group_id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 $sqls[] = $sql;

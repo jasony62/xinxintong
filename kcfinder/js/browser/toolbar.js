@@ -116,25 +116,23 @@ browser.initUploadButton = function() {
         btn.css('display', 'none');
         return;
     }
-    if (btn.get(0)) {
-        var top = btn.get(0).offsetTop;
-        var width = btn.outerWidth();
-        var height = btn.outerHeight();
-        $('#toolbar').prepend('<div id="upload" style="top:' + top + 'px;width:' + width + 'px;height:' + height + 'px">' +
-            '<form enctype="multipart/form-data" method="post" target="uploadResponse" action="' + browser.baseGetData('upload') + '">' +
-            '<input type="file" name="upload[]" onchange="browser.uploadFile(this.form)" style="height:' + height + 'px" multiple="multiple" />' +
-            '<input type="hidden" name="dir" value="" />' +
-            '</form>' +
-            '</div>');
-        $('#upload input').css('margin-left', "-" + ($('#upload input').outerWidth() - width) + 'px');
-        $('#upload').mouseover(function() {
-            $('#toolbar a[href="kcact:upload"]').addClass('hover');
-        });
-        $('#upload').mouseout(function() {
-            $('#toolbar a[href="kcact:upload"]').removeClass('hover');
-        });
-    }
 
+    var top = btn.get(0).offsetTop;
+    var width = btn.outerWidth();
+    var height = btn.outerHeight();
+    $('#toolbar').prepend('<div id="upload" style="top:' + top + 'px;width:' + width + 'px;height:' + height + 'px">' +
+        '<form enctype="multipart/form-data" method="post" target="uploadResponse" action="' + browser.baseGetData('upload') + '">' +
+        '<input type="file" name="upload[]" onchange="browser.uploadFile(this.form)" style="height:' + height + 'px" multiple="multiple" />' +
+        '<input type="hidden" name="dir" value="" />' +
+        '</form>' +
+        '</div>');
+    $('#upload input').css('margin-left', "-" + ($('#upload input').outerWidth() - width) + 'px');
+    $('#upload').mouseover(function() {
+        $('#toolbar a[href="kcact:upload"]').addClass('hover');
+    });
+    $('#upload').mouseout(function() {
+        $('#toolbar a[href="kcact:upload"]').removeClass('hover');
+    });
 };
 
 browser.uploadFile = function(form) {

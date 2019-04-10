@@ -424,11 +424,6 @@ browser.menuFile = function(file, e) {
             //    '<a href="kcact:download">' + this.label("Download") + '</a>';
         }
 
-        if (data.xiazai) {
-            html += '<a href="kcact:play">' + this.label("Play") + '</a>';
-            html +=
-                '<a href="kcact:download">' + this.label("Download") + '</a>';
-        }
         if (this.access.files.copy || this.access.files.move)
             html += '<div class="delimiter"></div>' +
             '<a href="kcact:clpbrdadd">' + this.label("Add to Clipboard") + '</a>';
@@ -636,79 +631,6 @@ browser.menuFile = function(file, e) {
                 img.onload = onImgLoad;
         };
         showImage(data);
-        return false;
-    });
-    $('.menu a[href="kcact:play"]').click(function() {
-        browser.hideDialog();
-        var ts = new Date().getTime();
-        var showAudio = function(data) {
-            $('#loading').html(browser.label("Loading audio..."));
-            $('#loading').css('display', 'inline');
-            var audio = new Audio();
-            var onAudioLoad = function(url) {
-                browser.lock = false;
-                $('#files .file').each(function() {
-                    if ($(this).data('name') == data.name) {
-                        browser.ssAudio = this;
-                    }
-                });
-                $('#loading').css('display', 'none');
-                $('#dialog').html('<div class="box"><audio></audio></div>');
-                $('#dialog audio').attr({
-                    controls: true,
-                    src: url,
-                    title: data.name
-                }).fadeIn('fast', function() {
-                    var o_w = $('#dialog').outerWidth();
-                    var o_h = $('#dialog').outerHeight();
-                    var f_w = $(window).width() - 30;
-                    var f_h = $(window).height() - 30;
-                    if ((o_w > f_w) || (o_h > f_h)) {
-                        if ((f_w / f_h) > (o_w / o_h))
-                            f_w = parseInt((o_w * f_h) / o_h);
-                        else if ((f_w / f_h) < (o_w / o_h))
-                            f_h = parseInt((o_h * f_w) / o_w);
-                        $('#dialog audio').attr({
-                            width: f_w,
-                            height: f_h
-                        });
-                    }
-                    $('#dialog').unbind('click');
-                    $('#dialog').click(function(e) {
-                        browser.hideDialog();
-                        $(document).unbind('keydown');
-                        $(document).keydown(function(e) {
-                            return !browser.selectAll(e);
-                        });
-                        if (browser.ssAudio) {
-                            browser.selectFile($(browser.ssAudio), e);
-                        }
-                    });
-                    browser.showDialog();
-                });
-            };
-            $.ajax({
-                type: 'post',
-                url: browser.baseGetData('view'),
-                data: { dir: browser.dir, file: data.name },
-                success: function(data) {
-                    onAudioLoad(data);
-                },
-                error: function() {
-                    audio.onerror = function() {
-                        browser.lock = false;
-                        $('#loading').css('display', 'none');
-                        browser.alert(browser.label("Unknown error."));
-                        $(document).unbind('keydown');
-                        $(document).keydown(function(e) {
-                            return !browser.selectAll(e);
-                        });
-                        browser.refresh();
-                    };
-                }
-            });
-        };
-        showAudio(data);
         return false;
     });
 };

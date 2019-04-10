@@ -15,12 +15,7 @@
 require "core/autoload.php";
 $mtime = @filemtime(__FILE__);
 if ($mtime) httpCache::checkMTime($mtime);
-$local = false;
-if ($local) {
-	$browser = new browser();
-} else {
-	$browser = new browser_alioss();
-}
+$browser = new browser_tyyoos();
 $config = $browser->config;
 ob_start();
 

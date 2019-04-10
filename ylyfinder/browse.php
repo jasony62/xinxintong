@@ -11,25 +11,17 @@
  *      @link http://kcfinder.sunhater.com
  */
 
-file_exists(dirname(__FILE__).'/cus/config.php') && include_once dirname(__FILE__).'/cus/config.php';
+//天翼云的API服务器
+define('OOS_ENDPOINT', 'https://oos-js.ctyunapi.cn/');
+//Access Key 在天翼云门户网站-帐户管理-API密钥管理中获取
+define('OOS_ACCESS_KEY', '5b79c659ce70ace89ce2');
+//Access Secret 在天翼云门户网站-帐户管理-API密钥管理中获取
+define('OOS_ACCESS_SECRET', '4493e6cc8c992cb194cfdd8760949becc6029223');
+// bucket 容器
+define('OOS_BUCKET', 'ctsi-zsbssss1');
+// define('OOS_BUCKET', '');
 
 require dirname(__FILE__)."/core/autoload.php";
 
-if (!empty($_GET['type']) && $_GET['type'] === 'ylylisten') {
-	if (!defined('OOS_ENDPOINT')) {
-		die('天翼云的API服务器');
-	}
-	if (!defined('OOS_ACCESS_KEY')) {
-		die('未指定API参数1');
-	}
-	if (!defined('OOS_ACCESS_SECRET')) {
-		die('未指定API参数2');
-	}
-
-	$browser = new browser_tyoos();
-} else if (defined('KCFINDER_STORE_AT') && KCFINDER_STORE_AT === 'local') {
-    $browser = new browser();
-} else {
-    $browser = new browser_alioss();
-}
+$browser = new browser_tyyoos();
 $browser->action();

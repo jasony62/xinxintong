@@ -151,7 +151,6 @@ class uploader {
 		}
 
 		// RELOAD DEFAULT CONFIGURATION
-		require "config.php";
 		$this->config = $_CONFIG;
 
 		// LOAD SESSION CONFIGURATION IF EXISTS
@@ -220,65 +219,20 @@ class uploader {
 		}
 
 		// upload url
-		if (isset($this->get['type']) && $this->get['type'] === 'ylylisten') {
-			$this->config['uploadURL'] .= "";
-		} else if (defined('KCFINDER_STORE_AT') && KCFINDER_STORE_AT === 'local') {
-			$this->config['uploadURL'] .= "/$mpid";
-		} else {
-			$this->config['uploadURL'] = "http://xinxintong.oss-cn-hangzhou.aliyuncs.com/$mpid";
-		}
+		$this->config['uploadURL'] .= "/$mpid";
 
 		// FULL URL
-		if (preg_match('/^([a-z]+)\:\/\/([^\/^\:]+)(\:(\d+))?\/(.+)\/?$/',
-			$this->config['uploadURL'], $patt)
-		) {
-			list($unused, $protocol, $domain, $unused, $port, $path) = $patt;
-			$path = path::normalize($path);
-			$this->config['uploadURL'] = "$protocol://$domain" . (strlen($port) ? ":$port" : "") . "/$path";
-			$this->config['uploadDir'] = strlen($this->config['uploadDir'])
-			? path::normalize($this->config['uploadDir'])
-			: path::url2fullPath("/$path");
-			$this->typeDir = "{$this->config['uploadDir']}/{$this->type}";
-			$this->typeURL = "{$this->config['uploadURL']}/{$this->type}";
+		$this->config['uploadURL'] = (substr($this->config['uploadURL'], 0, 1) === "/")
+		? path::normalize($this->config['uploadURL'])
+		: path::rel2abs_url($this->config['uploadURL']);
 
-			// SITE ROOT
-		} elseif ($this->config['uploadURL'] == "/") {
-			$this->config['uploadDir'] = strlen($this->config['uploadDir'])
-			? path::normalize($this->config['uploadDir'])
-			: path::normalize($_SERVER['DOCUMENT_ROOT']);
-			$this->typeDir = "{$this->config['uploadDir']}/{$this->type}";
-			$this->typeURL = "/{$this->type}";
+		$this->config['uploadDir'] = strlen($this->config['uploadDir'])
+		? path::normalize($this->config['uploadDir'])
+		: path::url2fullPath($this->config['uploadURL']);
 
-			// ABSOLUTE & RELATIVE
-		} else {
-			/*???*/
-			if (defined('KCFINDER_STORE_AT') && KCFINDER_STORE_AT === 'local') {
-				$myUploadURL = $this->config['uploadURL'];
-			}
-			$this->config['uploadURL'] = (substr($this->config['uploadURL'], 0, 1) === "/")
-			? path::normalize($this->config['uploadURL'])
-			: path::rel2abs_url($this->config['uploadURL']);
+		$this->typeDir = "{$this->config['uploadDir']}/{$this->type}";
 
-			$this->config['uploadDir'] = strlen($this->config['uploadDir'])
-			? path::normalize($this->config['uploadDir'])
-			: path::url2fullPath($this->config['uploadURL']);
-
-			$this->typeDir = "{$this->config['uploadDir']}/{$this->type}";
-
-			$this->typeURL = "{$this->config['uploadURL']}/{$this->type}";
-
-			/*???*/
-			if (defined('KCFINDER_STORE_AT') && KCFINDER_STORE_AT === 'local') {
-				$this->config['uploadURL'] = '/kcfinder/' . $myUploadURL;
-			}
-		}
-		if (defined('KCFINDER_STORE_AT') && KCFINDER_STORE_AT === 'local') {
-			if (!is_dir($this->config['uploadDir'])) {
-				if (!$this->mklocaldir($this->config['uploadDir'])) {
-					$this->backMsg("Cannot create {dir} folder.", array('dir' => $this->type));
-				}
-			}
-		}
+		$this->typeURL = "{$this->config['uploadURL']}/{$this->type}";
 
 		// HOST APPLICATIONS INIT
 		if (isset($this->get['CKEditorFuncNum'])) {
@@ -305,37 +259,6 @@ class uploader {
 		}
 
 		$this->localize($this->lang);
-
-		// CHECK & MAKE DEFAULT .htaccess
-		// yangyue sae limit
-		/*
-	        if (isset($this->config['_check4htaccess']) &&
-	            $this->config['_check4htaccess']
-	        ) {
-	            $htaccess = "{$this->config['uploadDir']}/.htaccess";
-	            if (!file_exists($htaccess)) {
-	                if (!@file_put_contents($htaccess, $this->get_htaccess()))
-	                    $this->backMsg("Cannot write to upload folder. {$this->config['uploadDir']}");
-	            } else {
-	                if (false === ($data = @file_get_contents($htaccess)))
-	                    $this->backMsg("Cannot read .htaccess");
-	                if (($data != $this->get_htaccess()) && !@file_put_contents($htaccess, $data))
-	                    $this->backMsg("Incorrect .htaccess file. Cannot rewrite it!");
-	            }
-*/
-
-		// CHECK & CREATE UPLOAD FOLDER
-		if (defined('KCFINDER_STORE_AT') && KCFINDER_STORE_AT === 'local') {
-			if (!is_dir($this->typeDir)) {
-				if (!$this->mklocaldir($this->typeDir)) {
-					$this->backMsg("Cannot create {dir} folder.", array('dir' => $this->type));
-				}
-
-			} elseif (!is_readable($this->typeDir)) {
-				$this->backMsg("Cannot read upload folder.");
-			}
-		}
-
 	}
 	/**
 	 *

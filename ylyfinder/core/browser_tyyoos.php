@@ -1,23 +1,37 @@
 <?php
 
-// include_once dirname(__FILE__) . '/uploader.php';
-// include_once dirname(__FILE__) . '/browser.php';
-// include_once dirname(dirname(__FILE__)) . '/lib/class_input.php';
-// include_once dirname(dirname(dirname(__FILE__))) . '/vendor/autoload.php';
-
 /** 
  * 天翼云存储
  */
-class browser_tyoos extends browser {
+class browser_tyyoos extends uploader {
+	protected $action;
 
 	public function __construct() {
 		parent::__construct();
+		
+		if (isset($this->post['dir'])) {
+			$dir = $this->checkInputDir($this->post['dir'], true, false);
+			if ($dir === false) {
+				unset($this->post['dir']);
+			}
+
+			$this->post['dir'] = $dir;
+		}
+
+		if (isset($this->get['dir'])) {
+			$dir = $this->checkInputDir($this->get['dir'], true, false);
+			if ($dir === false) {
+				unset($this->get['dir']);
+			}
+
+			$this->get['dir'] = $dir;
+		}
 	}
 	
 	public function action() {
-		$act = isset($this->get['act']) ? $this->get['act'] : "ylylisten";
+		$act = isset($this->get['act']) ? $this->get['act'] : "tyyoos";
 		if (!method_exists($this, "act_$act")) {
-			$act = "ylylisten";
+			$act = "tyyoos";
 		}
 
 		$this->action = $act;
@@ -47,15 +61,10 @@ class browser_tyoos extends browser {
 		}
 		$this->session['dir'] = path::normalize($this->session['dir']);
 
-		if ($act == "ylylisten") {
+		if ($act == "tyyoos") {
 			// open browser
 			header("X-UA-Compatible: chrome=1");
 			header("Content-Type: text/html; charset={$this->charset}");
-		} elseif (
-			(substr($act, 0, 8) != "download") &&
-			!in_array($act, array("thumb", "upload"))
-		) {
-			header("Content-Type: text/plain; charset={$this->charset}");
 		}
 
 		$return = $this->$method();
@@ -64,14 +73,7 @@ class browser_tyoos extends browser {
 		: $return;
 	}
 
-	protected function act_ylylisten() {
-		if (isset($this->get['dir']) &&
-			is_dir("{$this->typeDir}/{$this->get['dir']}") &&
-			is_readable("{$this->typeDir}/{$this->get['dir']}")
-		) {
-			$this->session['dir'] = path::normalize("{$this->type}/{$this->get['dir']}");
-		}
-
+	protected function act_tyyoos() {
 		return $this->output();
 	}
 
@@ -338,33 +340,7 @@ class browser_tyoos extends browser {
 	}
 	//
 	protected function act_thumb() {
-		// 加载oos api
-		include_once dirname(__FILE__) . '/oos.php';
-		$OOS = new oos(OOS_ENDPOINT, OOS_ACCESS_KEY, OOS_ACCESS_SECRET);
-		$filter = new \stdClass;
-		$filter->bucket = OOS_BUCKET;
-		$filter->fileName = $this->get['dir'] . '/' . $this->get['file'];
-		$file = $OOS->getObject($filter);
-		if ($file[0] === false) {
-			die('错误4' . $file[1]);
-		}
-		$file = $file[1];
-
-		// url
-		$fileUrl = $OOS->getObjectUrl($filter);
-		if ($fileUrl[0] === false) {
-			die('错误5' . $fileUrl[1]);
-		}
-		$fileUrl = $fileUrl[1];
-
-		file_get_contents($fileUrl);
-
-		header("Content-Type: " . $file['ContentType']);
-        header("Expires: " . $file['LastModified']);
-        // header("Cache-Control: max-age=");
-        header("Pragma: !invalid");
-        header("Content-Length: " . $file['ContentLength']);
-        echo $content;
+        echo '';
 	}
 	// xiazai
 	protected function act_download() {
@@ -421,5 +397,45 @@ class browser_tyoos extends browser {
 		$fileUrl = $fileUrl[1];
 
 		return $fileUrl;
+	}
+	// 输出页面
+	protected function output($data = null, $template = null) {
+		if (!is_array($data)) {
+			$data = array();
+		}
+
+		if ($template === null) {
+			$template = $this->action;
+		}
+
+		if (file_exists("tpl/tpl_$template.php")) {
+			ob_start();
+			$eval = "unset(\$data);unset(\$template);unset(\$eval);";
+			$_ = $data;
+			foreach (array_keys($data) as $key) {
+				if (preg_match('/^[a-z\d_]+$/i', $key)) {
+					$eval .= "\$$key=\$_['$key'];";
+				}
+			}
+
+			$eval .= "unset(\$_);require \"tpl/tpl_$template.php\";";
+			eval($eval);
+			return ob_get_clean();
+		}
+
+		return "";
+	}
+	// 输出错误信息
+	protected function errorMsg($message, array $data = null) {
+		if (in_array($this->action, array("thumb", "upload", "download", "downloadDir"))) {
+			die($this->label($message, $data));
+		}
+
+		if (($this->action === null) || ($this->action == "browser")) {
+			$this->backMsg($message, $data);
+		} else {
+			$message = $this->label($message, $data);
+			die(json_encode(array('error' => $message)));
+		}
 	}
 }

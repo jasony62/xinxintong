@@ -107,7 +107,7 @@ class browser_tyyoos extends uploader {
 		if (!defined('OOS_BUCKET') || empty(OOS_BUCKET)) {
 			$rst = $OOS->bucketList();
 			if ($rst[0] === false) {
-				die('获取容器错误' . $rst[1]);
+				$this->errorMsg('获取容器错误' . $rst[1]);
 			}
 			$Buckets = $rst[1]['Buckets'];
 			$dirs = [];
@@ -123,7 +123,7 @@ class browser_tyyoos extends uploader {
 			}
 		} else {
 			if (empty($this->session['mpid'])) {
-				die('未获取到用户ID');
+				$this->errorMsg('未获取到用户ID');
 			}
 			// 查询条件
 			$Prefix = $this->session['mpid'] . '/';
@@ -133,7 +133,7 @@ class browser_tyyoos extends uploader {
 			$filter->size = 100;
 			$rst = $OOS->objectList($filter);
 			if ($rst[0] === false) {
-				die('错误2' . $rst[1]);
+				$this->errorMsg('错误2' . $rst[1]);
 			}
 			$objects = $rst[1];
 			//dirs
@@ -194,10 +194,10 @@ class browser_tyyoos extends uploader {
 	// 获取下级目录
 	protected function act_expand() {
 		if (empty($this->session['mpid'])) {
-			die('未获取到用户ID');
+			$this->errorMsg('未获取到用户ID');
 		}
 		if (empty($this->post['dir'])) {
-			die('未获取到目录参数');
+			$this->errorMsg('未获取到目录参数');
 		}
 
 		// 加载oos api
@@ -213,7 +213,7 @@ class browser_tyyoos extends uploader {
 		$filter->size = 1000;
 		$rst = $OOS->objectList($filter);
 		if ($rst[0] === false) {
-			die('错误3' . $rst[1]);
+			$this->errorMsg('错误3' . $rst[1]);
 		}
 		$objects = $rst[1];
 		if (empty($objects['CommonPrefixes'])) {
@@ -241,10 +241,10 @@ class browser_tyyoos extends uploader {
 	// 获取文件
 	protected function act_chDir() {
 		if (empty($this->session['mpid'])) {
-			die('未获取到用户ID');
+			$this->errorMsg('未获取到用户ID');
 		}
 		if (empty($this->post['dir'])) {
-			die('未获取到目录参数');
+			$this->errorMsg('未获取到目录参数');
 		}
 		
 		// 加载oos api
@@ -260,7 +260,7 @@ class browser_tyyoos extends uploader {
 		$filter->size = 1000;
 		$rst = $OOS->objectList($filter);
 		if ($rst[0] === false) {
-			die('错误3' . $rst[1]);
+			$this->errorMsg('错误3' . $rst[1]);
 		}
 		$objects = $rst[1];
 		if (empty($objects['Contents'])) {
@@ -303,14 +303,14 @@ class browser_tyyoos extends uploader {
 		$filter->fileName = $this->get['dir'] . '/' . $this->get['file'];
 		$file = $OOS->getObject($filter);
 		if ($file[0] === false) {
-			die('错误4' . $file[1]);
+			$this->errorMsg('错误4' . $file[1]);
 		}
 		$file = $file[1];
 
 		// url
 		$fileUrl = $OOS->getObjectUrl($filter);
 		if ($fileUrl[0] === false) {
-			die('错误5' . $fileUrl[1]);
+			$this->errorMsg('错误5' . $fileUrl[1]);
 		}
 		$fileUrl = $fileUrl[1];
 
@@ -345,7 +345,7 @@ class browser_tyyoos extends uploader {
 	// xiazai
 	protected function act_download() {
 		if (empty($this->session['mpid'])) {
-			die('未获取到用户ID');
+			$this->errorMsg('未获取到用户ID');
 		}
 
 		// 加载oos api
@@ -358,14 +358,14 @@ class browser_tyyoos extends uploader {
 		$filter->fileName = $this->session['mpid'] . '/' . $this->post['dir'] . '/' . $this->post['file'];
 		$file = $OOS->getObject($filter);
 		if ($file[0] === false) {
-			die('错误4' . $file[1]);
+			$this->errorMsg('错误4' . $file[1]);
 		}
 		$file = $file[1];
 
 		// url
 		$fileUrl = $OOS->getObjectUrl($filter);
 		if ($fileUrl[0] === false) {
-			die('错误5' . $fileUrl[1]);
+			$this->errorMsg('错误5' . $fileUrl[1]);
 		}
 		$fileUrl = $fileUrl[1];
 
@@ -379,7 +379,7 @@ class browser_tyyoos extends uploader {
 	// 预览
 	protected function act_view() {
 		if (empty($this->session['mpid'])) {
-			die('未获取到用户ID');
+			$this->errorMsg('未获取到用户ID');
 		}
 		// 加载oos api
 		include_once dirname(__FILE__) . '/oos.php';
@@ -392,7 +392,7 @@ class browser_tyyoos extends uploader {
 		// url
 		$fileUrl = $OOS->getObjectUrl($filter);
 		if ($fileUrl[0] === false) {
-			die('错误5' . $fileUrl[1]);
+			$this->errorMsg('错误5' . $fileUrl[1]);
 		}
 		$fileUrl = $fileUrl[1];
 

@@ -309,9 +309,11 @@ define(['frame'], function(ngApp) {
             $scope.list(1);
         }, true);
     }]);
-    ngApp.provider.controller('ctrlApp', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
+    ngApp.provider.controller('ctrlApplication', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
         $scope.openMatter = function() {
-            location.href = '/rest/pl/fe/matter/ylylisten';
+            if($scope.frameState.sid && $scope.frameState.sid!=='_coworker') {
+                 location.href = '/rest/pl/fe/matter/ylylisten/preview?site=' + $scope.frameState.sid  +'&id=';
+            }
         }
     }]);
     ngApp.provider.controller('ctrlSiteSubscribe', ['$scope', '$uibModal', 'http2', 'facListFilter', function($scope, $uibModal, http2, facListFilter) {

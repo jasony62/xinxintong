@@ -1,5 +1,7 @@
 define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlMain', ['$scope', 'http2', 'mediagallery', 'noticebox', '$uibModal', 'srvSite', function($scope, http2, mediagallery, noticebox, $uibModal, srvSite) {
-        $scope.url = "/ylyfinder/browse.php?lang=zh-cn&type=ylylisten&mpid=3983f28ad03adb69fdf3-test&act=ylylisten";
+    ngApp.provider.controller('ctrlPreview', ['$scope', 'http2', function($scope, http2) {
+    	http2.get('/rest/pl/fe/matter/ylylisten/get?site=' + $scope.siteId).then(function(rsp) {
+    		$scope.url = rsp.data.entryUrl;
+    	});
     }]);
 });

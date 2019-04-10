@@ -231,7 +231,7 @@ class main extends \pl\fe\base {
 			$dev = (int) $modelSite->query_val_ss($q);
 			if ($dev === 1) {
 				$oNewSite = new \stdClass;
-				$oNewSite->name = 'dev189';
+				$oNewSite->name = 'dev189应用';
 				$oNewSite->summary = '';
 				$oNewSite->id = $modelSite->create($oOperator, $oNewSite);
 				/* 记录操作日志 */

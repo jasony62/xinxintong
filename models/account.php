@@ -323,6 +323,20 @@ class account_model extends TMS_MODEL {
 		return isset($right->p_platform_manage) && $right->p_platform_manage === '1';
 	}
 	/**
+	 *
+	 */
+	public function getGroupByUser($uid) {
+		$q = [
+			'g.*',
+			'account_group g,account_in_group i',
+			"i.group_id=g.group_id and i.account_uid='{$uid}'",
+		];
+
+		$group = $this->query_obj_ss($q);
+
+		return $group;
+	}
+	/**
 	 * 检查用户所在组的权限
 	 */
 	public function canCreateSite($uid) {

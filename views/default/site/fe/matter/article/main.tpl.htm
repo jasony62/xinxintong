@@ -47,7 +47,7 @@
                     <div id='qrCode' class='hidden-xs hidden-sm'>
                         <span><img ng-src="{{code}}"></span>
                     </div>
-                    <div class='hidden-xs hidden-sm hm-tile' ng-if="article.config.nav.app.length">
+                    <div class='site-frindLink hidden-xs hidden-sm hm-tile' ng-if="article.config.nav.app.length">
                         <div><span class='hm-tile-title'>相关资料</span></div>
                         <div ng-repeat="app in article.config.nav.app">
                             <a class='matter' href="#" ng-click="gotoNavApp(app, $event)" ng-bind="app.title"></a>
@@ -103,7 +103,7 @@
                                 <span> 收藏</span>
                             </a>
                         </div>
-                        <div class='visible-xs visible-sm hm-tile' ng-if="article.config.nav.app.length">
+                        <div class='site-frindLink visible-xs visible-sm hm-tile' ng-if="article.config.nav.app.length">
                             <div><span class='hm-tile-title'>相关资料</span></div>
                             <div ng-repeat="app in article.config.nav.app">
                                 <a class='matter' href="#" ng-click="gotoNavApp(app, $event)" ng-bind="app.title"></a>

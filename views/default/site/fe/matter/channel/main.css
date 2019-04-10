@@ -2,7 +2,7 @@
 @media screen and (max-width:768px){
 	#matter-summary{margin-top:8px;background-color:#fff;}
 }
-
+.channel-summary{line-height: 1.7;}
 /* qrcode */
 #qrCode{text-align:center;}
 #qrCode>img{width:75%;}
@@ -13,7 +13,7 @@
 /* matter */
 .hm-tile .matter{display: block;font-size: 14px;height: 26px;line-height: 26px;padding: 5px 0px;box-sizing: content-box;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;}
 @media screen and (max-width:768px){
-	.hm-tile{padding: 0;}
+	.site-frindLink.hm-tile{padding: 0;}
 }
 
 /* matters */

@@ -15,6 +15,9 @@ file_exists(dirname(__FILE__).'/cus/config.php') && include_once dirname(__FILE_
 
 require dirname(__FILE__)."/core/autoload.php";
 
+if (!isset($_GET['type']) || $_GET['type'] !== 'tyyoos') {
+	die('未知类型');
+}
 if (!defined('OOS_ENDPOINT')) {
 	die('未指定天翼云API服务器');
 }

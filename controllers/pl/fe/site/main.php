@@ -220,6 +220,39 @@ class main extends \pl\fe\base {
 		}
 
 		$mySites = $modelSite->byUser($oOperator->id, $options);
+		if (count($mySites) === 0 && count($options) === 0) {
+			// 查看用户所在组, 如果用户有dev189的权限需要创建默认团队
+			$q = [
+				'g.p_dev189_service',
+				'account_group g,account_in_group i',
+				"i.group_id=g.group_id and i.account_uid='{$oOperator->id}'",
+			];
+
+			$dev = (int) $modelSite->query_val_ss($q);
+			if ($dev === 1) {
+				$oNewSite = new \stdClass;
+				$oNewSite->name = 'dev189';
+				$oNewSite->summary = '';
+				$oNewSite->id = $modelSite->create($oOperator, $oNewSite);
+				/* 记录操作日志 */
+				$oMatter = new \stdClass;
+				$oMatter->id = $oNewSite->id;
+				$oMatter->type = 'site';
+				$oMatter->title = 'dev189';
+				$this->model('matter\log')->matterOp($oNewSite->id, $oOperator, $oMatter, 'C');
+				/* 添加到团队的访问控制列表 */
+				$modelAdm = $this->model('site\admin');
+				$oAdmin = new \stdClass;
+				$oAdmin->uid = $oOperator->id;
+				$oAdmin->ulabel = $modelAdm->escape($oOperator->name);
+				$oAdmin->urole = 'O';
+				$rst = $modelAdm->add($oOperator, $oNewSite->id, $oAdmin);
+				//
+				$oNewSite->creater_name = $oOperator->name;
+				$oNewSite->create_at = time();
+				$mySites[] = $oNewSite;
+			}
+		}
 
 		return new \ResponseData($mySites);
 	}

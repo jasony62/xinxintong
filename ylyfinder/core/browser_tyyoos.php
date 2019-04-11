@@ -29,9 +29,12 @@ class browser_tyyoos extends uploader {
 	}
 	
 	public function action() {
-		$act = isset($this->get['act']) ? $this->get['act'] : "tyyoos";
+		if (empty($this->get['act'])) {
+			$this->errorMsg('参数错误');
+		}
+		$act = $this->get['act'];
 		if (!method_exists($this, "act_$act")) {
-			$act = "tyyoos";
+			$this->errorMsg('没有找到方法');
 		}
 
 		$this->action = $act;

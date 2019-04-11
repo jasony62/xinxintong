@@ -144,11 +144,11 @@ class uploader {
 			ini_set('session.cookie_domain', $_CONFIG['_sessionDomain']);
 		}
 
-		switch ($this->cms) {
-		case "drupal":break;
-		default:session_start();
-			break;
-		}
+		// switch ($this->cms) {
+		// case "drupal":break;
+		// default:session_start();
+		// 	break;
+		// }
 
 		// RELOAD DEFAULT CONFIGURATION
 		$this->config = $_CONFIG;
@@ -216,6 +216,12 @@ class uploader {
 			$this->session['mpid'] = $mpid;
 		} else {
 			$mpid = $this->session['mpid'];
+		}
+		if (isset($this->get['siteid'])) {
+			$siteid = $this->get['siteid'];
+			$this->session['siteid'] = $siteid;
+		} else {
+			$siteid = $this->session['siteid'];
 		}
 
 		// upload url

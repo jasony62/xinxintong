@@ -58,7 +58,7 @@ if (!isset($_COOKIE[$cookiename])) {
 	die('未登录');
 }
 $oCookieRegUser = $model->encrypt($_COOKIE[$cookiename], 'DECODE', $cookiekey);
-$oCookieRegUser = json_decode($oCookieUser);
+$oCookieRegUser = json_decode($oCookieRegUser);
 // 根据用户id查询用户所在团队权限
 $q = [
 	'unionid',
@@ -66,7 +66,7 @@ $q = [
 	['openid' => $mpid]
 ];
 $unid = $model->query_val_ss($q);
-if ($unid === false) {
+if (empty($unid)) {
 	die('没有权限');
 }
 

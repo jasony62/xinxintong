@@ -36,7 +36,6 @@ define(['require'], function() {
     }]);
     ngApp.controller('ctrlYlylisten', ['$scope', '$location', 'http2', 'srvSite', function($scope, $location, http2, srvSite) {
         var ls = $location.search();
-        $scope.id = ls.id;
         $scope.siteId = ls.site;
         $scope.subView = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {

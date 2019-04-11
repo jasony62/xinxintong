@@ -45,7 +45,7 @@ define(['require', 'frame/RouteParam', 'frame/const'], function(require, RoutePa
                 case 'activity':
                 case 'doc':
                 case 'recycle':
-                case 'app':
+                case 'application':
                     $scope.opened = 'main';
                     break;
                 case 'account':
@@ -246,6 +246,9 @@ define(['require', 'frame/RouteParam', 'frame/const'], function(require, RoutePa
             });
         };
         $scope.listSite();
+        http2.get('/rest/pl/fe/user/getGroup').then(function(rsp) {
+            $scope.userGroup = rsp.data;
+        });
         var isNavCollapsed = false;
         if (document.body.clientWidth <= 768) {
             isNavCollapsed = true;

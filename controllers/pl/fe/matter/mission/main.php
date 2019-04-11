@@ -124,19 +124,29 @@ class main extends \pl\fe\matter\main_base {
 		$modelMis = $this->model('matter\mission');
 		$aOptions = [
 			'limit' => (object) ['page' => $page, 'size' => $size],
-			'bySite' => $oFilter->bySite,
+			'bySite' => $this->escape($oFilter->bySite),
 		];
 		if (!empty($oFilter->filter->by) && !empty($oFilter->filter->keyword)) {
 			if ($oFilter->filter->by === 'title') {
-				$aOptions['byTitle'] = $oFilter->filter->keyword;
+				$aOptions['byTitle'] = $this->escape($oFilter->filter->keyword);
 			}
 		}
 		if (isset($oFilter->byStar) && $oFilter->byStar === 'Y') {
 			$aOptions['byStar'] = 'Y';
 		}
 		if (!empty($oFilter->byTags)) {
-			$aOptions['byTags'] = $oFilter->byTags;
+			$byTags = [];
+			foreach ($oFilter->byTags as &$tag) {
+				if (is_object($tag) && !empty($tag->id)) {
+					$tag->id = $this->escape($tag->id);
+					$byTags[] =$tag;
+				}
+			}
+			if (!empty($byTags)) {
+				$aOptions['byTags'] = $byTags;
+			}
 		}
+
 		$aOptiions['cascaded'] = 'top';
 		$result = $modelMis->byAcl($oUser, $aOptions);
 

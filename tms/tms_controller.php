@@ -293,4 +293,10 @@ class TMS_CONTROLLER {
 		}
 		return true;
 	}
+	/**
+	 * 获取当前毫秒时间戳
+	 */
+	public function getMsectime() {
+		return TMS_MODEL::getMsectime();
+	}
 }

@@ -93,6 +93,9 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt', 'snsshare.
             case 'link':
                 location.href = '/rest/site/fe/matter/link?site=' + oNavApp.siteid + '&id=' + oNavApp.id + '&type=' + oNavApp.type;
                 break;
+            case 'topic':
+                location.href = '/rest/site/fe/matter/enroll?site=' + oNavApp.siteid + '&app=' + oNavApp.aid + '&topic=' + oNavApp.id + '&page=topic';
+                break;
             default:
                 break;
         }

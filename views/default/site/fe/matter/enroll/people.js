@@ -1,18 +1,17 @@
 'use strict';
 require('./enroll.public.css');
-
+require('./_asset/ui.bottom.nav.js');
 require('./_asset/ui.repos.js');
 require('./_asset/ui.tag.js');
 require('./_asset/ui.topic.js');
 require('./_asset/ui.assoc.js');
 
-window.moduleAngularModules = ['repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll', 'ngRoute'];
+window.moduleAngularModules = ['nav.bottom.ui', 'repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll', 'ngRoute'];
 
 var ngApp = require('./main.js');
 ngApp.config(['$routeProvider', function($routeProvider) {
     $routeProvider
         .when('/rest/site/fe/matter/enroll/people/favor', { template: require('./people/favor.html'), controller: 'ctrlPeopleFavor' })
-        
 }]);
 ngApp.factory('TopicRepos', ['http2', '$q', '$sce', 'tmsLocation', function(http2, $q, $sce, LS) {
     var TopicRepos, _ins;
@@ -58,12 +57,31 @@ ngApp.factory('TopicRepos', ['http2', '$q', '$sce', 'tmsLocation', function(http
     };
     return {
         ins: function(oApp, oTopic) {
-            _ins = _ins ? _ins : new TopicRepos(oApp, oTopic);
-            return _ins;
+            return new TopicRepos(oApp, oTopic);
         }
     };
 }]);
-ngApp.controller('ctrlPeople', ['$scope', 'tmsLocation', function($scope, LS) {}]);
+ngApp.controller('ctrlPeople', ['$scope', '$location', 'tmsLocation', 'http2', function($scope, $location, LS, http2) {
+    $scope.activeNav = '';
+    $scope.viewTo = function(event, subView) {
+        if (subView.type === 'user') {
+            location.href = '/rest/site/fe/user?site=' + $scope.oApp.siteid;
+        } else {
+            $scope.activeView = subView;
+        }
+    };
+    $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+        var subView = currentRoute.match(/([^\/]+?)\?/);
+        $scope.subView = subView[1] === 'favor' ? 'favor' : subView[1];
+    });
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        $scope.oApp = params.app;
+        /* 请求导航 */
+        http2.get(LS.j('navs', 'site', 'app')).then(function(rsp) {
+            $scope.navs = rsp.data;
+        });
+    });
+}]);
 ngApp.controller('ctrlPeopleFavor', ['$scope', '$uibModal', 'http2', 'tmsLocation', function($scope, $uibModal, http2, LS) {
     var _oApp;
     if (location.hash && /repos|tag|topic/.test(location.hash)) {
@@ -91,6 +109,7 @@ ngApp.controller('ctrlPeopleFavor', ['$scope', '$uibModal', 'http2', 'tmsLocatio
     $scope.addTag = function() {
         $scope.$broadcast('xxt.matter.enroll.favor.tag.add');
     };
+
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         _oApp = params.app;
         /* 设置页面分享信息 */
@@ -99,6 +118,7 @@ ngApp.controller('ctrlPeopleFavor', ['$scope', '$uibModal', 'http2', 'tmsLocatio
         $scope.logAccess();
     });
 }]);
+ngApp.controller('ctrlPeopleUser', ['$scope', 'http2', 'tmsLocation', function($scope, http2, LS) {}]);
 /**
  * 记录
  */
@@ -140,7 +160,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             $scope.repos = [];
             _oPage.total = 0;
         }
-        url = LS.j('repos/recordList', 'site', 'app');
+        url = LS.j('favor/list', 'site', 'app');
         $scope.reposLoading = true;
         http2.post(url, _oCriteria, { page: _oPage }).then(function(result) {
             if (result.data.records) {
@@ -277,8 +297,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             });
         }
     };
-    $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        _oApp = params.app;
+    $scope.$watch('app', function(oApp) {
+        if (!oApp) return;
+        _oApp = oApp;
         _oApp.dynaDataSchemas.forEach(function(schema) {
             if (schema.shareable && schema.shareable === 'Y') {
                 _oShareableSchemas[schema.id] = schema;
@@ -286,6 +307,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         });
         $scope.recordList(1);
     });
+
 }]);
 /**
  * 专题
@@ -302,7 +324,7 @@ ngApp.controller('ctrlTopic', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'n
                 $scope2.topic = _oCached;
                 $scope2.countUpdated = 0;
                 _oTopicRepos = TopicRepos.ins($scope.app, oTopic);
-                $scope2.page = _oTopicRepos.page;
+                $scope2.page = _oTopicRepos.oPage;
                 $scope2.repos = _oTopicRepos.repos;
                 $scope2.schemas = _oTopicRepos.shareableSchemas;
                 _oTopicRepos.list(1).then(function() {});

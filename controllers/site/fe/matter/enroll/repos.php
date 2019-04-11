@@ -813,20 +813,19 @@ class repos extends base {
 					$oCriteria->menus[] = (object) ['id' => 'favored', 'title' => '我的收藏'];
 				} else if ($viewType === 'coworkData') {
 					$oCriteria->menus[] = (object) ['id' => 'creator', 'title' => '我的回答'];
+				} else if ($viewType === 'topic') {
+					$oCriteria->menus[] = (object) ['id' => 'creator', 'title' => '我的专题'];
+					$oCriteria->menus[] = (object) ['id' => 'public', 'title' => '公共专题'];
 				} else {
 					unset($criterias[$key]);
 				}
 			}
 			// 搜索历史
 			if ($oCriteria->type === 'keyword') {
-				if ($viewType === 'topic') {
-					unset($criterias[$key]);
-				} else {
-					$search = $this->model('matter\enroll\search')->listUserSearch($oApp, $oUser);
-					$userSearchs = $search->userSearch;
-					foreach ($userSearchs as $userSearch) {
-						$oCriteria->menus[] = (object) ['id' => $userSearch->keyword, 'title' => $userSearch->keyword];
-					}
+				$search = $this->model('matter\enroll\search')->listUserSearch($oApp, $oUser);
+				$userSearchs = $search->userSearch;
+				foreach ($userSearchs as $userSearch) {
+					$oCriteria->menus[] = (object) ['id' => $userSearch->keyword, 'title' => $userSearch->keyword];
 				}
 			}
 		}

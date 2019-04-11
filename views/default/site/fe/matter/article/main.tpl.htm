@@ -47,7 +47,7 @@
                     <div id='qrCode' class='hidden-xs hidden-sm'>
                         <span><img ng-src="{{code}}"></span>
                     </div>
-                    <div class='hidden-xs hidden-sm hm-tile' ng-if="article.config.nav.app.length">
+                    <div class='site-frindLink hidden-xs hidden-sm hm-tile' ng-if="article.config.nav.app.length">
                         <div><span class='hm-tile-title'>相关资料</span></div>
                         <div ng-repeat="app in article.config.nav.app">
                             <a class='matter' href="#" ng-click="gotoNavApp(app, $event)" ng-bind="app.title"></a>
@@ -87,7 +87,7 @@
                             <button class="btn btn-custom-default" ng-repeat="c in article.channels" ng-click="openChannel(c)" ng-bind="c.title"></button>
                             <button class="btn btn-custom-default" ng-repeat="t in article.tags" ng-click="searchByTag(t)" ng-bind="t.title"></button>
                         </div>
-                        <div class='hide' id="enrollAssocs" ng-if="enrollAssocs.length">
+                        <div id="enrollAssocs" ng-if="enrollAssocs.length">
                             <hr>
                             <p class='assoc site-line' ng-repeat='assoc in enrollAssocs'>
                                 <a href ng-click="openEnrollAssoc(assoc)"><span ng-bind="::assoc.app.title"></span>：<span ng-bind="::assoc.entity_a_str"></span></a>
@@ -103,7 +103,7 @@
                                 <span> 收藏</span>
                             </a>
                         </div>
-                        <div class='visible-xs visible-sm hm-tile' ng-if="article.config.nav.app.length">
+                        <div class='site-frindLink visible-xs visible-sm hm-tile' ng-if="article.config.nav.app.length">
                             <div><span class='hm-tile-title'>相关资料</span></div>
                             <div ng-repeat="app in article.config.nav.app">
                                 <a class='matter' href="#" ng-click="gotoNavApp(app, $event)" ng-bind="app.title"></a>
@@ -121,6 +121,7 @@
     </div>
     <script src="/static/js/xxt.ui.error.js"></script>
     <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/article/main.js');?>"></script>
 </body>

@@ -385,10 +385,10 @@ class record extends base {
 		 */
 		$current = time();
 		if (!empty($oApp->start_at) && $oApp->start_at > $current) {
-			return [false, ['活动没有开始，不允许修改数据']];
+			return [false, '活动没有开始，不允许修改数据'];
 		}
 		if (!empty($oApp->end_at) && $oApp->end_at < $current) {
-			return [false, ['活动已经结束，不允许修改数据']];
+			return [false, '活动已经结束，不允许修改数据'];
 		}
 
 		if (empty($oApp->entryRule->exclude_action->submit_record) || $oApp->entryRule->exclude_action->submit_record != "Y") {
@@ -406,17 +406,30 @@ class record extends base {
 			if (isset($oApp->count_limit) && $oApp->count_limit > 0) {
 				$records = $modelRec->byUser($oApp, $oUser, ['rid' => $rid]);
 				if (count($records) >= $oApp->count_limit) {
-					return [false, ['已经进行过' . count($records) . '次记录，不允再次记录']];
+					return [false, '已经进行过' . count($records) . '次记录，不允再次记录'];
 				}
 			}
 		} else {
 			/**
 			 * 检查提交人
 			 */
+			$oRecord = $modelRec->byId($ek, ['fields' => 'userid']);
 			if ($this->getDeepValue($oApp->scenarioConfig, 'can_cowork') !== 'Y') {
-				if ($oRecord = $modelRec->byId($ek, ['fields' => 'userid'])) {
+				if ($oRecord) {
+					if ($oRecord->userid !== $oUser->uid) {
+						return [false, '不允许修改其他用户提交的数据'];
+					}
+				} else {
+					return [false, '不允许修改其他用户提交的数据'];
+				}
+			} else {
+				if ($oRecord) {
 					if ($oRecord->userid !== $oUser->uid && $this->getDeepValue($oUser, 'is_editor') !== 'Y') {
-						return [false, ['不允许修改其他用户提交的数据']];
+						return [false, '不允许修改其他用户提交的数据'];
+					}
+				} else {
+					if ($this->getDeepValue($oUser, 'is_editor') !== 'Y') {
+						return [false, '不允许修改其他用户提交的数据'];
 					}
 				}
 			}
@@ -428,7 +441,7 @@ class record extends base {
 			foreach ($oApp->dynaDataSchemas as $oSchema) {
 				if (isset($oSchema->unique) && $oSchema->unique === 'Y') {
 					if (empty($oRecData->{$oSchema->id})) {
-						return [false, ['唯一项【' . $oSchema->title . '】不允许为空']];
+						return [false, '唯一项【' . $oSchema->title . '】不允许为空'];
 					}
 					$checked = new \stdClass;
 					$checked->{$oSchema->id} = $oRecData->{$oSchema->id};
@@ -436,7 +449,7 @@ class record extends base {
 					if (count($existings)) {
 						foreach ($existings as $existing) {
 							if ($existing->enroll_key !== $ek) {
-								return [false, ['唯一项【' . $oSchema->title . '】不允许重复，请检查填写的数据']];
+								return [false, '唯一项【' . $oSchema->title . '】不允许重复，请检查填写的数据'];
 							}
 						}
 					}
@@ -457,7 +470,7 @@ class record extends base {
 								$opCount = 0;
 							}
 							if ($opCount < $oSchema->range[0] || $opCount > $oSchema->range[1]) {
-								return [false, ['【' . $oSchema->title . '】中最多只能选择(' . $oSchema->range[1] . ')项，最少需要选择(' . $oSchema->range[0] . ')项']];
+								return [false, '【' . $oSchema->title . '】中最多只能选择(' . $oSchema->range[1] . ')项，最少需要选择(' . $oSchema->range[0] . ')项'];
 							}
 						}
 						break;
@@ -661,8 +674,8 @@ class record extends base {
 						}
 						$oAssocGrpTeamSchema = $this->model('matter\enroll\schema')->getAssocGroupTeamSchema($oApp);
 						if ($oAssocGrpTeamSchema) {
-							if (!isset($oGrpUsr->data->{$oAssocGrpTeamSchema->id})) {
-								$oGrpUsr->data->{$oAssocGrpTeamSchema->id} = $oGrpUsr->team_id;
+							if (!isset($oRecord->data->{$oAssocGrpTeamSchema->id})) {
+								$oRecord->data->{$oAssocGrpTeamSchema->id} = $oGrpUsr->team_id;
 							}
 						}
 					}

@@ -147,7 +147,7 @@ class mission_model extends app_base {
 		}
 		if (!empty($aOptions['byTags'])) {
 			foreach ($aOptions['byTags'] as $tag) {
-				$q[2] .= " and m.matter_mg_tag like '%" . $this->escape($tag->id) . "%'";
+				$q[2] .= " and m.matter_mg_tag like '%" . $tag->id . "%'";
 			}
 		}
 		$q2 = [

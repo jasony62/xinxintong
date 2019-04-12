@@ -163,7 +163,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
                             }
                         });
                     }
-                    fnDoOnce();
+                    timerNames.length ? fnDoOnce() : fnAfterDo();
                 })(this.timers);
             } else {
                 fnAfterDo();

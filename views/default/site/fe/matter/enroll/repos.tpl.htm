@@ -18,7 +18,7 @@
     <div class='app container'>
         <div class='row' ng-include="activeView.url"></div>
     </div>
-    <tms-bottom-nav navs="navs" active-nav="activeNav" type="repos"></tms-bottom-nav> 
+    <tms-bottom-nav navs="navs" active-nav="activeNav" type="repos"></tms-bottom-nav>
     <button popover-placement="top-right" popover-trigger="'show'" popover-append-to-body="true" class="tms-act-toggle" popover-class="tms-act-popover" ng-if="selectedTab.id!=='topic'" ng-click="addRecord($event)" style="bottom:64px;"><span class='glyphicon glyphicon-plus'></span></button>
     <div id='favorGuide' ng-if="favorStack.guiding">
         <span>已收藏</span>
@@ -30,6 +30,31 @@
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
+    <script type="text/ng-template" id="task.html">
+        <div class="modal-header">
+            <button class="close" ng-click="cancel()">×</button>
+        </div>
+        <div class="modal-body">
+            <div ng-if="tasks.length" ng-cloak>
+                <div uib-alert ng-repeat="task in tasks" class='alert-info' close="closeTask($index)" ng-switch="task.id">
+                    <span ng-bind="::task.msg"></span>
+                    <span ng-switch-when="record.submit.end"><span ng-if="task.coin">每条记录可获得【{{task.coin}}个】积分</span><a href class='alert-link' ng-click="addRecord($event)"> 去添加</a></span>
+                    <span ng-switch-when="record.like.pre"></span>
+                    <span ng-switch-when="record.like.end"></span>
+                    <span ng-switch-when="record.data.baseline"><a href class="alert-link" ng-click="gotoTask(task.data)">去制定目标</a></span>
+                    <span ng-switch-when="record.data.question"><a href class="alert-link" ng-click="gotoTask(task.data)">去提问</a></span>
+                    <span ng-switch-when="record.data.answer"><a href class="alert-link" ng-click="gotoTask(task.data)">去回答</a></span>
+                    <span ng-switch-when="record.data.vote"><a href class="alert-link" ng-click="gotoTask(task.data)">去投票</a></span>
+                    <span ng-switch-when="record.data.score"><a href class="alert-link" ng-click="gotoTask(task.data)">去打分</a></span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" ng-click="cancel()">关闭</button>
+            <button class="btn btn-success" ng-click="execute()">完成</button>
+        </div>
+        
+    </script>
     <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>

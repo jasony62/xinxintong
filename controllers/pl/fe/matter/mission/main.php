@@ -134,7 +134,7 @@ class main extends \pl\fe\matter\main_base {
 		if (isset($oFilter->byStar) && $oFilter->byStar === 'Y') {
 			$aOptions['byStar'] = 'Y';
 		}
-		if (!empty($oFilter->byTags)) {
+		if (!empty($oFilter->byTags) && is_array($oFilter->byTags)) {
 			$byTags = [];
 			foreach ($oFilter->byTags as &$tag) {
 				if (is_object($tag) && !empty($tag->id)) {

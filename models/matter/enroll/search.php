@@ -111,7 +111,7 @@ class search_model extends \TMS_MODEL {
 		$search = new \stdClass;
 		$search->siteid = $oApp->siteid;
 		$search->aid = $oApp->id;
-		$search->keyword = $this->escape($keyword);
+		$search->keyword = $keyword;
 		$search->id = $this->insert('xxt_enroll_search', $search, true);
 
 		return $search;

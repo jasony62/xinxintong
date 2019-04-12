@@ -31,7 +31,7 @@ class favor extends \pl\fe\base {
 				$sites[] = $site->id;
 			}
 		}else{
-			$sites[0] = $model->escape($site);
+			$sites[0] = $site;
 		}
 
 		$sites = "('" . implode("','", $sites) . "')";

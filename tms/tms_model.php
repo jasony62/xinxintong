@@ -448,4 +448,13 @@ class TMS_MODEL {
 
 		return $text;
 	}
+	/**
+	 * 获取当前毫秒时间戳
+	 */
+	public static function getMsectime(){
+	    list($msec, $sec) = explode(' ', microtime());
+	    $msectime =  (float)sprintf('%.0f', (floatval($msec) + floatval($sec)) * 1000);
+
+	    return substr($msectime,0,13);
+	}
 }

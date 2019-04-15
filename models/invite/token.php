@@ -9,7 +9,8 @@ class token_model extends \TMS_MODEL {
 	 */
 	public function add($oInviteLog, $expire = 3600) {
 		$current = time();
-		$token = md5($oInviteLog->id . '-' . $oInviteLog->userid . '-' . $current);
+		$msectime = $this->getMsectime();
+		$token = md5($oInviteLog->id . '-' . $oInviteLog->userid . '-' . $msectime);
 
 		$oNewToken = new \stdClass;
 		$oNewToken->invite_id = $oInviteLog->invite_id;

@@ -19,6 +19,7 @@ class base extends \site\base {
 	 */
 	public function __construct() {
 		$siteId = empty($_GET['site']) ? 'platform' : $_GET['site'];
+		$siteId = $this->escape($siteId);
 		$this->siteId = $siteId;
 		/* 获得访问用户的信息 */
 		$modelWay = $this->model('site\fe\way');

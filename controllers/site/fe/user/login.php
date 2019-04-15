@@ -206,7 +206,7 @@ class login extends \site\fe\base {
 		// $thirdId = end($stateArr);
 		$thirdApp = $this->model('sns\dev189')->byId($thirdId);
 		if ($thirdApp === false) {
-			die('未找到指定第三方应用ID');
+			die('指定第三方应用不存在');
 		}
 
 		// 获得第三方应用用户信息

@@ -117,6 +117,7 @@ class browser_tyyoos extends uploader {
 			foreach ($Buckets as $val) {
 				$d = [];
 				$d['name'] = $val['Name'];
+				$d['title'] = $val['Name'];
 				$d['readable'] = true;
 				$d['writable'] = false;
 				$d['removable'] = false;
@@ -144,7 +145,9 @@ class browser_tyyoos extends uploader {
 			$CommonPrefixes = isset($objects['CommonPrefixes']) ? $objects['CommonPrefixes'] : [];
 			foreach ($CommonPrefixes as $val) {
 				$d = [];
-				$d['name'] = substr(str_replace($filter->prefix, '', $val['Prefix']), 0, -1);;
+				$name = substr(str_replace($filter->prefix, '', $val['Prefix']), 0, -1);
+				$d['name'] = $name;
+				$d['title'] = $name;
 				$d['readable'] = true;
 				$d['writable'] = false;
 				$d['removable'] = false;
@@ -157,6 +160,7 @@ class browser_tyyoos extends uploader {
 			$Contents = isset($objects['Contents']) ? $objects['Contents'] : [];
 			foreach ($Contents as $o) {
 				$f['name'] = $o['Key'];
+				$f['title'] = $o['Key'];
 				$f['size'] = (int) $o['Size'];
 				$lm = strtotime((string) $o['LastModified']);
 				$f['mtime'] = $lm;
@@ -228,7 +232,9 @@ class browser_tyyoos extends uploader {
 		$dirs = [];
 		foreach ($CommonPrefixes as $val) {
 			$d = [];
-			$d['name'] = substr(str_replace($filter->prefix, '', $val['Prefix']), 0, -1);
+			$name = substr(str_replace($filter->prefix, '', $val['Prefix']), 0, -1);
+			$d['name'] = $name;
+			$d['title'] = $name;
 			$d['readable'] = false;
 			$d['writable'] = false;
 			$d['removable'] = false;
@@ -247,7 +253,10 @@ class browser_tyyoos extends uploader {
 			$this->errorMsg('未获取到用户ID');
 		}
 		if (empty($this->post['dir'])) {
-			$this->errorMsg('未获取到目录参数');
+			return json_encode(array(
+				'files' => [],
+				'dirWritable' => true,
+			));
 		}
 		
 		// 加载oos api
@@ -268,15 +277,17 @@ class browser_tyyoos extends uploader {
 		$objects = $rst[1];
 		if (empty($objects['Contents'])) {
 				return json_encode(array(
-				'files' => [],
-				'dirWritable' => $dirWritable,
-			));
+					'files' => [],
+					'dirWritable' => $dirWritable,
+				));
 		}
 		// files
 		$Contents = $objects['Contents'];
 		$files = [];
 		foreach ($Contents as $o) {
-			$f['name'] = str_replace($filter->prefix, '', $o['Key']);
+			$name = str_replace($filter->prefix, '', $o['Key']);
+			$f['name'] = $name;
+			$f['title'] = $name;
 			$f['size'] = (int) $o['Size'];
 			$lm = strtotime((string) $o['LastModified']);
 			$f['mtime'] = $lm;
@@ -329,9 +340,11 @@ class browser_tyyoos extends uploader {
 	protected function getDirInfo($dir, $removable = false, $skipEncoding = false) {
 		$info = array(
 			'name' => stripslashes($this->my_basename($dir)),
-			'readable' => true,
-			'writable' => true,
-			'removable' => true,
+			'title' => '文件夹',
+			'readable' => false,
+			'writable' => false,
+			'removable' => false,
+			'notrefresh' => true,
 			'hasDirs' => true,
 		);
 

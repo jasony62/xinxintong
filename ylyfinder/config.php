@@ -37,16 +37,16 @@ $_CONFIG = array(
 	'access' => array(
 
 		'files' => array(
-			'upload' => true,
-			'delete' => true,
+			'upload' => false,
+			'delete' => false,
 			'copy' => false,
 			'move' => false,
 			'rename' => false,
 		),
 
 		'dirs' => array(
-			'create' => true,
-			'delete' => true,
+			'create' => false,
+			'delete' => false,
 			'rename' => false,
 		),
 	),

@@ -66,6 +66,7 @@ browser.setTreeData = function(data, path) {
         readable: data.readable,
         writable: data.writable,
         removable: data.removable,
+        notrefresh: data.notrefresh,
         hasDirs: data.hasDirs
     });
     $(selector + ' span.folder').addClass(data.current ? 'current' : 'regular');
@@ -81,7 +82,7 @@ browser.setTreeData = function(data, path) {
 browser.buildTree = function(root, path) {
     if (!path) path = "";
     path += root.name;
-    var html = '<div class="folder"><a href="kcdir:/' + _.escapeDirs(path) + '"><span class="brace">&nbsp;</span><span class="folder">' + _.htmlData(root.name) + '</span></a>';
+    var html = '<div class="folder"><a href="kcdir:/' + _.escapeDirs(path) + '"><span class="brace">&nbsp;</span><span class="folder">' + _.htmlData(root.title) + '</span></a>';
     if (root.dirs) {
         html += '<div class="folders">';
         for (var i = 0; i < root.dirs.length; i++) {
@@ -212,8 +213,9 @@ browser.menuDir = function(dir, e) {
         if (this.access.files.copy || this.access.files.move)
             html += '<div class="delimiter"></div>';
     }
-    html +=
-        '<a href="kcact:refresh">' + this.label("Refresh") + '</a>';
+
+    if (data.notrefresh !== true)
+        html += '<a href="kcact:refresh">' + this.label("Refresh") + '</a>';
     if (this.support.zip) html+=
         '<div class="delimiter"></div>' +
         '<a href="kcact:download">' + this.label("Download") + '</a>';

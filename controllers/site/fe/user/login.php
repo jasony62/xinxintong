@@ -300,7 +300,7 @@ class login extends \site\fe\base {
 		if ($registered === false) {
 			$user = $this->who;
 			/* uname */
-			$uname = $user->uid;
+			$uname = 'dev189' . $user->uid;
 			/* password */
 			$password = '123456';
 

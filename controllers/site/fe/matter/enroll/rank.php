@@ -72,7 +72,9 @@ class rank extends base {
 			break;
 		case 'score':
 			$q[0] .= ',sum(u.score) score';
-			$q[2] .= ' and u.score>0';
+			if (empty($oApp->rankConfig->scoreIncludeZero)) {
+				$q[2] .= ' and u.score>0';
+			}
 			$q2 = ['o' => 'score desc'];
 			break;
 		case 'vote_schema':

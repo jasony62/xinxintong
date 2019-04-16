@@ -5,7 +5,7 @@
 .team-info{position:relative;overflow:hidden;}
 .team-img{width:224px;height:126px;background-size:contain;background-repeat:no-repeat;background-position:center;}
 .team-title{position:absolute;top:0;left:240px;right:0;overflow:hidden;height:48px;line-height:48px;display:flex;}
-.team-title>div:first-child{flex-grow:1;font-size:24px;}
+.team-title>div:first-child{flex-grow:1;font-size:16px;font-weight:600;}
 .team-summary{position:absolute;top:48px;left:240px;color:#666;}
 .btn:focus,.btn:active:focus{outline:none;}
 .xxt_scan{cursor:pointer;width:77px;height:77px;bottom:0;right:0;background-position:-137px -259px;}

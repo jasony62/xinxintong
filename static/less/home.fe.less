@@ -594,11 +594,15 @@ ul.nav-tabs>span>a {
 
 @media screen and (max-width:768px) {
 	.col-md-9 .nav-tabs, .col-md-3 .nav-tabs {
+		overflow-x: auto;
+		white-space: nowrap;
 		padding: 10px 0 0 0;
 	}
 
 	.nav-tabs>li {
-		width: 30%;
+		float: none;
+		display: inline-block;
+   		margin-right: 5%;
 	}
 
 	.nav-tabs>li>a {
@@ -682,7 +686,7 @@ ul.nav-tabs>span>a {
 
 @media screen and (max-width:768px) {
 	.mainSide .nav-tabs {
-		margin-bottom: 10px;
+		margin-bottom: 12px;
 	}
 
 	.mainSide ul>span>a {

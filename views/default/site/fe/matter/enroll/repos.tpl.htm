@@ -31,29 +31,33 @@
         <div class='loading-indicator'><i></i></div>
     </div>
     <script type="text/ng-template" id="task.html">
-        <div class="modal-header">
-            <button class="close" ng-click="cancel()">×</button>
-        </div>
         <div class="modal-body">
-            <div ng-if="tasks.length" ng-cloak>
-                <div uib-alert ng-repeat="task in tasks" class='alert-info' close="closeTask($index)" ng-switch="task.id">
-                    <span ng-bind="::task.msg"></span>
-                    <span ng-switch-when="record.submit.end"><span ng-if="task.coin">每条记录可获得【{{task.coin}}个】积分</span><a href class='alert-link' ng-click="addRecord($event)"> 去添加</a></span>
-                    <span ng-switch-when="record.like.pre"></span>
-                    <span ng-switch-when="record.like.end"></span>
-                    <span ng-switch-when="record.data.baseline"><a href class="alert-link" ng-click="gotoTask(task.data)">去制定目标</a></span>
-                    <span ng-switch-when="record.data.question"><a href class="alert-link" ng-click="gotoTask(task.data)">去提问</a></span>
-                    <span ng-switch-when="record.data.answer"><a href class="alert-link" ng-click="gotoTask(task.data)">去回答</a></span>
-                    <span ng-switch-when="record.data.vote"><a href class="alert-link" ng-click="gotoTask(task.data)">去投票</a></span>
-                    <span ng-switch-when="record.data.score"><a href class="alert-link" ng-click="gotoTask(task.data)">去打分</a></span>
+            <button class="close" ng-click="cancel()">×</button>
+            <div class="row">
+                <div class="col-md-7 col-xs-8">
+                    <div class="info">
+                        <p>当前任务</p>
+                        <p>「{{currentTask.name}}」</p>
+                        <p>截止:{{currentTask.time.start_at}}</p>
+                    </div>
+               </div>
+               <div class="col-md-5 col-xs-4"><img ng-src="{{}}" /></div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 col-xs-12">
+                    <div class="main">
+                        <p class="title text-center">所有任务</p>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="modal-footer">
-            <button class="btn btn-default" ng-click="cancel()">关闭</button>
-            <button class="btn btn-success" ng-click="execute()">完成</button>
+        <div class="btn-group site-btn-group" ng-if="currentTask.type!=='record.data.question'">
+            <button class="btn site-btn-light"  ng-click="gotoTask(currentTask)">去{{currentTask.name}}</button>
         </div>
-        
+        <div class="btn-group site-btn-group" ng-if="currentTask.type==='record.data.question'">
+            <button class="btn site-btn-light" ng-click="addRecord()">去提问</button>
+            <button class="btn site-btn-blue"  ng-click="gotoTask(currentTask)">查看提问</button>
+        </div>
     </script>
     <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
     <script src="/static/js/angular.min.js"></script>

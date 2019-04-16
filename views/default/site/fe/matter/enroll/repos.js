@@ -111,6 +111,44 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         if (oTask && oTask.topic && oTask.topic.id)
             location.href = LS.j('', 'site', 'app') + '&topic=' + oTask.topic.id + '&page=topic';
     };
+    $scope.openTaskModel = function() {
+        $uibModal.open({
+            templateUrl: 'task.html',
+            resolve: {
+                tasks: function() {
+                    return $scope.tasks;
+                }            
+            },
+            controller:['$scope', 'tasks', '$uibModalInstance', function($scope, tasks, $mi) {
+                $scope.tasks = tasks;
+                console.log(tasks);
+                $scope.tasks.forEach(function(oTask) {
+                    if(oTask.data.state='IP') {
+                        $scope.currentTask = oTask;
+                    }
+                });
+                $scope.gotoTask = function(oTask) {
+                    if (oTask) {
+                        if (oTask.type === 'baseline') {
+                            location.href = LS.j('', 'site', 'app') + '&rid=' + oTask.rid + '&page=enroll';
+                        } else if (oTask.topic && oTask.topic.id) {
+                            location.href = LS.j('', 'site', 'app') + '&topic=' + oTask.topic.id + '&page=topic';
+                        }
+                    }
+                };
+                $scope.addRecord = function(event) {
+                    $scope.$parent.addRecord(event);
+                };
+                $scope.cancel = function() {
+                    $mi.close();
+                };
+            }],
+            size: 'md',
+            backdrop: 'static',
+        }).result.then(function() {
+
+        })
+    }
     $scope.advCriteriaStatus = {
         opened: !$scope.isSmallLayout,
         dirOpen: false
@@ -137,37 +175,25 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                 $scope.advCriteriaStatus.dirOpen = true;
             }
         } else {
-            if (_oApp.actionRule) {
-                /* 设置活动任务提示 */
-                http2.get(LS.j('event/task', 'site', 'app')).then(function(rsp) {
-                    if (rsp.data && rsp.data.length) {
-                        rsp.data.forEach(function(oRule) {
-                            if (!oRule._ok) {
-                                tasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, gap: oRule._no ? oRule._no[0] : 0, coin: oRule.coin ? oRule.coin : 0 });
-                            }
-                        });
-                    }
-                });
-            }
-            new enlTask($scope.app).list(null, 'IP').then(function(ipTasks) {
+            new enlTask($scope.app).list(null).then(function(ipTasks) {
                 if (ipTasks.length) {
                     ipTasks.forEach(function(oTask) {
                         switch (oTask.type) {
                             case 'question':
-                                tasks.push({ type: 'info', msg: oTask.toString(), id: 'record.data.question', data: oTask });
+                                tasks.push({ type: 'info', msg: oTask.toString(), time: oTask.timeFormat(), id: 'record.data.question', name: '提问', data: oTask });
                                 break;
                             case 'answer':
-                                tasks.push({ type: 'info', msg: oTask.toString(), id: 'record.data.answer', data: oTask });
+                                tasks.push({ type: 'info', msg: oTask.toString(), time: oTask.timeFormat(), id: 'record.data.answer', name: '回答', data: oTask });
                                 break;
                             case 'vote':
-                                tasks.push({ type: 'info', msg: oTask.toString(), id: 'record.data.vote', data: oTask });
+                                tasks.push({ type: 'info', msg: oTask.toString(), time: oTask.timeFormat(), id: 'record.data.vote', name: '投票', data: oTask });
                                 break;
                             case 'score':
-                                tasks.push({ type: 'info', msg: oTask.toString(), id: 'record.data.score', data: oTask });
+                                tasks.push({ type: 'info', msg: oTask.toString(), time: oTask.timeFormat(), id: 'record.data.score', name: '打分', data: oTask });
                                 break;
                         }
                     });
-                    
+                    $scope.openTaskModel();
                 }
             });
             $scope.tasks = tasks = [];

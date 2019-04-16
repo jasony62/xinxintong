@@ -28,6 +28,7 @@ ngMod.factory('enlTask', ['http2', '$q', '$parse', '$filter', '$uibModal', 'tmsL
         weekday = oDateFilter(oTask.end_at * 1000, 'EEE');
         str = str.replace(weekday, i18n.weekday[weekday]);
         strs.push(str);
+
         min = parseInt($parse('limit.min')(oTask));
         max = parseInt($parse('limit.max')(oTask));
         if (min && max)
@@ -55,6 +56,24 @@ ngMod.factory('enlTask', ['http2', '$q', '$parse', '$filter', '$uibModal', 'tmsL
         }
         return strs.join('');
     };
+    function fnTaskTimeFormat() {
+        var oTask = this,
+            strs = {},
+            str, weekday, oDateFilter;
+
+        oDateFilter = $filter('date');
+        str = oDateFilter(oTask.start_at * 1000, 'M月d日(EEE)H:mm');
+        weekday = oDateFilter(oTask.start_at * 1000, 'EEE');
+        str = str.replace(weekday, i18n.weekday[weekday]);
+        strs.start_at = str;
+
+        str = oDateFilter(oTask.end_at * 1000, 'M月d日(EEE)H:mm');
+        weekday = oDateFilter(oTask.end_at * 1000, 'EEE');
+        str = str.replace(weekday, i18n.weekday[weekday]);
+        strs.end_at = str;
+
+        return strs;
+    };
     var Task;
     Task = function(oApp) {
         this.app = oApp;
@@ -69,7 +88,10 @@ ngMod.factory('enlTask', ['http2', '$q', '$parse', '$filter', '$uibModal', 'tmsL
         if (ek) url += '&ek=' + ek;
         http2.get(url).then(function(rsp) {
             if (rsp.data && rsp.data.length) {
-                rsp.data.forEach(function(oTask) { oTask.toString = fnTaskToString; });
+                rsp.data.forEach(function(oTask) { 
+                    oTask.toString = fnTaskToString; 
+                    oTask.timeFormat = fnTaskTimeFormat;
+                });
             }
             deferred.resolve(rsp.data);
         });

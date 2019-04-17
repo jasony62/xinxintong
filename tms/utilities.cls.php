@@ -145,3 +145,17 @@ function tms_time_to_str($timestamp) {
 
 	return $str;
 }
+/**
+ * 获取$_SERVER数据
+ */
+function tms_get_server($key, $escape = true){
+	if (isset($_SERVER[$key])) {
+		if ($escape === true) {
+    		return TMS_MODEL::escape($_SERVER[$key]);
+		} else {
+			return $_SERVER[$key];
+		}
+	} else {
+		return null;
+	}
+}

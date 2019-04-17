@@ -12,7 +12,7 @@ class log_model extends \TMS_MODEL {
 		$log->create_at = time();
 		$log->access_token = $accessToken;
 		$log->access_status = $this->toJson($data);
-		$log->user_agent = isset($_SERVER['HTTP_USER_AGENT'])? $_SERVER['HTTP_USER_AGENT'] : '';
+		$log->user_agent = tms_get_server('HTTP_USER_AGENT') ? tms_get_server('HTTP_USER_AGENT') : '';
 		$log->user_ip = $user->ip;
 
 		$log->id = $this->insert('xxt_site_invoke_log', $log, true);

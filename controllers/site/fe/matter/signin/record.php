@@ -240,10 +240,10 @@ class record extends base {
 		$operation->data = $this->model('matter\signin\record')->byId($ek, ['fields' => 'enroll_key,signin_log,data']);
 
 		$client = new \stdClass;
-		$client->agent = $_SERVER['HTTP_USER_AGENT'];
+		$client->agent = tms_get_server('HTTP_USER_AGENT');
 		$client->ip = $this->client_ip();
 
-		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+		$referer = tms_get_server('HTTP_REFERER') ? tms_get_server('HTTP_REFERER') : '';
 
 		$logid = $modelLog->addUserMatterOp($oApp->siteid, $logUser, $oApp, $operation, $client, $referer);
 

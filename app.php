@@ -130,12 +130,6 @@ error_reporting(E_ALL);
  * run application.
  *************************/
 require_once 'tms/tms_app.php';
-// 过滤$_SERVER 中可能会被sql注入的数据
-foreach ($_SERVER as $sk => &$sv) {
-	if (in_array($sk, ['HTTP_USER_AGENT', 'HTTP_REFERER', 'REQUEST_URI', 'QUERY_STRING'])) {
-		$sv = TMS_MODEL::escape($sv);
-	}
-}
 
 $config = array();
 TMS_APP::run($config);

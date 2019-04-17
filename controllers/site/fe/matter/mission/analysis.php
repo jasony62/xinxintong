@@ -23,7 +23,7 @@ class analysis extends \site\fe\matter\base {
 		$oUser = $this->who;
 
 		$oClient = new \stdClass;
-		$oClient->agent = $_SERVER['HTTP_USER_AGENT'];
+		$oClient->agent = tms_get_server('HTTP_USER_AGENT');
 		$oClient->ip = $this->client_ip();
 
 		$aResult = $this->model('matter\mission\analysis')->submit($oMission, $oUser, $oPosted, $page, $oClient);

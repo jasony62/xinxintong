@@ -361,10 +361,10 @@ class record extends base {
 		$oLogUser->nickname = $oUser->nickname;
 
 		$oClient = new \stdClass;
-		$oClient->agent = $_SERVER['HTTP_USER_AGENT'];
+		$oClient->agent = tms_get_server('HTTP_USER_AGENT');
 		$oClient->ip = $this->client_ip();
 
-		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+		$referer = tms_get_server('HTTP_REFERER') ? tms_get_server('HTTP_REFERER') : '';
 
 		$logid = $modelLog->addUserMatterOp($oApp->siteid, $oLogUser, $oApp, $oOperation, $oClient, $referer);
 

@@ -66,7 +66,7 @@ class token_model extends \TMS_MODEL {
 		$data->access_token = $token;
 		$data->create_at = $current;
 		$data->expire_at = $current + $this->expires_in;
-		$data->user_agent = isset($_SERVER['HTTP_USER_AGENT'])? $_SERVER['HTTP_USER_AGENT'] : '';
+		$data->user_agent = tms_get_server('HTTP_USER_AGENT') ? tms_get_server('HTTP_USER_AGENT') : '';
 
 		$data->id = $this->insert('xxt_site_invoke_token', $data, true);
 

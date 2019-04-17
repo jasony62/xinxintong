@@ -78,6 +78,11 @@ header img {
     line-height: 2em
 }
 
+.article .content div[wrap='table'] {
+    width: 100%;
+    overflow-x: auto;
+}
+
 .article .content table {
     width: 100%;
     border: solid 1px #ddd;
@@ -86,7 +91,7 @@ header img {
     border-collapse: collapse;
     border-spacing: 0;
     position: relative;
-    table-layout: auto;
+    table-layout: fixed;
     text-align: center;
 
     th,

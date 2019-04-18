@@ -963,12 +963,12 @@ body.enroll-repos {
 }
 
 .modal {
-    @media screen and(min-width:768px) {
+    @media screen and(min-width: 768px) {
         .modal-md {
             width: 380px;
         }
     }
-    
+
     .modal-content {
         border: 0;
         background-color: #0084FF;
@@ -1015,7 +1015,7 @@ body.enroll-repos {
     .main {
         height: 300px;
         margin-top: 3rem;
-        background-color: rgba(255,255,255, 0.5);
+        background-color: rgba(255, 255, 255, 0.5);
         border-radius: 6px;
         position: relative;
 
@@ -1034,6 +1034,71 @@ body.enroll-repos {
             letter-spacing: 1px;
             box-shadow: 5px 0px 1px #222;
         }
+
+        .main-timeline {
+            padding-top: 60px;
+            position: relative;
+        }
+
+        .main-timeline .timeline {
+            padding-top: 30px;
+            padding-bottom: 40px;
+            margin-top: -50px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .main-timeline .timeline:first-child {
+            padding-top: 10px;
+        }
+        
+        .main-timeline .timeline:nth-child(even) {
+            text-align: right;
+        }
+
+        .main-timeline .timeline:last-child {
+            padding-bottom: 20px;
+        }
+
+        .main-timeline .timeline:after {
+            content: '';
+            height: calc(100% - 45px);
+            width: calc(50% - 12px);
+            border-radius: 100px 0 0 100px;
+            border: 5px solid #FFD36D;
+            border-right: none;
+            position: absolute;
+            left: 12px;
+            top: 15px;
+            z-index: -1;
+        }
+
+        .main-timeline .timeline:first-child:after {
+            border-top: 0;
+        }
+    
+        .main-timeline .timeline:nth-child(even):after {
+            left: auto;
+            right: 12px;
+            border: 5px solid #FFD36D;
+            border-left: none;
+            border-radius: 0 100px 100px 0;
+        }
+
+        .main-timeline .timeline:last-child:after {
+            border-bottom: 0;
+        }
+
+        .main-timeline .timeline .timeline-content {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            border: 2px solid #FFD36D;
+            background-color: #FFEDA0;
+            margin-top: -10px;
+        }
+
     }
 
     .site-btn-group {

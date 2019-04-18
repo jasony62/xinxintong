@@ -6,7 +6,7 @@ $sqls = [];
  * 支持的第三方登录
  */
 $sql = "create table if not exists xxt_account_third (";
-$sql .= "id int(11) unsigned NOT NULL AUTO_INCREMENT";
+$sql .= "id varchar(40) not null";
 $sql .= ",creator varchar(50) NOT NULL";
 $sql .= ",creator_name varchar(100) not null default ''";
 $sql .= ",create_at int NOT NULL";
@@ -24,7 +24,7 @@ $sqls[] = $sql;
  */
 $sql = "create table if not exists xxt_account_third_user (";
 $sql .= "id int(11) unsigned NOT NULL AUTO_INCREMENT";
-$sql .= ",third_id int(11) NOT NULL"; // 
+$sql .= ",third_id varchar(40) NOT NULL"; // 
 $sql .= ",openid varchar(100) not null";
 $sql .= ",reg_time int(11) NOT NULL";
 $sql .= ",headimgurl varchar(255) not null default ''";
@@ -42,7 +42,7 @@ $sqls[] = "ALTER TABLE  account_group add p_dev189_service tinyint not null defa
 //
 $sqls[] = "INSERT INTO account_group(group_id,group_name,asdefault,p_mpgroup_create,p_mp_create,p_mp_permission,p_platform_manage,p_dev189_service) VALUES(101,'dev189',0,0,0,0,0,1)";
 //
-$sqls[] = "INSERT INTO xxt_account_third(id,creator,creator_name,create_at,appname,pic,appid,appsecret) VALUES(2,'5771d91dcf713','aly'," . time() . ",'中国电信能力开放平台','/kcfinder/upload/c1aa4b1cb943c85ef98ca36db3d00620/图片/能力开放图标.jpg','20190403105121FZlTKz','86062df978b648afb903a2774cab443f')";
+$sqls[] = "INSERT INTO xxt_account_third(id,creator,creator_name,create_at,appname,pic,appid,appsecret) VALUES('" . uniqid() . "','5771d91dcf713','aly'," . time() . ",'中国电信能力开放平台','/kcfinder/upload/c1aa4b1cb943c85ef98ca36db3d00620/图片/能力开放图标.jpg','20190403105121FZlTKz','86062df978b648afb903a2774cab443f')";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

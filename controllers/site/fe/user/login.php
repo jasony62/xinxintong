@@ -202,8 +202,6 @@ class login extends \site\fe\base {
 		}
 		// 清楚cookie
 		$this->mySetcookie("_thirdlogin_oauthpending", '', time() - 3600);
-		// $stateArr = explode('-', $state);
-		// $thirdId = end($stateArr);
 		$thirdApp = $this->model('sns\dev189')->byId($thirdId);
 		if ($thirdApp === false) {
 			die('指定第三方应用不存在');

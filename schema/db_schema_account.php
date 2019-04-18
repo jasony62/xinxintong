@@ -72,7 +72,7 @@ $sqls[] = $sql;
  * 支持的第三方登录
  */
 $sql = "create table if not exists xxt_account_third (";
-$sql .= "id int(11) unsigned NOT NULL AUTO_INCREMENT";
+$sql .= "id varchar(40) not null";
 $sql .= ",creator varchar(50) NOT NULL";
 $sql .= ",creator_name varchar(100) not null default ''";
 $sql .= ",create_at int NOT NULL";

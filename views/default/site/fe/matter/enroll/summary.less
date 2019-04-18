@@ -1,3 +1,5 @@
+@import "../../../../../../static/less/site.fe.base.less";
+
 ol,
 ul {
     list-style: none;
@@ -56,7 +58,7 @@ ul>li {
             }
 
             &.active>a {
-                color: #ff8018;
+                color: @brand-primary;
             }
         }
 
@@ -69,8 +71,8 @@ ul>li {
 }
 
 .site-navbar-orange {
-    background-color: #ff8018;
-    border-color: #ff8018;
+    background-color: @brand-primary;
+    border-color: @brand-primary;
 
     .col-md-12.col-xs-12 {
         width: 100%;
@@ -99,7 +101,7 @@ ul>li {
 
                     &:hover,
                     &:focus {
-                        background-color: #ff8018;
+                        background-color: @brand-primary;
                     }
                 }
 

@@ -152,8 +152,8 @@ class main extends \site\fe\matter\base {
 		$type = $model->escape($post->type);
 		$title = isset($post->title) ? $model->escape($post->title) : '';
 		$shareby = isset($post->shareby) ? $model->escape($post->shareby) : '';
-		$search = !empty($post->search) ? $model->escape($post->search) : (isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '');
-		$referer = !empty($post->referer) ? $model->escape($post->referer) : (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '');
+		$search = !empty($post->search) ? $model->escape($post->search) : (tms_get_server('QUERY_STRING') ? tms_get_server('QUERY_STRING') : '');
+		$referer = !empty($post->referer) ? $model->escape($post->referer) : (tms_get_server('HTTP_REFERER') ? tms_get_server('HTTP_REFERER') : '');
 
 		if ($type === 'enroll') {
 			$userRid = !empty($post->rid) ? $model->escape($post->rid) : '';
@@ -186,7 +186,7 @@ class main extends \site\fe\matter\base {
 				'user_uid' => $user->uid,
 				'user_nickname' => (!empty($assignedNickname)) ? $assignedNickname : $user->nickname,
 				'clientIp' => $this->client_ip(),
-				'HTTP_USER_AGENT' => $_SERVER['HTTP_USER_AGENT'],
+				'HTTP_USER_AGENT' => tms_get_server('HTTP_USER_AGENT'),
 				'QUERY_STRING' => $search,
 				'HTTP_REFERER' => $referer,
 			];
@@ -238,7 +238,7 @@ class main extends \site\fe\matter\base {
 		$logMatter->title = $title;
 
 		$logClient = new \stdClass;
-		$logClient->agent = $_SERVER['HTTP_USER_AGENT'];
+		$logClient->agent = tms_get_server('HTTP_USER_AGENT');
 		$logClient->ip = $this->client_ip();
 
 		// 记录活动的专题页和讨论页和共享页需要单独记录
@@ -310,10 +310,10 @@ class main extends \site\fe\matter\base {
 		$logMatter->title = $title;
 
 		$logClient = new \stdClass;
-		$logClient->agent = $_SERVER['HTTP_USER_AGENT'];
+		$logClient->agent = tms_get_server('HTTP_USER_AGENT');
 		$logClient->ip = $this->client_ip();
 
-		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+		$referer = tms_get_server('HTTP_REFERER') ? tms_get_server('HTTP_REFERER') : '';
 
 		if ($type === 'enroll') {
 			$oApp = $this->model('matter\enroll')->byId($id, ['fields' => 'siteid,id,round_cron,assigned_nickname', 'cascaded' => 'N']);

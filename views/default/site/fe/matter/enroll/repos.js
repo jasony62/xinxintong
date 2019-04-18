@@ -121,9 +121,8 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             },
             controller:['$scope', 'tasks', '$uibModalInstance', function($scope, tasks, $mi) {
                 $scope.tasks = tasks;
-                console.log(tasks);
                 $scope.tasks.forEach(function(oTask) {
-                    if(oTask.data.state='IP') {
+                    if(oTask.data.state==='IP') {
                         $scope.currentTask = oTask;
                     }
                 });

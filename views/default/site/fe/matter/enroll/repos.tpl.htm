@@ -47,41 +47,22 @@
                 <div class="col-md-12 col-xs-12">
                     <div class="main">
                         <p class="title text-center">所有任务</p>
-                        <div class="col-md-12 col-xs-12" style="height:100%;overflow-y:auto">
+                        <div class="col-md-12 col-xs-12" style="height:100%;overflow-y:auto;overflow-x:hidden">
                             <div class="main-timeline">
-                                <div class="timeline">
+                                <div class="timeline" ng-repeat="task in tasks">
                                     <div class="timeline-content">
-                                        <div class="timeline-text">提问</div>
-                                        <div class="timeline-badge badge-default" ng-class="{'badge-undone':state==='undone','badge-doing':state==='doing','badge-done':state==='done'}"></div>
-                                        <div class=''></div>
-                                    </div>
-                                </div>
-                                <div class="timeline">
-                                    <div class="timeline-content">
-                                        <div class="timeline-text">投票</div>
-                                        <div class="timeline-badge badge-default" ng-class="{'badge-undone':state==='undone','badge-doing':state==='doing','badge-done':state==='done'}"></div>
-                                        <div class=''></div>
-                                    </div>
-                                </div>
-                                <div class="timeline">
-                                    <div class="timeline-content">
-                                        <div class="timeline-text">回答</div>
-                                        <div class="timeline-badge badge-default" ng-class="{'badge-undone':state==='undone','badge-doing':state==='doing','badge-done':state==='done'}"></div>
-                                        <div class=''></div>
-                                    </div>
-                                </div>
-                                <div class="timeline">
-                                    <div class="timeline-content">
-                                        <div class="timeline-text">打分</div>
-                                        <div class="timeline-badge badge-default" ng-class="{'badge-undone':state==='undone','badge-doing':state==='doing','badge-done':state==='done'}"></div>
-                                        <div class=''></div>
-                                    </div>
-                                </div>
-                                <div class="timeline">
-                                    <div class="timeline-content">
-                                        <div class="timeline-text">打分</div>
-                                        <div class="timeline-badge badge-default" ng-class="{'badge-undone':state==='undone','badge-doing':state==='doing','badge-done':state==='done'}"></div>
-                                        <div class=''></div>
+                                        <div class="timeline-name" ng-class="{true:'lh'}[task.state]" ng-bind="task.name"></div>
+                                        <div class="timeline-badge site-badge" ng-class="{'site-badge-default':task.state==='undone','site-badge-danger':task.state==='done'}" ng-if="task.state" ng-bind="task.state"></div>
+                                        <div class='timeline-state' ng-class="{'BS':'state-BS','IP':'state-IP','AE':'state-AE'}[task.data.state]"ng-switch on="task.data.state">
+                                            <div ng-switch-when="BS">
+                                                <i class="glyphicon glyphicon-lock"></i>
+                                                <span>开始时间：{{task.time.start_at}}</span>
+                                            </div>
+                                            <div ng-switch-when="IP">
+                                                <i class="glyphicon glyphicon-map-marker"></i>
+                                            </div>
+                                            <div ng-switch-when="AE"></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

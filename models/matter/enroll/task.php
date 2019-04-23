@@ -591,7 +591,7 @@ class task_model extends \TMS_MODEL {
 						}
 						// 任务完成情况
 						if (!isset($oTask->newCreate)) {
-							$result = $this->isUndoneByTask($oUser, $oTask);
+							$result = $this->isUndoneByTask($oUser, $oTask, '', $oRule);
 							$oTask->undone = $result;
 						} else {
 							$limitMin = !empty($oTask->limit->min) ? (int) $oTask->limit->min : 1;
@@ -610,7 +610,7 @@ class task_model extends \TMS_MODEL {
 	/**
 	 * 指定的用户是否没有完成活动要求的任务
 	 */
-	public function isUndoneByTask($oAssignedUser, $oTask, $rid = '') {
+	public function isUndoneByTask($oAssignedUser, $oTask, $rid = '', $oTaskRule = '') {
 		$oApp = $this->_oApp;
 		// 至少提交数量
 		$limitMin = !empty($oTask->limit->min) ? (int) $oTask->limit->min : 1;
@@ -717,6 +717,26 @@ class task_model extends \TMS_MODEL {
 			$userAnswerSum = count($userAnswers);
 			if ($userAnswerSum < $limitMin) {
 				return [true, $limitMin, $userAnswerSum];
+			}
+		}
+		if ($oTask->type === 'score') {
+			if (!empty($oTaskRule) && !empty($oTaskRule->scoreApp->id)) {
+				$q = [
+					'count(id)',
+					'xxt_enroll_record',
+					"aid = '{$oTaskRule->scoreApp->id}' and state = 1 and userid = '{$oAssignedUser->uid}'"
+				];
+				if ($satrtTime > 0 || $endTime > 0) {
+					$q[2] .= " and (";
+					$satrtTime > 0 && $q[2] .= "enroll_at > {$satrtTime}";
+					$satrtTime > 0 && $endTime > 0 && $q[2] .= " and ";
+					$endTime > 0 && $q[2] .= "enroll_at < {$endTime}";
+					$q[2] .= " )";
+				}
+				$userScoreSum = (int) $this->query_val_ss($q);
+				if ($userScoreSum < $limitMin) {
+					return [true, $limitMin, $userScoreSum];
+				}
 			}
 		}
 

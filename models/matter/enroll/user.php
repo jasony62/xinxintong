@@ -769,19 +769,37 @@ class user_model extends \TMS_MODEL {
 			return (object) ['users' => []];
 		}
 
+		$modelTsk = $this->model('matter\enroll\task', $oApp);
+		$aTaskTypes = ['baseline', 'question', 'answer', 'vote', 'score'];// 有效的任务类型
+		$aTaskStates = ['IP', 'BS', 'AE'];// 有效的任务状态
 		$aUndoneUsrs = []; // 没有完成任务的用户
 		$oAssignedUsrs = $oAssignedUsrsResult->users;
 		foreach ($oAssignedUsrs as $oAssignedUser) {
-			if ($tasks = $this->isUndone($oApp, $rid, $oAssignedUser)) {
-				if (isset($oApp->absentCause->{$oAssignedUser->userid}->{$rid})) {
-					$oAssignedUser->absent_cause = new \stdClass;
-					$oAssignedUser->absent_cause->cause = $oApp->absentCause->{$oAssignedUser->userid}->{$rid};
-					$oAssignedUser->absent_cause->rid = $rid;
-				}
-				if (true !== $tasks) {
-					$oAssignedUser->tasks = $tasks;
+			if (isset($oApp->absentCause->{$oAssignedUser->userid}->{$rid})) {
+				$oAssignedUser->absent_cause = new \stdClass;
+				$oAssignedUser->absent_cause->cause = $oApp->absentCause->{$oAssignedUser->userid}->{$rid};
+				$oAssignedUser->absent_cause->rid = $rid;
+			}
+			$oAssignedUser->uid = $oAssignedUser->userid;
+			!empty($oAssignedUser->group->id) && $oAssignedUser->group_id = $oAssignedUser->group->id;
+			// 查询用户是否有任务
+			$tasks = $modelTsk->byUser($oAssignedUser, $aTaskTypes, $aTaskStates);
+			if ($tasks[0] === true && !empty($tasks)) {
+				$tasks = $tasks[1];
+				$oAssignedUser->tasks = [];
+				foreach ($tasks as $task) {
+					if ($task->undone[0] === true) {
+						$oAssignedUser->tasks[] = [$task->type => $task->undone];
+					}
 				}
 				$aUndoneUsrs[] = $oAssignedUser;
+			} else {
+				if ($tasks = $this->isUndone($oApp, $rid, $oAssignedUser)) {
+					if (true !== $tasks) {
+						$oAssignedUser->tasks = $tasks;
+					}
+					$aUndoneUsrs[] = $oAssignedUser;
+				}
 			}
 		}
 

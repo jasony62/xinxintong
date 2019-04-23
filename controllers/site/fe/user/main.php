@@ -286,4 +286,19 @@ class main extends \site\fe\base {
 
 		return $accounts;
 	}
+	/**
+	 * 获取第三方登录网站
+	 */
+	public function authappList_action() {
+		$model = $this->model();
+		$q = [
+			'id,appname,pic',
+			'xxt_account_authapp',
+			['state' => 1]
+		];
+		$p = ['o' => 'create_at desc'];
+		$apps = $model->query_objs_ss($q, $p);
+
+		return new \ResponseData($apps);
+	}
 }

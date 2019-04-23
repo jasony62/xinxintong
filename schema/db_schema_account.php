@@ -42,6 +42,7 @@ $sql .= ",p_mp_create tinyint not null default 0 comment '创建公众号'";
 $sql .= ",p_mp_permission tinyint not null default 0 comment '设置公众号权限'";
 $sql .= ",p_platform_manage tinyint  not null default 0 comment '平台管理'";
 $sql .= ",p_create_site tinyint not null default 0 comment '创建团队'";
+$sql .= ",p_dev189_service tinyint not null default 0 comment '能力平台服务'";
 $sql .= ",view_name varchar(10) not null default 'default'";
 $sql .= ",primary key (group_id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 $sqls[] = $sql;
@@ -65,6 +66,41 @@ $sql .= ",top_at int(11) NOT NULL COMMENT '置顶时间'";
 $sql .= ",matter_id varchar(40) NOT NULL";
 $sql .= ",matter_type varchar(20) NOT NULL";
 $sql .= ",matter_title varchar(70) NOT NULL";
+$sql .= ",primary key (id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+$sqls[] = $sql;
+/**
+ * 支持的第三方登录
+ */
+$sql = "create table if not exists xxt_account_third (";
+$sql .= "id varchar(40) not null";
+$sql .= ",creator varchar(50) NOT NULL";
+$sql .= ",creator_name varchar(100) not null default ''";
+$sql .= ",create_at int NOT NULL";
+$sql .= ",appname varchar(100) NOT NULL default ''"; //第三方名称
+$sql .= ",pic text null"; // head image.
+$sql .= ",appid varchar(100) NOT NULL default ''"; // 
+$sql .= ",appsecret varchar(100) NOT NULL default ''"; //
+$sql .= ",access_token varchar(100) NOT NULL default ''";
+$sql .= ",access_token_expire_at int not null default 0";
+$sql .= ",state tinyint not null default 1";
+$sql .= ",primary key (id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+$sqls[] = $sql;
+/**
+ * 第三方登录的用户
+ */
+$sql = "create table if not exists xxt_account_third_user (";
+$sql .= "id int(11) unsigned NOT NULL AUTO_INCREMENT";
+$sql .= ",third_id int(11) NOT NULL"; // 
+$sql .= ",openid varchar(100) not null";
+$sql .= ",reg_time int(11) NOT NULL";
+$sql .= ",headimgurl varchar(255) not null default ''";
+$sql .= ",nickname varchar(255) not null default ''";
+$sql .= ",sex tinyint not null default 0";
+$sql .= ",city varchar(50) not null default ''";
+$sql .= ",province varchar(50) not null default ''";
+$sql .= ",country varchar(50) not null default ''";
+$sql .= ",forbidden char(1) not null default 'N'";
+$sql .= ",unionid varchar(32) not null default '' comment '用户的注册id'";
 $sql .= ",primary key (id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 $sqls[] = $sql;
 

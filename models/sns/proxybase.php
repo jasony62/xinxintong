@@ -33,9 +33,14 @@ class proxybase {
 			$url .= false == strpos($url, '?') ? '?' : '&';
 			$url .= "access_token={$token[1]}";
 		}
+
 		if (!empty($params)) {
-			false == strpos($url, '?') && $url .= '?';
-			$url .= '&' . http_build_query($params);
+			if (false == strpos($url, '?')) {
+				$url .= '?';
+			} else {
+				$url .= '&';
+			}
+			$url .= http_build_query($params);
 		}
 
 		$ch = curl_init($url);

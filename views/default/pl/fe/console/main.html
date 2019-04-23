@@ -221,6 +221,24 @@
             </div>
         </div>
     </div>
+    <div ng-controller="ctrlApplication" ng-switch-when="application">
+        <div class='col-md-12'>
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th style='width:48px'>序号</th>
+                        <th>名称</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td ng-click="openMatter()">云录音调听</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
     <div ng-controller="ctrlRecycle" ng-switch-when="recycle">
         <div class="col-md-12">
             <table class='table table-bordered'>

@@ -26,7 +26,7 @@ browser.initToolbar = function() {
         browser.resize();
     }
 
-    $('#toolbar a[href="kcact:settings"]').click(function () {
+    $('#toolbar a[href="kcact:settings"]').click(function() {
         if ($('#settings').css('display') == 'none') {
             $(this).addClass('selected');
             _.kuki.set('displaySettings', 'on');
@@ -63,7 +63,7 @@ browser.initToolbar = function() {
             '<div>' + browser.label("Licenses:") + ' GPLv2 & LGPLv2</div>' +
             '<div>Copyright &copy;2010, 2011 Pavel Tzonkov</div>' +
             '<button>' + browser.label("OK") + '</button>' +
-        '</div>';
+            '</div>';
         $('#dialog').html(html);
         $('#dialog').data('title', browser.label("About"));
         browser.showDialog();
@@ -88,7 +88,7 @@ browser.initToolbar = function() {
                         return;
                     }
                     if (browser.version < data.version)
-                        span.html('<a href="http://kcfinder.sunhater.com/download" target="_blank">' + browser.label("Download version {version} now!", {version: data.version}) + '</a>');
+                        span.html('<a href="http://kcfinder.sunhater.com/download" target="_blank">' + browser.label("Download version {version} now!", { version: data.version }) + '</a>');
                     else
                         span.html(browser.label("KCFinder is up to date!"));
                     browser.showDialog();
@@ -116,15 +116,16 @@ browser.initUploadButton = function() {
         btn.css('display', 'none');
         return;
     }
+
     var top = btn.get(0).offsetTop;
     var width = btn.outerWidth();
     var height = btn.outerHeight();
     $('#toolbar').prepend('<div id="upload" style="top:' + top + 'px;width:' + width + 'px;height:' + height + 'px">' +
         '<form enctype="multipart/form-data" method="post" target="uploadResponse" action="' + browser.baseGetData('upload') + '">' +
-            '<input type="file" name="upload[]" onchange="browser.uploadFile(this.form)" style="height:' + height + 'px" multiple="multiple" />' +
-            '<input type="hidden" name="dir" value="" />' +
+        '<input type="file" name="upload[]" onchange="browser.uploadFile(this.form)" style="height:' + height + 'px" multiple="multiple" />' +
+        '<input type="hidden" name="dir" value="" />' +
         '</form>' +
-    '</div>');
+        '</div>');
     $('#upload input').css('margin-left', "-" + ($('#upload input').outerWidth() - width) + 'px');
     $('#upload').mouseover(function() {
         $('#toolbar a[href="kcact:upload"]').addClass('hover');
@@ -150,7 +151,8 @@ browser.uploadFile = function(form) {
         var response = $(this).contents().find('body').html();
         $('#loading').css('display', 'none');
         response = response.split("\n");
-        var selected = [], errors = [];
+        var selected = [],
+            errors = [];
         $.each(response, function(i, row) {
             if (row.substr(0, 1) == '/')
                 selected[selected.length] = row.substr(1, row.length - 1)
@@ -292,11 +294,11 @@ browser.maximize = function(button) {
             if ((ifrm.offset().left == ifrm.position().left) &&
                 (ifrm.offset().top == ifrm.position().top)
             )
-                ifrm.css({left: '0', top: '0'});
+                ifrm.css({ left: '0', top: '0' });
             else
                 ifrm.css({
-                    left: - ifrm.offset().left + 'px',
-                    top: - ifrm.offset().top + 'px'
+                    left: -ifrm.offset().left + 'px',
+                    top: -ifrm.offset().top + 'px'
                 });
 
             resize();
@@ -311,7 +313,7 @@ browser.refresh = function(selected) {
         type: 'POST',
         dataType: 'json',
         url: browser.baseGetData('chDir'),
-        data: {dir:browser.dir},
+        data: { dir: browser.dir },
         async: false,
         success: function(data) {
             if (browser.check4errors(data))
@@ -322,7 +324,7 @@ browser.refresh = function(selected) {
             browser.statusDir();
         },
         error: function() {
-            $('#files > div').css({opacity:'', filter:''});
+            $('#files > div').css({ opacity: '', filter: '' });
             $('#files').html(browser.label("Unknown error."));
         }
     });

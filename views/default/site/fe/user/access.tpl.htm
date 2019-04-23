@@ -10,12 +10,27 @@
     <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
     <style>
         .nav-tabs {
-        border-bottom: 1px solid transparent;
-    }
+            border-bottom: 1px solid transparent;
+        }
 
-    .panel-default: {
-        border: 0;
-    }
+        .panel-default {
+            border: 0;
+        }
+
+        .third-login li {
+            cursor: pointer;
+        }
+        
+        .third-login li > img{
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+        }
+
+        .third-login li > span {
+            display: inline-block;
+        }
+
     </style>
 </head>
 
@@ -73,6 +88,14 @@
                                     <div class='form-group'>
                                         <button class="btn btn-primary btn-block" ng-disabled="user.loginExpire" ng-click='login()'>登录</button>
                                         <button class="btn btn-default btn-block" ng-click="gotoHome()">返回个人中心</button>
+                                    </div>
+                                    <div class='form-group third-login'>
+                                        <p>其他方式登录：</p>
+                                        <ul class="list-unstyled">
+                                            <li ng-repeat="thirdApp in thirdApps" ng-click="openThirdAppUrl(thirdApp)">
+                                                <img ng-src="{{thirdApp.pic}}"/> <span ng-bind="thirdApp.appname"></span>
+                                            </li>
+                                        </ul>
                                     </div>
                                     <div class='form-group' ng-if="user.loginExpire">
                                         <p class='alert alert-warning'>请退出当前帐号后，再用其他帐号登录，<a href='' ng-click="logout()">退出</a></p>

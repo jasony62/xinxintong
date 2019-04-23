@@ -247,7 +247,7 @@ class browser_tyyoos extends uploader {
 			'dirs' => $dirs,
 		));
 	}
-	// 获取文件
+	// 获取文件列表
 	protected function act_chDir() {
 		if (empty($this->session['mpid'])) {
 			$this->errorMsg('未获取到用户ID');
@@ -286,6 +286,68 @@ class browser_tyyoos extends uploader {
 		$files = [];
 		foreach ($Contents as $o) {
 			$name = str_replace($filter->prefix, '', $o['Key']);
+			$f['name'] = $name;
+			$f['title'] = $name;
+			$f['size'] = (int) $o['Size'];
+			$lm = strtotime((string) $o['LastModified']);
+			$f['mtime'] = $lm;
+			$f['date'] = date('Y-m-d H:i:s', $lm);
+			$f['readable'] = false;
+			$f['writable'] = false;
+			$f['bigIcon'] = true;
+			$f['smallIcon'] = true;
+			$f['thumb'] = false;
+			$f['xiazai'] = true;
+			$f['smallthumb'] = false;
+			$files[] = $f;
+		}
+
+		return json_encode(array(
+			'files' => $files,
+			'dirWritable' => $dirWritable,
+		));
+	}
+	// 以指定名称开头的文件列表
+	protected function act_searchDir() {
+		if (empty($this->session['mpid'])) {
+			$this->errorMsg('未获取到用户ID');
+		}
+		if (empty($this->post['begin'])) {
+			$this->errorMsg('搜索项不能为空');
+		}
+		if (empty($this->post['dir'])) {
+			return json_encode(array(
+				'files' => [],
+				'dirWritable' => true,
+			));
+		}
+		
+		// 加载oos api
+		include_once dirname(__FILE__) . '/oos.php';
+		$OOS = new oos(OOS_ENDPOINT, OOS_ACCESS_KEY, OOS_ACCESS_SECRET);
+		$dirWritable = true;
+		//
+		$Prefix = $this->session['mpid'] . '/' . $this->post['dir'] . '/';
+		$filter = new \stdClass;
+		$filter->bucket = OOS_BUCKET;
+		$filter->prefix = $Prefix . $this->post['begin'];
+		$filter->size = 1000;
+		$rst = $OOS->objectList($filter);
+		if ($rst[0] === false) {
+			$this->errorMsg('错误3' . $rst[1]);
+		}
+		$objects = $rst[1];
+		if (empty($objects['Contents'])) {
+				return json_encode(array(
+					'files' => [],
+					'dirWritable' => $dirWritable,
+				));
+		}
+		// files
+		$Contents = $objects['Contents'];
+		$files = [];
+		foreach ($Contents as $o) {
+			$name = str_replace($Prefix, '', $o['Key']);
 			$f['name'] = $name;
 			$f['title'] = $name;
 			$f['size'] = (int) $o['Size'];

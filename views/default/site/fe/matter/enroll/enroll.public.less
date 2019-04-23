@@ -1040,7 +1040,7 @@ body.enroll-repos {
         }
 
         .main-timeline {
-            padding-top: 60px;
+            padding-top: 30px;
             position: relative;
         }
 
@@ -1050,33 +1050,46 @@ body.enroll-repos {
             position: relative;
             z-index: 1;
 
-            &:after {
-                content: '';
-                height: calc(100% - 45px);
-                width: calc(50% - 12px);
-                border-radius: 100px 0 0 100px;
-                border: 5px solid #FFD36D;
-                border-right: none;
-                position: absolute;
-                left: 12px;
-                top: 15px;
-                z-index: -1;
-            }
-
             &:first-child {
-                padding-top: 10px;
+                /* padding-top: 10px; */
 
                 &:after {
-                    border-top: 0;
+                    /* border-top: 0; */
                 }
             }
-            
+
             &:nth-child(odd) {
+                &:before {
+                    content: '';
+                    height: calc(100% - 65px);
+                    width: calc(50% - 12px);
+                    border-radius: 50px 0 0 50px;
+                    border-left: 5px solid #FFD36D;
+                    border-bottom: 5px solid #FFD36D;
+                    position: absolute;
+                    left: 12px;
+                    top: 40px;
+                    z-index: -1;
+                }
+
+                &:after {
+                    content: '';
+                    height: calc(100% - 65px);
+                    width: calc(50% - 12px);
+                    border-radius: 0 100px 100px 0;
+                    border-top: 5px solid #FFD36D;
+                    border-right: 5px solid #FFD36D;
+                    position: absolute;
+                    right: 12px;
+                    top: 90px;
+                    z-index: -1;
+                }
+
                 .state-BS {
                     width: 30rem;
                     top: 1rem;
                     left: 5rem;
-                    font-size: 16px; 
+                    font-size: 16px;
 
                     .glyphicon.glyphicon-lock {
                         top: 2rem;
@@ -1087,26 +1100,43 @@ body.enroll-repos {
                 .state-IP {
                     right: -4rem;
                     top: 1rem;
-                    font-size: 24px;  
+                    font-size: 24px;
                 }
             }
 
             &:nth-child(even) {
                 text-align: right;
 
-                &:after {
-                    left: auto;
-                    right: 12px;
-                    border: 5px solid #FFD36D;
-                    border-left: none;
-                    border-radius: 0 100px 100px 0;
+                &:before {
+                    content: '';
+                    height: calc(100% - 65px);
+                    width: calc(50% - 12px);
+                    border-radius: 50px 0 0 50px;
+                    border-left: 5px solid #FFD36D;
+                    border-top: 5px solid #FFD36D;
+                    position: absolute;
+                    left: 12px;
+                    top: 90px;
+                    z-index: -1;
                 }
 
+                &:after {
+                    content: '';
+                    height: calc(100% - 65px);
+                    width: calc(50% - 12px);
+                    border-radius: 0 100px 100px 0;
+                    border-right: 5px solid #FFD36D;
+                    border-bottom: 5px solid #FFD36D;
+                    position: absolute;
+                    right: 12px;
+                    top: 40px;
+                    z-index: -1;
+                }
                 .state-BS {
                     width: 30rem;
                     top: 1rem;
                     right: 6rem;
-                    font-size: 16px; 
+                    font-size: 16px;
 
                     .glyphicon.glyphicon-lock {
                         top: 2rem;
@@ -1117,15 +1147,15 @@ body.enroll-repos {
                 .state-IP {
                     left: -4rem;
                     top: 1rem;
-                    font-size: 24px;  
+                    font-size: 24px;
                 }
             }
 
             &:last-child {
-                padding-bottom: 20px;
-
-                &:after {
-                    border-bottom: 0;
+                
+                &:before, &:after {
+                    content: '';
+                    border: none
                 }
             }
 
@@ -1144,7 +1174,7 @@ body.enroll-repos {
                     text-align: center;
                     line-height: 45px;
                 }
-                
+
                 .timeline-name.lh {
                     line-height: 30px;
                 }
@@ -1188,15 +1218,16 @@ body.enroll-repos {
             border-right-color: transparent !important;
             position: absolute;
             top: 0.3rem;
-            right: -1.4rem;  
+            right: -1.4rem;
         }
 
     }
-    
+
     .site-badge-default {
         background-color: #ccc;
 
-        &:before, &:after {
+        &:before,
+        &:after {
             border-color: #ccc;
         }
     }
@@ -1204,11 +1235,12 @@ body.enroll-repos {
     .site-badge-danger {
         background-color: #E0434A;
 
-        &:before, &:after {
+        &:before,
+        &:after {
             border-color: #E0434A;
         }
     }
-    
+
     .site-btn-group {
         display: flex;
 

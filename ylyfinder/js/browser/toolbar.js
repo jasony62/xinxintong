@@ -316,6 +316,9 @@ browser.maximize = function(button) {
 };
 
 browser.refresh = function(selected) {
+    if($("#searchName") && $("#searchName").val()!=="") {
+        $("#searchName").val("");
+    }
     this.fadeFiles();
     $.ajax({
         type: 'POST',
@@ -338,13 +341,13 @@ browser.refresh = function(selected) {
     });
 };
 
-browser.search = function() {
+browser.search = function(selected) {
     this.fadeFiles();
     $.ajax({
         type: 'POST',
         dataType: 'json',
         url: browser.baseGetData('searchDir'),
-        data: {dir: browser.dir, begin: $("input[name='search_name']").val()},
+        data: {dir: browser.dir, begin: $("#searchName").val()},
         async: false,
         success: function(data) {
             if (browser.check4errors(data)) {

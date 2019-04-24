@@ -160,6 +160,9 @@ browser.expandDir = function(dir) {
 };
 
 browser.changeDir = function(dir) {
+    if($("#searchName") && $("#searchName").val()!=="") {
+        $("#searchName").val("");
+    }
     if (dir.children('span.folder').hasClass('regular')) {
         $('div.folder > a > span.folder').removeClass('current');
         $('div.folder > a > span.folder').removeClass('regular');

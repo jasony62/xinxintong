@@ -23,7 +23,7 @@ $('body').noContext();
         <div>
         <a href="kcact:refresh"><?php echo $this->label("Refresh") ?></a>
         <form>
-            <input type="text" name="search_name" placeholder="请输入被查找文件名的开头部分" style="width:250px"/>
+            <input type="text" name="search_name" id="searchName" placeholder="请输入被查找文件名的开头部分" style="width:250px"/>
             <button type="button">搜索</button>
         </form>
         <div id="loading"></div>

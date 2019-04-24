@@ -218,8 +218,6 @@ class login extends \site\fe\base {
 		if ($result[0] === false) {
 			die($result[1]);
 		}
-		// 获取用户的cookie
-		$oCookieUser = $this->model('site\fe\way')->who($this->siteId);
 
 		$callbackURL = $this->myGetCookie('_user_access_referer');
 		if (empty($callbackURL)) {
@@ -227,6 +225,46 @@ class login extends \site\fe\base {
 		} else {
 			// 清楚cookie
 			$this->mySetcookie("_user_access_referer", '', time() - 3600);
+		}
+
+		// 获取用户的cookie
+		$oUser = $this->model('site\fe\way')->who($this->siteId);
+		// 如果用户有dev189的服务权限，自动创建团队
+		$userGroup = $this->model('account')->getGroupByUser($oUser->unionid);
+		if ((int) $userGroup->p_dev189_service === 1) {
+			$modelSite = $this->model('site');
+			$oOperator = new \stdClass;
+			$oOperator->id = $oUser->unionid;
+			$oOperator->name = $oUser->nickname;
+			$oOperator->src = 'A';
+			$mySites = $modelSite->byUser($oOperator->id);
+			if (count($mySites) === 0) {
+				$oNewSite = new \stdClass;
+				$oNewSite->name = 'dev189应用';
+				$oNewSite->summary = '';
+				$oNewSite->id = $modelSite->create($oOperator, $oNewSite);
+				/* 记录操作日志 */
+				$oMatter = new \stdClass;
+				$oMatter->id = $oNewSite->id;
+				$oMatter->type = 'site';
+				$oMatter->title = 'dev189';
+				$this->model('matter\log')->matterOp($oNewSite->id, $oOperator, $oMatter, 'C');
+				/* 添加到团队的访问控制列表 */
+				$modelAdm = $this->model('site\admin');
+				$oAdmin = new \stdClass;
+				$oAdmin->uid = $oOperator->id;
+				$oAdmin->ulabel = $modelAdm->escape($oOperator->name);
+				$oAdmin->urole = 'O';
+				$rst = $modelAdm->add($oOperator, $oNewSite->id, $oAdmin);
+				//
+				$oNewSite->creater_name = $oOperator->name;
+				$oNewSite->create_at = time();
+				$mySites[] = $oNewSite;
+			}
+			// 如果用户再登陆前的地址是管理端，则自动跳转到管理端的默认团队中
+			if (strpos($callbackURL, '/rest/pl/fe/matter/ylylisten') !== false) {
+				$callbackURL = APP_PROTOCOL . APP_HTTP_HOST . "/rest/pl/fe/matter/ylylisten?site=" . $mySites[0]->id . "&id=";
+			}
 		}
 
 		$this->redirect($callbackURL);

@@ -48,10 +48,10 @@ class account_model extends TMS_MODEL {
 		$q = array(
 			$fields,
 			'account a,account_in_group ag,account_group g',
-			"a.uid=ag.account_uid and ag.group_id=g.group_id and a.authed_id='" . $this->eacape($authid) . "' and a.authed_from='" . $this->escape($authed_from) . "'",
+			"a.uid=ag.account_uid and ag.group_id=g.group_id and a.authed_id='" . $this->eacape($authid) . "' and a.authed_from='" . $authed_from . "'",
 		);
 		if (isset($options['forbidden'])) {
-			$q[2] .= " and a.forbidden = " . $this->escape($options['forbidden']);
+			$q[2] .= " and a.forbidden = " . $options['forbidden'];
 		}
 
 		if ($act = $this->query_obj_ss($q)) {

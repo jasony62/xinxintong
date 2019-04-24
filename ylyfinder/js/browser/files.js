@@ -157,7 +157,7 @@ browser.showFiles = function(callBack, selected) {
                 icon = 'themes/' + browser.theme + '/img/files/small/' + icon + '.png';
                 html += '<tr class="file">' +
                     '<td class="name" style="background-image:url(' + icon + ')">' + _.htmlData(file.name) + '</td>' +
-                    '<td class="time">' + file.date + '</td>' +
+                    '<td class="time" style="display:none">' + file.date + '</td>' +
                     '<td class="size">' + browser.humanSize(file.size) + '</td>' +
                     '<td class="operate"><a href="kcact:view">播放</a><a href="kcact:download">下载</a></td>' +
                     '</tr>';

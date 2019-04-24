@@ -280,6 +280,12 @@ tr.selected:hover > td {
     background-image: url(img/icons/maximize.png);
 }
 
+#toolbar form {
+    float: left;
+    margin-left: 100px;
+    padding: 4px 0;
+}
+
 #settings {
     background: #e0dfde;
 }

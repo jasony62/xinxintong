@@ -46,6 +46,12 @@ browser.initToolbar = function() {
         return false;
     });
 
+    $('#toolbar form button[type="button"]').click(function() {
+        browser.search();
+        return false;
+    });
+
+
     if (window.opener || this.opener.TinyMCE || $('iframe', window.parent.document).get(0))
         $('#toolbar a[href="kcact:maximize"]').click(function() {
             browser.maximize(this);
@@ -331,3 +337,27 @@ browser.refresh = function(selected) {
         }
     });
 };
+
+browser.search = function() {
+    this.fadeFiles();
+    $.ajax({
+        type: 'POST',
+        dataType: 'json',
+        url: browser.baseGetData('searchDir'),
+        data: {dir: browser.dir, begin: $("input[name='search_name']").val()},
+        async: false,
+        success: function(data) {
+            if (browser.check4errors(data)) {
+                return;
+            }
+            browser.dirWritable = data.dirWritable;
+            browser.files = data.files ? data.files : [];
+            browser.orderFiles(null, selected);
+            browser.statusDir();
+        },
+        error: function() {
+            $('#files > div').css({ opacity: '', filter: '' });
+            $('#files').html(browser.label("Unknown error."));
+        }
+    });
+}

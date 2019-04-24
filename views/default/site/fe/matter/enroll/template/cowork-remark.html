@@ -46,7 +46,7 @@
             <footer>{{remark.nickname}}</footer>
         </blockquote>
         <div class='bottom-bar small text-muted'>
-            <div>{{remark.modify_at*1000|date:'MM-dd HH:mm'}}</div>
+            <div>{{remark.modify_at*1000|date:'yyyy-MM-dd HH:mm'}}</div>
             <a href ng-click="likeRemark(remark)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':remark.like_log[user.uid]}"></span>&nbsp;<span ng-bind="remark.like_num"></span></a>
             <a href ng-click="dislikeRemark(remark)"><span class='glyphicon glyphicon-thumbs-down' ng-class="{'like':remark.dislike_log[user.uid]}"></span>&nbsp;<span ng-bind="remark.dislike_num"></span></a>
             <a href ng-if="params.entryRuleResult.passed==='Y'" ng-click="writeRemark(remark)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="remark.remark_num"></span></a>

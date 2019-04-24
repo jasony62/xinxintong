@@ -23,8 +23,8 @@ class auth extends \pl\fe\base {
 		// 登录页面
 		$path = TMS_APP_API_PREFIX . '/pl/fe/user/login';
 		// 记录发起登录的页面，登录成功后，跳转到该页面
-		if (isset($_SERVER['HTTP_REFERER'])) {
-			$referer = $_SERVER['HTTP_REFERER'];
+		$referer = tms_get_server('HTTP_REFERER');
+		if (isset($referer)) {
 			if (!empty($referer) && !in_array($referer, array('/'))) {
 				$this->mySetCookie('_login_referer', $referer);
 			}

@@ -209,9 +209,6 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
 
             });
         }
-        if (_oApp.reposConfig && _oApp.reposConfig.defaultOrder) {
-            _oCriteria.orderby = _oApp.reposConfig.defaultOrder;
-        }
 
         /* 设置页面分享信息 */
         $scope.setSnsShare(null, null, { target_type: 'repos', target_id: _oApp.id });

@@ -32,7 +32,7 @@ class analysis extends base {
 		}
 
 		$oClient = new \stdClass;
-		$oClient->agent = $_SERVER['HTTP_USER_AGENT'];
+		$oClient->agent = tms_get_server('HTTP_USER_AGENT');
 		$oClient->ip = $this->client_ip();
 
 		$aResult = $this->model('matter\enroll\analysis')->submit($oApp, $rid, $oUser, $oPosted, $page, $record, $topic, $oClient);

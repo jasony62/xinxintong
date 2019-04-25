@@ -963,85 +963,96 @@ body.enroll-repos {
 }
 
 .modal {
-    @media screen and(min-width: 768px) {
-        .modal-md {
-            width: 380px;
-        }
+    .modal-md {
+        width: 284px;
+        height: 450px;
+        top: 50%;
+        left: 50%;
+        margin-top: -225px;
+        margin-left: -142px;
     }
 
     .modal-content {
         border: 0;
+        border-radius: 16px;
         background-color: #0084FF;
     }
 
     .close {
         position: absolute;
         top: 5px;
-        right: 15px;
+        right: 10px;
         color: #fff;
         opacity: 1;
-        width: 30px;
-        height: 30px;
     }
 
-    .row {
-        margin-top: 20px;
+    .col-md-6:nth-child(1), .col-xs-6:nth-child(1) {
+        padding-right: 0;
+    }
 
-        .info {
-            >p {
-                color: #fff;
-                margin-bottom: 5px;
-                letter-spacing: 2px;
-                line-height: 1;
+    .col-md-6:nth-child(2), .col-xs-6:nth-child(2) {
+        padding-left: 0;
+    }
 
-                &:nth-child(1) {
-                    font-weight: 600;
-                    font-size: 2rem;
-                }
 
-                &:nth-child(2) {
-                    font-weight: 600;
-                    font-size: 1.6rem;
-                }
+    .info {
+        >p {
+            color: #fff;
+            letter-spacing: 4px;
+            line-height: 1;
 
-                &:nth-child(3) {
-                    width: 90%;
-                    font-size: 0.5rem;
-                    background: #0073DE;
-                    border-radius: 6px;
-                    padding: 6px 4px;
-                    text-align: center;
-                }
+            &:nth-child(1) {
+                font-weight: 600;
+                font-size: 24px;
+                text-shadow: 4px 0px 2px rgba(255, 255, 255, 0.3);
+            }
+
+            &:nth-child(2) {
+                position: relative;
+                font-weight: 600;
+                height: 18px;
+                font-size: 18px;
+                margin-left: -10px;
+            }
+
+            &:nth-child(3) {
+                width: 150px;
+                font-size: 12px;
+                height: 22px;
+                background: #0073DE;
+                border-radius: 6px;
+                padding: 5px;
+                text-align: center;
+                letter-spacing: 0;
+                margin-bottom: 0;
             }
         }
     }
 
     .main {
-        height: 300px;
-        margin-top: 3rem;
-        padding-top: 30px;
+        height: 270px;
+        margin-top: 30px;
+        padding-top: 20px;
         background-color: rgba(255, 255, 255, 0.5);
-        border-radius: 6px;
+        border-radius: 16px;
         position: relative;
 
         .title {
-            background-color: #0073DE;
-            padding-top: 5px;
-            padding-bottom: 5px;
-            margin-bottom: 0;
-            border-radius: 6px;
-            width: 45%;
-            color: #fff;
+            width: 60%;
             position: absolute;
-            top: -5%;
-            left: 30%;
-            font-size: 16px;
-            letter-spacing: 1px;
+            top: -6%;
+            left: 20%;
+            color: #fff;
+            font-size: 14px;
+            line-height: 20px;
+            background-color: #0073DE;
+            padding: 5px 40px;
+            margin-bottom: 0;
+            border-radius: 5px;            
         }
 
         .main-timeline {
-            padding-top: 30px;
-            position: relative;
+            padding: 30px 25px 0 25px;
         }
 
         .main-timeline .timeline {
@@ -1132,6 +1143,7 @@ body.enroll-repos {
                     top: 40px;
                     z-index: -1;
                 }
+
                 .state-BS {
                     width: 30rem;
                     top: 1rem;
@@ -1152,8 +1164,9 @@ body.enroll-repos {
             }
 
             &:last-child {
-                
-                &:before, &:after {
+
+                &:before,
+                &:after {
                     content: '';
                     border: none
                 }

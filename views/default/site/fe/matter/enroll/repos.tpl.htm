@@ -34,35 +34,33 @@
         <div class="modal-body">
             <button class="close" ng-click="cancel()">×</button>
             <div class="row">
-                <div class="col-md-7 col-xs-8">
+                <div class="col-md-6 col-xs-6">
                     <div class="info">
                         <p>当前任务</p>
                         <p>「{{currentTask.name}}」</p>
                         <p>截止:{{currentTask.time.start_at}}</p>
                     </div>
                </div>
-               <div class="col-md-5 col-xs-4"><img ng-src="{{}}" /></div>
+               <div class="col-md-6 col-xs-6"><img ng-src="{{}}" /></div>
             </div>
             <div class="row">
                 <div class="col-md-12 col-xs-12">
                     <div class="main">
                         <p class="title text-center">所有任务</p>
-                        <div class="col-md-12 col-xs-12" style="height:100%;overflow-y:auto;overflow-x:hidden">
-                            <div class="main-timeline">
-                                <div class="timeline" ng-repeat="task in tasks">
-                                    <div class="timeline-content">
-                                        <div class="timeline-name" ng-class="{true:'lh'}[task.state]" ng-bind="task.name"></div>
-                                        <div class="timeline-badge site-badge" ng-class="{'site-badge-default':task.state==='undone','site-badge-danger':task.state==='done'}" ng-if="task.state" ng-bind="task.state"></div>
-                                        <div class='timeline-state' ng-class="{'BS':'state-BS','IP':'state-IP','AE':'state-AE'}[task.data.state]"ng-switch on="task.data.state">
-                                            <div ng-switch-when="BS">
-                                                <i class="glyphicon glyphicon-lock"></i>
-                                                <span>开始时间：{{task.time.start_at}}</span>
-                                            </div>
-                                            <div ng-switch-when="IP">
-                                                <i class="glyphicon glyphicon-map-marker"></i>
-                                            </div>
-                                            <div ng-switch-when="AE"></div>
+                        <div class="main-timeline">
+                            <div class="timeline" ng-repeat="task in tasks">
+                                <div class="timeline-content">
+                                    <div class="timeline-name text-center" ng-class="{true:'lh'}[task.state]" ng-bind="task.name"></div>
+                                    <div class="timeline-badge site-badge" ng-class="{'site-badge-default':task.state==='undone','site-badge-danger':task.state==='done'}" ng-if="task.state" ng-bind="task.state"></div>
+                                    <div class='timeline-state' ng-class="{'BS':'state-BS','IP':'state-IP','AE':'state-AE'}[task.data.state]"ng-switch on="task.data.state">
+                                        <div ng-switch-when="BS">
+                                            <i class="glyphicon glyphicon-lock"></i>
+                                            <span>开始时间：{{task.time.start_at}}</span>
                                         </div>
+                                        <div ng-switch-when="IP">
+                                            <i class="glyphicon glyphicon-map-marker"></i>
+                                        </div>
+                                        <div ng-switch-when="AE"></div>
                                     </div>
                                 </div>
                             </div>

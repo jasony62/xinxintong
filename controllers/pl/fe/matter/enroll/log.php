@@ -43,14 +43,19 @@ class log extends main_base {
 			}
 			$target_id = $modelLog->escape($criteria->target_id);
 			$target_type = $modelLog->escape($criteria->target_type);
-			if (isset($aOptions['byOp'])) {
-				$aOptions['byEvent'] = $aOptions['byOp'];
+			// 查询整个活动
+			if ($target_id === $app) {
+				$aOptions['byApp'] = $target_id;
 			}
 			if (!empty($page) && !empty($size)) {
 				$aOptions['paging'] = ['page' => $page, 'size' => $size];
 			}
 
-			$reads = $modelLog->listMatterAction($oApp->siteid, 'enroll.' . $target_type, $target_id, $aOptions);
+			if (isset($aOptions['byOp'])) {
+				$reads = $modelLog->listMatterActionByevent($oApp->siteid, 'enroll.' . $target_type, $target_id, $aOptions['byOp'], $aOptions);
+			} else {
+				$reads = $modelLog->listMatterAction($oApp->siteid, 'enroll.' . $target_type, $target_id, $aOptions);
+			}
 		} else {
 			$reads = $this->model('matter\enroll\log')->list($oApp->id, $aOptions, $page, $size);
 		}
@@ -90,11 +95,16 @@ class log extends main_base {
 			if (empty($target_type) || empty($target_id) || !in_array($target_type, ['topic', 'repos', 'cowork'])) {
 				die('参数不完整或暂不支持此页面');
 			}
-			if (isset($options['byOp'])) {
-				$options['byEvent'] = $options['byOp'];
+			// 查询整个活动
+			if ($target_id === $app) {
+				$options['byApp'] = $target_id;
 			}
 
-			$reads = $modelLog->listMatterAction($oApp->siteid, 'enroll.' . $target_type, $target_id, $options);
+			if (isset($options['byOp'])) {
+				$reads = $modelLog->listMatterActionByevent($oApp->siteid, 'enroll.' . $target_type, $target_id, $options['byOp'], $options);
+			} else {
+				$reads = $modelLog->listMatterAction($oApp->siteid, 'enroll.' . $target_type, $target_id, $options);
+			}
 		} else {
 			$reads = $this->model('matter\enroll\log')->list($oApp->id, $options, '', '');
 		}

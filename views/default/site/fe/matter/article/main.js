@@ -123,12 +123,32 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsLocation', '$timeout', '$q'
     function articleLoaded() {
         finish();
         $timeout(function() {
-            var audios, elems;
+            var audios, elems, tableEles;
+
             audios = document.querySelectorAll('audio');
             audios.length > 0 && audios[0].play();
             if ($scope.article.can_picviewer === 'Y') {
                 elems = document.querySelectorAll('.wrap img');
                 picviewer.init(elems);
+            }
+
+            tableEles = document.querySelectorAll('table');
+
+            if (tableEles) {
+                angular.forEach(tableEles, function(tableEle) {
+                    var tableWrap = tableEle.parentNode;
+                    if(!tableWrap.getAttribute('wrap') || tableWrap.getAttribute('wrap') !== 'table') {
+                        tableWrap = document.createElement('div');
+                        tableWrap.setAttribute('wrap', 'table');
+                        tableEle.parentNode.insertBefore(tableWrap, tableEle);
+                        tableWrap.appendChild(tableEle);
+                    }
+                    /*if (!tableWrap ) {
+                        
+                    } else if (!(tableWrap.getAttribute('wrap') && tableWrap.getAttribute('wrap') !== 'table')) {
+                        tableWrap.setAttribute('wrap', 'table');
+                    }*/
+                });
             }
         });
         $scope.code = '/rest/site/fe/matter/article/qrcode?site=' + siteId + '&url=' + encodeURIComponent(location.href);
@@ -226,8 +246,8 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsLocation', '$timeout', '$q'
             http2.get('/rest/site/fe/matter/article/assocRecords?id=' + id + '&site=' + siteId).then(function(rsp) {
                 $scope.enrollAssocs = rsp.data;
                 angular.forEach(rsp.data, function(data) {
-                    if(data.entity_a_str) {
-                        data.entity_a_str = data.entity_a_str.replace(/<[^>]+>/g,"");
+                    if (data.entity_a_str) {
+                        data.entity_a_str = data.entity_a_str.replace(/<[^>]+>/g, "");
                     }
                 })
             });

@@ -59,7 +59,7 @@
                         </div>
                     </div>
                     <div>
-                        <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters('matter')" ng-if="matters.total>matters.length">加载更多</button>
+                        <button class='btn btn-lg btn-primary btn-gradient center-block load-more-btn' ng-click="moreMatters('matter')" ng-if="matters.total>matters.length">加载更多</button>
                     </div>
                 </uib-tab>
                 <uib-tab index="1" ng-if="sites.length">
@@ -84,7 +84,7 @@
                         </div>
                     </div>
                     <div>
-                        <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters('site')" ng-if="sites.total>sites.length">加载更多</button>
+                        <button class='btn btn-lg btn-primary btn-gradient center-block load-more-btn' ng-click="moreMatters('site')" ng-if="sites.total>sites.length">加载更多</button>
                     </div>
                 </uib-tab>
                 <uib-tab index="2" ng-if="apps.length">
@@ -115,7 +115,7 @@
                         </div>
                     </div>
                     <div>
-                        <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters('app')" ng-if="apps.total>apps.length">加载更多</button>
+                        <button class='btn btn-lg btn-primary  btn-gradient center-block load-more-btn' ng-click="moreMatters('app')" ng-if="apps.total>apps.length">加载更多</button>
                     </div>
                 </uib-tab>
                 <uib-tab index="3" ng-if="templates.length">
@@ -146,7 +146,7 @@
                         </div>
                     </div>
                     <div>
-                        <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters('template')" ng-if="templates.total>templates.length">加载更多</button>
+                        <button class='btn btn-lg btn-primary  btn-gradient center-block load-more-btn' ng-click="moreMatters('template')" ng-if="templates.total>templates.length">加载更多</button>
                     </div>
                 </uib-tab>
                 <uib-tab index="4+$index" ng-if="channels1.length" ng-repeat="channelMatter in channelMatters">
@@ -177,7 +177,7 @@
                         </div>
                     </div>
                     <div>
-                        <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters('channelMatter', channelMatter)" ng-if="channelMatter.total>channelMatter.data.length">加载更多</button>
+                        <button class='btn btn-lg btn-primary  btn-gradient center-block load-more-btn' ng-click="moreMatters('channelMatter', channelMatter)" ng-if="channelMatter.total>channelMatter.data.length">加载更多</button>
                     </div>
                 </uib-tab>
             </uib-tabset>
@@ -231,12 +231,12 @@
                     </span>
                 </uib-tabset>
                 <div class="mobile_qrcodes">
-                    <ul class="pull-left list-unstyled">
+                    <ul class="list-unstyled">
                         <li class="list-item" ng-repeat="qrcode in platform.home_qrcode_group" ng-click="checked($index)">
                             <a href="#" class="unchecked"><span ng-bind="qrcode.tip"></span></a>
                         </li>
                     </ul>
-                    <div class="pull-right">
+                    <div>
                         <img class="qrcode_url" ng-src="{{url}}">
                         <span class="qrcode_txt">长按识别<i class="glyphicon glyphicon-hand-up"></i></span>
                     </div>

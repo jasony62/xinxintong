@@ -91,13 +91,13 @@ class main extends \site\fe\matter\base {
 				$url = 'http://' . $url;
 			}
 			if ($oLink->method == 'GET') {
-				if (isset($oLink->params)) {
+				if (!empty($oLink->params)) {
 					$url .= (strpos($url, '?') === false) ? '?' : '&';
 					$url .= $this->_spliceParams($oLink->siteid, $oLink->params);
 				}
 				$this->redirect($url);
 			} elseif ($oLink->method == 'POST') {
-				if (isset($oLink->params)) {
+				if (!empty($oLink->params)) {
 					$posted = $this->_spliceParams($oLink->siteid, $oLink->params);
 				}
 				$ch = curl_init(); //初始化curl
@@ -164,7 +164,8 @@ class main extends \site\fe\matter\base {
 		if (preg_match('/^(http:|https:)/', $url) === 0) {
 			$url = 'http://' . $url;
 		}
-		if (isset($oLink->params)) {
+
+		if (!empty($oLink->params)) {
 			$url .= (strpos($url, '?') === false) ? '?' : '&';
 			$url .= $this->_spliceParams($oLink->siteid, $oLink->params);
 		}

@@ -22,6 +22,9 @@
 * matters
 */
 .section{background-color:#fff;}
+.media-item .media-author a{display: flex;}
+.media-item .media-author a>span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.section .load-more-btn{margin-bottom:12px;}
 @media screen and (max-width:768px){
 	.nav-tabs>li>a{font-size:14px;}
 	.matters>div{padding:0 8px;}
@@ -31,11 +34,11 @@
 /**
 *	mobile qrcodes
 */
-.mobile_qrcodes{width: 100%;padding:15px 10px 10px 15px;position:relative;margin-top:30px;overflow:hidden;border:1px solid #f5f5f5;}
-.mobile_qrcodes>ul{width: 60%;}
-.mobile_qrcodes>div{overflow:hidden;width:40%;}
-.mobile_qrcodes .qrcode_url{float:left;width:100px;height:100px;margin-right:5px;}
-.mobile_qrcodes .qrcode_txt{float:left;width:20px;font-size:12px;color:#999;}
+.mobile_qrcodes{display:flex;padding-top:12px;padding-bottom:12px;margin-top:30px;border:1px solid #f5f5f5;}
+.mobile_qrcodes>ul{width: 65%;}
+.mobile_qrcodes>div{width:35%;display:flex;}
+.mobile_qrcodes .qrcode_url{width:100px;height:100px;margin-right:5px;}
+.mobile_qrcodes .qrcode_txt{width:20px;font-size:12px;color:#999;}
 .mobile_qrcodes a.unchecked{color:#000;}
 .mobile_qrcodes a.unchecked:before{width:0;}
 .mobile_qrcodes a.active{color:#2994d0;}

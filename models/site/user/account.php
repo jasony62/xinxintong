@@ -187,7 +187,7 @@ class account_model extends \TMS_MODEL {
 		$oNewAccount->is_reg_primary = isset($props['is_reg_primary']) ? $props['is_reg_primary'] : 'N';
 		$oNewAccount->level_id = self::DEFAULT_LEVEL;
 		$oNewAccount->reg_time = $current;
-		$oNewAccount->user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+		$oNewAccount->user_agent = tms_get_server('HTTP_USER_AGENT') ? tms_get_server('HTTP_USER_AGENT') : '';
 
 		if (empty($props['nickname'])) {
 			$oNewAccount->nickname = '用户' . $uid;

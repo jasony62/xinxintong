@@ -30,7 +30,7 @@ class account extends \pl\fe\base {
 			['siteid' => $oSite->id],
 		];
 		if (!empty($oPosted->nickname)) {
-			$q[2]['nickname'] = (object) ['op' => 'like', 'pat' => '%' . $oPosted->nickname . '%'];
+			$q[2]['nickname'] = (object) ['op' => 'like', 'pat' => '%' . $this->escape($oPosted->nickname) . '%'];
 		}
 		if (isset($oPosted->onlyWxfan) && $oPosted->onlyWxfan === true) {
 			$q[2]['wx_openid'] = (object) ['op' => '<>', 'pat' => ''];

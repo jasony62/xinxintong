@@ -77,7 +77,7 @@ class q extends TMS_CONTROLLER {
 	 * 设置访问令牌
 	 */
 	private function _setAccessToken($code, $expire) {
-		$userAgent = $_SERVER['HTTP_USER_AGENT'];
+		$userAgent = tms_get_server('HTTP_USER_AGENT');
 
 		$token = $this->model('q\urltoken')->add($code, $userAgent, $expire);
 

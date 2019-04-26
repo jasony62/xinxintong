@@ -314,6 +314,9 @@ class browser extends uploader {
 	}
 
 	protected function act_upload() {
+		if (!isset($this->get['type'])) {
+			$this->errorMsg("Unknown type");
+		}
 		if (!$this->config['access']['files']['upload'] ||
 			!isset($this->post['dir'])
 		) {
@@ -321,7 +324,6 @@ class browser extends uploader {
 		}
 
 		$dir = $this->postDir();
-
 		if (!dir::isWritable($this->toLocalEncoding($dir))) {
 			$this->errorMsg("Cannot access or write to upload folder.");
 		}
@@ -329,11 +331,20 @@ class browser extends uploader {
 		if (is_array($this->file['name'])) {
 			$return = array();
 			foreach ($this->file['name'] as $i => $name) {
+				if (!empty($this->config['whiteByType'][$this->get['type']])) {
+					if (!in_array($this->file['type'][$i], $this->config['whiteByType'][$this->get['type']])) {
+						continue;
+					}
+				}
 				$return[] = $this->moveUploadFile(array(
 					'name' => $name,
 					'tmp_name' => $this->file['tmp_name'][$i],
 					'error' => $this->file['error'][$i],
 				), $dir);
+			}
+			if (empty($return)) {
+				$this->errorMsg("没有上传图片，或者图片格式非jpg、png、jif格式");
+				return;
 			}
 			return implode("\n", $return);
 		} else {

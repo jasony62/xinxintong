@@ -1701,12 +1701,15 @@ define(['schema', 'wrap'], function(schemaLib, wrapLib) {
                                     opById[op.v] = op;
                                 });
                             }
-                            rsp.data.forEach(function(oRound) {
-                                if (undefined === opById[oRound.team_id]) {
+                            rsp.data.forEach(function(oTeam) {
+                                if (undefined === opById[oTeam.team_id]) {
                                     newOp = {};
-                                    newOp.l = oRound.title;
-                                    newOp.v = oRound.team_id;
+                                    newOp.l = oTeam.title;
+                                    newOp.v = oTeam.team_id;
                                     oSchema.ops.push(newOp);
+                                } else {
+                                    newOp = opById[oTeam.team_id];
+                                    newOp.l = oTeam.title;
                                 }
                             });
                             if (newOp) {

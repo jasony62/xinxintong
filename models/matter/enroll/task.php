@@ -480,6 +480,7 @@ class task_model extends \TMS_MODEL {
 				$oTask->start_at = $oRule->start_at;
 				$oTask->end_at = $oRule->end_at;
 				$oTask->id = $this->insert('xxt_enroll_task', $oTask, true);
+				$oTask->newCreate = true;
 			}
 		} else if (isset($oRule->start_at) || isset($oRule->end_at)) {
 			$aUpdated['start_at'] = $this->getDeepValue($oRule, 'start_at', 0);
@@ -550,5 +551,195 @@ class task_model extends \TMS_MODEL {
 		}
 
 		return $oTask;
+	}
+	/**
+	 * 返回当前用户所有任务
+	 */
+	public function byUser($oUser, $aTaskTypes, $aTaskStates, $ek = null) {
+		/* 指定了记录 */
+		if (!empty($ek)) {
+			$oRecord = $this->model('matter\enroll\record')->byId($ek);
+			if (false === $oRecord || $oRecord->state !== '1') {
+				return [false, '指定记录不存在'];
+			}
+		}
+
+		$tasks = [];
+		foreach ($aTaskTypes as $taskType) {
+			$rules = $this->getRule($taskType, $oUser);
+			if (!empty($rules)) {
+				foreach ($rules as $oRule) {
+					if (!in_array($oRule->state, $aTaskStates)) {
+						continue;
+					}
+					$oTask = $this->byRule($oRule, ['createIfNone' => true]);
+					if ($oTask) {
+						tms_object_merge($oTask, $oRule, ['type', 'state', 'limit', 'groups', 'schemas']);
+						if (!isset($modelTop)) {
+							$modelTop = $this->model('matter\enroll\topic', $this->_oApp);
+						}
+						if ($oTopic = $modelTop->byTask($oTask, ['createIfNone' => true])) {
+							$oTask->topic = $oTopic;
+							/* 检查针对指定的记录，是否存在回答任务 */
+							if (isset($oRecord) && $oTask->type === 'answer') {
+								$oTaskRecordsResult = $modelTop->records($oTopic);
+								$oTaskRecord = tms_array_search($oTaskRecordsResult->records, function ($oTaskRecord) use ($oRecord) {return $oTaskRecord->id === $oRecord->id;});
+								if (!$oTaskRecord) {
+									continue;
+								}
+							}
+						}
+						// 任务完成情况
+						if (!isset($oTask->newCreate)) {
+							$result = $this->isUndoneByTask($oUser, $oTask, '', $oRule);
+							$oTask->undone = $result;
+						} else {
+							$limitMin = !empty($oTask->limit->min) ? (int) $oTask->limit->min : 1;
+							$oTask->undone = [true, $limitMin, 0];
+						}
+
+						$tasks[] = $oTask;
+					}
+				}
+			}
+		}
+
+		return [true, $tasks];
+	}
+
+	/**
+	 * 指定的用户是否没有完成活动要求的任务
+	 */
+	public function isUndoneByTask($oAssignedUser, $oTask, $rid = '', $oTaskRule = '') {
+		$oApp = $this->_oApp;
+		// 至少提交数量
+		$limitMin = !empty($oTask->limit->min) ? (int) $oTask->limit->min : 1;
+		// 任务专题
+		$topic = $oTask->topic;
+		// 任务未开始直接返回false
+		if ($oTask->state === 'BS') {
+			return [true, $limitMin, 0];
+		}
+		// 用户组限制
+		if (!empty($oTask->groups)) {
+			if (empty($oAssignedUser->group_id) || !in_array($oAssignedUser->group_id, $oTask->groups)) {
+				return [false];
+			}
+		}
+
+		if (empty($rid)) {
+			$rid = $oApp->appRound;
+		} else {
+			$rid = $this->model('matter\enroll\round')->byId($oApp->id, ['fields' => 'id,rid,title,purpose,start_at,end_at,mission_rid']);
+		}
+		// 任务时间范围
+		$satrtTime = empty($oTask->start_at) ? $rid->start_at : $oTask->start_at;
+		$endTime = empty($oTask->end_at) ? $rid->end_at : $oTask->end_at;
+
+		if ($oTask->type === 'question') {
+			// 提问专题下规定时间范围内用户的记录数量
+			$q = [
+				'er.id',
+				'xxt_enroll_topic_record tr,xxt_enroll_record er',
+				"tr.topic_id = {$topic->id} and tr.record_id = er.id and er.state = 1 and er.userid = '" . $oAssignedUser->uid . "'"
+			];
+			if ($satrtTime > 0 || $endTime > 0) {
+				$q[2] .= " and ((";
+				$satrtTime > 0 && $q[2] .= "er.first_enroll_at > {$satrtTime}";
+				$satrtTime > 0 && $endTime > 0 && $q[2] .= " and ";
+				$endTime > 0 && $q[2] .= "er.first_enroll_at < {$endTime}";
+				$q[2] .= ") or (";
+				$satrtTime > 0 && $q[2] .= "er.enroll_at > {$satrtTime}";
+				$satrtTime > 0 && $endTime > 0 && $q[2] .= " and ";
+				$endTime > 0 && $q[2] .= "er.enroll_at < {$endTime}";
+				$q[2] .= " ))";
+			}
+			$userRecords = $this->query_vals_ss($q);
+			$userRecordSum = count($userRecords);
+			if ($userRecordSum < $limitMin) {
+				// 检查是否有通过评论完成任务,去除对自己提交记录的评论
+				$q2 = [
+					'count(tr.id)',
+					'xxt_enroll_topic_record tr,xxt_enroll_record er,xxt_enroll_record_remark rr',
+					"tr.topic_id = {$topic->id} and tr.record_id = er.id and er.state = 1 and er.enroll_key = rr.enroll_key and rr.state = 1 and rr.userid = '" . $oAssignedUser->uid . "'"
+				];
+				if ($userRecordSum > 0) {
+					$q2[2] .= " and tr.record_id not in ('";
+					$q2[2] .= implode("','", $userRecords);
+					$q2[2] .= "')";
+				}
+				if ($satrtTime > 0 || $endTime > 0) {
+					$q2[2] .= " and (";
+					$satrtTime > 0 && $q2[2] .= "rr.create_at > {$satrtTime}";
+					$satrtTime > 0 && $endTime > 0 && $q2[2] .= " and ";
+					$endTime > 0 && $q2[2] .= "rr.create_at < {$endTime}";
+					$q2[2] .= " )";
+				}
+				$userRemarkSum = (int) $this->query_val_ss($q2);
+				if (($userRecordSum + $userRemarkSum) < $limitMin) {
+					return [true, $limitMin, ($userRecordSum + $userRemarkSum)];
+				}
+			}
+		}
+		if ($oTask->type === 'vote') {
+			$q = [
+				'count(id)',
+				'xxt_enroll_vote',
+				"aid = '{$oApp->id}' and state = 1 and userid = '{$oAssignedUser->uid}'"
+			];
+			if ($satrtTime > 0 || $endTime > 0) {
+				$q[2] .= " and (";
+				$satrtTime > 0 && $q[2] .= "vote_at > {$satrtTime}";
+				$satrtTime > 0 && $endTime > 0 && $q[2] .= " and ";
+				$endTime > 0 && $q[2] .= "vote_at < {$endTime}";
+				$q[2] .= " )";
+			}
+			$userVoteSum = (int) $this->query_val_ss($q);
+			if ($userVoteSum < $limitMin) {
+				return [true, $limitMin, $userVoteSum];
+			}
+		}
+		if ($oTask->type === 'answer') {
+			$q = [
+				'ed.id',
+				'xxt_enroll_topic_record tr,xxt_enroll_record_data ed',
+				"tr.topic_id = {$topic->id} and tr.data_id = ed.id and ed.userid = '" . $oAssignedUser->uid . "' and ed.state = 1"
+			];
+			if ($satrtTime > 0 || $endTime > 0) {
+				$q[2] .= " and (";
+				$satrtTime > 0 && $q[2] .= "ed.submit_at > {$satrtTime}";
+				$satrtTime > 0 && $endTime > 0 && $q[2] .= " and ";
+				$endTime > 0 && $q[2] .= "ed.submit_at < {$endTime}";
+				$q[2] .= " )";
+			}
+			$p = ['g' => 'ed.record_id'];
+			$userAnswers = $this->query_objs_ss($q, $p);
+			$userAnswerSum = count($userAnswers);
+			if ($userAnswerSum < $limitMin) {
+				return [true, $limitMin, $userAnswerSum];
+			}
+		}
+		if ($oTask->type === 'score') {
+			if (!empty($oTaskRule) && !empty($oTaskRule->scoreApp->id)) {
+				$q = [
+					'count(id)',
+					'xxt_enroll_record',
+					"aid = '{$oTaskRule->scoreApp->id}' and state = 1 and userid = '{$oAssignedUser->uid}'"
+				];
+				if ($satrtTime > 0 || $endTime > 0) {
+					$q[2] .= " and (";
+					$satrtTime > 0 && $q[2] .= "enroll_at > {$satrtTime}";
+					$satrtTime > 0 && $endTime > 0 && $q[2] .= " and ";
+					$endTime > 0 && $q[2] .= "enroll_at < {$endTime}";
+					$q[2] .= " )";
+				}
+				$userScoreSum = (int) $this->query_val_ss($q);
+				if ($userScoreSum < $limitMin) {
+					return [true, $limitMin, $userScoreSum];
+				}
+			}
+		}
+
+		return [false];
 	}
 }

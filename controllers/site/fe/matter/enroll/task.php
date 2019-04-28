@@ -15,13 +15,6 @@ class task extends base {
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
-		/* 指定了记录 */
-		if (!empty($ek)) {
-			$oRecord = $this->model('matter\enroll\record')->byId($ek);
-			if (false === $oRecord || $oRecord->state !== '1') {
-				return new \ObjectNotFoundError();
-			}
-		}
 
 		$oUser = $this->getUser($oApp);
 
@@ -41,39 +34,13 @@ class task extends base {
 			}
 			$aTaskStates = [$state];
 		}
-
+		// 获取用户所有任务
 		$modelTsk = $this->model('matter\enroll\task', $oApp);
-		$tasks = [];
-		foreach ($aTaskTypes as $taskType) {
-			$rules = $modelTsk->getRule($taskType, $oUser);
-			if (!empty($rules)) {
-				foreach ($rules as $oRule) {
-					if (!in_array($oRule->state, $aTaskStates)) {
-						continue;
-					}
-					$oTask = $modelTsk->byRule($oRule, ['createIfNone' => true]);
-					if ($oTask) {
-						tms_object_merge($oTask, $oRule, ['type', 'state', 'limit', 'groups', 'schemas']);
-						if (!isset($modelTop)) {
-							$modelTop = $this->model('matter\enroll\topic', $oApp);
-						}
-						if ($oTopic = $modelTop->byTask($oTask, ['createIfNone' => true])) {
-							$oTask->topic = $oTopic;
-							/* 检查针对指定的记录，是否存在回答任务 */
-							if (isset($oRecord) && $oTask->type === 'answer') {
-								$oTaskRecordsResult = $modelTop->records($oTopic);
-								$oTaskRecord = tms_array_search($oTaskRecordsResult->records, function ($oTaskRecord) use ($oRecord) {return $oTaskRecord->id === $oRecord->id;});
-								if (!$oTaskRecord) {
-									continue;
-								}
-							}
-						}
-
-						$tasks[] = $oTask;
-					}
-				}
-			}
+		$tasks = $modelTsk->byUser($oUser, $aTaskTypes, $aTaskStates, $ek);
+		if ($tasks[0] === false) {
+			return new \ResponseError($tasks[1]);
 		}
+		$tasks = $tasks[1];
 		/* 按照任务的开始时间排序 */
 		usort($tasks, function ($a, $b) {
 			if ($a->start_at === $b->start_at) {

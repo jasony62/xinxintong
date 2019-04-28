@@ -51,9 +51,10 @@
                             <div class="timeline" ng-class="{'AE':'state-AE'}[task.data.state]" ng-repeat="task in tasks">
                                 <div class="timeline-front"></div>
                                 <div class="timeline-content">
-                                    <div class="timeline-name text-center" ng-class="{true:'lh'}[task.state]" ng-bind="task.name"></div>
-                                    <div class="timeline-ribbon site-ribbon" ng-class="{'site-ribbon-fail':task.state==='undone','site-ribbon-win ':task.state==='done'}" ng-if="task.state" >
-                                        <div class="site-ribbon-text" ng-bind="task.state"></div>
+                                    <div class="timeline-name text-center" ng-class="{'lh':task.data.undone&&task.data.state==='AE'}" >{{task.name}}</div>
+                                    <div class="timeline-ribbon site-ribbon" ng-class="{true:'site-ribbon-fail',false:'site-ribbon-win'}[task.data.undone[0]]" ng-if="task.data.undone&&task.data.state==='AE'" >
+                                        <div class="site-ribbon-text" ng-if="task.data.undone[0]===false">已完成</div>
+                                        <div class="site-ribbon-text" ng-if="task.data.undone[0]===true">未完成</div>
                                     </div>
                                 </div>
                                 <div class='timeline-state' ng-class="{'BS':'state-BS','IP':'state-IP'}[task.data.state]" ng-switch on="task.data.state">

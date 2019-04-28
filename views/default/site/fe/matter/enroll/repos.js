@@ -117,17 +117,12 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             resolve: {
                 tasks: function() {
                     return $scope.tasks;
-                }            
+                }
             },
-            controller:['$scope', 'tasks', '$uibModalInstance', function($scope, tasks, $mi) {
-                tasks[0].data.state = 'BS';
-                tasks[1].data.state = 'BS';
-                tasks[2].data.state = 'IP';
-                
+            controller: ['$scope', 'tasks', '$uibModalInstance', function($scope, tasks, $mi) {
                 $scope.tasks = tasks;
-                console.log(tasks);
                 $scope.tasks.forEach(function(oTask) {
-                    if(oTask.data.state==='IP') {
+                    if (oTask.data.state === 'IP') {
                         $scope.currentTask = oTask;
                     }
                 });
@@ -181,7 +176,11 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         } else {
             new enlTask($scope.app).list(null).then(function(ipTasks) {
                 if (ipTasks.length) {
+                    var flag = false;
                     ipTasks.forEach(function(oTask) {
+                        if (oTask.state === 'IP') {
+                            flag = true;
+                        };
                         switch (oTask.type) {
                             case 'question':
                                 tasks.push({ type: 'info', msg: oTask.toString(), time: oTask.timeFormat(), id: 'record.data.question', name: '提问', data: oTask });
@@ -197,7 +196,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                                 break;
                         }
                     });
-                    $scope.openTaskModel();
+                    if (flag) {
+                        $scope.openTaskModel();
+                    }
                 }
             });
             $scope.tasks = tasks = [];
@@ -232,11 +233,10 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                                 $scope.activeView = view;
                             }
                         });
-                    } 
+                    }
                 });
             });
         }
-        
         /* 设置页面分享信息 */
         $scope.setSnsShare(null, null, { target_type: 'repos', target_id: _oApp.id });
         /* 页面阅读日志 */
@@ -720,6 +720,7 @@ ngApp.controller('ctrlReposTopic', ['$scope', '$q', 'http2', '$timeout', 'tmsLoc
     $scope.viewTo = function($event, view) {
         $scope.$emit('transfer.view', view);
     };
+
     function addToCache() {
         sessionStorage.setItem('listStorageY', document.getElementById('topic').scrollTop);
         var cacheData = {

@@ -120,6 +120,10 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                 }            
             },
             controller:['$scope', 'tasks', '$uibModalInstance', function($scope, tasks, $mi) {
+                tasks[0].data.state = 'BS';
+                tasks[1].data.state = 'BS';
+                tasks[2].data.state = 'IP';
+                
                 $scope.tasks = tasks;
                 console.log(tasks);
                 $scope.tasks.forEach(function(oTask) {

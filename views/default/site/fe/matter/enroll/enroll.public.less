@@ -86,7 +86,7 @@ button.option {
 
 .site-navbar-orange {
     background-color: @brand-primary;
-    border-color: @brand-primary;
+    border-color: @brand-primary-border;
 
     .col-md-7.col-xs-7,
     .col-md-12.col-xs-12 {
@@ -564,7 +564,7 @@ body.enroll-repos {
             border-top: 6px solid #fff;
             border-right: 6px solid #fff;
             border-bottom: 6px solid #fff;
-            border-left: 6px solid @brand-primary;
+            border-left: 6px solid @brand-primary-border;
         }
 
         .schema+.schema {
@@ -689,7 +689,7 @@ body.enroll-repos {
     border-top: 6px solid #fff;
     border-right: 6px solid #fff;
     border-bottom: 6px solid #fff;
-    border-left: 6px solid @brand-primary;
+    border-left: 6px solid @brand-primary-border;
 }
 
 .bottom-bar {
@@ -980,53 +980,75 @@ body.enroll-repos {
 
     .close {
         position: absolute;
-        top: 5px;
+        top: -30px;
         right: 10px;
         color: #fff;
         opacity: 1;
         z-index: 10;
+        border-radius: 12px 8px;
+        border: 1px solid #fff;
     }
 
-    .col-md-6:nth-child(1), .col-xs-6:nth-child(1) {
-        padding-right: 0;
-    }
+    .current-task {
+        padding-left: 15px;
+        padding-right: 15px;
+        display: flex;
 
-    .col-md-6:nth-child(2), .col-xs-6:nth-child(2) {
-        padding-left: 0;
-    }
+        .info {
+            >p {
+                color: #fff;
+                letter-spacing: 4px;
+                line-height: 1;
 
+                &:nth-child(1) {
+                    font-weight: 600;
+                    font-size: 24px;
+                    text-shadow: 4px 0px 2px rgba(255, 255, 255, 0.3);
+                }
 
-    .info {
-        >p {
-            color: #fff;
-            letter-spacing: 4px;
-            line-height: 1;
+                &:nth-child(2) {
+                    position: relative;
+                    font-weight: 600;
+                    height: 18px;
+                    font-size: 18px;
+                    margin-left: -10px;
+                }
 
-            &:nth-child(1) {
-                font-weight: 600;
-                font-size: 24px;
-                text-shadow: 4px 0px 2px rgba(255, 255, 255, 0.3);
+                &:nth-child(3) {
+                    width: 154px;
+                    font-size: 12px;
+                    height: 22px;
+                    background: #0073DE;
+                    border-radius: 6px;
+                    padding: 5px 0;
+                    text-align: center;
+                    letter-spacing: 1px;
+                    margin-bottom: 0;
+                }
             }
+        }
 
-            &:nth-child(2) {
-                position: relative;
-                font-weight: 600;
-                height: 18px;
-                font-size: 18px;
-                margin-left: -10px;
-            }
+        .img {
+            width: 100%;
+            height: 100%;
+            background-image: url('/static/img/site_fe_task.png');
+            background-repeat: no-repeat;
+        }
 
-            &:nth-child(3) {
-                width: 150px;
-                font-size: 12px;
-                height: 22px;
-                background: #0073DE;
-                border-radius: 6px;
-                padding: 5px;
-                text-align: center;
-                letter-spacing: 0;
-                margin-bottom: 0;
-            }
+        .img-question {
+            background-position: -22px -40px;
+        }
+
+        .img-answer {
+            background-position: -66px -315px;
+        }
+
+        .img-vote {
+            background-position: -66px -612px;
+        }
+
+        .img-score {
+            background-position: -59px -893px;
         }
     }
 
@@ -1034,7 +1056,7 @@ body.enroll-repos {
         height: 270px;
         margin-top: 30px;
         padding-top: 20px;
-        background-color: rgba(255, 255, 255, 0.5);
+        background-color: #53ACFF;
         border-radius: 16px;
         position: relative;
 
@@ -1049,30 +1071,21 @@ body.enroll-repos {
             background-color: #0073DE;
             padding: 5px 40px;
             margin-bottom: 0;
-            border-radius: 5px;            
+            border-radius: 5px;
         }
 
-        .main-timeline {
-            padding: 30px 25px 0 25px;
+        .content {
+            padding: 30px 27px 0 27px;
         }
 
-        .main-timeline .timeline {
+        .content .timeline {
             padding: 40px 0;
             margin-top: -50px;
             position: relative;
             z-index: 1;
 
-            &:first-child {
-                /* padding-top: 10px; */
-
-                &:after {
-                    /* border-top: 0; */
-                }
-            }
-
             &:nth-child(odd) {
-                &:before {
-                    content: '';
+                .timeline-front {
                     height: calc(100% - 65px);
                     width: calc(50% - 12px);
                     border-radius: 50px 0 0 50px;
@@ -1080,12 +1093,11 @@ body.enroll-repos {
                     border-bottom: 5px solid #FFD36D;
                     position: absolute;
                     left: 12px;
-                    top: 40px;
+                    top: 35px;
                     z-index: -1;
                 }
 
-                &:after {
-                    content: '';
+                .timeline-back {
                     height: calc(100% - 65px);
                     width: calc(50% - 12px);
                     border-radius: 0 100px 100px 0;
@@ -1093,34 +1105,42 @@ body.enroll-repos {
                     border-right: 5px solid #FFD36D;
                     position: absolute;
                     right: 12px;
-                    top: 82px;
+                    top: 78px;
                     z-index: -1;
                 }
 
-                .state-BS {
-                    width: 30rem;
-                    top: 1rem;
-                    left: 5rem;
-                    font-size: 16px;
+                .timeline-state {
+                    &.state-BS {
+                        left: 50px;
 
-                    .glyphicon.glyphicon-lock {
-                        top: 2rem;
-                        left: -1rem;
+                        .glyphicon.glyphicon-lock {
+                            left: -20px;
+                        }
+                    }
+
+                    &.state-IP {
+                        left: 45px;
                     }
                 }
 
-                .state-IP {
-                    right: -4rem;
-                    top: 1rem;
-                    font-size: 24px;
+                .timeline-arrow {
+                    position: absolute;
+                    top: 63%;
+                    left: 50%;
+
+                    .arrow {
+                        width: 0;
+                        height: 0;
+                        border: 10px solid;
+                        border-color: transparent transparent transparent #FFD36D;
+                    }
                 }
             }
 
             &:nth-child(even) {
                 text-align: right;
 
-                &:before {
-                    content: '';
+                .timeline-front {
                     height: calc(100% - 65px);
                     width: calc(50% - 12px);
                     border-radius: 50px 0 0 50px;
@@ -1128,12 +1148,11 @@ body.enroll-repos {
                     border-top: 5px solid #FFD36D;
                     position: absolute;
                     left: 12px;
-                    top: 82px;
+                    top: 78px;
                     z-index: -1;
                 }
 
-                &:after {
-                    content: '';
+                .timeline-back {
                     height: calc(100% - 65px);
                     width: calc(50% - 12px);
                     border-radius: 0 100px 100px 0;
@@ -1141,35 +1160,48 @@ body.enroll-repos {
                     border-bottom: 5px solid #FFD36D;
                     position: absolute;
                     right: 12px;
-                    top: 40px;
+                    top: 35px;
                     z-index: -1;
                 }
 
-                .state-BS {
-                    width: 30rem;
-                    top: 1rem;
-                    right: 6rem;
-                    font-size: 16px;
+                .timeline-state {
+                    &.state-BS {
+                        left: 10px;
 
-                    .glyphicon.glyphicon-lock {
-                        top: 2rem;
-                        right: -30rem;
+                        .glyphicon.glyphicon-lock {
+                            left: 180px;
+                        }
+                    }
+
+                    &.state-IP {
+                        right: 45px;
                     }
                 }
 
-                .state-IP {
-                    left: -4rem;
-                    top: 1rem;
-                    font-size: 24px;
+
+                .timeline-arrow {
+                    position: absolute;
+                    top: 63%;
+                    right: 50%;
+
+                    .arrow {
+                        width: 0;
+                        height: 0;
+                        border: 10px solid;
+                        border-color: transparent #FFD36D transparent transparent;
+                    }
                 }
             }
 
             &:last-child {
 
-                &:before,
-                &:after {
-                    content: '';
-                    border: none
+                .timeline-front,
+                .timeline-back {
+                    border: none;
+                }
+
+                .timeline-arrow {
+                    display: none;
                 }
             }
 
@@ -1177,6 +1209,7 @@ body.enroll-repos {
                 display: inline-block;
                 width: 38px;
                 height: 38px;
+                color: #C18F45;
                 border-radius: 5px;
                 border: 2px solid #FFD36D;
                 background-color: #FFEDA0;
@@ -1184,61 +1217,147 @@ body.enroll-repos {
                 position: relative;
 
                 .timeline-name {
-                    color: #C18F45;
-                    line-height: 34px;
-                    height: 34px;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
                     font-size: 12px;
+                    line-height: 34px;
                 }
 
                 .timeline-name.lh {
-                    line-height: 30px;
+                    line-height: 26px;
                 }
 
-                .timeline-badge {
+                .timeline-ribbon {
                     position: absolute;
-                    bottom: 0;
+                    width: 38px;
+                    height: 12px;
+                    left: -2px;
+                    bottom: 0px;
+                    line-height: 12px;
+                    text-align: center;
+                }
+            }
+
+            .timeline-state {
+                color: #fff;
+                position: absolute;
+
+                &.state-IP {
+                    top: 40px;
+                    font-size: 18px;
+                    animation: living 2s linear infinite;
+                }
+
+                @keyframes living {
+                    0% {
+                        transform: scale(0.8, 0.8);
+                        opacity: 1;
+                    }
+
+                    50% {
+                        transform: scale(1.2, 1.2);
+                        opacity: 0.8;
+                    }
+
+                    100% {
+                        transform: scale(0.8, 0.8);
+                        opacity: 1;
+                    }
+                }
+
+                &.state-BS {
                     width: 100%;
-                    height: 2rem;
-                    line-height: 2rem;
+                    font-size: 12px;
+                    top: 15px;
+                    text-align: left;
+
+                    .glyphicon.glyphicon-lock {
+                        top: 40px;
+                        font-size: 14px;
+                    }
+
+                    .time {
+                        display: flex;
+                        letter-spacing: 1px;
+
+                        .thread {
+                            margin: 0 5px;
+                            border-left: 1px solid #fff;
+                            position: relative;
+                        }
+                    }
+                }
+            }
+        }
+
+        .content .timeline.state-AE {
+
+            &:nth-child(odd),
+            &:nth-child(even) {
+
+                .timeline-front,
+                .timeline-back {
+                    border-color: #87C5FF;
                 }
 
-                .timeline-state {
-                    color: #fff;
-                    position: absolute;
+                .arrow {
+                    border-color: transparent;
+                }
+            }
+
+            &:last-child {
+
+                .timeline-front,
+                .timeline-back {
+                    border: none;
                 }
 
+                .timeline-arrow {
+                    display: none;
+                }
+            }
+
+            .timeline-content {
+                color: #CEE7FF;
+                border-color: #87C5FF;
+                background-color: #9FD1FF;
             }
         }
 
     }
 
-    .site-badge {
-        font-size: 12px;
-        color: #fff;
-        text-align: center;
+    .site-ribbon {
         position: relative;
+
+        &>.site-ribbon-text {
+            font-size: 8px;
+            color: #fff;
+        }
 
         &:before {
             content: "";
-            border: 0.7rem solid;
+            border: 4px solid;
             border-left-color: transparent !important;
             position: absolute;
-            top: 0.3rem;
-            left: -1.4rem;
+            top: 3px;
+            left: -8px;
         }
 
         &:after {
             content: "";
-            border: 0.7rem solid;
+            border: 4px solid;
             border-right-color: transparent !important;
             position: absolute;
-            top: 0.3rem;
-            right: -1.4rem;
+            top: 3px;
+            right: -8px;
         }
 
     }
 
-    .site-badge-default {
+    .site-ribbon-fail {
         background-color: #ccc;
 
         &:before,
@@ -1247,7 +1366,7 @@ body.enroll-repos {
         }
     }
 
-    .site-badge-danger {
+    .site-ribbon-win {
         background-color: #E0434A;
 
         &:before,
@@ -1262,6 +1381,7 @@ body.enroll-repos {
         >.btn {
             flex: 1;
             letter-spacing: 1px;
+            border-radius: 0 0 16px 16px;
 
             &:hover {
                 z-index: 0;

@@ -225,11 +225,13 @@ class user_model extends \TMS_MODEL {
 			case 'topic_read_num':
 			case 'do_cowork_read_num':
 			case 'cowork_read_num':
+			case 'do_rank_read_num':
 			case 'do_cowork_read_elapse':
 			case 'cowork_read_elapse':
 			case 'do_topic_read_elapse':
 			case 'topic_read_elapse':
 			case 'do_repos_read_elapse':
+			case 'do_rank_read_elapse':
 			case 'vote_schema_num':
 			case 'vote_cowork_num':
 				$aDbData[$field] = $value + (int) $oBeforeData->{$field};

@@ -1159,8 +1159,13 @@ class log_model extends \TMS_MODEL {
 	/**
 	 * 操作素材行为列表
 	 */
-	public function listMatterAction($site, $matterType, $matterId, $options = []) {
+	public function listMatterAction($site = '', $matterType, $matterId, $options = []) {
 		$fields = !empty($options['fields']) ? $options['fields'] : 'id,action_at,act_read,act_share_timeline,act_share_friend,original_logid';
+
+		if (!empty($options['byEvent'])) {
+			$result = $this->listMatterActionByEvent($site, $matterType, $matterId, $options['byEvent'], $options);
+			return $result;
+		}
 
 		$q = [
 			$fields,
@@ -1173,19 +1178,6 @@ class log_model extends \TMS_MODEL {
 		}
 		if (!empty($options['endAt'])) {
 			$q[2] .= " and action_at < {$options['endAt']}";
-		}
-		if (!empty($options['byEvent'])) {
-			switch ($options['byEvent']) {
-			case 'shareT':
-				$q[2] .= " and act_share_timeline > 0";
-				break;
-			case 'shareF':
-				$q[2] .= " and act_share_friend > 0";
-				break;
-			default:
-				$q[2] .= " and act_read > 0";
-				break;
-			}
 		}
 
 		$p = ['o' => 'action_at desc'];
@@ -1255,9 +1247,9 @@ class log_model extends \TMS_MODEL {
 		return $result;
 	}
 	/**
-	 * 操作素材行为列表
+	 * 素材页面行为日志
 	 */
-	public function listMatterActionByevent($site, $matterType, $matterId, $event, $options = []) {
+	public function listMatterActionByEvent($site = '', $matterType, $matterId, $event, $options = []) {
 		$fields = 'ma.id,ma.action_at,ma.act_read,ma.act_share_timeline,ma.act_share_friend,ma.original_logid,x.userid,x.nickname,x.matter_shareby,x.matter_shareby';
 
 		$q = [
@@ -1270,23 +1262,32 @@ class log_model extends \TMS_MODEL {
 		case 'shareT':
 			$q[1] .= ",xxt_log_matter_share x";
 			$q[2] .= " and ma.act_share_timeline > 0";
-			$xQueryColumn = 'share_url';
 			break;
 		case 'shareF':
 			$q[1] .= ",xxt_log_matter_share x";
 			$q[2] .= " and ma.act_share_friend > 0";
-			$xQueryColumn = 'share_url';
 			break;
 		default:
 			$q[1] .= ",xxt_log_matter_read x";
 			$q[2] .= " and ma.act_read > 0";
-			$xQueryColumn = 'search';
 			break;
 		}
 
-		// 是否查询整个活动
-		if (isset($options['byApp'])) {
-			$q[2] .= " and x." . $xQueryColumn . " like '%app=" . $options['byApp'] . "%'";
+		// 如果是查询登记活动中的某个页面，并且是这个页面在整个活动下的所有记录
+		if (strpos($matterType, 'enroll.') === 0 && !empty($options['byApp'])) {
+			switch ($matterType) {
+				case 'enroll.topic':
+					$q[1] .= ",xxt_enroll_topic et";
+					$q[2] .= " and et.aid = '{$options['byApp']}' and et.id = ma.matter_id";
+					break;
+				case 'enroll.cowork':
+					$q[1] .= ",xxt_enroll_record er";
+					$q[2] .= " and er.aid = '{$options['byApp']}' and er.id = ma.matter_id";
+					break;
+				default:
+					$q[2] .= " and ma.matter_id = '{$options['byApp']}'";
+					break;
+			}
 		} else {
 			$q[2] .= " and ma.matter_id = '{$matterId}'";
 		}

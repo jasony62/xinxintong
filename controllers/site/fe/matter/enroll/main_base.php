@@ -44,7 +44,7 @@ class main_base extends base {
 		// 检查进入活动规则
 		$this->checkEntryRule($oApp, true, $oUser, $page);
 		// 记录日志
-		if (in_array($page, ['topic', 'repos', 'cowork'])) {
+		if (in_array($page, ['topic', 'repos', 'cowork', 'rank'])) {
 			$this->_pageReadlog($oApp, $page, $rid, $ek, $topic);
 		}
 
@@ -238,7 +238,7 @@ class main_base extends base {
 			}
 		}
 		$oUser = $this->getUser($oApp);
-		// 修改阅读数'topic', 'repos', 'cowork'
+		// 修改阅读数'topic', 'repos', 'cowork', 'rank'
 		if ($page === 'topic') {
 			$upUserData = new \stdClass;
 			$upUserData->do_topic_read_num = 1;
@@ -258,6 +258,9 @@ class main_base extends base {
 				$upCreaterData->cowork_read_num = 1;
 				$rid = $creater->rid;
 			}
+		} else if ($page === 'rank') {
+			$upUserData = new \stdClass;
+			$upUserData->do_rank_read_num = 1;
 		} else {
 			$upUserData = new \stdClass;
 			$upUserData->do_repos_read_num = 1;

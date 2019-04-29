@@ -36,7 +36,7 @@ class task extends base {
 		}
 		// 获取用户所有任务
 		$modelTsk = $this->model('matter\enroll\task', $oApp);
-		$tasks = $modelTsk->byUser($oUser, $aTaskTypes, $aTaskStates, $ek);
+		$tasks = $modelTsk->byUser($oApp, $oUser, $aTaskTypes, $aTaskStates, $ek, true);
 		if ($tasks[0] === false) {
 			return new \ResponseError($tasks[1]);
 		}

@@ -83,7 +83,7 @@
         </div>
         <div class="btn-group site-btn-group" ng-if="currentTask.name==='提问'">
             <button class="btn site-btn-light" ng-click="addRecord()">去提问</button>
-            <button class="btn site-btn-blue"  ng-click="gotoTask(currentTask)">查看提问（）</button>
+            <button class="btn site-btn-blue"  ng-click="gotoTask(currentTask)">查看提问({{currentTask.data.doneUsersSum}}/{{currentTask.data.assignUsersSum}})</button>
         </div>
     </script>
     <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>

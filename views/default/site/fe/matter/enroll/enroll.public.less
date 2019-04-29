@@ -1030,25 +1030,25 @@ body.enroll-repos {
 
         .img {
             width: 100%;
-            height: 100%;
+            height: 84px;
             background-image: url('/static/img/site_fe_task.png');
             background-repeat: no-repeat;
         }
 
         .img-question {
-            background-position: -22px -40px;
+            background-position: -44px -72px;
         }
 
         .img-answer {
-            background-position: -66px -315px;
+            background-position: -57px -230px;
         }
 
         .img-vote {
-            background-position: -66px -612px;
+            background-position: -53px -382px;
         }
 
         .img-score {
-            background-position: -59px -893px;
+            background-position: -55px -515px;
         }
     }
 
@@ -1076,6 +1076,9 @@ body.enroll-repos {
 
         .content {
             padding: 30px 27px 0 27px;
+            height: 100%;
+            overflow: hidden;
+            overflow-y: auto;
         }
 
         .content .timeline {
@@ -1377,6 +1380,7 @@ body.enroll-repos {
 
     .site-btn-group {
         display: flex;
+        z-index: 10;
 
         >.btn {
             flex: 1;
@@ -1480,4 +1484,10 @@ body.enroll-repos {
 
     }
 
+}
+
+@media screen and (min-width:768px) {
+    .modal .main .content {
+        margin-right:  -15px;
+    }
 }

@@ -119,26 +119,26 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                     return $scope.tasks;
                 }
             },
-            controller: ['$scope', 'tasks', '$uibModalInstance', function($scope, tasks, $mi) {
-                $scope.tasks = tasks;
-                $scope.tasks.forEach(function(oTask) {
+            controller: ['$scope', 'tasks', '$uibModalInstance', function($scope2, tasks, $mi) {
+                $scope2.tasks = tasks;
+                $scope2.tasks.forEach(function(oTask) {
                     if (oTask.data.state === 'IP') {
-                        $scope.currentTask = oTask;
+                        $scope2.currentTask = oTask;
                     }
                 });
-                $scope.gotoTask = function(oTask) {
+                $scope2.gotoTask = function(oTask) {
                     if (oTask) {
-                        if (oTask.type === 'baseline') {
+                        if (oTask.data.type === 'baseline') {
                             location.href = LS.j('', 'site', 'app') + '&rid=' + oTask.rid + '&page=enroll';
-                        } else if (oTask.topic && oTask.topic.id) {
-                            location.href = LS.j('', 'site', 'app') + '&topic=' + oTask.topic.id + '&page=topic';
+                        } else if (oTask.data.topic && oTask.data.topic.id) {
+                            location.href = LS.j('', 'site', 'app') + '&topic=' + oTask.data.topic.id + '&page=topic';
                         }
                     }
                 };
-                $scope.addRecord = function(event) {
-                    $scope.$parent.addRecord(event);
+                $scope2.addRecord = function(event) {
+                    $scope.addRecord(event);
                 };
-                $scope.cancel = function() {
+                $scope2.cancel = function() {
                     $mi.close();
                 };
             }],

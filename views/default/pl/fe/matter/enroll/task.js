@@ -212,6 +212,12 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
     ngApp.provider.controller('ctrlTaskAnswer', ['$scope', function($scope) {
         $scope.$watch('app', function(oApp) {
             if (!oApp) return;
+            $scope.answerSchemas = [];
+            oApp.dataSchemas.forEach(function(oSchema) {
+                if ('multitext' === oSchema.type) {
+                    $scope.answerSchemas.push(oSchema);
+                }
+            });
             $scope.taskConfig = new TaskConfig($scope, oApp, 'answer');
         });
     }]);

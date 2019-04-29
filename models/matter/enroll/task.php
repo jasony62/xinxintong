@@ -555,7 +555,7 @@ class task_model extends \TMS_MODEL {
 	/**
 	 * 返回当前用户所有任务
 	 */
-	public function byUser($oApp, $oUser, $aTaskTypes, $aTaskStates, $ek = null, $participateStatus = false) {
+	public function byUser($oApp, $oUser, $aTaskTypes, $aTaskStates, $ek = null, $fulfilExtent = false) {
 		/* 指定了记录 */
 		if (!empty($ek)) {
 			$oRecord = $this->model('matter\enroll\record')->byId($ek);
@@ -597,7 +597,7 @@ class task_model extends \TMS_MODEL {
 								$oTask->undone = [true, $limitMin, 0];
 							}
 							// 提问任务当前完成情况
-							if ($participateStatus === true && $oTask->type === 'question') {
+							if ($fulfilExtent === true && $oTask->type === 'question') {
 								// 获取已完成用户数量
 								$doneUsersSum = (int) $this->query_val_ss([
 									'count(id)',

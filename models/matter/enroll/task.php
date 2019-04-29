@@ -555,7 +555,7 @@ class task_model extends \TMS_MODEL {
 	/**
 	 * 返回当前用户所有任务
 	 */
-	public function byUser($oUser, $aTaskTypes, $aTaskStates, $ek = null) {
+	public function byUser($oApp, $oUser, $aTaskTypes, $aTaskStates, $ek = null, $fulfilExtent = false) {
 		/* 指定了记录 */
 		if (!empty($ek)) {
 			$oRecord = $this->model('matter\enroll\record')->byId($ek);
@@ -588,16 +588,27 @@ class task_model extends \TMS_MODEL {
 									continue;
 								}
 							}
+							// 任务完成情况
+							if (!isset($oTask->newCreate)) {
+								$result = $this->isUndoneByTask($oUser, $oTask, '', $oRule);
+								$oTask->undone = $result;
+							} else {
+								$limitMin = !empty($oTask->limit->min) ? (int) $oTask->limit->min : 1;
+								$oTask->undone = [true, $limitMin, 0];
+							}
+							// 提问任务当前完成情况
+							if ($fulfilExtent === true && $oTask->type === 'question') {
+								// 获取已完成用户数量
+								$doneUsersSum = (int) $this->query_val_ss([
+									'count(id)',
+									"xxt_enroll_topic_record",
+									["aid" => $oApp->id, 'topic_id' => $oTask->topic->id]
+								]);
+								$oTask->doneUsersSum = $doneUsersSum;
+								// 获取用户总数量
+								$oTask->assignUsersSum = $this->_assignUsersSumByApp($oApp, $oTask);
+							}
 						}
-						// 任务完成情况
-						if (!isset($oTask->newCreate)) {
-							$result = $this->isUndoneByTask($oUser, $oTask, '', $oRule);
-							$oTask->undone = $result;
-						} else {
-							$limitMin = !empty($oTask->limit->min) ? (int) $oTask->limit->min : 1;
-							$oTask->undone = [true, $limitMin, 0];
-						}
-
 						$tasks[] = $oTask;
 					}
 				}
@@ -741,5 +752,69 @@ class task_model extends \TMS_MODEL {
 		}
 
 		return [false];
+	}
+	/**
+	 * 获得活动指定的参与人
+	 */
+	private function _assignUsersSumByApp($oApp, $oTask) {
+		$usersSum = 0;
+		$oEntryRule = $oApp->entryRule;
+		if (!empty($oEntryRule->scope->group) && $oEntryRule->scope->group === 'Y' && !empty($oEntryRule->group->id)) {
+			$oGrpApp = $oEntryRule->group;
+			$g = [
+				'count(id)',
+				'xxt_group_record',
+				"aid = '{$oGrpApp->id}' and userid <> '' and state = 1"
+			];
+			if (isset($oTask->groups) && !empty($oTask->groups)) {
+				$temIds = implode("','", $oTask->groups);
+				$g[2] .= " and team_id in ('{$temIds}')";
+			} else if (isset($oEntryRule->group->team)) {
+				$temId = $oEntryRule->group->team->id;
+				$g[2] .= " and team_id = '{$temId}')";
+			}
+
+			$usersSum = (int) $this->query_val_ss($g);
+		} else if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y') {
+			$modelMem = $this->model('site\user\member');
+			$users = [];
+			foreach ($oEntryRule->member as $mschemaId => $rule) {
+				$members = $modelMem->byMschema($mschemaId);
+				foreach ($members as $m) {
+					$users[$m->userid] = 1;
+				}
+			}
+			$usersSum = count($users);
+		} else if (!empty($oApp->mission_id)) {
+			$modelMis = $this->model('matter\mission');
+			$oMission = $modelMis->byId($oApp->mission_id, ['fields' => 'user_app_id,user_app_type,entry_rule']);
+			if ($this->getDeepValue($oMission->entryRule, 'scope.member') === 'Y' && !empty($oMission->entryRule->member)) {
+				$modelMem = $this->model('site\user\member');
+				$users = [];
+				foreach ($oMission->entryRule->member as $mschemaId => $rule) {
+					$members = $modelMem->byMschema($mschemaId);
+					foreach ($members as $m) {
+						$users[$m->userid] = 1;
+					}
+				}
+				$usersSum = count($users);
+			} else {
+				if ($oMission->user_app_type === 'enroll') {
+					$modelRec = $this->model('matter\enroll\record');
+					$oResult = $modelRec->byApp($oMission->user_app_id);
+					$usersSum = count($oResult->records);
+				} else if ($oMission->user_app_type === 'signin') {
+					$modelRec = $this->model('matter\signin\record');
+					$oResult = $modelRec->byApp($oMission->user_app_id);
+					$usersSum = count($oResult->records);
+				} else if ($oMission->user_app_type === 'group') {
+					$modelRec = $this->model('matter\group\record');
+					$aGrpRecs = $modelRec->byApp($oMission->user_app_id);
+					$usersSum = count($aGrpRecs->records);
+				}
+			}
+		}
+
+		return $usersSum;
 	}
 }

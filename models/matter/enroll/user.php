@@ -783,7 +783,7 @@ class user_model extends \TMS_MODEL {
 			$oAssignedUser->uid = $oAssignedUser->userid;
 			!empty($oAssignedUser->group->id) && $oAssignedUser->group_id = $oAssignedUser->group->id;
 			// 查询用户是否有任务
-			$tasks = $modelTsk->byUser($oAssignedUser, $aTaskTypes, $aTaskStates);
+			$tasks = $modelTsk->byUser($oApp, $oAssignedUser, $aTaskTypes, $aTaskStates);
 			if ($tasks[0] === true && !empty($tasks)) {
 				$tasks = $tasks[1];
 				$oAssignedUser->tasks = [];

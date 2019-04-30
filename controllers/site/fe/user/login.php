@@ -26,7 +26,7 @@ class login extends \site\fe\base {
 	public function thirdList_action() {
 		$q = [
 			'id,creator,create_at,appname,pic',
-			'xxt_account_third',
+			'account_third',
 			["state" => 1]
 		];
 		$p = ['o' => 'create_at desc'];
@@ -179,7 +179,7 @@ class login extends \site\fe\base {
 		}
 
 		// 获取第三方应用信息
-		$thirdApp = $this->model('sns\dev189')->byId($thirdId);
+		$thirdApp = $this->model('account')->byThirdId($thirdId);
 		if ($thirdApp === false || $thirdApp->state != 1) {
 			return new \ObjectNotFoundError();
 		}
@@ -192,8 +192,8 @@ class login extends \site\fe\base {
 	/**
 	 * 执行第三方登录后续操作
 	 */
-	public function thirdCallback_action($code = '') {
-		if (empty($code)) {
+	public function thirdCallback_action($code = '', $state = '') {
+		if (empty($code) || empty($state) || $state !== 'snsOAuth-dev189-login') {
 			die('未获取到授权参数');
 		}
 		$thirdId = $this->myGetcookie("_thirdlogin_oauthpending");
@@ -202,13 +202,13 @@ class login extends \site\fe\base {
 		}
 		// 清楚cookie
 		$this->mySetcookie("_thirdlogin_oauthpending", '', time() - 3600);
-		$thirdApp = $this->model('sns\dev189')->byId($thirdId);
+		$thirdApp = $this->model('account')->byThirdId($thirdId);
 		if ($thirdApp === false) {
 			die('指定第三方应用不存在');
 		}
 
 		// 获得第三方应用用户信息
-		$oThirdAppUser = $this->_userInfoByCode($thirdApp, $code);
+		$oThirdAppUser = $this->model('sns\\' . $thirdApp->app_short_name . '\proxy', $thirdApp)->userInfoByCode($code);
 		if ($oThirdAppUser[0] === false) {
 			die($oThirdAppUser[1]);
 		}
@@ -227,76 +227,23 @@ class login extends \site\fe\base {
 			$this->mySetcookie("_user_access_referer", '', time() - 3600);
 		}
 
-		// 获取用户的cookie
-		$oUser = $this->model('site\fe\way')->who($this->siteId);
-		// 如果用户有dev189的服务权限，自动创建团队
-		$userGroup = $this->model('account')->getGroupByUser($oUser->unionid);
-		if ((int) $userGroup->p_dev189_service === 1) {
-			$modelSite = $this->model('site');
-			$oOperator = new \stdClass;
-			$oOperator->id = $oUser->unionid;
-			$oOperator->name = $oUser->nickname;
-			$oOperator->src = 'A';
-			$mySites = $modelSite->byUser($oOperator->id);
-			if (count($mySites) === 0) {
-				$oNewSite = new \stdClass;
-				$oNewSite->name = 'dev189应用';
-				$oNewSite->summary = '';
-				$oNewSite->id = $modelSite->create($oOperator, $oNewSite);
-				/* 记录操作日志 */
-				$oMatter = new \stdClass;
-				$oMatter->id = $oNewSite->id;
-				$oMatter->type = 'site';
-				$oMatter->title = 'dev189';
-				$this->model('matter\log')->matterOp($oNewSite->id, $oOperator, $oMatter, 'C');
-				/* 添加到团队的访问控制列表 */
-				$modelAdm = $this->model('site\admin');
-				$oAdmin = new \stdClass;
-				$oAdmin->uid = $oOperator->id;
-				$oAdmin->ulabel = $modelAdm->escape($oOperator->name);
-				$oAdmin->urole = 'O';
-				$rst = $modelAdm->add($oOperator, $oNewSite->id, $oAdmin);
-				//
-				$oNewSite->creater_name = $oOperator->name;
-				$oNewSite->create_at = time();
-				$mySites[] = $oNewSite;
-			}
-			// 如果用户再登陆前的地址是管理端，则自动跳转到管理端的默认团队中
-			if (strpos($callbackURL, '/rest/pl/fe/matter/ylylisten') !== false) {
-				$callbackURL = APP_PROTOCOL . APP_HTTP_HOST . "/rest/pl/fe/matter/ylylisten?site=" . $mySites[0]->id . "&id=";
-			}
-		}
-
 		$this->redirect($callbackURL);
 	}
 	/**
 	 *  跳转到第三方登陆页面
 	 */
-	private function _requirLoginOauth($devConfig) {
+	private function _requirLoginOauth($thirdApp) {
 		// $ruri = APP_PROTOCOL . APP_HTTP_HOST . '/rest/site/fe/user/login/thirdCallback';
 		$ruri = 'http://' . APP_HTTP_HOST . '/rest/site/fe/user/login/thirdCallback';
 
-		$snsProxy = $this->model('sns\dev189\proxy', $devConfig);
-		$oauthUrl = $snsProxy->oauthUrl($ruri, 'snsOAuth-dev-login-' . $devConfig->id);
-		if (isset($oauthUrl)) {
-			/* 通过cookie判断是否是后退进入 */
-			$this->mySetcookie("_thirdlogin_oauthpending", $devConfig->id, time() + 600);
-			$this->redirect($oauthUrl);
-		}
+		$snsProxy = $this->model('sns\\' . $thirdApp->app_short_name . '\proxy', $thirdApp);
+		$oauthUrl = $snsProxy->oauthUrl($ruri, 'snsOAuth-dev189-login');
+		
+		/* 通过cookie判断是否是后退进入 */
+		$this->mySetcookie("_thirdlogin_oauthpending", $thirdApp->id, time() + 600);
+		$this->redirect($oauthUrl);
 
 		return false;
-	}
-	/**
-	 * 通过回调code获取第三方用户信息
-	 */
-	private function _userInfoByCode($thirdApp, $code) {
-		if (empty($code)) {
-			return [false, '获取code失败'];
-		}
-
-		$oThirdAppUser = $this->model('sns\dev189\proxy', $thirdApp)->userInfoByCode($code);
-
-		return $oThirdAppUser;
 	}
 	/**
 	 * 第三方登录完成后执行后续处理
@@ -310,7 +257,7 @@ class login extends \site\fe\base {
 		$registered = false;
 		$q = [
 			"*",
-			"xxt_account_third_user",
+			"account_third_user",
 			["third_id" => $thirdApp->id, "openid" => $oThirdAppUser->custId, "forbidden" => 'N']
 		];
 		$thirdUser = $modelAcc->query_obj_ss($q);
@@ -338,7 +285,7 @@ class login extends \site\fe\base {
 			/* uname */
 			$uname = 'dev189' . $user->uid;
 			/* password */
-			$password = '123456';
+			$password = '!@#123qwe';
 
 			$aOptions = [];
 			/* nickname */
@@ -359,7 +306,7 @@ class login extends \site\fe\base {
 			}
 			$oRegUser = $oRegUser[1];
 
-			// 将用户插入到xxt_account_third_user表中
+			// 将用户插入到account_third_user表中
 			// 如果已经存在则更新
 			$updata = [
 				"reg_time" => time(),
@@ -372,11 +319,11 @@ class login extends \site\fe\base {
 				"unionid" => $oRegUser->unionid,
 			];
 			if ($thirdUser) {
-				$modelReg->update("xxt_account_third_user", $updata, ["id" => $thirdUser->id]);
+				$modelReg->update("account_third_user", $updata, ["id" => $thirdUser->id]);
 			} else {
 				$updata["third_id"] = $thirdApp->id;
 				$updata["openid"] = $oThirdAppUser->custId;
-				$modelReg->insert('xxt_account_third_user', $updata, false);
+				$modelReg->insert('account_third_user', $updata, false);
 			}
 
 			/* cookie中保留注册信息 */

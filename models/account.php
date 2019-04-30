@@ -5,6 +5,7 @@ class account_model extends TMS_MODEL {
 	const TABLE_A = 'account';
 	const TABLE_G = 'account_group';
 	const TABLE_AG = 'account_in_group';
+	const TABLE_AT = 'account_third';
 	const DEFAULT_GROUP = 1; // 初级用户
 	/**
 	 * 用户账号信息
@@ -35,6 +36,20 @@ class account_model extends TMS_MODEL {
 		}
 
 		return $oAccount;
+	}
+	/**
+	 * 第三方登录app
+	 */
+	public function byThirdId($id, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$q = array(
+			$fields,
+			self::TABLE_AT,
+			['id' => $id]
+		);
+		$third = $this->query_obj_ss($q);
+
+		return $third;
 	}
 	/**
 	 *

@@ -223,22 +223,22 @@ class main extends \pl\fe\base {
 		if (count($mySites) === 0 && count($options) === 0) {
 			// 查看用户所在组, 如果用户有dev189的权限需要创建默认团队
 			$q = [
-				'g.p_dev189_service',
+				'g.p_create_self_site',
 				'account_group g,account_in_group i',
 				"i.group_id=g.group_id and i.account_uid='{$oOperator->id}'",
 			];
 
-			$dev = (int) $modelSite->query_val_ss($q);
-			if ($dev === 1) {
+			$pcss = (int) $modelSite->query_val_ss($q);
+			if ($pcss === 1) {
 				$oNewSite = new \stdClass;
-				$oNewSite->name = 'dev189应用';
+				$oNewSite->name = $oOperator->name . '的团队';
 				$oNewSite->summary = '';
 				$oNewSite->id = $modelSite->create($oOperator, $oNewSite);
 				/* 记录操作日志 */
 				$oMatter = new \stdClass;
 				$oMatter->id = $oNewSite->id;
 				$oMatter->type = 'site';
-				$oMatter->title = 'dev189';
+				$oMatter->title = $oOperator->name . '的团队';
 				$this->model('matter\log')->matterOp($oNewSite->id, $oOperator, $oMatter, 'C');
 				/* 添加到团队的访问控制列表 */
 				$modelAdm = $this->model('site\admin');

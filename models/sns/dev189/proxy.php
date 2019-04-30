@@ -64,7 +64,7 @@ class proxy_model extends \sns\proxybase {
 		 * 重新获取token
 		 */
 		if (empty($this->appid) || empty($this->appsecret)) {
-			return [false, '能力开放平台参数为空'];
+			return [false, 'dev189参数为空'];
 		}
 
 		// 鉴权
@@ -84,7 +84,7 @@ class proxy_model extends \sns\proxybase {
 		$u["access_token"] = $token->access_token;
 		$u["access_token_expire_at"] = (int) $token->expires_in + time();
 
-		\TMS_APP::model()->update('xxt_account_third', $u, "id='{$this->config->id}'");
+		\TMS_APP::model()->update('account_third', $u, "id='{$this->config->id}'");
 
 		$this->accessToken = [
 			'value' => $u["access_token"],

@@ -71,12 +71,13 @@ $sqls[] = $sql;
 /**
  * 支持的第三方登录
  */
-$sql = "create table if not exists xxt_account_third (";
+$sql = "create table if not exists account_third (";
 $sql .= "id varchar(40) not null";
 $sql .= ",creator varchar(50) NOT NULL";
 $sql .= ",creator_name varchar(100) not null default ''";
 $sql .= ",create_at int NOT NULL";
 $sql .= ",appname varchar(100) NOT NULL default ''"; //第三方名称
+$sql .= ",app_short_name varchar(10) NOT NULL default ''"; //第三方名称
 $sql .= ",pic text null"; // head image.
 $sql .= ",appid varchar(100) NOT NULL default ''"; // 
 $sql .= ",appsecret varchar(100) NOT NULL default ''"; //
@@ -88,7 +89,7 @@ $sqls[] = $sql;
 /**
  * 第三方登录的用户
  */
-$sql = "create table if not exists xxt_account_third_user (";
+$sql = "create table if not exists account_third_user (";
 $sql .= "id int(11) unsigned NOT NULL AUTO_INCREMENT";
 $sql .= ",third_id int(11) NOT NULL"; // 
 $sql .= ",openid varchar(100) not null";

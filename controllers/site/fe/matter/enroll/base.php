@@ -36,13 +36,52 @@ class base extends \site\fe\matter\base {
 	 * @param object $oUser
 	 *
 	 */
-	protected function checkEntryRule($oApp, $bRedirect = false, $oUser = null, $page = null) {
+	protected function checkEntryRule($oApp, $bRedirect = false, $oUser = null, $page = null, $ek = null) {
 		if (empty($oUser)) {
 			$oUser = $this->getUser($oApp);
 		}
 		$aCheckResult = parent::checkEntryRule($oApp, $bRedirect, $oUser, $page);
 		if (false === $aCheckResult[0]) {
 			return $aCheckResult;
+		}
+
+		// 结果页只有自己能进
+		if ($page === 'result' && !empty($ek)) {
+			if (empty($oApp->entryRule->exclude) || !in_array($page, $oApp->entryRule->exclude)) {
+				// 记录提交者
+				$modelRec = $this->model('matter\enroll\record');
+				$oRecord = $modelRec->byId($ek, ['fields' => 'userid', 'state' => 1]);
+				if ($oRecord === false) {
+					if ($bRedirect === false) {
+						return [false, '记录不存在或已删除'];
+					} else {
+						$this->outputInfo('记录不存在或已删除');
+					}
+				}
+				if ($oRecord->userid !== $oUser->uid) {
+					if (!empty($oUser->unionid)) {
+						//查询注册账号绑定的所有账号
+						$users = $this->model('site\user\account')->byUnionid($oUser->unionid, ['siteid' => $oApp->siteid, 'fields' => 'uid']);
+						$userids = [];
+						foreach ($users as $user) {
+							$userids[] = $user->uid;
+						}
+						if (!in_array($oRecord->userid, $userids)) {
+							if ($bRedirect === false) {
+								return [false, '只能查看自己的记录'];
+							} else {
+								$this->outputInfo('只能查看自己的记录');
+							}
+						}
+					} else {
+						if ($bRedirect === false) {
+							return [false, '只能查看自己的记录'];
+						} else {
+							$this->outputInfo('只能查看自己的记录');
+						}
+					}
+				}
+			}
 		}
 
 		// 默认进入页面的名称

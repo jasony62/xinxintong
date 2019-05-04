@@ -132,6 +132,29 @@ class browser extends uploader {
 	}
 
 	protected function act_browser() {
+		if (empty($this->get['mpid'])) {
+			$this->errorMsg("参数错误，请检查参数设置");
+		}
+
+		require_once dirname(dirname(dirname(__FILE__))) . '/config.php';
+		require_once dirname(dirname(dirname(__FILE__))) . '/tms/db.php';
+		require_once dirname(dirname(dirname(__FILE__))) . '/tms/tms_model.php';
+		require_once dirname(dirname(dirname(__FILE__))) . '/tms/utilities.cls.php';
+		$model = TMS_MODEL::model();
+		$modelWay = TMS_MODEL::model('site\fe\way');
+		$who = $modelWay->who($this->get['mpid']);
+		if (empty($who->unionid)) {
+			unset($this->session['mpid']);
+			$this->errorMsg("未登录");
+		}
+		// 检查用户是否是站点管理员
+		$modelAdmin = TMS_MODEL::model('site\admin');
+		$rst = $modelAdmin->byUid($this->get['mpid'], $who->unionid);
+		if ($rst === false) {
+			unset($this->session['mpid']);
+			$this->errorMsg("无权访问");
+		}
+
 		if (isset($this->get['dir']) &&
 			is_dir("{$this->typeDir}/{$this->get['dir']}") &&
 			is_readable("{$this->typeDir}/{$this->get['dir']}")

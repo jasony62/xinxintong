@@ -17,7 +17,7 @@ class register extends \site\fe\base {
 	 * 执行注册
 	 */
 	public function do_action() {
-		return new \ResponseError('请联系系统管理员');
+		// return new \ResponseError('请联系系统管理员');
 
 		$user = $this->who;
 		$data = $this->getPostJson();
@@ -39,6 +39,9 @@ class register extends \site\fe\base {
 		}
 		if (empty($data->password)) {
 			return new \ResponseError("登录密码不允许为空");
+		}
+		if (1 !== preg_match("/(?=.*[a-z])(?=.*\d)(?=.*[#@!~%^&*,.])[a-z\d#@!~%^&*,.]{6,16}/i", $data->password)) {
+			return new \ResponseError('密码必须包含数字、字母、特殊字符(#@!~%^&*,.)，且至少六位');
 		}
 
 		$modelWay = $this->model('site\fe\way');

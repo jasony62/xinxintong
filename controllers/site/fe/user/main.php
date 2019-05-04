@@ -178,6 +178,10 @@ class main extends \site\fe\base {
 			return new \ResponseError('新口令不能为空');
 		}
 
+		if (1 !== preg_match("/(?=.*[a-z])(?=.*\d)(?=.*[#@!~%^&*,.])[a-z\d#@!~%^&*,.]{6,16}/i", $data->password)) {
+			return new \ResponseError('必须包含数字、字母、特殊字符(#@!~%^&*,.)，且至少六位');
+		}
+
 		$user = $this->who;
 
 		$modelUsr = $this->model('site\user\account');

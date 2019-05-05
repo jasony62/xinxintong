@@ -17,8 +17,6 @@ class register extends \site\fe\base {
 	 * 执行注册
 	 */
 	public function do_action() {
-		// return new \ResponseError('请联系系统管理员');
-
 		$user = $this->who;
 		$data = $this->getPostJson();
 		if (empty($data->uname)) {

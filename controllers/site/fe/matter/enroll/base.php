@@ -45,7 +45,7 @@ class base extends \site\fe\matter\base {
 			return $aCheckResult;
 		}
 
-		// 结果页只有自己能进
+		// 检查结果页权限，如未设置时只能提交者进入
 		if ($page === 'result' && !empty($ek)) {
 			if (empty($oApp->scenarioConfig->can_rsult_all) || $oApp->scenarioConfig->can_rsult_all !== 'Y') {
 				// 记录提交者

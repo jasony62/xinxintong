@@ -596,8 +596,8 @@ function tms_pwd_check($pwd) {
 	if ($parse['symbol']['count'] === 0) {
 		return [false, '密码中必须包含特殊符号'];
 	}
-	if ($parse['length'] < 8) {
-		return [false, '密码长度需要大于8位'];
+	if ($parse['length'] < 8 || $parse['length'] > 16) {
+		return [false, '密码长度 8~16 位'];
 	}
 
 	return [true];

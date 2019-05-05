@@ -67,7 +67,7 @@ class account extends \pl\be\base {
 		$pwd = $data->password;
 		$rst = tms_pwd_check($pwd);
 		if ($rst[0] === false) {
-			return new \ResponseError('必须包含数字、字母、特殊字符，且至少 8 位');
+			return new \ResponseError('必须包含数字、字母、特殊字符，且 8~16 位');
 		}
 		$modelAcnt->change_password($account->email, $pwd, $account->salt);
 

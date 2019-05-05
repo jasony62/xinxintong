@@ -47,7 +47,7 @@ class base extends \site\fe\matter\base {
 
 		// 结果页只有自己能进
 		if ($page === 'result' && !empty($ek)) {
-			if (empty($oApp->entryRule->exclude) || !in_array($page, $oApp->entryRule->exclude)) {
+			if (empty($oApp->scenarioConfig->can_rsult_all) || $oApp->scenarioConfig->can_rsult_all !== 'Y') {
 				// 记录提交者
 				$modelRec = $this->model('matter\enroll\record');
 				$oRecord = $modelRec->byId($ek, ['fields' => 'userid', 'state' => 1]);

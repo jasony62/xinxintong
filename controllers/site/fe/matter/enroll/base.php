@@ -47,7 +47,7 @@ class base extends \site\fe\matter\base {
 
 		// 检查结果页权限，如未设置时只能提交者进入
 		if ($page === 'result' && !empty($ek)) {
-			if (empty($oApp->scenarioConfig->can_rsult_all) || $oApp->scenarioConfig->can_rsult_all !== 'Y') {
+			if (empty($oApp->scenarioConfig->can_result_all) || $oApp->scenarioConfig->can_result_all !== 'Y') {
 				// 记录提交者
 				$modelRec = $this->model('matter\enroll\record');
 				$oRecord = $modelRec->byId($ek, ['fields' => 'userid', 'state' => 1]);

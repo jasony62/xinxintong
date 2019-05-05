@@ -122,9 +122,27 @@ class main extends \site\fe\matter\base {
 				switch ($oMatter->type) {
 				case 'enroll':
 					/* 用户身份是否匹配活动进入规则 */
-					$rst = $this->checkEntryRule($oMatter, false, $oUser);
-					if (false === $rst[0]) {
-						continue 2;
+					if ($this->getDeepValue($oMatter->entryRule, 'scope.group') === 'Y') {
+						$bMatched = false;
+						$oEntryRule = $oMatter->entryRule;
+						if (isset($oEntryRule->group->id)) {
+							$oGroupApp = $oEntryRule->group;
+							$oGrpMem = $this->model('matter\group\record')->byUser($oGroupApp, $oUser->uid, ['fields' => 'team_id,team_title,role_teams', 'onlyOne' => true]);
+							if ($oGrpMem) {
+								if (isset($oGroupApp->team->id)) {
+									if ($oGrpMem->team_id === $oGroupApp->team->id) {
+										$bMatched = true;
+									} else if (count($oGrpMem->role_teams) && in_array($oGroupApp->team->id, $oGrpMem->role_teams)) {
+										$bMatched = true;
+									}
+								} else {
+									$bMatched = true;
+								}
+							}
+						}
+						if (false === $bMatched) {
+							continue 2;
+						}
 					}
 
 					if (!isset($modelEnlUsr)) {

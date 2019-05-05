@@ -42,7 +42,7 @@ class main_base extends base {
 
 		$oUser = $this->who;
 		// 检查进入活动规则
-		$this->checkEntryRule($oApp, true, $oUser, $page);
+		$this->checkEntryRule($oApp, true, $oUser, $page, $ek);
 		// 记录日志
 		if (in_array($page, ['topic', 'repos', 'cowork', 'rank'])) {
 			$this->_pageReadlog($oApp, $page, $rid, $ek, $topic);

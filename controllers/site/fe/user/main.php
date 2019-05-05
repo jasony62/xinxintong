@@ -178,6 +178,11 @@ class main extends \site\fe\base {
 			return new \ResponseError('新口令不能为空');
 		}
 
+		$rst = tms_pwd_check($data->password);
+		if ($rst[0] === false) {
+			return new \ResponseError('必须包含数字、字母、特殊字符，且 8~16 位');
+		}
+
 		$user = $this->who;
 
 		$modelUsr = $this->model('site\user\account');

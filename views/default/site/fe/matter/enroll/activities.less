@@ -1,3 +1,5 @@
+@import "../../../../../../static/less/site.fe.base.less";
+
 .site-navbar-light.navbar {
     height: 50px;
     padding-top: 8px;
@@ -43,7 +45,7 @@
             }
 
             &.active>a {
-                color: #ff8018;
+                color: @brand-primary;
             }
         }
 
@@ -56,8 +58,8 @@
 }
 
 .site-navbar-orange {
-    background-color: #ff8018;
-    border-color: #ff8018;
+    background-color: @brand-primary;
+    border-color: @brand-primary-border;
 
     .col-md-12.col-xs-12 {
         width: 100%;
@@ -86,7 +88,7 @@
 
                     &:hover,
                     &:focus {
-                        background-color: #ff8018;
+                        background-color: @brand-primary;
                     }
                 }
 

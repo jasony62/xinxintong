@@ -1274,18 +1274,18 @@ class log_model extends \TMS_MODEL {
 		}
 
 		// 如果是查询登记活动中的某个页面，并且是这个页面在整个活动下的所有记录
-		if (strpos($matterType, 'enroll.') === 0 && !empty($options['byApp'])) {
+		if (!empty($options['assocMatter'])) {
 			switch ($matterType) {
 				case 'enroll.topic':
 					$q[1] .= ",xxt_enroll_topic et";
-					$q[2] .= " and et.aid = '{$options['byApp']}' and et.id = ma.matter_id";
+					$q[2] .= " and et.aid = '{$options['assocMatter']}' and et.id = ma.matter_id";
 					break;
 				case 'enroll.cowork':
 					$q[1] .= ",xxt_enroll_record er";
-					$q[2] .= " and er.aid = '{$options['byApp']}' and er.id = ma.matter_id";
+					$q[2] .= " and er.aid = '{$options['assocMatter']}' and er.id = ma.matter_id";
 					break;
 				default:
-					$q[2] .= " and ma.matter_id = '{$options['byApp']}'";
+					$q[2] .= " and ma.matter_id = '{$options['assocMatter']}'";
 					break;
 			}
 		} else {

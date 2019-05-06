@@ -50,7 +50,7 @@ class log extends main_base {
 				$aOptions['byEvent'] = $aOptions['byOp'];
 			}
 			if (strcasecmp($target_id, 'all') === 0) {
-				$aOptions['byApp'] = $app;
+				$aOptions['assocMatter'] = $app;
 			}
 			
 			$reads = $modelLog->listMatterAction($oApp->siteid, 'enroll.' . $target_type, $target_id, $aOptions);

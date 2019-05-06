@@ -193,12 +193,12 @@ class login extends \site\fe\base {
 	 * 执行第三方登录后续操作
 	 */
 	public function thirdCallback_action($code = '', $state = '') {
-		if (empty($code) || empty($state) || $state !== 'snsOAuth-dev189-login') {
-			die('未获取到授权参数');
+		if (empty($code) || empty($state) || $state !== 'snsOAuth-third-login') {
+			die('参数错误');
 		}
 		$thirdId = $this->myGetcookie("_thirdlogin_oauthpending");
 		if (empty($thirdId)) {
-			die('未获取到第三方应用');
+			die('未获取到第三方应用标识');
 		}
 		// 清楚cookie
 		$this->mySetcookie("_thirdlogin_oauthpending", '', time() - 3600);
@@ -237,7 +237,7 @@ class login extends \site\fe\base {
 		$ruri = 'http://' . APP_HTTP_HOST . '/rest/site/fe/user/login/thirdCallback';
 
 		$snsProxy = $this->model('sns\\' . $thirdApp->app_short_name . '\proxy', $thirdApp);
-		$oauthUrl = $snsProxy->oauthUrl($ruri, 'snsOAuth-dev189-login');
+		$oauthUrl = $snsProxy->oauthUrl($ruri, 'snsOAuth-third-login');
 		
 		/* 通过cookie判断是否是后退进入 */
 		$this->mySetcookie("_thirdlogin_oauthpending", $thirdApp->id, time() + 600);
@@ -258,7 +258,7 @@ class login extends \site\fe\base {
 		$q = [
 			"*",
 			"account_third_user",
-			["third_id" => $thirdApp->id, "openid" => $oThirdAppUser->custId, "forbidden" => 'N']
+			["third_id" => $thirdApp->id, "openid" => $oThirdAppUser->openid, "forbidden" => 'N']
 		];
 		$thirdUser = $modelAcc->query_obj_ss($q);
 		if ($thirdUser) {
@@ -290,7 +290,7 @@ class login extends \site\fe\base {
 			$aOptions = [];
 			/* nickname */
 			if (!empty($oThirdAppUser->nickname)) {
-				$aOptions['nickname'] = $oThirdAppUser->custName;
+				$aOptions['nickname'] = $oThirdAppUser->nickname;
 			} else if (isset($user->nickname)) {
 				$aOptions['nickname'] = $user->nickname;
 			}
@@ -311,7 +311,7 @@ class login extends \site\fe\base {
 			$updata = [
 				"reg_time" => time(),
 				"headimgurl" => isset($oThirdAppUser->headimgurl) ? $oThirdAppUser->headimgurl : '',
-				"nickname" => isset($oThirdAppUser->custName) ? $oThirdAppUser->custName : '',
+				"nickname" => isset($oThirdAppUser->nickname) ? $oThirdAppUser->nickname : '',
 				"sex" => isset($oThirdAppUser->sex) ? $oThirdAppUser->sex : 0,
 				"city" => isset($oThirdAppUser->city) ? $oThirdAppUser->city : '',
 				"province" => isset($oThirdAppUser->province) ? $oThirdAppUser->province : '',
@@ -322,7 +322,7 @@ class login extends \site\fe\base {
 				$modelReg->update("account_third_user", $updata, ["id" => $thirdUser->id]);
 			} else {
 				$updata["third_id"] = $thirdApp->id;
-				$updata["openid"] = $oThirdAppUser->custId;
+				$updata["openid"] = $oThirdAppUser->openid;
 				$modelReg->insert('account_third_user', $updata, false);
 			}
 

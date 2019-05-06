@@ -207,7 +207,7 @@ ngApp.controller('ctrlSummaryRank', ['$scope', '$q', '$sce', 'tmsLocation', 'htt
         });
         $scope.changeCriteria();
         /*设置页面分享信息*/
-        $scope.setSnsShare();
+        $scope.setSnsShare(null, null, { target_type: 'rank', target_id: oApp.id });
         /*页面阅读日志*/
         $scope.logAccess({ target_type: 'rank', target_id: oApp.id });
     });

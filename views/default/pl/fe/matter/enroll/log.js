@@ -60,7 +60,6 @@ define(['frame'], function(ngApp) {
             } else {
                 url += '&byUser=' + criteria.byUser + '&byRid=' + criteria.byRid + '&logType=' + type;
             }
-           
             window.open(url);
         }
         $scope.clean = function() {

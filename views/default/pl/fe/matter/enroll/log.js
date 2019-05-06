@@ -42,6 +42,10 @@ define(['frame'], function(ngApp) {
                         $scope.pageLog.criteria = data;
                         $scope.pageLog.list();
                     break;
+                    case 'behavior':
+                        $scope.behaviorLog.criteria = data;
+                        $scope.behaviorLog.list();
+                    break;
                 }
             });
         };
@@ -82,6 +86,16 @@ define(['frame'], function(ngApp) {
                 case 3:
                     $scope.pageLog.criteria = {
                         byOp: 'ALL',
+                        target_type: 'repos',
+                        target_id: '',
+                        startAt: '',
+                        endAt: ''
+                    };
+                    $scope.pageLog.list();
+                break;
+                case 4:
+                    $scope.behaviorLog.criteria = {
+                        byOp: 'read',
                         target_type: 'repos',
                         target_id: '',
                         startAt: '',
@@ -140,6 +154,23 @@ define(['frame'], function(ngApp) {
                 });
             }
         };
+        $scope.behaviorLog = {
+            page: {},
+            criteria: {
+                byOp: 'read',
+                target_type: 'repos',
+                target_id: '',
+                startAt: '',
+                endAt: ''
+            },
+            list: function() {
+                var _this = this;
+                if(this.criteria.target_type=='repos') { this.criteria.target_id = _oApp.id; };
+                srvEnrollLog.list(this.page, 'page', this.criteria).then(function(logs) {
+                    _this.logs = logs;
+                });
+            }
+        };
         $scope.$watch('app', function(oApp) {
             if (!oApp) return;
             _oApp = oApp;
@@ -155,6 +186,9 @@ define(['frame'], function(ngApp) {
                     break;
                     case 3:
                         $scope.pageLog.list();
+                    break;
+                    case 4:
+                        $scope.behaviorLog.list();
                     break;
                 }
             });

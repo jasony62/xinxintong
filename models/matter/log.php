@@ -1250,7 +1250,7 @@ class log_model extends \TMS_MODEL {
 	 * 素材页面行为日志
 	 */
 	public function listMatterActionByEvent($site = '', $matterType, $matterId, $event, $options = []) {
-		$fields = 'ma.id,ma.action_at,ma.act_read,ma.act_share_timeline,ma.act_share_friend,ma.original_logid,x.userid,x.nickname,x.matter_shareby,x.matter_shareby';
+		$fields = 'ma.matter_id,ma.matter_type,ma.id,ma.action_at,ma.act_read,ma.act_share_timeline,ma.act_share_friend,ma.original_logid,x.userid,x.nickname,x.matter_shareby,x.matter_shareby';
 
 		$q = [
 			$fields,

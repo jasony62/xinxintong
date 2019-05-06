@@ -1651,7 +1651,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                                 defer.resolve(oCriteria);
                                 $mi.close();
                             };
-                            if (type !== 'page') { $scope2.doSearchRound(); }
+                            if (type === 'pl' || type === 'site') { $scope2.doSearchRound(); }
                         }],
                         backdrop: 'static',
                     });

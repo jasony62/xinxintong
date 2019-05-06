@@ -51,12 +51,14 @@ define(['frame'], function(ngApp) {
         };
         $scope.export = function(type, criteria) {
             var url;
-            url = '/rest/pl/fe/matter/enroll/log/exportLog?app=' + _oApp.id + '&logType=' + type;
+            url = '/rest/pl/fe/matter/enroll/log/exportLog?app=' + _oApp.id;
             url += '&startAt=' + criteria.startAt + '&endAt=' + criteria.endAt + '&byOp=' + criteria.byOp;
-            if (type=='page') {
-                url += '&target_type=' + criteria.target_type + '&target_id=' + criteria.target_id;
+            if (type==='page') {
+                url += '&target_type=' + criteria.target_type + '&target_id=' + criteria.target_id + '&logType=' + type;
+            } else if(type==='behavior'){
+                url += '&target_type=' + criteria.target_type + '&target_id=ALL&logType=page';
             } else {
-                url += '&byUser=' + criteria.byUser + '&byRid=' + criteria.byRid;
+                url += '&byUser=' + criteria.byUser + '&byRid=' + criteria.byRid + '&logType=' + type;
             }
            
             window.open(url);
@@ -97,11 +99,11 @@ define(['frame'], function(ngApp) {
                     $scope.behaviorLog.criteria = {
                         byOp: 'read',
                         target_type: 'repos',
-                        target_id: '',
+                        target_id: 'ALL',
                         startAt: '',
                         endAt: ''
                     };
-                    $scope.pageLog.list();
+                    $scope.behaviorLog.list();
                 break;
             }
         };
@@ -159,13 +161,12 @@ define(['frame'], function(ngApp) {
             criteria: {
                 byOp: 'read',
                 target_type: 'repos',
-                target_id: '',
+                target_id: 'ALL',
                 startAt: '',
                 endAt: ''
             },
             list: function() {
                 var _this = this;
-                if(this.criteria.target_type=='repos') { this.criteria.target_id = _oApp.id; };
                 srvEnrollLog.list(this.page, 'page', this.criteria).then(function(logs) {
                     _this.logs = logs;
                 });

@@ -142,7 +142,7 @@
                 </thead>
                 <tbody>
                     <tr ng-repeat='log in behaviorLog.logs'>
-                        <td ng-if="behaviorLog.criteria.target_type==='topic'||behaviorLog.criteria.target_type==='cowork'">{{log.id}}</td>
+                        <td ng-if="behaviorLog.criteria.target_type==='topic'||behaviorLog.criteria.target_type==='cowork'">{{log.matter_id}}</td>
                         <td>{{log.action_at*1000|date:'yy-MM-dd HH:mm'}}</td>
                         <td>{{log.nickname||'未知'}}</td>
                         <td><span>{{operations[log.event]}}</span></td>

@@ -27,7 +27,7 @@ class main extends \pl\fe\base {
 	public function exportMatterActions_action($site, $type, $orderby, $startAt, $endAt) {
 		$rst = $this->_getMatterActions($site, $type, $orderby, $startAt, $endAt);
 		if ($rst->total == 0) {
-			return new \ResponseError('日志为空');
+			die('日志为空');
 		}
 
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
@@ -212,7 +212,7 @@ class main extends \pl\fe\base {
 	public function exportUserActions_action($site, $orderby, $startAt, $endAt) {
 		$rst = $this->_getUserActions($site, $orderby, $startAt, $endAt);
 		if ($rst->total == 0) {
-			return new \ResponseError('日志为空');
+			die('日志为空');
 		}
 
 		require_once TMS_APP_DIR . '/lib/PHPExcel.php';

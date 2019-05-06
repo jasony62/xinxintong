@@ -98,7 +98,7 @@ class log extends main_base {
 			}
 			// 查询整个活动
 			if (strcasecmp($target_id, 'all') === 0) {
-				$options['byApp'] = $app;
+				$options['assocMatter'] = $app;
 			}
 			$reads = $modelLog->listMatterAction($oApp->siteid, 'enroll.' . $target_type, $target_id, $options);
 		} else {

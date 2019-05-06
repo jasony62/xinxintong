@@ -328,7 +328,7 @@ class main extends \site\fe\matter\base {
 			}
 
 			// 记录活动的专题页和讨论页和共享页需要单独记录
-			$targets = ['topic', 'repos', 'cowork'];
+			$targets = ['topic', 'repos', 'cowork', 'rank'];
 			if (!empty($target_type) && in_array($target_type, $targets) && !empty($target_id)) {
 				$logMatter->id = $target_id;
 				$logMatter->type = 'enroll.' . $target_type;

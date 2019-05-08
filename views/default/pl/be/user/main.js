@@ -64,7 +64,7 @@ ngApp.controller('ctrlAccount', ['$scope', '$uibModal', 'http2', 'noticebox', fu
             backdrop: 'static',
             controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
                 $scope.data = {
-                    password: '123456'
+                    password: 'dev189!@'
                 };
                 $scope.close = function() {
                     $mi.dismiss();

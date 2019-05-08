@@ -38,9 +38,10 @@ class register extends \site\fe\base {
 		if (empty($data->password)) {
 			return new \ResponseError("登录密码不允许为空");
 		}
-		$rst = tms_pwd_check($data->password);
+	
+		$rst = tms_pwd_check($data->password, ['account' => $uname]);
 		if ($rst[0] === false) {
-			return new \ResponseError('必须包含数字、字母、特殊字符，且 8~16 位');
+			return new \ResponseError($rst[1]);
 		}
 
 		$modelWay = $this->model('site\fe\way');

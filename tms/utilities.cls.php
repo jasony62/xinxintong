@@ -3,7 +3,7 @@
  * 校验密码强度
  * 可以实现密码强度等级划分
  */
-class pwdStrengthCheck{
+class PwdStrengthCheck{
     /**
      * Current password's total score
      * @var integer
@@ -13,7 +13,25 @@ class pwdStrengthCheck{
      * 密码
      */
     private $password;
-
+    /**
+     * 特殊字符
+     */
+    private $symbols = ['~', '!', '@', '#','$', '%', '^', '&', '*', '(', ')', '[', ']', '{', '}', '|', ':', '\'', '+', '=', '"', '<', '>', '?', ',', '.', '/', ';', '\\', '_', '-', '`'];
+    /**
+     * 键盘序
+     */
+    private $keyboardSeq = [
+        "1234567890 0987654321", //数字倒序
+        "qwertyuiop asdfghjkl zxcvbnm QWERTYUIOP ASDFGHJKL ZXCVBNM", //主键盘顺序
+        "poiuytrewq lkjhgfdsa mnbvcxz POIUYTREWQ LKJHGFDSA MNBVCXZ", //主键盘逆序
+        "qaz wsx edc rfv tgb yhn ujm QAZ WSX EDC RFV TGB YHN UJM",//主键盘正向斜
+        "zaq xsw cde vfr bgt nhy mju ZAQ XSW CDE VFR BGT NHY MJU",//主键盘正向斜逆序
+        "esz rdx tfc ygv uhb ijn okm OKM IJN UHB YGV TFC RDX ESZ",//主键盘反向斜
+        "zse xdr cft vgy bhu nji mko MKO NJI BHU VGY CFT XDR ZSE",//主键盘反向斜逆序
+        "147 369 258 852 963 741", //小键盘
+        "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ", //字母序
+        "zyxwvutsrqponmlkjihgfedcba ZYXWVUTSRQPONMLKJIHGFEDCBA", //字母序
+    ];
     /**
      * Constants defining the return values for 
      * strength ratings
@@ -90,8 +108,8 @@ class pwdStrengthCheck{
      * @param string $password Password to evaluate
      * @return array Parsed password data
      */
-    public function parse(){
-        $password = $this->password;
+    public function parse($password = ''){
+        empty($password) && $password = $this->password;
         $passwordData = array(
             'number' => array(
                 'count' => 0,
@@ -163,6 +181,58 @@ class pwdStrengthCheck{
      */
     public function setScore($score){
         $this->score = $score;
+    }
+    /**
+     * 验证账号相关性
+     */
+    public function verifyAccountRelation($parse, $account) {
+        if (strpos($parse['raw'], $account) !== false) {
+            return [false, '口令中不能包含账号信息'];
+        }
+        $parseAccount = $this->parse($account);
+        $existSum = 0;
+        foreach ($parseAccount['list'] as $ka => $va) {
+            if (stristr($parse['raw'], (string) $ka) !== false) {
+                $existSum++;
+            }
+        }
+        // 如果改变账号字符顺序以及大小写，如果与账号的匹配字符大于账号中字符数量-2个返回false
+        if ($existSum > count($parseAccount['list']) - 2) {
+            return [false, '口令中不能包含账号信息（包括大小写变化或者位置变化）'];
+        }
+
+        return [true];
+    }
+    /**
+     * 验证机械键盘序
+     */
+    public function verifyKeyboardSeq($parse) {
+        $raw = $parse['raw'];
+        for ($i = 0; $i < strlen($raw); $i++) {
+            if ($i < strlen($raw) - 2) {
+                $char = $raw[$i] . $raw[$i+1] . $raw[$i+2];
+                foreach ($this->keyboardSeq as $vseq) {
+                    if (strpos($vseq, $char) !== false) {
+                        return [false, '口令中不能包括连续的3个或3个以上键盘键位的字符,包括正、反、斜方向的顺序(如：qwe、EWQ)'];
+                    }
+                }
+            }
+        }
+
+        return [true];
+    }
+    /**
+     * 验证符号
+     */
+    public function verifySymbol($parse) {
+        // 判断特殊字符是否符合规范
+        foreach ($parse['symbol']['list'] as $vsb) {
+            if (!in_array($vsb, $this->symbols)) {
+                return [false, '只能使用英文符号'];
+            }
+        }
+
+        return [true];
     }
     /**
      * 
@@ -576,29 +646,41 @@ function tms_get_server($key, $escape = true){
 /**
  * 检查用户密码
  */
-function tms_pwd_check($pwd) {
+function tms_pwd_check($pwd, $options = []) {
 	if (TMS_APP_PASSWORD_STRENGTH_CHECK === 0) {
 		return [true];
-	}
+    }
 
-	$pwd = trim($pwd);
-	if (empty($pwd)) {
-		return [false, '密码不能为空'];
-	}
-	$check = new pwdStrengthCheck($pwd);
-	$parse = $check->parse();
-	if ($parse['number']['count'] === 0) {
-		return [false, '密码中必须包含数字'];
-	}
-	if ($parse['upper']['count'] + $parse['lower']['count'] === 0) {
-		return [false, '密码中必须包含字母'];
-	}
-	if ($parse['symbol']['count'] === 0) {
-		return [false, '密码中必须包含特殊符号'];
-	}
-	if ($parse['length'] < 8 || $parse['length'] > 16) {
-		return [false, '密码长度 8~16 位'];
-	}
+    // 过滤黑名单密码 $options['blackChars'] = []
+    if (!empty($options['blackChars'])) {
+        if (in_array($pwd, $options['blackChars'])) {
+            return [false, '此口令存在风险请用其它口令'];
+        }
+    }
+
+	$check = new PwdStrengthCheck($pwd);
+    $parse = $check->parse();
+
+	if ($parse['number']['count'] === 0 || $parse['upper']['count'] + $parse['lower']['count'] === 0 || $parse['symbol']['count'] === 0 || $parse['length'] < 8 || $parse['length'] > 16) {
+		return [false, '必须包含数字、字母、英文符号，且 8~16 位'];
+    }
+    // 判断特殊字符是否符合规范
+    $rst = $check->verifySymbol($parse);
+    if ($rst[0] === false) {
+        return $rst;
+    }
+    // 过滤账号相关性 如果改变账号字符顺序以及大小写，如果与账号的匹配字符大于账号中字符数量-2个返回false
+    if (!empty($options['account'])) {
+        $rst = $check->verifyAccountRelation($parse, $options['account']);
+        if ($rst[0] === false) {
+            return $rst;
+        }
+    }
+    // 机械键盘序 口令中不能包括连续的3个或3个以上键盘键位的字符,包括正、反、斜方向的顺序
+    $rst = $check->verifyKeyboardSeq($parse);
+    if ($rst[0] === false) {
+        return $rst;
+    }
 
 	return [true];
 }

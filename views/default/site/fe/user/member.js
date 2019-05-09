@@ -152,6 +152,9 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
         $scope.subView = name;
     };
     $scope.login = function() {
+        $http.get('/rest/site/fe/user/login/checkPwdStrength?account=' + $scope.loginData.uname + '&password=' + $scope.loginData.password).success(function(rsp) {
+            if(rsp.)
+        });
         http2.post('/rest/site/fe/user/login/do?site=' + LS.s().site, $scope.loginUser).then(function(rsp) {
             http2.get(LS.j('get', 'site', 'schema')).then(function(rsp) {
                 var user = rsp.data;

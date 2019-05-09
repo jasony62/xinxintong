@@ -27,6 +27,9 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
         document.querySelector('[ng-model="data.uname"]').focus();
     }
     $scope.login = function() {
+        $http.get('/rest/site/fe/user/login/checkPwdStrength?account=' + $scope.loginData.uname + '&password=' + $scope.loginData.password).success(function(rsp) {
+            if(rsp.)
+        });
         $http.post('/rest/site/fe/user/login/do?site=' + _siteId, $scope.loginData).success(function(rsp) {
             if (rsp.err_code != 0) {
                 $scope.errmsg = rsp.err_msg;

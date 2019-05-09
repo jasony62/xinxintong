@@ -55,6 +55,14 @@ class account extends \pl\be\base {
 		}
 	}
 	/**
+	 * 生成随机密码
+	 */
+	public function getRandomPwd_action() {
+		$pwd = tms_pwd_create_random();
+
+		return new \ResponseData($pwd);
+	}
+	/**
 	 * 修改当前用户的口令
 	 */
 	public function resetPwd_action() {

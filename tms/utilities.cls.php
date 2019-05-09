@@ -684,3 +684,42 @@ function tms_pwd_check($pwd, $options = []) {
 
 	return [true];
 }
+/**
+ * 生成随机密码 一个字符、一个大写字母、三个数字、三个小写字母，位置随机，字符随机
+ */
+function tms_pwd_create_random(int $upperNum = 1, int $lowerNum = 3, int $numberNum = 3, int $symbolNum = 1) {
+    $numbers = '1234567890';
+    $uppers = 'QWERTYUIOPLKJHGFDSAZXCVBNM';
+    $lowers = strtolower($uppers);
+    $symbols = ['~', '!', '@', '#','$', '%', '^', '&', '*', '(', ')', '[', ']', '{', '}', '|', ':', '+', '=', '<', '>', '?', ',', '.', ';', '_', '-', '`'];
+
+    // 获取随机字符
+    $symbol = [];
+    for ($i = 0; $i < $symbolNum; $i++) {
+        $symbol[] = $symbols[array_rand($symbols, 1)];
+    }
+
+    // 获取个大写字母
+    $upper = [];
+    for ($i = 0; $i < $upperNum; $i++) {
+        $upper[] = $uppers[mt_rand(0, 25)];
+    }
+    // 获取小写字母
+    $lower = [];
+    for ($i = 0; $i < $lowerNum; $i++) {
+        $lower[] = $lowers[mt_rand(0, 25)];
+    }
+    // 获取数字
+    $number = [];
+    for ($i = 0; $i < $numberNum; $i++) {
+        $number[] = $numbers[mt_rand(0, 9)];
+    }
+
+    // 密码
+    $pwd = array_merge($symbol, $upper, $lower, $number);
+    // 打乱顺序
+    shuffle($pwd);
+    $pwd = implode('', $pwd);
+
+    return $pwd;
+}

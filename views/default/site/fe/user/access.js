@@ -27,42 +27,46 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
         document.querySelector('[ng-model="data.uname"]').focus();
     }
     $scope.login = function() {
-        $http.get('/rest/site/fe/user/login/checkPwdStrength?account=' + $scope.loginData.uname + '&password=' + $scope.loginData.password).success(function(rsp) {
-            if(rsp.)
-        });
-        $http.post('/rest/site/fe/user/login/do?site=' + _siteId, $scope.loginData).success(function(rsp) {
-            if (rsp.err_code != 0) {
-                $scope.errmsg = rsp.err_msg;
-                $scope.refreshPin();
-                return;
-            }
-            if ($scope.loginData.rememberMe === 'Y') {
-                window.localStorage.setItem('xxt.login.rememberMe', 'Y');
-                window.localStorage.setItem('xxt.login.email', $scope.loginData.uname);
-            } else {
-                window.localStorage.setItem('xxt.login.rememberMe', 'N');
-                window.localStorage.removeItem('xxt.login.email');
-            }
-            if ($scope.loginData.gotoConsole === 'Y') {
-                window.localStorage.setItem('xxt.login.gotoConsole', 'Y');
-            } else {
-                window.localStorage.setItem('xxt.login.gotoConsole', 'N');
-            }
-            if (window.parent && window.parent.onClosePlugin) {
-                window.parent.onClosePlugin(rsp.data);
-            } else if (rsp.data._loginReferer) {
-                location.replace(rsp.data._loginReferer);
-            } else if ($scope.loginData.gotoConsole === 'Y') {
-                location.href = '/rest/pl/fe';
-            } else {
-                location.replace('/rest/site/fe/user?site=' + _siteId);
-            }
-        }).error(function(data, header, config, status) {
-            if (data) {
-                $http.post('/rest/log/add', { src: 'site.fe.user.login', msg: JSON.stringify(arguments) });
-            }
-            alert('操作失败：' + (data === null ? '网络不可用' : data));
-        });
+        if($scope.loginData.password) {
+            $http.get('/rest/site/fe/user/login/checkPwdStrength?account=' + $scope.loginData.uname + '&password=' + $scope.loginData.password).success(function(rsp) {
+                if(!rsp.data.strength) {
+                    alert(rsp.data.msg);
+                }
+                $http.post('/rest/site/fe/user/login/do?site=' + _siteId, $scope.loginData).success(function(rsp) {
+                    if (rsp.err_code != 0) {
+                        $scope.errmsg = rsp.err_msg;
+                        $scope.refreshPin();
+                        return;
+                    }
+                    if ($scope.loginData.rememberMe === 'Y') {
+                        window.localStorage.setItem('xxt.login.rememberMe', 'Y');
+                        window.localStorage.setItem('xxt.login.email', $scope.loginData.uname);
+                    } else {
+                        window.localStorage.setItem('xxt.login.rememberMe', 'N');
+                        window.localStorage.removeItem('xxt.login.email');
+                    }
+                    if ($scope.loginData.gotoConsole === 'Y') {
+                        window.localStorage.setItem('xxt.login.gotoConsole', 'Y');
+                    } else {
+                        window.localStorage.setItem('xxt.login.gotoConsole', 'N');
+                    }
+                    if (window.parent && window.parent.onClosePlugin) {
+                        window.parent.onClosePlugin(rsp.data);
+                    } else if (rsp.data._loginReferer) {
+                        location.replace(rsp.data._loginReferer);
+                    } else if ($scope.loginData.gotoConsole === 'Y') {
+                        location.href = '/rest/pl/fe';
+                    } else {
+                        location.replace('/rest/site/fe/user?site=' + _siteId);
+                    }
+                }).error(function(data, header, config, status) {
+                    if (data) {
+                        $http.post('/rest/log/add', { src: 'site.fe.user.login', msg: JSON.stringify(arguments) });
+                    }
+                    alert('操作失败：' + (data === null ? '网络不可用' : data));
+                });
+            });
+        }
     };
     $scope.logout = function() {
         $http.get('/rest/site/fe/user/logout/do?site=' + _siteId).success(function(rsp) {

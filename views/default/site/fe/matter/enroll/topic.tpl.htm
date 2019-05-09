@@ -18,8 +18,8 @@
     <nav class='navbar site-navbar-default'>
         <div class='container' ng-cloak>
             <div class="navbar-header">
-                <a href class="navbar-brand">
-                    <i class="glyphicon glyphicon-list-alt visible-lg-inline"></i> <span tms-pop-nav navs="popNav.navs" close-after='5000' custom="popNav.custom">专题页</span>
+                <a href class="navbar-brand" ng-click="gotoHome()">
+                    <i class="glyphicon glyphicon-home"></i> <span class="visible-lg-inline">平台首页</span>
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
@@ -30,25 +30,25 @@
         </div>
     </nav>
     <div class='app container'>
-        <div class='panel'>
-            <div class='panel-body ng-cloak' ng-if="topic" ng-cloak>
-                <div class='form-group' ng-if="topic.nickname">
-                    <div class='text-muted' ng-bind="topic.nickname"></div>
-                </div>
-                <div class='form-group'>
-                    <div ng-bind="topic.title"></div>
-                </div>
-                <div class='form-group' ng-if="topic.summary">
-                    <div class='text-muted small' ng-bind="topic.summary"></div>
-                </div>
-                <div class='bottom-bar'>
-                    <div class='datetime'><span ng-bind="topic.create_at*1000|date:'yy-MM-dd'"></span></div>
-                    <button class='btn btn-default btn-xs' ng-click="shareTopic(topic)"><i class='glyphicon glyphicon-share-alt'></i></button>
+        <div class='row'>
+            <div class='panel'>
+                <div class='panel-body ng-cloak' ng-if="topic" ng-cloak>
+                    <div class='form-group' ng-if="topic.nickname">
+                        <div class='text-muted' ng-bind="topic.nickname"></div>
+                    </div>
+                    <div class='form-group'>
+                        <div ng-bind="topic.title"></div>
+                    </div>
+                    <div class='form-group' ng-if="topic.summary">
+                        <div class='text-muted small' ng-bind="topic.summary"></div>
+                    </div>
+                    <div class='bottom-bar'>
+                        <div class='datetime'><span ng-bind="topic.create_at*1000|date:'yy-MM-dd'"></span></div>
+                        <button class='btn btn-default btn-xs' ng-click="shareTopic(topic)"><i class='glyphicon glyphicon-share-alt'></i></button>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class='row'>
-            <div class='records col-xs-12'>
+            <div class='main records'>
                 <div id='repos' ng-if="!topic.task||topic.task.config_type!=='score'">
                     <div class='record' ng-repeat="rec in repos" ng-cloak>
                         <div class='top-bar'>
@@ -130,7 +130,6 @@
             <button class="button-highlight btn navbar-btn" ng-click="addRecord($event)"><span>提出新问题</span></button>
         </div>
     </nav>
-    <div ng-if="popAct.acts.length" tms-pop-act acts="popAct.acts" custom="popAct.custom" close-after='5000'></div>
     <script type="text/ng-template" id="assignTopic.html">
         <div class="modal-body">
             <div ng-repeat="topic in topics">

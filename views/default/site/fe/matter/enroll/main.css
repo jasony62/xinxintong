@@ -10,7 +10,6 @@ header img,footer img{max-width:100%}
 	.site-navbar-default .navbar-nav>li>a{padding:15px 15px;line-height:1;}
 }
 @media screen and (max-width:768px){
-	.site-navbar-default .navbar-brand{width:100%;text-align:center;}
 	.site-navbar-default .navbar-brand>.icon-note{display:inline-block;width:124px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}
 	.site-navbar-default .navbar-nav{margin:8px 0;position:absolute;top:0;right:0;}
 	.site-navbar-default .nav>li>a{padding:10px 10px;}

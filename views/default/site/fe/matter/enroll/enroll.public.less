@@ -528,7 +528,7 @@ body.enroll-repos {
 
 .record {
     background: #fff;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 8px solid #ddd;
     padding: 8px 16px;
 
     &>* {
@@ -787,6 +787,7 @@ body.enroll-repos {
 #remarks {
     padding: 16px;
     background: #fff;
+    border-bottom: 0;
 }
 
 #record {
@@ -963,6 +964,8 @@ body.enroll-repos {
 }
 
 .modal {
+    z-index: 1051;
+
     .modal-md {
         width: 284px;
         height: 450px;
@@ -980,13 +983,16 @@ body.enroll-repos {
 
     .close {
         position: absolute;
-        top: -30px;
-        right: 10px;
+        right: 50%;
+        margin-right: -10px;
+        bottom: -45px;
         color: #fff;
         opacity: 1;
         z-index: 10;
-        border-radius: 12px 8px;
-        border: 1px solid #fff;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: 2px solid #fff;
     }
 
     .current-task {
@@ -1116,8 +1122,8 @@ body.enroll-repos {
                     &.state-BS {
                         left: 50px;
 
-                        .glyphicon.glyphicon-lock {
-                            left: -20px;
+                        .lock {
+                            left: -22px;
                         }
                     }
 
@@ -1169,15 +1175,15 @@ body.enroll-repos {
 
                 .timeline-state {
                     &.state-BS {
-                        left: 10px;
+                        left: 15px;
 
-                        .glyphicon.glyphicon-lock {
-                            left: 180px;
+                        .lock {
+                            left: 175px;
                         }
                     }
 
                     &.state-IP {
-                        right: 45px;
+                        right: 70px;
                     }
                 }
 
@@ -1247,11 +1253,40 @@ body.enroll-repos {
             .timeline-state {
                 color: #fff;
                 position: absolute;
+                
+                .site-icon {
+                    display: inline-block;
+                    position: absolute;
+                    background: url("/static/img/site_fe_task.png") no-repeat;
+                }
 
-                &.state-IP {
+                .map-marker-top {
+                    width: 12px;
+                    height: 15px;
+                    left: 8px;
+                    background-position: -314px -93px;
+                }
+
+                .map-marker-bottom {
+                    width: 27px;
+                    height: 16px;
+                    top: 8px;
+                    background-position: -306px -167px;
+                }
+
+                .lock {
+                    width: 15px;
+                    height: 19px;
+                    bottom: 0;
+                    background-position: -311px -245px;
+                }
+                
+                &.state-IP{
                     top: 40px;
-                    font-size: 18px;
-                    animation: living 2s linear infinite;
+
+                    .map-marker-top {
+                        animation: living 2s linear infinite;
+                    }
                 }
 
                 @keyframes living {
@@ -1274,13 +1309,8 @@ body.enroll-repos {
                 &.state-BS {
                     width: 100%;
                     font-size: 12px;
-                    top: 15px;
+                    top: 35px;
                     text-align: left;
-
-                    .glyphicon.glyphicon-lock {
-                        top: 40px;
-                        font-size: 14px;
-                    }
 
                     .time {
                         display: flex;
@@ -1289,7 +1319,6 @@ body.enroll-repos {
                         .thread {
                             margin: 0 5px;
                             border-left: 1px solid #fff;
-                            position: relative;
                         }
                     }
                 }

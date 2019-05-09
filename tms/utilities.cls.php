@@ -213,7 +213,7 @@ class PwdStrengthCheck{
                 $char = $raw[$i] . $raw[$i+1] . $raw[$i+2];
                 foreach ($this->keyboardSeq as $vseq) {
                     if (strpos($vseq, $char) !== false) {
-                        return [false, '口令中不能包括连续的3个或3个以上键盘键位的字符,包括正、反、斜方向的顺序(如：qwe、EWQ)'];
+                        return [false, '口令不能包含3个连续以键盘键位为顺序的字符(正 反 斜方向 大小写，abc QWE 123 qaz 321)'];
                     }
                 }
             }

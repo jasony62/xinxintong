@@ -87,6 +87,17 @@ class login extends \site\fe\base {
 		return new \ResponseData($oCookieUser);
 	}
 	/**
+	 * 判断密码强度
+	 */
+	public function checkPwdStrength_action($account, $password) {
+		$rst = tms_pwd_check($password, ['account' => $account]);
+		
+		$data = new \stdClass;
+		$data->strength = $rst[0];
+		($rst[0] === false) && $data->msg = '您的密码存在风险！请尽快修改（' . $rst[1] . '）';
+		return new \ResponseData($data);
+	}
+	/**
 	 * 用指定注册账号和微信公众号openid登录
 	 */
 	public function byRegAndWxopenid_action() {

@@ -12,6 +12,7 @@ class login extends \site\fe\base {
 		$rule_action['actions'] = array();
 		$rule_action['actions'][] = 'index';
 		$rule_action['actions'][] = 'do';
+		$rule_action['actions'][] = 'checkPwdStrength';
 		$rule_action['actions'][] = 'byRegAndWxopenid';
 		$rule_action['actions'][] = 'getCaptcha';
 

@@ -62,9 +62,9 @@ ngApp.controller('ctrlAccount', ['$scope', '$uibModal', 'http2', 'noticebox', fu
         $uibModal.open({
             templateUrl: 'resetPassword.html',
             backdrop: 'static',
-            controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
+            controller: ['$uibModalInstance', '$scope', 'http2', function($mi, $scope, http2) {
                 $scope.data = {
-                    password: 'dev189!@'
+                    password: ""
                 };
                 $scope.close = function() {
                     $mi.dismiss();
@@ -72,6 +72,9 @@ ngApp.controller('ctrlAccount', ['$scope', '$uibModal', 'http2', 'noticebox', fu
                 $scope.ok = function() {
                     $mi.close($scope.data);
                 };
+                http2.get('/rest/pl/be/user/account/getRandomPwd').then(function(rsp) {
+                    $scope.data.password = rsp.data;
+                });
             }]
         }).result.then(function(data) {
             data.uid = user.uid;

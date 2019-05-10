@@ -521,15 +521,23 @@ body.enroll-repos {
 
 .topic {
     background: #fff;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 8px solid #ddd;
     padding: 8px 16px;
     cursor: pointer;
+
+    &:last-child {
+        border-bottom: 0;
+    }
 }
 
 .record {
     background: #fff;
     border-bottom: 8px solid #ddd;
     padding: 8px 16px;
+    
+    &:last-child {
+        border-bottom: 0;
+    }
 
     &>* {
         margin: 8px 0;
@@ -983,14 +991,14 @@ body.enroll-repos {
 
     .close {
         position: absolute;
-        right: 50%;
-        margin-right: -10px;
-        bottom: -45px;
+        top: -30px;
+        right: 10px;
         color: #fff;
         opacity: 1;
         z-index: 10;
-        width: 30px;
-        height: 30px;
+        width: 25px;
+        height: 25px;
+        font-size: 14px;
         border-radius: 50%;
         border: 2px solid #fff;
     }

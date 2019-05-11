@@ -77,6 +77,10 @@
         <div class='panel-body'>
             <div class='checkbox'>
                 <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.can_result_all" ng-change="update('scenarioConfig')"> 允许其他用户查看结果页</label>
+            </div>
+            <div class='checkbox'>
+                <label>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.can_cowork" ng-change="update('scenarioConfig')"> 允许其他用户修改填写记录</label>
             </div>
             <div class='checkbox'>

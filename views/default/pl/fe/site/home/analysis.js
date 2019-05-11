@@ -53,6 +53,16 @@ define(['frame'], function(ngApp) {
                 $scope.page.total = rsp.data.total;
             });
         };
+        $scope.export = function(url) {
+            var url;
+            url = '/rest/pl/fe/site/analysis/exportMatterActions';
+            url += '?site=' + $scope.site.id;
+            url += '&type=article';
+            url += '&orderby=' + $scope.orderby;
+            url += '&startAt=' + $scope.startAt;
+            url += '&endAt=' + $scope.endAt;
+            window.open(url);
+        };
         $scope.$on('xxt.tms-datepicker.change', function(event, data) {
             $scope[data.state] = data.value;
             $scope.fetch(1);
@@ -107,6 +117,16 @@ define(['frame'], function(ngApp) {
                 $scope.users = rsp.data.users;
                 $scope.page.total = rsp.data.total;
             });
+        };
+        $scope.export = function(url) {
+            var url;
+            url = '/rest/pl/fe/site/analysis/exportUserActions';
+            url += '?site=' + $scope.site.id;
+            url += '&type=article';
+            url += '&orderby=' + $scope.orderby;
+            url += '&startAt=' + $scope.startAt;
+            url += '&endAt=' + $scope.endAt;
+            window.open(url);
         };
         $scope.viewUser = function(openid) {
             location.href = '/rest/mp/user?openid=' + openid;

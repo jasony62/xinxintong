@@ -30,10 +30,11 @@ class topic_model extends entity_model {
 	 * 根据任务定义返回任务专题
 	 */
 	public function byRule($oRule) {
-		$oSrcTask = $this->model('matter\enroll\task', $this->_oApp)->byRule($oRule);
+		$oSrcTask = $this->model('matter\enroll\task', $this->_oApp)->byRule($oRule, ['fields' => 'id,rid,start_at,end_at,config_type']);
 		if (false === $oSrcTask) {
 			return false;
 		}
+
 		$oSrcTopic = $this->byTask($oSrcTask);
 
 		return $oSrcTopic;
@@ -55,6 +56,7 @@ class topic_model extends entity_model {
 			$oTopic->create_at = $current;
 			$oTopic->userid = '';
 			$oTopic->group_id = '';
+			empty($oTask->type) && $oTask->type = $oTask->config_type;
 			$oTopic->title = ['question' => '提问', 'answer' => '回答', 'vote' => '投票', 'score' => '打分', 'baseline' => '目标'][$oTask->type] . '任务专题（' . date('y年n月d日', $oTask->start_at) . '）';
 			//$oTopic->summary = empty($oPosted->summary) ? $oNewTopic->title : $modelEnl->escape($oPosted->summary);
 			$oTopic->rec_num = 0;

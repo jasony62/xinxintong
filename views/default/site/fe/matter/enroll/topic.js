@@ -34,6 +34,9 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         return http2.get(url);
     }
 
+    $scope.gotoHome = function() {
+        location.href="/rest/home";
+    };
     $scope.shareTopic = function() {
         var url, shareby;
         url = LS.j('', 'site', 'app') + '&topic=' + $scope.topic.id + '&page=share';

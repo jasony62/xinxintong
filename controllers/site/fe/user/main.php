@@ -184,6 +184,12 @@ class main extends \site\fe\base {
 		if ($oAccount = $modelUsr->byId($user->uid)) {
 			$modelReg = $this->model('site\user\registration');
 			if ($registration = $modelReg->byId($oAccount->unionid)) {
+				// 校验密码安全
+				$rst = tms_pwd_check($data->password, ['account' => $registration->uname]);
+				if ($rst[0] === false) {
+					return new \ResponseError($rst[1]);
+				}
+
 				$rst = $modelReg->changePwd($registration->uname, $data->password, $registration->salt);
 				return new \ResponseData($rst);
 			}

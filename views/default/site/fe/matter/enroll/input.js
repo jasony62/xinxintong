@@ -891,6 +891,9 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
             _tasksOfBeforeSubmit.push(fn);
         }
     };
+    $scope.gotoHome = function() {
+        location.href="/rest/home";
+    };
     $scope.save = function(event) {
         $scope.submit(event, '', 'save');
     };

@@ -32,13 +32,12 @@
     </div>
     <script type="text/ng-template" id="task.html">
         <div class="modal-body">
-            <button class="close" ng-click="cancel()">×</button>
             <div class="row">
                 <div class="current-task">
                     <div class="info">
                         <p>当前任务</p>
                         <p>「{{currentTask.name}}」</p>
-                        <p>截止:{{currentTask.time.start_at}}</p>
+                        <p>截止:{{currentTask.time.end_at}}</p>
                     </div>
                     <div class="img" ng-class="{'提问':'img-question','回答':'img-answer','投票':'img-vote','打分':'img-score'}[currentTask.name]"></div>
                 </div>
@@ -59,7 +58,7 @@
                                 </div>
                                 <div class='timeline-state' ng-class="{'BS':'state-BS','IP':'state-IP'}[task.data.state]" ng-switch on="task.data.state">
                                         <div ng-switch-when="BS">
-                                            <i class="glyphicon glyphicon-lock"></i>
+                                            <i class="site-icon lock"></i>
                                             <div class="time">
                                                 <div>起<br>止</div>
                                                 <div class="thread"></div>
@@ -67,7 +66,8 @@
                                             </div>                                            
                                         </div>
                                         <div ng-switch-when="IP">
-                                            <i class="glyphicon glyphicon-map-marker"></i>
+                                            <i class="site-icon map-marker-top"></i>
+                                            <i class="site-icon map-marker-bottom"></i>
                                         </div>
                                     </div>
                                 <div class="timeline-back"></div>
@@ -85,6 +85,7 @@
             <button class="btn site-btn-light" ng-click="addRecord()">去提问</button>
             <button class="btn site-btn-blue"  ng-click="gotoTask(currentTask)">查看提问({{currentTask.data.doneUsersSum}}/{{currentTask.data.assignUsersSum}})</button>
         </div>
+        <button class="close" ng-click="cancel()">×</button>
     </script>
     <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
     <script src="/static/js/angular.min.js"></script>

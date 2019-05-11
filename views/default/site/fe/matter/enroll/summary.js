@@ -25,7 +25,6 @@ ngApp.controller('ctrlSummary', ['$scope', 'tmsLocation', '$location', 'http2', 
         $scope.subView = subView[1] === 'rank' ? 'rank' : subView[1];
     });
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
-        /* 请求导航 */
         $scope.oApp = params.app;
         http2.get(LS.j('navs', 'site', 'app')).then(function(rsp) {
             $scope.navs = rsp.data;
@@ -208,9 +207,9 @@ ngApp.controller('ctrlSummaryRank', ['$scope', '$q', '$sce', 'tmsLocation', 'htt
         });
         $scope.changeCriteria();
         /*设置页面分享信息*/
-        $scope.setSnsShare();
+        $scope.setSnsShare(null, null, { target_type: 'rank', target_id: oApp.id });
         /*页面阅读日志*/
-        $scope.logAccess();
+        $scope.logAccess({ target_type: 'rank', target_id: oApp.id });
     });
 }]);
 ngApp.controller('ctrlSummaryVotes', ['$scope', '$q', '$timeout', 'tmsLocation', 'http2', 'enlRound', function($scope, $q, $timeout, LS, http2, enlRound) {

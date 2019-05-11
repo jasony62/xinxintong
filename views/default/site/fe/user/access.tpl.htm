@@ -34,6 +34,7 @@
         </div>
     </nav>
     <div class="container-fluid">
+        <div class='alert alert-danger tms-notice text-center ' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg' ng-show='errmsg'></div>
         <div class='row'>
             <div class='col-md-9 hidden-xs hidden-sm'>
                 <img src='<?php echo APP_ACCESS_BANNER;?>' width="100%">
@@ -49,7 +50,7 @@
                                     </div>
                                     <div class='form-group'>
                                         <label>登录密码</label>
-                                        <input type='password' class='form-control' name='password' ng-model='loginData.password' placeholder='输入8-16位登录密码' ng-minlength='6' ng-maxlength='16' required />
+                                        <input type='password' class='form-control' name='password' ng-model='loginData.password' placeholder='输入8-16位登录密码' required />
                                     </div>
                                     <div class="form-group">
                                         <label>验证码</label>
@@ -94,7 +95,7 @@
                                     </div>
                                     <div class='form-group'>
                                         <label>登录密码</label>
-                                        <input type='password' class='form-control' name='password' ng-model='registerData.password' ng-minlength='8' ng-maxlength='16' placeholder='输入登录密码' required />
+                                        <input type='password' class='form-control' name='password' ng-model='registerData.password' placeholder='输入登录密码' required />
                                         <p class='help-block'>输入8-16位密码(需包含数字、字母、特殊字符)</p>
                                     </div>
                                     <div class='form-group'>
@@ -114,8 +115,7 @@
                         </uib-tab>
                     </uib-tabset>
                 </div>
-            </div>
-            <div class='alert alert-danger tms-notice' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg' ng-show='errmsg'></div>
+            </div>            
         </div>
         <script src="/static/js/xxt.ui.error.js"></script>
         <script src="/static/js/angular.min.js"></script>

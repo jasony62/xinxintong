@@ -37,6 +37,9 @@ ngApp.factory('Record', ['http2', 'tmsLocation', function(http2, LS) {
     };
 }]);
 ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$parse', '$sce', 'noticebox', function($scope, Record, LS, $parse, $sce, noticebox) {
+    $scope.gotoHome = function() {
+        location.href="/rest/home";
+    };
     $scope.value2Label = function(schemaId) {
         var val, oRecord;
         if (schemaId && $scope.Record) {

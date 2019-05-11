@@ -9,13 +9,13 @@
  * dndlist
  */
 angular.module('ui.tms', ['ng', 'ngSanitize']).
-controller('ComboxController', ['$scope', function($scope) {
+controller('ComboxController', ['$scope', function ($scope) {
     $scope.aChecked = [];
     if ($scope.evtPrefix === undefined)
         $scope.evt = 'xxt.combox.';
     else
         $scope.evt = $scope.evtPrefix + '.xxt.combox.';
-    $scope.toggle = function(o) {
+    $scope.toggle = function (o) {
         var i = $scope.aChecked.indexOf(o);
         if (i !== -1) {
             $scope.aChecked.splice(i, 1);
@@ -23,15 +23,15 @@ controller('ComboxController', ['$scope', function($scope) {
             $scope.aChecked.push(o);
         }
     };
-    $scope.empty = function() {
+    $scope.empty = function () {
         $scope.aChecked = [];
     };
-    $scope.done = function(event) {
+    $scope.done = function (event) {
         if (event && event.target)
             $(event.target).parents('.dropdown-menu').dropdown('toggle');
         $scope.$emit($scope.evt + 'done', $scope.aChecked, $scope.state);
     };
-    $scope.keydown = function(event) {
+    $scope.keydown = function (event) {
         switch (event.which) {
             case 32: //white space
             case 188: //','
@@ -50,20 +50,20 @@ controller('ComboxController', ['$scope', function($scope) {
                 break;
         }
     };
-    $scope.blur = function(event) {
+    $scope.blur = function (event) {
         var val = $scope.input;
         if (val && val.length > 0) {
             $scope.input = '';
             $scope.$emit($scope.evt + 'add', val, $scope.state);
         }
     };
-    $scope.gotoOne = function(e) {
+    $scope.gotoOne = function (e) {
         $scope.$emit($scope.evt + 'link', e, $scope.state);
     };
-    $scope.removeOne = function(e) {
+    $scope.removeOne = function (e) {
         $scope.$emit($scope.evt + 'del', e, $scope.state);
     };
-}]).directive('combox', function() {
+}]).directive('combox', function () {
     return {
         restrict: 'EA',
         scope: {
@@ -78,12 +78,12 @@ controller('ComboxController', ['$scope', function($scope) {
             state: '@'
         },
         controller: 'ComboxController',
-        templateUrl: function() {
+        templateUrl: function () {
             return '/static/template/combox.html?_=2';
         },
         replace: true,
-        link: function(scope, elem, attrs) {
-            elem[0].querySelector('.dropdown-toggle').addEventListener('click', function(e) {
+        link: function (scope, elem, attrs) {
+            elem[0].querySelector('.dropdown-toggle').addEventListener('click', function (e) {
                 if (!this.classList.contains('open') && !scope.retainState) {
                     scope.empty();
                     scope.$apply();
@@ -92,13 +92,13 @@ controller('ComboxController', ['$scope', function($scope) {
             var menus = elem[0].querySelectorAll('.dropdown-menu *');
             for (var i = 0, ii = menus.length; i < ii; i++) {
                 var elemMenu = menus[i];
-                elemMenu.addEventListener('click', function(e) {
+                elemMenu.addEventListener('click', function (e) {
                     e.stopPropagation();
                 });
             }
         }
     }
-}).directive('tmsEditable', ['$timeout', function($timeout) {
+}).directive('tmsEditable', ['$timeout', function ($timeout) {
     return {
         restrict: 'A',
         scope: {
@@ -109,7 +109,7 @@ controller('ComboxController', ['$scope', function($scope) {
             state: '@'
         },
         templateUrl: '/static/template/editable.html?_=4',
-        link: function(scope, elem, attrs) {
+        link: function (scope, elem, attrs) {
             function whenBlur(event) {
                 if (!event.relatedTarget || $(elem).find('.input-group button')[0] !== event.relatedTarget) {
                     delete scope.focus;
@@ -126,25 +126,25 @@ controller('ComboxController', ['$scope', function($scope) {
                 if (phase === '$digest' || phase === '$apply') {
                     whenBlur(event);
                 } else {
-                    scope.$apply(function() {
+                    scope.$apply(function () {
                         whenBlur(event);
                     });
                 }
             }
-            $(elem).on('click', function(event) {
+            $(elem).on('click', function (event) {
                 delete scope.enter;
                 scope.focus = true;
                 scope.$apply();
-            }).mouseenter(function(event) {
+            }).mouseenter(function (event) {
                 if (!scope.focus) {
                     scope.enter = true;
                     scope.$apply();
                 }
-            }).mouseleave(function(event) {
+            }).mouseleave(function (event) {
                 delete scope.enter;
                 scope.$apply();
             });
-            scope.valueChanged = function() {
+            scope.valueChanged = function () {
                 scope.obj[scope.prop] = scope.editing.value;
                 delete scope.focus;
                 if (scope.evtPrefix && scope.evtPrefix.length) {
@@ -153,12 +153,12 @@ controller('ComboxController', ['$scope', function($scope) {
                     scope.$emit('xxt.editable.changed', scope.obj, scope.state);
                 }
             };
-            scope.submitChange = function(event) {
+            scope.submitChange = function (event) {
                 event.preventDefault();
                 event.stopPropagation();
                 scope.valueChanged();
             };
-            scope.remove = function(event) {
+            scope.remove = function (event) {
                 if (event) {
                     event.preventDefault();
                     event.stopPropagation();
@@ -169,27 +169,27 @@ controller('ComboxController', ['$scope', function($scope) {
                     scope.$emit('xxt.editable.remove', scope.obj, scope.state);
                 }
             };
-            scope.$on('xxt.editable.add', function(event, newObj) {
+            scope.$on('xxt.editable.add', function (event, newObj) {
                 if (newObj === scope.obj) scope.focus = true;
             });
-            scope.$watch('focus', function(nv, ov) {
+            scope.$watch('focus', function (nv, ov) {
                 if (nv) $(elem).find('input').on('blur', onBlur).focus();
             }, true);
             scope.editing = {};
             if (scope.obj && scope.prop) scope.editing.value = scope.obj[scope.prop];
-            scope.$watch('obj', function(nv, ov) {
+            scope.$watch('obj', function (nv, ov) {
                 if (nv && nv !== ov && angular.isObject(nv) && scope.prop) scope.editing.value = nv[scope.prop];
             });
         }
     }
-}]).directive('tmsArrayCheckbox', ['$timeout', '$parse', function($timeout, $parse) {
+}]).directive('tmsArrayCheckbox', ['$timeout', '$parse', function ($timeout, $parse) {
     function fnFindCheckbox(elem, stack) {
         if (elem.nodeName === 'INPUT' && elem.getAttribute('type') === 'checkbox') {
             stack.push(elem);
             return;
         }
         if (elem.children && elem.children.length) {
-            angular.forEach(elem.children, function(child) {
+            angular.forEach(elem.children, function (child) {
                 fnFindCheckbox(child, stack);
             });
         }
@@ -198,15 +198,15 @@ controller('ComboxController', ['$scope', function($scope) {
 
     return {
         restrict: 'A',
-        link: function(scope, elems, attrs) {
-            $timeout(function() {
+        link: function (scope, elems, attrs) {
+            $timeout(function () {
                 var checkboxStack = [],
                     oInnerModel = {},
                     bInnerModified = false;
 
                 fnFindCheckbox(elems[0], checkboxStack);
                 if (checkboxStack.length) {
-                    scope.$watch(attrs.model, function(oOutModel) {
+                    scope.$watch(attrs.model, function (oOutModel) {
                         var aBeforeValue;
                         if (false === bInnerModified) {
                             if (oOutModel) {
@@ -215,13 +215,13 @@ controller('ComboxController', ['$scope', function($scope) {
                                 } else if (angular.isString(oOutModel)) {
                                     aBeforeValue = oOutModel.split(',');
                                 } else if (angular.isObject(oOutModel)) {
-                                    angular.forEach(oOutModel, function(key, val) {
+                                    angular.forEach(oOutModel, function (key, val) {
                                         val && aBeforeValue.push(key);
                                     });
                                 } else {
                                     aBeforeValue = [];
                                 }
-                                checkboxStack.forEach(function(eleCheckbox) {
+                                checkboxStack.forEach(function (eleCheckbox) {
                                     var val;
                                     val = eleCheckbox.getAttribute('value');
                                     if (aBeforeValue && aBeforeValue.length && aBeforeValue.indexOf(val) !== -1) {
@@ -233,7 +233,7 @@ controller('ComboxController', ['$scope', function($scope) {
                                     }
                                 });
                             } else {
-                                checkboxStack.forEach(function(eleCheckbox) {
+                                checkboxStack.forEach(function (eleCheckbox) {
                                     eleCheckbox.checked = false;
                                 });
                                 oInnerModel = {};
@@ -241,8 +241,8 @@ controller('ComboxController', ['$scope', function($scope) {
                         }
                         bInnerModified = false;
                     });
-                    checkboxStack.forEach(function(eleCheckbox) {
-                        eleCheckbox.addEventListener('change', function() {
+                    checkboxStack.forEach(function (eleCheckbox) {
+                        eleCheckbox.addEventListener('change', function () {
                             var val;
                             val = this.getAttribute('value');
                             if (this.checked) {
@@ -250,7 +250,7 @@ controller('ComboxController', ['$scope', function($scope) {
                             } else {
                                 delete oInnerModel[val];
                             }
-                            scope.$apply(function() {
+                            scope.$apply(function () {
                                 bInnerModified = true;
                                 $parse(attrs.model).assign(scope, Object.keys(oInnerModel));
                                 if (attrs.tmsChange) {
@@ -263,7 +263,7 @@ controller('ComboxController', ['$scope', function($scope) {
             });
         }
     };
-}]).filter('tmsDateFilter', ['$filter', function($filter) {
+}]).filter('tmsDateFilter', ['$filter', function ($filter) {
     var i18n = {
         weekday: {
             'Mon': '星期一',
@@ -276,7 +276,7 @@ controller('ComboxController', ['$scope', function($scope) {
         }
     };
 
-    return function(timestamp, format) {
+    return function (timestamp, format) {
         var str, weekday;
 
         if (!format) return timestamp;
@@ -289,7 +289,7 @@ controller('ComboxController', ['$scope', function($scope) {
 
         return str;
     }
-}]).directive('tmsDatepicker', function() {
+}]).directive('tmsDatepicker', function () {
     var _version = 8;
     return {
         restrict: 'EA',
@@ -303,7 +303,7 @@ controller('ComboxController', ['$scope', function($scope) {
             obj: '=tmsObj'
         },
         templateUrl: '/static/template/datepicker.html?_=' + _version,
-        controller: ['$scope', '$uibModal', function($scope, $uibModal) {
+        controller: ['$scope', '$uibModal', function ($scope, $uibModal) {
             var mask, format = [];
             if ($scope.mask === undefined) {
                 mask = {
@@ -315,7 +315,7 @@ controller('ComboxController', ['$scope', function($scope) {
                 };
                 $scope.format = 'yy-MM-dd HH:mm';
             } else {
-                mask = (function(mask1) {
+                mask = (function (mask1) {
                     var mask2, mask1 = mask1.split(',');
                     /*date*/
                     mask2 = {
@@ -346,22 +346,22 @@ controller('ComboxController', ['$scope', function($scope) {
                     return mask2;
                 })($scope.mask);
             }
-            $scope.open = function() {
+            $scope.open = function () {
                 $uibModal.open({
                     templateUrl: 'tmsModalDatepicker.html',
                     resolve: {
-                        date: function() {
+                        date: function () {
                             return $scope.date;
                         },
-                        defaultDate: function() {
+                        defaultDate: function () {
                             return $scope.defaultDate;
                         },
-                        mask: function() {
+                        mask: function () {
                             return mask;
                         }
                     },
-                    controller: ['$scope', '$filter', '$uibModalInstance', 'date', 'defaultDate', 'mask', function($scope, $filter, $mi, date, defaultDate, mask) {
-                        date = (function() {
+                    controller: ['$scope', '$filter', '$uibModalInstance', 'date', 'defaultDate', 'mask', function ($scope, $filter, $mi, date, defaultDate, mask) {
+                        date = (function () {
                             var d = new Date();
                             if (defaultDate) {
                                 d.setTime(defaultDate ? defaultDate * 1000 : d.getTime());
@@ -399,7 +399,7 @@ controller('ComboxController', ['$scope', function($scope) {
                             $scope.hours.push(i);
                         for (var i = 0; i <= 59; i++)
                             $scope.minutes.push(i);
-                        $scope.today = function() {
+                        $scope.today = function () {
                             var d = new Date();
                             $scope.date = {
                                 year: d.getFullYear(),
@@ -409,36 +409,36 @@ controller('ComboxController', ['$scope', function($scope) {
                                 minute: d.getMinutes()
                             };
                         };
-                        $scope.reset = function(field) {
+                        $scope.reset = function (field) {
                             $scope.date[field] = 0;
                         };
-                        $scope.next = function(field, options) {
+                        $scope.next = function (field, options) {
                             var max = options[options.length - 1];
 
                             if ($scope.date[field] < max) {
                                 $scope.date[field]++;
                             }
                         };
-                        $scope.prev = function(field, options) {
+                        $scope.prev = function (field, options) {
                             var min = options[0];
 
                             if ($scope.date[field] > min) {
                                 $scope.date[field]--;
                             }
                         };
-                        $scope.ok = function() {
+                        $scope.ok = function () {
                             $mi.close($scope.date);
                         };
-                        $scope.empty = function() {
+                        $scope.empty = function () {
                             $mi.close(null);
                         };
-                        $scope.cancel = function() {
+                        $scope.cancel = function () {
                             $mi.dismiss('cancel');
                         };
                     }],
                     backdrop: 'static',
                     size: 'sm'
-                }).result.then(function(result) {
+                }).result.then(function (result) {
                     var d;
                     d = result === null ? 0 : Date.parse(result.year + '/' + result.month + '/' + result.mday + ' ' + result.hour + ':' + result.minute) / 1000;
                     $scope.date = d;
@@ -452,14 +452,14 @@ controller('ComboxController', ['$scope', function($scope) {
         }],
         replace: true
     };
-}).directive('tmsAutoUpdate', function() {
-    var link = function(scope, element, attrs) {
+}).directive('tmsAutoUpdate', function () {
+    var link = function (scope, element, attrs) {
         var fnPending = null;
-        var onInput = function() {
+        var onInput = function () {
             scope.tmsUpdate();
             scope.$root.$$phase === null && scope.$apply();
         };
-        element.on('input', function() {
+        element.on('input', function () {
             fnPending && clearTimeout(fnPending);
             fnPending = setTimeout(onInput, scope.tmsWait);
         });
@@ -471,24 +471,24 @@ controller('ComboxController', ['$scope', function($scope) {
         },
         link: link,
     };
-}).directive('dndList', function() {
-    var link = function(scope, element, attrs) {
+}).directive('dndList', function () {
+    var link = function (scope, element, attrs) {
         var dndableOffset = attrs.dndableOffset || 0,
             connectWith = attrs.connectWith,
             savedNodes;
-        var dndstart = function(event, ui) {
+        var dndstart = function (event, ui) {
             ui.item.sortable = {
                 index: ui.item.index(),
-                cancel: function() {
+                cancel: function () {
                     ui.item.sortable._isCanceled = true;
                 },
-                isCanceled: function() {
+                isCanceled: function () {
                     return ui.item.sortable._isCanceled;
                 },
                 _isCanceled: false
             };
         };
-        var dndactivate = function() {
+        var dndactivate = function () {
             savedNodes = element.contents();
             var placeholder = element.sortable('option', 'placeholder');
             if (placeholder && placeholder.element && typeof placeholder.element === 'function') {
@@ -498,7 +498,7 @@ controller('ComboxController', ['$scope', function($scope) {
                 savedNodes = savedNodes.not(excludes);
             }
         };
-        var dndupdate = function(event, ui) {
+        var dndupdate = function (event, ui) {
             if (!ui.item.sortable.received) {
                 ui.item.sortable.dropindex = ui.item.index();
                 ui.item.sortable.droptarget = ui.item.parent();
@@ -509,7 +509,7 @@ controller('ComboxController', ['$scope', function($scope) {
             }
             savedNodes.appendTo(element);
             if (ui.item.sortable.received && !ui.item.sortable.isCanceled()) {
-                scope.$apply(function() {
+                scope.$apply(function () {
                     scope.dataset.splice(ui.item.sortable.dropindex - dndableOffset, 0, ui.item.sortable.moved);
                     if (scope.evtPrefix && scope.evtPrefix.length) {
                         scope.$emit(scope.evtPrefix + '.orderChanged', movedObj, scope.state);
@@ -519,19 +519,19 @@ controller('ComboxController', ['$scope', function($scope) {
                 });
             }
         };
-        var dndremove = function(event, ui) {
+        var dndremove = function (event, ui) {
             if (!ui.item.sortable.isCanceled()) {
-                scope.$apply(function() {
+                scope.$apply(function () {
                     ui.item.sortable.moved = scope.dataset.splice(ui.item.sortable.index - dndableOffset, 1)[0];
                 });
             }
         };
-        var dndreceive = function(event, ui) {
+        var dndreceive = function (event, ui) {
             ui.item.sortable.received = true;
         };
-        var dndstop = function(event, ui) {
+        var dndstop = function (event, ui) {
             if (!ui.item.sortable.received && ('dropindex' in ui.item.sortable) && !ui.item.sortable.isCanceled()) {
-                scope.$apply(function() {
+                scope.$apply(function () {
                     var movedObj = scope.dataset[ui.item.sortable.index - dndableOffset];
                     scope.dataset.splice(
                         ui.item.sortable.dropindex - dndableOffset, 0,
@@ -575,13 +575,13 @@ controller('ComboxController', ['$scope', function($scope) {
         },
         link: link,
     };
-}).directive('tmsTree', function() {
+}).directive('tmsTree', function () {
     return {
         restrict: 'A',
         transclude: 'element',
         priority: 1000,
         terminal: true,
-        compile: function(tElement, tAttrs, transclude) {
+        compile: function (tElement, tAttrs, transclude) {
             var repeatExpr, childExpr, rootExpr, childrenExpr, branchExpr;
             repeatExpr = tAttrs.tmsTree.match(/^(.*) in ((?:.*\.)?(.*)) at (.*)$/);
             childExpr = repeatExpr[1];
@@ -598,7 +598,7 @@ controller('ComboxController', ['$scope', function($scope) {
                         if (cache[i].scope[childExpr] === child)
                             return cache.splice(i, 1)[0];
                 }
-                scope.$watch(rootExpr, function(root) {
+                scope.$watch(rootExpr, function (root) {
                     var currentCache = [];
                     // Recurse the data structure
                     (function walk(children, parentNode, parentScope, depth) {
@@ -632,7 +632,7 @@ controller('ComboxController', ['$scope', function($scope) {
                             // We also cache a reference to its branch node which will
                             // be used as the parentNode in the next level of recursion
                             if (!cached) {
-                                transclude(parentScope.$new(), function(clone, childScope) {
+                                transclude(parentScope.$new(), function (clone, childScope) {
                                     childScope[childExpr] = child;
                                     cached = {
                                         scope: childScope,
@@ -683,7 +683,7 @@ controller('ComboxController', ['$scope', function($scope) {
             };
         }
     };
-}).directive('runningButton', function() {
+}).directive('runningButton', function () {
     return {
         restrict: 'EA',
         template: "<button ng-class=\"isRunning?'btn-default':'btn-primary'\" ng-disabled='isRunning' ng-transclude></button>",
@@ -693,16 +693,16 @@ controller('ComboxController', ['$scope', function($scope) {
         replace: true,
         transclude: true
     }
-}).directive('tmsAutoFocus', function($timeout) {
+}).directive('tmsAutoFocus', function ($timeout) {
     return {
         restrict: 'A',
-        link: function(_scope, _element) {
-            $timeout(function() {
+        link: function (_scope, _element) {
+            $timeout(function () {
                 _element[0].focus();
             });
         }
     };
-}).directive('tmsTableWrap', function() {
+}).directive('tmsTableWrap', function () {
     return {
         restrict: 'A',
         scope: {
@@ -710,8 +710,8 @@ controller('ComboxController', ['$scope', function($scope) {
             ready: '=',
             overflowX: '@'
         },
-        link: function(scope, elem, attrs) {
-            scope.$watch('ready', function(ready) {
+        link: function (scope, elem, attrs) {
+            scope.$watch('ready', function (ready) {
                 if (ready === 'Y') {
                     var eleWrap = elem[0],
                         eleTable = eleWrap.querySelector('table'),
@@ -724,7 +724,7 @@ controller('ComboxController', ['$scope', function($scope) {
                         }
                         eleTable.style.maxWidth = 'none';
                         eleCols = eleTable.querySelectorAll('th');
-                        angular.forEach(eleCols, function(eleCol) {
+                        angular.forEach(eleCols, function (eleCol) {
                             if (eleCol.style.width) {
                                 tableWidth += parseInt(eleCol.style.width.replace('px', ''));
                             } else {
@@ -737,14 +737,14 @@ controller('ComboxController', ['$scope', function($scope) {
             });
         }
     }
-}).directive('tmsFlexHeight', function() {
+}).directive('tmsFlexHeight', function () {
     return {
         restrict: 'A',
         scope: {
             top: '@',
             bottom: '@'
         },
-        link: function(scope, elem, attrs) {
+        link: function (scope, elem, attrs) {
             var bodyHeight = document.documentElement.clientHeight;
             elem[0].style.height = (bodyHeight - scope.top - scope.bottom) + 'px';
             if (attrs.overflowY) {
@@ -754,13 +754,13 @@ controller('ComboxController', ['$scope', function($scope) {
             }
         }
     }
-}).directive('flexImg', function() {
+}).directive('flexImg', function () {
     return {
         restrict: 'A',
         replace: true,
         template: "<img ng-src='{{img.imgSrc}}'>",
-        link: function(scope, elem, attrs) {
-            angular.element(elem).on('load', function() {
+        link: function (scope, elem, attrs) {
+            angular.element(elem).on('load', function () {
                 var w = this.clientWidth,
                     h = this.clientHeight,
                     sw, sh;
@@ -786,17 +786,17 @@ controller('ComboxController', ['$scope', function($scope) {
             })
         }
     }
-}).factory('facListFilter', ['$timeout', function($timeout) {
+}).factory('facListFilter', ['$timeout', function ($timeout) {
     var oFacFilter;
     oFacFilter = {
         keyword: '',
         target: null,
-        init: function(fnCallbck, oOutside) {
+        init: function (fnCallbck, oOutside) {
             this.fnCallbck = fnCallbck;
             this.oOutside = oOutside || {};
             return this;
         },
-        show: function(event) {
+        show: function (event) {
             var eleKw;
             this.target = event.target;
             while (this.target.tagName !== 'TH') {
@@ -808,14 +808,14 @@ controller('ComboxController', ['$scope', function($scope) {
             }
             this.keyword = this.oOutside.keyword || '';
             $(this.target).trigger('show');
-            $timeout(function() {
+            $timeout(function () {
                 var el = document.querySelector('input[ng-model="filter.keyword"]');
                 if (el && el.hasAttribute('autofocus')) {
                     el.focus();
                 }
             }, 200);
         },
-        close: function() {
+        close: function () {
             if (this.keyword) {
                 this.target.classList.add('active');
             } else {
@@ -823,7 +823,7 @@ controller('ComboxController', ['$scope', function($scope) {
             }
             $(this.target).trigger('hide');
         },
-        cancel: function() {
+        cancel: function () {
             var by;
             by = this.oOutside.by;
             this.oOutside.keyword = this.keyword = '';
@@ -831,13 +831,13 @@ controller('ComboxController', ['$scope', function($scope) {
             this.close();
             this.fnCallbck && this.fnCallbck(this.oOutside, by);
         },
-        exec: function() {
+        exec: function () {
             this.oOutside.keyword = this.keyword;
             this.oOutside.by = this.keyword ? this.target.dataset.filterBy : '';
             this.fnCallbck && this.fnCallbck(this.oOutside, this.target.dataset.filterBy, this.oOutside.keyword);
             this.close();
         },
-        keyUp: function(event) {
+        keyUp: function (event) {
             if (event.keyCode == 13) {
                 this.exec();
             }
@@ -846,24 +846,24 @@ controller('ComboxController', ['$scope', function($scope) {
     return oFacFilter;
 }]).
 /* 记录列表的选择结果 */
-factory('tmsRowPicker', function() {
+factory('tmsRowPicker', function () {
     function RowPicker() {
         this.allSelected = 'N';
         this.selected = {};
         this.count = 0;
-        this.change = function(index) {
+        this.change = function (index) {
             this.selected[index] ? this.count++ : this.count--;
             if (!this.selected[index]) delete this.selected[index];
         };
-        this.indexes = function() {
+        this.indexes = function () {
             return Object.keys(this.selected);
         };
-        this.reset = function() {
+        this.reset = function () {
             this.allSelected = 'N';
             this.selected = {};
             this.count = 0;
         };
-        this.setAllSelected = function(checked, amount) {
+        this.setAllSelected = function (checked, amount) {
             var index = 0;
             if (checked === 'Y') {
                 while (index < amount) {
@@ -874,10 +874,10 @@ factory('tmsRowPicker', function() {
                 this.reset();
             }
         };
-        this.walk = function(array, fnCallable) {
+        this.walk = function (array, fnCallable) {
             var _self = this,
                 _aResult = [];
-            Object.keys(_self.selected).forEach(function(key) {
+            Object.keys(_self.selected).forEach(function (key) {
                 if (_self.selected[key] === true) {
                     _aResult.push(fnCallable(array[key]));
                 }
@@ -886,7 +886,7 @@ factory('tmsRowPicker', function() {
         };
     }
     return RowPicker;
-}).directive('tmsToggleSwitch', ['$compile', '$parse', function($compile, $parse) {
+}).directive('tmsToggleSwitch', ['$compile', '$parse', function ($compile, $parse) {
     return {
         restrict: 'EA',
         replace: true,
@@ -906,7 +906,7 @@ factory('tmsRowPicker', function() {
             '<span class="switch-right"></span>' +
             '</div>' +
             '</div>',
-        compile: function(element, attrs) {
+        compile: function (element, attrs) {
             if (angular.isUndefined(attrs.onLabel)) {
                 attrs.onLabel = 'On';
             }
@@ -940,10 +940,10 @@ factory('tmsRowPicker', function() {
                 }
 
                 iElement.attr('tabindex', attrs.tabindex);
-                scope.isOn = function() {
+                scope.isOn = function () {
                     return scope.model === ngTrueValue;
                 }
-                scope.isOff = function() {
+                scope.isOff = function () {
                     return scope.model === ngFalseValue;
                 }
                 scope.toggle = function toggle() {
@@ -962,23 +962,23 @@ factory('tmsRowPicker', function() {
                     }
                 };
 
-                ngModel.$formatters.push(function(modelValue) {
+                ngModel.$formatters.push(function (modelValue) {
                     return modelValue;
                 });
 
-                ngModel.$parsers.push(function(viewValue) {
+                ngModel.$parsers.push(function (viewValue) {
                     return viewValue;
                 });
 
-                ngModel.$viewChangeListeners.push(function() {
+                ngModel.$viewChangeListeners.push(function () {
                     scope.$eval(attrs.ngChange);
                 });
 
-                ngModel.$render = function() {
+                ngModel.$render = function () {
                     scope.model = ngModel.$viewValue;
                 };
 
-                var bindSpan = function(span, html) {
+                var bindSpan = function (span, html) {
                     span = angular.element(span);
                     var bindAttributeName = (html === true) ? 'ng-bind-html' : 'ng-bind';
 
@@ -993,20 +993,20 @@ factory('tmsRowPicker', function() {
                     if (span.hasClass("switch-right"))
                         span.attr(bindAttributeName, 'offLabel');
 
-                    $compile(span)(scope, function(cloned, scope) {
+                    $compile(span)(scope, function (cloned, scope) {
                         span.replaceWith(cloned);
                     });
                 };
 
                 // add ng-bind attribute to each span element.
                 // NOTE: you need angular-sanitize to use ng-bind-html
-                var bindSwitch = function(iElement, html) {
-                    angular.forEach(iElement[0].children[0].children, function(span, index) {
+                var bindSwitch = function (iElement, html) {
+                    angular.forEach(iElement[0].children[0].children, function (span, index) {
                         bindSpan(span, html);
                     });
                 };
 
-                scope.$watch('html', function(newValue) {
+                scope.$watch('html', function (newValue) {
                     bindSwitch(iElement, newValue);
                 });
             };

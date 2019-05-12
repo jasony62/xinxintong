@@ -542,7 +542,7 @@ class task_model extends \TMS_MODEL {
                     if ($oTaskRound) {
                         $oRuleState = $this->getRuleStateByRound($oRuleConfig, $oTaskRound);
                         if (true === $oRuleState[0]) {
-                            tms_object_merge($oTask, $oRuleConfig, ['source', 'scoreApp', 'schemas']);
+                            tms_object_merge($oTask, $oRuleConfig, ['source', 'scoreApp', 'schemas', 'limit']);
                             tms_object_merge($oTask, $oRuleState[1], ['state']);
                         }
                     }

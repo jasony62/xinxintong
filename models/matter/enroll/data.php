@@ -1577,7 +1577,7 @@ class data_model extends entity_model {
             return [false, '已经投过票，不允许重复投票', $oBefore];
         }
 
-        $limitMax = $this->getDeepValue($oVoteRule, 'limit.max', -1);
+        $limitMax = $this->getDeepValue($oVoteRule, 'limit.max', 0);
         $q = [
             'count(*)',
             'xxt_enroll_vote',
@@ -1674,6 +1674,6 @@ class data_model extends entity_model {
         ];
         $beforeCount = (int) $this->query_val_ss($q);
 
-        return [true, [$this->getDeepValue($oVoteRule, 'limit.max', -1), $beforeCount], $oSumResult];
+        return [true, [$this->getDeepValue($oVoteRule, 'limit.max', 0), $beforeCount], $oSumResult];
     }
 }

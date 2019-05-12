@@ -3,7 +3,7 @@ namespace site\fe\matter\enroll;
 
 include_once dirname(__FILE__) . '/base.php';
 /**
- * 活动任务
+ * 记录活动任务
  */
 class task extends base {
     /**
@@ -50,63 +50,6 @@ class task extends base {
         });
 
         return new \ResponseData($tasks);
-    }
-    /**
-     * 获得指定投票题目的记录数据
-     */
-    public function votingRecData_action($app, $task) {
-        $modelApp = $this->model('matter\enroll');
-        $oApp = $modelApp->byId($app, ['cascaded' => 'N']);
-        if (false === $oApp || $oApp->state !== '1' || empty($oApp->voteConfig)) {
-            return new \ObjectNotFoundError();
-        }
-        $oActiveRnd = $oApp->appRound;
-
-        $modelTsk = $this->model('matter\enroll\task', $oApp);
-        $oTask = $modelTsk->byId($task);
-        if (false === $oTask || $oTask->config_type !== 'vote') {
-            return new \ObjectNotFoundError('没有找到匹配的投票任务');
-        }
-
-        $oVoteRule = $modelTsk->ruleByTask($oTask, $oActiveRnd);
-        if (false === $oVoteRule[0]) {
-            return new \ParameterError($oVoteRule[1]);
-        }
-        $oVoteRule = $oVoteRule[1];
-
-        $voteSchemas = array_filter($oApp->dynaDataSchemas, function ($oSchema) use ($oVoteRule) {return in_array($oSchema->id, $oVoteRule->schemas);});
-        if (empty($voteSchemas)) {
-            return new \ObjectNotFoundError('（3）投票任务参数错误');
-        }
-
-        $oUser = $this->getUser($oApp);
-
-        $modelRecDat = $this->model('matter\enroll\data');
-        $oResult = new \stdClass;
-
-        foreach ($voteSchemas as $oSchema) {
-            if ($oSchema->type === 'multitext') {
-                /* 对答案投票 */
-            } else {
-                $oDataResult = $modelRecDat->byApp($oApp, $oUser, ['schemas' => [$oSchema->id]]);
-                foreach ($oDataResult->records as $oRecData) {
-                    $oVotingRecData = new \stdClass;
-                    $oVoteResult = new \stdClass;
-                    $vote_at = (int) $modelRecDat->query_val_ss(['vote_at', 'xxt_enroll_vote', ['rid' => $oActiveRnd->rid, 'data_id' => $oRecData->id, 'state' => 1, 'userid' => $oUser->uid]]);
-                    $oVoteResult->vote_at = $vote_at;
-                    $oVoteResult->vote_num = $oRecData->vote_num;
-                    $oVoteResult->state = $oVoteRule->state;
-                    //
-                    $oVotingRecData->id = $oRecData->id;
-                    $oVotingRecData->view = $oRecData->value;
-                    $oVotingRecData->voteResult = $oVoteResult;
-                    //
-                    $oResult->{$oSchema->id}[] = $oVotingRecData;
-                }
-            }
-        }
-
-        return new \ResponseData($oResult);
     }
     /**
      * 对填写数据进行投票
@@ -245,6 +188,44 @@ class task extends base {
                 }
             }
         }
+
+        return new \ResponseData($oResult);
+    }
+    /**
+     * 投票任务的完成情况
+     */
+    public function votePerformance_action($app, $task) {
+        $oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+        if (false === $oApp || $oApp->state !== '1') {
+            return new \ObjectNotFoundError('（1）指定的对象不存在或不可用');
+        }
+
+        $modelTsk = $this->model('matter\enroll\task', $oApp);
+        $oTask = $modelTsk->byId($task);
+        if (false === $oTask || $oTask->config_type !== 'vote') {
+            return new \ObjectNotFoundError('（2）没有找到匹配的投票任务');
+        }
+
+        $oActiveRnd = $oApp->appRound;
+        $oVoteRule = $modelTsk->ruleByTask($oTask, $oActiveRnd);
+        if (false === $oVoteRule[0]) {
+            return new \ParameterError($oVoteRule[1]);
+        }
+        $oVoteRule = $oVoteRule[1];
+
+        $oUser = $this->getUser($oApp);
+
+        $oResult = new \stdClass;
+        if (isset($oVoteRule->limit)) {
+            $oResult->limit = $oVoteRule->limit;
+        }
+
+        $q = [
+            'data_id',
+            'xxt_enroll_vote',
+            ['aid' => $oApp->id, 'rid' => $oActiveRnd->rid, 'userid' => $oUser->uid, 'state' => 1],
+        ];
+        $oResult->data_ids = $modelTsk->query_vals_ss($q);
 
         return new \ResponseData($oResult);
     }

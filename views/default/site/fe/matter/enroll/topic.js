@@ -6,11 +6,12 @@ require('./_asset/ui.repos.js');
 require('./_asset/ui.score.js');
 require('./_asset/ui.tag.js');
 require('./_asset/ui.topic.js');
+require('./_asset/ui.task.js');
 
-window.moduleAngularModules = ['repos.ui.enroll', 'score.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll'];
+window.moduleAngularModules = ['repos.ui.enroll', 'score.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'task.ui.enroll'];
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', '$timeout', 'picviewer', 'noticebox', function ($scope, $sce, $q, $uibModal, http2, LS, $timeout, picviewer, noticebox) {
+ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', '$timeout', 'picviewer', 'noticebox', 'enlTask', function ($scope, $sce, $q, $uibModal, http2, LS, $timeout, picviewer, noticebox, enlTask) {
     /* 是否可以对记录进行表态 */
     function fnCanAgreeRecord(oRecord, oUser) {
         if (oUser.is_leader) {
@@ -179,12 +180,6 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
         $scope.gotoPage(event, page, oRecord.enroll_key);
     };
-    /* 提交投票结果 */
-    $scope.pendingVotes = [];
-    $scope.submitVote = function () {
-        if ($scope.pendingVotes.length)
-            http2.post(LS.j('task/batchVote', 'site', 'app') + '&task=' + $scope.topic.task.id, $scope.pendingVotes).then(function (rsp) {});
-    };
     $scope.spyRecordsScroll = true; // 监控滚动事件
     $scope.recordsScrollToBottom = function () {
         if ($scope.repos.length < $scope.page.total) {
@@ -208,7 +203,8 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         /*设置页面导航*/
         $scope.setPopNav(['repos'], 'topic');
         fnGetTopic().then(function (rsp) {
-            $scope.topic = rsp.data;
+            var oTopic;
+            $scope.topic = oTopic = rsp.data;
             /* 设置页面分享信息 */
             $scope.setSnsShare(null, {
                 topic: LS.s().topic
@@ -224,6 +220,64 @@ ngApp.controller('ctrlTopic', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                 title: rsp.data.title
             });
             $scope.recordList(1);
+            if (oTopic.task) {
+                var oTask;
+                oTask = oTopic.task;
+                oTask.type = oTask.config_type;
+                oTask = (new enlTask(_oApp)).enhance(oTask);
+                /* 投票任务执行情况 */
+                if (oTask.config_type === 'vote' && oTask.state === 'IP') {
+                    oTask.pendingVotes = [];
+                    oTask.submit = function () {
+                        if (oTask.pendingVotes.length)
+                            http2.post(LS.j('task/batchVote', 'site', 'app') + '&task=' + oTask.id, oTask.pendingVotes).then(function (rsp) {
+                                $scope.task.pendingVotes.splice(0);
+                            });
+                    };
+                    oTask.onChange = function (oRecData) {
+                        if (oTask.performance) {
+                            if (oRecData.vote_at) {
+                                oTask.performance.voteNum++;
+                            } else {
+                                oTask.performance.voteNum--;
+                            }
+                        }
+                    };
+                    oTask.tip = function () {
+                        if (oTask.performance) {
+                            if (oTask.limit) {
+                                if (oTask.limit.min && oTask.performance.voteNum < oTask.limit.min)
+                                    return '还差' + (oTask.limit.min - oTask.performance.voteNum) + '票';
+                                if (oTask.limit.max && oTask.performance.voteNum > oTask.limit.max)
+                                    return '超出' + (oTask.performance.voteNum - oTask.limit.max) + '票';
+                            }
+                            return '已投' + oTask.performance.voteNum + '票';
+                        }
+                        return '已投0票';
+                    };
+                    oTask.canSubmit = function () {
+                        if (!oTask.performance) return false;
+                        var bCanSubmit = true;
+                        if (oTask.pendingVotes.length === 0)
+                            bCanSubmit = false;
+                        if (bCanSubmit && oTask.limit) {
+                            if (oTask.limit.min)
+                                if (oTask.performance.voteNum < oTask.limit.min)
+                                    bCanSubmit = false;
+                            if (bCanSubmit && oTask.limit.max)
+                                if (oTask.performance.voteNum > oTask.limit.max)
+                                    bCanSubmit = false;
+                        }
+                        return bCanSubmit;
+                    };
+                    http2.get(LS.j('task/votePerformance', 'site', 'app') + '&task=' + $scope.topic.task.id).then(function (rsp) {
+                        var oVotePerf;
+                        oTask.performance = oVotePerf = rsp.data;
+                        oVotePerf.voteNum = oVotePerf.data_ids ? oVotePerf.data_ids.length : 0;
+                    });
+                }
+                $scope.task = oTask;
+            }
         });
     });
 }]);

@@ -12,6 +12,7 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function ($templateCach
             rec: '=record',
             task: '=task',
             pendingVotes: "=",
+            onChangeVote: "=",
             currentTab: '='
         },
         controller: ['$scope', '$sce', '$location', 'tmsLocation', 'http2', 'noticebox', 'tmsSchema', function ($scope, $sce, $location, LS, http2, noticebox, tmsSchema) {
@@ -22,6 +23,9 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function ($templateCach
                 } else {
                     oRecData.vote_num++;
                     oRecData.vote_at = voteAt;
+                }
+                if ($scope.onChangeVote && angular.isFunction($scope.onChangeVote)) {
+                    $scope.onChangeVote(oRecData);
                 }
                 if (undefined !== remainder) {
                     if (remainder > 0) {
@@ -38,6 +42,9 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function ($templateCach
                 } else {
                     oRecData.vote_num--;
                     oRecData.vote_at = 0;
+                }
+                if ($scope.onChangeVote && angular.isFunction($scope.onChangeVote)) {
+                    $scope.onChangeVote(oRecData);
                 }
                 if (undefined !== remainder) {
                     if (remainder > 0) {

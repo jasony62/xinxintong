@@ -187,7 +187,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         }
     };
     $scope.gotoHome = function() {
-        location.href="/rest/home";
+        location.href = "/rest/site/fe/matter/enroll?site=" + _oApp.siteid + "&app=" + _oApp.id + "&page=repos";
     };
     $scope.copyRecord = function(oRecord) {
         enlAssoc.copy($scope.app, { id: oRecord.id, type: 'record' });

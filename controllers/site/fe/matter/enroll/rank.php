@@ -278,7 +278,7 @@ class rank extends base {
         $q = [
             'group_id,sum(value) ' . $schemaSumCol,
             'xxt_enroll_record_data',
-            ['aid' => $oApp->id, 'state' => 1, 'schema_id' => $schemaId, 'userid' => (object) ['op' => '<>', 'pat' => '']],
+            ['aid' => $oApp->id, 'state' => 1, 'schema_id' => $schemaId, 'group_id' => (object) ['op' => '<>', 'pat' => '']],
         ];
         if (!empty($oCriteria->round) && is_string($oCriteria->round)) {
             $oCriteria->round = explode(',', $oCriteria->round);

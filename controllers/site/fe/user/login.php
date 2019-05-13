@@ -208,7 +208,7 @@ class login extends \site\fe\base {
 		}
 
 		// 获得第三方应用用户信息
-		$oThirdAppUser = $this->model('sns\\' . $thirdApp->app_short_name . '\proxy', $thirdApp)->userInfoByCode($code);
+		$oThirdAppUser = $this->model('sns\\' . $thirdApp->app_short_name . '\proxy', $thirdApp)->getOAuthUser($code);
 		if ($oThirdAppUser[0] === false) {
 			die($oThirdAppUser[1]);
 		}
@@ -319,19 +319,21 @@ class login extends \site\fe\base {
 			// 如果已经存在则更新
 			$updata = [
 				"reg_time" => time(),
-				"headimgurl" => isset($oThirdAppUser->headimgurl) ? $oThirdAppUser->headimgurl : '',
-				"nickname" => isset($oThirdAppUser->nickname) ? $oThirdAppUser->nickname : '',
-				"sex" => isset($oThirdAppUser->sex) ? $oThirdAppUser->sex : 0,
-				"city" => isset($oThirdAppUser->city) ? $oThirdAppUser->city : '',
-				"province" => isset($oThirdAppUser->province) ? $oThirdAppUser->province : '',
-				"country" => isset($oThirdAppUser->country) ? $oThirdAppUser->country : '',
+				"headimgurl" => isset($oThirdAppUser->headimgurl) ? $modelAcc->escape($oThirdAppUser->headimgurl) : '',
+				"nickname" => isset($oThirdAppUser->nickname) ? $modelAcc->escape($oThirdAppUser->nickname) : '',
+				"moble" => isset($oThirdAppUser->moble) ? $modelAcc->escape($oThirdAppUser->moble) : '',
+				"email" => isset($oThirdAppUser->email) ? $modelAcc->escape($oThirdAppUser->email) : '',
+				"sex" => isset($oThirdAppUser->sex) ? $modelAcc->escape($oThirdAppUser->sex) : 0,
+				"city" => isset($oThirdAppUser->city) ? $modelAcc->escape($oThirdAppUser->city) : '',
+				"province" => isset($oThirdAppUser->province) ? $modelAcc->escape($oThirdAppUser->province) : '',
+				"country" => isset($oThirdAppUser->country) ? $modelAcc->escape($oThirdAppUser->country) : '',
 				"unionid" => $oRegUser->unionid,
 			];
 			if ($thirdUser) {
 				$modelReg->update("account_third_user", $updata, ["id" => $thirdUser->id]);
 			} else {
 				$updata["third_id"] = $thirdApp->id;
-				$updata["openid"] = $oThirdAppUser->openid;
+				$updata["openid"] = $modelAcc->escape($oThirdAppUser->openid);
 				$modelReg->insert('account_third_user', $updata, false);
 			}
 

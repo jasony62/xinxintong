@@ -12,7 +12,7 @@ class registration_model extends \TMS_MODEL {
 	 * @return object
 	 */
 	public function &byId($uid, $aOptions = []) {
-		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : 'uid unionid,email uname,nickname,password,salt,from_siteid';
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : 'uid unionid,email uname,nickname,password,salt,from_siteid,forbidden';
 		$q = [
 			$fields,
 			'account',
@@ -68,8 +68,8 @@ class registration_model extends \TMS_MODEL {
 		//$registration->unionid = $unionid;
 		$registration->uid = $unionid;
 		$registration->from_siteid = $siteId;
-		$registration->authed_from = 'xxt_site';
-		$registration->authed_id = $this->escape($uname);
+		$registration->authed_from = empty($aOptions['authed_from']) ? 'xxt_site' : $aOptions['authed_from'];
+		$registration->authed_id = empty($aOptions['authed_id']) ? $uname : $aOptions['authed_id'];
 		$registration->email = $this->escape($uname);
 		$registration->nickname = $this->escape($nickname);
 		$registration->password = $pw_hash;

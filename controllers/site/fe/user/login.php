@@ -239,7 +239,7 @@ class login extends \site\fe\base {
 		$snsProxy = $this->model('sns\\' . $thirdApp->app_short_name . '\proxy', $thirdApp);
 		$oauthUrl = $snsProxy->oauthUrl($ruri, 'snsOAuth-third-login');
 		
-		/* 通过cookie判断是否是后退进入 */
+		/* 通过cookie判断是否后退进入 */
 		$this->mySetcookie("_thirdlogin_oauthpending", $thirdApp->id, time() + 600);
 		$this->redirect($oauthUrl);
 
@@ -253,8 +253,8 @@ class login extends \site\fe\base {
 		$modelWay = $this->model('site\fe\way');
 		$modelAcc = $this->model('account');
 		$modelReg = $this->model('site\user\registration');
-		// 查看此用户是否已经注册过
-		$registered = false;
+		// 查看此用户是否已经绑定注册账号
+		$bindRregistered = false;
 		$q = [
 			"*",
 			"account_third_user",
@@ -275,38 +275,47 @@ class login extends \site\fe\base {
 					$fromip = $this->client_ip();
 					$modelReg->updateLastLogin($oRegistration->unionid, $fromip);
 
-					$registered = true;
+					$bindRregistered = true;
 				}
 			}
 		}
 		// 没有注册需要创建账号并绑定用户
-		if ($registered === false) {
-			$user = $this->who;
-			/* uname */
-			$uname = 'dev189' . $user->uid;
-			/* password */
-			$password = '!@#123qwe';
+		if ($bindRregistered === false) {
+			// 是否以注册
+			$oRegUser = $modelAcc->byAuthedId($oThirdAppUser->openid, $thirdApp->app_short_name, ['fields' => 'a.uid unionid,a.email uname,a.nickname,a.forbidden']);
+			if ($oRegUser === false) {
+				$user = $this->who;
+				/* uname */	
+				$uname = $thirdApp->app_short_name . '_' . uniqid();
+				/* password */
+				$password = tms_pwd_create_random();
 
-			$aOptions = [];
-			/* nickname */
-			if (!empty($oThirdAppUser->nickname)) {
-				$aOptions['nickname'] = $oThirdAppUser->nickname;
-			} else if (isset($user->nickname)) {
-				$aOptions['nickname'] = $user->nickname;
+				$aOptions = [];
+				$aOptions['authed_from'] = $modelAcc->escape($thirdApp->app_short_name);
+				$aOptions['authed_id'] = $modelAcc->escape($oThirdAppUser->openid);
+				/* nickname */
+				if (!empty($oThirdAppUser->nickname)) {
+					$aOptions['nickname'] = $oThirdAppUser->nickname;
+				} else if (isset($user->nickname)) {
+					$aOptions['nickname'] = $user->nickname;
+				}
+				/* other options */
+				$aOptions['from_ip'] = $this->client_ip();
+				if (defined('THIRDLOGIN_DEFAULT_ACCOUNT_GROUP')) {
+					$aOptions['group_id'] = THIRDLOGIN_DEFAULT_ACCOUNT_GROUP;
+				}
+				/* create registration */
+				$oRegUser = $modelReg->create($this->siteId, $uname, $password, $aOptions);
+				if ($oRegUser[0] === false) {
+					return $oRegUser;
+				}
+				$oRegUser = $oRegUser[1];
 			}
-			/* other options */
-			$aOptions['from_ip'] = $this->client_ip();
-			if (defined('THIRDLOGIN_DEFAULT_ACCOUNT_GROUP')) {
-				$aOptions['group_id'] = THIRDLOGIN_DEFAULT_ACCOUNT_GROUP;
+			if ($oRegUser->forbidden != 0) {
+				return [false, '账号以停用'];
 			}
-			/* create registration */
-			$oRegUser = $modelReg->create($this->siteId, $uname, $password, $aOptions);
-			if ($oRegUser[0] === false) {
-				return $oRegUser;
-			}
-			$oRegUser = $oRegUser[1];
 
-			// 将用户插入到account_third_user表中
+			// 执行绑定，将用户插入到account_third_user表中
 			// 如果已经存在则更新
 			$updata = [
 				"reg_time" => time(),

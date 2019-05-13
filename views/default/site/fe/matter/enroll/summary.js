@@ -43,7 +43,7 @@ ngApp.controller('ctrlSummary', ['$scope', 'tmsLocation', '$location', 'http2', 
         });
     });
 }]);
-ngApp.controller('ctrlSummaryRank', ['$scope', '$q', '$sce', 'tmsLocation', 'http2', 'enlRound', function ($scope, $q, $sce, LS, http2, enlRound) {
+ngApp.controller('ctrlSummaryRank', ['$scope', '$q', '$sce', 'tmsLocation', 'http2', 'enlRound', '$filter', function ($scope, $q, $sce, LS, http2, enlRound, $filter) {
     function fnRoundTitle(aRids) {
         var defer;
         defer = $q.defer();
@@ -96,7 +96,7 @@ ngApp.controller('ctrlSummaryRank', ['$scope', '$q', '$sce', 'tmsLocation', 'htt
                         data.users.forEach(function (user) {
                             user.headimgurl = user.headimgurl ? user.headimgurl : '/static/img/avatar.png';
                             if (oAppState.criteria.orderby === 'score') {
-                                user.rankVal = user.score;
+                                user.rankVal = $filter('number')(user.score, 2);
                             } else if (/^schema_/.test(oAppState.criteria.orderby)) {
                                 user.rankVal = user[oAppState.criteria.orderby + '_sum'];
                             } else if ('total_coin' === oAppState.criteria.orderby) {
@@ -111,6 +111,13 @@ ngApp.controller('ctrlSummaryRank', ['$scope', '$q', '$sce', 'tmsLocation', 'htt
                 case 'group':
                     if (data.groups) {
                         data.groups.forEach(function (group) {
+                            if (oAppState.criteria.orderby === 'score') {
+                                group.rankVal = $filter('number')(group.num, 2);
+                            } else if (/^schema_/.test(oAppState.criteria.orderby)) {
+                                group.rankVal = group[oAppState.criteria.orderby + '_sum'];
+                            } else {
+                                group.rankVal = group.num;
+                            }
                             $scope.groups.push(group);
                         });
                     }

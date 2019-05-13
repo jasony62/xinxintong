@@ -139,6 +139,23 @@ class rank extends base {
 
         $users = $modelRecDat->query_objs_ss($q, $q2);
         if (!empty($users)) {
+            if (!empty($oApp->entryRule->group->id)) {
+                $q = [
+                    'userid,team_id,team_title',
+                    'xxt_group_record',
+                    ['aid' => $oApp->entryRule->group->id],
+                ];
+                $userGroups = $modelRecDat->query_objs_ss($q);
+                if (count($userGroups)) {
+                    $userGroups2 = new \stdClass;
+                    array_walk($userGroups, function ($oUserGroup, $key, $userGroups2) {
+                        !empty($oUserGroup->userid) && $userGroups2->{$oUserGroup->userid} = $oUserGroup;
+                    }, $userGroups2);
+                }
+            }
+            /**
+             * 补充用户信息
+             */
             $q = [
                 'u.nickname,a.headimgurl',
                 'xxt_enroll_user u left join xxt_site_account a on u.userid = a.uid and u.siteid = a.siteid',
@@ -150,6 +167,7 @@ class rank extends base {
                 if ($oEnlUsr) {
                     $oUser->nickname = $oEnlUsr->nickname;
                     $oUser->headimgurl = $oEnlUsr->headimgurl;
+                    $oUser->group = isset($userGroups2->{$oUser->userid}) ? $userGroups2->{$oUser->userid} : new \stdClass;
                 }
             }
         }
@@ -297,7 +315,7 @@ class rank extends base {
                     continue;
                 }
                 $oGroup->id = $oGroup->group_id;
-                $oGroup->title = $aUserGroups[$oGroup->group_id];
+                $oGroup->title = $aUserGroups[$oGroup->group_id]->l;
                 unset($oGroup->group_id);
             }
         }

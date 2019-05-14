@@ -39,7 +39,7 @@ class round extends base {
 		$rid = explode(',', $rid);
 
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N', 'id,state']);
-		if (false === $oApp && $oApp->state !== '1') {
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 		$modelRun = $this->model('matter\enroll\round');
@@ -59,7 +59,7 @@ class round extends base {
 	 */
 	public function getActive_action($app) {
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N', 'id,state,sync_mission_round,mission_id,round_cron']);
-		if (false === $oApp && $oApp->state !== '1') {
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 

@@ -10,7 +10,17 @@ class main extends \pl\fe\base {
 	 * 用户个人工作台
 	 */
 	public function index_action($ver = null) {
-		\TPL::output('/pl/fe/console/frame');
+		if (false === ($oUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$customViewName = TMS_APP_VIEW_NAME;
+		$oAccount = $this->model('account')->byId($oUser->id, ['cascaded' => ['group']]);
+		if (isset($oAccount->group->view_name) && $oAccount->group->view_name !== TMS_APP_VIEW_NAME) {
+			$customViewName = $oAccount->group->view_name;
+		}
+
+		\TPL::output('/pl/fe/console/frame', ['customViewName' => $customViewName]);
 		exit;
 	}
 	/**

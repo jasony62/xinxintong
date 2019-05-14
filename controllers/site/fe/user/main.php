@@ -185,7 +185,7 @@ class main extends \site\fe\base {
 			$modelReg = $this->model('site\user\registration');
 			if ($registration = $modelReg->byId($oAccount->unionid)) {
 				// 校验密码安全
-				$rst = tms_pwd_check($data->password, ['account' => $registration->uname]);
+				$rst = tms_pwd_check($data->password, ['account' => $registration->uname], true);
 				if ($rst[0] === false) {
 					return new \ResponseError($rst[1]);
 				}

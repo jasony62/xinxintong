@@ -667,7 +667,7 @@ function tms_pwd_check($pwd, $options = [], $compel = false) {
     $parse = $check->parse();
 
 	if ($parse['number']['count'] === 0 || $parse['upper']['count'] + $parse['lower']['count'] === 0 || $parse['symbol']['count'] === 0 || $parse['length'] < 8 || $parse['length'] > 16) {
-		return [false, '必须包含数字、字母、英文符号，且 8~16 位'];
+		return [false, '必须包含数字、字母、特殊字符，且 8~16 位'];
     }
     // 判断特殊字符是否符合规范
     $rst = $check->verifySymbol($parse);

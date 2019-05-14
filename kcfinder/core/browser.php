@@ -133,6 +133,7 @@ class browser extends uploader {
 
 	protected function act_browser() {
 		if (empty($this->get['mpid'])) {
+			unset($this->session['mpid']);
 			$this->errorMsg("参数错误，请检查参数设置");
 		}
 

@@ -10,12 +10,12 @@
     <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
     <style>
         .nav-tabs {
-        border-bottom: 1px solid transparent;
-    }
+            border-bottom: 1px solid transparent;
+        }
 
-    .panel-default: {
-        border: 0;
-    }
+        .panel-default {
+            border: 0;
+        }
     </style>
 </head>
 
@@ -39,88 +39,88 @@
             <div class='col-md-9 hidden-xs hidden-sm'>
                 <img src='<?php echo APP_ACCESS_BANNER;?>' width="100%">
             </div>
-                <div class='col-md-3 col-sm-12'>
-                    <uib-tabset active="activeView">
-                        <uib-tab index="'login'" heading="登录">
-                            <div class='panel panel-default'>
-                                <div class='panel-body'>
-                                    <div class='form-group'>
-                                        <label>帐号名称</label>
-                                        <input type="text" class='form-control' name='uname' placeholder='输入用于登录的帐号名' ng-model='loginData.uname' required />
-                                    </div>
-                                    <div class='form-group'>
-                                        <label>登录密码</label>
-                                        <input type='password' class='form-control' name='password' ng-model='loginData.password' placeholder='输入8-16位登录密码' required />
-                                    </div>
-                                    <div class="form-group">
-                                        <label>验证码</label>
-                                        <div class="form-inline">
-                                            <input class="form-control" style="display:inline-block;width:130px" type="text" name="pin" ng-model="loginData.pin" placeholder='不区分大小写' required />
-                                            <img style="width:120px;height:34px" ng-src="{{pinImg}}" />
-                                            <span style="cursor:pointer"><i class="glyphicon glyphicon-refresh" ng-click="refreshPin()"></i></span>
-                                        </div>
-                                    </div>
-                                    <div class='form-group' ng-if="supportLocalStorage==='Y'">
-                                        <label class='checkbox-inline'>
-                                            <input type='checkbox' ng-model='loginData.rememberMe' ng-true-value="'Y'" ng-false-value="'N'" />记住帐号</label>
-                                        <label class='checkbox-inline'>
-                                            <input type='checkbox' ng-model='loginData.autologin' ng-true-value="'Y'" ng-false-value="'N'" />自动登录</label>
-                                    </div>
-                                    <div class='checkbox'>
-                                        <label>
-                                            <input type='checkbox' ng-model='loginData.gotoConsole' ng-true-value="'Y'" ng-false-value="'N'" />直接进入工作台</label>
-                                    </div>
-                                    <hr>
-                                    <div class='form-group'>
-                                        <button class="btn btn-primary btn-block" ng-disabled="user.loginExpire" ng-click='login()'>登录</button>
-                                        <button class="btn btn-default btn-block" ng-click="gotoHome()">返回个人中心</button>
-                                    </div>
-                                    <div class='form-group' ng-if="user.loginExpire">
-                                        <p class='alert alert-warning'>请退出当前帐号后，再用其他帐号登录，<a href='' ng-click="logout()">退出</a></p>
+            <div class='col-md-3 col-sm-12'>
+                <uib-tabset active="activeView">
+                    <uib-tab index="'login'" heading="登录">
+                        <div class='panel panel-default'>
+                            <div class='panel-body'>
+                                <div class='form-group'>
+                                    <label>帐号名称</label>
+                                    <input type="text" class='form-control' name='uname' placeholder='输入用于登录的帐号名' ng-model='loginData.uname' required />
+                                </div>
+                                <div class='form-group'>
+                                    <label>登录密码</label>
+                                    <input type='password' class='form-control' name='password' ng-model='loginData.password' placeholder='输入8-16位登录密码' required />
+                                </div>
+                                <div class="form-group">
+                                    <label>验证码</label>
+                                    <div class="form-inline">
+                                        <input class="form-control" style="display:inline-block;width:130px" type="text" name="pin" ng-model="loginData.pin" placeholder='不区分大小写' required />
+                                        <img style="width:120px;height:34px" ng-src="{{pinImg}}" />
+                                        <span style="cursor:pointer"><i class="glyphicon glyphicon-refresh" ng-click="refreshPin()"></i></span>
                                     </div>
                                 </div>
-                            </div>
-                        </uib-tab>
-                        <uib-tab index="'register'" heading="注册">
-                            <div class='panel panel-default'>
-                                <div class='panel-body'>
-                                    <div class='form-group'>
-                                        <label>注册帐号</label>
-                                        <input type="text" class='form-control' name='uname' placeholder='输入用于登录的帐号名' ng-model='registerData.uname' required autofocus />
-                                        <p class='help-block'>仅限电子邮箱或手机号注册</p>
-                                    </div>
-                                    <div class='form-group'>
-                                        <label>帐号昵称</label>
-                                        <input type="text" class='form-control' name='nickname' placeholder='帐号昵称' ng-model="registerData.nickname">
-                                    </div>
-                                    <div class='form-group'>
-                                        <label>登录密码</label>
-                                        <input type='password' class='form-control' name='password' ng-model='registerData.password' placeholder='输入登录密码' required />
-                                        <p class='help-block'>输入8-16位密码(需包含数字、字母、特殊字符)</p>
-                                    </div>
-                                    <div class='form-group'>
-                                        <label>重复密码</label>
-                                        <input type='password' class='form-control' ng-pattern="repeatPwd" name='password2' ng-model='registerData.password2' placeholder='再次输入登录密码' required />
-                                    </div>
-                                    <hr>
-                                    <div class='form-group'>
-                                        <button class="btn btn-primary btn-block" ng-disabled="user.loginExpire" ng-click='register()'>注册</button>
-                                        <button class="btn btn-default btn-block" ng-click="gotoHome()">返回个人中心</button>
-                                    </div>
-                                    <div class='form-group' ng-if="user.loginExpire">
-                                        <p class='alert alert-warning'>请退出当前帐号后，再注册新帐号，<a href='' ng-click="logout()">退出</a></p>
-                                    </div>
+                                <div class='form-group' ng-if="supportLocalStorage==='Y'">
+                                    <label class='checkbox-inline'>
+                                        <input type='checkbox' ng-model='loginData.rememberMe' ng-true-value="'Y'" ng-false-value="'N'" />记住帐号</label>
+                                    <label class='checkbox-inline'>
+                                        <input type='checkbox' ng-model='loginData.autologin' ng-true-value="'Y'" ng-false-value="'N'" />自动登录</label>
+                                </div>
+                                <div class='checkbox'>
+                                    <label>
+                                        <input type='checkbox' ng-model='loginData.gotoConsole' ng-true-value="'Y'" ng-false-value="'N'" />直接进入工作台</label>
+                                </div>
+                                <hr>
+                                <div class='form-group'>
+                                    <button class="btn btn-primary btn-block" ng-disabled="user.loginExpire" ng-click='login()'>登录</button>
+                                    <button class="btn btn-default btn-block" ng-click="gotoHome()">返回个人中心</button>
+                                </div>
+                                <div class='form-group' ng-if="user.loginExpire">
+                                    <p class='alert alert-warning'>请退出当前帐号后，再用其他帐号登录，<a href='' ng-click="logout()">退出</a></p>
                                 </div>
                             </div>
-                        </uib-tab>
-                    </uib-tabset>
-                </div>
-            </div>            
+                        </div>
+                    </uib-tab>
+                    <uib-tab index="'register'" heading="注册">
+                        <div class='panel panel-default'>
+                            <div class='panel-body'>
+                                <div class='form-group'>
+                                    <label>注册帐号</label>
+                                    <input type="text" class='form-control' name='uname' placeholder='输入用于登录的帐号名' ng-model='registerData.uname' required autofocus />
+                                    <p class='help-block'>仅限电子邮箱或手机号注册</p>
+                                </div>
+                                <div class='form-group'>
+                                    <label>帐号昵称</label>
+                                    <input type="text" class='form-control' name='nickname' placeholder='帐号昵称' ng-model="registerData.nickname">
+                                </div>
+                                <div class='form-group'>
+                                    <label>登录密码</label>
+                                    <input type='password' class='form-control' name='password' ng-model='registerData.password' placeholder='输入登录密码' required />
+                                    <p class='help-block'>输入8-16位密码(需包含数字、字母、特殊字符)</p>
+                                </div>
+                                <div class='form-group'>
+                                    <label>重复密码</label>
+                                    <input type='password' class='form-control' ng-pattern="repeatPwd" name='password2' ng-model='registerData.password2' placeholder='再次输入登录密码' required />
+                                </div>
+                                <hr>
+                                <div class='form-group'>
+                                    <button class="btn btn-primary btn-block" ng-disabled="user.loginExpire" ng-click='register()'>注册</button>
+                                    <button class="btn btn-default btn-block" ng-click="gotoHome()">返回个人中心</button>
+                                </div>
+                                <div class='form-group' ng-if="user.loginExpire">
+                                    <p class='alert alert-warning'>请退出当前帐号后，再注册新帐号，<a href='' ng-click="logout()">退出</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </uib-tab>
+                </uib-tabset>
+            </div>
         </div>
-        <script src="/static/js/xxt.ui.error.js"></script>
-        <script src="/static/js/angular.min.js"></script>
-        <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-        <script src="<?php echo auto_version('/views/default/site/fe/user/access.js');?>"></script>
+    </div>
+    <script src="/static/js/xxt.ui.error.js"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="<?php echo auto_version('/views/default/site/fe/user/access.js');?>"></script>
 </body>
 
 </html>

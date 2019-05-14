@@ -22,6 +22,7 @@
                 <option value='average_score' ng-if="appState.criteria.obj==='group'&&config.average_score&&appState.dimension!=='schema'">组员平均得分</option>
                 <option value='average_score' ng-if="config.average_score&&appState.dimension==='schema'">用户平均得分</option>
                 <option value='total_coin' ng-if="app.scenarioConfig.can_coin==='Y'&&config.total_coin&&appState.dimension!=='schema'">积分</option>
+                <option ng-repeat="ss in scopeSchemas" value='schema_{{ss.id}}'>{{::ss.title}}</option>
             </select>
         </div>
     </div>
@@ -42,7 +43,7 @@
                         <span>{{::u.nickname}}</span>
                         <span ng-if="app.entryRule.group.id">-{{::u.group.team_title}}</span>
                     </div>
-                    <div class='col-md-2 col-xs-1'><span ng-if="appState.criteria.orderby!=='score'">{{u[appState.criteria.orderby+'_num']||u.user_total_coin}}</span><span ng-if="appState.criteria.orderby==='score'">{{u.score|number:2}}</span></div>
+                    <div class='col-md-2 col-xs-1'><span ng-bind="::u.rankVal"></span></div>
                 </li>
             </ul>
             <ul ng-switch-when="group">
@@ -58,7 +59,7 @@
                     <div class="col-md-9 col-xs-8 text-left">
                         <span>{{::g.title}}</span>
                     </div>
-                    <div class='col-md-2 col-xs-1'><span ng-if="appState.criteria.orderby!=='score'">{{::g.num}}</span><span ng-if="appState.criteria.orderby==='score'">{{g.num|number:2}}</span></div>
+                    <div class='col-md-2 col-xs-1'><span ng-bind="::g.rankVal"></span></div>
                 </li>
             </ul>
             <ul ng-switch-when="schema">

@@ -37,9 +37,6 @@ ngApp.factory('Record', ['http2', 'tmsLocation', function(http2, LS) {
     };
 }]);
 ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$parse', '$sce', 'noticebox', function($scope, Record, LS, $parse, $sce, noticebox) {
-    $scope.gotoHome = function() {
-        location.href="/rest/home";
-    };
     $scope.value2Label = function(schemaId) {
         var val, oRecord;
         if (schemaId && $scope.Record) {
@@ -320,6 +317,9 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
 
     var _oApp, _aScoreSchemas;
 
+    $scope.gotoHome = function() {
+        location.href = "/rest/site/fe/matter/enroll?site=" + _oApp.siteid + "&app=" + _oApp.id + "&page=repos";
+    };
     $scope.addRecord = function(event, page) {
         if (page) {
             $scope.gotoPage(event, page, null, $scope.Record.current.round.rid, 'Y');

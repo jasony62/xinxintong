@@ -525,7 +525,8 @@ body.enroll-repos {
     padding: 8px 16px;
     cursor: pointer;
 
-    &:last-child {
+    &:last-child,
+    &:nth-last-child(2) {
         border-bottom: 0;
     }
 }
@@ -534,8 +535,9 @@ body.enroll-repos {
     background: #fff;
     border-bottom: 8px solid #ddd;
     padding: 8px 16px;
-    
-    &:last-child {
+
+    &:last-child,
+    &:nth-last-child(2) {
         border-bottom: 0;
     }
 
@@ -989,18 +991,19 @@ body.enroll-repos {
         background-color: #0084FF;
     }
 
-    .close {
+    .cancle {
         position: absolute;
-        top: -30px;
+        top: -34px;
         right: 10px;
         color: #fff;
-        opacity: 1;
         z-index: 10;
         width: 25px;
         height: 25px;
-        font-size: 14px;
+        font-size: 25px;
+        line-height: 20px;
+        text-align: center;
         border-radius: 50%;
-        border: 2px solid #fff;
+        border: 1px solid #fff;
     }
 
     .current-task {
@@ -1261,7 +1264,7 @@ body.enroll-repos {
             .timeline-state {
                 color: #fff;
                 position: absolute;
-                
+
                 .site-icon {
                     display: inline-block;
                     position: absolute;
@@ -1288,8 +1291,8 @@ body.enroll-repos {
                     bottom: 0;
                     background-position: -311px -245px;
                 }
-                
-                &.state-IP{
+
+                &.state-IP {
                     top: 40px;
 
                     .map-marker-top {
@@ -1433,7 +1436,7 @@ body.enroll-repos {
             }
 
             &:last-child:not(:first-child) {
-                border-top: 1px solid #fff;
+                border-top: 1px solid #59AFFF;
                 border-top-right-radius: 0;
             }
         }
@@ -1525,6 +1528,6 @@ body.enroll-repos {
 
 @media screen and (min-width:768px) {
     .modal .main .content {
-        margin-right:  -15px;
+        margin-right: -15px;
     }
 }

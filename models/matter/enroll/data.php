@@ -1492,6 +1492,41 @@ class data_model extends entity_model {
         return $data;
     }
     /**
+     * 更新投票汇总数据
+     */
+    private function _refreshVoteNum($oRecord, $oRecData, $oParentRecData = null) {
+        $oResult = new \stdClass;
+        $q = [
+            'count(*)',
+            'xxt_enroll_vote',
+            ['data_id' => $oRecData->id, 'state' => 1],
+        ];
+        $oResult->data = (int) $this->query_val_ss($q);
+        $this->update('xxt_enroll_record_data', ['vote_num' => $oResult->data], ['id' => $oRecData->id]);
+
+        /* 协作题投票数据 */
+        if (isset($oParentRecData)) {
+            $q = [
+                'count(*)',
+                'xxt_enroll_vote',
+                ['record_id' => $oRecord->id, 'schema_id' => $oRecData->schema_id, 'state' => 1],
+            ];
+            $oResult->data_parent = (int) $this->query_val_ss($q);
+            $this->update('xxt_enroll_record_data', ['vote_num' => $oResult->data_parent], ['id' => $oParentRecData->id]);
+        }
+
+        /* 记录的汇总数据 */
+        $q = [
+            'count(*)',
+            'xxt_enroll_vote',
+            ['record_id' => $oRecord->id, 'state' => 1],
+        ];
+        $oResult->reocrd = (int) $this->query_val_ss($q);
+        $this->update('xxt_enroll_record', ['vote_schema_num' => $oResult->reocrd], ['id' => $oRecord->id]);
+
+        return $oResult;
+    }
+    /**
      * 对填写数据投票
      */
     public function vote($oApp, $oTask, $recDataId, $oUser) {
@@ -1569,19 +1604,9 @@ class data_model extends entity_model {
         $oNew->id = $this->insert('xxt_enroll_vote', $oNew, true);
 
         /* 更新汇总数据 */
-        $this->update('xxt_enroll_record_data', ['vote_num' => (object) ['op' => '+=', 'pat' => 1]], ['id' => $oRecData->id]);
-        if (isset($oParentRecData)) {
-            /* 协作填写汇总数据 */
-            $this->update('xxt_enroll_record_data', ['vote_num' => (object) ['op' => '+=', 'pat' => 1]], ['id' => $oParentRecData->id]);
-            $this->update('xxt_enroll_record', ['vote_cowork_num' => (object) ['op' => '+=', 'pat' => 1]], ['id' => $oRecord->id]);
-        } else {
-            /* 题目汇总数据 */
-            $this->update('xxt_enroll_record', ['vote_schema_num' => (object) ['op' => '+=', 'pat' => 1]], ['id' => $oRecord->id]);
-        }
+        $oSumResult = $this->_refreshVoteNum($oRecord, $oRecData, isset($oParentRecData) ? $oParentRecData : null);
 
-        $beforeCount++;
-
-        return [true, $oNew, [$limitMax, $beforeCount]];
+        return [true, $oNew, [$limitMax, ++$beforeCount], $oSumResult];
     }
     /**
      * 撤销对填写数据投票
@@ -1640,15 +1665,7 @@ class data_model extends entity_model {
         $this->update('xxt_enroll_vote', ['state' => 0], ['id' => $oBefore->id]);
 
         /* 更新汇总数据 */
-        $this->update('xxt_enroll_record_data', ['vote_num' => (object) ['op' => '-=', 'pat' => 1]], ['id' => $oRecData->id]);
-        if (isset($oParentRecData)) {
-            /* 协作填写汇总数据 */
-            $this->update('xxt_enroll_record_data', ['vote_num' => (object) ['op' => '+=', 'pat' => 1]], ['id' => $oParentRecData->id]);
-            $this->update('xxt_enroll_record', ['vote_cowork_num' => (object) ['op' => '+=', 'pat' => 1]], ['id' => $oRecord->id]);
-        } else {
-            /* 题目汇总数据 */
-            $this->update('xxt_enroll_record', ['vote_schema_num' => (object) ['op' => '+=', 'pat' => 1]], ['id' => $oRecord->id]);
-        }
+        $oSumResult = $this->_refreshVoteNum($oRecord, $oRecData, isset($oParentRecData) ? $oParentRecData : null);
 
         $q = [
             'count(*)',
@@ -1657,6 +1674,6 @@ class data_model extends entity_model {
         ];
         $beforeCount = (int) $this->query_val_ss($q);
 
-        return [true, [$this->getDeepValue($oVoteRule, 'limit.max'), $beforeCount]];
+        return [true, [$this->getDeepValue($oVoteRule, 'limit.max', 0), $beforeCount], $oSumResult];
     }
 }

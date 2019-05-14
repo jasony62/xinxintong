@@ -366,6 +366,8 @@ class rank extends base {
      * 根据行为数据对单选项数据排行
      */
     private function _schemaByBehavior($oApp, $oCriteria, $oRankSchema, $aSchemaOps) {
+        $modelRecDat = $this->model('matter\enroll\data');
+
         switch ($oCriteria->orderby) {
         case 'enroll': // 填写次数
             $q = [
@@ -377,7 +379,7 @@ class rank extends base {
                 $q[2]['rid'] = $oCriteria->round;
             }
             $q2 = ['g' => 'value', 'o' => 'num desc'];
-            $oRankResult = $modelApp->query_objs_ss($q, $q2);
+            $oRankResult = $modelRecDat->query_objs_ss($q, $q2);
             if (count($oRankResult)) {
                 array_walk($oRankResult, function (&$oData) use ($aSchemaOps) {$oData->l = isset($aSchemaOps[$oData->value]) ? $aSchemaOps[$oData->value] : '!未知';unset($oData->value);});
             }
@@ -397,7 +399,7 @@ class rank extends base {
                 }
                 foreach ($aSchemaOps as $opv => $opl) {
                     $q[2]['value'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_record_data rd2 where rd1.enroll_key=rd2.enroll_key and rd2.state=1 and rd2.schema_id=\'' . $oRankSchema->id . '\' and rd2.value=\'' . $opv . '\''];
-                    $oNum = $modelApp->query_obj_ss($q);
+                    $oNum = $modelRecDat->query_obj_ss($q);
                     $oNum->l = $opl;
                     if ($oCriteria->orderby === 'average_score') {
                         if (!empty($oNum->num) && !empty($oNum->user_num)) {
@@ -424,8 +426,29 @@ class rank extends base {
      * 根据记录对用户组排行
      */
     private function _schemaByRecord($oApp, $oCriteria, $oRankSchema, $aSchemaOps) {
-        $oResult = new \stdClass;
-        return [true, $oResult];
+        $schemaId = substr($oCriteria->orderby, 7);
+
+        $modelRecDat = $this->model('matter\enroll\data');
+        $q = [
+            'sum(value) num',
+            'xxt_enroll_record_data rd1',
+            ['aid' => $oApp->id, 'state' => 1, 'schema_id' => $schemaId],
+        ];
+        if (!empty($oCriteria->round) && is_array($oCriteria->round) && !in_array('ALL', $oCriteria->round)) {
+            $q[2]['rid'] = $oCriteria->round;
+        }
+        foreach ($aSchemaOps as $opv => $opl) {
+            $q[2]['value'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_record_data rd2 where rd1.enroll_key=rd2.enroll_key and rd2.state=1 and rd2.schema_id=\'' . $oRankSchema->id . '\' and rd2.value=\'' . $opv . '\''];
+            $oNum = $modelRecDat->query_obj_ss($q);
+            $oNum->l = $opl;
+            $oRankResult[] = $oNum;
+        }
+        /* 数据排序 */
+        usort($oRankResult, function ($a, $b) {
+            return $a->num < $b->num ? 1 : -1;
+        });
+
+        return [true, $oRankResult];
     }
     /**
      * 题目排行榜（仅限单选题）
@@ -460,6 +483,6 @@ class rank extends base {
             return new \ResponseError($aResult[1]);
         }
 
-        return new \ResponseData($aResult[0]);
+        return new \ResponseData($aResult[1]);
     }
 }

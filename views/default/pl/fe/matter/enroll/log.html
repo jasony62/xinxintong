@@ -4,10 +4,12 @@
             <button class='btn btn-default' ng-if="active=='1'" ng-click="filter('pl', plLog.criteria)"><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
             <button class='btn btn-default' ng-if="active=='2'" ng-click="filter('site', siteLog.criteria)"><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
             <button class='btn btn-default' ng-if="active=='3'" ng-click="filter('page', pageLog.criteria)"><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+            <button class='btn btn-default' ng-if="active=='4'" ng-click="filter('behavior', behaviorLog.criteria)"><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
             <button class="btn btn-default" ng-click="clean()"><i class="glyphicon glyphicon-erase"></i> <span>清除条件</span></button>
             <button class='btn btn-default pull-right' ng-if="active=='1'" ng-click="export('pl', plLog.criteria)"><i class='glyphicon glyphicon-export'></i> <span>导出记录</span></button>
             <button class='btn btn-default pull-right' ng-if="active=='2'" ng-click="export('site', siteLog.criteria)"><i class='glyphicon glyphicon-export'></i> <span>导出记录</span></button>
             <button class='btn btn-default pull-right' ng-if="active=='3'" ng-click="export('page', pageLog.criteria)"><i class='glyphicon glyphicon-export'></i> <span>导出记录</span></button>
+            <button class='btn btn-default pull-right' ng-if="active=='4'" ng-click="export('behavior', behaviorLog.criteria)"><i class='glyphicon glyphicon-export'></i> <span>导出记录</span></button>
         </div>
     </div>
     <uib-tabset active="active">
@@ -123,6 +125,44 @@
                         </div>
                     </div>
                     <ul uib-pagination ng-show="pageLog.page.total>pageLog.page.size" class="pull-right" boundary-links="true" total-items="pageLog.page.total" max-size="7" items-per-page="pageLog.page.size" rotate="false" ng-model="pageLog.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="pageLog.list()"></ul>
+                </div>
+            </div>
+        </uib-tab>
+        <uib-tab index="4">
+            <uib-tab-heading>页面运行统计</uib-tab-heading>
+            <table class='table table-bordered table-striped pl-workspace'>
+                <thead>
+                    <tr>
+                        <th ng-if="behaviorLog.criteria.target_type==='topic'||behaviorLog.criteria.target_type==='cowork'">页面标识</th>
+                        <th style='width:120px;'>打开时间</th>
+                        <th>用户</th>
+                        <th>操作</th>
+                        <th>来源</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat='log in behaviorLog.logs'>
+                        <td ng-if="behaviorLog.criteria.target_type==='topic'||behaviorLog.criteria.target_type==='cowork'">{{log.matter_id}}</td>
+                        <td>{{log.action_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+                        <td>{{log.nickname||'未知'}}</td>
+                        <td><span>{{operations[log.event]}}</span></td>
+                        <td>{{log.origin_nickname}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class='form-group form-inline'>
+                <div class='pl-pagination'>
+                    <span>总数：{{behaviorLog.page.total}}</span>
+                    <div class="input-group pull-right">
+                        <span class="input-group-addon">每页条数</span>
+                        <input type="text" class="form-control text-center" style="width:64px;" ng-model="behaviorLog.page.size">
+                        <div class='input-group-btn'>
+                            <button class='btn btn-default' ng-click='behaviorLog.list(1)'>
+                                <span class='glyphicon glyphicon-refresh'></span>
+                            </button>
+                        </div>
+                    </div>
+                    <ul uib-pagination ng-show="behaviorLog.page.total>behaviorLog.page.size" class="pull-right" boundary-links="true" total-items="behaviorLog.page.total" max-size="7" items-per-page="behaviorLog.page.size" rotate="false" ng-model="behaviorLog.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="behaviorLog.list()"></ul>
                 </div>
             </div>
         </uib-tab>

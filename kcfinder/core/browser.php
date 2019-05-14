@@ -132,6 +132,29 @@ class browser extends uploader {
 	}
 
 	protected function act_browser() {
+		if (empty($this->get['mpid'])) {
+			$this->errorMsg("参数错误，请检查参数设置");
+		}
+
+		require_once dirname(dirname(dirname(__FILE__))) . '/config.php';
+		require_once dirname(dirname(dirname(__FILE__))) . '/tms/db.php';
+		require_once dirname(dirname(dirname(__FILE__))) . '/tms/tms_model.php';
+		require_once dirname(dirname(dirname(__FILE__))) . '/tms/utilities.cls.php';
+		$model = TMS_MODEL::model();
+		$modelWay = TMS_MODEL::model('site\fe\way');
+		$who = $modelWay->who($this->get['mpid']);
+		if (empty($who->unionid)) {
+			unset($this->session['mpid']);
+			$this->errorMsg("未登录");
+		}
+		// 检查用户是否是站点管理员
+		$modelAdmin = TMS_MODEL::model('site\admin');
+		$rst = $modelAdmin->byUid($this->get['mpid'], $who->unionid);
+		if ($rst === false) {
+			unset($this->session['mpid']);
+			$this->errorMsg("无权访问");
+		}
+
 		if (isset($this->get['dir']) &&
 			is_dir("{$this->typeDir}/{$this->get['dir']}") &&
 			is_readable("{$this->typeDir}/{$this->get['dir']}")
@@ -314,6 +337,9 @@ class browser extends uploader {
 	}
 
 	protected function act_upload() {
+		if (!isset($this->get['type'])) {
+			$this->errorMsg("Unknown type");
+		}
 		if (!$this->config['access']['files']['upload'] ||
 			!isset($this->post['dir'])
 		) {
@@ -321,7 +347,6 @@ class browser extends uploader {
 		}
 
 		$dir = $this->postDir();
-
 		if (!dir::isWritable($this->toLocalEncoding($dir))) {
 			$this->errorMsg("Cannot access or write to upload folder.");
 		}
@@ -329,11 +354,20 @@ class browser extends uploader {
 		if (is_array($this->file['name'])) {
 			$return = array();
 			foreach ($this->file['name'] as $i => $name) {
+				if (!empty($this->config['whiteByType'][$this->get['type']])) {
+					if (!in_array($this->file['type'][$i], $this->config['whiteByType'][$this->get['type']])) {
+						continue;
+					}
+				}
 				$return[] = $this->moveUploadFile(array(
 					'name' => $name,
 					'tmp_name' => $this->file['tmp_name'][$i],
 					'error' => $this->file['error'][$i],
 				), $dir);
+			}
+			if (empty($return)) {
+				$this->errorMsg("没有上传图片，或者图片格式非jpg、png、jif格式");
+				return;
 			}
 			return implode("\n", $return);
 		} else {

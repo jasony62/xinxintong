@@ -55,6 +55,14 @@ class account extends \pl\be\base {
 		}
 	}
 	/**
+	 * 生成随机密码
+	 */
+	public function getRandomPwd_action() {
+		$pwd = tms_pwd_create_random();
+
+		return new \ResponseData($pwd);
+	}
+	/**
 	 * 修改当前用户的口令
 	 */
 	public function resetPwd_action() {
@@ -65,6 +73,10 @@ class account extends \pl\be\base {
 		 * set new password
 		 */
 		$pwd = $data->password;
+		$rst = tms_pwd_check($pwd, ['account' => $account->email]);
+		if ($rst[0] === false) {
+			return new \ResponseError($rst[1]);
+		}
 		$modelAcnt->change_password($account->email, $pwd, $account->salt);
 
 		return new \ResponseData($account->uid);

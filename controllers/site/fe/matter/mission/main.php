@@ -141,7 +141,7 @@ class main extends \site\fe\matter\base {
 							}
 						}
 						if (false === $bMatched) {
-							continue;
+							continue 2;
 						}
 					}
 
@@ -155,6 +155,12 @@ class main extends \site\fe\matter\base {
 					unset($oUserData->aid);
 					unset($oUserData->userid);
 					unset($oUserData->id);
+					unset($oMatter->opData);
+					unset($oMatter->dynaDataSchemas);
+					unset($oMatter->roundCron);
+					unset($oMatter->pages);
+					unset($oMatter->dataSchemas);
+					unset($oMatter->entryRule);
 
 					$oMatter->user = $oUserData;
 					break;

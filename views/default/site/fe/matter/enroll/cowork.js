@@ -1,5 +1,6 @@
 'use strict';
 require('./enroll.public.css');
+require('../../../../../../asset/css/buttons.css');
 require('../../../../../../asset/js/xxt.ui.image.js');
 require('../../../../../../asset/js/xxt.ui.editor.js');
 require('./_asset/ui.repos.js');
@@ -184,6 +185,9 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             delete this.record;
             delete this.timer;
         }
+    };
+    $scope.gotoHome = function() {
+        location.href = "/rest/site/fe/matter/enroll?site=" + _oApp.siteid + "&app=" + _oApp.id + "&page=repos";
     };
     $scope.copyRecord = function(oRecord) {
         enlAssoc.copy($scope.app, { id: oRecord.id, type: 'record' });

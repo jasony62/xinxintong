@@ -1,7 +1,7 @@
 'use strict';
 
 var ngMod = angular.module('task.ui.enroll', []);
-ngMod.factory('enlTask', ['http2', '$q', '$parse', '$filter', '$uibModal', 'tmsLocation', function(http2, $q, $parse, $filter, $uibModal, LS) {
+ngMod.factory('enlTask', ['http2', '$q', '$parse', '$filter', '$uibModal', 'tmsLocation', function (http2, $q, $parse, $filter, $uibModal, LS) {
     var i18n = {
         weekday: {
             'Mon': '周一',
@@ -28,6 +28,7 @@ ngMod.factory('enlTask', ['http2', '$q', '$parse', '$filter', '$uibModal', 'tmsL
         weekday = oDateFilter(oTask.end_at * 1000, 'EEE');
         str = str.replace(weekday, i18n.weekday[weekday]);
         strs.push(str);
+
         min = parseInt($parse('limit.min')(oTask));
         max = parseInt($parse('limit.max')(oTask));
         if (min && max)
@@ -47,19 +48,38 @@ ngMod.factory('enlTask', ['http2', '$q', '$parse', '$filter', '$uibModal', 'tmsL
                 strs.push('，完成' + limit + '回答。');
                 break;
             case 'vote':
-                strs.push('，完成投票。');
+                strs.push('，完成' + limit + '投票。');
                 break;
             case 'score':
                 strs.push('，完成打分。');
                 break;
         }
         return strs.join('');
-    };
+    }
+
+    function fnTaskTimeFormat() {
+        var oTask = this,
+            strs = {},
+            str, weekday, oDateFilter;
+
+        oDateFilter = $filter('date');
+        str = oDateFilter(oTask.start_at * 1000, 'M月d日(EEE)H:mm');
+        weekday = oDateFilter(oTask.start_at * 1000, 'EEE');
+        str = str.replace(weekday, i18n.weekday[weekday]);
+        strs.start_at = str;
+
+        str = oDateFilter(oTask.end_at * 1000, 'M月d日(EEE)H:mm');
+        weekday = oDateFilter(oTask.end_at * 1000, 'EEE');
+        str = str.replace(weekday, i18n.weekday[weekday]);
+        strs.end_at = str;
+
+        return strs;
+    }
     var Task;
-    Task = function(oApp) {
+    Task = function (oApp) {
         this.app = oApp;
     };
-    Task.prototype.list = function(type, state, rid, ek) {
+    Task.prototype.list = function (type, state, rid, ek) {
         var deferred, url;
         deferred = $q.defer();
         url = LS.j('task/list', 'site', 'app');
@@ -67,13 +87,23 @@ ngMod.factory('enlTask', ['http2', '$q', '$parse', '$filter', '$uibModal', 'tmsL
         if (state) url += '&state=' + state;
         if (rid) url += '&rid=' + rid;
         if (ek) url += '&ek=' + ek;
-        http2.get(url).then(function(rsp) {
+        http2.get(url).then(function (rsp) {
             if (rsp.data && rsp.data.length) {
-                rsp.data.forEach(function(oTask) { oTask.toString = fnTaskToString; });
+                rsp.data.forEach(function (oTask) {
+                    oTask.toString = fnTaskToString;
+                    oTask.timeFormat = fnTaskTimeFormat;
+                });
             }
             deferred.resolve(rsp.data);
         });
         return deferred.promise;
+    };
+    Task.prototype.enhance = function (oTask) {
+        if (oTask) {
+            oTask.toString = fnTaskToString;
+            oTask.timeFormat = fnTaskTimeFormat;
+        }
+        return oTask;
     };
 
     return Task;

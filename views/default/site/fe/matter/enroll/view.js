@@ -317,6 +317,9 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
 
     var _oApp, _aScoreSchemas;
 
+    $scope.gotoHome = function() {
+        location.href = "/rest/site/fe/matter/enroll?site=" + _oApp.siteid + "&app=" + _oApp.id + "&page=repos";
+    };
     $scope.addRecord = function(event, page) {
         if (page) {
             $scope.gotoPage(event, page, null, $scope.Record.current.round.rid, 'Y');

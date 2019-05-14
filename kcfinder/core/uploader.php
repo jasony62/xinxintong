@@ -216,6 +216,9 @@ class uploader {
 			$mpid = $this->get['mpid'];
 			$this->session['mpid'] = $mpid;
 		} else {
+			if (!isset($this->session['mpid'])) {
+				$this->backMsg("Parameter error");
+			}
 			$mpid = $this->session['mpid'];
 		}
 

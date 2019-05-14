@@ -18,7 +18,7 @@
     <div class='app container'>
         <div class='row' ng-include="activeView.url"></div>
     </div>
-    <tms-bottom-nav navs="navs" active-nav="activeNav" type="repos"></tms-bottom-nav> 
+    <tms-bottom-nav navs="navs" active-nav="activeNav" type="repos"></tms-bottom-nav>
     <button popover-placement="top-right" popover-trigger="'show'" popover-append-to-body="true" class="tms-act-toggle" popover-class="tms-act-popover" ng-if="selectedTab.id!=='topic'" ng-click="addRecord($event)" style="bottom:64px;"><span class='glyphicon glyphicon-plus'></span></button>
     <div id='favorGuide' ng-if="favorStack.guiding">
         <span>已收藏</span>
@@ -30,6 +30,63 @@
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
+    <script type="text/ng-template" id="task.html">
+        <div class="modal-body">
+            <div class="row">
+                <div class="current-task">
+                    <div class="info">
+                        <p>当前任务</p>
+                        <p>「{{currentTask.name}}」</p>
+                        <p>截止:{{currentTask.time.end_at}}</p>
+                    </div>
+                    <div class="img" ng-class="{'提问':'img-question','回答':'img-answer','投票':'img-vote','打分':'img-score'}[currentTask.name]"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 col-xs-12">
+                    <div class="main">
+                        <p class="title text-center">所有任务</p>
+                        <div class="content">
+                            <div class="timeline" ng-class="{'AE':'state-AE'}[task.data.state]" ng-repeat="task in tasks">
+                                <div class="timeline-front"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-name text-center" ng-class="{'lh':task.data.undone&&task.data.state==='AE'}" >{{task.name}}</div>
+                                    <div class="timeline-ribbon site-ribbon" ng-class="{true:'site-ribbon-fail',false:'site-ribbon-win'}[task.data.undone[0]]" ng-if="task.data.undone&&task.data.state==='AE'" >
+                                        <div class="site-ribbon-text" ng-if="task.data.undone[0]===false">已完成</div>
+                                        <div class="site-ribbon-text" ng-if="task.data.undone[0]===true">未完成</div>
+                                    </div>
+                                </div>
+                                <div class='timeline-state' ng-class="{'BS':'state-BS','IP':'state-IP'}[task.data.state]" ng-switch on="task.data.state">
+                                        <div ng-switch-when="BS">
+                                            <i class="site-icon lock"></i>
+                                            <div class="time">
+                                                <div>起<br>止</div>
+                                                <div class="thread"></div>
+                                                <div>{{task.time.start_at}}<br>{{task.time.end_at}}</div>
+                                            </div>                                            
+                                        </div>
+                                        <div ng-switch-when="IP">
+                                            <i class="site-icon map-marker-top"></i>
+                                            <i class="site-icon map-marker-bottom"></i>
+                                        </div>
+                                    </div>
+                                <div class="timeline-back"></div>
+                                <div class="timeline-arrow"><div class="arrow"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="btn-group site-btn-group" ng-if="currentTask.name!=='提问'">
+            <button class="btn site-btn-light"  ng-click="gotoTask(currentTask)">去{{currentTask.name}}</button>
+        </div>
+        <div class="btn-group site-btn-group" ng-if="currentTask.name==='提问'">
+            <button class="btn site-btn-light" ng-click="addRecord()">去提问</button>
+            <button class="btn site-btn-blue"  ng-click="gotoTask(currentTask)">查看提问({{currentTask.data.doneUsersSum}}/{{currentTask.data.assignUsersSum}})</button>
+        </div>
+        <div class="cancle" ng-click="cancel()">×</div>
+    </script>
     <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>

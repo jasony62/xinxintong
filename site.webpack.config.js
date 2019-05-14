@@ -50,6 +50,13 @@ module.exports = {
         }, {
             test: /\.less$/,
             loader: 'style-loader!css-loader!less-loader'
+        }, {
+            test: /\.(jpg|png|jpeg|gif|svg)$/,
+            loader: 'url-loader',
+            options: {
+                limit: 100000,
+                name: './static/img/[name].[hash:7].[ext]'
+            }
         }]
     }
 }

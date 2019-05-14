@@ -1159,8 +1159,13 @@ class log_model extends \TMS_MODEL {
 	/**
 	 * 操作素材行为列表
 	 */
-	public function listMatterAction($site, $matterType, $matterId, $options = []) {
+	public function listMatterAction($site = '', $matterType, $matterId, $options = []) {
 		$fields = !empty($options['fields']) ? $options['fields'] : 'id,action_at,act_read,act_share_timeline,act_share_friend,original_logid';
+
+		if (!empty($options['byEvent'])) {
+			$result = $this->listMatterActionByEvent($site, $matterType, $matterId, $options['byEvent'], $options);
+			return $result;
+		}
 
 		$q = [
 			$fields,
@@ -1173,19 +1178,6 @@ class log_model extends \TMS_MODEL {
 		}
 		if (!empty($options['endAt'])) {
 			$q[2] .= " and action_at < {$options['endAt']}";
-		}
-		if (!empty($options['byEvent'])) {
-			switch ($options['byEvent']) {
-			case 'shareT':
-				$q[2] .= " and act_share_timeline > 0";
-				break;
-			case 'shareF':
-				$q[2] .= " and act_share_friend > 0";
-				break;
-			default:
-				$q[2] .= " and act_read > 0";
-				break;
-			}
 		}
 
 		$p = ['o' => 'action_at desc'];
@@ -1253,6 +1245,109 @@ class log_model extends \TMS_MODEL {
 		$result->total = $this->query_val_ss($q);
 
 		return $result;
+	}
+	/**
+	 * 素材页面行为日志
+	 */
+	public function listMatterActionByEvent($site = '', $matterType, $matterId, $event, $options = []) {
+		$fields = 'ma.matter_id,ma.matter_type,ma.id,ma.action_at,ma.act_read,ma.act_share_timeline,ma.act_share_friend,ma.original_logid,x.userid,x.nickname,x.matter_shareby,x.matter_shareby';
 
+		$q = [
+			$fields,
+			'xxt_log_matter_action ma',
+			"ma.matter_type = '{$matterType}' and ma.original_logid = x.id",
+		];
+
+		switch ($event) {
+		case 'shareT':
+			$q[1] .= ",xxt_log_matter_share x";
+			$q[2] .= " and ma.act_share_timeline > 0";
+			break;
+		case 'shareF':
+			$q[1] .= ",xxt_log_matter_share x";
+			$q[2] .= " and ma.act_share_friend > 0";
+			break;
+		default:
+			$q[1] .= ",xxt_log_matter_read x";
+			$q[2] .= " and ma.act_read > 0";
+			break;
+		}
+
+		// 如果是查询登记活动中的某个页面，并且是这个页面在整个活动下的所有记录
+		if (!empty($options['assocMatter'])) {
+			switch ($matterType) {
+				case 'enroll.topic':
+					$q[1] .= ",xxt_enroll_topic et";
+					$q[2] .= " and et.aid = '{$options['assocMatter']}' and et.id = ma.matter_id";
+					break;
+				case 'enroll.cowork':
+					$q[1] .= ",xxt_enroll_record er";
+					$q[2] .= " and er.aid = '{$options['assocMatter']}' and er.id = ma.matter_id";
+					break;
+				default:
+					$q[2] .= " and ma.matter_id = '{$options['assocMatter']}'";
+					break;
+			}
+		} else {
+			$q[2] .= " and ma.matter_id = '{$matterId}'";
+		}
+		if (!empty($options['startAt'])) {
+			$q[2] .= " and ma.action_at > {$options['startAt']}";
+		}
+		if (!empty($options['endAt'])) {
+			$q[2] .= " and ma.action_at < {$options['endAt']}";
+		}
+
+		$p = ['o' => 'ma.action_at desc'];
+		if (!empty($options['paging'])) {
+			$page = $options['paging']['page'];
+			$size = $options['paging']['size'];
+			$p['r'] = [
+				'o' => (($page - 1) * $size),
+				'l' => $size,
+			];
+		}
+
+		$logs = $this->query_objs_ss($q, $p);
+		foreach ($logs as $log) {
+			if ($log->act_share_timeline > 0) {
+				$log->event = 'shareT';
+			} else if ($log->act_share_friend > 0) {
+				$log->event = 'shareF';
+			} else if ($log->act_read > 0) {
+				$log->event = 'read';
+			} else {
+				$log->event = '未知';
+			}
+
+			// 查询来源用户
+			if (strpos($log->matter_shareby, '_') !== false) {
+				$shareby = explode('_', $log->matter_shareby);
+				$originUserid = $shareby[0];
+				$q3 = [
+					'nickname',
+					'xxt_site_account',
+					['uid' => $originUserid],
+				];
+				$originUser = $this->query_obj_ss($q3);
+				if ($originUser) {
+					$log->origin_userid = $originUserid;
+					$log->origin_nickname = $originUser->nickname;
+				} else {
+					$log->origin_userid = '';
+					$log->origin_nickname = '未获取';
+				}
+			} else {
+				$log->origin_userid = '';
+				$log->origin_nickname = '';
+			}
+		}
+
+		$result = new \stdClass;
+		$result->logs = $logs;
+		$q[0] = 'count(*)';
+		$result->total = $this->query_val_ss($q);
+
+		return $result;
 	}
 }

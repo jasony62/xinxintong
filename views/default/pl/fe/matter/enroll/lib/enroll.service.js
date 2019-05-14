@@ -560,9 +560,6 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                 edit: function(oRound) {
                     srvEnrollApp.get().then(function(oApp) {
                         tkEnlRnd.edit(oApp, oRound).then(function(oNewRound) {
-                            if (_rounds.length > 1 && oNewRound.state === '1') {
-                                _rounds[1].state = '2';
-                            }
                             angular.extend(oRound, oNewRound);
                         });
                     });
@@ -1654,7 +1651,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function(require, Frame
                                 defer.resolve(oCriteria);
                                 $mi.close();
                             };
-                            if (type !== 'page') { $scope2.doSearchRound(); }
+                            if (type === 'pl' || type === 'site') { $scope2.doSearchRound(); }
                         }],
                         backdrop: 'static',
                     });

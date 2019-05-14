@@ -59,6 +59,9 @@ class analysis_model extends \TMS_MODEL {
 		}
 
 		switch ($page) {
+		case 'rank':
+			$oUpdUserData->do_rank_read_elapse = $eventElapse;
+			break;
 		case 'repos':
 			$oUpdUserData->do_repos_read_elapse = $eventElapse;
 			break;

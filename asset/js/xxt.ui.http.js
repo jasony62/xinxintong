@@ -1,19 +1,19 @@
 'use strict';
 var ngMod = angular.module('http.ui.xxt', ['ng']);
-ngMod.provider('tmsLocation', function() {
+ngMod.provider('tmsLocation', function () {
     var _baseUrl;
 
-    this.config = function(baseUrl) {
+    this.config = function (baseUrl) {
         _baseUrl = baseUrl || location.pathname;
     };
 
-    this.$get = ['$location', function($location) {
+    this.$get = ['$location', function ($location) {
         var myLoc;
         if (!_baseUrl) {
             _baseUrl = location.pathname;
         }
         myLoc = {
-            s: function() {
+            s: function () {
                 var ls = $location.search();
                 if (arguments.length) {
                     var ss = [];
@@ -24,7 +24,7 @@ ngMod.provider('tmsLocation', function() {
                 }
                 return ls;
             },
-            j: function(method) {
+            j: function (method) {
                 var url = _baseUrl,
                     search = [];
                 method && method.length && (url += '/' + method);
@@ -34,7 +34,7 @@ ngMod.provider('tmsLocation', function() {
                 search.length && (url += '?' + search.join('&'));
                 return url;
             },
-            path: function() {
+            path: function () {
                 return arguments.length ? $location.path(arguments[0]) : $location.path();
             }
         };
@@ -42,7 +42,7 @@ ngMod.provider('tmsLocation', function() {
         return myLoc;
     }];
 });
-ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compile', function($rootScope, $http, $timeout, $q, $sce, $compile) {
+ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compile', function ($rootScope, $http, $timeout, $q, $sce, $compile) {
     function _fnCreateAlert(msg, type, keep) {
         var alertDomEl;
         /* backdrop */
@@ -53,7 +53,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
             'ng-style': '{\'z-index\':1099}'
         }).html(msg);
         if (!keep) {
-            alertDomEl[0].addEventListener('click', function() {
+            alertDomEl[0].addEventListener('click', function () {
                 document.body.removeChild(alertDomEl[0]);
             }, true);
         }
@@ -74,7 +74,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
             if (oOptions.page.at === undefined) oOptions.page.at = 1;
             if (oOptions.page.size === undefined) oOptions.page.size = 12;
             if (oOptions.page.j === undefined || !angular.isFunction(oOptions.page.j)) {
-                oOptions.page.j = function() {
+                oOptions.page.j = function () {
                     return 'page=' + this.at + '&size=' + this.size;
                 };
             }
@@ -88,6 +88,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
      * 解决将通过http获得的数据和本地数据合并的问题
      */
     function _fnMerge(oOld, oNew, aExcludeProps) {
+        if (!oNew) return;
         if (!oOld) {
             oOld = oNew;
         } else if (angular.isArray(oOld)) {
@@ -129,7 +130,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
         return true;
     }
 
-    this.get = function(url, oOptions) {
+    this.get = function (url, oOptions) {
         var _alert, _timer, _defer = $q.defer();
         oOptions = angular.extend({
             'headers': {
@@ -143,7 +144,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
             'showProgressText': '正在获取数据...',
         }, oOptions);
         if (oOptions.showProgress === true) {
-            _timer = $timeout(function() {
+            _timer = $timeout(function () {
                 _timer = null;
                 _alert = _fnCreateAlert(oOptions.showProgressText, 'info');
             }, oOptions.showProgressDelay);
@@ -151,7 +152,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
         if (_requirePagination(oOptions)) {
             url += (url.indexOf('?') === -1 ? '?' : '&') + oOptions.page.j();
         }
-        $http.get(url, oOptions).success(function(rsp) {
+        $http.get(url, oOptions).success(function (rsp) {
             if (oOptions.page && rsp.data.total !== undefined) {
                 oOptions.page.total = rsp.data.total;
             }
@@ -195,7 +196,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
                     _defer.resolve(rsp);
                 }
             }
-        }).error(function(data, status) {
+        }).error(function (data, status) {
             if (oOptions.showProgress === true) {
                 _timer && $timeout.cancel(_timer);
                 if (_alert) {
@@ -208,7 +209,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
 
         return _defer.promise;
     };
-    this.post = function(url, posted, oOptions) {
+    this.post = function (url, posted, oOptions) {
         var _alert, _timer, _defer = $q.defer();
         oOptions = angular.extend({
             'headers': {
@@ -222,7 +223,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
             'showProgressText': '正在获取数据...',
         }, oOptions);
         if (oOptions.showProgress === true) {
-            _timer = $timeout(function() {
+            _timer = $timeout(function () {
                 _timer = null;
                 _alert = _fnCreateAlert(oOptions.showProgressText, 'info');
             }, oOptions.showProgressDelay);
@@ -230,7 +231,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
         if (_requirePagination(oOptions)) {
             url += (url.indexOf('?') === -1 ? '?' : '&') + oOptions.page.j();
         }
-        $http.post(url, posted, oOptions).success(function(rsp) {
+        $http.post(url, posted, oOptions).success(function (rsp) {
             if (oOptions.page && rsp.data.total !== undefined) {
                 oOptions.page.total = rsp.data.total;
             }
@@ -275,7 +276,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
                     _defer.resolve(rsp);
                 }
             }
-        }).error(function(data, status) {
+        }).error(function (data, status) {
             if (oOptions.showProgress === true) {
                 _timer && $timeout.cancel(_timer);
                 if (_alert) {
@@ -292,7 +293,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
      * 合并两个对象
      * 解决将通过http获得的数据和本地数据合并的问题
      */
-    this.merge = function(oOld, oNew, aExcludeProps) {
+    this.merge = function (oOld, oNew, aExcludeProps) {
         if (angular.equals(oOld, oNew)) {
             return false;
         }

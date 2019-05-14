@@ -38,18 +38,21 @@ class log extends main_base {
 		if ($logType === 'pl') {
 			$reads = $modelLog->listMatterOp($oApp->id, 'enroll', $aOptions, $page, $size);
 		} else if ($logType === 'page') {
-			if (empty($criteria->target_type) || empty($criteria->target_id) || !in_array($criteria->target_type, ['topic', 'repos', 'cowork'])) {
+			if (empty($criteria->target_type) || empty($criteria->target_id) || !in_array($criteria->target_type, ['topic', 'repos', 'cowork', 'rank'])) {
 				return new \ResponseError('参数不完整或暂不支持此页面');
 			}
 			$target_id = $modelLog->escape($criteria->target_id);
 			$target_type = $modelLog->escape($criteria->target_type);
-			if (isset($aOptions['byOp'])) {
-				$aOptions['byEvent'] = $aOptions['byOp'];
-			}
 			if (!empty($page) && !empty($size)) {
 				$aOptions['paging'] = ['page' => $page, 'size' => $size];
 			}
-
+			if (isset($aOptions['byOp'])) {
+				$aOptions['byEvent'] = $aOptions['byOp'];
+			}
+			if (strcasecmp($target_id, 'all') === 0) {
+				$aOptions['assocMatter'] = $app;
+			}
+			
 			$reads = $modelLog->listMatterAction($oApp->siteid, 'enroll.' . $target_type, $target_id, $aOptions);
 		} else {
 			$reads = $this->model('matter\enroll\log')->list($oApp->id, $aOptions, $page, $size);
@@ -87,13 +90,16 @@ class log extends main_base {
 		if ($logType === 'pl') {
 			$reads = $modelLog->listMatterOp($oApp->id, 'enroll', $options, '', '');
 		} else if ($logType === 'page') {
-			if (empty($target_type) || empty($target_id) || !in_array($target_type, ['topic', 'repos', 'cowork'])) {
+			if (empty($target_type) || empty($target_id) || !in_array($target_type, ['topic', 'repos', 'cowork', 'rank'])) {
 				die('参数不完整或暂不支持此页面');
 			}
 			if (isset($options['byOp'])) {
 				$options['byEvent'] = $options['byOp'];
 			}
-
+			// 查询整个活动
+			if (strcasecmp($target_id, 'all') === 0) {
+				$options['assocMatter'] = $app;
+			}
 			$reads = $modelLog->listMatterAction($oApp->siteid, 'enroll.' . $target_type, $target_id, $options);
 		} else {
 			$reads = $this->model('matter\enroll\log')->list($oApp->id, $options, '', '');

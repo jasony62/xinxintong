@@ -45,6 +45,29 @@
                 </div>
             </div>
         </div>
+        <div ng-switch-when="behavior">
+            <div class="form-group">
+                <label class="col-md-3 control-label">页面名称</label>
+                <div class="col-md-8">
+                    <select class='form-control' ng-model="criteria.target_type" >
+                        <option value="repos">共享页</option>
+                        <option value="cowork">讨论页</option>
+                        <option value="topic">专题页</option>
+                        <option value="rank">排行页</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">事件类型</label>
+                <div class="col-md-8">
+                    <select class='form-control' ng-model="criteria.byOp">
+                        <option value="read">阅读</option>
+                        <option value="shareT">分享</option>
+                        <option value="shareF">转发</option>
+                    </select>
+                </div>
+            </div>
+        </div>
         <div ng-switch-default>
             <div class="form-group">
                 <label class="col-md-3 control-label">用户</label>

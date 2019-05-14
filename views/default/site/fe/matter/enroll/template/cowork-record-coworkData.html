@@ -62,12 +62,12 @@
         <div ng-repeat="assoc in record.assocs" ng-if="assoc.entityB" class='tms-flex-row small'>
             <div ng-if="assoc.assoc_reason" class='assoc-reason'><span ng-bind="assoc.assoc_reason"></span></div>
             <div ng-click="gotoAssoc(assoc.entityB)" class='tms-flex-grow assoc-text'><i class='glyphicon glyphicon-link text-muted'></i> <span ng-bind="assoc.assoc_text"></span></div>
-            <div class="btn-group" uib-dropdown>
+            <div class="btn-group" uib-dropdown ng-if="assoc.log">
                 <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>
                     <span class="glyphicon glyphicon-option-vertical"></span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-right  dropdown-menu-top" uib-dropdown-menu>
-                    <li ng-if="assoc.log"><a href ng-click="removeAssoc(assoc)"><span class='glyphicon glyphicon-remove'></span> 取消</a></li>
+                    <li><a href ng-click="removeAssoc(assoc)"><span class='glyphicon glyphicon-remove'></span> 取消</a></li>
                     <li><a href ng-click="editAssoc(assoc)"><span class='glyphicon glyphicon-edit'></span> 修改</a></li>
                 </ul>
             </div>
@@ -139,12 +139,12 @@
                     <div ng-repeat="assoc in assocs.data[item.id]" ng-if="assoc.entityB" class='tms-flex-row small'>
                         <div ng-if="assoc.assoc_reason" class='assoc-reason'><span ng-bind="assoc.assoc_reason"></span></div>
                         <div ng-click="gotoAssoc(assoc.entityB)" class='tms-flex-grow assoc-text'><i class='glyphicon glyphicon-link text-muted'></i> <span ng-bind="assoc.assoc_text"></span></div>
-                        <div class="btn-group" uib-dropdown>
+                        <div class="btn-group" uib-dropdown ng-if="assoc.log">
                             <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>
                                 <span class="glyphicon glyphicon-option-vertical"></span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-right  dropdown-menu-top" uib-dropdown-menu>
-                                <li ng-if="assoc.log"><a href ng-click="removeItemAssoc(item,assoc)"><span class='glyphicon glyphicon-remove'></span> 取消</a></li>
+                                <li><a href ng-click="removeItemAssoc(item,assoc)"><span class='glyphicon glyphicon-remove'></span> 取消</a></li>
                             </ul>
                         </div>
                     </div>
@@ -157,11 +157,11 @@
                     <a href ng-click="shareItem(item)"><span class='glyphicon glyphicon-share'></span></a>
                 </div>
             </div>
-            <div class='text-center'>
-                <hr>
-                <button class="btn btn-primary" ng-click="addItem(schema)"><span class='glyphicon glyphicon-plus'></span> 写答案</span>
-                </button>
-            </div>
+            <nav class="navbar site-navbar-tab navbar-default navbar-fixed-bottom">
+                <div class="container-fluid text-center">
+                    <button class="button-highlight btn navbar-btn" ng-click="addItem(schema)"><span>写答案</span></button>
+                </div>
+            </nav>
         </div>
     </div>
 </div>

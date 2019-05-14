@@ -646,9 +646,14 @@ function tms_get_server($key, $escape = true){
 /**
  * 检查用户密码
  */
-function tms_pwd_check($pwd, $options = []) {
-	if (TMS_APP_PASSWORD_STRENGTH_CHECK === 0) {
-		return [true];
+function tms_pwd_check($pwd, $options = [], $compel = false) {
+    if ($compel === false) {
+        switch (TMS_APP_PASSWORD_STRENGTH_CHECK) {
+            case 0:
+                return [true];
+            case 9:
+                return [false, '禁止注册'];
+        }
     }
 
     // 过滤黑名单密码 $options['blackChars'] = []

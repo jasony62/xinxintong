@@ -363,7 +363,7 @@ class rank extends base {
         return new \ResponseData($oResult);
     }
     /**
-     * 根据记录对用户组排行
+     * 根据行为数据对单选项数据排行
      */
     private function _schemaByBehavior($oApp, $oCriteria, $oRankSchema, $aSchemaOps) {
         switch ($oCriteria->orderby) {

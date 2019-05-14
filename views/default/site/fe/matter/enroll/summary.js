@@ -167,11 +167,6 @@ ngApp.controller('ctrlSummaryRank', ['$scope', '$q', '$sce', 'tmsLocation', 'htt
             oConfig[item] = true;
         });
         if (oRankConfig = oApp.rankConfig) {
-            if (oRankConfig.scope) {
-                rankItems.forEach(function (item) {
-                    oConfig[item] = !!oRankConfig.scope[item];
-                });
-            }
             if (oRankConfig.schemas && oRankConfig.schemas.length)
                 $scope.rankSchemas = dataSchemas.filter(function (oSchema) {
                     return oSchema.type === 'single' && oRankConfig.schemas.indexOf(oSchema.id) !== -1;
@@ -180,6 +175,11 @@ ngApp.controller('ctrlSummaryRank', ['$scope', '$q', '$sce', 'tmsLocation', 'htt
                 $scope.scopeSchemas = dataSchemas.filter(function (oSchema) {
                     return oSchema.type === 'shorttext' && /number|calculate/.test(oSchema.format) && oRankConfig.scopeSchemas.indexOf(oSchema.id) !== -1;
                 });
+            if (oRankConfig.scope || ($scope.scopeSchemas && $scope.scopeSchemas.length)) {
+                rankItems.forEach(function (item) {
+                    oConfig[item] = !!oRankConfig.scope[item];
+                });
+            }
         }
         $scope.config = oConfig;
         /* 恢复上一次访问的状态 */

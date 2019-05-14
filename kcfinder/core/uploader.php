@@ -212,7 +212,7 @@ class uploader {
 
 		// UPLOAD FOLDER INIT
 		// browser for which mpid.
-		if (isset($this->get['mpid'])) {
+		if (isset($this->get['mpid']) && (empty($this->get['act']) || $this->get['act'] === 'browser')) {
 			$mpid = $this->get['mpid'];
 			$this->session['mpid'] = $mpid;
 		} else {

@@ -528,8 +528,8 @@ class way_model extends \TMS_MODEL {
                         if ($oCookieAccount->wx_openid !== $oRegPrimary->wx_openid) {
                             $agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
                             $referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
-                            $modelLog = TMS_APP::M('log');
-                            $modelLog->log('notice', $canShiftRegUser, '1个注册账号，只能够和1个微信号绑定，unionid:' . $oRegUser->unionid . ',cookie:' . $oCookieAccount->wx_openid . ',oRegPrimary:' . $oRegPrimary->wx_openid, $agent, $referer);
+                            $modelLog = \TMS_APP::M('log');
+                            $modelLog->log($siteId, 'canShiftRegUser', '1个注册账号，只能够和1个微信号绑定，unionid:' . $oRegUser->unionid . ',cookie:' . $oCookieAccount->wx_openid . ',oRegPrimary:' . $oRegPrimary->wx_openid, $agent, $referer);
                             return [false, '1个注册账号，只能够和1个微信号绑定'];
                         }
                     }

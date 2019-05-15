@@ -58,6 +58,12 @@ class main extends \site\fe\base {
 		exit;
 	}
 	/**
+	 * 返回平台定制的安全级别
+	 */
+	public function getPwdCheckStrength_action() {
+		return new \ResponseData(TMS_APP_PASSWORD_STRENGTH_CHECK);
+	}
+	/**
 	 * 当前用户信息
 	 */
 	public function get_action() {

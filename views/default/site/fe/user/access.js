@@ -139,7 +139,7 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
             alert('操作失败：' + (data === null ? '网络不可用' : data));
         });
     });
-    $http.get('/rest/site/fe/getSafetyLevel').success(function(rsp) {
+    $http.get('/rest/site/fe/user/getSafetyLevel').success(function(rsp) {
         $scope.isRegister = rsp.data.register;
     });
 }]);

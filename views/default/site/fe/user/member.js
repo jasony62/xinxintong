@@ -268,7 +268,7 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
             });
         });
     });
-    $http.get('/rest/site/fe/user/getSafetyLevel').success(function(rsp) {
+    http2.get('/rest/site/fe/user/getSafetyLevel').then(function(rsp) {
         $scope.isRegister = rsp.data.register;
     });
     $scope.isSmallLayout = false;

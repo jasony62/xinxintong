@@ -27,11 +27,10 @@ ngMod.directive('tmsReposRecord', ['$templateCache', function ($templateCache) {
                 url += '&file=' + JSON.stringify(data);
                 window.open(url);
             };
-            $scope.showHistory222 = function (event, oSchema, oRecord) {
-                console.log('xxxxxxx', event);
+            $scope.showHistory = function (event, oSchema, oRecord) {
                 event.stopPropagation();
                 event.preventDefault();
-                (new enlHistory()).show(oSchema);
+                (new enlHistory()).show(oSchema, oRecord);
                 return;
             };
 

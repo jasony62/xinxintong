@@ -73,7 +73,7 @@ class account extends \pl\be\base {
 		 * set new password
 		 */
 		$pwd = $data->password;
-		$rst = tms_pwd_check($pwd, ['account' => $account->email]);
+		$rst = tms_pwd_check($pwd, ['account' => $account->email], true);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}

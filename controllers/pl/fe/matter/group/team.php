@@ -43,7 +43,7 @@ class team extends \pl\fe\matter\base {
 
 		$modelApp = $this->model('matter\group');
 		$oApp = $modelApp->byId($app);
-		if (false === $oApp && $oApp->state !== '1') {
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 

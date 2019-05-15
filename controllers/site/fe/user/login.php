@@ -91,7 +91,7 @@ class login extends \site\fe\base {
 	 * 判断密码强度
 	 */
 	public function checkPwdStrength_action($account, $password) {
-		$rst = tms_pwd_check($password, ['account' => $account]);
+		$rst = tms_pwd_check($password, ['account' => $account], true);
 		
 		$data = new \stdClass;
 		$data->strength = $rst[0];

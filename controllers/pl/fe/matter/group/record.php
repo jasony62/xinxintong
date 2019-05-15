@@ -23,7 +23,7 @@ class record extends \pl\fe\matter\base {
 
 		$modelGrp = $this->model('matter\group');
 		$oApp = $modelGrp->byId($app);
-		if (false === $oApp && $oApp->state !== '1') {
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 

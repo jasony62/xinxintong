@@ -37,7 +37,7 @@ class remark extends base {
 			return new \ObjectNotFoundError('（1）访问的资源不可用');
 		}
 		$oApp = $this->model('matter\enroll')->byId($oRemark->aid, ['cascaded' => 'N']);
-		if (false === $oApp && $oApp->state !== '1') {
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 		$oUser = $this->getUser($oApp);
@@ -81,7 +81,7 @@ class remark extends base {
 		}
 		$modelEnl = $this->model('matter\enroll');
 		$oApp = $modelEnl->byId($oRecord->aid, ['cascaded' => 'N']);
-		if (false === $oApp && $oApp->state !== '1') {
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
@@ -192,7 +192,7 @@ class remark extends base {
 
 		$modelEnl = $this->model('matter\enroll');
 		$oApp = $modelEnl->byId($oRecord->aid, ['cascaded' => 'N']);
-		if (false === $oApp && $oApp->state !== '1') {
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 		/* 检查指定的任务 */
@@ -356,7 +356,7 @@ class remark extends base {
 
 		$modelEnl = $this->model('matter\enroll');
 		$oApp = $modelEnl->byId($oRemark->aid, ['cascaded' => 'N']);
-		if (false === $oApp && $oApp->state !== '1') {
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 
@@ -402,7 +402,7 @@ class remark extends base {
 
 		$modelEnl = $this->model('matter\enroll');
 		$oApp = $modelEnl->byId($oRemark->aid, ['cascaded' => 'N']);
-		if (false === $oApp && $oApp->state !== '1') {
+		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();
 		}
 

@@ -60,8 +60,18 @@ class main extends \site\fe\base {
 	/**
 	 * 返回平台定制的安全级别
 	 */
-	public function getPwdCheckStrength_action() {
-		return new \ResponseData(TMS_APP_PASSWORD_STRENGTH_CHECK);
+	public function getSafetyLevel_action() {
+		$data = new \stdClass;
+		switch (TMS_APP_PASSWORD_STRENGTH_CHECK) {
+			case 9:
+				$data->register = false;
+				break;
+			default :
+				$data->register = true;
+				break;
+		}
+		
+		return new \ResponseData($data);
 	}
 	/**
 	 * 当前用户信息

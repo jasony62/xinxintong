@@ -32,7 +32,7 @@
         <label>填写限制</label>
         <div class='radio'>
             <label class="radio-inline">
-                <input type='radio' ng-model='activeSchema.format' value='' name='format' ng-change="updSchema(activeSchema)">不限</label>
+                <input type='radio' ng-model='activeSchema.format' value='' name='format' ng-change="updSchema(activeSchema,null,'format')">不限</label>
         </div>
         <div class='radio'>
             <label class="radio-inline">
@@ -40,11 +40,19 @@
         </div>
         <div class='radio'>
             <label class="radio-inline">
-                <input type='radio' value="name" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema)">姓名</label>
+                <input type='radio' value="name" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema,null,'format')">姓名</label>
             <label class="radio-inline">
-                <input type='radio' value="mobile" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema)">手机</label>
+                <input type='radio' value="mobile" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema,null,'format')">手机</label>
             <label class="radio-inline">
-                <input type='radio' value="email" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema)">邮箱</label>
+                <input type='radio' value="email" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema,null,'format')">邮箱</label>
+        </div>
+        <div class='radio'>
+            <label class="radio-inline">
+                <input type='radio' value="calculate" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema,null,'format')">公式</label>
+        </div>
+        <div class='form-group' ng-if='activeSchema.format==="calculate"'>
+            <label>数值计算公式</label>
+            <div tms-editable prop='formula' obj='activeSchema' evt-prefix='formula' placeholder="请输入计算公式"></div>
         </div>
     </div>
     <div class="form-group" ng-if="activeSchema.type==='multiple'">

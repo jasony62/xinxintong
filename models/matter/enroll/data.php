@@ -22,23 +22,23 @@ class data_model extends entity_model {
             $submitkey = empty($oUser->uid) ? '' : $oUser->uid;
         }
 
-        $schemasById = []; // 方便获取题目的定义
+        $aSchemasById = []; // 方便获取题目的定义
         /* 以"member."开头的数据会记录在data.member中 */
         foreach ($oApp->dynaDataSchemas as $oSchema) {
             if (strpos($oSchema->id, 'member.') === 0) {
                 $oSchema->id = 'member';
             }
-            $schemasById[$oSchema->id] = $oSchema;
+            $aSchemasById[$oSchema->id] = $oSchema;
         };
 
-        $dbData = $this->disposRecrdData($oApp, $schemasById, $submitData, $submitkey, $oRecord);
+        $dbData = $this->disposRecrdData($oApp, $aSchemasById, $submitData, $submitkey, $oRecord);
         if ($dbData[0] === false) {
             return $dbData;
         }
         $dbData = $dbData[1];
 
         /* 获得题目的得分 */
-        $oRecordScore = $this->socreRecordData($oApp, $oRecord, $schemasById, $dbData, $oAssignScore);
+        $oRecordScore = $this->socreRecordData($oApp, $oRecord, $aSchemasById, $dbData, $oAssignScore);
         /* 将每条协作填写项保存为1条数据，并返回题目中记录的汇总数据 */
         $fnNewItems = function ($schemaId, $aNewItems) use ($oApp, $oRecord, $oUser, $dbData) {
             $aSchemaVal = []; // 记录的题目数据中记录的整体内容
@@ -180,10 +180,10 @@ class data_model extends entity_model {
         };
 
         foreach ($dbData as $schemaId => $treatedValue) {
-            if (!isset($schemasById[$schemaId])) {
+            if (!isset($aSchemasById[$schemaId])) {
                 continue;
             }
-            $oSchema = $schemasById[$schemaId];
+            $oSchema = $aSchemasById[$schemaId];
 
             /* 记录的题目之前保存过的数据 */
             $oLastSchemaValues = $this->query_objs_ss(
@@ -286,18 +286,24 @@ class data_model extends entity_model {
     }
     /**
      * 处理提交的数据
-     * 包括图片和文件的上传
+     * 包括：图片和文件的上传；计算题求值
      */
-    public function disposRecrdData($oApp, $schemasById, $submitData, $submitkey) {
+    public function disposRecrdData($oApp, $aSchemasById, $submitData, $submitkey) {
+        $aCalculateSchemas = []; // 计算题，忽略计算题指定数据，通过公式计算
+        array_walk($aSchemasById, function ($oSchema, $schemaId) use (&$aCalculateSchemas) {
+            if ($oSchema->type === 'shorttext' && $this->getDeepValue($oSchema, 'format', null) === 'calculate') {
+                $aCalculateSchemas[] = $oSchema;
+            }
+        });
         $oDbData = new \stdClass; // 处理后的保存到数据库中的登记记录
         /* 处理提交的数据，进行格式转换等操作 */
         foreach ($submitData as $schemaId => $submitVal) {
             if ($schemaId === 'member' && is_object($submitVal)) {
                 /* 通信录用户信息 */
                 $oDbData->{$schemaId} = $submitVal;
-            } else if (isset($schemasById[$schemaId])) {
+            } else if (isset($aSchemasById[$schemaId])) {
                 /* 活动中定义的登记项 */
-                $oSchema = $schemasById[$schemaId];
+                $oSchema = $aSchemasById[$schemaId];
                 if (empty($oSchema->type)) {
                     return [false, '填写项【' . $oSchema->id . '】定义不完整'];
                 }
@@ -412,6 +418,20 @@ class data_model extends entity_model {
                 /* 如果记录活动指定匹配清单，那么提交数据会包含匹配登记记录的数据，但是这些数据不在登记项定义中 */
                 $oDbData->{$schemaId} = $submitVal;
             }
+        }
+        /* 处理所有计算题 */
+        $oFormulaContext = new \stdClass;
+        $oFormulaContext->app = $oApp;
+        $oFormulaContext->data = $oDbData;
+        foreach ($aCalculateSchemas as $oSchema) {
+            if (empty($oSchema->formula)) {
+                $value = 0;
+            } else {
+                require_once dirname(__FILE__) . '/formula.php';
+                $equation = formula::calcAndReplaceInnerFunc($oSchema->formula, $oSchema, $oFormulaContext);
+                $value = formula::calculate($equation, []);
+            }
+            $oDbData->{$oSchema->id} = $value;
         }
 
         return [true, $oDbData];
@@ -1492,6 +1512,41 @@ class data_model extends entity_model {
         return $data;
     }
     /**
+     * 更新投票汇总数据
+     */
+    private function _refreshVoteNum($oRecord, $oRecData, $oParentRecData = null) {
+        $oResult = new \stdClass;
+        $q = [
+            'count(*)',
+            'xxt_enroll_vote',
+            ['data_id' => $oRecData->id, 'state' => 1],
+        ];
+        $oResult->data = (int) $this->query_val_ss($q);
+        $this->update('xxt_enroll_record_data', ['vote_num' => $oResult->data], ['id' => $oRecData->id]);
+
+        /* 协作题投票数据 */
+        if (isset($oParentRecData)) {
+            $q = [
+                'count(*)',
+                'xxt_enroll_vote',
+                ['record_id' => $oRecord->id, 'schema_id' => $oRecData->schema_id, 'state' => 1],
+            ];
+            $oResult->data_parent = (int) $this->query_val_ss($q);
+            $this->update('xxt_enroll_record_data', ['vote_num' => $oResult->data_parent], ['id' => $oParentRecData->id]);
+        }
+
+        /* 记录的汇总数据 */
+        $q = [
+            'count(*)',
+            'xxt_enroll_vote',
+            ['record_id' => $oRecord->id, 'state' => 1],
+        ];
+        $oResult->reocrd = (int) $this->query_val_ss($q);
+        $this->update('xxt_enroll_record', ['vote_schema_num' => $oResult->reocrd], ['id' => $oRecord->id]);
+
+        return $oResult;
+    }
+    /**
      * 对填写数据投票
      */
     public function vote($oApp, $oTask, $recDataId, $oUser) {
@@ -1569,19 +1624,9 @@ class data_model extends entity_model {
         $oNew->id = $this->insert('xxt_enroll_vote', $oNew, true);
 
         /* 更新汇总数据 */
-        $this->update('xxt_enroll_record_data', ['vote_num' => (object) ['op' => '+=', 'pat' => 1]], ['id' => $oRecData->id]);
-        if (isset($oParentRecData)) {
-            /* 协作填写汇总数据 */
-            $this->update('xxt_enroll_record_data', ['vote_num' => (object) ['op' => '+=', 'pat' => 1]], ['id' => $oParentRecData->id]);
-            $this->update('xxt_enroll_record', ['vote_cowork_num' => (object) ['op' => '+=', 'pat' => 1]], ['id' => $oRecord->id]);
-        } else {
-            /* 题目汇总数据 */
-            $this->update('xxt_enroll_record', ['vote_schema_num' => (object) ['op' => '+=', 'pat' => 1]], ['id' => $oRecord->id]);
-        }
+        $oSumResult = $this->_refreshVoteNum($oRecord, $oRecData, isset($oParentRecData) ? $oParentRecData : null);
 
-        $beforeCount++;
-
-        return [true, $oNew, [$limitMax, $beforeCount]];
+        return [true, $oNew, [$limitMax, ++$beforeCount], $oSumResult];
     }
     /**
      * 撤销对填写数据投票
@@ -1640,15 +1685,7 @@ class data_model extends entity_model {
         $this->update('xxt_enroll_vote', ['state' => 0], ['id' => $oBefore->id]);
 
         /* 更新汇总数据 */
-        $this->update('xxt_enroll_record_data', ['vote_num' => (object) ['op' => '-=', 'pat' => 1]], ['id' => $oRecData->id]);
-        if (isset($oParentRecData)) {
-            /* 协作填写汇总数据 */
-            $this->update('xxt_enroll_record_data', ['vote_num' => (object) ['op' => '+=', 'pat' => 1]], ['id' => $oParentRecData->id]);
-            $this->update('xxt_enroll_record', ['vote_cowork_num' => (object) ['op' => '+=', 'pat' => 1]], ['id' => $oRecord->id]);
-        } else {
-            /* 题目汇总数据 */
-            $this->update('xxt_enroll_record', ['vote_schema_num' => (object) ['op' => '+=', 'pat' => 1]], ['id' => $oRecord->id]);
-        }
+        $oSumResult = $this->_refreshVoteNum($oRecord, $oRecData, isset($oParentRecData) ? $oParentRecData : null);
 
         $q = [
             'count(*)',
@@ -1657,6 +1694,6 @@ class data_model extends entity_model {
         ];
         $beforeCount = (int) $this->query_val_ss($q);
 
-        return [true, [$this->getDeepValue($oVoteRule, 'limit.max'), $beforeCount]];
+        return [true, [$this->getDeepValue($oVoteRule, 'limit.max', 0), $beforeCount], $oSumResult];
     }
 }

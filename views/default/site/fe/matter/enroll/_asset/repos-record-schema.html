@@ -61,5 +61,8 @@
         <div ng-if="rec.voteResult[schema.id]" class='small'>
             <span ng-if="rec.voteResult[schema.id].state!=='BS'">得票：<span ng-bind="rec.voteResult[schema.id].vote_num"></span></span>
         </div>
+        <div>
+            <button class='btn btn-sm btn-default' ng-click="showHistory222($event,schema,rec)">查看历史数据</button>
+        </div>
     </div>
 </div>

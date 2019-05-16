@@ -96,7 +96,14 @@ class login extends \site\fe\base {
 	/**
 	 * 判断密码强度
 	 */
-	public function checkPwdStrength_action($account, $password) {
+	public function checkPwdStrength_action() {
+		$data = $this->getPostJson();
+		if (empty($data)) {
+			return new \ResponseError('参数错误');
+		}
+
+		$account = $data->account;
+		$password = $data->password;
 		$rst = tms_pwd_check($password, ['account' => $account], true);
 		
 		$data = new \stdClass;

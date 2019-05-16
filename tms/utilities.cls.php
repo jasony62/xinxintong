@@ -728,3 +728,24 @@ function tms_pwd_create_random(int $upperNum = 1, int $lowerNum = 3, int $number
 
     return $pwd;
 }
+/**
+ * 检查登录条件
+ */
+function tms_login_check() {
+    switch (TMS_APP_LOGIN_STRENGTH_CHECK) {
+        case 0:
+            return [true];
+        case 1:
+            if (tms_get_httpsOrHttp() === 'https') {
+                return [true];
+            } else {
+                return [false, '登录失败，登录方式存在风险'];
+            }
+    }
+}
+/**
+ * 检查当前请求是https还是http
+ */
+function tms_get_httpsOrHttp() {
+    return ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')) ? 'https' : 'http';
+}

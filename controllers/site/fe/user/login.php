@@ -45,6 +45,12 @@ class login extends \site\fe\base {
 			$modelWay->quitRegUser();
 		}
 
+		// 检查是否登录条件
+		$rst = tms_login_check();
+		if ($rst[0] === false) {
+			return new \ResponseError($rst[1]);
+		}
+
 		$oResult = $modelReg->validate($data->uname, $data->password);
 		if (false === $oResult[0]) {
 			return new \ResponseError($oResult[1]);

@@ -25,6 +25,12 @@ ngApp.config(['$routeProvider', function ($routeProvider) {
             controller: 'ctrlSummaryRank'
         });
 }]);
+ngApp.factory('$exceptionHandler', function () {
+    return function (exception, cause) {
+        exception.message += ' (caused by "' + cause + '")';
+        throw exception;
+    };
+});
 ngApp.controller('ctrlSummary', ['$scope', 'tmsLocation', '$location', 'http2', function ($scope, LS, $location, http2) {
     $scope.activeNav = '';
     $scope.viewTo = function (event, subView) {

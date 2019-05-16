@@ -25,7 +25,20 @@
         });
         return false;
     };
-    window.addEventListener('error', function (eventErr) {
-        console.log('error event listener', eventErr);
-    }, true);
+    // 两种方法作用完全相同吗？
+    // window.addEventListener('error', function (eventErr) {
+    //     var message;
+    //     message = [
+    //         'Message: ' + eventErr.message,
+    //         'URL: ' + eventErr.filename || '',
+    //         'Line: ' + eventErr.lineno || '',
+    //         'Column: ' + (eventErr.colno || ''),
+    //         'Error Stack: ' + ((eventErr.error && eventErr.error.stack) ? JSON.stringify(eventErr.error.stack) : '')
+    //     ].join(' - ');
+    //     doXhr('post', '/rest/log/add', {
+    //         src: 'js',
+    //         msg: message
+    //     });
+    //     return false;
+    // }, true);
 })();

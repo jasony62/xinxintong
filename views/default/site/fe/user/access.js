@@ -36,9 +36,9 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
                     return;
                 }
                 
-                $http.post('/rest/site/fe/user/login/checkPwdStrength', {'account':$scope.loginData.uname,'password':$scope.loginData.password}).success(function(rsp) {
-                    if(!rsp.data.strength) {
-                        alert(rsp.data.msg);
+                $http.post('/rest/site/fe/user/login/checkPwdStrength', {'account':$scope.loginData.uname,'password':$scope.loginData.password}).success(function(rsp2) {
+                    if(!rsp2.data.strength) {
+                        alert(rsp2.data.msg);
                     }
                     if ($scope.loginData.rememberMe === 'Y') {
                         window.localStorage.setItem('xxt.login.rememberMe', 'Y');

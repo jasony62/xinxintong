@@ -4,10 +4,10 @@
 </div>
 <div class="modal-body">
     <div class='list-group'>
-        <div class='list-group-item' ng-repeat="rec in records">
+        <div class='list-group-item clearfix' ng-class="{'list-group-item-info':rec.current}" ng-repeat="rec in records">
             <div ng-class="{'rec-current':rec.current}">
-                <div>{{::$index+1}}</div>
-                <div>{{::rec.value}}</div>
+                <div style='float:left;width:4em'>{{::$index+1}}</div>
+                <div style='float:left'>{{::rec.value}}</div>
             </div>
         </div>
     </div>

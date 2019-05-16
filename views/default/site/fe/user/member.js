@@ -155,7 +155,7 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
     $scope.login = function() {
         if($scope.loginUser.password) {
             http2.post('/rest/site/fe/user/login/do?site=' + LS.s().site, $scope.loginUser).then(function(rsp) {
-                http2.get('/rest/site/fe/user/login/checkPwdStrength?account=' + $scope.loginUser.uname + '&password=' + $scope.loginUser.password).then(function(rsp) {
+                http2.post('/rest/site/fe/user/login/checkPwdStrength?account=' + $scope.loginUser.uname + '&password=' + $scope.loginUser.password).then(function(rsp) {
                     if(!rsp.data.strength) {
                         alert(rsp.data.msg);
                     }

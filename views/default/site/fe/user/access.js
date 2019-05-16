@@ -35,7 +35,7 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
                     $scope.refreshPin();
                     return;
                 }
-                $http.get('/rest/site/fe/user/login/checkPwdStrength?account=' + $scope.loginData.uname + '&password=' + $scope.loginData.password).success(function(rsp) {
+                $http.post('/rest/site/fe/user/login/checkPwdStrength?account=' + $scope.loginData.uname + '&password=' + $scope.loginData.password).success(function(rsp) {
                     if(!rsp.data.strength) {
                         alert(rsp.data.msg);
                     }

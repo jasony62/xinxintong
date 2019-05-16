@@ -10,6 +10,7 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
     $scope.activeView = location.hash ? location.hash.substr(1) : 'login';
     $scope.loginData = {};
     $scope.registerData = {};
+    $scope.isRegister = false;
     if (window.localStorage) {
         $scope.supportLocalStorage = 'Y';
         if (window.localStorage.getItem('xxt.login.rememberMe') === 'Y') {
@@ -27,16 +28,16 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
         document.querySelector('[ng-model="data.uname"]').focus();
     }
     $scope.login = function() {
-        if($scope.loginData.password) {
-            $http.get('/rest/site/fe/user/login/checkPwdStrength?account=' + $scope.loginData.uname + '&password=' + $scope.loginData.password).success(function(rsp) {
-                if(!rsp.data.strength) {
-                    alert(rsp.data.msg);
+        if($scope.loginData.password) {  
+            $http.post('/rest/site/fe/user/login/do?site=' + _siteId, $scope.loginData).success(function(rsp) {
+                if (rsp.err_code != 0) {
+                    $scope.errmsg = rsp.err_msg;
+                    $scope.refreshPin();
+                    return;
                 }
-                $http.post('/rest/site/fe/user/login/do?site=' + _siteId, $scope.loginData).success(function(rsp) {
-                    if (rsp.err_code != 0) {
-                        $scope.errmsg = rsp.err_msg;
-                        $scope.refreshPin();
-                        return;
+                $http.get('/rest/site/fe/user/login/checkPwdStrength?account=' + $scope.loginData.uname + '&password=' + $scope.loginData.password).success(function(rsp) {
+                    if(!rsp.data.strength) {
+                        alert(rsp.data.msg);
                     }
                     if ($scope.loginData.rememberMe === 'Y') {
                         window.localStorage.setItem('xxt.login.rememberMe', 'Y');
@@ -59,12 +60,12 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
                     } else {
                         location.replace('/rest/site/fe/user?site=' + _siteId);
                     }
-                }).error(function(data, header, config, status) {
-                    if (data) {
-                        $http.post('/rest/log/add', { src: 'site.fe.user.login', msg: JSON.stringify(arguments) });
-                    }
-                    alert('操作失败：' + (data === null ? '网络不可用' : data));
                 });
+            }).error(function(data, header, config, status) {
+                if (data) {
+                    $http.post('/rest/log/add', { src: 'site.fe.user.login', msg: JSON.stringify(arguments) });
+                }
+                alert('操作失败：' + (data === null ? '网络不可用' : data));
             });
         }
     };
@@ -137,5 +138,8 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
             $http.post('/rest/log/add', { src: 'site.fe.user.access', msg: JSON.stringify(arguments) });
             alert('操作失败：' + (data === null ? '网络不可用' : data));
         });
+    });
+    $http.get('/rest/site/fe/user/getSafetyLevel').success(function(rsp) {
+        $scope.isRegister = rsp.data.register;
     });
 }]);

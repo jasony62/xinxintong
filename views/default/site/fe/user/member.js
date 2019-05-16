@@ -148,16 +148,17 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
     $scope.posting = false;
     $scope.loginUser = {};
     $scope.subView = 'login';
+    $scope.isRegister = false;
     $scope.switchSubView = function(name) {
         $scope.subView = name;
     };
     $scope.login = function() {
-        if($scope.loginData.password) {
-            http2.get('/rest/site/fe/user/login/checkPwdStrength?account=' + $scope.loginUser.uname + '&password=' + $scope.loginUser.password).then(function(rsp) {
-                if(!rsp.data.strength) {
-                    alert(rsp.data.msg);
-                }
-                http2.post('/rest/site/fe/user/login/do?site=' + LS.s().site, $scope.loginUser).then(function(rsp) {
+        if($scope.loginUser.password) {
+            http2.post('/rest/site/fe/user/login/do?site=' + LS.s().site, $scope.loginUser).then(function(rsp) {
+                http2.get('/rest/site/fe/user/login/checkPwdStrength?account=' + $scope.loginUser.uname + '&password=' + $scope.loginUser.password).then(function(rsp) {
+                    if(!rsp.data.strength) {
+                        alert(rsp.data.msg);
+                    }
                     http2.get(LS.j('get', 'site', 'schema')).then(function(rsp) {
                         var user = rsp.data;
                         $scope.user = user;
@@ -266,6 +267,9 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
                 });
             });
         });
+    });
+    http2.get('/rest/site/fe/user/getSafetyLevel').then(function(rsp) {
+        $scope.isRegister = rsp.data.register;
     });
     $scope.isSmallLayout = false;
     if (window.screen && window.screen.width <= 768) {

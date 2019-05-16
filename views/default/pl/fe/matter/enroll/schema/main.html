@@ -103,6 +103,10 @@
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.history' ng-change="updSchema(activeSchema,'history')"> 选择已填数据</label>
     </div>
+    <div class="checkbox" ng-show="['shorttext'].indexOf(activeSchema.type)!==-1">
+        <label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.showHistoryAtRepos' ng-change="updSchema(activeSchema,'showHistoryAtRepos')"> 在共享页查看历史数据</label>
+    </div>
     <div class="checkbox" ng-show="'Y'===activeSchema.history">
         <button class='btn btn-default' ng-click="setHistoryAssoc(activeSchema)"> 设置已填数据关联题目<span ng-if="activeSchema.historyAssoc.length">({{activeSchema.historyAssoc.length}})</span></button>
     </div>

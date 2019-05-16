@@ -58,6 +58,22 @@ class main extends \site\fe\base {
 		exit;
 	}
 	/**
+	 * 返回平台定制的安全级别
+	 */
+	public function getSafetyLevel_action() {
+		$data = new \stdClass;
+		switch (TMS_APP_PASSWORD_STRENGTH_CHECK) {
+			case 9:
+				$data->register = false;
+				break;
+			default :
+				$data->register = true;
+				break;
+		}
+		
+		return new \ResponseData($data);
+	}
+	/**
 	 * 当前用户信息
 	 */
 	public function get_action() {
@@ -185,7 +201,7 @@ class main extends \site\fe\base {
 			$modelReg = $this->model('site\user\registration');
 			if ($registration = $modelReg->byId($oAccount->unionid)) {
 				// 校验密码安全
-				$rst = tms_pwd_check($data->password, ['account' => $registration->uname]);
+				$rst = tms_pwd_check($data->password, ['account' => $registration->uname], true);
 				if ($rst[0] === false) {
 					return new \ResponseError($rst[1]);
 				}

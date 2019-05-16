@@ -302,7 +302,7 @@ class data_model extends entity_model {
                 /* 通信录用户信息 */
                 $oDbData->{$schemaId} = $submitVal;
             } else if (isset($aSchemasById[$schemaId])) {
-                /* 活动中定义的登记项 */
+                /* 活动中定义的题目 */
                 $oSchema = $aSchemasById[$schemaId];
                 if (empty($oSchema->type)) {
                     return [false, '填写项【' . $oSchema->id . '】定义不完整'];
@@ -415,7 +415,7 @@ class data_model extends entity_model {
                     $oDbData->{$schemaId} = $submitVal;
                 }
             } else {
-                /* 如果记录活动指定匹配清单，那么提交数据会包含匹配登记记录的数据，但是这些数据不在登记项定义中 */
+                /* 如果记录活动指定匹配清单，那么提交数据会包含匹配登记记录的数据，但是这些数据不在题目定义中 */
                 $oDbData->{$schemaId} = $submitVal;
             }
         }
@@ -770,7 +770,7 @@ class data_model extends entity_model {
         return $mixResult;
     }
     /**
-     * 返回指定活动，指定登记项的填写数据
+     * 返回指定活动，指定题目的填写数据
      */
     public function bySchema($oApp, $oSchema, $oOptions = null) {
         if ($oOptions) {
@@ -887,6 +887,10 @@ class data_model extends entity_model {
             $oOptions = (object) $oOptions;
         }
         $fields = isset($oOptions->fields) ? $oOptions->fields : self::DEFAULT_FIELDS;
+        // 检查必填字段
+        if (false === strpos($fields, 'enroll_key')) {
+            $fields .= ',enroll_key';
+        }
         $page = isset($oOptions->page) ? $oOptions->page : null;
         $size = isset($oOptions->size) ? $oOptions->size : null;
         $rid = isset($oOptions->rid) ? $this->escape($oOptions->rid) : null;

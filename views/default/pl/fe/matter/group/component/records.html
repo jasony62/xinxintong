@@ -30,7 +30,7 @@
             </td>
             <td ng-if="bRequireNickname">{{::r.nickname}}</td>
             <td>{{r.team_title}}</td>
-            <td>{{r.is_leader==='Y'?'组长':(r.is_leader==='S'?'超级用户':'组员')}}</td>
+            <td>{{r.is_leader==='Y'?'组长':(r.is_leader==='S'?'超级用户':(r.is_leader==='O'?'围观':'组员'))}}</td>
             <td>
                 <div ng-repeat="title in r.role_team_titles">{{title}}</div>
             </td>

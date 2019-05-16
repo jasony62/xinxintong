@@ -155,7 +155,7 @@ class registration_model extends \TMS_MODEL {
 	 */
 	public function validate($uname, $password) {
 		if (!$oRegistration = $this->byUname($uname, ['forbidden' => 0])) {
-			return [false, '用户名不存在'];
+			return [false, '用户名或密码错误'];
 		}
 
 		$pw_hash = $this->compile_password($uname, $password, $oRegistration->salt);

@@ -1,5 +1,5 @@
 'use strict';
-(function() {
+(function () {
     function doXhr(method, url, data) {
         var xhr = new XMLHttpRequest();
         xhr.open(method, url, true);
@@ -7,7 +7,7 @@
         xhr.setRequestHeader("Accept", "application/json");
         xhr.send(JSON.stringify(data));
     }
-    window.onerror = function(msg, url, line, column, error) {
+    window.onerror = function (msg, url, line, column, error) {
         var message;
         if (msg === 'Uncaught ReferenceError: WeixinJSBridge is not defined') {
             return false;
@@ -19,8 +19,13 @@
             'Column: ' + (column || ''),
             'Error Stack: ' + ((error && error.stack) ? JSON.stringify(error.stack) : '')
         ].join(' - ');
-        doXhr('post', '/rest/log/add', { src: 'js', msg: message });
-        console.log(message);
+        doXhr('post', '/rest/log/add', {
+            src: 'js',
+            msg: message
+        });
         return false;
     };
+    window.addEventListener('error', function (eventErr) {
+        console.log('error event listener', eventErr);
+    }, true);
 })();

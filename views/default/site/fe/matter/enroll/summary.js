@@ -175,7 +175,7 @@ ngApp.controller('ctrlSummaryRank', ['$scope', '$q', '$sce', 'tmsLocation', 'htt
                 $scope.scopeSchemas = dataSchemas.filter(function (oSchema) {
                     return oSchema.type === 'shorttext' && /number|calculate/.test(oSchema.format) && oRankConfig.scopeSchemas.indexOf(oSchema.id) !== -1;
                 });
-            if (oRankConfig.scope || ($scope.scopeSchemas && $scope.scopeSchemas.length)) {
+            if (oRankConfig.scope) {
                 rankItems.forEach(function (item) {
                     oConfig[item] = !!oRankConfig.scope[item];
                 });

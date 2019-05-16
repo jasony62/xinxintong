@@ -52,7 +52,7 @@ app.controller('ctrl', ['$scope', '$location', '$http', '$q', function($scope, $
         if (event.keyCode == 13) {
             $scope.search();
         }
-    }
+    };
     $scope.search = function(event) {
         $http.post('/rest/site/fe/matter/article/search/list?site=' + siteId + '&keyword=' + $scope.searchKeyword).success(function(rsp) {
             $scope.matters = rsp.data;
@@ -60,7 +60,7 @@ app.controller('ctrl', ['$scope', '$location', '$http', '$q', function($scope, $
         });
         var url = $location.absUrl().split('&')[0] + '&keyword=' + $scope.searchKeyword;
         history.replaceState(null, '', url);
-    }
+    };
     $scope.open = function(opened) {
         location.href = '/rest/site/fe/matter?site=' + siteId + '&id=' + opened.id + '&type=article';
     };

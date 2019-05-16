@@ -646,9 +646,14 @@ function tms_get_server($key, $escape = true){
 /**
  * 检查用户密码
  */
-function tms_pwd_check($pwd, $options = []) {
-	if (TMS_APP_PASSWORD_STRENGTH_CHECK === 0) {
-		return [true];
+function tms_pwd_check($pwd, $options = [], $compel = false) {
+    if ($compel === false) {
+        switch (TMS_APP_PASSWORD_STRENGTH_CHECK) {
+            case 0:
+                return [true];
+            case 9:
+                return [false, '禁止注册'];
+        }
     }
 
     // 过滤黑名单密码 $options['blackChars'] = []
@@ -662,7 +667,7 @@ function tms_pwd_check($pwd, $options = []) {
     $parse = $check->parse();
 
 	if ($parse['number']['count'] === 0 || $parse['upper']['count'] + $parse['lower']['count'] === 0 || $parse['symbol']['count'] === 0 || $parse['length'] < 8 || $parse['length'] > 16) {
-		return [false, '必须包含数字、字母、英文符号，且 8~16 位'];
+		return [false, '必须包含数字、字母、特殊字符，且 8~16 位'];
     }
     // 判断特殊字符是否符合规范
     $rst = $check->verifySymbol($parse);

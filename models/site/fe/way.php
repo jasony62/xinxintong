@@ -514,9 +514,6 @@ class way_model extends \TMS_MODEL {
      *
      */
     public function canShiftRegUser($oRegUser) {
-        $modelLog = $this->model('log');
-        $modelLog->log('debug', 'canShiftRegUser', 'test');
-
         $modelAct = $this->model('site\user\account');
         /* 处理cookie中已经存在的访客用户信息 */
         $sites = $this->siteList(true);
@@ -528,11 +525,14 @@ class way_model extends \TMS_MODEL {
                     $oCookieAccount = $modelAct->byId($oBeforeCookieuser->uid);
                     /* 指定站点下，已经存在主访客账号 */
                     if ($oCookieAccount) {
-                        if ($oCookieAccount->wx_openid !== $oRegPrimary->wx_openid) {
-                            $agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
-                            $referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
-                            $modelLog->log($siteId, 'canShiftRegUser', '1个注册账号，只能够和1个微信号绑定，unionid:' . $oRegUser->unionid . ',cookie:' . $oCookieAccount->wx_openid . ',oRegPrimary:' . $oRegPrimary->wx_openid, $agent, $referer);
-                            return [false, '1个注册账号，只能够和1个微信号绑定'];
+                        if (!empty($oCookieAccount->wx_openid) && !empty($oRegPrimary->wx_openid)) {
+                            if ($oCookieAccount->wx_openid !== $oRegPrimary->wx_openid) {
+                                $agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+                                $referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+                                $modelLog = $this->model('log');
+                                $modelLog->log($siteId, 'canShiftRegUser', '1个注册账号，只能够和1个微信号绑定，unionid:' . $oRegUser->unionid . ',cookie:' . $oCookieAccount->wx_openid . ',oRegPrimary:' . $oRegPrimary->wx_openid, $agent, $referer);
+                                return [false, '1个注册账号，只能够和1个微信号绑定'];
+                            }
                         }
                     }
                 }

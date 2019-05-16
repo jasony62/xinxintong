@@ -22,7 +22,7 @@ error_reporting(E_ERROR); // 控制系统的报错信息，否则数据库连接
 /**
  * 加载本地化设置
  */
-file_exists(dirname(__FILE__) . '/cus/app.php') && include_once dirname(__FILE__) . '/cus/app.php';
+file_exists(dirname(__FILE__) . '/cus/config.php') && include_once dirname(__FILE__) . '/cus/config.php';
 /*********************************************
  * 常量定义不允许被覆盖，需要检查常量是否已经被定义
  *********************************************/

@@ -1,9 +1,10 @@
 'use strict';
 
+require('./ui.history.js');
 require('../../../../../../../asset/js/xxt.ui.schema.js');
 
 var ngMod = angular.module('record.repos.ui.enroll', ['schema.ui.xxt']);
-ngMod.directive('tmsReposRecord', ['$templateCache', function($templateCache) {
+ngMod.directive('tmsReposRecord', ['$templateCache', function ($templateCache) {
     return {
         restrict: 'A',
         template: require('./repos-record-schema.html'),
@@ -12,8 +13,8 @@ ngMod.directive('tmsReposRecord', ['$templateCache', function($templateCache) {
             rec: '=record',
             schemaCounter: '='
         },
-        controller: ['$scope', '$sce', '$location', 'tmsLocation', 'http2', 'noticebox', 'tmsSchema', function($scope, $sce, $location, LS, http2, noticebox, tmsSchema) {
-            $scope.open = function(file) {
+        controller: ['$scope', '$sce', '$location', 'tmsLocation', 'http2', 'tmsSchema', 'enlHistory', function ($scope, $sce, $location, LS, http2, tmsSchema, enlHistory) {
+            $scope.open = function (file) {
                 var url, appID, data;
                 appID = $location.search().app;
                 data = {
@@ -25,11 +26,22 @@ ngMod.directive('tmsReposRecord', ['$templateCache', function($templateCache) {
                 url = '/rest/site/fe/matter/enroll/attachment/download?app=' + appID;
                 url += '&file=' + JSON.stringify(data);
                 window.open(url);
-            }
-            $scope.$watch('rec', function(oRecord) {
-                if (!oRecord) { return; }
-                $scope.$watch('schemas', function(schemas) {
-                    if (!schemas) { return; }
+            };
+            $scope.showHistory = function (event, oSchema, oRecord) {
+                event.stopPropagation();
+                event.preventDefault();
+                (new enlHistory()).show(oSchema, oRecord);
+                return;
+            };
+
+            $scope.$watch('rec', function (oRecord) {
+                if (!oRecord) {
+                    return;
+                }
+                $scope.$watch('schemas', function (schemas) {
+                    if (!schemas) {
+                        return;
+                    }
                     var oSchema, schemaData;
                     for (var schemaId in $scope.schemas) {
                         oSchema = $scope.schemas[schemaId];
@@ -43,7 +55,7 @@ ngMod.directive('tmsReposRecord', ['$templateCache', function($templateCache) {
                                     break;
                                 case 'file':
                                 case 'voice':
-                                    schemaData.forEach(function(oFile) {
+                                    schemaData.forEach(function (oFile) {
                                         if (oFile.url && !angular.isObject(oFile.url)) {
                                             oFile.oUrl = oFile.url;
                                             oFile.url = $sce.trustAsResourceUrl(oFile.url);

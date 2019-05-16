@@ -45,7 +45,7 @@ class login extends \site\fe\base {
 			$modelWay->quitRegUser();
 		}
 
-		// 检查是否登录条件
+		// 检查登录条件
 		$rst = tms_login_check();
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);

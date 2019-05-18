@@ -115,12 +115,12 @@
             </div>
         </div>
         <div class="form-group" ng-if="roleTeams.length">
-            <label class="col-md-3 control-label">所属角色分组</label>
+            <label class="col-md-3 control-label">所属辅助分组</label>
             <div class="col-md-9">
                 <ul>
-                    <li class='checkbox' ng-repeat="round in roleTeams">
+                    <li class='checkbox' ng-repeat="team in roleTeams">
                         <label>
-                            <input type="checkbox" name="{{record.id}}" ng-model="record._role_teams[round.team_id]" /><span>{{round.title}}</span></label>
+                            <input type="checkbox" name="{{record.id}}" ng-model="record._role_teams[team.team_id]" /><span>{{team.title}}</span></label>
                     </li>
                 </ul>
             </div>

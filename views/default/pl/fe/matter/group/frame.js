@@ -1,8 +1,8 @@
-define(['frame/RouteParam', 'frame/const', 'frame/templates'], function(RouteParam, CstApp, frameTemplates) {
+define(['frame/RouteParam', 'frame/const', 'frame/templates'], function (RouteParam, CstApp, frameTemplates) {
     'use strict';
     var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'notice.ui.xxt', 'notice.ui.xxt', 'schema.ui.xxt', 'service.matter', 'service.group']);
     ngApp.constant('cstApp', CstApp);
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvQuickEntryProvider', 'srvSiteProvider', 'srvGroupAppProvider', 'srvGroupTeamProvider', 'srvTagProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvQuickEntryProvider, srvSiteProvider, srvGroupAppProvider, srvGroupTeamProvider, srvTagProvider) {
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvQuickEntryProvider', 'srvSiteProvider', 'srvGroupAppProvider', 'srvGroupTeamProvider', 'srvTagProvider', function ($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvQuickEntryProvider, srvSiteProvider, srvGroupAppProvider, srvGroupTeamProvider, srvTagProvider) {
         ngApp.provider = {
             controller: $controllerProvider.register,
             directive: $compileProvider.directive
@@ -19,7 +19,7 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates'], function(RoutePar
             'show': 'hide'
         });
         //设置服务参数
-        (function() {
+        (function () {
             var ls, siteId, appId;
             ls = location.search;
             siteId = ls.match(/[\?&]site=([^&]*)/)[1];
@@ -32,11 +32,17 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates'], function(RoutePar
             srvQuickEntryProvider.setSiteId(siteId);
         })();
     }]);
-    ngApp.controller('ctrlApp', ['$scope', 'cstApp', 'srvSite', 'srvGroupApp', '$location', function($scope, cstApp, srvSite, srvGroupApp, $location) {
+    ngApp.factory('$exceptionHandler', function () {
+        return function (exception, cause) {
+            exception.message += ' (caused by "' + cause + '")';
+            throw exception;
+        };
+    });
+    ngApp.controller('ctrlApp', ['$scope', 'cstApp', 'srvSite', 'srvGroupApp', '$location', function ($scope, cstApp, srvSite, srvGroupApp, $location) {
         $scope.cstApp = cstApp;
         $scope.frameTemplates = frameTemplates;
         $scope.opened = '';
-        $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+        $scope.$on('$locationChangeSuccess', function (event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
             $scope.subView = subView[1] === 'group' ? 'user' : subView[1];
             switch ($scope.subView) {
@@ -54,19 +60,19 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates'], function(RoutePar
                     $scope.opened = '';
             }
         });
-        $scope.switchTo = function(subView) {
+        $scope.switchTo = function (subView) {
             var url = '/rest/pl/fe/matter/group/' + subView;
             $location.path(url);
         };
-        srvSite.get().then(function(oSite) {
+        srvSite.get().then(function (oSite) {
             $scope.site = oSite;
         });
-        srvSite.tagList().then(function(oTag) {
+        srvSite.tagList().then(function (oTag) {
             $scope.oTag = oTag;
-            srvGroupApp.get().then(function(oApp) {
+            srvGroupApp.get().then(function (oApp) {
                 if (oApp.matter_mg_tag !== '') {
-                    oApp.matter_mg_tag.forEach(function(cTag, index) {
-                        $scope.oTag.forEach(function(oTag) {
+                    oApp.matter_mg_tag.forEach(function (cTag, index) {
+                        $scope.oTag.forEach(function (oTag) {
                             if (oTag.id === cTag) {
                                 oApp.matter_mg_tag[index] = oTag;
                             }
@@ -76,13 +82,13 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates'], function(RoutePar
                 $scope.app = oApp;
             });
         });
-        $scope.assocWithApp = function() {
-            srvGroupApp.assocWithApp(cstApp.importSource).then(function() {});
+        $scope.assocWithApp = function () {
+            srvGroupApp.assocWithApp(cstApp.importSource).then(function () {});
         };
-        $scope.cancelSourceApp = function() {
+        $scope.cancelSourceApp = function () {
             srvGroupApp.cancelSourceApp();
         };
-        $scope.gotoSourceApp = function() {
+        $scope.gotoSourceApp = function () {
             var oSourceApp;
             if ($scope.app.sourceApp) {
                 oSourceApp = $scope.app.sourceApp;
@@ -101,7 +107,7 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates'], function(RoutePar
         };
     }]);
     /***/
-    require(['domReady!'], function(document) {
+    require(['domReady!'], function (document) {
         angular.bootstrap(document, ["app"]);
     });
     /***/

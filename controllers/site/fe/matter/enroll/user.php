@@ -74,7 +74,11 @@ class user extends base {
                     $roleTeams[$oRoleTeam->team_id] = $oRoleTeam;
                 }
                 foreach ($oUser->role_teams as $k => $oUsrRoleTeam) {
-                    $oUser->role_teams[$k] = $roleTeams[$oUsrRoleTeam];
+                    if (isset($roleTeams[$oUsrRoleTeam])) {
+                        $oUser->role_teams[$k] = $roleTeams[$oUsrRoleTeam];
+                    } else {
+                        unset($oUser->role_teams[$k]);
+                    }
                 }
             }
         }

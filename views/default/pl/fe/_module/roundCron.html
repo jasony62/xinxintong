@@ -185,6 +185,14 @@
     <hr>
     <div class='form-group'>
         <div class='form-inline'>
+            <label>规则停用时间：</label>
+            <div class='form-group' style='width:180px;'>
+                <tms-datepicker class='tms-datepicker' tms-title='规则停用时间' tms-date='rule.stop_at' tms-state='stop_at'></tms-datepicker>
+            </div>
+        </div>
+    </div>
+    <div class='form-group'>
+        <div class='form-inline'>
             <tms-toggle-switch on-label="启用" off-label="停用" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.enabled"></tms-toggle-switch>
             <button class='btn btn-danger' ng-click="tkRndCron.removeRule(rule)">删除</button>
             <button class='btn' ng-disabled="!tkRndCron.editing.modified" ng-class="tkRndCron.editing.modified?'btn-success':'btn-default'" ng-click="save()">保存</button>

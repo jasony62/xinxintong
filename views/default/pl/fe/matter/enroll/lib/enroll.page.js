@@ -147,7 +147,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function (require, pageL
         };
         $scope.wrapEditorHtml = function () {
             var url = null;
-            if ($scope.activeWrap) {
+            if ($scope.activeWrap && $scope.activeWrap.type) {
                 if (!/score|matter|text|button/.test($scope.activeWrap.type)) {
                     url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=' + (new Date()).getMinutes();
                 }

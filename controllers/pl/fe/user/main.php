@@ -80,14 +80,14 @@ class main extends \pl\fe\base {
 		if (empty($filter->byOp)) {
 			return new \ResponseError('未指定用户行为');
 		}
-		$options['byUserId'] = $modelLog->escape($filter->byUserId);
-		$options['byOp'] = $modelLog->escape($filter->byOp);
+		$options['byUserId'] = $filter->byUserId;
+		$options['byOp'] = $filter->byOp;
 
 		if (!empty($filter->start)) {
-			$options['start'] = $modelLog->escape($filter->start);
+			$options['start'] = $filter->start;
 		}
 		if (!empty($filter->end)) {
-			$options['end'] = $modelLog->escape($filter->end);
+			$options['end'] = $filter->end;
 		}
 
 		$logs = $modelLog->userMatterAction($matterId, $matterType, $options, $page, $size);
@@ -213,7 +213,7 @@ class main extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
-		$data = $this->getPostJson();
+		$data = $this->getPostJson(false);
 		$modelAcnt = $this->model('account');
 		$account = $modelAcnt->byId($loginUser->id);
 		/**
@@ -245,7 +245,7 @@ class main extends \pl\fe\base {
 
 		$rst = $modelWay->update(
 			'account',
-			['nickname' => $modelWay->escape($data->nickname)],
+			['nickname' => $data->nickname],
 			['uid' => $loginUser->id]
 		);
 

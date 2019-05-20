@@ -32,14 +32,14 @@ class main extends \pl\fe\matter\base {
 		$q = [
 			$fields,
 			'xxt_text t',
-			"siteid = '" . $model->escape($site) . "' and state = 1",
+			"siteid = '" . $site . "' and state = 1",
 		];
 		if (!empty($oPosted->byTitle)) {
-			$q[2] .= " and title like '%" . $model->escape($oPosted->byTitle) . "%'";
+			$q[2] .= " and title like '%" . $oPosted->byTitle . "%'";
 		}
 		if (!empty($oPosted->byTags)) {
 			foreach ($oPosted->byTags as $tag) {
-				$q[2] .= " and matter_mg_tag like '%" . $model->escape($tag->id) . "%'";
+				$q[2] .= " and matter_mg_tag like '%" . $tag->id . "%'";
 			}
 		}
 		if (isset($oPosted->byStar) && $oPosted->byStar === 'Y') {
@@ -77,9 +77,9 @@ class main extends \pl\fe\matter\base {
 		$d['modifier'] = $user->id;
 		$d['modifier_name'] = $user->name;
 		$d['modify_at'] = time();
-		$d['title'] = $model->escape($text->title);
+		$d['title'] = $text->title;
 		// @todo should remove
-		$d['content'] = $model->escape($text->title);
+		$d['content'] = $text->title;
 
 		$id = $model->insert('xxt_text', $d, true);
 
@@ -163,7 +163,7 @@ class main extends \pl\fe\matter\base {
 		$nv = $this->getPostJson();
 
 		if (isset($nv->title)) {
-			$nv->title = $model->escape($nv->title);
+			$nv->title = $nv->title;
 			$nv->content = $nv->title;
 		}
 		$nv->modifier = $user->id;

@@ -75,11 +75,11 @@ class main extends \pl\fe\matter\main_base {
 			"siteid='$site' and state=1",
 		];
 		if (!empty($oOptions->byTitle)) {
-			$q[2] .= " and title like '%" . $model->escape($oOptions->byTitle) . "%'";
+			$q[2] .= " and title like '%" . $oOptions->byTitle . "%'";
 		}
 		if (!empty($oOptions->byTags)) {
 			foreach ($oOptions->byTags as $tag) {
-				$q[2] .= " and matter_mg_tag like '%" . $model->escape($tag->id) . "%'";
+				$q[2] .= " and matter_mg_tag like '%" . $tag->id . "%'";
 			}
 		}
 		if (isset($oOptions->byStar) && $oOptions->byStar === 'Y') {
@@ -188,7 +188,7 @@ class main extends \pl\fe\matter\main_base {
 		/**
 		 * 处理数据
 		 */
-		$oUpdated = $this->getPostJson();
+		$oUpdated = $this->getPostJson(false);
 		foreach ($oUpdated as $n => $v) {
 			if (in_array($n, ['title'])) {
 				$oUpdated->{$n} = $modelLink->escape($v);

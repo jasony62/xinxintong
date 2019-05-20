@@ -53,11 +53,11 @@ class main extends \pl\fe\matter\main_base {
 		$w = "a.custom_body='N' and a.state=1 and finished='Y' and exists(select 1 from xxt_site_admin sa where sa.siteid=a.siteid and uid='{$oUser->id}')";
 		/* 按名称过滤 */
 		if (!empty($oOptions->byTitle)) {
-			$w .= " and a.title like '%" . $modelArt->escape($oOptions->byTitle) . "%'";
+			$w .= " and a.title like '%" . $oOptions->byTitle . "%'";
 		}
 		if (!empty($oOptions->byTags)) {
 			foreach ($oOptions->byTags as $tag) {
-				$w .= " and a.matter_mg_tag like '%" . $modelArt->escape($tag->id) . "%'";
+				$w .= " and a.matter_mg_tag like '%" . $tag->id . "%'";
 			}
 		}
 		/* 按项目过滤 */
@@ -219,9 +219,9 @@ class main extends \pl\fe\matter\main_base {
 		$countOfArt = (int) $modelArt->query_val_ss($q);
 
 		/* 前端指定的信息 */
-		$oArticle->title = empty($oCustomConfig->proto->title) ? ('新图文-' . ++$countOfArt) : $modelArt->escape($oCustomConfig->proto->title);
+		$oArticle->title = empty($oCustomConfig->proto->title) ? ('新图文-' . ++$countOfArt) : $oCustomConfig->proto->title;
 		if (!empty($oCustomConfig->proto->summary)) {
-			$oArticle->summary = $modelArt->escape($oCustomConfig->proto->summary);
+			$oArticle->summary = $oCustomConfig->proto->summary;
 		}
 		$oArticle->hide_pic = 'N';
 		$oArticle->url = '';
@@ -295,7 +295,7 @@ class main extends \pl\fe\matter\main_base {
 				$oArticle->from_mode = 'C';
 			}
 			foreach ($toSites as $oToSite) {
-				$toSiteid = $modelArt->escape($oToSite->siteid);
+				$toSiteid = $oToSite->siteid;
 				if ($oCopied->siteid === $toSiteid) {
 					continue;
 				}
@@ -334,7 +334,7 @@ class main extends \pl\fe\matter\main_base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oPosted = $this->getPostJson();
+		$oPosted = $this->getPostJson(false);
 		isset($oPosted->title) && $oPosted->title = $modelArt->escape($oPosted->title);
 		isset($oPosted->summary) && $oPosted->summary = $modelArt->escape($oPosted->summary);
 		isset($oPosted->author) && $oPosted->author = $modelArt->escape($oPosted->author);

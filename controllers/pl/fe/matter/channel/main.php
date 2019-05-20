@@ -59,7 +59,7 @@ class main extends \pl\fe\matter\main_base {
 		$q = [
 			'*',
 			'xxt_channel c',
-			"siteid = '" . $modelChn->escape($site) . "' and state = 1",
+			"siteid = '" . $site . "' and state = 1",
 		];
 		if (!empty($acceptType)) {
 			$acceptType = ['', $acceptType];
@@ -69,11 +69,11 @@ class main extends \pl\fe\matter\main_base {
 			$q[2] .= " and matter_type in $acceptType";
 		}
 		if (!empty($oOptions->byTitle)) {
-			$q[2] .= " and title like '%" . $modelChn->escape($oOptions->byTitle) . "%'";
+			$q[2] .= " and title like '%" . $oOptions->byTitle . "%'";
 		}
 		if (!empty($oOptions->byTags)) {
 			foreach ($oOptions->byTags as $tag) {
-				$q[2] .= " and matter_mg_tag like '%" . $modelChn->escape($tag->id) . "%'";
+				$q[2] .= " and matter_mg_tag like '%" . $tag->id . "%'";
 			}
 		}
 		if (isset($oOptions->byStar) && $oOptions->byStar === 'Y') {
@@ -156,7 +156,7 @@ class main extends \pl\fe\matter\main_base {
 		$q = ['count(*)', 'xxt_channel', ['siteid' => $site, 'state' => 1]];
 		$countOfChn = (int) $modelCh->query_val_ss($q);
 
-		$oChannel->title = isset($oPosted->title) ? $modelCh->escape($oPosted->title) : ('新频道-' . ++$countOfChn);
+		$oChannel->title = isset($oPosted->title) ? $oPosted->title : ('新频道-' . ++$countOfChn);
 		$oChannel->matter_type = '';
 
 		$oChannel = $modelCh->create($oUser, $oChannel);
@@ -186,21 +186,24 @@ class main extends \pl\fe\matter\main_base {
 
 		$aUpdatedHomeCh = []; // 更新站点频道
 		$oUpdated = new \stdClass;
-		$oPosted = $this->getPostJson();
+		$oPosted = $this->getPostJson(false);
 		foreach ($oPosted as $k => $v) {
 			if ($k === 'config') {
 				$oUpdated->config = $modelCh->escape($modelCh->toJson($v));
 			} else if (in_array($k, ['title', 'summary', 'fixed_title'])) {
 				$aUpdatedHomeCh[$k] = $oUpdated->{$k} = $modelCh->escape($v);
 			} else if ($k === 'pic') {
-				$aUpdatedHomeCh[$k] = $oUpdated->{$k} = $v;
+				$aUpdatedHomeCh[$k] = $oUpdated->{$k} = $modelCh->escape($v);
 			} else {
-				$oUpdated->{$k} = $v;
+				$oUpdated->{$k} = $modelCh->escape($v);
 			}
 		}
 
 		if ($oChannel = $modelCh->modify($oUser, $oChannel, $oUpdated)) {
 			/* 更新站点频道中的信息 */
+			if (isset($aUpdatedHomeCh['fixed_title'])) {
+				unset($aUpdatedHomeCh['fixed_title']);
+			}
 			if (count($aUpdatedHomeCh)) {
 				$modelCh->update('xxt_site_home_channel', $aUpdatedHomeCh, ['channel_id' => $id]);
 			}

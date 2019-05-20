@@ -757,7 +757,7 @@ class data_model extends entity_model {
             is_array($oOptions) && $oOptions = (object) $oOptions;
             $page = isset($oOptions->page) ? $oOptions->page : null;
             $size = isset($oOptions->size) ? $oOptions->size : null;
-            $rid = isset($oOptions->rid) ? $this->escape($oOptions->rid) : null;
+            $rid = isset($oOptions->rid) ? $oOptions->rid : null;
         }
         $oResult = new \stdClass; // 返回的结果
 
@@ -869,8 +869,8 @@ class data_model extends entity_model {
         $fields = isset($oOptions->fields) ? $oOptions->fields : self::DEFAULT_FIELDS;
         $page = isset($oOptions->page) ? $oOptions->page : null;
         $size = isset($oOptions->size) ? $oOptions->size : null;
-        $rid = isset($oOptions->rid) ? $this->escape($oOptions->rid) : null;
-        $tag = isset($oOptions->tag) ? $this->escape($oOptions->tag) : null;
+        $rid = isset($oOptions->rid) ? $oOptions->rid : null;
+        $tag = isset($oOptions->tag) ? $oOptions->tag : null;
 
         $oResult = new \stdClass; // 返回的结果
 
@@ -891,7 +891,7 @@ class data_model extends entity_model {
                 if ($index > 0) {
                     $q[2] .= ',';
                 }
-                $q[2] .= "'" . $this->escape($schemaId) . "'";
+                $q[2] .= "'" . $schemaId . "'";
             }
             $q[2] .= ")";
         }
@@ -1419,7 +1419,7 @@ class data_model extends entity_model {
         $oNewItem->nickname = isset($oUser->nickname) ? $this->escape($oUser->nickname) : '';
         $oNewItem->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
         $oNewItem->schema_id = $oRecData->schema_id;
-        $oNewItem->value = $this->escape($value);
+        $oNewItem->value = $value;
         $oNewItem->agreed = $agreed;
         $oNewItem->multitext_seq = count($oRecData->value) + 1;
 

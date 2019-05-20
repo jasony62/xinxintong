@@ -440,7 +440,7 @@ class repos extends base {
         $oOptions->page = $page;
         $oOptions->size = $size;
 
-        !empty($oPosted->keyword) && $oOptions->keyword = $this->escape($oPosted->keyword);
+        !empty($oPosted->keyword) && $oOptions->keyword = $oPosted->keyword;
 
         if (!empty($oPosted->orderby)) {
             switch ($oPosted->orderby) {
@@ -472,11 +472,11 @@ class repos extends base {
         $modelRec = $this->model('matter\enroll\record');
         $oCriteria = new \stdClass;
         $oCriteria->record = new \stdClass;
-        $oCriteria->record->rid = !empty($oPosted->rid) ? $this->escape($oPosted->rid) : 'all';
+        $oCriteria->record->rid = !empty($oPosted->rid) ? $oPosted->rid : 'all';
 
         /* 指定了分组过滤条件 */
         if (!empty($oPosted->userGroup)) {
-            $oCriteria->record->group_id = $this->escape($oPosted->userGroup);
+            $oCriteria->record->group_id = $oPosted->userGroup;
         }
         /* 记录的创建人 */
         if (!empty($oPosted->mine) && $oPosted->mine === 'creator') {
@@ -487,17 +487,10 @@ class repos extends base {
         }
         /* 记录的表态 */
         if (!empty($oPosted->agreed) && stripos($oPosted->agreed, 'all') === false) {
-            $oCriteria->record->agreed = $this->escape($oPosted->agreed);
+            $oCriteria->record->agreed = $oPosted->agreed;
         }
         /* 记录的标签 */
         if (!empty($oPosted->tags)) {
-            if (is_array($oPosted->tags)) {
-                foreach ($oPosted->tags as &$tagid) {
-                    $tagid = $this->escape($tagid);
-                }
-            } else {
-                $oPosted->tags = $this->escape($oPosted->tags);
-            }
             $oCriteria->record->tags = $oPosted->tags;
         }
         !empty($oPosted->data) && $oCriteria->data = $oPosted->data;
@@ -507,7 +500,7 @@ class repos extends base {
             foreach ($oApp->dynaDataSchemas as $oSchema) {
                 if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
                     $oCriteria->cowork = new \stdClass;
-                    $oCriteria->cowork->agreed = $this->escape($oPosted->coworkAgreed);
+                    $oCriteria->cowork->agreed = $oPosted->coworkAgreed;
                     break;
                 }
             }
@@ -520,7 +513,7 @@ class repos extends base {
 
         // 记录搜索事件
         if (!empty($oPosted->keyword)) {
-            $oPosted->keyword = $this->escape($oPosted->keyword);
+            $oPosted->keyword = $oPosted->keyword;
             $rest = $this->model('matter\enroll\search')->addUserSearch($oApp, $oUser, $oPosted->keyword);
             // 记录日志
             $this->model('matter\enroll\event')->searchRecord($oApp, $rest['search'], $oUser);
@@ -580,16 +573,16 @@ class repos extends base {
         // 查询结果
         $modelRecDat = $this->model('matter\enroll\data');
         $oCriteria = new \stdClass;
-        !empty($oPosted->keyword) && $oCriteria->keyword = $this->escape($oPosted->keyword);
+        !empty($oPosted->keyword) && $oCriteria->keyword = $oPosted->keyword;
         // 按指定题的值筛选
         !empty($oPosted->data) && $oCriteria->data = $oPosted->data;
 
         $oCriteria->recordData = new \stdClass;
-        $oCriteria->recordData->rid = !empty($oPosted->rid) ? $this->escape($oPosted->rid) : 'all';
+        $oCriteria->recordData->rid = !empty($oPosted->rid) ? $oPosted->rid : 'all';
 
         /* 指定了分组过滤条件 */
         if (!empty($oPosted->userGroup)) {
-            $oCriteria->recordData->group_id = $this->escape($oPosted->userGroup);
+            $oCriteria->recordData->group_id = $oPosted->userGroup;
         }
         /* 答案的创建人 */
         if (!empty($oPosted->mine) && $oPosted->mine === 'creator') {
@@ -597,7 +590,7 @@ class repos extends base {
         }
         /* 答案的表态 */
         if (!empty($oPosted->agreed) && stripos($oPosted->agreed, 'all') === false) {
-            $oCriteria->recordData->agreed = $this->escape($oPosted->agreed);
+            $oCriteria->recordData->agreed = $oPosted->agreed;
         }
 
         $oResult = $modelRecDat->coworkDataByApp($oApp, $oOptions, $oCriteria, $oUser, 'cowork');
@@ -608,7 +601,7 @@ class repos extends base {
 
         // 记录搜索事件
         if (!empty($oPosted->keyword)) {
-            $oPosted->keyword = $this->escape($oPosted->keyword);
+            $oPosted->keyword = $oPosted->keyword;
             $rest = $this->model('matter\enroll\search')->addUserSearch($oApp, $oUser, $oPosted->keyword);
             // 记录日志
             $this->model('matter\enroll\event')->searchRecord($oApp, $rest['search'], $oUser);

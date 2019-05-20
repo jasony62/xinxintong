@@ -23,13 +23,13 @@ class log extends \pl\fe\matter\base {
 		$filter = $this->getPostJson();
 		$options = [];
 		if (!empty($filter->byEvent)) {
-			$options['byEvent'] = $modelLog->escape($filter->byEvent);
+			$options['byEvent'] = $filter->byEvent;
 		}
 		if (!empty($filter->startAt)) {
-			$options['startAt'] = $modelLog->escape($filter->startAt);
+			$options['startAt'] = $filter->startAt;
 		}
 		if (!empty($filter->endAt)) {
-			$options['endAt'] = $modelLog->escape($filter->endAt);
+			$options['endAt'] = $filter->endAt;
 		}
 		if (!empty($page) && !empty($size)) {
 			$options['paging'] = ['page' => $page, 'size' => $size];
@@ -53,16 +53,16 @@ class log extends \pl\fe\matter\base {
 			$options['paging'] = ['page' => $page, 'size' => $size];
 		}
 		if (!empty($filter->start)) {
-			$options['start'] = $modelLog->escape($filter->start);
+			$options['start'] = $filter->start;
 		}
 		if (!empty($filter->end)) {
-			$options['end'] = $modelLog->escape($filter->end);
+			$options['end'] = $filter->end;
 		}
 		if (!empty($filter->byUser)) {
-			$options['byUser'] = $modelLog->escape($filter->byUser);
+			$options['byUser'] = $filter->byUser;
 		}
 		if (!empty($filter->shareby)) {
-			$options['shareby'] = $modelLog->escape($filter->shareby);
+			$options['shareby'] = $filter->shareby;
 		}
 
 		$logs = $modelLog->operateStat($site, $appId, 'channel', $options);

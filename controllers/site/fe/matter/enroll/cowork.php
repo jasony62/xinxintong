@@ -203,7 +203,7 @@ class cowork extends base {
 		/**
 		 * 更新数据
 		 */
-		$oPosted = $this->getPostJson();
+		$oPosted = $this->getPostJson(false);
 		$modelData->update(
 			'xxt_enroll_record_data',
 			['value' => $modelData->escape($oPosted->value)],

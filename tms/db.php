@@ -186,7 +186,7 @@ class TMS_DB {
         $clauses = [];
         if (is_array($where)) {
             foreach ($where as $k => $v) {
-                $clauses[] = $k . "='" . $this->escape($v) . "'";
+                $clauses[] = $k . "='" . $v . "'";
             }
         } else {
             $clauses[] = $where;
@@ -407,7 +407,7 @@ class TMS_DB {
                     continue;
                 }
                 if (is_string($v)) {
-                    $clauses[] = $k . "='" . $this->escape($v) . "'";
+                    $clauses[] = $k . "='" . $v . "'";
                 } else if (is_array($v)) {
                     $clause = $k . " in('";
                     $clause .= implode("','", $v);

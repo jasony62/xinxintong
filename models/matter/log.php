@@ -566,13 +566,13 @@ class log_model extends \TMS_MODEL {
 			"operator='{$user->id}' and user_last_op='Y' and (operation<>'D' and operation<>'Recycle' and operation<>'Quit')",
 		];
 		if (isset($options['byType'])) {
-			$q[2] .= " and matter_type='" . $this->escape($options['byType']) . "'";
+			$q[2] .= " and matter_type='" . $options['byType'] . "'";
 		}
 		if (isset($options['scenario'])) {
-			$q[2] .= " and matter_scenario='" . $this->escape($options['scenario']) . "'";
+			$q[2] .= " and matter_scenario='" . $options['scenario'] . "'";
 		}
 		if (isset($options['byTitle'])) {
-			$q[2] .= " and matter_title like '%" . $this->escape($options['byTitle']) . "%'";
+			$q[2] .= " and matter_title like '%" . $options['byTitle'] . "%'";
 		}
 
 		$q2 = [

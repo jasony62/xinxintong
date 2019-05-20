@@ -61,7 +61,6 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$model = $this->model();
-		$site = $model->escape($site);
 		/**
 		 * select fields
 		 */
@@ -73,11 +72,11 @@ class main extends \pl\fe\matter\base {
 		$w = "a.custom_body='Y' and a.siteid='$site' and a.state=1 and finished='Y'";
 		/*按名称过滤*/
 		if (!empty($oOptions->byTitle)) {
-			$w .= " and a.title like '%" . $model->escape($oOptions->byTitle) . "%'";
+			$w .= " and a.title like '%" . $oOptions->byTitle . "%'";
 		}
 		if (!empty($oOptions->byTags)) {
 			foreach ($oOptions->byTags as $tag) {
-				$w .= " and a.matter_mg_tag like '%" . $model->escape($tag->id) . "%'";
+				$w .= " and a.matter_mg_tag like '%" . $tag->id . "%'";
 			}
 		}
 
@@ -198,7 +197,7 @@ class main extends \pl\fe\matter\base {
 		}
 
 		/* 前端指定的信息 */
-		$oCustom->title = empty($oCustomConfig->proto->title) ? '新定制页' : $modelCus->escape($oCustomConfig->proto->title);
+		$oCustom->title = empty($oCustomConfig->proto->title) ? '新定制页' : $oCustomConfig->proto->title;
 
 		$oCustom->siteid = $oSite->id;
 		$oCustom->hide_pic = 'N';
@@ -229,7 +228,7 @@ class main extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oPosted = $this->getPostJson();
+		$oPosted = $this->getPostJson(false);
 		isset($oPosted->title) && $oPosted->title = $modelCus->escape($oPosted->title);
 		isset($oPosted->summary) && $oPosted->summary = $modelCus->escape($oPosted->summary);
 		isset($oPosted->author) && $oPosted->author = $modelCus->escape($oPosted->author);

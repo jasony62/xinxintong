@@ -85,8 +85,8 @@ class topic extends base {
         $oNewTopic->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
         $oNewTopic->nickname = $modelEnl->escape($oUser->nickname);
         $oNewTopic->create_at = $current;
-        $oNewTopic->title = empty($oPosted->title) ? $oNewTopic->nickname . '的专题（' . date('y年n月d日', $current) . '）' : $modelEnl->escape($oPosted->title);
-        $oNewTopic->summary = empty($oPosted->summary) ? $oNewTopic->title : $modelEnl->escape($oPosted->summary);
+        $oNewTopic->title = empty($oPosted->title) ? $oNewTopic->nickname . '的专题（' . date('y年n月d日', $current) . '）' : $oPosted->title;
+        $oNewTopic->summary = empty($oPosted->summary) ? $oNewTopic->title : $oPosted->summary;
         $oNewTopic->rec_num = 0;
         $oNewTopic->id = $modelEnl->insert('xxt_enroll_topic', $oNewTopic, true);
 
@@ -143,7 +143,7 @@ class topic extends base {
             case 'title':
             case 'summary':
             case 'group_id':
-                $aUpdated[$prop] = $modelTop->escape($val);
+                $aUpdated[$prop] = $val;
                 break;
             case 'share_in_group':
             case 'is_public':
@@ -269,7 +269,7 @@ class topic extends base {
 
         $w = "state=1 and aid='{$oApp->id}'";
         if (!empty($oPosted->keyword)) {
-            $w .= " and (title like '%" . $modelEnl->escape($oPosted->keyword) . "%' or summary like '%" . $modelEnl->escape($oPosted->keyword) . "%')";
+            $w .= " and (title like '%" . $oPosted->keyword . "%' or summary like '%" . $oPosted->keyword . "%')";
         }
         //
         $w .= " and (";
@@ -487,7 +487,7 @@ class topic extends base {
             return new \ObjectNotFoundError();
         }
 
-        $q = ['id,seq', 'xxt_enroll_topic_record', ['record_id' => $modelTop->escape($oPosted->record), 'topic_id' => $oTopic->id]];
+        $q = ['id,seq', 'xxt_enroll_topic_record', ['record_id' => $oPosted->record, 'topic_id' => $oTopic->id]];
         $q[2]['data_id'] = 0;
         $oRecInTop = $modelTop->query_obj_ss($q);
         if (false === $oRecInTop) {
@@ -541,7 +541,7 @@ class topic extends base {
             return new \ObjectNotFoundError();
         }
 
-        $q = ['id,seq', 'xxt_enroll_topic_record', ['id' => $modelTop->escape($oPosted->id_in_topic), 'topic_id' => $oTopic->id]];
+        $q = ['id,seq', 'xxt_enroll_topic_record', ['id' => $oPosted->id_in_topic, 'topic_id' => $oTopic->id]];
         $oRecInTop = $modelTop->query_obj_ss($q);
         if (false === $oRecInTop) {
             return new \ObjectNotFoundError();

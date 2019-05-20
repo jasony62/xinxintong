@@ -292,7 +292,7 @@ class data extends base {
 							'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
 							'schema_id' => $oUpdatedSchema->id,
 							'multitext_seq' => (int) $seq + 1,
-							'value' => $this->escape($oItem->value),
+							'value' => $oItem->value,
 						];
 						$oItem->id = $modelData->insert('xxt_enroll_record_data', $aSchemaValue, true);
 					} else {
@@ -301,7 +301,7 @@ class data extends base {
 							$modelData->update(
 								'xxt_enroll_record_data',
 								[
-									'value' => $this->escape($oItem->value),
+									'value' => $oItem->value,
 									'multitext_seq' => (int) $seq + 1,
 								],
 								['id' => $oItem->id]

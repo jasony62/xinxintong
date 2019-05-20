@@ -207,7 +207,7 @@ class main extends \site\fe\base {
 					$aUpdated[$prop] = $val === 'Y' ? 'Y' : 'N';
 					break;
 				case 'message':
-					$aUpdated[$prop] = $modelInv->escape($val);
+					$aUpdated[$prop] = $val;
 					break;
 				}
 			}

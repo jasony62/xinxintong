@@ -98,9 +98,9 @@ class main extends \pl\fe\matter\main_base {
 			'limit' => (object) ['page' => $page, 'size' => $size],
 		];
 		if (!empty($filter->byTitle)) {
-			$aOptions['byTitle'] = $modelMis->escape($filter->byTitle);
+			$aOptions['byTitle'] = $filter->byTitle;
 		}
-		$site = $modelMis->escape($site);
+
 		$result = $modelMis->bySite($site, $aOptions);
 
 		return new \ResponseData($result);
@@ -124,11 +124,11 @@ class main extends \pl\fe\matter\main_base {
 		$modelMis = $this->model('matter\mission');
 		$aOptions = [
 			'limit' => (object) ['page' => $page, 'size' => $size],
-			'bySite' => $this->escape($oFilter->bySite),
+			'bySite' => $oFilter->bySite,
 		];
 		if (!empty($oFilter->filter->by) && !empty($oFilter->filter->keyword)) {
 			if ($oFilter->filter->by === 'title') {
-				$aOptions['byTitle'] = $this->escape($oFilter->filter->keyword);
+				$aOptions['byTitle'] = $oFilter->filter->keyword;
 			}
 		}
 		if (isset($oFilter->byStar) && $oFilter->byStar === 'Y') {
@@ -138,7 +138,7 @@ class main extends \pl\fe\matter\main_base {
 			$byTags = [];
 			foreach ($oFilter->byTags as &$tag) {
 				if (is_object($tag) && !empty($tag->id)) {
-					$tag->id = $this->escape($tag->id);
+					$tag->id = $tag->id;
 					$byTags[] =$tag;
 				}
 			}
@@ -189,11 +189,11 @@ class main extends \pl\fe\matter\main_base {
 
 		/* basic */
 		$oNewMis->siteid = $oSite->id;
-		$oNewMis->title = isset($oProto->title) ? $modelSite->escape($oProto->title) : $modelSite->escape($oUser->name) . '的项目';
-		$oNewMis->summary = isset($oProto->summary) ? $modelSite->escape($oProto->summary) : '';
-		$oNewMis->pic = isset($oProto->pic) ? $modelSite->escape($oProto->pic) : $oSite->heading_pic;
-		$oNewMis->start_at = isset($oProto->start_at) ? $modelSite->escape($oProto->start_at) : 0;
-		$oNewMis->end_at = isset($oProto->end_at) ? $modelSite->escape($oProto->end_at) : 0;
+		$oNewMis->title = isset($oProto->title) ? $oProto->title : $modelSite->escape($oUser->name) . '的项目';
+		$oNewMis->summary = isset($oProto->summary) ? $oProto->summary : '';
+		$oNewMis->pic = isset($oProto->pic) ? $oProto->pic : $oSite->heading_pic;
+		$oNewMis->start_at = isset($oProto->start_at) ? $oProto->start_at : 0;
+		$oNewMis->end_at = isset($oProto->end_at) ? $oProto->end_at : 0;
 		$oNewMis->creater = $oUser->id;
 		$oNewMis->creater_name = $modelSite->escape($oUser->name);
 		$oNewMis->create_at = $current;
@@ -330,7 +330,7 @@ class main extends \pl\fe\matter\main_base {
 		}
 
 		/* data */
-		$oPosted = $this->getPostJson();
+		$oPosted = $this->getPostJson(false);
 		/* 处理数据 */
 		$oUpdated = new \stdClass;
 		foreach ($oPosted as $prop => $val) {

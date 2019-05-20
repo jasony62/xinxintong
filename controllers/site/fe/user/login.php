@@ -22,7 +22,7 @@ class login extends \site\fe\base {
 	 * 执行登录
 	 */
 	public function do_action() {
-		$data = $this->getPostJson();
+		$data = $this->getPostJson(false);
 		if (empty($data->uname) || empty($data->password) || empty($data->pin)) {
 			return new \ResponseError("登录信息不完整");
 		}
@@ -45,6 +45,7 @@ class login extends \site\fe\base {
 			$modelWay->quitRegUser();
 		}
 
+		$data->uname = $modelReg->escape($data->uname);
 		$oResult = $modelReg->validate($data->uname, $data->password);
 		if (false === $oResult[0]) {
 			return new \ResponseError($oResult[1]);

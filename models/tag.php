@@ -6,11 +6,8 @@ class tag_model extends TMS_MODEL {
 	public function create($site, $user, $tags, $subType = 'M') {
 		$current = time();
 		$newTags = [];
-		$site = $this->escape($site);
-		$subType = $this->escape($subType);
 		if (!empty($tags)) {
 			foreach ($tags as $tag) {
-				$tag = $this->escape($tag);
 				/**
 				 * 标签是否已经存在？
 				 */

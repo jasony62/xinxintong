@@ -29,7 +29,7 @@ class notice extends main_base {
 		if (isset($oPosted->criteria)) {
 			// 筛选条件
 			$oCriteria = $oPosted->criteria;
-			!empty($oCriteria->rid) && $rid = $modelEnlUsr->escape($oCriteria->rid);
+			!empty($oCriteria->rid) && $rid = $oCriteria->rid;
 			$aOptions = [
 				'rid' => $rid,
 				'cascaded' => 'N',

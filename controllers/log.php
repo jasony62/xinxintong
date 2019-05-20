@@ -16,7 +16,7 @@ class log extends TMS_CONTROLLER {
 	 * 通过日志记录
 	 */
 	public function add_action() {
-		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+		$referer = isset(tms_get_server('HTTP_REFERER')) ? tms_get_server('HTTP_REFERER') : '';
 		if (preg_match('/[?&]site=([^&]*)/', $referer, $matches)) {
 			$siteid = $matches[1];
 		} else {
@@ -28,7 +28,7 @@ class log extends TMS_CONTROLLER {
 
 		$data = $this->getPostJson();
 
-		$agent = $_SERVER['HTTP_USER_AGENT'];
+		$agent = tms_get_server('HTTP_USER_AGENT');
 
 		$src = isset($data->src) ? $data->src : '';
 		$msg = isset($data->msg) ? $data->msg : '';

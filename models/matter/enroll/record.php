@@ -225,7 +225,7 @@ class record_model extends record_base {
 		foreach ($submitSupp as $schemaId => $sSupplement) {
 			$rst = $this->update(
 				'xxt_enroll_record_data',
-				['supplement' => $this->escape($sSupplement)],
+				['supplement' => $sSupplement],
 				['enroll_key' => $ek, 'schema_id' => $schemaId, 'state' => 1]
 			);
 		}

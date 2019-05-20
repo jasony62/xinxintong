@@ -83,7 +83,7 @@ class tag extends base {
 			$oEnlTag = new \stdClass;
 			$oEnlTag->siteid = $oApp->siteid;
 			$oEnlTag->aid = $oApp->id;
-			$oEnlTag->label = $modelEnl->escape($label);
+			$oEnlTag->label = $label;
 			$oEnlTag->assign_num = 0;
 			$oEnlTag->user_num = 1;
 			$oEnlTag->public = 'N';

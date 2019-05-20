@@ -53,7 +53,7 @@ class page extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oPosted = $this->getPostJson();
+		$oPosted = $this->getPostJson(false);
 
 		/* 更新页面内容 */
 		if (isset($oPosted->html)) {

@@ -54,22 +54,6 @@ class TMS_CONTROLLER {
 		return isset($_GET[$name]) ? $_GET[$name] : $default;
 	}
 	/**
-	 * escope 数据
-	 */
-	private function escapeData(&$data) {
-		if (is_array($data) || is_object($data)) {
-			foreach ($data as $key => &$val) {
-				if (is_string($val)) {
-					$val = $this->escape($val);
-				} else if (is_array($val) || is_object($val)) {
-					$this->escapeData($val);
-				}
-			}
-		} else if (is_string($data)) {
-			$data = $this->escape($data);
-		}
-	}
-	/**
 	 * 将post数据转换为对象
 	 */
 	protected function &getPostJson($escape = true) {
@@ -78,11 +62,11 @@ class TMS_CONTROLLER {
 			// 过滤掉数据的emoji字符
 			$json = $this->model()->cleanEmoji($json, true);
 			$obj = json_decode($json);
-			if ($escape === true) {
-				$this->escapeData($obj);
-			}
 			if (JSON_ERROR_NONE !== json_last_error()) {
 				throw new \Exception('请求参数解析错误：' . json_last_error_msg());
+			}
+			if ($escape === true) {
+				$obj = $this->escape($obj);
 			}
 		} else {
 			$obj = null;

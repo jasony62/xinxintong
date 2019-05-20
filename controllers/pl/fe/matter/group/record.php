@@ -31,10 +31,10 @@ class record extends \pl\fe\matter\base {
 
 		$aOptions = [];
 		if (isset($oPosted->roleTeamId)) {
-			$aOptions['roleTeamId'] = $this->escape($oPosted->roleTeamId);
+			$aOptions['roleTeamId'] = $oPosted->roleTeamId;
 		}
 		if (isset($oPosted->teamId)) {
-			$aOptions['teamId'] = $this->escape($oPosted->teamId);
+			$aOptions['teamId'] = $oPosted->teamId;
 		}
 		if (!empty($oPosted->kw) && !empty($oPosted->by)) {
 			$aOptions[$oPosted->by] = $oPosted->kw;
@@ -220,7 +220,7 @@ class record extends \pl\fe\matter\base {
 			$oNewRec->comment = $oPosted->comment;
 		}
 		if (isset($oPosted->tags)) {
-			$oNewRec->tags = $modelGrpRec->escape($oPosted->tags);
+			$oNewRec->tags = $oPosted->tags;
 		}
 		if (empty($oPosted->team_id)) {
 			$oNewRec->team_id = '';

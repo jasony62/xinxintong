@@ -1081,7 +1081,7 @@ class record extends main_base {
         $oUpdated = new \stdClass;
         $oUpdated->enroll_at = time();
         if (isset($oPosted->comment)) {
-            $oUpdated->comment = $modelEnl->escape($oPosted->comment);
+            $oUpdated->comment = $oPosted->comment;
         }
         if (isset($oPosted->agreed) && $oPosted->agreed !== $oBeforeRecord->agreed) {
             $oUpdated->agreed = in_array($oPosted->agreed, ['Y', 'N', 'A']) ? $oPosted->agreed : '';
@@ -1103,11 +1103,11 @@ class record extends main_base {
             $this->model('matter\enroll\event')->agreeRecord($oApp, $oBeforeRecord, $oUser, $oUpdated->agreed);
         }
         if (isset($oPosted->tags)) {
-            $oUpdated->tags = $modelEnl->escape($oPosted->tags);
+            $oUpdated->tags = $oPosted->tags;
             $modelEnl->updateTags($oApp->id, $oUpdated->tags);
         }
         if (isset($oPosted->verified)) {
-            $oUpdated->verified = $modelEnl->escape($oPosted->verified);
+            $oUpdated->verified = $oPosted->verified;
         }
         if (isset($oPosted->rid)) {
             $userOldRid = $oBeforeRecord->rid;
@@ -1161,7 +1161,7 @@ class record extends main_base {
                     $modelRec->update("update xxt_enroll_user set enroll_num = enroll_num + 1 where id = $resNew->id");
                 }
 
-                $oUpdated->rid = $modelEnl->escape($oPosted->rid);
+                $oUpdated->rid = $oPosted->rid;
             }
         }
         if (isset($oPosted->supplement)) {
@@ -1249,7 +1249,7 @@ class record extends main_base {
 
         /* 更新登记项数据的轮次 */
         if (isset($oPosted->rid)) {
-            $modelEnl->update('xxt_enroll_record_data', ['rid' => $modelEnl->escape($oPosted->rid)], ['enroll_key' => $ek, 'state' => 1]);
+            $modelEnl->update('xxt_enroll_record_data', ['rid' => $oPosted->rid], ['enroll_key' => $ek, 'state' => 1]);
         }
         if (isset($oUpdated->verified) && $oUpdated->verified === 'Y') {
             $this->_whenVerifyRecord($oApp, $ek);

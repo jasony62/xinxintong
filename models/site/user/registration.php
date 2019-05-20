@@ -69,9 +69,9 @@ class registration_model extends \TMS_MODEL {
 		$registration->uid = $unionid;
 		$registration->from_siteid = $siteId;
 		$registration->authed_from = 'xxt_site';
-		$registration->authed_id = $this->escape($uname);
-		$registration->email = $this->escape($uname);
-		$registration->nickname = $this->escape($nickname);
+		$registration->authed_id = $uname;
+		$registration->email = $uname;
+		$registration->nickname = $nickname;
 		$registration->password = $pw_hash;
 		$registration->salt = $pw_salt;
 		$registration->reg_time = $current;

@@ -66,8 +66,9 @@ class account extends \pl\be\base {
 	 * 修改当前用户的口令
 	 */
 	public function resetPwd_action() {
-		$data = $this->getPostJson();
+		$data = $this->getPostJson(false);
 		$modelAcnt = $this->model('account');
+		$data->uid = $modelAcnt->escape($data->uid);
 		$account = $modelAcnt->byId($data->uid);
 		/**
 		 * set new password

@@ -13,6 +13,7 @@ ngApp.controller('ctrlPlan', ['$scope', 'http2', 'srvSite', 'tkEntryRule', funct
     var _oProto, _oEntryRule;
     $scope.proto = _oProto = {
         entryRule: {
+            id: '_pending',
             siteid: siteId,
             scope: {},
             member: {},

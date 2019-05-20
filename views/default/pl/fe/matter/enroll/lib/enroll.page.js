@@ -1,30 +1,30 @@
-define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLib, schemaLib, wrapLib, editorProxy) {
+define(['require', 'page', 'schema', 'wrap', 'editor'], function (require, pageLib, schemaLib, wrapLib, editorProxy) {
     'use strict';
     var ngMod = angular.module('page.enroll', []);
     /**
      * app's pages
      */
-    ngMod.provider('srvEnrollPage', function() {
+    ngMod.provider('srvEnrollPage', function () {
         var _siteId, _appId, _matterType, _baseUrl;
 
         _matterType = window.MATTER_TYPE.toLowerCase();
         _baseUrl = '/rest/pl/fe/matter/' + _matterType + '/page/';
-        this.config = function(siteId, appId) {
+        this.config = function (siteId, appId) {
             _siteId = siteId;
             _appId = appId;
         };
-        this.$get = ['$uibModal', '$q', 'http2', 'noticebox', 'srv' + window.MATTER_TYPE + 'App', function($uibModal, $q, http2, noticebox, srvApp) {
+        this.$get = ['$uibModal', '$q', 'http2', 'noticebox', 'srv' + window.MATTER_TYPE + 'App', function ($uibModal, $q, http2, noticebox, srvApp) {
             var _self;
             _self = {
-                create: function() {
+                create: function () {
                     var deferred = $q.defer();
-                    srvApp.get().then(function(app) {
+                    srvApp.get().then(function (app) {
                         $uibModal.open({
                             templateUrl: '/views/default/pl/fe/matter/enroll/component/createPage.html?_=4',
                             backdrop: 'static',
-                            controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
+                            controller: ['$scope', '$uibModalInstance', function ($scope, $mi) {
                                 $scope.options = {};
-                                $scope.ok = function() {
+                                $scope.ok = function () {
                                     if (!$scope.options.title) {
                                         noticebox.warn('请指定页面的名称！');
                                         return;
@@ -35,12 +35,12 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                                     }
                                     $mi.close($scope.options);
                                 };
-                                $scope.cancel = function() {
+                                $scope.cancel = function () {
                                     $mi.dismiss();
                                 };
                             }],
-                        }).result.then(function(options) {
-                            http2.post(_baseUrl + 'add?site=' + _siteId + '&app=' + _appId, options).then(function(rsp) {
+                        }).result.then(function (options) {
+                            http2.post(_baseUrl + 'add?site=' + _siteId + '&app=' + _appId, options).then(function (rsp) {
                                 var page = rsp.data;
                                 pageLib.enhance(page);
                                 app.pages.push(page);
@@ -50,47 +50,47 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                     });
                     return deferred.promise;
                 },
-                update: function(page, names) {
+                update: function (oPage, names) {
                     var defer = $q.defer(),
                         updated = {},
                         url;
 
                     angular.isString(names) && (names = [names]);
-                    names.forEach(function(name) {
+                    names.forEach(function (name) {
                         if (name === 'html') {
-                            updated.html = encodeURIComponent(page.html);
+                            updated.html = encodeURIComponent(oPage.html);
                         } else {
-                            updated[name] = page[name];
+                            updated[name] = oPage[name];
                         }
                     });
                     url = _baseUrl + '/update';
                     url += '?site=' + _siteId;
                     url += '&app=' + _appId;
-                    url += '&page=' + page.id;
-                    url += '&cname=' + page.code_name;
-                    http2.post(url, updated).then(function(rsp) {
-                        page.$$modified = false;
+                    url += '&page=' + oPage.id;
+                    url += '&cname=' + oPage.code_name;
+                    http2.post(url, updated).then(function (rsp) {
+                        oPage.$$modified = false;
                         noticebox.success('完成保存');
                         defer.resolve();
                     });
 
                     return defer.promise;
                 },
-                clean: function(page) {
+                clean: function (page) {
                     page.html = '';
                     page.dataSchemas = [];
                     page.actSchemas = [];
                     return _self.update(page, ['dataSchemas', 'actSchemas', 'html']);
                 },
-                remove: function(page) {
+                remove: function (page) {
                     var defer = $q.defer();
-                    srvApp.get().then(function(app) {
+                    srvApp.get().then(function (app) {
                         var url = _baseUrl + 'remove';
                         url += '?site=' + _siteId;
                         url += '&app=' + _appId;
                         url += '&pid=' + page.id;
                         url += '&cname=' + page.code_name;
-                        http2.get(url).then(function(rsp) {
+                        http2.get(url).then(function (rsp) {
                             app.pages.splice(app.pages.indexOf(page), 1);
                             defer.resolve(app.pages);
                             noticebox.success('完成删除');
@@ -98,25 +98,25 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                     });
                     return defer.promise;
                 },
-                repair: function(aCheckResult, oPage) {
+                repair: function (aCheckResult, oPage) {
                     return $uibModal.open({
                         templateUrl: '/views/default/pl/fe/matter/enroll/component/repair.html',
-                        controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                        controller: ['$scope', '$uibModalInstance', function ($scope2, $mi) {
                             $scope2.reason = aCheckResult[1];
-                            $scope2.ok = function() {
+                            $scope2.ok = function () {
                                 $mi.close();
                             };
-                            $scope2.cancel = function() {
+                            $scope2.cancel = function () {
                                 $mi.dismiss();
                             };
                         }],
                         backdrop: 'static'
-                    }).result.then(function() {
+                    }).result.then(function () {
                         var aRepairResult;
                         aRepairResult = oPage.repair(aCheckResult);
                         if (aRepairResult[0] === true) {
                             if (aRepairResult[1] && aRepairResult[1].length) {
-                                aRepairResult[1].forEach(function(changedProp) {
+                                aRepairResult[1].forEach(function (changedProp) {
                                     switch (changedProp) {
                                         case 'dataSchemas':
                                             // do nothing
@@ -139,38 +139,46 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
     /**
      * page editor
      */
-    ngMod.controller('ctrlPageEdit', ['$scope', '$uibModal', 'http2', 'CstApp', 'mediagallery', 'srvSite', function($scope, $uibModal, http2, CstApp, mediagallery, srvSite) {
+    ngMod.controller('ctrlPageEdit', ['$scope', '$uibModal', 'http2', 'CstApp', 'mediagallery', 'srvSite', function ($scope, $uibModal, http2, CstApp, mediagallery, srvSite) {
         var tinymceEditor;
         $scope.activeWrap = false;
-        $scope.setActiveWrap = function(domWrap) {
+        $scope.setActiveWrap = function (domWrap) {
             $scope.activeWrap = editorProxy.setActiveWrap(domWrap);
         };
-        $scope.wrapEditorHtml = function() {
+        $scope.wrapEditorHtml = function () {
             var url = null;
-            if (!/score|matter|text|button/.test($scope.activeWrap.type)) {
-                url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=' + (new Date()).getMinutes();
+            if ($scope.activeWrap && $scope.activeWrap.type) {
+                if (!/score|matter|text|button/.test($scope.activeWrap.type)) {
+                    url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=' + (new Date()).getMinutes();
+                }
             }
             return url;
         };
-        $scope.refreshWrap = function(wrap) {
+        $scope.refreshWrap = function (wrap) {
             editorProxy.modifySchema(wrap);
         };
         /* 设置页面操作 */
-        $scope.configButton = function(oEditingPage) {
-            http2.post('/rest/script/time', { html: { 'buttons': '/views/default/pl/fe/matter/enroll/component/pageButtons' } }).then(function(rsp) {
+        $scope.configButton = function (oEditingPage) {
+            http2.post('/rest/script/time', {
+                html: {
+                    'buttons': '/views/default/pl/fe/matter/enroll/component/pageButtons'
+                }
+            }).then(function (rsp) {
                 $uibModal.open({
                     templateUrl: '/views/default/pl/fe/matter/enroll/component/pageButtons.html?_=' + rsp.data.html.buttons.time,
-                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    controller: ['$scope', '$uibModalInstance', function ($scope2, $mi) {
                         var _oPage, _oActiveButton, appPages, _nextPages;
                         $scope2.page = _oPage = oEditingPage;
                         appPages = $scope.app.pages;
                         $scope2.nextPages = _nextPages = [];
-                        $scope2.cancel = function() { $mi.dismiss(); };
-                        $scope2.ok = function() {
+                        $scope2.cancel = function () {
+                            $mi.dismiss();
+                        };
+                        $scope2.ok = function () {
                             _oPage.$$modified = true;
                             $mi.close();
                         };
-                        $scope2.newButton = function(btn) {
+                        $scope2.newButton = function (btn) {
                             var oSchema, oWrap;
                             oSchema = angular.copy(btn);
                             switch (oSchema.n) {
@@ -211,25 +219,31 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                             _oPage.actSchemas.push(oWrap);
                             $scope2.setButton(oWrap);
                         };
-                        $scope2.setButton = function(oBtn) {
+                        $scope2.setButton = function (oBtn) {
                             $scope2.activeButton = _oActiveButton = oBtn;
                             if ($scope2.buttons[_oActiveButton.name] && $scope2.buttons[_oActiveButton.name].next) {
-                                appPages.forEach(function(oPage) {
+                                appPages.forEach(function (oPage) {
                                     if ($scope2.buttons[_oActiveButton.name].next.indexOf(oPage.type) !== -1) {
-                                        _nextPages.push({ name: oPage.name, title: oPage.title });
+                                        _nextPages.push({
+                                            name: oPage.name,
+                                            title: oPage.title
+                                        });
                                     }
                                 });
                             } else {
-                                appPages.forEach(function(oPage) {
-                                    _nextPages.push({ name: oPage.name, title: oPage.title });
+                                appPages.forEach(function (oPage) {
+                                    _nextPages.push({
+                                        name: oPage.name,
+                                        title: oPage.title
+                                    });
                                 });
                             }
                         };
-                        $scope2.removeButton = function(oBtn) {
+                        $scope2.removeButton = function (oBtn) {
                             _oPage.actSchemas.splice(_oPage.actSchemas.indexOf(oBtn), 1);
                             $scope2.activeButton = _oActiveButton = null;
                         };
-                        $scope2.chooseType = function() {
+                        $scope2.chooseType = function () {
                             _oActiveButton.label = $scope2.buttons[_oActiveButton.name].l;
                             _oActiveButton.next = '';
                             if (['addRecord', 'editRecord', 'removeRecord'].indexOf(_oActiveButton.name) !== -1) {
@@ -258,7 +272,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                 });
             });
         };
-        $scope.removeActiveWrap = function() {
+        $scope.removeActiveWrap = function () {
             var activeWrap = $scope.activeWrap,
                 wrapType = activeWrap.type,
                 schema;
@@ -289,10 +303,10 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                 $scope.setActiveWrap(null);
             }
         };
-        $scope.moveWrap = function(action) {
+        $scope.moveWrap = function (action) {
             $scope.activeWrap = editorProxy.moveWrap(action);
         };
-        $scope.embedMatter = function(page) {
+        $scope.embedMatter = function (page) {
             var options = {
                 matterTypes: CstApp.innerlink,
                 singleMatter: true
@@ -300,7 +314,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
             if ($scope.app.mission) {
                 options.mission = $scope.app.mission;
             }
-            srvSite.openGallery(options).then(function(result) {
+            srvSite.openGallery(options).then(function (result) {
                 var dom = tinymceEditor.dom,
                     style = "cursor:pointer",
                     fn, domMatter, sibling;
@@ -311,7 +325,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                         sibling = sibling.parentNode;
                     }
                     // 加到当前选中元素的后面
-                    result.matters.forEach(function(matter) {
+                    result.matters.forEach(function (matter) {
                         fn = "openMatter('" + matter.id + "','" + result.type + "')";
                         domMatter = dom.create('div', {
                             'wrap': 'matter',
@@ -324,7 +338,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                     });
                 } else {
                     // 加到页面的结尾
-                    result.matters.forEach(function(matter) {
+                    result.matters.forEach(function (matter) {
                         fn = "openMatter('" + matter.id + "','" + result.type + "')";
                         domMatter = dom.add(tinymceEditor.getBody(), 'div', {
                             'wrap': 'matter',
@@ -337,7 +351,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                 }
             })
         };
-        $scope.$on('tinymce.content.change', function(event, changedNode) {
+        $scope.$on('tinymce.content.change', function (event, changedNode) {
             var status, html;
             if (changedNode) {
                 // 文档中的节点发生变化
@@ -362,7 +376,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
             }
         });
         //添加选项
-        $scope.$on('tinymce.option.add', function(event, domWrap) {
+        $scope.$on('tinymce.option.add', function (event, domWrap) {
             var optionDom, schemaOptionId, schemaId, schema;
 
             if (/radio|checkbox/.test(domWrap.getAttribute('wrap'))) {
@@ -390,17 +404,17 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                 }
             }
         });
-        $scope.$on('tinymce.wrap.add', function(event, domWrap) {
-            $scope.$apply(function() {
+        $scope.$on('tinymce.wrap.add', function (event, domWrap) {
+            $scope.$apply(function () {
                 $scope.setActiveWrap(domWrap);
             });
         });
-        $scope.$on('tinymce.wrap.select', function(event, domWrap) {
-            $scope.$apply(function() {
+        $scope.$on('tinymce.wrap.select', function (event, domWrap) {
+            $scope.$apply(function () {
                 $scope.setActiveWrap(domWrap);
             });
         });
-        $scope.$on('tinymce.multipleimage.open', function(event, callback) {
+        $scope.$on('tinymce.multipleimage.open', function (event, callback) {
             var options = {
                 callback: callback,
                 multiple: true,
@@ -409,7 +423,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
             mediagallery.open($scope.app.siteid, options);
         });
         // 切换编辑的页面
-        $scope.$watch('ep', function(oNewPage) {
+        $scope.$watch('ep', function (oNewPage) {
             if (!oNewPage) return;
             $scope.setActiveWrap(null);
             // page's content
@@ -424,7 +438,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                 editorProxy.load(tinymceEditor, oNewPage);
             }
         });
-        $scope.$on('tinymce.instance.init', function(event, editor) {
+        $scope.$on('tinymce.instance.init', function (event, editor) {
             tinymceEditor = editor;
             if ($scope.ep) {
                 editorProxy.load(editor, $scope.ep);
@@ -436,9 +450,9 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
     /**
      * input
      */
-    ngMod.controller('ctrlAppSchemas4IV', ['$scope', function($scope) {
+    ngMod.controller('ctrlAppSchemas4IV', ['$scope', function ($scope) {
         var _oChooseState;
-        $scope.choose = function(schema) {
+        $scope.choose = function (schema) {
             if (_oChooseState[schema.id]) {
                 var ia, sibling, domNewWrap;
                 ia = $scope.app.dataSchemas.indexOf(schema);
@@ -478,21 +492,21 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                 }
             }
         };
-        $scope.$on('xxt.matter.enroll.page.dataSchemas.removed', function(event, removedSchema) {
+        $scope.$on('xxt.matter.enroll.page.dataSchemas.removed', function (event, removedSchema) {
             if (removedSchema && removedSchema.id) {
                 _oChooseState[removedSchema.id] = false;
             }
         });
-        $scope.$watch('ep', function(oPage) {
+        $scope.$watch('ep', function (oPage) {
             if (oPage) {
                 _oChooseState = {};
                 if (!$scope.app) return;
-                $scope.app.dataSchemas.forEach(function(schema) {
+                $scope.app.dataSchemas.forEach(function (schema) {
                     _oChooseState[schema.id] = false;
                 });
                 if (oPage.type === 'I') {
                     if (oPage.dataSchemas && oPage.dataSchemas.length) {
-                        oPage.dataSchemas.forEach(function(dataWrap) {
+                        oPage.dataSchemas.forEach(function (dataWrap) {
                             if (dataWrap.schema) {
                                 _oChooseState[dataWrap.schema.id] = true;
                             }
@@ -509,7 +523,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                         title: '填写轮次'
                     }];
                     if (oPage.dataSchemas && oPage.dataSchemas.length) {
-                        oPage.dataSchemas.forEach(function(config) {
+                        oPage.dataSchemas.forEach(function (config) {
                             config.schema && config.schema.id && (_oChooseState[config.schema.id] = true);
                         });
                     }
@@ -518,12 +532,12 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                 }
                 $scope.chooseState = _oChooseState;
             }
-            $scope.$watchCollection('ep.dataSchemas', function(newVal) {
+            $scope.$watchCollection('ep.dataSchemas', function (newVal) {
                 var aUncheckedSchemaIds;
                 if (/I|V/.test($scope.ep.type)) {
                     if (newVal) {
                         aUncheckedSchemaIds = Object.keys(_oChooseState);
-                        newVal.forEach(function(oWrap) {
+                        newVal.forEach(function (oWrap) {
                             var i;
                             _oChooseState[oWrap.schema.id] = true;
                             i = aUncheckedSchemaIds.indexOf(oWrap.schema.id);
@@ -531,7 +545,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
                                 aUncheckedSchemaIds.splice(i, 1);
                             }
                         });
-                        aUncheckedSchemaIds.forEach(function(schemaId) {
+                        aUncheckedSchemaIds.forEach(function (schemaId) {
                             _oChooseState[schemaId] = false;
                         });
                     }
@@ -542,37 +556,37 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
     /**
      * 登记项编辑
      */
-    ngMod.controller('ctrlInputWrap', ['$scope', '$timeout', function($scope, $timeout) {
-        $scope.addOption = function() {
+    ngMod.controller('ctrlInputWrap', ['$scope', '$timeout', function ($scope, $timeout) {
+        $scope.addOption = function () {
             var newOp;
             newOp = schemaLib.addOption($scope.activeWrap.schema);
-            $timeout(function() {
+            $timeout(function () {
                 $scope.$broadcast('xxt.editable.add', newOp);
             });
         };
-        $scope.onKeyup = function(event) {
+        $scope.onKeyup = function (event) {
             // 回车时自动添加选项
             if (event.keyCode === 13) {
                 $scope.addOption();
             }
         };
-        $scope.$on('xxt.editable.changed', function(e, op) {
+        $scope.$on('xxt.editable.changed', function (e, op) {
             $scope.updWrap();
         });
-        $scope.$on('xxt.editable.remove', function(e, op) {
+        $scope.$on('xxt.editable.remove', function (e, op) {
             var schema = $scope.activeWrap.schema,
                 i = schema.ops.indexOf(op);
 
             schema.ops.splice(i, 1);
             $scope.updWrap();
         });
-        $scope.$watch('activeWrap.schema.setUpper', function(nv) {
+        $scope.$watch('activeWrap.schema.setUpper', function (nv) {
             var schema = $scope.activeWrap.schema;
             if (nv === 'Y') {
                 schema.upper = schema.ops ? schema.ops.length : 0;
             }
         });
-        $scope.updWrap = function() {
+        $scope.updWrap = function () {
             $scope.ep.$$modified = true;
             editorProxy.modifySchema($scope.activeWrap);
             $scope.$emit('xxt.matter.enroll.app.dataSchemas.modified', {
@@ -581,7 +595,7 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
             });
         };
         if ($scope.activeWrap.schema.mschema_id) {
-            (function() {
+            (function () {
                 var i, j, memberSchema, schema;
                 /*自定义用户*/
                 for (i = $scope.memberSchemas.length - 1; i >= 0; i--) {
@@ -606,8 +620,8 @@ define(['require', 'page', 'schema', 'wrap', 'editor'], function(require, pageLi
     /**
      * value wrap
      */
-    ngMod.controller('ctrlValueWrap', ['$scope', function($scope) {
-        $scope.updWrap = function() {
+    ngMod.controller('ctrlValueWrap', ['$scope', function ($scope) {
+        $scope.updWrap = function () {
             $scope.ep.$$modified = true;
             editorProxy.modifySchema($scope.activeWrap);
         };

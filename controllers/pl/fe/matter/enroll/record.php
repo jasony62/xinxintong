@@ -2567,7 +2567,11 @@ class record extends main_base {
                         }
                         $v = implode("\n", $values);
                     }
-                    $v = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v);
+                    if (is_string($v)) {
+                        $v = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $v);
+                    } else {
+                        $v = '';
+                    }
                     $objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $v, \PHPExcel_Cell_DataType::TYPE_STRING);
                     $objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
                     break;

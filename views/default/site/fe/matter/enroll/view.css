@@ -2,6 +2,10 @@
 	margin-bottom: 65px;
 }
 
+img {
+	max-width: 100%;
+}
+
 .navbar-fixed-bottom button+button {
 	margin-left: 8px;
 }
@@ -32,7 +36,8 @@ div[wrap][schema-type=image] ul {
 	max-width: 50%;
 }
 
-div[wrap][schema-type=multitext] ul, div[wrap][schema-type=file] ul {
+div[wrap][schema-type=multitext] ul,
+div[wrap][schema-type=file] ul {
 	padding-left: 20px;
 }
 
@@ -50,7 +55,8 @@ div[wrap] .supplement {
 	margin-top: 1em;
 }
 
-div[wrap] .schema-score, div[wrap] .schema-baseline {
+div[wrap] .schema-score,
+div[wrap] .schema-baseline {
 	font-size: .8em;
 	color: red;
 }

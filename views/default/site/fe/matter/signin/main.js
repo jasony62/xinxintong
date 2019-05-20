@@ -1,7 +1,7 @@
 'use strict';
 require('../../../../../../asset/js/xxt.ui.share.js');
 if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.wx) {
-    window.wx.ready(function() {
+    window.wx.ready(function () {
         window.wx.showOptionMenu();
     });
 }
@@ -16,7 +16,7 @@ require('../../../../../../asset/js/xxt.ui.geo.js');
 
 require('./directive.js');
 
-var setShareData = function(scope, params) {
+var setShareData = function (scope, params) {
     if (!window.xxt || !window.xxt.share) {
         return false;
     }
@@ -39,37 +39,43 @@ var setShareData = function(scope, params) {
     };
     window.xxt.share.set(params.app.title, sharelink, summary, params.app.pic);
     window.shareCounter = 0;
-    window.xxt.share.options.logger = function(shareto) {};
+    window.xxt.share.options.logger = function (shareto) {};
 };
 
 /* 公共加载的模块 */
 var angularModules = ['ngSanitize', 'notice.ui.xxt', 'http.ui.xxt', 'page.ui.xxt', 'directive.signin', 'snsshare.ui.xxt'];
 /* 加载指定的模块 */
 if (window.moduleAngularModules) {
-    window.moduleAngularModules.forEach(function(m) {
+    window.moduleAngularModules.forEach(function (m) {
         angularModules.push(m);
     });
 }
 
 var ngApp = angular.module('app', angularModules);
-ngApp.config(['$controllerProvider', '$locationProvider', function($cp, $locationProvider) {
+ngApp.config(['$controllerProvider', '$locationProvider', function ($cp, $locationProvider) {
     ngApp.provider = {
         controller: $cp.register
     };
     $locationProvider.html5Mode(true);
 }]);
-ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'tmsDynaPage', function($scope, $timeout, http2, LS, tmsDynaPage) {
+ngApp.factory('$exceptionHandler', function () {
+    return function (exception, cause) {
+        exception.message += ' (caused by "' + cause + '")';
+        throw exception;
+    };
+});
+ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'tmsDynaPage', function ($scope, $timeout, http2, LS, tmsDynaPage) {
     function fnHidePageActions() {
         var domActs, domAct;
         if (domActs = document.querySelectorAll('[wrap=button]')) {
-            angular.forEach(domActs, function(domAct) {
+            angular.forEach(domActs, function (domAct) {
                 domAct.style.display = 'none';
             });
         }
     }
 
     function openAskFollow() {
-        http2.get(LS.j('askFollow', 'site')).then(function() {}, function(content) {
+        http2.get(LS.j('askFollow', 'site')).then(function () {}, function (content) {
             var body, el;;
             body = document.body;
             el = document.createElement('iframe');
@@ -77,7 +83,7 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'tms
             el.height = body.clientHeight;
             body.scrollTop = 0;
             body.appendChild(el);
-            window.closeAskFollow = function() {
+            window.closeAskFollow = function () {
                 el.style.display = 'none';
             };
             el.setAttribute('src', LS.j('askFollow', 'site'));
@@ -90,7 +96,7 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'tms
         valid = true;
         obj = $scope;
         args = task.match(/\((.*?)\)/)[1].replace(/'|"/g, "").split(',');
-        angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function(attr) {
+        angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function (attr) {
             if (fn) obj = fn;
             if (!obj[attr]) {
                 valid = false;
@@ -104,15 +110,15 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'tms
     }
 
     var tasksOfOnReady = [];
-    $scope.closeWindow = function() {
+    $scope.closeWindow = function () {
         if (/MicroMessenger/i.test(navigator.userAgent)) {
             window.wx.closeWindow();
         }
     };
-    $scope.addRecord = function(event, page) {
+    $scope.addRecord = function (event, page) {
         page ? $scope.gotoPage(event, page, null, null, false, 'Y') : alert('没有指定登记编辑页');
     };
-    $scope.gotoPage = function(event, page, ek, rid, fansOnly, newRecord) {
+    $scope.gotoPage = function (event, page, ek, rid, fansOnly, newRecord) {
         event.preventDefault();
         event.stopPropagation();
         if (fansOnly && !$scope.User.fan) {
@@ -128,7 +134,7 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'tms
         newRecord !== undefined && newRecord === 'Y' && (url += '&newRecord=Y');
         location.replace(url);
     };
-    $scope.openMatter = function(id, type, replace, newWindow) {
+    $scope.openMatter = function (id, type, replace, newWindow) {
         var url = '/rest/site/fe/matter?site=' + LS.s().site + '&id=' + id + '&type=' + type;
         if (replace) {
             location.replace(url);
@@ -140,28 +146,28 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'tms
             }
         }
     };
-    $scope.followMp = function(event, page) {
+    $scope.followMp = function (event, page) {
         if (page !== undefined && page.length) {
             $scope.gotoPage(event, page);
         } else {
             alert('请在易信中打开页面');
         }
     };
-    $scope.onReady = function(task) {
+    $scope.onReady = function (task) {
         if ($scope.params) {
             execTask(task);
         } else {
             tasksOfOnReady.push(task);
         }
     };
-    http2.get(LS.j('get', 'site', 'app', 'rid', 'page', 'ek', 'newRecord')).then(function(rsp) {
+    http2.get(LS.j('get', 'site', 'app', 'rid', 'page', 'ek', 'newRecord')).then(function (rsp) {
         var params = rsp.data,
             oSite = params.site,
             oApp = params.app,
             oMission = params.mission,
             schemasById = {};
 
-        oApp.dataSchemas.forEach(function(schema) {
+        oApp.dataSchemas.forEach(function (schema) {
             schemasById[schema.id] = schema;
         });
         oApp._schemasById = schemasById;
@@ -185,14 +191,14 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'tms
             tmsDynaPage.loadCode(ngApp, oSite.footer_page);
         }
         if (params.page) {
-            tmsDynaPage.loadCode(ngApp, params.page).then(function() {
+            tmsDynaPage.loadCode(ngApp, params.page).then(function () {
                 $scope.page = params.page;
             });
         }
         if (tasksOfOnReady.length) {
             angular.forEach(tasksOfOnReady, PG.exec);
         }
-        $timeout(function() {
+        $timeout(function () {
             fnHidePageActions();
             $scope.$broadcast('xxt.app.signin.ready', params);
         });

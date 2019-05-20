@@ -32,7 +32,7 @@
         <label>填写限制</label>
         <div class='radio'>
             <label class="radio-inline">
-                <input type='radio' ng-model='activeSchema.format' value='' name='format' ng-change="updSchema(activeSchema)">不限</label>
+                <input type='radio' ng-model='activeSchema.format' value='' name='format' ng-change="updSchema(activeSchema,null,'format')">不限</label>
         </div>
         <div class='radio'>
             <label class="radio-inline">
@@ -40,11 +40,19 @@
         </div>
         <div class='radio'>
             <label class="radio-inline">
-                <input type='radio' value="name" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema)">姓名</label>
+                <input type='radio' value="name" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema,null,'format')">姓名</label>
             <label class="radio-inline">
-                <input type='radio' value="mobile" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema)">手机</label>
+                <input type='radio' value="mobile" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema,null,'format')">手机</label>
             <label class="radio-inline">
-                <input type='radio' value="email" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema)">邮箱</label>
+                <input type='radio' value="email" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema,null,'format')">邮箱</label>
+        </div>
+        <div class='radio'>
+            <label class="radio-inline">
+                <input type='radio' value="calculate" name="format" ng-model='activeSchema.format' ng-change="updSchema(activeSchema,null,'format')">公式</label>
+        </div>
+        <div class='form-group' ng-if='activeSchema.format==="calculate"'>
+            <label>数值计算公式</label>
+            <div tms-editable prop='formula' obj='activeSchema' evt-prefix='formula' placeholder="请输入计算公式"></div>
         </div>
     </div>
     <div class="form-group" ng-if="activeSchema.type==='multiple'">
@@ -79,6 +87,10 @@
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.required' ng-change="updSchema(activeSchema)"> 必填</label>
     </div>
+    <div class="checkbox" ng-if="'html'!==activeSchema.type&&activeSchema.fromApp">
+        <label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.readonly' ng-change="updSchema(activeSchema)"> 只读</label>
+    </div>
     <div class="checkbox" ng-show="['shorttext'].indexOf(activeSchema.type)!==-1">
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.unique' ng-change="updSchema(activeSchema)"> 唯一</label>
@@ -94,6 +106,10 @@
     <div class="checkbox" ng-show="['shorttext','multitext'].indexOf(activeSchema.type)!==-1">
         <label>
             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.history' ng-change="updSchema(activeSchema,'history')"> 选择已填数据</label>
+    </div>
+    <div class="checkbox" ng-show="['shorttext'].indexOf(activeSchema.type)!==-1">
+        <label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.showHistoryAtRepos' ng-change="updSchema(activeSchema,'showHistoryAtRepos')"> 在共享页查看历史数据</label>
     </div>
     <div class="checkbox" ng-show="'Y'===activeSchema.history">
         <button class='btn btn-default' ng-click="setHistoryAssoc(activeSchema)"> 设置已填数据关联题目<span ng-if="activeSchema.historyAssoc.length">({{activeSchema.historyAssoc.length}})</span></button>

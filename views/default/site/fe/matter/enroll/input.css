@@ -17,6 +17,10 @@ li {
 	padding: 0
 }
 
+img {
+	max-width: 100%;
+}
+
 .list-group {
 	margin-bottom: 0px;
 }
@@ -177,26 +181,31 @@ div[wrap=matter]>span {
 }
 
 /* 关联选项可见性控制 */
-div[schema-type=single] li[wrap].radio, div[schema-type=multiple] li[wrap].checkbox {
+div[schema-type=single] li[wrap].radio,
+div[schema-type=multiple] li[wrap].checkbox {
 	margin-top: 5px;
 }
 
-div[schema-type=single] li[wrap].radio:last-child, div[schema-type=multiple] li[wrap].checkbox:last-child {
+div[schema-type=single] li[wrap].radio:last-child,
+div[schema-type=multiple] li[wrap].checkbox:last-child {
 	margin-bottom: 25px;
 }
 
-div[schema-type=single] li[wrap].radio.option-hide, div[schema-type=multiple] li[wrap].checkbox.option-hide {
+div[schema-type=single] li[wrap].radio.option-hide,
+div[schema-type=multiple] li[wrap].checkbox.option-hide {
 	height: 0;
 	margin: 0;
 	visibility: hidden;
 }
 
-div[schema-type=single] li[wrap].radio.option-hide>label, div[schema-type=multiple] li[wrap].checkbox.option-hide>label {
+div[schema-type=single] li[wrap].radio.option-hide>label,
+div[schema-type=multiple] li[wrap].checkbox.option-hide>label {
 	height: 0;
 	min-height: 0;
 }
 
-div[schema-type=single] li[wrap].radio.option-hide>label>*, div[schema-type=multiple] li[wrap].checkbox.option-hide>label>* {
+div[schema-type=single] li[wrap].radio.option-hide>label>*,
+div[schema-type=multiple] li[wrap].checkbox.option-hide>label>* {
 	height: 0;
 	display: inline-block;
 	overflow: hidden;

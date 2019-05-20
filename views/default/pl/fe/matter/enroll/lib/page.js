@@ -1,13 +1,13 @@
 /**
  * base class of page
  */
-define(['wrap'], function(SchemaWrap) {
+define(['wrap'], function (SchemaWrap) {
     'use strict';
     /**
      * 页面处理逻辑基类
      */
     var oProtoPage = {
-        wrapBySchema: function(schema) {
+        wrapBySchema: function (schema) {
             var dataWrap, i;
             for (i = this.dataSchemas.length - 1; i >= 0; i--) {
                 dataWrap = this.dataSchemas[i];
@@ -21,7 +21,7 @@ define(['wrap'], function(SchemaWrap) {
         /**
          * 调整题目在页面中的位置
          */
-        moveSchema: function(oMovedSchema, oPrevSchema) {
+        moveSchema: function (oMovedSchema, oPrevSchema) {
             var movedWrap, prevWrap, $html, $movedHtml, $prevHtml;
 
             movedWrap = this.wrapBySchema(oMovedSchema);
@@ -39,7 +39,7 @@ define(['wrap'], function(SchemaWrap) {
             }
             this.html = $html.html();
         },
-        check: function() {
+        check: function () {
             var $html, schemasById, oSchema, $schemas, $schema;
             $html = $('<div>' + this.html + '</div>');
             schemasById = {};
@@ -62,7 +62,7 @@ define(['wrap'], function(SchemaWrap) {
 
             return [true];
         },
-        repair: function(aCheckResult) {
+        repair: function (aCheckResult) {
             var code, aChangedProps;
 
             code = aCheckResult[0];
@@ -100,12 +100,12 @@ define(['wrap'], function(SchemaWrap) {
         /**
          * 整理题目，使得页面中的schema和应用中的schema是同一个对象
          */
-        _arrange: function(mapOfAppSchemas) {
+        _arrange: function (mapOfAppSchemas) {
             var _this = this;
 
             if (this.dataSchemas.length) {
                 var dataSchemas = [];
-                this.dataSchemas.forEach(function(item) {
+                this.dataSchemas.forEach(function (item) {
                     var matched = false;
                     if (item.schema && item.schema.id) {
                         if (mapOfAppSchemas[item.schema.id]) {
@@ -122,7 +122,7 @@ define(['wrap'], function(SchemaWrap) {
         /**
          * 添加题目的html
          */
-        _appendWrap: function(tag, attrs, html, afterWrap) {
+        _appendWrap: function (tag, attrs, html, afterWrap) {
             var newDomWrap, $html, $siblingInputWrap, bInsertAfter, $btnWrap;
 
             bInsertAfter = true;
@@ -153,7 +153,7 @@ define(['wrap'], function(SchemaWrap) {
 
             return newDomWrap;
         },
-        appendSchema: function(schema, afterSchema) {
+        appendSchema: function (schema, afterSchema) {
             var newWrap, wrapParam, domNewWrap, afterWrap;
 
             newWrap = SchemaWrap.input.newWrap(schema);
@@ -179,31 +179,34 @@ define(['wrap'], function(SchemaWrap) {
 
             return domNewWrap;
         },
-        updateSchema: function(oSchema, oBeforeState) {
-            var $html, $dom, wrap;
-
+        updateSchema: function (oSchema, oBeforeState) {
+            var $html, $dom, oWrap;
+            // 如果是计算题，默认不在输入页中显示
+            if (oSchema.type === 'shorttext' && oSchema.format === 'calculate') {
+                return this.removeSchema(oSchema);
+            }
             $html = $('<div>' + this.html + '</div>');
             if ($dom = $html.find("[schema='" + oSchema.id + "']")) {
-                if (wrap = this.wrapBySchema(oSchema)) {
-                    wrap.type = $dom.attr('wrap');
+                if (oWrap = this.wrapBySchema(oSchema)) {
+                    oWrap.type = $dom.attr('wrap');
                     if (oBeforeState && oSchema.type !== oBeforeState.type) {
-                        wrap.config = SchemaWrap.input.newWrap(oSchema).config;
+                        oWrap.config = SchemaWrap.input.newWrap(oSchema).config;
                     }
-                    SchemaWrap.input.modify($dom, wrap, oBeforeState);
+                    SchemaWrap.input.modify($dom, oWrap, oBeforeState);
                     this.html = $html.html();
                     return true;
                 }
             }
             return false;
         },
-        removeSchema: function(schema) {
+        removeSchema: function (oSchema) {
             var found = false,
                 $html = $('<div>' + this.html + '</div>');
 
-            $html.find("[schema='" + schema.id + "']").remove();
+            $html.find("[schema='" + oSchema.id + "']").remove();
             this.html = $html.html();
             for (var i = this.dataSchemas.length - 1; i >= 0; i--) {
-                if (this.dataSchemas[i].schema.id === schema.id) {
+                if (this.dataSchemas[i].schema.id === oSchema.id) {
                     this.dataSchemas.splice(i, 1);
                     found = true;
                     break;
@@ -220,12 +223,12 @@ define(['wrap'], function(SchemaWrap) {
         /**
          * 整理题目，使得页面中的schema和应用中的schema是同一个对象
          */
-        _arrange: function(mapOfAppSchemas) {
+        _arrange: function (mapOfAppSchemas) {
             var _this = this;
 
             if (this.dataSchemas.length) {
                 var dataSchemas = [];
-                angular.forEach(this.dataSchemas, function(item) {
+                angular.forEach(this.dataSchemas, function (item) {
                     var config = item.config,
                         schema = item.schema,
                         matched = false;
@@ -249,7 +252,7 @@ define(['wrap'], function(SchemaWrap) {
         /**
          * 添加题目的html
          */
-        _appendWrap: function(tag, attrs, html, afterWrap) {
+        _appendWrap: function (tag, attrs, html, afterWrap) {
             var $html, domNewWrap, $siblingInputWrap, bInsertAfter, $btnWrap;
 
             bInsertAfter = true;
@@ -283,7 +286,7 @@ define(['wrap'], function(SchemaWrap) {
          * 页面中添加题目
          * 如果【填写时间】在最后一位，新题目添加到填写时间前面
          */
-        appendSchema: function(schema, afterSchema) {
+        appendSchema: function (schema, afterSchema) {
             var oNewWrap, domNewWrap, wrapParam, afterWrap, lastWrap, afterIndex;
 
             if (afterSchema) {
@@ -323,7 +326,7 @@ define(['wrap'], function(SchemaWrap) {
 
             return domNewWrap;
         },
-        updateSchema: function(oSchema, oBeforeState) {
+        updateSchema: function (oSchema, oBeforeState) {
             var $html, $dom, wrap;
             $html = $('<div>' + this.html + '</div>');
             if ($dom = $html.find("[schema='" + oSchema.id + "']")) {
@@ -336,7 +339,7 @@ define(['wrap'], function(SchemaWrap) {
 
             return false;
         },
-        removeSchema: function(schema) {
+        removeSchema: function (schema) {
             var found = false,
                 $html = $('<div>' + this.html + '</div>');
 
@@ -351,7 +354,7 @@ define(['wrap'], function(SchemaWrap) {
             }
             return found;
         },
-        wrapById: function(wrapId) {
+        wrapById: function (wrapId) {
             for (var i = this.dataSchemas.length - 1; i >= 0; i--) {
                 if (this.dataSchemas[i].config.id === wrapId) {
                     return this.dataSchemas[i];
@@ -363,7 +366,7 @@ define(['wrap'], function(SchemaWrap) {
     oProtoViewPage = angular.extend({}, oProtoPage, oProtoViewPage);
 
     return {
-        enhance: function(oPage, mapOfAppSchemas) {
+        enhance: function (oPage, mapOfAppSchemas) {
             switch (oPage.type) {
                 case 'I':
                     angular.merge(oPage, oProtoInputPage);

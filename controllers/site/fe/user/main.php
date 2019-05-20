@@ -34,6 +34,12 @@ class main extends \site\fe\base {
 	 * @param string $urlEncryptKey   如果来源地址加密，需传入解密算子
 	 */
 	public function access_action($originUrl = null, $urlEncryptKey = null) {
+		if (TMS_APP_LOGIN_STRENGTH_CHECK !== 0) {
+			if (tms_get_httpsOrHttp() !== 'https') {
+				$url = 'https://' . APP_HTTP_HOST . $_SERVER['REQUEST_URI'];
+				$this->redirect($url);
+            }
+		}
 		/* 整理cookie中的数据，便于后续处理 */
 		$modelWay = $this->model('site\fe\way');
 		$modelWay->resetAllCookieUser();

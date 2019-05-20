@@ -96,7 +96,7 @@ class repos extends base {
         return new \ResponseData($dirSchemas);
     }
     /**
-     * 返回指定登记项的活动登记名单
+     * 返回指定题目的活动登记名单
      */
     public function list4Schema_action($app, $page = 1, $size = 12) {
         $modelApp = $this->model('matter\enroll');
@@ -113,6 +113,7 @@ class repos extends base {
         $oOptions = new \stdClass;
         $oOptions->page = $page;
         $oOptions->size = $size;
+        $oOptions->fields = 'id,value,schema_id,multitext_seq,rid,userid,group_id,score,submit_at,remark_num,like_num,like_log,agreed,agreed_log,vote_num';
 
         !empty($oCriteria->keyword) && $oOptions->keyword = $oCriteria->keyword;
         !empty($oCriteria->rid) && $oOptions->rid = $oCriteria->rid;
@@ -135,8 +136,8 @@ class repos extends base {
         }
 
         // 查询结果
-        $mdoelData = $this->model('matter\enroll\data');
-        $oResult = $mdoelData->byApp($oApp, $oUser, $oOptions);
+        $modelEnlDat = $this->model('matter\enroll\data');
+        $oResult = $modelEnlDat->byApp($oApp, $oUser, $oOptions);
         if (count($oResult->records)) {
             /* 处理获得的数据 */
             $modelRem = $this->model('matter\enroll\remark');
@@ -154,7 +155,7 @@ class repos extends base {
         return new \ResponseData($oResult);
     }
     /**
-     * 返回指定记录活动，指定登记项的填写内容
+     * 返回指定记录活动，指定题目的填写内容（只返回去重后的内容）
      *
      * @param string $app
      * @param string $schema schema'id
@@ -172,21 +173,18 @@ class repos extends base {
         if (false === $oApp) {
             return new \ObjectNotFoundError();
         }
-        if (empty($oApp->dataSchemas)) {
-            return new \ResponseError('活动【' . $oApp->title . '】没有定义登记项');
+        if (empty($oApp->dynaDataSchemas)) {
+            return new \ResponseError('活动【' . $oApp->title . '】没有定义题目');
         }
-        $oSchemas = [];
-        foreach ($oApp->dataSchemas as $dataSchema) {
-            if (in_array($dataSchema->id, $schemaIds)) {
-                $oSchemas[] = $dataSchema;
-            }
-        }
-        if (empty($oSchemas)) {
+        $aSchemas = array_filter($oApp->dynaDataSchemas, function ($oSchema) use ($schemaIds) {
+            return in_array($oSchema->id, $schemaIds);
+        });
+        if (empty($aSchemas)) {
             return new \ObjectNotFoundError();
         }
 
         $oRecData = $this->getPostJson();
-        $modelData = $this->model('matter\enroll\data');
+        $modelEnlDat = $this->model('matter\enroll\data');
         $oResult = new \stdClass;
 
         $oOptions = new \stdClass;
@@ -197,8 +195,8 @@ class repos extends base {
             $oOptions->assocData = $oRecData;
         }
 
-        foreach ($oSchemas as $oSchema) {
-            $oResult->{$oSchema->id} = $modelData->bySchema($oApp, $oSchema, $oOptions);
+        foreach ($aSchemas as $oSchema) {
+            $oResult->{$oSchema->id} = $modelEnlDat->bySchema($oApp, $oSchema, $oOptions);
         }
 
         return new \ResponseData($oResult);

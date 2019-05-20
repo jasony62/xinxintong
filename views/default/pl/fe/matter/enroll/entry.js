@@ -28,7 +28,7 @@ define(['frame', 'groupService'], function (ngApp) {
                         return oSchema.type === 'single';
                     });
                     $scope2.numberSchemas = oApp.dataSchemas.filter(function (oSchema) {
-                        return oSchema.type === 'shorttext' && oSchema.format === 'number';
+                        return oSchema.type === 'shorttext' && /number|calculate/.test(oSchema.format);
                     });
                     $scope2.dismiss = function () {
                         $mi.dismiss();

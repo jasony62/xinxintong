@@ -4,7 +4,7 @@
 </div>
 <div class='checkbox' ng-if="-1===tkEntryRule.excludeRules.indexOf('member')">
     <label>
-        <input type='checkbox' ng-true-value="'Y'" ng-model="tkEntryRule.rule.scope.member" ng-change="tkEntryRule.changeUserScope('member')">用户参与活动前需填写通讯录联系人信息</label><span ng-if="tkEntryRule.rule.scope.member==='Y'"><span class='badge' ng-repeat="(msid,rule) in tkEntryRule.rule.member"><a href='/rest/pl/fe/site/mschema?mschema={{msid}}' target='_blank' title='进入查看'>{{rule.title||'通讯录不存在'}}</a> <a href title='取消指定' class='glyphicon glyphicon-remove' ng-click="tkEntryRule.removeMschema(msid)"></a></span> <a href ng-click="tkEntryRule.chooseMschema()">添加</a></span>
+        <input type='checkbox' ng-true-value="'Y'" ng-model="tkEntryRule.rule.scope.member" ng-change="tkEntryRule.changeUserScope('member')">用户参与活动前需填写通讯录联系人信息</label><span ng-if="tkEntryRule.rule.scope.member==='Y'"><span class='badge' ng-repeat="(msid,rule) in tkEntryRule.rule.member"><a ng-if="msid==='_pending'">{{rule.title||'通讯录不存在'}}</a><a ng-if="msid!=='_pending'" href='/rest/pl/fe/site/mschema?mschema={{msid}}' target='_blank' title='进入查看'>{{rule.title||'通讯录不存在'}}</a> <a href title='取消指定' class='glyphicon glyphicon-remove' ng-click="tkEntryRule.removeMschema(msid)"></a></span> <a href ng-click="tkEntryRule.chooseMschema()">添加</a></span>
     <div style='margin-left:20px'>
         <label class='checkbox-inline'>
             <input type='checkbox' ng-true-value="'Y'" ng-model="tkEntryRule.rule.optional.member" ng-change="tkEntryRule.changeUserScope('member')">不强制要求用户在通讯录中</label>

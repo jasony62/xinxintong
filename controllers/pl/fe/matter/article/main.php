@@ -263,13 +263,13 @@ class main extends \pl\fe\matter\main_base {
 
 		$oArticle = new \stdClass;
 		$oArticle->summary = $modelArt->escape($oCopied->summary);
-		$oArticle->hide_pic = $oCopied->hide_pic;
-		$oArticle->url = $oCopied->url;
-		$oArticle->can_siteuser = $oCopied->can_siteuser;
+		$oArticle->hide_pic = $modelArt->escape($oCopied->hide_pic);
+		$oArticle->url = $modelArt->escape($oCopied->url);
+		$oArticle->can_siteuser = $modelArt->escape($oCopied->can_siteuser);
 		$oArticle->matter_cont_tag = empty($oCopied->matter_cont_tag) ? '' : json_encode($oCopied->matter_cont_tag);
-		$oArticle->from_siteid = $modelArt->escape($site);
+		$oArticle->from_siteid = $site;
 		$oArticle->from_site_name = $modelArt->escape($oFromSite->name);
-		$oArticle->from_id = $modelArt->escape($id);
+		$oArticle->from_id = $id;
 		$oArticle->author = $modelArt->escape($oCopied->author);
 		if ($mode === 'D') {
 			$oArticle->title = $modelArt->escape($oCopied->title . '（副本）');

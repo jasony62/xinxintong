@@ -171,7 +171,7 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 新建定制图文
 	 */
-	public function create_action($site, $mission) {
+	public function create_action($site, $mission = '') {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}

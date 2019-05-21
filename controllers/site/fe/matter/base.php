@@ -594,7 +594,7 @@ class base extends \site\fe\base {
 		}
 		$log = [
 			'userid' => $user->uid,
-			'nickname' => $user->nickname,
+			'nickname' => $this->escape($user->nickname),
 			'download_at' => time(),
 			'siteid' => $oApp->siteid,
 			'matter_id' => $oApp->id,

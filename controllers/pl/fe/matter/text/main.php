@@ -72,10 +72,10 @@ class main extends \pl\fe\matter\base {
 		$d = array();
 		$d['siteid'] = $site;
 		$d['creater'] = $user->id;
-		$d['creater_name'] = $user->name;
+		$d['creater_name'] = $this->escape($user->name);
 		$d['create_at'] = time();
 		$d['modifier'] = $user->id;
-		$d['modifier_name'] = $user->name;
+		$d['modifier_name'] = $this->escape($user->name);
 		$d['modify_at'] = time();
 		$d['title'] = $text->title;
 		// @todo should remove
@@ -109,7 +109,7 @@ class main extends \pl\fe\matter\base {
 		$nv = new \stdClass;
 		$nv->state = 0;
 		$nv->modifier = $user->id;
-		$nv->modifier_name = $user->name;
+		$nv->modifier_name = $this->escape($user->name);
 		$nv->modify_at = time();
 
 		$rst = $model->update(
@@ -141,7 +141,7 @@ class main extends \pl\fe\matter\base {
 		$nv = new \stdClass;
 		$nv->state = 1;
 		$nv->modifier = $user->id;
-		$nv->modifier_name = $user->name;
+		$nv->modifier_name = $this->escape($user->name);
 		$nv->modify_at = time();
 		$rst = $model->update('xxt_text', $nv, ['siteid' => $site, 'id' => $id]);
 
@@ -167,7 +167,7 @@ class main extends \pl\fe\matter\base {
 			$nv->content = $nv->title;
 		}
 		$nv->modifier = $user->id;
-		$nv->modifier_name = $user->name;
+		$nv->modifier_name = $this->escape($user->name);
 		$nv->modify_at = time();
 
 		$rst = $model->update(

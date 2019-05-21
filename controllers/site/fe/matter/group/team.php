@@ -62,7 +62,7 @@ class team extends base {
 			'team_id' => uniqid(),
 			'create_at' => $current,
 			'creator' => $this->who->uid,
-			'creator_name' => $this->who->nickname,
+			'creator_name' => $this->escape($this->who->nickname),
 			'title' => empty($oTeam->title) ? $this->escape($this->who->nickname) . '的团队' : $oTeam->title,
 			'summary' => empty($oTeam->summary) ? '' : $oTeam->summary,
 			'times' => 1,

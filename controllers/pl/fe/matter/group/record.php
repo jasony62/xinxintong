@@ -229,7 +229,7 @@ class record extends \pl\fe\matter\base {
             $modelTeam = $this->model('matter\group\team');
             if ($oTeam = $modelTeam->byId($oPosted->team_id)) {
                 $oNewRec->team_id = $oPosted->team_id;
-                $oNewRec->team_title = $oTeam->title;
+                $oNewRec->team_title = $this->escape($oTeam->title);
             }
         }
         if (empty($oPosted->role_teams)) {

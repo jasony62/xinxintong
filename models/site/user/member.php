@@ -429,7 +429,7 @@ class member_model extends \TMS_MODEL {
 					if ($round !== false) {
 						$assignRound = new \stdClass;
 						$assignRound->team_id = $round->team_id;
-						$assignRound->title = $round->title;
+						$assignRound->title = $this->escape($round->title);
 					}
 				}
 

@@ -285,7 +285,7 @@ class schema extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
-		$oPosted = $this->getPostJson();
+		$oPosted = $this->getPostJson(false);
 		if (count(get_object_vars($oPosted)) === 0) {
 			return new \ParameterError();
 		}
@@ -298,11 +298,11 @@ class schema extends \pl\fe\base {
 				$oUpdated->ext_attrs = $modelMs->escape($modelMs->toJson($val));
 				break;
 			case 'extattr':
-				foreach ($val as $attr) {
+				foreach ($val as &$attr) {
 					$attr->id = urlencode($attr->id);
 					$attr->label = urlencode($attr->label);
 				}
-				$oUpdated->extattr = urldecode(json_encode($oPosted->extattr));
+				$oUpdated->extattr = $this->escape($modelMs->toJson($val));
 				break;
 			case 'qy_ab':
 				$oUpdated->qy_ab = $val;

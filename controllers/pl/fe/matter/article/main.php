@@ -338,25 +338,23 @@ class main extends \pl\fe\matter\main_base {
 		if (empty($oPosted)) {
 			return new \ResultEmptyError();
 		}
+
 		foreach ($oPosted as $k => $v) {
-			switch ($k) {
-				case 'body':
-					$oPosted->{$k} = $modelArt->escape(urldecode($v));
-					break;
-				case 'entryRule':
-					$oPosted->entry_rule = $modelArt->escape($modelArt->toJson($v));
-					unset($oPosted->{$k});
-					break;
-				case 'config':
-					$oPosted->{$k} = $modelArt->escape($modelArt->toJson($v));
-					break;
-				case 'downloadRule':
-					$oPosted->download_rule = $modelArt->escape($modelArt->toJson($v));
-					unset($oPosted->{$k});
-					break;
-				default:
-					$oPosted->{$k} = $modelArt->escape($v);
-					break;
+			if ($k === 'body') {
+				$oPosted->{$k} = $modelArt->escape(urldecode($v));
+			} else if ($k === 'entryRule') {
+				$oPosted->entry_rule = $modelArt->escape($modelArt->toJson($v));
+				unset($oPosted->{$k});
+			} else if ($k === 'config') {
+				$oPosted->{$k} = $modelArt->escape($modelArt->toJson($v));
+			} else if ($k === 'downloadRule') {
+				$oPosted->download_rule = $modelArt->escape($modelArt->toJson($v));
+				unset($oPosted->{$k});
+			} else {
+				if (in_array($k, ['body', 'entry_rule', 'config', 'download_rule'])) {
+					continue;
+				}
+				$oPosted->{$k} = $modelArt->escape($v);
 			}
 		}
 

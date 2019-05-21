@@ -190,9 +190,7 @@ class main extends \pl\fe\matter\main_base {
 		 */
 		$oUpdated = $this->getPostJson(false);
 		foreach ($oUpdated as $n => $v) {
-			if (in_array($n, ['title'])) {
-				$oUpdated->{$n} = $modelLink->escape($v);
-			} else if ($n === 'entry_rule') {
+			if ($n === 'entry_rule') {
 				if ($v->scope === 'group') {
 					if (isset($v->group->title)) {
 						unset($v->group->title);
@@ -204,6 +202,8 @@ class main extends \pl\fe\matter\main_base {
 				$oUpdated->entry_rule = $modelLink->escape($modelLink->toJson($v));
 			} else if ($n === 'config') {
 				$oUpdated->config = $modelLink->escape($modelLink->toJson($v));
+			} else {
+				$oUpdated->{$n} = $modelLink->escape($v);
 			}
 
 			$oLink->{$n} = $v;

@@ -255,7 +255,7 @@ class main extends \pl\fe\matter\main_base {
 					$newc['matter_type'] = $matter->type;
 					$newc['create_at'] = $current;
 					$newc['creater'] = $oUser->id;
-					$newc['creater_name'] = $oUser->name;
+					$newc['creater_name'] = $this->escape($oUser->name);
 					$newc['channel_id'] = $id;
 					$newc['seq'] = ++$maxSeq;
 					$modelChn->insert('xxt_channel_matter', $newc, false);
@@ -492,7 +492,7 @@ class main extends \pl\fe\matter\main_base {
 			$newc['matter_type'] = $matter->type;
 			$newc['create_at'] = $current;
 			$newc['creater'] = $user->id;
-			$newc['creater_name'] = $user->name;
+			$newc['creater_name'] = $this->escape($user->name);
 			$newc['channel_id'] = $id;
 			$newc['seq'] = ++$seq;
 			$modelChn->insert('xxt_channel_matter', $newc, false);

@@ -82,7 +82,7 @@ class main extends \pl\fe\base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oEntryRule = $this->getPostJson();
+		$oEntryRule = $this->getPostJson(false);
 
 		$aScanResult = $modelMat->scanEntryRule($oEntryRule);
 		if (false === $aScanResult[0]) {

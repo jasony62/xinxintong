@@ -68,7 +68,6 @@ class account extends \pl\be\base {
 	public function resetPwd_action() {
 		$data = $this->getPostJson(false);
 		$modelAcnt = $this->model('account');
-		$data->uid = $modelAcnt->escape($data->uid);
 		$account = $modelAcnt->byId($data->uid);
 		/**
 		 * set new password
@@ -78,7 +77,8 @@ class account extends \pl\be\base {
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
-		$modelAcnt->change_password($account->email, $pwd, $account->salt);
+		$email = $this->escape($account->email);
+		$modelAcnt->change_password($email, $pwd, $account->salt);
 
 		return new \ResponseData($account->uid);
 	}

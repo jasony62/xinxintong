@@ -38,6 +38,9 @@ class admin extends \pl\fe\base {
 		if (empty($ulabel) && defined('TMS_APP_ADDON_EXTERNAL_ORG')) {
 			return new \ResponseData(array('externalOrg' => TMS_APP_ADDON_EXTERNAL_ORG));
 		}
+		if (($this->model('site')->byId($site, ['fields' => 'id'])) === false) {
+			return new \ResponseError('指定团队不存在');
+		}
 
 		$model = $this->model('account');
 		$account = $model->getAccountByAuthedId($ulabel);

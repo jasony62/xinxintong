@@ -29,7 +29,7 @@ class notice extends \pl\fe\base {
 			 */
 			$data = [
 				'creater' => $user->id,
-				'creater_name' => $user->name,
+				'creater_name' => $this->escape($user->name),
 				'create_at' => time(),
 			];
 			$notice = $modelNot->add($site, $name, $data);

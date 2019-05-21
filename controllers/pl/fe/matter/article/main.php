@@ -335,20 +335,31 @@ class main extends \pl\fe\matter\main_base {
 		}
 
 		$oPosted = $this->getPostJson(false);
-		isset($oPosted->title) && $oPosted->title = $modelArt->escape($oPosted->title);
-		isset($oPosted->summary) && $oPosted->summary = $modelArt->escape($oPosted->summary);
-		isset($oPosted->author) && $oPosted->author = $modelArt->escape($oPosted->author);
-		isset($oPosted->body) && $oPosted->body = $modelArt->escape(urldecode($oPosted->body));
-		if (isset($oPosted->entryRule)) {
-			$oPosted->entry_rule = $modelArt->escape($modelArt->toJson($oPosted->entryRule));
-			unset($oPosted->entryRule);
-		} else if (isset($oPosted->config)) {
-			$oPosted->config = $modelArt->escape($modelArt->toJson($oPosted->config));
+		if (empty($oPosted)) {
+			return new \ResultEmptyError();
 		}
-		if (isset($oPosted->downloadRule)) {
-			$oPosted->download_rule = $modelArt->escape($modelArt->toJson($oPosted->downloadRule));
-			unset($oPosted->downloadRule);
+		foreach ($oPosted as $k => $v) {
+			switch ($k) {
+				case 'body':
+					$oPosted->{$k} = $modelArt->escape(urldecode($v));
+					break;
+				case 'entryRule':
+					$oPosted->entry_rule = $modelArt->escape($modelArt->toJson($v));
+					unset($oPosted->{$k});
+					break;
+				case 'config':
+					$oPosted->{$k} = $modelArt->escape($modelArt->toJson($v));
+					break;
+				case 'downloadRule':
+					$oPosted->download_rule = $modelArt->escape($modelArt->toJson($v));
+					unset($oPosted->{$k});
+					break;
+				default:
+					$oPosted->{$k} = $modelArt->escape($v);
+					break;
+			}
 		}
+
 		/* 如果是引用关系，不修改正文 */
 		if ($oArticle->from_mode === 'C') {
 			if (isset($oPosted->body)) {

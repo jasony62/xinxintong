@@ -87,7 +87,7 @@ class cowork extends base {
 			return new \ParameterError('题目的类型不是多项填写题');
 		}
 
-		$oPosted = $this->getPostJson();
+		$oPosted = $this->getPostJson(false);
 		$current = time();
 
 		/* 默认协作填写的表态 */

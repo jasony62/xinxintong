@@ -55,7 +55,7 @@ class create extends main_base {
 			return new \ObjectNotFoundError('指定的活动不存在');
 		}
 
-		$oProto = $this->getPostJson();
+		$oProto = $this->getPostJson(false);
 		if (empty($oProto->schemas)) {
 			return new \ObjectNotFoundError('没有指定要打分的题目');
 		}

@@ -88,6 +88,7 @@ class topic extends base {
         $oNewTopic->title = empty($oPosted->title) ? $oNewTopic->nickname . '的专题（' . date('y年n月d日', $current) . '）' : $oPosted->title;
         $oNewTopic->summary = empty($oPosted->summary) ? $oNewTopic->title : $oPosted->summary;
         $oNewTopic->rec_num = 0;
+        isset($oPosted->is_public) &&  $oNewTopic->is_public = $oPosted->is_public;
         $oNewTopic->id = $modelEnl->insert('xxt_enroll_topic', $oNewTopic, true);
 
         // 处理用户数据

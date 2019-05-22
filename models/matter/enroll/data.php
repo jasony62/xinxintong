@@ -1443,7 +1443,7 @@ class data_model extends entity_model {
         $oNewItem->nickname = isset($oUser->nickname) ? $this->escape($oUser->nickname) : '';
         $oNewItem->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
         $oNewItem->schema_id = $oRecData->schema_id;
-        $oNewItem->value = $value;
+        $oNewItem->value = $this->escape($value);
         $oNewItem->agreed = $agreed;
         $oNewItem->multitext_seq = count($oRecData->value) + 1;
 

@@ -69,12 +69,12 @@ class log_model extends \TMS_MODEL {
 		$log->siteid = $matter->siteid;
 		$log->matter_type = isset($matter->type) ? $matter->type : '';
 		$log->matter_id = isset($matter->id) ? $matter->id : '';
-		$log->matter_title = isset($matter->title) ? $matter->title : '';
+		$log->matter_title = isset($matter->title) ? $this->escape($matter->title) : '';
 		$log->occur_at = $current;
 		$log->act = $act;
 		$log->payer = $payer;
 		$log->userid = $userid;
-		$log->nickname = $user->nickname;
+		$log->nickname = $this->escape($user->nickname);
 		$log->delta = $delta;
 		$log->total = $total;
 		$log->last_row = 'Y';

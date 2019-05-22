@@ -287,7 +287,7 @@ class main extends main_base {
 
 		$scenarioConfig = $oApp->scenarioConfig;
 		// 获得共享页视图
-		$getReposViews = function () use ($oApp) {
+		$getReposViews = function () use ($oApp, $oUser) {
 			$views = [];
 			// 答案视图
 			$can_cowork = 'N';

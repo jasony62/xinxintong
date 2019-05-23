@@ -117,7 +117,7 @@ define(['schema', 'wrap'], function (schemaLib, wrapLib) {
                             if (oApp.assignedNickname) {
                                 if (oApp.assignedNickname.schema)
                                     delete oApp.assignedNickname.schema;
-                                if (oApp.assignedNickname.valid === 'Y')
+                                if (oApp.assignedNickname.valid)
                                     delete oApp.assignedNickname.valid;
                                 updatedAppProps.push('assignedNickname');
                             }

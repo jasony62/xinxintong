@@ -147,9 +147,8 @@ class task_model extends \TMS_MODEL {
                 break;
             case 'source':
                 if (is_object($val)) {
-                    if (isset($val->scope)) {
-                        $this->_purifySource($val);
-                    } else {
+                    $this->_purifySource($val);
+                    if (empty((array) $val)) {
                         unset($oConfig->source);
                     }
                 } else {
@@ -189,9 +188,8 @@ class task_model extends \TMS_MODEL {
                 break;
             case 'source':
                 if (is_object($val)) {
-                    if (isset($val->scope)) {
-                        $this->_purifySource($val);
-                    } else {
+                    $this->_purifySource($val);
+                    if (empty((array) $val)) {
                         unset($oConfig->source);
                     }
                 } else {

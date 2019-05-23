@@ -426,7 +426,12 @@ class main extends main_base {
 				$oUpdated->action_rule = $modelApp->escape($modelApp->toJson($val));
 				break;
 			case 'assignedNickname':
-				$oUpdated->assigned_nickname = $modelApp->escape($modelApp->toJson($val));
+				$oAssignedNickname = $val;
+				if (empty($oAssignedNickname->schema)) {
+					$oUpdated->assigned_nickname = '';
+				}else {
+					$oUpdated->assigned_nickname = $modelApp->escape($modelApp->toJson($oAssignedNickname));
+				}
 				break;
 			case 'scenarioConfig':
 				$oUpdated->scenario_config = $modelApp->escape($modelApp->toJson($val));
@@ -465,7 +470,7 @@ class main extends main_base {
 			// 记录操作日志并更新信息
 			$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'U', $oUpdated);
 			/* 清除数据 */
-			$uselessProps = ['data_schemas', 'round_cron'];
+			$uselessProps = ['data_schemas', 'round_cron','assigned_nickname'];
 			array_walk($uselessProps, function ($prop) use ($oApp) {
 				unset($oApp->{$prop});
 			});

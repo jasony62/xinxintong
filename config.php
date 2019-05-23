@@ -90,6 +90,10 @@ define('TMS_APP_TEMPLATE_DEFAULT', dirname(__FILE__) . '/_template');
  */
 !defined('TMS_APP_LOGIN_STRENGTH_CHECK') && define('TMS_APP_LOGIN_STRENGTH_CHECK', 1);
 /**
+ * 是否对请求数据进行过滤
+ */
+!defined('TMS_APP_REQUEST_DATA_ESCAPE') && define('TMS_APP_REQUEST_DATA_ESCAPE', 1);
+/**
  * prefix for rest.
  * 需要和web服务器的配置一致
  */

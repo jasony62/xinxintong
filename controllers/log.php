@@ -16,7 +16,7 @@ class log extends TMS_CONTROLLER {
 	 * 通过日志记录
 	 */
 	public function add_action() {
-		$referer = isset(tms_get_server('HTTP_REFERER')) ? tms_get_server('HTTP_REFERER') : '';
+		$referer = !empty(tms_get_server('HTTP_REFERER')) ? tms_get_server('HTTP_REFERER') : '';
 		if (preg_match('/[?&]site=([^&]*)/', $referer, $matches)) {
 			$siteid = $matches[1];
 		} else {

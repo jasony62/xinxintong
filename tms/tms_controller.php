@@ -65,7 +65,7 @@ class TMS_CONTROLLER {
 			if (JSON_ERROR_NONE !== json_last_error()) {
 				throw new \Exception('请求参数解析错误：' . json_last_error_msg());
 			}
-			if ($escape === true) {
+			if ($escape === true && TMS_APP_REQUEST_DATA_ESCAPE === 1) {
 				$obj = $this->escape($obj);
 			}
 		} else {

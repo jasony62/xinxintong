@@ -651,7 +651,7 @@ class repos extends base {
              * 1、投票任务结束后，根据投票数排序
              * 2、投票进行中，指定了排序规则，按规则排序
              */
-            if (!empty($oTopic->task_id)) {
+            if (!empty($oTopic->task_id) && !empty($oResult->records)) {
                 $oTask = $this->model('matter\enroll\task', $oApp)->byId($oTopic->task_id);
                 if ($oTask) {
                     if ($oTask->config_type === 'vote') {
@@ -664,12 +664,11 @@ class repos extends base {
                                     return $bnum - $anum;
                                 });
                             }
-                        } else if (!empty($oResult->records)) {
-                            if (isset($oTask->source->orderby)) {
-                                if ('random' === $oTask->source->orderby) {
-                                    shuffle($oResult->records);
-                                }
-                            }
+                        }
+                    }
+                    if (in_array($oTask->config_type, ['vote', 'answer'])) {
+                        if ($this->getDeepValue($oTask, 'source.orderby') === 'random') {
+                            shuffle($oResult->records);
                         }
                     }
                 }

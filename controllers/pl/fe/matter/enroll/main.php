@@ -426,7 +426,11 @@ class main extends main_base {
 				$oUpdated->action_rule = $modelApp->escape($modelApp->toJson($val));
 				break;
 			case 'assignedNickname':
-				$oUpdated->assigned_nickname = $modelApp->escape($modelApp->toJson($val));
+				$oAssignedNickname = $modelApp->toJson($val);
+				if (empty($oAssignedNickname->schema)) {
+					unset($oAssignedNickname->valid);
+				}
+				$oUpdated->assigned_nickname = $modelApp->escape($modelApp->toJson($oAssignedNickname));
 				break;
 			case 'scenarioConfig':
 				$oUpdated->scenario_config = $modelApp->escape($modelApp->toJson($val));

@@ -167,7 +167,7 @@ ngApp.controller('ctrlSummaryRank', ['$scope', '$q', '$sce', 'tmsLocation', 'htt
         var oRankConfig, oConfig, rankItems, dataSchemas;
         dataSchemas = oApp.dynaDataSchemas;
         /* 排行显示内容设置 */
-        rankItems = ['enroll', 'remark', 'like', 'remark_other', 'do_like', 'total_coin', 'score', 'average_score', 'vote_schema', 'vote_cowork'];
+        rankItems = ['enroll', 'cowork', 'remark', 'like', 'remark_other', 'do_like', 'total_coin', 'score', 'average_score', 'vote_schema', 'vote_cowork'];
         oConfig = {};
         rankItems.forEach(function (item) {
             oConfig[item] = true;

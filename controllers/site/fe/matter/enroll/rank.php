@@ -68,6 +68,11 @@ class rank extends base {
             $q[2] .= ' and u.enroll_num>0';
             $q2 = ['o' => 'enroll_num desc'];
             break;
+        case 'cowork':
+            $q[0] .= ',sum(u.cowork_num) cowork_num';
+            $q[2] .= ' and u.cowork_num>0';
+            $q2 = ['o' => 'cowork_num desc'];
+            break;
         case 'remark':
             $q[0] .= ',sum(u.remark_num) remark_num';
             $q[2] .= ' and u.remark_num>0';
@@ -233,6 +238,9 @@ class rank extends base {
         switch ($oCriteria->orderby) {
         case 'enroll':
             $sql .= 'sum(enroll_num)';
+            break;
+        case 'cowork':
+            $sql .= 'sum(cowork_num)';
             break;
         case 'remark':
             $sql .= 'sum(remark_num)';

@@ -79,6 +79,9 @@ abstract class enroll_base extends app_base {
 			$oEntryRule->scope = new \stdClass;
 		}
 
+		if (isset($oProtoEntryRule->optional)) {
+			$oEntryRule->optional = $oProtoEntryRule->optional;
+		}
 		return $oEntryRule;
 	}
 	/**

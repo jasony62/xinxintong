@@ -20,19 +20,19 @@ class log extends main_base {
 		$criteria = $this->getPostJson();
 		$aOptions = [];
 		if (!empty($criteria->byUser)) {
-			$aOptions['byUser'] = $modelLog->escape($criteria->byUser);
+			$aOptions['byUser'] = $criteria->byUser;
 		}
 		if (!empty($criteria->byOp) && (strcasecmp('all', $criteria->byOp) != 0)) {
-			$aOptions['byOp'] = $modelLog->escape($criteria->byOp);
+			$aOptions['byOp'] = $criteria->byOp;
 		}
 		if (!empty($criteria->byRid) && (strcasecmp('all', $criteria->byRid) != 0)) {
-			$aOptions['byRid'] = $modelLog->escape($criteria->byRid);
+			$aOptions['byRid'] = $criteria->byRid;
 		}
 		if (!empty($criteria->startAt)) {
-			$aOptions['startAt'] = $modelLog->escape($criteria->startAt);
+			$aOptions['startAt'] = $criteria->startAt;
 		}
 		if (!empty($criteria->endAt)) {
-			$aOptions['endAt'] = $modelLog->escape($criteria->endAt);
+			$aOptions['endAt'] = $criteria->endAt;
 		}
 
 		if ($logType === 'pl') {
@@ -41,8 +41,8 @@ class log extends main_base {
 			if (empty($criteria->target_type) || empty($criteria->target_id) || !in_array($criteria->target_type, ['topic', 'repos', 'cowork', 'rank'])) {
 				return new \ResponseError('参数不完整或暂不支持此页面');
 			}
-			$target_id = $modelLog->escape($criteria->target_id);
-			$target_type = $modelLog->escape($criteria->target_type);
+			$target_id = $criteria->target_id;
+			$target_type = $criteria->target_type;
 			if (!empty($page) && !empty($size)) {
 				$aOptions['paging'] = ['page' => $page, 'size' => $size];
 			}

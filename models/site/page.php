@@ -39,12 +39,12 @@ class page_model extends \TMS_MODEL {
 		$hc->put_at = time();
 		$hc->siteid = $site->id;
 		$hc->channel_id = $channel->id;
-		$hc->title = $this->escape($channel->title);
-		$hc->display_name = $this->escape($channel->title);
-		$hc->summary = isset($channel->summary) ? $this->escape($channel->summary) : '';
+		$hc->title = $channel->title;
+		$hc->display_name = $channel->title;
+		$hc->summary = isset($channel->summary) ? $channel->summary : '';
 		//$hc->pic = $channel->pic;
 		$hc->seq = $maxSeq + 1;
-		$hc->home_group = $this->escape($homeGroup);
+		$hc->home_group = $homeGroup;
 
 		$hc->id = $this->insert('xxt_site_home_channel', $hc, true);
 

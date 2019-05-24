@@ -225,7 +225,7 @@ class round extends \pl\fe\matter\base {
         foreach ($oPosted as $prop => $value) {
             switch ($prop) {
             case 'title':
-                $oUpdate->title = $modelRnd->escape($value);
+                $oUpdate->title = $value;
                 break;
             case 'purpose':
                 $oUpdate->purpose = in_array($value, ['C', 'B', 'S']) ? $value : 'C';

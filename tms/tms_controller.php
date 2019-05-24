@@ -56,7 +56,7 @@ class TMS_CONTROLLER {
 	/**
 	 * 将post数据转换为对象
 	 */
-	protected function &getPostJson() {
+	protected function &getPostJson($escape = true) {
 		if ('POST' === $_SERVER['REQUEST_METHOD']) {
 			$json = file_get_contents("php://input");
 			// 过滤掉数据的emoji字符
@@ -64,6 +64,9 @@ class TMS_CONTROLLER {
 			$obj = json_decode($json);
 			if (JSON_ERROR_NONE !== json_last_error()) {
 				throw new \Exception('请求参数解析错误：' . json_last_error_msg());
+			}
+			if ($escape === true && TMS_APP_REQUEST_DATA_ESCAPE === 1) {
+				$obj = $this->escape($obj);
 			}
 		} else {
 			$obj = null;

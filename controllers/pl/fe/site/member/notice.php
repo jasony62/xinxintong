@@ -22,8 +22,8 @@ class notice extends \pl\fe\base {
 		if (empty($posted->schema) || empty($posted->tmplmsg)) {
 			return new \ResponseError('参数不完整');
 		}
-		$schema = $modelSchmUsr->escape($posted->schema);
-		$tmplmsg = $modelSchmUsr->escape($posted->tmplmsg);
+		$schema = $posted->schema;
+		$tmplmsg = $posted->tmplmsg;
 
 		$oSchema = $this->model('site\user\memberschema')->byId($schema);
 		if (false === $oSchema) {

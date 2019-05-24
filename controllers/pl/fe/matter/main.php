@@ -30,7 +30,7 @@ class main extends \pl\fe\base {
 			$q[2]['matter_category'] = $category;
 		}
 		if (!empty($oPosted->byTitle)) {
-			$q[2]['matter_title'] = (object) ['op' => 'like', 'pat' => '%' . $this->escape($oPosted->byTitle) . '%'];
+			$q[2]['matter_title'] = (object) ['op' => 'like', 'pat' => '%' . $oPosted->byTitle . '%'];
 		}
 		if (isset($oPosted->byStar) && $oPosted->byStar === 'Y') {
 			$q[2]['byStar'] = (object) ['op' => 'exists', 'pat' => "select 1 from xxt_account_topmatter t where t.matter_type=m.matter_type and t.matter_id=m.matter_id and userid='{$oUser->id}'"];
@@ -82,7 +82,7 @@ class main extends \pl\fe\base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oEntryRule = $this->getPostJson();
+		$oEntryRule = $this->getPostJson(false);
 
 		$aScanResult = $modelMat->scanEntryRule($oEntryRule);
 		if (false === $aScanResult[0]) {

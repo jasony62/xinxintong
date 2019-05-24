@@ -6,11 +6,8 @@ class tag_model extends TMS_MODEL {
 	public function create($site, $user, $tags, $subType = 'M') {
 		$current = time();
 		$newTags = [];
-		$site = $this->escape($site);
-		$subType = $this->escape($subType);
 		if (!empty($tags)) {
 			foreach ($tags as $tag) {
-				$tag = $this->escape($tag);
 				/**
 				 * 标签是否已经存在？
 				 */
@@ -29,7 +26,7 @@ class tag_model extends TMS_MODEL {
 				$inData = new \stdClass;
 				$inData->siteid = $site;
 				$inData->creater = $user->id;
-				$inData->creater_name = $user->name;
+				$inData->creater_name = $this->escape($user->name);
 				$inData->create_at = $current;
 				$inData->title = $tag;
 				$inData->seq = $seq + 1;
@@ -100,7 +97,7 @@ class tag_model extends TMS_MODEL {
 		$addTags = json_encode($addTags);
 		$upData = [];
 		$upData['modifier'] = $user->id;
-		$upData['modifier_name'] = $user->name;
+		$upData['modifier_name'] = $this->escape($user->name);
 		$upData['modify_at'] = $current;
 		if ($subType === 'C') {
 			$upData['matter_cont_tag'] = $addTags;

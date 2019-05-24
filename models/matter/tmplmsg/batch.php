@@ -143,7 +143,7 @@ class batch_model extends \TMS_MODEL {
 		$oBatch->params = $this->escape($this->toJson($params));
 		!empty($aOptions['event_name']) && $oBatch->event_name = $aOptions['event_name'];
 		!empty($aOptions['send_from']) && $oBatch->send_from = $aOptions['send_from'];
-		!empty($aOptions['remark']) && $oBatch->remark = $aOptions['remark'];
+		!empty($aOptions['remark']) && $oBatch->remark = $this->escape($aOptions['remark']);
 
 		$oBatch->id = $this->insert('xxt_log_tmplmsg_batch', $oBatch, true);
 

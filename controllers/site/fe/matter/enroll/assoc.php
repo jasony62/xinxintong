@@ -40,10 +40,10 @@ class assoc extends base {
 		$modelAss = $this->model('matter\enroll\assoc');
 		$aOptions = [];
 		if (isset($oPosted->assoc->text)) {
-			$aOptions['assocText'] = $modelAss->escape($oPosted->assoc->text);
+			$aOptions['assocText'] = $oPosted->assoc->text;
 		}
 		if (isset($oPosted->assoc->reason)) {
-			$aOptions['assocReason'] = $modelAss->escape($oPosted->assoc->reason);
+			$aOptions['assocReason'] = $oPosted->assoc->reason;
 		}
 		if (isset($oPosted->assoc->mode) && $modelAss::Assoc_Mode[$oPosted->assoc->mode]) {
 			$aOptions['assocMode'] = $oPosted->assoc->mode;
@@ -107,10 +107,10 @@ class assoc extends base {
 		foreach ($oPosted as $prop => $val) {
 			switch ($prop) {
 			case 'text':
-				$aUpdatedLog['assoc_text'] = $modelAss->escape($oPosted->text);
+				$aUpdatedLog['assoc_text'] = $oPosted->text;
 				break;
 			case 'reason':
-				$aUpdatedLog['assoc_reason'] = $modelAss->escape($oPosted->reason);
+				$aUpdatedLog['assoc_reason'] = $oPosted->reason;
 				break;
 			case 'mode':
 				if (isset($modelAss::Assoc_Mode[$val])) {

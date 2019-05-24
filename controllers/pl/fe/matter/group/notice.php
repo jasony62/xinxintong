@@ -31,8 +31,8 @@ class notice extends \pl\fe\matter\base {
 		}
 
 		$modelGrpRec = $this->model('matter\group\record');
-		$app = $modelGrpRec->escape($oPosted->app);
-		$tmplmsg = $modelGrpRec->escape($oPosted->tmplmsg);
+		$app = $oPosted->app;
+		$tmplmsg = $oPosted->tmplmsg;
 
 		$oApp = $this->model('matter\group')->byId($app);
 		if (false === $oApp) {

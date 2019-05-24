@@ -197,7 +197,7 @@ class group_model extends app_base {
 					/*保存结果*/
 					$winner = array(
 						'team_id' => $round->team_id,
-						'team_title' => $round->title,
+						'team_title' => $this->escape($round->title),
 						'draw_at' => $current,
 					);
 					$modelGrpRec->update('xxt_group_record', $winner, "aid='$appId' and enroll_key='{$winner4Round->enroll_key}'");

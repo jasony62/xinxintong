@@ -307,7 +307,7 @@ class base extends \site\fe\base {
 						break;
 					}
 					/* 缓存中的信息没有通过验证，记录调试日志 */
-					$this->model('log')->log($oUser->uid, 'enterAsSns', $snsUser->openid, $oMatter->type . ':' . $oMatter->id, isset($oUser->nickname) ? $oUser->nickname : '');
+					$this->model('log')->log($oUser->uid, 'enterAsSns', $snsUser->openid, $oMatter->type . ':' . $oMatter->id, isset($oUser->nickname) ? $this->escape($oUser->nickname) : '');
 					/* 如果缓存的用户数据没有关注，清空数据 */
 					unset($oUser->sns->{$snsName});
 					$this->model('site\fe\way')->setCookieUser($oMatter->siteid, $oUser);
@@ -594,7 +594,7 @@ class base extends \site\fe\base {
 		}
 		$log = [
 			'userid' => $user->uid,
-			'nickname' => $user->nickname,
+			'nickname' => $this->escape($user->nickname),
 			'download_at' => time(),
 			'siteid' => $oApp->siteid,
 			'matter_id' => $oApp->id,

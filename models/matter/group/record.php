@@ -651,7 +651,7 @@ class record_model extends \matter\enroll\record_base {
                 'xxt_group_record',
                 [
                     'team_id' => $oTeam->team_id,
-                    'team_title' => $oTeam->title,
+                    'team_title' => $this->escape($oTeam->title),
                 ],
                 ["aid" => $appId, "enroll_key" => $ek]
             );
@@ -713,10 +713,10 @@ class record_model extends \matter\enroll\record_base {
                         $updata = [];
                         if (!empty($assignRound) && is_object($assignRound)) {
                             $updata['team_id'] = $assignRound->team_id;
-                            $updata['team_title'] = $assignRound->title;
+                            $updata['team_title'] = $this->escape($assignRound->title);
                         }
                         if ($oBeforeGrpUser->nickname !== $oGrpUser->nickname) {
-                            $updata['nickname'] = $oGrpUser->nickname;
+                            $updata['nickname'] = $this->escape($oGrpUser->nickname);
                         }
                         if (!empty($updata)) {
                             $this->_modify($oRecord->enroll_key, $updata);
@@ -728,7 +728,7 @@ class record_model extends \matter\enroll\record_base {
                         $aOptions2 = ['enroll_key' => $oRecord->enroll_key, 'enroll_at' => $oRecord->enroll_at];
                         if (!empty($assignRound) && is_object($assignRound)) {
                             $aOptions2['team_id'] = $assignRound->team_id;
-                            $aOptions2['team_title'] = $assignRound->title;
+                            $aOptions2['team_title'] = $this->escape($assignRound->title);
                         }
                         $this->enroll($objGrp, $oGrpUser, $aOptions2);
                         $this->setData($objGrp, $oRecord->enroll_key, $oRecord->data);

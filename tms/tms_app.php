@@ -185,7 +185,11 @@ class TMS_APP {
 			foreach ($ps as $p) {
 				$pn = $p->getName();
 				if (isset($trans[$pn])) {
-					$args[] = $model->escape($trans[$pn]);
+					if (TMS_APP_REQUEST_DATA_ESCAPE === 1) {
+						$args[] = $model->escape($trans[$pn]);
+					} else {
+						$args[] = $trans[$pn];
+					}
 				} else {
 					if ($p->isOptional()) {
 						$args[] = $p->getDefaultValue();

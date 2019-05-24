@@ -111,17 +111,17 @@ class main extends main_base {
 			$q[2] .= " and siteid='" . $site . "'";
 		}
 		if (!empty($scenario)) {
-			$q[2] .= " and scenario='" . $modelApp->escape($scenario) . "'";
+			$q[2] .= " and scenario='" . $scenario . "'";
 		}
 		if ($onlySns === 'Y') {
 			$q[2] .= " and entry_rule like '%\"scope.sns\":\"Y\"%'";
 		}
 		if (!empty($oFilter->byTitle)) {
-			$q[2] .= " and title like '%" . $modelApp->escape($oFilter->byTitle) . "%'";
+			$q[2] .= " and title like '%" . $oFilter->byTitle . "%'";
 		}
 		if (!empty($oFilter->byTags)) {
 			foreach ($oFilter->byTags as $tag) {
-				$q[2] .= " and matter_mg_tag like '%" . $modelApp->escape($tag->id) . "%'";
+				$q[2] .= " and matter_mg_tag like '%" . $tag->id . "%'";
 			}
 		}
 		if (isset($oFilter->byStar) && $oFilter->byStar === 'Y') {
@@ -389,7 +389,7 @@ class main extends main_base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oPosted = $this->getPostJson();
+		$oPosted = $this->getPostJson(false);
 		/* 处理数据 */
 		$oUpdated = new \stdClass;
 		foreach ($oPosted as $prop => $val) {
@@ -490,7 +490,7 @@ class main extends main_base {
 			return new \ResponseTimeout();
 		}
 
-		$oPosted = $this->getPostJson();
+		$oPosted = $this->getPostJson(false);
 		$method = $this->getDeepValue($oPosted, 'method');
 		if (empty($method)) {
 			return new \ParameterError('（1）参数不完整');
@@ -557,7 +557,7 @@ class main extends main_base {
 			return new \ResponseTimeout();
 		}
 
-		$oPosted = $this->getPostJson();
+		$oPosted = $this->getPostJson(false);
 		$method = $this->getDeepValue($oPosted, 'method');
 		if (empty($method)) {
 			return new \ParameterError('（1）参数不完整');
@@ -670,7 +670,7 @@ class main extends main_base {
 			return new \ResponseTimeout();
 		}
 
-		$oPosted = $this->getPostJson();
+		$oPosted = $this->getPostJson(false);
 		$method = $this->getDeepValue($oPosted, 'method');
 		if (empty($method)) {
 			return new \ParameterError('（1）参数不完整');
@@ -737,7 +737,7 @@ class main extends main_base {
 			return new \ResponseTimeout();
 		}
 
-		$oPosted = $this->getPostJson();
+		$oPosted = $this->getPostJson(false);
 		$method = $this->getDeepValue($oPosted, 'method');
 		if (empty($method)) {
 			return new \ParameterError('（1）参数不完整');
@@ -804,7 +804,7 @@ class main extends main_base {
 			return new \ResponseTimeout();
 		}
 
-		$oPosted = $this->getPostJson();
+		$oPosted = $this->getPostJson(false);
 		$method = $this->getDeepValue($oPosted, 'method');
 		if (empty($method)) {
 			return new \ParameterError('（1）参数不完整');
@@ -871,7 +871,7 @@ class main extends main_base {
 			return new \ResponseTimeout();
 		}
 
-		$oPosted = $this->getPostJson();
+		$oPosted = $this->getPostJson(false);
 		$method = $this->getDeepValue($oPosted, 'method');
 		if (empty($method)) {
 			return new \ParameterError('（1）参数不完整');
@@ -1050,7 +1050,7 @@ class main extends main_base {
 
 		$modelApp = $this->model('matter\enroll')->setOnlyWriteDbConn(true);
 
-		$config = $this->getPostJson();
+		$config = $this->getPostJson(false);
 		$current = time();
 		$oNewApp = new \stdClass;
 
@@ -1071,11 +1071,11 @@ class main extends main_base {
 			$oNewApp->use_mission_footer = 'Y';
 		}
 		$appId = uniqid();
-		$oCustomConfig = isset($config->customConfig) ? $config->customConfig : null;
-		!empty($config->scenario) && $oNewApp->scenario = $config->scenario;
+		$oCustomConfig = isset($config->customConfig) ? $modelApp->escape($config->customConfig) : null;
+		!empty($config->scenario) && $oNewApp->scenario = $modelApp->escape($config->scenario);
 		/* 登记数量限制 */
 		if (isset($config->count_limit)) {
-			$oNewApp->count_limit = $config->count_limit;
+			$oNewApp->count_limit = $modelApp->escape($config->count_limit);
 		}
 
 		if (!empty($config->pages) && !empty($config->entryRule)) {
@@ -1088,17 +1088,17 @@ class main extends main_base {
 				}
 			}
 			if (isset($config->enrolled_entry_page)) {
-				$oNewApp->enrolled_entry_page = $config->enrolled_entry_page;
+				$oNewApp->enrolled_entry_page = $modelApp->escape($config->enrolled_entry_page);
 			}
 			/*场景设置*/
 			if (isset($config->scenarioConfig)) {
 				$scenarioConfig = $config->scenarioConfig;
-				$oNewApp->scenario_config = json_encode($scenarioConfig);
+				$oNewApp->scenario_config = $modelApp->escape(\TMS_MODEL::toJson($scenarioConfig));
 			}
 			/*投票设置*/
 			if (isset($config->voteConfig)) {
 				$voteConfig = $config->voteConfig;
-				$oNewApp->vote_config = json_encode($voteConfig);
+				$oNewApp->vote_config = $modelApp->escape(\TMS_MODEL::toJson($voteConfig));
 			}
 		} else {
 			$entryRule = $this->_addBlankPage($user, $oSite->id, $appId);
@@ -1115,10 +1115,10 @@ class main extends main_base {
 		/* create app */
 		$oNewApp->id = $appId;
 		$oNewApp->siteid = $oSite->id;
-		$oNewApp->title = empty($oCustomConfig->proto->title) ? '新记录活动' : $oCustomConfig->proto->title;
+		$oNewApp->title = empty($oCustomConfig->proto->title) ? '新记录活动' : $modelApp->escape($oCustomConfig->proto->title);
 		$oNewApp->start_at = $current;
 		$oNewApp->entry_rule = json_encode($entryRule);
-		isset($config) && $oNewApp->data_schemas = \TMS_MODEL::toJson($config->schema);
+		isset($config) && $oNewApp->data_schemas = $modelApp->escape(\TMS_MODEL::toJson($config->schema));
 
 		$oNewApp = $modelApp->create($oUser, $oNewApp);
 
@@ -1520,10 +1520,10 @@ class main extends main_base {
 			$aNewRec['rid'] = $oApp->appRound->rid;
 			$aNewRec['enroll_key'] = $ek;
 			$aNewRec['enroll_at'] = $current;
-			$aNewRec['verified'] = isset($oRecord->verified) ? $oRecord->verified : 'N';
-			$aNewRec['comment'] = isset($oRecord->comment) ? $oRecord->comment : '';
+			$aNewRec['verified'] = isset($oRecord->verified) ? $modelApp->escape($oRecord->verified) : 'N';
+			$aNewRec['comment'] = isset($oRecord->comment) ? $modelApp->escape($oRecord->comment) : '';
 			if (isset($oRecord->tags)) {
-				$aNewRec['tags'] = $oRecord->tags;
+				$aNewRec['tags'] = $modelApp->escape($oRecord->tags);
 				$modelApp->updateTags($oApp->id, $oRecord->tags);
 			}
 			$id = $modelRec->insert('xxt_enroll_record', $aNewRec, true);
@@ -1533,25 +1533,23 @@ class main extends main_base {
 			 */
 			if (isset($oRecord->data)) {
 				//
-				$jsonData = $modelRec->toJson($oRecord->data);
+				$jsonData = $modelApp->escape($modelRec->toJson($oRecord->data));
 				$modelRec->update('xxt_enroll_record', ['data' => $jsonData], "enroll_key='$ek'");
 				$enrollKeys[] = $ek;
 				//
 				foreach ($oRecord->data as $n => $v) {
 					if (is_object($v) || is_array($v)) {
-						$v = json_encode($v);
+						$v = $modelRec->toJson($v);
 					}
-					if (count($v)) {
-						$cd = [
-							'aid' => $oApp->id,
-							'rid' => $oApp->appRound->rid,
-							'record_id' => $oRecord->id,
-							'enroll_key' => $ek,
-							'schema_id' => $n,
-							'value' => $v,
-						];
-						$modelRec->insert('xxt_enroll_record_data', $cd, false);
-					}
+					$cd = [
+						'aid' => $oApp->id,
+						'rid' => $oApp->appRound->rid,
+						'record_id' => $oRecord->id,
+						'enroll_key' => $ek,
+						'schema_id' => $n,
+						'value' => $modelApp->escape($v),
+					];
+					$modelRec->insert('xxt_enroll_record_data', $cd, false);
 				}
 			}
 		}

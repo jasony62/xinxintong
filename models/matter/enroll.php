@@ -498,7 +498,7 @@ class enroll_model extends enroll_base {
 	 * @param string $template template's name
 	 *
 	 */
-	public function createByTemplate($oUser, $oSite, $oCustomConfig, $oMission = null, $scenario = 'common', $template = 'simple') {
+	public function createByTemplate($oUser, $oSite, $oCustomConfig, $oMission = null, $scenario = 'common', $template = 'simple', $oApp = null) {
 		$oTemplateConfig = $this->_getSysTemplate($scenario, $template);
 
 		$oNewApp = new \stdClass;
@@ -519,52 +519,7 @@ class enroll_model extends enroll_base {
 		}
 		$appId = uniqid();
 
-		/* 进入规则 */
-		$oEntryRule = $oTemplateConfig->entryRule;
-		if (!empty($oCustomConfig->proto->entryRule->scope)) {
-			/* 用户指定的规则 */
-			$this->setEntryRuleByProto($oSite, $oEntryRule, $oCustomConfig->proto->entryRule);
-		} else if (isset($oMisEntryRule)) {
-			/* 项目的进入规则 */
-			$this->setEntryRuleByMission($oEntryRule, $oMisEntryRule);
-		}
-
 		$oProto = isset($oCustomConfig->proto) ? $oCustomConfig->proto : null;
-
-		/* 活动题目 */
-		if (empty($oProto->schema->default->empty)) {
-			/* 关联了通讯录，替换匹配的题目 */
-			if (!empty($oTemplateConfig->schema)) {
-				/* 通讯录关联题目 */
-				if (!empty($oEntryRule->scope) && $oEntryRule->scope === 'member') {
-					$mschemaIds = array_keys(get_object_vars($oEntryRule->member));
-					if (!empty($mschemaIds)) {
-						$this->setSchemaByMschema($mschemaIds[0], $oTemplateConfig);
-					}
-				}
-			}
-
-			/* 关联了分组活动，添加分组名称，替换匹配的题目 */
-			if (!empty($oEntryRule->group->id)) {
-				$this->setSchemaByGroupApp($oEntryRule->group->id, $oTemplateConfig);
-			}
-
-			/* 作为昵称的题目 */
-			$oNicknameSchema = $this->findAssignedNicknameSchema($oTemplateConfig->schema);
-			if (!empty($oNicknameSchema)) {
-				$oNewApp->assigned_nickname = json_encode(['valid' => 'Y', 'schema' => ['id' => $oNicknameSchema->id]]);
-			}
-
-			isset($oTemplateConfig->schema) && $oNewApp->data_schemas = $this->escape($this->toJson($oTemplateConfig->schema));
-		} else {
-			/* 不使用默认题目 */
-			$oTemplateConfig->schema = [];
-			$oNewApp->data_schemas = '[]';
-		}
-
-		/* 添加页面 */
-		$this->addPageByTemplate($oUser, $oSite, $oMission, $appId, $oTemplateConfig, $oCustomConfig);
-
 		/* 登记数量限制 */
 		if (isset($oTemplateConfig->count_limit)) {
 			$oNewApp->count_limit = $oTemplateConfig->count_limit;
@@ -593,7 +548,6 @@ class enroll_model extends enroll_base {
 		$oNewApp->sync_mission_round = empty($oProto->sync_mission_round) ? 'N' : (in_array($oProto->sync_mission_round, ['Y', 'N']) ? $oProto->sync_mission_round : 'N');
 		$oNewApp->start_at = isset($oProto->start_at) ? $oProto->start_at : 0;
 		$oNewApp->end_at = isset($oProto->end_at) ? $oProto->end_at : 0;
-		$oNewApp->entry_rule = $this->escape($this->toJson($oEntryRule));
 		/* 是否开放共享页 */
 		if (isset($oProto->can_repos) && in_array($oProto->can_repos, ['Y', 'N'])) {
 			$oScenarioConfig->can_repos = $oProto->can_repos;
@@ -613,6 +567,56 @@ class enroll_model extends enroll_base {
 		$oNewApp->scenario_config = json_encode($oScenarioConfig);
 
 		$oNewApp = $this->create($oUser, $oNewApp);
+
+		$oUpdateApp = new \stdClass;
+		/* 进入规则 */
+		$oEntryRule = $oTemplateConfig->entryRule;
+		if (!empty($oCustomConfig->proto->entryRule->scope)) {
+			/* 用户指定的规则 */
+			$oNewApp->type = 'enroll';
+			$this->setEntryRuleByProto($oSite, $oEntryRule, $oCustomConfig->proto->entryRule, $oNewApp);
+		} else if (isset($oMisEntryRule)) {
+			/* 项目的进入规则 */
+			$this->setEntryRuleByMission($oEntryRule, $oMisEntryRule);
+		}
+
+		/* 活动题目 */
+		if (empty($oProto->schema->default->empty)) {
+			/* 关联了通讯录，替换匹配的题目 */
+			if (!empty($oTemplateConfig->schema)) {
+				/* 通讯录关联题目 */
+				if (!empty($oEntryRule->scope) && $oEntryRule->scope === 'member') {
+					$mschemaIds = array_keys(get_object_vars($oEntryRule->member));
+					if (!empty($mschemaIds)) {
+						$this->setSchemaByMschema($mschemaIds[0], $oTemplateConfig);
+					}
+				}
+			}
+
+			/* 关联了分组活动，添加分组名称，替换匹配的题目 */
+			if (!empty($oEntryRule->group->id)) {
+				$this->setSchemaByGroupApp($oEntryRule->group->id, $oTemplateConfig);
+			}
+
+			/* 作为昵称的题目 */
+			$oNicknameSchema = $this->findAssignedNicknameSchema($oTemplateConfig->schema);
+			if (!empty($oNicknameSchema)) {
+				$oUpdateApp->assigned_nickname = json_encode(['valid' => 'Y', 'schema' => ['id' => $oNicknameSchema->id]]);
+			}
+
+			isset($oTemplateConfig->schema) && $oUpdateApp->data_schemas = $this->escape($this->toJson($oTemplateConfig->schema));
+		} else {
+			/* 不使用默认题目 */
+			$oTemplateConfig->schema = [];
+			$oUpdateApp->data_schemas = '[]';
+		}
+
+		$oUpdateApp->entry_rule = $this->escape($this->toJson($oEntryRule));
+		// 
+		$this->modify($oUser, $oNewApp, $oUpdateApp);
+
+		/* 添加页面 */
+		$this->addPageByTemplate($oUser, $oSite, $oMission, $appId, $oTemplateConfig, $oCustomConfig);
 
 		/* 记录操作日志 */
 		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oNewApp, 'C');
@@ -692,8 +696,8 @@ class enroll_model extends enroll_base {
 				}
 			}
 			$pageSchemas = [];
-			$pageSchemas['data_schemas'] = isset($oPage->data_schemas) ? $this->toJson($oPage->data_schemas) : '[]';
-			$pageSchemas['act_schemas'] = isset($oPage->act_schemas) ? $this->toJson($oPage->act_schemas) : '[]';
+			$pageSchemas['data_schemas'] = isset($oPage->data_schemas) ? $this->escape($this->toJson($oPage->data_schemas)) : '[]';
+			$pageSchemas['act_schemas'] = isset($oPage->act_schemas) ? $this->escape($this->toJson($oPage->act_schemas)) : '[]';
 			$rst = $modelPage->update(
 				'xxt_enroll_page',
 				$pageSchemas,

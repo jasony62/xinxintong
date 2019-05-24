@@ -9,16 +9,27 @@ abstract class enroll_base extends app_base {
 	/**
 	 * 根据用户指定的规则设置
 	 */
-	protected function setEntryRuleByProto($oSite, &$oEntryRule, $oProtoEntryRule) {
+	protected function setEntryRuleByProto($oSite, &$oEntryRule, $oProtoEntryRule, $oApp = null) {
 		if (isset($oProtoEntryRule->scope) && is_object($oProtoEntryRule->scope)) {
 			$oEntryRule->scope = $oProtoEntryRule->scope;
 			if ($this->getDeepValue($oEntryRule, 'scope.member') === 'Y') {
 				if (isset($oProtoEntryRule->member)) {
 					$oEntryRule->member = new \stdClass;
 					foreach ($oProtoEntryRule->member as $msid => $oMschema) {
-						$oRule = new \stdClass;
-						$oRule->entry = 'Y';
-						$oEntryRule->member->{$msid} = $oRule;
+						if ($msid === '_pending') {
+							if (!isset($modelMemberSch)) {
+								$modelMemberSch = $this->model('site\user\memberschema');
+							}
+							/* 给活动创建通讯录 */
+							$oMschemaConfig = new \stdClass;
+							$oMschemaConfig->matter_id = $oApp->id;
+							$oMschemaConfig->matter_type = $oApp->type;
+							$oMschemaConfig->valid = 'Y';
+							$oMschemaConfig->title = $oApp->title . '-通讯录';
+							$schema = $modelMemberSch->create($oSite, $oUser, $oMschemaConfig);
+							$msid = $schema->id;
+						}
+						$oEntryRule->member->{$msid} = (object) ['entry' => 'Y'];;
 					}
 				}
 			}

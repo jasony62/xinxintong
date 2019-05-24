@@ -12,10 +12,6 @@ date_default_timezone_set('Asia/Shanghai');
  */
 ini_set('default_charset', 'utf-8');
 /**
- * memory limit
- */
-!defined('SAE_TMP_PATH') && ini_set('memory_limit', '-1');
-/**
  * database resource.
  */
 error_reporting(E_ERROR); // 控制系统的报错信息，否则数据库连接失败会报warning
@@ -86,7 +82,7 @@ define('TMS_APP_TEMPLATE_DEFAULT', dirname(__FILE__) . '/_template');
  */
 !defined('TMS_APP_PASSWORD_STRENGTH_CHECK') && define('TMS_APP_PASSWORD_STRENGTH_CHECK', 1);
 /**
- * 登录检查标准
+ * 登录检查标准 0 不检查， 1 检查(登录页只能由https协议打开，登录处理函数只接受来自https得请求)
  */
 !defined('TMS_APP_LOGIN_STRENGTH_CHECK') && define('TMS_APP_LOGIN_STRENGTH_CHECK', 1);
 /**

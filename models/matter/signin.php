@@ -511,7 +511,11 @@ class signin_model extends enroll_base {
 		}
 		if (!empty($oCustomConfig->proto->entryRule->scope)) {
 			/* 用户指定的规则 */
-			$this->setEntryRuleByProto($oSite, $oEntryRule, $oCustomConfig->proto->entryRule);
+			$oApp = new \stdClass;
+			$oApp->id = $appId;
+			$oApp->title = $title;
+			$oApp->type = 'signin';
+			$this->setEntryRuleByProto($oSite, $oEntryRule, $oCustomConfig->proto->entryRule, $oApp, $oUser);
 		} else if (isset($oMisEntryRule)) {
 			/* 项目的进入规则 */
 			$this->setEntryRuleByMission($oEntryRule, $oMisEntryRule);

@@ -518,18 +518,23 @@ class enroll_model extends enroll_base {
 			$oMisEntryRule = $oMission->entryRule;
 		}
 		$appId = uniqid();
+		$oProto = isset($oCustomConfig->proto) ? $oCustomConfig->proto : null;
+		$title = empty($oProto->title) ? '新记录活动' : $this->escape($oProto->title);
 
 		/* 进入规则 */
 		$oEntryRule = $oTemplateConfig->entryRule;
 		if (!empty($oCustomConfig->proto->entryRule->scope)) {
 			/* 用户指定的规则 */
-			$this->setEntryRuleByProto($oSite, $oEntryRule, $oCustomConfig->proto->entryRule);
+			$oApp = new \stdClass;
+			$oApp->id = $appId;
+			$oApp->title = $title;
+			$oApp->type = 'enroll';
+			$this->setEntryRuleByProto($oSite, $oEntryRule, $oCustomConfig->proto->entryRule, $oApp, $oUser);
 		} else if (isset($oMisEntryRule)) {
 			/* 项目的进入规则 */
 			$this->setEntryRuleByMission($oEntryRule, $oMisEntryRule);
 		}
 
-		$oProto = isset($oCustomConfig->proto) ? $oCustomConfig->proto : null;
 
 		/* 活动题目 */
 		if (empty($oProto->schema->default->empty)) {
@@ -588,7 +593,7 @@ class enroll_model extends enroll_base {
 		/* create app */
 		$oNewApp->id = $appId;
 		$oNewApp->siteid = $oSite->id;
-		$oNewApp->title = empty($oProto->title) ? '新记录活动' : $this->escape($oProto->title);
+		$oNewApp->title = $title;
 		$oNewApp->summary = empty($oProto->summary) ? '' : $this->escape($oProto->summary);
 		$oNewApp->sync_mission_round = empty($oProto->sync_mission_round) ? 'N' : (in_array($oProto->sync_mission_round, ['Y', 'N']) ? $oProto->sync_mission_round : 'N');
 		$oNewApp->start_at = isset($oProto->start_at) ? $oProto->start_at : 0;

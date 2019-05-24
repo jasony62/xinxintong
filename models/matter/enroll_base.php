@@ -9,7 +9,7 @@ abstract class enroll_base extends app_base {
 	/**
 	 * 根据用户指定的规则设置
 	 */
-	protected function setEntryRuleByProto($oSite, &$oEntryRule, $oProtoEntryRule, $oApp = null) {
+	protected function setEntryRuleByProto($oSite, &$oEntryRule, $oProtoEntryRule, $oApp = null, $oUser = null) {
 		if (isset($oProtoEntryRule->scope) && is_object($oProtoEntryRule->scope)) {
 			$oEntryRule->scope = $oProtoEntryRule->scope;
 			if ($this->getDeepValue($oEntryRule, 'scope.member') === 'Y') {
@@ -17,6 +17,9 @@ abstract class enroll_base extends app_base {
 					$oEntryRule->member = new \stdClass;
 					foreach ($oProtoEntryRule->member as $msid => $oMschema) {
 						if ($msid === '_pending') {
+							if (empty($oApp) || empty($oUser)) {
+								continue;
+							}
 							if (!isset($modelMemberSch)) {
 								$modelMemberSch = $this->model('site\user\memberschema');
 							}

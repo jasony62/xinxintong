@@ -574,7 +574,7 @@ class enroll_model extends enroll_base {
 		if (!empty($oCustomConfig->proto->entryRule->scope)) {
 			/* 用户指定的规则 */
 			$oNewApp->type = 'enroll';
-			$this->setEntryRuleByProto($oSite, $oEntryRule, $oCustomConfig->proto->entryRule, $oNewApp);
+			$this->setEntryRuleByProto($oSite, $oEntryRule, $oCustomConfig->proto->entryRule, $oNewApp, $oUser);
 		} else if (isset($oMisEntryRule)) {
 			/* 项目的进入规则 */
 			$this->setEntryRuleByMission($oEntryRule, $oMisEntryRule);

@@ -22,7 +22,7 @@ class login extends \site\fe\base {
 	 * 执行登录
 	 */
 	public function do_action() {
-		$data = $this->getPostJson();
+		$data = $this->getPostJson(false);
 		if (empty($data->uname) || empty($data->password) || empty($data->pin)) {
 			return new \ResponseError("登录信息不完整");
 		}
@@ -45,6 +45,7 @@ class login extends \site\fe\base {
 			$modelWay->quitRegUser();
 		}
 
+		$data->uname = $modelReg->escape($data->uname);
 		// 检查登录条件
 		$rst = tms_login_check();
 		if ($rst[0] === false) {
@@ -97,7 +98,7 @@ class login extends \site\fe\base {
 	 * 判断密码强度
 	 */
 	public function checkPwdStrength_action() {
-		$data = $this->getPostJson();
+		$data = $this->getPostJson(false);
 		if (empty($data)) {
 			return new \ResponseError('参数错误');
 		}

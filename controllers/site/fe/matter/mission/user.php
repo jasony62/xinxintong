@@ -34,7 +34,7 @@ class user extends \site\fe\matter\base {
 			$oMisUser = $modelMisUsr->add($oMission, $this->who);
 			$oMisUser->custom = new \stdClass;
 		}
-		$oPosted = $this->getPostJson();
+		$oPosted = $this->getPostJson(false);
 		foreach ($oPosted as $prop => $val) {
 			switch ($prop) {
 			case 'main':

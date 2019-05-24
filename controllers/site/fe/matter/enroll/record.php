@@ -67,7 +67,7 @@ class record extends base {
 		$rid = $aResultSubmitRid[1];
 
 		// 提交的数据
-		$oPosted = $this->getPostJson();
+		$oPosted = $this->getPostJson(false);
 		if (empty($oPosted->data) || count(get_object_vars($oPosted->data)) === 0) {
 			return new \ResponseError('（4）没有提交有效数据');
 		}

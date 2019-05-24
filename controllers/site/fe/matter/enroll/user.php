@@ -101,7 +101,7 @@ class user extends base {
             $oEnlUser->custom = new \stdClass;
         }
 
-        $oPosted = $this->getPostJson();
+        $oPosted = $this->getPostJson(false);
         foreach ($oPosted as $prop => $val) {
             switch ($prop) {
             case 'cowork':

@@ -156,9 +156,9 @@ class rank extends base {
             $q[0] .= ',r.group_id,g.team_title';
             $q[1] .= ",xxt_group_record g";
             $q[2]['g.aid'] = $oApp->entryRule->group->id;
-            $q[2]['userid'] = (object) ['op' => 'and', 'pat' => 'g.userid=r.userid'];
+            $q[2]['userid'] = (object) ['op' => 'and', 'pat' => ['g.userid=r.userid']];
             $q[2]['g.is_leader'] = (object) ['op' => '<>', 'pat' => 'O'];
-            $q[2]['group_id'] = (object) ['op' => 'and', 'pat' => 'g.team_id=r.group_id'];
+            $q[2]['group_id'] = (object) ['op' => 'and', 'pat' => ['g.team_id=r.group_id']];
         }
         // 轮次条件
         if (!empty($oCriteria->round)) {
@@ -175,6 +175,11 @@ class rank extends base {
         $q2['o'] = [$schemaSumCol . ' desc'];
 
         $users = $modelRecDat->query_objs_ss($q, $q2);
+
+        $oResult = new \stdClass;
+        $q[0] = 'count(distinct r.userid)';
+        $oResult->total = (int) $modelRecDat->query_val_ss($q);
+
         if (!empty($users)) {
             /**
              * 补充用户信息
@@ -201,11 +206,7 @@ class rank extends base {
                 }
             }
         }
-        $oResult = new \stdClass;
         $oResult->users = $users;
-
-        $q[0] = 'count(distinct userid)';
-        $oResult->total = (int) $modelRecDat->query_val_ss($q);
 
         return $oResult;
     }

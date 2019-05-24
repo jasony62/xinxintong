@@ -226,7 +226,7 @@ class page_model extends \TMS_MODEL {
 		$this->setOnlyWriteDbConn(true);
 		$data = (array) $data;
 		foreach ($data as $n => $v) {
-			if (in_array($n, array('css', 'html', 'js'))) {
+			if (in_array($n, array('title', 'css', 'html', 'js'))) {
 				$data[$n] = $this->escape($v);
 			}
 		}

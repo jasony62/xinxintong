@@ -178,13 +178,7 @@ class task extends \pl\fe\matter\base {
 		$oPosted = $this->getPostJson();
 		$aUpdate = [];
 		foreach ($oPosted as $prop => $val) {
-			switch ($prop) {
-			case 'title':
-				$aUpdate[$prop] = $modelTsk->escape($val);
-				break;
-			default:
-				$aUpdate[$prop] = $modelTsk->escape($val);
-			}
+				$aUpdate[$prop] = $val;
 		}
 
 		if (!empty($aUpdate)) {

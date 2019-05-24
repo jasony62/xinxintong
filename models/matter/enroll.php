@@ -697,8 +697,8 @@ class enroll_model extends enroll_base {
 				}
 			}
 			$pageSchemas = [];
-			$pageSchemas['data_schemas'] = isset($oPage->data_schemas) ? $this->toJson($oPage->data_schemas) : '[]';
-			$pageSchemas['act_schemas'] = isset($oPage->act_schemas) ? $this->toJson($oPage->act_schemas) : '[]';
+			$pageSchemas['data_schemas'] = isset($oPage->data_schemas) ? $this->escape($this->toJson($oPage->data_schemas)) : '[]';
+			$pageSchemas['act_schemas'] = isset($oPage->act_schemas) ? $this->escape($this->toJson($oPage->act_schemas)) : '[]';
 			$rst = $modelPage->update(
 				'xxt_enroll_page',
 				$pageSchemas,

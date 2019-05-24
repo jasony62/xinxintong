@@ -88,8 +88,8 @@ class text extends \pl\fe\base {
 		$d['matter_type'] = $matter->type;
 		$d['matter_id'] = $matter->id;
 		$d['siteid'] = $site;
-		$keyword = isset($_POST['keyword']) ? $_POST['keyword'] : '新文本消息';
-		$matchMode = isset($_POST['matchMode']) ? $_POST['matchMode'] : 'full';
+		$keyword = isset($matter->keyword) ? $matter->keyword : '新文本消息';
+		$matchMode = isset($matter->matchMode) ? $matter->matchMode : 'full';
 		$d['keyword'] = $keyword;
 		$d['match_mode'] = $matchMode;
 

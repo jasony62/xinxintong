@@ -154,7 +154,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
                         item.assocState = '';
                         oApp._unionSchemasById[item.id] = item;
                         enrollDataSchemas.push(item);
-                    } else if (oApp._schemasById[item.id].fromApp === oApp.enrollApp.id) {
+                    } else if (oApp._schemasById[item.id] && oApp._schemasById[item.id].fromApp === oApp.enrollApp.id) {
                         item.assocState = 'yes';
                     } else {
                         item.assocState = 'no';
@@ -172,7 +172,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
                         item.assocState = '';
                         oApp._unionSchemasById[item.id] = item;
                         groupDataSchemas.push(item);
-                    } else if (oApp._schemasById[item.id].fromApp === oApp.groupApp.id) {
+                    } else if (oApp._schemasById[item.id] && oApp._schemasById[item.id].fromApp === oApp.groupApp.id) {
                         item.assocState = 'yes';
                     } else {
                         item.assocState = 'no';

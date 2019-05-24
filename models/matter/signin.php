@@ -499,7 +499,7 @@ class signin_model extends enroll_base {
 			$oNewApp->use_mission_footer = 'N';
 		}
 		/* 用户指定的属性 */
-		$title = empty($oCustomConfig->proto->title) ? '新签到活动' : $this->escape($oCustomConfig->proto->title);
+		$title = empty($oCustomConfig->proto->title) ? '新签到活动' : $oCustomConfig->proto->title;
 		$oNewApp->title = $title;
 		$oNewApp->start_at = isset($oCustomConfig->proto->start_at) ? $oCustomConfig->proto->start_at : 0;
 		$oNewApp->end_at = isset($oCustomConfig->proto->end_at) ? $oCustomConfig->proto->end_at : 0;

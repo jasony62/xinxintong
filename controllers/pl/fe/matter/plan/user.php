@@ -108,12 +108,10 @@ class user extends \pl\fe\matter\base {
 		if (isset($oPosted)) {
 			foreach ($oPosted as $prop => $val) {
 				switch ($prop) {
-				case 'start_at':
-					$aUpdated['start_at'] = $val;
-					break;
-				case 'comment':
-					$aUpdated['comment'] = $modelUsr->escape($val);
-					break;
+					case 'start_at':
+					case 'comment':
+						$aUpdated[$prop] = $val;
+						break;
 				}
 			}
 			if (count($aUpdated)) {

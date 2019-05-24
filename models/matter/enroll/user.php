@@ -482,15 +482,15 @@ class user_model extends \TMS_MODEL {
 			$q[2] .= " and enroll_num>0";
 		}
 		if (!empty($aOptions['rid'])) {
-			$q[2] .= " and rid = '" . $this->escape($aOptions['rid']) . "'";
+			$q[2] .= " and rid = '" . $aOptions['rid'] . "'";
 		} else {
 			$q[2] .= " and rid = 'ALL'";
 		}
 		if (!empty($aOptions['byGroup'])) {
-			$q[2] .= " and group_id = '" . $this->escape($aOptions['byGroup']) . "'";
+			$q[2] .= " and group_id = '" . $aOptions['byGroup'] . "'";
 		}
 		if (!empty($aOptions['nickname'])) {
-			$q[2] .= " and nickname like '%" . $this->escape($aOptions['nickname']) . "%'";
+			$q[2] .= " and nickname like '%" . $aOptions['nickname'] . "%'";
 		}
 		if (!empty($aOptions['orderby'])) {
 			$q2 = ['o' => $aOptions['orderby'] . ' desc'];

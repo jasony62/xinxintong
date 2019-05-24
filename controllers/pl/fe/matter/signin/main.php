@@ -83,7 +83,6 @@ class main extends \pl\fe\matter\main_base {
 			$oOptions['byTitle'] = $oPosted->byTitle;
 		}
 		if (empty($mission)) {
-			$site = $modelSig->escape($site);
 			if (!empty($oPosted->byTags)) {
 				$oOptions['byTags'] = $oPosted->byTags;
 			}
@@ -233,7 +232,7 @@ class main extends \pl\fe\matter\main_base {
 		/**
 		 * 处理数据
 		 */
-		$oPosted = $this->getPostJson();
+		$oPosted = $this->getPostJson(false);
 		$oUpdated = new \stdClass;
 		foreach ($oPosted as $prop => $val) {
 			switch ($prop) {

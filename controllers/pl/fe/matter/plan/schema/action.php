@@ -121,7 +121,7 @@ class action extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oPosted = $this->getPostJson();
+		$oPosted = $this->getPostJson(false);
 		/* 处理数据 */
 		$aUpdated = [];
 		foreach ($oPosted as $prop => $val) {

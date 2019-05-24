@@ -50,8 +50,8 @@ class main extends \pl\fe\base {
 		$siteSummary = isset($oProto->summary) ? $oProto->summary : '';
 
 		$oNewSite = new \stdClass;
-		$oNewSite->name = $modelSite->escape($siteName);
-		$oNewSite->summary = $modelSite->escape($siteSummary);
+		$oNewSite->name = $siteName;
+		$oNewSite->summary = $siteSummary;
 		$oNewSite->id = $modelSite->create($oOperator, $oNewSite);
 
 		/* 记录操作日志 */
@@ -124,7 +124,7 @@ class main extends \pl\fe\base {
 		];
 
 		if (!empty($oFilter->byTitle)) {
-			$q[2] .= " and name like '%" . $model->escape($oFilter->byTitle) . "%'";
+			$q[2] .= " and name like '%" . $oFilter->byTitle . "%'";
 		}
 
 		$q2 = ['o' => 'create_at desc'];
@@ -213,10 +213,10 @@ class main extends \pl\fe\base {
 
 		$options = array();
 		if (!empty($filter->bySite)) {
-			$options['bySite'] = $modelSite->escape($filter->bySite);
+			$options['bySite'] = $filter->bySite;
 		}
 		if (!empty($filter->byTitle)) {
-			$options['byTitle'] = $modelSite->escape($filter->byTitle);
+			$options['byTitle'] = $filter->byTitle;
 		}
 
 		$mySites = $modelSite->byUser($oOperator->id, $options);
@@ -364,7 +364,7 @@ class main extends \pl\fe\base {
 		$modelSite = $this->model('site');
 		$modelSite->setOnlyWriteDbConn(true);
 
-		$nv = $this->getPostJson();
+		$nv = $this->getPostJson(false);
 		foreach ($nv as $n => $v) {
 			if ($n === 'home_carousel') {
 				$nv->{$n} = json_encode($v);

@@ -17,11 +17,11 @@ class log_model extends TMS_MODEL {
 		$current = time();
 		$log = [];
 		$log['siteid'] = $siteid;
-		$log['method'] = $this->escape($method);
+		$log['method'] = $method;
 		$log['create_at'] = $current;
-		$log['data'] = $this->escape($data);
-		$log['user_agent'] = $this->escape($agent);
-		$log['referer'] = $this->escape($referer);
+		$log['data'] = $data;
+		$log['user_agent'] = $agent;
+		$log['referer'] = $referer;
 
 		$logid = $this->insert('xxt_log', $log, true);
 

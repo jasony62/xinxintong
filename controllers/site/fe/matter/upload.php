@@ -12,7 +12,7 @@ class upload extends \site\fe\base {
 	public function image_action() {
 		$oUser = $this->who;
 
-		$oImage = $this->getPostJson();
+		$oImage = $this->getPostJson(false);
 
 		$userDir = $oUser->uid . '/' . date('Ym');
 

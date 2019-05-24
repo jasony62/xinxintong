@@ -53,11 +53,11 @@ class main extends \pl\fe\matter\main_base {
 		$w = "a.custom_body='N' and a.state=1 and finished='Y' and exists(select 1 from xxt_site_admin sa where sa.siteid=a.siteid and uid='{$oUser->id}')";
 		/* 按名称过滤 */
 		if (!empty($oOptions->byTitle)) {
-			$w .= " and a.title like '%" . $modelArt->escape($oOptions->byTitle) . "%'";
+			$w .= " and a.title like '%" . $oOptions->byTitle . "%'";
 		}
 		if (!empty($oOptions->byTags)) {
 			foreach ($oOptions->byTags as $tag) {
-				$w .= " and a.matter_mg_tag like '%" . $modelArt->escape($tag->id) . "%'";
+				$w .= " and a.matter_mg_tag like '%" . $tag->id . "%'";
 			}
 		}
 		/* 按项目过滤 */
@@ -219,9 +219,9 @@ class main extends \pl\fe\matter\main_base {
 		$countOfArt = (int) $modelArt->query_val_ss($q);
 
 		/* 前端指定的信息 */
-		$oArticle->title = empty($oCustomConfig->proto->title) ? ('新图文-' . ++$countOfArt) : $modelArt->escape($oCustomConfig->proto->title);
+		$oArticle->title = empty($oCustomConfig->proto->title) ? ('新图文-' . ++$countOfArt) : $oCustomConfig->proto->title;
 		if (!empty($oCustomConfig->proto->summary)) {
-			$oArticle->summary = $modelArt->escape($oCustomConfig->proto->summary);
+			$oArticle->summary = $oCustomConfig->proto->summary;
 		}
 		$oArticle->hide_pic = 'N';
 		$oArticle->url = '';
@@ -263,13 +263,13 @@ class main extends \pl\fe\matter\main_base {
 
 		$oArticle = new \stdClass;
 		$oArticle->summary = $modelArt->escape($oCopied->summary);
-		$oArticle->hide_pic = $oCopied->hide_pic;
-		$oArticle->url = $oCopied->url;
-		$oArticle->can_siteuser = $oCopied->can_siteuser;
+		$oArticle->hide_pic = $modelArt->escape($oCopied->hide_pic);
+		$oArticle->url = $modelArt->escape($oCopied->url);
+		$oArticle->can_siteuser = $modelArt->escape($oCopied->can_siteuser);
 		$oArticle->matter_cont_tag = empty($oCopied->matter_cont_tag) ? '' : json_encode($oCopied->matter_cont_tag);
-		$oArticle->from_siteid = $modelArt->escape($site);
+		$oArticle->from_siteid = $site;
 		$oArticle->from_site_name = $modelArt->escape($oFromSite->name);
-		$oArticle->from_id = $modelArt->escape($id);
+		$oArticle->from_id = $id;
 		$oArticle->author = $modelArt->escape($oCopied->author);
 		if ($mode === 'D') {
 			$oArticle->title = $modelArt->escape($oCopied->title . '（副本）');
@@ -295,7 +295,7 @@ class main extends \pl\fe\matter\main_base {
 				$oArticle->from_mode = 'C';
 			}
 			foreach ($toSites as $oToSite) {
-				$toSiteid = $modelArt->escape($oToSite->siteid);
+				$toSiteid = $oToSite->siteid;
 				if ($oCopied->siteid === $toSiteid) {
 					continue;
 				}
@@ -334,21 +334,30 @@ class main extends \pl\fe\matter\main_base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oPosted = $this->getPostJson();
-		isset($oPosted->title) && $oPosted->title = $modelArt->escape($oPosted->title);
-		isset($oPosted->summary) && $oPosted->summary = $modelArt->escape($oPosted->summary);
-		isset($oPosted->author) && $oPosted->author = $modelArt->escape($oPosted->author);
-		isset($oPosted->body) && $oPosted->body = $modelArt->escape(urldecode($oPosted->body));
-		if (isset($oPosted->entryRule)) {
-			$oPosted->entry_rule = $modelArt->escape($modelArt->toJson($oPosted->entryRule));
-			unset($oPosted->entryRule);
-		} else if (isset($oPosted->config)) {
-			$oPosted->config = $modelArt->escape($modelArt->toJson($oPosted->config));
+		$oPosted = $this->getPostJson(false);
+		if (empty($oPosted)) {
+			return new \ResultEmptyError();
 		}
-		if (isset($oPosted->downloadRule)) {
-			$oPosted->download_rule = $modelArt->escape($modelArt->toJson($oPosted->downloadRule));
-			unset($oPosted->downloadRule);
+
+		foreach ($oPosted as $k => $v) {
+			if ($k === 'body') {
+				$oPosted->{$k} = $modelArt->escape(urldecode($v));
+			} else if ($k === 'entryRule') {
+				$oPosted->entry_rule = $modelArt->escape($modelArt->toJson($v));
+				unset($oPosted->{$k});
+			} else if ($k === 'config') {
+				$oPosted->{$k} = $modelArt->escape($modelArt->toJson($v));
+			} else if ($k === 'downloadRule') {
+				$oPosted->download_rule = $modelArt->escape($modelArt->toJson($v));
+				unset($oPosted->{$k});
+			} else {
+				if (in_array($k, ['body', 'entry_rule', 'config', 'download_rule'])) {
+					continue;
+				}
+				$oPosted->{$k} = $modelArt->escape($v);
+			}
 		}
+
 		/* 如果是引用关系，不修改正文 */
 		if ($oArticle->from_mode === 'C') {
 			if (isset($oPosted->body)) {

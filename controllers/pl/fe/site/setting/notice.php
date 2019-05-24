@@ -29,7 +29,7 @@ class notice extends \pl\fe\base {
 			 */
 			$data = [
 				'creater' => $user->id,
-				'creater_name' => $user->name,
+				'creater_name' => $this->escape($user->name),
 				'create_at' => time(),
 			];
 			$notice = $modelNot->add($site, $name, $data);
@@ -67,7 +67,7 @@ class notice extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
-		$posted = $this->getPostJson();
+		$posted = $this->getPostJson(false);
 		$model = $this->model();
 
 		foreach ($posted->mapping as &$prop) {
@@ -82,8 +82,8 @@ class notice extends \pl\fe\base {
 				'xxt_tmplmsg_mapping',
 				array(
 					'siteid' => $site,
-					'msgid' => $posted->msgid,
-					'mapping' => $model->toJson($posted->mapping),
+					'msgid' => $model->escape($posted->msgid),
+					'mapping' => $model->escape($model->toJson($posted->mapping)),
 				),
 				true
 			);
@@ -100,8 +100,8 @@ class notice extends \pl\fe\base {
 			$model->update(
 				'xxt_tmplmsg_mapping',
 				array(
-					'msgid' => $posted->msgid,
-					'mapping' => $model->toJson($posted->mapping),
+					'msgid' => $model->escape($posted->msgid),
+					'mapping' => $model->escape($model->toJson($posted->mapping)),
 				),
 				"id=$mapping"
 			);

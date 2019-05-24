@@ -68,6 +68,11 @@ class rank extends base {
             $q[2] .= ' and u.enroll_num>0';
             $q2 = ['o' => 'enroll_num desc'];
             break;
+        case 'cowork':
+            $q[0] .= ',sum(u.cowork_num) cowork_num';
+            $q[2] .= ' and u.cowork_num>0';
+            $q2 = ['o' => 'cowork_num desc'];
+            break;
         case 'remark':
             $q[0] .= ',sum(u.remark_num) remark_num';
             $q[2] .= ' and u.remark_num>0';
@@ -151,8 +156,9 @@ class rank extends base {
             $q[0] .= ',r.group_id,g.team_title';
             $q[1] .= ",xxt_group_record g";
             $q[2]['g.aid'] = $oApp->entryRule->group->id;
-            $q[2]['g.is_leader'] = (object) ['op' => '<>', 'pat' => '0'];
-            $q[2]['group_id'] = (object) ['op' => 'and', 'pat' => 'g.team_id=r.group_id'];
+            $q[2]['userid'] = (object) ['op' => 'and', 'pat' => ['g.userid=r.userid']];
+            $q[2]['g.is_leader'] = (object) ['op' => '<>', 'pat' => 'O'];
+            $q[2]['group_id'] = (object) ['op' => 'and', 'pat' => ['g.team_id=r.group_id']];
         }
         // 轮次条件
         if (!empty($oCriteria->round)) {
@@ -169,6 +175,11 @@ class rank extends base {
         $q2['o'] = [$schemaSumCol . ' desc'];
 
         $users = $modelRecDat->query_objs_ss($q, $q2);
+
+        $oResult = new \stdClass;
+        $q[0] = 'count(distinct r.userid)';
+        $oResult->total = (int) $modelRecDat->query_val_ss($q);
+
         if (!empty($users)) {
             /**
              * 补充用户信息
@@ -195,11 +206,7 @@ class rank extends base {
                 }
             }
         }
-        $oResult = new \stdClass;
         $oResult->users = $users;
-
-        $q[0] = 'count(distinct userid)';
-        $oResult->total = (int) $modelRecDat->query_val_ss($q);
 
         return $oResult;
     }
@@ -233,6 +240,9 @@ class rank extends base {
         switch ($oCriteria->orderby) {
         case 'enroll':
             $sql .= 'sum(enroll_num)';
+            break;
+        case 'cowork':
+            $sql .= 'sum(cowork_num)';
             break;
         case 'remark':
             $sql .= 'sum(remark_num)';
@@ -323,11 +333,13 @@ class rank extends base {
             'xxt_enroll_record_data',
             ['aid' => $oApp->id, 'state' => 1, 'schema_id' => $schemaId, 'group_id' => (object) ['op' => '<>', 'pat' => '']],
         ];
-        if (!empty($oCriteria->round) && is_string($oCriteria->round)) {
-            $oCriteria->round = explode(',', $oCriteria->round);
-        }
-        if (!empty($oCriteria->round) && !in_array('ALL', $oCriteria->round)) {
-            $q[2]['rid'] = $oCriteria->round;
+        if (!empty($oCriteria->round)) {
+            if (is_string($oCriteria->round)) {
+                $oCriteria->round = explode(',', $oCriteria->round);
+            }
+            if (!in_array('ALL', $oCriteria->round)) {
+                $q[2]['rid'] = $oCriteria->round;
+            }
         }
 
         $q2['g'] = ['group_id'];

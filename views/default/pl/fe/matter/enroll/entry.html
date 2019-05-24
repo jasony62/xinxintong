@@ -105,6 +105,14 @@
                             </div>
                             <div>
                                 <label class='checkbox-inline'>
+                                    <input type='checkbox' ng-model="rankConfig.scope.cowork">获得答案数量
+                                </label>
+                                <label class='radio-inline'>
+                                    <input type='radio' name='defaultRankItem' value='cowork' ng-model="rankConfig.defaultItem">默认
+                                </label>
+                            </div>
+                            <div>
+                                <label class='checkbox-inline'>
                                     <input type='checkbox' ng-model="rankConfig.scope.remark">获得留言数量
                                 </label>
                                 <label class='radio-inline'>
@@ -185,14 +193,14 @@
                     </div>
                 </script>
             </div>
-            <div class='form-group'>
+            <div class='form-group' ng-if="app.scenarioConfig.can_stat==='Y'">
                 <label>进入统计页链接</label>
                 <div class='pl-input-group'>
                     <div class='form-control pl-line'>{{entry.url}}&page=stat</div>
                     <a class='btn btn-default' ng-href="{{entry.url}}&page=stat" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
                 </div>
             </div>
-            <div class='form-group'>
+            <div class='form-group' ng-if="app.scenarioConfig.can_kanban==='Y'">
                 <label>进入看板页链接</label>
                 <div class='pl-input-group'>
                     <div class='form-control pl-line'>{{entry.url}}&page=kanban</div>

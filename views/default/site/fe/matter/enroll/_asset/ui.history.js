@@ -33,7 +33,8 @@ ngMod.factory('enlHistory', ['http2', '$q', '$uibModal', 'tmsLocation', function
                 };
                 var oCriteria = {
                     schema: oSchema.id,
-                    owner: oRecord.userid
+                    owner: oRecord.userid,
+                    rid: 'all'
                 };
                 var records;
                 $scope2.records = records = [];

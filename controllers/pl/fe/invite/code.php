@@ -23,7 +23,7 @@ class code extends \pl\fe\base {
 			foreach ($posted as $prop => $val) {
 				switch ($prop) {
 					case 'remark':
-						$aProto[$prop] = $modelInv->escape($val);
+						$aProto[$prop] = $val;
 						break;
 					case 'expire_at':
 						if (is_numeric($val)) {
@@ -64,10 +64,10 @@ class code extends \pl\fe\base {
 		$posted = $this->getPostJson();
 		foreach ($posted as $prop => $val) {
 			if ($prop === 'remark') {
-				$aUpdated[$prop] = $modelCode->escape($val);
+				$aUpdated[$prop] = $val;
 			}
 			if ($prop === 'stop') {
-				$aUpdated[$prop] = $modelCode->escape($val);
+				$aUpdated[$prop] = $val;
 			}
 			if ($prop === 'expire_at' && is_numeric($val)) {
 				$aUpdated[$prop] = (int)$val;

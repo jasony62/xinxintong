@@ -62,9 +62,9 @@ class team extends base {
 			'team_id' => uniqid(),
 			'create_at' => $current,
 			'creator' => $this->who->uid,
-			'creator_name' => $this->who->nickname,
-			'title' => empty($oTeam->title) ? $this->escape($this->who->nickname) . '的团队' : $this->escape($oTeam->title),
-			'summary' => empty($oTeam->summary) ? '' : $this->escape($oTeam->summary),
+			'creator_name' => $this->escape($this->who->nickname),
+			'title' => empty($oTeam->title) ? $this->escape($this->who->nickname) . '的团队' : $oTeam->title,
+			'summary' => empty($oTeam->summary) ? '' : $oTeam->summary,
 			'times' => 1,
 			'team_type' => 'T',
 			'targets' => '',
@@ -102,7 +102,7 @@ class team extends base {
 			switch ($prop) {
 			case 'title':
 			case 'summary':
-				$aUpdated[$prop] = $this->escape($val);
+				$aUpdated[$prop] = $val;
 				break;
 			}
 		}

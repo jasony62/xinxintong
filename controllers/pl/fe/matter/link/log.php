@@ -34,13 +34,13 @@ class log extends \pl\fe\matter\main_base {
 		$filter = $this->getPostJson();
 		$options = [];
 		if (!empty($filter->byEvent)) {
-			$options['byEvent'] = $modelLog->escape($filter->byEvent);
+			$options['byEvent'] = $filter->byEvent;
 		}
 		if (!empty($filter->startAt)) {
-			$options['startAt'] = $modelLog->escape($filter->startAt);
+			$options['startAt'] = $filter->startAt;
 		}
 		if (!empty($filter->endAt)) {
-			$options['endAt'] = $modelLog->escape($filter->endAt);
+			$options['endAt'] = $filter->endAt;
 		}
 		if (!empty($page) && !empty($size)) {
 			$options['paging'] = ['page' => $page, 'size' => $size];
@@ -152,13 +152,13 @@ class log extends \pl\fe\matter\main_base {
 			"ml.matter_id = '{$appId}' and ml.matter_type = 'link' and ml.attachment_id = m.id",
 		];
 		if (!empty($filter->start)) {
-			$q[2] .= " and ml.download_at > " . $modelLink->escape($filter->start);
+			$q[2] .= " and ml.download_at > " . $filter->start;
 		}
 		if (!empty($filter->end)) {
-			$q[2] .= " and ml.download_at < " . $modelLink->escape($filter->end);
+			$q[2] .= " and ml.download_at < " . $filter->end;
 		}
 		if (!empty($filter->byUser)) {
-			$q[2] .= " and ml.nickname like '%" . $modelLink->escape($filter->byUser) . "%'";
+			$q[2] .= " and ml.nickname like '%" . $filter->byUser . "%'";
 		}
 
 		$p = ['o' => 'ml.download_at desc'];

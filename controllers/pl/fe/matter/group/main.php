@@ -66,11 +66,11 @@ class main extends \pl\fe\matter\main_base {
 			"state<>0",
 		];
 		if (!empty($oPosted->byTitle)) {
-			$q[2] .= " and title like '%" . $modelGrp->escape($oPosted->byTitle) . "%'";
+			$q[2] .= " and title like '%" . $oPosted->byTitle . "%'";
 		}
 		if (!empty($oPosted->byTags)) {
 			foreach ($oPosted->byTags as $tag) {
-				$q[2] .= " and matter_mg_tag like '%" . $modelGrp->escape($tag->id) . "%'";
+				$q[2] .= " and matter_mg_tag like '%" . $tag->id . "%'";
 			}
 		}
 		if (empty($mission)) {
@@ -205,9 +205,6 @@ class main extends \pl\fe\matter\main_base {
 		 */
 		$oUpdated = $this->getPostJson();
 		foreach ($oUpdated as $n => $v) {
-			if (in_array($n, ['title', 'summary'])) {
-				$oUpdated->{$n} = $modelApp->escape($v);
-			}
 			$oMatter->{$n} = $v;
 		}
 

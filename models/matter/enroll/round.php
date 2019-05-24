@@ -335,7 +335,7 @@ class round_model extends \TMS_MODEL {
         $oProps->end_at = $oTask->end_at;
         $oProps->task_id = $oTask->id;
         $modelTsk = $this->model('matter\enroll\task');
-        $oProps->title = tms_time_to_str($oTask->start_at) . '【' . $modelTsk::TypeNameZh[$oTask->config_type] . '】';
+        $oProps->title = tms_time_to_str($oTask->start_at) . '【' . $modelTsk::TYPENAMEZH[$oTask->config_type] . '】';
 
         $oAppRndResult = $this->create($oApp, $oProps);
         if (false === $oAppRndResult[0]) {

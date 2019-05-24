@@ -16,7 +16,7 @@ class script extends TMS_CONTROLLER {
 	 * 获得指定文件的更新日期
 	 */
 	public function time_action() {
-		$targets = $this->getPostJson();
+		$targets = $this->getPostJson(false);
 
 		if (empty($targets) || !is_object($targets)) {
 			return new \ParameterError('invalid parameters.');

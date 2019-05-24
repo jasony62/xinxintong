@@ -209,9 +209,9 @@ class timer extends \pl\fe\base {
 		if (isset($oNewUpdate->task_arguments)) {
 			$oTaskArguments = $oNewUpdate->task_arguments;
 			if (is_object($oNewUpdate->task_arguments)) {
-				$oNewUpdate->task_arguments = $this->model()->toJson($oNewUpdate->task_arguments);
+				$oNewUpdate->task_arguments = $modelTim->escape($modelTim->toJson($oNewUpdate->task_arguments));
 			}
-			$oNewUpdate->task_arguments = $this->escape($oNewUpdate->task_arguments);
+			$oNewUpdate->task_arguments = $oNewUpdate->task_arguments;
 		}
 
 		$rst = $modelTim->update(

@@ -250,13 +250,13 @@ class task_model extends \TMS_MODEL {
 		];
 
 		if (!empty($oCriteria->byComment)) {
-			$q[2] .= " and comment like '%" . $this->escape($oCriteria->byComment) . "%'";
+			$q[2] .= " and comment like '%" . $oCriteria->byComment . "%'";
 		}
 		if (!empty($oCriteria->byTaskSchema)) {
-			$q[2] .= " and task_schema_id = " . $this->escape($oCriteria->byTaskSchema);
+			$q[2] .= " and task_schema_id = " . $oCriteria->byTaskSchema;
 		}
 		if (!empty($oCriteria->record->verified)) {
-			$q[2] .= " and verified = '" . $this->escape($oCriteria->record->verified) . "'";
+			$q[2] .= " and verified = '" . $oCriteria->record->verified . "'";
 		}
 		if (isset($oCriteria->data)) {
 			$oAppSchemasById = new \stdClass;

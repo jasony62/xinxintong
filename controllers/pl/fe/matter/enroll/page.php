@@ -54,7 +54,7 @@ class page extends main_base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oPosted = $this->getPostJson();
+		$oPosted = $this->getPostJson(false);
 
 		/* 更新页面内容 */
 		if (isset($oPosted->html)) {
@@ -81,7 +81,7 @@ class page extends main_base {
 					$aUpdated[$prop] = $modelPage->escape($val);
 					break;
 				default:
-					$aUpdated[$prop] = $val;
+					$aUpdated[$prop] = $modelPage->escape($val);
 				}
 			}
 			$rst = $modelPage->update(

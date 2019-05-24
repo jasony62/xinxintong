@@ -106,7 +106,7 @@ class favor extends base {
 		$w = "f.aid = '{$oApp->id}' and f.state = 1 and f.favor_unionid = '{$oUser->unionid}' and f.record_id = r.id and r.state=1";
 		/* 指定轮次，或者当前激活轮次 */
 		if (!empty($oCriteria->record->rid) && stripos($oCriteria->record->rid, 'all') === false) {
-			$w .= " and (r.rid='" . $modelApp->escape($oCriteria->record->rid) . "')";
+			$w .= " and (r.rid='" . $oCriteria->record->rid . "')";
 		}
 		// 记录推荐状态
 		if (!empty($oCriteria->record->agreed) && stripos($oCriteria->record->agreed, 'all') === false) {
@@ -134,7 +134,7 @@ class favor extends base {
 		}
 		// 指定了按关键字过滤
 		if (!empty($oCriteria->keyword)) {
-			$w .= " and r.data like '%" . $modelApp->escape($oCriteria->keyword) . "%'";
+			$w .= " and r.data like '%" . $oCriteria->keyword . "%'";
 		}
 		// 查询条件
 		$q = [

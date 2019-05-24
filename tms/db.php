@@ -186,7 +186,7 @@ class TMS_DB {
         $clauses = [];
         if (is_array($where)) {
             foreach ($where as $k => $v) {
-                $clauses[] = $k . "='" . $this->escape($v) . "'";
+                $clauses[] = $k . "='" . $v . "'";
             }
         } else {
             $clauses[] = $where;
@@ -206,7 +206,7 @@ class TMS_DB {
      * 查询一行, 返回对象
      */
     public function query_obj($select, $from = null, $where = null, $onlyWriteDbConn = false) {
-        $sql = $this->_assemble_query($select, $from, $where);
+        $sql = $this->assemble_query($select, $from, $where);
 
         if ($onlyWriteDbConn === true) {
             $mysqli = $this->_getDbWriteConn();
@@ -231,7 +231,7 @@ class TMS_DB {
      * 获取查询全部
      */
     public function query_objs($select, $from = null, $where = null, $group = null, $order = null, $offset = null, $limit = null, $onlyWriteDbConn = false) {
-        $sql = $this->_assemble_query($select, $from, $where, $group, $order, $offset, $limit);
+        $sql = $this->assemble_query($select, $from, $where, $group, $order, $offset, $limit);
 
         if ($onlyWriteDbConn === true) {
             $mysqli = $this->_getDbWriteConn();
@@ -255,7 +255,7 @@ class TMS_DB {
      * return if rownum == 0 then return false.
      */
     public function query_value($select, $from = null, $where = null, $onlyWriteDbConn = false) {
-        $sql = $this->_assemble_query($select, $from, $where);
+        $sql = $this->assemble_query($select, $from, $where);
 
         if ($onlyWriteDbConn === true) {
             $mysqli = $this->_getDbWriteConn();
@@ -276,7 +276,7 @@ class TMS_DB {
      *
      */
     public function query_values($select, $from = null, $where = null, $onlyWriteDbConn = false) {
-        $sql = $this->_assemble_query($select, $from, $where);
+        $sql = $this->assemble_query($select, $from, $where);
 
         if ($onlyWriteDbConn === true) {
             $mysqli = $this->_getDbWriteConn();
@@ -323,7 +323,7 @@ class TMS_DB {
     /**
      * assemble a whole sql.
      */
-    private function _assemble_query($select, $from = null, $where = null, $group = null, $order = null, $offset = null, $limit = 0) {
+    public function assemble_query($select, $from = null, $where = null, $group = null, $order = null, $offset = null, $limit = 0) {
         $select || $this->_throwError('Query was empty.');
 
         is_array($select) && $select = implode(',', $select);
@@ -407,7 +407,7 @@ class TMS_DB {
                     continue;
                 }
                 if (is_string($v)) {
-                    $clauses[] = $k . "='" . $this->escape($v) . "'";
+                    $clauses[] = $k . "='" . $v . "'";
                 } else if (is_array($v)) {
                     $clause = $k . " in('";
                     $clause .= implode("','", $v);

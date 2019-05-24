@@ -13,6 +13,7 @@
         <div class='col-md-3 col-xs-4'>
             <select class='form-control' ng-model="appState.criteria.orderby" ng-change="changeCriteria()">
                 <option value='enroll' ng-if="config.enroll">提交记录数量</option>
+                <option value='cowork' ng-if="config.cowork&&appState.dimension!=='schema'">获得答案数量</option>
                 <option value='remark' ng-if="config.remark&&appState.dimension!=='schema'">获得留言数量</option>
                 <option value='vote_schema' ng-if="config.vote_schema&&appState.dimension!=='schema'">问题得票数量</option>
                 <option value='vote_cowork' ng-if="config.vote_cowork&&appState.dimension!=='schema'">答案得票数量</option>

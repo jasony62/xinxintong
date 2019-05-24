@@ -1,4 +1,4 @@
-define([], function() {
+define([], function () {
     'use strict';
 
     function protoOps(type) {
@@ -77,7 +77,7 @@ define([], function() {
                 scope: ['I', 'V']
             }
         },
-        newSchema: function(type, oApp, oProto) {
+        newSchema: function (type, oApp, oProto) {
             var oSchema = angular.copy(base);
 
             oSchema.id = (oProto && oProto.id) ? oProto.id : 's' + (new Date * 1);
@@ -85,7 +85,7 @@ define([], function() {
             oSchema.type = type;
             if (prefab[type]) {
                 var countOfType = 0;
-                oApp.dataSchemas.forEach(function(schema) {
+                oApp.dataSchemas.forEach(function (schema) {
                     if (oSchema.type === type) {
                         countOfType++;
                     }
@@ -111,15 +111,18 @@ define([], function() {
                     oSchema.content = '请点击下面“编辑”按钮，编辑本说明文字';
                 }
             }
-            if (oProto && oProto.format !== undefined) {
-                oSchema.format = oProto.format;
+            if (oProto) {
+                if (oProto.format !== undefined)
+                    oSchema.format = oProto.format;
+                if (oProto.description !== undefined)
+                    oSchema.description = oProto.description;
             } else if (/shorttext/.test(type)) {
                 oSchema.format = '';
             }
 
             return oSchema;
         },
-        changeType: function(schema, newType) {
+        changeType: function (schema, newType) {
             if (/single|multiple|score/.test(schema.type) && !/single|multiple|score/.test(newType)) {
                 delete schema.ops;
             }
@@ -159,7 +162,7 @@ define([], function() {
         /**
          * @schemaOptionsId 后指定的选项后面添加选项
          */
-        addOption: function(schema, schemaOptionId) {
+        addOption: function (schema, schemaOptionId) {
             var maxSeq = 0,
                 newOp = {
                     l: ''
@@ -169,7 +172,7 @@ define([], function() {
             if (schema.ops === undefined) {
                 schema.ops = [];
             }
-            schema.ops.forEach(function(op, index) {
+            schema.ops.forEach(function (op, index) {
                 var opSeq = parseInt(op.v.substr(1));
                 opSeq > maxSeq && (maxSeq = opSeq);
                 if (op.v === schemaOptionId) {

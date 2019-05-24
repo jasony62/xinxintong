@@ -265,6 +265,14 @@
                                 </div>
                             </div>
                             <hr>
+                            <div class='form-group'>
+                                <label>投票对象排序规则</label>
+                                <div>
+                                    <label class='radio-inline'><input name='answerSourceOrderby' type='radio' ng-value ng-model="config.source.orderby"> 先提交的在前</label>
+                                    <label class='radio-inline'><input name='answerSourceOrderby' type='radio' value='random' ng-model="config.source.orderby"> 随机排序</label>
+                                </div>
+                            </div>
+                            <hr>
                             <div class='form-inline'>
                                 <tms-toggle-switch ng-model="config.enabled" ng-true-value="'Y'" ng-false-value="'N'" on-label="启用" off-label="停用"></tms-toggle-switch>
                                 <button class='btn btn-default' ng-click="taskConfig.del(config)">删除</button>

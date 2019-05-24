@@ -89,7 +89,7 @@ class formula {
                     $res = $b * $a;
                     break;
                 case '/':
-                    $res = $b / $a;
+                    $res = empty($a) ? 0 : $b / $a;
                     break;
                 }
                 array_push($res_stack, $res);

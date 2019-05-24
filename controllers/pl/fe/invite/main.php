@@ -154,10 +154,10 @@ class main extends \pl\fe\base {
 			switch ($prop) {
 			case 'require_code':
 			case 'can_relay':
-				$aUpdated[$prop] = $val === 'Y' ? 'Y' : 'N';
+				$aUpdated[$prop] = ($val === 'Y') ? 'Y' : 'N';
 				break;
 			case 'message':
-				$aUpdated[$prop] = $modelInv->escape($val);
+				$aUpdated[$prop] = $val;
 				break;
 			}
 		}

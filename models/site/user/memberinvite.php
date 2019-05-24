@@ -74,8 +74,6 @@ class memberinvite_model extends \TMS_MODEL {
 	 * 使用邀请
 	 */
 	public function useCode($schemaId, $code) {
-		$schemaId = $this->escape($schemaId);
-		$code = $this->escape($code);
 		$current = time();
 		$rst = $this->update("update xxt_site_member_invite set use_count=use_count+1 where schema_id={$schemaId} and code='$code' and use_count<max_count and (expire_at=0 or expire_at>{$current})");
 

@@ -69,9 +69,9 @@ class registration_model extends \TMS_MODEL {
 		$registration->uid = $unionid;
 		$registration->from_siteid = $siteId;
 		$registration->authed_from = 'xxt_site';
-		$registration->authed_id = $this->escape($uname);
-		$registration->email = $this->escape($uname);
-		$registration->nickname = $this->escape($nickname);
+		$registration->authed_id = $uname;
+		$registration->email = $uname;
+		$registration->nickname = $nickname;
 		$registration->password = $pw_hash;
 		$registration->salt = $pw_salt;
 		$registration->reg_time = $current;
@@ -155,7 +155,7 @@ class registration_model extends \TMS_MODEL {
 	 */
 	public function validate($uname, $password) {
 		if (!$oRegistration = $this->byUname($uname, ['forbidden' => 0])) {
-			return [false, '用户名不存在'];
+			return [false, '用户名或密码错误'];
 		}
 
 		$pw_hash = $this->compile_password($uname, $password, $oRegistration->salt);

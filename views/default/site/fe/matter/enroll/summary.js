@@ -25,6 +25,12 @@ ngApp.config(['$routeProvider', function ($routeProvider) {
             controller: 'ctrlSummaryRank'
         });
 }]);
+ngApp.factory('$exceptionHandler', function () {
+    return function (exception, cause) {
+        exception.message += ' (caused by "' + cause + '")';
+        throw exception;
+    };
+});
 ngApp.controller('ctrlSummary', ['$scope', 'tmsLocation', '$location', 'http2', function ($scope, LS, $location, http2) {
     $scope.activeNav = '';
     $scope.viewTo = function (event, subView) {
@@ -161,7 +167,7 @@ ngApp.controller('ctrlSummaryRank', ['$scope', '$q', '$sce', 'tmsLocation', 'htt
         var oRankConfig, oConfig, rankItems, dataSchemas;
         dataSchemas = oApp.dynaDataSchemas;
         /* 排行显示内容设置 */
-        rankItems = ['enroll', 'remark', 'like', 'remark_other', 'do_like', 'total_coin', 'score', 'average_score', 'vote_schema', 'vote_cowork'];
+        rankItems = ['enroll', 'cowork', 'remark', 'like', 'remark_other', 'do_like', 'total_coin', 'score', 'average_score', 'vote_schema', 'vote_cowork'];
         oConfig = {};
         rankItems.forEach(function (item) {
             oConfig[item] = true;
@@ -176,9 +182,14 @@ ngApp.controller('ctrlSummaryRank', ['$scope', '$q', '$sce', 'tmsLocation', 'htt
                     return oSchema.type === 'shorttext' && /number|calculate/.test(oSchema.format) && oRankConfig.scopeSchemas.indexOf(oSchema.id) !== -1;
                 });
             if (oRankConfig.scope || ($scope.scopeSchemas && $scope.scopeSchemas.length)) {
-                rankItems.forEach(function (item) {
-                    oConfig[item] = !!oRankConfig.scope[item];
-                });
+                if (oRankConfig.scope)
+                    rankItems.forEach(function (item) {
+                        oConfig[item] = !!oRankConfig.scope[item];
+                    });
+                else
+                    rankItems.forEach(function (item) {
+                        oConfig[item] = false;
+                    });
             }
         }
         $scope.config = oConfig;

@@ -34,6 +34,12 @@ class main extends \site\fe\base {
 	 * @param string $urlEncryptKey   如果来源地址加密，需传入解密算子
 	 */
 	public function access_action($originUrl = null, $urlEncryptKey = null) {
+		if (TMS_APP_LOGIN_STRENGTH_CHECK !== 0) {
+			if (tms_get_httpsOrHttp() !== 'https') {
+				$url = 'https://' . APP_HTTP_HOST . $_SERVER['REQUEST_URI'];
+				$this->redirect($url);
+            }
+		}
 		/* 整理cookie中的数据，便于后续处理 */
 		$modelWay = $this->model('site\fe\way');
 		$modelWay->resetAllCookieUser();
@@ -137,7 +143,7 @@ class main extends \site\fe\base {
 		if ($cookieRegUser) {
 			$rst = $modelWay->update(
 				'account',
-				['nickname' => $modelWay->escape($data->nickname)],
+				['nickname' => $data->nickname],
 				['uid' => $cookieRegUser->unionid]
 			);
 			$cookieRegUser->nickname = $data->nickname;
@@ -147,7 +153,7 @@ class main extends \site\fe\base {
 		/* 更新站点用户信息 */
 		$modelUsr = $this->model('site\user\account');
 		if ($oAccount = $modelUsr->byId($user->uid)) {
-			$modelUsr->changeNickname($this->siteId, $oAccount->uid, $modelUsr->escape($data->nickname));
+			$modelUsr->changeNickname($this->siteId, $oAccount->uid, $data->nickname);
 		}
 		$cookieUser = $modelWay->getCookieUser($this->siteId);
 		$cookieUser->nickname = $data->nickname;
@@ -189,7 +195,7 @@ class main extends \site\fe\base {
 	 * 只有注册用户才能修改
 	 */
 	public function changePwd_action() {
-		$data = $this->getPostJson();
+		$data = $this->getPostJson(false);
 		if (empty($data->password)) {
 			return new \ResponseError('新口令不能为空');
 		}

@@ -1,41 +1,41 @@
 <style>
     /* img tiles */
 
-ul {
-    padding-left: 0
-}
+    ul {
+        padding-left: 0
+    }
 
-ul.img-tiles li {
-    position: relative;
-    display: inline-block;
-    overflow: hidden;
-    width: 80px;
-    height: 80px;
-    margin: 0px;
-    padding: 0px;
-    float: left
-}
+    ul.img-tiles li {
+        position: relative;
+        display: inline-block;
+        overflow: hidden;
+        width: 80px;
+        height: 80px;
+        margin: 0px;
+        padding: 0px;
+        float: left
+    }
 
-ul.img-tiles li.img-thumbnail img {
-    display: inline-block;
-    position: absolute
-}
+    ul.img-tiles li.img-thumbnail img {
+        display: inline-block;
+        position: absolute
+    }
 
-ul.img-tiles li.img-thumbnail button {
-    position: absolute;
-    top: 0;
-    right: 0
-}
+    ul.img-tiles li.img-thumbnail button {
+        position: absolute;
+        top: 0;
+        right: 0
+    }
 
-ul.img-tiles li.img-picker button {
-    position: auto;
-    width: 100%;
-    height: 100%
-}
+    ul.img-tiles li.img-picker button {
+        position: auto;
+        width: 100%;
+        height: 100%
+    }
 
-ul.img-tiles li.img-picker button span {
-    font-size: 36px
-}
+    ul.img-tiles li.img-picker button span {
+        font-size: 36px
+    }
 </style>
 <div class="modal-header">
     <button class="close" type="button" ng-click="cancel()">×</button>
@@ -82,58 +82,61 @@ ul.img-tiles li.img-picker button span {
                         </video>
                         <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
                     </div>
-                    </div>
-                    <input type='text' class='form-control' ng-switch-when="member" ng-model="record.data.member[schema.id.substr(7)]">
-                    <div ng-switch-default>
-                        <input type='text' class='form-control' ng-if="schema.id.indexOf('member.')===0" ng-model="record.data.member[schema.id.substr(7)]">
-                        <input type='text' class='form-control' ng-if="schema.id.indexOf('member.')!==0" ng-model="record.data[schema.id]">
-                    </div>
+                </div>
+                <input type='text' class='form-control' ng-switch-when="member" ng-model="record.data.member[schema.id.substr(7)]">
+                <div ng-switch-default>
+                    <input type='text' class='form-control' ng-if="schema.id.indexOf('member.')===0" ng-model="record.data.member[schema.id.substr(7)]">
+                    <input type='text' class='form-control' ng-if="schema.id.indexOf('member.')!==0" ng-model="record.data[schema.id]">
                 </div>
             </div>
-            <div class="form-group">
-                <label class="col-md-3 control-label">所属团队分组</label>
-                <div class="col-md-9">
-                    <select class='form-control' ng-model="record.team_id" ng-options="r.team_id as r.title for r in teamRounds">
-                        <option></option>
-                    </select>
-                </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-3 control-label">所属团队分组</label>
+            <div class="col-md-9">
+                <select class='form-control' ng-model="record.team_id" ng-options="r.team_id as r.title for r in teamRounds">
+                    <option></option>
+                </select>
             </div>
-            <div class="form-group">
-                <label class="col-md-3 control-label">团队角色</label>
-                <div class="col-md-9">
-                    <div class='radio'>
-                        <label class='inline-radio'>
-                            <input type='radio' name='is_leader' value='N' ng-model="record.is_leader">组员</label>
-                        <label class='inline-radio'>
-                            <input type='radio' name='is_leader' value='Y' ng-model="record.is_leader">组长</label>
-                        <label class='inline-radio'>
-                            <input type='radio' name='is_leader' value='S' ng-model="record.is_leader">超级用户</label>
-                    </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-3 control-label">团队角色</label>
+            <div class="col-md-9">
+                <div class='radio'>
+                    <label class='inline-radio'>
+                        <input type='radio' name='is_leader' value='N' ng-model="record.is_leader">组员</label>
+                    <label class='inline-radio'>
+                        <input type='radio' name='is_leader' value='Y' ng-model="record.is_leader">组长</label>
+                    <label class='inline-radio'>
+                        <input type='radio' name='is_leader' value='S' ng-model="record.is_leader">超级用户</label>
+                    <label class='inline-radio'>
+                        <input type='radio' name='is_leader' value='O' ng-model="record.is_leader">旁观者</label>
                 </div>
+                <div class='help-block'>围观：可以参与活动和进入分组，但是不需要完成任务。</div>
             </div>
-            <div class="form-group" ng-if="roleTeams.length">
-                <label class="col-md-3 control-label">所属角色分组</label>
-                <div class="col-md-9">
-                    <ul>
-                        <li class='checkbox' ng-repeat="round in roleTeams">
-                            <label>
-                                <input type="checkbox" name="{{record.id}}" ng-model="record._role_teams[round.team_id]" /><span>{{round.title}}</span></label>
-                        </li>
-                    </ul>
-                </div>
+        </div>
+        <div class="form-group" ng-if="roleTeams.length">
+            <label class="col-md-3 control-label">所属辅助分组</label>
+            <div class="col-md-9">
+                <ul>
+                    <li class='checkbox' ng-repeat="team in roleTeams">
+                        <label>
+                            <input type="checkbox" name="{{record.id}}" ng-model="record._role_teams[team.team_id]" /><span>{{team.title}}</span></label>
+                    </li>
+                </ul>
             </div>
-            <div class="form-group">
-                <label class="col-md-3 control-label">用户标签</label>
-                <div class="col-md-9">
-                    <combox evt-prefix='tag' existing='record.aTags' options='aTags'></combox>
-                </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-3 control-label">用户标签</label>
+            <div class="col-md-9">
+                <combox evt-prefix='tag' existing='record.aTags' options='aTags'></combox>
             </div>
-            <div class="form-group">
-                <label class="col-md-3 control-label">备注</label>
-                <div class="col-md-9">
-                    <textarea class='form-control' ng-model="record.comment"></textarea>
-                </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-3 control-label">备注</label>
+            <div class="col-md-9">
+                <textarea class='form-control' ng-model="record.comment"></textarea>
             </div>
+        </div>
     </form>
 </div>
 <div class="modal-footer">

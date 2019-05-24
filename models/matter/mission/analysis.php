@@ -37,7 +37,7 @@ class analysis_model extends \TMS_MODEL {
 		$aNewTrace['event_end'] = $eventEnd->type;
 		$aNewTrace['event_end_at'] = $eventEndAt;
 		$aNewTrace['event_elapse'] = $eventElapse;
-		$aNewTrace['events'] = json_encode($oEventData);
+		$aNewTrace['events'] = $this->escape(json_encode($oEventData));
 		$aNewTrace['user_agent'] = $oClient->agent;
 		$aNewTrace['client_ip'] = $oClient->ip;
 

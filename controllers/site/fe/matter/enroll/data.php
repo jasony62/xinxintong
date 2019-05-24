@@ -248,7 +248,7 @@ class data extends base {
 
         $oUser = $this->getUser($oApp);
 
-        $oPosted = $this->getPostJson();
+        $oPosted = $this->getPostJson(false);
         $current = time();
         $oResult = null;
 
@@ -289,7 +289,7 @@ class data extends base {
                             'enroll_key' => $oRecData->enroll_key,
                             'submit_at' => $current,
                             'userid' => isset($oUser->uid) ? $oUser->uid : '',
-                            'nickname' => isset($oUser->nickname) ? $oUser->nickname : '',
+                            'nickname' => isset($oUser->nickname) ? $this->escape($oUser->nickname) : '',
                             'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
                             'schema_id' => $oUpdatedSchema->id,
                             'multitext_seq' => (int) $seq + 1,
@@ -305,7 +305,7 @@ class data extends base {
                                     'value' => $this->escape($oItem->value),
                                     'multitext_seq' => (int) $seq + 1,
                                 ],
-                                ['id' => $oItem->id]
+                                ['id' => $this->escape($oItem->id)]
                             );
                         }
                         unset($oBeforeItems->{$oItem->id});
@@ -316,7 +316,7 @@ class data extends base {
                     $modelData->update(
                         'xxt_enroll_record_data',
                         ['state' => 0],
-                        ['id' => $oItem->id]
+                        ['id' => $this->escape($oItem->id)]
                     );
                 }
                 /* 更新父记录数据 */

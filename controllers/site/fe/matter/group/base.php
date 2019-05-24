@@ -51,7 +51,7 @@ class base extends \site\fe\matter\base {
 		$oGrpMem->enroll_key = $ek;
 		$oGrpMem->enroll_at = $current;
 		$oGrpMem->team_id = $oTeam->team_id;
-		$oGrpMem->team_title = $oTeam->title;
+		$oGrpMem->team_title = $this->escape($oTeam->title);
 		$oGrpMem->is_leader = $isLeader;
 
 		$modelGrpRec->enroll($this->groupApp, $this->who, $oGrpMem);

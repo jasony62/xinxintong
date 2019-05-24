@@ -98,8 +98,8 @@ class contribute extends \pl\fe\base {
 				$log['from_site_name'] = $modelMat->escape($fromSite->name);
 				$log['matter_id'] = $oMatter->id;
 				$log['matter_type'] = $oMatter->type;
-				$log['matter_title'] = $modelMat->escape($oMatter->title);
-				$log['matter_summary'] = $modelMat->escape($oMatter->summary);
+				$log['matter_title'] = $oMatter->title;
+				$log['matter_summary'] = $oMatter->summary;
 				$log['matter_pic'] = $oMatter->pic;
 				$modelMat->insert('xxt_site_contribute', $log, false);
 			}

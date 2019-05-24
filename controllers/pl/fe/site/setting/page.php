@@ -99,8 +99,8 @@ class page extends \pl\fe\base {
 		$post = $this->getPostJson();
 		$model = $this->model();
 		$data = [];
-		!empty($post->homeGroup) && $data['home_group'] = $model->escape($post->homeGroup);
-		!empty($post->display_name) && $data['display_name'] = $model->escape($post->display_name);
+		!empty($post->homeGroup) && $data['home_group'] = $post->homeGroup;
+		!empty($post->display_name) && $data['display_name'] = $post->display_name;
 
 		if(!empty($data)){
 			$model->update('xxt_site_home_channel', $data, ['id' => $id]);

@@ -5,6 +5,7 @@ ngMod.factory('enlHistory', ['http2', '$q', '$uibModal', 'tmsLocation', function
     var History;
     History = function () {};
     History.prototype.show = function (oSchema, oRecord) {
+        if (!oSchema || !oRecord || !oRecord.userid) return;
         return $uibModal.open({
             template: require('./history.html'),
             backdrop: 'static',
@@ -31,7 +32,9 @@ ngMod.factory('enlHistory', ['http2', '$q', '$uibModal', 'tmsLocation', function
                     page: {}
                 };
                 var oCriteria = {
-                    schema: oSchema.id
+                    schema: oSchema.id,
+                    owner: oRecord.userid,
+                    rid: 'all'
                 };
                 var records;
                 $scope2.records = records = [];

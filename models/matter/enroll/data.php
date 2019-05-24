@@ -777,7 +777,7 @@ class data_model extends entity_model {
             is_array($oOptions) && $oOptions = (object) $oOptions;
             $page = isset($oOptions->page) ? $oOptions->page : null;
             $size = isset($oOptions->size) ? $oOptions->size : null;
-            $rid = isset($oOptions->rid) ? $this->escape($oOptions->rid) : null;
+            $rid = isset($oOptions->rid) ? $oOptions->rid : null;
         }
         $oResult = new \stdClass; // 返回的结果
 
@@ -893,8 +893,8 @@ class data_model extends entity_model {
         }
         $page = isset($oOptions->page) ? $oOptions->page : null;
         $size = isset($oOptions->size) ? $oOptions->size : null;
-        $rid = isset($oOptions->rid) ? $this->escape($oOptions->rid) : null;
-        $tag = isset($oOptions->tag) ? $this->escape($oOptions->tag) : null;
+        $rid = isset($oOptions->rid) ? $oOptions->rid : null;
+        $tag = isset($oOptions->tag) ? $oOptions->tag : null;
 
         $oResult = new \stdClass; // 返回的结果
 
@@ -915,7 +915,7 @@ class data_model extends entity_model {
                 if ($index > 0) {
                     $q[2] .= ',';
                 }
-                $q[2] .= "'" . $this->escape($schemaId) . "'";
+                $q[2] .= "'" . $schemaId . "'";
             }
             $q[2] .= ")";
         }

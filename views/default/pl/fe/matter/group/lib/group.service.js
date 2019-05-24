@@ -1,6 +1,6 @@
 angular.module('service.group', ['ui.bootstrap', 'ui.xxt']).
-service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
-    this.list = function(oApp, teamType) {
+service('tkGroupTeam', ['$q', 'http2', function ($q, http2) {
+    this.list = function (oApp, teamType) {
         var defer = $q.defer(),
             url;
 
@@ -10,9 +10,9 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
         } else if (/T|R/.test(teamType)) {
             url += '&teamType=' + teamType;
         }
-        http2.get(url).then(function(rsp) {
+        http2.get(url).then(function (rsp) {
             var teams = rsp.data;
-            teams.forEach(function(oTeam) {
+            teams.forEach(function (oTeam) {
                 oTeam.extattrs = (oTeam.extattrs && oTeam.extattrs.length) ? JSON.parse(oTeam.extattrs) : {};
                 oTeam.targets = (!oTeam.targets || oTeam.targets.length === 0) ? [] : JSON.parse(oTeam.targets);
             });
@@ -21,18 +21,18 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
 
         return defer.promise;
     };
-}]).provider('srvGroupApp', function() {
+}]).provider('srvGroupApp', function () {
     var _siteId, _appId, _oApp;
-    this.config = function(siteId, appId) {
+    this.config = function (siteId, appId) {
         _siteId = siteId;
         _appId = appId;
     };
-    this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'srvSite', 'tkGroupTeam', function($q, $uibModal, http2, noticebox, srvSite, tkGroupTeam) {
+    this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'srvSite', 'tkGroupTeam', function ($q, $uibModal, http2, noticebox, srvSite, tkGroupTeam) {
         return {
-            cached: function() {
+            cached: function () {
                 return _oApp;
             },
-            get: function() {
+            get: function () {
                 var defer = $q.defer(),
                     url;
 
@@ -40,14 +40,14 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                     defer.resolve(_oApp);
                 } else {
                     url = '/rest/pl/fe/matter/group/get?site=' + _siteId + '&app=' + _appId;
-                    http2.get(url).then(function(rsp) {
+                    http2.get(url).then(function (rsp) {
                         var schemasById = {};
 
                         _oApp = rsp.data;
                         _oApp.tags = (!_oApp.tags || _oApp.tags.length === 0) ? [] : _oApp.tags.split(',');
                         try {
                             _oApp.group_rule = _oApp.group_rule && _oApp.group_rule.length ? JSON.parse(_oApp.group_rule) : {};
-                            _oApp.dataSchemas.forEach(function(oSchema) {
+                            _oApp.dataSchemas.forEach(function (oSchema) {
                                 if (oSchema.type !== 'html') {
                                     schemasById[oSchema.id] = oSchema;
                                 }
@@ -56,9 +56,9 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                         } catch (e) {
                             console.error('error', e);
                         }
-                        tkGroupTeam.list(_oApp).then(function(teams) {
+                        tkGroupTeam.list(_oApp).then(function (teams) {
                             var teamsById = {};
-                            teams.forEach(function(round) {
+                            teams.forEach(function (round) {
                                 teamsById[round.team_id] = round;
                             });
                             _oApp._teamsById = teamsById;
@@ -69,12 +69,12 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
 
                 return defer.promise;
             },
-            update: function(names) {
+            update: function (names) {
                 var defer = $q.defer(),
                     modifiedData = {};
 
                 angular.isString(names) && (names = [names]);
-                names.forEach(function(name) {
+                names.forEach(function (name) {
                     if (name === 'tags') {
                         modifiedData.tags = _oApp.tags.join(',');
                     } else {
@@ -82,16 +82,16 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                     }
                 });
 
-                http2.post('/rest/pl/fe/matter/group/update?app=' + _appId, modifiedData).then(function(rsp) {
+                http2.post('/rest/pl/fe/matter/group/update?app=' + _appId, modifiedData).then(function (rsp) {
                     defer.resolve(rsp.data);
                 });
                 return defer.promise;
             },
-            assocWithApp: function(sourceTypes, oMission, notSync) {
+            assocWithApp: function (sourceTypes, oMission, notSync) {
                 var defer = $q.defer();
                 $uibModal.open({
                     templateUrl: '/views/default/pl/fe/matter/group/component/sourceApp.html?_=1',
-                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    controller: ['$scope', '$uibModalInstance', function ($scope2, $mi) {
                         $scope2.data = {
                             app: '',
                             appType: 'registration',
@@ -104,15 +104,17 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                             $scope2.data.sameMission = 'Y'
                         };
                         $scope2.sourceTypes = sourceTypes;
-                        $scope2.cancel = function() { $mi.dismiss(); };
-                        $scope2.ok = function() {
+                        $scope2.cancel = function () {
+                            $mi.dismiss();
+                        };
+                        $scope2.ok = function () {
                             $mi.close($scope2.data);
                         };
-                        $scope2.$watch('data.appType', function(appType) {
+                        $scope2.$watch('data.appType', function (appType) {
                             var url;
                             if (!appType) return;
                             if (appType === 'mschema') {
-                                srvSite.memberSchemaList(oMission, !!oMission).then(function(aMschemas) {
+                                srvSite.memberSchemaList(oMission, !!oMission).then(function (aMschemas) {
                                     $scope2.apps = aMschemas;
                                 });
                                 delete $scope2.data.includeEnroll;
@@ -126,14 +128,14 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                                     $scope2.data.includeEnroll = 'Y';
                                 }
                                 oMission && (url += '&mission=' + oMission.id);
-                                http2.get(url).then(function(rsp) {
+                                http2.get(url).then(function (rsp) {
                                     $scope2.apps = rsp.data.apps;
                                 });
                             }
                         });
                     }],
                     backdrop: 'static'
-                }).result.then(function(data) {
+                }).result.then(function (data) {
                     var params;
                     if (data.app) {
                         params = {
@@ -145,11 +147,11 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                             params.appTitle = data.app.title;
                             defer.resolve(params);
                         } else {
-                            http2.post('/rest/pl/fe/matter/group/record/assocWithApp?app=' + _appId, params).then(function(rsp) {
+                            http2.post('/rest/pl/fe/matter/group/record/assocWithApp?app=' + _appId, params).then(function (rsp) {
                                 var schemasById = {}
                                 _oApp.sourceApp = data.app;
                                 _oApp.dataSchemas = rsp.data.dataSchemas;
-                                _oApp.dataSchemas.forEach(function(schema) {
+                                _oApp.dataSchemas.forEach(function (schema) {
                                     if (schema.type !== 'html') {
                                         schemasById[schema.id] = schema;
                                     }
@@ -162,31 +164,31 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                 });
                 return defer.promise;
             },
-            syncByApp: function() {
+            syncByApp: function () {
                 var defer = $q.defer();
                 if (_oApp.sourceApp) {
                     var url = '/rest/pl/fe/matter/group/record/syncByApp?app=' + _appId
-                    http2.get(url).then(function(rsp) {
+                    http2.get(url).then(function (rsp) {
                         noticebox.success('同步' + rsp.data + '个用户');
                         defer.resolve(rsp.data);
                     });
                 }
                 return defer.promise;
             },
-            cancelSourceApp: function() {
+            cancelSourceApp: function () {
                 _oApp.sourceApp = null;
                 _oApp.dataSchemas = null;
                 _oApp.assigned_nickname = '';
                 delete _oApp.sourceApp;
                 return this.update(['source_app', 'data_schemas', 'assigned_nickname']);
             },
-            export: function() {
+            export: function () {
                 var url = '/rest/pl/fe/matter/group/record/export?app=' + _appId;
                 window.open(url);
             },
-            dealData: function(oUser) {
+            dealData: function (oUser) {
                 var role_team_titles = [];
-                oUser.role_teams.forEach(function(teamId) {
+                oUser.role_teams.forEach(function (teamId) {
                     if (_oApp._teamsById[teamId]) {
                         role_team_titles.push(_oApp._teamsById[teamId].title);
                     }
@@ -195,18 +197,18 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
             }
         };
     }];
-}).provider('srvGroupTeam', function() {
+}).provider('srvGroupTeam', function () {
     var _teams, _siteId, _appId;
-    this.config = function(siteId, appId) {
+    this.config = function (siteId, appId) {
         _siteId = siteId;
         _appId = appId;
     };
-    this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'srvGroupApp', 'tkGroupTeam', function($q, $uibModal, http2, noticebox, srvGroupApp, tkGroupTeam) {
+    this.$get = ['$q', '$uibModal', 'http2', 'noticebox', 'srvGroupApp', 'tkGroupTeam', function ($q, $uibModal, http2, noticebox, srvGroupApp, tkGroupTeam) {
         return {
-            cached: function() {
+            cached: function () {
                 return _teams;
             },
-            list: function() {
+            list: function () {
                 var defer = $q.defer(),
                     url;
 
@@ -214,19 +216,21 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                     defer.resolve(_teams);
                 } else {
                     _teams = [];
-                    tkGroupTeam.list({ id: _appId }).then(function(teams) {
+                    tkGroupTeam.list({
+                        id: _appId
+                    }).then(function (teams) {
                         _teams = teams;
                         defer.resolve(_teams);
                     });
                 }
                 return defer.promise;
             },
-            config: function() {
+            config: function () {
                 var defer = $q.defer();
-                srvGroupApp.get().then(function(oApp) {
+                srvGroupApp.get().then(function (oApp) {
                     $uibModal.open({
                         templateUrl: 'configRule.html',
-                        controller: ['$uibModalInstance', '$scope', 'http2', function($mi, $scope, http2) {
+                        controller: ['$uibModalInstance', '$scope', 'http2', function ($mi, $scope, http2) {
                             var groupRule, rule, schemas;
 
                             groupRule = oApp.groupRule;
@@ -237,15 +241,15 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                             };
                             schemas = angular.copy(oApp.dataSchemas);
                             $scope.schemas = [];
-                            http2.get('/rest/pl/fe/matter/group/record/count?app=' + _appId).then(function(rsp) {
+                            http2.get('/rest/pl/fe/matter/group/record/count?app=' + _appId).then(function (rsp) {
                                 $scope.countOfPlayers = rsp.data;
-                                $scope.$watch('rule.count', function(countOfGroups) {
+                                $scope.$watch('rule.count', function (countOfGroups) {
                                     if (countOfGroups) {
                                         rule.times = Math.ceil($scope.countOfPlayers / countOfGroups);
                                     }
                                 });
                             });
-                            schemas.forEach(function(oSchema) {
+                            schemas.forEach(function (oSchema) {
                                 if (oSchema.type === 'single') {
                                     if (groupRule.schemas && groupRule.schemas.indexOf(oSchema.id) !== -1) {
                                         oSchema._selected = true;
@@ -254,11 +258,13 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                                 }
                             });
                             $scope.rule = rule;
-                            $scope.cancel = function() { $mi.dismiss(); };
-                            $scope.ok = function() {
+                            $scope.cancel = function () {
+                                $mi.dismiss();
+                            };
+                            $scope.ok = function () {
                                 if ($scope.schemas.length) {
                                     $scope.rule.schemas = [];
-                                    $scope.schemas.forEach(function(oSchema) {
+                                    $scope.schemas.forEach(function (oSchema) {
                                         if (oSchema._selected) {
                                             $scope.rule.schemas.push(oSchema.id);
                                         }
@@ -268,11 +274,11 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                             };
                         }],
                         backdrop: 'static',
-                    }).result.then(function(oRule) {
+                    }).result.then(function (oRule) {
                         var url = '/rest/pl/fe/matter/group/configRule?app=' + _appId;
                         _teams.splice(0, _teams.length);
-                        http2.post(url, oRule).then(function(rsp) {
-                            rsp.data.forEach(function(oTeam) {
+                        http2.post(url, oRule).then(function (rsp) {
+                            rsp.data.forEach(function (oTeam) {
                                 _teams.push(oTeam);
                             });
                             defer.resolve(_teams);
@@ -281,23 +287,23 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                 });
                 return defer.promise;
             },
-            empty: function() {
+            empty: function () {
                 var defer = $q.defer();
                 if (window.confirm('本操作将清除已有分组数据，确定执行?')) {
                     var url = '/rest/pl/fe/matter/group/configRule?app=' + _appId;
-                    http2.post(url, {}).then(function(rsp) {
+                    http2.post(url, {}).then(function (rsp) {
                         _teams.splice(0, _teams.length);
                         defer.resolve(rsp.data);
                     });
                 }
                 return defer.promise;
             },
-            add: function() {
+            add: function () {
                 var defer = $q.defer(),
                     oProto = {
                         title: '分组' + (_teams.length + 1)
                     };
-                http2.post('/rest/pl/fe/matter/group/team/add?app=' + _appId, oProto).then(function(rsp) {
+                http2.post('/rest/pl/fe/matter/group/team/add?app=' + _appId, oProto).then(function (rsp) {
                     var oNewTeam = rsp.data;
                     oNewTeam._before = angular.copy(oNewTeam);
                     _teams.push(oNewTeam);
@@ -305,12 +311,12 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                 });
                 return defer.promise;
             },
-            update: function(oTeam, name) {
+            update: function (oTeam, name) {
                 var defer = $q.defer(),
                     oUpdated = {};
 
                 oUpdated[name] = oTeam[name];
-                http2.post('/rest/pl/fe/matter/group/team/update?tid=' + oTeam.team_id, oUpdated).then(function(rsp) {
+                http2.post('/rest/pl/fe/matter/group/team/update?tid=' + oTeam.team_id, oUpdated).then(function (rsp) {
                     if (rsp.err_code === 0) {
                         oTeam._before = angular.copy(oTeam);
                         defer.resolve(oTeam);
@@ -318,12 +324,14 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                     } else {
                         oTeam[name] = oTeam._before[name];
                     }
-                }, { autoBreak: false });
+                }, {
+                    autoBreak: false
+                });
                 return defer.promise;
             },
-            remove: function(oTeam) {
+            remove: function (oTeam) {
                 var defer = $q.defer();
-                http2.get('/rest/pl/fe/matter/group/team/remove?tid=' + oTeam.team_id).then(function(rsp) {
+                http2.get('/rest/pl/fe/matter/group/team/remove?tid=' + oTeam.team_id).then(function (rsp) {
                     _teams.splice(_teams.indexOf(oTeam), 1);
                     defer.resolve();
                 });
@@ -331,13 +339,13 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
             },
         }
     }];
-}).provider('srvGroupRec', function() {
+}).provider('srvGroupRec', function () {
     var _oApp, _siteId, _appId, _aPlayers;
-    this.$get = ['$q', '$uibModal', 'noticebox', 'http2', 'cstApp', 'pushnotify', 'tmsSchema', 'srvGroupApp', function($q, $uibModal, noticebox, http2, cstApp, pushnotify, tmsSchema, srvGroupApp) {
+    this.$get = ['$q', '$uibModal', 'noticebox', 'http2', 'cstApp', 'pushnotify', 'tmsSchema', 'srvGroupApp', function ($q, $uibModal, noticebox, http2, cstApp, pushnotify, tmsSchema, srvGroupApp) {
         return {
-            init: function(aCachedUsers) {
+            init: function (aCachedUsers) {
                 var defer = $q.defer();
-                srvGroupApp.get().then(function(oApp) {
+                srvGroupApp.get().then(function (oApp) {
                     _oApp = oApp;
                     _siteId = oApp.siteid;
                     _appId = oApp.id;
@@ -346,15 +354,15 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                 });
                 return defer.promise;
             },
-            execute: function() {
+            execute: function () {
                 var _self = this;
                 if (window.confirm('本操作将清除已有分组数据，确定执行?')) {
-                    http2.get('/rest/pl/fe/matter/group/execute?site=' + _siteId + '&app=' + _appId).then(function(rsp) {
+                    http2.get('/rest/pl/fe/matter/group/execute?site=' + _siteId + '&app=' + _appId).then(function (rsp) {
                         _self.list();
                     });
                 }
             },
-            list: function(oTeam, arg, filterByKeyword) {
+            list: function (oTeam, arg, filterByKeyword) {
                 function fnTeam(obj) {
                     if (oTeam === null) {
                         return obj.all(filterByKeyword || {});
@@ -376,14 +384,14 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                 }
                 arg === 'team' ? fnTeam(this) : fnRoleTeam(this);
             },
-            all: function(oFilter) {
+            all: function (oFilter) {
                 var defer = $q.defer(),
                     url = '/rest/pl/fe/matter/group/record/list?app=' + _appId;
 
                 _aGrpRecords.splice(0, _aGrpRecords.length);
-                http2.post(url, oFilter).then(function(rsp) {
+                http2.post(url, oFilter).then(function (rsp) {
                     if (rsp.data.total) {
-                        rsp.data.records.forEach(function(oRec) {
+                        rsp.data.records.forEach(function (oRec) {
                             tmsSchema.forTable(oRec, _oApp._schemasById);
                             srvGroupApp.dealData(oRec);
                             _aGrpRecords.push(oRec);
@@ -393,13 +401,13 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                 });
                 return defer.promise;
             },
-            winners: function(oTeam, teamType) {
+            winners: function (oTeam, teamType) {
                 var defer = $q.defer(),
                     url = '/rest/pl/fe/matter/group/record/byTeam?app=' + _appId + '&tid=' + oTeam.team_id + '&teamType=' + teamType;
 
                 _aGrpRecords.splice(0, _aGrpRecords.length);
-                http2.get(url).then(function(rsp) {
-                    rsp.data.forEach(function(oRec) {
+                http2.get(url).then(function (rsp) {
+                    rsp.data.forEach(function (oRec) {
                         tmsSchema.forTable(oRec, _oApp._schemasById);
                         srvGroupApp.dealData(oRec);
                         _aGrpRecords.push(oRec);
@@ -408,13 +416,13 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                 });
                 return defer.promise;
             },
-            pendings: function(teamType) {
+            pendings: function (teamType) {
                 var defer = $q.defer(),
                     url = '/rest/pl/fe/matter/group/record/pendingsGet?app=' + _appId + '&teamType=' + teamType;
 
                 _aGrpRecords.splice(0, _aGrpRecords.length);
-                http2.get(url).then(function(rsp) {
-                    rsp.data.forEach(function(oRec) {
+                http2.get(url).then(function (rsp) {
+                    rsp.data.forEach(function (oRec) {
                         tmsSchema.forTable(oRec, _oApp._schemasById);
                         srvGroupApp.dealData(oRec);
                         _aGrpRecords.push(oRec);
@@ -423,19 +431,19 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                 });
                 return defer.promise;
             },
-            quitGroup: function(users) {
+            quitGroup: function (users) {
                 var defer = $q.defer(),
                     url, eks = [];
 
                 url = '/rest/pl/fe/matter/group/record/quitGroup?app=' + _appId;
 
-                users.forEach(function($oRec) {
+                users.forEach(function ($oRec) {
                     eks.push($oRec.enroll_key);
                 });
 
-                http2.post(url, eks).then(function(rsp) {
+                http2.post(url, eks).then(function (rsp) {
                     var oResult = rsp.data;
-                    users.forEach(function(oRec) {
+                    users.forEach(function (oRec) {
                         if (oResult[oRec.enroll_key] !== false) {
                             oRec.team_id = '';
                             oRec.team_title = '';
@@ -446,20 +454,20 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                 });
                 return defer.promise;
             },
-            joinGroup: function(oTeam, users) {
+            joinGroup: function (oTeam, users) {
                 var defer = $q.defer(),
                     url, eks = [];
 
                 url = '/rest/pl/fe/matter/group/record/joinGroup?app=' + _appId;
                 url += '&team=' + oTeam.team_id;
 
-                users.forEach(function(oRec) {
+                users.forEach(function (oRec) {
                     eks.push(oRec.enroll_key);
                 });
 
-                http2.post(url, eks).then(function(rsp) {
+                http2.post(url, eks).then(function (rsp) {
                     var oResult = rsp.data;
-                    users.forEach(function(oRec) {
+                    users.forEach(function (oRec) {
                         if (oResult[oRec.enroll_key] !== false) {
                             switch (oTeam.team_type) {
                                 case 'T':
@@ -479,12 +487,12 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                 });
                 return defer.promise;
             },
-            add: function(oRec) {
+            add: function (oRec) {
                 var defer = $q.defer(),
                     url;
 
                 url = '/rest/pl/fe/matter/group/record/add?app=' + _appId;
-                http2.post(url, oRec).then(function(rsp) {
+                http2.post(url, oRec).then(function (rsp) {
                     tmsSchema.forTable(rsp.data, _oApp._schemasById);
                     srvGroupApp.dealData(rsp.data);
                     _aGrpRecords.splice(0, 0, rsp.data);
@@ -492,13 +500,13 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                 });
                 return defer.promise;
             },
-            update: function(oBeforeRec, oNewRec) {
+            update: function (oBeforeRec, oNewRec) {
                 var defer = $q.defer(),
                     url;
 
                 url = '/rest/pl/fe/matter/group/record/update?app=' + _appId;
                 url += '&ek=' + oBeforeRec.enroll_key;
-                http2.post(url, oNewRec).then(function(rsp) {
+                http2.post(url, oNewRec).then(function (rsp) {
                     http2.merge(oBeforeRec, rsp.data);
                     tmsSchema.forTable(oBeforeRec, _oApp._schemasById);
                     srvGroupApp.dealData(oBeforeRec);
@@ -506,21 +514,21 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                 });
                 return defer.promise;
             },
-            remove: function(oBeforeRec) {
+            remove: function (oBeforeRec) {
                 var defer = $q.defer();
-                http2.get('/rest/pl/fe/matter/group/record/remove?app=' + _appId + '&ek=' + oBeforeRec.enroll_key).then(function(rsp) {
+                http2.get('/rest/pl/fe/matter/group/record/remove?app=' + _appId + '&ek=' + oBeforeRec.enroll_key).then(function (rsp) {
                     _aGrpRecords.splice(_aGrpRecords.indexOf(oBeforeRec), 1);
                     defer.resolve();
                 });
                 return defer.promise;
             },
-            empty: function() {
+            empty: function () {
                 var defer = $q.defer(),
                     vcode;
 
                 vcode = prompt('是否要从【' + _oApp.title + '】删除所有用户？，若是，请输入活动名称。');
                 if (vcode === _oApp.title) {
-                    http2.get('/rest/pl/fe/matter/group/record/empty?app=' + _appId).then(function(rsp) {
+                    http2.get('/rest/pl/fe/matter/group/record/empty?app=' + _appId).then(function (rsp) {
                         _aGrpRecords.splice(0, _aGrpRecords.length);
                         defer.resolve();
                     });
@@ -529,33 +537,36 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                 }
                 return defer.promise;
             },
-            edit: function(oRecord) {
+            edit: function (oRecord) {
                 return $uibModal.open({
                     templateUrl: '/views/default/pl/fe/matter/group/component/recordEditor.html',
                     controller: 'ctrlGrpRecEditor',
                     windowClass: 'auto-height',
                     resolve: {
-                        record: function() {
+                        record: function () {
                             return angular.copy(oRecord);
                         }
                     }
                 }).result;
             },
-            notify: function(rows) {
+            notify: function (rows) {
                 var options = {
                     matterTypes: cstApp.notifyMatter,
                     sender: 'group:' + _appId
                 };
                 _oApp.mission && (options.missionId = _oApp.mission.id);
-                pushnotify.open(_siteId, function(notify) {
+                pushnotify.open(_siteId, function (notify) {
                     var url, targetAndMsg = {};
                     if (notify.matters.length) {
                         if (rows) {
                             targetAndMsg.users = [];
-                            Object.keys(rows.selected).forEach(function(key) {
+                            Object.keys(rows.selected).forEach(function (key) {
                                 if (rows.selected[key] === true) {
                                     var rec = _aGrpRecords[key];
-                                    targetAndMsg.users.push({ userid: rec.userid, enroll_key: rec.enroll_key });
+                                    targetAndMsg.users.push({
+                                        userid: rec.userid,
+                                        enroll_key: rec.enroll_key
+                                    });
                                 }
                             });
                         }
@@ -566,7 +577,7 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                         targetAndMsg.app = _appId;
                         targetAndMsg.tmplmsg = notify.tmplmsg.id;
 
-                        http2.post(url, targetAndMsg).then(function(data) {
+                        http2.post(url, targetAndMsg).then(function (data) {
                             noticebox.success('发送完成');
                         });
                     }
@@ -574,15 +585,15 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
             },
         }
     }];
-}).provider('srvGroupNotice', function() {
-    this.$get = ['$q', 'http2', 'srvGroupApp', function($q, http2, srvGroupApp) {
+}).provider('srvGroupNotice', function () {
+    this.$get = ['$q', 'http2', 'srvGroupApp', function ($q, http2, srvGroupApp) {
         return {
-            detail: function(batch) {
+            detail: function (batch) {
                 var defer = $q.defer(),
                     url;
-                srvGroupApp.get().then(function(oApp) {
+                srvGroupApp.get().then(function (oApp) {
                     url = '/rest/pl/fe/matter/group/notice/logList?batch=' + batch.id + '&app=' + oApp.id;
-                    http2.get(url).then(function(rsp) {
+                    http2.get(url).then(function (rsp) {
                         defer.resolve(rsp.data);
                     });
                 });
@@ -591,13 +602,13 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
             }
         }
     }]
-}).controller('ctrlGrpRecEditor', ['$scope', '$uibModalInstance', '$sce', 'record', 'tmsSchema', 'srvGroupApp', 'tkGroupTeam', function($scope, $mi, $sce, oRecord, tmsSchema, srvGroupApp, tkGroupTeam) {
-    srvGroupApp.get().then(function(oApp) {
+}).controller('ctrlGrpRecEditor', ['$scope', '$uibModalInstance', '$sce', 'record', 'tmsSchema', 'srvGroupApp', 'tkGroupTeam', function ($scope, $mi, $sce, oRecord, tmsSchema, srvGroupApp, tkGroupTeam) {
+    srvGroupApp.get().then(function (oApp) {
         $scope.app = oApp;
-        tkGroupTeam.list(oApp).then(function(teams) {
+        tkGroupTeam.list(oApp).then(function (teams) {
             $scope.teamRounds = [];
             $scope.roleTeams = [];
-            teams.forEach(function(oTeam) {
+            teams.forEach(function (oTeam) {
                 switch (oTeam.team_type) {
                     case 'T':
                         $scope.teamRounds.push(oTeam);
@@ -609,14 +620,14 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
             });
             var obj = {};
             if (oRecord.role_teams && oRecord.role_teams.length) {
-                oRecord.role_teams.forEach(function(teamId) {
+                oRecord.role_teams.forEach(function (teamId) {
                     obj[teamId] = true;
                 });
                 oRecord._role_teams = obj;
             }
         });
         if (oRecord.data) {
-            oApp.dataSchemas.forEach(function(schema) {
+            oApp.dataSchemas.forEach(function (schema) {
                 if (oRecord.data[schema.id]) {
                     tmsSchema.forEdit(schema, oRecord.data);
                 }
@@ -626,7 +637,7 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
         oRecord.aTags = (!oRecord.tags || oRecord.tags.length === 0) ? [] : oRecord.tags.split(',');
         $scope.record = oRecord;
     });
-    $scope.scoreRangeArray = function(schema) {
+    $scope.scoreRangeArray = function (schema) {
         var arr = [];
         if (schema.range && schema.range.length === 2) {
             for (var i = schema.range[0]; i <= schema.range[1]; i++) {
@@ -635,7 +646,7 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
         }
         return arr;
     };
-    $scope.ok = function() {
+    $scope.ok = function () {
         var oNewRecord, oScopeRecord;
         if ($scope.record._role_teams) {
             for (var i in $scope.record._role_teams) {
@@ -657,7 +668,7 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
             role_teams: oScopeRecord.role_teams
         };
         if (oScopeRecord.data) {
-            $scope.app.dataSchemas.forEach(function(oSchema) {
+            $scope.app.dataSchemas.forEach(function (oSchema) {
                 if (oScopeRecord.data[oSchema.id]) {
                     oNewRecord.data[oSchema.id] = oScopeRecord.data[oSchema.id];
                 }
@@ -666,10 +677,15 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
                 oNewRecord.data.member = oScopeRecord.data.member;
             }
         }
-        $mi.close({ record: oNewRecord, tags: $scope.aTags });
+        $mi.close({
+            record: oNewRecord,
+            tags: $scope.aTags
+        });
     };
-    $scope.cancel = function() { $mi.dismiss(); };
-    $scope.$on('tag.xxt.combox.done', function(event, aSelected) {
+    $scope.cancel = function () {
+        $mi.dismiss();
+    };
+    $scope.$on('tag.xxt.combox.done', function (event, aSelected) {
         var aNewTags = [];
         for (var i in aSelected) {
             var existing = false;
@@ -682,11 +698,11 @@ service('tkGroupTeam', ['$q', 'http2', function($q, http2) {
         }
         $scope.record.aTags = $scope.record.aTags.concat(aNewTags);
     });
-    $scope.$on('tag.xxt.combox.add', function(event, newTag) {
+    $scope.$on('tag.xxt.combox.add', function (event, newTag) {
         $scope.record.aTags.push(newTag);
         $scope.aTags.indexOf(newTag) === -1 && $scope.aTags.push(newTag);
     });
-    $scope.$on('tag.xxt.combox.del', function(event, removed) {
+    $scope.$on('tag.xxt.combox.del', function (event, removed) {
         $scope.record.aTags.splice($scope.record.aTags.indexOf(removed), 1);
     });
 }]);

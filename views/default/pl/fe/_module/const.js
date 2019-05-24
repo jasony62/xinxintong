@@ -11,10 +11,9 @@ constant('CstNaming', {
             'enroll': '记录',
             'signin': '签到',
             'group': '分组',
-            'plan': '计划',
             'memberschema': '通讯录'
         },
-        appOrder: ['enroll', 'signin', 'group', 'plan', 'memberschema']
+        appOrder: ['enroll', 'signin', 'group', 'memberschema']
     },
     scenario: {
         enroll: {

@@ -156,7 +156,8 @@ class rank extends base {
             $q[0] .= ',r.group_id,g.team_title';
             $q[1] .= ",xxt_group_record g";
             $q[2]['g.aid'] = $oApp->entryRule->group->id;
-            $q[2]['g.is_leader'] = (object) ['op' => '<>', 'pat' => '0'];
+            $q[2]['userid'] = (object) ['op' => 'and', 'pat' => 'g.userid=r.userid'];
+            $q[2]['g.is_leader'] = (object) ['op' => '<>', 'pat' => 'O'];
             $q[2]['group_id'] = (object) ['op' => 'and', 'pat' => 'g.team_id=r.group_id'];
         }
         // 轮次条件
@@ -331,11 +332,13 @@ class rank extends base {
             'xxt_enroll_record_data',
             ['aid' => $oApp->id, 'state' => 1, 'schema_id' => $schemaId, 'group_id' => (object) ['op' => '<>', 'pat' => '']],
         ];
-        if (!empty($oCriteria->round) && is_string($oCriteria->round)) {
-            $oCriteria->round = explode(',', $oCriteria->round);
-        }
-        if (!empty($oCriteria->round) && !in_array('ALL', $oCriteria->round)) {
-            $q[2]['rid'] = $oCriteria->round;
+        if (!empty($oCriteria->round)) {
+            if (is_string($oCriteria->round)) {
+                $oCriteria->round = explode(',', $oCriteria->round);
+            }
+            if (!in_array('ALL', $oCriteria->round)) {
+                $q[2]['rid'] = $oCriteria->round;
+            }
         }
 
         $q2['g'] = ['group_id'];

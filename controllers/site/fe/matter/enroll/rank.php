@@ -468,6 +468,9 @@ class rank extends base {
     private function _schemaByRecord($oApp, $oCriteria, $oRankSchema, $aSchemaOps) {
         $schemaId = substr($oCriteria->orderby, 7);
 
+        /* 处理通信录题目，例如：member.extattr.s1558673860999 */
+        $aSchemaIdSegs = explode('.', $oRankSchema->id);
+
         $modelRecDat = $this->model('matter\enroll\data');
         $q = [
             'sum(value) num',

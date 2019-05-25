@@ -46,7 +46,7 @@ class rank extends base {
         if (!empty($oApp->entryRule->group->id)) {
             $q[0] .= ',u.group_id,g.team_title';
             $q[1] .= ",xxt_group_record g";
-            $q[2] .= " and g.aid='{$oApp->entryRule->group->id}' and g.team_id=u.group_id and g.is_leader<>'O'";
+            $q[2] .= " and g.aid='{$oApp->entryRule->group->id}' and u.userid=g.userid and g.team_id=u.group_id and g.is_leader<>'O'";
         }
 
         // 轮次

@@ -63,15 +63,23 @@ ngMod.factory('enlTask', ['http2', '$q', '$parse', '$filter', '$uibModal', 'tmsL
             str, weekday, oDateFilter;
 
         oDateFilter = $filter('date');
-        str = oDateFilter(oTask.start_at * 1000, 'M月d日(EEE)H:mm');
-        weekday = oDateFilter(oTask.start_at * 1000, 'EEE');
-        str = str.replace(weekday, i18n.weekday[weekday]);
-        strs.start_at = str;
+        if (oTask.start_at) {
+            str = oDateFilter(oTask.start_at * 1000, 'M月d日(EEE)H:mm');
+            weekday = oDateFilter(oTask.start_at * 1000, 'EEE');
+            str = str.replace(weekday, i18n.weekday[weekday]);
+            strs.start_at = str;
+        } else {
+            strs.start_at = 0;
+        }
 
-        str = oDateFilter(oTask.end_at * 1000, 'M月d日(EEE)H:mm');
-        weekday = oDateFilter(oTask.end_at * 1000, 'EEE');
-        str = str.replace(weekday, i18n.weekday[weekday]);
-        strs.end_at = str;
+        if (oTask.end_at) {
+            str = oDateFilter(oTask.end_at * 1000, 'M月d日(EEE)H:mm');
+            weekday = oDateFilter(oTask.end_at * 1000, 'EEE');
+            str = str.replace(weekday, i18n.weekday[weekday]);
+            strs.end_at = str;
+        } else {
+            strs.end_at = 0;
+        }
 
         return strs;
     }

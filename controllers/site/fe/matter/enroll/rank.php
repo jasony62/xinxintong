@@ -46,7 +46,7 @@ class rank extends base {
         if (!empty($oApp->entryRule->group->id)) {
             $q[0] .= ',u.group_id,g.team_title';
             $q[1] .= ",xxt_group_record g";
-            $q[2] .= " and g.aid='{$oApp->entryRule->group->id}' and g.team_id=u.group_id and g.is_leader<>'O'";
+            $q[2] .= " and g.aid='{$oApp->entryRule->group->id}' and u.userid=g.userid and g.team_id=u.group_id and g.is_leader<>'O'";
         }
 
         // 轮次
@@ -393,13 +393,22 @@ class rank extends base {
     private function _schemaByBehavior($oApp, $oCriteria, $oRankSchema, $aSchemaOps) {
         $modelRecDat = $this->model('matter\enroll\data');
 
+        /* 处理通信录题目，例如：member.extattr.s1558673860999 */
+        $aSchemaIdSegs = explode('.', $oRankSchema->id);
+
         switch ($oCriteria->orderby) {
         case 'enroll': // 填写次数
             $q = [
                 'value,count(*) num',
                 'xxt_enroll_record_data',
-                ['aid' => $oApp->id, 'state' => 1, 'schema_id' => $oRankSchema->id, 'value' => (object) ['op' => '<>', 'pat' => '']],
+                ['aid' => $oApp->id, 'state' => 1],
             ];
+            if (count($aSchemaIdSegs) === 3) {
+                return [false, '该数据暂时无法提供'];
+            } else {
+                $q[2]['schema_id'] = $oRankSchema->id;
+                $q[2]['value'] = (object) ['op' => '<>', 'pat' => ''];
+            }
             if (!empty($oCriteria->round) && is_array($oCriteria->round) && !in_array('ALL', $oCriteria->round)) {
                 $q[2]['rid'] = $oCriteria->round;
             }
@@ -423,7 +432,13 @@ class rank extends base {
                     $q[2]['rid'] = $oCriteria->round;
                 }
                 foreach ($aSchemaOps as $opv => $opl) {
-                    $q[2]['value'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_record_data rd2 where rd1.enroll_key=rd2.enroll_key and rd2.state=1 and rd2.schema_id=\'' . $oRankSchema->id . '\' and rd2.value=\'' . $opv . '\''];
+                    if (count($aSchemaIdSegs) === 3) {
+                        $opVal = '"' . $aSchemaIdSegs[2] . '":"' . $opv . '"';
+                        $q[2]['value'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_record_data rd2 where rd1.aid=rd2.aid and rd1.enroll_key=rd2.enroll_key and rd2.state=1 and rd2.schema_id="member" and rd2.value like \'%' . $opVal . '%\''];
+                    } else {
+                        $q[2]['value'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_record_data rd2 where rd1.aid=rd2.aid and rd1.enroll_key=rd2.enroll_key and rd2.state=1 and rd2.schema_id=\'' . $oRankSchema->id . '\' and rd2.value=\'' . $opv . '\''];
+                    }
+                    $sql = $modelRecDat->query_obj_ss_toSql($q);
                     $oNum = $modelRecDat->query_obj_ss($q);
                     $oNum->l = $opl;
                     if ($oCriteria->orderby === 'average_score') {
@@ -453,6 +468,9 @@ class rank extends base {
     private function _schemaByRecord($oApp, $oCriteria, $oRankSchema, $aSchemaOps) {
         $schemaId = substr($oCriteria->orderby, 7);
 
+        /* 处理通信录题目，例如：member.extattr.s1558673860999 */
+        $aSchemaIdSegs = explode('.', $oRankSchema->id);
+
         $modelRecDat = $this->model('matter\enroll\data');
         $q = [
             'sum(value) num',
@@ -463,7 +481,12 @@ class rank extends base {
             $q[2]['rid'] = $oCriteria->round;
         }
         foreach ($aSchemaOps as $opv => $opl) {
-            $q[2]['value'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_record_data rd2 where rd1.enroll_key=rd2.enroll_key and rd2.state=1 and rd2.schema_id=\'' . $oRankSchema->id . '\' and rd2.value=\'' . $opv . '\''];
+            if (count($aSchemaIdSegs) === 3) {
+                $opVal = '"' . $aSchemaIdSegs[2] . '":"' . $opv . '"';
+                $q[2]['value'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_record_data rd2 where rd1.enroll_key=rd2.enroll_key and rd2.state=1 and rd2.schema_id="member" and rd2.value like \'%' . $opVal . '%\''];
+            } else {
+                $q[2]['value'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_record_data rd2 where rd1.enroll_key=rd2.enroll_key and rd2.state=1 and rd2.schema_id=\'' . $oRankSchema->id . '\' and rd2.value=\'' . $opv . '\''];
+            }
             $oNum = $modelRecDat->query_obj_ss($q);
             $oNum->l = $opl;
             $oRankResult[] = $oNum;
@@ -484,6 +507,12 @@ class rank extends base {
         if ($oApp === false || $oApp->state !== '1') {
             return new \ObjectNotFoundError();
         }
+
+        $oCriteria = $this->getPostJson();
+        if (empty($oCriteria->orderby)) {
+            return new \ParameterError();
+        }
+
         $oRankSchema = tms_array_search($oApp->dynaDataSchemas, function ($oSchema) use ($schema) {return $oSchema->id === $schema;});
         if (false === $oRankSchema) {
             return new \ObjectNotFoundError('指定的题目不存在');
@@ -491,13 +520,12 @@ class rank extends base {
         if ($oRankSchema->type !== 'single' || empty($oRankSchema->ops)) {
             return new \ParameterError('指定的题目不支持进行排行');
         }
-        $aSchemaOps = [];
+        $aSchemaOps = []; // 单选题选项作为排行对象
         array_walk($oRankSchema->ops, function ($oOp) use (&$aSchemaOps) {$aSchemaOps[$oOp->v] = $oOp->l;});
-
-        $oCriteria = $this->getPostJson();
-        if (empty($oCriteria->orderby)) {
-            return new \ParameterError();
+        if (empty($aSchemaOps)) {
+            return new \ParameterError('指定的题目选项为空，无法进行排行');
         }
+
         if (0 === strpos($oCriteria->orderby, 'schema_')) {
             $aResult = $this->_schemaByRecord($oApp, $oCriteria, $oRankSchema, $aSchemaOps);
         } else {

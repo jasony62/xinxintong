@@ -126,12 +126,20 @@ class TMS_MODEL {
         return TMS_DB::db()->query_obj($select, $from, $where, $this->onlyWriteDbConn);
     }
     /**
+     * 获得要执行的SQL语句
+     */
+    public function query_obj_ss_toSql($q) {
+        $sql = call_user_func_array([TMS_DB::db(), "assemble_query"], $q);
+
+        return $sql;
+    }
+    /**
      *  返回单个对象
      */
-    public function query_obj_ss($p, $p2 = null) {
-        $select = $p[0];
-        $from = $p[1];
-        $where = isset($p[2]) ? $p[2] : null;
+    public function query_obj_ss($q) {
+        $select = $q[0];
+        $from = $q[1];
+        $where = isset($q[2]) ? $q[2] : null;
 
         return $this->query_obj($select, $from, $where);
     }
@@ -164,19 +172,19 @@ class TMS_MODEL {
     /**
      *
      */
-    public function query_objs_ss($p, $p2 = null) {
+    public function query_objs_ss($q, $q2 = null) {
         // select,from,where
-        $select = $p[0];
-        $from = $p[1] ? $p['1'] : null;
-        $where = isset($p[2]) ? $p[2] : null;
+        $select = $q[0];
+        $from = $q[1] ? $q['1'] : null;
+        $where = isset($q[2]) ? $q[2] : null;
         // group,order by,limit
         $group = $order = $offset = $limit = null;
-        if ($p2) {
-            $group = !empty($p2['g']) ? $p2['g'] : null;
-            $order = !empty($p2['o']) ? $p2['o'] : null;
-            if (!empty($p2['r'])) {
-                $offset = $p2['r']['o'];
-                $limit = $p2['r']['l'];
+        if ($q2) {
+            $group = !empty($q2['g']) ? $q2['g'] : null;
+            $order = !empty($q2['o']) ? $q2['o'] : null;
+            if (!empty($q2['r'])) {
+                $offset = $q2['r']['o'];
+                $limit = $q2['r']['l'];
             }
         }
 

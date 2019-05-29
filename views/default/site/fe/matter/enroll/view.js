@@ -8,11 +8,11 @@ require('./_asset/ui.round.js');
 window.moduleAngularModules = ['round.ui.enroll', 'schema.ui.xxt'];
 
 var ngApp = require('./main.js');
-ngApp.factory('Record', ['http2', 'tmsLocation', function(http2, LS) {
+ngApp.factory('Record', ['http2', 'tmsLocation', function (http2, LS) {
     var Record, _ins, _deferredRecord;
-    Record = function(oApp) {
+    Record = function (oApp) {
         var data = {}; // 初始化空数据，优化加载体验
-        oApp.dynaDataSchemas.forEach(function(schema) {
+        oApp.dynaDataSchemas.forEach(function (schema) {
             data[schema.id] = '';
         });
         this.current = {
@@ -20,14 +20,14 @@ ngApp.factory('Record', ['http2', 'tmsLocation', function(http2, LS) {
             data: data
         };
     };
-    Record.prototype.remove = function(record) {
+    Record.prototype.remove = function (record) {
         var url;
         url = LS.j('record/remove', 'site', 'app');
         url += '&ek=' + record.enroll_key;
         return http2.get(url);
     };
     return {
-        ins: function(oApp) {
+        ins: function (oApp) {
             if (_ins) {
                 return _ins;
             }
@@ -36,19 +36,19 @@ ngApp.factory('Record', ['http2', 'tmsLocation', function(http2, LS) {
         }
     };
 }]);
-ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$parse', '$sce', 'noticebox', function($scope, Record, LS, $parse, $sce, noticebox) {
-    $scope.value2Label = function(schemaId) {
+ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$parse', '$sce', 'noticebox', function ($scope, Record, LS, $parse, $sce, noticebox) {
+    $scope.value2Label = function (schemaId) {
         var val, oRecord;
         if (schemaId && $scope.Record) {
             oRecord = $scope.Record.current;
-            if (oRecord && oRecord.data && oRecord.data[schemaId]) {
+            if (oRecord && oRecord.data) {
                 val = $parse(schemaId)(oRecord.data);
-                return $sce.trustAsHtml(val);
+                return val ? $sce.trustAsHtml(val) : '';
             }
         }
         return '';
     };
-    $scope.score2Html = function(schemaId) {
+    $scope.score2Html = function (schemaId) {
         var oSchema, val, oRecord, label;
         if ($scope.Record) {
             if (oSchema = $scope.app._schemasById[schemaId]) {
@@ -57,7 +57,7 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$parse', '$s
                 if (oRecord && oRecord.data && oRecord.data[schemaId]) {
                     val = oRecord.data[schemaId];
                     if (oSchema.ops && oSchema.ops.length) {
-                        oSchema.ops.forEach(function(op, index) {
+                        oSchema.ops.forEach(function (op, index) {
                             label += '<div>' + op.l + ': ' + (val[op.v] ? val[op.v] : 0) + '</div>';
                         });
                     }
@@ -68,11 +68,11 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$parse', '$s
         return '';
     };
 }]);
-ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2', 'noticebox', 'Record', 'picviewer', '$timeout', 'tmsSchema', 'enlRound', function($scope, $sce, $parse, LS, http2, noticebox, Record, picviewer, $timeout, tmsSchema, enlRound) {
+ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2', 'noticebox', 'Record', 'picviewer', '$timeout', 'tmsSchema', 'enlRound', function ($scope, $sce, $parse, LS, http2, noticebox, Record, picviewer, $timeout, tmsSchema, enlRound) {
     function fnHidePageActions() {
         var domActs, domAct;
         if (domActs = document.querySelectorAll('[wrap=button]')) {
-            angular.forEach(domActs, function(domAct) {
+            angular.forEach(domActs, function (domAct) {
                 domAct.style.display = 'none';
             });
         }
@@ -94,7 +94,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
         var oRecData, originalValue, afterValue;
         oRecData = oRecord.data;
         if (oRecData && Object.keys(oRecData).length) {
-            _oApp.dynaDataSchemas.forEach(function(oSchema) {
+            _oApp.dynaDataSchemas.forEach(function (oSchema) {
                 originalValue = $parse(oSchema.id)(oRecData);
                 if (originalValue) {
                     switch (oSchema.type) {
@@ -114,7 +114,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
                             originalValue = originalValue.split(',');
                             if (oSchema.ops && oSchema.ops.length) {
                                 afterValue = [];
-                                oSchema.ops.forEach(function(op) {
+                                oSchema.ops.forEach(function (op) {
                                     originalValue.indexOf(op.v) !== -1 && afterValue.push(op.l);
                                 });
                                 afterValue = afterValue.length ? afterValue.join(',') : '[空]';
@@ -138,7 +138,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
     function fnDisableActions() {
         var domActs, domAct;
         if (domActs = document.querySelectorAll('button[ng-click]')) {
-            angular.forEach(domActs, function(domAct) {
+            angular.forEach(domActs, function (domAct) {
                 var ngClick = domAct.getAttribute('ng-click');
                 if (ngClick.indexOf('editRecord') === 0 || ngClick.indexOf('removeRecord') === 0) {
                     domAct.style.display = 'none';
@@ -150,7 +150,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
      * 控制轮次题目的可见性
      */
     function fnToggleRoundSchemas(dataSchemas, oRecordData) {
-        dataSchemas.forEach(function(oSchema) {
+        dataSchemas.forEach(function (oSchema) {
             var domSchema;
             domSchema = document.querySelector('[wrap=value][schema="' + oSchema.id + '"]');
             if (domSchema && oSchema.hideByRoundPurpose && oSchema.hideByRoundPurpose.length) {
@@ -168,7 +168,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
      * 控制关联题目的可见性
      */
     function fnToggleAssocSchemas(dataSchemas, oRecordData) {
-        dataSchemas.forEach(function(oSchema) {
+        dataSchemas.forEach(function (oSchema) {
             var domSchema;
             domSchema = document.querySelector('[wrap=value][schema="' + oSchema.id + '"]');
             if (domSchema && oSchema.visibility && oSchema.visibility.rules && oSchema.visibility.rules.length) {
@@ -194,7 +194,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
     }
     /* 显示题目的分数 */
     function fnShowSchemaScore(oScore) {
-        _aScoreSchemas.forEach(function(oSchema) {
+        _aScoreSchemas.forEach(function (oSchema) {
             var domSchema, domScore;
             domSchema = document.querySelector('[wrap=value][schema="' + oSchema.id + '"]');
             if (domSchema) {
@@ -271,7 +271,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
                 fnDisableActions();
             }
         }
-        $timeout(function() {
+        $timeout(function () {
             var imgs;
             if (imgs = document.querySelectorAll('.data img')) {
                 picviewer.init(imgs);
@@ -280,7 +280,11 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
         /* 设置页面分享信息 */
         $scope.setSnsShare(oRecord);
         /* 同轮次的其他记录 */
-        http2.post(LS.j('record/list', 'site', 'app') + '&sketch=Y', { record: { rid: oRecord.round.rid } }).then(function(rsp) {
+        http2.post(LS.j('record/list', 'site', 'app') + '&sketch=Y', {
+            record: {
+                rid: oRecord.round.rid
+            }
+        }).then(function (rsp) {
             var records;
             if (records = rsp.data.records) {
                 $scope.recordsOfRound = {
@@ -289,7 +293,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
                         size: 1,
                         total: rsp.data.total
                     },
-                    shift: function() {
+                    shift: function () {
                         fnGetRecord(records[this.page.at - 1].enroll_key).then(fnSetPageByRecord);
                     }
                 };
@@ -303,7 +307,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
         });
         /* 目标轮次记录 */
         if (['C', 'S'].indexOf(oRecord.round.purpose) !== -1) {
-            http2.get(LS.j('record/baseline', 'site', 'app') + '&rid=' + oRecord.round.rid).then(function(rsp) {
+            http2.get(LS.j('record/baseline', 'site', 'app') + '&rid=' + oRecord.round.rid).then(function (rsp) {
                 if (rsp.data) {
                     /* 显示题目的目标值 */
                     fnShowSchemaBaseline(rsp.data);
@@ -317,10 +321,10 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
 
     var _oApp, _aScoreSchemas;
 
-    $scope.gotoHome = function() {
+    $scope.gotoHome = function () {
         location.href = "/rest/site/fe/matter/enroll?site=" + _oApp.siteid + "&app=" + _oApp.id + "&page=repos";
     };
-    $scope.addRecord = function(event, page) {
+    $scope.addRecord = function (event, page) {
         if (page) {
             $scope.gotoPage(event, page, null, $scope.Record.current.round.rid, 'Y');
         } else {
@@ -333,7 +337,7 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
             }
         }
     };
-    $scope.editRecord = function(event, page) {
+    $scope.editRecord = function (event, page) {
         if ($scope.app.scenarioConfig) {
             if ($scope.app.scenarioConfig.can_cowork !== 'Y') {
                 if ($scope.user.uid !== $scope.Record.current.userid) {
@@ -353,23 +357,23 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
         }
         $scope.gotoPage(event, page, $scope.Record.current.enroll_key);
     };
-    $scope.removeRecord = function(event, page) {
+    $scope.removeRecord = function (event, page) {
         if ($scope.app.scenarioConfig.can_cowork && $scope.app.scenarioConfig.can_cowork !== 'Y') {
             if ($scope.user.uid !== $scope.Record.current.userid) {
                 noticebox.warn('不允许删除他人提交的数据');
                 return;
             }
         }
-        noticebox.confirm('删除记录，确定？').then(function() {
-            $scope.Record.remove($scope.Record.current).then(function(data) {
+        noticebox.confirm('删除记录，确定？').then(function () {
+            $scope.Record.remove($scope.Record.current).then(function (data) {
                 page && $scope.gotoPage(event, page);
             });
         });
     };
-    $scope.shiftRound = function(oRound) {
+    $scope.shiftRound = function (oRound) {
         fnGetRecordByRound(oRound).then(fnSetPageByRecord);
     };
-    $scope.doAction = function(event, oAction) {
+    $scope.doAction = function (event, oAction) {
         switch (oAction.name) {
             case 'addRecord':
                 $scope.addRecord(event, oAction.next);
@@ -387,21 +391,21 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
                 $scope.closeWindow();
         }
     };
-    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+    $scope.$on('xxt.app.enroll.ready', function (event, params) {
         var facRecord, facRound;
 
         /* 不再支持在页面中直接显示按钮 */
         fnHidePageActions();
         _oApp = params.app;
         _aScoreSchemas = [];
-        _oApp.dynaDataSchemas.forEach(function(oSchema) {
+        _oApp.dynaDataSchemas.forEach(function (oSchema) {
             if (oSchema.requireScore === 'Y' && oSchema.format === 'number' && oSchema.type === 'shorttext') {
                 _aScoreSchemas.push(oSchema);
             }
         });
         $scope.Record = facRecord = Record.ins(_oApp);
         facRound = new enlRound(_oApp);
-        facRound.list().then(function(oResult) {
+        facRound.list().then(function (oResult) {
             $scope.rounds = oResult.rounds;
         });
         fnGetRecord().then(fnSetPageByRecord);

@@ -87,9 +87,11 @@ define(['frame', 'groupService'], function (ngApp) {
         function fnGetEntryRuleMschema() {
             var oAppEntryRule = $scope.app.entryRule;
             if (oAppEntryRule.scope && oAppEntryRule.scope.member === 'Y') {
-                if (oAppEntryRule.member && Object.keys(oAppEntryRule.member).length) {
-                    if ($scope.mschemasById[Object.keys(oAppEntryRule.member)[0]]) {
-                        return $scope.mschemasById[Object.keys(oAppEntryRule.member)[0]];
+                if ($scope.mschemasById) {
+                    if (oAppEntryRule.member && Object.keys(oAppEntryRule.member).length) {
+                        if ($scope.mschemasById[Object.keys(oAppEntryRule.member)[0]]) {
+                            return $scope.mschemasById[Object.keys(oAppEntryRule.member)[0]];
+                        }
                     }
                 }
             }

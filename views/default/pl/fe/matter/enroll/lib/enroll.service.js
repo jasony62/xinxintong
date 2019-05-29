@@ -149,15 +149,15 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
         function _fnMapAssocEnrollApp(oApp) {
             var enrollDataSchemas = [];
             if (oApp.enrollApp && oApp.enrollApp.dataSchemas) {
-                oApp.enrollApp.dataSchemas.forEach(function (item) {
-                    if (oApp._unionSchemasById[item.id] === undefined) {
-                        item.assocState = '';
-                        oApp._unionSchemasById[item.id] = item;
-                        enrollDataSchemas.push(item);
-                    } else if (oApp._schemasById[item.id] && oApp._schemasById[item.id].fromApp === oApp.enrollApp.id) {
-                        item.assocState = 'yes';
+                oApp.enrollApp.dataSchemas.forEach(function (oSchema) {
+                    if (oApp._schemasById[oSchema.id]) {
+                        oSchema.assocState = oApp._schemasById[oSchema.id].fromApp === oApp.enrollApp.id ? 'yes' : 'no';
                     } else {
-                        item.assocState = 'no';
+                        oSchema.assocState = '';
+                    }
+                    if (oApp._unionSchemasById[oSchema.id] === undefined) {
+                        oApp._unionSchemasById[oSchema.id] = oSchema;
+                        enrollDataSchemas.push(oSchema);
                     }
                 });
             }
@@ -167,15 +167,15 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
         function _fnMapAssocGroupApp(oApp) {
             var groupDataSchemas = [];
             if (oApp.groupApp && oApp.groupApp.dataSchemas) {
-                oApp.groupApp.dataSchemas.forEach(function (item) {
-                    if (oApp._unionSchemasById[item.id] === undefined) {
-                        item.assocState = '';
-                        oApp._unionSchemasById[item.id] = item;
-                        groupDataSchemas.push(item);
-                    } else if (oApp._schemasById[item.id] && oApp._schemasById[item.id].fromApp === oApp.groupApp.id) {
-                        item.assocState = 'yes';
+                oApp.groupApp.dataSchemas.forEach(function (oSchema) {
+                    if (oApp._schemasById[oSchema.id]) {
+                        oSchema.assocState = oApp._schemasById[oSchema.id].fromApp === oApp.groupApp.id ? 'yes' : 'no';
                     } else {
-                        item.assocState = 'no';
+                        oSchema.assocState = '';
+                    }
+                    if (oApp._unionSchemasById[oSchema.id] === undefined) {
+                        oApp._unionSchemasById[oSchema.id] = oSchema;
+                        groupDataSchemas.push(oSchema);
                     }
                 });
             }

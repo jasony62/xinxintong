@@ -1,7 +1,3072 @@
-!function(t){function e(n){if(r[n])return r[n].exports;var i=r[n]={i:n,l:!1,exports:{}};return t[n].call(i.exports,i,i.exports,e),i.l=!0,i.exports}var r={};e.m=t,e.c=r,e.i=function(t){return t},e.d=function(t,r,n){e.o(t,r)||Object.defineProperty(t,r,{configurable:!1,enumerable:!0,get:n})},e.n=function(t){var r=t&&t.__esModule?function(){return t.default}:function(){return t};return e.d(r,"a",r),r},e.o=function(t,e){return Object.prototype.hasOwnProperty.call(t,e)},e.p="",e(e.s=165)}({0:function(t,e,r){(function(e){function r(t,e){var r=t[1]||"",i=t[3];if(!i)return r;if(e){var o=n(i);return[r].concat(i.sources.map(function(t){return"/*# sourceURL="+i.sourceRoot+t+" */"})).concat([o]).join("\n")}return[r].join("\n")}function n(t){return"/*# sourceMappingURL=data:application/json;charset=utf-8;base64,"+new e(JSON.stringify(t)).toString("base64")+" */"}t.exports=function(t){var e=[];return e.toString=function(){return this.map(function(e){var n=r(e,t);return e[2]?"@media "+e[2]+"{"+n+"}":n}).join("")},e.i=function(t,r){"string"==typeof t&&(t=[[null,t,""]]);for(var n={},i=0;i<this.length;i++){var o=this[i][0];"number"==typeof o&&(n[o]=!0)}for(i=0;i<t.length;i++){var a=t[i];"number"==typeof a[0]&&n[a[0]]||(r&&!a[2]?a[2]=r:r&&(a[2]="("+a[2]+") and ("+r+")"),e.push(a))}},e}}).call(e,r(4).Buffer)},1:function(t,e,r){function n(t,e){for(var r=0;r<t.length;r++){var n=t[r],i=p[n.id];if(i){i.refs++;for(var o=0;o<i.parts.length;o++)i.parts[o](n.parts[o]);for(;o<n.parts.length;o++)i.parts.push(l(n.parts[o],e))}else{for(var a=[],o=0;o<n.parts.length;o++)a.push(l(n.parts[o],e));p[n.id]={id:n.id,refs:1,parts:a}}}}function i(t){for(var e=[],r={},n=0;n<t.length;n++){var i=t[n],o=i[0],a=i[1],s=i[2],u=i[3],c={css:a,media:s,sourceMap:u};r[o]?r[o].parts.push(c):e.push(r[o]={id:o,parts:[c]})}return e}function o(t,e){var r=m(t.insertInto);if(!r)throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");var n=b[b.length-1];if("top"===t.insertAt)n?n.nextSibling?r.insertBefore(e,n.nextSibling):r.appendChild(e):r.insertBefore(e,r.firstChild),b.push(e);else{if("bottom"!==t.insertAt)throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");r.appendChild(e)}}function a(t){t.parentNode.removeChild(t);var e=b.indexOf(t);e>=0&&b.splice(e,1)}function s(t){var e=document.createElement("style");return t.attrs.type="text/css",c(e,t.attrs),o(t,e),e}function u(t){var e=document.createElement("link");return t.attrs.type="text/css",t.attrs.rel="stylesheet",c(e,t.attrs),o(t,e),e}function c(t,e){Object.keys(e).forEach(function(r){t.setAttribute(r,e[r])})}function l(t,e){var r,n,i;if(e.singleton){var o=y++;r=v||(v=s(e)),n=f.bind(null,r,o,!1),i=f.bind(null,r,o,!0)}else t.sourceMap&&"function"==typeof URL&&"function"==typeof URL.createObjectURL&&"function"==typeof URL.revokeObjectURL&&"function"==typeof Blob&&"function"==typeof btoa?(r=u(e),n=d.bind(null,r,e),i=function(){a(r),r.href&&URL.revokeObjectURL(r.href)}):(r=s(e),n=h.bind(null,r),i=function(){a(r)});return n(t),function(e){if(e){if(e.css===t.css&&e.media===t.media&&e.sourceMap===t.sourceMap)return;n(t=e)}else i()}}function f(t,e,r,n){var i=r?"":n.css;if(t.styleSheet)t.styleSheet.cssText=x(e,i);else{var o=document.createTextNode(i),a=t.childNodes;a[e]&&t.removeChild(a[e]),a.length?t.insertBefore(o,a[e]):t.appendChild(o)}}function h(t,e){var r=e.css,n=e.media;if(n&&t.setAttribute("media",n),t.styleSheet)t.styleSheet.cssText=r;else{for(;t.firstChild;)t.removeChild(t.firstChild);t.appendChild(document.createTextNode(r))}}function d(t,e,r){var n=r.css,i=r.sourceMap,o=void 0===e.convertToAbsoluteUrls&&i;(e.convertToAbsoluteUrls||o)&&(n=w(n)),i&&(n+="\n/*# sourceMappingURL=data:application/json;base64,"+btoa(unescape(encodeURIComponent(JSON.stringify(i))))+" */");var a=new Blob([n],{type:"text/css"}),s=t.href;t.href=URL.createObjectURL(a),s&&URL.revokeObjectURL(s)}var p={},g=function(t){var e;return function(){return void 0===e&&(e=t.apply(this,arguments)),e}}(function(){return window&&document&&document.all&&!window.atob}),m=function(t){var e={};return function(r){return void 0===e[r]&&(e[r]=t.call(this,r)),e[r]}}(function(t){return document.querySelector(t)}),v=null,y=0,b=[],w=r(7);t.exports=function(t,e){if("undefined"!=typeof DEBUG&&DEBUG&&"object"!=typeof document)throw new Error("The style-loader cannot be used in a non-browser environment");e=e||{},e.attrs="object"==typeof e.attrs?e.attrs:{},void 0===e.singleton&&(e.singleton=g()),void 0===e.insertInto&&(e.insertInto="head"),void 0===e.insertAt&&(e.insertAt="bottom");var r=i(t);return n(r,e),function(t){for(var o=[],a=0;a<r.length;a++){var s=r[a],u=p[s.id];u.refs--,o.push(u)}if(t){n(i(t),e)}for(var a=0;a<o.length;a++){var u=o[a];if(0===u.refs){for(var c=0;c<u.parts.length;c++)u.parts[c]();delete p[u.id]}}}};var x=function(){var t=[];return function(e,r){return t[e]=r,t.filter(Boolean).join("\n")}}()},10:function(module,exports,__webpack_require__){"use strict";var ngMod=angular.module("snsshare.ui.xxt",[]);ngMod.service("tmsSnsShare",["$http",function($http){function setWxShare(t,e,r,n,i){window.wx.onMenuShareTimeline({title:i.descAsTitle?r:t,link:e,imgUrl:n,success:function(){try{i.logger&&i.logger("T")}catch(t){alert("share failed:"+t.message)}},cancel:function(){},fail:function(){alert("shareT: fail")}}),window.wx.onMenuShareAppMessage({title:t,desc:r,link:e,imgUrl:n,success:function(){try{i.logger&&i.logger("F")}catch(t){alert("share failed:"+t.message)}},cancel:function(){},fail:function(){alert("shareF: fail")}})}var _isReady=!1;this.config=function(t){this.options=t},this.set=function(title,link,desc,img,fnOther){var _this=this;if(img&&-1===img.indexOf(location.protocol)&&(img=location.protocol+"//"+location.host+img),_isReady)/MicroMessenger/i.test(navigator.userAgent)?setWxShare(title,link,desc,img,_this.options):fnOther&&"function"==typeof fnOther&&fnOther(title,link,desc,img);else if(/MicroMessenger/i.test(navigator.userAgent)){var script;script=document.createElement("script"),script.src=location.protocol+"//res.wx.qq.com/open/js/jweixin-1.0.0.js",script.onload=function(){var xhr,url;xhr=new XMLHttpRequest,url="/rest/site/fe/wxjssdksignpackage?site="+_this.options.siteId+"&url="+encodeURIComponent(location.href.split("#")[0]),xhr.open("GET",url,!0),xhr.onreadystatechange=function(){if(4==xhr.readyState)if(xhr.status>=200&&xhr.status<400){var signPackage;try{eval("("+xhr.responseText+")"),signPackage&&(signPackage.debug=!1,signPackage.jsApiList=_this.options.jsApiList,wx.config(signPackage),wx.ready(function(){setWxShare(title,link,desc,img,_this.options),_isReady=!0}),wx.error(function(t){alert(JSON.stringify(t))}))}catch(t){alert("local error:"+t.toString())}}else alert("http error:"+xhr.statusText)},xhr.send()},document.body.appendChild(script)}else fnOther&&"function"==typeof fnOther&&(fnOther(title,link,desc,img),_isReady=!0)}}])},102:function(t,e,r){e=t.exports=r(0)(void 0),e.push([t.i,".ng-cloak{display:none}body,html{height:100%;width:100%;background:#efefef;font-family:Microsoft Yahei,Arial}body{position:relative;font-size:16px}ul{list-style:none}li,ul{margin:0;padding:0}.panel-body .form-group:last-child{margin-bottom:0}@media screen and (min-width:768px){.navbar-nav>li>a{padding:17.5px 30px;font-size:18px;line-height:1}}@media screen and (max-width:768px){.navbar-brand{width:100%;text-align:center}.navbar-brand>.icon-note{display:inline-block;width:124px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.navbar-nav{margin:8px 0;position:absolute;top:0;right:0}.nav>li>a{padding:10px}}#plan .matter-pic{width:100%}#plan .matter-pic>div{width:100%;height:0;padding-bottom:56%;background-size:contain;background-repeat:no-repeat;background-position:50%}ul.img-tiles li{position:relative;display:inline-block;overflow:hidden;width:80px;height:80px;margin:0;padding:0;float:left}ul.img-tiles li.img-thumbnail img{display:inline-block;position:absolute;max-width:none}ul.img-tiles li.img-thumbnail button{position:absolute;top:0;right:0}ul.img-tiles li.img-picker button{position:auto;width:100%;height:100%}ul.img-tiles li.img-picker button span{font-size:36px}div[wrap].wrap-splitline{padding-bottom:.5em;border-bottom:1px solid #fff}div[wrap].wrap-inline>*{display:inline-block;vertical-align:middle;margin:0 1em 0 0}div[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}div[wrap=matter]>span{cursor:pointer;text-decoration:underline}#frmPopup{position:absolute;top:0;left:0;right:0;bottom:0;border:none;width:100%;z-index:999;box-sizing:border-box}.result{margin-top:10px}.result li,.result ul{overflow:hidden;margin-bottom:10px}",""])},11:function(t,e,r){"use strict";angular.module("notice.ui.xxt",["ng","ngSanitize"]).service("noticebox",["$timeout","$interval","$q",function(t,e,r){var n="tmsbox"+1*new Date,i={type:"",timer:null},o=function(t,e){var r;return r=document.querySelector("#"+n),null===r?(r=document.createElement("div"),r.setAttribute("id",n),r.classList.add("tms-notice-box","alert","alert-"+t),r.innerHTML="<div>"+e+"</div>",document.body.appendChild(r),i.type=t):(i.type!==t&&(r.classList.remove("alert-"+t),i.type=t),r.childNodes[0].innerHTML=e),r};this.close=function(){var t;(t=document.querySelector("#"+n))&&document.body.removeChild(t)},this.error=function(e){var r,n;i.timer&&(t.cancel(i.timer),i.timer=null),r=o("danger",e),n=document.createElement("button"),n.classList.add("close"),n.innerHTML="<span>&times;</span>",r.insertBefore(n,r.childNodes[0]),n.addEventListener("click",function(){document.body.removeChild(r)})},this.warn=function(e){var r,n;i.timer&&(t.cancel(i.timer),i.timer=null),r=o("warning",e),n=document.createElement("button"),n.classList.add("close"),n.innerHTML="<span>&times;</span>",r.insertBefore(n,r.childNodes[0]),n.addEventListener("click",function(){document.body.removeChild(r)})},this.success=function(e){var r;i.timer&&t.cancel(i.timer),r=o("success",e),i.timer=t(function(){r.parentNode&&r.parentNode===document.body&&document.body.removeChild(r),i.timer=null},2e3)},this.info=function(e){var r;i.timer&&t.cancel(i.timer),r=o("info",e),i.timer=t(function(){r.parentNode&&r.parentNode===document.body&&document.body.removeChild(r),i.timer=null},2e3)},this.progress=function(t){o("progress",t)},this.confirm=function(n,a){var s,u,c;return s=r.defer(),i.timer&&(t.cancel(i.timer),i.timer=null),u=o("warning",n),a&&a.length?a.forEach(function(r){if(c=document.createElement("button"),c.classList.add("btn","btn-default","btn-sm"),c.innerHTML=r.label,u.appendChild(c,u.childNodes[0]),c.addEventListener("click",function(){document.body.removeChild(u),s.resolve(r.value)}),r.execWait){var n=Math.ceil(r.execWait/500),o=document.createElement("span");o.classList.add("countdown"),o.innerHTML=n,c.appendChild(o),e(function(){o.innerHTML=--n},500),i.timer=t(function(){u.parentNode&&u.parentNode===document.body&&document.body.removeChild(u),i.timer=null,s.resolve(r.value)},r.execWait)}}):(c=document.createElement("button"),c.classList.add("btn","btn-default","btn-sm"),c.innerHTML="是",u.appendChild(c,u.childNodes[0]),c.addEventListener("click",function(){document.body.removeChild(u),s.resolve()}),c=document.createElement("button"),c.classList.add("btn","btn-default","btn-sm"),c.innerHTML="否",u.appendChild(c,u.childNodes[0]),c.addEventListener("click",function(){document.body.removeChild(u),s.reject()})),s.promise}}])},13:function(t,e,r){e=t.exports=r(0)(void 0),e.push([t.i,'.dialog.mask{position:fixed;background:rgba(0,0,0,.3);top:0;left:0;bottom:0;right:0;overflow:auto;z-index:1060}.dialog.dlg{position:absolute;background:#fff;left:0;right:0;bottom:0;margin:15px}.dialog .dlg-body,.dialog .dlg-header{padding:15px 15px 0}.dialog .dlg-footer{text-align:right;padding:15px}.dialog .dlg-footer button{border-radius:0}div[wrap=filter] .detail{background:#ccc}div[wrap=filter] .detail .options .label{display:inline-block;margin:.5em;padding-top:.3em;font-size:100%}div[wrap=filter] .detail .actions .btn{border-radius:0}.tms-act-toggle{position:fixed;right:15px;bottom:8px;width:48px;height:48px;line-height:48px;box-shadow:0 2px 6px rgba(18,27,32,.425);color:#fff;background:#ff8018;border:1px solid #ff8018;border-radius:24px;font-size:20px;text-align:center;cursor:pointer;z-index:1045}.tms-nav-target>*+*{margin-top:.5em}.tms-act-popover-wrap>div+div{margin-top:8px}#frmPlugin{position:absolute;top:0;bottom:0;left:0;right:0;width:100%;height:100%;border:none;z-index:1060;box-sizing:border-box;padding-bottom:48px;background:#fff}#frmPlugin iframe{width:100%;height:100%;border:0}#frmPlugin:after{content:"\\5173\\95ED";position:absolute;width:100px;text-align:center;left:50%;margin-left:-50px;bottom:4px;padding:5px 6px 3px;border:1px solid #ccc;border-radius:4px}div[wrap]>.description{word-wrap:break-word}',""])},133:function(t,e,r){var n=r(102);"string"==typeof n&&(n=[[t.i,n,""]]);r(1)(n,{});n.locals&&(t.exports=n.locals)},14:function(t,e,r){var n=r(13);"string"==typeof n&&(n=[[t.i,n,""]]);r(1)(n,{});n.locals&&(t.exports=n.locals)},15:function(t,e,r){"use strict";window.__util={},window.__util.makeDialog=function(t,e){var r,n;return n=document.createElement("div"),n.setAttribute("id",t),n.classList.add("dialog","mask"),r="<div class='dialog dlg'>",e.header&&e.header.length&&(r+="<div class='dlg-header'>"+e.header+"</div>"),r+="<div class='dlg-body'>"+e.body+"</div>",e.footer&&e.footer.length&&(r+="<div class='dlg-footer'>"+e.footer+"</div>"),r+="</div>",n.innerHTML=r,document.body.appendChild(n),n.children};var n=angular.module("directive.enroll",[]);n.directive("tmsDate",["$compile",function(t){return{restrict:"A",scope:{value:"=tmsDateValue"},controller:["$scope",function(t){t.close=function(){var e;e=document.querySelector("#"+t.dialogID),document.body.removeChild(e),t.opened=!1},t.ok=function(){var e;e=new Date,e.setTime(0),e.setFullYear(t.data.year),e.setMonth(t.data.month-1),e.setDate(t.data.date),e.setHours(t.data.hour),e.setMinutes(t.data.minute),t.value=parseInt(e.getTime()/1e3),t.close()}}],link:function(e,r,n){var i,o,a,s;void 0===e.value&&(e.value=1*new Date/1e3),o=new Date,o.setTime(1e3*e.value),e.options={years:[2014,2015,2016,2017,2018,2019,2020],months:[1,2,3,4,5,6,7,8,9,10,11,12],dates:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],hours:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23],minutes:[0,5,10,15,20,25,30,35,40,45,50,55]},a=5*Math.round(o.getMinutes()/5),e.data={year:o.getFullYear(),month:o.getMonth()+1,date:o.getDate(),hour:o.getHours(),minute:a},-1===e.options.minutes.indexOf(a)&&e.options.minutes.push(a),s='<div class="form-group"><select class="form-control" ng-model="data.year" ng-options="y for y in options.years"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.month" ng-options="m for m in options.months"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.date" ng-options="d for d in options.dates"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.hour" ng-options="h for h in options.hours"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.minute" ng-options="mi for mi in options.minutes"></select></div>',i=function(r){if(r.preventDefault(),r.stopPropagation(),!e.opened){var n,i;i="_dlg-"+1*new Date,n={header:"",body:s,footer:'<button class="btn btn-default" ng-click="close()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button>'},n=__util.makeDialog(i,n),e.opened=!0,e.dialogID=i,t(n)(e)}},r[0].querySelector("[ng-bind]").addEventListener("click",i)}}}]),n.directive("flexImg",function(){return{restrict:"A",replace:!0,template:"<img ng-src='{{img.imgSrc}}'>",link:function(t,e,r){angular.element(e).on("load",function(){var t,e,r=this.clientWidth,n=this.clientHeight;r>n?(t=r/n*80,angular.element(this).css({height:"100%",width:t+"px",top:"0",left:"50%","margin-left":-1*t/2+"px"})):(e=n/r*80,angular.element(this).css({width:"100%",height:e+"px",left:"0",top:"50%","margin-top":-1*e/2+"px"}))})}}}),n.directive("tmsHideParentHeight",function(){return{restrict:"A",link:function(t,e,r){var n,i;if(r.tmsHideParentHeight){n=r.tmsHideParentHeight;for(var o=0,a=e.length;o<a;o++)i=e[o],i.parentElement&&window.addEventListener("resize",function(){i.classList.toggle("hidden",i.parentElement.clientHeight<n)})}}}}),n.directive("tmsScrollSpy",function(){return{restrict:"A",scope:{selector:"@selector",offset:"@",onbottom:"&",toggleSpy:"="},link:function(t,e,r){var n="window"===t.selector?window:document.querySelector(t.selector);n.addEventListener("scroll",function(e){var r=n===window?e.target.documentElement:e.target;t.toggleSpy&&t.onbottom&&angular.isFunction(t.onbottom)&&r.clientHeight+r.scrollTop+parseInt(t.offset)>=r.scrollHeight&&t.$apply(function(){t.toggleSpy=!1,t.onbottom()})})}}})},165:function(t,e,r){t.exports=r(87)},2:function(t,e,r){"use strict";var n=angular.module("http.ui.xxt",["ng"]);n.provider("tmsLocation",function(){var t;this.config=function(e){t=e||location.pathname},this.$get=["$location",function(e){return t||(t=location.pathname),{s:function(){var t=e.search();if(arguments.length){for(var r=[],n=0,i=arguments.length;n<i;n++)r.push(arguments[n]+"="+(t[arguments[n]]||""));return r.join("&")}return t},j:function(r){var n=t,i=[];r&&r.length&&(n+="/"+r);for(var o=1,a=arguments.length;o<a;o++)i.push(arguments[o]+"="+(e.search()[arguments[o]]||""));return i.length&&(n+="?"+i.join("&")),n},path:function(){return arguments.length?e.path(arguments[0]):e.path()}}}]}),n.service("http2",["$rootScope","$http","$timeout","$q","$sce","$compile",function(t,e,r,n,i,o){function a(e,r,n){var a;return i.trustAsHtml(e),a=angular.element("<div></div>"),a.attr({class:"tms-notice-box alert alert-"+(r||"info"),"ng-style":"{'z-index':1099}"}).html(e),n||a[0].addEventListener("click",function(){document.body.removeChild(a[0])},!0),o(a)(t),document.body.appendChild(a[0]),a[0]}function s(t){t&&document.body.removeChild(t)}function u(t){return!(!t.page||!angular.isObject(t.page))&&(void 0===t.page.at&&(t.page.at=1),void 0===t.page.size&&(t.page.size=12),void 0!==t.page.j&&angular.isFunction(t.page.j)||(t.page.j=function(){return"page="+this.at+"&size="+this.size}),!0)}function c(t,e,r){if(e){if(t){if(angular.isArray(t)){t.length>e.length&&t.splice(e.length-1,t.length-e.length);for(var n=0,i=e.length;n<i;n++)n<t.length?c(t[n],e[n],r):t.push(e[n])}else if(angular.isObject(t)){for(var o in t)r&&-1!==r.indexOf(o)||(void 0===e[o]?delete t[o]:angular.isObject(e[o])&&angular.isObject(t[o])?c(t[o],e[o],r):t[o]=e[o]);for(var o in e)r&&-1!==r.indexOf(o)||void 0===t[o]&&(t[o]=e[o])}}else t=e;return!0}}this.get=function(t,i){var o,c,l=n.defer();return i=angular.extend({headers:{accept:"application/json"},parseResponse:!0,autoBreak:!0,autoNotice:!0,showProgress:!0,showProgressDelay:500,showProgressText:"正在获取数据..."},i),!0===i.showProgress&&(c=r(function(){c=null,o=a(i.showProgressText,"info")},i.showProgressDelay)),u(i)&&(t+=(-1===t.indexOf("?")?"?":"&")+i.page.j()),e.get(t,i).success(function(t){if(i.page&&void 0!==t.data.total&&(i.page.total=t.data.total),!0===i.showProgress&&(c&&r.cancel(c),o&&(s(o),o=null)),i.parseResponse)if(angular.isString(t)){if(i.autoNotice&&a(t,"warning"),i.autoBreak)return;l.reject(t)}else if(0!=t.err_code){if(i.autoNotice){var e;e=angular.isString(t.err_msg)?t.err_msg:angular.isArray(t.err_msg)?t.err_msg.join("<br>"):JSON.stringify(t.err_msg),a(e,"warning")}if(i.autoBreak)return;l.reject(t)}else l.resolve(t);else l.resolve(t)}).error(function(t,e){!0===i.showProgress&&(c&&r.cancel(c),o&&(s(o),o=null)),a(null===t?"网络不可用":t,"danger")}),l.promise},this.post=function(t,i,o){var c,l,f=n.defer();return o=angular.extend({headers:{accept:"application/json"},parseResponse:!0,autoBreak:!0,autoNotice:!0,showProgress:!0,showProgressDelay:500,showProgressText:"正在获取数据..."},o),!0===o.showProgress&&(l=r(function(){l=null,c=a(o.showProgressText,"info")},o.showProgressDelay)),u(o)&&(t+=(-1===t.indexOf("?")?"?":"&")+o.page.j()),e.post(t,i,o).success(function(t){if(o.page&&void 0!==t.data.total&&(o.page.total=t.data.total),!0===o.showProgress&&(l&&r.cancel(l),c&&(s(c),c=null)),o.parseResponse)if(angular.isString(t)){if(o.autoNotice&&(a(t,"warning"),c=null),o.autoBreak)return;f.reject(t)}else if(0!=t.err_code){if(o.autoNotice){var e;e=angular.isString(t.err_msg)?t.err_msg:angular.isArray(t.err_msg)?t.err_msg.join("<br>"):JSON.stringify(t.err_msg),a(e,"warning")}if(o.autoBreak)return;f.reject(t)}else f.resolve(t);else f.resolve(t)}).error(function(t,e){!0===o.showProgress&&(l&&r.cancel(l),c&&(s(c),c=null)),a(null===t?"网络不可用":t,"danger")}),f.promise},this.merge=function(t,e,r){return!angular.equals(t,e)&&c(t,e,r)}}])},25:function(t,e,r){"use strict";angular.module("schema.ui.xxt",[]).service("tmsSchema",["$filter","$sce","$parse",function(t,e,r){var n,i=this;this.config=function(t){angular.isString(t)&&(t=JSON.parse(t)),angular.isArray(t)?(n={},t.forEach(function(t){n[t.id]=t})):n=t},this.isEmpty=function(t,e){if(void 0===e)return!0;switch(t.type){case"multiple":for(var r in e)if(!0===e[r])return!1;return!0;default:return 0===e.length}},this.checkRequire=function(t,e){return void 0!==e&&!this.isEmpty(t,e)||"请填写必填题目［"+t.title+"］"},this.checkFormat=function(t,e){if("number"===t.format){if(!/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(e))return"题目［"+t.title+"］请输入数值"}else if("name"===t.format){if(e.length<2)return"题目［"+t.title+"］请输入正确的姓名（不少于2个字符）"}else if("mobile"===t.format){if(!/^1(3[0-9]|4[57]|5[0-35-9]|7[0135678]|8[0-9]|9[0-9])\d{8}$/.test(e))return"题目［"+t.title+"］请输入正确的手机号（11位数字）"}else if("email"===t.format&&!/^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/.test(e))return"题目［"+t.title+"］请输入正确的邮箱";return!0},this.checkCount=function(t,e){return!(0!=t.count&&void 0!==t.count&&e.length>t.count)||"［"+t.title+"］超出上传数量（"+t.count+"）限制"},this.checkValue=function(t,e){var r;if(t.required&&"Y"===t.required&&!0!==(r=this.checkRequire(t,e)))return r;if(e){if("shorttext"===t.type&&t.format&&!0!==(r=this.checkFormat(t,e)))return r;if("multiple"===t.type&&"Y"===t.limitChoice&&t.range){var n=0;for(var i in e)e[i]&&n++;if(n<t.range[0]||n>t.range[1])return"【"+t.title+"】中最多只能选择("+t.range[1]+")项，最少需要选择("+t.range[0]+")项"}if(/image|file/.test(t.type)&&t.count&&!0!==(r=this.checkCount(t,e)))return r}return!0},this.loadRecord=function(t,e,r){if(!r)return!1;var n,i;for(n in r)if("member"===n)e.member=angular.extend(e.member,r.member);else if(void 0!==t[n]){var o=t[n];if(/score|url/.test(o.type))e[n]=r[n];else if(r[n].length)if("image"===t[n].type){i=r[n].split(","),e[n]=[];for(var a in i)e[n].push({imgSrc:i[a]})}else if("multiple"===t[n].type){i=r[n].split(","),e[n]={};for(var a in i)e[n][i[a]]=!0}else e[n]=r[n]}return!0},this.autoFillMember=function(t,e,r){e.members&&angular.forEach(t,function(t){if(t.mschema_id&&e.members[t.mschema_id]){var n,i,o;if(n=e.members[t.mschema_id],i=t.id.split("."),2===i.length)r[i[1]]=n[i[1]];else if(3===i.length&&n.extattr)switch(r.extattr||(r.extattr={}),t.type){case"multiple":if(o=n.extattr[i[2]],angular.isObject(o)){r.extattr[i[2]]={};for(var a in o)o[a]&&(r.extattr[i[2]][a]=!0)}break;default:r.extattr[i[2]]=n.extattr[i[2]]}}})},this.autoFillDefault=function(t,e){angular.forEach(t,function(t){t.defaultValue&&void 0===e[t.id]&&(e[t.id]=t.defaultValue)})},this.value2Text=function(t,e){var r,n,i=[];if(r=e){if(t.ops&&t.ops.length)if("single"===t.type){for(var o=0,a=t.ops.length;o<a;o++)if(t.ops[o].v===r){r=t.ops[o].l;break}}else if("multiple"===t.type){n=[];for(var s in r)r[s]&&n.push(s);t.ops.forEach(function(t){-1!==n.indexOf(t.v)&&i.push(t.l)}),r=i.join(",")}}else r="";return r},this.value2Html=function(t,e){if(!e||!t)return"";if(t.ops&&t.ops.length){if("score"===t.type){var r="";return t.ops.forEach(function(t,n){void 0!==e[t.v]&&(r+="<div>"+t.l+":"+e[t.v]+"</div>")}),r=r.replace(/\s\/\s$/,"")}if(angular.isString(e)){var n,i=[];if(n=e.split(","),t.ops.forEach(function(t,e){-1!==n.indexOf(t.v)&&i.push(t.l)}),i.length)return i.join(",")}else(angular.isObject(e)||angular.isArray(e))&&(e=JSON.stringify(e))}return e},this.txtSubstitute=function(t){return t.replace(/\n/g,"<br>")},this.urlSubstitute=function(t){var e;return e="",t&&(t.title&&(e+="【"+t.title+"】"),t.description&&(e+=t.description)),e+='<a href="'+t.url+'">网页链接</a>'},this.optionsSubstitute=function(t,e){var r,n,i=[];if(r=e){if(t.ops&&t.ops.length){if("score"===t.type){var o="",a=!1;return t.ops.forEach(function(t,e){if(void 0===r[t.v])return a=!0;o+="<div>"+t.l+":"+r[t.v]+"</div>",a=!1}),o=a?r:o.replace(/\s\/\s$/,"")}if("single"===t.type||"multiple"===t.type){if(!angular.isString(r))return r;n=r.split(","),t.ops.forEach(function(t){-1!==n.indexOf(t.v)&&i.push(t.l)}),r=i.join(",")}else(angular.isObject(r)||angular.isArray(r))&&(r=JSON.stringify(r))}}else r="";return r},this.forTable=function(t,r){function o(t,e){var r,n,i;if(t){if(r=e.id.split("."),2===r.length)return t[r[1]];if(3===r.length&&t.extattr){if(n=t.extattr[r[2]])switch(e.type){case"single":if(e.ops&&e.ops.length)for(var o=e.ops.length-1;o>=0;o--)n===e.ops[o].v&&(i=e.ops[o].l);break;case"multiple":e.ops&&e.ops.length&&(i=[],e.ops.forEach(function(t){n[t.v]&&i.push(t.l)}),i=i.join(","));break;default:i=n}return i}return""}return""}var a;return r&&angular.isArray(r)&&(a={},r.forEach(function(t){a[t.id]=t}),r=a),function(t,r){var n,a,s={};if(t.data&&r){for(var u in r)switch(n=r[u],a=n.type,n.mschema_id&&t.data.member&&(a="member"),a){case"image":var c;c=t.data[n.id]?angular.isString(t.data[n.id])?t.data[n.id].split(","):t.data[n.id]:[],s[n.id]=c;break;case"file":case"voice":var l=t.data[n.id]?t.data[n.id]:{};s[n.id]=l;break;case"multitext":var f;if(f=t.data[n.id]){if(angular.isString(f))try{f=JSON.parse(f),angular.isString(f)&&(f=JSON.parse(f))}catch(t){f=[]}}else f=[];s[n.id]=f;break;case"date":s[n.id]=t.data[n.id]&&angular.isNumber(t.data[n.id])?t.data[n.id]:0;break;case"url":s[n.id]=t.data[n.id],s[n.id]&&(s[n.id]._text="【"+s[n.id].title+"】"+s[n.id].description);break;default:try{if(/^member\./.test(n.id))s[n.id]=o(t.data.member,n);else{var h=i.value2Html(n,t.data[n.id]);s[n.id]=angular.isString(h)?e.trustAsHtml(h):h}}catch(e){console.log(e,n,t.data[n.id])}}t._data=s}return t}(t,r||n)},this.forEdit=function(t,r){if("file"===t.type){var n;r[t.id]&&r[t.id].length&&(n=r[t.id],n.forEach(function(t){t.url&&angular.isString(t.url)&&t.url&&e.trustAsUrl(t.url)})),r[t.id]=n}else if("multiple"===t.type){var i,o={};r[t.id]&&r[t.id].length&&(i=r[t.id].split(","),i.forEach(function(t){o[t]=!0})),r[t.id]=o}else if("image"===t.type){var i=r[t.id],o=[];i&&i.length&&(i=i.split(","),i.forEach(function(t){o.push({imgSrc:t})})),r[t.id]=o}return r},this.strRecData=function(e,n,i){var o,a,s,u;return n&&0!==n.length?(i&&(i.fnSchemaFilter&&(s=i.fnSchemaFilter),i.fnDataFilter&&(u=i.fnDataFilter)),o="",n.forEach(function(n){if(!s||s(n))switch(a=r(n.id)(e),n.type){case"image":a&&a.length&&(o+="<span>",a.forEach(function(t){o+='<img src="'+t+'" />'}),o+="</span>");break;case"file":a&&a.length&&a.forEach(function(t){o+='<span><a href="'+t.url+'" target="_blank">'+t.name+"</a></span>"});break;case"date":a>0&&(o="<span>"+t("date")(1e3*a,"yy-MM-dd HH:mm")+"</span>");break;case"shortext":case"longtext":o+=a;break;case"multitext":if(a&&a.length)for(var i=a.length-1;i>=0;i--)u&&!u(a[i].id)||(o+=a[i].value)}}),o):""},this.member={getExtattrsUIValue:function(t,e){var r={};return t.forEach(function(t){/single|multiple/.test(t.type)?e.extattr[t.id]&&(r[t.id]=i.value2Text(t,e.extattr[t.id])):r[t.id]=e.extattr[t.id]}),r}}}])},28:function(t,e,r){"use strict";void 0===window.xxt&&(window.xxt={}),window.xxt.image={options:{},choose:function(t,e){var r,n=[];r=t.promise;var i=document.createElement("input");return i.setAttribute("type","file"),i.addEventListener("change",function(e){var r,o,a,s;for(o=e.target.files.length,r=0;r<o;r++){a=e.target.files[r],s={".jp":"image/jpeg",".pn":"image/png",".gi":"image/gif"}[a.name.match(/\.(\w){2}/g)[0]||".jp"],a.type2=a.type||s;var u=new FileReader;u.onload=function(e){return function(r){var o={};o.imgSrc=r.target.result.replace(/^.+(,)/,"data:"+e.type2+";base64,"),n.push(o),document.body.removeChild(i),t.resolve(n)}}(a),u.readAsDataURL(a)}},!1),i.style.opacity=0,document.body.appendChild(i),i.click(),r},paste:function(t,e,r){function n(t){var r=t.getAsFile(),n=new FileReader;n.onload=function(t){var r={};r.imgSrc=t.target.result,o.push(r),e.resolve(o)},n.readAsDataURL(r)}var i,o=[];return i=e.promise,t.focus(),t.addEventListener("paste",function(t){var e,r,i=t.clipboardData;if(i&&(e=i.items)&&e.length){for(var o=0;o<i.types.length;o++)if("Files"===i.types[o]){r=e[o];break}r&&"file"===r.kind&&r.type.match(/^image\//i)&&n(r)}}),i},wxUpload:function(t,e){var r;return r=t.promise,0===e.imgSrc.indexOf("weixin://")||0===e.imgSrc.indexOf("wxLocalResource://")?window.wx.uploadImage({localId:e.imgSrc,isShowProgressTips:1,success:function(r){e.serverId=r.serverId,t.resolve(e)}}):t.resolve(e),r}}},29:function(t,e,r){"use strict";void 0===window.xxt&&(window.xxt={}),window.xxt.geo={options:{},getAddress:function(t,e,r){var n;if(n=e.promise,window.wx)window.wx.getLocation({success:function(n){var i="/rest/site/fe/matter/enroll/locationGet";i+="?site="+r,i+="&lat="+n.latitude,i+="&lng="+n.longitude,t.get(i).then(function(t){e.resolve({errmsg:"ok",lat:n.latitude,lng:n.longitude,address:t.data.address})})}});else try{var i=window.navigator;if(null!==i){var o=i.geolocation;null!==o?o.getCurrentPosition(function(n){var i="/rest/site/fe/matter/enroll/locationGet";i+="?site="+r,i+="&lat="+n.coords.latitude,i+="&lng="+n.coords.longitude,t.get(i).then(function(t){e.resolve({errmsg:"ok",lat:n.coords.latitude,lng:n.coords.longitude,address:t.data.address})})},function(){e.resolve({errmsg:"获取地理位置失败"})}):e.resolve({errmsg:"无法获取地理位置"})}else e.resolve({errmsg:"无法获取地理位置"})}catch(t){alert("exception:"+t.message)}return n}}},3:function(t,e,r){"use strict";function n(t){var e=t.length;if(e%4>0)throw new Error("Invalid string. Length must be a multiple of 4");return"="===t[e-2]?2:"="===t[e-1]?1:0}function i(t){return 3*t.length/4-n(t)}function o(t){var e,r,i,o,a,s,u=t.length;a=n(t),s=new f(3*u/4-a),i=a>0?u-4:u;var c=0;for(e=0,r=0;e<i;e+=4,r+=3)o=l[t.charCodeAt(e)]<<18|l[t.charCodeAt(e+1)]<<12|l[t.charCodeAt(e+2)]<<6|l[t.charCodeAt(e+3)],s[c++]=o>>16&255,s[c++]=o>>8&255,s[c++]=255&o;return 2===a?(o=l[t.charCodeAt(e)]<<2|l[t.charCodeAt(e+1)]>>4,s[c++]=255&o):1===a&&(o=l[t.charCodeAt(e)]<<10|l[t.charCodeAt(e+1)]<<4|l[t.charCodeAt(e+2)]>>2,s[c++]=o>>8&255,s[c++]=255&o),s}function a(t){return c[t>>18&63]+c[t>>12&63]+c[t>>6&63]+c[63&t]}function s(t,e,r){for(var n,i=[],o=e;o<r;o+=3)n=(t[o]<<16)+(t[o+1]<<8)+t[o+2],i.push(a(n));return i.join("")}function u(t){for(var e,r=t.length,n=r%3,i="",o=[],a=0,u=r-n;a<u;a+=16383)o.push(s(t,a,a+16383>u?u:a+16383));return 1===n?(e=t[r-1],i+=c[e>>2],i+=c[e<<4&63],i+="=="):2===n&&(e=(t[r-2]<<8)+t[r-1],i+=c[e>>10],i+=c[e>>4&63],i+=c[e<<2&63],i+="="),o.push(i),o.join("")}e.byteLength=i,e.toByteArray=o,e.fromByteArray=u;for(var c=[],l=[],f="undefined"!=typeof Uint8Array?Uint8Array:Array,h="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",d=0,p=h.length;d<p;++d)c[d]=h[d],l[h.charCodeAt(d)]=d;l["-".charCodeAt(0)]=62,l["_".charCodeAt(0)]=63},4:function(t,e,r){"use strict";(function(t){function n(){return o.TYPED_ARRAY_SUPPORT?2147483647:1073741823}function i(t,e){if(n()<e)throw new RangeError("Invalid typed array length");return o.TYPED_ARRAY_SUPPORT?(t=new Uint8Array(e),t.__proto__=o.prototype):(null===t&&(t=new o(e)),t.length=e),t}function o(t,e,r){if(!(o.TYPED_ARRAY_SUPPORT||this instanceof o))return new o(t,e,r);if("number"==typeof t){if("string"==typeof e)throw new Error("If encoding is specified then the first argument must be a string");return c(this,t)}return a(this,t,e,r)}function a(t,e,r,n){if("number"==typeof e)throw new TypeError('"value" argument must not be a number');return"undefined"!=typeof ArrayBuffer&&e instanceof ArrayBuffer?h(t,e,r,n):"string"==typeof e?l(t,e,r):d(t,e)}function s(t){if("number"!=typeof t)throw new TypeError('"size" argument must be a number');if(t<0)throw new RangeError('"size" argument must not be negative')}function u(t,e,r,n){return s(e),e<=0?i(t,e):void 0!==r?"string"==typeof n?i(t,e).fill(r,n):i(t,e).fill(r):i(t,e)}function c(t,e){if(s(e),t=i(t,e<0?0:0|p(e)),!o.TYPED_ARRAY_SUPPORT)for(var r=0;r<e;++r)t[r]=0;return t}function l(t,e,r){if("string"==typeof r&&""!==r||(r="utf8"),!o.isEncoding(r))throw new TypeError('"encoding" must be a valid string encoding');var n=0|m(e,r);t=i(t,n);var a=t.write(e,r);return a!==n&&(t=t.slice(0,a)),t}function f(t,e){var r=e.length<0?0:0|p(e.length);t=i(t,r);for(var n=0;n<r;n+=1)t[n]=255&e[n];return t}function h(t,e,r,n){if(e.byteLength,r<0||e.byteLength<r)throw new RangeError("'offset' is out of bounds");if(e.byteLength<r+(n||0))throw new RangeError("'length' is out of bounds");return e=void 0===r&&void 0===n?new Uint8Array(e):void 0===n?new Uint8Array(e,r):new Uint8Array(e,r,n),o.TYPED_ARRAY_SUPPORT?(t=e,t.__proto__=o.prototype):t=f(t,e),t}function d(t,e){if(o.isBuffer(e)){var r=0|p(e.length);return t=i(t,r),0===t.length?t:(e.copy(t,0,0,r),t)}if(e){if("undefined"!=typeof ArrayBuffer&&e.buffer instanceof ArrayBuffer||"length"in e)return"number"!=typeof e.length||G(e.length)?i(t,0):f(t,e);if("Buffer"===e.type&&X(e.data))return f(t,e.data)}throw new TypeError("First argument must be a string, Buffer, ArrayBuffer, Array, or array-like object.")}function p(t){if(t>=n())throw new RangeError("Attempt to allocate Buffer larger than maximum size: 0x"+n().toString(16)+" bytes");return 0|t}function g(t){return+t!=t&&(t=0),o.alloc(+t)}function m(t,e){if(o.isBuffer(t))return t.length;if("undefined"!=typeof ArrayBuffer&&"function"==typeof ArrayBuffer.isView&&(ArrayBuffer.isView(t)||t instanceof ArrayBuffer))return t.byteLength;"string"!=typeof t&&(t=""+t);var r=t.length;if(0===r)return 0;for(var n=!1;;)switch(e){case"ascii":case"latin1":case"binary":return r;case"utf8":case"utf-8":case void 0:return F(t).length;case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return 2*r;case"hex":return r>>>1;case"base64":return V(t).length;default:if(n)return F(t).length;e=(""+e).toLowerCase(),n=!0}}function v(t,e,r){var n=!1;if((void 0===e||e<0)&&(e=0),e>this.length)return"";if((void 0===r||r>this.length)&&(r=this.length),r<=0)return"";if(r>>>=0,e>>>=0,r<=e)return"";for(t||(t="utf8");;)switch(t){case"hex":return L(this,e,r);case"utf8":case"utf-8":return R(this,e,r);case"ascii":return M(this,e,r);case"latin1":case"binary":return U(this,e,r);case"base64":return T(this,e,r);case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return O(this,e,r);default:if(n)throw new TypeError("Unknown encoding: "+t);t=(t+"").toLowerCase(),n=!0}}function y(t,e,r){var n=t[e];t[e]=t[r],t[r]=n}function b(t,e,r,n,i){if(0===t.length)return-1;if("string"==typeof r?(n=r,r=0):r>2147483647?r=2147483647:r<-2147483648&&(r=-2147483648),r=+r,isNaN(r)&&(r=i?0:t.length-1),r<0&&(r=t.length+r),r>=t.length){if(i)return-1;r=t.length-1}else if(r<0){if(!i)return-1;r=0}if("string"==typeof e&&(e=o.from(e,n)),o.isBuffer(e))return 0===e.length?-1:w(t,e,r,n,i);if("number"==typeof e)return e&=255,o.TYPED_ARRAY_SUPPORT&&"function"==typeof Uint8Array.prototype.indexOf?i?Uint8Array.prototype.indexOf.call(t,e,r):Uint8Array.prototype.lastIndexOf.call(t,e,r):w(t,[e],r,n,i);throw new TypeError("val must be string, number or Buffer")}function w(t,e,r,n,i){function o(t,e){return 1===a?t[e]:t.readUInt16BE(e*a)}var a=1,s=t.length,u=e.length;if(void 0!==n&&("ucs2"===(n=String(n).toLowerCase())||"ucs-2"===n||"utf16le"===n||"utf-16le"===n)){if(t.length<2||e.length<2)return-1;a=2,s/=2,u/=2,r/=2}var c;if(i){var l=-1;for(c=r;c<s;c++)if(o(t,c)===o(e,-1===l?0:c-l)){if(-1===l&&(l=c),c-l+1===u)return l*a}else-1!==l&&(c-=c-l),l=-1}else for(r+u>s&&(r=s-u),c=r;c>=0;c--){for(var f=!0,h=0;h<u;h++)if(o(t,c+h)!==o(e,h)){f=!1;break}if(f)return c}return-1}function x(t,e,r,n){r=Number(r)||0;var i=t.length-r;n?(n=Number(n))>i&&(n=i):n=i;var o=e.length;if(o%2!=0)throw new TypeError("Invalid hex string");n>o/2&&(n=o/2);for(var a=0;a<n;++a){var s=parseInt(e.substr(2*a,2),16);if(isNaN(s))return a;t[r+a]=s}return a}function k(t,e,r,n){return W(F(e,t.length-r),t,r,n)}function E(t,e,r,n){return W(q(e),t,r,n)}function S(t,e,r,n){return E(t,e,r,n)}function A(t,e,r,n){return W(V(e),t,r,n)}function _(t,e,r,n){return W(J(e,t.length-r),t,r,n)}function T(t,e,r){return 0===e&&r===t.length?K.fromByteArray(t):K.fromByteArray(t.slice(e,r))}function R(t,e,r){r=Math.min(t.length,r);for(var n=[],i=e;i<r;){var o=t[i],a=null,s=o>239?4:o>223?3:o>191?2:1;if(i+s<=r){var u,c,l,f;switch(s){case 1:o<128&&(a=o);break;case 2:u=t[i+1],128==(192&u)&&(f=(31&o)<<6|63&u)>127&&(a=f);break;case 3:u=t[i+1],c=t[i+2],128==(192&u)&&128==(192&c)&&(f=(15&o)<<12|(63&u)<<6|63&c)>2047&&(f<55296||f>57343)&&(a=f);break;case 4:u=t[i+1],c=t[i+2],l=t[i+3],128==(192&u)&&128==(192&c)&&128==(192&l)&&(f=(15&o)<<18|(63&u)<<12|(63&c)<<6|63&l)>65535&&f<1114112&&(a=f)}}null===a?(a=65533,s=1):a>65535&&(a-=65536,n.push(a>>>10&1023|55296),a=56320|1023&a),n.push(a),i+=s}return P(n)}function P(t){var e=t.length;if(e<=Q)return String.fromCharCode.apply(String,t);for(var r="",n=0;n<e;)r+=String.fromCharCode.apply(String,t.slice(n,n+=Q));return r}function M(t,e,r){var n="";r=Math.min(t.length,r);for(var i=e;i<r;++i)n+=String.fromCharCode(127&t[i]);return n}function U(t,e,r){var n="";r=Math.min(t.length,r);for(var i=e;i<r;++i)n+=String.fromCharCode(t[i]);return n}function L(t,e,r){var n=t.length;(!e||e<0)&&(e=0),(!r||r<0||r>n)&&(r=n);for(var i="",o=e;o<r;++o)i+=z(t[o]);return i}function O(t,e,r){for(var n=t.slice(e,r),i="",o=0;o<n.length;o+=2)i+=String.fromCharCode(n[o]+256*n[o+1]);return i}function B(t,e,r){if(t%1!=0||t<0)throw new RangeError("offset is not uint");if(t+e>r)throw new RangeError("Trying to access beyond buffer length")}function I(t,e,r,n,i,a){if(!o.isBuffer(t))throw new TypeError('"buffer" argument must be a Buffer instance');if(e>i||e<a)throw new RangeError('"value" argument is out of bounds');if(r+n>t.length)throw new RangeError("Index out of range")}function $(t,e,r,n){e<0&&(e=65535+e+1);for(var i=0,o=Math.min(t.length-r,2);i<o;++i)t[r+i]=(e&255<<8*(n?i:1-i))>>>8*(n?i:1-i)}function C(t,e,r,n){e<0&&(e=4294967295+e+1);for(var i=0,o=Math.min(t.length-r,4);i<o;++i)t[r+i]=e>>>8*(n?i:3-i)&255}function D(t,e,r,n,i,o){if(r+n>t.length)throw new RangeError("Index out of range");if(r<0)throw new RangeError("Index out of range")}function j(t,e,r,n,i){return i||D(t,e,r,4,3.4028234663852886e38,-3.4028234663852886e38),Z.write(t,e,r,n,23,4),r+4}function N(t,e,r,n,i){return i||D(t,e,r,8,1.7976931348623157e308,-1.7976931348623157e308),Z.write(t,e,r,n,52,8),r+8}function Y(t){if(t=H(t).replace(tt,""),t.length<2)return"";for(;t.length%4!=0;)t+="=";return t}function H(t){return t.trim?t.trim():t.replace(/^\s+|\s+$/g,"")}function z(t){return t<16?"0"+t.toString(16):t.toString(16)}function F(t,e){e=e||1/0;for(var r,n=t.length,i=null,o=[],a=0;a<n;++a){if((r=t.charCodeAt(a))>55295&&r<57344){if(!i){if(r>56319){(e-=3)>-1&&o.push(239,191,189);continue}if(a+1===n){(e-=3)>-1&&o.push(239,191,189);continue}i=r;continue}if(r<56320){(e-=3)>-1&&o.push(239,191,189),i=r;continue}r=65536+(i-55296<<10|r-56320)}else i&&(e-=3)>-1&&o.push(239,191,189);if(i=null,r<128){if((e-=1)<0)break;o.push(r)}else if(r<2048){if((e-=2)<0)break;o.push(r>>6|192,63&r|128)}else if(r<65536){if((e-=3)<0)break;o.push(r>>12|224,r>>6&63|128,63&r|128)}else{if(!(r<1114112))throw new Error("Invalid code point");if((e-=4)<0)break;o.push(r>>18|240,r>>12&63|128,r>>6&63|128,63&r|128)}}return o}function q(t){for(var e=[],r=0;r<t.length;++r)e.push(255&t.charCodeAt(r));return e}function J(t,e){for(var r,n,i,o=[],a=0;a<t.length&&!((e-=2)<0);++a)r=t.charCodeAt(a),n=r>>8,i=r%256,o.push(i),o.push(n);return o}function V(t){return K.toByteArray(Y(t))}function W(t,e,r,n){for(var i=0;i<n&&!(i+r>=e.length||i>=t.length);++i)e[i+r]=t[i];return i}function G(t){return t!==t}/*!
- * The buffer module from node.js, for the browser.
- *
- * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
- * @license  MIT
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	__webpack_require__.i = function(value) { return value; };
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 160);
+/******/ })
+/************************************************************************/
+/******/ ({
+
+/***/ 0:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/*
+  MIT License http://www.opensource.org/licenses/mit-license.php
+  Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+module.exports = function (useSourceMap) {
+  var list = []; // return the list of modules as css string
+
+  list.toString = function toString() {
+    return this.map(function (item) {
+      var content = cssWithMappingToString(item, useSourceMap);
+
+      if (item[2]) {
+        return '@media ' + item[2] + '{' + content + '}';
+      } else {
+        return content;
+      }
+    }).join('');
+  }; // import a list of modules into the list
+
+
+  list.i = function (modules, mediaQuery) {
+    if (typeof modules === 'string') {
+      modules = [[null, modules, '']];
+    }
+
+    var alreadyImportedModules = {};
+
+    for (var i = 0; i < this.length; i++) {
+      var id = this[i][0];
+
+      if (id != null) {
+        alreadyImportedModules[id] = true;
+      }
+    }
+
+    for (i = 0; i < modules.length; i++) {
+      var item = modules[i]; // skip already imported module
+      // this implementation is not 100% perfect for weird media query combinations
+      // when a module is imported multiple times with different media queries.
+      // I hope this will never occur (Hey this way we have smaller bundles)
+
+      if (item[0] == null || !alreadyImportedModules[item[0]]) {
+        if (mediaQuery && !item[2]) {
+          item[2] = mediaQuery;
+        } else if (mediaQuery) {
+          item[2] = '(' + item[2] + ') and (' + mediaQuery + ')';
+        }
+
+        list.push(item);
+      }
+    }
+  };
+
+  return list;
+};
+
+function cssWithMappingToString(item, useSourceMap) {
+  var content = item[1] || '';
+  var cssMapping = item[3];
+
+  if (!cssMapping) {
+    return content;
+  }
+
+  if (useSourceMap && typeof btoa === 'function') {
+    var sourceMapping = toComment(cssMapping);
+    var sourceURLs = cssMapping.sources.map(function (source) {
+      return '/*# sourceURL=' + cssMapping.sourceRoot + source + ' */';
+    });
+    return [content].concat(sourceURLs).concat([sourceMapping]).join('\n');
+  }
+
+  return [content].join('\n');
+} // Adapted from convert-source-map (MIT)
+
+
+function toComment(sourceMap) {
+  // eslint-disable-next-line no-undef
+  var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap))));
+  var data = 'sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64;
+  return '/*# ' + data + ' */';
+}
+
+/***/ }),
+
+/***/ 1:
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+
+var stylesInDom = {};
+
+var	memoize = function (fn) {
+	var memo;
+
+	return function () {
+		if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+		return memo;
+	};
+};
+
+var isOldIE = memoize(function () {
+	// Test for IE <= 9 as proposed by Browserhacks
+	// @see http://browserhacks.com/#hack-e71d8692f65334173fee715c222cb805
+	// Tests for existence of standard globals is to allow style-loader
+	// to operate correctly into non-standard environments
+	// @see https://github.com/webpack-contrib/style-loader/issues/177
+	return window && document && document.all && !window.atob;
+});
+
+var getTarget = function (target, parent) {
+  if (parent){
+    return parent.querySelector(target);
+  }
+  return document.querySelector(target);
+};
+
+var getElement = (function (fn) {
+	var memo = {};
+
+	return function(target, parent) {
+                // If passing function in options, then use it for resolve "head" element.
+                // Useful for Shadow Root style i.e
+                // {
+                //   insertInto: function () { return document.querySelector("#foo").shadowRoot }
+                // }
+                if (typeof target === 'function') {
+                        return target();
+                }
+                if (typeof memo[target] === "undefined") {
+			var styleTarget = getTarget.call(this, target, parent);
+			// Special case to return head of iframe instead of iframe itself
+			if (window.HTMLIFrameElement && styleTarget instanceof window.HTMLIFrameElement) {
+				try {
+					// This will throw an exception if access to iframe is blocked
+					// due to cross-origin restrictions
+					styleTarget = styleTarget.contentDocument.head;
+				} catch(e) {
+					styleTarget = null;
+				}
+			}
+			memo[target] = styleTarget;
+		}
+		return memo[target]
+	};
+})();
+
+var singleton = null;
+var	singletonCounter = 0;
+var	stylesInsertedAtTop = [];
+
+var	fixUrls = __webpack_require__(3);
+
+module.exports = function(list, options) {
+	if (typeof DEBUG !== "undefined" && DEBUG) {
+		if (typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+	}
+
+	options = options || {};
+
+	options.attrs = typeof options.attrs === "object" ? options.attrs : {};
+
+	// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+	// tags it will allow on a page
+	if (!options.singleton && typeof options.singleton !== "boolean") options.singleton = isOldIE();
+
+	// By default, add <style> tags to the <head> element
+        if (!options.insertInto) options.insertInto = "head";
+
+	// By default, add <style> tags to the bottom of the target
+	if (!options.insertAt) options.insertAt = "bottom";
+
+	var styles = listToStyles(list, options);
+
+	addStylesToDom(styles, options);
+
+	return function update (newList) {
+		var mayRemove = [];
+
+		for (var i = 0; i < styles.length; i++) {
+			var item = styles[i];
+			var domStyle = stylesInDom[item.id];
+
+			domStyle.refs--;
+			mayRemove.push(domStyle);
+		}
+
+		if(newList) {
+			var newStyles = listToStyles(newList, options);
+			addStylesToDom(newStyles, options);
+		}
+
+		for (var i = 0; i < mayRemove.length; i++) {
+			var domStyle = mayRemove[i];
+
+			if(domStyle.refs === 0) {
+				for (var j = 0; j < domStyle.parts.length; j++) domStyle.parts[j]();
+
+				delete stylesInDom[domStyle.id];
+			}
+		}
+	};
+};
+
+function addStylesToDom (styles, options) {
+	for (var i = 0; i < styles.length; i++) {
+		var item = styles[i];
+		var domStyle = stylesInDom[item.id];
+
+		if(domStyle) {
+			domStyle.refs++;
+
+			for(var j = 0; j < domStyle.parts.length; j++) {
+				domStyle.parts[j](item.parts[j]);
+			}
+
+			for(; j < item.parts.length; j++) {
+				domStyle.parts.push(addStyle(item.parts[j], options));
+			}
+		} else {
+			var parts = [];
+
+			for(var j = 0; j < item.parts.length; j++) {
+				parts.push(addStyle(item.parts[j], options));
+			}
+
+			stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+		}
+	}
+}
+
+function listToStyles (list, options) {
+	var styles = [];
+	var newStyles = {};
+
+	for (var i = 0; i < list.length; i++) {
+		var item = list[i];
+		var id = options.base ? item[0] + options.base : item[0];
+		var css = item[1];
+		var media = item[2];
+		var sourceMap = item[3];
+		var part = {css: css, media: media, sourceMap: sourceMap};
+
+		if(!newStyles[id]) styles.push(newStyles[id] = {id: id, parts: [part]});
+		else newStyles[id].parts.push(part);
+	}
+
+	return styles;
+}
+
+function insertStyleElement (options, style) {
+	var target = getElement(options.insertInto)
+
+	if (!target) {
+		throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");
+	}
+
+	var lastStyleElementInsertedAtTop = stylesInsertedAtTop[stylesInsertedAtTop.length - 1];
+
+	if (options.insertAt === "top") {
+		if (!lastStyleElementInsertedAtTop) {
+			target.insertBefore(style, target.firstChild);
+		} else if (lastStyleElementInsertedAtTop.nextSibling) {
+			target.insertBefore(style, lastStyleElementInsertedAtTop.nextSibling);
+		} else {
+			target.appendChild(style);
+		}
+		stylesInsertedAtTop.push(style);
+	} else if (options.insertAt === "bottom") {
+		target.appendChild(style);
+	} else if (typeof options.insertAt === "object" && options.insertAt.before) {
+		var nextSibling = getElement(options.insertAt.before, target);
+		target.insertBefore(style, nextSibling);
+	} else {
+		throw new Error("[Style Loader]\n\n Invalid value for parameter 'insertAt' ('options.insertAt') found.\n Must be 'top', 'bottom', or Object.\n (https://github.com/webpack-contrib/style-loader#insertat)\n");
+	}
+}
+
+function removeStyleElement (style) {
+	if (style.parentNode === null) return false;
+	style.parentNode.removeChild(style);
+
+	var idx = stylesInsertedAtTop.indexOf(style);
+	if(idx >= 0) {
+		stylesInsertedAtTop.splice(idx, 1);
+	}
+}
+
+function createStyleElement (options) {
+	var style = document.createElement("style");
+
+	if(options.attrs.type === undefined) {
+		options.attrs.type = "text/css";
+	}
+
+	if(options.attrs.nonce === undefined) {
+		var nonce = getNonce();
+		if (nonce) {
+			options.attrs.nonce = nonce;
+		}
+	}
+
+	addAttrs(style, options.attrs);
+	insertStyleElement(options, style);
+
+	return style;
+}
+
+function createLinkElement (options) {
+	var link = document.createElement("link");
+
+	if(options.attrs.type === undefined) {
+		options.attrs.type = "text/css";
+	}
+	options.attrs.rel = "stylesheet";
+
+	addAttrs(link, options.attrs);
+	insertStyleElement(options, link);
+
+	return link;
+}
+
+function addAttrs (el, attrs) {
+	Object.keys(attrs).forEach(function (key) {
+		el.setAttribute(key, attrs[key]);
+	});
+}
+
+function getNonce() {
+	if (false) {
+		return null;
+	}
+
+	return __webpack_require__.nc;
+}
+
+function addStyle (obj, options) {
+	var style, update, remove, result;
+
+	// If a transform function was defined, run it on the css
+	if (options.transform && obj.css) {
+	    result = typeof options.transform === 'function'
+		 ? options.transform(obj.css) 
+		 : options.transform.default(obj.css);
+
+	    if (result) {
+	    	// If transform returns a value, use that instead of the original css.
+	    	// This allows running runtime transformations on the css.
+	    	obj.css = result;
+	    } else {
+	    	// If the transform function returns a falsy value, don't add this css.
+	    	// This allows conditional loading of css
+	    	return function() {
+	    		// noop
+	    	};
+	    }
+	}
+
+	if (options.singleton) {
+		var styleIndex = singletonCounter++;
+
+		style = singleton || (singleton = createStyleElement(options));
+
+		update = applyToSingletonTag.bind(null, style, styleIndex, false);
+		remove = applyToSingletonTag.bind(null, style, styleIndex, true);
+
+	} else if (
+		obj.sourceMap &&
+		typeof URL === "function" &&
+		typeof URL.createObjectURL === "function" &&
+		typeof URL.revokeObjectURL === "function" &&
+		typeof Blob === "function" &&
+		typeof btoa === "function"
+	) {
+		style = createLinkElement(options);
+		update = updateLink.bind(null, style, options);
+		remove = function () {
+			removeStyleElement(style);
+
+			if(style.href) URL.revokeObjectURL(style.href);
+		};
+	} else {
+		style = createStyleElement(options);
+		update = applyToTag.bind(null, style);
+		remove = function () {
+			removeStyleElement(style);
+		};
+	}
+
+	update(obj);
+
+	return function updateStyle (newObj) {
+		if (newObj) {
+			if (
+				newObj.css === obj.css &&
+				newObj.media === obj.media &&
+				newObj.sourceMap === obj.sourceMap
+			) {
+				return;
+			}
+
+			update(obj = newObj);
+		} else {
+			remove();
+		}
+	};
+}
+
+var replaceText = (function () {
+	var textStore = [];
+
+	return function (index, replacement) {
+		textStore[index] = replacement;
+
+		return textStore.filter(Boolean).join('\n');
+	};
+})();
+
+function applyToSingletonTag (style, index, remove, obj) {
+	var css = remove ? "" : obj.css;
+
+	if (style.styleSheet) {
+		style.styleSheet.cssText = replaceText(index, css);
+	} else {
+		var cssNode = document.createTextNode(css);
+		var childNodes = style.childNodes;
+
+		if (childNodes[index]) style.removeChild(childNodes[index]);
+
+		if (childNodes.length) {
+			style.insertBefore(cssNode, childNodes[index]);
+		} else {
+			style.appendChild(cssNode);
+		}
+	}
+}
+
+function applyToTag (style, obj) {
+	var css = obj.css;
+	var media = obj.media;
+
+	if(media) {
+		style.setAttribute("media", media)
+	}
+
+	if(style.styleSheet) {
+		style.styleSheet.cssText = css;
+	} else {
+		while(style.firstChild) {
+			style.removeChild(style.firstChild);
+		}
+
+		style.appendChild(document.createTextNode(css));
+	}
+}
+
+function updateLink (link, options, obj) {
+	var css = obj.css;
+	var sourceMap = obj.sourceMap;
+
+	/*
+		If convertToAbsoluteUrls isn't defined, but sourcemaps are enabled
+		and there is no publicPath defined then lets turn convertToAbsoluteUrls
+		on by default.  Otherwise default to the convertToAbsoluteUrls option
+		directly
+	*/
+	var autoFixUrls = options.convertToAbsoluteUrls === undefined && sourceMap;
+
+	if (options.convertToAbsoluteUrls || autoFixUrls) {
+		css = fixUrls(css);
+	}
+
+	if (sourceMap) {
+		// http://stackoverflow.com/a/26603875
+		css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+	}
+
+	var blob = new Blob([css], { type: "text/css" });
+
+	var oldSrc = link.href;
+
+	link.href = URL.createObjectURL(blob);
+
+	if(oldSrc) URL.revokeObjectURL(oldSrc);
+}
+
+
+/***/ }),
+
+/***/ 10:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+window.__util = {};
+window.__util.makeDialog = function(id, html) {
+    var dlg, mask;
+
+    mask = document.createElement('div');
+    mask.setAttribute('id', id);
+    mask.classList.add('dialog', 'mask');
+
+    dlg = "<div class='dialog dlg'>";
+    html.header && html.header.length && (dlg += "<div class='dlg-header'>" + html.header + "</div>");
+    dlg += "<div class='dlg-body'>" + html.body + "</div>";
+    html.footer && html.footer.length && (dlg += "<div class='dlg-footer'>" + html.footer + "</div>");
+    dlg += "</div>";
+
+    mask.innerHTML = dlg;
+
+    document.body.appendChild(mask);
+
+    return mask.children;
+};
+
+var ngMod = angular.module('directive.enroll', []);
+ngMod.directive('tmsDate', ['$compile', function($compile) {
+    return {
+        restrict: 'A',
+        scope: {
+            value: '=tmsDateValue'
+        },
+        controller: ['$scope', function($scope) {
+            $scope.close = function() {
+                var mask;
+                mask = document.querySelector('#' + $scope.dialogID);
+                document.body.removeChild(mask);
+                $scope.opened = false;
+            };
+            $scope.ok = function() {
+                var dtObject;
+                dtObject = new Date();
+                dtObject.setTime(0);
+                dtObject.setFullYear($scope.data.year);
+                dtObject.setMonth($scope.data.month - 1);
+                dtObject.setDate($scope.data.date);
+                dtObject.setHours($scope.data.hour);
+                dtObject.setMinutes($scope.data.minute);
+                $scope.value = parseInt(dtObject.getTime() / 1000);
+                $scope.close();
+            };
+        }],
+        link: function(scope, elem, attrs) {
+            var fnOpenPicker, dtObject, dtMinute, htmlBody;
+            scope.value === undefined && (scope.value = (new Date() * 1) / 1000);
+            dtObject = new Date();
+            dtObject.setTime(scope.value * 1000);
+            scope.options = {
+                years: [2014, 2015, 2016, 2017, 2018, 2019, 2020],
+                months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                dates: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+                hours: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+                minutes: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
+            };
+            dtMinute = Math.round(dtObject.getMinutes() / 5) * 5;
+            scope.data = {
+                year: dtObject.getFullYear(),
+                month: dtObject.getMonth() + 1,
+                date: dtObject.getDate(),
+                hour: dtObject.getHours(),
+                minute: dtMinute
+            };
+            scope.options.minutes.indexOf(dtMinute) === -1 && scope.options.minutes.push(dtMinute);
+            htmlBody = '<div class="form-group"><select class="form-control" ng-model="data.year" ng-options="y for y in options.years"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.month" ng-options="m for m in options.months"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.date" ng-options="d for d in options.dates"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.hour" ng-options="h for h in options.hours"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.minute" ng-options="mi for mi in options.minutes"></select></div>';
+            fnOpenPicker = function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                if (scope.opened) return;
+                var html, id;
+                id = '_dlg-' + (new Date() * 1);
+                html = {
+                    header: '',
+                    body: htmlBody,
+                    footer: '<button class="btn btn-default" ng-click="close()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button>'
+                };
+                html = __util.makeDialog(id, html);
+                scope.opened = true;
+                scope.dialogID = id;
+                $compile(html)(scope);
+            };
+            elem[0].querySelector('[ng-bind]').addEventListener('click', fnOpenPicker);
+        }
+    }
+}]);
+ngMod.directive('flexImg', function() {
+    return {
+        restrict: 'A',
+        replace: true,
+        template: "<img ng-src='{{img.imgSrc}}'>",
+        link: function(scope, elem, attrs) {
+            angular.element(elem).on('load', function() {
+                var w = this.clientWidth,
+                    h = this.clientHeight,
+                    sw, sh;
+                if (w > h) {
+                    sw = w / h * 80;
+                    angular.element(this).css({
+                        'height': '100%',
+                        'width': sw + 'px',
+                        'top': '0',
+                        'left': '50%',
+                        'margin-left': (-1 * sw / 2) + 'px'
+                    });
+                } else {
+                    sh = h / w * 80;
+                    angular.element(this).css({
+                        'width': '100%',
+                        'height': sh + 'px',
+                        'left': '0',
+                        'top': '50%',
+                        'margin-top': (-1 * sh / 2) + 'px'
+                    });
+                }
+            })
+        }
+    }
+});
+/**
+ * 根据父元素的高度决定是否隐藏
  */
-var K=r(3),Z=r(5),X=r(6);e.Buffer=o,e.SlowBuffer=g,e.INSPECT_MAX_BYTES=50,o.TYPED_ARRAY_SUPPORT=void 0!==t.TYPED_ARRAY_SUPPORT?t.TYPED_ARRAY_SUPPORT:function(){try{var t=new Uint8Array(1);return t.__proto__={__proto__:Uint8Array.prototype,foo:function(){return 42}},42===t.foo()&&"function"==typeof t.subarray&&0===t.subarray(1,1).byteLength}catch(t){return!1}}(),e.kMaxLength=n(),o.poolSize=8192,o._augment=function(t){return t.__proto__=o.prototype,t},o.from=function(t,e,r){return a(null,t,e,r)},o.TYPED_ARRAY_SUPPORT&&(o.prototype.__proto__=Uint8Array.prototype,o.__proto__=Uint8Array,"undefined"!=typeof Symbol&&Symbol.species&&o[Symbol.species]===o&&Object.defineProperty(o,Symbol.species,{value:null,configurable:!0})),o.alloc=function(t,e,r){return u(null,t,e,r)},o.allocUnsafe=function(t){return c(null,t)},o.allocUnsafeSlow=function(t){return c(null,t)},o.isBuffer=function(t){return!(null==t||!t._isBuffer)},o.compare=function(t,e){if(!o.isBuffer(t)||!o.isBuffer(e))throw new TypeError("Arguments must be Buffers");if(t===e)return 0;for(var r=t.length,n=e.length,i=0,a=Math.min(r,n);i<a;++i)if(t[i]!==e[i]){r=t[i],n=e[i];break}return r<n?-1:n<r?1:0},o.isEncoding=function(t){switch(String(t).toLowerCase()){case"hex":case"utf8":case"utf-8":case"ascii":case"latin1":case"binary":case"base64":case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return!0;default:return!1}},o.concat=function(t,e){if(!X(t))throw new TypeError('"list" argument must be an Array of Buffers');if(0===t.length)return o.alloc(0);var r;if(void 0===e)for(e=0,r=0;r<t.length;++r)e+=t[r].length;var n=o.allocUnsafe(e),i=0;for(r=0;r<t.length;++r){var a=t[r];if(!o.isBuffer(a))throw new TypeError('"list" argument must be an Array of Buffers');a.copy(n,i),i+=a.length}return n},o.byteLength=m,o.prototype._isBuffer=!0,o.prototype.swap16=function(){var t=this.length;if(t%2!=0)throw new RangeError("Buffer size must be a multiple of 16-bits");for(var e=0;e<t;e+=2)y(this,e,e+1);return this},o.prototype.swap32=function(){var t=this.length;if(t%4!=0)throw new RangeError("Buffer size must be a multiple of 32-bits");for(var e=0;e<t;e+=4)y(this,e,e+3),y(this,e+1,e+2);return this},o.prototype.swap64=function(){var t=this.length;if(t%8!=0)throw new RangeError("Buffer size must be a multiple of 64-bits");for(var e=0;e<t;e+=8)y(this,e,e+7),y(this,e+1,e+6),y(this,e+2,e+5),y(this,e+3,e+4);return this},o.prototype.toString=function(){var t=0|this.length;return 0===t?"":0===arguments.length?R(this,0,t):v.apply(this,arguments)},o.prototype.equals=function(t){if(!o.isBuffer(t))throw new TypeError("Argument must be a Buffer");return this===t||0===o.compare(this,t)},o.prototype.inspect=function(){var t="",r=e.INSPECT_MAX_BYTES;return this.length>0&&(t=this.toString("hex",0,r).match(/.{2}/g).join(" "),this.length>r&&(t+=" ... ")),"<Buffer "+t+">"},o.prototype.compare=function(t,e,r,n,i){if(!o.isBuffer(t))throw new TypeError("Argument must be a Buffer");if(void 0===e&&(e=0),void 0===r&&(r=t?t.length:0),void 0===n&&(n=0),void 0===i&&(i=this.length),e<0||r>t.length||n<0||i>this.length)throw new RangeError("out of range index");if(n>=i&&e>=r)return 0;if(n>=i)return-1;if(e>=r)return 1;if(e>>>=0,r>>>=0,n>>>=0,i>>>=0,this===t)return 0;for(var a=i-n,s=r-e,u=Math.min(a,s),c=this.slice(n,i),l=t.slice(e,r),f=0;f<u;++f)if(c[f]!==l[f]){a=c[f],s=l[f];break}return a<s?-1:s<a?1:0},o.prototype.includes=function(t,e,r){return-1!==this.indexOf(t,e,r)},o.prototype.indexOf=function(t,e,r){return b(this,t,e,r,!0)},o.prototype.lastIndexOf=function(t,e,r){return b(this,t,e,r,!1)},o.prototype.write=function(t,e,r,n){if(void 0===e)n="utf8",r=this.length,e=0;else if(void 0===r&&"string"==typeof e)n=e,r=this.length,e=0;else{if(!isFinite(e))throw new Error("Buffer.write(string, encoding, offset[, length]) is no longer supported");e|=0,isFinite(r)?(r|=0,void 0===n&&(n="utf8")):(n=r,r=void 0)}var i=this.length-e;if((void 0===r||r>i)&&(r=i),t.length>0&&(r<0||e<0)||e>this.length)throw new RangeError("Attempt to write outside buffer bounds");n||(n="utf8");for(var o=!1;;)switch(n){case"hex":return x(this,t,e,r);case"utf8":case"utf-8":return k(this,t,e,r);case"ascii":return E(this,t,e,r);case"latin1":case"binary":return S(this,t,e,r);case"base64":return A(this,t,e,r);case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return _(this,t,e,r);default:if(o)throw new TypeError("Unknown encoding: "+n);n=(""+n).toLowerCase(),o=!0}},o.prototype.toJSON=function(){return{type:"Buffer",data:Array.prototype.slice.call(this._arr||this,0)}};var Q=4096;o.prototype.slice=function(t,e){var r=this.length;t=~~t,e=void 0===e?r:~~e,t<0?(t+=r)<0&&(t=0):t>r&&(t=r),e<0?(e+=r)<0&&(e=0):e>r&&(e=r),e<t&&(e=t);var n;if(o.TYPED_ARRAY_SUPPORT)n=this.subarray(t,e),n.__proto__=o.prototype;else{var i=e-t;n=new o(i,void 0);for(var a=0;a<i;++a)n[a]=this[a+t]}return n},o.prototype.readUIntLE=function(t,e,r){t|=0,e|=0,r||B(t,e,this.length);for(var n=this[t],i=1,o=0;++o<e&&(i*=256);)n+=this[t+o]*i;return n},o.prototype.readUIntBE=function(t,e,r){t|=0,e|=0,r||B(t,e,this.length);for(var n=this[t+--e],i=1;e>0&&(i*=256);)n+=this[t+--e]*i;return n},o.prototype.readUInt8=function(t,e){return e||B(t,1,this.length),this[t]},o.prototype.readUInt16LE=function(t,e){return e||B(t,2,this.length),this[t]|this[t+1]<<8},o.prototype.readUInt16BE=function(t,e){return e||B(t,2,this.length),this[t]<<8|this[t+1]},o.prototype.readUInt32LE=function(t,e){return e||B(t,4,this.length),(this[t]|this[t+1]<<8|this[t+2]<<16)+16777216*this[t+3]},o.prototype.readUInt32BE=function(t,e){return e||B(t,4,this.length),16777216*this[t]+(this[t+1]<<16|this[t+2]<<8|this[t+3])},o.prototype.readIntLE=function(t,e,r){t|=0,e|=0,r||B(t,e,this.length);for(var n=this[t],i=1,o=0;++o<e&&(i*=256);)n+=this[t+o]*i;return i*=128,n>=i&&(n-=Math.pow(2,8*e)),n},o.prototype.readIntBE=function(t,e,r){t|=0,e|=0,r||B(t,e,this.length);for(var n=e,i=1,o=this[t+--n];n>0&&(i*=256);)o+=this[t+--n]*i;return i*=128,o>=i&&(o-=Math.pow(2,8*e)),o},o.prototype.readInt8=function(t,e){return e||B(t,1,this.length),128&this[t]?-1*(255-this[t]+1):this[t]},o.prototype.readInt16LE=function(t,e){e||B(t,2,this.length);var r=this[t]|this[t+1]<<8;return 32768&r?4294901760|r:r},o.prototype.readInt16BE=function(t,e){e||B(t,2,this.length);var r=this[t+1]|this[t]<<8;return 32768&r?4294901760|r:r},o.prototype.readInt32LE=function(t,e){return e||B(t,4,this.length),this[t]|this[t+1]<<8|this[t+2]<<16|this[t+3]<<24},o.prototype.readInt32BE=function(t,e){return e||B(t,4,this.length),this[t]<<24|this[t+1]<<16|this[t+2]<<8|this[t+3]},o.prototype.readFloatLE=function(t,e){return e||B(t,4,this.length),Z.read(this,t,!0,23,4)},o.prototype.readFloatBE=function(t,e){return e||B(t,4,this.length),Z.read(this,t,!1,23,4)},o.prototype.readDoubleLE=function(t,e){return e||B(t,8,this.length),Z.read(this,t,!0,52,8)},o.prototype.readDoubleBE=function(t,e){return e||B(t,8,this.length),Z.read(this,t,!1,52,8)},o.prototype.writeUIntLE=function(t,e,r,n){if(t=+t,e|=0,r|=0,!n){I(this,t,e,r,Math.pow(2,8*r)-1,0)}var i=1,o=0;for(this[e]=255&t;++o<r&&(i*=256);)this[e+o]=t/i&255;return e+r},o.prototype.writeUIntBE=function(t,e,r,n){if(t=+t,e|=0,r|=0,!n){I(this,t,e,r,Math.pow(2,8*r)-1,0)}var i=r-1,o=1;for(this[e+i]=255&t;--i>=0&&(o*=256);)this[e+i]=t/o&255;return e+r},o.prototype.writeUInt8=function(t,e,r){return t=+t,e|=0,r||I(this,t,e,1,255,0),o.TYPED_ARRAY_SUPPORT||(t=Math.floor(t)),this[e]=255&t,e+1},o.prototype.writeUInt16LE=function(t,e,r){return t=+t,e|=0,r||I(this,t,e,2,65535,0),o.TYPED_ARRAY_SUPPORT?(this[e]=255&t,this[e+1]=t>>>8):$(this,t,e,!0),e+2},o.prototype.writeUInt16BE=function(t,e,r){return t=+t,e|=0,r||I(this,t,e,2,65535,0),o.TYPED_ARRAY_SUPPORT?(this[e]=t>>>8,this[e+1]=255&t):$(this,t,e,!1),e+2},o.prototype.writeUInt32LE=function(t,e,r){return t=+t,e|=0,r||I(this,t,e,4,4294967295,0),o.TYPED_ARRAY_SUPPORT?(this[e+3]=t>>>24,this[e+2]=t>>>16,this[e+1]=t>>>8,this[e]=255&t):C(this,t,e,!0),e+4},o.prototype.writeUInt32BE=function(t,e,r){return t=+t,e|=0,r||I(this,t,e,4,4294967295,0),o.TYPED_ARRAY_SUPPORT?(this[e]=t>>>24,this[e+1]=t>>>16,this[e+2]=t>>>8,this[e+3]=255&t):C(this,t,e,!1),e+4},o.prototype.writeIntLE=function(t,e,r,n){if(t=+t,e|=0,!n){var i=Math.pow(2,8*r-1);I(this,t,e,r,i-1,-i)}var o=0,a=1,s=0;for(this[e]=255&t;++o<r&&(a*=256);)t<0&&0===s&&0!==this[e+o-1]&&(s=1),this[e+o]=(t/a>>0)-s&255;return e+r},o.prototype.writeIntBE=function(t,e,r,n){if(t=+t,e|=0,!n){var i=Math.pow(2,8*r-1);I(this,t,e,r,i-1,-i)}var o=r-1,a=1,s=0;for(this[e+o]=255&t;--o>=0&&(a*=256);)t<0&&0===s&&0!==this[e+o+1]&&(s=1),this[e+o]=(t/a>>0)-s&255;return e+r},o.prototype.writeInt8=function(t,e,r){return t=+t,e|=0,r||I(this,t,e,1,127,-128),o.TYPED_ARRAY_SUPPORT||(t=Math.floor(t)),t<0&&(t=255+t+1),this[e]=255&t,e+1},o.prototype.writeInt16LE=function(t,e,r){return t=+t,e|=0,r||I(this,t,e,2,32767,-32768),o.TYPED_ARRAY_SUPPORT?(this[e]=255&t,this[e+1]=t>>>8):$(this,t,e,!0),e+2},o.prototype.writeInt16BE=function(t,e,r){return t=+t,e|=0,r||I(this,t,e,2,32767,-32768),o.TYPED_ARRAY_SUPPORT?(this[e]=t>>>8,this[e+1]=255&t):$(this,t,e,!1),e+2},o.prototype.writeInt32LE=function(t,e,r){return t=+t,e|=0,r||I(this,t,e,4,2147483647,-2147483648),o.TYPED_ARRAY_SUPPORT?(this[e]=255&t,this[e+1]=t>>>8,this[e+2]=t>>>16,this[e+3]=t>>>24):C(this,t,e,!0),e+4},o.prototype.writeInt32BE=function(t,e,r){return t=+t,e|=0,r||I(this,t,e,4,2147483647,-2147483648),t<0&&(t=4294967295+t+1),o.TYPED_ARRAY_SUPPORT?(this[e]=t>>>24,this[e+1]=t>>>16,this[e+2]=t>>>8,this[e+3]=255&t):C(this,t,e,!1),e+4},o.prototype.writeFloatLE=function(t,e,r){return j(this,t,e,!0,r)},o.prototype.writeFloatBE=function(t,e,r){return j(this,t,e,!1,r)},o.prototype.writeDoubleLE=function(t,e,r){return N(this,t,e,!0,r)},o.prototype.writeDoubleBE=function(t,e,r){return N(this,t,e,!1,r)},o.prototype.copy=function(t,e,r,n){if(r||(r=0),n||0===n||(n=this.length),e>=t.length&&(e=t.length),e||(e=0),n>0&&n<r&&(n=r),n===r)return 0;if(0===t.length||0===this.length)return 0;if(e<0)throw new RangeError("targetStart out of bounds");if(r<0||r>=this.length)throw new RangeError("sourceStart out of bounds");if(n<0)throw new RangeError("sourceEnd out of bounds");n>this.length&&(n=this.length),t.length-e<n-r&&(n=t.length-e+r);var i,a=n-r;if(this===t&&r<e&&e<n)for(i=a-1;i>=0;--i)t[i+e]=this[i+r];else if(a<1e3||!o.TYPED_ARRAY_SUPPORT)for(i=0;i<a;++i)t[i+e]=this[i+r];else Uint8Array.prototype.set.call(t,this.subarray(r,r+a),e);return a},o.prototype.fill=function(t,e,r,n){if("string"==typeof t){if("string"==typeof e?(n=e,e=0,r=this.length):"string"==typeof r&&(n=r,r=this.length),1===t.length){var i=t.charCodeAt(0);i<256&&(t=i)}if(void 0!==n&&"string"!=typeof n)throw new TypeError("encoding must be a string");if("string"==typeof n&&!o.isEncoding(n))throw new TypeError("Unknown encoding: "+n)}else"number"==typeof t&&(t&=255);if(e<0||this.length<e||this.length<r)throw new RangeError("Out of range index");if(r<=e)return this;e>>>=0,r=void 0===r?this.length:r>>>0,t||(t=0);var a;if("number"==typeof t)for(a=e;a<r;++a)this[a]=t;else{var s=o.isBuffer(t)?t:F(new o(t,n).toString()),u=s.length;for(a=0;a<r-e;++a)this[a+e]=s[a%u]}return this};var tt=/[^+\/0-9A-Za-z-_]/g}).call(e,r(8))},5:function(t,e){e.read=function(t,e,r,n,i){var o,a,s=8*i-n-1,u=(1<<s)-1,c=u>>1,l=-7,f=r?i-1:0,h=r?-1:1,d=t[e+f];for(f+=h,o=d&(1<<-l)-1,d>>=-l,l+=s;l>0;o=256*o+t[e+f],f+=h,l-=8);for(a=o&(1<<-l)-1,o>>=-l,l+=n;l>0;a=256*a+t[e+f],f+=h,l-=8);if(0===o)o=1-c;else{if(o===u)return a?NaN:1/0*(d?-1:1);a+=Math.pow(2,n),o-=c}return(d?-1:1)*a*Math.pow(2,o-n)},e.write=function(t,e,r,n,i,o){var a,s,u,c=8*o-i-1,l=(1<<c)-1,f=l>>1,h=23===i?Math.pow(2,-24)-Math.pow(2,-77):0,d=n?0:o-1,p=n?1:-1,g=e<0||0===e&&1/e<0?1:0;for(e=Math.abs(e),isNaN(e)||e===1/0?(s=isNaN(e)?1:0,a=l):(a=Math.floor(Math.log(e)/Math.LN2),e*(u=Math.pow(2,-a))<1&&(a--,u*=2),e+=a+f>=1?h/u:h*Math.pow(2,1-f),e*u>=2&&(a++,u/=2),a+f>=l?(s=0,a=l):a+f>=1?(s=(e*u-1)*Math.pow(2,i),a+=f):(s=e*Math.pow(2,f-1)*Math.pow(2,i),a=0));i>=8;t[r+d]=255&s,d+=p,s/=256,i-=8);for(a=a<<i|s,c+=i;c>0;t[r+d]=255&a,d+=p,a/=256,c-=8);t[r+d-p]|=128*g}},55:function(t,e,r){"use strict";var n={};n.state={modified:!1,state:"waiting",_cacheKey:!1,start:function(t,e,r){var n;if(t&&(n=t.target,("BUTTON"===n.tagName||(n=n.parentNode)&&"BUTTON"===n.tagName)&&/submit\(.*\)/.test(n.getAttribute("ng-click")))){var i;this.button=n,i=n.querySelector("span"),i.setAttribute("data-label",i.innerHTML),i.innerHTML="正在提交数据...",this.button.classList.add("submit-running")}this.state="save"==r?"waiting":"running",this._cacheKey=e||1*new Date},finish:function(t){if(this.state="waiting",this.modified=!1,this.button){var e;e=this.button.querySelector("span"),e.innerHTML=e.getAttribute("data-label"),e.removeAttribute("data-label"),this.button.classList.remove("submit-running"),this.button=null}window.localStorage&&!t&&window.localStorage.removeItem(this._cacheKey)},isRunning:function(){return"running"===this.state},cache:function(t){if(window.localStorage){var e,r;e=this._cacheKey,r=angular.copy(t),r._cacheAt=1*new Date,r=JSON.stringify(r),window.localStorage.setItem(e,r)}},fromCache:function(t){if(window.localStorage){var e,r;e=this._cacheKey,r=window.localStorage.getItem(e),t||window.localStorage.removeItem(e),r&&(r=JSON.parse(r))}return r}},t.exports=n},6:function(t,e){var r={}.toString;t.exports=Array.isArray||function(t){return"[object Array]"==r.call(t)}},7:function(t,e){t.exports=function(t){var e="undefined"!=typeof window&&window.location;if(!e)throw new Error("fixUrls requires window.location");if(!t||"string"!=typeof t)return t;var r=e.protocol+"//"+e.host,n=r+e.pathname.replace(/\/[^\/]*$/,"/");return t.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi,function(t,e){var i=e.trim().replace(/^"(.*)"$/,function(t,e){return e}).replace(/^'(.*)'$/,function(t,e){return e});if(/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/)/i.test(i))return t;var o;return o=0===i.indexOf("//")?i:0===i.indexOf("/")?r+i:n+i.replace(/^\.\//,""),"url("+JSON.stringify(o)+")"})}},8:function(t,e){var r;r=function(){return this}();try{r=r||Function("return this")()||(0,eval)("this")}catch(t){"object"==typeof window&&(r=window)}t.exports=r},87:function(t,e,r){"use strict";r(133),r(11),r(2),r(94),r(10),r(28),r(29),r(25),r(14),r(15);var n=angular.module("app",["ngSanitize","ngRoute","ui.bootstrap","directive.enroll","notice.ui.xxt","http.ui.xxt","date.ui.xxt","snsshare.ui.xxt","schema.ui.xxt"]);n.oUtilSubmit=r(55),n.factory("Input",["$q","$timeout","http2","tmsLocation","tmsSchema",function(t,e,r,n,i){var o,a;return o=function(){},o.prototype.check=function(t,e){var r,n,o,a,s,u;if(t.actions&&t.actions.length)for(var c=0,l=t.actions.length;c<l;c++)if(r=t.actions[c],r.checkSchemas&&r.checkSchemas.length){o=r.checkSchemas,n=e[r.id];for(var f=0,h=o.length;f<h;f++)if(a=o[f],a.type&&"html"!==a.type&&(s=n?n[a.id]:"",!0!==(u=i.checkValue(a,s))))return u}return!0},o.prototype.submit=function(t,e,i){var o,a,s;o={data:angular.copy(e),supplement:i},s="/rest/site/fe/matter/plan/task/submit?site="+n.s().site+"&task="+t.id;for(var u in o.data)a=o.data[u],angular.isArray(a)&&a.length&&void 0!==a[0].imgSrc&&void 0!==a[0].serverId&&a.forEach(function(t){delete t.imgSrc});return r.post(s,o,{autoNotice:!1,autoBreak:!1})},{ins:function(){return a||(a=new o),a}}}]),n.directive("tmsImageInput",["$compile","$q","noticebox",function(t,e,r){var n;return n=[],{restrict:"A",controller:["$scope","$timeout",function(t,i){t.chooseImage=function(o,a,s){var u,c,l;if(u=o.id+"."+a.id,-1===n.indexOf(u)&&n.push(u),void 0===t.data[o.id]&&(t.data[o.id]={}),void 0===t.data[o.id][a.id]&&(t.data[o.id][a.id]=[]),c=t.data[o.id][a.id],l=parseInt(a.count)||1,c.length===l)return void r.warn("最多允许上传（"+l+"）张图片");window.xxt.image.choose(e.defer(),s).then(function(e){var r;r=t.$root.$$phase,"$digest"===r||"$apply"===r?t.data[o.id][a.id]=c.concat(e):t.$apply(function(){t.data[o.id][a.id]=c.concat(e)}),i(function(){var r,n,i,o;for(r=0,n=e.length;r<n;r++)i=e[r],(o=document.querySelector('ul[name="'+u+'"] li:nth-last-child(2) img'))&&o.setAttribute("src",i.imgSrc);t.$broadcast("xxt.plan.image.choose.done",u)})})},t.removeImage=function(e,r,n){t.data[e.id][r.id].splice(n,1)}}]}}]),n.directive("tmsFileInput",["$q","tmsLocation",function(t,e){function r(e){var r;return r=t.defer(),n.files&&0!==n.files.length||r.resolve("empty"),n.on("progress",function(){var t,r;r=n.progress();var t=e.$root.$$phase;"$digest"===t||"$apply"===t?e.progressOfUploadFile=Math.ceil(100*r):e.$apply(function(){e.progressOfUploadFile=Math.ceil(100*r)})}),n.on("complete",function(){var t=e.$root.$$phase;"$digest"===t||"$apply"===t?e.progressOfUploadFile="完成":e.$apply(function(){e.progressOfUploadFile="完成"}),n.cancel(),r.resolve("ok")}),n.upload(),r.promise}var n;return n=new Resumable({target:"/rest/site/fe/matter/plan/task/uploadFile?site="+e.s().site+"&app="+e.s().app,testChunks:!1,chunkSize:524288}),{restrict:"A",controller:["$scope",function(t){t.progressOfUploadFile=0,t.beforeSubmit(function(){return r(t)}),t.chooseFile=function(e,r,i){var o,a;o=e.id+"."+r.id,a=document.createElement("input"),a.setAttribute("type","file"),void 0!==i&&a.setAttribute("accept",i),a.addEventListener("change",function(i){var a,s,u;for(void 0===t.data[e.id]&&(t.data[e.id]={}),void 0===t.data[e.id][r.id]&&(t.data[e.id][r.id]=[]),s=i.target.files.length,a=0;a<s;a++)u=i.target.files[a],n.addFile(u),t.data[e.id][r.id].push({uniqueIdentifier:n.files[n.files.length-1].uniqueIdentifier,name:u.name,size:u.size,type:u.type,url:""});t.$apply("data",function(){t.$broadcast("xxt.plan.file.choose.done",o)})},!1),a.click()}}]}}]),n.config(["$compileProvider","$routeProvider","$locationProvider","tmsLocationProvider",function(t,e,r,n){t.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);var i=function(t){this.templateUrl=t+".html",this.controller="ctrl"+t[0].toUpperCase()+t.substr(1),this.reloadOnSearch=!1};e.when("/rest/site/fe/matter/plan/task",new i("task")).when("/rest/site/fe/matter/plan/rank",new i("rank")).otherwise(new i("plan")),r.html5Mode(!0),n.config("/rest/site/fe/matter/plan")}]),n.controller("ctrlMain",["$scope","$location","http2","tmsLocation","tmsSnsShare",function(t,e,r,n,i){var o,a;t.subView="",t.$on("$locationChangeSuccess",function(e,r){var n=r.match(/([^\/]+?)\?/);t.subView="plan"===n[1]?"plan":n[1]}),t.toggleView=function(t,r){var n=angular.copy(e.search());switch(delete n.task,t){case"rank":e.path("/rest/site/fe/matter/plan/rank").search(n);break;case"task":n.task=r.id,e.path("/rest/site/fe/matter/plan/task").search(n);break;default:e.path("/rest/site/fe/matter/plan").search(n)}},t.siteUser=function(){var t;t="/rest/site/fe/user",t+="?site="+n.s().site,location.href=t},t.invite=function(){a.loginExpire?location.href="/rest/site/fe/invite?matter=plan,"+o.id:tmsDynaPage.openPlugin(location.protocol+"//"+location.host+"/rest/site/fe/user/access?site=platform#login").then(function(t){a.loginExpire=t.loginExpire,location.href="/rest/site/fe/invite?matter=plan,"+o.id})},r.get(n.j("get","site","app")).then(function(e){t.app=o=e.data.app,t.user=a=e.data.user,o._taskSchemasById={},o.tasks.forEach(function(t){o._taskSchemasById[t.id]=t}),/MicroMessenger/i.test(navigator.userAgent)&&(i.config({siteId:o.siteid,logger:function(t){},jsApiList:["hideOptionMenu","onMenuShareTimeline","onMenuShareAppMessage","chooseImage","uploadImage","getLocation"]}),i.set(o.title,o.entryUrl,o.summary,o.pic)),r.post("/rest/site/fe/matter/logAccess?site="+o.siteid,{type:"plan",id:o.id,title:o.title});var n;(n=document.querySelector(".loading"))&&n.parentNode.removeChild(n)})}]),n.controller("ctrlPlan",["$scope","$filter","http2","tmsLocation",function(t,e,r,n){function i(){r.get(n.j("overview","site","app")).then(function(i){t.overview=a=i.data,r.get(n.j("task/listByUser","site","app")).then(function(t){var r,n;r=t.data.tasks,n=t.data.mocks,r.forEach(function(t){t.bornAt=e("tmsDate")(1e3*t.born_at,"yy-MM-dd HH:mm,EEE"),o._taskSchemasById[t.task_schema_id]&&(o._taskSchemasById[t.task_schema_id].userTask=t)}),n&&n.forEach(function(t){t.bornAt=e("tmsDate")(1e3*t.born_at,"yy-MM-dd HH:mm,EEE"),o._taskSchemasById[t.id]&&(o._taskSchemasById[t.id].mockTask=t)}),o.tasks.forEach(function(t){"N"===t.as_placeholder&&!t.userTask&&t.mockTask&&(a.nowTaskSchema&&t.task_seq<a.nowTaskSchema.task_seq?t.isDelayed="Y":a.lastUserTask&&t.task_seq<a.lastUserTask.task_seq&&(t.isDelayed="Y"))})})})}var o,a;t.$on("xxt.tms-datepicker.change",function(t,e){r.post(n.j("config","site","app"),{start_at:e.value}).then(function(t){i()})}),t.$watch("app",function(t){t&&(o=t,i())})}]),n.controller("ctrlTask",["$scope","$filter","noticebox","http2","Input","tmsLocation",function(t,e,r,i,o,a){function s(){c.submit(t.activeTask,t.data,t.supplement).then(function(e){l.finish(),r.success("完成提交"),t.$emit("xxt.app.plan.submit.done",e.data)},function(t){return l.finish(),t&&"string"==typeof t?void r.error(t):t&&t.err_msg?void r.error(t.err_msg):void r.error("网络异常，提交失败")},function(t){l.finish()})}function u(t){(0,f[t])().then(function(e){t++,t<f.length?u(t):s()})}window.onbeforeunload=function(){l.modified&&l.cache(t.data)};var c,l,f;f=[],c=o.ins(),t.data={},t._oSubmitState=l=n.oUtilSubmit.state,t.beforeSubmit=function(t){-1===f.indexOf(t)&&f.push(t)},t.submit=function(e){var n;l.isRunning()||(l.start(e),!0===(n=c.check(t.activeTask,t.data))?f.length?u(0):s():(l.finish(),r.error(n)))},i.get(a.j("task/get","site","task")).then(function(r){var n;n=r.data,n.actions&&n.actions.forEach(function(r){if(t.app.checkSchemas.length){var i=0;t.app.checkSchemas.forEach(function(t){r.checkSchemas.splice(i++,0,t)})}if(n.userTask){var o,a;a=n.userTask,a.bornAt=e("tmsDate")(1e3*a.born_at,"yy-MM-dd HH:mm,EEE"),a.patch_at>0&&(a.patchAt=e("tmsDate")(1e3*a.patch_at,"yy-MM-dd HH:mm,EEE")),a.data[r.id]&&(o={},r.checkSchemas.forEach(function(t){o[t.id]=t}),t.data[r.id]={},tmsSchema.loadRecord(o,t.data[r.id],a.data[r.id]))}}),n.userTask&&n.userTask.supplement?t.supplement=n.userTask.supplement:t.supplement={},t.activeTask=n,t.userTask=n.userTask})}]),n.controller("ctrlRank",["$scope","http2","$q","tmsLocation",function(t,e,r,n){function i(){var t=r.defer();switch(a.criteria.obj){case"user":e.post(n.j("rank/byUser","site","app"),a.criteria).then(function(e){t.resolve(e.data)})}return t.promise}t.doSearch=function(){i().then(function(e){switch(a.criteria.obj){case"user":e&&e.users.forEach(function(e){t.users.push(e)})}a.page.total=e.total})},t.changeCriteria=function(){t.users=[],t.groups=[],t.doSearch(1)};var o,a;t.rankView={obj:"user"},a||(a={criteria:{obj:"user",orderby:"task_num"},page:{at:1,size:12}}),t.appState=a,t.$watch("appState.criteria.obj",function(e,r){if(e&&r&&e!==r){switch(e){case"user":a.criteria.orderby="task_num"}t.changeCriteria()}}),t.$watch("app",function(e){e&&(o=e,t.changeCriteria())})}])},94:function(t,e,r){"use strict";var n=angular.module("date.ui.xxt",[]);n.filter("tmsDate",["$filter",function(t){var e={weekday:{Mon:"星期一",Tue:"星期二",Wed:"星期三",Thu:"星期四",Fri:"星期五",Sat:"星期六",Sun:"星期日"}};return function(r,n){var i,o;return n?(i=t("date")(r,n),-1!==n.indexOf("EEE")&&(o=t("date")(r,"EEE"),i=i.replace(o,e.weekday[o])),i):r}}]),n.directive("tmsDatepicker",function(){return{restrict:"EA",scope:{date:"=tmsData",defaultDate:"@tmsDefaultData",mask:"@tmsMask",title:"@tmsTitle",state:"@tmsState",obj:"=tmsObj"},templateUrl:"/static/template/datepicker.html?_=7",controller:["$scope","$uibModal",function(t,e){var r;void 0===t.mask?(r={y:!0,m:!0,d:!0,h:!0,i:!0},t.format="yy-MM-dd HH:mm"):r=function(e){var r,e=e.split(",");return r={y:"y"===e[0]||e[0],m:"m"===e[1]||e[1],d:"d"===e[2]||e[2]},t.format="yy-MM-dd",5===e.length?"h"===e[3]?(r.h=!0,t.format+=" HH","i"===e[4]?(r.i=!0,t.format+=":mm"):r.i=e[4]):(r.h=e[3],r.i="i"===e[4]||e[4]):(r.h=0,r.i=0),r}(t.mask),t.open=function(){e.open({templateUrl:"tmsModalDatepicker.html",resolve:{date:function(){return t.date},defaultDate:function(){return t.defaultDate},mask:function(){return r}},controller:["$scope","$filter","$uibModalInstance","date","defaultDate","mask",function(t,e,r,n,i,o){n=function(){var t=new Date;return i?t.setTime(i?1e3*i:t.getTime()):t.setTime(n?1e3*n:t.getTime()),t.setMilliseconds(0),t.setSeconds(0),!0!==o.i&&t.setMinutes(o.i),!0!==o.h&&t.setHours(o.h),t}(),t.mask=o,t.years=[2015,2016,2017,2018,2019,2020],t.months=[],t.days=[],t.hours=[],t.minutes=[],t.date={year:n.getFullYear(),month:n.getMonth()+1,mday:n.getDate(),hour:n.getHours(),minute:n.getMinutes()};for(var a=1;a<=12;a++)t.months.push(a);for(var a=1;a<=31;a++)t.days.push(a);for(var a=0;a<=23;a++)t.hours.push(a);for(var a=0;a<=59;a++)t.minutes.push(a);t.today=function(){var e=new Date;t.date={year:e.getFullYear(),month:e.getMonth()+1,mday:e.getDate(),hour:e.getHours(),minute:e.getMinutes()}},t.reset=function(e){t.date[e]=0},t.next=function(e,r){var n=r[r.length-1];t.date[e]<n&&t.date[e]++},t.prev=function(e,r){var n=r[0];t.date[e]>n&&t.date[e]--},t.ok=function(){r.close(t.date)},t.empty=function(){r.close(null)},t.cancel=function(){r.dismiss("cancel")}}],backdrop:"static",size:"sm"}).result.then(function(e){var r;r=null===e?0:Date.parse(e.year+"/"+e.month+"/"+e.mday+" "+e.hour+":"+e.minute)/1e3,t.date=r,t.$emit("xxt.tms-datepicker.change",{obj:t.obj,state:t.state,value:r})})}}],replace:!0}})}});
+ngMod.directive('tmsHideParentHeight', function() {
+    return {
+        restrict: 'A',
+        link: function(scope, elems, attrs) {
+            var heightLimit, elem;
+            if (attrs.tmsHideParentHeight) {
+                heightLimit = attrs.tmsHideParentHeight;
+                for (var i = 0, ii = elems.length; i < ii; i++) {
+                    elem = elems[i];
+                    if (elem.parentElement) {
+                        window.addEventListener('resize', function() {
+                            elem.classList.toggle('hidden', elem.parentElement.clientHeight < heightLimit);
+                        });
+                    }
+                }
+            }
+        }
+    }
+});
+/**
+ * 监听元素的滚动事件并做出相应
+ */
+ngMod.directive('tmsScrollSpy', function() {
+    return {
+        restrict: 'A',
+        scope: {
+            selector: '@selector',
+            offset: '@',
+            onbottom: '&',
+            toggleSpy: '='
+        },
+        link: function(scope, elems, attrs) {
+            var eleListen = scope.selector === 'window' ? window : document.querySelector(scope.selector);
+            eleListen.addEventListener('scroll', function(event) {
+                var eleScrolling = eleListen === window ? event.target.documentElement : event.target;
+                if (scope.toggleSpy) {
+                        if (scope.onbottom && angular.isFunction(scope.onbottom)) {
+                            if (eleScrolling.clientHeight + eleScrolling.scrollTop + parseInt(scope.offset) >= eleScrolling.scrollHeight) {
+                                scope.$apply(function() {
+                                    scope.toggleSpy = false;
+                                    scope.onbottom();
+                                });
+                            }
+                        }
+                    }
+            });
+        }
+    }
+});
+
+/***/ }),
+
+/***/ 128:
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var content = __webpack_require__(97);
+
+if(typeof content === 'string') content = [[module.i, content, '']];
+
+var transform;
+var insertInto;
+
+
+
+var options = {"hmr":true}
+
+options.transform = transform
+options.insertInto = undefined;
+
+var update = __webpack_require__(1)(content, options);
+
+if(content.locals) module.exports = content.locals;
+
+if(false) {
+	module.hot.accept("!!../../../../../../node_modules/css-loader/dist/cjs.js!./main.css", function() {
+		var newContent = require("!!../../../../../../node_modules/css-loader/dist/cjs.js!./main.css");
+
+		if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+
+		var locals = (function(a, b) {
+			var key, idx = 0;
+
+			for(key in a) {
+				if(!b || a[key] !== b[key]) return false;
+				idx++;
+			}
+
+			for(key in b) idx--;
+
+			return idx === 0;
+		}(content.locals, newContent.locals));
+
+		if(!locals) throw new Error('Aborting CSS HMR due to changed css-modules locals.');
+
+		update(newContent);
+	});
+
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+
+/***/ 160:
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(82);
+
+
+/***/ }),
+
+/***/ 2:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('http.ui.xxt', ['ng']);
+ngMod.provider('tmsLocation', function () {
+    var _baseUrl;
+
+    this.config = function (baseUrl) {
+        _baseUrl = baseUrl || location.pathname;
+    };
+
+    this.$get = ['$location', function ($location) {
+        var myLoc;
+        if (!_baseUrl) {
+            _baseUrl = location.pathname;
+        }
+        myLoc = {
+            s: function () {
+                var ls = $location.search();
+                if (arguments.length) {
+                    var ss = [];
+                    for (var i = 0, l = arguments.length; i < l; i++) {
+                        ss.push(arguments[i] + '=' + (ls[arguments[i]] || ''));
+                    };
+                    return ss.join('&');
+                }
+                return ls;
+            },
+            j: function (method) {
+                var url = _baseUrl,
+                    search = [];
+                method && method.length && (url += '/' + method);
+                for (var i = 1, l = arguments.length; i < l; i++) {
+                    search.push(arguments[i] + '=' + ($location.search()[arguments[i]] || ''));
+                };
+                search.length && (url += '?' + search.join('&'));
+                return url;
+            },
+            path: function () {
+                return arguments.length ? $location.path(arguments[0]) : $location.path();
+            }
+        };
+
+        return myLoc;
+    }];
+});
+ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compile', function ($rootScope, $http, $timeout, $q, $sce, $compile) {
+    function _fnCreateAlert(msg, type, keep) {
+        var alertDomEl;
+        /* backdrop */
+        $sce.trustAsHtml(msg);
+        alertDomEl = angular.element('<div></div>');
+        alertDomEl.attr({
+            'class': 'tms-notice-box alert alert-' + (type ? type : 'info'),
+            'ng-style': '{\'z-index\':1099}'
+        }).html(msg);
+        if (!keep) {
+            alertDomEl[0].addEventListener('click', function () {
+                document.body.removeChild(alertDomEl[0]);
+            }, true);
+        }
+        $compile(alertDomEl)($rootScope);
+        document.body.appendChild(alertDomEl[0]);
+
+        return alertDomEl[0];
+    }
+
+    function _fnRemoveAlert(alertDomEl) {
+        if (alertDomEl) {
+            document.body.removeChild(alertDomEl);
+        }
+    }
+
+    function _requirePagination(oOptions) {
+        if (oOptions.page && angular.isObject(oOptions.page)) {
+            if (oOptions.page.at === undefined) oOptions.page.at = 1;
+            if (oOptions.page.size === undefined) oOptions.page.size = 12;
+            if (oOptions.page.j === undefined || !angular.isFunction(oOptions.page.j)) {
+                oOptions.page.j = function () {
+                    return 'page=' + this.at + '&size=' + this.size;
+                };
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 合并两个对象
+     * 解决将通过http获得的数据和本地数据合并的问题
+     */
+    function _fnMerge(oOld, oNew, aExcludeProps) {
+        if (!oNew) return;
+        if (!oOld) {
+            oOld = oNew;
+        } else if (angular.isArray(oOld)) {
+            if (oOld.length > oNew.length) {
+                oOld.splice(oNew.length - 1, oOld.length - oNew.length);
+            }
+            for (var i = 0, ii = oNew.length; i < ii; i++) {
+                if (i < oOld.length) {
+                    _fnMerge(oOld[i], oNew[i], aExcludeProps);
+                } else {
+                    oOld.push(oNew[i]);
+                }
+            }
+        } else if (angular.isObject(oOld)) {
+            for (var prop in oOld) {
+                if (aExcludeProps && aExcludeProps.indexOf(prop) !== -1) {
+                    continue;
+                }
+                if (oNew[prop] === undefined) {
+                    delete oOld[prop];
+                } else {
+                    if (angular.isObject(oNew[prop]) && angular.isObject(oOld[prop])) {
+                        _fnMerge(oOld[prop], oNew[prop], aExcludeProps);
+                    } else {
+                        oOld[prop] = oNew[prop];
+                    }
+                }
+            }
+            for (var prop in oNew) {
+                if (aExcludeProps && aExcludeProps.indexOf(prop) !== -1) {
+                    continue;
+                }
+                if (oOld[prop] === undefined) {
+                    oOld[prop] = oNew[prop];
+                }
+            }
+        }
+
+        return true;
+    }
+
+    this.get = function (url, oOptions) {
+        var _alert, _timer, _defer = $q.defer();
+        oOptions = angular.extend({
+            'headers': {
+                'accept': 'application/json'
+            },
+            'parseResponse': true,
+            'autoBreak': true,
+            'autoNotice': true,
+            'showProgress': true,
+            'showProgressDelay': 500,
+            'showProgressText': '正在获取数据...',
+        }, oOptions);
+        if (oOptions.showProgress === true) {
+            _timer = $timeout(function () {
+                _timer = null;
+                _alert = _fnCreateAlert(oOptions.showProgressText, 'info');
+            }, oOptions.showProgressDelay);
+        }
+        if (_requirePagination(oOptions)) {
+            url += (url.indexOf('?') === -1 ? '?' : '&') + oOptions.page.j();
+        }
+        $http.get(url, oOptions).success(function (rsp) {
+            if (oOptions.page && rsp.data.total !== undefined) {
+                oOptions.page.total = rsp.data.total;
+            }
+            if (oOptions.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    _fnRemoveAlert(_alert);
+                    _alert = null;
+                }
+            }
+            if (!oOptions.parseResponse) {
+                _defer.resolve(rsp);
+            } else {
+                if (angular.isString(rsp)) {
+                    if (oOptions.autoNotice) {
+                        _fnCreateAlert(rsp, 'warning');
+                    }
+                    if (oOptions.autoBreak) {
+                        return
+                    } else {
+                        _defer.reject(rsp);
+                    }
+                } else if (rsp.err_code != 0) {
+                    if (oOptions.autoNotice) {
+                        var errmsg;
+                        if (angular.isString(rsp.err_msg)) {
+                            errmsg = rsp.err_msg;
+                        } else if (angular.isArray(rsp.err_msg)) {
+                            errmsg = rsp.err_msg.join('<br>');
+                        } else {
+                            errmsg = JSON.stringify(rsp.err_msg);
+                        }
+                        _fnCreateAlert(errmsg, 'warning');
+                    }
+                    if (oOptions.autoBreak) {
+                        return
+                    } else {
+                        _defer.reject(rsp);
+                    }
+                } else {
+                    _defer.resolve(rsp);
+                }
+            }
+        }).error(function (data, status) {
+            if (oOptions.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    _fnRemoveAlert(_alert);
+                    _alert = null;
+                }
+            }
+            _fnCreateAlert(data === null ? '网络不可用' : data, 'danger');
+        });
+
+        return _defer.promise;
+    };
+    this.post = function (url, posted, oOptions) {
+        var _alert, _timer, _defer = $q.defer();
+        oOptions = angular.extend({
+            'headers': {
+                'accept': 'application/json'
+            },
+            'parseResponse': true,
+            'autoBreak': true,
+            'autoNotice': true,
+            'showProgress': true,
+            'showProgressDelay': 500,
+            'showProgressText': '正在获取数据...',
+        }, oOptions);
+        if (oOptions.showProgress === true) {
+            _timer = $timeout(function () {
+                _timer = null;
+                _alert = _fnCreateAlert(oOptions.showProgressText, 'info');
+            }, oOptions.showProgressDelay);
+        }
+        if (_requirePagination(oOptions)) {
+            url += (url.indexOf('?') === -1 ? '?' : '&') + oOptions.page.j();
+        }
+        $http.post(url, posted, oOptions).success(function (rsp) {
+            if (oOptions.page && rsp.data.total !== undefined) {
+                oOptions.page.total = rsp.data.total;
+            }
+            if (oOptions.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    _fnRemoveAlert(_alert);
+                    _alert = null;
+                }
+            }
+            if (!oOptions.parseResponse) {
+                _defer.resolve(rsp);
+            } else {
+                if (angular.isString(rsp)) {
+                    if (oOptions.autoNotice) {
+                        _fnCreateAlert(rsp, 'warning');
+                        _alert = null;
+                    }
+                    if (oOptions.autoBreak) {
+                        return
+                    } else {
+                        _defer.reject(rsp);
+                    }
+                } else if (rsp.err_code != 0) {
+                    if (oOptions.autoNotice) {
+                        var errmsg;
+                        if (angular.isString(rsp.err_msg)) {
+                            errmsg = rsp.err_msg;
+                        } else if (angular.isArray(rsp.err_msg)) {
+                            errmsg = rsp.err_msg.join('<br>');
+                        } else {
+                            errmsg = JSON.stringify(rsp.err_msg);
+                        }
+                        _fnCreateAlert(errmsg, 'warning');
+                    }
+                    if (oOptions.autoBreak) {
+                        return
+                    } else {
+                        _defer.reject(rsp);
+                    }
+                } else {
+                    _defer.resolve(rsp);
+                }
+            }
+        }).error(function (data, status) {
+            if (oOptions.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    _fnRemoveAlert(_alert);
+                    _alert = null;
+                }
+            }
+            _fnCreateAlert(data === null ? '网络不可用' : data, 'danger');
+        });
+
+        return _defer.promise;
+    };
+    /**
+     * 合并两个对象
+     * 解决将通过http获得的数据和本地数据合并的问题
+     */
+    this.merge = function (oOld, oNew, aExcludeProps) {
+        if (angular.equals(oOld, oNew)) {
+            return false;
+        }
+        return _fnMerge(oOld, oNew, aExcludeProps);
+    };
+}]);
+
+/***/ }),
+
+/***/ 20:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('schema.ui.xxt', []);
+ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce, $parse) {
+    var _that = this,
+        _mapOfSchemas;
+    this.config = function(schemas) {
+        if (angular.isString(schemas)) {
+            schemas = JSON.parse(schemas);
+        }
+        if (angular.isArray(schemas)) {
+            _mapOfSchemas = {};
+            schemas.forEach(function(schema) {
+                _mapOfSchemas[schema.id] = schema;
+            });
+        } else {
+            _mapOfSchemas = schemas;
+        }
+    };
+    this.isEmpty = function(oSchema, value) {
+        if (value === undefined) {
+            return true;
+        }
+        switch (oSchema.type) {
+            case 'multiple':
+                for (var p in value) {
+                    //至少有一个选项
+                    if (value[p] === true) {
+                        return false;
+                    }
+                }
+                return true;
+            default:
+                return value.length === 0;
+        }
+    };
+    this.checkRequire = function(oSchema, value) {
+        if (value === undefined || this.isEmpty(oSchema, value)) {
+            return '请填写必填题目［' + oSchema.title + '］';
+        }
+        return true;
+    };
+    this.checkFormat = function(oSchema, value) {
+        if (oSchema.format === 'number') {
+            if (!/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(value)) {
+                return '题目［' + oSchema.title + '］请输入数值';
+            }
+        } else if (oSchema.format === 'name') {
+            if (value.length < 2) {
+                return '题目［' + oSchema.title + '］请输入正确的姓名（不少于2个字符）';
+            }
+        } else if (oSchema.format === 'mobile') {
+            if (!/^1(3[0-9]|4[57]|5[0-35-9]|7[0135678]|8[0-9]|9[0-9])\d{8}$/.test(value)) {
+                return '题目［' + oSchema.title + '］请输入正确的手机号（11位数字）';
+            }
+        } else if (oSchema.format === 'email') {
+            if (!/^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/.test(value)) {
+                return '题目［' + oSchema.title + '］请输入正确的邮箱';
+            }
+        }
+        return true;
+    };
+    this.checkCount = function(oSchema, value) {
+        if (oSchema.count != 0 && oSchema.count !== undefined && value.length > oSchema.count) {
+            return '［' + oSchema.title + '］超出上传数量（' + oSchema.count + '）限制';
+        }
+        return true;
+    };
+    this.checkValue = function(oSchema, value) {
+        var sCheckResult;
+        if (oSchema.required && oSchema.required === 'Y') {
+            if (true !== (sCheckResult = this.checkRequire(oSchema, value))) {
+                return sCheckResult;
+            }
+        }
+        if (value) {
+            if (oSchema.type === 'shorttext' && oSchema.format) {
+                if (true !== (sCheckResult = this.checkFormat(oSchema, value))) {
+                    return sCheckResult;
+                }
+            }
+            if (oSchema.type === 'multiple' && oSchema.limitChoice === 'Y' && oSchema.range) {
+                var opCount = 0;
+                for (var i in value) {
+                    if (value[i]) {
+                        opCount++;
+                    }
+                }
+                if (opCount < oSchema.range[0] || opCount > oSchema.range[1]) {
+                    return '【' + oSchema.title + '】中最多只能选择(' + oSchema.range[1] + ')项，最少需要选择(' + oSchema.range[0] + ')项';
+                }
+            }
+            if (/image|file/.test(oSchema.type) && oSchema.count) {
+                if (true !== (sCheckResult = this.checkCount(oSchema, value))) {
+                    return sCheckResult;
+                }
+            }
+        }
+        return true;
+    };
+    this.loadRecord = function(schemasById, dataOfPage, dataOfRecord) {
+        if (!dataOfRecord) return false;
+        var p, value;
+        for (p in dataOfRecord) {
+            if (p === 'member') {
+                dataOfPage.member = angular.extend(dataOfPage.member, dataOfRecord.member);
+            } else if (schemasById[p] !== undefined) {
+                var schema = schemasById[p];
+                if (/score|url/.test(schema.type)) {
+                    dataOfPage[p] = dataOfRecord[p];
+                } else if (dataOfRecord[p].length) {
+                    if (schemasById[p].type === 'image') {
+                        value = dataOfRecord[p].split(',');
+                        dataOfPage[p] = [];
+                        for (var i in value) {
+                            dataOfPage[p].push({
+                                imgSrc: value[i]
+                            });
+                        }
+                    } else if (schemasById[p].type === 'multiple') {
+                        value = dataOfRecord[p].split(',');
+                        dataOfPage[p] = {};
+                        for (var i in value) dataOfPage[p][value[i]] = true;
+                    } else {
+                        dataOfPage[p] = dataOfRecord[p];
+                    }
+                }
+            }
+        }
+        return true;
+    };
+    /**
+     * 给页面中的提交数据填充用户通讯录数据
+     */
+    this.autoFillMember = function(schemasById, oUser, oPageDataMember) {
+        if (oUser.members) {
+            angular.forEach(schemasById, function(oSchema) {
+                if (oSchema.mschema_id && oUser.members[oSchema.mschema_id]) {
+                    var oMember, attr, val;
+                    oMember = oUser.members[oSchema.mschema_id];
+                    attr = oSchema.id.split('.');
+                    if (attr.length === 2) {
+                        oPageDataMember[attr[1]] = oMember[attr[1]];
+                    } else if (attr.length === 3 && oMember.extattr) {
+                        if (!oPageDataMember.extattr) {
+                            oPageDataMember.extattr = {};
+                        }
+                        switch (oSchema.type) {
+                            case 'multiple':
+                                val = oMember.extattr[attr[2]];
+                                if (angular.isObject(val)) {
+                                    oPageDataMember.extattr[attr[2]] = {};
+                                    for (var p in val) {
+                                        if (val[p]) {
+                                            oPageDataMember.extattr[attr[2]][p] = true;
+                                        }
+                                    }
+                                }
+                                break;
+                            default:
+                                oPageDataMember.extattr[attr[2]] = oMember.extattr[attr[2]];
+                        }
+                    }
+                }
+            });
+        }
+    };
+    /**
+     * 给页面中的提交数据填充题目默认值
+     */
+    this.autoFillDefault = function(schemasById, oPageData) {
+        angular.forEach(schemasById, function(oSchema) {
+            if (oSchema.defaultValue && oPageData[oSchema.id] === undefined) {
+                oPageData[oSchema.id] = oSchema.defaultValue;
+            }
+        });
+    };
+    this.value2Text = function(oSchema, value) {
+        var label, aVal, aLab = [];
+
+        if (label = value) {
+            if (oSchema.ops && oSchema.ops.length) {
+                if (oSchema.type === 'single') {
+                    for (var i = 0, ii = oSchema.ops.length; i < ii; i++) {
+                        if (oSchema.ops[i].v === label) {
+                            label = oSchema.ops[i].l;
+                            break;
+                        }
+                    }
+                } else if (oSchema.type === 'multiple') {
+                    aVal = [];
+                    for (var k in label) {
+                        if (label[k]) {
+                            aVal.push(k);
+                        }
+                    }
+                    oSchema.ops.forEach(function(op) {
+                        aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
+                    });
+                    label = aLab.join(',');
+                }
+            }
+        } else {
+            label = '';
+        }
+        return label;
+    };
+    this.value2Html = function(oSchema, val) {
+        if (!val || !oSchema) return '';
+
+        if (oSchema.ops && oSchema.ops.length) {
+            if (oSchema.type === 'score') {
+                var label = '';
+                oSchema.ops.forEach(function(op, index) {
+                    if (val[op.v] !== undefined) {
+                        label += '<div>' + op.l + ':' + val[op.v] + '</div>';
+                    }
+                });
+                label = label.replace(/\s\/\s$/, '');
+                return label;
+            } else if (angular.isString(val)) {
+                var aVal, aLab = [];
+                aVal = val.split(',');
+                oSchema.ops.forEach(function(op, i) {
+                    aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
+                });
+                if (aLab.length) return aLab.join(',');
+            } else if (angular.isObject(val) || angular.isArray(val)) {
+                val = JSON.stringify(val);
+            }
+        }
+        return val;
+    };
+    this.txtSubstitute = function(oTxtData) {
+        return oTxtData.replace(/\n/g, '<br>');
+    };
+    this.urlSubstitute = function(oUrlData) {
+        var text;
+        text = '';
+        if (oUrlData) {
+            if (oUrlData.title) {
+                text += '【' + oUrlData.title + '】';
+            }
+            if (oUrlData.description) {
+                text += oUrlData.description;
+            }
+        }
+        text += '<a href="' + oUrlData.url + '">网页链接</a>';
+
+        return text;
+    };
+    this.optionsSubstitute = function(oSchema, value) {
+        var val, aVal, aLab = [];
+        if (val = value) {
+            if (oSchema.ops && oSchema.ops.length) {
+                if (oSchema.type === 'score') {
+                    var label = '',
+                        flag = false;
+                    oSchema.ops.forEach(function(op, index) {
+                        if (val[op.v] !== undefined) {
+                            label += '<div>' + op.l + ':' + val[op.v] + '</div>';
+                            flag = false;
+                        } else {
+                            return flag = true;
+                        }
+                    });
+                    label = flag ? val : label.replace(/\s\/\s$/, '');
+                    return label;
+                } else if (oSchema.type === 'single' || oSchema.type === 'multiple') {
+                    if (angular.isString(val)) {
+                        aVal = val.split(',');
+                        oSchema.ops.forEach(function(op) {
+                            aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
+                        });
+                        val = aLab.join(',');
+                    } else {
+                        return val;
+                    }
+                } else if (angular.isObject(val) || angular.isArray(val)) {
+                    val = JSON.stringify(val);
+                }
+            }
+        } else {
+            val = '';
+        }
+        return val;
+    };
+    this.forTable = function(record, mapOfSchemas) {
+        function _memberAttr(oMember, oSchema) {
+            var keys, originalValue, afterValue;
+            if (oMember) {
+                keys = oSchema.id.split('.');
+                if (keys.length === 2) {
+                    return oMember[keys[1]];
+                } else if (keys.length === 3 && oMember.extattr) {
+                    if (originalValue = oMember.extattr[keys[2]]) {
+                        switch (oSchema.type) {
+                            case 'single':
+                                if (oSchema.ops && oSchema.ops.length) {
+                                    for (var i = oSchema.ops.length - 1; i >= 0; i--) {
+                                        if (originalValue === oSchema.ops[i].v) {
+                                            afterValue = oSchema.ops[i].l;
+                                        }
+                                    }
+                                }
+                                break;
+                            case 'multiple':
+                                if (oSchema.ops && oSchema.ops.length) {
+                                    afterValue = [];
+                                    oSchema.ops.forEach(function(op) {
+                                        originalValue[op.v] && afterValue.push(op.l);
+                                    });
+                                    afterValue = afterValue.join(',');
+                                }
+                                break;
+                            default:
+                                afterValue = originalValue;
+                        }
+                    }
+                    return afterValue;
+                } else {
+                    return '';
+                }
+            } else {
+                return '';
+            }
+        }
+
+        function _forTable(oRecord, mapOfSchemas) {
+            var oSchema, type, data = {};
+            if (oRecord.data && mapOfSchemas) {
+                for (var schemaId in mapOfSchemas) {
+                    oSchema = mapOfSchemas[schemaId];
+                    type = oSchema.type;
+                    /* 分组活动导入数据时会将member题型改为shorttext题型 */
+                    if (oSchema.mschema_id && oRecord.data.member) {
+                        type = 'member';
+                    }
+                    switch (type) {
+                        case 'image':
+                            var imgs;
+                            if (oRecord.data[oSchema.id]) {
+                                if (angular.isString(oRecord.data[oSchema.id])) {
+                                    imgs = oRecord.data[oSchema.id].split(',')
+                                } else {
+                                    imgs = oRecord.data[oSchema.id];
+                                }
+                            } else {
+                                imgs = [];
+                            }
+                            data[oSchema.id] = imgs;
+                            break;
+                        case 'file':
+                        case 'voice':
+                            var files = oRecord.data[oSchema.id] ? oRecord.data[oSchema.id] : {};
+                            data[oSchema.id] = files;
+                            break;
+                        case 'multitext':
+                            var multitexts;
+                            if (multitexts = oRecord.data[oSchema.id]) {
+                                /* 为什么需要进行两次转换？ */
+                                if (angular.isString(multitexts)) {
+                                    try {
+                                        multitexts = JSON.parse(multitexts);
+                                        if (angular.isString(multitexts)) {
+                                            multitexts = JSON.parse(multitexts);
+                                        }
+                                    } catch (e) {
+                                        multitexts = [];
+                                    }
+                                }
+                            } else {
+                                multitexts = [];
+                            }
+                            data[oSchema.id] = multitexts;
+                            break;
+                        case 'date':
+                            data[oSchema.id] = (oRecord.data[oSchema.id] && angular.isNumber(oRecord.data[oSchema.id])) ? oRecord.data[oSchema.id] : 0;
+                            break;
+                        case 'url':
+                            data[oSchema.id] = oRecord.data[oSchema.id];
+                            if (data[oSchema.id]) {
+                                data[oSchema.id]._text = '【' + data[oSchema.id].title + '】' + data[oSchema.id].description;
+                            }
+                            break;
+                        default:
+                            try {
+                                if (/^member\./.test(oSchema.id)) {
+                                    data[oSchema.id] = _memberAttr(oRecord.data.member, oSchema);
+                                } else {
+                                    var htmlVal = _that.value2Html(oSchema, oRecord.data[oSchema.id]);
+                                    data[oSchema.id] = angular.isString(htmlVal) ? $sce.trustAsHtml(htmlVal) : htmlVal;
+                                }
+                            } catch (e) {
+                                console.log(e, oSchema, oRecord.data[oSchema.id]);
+                            }
+                    }
+                };
+                oRecord._data = data;
+            }
+            return oRecord;
+        }
+        var map;
+        if (mapOfSchemas && angular.isArray(mapOfSchemas)) {
+            map = {};
+            mapOfSchemas.forEach(function(oSchema) {
+                map[oSchema.id] = oSchema;
+            });
+            mapOfSchemas = map;
+        }
+        return _forTable(record, mapOfSchemas ? mapOfSchemas : _mapOfSchemas);
+    };
+    this.forEdit = function(schema, data) {
+        if (schema.type === 'file') {
+            var files;
+            if (data[schema.id] && data[schema.id].length) {
+                files = data[schema.id];
+                files.forEach(function(file) {
+                    if (file.url && angular.isString(file.url)) {
+                        file.url && $sce.trustAsUrl(file.url);
+                    }
+                });
+            }
+            data[schema.id] = files;
+        } else if (schema.type === 'multiple') {
+            var obj = {},
+                value;
+            if (data[schema.id] && data[schema.id].length) {
+                value = data[schema.id].split(',')
+                value.forEach(function(p) {
+                    obj[p] = true;
+                });
+            }
+            data[schema.id] = obj;
+        } else if (schema.type === 'image') {
+            var value = data[schema.id],
+                obj = [];
+            if (value && value.length) {
+                value = value.split(',');
+                value.forEach(function(p) {
+                    obj.push({
+                        imgSrc: p
+                    });
+                });
+            }
+            data[schema.id] = obj;
+        }
+
+        return data;
+    };
+    /* 将1条记录的所有指定题目的数据变成字符串 */
+    this.strRecData = function(oRecData, schemas, oOptions) {
+        var str, schemaData, fnSchemaFilter, fnDataFilter;
+
+        if (!schemas || schemas.length === 0) {
+            return '';
+        }
+
+        if (oOptions) {
+            if (oOptions.fnSchemaFilter)
+                fnSchemaFilter = oOptions.fnSchemaFilter;
+            if (oOptions.fnDataFilter)
+                fnDataFilter = oOptions.fnDataFilter;
+        }
+
+        str = '';
+        schemas.forEach(function(oSchema) {
+            if (!fnSchemaFilter || fnSchemaFilter(oSchema)) {
+                schemaData = $parse(oSchema.id)(oRecData);
+                switch (oSchema.type) {
+                    case 'image':
+                        if (schemaData && schemaData.length) {
+                            str += '<span>';
+                            schemaData.forEach(function(imgSrc) {
+                                str += '<img src="' + imgSrc + '" />';
+                            });
+                            str += '</span>';
+                        }
+                        break;
+                    case 'file':
+                        if (schemaData && schemaData.length) {
+                            schemaData.forEach(function(oFile) {
+                                str += '<span><a href="' + oFile.url + '" target="_blank">' + oFile.name + '</a></span>';
+                            });
+                        }
+                        break;
+                    case 'date':
+                        if (schemaData > 0) {
+                            str = '<span>' + $filter('date')(schemaData * 1000, 'yy-MM-dd HH:mm') + '</span>';
+                        }
+                        break;
+                    case 'shortext':
+                    case 'longtext':
+                        str += schemaData;
+                        break;
+                    case 'multitext':
+                        if (schemaData && schemaData.length) {
+                            for (var i = schemaData.length - 1; i >= 0; i--) {
+                                if (!fnDataFilter || fnDataFilter(schemaData[i].id)) {
+                                    str += schemaData[i].value;
+                                }
+                            }
+                        }
+                        break;
+                }
+            }
+        });
+
+        return str;
+    };
+    /**
+     * 通信录记录中的扩展属性转化为用户可读内容
+     */
+    this.member = {
+        getExtattrsUIValue: function(schemas, oMember) {
+            var oExtattrUIValue = {};
+
+            schemas.forEach(function(oExtAttr) {
+                if (/single|multiple/.test(oExtAttr.type)) {
+                    if (oMember.extattr[oExtAttr.id]) {
+                        oExtattrUIValue[oExtAttr.id] = _that.value2Text(oExtAttr, oMember.extattr[oExtAttr.id]);
+                    }
+                } else {
+                    oExtattrUIValue[oExtAttr.id] = oMember.extattr[oExtAttr.id];
+                }
+            });
+
+            return oExtattrUIValue;
+        }
+    };
+}]);
+
+/***/ }),
+
+/***/ 23:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+window.xxt === undefined && (window.xxt = {});
+window.xxt.image = {
+    options: {},
+    choose: function(deferred, from) {
+        var promise, imgs = [];
+        promise = deferred.promise;
+        var ele = document.createElement('input');
+        ele.setAttribute('type', 'file');
+        ele.addEventListener('change', function(evt) {
+            var i, cnt, f, type;
+            cnt = evt.target.files.length;
+            for (i = 0; i < cnt; i++) {
+                f = evt.target.files[i];
+                type = {
+                    ".jp": "image/jpeg",
+                    ".pn": "image/png",
+                    ".gi": "image/gif"
+                } [f.name.match(/\.(\w){2}/g)[0] || ".jp"];
+                f.type2 = f.type || type;
+                var oReader = new FileReader();
+                oReader.onload = (function(theFile) {
+                    return function(e) {
+                        var img = {};
+                        img.imgSrc = e.target.result.replace(/^.+(,)/, "data:" + theFile.type2 + ";base64,");
+                        imgs.push(img);
+                        document.body.removeChild(ele);
+                        deferred.resolve(imgs);
+                    };
+                })(f);
+                oReader.readAsDataURL(f);
+            }
+        }, false);
+        ele.style.opacity = 0;
+        document.body.appendChild(ele);
+        ele.click();
+
+        return promise;
+    },
+    paste: function(oDiv, deferred, from) {
+        var promise, imgs = [];
+        promise = deferred.promise;
+        oDiv.focus();
+
+        function imgReader(item) {
+            var blob = item.getAsFile(),
+                reader = new FileReader();
+            reader.onload = function(e) {
+                var img = {};
+                img.imgSrc = e.target.result;
+                imgs.push(img);
+                deferred.resolve(imgs);
+            };
+            reader.readAsDataURL(blob);
+        };
+        oDiv.addEventListener('paste', function(event) {
+            // 通过事件对象访问系统剪贴板
+            var clipboardData = event.clipboardData,
+                items, item;
+            if (clipboardData) {
+                items = clipboardData.items;
+                if (items && items.length) {
+                    for (var i = 0; i < clipboardData.types.length; i++) {
+                        if (clipboardData.types[i] === 'Files') {
+                            item = items[i];
+                            break;
+                        }
+                    }
+                    if (item && item.kind === 'file' && item.type.match(/^image\//i)) {
+                        imgReader(item);
+                    }
+                }
+            }
+        });
+        return promise;
+    },
+    wxUpload: function(deferred, img) {
+        var promise;
+        promise = deferred.promise;
+        if (0 === img.imgSrc.indexOf('weixin://') || 0 === img.imgSrc.indexOf('wxLocalResource://')) {
+            window.wx.uploadImage({
+                localId: img.imgSrc,
+                isShowProgressTips: 1,
+                success: function(res) {
+                    img.serverId = res.serverId;
+                    deferred.resolve(img);
+                }
+            });
+        } else {
+            deferred.resolve(img);
+        }
+        return promise;
+    }
+};
+
+/***/ }),
+
+/***/ 24:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+window.xxt === undefined && (window.xxt = {});
+window.xxt.geo = {
+    options: {},
+    getAddress: function(http2, deferred, siteId) {
+        var promise;
+        promise = deferred.promise;
+        if (window.wx) {
+            window.wx.getLocation({
+                success: function(res) {
+                    var url = '/rest/site/fe/matter/enroll/locationGet';
+                    url += '?site=' + siteId;
+                    url += '&lat=' + res.latitude;
+                    url += '&lng=' + res.longitude;
+                    http2.get(url).then(function(rsp) {
+                        deferred.resolve({
+                            errmsg: 'ok',
+                            lat: res.latitude,
+                            lng: res.longitude,
+                            address: rsp.data.address
+                        });
+                    });
+                }
+            });
+        } else {
+            try {
+                var nav = window.navigator;
+                if (nav !== null) {
+                    var geoloc = nav.geolocation;
+                    if (geoloc !== null) {
+                        geoloc.getCurrentPosition(function(position) {
+                            var url = '/rest/site/fe/matter/enroll/locationGet';
+                            url += '?site=' + siteId;
+                            url += '&lat=' + position.coords.latitude;
+                            url += '&lng=' + position.coords.longitude;
+                            http2.get(url).then(function(rsp) {
+                                deferred.resolve({
+                                    errmsg: 'ok',
+                                    lat: position.coords.latitude,
+                                    lng: position.coords.longitude,
+                                    address: rsp.data.address
+                                });
+                            });
+                        }, function() {
+                            deferred.resolve({
+                                errmsg: '获取地理位置失败'
+                            })
+                        });
+                    } else {
+                        deferred.resolve({
+                            errmsg: "无法获取地理位置"
+                        });
+                    }
+                } else {
+                    deferred.resolve({
+                        errmsg: "无法获取地理位置"
+                    });
+                }
+            } catch (e) {
+                alert('exception:' + e.message);
+            }
+        }
+        return promise;
+    },
+};
+
+
+/***/ }),
+
+/***/ 3:
+/***/ (function(module, exports) {
+
+
+/**
+ * When source maps are enabled, `style-loader` uses a link element with a data-uri to
+ * embed the css on the page. This breaks all relative urls because now they are relative to a
+ * bundle instead of the current page.
+ *
+ * One solution is to only use full urls, but that may be impossible.
+ *
+ * Instead, this function "fixes" the relative urls to be absolute according to the current page location.
+ *
+ * A rudimentary test suite is located at `test/fixUrls.js` and can be run via the `npm test` command.
+ *
+ */
+
+module.exports = function (css) {
+  // get current location
+  var location = typeof window !== "undefined" && window.location;
+
+  if (!location) {
+    throw new Error("fixUrls requires window.location");
+  }
+
+	// blank or null?
+	if (!css || typeof css !== "string") {
+	  return css;
+  }
+
+  var baseUrl = location.protocol + "//" + location.host;
+  var currentDir = baseUrl + location.pathname.replace(/\/[^\/]*$/, "/");
+
+	// convert each url(...)
+	/*
+	This regular expression is just a way to recursively match brackets within
+	a string.
+
+	 /url\s*\(  = Match on the word "url" with any whitespace after it and then a parens
+	   (  = Start a capturing group
+	     (?:  = Start a non-capturing group
+	         [^)(]  = Match anything that isn't a parentheses
+	         |  = OR
+	         \(  = Match a start parentheses
+	             (?:  = Start another non-capturing groups
+	                 [^)(]+  = Match anything that isn't a parentheses
+	                 |  = OR
+	                 \(  = Match a start parentheses
+	                     [^)(]*  = Match anything that isn't a parentheses
+	                 \)  = Match a end parentheses
+	             )  = End Group
+              *\) = Match anything and then a close parens
+          )  = Close non-capturing group
+          *  = Match anything
+       )  = Close capturing group
+	 \)  = Match a close parens
+
+	 /gi  = Get all matches, not the first.  Be case insensitive.
+	 */
+	var fixedCss = css.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi, function(fullMatch, origUrl) {
+		// strip quotes (if they exist)
+		var unquotedOrigUrl = origUrl
+			.trim()
+			.replace(/^"(.*)"$/, function(o, $1){ return $1; })
+			.replace(/^'(.*)'$/, function(o, $1){ return $1; });
+
+		// already a full url? no change
+		if (/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/|\s*$)/i.test(unquotedOrigUrl)) {
+		  return fullMatch;
+		}
+
+		// convert the url to a full url
+		var newUrl;
+
+		if (unquotedOrigUrl.indexOf("//") === 0) {
+		  	//TODO: should we add protocol?
+			newUrl = unquotedOrigUrl;
+		} else if (unquotedOrigUrl.indexOf("/") === 0) {
+			// path should be relative to the base url
+			newUrl = baseUrl + unquotedOrigUrl; // already starts with '/'
+		} else {
+			// path should be relative to current directory
+			newUrl = currentDir + unquotedOrigUrl.replace(/^\.\//, ""); // Strip leading './'
+		}
+
+		// send back the fixed url(...)
+		return "url(" + JSON.stringify(newUrl) + ")";
+	});
+
+	// send back the fixed css
+	return fixedCss;
+};
+
+
+/***/ }),
+
+/***/ 5:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+ 
+ var ngMod = angular.module('snsshare.ui.xxt', []);
+ ngMod.service('tmsSnsShare', ['$http', function($http) {
+     function setWxShare(title, link, desc, img, options) {
+         var _this = this;
+         window.wx.onMenuShareTimeline({
+             title: options.descAsTitle ? desc : title,
+             link: link,
+             imgUrl: img,
+             success: function() {
+                 try {
+                     options.logger && options.logger('T');
+                 } catch (ex) {
+                     alert('share failed:' + ex.message);
+                 }
+             },
+             cancel: function() {},
+             fail: function() {
+                 alert('shareT: fail');
+             }
+         });
+         window.wx.onMenuShareAppMessage({
+             title: title,
+             desc: desc,
+             link: link,
+             imgUrl: img,
+             success: function() {
+                 try {
+                     options.logger && options.logger('F');
+                 } catch (ex) {
+                     alert('share failed:' + ex.message);
+                 }
+             },
+             cancel: function() {},
+             fail: function() {
+                 alert('shareF: fail');
+             }
+         });
+     }
+
+     var _isReady = false;
+     this.config = function(options) {
+         this.options = options;
+     };
+     this.set = function(title, link, desc, img, fnOther) {
+         var _this = this;
+         // 将图片的相对地址改为绝对地址
+         img && img.indexOf(location.protocol) === -1 && (img = location.protocol + '//' + location.host + img);
+         if (_isReady) {
+             if (/MicroMessenger/i.test(navigator.userAgent)) {
+                 setWxShare(title, link, desc, img, _this.options);
+             } else if (fnOther && typeof fnOther === 'function') {
+                 fnOther(title, link, desc, img);
+             }
+         } else {
+             if (/MicroMessenger/i.test(navigator.userAgent)) {
+                 var script;
+                 script = document.createElement('script');
+                 script.src = location.protocol + '//res.wx.qq.com/open/js/jweixin-1.0.0.js';
+                 script.onload = function() {
+                     var xhr, url;
+                     xhr = new XMLHttpRequest();
+                     url = "/rest/site/fe/wxjssdksignpackage?site=" + _this.options.siteId + "&url=" + encodeURIComponent(location.href.split('#')[0]);
+                     xhr.open('GET', url, true);
+                     xhr.onreadystatechange = function() {
+                         if (xhr.readyState == 4) {
+                             if (xhr.status >= 200 && xhr.status < 400) {
+                                 var signPackage;
+                                 try {
+                                     eval("(" + xhr.responseText + ')');
+                                     if (signPackage) {
+                                         signPackage.debug = false;
+                                         signPackage.jsApiList = _this.options.jsApiList;
+                                         wx.config(signPackage);
+                                         wx.ready(function() {
+                                             setWxShare(title, link, desc, img, _this.options);
+                                             _isReady = true;
+                                         });
+                                         wx.error(function(res) {
+                                             alert(JSON.stringify(res));
+                                         });
+                                     }
+                                 } catch (e) {
+                                     alert('local error:' + e.toString());
+                                 }
+                             } else {
+                                 alert('http error:' + xhr.statusText);
+                             }
+                         };
+                     }
+                     xhr.send();
+                 };
+                 document.body.appendChild(script);
+             } else if (fnOther && typeof fnOther === 'function') {
+                 fnOther(title, link, desc, img);
+                 _isReady = true;
+             }
+         }
+     };
+ }]);
+
+/***/ }),
+
+/***/ 50:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var utilSubmit = {};
+utilSubmit.state = {
+    modified: false,
+    state: 'waiting',
+    _cacheKey: false,
+    start: function(event, cacheKey, type) {
+        var submitButton;
+        if (event) {
+            submitButton = event.target;
+            if (submitButton.tagName === 'BUTTON' || ((submitButton = submitButton.parentNode) && submitButton.tagName === 'BUTTON')) {
+                if (/submit\(.*\)/.test(submitButton.getAttribute('ng-click'))) {
+                    var span;
+                    this.button = submitButton;
+                    span = submitButton.querySelector('span');
+                    span.setAttribute('data-label', span.innerHTML);
+                    span.innerHTML = '正在提交数据...';
+                    this.button.classList.add('submit-running');
+                }
+            }
+        }
+        this.state = type == 'save' ? 'waiting' : 'running';
+        this._cacheKey = cacheKey ? cacheKey : (new Date * 1);
+    },
+    finish: function(keep) {
+        this.state = 'waiting';
+        this.modified = false;
+        if (this.button) {
+            var span;
+            span = this.button.querySelector('span');
+            span.innerHTML = span.getAttribute('data-label');
+            span.removeAttribute('data-label');
+            this.button.classList.remove('submit-running');
+            this.button = null;
+        }
+        if (window.localStorage && !keep) {
+            window.localStorage.removeItem(this._cacheKey);
+        }
+    },
+    isRunning: function() {
+        return this.state === 'running';
+    },
+    cache: function(cachedData) {
+        if (window.localStorage) {
+            var key, val;
+            key = this._cacheKey;
+            val = angular.copy(cachedData);
+            val._cacheAt = (new Date * 1);
+            val = JSON.stringify(val);
+            window.localStorage.setItem(key, val);
+        }
+    },
+    fromCache: function(keep) {
+        if (window.localStorage) {
+            var key, val;
+            key = this._cacheKey;
+            val = window.localStorage.getItem(key);
+            if (!keep) window.localStorage.removeItem(key);
+            if (val) {
+                val = JSON.parse(val);
+                /*if (val._cacheAt && (val._cacheAt + 1800000) < (new Date * 1)) {
+                    val = false;
+                }
+                delete val._cacheAt;*/
+            }
+        }
+        return val;
+    }
+};
+module.exports = utilSubmit;
+
+/***/ }),
+
+/***/ 6:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('notice.ui.xxt', ['ng', 'ngSanitize']);
+ngMod.service('noticebox', ['$timeout', '$interval', '$q', function($timeout, $interval, $q) {
+    var _boxId = 'tmsbox' + (new Date * 1),
+        _last = {
+            type: '',
+            timer: null
+        },
+        _getBox = function(type, msg) {
+            var box;
+            box = document.querySelector('#' + _boxId);
+            if (box === null) {
+                box = document.createElement('div');
+                box.setAttribute('id', _boxId);
+                box.classList.add('tms-notice-box', 'alert', 'alert-' + type);
+                box.innerHTML = '<div>' + msg + '</div>';
+                document.body.appendChild(box);
+                _last.type = type;
+            } else {
+                if (_last.type !== type) {
+                    box.classList.remove('alert-' + type);
+                    _last.type = type;
+                }
+                box.childNodes[0].innerHTML = msg;
+            }
+
+            return box;
+        };
+
+    this.close = function() {
+        var box;
+        box = document.querySelector('#' + _boxId);
+        if (box) {
+            document.body.removeChild(box);
+        }
+    };
+    this.error = function(msg) {
+        var box, btn;
+
+        /*取消自动关闭*/
+        if (_last.timer) {
+            $timeout.cancel(_last.timer);
+            _last.timer = null;
+        }
+        /*显示消息框*/
+        box = _getBox('danger', msg);
+        /*手工关闭*/
+        btn = document.createElement('button');
+        btn.classList.add('close');
+        btn.innerHTML = '<span>&times;</span>';
+        box.insertBefore(btn, box.childNodes[0]);
+        btn.addEventListener('click', function() {
+            document.body.removeChild(box);
+        });
+    };
+    this.warn = function(msg) {
+        var box, btn;
+
+        /*取消自动关闭*/
+        if (_last.timer) {
+            $timeout.cancel(_last.timer);
+            _last.timer = null;
+        }
+        /*显示消息框*/
+        box = _getBox('warning', msg);
+        /*手工关闭*/
+        btn = document.createElement('button');
+        btn.classList.add('close');
+        btn.innerHTML = '<span>&times;</span>';
+        box.insertBefore(btn, box.childNodes[0]);
+        btn.addEventListener('click', function() {
+            document.body.removeChild(box);
+        });
+    };
+    this.success = function(msg) {
+        var box;
+        /*取消自动关闭*/
+        _last.timer && $timeout.cancel(_last.timer);
+        /*显示消息框*/
+        box = _getBox('success', msg);
+        /*保持2秒钟后自动关闭*/
+        _last.timer = $timeout(function() {
+            if (box.parentNode && box.parentNode === document.body) {
+                document.body.removeChild(box);
+            }
+            _last.timer = null;
+        }, 2000);
+    };
+    this.info = function(msg) {
+        var box;
+        /*取消自动关闭*/
+        _last.timer && $timeout.cancel(_last.timer);
+        /*显示消息框*/
+        box = _getBox('info', msg);
+        /*保持2秒钟后自动关闭*/
+        _last.timer = $timeout(function() {
+            if (box.parentNode && box.parentNode === document.body) {
+                document.body.removeChild(box);
+            }
+            _last.timer = null;
+        }, 2000);
+    };
+    this.progress = function(msg) {
+        /*显示消息框*/
+        _getBox('progress', msg);
+    };
+    this.confirm = function(msg, buttons) {
+        var defer, box, btn;
+        defer = $q.defer();
+        /*取消自动关闭*/
+        if (_last.timer) {
+            $timeout.cancel(_last.timer);
+            _last.timer = null;
+        }
+        /*显示消息框*/
+        box = _getBox('warning', msg);
+        /*添加操作*/
+        if (buttons && buttons.length) {
+            buttons.forEach(function(oButton) {
+                btn = document.createElement('button');
+                btn.classList.add('btn', 'btn-default', 'btn-sm');
+                btn.innerHTML = oButton.label;
+                box.appendChild(btn, box.childNodes[0]);
+                btn.addEventListener('click', function() {
+                    document.body.removeChild(box);
+                    defer.resolve(oButton.value);
+                });
+                if (oButton.execWait) {
+                    var counter = Math.ceil(oButton.execWait / 500);
+                    var countdown = document.createElement('span');
+                    countdown.classList.add('countdown');
+                    countdown.innerHTML = counter;
+                    btn.appendChild(countdown);
+                    $interval(function() {
+                        countdown.innerHTML = --counter;
+                    }, 500);
+                    /* 自动关闭 */
+                    _last.timer = $timeout(function() {
+                        if (box.parentNode && box.parentNode === document.body) {
+                            document.body.removeChild(box);
+                        }
+                        _last.timer = null;
+                        defer.resolve(oButton.value);
+                    }, oButton.execWait);
+                }
+            });
+        } else {
+            btn = document.createElement('button');
+            btn.classList.add('btn', 'btn-default', 'btn-sm');
+            btn.innerHTML = '是';
+            box.appendChild(btn, box.childNodes[0]);
+            btn.addEventListener('click', function() {
+                document.body.removeChild(box);
+                defer.resolve();
+            });
+            btn = document.createElement('button');
+            btn.classList.add('btn', 'btn-default', 'btn-sm');
+            btn.innerHTML = '否';
+            box.appendChild(btn, box.childNodes[0]);
+            btn.addEventListener('click', function() {
+                document.body.removeChild(box);
+                defer.reject();
+            });
+        }
+
+        return defer.promise;
+    };
+}]);
+
+/***/ }),
+
+/***/ 8:
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(false);
+// Module
+exports.push([module.i, ".dialog.mask{position:fixed;background:rgba(0,0,0,.3);top:0;left:0;bottom:0;right:0;overflow:auto;z-index:1060}.dialog.dlg{position:absolute;background:#fff;left:0;right:0;bottom:0;margin:15px}.dialog .dlg-header{padding:15px 15px 0 15px}.dialog .dlg-body{padding:15px 15px 0 15px}.dialog .dlg-footer{text-align:right;padding:15px}.dialog .dlg-footer button{border-radius:0}div[wrap=filter] .detail{background:#ccc}div[wrap=filter] .detail .options .label{display:inline-block;margin:.5em;padding-top:.3em;font-size:100%}div[wrap=filter] .detail .actions .btn{border-radius:0}.tms-act-toggle{position:fixed;right:15px;bottom:8px;width:48px;height:48px;line-height:48px;box-shadow:0 2px 6px rgba(18,27,32,.425);color:#fff;background:#ff8018;border:1px solid #ff8018;border-radius:24px;font-size:20px;text-align:center;cursor:pointer;z-index:1045}.tms-nav-target>*+*{margin-top:.5em}.tms-act-popover-wrap>div+div{margin-top:8px}#frmPlugin{position:absolute;top:0;bottom:0;left:0;right:0;width:100%;height:100%;border:none;z-index:1060;box-sizing:border-box;padding-bottom:48px;background:#fff}#frmPlugin iframe{width:100%;height:100%;border:0}#frmPlugin:after{content:'关闭';position:absolute;width:100px;text-align:center;left:50%;margin-left:-50px;bottom:4px;padding:5px 6px 3px;border:1px solid #ccc;border-radius:4px}div[wrap]>.description{word-wrap:break-word}", ""]);
+
+
+
+/***/ }),
+
+/***/ 82:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(128);
+__webpack_require__(6);
+__webpack_require__(2);
+__webpack_require__(89);
+__webpack_require__(5);
+__webpack_require__(23);
+__webpack_require__(24);
+__webpack_require__(20);
+
+__webpack_require__(9);
+__webpack_require__(10);
+
+var ngApp = angular.module('app', ['ngSanitize', 'ngRoute', 'ui.bootstrap', 'directive.enroll', 'notice.ui.xxt', 'http.ui.xxt', 'date.ui.xxt', 'snsshare.ui.xxt', 'schema.ui.xxt']);
+ngApp.oUtilSubmit = __webpack_require__(50);
+ngApp.factory('Input', ['$q', '$timeout', 'http2', 'tmsLocation', 'tmsSchema', function($q, $timeout, http2, LS, tmsSchema) {
+    var Input, _ins;
+    Input = function() {};
+    Input.prototype.check = function(oTask, oTaskData) {
+        var oAction, oActionData, schemas, oSchema, value, sCheckResult;
+        if (oTask.actions && oTask.actions.length) {
+            for (var i = 0, ii = oTask.actions.length; i < ii; i++) {
+                oAction = oTask.actions[i];
+                if (oAction.checkSchemas && oAction.checkSchemas.length) {
+                    schemas = oAction.checkSchemas;
+                    oActionData = oTaskData[oAction.id];
+                    for (var j = 0, jj = schemas.length; j < jj; j++) {
+                        oSchema = schemas[j];
+                        if (oSchema.type && oSchema.type !== 'html') {
+                            value = oActionData ? oActionData[oSchema.id] : '';
+                            if (true !== (sCheckResult = tmsSchema.checkValue(oSchema, value))) {
+                                return sCheckResult;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    };
+    Input.prototype.submit = function(oTask, oTaskData, oSupplement) {
+        var posted, d, url;
+        posted = {
+            data: angular.copy(oTaskData),
+            supplement: oSupplement
+        };
+        url = '/rest/site/fe/matter/plan/task/submit?site=' + LS.s().site + '&task=' + oTask.id;
+        for (var i in posted.data) {
+            d = posted.data[i];
+            if (angular.isArray(d) && d.length && d[0].imgSrc !== undefined && d[0].serverId !== undefined) {
+                d.forEach(function(d2) {
+                    delete d2.imgSrc;
+                });
+            }
+        }
+        return http2.post(url, posted, { autoNotice: false, autoBreak: false });
+    };
+    return {
+        ins: function() {
+            if (!_ins) {
+                _ins = new Input();
+            }
+            return _ins;
+        }
+    }
+}]);
+/**
+ *上传图片
+ */
+ngApp.directive('tmsImageInput', ['$compile', '$q', 'noticebox', function($compile, $q, noticebox) {
+    var aModifiedImgFields;
+    aModifiedImgFields = [];
+    return {
+        restrict: 'A',
+        controller: ['$scope', '$timeout', function($scope, $timeout) {
+            $scope.chooseImage = function(oAction, oSchema, from) {
+                var imgFieldName, aSchemaImgs, count;
+                imgFieldName = oAction.id + '.' + oSchema.id;
+                aModifiedImgFields.indexOf(imgFieldName) === -1 && aModifiedImgFields.push(imgFieldName);
+                $scope.data[oAction.id] === undefined && ($scope.data[oAction.id] = {});
+                $scope.data[oAction.id][oSchema.id] === undefined && ($scope.data[oAction.id][oSchema.id] = []);
+                aSchemaImgs = $scope.data[oAction.id][oSchema.id];
+                count = parseInt(oSchema.count) || 1;
+                if (aSchemaImgs.length === count) {
+                    noticebox.warn('最多允许上传（' + count + '）张图片');
+                    return;
+                }
+                window.xxt.image.choose($q.defer(), from).then(function(imgs) {
+                    var phase;
+                    phase = $scope.$root.$$phase;
+                    if (phase === '$digest' || phase === '$apply') {
+                        $scope.data[oAction.id][oSchema.id] = aSchemaImgs.concat(imgs);
+                    } else {
+                        $scope.$apply(function() {
+                            $scope.data[oAction.id][oSchema.id] = aSchemaImgs.concat(imgs);
+                        });
+                    }
+                    $timeout(function() {
+                        var i, j, img, eleImg;
+                        for (i = 0, j = imgs.length; i < j; i++) {
+                            img = imgs[i];
+                            eleImg = document.querySelector('ul[name="' + imgFieldName + '"] li:nth-last-child(2) img');
+                            if (eleImg) {
+                                eleImg.setAttribute('src', img.imgSrc);
+                            }
+                        }
+                        $scope.$broadcast('xxt.plan.image.choose.done', imgFieldName);
+                    });
+                });
+            };
+            $scope.removeImage = function(oAction, oSchema, index) {
+                $scope.data[oAction.id][oSchema.id].splice(index, 1);
+            };
+        }]
+    }
+}]);
+/**
+ * 上传文件
+ */
+ngApp.directive('tmsFileInput', ['$q', 'tmsLocation', function($q, LS) {
+    function onSubmit($scope) {
+        var defer;
+
+        defer = $q.defer();
+        if (!oResumable.files || oResumable.files.length === 0) {
+            defer.resolve('empty');
+        }
+        oResumable.on('progress', function() {
+            var phase, p;
+            p = oResumable.progress();
+            var phase = $scope.$root.$$phase;
+            if (phase === '$digest' || phase === '$apply') {
+                $scope.progressOfUploadFile = Math.ceil(p * 100);
+            } else {
+                $scope.$apply(function() {
+                    $scope.progressOfUploadFile = Math.ceil(p * 100);
+                });
+            }
+        });
+        oResumable.on('complete', function() {
+            var phase = $scope.$root.$$phase;
+            if (phase === '$digest' || phase === '$apply') {
+                $scope.progressOfUploadFile = '完成';
+            } else {
+                $scope.$apply(function() {
+                    $scope.progressOfUploadFile = '完成';
+                });
+            }
+            oResumable.cancel();
+            defer.resolve('ok');
+        });
+        oResumable.upload();
+
+        return defer.promise;
+    };
+    var oResumable;
+    oResumable = new Resumable({
+        target: '/rest/site/fe/matter/plan/task/uploadFile?site=' + LS.s().site + '&app=' + LS.s().app,
+        testChunks: false,
+        chunkSize: 512 * 1024
+    });
+    return {
+        restrict: 'A',
+        controller: ['$scope', function($scope) {
+            $scope.progressOfUploadFile = 0;
+            $scope.beforeSubmit(function() {
+                return onSubmit($scope);
+            });
+            $scope.chooseFile = function(oAction, oSchema, accept) {
+                var fileFieldName, ele;
+                fileFieldName = oAction.id + '.' + oSchema.id;
+                ele = document.createElement('input');
+                ele.setAttribute('type', 'file');
+                accept !== undefined && ele.setAttribute('accept', accept);
+                ele.addEventListener('change', function(evt) {
+                    var i, cnt, f;
+                    $scope.data[oAction.id] === undefined && ($scope.data[oAction.id] = {});
+                    $scope.data[oAction.id][oSchema.id] === undefined && ($scope.data[oAction.id][oSchema.id] = []);
+                    cnt = evt.target.files.length;
+                    for (i = 0; i < cnt; i++) {
+                        f = evt.target.files[i];
+                        oResumable.addFile(f);
+                        $scope.data[oAction.id][oSchema.id].push({
+                            uniqueIdentifier: oResumable.files[oResumable.files.length - 1].uniqueIdentifier,
+                            name: f.name,
+                            size: f.size,
+                            type: f.type,
+                            url: ''
+                        });
+                    }
+                    $scope.$apply('data', function() {
+                        $scope.$broadcast('xxt.plan.file.choose.done', fileFieldName);
+                    });
+                }, false);
+                ele.click();
+            };
+        }]
+    }
+}]);
+ngApp.config(['$compileProvider', '$routeProvider', '$locationProvider', 'tmsLocationProvider', function($compileProvider, $routeProvider, $locationProvider, tmsLocationProvider) {
+    $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);
+    var RouteParam = function(name) {
+        this.templateUrl = name + '.html';
+        this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
+        this.reloadOnSearch = false;
+    };
+    $routeProvider
+        .when('/rest/site/fe/matter/plan/task', new RouteParam('task'))
+        .when('/rest/site/fe/matter/plan/rank', new RouteParam('rank'))
+        .otherwise(new RouteParam('plan'));
+    $locationProvider.html5Mode(true);
+    tmsLocationProvider.config('/rest/site/fe/matter/plan');
+}]);
+/**
+ * 计划任务活动
+ */
+ngApp.controller('ctrlMain', ['$scope', '$location', 'http2', 'tmsLocation', 'tmsSnsShare', function($scope, $location, http2, LS, tmsSnsShare) {
+    var _oApp, _oUser;
+    $scope.subView = '';
+    $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+        var subView = currentRoute.match(/([^\/]+?)\?/);
+        $scope.subView = subView[1] === 'plan' ? 'plan' : subView[1];
+    });
+    $scope.toggleView = function(view, obj) {
+        var oSearch = angular.copy($location.search());
+        delete oSearch.task;
+        switch (view) {
+            case 'rank':
+                $location.path('/rest/site/fe/matter/plan/rank').search(oSearch);
+                break;
+            case 'task':
+                oSearch.task = obj.id;
+                $location.path('/rest/site/fe/matter/plan/task').search(oSearch);
+                break;
+            default:
+                $location.path('/rest/site/fe/matter/plan').search(oSearch);
+        }
+    };
+    $scope.siteUser = function() {
+        var url;
+        url = '/rest/site/fe/user';
+        url += "?site=" + LS.s().site;
+        location.href = url;
+    };
+    $scope.invite = function() {
+        if (!_oUser.loginExpire) {
+            tmsDynaPage.openPlugin(location.protocol + '//' + location.host + '/rest/site/fe/user/access?site=platform#login').then(function(data) {
+                _oUser.loginExpire = data.loginExpire;
+                location.href = "/rest/site/fe/invite?matter=plan," + _oApp.id;
+            });
+        } else {
+            location.href = "/rest/site/fe/invite?matter=plan," + _oApp.id;
+        }
+    };
+    http2.get(LS.j('get', 'site', 'app')).then(function(rsp) {
+        $scope.app = _oApp = rsp.data.app;
+        $scope.user = _oUser = rsp.data.user;
+
+        _oApp._taskSchemasById = {};
+        _oApp.tasks.forEach(function(oTaskSchema) {
+            _oApp._taskSchemasById[oTaskSchema.id] = oTaskSchema;
+        });
+
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+            tmsSnsShare.config({
+                siteId: _oApp.siteid,
+                logger: function(shareto) {},
+                jsApiList: ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'chooseImage', 'uploadImage', 'getLocation']
+            });
+            tmsSnsShare.set(_oApp.title, _oApp.entryUrl, _oApp.summary, _oApp.pic);
+        }
+        http2.post('/rest/site/fe/matter/logAccess?site=' + _oApp.siteid, {
+            type: 'plan',
+            id: _oApp.id,
+            title: _oApp.title
+        });
+        var eleLoading;
+        if (eleLoading = document.querySelector('.loading')) {
+            eleLoading.parentNode.removeChild(eleLoading);
+        }
+    });
+}]);
+/**
+ * 任务列表
+ */
+ngApp.controller('ctrlPlan', ['$scope', '$filter', 'http2', 'tmsLocation', function($scope, $filter, http2, LS) {
+    function getUserPlan() {
+        http2.get(LS.j('overview', 'site', 'app')).then(function(rsp) {
+            $scope.overview = _oOverview = rsp.data;
+            http2.get(LS.j('task/listByUser', 'site', 'app')).then(function(rsp) {
+                var userTasks, mockTasks;
+                userTasks = rsp.data.tasks;
+                mockTasks = rsp.data.mocks;
+                userTasks.forEach(function(oTask) {
+                    oTask.bornAt = $filter('tmsDate')(oTask.born_at * 1000, 'yy-MM-dd HH:mm,EEE');
+                    if (_oApp._taskSchemasById[oTask.task_schema_id]) {
+                        _oApp._taskSchemasById[oTask.task_schema_id].userTask = oTask;
+                    }
+                });
+                if (mockTasks) {
+                    mockTasks.forEach(function(oMock) {
+                        oMock.bornAt = $filter('tmsDate')(oMock.born_at * 1000, 'yy-MM-dd HH:mm,EEE');
+                        if (_oApp._taskSchemasById[oMock.id]) {
+                            _oApp._taskSchemasById[oMock.id].mockTask = oMock;
+                        }
+                    });
+                }
+                _oApp.tasks.forEach(function(oTaskSchema) {
+                    if (oTaskSchema.as_placeholder === 'N' && !oTaskSchema.userTask && oTaskSchema.mockTask) {
+                        if (_oOverview.nowTaskSchema && oTaskSchema.task_seq < _oOverview.nowTaskSchema.task_seq) {
+                            oTaskSchema.isDelayed = 'Y';
+                        } else if (_oOverview.lastUserTask && oTaskSchema.task_seq < _oOverview.lastUserTask.task_seq) {
+                            oTaskSchema.isDelayed = 'Y';
+                        }
+                    }
+                });
+            });
+        });
+    }
+    var _oApp, _oOverview;
+    $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+        http2.post(LS.j('config', 'site', 'app'), { 'start_at': data.value }).then(function(rsp) {
+            getUserPlan();
+        });
+    });
+    $scope.$watch('app', function(oApp) {
+        if (!oApp) return;
+        _oApp = oApp;
+        getUserPlan();
+    });
+}]);
+/**
+ * 单个任务
+ */
+ngApp.controller('ctrlTask', ['$scope', '$filter', 'noticebox', 'http2', 'Input', 'tmsLocation', function($scope, $filter, noticebox, http2, Input, LS) {
+    function doSubmit() {
+        facInput.submit($scope.activeTask, $scope.data, $scope.supplement).then(function(rsp) {
+            _oSubmitState.finish();
+            noticebox.success('完成提交');
+            $scope.$emit('xxt.app.plan.submit.done', rsp.data);
+        }, function(rsp) {
+            _oSubmitState.finish();
+            if (rsp && typeof rsp === 'string') {
+                noticebox.error(rsp);
+                return;
+            }
+            if (rsp && rsp.err_msg) {
+                noticebox.error(rsp.err_msg);
+                return;
+            }
+            noticebox.error('网络异常，提交失败');
+        }, function(rsp) {
+            _oSubmitState.finish();
+        });
+    }
+
+    function doTask(seq) {
+        var task = tasksOfBeforeSubmit[seq];
+        task().then(function(rsp) {
+            seq++;
+            seq < tasksOfBeforeSubmit.length ? doTask(seq) : doSubmit();
+        });
+    }
+
+    window.onbeforeunload = function() {
+        // 保存未提交数据
+        _oSubmitState.modified && _oSubmitState.cache($scope.data);
+    };
+
+    var facInput, _oSubmitState, tasksOfBeforeSubmit;
+    tasksOfBeforeSubmit = [];
+    facInput = Input.ins();
+    $scope.data = {};
+    $scope._oSubmitState = _oSubmitState = ngApp.oUtilSubmit.state;
+    $scope.beforeSubmit = function(fn) {
+        if (tasksOfBeforeSubmit.indexOf(fn) === -1) {
+            tasksOfBeforeSubmit.push(fn);
+        }
+    };
+    $scope.submit = function(event) {
+        var sCheckResult;
+        if (!_oSubmitState.isRunning()) {
+            _oSubmitState.start(event);
+            if (true === (sCheckResult = facInput.check($scope.activeTask, $scope.data))) {
+                tasksOfBeforeSubmit.length ? doTask(0) : doSubmit();
+            } else {
+                _oSubmitState.finish();
+                noticebox.error(sCheckResult);
+            }
+        }
+    };
+    http2.get(LS.j('task/get', 'site', 'task')).then(function(rsp) {
+        var oTask;
+        oTask = rsp.data;
+        /* 任务数据 */
+        if (oTask.actions) {
+            oTask.actions.forEach(function(oAction) {
+                if ($scope.app.checkSchemas.length) {
+                    var pos = 0;
+                    $scope.app.checkSchemas.forEach(function(oSchema) {
+                        oAction.checkSchemas.splice(pos++, 0, oSchema);
+                    });
+                }
+                if (oTask.userTask) {
+                    var schemasById, oUserTask;
+                    oUserTask = oTask.userTask;
+                    /* 处理任务时间 */
+                    oUserTask.bornAt = $filter('tmsDate')(oUserTask.born_at * 1000, 'yy-MM-dd HH:mm,EEE');
+                    if (oUserTask.patch_at > 0) {
+                        oUserTask.patchAt = $filter('tmsDate')(oUserTask.patch_at * 1000, 'yy-MM-dd HH:mm,EEE');
+                    }
+                    /* 处理任务数据 */
+                    if (oUserTask.data[oAction.id]) {
+                        schemasById = {};
+                        oAction.checkSchemas.forEach(function(oSchema) {
+                            schemasById[oSchema.id] = oSchema;
+                        });
+                        $scope.data[oAction.id] = {};
+                        tmsSchema.loadRecord(schemasById, $scope.data[oAction.id], oUserTask.data[oAction.id]);
+                    }
+                }
+            });
+        }
+        // 数据补充说明
+        if (oTask.userTask && oTask.userTask.supplement) {
+            $scope.supplement = oTask.userTask.supplement;
+        } else {
+            $scope.supplement = {};
+        }
+        $scope.activeTask = oTask;
+        $scope.userTask = oTask.userTask;
+    });
+}]);
+/**
+ * 排行
+ */
+ngApp.controller('ctrlRank', ['$scope', 'http2', '$q', 'tmsLocation', function($scope, http2, $q, LS) {
+    function list() {
+        var defer = $q.defer();
+        switch (oAppState.criteria.obj) {
+            case 'user':
+                http2.post(LS.j('rank/byUser', 'site', 'app'), oAppState.criteria).then(function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+                break;
+        }
+        return defer.promise;
+    }
+    $scope.doSearch = function() {
+        list().then(function(data) {
+            var oSchema;
+            switch (oAppState.criteria.obj) {
+                case 'user':
+                    if (data) {
+                        data.users.forEach(function(user) {
+                            $scope.users.push(user);
+                        });
+                    }
+                    break;
+            }
+            oAppState.page.total = data.total;
+        });
+    };
+    $scope.changeCriteria = function() {
+        $scope.users = [];
+        $scope.groups = [];
+        $scope.doSearch(1);
+    };
+    var _oApp, oAppState;
+    $scope.rankView = {
+        obj: 'user'
+    };
+    if (!oAppState) {
+        oAppState = {
+            criteria: {
+                obj: 'user',
+                orderby: 'task_num',
+            },
+            page: {
+                at: 1,
+                size: 12
+            }
+        };
+    }
+    $scope.appState = oAppState;
+    $scope.$watch('appState.criteria.obj', function(oNew, oOld) {
+        if (oNew && oOld && oNew !== oOld) {
+            switch (oNew) {
+                case 'user':
+                    oAppState.criteria.orderby = 'task_num';
+                    break;
+            }
+            $scope.changeCriteria();
+        }
+    });
+    $scope.$watch('app', function(oApp) {
+        if (!oApp) return;
+        _oApp = oApp;
+        $scope.changeCriteria();
+    });
+}]);
+
+/***/ }),
+
+/***/ 89:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('date.ui.xxt', []);
+ngMod.filter('tmsDate', ['$filter', function($filter) {
+    var i18n = {
+        weekday: {
+            'Mon': '星期一',
+            'Tue': '星期二',
+            'Wed': '星期三',
+            'Thu': '星期四',
+            'Fri': '星期五',
+            'Sat': '星期六',
+            'Sun': '星期日',
+        }
+    };
+
+    return function(timestamp, format) {
+        var str, weekday;
+
+        if (!format) return timestamp;
+
+        str = $filter('date')(timestamp, format);
+        if (format.indexOf('EEE') !== -1) {
+            weekday = $filter('date')(timestamp, 'EEE');
+            str = str.replace(weekday, i18n.weekday[weekday]);
+        }
+
+        return str;
+    }
+}]);
+ngMod.directive('tmsDatepicker', function() {
+    var _version = 7;
+    return {
+        restrict: 'EA',
+        scope: {
+            date: '=tmsData',
+            defaultDate: '@tmsDefaultData',
+            mask: '@tmsMask', //y,m,d,h,i
+            title: '@tmsTitle',
+            state: '@tmsState',
+            obj: '=tmsObj'
+        },
+        templateUrl: '/static/template/datepicker.html?_=' + _version,
+        controller: ['$scope', '$uibModal', function($scope, $uibModal) {
+            var mask, format = [];
+            if ($scope.mask === undefined) {
+                mask = {
+                    y: true,
+                    m: true,
+                    d: true,
+                    h: true,
+                    i: true
+                };
+                $scope.format = 'yy-MM-dd HH:mm';
+            } else {
+                mask = (function(mask1) {
+                    var mask2, mask1 = mask1.split(',');
+                    /*date*/
+                    mask2 = {
+                        y: mask1[0] === 'y' ? true : mask1[0],
+                        m: mask1[1] === 'm' ? true : mask1[1],
+                        d: mask1[2] === 'd' ? true : mask1[2],
+                    };
+                    $scope.format = 'yy-MM-dd';
+                    /*time*/
+                    if (mask1.length === 5) {
+                        if (mask1[3] === 'h') {
+                            mask2.h = true;
+                            $scope.format += ' HH';
+                            if (mask1[4] === 'i') {
+                                mask2.i = true;
+                                $scope.format += ':mm';
+                            } else {
+                                mask2.i = mask1[4];
+                            }
+                        } else {
+                            mask2.h = mask1[3];
+                            mask2.i = mask1[4] === 'i' ? true : mask1[4];
+                        }
+                    } else {
+                        mask2.h = 0;
+                        mask2.i = 0;
+                    }
+                    return mask2;
+                })($scope.mask);
+            }
+            $scope.open = function() {
+                $uibModal.open({
+                    templateUrl: 'tmsModalDatepicker.html',
+                    resolve: {
+                        date: function() {
+                            return $scope.date;
+                        },
+                        defaultDate: function() {
+                            return $scope.defaultDate;
+                        },
+                        mask: function() {
+                            return mask;
+                        }
+                    },
+                    controller: ['$scope', '$filter', '$uibModalInstance', 'date', 'defaultDate', 'mask', function($scope, $filter, $mi, date, defaultDate, mask) {
+                        date = (function() {
+                            var d = new Date();
+                            if (defaultDate) {
+                                d.setTime(defaultDate ? defaultDate * 1000 : d.getTime());
+                            } else {
+                                d.setTime(date ? date * 1000 : d.getTime());
+                            }
+                            d.setMilliseconds(0);
+                            d.setSeconds(0);
+                            if (mask.i !== true) {
+                                d.setMinutes(mask.i);
+                            }
+                            if (mask.h !== true) {
+                                d.setHours(mask.h);
+                            }
+                            return d;
+                        })();
+                        $scope.mask = mask;
+                        $scope.years = [2015, 2016, 2017, 2018, 2019, 2020];
+                        $scope.months = [];
+                        $scope.days = [];
+                        $scope.hours = [];
+                        $scope.minutes = [];
+                        $scope.date = {
+                            year: date.getFullYear(),
+                            month: date.getMonth() + 1,
+                            mday: date.getDate(),
+                            hour: date.getHours(),
+                            minute: date.getMinutes()
+                        };
+                        for (var i = 1; i <= 12; i++)
+                            $scope.months.push(i);
+                        for (var i = 1; i <= 31; i++)
+                            $scope.days.push(i);
+                        for (var i = 0; i <= 23; i++)
+                            $scope.hours.push(i);
+                        for (var i = 0; i <= 59; i++)
+                            $scope.minutes.push(i);
+                        $scope.today = function() {
+                            var d = new Date();
+                            $scope.date = {
+                                year: d.getFullYear(),
+                                month: d.getMonth() + 1,
+                                mday: d.getDate(),
+                                hour: d.getHours(),
+                                minute: d.getMinutes()
+                            };
+                        };
+                        $scope.reset = function(field) {
+                            $scope.date[field] = 0;
+                        };
+                        $scope.next = function(field, options) {
+                            var max = options[options.length - 1];
+
+                            if ($scope.date[field] < max) {
+                                $scope.date[field]++;
+                            }
+                        };
+                        $scope.prev = function(field, options) {
+                            var min = options[0];
+
+                            if ($scope.date[field] > min) {
+                                $scope.date[field]--;
+                            }
+                        };
+                        $scope.ok = function() {
+                            $mi.close($scope.date);
+                        };
+                        $scope.empty = function() {
+                            $mi.close(null);
+                        };
+                        $scope.cancel = function() {
+                            $mi.dismiss('cancel');
+                        };
+                    }],
+                    backdrop: 'static',
+                    size: 'sm'
+                }).result.then(function(result) {
+                    var d;
+                    d = result === null ? 0 : Date.parse(result.year + '/' + result.month + '/' + result.mday + ' ' + result.hour + ':' + result.minute) / 1000;
+                    $scope.date = d;
+                    $scope.$emit('xxt.tms-datepicker.change', {
+                        obj: $scope.obj,
+                        state: $scope.state,
+                        value: d
+                    });
+                });
+            };
+        }],
+        replace: true
+    };
+});
+
+/***/ }),
+
+/***/ 9:
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var content = __webpack_require__(8);
+
+if(typeof content === 'string') content = [[module.i, content, '']];
+
+var transform;
+var insertInto;
+
+
+
+var options = {"hmr":true}
+
+options.transform = transform
+options.insertInto = undefined;
+
+var update = __webpack_require__(1)(content, options);
+
+if(content.locals) module.exports = content.locals;
+
+if(false) {
+	module.hot.accept("!!../../../../../../node_modules/css-loader/dist/cjs.js!./directive.css", function() {
+		var newContent = require("!!../../../../../../node_modules/css-loader/dist/cjs.js!./directive.css");
+
+		if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+
+		var locals = (function(a, b) {
+			var key, idx = 0;
+
+			for(key in a) {
+				if(!b || a[key] !== b[key]) return false;
+				idx++;
+			}
+
+			for(key in b) idx--;
+
+			return idx === 0;
+		}(content.locals, newContent.locals));
+
+		if(!locals) throw new Error('Aborting CSS HMR due to changed css-modules locals.');
+
+		update(newContent);
+	});
+
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+
+/***/ 97:
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(false);
+// Module
+exports.push([module.i, ".ng-cloak{display:none;}\r\nhtml,body{height:100%;width:100%;background:#efefef;font-family:Microsoft Yahei,Arial;}\r\nbody{position:relative;font-size:16px;}\r\nul{margin:0;padding:0;list-style:none}\r\nli{margin:0;padding:0}\r\n.panel-body .form-group:last-child{margin-bottom:0;}\r\n@media screen and (min-width:768px){\r\n\t.navbar-nav>li>a{padding:17.5px 30px;font-size:18px;line-height:1;}\r\n}\r\n@media screen and (max-width:768px){\r\n\t.navbar-brand{width:100%;text-align:center;}\r\n\t.navbar-brand>.icon-note{display:inline-block;width:124px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}\r\n\t.navbar-nav{margin:8px 0;position:absolute;top:0;right:0;}\r\n\t.nav>li>a{padding:10px 10px;}\r\n}\r\n#plan .matter-pic{width:100%;}\r\n#plan .matter-pic>div{width:100%;height:0;padding-bottom:56%;background-size:contain;background-repeat:no-repeat;background-position:center;}\r\n\r\n/* img tiles */\r\nul.img-tiles li{position:relative;display:inline-block;overflow:hidden;width:80px;height:80px;margin:0px;padding:0px;float:left}\r\nul.img-tiles li.img-thumbnail img{display:inline-block;position:absolute;max-width:none;}\r\nul.img-tiles li.img-thumbnail button{position:absolute;top:0;right:0}\r\nul.img-tiles li.img-picker button{position:auto;width:100%;height:100%}\r\nul.img-tiles li.img-picker button span{font-size:36px}\r\n\r\n/* default form style*/\r\ndiv[wrap].wrap-splitline{padding-bottom:0.5em;border-bottom:1px solid #fff;}\r\ndiv[wrap].wrap-inline>*{display:inline-block;vertical-align:middle;margin:0 1em 0 0;}\r\ndiv[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}\r\ndiv[wrap=matter]>span{cursor:pointer;text-decoration:underline;}\r\n\r\n/* auth */\r\n#frmPopup{position:absolute;top:0;left:0;right:0;bottom:0;border:none;width:100%;z-index:999;box-sizing:border-box;}\r\n\r\n/* rank */\r\n.result{margin-top: 10px;}\r\n.result ul, .result li{overflow: hidden; margin-bottom: 10px;}", ""]);
+
+
+
+/***/ })
+
+/******/ });

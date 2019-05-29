@@ -1,7 +1,4073 @@
-!function(e){function t(i){if(n[i])return n[i].exports;var a=n[i]={i:i,l:!1,exports:{}};return e[i].call(a.exports,a,a.exports,t),a.l=!0,a.exports}var n={};t.m=e,t.c=n,t.i=function(e){return e},t.d=function(e,n,i){t.o(e,n)||Object.defineProperty(e,n,{configurable:!1,enumerable:!0,get:i})},t.n=function(e){var n=e&&e.__esModule?function(){return e.default}:function(){return e};return t.d(n,"a",n),n},t.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},t.p="",t(t.s=149)}({0:function(e,t,n){(function(t){function n(e,t){var n=e[1]||"",a=e[3];if(!a)return n;if(t){var o=i(a);return[n].concat(a.sources.map(function(e){return"/*# sourceURL="+a.sourceRoot+e+" */"})).concat([o]).join("\n")}return[n].join("\n")}function i(e){return"/*# sourceMappingURL=data:application/json;charset=utf-8;base64,"+new t(JSON.stringify(e)).toString("base64")+" */"}e.exports=function(e){var t=[];return t.toString=function(){return this.map(function(t){var i=n(t,e);return t[2]?"@media "+t[2]+"{"+i+"}":i}).join("")},t.i=function(e,n){"string"==typeof e&&(e=[[null,e,""]]);for(var i={},a=0;a<this.length;a++){var o=this[a][0];"number"==typeof o&&(i[o]=!0)}for(a=0;a<e.length;a++){var r=e[a];"number"==typeof r[0]&&i[r[0]]||(n&&!r[2]?r[2]=n:n&&(r[2]="("+r[2]+") and ("+n+")"),t.push(r))}},t}}).call(t,n(4).Buffer)},1:function(e,t,n){function i(e,t){for(var n=0;n<e.length;n++){var i=e[n],a=f[i.id];if(a){a.refs++;for(var o=0;o<a.parts.length;o++)a.parts[o](i.parts[o]);for(;o<i.parts.length;o++)a.parts.push(d(i.parts[o],t))}else{for(var r=[],o=0;o<i.parts.length;o++)r.push(d(i.parts[o],t));f[i.id]={id:i.id,refs:1,parts:r}}}}function a(e){for(var t=[],n={},i=0;i<e.length;i++){var a=e[i],o=a[0],r=a[1],s=a[2],l=a[3],c={css:r,media:s,sourceMap:l};n[o]?n[o].parts.push(c):t.push(n[o]={id:o,parts:[c]})}return t}function o(e,t){var n=v(e.insertInto);if(!n)throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");var i=b[b.length-1];if("top"===e.insertAt)i?i.nextSibling?n.insertBefore(t,i.nextSibling):n.appendChild(t):n.insertBefore(t,n.firstChild),b.push(t);else{if("bottom"!==e.insertAt)throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");n.appendChild(t)}}function r(e){e.parentNode.removeChild(e);var t=b.indexOf(e);t>=0&&b.splice(t,1)}function s(e){var t=document.createElement("style");return e.attrs.type="text/css",c(t,e.attrs),o(e,t),t}function l(e){var t=document.createElement("link");return e.attrs.type="text/css",e.attrs.rel="stylesheet",c(t,e.attrs),o(e,t),t}function c(e,t){Object.keys(t).forEach(function(n){e.setAttribute(n,t[n])})}function d(e,t){var n,i,a;if(t.singleton){var o=w++;n=m||(m=s(t)),i=u.bind(null,n,o,!1),a=u.bind(null,n,o,!0)}else e.sourceMap&&"function"==typeof URL&&"function"==typeof URL.createObjectURL&&"function"==typeof URL.revokeObjectURL&&"function"==typeof Blob&&"function"==typeof btoa?(n=l(t),i=h.bind(null,n,t),a=function(){r(n),n.href&&URL.revokeObjectURL(n.href)}):(n=s(t),i=p.bind(null,n),a=function(){r(n)});return i(e),function(t){if(t){if(t.css===e.css&&t.media===e.media&&t.sourceMap===e.sourceMap)return;i(e=t)}else a()}}function u(e,t,n,i){var a=n?"":i.css;if(e.styleSheet)e.styleSheet.cssText=x(t,a);else{var o=document.createTextNode(a),r=e.childNodes;r[t]&&e.removeChild(r[t]),r.length?e.insertBefore(o,r[t]):e.appendChild(o)}}function p(e,t){var n=t.css,i=t.media;if(i&&e.setAttribute("media",i),e.styleSheet)e.styleSheet.cssText=n;else{for(;e.firstChild;)e.removeChild(e.firstChild);e.appendChild(document.createTextNode(n))}}function h(e,t,n){var i=n.css,a=n.sourceMap,o=void 0===t.convertToAbsoluteUrls&&a;(t.convertToAbsoluteUrls||o)&&(i=y(i)),a&&(i+="\n/*# sourceMappingURL=data:application/json;base64,"+btoa(unescape(encodeURIComponent(JSON.stringify(a))))+" */");var r=new Blob([i],{type:"text/css"}),s=e.href;e.href=URL.createObjectURL(r),s&&URL.revokeObjectURL(s)}var f={},g=function(e){var t;return function(){return void 0===t&&(t=e.apply(this,arguments)),t}}(function(){return window&&document&&document.all&&!window.atob}),v=function(e){var t={};return function(n){return void 0===t[n]&&(t[n]=e.call(this,n)),t[n]}}(function(e){return document.querySelector(e)}),m=null,w=0,b=[],y=n(7);e.exports=function(e,t){if("undefined"!=typeof DEBUG&&DEBUG&&"object"!=typeof document)throw new Error("The style-loader cannot be used in a non-browser environment");t=t||{},t.attrs="object"==typeof t.attrs?t.attrs:{},void 0===t.singleton&&(t.singleton=g()),void 0===t.insertInto&&(t.insertInto="head"),void 0===t.insertAt&&(t.insertAt="bottom");var n=a(e);return i(n,t),function(e){for(var o=[],r=0;r<n.length;r++){var s=n[r],l=f[s.id];l.refs--,o.push(l)}if(e){i(a(e),t)}for(var r=0;r<o.length;r++){var l=o[r];if(0===l.refs){for(var c=0;c<l.parts.length;c++)l.parts[c]();delete f[l.id]}}}};var x=function(){var e=[];return function(t,n){return e[t]=n,e.filter(Boolean).join("\n")}}()},10:function(module,exports,__webpack_require__){"use strict";var ngMod=angular.module("snsshare.ui.xxt",[]);ngMod.service("tmsSnsShare",["$http",function($http){function setWxShare(e,t,n,i,a){window.wx.onMenuShareTimeline({title:a.descAsTitle?n:e,link:t,imgUrl:i,success:function(){try{a.logger&&a.logger("T")}catch(e){alert("share failed:"+e.message)}},cancel:function(){},fail:function(){alert("shareT: fail")}}),window.wx.onMenuShareAppMessage({title:e,desc:n,link:t,imgUrl:i,success:function(){try{a.logger&&a.logger("F")}catch(e){alert("share failed:"+e.message)}},cancel:function(){},fail:function(){alert("shareF: fail")}})}var _isReady=!1;this.config=function(e){this.options=e},this.set=function(title,link,desc,img,fnOther){var _this=this;if(img&&-1===img.indexOf(location.protocol)&&(img=location.protocol+"//"+location.host+img),_isReady)/MicroMessenger/i.test(navigator.userAgent)?setWxShare(title,link,desc,img,_this.options):fnOther&&"function"==typeof fnOther&&fnOther(title,link,desc,img);else if(/MicroMessenger/i.test(navigator.userAgent)){var script;script=document.createElement("script"),script.src=location.protocol+"//res.wx.qq.com/open/js/jweixin-1.0.0.js",script.onload=function(){var xhr,url;xhr=new XMLHttpRequest,url="/rest/site/fe/wxjssdksignpackage?site="+_this.options.siteId+"&url="+encodeURIComponent(location.href.split("#")[0]),xhr.open("GET",url,!0),xhr.onreadystatechange=function(){if(4==xhr.readyState)if(xhr.status>=200&&xhr.status<400){var signPackage;try{eval("("+xhr.responseText+")"),signPackage&&(signPackage.debug=!1,signPackage.jsApiList=_this.options.jsApiList,wx.config(signPackage),wx.ready(function(){setWxShare(title,link,desc,img,_this.options),_isReady=!0}),wx.error(function(e){alert(JSON.stringify(e))}))}catch(e){alert("local error:"+e.toString())}}else alert("http error:"+xhr.statusText)},xhr.send()},document.body.appendChild(script)}else fnOther&&"function"==typeof fnOther&&(fnOther(title,link,desc,img),_isReady=!0)}}])},11:function(e,t,n){"use strict";angular.module("notice.ui.xxt",["ng","ngSanitize"]).service("noticebox",["$timeout","$interval","$q",function(e,t,n){var i="tmsbox"+1*new Date,a={type:"",timer:null},o=function(e,t){var n;return n=document.querySelector("#"+i),null===n?(n=document.createElement("div"),n.setAttribute("id",i),n.classList.add("tms-notice-box","alert","alert-"+e),n.innerHTML="<div>"+t+"</div>",document.body.appendChild(n),a.type=e):(a.type!==e&&(n.classList.remove("alert-"+e),a.type=e),n.childNodes[0].innerHTML=t),n};this.close=function(){var e;(e=document.querySelector("#"+i))&&document.body.removeChild(e)},this.error=function(t){var n,i;a.timer&&(e.cancel(a.timer),a.timer=null),n=o("danger",t),i=document.createElement("button"),i.classList.add("close"),i.innerHTML="<span>&times;</span>",n.insertBefore(i,n.childNodes[0]),i.addEventListener("click",function(){document.body.removeChild(n)})},this.warn=function(t){var n,i;a.timer&&(e.cancel(a.timer),a.timer=null),n=o("warning",t),i=document.createElement("button"),i.classList.add("close"),i.innerHTML="<span>&times;</span>",n.insertBefore(i,n.childNodes[0]),i.addEventListener("click",function(){document.body.removeChild(n)})},this.success=function(t){var n;a.timer&&e.cancel(a.timer),n=o("success",t),a.timer=e(function(){n.parentNode&&n.parentNode===document.body&&document.body.removeChild(n),a.timer=null},2e3)},this.info=function(t){var n;a.timer&&e.cancel(a.timer),n=o("info",t),a.timer=e(function(){n.parentNode&&n.parentNode===document.body&&document.body.removeChild(n),a.timer=null},2e3)},this.progress=function(e){o("progress",e)},this.confirm=function(i,r){var s,l,c;return s=n.defer(),a.timer&&(e.cancel(a.timer),a.timer=null),l=o("warning",i),r&&r.length?r.forEach(function(n){if(c=document.createElement("button"),c.classList.add("btn","btn-default","btn-sm"),c.innerHTML=n.label,l.appendChild(c,l.childNodes[0]),c.addEventListener("click",function(){document.body.removeChild(l),s.resolve(n.value)}),n.execWait){var i=Math.ceil(n.execWait/500),o=document.createElement("span");o.classList.add("countdown"),o.innerHTML=i,c.appendChild(o),t(function(){o.innerHTML=--i},500),a.timer=e(function(){l.parentNode&&l.parentNode===document.body&&document.body.removeChild(l),a.timer=null,s.resolve(n.value)},n.execWait)}}):(c=document.createElement("button"),c.classList.add("btn","btn-default","btn-sm"),c.innerHTML="是",l.appendChild(c,l.childNodes[0]),c.addEventListener("click",function(){document.body.removeChild(l),s.resolve()}),c=document.createElement("button"),c.classList.add("btn","btn-default","btn-sm"),c.innerHTML="否",l.appendChild(c,l.childNodes[0]),c.addEventListener("click",function(){document.body.removeChild(l),s.reject()})),s.promise}}])},114:function(e,t){e.exports='<div class="app" id="event">\n    <div ng-if="tasks.length">\n        <div uib-alert ng-repeat="task in tasks" class=\'alert-info\' close="closeTask($index)" ng-switch="task.id">\n            <span>{{task.msg}}</span>\n            <span ng-switch-when="record.submit.end"><span ng-if="task.coin">每条记录可获得【{{task.coin}}个】积分，</span><a href class="alert-link" ng-click="addRecord($event)">去添加</a></span>\n            <span ng-switch-when="record.like.pre"></span>\n            <span ng-switch-when="record.like.end"></span>\n        </div>\n    </div>\n    <div class=\'form-group\'>\n        <label class=\'radio-inline\'>\n            <input type=\'radio\' name=\'scope\' value=\'N\' ng-model="filter.scope">通知</label>\n        <label class=\'radio-inline\'>\n            <input type=\'radio\' name=\'scope\' value=\'M\' ng-model="filter.scope">我的</label>\n        <label class=\'radio-inline\'>\n            <input type=\'radio\' name=\'scope\' value=\'A\' ng-model="filter.scope">全部</label>\n    </div>\n    <div ng-include="subView"></div>\n</div>\n<script type="text/ng-template" id="timeline.html">\n    \x3c!--notice list--\x3e\n    <div ng-if="filter.scope===\'N\'">\n        <div class=\'list-group\'>\n            <div class=\'notice list-group-item\' ng-repeat="notice in notices">\n                <div class=\'seq label label-default\'>{{((page.at-1)*page.size)+$index+1}}</div>\n                <div class=\'event\'>\n                    <div class=\'tms-flex-row text-muted event-user\'>\n                        <div class=\'tms-flex-grow\'>{{notice.event_nickname}}</div>\n                        <div>{{notice.event_at*1000|date:\'MM-dd HH:mm\'}}</div>\n                    </div>\n                    <div ng-switch on="notice.event_name" ng-click="gotoCowork(notice.enroll_key)">\n                        <div ng-switch-when="site.matter.enroll.submit">\n                            <div ng-switch on="notice.notice_reason">\n                                <div ng-switch-when="same.group">在你们的分组下添加记录</div>\n                                <div ng-switch-when="as.editor">添加记录</div>\n                                <div ng-switch-when="as.super">添加记录</div>\n                                <div ng-switch-default> 添加记录\n                                    <span>（{{notice.notice_reason}}）</span>\n                                </div>\n                            </div>\n                        </div>\n                        <div ng-switch-when="site.matter.enroll.cowork.do.submit">\n                            <div ng-switch on="notice.notice_reason">\n                                <div ng-switch-when="record.owner">在你的记录（问题）下添加了协作数据（答案）</div>\n                                <div ng-switch-when="other.cowork">你们在同一记录（问题）下添加了协作数据（答案）</div>\n                                <div ng-switch-when="same.group">在你们组的记录下（问题）添加了协作数据（答案）</div>\n                                <div ng-switch-default> 添加协作数据\n                                    <span>（{{notice.notice_reason}}）</span>\n                                </div>\n                            </div>\n                        </div>\n                        <div ng-switch-when="site.matter.enroll.do.remark">\n                            <div ng-switch on="notice.notice_reason">\n                                <div ng-switch-when="record.owner">在你的记录（问题）下留言</div>\n                                <div ng-switch-when="record.data.owner">在你的协作数据（答案）下留言</div>\n                                <div ng-switch-when="remark.owner">在你的留言下留言</div>\n                                <div ng-switch-default>留言\n                                    <span>（{{notice.notice_reason}}）</span>\n                                </div>\n                            </div>\n                        </div>\n                        <div ng-switch-default>\n                            {{notice.event_name}}\n                        </div>\n                    </div>\n                    <div class=\'text-right event-action\'>\n                        <a href ng-click="closeNotice(notice)">关闭</a>\n                        <a href ng-click="closeNotice(notice,true)">看看并关闭</a>\n                    </div>\n                </div>\n            </div>\n        </div>\n        <div class=\'site-pagination text-center\'>\n            <ul uib-pagination ng-if="page.total>page.size" boundary-links="true" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="searchNotice()"></ul>\n        </div>\n    </div>\n    \x3c!--end notice list--\x3e\n    \x3c!--log list--\x3e\n    <div ng-if="filter.scope===\'A\'||filter.scope===\'M\'">\n        <div class=\'list-group\'>\n            <div class=\'action list-group-item\' ng-repeat="log in logs">\n                <div class=\'seq label label-default\'>{{((page.at-1)*page.size)+$index+1}}</div>\n                <div class=\'event\' ng-switch on="log.event_name">\n                    <div ng-switch-when="site.matter.enroll.submit">\n                        <span class=\'nickname\'>{{log.nickname}}</span> 添加记录\n                    </div>\n                    <div ng-switch-when="site.matter.enroll.cowork.do.submit">\n                        <span class=\'nickname\'>{{log.nickname}}</span> 在\n                        <span class=\'nickname\' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的记录下添加数据\n                    </div>\n                    <div ng-switch-when="site.matter.enroll.do.remark">\n                        <div ng-switch on="log.target_type">\n                            <div ng-switch-when="record">\n                                <div ng-switch on="log.event_op">\n                                    <span class=\'nickname\'>{{log.nickname}}</span> 在\n                                    <span class=\'nickname\' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的记录下<span ng-switch-when="New">添加</span><span ng-switch-when="Upd">修改</span>留言\n                                </div>\n                            </div>\n                            <div ng-switch-when="record.data">\n                                <div ng-switch on="log.event_op">\n                                    <span class=\'nickname\'>{{log.nickname}}</span> 在\n                                    <span class=\'nickname\' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的数据下<span ng-switch-when="New">添加</span><span ng-switch-when="Upd">修改</span>留言\n                                </div>\n                            </div>\n                            <div ng-switch-when="remark">\n                                <div ng-switch on="log.event_op">\n                                    <span class=\'nickname\'>{{log.nickname}}</span> 在\n                                    <span class=\'nickname\' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的留言下<span ng-switch-when="New">添加</span><span ng-switch-when="Upd">修改</span>留言\n                                </div>\n                            </div>\n                        </div>\n                    </div>\n                    <div ng-switch-when="site.matter.enroll.data.do.like">\n                        <div ng-switch on="log.event_op">\n                            <div ng-switch-when="Y">\n                                <span class=\'nickname\'>{{log.nickname}}</span> 对\n                                <span class=\'nickname\' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的记录点赞\n                            </div>\n                            <div ng-switch-when="N">\n                                <span class=\'nickname\'>{{log.nickname}}</span> 对\n                                <span class=\'nickname\' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的记录取消点赞\n                            </div>\n                        </div>\n                    </div>\n                    <div ng-switch-when="site.matter.enroll.data.do.dislike">\n                        <div ng-switch on="log.event_op">\n                            <div ng-switch-when="Y">\n                                <span class=\'nickname\'>{{log.nickname}}</span> 对\n                                <span class=\'nickname\' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的记录点踩\n                            </div>\n                            <div ng-switch-when="N">\n                                <span class=\'nickname\'>{{log.nickname}}</span> 对\n                                <span class=\'nickname\' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的记录取消点踩\n                            </div>\n                        </div>\n                    </div>\n                    <div ng-switch-when="site.matter.enroll.cowork.do.like">\n                        <div ng-switch on="log.event_op">\n                            <div ng-switch-when="Y">\n                                <span class=\'nickname\'>{{log.nickname}}</span> 对\n                                <span class=\'nickname\' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的数据点赞\n                            </div>\n                            <div ng-switch-when="N">\n                                <span class=\'nickname\'>{{log.nickname}}</span> 对\n                                <span class=\'nickname\' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的数据取消点赞\n                            </div>\n                        </div>\n                    </div>\n                    <div ng-switch-when="site.matter.enroll.cowork.do.dislike">\n                        <div ng-switch on="log.event_op">\n                            <div ng-switch-when="Y">\n                                <span class=\'nickname\'>{{log.nickname}}</span> 对\n                                <span class=\'nickname\' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的数据点踩\n                            </div>\n                            <div ng-switch-when="N">\n                                <span class=\'nickname\'>{{log.nickname}}</span> 对\n                                <span class=\'nickname\' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的数据取消点踩\n                            </div>\n                        </div>\n                    </div>\n                    <div ng-switch-when="site.matter.enroll.remark.do.like">\n                        <div ng-switch on="log.event_op">\n                            <div ng-switch-when="Y">\n                                <span class=\'nickname\'>{{log.nickname}}</span> 对\n                                <span class=\'nickname\' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的留言点赞\n                            </div>\n                            <div ng-switch-when="N">\n                                <span class=\'nickname\'>{{log.nickname}}</span> 对\n                                <span class=\'nickname\' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的留言取消点赞\n                            </div>\n                        </div>\n                    </div>\n                    <div ng-switch-when="site.matter.enroll.remark.do.dislike">\n                        <div ng-switch on="log.event_op">\n                            <div ng-switch-when="Y">\n                                <span class=\'nickname\'>{{log.nickname}}</span> 对\n                                <span class=\'nickname\' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的留言点踩\n                            </div>\n                            <div ng-switch-when="N">\n                                <span class=\'nickname\'>{{log.nickname}}</span> 对\n                                <span class=\'nickname\' ng-if="log.owner_nickname">{{log.owner_nickname}}</span> 的留言取消点踩\n                            </div>\n                        </div>\n                    </div>\n                    <div ng-switch-when="site.matter.enroll.data.get.agree">\n                        <div ng-switch on="log.event_op">\n                            <div ng-switch-when="Y">\n                                <span class=\'nickname\'>{{log.owner_nickname}}</span> 的记录获得推荐\n                            </div>\n                            <div ng-switch-default>\n                                <span class=\'nickname\'>{{log.owner_nickname}}</span> 的记录被修改了表态\n                            </div>\n                        </div>\n                    </div>\n                    <div ng-switch-when="site.matter.enroll.cowork.get.agree">\n                        <div ng-switch on="log.event_op">\n                            <div ng-switch-when="Y">\n                                <span class=\'nickname\'>{{log.owner_nickname}}</span> 的数据获得推荐\n                            </div>\n                            <div ng-switch-default>\n                                <span class=\'nickname\'>{{log.owner_nickname}}</span> 的数据被修改了表态\n                            </div>\n                        </div>\n                    </div>\n                    <div ng-switch-when="site.matter.enroll.remark.get.agree">\n                        <div ng-switch on="log.event_op">\n                            <div ng-switch-when="Y">\n                                <span class=\'nickname\'>{{log.owner_nickname}}</span> 的留言获得推荐\n                            </div>\n                            <div ng-switch-default>\n                                <span class=\'nickname\'>{{log.owner_nickname}}</span> 的留言被修改了表态\n                            </div>\n                        </div>\n                    </div>\n                    <div ng-switch-when="site.matter.enroll.remark.as.cowork">\n                        <span class=\'nickname\'>{{log.nickname}}</span>将<span class=\'nickname\'>{{log.owner_nickname}}</span> 的留言设置为协作数据（答案）\n                    </div>\n                    <div ng-switch-default>\n                        <div class=\'nickname\'>{{log.nickname}}</div>\n                        <div class=\'eventname\'>{{log.eventName}}</div>\n                        <div class=\'nickname\' ng-if="log.owner_nickname">{{log.owner_nickname}}</div>\n                        <div ng-if="log.event_op">{{log.event_op}}</div>\n                    </div>\n                    <div class=\'coin\' ng-if="log.earn_coin>0">\n                        <span>{{log.nickname}}</span> 得到 <span>{{log.earn_coin}}</span> 个积分\n                    </div>\n                    <div class=\'coin\' ng-if="log.owner_earn_coin>0">\n                        <span>{{log.owner_nickname}}</span> 得到 <span>{{log.owner_earn_coin}}</span> 个积分\n                    </div>\n                </div>\n                <div class=\'footer\'>\n                    <div class=\'datetime text-muted\'>{{log.event_at*1000|date:\'MM-dd HH:mm\'}}</div>\n                    <div ng-if="log.canGotoCowork">\n                        <a href ng-click="gotoCowork(log.enroll_key)">查看<span class=\'glyphicon glyphicon-menu-right\'></span></a>\n                    </div>\n                </div>\n            </div>\n        </div>\n        <div class=\'site-pagination text-center\'>\n            <ul uib-pagination ng-if="page.total>page.size" boundary-links="true" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="searchEvent()"></ul>\n        </div>\n    </div>\n    \x3c!--end log list--\x3e\n<\/script>'},115:function(e,t){e.exports='<div class="app" id=\'kanbanView\'>\n    <div class=\'form-group\'>\n        <div class=\'form-inline\'>\n            <div ng-if="rounds.length>1" class="btn-group" uib-dropdown dropdown-append-to-body=\'true\'>\n                <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>\n                    <span ng-bind="filter.round.title"></span>\n                    <span class="glyphicon glyphicon-filter"></span>\n                </button>\n                <ul class="dropdown-menu" uib-dropdown-menu>\n                    <li><a href ng-click="shiftRound({rid:\'ALL\',title:\'全部\'})">全部</a></li>\n                    <li ng-repeat="rnd in rounds"><a href ng-click="shiftRound(rnd)">{{rnd.title}}</a></li>\n                </ul>\n            </div>\n            <div class="btn-group" uib-dropdown dropdown-append-to-body=\'true\'>\n                <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>\n                    <span ng-if="criteria.orderby===\'score\'">得分</span>\n                    <span ng-if="criteria.orderby===\'user_total_coin\'">积分</span>\n                    <span ng-if="criteria.orderby===\'entry_num\'">访问次数</span>\n                    <span ng-if="criteria.orderby===\'total_elapse\'">投入时间</span>\n                    <span ng-if="criteria.orderby===\'devote\'">贡献次数</span>\n                    <span class="glyphicon glyphicon-sort"></span>\n                </button>\n                <ul class="dropdown-menu" uib-dropdown-menu>\n                    <li><a href ng-click="shiftOrderby(\'score\')">得分</a></li>\n                    <li ng-if="app.scenarioConfig.can_coin===\'Y\'"><a href ng-click="shiftOrderby(\'user_total_coin\')">积分</a></li>\n                    <li><a href ng-click="shiftOrderby(\'entry_num\')">访问次数</a></li>\n                    <li><a href ng-click="shiftOrderby(\'total_elapse\')">投入时间</a></li>\n                    <li><a href ng-click="shiftOrderby(\'devote\')">贡献次数</a></li>\n                </ul>\n            </div>\n            <div ng-if="userGroups.length" class="btn-group" uib-dropdown dropdown-append-to-body=\'true\'>\n                <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>\n                    <span ng-if="filter.group">{{filter.group.title}}</span>\n                    <span ng-if="!filter.group">全部分组</span>\n                    <span class="glyphicon glyphicon-filter"></span>\n                </button>\n                <ul class="dropdown-menu" uib-dropdown-menu>\n                    <li><a href ng-click="shiftUserGroup()">全部</a></li>\n                    <li ng-repeat="ug in userGroups"><a href ng-click="shiftUserGroup(ug)">{{ug.title}}</a></li>\n                </ul>\n            </div>\n            <button ng-show="subView===\'users\'" class=\'btn btn-default\' ng-click="subView=\'undone\'">查看未完成<span ng-bind="kanban.undone.length"></span>人</button>\n            <button ng-show="subView===\'undone\'" class=\'btn btn-default\' ng-click="subView=\'users\'">查看整体情况</button>\n        </div>\n    </div>\n    <div id=\'kanban\' ng-if="subView===\'users\'">\n        \x3c!-- users --\x3e\n        <div class=\'wrap\'>\n            <div class=\'user list-group-item\'>\n                <div>\n                </div>\n                <div class=\'data\'>\n                    <div>\n                        <div></div>\n                        <div>\n                            <div>排名</div>\n                            <div>数值</div>\n                            <div>与最大值的比</div>\n                            <div>与平均值的比</div>\n                        </div>\n                    </div>\n                </div>\n            </div>\n            <div class=\'user list-group-item\' ng-repeat=\'u in kanban.users\'>\n                <div class=\'who\' ng-click="viewDetail(u)">\n                    <div><span>{{u.nickname}}</span><span ng-if="user.uid===u.userid">（我）</span></div>\n                    <div ng-if=\'app.entryRule.group.id\'>\n                        <div class=\'text-muted small\'>{{u.group.title}}</div>\n                    </div>\n                    <div ng-if="user.uid===u.userid">\n                        <button class=\'btn btn-default btn-sm\' ng-click="toggleProfilePublic($event,u)">设置为<span ng-if="!u.custom.profile.public">公开</span><span ng-if="u.custom.profile.public">隐身</span></button>\n                    </div>\n                </div>\n                <div class=\'data\'>\n                    <div ng-class="{\'ordered\':criteria.orderby===\'score\'}">\n                        <div>得分</div>\n                        <div>\n                            <div><span class=\'pos\'>{{u.score.pos}}</span></div>\n                            <div><span>{{u.score.val}}</span></div>\n                            <div><span ng-if="kanban.stat.score.max">{{u.score.val/kanban.stat.score.max|number:2}}</span></div>\n                            <div><span ng-if="kanban.stat.score.mean">{{u.score.val/kanban.stat.score.mean|number:2}}</span></div>\n                        </div>\n                    </div>\n                    <div ng-if="app.scenarioConfig.can_coin===\'Y\'" ng-class="{\'ordered\':criteria.orderby===\'user_total_coin\'}">\n                        <div>积分</div>\n                        <div>\n                            <div><span class=\'pos\'>{{u.user_total_coin.pos}}</span></div>\n                            <div><span>{{u.user_total_coin.val}}</span></div>\n                            <div><span ng-if="kanban.stat.user_total_coin.max">{{u.user_total_coin.val/kanban.stat.user_total_coin.max|number:2}}</span></div>\n                            <div><span ng-if="kanban.stat.user_total_coin.mean">{{u.user_total_coin.val/kanban.stat.user_total_coin.mean|number:2}}</span></div>\n                        </div>\n                    </div>\n                    <div ng-class="{\'ordered\':criteria.orderby===\'entry_num\'}">\n                        <div>访问次数</div>\n                        <div>\n                            <div><span class=\'pos\'>{{u.entry_num.pos}}</span></div>\n                            <div><span>{{u.entry_num.val}}</span></div>\n                            <div><span ng-if="kanban.stat.entry_num.max">{{u.entry_num.val/kanban.stat.entry_num.max|number:2}}</span></div>\n                            <div><span ng-if="kanban.stat.entry_num.mean">{{u.entry_num.val/kanban.stat.entry_num.mean|number:2}}</span></div>\n                        </div>\n                    </div>\n                    <div ng-class="{\'ordered\':criteria.orderby===\'total_elapse\'}">\n                        <div>投入时间</div>\n                        <div>\n                            <div><span class=\'pos\'>{{u.total_elapse.pos}}</span></div>\n                            <div><span>{{u.total_elapse.val|filterTime}}</span></div>\n                            <div><span ng-if="kanban.stat.total_elapse.max">{{u.total_elapse.val/kanban.stat.total_elapse.max|number:2}}</span></div>\n                            <div><span ng-if="kanban.stat.total_elapse.mean">{{u.total_elapse.val/kanban.stat.total_elapse.mean|number:2}}</span></div>\n                        </div>\n                    </div>\n                    <div ng-class="{\'ordered\':criteria.orderby===\'devote\'}">\n                        <div>贡献次数</div>\n                        <div>\n                            <div><span class=\'pos\'>{{u.devote.pos}}</span></div>\n                            <div><span>{{u.devote.val}}</span></div>\n                            <div><span ng-if="kanban.stat.devote.max">{{u.devote.val/kanban.stat.devote.max|number:2}}</span></div>\n                            <div><span ng-if="kanban.stat.devote.mean">{{u.devote.val/kanban.stat.devote.mean|number:2}}</span></div>\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </div>\n        \x3c!-- end users --\x3e\n    </div>\n    <div class=\'table-responsive\' ng-if="subView===\'undone\'">\n        <table class=\'table table-bordered\'>\n            <thead>\n                <tr>\n                    <th style=\'width:48px\'>序号</th>\n                    <th>姓名</th>\n                    <th ng-if="app.entryRule.group.id">分组</th>\n                </tr>\n            </thead>\n            <tbody>\n                <tr ng-repeat=\'u in kanban.undone\'>\n                    <td>{{$index+1}}</td>\n                    <td>{{u.nickname}}</td>\n                    <td ng-if=\'app.entryRule.group.id\'>\n                        <div ng-if=\'u.group\'>{{u.group.title}}</div>\n                    </td>\n                </tr>\n            </tbody>\n        </table>\n    </div>\n</div>\n<script type="text/ng-template" id="userDetail.html">\n    <div class="modal-header">\n        <button class="close" ng-click="cancel()">×</button>\n        <h5 class="modal-title">详细</h5>\n    </div>\n    <div id=\'user-detail\' class="modal-body">\n        <div>\n            <div>姓名</div>\n            <div>{{user.nickname}}</div>\n        </div>\n        <div ng-if=\'app.entryRule.group.id\'>\n            <div>分组</div>\n            <div>{{user.group.title}}</div>\n        </div>\n        <hr>\n        <div>\n            <div>得分</div>\n            <div><span>{{user.score.val}}</span></div>\n        </div>\n        <div ng-if="app.scenarioConfig.can_coin===\'Y\'">\n            <div>积分</div>\n            <div><span>{{user.user_total_coin.val}}</span></div>\n        </div>\n        <div>\n            <div>访问次数</div>\n            <div><span>{{user.entry_num.val}}</span></div>\n        </div>\n        <div>\n            <div>投入时间</div>\n            <div><span>{{user.total_elapse.val|filterTime}}</span></div>\n        </div>\n        <div>\n            <div>贡献次数</div>\n            <div><span>{{user.devote.val}}</span></div>\n        </div>\n        <hr>\n        <div ng-class="{\'undone\':user.undone.enroll_num[0]===true}">\n            <div>填写记录</div>\n            <div><span>{{user.enroll_num}}</span></div>\n        </div>\n        <div ng-class="{\'undone\':user.undone.revise_num[0]===true}">\n            <div>跨轮次修改</div>\n            <div ng-if=\'user.revise_num\'>{{user.revise_num}}</div>\n        </div>\n        <div>\n            <div>最后填写时间</div>\n            <div><span ng-if=\'user.last_enroll_at>0\'>{{user.last_enroll_at*1000|date:\'MM-dd HH:mm\'}}</span></div>\n        </div>\n        <div>\n            <div>协作填写</div>\n            <div><span>{{user.do_cowork_num}}</span></div>\n        </div>\n        <div ng-class="{\'undone\':user.undone.do_remark_num[0]===true}">\n            <div>发表留言</div>\n            <div><span>{{user.do_remark_num}}</span></div>\n        </div>\n        <div>\n            <div>发表点赞</div>\n            <div><span>{{user.do_like_num}}</span></div>\n        </div>\n        <div>\n            <div>获得推荐</div>\n            <div><span>{{user.agree_num}}</span></div>\n        </div>\n        <div>\n            <div>获得协作</div>\n            <div><span>{{user.cowork_num}}</span></div>\n        </div>\n        <div>\n            <div>获得留言</div>\n            <div><span>{{user.remark_num}}</span></div>\n        </div>\n        <div>\n            <div>获得赞同</div>\n            <div><span>{{user.like_num}}</span></div>\n        </div>\n        <div>\n            <div>浏览共享页次数</div>\n            <div><span>{{user.do_repos_read_num}}</span></div>\n        </div>\n        <div>\n            <div>浏览专题页次数</div>\n            <div><span>{{user.do_topic_read_num}}</span></div>\n        </div>\n        <div>\n            <div>专题页被浏览次数</div>\n            <div><span>{{user.topic_read_num}}</span></div>\n        </div>\n        <div>\n            <div>浏览讨论页次数</div>\n            <div><span>{{user.do_cowork_read_num}}</span></div>\n        </div>\n        <div>\n            <div>讨论页被浏览次数</div>\n            <div><span>{{user.cowork_read_num}}</span></div>\n        </div>\n        <div>\n            <div>共享页浏览累计时间</div>\n            <div><span>{{user.do_repos_read_elapse|filterTime}}</span></div>\n        </div>\n        <div>\n            <div>专题页浏览累计时间</div>\n            <div><span>{{user.do_topic_read_elapse|filterTime}}</span></div>\n        </div>\n        <div>\n            <div>专题页被浏览累计时间</div>\n            <div><span>{{user.topic_read_elapse|filterTime}}</span></div>\n        </div>\n        <div>\n            <div>讨论页浏览累计时间</div>\n            <div><span>{{user.do_cowork_read_elapse|filterTime}}</span></div>\n        </div>\n        <div>\n            <div>讨论页被浏览累计时间</div>\n            <div><span>{{user.cowork_read_elapse|filterTime}}</span></div>\n        </div>\n    </div>\n    <div class="modal-footer">\n        <div class=\'text-center\'>\n            <button class="btn btn-default" ng-click="cancel()">关闭</button>\n        </div>\n    </div>\n<\/script>'},116:function(e,t){e.exports='<div class="app" id="tasks">\n    <div class=\'form-group\' ng-if="rounds.length>1">\n        <div class="btn-group" uib-dropdown dropdown-append-to-body=\'true\'>\n            <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>\n                <span ng-bind="selectedRound.title"></span> <span class="glyphicon glyphicon-triangle-bottom"></span>\n            </button>\n            <ul class="dropdown-menu" uib-dropdown-menu>\n                <li ng-repeat="rnd in rounds"><a href ng-click="shiftRound(rnd)">{{rnd.title}}</a></li>\n            </ul>\n        </div>\n    </div>\n    <div class=\'tasks\'>\n        <div class=\'task state-{{task.state}} list-group-item \' ng-repeat="task in tasks">\n            <div ng-bind="::task"></div>\n            <div>\n                <span ng-bind="::Label.task.state[task.state]"></span>\n            </div>\n            <div ng-switch on="task.type">\n                <a href class="alert-link" ng-click="gotoTask(task)">\n                        <span ng-switch-when="baseline">去制定目标</span>\n                        <span ng-switch-when="question">去提问</span>\n                        <span ng-switch-when="answer">去回答</span>\n                        <span ng-switch-when="vote">去投票</span>\n                        <span ng-switch-when="score">去打分</span>\n                    </a>\n            </div>\n        </div>\n    </div>\n</div>'},12:function(e,t,n){"use strict";function i(e,t){var n,i,a;n=document.createDocumentFragment(),i=document.createElement("div"),i.setAttribute("id","frmPlugin"),a=document.createElement("iframe"),i.appendChild(a),i.onclick=function(){i.parentNode.removeChild(i)},n.appendChild(i),document.body.appendChild(n),0===e.indexOf("http")?(window.onClosePlugin=function(){i.parentNode.removeChild(i),t&&t()},a.setAttribute("src",e)):a.contentDocument&&a.contentDocument.body&&(a.contentDocument.body.innerHTML=e)}angular.module("siteuser.ui.xxt",[]).service("tmsSiteUser",function(){this.showSwitch=function(e,t){var n;n=document.createElement("div"),n.classList.add("tms-switch","tms-switch-siteuser"),n.addEventListener("click",function(n){n.preventDefault(),n.stopPropagation();var a=location.protocol+"//"+location.host;a+="/rest/site/fe/user",a+="?site="+e,t?location.href=a:i(a)},!0),document.body.appendChild(n)}})},126:function(e,t,n){var i=n(95);"string"==typeof i&&(i=[[e.i,i,""]]);n(1)(i,{});i.locals&&(e.exports=i.locals)},13:function(e,t,n){t=e.exports=n(0)(void 0),t.push([e.i,'.dialog.mask{position:fixed;background:rgba(0,0,0,.3);top:0;left:0;bottom:0;right:0;overflow:auto;z-index:1060}.dialog.dlg{position:absolute;background:#fff;left:0;right:0;bottom:0;margin:15px}.dialog .dlg-body,.dialog .dlg-header{padding:15px 15px 0}.dialog .dlg-footer{text-align:right;padding:15px}.dialog .dlg-footer button{border-radius:0}div[wrap=filter] .detail{background:#ccc}div[wrap=filter] .detail .options .label{display:inline-block;margin:.5em;padding-top:.3em;font-size:100%}div[wrap=filter] .detail .actions .btn{border-radius:0}.tms-act-toggle{position:fixed;right:15px;bottom:8px;width:48px;height:48px;line-height:48px;box-shadow:0 2px 6px rgba(18,27,32,.425);color:#fff;background:#ff8018;border:1px solid #ff8018;border-radius:24px;font-size:20px;text-align:center;cursor:pointer;z-index:1045}.tms-nav-target>*+*{margin-top:.5em}.tms-act-popover-wrap>div+div{margin-top:8px}#frmPlugin{position:absolute;top:0;bottom:0;left:0;right:0;width:100%;height:100%;border:none;z-index:1060;box-sizing:border-box;padding-bottom:48px;background:#fff}#frmPlugin iframe{width:100%;height:100%;border:0}#frmPlugin:after{content:"\\5173\\95ED";position:absolute;width:100px;text-align:center;left:50%;margin-left:-50px;bottom:4px;padding:5px 6px 3px;border:1px solid #ccc;border-radius:4px}div[wrap]>.description{word-wrap:break-word}',""])},14:function(e,t,n){var i=n(13);"string"==typeof i&&(i=[[e.i,i,""]]);n(1)(i,{});i.locals&&(e.exports=i.locals)},149:function(e,t,n){e.exports=n(71)},15:function(e,t,n){"use strict";window.__util={},window.__util.makeDialog=function(e,t){var n,i;return i=document.createElement("div"),i.setAttribute("id",e),i.classList.add("dialog","mask"),n="<div class='dialog dlg'>",t.header&&t.header.length&&(n+="<div class='dlg-header'>"+t.header+"</div>"),n+="<div class='dlg-body'>"+t.body+"</div>",t.footer&&t.footer.length&&(n+="<div class='dlg-footer'>"+t.footer+"</div>"),n+="</div>",i.innerHTML=n,document.body.appendChild(i),i.children};var i=angular.module("directive.enroll",[]);i.directive("tmsDate",["$compile",function(e){return{restrict:"A",scope:{value:"=tmsDateValue"},controller:["$scope",function(e){e.close=function(){var t;t=document.querySelector("#"+e.dialogID),document.body.removeChild(t),e.opened=!1},e.ok=function(){var t;t=new Date,t.setTime(0),t.setFullYear(e.data.year),t.setMonth(e.data.month-1),t.setDate(e.data.date),t.setHours(e.data.hour),t.setMinutes(e.data.minute),e.value=parseInt(t.getTime()/1e3),e.close()}}],link:function(t,n,i){var a,o,r,s;void 0===t.value&&(t.value=1*new Date/1e3),o=new Date,o.setTime(1e3*t.value),t.options={years:[2014,2015,2016,2017,2018,2019,2020],months:[1,2,3,4,5,6,7,8,9,10,11,12],dates:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],hours:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23],minutes:[0,5,10,15,20,25,30,35,40,45,50,55]},r=5*Math.round(o.getMinutes()/5),t.data={year:o.getFullYear(),month:o.getMonth()+1,date:o.getDate(),hour:o.getHours(),minute:r},-1===t.options.minutes.indexOf(r)&&t.options.minutes.push(r),s='<div class="form-group"><select class="form-control" ng-model="data.year" ng-options="y for y in options.years"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.month" ng-options="m for m in options.months"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.date" ng-options="d for d in options.dates"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.hour" ng-options="h for h in options.hours"></select></div>',s+='<div class="form-group"><select class="form-control" ng-model="data.minute" ng-options="mi for mi in options.minutes"></select></div>',a=function(n){if(n.preventDefault(),n.stopPropagation(),!t.opened){var i,a;a="_dlg-"+1*new Date,i={header:"",body:s,footer:'<button class="btn btn-default" ng-click="close()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button>'},i=__util.makeDialog(a,i),t.opened=!0,t.dialogID=a,e(i)(t)}},n[0].querySelector("[ng-bind]").addEventListener("click",a)}}}]),i.directive("flexImg",function(){return{restrict:"A",replace:!0,template:"<img ng-src='{{img.imgSrc}}'>",link:function(e,t,n){angular.element(t).on("load",function(){var e,t,n=this.clientWidth,i=this.clientHeight;n>i?(e=n/i*80,angular.element(this).css({height:"100%",width:e+"px",top:"0",left:"50%","margin-left":-1*e/2+"px"})):(t=i/n*80,angular.element(this).css({width:"100%",height:t+"px",left:"0",top:"50%","margin-top":-1*t/2+"px"}))})}}}),i.directive("tmsHideParentHeight",function(){return{restrict:"A",link:function(e,t,n){var i,a;if(n.tmsHideParentHeight){i=n.tmsHideParentHeight;for(var o=0,r=t.length;o<r;o++)a=t[o],a.parentElement&&window.addEventListener("resize",function(){a.classList.toggle("hidden",a.parentElement.clientHeight<i)})}}}}),i.directive("tmsScrollSpy",function(){return{restrict:"A",scope:{selector:"@selector",offset:"@",onbottom:"&",toggleSpy:"="},link:function(e,t,n){var i="window"===e.selector?window:document.querySelector(e.selector);i.addEventListener("scroll",function(t){var n=i===window?t.target.documentElement:t.target;e.toggleSpy&&e.onbottom&&angular.isFunction(e.onbottom)&&n.clientHeight+n.scrollTop+parseInt(e.offset)>=n.scrollHeight&&e.$apply(function(){e.toggleSpy=!1,e.onbottom()})})}}})},16:function(e,t,n){"use strict";angular.module("trace.ui.xxt",["http.ui.xxt"]).directive("tmsTrace",["$q","$timeout","http2",function(e,t,n){var i,a,o,r="/xxt/site/matter/enroll/trace",s=function(e,t,n,i,a){this.type=t,this.elapse=n||1*new Date-e,this.biz=i,a&&(this.text=a)},l=function(){function e(e){var t,n;e.sendUrl&&(t=window.localStorage)&&(n=t.getItem(r),n=n?JSON.parse(n):{},n[e.sendUrl]=e,t.setItem(r,JSON.stringify(n)))}this.start=0,this.events=[],this.setSendUrl=function(t){this.sendUrl=t,e(this)},this.pushEvent=function(t,n,i){var a,o;0===this.events.length?(this.start=1*new Date,a=new s(this.start,t,0,n,i),this.events.push(a),e(this)):(a=new s(this.start,t,null,n,i),o=this.events[this.events.length-1],(o.type!==a.type||a.elapse-o.elapse>1e3)&&(this.events.push(a),e(this)))},this.stop=function(){this.closing="Y",e(this),this.start=0,this.events=[]}},c=function(e){var i;this.begin=function(){this.cancel(i),i=t(function(){var t,i,a;e.stop(),e.sendUrl&&(t=window.localStorage)&&(i=t.getItem(r),i=JSON.parse(i),a=i[e.sendUrl],delete i[e.sendUrl],i=t.setItem(r,JSON.stringify(i)),n.post(e.sendUrl,{start:a.start,events:a.events},{showProgress:!1}))},5e3)},this.cancel=function(){i&&(t.cancel(i),i=null)}};if((i=window.localStorage)&&(a=i.getItem(r),a=a?JSON.parse(a):{}))for(var d in a)a&&a[d]&&(o=a[d],o.closing&&"Y"===o.closing&&(delete a[d],a=i.setItem(r,JSON.stringify(a)),n.post(o.sendUrl,{start:o.start,events:o.events}).then(function(){})));return{restrict:"A",link:function(e,n,i){var a=new l,o=new c(a);!i.readySign&&i.sendUrl&&(a.sendUrl=i.sendUrl),a.pushEvent("load"),n.on("click",function(e){var t,n,i;t=e.target,t.hasAttribute("trace-biz")&&(n=t.getAttribute("trace-biz"),!n&&t.hasAttribute("ng-click")&&(n=t.getAttribute("ng-click")),n&&(n=n.replace(/'|"/g,"")),i=t.innerText),a.pushEvent("click",n,i),o.begin()}),n.on("touchend",function(e){a.pushEvent("touchend"),o.begin()}),window.addEventListener("scroll",function(e){a.pushEvent("scroll"),o.begin()}),window.addEventListener("beforeunload",function(e){a.pushEvent("beforeunload"),a.stop(),o.cancel()}),i.readySign&&e.$watch(i.readySign,function(e){e&&t(function(){a.setSendUrl(i.sendUrl)})}),o.begin()}}}])},17:function(e,t,n){"use strict";function i(e,t){var n,i,a;n=document.createDocumentFragment(),i=document.createElement("div"),i.setAttribute("id","frmPlugin"),a=document.createElement("iframe"),i.appendChild(a),i.onclick=function(){i.parentNode.removeChild(i)},n.appendChild(i),document.body.appendChild(n),0===e.indexOf("http")?(window.onClosePlugin=function(){i.parentNode.removeChild(i),t&&t()},a.setAttribute("src",e)):a.contentDocument&&a.contentDocument.body&&(a.contentDocument.body.innerHTML=e)}angular.module("coinpay.ui.xxt",[]).service("tmsCoinPay",function(){this.showSwitch=function(e,t){var n;n=document.createElement("div"),n.classList.add("tms-switch","tms-switch-coinpay"),n.addEventListener("click",function(n){n.preventDefault(),n.stopPropagation();var a=location.protocol+"//"+location.host;a+="/rest/site/fe/coin/pay",a+="?site="+e,a+="&matter="+t,i(a)},!0),document.body.appendChild(n)}})},18:function(e,t,n){"use strict";angular.module("picviewer.ui.xxt",[]).factory("picviewer",["$q",function(e){var t={isArray:function(e){return"[object Array]"==Object.prototype.toString.call(e)},all:function(e,t){var n,i=[];return n=t?t.querySelectorAll(e):document.querySelectorAll(e),n&&n.length>0&&(i=Array.prototype.slice.call(n)),i},delegate:function(e,t,n,i){var a=this;e&&e.addEventListener(t,function(t){var o=a.all(n,e);if(o)for(var r=0;r<o.length;r++)for(var s=t.target;s;){if(s==o[r]){i.call(s,t);break}if((s=s.parentNode)==e)break}},!1)}},n=function(){this.winw=window.innerWidth||document.body.clientWidth,this.winh=window.innerHeight+1||document.body.clientHeight,this.originWinw=this.winw,this.originWinh=this.winh,this.marginRight=15,this.imageChageMoveX=this.marginRight+this.winw,this.imageChageNeedX=Math.floor(.5*this.winw),this.cssprefix=["","webkit","Moz","ms","o"],this.imgLoadCache=new Object,this.scale=1,this.maxScale=4,this.maxOverScale=6,this.openTime=.3,this.slipTime=.5,this.maxOverWidthPercent=.5,this.box=!1,this.isPreview=!1,this.container=document.createElement("div"),this.container.setAttribute("id","previewImage-container"),this.container.style.width=this.winw+"px",this.container.style.height=this.winh+"px",document.body.appendChild(this.container),this.bind()};return n.prototype.bind=function(){var e=this,n=this.container,i=function(){e.setCloseStatus.call(e)},a=function(){e.touchStartFun.call(e)},o=function(){e.touchMoveFun.call(e)},r=function(){e.touchEndFun.call(e)},s=function(){var e=this;e.winw=window.innerWidth||document.body.clientWidth,e.winh=window.innerHeight||document.body.clientHeight,e.originWinw=e.winw,e.originWinh=e.winh,e.container.style.width=e.winw+"px",e.container.style.height=e.winh+"px",e.imageChageMoveX=e.marginRight+e.winw;var t=-e.imageChageMoveX*e.index;try{e.boxData.x=t,e.translateScale(e.bIndex,0)}catch(e){}}.bind(this),l=function(){37==event.keyCode?this.prev&&this.prev():39==event.keyCode&&this.next&&this.next()}.bind(this);window.addEventListener("resize",s,!1),document.addEventListener("keydown",l,!1),t.delegate(n,"click",".previewImage-item",i),t.delegate(n,"touchstart",".previewImage-item",a),t.delegate(n,"touchmove",".previewImage-item",o),t.delegate(n,"touchend",".previewImage-item",r),t.delegate(n,"touchcancel",".previewImage-item",r)},n.prototype.setCloseStatus=function(){this.winw>992?1==this.urls.length||this.index==this.maxLen?this.closePreview():this.next&&this.next():this.closePreview()},n.prototype.closePreview=function(){var e=this;this.imgStatusCache[this.cIndex].x=this.winw,this.translateScale(this.cIndex,this.openTime),this.imgStatusRewrite(),this.translateScale(this.index,this.slipTime),setTimeout(function(){e.container.style.display="none",document.body.style.overflow="auto"},1e3*this.slipTime),e.isPreview=!1},n.prototype.touchStartFun=function(e){this.ts=this.getTouches(),this.allowMove=!0,this.statusX=0,this.statusY=0},n.prototype.touchMoveFun=function(e){this.tm=this.getTouches();var t=this.tm,n=this.ts;this.moveAction(n,t)},n.prototype.touchEndFun=function(e){this.container,this.te=this.getTouches(),this.endAction(this.ts,this.te)},n.prototype.moveAction=function(e,t){if(!this.allowMove)return!1;var n,i,a,o,r,s,l,c;if(n=this.getIndexImage(),i=.3*this.winw/n.scale,a=t.x0-e.x0,o=t.y0-e.y0,Math.abs(o)>0&&event.preventDefault(),r=n.x+a,s=n.y+o,l=this.getAllow(this.index),c=this.allowX=l.x,this.allowY=l.y0,a<=0&&(this.allowX=-c),o<=0&&(this.allowY=l.y1),1==t.length)if(n.scale>1){if(s>=l.y0){this.statusY=1;var d=s-l.y0;n.my=l.y0-n.y+this.getSlowlyNum(d,i)}else if(s<=l.y1){this.statusY=1;var d=s-l.y1;n.my=l.y1-n.y+this.getSlowlyNum(d,i)}else this.statusY=2,n.my=o;if(a<0&&n.x<=-c)this.statusX=1,this.boxData.m=a,this.index==this.maxLen&&(this.boxData.m=this.getSlowlyNum(a)),this.translateScale(this.bIndex,0),this.translateScale(this.index,0);else if(a>0&&n.x>=c)this.statusX=2,this.boxData.m=a,0==this.index&&(this.boxData.m=this.getSlowlyNum(a)),this.translateScale(this.bIndex,0),this.translateScale(this.index,0);else{if(0==a)return;if(this.statusX=3,n.m=a,r>=c){this.statusX=4;var u=r-c;n.m=c-n.x+this.getSlowlyNum(u,i)}if(r<=-c){this.statusX=4;var u=r+c;n.m=-c-n.x+this.getSlowlyNum(u,i)}this.translateScale(this.index,0)}}else if(Math.abs(o)>5&&5!=this.statusX){var p=this.getJqElem(this.index),h=p.height-this.winh;if(o>0&&s>0)this.statusX=7,this.allowY=0,n.my=-n.y+this.getSlowlyNum(s,i);else if(o<0&&s<-h)if(this.statusX=7,p.height>this.winh){var d=s+h;this.allowY=-h,n.my=-h-n.y+this.getSlowlyNum(d,i)}else this.allowY=0,n.my=-n.y+this.getSlowlyNum(s,i);else this.statusX=6,n.my=o;this.translateScale(this.index,0)}else{if(6==this.statusX)return;this.statusX=5,0==this.index&&a>0||this.index==this.maxLen&&a<0?this.boxData.m=this.getSlowlyNum(a):this.boxData.m=a,this.translateScale(this.bIndex,0)}else{var f=this.getScale(e,t),g=f*n.scale;if(g>=this.maxScale){var v=g-this.maxScale;g=this.maxScale+this.getSlowlyNum(v,this.maxOverScale),f=g/n.scale}n.scalem=f,this.translateScale(this.index,0)}},n.prototype.endAction=function(e,t){var n,i,a,o;if(n=this.getIndexImage(),i=t.x0-e.x0,t.y0,e.y0,a=t.time-e.time,o=0,this.allowMove=!1,1==e.length){switch(Math.abs(i)>10&&event.preventDefault(),this.statusY){case 1:n.y=this.allowY,n.my=0,o=this.slipTime;break;case 2:n.y=n.y+n.my,n.my=0}switch(this.statusX){case 1:this.index!=this.maxLen&&(i<=-this.imageChageNeedX||a<200&&i<-30)?this.changeIndex(1):(this.changeIndex(0),0!=o&&this.translateScale(this.index,o));break;case 2:0!=this.index&&(i>=this.imageChageNeedX||a<200&&i>30)?this.changeIndex(-1):(this.changeIndex(0),0!=o&&this.translateScale(this.index,o));break;case 3:n.x=n.x+n.m,n.m=0,this.translateScale(this.index,o);break;case 4:n.x=this.allowX,n.m=0,o=this.slipTime,this.translateScale(this.index,o);break;case 5:i>=this.imageChageNeedX||a<200&&i>30?this.changeIndex(-1):i<=-this.imageChageNeedX||a<200&&i<-30?this.changeIndex(1):this.changeIndex(0);break;case 6:n.y=n.y+n.my,n.my=0;break;case 7:n.y=this.allowY,n.my=0,this.translateScale(this.index,this.slipTime)}}else{event.preventDefault();var r=n.scale*n.scalem,s=this.getJqElem(this.index);n.scale=r;var l=this.getAllow(this.index);n.x>l.x?(o=this.slipTime,n.x=l.x):n.x<-l.x&&(o=this.slipTime,n.x=-l.x),n.y>l.y0?(o=this.slipTime,n.y=l.y0):n.y<l.y1&&(o=this.slipTime,n.y=l.y1),s.height*n.scale<=this.winh&&(n.y=0),s.width*n.scale<=this.winw&&(n.x=0),n.scalem=1,r>this.maxScale?(n.scale=this.maxScale,o=this.slipTime):r<1&&(this.imgStatusRewrite(),o=this.slipTime),0!=o&&(this.changeIndex(0),this.translateScale(this.index,o))}},n.prototype.changeIndex=function(e){var t,n,i;this.getIndexImage(),t=this.index,0==this.index&&-1==e?this.index=this.index:this.index==this.maxLen&&1==e?this.index=this.index:(this.index+=e,this.ePage.innerHTML=this.index+1+"/"+(this.maxLen+1),n=this.imgStatusCache[this.index].hash,i=this.imgLoadCache[n],i.isload||(i.elem.src=this.urls[this.index],i.elem.onload=function(){i.isload=!0})),this.setActionStatus(),this.boxData.x=-this.imageChageMoveX*this.index,this.boxData.m=0,t!=this.index&&this.imgStatusRewrite(t),this.translateScale(this.bIndex,this.slipTime)},n.prototype.setActionStatus=function(){0==this.index?(this.ePrev.classList.add("hide"),this.eNext.classList.remove("hide")):this.index==this.maxLen?(this.ePrev.classList.remove("hide"),this.eNext.classList.add("hide")):(this.ePrev.classList.remove("hide"),this.eNext.classList.remove("hide"))},n.prototype.getTouches=function(e){var t=event.touches.length>0?event.touches:event.changedTouches,n={touches:t,length:t.length};return n.x0=t[0].pageX,n.y0=t[0].pageY,n.time=(new Date).getTime(),t.length>=2&&(n.x1=t[0].pageX,n.y1=t[1].pageY),n},n.prototype.getIndexImage=function(e){var e=void 0==e?this.index:e;return this.imgStatusCache[this.index]},n.prototype.getAllow=function(e){var t,n,i,a,o;return t=this.getJqElem(e),n=this.getIndexImage(e),i=Math.floor((t.width*n.scale-this.winw)/(2*n.scale)),t.height*n.scale<=this.winh?(a=0,o=0):t.height<=this.winh?(a=Math.floor((t.height*n.scale-this.winh)/(2*n.scale)),o=-a):(a=Math.floor(t.height*(n.scale-1)/(2*n.scale)),o=-Math.floor((t.height*(n.scale+1)-2*this.winh)/(2*n.scale))),{x:i,y0:a,y1:o}},n.prototype.getSlowlyNum=function(e,t){var t=t||this.winw*this.maxOverWidthPercent;return e<0?-(1-(e=-e)/(t+e))*e:(1-e/(t+e))*e},n.prototype.getScale=function(e,t){var n;return n=Math.sqrt(Math.pow(e.x1-e.x0,2)+Math.pow(e.y1-e.y0,2)),Math.sqrt(Math.pow(t.x1-t.x0,2)+Math.pow(t.y1-t.y0,2))/n},n.prototype.imgStatusRewrite=function(e){var t=void 0===e?this.index:e,n=this.imgStatusCache[t],i=n.scale,a=n.x,o=n.y;n.x=0,n.y=0,n.m=0,n.my=0,n.scale=1,n.scalem=1,t!=this.index&&(this.winw>992&&(n.scale=i,n.x=a,n.y=o),this.translateScale(t,this.slipTime))},n.prototype.translateScale=function(e,t){var n,i,a,o,r,s,l,c;n=this.imgStatusCache[e],i=this.getJqElem(e),a=n.scale*n.scalem,o=n.x+n.m,r=n.y+n.my,s="0px 0px 0px",l="scale3d("+a+","+a+",1) translate3d("+o+"px,"+r+"px,0px)",c="transform "+t+"s ease-out",this.winw>992&&(this.addCssPrefix(i,"transform-origin",s),l="translate3d("+o+"px,"+r+"px,0px) scale3d("+a+","+a+",1)"),this.addCssPrefix(i,"transition",c),this.addCssPrefix(i,"transform",l)},n.prototype.getJqElem=function(e){var t,e,n;return e=void 0==e?this.index:e,e<=this.maxLen?(n=this.imgStatusCache[e].hash,t=this.imgLoadCache[n].elem):t=this.imgStatusCache[e].elem,t},n.prototype.addCssPrefix=function(e,t,n){for(var i in this.cssprefix)if(t=""===this.cssprefix[i]?t.toLowerCase():t.substr(0,1).toUpperCase()+t.substr(1,t.length).toLowerCase(),void 0!==document.body.style[t])return e.style[t]=n,!1},n.prototype.prev=function(){this.index>0&&this.changeIndex(-1)},n.prototype.next=function(){this.index<this.maxLen&&this.changeIndex(1)},n.prototype.render=function(){var e=this;document.body.style.overflow="hidden",!1===this.box?(this.box=document.createElement("div"),this.box.setAttribute("class","previewImage-box")):this.box.innerHTML="",this.text=document.createElement("div"),this.text.setAttribute("class","previewImage-text"),this.text.innerHTML="<span class='page'>"+(this.index+1)+"/"+(this.maxLen+1)+"</span><span class='prev'><i class='glyphicon glyphicon-menu-left'></i></span><span class='next'><i class='glyphicon glyphicon-menu-right'></i></span><span class='exit'><i class='glyphicon glyphicon-remove'></i></span>",this.containerData=this.imgStatusCache[this.cIndex]={elem:this.container,x:this.winw,y:0,m:0,my:0,scale:1,scalem:1},this.boxData=this.imgStatusCache[this.bIndex]={elem:this.box,x:0,y:0,m:0,my:0,scale:1,scalem:1},this.urls.forEach(function(t,n){var i,a,o,r;i=document.createElement("div"),a=window.md5?md5(t+n):t+n,r=e.imgLoadCache[a],r&&r.isload?o=r.elem:(o=new Image,o.setAttribute("class","previewImage-image"),e.imgLoadCache[a]={isload:!1,elem:o},n==e.index&&(o.src=t,o.onload=function(){e.imgLoadCache[a].isload=!0})),e.imgStatusCache[n]={hash:a,x:0,m:0,y:0,my:0,scale:e.scale,scalem:1},i.setAttribute("class","previewImage-item"),i.appendChild(o),e.box.appendChild(i)}),this.container.appendChild(this.box),this.container.appendChild(this.text),this.ePage=document.querySelector(".previewImage-text span.page"),this.ePrev=document.querySelector(".previewImage-text span.prev"),this.eNext=document.querySelector(".previewImage-text span.next"),this.eCloser=document.querySelector(".previewImage-text span.exit");var t=-this.imageChageMoveX*this.index;this.boxData.x=t,this.containerData.x=0,this.container.style.display="block",setTimeout(function(){e.setActionStatus(),e.winw>992&&e.urls.forEach(function(t,n){var i,a,o,r,s,l,c=e;i=c.selectorEleAll[n],a=Math.min(c.winw/i.naturalWidth,c.winh/i.naturalHeight),o=r=0,o>0&&(o=0),s=Math.round(c.winw-function(){return i.naturalWidth*a}()),o<s&&(o=s<0?s:s/2),r>0&&(r=0),l=Math.round(c.winh-function(){return i.naturalHeight*a}()),r<l&&(r=l<0?l:l/2),c.imgStatusCache[n].x=o,c.imgStatusCache[n].y=r,c.imgStatusCache[n].scale=a,c.translateScale(n,0)}),e.translateScale(e.bIndex,0),e.translateScale(e.cIndex,e.openTime),e.isPreview=!0,e.ePrev.addEventListener("click",function(t){return t.preventDefault(),e.prev(),!1},!1),e.eNext.addEventListener("click",function(t){return t.preventDefault(),e.next(),!1},!1),e.eCloser.addEventListener("click",function(t){return t.preventDefault(),e.closePreview(),!1},!1)},50)},n.prototype.start=function(e){if(this.container.innerHTML="",!e.urls||!t.isArray(e.urls)||0==e.urls.length)return alert("urls must be a Array and the minimum length more than zero"),!1;if(e.current){var n=e.urls.indexOf(e.current);n<0&&(n=0,console.warn("current isnot on urls,it will be the first value of urls!")),this.index=n}else this.index=0,console.warn("current is empty,it will be the first value of urls!");this.selectorEleAll=e.elems,this.urls=e.urls,this.maxLen=e.urls.length-1,this.cIndex=this.maxLen+1,this.bIndex=this.maxLen+2,this.imgStatusCache=new Object,this.render()},n.prototype.init=function(e){var t=[],n=this;angular.forEach(e,function(i,a){t.push(i.src),i.addEventListener("click",function(){var i={elems:e,urls:t,current:this.src};n.start(i)})})},new n}])},19:function(e,t,n){t=e.exports=n(0)(void 0),t.push([e.i,"body,html{width:100%;height:100%}body{position:relative;font-size:16px;padding:0}footer img,header img{max-width:100%}.ng-cloak{display:none}.container{position:relative}.navbar-default .navbar-brand,.site-navbar-default .navbar-default .navbar-nav>li>a{color:#fff}.site-navbar-default .navbar-brand{padding:15px}.main-navbar .navbar-brand:hover{color:#fff}@media screen and (min-width:768px){.site-navbar-default .navbar-nav>li>a{padding:15px;line-height:1}}@media screen and (max-width:768px){.site-navbar-default .navbar-brand>.icon-note{display:inline-block;width:124px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.site-navbar-default .navbar-nav{margin:8px 0;position:absolute;top:0;right:0}.site-navbar-default .nav>li>a{padding:10px}}.tms-flex-row{display:flex;align-items:center}.tms-flex-row .tms-flex-grow{flex:1}.dropdown-menu{min-width:auto}.dropdown-menu-top{bottom:100%;top:auto}#previewImage-container{-ms-touch-action:none;touch-action:none;-webkit-touch-action:none;line-height:100vh;background-color:#000;width:100vw;height:100vh;position:fixed;overflow:hidden;top:0;left:0;z-index:1050;transition:transform .3s;-ms-transition:transform .3s;-moz-transition:transform .3s;-webkit-transition:transform .3s;-o-transition:transform .3s;transform:translate3d(100%,0,0);-webkit-transform:translate3d(100%,0,0);-ms-transform:translate3d(100%,0,0);-o-transform:translate3d(100%,0,0);-moz-transform:translate3d(100%,0,0)}#previewImage-container .previewImage-text{position:absolute;bottom:5px;left:8px;right:8px;z-index:1060;height:36px}.previewImage-text span{display:inline-block;width:36px;height:36px;line-height:25px;border-radius:18px;font-size:25px;text-align:center;color:#bbb}.previewImage-text span.page{position:absolute;left:50%;margin-left:-18px;font-size:18px}.previewImage-text span.prev{position:absolute;left:50%;margin-left:-72px}.previewImage-text span.next{position:absolute;left:50%;margin-left:36px}.previewImage-text span.exit{position:absolute;right:0}.previewImage-text span.exit>i{text-shadow:0 0 .1em #fff,0 0 .1em #fff}#previewImage-container .previewImage-box{width:999999rem;height:100vh}#previewImage-container .previewImage-box .previewImage-item{width:100vw;height:100vh;margin-right:15px;float:left;text-align:center}@media screen and (min-width:992px){#previewImage-container .previewImage-box .previewImage-item .previewImage-image{display:block}}@media screen and (max-width:992px){#previewImage-container .previewImage-box .previewImage-item .previewImage-image{width:100%}}",""])},2:function(e,t,n){"use strict";var i=angular.module("http.ui.xxt",["ng"]);i.provider("tmsLocation",function(){var e;this.config=function(t){e=t||location.pathname},this.$get=["$location",function(t){return e||(e=location.pathname),{s:function(){var e=t.search();if(arguments.length){for(var n=[],i=0,a=arguments.length;i<a;i++)n.push(arguments[i]+"="+(e[arguments[i]]||""));return n.join("&")}return e},j:function(n){var i=e,a=[];n&&n.length&&(i+="/"+n);for(var o=1,r=arguments.length;o<r;o++)a.push(arguments[o]+"="+(t.search()[arguments[o]]||""));return a.length&&(i+="?"+a.join("&")),i},path:function(){return arguments.length?t.path(arguments[0]):t.path()}}}]}),i.service("http2",["$rootScope","$http","$timeout","$q","$sce","$compile",function(e,t,n,i,a,o){function r(t,n,i){var r;return a.trustAsHtml(t),r=angular.element("<div></div>"),r.attr({class:"tms-notice-box alert alert-"+(n||"info"),"ng-style":"{'z-index':1099}"}).html(t),i||r[0].addEventListener("click",function(){document.body.removeChild(r[0])},!0),o(r)(e),document.body.appendChild(r[0]),r[0]}function s(e){e&&document.body.removeChild(e)}function l(e){return!(!e.page||!angular.isObject(e.page))&&(void 0===e.page.at&&(e.page.at=1),void 0===e.page.size&&(e.page.size=12),void 0!==e.page.j&&angular.isFunction(e.page.j)||(e.page.j=function(){return"page="+this.at+"&size="+this.size}),!0)}function c(e,t,n){if(t){if(e){if(angular.isArray(e)){e.length>t.length&&e.splice(t.length-1,e.length-t.length);for(var i=0,a=t.length;i<a;i++)i<e.length?c(e[i],t[i],n):e.push(t[i])}else if(angular.isObject(e)){for(var o in e)n&&-1!==n.indexOf(o)||(void 0===t[o]?delete e[o]:angular.isObject(t[o])&&angular.isObject(e[o])?c(e[o],t[o],n):e[o]=t[o]);for(var o in t)n&&-1!==n.indexOf(o)||void 0===e[o]&&(e[o]=t[o])}}else e=t;return!0}}this.get=function(e,a){var o,c,d=i.defer();return a=angular.extend({headers:{accept:"application/json"},parseResponse:!0,autoBreak:!0,autoNotice:!0,showProgress:!0,showProgressDelay:500,showProgressText:"正在获取数据..."},a),!0===a.showProgress&&(c=n(function(){c=null,o=r(a.showProgressText,"info")},a.showProgressDelay)),l(a)&&(e+=(-1===e.indexOf("?")?"?":"&")+a.page.j()),t.get(e,a).success(function(e){if(a.page&&void 0!==e.data.total&&(a.page.total=e.data.total),!0===a.showProgress&&(c&&n.cancel(c),o&&(s(o),o=null)),a.parseResponse)if(angular.isString(e)){if(a.autoNotice&&r(e,"warning"),a.autoBreak)return;d.reject(e)}else if(0!=e.err_code){if(a.autoNotice){var t;t=angular.isString(e.err_msg)?e.err_msg:angular.isArray(e.err_msg)?e.err_msg.join("<br>"):JSON.stringify(e.err_msg),r(t,"warning")}if(a.autoBreak)return;d.reject(e)}else d.resolve(e);else d.resolve(e)}).error(function(e,t){!0===a.showProgress&&(c&&n.cancel(c),o&&(s(o),o=null)),r(null===e?"网络不可用":e,"danger")}),d.promise},this.post=function(e,a,o){var c,d,u=i.defer();return o=angular.extend({headers:{accept:"application/json"},parseResponse:!0,autoBreak:!0,autoNotice:!0,showProgress:!0,showProgressDelay:500,showProgressText:"正在获取数据..."},o),!0===o.showProgress&&(d=n(function(){d=null,c=r(o.showProgressText,"info")},o.showProgressDelay)),l(o)&&(e+=(-1===e.indexOf("?")?"?":"&")+o.page.j()),t.post(e,a,o).success(function(e){if(o.page&&void 0!==e.data.total&&(o.page.total=e.data.total),!0===o.showProgress&&(d&&n.cancel(d),c&&(s(c),c=null)),o.parseResponse)if(angular.isString(e)){if(o.autoNotice&&(r(e,"warning"),c=null),o.autoBreak)return;u.reject(e)}else if(0!=e.err_code){if(o.autoNotice){var t;t=angular.isString(e.err_msg)?e.err_msg:angular.isArray(e.err_msg)?e.err_msg.join("<br>"):JSON.stringify(e.err_msg),r(t,"warning")}if(o.autoBreak)return;u.reject(e)}else u.resolve(e);else u.resolve(e)}).error(function(e,t){!0===o.showProgress&&(d&&n.cancel(d),c&&(s(c),c=null)),r(null===e?"网络不可用":e,"danger")}),u.promise},this.merge=function(e,t,n){return!angular.equals(e,t)&&c(e,t,n)}}])},20:function(e,t,n){var i=n(19);"string"==typeof i&&(i=[[e.i,i,""]]);n(1)(i,{});i.locals&&(e.exports=i.locals)},21:function(e,t,n){"use strict";angular.module("act.ui.xxt",["ui.bootstrap"]).directive("tmsPopAct",["$templateCache","$timeout",function(e,t){var n;return n="<div class='tms-act-popover-wrap'>",n+='<div ng-repeat="act in acts" ng-if="!act.toggle||act.toggle()"><button class=\'btn btn-default btn-block\' ng-click="doAct($event,act)">{{act.title}}</button></div>',n+='<div ng-if="custom" class="checkbox"><label style="color:#000;"" ng-click="setCustom($event)"><input type="checkbox" ng-model="custom.stopTip" ng-click="setCustom($event)"> 不再提示</label></div>',n+="</div>",e.put("popActTemplate.html",n),{restrict:"A",replace:!0,transclude:!0,scope:{acts:"=acts",custom:"=custom"},template:'<button uib-popover-template="\'popActTemplate.html\'" popover-placement="top-right" popover-trigger="\'show\'" popover-append-to-body="true" class="tms-act-toggle" popover-class="tms-act-popover"><span class=\'glyphicon glyphicon-option-vertical\'></span></button>',link:function(e,n,i){var a,o,r;o=function(){var e;a=n[0].children[0],e=document.createEvent("HTMLEvents"),e.initEvent("show",!0,!1),a.dispatchEvent(e)},r=function(){var e;e=document.createEvent("HTMLEvents"),e.initEvent("hide",!0,!1),a.dispatchEvent(e),document.body.removeEventListener("click",r)},n[0].addEventListener("click",function(e){e.stopPropagation(),e.preventDefault(),o(),document.body.addEventListener("click",r)}),e.$watch("custom",function(e){e&&!1===e.stopTip&&(o(),document.body.addEventListener("click",r),i.closeAfter&&parseInt(i.closeAfter)&&t(function(){r()},i.closeAfter))})},controller:["$scope",function(e){e.setCustom=function(e,t){e.stopPropagation()},e.doAct=function(e,t){t.func&&t.func(e)}}]}}])},22:function(e,t,n){"use strict";angular.module("nav.ui.xxt",["ui.bootstrap"]).directive("tmsPopNav",["$templateCache","$timeout",function(e,t){var n;return n="<div class='tms-nav-target'>",n+='<div ng-repeat="nav in navs"><button class=\'btn btn-default btn-block\' ng-click="navTo($event,nav)">{{nav.title}}</button></div>',n+='<div ng-if="custom" class="checkbox"><label style="color:#000;"" ng-click="setCustom($event)"><input type="checkbox" ng-model="custom.stopTip" ng-click="setCustom($event)"> 不再提示</label></div>',n+="</div>",e.put("popNavTemplate.html",n),{restrict:"A",replace:!0,transclude:!0,scope:{navs:"=navs",custom:"=custom"},template:'<span><span ng-if="!navs||navs.length===0" ng-transclude></span><span ng-if="navs.length" uib-popover-template="\'popNavTemplate.html\'" popover-placement="bottom" popover-trigger="\'show\'"><span ng-transclude></span><span class="caret"></span></span></span>',link:function(e,n,i){var a,o,r;o=function(){var e;a=n[0].children[0],e=document.createEvent("HTMLEvents"),e.initEvent("show",!0,!1),a.dispatchEvent(e)},r=function(){var e;e=document.createEvent("HTMLEvents"),e.initEvent("hide",!0,!1),a.dispatchEvent(e),document.body.removeEventListener("click",r)},n[0].addEventListener("click",function(e){e.stopPropagation(),e.preventDefault(),o(),document.body.addEventListener("click",r)}),e.$watch("custom",function(e){e&&!1===e.stopTip&&(o(),document.body.addEventListener("click",r),i.closeAfter&&parseInt(i.closeAfter)&&t(function(){r()},i.closeAfter))})},controller:["$scope",function(e){e.setCustom=function(e,t){e.stopPropagation()},e.navTo=function(t,n){n.url?location.href=n.url:e.$parent.gotoNav&&e.$parent.gotoNav(t,n)}}]}}])},23:function(e,t,n){"use strict";n(10),/MicroMessenger/i.test(navigator.userAgent)&&window.signPackage&&window.wx&&window.wx.ready(function(){window.wx.showOptionMenu()}),n(14),n(20),n(16),n(11),n(2),n(9),n(12),n(17),n(18),n(22),n(21),n(15),n(24);var i=["ngSanitize","ui.bootstrap","notice.ui.xxt","http.ui.xxt","trace.ui.xxt","page.ui.xxt","snsshare.ui.xxt","siteuser.ui.xxt","directive.enroll","picviewer.ui.xxt","nav.ui.xxt","act.ui.xxt","service.enroll"];window.moduleAngularModules&&window.moduleAngularModules.forEach(function(e){i.push(e)});var a=angular.module("app",i);a.config(["$controllerProvider","$uibTooltipProvider","$locationProvider","tmsLocationProvider",function(e,t,n,i){a.provider={controller:e.register},t.setTriggers({show:"hide"}),n.html5Mode(!0),function(){var e;e="/rest/site/fe/matter/enroll",i.config(e)}()}]),a.controller("ctrlMain",["$scope","$q","$parse","http2","$timeout","tmsLocation","tmsDynaPage","tmsSnsShare","tmsSiteUser","enlService",function(e,t,n,i,o,r,s,l,c,d){function u(){var n,a;return a=t.defer(),n=r.j("entryRule","site","app"),i.get(n).then(function(t){e.params.entryRuleResult=t.data,a.resolve(t.data)})}function p(e,t){var n,i,a;n=document.body,i=document.createElement("div"),i.setAttribute("id","frmPlugin"),i.height=n.clientHeight,a=document.createElement("iframe"),i.appendChild(a),n.scrollTop=0,n.appendChild(i),window.onClosePlugin=function(){t?t().then(function(e){i.parentNode.removeChild(i)}):i.parentNode.removeChild(i)},i.onclick=function(){onClosePlugin()},e&&a.setAttribute("src",e),i.style.display="block"}function h(t){var n,i,a,o;o=!0,n=e,a=t.match(/\((.*?)\)/)[1].replace(/'|"/g,"").split(","),angular.forEach(t.replace(/\(.*?\)/,"").split("."),function(e){if(i&&(n=i),!n[e])return void(o=!1);i=n[e]}),o&&i.apply(n,a)}var f=[];e.closeWindow=function(){/MicroMessenger/i.test(navigator.userAgent)&&window.wx.closeWindow()},e.askFollowSns=function(){var t;e.app.entryRule&&"Y"===e.app.entryRule.scope.sns&&(t=r.j("askFollow","site"),t+="&sns="+Object.keys(e.app.entryRule.sns).join(","),p(t,u))},e.askBecomeMember=function(){var t,n;e.app.entryRule&&"Y"===e.app.entryRule.scope.member&&(n=Object.keys(e.app.entryRule.member),1===n.length?(t="/rest/site/fe/user/member?site="+e.app.siteid,t+="&schema="+n[0]):n.length>1&&(t="/rest/site/fe/user/memberschema?site="+e.app.siteid,t+="&schema="+n.join(",")),p(t,u))},e.addRecord=function(t,n){if(n)e.gotoPage(t,n,null,null,"Y");else for(var i in e.app.pages){var a=e.app.pages[i];if("I"===a.type){e.gotoPage(t,a.name,null,null,"Y");break}}},e.siteUser=function(){var e=location.protocol+"//"+location.host;e+="/rest/site/fe/user",e+="?site="+r.s().site,location.href=e},e.gotoApp=function(t){location.replace(e.app.entryUrl)},e.gotoPage=function(e,t,n,i,a){e&&(e.preventDefault(),e.stopPropagation());var o=r.j("","site","app");n?o+="&ek="+n:"cowork"===t&&(o+="&ek="+r.s().ek),i&&(o+="&rid="+i),t&&(o+="&page="+t),a&&"Y"===a&&(o+="&newRecord=Y"),location=o},e.openMatter=function(e,t,n,i){var a="/rest/site/fe/matter?site="+r.s().site+"&id="+e+"&type="+t;n?location.replace(a):!1===i?location.href=a:window.open(a)},e.onReady=function(t){e.params?h(t):f.push(t)},e.setOperateLimit=function(t){return!(!e.app.entryRule.exclude_action||"Y"!==e.app.entryRule.exclude_action[t])||("N"!=e.entryRuleResult.passed||(s.openPlugin(e.entryRuleResult.passUrl).then(function(e){return location.reload(),!0}),!1))},e.setSnsShare=function(t,n,a){function o(){if("miniprogram"!==window.__wxjs_environment){var o,s,c,d,u,p,h;o=e.app,s=e.page,c=e.user,d=location.protocol+"//"+location.host+r.j("","site","app","rid"),s&&s.share_page&&"Y"===s.share_page?d+="&page="+s.name:r.s().page&&(d+="&page="+r.s().page),t&&t.enroll_key&&(d+="&ek="+t.enroll_key),n&&angular.forEach(n,function(e,t){void 0!==e&&(d+="&"+t+"="+e)}),u=c.uid+"_"+1*new Date,p=location.search.match(/shareby=([^&]*)/)?location.search.match(/shareby=([^&]*)/)[1]:"",d+="&shareby="+u,h=o.summary,s&&s.share_summary&&s.share_summary.length&&t&&t.data&&t.data[s.share_summary]&&(h=t.data[s.share_summary]),window.shareCounter=0,l.config({siteId:o.siteid,logger:function(e){var t;t="/rest/site/fe/matter/logShare",t+="?shareid="+u,t+="&site="+o.siteid,t+="&id="+o.id,t+="&type=enroll",a&&a.title?t+="&title="+a.title:t+="&title="+o.title,a&&(t+="&target_type="+a.target_type,t+="&target_id="+a.target_id),t+="&shareby="+p,t+="&shareto="+e,i.get(t),window.shareCounter++,window.onshare&&window.onshare(window.shareCounter)},jsApiList:["hideOptionMenu","onMenuShareTimeline","onMenuShareAppMessage","chooseImage","uploadImage","getLocation","startRecord","stopRecord","onVoiceRecordEnd","playVoice","pauseVoice","stopVoice","onVoicePlayEnd","uploadVoice","downloadVoice"]}),l.set(o.title,d,h,o.pic)}}/MicroMessenger/i.test(navigator.userAgent)&&(window.WeixinJSBridge&&WeixinJSBridge.invoke?o():document.addEventListener("WeixinJSBridgeReady",o,!1))},e.setPopAct=function(t,a,o){if(a&&t&&0!==t.length&&e.user){var s,l;(s=e.user.enrollUser)&&(l=n(a+".act")(s.custom)),l||(l={stopTip:!1}),e.popAct={acts:[],custom:l},e.$watch("popAct.custom",function(t,n){var o;s&&(o=s.custom,t!==n&&(o[a]||(o[a]={}),o[a].act=e.popAct.custom,i.post(r.j("user/updateCustom","site","app"),o).then(function(e){})))},!0),t.forEach(function(t){var n;switch(t){case"save":n={title:"保存"};break;case"addRecord":e.app&&s&&(0===parseInt(e.app.count_limit)||e.app.count_limit>s.enroll_num)&&(n={title:"添加记录",func:e.addRecord});break;case"newRecord":n={title:"添加记录"};break;case"voteRecData":n={title:"题目投票"};break;case"scoreSchema":n={title:"题目打分"}}n&&(o&&(o.func&&o.func[t]&&(n.func=o.func[t]),!n.func&&e[t]&&(n.func=e[t]),o.toggle&&o.toggle[t]&&(n.toggle=o.toggle[t])),e.popAct.acts.push(n))})}},e.setPopNav=function(t,a,o){if(a&&t&&0!==t.length&&e.user){var s,l,c;s=e.app,l=e.user.enrollUser,l&&(c=n(a+".nav")(l.custom)),c||(c={stopTip:!1}),e.popNav={navs:[],custom:c},e.$watch("popNav.custom",function(t,n){var o;l&&(o=l.custom,t!==n&&(o[a]||(o[a]={}),o[a].nav=e.popNav.custom,i.post(r.j("user/updateCustom","site","app"),o).then(function(e){})))},!0),"voting"===s.scenario&&-1!==t.indexOf("votes")&&e.popNav.navs.push({name:"votes",title:"投票榜",url:r.j("","site","app")+"&page=votes"}),s.scenarioConfig&&("Y"===s.scenarioConfig.can_repos&&-1!==t.indexOf("repos")&&e.popNav.navs.push({name:"repos",title:"共享页",url:r.j("","site","app")+"&page=repos"}),"Y"===s.scenarioConfig.can_rank&&-1!==t.indexOf("rank")&&e.popNav.navs.push({name:"rank",title:"排行页",url:r.j("","site","app")+"&page=rank"}),"Y"===s.scenarioConfig.can_stat&&"stat"!==a&&e.popNav.navs.push({name:"stat",title:"统计页",url:r.j("","site","app")+"&page=stat"}),"Y"===s.scenarioConfig.can_kanban&&-1!==t.indexOf("kanban")&&e.popNav.navs.push({name:"kanban",title:"看板页",url:r.j("","site","app")+"&page=kanban"}),"Y"===s.scenarioConfig.can_action&&-1!==t.indexOf("event")&&e.popNav.navs.push({name:"event",title:"动态页",url:r.j("","site","app")+"&page=event"})),-1!==t.indexOf("favor")&&e.popNav.navs.push({name:"favor",title:"收藏页",url:r.j("","site","app")+"&page=favor"}),-1!==t.indexOf("task")&&(s.questionConfig.length||s.answerConfig.length||s.voteConfig.length||s.scoreConfig.length)&&e.popNav.navs.push({name:"task",title:"任务页",url:r.j("","site","app")+"&page=task"}),e.mission&&e.popNav.navs.push({name:"mission",title:"项目主页",url:"/rest/site/fe/matter/mission?site="+s.siteid+"&mission="+e.mission.id})}},e.logAccess=function(t){var n,a,o,r,s;n=e.app,a=e.user,o=n.appRound.rid,s=location.search.match(/shareby=([^&]*)/)?location.search.match(/shareby=([^&]*)/)[1]:"",r={search:location.search.replace("?",""),referer:document.referrer,rid:o,assignedNickname:a.nickname,id:n.id,type:"enroll",title:n.title,shareby:s},t&&(t.title&&(r.title=t.title),r.target_type=t.target_type,r.target_id=t.target_id),i.post("/rest/site/fe/matter/logAccess?site="+n.siteid,r)},e.isSmallLayout=!1,window.screen&&window.screen.width<992&&(e.isSmallLayout=!0),i.get(r.j("get","site","app","rid","page","ek","newRecord")).then(function(t){var n=t.data,i=n.site,r=n.app,l=n.entryRuleResult,c=n.mission,u=(n.page,{});r.dynaDataSchemas.forEach(function(e){u[e.id]=e}),r._schemasById=u,e.params=n,e.site=i,e.mission=c,e.app=r,e.entryRuleResult=l,"Y"===r.use_site_header&&i&&i.header_page&&s.loadCode(a,i.header_page),"Y"===r.use_mission_header&&c&&c.header_page&&s.loadCode(a,c.header_page),"Y"===r.use_mission_footer&&c&&c.footer_page&&s.loadCode(a,c.footer_page),"Y"===r.use_site_footer&&i&&i.footer_page&&s.loadCode(a,i.footer_page),n.page&&s.loadCode(a,n.page).then(function(){e.page=n.page}),f.length&&angular.forEach(f,h),d.user().then(function(t){e.user=t,o(function(){e.$broadcast("xxt.app.enroll.ready",n)});var i;(i=document.querySelector(".loading"))&&i.parentNode.removeChild(i)})})}]),e.exports=a},24:function(e,t,n){"use strict";angular.module("service.enroll",[]).service("enlService",["$q","http2","tmsLocation",function(e,t,n){var i;i=!1,this.user=function(){return i?i.promise:(i=e.defer(),t.get(n.j("user/get2","site","app")).then(function(e){i.resolve(e.data)}),i.promise)}}])},3:function(e,t,n){"use strict";function i(e){var t=e.length;if(t%4>0)throw new Error("Invalid string. Length must be a multiple of 4");return"="===e[t-2]?2:"="===e[t-1]?1:0}function a(e){return 3*e.length/4-i(e)}function o(e){var t,n,a,o,r,s,l=e.length;r=i(e),s=new u(3*l/4-r),a=r>0?l-4:l;var c=0;for(t=0,n=0;t<a;t+=4,n+=3)o=d[e.charCodeAt(t)]<<18|d[e.charCodeAt(t+1)]<<12|d[e.charCodeAt(t+2)]<<6|d[e.charCodeAt(t+3)],s[c++]=o>>16&255,s[c++]=o>>8&255,s[c++]=255&o;return 2===r?(o=d[e.charCodeAt(t)]<<2|d[e.charCodeAt(t+1)]>>4,s[c++]=255&o):1===r&&(o=d[e.charCodeAt(t)]<<10|d[e.charCodeAt(t+1)]<<4|d[e.charCodeAt(t+2)]>>2,s[c++]=o>>8&255,s[c++]=255&o),s}function r(e){return c[e>>18&63]+c[e>>12&63]+c[e>>6&63]+c[63&e]}function s(e,t,n){for(var i,a=[],o=t;o<n;o+=3)i=(e[o]<<16)+(e[o+1]<<8)+e[o+2],a.push(r(i));return a.join("")}function l(e){for(var t,n=e.length,i=n%3,a="",o=[],r=0,l=n-i;r<l;r+=16383)o.push(s(e,r,r+16383>l?l:r+16383));return 1===i?(t=e[n-1],a+=c[t>>2],a+=c[t<<4&63],a+="=="):2===i&&(t=(e[n-2]<<8)+e[n-1],a+=c[t>>10],a+=c[t>>4&63],a+=c[t<<2&63],a+="="),o.push(a),o.join("")}t.byteLength=a,t.toByteArray=o,t.fromByteArray=l;for(var c=[],d=[],u="undefined"!=typeof Uint8Array?Uint8Array:Array,p="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",h=0,f=p.length;h<f;++h)c[h]=p[h],d[p.charCodeAt(h)]=h;d["-".charCodeAt(0)]=62,d["_".charCodeAt(0)]=63},30:function(e,t){e.exports='<div class="modal-header">\n    <button class="close" type="button" ng-click="cancel()">×</button>\n    <h5 class="modal-title">选择轮次</h5>\n</div>\n<div class="modal-body">\n    <div class=\'form-group\'>\n        <button class=\'btn btn-default btn-sm\' ng-click="clean()">清除<span>已选的{{countOfChecked}}项</span></button>\n    </div>\n    <div class=\'form-group\' style=\'height:230px;overflow-y:auto\'>\n        <div ng-if="!options.excludeAll">\n            <label class=\'checkbox-inline\'>\n                <input type=\'checkbox\' ng-model="checkedRounds.ALL" ng-change="toggleCheckedRound(\'ALL\')">全部轮次</label>\n        </div>\n        <div ng-if="activeRound">\n            <label class=\'checkbox-inline\'>\n                <input type=\'checkbox\' ng-model="checkedRounds[activeRound.rid]" ng-change="toggleCheckedRound(activeRound.rid)">{{activeRound.title}}<span>（启用）</span></label>\n        </div>\n        <div ng-repeat="rnd in rounds">\n            <label class=\'checkbox-inline\'>\n                <input type=\'checkbox\' ng-model="checkedRounds[rnd.rid]" ng-change="toggleCheckedRound(rnd.id)">{{rnd.title}}</label>\n        </div>\n    </div>\n    <div ng-show="pageOfRound.total>pageOfRound.size">\n        <span class=\'hidden-xs\' style=\'line-height:30px\'>总数：{{pageOfRound.total}}</span>\n        <ul uib-pagination class=\'pagination-sm\' style="margin:0;vertical-align:bottom;cursor:pointer" boundary-links="true" total-items="pageOfRound.total" max-size="5" items-per-page="pageOfRound.size" rotate="false" ng-model="pageOfRound.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>\n    </div>\n</div>\n<div class="modal-footer">\n    <button class="btn btn-primary" ng-click="ok()">确定</button>\n</div>'},31:function(e,t,n){"use strict";angular.module("round.ui.enroll",[]).factory("enlRound",["http2","$q","$uibModal","tmsLocation",function(e,t,i,a){var o;return o=function(e){this.app=e,this.page={}},o.prototype.get=function(n){var i;return i=t.defer(),-1!==n.indexOf("ALL")?i.resolve({rid:"ALL",title:"全部轮次"}):e.get(a.j("round/get","site","app")+"&rid="+n).then(function(e){i.resolve(e.data)}),i.promise},o.prototype.list=function(){var n=t.defer();return e.get(a.j("round/list","site","app"),{page:this.page}).then(function(e){n.resolve(e.data)}),n.promise},o.prototype.getRoundTitle=function(n){var i;if(i=t.defer(),-1!==n.indexOf("ALL"))i.resolve("全部轮次");else{var o;e.get(a.j("round/get","site","app")+"&rid="+n).then(function(e){1===e.data.length?o=e.data[0].title:2===e.data.length?o=e.data[0].title+","+e.data[1].title:e.data.length>2&&(o=e.data[0].title+"-"+e.data[e.data.length-1].title),i.resolve(o)})}return i.promise},o.prototype.pick=function(e,t){var a=this;return i.open({template:n(30),backdrop:"static",controller:["$scope","$uibModalInstance",function(n,i){var o;n.pageOfRound=a.page,n.checkedRounds=o={},n.countOfChecked=0,n.options={},t&&angular.extend(n.options,t),n.toggleCheckedRound=function(e){"ALL"===e?o.ALL?n.checkedRounds=o={ALL:!0}:n.checkedRounds=o={}:o[e]?delete o.ALL:delete o[e],n.countOfChecked=Object.keys(o).length},n.clean=function(){n.checkedRounds=o={}},n.ok=function(){var e=[];Object.keys(o).length&&angular.forEach(o,function(t,n){t&&e.push(n)}),a.getRoundTitle(e).then(function(t){i.close({ids:e,titles:t})})},n.cancel=function(){i.dismiss("cancel")},n.doSearch=function(){a.list().then(function(e){if(n.activeRound=e.active,n.activeRound){var t=[];e.rounds.forEach(function(e){e.rid!==n.activeRound.rid&&t.push(e)}),n.rounds=t}else n.rounds=e.rounds})},angular.isArray(e)&&e.length&&e.forEach(function(e){o[e]=!0}),n.countOfChecked=Object.keys(o).length,n.doSearch()}]}).result},o}])},32:function(e,t,n){"use strict";angular.module("task.ui.enroll",[]).factory("enlTask",["http2","$q","$parse","$filter","$uibModal","tmsLocation",function(e,t,n,i,a,o){function r(){var e,t,a,o,r,s,l=this,d=[];switch(s=i("date"),o=s(1e3*l.start_at,"M月d日（EEE）H:mm"),r=s(1e3*l.start_at,"EEE"),o=o.replace(r,c.weekday[r]),d.push(o,"到"),o=s(1e3*l.end_at,"M月d日（EEE）H:mm"),r=s(1e3*l.end_at,"EEE"),o=o.replace(r,c.weekday[r]),d.push(o),e=parseInt(n("limit.min")(l)),t=parseInt(n("limit.max")(l)),a=e&&t?e+"-"+t+"个":e?"不少于"+e+"个":t?"不多于"+e+"个":"",l.type){case"question":d.push("，完成"+a+"提问。");break;case"answer":d.push("，完成"+a+"回答。");break;case"vote":d.push("，完成"+a+"投票。");break;case"score":d.push("，完成打分。")}return d.join("")}function s(){var e,t,n,a=this,o={};return n=i("date"),a.start_at?(e=n(1e3*a.start_at,"M月d日(EEE)H:mm"),t=n(1e3*a.start_at,"EEE"),e=e.replace(t,c.weekday[t]),o.start_at=e):o.start_at=0,a.end_at?(e=n(1e3*a.end_at,"M月d日(EEE)H:mm"),t=n(1e3*a.end_at,"EEE"),e=e.replace(t,c.weekday[t]),o.end_at=e):o.end_at=0,o}var l,c={weekday:{Mon:"周一",Tue:"周二",Wed:"周三",Thu:"周四",Fri:"周五",Sat:"周六",Sun:"周日"}};return l=function(e){this.app=e},l.prototype.list=function(n,i,a,l){var c,d;return c=t.defer(),d=o.j("task/list","site","app"),n&&(d+="&type="+n),i&&(d+="&state="+i),a&&(d+="&rid="+a),l&&(d+="&ek="+l),e.get(d).then(function(e){e.data&&e.data.length&&e.data.forEach(function(e){e.toString=r,e.timeFormat=s}),c.resolve(e.data)}),c.promise},l.prototype.enhance=function(e){return e&&(e.toString=r,e.timeFormat=s),e},l}])},39:function(e,t){e.exports='<nav class="navbar site-navbar-light navbar-fixed-bottom">\n    <div class="container">\n        <ul class=\'nav site-nav\'>\n            <li ng-repeat="nav in navs" ng-class="{\'active\': activeNav.type===nav.type}" ng-switch on="nav.type" ng-click="switchNav($event, nav)">\n                <a href ng-switch-when="mission">\n                    <i class="glyphicon glyphicon-th-list"></i><span ng-bind="nav.title"></span>\n                </a>\n                <a href ng-switch-when="repos">\n                    <i class="glyphicon glyphicon-home"></i><span ng-bind="nav.title"></span>\n                </a>\n                <a href ng-switch-when="activities">\n                    <i class="glyphicon glyphicon-tasks"></i><span ng-bind="nav.title"></span>\n                </a>\n                <a href ng-switch-when="summary">\n                    <i class="glyphicon glyphicon-stats"></i><span ng-bind="nav.title"></span>\n                </a>\n                <a href ng-switch-when="people">\n                    <i class="glyphicon glyphicon-user"></i><span ng-bind="nav.title"></span>\n                </a>\n            </li>\n        </ul>\n    </div>\n</nav>'},4:function(e,t,n){"use strict";(function(e){function i(){return o.TYPED_ARRAY_SUPPORT?2147483647:1073741823}function a(e,t){if(i()<t)throw new RangeError("Invalid typed array length");return o.TYPED_ARRAY_SUPPORT?(e=new Uint8Array(t),e.__proto__=o.prototype):(null===e&&(e=new o(t)),e.length=t),e}function o(e,t,n){if(!(o.TYPED_ARRAY_SUPPORT||this instanceof o))return new o(e,t,n);if("number"==typeof e){if("string"==typeof t)throw new Error("If encoding is specified then the first argument must be a string");return c(this,e)}return r(this,e,t,n)}function r(e,t,n,i){if("number"==typeof t)throw new TypeError('"value" argument must not be a number');return"undefined"!=typeof ArrayBuffer&&t instanceof ArrayBuffer?p(e,t,n,i):"string"==typeof t?d(e,t,n):h(e,t)}function s(e){if("number"!=typeof e)throw new TypeError('"size" argument must be a number');if(e<0)throw new RangeError('"size" argument must not be negative')}function l(e,t,n,i){return s(t),t<=0?a(e,t):void 0!==n?"string"==typeof i?a(e,t).fill(n,i):a(e,t).fill(n):a(e,t)}function c(e,t){if(s(t),e=a(e,t<0?0:0|f(t)),!o.TYPED_ARRAY_SUPPORT)for(var n=0;n<t;++n)e[n]=0;return e}function d(e,t,n){if("string"==typeof n&&""!==n||(n="utf8"),!o.isEncoding(n))throw new TypeError('"encoding" must be a valid string encoding');var i=0|v(t,n);e=a(e,i);var r=e.write(t,n);return r!==i&&(e=e.slice(0,r)),e}function u(e,t){var n=t.length<0?0:0|f(t.length);e=a(e,n);for(var i=0;i<n;i+=1)e[i]=255&t[i];return e}function p(e,t,n,i){if(t.byteLength,n<0||t.byteLength<n)throw new RangeError("'offset' is out of bounds");if(t.byteLength<n+(i||0))throw new RangeError("'length' is out of bounds");return t=void 0===n&&void 0===i?new Uint8Array(t):void 0===i?new Uint8Array(t,n):new Uint8Array(t,n,i),o.TYPED_ARRAY_SUPPORT?(e=t,e.__proto__=o.prototype):e=u(e,t),e}function h(e,t){if(o.isBuffer(t)){var n=0|f(t.length);return e=a(e,n),0===e.length?e:(t.copy(e,0,0,n),e)}if(t){if("undefined"!=typeof ArrayBuffer&&t.buffer instanceof ArrayBuffer||"length"in t)return"number"!=typeof t.length||W(t.length)?a(e,0):u(e,t);if("Buffer"===t.type&&Z(t.data))return u(e,t.data)}throw new TypeError("First argument must be a string, Buffer, ArrayBuffer, Array, or array-like object.")}function f(e){if(e>=i())throw new RangeError("Attempt to allocate Buffer larger than maximum size: 0x"+i().toString(16)+" bytes");return 0|e}function g(e){return+e!=e&&(e=0),o.alloc(+e)}function v(e,t){if(o.isBuffer(e))return e.length;if("undefined"!=typeof ArrayBuffer&&"function"==typeof ArrayBuffer.isView&&(ArrayBuffer.isView(e)||e instanceof ArrayBuffer))return e.byteLength;"string"!=typeof e&&(e=""+e);var n=e.length;if(0===n)return 0;for(var i=!1;;)switch(t){case"ascii":case"latin1":case"binary":return n;case"utf8":case"utf-8":case void 0:return H(e).length;case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return 2*n;case"hex":return n>>>1;case"base64":return F(e).length;default:if(i)return H(e).length;t=(""+t).toLowerCase(),i=!0}}function m(e,t,n){var i=!1;if((void 0===t||t<0)&&(t=0),t>this.length)return"";if((void 0===n||n>this.length)&&(n=this.length),n<=0)return"";if(n>>>=0,t>>>=0,n<=t)return"";for(e||(e="utf8");;)switch(e){case"hex":return M(this,t,n);case"utf8":case"utf-8":return R(this,t,n);case"ascii":return L(this,t,n);case"latin1":case"binary":return P(this,t,n);case"base64":return C(this,t,n);case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return I(this,t,n);default:if(i)throw new TypeError("Unknown encoding: "+e);e=(e+"").toLowerCase(),i=!0}}function w(e,t,n){var i=e[t];e[t]=e[n],e[n]=i}function b(e,t,n,i,a){if(0===e.length)return-1;if("string"==typeof n?(i=n,n=0):n>2147483647?n=2147483647:n<-2147483648&&(n=-2147483648),n=+n,isNaN(n)&&(n=a?0:e.length-1),n<0&&(n=e.length+n),n>=e.length){if(a)return-1;n=e.length-1}else if(n<0){if(!a)return-1;n=0}if("string"==typeof t&&(t=o.from(t,i)),o.isBuffer(t))return 0===t.length?-1:y(e,t,n,i,a);if("number"==typeof t)return t&=255,o.TYPED_ARRAY_SUPPORT&&"function"==typeof Uint8Array.prototype.indexOf?a?Uint8Array.prototype.indexOf.call(e,t,n):Uint8Array.prototype.lastIndexOf.call(e,t,n):y(e,[t],n,i,a);throw new TypeError("val must be string, number or Buffer")}function y(e,t,n,i,a){function o(e,t){return 1===r?e[t]:e.readUInt16BE(t*r)}var r=1,s=e.length,l=t.length;if(void 0!==i&&("ucs2"===(i=String(i).toLowerCase())||"ucs-2"===i||"utf16le"===i||"utf-16le"===i)){if(e.length<2||t.length<2)return-1;r=2,s/=2,l/=2,n/=2}var c;if(a){var d=-1;for(c=n;c<s;c++)if(o(e,c)===o(t,-1===d?0:c-d)){if(-1===d&&(d=c),c-d+1===l)return d*r}else-1!==d&&(c-=c-d),d=-1}else for(n+l>s&&(n=s-l),c=n;c>=0;c--){for(var u=!0,p=0;p<l;p++)if(o(e,c+p)!==o(t,p)){u=!1;break}if(u)return c}return-1}function x(e,t,n,i){n=Number(n)||0;var a=e.length-n;i?(i=Number(i))>a&&(i=a):i=a;var o=t.length;if(o%2!=0)throw new TypeError("Invalid hex string");i>o/2&&(i=o/2);for(var r=0;r<i;++r){var s=parseInt(t.substr(2*r,2),16);if(isNaN(s))return r;e[n+r]=s}return r}function k(e,t,n,i){return J(H(t,e.length-n),e,n,i)}function _(e,t,n,i){return J(z(t),e,n,i)}function E(e,t,n,i){return _(e,t,n,i)}function A(e,t,n,i){return J(F(t),e,n,i)}function S(e,t,n,i){return J(X(t,e.length-n),e,n,i)}function C(e,t,n){return 0===t&&n===e.length?G.fromByteArray(e):G.fromByteArray(e.slice(t,n))}function R(e,t,n){n=Math.min(e.length,n);for(var i=[],a=t;a<n;){var o=e[a],r=null,s=o>239?4:o>223?3:o>191?2:1;if(a+s<=n){var l,c,d,u;switch(s){case 1:o<128&&(r=o);break;case 2:l=e[a+1],128==(192&l)&&(u=(31&o)<<6|63&l)>127&&(r=u);break;case 3:l=e[a+1],c=e[a+2],128==(192&l)&&128==(192&c)&&(u=(15&o)<<12|(63&l)<<6|63&c)>2047&&(u<55296||u>57343)&&(r=u);break;case 4:l=e[a+1],c=e[a+2],d=e[a+3],128==(192&l)&&128==(192&c)&&128==(192&d)&&(u=(15&o)<<18|(63&l)<<12|(63&c)<<6|63&d)>65535&&u<1114112&&(r=u)}}null===r?(r=65533,s=1):r>65535&&(r-=65536,i.push(r>>>10&1023|55296),r=56320|1023&r),i.push(r),a+=s}return T(i)}function T(e){var t=e.length;if(t<=Q)return String.fromCharCode.apply(String,e);for(var n="",i=0;i<t;)n+=String.fromCharCode.apply(String,e.slice(i,i+=Q));return n}function L(e,t,n){var i="";n=Math.min(e.length,n);for(var a=t;a<n;++a)i+=String.fromCharCode(127&e[a]);return i}function P(e,t,n){var i="";n=Math.min(e.length,n);for(var a=t;a<n;++a)i+=String.fromCharCode(e[a]);return i}function M(e,t,n){var i=e.length;(!t||t<0)&&(t=0),(!n||n<0||n>i)&&(n=i);for(var a="",o=t;o<n;++o)a+=q(e[o]);return a}function I(e,t,n){for(var i=e.slice(t,n),a="",o=0;o<i.length;o+=2)a+=String.fromCharCode(i[o]+256*i[o+1]);return a}function N(e,t,n){if(e%1!=0||e<0)throw new RangeError("offset is not uint");if(e+t>n)throw new RangeError("Trying to access beyond buffer length")}function O(e,t,n,i,a,r){if(!o.isBuffer(e))throw new TypeError('"buffer" argument must be a Buffer instance');if(t>a||t<r)throw new RangeError('"value" argument is out of bounds');if(n+i>e.length)throw new RangeError("Index out of range")}function j(e,t,n,i){t<0&&(t=65535+t+1);for(var a=0,o=Math.min(e.length-n,2);a<o;++a)e[n+a]=(t&255<<8*(i?a:1-a))>>>8*(i?a:1-a)}function U(e,t,n,i){t<0&&(t=4294967295+t+1);for(var a=0,o=Math.min(e.length-n,4);a<o;++a)e[n+a]=t>>>8*(i?a:3-a)&255}function $(e,t,n,i,a,o){if(n+i>e.length)throw new RangeError("Index out of range");if(n<0)throw new RangeError("Index out of range")}function D(e,t,n,i,a){return a||$(e,t,n,4,3.4028234663852886e38,-3.4028234663852886e38),K.write(e,t,n,i,23,4),n+4}function Y(e,t,n,i,a){return a||$(e,t,n,8,1.7976931348623157e308,-1.7976931348623157e308),K.write(e,t,n,i,52,8),n+8}function B(e){if(e=V(e).replace(ee,""),e.length<2)return"";for(;e.length%4!=0;)e+="=";return e}function V(e){return e.trim?e.trim():e.replace(/^\s+|\s+$/g,"")}function q(e){return e<16?"0"+e.toString(16):e.toString(16)}function H(e,t){t=t||1/0;for(var n,i=e.length,a=null,o=[],r=0;r<i;++r){if((n=e.charCodeAt(r))>55295&&n<57344){if(!a){if(n>56319){(t-=3)>-1&&o.push(239,191,189);continue}if(r+1===i){(t-=3)>-1&&o.push(239,191,189);continue}a=n;continue}if(n<56320){(t-=3)>-1&&o.push(239,191,189),a=n;continue}n=65536+(a-55296<<10|n-56320)}else a&&(t-=3)>-1&&o.push(239,191,189);if(a=null,n<128){if((t-=1)<0)break;o.push(n)}else if(n<2048){if((t-=2)<0)break;o.push(n>>6|192,63&n|128)}else if(n<65536){if((t-=3)<0)break;o.push(n>>12|224,n>>6&63|128,63&n|128)}else{if(!(n<1114112))throw new Error("Invalid code point");if((t-=4)<0)break;o.push(n>>18|240,n>>12&63|128,n>>6&63|128,63&n|128)}}return o}function z(e){for(var t=[],n=0;n<e.length;++n)t.push(255&e.charCodeAt(n));return t}function X(e,t){for(var n,i,a,o=[],r=0;r<e.length&&!((t-=2)<0);++r)n=e.charCodeAt(r),i=n>>8,a=n%256,o.push(a),o.push(i);return o}function F(e){return G.toByteArray(B(e))}function J(e,t,n,i){for(var a=0;a<i&&!(a+n>=t.length||a>=e.length);++a)t[a+n]=e[a];return a}function W(e){return e!==e}/*!
- * The buffer module from node.js, for the browser.
- *
- * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
- * @license  MIT
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	__webpack_require__.i = function(value) { return value; };
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 144);
+/******/ })
+/************************************************************************/
+/******/ ({
+
+/***/ 0:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/*
+  MIT License http://www.opensource.org/licenses/mit-license.php
+  Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+module.exports = function (useSourceMap) {
+  var list = []; // return the list of modules as css string
+
+  list.toString = function toString() {
+    return this.map(function (item) {
+      var content = cssWithMappingToString(item, useSourceMap);
+
+      if (item[2]) {
+        return '@media ' + item[2] + '{' + content + '}';
+      } else {
+        return content;
+      }
+    }).join('');
+  }; // import a list of modules into the list
+
+
+  list.i = function (modules, mediaQuery) {
+    if (typeof modules === 'string') {
+      modules = [[null, modules, '']];
+    }
+
+    var alreadyImportedModules = {};
+
+    for (var i = 0; i < this.length; i++) {
+      var id = this[i][0];
+
+      if (id != null) {
+        alreadyImportedModules[id] = true;
+      }
+    }
+
+    for (i = 0; i < modules.length; i++) {
+      var item = modules[i]; // skip already imported module
+      // this implementation is not 100% perfect for weird media query combinations
+      // when a module is imported multiple times with different media queries.
+      // I hope this will never occur (Hey this way we have smaller bundles)
+
+      if (item[0] == null || !alreadyImportedModules[item[0]]) {
+        if (mediaQuery && !item[2]) {
+          item[2] = mediaQuery;
+        } else if (mediaQuery) {
+          item[2] = '(' + item[2] + ') and (' + mediaQuery + ')';
+        }
+
+        list.push(item);
+      }
+    }
+  };
+
+  return list;
+};
+
+function cssWithMappingToString(item, useSourceMap) {
+  var content = item[1] || '';
+  var cssMapping = item[3];
+
+  if (!cssMapping) {
+    return content;
+  }
+
+  if (useSourceMap && typeof btoa === 'function') {
+    var sourceMapping = toComment(cssMapping);
+    var sourceURLs = cssMapping.sources.map(function (source) {
+      return '/*# sourceURL=' + cssMapping.sourceRoot + source + ' */';
+    });
+    return [content].concat(sourceURLs).concat([sourceMapping]).join('\n');
+  }
+
+  return [content].join('\n');
+} // Adapted from convert-source-map (MIT)
+
+
+function toComment(sourceMap) {
+  // eslint-disable-next-line no-undef
+  var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap))));
+  var data = 'sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64;
+  return '/*# ' + data + ' */';
+}
+
+/***/ }),
+
+/***/ 1:
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+
+var stylesInDom = {};
+
+var	memoize = function (fn) {
+	var memo;
+
+	return function () {
+		if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+		return memo;
+	};
+};
+
+var isOldIE = memoize(function () {
+	// Test for IE <= 9 as proposed by Browserhacks
+	// @see http://browserhacks.com/#hack-e71d8692f65334173fee715c222cb805
+	// Tests for existence of standard globals is to allow style-loader
+	// to operate correctly into non-standard environments
+	// @see https://github.com/webpack-contrib/style-loader/issues/177
+	return window && document && document.all && !window.atob;
+});
+
+var getTarget = function (target, parent) {
+  if (parent){
+    return parent.querySelector(target);
+  }
+  return document.querySelector(target);
+};
+
+var getElement = (function (fn) {
+	var memo = {};
+
+	return function(target, parent) {
+                // If passing function in options, then use it for resolve "head" element.
+                // Useful for Shadow Root style i.e
+                // {
+                //   insertInto: function () { return document.querySelector("#foo").shadowRoot }
+                // }
+                if (typeof target === 'function') {
+                        return target();
+                }
+                if (typeof memo[target] === "undefined") {
+			var styleTarget = getTarget.call(this, target, parent);
+			// Special case to return head of iframe instead of iframe itself
+			if (window.HTMLIFrameElement && styleTarget instanceof window.HTMLIFrameElement) {
+				try {
+					// This will throw an exception if access to iframe is blocked
+					// due to cross-origin restrictions
+					styleTarget = styleTarget.contentDocument.head;
+				} catch(e) {
+					styleTarget = null;
+				}
+			}
+			memo[target] = styleTarget;
+		}
+		return memo[target]
+	};
+})();
+
+var singleton = null;
+var	singletonCounter = 0;
+var	stylesInsertedAtTop = [];
+
+var	fixUrls = __webpack_require__(3);
+
+module.exports = function(list, options) {
+	if (typeof DEBUG !== "undefined" && DEBUG) {
+		if (typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+	}
+
+	options = options || {};
+
+	options.attrs = typeof options.attrs === "object" ? options.attrs : {};
+
+	// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+	// tags it will allow on a page
+	if (!options.singleton && typeof options.singleton !== "boolean") options.singleton = isOldIE();
+
+	// By default, add <style> tags to the <head> element
+        if (!options.insertInto) options.insertInto = "head";
+
+	// By default, add <style> tags to the bottom of the target
+	if (!options.insertAt) options.insertAt = "bottom";
+
+	var styles = listToStyles(list, options);
+
+	addStylesToDom(styles, options);
+
+	return function update (newList) {
+		var mayRemove = [];
+
+		for (var i = 0; i < styles.length; i++) {
+			var item = styles[i];
+			var domStyle = stylesInDom[item.id];
+
+			domStyle.refs--;
+			mayRemove.push(domStyle);
+		}
+
+		if(newList) {
+			var newStyles = listToStyles(newList, options);
+			addStylesToDom(newStyles, options);
+		}
+
+		for (var i = 0; i < mayRemove.length; i++) {
+			var domStyle = mayRemove[i];
+
+			if(domStyle.refs === 0) {
+				for (var j = 0; j < domStyle.parts.length; j++) domStyle.parts[j]();
+
+				delete stylesInDom[domStyle.id];
+			}
+		}
+	};
+};
+
+function addStylesToDom (styles, options) {
+	for (var i = 0; i < styles.length; i++) {
+		var item = styles[i];
+		var domStyle = stylesInDom[item.id];
+
+		if(domStyle) {
+			domStyle.refs++;
+
+			for(var j = 0; j < domStyle.parts.length; j++) {
+				domStyle.parts[j](item.parts[j]);
+			}
+
+			for(; j < item.parts.length; j++) {
+				domStyle.parts.push(addStyle(item.parts[j], options));
+			}
+		} else {
+			var parts = [];
+
+			for(var j = 0; j < item.parts.length; j++) {
+				parts.push(addStyle(item.parts[j], options));
+			}
+
+			stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+		}
+	}
+}
+
+function listToStyles (list, options) {
+	var styles = [];
+	var newStyles = {};
+
+	for (var i = 0; i < list.length; i++) {
+		var item = list[i];
+		var id = options.base ? item[0] + options.base : item[0];
+		var css = item[1];
+		var media = item[2];
+		var sourceMap = item[3];
+		var part = {css: css, media: media, sourceMap: sourceMap};
+
+		if(!newStyles[id]) styles.push(newStyles[id] = {id: id, parts: [part]});
+		else newStyles[id].parts.push(part);
+	}
+
+	return styles;
+}
+
+function insertStyleElement (options, style) {
+	var target = getElement(options.insertInto)
+
+	if (!target) {
+		throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");
+	}
+
+	var lastStyleElementInsertedAtTop = stylesInsertedAtTop[stylesInsertedAtTop.length - 1];
+
+	if (options.insertAt === "top") {
+		if (!lastStyleElementInsertedAtTop) {
+			target.insertBefore(style, target.firstChild);
+		} else if (lastStyleElementInsertedAtTop.nextSibling) {
+			target.insertBefore(style, lastStyleElementInsertedAtTop.nextSibling);
+		} else {
+			target.appendChild(style);
+		}
+		stylesInsertedAtTop.push(style);
+	} else if (options.insertAt === "bottom") {
+		target.appendChild(style);
+	} else if (typeof options.insertAt === "object" && options.insertAt.before) {
+		var nextSibling = getElement(options.insertAt.before, target);
+		target.insertBefore(style, nextSibling);
+	} else {
+		throw new Error("[Style Loader]\n\n Invalid value for parameter 'insertAt' ('options.insertAt') found.\n Must be 'top', 'bottom', or Object.\n (https://github.com/webpack-contrib/style-loader#insertat)\n");
+	}
+}
+
+function removeStyleElement (style) {
+	if (style.parentNode === null) return false;
+	style.parentNode.removeChild(style);
+
+	var idx = stylesInsertedAtTop.indexOf(style);
+	if(idx >= 0) {
+		stylesInsertedAtTop.splice(idx, 1);
+	}
+}
+
+function createStyleElement (options) {
+	var style = document.createElement("style");
+
+	if(options.attrs.type === undefined) {
+		options.attrs.type = "text/css";
+	}
+
+	if(options.attrs.nonce === undefined) {
+		var nonce = getNonce();
+		if (nonce) {
+			options.attrs.nonce = nonce;
+		}
+	}
+
+	addAttrs(style, options.attrs);
+	insertStyleElement(options, style);
+
+	return style;
+}
+
+function createLinkElement (options) {
+	var link = document.createElement("link");
+
+	if(options.attrs.type === undefined) {
+		options.attrs.type = "text/css";
+	}
+	options.attrs.rel = "stylesheet";
+
+	addAttrs(link, options.attrs);
+	insertStyleElement(options, link);
+
+	return link;
+}
+
+function addAttrs (el, attrs) {
+	Object.keys(attrs).forEach(function (key) {
+		el.setAttribute(key, attrs[key]);
+	});
+}
+
+function getNonce() {
+	if (false) {
+		return null;
+	}
+
+	return __webpack_require__.nc;
+}
+
+function addStyle (obj, options) {
+	var style, update, remove, result;
+
+	// If a transform function was defined, run it on the css
+	if (options.transform && obj.css) {
+	    result = typeof options.transform === 'function'
+		 ? options.transform(obj.css) 
+		 : options.transform.default(obj.css);
+
+	    if (result) {
+	    	// If transform returns a value, use that instead of the original css.
+	    	// This allows running runtime transformations on the css.
+	    	obj.css = result;
+	    } else {
+	    	// If the transform function returns a falsy value, don't add this css.
+	    	// This allows conditional loading of css
+	    	return function() {
+	    		// noop
+	    	};
+	    }
+	}
+
+	if (options.singleton) {
+		var styleIndex = singletonCounter++;
+
+		style = singleton || (singleton = createStyleElement(options));
+
+		update = applyToSingletonTag.bind(null, style, styleIndex, false);
+		remove = applyToSingletonTag.bind(null, style, styleIndex, true);
+
+	} else if (
+		obj.sourceMap &&
+		typeof URL === "function" &&
+		typeof URL.createObjectURL === "function" &&
+		typeof URL.revokeObjectURL === "function" &&
+		typeof Blob === "function" &&
+		typeof btoa === "function"
+	) {
+		style = createLinkElement(options);
+		update = updateLink.bind(null, style, options);
+		remove = function () {
+			removeStyleElement(style);
+
+			if(style.href) URL.revokeObjectURL(style.href);
+		};
+	} else {
+		style = createStyleElement(options);
+		update = applyToTag.bind(null, style);
+		remove = function () {
+			removeStyleElement(style);
+		};
+	}
+
+	update(obj);
+
+	return function updateStyle (newObj) {
+		if (newObj) {
+			if (
+				newObj.css === obj.css &&
+				newObj.media === obj.media &&
+				newObj.sourceMap === obj.sourceMap
+			) {
+				return;
+			}
+
+			update(obj = newObj);
+		} else {
+			remove();
+		}
+	};
+}
+
+var replaceText = (function () {
+	var textStore = [];
+
+	return function (index, replacement) {
+		textStore[index] = replacement;
+
+		return textStore.filter(Boolean).join('\n');
+	};
+})();
+
+function applyToSingletonTag (style, index, remove, obj) {
+	var css = remove ? "" : obj.css;
+
+	if (style.styleSheet) {
+		style.styleSheet.cssText = replaceText(index, css);
+	} else {
+		var cssNode = document.createTextNode(css);
+		var childNodes = style.childNodes;
+
+		if (childNodes[index]) style.removeChild(childNodes[index]);
+
+		if (childNodes.length) {
+			style.insertBefore(cssNode, childNodes[index]);
+		} else {
+			style.appendChild(cssNode);
+		}
+	}
+}
+
+function applyToTag (style, obj) {
+	var css = obj.css;
+	var media = obj.media;
+
+	if(media) {
+		style.setAttribute("media", media)
+	}
+
+	if(style.styleSheet) {
+		style.styleSheet.cssText = css;
+	} else {
+		while(style.firstChild) {
+			style.removeChild(style.firstChild);
+		}
+
+		style.appendChild(document.createTextNode(css));
+	}
+}
+
+function updateLink (link, options, obj) {
+	var css = obj.css;
+	var sourceMap = obj.sourceMap;
+
+	/*
+		If convertToAbsoluteUrls isn't defined, but sourcemaps are enabled
+		and there is no publicPath defined then lets turn convertToAbsoluteUrls
+		on by default.  Otherwise default to the convertToAbsoluteUrls option
+		directly
+	*/
+	var autoFixUrls = options.convertToAbsoluteUrls === undefined && sourceMap;
+
+	if (options.convertToAbsoluteUrls || autoFixUrls) {
+		css = fixUrls(css);
+	}
+
+	if (sourceMap) {
+		// http://stackoverflow.com/a/26603875
+		css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+	}
+
+	var blob = new Blob([css], { type: "text/css" });
+
+	var oldSrc = link.href;
+
+	link.href = URL.createObjectURL(blob);
+
+	if(oldSrc) URL.revokeObjectURL(oldSrc);
+}
+
+
+/***/ }),
+
+/***/ 10:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+window.__util = {};
+window.__util.makeDialog = function(id, html) {
+    var dlg, mask;
+
+    mask = document.createElement('div');
+    mask.setAttribute('id', id);
+    mask.classList.add('dialog', 'mask');
+
+    dlg = "<div class='dialog dlg'>";
+    html.header && html.header.length && (dlg += "<div class='dlg-header'>" + html.header + "</div>");
+    dlg += "<div class='dlg-body'>" + html.body + "</div>";
+    html.footer && html.footer.length && (dlg += "<div class='dlg-footer'>" + html.footer + "</div>");
+    dlg += "</div>";
+
+    mask.innerHTML = dlg;
+
+    document.body.appendChild(mask);
+
+    return mask.children;
+};
+
+var ngMod = angular.module('directive.enroll', []);
+ngMod.directive('tmsDate', ['$compile', function($compile) {
+    return {
+        restrict: 'A',
+        scope: {
+            value: '=tmsDateValue'
+        },
+        controller: ['$scope', function($scope) {
+            $scope.close = function() {
+                var mask;
+                mask = document.querySelector('#' + $scope.dialogID);
+                document.body.removeChild(mask);
+                $scope.opened = false;
+            };
+            $scope.ok = function() {
+                var dtObject;
+                dtObject = new Date();
+                dtObject.setTime(0);
+                dtObject.setFullYear($scope.data.year);
+                dtObject.setMonth($scope.data.month - 1);
+                dtObject.setDate($scope.data.date);
+                dtObject.setHours($scope.data.hour);
+                dtObject.setMinutes($scope.data.minute);
+                $scope.value = parseInt(dtObject.getTime() / 1000);
+                $scope.close();
+            };
+        }],
+        link: function(scope, elem, attrs) {
+            var fnOpenPicker, dtObject, dtMinute, htmlBody;
+            scope.value === undefined && (scope.value = (new Date() * 1) / 1000);
+            dtObject = new Date();
+            dtObject.setTime(scope.value * 1000);
+            scope.options = {
+                years: [2014, 2015, 2016, 2017, 2018, 2019, 2020],
+                months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                dates: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+                hours: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+                minutes: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
+            };
+            dtMinute = Math.round(dtObject.getMinutes() / 5) * 5;
+            scope.data = {
+                year: dtObject.getFullYear(),
+                month: dtObject.getMonth() + 1,
+                date: dtObject.getDate(),
+                hour: dtObject.getHours(),
+                minute: dtMinute
+            };
+            scope.options.minutes.indexOf(dtMinute) === -1 && scope.options.minutes.push(dtMinute);
+            htmlBody = '<div class="form-group"><select class="form-control" ng-model="data.year" ng-options="y for y in options.years"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.month" ng-options="m for m in options.months"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.date" ng-options="d for d in options.dates"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.hour" ng-options="h for h in options.hours"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.minute" ng-options="mi for mi in options.minutes"></select></div>';
+            fnOpenPicker = function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                if (scope.opened) return;
+                var html, id;
+                id = '_dlg-' + (new Date() * 1);
+                html = {
+                    header: '',
+                    body: htmlBody,
+                    footer: '<button class="btn btn-default" ng-click="close()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button>'
+                };
+                html = __util.makeDialog(id, html);
+                scope.opened = true;
+                scope.dialogID = id;
+                $compile(html)(scope);
+            };
+            elem[0].querySelector('[ng-bind]').addEventListener('click', fnOpenPicker);
+        }
+    }
+}]);
+ngMod.directive('flexImg', function() {
+    return {
+        restrict: 'A',
+        replace: true,
+        template: "<img ng-src='{{img.imgSrc}}'>",
+        link: function(scope, elem, attrs) {
+            angular.element(elem).on('load', function() {
+                var w = this.clientWidth,
+                    h = this.clientHeight,
+                    sw, sh;
+                if (w > h) {
+                    sw = w / h * 80;
+                    angular.element(this).css({
+                        'height': '100%',
+                        'width': sw + 'px',
+                        'top': '0',
+                        'left': '50%',
+                        'margin-left': (-1 * sw / 2) + 'px'
+                    });
+                } else {
+                    sh = h / w * 80;
+                    angular.element(this).css({
+                        'width': '100%',
+                        'height': sh + 'px',
+                        'left': '0',
+                        'top': '50%',
+                        'margin-top': (-1 * sh / 2) + 'px'
+                    });
+                }
+            })
+        }
+    }
+});
+/**
+ * 根据父元素的高度决定是否隐藏
  */
-var G=n(3),K=n(5),Z=n(6);t.Buffer=o,t.SlowBuffer=g,t.INSPECT_MAX_BYTES=50,o.TYPED_ARRAY_SUPPORT=void 0!==e.TYPED_ARRAY_SUPPORT?e.TYPED_ARRAY_SUPPORT:function(){try{var e=new Uint8Array(1);return e.__proto__={__proto__:Uint8Array.prototype,foo:function(){return 42}},42===e.foo()&&"function"==typeof e.subarray&&0===e.subarray(1,1).byteLength}catch(e){return!1}}(),t.kMaxLength=i(),o.poolSize=8192,o._augment=function(e){return e.__proto__=o.prototype,e},o.from=function(e,t,n){return r(null,e,t,n)},o.TYPED_ARRAY_SUPPORT&&(o.prototype.__proto__=Uint8Array.prototype,o.__proto__=Uint8Array,"undefined"!=typeof Symbol&&Symbol.species&&o[Symbol.species]===o&&Object.defineProperty(o,Symbol.species,{value:null,configurable:!0})),o.alloc=function(e,t,n){return l(null,e,t,n)},o.allocUnsafe=function(e){return c(null,e)},o.allocUnsafeSlow=function(e){return c(null,e)},o.isBuffer=function(e){return!(null==e||!e._isBuffer)},o.compare=function(e,t){if(!o.isBuffer(e)||!o.isBuffer(t))throw new TypeError("Arguments must be Buffers");if(e===t)return 0;for(var n=e.length,i=t.length,a=0,r=Math.min(n,i);a<r;++a)if(e[a]!==t[a]){n=e[a],i=t[a];break}return n<i?-1:i<n?1:0},o.isEncoding=function(e){switch(String(e).toLowerCase()){case"hex":case"utf8":case"utf-8":case"ascii":case"latin1":case"binary":case"base64":case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return!0;default:return!1}},o.concat=function(e,t){if(!Z(e))throw new TypeError('"list" argument must be an Array of Buffers');if(0===e.length)return o.alloc(0);var n;if(void 0===t)for(t=0,n=0;n<e.length;++n)t+=e[n].length;var i=o.allocUnsafe(t),a=0;for(n=0;n<e.length;++n){var r=e[n];if(!o.isBuffer(r))throw new TypeError('"list" argument must be an Array of Buffers');r.copy(i,a),a+=r.length}return i},o.byteLength=v,o.prototype._isBuffer=!0,o.prototype.swap16=function(){var e=this.length;if(e%2!=0)throw new RangeError("Buffer size must be a multiple of 16-bits");for(var t=0;t<e;t+=2)w(this,t,t+1);return this},o.prototype.swap32=function(){var e=this.length;if(e%4!=0)throw new RangeError("Buffer size must be a multiple of 32-bits");for(var t=0;t<e;t+=4)w(this,t,t+3),w(this,t+1,t+2);return this},o.prototype.swap64=function(){var e=this.length;if(e%8!=0)throw new RangeError("Buffer size must be a multiple of 64-bits");for(var t=0;t<e;t+=8)w(this,t,t+7),w(this,t+1,t+6),w(this,t+2,t+5),w(this,t+3,t+4);return this},o.prototype.toString=function(){var e=0|this.length;return 0===e?"":0===arguments.length?R(this,0,e):m.apply(this,arguments)},o.prototype.equals=function(e){if(!o.isBuffer(e))throw new TypeError("Argument must be a Buffer");return this===e||0===o.compare(this,e)},o.prototype.inspect=function(){var e="",n=t.INSPECT_MAX_BYTES;return this.length>0&&(e=this.toString("hex",0,n).match(/.{2}/g).join(" "),this.length>n&&(e+=" ... ")),"<Buffer "+e+">"},o.prototype.compare=function(e,t,n,i,a){if(!o.isBuffer(e))throw new TypeError("Argument must be a Buffer");if(void 0===t&&(t=0),void 0===n&&(n=e?e.length:0),void 0===i&&(i=0),void 0===a&&(a=this.length),t<0||n>e.length||i<0||a>this.length)throw new RangeError("out of range index");if(i>=a&&t>=n)return 0;if(i>=a)return-1;if(t>=n)return 1;if(t>>>=0,n>>>=0,i>>>=0,a>>>=0,this===e)return 0;for(var r=a-i,s=n-t,l=Math.min(r,s),c=this.slice(i,a),d=e.slice(t,n),u=0;u<l;++u)if(c[u]!==d[u]){r=c[u],s=d[u];break}return r<s?-1:s<r?1:0},o.prototype.includes=function(e,t,n){return-1!==this.indexOf(e,t,n)},o.prototype.indexOf=function(e,t,n){return b(this,e,t,n,!0)},o.prototype.lastIndexOf=function(e,t,n){return b(this,e,t,n,!1)},o.prototype.write=function(e,t,n,i){if(void 0===t)i="utf8",n=this.length,t=0;else if(void 0===n&&"string"==typeof t)i=t,n=this.length,t=0;else{if(!isFinite(t))throw new Error("Buffer.write(string, encoding, offset[, length]) is no longer supported");t|=0,isFinite(n)?(n|=0,void 0===i&&(i="utf8")):(i=n,n=void 0)}var a=this.length-t;if((void 0===n||n>a)&&(n=a),e.length>0&&(n<0||t<0)||t>this.length)throw new RangeError("Attempt to write outside buffer bounds");i||(i="utf8");for(var o=!1;;)switch(i){case"hex":return x(this,e,t,n);case"utf8":case"utf-8":return k(this,e,t,n);case"ascii":return _(this,e,t,n);case"latin1":case"binary":return E(this,e,t,n);case"base64":return A(this,e,t,n);case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return S(this,e,t,n);default:if(o)throw new TypeError("Unknown encoding: "+i);i=(""+i).toLowerCase(),o=!0}},o.prototype.toJSON=function(){return{type:"Buffer",data:Array.prototype.slice.call(this._arr||this,0)}};var Q=4096;o.prototype.slice=function(e,t){var n=this.length;e=~~e,t=void 0===t?n:~~t,e<0?(e+=n)<0&&(e=0):e>n&&(e=n),t<0?(t+=n)<0&&(t=0):t>n&&(t=n),t<e&&(t=e);var i;if(o.TYPED_ARRAY_SUPPORT)i=this.subarray(e,t),i.__proto__=o.prototype;else{var a=t-e;i=new o(a,void 0);for(var r=0;r<a;++r)i[r]=this[r+e]}return i},o.prototype.readUIntLE=function(e,t,n){e|=0,t|=0,n||N(e,t,this.length);for(var i=this[e],a=1,o=0;++o<t&&(a*=256);)i+=this[e+o]*a;return i},o.prototype.readUIntBE=function(e,t,n){e|=0,t|=0,n||N(e,t,this.length);for(var i=this[e+--t],a=1;t>0&&(a*=256);)i+=this[e+--t]*a;return i},o.prototype.readUInt8=function(e,t){return t||N(e,1,this.length),this[e]},o.prototype.readUInt16LE=function(e,t){return t||N(e,2,this.length),this[e]|this[e+1]<<8},o.prototype.readUInt16BE=function(e,t){return t||N(e,2,this.length),this[e]<<8|this[e+1]},o.prototype.readUInt32LE=function(e,t){return t||N(e,4,this.length),(this[e]|this[e+1]<<8|this[e+2]<<16)+16777216*this[e+3]},o.prototype.readUInt32BE=function(e,t){return t||N(e,4,this.length),16777216*this[e]+(this[e+1]<<16|this[e+2]<<8|this[e+3])},o.prototype.readIntLE=function(e,t,n){e|=0,t|=0,n||N(e,t,this.length);for(var i=this[e],a=1,o=0;++o<t&&(a*=256);)i+=this[e+o]*a;return a*=128,i>=a&&(i-=Math.pow(2,8*t)),i},o.prototype.readIntBE=function(e,t,n){e|=0,t|=0,n||N(e,t,this.length);for(var i=t,a=1,o=this[e+--i];i>0&&(a*=256);)o+=this[e+--i]*a;return a*=128,o>=a&&(o-=Math.pow(2,8*t)),o},o.prototype.readInt8=function(e,t){return t||N(e,1,this.length),128&this[e]?-1*(255-this[e]+1):this[e]},o.prototype.readInt16LE=function(e,t){t||N(e,2,this.length);var n=this[e]|this[e+1]<<8;return 32768&n?4294901760|n:n},o.prototype.readInt16BE=function(e,t){t||N(e,2,this.length);var n=this[e+1]|this[e]<<8;return 32768&n?4294901760|n:n},o.prototype.readInt32LE=function(e,t){return t||N(e,4,this.length),this[e]|this[e+1]<<8|this[e+2]<<16|this[e+3]<<24},o.prototype.readInt32BE=function(e,t){return t||N(e,4,this.length),this[e]<<24|this[e+1]<<16|this[e+2]<<8|this[e+3]},o.prototype.readFloatLE=function(e,t){return t||N(e,4,this.length),K.read(this,e,!0,23,4)},o.prototype.readFloatBE=function(e,t){return t||N(e,4,this.length),K.read(this,e,!1,23,4)},o.prototype.readDoubleLE=function(e,t){return t||N(e,8,this.length),K.read(this,e,!0,52,8)},o.prototype.readDoubleBE=function(e,t){return t||N(e,8,this.length),K.read(this,e,!1,52,8)},o.prototype.writeUIntLE=function(e,t,n,i){if(e=+e,t|=0,n|=0,!i){O(this,e,t,n,Math.pow(2,8*n)-1,0)}var a=1,o=0;for(this[t]=255&e;++o<n&&(a*=256);)this[t+o]=e/a&255;return t+n},o.prototype.writeUIntBE=function(e,t,n,i){if(e=+e,t|=0,n|=0,!i){O(this,e,t,n,Math.pow(2,8*n)-1,0)}var a=n-1,o=1;for(this[t+a]=255&e;--a>=0&&(o*=256);)this[t+a]=e/o&255;return t+n},o.prototype.writeUInt8=function(e,t,n){return e=+e,t|=0,n||O(this,e,t,1,255,0),o.TYPED_ARRAY_SUPPORT||(e=Math.floor(e)),this[t]=255&e,t+1},o.prototype.writeUInt16LE=function(e,t,n){return e=+e,t|=0,n||O(this,e,t,2,65535,0),o.TYPED_ARRAY_SUPPORT?(this[t]=255&e,this[t+1]=e>>>8):j(this,e,t,!0),t+2},o.prototype.writeUInt16BE=function(e,t,n){return e=+e,t|=0,n||O(this,e,t,2,65535,0),o.TYPED_ARRAY_SUPPORT?(this[t]=e>>>8,this[t+1]=255&e):j(this,e,t,!1),t+2},o.prototype.writeUInt32LE=function(e,t,n){return e=+e,t|=0,n||O(this,e,t,4,4294967295,0),o.TYPED_ARRAY_SUPPORT?(this[t+3]=e>>>24,this[t+2]=e>>>16,this[t+1]=e>>>8,this[t]=255&e):U(this,e,t,!0),t+4},o.prototype.writeUInt32BE=function(e,t,n){return e=+e,t|=0,n||O(this,e,t,4,4294967295,0),o.TYPED_ARRAY_SUPPORT?(this[t]=e>>>24,this[t+1]=e>>>16,this[t+2]=e>>>8,this[t+3]=255&e):U(this,e,t,!1),t+4},o.prototype.writeIntLE=function(e,t,n,i){if(e=+e,t|=0,!i){var a=Math.pow(2,8*n-1);O(this,e,t,n,a-1,-a)}var o=0,r=1,s=0;for(this[t]=255&e;++o<n&&(r*=256);)e<0&&0===s&&0!==this[t+o-1]&&(s=1),this[t+o]=(e/r>>0)-s&255;return t+n},o.prototype.writeIntBE=function(e,t,n,i){if(e=+e,t|=0,!i){var a=Math.pow(2,8*n-1);O(this,e,t,n,a-1,-a)}var o=n-1,r=1,s=0;for(this[t+o]=255&e;--o>=0&&(r*=256);)e<0&&0===s&&0!==this[t+o+1]&&(s=1),this[t+o]=(e/r>>0)-s&255;return t+n},o.prototype.writeInt8=function(e,t,n){return e=+e,t|=0,n||O(this,e,t,1,127,-128),o.TYPED_ARRAY_SUPPORT||(e=Math.floor(e)),e<0&&(e=255+e+1),this[t]=255&e,t+1},o.prototype.writeInt16LE=function(e,t,n){return e=+e,t|=0,n||O(this,e,t,2,32767,-32768),o.TYPED_ARRAY_SUPPORT?(this[t]=255&e,this[t+1]=e>>>8):j(this,e,t,!0),t+2},o.prototype.writeInt16BE=function(e,t,n){return e=+e,t|=0,n||O(this,e,t,2,32767,-32768),o.TYPED_ARRAY_SUPPORT?(this[t]=e>>>8,this[t+1]=255&e):j(this,e,t,!1),t+2},o.prototype.writeInt32LE=function(e,t,n){return e=+e,t|=0,n||O(this,e,t,4,2147483647,-2147483648),o.TYPED_ARRAY_SUPPORT?(this[t]=255&e,this[t+1]=e>>>8,this[t+2]=e>>>16,this[t+3]=e>>>24):U(this,e,t,!0),t+4},o.prototype.writeInt32BE=function(e,t,n){return e=+e,t|=0,n||O(this,e,t,4,2147483647,-2147483648),e<0&&(e=4294967295+e+1),o.TYPED_ARRAY_SUPPORT?(this[t]=e>>>24,this[t+1]=e>>>16,this[t+2]=e>>>8,this[t+3]=255&e):U(this,e,t,!1),t+4},o.prototype.writeFloatLE=function(e,t,n){return D(this,e,t,!0,n)},o.prototype.writeFloatBE=function(e,t,n){return D(this,e,t,!1,n)},o.prototype.writeDoubleLE=function(e,t,n){return Y(this,e,t,!0,n)},o.prototype.writeDoubleBE=function(e,t,n){return Y(this,e,t,!1,n)},o.prototype.copy=function(e,t,n,i){if(n||(n=0),i||0===i||(i=this.length),t>=e.length&&(t=e.length),t||(t=0),i>0&&i<n&&(i=n),i===n)return 0;if(0===e.length||0===this.length)return 0;if(t<0)throw new RangeError("targetStart out of bounds");if(n<0||n>=this.length)throw new RangeError("sourceStart out of bounds");if(i<0)throw new RangeError("sourceEnd out of bounds");i>this.length&&(i=this.length),e.length-t<i-n&&(i=e.length-t+n);var a,r=i-n;if(this===e&&n<t&&t<i)for(a=r-1;a>=0;--a)e[a+t]=this[a+n];else if(r<1e3||!o.TYPED_ARRAY_SUPPORT)for(a=0;a<r;++a)e[a+t]=this[a+n];else Uint8Array.prototype.set.call(e,this.subarray(n,n+r),t);return r},o.prototype.fill=function(e,t,n,i){if("string"==typeof e){if("string"==typeof t?(i=t,t=0,n=this.length):"string"==typeof n&&(i=n,n=this.length),1===e.length){var a=e.charCodeAt(0);a<256&&(e=a)}if(void 0!==i&&"string"!=typeof i)throw new TypeError("encoding must be a string");if("string"==typeof i&&!o.isEncoding(i))throw new TypeError("Unknown encoding: "+i)}else"number"==typeof e&&(e&=255);if(t<0||this.length<t||this.length<n)throw new RangeError("Out of range index");if(n<=t)return this;t>>>=0,n=void 0===n?this.length:n>>>0,e||(e=0);var r;if("number"==typeof e)for(r=t;r<n;++r)this[r]=e;else{var s=o.isBuffer(e)?e:H(new o(e,i).toString()),l=s.length;for(r=0;r<n-t;++r)this[r+t]=s[r%l]}return this};var ee=/[^+\/0-9A-Za-z-_]/g}).call(t,n(8))},42:function(e,t,n){"use strict";angular.module("nav.bottom.ui",[]).directive("tmsBottomNav",["$templateCache",function(e){return{restrict:"E",replace:!0,template:n(39),scope:{navs:"=",activeNav:"=",type:"@"},link:function(e,t,n){e.switchNav=function(e,t){location.href=t.url},e.$watch("navs",function(t){if(!t)return!1;t.forEach(function(t){t.type===e.type&&(e.activeNav=t)})})}}}])},5:function(e,t){t.read=function(e,t,n,i,a){var o,r,s=8*a-i-1,l=(1<<s)-1,c=l>>1,d=-7,u=n?a-1:0,p=n?-1:1,h=e[t+u];for(u+=p,o=h&(1<<-d)-1,h>>=-d,d+=s;d>0;o=256*o+e[t+u],u+=p,d-=8);for(r=o&(1<<-d)-1,o>>=-d,d+=i;d>0;r=256*r+e[t+u],u+=p,d-=8);if(0===o)o=1-c;else{if(o===l)return r?NaN:1/0*(h?-1:1);r+=Math.pow(2,i),o-=c}return(h?-1:1)*r*Math.pow(2,o-i)},t.write=function(e,t,n,i,a,o){var r,s,l,c=8*o-a-1,d=(1<<c)-1,u=d>>1,p=23===a?Math.pow(2,-24)-Math.pow(2,-77):0,h=i?0:o-1,f=i?1:-1,g=t<0||0===t&&1/t<0?1:0;for(t=Math.abs(t),isNaN(t)||t===1/0?(s=isNaN(t)?1:0,r=d):(r=Math.floor(Math.log(t)/Math.LN2),t*(l=Math.pow(2,-r))<1&&(r--,l*=2),t+=r+u>=1?p/l:p*Math.pow(2,1-u),t*l>=2&&(r++,l/=2),r+u>=d?(s=0,r=d):r+u>=1?(s=(t*l-1)*Math.pow(2,a),r+=u):(s=t*Math.pow(2,u-1)*Math.pow(2,a),r=0));a>=8;e[n+h]=255&s,h+=f,s/=256,a-=8);for(r=r<<a|s,c+=a;c>0;e[n+h]=255&r,h+=f,r/=256,c-=8);e[n+h-f]|=128*g}},6:function(e,t){var n={}.toString;e.exports=Array.isArray||function(e){return"[object Array]"==n.call(e)}},7:function(e,t){e.exports=function(e){var t="undefined"!=typeof window&&window.location;if(!t)throw new Error("fixUrls requires window.location");if(!e||"string"!=typeof e)return e;var n=t.protocol+"//"+t.host,i=n+t.pathname.replace(/\/[^\/]*$/,"/");return e.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi,function(e,t){var a=t.trim().replace(/^"(.*)"$/,function(e,t){return t}).replace(/^'(.*)'$/,function(e,t){return t});if(/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/)/i.test(a))return e;var o;return o=0===a.indexOf("//")?a:0===a.indexOf("/")?n+a:i+a.replace(/^\.\//,""),"url("+JSON.stringify(o)+")"})}},71:function(e,t,n){"use strict";n(126),n(42),n(31),n(32),window.moduleAngularModules=["nav.bottom.ui","round.ui.enroll","task.ui.enroll","ngRoute"];var i=n(23);i.config(["$routeProvider",function(e){e.when("/rest/site/fe/matter/enroll/activities/kanban",{template:n(115),controller:"ctrlActivitiesKanban"}).when("/rest/site/fe/matter/enroll/activities/event",{template:n(114),controller:"ctrlActivitiesEvent"}).otherwise({template:n(116),controller:"ctrlActivitiesTask"})}]),i.filter("filterTime",function(){return function(e){var t,n,i,a=1*e;return t=Math.floor(a/3600),n=Math.floor(a/60%60),i=Math.floor(a%60),t+":"+n+":"+i}}),i.controller("ctrlActivities",["$scope","$location","tmsLocation","http2",function(e,t,n,i){e.activeNav="",e.viewTo=function(t,i){e.activeView=i;var a="/rest/site/fe/matter/enroll/activities/"+i.type;n.path(a)},e.$on("$locationChangeSuccess",function(t,n){var i=n.match(/([^\/]+?)\?/);e.subView="task"===i[1]?"task":i[1]}),e.$on("xxt.app.enroll.ready",function(t,a){i.get(n.j("navs","site","app")).then(function(t){e.navs=t.data})})}]),i.controller("ctrlActivitiesTask",["$scope","$parse","$q","$uibModal","http2","tmsLocation","noticebox","enlRound","enlTask",function(e,t,n,i,a,o,r,s,l){function c(e){u.splice(0,u.length),p.list(null,null,e.rid).then(function(e){e.length&&e.forEach(function(e){u.push(e)})})}var d,u,p;e.tasks=u=[],e.Label={task:{state:{IP:"进行中",BS:"未开始",AE:"已结束"}}},e.shiftRound=function(t){e.selectedRound=t,c(t)},e.gotoTask=function(e){e&&("baseline"===e.type?location.href=o.j("","site","app")+"&rid="+e.rid+"&page=enroll":e.topic&&e.topic.id&&(location.href=o.j("","site","app")+"&topic="+e.topic.id+"&page=topic"))},e.$watch("app",function(t){if(t){d=t,p=new l(d);new s(d).list().then(function(t){e.rounds=t.rounds,e.rounds.length&&e.shiftRound(e.rounds[0])})}})}]),i.controller("ctrlActivitiesEvent",["$scope","$q","http2","tmsLocation",function(e,t,n,i){function a(a){var o,r;return r=t.defer(),o=i.j("notice/close","site","app"),o+="&notice="+a.id,n.get(o).then(function(t){e.notices.splice(e.notices.indexOf(a),1),r.resolve()}),r.promise}var o,r,s,l;e.page=s={size:30},e.subView="timeline.html",e.filter=l={scope:"N"},e.searchEvent=function(a){var o,c;return a&&(s.at=a),c=t.defer(),o=i.j("event/timeline","site","app"),o+="&scope="+l.scope,n.get(o,{page:s}).then(function(t){e.logs=r=t.data.logs,c.resolve(t.data)}),c.promise},e.searchNotice=function(a){var o,r;return a&&(s.at=a),r=t.defer(),o=i.j("notice/list","site","app"),n.get(o,{page:s}).then(function(t){e.notices=t.data.notices,r.resolve(t.data)}),r.promise},e.closeNotice=function(t,n){a(t).then(function(){n&&e.gotoCowork(t.enroll_key)})},e.gotoCowork=function(e){var t;e&&(t=i.j("","site","app"),t+="&ek="+e,t+="&page=cowork",location.href=t)},e.$watch("app",function(t){if(t){if(o=t,o.actionRule){var a=[];n.get(i.j("event/task","site","app")).then(function(e){e.data&&e.data.length&&e.data.forEach(function(e){e._ok||a.push({type:"info",msg:e.desc,id:e.id,gap:e._no?e._no[0]:0,coin:e.coin?e.coin:0})})}),e.tasks=a}e.$watch("filter",function(t,n){t&&(/N/.test(t.scope)?(e.subView="timeline.html",e.searchNotice(1)):(e.subView="timeline.html",e.searchEvent(1)))},!0)}})}]),i.controller("ctrlActivitiesKanban",["$scope","$parse","$q","$uibModal","http2","tmsLocation","enlRound",function(e,t,n,i,a,o,r){function s(){var t,i;return i=n.defer(),t=o.j("user/kanban","site","app"),t+="&rid="+d.round.rid,d.group&&(t+="&gid="+d.group.team_id),a.get(t).then(function(t){var n={};t.data.users&&t.data.users.length&&(t.data.undone&&t.data.undone.length&&t.data.undone.forEach(function(e){n[e.userid]=e}),t.data.users.forEach(function(e){n[e.userid]&&(n[e.userid].tasks&&(e.undone=n[e.userid].tasks),delete n[e.userid])})),e.kanban.stat=t.data.stat,e.kanban.users=t.data.users,e.kanban.undone=t.data.undone,i.resolve(e.kanban)}),i.promise}var l,c,d;e.criteria=c={},e.filter=d={},e.subView="#undone"===location.hash?"undone":"users",e.kanban={},e.shiftRound=function(t){d.round=t,s().then(function(){e.shiftOrderby()})},e.shiftUserGroup=function(t){d.group=t,s().then(function(){e.shiftOrderby()})},e.shiftOrderby=function(t){t?c.orderby=t:t=c.orderby,e.kanban.users.sort(function(e,n){return e[t].pos-n[t].pos})},e.viewDetail=function(t){i.open({templateUrl:"userDetail.html",controller:["$scope","$uibModalInstance",function(n,i){n.app=e.app,n.user=t,n.cancel=function(){i.dismiss()}}],backdrop:"static",windowClass:"auto-height"})},e.toggleProfilePublic=function(e,n){e.stopPropagation();var i;i=!0!==t("custom.profile.public")(n),a.post(o.j("user/updateCustom","site","app"),{profile:{public:i}}).then(function(){i?a.get(o.j("user/get","site","app")+"&rid="+d.round.rid).then(function(e){n.nickname=e.data.nickname}):n.nickname="隐身",t("custom.profile.public").assign(n,i)})},e.$watch("app",function(t){t&&(l=t,d.round=l.appRound,new r(l).list().then(function(t){e.rounds=t.rounds}),s().then(function(){e.shiftOrderby("score")}))})}])},8:function(e,t){var n;n=function(){return this}();try{n=n||Function("return this")()||(0,eval)("this")}catch(e){"object"==typeof window&&(n=window)}e.exports=n},9:function(module,exports,__webpack_require__){"use strict";var ngMod=angular.module("page.ui.xxt",[]);ngMod.directive("dynamicHtml",["$compile",function(e){return{restrict:"EA",replace:!0,link:function(t,n,i){t.$watch(i.dynamicHtml,function(i){i&&i.length&&(n.html(i),e(n.contents())(t))})}}}]),ngMod.service("tmsDynaPage",["$q",function($q){this.loadCss=function(e){var t,n;t=document.createElement("style"),t.innerHTML=e,n=document.querySelector("head"),n.appendChild(t)},this.loadExtCss=function(e){var t,n;t=document.createElement("link"),t.href=e,t.rel="stylesheet",n=document.querySelector("head"),n.appendChild(t)},this.loadJs=function(ngApp,js){!function(ngApp){eval(js)}(ngApp)},this.loadScript=function(e){var t,n,i=$q.defer();return n=function(){var a;a=document.createElement("script"),a.src=e[t],a.onload=function(){t++,t<e.length?n():i.resolve()},document.body.appendChild(a)},e&&(angular.isString(e)&&(e=[e]),e.length&&(t=0,n())),i.promise},this.loadExtJs=function(e,t){var n,i=this,a=$q.defer(),o=t.ext_js.length;return n=function(n){var r;r=document.createElement("script"),r.src=n.url,r.onload=function(){0===--o&&(t.js&&t.js.length&&i.loadJs(e,t.js),a.resolve())},document.body.appendChild(r)},t.ext_js&&t.ext_js.length&&t.ext_js.forEach(n),a.promise},this.loadCode=function(e,t){var n=this,i=$q.defer();return t.ext_css&&t.ext_css.length&&t.ext_css.forEach(function(e){n.loadExtCss(e.url)}),t.css&&t.css.length&&this.loadCss(t.css),t.ext_js&&t.ext_js.length?n.loadExtJs(e,t).then(function(){i.resolve()}):(t.js&&t.js.length&&n.loadJs(e,t.js),i.resolve()),i.promise},this.openPlugin=function(e){var t,n,i,a,o,r;return r=$q.defer(),e||(console.log("参数为空"),r.reject()),document.documentElement.clientWidth>768?document.documentElement.scrollTop=0:document.body.scrollTop=0,o=document.getElementsByTagName("body")[0],a=document.getElementsByTagName("html")[0],a.style.cssText="height:100%;",o.style.cssText="height:100%;overflow-y:hidden",t=document.createDocumentFragment(),n=document.createElement("div"),n.setAttribute("id","frmPlugin"),i=document.createElement("iframe"),n.appendChild(i),n.onclick=function(){n.parentNode.removeChild(n),o.style.cssText="overflow-y:auto"},t.appendChild(n),document.body.appendChild(t),0===e.indexOf("http")?(window.onClosePlugin=function(e){n.parentNode.removeChild(n),o.style.cssText="overflow-y:auto",r.resolve(e)},i.setAttribute("src",e)):i.contentDocument&&i.contentDocument.body&&(i.contentDocument.body.innerHTML=e),r.promise}}])},95:function(e,t,n){t=e.exports=n(0)(void 0),t.push([e.i,".site-navbar-light.navbar{height:50px;padding-top:8px;padding-bottom:8px}.site-navbar-light{background-color:#fff;border-color:#fff}.site-navbar-light .site-nav{display:flex;line-height:1}.site-navbar-light .site-nav>li{flex-grow:1}.site-navbar-light .site-nav>li>a{text-align:center;letter-spacing:2px;color:#333;padding:0}.site-navbar-light .site-nav>li>a:focus,.site-navbar-light .site-nav>li>a:hover{background-color:#fff}.site-navbar-light .site-nav>li>a>i{display:block;height:18px;margin-bottom:4px;font-size:18px;top:0;left:-1px}.site-navbar-light .site-nav>li>a>span{display:block;font-size:12px}.site-navbar-light .site-nav>li.active>a{color:#ff8018}.site-navbar-orange.nav{height:44px;padding-top:12px}.site-navbar-orange{background-color:#ff8018;border-color:#ff8018}.site-navbar-orange .col-md-12.col-xs-12{width:100%;overflow:hidden;overflow-x:auto}.site-navbar-orange .col-md-12.col-xs-12::-webkit-scrollbar{display:none}.site-navbar-orange .col-md-12.col-xs-12 .site-nav{margin-right:-15px;white-space:nowrap;font-size:14px;line-height:1}.site-navbar-orange .col-md-12.col-xs-12 .site-nav>li{display:inline-block;margin-right:10%}.site-navbar-orange .col-md-12.col-xs-12 .site-nav>li>a{height:14px;color:#ffdcb7;letter-spacing:2px;padding:0}.site-navbar-orange .col-md-12.col-xs-12 .site-nav>li>a:focus,.site-navbar-orange .col-md-12.col-xs-12 .site-nav>li>a:hover{background-color:#ff8018}.site-navbar-orange .col-md-12.col-xs-12 .site-nav>li>span{display:none;width:60%;height:2px;background-color:#fff;margin:auto;margin-top:4px}.site-navbar-orange .col-md-12.col-xs-12 .site-nav>li.active>a{color:#fff;font-weight:600}.site-navbar-orange .col-md-12.col-xs-12 .site-nav>li.active>span{display:block}.app{padding:54px 0 60px}#tasks .tasks .state-IP{background-color:#ffdf25}#event .notice{position:relative}#event .notice .seq{position:absolute;top:-.8em;left:-.5em}#event .notice .seq.label{padding-bottom:.2em;font-weight:400;border-radius:.5em}#event .notice .event>*+*{margin-top:.5em}#event .notice .event .event-action,#event .notice .event .event-user{font-size:.9em}#event .notice .event .event-action a{display:inline-block;color:#777}#event .notice .event .event-action>*+*{margin-left:1em}#event .action{position:relative}#event .action .seq{position:absolute;top:-.8em;left:-.5em}#event .action .seq.label{padding-bottom:.2em;font-weight:400;border-radius:.5em}#event .action .event>*+*{margin-top:.5em}#event .action .footer{display:flex;margin-top:.5em;font-size:.9em}#event .action .footer .datetime{flex:1}#kanbanView #kanban{overflow-x:auto}#kanbanView #kanban .wrap{min-width:640px}#kanbanView #kanban .user{display:flex}#kanbanView #kanban .user>div:first-child{width:6em}#kanbanView #kanban .who>div{margin-bottom:.5em}#kanbanView #kanban .data{flex-grow:1;display:flex;flex-direction:column}#kanbanView #kanban .data>div{display:flex;order:5}#kanbanView #kanban .data>div>div:first-child{width:6em}#kanbanView #kanban .data>div>div:last-child{flex:1;display:flex}#kanbanView #kanban .data>div>div:last-child>div{flex:1}#kanbanView #kanban .data>div{margin-bottom:.5em}#kanbanView #kanban .data .pos{display:inline-block;padding:0 .25em;border-radius:.5em;border:1px solid #ddd}#kanbanView #kanban .data .ordered{color:red;order:1}#kanbanView #kanban .data .ordered>div:nth-child(2)>div:first-child>span{border-color:red}#kanbanView .table-responsive{overflow-x:auto;min-height:.01%;width:100%;margin-bottom:15px;overflow-y:hidden;-ms-overflow-style:-ms-autohiding-scrollbar;border:1px solid #ddd;background-color:#fff}#kanbanView .table-responsive>.table{margin-bottom:0}#kanbanView .table-responsive>.table>tbody>tr>td,#kanbanView .table-responsive>.table>tbody>tr>th,#kanbanView .table-responsive>.table>tfoot>tr>td,#kanbanView .table-responsive>.table>tfoot>tr>th,#kanbanView .table-responsive>.table>thead>tr>td,#kanbanView .table-responsive>.table>thead>tr>th{white-space:nowrap}#kanbanView .table-responsive>.table-bordered{border:0}#kanbanView .table-responsive>.table-bordered>tbody>tr>td:first-child,#kanbanView .table-responsive>.table-bordered>tbody>tr>th:first-child,#kanbanView .table-responsive>.table-bordered>tfoot>tr>td:first-child,#kanbanView .table-responsive>.table-bordered>tfoot>tr>th:first-child,#kanbanView .table-responsive>.table-bordered>thead>tr>td:first-child,#kanbanView .table-responsive>.table-bordered>thead>tr>th:first-child{border-left:0}#kanbanView .table-responsive>.table-bordered>tbody>tr>td:last-child,#kanbanView .table-responsive>.table-bordered>tbody>tr>th:last-child,#kanbanView .table-responsive>.table-bordered>tfoot>tr>td:last-child,#kanbanView .table-responsive>.table-bordered>tfoot>tr>th:last-child,#kanbanView .table-responsive>.table-bordered>thead>tr>td:last-child,#kanbanView .table-responsive>.table-bordered>thead>tr>th:last-child{border-right:0}#kanbanView .table-responsive>.table-bordered>tbody>tr:last-child>td,#kanbanView .table-responsive>.table-bordered>tbody>tr:last-child>th,#kanbanView .table-responsive>.table-bordered>tfoot>tr:last-child>td,#kanbanView .table-responsive>.table-bordered>tfoot>tr:last-child>th{border-bottom:0}#kanbanView td.undone,#kanbanView tr.undone td:nth-child(2){color:red}#kanbanView #user-detail>div{display:flex}#kanbanView #user-detail>div>div{padding:.25em 0}#kanbanView #user-detail>div>div:first-child{width:12em}#kanbanView #user-detail>div>div:nth-child(2){flex:1}",""])}});
+ngMod.directive('tmsHideParentHeight', function() {
+    return {
+        restrict: 'A',
+        link: function(scope, elems, attrs) {
+            var heightLimit, elem;
+            if (attrs.tmsHideParentHeight) {
+                heightLimit = attrs.tmsHideParentHeight;
+                for (var i = 0, ii = elems.length; i < ii; i++) {
+                    elem = elems[i];
+                    if (elem.parentElement) {
+                        window.addEventListener('resize', function() {
+                            elem.classList.toggle('hidden', elem.parentElement.clientHeight < heightLimit);
+                        });
+                    }
+                }
+            }
+        }
+    }
+});
+/**
+ * 监听元素的滚动事件并做出相应
+ */
+ngMod.directive('tmsScrollSpy', function() {
+    return {
+        restrict: 'A',
+        scope: {
+            selector: '@selector',
+            offset: '@',
+            onbottom: '&',
+            toggleSpy: '='
+        },
+        link: function(scope, elems, attrs) {
+            var eleListen = scope.selector === 'window' ? window : document.querySelector(scope.selector);
+            eleListen.addEventListener('scroll', function(event) {
+                var eleScrolling = eleListen === window ? event.target.documentElement : event.target;
+                if (scope.toggleSpy) {
+                        if (scope.onbottom && angular.isFunction(scope.onbottom)) {
+                            if (eleScrolling.clientHeight + eleScrolling.scrollTop + parseInt(scope.offset) >= eleScrolling.scrollHeight) {
+                                scope.$apply(function() {
+                                    scope.toggleSpy = false;
+                                    scope.onbottom();
+                                });
+                            }
+                        }
+                    }
+            });
+        }
+    }
+});
+
+/***/ }),
+
+/***/ 109:
+/***/ (function(module, exports) {
+
+module.exports = "<div class=\"app\" id=\"event\">\r\n    <div ng-if=\"tasks.length\">\r\n        <div uib-alert ng-repeat=\"task in tasks\" class='alert-info' close=\"closeTask($index)\" ng-switch=\"task.id\">\r\n            <span>{{task.msg}}</span>\r\n            <span ng-switch-when=\"record.submit.end\"><span ng-if=\"task.coin\">每条记录可获得【{{task.coin}}个】积分，</span><a href class=\"alert-link\" ng-click=\"addRecord($event)\">去添加</a></span>\r\n            <span ng-switch-when=\"record.like.pre\"></span>\r\n            <span ng-switch-when=\"record.like.end\"></span>\r\n        </div>\r\n    </div>\r\n    <div class='form-group'>\r\n        <label class='radio-inline'>\r\n            <input type='radio' name='scope' value='N' ng-model=\"filter.scope\">通知</label>\r\n        <label class='radio-inline'>\r\n            <input type='radio' name='scope' value='M' ng-model=\"filter.scope\">我的</label>\r\n        <label class='radio-inline'>\r\n            <input type='radio' name='scope' value='A' ng-model=\"filter.scope\">全部</label>\r\n    </div>\r\n    <div ng-include=\"subView\"></div>\r\n</div>\r\n<script type=\"text/ng-template\" id=\"timeline.html\">\r\n    <!--notice list-->\r\n    <div ng-if=\"filter.scope==='N'\">\r\n        <div class='list-group'>\r\n            <div class='notice list-group-item' ng-repeat=\"notice in notices\">\r\n                <div class='seq label label-default'>{{((page.at-1)*page.size)+$index+1}}</div>\r\n                <div class='event'>\r\n                    <div class='tms-flex-row text-muted event-user'>\r\n                        <div class='tms-flex-grow'>{{notice.event_nickname}}</div>\r\n                        <div>{{notice.event_at*1000|date:'MM-dd HH:mm'}}</div>\r\n                    </div>\r\n                    <div ng-switch on=\"notice.event_name\" ng-click=\"gotoCowork(notice.enroll_key)\">\r\n                        <div ng-switch-when=\"site.matter.enroll.submit\">\r\n                            <div ng-switch on=\"notice.notice_reason\">\r\n                                <div ng-switch-when=\"same.group\">在你们的分组下添加记录</div>\r\n                                <div ng-switch-when=\"as.editor\">添加记录</div>\r\n                                <div ng-switch-when=\"as.super\">添加记录</div>\r\n                                <div ng-switch-default> 添加记录\r\n                                    <span>（{{notice.notice_reason}}）</span>\r\n                                </div>\r\n                            </div>\r\n                        </div>\r\n                        <div ng-switch-when=\"site.matter.enroll.cowork.do.submit\">\r\n                            <div ng-switch on=\"notice.notice_reason\">\r\n                                <div ng-switch-when=\"record.owner\">在你的记录（问题）下添加了协作数据（答案）</div>\r\n                                <div ng-switch-when=\"other.cowork\">你们在同一记录（问题）下添加了协作数据（答案）</div>\r\n                                <div ng-switch-when=\"same.group\">在你们组的记录下（问题）添加了协作数据（答案）</div>\r\n                                <div ng-switch-default> 添加协作数据\r\n                                    <span>（{{notice.notice_reason}}）</span>\r\n                                </div>\r\n                            </div>\r\n                        </div>\r\n                        <div ng-switch-when=\"site.matter.enroll.do.remark\">\r\n                            <div ng-switch on=\"notice.notice_reason\">\r\n                                <div ng-switch-when=\"record.owner\">在你的记录（问题）下留言</div>\r\n                                <div ng-switch-when=\"record.data.owner\">在你的协作数据（答案）下留言</div>\r\n                                <div ng-switch-when=\"remark.owner\">在你的留言下留言</div>\r\n                                <div ng-switch-default>留言\r\n                                    <span>（{{notice.notice_reason}}）</span>\r\n                                </div>\r\n                            </div>\r\n                        </div>\r\n                        <div ng-switch-default>\r\n                            {{notice.event_name}}\r\n                        </div>\r\n                    </div>\r\n                    <div class='text-right event-action'>\r\n                        <a href ng-click=\"closeNotice(notice)\">关闭</a>\r\n                        <a href ng-click=\"closeNotice(notice,true)\">看看并关闭</a>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div>\r\n        <div class='site-pagination text-center'>\r\n            <ul uib-pagination ng-if=\"page.total>page.size\" boundary-links=\"true\" total-items=\"page.total\" max-size=\"5\" items-per-page=\"page.size\" rotate=\"false\" ng-model=\"page.at\" previous-text=\"&lsaquo;\" next-text=\"&rsaquo;\" first-text=\"&laquo;\" last-text=\"&raquo;\" ng-change=\"searchNotice()\"></ul>\r\n        </div>\r\n    </div>\r\n    <!--end notice list-->\r\n    <!--log list-->\r\n    <div ng-if=\"filter.scope==='A'||filter.scope==='M'\">\r\n        <div class='list-group'>\r\n            <div class='action list-group-item' ng-repeat=\"log in logs\">\r\n                <div class='seq label label-default'>{{((page.at-1)*page.size)+$index+1}}</div>\r\n                <div class='event' ng-switch on=\"log.event_name\">\r\n                    <div ng-switch-when=\"site.matter.enroll.submit\">\r\n                        <span class='nickname'>{{log.nickname}}</span> 添加记录\r\n                    </div>\r\n                    <div ng-switch-when=\"site.matter.enroll.cowork.do.submit\">\r\n                        <span class='nickname'>{{log.nickname}}</span> 在\r\n                        <span class='nickname' ng-if=\"log.owner_nickname\">{{log.owner_nickname}}</span> 的记录下添加数据\r\n                    </div>\r\n                    <div ng-switch-when=\"site.matter.enroll.do.remark\">\r\n                        <div ng-switch on=\"log.target_type\">\r\n                            <div ng-switch-when=\"record\">\r\n                                <div ng-switch on=\"log.event_op\">\r\n                                    <span class='nickname'>{{log.nickname}}</span> 在\r\n                                    <span class='nickname' ng-if=\"log.owner_nickname\">{{log.owner_nickname}}</span> 的记录下<span ng-switch-when=\"New\">添加</span><span ng-switch-when=\"Upd\">修改</span>留言\r\n                                </div>\r\n                            </div>\r\n                            <div ng-switch-when=\"record.data\">\r\n                                <div ng-switch on=\"log.event_op\">\r\n                                    <span class='nickname'>{{log.nickname}}</span> 在\r\n                                    <span class='nickname' ng-if=\"log.owner_nickname\">{{log.owner_nickname}}</span> 的数据下<span ng-switch-when=\"New\">添加</span><span ng-switch-when=\"Upd\">修改</span>留言\r\n                                </div>\r\n                            </div>\r\n                            <div ng-switch-when=\"remark\">\r\n                                <div ng-switch on=\"log.event_op\">\r\n                                    <span class='nickname'>{{log.nickname}}</span> 在\r\n                                    <span class='nickname' ng-if=\"log.owner_nickname\">{{log.owner_nickname}}</span> 的留言下<span ng-switch-when=\"New\">添加</span><span ng-switch-when=\"Upd\">修改</span>留言\r\n                                </div>\r\n                            </div>\r\n                        </div>\r\n                    </div>\r\n                    <div ng-switch-when=\"site.matter.enroll.data.do.like\">\r\n                        <div ng-switch on=\"log.event_op\">\r\n                            <div ng-switch-when=\"Y\">\r\n                                <span class='nickname'>{{log.nickname}}</span> 对\r\n                                <span class='nickname' ng-if=\"log.owner_nickname\">{{log.owner_nickname}}</span> 的记录点赞\r\n                            </div>\r\n                            <div ng-switch-when=\"N\">\r\n                                <span class='nickname'>{{log.nickname}}</span> 对\r\n                                <span class='nickname' ng-if=\"log.owner_nickname\">{{log.owner_nickname}}</span> 的记录取消点赞\r\n                            </div>\r\n                        </div>\r\n                    </div>\r\n                    <div ng-switch-when=\"site.matter.enroll.data.do.dislike\">\r\n                        <div ng-switch on=\"log.event_op\">\r\n                            <div ng-switch-when=\"Y\">\r\n                                <span class='nickname'>{{log.nickname}}</span> 对\r\n                                <span class='nickname' ng-if=\"log.owner_nickname\">{{log.owner_nickname}}</span> 的记录点踩\r\n                            </div>\r\n                            <div ng-switch-when=\"N\">\r\n                                <span class='nickname'>{{log.nickname}}</span> 对\r\n                                <span class='nickname' ng-if=\"log.owner_nickname\">{{log.owner_nickname}}</span> 的记录取消点踩\r\n                            </div>\r\n                        </div>\r\n                    </div>\r\n                    <div ng-switch-when=\"site.matter.enroll.cowork.do.like\">\r\n                        <div ng-switch on=\"log.event_op\">\r\n                            <div ng-switch-when=\"Y\">\r\n                                <span class='nickname'>{{log.nickname}}</span> 对\r\n                                <span class='nickname' ng-if=\"log.owner_nickname\">{{log.owner_nickname}}</span> 的数据点赞\r\n                            </div>\r\n                            <div ng-switch-when=\"N\">\r\n                                <span class='nickname'>{{log.nickname}}</span> 对\r\n                                <span class='nickname' ng-if=\"log.owner_nickname\">{{log.owner_nickname}}</span> 的数据取消点赞\r\n                            </div>\r\n                        </div>\r\n                    </div>\r\n                    <div ng-switch-when=\"site.matter.enroll.cowork.do.dislike\">\r\n                        <div ng-switch on=\"log.event_op\">\r\n                            <div ng-switch-when=\"Y\">\r\n                                <span class='nickname'>{{log.nickname}}</span> 对\r\n                                <span class='nickname' ng-if=\"log.owner_nickname\">{{log.owner_nickname}}</span> 的数据点踩\r\n                            </div>\r\n                            <div ng-switch-when=\"N\">\r\n                                <span class='nickname'>{{log.nickname}}</span> 对\r\n                                <span class='nickname' ng-if=\"log.owner_nickname\">{{log.owner_nickname}}</span> 的数据取消点踩\r\n                            </div>\r\n                        </div>\r\n                    </div>\r\n                    <div ng-switch-when=\"site.matter.enroll.remark.do.like\">\r\n                        <div ng-switch on=\"log.event_op\">\r\n                            <div ng-switch-when=\"Y\">\r\n                                <span class='nickname'>{{log.nickname}}</span> 对\r\n                                <span class='nickname' ng-if=\"log.owner_nickname\">{{log.owner_nickname}}</span> 的留言点赞\r\n                            </div>\r\n                            <div ng-switch-when=\"N\">\r\n                                <span class='nickname'>{{log.nickname}}</span> 对\r\n                                <span class='nickname' ng-if=\"log.owner_nickname\">{{log.owner_nickname}}</span> 的留言取消点赞\r\n                            </div>\r\n                        </div>\r\n                    </div>\r\n                    <div ng-switch-when=\"site.matter.enroll.remark.do.dislike\">\r\n                        <div ng-switch on=\"log.event_op\">\r\n                            <div ng-switch-when=\"Y\">\r\n                                <span class='nickname'>{{log.nickname}}</span> 对\r\n                                <span class='nickname' ng-if=\"log.owner_nickname\">{{log.owner_nickname}}</span> 的留言点踩\r\n                            </div>\r\n                            <div ng-switch-when=\"N\">\r\n                                <span class='nickname'>{{log.nickname}}</span> 对\r\n                                <span class='nickname' ng-if=\"log.owner_nickname\">{{log.owner_nickname}}</span> 的留言取消点踩\r\n                            </div>\r\n                        </div>\r\n                    </div>\r\n                    <div ng-switch-when=\"site.matter.enroll.data.get.agree\">\r\n                        <div ng-switch on=\"log.event_op\">\r\n                            <div ng-switch-when=\"Y\">\r\n                                <span class='nickname'>{{log.owner_nickname}}</span> 的记录获得推荐\r\n                            </div>\r\n                            <div ng-switch-default>\r\n                                <span class='nickname'>{{log.owner_nickname}}</span> 的记录被修改了表态\r\n                            </div>\r\n                        </div>\r\n                    </div>\r\n                    <div ng-switch-when=\"site.matter.enroll.cowork.get.agree\">\r\n                        <div ng-switch on=\"log.event_op\">\r\n                            <div ng-switch-when=\"Y\">\r\n                                <span class='nickname'>{{log.owner_nickname}}</span> 的数据获得推荐\r\n                            </div>\r\n                            <div ng-switch-default>\r\n                                <span class='nickname'>{{log.owner_nickname}}</span> 的数据被修改了表态\r\n                            </div>\r\n                        </div>\r\n                    </div>\r\n                    <div ng-switch-when=\"site.matter.enroll.remark.get.agree\">\r\n                        <div ng-switch on=\"log.event_op\">\r\n                            <div ng-switch-when=\"Y\">\r\n                                <span class='nickname'>{{log.owner_nickname}}</span> 的留言获得推荐\r\n                            </div>\r\n                            <div ng-switch-default>\r\n                                <span class='nickname'>{{log.owner_nickname}}</span> 的留言被修改了表态\r\n                            </div>\r\n                        </div>\r\n                    </div>\r\n                    <div ng-switch-when=\"site.matter.enroll.remark.as.cowork\">\r\n                        <span class='nickname'>{{log.nickname}}</span>将<span class='nickname'>{{log.owner_nickname}}</span> 的留言设置为协作数据（答案）\r\n                    </div>\r\n                    <div ng-switch-default>\r\n                        <div class='nickname'>{{log.nickname}}</div>\r\n                        <div class='eventname'>{{log.eventName}}</div>\r\n                        <div class='nickname' ng-if=\"log.owner_nickname\">{{log.owner_nickname}}</div>\r\n                        <div ng-if=\"log.event_op\">{{log.event_op}}</div>\r\n                    </div>\r\n                    <div class='coin' ng-if=\"log.earn_coin>0\">\r\n                        <span>{{log.nickname}}</span> 得到 <span>{{log.earn_coin}}</span> 个积分\r\n                    </div>\r\n                    <div class='coin' ng-if=\"log.owner_earn_coin>0\">\r\n                        <span>{{log.owner_nickname}}</span> 得到 <span>{{log.owner_earn_coin}}</span> 个积分\r\n                    </div>\r\n                </div>\r\n                <div class='footer'>\r\n                    <div class='datetime text-muted'>{{log.event_at*1000|date:'MM-dd HH:mm'}}</div>\r\n                    <div ng-if=\"log.canGotoCowork\">\r\n                        <a href ng-click=\"gotoCowork(log.enroll_key)\">查看<span class='glyphicon glyphicon-menu-right'></span></a>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div>\r\n        <div class='site-pagination text-center'>\r\n            <ul uib-pagination ng-if=\"page.total>page.size\" boundary-links=\"true\" total-items=\"page.total\" max-size=\"5\" items-per-page=\"page.size\" rotate=\"false\" ng-model=\"page.at\" previous-text=\"&lsaquo;\" next-text=\"&rsaquo;\" first-text=\"&laquo;\" last-text=\"&raquo;\" ng-change=\"searchEvent()\"></ul>\r\n        </div>\r\n    </div>\r\n    <!--end log list-->\r\n</script>"
+
+/***/ }),
+
+/***/ 11:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/**
+ * 页面事件追踪
+ */
+var ngMod = angular.module('trace.ui.xxt', ['http.ui.xxt']);
+ngMod.directive('tmsTrace', ['$q', '$timeout', 'http2', function($q, $timeout, http2) {
+    var EventInterval = 1000; // 有效的事件间隔
+    var IdleInterval = 5000; // 有效的事件间隔
+    var StoreKey = '/xxt/site/matter/enroll/trace';
+    var TraceEvent = function(start, type, elapse, biz, text) {
+        this.type = type;
+        this.elapse = elapse || ((new Date * 1) - start);
+        this.biz = biz;
+        if (text) this.text = text;
+    };
+    var TraceStack = function() {
+        function storeTrace(oTrace) {
+            var oStorage, oCached;
+            if (oTrace.sendUrl && (oStorage = window.localStorage)) {
+                oCached = oStorage.getItem(StoreKey);
+                oCached = oCached ? JSON.parse(oCached) : {};
+                oCached[oTrace.sendUrl] = oTrace;
+                oStorage.setItem(StoreKey, JSON.stringify(oCached));
+            }
+        }
+        this.start = 0;
+        this.events = [];
+        this.setSendUrl = function(url) {
+            this.sendUrl = url;
+            storeTrace(this);
+        };
+        this.pushEvent = function(type, traceBiz, traceText) {
+            var oNewEvent, oLastEvent;
+            if (this.events.length === 0) {
+                this.start = new Date * 1;
+                oNewEvent = new TraceEvent(this.start, type, 0, traceBiz, traceText);
+                this.events.push(oNewEvent)
+                storeTrace(this);
+            } else {
+                oNewEvent = new TraceEvent(this.start, type, null, traceBiz, traceText);
+                oLastEvent = this.events[this.events.length - 1];
+                if (oLastEvent.type !== oNewEvent.type || (oNewEvent.elapse - oLastEvent.elapse > EventInterval)) {
+                    this.events.push(oNewEvent)
+                    storeTrace(this);
+                }
+            }
+        };
+        this.stop = function() {
+            this.closing = 'Y';
+            storeTrace(this);
+            this.start = 0;
+            this.events = [];
+        };
+    };
+    var IdleWatcher = function(oTraceStack) {
+        var _timer;
+        this.begin = function() {
+            this.cancel(_timer);
+            _timer = $timeout(function() {
+                /* 指定的时间段内没有发生用户的交互，自动停止事件追踪，并且提交数据 */
+                var oStorage, oCached, oCachedTrack;
+                oTraceStack.stop();
+                if (oTraceStack.sendUrl) {
+                    if (oStorage = window.localStorage) {
+                        oCached = oStorage.getItem(StoreKey);
+                        oCached = JSON.parse(oCached);
+                        oCachedTrack = oCached[oTraceStack.sendUrl];
+                        delete oCached[oTraceStack.sendUrl];
+                        oCached = oStorage.setItem(StoreKey, JSON.stringify(oCached));
+                        http2.post(oTraceStack.sendUrl, { start: oCachedTrack.start, events: oCachedTrack.events }, { showProgress: false });
+                    }
+                }
+            }, IdleInterval);
+        };
+        this.cancel = function() {
+            if (_timer) {
+                $timeout.cancel(_timer);
+                _timer = null;
+            }
+        }
+    };
+    /**
+     * 如果有已经结束但是没有提交进行提交
+     */
+    var oStorage, oCached, oTrace;
+    if (oStorage = window.localStorage) {
+        oCached = oStorage.getItem(StoreKey);
+        oCached = oCached ? JSON.parse(oCached) : {};
+        if (oCached) {
+            for (var i in oCached) {
+                if (oCached && oCached[i]) {
+                    oTrace = oCached[i];
+                    if (oTrace.closing && oTrace.closing === 'Y') {
+                        delete oCached[i];
+                        oCached = oStorage.setItem(StoreKey, JSON.stringify(oCached));
+                        http2.post(oTrace.sendUrl, { start: oTrace.start, events: oTrace.events }).then(function() {});
+                    }
+                }
+            }
+        }
+    }
+
+    return {
+        restrict: 'A',
+        link: function(scope, elem, attrs) {
+            var oTraceStack = new TraceStack();
+            var oIdleWatcher = new IdleWatcher(oTraceStack);
+            if (!attrs.readySign && attrs.sendUrl) {
+                oTraceStack.sendUrl = attrs.sendUrl;
+            }
+            /* 打开页面 */
+            oTraceStack.pushEvent('load');
+            /* 用户点击页面 */
+            elem.on('click', function(event) {
+                var evtTarget, traceBiz, traceText;
+                evtTarget = event.target;
+                if (evtTarget.hasAttribute('trace-biz')) {
+                    traceBiz = evtTarget.getAttribute('trace-biz');
+                    if (!traceBiz && evtTarget.hasAttribute('ng-click')) {
+                        traceBiz = evtTarget.getAttribute('ng-click');
+                    }
+                    if (traceBiz) {
+                        traceBiz = traceBiz.replace(/'|"/g, '');
+                    }
+                    traceText = evtTarget.innerText;
+                }
+                oTraceStack.pushEvent('click', traceBiz, traceText);
+                oIdleWatcher.begin();
+            });
+            /* 用户点击页面 */
+            elem.on('touchend', function(event) {
+                oTraceStack.pushEvent('touchend');
+                oIdleWatcher.begin();
+            });
+            /* 用户滚动页面 */
+            window.addEventListener('scroll', function(event) {
+                oTraceStack.pushEvent('scroll');
+                oIdleWatcher.begin();
+            });
+            /* 离开页面 */
+            window.addEventListener('beforeunload', function(event) {
+                oTraceStack.pushEvent('beforeunload');
+                oTraceStack.stop();
+                oIdleWatcher.cancel();
+            });
+            if (attrs.readySign) {
+                scope.$watch(attrs.readySign, function(oSign) {
+                    if (oSign) {
+                        $timeout(function() {
+                            oTraceStack.setSendUrl(attrs.sendUrl);
+                        });
+                    }
+                });
+            }
+            oIdleWatcher.begin();
+        }
+    };
+}]);
+
+/***/ }),
+
+/***/ 110:
+/***/ (function(module, exports) {
+
+module.exports = "<div class=\"app\" id='kanbanView'>\r\n    <div class='form-group'>\r\n        <div class='form-inline'>\r\n            <div ng-if=\"rounds.length>1\" class=\"btn-group\" uib-dropdown dropdown-append-to-body='true'>\r\n                <button class=\"btn btn-default dropdown-toggle\" uib-dropdown-toggle>\r\n                    <span ng-bind=\"filter.round.title\"></span>\r\n                    <span class=\"glyphicon glyphicon-filter\"></span>\r\n                </button>\r\n                <ul class=\"dropdown-menu\" uib-dropdown-menu>\r\n                    <li><a href ng-click=\"shiftRound({rid:'ALL',title:'全部'})\">全部</a></li>\r\n                    <li ng-repeat=\"rnd in rounds\"><a href ng-click=\"shiftRound(rnd)\">{{rnd.title}}</a></li>\r\n                </ul>\r\n            </div>\r\n            <div class=\"btn-group\" uib-dropdown dropdown-append-to-body='true'>\r\n                <button class=\"btn btn-default dropdown-toggle\" uib-dropdown-toggle>\r\n                    <span ng-if=\"criteria.orderby==='score'\">得分</span>\r\n                    <span ng-if=\"criteria.orderby==='user_total_coin'\">积分</span>\r\n                    <span ng-if=\"criteria.orderby==='entry_num'\">访问次数</span>\r\n                    <span ng-if=\"criteria.orderby==='total_elapse'\">投入时间</span>\r\n                    <span ng-if=\"criteria.orderby==='devote'\">贡献次数</span>\r\n                    <span class=\"glyphicon glyphicon-sort\"></span>\r\n                </button>\r\n                <ul class=\"dropdown-menu\" uib-dropdown-menu>\r\n                    <li><a href ng-click=\"shiftOrderby('score')\">得分</a></li>\r\n                    <li ng-if=\"app.scenarioConfig.can_coin==='Y'\"><a href ng-click=\"shiftOrderby('user_total_coin')\">积分</a></li>\r\n                    <li><a href ng-click=\"shiftOrderby('entry_num')\">访问次数</a></li>\r\n                    <li><a href ng-click=\"shiftOrderby('total_elapse')\">投入时间</a></li>\r\n                    <li><a href ng-click=\"shiftOrderby('devote')\">贡献次数</a></li>\r\n                </ul>\r\n            </div>\r\n            <div ng-if=\"userGroups.length\" class=\"btn-group\" uib-dropdown dropdown-append-to-body='true'>\r\n                <button class=\"btn btn-default dropdown-toggle\" uib-dropdown-toggle>\r\n                    <span ng-if=\"filter.group\">{{filter.group.title}}</span>\r\n                    <span ng-if=\"!filter.group\">全部分组</span>\r\n                    <span class=\"glyphicon glyphicon-filter\"></span>\r\n                </button>\r\n                <ul class=\"dropdown-menu\" uib-dropdown-menu>\r\n                    <li><a href ng-click=\"shiftUserGroup()\">全部</a></li>\r\n                    <li ng-repeat=\"ug in userGroups\"><a href ng-click=\"shiftUserGroup(ug)\">{{ug.title}}</a></li>\r\n                </ul>\r\n            </div>\r\n            <button ng-show=\"subView==='users'\" class='btn btn-default' ng-click=\"subView='undone'\">查看未完成<span ng-bind=\"kanban.undone.length\"></span>人</button>\r\n            <button ng-show=\"subView==='undone'\" class='btn btn-default' ng-click=\"subView='users'\">查看整体情况</button>\r\n        </div>\r\n    </div>\r\n    <div id='kanban' ng-if=\"subView==='users'\">\r\n        <!-- users -->\r\n        <div class='wrap'>\r\n            <div class='user list-group-item'>\r\n                <div>\r\n                </div>\r\n                <div class='data'>\r\n                    <div>\r\n                        <div></div>\r\n                        <div>\r\n                            <div>排名</div>\r\n                            <div>数值</div>\r\n                            <div>与最大值的比</div>\r\n                            <div>与平均值的比</div>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n            <div class='user list-group-item' ng-repeat='u in kanban.users'>\r\n                <div class='who' ng-click=\"viewDetail(u)\">\r\n                    <div><span>{{u.nickname}}</span><span ng-if=\"user.uid===u.userid\">（我）</span></div>\r\n                    <div ng-if='app.entryRule.group.id'>\r\n                        <div class='text-muted small'>{{u.group.title}}</div>\r\n                    </div>\r\n                    <div ng-if=\"user.uid===u.userid\">\r\n                        <button class='btn btn-default btn-sm' ng-click=\"toggleProfilePublic($event,u)\">设置为<span ng-if=\"!u.custom.profile.public\">公开</span><span ng-if=\"u.custom.profile.public\">隐身</span></button>\r\n                    </div>\r\n                </div>\r\n                <div class='data'>\r\n                    <div ng-class=\"{'ordered':criteria.orderby==='score'}\">\r\n                        <div>得分</div>\r\n                        <div>\r\n                            <div><span class='pos'>{{u.score.pos}}</span></div>\r\n                            <div><span>{{u.score.val}}</span></div>\r\n                            <div><span ng-if=\"kanban.stat.score.max\">{{u.score.val/kanban.stat.score.max|number:2}}</span></div>\r\n                            <div><span ng-if=\"kanban.stat.score.mean\">{{u.score.val/kanban.stat.score.mean|number:2}}</span></div>\r\n                        </div>\r\n                    </div>\r\n                    <div ng-if=\"app.scenarioConfig.can_coin==='Y'\" ng-class=\"{'ordered':criteria.orderby==='user_total_coin'}\">\r\n                        <div>积分</div>\r\n                        <div>\r\n                            <div><span class='pos'>{{u.user_total_coin.pos}}</span></div>\r\n                            <div><span>{{u.user_total_coin.val}}</span></div>\r\n                            <div><span ng-if=\"kanban.stat.user_total_coin.max\">{{u.user_total_coin.val/kanban.stat.user_total_coin.max|number:2}}</span></div>\r\n                            <div><span ng-if=\"kanban.stat.user_total_coin.mean\">{{u.user_total_coin.val/kanban.stat.user_total_coin.mean|number:2}}</span></div>\r\n                        </div>\r\n                    </div>\r\n                    <div ng-class=\"{'ordered':criteria.orderby==='entry_num'}\">\r\n                        <div>访问次数</div>\r\n                        <div>\r\n                            <div><span class='pos'>{{u.entry_num.pos}}</span></div>\r\n                            <div><span>{{u.entry_num.val}}</span></div>\r\n                            <div><span ng-if=\"kanban.stat.entry_num.max\">{{u.entry_num.val/kanban.stat.entry_num.max|number:2}}</span></div>\r\n                            <div><span ng-if=\"kanban.stat.entry_num.mean\">{{u.entry_num.val/kanban.stat.entry_num.mean|number:2}}</span></div>\r\n                        </div>\r\n                    </div>\r\n                    <div ng-class=\"{'ordered':criteria.orderby==='total_elapse'}\">\r\n                        <div>投入时间</div>\r\n                        <div>\r\n                            <div><span class='pos'>{{u.total_elapse.pos}}</span></div>\r\n                            <div><span>{{u.total_elapse.val|filterTime}}</span></div>\r\n                            <div><span ng-if=\"kanban.stat.total_elapse.max\">{{u.total_elapse.val/kanban.stat.total_elapse.max|number:2}}</span></div>\r\n                            <div><span ng-if=\"kanban.stat.total_elapse.mean\">{{u.total_elapse.val/kanban.stat.total_elapse.mean|number:2}}</span></div>\r\n                        </div>\r\n                    </div>\r\n                    <div ng-class=\"{'ordered':criteria.orderby==='devote'}\">\r\n                        <div>贡献次数</div>\r\n                        <div>\r\n                            <div><span class='pos'>{{u.devote.pos}}</span></div>\r\n                            <div><span>{{u.devote.val}}</span></div>\r\n                            <div><span ng-if=\"kanban.stat.devote.max\">{{u.devote.val/kanban.stat.devote.max|number:2}}</span></div>\r\n                            <div><span ng-if=\"kanban.stat.devote.mean\">{{u.devote.val/kanban.stat.devote.mean|number:2}}</span></div>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div>\r\n        <!-- end users -->\r\n    </div>\r\n    <div class='table-responsive' ng-if=\"subView==='undone'\">\r\n        <table class='table table-bordered'>\r\n            <thead>\r\n                <tr>\r\n                    <th style='width:48px'>序号</th>\r\n                    <th>姓名</th>\r\n                    <th ng-if=\"app.entryRule.group.id\">分组</th>\r\n                </tr>\r\n            </thead>\r\n            <tbody>\r\n                <tr ng-repeat='u in kanban.undone'>\r\n                    <td>{{$index+1}}</td>\r\n                    <td>{{u.nickname}}</td>\r\n                    <td ng-if='app.entryRule.group.id'>\r\n                        <div ng-if='u.group'>{{u.group.title}}</div>\r\n                    </td>\r\n                </tr>\r\n            </tbody>\r\n        </table>\r\n    </div>\r\n</div>\r\n<script type=\"text/ng-template\" id=\"userDetail.html\">\r\n    <div class=\"modal-header\">\r\n        <button class=\"close\" ng-click=\"cancel()\">×</button>\r\n        <h5 class=\"modal-title\">详细</h5>\r\n    </div>\r\n    <div id='user-detail' class=\"modal-body\">\r\n        <div>\r\n            <div>姓名</div>\r\n            <div>{{user.nickname}}</div>\r\n        </div>\r\n        <div ng-if='app.entryRule.group.id'>\r\n            <div>分组</div>\r\n            <div>{{user.group.title}}</div>\r\n        </div>\r\n        <hr>\r\n        <div>\r\n            <div>得分</div>\r\n            <div><span>{{user.score.val}}</span></div>\r\n        </div>\r\n        <div ng-if=\"app.scenarioConfig.can_coin==='Y'\">\r\n            <div>积分</div>\r\n            <div><span>{{user.user_total_coin.val}}</span></div>\r\n        </div>\r\n        <div>\r\n            <div>访问次数</div>\r\n            <div><span>{{user.entry_num.val}}</span></div>\r\n        </div>\r\n        <div>\r\n            <div>投入时间</div>\r\n            <div><span>{{user.total_elapse.val|filterTime}}</span></div>\r\n        </div>\r\n        <div>\r\n            <div>贡献次数</div>\r\n            <div><span>{{user.devote.val}}</span></div>\r\n        </div>\r\n        <hr>\r\n        <div ng-class=\"{'undone':user.undone.enroll_num[0]===true}\">\r\n            <div>填写记录</div>\r\n            <div><span>{{user.enroll_num}}</span></div>\r\n        </div>\r\n        <div ng-class=\"{'undone':user.undone.revise_num[0]===true}\">\r\n            <div>跨轮次修改</div>\r\n            <div ng-if='user.revise_num'>{{user.revise_num}}</div>\r\n        </div>\r\n        <div>\r\n            <div>最后填写时间</div>\r\n            <div><span ng-if='user.last_enroll_at>0'>{{user.last_enroll_at*1000|date:'MM-dd HH:mm'}}</span></div>\r\n        </div>\r\n        <div>\r\n            <div>协作填写</div>\r\n            <div><span>{{user.do_cowork_num}}</span></div>\r\n        </div>\r\n        <div ng-class=\"{'undone':user.undone.do_remark_num[0]===true}\">\r\n            <div>发表留言</div>\r\n            <div><span>{{user.do_remark_num}}</span></div>\r\n        </div>\r\n        <div>\r\n            <div>发表点赞</div>\r\n            <div><span>{{user.do_like_num}}</span></div>\r\n        </div>\r\n        <div>\r\n            <div>获得推荐</div>\r\n            <div><span>{{user.agree_num}}</span></div>\r\n        </div>\r\n        <div>\r\n            <div>获得协作</div>\r\n            <div><span>{{user.cowork_num}}</span></div>\r\n        </div>\r\n        <div>\r\n            <div>获得留言</div>\r\n            <div><span>{{user.remark_num}}</span></div>\r\n        </div>\r\n        <div>\r\n            <div>获得赞同</div>\r\n            <div><span>{{user.like_num}}</span></div>\r\n        </div>\r\n        <div>\r\n            <div>浏览共享页次数</div>\r\n            <div><span>{{user.do_repos_read_num}}</span></div>\r\n        </div>\r\n        <div>\r\n            <div>浏览专题页次数</div>\r\n            <div><span>{{user.do_topic_read_num}}</span></div>\r\n        </div>\r\n        <div>\r\n            <div>专题页被浏览次数</div>\r\n            <div><span>{{user.topic_read_num}}</span></div>\r\n        </div>\r\n        <div>\r\n            <div>浏览讨论页次数</div>\r\n            <div><span>{{user.do_cowork_read_num}}</span></div>\r\n        </div>\r\n        <div>\r\n            <div>讨论页被浏览次数</div>\r\n            <div><span>{{user.cowork_read_num}}</span></div>\r\n        </div>\r\n        <div>\r\n            <div>共享页浏览累计时间</div>\r\n            <div><span>{{user.do_repos_read_elapse|filterTime}}</span></div>\r\n        </div>\r\n        <div>\r\n            <div>专题页浏览累计时间</div>\r\n            <div><span>{{user.do_topic_read_elapse|filterTime}}</span></div>\r\n        </div>\r\n        <div>\r\n            <div>专题页被浏览累计时间</div>\r\n            <div><span>{{user.topic_read_elapse|filterTime}}</span></div>\r\n        </div>\r\n        <div>\r\n            <div>讨论页浏览累计时间</div>\r\n            <div><span>{{user.do_cowork_read_elapse|filterTime}}</span></div>\r\n        </div>\r\n        <div>\r\n            <div>讨论页被浏览累计时间</div>\r\n            <div><span>{{user.cowork_read_elapse|filterTime}}</span></div>\r\n        </div>\r\n    </div>\r\n    <div class=\"modal-footer\">\r\n        <div class='text-center'>\r\n            <button class=\"btn btn-default\" ng-click=\"cancel()\">关闭</button>\r\n        </div>\r\n    </div>\r\n</script>"
+
+/***/ }),
+
+/***/ 111:
+/***/ (function(module, exports) {
+
+module.exports = "<div class=\"app\" id=\"tasks\">\r\n    <div class='form-group' ng-if=\"rounds.length>1\">\r\n        <div class=\"btn-group\" uib-dropdown dropdown-append-to-body='true'>\r\n            <button class=\"btn btn-default dropdown-toggle\" uib-dropdown-toggle>\r\n                <span ng-bind=\"selectedRound.title\"></span> <span class=\"glyphicon glyphicon-triangle-bottom\"></span>\r\n            </button>\r\n            <ul class=\"dropdown-menu\" uib-dropdown-menu>\r\n                <li ng-repeat=\"rnd in rounds\"><a href ng-click=\"shiftRound(rnd)\">{{rnd.title}}</a></li>\r\n            </ul>\r\n        </div>\r\n    </div>\r\n    <div class='tasks'>\r\n        <div class='task state-{{task.state}} list-group-item ' ng-repeat=\"task in tasks\">\r\n            <div ng-bind=\"::task\"></div>\r\n            <div>\r\n                <span ng-bind=\"::Label.task.state[task.state]\"></span>\r\n            </div>\r\n            <div ng-switch on=\"task.type\">\r\n                <a href class=\"alert-link\" ng-click=\"gotoTask(task)\">\r\n                        <span ng-switch-when=\"baseline\">去制定目标</span>\r\n                        <span ng-switch-when=\"question\">去提问</span>\r\n                        <span ng-switch-when=\"answer\">去回答</span>\r\n                        <span ng-switch-when=\"vote\">去投票</span>\r\n                        <span ng-switch-when=\"score\">去打分</span>\r\n                    </a>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</div>"
+
+/***/ }),
+
+/***/ 12:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+function openPlugin(content, cb) {
+    var frag, wrap, frm;
+    frag = document.createDocumentFragment();
+    wrap = document.createElement('div');
+    wrap.setAttribute('id', 'frmPlugin');
+    frm = document.createElement('iframe');
+    wrap.appendChild(frm);
+    wrap.onclick = function() {
+        wrap.parentNode.removeChild(wrap);
+    };
+    frag.appendChild(wrap);
+    document.body.appendChild(frag);
+    if (content.indexOf('http') === 0) {
+        window.onClosePlugin = function() {
+            wrap.parentNode.removeChild(wrap);
+            cb && cb();
+        };
+        frm.setAttribute('src', content);
+    } else {
+        if (frm.contentDocument && frm.contentDocument.body) {
+            frm.contentDocument.body.innerHTML = content;
+        }
+    }
+}
+
+var ngMod = angular.module('coinpay.ui.xxt', []);
+ngMod.service('tmsCoinPay', function() {
+    this.showSwitch = function(siteId, matter) {
+        var eSwitch;
+        eSwitch = document.createElement('div');
+        eSwitch.classList.add('tms-switch', 'tms-switch-coinpay');
+        eSwitch.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            var url = location.protocol + '//' + location.host;
+            url += '/rest/site/fe/coin/pay';
+            url += "?site=" + siteId;
+            url += "&matter=" + matter;
+            openPlugin(url);
+        }, true);
+        document.body.appendChild(eSwitch);
+    }
+});
+
+
+/***/ }),
+
+/***/ 121:
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var content = __webpack_require__(90);
+
+if(typeof content === 'string') content = [[module.i, content, '']];
+
+var transform;
+var insertInto;
+
+
+
+var options = {"hmr":true}
+
+options.transform = transform
+options.insertInto = undefined;
+
+var update = __webpack_require__(1)(content, options);
+
+if(content.locals) module.exports = content.locals;
+
+if(false) {
+	module.hot.accept("!!../../../../../../node_modules/css-loader/dist/cjs.js!./activities.css", function() {
+		var newContent = require("!!../../../../../../node_modules/css-loader/dist/cjs.js!./activities.css");
+
+		if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+
+		var locals = (function(a, b) {
+			var key, idx = 0;
+
+			for(key in a) {
+				if(!b || a[key] !== b[key]) return false;
+				idx++;
+			}
+
+			for(key in b) idx--;
+
+			return idx === 0;
+		}(content.locals, newContent.locals));
+
+		if(!locals) throw new Error('Aborting CSS HMR due to changed css-modules locals.');
+
+		update(newContent);
+	});
+
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+
+/***/ 13:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var ngMod = angular.module('picviewer.ui.xxt', []);
+ngMod.factory('picviewer', ['$q', function($q) {
+    /*私有方法*/
+    var _method = {
+        isArray: function(value) {
+            return Object.prototype.toString.call(value) == '[object Array]';
+        },
+        all: function(selector, contextElement) {
+            var nodeList,
+                list = [];
+            if (contextElement) {
+                nodeList = contextElement.querySelectorAll(selector);
+            } else {
+                nodeList = document.querySelectorAll(selector);
+            }
+            if (nodeList && nodeList.length > 0) {
+                list = Array.prototype.slice.call(nodeList);
+            }
+            return list;
+        },
+        delegate: function(ele, eventType, selector, fn) {
+            var _this = this;
+            if (!ele) { return; }
+            ele.addEventListener(eventType, function(e) {
+                var targets = _this.all(selector, ele);
+                if (!targets) {
+                    return;
+                }
+                for (var i = 0; i < targets.length; i++) {
+                    var node = e.target;
+                    while (node) {
+                        if (node == targets[i]) {
+                            fn.call(node, e);
+                            break;
+                        }
+                        node = node.parentNode;
+                        if (node == ele) {
+                            break;
+                        }
+                    }
+                }
+            }, false);
+        }
+    }
+
+    /*初始化*/
+    var _picviewer = function() {
+        this.winw = window.innerWidth || document.body.clientWidth; 
+        this.winh = (window.innerHeight+1) || document.body.clientHeight;
+        this.originWinw = this.winw;
+        this.originWinh = this.winh;
+        this.marginRight = 15;
+        this.imageChageMoveX = this.marginRight + this.winw;
+        this.imageChageNeedX = Math.floor(this.winw * (0.5));
+        this.cssprefix = ["", "webkit", "Moz", "ms", "o"];
+        this.imgLoadCache = new Object();
+        this.scale = 1;
+        this.maxScale = 4;
+        this.maxOverScale = 6;
+        this.openTime = 0.3;
+        this.slipTime = 0.5;
+        this.maxOverWidthPercent = 0.5;
+        this.box = false;
+        this.isPreview = false;
+        this.container = document.createElement('div');
+        this.container.setAttribute('id', 'previewImage-container');
+        this.container.style.width = this.winw + 'px';
+        this.container.style.height = this.winh + 'px'; 
+        document.body.appendChild(this.container); 
+        this.bind();  
+    };
+
+    /*绑定事件*/
+    _picviewer.prototype.bind = function() {
+        var _this = this;
+        var container = this.container;
+
+        var closePreview = function() {
+            _this.setCloseStatus.call(_this);
+        }
+        var touchStartFun = function() {
+            _this.touchStartFun.call(_this);
+        }
+        var touchMoveFun = function() {
+            _this.touchMoveFun.call(_this);
+        }
+        var touchEndFun = function() {
+            _this.touchEndFun.call(_this);
+        }
+        var reSizeFun = function() {
+            var _this = this;
+            _this.winw = window.innerWidth || document.body.clientWidth; 
+            _this.winh = window.innerHeight || document.body.clientHeight;
+            _this.originWinw = _this.winw; 
+            _this.originWinh = _this.winh; 
+            _this.container.style.width = _this.winw + 'px';
+            _this.container.style.height = _this.winh + 'px'; 
+            _this.imageChageMoveX = _this.marginRight + _this.winw;
+            var offsetX = -_this.imageChageMoveX * _this.index; 
+            try {
+                _this.boxData.x = offsetX;
+                _this.translateScale(_this.bIndex, 0);
+            } catch (e) {}
+        }.bind(this);
+        var keyDownFun = function(){
+            var _this = this;
+            if (event.keyCode == 37) {
+                this.prev &&  this.prev();
+            } else if(event.keyCode == 39) {
+                this.next && this.next();
+            }
+        }.bind(this);
+
+        window.addEventListener("resize", reSizeFun, false);
+        document.addEventListener("keydown", keyDownFun, false);
+        _method.delegate(container, 'click', '.previewImage-item', closePreview);
+        _method.delegate(container, 'touchstart', '.previewImage-item', touchStartFun);
+        _method.delegate(container, 'touchmove', '.previewImage-item', touchMoveFun);
+        _method.delegate(container, 'touchend', '.previewImage-item', touchEndFun);
+        _method.delegate(container, 'touchcancel', '.previewImage-item', touchEndFun);
+    };
+    _picviewer.prototype.setCloseStatus = function() {
+        if(this.winw > 992) {
+            if(this.urls.length == 1 || this.index == this.maxLen) {
+                this.closePreview();
+            }else {
+                this.next && this.next();
+            }
+        }else{
+            this.closePreview();
+        }
+    };
+    _picviewer.prototype.closePreview = function(){
+        var _this = this;
+        this.imgStatusCache[this.cIndex].x = this.winw;
+        this.translateScale(this.cIndex,this.openTime);
+        this.imgStatusRewrite();
+        this.translateScale(this.index,this.slipTime);
+        setTimeout(function(){
+            _this.container.style.display = "none";
+            document.body.style.overflow = 'auto';
+        },this.slipTime*1000);
+        _this.isPreview = false;
+    };
+    _picviewer.prototype.touchStartFun = function(imgitem){
+        this.ts = this.getTouches();
+        this.allowMove = true; 
+        this.statusX = 0; 
+        this.statusY = 0; 
+    };
+    _picviewer.prototype.touchMoveFun = function(imgitem){
+        this.tm = this.getTouches();
+        var tm = this.tm;
+        var ts = this.ts;
+        this.moveAction(ts,tm);
+    };
+    _picviewer.prototype.touchEndFun = function(imgitem){
+        var container = this.container;
+        this.te = this.getTouches();
+        this.endAction(this.ts,this.te);
+    };
+    
+    /*被调用的方法*/
+    _picviewer.prototype.moveAction = function(ts,tm){
+        if(!this.allowMove){ return false; }
+        var imgStatus, maxWidth, x0_offset, y0_offset, imgPositionX, imgPositionY, allow, allowX, allowY;
+        imgStatus = this.getIndexImage();
+        maxWidth = this.winw*0.3/imgStatus.scale;
+        x0_offset = tm.x0 - ts.x0;
+        y0_offset = tm.y0 - ts.y0;
+        if(Math.abs(y0_offset)>0){  
+            event.preventDefault();
+        }
+        imgPositionX = imgStatus.x+x0_offset;
+        imgPositionY = imgStatus.y+y0_offset;
+        allow = this.getAllow(this.index);
+        allowX = this.allowX = allow.x;
+        allowY = this.allowY = allow.y0;
+        if(x0_offset<=0){ 
+            this.allowX = -allowX;
+        }
+        if(y0_offset<=0){   
+            allowY = this.allowY = allow.y1;
+        }
+        if(tm.length==1){   
+            if(imgStatus.scale>1){
+                if(imgPositionY>=allow.y0){  
+                    this.statusY = 1;
+                    var overY = imgPositionY - allow.y0;
+                    imgStatus.my = allow.y0-imgStatus.y+this.getSlowlyNum(overY,maxWidth);
+                }else if(imgPositionY<=allow.y1){ 
+                    this.statusY = 1;
+                    var overY = imgPositionY - allow.y1;
+                    imgStatus.my = allow.y1-imgStatus.y+this.getSlowlyNum(overY,maxWidth);
+                }else{
+                    this.statusY = 2;
+                    imgStatus.my = y0_offset;
+                }
+
+            
+                if(x0_offset<0&&imgStatus.x<=-allowX){ 
+                    this.statusX = 1;
+                    this.boxData.m = x0_offset; 
+                    if(this.index==this.maxLen){ 
+                        this.boxData.m = this.getSlowlyNum(x0_offset);  
+                    }
+                    this.translateScale(this.bIndex,0);
+                    this.translateScale(this.index,0);
+                }else if(x0_offset>0&&imgStatus.x>=allowX){   
+                    this.statusX = 2;
+                    this.boxData.m = x0_offset;
+                    if(this.index==0){ 
+                        this.boxData.m = this.getSlowlyNum(x0_offset); 
+                    }
+                    this.translateScale(this.bIndex,0);
+                    this.translateScale(this.index,0);
+                }else{  
+                    if(x0_offset==0){
+                        return
+                    }
+                    this.statusX = 3;
+                    imgStatus.m = x0_offset;
+                    if(imgPositionX>=allowX){   
+                        this.statusX = 4;
+                        var overX = imgPositionX - allowX;
+                        imgStatus.m = allowX-imgStatus.x+this.getSlowlyNum(overX,maxWidth);
+                    }
+                    if(imgPositionX<=-allowX){  
+                        this.statusX = 4;
+                        var overX = imgPositionX + allowX;
+                        imgStatus.m = -allowX-imgStatus.x+this.getSlowlyNum(overX,maxWidth);
+                    }
+                    this.translateScale(this.index,0);
+                }
+            }else{ 
+                if(Math.abs(y0_offset)>5&&this.statusX != 5){  
+                    var $img = this.getJqElem(this.index);
+                    var imgBottom = $img.height-this.winh;
+                    if(y0_offset>0&&imgPositionY>0){
+                        this.statusX = 7;
+                        this.allowY = 0;
+                        imgStatus.my = - imgStatus.y + this.getSlowlyNum(imgPositionY,maxWidth);
+                    }else if(y0_offset<0&&imgPositionY<-imgBottom){
+                        this.statusX = 7;
+                        if($img.height>this.winh){
+                            var overY = imgPositionY + imgBottom;
+                            this.allowY = -imgBottom;
+                            imgStatus.my = -imgBottom - imgStatus.y + this.getSlowlyNum(overY,maxWidth);
+                        }else{
+                            this.allowY = 0;
+                            imgStatus.my = - imgStatus.y + this.getSlowlyNum(imgPositionY,maxWidth);
+                        }
+                    }else{
+
+                        this.statusX = 6;
+                        imgStatus.my = y0_offset;
+                    }
+                    this.translateScale(this.index,0);
+                }else{
+                    if(this.statusX == 6){
+                        return
+                    }
+                    this.statusX = 5;
+                    if((this.index==0&&x0_offset>0)||(this.index==this.maxLen&&x0_offset<0)){
+                        this.boxData.m = this.getSlowlyNum(x0_offset);
+                    }else{
+                        this.boxData.m = x0_offset;
+                    }
+                    this.translateScale(this.bIndex,0);
+                }
+            }
+        }else{  
+            var scalem = this.getScale(ts,tm)
+            var scale = scalem*imgStatus.scale;
+            if(scale>=this.maxScale){  
+                var over = scale - this.maxScale;
+                scale = this.maxScale+this.getSlowlyNum(over,this.maxOverScale);
+                scalem = scale/imgStatus.scale;
+            }
+            imgStatus.scalem = scalem;
+            this.translateScale(this.index,0);
+        }
+    };
+    _picviewer.prototype.endAction = function(ts,te){
+        var imgStatus, x0_offset, y0_offset, time, slipTime;
+        imgStatus = this.getIndexImage();
+        x0_offset = te.x0 - ts.x0;
+        y0_offset = te.y0 - ts.y0;
+        time = te.time - ts.time;
+        slipTime = 0;
+        this.allowMove = false; 
+        if(ts.length==1){     
+            if(Math.abs(x0_offset)>10){
+                event.preventDefault();
+            }
+            switch(this.statusY){
+                case 1:
+                    imgStatus.y = this.allowY;
+                    imgStatus.my = 0;
+                    slipTime = this.slipTime;
+                break
+                case 2:
+                    imgStatus.y = imgStatus.y+imgStatus.my;
+                    imgStatus.my = 0;
+                break
+            }
+
+            switch(this.statusX){
+                case 1: 
+                    if(this.index!=this.maxLen&&(x0_offset<=-this.imageChageNeedX||(time<200&&x0_offset<-30))){   
+                        this.changeIndex(1);
+                    }else{
+                        this.changeIndex(0);
+                        if(slipTime!=0){
+                            this.translateScale(this.index,slipTime);
+                        }
+                    }
+                break
+                case 2: 
+                    if(this.index!=0&&(x0_offset>=this.imageChageNeedX||(time<200&&x0_offset>30))){ 
+                        this.changeIndex(-1);
+                    }else{
+                        this.changeIndex(0);
+                        if(slipTime!=0){
+                            this.translateScale(this.index,slipTime);
+                        }
+                    }
+                break
+                case 3: 
+                    imgStatus.x = imgStatus.x+imgStatus.m;
+                    imgStatus.m = 0;
+                    this.translateScale(this.index,slipTime);
+                break
+                case 4:
+                    imgStatus.x = this.allowX;
+                    imgStatus.m = 0;
+                    slipTime = this.slipTime;
+                    this.translateScale(this.index,slipTime);
+                break
+                case 5: 
+                    if(x0_offset>=this.imageChageNeedX||(time<200&&x0_offset>30)){    
+                        this.changeIndex(-1);
+                    }else if(x0_offset<=-this.imageChageNeedX||(time<200&&x0_offset<-30)){ 
+                        this.changeIndex(1);
+                    }else{
+                        this.changeIndex(0);
+                    }
+                break
+                case 6:
+                    imgStatus.y = imgStatus.y+imgStatus.my;
+                    imgStatus.my = 0;
+                break
+                case 7: 
+                    imgStatus.y = this.allowY;
+                    imgStatus.my = 0;
+                    this.translateScale(this.index,this.slipTime);
+                break
+            }
+        }else{  
+            event.preventDefault();
+
+            var scale = imgStatus.scale*imgStatus.scalem;
+            var $img = this.getJqElem(this.index);
+            imgStatus.scale = scale;
+            var allow = this.getAllow(this.index);
+
+            if(imgStatus.x>allow.x){
+                slipTime = this.slipTime;
+                imgStatus.x = allow.x;
+            }else if(imgStatus.x<-allow.x){
+                slipTime = this.slipTime;
+                imgStatus.x = -allow.x;
+            }
+
+            if(imgStatus.y>allow.y0){
+                slipTime = this.slipTime;
+                imgStatus.y = allow.y0;
+            }else if(imgStatus.y<allow.y1){
+                slipTime = this.slipTime;
+                imgStatus.y = allow.y1;
+            }
+
+            if($img.height*imgStatus.scale<=this.winh){
+                imgStatus.y = 0;
+            }
+
+            if($img.width*imgStatus.scale<=this.winw){
+                imgStatus.x = 0;
+            }
+
+            imgStatus.scalem = 1;
+            if(scale>this.maxScale){     
+                imgStatus.scale = this.maxScale;
+                slipTime = this.slipTime;
+            }else if(scale<1){
+                this.imgStatusRewrite();
+                slipTime = this.slipTime;
+            }
+            if(slipTime!=0){
+                this.changeIndex(0);
+                this.translateScale(this.index,slipTime);
+            }
+        }
+    };
+    _picviewer.prototype.changeIndex = function(x){
+        var imgStatus, oldIndex, _this, hash, imgCache;
+        imgStatus = this.getIndexImage();
+        oldIndex = this.index;
+        _this = this;
+
+        if(this.index==0&&x==-1){
+            this.index = this.index;
+        }else if(this.index==this.maxLen&&x==1){
+            this.index = this.index;
+        }else{
+            this.index+=x;
+            this.ePage.innerHTML = (this.index + 1) + '/' + (this.maxLen + 1);
+            hash = this.imgStatusCache[this.index].hash;
+            imgCache = this.imgLoadCache[hash];
+            if(!imgCache.isload){    
+                imgCache.elem.src = this.urls[this.index];
+                imgCache.elem.onload = function(){
+                    imgCache.isload = true;
+                }
+            }
+        }
+        this.setActionStatus();
+        this.boxData.x = -this.imageChageMoveX*this.index;
+        this.boxData.m = 0;
+        if(oldIndex!=this.index){
+            this.imgStatusRewrite(oldIndex);
+        }
+        this.translateScale(this.bIndex,this.slipTime);
+    };
+    _picviewer.prototype.setActionStatus = function(){
+        if (this.index==0) {
+            this.ePrev.classList.add('hide');
+            this.eNext.classList.remove('hide');
+        } else if (this.index==this.maxLen) {
+            this.ePrev.classList.remove('hide');
+            this.eNext.classList.add('hide');
+        } else {
+            this.ePrev.classList.remove('hide');
+            this.eNext.classList.remove('hide');
+        }
+    };
+    _picviewer.prototype.getTouches = function(e){
+        var touches = event.touches.length>0?event.touches:event.changedTouches;
+        var obj = {touches:touches,length:touches.length};
+            obj.x0 = touches[0].pageX
+            obj.y0 = touches[0].pageY;
+            obj.time = new Date().getTime();
+        if(touches.length>=2){
+            obj.x1 = touches[0].pageX
+            obj.y1 = touches[1].pageY
+        }
+        return obj;
+    };
+    _picviewer.prototype.getIndexImage = function(index){
+        var index = index==undefined?this.index:index;
+        return  this.imgStatusCache[this.index];
+    };
+    _picviewer.prototype.getAllow = function(index){
+        var $img, imgStatus, allowX, allowY0, allowY1;
+        $img = this.getJqElem(index);
+        imgStatus = this.getIndexImage(index);
+        allowX = Math.floor(($img.width*imgStatus.scale-this.winw)/(2*imgStatus.scale));
+        if($img.height*imgStatus.scale<=this.winh){
+            allowY0 = 0;
+            allowY1 = 0;
+        }else if($img.height<=this.winh){
+            allowY0 = Math.floor(($img.height*imgStatus.scale-this.winh)/(2*imgStatus.scale));
+            allowY1 = -allowY0;
+        }else{
+            allowY0 = Math.floor($img.height*(imgStatus.scale-1)/(2*imgStatus.scale));
+            allowY1 = -Math.floor(($img.height*(imgStatus.scale+1)-2*this.winh)/(2*imgStatus.scale));
+        }
+        return {
+            x:allowX,
+            y0:allowY0,
+            y1:allowY1,
+        };
+    };
+    _picviewer.prototype.getSlowlyNum = function(x,maxOver){
+        var maxOver = maxOver||this.winw*this.maxOverWidthPercent;
+        if(x<0){
+            x = -x;
+            return -(1-(x/(maxOver+x)))*x;
+        }else{
+            return (1-(x/(maxOver+x)))*x;
+        }
+    };
+    _picviewer.prototype.getScale = function(ts,tm){
+        var fingerRangeS, fingerRangeM, range;
+        fingerRangeS = Math.sqrt(Math.pow((ts.x1 - ts.x0),2)+Math.pow((ts.y1-ts.y0),2)); 
+        fingerRangeM = Math.sqrt(Math.pow((tm.x1 - tm.x0),2)+Math.pow((tm.y1-tm.y0),2));
+        range = fingerRangeM/fingerRangeS;
+        return range;
+    };
+    _picviewer.prototype.imgStatusRewrite = function(idx){
+        var index=idx===undefined?this.index:idx;
+        var imgStatus=this.imgStatusCache[index], currentScale=imgStatus.scale,
+            currentX=imgStatus.x, currentY=imgStatus.y;
+        imgStatus.x = 0;
+        imgStatus.y = 0;
+        imgStatus.m = 0;
+        imgStatus.my = 0;
+        imgStatus.scale = 1;
+        imgStatus.scalem = 1;
+        if(index!=this.index){
+            if(this.winw > 992) {
+                imgStatus.scale = currentScale;
+                imgStatus.x = currentX;
+                imgStatus.y = currentY;
+            }
+            this.translateScale(index,this.slipTime);
+        }
+    };
+    _picviewer.prototype.translateScale = function (index,duration){
+        var imgStatus, $elem, scale, offsetX, offsetY, tran_origin, tran_3d, transition;
+        imgStatus = this.imgStatusCache[index];
+        $elem = this.getJqElem(index);
+        scale = imgStatus.scale*imgStatus.scalem;
+        offsetX = imgStatus.x+imgStatus.m;
+        offsetY = imgStatus.y+imgStatus.my;
+        tran_origin = '0px 0px 0px';
+        tran_3d='scale3d('+scale+','+scale+','+'1)' + ' translate3d(' + offsetX + 'px,' + offsetY + 'px,0px)';
+        transition = 'transform '+duration+'s ease-out';
+        if(this.winw > 992) {
+            this.addCssPrefix($elem,'transform-origin',tran_origin);
+            tran_3d='translate3d(' + offsetX + 'px,' + offsetY + 'px,0px)' + ' scale3d('+scale+','+scale+','+'1)';
+        }
+        this.addCssPrefix($elem,'transition',transition);
+        this.addCssPrefix($elem,'transform',tran_3d);
+    };
+    _picviewer.prototype.getJqElem = function(index){
+        var $elem, index, hash;
+        index = index == undefined?this.index:index;
+        if(index<=this.maxLen){
+            hash = this.imgStatusCache[index].hash;
+            $elem = this.imgLoadCache[hash].elem;
+        }else{
+            $elem = this.imgStatusCache[index].elem;
+        }
+        return $elem;
+    };
+    _picviewer.prototype.addCssPrefix = function(elem,prop,value){
+        for(var i in this.cssprefix){
+            var cssprefix = this.cssprefix[i];
+            if(cssprefix===""){
+                prop = prop.toLowerCase();
+            }else{
+                prop = prop.substr(0,1).toUpperCase()+prop.substr(1,prop.length).toLowerCase()
+            }
+            if(document.body.style[prop]!==undefined){
+                elem.style[prop] = value;
+                return false;
+            }
+        }
+    };
+    _picviewer.prototype.prev = function(){
+        if (this.index > 0) {
+            this.changeIndex(-1);
+        }
+    };
+    _picviewer.prototype.next = function(){
+        if (this.index < this.maxLen) {
+            this.changeIndex(1);
+        }
+    };
+    /*开始和渲染*/
+    _picviewer.prototype.render = function(){
+        var _this = this;
+        document.body.style.overflow = 'hidden';
+        if(this.box===false){ 
+            this.box = document.createElement('div');
+            this.box.setAttribute('class', 'previewImage-box'); 
+        }else{
+            this.box.innerHTML = ''; 
+        }
+        this.text = document.createElement('div');   
+        this.text.setAttribute('class', 'previewImage-text');
+        this.text.innerHTML = "<span class='page'>"+(this.index+1)+"/"+(this.maxLen+1)+"</span><span class='prev'><i class='glyphicon glyphicon-menu-left'></i></span><span class='next'><i class='glyphicon glyphicon-menu-right'></i></span><span class='exit'><i class='glyphicon glyphicon-remove'></i></span>";
+        this.containerData = this.imgStatusCache[this.cIndex] = {elem:this.container,x:this.winw,y:0,m:0,my:0,scale:1,scalem:1}; 
+        this.boxData = this.imgStatusCache[this.bIndex] = {elem:this.box,x:0,y:0,m:0,my:0,scale:1,scalem:1};   
+        this.urls.forEach(function(v,i){    
+            var div, hash, img, imgCache;
+            div = document.createElement('div');
+            hash = window.md5?md5(v+i):v+i;
+            imgCache = _this.imgLoadCache[hash];
+            if(imgCache&&imgCache.isload){   
+                img = imgCache.elem;
+            }else{  
+                img = new Image();
+                img.setAttribute('class', 'previewImage-image');
+                _this.imgLoadCache[hash] = {isload:false,elem:img};
+                if(i == _this.index){  
+                    img.src = v;
+                    img.onload = function(){
+                        _this.imgLoadCache[hash].isload = true;
+                    }
+                }
+            }
+            _this.imgStatusCache[i] = {hash:hash,x:0,m:0,y:0,my:0,scale:_this.scale,scalem:1};
+            div.setAttribute('class', 'previewImage-item');
+            div.appendChild(img);
+            _this.box.appendChild(div);
+        })
+
+        this.container.appendChild(this.box);  
+        this.container.appendChild(this.text);   
+        this.ePage = document.querySelector('.previewImage-text span.page');
+        this.ePrev = document.querySelector('.previewImage-text span.prev');
+        this.eNext = document.querySelector('.previewImage-text span.next');
+        this.eCloser = document.querySelector('.previewImage-text span.exit');
+
+        var offsetX = -this.imageChageMoveX*this.index;  
+        this.boxData.x = offsetX;  
+        this.containerData.x = 0;  
+        this.container.style.display = "block";
+        setTimeout(function(){
+            _this.setActionStatus();
+            if(_this.winw  > 992) {
+                _this.urls.forEach(function(v, i) {
+                    var that = _this, elImg, currentScale, toX, toY, overrideWidth, overrideHeight;
+                    elImg = that.selectorEleAll[i];
+                    currentScale = Math.min(that.winw / elImg.naturalWidth, that.winh / elImg.naturalHeight);
+                    toX = toY = 0;
+                    function imgHeight() {
+                        return elImg.naturalHeight * currentScale;
+                    }
+
+                    function imgWidth() {
+                        return elImg.naturalWidth * currentScale;
+                    }
+
+                    toX > 0 && (toX = 0);
+                    overrideWidth = Math.round(that.winw - imgWidth());
+                    if (toX < overrideWidth) {
+                        toX = overrideWidth < 0 ? overrideWidth : overrideWidth / 2;
+                    }
+                    toY > 0 && (toY = 0);
+                    overrideHeight = Math.round(that.winh - imgHeight());
+                    if (toY < overrideHeight) {
+                        toY = overrideHeight < 0 ? overrideHeight : overrideHeight / 2;
+                    }
+                    that.imgStatusCache[i].x = toX;
+                    that.imgStatusCache[i].y = toY;
+
+                    that.imgStatusCache[i].scale = currentScale;
+                    that.translateScale(i, 0);
+                });
+            }
+            _this.translateScale(_this.bIndex,0);
+            _this.translateScale(_this.cIndex,_this.openTime);
+
+            _this.isPreview = true;
+            _this.ePrev.addEventListener('click', function(e) {
+                e.preventDefault();
+                _this.prev();
+                return false;
+            }, false);
+            _this.eNext.addEventListener('click', function(e) {
+                e.preventDefault();
+                _this.next();
+                return false;
+            }, false);
+            _this.eCloser.addEventListener('click', function(e) {
+                e.preventDefault();
+                _this.closePreview();
+                return false;
+            }, false);
+        },50);
+    };
+    _picviewer.prototype.start = function(obj){
+        this.container.innerHTML = '';
+        if (!obj.urls || !_method.isArray(obj.urls) || obj.urls.length == 0) { 
+            alert("urls must be a Array and the minimum length more than zero");
+            return false;
+        }
+        if (!obj.current) {
+            this.index = 0;
+            console.warn("current is empty,it will be the first value of urls!");
+        } else {
+            var index = obj.urls.indexOf(obj.current);
+            if (index < 0) {
+                index = 0;
+                console.warn("current isnot on urls,it will be the first value of urls!");
+            }
+            this.index = index; 
+        }
+        this.selectorEleAll = obj.elems;
+        this.urls = obj.urls; 
+        this.maxLen = obj.urls.length - 1;
+        this.cIndex = this.maxLen + 1; 
+        this.bIndex = this.maxLen + 2; 
+        this.imgStatusCache = new Object(); 
+        this.render(); 
+    };
+    _picviewer.prototype.init = function(selectorAll){
+        var urls = [], _this = this;
+        angular.forEach(selectorAll, function(selector, index) {
+            urls.push(selector.src);
+            selector.addEventListener('click', function() {
+                var obj = {
+                    elems: selectorAll,
+                    urls: urls,
+                    current: this.src
+                }
+                _this.start(obj);
+            });
+        });
+    }
+    var picviewer = new _picviewer();
+
+    return picviewer;
+}]);
+
+/***/ }),
+
+/***/ 14:
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(false);
+// Module
+exports.push([module.i, "html,body{width:100%;height:100%;}\r\nbody{position:relative;font-size:16px;padding:0;}\r\nheader img,footer img{max-width:100%}\r\n.ng-cloak{display:none;}\r\n.container{position:relative;}\r\n.site-navbar-default .navbar-default .navbar-nav>li>a,.navbar-default .navbar-brand{color:#fff;}\r\n.site-navbar-default .navbar-brand{padding:15px 15px;}\r\n.main-navbar .navbar-brand:hover{color:#fff;}\r\n@media screen and (min-width:768px){\r\n\t.site-navbar-default .navbar-nav>li>a{padding:15px 15px;line-height:1;}\r\n}\r\n@media screen and (max-width:768px){\r\n\t.site-navbar-default .navbar-brand>.icon-note{display:inline-block;width:124px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}\r\n\t.site-navbar-default .navbar-nav{margin:8px 0;position:absolute;top:0;right:0;}\r\n\t.site-navbar-default .nav>li>a{padding:10px 10px;}\r\n}\r\n.tms-flex-row{display:flex;align-items:center;}\r\n.tms-flex-row .tms-flex-grow{flex:1;}\r\n.dropdown-menu{min-width:auto;}\r\n.dropdown-menu-top{bottom:100%;top:auto;}\r\n\r\n/*picviewer*/\r\n#previewImage-container{-ms-touch-action:none;touch-action:none;-webkit-touch-action:none;line-height:100vh;background-color:#000;width:100vw;height:100vh;position:fixed;overflow:hidden;top:0;left:0;z-index:1050;transition:transform .3s;-ms-transition:transform .3s;-moz-transition:transform .3s;-webkit-transition:transform .3s;-o-transition:transform .3s;transform:translate3d(100%,0,0);-webkit-transform:translate3d(100%,0,0);-ms-transform:translate3d(100%,0,0);-o-transform:translate3d(100%,0,0);-moz-transform:translate3d(100%,0,0)}\r\n#previewImage-container .previewImage-text{position:absolute;bottom:5px;left:8px;right:8px;z-index:1060;height:36px}\r\n.previewImage-text span{display:inline-block;width:36px;height:36px;line-height:25px;border-radius:18px;font-size:25px;text-align:center;color:#bbb}\r\n.previewImage-text span.page{position:absolute;left:50%;margin-left:-18px;font-size:18px}\r\n.previewImage-text span.prev{position:absolute;left:50%;margin-left:-72px}\r\n.previewImage-text span.next{position:absolute;left:50%;margin-left:36px}\r\n.previewImage-text span.exit{position:absolute;right:0}\r\n.previewImage-text span.exit>i{text-shadow:0 0 .1em #fff,-0 -0 .1em #fff}\r\n#previewImage-container .previewImage-box{width:999999rem;height:100vh}\r\n#previewImage-container .previewImage-box .previewImage-item{width:100vw;height:100vh;margin-right:15px;float:left;text-align:center}\r\n@media screen and (min-width:992px){\r\n\t#previewImage-container .previewImage-box .previewImage-item .previewImage-image{display:block;}\r\n}\r\n@media screen and (max-width:992px){\r\n\t#previewImage-container .previewImage-box .previewImage-item .previewImage-image{width:100%}\r\n}\r\n", ""]);
+
+
+
+/***/ }),
+
+/***/ 144:
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(66);
+
+
+/***/ }),
+
+/***/ 15:
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var content = __webpack_require__(14);
+
+if(typeof content === 'string') content = [[module.i, content, '']];
+
+var transform;
+var insertInto;
+
+
+
+var options = {"hmr":true}
+
+options.transform = transform
+options.insertInto = undefined;
+
+var update = __webpack_require__(1)(content, options);
+
+if(content.locals) module.exports = content.locals;
+
+if(false) {
+	module.hot.accept("!!../../../../../../node_modules/css-loader/dist/cjs.js!./main.css", function() {
+		var newContent = require("!!../../../../../../node_modules/css-loader/dist/cjs.js!./main.css");
+
+		if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+
+		var locals = (function(a, b) {
+			var key, idx = 0;
+
+			for(key in a) {
+				if(!b || a[key] !== b[key]) return false;
+				idx++;
+			}
+
+			for(key in b) idx--;
+
+			return idx === 0;
+		}(content.locals, newContent.locals));
+
+		if(!locals) throw new Error('Aborting CSS HMR due to changed css-modules locals.');
+
+		update(newContent);
+	});
+
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+
+/***/ 16:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var ngMod = angular.module('act.ui.xxt', ['ui.bootstrap']);
+ngMod.directive('tmsPopAct', ['$templateCache', '$timeout', function($templateCache, $timeout) {
+    var html;
+    html = "<div class='tms-act-popover-wrap'>";
+    html += "<div ng-repeat=\"act in acts\" ng-if=\"!act.toggle||act.toggle()\"><button class='btn btn-default btn-block' ng-click=\"doAct($event,act)\">{{act.title}}</button></div>";
+    html += '<div ng-if="custom" class=\"checkbox\"><label style=\"color:#000;\"" ng-click=\"setCustom($event)\"><input type=\"checkbox\" ng-model=\"custom.stopTip\" ng-click=\"setCustom($event)\"> 不再提示</label></div>';
+    html += "</div>";
+    $templateCache.put('popActTemplate.html', html);
+    return {
+        restrict: 'A',
+        replace: true,
+        transclude: true,
+        scope: {
+            acts: '=acts',
+            custom: '=custom'
+        },
+        template: "<button uib-popover-template=\"'popActTemplate.html'\" popover-placement=\"top-right\" popover-trigger=\"'show'\" popover-append-to-body=\"true\" class=\"tms-act-toggle\" popover-class=\"tms-act-popover\"><span class='glyphicon glyphicon-option-vertical'></span></button>",
+        link: function(scope, elem, attrs) {
+            var elePopover, fnOpenPopover, fnClosePopover;
+            fnOpenPopover = function() {
+                var popoverEvt;
+                elePopover = elem[0].children[0];
+                popoverEvt = document.createEvent("HTMLEvents");
+                popoverEvt.initEvent('show', true, false);
+                elePopover.dispatchEvent(popoverEvt);
+            };
+            fnClosePopover = function() {
+                var popoverEvt;
+                popoverEvt = document.createEvent("HTMLEvents");
+                popoverEvt.initEvent('hide', true, false);
+                elePopover.dispatchEvent(popoverEvt);
+                document.body.removeEventListener('click', fnClosePopover);
+            };
+            elem[0].addEventListener('click', function(event) {
+                event.stopPropagation();
+                event.preventDefault();
+                fnOpenPopover();
+                document.body.addEventListener('click', fnClosePopover);
+            });
+            scope.$watch('custom', function(nv) {
+                if (nv && nv.stopTip === false) {
+                    fnOpenPopover();
+                    document.body.addEventListener('click', fnClosePopover);
+                    if (attrs.closeAfter && parseInt(attrs.closeAfter)) {
+                        $timeout(function() {
+                            fnClosePopover();
+                        }, attrs.closeAfter);
+                    }
+                }
+            });
+        },
+        controller: ['$scope', function($scope) {
+            $scope.setCustom = function($event, prop) {
+                $event.stopPropagation();
+            };
+            $scope.doAct = function(event, oAct) {
+                if (oAct.func) {
+                    oAct.func(event);
+                }
+            };
+        }]
+    };
+}]);
+
+/***/ }),
+
+/***/ 17:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var ngMod = angular.module('nav.ui.xxt', ['ui.bootstrap']);
+ngMod.directive('tmsPopNav', ['$templateCache', '$timeout', function($templateCache, $timeout) {
+    var html;
+    html = "<div class='tms-nav-target'>";
+    html += "<div ng-repeat=\"nav in navs\"><button class='btn btn-default btn-block' ng-click=\"navTo($event,nav)\">{{nav.title}}</button></div>";
+    html += '<div ng-if="custom" class=\"checkbox\"><label style=\"color:#000;\"" ng-click=\"setCustom($event)\"><input type=\"checkbox\" ng-model=\"custom.stopTip\" ng-click=\"setCustom($event)\"> 不再提示</label></div>';
+    html += "</div>";
+    $templateCache.put('popNavTemplate.html', html);
+    return {
+        restrict: 'A',
+        replace: true,
+        transclude: true,
+        scope: {
+            navs: '=navs',
+            custom: '=custom'
+        },
+        template: "<span><span ng-if=\"!navs||navs.length===0\" ng-transclude></span><span ng-if=\"navs.length\" uib-popover-template=\"'popNavTemplate.html'\" popover-placement=\"bottom\" popover-trigger=\"'show'\"><span ng-transclude></span><span class=\"caret\"></span></span></span>",
+        link: function(scope, elem, attrs) {
+            var elePopover, fnOpenPopover, fnClosePopover;
+            fnOpenPopover = function() {
+                var popoverEvt;
+                elePopover = elem[0].children[0];
+                popoverEvt = document.createEvent("HTMLEvents");
+                popoverEvt.initEvent('show', true, false);
+                elePopover.dispatchEvent(popoverEvt);
+            };
+            fnClosePopover = function() {
+                var popoverEvt;
+                popoverEvt = document.createEvent("HTMLEvents");
+                popoverEvt.initEvent('hide', true, false);
+                elePopover.dispatchEvent(popoverEvt);
+                document.body.removeEventListener('click', fnClosePopover);
+            };
+            elem[0].addEventListener('click', function(event) {
+                event.stopPropagation();
+                event.preventDefault();
+                fnOpenPopover();
+                document.body.addEventListener('click', fnClosePopover);
+            });
+            scope.$watch('custom', function(nv) {
+                if (nv && nv.stopTip === false) {
+                    fnOpenPopover();
+                    document.body.addEventListener('click', fnClosePopover);
+                    if (attrs.closeAfter && parseInt(attrs.closeAfter)) {
+                        $timeout(function() {
+                            fnClosePopover();
+                        }, attrs.closeAfter);
+                    }
+                }
+            });
+        },
+        controller: ['$scope', function($scope) {
+            $scope.setCustom = function($event, prop) {
+                $event.stopPropagation();
+            };
+            $scope.navTo = function(event, oNav) {
+                if (oNav.url) {
+                    location.href = oNav.url;
+                } else if ($scope.$parent.gotoNav) {
+                    $scope.$parent.gotoNav(event, oNav);
+                }
+            };
+        }]
+    };
+}]);
+
+/***/ }),
+
+/***/ 18:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(5);
+if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.wx) {
+    window.wx.ready(function() {
+        window.wx.showOptionMenu();
+    });
+}
+
+__webpack_require__(9);
+__webpack_require__(15);
+__webpack_require__(11);
+__webpack_require__(6);
+__webpack_require__(2);
+__webpack_require__(4);
+__webpack_require__(7);
+__webpack_require__(12);
+__webpack_require__(13);
+__webpack_require__(17);
+__webpack_require__(16);
+
+__webpack_require__(10);
+__webpack_require__(19);
+
+/* 公共加载的模块 */
+var angularModules = ['ngSanitize', 'ui.bootstrap', 'notice.ui.xxt', 'http.ui.xxt', 'trace.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'directive.enroll', 'picviewer.ui.xxt', 'nav.ui.xxt', 'act.ui.xxt', 'service.enroll'];
+/* 加载指定的模块 */
+if (window.moduleAngularModules) {
+    window.moduleAngularModules.forEach(function(m) {
+        angularModules.push(m);
+    });
+}
+
+var ngApp = angular.module('app', angularModules);
+ngApp.config(['$controllerProvider', '$uibTooltipProvider', '$locationProvider', 'tmsLocationProvider', function($cp, $uibTooltipProvider, $locationProvider, tmsLocationProvider) {
+    ngApp.provider = {
+        controller: $cp.register
+    };
+    $uibTooltipProvider.setTriggers({ 'show': 'hide' });
+    $locationProvider.html5Mode(true);
+    (function() {
+        var baseUrl;
+        baseUrl = '/rest/site/fe/matter/enroll'
+        //
+        tmsLocationProvider.config(baseUrl);
+    })();
+}]);
+ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tmsLocation', 'tmsDynaPage', 'tmsSnsShare', 'tmsSiteUser', 'enlService', function($scope, $q, $parse, http2, $timeout, LS, tmsDynaPage, tmsSnsShare, tmsSiteUser, enlService) {
+    function refreshEntryRuleResult() {
+        var url, defer;
+        defer = $q.defer();
+        url = LS.j('entryRule', 'site', 'app');
+        return http2.get(url).then(function(rsp) {
+            $scope.params.entryRuleResult = rsp.data;
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    }
+
+    function openPlugin(url, fnCallback) {
+        var body, elWrap, elIframe;
+        body = document.body;
+        elWrap = document.createElement('div');
+        elWrap.setAttribute('id', 'frmPlugin');
+        elWrap.height = body.clientHeight;
+        elIframe = document.createElement('iframe');
+        elWrap.appendChild(elIframe);
+        body.scrollTop = 0;
+        body.appendChild(elWrap);
+        window.onClosePlugin = function() {
+            if (fnCallback) {
+                fnCallback().then(function(data) {
+                    elWrap.parentNode.removeChild(elWrap);
+                });
+            } else {
+                elWrap.parentNode.removeChild(elWrap);
+            }
+        };
+        elWrap.onclick = function() {
+            onClosePlugin();
+        };
+        if (url) {
+            elIframe.setAttribute('src', url);
+        }
+        elWrap.style.display = 'block';
+    }
+
+    function execTask(task) {
+        var obj, fn, args, valid;
+        valid = true;
+        obj = $scope;
+        args = task.match(/\((.*?)\)/)[1].replace(/'|"/g, "").split(',');
+        angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function(attr) {
+            if (fn) obj = fn;
+            if (!obj[attr]) {
+                valid = false;
+                return;
+            }
+            fn = obj[attr];
+        });
+        if (valid) {
+            fn.apply(obj, args);
+        }
+    }
+    var tasksOfOnReady = [];
+    $scope.closeWindow = function() {
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+            window.wx.closeWindow();
+        }
+    };
+    $scope.askFollowSns = function() {
+        var url;
+        if ($scope.app.entryRule && $scope.app.entryRule.scope.sns === 'Y') {
+            url = LS.j('askFollow', 'site');
+            url += '&sns=' + Object.keys($scope.app.entryRule.sns).join(',');
+            openPlugin(url, refreshEntryRuleResult);
+        }
+    };
+    $scope.askBecomeMember = function() {
+        var url, mschemaIds;
+        if ($scope.app.entryRule && $scope.app.entryRule.scope.member === 'Y') {
+            mschemaIds = Object.keys($scope.app.entryRule.member);
+            if (mschemaIds.length === 1) {
+                url = '/rest/site/fe/user/member?site=' + $scope.app.siteid;
+                url += '&schema=' + mschemaIds[0];
+            } else if (mschemaIds.length > 1) {
+                url = '/rest/site/fe/user/memberschema?site=' + $scope.app.siteid;
+                url += '&schema=' + mschemaIds.join(',');
+            }
+            openPlugin(url, refreshEntryRuleResult);
+        }
+    };
+    $scope.addRecord = function(event, page) {
+        if (page) {
+            $scope.gotoPage(event, page, null, null, 'Y');
+        } else {
+            for (var i in $scope.app.pages) {
+                var oPage = $scope.app.pages[i];
+                if (oPage.type === 'I') {
+                    $scope.gotoPage(event, oPage.name, null, null, 'Y');
+                    break;
+                }
+            }
+        }
+    };
+    $scope.siteUser = function() {
+        var url = location.protocol + '//' + location.host;
+        url += '/rest/site/fe/user';
+        url += "?site=" + LS.s().site;
+        location.href = url;
+    };
+    $scope.gotoApp = function(event) {
+        location.replace($scope.app.entryUrl);
+    };
+    $scope.gotoPage = function(event, page, ek, rid, newRecord) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        var url = LS.j('', 'site', 'app');
+        if (ek) {
+            url += '&ek=' + ek;
+        } else if (page === 'cowork') {
+            url += '&ek=' + LS.s().ek;
+        }
+        rid && (url += '&rid=' + rid);
+        page && (url += '&page=' + page);
+        newRecord && newRecord === 'Y' && (url += '&newRecord=Y');
+        location = url;
+        //location.replace(url);
+    };
+    $scope.openMatter = function(id, type, replace, newWindow) {
+        var url = '/rest/site/fe/matter?site=' + LS.s().site + '&id=' + id + '&type=' + type;
+        if (replace) {
+            location.replace(url);
+        } else {
+            if (newWindow === false) {
+                location.href = url;
+            } else {
+                window.open(url);
+            }
+        }
+    };
+    $scope.onReady = function(task) {
+        if ($scope.params) {
+            execTask(task);
+        } else {
+            tasksOfOnReady.push(task);
+        }
+    };
+    /* 设置限制通讯录访问时的状态*/
+    $scope.setOperateLimit = function(operate) {
+        if (!$scope.app.entryRule.exclude_action || $scope.app.entryRule.exclude_action[operate] !== "Y") {
+            if ($scope.entryRuleResult.passed == 'N') {
+                tmsDynaPage.openPlugin($scope.entryRuleResult.passUrl).then(function(data) {
+                    location.reload();
+                    return true;
+                });
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return true;
+        }
+    }
+    /* 设置公众号分享信息 */
+    $scope.setSnsShare = function(oRecord, oParams, oData) {
+        function fnReadySnsShare() {
+            if (window.__wxjs_environment === 'miniprogram') {
+                return;
+            }
+            var oApp, oPage, oUser, sharelink, shareid, shareby, summary;
+            oApp = $scope.app;
+            oPage = $scope.page;
+            oUser = $scope.user;
+            /* 设置活动的当前链接 */
+            sharelink = location.protocol + '//' + location.host + LS.j('', 'site', 'app', 'rid');
+            if (oPage && oPage.share_page && oPage.share_page === 'Y') {
+                sharelink += '&page=' + oPage.name;
+            } else if (LS.s().page) {
+                sharelink += '&page=' + LS.s().page;
+            }
+            oRecord && oRecord.enroll_key && (sharelink += '&ek=' + oRecord.enroll_key);
+            if (oParams) {
+                angular.forEach(oParams, function(v, k) {
+                    if (v !== undefined) {
+                        sharelink += '&' + k + '=' + v;
+                    }
+                });
+            }
+            shareid = oUser.uid + '_' + (new Date * 1);
+            shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
+            sharelink += "&shareby=" + shareid;
+            /* 设置分享 */
+            summary = oApp.summary;
+            if (oPage && oPage.share_summary && oPage.share_summary.length && oRecord && oRecord.data && oRecord.data[oPage.share_summary]) {
+                summary = oRecord.data[oPage.share_summary];
+            }
+            /* 分享次数计数器 */
+            window.shareCounter = 0;
+            tmsSnsShare.config({
+                siteId: oApp.siteid,
+                logger: function(shareto) {
+                    var url;
+                    url = "/rest/site/fe/matter/logShare";
+                    url += "?shareid=" + shareid;
+                    url += "&site=" + oApp.siteid;
+                    url += "&id=" + oApp.id;
+                    url += "&type=enroll";
+                    if (oData && oData.title) {
+                        url += "&title=" + oData.title;
+                    } else {
+                        url += "&title=" + oApp.title;
+                    }
+                    if (oData) {
+                        url += "&target_type=" + oData.target_type;
+                        url += "&target_id=" + oData.target_id;
+                    }
+                    url += "&shareby=" + shareby;
+                    url += "&shareto=" + shareto;
+                    http2.get(url);
+                    window.shareCounter++;
+                    window.onshare && window.onshare(window.shareCounter);
+                },
+                jsApiList: ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'chooseImage', 'uploadImage', 'getLocation', 'startRecord', 'stopRecord', 'onVoiceRecordEnd', 'playVoice', 'pauseVoice', 'stopVoice', 'onVoicePlayEnd', 'uploadVoice', 'downloadVoice']
+            });
+            tmsSnsShare.set(oApp.title, sharelink, summary, oApp.pic);
+        }
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+            if (!window.WeixinJSBridge || !WeixinJSBridge.invoke) {
+                document.addEventListener('WeixinJSBridgeReady', fnReadySnsShare, false);
+            } else {
+                fnReadySnsShare();
+            }
+        }
+    };
+    /* 设置页面操作 */
+    $scope.setPopAct = function(aNames, fromPage, oParamsByAct) {
+        if (!fromPage || !aNames || aNames.length === 0) return;
+        if ($scope.user) {
+            var oEnlUser, oCustom;
+            if (oEnlUser = $scope.user.enrollUser) {
+                oCustom = $parse(fromPage + '.act')(oEnlUser.custom);
+            }
+            if (!oCustom) {
+                oCustom = { stopTip: false };
+            }
+            $scope.popAct = {
+                acts: [],
+                custom: oCustom
+            };
+            $scope.$watch('popAct.custom', function(nv, ov) {
+                var oCustom;
+                if (oEnlUser) {
+                    oCustom = oEnlUser.custom;
+                    if (nv !== ov) {
+                        if (!oCustom[fromPage]) { oCustom[fromPage] = {}; }
+                        oCustom[fromPage].act = $scope.popAct.custom;
+                        http2.post(LS.j('user/updateCustom', 'site', 'app'), oCustom).then(function(rsp) {});
+                    }
+                }
+            }, true);
+            aNames.forEach(function(name) {
+                var oAct;
+                switch (name) {
+                    case 'save':
+                        oAct = { title: '保存' };
+                        break;
+                    case 'addRecord':
+                        if ($scope.app && oEnlUser) {
+                            if (parseInt($scope.app.count_limit) === 0 || $scope.app.count_limit > oEnlUser.enroll_num) {
+                                /* 允许添加记录 */
+                                oAct = { title: '添加记录', func: $scope.addRecord };
+                            }
+                        }
+                        break;
+                    case 'newRecord':
+                        oAct = { title: '添加记录' };
+                        break;
+                    case 'voteRecData':
+                        oAct = { title: '题目投票' };
+                        break;
+                    case 'scoreSchema':
+                        oAct = { title: '题目打分' };
+                        break;
+                }
+                if (oAct) {
+                    if (oParamsByAct) {
+                        if (oParamsByAct.func)
+                            if (oParamsByAct.func[name])
+                                oAct.func = oParamsByAct.func[name];
+                        if (!oAct.func && $scope[name])
+                            oAct.func = $scope[name];
+                        if (oParamsByAct.toggle)
+                            if (oParamsByAct.toggle[name])
+                                oAct.toggle = oParamsByAct.toggle[name];
+                    }
+                    $scope.popAct.acts.push(oAct);
+                }
+            });
+        }
+    };
+    /* 设置弹出导航页 */
+    $scope.setPopNav = function(aNames, fromPage, oUser) {
+        if (!fromPage || !aNames || aNames.length === 0) return;
+        if ($scope.user) {
+            var oApp, oEnlUser, oCustom;
+            oApp = $scope.app;
+            oEnlUser = $scope.user.enrollUser;
+            if (oEnlUser) {
+                oCustom = $parse(fromPage + '.nav')(oEnlUser.custom);
+            }
+            if (!oCustom) {
+                oCustom = { stopTip: false };
+            }
+            /*设置页面导航*/
+            $scope.popNav = {
+                navs: [],
+                custom: oCustom
+            };
+            $scope.$watch('popNav.custom', function(nv, ov) {
+                var oCustom;
+                if (oEnlUser) {
+                    oCustom = oEnlUser.custom;
+                    if (nv !== ov) {
+                        if (!oCustom[fromPage]) { oCustom[fromPage] = {}; }
+                        oCustom[fromPage].nav = $scope.popNav.custom;
+                        http2.post(LS.j('user/updateCustom', 'site', 'app'), oCustom).then(function(rsp) {});
+                    }
+                }
+            }, true);
+            if (oApp.scenario === 'voting' && aNames.indexOf('votes') !== -1) {
+                $scope.popNav.navs.push({ name: 'votes', title: '投票榜', url: LS.j('', 'site', 'app') + '&page=votes' });
+            }
+            if (oApp.scenarioConfig) {
+                if (oApp.scenarioConfig.can_repos === 'Y' && aNames.indexOf('repos') !== -1) {
+                    $scope.popNav.navs.push({ name: 'repos', title: '共享页', url: LS.j('', 'site', 'app') + '&page=repos' });
+                }
+                if (oApp.scenarioConfig.can_rank === 'Y' && aNames.indexOf('rank') !== -1) {
+                    $scope.popNav.navs.push({ name: 'rank', title: '排行页', url: LS.j('', 'site', 'app') + '&page=rank' });
+                }
+                if (oApp.scenarioConfig.can_stat === 'Y' && fromPage !== 'stat') {
+                    $scope.popNav.navs.push({ name: 'stat', title: '统计页', url: LS.j('', 'site', 'app') + '&page=stat' });
+                }
+                if (oApp.scenarioConfig.can_kanban === 'Y' && aNames.indexOf('kanban') !== -1) {
+                    $scope.popNav.navs.push({ name: 'kanban', title: '看板页', url: LS.j('', 'site', 'app') + '&page=kanban' });
+                }
+                if (oApp.scenarioConfig.can_action === 'Y' && aNames.indexOf('event') !== -1) {
+                    $scope.popNav.navs.push({ name: 'event', title: '动态页', url: LS.j('', 'site', 'app') + '&page=event' });
+                }
+            }
+            if (aNames.indexOf('favor') !== -1) {
+                $scope.popNav.navs.push({ name: 'favor', title: '收藏页', url: LS.j('', 'site', 'app') + '&page=favor' });
+            }
+            if (aNames.indexOf('task') !== -1 && (oApp.questionConfig.length || oApp.answerConfig.length || oApp.voteConfig.length || oApp.scoreConfig.length)) {
+                $scope.popNav.navs.push({ name: 'task', title: '任务页', url: LS.j('', 'site', 'app') + '&page=task' });
+            }
+            if ($scope.mission) {
+                $scope.popNav.navs.push({ name: 'mission', title: '项目主页', url: '/rest/site/fe/matter/mission?site=' + oApp.siteid + '&mission=' + $scope.mission.id });
+            }
+        }
+        // if (oApp.scenarioConfig.can_action === 'Y') {
+        //        /* 设置活动事件提醒 */
+        //        http2.get(LS.j('notice/count', 'site', 'app')).then(function(rsp) {
+        //            $scope.noticeCount = rsp.data;
+        //        });
+        //        oAppNavs.event = {};
+        //        oApp.length++;
+        //    }
+    };
+    /* 设置记录阅读日志信息 */
+    $scope.logAccess = function(oParams) {
+        var oApp, oUser, activeRid, oData, shareby;
+        oApp = $scope.app;
+        oUser = $scope.user;
+        activeRid = oApp.appRound.rid;
+        shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
+        oData = {
+            search: location.search.replace('?', ''),
+            referer: document.referrer,
+            rid: activeRid,
+            assignedNickname: oUser.nickname,
+            id: oApp.id,
+            type: 'enroll',
+            title: oApp.title,
+            shareby: shareby
+        }
+
+        if (oParams) {
+            if (oParams.title) { oData.title = oParams.title; }
+            oData.target_type = oParams.target_type;
+            oData.target_id = oParams.target_id;
+        }
+        http2.post('/rest/site/fe/matter/logAccess?site=' + oApp.siteid, oData);
+    };
+    $scope.isSmallLayout = false;
+    if (window.screen && window.screen.width < 992) {
+        $scope.isSmallLayout = true;
+    }
+    http2.get(LS.j('get', 'site', 'app', 'rid', 'page', 'ek', 'newRecord')).then(function success(rsp) {
+        var params = rsp.data,
+            oSite = params.site,
+            oApp = params.app,
+            oEntryRuleResult = params.entryRuleResult,
+            oMission = params.mission,
+            oPage = params.page,
+            schemasById = {};
+
+        oApp.dynaDataSchemas.forEach(function(schema) {
+            schemasById[schema.id] = schema;
+        });
+        oApp._schemasById = schemasById;
+        $scope.params = params;
+        $scope.site = oSite;
+        $scope.mission = oMission;
+        $scope.app = oApp;
+        $scope.entryRuleResult = oEntryRuleResult;
+        if (oApp.use_site_header === 'Y' && oSite && oSite.header_page) {
+            tmsDynaPage.loadCode(ngApp, oSite.header_page);
+        }
+        if (oApp.use_mission_header === 'Y' && oMission && oMission.header_page) {
+            tmsDynaPage.loadCode(ngApp, oMission.header_page);
+        }
+        if (oApp.use_mission_footer === 'Y' && oMission && oMission.footer_page) {
+            tmsDynaPage.loadCode(ngApp, oMission.footer_page);
+        }
+        if (oApp.use_site_footer === 'Y' && oSite && oSite.footer_page) {
+            tmsDynaPage.loadCode(ngApp, oSite.footer_page);
+        }
+        if (params.page) {
+            tmsDynaPage.loadCode(ngApp, params.page).then(function() {
+                $scope.page = params.page;
+            });
+        }
+        if (tasksOfOnReady.length) {
+            angular.forEach(tasksOfOnReady, execTask);
+        }
+        /* 用户信息 */
+        enlService.user().then(function(data) {
+            $scope.user = data;
+            $timeout(function() {
+                $scope.$broadcast('xxt.app.enroll.ready', params);
+            });
+            var eleLoading;
+            if (eleLoading = document.querySelector('.loading')) {
+                eleLoading.parentNode.removeChild(eleLoading);
+            }
+        });
+    });
+}]);
+module.exports = ngApp;
+
+/***/ }),
+
+/***/ 19:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var ngMod = angular.module('service.enroll', []);
+ngMod.service('enlService', ['$q', 'http2', 'tmsLocation', function($q, http2, LS) {
+    var _self, _getUserDeferred;
+	_self = this;
+	_getUserDeferred = false;
+
+	this.user = function() {
+		if (_getUserDeferred) {
+            return _getUserDeferred.promise;
+        }
+        _getUserDeferred = $q.defer();
+        http2.get(LS.j('user/get2', 'site', 'app')).then(function(rsp) {
+            _getUserDeferred.resolve(rsp.data);
+        });
+
+        return _getUserDeferred.promise;
+	}
+}]);
+
+/***/ }),
+
+/***/ 2:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('http.ui.xxt', ['ng']);
+ngMod.provider('tmsLocation', function () {
+    var _baseUrl;
+
+    this.config = function (baseUrl) {
+        _baseUrl = baseUrl || location.pathname;
+    };
+
+    this.$get = ['$location', function ($location) {
+        var myLoc;
+        if (!_baseUrl) {
+            _baseUrl = location.pathname;
+        }
+        myLoc = {
+            s: function () {
+                var ls = $location.search();
+                if (arguments.length) {
+                    var ss = [];
+                    for (var i = 0, l = arguments.length; i < l; i++) {
+                        ss.push(arguments[i] + '=' + (ls[arguments[i]] || ''));
+                    };
+                    return ss.join('&');
+                }
+                return ls;
+            },
+            j: function (method) {
+                var url = _baseUrl,
+                    search = [];
+                method && method.length && (url += '/' + method);
+                for (var i = 1, l = arguments.length; i < l; i++) {
+                    search.push(arguments[i] + '=' + ($location.search()[arguments[i]] || ''));
+                };
+                search.length && (url += '?' + search.join('&'));
+                return url;
+            },
+            path: function () {
+                return arguments.length ? $location.path(arguments[0]) : $location.path();
+            }
+        };
+
+        return myLoc;
+    }];
+});
+ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compile', function ($rootScope, $http, $timeout, $q, $sce, $compile) {
+    function _fnCreateAlert(msg, type, keep) {
+        var alertDomEl;
+        /* backdrop */
+        $sce.trustAsHtml(msg);
+        alertDomEl = angular.element('<div></div>');
+        alertDomEl.attr({
+            'class': 'tms-notice-box alert alert-' + (type ? type : 'info'),
+            'ng-style': '{\'z-index\':1099}'
+        }).html(msg);
+        if (!keep) {
+            alertDomEl[0].addEventListener('click', function () {
+                document.body.removeChild(alertDomEl[0]);
+            }, true);
+        }
+        $compile(alertDomEl)($rootScope);
+        document.body.appendChild(alertDomEl[0]);
+
+        return alertDomEl[0];
+    }
+
+    function _fnRemoveAlert(alertDomEl) {
+        if (alertDomEl) {
+            document.body.removeChild(alertDomEl);
+        }
+    }
+
+    function _requirePagination(oOptions) {
+        if (oOptions.page && angular.isObject(oOptions.page)) {
+            if (oOptions.page.at === undefined) oOptions.page.at = 1;
+            if (oOptions.page.size === undefined) oOptions.page.size = 12;
+            if (oOptions.page.j === undefined || !angular.isFunction(oOptions.page.j)) {
+                oOptions.page.j = function () {
+                    return 'page=' + this.at + '&size=' + this.size;
+                };
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 合并两个对象
+     * 解决将通过http获得的数据和本地数据合并的问题
+     */
+    function _fnMerge(oOld, oNew, aExcludeProps) {
+        if (!oNew) return;
+        if (!oOld) {
+            oOld = oNew;
+        } else if (angular.isArray(oOld)) {
+            if (oOld.length > oNew.length) {
+                oOld.splice(oNew.length - 1, oOld.length - oNew.length);
+            }
+            for (var i = 0, ii = oNew.length; i < ii; i++) {
+                if (i < oOld.length) {
+                    _fnMerge(oOld[i], oNew[i], aExcludeProps);
+                } else {
+                    oOld.push(oNew[i]);
+                }
+            }
+        } else if (angular.isObject(oOld)) {
+            for (var prop in oOld) {
+                if (aExcludeProps && aExcludeProps.indexOf(prop) !== -1) {
+                    continue;
+                }
+                if (oNew[prop] === undefined) {
+                    delete oOld[prop];
+                } else {
+                    if (angular.isObject(oNew[prop]) && angular.isObject(oOld[prop])) {
+                        _fnMerge(oOld[prop], oNew[prop], aExcludeProps);
+                    } else {
+                        oOld[prop] = oNew[prop];
+                    }
+                }
+            }
+            for (var prop in oNew) {
+                if (aExcludeProps && aExcludeProps.indexOf(prop) !== -1) {
+                    continue;
+                }
+                if (oOld[prop] === undefined) {
+                    oOld[prop] = oNew[prop];
+                }
+            }
+        }
+
+        return true;
+    }
+
+    this.get = function (url, oOptions) {
+        var _alert, _timer, _defer = $q.defer();
+        oOptions = angular.extend({
+            'headers': {
+                'accept': 'application/json'
+            },
+            'parseResponse': true,
+            'autoBreak': true,
+            'autoNotice': true,
+            'showProgress': true,
+            'showProgressDelay': 500,
+            'showProgressText': '正在获取数据...',
+        }, oOptions);
+        if (oOptions.showProgress === true) {
+            _timer = $timeout(function () {
+                _timer = null;
+                _alert = _fnCreateAlert(oOptions.showProgressText, 'info');
+            }, oOptions.showProgressDelay);
+        }
+        if (_requirePagination(oOptions)) {
+            url += (url.indexOf('?') === -1 ? '?' : '&') + oOptions.page.j();
+        }
+        $http.get(url, oOptions).success(function (rsp) {
+            if (oOptions.page && rsp.data.total !== undefined) {
+                oOptions.page.total = rsp.data.total;
+            }
+            if (oOptions.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    _fnRemoveAlert(_alert);
+                    _alert = null;
+                }
+            }
+            if (!oOptions.parseResponse) {
+                _defer.resolve(rsp);
+            } else {
+                if (angular.isString(rsp)) {
+                    if (oOptions.autoNotice) {
+                        _fnCreateAlert(rsp, 'warning');
+                    }
+                    if (oOptions.autoBreak) {
+                        return
+                    } else {
+                        _defer.reject(rsp);
+                    }
+                } else if (rsp.err_code != 0) {
+                    if (oOptions.autoNotice) {
+                        var errmsg;
+                        if (angular.isString(rsp.err_msg)) {
+                            errmsg = rsp.err_msg;
+                        } else if (angular.isArray(rsp.err_msg)) {
+                            errmsg = rsp.err_msg.join('<br>');
+                        } else {
+                            errmsg = JSON.stringify(rsp.err_msg);
+                        }
+                        _fnCreateAlert(errmsg, 'warning');
+                    }
+                    if (oOptions.autoBreak) {
+                        return
+                    } else {
+                        _defer.reject(rsp);
+                    }
+                } else {
+                    _defer.resolve(rsp);
+                }
+            }
+        }).error(function (data, status) {
+            if (oOptions.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    _fnRemoveAlert(_alert);
+                    _alert = null;
+                }
+            }
+            _fnCreateAlert(data === null ? '网络不可用' : data, 'danger');
+        });
+
+        return _defer.promise;
+    };
+    this.post = function (url, posted, oOptions) {
+        var _alert, _timer, _defer = $q.defer();
+        oOptions = angular.extend({
+            'headers': {
+                'accept': 'application/json'
+            },
+            'parseResponse': true,
+            'autoBreak': true,
+            'autoNotice': true,
+            'showProgress': true,
+            'showProgressDelay': 500,
+            'showProgressText': '正在获取数据...',
+        }, oOptions);
+        if (oOptions.showProgress === true) {
+            _timer = $timeout(function () {
+                _timer = null;
+                _alert = _fnCreateAlert(oOptions.showProgressText, 'info');
+            }, oOptions.showProgressDelay);
+        }
+        if (_requirePagination(oOptions)) {
+            url += (url.indexOf('?') === -1 ? '?' : '&') + oOptions.page.j();
+        }
+        $http.post(url, posted, oOptions).success(function (rsp) {
+            if (oOptions.page && rsp.data.total !== undefined) {
+                oOptions.page.total = rsp.data.total;
+            }
+            if (oOptions.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    _fnRemoveAlert(_alert);
+                    _alert = null;
+                }
+            }
+            if (!oOptions.parseResponse) {
+                _defer.resolve(rsp);
+            } else {
+                if (angular.isString(rsp)) {
+                    if (oOptions.autoNotice) {
+                        _fnCreateAlert(rsp, 'warning');
+                        _alert = null;
+                    }
+                    if (oOptions.autoBreak) {
+                        return
+                    } else {
+                        _defer.reject(rsp);
+                    }
+                } else if (rsp.err_code != 0) {
+                    if (oOptions.autoNotice) {
+                        var errmsg;
+                        if (angular.isString(rsp.err_msg)) {
+                            errmsg = rsp.err_msg;
+                        } else if (angular.isArray(rsp.err_msg)) {
+                            errmsg = rsp.err_msg.join('<br>');
+                        } else {
+                            errmsg = JSON.stringify(rsp.err_msg);
+                        }
+                        _fnCreateAlert(errmsg, 'warning');
+                    }
+                    if (oOptions.autoBreak) {
+                        return
+                    } else {
+                        _defer.reject(rsp);
+                    }
+                } else {
+                    _defer.resolve(rsp);
+                }
+            }
+        }).error(function (data, status) {
+            if (oOptions.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                if (_alert) {
+                    _fnRemoveAlert(_alert);
+                    _alert = null;
+                }
+            }
+            _fnCreateAlert(data === null ? '网络不可用' : data, 'danger');
+        });
+
+        return _defer.promise;
+    };
+    /**
+     * 合并两个对象
+     * 解决将通过http获得的数据和本地数据合并的问题
+     */
+    this.merge = function (oOld, oNew, aExcludeProps) {
+        if (angular.equals(oOld, oNew)) {
+            return false;
+        }
+        return _fnMerge(oOld, oNew, aExcludeProps);
+    };
+}]);
+
+/***/ }),
+
+/***/ 25:
+/***/ (function(module, exports) {
+
+module.exports = "<div class=\"modal-header\">\r\n    <button class=\"close\" type=\"button\" ng-click=\"cancel()\">×</button>\r\n    <h5 class=\"modal-title\">选择轮次</h5>\r\n</div>\r\n<div class=\"modal-body\">\r\n    <div class='form-group'>\r\n        <button class='btn btn-default btn-sm' ng-click=\"clean()\">清除<span>已选的{{countOfChecked}}项</span></button>\r\n    </div>\r\n    <div class='form-group' style='height:230px;overflow-y:auto'>\r\n        <div ng-if=\"!options.excludeAll\">\r\n            <label class='checkbox-inline'>\r\n                <input type='checkbox' ng-model=\"checkedRounds.ALL\" ng-change=\"toggleCheckedRound('ALL')\">全部轮次</label>\r\n        </div>\r\n        <div ng-if=\"activeRound\">\r\n            <label class='checkbox-inline'>\r\n                <input type='checkbox' ng-model=\"checkedRounds[activeRound.rid]\" ng-change=\"toggleCheckedRound(activeRound.rid)\">{{activeRound.title}}<span>（启用）</span></label>\r\n        </div>\r\n        <div ng-repeat=\"rnd in rounds\">\r\n            <label class='checkbox-inline'>\r\n                <input type='checkbox' ng-model=\"checkedRounds[rnd.rid]\" ng-change=\"toggleCheckedRound(rnd.id)\">{{rnd.title}}</label>\r\n        </div>\r\n    </div>\r\n    <div ng-show=\"pageOfRound.total>pageOfRound.size\">\r\n        <span class='hidden-xs' style='line-height:30px'>总数：{{pageOfRound.total}}</span>\r\n        <ul uib-pagination class='pagination-sm' style=\"margin:0;vertical-align:bottom;cursor:pointer\" boundary-links=\"true\" total-items=\"pageOfRound.total\" max-size=\"5\" items-per-page=\"pageOfRound.size\" rotate=\"false\" ng-model=\"pageOfRound.at\" previous-text=\"&lsaquo;\" next-text=\"&rsaquo;\" first-text=\"&laquo;\" last-text=\"&raquo;\" ng-change=\"doSearch()\"></ul>\r\n    </div>\r\n</div>\r\n<div class=\"modal-footer\">\r\n    <button class=\"btn btn-primary\" ng-click=\"ok()\">确定</button>\r\n</div>"
+
+/***/ }),
+
+/***/ 26:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var ngMod = angular.module('round.ui.enroll', []);
+ngMod.factory('enlRound', ['http2', '$q', '$uibModal', 'tmsLocation', function(http2, $q, $uibModal, LS) {
+    var Round;
+    Round = function(oApp) {
+        this.app = oApp;
+        this.page = {};
+    };
+    Round.prototype.get = function(aRids) {
+        var defer;
+        defer = $q.defer();
+        if (aRids.indexOf('ALL') !== -1) {
+            defer.resolve({ rid: 'ALL', title: '全部轮次' });
+        } else {
+            http2.get(LS.j('round/get', 'site', 'app') + '&rid=' + aRids).then(function(rsp) {
+                defer.resolve(rsp.data);
+            });
+        }
+
+        return defer.promise;
+    };
+    Round.prototype.list = function() {
+        var deferred = $q.defer();
+        http2.get(LS.j('round/list', 'site', 'app'), { page: this.page }).then(function(rsp) {
+            deferred.resolve(rsp.data);
+        });
+        return deferred.promise;
+    };
+    Round.prototype.getRoundTitle = function(aRids) {
+        var defer;
+        defer = $q.defer();
+        if (aRids.indexOf('ALL') !== -1) {
+            defer.resolve('全部轮次');
+        } else {
+            var titles;
+            http2.get(LS.j('round/get', 'site', 'app') + '&rid=' + aRids).then(function(rsp) {
+                if (rsp.data.length === 1) {
+                    titles = rsp.data[0].title;
+                } else if (rsp.data.length === 2) {
+                    titles = rsp.data[0].title + ',' + rsp.data[1].title;
+                } else if (rsp.data.length > 2) {
+                    titles = rsp.data[0].title + '-' + rsp.data[rsp.data.length - 1].title;
+                }
+                defer.resolve(titles);
+            });
+        }
+
+        return defer.promise;
+    };
+    Round.prototype.pick = function(aCheckedRounds, oOptions) {
+        var _self = this;
+        return $uibModal.open({
+            template: __webpack_require__(25),
+            backdrop: 'static',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                var oCheckedRounds;
+                $scope2.pageOfRound = _self.page;
+                $scope2.checkedRounds = oCheckedRounds = {};
+                $scope2.countOfChecked = 0;
+                $scope2.options = {};
+                if (oOptions) angular.extend($scope2.options, oOptions);
+                $scope2.toggleCheckedRound = function(rid) {
+                    if (rid === 'ALL') {
+                        if (oCheckedRounds.ALL) {
+                            $scope2.checkedRounds = oCheckedRounds = { ALL: true };
+                        } else {
+                            $scope2.checkedRounds = oCheckedRounds = {};
+                        }
+                    } else {
+                        if (oCheckedRounds[rid]) {
+                            delete oCheckedRounds.ALL;
+                        } else {
+                            delete oCheckedRounds[rid];
+                        }
+                    }
+                    $scope2.countOfChecked = Object.keys(oCheckedRounds).length;
+                };
+                $scope2.clean = function() {
+                    $scope2.checkedRounds = oCheckedRounds = {};
+                };
+                $scope2.ok = function() {
+                    var checkedRoundIds = [];
+                    if (Object.keys(oCheckedRounds).length) {
+                        angular.forEach(oCheckedRounds, function(v, k) {
+                            if (v) {
+                                checkedRoundIds.push(k);
+                            }
+                        });
+                    }
+                    _self.getRoundTitle(checkedRoundIds).then(function(titles) {
+                        $mi.close({ ids: checkedRoundIds, titles: titles });
+                    });
+                };
+                $scope2.cancel = function() {
+                    $mi.dismiss('cancel');
+                };
+                $scope2.doSearch = function() {
+                    _self.list().then(function(result) {
+                        $scope2.activeRound = result.active;
+                        if ($scope2.activeRound) {
+                            var otherRounds = [];
+                            result.rounds.forEach(function(oRound) {
+                                if (oRound.rid !== $scope2.activeRound.rid) {
+                                    otherRounds.push(oRound);
+                                }
+                            });
+                            $scope2.rounds = otherRounds;
+                        } else {
+                            $scope2.rounds = result.rounds;
+                        }
+
+                    });
+                };
+                if (angular.isArray(aCheckedRounds)) {
+                    if (aCheckedRounds.length) {
+                        aCheckedRounds.forEach(function(rid) {
+                            oCheckedRounds[rid] = true;;
+                        });
+                    }
+                }
+                $scope2.countOfChecked = Object.keys(oCheckedRounds).length;
+                $scope2.doSearch();
+            }]
+        }).result;
+    };
+
+    return Round;
+}]);
+
+/***/ }),
+
+/***/ 27:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var ngMod = angular.module('task.ui.enroll', []);
+ngMod.factory('enlTask', ['http2', '$q', '$parse', '$filter', '$uibModal', 'tmsLocation', function (http2, $q, $parse, $filter, $uibModal, LS) {
+    var i18n = {
+        weekday: {
+            'Mon': '周一',
+            'Tue': '周二',
+            'Wed': '周三',
+            'Thu': '周四',
+            'Fri': '周五',
+            'Sat': '周六',
+            'Sun': '周日',
+        }
+    };
+
+    function fnTaskToString() {
+        var oTask = this,
+            strs = [],
+            min, max, limit, str, weekday, oDateFilter;
+
+        oDateFilter = $filter('date');
+        str = oDateFilter(oTask.start_at * 1000, 'M月d日（EEE）H:mm');
+        weekday = oDateFilter(oTask.start_at * 1000, 'EEE');
+        str = str.replace(weekday, i18n.weekday[weekday]);
+        strs.push(str, '到');
+        str = oDateFilter(oTask.end_at * 1000, 'M月d日（EEE）H:mm');
+        weekday = oDateFilter(oTask.end_at * 1000, 'EEE');
+        str = str.replace(weekday, i18n.weekday[weekday]);
+        strs.push(str);
+
+        min = parseInt($parse('limit.min')(oTask));
+        max = parseInt($parse('limit.max')(oTask));
+        if (min && max)
+            limit = min + '-' + max + '个';
+        else if (min)
+            limit = '不少于' + min + '个';
+        else if (max)
+            limit = '不多于' + min + '个';
+        else
+            limit = '';
+
+        switch (oTask.type) {
+            case 'question':
+                strs.push('，完成' + limit + '提问。');
+                break;
+            case 'answer':
+                strs.push('，完成' + limit + '回答。');
+                break;
+            case 'vote':
+                strs.push('，完成' + limit + '投票。');
+                break;
+            case 'score':
+                strs.push('，完成打分。');
+                break;
+        }
+        return strs.join('');
+    }
+
+    function fnTaskTimeFormat() {
+        var oTask = this,
+            strs = {},
+            str, weekday, oDateFilter;
+
+        oDateFilter = $filter('date');
+        if (oTask.start_at) {
+            str = oDateFilter(oTask.start_at * 1000, 'M月d日(EEE)H:mm');
+            weekday = oDateFilter(oTask.start_at * 1000, 'EEE');
+            str = str.replace(weekday, i18n.weekday[weekday]);
+            strs.start_at = str;
+        } else {
+            strs.start_at = 0;
+        }
+
+        if (oTask.end_at) {
+            str = oDateFilter(oTask.end_at * 1000, 'M月d日(EEE)H:mm');
+            weekday = oDateFilter(oTask.end_at * 1000, 'EEE');
+            str = str.replace(weekday, i18n.weekday[weekday]);
+            strs.end_at = str;
+        } else {
+            strs.end_at = 0;
+        }
+
+        return strs;
+    }
+    var Task;
+    Task = function (oApp) {
+        this.app = oApp;
+    };
+    Task.prototype.list = function (type, state, rid, ek) {
+        var deferred, url;
+        deferred = $q.defer();
+        url = LS.j('task/list', 'site', 'app');
+        if (type) url += '&type=' + type;
+        if (state) url += '&state=' + state;
+        if (rid) url += '&rid=' + rid;
+        if (ek) url += '&ek=' + ek;
+        http2.get(url).then(function (rsp) {
+            if (rsp.data && rsp.data.length) {
+                rsp.data.forEach(function (oTask) {
+                    oTask.toString = fnTaskToString;
+                    oTask.timeFormat = fnTaskTimeFormat;
+                });
+            }
+            deferred.resolve(rsp.data);
+        });
+        return deferred.promise;
+    };
+    Task.prototype.enhance = function (oTask) {
+        if (oTask) {
+            oTask.toString = fnTaskToString;
+            oTask.timeFormat = fnTaskTimeFormat;
+        }
+        return oTask;
+    };
+
+    return Task;
+}]);
+
+/***/ }),
+
+/***/ 3:
+/***/ (function(module, exports) {
+
+
+/**
+ * When source maps are enabled, `style-loader` uses a link element with a data-uri to
+ * embed the css on the page. This breaks all relative urls because now they are relative to a
+ * bundle instead of the current page.
+ *
+ * One solution is to only use full urls, but that may be impossible.
+ *
+ * Instead, this function "fixes" the relative urls to be absolute according to the current page location.
+ *
+ * A rudimentary test suite is located at `test/fixUrls.js` and can be run via the `npm test` command.
+ *
+ */
+
+module.exports = function (css) {
+  // get current location
+  var location = typeof window !== "undefined" && window.location;
+
+  if (!location) {
+    throw new Error("fixUrls requires window.location");
+  }
+
+	// blank or null?
+	if (!css || typeof css !== "string") {
+	  return css;
+  }
+
+  var baseUrl = location.protocol + "//" + location.host;
+  var currentDir = baseUrl + location.pathname.replace(/\/[^\/]*$/, "/");
+
+	// convert each url(...)
+	/*
+	This regular expression is just a way to recursively match brackets within
+	a string.
+
+	 /url\s*\(  = Match on the word "url" with any whitespace after it and then a parens
+	   (  = Start a capturing group
+	     (?:  = Start a non-capturing group
+	         [^)(]  = Match anything that isn't a parentheses
+	         |  = OR
+	         \(  = Match a start parentheses
+	             (?:  = Start another non-capturing groups
+	                 [^)(]+  = Match anything that isn't a parentheses
+	                 |  = OR
+	                 \(  = Match a start parentheses
+	                     [^)(]*  = Match anything that isn't a parentheses
+	                 \)  = Match a end parentheses
+	             )  = End Group
+              *\) = Match anything and then a close parens
+          )  = Close non-capturing group
+          *  = Match anything
+       )  = Close capturing group
+	 \)  = Match a close parens
+
+	 /gi  = Get all matches, not the first.  Be case insensitive.
+	 */
+	var fixedCss = css.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi, function(fullMatch, origUrl) {
+		// strip quotes (if they exist)
+		var unquotedOrigUrl = origUrl
+			.trim()
+			.replace(/^"(.*)"$/, function(o, $1){ return $1; })
+			.replace(/^'(.*)'$/, function(o, $1){ return $1; });
+
+		// already a full url? no change
+		if (/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/|\s*$)/i.test(unquotedOrigUrl)) {
+		  return fullMatch;
+		}
+
+		// convert the url to a full url
+		var newUrl;
+
+		if (unquotedOrigUrl.indexOf("//") === 0) {
+		  	//TODO: should we add protocol?
+			newUrl = unquotedOrigUrl;
+		} else if (unquotedOrigUrl.indexOf("/") === 0) {
+			// path should be relative to the base url
+			newUrl = baseUrl + unquotedOrigUrl; // already starts with '/'
+		} else {
+			// path should be relative to current directory
+			newUrl = currentDir + unquotedOrigUrl.replace(/^\.\//, ""); // Strip leading './'
+		}
+
+		// send back the fixed url(...)
+		return "url(" + JSON.stringify(newUrl) + ")";
+	});
+
+	// send back the fixed css
+	return fixedCss;
+};
+
+
+/***/ }),
+
+/***/ 34:
+/***/ (function(module, exports) {
+
+module.exports = "<nav class=\"navbar site-navbar-light navbar-fixed-bottom\">\r\n    <div class=\"container\">\r\n        <ul class='nav site-nav'>\r\n            <li ng-repeat=\"nav in navs\" ng-class=\"{'active': activeNav.type===nav.type}\" ng-switch on=\"nav.type\" ng-click=\"switchNav($event, nav)\">\r\n                <a href ng-switch-when=\"mission\">\r\n                    <i class=\"glyphicon glyphicon-th-list\"></i><span ng-bind=\"nav.title\"></span>\r\n                </a>\r\n                <a href ng-switch-when=\"repos\">\r\n                    <i class=\"glyphicon glyphicon-home\"></i><span ng-bind=\"nav.title\"></span>\r\n                </a>\r\n                <a href ng-switch-when=\"activities\">\r\n                    <i class=\"glyphicon glyphicon-tasks\"></i><span ng-bind=\"nav.title\"></span>\r\n                </a>\r\n                <a href ng-switch-when=\"summary\">\r\n                    <i class=\"glyphicon glyphicon-stats\"></i><span ng-bind=\"nav.title\"></span>\r\n                </a>\r\n                <a href ng-switch-when=\"people\">\r\n                    <i class=\"glyphicon glyphicon-user\"></i><span ng-bind=\"nav.title\"></span>\r\n                </a>\r\n            </li>\r\n        </ul>\r\n    </div>\r\n</nav>"
+
+/***/ }),
+
+/***/ 37:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var ngMod = angular.module('nav.bottom.ui', []);
+ngMod.directive('tmsBottomNav', ['$templateCache', function($templateCache) {
+    return {
+        restrict: 'E',
+        replace: true,
+        template: __webpack_require__(34),
+        scope: {
+            navs: '=',
+            activeNav: '=',
+            type: '@'
+        },
+        link: function(scope, elems, attrs) {
+            scope.switchNav = function($event, nav) {
+                location.href = nav.url;
+            };
+            scope.$watch('navs', function(navs) {
+                if (!navs) { return false; }
+                navs.forEach(function(nav) {
+                    if (nav.type === scope.type) {
+                        scope.activeNav = nav;
+                    }
+                });
+            });
+        }
+    };
+}]);
+
+/***/ }),
+
+/***/ 4:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('page.ui.xxt', []);
+ngMod.directive('dynamicHtml', ['$compile', function($compile) {
+    return {
+        restrict: 'EA',
+        replace: true,
+        link: function(scope, ele, attrs) {
+            scope.$watch(attrs.dynamicHtml, function(html) {
+                if (html && html.length) {
+                    ele.html(html);
+                    $compile(ele.contents())(scope);
+                }
+            });
+        }
+    };
+}]);
+ngMod.service('tmsDynaPage', ['$q', function($q) {
+    this.loadCss = function(css) {
+        var style, head;
+        style = document.createElement('style');
+        style.innerHTML = css;
+        head = document.querySelector('head');
+        head.appendChild(style);
+    };
+    this.loadExtCss = function(url) {
+        var link, head;
+        link = document.createElement('link');
+        link.href = url;
+        link.rel = 'stylesheet';
+        head = document.querySelector('head');
+        head.appendChild(link);
+    };
+    this.loadJs = function(ngApp, js) {
+        (function(ngApp) {
+            eval(js);
+        })(ngApp);
+    };
+    this.loadScript = function(urls) {
+        var index, fnLoad, deferred = $q.defer();
+        fnLoad = function() {
+            var script;
+            script = document.createElement('script');
+            script.src = urls[index];
+            script.onload = function() {
+                index++;
+                if (index < urls.length) {
+                    fnLoad();
+                } else {
+                    deferred.resolve();
+                }
+            };
+            document.body.appendChild(script);
+        };
+        if (urls) {
+            angular.isString(urls) && (urls = [urls]);
+            if (urls.length) {
+                index = 0;
+                fnLoad();
+            }
+        }
+
+        return deferred.promise;
+    };
+    this.loadExtJs = function(ngApp, code) {
+        var _self = this,
+            deferred = $q.defer(),
+            jslength = code.ext_js.length,
+            loadScript2;
+        loadScript2 = function(js) {
+            var script;
+            script = document.createElement('script');
+            script.src = js.url;
+            script.onload = function() {
+                jslength--;
+                if (jslength === 0) {
+                    if (code.js && code.js.length) {
+                        _self.loadJs(ngApp, code.js);
+                    }
+                    deferred.resolve();
+                }
+            };
+            document.body.appendChild(script);
+        };
+        if (code.ext_js && code.ext_js.length) {
+            code.ext_js.forEach(loadScript2);
+        }
+        return deferred.promise;
+    };
+    this.loadCode = function(ngApp, code) {
+        var _self = this,
+            deferred = $q.defer();
+        if (code.ext_css && code.ext_css.length) {
+            code.ext_css.forEach(function(css) {
+                _self.loadExtCss(css.url);
+            });
+        }
+        if (code.css && code.css.length) {
+            this.loadCss(code.css);
+        }
+        if (code.ext_js && code.ext_js.length) {
+            _self.loadExtJs(ngApp, code).then(function() {
+                deferred.resolve();
+            });
+        } else {
+            if (code.js && code.js.length) {
+                _self.loadJs(ngApp, code.js);
+            }
+            deferred.resolve();
+        }
+        return deferred.promise;
+    };
+    this.openPlugin = function(content) {
+        var frag, wrap, frm, html, body, deferred;
+        deferred = $q.defer();
+        if (!content) {
+            console.log('参数为空');
+            deferred.reject();
+        }
+        if (document.documentElement.clientWidth > 768) {
+            document.documentElement.scrollTop = 0;
+        } else {
+            document.body.scrollTop = 0;
+        }
+        body = document.getElementsByTagName('body')[0];
+        html = document.getElementsByTagName('html')[0];
+        html.style.cssText = "height:100%;"
+        body.style.cssText = "height:100%;overflow-y:hidden";
+        frag = document.createDocumentFragment();
+        wrap = document.createElement('div');
+        wrap.setAttribute('id', 'frmPlugin');
+        frm = document.createElement('iframe');
+        wrap.appendChild(frm);
+        wrap.onclick = function() {
+            wrap.parentNode.removeChild(wrap);
+            body.style.cssText = "overflow-y:auto";
+        };
+        frag.appendChild(wrap);
+        document.body.appendChild(frag);
+        if (content.indexOf('http') === 0) {
+            window.onClosePlugin = function(result) {
+                wrap.parentNode.removeChild(wrap);
+                body.style.cssText = "overflow-y:auto";
+                deferred.resolve(result);
+            };
+            frm.setAttribute('src', content);
+        } else {
+            if (frm.contentDocument && frm.contentDocument.body) {
+                frm.contentDocument.body.innerHTML = content;
+            }
+        }
+        return deferred.promise;
+    };
+}]);
+
+/***/ }),
+
+/***/ 5:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+ 
+ var ngMod = angular.module('snsshare.ui.xxt', []);
+ ngMod.service('tmsSnsShare', ['$http', function($http) {
+     function setWxShare(title, link, desc, img, options) {
+         var _this = this;
+         window.wx.onMenuShareTimeline({
+             title: options.descAsTitle ? desc : title,
+             link: link,
+             imgUrl: img,
+             success: function() {
+                 try {
+                     options.logger && options.logger('T');
+                 } catch (ex) {
+                     alert('share failed:' + ex.message);
+                 }
+             },
+             cancel: function() {},
+             fail: function() {
+                 alert('shareT: fail');
+             }
+         });
+         window.wx.onMenuShareAppMessage({
+             title: title,
+             desc: desc,
+             link: link,
+             imgUrl: img,
+             success: function() {
+                 try {
+                     options.logger && options.logger('F');
+                 } catch (ex) {
+                     alert('share failed:' + ex.message);
+                 }
+             },
+             cancel: function() {},
+             fail: function() {
+                 alert('shareF: fail');
+             }
+         });
+     }
+
+     var _isReady = false;
+     this.config = function(options) {
+         this.options = options;
+     };
+     this.set = function(title, link, desc, img, fnOther) {
+         var _this = this;
+         // 将图片的相对地址改为绝对地址
+         img && img.indexOf(location.protocol) === -1 && (img = location.protocol + '//' + location.host + img);
+         if (_isReady) {
+             if (/MicroMessenger/i.test(navigator.userAgent)) {
+                 setWxShare(title, link, desc, img, _this.options);
+             } else if (fnOther && typeof fnOther === 'function') {
+                 fnOther(title, link, desc, img);
+             }
+         } else {
+             if (/MicroMessenger/i.test(navigator.userAgent)) {
+                 var script;
+                 script = document.createElement('script');
+                 script.src = location.protocol + '//res.wx.qq.com/open/js/jweixin-1.0.0.js';
+                 script.onload = function() {
+                     var xhr, url;
+                     xhr = new XMLHttpRequest();
+                     url = "/rest/site/fe/wxjssdksignpackage?site=" + _this.options.siteId + "&url=" + encodeURIComponent(location.href.split('#')[0]);
+                     xhr.open('GET', url, true);
+                     xhr.onreadystatechange = function() {
+                         if (xhr.readyState == 4) {
+                             if (xhr.status >= 200 && xhr.status < 400) {
+                                 var signPackage;
+                                 try {
+                                     eval("(" + xhr.responseText + ')');
+                                     if (signPackage) {
+                                         signPackage.debug = false;
+                                         signPackage.jsApiList = _this.options.jsApiList;
+                                         wx.config(signPackage);
+                                         wx.ready(function() {
+                                             setWxShare(title, link, desc, img, _this.options);
+                                             _isReady = true;
+                                         });
+                                         wx.error(function(res) {
+                                             alert(JSON.stringify(res));
+                                         });
+                                     }
+                                 } catch (e) {
+                                     alert('local error:' + e.toString());
+                                 }
+                             } else {
+                                 alert('http error:' + xhr.statusText);
+                             }
+                         };
+                     }
+                     xhr.send();
+                 };
+                 document.body.appendChild(script);
+             } else if (fnOther && typeof fnOther === 'function') {
+                 fnOther(title, link, desc, img);
+                 _isReady = true;
+             }
+         }
+     };
+ }]);
+
+/***/ }),
+
+/***/ 6:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var ngMod = angular.module('notice.ui.xxt', ['ng', 'ngSanitize']);
+ngMod.service('noticebox', ['$timeout', '$interval', '$q', function($timeout, $interval, $q) {
+    var _boxId = 'tmsbox' + (new Date * 1),
+        _last = {
+            type: '',
+            timer: null
+        },
+        _getBox = function(type, msg) {
+            var box;
+            box = document.querySelector('#' + _boxId);
+            if (box === null) {
+                box = document.createElement('div');
+                box.setAttribute('id', _boxId);
+                box.classList.add('tms-notice-box', 'alert', 'alert-' + type);
+                box.innerHTML = '<div>' + msg + '</div>';
+                document.body.appendChild(box);
+                _last.type = type;
+            } else {
+                if (_last.type !== type) {
+                    box.classList.remove('alert-' + type);
+                    _last.type = type;
+                }
+                box.childNodes[0].innerHTML = msg;
+            }
+
+            return box;
+        };
+
+    this.close = function() {
+        var box;
+        box = document.querySelector('#' + _boxId);
+        if (box) {
+            document.body.removeChild(box);
+        }
+    };
+    this.error = function(msg) {
+        var box, btn;
+
+        /*取消自动关闭*/
+        if (_last.timer) {
+            $timeout.cancel(_last.timer);
+            _last.timer = null;
+        }
+        /*显示消息框*/
+        box = _getBox('danger', msg);
+        /*手工关闭*/
+        btn = document.createElement('button');
+        btn.classList.add('close');
+        btn.innerHTML = '<span>&times;</span>';
+        box.insertBefore(btn, box.childNodes[0]);
+        btn.addEventListener('click', function() {
+            document.body.removeChild(box);
+        });
+    };
+    this.warn = function(msg) {
+        var box, btn;
+
+        /*取消自动关闭*/
+        if (_last.timer) {
+            $timeout.cancel(_last.timer);
+            _last.timer = null;
+        }
+        /*显示消息框*/
+        box = _getBox('warning', msg);
+        /*手工关闭*/
+        btn = document.createElement('button');
+        btn.classList.add('close');
+        btn.innerHTML = '<span>&times;</span>';
+        box.insertBefore(btn, box.childNodes[0]);
+        btn.addEventListener('click', function() {
+            document.body.removeChild(box);
+        });
+    };
+    this.success = function(msg) {
+        var box;
+        /*取消自动关闭*/
+        _last.timer && $timeout.cancel(_last.timer);
+        /*显示消息框*/
+        box = _getBox('success', msg);
+        /*保持2秒钟后自动关闭*/
+        _last.timer = $timeout(function() {
+            if (box.parentNode && box.parentNode === document.body) {
+                document.body.removeChild(box);
+            }
+            _last.timer = null;
+        }, 2000);
+    };
+    this.info = function(msg) {
+        var box;
+        /*取消自动关闭*/
+        _last.timer && $timeout.cancel(_last.timer);
+        /*显示消息框*/
+        box = _getBox('info', msg);
+        /*保持2秒钟后自动关闭*/
+        _last.timer = $timeout(function() {
+            if (box.parentNode && box.parentNode === document.body) {
+                document.body.removeChild(box);
+            }
+            _last.timer = null;
+        }, 2000);
+    };
+    this.progress = function(msg) {
+        /*显示消息框*/
+        _getBox('progress', msg);
+    };
+    this.confirm = function(msg, buttons) {
+        var defer, box, btn;
+        defer = $q.defer();
+        /*取消自动关闭*/
+        if (_last.timer) {
+            $timeout.cancel(_last.timer);
+            _last.timer = null;
+        }
+        /*显示消息框*/
+        box = _getBox('warning', msg);
+        /*添加操作*/
+        if (buttons && buttons.length) {
+            buttons.forEach(function(oButton) {
+                btn = document.createElement('button');
+                btn.classList.add('btn', 'btn-default', 'btn-sm');
+                btn.innerHTML = oButton.label;
+                box.appendChild(btn, box.childNodes[0]);
+                btn.addEventListener('click', function() {
+                    document.body.removeChild(box);
+                    defer.resolve(oButton.value);
+                });
+                if (oButton.execWait) {
+                    var counter = Math.ceil(oButton.execWait / 500);
+                    var countdown = document.createElement('span');
+                    countdown.classList.add('countdown');
+                    countdown.innerHTML = counter;
+                    btn.appendChild(countdown);
+                    $interval(function() {
+                        countdown.innerHTML = --counter;
+                    }, 500);
+                    /* 自动关闭 */
+                    _last.timer = $timeout(function() {
+                        if (box.parentNode && box.parentNode === document.body) {
+                            document.body.removeChild(box);
+                        }
+                        _last.timer = null;
+                        defer.resolve(oButton.value);
+                    }, oButton.execWait);
+                }
+            });
+        } else {
+            btn = document.createElement('button');
+            btn.classList.add('btn', 'btn-default', 'btn-sm');
+            btn.innerHTML = '是';
+            box.appendChild(btn, box.childNodes[0]);
+            btn.addEventListener('click', function() {
+                document.body.removeChild(box);
+                defer.resolve();
+            });
+            btn = document.createElement('button');
+            btn.classList.add('btn', 'btn-default', 'btn-sm');
+            btn.innerHTML = '否';
+            box.appendChild(btn, box.childNodes[0]);
+            btn.addEventListener('click', function() {
+                document.body.removeChild(box);
+                defer.reject();
+            });
+        }
+
+        return defer.promise;
+    };
+}]);
+
+/***/ }),
+
+/***/ 66:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+__webpack_require__(121);
+__webpack_require__(37);
+__webpack_require__(26);
+__webpack_require__(27);
+
+window.moduleAngularModules = ['nav.bottom.ui', 'round.ui.enroll', 'task.ui.enroll', 'ngRoute'];
+
+var ngApp = __webpack_require__(18);
+ngApp.config(['$routeProvider', function($routeProvider) {
+    $routeProvider
+        .when('/rest/site/fe/matter/enroll/activities/kanban', { template: __webpack_require__(110), controller: 'ctrlActivitiesKanban' })
+        .when('/rest/site/fe/matter/enroll/activities/event', { template: __webpack_require__(109), controller: 'ctrlActivitiesEvent' })
+        .otherwise({ template: __webpack_require__(111), controller: 'ctrlActivitiesTask' });
+}]);
+ngApp.filter('filterTime', function() {
+    return function(e) {
+        var result, h, m, s, time = e * 1;
+        h = Math.floor(time / 3600);
+        m = Math.floor((time / 60 % 60));
+        s = Math.floor((time % 60));
+        return result = h + ":" + m + ":" + s;
+    }
+});
+ngApp.controller('ctrlActivities', ['$scope', '$location', 'tmsLocation', 'http2', function($scope, $location, LS, http2) {
+    $scope.activeNav = '';
+    $scope.viewTo = function(event, subView) {
+        $scope.activeView = subView;
+        var url = '/rest/site/fe/matter/enroll/activities/' + subView.type;
+        LS.path(url);
+    };
+    $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+        var subView = currentRoute.match(/([^\/]+?)\?/);
+        $scope.subView = subView[1] === 'task' ? 'task' : subView[1];
+    });
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        /* 请求导航 */
+        http2.get(LS.j('navs', 'site', 'app')).then(function(rsp) {
+            $scope.navs = rsp.data;
+        });
+    });
+}]);
+ngApp.controller('ctrlActivitiesTask', ['$scope', '$parse', '$q', '$uibModal', 'http2', 'tmsLocation', 'noticebox', 'enlRound', 'enlTask', function($scope, $parse, $q, $uibModal, http2, LS, noticebox, enlRound, enlTask) {
+    function fnGetTasks(oRound) {
+        _tasks.splice(0, _tasks.length);
+        _enlTask.list(null, null, oRound.rid).then(function(roundTasks) {
+            if (roundTasks.length) {
+                roundTasks.forEach(function(oTask) {
+                    _tasks.push(oTask);
+                });
+            }
+        });
+    }
+    var _oApp, _tasks, _enlTask;
+    $scope.tasks = _tasks = [];
+    $scope.Label = { task: { state: { 'IP': '进行中', 'BS': '未开始', 'AE': '已结束' } } };
+    $scope.shiftRound = function(oRound) {
+        $scope.selectedRound = oRound;
+        fnGetTasks(oRound);
+    };
+    $scope.gotoTask = function(oTask) {
+        if (oTask) {
+            if (oTask.type === 'baseline') {
+                location.href = LS.j('', 'site', 'app') + '&rid=' + oTask.rid + '&page=enroll';
+            } else if (oTask.topic && oTask.topic.id) {
+                location.href = LS.j('', 'site', 'app') + '&topic=' + oTask.topic.id + '&page=topic';
+            }
+        }
+    };
+    
+    $scope.$watch('app', function(oApp) {
+        if (!oApp) { return; }
+        _oApp = oApp;
+        _enlTask = new enlTask(_oApp);
+        var facRound = new enlRound(_oApp);
+        facRound.list().then(function(oResult) {
+            $scope.rounds = oResult.rounds;
+            if ($scope.rounds.length) $scope.shiftRound($scope.rounds[0]);
+        });
+    });
+}]);
+ngApp.controller('ctrlActivitiesEvent', ['$scope', '$q', 'http2', 'tmsLocation', function($scope, $q, http2, LS) {
+    function fnCloseNotice(oNotice) {
+        var url, defer;
+        defer = $q.defer();
+        url = LS.j('notice/close', 'site', 'app');
+        url += '&notice=' + oNotice.id;
+        http2.get(url).then(function(rsp) {
+            $scope.notices.splice($scope.notices.indexOf(oNotice), 1);
+            defer.resolve();
+        });
+        return defer.promise;
+    }
+
+    var _oApp, _aLogs, _oPage, _oFilter;
+    $scope.page = _oPage = { size: 30 };
+    $scope.subView = 'timeline.html';
+    $scope.filter = _oFilter = { scope: 'N' };
+    $scope.searchEvent = function(pageAt) {
+        var url, defer;
+        pageAt && (_oPage.at = pageAt);
+        defer = $q.defer();
+        url = LS.j('event/timeline', 'site', 'app');
+        url += '&scope=' + _oFilter.scope;
+        http2.get(url, { page: _oPage }).then(function(rsp) {
+            $scope.logs = _aLogs = rsp.data.logs;
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    };
+    $scope.searchNotice = function(pageAt) {
+        var url, defer;
+        pageAt && (_oPage.at = pageAt);
+        defer = $q.defer();
+        url = LS.j('notice/list', 'site', 'app');
+        http2.get(url, { page: _oPage }).then(function(rsp) {
+            $scope.notices = rsp.data.notices;
+            defer.resolve(rsp.data);
+        });
+        return defer.promise;
+    };
+    $scope.closeNotice = function(oNotice, bGotoCowork) {
+        fnCloseNotice(oNotice).then(function() {
+            if (bGotoCowork) {
+                $scope.gotoCowork(oNotice.enroll_key);
+            }
+        });
+    };
+    $scope.gotoCowork = function(ek) {
+        var url;
+        if (ek) {
+            url = LS.j('', 'site', 'app');
+            url += '&ek=' + ek;
+            url += '&page=cowork';
+            location.href = url;
+        }
+    };
+    $scope.$watch('app', function(oApp) {
+        if (!oApp) { return; }
+        _oApp = oApp;
+        /* 活动任务 */
+        if (_oApp.actionRule) {
+            /* 设置活动任务提示 */
+            var tasks = [];
+            http2.get(LS.j('event/task', 'site', 'app')).then(function(rsp) {
+                if (rsp.data && rsp.data.length) {
+                    rsp.data.forEach(function(oRule) {
+                        if (!oRule._ok) {
+                            tasks.push({ type: 'info', msg: oRule.desc, id: oRule.id, gap: oRule._no ? oRule._no[0] : 0, coin: oRule.coin ? oRule.coin : 0 });
+                        }
+                    });
+                }
+            });
+            $scope.tasks = tasks;
+        }
+        $scope.$watch('filter', function(nv, ov) {
+            if (nv) {
+                if (/N/.test(nv.scope)) {
+                    $scope.subView = 'timeline.html';
+                    $scope.searchNotice(1);
+                } else {
+                    $scope.subView = 'timeline.html';
+                    $scope.searchEvent(1);
+                }
+            }
+        }, true);
+    });
+}]);
+ngApp.controller('ctrlActivitiesKanban', ['$scope', '$parse', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', function($scope, $parse, $q, $uibModal, http2, LS, enlRound) {
+    function fnGetKanban() {
+        var url, defer;
+        defer = $q.defer();
+        url = LS.j('user/kanban', 'site', 'app');
+        url += '&rid=' + _oFilter.round.rid;
+        _oFilter.group && (url += '&gid=' + _oFilter.group.team_id);
+        http2.get(url).then(function(rsp) {
+            var oUndoneByUserid = {};
+            if (rsp.data.users && rsp.data.users.length) {
+                if (rsp.data.undone && rsp.data.undone.length) {
+                    rsp.data.undone.forEach(function(oUndone) {
+                        oUndoneByUserid[oUndone.userid] = oUndone;
+                    });
+                }
+                rsp.data.users.forEach(function(oUser) {
+                    if (oUndoneByUserid[oUser.userid]) {
+                        if (oUndoneByUserid[oUser.userid].tasks) {
+                            oUser.undone = oUndoneByUserid[oUser.userid].tasks;
+                        }
+                        delete oUndoneByUserid[oUser.userid];
+                    }
+                });
+            }
+            $scope.kanban.stat = rsp.data.stat;
+            $scope.kanban.users = rsp.data.users;
+            $scope.kanban.undone = rsp.data.undone;
+
+            defer.resolve($scope.kanban);
+        });
+        return defer.promise;
+    }
+    var _oApp, _oCriteria, _oFilter;
+    $scope.criteria = _oCriteria = {};
+    $scope.filter = _oFilter = {};
+    $scope.subView = location.hash === '#undone' ? 'undone' : 'users';
+    $scope.kanban = {};
+    $scope.shiftRound = function(oRound) {
+        _oFilter.round = oRound;
+        fnGetKanban().then(function() {
+            $scope.shiftOrderby();
+        });
+    };
+    $scope.shiftUserGroup = function(oUserGroup) {
+        _oFilter.group = oUserGroup;
+        fnGetKanban().then(function() {
+            $scope.shiftOrderby();
+        });
+    };
+    $scope.shiftOrderby = function(orderby) {
+        if (orderby) {
+            _oCriteria.orderby = orderby;
+        } else {
+            orderby = _oCriteria.orderby;
+        }
+        $scope.kanban.users.sort(function(a, b) {
+            return a[orderby].pos - b[orderby].pos;
+        });
+    };
+    $scope.viewDetail = function(oUser) {
+        $uibModal.open({
+            templateUrl: 'userDetail.html',
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                $scope2.app = $scope.app;
+                $scope2.user = oUser;
+                $scope2.cancel = function() { $mi.dismiss(); };
+            }],
+            backdrop: 'static',
+            windowClass: 'auto-height'
+        });
+    };
+    $scope.toggleProfilePublic = function(event, oEnlUser) {
+        event.stopPropagation();
+        var bPublic;
+        bPublic = $parse('custom.profile.public')(oEnlUser) === true ? false : true;
+        http2.post(LS.j('user/updateCustom', 'site', 'app'), { profile: { public: bPublic } }).then(function() {
+            if (bPublic) {
+                http2.get(LS.j('user/get', 'site', 'app') + '&rid=' + _oFilter.round.rid).then(function(rsp) {
+                    oEnlUser.nickname = rsp.data.nickname;
+                });
+            } else {
+                oEnlUser.nickname = '隐身';
+            }
+            $parse('custom.profile.public').assign(oEnlUser, bPublic);
+        });
+    };
+    $scope.$watch('app', function(oApp) {
+        if (!oApp) { return; }
+        _oApp = oApp;
+        _oFilter.round = _oApp.appRound;
+        (new enlRound(_oApp)).list().then(function(result) {
+            $scope.rounds = result.rounds;
+        });
+        fnGetKanban().then(function() {
+            $scope.shiftOrderby('score');
+        });
+    });
+}]);
+
+/***/ }),
+
+/***/ 7:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+function openPlugin(content, cb) {
+    var frag, wrap, frm;
+    frag = document.createDocumentFragment();
+    wrap = document.createElement('div');
+    wrap.setAttribute('id', 'frmPlugin');
+    frm = document.createElement('iframe');
+    wrap.appendChild(frm);
+    wrap.onclick = function() {
+        wrap.parentNode.removeChild(wrap);
+    };
+    frag.appendChild(wrap);
+    document.body.appendChild(frag);
+    if (content.indexOf('http') === 0) {
+        window.onClosePlugin = function() {
+            wrap.parentNode.removeChild(wrap);
+            cb && cb();
+        };
+        frm.setAttribute('src', content);
+    } else {
+        if (frm.contentDocument && frm.contentDocument.body) {
+            frm.contentDocument.body.innerHTML = content;
+        }
+    }
+}
+
+var ngMod = angular.module('siteuser.ui.xxt', []);
+ngMod.service('tmsSiteUser', function() {
+    this.showSwitch = function(siteId, redirect) {
+        var eSwitch;
+        eSwitch = document.createElement('div');
+        eSwitch.classList.add('tms-switch', 'tms-switch-siteuser');
+        eSwitch.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            var url = location.protocol + '//' + location.host;
+            url += '/rest/site/fe/user';
+            url += "?site=" + siteId;
+            if (redirect) {
+                location.href = url;
+            } else {
+                openPlugin(url);
+            }
+        }, true);
+        document.body.appendChild(eSwitch);
+    }
+});
+
+/***/ }),
+
+/***/ 8:
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(false);
+// Module
+exports.push([module.i, ".dialog.mask{position:fixed;background:rgba(0,0,0,.3);top:0;left:0;bottom:0;right:0;overflow:auto;z-index:1060}.dialog.dlg{position:absolute;background:#fff;left:0;right:0;bottom:0;margin:15px}.dialog .dlg-header{padding:15px 15px 0 15px}.dialog .dlg-body{padding:15px 15px 0 15px}.dialog .dlg-footer{text-align:right;padding:15px}.dialog .dlg-footer button{border-radius:0}div[wrap=filter] .detail{background:#ccc}div[wrap=filter] .detail .options .label{display:inline-block;margin:.5em;padding-top:.3em;font-size:100%}div[wrap=filter] .detail .actions .btn{border-radius:0}.tms-act-toggle{position:fixed;right:15px;bottom:8px;width:48px;height:48px;line-height:48px;box-shadow:0 2px 6px rgba(18,27,32,.425);color:#fff;background:#ff8018;border:1px solid #ff8018;border-radius:24px;font-size:20px;text-align:center;cursor:pointer;z-index:1045}.tms-nav-target>*+*{margin-top:.5em}.tms-act-popover-wrap>div+div{margin-top:8px}#frmPlugin{position:absolute;top:0;bottom:0;left:0;right:0;width:100%;height:100%;border:none;z-index:1060;box-sizing:border-box;padding-bottom:48px;background:#fff}#frmPlugin iframe{width:100%;height:100%;border:0}#frmPlugin:after{content:'关闭';position:absolute;width:100px;text-align:center;left:50%;margin-left:-50px;bottom:4px;padding:5px 6px 3px;border:1px solid #ccc;border-radius:4px}div[wrap]>.description{word-wrap:break-word}", ""]);
+
+
+
+/***/ }),
+
+/***/ 9:
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var content = __webpack_require__(8);
+
+if(typeof content === 'string') content = [[module.i, content, '']];
+
+var transform;
+var insertInto;
+
+
+
+var options = {"hmr":true}
+
+options.transform = transform
+options.insertInto = undefined;
+
+var update = __webpack_require__(1)(content, options);
+
+if(content.locals) module.exports = content.locals;
+
+if(false) {
+	module.hot.accept("!!../../../../../../node_modules/css-loader/dist/cjs.js!./directive.css", function() {
+		var newContent = require("!!../../../../../../node_modules/css-loader/dist/cjs.js!./directive.css");
+
+		if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+
+		var locals = (function(a, b) {
+			var key, idx = 0;
+
+			for(key in a) {
+				if(!b || a[key] !== b[key]) return false;
+				idx++;
+			}
+
+			for(key in b) idx--;
+
+			return idx === 0;
+		}(content.locals, newContent.locals));
+
+		if(!locals) throw new Error('Aborting CSS HMR due to changed css-modules locals.');
+
+		update(newContent);
+	});
+
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+
+/***/ 90:
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(false);
+// Module
+exports.push([module.i, ".site-navbar-light.navbar{height:50px;padding-top:8px;padding-bottom:8px}.site-navbar-light{background-color:#fff;border-color:#fff}.site-navbar-light .site-nav{display:flex;line-height:1}.site-navbar-light .site-nav>li{flex-grow:1}.site-navbar-light .site-nav>li>a{text-align:center;letter-spacing:2px;color:#333;padding:0}.site-navbar-light .site-nav>li>a:focus,.site-navbar-light .site-nav>li>a:hover{background-color:#fff}.site-navbar-light .site-nav>li>a>i{display:block;height:18px;margin-bottom:4px;font-size:18px;top:0;left:-1px}.site-navbar-light .site-nav>li>a>span{display:block;font-size:12px}.site-navbar-light .site-nav>li.active>a{color:#ff8018}.site-navbar-orange.nav{height:44px;padding-top:12px}.site-navbar-orange{background-color:#ff8018;border-color:#ff8018}.site-navbar-orange .col-md-12.col-xs-12{width:100%;overflow:hidden;overflow-x:auto}.site-navbar-orange .col-md-12.col-xs-12::-webkit-scrollbar{display:none}.site-navbar-orange .col-md-12.col-xs-12 .site-nav{margin-right:-15px;white-space:nowrap;font-size:14px;line-height:1}.site-navbar-orange .col-md-12.col-xs-12 .site-nav>li{display:inline-block;margin-right:10%}.site-navbar-orange .col-md-12.col-xs-12 .site-nav>li>a{height:14px;color:#ffdcb7;letter-spacing:2px;padding:0}.site-navbar-orange .col-md-12.col-xs-12 .site-nav>li>a:focus,.site-navbar-orange .col-md-12.col-xs-12 .site-nav>li>a:hover{background-color:#ff8018}.site-navbar-orange .col-md-12.col-xs-12 .site-nav>li>span{display:none;width:60%;height:2px;background-color:#fff;margin:auto;margin-top:4px}.site-navbar-orange .col-md-12.col-xs-12 .site-nav>li.active>a{color:#fff;font-weight:600}.site-navbar-orange .col-md-12.col-xs-12 .site-nav>li.active>span{display:block}.app{padding:54px 0 60px 0}#tasks .tasks .state-IP{background-color:#FFDF25}#event .notice{position:relative}#event .notice .seq{position:absolute;top:-.8em;left:-.5em}#event .notice .seq.label{padding-bottom:.2em;font-weight:400;border-radius:.5em}#event .notice .event>*+*{margin-top:.5em}#event .notice .event .event-action,#event .notice .event .event-user{font-size:.9em}#event .notice .event .event-action a{display:inline-block;color:#777}#event .notice .event .event-action>*+*{margin-left:1em}#event .action{position:relative}#event .action .seq{position:absolute;top:-.8em;left:-.5em}#event .action .seq.label{padding-bottom:.2em;font-weight:400;border-radius:.5em}#event .action .event>*+*{margin-top:.5em}#event .action .footer{display:flex;margin-top:.5em;font-size:.9em}#event .action .footer .datetime{flex:1}#kanbanView #kanban{overflow-x:auto}#kanbanView #kanban .wrap{min-width:640px}#kanbanView #kanban .user{display:flex}#kanbanView #kanban .user>div:first-child{width:6em}#kanbanView #kanban .who>div{margin-bottom:.5em}#kanbanView #kanban .data{flex-grow:1;display:flex;flex-direction:column}#kanbanView #kanban .data>div{display:flex;order:5}#kanbanView #kanban .data>div>div:first-child{width:6em}#kanbanView #kanban .data>div>div:last-child{flex:1;display:flex}#kanbanView #kanban .data>div>div:last-child>div{flex:1}#kanbanView #kanban .data>div{margin-bottom:.5em}#kanbanView #kanban .data .pos{display:inline-block;padding:0 .25em;border-radius:.5em;border:1px solid #ddd}#kanbanView #kanban .data .ordered{color:red;order:1}#kanbanView #kanban .data .ordered>div:nth-child(2)>div:first-child>span{border-color:red}#kanbanView .table-responsive{overflow-x:auto;min-height:.01%;width:100%;margin-bottom:15px;overflow-y:hidden;-ms-overflow-style:-ms-autohiding-scrollbar;border:1px solid #ddd;background-color:#fff}#kanbanView .table-responsive>.table{margin-bottom:0}#kanbanView .table-responsive>.table>tbody>tr>td,#kanbanView .table-responsive>.table>tbody>tr>th,#kanbanView .table-responsive>.table>tfoot>tr>td,#kanbanView .table-responsive>.table>tfoot>tr>th,#kanbanView .table-responsive>.table>thead>tr>td,#kanbanView .table-responsive>.table>thead>tr>th{white-space:nowrap}#kanbanView .table-responsive>.table-bordered{border:0}#kanbanView .table-responsive>.table-bordered>tbody>tr>td:first-child,#kanbanView .table-responsive>.table-bordered>tbody>tr>th:first-child,#kanbanView .table-responsive>.table-bordered>tfoot>tr>td:first-child,#kanbanView .table-responsive>.table-bordered>tfoot>tr>th:first-child,#kanbanView .table-responsive>.table-bordered>thead>tr>td:first-child,#kanbanView .table-responsive>.table-bordered>thead>tr>th:first-child{border-left:0}#kanbanView .table-responsive>.table-bordered>tbody>tr>td:last-child,#kanbanView .table-responsive>.table-bordered>tbody>tr>th:last-child,#kanbanView .table-responsive>.table-bordered>tfoot>tr>td:last-child,#kanbanView .table-responsive>.table-bordered>tfoot>tr>th:last-child,#kanbanView .table-responsive>.table-bordered>thead>tr>td:last-child,#kanbanView .table-responsive>.table-bordered>thead>tr>th:last-child{border-right:0}#kanbanView .table-responsive>.table-bordered>tbody>tr:last-child>td,#kanbanView .table-responsive>.table-bordered>tbody>tr:last-child>th,#kanbanView .table-responsive>.table-bordered>tfoot>tr:last-child>td,#kanbanView .table-responsive>.table-bordered>tfoot>tr:last-child>th{border-bottom:0}#kanbanView tr.undone td:nth-child(2){color:red}#kanbanView td.undone{color:red}#kanbanView #user-detail>div{display:flex}#kanbanView #user-detail>div>div{padding:.25em 0}#kanbanView #user-detail>div>div:first-child{width:12em}#kanbanView #user-detail>div>div:nth-child(2){flex:1}", ""]);
+
+
+
+/***/ })
+
+/******/ });

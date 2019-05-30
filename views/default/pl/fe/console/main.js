@@ -192,6 +192,20 @@ define(['frame'], function(ngApp) {
         // }
         $scope.scenarioNames = CstNaming.scenario.enroll;
         $scope.page = _oPage = {};
+        $scope.openMatter = function(matter, subView) {
+            var type, id, url;
+            type = matter.type || matter.matter_type;
+            id = matter.matter_id || matter.id;
+            url = '/rest/pl/fe/matter/' + type;
+            if (window.localStorage) {
+                window.localStorage.setItem("pl.fe.activity", JSON.stringify(_oCriteria.matter));
+            }
+            if (subView) {
+                url += '/' + subView;
+            }
+            url += '?id=' + id + '&site=' + matter.siteid;
+            location.href = url;
+        };
         $scope.list = function(pageAt) {
             var url, oMatter,
                 t = (new Date * 1);
@@ -219,7 +233,7 @@ define(['frame'], function(ngApp) {
         };
         var _oCriteria;
         $scope.criteria = _oCriteria = {
-            matter: {},
+            matter: { type: '' },
             orderBy: '',
             filter: {},
             bySite: '',
@@ -241,6 +255,13 @@ define(['frame'], function(ngApp) {
             if (!nv) return;
             $scope.list(1);
         }, true);
+        /* 恢复上一次访问的状态 */
+        var lsActivityState;
+        if (window.localStorage) {
+            if (lsActivityState = window.localStorage.getItem("pl.fe.activity")) {
+                _oCriteria.matter = JSON.parse(lsActivityState);
+            }
+        }
     }]);
     ngApp.provider.controller('ctrlDoc', ['$scope', '$uibModal', 'http2', 'facListFilter', function($scope, $uibModal, http2, facListFilter) {
         var _oPage, filter2;
@@ -264,6 +285,20 @@ define(['frame'], function(ngApp) {
         //     filter2.byTags = filter.byTags
         // }
         $scope.page = _oPage = {};
+        $scope.openMatter = function(matter, subView) {
+            var type, id, url;
+            type = matter.type || matter.matter_type;
+            id = matter.matter_id || matter.id;
+            url = '/rest/pl/fe/matter/' + type;
+            if (window.localStorage) {
+                window.localStorage.setItem("pl.fe.doc", JSON.stringify(_oCriteria.matter));
+            }
+            if (subView) {
+                url += '/' + subView;
+            }
+            url += '?id=' + id + '&site=' + matter.siteid;
+            location.href = url;
+        };
         $scope.list = function() {
             var url,
                 t = (new Date * 1);
@@ -308,6 +343,13 @@ define(['frame'], function(ngApp) {
             if (!nv) return;
             $scope.list(1);
         }, true);
+        /* 恢复上一次访问的状态 */
+        var lsDocState;
+        if (window.localStorage) {
+            if (lsDocState = window.localStorage.getItem("pl.fe.doc")) {
+                _oCriteria.matter = JSON.parse(lsDocState);
+            }
+        }
     }]);
     ngApp.provider.controller('ctrlSiteSubscribe', ['$scope', '$uibModal', 'http2', 'facListFilter', function($scope, $uibModal, http2, facListFilter) {
         var _oFilter, _oPage;

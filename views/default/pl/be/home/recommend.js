@@ -37,7 +37,7 @@ define(['frame'], function(ngApp) {
                         $mi.close({ 'home_group': 'r' });
                     }
                     $scope2.cancel = function() {
-                        $mi.dismiss();
+                        $mi.close();
                     };
                     $scope2.carryHome = function() {
                         $mi.close();
@@ -114,8 +114,8 @@ define(['frame'], function(ngApp) {
                     $scope2.carryHome = function() {
                         $mi.close();
                     };
-                    $scope.cancel = function() {
-                        $mi.dismiss();
+                    $scope2.cancel = function() {
+                        $mi.close();
                     };
                 }],
                 backdrop: 'static'
@@ -154,7 +154,7 @@ define(['frame'], function(ngApp) {
                 templateUrl: 'previewTemplate.html',
                 controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                     $scope.cancel = function() {
-                        $mi.dismiss();
+                        $mi.close();
                     };
                     $scope.carryHome = function() {
                         $mi.close($scope.data);

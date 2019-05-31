@@ -2698,7 +2698,7 @@ class record extends main_base {
             for ($i = 0, $ii = count($imageSchemas); $i < $ii; $i++) {
                 $schema = $imageSchemas[$i];
                 if (!empty($oRecData->{$schema->id})) {
-                    $urls = implode(',', $oRecData->{$schema->id});
+                    $urls = explode(',', $oRecData->{$schema->id});
                     foreach($urls as $url){
                         $aImages[] = ['url' => $url, 'schema' => $schema, 'data' => $oRecData];
                     }

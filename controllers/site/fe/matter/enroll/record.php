@@ -45,6 +45,7 @@ class record extends base {
         $modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
 
         $bSubmitNewRecord = empty($ek); // 是否为新记录
+        $bSubmitSavedRecord = false; // 提交保存过的记录
 
         if (!$bSubmitNewRecord) {
             $oBeforeRecord = $modelRec->byId($ek, ['state' => ['1', '99']]);
@@ -55,6 +56,7 @@ class record extends base {
                 /* 将之前保存的记录作为提交记录 */
                 $modelRec->update('xxt_enroll_record', ['state' => '1'], ['enroll_key' => $ek]);
                 $oBeforeRecord->state = '1';
+                $bSubmitSavedRecord = true;
             }
             $rid = $oBeforeRecord->rid;
         }
@@ -158,7 +160,8 @@ class record extends base {
         /**
          * 处理用户汇总数据，积分数据
          */
-        $this->model('matter\enroll\event')->submitRecord($oEnlApp, $oRecord, $oUser, $bSubmitNewRecord);
+
+        $this->model('matter\enroll\event')->submitRecord($oEnlApp, $oRecord, $oUser, $bSubmitSavedRecord || $bSubmitNewRecord);
         /**
          * 更新用户得分排名
          */
@@ -179,7 +182,7 @@ class record extends base {
         }
 
         /* 生成提醒 */
-        if ($bSubmitNewRecord) {
+        if ($bSubmitSavedRecord || $bSubmitNewRecord) {
             $this->model('matter\enroll\notice')->addRecord($oEnlApp, $oRecord, $oUser);
         }
         /* 通知记录活动事件接收人 */

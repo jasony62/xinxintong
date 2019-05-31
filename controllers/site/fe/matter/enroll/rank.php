@@ -83,6 +83,7 @@ class rank extends base {
             $q[2] .= ' and u.like_num>0';
             $q2 = ['o' => 'like_num desc'];
             break;
+        case 'do_remark':
         case 'remark_other':
             $q[0] .= ',sum(u.do_remark_num) do_remark_num';
             $q[2] .= ' and u.do_remark_num>0';

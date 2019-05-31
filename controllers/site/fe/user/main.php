@@ -34,7 +34,7 @@ class main extends \site\fe\base {
 	 * @param string $urlEncryptKey   如果来源地址加密，需传入解密算子
 	 */
 	public function access_action($originUrl = null, $urlEncryptKey = null) {
-		if (TMS_APP_LOGIN_STRENGTH_CHECK !== 0) {
+		if (TMS_APP_LOGIN_LEVEL === 1) {
 			if (tms_get_httpsOrHttp() !== 'https') {
 				$url = 'https://' . APP_HTTP_HOST . $_SERVER['REQUEST_URI'];
 				$this->redirect($url);
@@ -68,7 +68,7 @@ class main extends \site\fe\base {
 	 */
 	public function getSafetyLevel_action() {
 		$data = new \stdClass;
-		switch (TMS_APP_PASSWORD_STRENGTH_CHECK) {
+		switch (TMS_APP_REGISTER_LEVEL) {
 			case 9:
 				$data->register = false;
 				break;
@@ -207,7 +207,7 @@ class main extends \site\fe\base {
 			$modelReg = $this->model('site\user\registration');
 			if ($registration = $modelReg->byId($oAccount->unionid)) {
 				// 校验密码安全
-				$rst = tms_pwd_check($data->password, ['account' => $registration->uname], true);
+				$rst = tms_pwd_check($data->password, ['account' => $registration->uname]);
 				if ($rst[0] === false) {
 					return new \ResponseError($rst[1]);
 				}

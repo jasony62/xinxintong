@@ -758,11 +758,11 @@ class user_model extends \TMS_MODEL {
 			if (count($aTaskTypes) > 0) {
 				$tasks = $modelTsk->byUser($oApp, $oAssignedUser, $aTaskTypes, $aTaskStates);
 				if ($tasks[0] === true && !empty($tasks[1])) {
-					foreach ($tasks[1] as $task) {
+					array_walk($tasks[1], function (&$task) use (&$undoneTasks) {
 						if ($task->undone[0] === true) {
 							$undoneTasks[$task->type] = $task->undone;
 						}
-					}
+					});
 				}
 			}
 			// 活动规则中的任务 enroll_num
@@ -793,14 +793,14 @@ class user_model extends \TMS_MODEL {
 		// 没有完成任务的用户
 		$aUndoneUsrs = [];
 		$oAssignedUsrs = $oAssignedUsrsResult->users;
-		foreach ($oAssignedUsrs as $oAssignedUser) {
+		array_walk($oAssignedUsrs, function (&$oAssignedUser) use (&$aUndoneUsrs, $getUndoneTasks) {
 			$oAssignedUser->uid = $oAssignedUser->userid;
 			!empty($oAssignedUser->group->id) && $oAssignedUser->group_id = $oAssignedUser->group->id;
 			$oAssignedUser = $getUndoneTasks($oAssignedUser);
 			if (!empty($oAssignedUser->undoneTasks)) {
 				$aUndoneUsrs[] = $oAssignedUser;
 			}
-		}
+		});
 
 		$oResult = new \stdClass;
 		$oResult->users = $aUndoneUsrs;

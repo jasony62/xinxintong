@@ -105,7 +105,7 @@ class login extends \site\fe\base {
 
 		$account = $data->account;
 		$password = $data->password;
-		$rst = tms_pwd_check($password, ['account' => $account], true);
+		$rst = tms_pwd_check($password, ['account' => $account]);
 		
 		$data = new \stdClass;
 		$data->strength = $rst[0];

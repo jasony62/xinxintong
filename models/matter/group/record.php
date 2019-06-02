@@ -278,6 +278,11 @@ class record_model extends \matter\enroll\record_base {
         if (!empty($oOptions->nickname)) {
             $w .= " and nickname like '%{$oOptions->nickname}%'";
         }
+        // 用户角色过滤
+        if (!empty($oOptions->leader) && is_array($oOptions->leader)) {
+            $leader = "('" . implode("','", $oOptions->leader) . "')";
+            $w .= " and is_leader in {$leader}";
+        }
         $q = [
             $fields,
             'xxt_group_record',

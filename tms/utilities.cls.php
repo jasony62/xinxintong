@@ -644,16 +644,28 @@ function tms_get_server($key, $escape = true){
 	}
 }
 /**
+ * 注册检查
+ */
+function tms_register_check() {
+    switch (TMS_APP_REGISTER_CHECK_LEVEL) {
+        case 9:
+            return [false, '注册通道已关闭'];
+    }
+
+    $rst = tms_auth_https_check();
+    if ($rst[0] === false) {
+        return $rst;
+    }
+
+    return [true];
+}
+/**
  * 检查用户密码
  */
-function tms_pwd_check($pwd, $options = [], $compel = false) {
-    if ($compel === false) {
-        switch (TMS_APP_PASSWORD_STRENGTH_CHECK) {
-            case 0:
-                return [true];
-            case 9:
-                return [false, '禁止注册'];
-        }
+function tms_pwd_check($pwd, $options = []) {
+    switch (TMS_APP_PASSWORD_STRENGTH_CHECK) {
+        case 0:
+            return [true];
     }
 
     // 过滤黑名单密码 $options['blackChars'] = []
@@ -732,16 +744,25 @@ function tms_pwd_create_random(int $upperNum = 1, int $lowerNum = 3, int $number
  * 检查登录条件
  */
 function tms_login_check() {
-    switch (TMS_APP_LOGIN_STRENGTH_CHECK) {
-        case 0:
-            return [true];
+    $rst = tms_auth_https_check();
+    if ($rst[0] === false) {
+        return $rst;
+    }
+
+    return [true];
+}
+/**
+ * 检查当前身份验证请求方式
+ */
+function tms_auth_https_check() {
+    switch (TMS_APP_AUTH_HTTPS_CHECK) {
         case 1:
-            if (tms_get_httpsOrHttp() === 'https') {
-                return [true];
-            } else {
-                return [false, '登录失败，登录方式存在风险'];
+            if (tms_get_httpsOrHttp() !== 'https') {
+                return [false, '登录方式存在风险'];
             }
     }
+
+    return [true];
 }
 /**
  * 检查当前请求是https还是http

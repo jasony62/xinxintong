@@ -600,10 +600,14 @@ class user_model extends \TMS_MODEL {
 			$oGrpApp = $oEntryRule->group;
 			$modelGrpRec = $this->model('matter\group\record');
 			if (empty($oGrpApp->team->id)) {
-				$aGrpUsrOptions = ['fields' => 'userid,nickname,team_id,team_title'];
+				$aGrpUsrOptions = ['fields' => 'userid,nickname,team_id,team_title,is_leader'];
 				if (isset($aOptions['inGroupTeam']) && true === $aOptions['inGroupTeam']) {
 					/* 主分组用户 */
 					$aGrpUsrOptions['teamId'] = 'inTeam';
+				}
+				if (!empty($aOptions['leader'])) {
+					/* 用户角色 */
+					$aGrpUsrOptions['leader'] = $aOptions['leader'];
 				}
 				$oGrpRecResult = $modelGrpRec->byApp($oGrpApp->id, $aGrpUsrOptions);
 				foreach ($oGrpRecResult->records as $oGrpRec) {
@@ -708,102 +712,95 @@ class user_model extends \TMS_MODEL {
 	 *
 	 * 1. 如果没有指定任务规则，检查用户是否进行过登记
 	 */
-	public function isUndone($oApp, $rid, $oAssignedUser) {
-		$oAppUser = $this->byId($oApp, $oAssignedUser->userid, ['rid' => $rid, 'fields' => 'state,enroll_num,do_remark_num']);
+	private function _undoneTaskByActionRule($oApp, $rid, $oAssignedUser) {
+		$oAppUser = $this->byId($oApp, $oAssignedUser->userid, ['rid' => $rid, 'fields' => 'state,enroll_num']);
 		if (false === $oAppUser || $oAppUser->state !== '1') {
-			return true;
-		}
-		if (isset($oApp->actionRule)) {
-			$oRule = $oApp->actionRule;
-		} else {
-			$oApp2 = $this->model('matter\enroll')->byId($oApp->id, ['fileds' => 'actionRule']);
-			$oRule = $oApp2->actionRule;
+			$oAppUser = false;
 		}
 
-		$aUndoneTasks = []; // 没有完成的任务
-		$countOfDone = 0; // 已完成的任务数量
-		/* 提交记录 */
-		if (isset($oRule->record->submit->end->min)) {
-			$bUndone = (int) $oAppUser->enroll_num < (int) $oRule->record->submit->end->min;
-			$aUndoneTasks['enroll_num'] = [$bUndone, (int) $oRule->record->submit->end->min, (int) $oAppUser->enroll_num];
-			if (true === $bUndone && empty($oRule->record->submit->optional)) {
-				return $aUndoneTasks;
-			}
-			if (false === $bUndone) {
-				$countOfDone++;
-			}
-		}
-		/* 提交评论 */
-		if (isset($oRule->remark->submit->end->min)) {
-			$bUndone = (int) $oAppUser->do_remark_num < (int) $oRule->remark->submit->end->min;
-			$aUndoneTasks['do_remark_num'] = [$bUndone, (int) $oRule->remark->submit->end->min, (int) $oAppUser->do_remark_num];
-			if (true === $bUndone && empty($oRule->remark->submit->optional)) {
-				return $aUndoneTasks;
-			}
-			if (false === $bUndone) {
-				$countOfDone++;
-			}
-		}
+		$undoneTasks = [];
 		/* 没有指定任务，默认要求提交至少1条记录 */
-		if (empty($aUndoneTasks)) {
-			if ((int) $oAppUser->enroll_num <= 0) {
-				return ['enroll_num' => [false, 1, 0]];
-			}
+		if (false === $oAppUser || (int) $oAppUser->enroll_num <= 0) {
+			$undoneTasks['enroll_num'] = [true, 1, 0];
 		}
-		/* 完成的可选任务数量 */
-		if (isset($oRule->done->optional->num)) {
-			if ($countOfDone < (int) $oRule->done->optional->num) {
-				return $aUndoneTasks;
-			}
-		} else if ($countOfDone < 1) {
-			/* 默认至少要完成一项任务 */
-			return $aUndoneTasks;
-		}
-
-		return false;
+		
+		return $undoneTasks;
 	}
 	/**
 	 * 获得指定活动指定轮次没有完成任务的用户
 	 */
 	public function undoneByApp($oApp, $rid) {
-		$oAssignedUsrsResult = $this->assignedByApp($oApp, ['inGroupTeam' => true]);
+		$oAssignedUsrsResult = $this->assignedByApp($oApp, ['inGroupTeam' => true, 'leader' => ['Y', 'S', 'N']]);
 		if (empty($oAssignedUsrsResult->users)) {
 			return (object) ['users' => []];
 		}
 
+		if (!isset($oApp->actionRule) || !isset($oApp->answerConfig) || !isset($oApp->voteConfig) || !isset($oApp->questionConfig) || !isset($oApp->scoreConfig)) {
+			$oApp2 = $this->model('matter\enroll')->byId($oApp->id, ['fields' => 'action_rule,answer_config,vote_config,question_config,score_config']);
+			!isset($oApp->actionRule) && $oApp->actionRule = $oApp2->actionRule;
+			!isset($oApp->answerConfig) && $oApp->answerConfig = $oApp2->answerConfig;
+			!isset($oApp->voteConfig) && $oApp->voteConfig = $oApp2->voteConfig;
+			!isset($oApp->questionConfig) && $oApp->questionConfig = $oApp2->questionConfig;
+			!isset($oApp->scoreConfig) && $oApp->scoreConfig = $oApp2->scoreConfig;
+		}
+
+		$aTaskTypes = [];// 有效的任务类型 
+		count($oApp->questionConfig) && $aTaskTypes[] = 'question';
+		count($oApp->answerConfig) && $aTaskTypes[] = 'answer';
+		count($oApp->voteConfig) && $aTaskTypes[] = 'vote';
+		count($oApp->scoreConfig) && $aTaskTypes[] = 'score';
+		$aTaskStates = ['IP', 'AE'];// 有效的任务状态
 		$modelTsk = $this->model('matter\enroll\task', $oApp);
-		$aTaskTypes = ['baseline', 'question', 'answer', 'vote', 'score'];// 有效的任务类型
-		$aTaskStates = ['IP', 'BS', 'AE'];// 有效的任务状态
-		$aUndoneUsrs = []; // 没有完成任务的用户
-		$oAssignedUsrs = $oAssignedUsrsResult->users;
-		foreach ($oAssignedUsrs as $oAssignedUser) {
-			if (isset($oApp->absentCause->{$oAssignedUser->userid}->{$rid})) {
-				$oAssignedUser->absent_cause = new \stdClass;
-				$oAssignedUser->absent_cause->cause = $oApp->absentCause->{$oAssignedUser->userid}->{$rid};
-				$oAssignedUser->absent_cause->rid = $rid;
+		// 获取用户未完成的任务
+		$getUndoneTasks = function (&$oAssignedUser) use ($oApp, $rid, $aTaskTypes, $aTaskStates, $modelTsk) {
+			$undoneTasks = []; // 未完成任务
+			// 活动指定任务
+			if (count($aTaskTypes) > 0) {
+				$tasks = $modelTsk->byUser($oApp, $oAssignedUser, $aTaskTypes, $aTaskStates);
+				if ($tasks[0] === true && !empty($tasks[1])) {
+					array_walk($tasks[1], function (&$task) use (&$undoneTasks) {
+						if ($task->undone[0] === true) {
+							$undoneTasks[$task->type] = $task->undone;
+						}
+					});
+				}
 			}
+			// 活动规则中的任务 enroll_num
+			if (in_array('question', $aTaskTypes)) {
+				if (isset($undoneTasks['question']) && $undoneTasks['question'][2] < 1) {
+					$undoneTasks['enroll_num'] = [true, 1, 0];
+				}
+			} else {
+				$undoTasksByArt = $this->_undoneTaskByActionRule($oApp, $rid, $oAssignedUser);
+				if (count($undoTasksByArt) > 0) {
+					$undoneTasks = array_merge($undoneTasks, $undoTasksByArt);
+				}
+			}
+
+			// 用户未完成原因
+			if (count($undoneTasks) > 0) {
+				if (!empty($oApp->absentCause->{$oAssignedUser->userid}->{$rid})) {
+					$oAssignedUser->absent_cause = new \stdClass;
+					$oAssignedUser->absent_cause->cause = $oApp->absentCause->{$oAssignedUser->userid}->{$rid};
+					$oAssignedUser->absent_cause->rid = $rid;
+				}
+			}
+			$oAssignedUser->undoneTasks = $undoneTasks;
+
+			return $oAssignedUser;
+		};
+
+		// 没有完成任务的用户
+		$aUndoneUsrs = [];
+		$oAssignedUsrs = $oAssignedUsrsResult->users;
+		array_walk($oAssignedUsrs, function (&$oAssignedUser) use (&$aUndoneUsrs, $getUndoneTasks) {
 			$oAssignedUser->uid = $oAssignedUser->userid;
 			!empty($oAssignedUser->group->id) && $oAssignedUser->group_id = $oAssignedUser->group->id;
-			// 查询用户是否有任务
-			$tasks = $modelTsk->byUser($oApp, $oAssignedUser, $aTaskTypes, $aTaskStates);
-			if ($tasks[0] === true && !empty($tasks)) {
-				$tasks = $tasks[1];
-				$oAssignedUser->tasks = [];
-				foreach ($tasks as $task) {
-					if ($task->undone[0] === true) {
-						$oAssignedUser->tasks[] = [$task->type => $task->undone];
-					}
-				}
+			$oAssignedUser = $getUndoneTasks($oAssignedUser);
+			if (!empty($oAssignedUser->undoneTasks)) {
 				$aUndoneUsrs[] = $oAssignedUser;
-			} else {
-				if ($tasks = $this->isUndone($oApp, $rid, $oAssignedUser)) {
-					if (true !== $tasks) {
-						$oAssignedUser->tasks = $tasks;
-					}
-					$aUndoneUsrs[] = $oAssignedUser;
-				}
 			}
-		}
+		});
 
 		$oResult = new \stdClass;
 		$oResult->users = $aUndoneUsrs;

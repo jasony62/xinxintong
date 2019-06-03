@@ -100,7 +100,7 @@ $sql .= ",sex tinyint not null default 0";
 $sql .= ",city varchar(50) not null default ''";
 $sql .= ",province varchar(50) not null default ''";
 $sql .= ",country varchar(50) not null default ''";
-$sql .= ",forbidden char(1) not null default 'N'";
+$sql .= ",forbidden tinyint(3) default 0 comment '是否禁止用户'";
 $sql .= ",unionid varchar(32) not null default '' comment '用户的注册id'";
 $sql .= ",primary key (id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 $sqls[] = $sql;

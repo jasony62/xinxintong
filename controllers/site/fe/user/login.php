@@ -284,7 +284,7 @@ class login extends \site\fe\base {
 		$q = [
 			"*",
 			"account_third_user",
-			["third_id" => $thirdApp->id, "openid" => $oThirdAppUser->openid, "forbidden" => 'N']
+			["third_id" => $thirdApp->id, "openid" => $oThirdAppUser->openid, "forbidden" => 0]
 		];
 		$thirdUser = $modelAcc->query_obj_ss($q);
 		if ($thirdUser) {

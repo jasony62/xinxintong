@@ -17,11 +17,17 @@ class register extends \site\fe\base {
 	 * 执行注册
 	 */
 	public function do_action() {
+		$rst = tms_register_check();
+		if ($rst[0] === false) {
+			return new \ResponseError($rst[1]);
+		}
+
 		$user = $this->who;
 		$data = $this->getPostJson();
 		if (empty($data->uname)) {
 			return new \ResponseError("登录账号不允许为空");
 		}
+		/* uname */
 		$uname = $data->uname;
 		$isValidUname = false;
 		if (1 === preg_match('/^\S+@(\S+[-.])+\S{2,4}$/', $uname)) {
@@ -39,7 +45,9 @@ class register extends \site\fe\base {
 			return new \ResponseError("登录密码不允许为空");
 		}
 	
-		$rst = tms_pwd_check($data->password, ['account' => $uname]);
+		/* password */
+		$password = \TMS_MODEL::unescape($data->password);
+		$rst = tms_pwd_check($password, ['account' => $uname]);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
@@ -54,9 +62,6 @@ class register extends \site\fe\base {
 		}
 
 		$modelReg = $this->model('site\user\registration');
-		/* uname */
-		/* password */
-		$password = $data->password;
 
 		$aOptions = [];
 		/* nickname */

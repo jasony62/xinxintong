@@ -52,9 +52,6 @@ class tag extends \pl\fe\base {
 
 		$model = $this->model('tag');
 		$model->setOnlyWriteDbConn(true);
-		$site = $model->escape($site);
-		$subType = $model->escape($subType);
-		$resId = $model->escape($resId);
 		switch($resType){
 			case 'custom':
 			case 'article':

@@ -144,7 +144,7 @@ class event_model extends \TMS_MODEL {
 		$oOperatorId = $this->_getOperatorId($oOperator);
 		$oNewLog->group_id = isset($oOperator->group_id) ? $oOperator->group_id : '';
 		$oNewLog->userid = $oOperatorId;
-		$oNewLog->nickname = $this->_getOperatorName($oOperator);
+		$oNewLog->nickname = $this->escape($this->_getOperatorName($oOperator));
 
 		/* 事件操作的对象 */
 		$oNewLog->target_id = $oTarget->id;

@@ -255,10 +255,10 @@ class account_model extends TMS_MODEL {
 		if (isset($oFilter->prop) && isset($oFilter->keyword)) {
 			switch ($oFilter->prop) {
 			case 'email':
-				$q[2] .= " and a.email like '%" . $this->escape($oFilter->keyword) . "%'";
+				$q[2] .= " and a.email like '%" . $oFilter->keyword . "%'";
 				break;
 			case 'nickname':
-				$q[2] .= " and a.nickname like '%" . $this->escape($oFilter->keyword) . "%'";
+				$q[2] .= " and a.nickname like '%" . $oFilter->keyword . "%'";
 				break;
 			}
 		}

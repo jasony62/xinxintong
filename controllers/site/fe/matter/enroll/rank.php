@@ -7,6 +7,31 @@ include_once dirname(__FILE__) . '/base.php';
  */
 class rank extends base {
     /**
+     * 根据活动进入规则，获得用户分组信息
+     */
+    private function _getUserGroups($oApp) {
+        if (empty($oApp->entryRule->group->id)) {
+            return false;
+        }
+        $modelGrpTeam = $this->model('matter\group\team');
+        $teams = $modelGrpTeam->byApp($oApp->entryRule->group->id, ['cascade' => 'playerCount,onlookerCount']);
+        if (empty($teams)) {
+            return $teams;
+        }
+
+        $userGroups = [];
+        foreach ($teams as $oTeam) {
+            $oNewGroup = new \stdClass;
+            $oNewGroup->v = $oTeam->team_id;
+            $oNewGroup->l = $oTeam->title;
+            $oNewGroup->playerCount = $oTeam->playerCount;
+            $oNewGroup->onlookerCount = $oTeam->onlookerCount;
+            $userGroups[$oTeam->team_id] = $oNewGroup;
+        }
+
+        return $userGroups;
+    }
+    /**
      * 根据用户的行为数据进行排行
      */
     private function _userByBehavior($oApp, $oCriteria, $page = 1, $size = 100) {
@@ -17,7 +42,14 @@ class rank extends base {
             'xxt_enroll_user u left join xxt_site_account a on u.userid = a.uid and u.siteid = a.siteid',
             "u.aid='{$oApp->id}' and u.state=1",
         ];
+        // 用户分组信息，必须是分组活动中的用户，排除旁观者
+        if (!empty($oApp->entryRule->group->id)) {
+            $q[0] .= ',u.group_id,g.team_title';
+            $q[1] .= ",xxt_group_record g";
+            $q[2] .= " and g.aid='{$oApp->entryRule->group->id}' and u.userid=g.userid and g.team_id=u.group_id and g.is_leader<>'O'";
+        }
 
+        // 轮次
         if (!empty($oCriteria->round) && is_string($oCriteria->round)) {
             $oCriteria->round = explode(',', $oCriteria->round);
         }
@@ -36,6 +68,11 @@ class rank extends base {
             $q[2] .= ' and u.enroll_num>0';
             $q2 = ['o' => 'enroll_num desc'];
             break;
+        case 'cowork':
+            $q[0] .= ',sum(u.cowork_num) cowork_num';
+            $q[2] .= ' and u.cowork_num>0';
+            $q2 = ['o' => 'cowork_num desc'];
+            break;
         case 'remark':
             $q[0] .= ',sum(u.remark_num) remark_num';
             $q[2] .= ' and u.remark_num>0';
@@ -46,7 +83,7 @@ class rank extends base {
             $q[2] .= ' and u.like_num>0';
             $q2 = ['o' => 'like_num desc'];
             break;
-        case 'remark_other':
+        case 'do_remark':
             $q[0] .= ',sum(u.do_remark_num) do_remark_num';
             $q[2] .= ' and u.do_remark_num>0';
             $q2 = ['o' => 'do_remark_num desc'];
@@ -85,24 +122,12 @@ class rank extends base {
         $oResult = new \stdClass;
         $users = $modelUsr->query_objs_ss($q, $q2);
         if (count($users) && !empty($oApp->entryRule->group->id)) {
-            $q = [
-                'userid,team_id,team_title',
-                'xxt_group_record',
-                ['aid' => $oApp->entryRule->group->id],
-            ];
-            $userGroups = $modelUsr->query_objs_ss($q);
-            if (count($userGroups)) {
-                $userGroups2 = new \stdClass;
-                foreach ($userGroups as $oUserGroup) {
-                    if (!empty($oUserGroup->userid)) {
-                        $userGroups2->{$oUserGroup->userid} = new \stdClass;
-                        $userGroups2->{$oUserGroup->userid}->team_id = $oUserGroup->team_id;
-                        $userGroups2->{$oUserGroup->userid}->team_title = $oUserGroup->team_title;
-                    }
-                }
-                foreach ($users as $oUser) {
-                    $oUser->group = isset($userGroups2->{$oUser->userid}) ? $userGroups2->{$oUser->userid} : new \stdClass;
-                }
+            foreach ($users as $oUser) {
+                $oUser->group = new \stdClass;
+                $oUser->group->team_id = $oUser->group_id;
+                $oUser->group->team_title = $oUser->team_title;
+                unset($oUser->group_id);
+                unset($oUser->team_title);
             }
         }
         $oResult->users = $users;
@@ -122,15 +147,27 @@ class rank extends base {
         $modelRecDat = $this->model('matter\enroll\data');
 
         $q = [
-            'userid,sum(value) ' . $schemaSumCol,
-            'xxt_enroll_record_data',
-            ['aid' => $oApp->id, 'state' => 1, 'schema_id' => $schemaId, 'userid' => (object) ['op' => '<>', 'pat' => '']],
+            'r.userid,sum(value) ' . $schemaSumCol,
+            'xxt_enroll_record_data r',
+            ['r.aid' => $oApp->id, 'r.state' => 1, 'r.schema_id' => $schemaId, 'r.userid' => (object) ['op' => '<>', 'pat' => '']],
         ];
-        if (!empty($oCriteria->round) && is_string($oCriteria->round)) {
-            $oCriteria->round = explode(',', $oCriteria->round);
+        // 用户分组信息，必须是分组活动中的用户，排除旁观者
+        if (!empty($oApp->entryRule->group->id)) {
+            $q[0] .= ',r.group_id,g.team_title';
+            $q[1] .= ",xxt_group_record g";
+            $q[2]['g.aid'] = $oApp->entryRule->group->id;
+            $q[2]['userid'] = (object) ['op' => 'and', 'pat' => ['g.userid=r.userid']];
+            $q[2]['g.is_leader'] = (object) ['op' => '<>', 'pat' => 'O'];
+            $q[2]['group_id'] = (object) ['op' => 'and', 'pat' => ['g.team_id=r.group_id']];
         }
-        if (!empty($oCriteria->round) && !in_array('ALL', $oCriteria->round)) {
-            $q[2]['rid'] = $oCriteria->round;
+        // 轮次条件
+        if (!empty($oCriteria->round)) {
+            if (is_string($oCriteria->round)) {
+                $oCriteria->round = explode(',', $oCriteria->round);
+            }
+            if (!in_array('ALL', $oCriteria->round)) {
+                $q[2]['r.rid'] = $oCriteria->round;
+            }
         }
 
         $q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
@@ -138,21 +175,12 @@ class rank extends base {
         $q2['o'] = [$schemaSumCol . ' desc'];
 
         $users = $modelRecDat->query_objs_ss($q, $q2);
+
+        $oResult = new \stdClass;
+        $q[0] = 'count(distinct r.userid)';
+        $oResult->total = (int) $modelRecDat->query_val_ss($q);
+
         if (!empty($users)) {
-            if (!empty($oApp->entryRule->group->id)) {
-                $q = [
-                    'userid,team_id,team_title',
-                    'xxt_group_record',
-                    ['aid' => $oApp->entryRule->group->id],
-                ];
-                $userGroups = $modelRecDat->query_objs_ss($q);
-                if (count($userGroups)) {
-                    $userGroups2 = new \stdClass;
-                    array_walk($userGroups, function ($oUserGroup, $key, $userGroups2) {
-                        !empty($oUserGroup->userid) && $userGroups2->{$oUserGroup->userid} = $oUserGroup;
-                    }, $userGroups2);
-                }
-            }
             /**
              * 补充用户信息
              */
@@ -162,20 +190,23 @@ class rank extends base {
                 ['u.aid' => $oApp->id, 'u.state' => 1, 'rid' => 'ALL'],
             ];
             foreach ($users as $oUser) {
+                if (!empty($oApp->entryRule->group->id)) {
+                    $oUser->group = new \stdClass;
+                    $oUser->group->team_id = $oUser->group_id;
+                    $oUser->group->team_title = $oUser->team_title;
+                    unset($oUser->group_id);
+                    unset($oUser->team_title);
+                }
+                // 用户头像
                 $q[2]['userid'] = $oUser->userid;
                 $oEnlUsr = $modelRecDat->query_obj_ss($q);
                 if ($oEnlUsr) {
                     $oUser->nickname = $oEnlUsr->nickname;
                     $oUser->headimgurl = $oEnlUsr->headimgurl;
-                    $oUser->group = isset($userGroups2->{$oUser->userid}) ? $userGroups2->{$oUser->userid} : new \stdClass;
                 }
             }
         }
-        $oResult = new \stdClass;
         $oResult->users = $users;
-
-        $q[0] = 'count(distinct userid)';
-        $oResult->total = (int) $modelRecDat->query_val_ss($q);
 
         return $oResult;
     }
@@ -209,6 +240,9 @@ class rank extends base {
         switch ($oCriteria->orderby) {
         case 'enroll':
             $sql .= 'sum(enroll_num)';
+            break;
+        case 'cowork':
+            $sql .= 'sum(cowork_num)';
             break;
         case 'remark':
             $sql .= 'sum(remark_num)';
@@ -265,7 +299,8 @@ class rank extends base {
                     $oUserGroup->num = round((float) $modelUsr->query_value($sqlByGroup), 2);
                 } else {
                     if (!empty($oUserGroup->playerCount)) {
-                        $oUserGroup->num = round((float) ($modelUsr->query_value($sqlByGroup) / $oUserGroup->playerCount), 2);
+                        // 不包含旁观者
+                        $oUserGroup->num = round((float) ($modelUsr->query_value($sqlByGroup) / ($oUserGroup->playerCount - $oUserGroup->onlookerCount)), 2);
                     } else {
                         $oUserGroup->num = 0;
                     }
@@ -298,11 +333,13 @@ class rank extends base {
             'xxt_enroll_record_data',
             ['aid' => $oApp->id, 'state' => 1, 'schema_id' => $schemaId, 'group_id' => (object) ['op' => '<>', 'pat' => '']],
         ];
-        if (!empty($oCriteria->round) && is_string($oCriteria->round)) {
-            $oCriteria->round = explode(',', $oCriteria->round);
-        }
-        if (!empty($oCriteria->round) && !in_array('ALL', $oCriteria->round)) {
-            $q[2]['rid'] = $oCriteria->round;
+        if (!empty($oCriteria->round)) {
+            if (is_string($oCriteria->round)) {
+                $oCriteria->round = explode(',', $oCriteria->round);
+            }
+            if (!in_array('ALL', $oCriteria->round)) {
+                $q[2]['rid'] = $oCriteria->round;
+            }
         }
 
         $q2['g'] = ['group_id'];
@@ -333,21 +370,9 @@ class rank extends base {
         if ($oApp === false || $oApp->state !== '1') {
             return new \ObjectNotFoundError();
         }
-        $modelGrpTeam = $this->model('matter\group\team');
-        if (!empty($oApp->entryRule->group->id)) {
-            $teams = $modelGrpTeam->byApp($oApp->entryRule->group->id, ['cascade' => 'playerCount']);
-        }
-        if (empty($teams)) {
+        $userGroups = $this->_getUserGroups($oApp);
+        if (empty($userGroups)) {
             return new \ObjectNotFoundError();
-        }
-
-        $userGroups = [];
-        foreach ($teams as $oTeam) {
-            $oNewGroup = new \stdClass;
-            $oNewGroup->v = $oTeam->team_id;
-            $oNewGroup->l = $oTeam->title;
-            $oNewGroup->playerCount = $oTeam->playerCount;
-            $userGroups[$oTeam->team_id] = $oNewGroup;
         }
 
         $oCriteria = $this->getPostJson();
@@ -363,21 +388,32 @@ class rank extends base {
         return new \ResponseData($oResult);
     }
     /**
-     * 根据记录对用户组排行
+     * 根据行为数据对单选项数据排行
      */
     private function _schemaByBehavior($oApp, $oCriteria, $oRankSchema, $aSchemaOps) {
+        $modelRecDat = $this->model('matter\enroll\data');
+
+        /* 处理通信录题目，例如：member.extattr.s1558673860999 */
+        $aSchemaIdSegs = explode('.', $oRankSchema->id);
+
         switch ($oCriteria->orderby) {
         case 'enroll': // 填写次数
             $q = [
                 'value,count(*) num',
                 'xxt_enroll_record_data',
-                ['aid' => $oApp->id, 'state' => 1, 'schema_id' => $oRankSchema->id, 'value' => (object) ['op' => '<>', 'pat' => '']],
+                ['aid' => $oApp->id, 'state' => 1],
             ];
+            if (count($aSchemaIdSegs) === 3) {
+                return [false, '该数据暂时无法提供'];
+            } else {
+                $q[2]['schema_id'] = $oRankSchema->id;
+                $q[2]['value'] = (object) ['op' => '<>', 'pat' => ''];
+            }
             if (!empty($oCriteria->round) && is_array($oCriteria->round) && !in_array('ALL', $oCriteria->round)) {
                 $q[2]['rid'] = $oCriteria->round;
             }
             $q2 = ['g' => 'value', 'o' => 'num desc'];
-            $oRankResult = $modelApp->query_objs_ss($q, $q2);
+            $oRankResult = $modelRecDat->query_objs_ss($q, $q2);
             if (count($oRankResult)) {
                 array_walk($oRankResult, function (&$oData) use ($aSchemaOps) {$oData->l = isset($aSchemaOps[$oData->value]) ? $aSchemaOps[$oData->value] : '!未知';unset($oData->value);});
             }
@@ -396,8 +432,14 @@ class rank extends base {
                     $q[2]['rid'] = $oCriteria->round;
                 }
                 foreach ($aSchemaOps as $opv => $opl) {
-                    $q[2]['value'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_record_data rd2 where rd1.enroll_key=rd2.enroll_key and rd2.state=1 and rd2.schema_id=\'' . $oRankSchema->id . '\' and rd2.value=\'' . $opv . '\''];
-                    $oNum = $modelApp->query_obj_ss($q);
+                    if (count($aSchemaIdSegs) === 3) {
+                        $opVal = '"' . $aSchemaIdSegs[2] . '":"' . $opv . '"';
+                        $q[2]['value'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_record_data rd2 where rd1.aid=rd2.aid and rd1.enroll_key=rd2.enroll_key and rd2.state=1 and rd2.schema_id="member" and rd2.value like \'%' . $opVal . '%\''];
+                    } else {
+                        $q[2]['value'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_record_data rd2 where rd1.aid=rd2.aid and rd1.enroll_key=rd2.enroll_key and rd2.state=1 and rd2.schema_id=\'' . $oRankSchema->id . '\' and rd2.value=\'' . $opv . '\''];
+                    }
+                    $sql = $modelRecDat->query_obj_ss_toSql($q);
+                    $oNum = $modelRecDat->query_obj_ss($q);
                     $oNum->l = $opl;
                     if ($oCriteria->orderby === 'average_score') {
                         if (!empty($oNum->num) && !empty($oNum->user_num)) {
@@ -424,8 +466,37 @@ class rank extends base {
      * 根据记录对用户组排行
      */
     private function _schemaByRecord($oApp, $oCriteria, $oRankSchema, $aSchemaOps) {
-        $oResult = new \stdClass;
-        return [true, $oResult];
+        $schemaId = substr($oCriteria->orderby, 7);
+
+        /* 处理通信录题目，例如：member.extattr.s1558673860999 */
+        $aSchemaIdSegs = explode('.', $oRankSchema->id);
+
+        $modelRecDat = $this->model('matter\enroll\data');
+        $q = [
+            'sum(value) num',
+            'xxt_enroll_record_data rd1',
+            ['aid' => $oApp->id, 'state' => 1, 'schema_id' => $schemaId],
+        ];
+        if (!empty($oCriteria->round) && is_array($oCriteria->round) && !in_array('ALL', $oCriteria->round)) {
+            $q[2]['rid'] = $oCriteria->round;
+        }
+        foreach ($aSchemaOps as $opv => $opl) {
+            if (count($aSchemaIdSegs) === 3) {
+                $opVal = '"' . $aSchemaIdSegs[2] . '":"' . $opv . '"';
+                $q[2]['value'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_record_data rd2 where rd1.enroll_key=rd2.enroll_key and rd2.state=1 and rd2.schema_id="member" and rd2.value like \'%' . $opVal . '%\''];
+            } else {
+                $q[2]['value'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_record_data rd2 where rd1.enroll_key=rd2.enroll_key and rd2.state=1 and rd2.schema_id=\'' . $oRankSchema->id . '\' and rd2.value=\'' . $opv . '\''];
+            }
+            $oNum = $modelRecDat->query_obj_ss($q);
+            $oNum->l = $opl;
+            $oRankResult[] = $oNum;
+        }
+        /* 数据排序 */
+        usort($oRankResult, function ($a, $b) {
+            return $a->num < $b->num ? 1 : -1;
+        });
+
+        return [true, $oRankResult];
     }
     /**
      * 题目排行榜（仅限单选题）
@@ -436,6 +507,12 @@ class rank extends base {
         if ($oApp === false || $oApp->state !== '1') {
             return new \ObjectNotFoundError();
         }
+
+        $oCriteria = $this->getPostJson();
+        if (empty($oCriteria->orderby)) {
+            return new \ParameterError();
+        }
+
         $oRankSchema = tms_array_search($oApp->dynaDataSchemas, function ($oSchema) use ($schema) {return $oSchema->id === $schema;});
         if (false === $oRankSchema) {
             return new \ObjectNotFoundError('指定的题目不存在');
@@ -443,13 +520,12 @@ class rank extends base {
         if ($oRankSchema->type !== 'single' || empty($oRankSchema->ops)) {
             return new \ParameterError('指定的题目不支持进行排行');
         }
-        $aSchemaOps = [];
+        $aSchemaOps = []; // 单选题选项作为排行对象
         array_walk($oRankSchema->ops, function ($oOp) use (&$aSchemaOps) {$aSchemaOps[$oOp->v] = $oOp->l;});
-
-        $oCriteria = $this->getPostJson();
-        if (empty($oCriteria->orderby)) {
-            return new \ParameterError();
+        if (empty($aSchemaOps)) {
+            return new \ParameterError('指定的题目选项为空，无法进行排行');
         }
+
         if (0 === strpos($oCriteria->orderby, 'schema_')) {
             $aResult = $this->_schemaByRecord($oApp, $oCriteria, $oRankSchema, $aSchemaOps);
         } else {
@@ -460,6 +536,6 @@ class rank extends base {
             return new \ResponseError($aResult[1]);
         }
 
-        return new \ResponseData($aResult[0]);
+        return new \ResponseData($aResult[1]);
     }
 }

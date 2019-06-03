@@ -32,14 +32,14 @@ class main extends \pl\fe\matter\base {
 		$q = [
 			$fields,
 			'xxt_text t',
-			"siteid = '" . $model->escape($site) . "' and state = 1",
+			"siteid = '" . $site . "' and state = 1",
 		];
 		if (!empty($oPosted->byTitle)) {
-			$q[2] .= " and title like '%" . $model->escape($oPosted->byTitle) . "%'";
+			$q[2] .= " and title like '%" . $oPosted->byTitle . "%'";
 		}
 		if (!empty($oPosted->byTags)) {
 			foreach ($oPosted->byTags as $tag) {
-				$q[2] .= " and matter_mg_tag like '%" . $model->escape($tag->id) . "%'";
+				$q[2] .= " and matter_mg_tag like '%" . $tag->id . "%'";
 			}
 		}
 		if (isset($oPosted->byStar) && $oPosted->byStar === 'Y') {
@@ -72,14 +72,14 @@ class main extends \pl\fe\matter\base {
 		$d = array();
 		$d['siteid'] = $site;
 		$d['creater'] = $user->id;
-		$d['creater_name'] = $user->name;
+		$d['creater_name'] = $this->escape($user->name);
 		$d['create_at'] = time();
 		$d['modifier'] = $user->id;
-		$d['modifier_name'] = $user->name;
+		$d['modifier_name'] = $this->escape($user->name);
 		$d['modify_at'] = time();
-		$d['title'] = $model->escape($text->title);
+		$d['title'] = $text->title;
 		// @todo should remove
-		$d['content'] = $model->escape($text->title);
+		$d['content'] = $text->title;
 
 		$id = $model->insert('xxt_text', $d, true);
 
@@ -109,7 +109,7 @@ class main extends \pl\fe\matter\base {
 		$nv = new \stdClass;
 		$nv->state = 0;
 		$nv->modifier = $user->id;
-		$nv->modifier_name = $user->name;
+		$nv->modifier_name = $this->escape($user->name);
 		$nv->modify_at = time();
 
 		$rst = $model->update(
@@ -141,7 +141,7 @@ class main extends \pl\fe\matter\base {
 		$nv = new \stdClass;
 		$nv->state = 1;
 		$nv->modifier = $user->id;
-		$nv->modifier_name = $user->name;
+		$nv->modifier_name = $this->escape($user->name);
 		$nv->modify_at = time();
 		$rst = $model->update('xxt_text', $nv, ['siteid' => $site, 'id' => $id]);
 
@@ -163,11 +163,11 @@ class main extends \pl\fe\matter\base {
 		$nv = $this->getPostJson();
 
 		if (isset($nv->title)) {
-			$nv->title = $model->escape($nv->title);
+			$nv->title = $nv->title;
 			$nv->content = $nv->title;
 		}
 		$nv->modifier = $user->id;
-		$nv->modifier_name = $user->name;
+		$nv->modifier_name = $this->escape($user->name);
 		$nv->modify_at = time();
 
 		$rst = $model->update(

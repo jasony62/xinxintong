@@ -12,6 +12,7 @@ ngApp.config(['$locationProvider', 'srvSiteProvider', function($locationProvider
 ngApp.controller('ctrlPlan', ['$scope', 'http2', 'srvSite', 'tkEntryRule', function($scope, http2, srvSite, tkEntryRule) {
     var _oProto, _oEntryRule;
     $scope.proto = _oProto = {
+        id: '_pending',
         entryRule: {
             siteid: siteId,
             scope: {},

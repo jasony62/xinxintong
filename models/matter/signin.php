@@ -499,7 +499,7 @@ class signin_model extends enroll_base {
 			$oNewApp->use_mission_footer = 'N';
 		}
 		/* 用户指定的属性 */
-		$title = empty($oCustomConfig->proto->title) ? '新签到活动' : $this->escape($oCustomConfig->proto->title);
+		$title = empty($oCustomConfig->proto->title) ? '新签到活动' : $oCustomConfig->proto->title;
 		$oNewApp->title = $title;
 		$oNewApp->start_at = isset($oCustomConfig->proto->start_at) ? $oCustomConfig->proto->start_at : 0;
 		$oNewApp->end_at = isset($oCustomConfig->proto->end_at) ? $oCustomConfig->proto->end_at : 0;
@@ -511,7 +511,11 @@ class signin_model extends enroll_base {
 		}
 		if (!empty($oCustomConfig->proto->entryRule->scope)) {
 			/* 用户指定的规则 */
-			$this->setEntryRuleByProto($oSite, $oEntryRule, $oCustomConfig->proto->entryRule);
+			$oApp = new \stdClass;
+			$oApp->id = $appId;
+			$oApp->title = $title;
+			$oApp->type = 'signin';
+			$this->setEntryRuleByProto($oSite, $oEntryRule, $oCustomConfig->proto->entryRule, $oApp, $oUser);
 		} else if (isset($oMisEntryRule)) {
 			/* 项目的进入规则 */
 			$this->setEntryRuleByMission($oEntryRule, $oMisEntryRule);

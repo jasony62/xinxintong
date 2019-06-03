@@ -115,7 +115,7 @@ class favor extends \pl\fe\base {
 				['siteid' => $targetSiteId, 'from_siteid' => $oMatter->siteid, 'matter_id' => $id, 'matter_type' => $type],
 			];
 			if (false === $modelMat->query_obj_ss($q)) {
-				$log['siteid'] = $modelMat->escape($targetSiteId);
+				$log['siteid'] = $targetSiteId;
 				$modelMat->insert('xxt_site_friend_favor', $log, false);
 			}
 		}

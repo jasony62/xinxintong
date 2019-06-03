@@ -45,7 +45,7 @@ class coin extends \site\fe\base {
 
 		$filter = $this->getPostJson();
 		if (!empty($filter->byName)) {
-			$options['byName'] = $model->escape($filter->byName);
+			$options['byName'] = $filter->byName;
 		}
 		if (!empty($page) && !empty($size)) {
 			$options['at'] = ['page' => $page, 'size' => $size];
@@ -65,7 +65,7 @@ class coin extends \site\fe\base {
 		$filter = $this->getPostJson();
 		$options = [];
 		if (!empty($filter->byName)) {
-			$options['byName'] =$this->model()->escape($filter->byName);
+			$options['byName'] = $filter->byName;
 		}
 		$data = $this->userLogs($site, $user, $matterType, $matterId, $options, $page, $size);
 

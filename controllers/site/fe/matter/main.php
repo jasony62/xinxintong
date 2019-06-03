@@ -148,15 +148,15 @@ class main extends \site\fe\matter\base {
 		if (!$post || !isset($post->id) || !isset($post->type)) {
 			return new \ResponseError('参数不完整');
 		}
-		$id = $model->escape($post->id);
-		$type = $model->escape($post->type);
-		$title = isset($post->title) ? $model->escape($post->title) : '';
-		$shareby = isset($post->shareby) ? $model->escape($post->shareby) : '';
-		$search = !empty($post->search) ? $model->escape($post->search) : (tms_get_server('QUERY_STRING') ? tms_get_server('QUERY_STRING') : '');
-		$referer = !empty($post->referer) ? $model->escape($post->referer) : (tms_get_server('HTTP_REFERER') ? tms_get_server('HTTP_REFERER') : '');
+		$id = $post->id;
+		$type = $post->type;
+		$title = isset($post->title) ? $post->title : '';
+		$shareby = isset($post->shareby) ? $post->shareby : '';
+		$search = !empty($post->search) ? $post->search : (tms_get_server('QUERY_STRING') ? tms_get_server('QUERY_STRING') : '');
+		$referer = !empty($post->referer) ? $post->referer : (tms_get_server('HTTP_REFERER') ? tms_get_server('HTTP_REFERER') : '');
 
 		if ($type === 'enroll') {
-			$userRid = !empty($post->rid) ? $model->escape($post->rid) : '';
+			$userRid = !empty($post->rid) ? $post->rid : '';
 			if (empty($post->assignedNickname)) {
 				$oApp = $this->model('matter\enroll')->byId($id, ['fields' => 'siteid,id,round_cron,assigned_nickname', 'cascaded' => 'N']);
 				if ((isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') && isset($oApp->assignedNickname->schema->id)) {
@@ -191,8 +191,8 @@ class main extends \site\fe\matter\base {
 				'HTTP_REFERER' => $referer,
 			];
 			if (!empty($post->target_type) && !empty($post->target_id)) {
-				$args['target_type'] = $model->escape($post->target_type);
-				$args['target_id'] = $model->escape($post->target_id);
+				$args['target_type'] = $post->target_type;
+				$args['target_id'] = $post->target_id;
 			}
 			isset($userRid) && $args['rid'] = $userRid;
 			\Resque::enqueue('default', 'job\log\site\fe\matter\access', $args);
@@ -215,8 +215,8 @@ class main extends \site\fe\matter\base {
 			$options = [];
 			isset($userRid) && $options['rid'] = $userRid;
 			if (!empty($post->target_type) && !empty($post->target_id)) {
-				$options['target_type'] = $model->escape($post->target_type);
-				$options['target_id'] = $model->escape($post->target_id);
+				$options['target_type'] = $post->target_type;
+				$options['target_id'] = $post->target_id;
 			}
 
 			$logid = $this->logRead($site, $user, $id, $type, $title, $shareby, $search, $referer, $options);

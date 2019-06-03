@@ -346,13 +346,13 @@ class i extends \site\base {
 			$snsConfig = $modelSns->bySite('platform');
 		}
 		if ($snsConfig === false) {
-			$this->model('log')->log($site, 'snsOAuthUserByCode', 'snsConfig: false', null, $_SERVER['REQUEST_URI']);
+			$this->model('log')->log($site, 'snsOAuthUserByCode', 'snsConfig: false', null, tms_get_server('REQUEST_URI'));
 			return false;
 		}
 		$snsProxy = $this->model('sns\\' . $snsName . '\proxy', $snsConfig);
 		$rst = $snsProxy->getOAuthUser($code);
 		if ($rst[0] === false) {
-			$this->model('log')->log($site, 'snsOAuthUserByCode', 'xxt oauth2 failed: ' . $rst[1], null, $_SERVER['REQUEST_URI']);
+			$this->model('log')->log($site, 'snsOAuthUserByCode', 'xxt oauth2 failed: ' . $rst[1], null, tms_get_server('REQUEST_URI'));
 			$snsUser = false;
 		} else {
 			$snsUser = $rst[1];

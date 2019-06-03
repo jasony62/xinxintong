@@ -973,17 +973,14 @@ body.enroll-repos {
 
 }
 
-.modal {
+.modal-md {
+    width: 284px;
+    height: 450px;
+    top: 50%;
+    left: 50%;
+    margin-top: -225px;
+    margin-left: -142px;
     z-index: 1051;
-
-    .modal-md {
-        width: 284px;
-        height: 450px;
-        top: 50%;
-        left: 50%;
-        margin-top: -225px;
-        margin-left: -142px;
-    }
 
     .modal-content {
         border: 0;
@@ -992,6 +989,7 @@ body.enroll-repos {
     }
 
     .cancle {
+        cursor: pointer;
         position: absolute;
         top: -34px;
         right: 10px;
@@ -1012,6 +1010,8 @@ body.enroll-repos {
         display: flex;
 
         .info {
+            width: 154px;
+            
             >p {
                 color: #fff;
                 letter-spacing: 4px;
@@ -1046,7 +1046,7 @@ body.enroll-repos {
         }
 
         .img {
-            width: 100%;
+            width: 100px;
             height: 84px;
             background-image: url('/static/img/site_fe_task.png');
             background-repeat: no-repeat;

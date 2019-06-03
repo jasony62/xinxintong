@@ -244,7 +244,7 @@ class main extends \pl\fe\base {
 		 * 处理数据
 		 */
 		$current = time();
-		$nv = $this->getPostJson();
+		$nv = $this->getPostJson(false);
 		$rst = false;
 		if ($template->matter_type === 'enroll') {
 			foreach ($nv as $n => $v) {
@@ -255,10 +255,10 @@ class main extends \pl\fe\base {
 			$dataTmp = array();
 			isset($nv->scenario) && $dataTmp['scenario'] = $nv->scenario;
 			isset($nv->title) && $dataTmp['title'] = $modelTmp->escape($nv->title);
-			isset($nv->pic) && $dataTmp['pic'] = $nv->pic;
+			isset($nv->pic) && $dataTmp['pic'] = $modelTmp->escape($nv->pic);
 			isset($nv->summary) && $dataTmp['summary'] = $modelTmp->escape($nv->summary);
-			isset($nv->visible_scope) && $dataTmp['visible_scope'] = $nv->visible_scope;
-			isset($nv->coin) && $dataTmp['coin'] = $nv->coin;
+			isset($nv->visible_scope) && $dataTmp['visible_scope'] = $modelTmp->escape($nv->visible_scope);
+			isset($nv->coin) && $dataTmp['coin'] = $modelTmp->escape($nv->coin);
 			if (!empty($dataTmp)) {
 				$rst = $modelTmp->update('xxt_template', $dataTmp, ["id" => $tid]);
 			}
@@ -270,8 +270,8 @@ class main extends \pl\fe\base {
 			$dataE['scenario_config'] = $modelTmp->escape($modelTmp->toJson($config));
 
 			isset($nv->data_schemas) && $dataE['data_schemas'] = $nv->data_schemas;
-			isset($nv->enrolled_entry_page) && $dataE['enrolled_entry_page'] = $nv->enrolled_entry_page;
-			isset($nv->open_lastroll) && $dataE['open_lastroll'] = $nv->open_lastroll;
+			isset($nv->enrolled_entry_page) && $dataE['enrolled_entry_page'] = $modelTmp->escape($nv->enrolled_entry_page);
+			isset($nv->open_lastroll) && $dataE['open_lastroll'] = $modelTmp->escape($nv->open_lastroll);
 			isset($nv->up_said) && $dataE['up_said'] = $modelTmp->escape($nv->up_said);
 
 			if (!empty($dataE)) {

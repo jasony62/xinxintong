@@ -13,47 +13,47 @@ require('./_asset/ui.filter.js');
 require('./_asset/ui.tree.js');
 require('./_asset/ui.task.js');
 
-window.moduleAngularModules = ['nav.bottom.ui', 'tree.ui', 'filter.ui', 'dropdown.ui', 'round.ui.enroll', 'record.repos.ui.enroll', 'cowork.repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll', 'task.ui.enroll'];
+window.moduleAngularModules = ['nav.bottom.ui', 'tree.ui', 'filter.ui', 'dropdown.ui', 'round.ui.enroll', 'history.ui.enroll', 'record.repos.ui.enroll', 'cowork.repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll', 'task.ui.enroll'];
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', 'enlAssoc', 'enlService', 'enlTask', function($scope, $parse, $sce, $q, $uibModal, http2, LS, enlRound, $timeout, picviewer, noticebox, enlTag, enlTopic, enlAssoc, enlService, enlTask) {
+ngApp.controller('ctrlRepos', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'enlRound', '$timeout', 'noticebox', 'enlTag', 'enlTopic', 'enlService', 'enlTask', function ($scope, $uibModal, http2, LS, enlRound, $timeout, noticebox, enlTag, enlTopic, enlService, enlTask) {
     var _oApp, _facRound, _aShareableSchemas;
     $scope.schemas = _aShareableSchemas = []; // 支持分享的题目
     $scope.activeDirSchemas = {};
     $scope.schemaCounter = 0;
     $scope.activeNav = '';
-    $scope.addRecord = function(event) {
+    $scope.addRecord = function (event) {
         $scope.$parent.addRecord(event);
     };
     $scope.favorStack = {
         guiding: false,
-        start: function(record, timer) {
+        start: function (record, timer) {
             this.guiding = true;
             this.record = record;
             this.timer = timer;
         },
-        end: function() {
+        end: function () {
             this.guiding = false;
             delete this.record;
             delete this.timer;
         }
     };
-    $scope.favorRecord = function(oRecord) {
+    $scope.favorRecord = function (oRecord) {
         var url;
         if (!oRecord.favored) {
             url = LS.j('favor/add', 'site');
             url += '&ek=' + oRecord.enroll_key;
-            http2.get(url).then(function(rsp) {
+            http2.get(url).then(function (rsp) {
                 oRecord.favored = true;
-                $scope.favorStack.start(oRecord, $timeout(function() {
+                $scope.favorStack.start(oRecord, $timeout(function () {
                     $scope.favorStack.end();
                 }, 3000));
             });
         } else {
-            noticebox.confirm('取消收藏，确定？').then(function() {
+            noticebox.confirm('取消收藏，确定？').then(function () {
                 url = LS.j('favor/remove', 'site');
                 url += '&ek=' + oRecord.enroll_key;
-                http2.get(url).then(function(rsp) {
+                http2.get(url).then(function (rsp) {
                     delete oRecord.favored;
                 });
             });
@@ -61,15 +61,15 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     };
 
     function fnAssignTag(oRecord) {
-        enlTag.assignTag(oRecord).then(function(rsp) {
+        enlTag.assignTag(oRecord).then(function (rsp) {
             if (rsp.data.user && rsp.data.user.length) {
                 oRecord.userTags = rsp.data.user;
             } else {
                 delete oRecord.userTags;
             }
         });
-    };
-    $scope.assignTag = function(oRecord) {
+    }
+    $scope.assignTag = function (oRecord) {
         if (oRecord) {
             fnAssignTag(oRecord);
         } else {
@@ -82,7 +82,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
     };
 
     function fnAssignTopic(oRecord) {
-        http2.get(LS.j('topic/list', 'site', 'app')).then(function(rsp) {
+        http2.get(LS.j('topic/list', 'site', 'app')).then(function (rsp) {
             var topics;
             if (rsp.data.total === 0) {
                 location.href = LS.j('', 'site', 'app') + '&page=favor#topic';
@@ -91,8 +91,8 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                 enlTopic.assignTopic(oRecord);
             }
         });
-    };
-    $scope.assignTopic = function(oRecord) {
+    }
+    $scope.assignTopic = function (oRecord) {
         if (oRecord) {
             fnAssignTopic(oRecord);
         } else {
@@ -104,29 +104,29 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         }
     };
     /* 关闭任务提示 */
-    $scope.closeTask = function(index) {
+    $scope.closeTask = function (index) {
         $scope.tasks.splice(index, 1);
     };
-    $scope.gotoTask = function(oTask) {
+    $scope.gotoTask = function (oTask) {
         if (oTask && oTask.topic && oTask.topic.id)
             location.href = LS.j('', 'site', 'app') + '&topic=' + oTask.topic.id + '&page=topic';
     };
-    $scope.openTaskModel = function() {
+    $scope.openTaskModel = function () {
         $uibModal.open({
             templateUrl: 'task.html',
             resolve: {
-                tasks: function() {
+                tasks: function () {
                     return $scope.tasks;
                 }
             },
-            controller: ['$scope', 'tasks', '$uibModalInstance', function($scope2, tasks, $mi) {
+            controller: ['$scope', 'tasks', '$uibModalInstance', function ($scope2, tasks, $mi) {
                 $scope2.tasks = tasks;
-                $scope2.tasks.forEach(function(oTask) {
+                $scope2.tasks.forEach(function (oTask) {
                     if (oTask.data.state === 'IP') {
                         $scope2.currentTask = oTask;
                     }
                 });
-                $scope2.gotoTask = function(oTask) {
+                $scope2.gotoTask = function (oTask) {
                     if (oTask) {
                         if (oTask.data.type === 'baseline') {
                             location.href = LS.j('', 'site', 'app') + '&rid=' + oTask.rid + '&page=enroll';
@@ -135,27 +135,25 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                         }
                     }
                 };
-                $scope2.addRecord = function(event) {
+                $scope2.addRecord = function (event) {
                     $scope.addRecord(event);
                 };
-                $scope2.cancel = function() {
+                $scope2.cancel = function () {
                     $mi.close();
                 };
             }],
             size: 'md',
             backdrop: 'static',
-        }).result.then(function() {
-
-        })
-    }
+        });
+    };
     $scope.advCriteriaStatus = {
         opened: !$scope.isSmallLayout,
         dirOpen: false
     };
-    $scope.$on('transfer.view', function(event, data) {
+    $scope.$on('transfer.view', function (event, data) {
         $scope.activeView = data;
     });
-    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+    $scope.$on('xxt.app.enroll.ready', function (event, params) {
         var tasks, popActs;
         _oApp = params.app;
         if (window.sessionStorage.length) {
@@ -174,25 +172,53 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                 $scope.advCriteriaStatus.dirOpen = true;
             }
         } else {
-            new enlTask($scope.app).list(null).then(function(ipTasks) {
+            new enlTask($scope.app).list(null).then(function (ipTasks) {
                 if (ipTasks.length) {
                     var flag = false;
-                    ipTasks.forEach(function(oTask) {
+                    ipTasks.forEach(function (oTask) {
                         if (oTask.state === 'IP') {
                             flag = true;
                         };
                         switch (oTask.type) {
                             case 'question':
-                                tasks.push({ type: 'info', msg: oTask.toString(), time: oTask.timeFormat(), id: 'record.data.question', name: '提问', data: oTask });
+                                tasks.push({
+                                    type: 'info',
+                                    msg: oTask.toString(),
+                                    time: oTask.timeFormat(),
+                                    id: 'record.data.question',
+                                    name: '提问',
+                                    data: oTask
+                                });
                                 break;
                             case 'answer':
-                                tasks.push({ type: 'info', msg: oTask.toString(), time: oTask.timeFormat(), id: 'record.data.answer', name: '回答', data: oTask });
+                                tasks.push({
+                                    type: 'info',
+                                    msg: oTask.toString(),
+                                    time: oTask.timeFormat(),
+                                    id: 'record.data.answer',
+                                    name: '回答',
+                                    data: oTask
+                                });
                                 break;
                             case 'vote':
-                                tasks.push({ type: 'info', msg: oTask.toString(), time: oTask.timeFormat(), id: 'record.data.vote', name: '投票', data: oTask });
+                                tasks.push({
+                                    type: 'info',
+                                    msg: oTask.toString(),
+                                    time: oTask.timeFormat(),
+                                    id: 'record.data.vote',
+                                    name: '投票',
+                                    data: oTask
+                                });
                                 break;
                             case 'score':
-                                tasks.push({ type: 'info', msg: oTask.toString(), time: oTask.timeFormat(), id: 'record.data.score', name: '打分', data: oTask });
+                                tasks.push({
+                                    type: 'info',
+                                    msg: oTask.toString(),
+                                    time: oTask.timeFormat(),
+                                    id: 'record.data.score',
+                                    name: '打分',
+                                    data: oTask
+                                });
                                 break;
                         }
                     });
@@ -203,10 +229,10 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             });
             $scope.tasks = tasks = [];
             $scope.facRound = _facRound = new enlRound(_oApp);
-            _facRound.list().then(function(result) {
+            _facRound.list().then(function (result) {
                 $scope.rounds = result.rounds;
             });
-            _oApp.dynaDataSchemas.forEach(function(oSchema) {
+            _oApp.dynaDataSchemas.forEach(function (oSchema) {
                 if (oSchema.shareable === 'Y') {
                     $scope.schemaCounter++;
                     _aShareableSchemas.push(oSchema);
@@ -216,18 +242,18 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
                 }
             });
             /* 作为分类目录的题目 */
-            http2.get(LS.j('repos/dirSchemasGet', 'site', 'app')).then(function(rsp) {
+            http2.get(LS.j('repos/dirSchemasGet', 'site', 'app')).then(function (rsp) {
                 $scope.dirSchemas = rsp.data;
                 if ($scope.dirSchemas && $scope.dirSchemas.length) {
                     $scope.advCriteriaStatus.dirOpen = true;
                 }
             });
             /* 请求导航 */
-            http2.get(LS.j('navs', 'site', 'app')).then(function(rsp) {
+            http2.get(LS.j('navs', 'site', 'app')).then(function (rsp) {
                 $scope.navs = rsp.data;
-                $scope.navs.forEach(function(nav) {
+                $scope.navs.forEach(function (nav) {
                     if (nav.type === 'repos') {
-                        nav.views.forEach(function(view) {
+                        nav.views.forEach(function (view) {
                             view.url = '/views/default/site/fe/matter/enroll/template/repos-' + view.type + '.html';
                             if (nav.defaultView.type === view.type) {
                                 $scope.activeView = view;
@@ -238,15 +264,21 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
             });
         }
         /* 设置页面分享信息 */
-        $scope.setSnsShare(null, null, { target_type: 'repos', target_id: _oApp.id });
+        $scope.setSnsShare(null, null, {
+            target_type: 'repos',
+            target_id: _oApp.id
+        });
         /* 页面阅读日志 */
-        $scope.logAccess({ target_type: 'repos', target_id: _oApp.id });
+        $scope.logAccess({
+            target_type: 'repos',
+            target_id: _oApp.id
+        });
         /* 用户信息 */
-        enlService.user().then(function(data) {
+        enlService.user().then(function (data) {
             $scope.user = data;
             var groupOthersById = {};
             if (data.groupOthers && data.groupOthers.length) {
-                data.groupOthers.forEach(function(oOther) {
+                data.groupOthers.forEach(function (oOther) {
                     groupOthersById[oOther.userid] = oOther;
                 });
             }
@@ -254,11 +286,11 @@ ngApp.controller('ctrlRepos', ['$scope', '$parse', '$sce', '$q', '$uibModal', 'h
         });
     });
 }]);
-ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'noticebox', 'tmsLocation', 'picviewer', 'enlAssoc', function($scope, $timeout, $q, http2, noticebox, LS, picviewer, enlAssoc) {
+ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'noticebox', 'tmsLocation', 'picviewer', 'enlAssoc', function ($scope, $timeout, $q, http2, noticebox, LS, picviewer, enlAssoc) {
     function fnGetCriteria(datas) {
         $scope.singleFilters = [];
         $scope.multiFilters = [];
-        angular.forEach(datas, function(data, index) {
+        angular.forEach(datas, function (data, index) {
             _oCriteria[data.type] = data.default.id;
             if (data.type === 'orderby') {
                 $scope.singleFilters.push(data);
@@ -270,25 +302,27 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
     }
     var _oPage, _oFilter, _oCriteria;
     $scope.page = _oPage = {};
-    $scope.filter = _oFilter = { isFilter: false };
+    $scope.filter = _oFilter = {
+        isFilter: false
+    };
     $scope.criteria = _oCriteria = {};
     $scope.repos = [];
     $scope.reposLoading = false;
     $scope.appendToEle = angular.element(document.querySelector('#nav_container'));
-    $scope.viewTo = function($event, view) {
+    $scope.viewTo = function ($event, view) {
         $scope.$emit('transfer.view', view);
     };
-    $scope.getCriteria = function() {
+    $scope.getCriteria = function () {
         var url;
         url = LS.j('repos/criteriaGet', 'site', 'app') + '&viewType=record';
-        http2.get(url).then(function(rsp) {
+        http2.get(url).then(function (rsp) {
             if (rsp.data) {
                 fnGetCriteria(rsp.data);
             }
             $scope.recordList(1);
         });
     };
-    $scope.recordList = function(pageAt) {
+    $scope.recordList = function (pageAt) {
         var url, deferred;
         deferred = $q.defer();
 
@@ -299,13 +333,15 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
         }
         url = LS.j('repos/recordList', 'site', 'app');
         $scope.reposLoading = true;
-        http2.post(url, _oCriteria, { page: _oPage }).then(function(result) {
+        http2.post(url, _oCriteria, {
+            page: _oPage
+        }).then(function (result) {
             if (result.data.records) {
-                result.data.records.forEach(function(oRecord) {
+                result.data.records.forEach(function (oRecord) {
                     $scope.repos.push(oRecord);
                 });
             }
-            $timeout(function() {
+            $timeout(function () {
                 var imgs;
                 if (imgs = document.querySelectorAll('.data img')) {
                     picviewer.init(imgs);
@@ -317,7 +353,7 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
 
         return deferred.promise;
     };
-    $scope.dirClicked = function(oDir, active) {
+    $scope.dirClicked = function (oDir, active) {
         _oCriteria.data = {};
         if (oDir) {
             _oCriteria.data[oDir.schema_id] = oDir.op.v;
@@ -325,16 +361,16 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
         $scope.activeDirSchemas = active;
         $scope.recordList(1);
     };
-    $scope.shiftMenu = function(criteria) {
+    $scope.shiftMenu = function (criteria) {
         _oCriteria[criteria.type] = criteria.id;
         $scope.recordList(1);
     };
-    $scope.confirm = function(filterOpt) {
-        $scope.recordList(1).then(function() {
-            http2.get(LS.j('repos/criteriaGet', 'site', 'app')).then(function(rsp) {
+    $scope.confirm = function (filterOpt) {
+        $scope.recordList(1).then(function () {
+            http2.get(LS.j('repos/criteriaGet', 'site', 'app')).then(function (rsp) {
                 if (rsp.data) {
                     var _oNew = [];
-                    angular.forEach(rsp.data, function(data) {
+                    angular.forEach(rsp.data, function (data) {
                         if (data.type === 'orderby') {
                             return false;
                         } else {
@@ -346,7 +382,7 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
             });
         });
     };
-    $scope.shiftTip = function(type) {
+    $scope.shiftTip = function (type) {
         _oCriteria[type] = _oFilter[type] = null;
 
         function objectKeyIsNull(obj) {
@@ -369,7 +405,7 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
         }
         $scope.recordList(1);
     };
-    $scope.shiftTag = function(oTag, bToggle) {
+    $scope.shiftTag = function (oTag, bToggle) {
         if (bToggle) {
             if (!_oFilter.tags) {
                 _oFilter.tags = [oTag];
@@ -410,10 +446,10 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
             'topics': $scope.topics,
             'dirSchemas': $scope.dirSchemas,
             'currentDirs': $scope.activeDirSchemas
-        }
+        };
         sessionStorage.setItem('listStorage', JSON.stringify(cacheData));
-    };
-    $scope.remarkRecord = function(oRecord, event) {
+    }
+    $scope.remarkRecord = function (oRecord, event) {
         event.stopPropagation();
         event.preventDefault();
 
@@ -424,7 +460,7 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
         url += '&page=cowork';
         location.href = url;
     };
-    $scope.shareRecord = function(oRecord) {
+    $scope.shareRecord = function (oRecord) {
         var url, shareby;
         url = LS.j('', 'site', 'app') + '&ek=' + oRecord.enroll_key + '&page=share';
         shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
@@ -434,7 +470,7 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
         location.href = url;
     };
 
-    $scope.editRecord = function(event, oRecord) {
+    $scope.editRecord = function (event, oRecord) {
         if (oRecord.userid !== $scope.user.uid) {
             noticebox.warn('不允许编辑其他用户提交的记录');
             return;
@@ -449,14 +485,18 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
         }
         $scope.gotoPage(event, page, oRecord.enroll_key);
     };
-    $scope.copyRecord = function(event, oRecord) {
-        enlAssoc.copy($scope.app, { id: oRecord.id, type: 'record' });
+    $scope.copyRecord = function (event, oRecord) {
+        enlAssoc.copy($scope.app, {
+            id: oRecord.id,
+            type: 'record'
+        });
     };
+
     $scope.spyRecordsScroll = true; // 监控滚动事件
-    $scope.recordsScrollToBottom = function() {
+    $scope.recordsScrollToBottom = function () {
         if ($scope.repos.length < $scope.page.total) {
-            $scope.recordList().then(function() {
-                $timeout(function() {
+            $scope.recordList().then(function () {
+                $timeout(function () {
                     if ($scope.repos.length < $scope.page.total) {
                         $scope.spyRecordsScroll = true;
                     }
@@ -464,6 +504,18 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
             });
         }
     };
+
+    function _getNewRepos(at) {
+        $scope.recordList(at).then(function () {
+            if (at == _cPage.at) {
+                $timeout(function () {
+                    document.getElementById('repos').scrollTop = parseInt(window.sessionStorage.listStorageY);
+                    window.sessionStorage.clear();
+                });
+            }
+        });
+
+    }
     if (window.sessionStorage.length && $scope.activeView.type === 'record') {
         var cacheData, _cPage;
         cacheData = JSON.parse(window.sessionStorage.listStorage);
@@ -473,17 +525,6 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
         $scope.criteria = _oCriteria = cacheData.currentCriteria;
         _cPage = cacheData.page;
 
-        function _getNewRepos(at) {
-            $scope.recordList(at).then(function() {
-                if (at == _cPage.at) {
-                    $timeout(function() {
-                        document.getElementById('repos').scrollTop = parseInt(window.sessionStorage.listStorageY);
-                        window.sessionStorage.clear();
-                    });
-                }
-            });
-
-        }
         for (var i = 1; i <= _cPage.at; i++) {
             _getNewRepos(i);
         }
@@ -491,11 +532,11 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
         $scope.getCriteria();
     }
 }]);
-ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLocation', 'picviewer', function($scope, $timeout, $q, http2, LS, picviewer) {
+ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLocation', 'picviewer', function ($scope, $timeout, $q, http2, LS, picviewer) {
     function fnGetCriteria(datas) {
         $scope.singleFilters = [];
         $scope.multiFilters = [];
-        angular.forEach(datas, function(data, index) {
+        angular.forEach(datas, function (data, index) {
             _oCriteria[data.type] = data.default.id;
             if (data.type === 'orderby') {
                 $scope.singleFilters.push(data);
@@ -507,25 +548,27 @@ ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLo
     }
     var _oPage, _oFilter, _oCriteria;
     $scope.page = _oPage = {};
-    $scope.filter = _oFilter = { isFilter: false };
+    $scope.filter = _oFilter = {
+        isFilter: false
+    };
     $scope.criteria = _oCriteria = {};
     $scope.repos = [];
     $scope.reposLoading = false;
     $scope.appendToEle = angular.element(document.querySelector('#nav_container'));
-    $scope.viewTo = function($event, view) {
+    $scope.viewTo = function ($event, view) {
         $scope.$emit('transfer.view', view);
     };
-    $scope.getCriteria = function() {
+    $scope.getCriteria = function () {
         var url;
         url = LS.j('repos/criteriaGet', 'site', 'app') + '&viewType=coworkData';
-        http2.get(url).then(function(rsp) {
+        http2.get(url).then(function (rsp) {
             if (rsp.data) {
                 fnGetCriteria(rsp.data);
             }
             $scope.recordList(1);
         });
     };
-    $scope.recordList = function(pageAt) {
+    $scope.recordList = function (pageAt) {
         var url, deferred;
         deferred = $q.defer();
 
@@ -536,13 +579,15 @@ ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLo
         }
         url = LS.j('repos/coworkDataList', 'site', 'app');
         $scope.reposLoading = true;
-        http2.post(url, _oCriteria, { page: _oPage }).then(function(result) {
+        http2.post(url, _oCriteria, {
+            page: _oPage
+        }).then(function (result) {
             if (result.data.recordDatas) {
-                result.data.recordDatas.forEach(function(oRecord) {
+                result.data.recordDatas.forEach(function (oRecord) {
                     $scope.repos.push(oRecord);
                 });
             }
-            $timeout(function() {
+            $timeout(function () {
                 var imgs;
                 if (imgs = document.querySelectorAll('.data img')) {
                     picviewer.init(imgs);
@@ -554,7 +599,7 @@ ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLo
 
         return deferred.promise;
     };
-    $scope.dirClicked = function(oDir, active) {
+    $scope.dirClicked = function (oDir, active) {
         _oCriteria.data = {};
         if (oDir) {
             _oCriteria.data[oDir.schema_id] = oDir.op.v;
@@ -562,17 +607,17 @@ ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLo
         $scope.activeDirSchemas = active;
         $scope.recordList(1);
     };
-    $scope.shiftMenu = function(criteria) {
+    $scope.shiftMenu = function (criteria) {
         _oCriteria[criteria.type] = criteria.id;
         $scope.recordList(1);
     };
-    $scope.confirm = function(filterOpt) {
-        $scope.recordList(1).then(function() {
+    $scope.confirm = function (filterOpt) {
+        $scope.recordList(1).then(function () {
             var url = LS.j('repos/criteriaGet', 'site', 'app') + '&viewType=coworkData';
-            http2.get(url).then(function(rsp) {
+            http2.get(url).then(function (rsp) {
                 if (rsp.data) {
                     var _oNew = [];
-                    angular.forEach(rsp.data, function(data) {
+                    angular.forEach(rsp.data, function (data) {
                         if (data.type === 'orderby') {
                             return false;
                         } else {
@@ -584,7 +629,7 @@ ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLo
             });
         });
     };
-    $scope.shiftTip = function(type) {
+    $scope.shiftTip = function (type) {
         _oCriteria[type] = _oFilter[type] = null;
 
         function objectKeyIsNull(obj) {
@@ -607,7 +652,7 @@ ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLo
         }
         $scope.recordList(1);
     };
-    $scope.gotoAssoc = function(oEntity, event) {
+    $scope.gotoAssoc = function (oEntity, event) {
         event.stopPropagation();
 
         var url;
@@ -646,7 +691,7 @@ ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLo
         }
         sessionStorage.setItem('listStorage', JSON.stringify(cacheData));
     };
-    $scope.remarkRecord = function(oRecord, event) {
+    $scope.remarkRecord = function (oRecord, event) {
         event.stopPropagation();
         event.preventDefault();
 
@@ -658,10 +703,10 @@ ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLo
         location.href = url;
     };
     $scope.spyRecordsScroll = true; // 监控滚动事件
-    $scope.recordsScrollToBottom = function() {
+    $scope.recordsScrollToBottom = function () {
         if ($scope.repos.length < $scope.page.total) {
-            $scope.recordList().then(function() {
-                $timeout(function() {
+            $scope.recordList().then(function () {
+                $timeout(function () {
                     if ($scope.repos.length < $scope.page.total) {
                         $scope.spyRecordsScroll = true;
                     }
@@ -669,7 +714,7 @@ ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLo
             });
         }
     };
-    $scope.$on('to-child', function(event, data) {
+    $scope.$on('to-child', function (event, data) {
         $scope.dirClicked(data[0], data[1]);
     });
     if (window.sessionStorage.length && $scope.activeView.type === 'cowork') {
@@ -682,9 +727,9 @@ ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLo
         _cPage = cacheData.page;
 
         function _getNewRepos(at) {
-            $scope.recordList(at).then(function() {
+            $scope.recordList(at).then(function () {
                 if (at == _cPage.at) {
-                    $timeout(function() {
+                    $timeout(function () {
                         document.getElementById('repos').scrollTop = parseInt(window.sessionStorage.listStorageY);
                         window.sessionStorage.clear();
                     });
@@ -699,11 +744,11 @@ ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLo
         $scope.getCriteria();
     }
 }]);
-ngApp.controller('ctrlReposTopic', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation', function($scope, $q, http2, $timeout, LS) {
+ngApp.controller('ctrlReposTopic', ['$scope', '$q', 'http2', '$timeout', 'tmsLocation', function ($scope, $q, http2, $timeout, LS) {
     function fnGetCriteria(datas) {
         $scope.singleFilters = [];
         $scope.multiFilters = [];
-        angular.forEach(datas, function(data, index) {
+        angular.forEach(datas, function (data, index) {
             _oCriteria[data.type] = data.default.id;
             if (data.type === 'orderby') {
                 $scope.singleFilters.push(data);
@@ -714,10 +759,12 @@ ngApp.controller('ctrlReposTopic', ['$scope', '$q', 'http2', '$timeout', 'tmsLoc
         });
     }
     var _oFilter, _oCriteria;
-    $scope.filter = _oFilter = { isFilter: false };
+    $scope.filter = _oFilter = {
+        isFilter: false
+    };
     $scope.criteria = _oCriteria = {};
     $scope.appendToEle = angular.element(document.querySelector('#nav_container'));
-    $scope.viewTo = function($event, view) {
+    $scope.viewTo = function ($event, view) {
         $scope.$emit('transfer.view', view);
     };
 
@@ -741,21 +788,21 @@ ngApp.controller('ctrlReposTopic', ['$scope', '$q', 'http2', '$timeout', 'tmsLoc
         }
         sessionStorage.setItem('listStorage', JSON.stringify(cacheData));
     };
-    $scope.getCriteria = function() {
+    $scope.getCriteria = function () {
         var url;
         url = LS.j('repos/criteriaGet', 'site', 'app') + '&viewType=topic';
-        http2.get(url).then(function(rsp) {
+        http2.get(url).then(function (rsp) {
             if (rsp.data) {
                 fnGetCriteria(rsp.data);
             }
             $scope.recordList(1);
         });
     };
-    $scope.shiftMenu = function(criteria) {
+    $scope.shiftMenu = function (criteria) {
         _oCriteria[criteria.type] = criteria.id;
         $scope.recordList(1);
     };
-    $scope.shiftTip = function(type) {
+    $scope.shiftTip = function (type) {
         _oCriteria[type] = _oFilter[type] = null;
 
         function objectKeyIsNull(obj) {
@@ -778,13 +825,13 @@ ngApp.controller('ctrlReposTopic', ['$scope', '$q', 'http2', '$timeout', 'tmsLoc
         }
         $scope.recordList(1);
     };
-    $scope.confirm = function(filterOpt) {
-        $scope.recordList(1).then(function() {
+    $scope.confirm = function (filterOpt) {
+        $scope.recordList(1).then(function () {
             var url = LS.j('repos/criteriaGet', 'site', 'app') + '&viewType=topic';
-            http2.get(url).then(function(rsp) {
+            http2.get(url).then(function (rsp) {
                 if (rsp.data) {
                     var _oNew = [];
-                    angular.forEach(rsp.data, function(data) {
+                    angular.forEach(rsp.data, function (data) {
                         if (data.type === 'orderby') {
                             return false;
                         } else {
@@ -796,9 +843,9 @@ ngApp.controller('ctrlReposTopic', ['$scope', '$q', 'http2', '$timeout', 'tmsLoc
             });
         });
     };
-    $scope.recordList = function(pageAt) {
+    $scope.recordList = function (pageAt) {
         var deferred = $q.defer();
-        http2.post(LS.j('topic/listAll', 'site', 'app'), _oCriteria).then(function(rsp) {
+        http2.post(LS.j('topic/listAll', 'site', 'app'), _oCriteria).then(function (rsp) {
             if (rsp.data && rsp.data.topics) {
                 $scope.topics = rsp.data.topics;
             }
@@ -806,7 +853,7 @@ ngApp.controller('ctrlReposTopic', ['$scope', '$q', 'http2', '$timeout', 'tmsLoc
         });
         return deferred.promise;
     }
-    $scope.gotoTopic = function(oTopic, event) {
+    $scope.gotoTopic = function (oTopic, event) {
         event.stopPropagation();
         event.preventDefault();
 
@@ -821,7 +868,7 @@ ngApp.controller('ctrlReposTopic', ['$scope', '$q', 'http2', '$timeout', 'tmsLoc
         $scope.filter = cacheData.currentFilter;
         $scope.criteria = _oCriteria = cacheData.currentCriteria;
         $scope.topics = cacheData.topics;
-        $timeout(function() {
+        $timeout(function () {
             document.getElementById('topic').scrollTop = parseInt(window.sessionStorage.listStorageY);
             window.sessionStorage.clear();
         });

@@ -62,11 +62,11 @@ class main extends \pl\fe\matter\main_base {
 			"siteid = '" . $modelNews->escape($site) . "' and state = 1",
 		];
 		if (!empty($oOptions->byTitle)) {
-			$q[2] .= " and title like '%" . $modelNews->escape($oOptions->byTitle) . "%'";
+			$q[2] .= " and title like '%" . $oOptions->byTitle . "%'";
 		}
 		if (!empty($oOptions->byTags)) {
 			foreach ($oOptions->byTags as $tag) {
-				$q[2] .= " and matter_mg_tag like '%" . $modelNews->escape($tag->id) . "%'";
+				$q[2] .= " and matter_mg_tag like '%" . $tag->id . "%'";
 			}
 		}
 		if (isset($oOptions->byStar) && $oOptions->byStar === 'Y') {
@@ -170,7 +170,7 @@ class main extends \pl\fe\matter\main_base {
 		$oNews = new \stdClass;
 		$oNews->siteid = $site;
 		$oNews->mpid = $site;
-		$oNews->title = isset($oPosted->title) ? $modelNews->escape($oPosted->title) : '新多图文';
+		$oNews->title = isset($oPosted->title) ? $oPosted->title : '新多图文';
 
 		$oNews = $modelNews->create($oUser, $oNews);
 

@@ -644,11 +644,28 @@ function tms_get_server($key, $escape = true){
 	}
 }
 /**
+ * 注册检查
+ */
+function tms_register_check() {
+    switch (TMS_APP_REGISTER_CHECK_LEVEL) {
+        case 9:
+            return [false, '注册通道已关闭'];
+    }
+
+    $rst = tms_auth_https_check();
+    if ($rst[0] === false) {
+        return $rst;
+    }
+
+    return [true];
+}
+/**
  * 检查用户密码
  */
 function tms_pwd_check($pwd, $options = []) {
-	if (TMS_APP_PASSWORD_STRENGTH_CHECK === 0) {
-		return [true];
+    switch (TMS_APP_PASSWORD_STRENGTH_CHECK) {
+        case 0:
+            return [true];
     }
 
     // 过滤黑名单密码 $options['blackChars'] = []
@@ -662,7 +679,7 @@ function tms_pwd_check($pwd, $options = []) {
     $parse = $check->parse();
 
 	if ($parse['number']['count'] === 0 || $parse['upper']['count'] + $parse['lower']['count'] === 0 || $parse['symbol']['count'] === 0 || $parse['length'] < 8 || $parse['length'] > 16) {
-		return [false, '必须包含数字、字母、英文符号，且 8~16 位'];
+		return [false, '必须包含数字、字母、特殊字符，且 8~16 位'];
     }
     // 判断特殊字符是否符合规范
     $rst = $check->verifySymbol($parse);
@@ -722,4 +739,34 @@ function tms_pwd_create_random(int $upperNum = 1, int $lowerNum = 3, int $number
     $pwd = implode('', $pwd);
 
     return $pwd;
+}
+/**
+ * 检查登录条件
+ */
+function tms_login_check() {
+    $rst = tms_auth_https_check();
+    if ($rst[0] === false) {
+        return $rst;
+    }
+
+    return [true];
+}
+/**
+ * 检查当前身份验证请求方式
+ */
+function tms_auth_https_check() {
+    switch (TMS_APP_AUTH_HTTPS_CHECK) {
+        case 1:
+            if (tms_get_httpsOrHttp() !== 'https') {
+                return [false, '登录方式存在风险'];
+            }
+    }
+
+    return [true];
+}
+/**
+ * 检查当前请求是https还是http
+ */
+function tms_get_httpsOrHttp() {
+    return ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')) ? 'https' : 'http';
 }

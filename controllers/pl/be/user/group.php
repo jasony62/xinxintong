@@ -33,7 +33,7 @@ class group extends \pl\be\base {
 		$oPosted = $this->getPostJson();
 
 		$g['group_id'] = $newGroupId;
-		$g['group_name'] = empty($oPosted->name) ? '新用户组' : $modelAcnt->escape($oPosted->name);
+		$g['group_name'] = empty($oPosted->name) ? '新用户组' : $oPosted->name;
 
 		$modelAcnt->insert('account_group', $g, false);
 

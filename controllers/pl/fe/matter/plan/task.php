@@ -127,7 +127,7 @@ class task extends \pl\fe\matter\base {
 			return new \ObjectNotFoundError();
 		}
 
-		$oPosted = $this->getPostJson();
+		$oPosted = $this->getPostJson(false);
 		$aUpdated = [];
 		if (isset($oPosted)) {
 			foreach ($oPosted as $prop => $val) {

@@ -37,7 +37,7 @@ class page extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$newPage = $this->getPostJson();
+		$newPage = $this->getPostJson(false);
 
 		$modelMis = $this->model('matter\mission');
 		$mission = $modelMis->byId($id);

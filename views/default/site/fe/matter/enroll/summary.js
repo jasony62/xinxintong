@@ -25,6 +25,12 @@ ngApp.config(['$routeProvider', function ($routeProvider) {
             controller: 'ctrlSummaryRank'
         });
 }]);
+ngApp.factory('$exceptionHandler', function () {
+    return function (exception, cause) {
+        exception.message += ' (caused by "' + cause + '")';
+        throw exception;
+    };
+});
 ngApp.controller('ctrlSummary', ['$scope', 'tmsLocation', '$location', 'http2', function ($scope, LS, $location, http2) {
     $scope.activeNav = '';
     $scope.viewTo = function (event, subView) {
@@ -70,17 +76,17 @@ ngApp.controller('ctrlSummaryRank', ['$scope', '$q', '$sce', 'tmsLocation', 'htt
         switch (oAppState.dimension) {
             case 'user':
                 http2.post('/rest/site/fe/matter/enroll/rank/userByApp?site=' + oApp.siteid + '&app=' + oApp.id, oAppState.criteria).then(function (rsp) {
-                    defer.resolve(rsp.data)
+                    defer.resolve(rsp.data);
                 });
                 break;
             case 'group':
                 http2.post('/rest/site/fe/matter/enroll/rank/groupByApp?site=' + oApp.siteid + '&app=' + oApp.id, oAppState.criteria).then(function (rsp) {
-                    defer.resolve(rsp.data)
+                    defer.resolve(rsp.data);
                 });
                 break;
             case 'schema':
                 http2.post('/rest/site/fe/matter/enroll/rank/schemaByApp?site=' + oApp.siteid + '&app=' + oApp.id + '&schema=' + oAppState.criteria.obj, oAppState.criteria).then(function (rsp) {
-                    defer.resolve(rsp.data)
+                    defer.resolve(rsp.data);
                 });
                 break;
         }
@@ -161,25 +167,30 @@ ngApp.controller('ctrlSummaryRank', ['$scope', '$q', '$sce', 'tmsLocation', 'htt
         var oRankConfig, oConfig, rankItems, dataSchemas;
         dataSchemas = oApp.dynaDataSchemas;
         /* 排行显示内容设置 */
-        rankItems = ['enroll', 'remark', 'like', 'remark_other', 'do_like', 'total_coin', 'score', 'average_score', 'vote_schema', 'vote_cowork'];
+        rankItems = ['enroll', 'cowork', 'remark', 'like', 'remark_other', 'do_like', 'total_coin', 'score', 'average_score', 'vote_schema', 'vote_cowork'];
         oConfig = {};
         rankItems.forEach(function (item) {
             oConfig[item] = true;
         });
         if (oRankConfig = oApp.rankConfig) {
-            if (oRankConfig.scope) {
-                rankItems.forEach(function (item) {
-                    oConfig[item] = !!oRankConfig.scope[item];
-                });
-            }
             if (oRankConfig.schemas && oRankConfig.schemas.length)
                 $scope.rankSchemas = dataSchemas.filter(function (oSchema) {
                     return oSchema.type === 'single' && oRankConfig.schemas.indexOf(oSchema.id) !== -1;
                 });
             if (oRankConfig.scopeSchemas && oRankConfig.scopeSchemas.length)
                 $scope.scopeSchemas = dataSchemas.filter(function (oSchema) {
-                    return oSchema.type === 'shorttext' && oSchema.format === 'number' && oRankConfig.scopeSchemas.indexOf(oSchema.id) !== -1;
+                    return oSchema.type === 'shorttext' && /number|calculate/.test(oSchema.format) && oRankConfig.scopeSchemas.indexOf(oSchema.id) !== -1;
                 });
+            if (oRankConfig.scope || ($scope.scopeSchemas && $scope.scopeSchemas.length)) {
+                if (oRankConfig.scope)
+                    rankItems.forEach(function (item) {
+                        oConfig[item] = !!oRankConfig.scope[item];
+                    });
+                else
+                    rankItems.forEach(function (item) {
+                        oConfig[item] = false;
+                    });
+            }
         }
         $scope.config = oConfig;
         /* 恢复上一次访问的状态 */

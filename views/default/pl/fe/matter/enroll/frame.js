@@ -1,9 +1,9 @@
-define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', 'enrollSchema', 'enrollPage', 'groupService'], function(RouteParam, CstApp, frameTemplates) {
+define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', 'enrollSchema', 'enrollPage', 'groupService'], function (RouteParam, CstApp, frameTemplates) {
     'use strict';
     var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'http.ui.xxt', 'notice.ui.xxt', 'schema.ui.xxt', 'tmplshop.ui.xxt', 'pl.const', 'service.matter', 'service.enroll', 'schema.enroll', 'page.enroll', 'tinymce.enroll', 'service.group', 'ui.xxt', 'sys.chart']);
     ngApp.constant('CstApp', CstApp);
-    ngApp.filter('filterTime', function() {
-        return function(e) {
+    ngApp.filter('filterTime', function () {
+        return function (e) {
             var result, h, m, s, time = e * 1;
             h = Math.floor(time / 3600);
             m = Math.floor((time / 60 % 6));
@@ -11,7 +11,7 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', '
             return result = h + ":" + m + ":" + s;
         }
     });
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvEnrollAppProvider', 'srvEnrollPageProvider', 'srvEnrollRecordProvider', 'srvTagProvider', 'srvEnrollSchemaProvider', 'srvEnrollLogProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvEnrollAppProvider, srvEnrollPageProvider, srvEnrollRecordProvider, srvTagProvider, srvEnrollSchemaProvider, srvEnrollLogProvider) {
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvEnrollAppProvider', 'srvEnrollPageProvider', 'srvEnrollRecordProvider', 'srvTagProvider', 'srvEnrollSchemaProvider', 'srvEnrollLogProvider', function ($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvEnrollAppProvider, srvEnrollPageProvider, srvEnrollRecordProvider, srvTagProvider, srvEnrollSchemaProvider, srvEnrollLogProvider) {
         ngApp.provider = {
             controller: $controllerProvider.register,
             directive: $compileProvider.directive
@@ -42,7 +42,7 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', '
             'show': 'hide'
         });
 
-        (function() {
+        (function () {
             var ls, siteId, appId;
             ls = location.search;
             siteId = ls.match(/[\?&]site=([^&]*)/)[1];
@@ -58,7 +58,13 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', '
             srvQuickEntryProvider.setSiteId(siteId);
         })();
     }]);
-    ngApp.controller('ctrlFrame', ['$scope', 'CstNaming', 'CstApp', 'srvSite', 'srvEnrollApp', 'templateShop', '$location', function($scope, CstNaming, CstApp, srvSite, srvEnlApp, templateShop, $location) {
+    ngApp.factory('$exceptionHandler', function () {
+        return function (exception, cause) {
+            exception.message += ' (caused by "' + cause + '")';
+            throw exception;
+        };
+    });
+    ngApp.controller('ctrlFrame', ['$scope', 'CstNaming', 'CstApp', 'srvSite', 'srvEnrollApp', 'templateShop', '$location', function ($scope, CstNaming, CstApp, srvSite, srvEnlApp, templateShop, $location) {
         $scope.isSmallLayout = false;
         if (window.screen && window.screen.width < 768) {
             $scope.isSmallLayout = true;
@@ -72,7 +78,7 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', '
             index: CstNaming.scenario.enrollIndex,
         };
         $scope.opened = '';
-        $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+        $scope.$on('$locationChangeSuccess', function (event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
             $scope.subView = subView[1] === 'enroll' ? 'entry' : subView[1];
             switch ($scope.subView) {
@@ -102,19 +108,19 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', '
                     $scope.opened = '';
             }
         });
-        $scope.switchTo = function(subView, hash) {
+        $scope.switchTo = function (subView, hash) {
             var url = '/rest/pl/fe/matter/enroll/' + subView;
             $location.path(url).hash(hash || '');
         };
-        $scope.update = function(name) {
+        $scope.update = function (name) {
             return srvEnlApp.update(name);
         };
-        $scope.shareAsTemplate = function() {
-            templateShop.share($scope.app.siteid, $scope.app).then(function(template) {
+        $scope.shareAsTemplate = function () {
+            templateShop.share($scope.app.siteid, $scope.app).then(function (template) {
                 location.href = '/rest/pl/fe/template/enroll?site=' + template.siteid + '&id=' + template.id;
             });
         };
-        $scope.editMschema = function(oMschema) {
+        $scope.editMschema = function (oMschema) {
             if (oMschema.matter_id) {
                 if (oMschema.matter_type === 'mission') {
                     location.href = '/rest/pl/fe/matter/mission/mschema?id=' + oMschema.matter_id + '&site=' + $scope.app.siteid + '#' + oMschema.id;
@@ -126,29 +132,29 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', '
             }
         };
         srvEnlApp.check();
-        srvSite.tagList().then(function(oTag) {
+        srvSite.tagList().then(function (oTag) {
             $scope.oTag = oTag;
         });
-        srvSite.get().then(function(oSite) {
+        srvSite.get().then(function (oSite) {
             $scope.site = oSite;
         });
         $scope.sns = {};
-        srvSite.snsList().then(function(oSns) {
+        srvSite.snsList().then(function (oSns) {
             angular.extend($scope.sns, oSns);
-            srvEnlApp.get().then(function(oApp) {
+            srvEnlApp.get().then(function (oApp) {
                 if (oApp.matter_mg_tag !== '') {
-                    oApp.matter_mg_tag.forEach(function(cTag, index) {
-                        $scope.oTag.forEach(function(oTag) {
+                    oApp.matter_mg_tag.forEach(function (cTag, index) {
+                        $scope.oTag.forEach(function (oTag) {
                             if (oTag.id === cTag) {
                                 oApp.matter_mg_tag[index] = oTag;
                             }
                         });
                     });
                 }
-                srvSite.memberSchemaList(oApp).then(function(aMemberSchemas) {
+                srvSite.memberSchemaList(oApp).then(function (aMemberSchemas) {
                     $scope.memberSchemas = aMemberSchemas;
                     $scope.mschemasById = {};
-                    $scope.memberSchemas.forEach(function(mschema) {
+                    $scope.memberSchemas.forEach(function (mschema) {
                         $scope.mschemasById[mschema.id] = mschema;
                     });
                 });
@@ -157,7 +163,7 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', '
         });
     }]);
     /***/
-    require(['domReady!'], function(document) {
+    require(['domReady!'], function (document) {
         angular.bootstrap(document, ["app"]);
     });
     /***/

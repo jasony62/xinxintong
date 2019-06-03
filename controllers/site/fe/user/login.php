@@ -40,7 +40,7 @@ class login extends \site\fe\base {
 	 * 执行登录
 	 */
 	public function do_action() {
-		$data = $this->getPostJson();
+		$data = $this->getPostJson(false);
 		if (empty($data->uname) || empty($data->password) || empty($data->pin)) {
 			return new \ResponseError("登录信息不完整");
 		}
@@ -61,6 +61,13 @@ class login extends \site\fe\base {
 				return new \ResponseError("请退出当前账号再登录");
 			}
 			$modelWay->quitRegUser();
+		}
+
+		$data->uname = $modelReg->escape($data->uname);
+		// 检查登录条件
+		$rst = tms_login_check();
+		if ($rst[0] === false) {
+			return new \ResponseError($rst[1]);
 		}
 
 		$oResult = $modelReg->validate($data->uname, $data->password);
@@ -108,7 +115,14 @@ class login extends \site\fe\base {
 	/**
 	 * 判断密码强度
 	 */
-	public function checkPwdStrength_action($account, $password) {
+	public function checkPwdStrength_action() {
+		$data = $this->getPostJson(false);
+		if (empty($data)) {
+			return new \ResponseError('参数错误');
+		}
+
+		$account = $data->account;
+		$password = $data->password;
 		$rst = tms_pwd_check($password, ['account' => $account]);
 		
 		$data = new \stdClass;

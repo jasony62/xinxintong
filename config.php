@@ -12,17 +12,13 @@ date_default_timezone_set('Asia/Shanghai');
  */
 ini_set('default_charset', 'utf-8');
 /**
- * memory limit
- */
-!defined('SAE_TMP_PATH') && ini_set('memory_limit', '-1');
-/**
  * database resource.
  */
 error_reporting(E_ERROR); // 控制系统的报错信息，否则数据库连接失败会报warning
 /**
  * 加载本地化设置
  */
-file_exists(dirname(__FILE__) . '/cus/app.php') && include_once dirname(__FILE__) . '/cus/app.php';
+file_exists(dirname(__FILE__) . '/cus/config.php') && include_once dirname(__FILE__) . '/cus/config.php';
 /*********************************************
  * 常量定义不允许被覆盖，需要检查常量是否已经被定义
  *********************************************/
@@ -85,6 +81,18 @@ define('TMS_APP_TEMPLATE_DEFAULT', dirname(__FILE__) . '/_template');
  * 校验密码强度，0 不校验，1 校验
  */
 !defined('TMS_APP_PASSWORD_STRENGTH_CHECK') && define('TMS_APP_PASSWORD_STRENGTH_CHECK', 1);
+/**
+ * 注册等级检测，0 不检查，9 关闭注册
+ */
+!defined('TMS_APP_REGISTER_CHECK_LEVEL') && define('TMS_APP_REGISTER_CHECK_LEVEL', 0);
+/**
+ * 身份验证检测标准 0 不检查， 1 检查(登录注册页只能由https协议打开，登录注册处理函数只接受来自https的请求)
+ */
+!defined('TMS_APP_AUTH_HTTPS_CHECK') && define('TMS_APP_AUTH_HTTPS_CHECK', 0);
+/**
+ * 是否对请求数据进行过滤
+ */
+!defined('TMS_APP_REQUEST_DATA_ESCAPE') && define('TMS_APP_REQUEST_DATA_ESCAPE', 1);
 /**
  * prefix for rest.
  * 需要和web服务器的配置一致

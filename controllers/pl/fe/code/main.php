@@ -59,12 +59,15 @@ class main extends \pl\fe\base {
 	 *
 	 */
 	public function update_action($id) {
-		$nv = $this->getPostJson();
+		$nv = $this->getPostJson(false);
 
+		$model = $this->model();
 		foreach ($nv as $n => $v) {
 			if (in_array($n, array('html', 'css', 'js'))) {
 				$v = urldecode($v);
-				$nv->$n = $this->model()->escape($v);
+				$nv->$n = $model->escape($v);
+			} else {
+				$nv->$n = $model->escape($v);
 			}
 		}
 

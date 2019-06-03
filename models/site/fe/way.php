@@ -525,12 +525,14 @@ class way_model extends \TMS_MODEL {
                     $oCookieAccount = $modelAct->byId($oBeforeCookieuser->uid);
                     /* 指定站点下，已经存在主访客账号 */
                     if ($oCookieAccount) {
-                        if ($oCookieAccount->wx_openid !== $oRegPrimary->wx_openid) {
-                            $agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
-                            $referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
-                            $modelLog = TMS_APP::M('log');
-                            $modelLog->log('notice', $canShiftRegUser, '1个注册账号，只能够和1个微信号绑定，unionid:' . $oRegUser->unionid . ',cookie:' . $oCookieAccount->wx_openid . ',oRegPrimary:' . $oRegPrimary->wx_openid, $agent, $referer);
-                            return [false, '1个注册账号，只能够和1个微信号绑定'];
+                        if (!empty($oCookieAccount->wx_openid) && !empty($oRegPrimary->wx_openid)) {
+                            if ($oCookieAccount->wx_openid !== $oRegPrimary->wx_openid) {
+                                $agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+                                $referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+                                $modelLog = $this->model('log');
+                                $modelLog->log($siteId, 'canShiftRegUser', '1个注册账号，只能够和1个微信号绑定，unionid:' . $oRegUser->unionid . ',cookie:' . $oCookieAccount->wx_openid . ',oRegPrimary:' . $oRegPrimary->wx_openid, $agent, $referer);
+                                return [false, '1个注册账号，只能够和1个微信号绑定'];
+                            }
                         }
                     }
                 }

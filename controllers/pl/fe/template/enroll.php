@@ -89,7 +89,7 @@ class enroll extends \pl\fe\base {
 			return new \ResponseError('当前版本已发布，不可更改');
 		}
 
-		$nv = $this->getPostJson();
+		$nv = $this->getPostJson(false);
 		$vid = 'template:' . $vid;
 		$modelPage = $this->model('matter\enroll\page');
 		$page = $modelPage->byId((object) ['id' => $vid], $pageId);

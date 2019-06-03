@@ -28,7 +28,7 @@ define(['frame', 'groupService'], function (ngApp) {
                         return oSchema.type === 'single';
                     });
                     $scope2.numberSchemas = oApp.dataSchemas.filter(function (oSchema) {
-                        return oSchema.type === 'shorttext' && oSchema.format === 'number';
+                        return oSchema.type === 'shorttext' && /number|calculate/.test(oSchema.format);
                     });
                     $scope2.dismiss = function () {
                         $mi.dismiss();
@@ -87,9 +87,11 @@ define(['frame', 'groupService'], function (ngApp) {
         function fnGetEntryRuleMschema() {
             var oAppEntryRule = $scope.app.entryRule;
             if (oAppEntryRule.scope && oAppEntryRule.scope.member === 'Y') {
-                if (oAppEntryRule.member && Object.keys(oAppEntryRule.member).length) {
-                    if ($scope.mschemasById[Object.keys(oAppEntryRule.member)[0]]) {
-                        return $scope.mschemasById[Object.keys(oAppEntryRule.member)[0]];
+                if ($scope.mschemasById) {
+                    if (oAppEntryRule.member && Object.keys(oAppEntryRule.member).length) {
+                        if ($scope.mschemasById[Object.keys(oAppEntryRule.member)[0]]) {
+                            return $scope.mschemasById[Object.keys(oAppEntryRule.member)[0]];
+                        }
                     }
                 }
             }

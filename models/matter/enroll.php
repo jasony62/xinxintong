@@ -17,6 +17,18 @@ class enroll_model extends enroll_base {
         return 'xxt_enroll';
     }
     /**
+     * 默认行动规则
+     */
+    public function getDefaultActionRule() {
+        $oActionRule = new \stdClass;
+        /* 默认表态 */
+        $this->setDeepValue($oActionRule, 'cowork.default.agreed', 'A');
+        $this->setDeepValue($oActionRule, 'record.default.agreed', 'A');
+        $this->setDeepValue($oActionRule, 'remark.default.agreed', 'A');
+
+        return $oActionRule;
+    }
+    /**
      * 活动进入链接
      */
     public function getEntryUrl($siteId, $id, $oParams = null) {
@@ -50,6 +62,11 @@ class enroll_model extends enroll_base {
         /* 指定活动默认开始时间 */
         if (empty($oNewApp->start_at)) {
             $oNewApp->start_at = $this->getDefaultStartAt();
+        }
+        /* 指定活动默认行动规则 */
+        if (empty($oNewApp->action_rule)) {
+            $oActionRule = $this->getDefaultActionRule();
+            $oNewApp->action_rule = $this->escape($this->toJson($oActionRule));
         }
 
         $oNewApp = parent::create($oUser, $oNewApp);

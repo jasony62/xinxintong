@@ -495,31 +495,24 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
             this.templateUrl = FrameTemplates.url('roundEditor');
             this.backdrop = 'static';
             this.controller = ['$scope', '$uibModalInstance', function ($scope2, $mi) {
-                $scope2.round = angular.copy(oRound);
-                $scope2.roundState = CstApp.options.round.state;
+                var oNewRound;
+                $scope2.round = oNewRound = angular.copy(oRound);
                 $scope2.$on('xxt.tms-datepicker.change', function (event, data) {
-                    if (data.state === 'start_at') {
-                        if (data.obj[data.state] == 0 && data.value > 0) {
-                            $scope2.round.state = '1';
-                        } else if (data.obj[data.state] > 0 && data.value == 0) {
-                            $scope2.round.state = '0';
-                        }
-                    }
                     data.obj[data.state] = data.value;
                 });
                 $scope2.close = function () {
                     $mi.dismiss();
                 };
                 $scope2.ok = function () {
-                    $mi.close($scope2.round);
-                };
-                $scope2.stop = function () {
-                    $scope2.round.state = '2';
-                    $mi.close($scope2.round);
-                };
-                $scope2.start = function () {
-                    $scope2.round.state = '1';
-                    $mi.close($scope2.round);
+                    var url;
+                    if (oNewRound.rid) {
+                        url = '/rest/pl/fe/matter/enroll/round/update?app=' + oApp.id + '&rid=' + oNewRound.rid;
+                    } else {
+                        url = '/rest/pl/fe/matter/enroll/round/add?app=' + oApp.id;
+                    }
+                    http2.post(url, oNewRound).then(function (rsp) {
+                        $mi.close(rsp.data);
+                    });
                 };
                 if (oRound.rid) {
                     $scope2.downloadQrcode = function (url) {
@@ -540,16 +533,16 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
             }];
         }
         this.add = function (oApp) {
-            var defer;
+            var defer, defaultStartAt;
             defer = $q.defer();
+            defaultStartAt = new Date();
+            defaultStartAt.setMinutes(0);
+            defaultStartAt.setSeconds(0);
             $uibModal.open(new RoundModal(oApp, {
-                state: '0',
-                start_at: '0',
+                start_at: parseInt(defaultStartAt / 1000),
                 purpose: 'C',
             })).result.then(function (oNewRound) {
-                http2.post('/rest/pl/fe/matter/enroll/round/add?app=' + oApp.id, oNewRound).then(function (rsp) {
-                    defer.resolve(rsp.data);
-                });
+                defer.resolve(oNewRound);
             });
 
             return defer.promise;
@@ -558,11 +551,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
             var defer;
             defer = $q.defer();
             $uibModal.open(new RoundModal(oApp, oRound)).result.then(function (oNewRound) {
-                var url;
-                url = '/rest/pl/fe/matter/enroll/round/update?app=' + oApp.id + '&rid=' + oRound.rid;
-                http2.post(url, oNewRound).then(function (rsp) {
-                    defer.resolve(rsp.data);
-                });
+                defer.resolve(oNewRound);
             });
 
             return defer.promise;

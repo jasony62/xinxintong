@@ -168,11 +168,11 @@
         </ul>
     </div>
     <div ng-if="activeSchema.scoreMode==='evaluation'">
-        <div class='form-group' ng-if="['number','calculate'].indexOf(activeSchema.format)">
+        <div class='form-group' ng-if="['number','calculate'].indexOf(activeSchema.format)!==-1">
             <label>计分权重</label>
             <div tms-editable prop='weight' obj='activeSchema' evt-prefix='weight' placeholder="请输入数字"></div>
         </div>
-        <div class='form-group' ng-if='activeSchema.format==="number"'>
+        <div class='form-group' ng-if="['number','calculate'].indexOf(activeSchema.format)!==-1">
             <label>得分小于等于不参与排名</label>
             <input type='text' class='form-control' ng-model="activeSchema.rankScoreAbove" placeholder="请输入数字" ng-change="updSchema(activeSchema)">
         </div>

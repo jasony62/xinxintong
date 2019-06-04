@@ -168,7 +168,7 @@
         </ul>
     </div>
     <div ng-if="activeSchema.scoreMode==='evaluation'">
-        <div class='form-group' ng-if='activeSchema.format==="number"'>
+        <div class='form-group' ng-if="['number','calculate'].indexOf(activeSchema.format)">
             <label>计分权重</label>
             <div tms-editable prop='weight' obj='activeSchema' evt-prefix='weight' placeholder="请输入数字"></div>
         </div>

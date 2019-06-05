@@ -329,7 +329,7 @@ class rank extends base {
         $modelRecDat = $this->model('matter\enroll\data');
 
         $q = [
-            'group_id,sum(value) ' . $schemaSumCol,
+            'group_id,sum(cast(value as decimal(19,2))) ' . $schemaSumCol,
             'xxt_enroll_record_data',
             ['aid' => $oApp->id, 'state' => 1, 'schema_id' => $schemaId, 'group_id' => (object) ['op' => '<>', 'pat' => '']],
         ];

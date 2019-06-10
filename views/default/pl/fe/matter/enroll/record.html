@@ -110,9 +110,9 @@
                             <span ng-if="fromApp.fromApp&&schema.id==='_round_id'&&r.group_id!==r.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span>
                         </td>
                         <td ng-if="bRequireScore" ng-bind="::r.score.sum"></td>
-                        <td>{{::r.verified}}</td>
+                        <td>{{r.verified}}</td>
                         <td>{{::r.like_num}}</td>
-                        <td>{{::r.comment}}</td>
+                        <td>{{r.comment}}</td>
                         <td>
                             <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
                                 <span class='glyphicon glyphicon-remove'></span>
@@ -131,17 +131,18 @@
                         <td></td>
                         <td ng-repeat="schema in recordSchemasExt">
                             <div ng-if="schema.format==='number'||schema.type==='score'">
-                                {{::sum4SchemaAtPage[schema.id]}}/{{::sum4Schema[schema.id]}}
+                                {{sum4SchemaAtPage[schema.id]}}/{{sum4Schema[schema.id]}}
                             </div>
                             <div ng-if="schema.type==='calcScore'">
-                                {{::score4SchemaAtPage[schema.id]}}/{{::score4Schema[schema.id]}}
+                                {{score4SchemaAtPage[schema.id]}}/{{score4Schema[schema.id]}}
                             </div>
                         </td>
                         <td ng-if="bRequireScore">
                             <div>
-                                {{::score4SchemaAtPage.sum}}/{{::score4Schema.sum}}
+                                {{score4SchemaAtPage.sum}}/{{score4Schema.sum}}
                             </div>
                         </td>
+                        <td></td>
                         <td></td>
                         <td></td>
                         <td></td>

@@ -147,11 +147,15 @@ define(['frame'], function(ngApp) {
         $scope.matterTags = function() {
             $scope.matterTagsFram(_oCriteria, filter2);
         };
+        $scope.clearCreater = function() {
+            _oCriteria.byCreater = "";
+        };
         var _oCriteria;
         $scope.criteria = _oCriteria = {
             orderBy: '',
             filter: {},
             bySite: '',
+            byCreater: '',
             byStar: 'N'
         };
         $scope.filter = facListFilter.init(null, _oCriteria.filter);
@@ -219,17 +223,20 @@ define(['frame'], function(ngApp) {
                         url += '&cascaded=opData';
                     }
                     url += '&_=' + t;
-                    http2.post(url, { byTitle: _oCriteria.filter.keyword, byStar: _oCriteria.byStar }, { page: _oPage }).then(function(rsp) {
+                    http2.post(url, { byTitle: _oCriteria.filter.keyword, byStar: _oCriteria.byStar, byCreater: _oCriteria.byCreater }, { page: _oPage }).then(function(rsp) {
                         $scope.matters = rsp.data.apps;
                     });
                 } else {
                     url = 'rest/pl/fe/matter/bySite?site=' + _oCriteria.bySite + '&category=app';
                     url += '&_=' + t;
-                    http2.post(url, { byTitle: _oCriteria.filter.keyword, byStar: _oCriteria.byStar }, { page: _oPage }).then(function(rsp) {
+                    http2.post(url, { byTitle: _oCriteria.filter.keyword, byStar: _oCriteria.byStar, byCreater: _oCriteria.byCreater }, { page: _oPage }).then(function(rsp) {
                         $scope.matters = rsp.data.matters;
                     });
                 }
             }
+        };
+        $scope.clearCreater = function() {
+            _oCriteria.byCreater = "";
         };
         var _oCriteria;
         $scope.criteria = _oCriteria = {
@@ -237,6 +244,7 @@ define(['frame'], function(ngApp) {
             orderBy: '',
             filter: {},
             bySite: '',
+            byCreater: '',
             byStar: 'N'
         };
         $scope.filter = facListFilter.init(null, _oCriteria.filter);
@@ -307,13 +315,13 @@ define(['frame'], function(ngApp) {
                 if (_oCriteria.matter.type) {
                     url = '/rest/pl/fe/matter/' + _oCriteria.matter.type + '/list?site=' + _oCriteria.bySite + '&_=' + t;
                     _oCriteria.matter.type == 'channel' && (url += '&cascade=N');
-                    http2.post(url, { byTitle: _oCriteria.filter.keyword, byStar: _oCriteria.byStar }, { page: _oPage }).then(function(rsp) {
+                    http2.post(url, { byTitle: _oCriteria.filter.keyword, byStar: _oCriteria.byStar, byCreater: _oCriteria.byCreater }, { page: _oPage }).then(function(rsp) {
                         $scope.matters = rsp.data.docs || rsp.data.apps;
                     });
                 } else {
                     url = '/rest/pl/fe/matter/bySite?site=' + _oCriteria.bySite + '&category=doc&_=' + t;
                     _oCriteria.matter.type == 'channel' && (url += '&cascade=N');
-                    http2.post(url, { byTitle: _oCriteria.filter.keyword, byStar: _oCriteria.byStar }, { page: _oPage }).then(function(rsp) {
+                    http2.post(url, { byTitle: _oCriteria.filter.keyword, byStar: _oCriteria.byStar, byCreater: _oCriteria.byCreater }, { page: _oPage }).then(function(rsp) {
                         $scope.matters = rsp.data.matters;
                     });
                 }
@@ -325,12 +333,16 @@ define(['frame'], function(ngApp) {
         $scope.cleanFilterTag = function() {
             filter.byTags = filter2.byTags = '';
         };
+        $scope.clearCreater = function() {
+            _oCriteria.byCreater = "";
+        };
         var _oCriteria;
         $scope.criteria = _oCriteria = {
             matter: { type: '' },
             orderBy: '',
             filter: {},
             bySite: '',
+            byCreater: '',
             byStar: 'N'
         };
         $scope.filter = facListFilter.init(null, _oCriteria.filter);

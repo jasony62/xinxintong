@@ -80,16 +80,16 @@ class formula {
                 $b = array_pop($res_stack);
                 switch ($out) {
                 case '+':
-                    $res = $b + $a;
+                    $res = floatval(bcadd($b, $a));
                     break;
                 case '-':
-                    $res = $b - $a;
+                    $res = floatval(bcsub($b, $a));
                     break;
                 case '*':
-                    $res = $b * $a;
+                    $res = floatval(bcmul($b, $a));
                     break;
                 case '/':
-                    $res = empty($a) ? 0 : $b / $a;
+                    $res = empty($a) ? 0 : floatval(bcdiv($b, $a));
                     break;
                 }
                 array_push($res_stack, $res);

@@ -10,7 +10,8 @@
                         </div>
                         <div class='checkbox pull-right' ng-if="app.mission">
                             <label>和项目轮次一致</label>
-                            <tms-toggle-switch ng-model="options.sync_mission_round" on-label="是" off-label="否" ng-true-value="'Y'" ng-false-value="'N'" ng-change="toggleSyncMissionRound()"></toggle-switch>
+                            <tms-toggle-switch ng-model="options.sync_mission_round" on-label="是" off-label="否" ng-true-value="'Y'" ng-false-value="'N'" ng-change="toggleSyncMissionRound()">
+                                </toggle-switch>
                         </div>
                     </div>
                 </div>
@@ -19,7 +20,6 @@
                         <tr>
                             <th class='text-center'>名称</th>
                             <th class='text-center' style='width:4em'>用途</th>
-                            <th class='text-center' style='width:4em'>状态</th>
                             <th class='text-center' style='width:8em'>开始时间</th>
                             <th class='text-center' style='width:8em'>停止提交</th>
                             <th style='width:5em'>操作</th>
@@ -30,9 +30,6 @@
                             <td>{{r.title}}</td>
                             <td>
                                 <span>{{roundPurpose[r.purpose]}}</span>
-                            </td>
-                            <td>
-                                <span>{{roundState[r.state]}}</span>
                             </td>
                             <td>
                                 <span ng-if="r.start_at>0">{{r.start_at*1000|date:'yy-MM-dd HH:mm'}}</span>

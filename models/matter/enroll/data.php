@@ -461,7 +461,7 @@ class data_model extends entity_model {
             $schemaScore = null; // 题目的得分
             switch ($oSchema->type) {
             case 'shorttext';
-                if (isset($oSchema->format) && $oSchema->format === 'number') {
+                if (isset($oSchema->format) && in_array($oSchema->format, ['number', 'calculate'])) {
                     if (isset($oSchema->weight)) {
                         $aScoreResult = $this->model('matter\enroll\schema')->scoreByWeight($oSchema, $treatedValue, $oScoreContext);
                         if (true === $aScoreResult[0] && false !== $aScoreResult[1] && is_numeric($aScoreResult[1])) {

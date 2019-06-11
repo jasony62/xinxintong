@@ -259,7 +259,6 @@ class main extends main_base {
 		/**
 		 * 获得的基本信息
 		 */
-		$oNewApp->start_at = 0;
 		$oNewApp->title = $modelApp->escape($oCopied->title) . '（副本）';
 		$oNewApp->pic = $oCopied->pic;
 		$oNewApp->summary = $modelApp->escape($oCopied->summary);

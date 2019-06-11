@@ -117,9 +117,9 @@ define('TMS_APP_AUTHED', '/pl/fe'); // 认证通过后的缺省页
  * default upload directory
  *************************/
 if (defined('SAE_TMP_PATH')) {
-	define('TMS_UPLOAD_DIR', SAE_TMP_PATH);
+    define('TMS_UPLOAD_DIR', SAE_TMP_PATH);
 } else {
-	define('TMS_UPLOAD_DIR', 'kcfinder/upload/');
+    define('TMS_UPLOAD_DIR', 'kcfinder/upload/');
 }
 /**
  * 用户上传文件存储位置
@@ -129,3 +129,7 @@ if (defined('SAE_TMP_PATH')) {
  * 支持微信录音转码（amr->mp3）
  */
 !defined('WX_VOICE_AMR_2_MP3') && define('WX_VOICE_AMR_2_MP3', 'N');
+/**
+ * 设置默认数学计算精度
+ */
+!defined('APP_TMS_BCSCALE') && define('APP_TMS_BCSCALE', 2);

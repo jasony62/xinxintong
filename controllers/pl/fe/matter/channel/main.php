@@ -71,6 +71,9 @@ class main extends \pl\fe\matter\main_base {
 		if (!empty($oOptions->byTitle)) {
 			$q[2] .= " and title like '%" . $oOptions->byTitle . "%'";
 		}
+		if (!empty($oOptions->byCreator)) {
+			$q[2] .= " and creater_name like '%" . $oOptions->byCreator . "%'";
+		}
 		if (!empty($oOptions->byTags)) {
 			foreach ($oOptions->byTags as $tag) {
 				$q[2] .= " and matter_mg_tag like '%" . $tag->id . "%'";

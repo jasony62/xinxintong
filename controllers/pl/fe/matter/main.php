@@ -35,6 +35,9 @@ class main extends \pl\fe\base {
 		if (isset($oPosted->byStar) && $oPosted->byStar === 'Y') {
 			$q[2]['byStar'] = (object) ['op' => 'exists', 'pat' => "select 1 from xxt_account_topmatter t where t.matter_type=m.matter_type and t.matter_id=m.matter_id and userid='{$oUser->id}'"];
 		}
+		if (!empty($oPosted->byCreator)) {
+			$q[2]['creater_name'] = (object) ['op' => 'like', 'pat' => '%' . $oPosted->byCreator . '%'];
+		}
 
 		$q2 = [
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],

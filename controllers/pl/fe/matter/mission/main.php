@@ -126,10 +126,11 @@ class main extends \pl\fe\matter\main_base {
 			'limit' => (object) ['page' => $page, 'size' => $size],
 			'bySite' => $oFilter->bySite,
 		];
-		if (!empty($oFilter->filter->by) && !empty($oFilter->filter->keyword)) {
-			if ($oFilter->filter->by === 'title') {
-				$aOptions['byTitle'] = $oFilter->filter->keyword;
-			}
+		if (!empty($oFilter->byTitle)) {
+			$aOptions['byTitle'] = $oFilter->byTitle;
+		}
+		if (!empty($oFilter->byCreator)) {
+			$aOptions['byCreator'] = $oFilter->byCreator;
 		}
 		if (isset($oFilter->byStar) && $oFilter->byStar === 'Y') {
 			$aOptions['byStar'] = 'Y';

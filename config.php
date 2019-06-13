@@ -116,11 +116,7 @@ define('TMS_APP_AUTHED', '/pl/fe'); // 认证通过后的缺省页
 /*************************
  * default upload directory
  *************************/
-if (defined('SAE_TMP_PATH')) {
-    define('TMS_UPLOAD_DIR', SAE_TMP_PATH);
-} else {
-    define('TMS_UPLOAD_DIR', 'kcfinder/upload/');
-}
+define('TMS_UPLOAD_DIR', 'kcfinder/upload/');
 /**
  * 用户上传文件存储位置
  */

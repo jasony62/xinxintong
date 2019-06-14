@@ -38,6 +38,10 @@
                 <input type='text' class='form-control' ng-model='editing.author' tms-auto-update tms-wait=1000 tms-update="update('author')">
             </div>
             <div class='form-group'>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.is_markdown' ng-change="update('is_markdown');">采用Markdown语法</label>
+            </div>
+            <div class='form-group'>
                 <label>原文链接(可选)</label>
                 <textarea class='form-control' ng-model='editing.url' tms-auto-update tms-wait=1000 tms-update="update('url')"></textarea>
             </div>
@@ -105,11 +109,11 @@
                     <label>
                         <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.member" ng-change="changeUserScope('member', 'entryRule')">用户参与活动前需填写通讯录联系人信息</label>
                     <span ng-if="entryRule.scope.member==='Y'">
-                            <span class='badge' ng-repeat="(msid,entry) in editing.entryRule.member">
-                                    <a href title='进入查看' ng-click="editMschema(mschemasById[msid])">{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</a>
-                                    <a href title='取消指定' class='glyphicon glyphicon-remove' ng-click="removeMschema(msid, 'entryRule')"></a>
-                                </span>
-                    <a href ng-click="chooseMschema('entryRule')">添加</a>
+                        <span class='badge' ng-repeat="(msid,entry) in editing.entryRule.member">
+                            <a href title='进入查看' ng-click="editMschema(mschemasById[msid])">{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</a>
+                            <a href title='取消指定' class='glyphicon glyphicon-remove' ng-click="removeMschema(msid, 'entryRule')"></a>
+                        </span>
+                        <a href ng-click="chooseMschema('entryRule')">添加</a>
                     </span>
                 </div>
                 <div class='checkbox' ng-if="snsCount===1">
@@ -137,11 +141,11 @@
                     <label>
                         <input type='checkbox' ng-true-value="'Y'" ng-model="downloadRule.scope.member" ng-change="changeUserScope('member', 'downloadRule')">用户参与活动前需填写通讯录联系人信息</label>
                     <span ng-if="downloadRule.scope.member==='Y'">
-                            <span class='badge' ng-repeat="(msid,entry) in editing.downloadRule.member">
-                                    <a href title='进入查看' ng-click="editMschema(mschemasById[msid])">{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</a>
-                                    <a href title='取消指定' class='glyphicon glyphicon-remove' ng-click="removeMschema(msid, 'downloadRule')"></a>
-                                </span>
-                    <a href ng-click="chooseMschema('downloadRule')">添加</a>
+                        <span class='badge' ng-repeat="(msid,entry) in editing.downloadRule.member">
+                            <a href title='进入查看' ng-click="editMschema(mschemasById[msid])">{{mschemasById[msid]?mschemasById[msid].title:'通讯录不存在'}}</a>
+                            <a href title='取消指定' class='glyphicon glyphicon-remove' ng-click="removeMschema(msid, 'downloadRule')"></a>
+                        </span>
+                        <a href ng-click="chooseMschema('downloadRule')">添加</a>
                     </span>
                 </div>
                 <div class='checkbox' ng-if="snsCount===1">

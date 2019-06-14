@@ -1,6 +1,5 @@
 'use strict';
 require('../../../../../../asset/css/buttons.css');
-require('./enroll.public.css');
 require('./view.css');
 
 require('../../../../../../asset/js/xxt.ui.schema.js');

@@ -30,7 +30,7 @@
                             </div>
                             <div tms-filter append-to-ele="appendToEle" basic-data="multiFilters" filter="filter" criteria="criteria" confirm="confirm(filterOpt)" class='tmsFilter' ng-if="multiFilters.length"></div>
                             <div id='advCriteriaSwitch' ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened" class='visible-xs-block' ng-class="{'active':advCriteriaStatus.opened}">
-                                <i class='glyphicon glyphicon-menu-hamburger'></i>
+                                <a href><i class='glyphicon glyphicon-menu-hamburger'></i></a>
                             </div>
                         </div>
                     </div>
@@ -75,7 +75,7 @@
                     </div>
                 </div>
                 <div class='record' ng-show="page.total>repos.length" ng-cloak>
-                    <div class='text-center' tms-scroll-spy selector='#repos' onbottom='recordsScrollToBottom()' offset='70' toggle-spy="spyRecordsScroll">
+                    <div class='text-center' tms-scroll-spy selector='window' onbottom='recordsScrollToBottom()' offset='70' toggle-spy="spyRecordsScroll">
                         <button style='border-radius:15px;' class='btn btn-default' ng-click="recordList()"><span ng-class="{'ele-running':reposLoading}"><i class='ele-running-indicator'><i></i></i></span> 更多【{{repos.length}}/{{page.total}}】 </button>
                     </div>
                 </div>

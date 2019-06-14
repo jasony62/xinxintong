@@ -1,40 +1,6 @@
 @import "../../../../../../static/less/site.fe.base.less";
 @top-menu-font-primary: #ffdcb7;
 
-html,body {
-    width: 100%;
-    height: auto;
-}
-
-body {
-    position: relative;
-    font-size: 16px;
-    padding-top: 60px;
-    padding-bottom: 60px;
-}
-
-img {
-    max-width: 100%;
-}
-
-hr {
-    margin: 12px 0 12px;
-}
-
-p {
-    word-break: break-all;
-}
-
-ul,ol,li {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-a:hover,a:focus {
-    text-decoration: none;
-}
-
 blockquote {
     font-size: 16px;
     margin-bottom: 8px;
@@ -44,14 +10,6 @@ button.option {
     padding: 0;
 }
 
-.ng-cloak {
-    display: none;
-}
-
-.app {
-    margin-bottom: 65px;
-}
-
 .nav .open>a,.nav .open>a:focus,.nav .open>a:hover {
     background-color: @brand-primary;
 }
@@ -59,10 +17,6 @@ button.option {
 .navbar.site-navbar-tab {
     min-height: unset;
     border-bottom: 0;
-
-    &.navbar-fixed-bottom button+button {
-        margin-left: 8px;
-    }
 
     .navbar-nav {
         margin: 0;
@@ -180,48 +134,10 @@ button.option {
     }
 }
 
-body.enroll-repos {
-    padding: 54px 0 60px 0;
-    display: flex;
-    flex-direction: column;
-
-    .app {
-        flex-grow: 1;
+.enroll-repos {
+    .wrapper {
         display: flex;
-
-        .row {
-            flex-grow: 1;
-            display: flex;
-
-            .wrapper {
-                flex-grow: 1;
-                display: flex;
-
-                .main {
-                    flex-grow: 1;
-                    display: flex;
-                    flex-direction: column;
-
-                    #repos,
-                    #topic {
-                        flex-grow: 1;
-                        display: flex;
-                        flex-direction: column;
-                        overflow-y: auto;
-                    }
-
-
-                }
-            }
-
-            .topic-view.wrapper {
-                flex-direction: column;
-            }
-
-        }
-
     }
-
 }
 
 .tabs {
@@ -348,11 +264,16 @@ body.enroll-repos {
     display: flex;
     justify-content: space-between;
 
-    #advCriteriaSwitch>i {
+    a {
+        font-size: 14px;
         color: @top-menu-font-primary;
+
+        &>* {
+            vertical-align: top;
+        }
     }
 
-    #advCriteriaSwitch.active>i {
+    #advCriteriaSwitch.active>a {
         color: #fff;
     }
 }
@@ -469,9 +390,8 @@ body.enroll-repos {
 .site-dropdown {
     .site-dropdown-title {
         display: block;
-        font-size: 14px;
         line-height: 1;
-        color: @top-menu-font-primary;
+        color: #fff;
 
         span {
             vertical-align: top;

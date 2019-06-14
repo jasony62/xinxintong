@@ -109,7 +109,6 @@ ngApp.controller('ctrlPeopleFavor', ['$scope', '$uibModal', 'http2', 'tmsLocatio
     $scope.addTag = function() {
         $scope.$broadcast('xxt.matter.enroll.favor.tag.add');
     };
-
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         _oApp = params.app;
         /* 设置页面分享信息 */

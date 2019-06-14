@@ -16,16 +16,16 @@
 <body ng-controller='ctrlView' tms-trace send-url='/rest/site/fe/matter/enroll/analysis/submit?site={{app.siteid}}&app={{app.id}}&page=view' ready-sign="app">
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
-    <nav class='navbar site-navbar-default'>
+    <nav class='navbar site-navbar-default navbar-fixed-top'>
         <div class='container'>
-            <div class="navbar-header">
+            <div class="navbar-header pull-left">
                 <a href class="navbar-brand" ng-click="gotoHome()">
                     <i class="glyphicon glyphicon-home"></i> <span class="visible-lg-inline">首页</span>
                 </a>
             </div>
-            <ul class="nav navbar-nav navbar-right">
+            <ul class="nav navbar-nav pull-right">
                 <li class="pull-left">
-                    <a href ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline"> 个人中心</span></a>
+                    <a href ng-click="siteUser(app.siteid)"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline"> 个人中心</span></a>
                 </li>
             </ul>
         </div>
@@ -50,7 +50,7 @@
             <div dynamic-html="page.html" class='data'></div>
         </div>
     </div>
-    <nav class="navbar site-navbar-tab navbar-default navbar-fixed-bottom">
+    <nav class="navbar site-navbar-tab navbar-fixed-bottom">
         <div class="container-fluid text-center">
             <button ng-repeat="act in page.actSchemas" class="btn button-highlight navbar-btn" ng-click="doAction($event,act)"><span>{{::act.label}}</span></button>
         </div>

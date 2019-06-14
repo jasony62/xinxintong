@@ -1,10 +1,12 @@
 <div class='wrapper topic-view' ng-controller="ctrlReposTopic">
-    <nav class="nav site-navbar-orange navbar-fixed-top">
+    <nav class="nav site-navbar-default navbar-fixed-top top-menu-bar">
         <div class="container" id="nav_container">
             <div class="row">
                 <div class="col-md-7 col-xs-7">
-                    <ul class='nav site-nav'>
-                        <li ng-repeat="view in activeNav.views" ng-class="{'active': view.type===activeView.type}" ng-click="viewTo($event, view)"><a href ng-bind="view.title"></a><span></span></li>
+                    <ul class="menus">
+                        <li class="menu" ng-repeat="view in activeNav.views" ng-class="{'active': view.type===activeView.type}" ng-click="viewTo($event, view)">
+                            <a href class="menu-link" ng-bind="view.title"></a><span class="line"></span>
+                        </li>
                     </ul>
                 </div>
                 <div class="col-md-5 col-xs-5">

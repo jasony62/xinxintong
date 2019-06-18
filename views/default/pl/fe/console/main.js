@@ -111,7 +111,7 @@ define(['frame'], function(ngApp) {
             }
         });
     }]);
-    ngApp.provider.controller('ctrlMission', ['$scope', 'http2', 'facListFilter', function($scope, http2, facListFilter) {
+    ngApp.provider.controller('ctrlMission', ['$scope', 'http2', 'facListFilter', 'facListSearch', function($scope, http2, facListFilter, facListSearch) {
         var _oPage, filter2, t = (new Date() * 1);
         $scope.page = _oPage = {};
         $scope.filter2 = filter2 = {};
@@ -151,6 +151,7 @@ define(['frame'], function(ngApp) {
         $scope.criteria = _oCriteria = {
             orderBy: '',
             filter: {},
+            filter3: {},
             bySite: '',
             byStar: 'N'
         };
@@ -165,6 +166,7 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.filter = facListFilter.init(cbFilter, _oCriteria.filter);
+        $scope.filter3 = facListSearch.init(cbFilter, _oCriteria.filter3);
         $scope.$watch('frameState.sid', function(nv) {
             if (!nv) return;
             _oCriteria.bySite = nv;
@@ -175,7 +177,7 @@ define(['frame'], function(ngApp) {
             $scope.list(1);
         }, true);
     }]);
-    ngApp.provider.controller('ctrlActivity', ['$scope', '$location', 'http2', 'CstNaming', 'cstApp', '$uibModal', 'facListFilter', function($scope, $location, http2, CstNaming, cstApp, $uibModal, facListFilter) {
+    ngApp.provider.controller('ctrlActivity', ['$scope', '$location', 'http2', 'CstNaming', 'cstApp', '$uibModal', 'facListFilter', 'facListSearch', function($scope, $location, http2, CstNaming, cstApp, $uibModal, facListFilter, facListSearch) {
         var lsearch, filter2, _oPage;
         // if (window.localStorage) {
         //     $scope.$watch('filter', function(nv) {
@@ -229,7 +231,7 @@ define(['frame'], function(ngApp) {
                         url += '&cascaded=opData';
                     }
                     url += '&_=' + t;
-                    http2.post(url, { byTitle: _oCriteria.filter.keyword, byStar: _oCriteria.byStar, byCreater: _oCriteria.byCreater }, { page: _oPage }).then(function(rsp) {
+                    http2.post(url, { byTitle: _oCriteria.byTitle, byStar: _oCriteria.byStar, byCreator: _oCriteria.byCreator }, { page: _oPage }).then(function(rsp) {
                         $scope.matters = rsp.data.apps;
                     });
                 } else {
@@ -246,6 +248,7 @@ define(['frame'], function(ngApp) {
             matter: { type: '' },
             orderBy: '',
             filter: {},
+            filter3: {},
             bySite: '',
             byStar: 'N'
         };
@@ -260,6 +263,7 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.filter = facListFilter.init(cbFilter, _oCriteria.filter);
+        $scope.filter3 = facListSearch.init(cbFilter, _oCriteria.filter3);
         //$scope.cleanFilterTag = function() {
         //    filter.byTags = filter2.byTags = '';
         //};
@@ -283,7 +287,7 @@ define(['frame'], function(ngApp) {
             }
         }
     }]);
-    ngApp.provider.controller('ctrlDoc', ['$scope', '$uibModal', 'http2', 'facListFilter', function($scope, $uibModal, http2, facListFilter) {
+    ngApp.provider.controller('ctrlDoc', ['$scope', '$uibModal', 'http2', 'facListFilter', 'facListSearch', function($scope, $uibModal, http2, facListFilter, facListSearch) {
         var _oPage, filter2;
         // if (window.localStorage) {
         //     $scope.$watch('filter', function(nv) {
@@ -350,6 +354,7 @@ define(['frame'], function(ngApp) {
             matter: { type: '' },
             orderBy: '',
             filter: {},
+            filter3: {},
             bySite: '',
             byStar: 'N'
         };
@@ -364,6 +369,7 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.filter = facListFilter.init(cbFilter, _oCriteria.filter);
+        $scope.filter3 = facListSearch.init(cbFilter, _oCriteria.filter3);
         $scope.$watch('frameState.sid', function(nv) {
             if (!nv) return;
             _oCriteria.bySite = nv;

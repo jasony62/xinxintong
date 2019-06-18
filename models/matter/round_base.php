@@ -417,4 +417,24 @@ trait Round {
 
         return $name;
     }
+    /**
+     * 检查轮次数据是否合规
+     */
+    public function checkProperties($oRound, $bJumpUnset = false) {
+        if (empty($oRound->title)) {
+            if (isset($oRound->title) || $bJumpUnset = false) {
+                return [false, '必须指定轮次的名称！'];
+            }
+        }
+        if (empty($oRound->start_at)) {
+            if (isset($oRound->start_at) || $bJumpUnset = false) {
+                return [false, '必须指定轮次的开始时间！'];
+            }
+        }
+        if (!empty($oRound->start_at) && !empty($oRound->end_at) && $oRound->start_at > $oRound->end_at) {
+            return [false, '轮次的开始时间不能晚于结束时间！'];
+        }
+
+        return [true];
+    }
 }

@@ -78,13 +78,17 @@ define('TMS_APP_TEMPLATE_DEFAULT', dirname(__FILE__) . '/_template');
  */
 !defined('TMS_APP_URI') && define('TMS_APP_URI', '');
 /**
- * 校验密码强度，0 不校验，1 校验，9 禁止注册
+ * 校验密码强度，0 不校验，1 校验
  */
 !defined('TMS_APP_PASSWORD_STRENGTH_CHECK') && define('TMS_APP_PASSWORD_STRENGTH_CHECK', 1);
 /**
- * 登录检查标准 0 不检查， 1 检查(登录页只能由https协议打开，登录处理函数只接受来自https得请求)
+ * 注册等级检测，0 不检查，9 关闭注册
  */
-!defined('TMS_APP_LOGIN_STRENGTH_CHECK') && define('TMS_APP_LOGIN_STRENGTH_CHECK', 1);
+!defined('TMS_APP_REGISTER_CHECK_LEVEL') && define('TMS_APP_REGISTER_CHECK_LEVEL', 0);
+/**
+ * 身份验证检测标准 0 不检查， 1 检查(登录注册页只能由https协议打开，登录注册处理函数只接受来自https的请求)
+ */
+!defined('TMS_APP_AUTH_HTTPS_CHECK') && define('TMS_APP_AUTH_HTTPS_CHECK', 0);
 /**
  * 是否对请求数据进行过滤
  */
@@ -112,11 +116,7 @@ define('TMS_APP_AUTHED', '/pl/fe'); // 认证通过后的缺省页
 /*************************
  * default upload directory
  *************************/
-if (defined('SAE_TMP_PATH')) {
-	define('TMS_UPLOAD_DIR', SAE_TMP_PATH);
-} else {
-	define('TMS_UPLOAD_DIR', 'kcfinder/upload/');
-}
+define('TMS_UPLOAD_DIR', 'kcfinder/upload/');
 /**
  * 用户上传文件存储位置
  */
@@ -125,3 +125,7 @@ if (defined('SAE_TMP_PATH')) {
  * 支持微信录音转码（amr->mp3）
  */
 !defined('WX_VOICE_AMR_2_MP3') && define('WX_VOICE_AMR_2_MP3', 'N');
+/**
+ * 设置默认数学计算精度
+ */
+!defined('APP_TMS_BCSCALE') && define('APP_TMS_BCSCALE', 2);

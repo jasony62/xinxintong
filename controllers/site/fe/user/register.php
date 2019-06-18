@@ -17,6 +17,11 @@ class register extends \site\fe\base {
 	 * 执行注册
 	 */
 	public function do_action() {
+		$rst = tms_register_check();
+		if ($rst[0] === false) {
+			return new \ResponseError($rst[1]);
+		}
+
 		$user = $this->who;
 		$data = $this->getPostJson();
 		if (empty($data->uname)) {

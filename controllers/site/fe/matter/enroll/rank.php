@@ -83,7 +83,7 @@ class rank extends base {
             $q[2] .= ' and u.like_num>0';
             $q2 = ['o' => 'like_num desc'];
             break;
-        case 'remark_other':
+        case 'do_remark':
             $q[0] .= ',sum(u.do_remark_num) do_remark_num';
             $q[2] .= ' and u.do_remark_num>0';
             $q2 = ['o' => 'do_remark_num desc'];
@@ -147,7 +147,7 @@ class rank extends base {
         $modelRecDat = $this->model('matter\enroll\data');
 
         $q = [
-            'r.userid,sum(value) ' . $schemaSumCol,
+            'r.userid,sum(cast(value as decimal(19,2))) ' . $schemaSumCol,
             'xxt_enroll_record_data r',
             ['r.aid' => $oApp->id, 'r.state' => 1, 'r.schema_id' => $schemaId, 'r.userid' => (object) ['op' => '<>', 'pat' => '']],
         ];
@@ -329,7 +329,7 @@ class rank extends base {
         $modelRecDat = $this->model('matter\enroll\data');
 
         $q = [
-            'group_id,sum(value) ' . $schemaSumCol,
+            'group_id,sum(cast(value as decimal(19,2))) ' . $schemaSumCol,
             'xxt_enroll_record_data',
             ['aid' => $oApp->id, 'state' => 1, 'schema_id' => $schemaId, 'group_id' => (object) ['op' => '<>', 'pat' => '']],
         ];
@@ -473,7 +473,7 @@ class rank extends base {
 
         $modelRecDat = $this->model('matter\enroll\data');
         $q = [
-            'sum(value) num',
+            'sum(cast(value as decimal(19,2))) num',
             'xxt_enroll_record_data rd1',
             ['aid' => $oApp->id, 'state' => 1, 'schema_id' => $schemaId],
         ];

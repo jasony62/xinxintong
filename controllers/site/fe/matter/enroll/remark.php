@@ -301,6 +301,7 @@ class remark extends base {
         }
 
         /* 更新用户汇总数据 */
+        $modelEvt = $this->model('matter\enroll\event');
         if (isset($oRecData)) {
             foreach ($oApp->dataSchemas as $dataSchema) {
                 if ($dataSchema->id === $oRecData->schema_id) {
@@ -309,22 +310,18 @@ class remark extends base {
                 }
             }
             if (isset($oDataSchema->cowork) && $oDataSchema->cowork === 'Y') {
-                $remarkResult = $this->model('matter\enroll\event')->remarkCowork($oApp, $oRecData, $oNewRemark, $oRemarker);
+                $remarkResult = $modelEvt->remarkCowork($oApp, $oRecData, $oNewRemark, $oRemarker);
             } else {
-                $remarkResult = $this->model('matter\enroll\event')->remarkRecData($oApp, $oRecData, $oNewRemark, $oRemarker);
+                $remarkResult = $modelEvt->remarkRecData($oApp, $oRecData, $oNewRemark, $oRemarker);
             }
         } else {
-            $remarkResult = $this->model('matter\enroll\event')->remarkRecord($oApp, $oRecord, $oNewRemark, $oRemarker);
+            $remarkResult = $modelEvt->remarkRecord($oApp, $oRecord, $oNewRemark, $oRemarker);
         }
         $oNewRemark->remarkResult = $remarkResult;
 
         /* 生成提醒 */
         $this->model('matter\enroll\notice')->addRemark($oApp, $oRecord, $oNewRemark, $oRemarker, isset($oRecData) ? $oRecData : null, isset($oRemark) ? $oRemark : null);
 
-        /* 修改昵称 */
-        if ($oNewRemark->userid === $oRemarker->uid) {
-            $oNewRemark->nickname = '我';
-        }
         /**
          * 如果存在提问任务，将记录放到任务专题中
          */
@@ -339,6 +336,10 @@ class remark extends base {
         /* 通知记录活动事件接收人 */
         if (isset($oApp->notifyConfig->remark->valid) && $oApp->notifyConfig->remark->valid === true) {
             $this->_notifyReceivers($oApp, $oRecord, $oNewRemark);
+        }
+        /* 修改昵称 */
+        if ($oNewRemark->userid === $oRemarker->uid) {
+            $oNewRemark->nickname = '我';
         }
 
         return new \ResponseData($oNewRemark);

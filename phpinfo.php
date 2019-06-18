@@ -1,6 +1,3 @@
 <?php
-
-echo "";
-<?php
- phpinfo();
+    die('');
 ?>

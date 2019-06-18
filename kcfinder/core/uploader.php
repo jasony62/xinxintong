@@ -308,7 +308,6 @@ class uploader {
 		$this->localize($this->lang);
 
 		// CHECK & MAKE DEFAULT .htaccess
-		// yangyue sae limit
 		/*
 	        if (isset($this->config['_check4htaccess']) &&
 	            $this->config['_check4htaccess']

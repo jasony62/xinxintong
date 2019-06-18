@@ -1,5 +1,5 @@
 angular.module('tinymce.ui.xxt', ['ui.bootstrap']).
-directive('tinymce', function($timeout) {
+directive('tinymce', function ($timeout) {
     return {
         restrict: 'EA',
         scope: {
@@ -10,7 +10,7 @@ directive('tinymce', function($timeout) {
         },
         replace: true,
         template: '<textarea></textarea>',
-        link: function(scope, elem, attrs) {
+        link: function (scope, elem, attrs) {
             var tinymceConfig = {
                 selector: '#' + scope.id,
                 language: 'zh_CN',
@@ -25,16 +25,16 @@ directive('tinymce', function($timeout) {
                 valid_elements: "*[*]",
                 relative_urls: false,
                 content_css: '/static/css/bootstrap.min.css,/static/css/tinymce.css?v=' + (new Date() * 1),
-                setup: function(editor) {
+                setup: function (editor) {
                     /*编辑节点*/
-                    (function() {
+                    (function () {
                         var _lastContent;
-                        editor.on('keydown', function(evt) {
+                        editor.on('keydown', function (evt) {
                             var selection = editor.selection,
                                 node = selection.getNode();
                             _lastContent = node.innerHTML;
                         });
-                        editor.on('keyup', function(evt) {
+                        editor.on('keyup', function (evt) {
                             var content = editor.selection.getNode().innerHTML,
                                 phase;
                             if (_lastContent !== content) {
@@ -45,7 +45,7 @@ directive('tinymce', function($timeout) {
                                         content: content
                                     });
                                 } else {
-                                    scope.$apply(function() {
+                                    scope.$apply(function () {
                                         scope.$emit('tinymce.content.change', {
                                             node: editor.selection.getNode(),
                                             content: content
@@ -55,18 +55,18 @@ directive('tinymce', function($timeout) {
                             }
                         });
                     })();
-                    editor.on('change', function(e) {
+                    editor.on('change', function (e) {
                         var phase;
                         phase = scope.$root.$$phase;
                         if (phase === '$digest' || phase === '$apply') {
                             scope.$emit('tinymce.content.change', false);
                         } else {
-                            scope.$apply(function() {
+                            scope.$apply(function () {
                                 scope.$emit('tinymce.content.change', false);
                             });
                         }
                     });
-                    editor.on('BeforeSetContent', function(e) {
+                    editor.on('BeforeSetContent', function (e) {
                         var c;
                         if (e.content && e.content.length) {
                             c = e.content;
@@ -78,7 +78,7 @@ directive('tinymce', function($timeout) {
                             }
                         }
                     });
-                    editor.on('ExecCommand', function(e) {
+                    editor.on('ExecCommand', function (e) {
                         switch (e.command) {
                             case 'mceTableDelete':
                                 var c = this.getContent(),
@@ -93,7 +93,7 @@ directive('tinymce', function($timeout) {
                     editor.addButton('multipleimage', {
                         tooltip: '插入图片',
                         icon: 'image',
-                        onclick: function() {
+                        onclick: function () {
                             var selectedNode, selectedId, tmpId = false;
                             selectedNode = editor.selection.getNode();
                             selectedId = editor.dom.getAttrib(selectedNode, 'id');
@@ -102,7 +102,7 @@ directive('tinymce', function($timeout) {
                                 selectedId = '__mcenew' + (new Date() * 1);
                                 editor.dom.setAttrib(selectedNode, 'id', selectedId);
                             }
-                            scope.$emit('tinymce.multipleimage.open', function(urls, isShowName) {
+                            scope.$emit('tinymce.multipleimage.open', function (urls, isShowName) {
                                 var i, t, url, data, dom, pElm;
                                 t = (new Date() * 1);
                                 dom = editor.dom;
@@ -130,7 +130,7 @@ directive('tinymce', function($timeout) {
                         }
                     });
                 },
-                init_instance_callback: function() {
+                init_instance_callback: function () {
                     var editor = tinymce.get(scope.id);
                     if (scope.content) {
                         editor.setContent(scope.content);
@@ -146,7 +146,7 @@ directive('tinymce', function($timeout) {
             if (scope.toolbar) {
                 tinymceConfig.toolbar += ' ' + scope.toolbar;
             }
-            scope.$on('$destroy', function() {
+            scope.$on('$destroy', function () {
                 var editor;
                 if (editor = tinymce.get(scope.id)) {
                     editor.remove();
@@ -155,5 +155,5 @@ directive('tinymce', function($timeout) {
             });
             tinymce.init(tinymceConfig);
         }
-    }
+    };
 });

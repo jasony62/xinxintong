@@ -461,7 +461,11 @@ class remark extends base {
         /*获取模板消息id*/
         $aOptions = ['onlySite' => false, 'noticeURL' => $noticeURL];
         if (!empty($oRemark->nickname)) {
-            $aOptions['initiator'] = $oRemark->nickname;
+            if (preg_match('/^用户\w{13}$/', $oRemark->nickname)) {
+                $aOptions['initiator'] = '访客';
+            } else {
+                $aOptions['initiator'] = $oRemark->nickname;
+            }
         }
         $oTmpConfig = $this->model('matter\tmplmsg\config')->getTmplConfig($oApp, $noticeName, $aOptions);
         if ($oTmpConfig[0] === false) {

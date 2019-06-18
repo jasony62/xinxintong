@@ -15,125 +15,127 @@
 <body ng-controller="ctrlTopic" tms-trace send-url='/rest/site/fe/matter/enroll/analysis/submit?site={{topic.siteid}}&app={{topic.aid}}&page=topic&topic={{topic.id}}' ready-sign="topic">
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
-    <nav class='navbar site-navbar-default'>
+    <nav class='navbar site-navbar-default navbar-fixed-top'>
         <div class='container' ng-cloak>
-            <div class="navbar-header">
+            <div class="navbar-header pull-left">
                 <a href class="navbar-brand" ng-click="gotoHome()">
                     <i class="glyphicon glyphicon-home"></i> <span class="visible-lg-inline">首页</span>
                 </a>
             </div>
-            <ul class="nav navbar-nav navbar-right">
+            <ul class="nav navbar-nav pull-right">
                 <li class="pull-left">
-                    <a href ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline">个人中心</span></a>
+                    <a href ng-click="siteUser(app.siteid)"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline">个人中心</span></a>
                 </li>
             </ul>
         </div>
     </nav>
-    <div class='app container'>
-        <div class='row'>
-            <div class='panel'>
-                <div class='panel-body ng-cloak' ng-if="topic" ng-cloak>
-                    <div class='form-group' ng-if="topic.nickname">
-                        <div class='text-muted' ng-bind="topic.nickname"></div>
-                    </div>
-                    <div class='form-group'>
-                        <div ng-bind="topic.title"></div>
-                    </div>
-                    <div class='form-group' ng-if="topic.summary">
-                        <div class='text-muted small' ng-bind="topic.summary"></div>
-                    </div>
-                    <div class='bottom-bar'>
-                        <div class='datetime'><span ng-bind="topic.create_at*1000|date:'yy-MM-dd'"></span></div>
-                        <button class='btn btn-default btn-xs' ng-click="shareTopic(topic)"><i class='glyphicon glyphicon-share-alt'></i></button>
+    <div ng-cloak class='app ng-cloak'>
+        <div class="container">
+            <div class='row'>
+                <div class='panel'>
+                    <div class='panel-body ng-cloak' ng-if="topic" ng-cloak>
+                        <div class='form-group' ng-if="topic.nickname">
+                            <div class='text-muted' ng-bind="topic.nickname"></div>
+                        </div>
+                        <div class='form-group'>
+                            <div ng-bind="topic.title"></div>
+                        </div>
+                        <div class='form-group' ng-if="topic.summary">
+                            <div class='text-muted small' ng-bind="topic.summary"></div>
+                        </div>
+                        <div class='bottom-bar'>
+                            <div class='datetime'><span ng-bind="topic.create_at*1000|date:'yy-MM-dd'"></span></div>
+                            <button class='btn btn-default btn-xs' ng-click="shareTopic(topic)"><i class='glyphicon glyphicon-share-alt'></i></button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div ng-if="task.config_type==='vote'" class="alert alert-info">
-                <div class='small' ng-bind="::task"></div>
-            </div>
-            <div class='records' style='margin-bottom:50px'>
-                <div ng-if="!task||task.config_type!=='score'">
-                    <div class='record' ng-repeat="rec in repos" ng-cloak>
-                        <div class='top-bar'>
-                            <div class='seq label label-default'>{{$index+1}}</div>
-                            <div class='nickname text-muted'>{{rec.nickname||'隐藏'}}</div>
-                            <button ng-if="rec.favored" class="btn btn-default btn-xs" ng-click="favorRecord(rec)">已收藏</button>
-                            <div ng-if="!rec._canAgree&&rec.agreed&&rec.agreed!=='A'">
-                                <button ng-if="rec.agreed==='D'&&(rec.userid===user.uid||user.is_leader==='S'||user.is_editor==='Y'||(user.is_leader==='Y'&&(rec.userid===user.uid||groupOthers[rec.userid])))" class="btn btn-danger btn-xs">讨论</button>
-                                <button ng-if="rec.agreed==='Y'" class="btn btn-success btn-xs">推荐</button>
-                                <button ng-if="rec.agreed==='N'" class="btn btn-danger btn-xs">关闭</button>
+                <div ng-if="task.config_type==='vote'" class="alert alert-info">
+                    <div class='small' ng-bind="::task"></div>
+                </div>
+                <div class='records' style='margin-bottom:50px'>
+                    <div ng-if="!task||task.config_type!=='score'">
+                        <div class='record' ng-repeat="rec in repos" ng-cloak>
+                            <div class='top-bar'>
+                                <div class='seq label label-default'>{{$index+1}}</div>
+                                <div class='nickname text-muted'>{{rec.nickname||'隐藏'}}</div>
+                                <button ng-if="rec.favored" class="btn btn-default btn-xs" ng-click="favorRecord(rec)">已收藏</button>
+                                <div ng-if="!rec._canAgree&&rec.agreed&&rec.agreed!=='A'">
+                                    <button ng-if="rec.agreed==='D'&&(rec.userid===user.uid||user.is_leader==='S'||user.is_editor==='Y'||(user.is_leader==='Y'&&(rec.userid===user.uid||groupOthers[rec.userid])))" class="btn btn-danger btn-xs">讨论</button>
+                                    <button ng-if="rec.agreed==='Y'" class="btn btn-success btn-xs">推荐</button>
+                                    <button ng-if="rec.agreed==='N'" class="btn btn-danger btn-xs">关闭</button>
+                                </div>
+                                <div ng-if="rec._canAgree">
+                                    <div class="btn-group btn-group-xs" uib-dropdown>
+                                        <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                                            <span ng-if="rec.agreed===''">未表态</span>
+                                            <span ng-if="rec.agreed==='D'">讨论</span>
+                                            <span ng-if="rec.agreed==='A'">接受</span>
+                                            <span ng-if="rec.agreed==='Y'">推荐</span>
+                                            <span ng-if="rec.agreed==='N'">关闭</span>
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
+                                            <li><a href ng-click="setAgreed(rec,'')">不表态</a></li>
+                                            <li><a href ng-click="setAgreed(rec,'D')">讨论</a></li>
+                                            <li><a href ng-click="setAgreed(rec,'A')">接受</a></li>
+                                            <li><a href ng-click="setAgreed(rec,'Y')">推荐</a></li>
+                                            <li><a href ng-click="setAgreed(rec,'N')">关闭</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
-                            <div ng-if="rec._canAgree">
-                                <div class="btn-group btn-group-xs" uib-dropdown>
-                                    <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
-                                        <span ng-if="rec.agreed===''">未表态</span>
-                                        <span ng-if="rec.agreed==='D'">讨论</span>
-                                        <span ng-if="rec.agreed==='A'">接受</span>
-                                        <span ng-if="rec.agreed==='Y'">推荐</span>
-                                        <span ng-if="rec.agreed==='N'">关闭</span>
-                                        <span class="caret"></span>
+                            <div class='data' ng-click="coworkRecord($event,rec)">
+                                <div tms-repos-record-data schemas="schemas" record="rec" task="topic.task" pending-votes="task.pendingVotes" on-change-vote="task.onChange"></div>
+                            </div>
+                            <div class='bottom-bar'>
+                                <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
+                                <a href ng-click="likeRecord(rec)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></a>
+                                <a href ng-click="dislikeRecord(rec)"><span class='glyphicon glyphicon-thumbs-down' ng-class="{'like':rec.dislike_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.dislike_num"></span></a>
+                                <a href ng-click="remarkRecord(rec)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></a>
+                                <div class="btn-group" uib-dropdown>
+                                    <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>
+                                        <span class="glyphicon glyphicon-option-vertical"></span>
                                     </button>
-                                    <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
-                                        <li><a href ng-click="setAgreed(rec,'')">不表态</a></li>
-                                        <li><a href ng-click="setAgreed(rec,'D')">讨论</a></li>
-                                        <li><a href ng-click="setAgreed(rec,'A')">接受</a></li>
-                                        <li><a href ng-click="setAgreed(rec,'Y')">推荐</a></li>
-                                        <li><a href ng-click="setAgreed(rec,'N')">关闭</a></li>
+                                    <ul class="dropdown-menu dropdown-menu-right dropdown-menu-top" uib-dropdown-menu>
+                                        <li><a href ng-click="shareRecord(rec)"><span class='glyphicon glyphicon-share'></span> 分享</a></li>
+                                        <li ng-if="!rec.favored"><a href ng-click="favorRecord(rec)"><span class='glyphicon glyphicon-bookmark'></span> 收藏</a></li>
+                                        <li ng-if="rec.userid===user.uid||user.is_editor==='Y'"><a href ng-click="quitTopic(rec)"><span class='glyphicon glyphicon-remove'></span> 移出专题</a></li>
                                     </ul>
                                 </div>
                             </div>
-                        </div>
-                        <div class='data' ng-click="coworkRecord($event,rec)">
-                            <div tms-repos-record-data schemas="schemas" record="rec" task="topic.task" pending-votes="task.pendingVotes" on-change-vote="task.onChange"></div>
-                        </div>
-                        <div class='bottom-bar'>
-                            <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'MM-dd HH:mm'}}</div>
-                            <a href ng-click="likeRecord(rec)"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></a>
-                            <a href ng-click="dislikeRecord(rec)"><span class='glyphicon glyphicon-thumbs-down' ng-class="{'like':rec.dislike_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.dislike_num"></span></a>
-                            <a href ng-click="remarkRecord(rec)"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></a>
-                            <div class="btn-group" uib-dropdown>
-                                <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>
-                                    <span class="glyphicon glyphicon-option-vertical"></span>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-right dropdown-menu-top" uib-dropdown-menu>
-                                    <li><a href ng-click="shareRecord(rec)"><span class='glyphicon glyphicon-share'></span> 分享</a></li>
-                                    <li ng-if="!rec.favored"><a href ng-click="favorRecord(rec)"><span class='glyphicon glyphicon-bookmark'></span> 收藏</a></li>
-                                    <li ng-if="rec.userid===user.uid||user.is_editor==='Y'"><a href ng-click="quitTopic(rec)"><span class='glyphicon glyphicon-remove'></span> 移出专题</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class='remarks' ng-if="rec.agreedRemarks.length">
-                            <div class='remark' ng-repeat="remark in rec.agreedRemarks">
-                                <div class='top-bar text-muted'>
-                                    <div ng-bind="remark.create_at*1000|date:'MM-dd HH:mm'"></div>
-                                    <div ng-bind-html="remark.nickname"></div>
+                            <div class='remarks' ng-if="rec.agreedRemarks.length">
+                                <div class='remark' ng-repeat="remark in rec.agreedRemarks">
+                                    <div class='top-bar text-muted'>
+                                        <div ng-bind="remark.create_at*1000|date:'MM-dd HH:mm'"></div>
+                                        <div ng-bind-html="remark.nickname"></div>
+                                    </div>
+                                    <blockquote>
+                                        <div ng-bind-html="remark.content"></div>
+                                    </blockquote>
                                 </div>
-                                <blockquote>
-                                    <div ng-bind-html="remark.content"></div>
-                                </blockquote>
+                            </div>
+                        </div>
+                        <div class='record' ng-show="page.total>repos.length" ng-cloak>
+                            <div class='text-center' tms-scroll-spy selector='window' onbottom='recordsScrollToBottom()' offset='70' toggle-spy="spyRecordsScroll">
+                                <button style='border-radius:15px;' class='btn btn-default' ng-click="recordList()"><span ng-class="{'ele-running':reposLoading}"><i class='ele-running-indicator'><i></i></i></span> 更多【{{repos.length}}/{{page.total}}】 </button>
                             </div>
                         </div>
                     </div>
-                    <div class='record' ng-show="page.total>repos.length" ng-cloak>
-                        <div class='text-center' tms-scroll-spy selector='window' onbottom='recordsScrollToBottom()' offset='70' toggle-spy="spyRecordsScroll">
-                            <button style='border-radius:15px;' class='btn btn-default' ng-click="recordList()"><span ng-class="{'ele-running':reposLoading}"><i class='ele-running-indicator'><i></i></i></span> 更多【{{repos.length}}/{{page.total}}】 </button>
-                        </div>
+                    <div ng-if="task.config_type==='score'">
+                        <div tms-score-record-data task="task"></div>
                     </div>
-                </div>
-                <div ng-if="task.config_type==='score'">
-                    <div tms-score-record-data task="task"></div>
                 </div>
             </div>
         </div>
     </div>
-    <nav class="navbar site-navbar-tab navbar-default navbar-fixed-bottom" ng-if="task.config_type==='question'&&task.state==='IP'">
+    <nav class="navbar site-navbar-tab navbar-fixed-bottom" ng-if="task.config_type==='question'&&task.state==='IP'">
         <div class="container-fluid text-center">
             <button class="button-highlight btn navbar-btn" ng-click="gotoPage($event,'repos')"><span>评论老问题</span></button>
             <button class="button-highlight btn navbar-btn" ng-click="gotoPage($event,'repos')"><span>重提老问题</span></button>
             <button class="button-highlight btn navbar-btn" ng-click="addRecord($event)"><span>提出新问题</span></button>
         </div>
     </nav>
-    <nav class="navbar site-navbar-tab navbar-default navbar-fixed-bottom" ng-if="task.config_type==='vote'&&task.state==='IP'">
+    <nav class="navbar site-navbar-tab navbar-fixed-bottom" ng-if="task.config_type==='vote'&&task.state==='IP'">
         <div class="container-fluid text-center">
             <button class="btn navbar-btn" ng-click="task.submit()" ng-class="{'button-highlight':task.canSubmit()}" ng-disabled="!task.canSubmit()"><span>提交(<span ng-bind="task.tip()"></span>)</span></button>
         </div>

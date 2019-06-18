@@ -1,15 +1,15 @@
-<div class='people-favor' id="favor">
+<div id="favor">
     <nav class="navbar site-navbar-tab navbar-default small">
-        <div class="container-fluid" style='display:flex;align-items:center;'>
-            <ul class="nav navbar-nav">
+        <div class="container-fluid">
+            <ul class="nav navbar-nav pull-left">
                 <li ng-class="{'active':subView==='repos.html'}"><a href ng-click="subView='repos.html'"><i class='glyphicon glyphicon-bookmark'></i> 收藏</a></li>
                 <li ng-class="{'active':subView==='tag.html'}"><a href ng-click="subView='tag.html'"><i class='glyphicon glyphicon-tag'></i> 标签</a></li>
                 <li ng-class="{'active':subView==='topic.html'}"><a href ng-click="subView='topic.html'"><i class='glyphicon glyphicon-inbox'></i> 专题</a></li>
             </ul>
-            <div ng-if="subView==='topic.html'" style='margin-left:16px;'>
+            <div ng-if="subView==='topic.html'" class="pull-left">
                 <button class="btn btn-default btn-sm navbar-btn" ng-click="addTopic()"><i class='glyphicon glyphicon-plus'></i>创建</button>
             </div>
-            <div ng-if="subView==='tag.html'" style='margin-left:16px;'>
+            <div ng-if="subView==='tag.html'" class="pull-left">
                 <button class="btn btn-default btn-sm navbar-btn" ng-click="addTag()"><i class='glyphicon glyphicon-plus'></i>创建</button>
             </div>
         </div>

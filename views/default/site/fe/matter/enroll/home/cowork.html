@@ -1,4 +1,4 @@
-<div class='wrapper' ng-controller="ctrlReposRecord">
+<div class="wrapper" ng-controller="ctrlReposCowork">
     <div id='advCriteria' ng-if="advCriteriaStatus.opened&&dirSchemas.length" ng-cloak>
         <div class="tree">
             <div class='tree-header'>目录<button class='close' ng-if="isSmallLayout" ng-click="advCriteriaStatus.dirOpen=!advCriteriaStatus.dirOpen"><span>&times;</span></button></div>
@@ -13,12 +13,14 @@
         </div>
     </div>
     <div class='main col-xs-12 col-md-12'>
-        <nav class="nav site-navbar-orange navbar-fixed-top">
+        <nav class="nav site-navbar-default navbar-fixed-top top-menu-bar">
             <div class="container" id="nav_container">
                 <div class="row">
                     <div class="col-md-7 col-xs-7">
-                        <ul class='nav site-nav'>
-                            <li ng-repeat="view in activeNav.views" ng-class="{'active': view.type===activeView.type}" ng-click="viewTo($event, view)"><a href ng-bind="view.title"></a><span></span></li>
+                        <ul class="menus">
+                            <li class="menu" ng-repeat="view in activeNav.views" ng-class="{'active': view.type===activeView.type}" ng-click="viewTo($event, view)">
+                                <a href class="menu-link" ng-bind="view.title"></a><span class="line"></span>
+                            </li>
                         </ul>
                     </div>
                     <div class="col-md-5 col-xs-5">
@@ -27,8 +29,8 @@
                                 <div tms-dropdown basic-data="singleFilter" criteria="criteria" shift-menu="shiftMenu(criteria)"></div>
                             </div>
                             <div tms-filter append-to-ele="appendToEle" basic-data="multiFilters" filter="filter" criteria="criteria" confirm="confirm(filterOpt)" class='tmsFilter' ng-if="multiFilters.length"></div>
-                            <div id='advCriteriaSwitch' ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened" class='visible-xs-block'>
-                                <i class='glyphicon glyphicon-menu-hamburger'></i>
+                            <div id='advCriteriaSwitch' ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened" class='visible-xs-block' ng-class="{'active':advCriteriaStatus.opened}">
+                                <a href><i class='glyphicon glyphicon-menu-hamburger'></i></a>
                             </div>
                         </div>
                     </div>
@@ -57,36 +59,23 @@
                         </div>
                     </div>
                     <div class='data' ng-click="remarkRecord(rec, $event)">
-                        <div tms-repos-record schemas="schemas" record="rec" schema-counter="schemaCounter"></div>
+                        <div tms-repos-cowork schemas="schemas" record="rec" schema-counter="schemaCounter"></div>
+                        <div class='assocs' ng-if="rec.oAssocs.length">
+                            <div ng-repeat="assoc in rec.oAssocs" ng-if="assoc.entityB" class='tms-flex-row small'>
+                                <div ng-if="assoc.assoc_reason" class='assoc-reason'><span ng-bind="assoc.assoc_reason"></span></div>
+                                <div ng-click="gotoAssoc(assoc.entityB, $event)" class='tms-flex-grow assoc-text'><i class='glyphicon glyphicon-link text-muted'></i> <span ng-bind="assoc.assoc_text"></span></div>
+                            </div>
+                        </div>
                     </div>
                     <div class='bottom-bar'>
                         <div class='datetime text-muted'>{{rec.enroll_at*1000|date:'yyyy-MM-dd HH:mm'}}</div>
                         <a href ng-if="rec.like_num!='0'"><span class='glyphicon glyphicon-thumbs-up' ng-class="{'like':rec.like_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.like_num"></span></a>
                         <a href ng-if="rec.dislike_num!='0'"><span class='glyphicon glyphicon-thumbs-down' ng-class="{'like':rec.dislike_log[user.uid]}"></span>&nbsp;<span ng-bind="rec.dislike_num"></span></a>
-                        <a href ng-if="rec.coworkDataTotal&&rec.coworkDataTotal!='0'"><span>答</span>&nbsp;<span ng-bind="rec.coworkDataTotal"></span></a>
                         <a href ng-if="rec.remark_num!='0'"><span class='glyphicon glyphicon-comment'></span>&nbsp;<span ng-bind="rec.remark_num"></span></a>
-                        <div class="btn-group" uib-dropdown>
-                            <button class="btn btn-default btn-xs dropdown-toggle" uib-dropdown-toggle>
-                                <span class="glyphicon glyphicon-option-vertical"></span>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
-                                <li><a href ng-click="shareRecord(rec)"><span class='glyphicon glyphicon-share'></span> 分享</a></li>
-                                <li ng-if="!rec.favored"><a href ng-click="favorRecord(rec)"><span class='glyphicon glyphicon-bookmark'></span> 收藏</a></li>
-                                <li><a href ng-click="assignTag(rec)"><span class='glyphicon glyphicon-tag'></span> 标签</a></li>
-                                <li ng-if="rec.favored"><a href ng-click="assignTopic(rec)"><span class='glyphicon glyphicon-inbox'></span> 专题</a></li>
-                                <li ng-if="rec.userid===user.uid"><a href ng-click="editRecord($event,rec)"><span class='glyphicon glyphicon-edit'></span> 编辑</a></li>
-                                <li ng-if="app.scenarioConfig.can_assoc === 'Y'" class='divider'></li>
-                                <li ng-if="app.scenarioConfig.can_assoc === 'Y'"><a href ng-click="copyRecord($event,rec)"><span class='glyphicon glyphicon-copy'></span> 复制</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class='tags' ng-if="rec.tags||rec.userTags">
-                        <button class='btn btn-info btn-xs' ng-repeat="tag in rec.tags" ng-bind="tag.label" ng-click="shiftTag(tag,true)"></button>
-                        <button class='btn btn-default btn-xs' ng-repeat="tag in rec.userTags" ng-bind="tag.label" ng-click="shiftTag(tag,true)"></button>
                     </div>
                 </div>
                 <div class='record' ng-show="page.total>repos.length" ng-cloak>
-                    <div class='text-center' tms-scroll-spy selector='#repos' onbottom='recordsScrollToBottom()' offset='70' toggle-spy="spyRecordsScroll">
+                    <div class='text-center' tms-scroll-spy selector='window' onbottom='recordsScrollToBottom()' offset='70' toggle-spy="spyRecordsScroll">
                         <button style='border-radius:15px;' class='btn btn-default' ng-click="recordList()"><span ng-class="{'ele-running':reposLoading}"><i class='ele-running-indicator'><i></i></i></span> 更多【{{repos.length}}/{{page.total}}】 </button>
                     </div>
                 </div>

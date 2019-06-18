@@ -12,15 +12,17 @@
     <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
 </head>
 
-<body ng-controller="ctrlActivities">
+<body ng-controller="ctrlActivities" class="ng-cloak" ng-cloak>
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
-    <nav class="nav site-navbar-orange navbar-fixed-top">
-        <div class="container" ng-cloak>
+    <nav class="nav site-navbar-default navbar-fixed-top top-menu-bar">
+        <div class="container">
             <div class="row">
                 <div class="col-md-12 col-xs-12">
-                    <ul class='nav site-nav'>
-                        <li ng-repeat="view in activeNav.views" ng-class="{'active': view.type===subView}" ng-click="viewTo($event, view)"><a href ng-bind="view.title"></a><span></span></li>
+                    <ul class="menus">
+                        <li class="menu" ng-repeat="view in activeNav.views" ng-class="{'active': view.type===subView}" ng-click="viewTo($event, view)">
+                            <a href class="menu-link" ng-bind="view.title"></a><span class="line"></span>
+                        </li>
                     </ul>
                 </div>
             </div>

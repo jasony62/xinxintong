@@ -10,7 +10,9 @@ button.option {
     padding: 0;
 }
 
-.nav .open>a,.nav .open>a:focus,.nav .open>a:hover {
+.nav .open>a,
+.nav .open>a:focus,
+.nav .open>a:hover {
     background-color: @brand-primary;
 }
 
@@ -50,7 +52,7 @@ button.option {
         color: #333;
     }
 
-    .tab-view.active .tab-view-link{
+    .tab-view.active .tab-view-link {
         color: @brand-primary;
     }
 }
@@ -89,11 +91,11 @@ button.option {
     .container {
         position: relative;
 
-        .col-md-5.col-xs-5{
+        .col-md-5.col-xs-5 {
             padding-left: 0;
         }
     }
-    
+
     .menus {
         overflow-y: hidden;
         overflow-x: auto;
@@ -121,7 +123,7 @@ button.option {
             }
 
             &.active {
-                .menu-link{
+                .menu-link {
                     font-weight: 600;
                     color: #fff;
                 }
@@ -1443,10 +1445,11 @@ button.option {
 
 @media screen and (min-width:768px) {
     .enroll-repos {
-        .main {
+        .wrapper>.main {
             width: calc(100% - 200px);
         }
     }
+
     .modal .main .content {
         margin-right: -15px;
     }

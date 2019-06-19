@@ -49,7 +49,7 @@
         </div>
         <div id='repos'>
             <div class='records'>
-                <div class='record' ng-repeat="rec in repos" ng-cloak>
+                <div class='record' ng-repeat="rec in repos" ng-cloak ng-click="remarkRecord(rec, $event)">
                     <div class='top-bar'>
                         <div class='seq label label-default'>{{$index+1}}</div>
                         <div class='nickname text-muted'>{{rec.nickname||'隐藏'}}</div>
@@ -58,7 +58,7 @@
                             <button class="btn btn-xs btn-success">推荐</button>
                         </div>
                     </div>
-                    <div class='data' ng-click="remarkRecord(rec, $event)">
+                    <div class='data'>
                         <div tms-repos-record schemas="schemas" record="rec" schema-counter="schemaCounter"></div>
                     </div>
                     <div class='bottom-bar'>

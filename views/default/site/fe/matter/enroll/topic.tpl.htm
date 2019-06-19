@@ -128,14 +128,14 @@
             </div>
         </div>
     </div>
-    <nav class="navbar site-navbar-tab navbar-fixed-bottom" ng-if="task.config_type==='question'&&task.state==='IP'">
+    <nav class="navbar site-navbar-light navbar-fixed-bottom" ng-if="task.config_type==='question'&&task.state==='IP'">
         <div class="container-fluid text-center">
             <button class="button-highlight btn navbar-btn" ng-click="gotoPage($event,'repos')"><span>评论老问题</span></button>
             <button class="button-highlight btn navbar-btn" ng-click="gotoPage($event,'repos')"><span>重提老问题</span></button>
             <button class="button-highlight btn navbar-btn" ng-click="addRecord($event)"><span>提出新问题</span></button>
         </div>
     </nav>
-    <nav class="navbar site-navbar-tab navbar-fixed-bottom" ng-if="task.config_type==='vote'&&task.state==='IP'">
+    <nav class="navbar site-navbar-light navbar-fixed-bottom" ng-if="task.config_type==='vote'&&task.state==='IP'">
         <div class="container-fluid text-center">
             <button class="btn navbar-btn" ng-click="task.submit()" ng-class="{'button-highlight':task.canSubmit()}" ng-disabled="!task.canSubmit()"><span>提交(<span ng-bind="task.tip()"></span>)</span></button>
         </div>

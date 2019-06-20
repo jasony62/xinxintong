@@ -40,10 +40,14 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
         $scope.c_prev_channels = [], $scope.c_next_channels = [];
         $http.get('/rest/site/home/listChannel?site=' + siteId + '&homeGroup=C').success(function(rsp) {
             $scope.c_channels = rsp.data;
-            rsp.data.forEach(function(item, index) {
-                index < 3 ? $scope.c_prev_channels.push(item) : $scope.c_next_channels.push(item);
-            });
-            $scope.c_channels_matters = $scope.c_prev_channels;
+            if (width > 768) {
+                rsp.data.forEach(function(item, index) {
+                    index < 3 ? $scope.c_prev_channels.push(item) : $scope.c_next_channels.push(item);
+                });
+                $scope.c_channels_matters = $scope.c_prev_channels;
+            } else {
+                $scope.c_channels_matters = $scope.c_channels;
+            }
             $scope.c_channels_matters.forEach(function(channel) {
                 $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + channel.channel_id + page.j()).success(function(rsp) {
                     var chid = channel.channel_id,
@@ -72,14 +76,10 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
     }
 
     function r_listChannels() {
-        $scope.r_prev_channels = [], $scope.r_next_channels = [], $scope.channelMatters = [];
+        $scope.channelMatters = [];
         $http.get('/rest/site/home/listChannel?site=' + siteId + '&homeGroup=R').success(function(rsp) {
             $scope.r_channels = rsp.data;
             rsp.data.forEach(function(item, index) {
-                index < 3 ? $scope.r_prev_channels.push(item) : $scope.r_next_channels.push(item);
-            });
-            width > 768 ? $scope.r_channels_matters = $scope.r_channels : $scope.r_channels_matters = $scope.r_channels_matters = $scope.r_prev_channels;
-            $scope.r_channels_matters.forEach(function(item, index) {
                 $http.get('/rest/site/fe/matter/channel/mattersGet?site=' + siteId + '&id=' + item.channel_id + '&page=1&size=5').success(function(rsp) {
                     $scope.channelMatters.push({
                         title: item.title,

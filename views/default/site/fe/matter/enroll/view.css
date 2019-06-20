@@ -1,15 +1,3 @@
-.app {
-	margin-bottom: 65px;
-}
-
-img {
-	max-width: 100%;
-}
-
-.navbar-fixed-bottom button+button {
-	margin-left: 8px;
-}
-
 /* default form style*/
 div[wrap].wrap-splitline {
 	padding-bottom: 0.5em;

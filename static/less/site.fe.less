@@ -1,3 +1,4 @@
+// out: ../css/site.fe.css
 @import "site.fe.base.less";
 
 html,
@@ -39,7 +40,8 @@ body {
 }
 
 
-.navbar-fixed-bottom {
+.navbar-fixed-bottom,
+.navbar-fixed-top {
     border-width: 0;
 }
 
@@ -59,6 +61,7 @@ body {
     .navbar-header {
         .navbar-brand {
             color: #fff;
+            font-size: inherit;
         }
 
     }
@@ -81,6 +84,11 @@ body {
         color: #fff;
     }
 
+}
+
+.site-navbar-light {
+    background-color: #fff;
+    border-color: #fff;
 }
 
 .home {

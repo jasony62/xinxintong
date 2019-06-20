@@ -59,7 +59,7 @@
                         <button class='btn btn-lg btn-primary  btn-gradient center-block' ng-click="moreMatters(c.channel_id)" ng-if="cTotal[c.channel_id]['total'] > cTotal[c.channel_id].data.length">加载更多</button>
                     </div>
                 </uib-tab>
-                <span uib-dropdown on-toggle="toggled(open)" class="pull-right" ng-if="c_channels.length > 3">
+                <span uib-dropdown on-toggle="toggled(open)" class="pull-right" ng-if="c_next_channels.length&&c_channels.length>3">
                     <a href id="simple-dropdown" uib-dropdown-toggle>
                         <i class="glyphicon glyphicon-th-list"></i>
                     </a>
@@ -101,14 +101,6 @@
                         </ul>
                         <div ng-if="channelMatter.total>5" class="text-center"><a ng-href="{{channelMatter.url}}" target='_self'>更 多</a></div>
                     </uib-tab>
-                    <span uib-dropdown on-toggle="toggled(open)" class="pull-right" ng-if="channelMatters.length>2">
-                        <a href id="simple-dropdown" uib-dropdown-toggle><i class="glyphicon glyphicon-th-list"></i></a>
-                        <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="simple-dropdown">
-                            <li ng-repeat="channel in r_next_channels">
-                              <a ng-href='{{channel.url}}' target='_self'><span ng-bind="channel.display_name"></span></a>
-                            </li>
-                        </ul>
-                    </span>
                 </uib-tabset>
             </div>
         </div>

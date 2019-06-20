@@ -13,12 +13,14 @@
         </div>
     </div>
     <div class='main col-xs-12 col-md-12'>
-        <nav class="nav site-navbar-orange navbar-fixed-top">
+        <nav class="nav site-navbar-default navbar-fixed-top top-menu-bar">
             <div class="container" id="nav_container">
                 <div class="row">
                     <div class="col-md-7 col-xs-7">
-                        <ul class='nav site-nav'>
-                            <li ng-repeat="view in activeNav.views" ng-class="{'active': view.type===activeView.type}" ng-click="viewTo($event, view)"><a href ng-bind="view.title"></a><span></span></li>
+                        <ul class="menus">
+                            <li class="menu" ng-repeat="view in activeNav.views" ng-class="{'active': view.type===activeView.type}" ng-click="viewTo($event, view)">
+                                <a href class="menu-link" ng-bind="view.title"></a><span class="line"></span>
+                            </li>
                         </ul>
                     </div>
                     <div class="col-md-5 col-xs-5">
@@ -28,7 +30,7 @@
                             </div>
                             <div tms-filter append-to-ele="appendToEle" basic-data="multiFilters" filter="filter" criteria="criteria" confirm="confirm(filterOpt)" class='tmsFilter' ng-if="multiFilters.length"></div>
                             <div id='advCriteriaSwitch' ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened" class='visible-xs-block' ng-class="{'active':advCriteriaStatus.opened}">
-                                <i class='glyphicon glyphicon-menu-hamburger'></i>
+                                <a href><i class='glyphicon glyphicon-menu-hamburger'></i></a>
                             </div>
                         </div>
                     </div>
@@ -47,7 +49,7 @@
         </div>
         <div id='repos'>
             <div class='records'>
-                <div class='record' ng-repeat="rec in repos" ng-cloak>
+                <div class='record' ng-repeat="rec in repos" ng-cloak ng-click="remarkRecord(rec, $event)">
                     <div class='top-bar'>
                         <div class='seq label label-default'>{{$index+1}}</div>
                         <div class='nickname text-muted'>{{rec.nickname||'隐藏'}}</div>
@@ -56,7 +58,7 @@
                             <button class="btn btn-xs btn-success">推荐</button>
                         </div>
                     </div>
-                    <div class='data' ng-click="remarkRecord(rec, $event)">
+                    <div class='data'>
                         <div tms-repos-cowork schemas="schemas" record="rec" schema-counter="schemaCounter"></div>
                         <div class='assocs' ng-if="rec.oAssocs.length">
                             <div ng-repeat="assoc in rec.oAssocs" ng-if="assoc.entityB" class='tms-flex-row small'>
@@ -73,7 +75,7 @@
                     </div>
                 </div>
                 <div class='record' ng-show="page.total>repos.length" ng-cloak>
-                    <div class='text-center' tms-scroll-spy selector='#repos' onbottom='recordsScrollToBottom()' offset='70' toggle-spy="spyRecordsScroll">
+                    <div class='text-center' tms-scroll-spy selector='window' onbottom='recordsScrollToBottom()' offset='70' toggle-spy="spyRecordsScroll">
                         <button style='border-radius:15px;' class='btn btn-default' ng-click="recordList()"><span ng-class="{'ele-running':reposLoading}"><i class='ele-running-indicator'><i></i></i></span> 更多【{{repos.length}}/{{page.total}}】 </button>
                     </div>
                 </div>

@@ -21,7 +21,7 @@ define(['frame'], function (ngApp) {
         };
         $scope.$watch('editing', function (oArticle) {
             if (oArticle) {
-                $scope.previewURL = '/rest/site/fe/matter?site=' + oArticle.siteid + '&id=' + oArticle.id + '&preview=Y';
+                $scope.previewURL = '/rest/site/fe/matter?site=' + oArticle.siteid + '&id=' + oArticle.id + '&type=article&preview=Y';
             }
         });
     }]);

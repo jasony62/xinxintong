@@ -1,16 +1,15 @@
-requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
+requirejs(['/static/js/tms.bootstrap.js'], function (tms) {
     /* 定义应用常量 */
     define("frame/const", {
         matterNames: {
             doc: {
                 'article': '单图文',
-                'news': '多图文',
                 'channel': '频道',
                 'link': '链接',
                 'text': '文本',
                 'custom': '定制页',
             },
-            docOrder: ['article', 'news', 'channel', 'link', 'text', 'custom'],
+            docOrder: ['article', 'channel', 'link', 'text', 'custom'],
             app: {
                 'enroll': '记录',
                 'signin': '签到',
@@ -27,10 +26,6 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
         }, {
             value: 'article',
             title: '单图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'news',
-            title: '多图文',
             url: '/rest/pl/fe/matter'
         }, {
             value: 'channel',

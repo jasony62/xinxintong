@@ -1,4 +1,4 @@
-define(['require', 'enrollService'], function(require) {
+define(['require', 'enrollService'], function (require) {
     'use strict';
     var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'http.ui.xxt', 'tmplshop.ui.xxt', 'service.matter', 'service.enroll', 'tinymce.enroll', 'ui.xxt']);
     ngApp.constant('cstApp', {
@@ -9,10 +9,6 @@ define(['require', 'enrollService'], function(require) {
         }, {
             value: 'article',
             title: '单图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'news',
-            title: '多图文',
             url: '/rest/pl/fe/matter'
         }, {
             value: 'channel',
@@ -28,10 +24,6 @@ define(['require', 'enrollService'], function(require) {
             title: '单图文',
             url: '/rest/pl/fe/matter'
         }, {
-            value: 'news',
-            title: '多图文',
-            url: '/rest/pl/fe/matter'
-        }, {
             value: 'channel',
             title: '频道',
             url: '/rest/pl/fe/matter'
@@ -40,15 +32,15 @@ define(['require', 'enrollService'], function(require) {
             'schema.duplicated': '不允许重复添加登记项'
         }
     });
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvEnrollAppProvider', 'srvEnrollRoundProvider', 'srvEnrollPageProvider', 'srvEnrollRecordProvider', 'srvTempAppProvider', 'srvTempPageProvider', 'srvTempRecordProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvEnrollAppProvider, srvEnrollRoundProvider, srvEnrollPageProvider, srvEnrollRecordProvider, srvTempAppProvider, srvTempPageProvider, srvTempRecordProvider) {
-        var RouteParam = function(name, baseURL) {
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvEnrollAppProvider', 'srvEnrollRoundProvider', 'srvEnrollPageProvider', 'srvEnrollRecordProvider', 'srvTempAppProvider', 'srvTempPageProvider', 'srvTempRecordProvider', function ($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvEnrollAppProvider, srvEnrollRoundProvider, srvEnrollPageProvider, srvEnrollRecordProvider, srvTempAppProvider, srvTempPageProvider, srvTempRecordProvider) {
+        var RouteParam = function (name, baseURL) {
             !baseURL && (baseURL = '/views/default/pl/fe/site/template/enroll/');
             this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
             this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
             this.resolve = {
-                load: function($q) {
+                load: function ($q) {
                     var defer = $q.defer();
-                    require([baseURL + name + '.js'], function() {
+                    require([baseURL + name + '.js'], function () {
                         defer.resolve();
                     });
                     return defer.promise;
@@ -72,7 +64,7 @@ define(['require', 'enrollService'], function(require) {
             'show': 'hide'
         });
 
-        (function() {
+        (function () {
             var ls, siteId, appId, vId;
             ls = location.search;
             siteId = ls.match(/[\?&]site=([^&]*)/)[1];
@@ -94,7 +86,7 @@ define(['require', 'enrollService'], function(require) {
             srvTempRecordProvider.config(siteId, appId);
         })();
     }]);
-    ngApp.controller('ctrlFrame', ['$scope', 'srvSite', 'srvEnrollApp', 'templateShop', 'srvTempApp', function($scope, srvSite, srvEnrollApp, templateShop, srvTempApp) {
+    ngApp.controller('ctrlFrame', ['$scope', 'srvSite', 'srvEnrollApp', 'templateShop', 'srvTempApp', function ($scope, srvSite, srvEnrollApp, templateShop, srvTempApp) {
         $scope.scenarioNames = {
             'common': '通用登记',
             'registration': '报名',
@@ -110,29 +102,29 @@ define(['require', 'enrollService'], function(require) {
             'order': '查看数据',
         };
         $scope.subView = '';
-        $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+        $scope.$on('$locationChangeSuccess', function (event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
             $scope.subView = subView[1] === 'enroll' ? 'publish' : subView[1];
         });
-        $scope.update = function(name) {
+        $scope.update = function (name) {
             /*srvEnrollApp.update(name);*/
             srvTempApp.update(name);
         };
-        srvSite.get().then(function(oSite) {
+        srvSite.get().then(function (oSite) {
             $scope.site = oSite;
         });
-        srvSite.snsList().then(function(aSns) {
+        srvSite.snsList().then(function (aSns) {
             $scope.sns = aSns;
         });
-        srvSite.memberSchemaList().then(function(aMemberSchemas) {
+        srvSite.memberSchemaList().then(function (aMemberSchemas) {
             $scope.memberSchemas = aMemberSchemas;
         });
-        srvTempApp.tempEnrollGet().then(function(app) {
+        srvTempApp.tempEnrollGet().then(function (app) {
             $scope.app = app;
         });
     }]);
     /***/
-    require(['domReady!'], function(document) {
+    require(['domReady!'], function (document) {
         angular.bootstrap(document, ["app"]);
     });
     /***/

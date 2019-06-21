@@ -432,8 +432,7 @@ button.option {
     padding: 8px 16px;
     cursor: pointer;
 
-    &:last-child,
-    &:nth-last-child(2) {
+    &:last-child {
         border-bottom: 0;
     }
 }
@@ -527,10 +526,6 @@ button.option {
             margin-left: 4px;
         }
 
-    }
-
-    .glyphicon-comment {
-        color: @brand-primary
     }
 
     .remarks {
@@ -1452,7 +1447,9 @@ button.option {
 @media screen and (min-width:768px) {
     .enroll-repos {
         .wrapper>.main {
-            width: calc(100% - 200px);
+            &.hasAdvCriteria {
+                width: calc(100% - 200px);
+            }
         }
     }
 

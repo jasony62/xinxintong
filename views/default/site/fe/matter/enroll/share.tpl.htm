@@ -16,16 +16,16 @@
 <body ng-controller='ctrlShare' tms-trace send-url='/rest/site/fe/matter/enroll/analysis/submit?site={{app.siteid}}&app={{app.id}}&page=share' ready-sign="app">
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
-    <nav class='navbar site-navbar-default'>
+    <nav class='navbar site-navbar-default navbar-fixed-top'>
         <div class='container'>
-            <div class="navbar-header">
-                <a href class="navbar-brand">
-                    <i class="glyphicon glyphicon-list-alt visible-lg-inline"></i> <span>分享</span>
+            <div class="navbar-header pull-left">
+                <a href class="navbar-brand" ng-click="gotoHome()">
+                    <i class="glyphicon glyphicon-home"></i> <span class="visible-lg-inline">首页</span>
                 </a>
             </div>
-            <ul class="nav navbar-nav navbar-right">
+            <ul class="nav navbar-nav pull-right">
                 <li class="pull-left">
-                    <a href ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline"> 个人中心</span></a>
+                    <a href ng-click="siteUser(app.siteid)"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline"> 个人中心</span></a>
                 </li>
             </ul>
         </div>

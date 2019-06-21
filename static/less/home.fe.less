@@ -610,12 +610,27 @@ ul.nav-tabs>span>a {
 		overflow-x: auto;
 		white-space: nowrap;
 		padding: 10px 0 0 0;
+
+		&:after {
+			content: "";
+		    width: 50px;
+		    height: 45px;
+		    background-color: rgba(244,245,246,.6);
+		    position: absolute;
+		    right: 0;
+		    top: 0px;
+		}    
+
 	}
 
 	.nav-tabs>li {
 		float: none;
 		display: inline-block;
 		margin-right: 5%;
+
+		&:last-child{
+			margin-right: 0;
+		}
 	}
 
 	.nav-tabs>li>a {

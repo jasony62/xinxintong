@@ -1,5 +1,6 @@
 'use strict';
 require('../../../../../../asset/css/buttons.css');
+require('./enroll.public.css');
 
 require('./_asset/ui.repos.js');
 require('./_asset/ui.score.js');

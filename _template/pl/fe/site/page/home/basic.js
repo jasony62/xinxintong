@@ -41,7 +41,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', '$location', '$anchorS
         $http.get('/rest/site/home/listChannel?site=' + siteId + '&homeGroup=C').success(function(rsp) {
             $scope.c_channels = rsp.data;
             if (width > 768) {
-                rsp.data.forEach(function(item, index) {
+                $scope.c_channels.forEach(function(item, index) {
                     index < 3 ? $scope.c_prev_channels.push(item) : $scope.c_next_channels.push(item);
                 });
                 $scope.c_channels_matters = $scope.c_prev_channels;

@@ -17,7 +17,7 @@
     <div class='view' ng-include="subView"></div>
 </div>
 <script type="text/ng-template" id="repos.html">
-    <div ng-controller="ctrlRepos" class='records col-xs-12'>
+    <div ng-controller="ctrlRepos" class='records'>
         <div id='filterQuick' ng-cloak>
             <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
                 <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
@@ -115,7 +115,7 @@
     </div>
 </script>
 <script type="text/ng-template" id="tag.html">
-    <div ng-controller='ctrlTag' class='tags col-xs-12'>
+    <div ng-controller='ctrlTag' class='tags'>
         <div ng-if="tags.length===0">
             <div class='alert alert-info'>用【标签】对收藏的记录进行分类，便于查找和分享，<a href class="alert-link" ng-click="addTag()"> 创建标签</a></div>
         </div>
@@ -138,7 +138,7 @@
     </div>
 </script>
 <script type="text/ng-template" id="topic.html">
-    <div ng-controller='ctrlTopic' class='topics col-xs-12'>
+    <div ng-controller='ctrlTopic' class='topics'>
         <div ng-if="topics.length===0">
             <div class='alert alert-info'>用【专题】对收藏的记录进行分类，便于查找和分享，<a href class="alert-link" ng-click="addTopic()"> 创建专题</a></div>
         </div>

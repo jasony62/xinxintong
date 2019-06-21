@@ -15,13 +15,13 @@
         <div class='col-md-9 col-xs-12 section'>
             <div id="slider_extends" class="slider_extends" ng-controller="ctrlSlider" ng-if="topArticles!=''">
                 <ul class="list-unstyled row">
-                    <li ng-mouseenter="selectTag($index)" class="slider_extend pull-left" ng-repeat="ta in topArticles" data-ng-init="load()">
-                        <a ng-href="{{ta.url}}" target='_self'>
+                    <li ng-mouseenter="selectTag($index)" class="slider_extend pull-left" ng-repeat="topArticle in topArticles" data-ng-init="load()">
+                        <a ng-href="{{topArticle.url}}" target='_self'>
                             <div class="slider-caption">
-                                <h4 class="slider-text-wrap">{{ta.title}}</h4>
+                                <h4 class="slider-text-wrap">{{topArticle.title}}</h4>
                             </div>
                             <span class="slider-mask"></span>
-                            <img class="slider-img" ng-src="{{ta.pic}}" />
+                            <img class="slider-img" ng-src="{{topArticle.pic}}" />
                         </a>
                     </li>
                 </ul>
@@ -149,7 +149,7 @@
                         <button class='btn btn-lg btn-primary  btn-gradient center-block load-more-btn' ng-click="moreMatters('template')" ng-if="templates.total>templates.length">加载更多</button>
                     </div>
                 </uib-tab>
-                <uib-tab index="4+$index" ng-if="channels1.length" ng-repeat="channelMatter in channelMatters">
+                <uib-tab index="4+$index" ng-if="centerChannels.length" ng-repeat="channelMatter in channelMatters">
                     <uib-tab-heading>{{channelMatter.title}}</uib-tab-heading>
                     <div class="media-item" ng-repeat="data in channelMatter.data">
                         <div class="media-item-left" ng-click="openMatter(data)">
@@ -221,14 +221,6 @@
                         </ul>
                         <div ng-if="c.total>5" class="text-center"><a ng-href="{{c.url}}" target='_self'>更 多</a></div>
                     </uib-tab>
-                    <span uib-dropdown on-toggle="toggled(open)" class="pull-right" ng-if="channels2.length > 3">
-                        <a href id="simple-dropdown" uib-dropdown-toggle><i class="glyphicon glyphicon-th-list"></i></a>
-                        <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="simple-dropdown">
-                            <li ng-repeat="c in h_next_channels">
-                                <a ng-href='{{c.url}}' target='_self'><span ng-bind="c.title"></span></a>
-                            </li>
-                        </ul>
-                    </span>
                 </uib-tabset>
                 <div class="mobile_qrcodes">
                     <ul class="list-unstyled">

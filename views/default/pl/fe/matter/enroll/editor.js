@@ -1,16 +1,16 @@
-define(['frame'], function(ngApp) {
+define(['frame'], function (ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlEditor', ['$scope', '$sce', '$q', 'noticebox', '$location', 'srvEnrollApp', 'srvEnrollRecord', 'srvEnrollRound', 'tmsSchema', function($scope, $sce, $q, noticebox, $location, srvEnlApp, srvEnlRec, srvEnlRnd, tmsSchema) {
+    ngApp.provider.controller('ctrlEditor', ['$scope', '$sce', '$q', 'noticebox', '$location', 'srvEnrollApp', 'srvEnrollRecord', 'srvEnrollRound', 'tmsSchema', function ($scope, $sce, $q, noticebox, $location, srvEnlApp, srvEnlRec, srvEnlRnd, tmsSchema) {
         function _afterGetApp(oApp) {
             if (oRecord.data) {
-                oApp.dataSchemas.forEach(function(oSchema) {
+                oApp.dataSchemas.forEach(function (oSchema) {
                     if (oRecord.data[oSchema.id]) {
                         tmsSchema.forEdit(oSchema, oRecord.data);
                         if (oSchema.type == 'multitext') {
                             _items(oSchema);
                         } else if (oSchema.type === 'file') {
                             if (oRecord.data[oSchema.id] && oRecord.data[oSchema.id].length) {
-                                oRecord.data[oSchema.id].forEach(function(oFile) {
+                                oRecord.data[oSchema.id].forEach(function (oFile) {
                                     if (oFile.url && angular.isString(oFile)) {
                                         oFile.url = $sce.trustAsResourceUrl(oFile.url);
                                     }
@@ -19,12 +19,12 @@ define(['frame'], function(ngApp) {
                         }
                     }
                 });
-                oApp._schemasFromEnrollApp.forEach(function(oSchema) {
+                oApp._schemasFromEnrollApp.forEach(function (oSchema) {
                     if (oRecord.data[oSchema.id]) {
                         tmsSchema.forEdit(oSchema, oRecord.data);
                     }
                 });
-                oApp._schemasFromGroupApp.forEach(function(oSchema) {
+                oApp._schemasFromGroupApp.forEach(function (oSchema) {
                     if (oRecord.data[oSchema.id]) {
                         tmsSchema.forEdit(oSchema, oRecord.data);
                     }
@@ -41,11 +41,16 @@ define(['frame'], function(ngApp) {
                 _quizScore(oRecord);
                 $scope.quizScore = oQuizScore;
             }
+            oResumable = new Resumable({
+                target: '/rest/site/fe/matter/enroll/record/uploadFile?site=' + oApp.siteid + '&app=' + oApp.id,
+                testChunks: false,
+                chunkSize: 512 * 1024
+            });
         }
 
         function _items(schema) {
             var _item = {};
-            angular.forEach(oRecord.verbose[schema.id].items, function(item) {
+            angular.forEach(oRecord.verbose[schema.id].items, function (item) {
                 _item[item.id] = item;
                 oRecord.verbose[schema.id]._items = _item;
             });
@@ -60,6 +65,39 @@ define(['frame'], function(ngApp) {
             }
         }
 
+        function onSubmit() {
+            var defer;
+            defer = $q.defer();
+            if (!oResumable.files || oResumable.files.length === 0)
+                defer.resolve('empty');
+            oResumable.on('progress', function () {
+                var phase, p;
+                p = oResumable.progress();
+                var phase = $scope.$root.$$phase;
+                if (phase === '$digest' || phase === '$apply') {
+                    noticebox.progress('上传文件：' + Math.ceil(p * 100));
+                } else {
+                    $scope.$apply(function () {
+                        noticebox.progress('上传文件：' + Math.ceil(p * 100));
+                    });
+                }
+            });
+            oResumable.on('complete', function () {
+                var phase = $scope.$root.$$phase;
+                if (phase === '$digest' || phase === '$apply') {
+                    noticebox.close();
+                } else {
+                    $scope.$apply(function () {
+                        noticebox.close();
+                    });
+                }
+                oResumable.cancel();
+                defer.resolve('ok');
+            });
+            oResumable.upload();
+            return defer.promise;
+        };
+
         function doSave() {
             //oRecord 原始数据
             //updated 上传数据包
@@ -70,7 +108,7 @@ define(['frame'], function(ngApp) {
             /*多项填空题，如果值为空则删掉*/
             for (var k in oRecord.data) {
                 if (k !== 'member' && _oApp._schemasById[k] && _oApp._schemasById[k].type == 'multitext') {
-                    angular.forEach(oRecord.data[k], function(data, index) {
+                    angular.forEach(oRecord.data[k], function (data, index) {
                         if (data.value == '') {
                             oRecord.data[k].splice(index, 1);
                         }
@@ -98,7 +136,7 @@ define(['frame'], function(ngApp) {
                 if (!angular.equals(oQuizScore, oBeforeQuizScore)) {
                     oUpdated.quizScore = oQuizScore;
                 }
-                srvEnlRec.update(oRecord, oUpdated).then(function(newRecord) {
+                srvEnlRec.update(oRecord, oUpdated).then(function (newRecord) {
                     if (_oApp.scenario === 'quiz') {
                         _quizScore(newRecord);
                     }
@@ -108,10 +146,14 @@ define(['frame'], function(ngApp) {
                 oUpdated.data = oRecord.data;
                 oUpdated.supplement = oRecord.supplement;
                 oUpdated.quizScore = oQuizScore;
-                srvEnlRec.add(oUpdated).then(function(newRecord) {
+                srvEnlRec.add(oUpdated).then(function (newRecord) {
                     oRecord.enroll_key = newRecord.enroll_key;
                     oRecord.enroll_at = newRecord.enroll_at;
-                    $location.search({ site: _oApp.siteid, id: _oApp.id, ek: newRecord.enroll_key });
+                    $location.search({
+                        site: _oApp.siteid,
+                        id: _oApp.id,
+                        ek: newRecord.enroll_key
+                    });
                     if (_oApp.scenario === 'quiz') {
                         _quizScore(newRecord);
                     }
@@ -122,11 +164,18 @@ define(['frame'], function(ngApp) {
         };
 
         var oRecord, oBeforeRecord, oQuizScore, oBeforeQuizScore, _oApp;
+        var oResumable;
 
-        $scope.save = function() {
-            doSave();
-        }
-        $scope.scoreRangeArray = function(schema) {
+        $scope.save = function () {
+            if (oResumable.files.length) {
+                onSubmit().then(function () {
+                    doSave();
+                });
+            } else {
+                doSave();
+            }
+        };
+        $scope.scoreRangeArray = function (schema) {
             var arr = [];
             if (schema.range && schema.range.length === 2) {
                 for (var i = schema.range[0]; i <= schema.range[1]; i++) {
@@ -135,65 +184,27 @@ define(['frame'], function(ngApp) {
             }
             return arr;
         };
-        $scope.chooseImage = function(fieldName) {
+        $scope.chooseImage = function (fieldName) {
             var data = oRecord.data;
-            srvEnlRec.chooseImage(fieldName).then(function(img) {
+            srvEnlRec.chooseImage(fieldName).then(function (img) {
                 !data[fieldName] && (data[fieldName] = []);
                 data[fieldName].push(img);
             });
         };
-        $scope.removeImage = function(field, index) {
+        $scope.removeImage = function (field, index) {
             field.splice(index, 1);
         };
-        $scope.chooseFile = function(fileFieldName) {
-            var oResumable, onSubmit;
-            oResumable = new Resumable({
-                target: '/rest/site/fe/matter/enroll/record/uploadFile?site=' + site + '&app=' + id,
-                testChunks: false,
-                chunkSize: 512 * 1024
-            });
-            onSubmit = function($scope) {
-                var defer;
-                defer = $q.defer();
-                if (!oResumable.files || oResumable.files.length === 0)
-                    defer.resolve('empty');
-                oResumable.on('progress', function() {
-                    var phase, p;
-                    p = oResumable.progress();
-                    var phase = $scope.$root.$$phase;
-                    if (phase === '$digest' || phase === '$apply') {
-                        noticebox.progress('上传文件：' + Math.ceil(p * 100));
-                    } else {
-                        $scope.$apply(function() {
-                            noticebox.progress('上传文件：' + Math.ceil(p * 100));
-                        });
-                    }
-                });
-                oResumable.on('complete', function() {
-                    var phase = $scope.$root.$$phase;
-                    if (phase === '$digest' || phase === '$apply') {
-                        noticebox.close();
-                    } else {
-                        $scope.$apply(function() {
-                            noticebox.close();
-                        });
-                    }
-                    oResumable.cancel();
-                    defer.resolve('ok');
-                });
-                oResumable.upload();
-                return defer.promise;
-            };
+        $scope.chooseFile = function (fileFieldName) {
             var data = oRecord.data;
             var ele = document.createElement('input');
             ele.setAttribute('type', 'file');
-            ele.addEventListener('change', function(evt) {
+            ele.addEventListener('change', function (evt) {
                 var i, cnt, f;
                 cnt = evt.target.files.length;
                 for (i = 0; i < cnt; i++) {
                     f = evt.target.files[i];
                     oResumable.addFile(f);
-                    $scope.$apply(function() {
+                    $scope.$apply(function () {
                         data[fileFieldName] === undefined && (data[fileFieldName] = []);
                         data[fileFieldName].push({
                             uniqueIdentifier: oResumable.files[oResumable.files.length - 1].uniqueIdentifier,
@@ -208,10 +219,10 @@ define(['frame'], function(ngApp) {
             }, true);
             ele.click();
         };
-        $scope.removeFile = function(field, index) {
+        $scope.removeFile = function (field, index) {
             field.splice(index, 1);
         };
-        $scope.$on('tag.xxt.combox.done', function(event, aSelected) {
+        $scope.$on('tag.xxt.combox.done', function (event, aSelected) {
             var aNewTags = [];
             for (var i in aSelected) {
                 var existing = false;
@@ -224,7 +235,7 @@ define(['frame'], function(ngApp) {
             }
             oRecord.aTags = oRecord.aTags.concat(aNewTags);
         });
-        $scope.$on('tag.xxt.combox.add', function(event, newTag) {
+        $scope.$on('tag.xxt.combox.add', function (event, newTag) {
             if (-1 === oRecord.aTags.indexOf(newTag)) {
                 oRecord.aTags.push(newTag);
                 if (-1 === $scope.aTags.indexOf(newTag)) {
@@ -232,26 +243,26 @@ define(['frame'], function(ngApp) {
                 }
             }
         });
-        $scope.$on('tag.xxt.combox.del', function(event, removed) {
+        $scope.$on('tag.xxt.combox.del', function (event, removed) {
             oRecord.aTags.splice(oRecord.aTags.indexOf(removed), 1);
         });
-        $scope.syncByEnroll = function() {
+        $scope.syncByEnroll = function () {
             srvEnlRec.syncByEnroll(oRecord);
         };
-        $scope.syncByGroup = function() {
+        $scope.syncByGroup = function () {
             srvEnlRec.syncByGroup(oRecord);
         };
-        $scope.doSearchRound = function() {
-            srvEnlRnd.list().then(function(result) {
+        $scope.doSearchRound = function () {
+            srvEnlRnd.list().then(function (result) {
                 $scope.activeRound = result.active;
                 $scope.rounds = result.rounds;
                 $scope.pageOfRound = result.page;
             });
         };
-        $scope.agree = function(oRecord, oSchema, oAgreed, oItemId) {
-            srvEnlRec.agree(oRecord.enroll_key, oSchema.id, oAgreed, oItemId).then(function() {});
+        $scope.agree = function (oRecord, oSchema, oAgreed, oItemId) {
+            srvEnlRec.agree(oRecord.enroll_key, oSchema.id, oAgreed, oItemId).then(function () {});
         };
-        $scope.removeItem = function(items, index) {
+        $scope.removeItem = function (items, index) {
             items.splice(index, 1);
         };
         var ek = $location.search().ek,
@@ -259,11 +270,11 @@ define(['frame'], function(ngApp) {
             id = $location.search().id;
 
         if (ek) {
-            srvEnlRec.get(ek).then(function(record) {
+            srvEnlRec.get(ek).then(function (record) {
                 $scope.record = oRecord = record;
                 oRecord.aTags = (!oRecord.tags || oRecord.tags.length === 0) ? [] : oRecord.tags.split(',');
                 $scope.doSearchRound();
-                srvEnlApp.get().then(function(oApp) {
+                srvEnlApp.get().then(function (oApp) {
                     _afterGetApp(oApp);
                 });
             });
@@ -271,7 +282,7 @@ define(['frame'], function(ngApp) {
             $scope.record = oRecord = {};
             oRecord.aTags = [];
             $scope.doSearchRound();
-            srvEnlApp.get().then(function(oApp) {
+            srvEnlApp.get().then(function (oApp) {
                 _afterGetApp(oApp);
             });
         }

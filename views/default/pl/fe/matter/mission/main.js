@@ -20,7 +20,7 @@ define(['frame'], function(ngApp) {
                     $scope.update('pic');
                 }
             };
-            mediagallery.open($scope.siteId, options);
+            mediagallery.open($scope.mission.siteid, options);
         };
         $scope.removePic = function() {
             $scope.mission.pic = '';

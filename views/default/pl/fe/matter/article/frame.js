@@ -7,10 +7,6 @@ define(['require'], function () {
             title: '单图文',
             url: '/rest/pl/fe/matter'
         }, {
-            value: 'news',
-            title: '多图文',
-            url: '/rest/pl/fe/matter'
-        }, {
             value: 'channel',
             title: '频道',
             url: '/rest/pl/fe/matter'

@@ -265,7 +265,7 @@ class remind_model extends \TMS_MODEL {
             break;
         }
 
-        if (count($receivers) === 0) {
+        if (empty($receivers) === 0) {
             return [false, '指定活动中没有接收人'];
         }
 

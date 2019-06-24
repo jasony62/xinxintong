@@ -1,4 +1,4 @@
-requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
+requirejs(['/static/js/tms.bootstrap.js'], function (tms) {
     define("frame/const", {
         notifyMatter: [{
             value: 'tmplmsg',
@@ -7,10 +7,6 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
         }, {
             value: 'article',
             title: '单图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'news',
-            title: '多图文',
             url: '/rest/pl/fe/matter'
         }, {
             value: 'channel',
@@ -26,10 +22,6 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
             title: '单图文',
             url: '/rest/pl/fe/matter'
         }, {
-            value: 'news',
-            title: '多图文',
-            url: '/rest/pl/fe/matter'
-        }, {
             value: 'channel',
             title: '频道',
             url: '/rest/pl/fe/matter'
@@ -37,10 +29,18 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
         alertMsg: {
             'schema.duplicated': '不允许重复添加登记项'
         },
-        importSource: [
-            { v: 'mschema', l: '通讯录联系人' },
-            { v: 'registration', l: '报名' },
-            { v: 'signin', l: '签到' }
+        importSource: [{
+                v: 'mschema',
+                l: '通讯录联系人'
+            },
+            {
+                v: 'registration',
+                l: '报名'
+            },
+            {
+                v: 'signin',
+                l: '签到'
+            }
         ],
         naming: {}
     });

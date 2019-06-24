@@ -1,4 +1,4 @@
-requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
+requirejs(['/static/js/tms.bootstrap.js'], function (tms) {
     define("frame/const", {
         notifyMatter: [{
             value: 'tmplmsg',
@@ -7,10 +7,6 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
         }, {
             value: 'article',
             title: '单图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'news',
-            title: '多图文',
             url: '/rest/pl/fe/matter'
         }, {
             value: 'channel',
@@ -24,10 +20,6 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
         innerlink: [{
             value: 'article',
             title: '单图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'news',
-            title: '多图文',
             url: '/rest/pl/fe/matter'
         }, {
             value: 'channel',

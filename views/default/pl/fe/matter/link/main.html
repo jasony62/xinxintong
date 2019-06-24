@@ -46,7 +46,7 @@
                     <span class="input-group-btn">
                         <button class="btn btn-default" type="button" ng-click="quitMission()">
                             <span class='glyphicon glyphicon-remove'></span>
-                    </button>
+                        </button>
                     </span>
                 </div>
             </div>
@@ -82,7 +82,6 @@
                 <select class='form-control' ng-model='editing.urlsrc' ng-options='k as v for (k,v) in urlsrcs' ng-change="update('urlsrc')"></select>
                 <div ng-switch='editing.urlsrc'>
                     <textarea class='form-control' ng-model='editing.url' tms-auto-update tms-wait=1000 tms-update="update('url')" ng-switch-when="0"></textarea>
-                    <select class='form-control' ng-model='editing.url' ng-options='n.id as n.title for n in news' ng-change="update('url')" ng-switch-when="1"></select>
                     <select class='form-control' ng-model='editing.url' ng-options='c.id as c.title for c in channels' ng-change="update('url')" ng-switch-when="2"></select>
                     <select class='form-control' ng-model='editing.url' ng-options='i.id as i.title for i in inners' ng-change="update('url')" ng-switch-when="3"></select>
                 </div>
@@ -109,7 +108,7 @@
                                         <span class='input-group-btn'>
                                             <button class='btn btn-default' ng-click='removeParam(p)'>
                                                 <span class='glyphicon glyphicon-remove'></span>
-                                        </button>
+                                            </button>
                                         </span>
                                     </div>
                                 </div>
@@ -137,7 +136,7 @@
                                 <span class='input-group-btn'>
                                     <button class='btn btn-default' ng-click='removeParam(p)'>
                                         <span class='glyphicon glyphicon-remove'></span>
-                                </button>
+                                    </button>
                                 </span>
                             </div>
                             <select class='form-control' ng-model='p.pvalue' ng-options="c.id as c.title for c in channels" ng-change='updateParam(p)'></select>

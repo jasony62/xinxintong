@@ -1199,7 +1199,7 @@ class data_model extends entity_model {
                             $whereByData .= ')';
                         }
                     } else {
-                        $whereByData .= 'r.data like \'%"' . $k . '":"' . $v . '"%\'';
+                        $whereByData .= 'r.data like \'%"' . $k . '":"%' . $v . '%\'';
                     }
                     $whereByData .= ')';
                 }

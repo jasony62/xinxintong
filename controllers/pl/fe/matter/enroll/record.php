@@ -65,8 +65,165 @@ class record extends main_base {
         // 查询结果
         $modelRec = $this->model('matter\enroll\record');
         $oResult = $modelRec->byApp($oEnrollApp, $aOptions, $oCriteria);
+        if (!empty($oResult->records)) {
+            // 处理数据
+            $this->_processDatas($oEnrollApp, $oResult->records);
+        }
+        return new \ResponseData($oResult);
+    }
+    /**
+     * 活动的记录 答案视图
+     */
+    public function listByCowork_action($app, $page = 1, $size = 30) {
+        if (false === $this->accountUser()) {
+            return new \ResponseTimeout();
+        }
+        // 记录活动
+        $modelApp = $this->model('matter\enroll');
+        $oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+        if (false === $oApp || $oApp->state !== '1') {
+            return new \ObjectNotFoundError();
+        }
+
+        $coworkSchemaIds = [];
+        foreach ($oApp->dynaDataSchemas as $oSchema) {
+            if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
+                $coworkSchemaIds[] = $oSchema->id;
+            }
+        }
+        if (empty($coworkSchemaIds)) {
+            return new \ObjectNotFoundError('活动中没有协作题');
+        }
+
+        // 填写记录过滤条件
+        $oOptions = new \stdClass;
+        $oOptions->page = $page;
+        $oOptions->size = $size;
+
+        $oPosted = $this->getPostJson();
+
+        // 查询结果
+        $modelRecDat = $this->model('matter\enroll\data');
+        $oCriteria = new \stdClass;
+        !empty($oPosted->keyword) && $oCriteria->keyword = $oPosted->keyword;
+
+        $oCriteria->recordData = new \stdClass;
+        $oCriteria->recordData->rid = !empty($oPosted->record->rid) ? $oPosted->record->rid : '';
+
+        /* 指定了分组过滤条件 */
+        if (!empty($oPosted->record->group_id)) {
+            $oCriteria->recordData->group_id = $oPosted->record->group_id;
+        }
+        // 指定题目填写数据筛选
+        if (!empty($oPosted->data)) {
+            $oCriteria->data = $oPosted->data;
+        }
+
+        $oResult = $modelRecDat->coworkDataByApp($oApp, $oOptions, $oCriteria);
+        if (!empty($oResult->recordDatas)) {
+            // 处理数据
+            $this->_processDatas($oApp, $oResult->recordDatas, 'coworkDataList');
+        }
 
         return new \ResponseData($oResult);
+    }
+    /**
+     * 处理数据
+     */
+    private function _processDatas($oApp, &$rawDatas, $processType = 'recordList') {
+        foreach ($rawDatas as &$rawData) {
+            $aCoworkState = [];
+            $recordDirs = [];
+            if (isset($rawData->data)) {
+                $processedData = new \stdClass;
+                foreach ($oApp->dynaDataSchemas as $oSchema) {
+                    $schemaId = $oSchema->id;
+                    // 分类目录
+                    if ($this->getDeepValue($oSchema, 'asdir') === 'Y' && !empty($oSchema->ops) && !empty($rawData->data->{$schemaId})) {
+                        foreach ($oSchema->ops as $op) {
+                            if ($op->v === $rawData->data->{$schemaId}) {
+                                $recordDirs[] = $op->l;
+                            }
+                        }
+                    }
+                    // 过滤空数据
+                    $rawDataVal = $this->getDeepValue($rawData->data, $schemaId, null);
+                    if (null === $rawDataVal) {
+                        continue;
+                    }
+
+                    /* 协作填写题 */
+                    if ($this->getDeepValue($oSchema, 'cowork') === 'Y') {
+                        if ($processType === 'coworkDataList') {
+                            $item = new \stdClass;
+                            $item->id = $rawData->data_id;
+                            $item->value = $this->replaceHTMLTags($rawData->value);
+                            $this->setDeepValue($processedData, $schemaId, [$item]);
+                            unset($rawData->value);
+                        } else {
+                            $newData = [];
+                            foreach ($rawDataVal as &$val) {
+                                $val2 = new \stdClass;
+                                $val2->id = $val->id;
+                                $val2->value = $this->replaceHTMLTags($val->value);
+                                $newData[] = $val2;
+                            }
+                            $this->setDeepValue($processedData, $schemaId, $newData);
+                        }
+                    } else if ($this->getDeepValue($oSchema, 'type') === 'multitext') {
+                        $newData = [];
+                        foreach ($rawDataVal as &$val) {
+                            $val2 = new \stdClass;
+                            $val2->id = $val->id;
+                            $val2->value = $this->replaceHTMLTags($val->value);
+                            $newData[] = $val2;
+                        }
+                        $this->setDeepValue($processedData, $schemaId, $newData);
+                    } else if ($this->getDeepValue($oSchema, 'type') === 'single') {
+                        foreach ($oSchema->ops as $val) {
+                            if ($val->v === $rawDataVal) {
+                                $this->setDeepValue($processedData, $schemaId, $val->l);
+                            }
+                        }
+                    } else if ($this->getDeepValue($oSchema, 'type') === 'score') {
+                        $ops = new \stdClass;
+                        foreach ($oSchema->ops as $val) {
+                            $ops->{$val->v} = $val->l;
+                        }
+                        $newData = [];
+                        foreach ($rawDataVal as $key => $val) {
+                            $data2 = new \stdClass;
+                            $data2->title = $ops->{$key};
+                            $data2->score = $val;
+                            $newData[] = $data2;
+                        }
+                        $this->setDeepValue($processedData, $schemaId, $newData);
+                    } else if ($this->getDeepValue($oSchema, 'type') === 'multiple') {
+                        $rawDataVal2 = explode(',', $rawDataVal);
+                        $ops = new \stdClass;
+                        foreach ($oSchema->ops as $val) {
+                            $ops->{$val->v} = $val->l;
+                        }
+                        $newData = [];
+                        foreach ($rawDataVal2 as $val) {
+                            $newData[] = $ops->{$val};
+                        }
+                        $this->setDeepValue($processedData, $schemaId, $newData);
+                    } else {
+                        $this->setDeepValue($processedData, $schemaId,  $rawDataVal);
+                    }
+                }
+                $rawData->data = $processedData;
+                if (!empty($recordDirs)) {
+                    $rawData->recordDir = $recordDirs;
+                }
+            }
+            /* 清除不必要的内容 */
+            unset($rawData->comment);
+            unset($rawData->verified);
+        }
+
+        return $rawDatas;
     }
     /**
      * 指定活动轮次的记录的数量

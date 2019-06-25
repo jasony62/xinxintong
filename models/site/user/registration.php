@@ -70,8 +70,8 @@ class registration_model extends \TMS_MODEL {
 		$registration->from_siteid = $siteId;
 		$registration->authed_from = empty($aOptions['authed_from']) ? 'xxt_site' : $aOptions['authed_from'];
 		$registration->authed_id = empty($aOptions['authed_id']) ? $uname : $aOptions['authed_id'];
-		$registration->email = $this->escape($uname);
-		$registration->nickname = $this->escape($nickname);
+		$registration->email = $uname;
+		$registration->nickname = $nickname;
 		$registration->password = $pw_hash;
 		$registration->salt = $pw_salt;
 		$registration->reg_time = $current;

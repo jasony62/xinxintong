@@ -317,13 +317,13 @@ class login extends \site\fe\base {
 				$password = tms_pwd_create_random();
 
 				$aOptions = [];
-				$aOptions['authed_from'] = $modelAcc->escape($thirdApp->app_short_name);
-				$aOptions['authed_id'] = $modelAcc->escape($oThirdAppUser->openid);
+				$aOptions['authed_from'] = $thirdApp->app_short_name;
+				$aOptions['authed_id'] = $oThirdAppUser->openid;
 				/* nickname */
 				if (!empty($oThirdAppUser->nickname)) {
-					$aOptions['nickname'] = $oThirdAppUser->nickname;
+					$aOptions['nickname'] = $modelAcc->escape($oThirdAppUser->nickname);
 				} else if (isset($user->nickname)) {
-					$aOptions['nickname'] = $user->nickname;
+					$aOptions['nickname'] = $modelAcc->escape($user->nickname);
 				}
 				/* other options */
 				$aOptions['from_ip'] = $this->client_ip();

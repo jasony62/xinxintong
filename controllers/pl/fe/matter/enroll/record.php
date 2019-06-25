@@ -85,16 +85,6 @@ class record extends main_base {
             return new \ObjectNotFoundError();
         }
 
-        $coworkSchemaIds = [];
-        foreach ($oApp->dynaDataSchemas as $oSchema) {
-            if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
-                $coworkSchemaIds[] = $oSchema->id;
-            }
-        }
-        if (empty($coworkSchemaIds)) {
-            return new \ObjectNotFoundError('活动中没有协作题');
-        }
-
         // 填写记录过滤条件
         $oOptions = new \stdClass;
         $oOptions->page = $page;
@@ -118,8 +108,13 @@ class record extends main_base {
         if (!empty($oPosted->data)) {
             $oCriteria->data = $oPosted->data;
         }
+        // 指定了答案题
+        $coworkSchemaIds = [];
+        if (!empty($oPosted->coworkSchemaIds) && is_array($oPosted->coworkSchemaIds)) {
+            $coworkSchemaIds = $oPosted->coworkSchemaIds;
+        }
 
-        $oResult = $modelRecDat->coworkDataByApp($oApp, $oOptions, $oCriteria);
+        $oResult = $modelRecDat->coworkDataByApp($oApp, $oOptions, $oCriteria, null, $coworkSchemaIds);
         if (!empty($oResult->recordDatas)) {
             // 处理数据
             $this->_processDatas($oApp, $oResult->recordDatas, 'coworkDataList');

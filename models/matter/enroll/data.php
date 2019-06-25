@@ -1050,11 +1050,11 @@ class data_model extends entity_model {
     /**
      * 答案清单
      */
-    public function coworkDataByApp($oApp, $oOptions = null, $oCriteria = null, $oUser = null) {
+    public function coworkDataByApp($oApp, $oOptions = null, $oCriteria = null, $oUser = null, $coworkSchemaIds = []) {
         if (is_string($oApp)) {
             $oApp = $this->model('matter\enroll')->byId($oApp, ['cascaded' => 'N']);
         }
-        if (false === $oApp && empty($oApp->dynaDataSchemas)) {
+        if (false === $oApp || $oApp->state != '1') {
             return false;
         }
         if ($oOptions && is_array($oOptions)) {
@@ -1062,18 +1062,21 @@ class data_model extends entity_model {
         }
         // 活动中是否存在协作填写题
         $oSchemasById = new \stdClass; // 方便查找题目
-        $coworkSchemaIds = [];
+        $oCoworkSchemaIds = [];
         foreach ($oApp->dynaDataSchemas as $oSchema) {
             $oSchemasById->{$oSchema->id} = $oSchema;
             if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
-                $coworkSchemaIds[] = $oSchema->id;
+                $oCoworkSchemaIds[] = $oSchema->id;
             }
         }
         if (empty($coworkSchemaIds)) {
-            return false;
+            if (empty($oCoworkSchemaIds)) {
+                return false;
+            }
+            $coworkSchemaIds = $oCoworkSchemaIds;
         }
 
-        // 指定记录活动下的记录记录
+        // 指定记录活动下的记录
         $w = "rd.state=1 and rd.aid='{$oApp->id}' and rd.multitext_seq > 0 and rd.value<>''";
         $coworkSchemaId = implode("','", $coworkSchemaIds);
         $w .= " and rd.schema_id in ('" . $coworkSchemaId . "')";

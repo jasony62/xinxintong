@@ -126,7 +126,17 @@ class record extends main_base {
      * 处理数据
      */
     private function _processDatas($oApp, &$rawDatas, $processType = 'recordList') {
+        $modelData = $this->model('matter\enroll\data');
+        if (!empty($oApp->voteConfig)) {
+            $modelTask = $this->model('matter\enroll\task', $oApp);
+        }
         foreach ($rawDatas as &$rawData) {
+            /* 获取记录的投票信息 */
+            if (!empty($oApp->voteConfig)) {
+                if (empty($voteRules)) {
+                    $aVoteRules = $modelTask->getVoteRule(null, $rawData->round);
+                }
+            }
             $aCoworkState = [];
             $recordDirs = [];
             if (isset($rawData->data)) {
@@ -211,6 +221,21 @@ class record extends main_base {
                 $rawData->data = $processedData;
                 if (!empty($recordDirs)) {
                     $rawData->recordDir = $recordDirs;
+                }
+                /* 获取记录的投票信息 */
+                if (!empty($aVoteRules)) {
+                    $oVoteResult = new \stdClass;
+                    foreach ($aVoteRules as $schemaId2 => $oVoteRule) {
+                        if ($processType === 'recordList') {
+                            $oVoteResult = new \stdClass;
+                            if ($this->getDeepValue($oVoteRule->schema, 'cowork') === 'Y') {continue;}
+                            $oRecData = $modelData->byRecord($rawData->enroll_key, ['schema' => $schemaId2, 'fields' => 'id,vote_num']);
+                            if ($oRecData) {
+                                $oVoteResult->{$schemaId2} = $oRecData;
+                            }
+                        }
+                    }
+                    $rawData->voteResult = $oVoteResult;
                 }
             }
             /* 清除不必要的内容 */

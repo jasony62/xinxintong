@@ -359,7 +359,7 @@ class login extends \site\fe\base {
 				$modelReg->update("account_third_user", $updata, ["id" => $thirdUser->id]);
 			} else {
 				$updata["third_id"] = $thirdApp->id;
-				$updata["openid"] = $modelAcc->escape($oThirdAppUser->openid);
+				$updata["openid"] = $oThirdAppUser->openid;
 				$modelReg->insert('account_third_user', $updata, false);
 			}
 

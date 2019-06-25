@@ -400,11 +400,15 @@ define(['frame'], function(ngApp) {
                 var recordSchemas = [],
                     recordSchemasExt = [],
                     enrollDataSchemas = [],
+                    coworkSchemas = [],
                     bRequireSum = false,
                     bRequireScore = false,
                     groupDataSchemas = [];
 
                 rsp.data.forEach(function(oSchema) {
+                    if (oSchema.type === 'multitext' && oSchema.cowork === 'Y') {
+                        coworkSchemas.push(oSchema);
+                    }
                     if (oSchema.type !== 'html') {
                         recordSchemas.push(oSchema);
                         recordSchemasExt.push(oSchema);

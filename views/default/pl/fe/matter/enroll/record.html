@@ -39,6 +39,9 @@
                     <li ng-if="app.entryRule.member"><a href ng-click="syncWithMschema()">补填全部记录的通信录数据</a></li>
                 </ul>
             </div>
+            <div class='form-group'>
+                <select class='form-control' ng-options="coworkSchema in coworkSchemas" ng-model="criteria.selectedSite"></select>
+            </div>
             <div class='form-group pull-right'>
                 <div class='input-group'>
                     <span class="input-group-addon">每页条数</span>

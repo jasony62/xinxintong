@@ -1211,7 +1211,11 @@ class data_model extends entity_model {
         }
 
         // 查询参数
-        $fields = 'r.id record_id,rd.id data_id,rd.enroll_key,rd.rid,rd.purpose,rd.submit_at enroll_at,rd.userid,rd.group_id,rd.nickname,rd.schema_id,rd.value,rd.score,rd.agreed,rd.like_num,rd.like_log,rd.remark_num,rd.dislike_num,rd.dislike_log,r.data';
+        if (!empty($oOptions->fields)) {
+			$fields = $oOptions->fields;
+		} else {
+			$fields = 'r.id record_id,rd.id data_id,rd.enroll_key,rd.rid,rd.purpose,rd.submit_at enroll_at,rd.userid,rd.group_id,rd.nickname,rd.schema_id,rd.value,rd.score,rd.agreed,rd.like_num,rd.like_log,rd.remark_num,rd.dislike_num,rd.dislike_log,r.data';
+		}
         $table = "xxt_enroll_record_data rd,xxt_enroll_record r";
         $w .= " and rd.enroll_key = r.enroll_key and r.state = 1";
 

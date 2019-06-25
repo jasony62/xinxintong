@@ -56,6 +56,7 @@ class record extends main_base {
         $aOptions = [
             'page' => $page,
             'size' => $size,
+            'fields' => 'id,state,enroll_key,rid,purpose,enroll_at,userid,group_id,nickname,verified,comment,data,score,supplement,agreed,like_num,remark_num,favor_num,dislike_num,vote_schema_num'
         ];
         if (!empty($oCriteria->keyword)) {
             $aOptions->keyword = $oCriteria->keyword;
@@ -89,6 +90,7 @@ class record extends main_base {
         $oOptions = new \stdClass;
         $oOptions->page = $page;
         $oOptions->size = $size;
+        $oOptions->fields = 'r.id record_id,rd.id data_id,rd.enroll_key,rd.rid,rd.purpose,rd.submit_at enroll_at,rd.userid,rd.group_id,rd.nickname,rd.schema_id,rd.value,rd.score,rd.agreed,rd.like_num,rd.remark_num,rd.dislike_num,r.data,rd.vote_num';
 
         $oPosted = $this->getPostJson();
 

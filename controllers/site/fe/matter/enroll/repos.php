@@ -591,7 +591,7 @@ class repos extends base {
             $oCriteria->recordData->agreed = $oPosted->agreed;
         }
 
-        $oResult = $modelRecDat->coworkDataByApp($oApp, $oOptions, $oCriteria, $oUser, 'cowork');
+        $oResult = $modelRecDat->coworkDataByApp($oApp, $oOptions, $oCriteria, $oUser);
         if (!empty($oResult->recordDatas)) {
             // 处理数据
             $this->_processDatas($oApp, $oUser, $oResult->recordDatas, 'coworkDataList');

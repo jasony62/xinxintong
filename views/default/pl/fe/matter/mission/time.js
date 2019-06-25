@@ -4,8 +4,7 @@ define(['frame'], function (ngApp) {
         var rounds, page;
         $scope.pageOfRound = page = {};
         $scope.rounds = rounds = [];
-        srvMisRnd.init(rounds, page)
-        $scope.roundState = srvMisRnd.RoundState;
+        srvMisRnd.init(rounds, page);
         $scope.updateCron = function () {
             var oDefaultRound;
             /* 是否要替换默认的填写时段 */

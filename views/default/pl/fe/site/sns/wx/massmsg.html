@@ -1,9 +1,32 @@
 <style>
-    .mp{position:relative;padding-left:50px}
-    .status{position:absolute;display:block;width:20px;height:20px;border-radius:10px;left:15px;top:10px;background:#eee}
-    .status.success{background:green}
-    .status.failed{background:red}
-    .mp .help-block{margin-bottom:0;font-size:0.8em}
+    .mp {
+        position: relative;
+        padding-left: 50px
+    }
+
+    .status {
+        position: absolute;
+        display: block;
+        width: 20px;
+        height: 20px;
+        border-radius: 10px;
+        left: 15px;
+        top: 10px;
+        background: #eee
+    }
+
+    .status.success {
+        background: green
+    }
+
+    .status.failed {
+        background: red
+    }
+
+    .mp .help-block {
+        margin-bottom: 0;
+        font-size: 0.8em
+    }
 </style>
 <div>
     <div class='col-md-6'>
@@ -23,7 +46,6 @@
                 <select class='form-control' ng-model='matterType' ng-change='fetchMatter()'>
                     <option value='text'>文本</option>
                     <option value='article'>单图文</option>
-                    <option value='news'>多图文</option>
                     <option value='channel'>频道</option>
                 </select>
             </div>

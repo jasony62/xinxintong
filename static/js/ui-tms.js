@@ -844,6 +844,64 @@ controller('ComboxController', ['$scope', function ($scope) {
         }
     };
     return oFacFilter;
+}]).factory('facListSearch', ['$timeout', function ($timeout) {
+    var oFacFilter;
+    oFacFilter = {
+        keyword: '',
+        target: null,
+        init: function (fnCallbck, oOutside) {
+            this.fnCallbck = fnCallbck;
+            this.oOutside = oOutside || {};
+            return this;
+        },
+        show: function (event) {
+            var eleKw;
+            this.target = event.target;
+            while (this.target.tagName !== 'TH') {
+                this.target = this.target.parentNode;
+            }
+            if (!this.target.dataset.filterBy) {
+                alert('没有指定过滤字段【data-filter-by】');
+                return;
+            }
+            this.keyword = this.oOutside.keyword || '';
+            $(this.target).trigger('show');
+            $timeout(function () {
+                var el = document.querySelector('input[ng-model="filter3.keyword"]');
+                if (el && el.hasAttribute('autofocus')) {
+                    el.focus();
+                }
+            }, 200);
+        },
+        close: function () {
+            if (this.keyword) {
+                this.target.classList.add('active');
+            } else {
+                this.target.classList.remove('active');
+            }
+            $(this.target).trigger('hide');
+        },
+        cancel: function () {
+            var by;
+            by = this.oOutside.by;
+            this.oOutside.keyword = this.keyword = '';
+            this.oOutside.by = '';
+            this.close();
+            this.fnCallbck && this.fnCallbck(this.oOutside, by);
+        },
+        exec: function () {
+            this.oOutside.keyword = this.keyword;
+            this.oOutside.by = this.keyword ? this.target.dataset.filterBy : '';
+            this.fnCallbck && this.fnCallbck(this.oOutside, this.target.dataset.filterBy, this.oOutside.keyword);
+            this.close();
+        },
+        keyUp: function (event) {
+            if (event.keyCode == 13) {
+                this.exec();
+            }
+        }
+    };
+    return oFacFilter;
 }]).
 /* 记录列表的选择结果 */
 factory('tmsRowPicker', function () {

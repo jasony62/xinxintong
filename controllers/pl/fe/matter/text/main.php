@@ -37,6 +37,9 @@ class main extends \pl\fe\matter\base {
 		if (!empty($oPosted->byTitle)) {
 			$q[2] .= " and title like '%" . $oPosted->byTitle . "%'";
 		}
+		if (!empty($oPosted->byCreator)) {
+			$q[2] .= " and creater_name like '%" . $oPosted->byCreator . "%'";
+		}
 		if (!empty($oPosted->byTags)) {
 			foreach ($oPosted->byTags as $tag) {
 				$q[2] .= " and matter_mg_tag like '%" . $tag->id . "%'";

@@ -891,37 +891,6 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                 fnToggleAssocOptions(dataSchemas, oRecordData);
             }
         }, true);
-        /*设置页面导航*/
-        $scope.setPopNav(['votes', 'repos', 'rank', 'kanban', 'event'], 'input');
-        /*设置页面操作*/
-        var appActs = [];
-        // 如果页面上有保存按钮，隐藏内置的保存按钮
-        if (!oRecord || !oRecord.state || oRecord.state !== '1') {
-            if (oPage.act_schemas) {
-                var bHasSaveButton = false,
-                    actSchemas = JSON.parse(oPage.act_schemas);
-                for (var i = actSchemas.length - 1; i >= 0; i--) {
-                    if (actSchemas[i].name === 'save') {
-                        bHasSaveButton = true;
-                        break;
-                    }
-                }
-            }
-            if (!bHasSaveButton) {
-                appActs.push('save');
-            }
-        }
-        if (oApp.count_limit == 0 || oApp.count_limit > 1) {
-            appActs.push('newRecord');
-        }
-        if (appActs.length) {
-            $scope.setPopAct(appActs, 'input', {
-                func: {
-                    newRecord: $scope.newRecord,
-                    save: $scope.save
-                }
-            });
-        }
     }
 
     window.onbeforeunload = function (e) {
@@ -951,9 +920,6 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
     };
     $scope.gotoHome = function () {
         location.href = "/rest/site/fe/matter/enroll?site=" + _oApp.siteid + "&app=" + _oApp.id + "&page=repos";
-    };
-    $scope.save = function (event) {
-        $scope.submit(event, '', 'save');
     };
     $scope.removeItem = function (items, index) {
         noticebox.confirm('删除此项，确定？').then(function () {
@@ -1205,6 +1171,9 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                 break;
             case 'gotoPage':
                 $scope.gotoPage(event, oAction.next);
+                break;
+            case 'save':
+                $scope.submit(event, oAction.next, 'save');
                 break;
             case 'closeWindow':
                 $scope.closeWindow();

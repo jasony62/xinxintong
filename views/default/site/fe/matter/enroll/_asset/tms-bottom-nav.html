@@ -1,23 +1,25 @@
 <nav class="navbar site-navbar-light navbar-fixed-bottom">
     <div class="container">
-        <ul class='nav site-nav'>
-            <li ng-repeat="nav in navs" ng-class="{'active': activeNav.type===nav.type}" ng-switch on="nav.type" ng-click="switchNav($event, nav)">
-                <a href ng-switch-when="mission">
+        <ul class="tab-views">
+            <li class="tab-view" ng-repeat="nav in navs" ng-class="{'active': activeNav.type===nav.type}" ng-switch on="nav.type"
+                ng-click="switchNav($event, nav)">
+                <a href class="tab-view-link text-center" ng-switch-when="mission">
                     <i class="glyphicon glyphicon-th-list"></i><span ng-bind="nav.title"></span>
                 </a>
-                <a href ng-switch-when="repos">
+                <a href class="tab-view-link text-center" ng-switch-when="repos">
                     <i class="glyphicon glyphicon-home"></i><span ng-bind="nav.title"></span>
                 </a>
-                <a href ng-switch-when="activities">
+                <a href class="tab-view-link text-center" ng-switch-when="activities">
                     <i class="glyphicon glyphicon-tasks"></i><span ng-bind="nav.title"></span>
                 </a>
-                <a href ng-switch-when="summary">
+                <a href class="tab-view-link text-center" ng-switch-when="summary">
                     <i class="glyphicon glyphicon-stats"></i><span ng-bind="nav.title"></span>
                 </a>
-                <a href ng-switch-when="people">
+                <a href class="tab-view-link text-center" ng-switch-when="people">
                     <i class="glyphicon glyphicon-user"></i><span ng-bind="nav.title"></span>
                 </a>
             </li>
         </ul>
     </div>
+    
 </nav>

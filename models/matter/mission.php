@@ -135,12 +135,15 @@ class mission_model extends app_base {
 			if ($bySite === '_coworker') {
 				$q[2] .= " and exists(select 1 from xxt_mission_acl a where a.mission_id=m.id and a.coworker='{$oUser->id}' and a.state=1 and coworker_role='C' and a.last_invite='Y')";
 			} else {
-				$q[2] .= " and m.siteid='" . $this->escape($bySite) . "'";
+				$q[2] .= " and m.siteid='" . $bySite . "'";
 				$q[2] .= " and exists(select 1 from xxt_mission_acl a where a.mission_id=m.id and a.coworker='{$oUser->id}' and a.state=1 and a.last_invite='Y')";
 			}
 		}
 		if (isset($aOptions['byTitle'])) {
-			$q[2] .= " and m.title like '%" . $this->escape($aOptions['byTitle']) . "%'";
+			$q[2] .= " and m.title like '%" . $aOptions['byTitle'] . "%'";
+		}
+		if (isset($aOptions['byCreator'])) {
+			$q[2] .= " and m.creater_name like '%" . $aOptions['byCreator'] . "%'";
 		}
 		if (isset($aOptions['byStar']) && $aOptions['byStar'] === 'Y') {
 			$q[2] .= " and exists(select 1 from xxt_account_topmatter t where t.matter_type='mission' and t.matter_id=m.id and userid='{$oUser->id}')";

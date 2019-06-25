@@ -80,6 +80,9 @@ ngApp.controller('ctrlShare', ['$scope', '$sce', '$q', 'tmsLocation', 'tmsSnsSha
         $scope.message = message = oMsg.toString();
         fnSetSnsShare(_oApp, message, oMsg.anchor);
     });
+    $scope.gotoHome = function() {
+        location.href = "/rest/site/fe/matter/enroll?site=" + _oApp.siteid + "&app=" + _oApp.id + "&page=repos";
+    }
     $scope.shiftAuthor = function() {
         if (_oOptions.editorAsAuthor) {
             _oMessage.defaultAuthor === undefined && (_oMessage.defaultAuthor = _oMessage.author);

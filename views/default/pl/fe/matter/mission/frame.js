@@ -1,7 +1,7 @@
-define(['frame/RouteParam', 'frame/templates', 'missionService', 'enrollService', 'signinService'], function(RouteParam, frameTemplates) {
+define(['frame/RouteParam', 'frame/templates', 'missionService', 'enrollService', 'signinService'], function (RouteParam, frameTemplates) {
     'use strict';
     var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'tinymce.ui.xxt', 'http.ui.xxt', 'notice.ui.xxt', 'schema.ui.xxt', 'pl.const', 'service.matter', 'service.mission', 'service.enroll', 'service.signin']);
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvMissionProvider', 'srvMissionRoundProvider', 'srvQuickEntryProvider', 'srvTagProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvMissionProvider, srvMissionRoundProvider, srvQuickEntryProvider, srvTagProvider) {
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvMissionProvider', 'srvMissionRoundProvider', 'srvQuickEntryProvider', 'srvTagProvider', function ($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvMissionProvider, srvMissionRoundProvider, srvQuickEntryProvider, srvTagProvider) {
         ngApp.provider = {
             controller: $controllerProvider.register,
             directive: $compileProvider.directive
@@ -25,7 +25,7 @@ define(['frame/RouteParam', 'frame/templates', 'missionService', 'enrollService'
             'show': 'hide'
         });
         //设置服务参数
-        (function() {
+        (function () {
             var ls, siteId, missionId;
             ls = location.search;
             siteId = ls.match(/[\?&]site=([^&]*)/)[1];
@@ -38,7 +38,13 @@ define(['frame/RouteParam', 'frame/templates', 'missionService', 'enrollService'
             srvMissionRoundProvider.config(siteId, missionId);
         })();
     }]);
-    ngApp.controller('ctrlFrame', ['$scope', '$location', 'CstNaming', 'srvSite', 'srvMission', function($scope, $location, CstNaming, srvSite, srvMission) {
+    ngApp.factory('$exceptionHandler', function () {
+        return function (exception, cause) {
+            exception.message += ' (caused by "' + cause + '")';
+            throw exception;
+        };
+    });
+    ngApp.controller('ctrlFrame', ['$scope', '$location', 'CstNaming', 'srvSite', 'srvMission', function ($scope, $location, CstNaming, srvSite, srvMission) {
         $scope.isSmallLayout = false;
         if (window.screen && window.screen.width < 768) {
             $scope.isSmallLayout = true;
@@ -47,10 +53,10 @@ define(['frame/RouteParam', 'frame/templates', 'missionService', 'enrollService'
         $scope.subView = '';
         $scope.CstNaming = CstNaming;
         $scope.frameTemplates = frameTemplates;
-        $scope.update = function(name) {
+        $scope.update = function (name) {
             var modifiedData = {};
             if (angular.isObject(name)) {
-                name.forEach(function(prop) {
+                name.forEach(function (prop) {
                     modifiedData[prop] = $scope.mission[prop];
                 });
             } else {
@@ -58,7 +64,7 @@ define(['frame/RouteParam', 'frame/templates', 'missionService', 'enrollService'
             }
             return srvMission.submit(modifiedData);
         };
-        $scope.$on('$locationChangeStart', function(event, nextRoute, currentRoute) {
+        $scope.$on('$locationChangeStart', function (event, nextRoute, currentRoute) {
             if (nextRoute.indexOf('/mission?') !== -1) {
                 event.preventDefault();
             }
@@ -66,7 +72,7 @@ define(['frame/RouteParam', 'frame/templates', 'missionService', 'enrollService'
                 $location.hash('');
             }
         });
-        $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+        $scope.$on('$locationChangeSuccess', function (event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
             $scope.subView = subView[1] === 'mission' ? 'main' : subView[1];
             switch ($scope.subView) {
@@ -92,19 +98,19 @@ define(['frame/RouteParam', 'frame/templates', 'missionService', 'enrollService'
                     $scope.opened = '';
             }
         });
-        $scope.switchTo = function(subView) {
+        $scope.switchTo = function (subView) {
             var url = '/rest/pl/fe/matter/mission/' + subView;
             $location.path(url);
         };
-        srvSite.get().then(function(oSite) {
+        srvSite.get().then(function (oSite) {
             $scope.site = oSite;
         });
-        srvSite.tagList().then(function(oTag) {
+        srvSite.tagList().then(function (oTag) {
             $scope.oTag = oTag;
-            srvMission.get().then(function(mission) {
+            srvMission.get().then(function (mission) {
                 if (mission.matter_mg_tag !== '') {
-                    mission.matter_mg_tag.forEach(function(cTag, index) {
-                        $scope.oTag.forEach(function(oTag) {
+                    mission.matter_mg_tag.forEach(function (cTag, index) {
+                        $scope.oTag.forEach(function (oTag) {
                             if (oTag.id === cTag) {
                                 mission.matter_mg_tag[index] = oTag;
                             }
@@ -113,12 +119,18 @@ define(['frame/RouteParam', 'frame/templates', 'missionService', 'enrollService'
                 }
                 $scope.mission = mission;
                 if (location.href.indexOf('/mission?') !== -1) {
-                    srvMission.matterCount().then(function(count) {
+                    srvMission.matterCount().then(function (count) {
                         if (count) {
-                            $location.path('/rest/pl/fe/matter/mission/app').search({ id: mission.id, site: mission.siteid });
+                            $location.path('/rest/pl/fe/matter/mission/app').search({
+                                id: mission.id,
+                                site: mission.siteid
+                            });
                             $location.replace();
                         } else {
-                            $location.path('/rest/pl/fe/matter/mission/main').search({ id: mission.id, site: mission.siteid });
+                            $location.path('/rest/pl/fe/matter/mission/main').search({
+                                id: mission.id,
+                                site: mission.siteid
+                            });
                             $location.replace();
                         }
                     });
@@ -127,7 +139,7 @@ define(['frame/RouteParam', 'frame/templates', 'missionService', 'enrollService'
         });
     }]);
     /*bootstrap*/
-    require(['domReady!'], function(document) {
+    require(['domReady!'], function (document) {
         angular.bootstrap(document, ["app"]);
     });
     return ngApp;

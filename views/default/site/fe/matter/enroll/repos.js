@@ -254,7 +254,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'e
                 $scope.navs.forEach(function (nav) {
                     if (nav.type === 'repos') {
                         nav.views.forEach(function (view) {
-                            view.url = '/views/default/site/fe/matter/enroll/template/repos-' + view.type + '.html';
+                            view.url = '/views/default/site/fe/matter/enroll/home/' + view.type + '.html';
                             if (nav.defaultView.type === view.type) {
                                 $scope.activeView = view;
                             }

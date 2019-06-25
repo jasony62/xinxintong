@@ -15,34 +15,36 @@
 <body ng-controller="ctrlCowork" tms-trace send-url='/rest/site/fe/matter/enroll/analysis/submit?site={{app.siteid}}&app={{app.id}}&page=cowork&record={{record.id}}' ready-sign="record">
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
-    <nav class='navbar site-navbar-default'>
+    <nav class='navbar site-navbar-default navbar-fixed-top'>
         <div class='container'>
-            <div class="navbar-header">
+            <div class="navbar-header pull-left">
                 <a href class="navbar-brand" ng-click="gotoHome()">
                     <i class="glyphicon glyphicon-home"></i> <span class="visible-lg-inline">首页</span>
                 </a>
             </div>
-            <ul class="nav navbar-nav navbar-right">
+            <ul class="nav navbar-nav pull-right">
                 <li class="pull-left">
-                    <a href ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline">个人中心</span></a>
+                    <a href ng-click="siteUser(app.siteid)"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline">个人中心</span></a>
                 </li>
             </ul>
         </div>
     </nav>
-    <div ng-cloak class='ng-cloak app container'>
-        <div class='row'>
-            <div ng-if="questionTasks.length" ng-cloak>
-                <div uib-alert ng-repeat="task in questionTasks" class='alert-info'>
-                    <div ng-if="task.rid!==record.rid"><label><input type='checkbox' name='forQuestionTask' ng-true-value="{{task.id}}" ng-model="options.forQuestionTask"> 通过对问题留言，完成提问任务</label></div>
-                    <div ng-bind="task"></div>
+    <div ng-cloak class='ng-cloak app'>
+        <div class="container">
+            <div class='row'>
+                <div ng-if="questionTasks.length" ng-cloak>
+                    <div uib-alert ng-repeat="task in questionTasks" class='alert-info'>
+                        <div ng-if="task.rid!==record.rid"><label><input type='checkbox' name='forQuestionTask' ng-true-value="{{task.id}}" ng-model="options.forQuestionTask"> 通过对问题留言，完成提问任务</label></div>
+                        <div ng-bind="task"></div>
+                    </div>
                 </div>
+                <div ng-include="selectedView.url"></div>
             </div>
-            <div ng-include="selectedView.url"></div>
-        </div>
-        <div id='favorGuide' ng-if="favorStack.guiding">
-            <span>已收藏</span>
-            <button class='btn btn-default' ng-click="assignTopic()">选择专题</button>
-            <button class='btn btn-default' ng-click="assignTag()">添加标签</button>
+            <div id='favorGuide' ng-if="favorStack.guiding">
+                <span>已收藏</span>
+                <button class='btn btn-default' ng-click="assignTopic()">选择专题</button>
+                <button class='btn btn-default' ng-click="assignTag()">添加标签</button>
+            </div>
         </div>
     </div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>

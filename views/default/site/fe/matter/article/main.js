@@ -11,12 +11,12 @@ require('../../../../../../asset/js/xxt.ui.share.js');
 require('../../../../../../asset/js/xxt.ui.picviewer.js');
 
 var ngApp = angular.module('app', ['ui.bootstrap', 'http.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'subscribe.ui.xxt', 'favor.ui.xxt', 'forward.ui.xxt', 'coinpay.ui.xxt', 'picviewer.ui.xxt', 'ngSanitize']);
-ngApp.config(['$controllerProvider', function($cp) {
+ngApp.config(['$controllerProvider', function ($cp) {
     ngApp.provider = {
         controller: $cp.register
     };
 }]);
-ngApp.directive('tmsScroll', [function() {
+ngApp.directive('tmsScroll', [function () {
     function _endScroll(event, $scope) {
         var target = event.target,
             scrollTop = target.scrollTop;
@@ -63,26 +63,26 @@ ngApp.directive('tmsScroll', [function() {
             downmost: '@',
             ready: '=',
         },
-        link: function($scope, elems, attrs) {
+        link: function ($scope, elems, attrs) {
             if (attrs.ready) {
-                $scope.$watch('ready', function(ready) {
+                $scope.$watch('ready', function (ready) {
                     if (ready === 'Y') {
                         _domReady($scope, elems);
                     }
                 });
             } else {
                 /* link发生在load之前 */
-                window.addEventListener('load', function() {
+                window.addEventListener('load', function () {
                     _domReady($scope, elems);
                 });
             }
             for (var i = elems.length - 1; i >= 0; i--) {
-                elems[i].onscroll = function(event) {
+                elems[i].onscroll = function (event) {
                     var target = event.target;
                     if (target.__timer) {
                         clearTimeout(target.__timer);
                     }
-                    target.__timer = setTimeout(function() {
+                    target.__timer = setTimeout(function () {
                         _endScroll(event, $scope);
                     }, 35);
                 };
@@ -90,8 +90,8 @@ ngApp.directive('tmsScroll', [function() {
         }
     };
 }]);
-ngApp.filter('filesize', function() {
-    return function(length) {
+ngApp.filter('filesize', function () {
+    return function (length) {
         var unit;
         if (length / 1024 < 1) {
             unit = 'B';
@@ -109,7 +109,7 @@ ngApp.filter('filesize', function() {
         return length + unit;
     };
 });
-ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsLocation', '$timeout', '$q', 'tmsDynaPage', 'tmsSubscribe', 'tmsSnsShare', 'tmsCoinPay', 'tmsFavor', 'tmsForward', 'tmsSiteUser', 'picviewer', function($scope, http2, LS, $timeout, $q, tmsDynaPage, tmsSubscribe, tmsSnsShare, tmsCoinPay, tmsFavor, tmsForward, tmsSiteUser, picviewer) {
+ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsLocation', '$timeout', '$q', 'tmsDynaPage', 'tmsSubscribe', 'tmsSnsShare', 'tmsCoinPay', 'tmsFavor', 'tmsForward', 'tmsSiteUser', 'picviewer', function ($scope, http2, LS, $timeout, $q, tmsDynaPage, tmsSubscribe, tmsSnsShare, tmsCoinPay, tmsFavor, tmsForward, tmsSiteUser, picviewer) {
     var width = document.body.clientWidth;
     $scope.width = width;
 
@@ -122,7 +122,7 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsLocation', '$timeout', '$q'
 
     function articleLoaded() {
         finish();
-        $timeout(function() {
+        $timeout(function () {
             var audios, elems, tableEles;
 
             audios = document.querySelectorAll('audio');
@@ -135,9 +135,9 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsLocation', '$timeout', '$q'
             tableEles = document.querySelectorAll('table');
 
             if (tableEles) {
-                angular.forEach(tableEles, function(tableEle) {
+                angular.forEach(tableEles, function (tableEle) {
                     var tableWrap = tableEle.parentNode;
-                    if(!tableWrap.getAttribute('wrap') || tableWrap.getAttribute('wrap') !== 'table') {
+                    if (!tableWrap.getAttribute('wrap') || tableWrap.getAttribute('wrap') !== 'table') {
                         tableWrap = document.createElement('div');
                         tableWrap.setAttribute('wrap', 'table');
                         tableEle.parentNode.insertBefore(tableWrap, tableEle);
@@ -166,7 +166,7 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsLocation', '$timeout', '$q'
 
     function loadArticle() {
         var deferred = $q.defer();
-        http2.get('/rest/site/fe/matter/article/get?site=' + siteId + '&id=' + id).then(function(rsp) {
+        http2.get('/rest/site/fe/matter/article/get?site=' + siteId + '&id=' + id).then(function (rsp) {
             var site = rsp.data.site,
                 mission = rsp.data.mission,
                 oArticle = rsp.data.article,
@@ -208,7 +208,7 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsLocation', '$timeout', '$q'
                 sharelink += "&shareby=" + shareid;
                 tmsSnsShare.config({
                     siteId: siteId,
-                    logger: function(shareto) {
+                    logger: function (shareto) {
                         var url = "/rest/site/fe/matter/logShare";
                         url += "?shareid=" + shareid;
                         url += "&site=" + siteId;
@@ -225,7 +225,7 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsLocation', '$timeout', '$q'
             }
 
             if (oArticle.can_siteuser === 'Y') {
-                $scope.siteUser = function(siteId) {
+                $scope.siteUser = function (siteId) {
                     var url = location.protocol + '//' + location.host;
                     url += '/rest/site/fe/user';
                     url += "?site=" + siteId;
@@ -243,19 +243,19 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsLocation', '$timeout', '$q'
                 });
             }
             $scope.dataReady = 'Y';
-            http2.get('/rest/site/fe/matter/article/assocRecords?id=' + id + '&site=' + siteId).then(function(rsp) {
+            http2.get('/rest/site/fe/matter/article/assocRecords?id=' + id + '&site=' + siteId).then(function (rsp) {
                 $scope.enrollAssocs = rsp.data;
-                angular.forEach(rsp.data, function(data) {
+                angular.forEach(rsp.data, function (data) {
                     if (data.entity_a_str) {
                         data.entity_a_str = data.entity_a_str.replace(/<[^>]+>/g, "");
                     }
                 })
             });
             deferred.resolve();
-        }, function(content, httpCode) {
+        }, function (content, httpCode) {
             finish();
             if (httpCode === 401) {
-                tmsDynaPage.openPlugin(content).then(function() {
+                tmsDynaPage.openPlugin(content).then(function () {
                     loadArticle().then(articleLoaded);
                 });
             } else {
@@ -273,7 +273,7 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsLocation', '$timeout', '$q'
     _bPreview = ls.match(/[\?|&]preview=Y/);
 
     $scope.elSiteCard = angular.element(document.querySelector('#site-card'));
-    $scope.siteCardToggled = function(open) {
+    $scope.siteCardToggled = function (open) {
         var elDropdownMenu;
         if (open) {
             if (elDropdownMenu = document.querySelector('#site-card>.dropdown-menu')) {
@@ -282,26 +282,26 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsLocation', '$timeout', '$q'
             }
         }
     };
-    $scope.openChannel = function(ch) {
+    $scope.openChannel = function (ch) {
         location.href = '/rest/site/fe/matter?site=' + siteId + '&type=channel&id=' + ch.id;
     };
-    $scope.openEnrollAssoc = function(oEnrollAssoc) {
+    $scope.openEnrollAssoc = function (oEnrollAssoc) {
         if (oEnrollAssoc.app && oEnrollAssoc.entityA)
             location.href = '/rest/site/fe/matter/enroll?site=' + oEnrollAssoc.app.siteid + '&app=' + oEnrollAssoc.app.id + '&ek=' + oEnrollAssoc.entityA.enroll_key + '&page=cowork';
     };
-    $scope.searchByTag = function(tag) {
+    $scope.searchByTag = function (tag) {
         location.href = '/rest/site/fe/matter/article?site=' + siteId + '&tagid=' + tag.id;
     };
-    $scope.openMatter = function(evt, id, type) {
+    $scope.openMatter = function (evt, id, type) {
         evt.preventDefault();
         evt.stopPropagation();
-        if (/article|custom|news|channel|link/.test(type)) {
+        if (/article|custom|channel|link/.test(type)) {
             location.href = '/rest/site/fe/matter?site=' + siteId + '&id=' + id + '&type=' + type;
         } else {
             location.href = '/rest/site/fe/matter/' + type + '?site=' + siteId + '&app=' + id;
         }
     };
-    $scope.gotoNavApp = function(oNavApp, event) {
+    $scope.gotoNavApp = function (oNavApp, event) {
         event.preventDefault();
         event.stopPropagation();
         switch (oNavApp.type) {
@@ -322,7 +322,7 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'tmsLocation', '$timeout', '$q'
                 break;
         }
     };
-    $scope.subscribeSite = function() {
+    $scope.subscribeSite = function () {
         if (!$scope.user.loginExpire) {
             if (window.sessionStorage) {
                 var method = JSON.stringify({

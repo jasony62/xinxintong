@@ -101,6 +101,9 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'use
     };
     http2.get('/rest/site/fe/get?site=' + LS.s().site).then(function(rsp) {
         $scope.site = rsp.data;
+        http2.get('/rest/site/fe/user/login/thirdList').then(function(rsp) {
+            $scope.thirdApps = rsp.data;
+        });
         userService.get().then(function(oUser) {
             $scope.user = oUser;
             if (oUser.unionid) {

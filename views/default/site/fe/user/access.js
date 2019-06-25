@@ -112,6 +112,9 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
             }
         });
     };
+    $scope.openThirdAppUrl = function(thirdApp) {
+        location.href = '/rest/site/fe/user/login/byRegAndThird?thirdId=' + thirdApp.id;
+    };
     $scope.gotoSite = function() {
         if ($scope.site.id === 'platform') {
             location.href = '/rest/home';

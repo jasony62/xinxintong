@@ -51,6 +51,9 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'use
     var cachedStatus, lastCachedStatus;
     $scope.count = {};
     $scope.userSetting = false;
+    $scope.openThirdAppUrl = function(thirdApp) {
+        location.href = '/rest/site/fe/user/login/byRegAndThird?thirdId=' + thirdApp.id;
+    };
     $scope.toggleUserSetting = function(event) {
         event.preventDefault();
         event.stopPropagation();

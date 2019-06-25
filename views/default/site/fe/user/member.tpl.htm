@@ -98,6 +98,9 @@
                             <div class='form-group'>
                                 <button class="btn btn-block btn-success" ng-click="login()">登录</button>
                             </div>
+                            <div ng-if="thirdApps.length">
+                                <button class="btn btn-block btn-default" ng-repeat="thirdApp in thirdApps" ng-click='openThirdAppUrl(thirdApp)'>{{thirdApp.appname}}账号/密码登录</button>
+                            </div>
                             <div class='form-group'>
                                 <button class="btn btn-block btn-default" ng-click="switchSubView('register')" ng-if="isRegister">没有帐号，去注册</button>
                             </div>

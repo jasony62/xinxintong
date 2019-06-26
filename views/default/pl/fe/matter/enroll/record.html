@@ -1,3 +1,10 @@
+<style>
+    .text-control>li>a{
+        width: 165px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
 <div class="col-md-12">
     <!-- actions -->
     <div class='form-group'>
@@ -39,10 +46,16 @@
                     <li ng-if="app.entryRule.member"><a href ng-click="syncWithMschema()">补填全部记录的通信录数据</a></li>
                 </ul>
             </div>
-            <div class='form-group'>
-                <select class='form-control' ng-options="coworkSchema in coworkSchemas" ng-model="criteria.selectedSite"></select>
+            <div class="btn-group text-control" uib-dropdown ng-if="coworkSchemas.length">
+                <button type="button" class="btn btn-default" uib-dropdown-toggle>-按多项协作题显示- <i class="caret"></i></button>
+                <ul uib-dropdown-menu>
+                    <li ng-repeat="coworkSchema in coworkSchemas" ng-click="listCowork(coworkSchema)"><a href ng-bind="coworkSchema.title" title="coworkSchema.title"></a></li>
+                </ul>
             </div>
-            <div class='form-group pull-right'>
+            <div class="btn-group" ng-if="category==='cowork'">
+                <button type="button" class="btn btn-default">取消查看</button>
+            </div>
+            <div class='form-group pull-right' ng-if="category==='record'">
                 <div class='input-group'>
                     <span class="input-group-addon">每页条数</span>
                     <input class='form-control' ng-model='page.size' style='width:64px'>
@@ -56,111 +69,193 @@
         </div>
     </div>
     <!-- end actions -->
-    <!-- records -->
-    <div tms-flex-height top='117' bottom='66' class='form-group' style='width:100%;'>
-        <div id='enrollRecords' tms-table-wrap ready='tmsTableWrapReady'>
-            <table class='table table-bordered'>
-                <thead>
-                    <tr>
-                        <th style='width:48px'>操作</th>
-                        <th style='width:28px'>
-                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
-                        </th>
-                        <th style='width:40px'></th>
-                        <th style='width:140px' ng-if="bRequireNickname">用户</th>
-                        <th style='width:140px' ng-if="bRequireGroup">分组</th>
-                        <th style='width:100px'>填写时间</th>
-                        <th style='width:100px'>填写轮次</th>
-                        <th ng-repeat="schema in recordSchemasExt" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
-                        <th ng-if="bRequireScore">总得分</th>
-                        <th style='width:80px'>审核通过</th>
-                        <th style='width:80px'>获得赞同</th>
-                        <th style='width:140px'>备注</th>
-                        <th style='width:48px'>操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat='r in records' class='record'>
-                        <td>
-                            <button class='btn btn-xs btn-default' ng-click='editRecord(r)'>
-                                <span class='glyphicon glyphicon-edit'></span>
-                            </button>
-                        </td>
-                        <td>
-                            <input type='checkbox' ng-model="rows.selected[$index]" ng-change="rows.change($index)">
-                        </td>
-                        <td>{{::(page.at-1)*page.size+$index+1}}</td>
-                        <td ng-if="bRequireNickname"><span>{{::r.nickname}}</span></td>
-                        <td ng-if="bRequireGroup"><span>{{::r.group.title}}</span> <span ng-if="r.group_id!==r.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span></td>
-                        <td>{{::(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
-                        <td>{{::r.round.title}}</td>
-                        <td ng-repeat="schema in recordSchemasExt" ng-switch on="schema.type">
-                            <div ng-switch-when="image">
-                                <span><img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' /></span>
-                            </div>
-                            <div ng-switch-when="file">
-                                <span ng-repeat='file in r._data[schema.id]'><a href ng-click="openFileUrl(file)" target="_blank">{{file.name}}</a></span>
-                            </div>
-                            <div ng-switch-when="multitext">
-                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>
-                            </div>
-                            <span ng-switch-when="date"><span ng-if="r._data[schema.id]">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span></span>
-                            <span ng-switch-when="url" ng-bind-html="r._data[schema.id]._text"></span>
-                            <span ng-switch-when="remark">{{r.verbose.data[schema.id].remark_num}}</span>
-                            <span ng-switch-when="supplement" ng-bind-html="r.supplement[schema.id]"></span>
-                            <span ng-switch-when="calcScore">{{r.score[schema.id]}}</span>
-                            <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
-                            <span ng-if="fromApp.fromApp&&schema.id==='_round_id'&&r.group_id!==r.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span>
-                        </td>
-                        <td ng-if="bRequireScore" ng-bind="::r.score.sum"></td>
-                        <td>{{r.verified}}</td>
-                        <td>{{::r.like_num}}</td>
-                        <td>{{r.comment}}</td>
-                        <td>
-                            <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
-                                <span class='glyphicon glyphicon-remove'></span>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-                <tfoot ng-if="bRequireSum||bRequireScore">
-                    <tr>
-                        <td>合计</td>
-                        <td></td>
-                        <td></td>
-                        <td ng-if="bRequireNickname"></td>
-                        <td ng-if="bRequireGroup"></td>
-                        <td></td>
-                        <td></td>
-                        <td ng-repeat="schema in recordSchemasExt">
-                            <div ng-if="schema.format==='number'||schema.type==='score'">
-                                {{sum4SchemaAtPage[schema.id]}}/{{sum4Schema[schema.id]}}
-                            </div>
-                            <div ng-if="schema.type==='calcScore'">
-                                {{score4SchemaAtPage[schema.id]}}/{{score4Schema[schema.id]}}
-                            </div>
-                        </td>
-                        <td ng-if="bRequireScore">
-                            <div>
-                                {{score4SchemaAtPage.sum}}/{{score4Schema.sum}}
-                            </div>
-                        </td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                </tfoot>
-            </table>
+    <div ng-switch on="category">
+        <div ng-switch-when="record">
+            <!-- records -->
+            <div tms-flex-height top='117' bottom='66' class='form-group' style='width:100%;'>
+                <div id='enrollRecords' tms-table-wrap ready='tmsTableWrapReady'>
+                    <table class='table table-bordered'>
+                        <thead>
+                            <tr>
+                                <th style='width:48px'>操作</th>
+                                <th style='width:28px'>
+                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
+                                </th>
+                                <th style='width:40px'></th>
+                                <th style='width:140px' ng-if="bRequireNickname">用户</th>
+                                <th style='width:140px' ng-if="bRequireGroup">分组</th>
+                                <th style='width:100px'>填写时间</th>
+                                <th style='width:100px'>填写轮次</th>
+                                <th ng-repeat="schema in recordSchemasExt" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
+                                <th ng-if="bRequireScore">总得分</th>
+                                <th style='width:80px'>审核通过</th>
+                                <th style='width:80px'>获得赞同</th>
+                                <th style='width:140px'>备注</th>
+                                <th style='width:48px'>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat='r in records' class='record'>
+                                <td>
+                                    <button class='btn btn-xs btn-default' ng-click='editRecord(r)'>
+                                        <span class='glyphicon glyphicon-edit'></span>
+                                    </button>
+                                </td>
+                                <td>
+                                    <input type='checkbox' ng-model="rows.selected[$index]" ng-change="rows.change($index)">
+                                </td>
+                                <td>{{::(page.at-1)*page.size+$index+1}}</td>
+                                <td ng-if="bRequireNickname"><span>{{::r.nickname}}</span></td>
+                                <td ng-if="bRequireGroup"><span>{{::r.group.title}}</span> <span ng-if="r.group_id!==r.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span></td>
+                                <td>{{::(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
+                                <td>{{::r.round.title}}</td>
+                                <td ng-repeat="schema in recordSchemasExt" ng-switch on="schema.type">
+                                    <div ng-switch-when="image">
+                                        <span><img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' /></span>
+                                    </div>
+                                    <div ng-switch-when="file">
+                                        <span ng-repeat='file in r._data[schema.id]'><a href ng-click="openFileUrl(file)" target="_blank">{{file.name}}</a></span>
+                                    </div>
+                                    <div ng-switch-when="multitext">
+                                        <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>
+                                    </div>
+                                    <span ng-switch-when="date"><span ng-if="r._data[schema.id]">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span></span>
+                                    <span ng-switch-when="url" ng-bind-html="r._data[schema.id]._text"></span>
+                                    <span ng-switch-when="remark">{{r.verbose.data[schema.id].remark_num}}</span>
+                                    <span ng-switch-when="supplement" ng-bind-html="r.supplement[schema.id]"></span>
+                                    <span ng-switch-when="calcScore">{{r.score[schema.id]}}</span>
+                                    <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
+                                    <span ng-if="fromApp.fromApp&&schema.id==='_round_id'&&r.group_id!==r.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span>
+                                </td>
+                                <td ng-if="bRequireScore" ng-bind="::r.score.sum"></td>
+                                <td>{{r.verified}}</td>
+                                <td>{{::r.like_num}}</td>
+                                <td>{{r.comment}}</td>
+                                <td>
+                                    <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
+                                        <span class='glyphicon glyphicon-remove'></span>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot ng-if="bRequireSum||bRequireScore">
+                            <tr>
+                                <td>合计</td>
+                                <td></td>
+                                <td></td>
+                                <td ng-if="bRequireNickname"></td>
+                                <td ng-if="bRequireGroup"></td>
+                                <td></td>
+                                <td></td>
+                                <td ng-repeat="schema in recordSchemasExt">
+                                    <div ng-if="schema.format==='number'||schema.type==='score'">
+                                        {{sum4SchemaAtPage[schema.id]}}/{{sum4Schema[schema.id]}}
+                                    </div>
+                                    <div ng-if="schema.type==='calcScore'">
+                                        {{score4SchemaAtPage[schema.id]}}/{{score4Schema[schema.id]}}
+                                    </div>
+                                </td>
+                                <td ng-if="bRequireScore">
+                                    <div>
+                                        {{score4SchemaAtPage.sum}}/{{score4Schema.sum}}
+                                    </div>
+                                </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <!-- end records -->
+            <div class='form-group'>
+                <div class='pl-pagination'>
+                    <span>总数：{{page.total}}</span>
+                    <ul class='pull-right' uib-pagination ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+                </div>
+            </div>
+        </div>
+        <div ng-switch-when="cowork">
+            <!-- records -->
+            <div tms-flex-height top='117' bottom='66' class='form-group' style='width:100%;'>
+                <div id='enrollRecords' tms-table-wrap ready='tmsTableWrapReady'>
+                    <table class='table table-bordered'>
+                        <thead>
+                            <tr>
+                                <th style='width:48px'>操作</th>
+                                <th style='width:28px'>
+                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
+                                </th>
+                                <th style='width:40px'></th>
+                                <th>提供给用户的大幅</th>
+                                <th style='width:140px' ng-if="bRequireNickname">用户</th>
+                                <th style='width:140px' ng-if="bRequireGroup">分组</th>
+                                <th style='width:100px'>填写时间</th>
+                                <th style='width:100px'>填写轮次</th>
+                                <th style='width:80px'>态度</th>
+                                <th style='width:80px'>获赞数</th>
+                                <th style='width:80px'>获踩数</th>
+                                <th style='width:80px'>获评论数</th>
+                                <th ng-repeat="schema in recordSchemasExt" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
+                                <th style='width:140px'>目录</th>
+                                <th style='width:48px'>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat='c in coworks' class='cowork'>
+                                <td>
+                                    <button class='btn btn-xs btn-default' ng-click='editCowork(c)'>
+                                        <span class='glyphicon glyphicon-edit'></span>
+                                    </button>
+                                </td>
+                                <td>
+                                    <input type='checkbox' ng-model="rows.selected[$index]" ng-change="rows.change($index)">
+                                </td>
+                                <td>{{::(page.at-1)*page.size+$index+1}}</td>
+                                <td>我是答案</td>
+                                <td ng-if="bRequireNickname"><span>{{::c.nickname}}</span></td>
+                                <td ng-if="bRequireGroup"><span>{{::c.group.title}}</span> <span ng-if="c.group_id!==c.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span></td>
+                                <td>{{::(c.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
+                                <td>{{::c.round.title}}</td>
+                                <td>未表态</td>
+                                <td>{{::r.like_num}}</td>
+                                <td>{{::r.dislike_num}}</td>
+                                <td>{{r.comment}}</td>
+                                <td ng-repeat="schema in recordSchemasExt" ng-switch on="schema.type">
+                                    <div ng-switch-when="image">
+                                        <span><img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' /></span>
+                                    </div>
+                                    <div ng-switch-when="file">
+                                        <span ng-repeat='file in r._data[schema.id]'><a href ng-click="openFileUrl(file)" target="_blank">{{file.name}}</a></span>
+                                    </div>
+                                    <div ng-switch-when="multitext">
+                                        <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>
+                                    </div>
+                                    <span ng-switch-when="date"><span ng-if="r._data[schema.id]">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span></span>
+                                    <span ng-switch-when="url" ng-bind-html="r._data[schema.id]._text"></span>
+                                    <span ng-switch-when="remark">{{r.verbose.data[schema.id].remark_num}}</span>
+                                    <span ng-switch-when="supplement" ng-bind-html="r.supplement[schema.id]"></span>
+                                    <span ng-switch-when="calcScore">{{r.score[schema.id]}}</span>
+                                    <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
+                                    <span ng-if="fromApp.fromApp&&schema.id==='_round_id'&&r.group_id!==r.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span>
+                                </td>
+                                <td>云录音/云资源</td>
+                                <td>
+                                    <button class='btn btn-xs btn-danger' ng-click='removeCowork(c)'>
+                                        <span class='glyphicon glyphicon-remove'></span>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- end records -->
         </div>
     </div>
-    <!-- end records -->
-    <div class='form-group'>
-        <div class='pl-pagination'>
-            <span>总数：{{page.total}}</span>
-            <ul class='pull-right' uib-pagination ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
-        </div>
-    </div>
+    
 </div>
 <script type="text/ng-template" id="syncWithGroupApp.html">
     <div class="modal-header">

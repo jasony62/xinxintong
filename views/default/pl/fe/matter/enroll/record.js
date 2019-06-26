@@ -381,6 +381,11 @@ define(['frame'], function(ngApp) {
                 });
             });
         };
+        $scope.listCowork = function(schema, pageAt) {
+            srvEnlRec.search(schema, pageAt).then(function(rsp){
+                $scope.coworks = rsp.data;
+            });
+        }
         // 选中的记录
         $scope.rows = new tmsRowPicker();
         $scope.$watch('rows.allSelected', function(checked) {
@@ -389,6 +394,7 @@ define(['frame'], function(ngApp) {
         $scope.page = {}; // 分页条件
         $scope.criteria = {}; // 过滤条件
         $scope.records = []; // 登记记录
+        $scope.category = "record";
         $scope.tmsTableWrapReady = 'N';
         srvEnlApp.get().then(function(oApp) {
             http2.get('/rest/pl/fe/matter/enroll/schema/get?app=' + oApp.id).then(function(rsp) {
@@ -435,6 +441,7 @@ define(['frame'], function(ngApp) {
                 }
                 $scope.bRequireSum = bRequireSum;
                 $scope.bRequireScore = bRequireScore;
+                $scope.coworkSchemas = coworkSchemas;
                 $scope.recordSchemas = recordSchemas;
                 $scope.recordSchemasExt = recordSchemasExt;
                 if (oApp._schemasFromEnrollApp) {

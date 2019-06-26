@@ -667,6 +667,21 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
 
                 return _ins._bSearch(url);
             };
+            _ins.listCowork = function (cowork, pageNumber) {
+                var defer = $q.defer(), data = {}, ids = [], url;
+
+                url = '/rest/pl/fe/matter/enroll/record/listByCowork';
+                url += '?site=' + this._oApp.siteid;
+                url += '&app=' + this._oApp.id;
+                ids.push(cowork.id);
+                data.coworkSchemaIds = ids;
+                
+                http2.post(url, data).then(function(rsp) {
+                    defer.resolve(rsp.data);
+                });
+
+                return defer.promise;
+            };
             _ins.searchRecycle = function (pageNumber) {
                 var defer = $q.defer(),
                     url;

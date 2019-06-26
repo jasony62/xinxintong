@@ -16,6 +16,11 @@ ngApp.factory('$exceptionHandler', function () {
 ngApp.controller('ctrlMain', ['$scope', '$parse', 'tmsLocation', 'http2', function ($scope, $parse, LS, http2) {
     var _oMission;
     $scope.siteid = LS.s().site;
+    $scope.subView = "board";
+    $scope.viewTo = function(view) {
+        var url = LS.j('', 'site', 'mission') + '&page=' + view.type;
+        location.href = url;
+    };
     /* end app loading */
     http2.get(LS.j('get', 'site', 'mission')).then(function (rsp) {
         var groupUsers;
@@ -26,29 +31,13 @@ ngApp.controller('ctrlMain', ['$scope', '$parse', 'tmsLocation', 'http2', functi
             if (oMisUser) {
                 oCustom = $parse('board.nav')(oMisUser.custom);
             }
-            if (!oCustom) {
-                oCustom = {
-                    stopTip: false
-                };
-            }
-            /* 设置页面导航 */
-            $scope.popNav = {
-                navs: [{
-                    name: 'main',
-                    title: '项目活动',
-                    url: LS.j('', 'site', 'mission') + '&page=main'
-                }],
-                custom: oCustom
-            };
-            $scope.$watch('popNav.custom', function (nv, ov) {
-                if (nv !== ov) {
-                    http2.post(LS.j('user/updateCustom', 'site', 'mission'), {
-                        board: {
-                            nav: $scope.popNav.custom
-                        }
-                    }).then(function (rsp) {});
-                }
-            }, true);
+            $scope.views = [{
+                type: 'main',
+                title: '项目活动',
+            },{
+                type: 'board',
+                title: '项目公告'
+            }];
         });
     });
     var eleLoading, eleStyle;

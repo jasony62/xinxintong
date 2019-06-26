@@ -21,6 +21,12 @@ ngApp.controller('ctrlMain', ['$scope', '$parse', 'tmsLocation', 'http2', functi
         var url = LS.j('', 'site', 'mission') + '&page=' + view.type;
         location.href = url;
     };
+    $scope.siteUser = function () {
+        var url;
+        url = location.protocol + '//' + location.host;
+        url += '/rest/site/fe/user?' + LS.s('site');
+        location.href = url;
+    };
     /* end app loading */
     http2.get(LS.j('get', 'site', 'mission')).then(function (rsp) {
         var groupUsers;

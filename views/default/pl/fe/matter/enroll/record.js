@@ -382,9 +382,14 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.listCowork = function(schema, pageAt) {
-            srvEnlRec.search(schema, pageAt).then(function(rsp){
-                $scope.coworks = rsp.data;
+            $scope.currentSchema = schema;
+            srvEnlRec.listCowork(schema, pageAt).then(function(data) {
+                $scope.coworks = data.recordDatas;
+                $scope.category = "cowork";
             });
+        };
+        $scope.toggleRecord = function() {
+            $scope.category = "record";
         }
         // 选中的记录
         $scope.rows = new tmsRowPicker();
@@ -412,13 +417,15 @@ define(['frame'], function(ngApp) {
                     groupDataSchemas = [];
 
                 rsp.data.forEach(function(oSchema) {
-                    if (oSchema.type === 'multitext' && oSchema.cowork === 'Y') {
-                        coworkSchemas.push(oSchema);
-                    }
                     if (oSchema.type !== 'html') {
                         recordSchemas.push(oSchema);
                         recordSchemasExt.push(oSchema);
                     }
+
+                    if (oSchema.type === 'multitext' && oSchema.cowork === 'Y') {
+                        coworkSchemas.push(oSchema);
+                    }
+
                     if (oSchema.supplement && oSchema.supplement === 'Y')
                         recordSchemasExt.push({ type: 'supplement', title: '补充说明', id: oSchema.id });
                     if (oSchema.requireScore && oSchema.requireScore === 'Y') {

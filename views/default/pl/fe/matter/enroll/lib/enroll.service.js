@@ -655,6 +655,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
         };
         this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'pushnotify', 'CstApp', 'srvEnrollRound', 'tmsSchema', function ($q, http2, noticebox, $uibModal, pushnotify, CstApp, srvEnlRnd, tmsSchema) {
             var _ins = new BaseSrvEnrollRecord($q, http2, noticebox, $uibModal, tmsSchema);
+            var oAgreedLabel = { 'Y': '推荐', 'N': '屏蔽', 'A': '接受' };
             _ins.search = function (pageNumber) {
                 var url;
 
@@ -675,8 +676,11 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
                 url += '&app=' + this._oApp.id;
                 ids.push(cowork.id);
                 data.coworkSchemaIds = ids;
-                
+
                 http2.post(url, data).then(function(rsp) {
+                    rsp.data.recordDatas.forEach(function(oCowork) {
+                        oCowork._agreed = oAgreedLabel[oCowork.agreed] || '未表态';
+                    });
                     defer.resolve(rsp.data);
                 });
 

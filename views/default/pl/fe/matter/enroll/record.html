@@ -1,7 +1,8 @@
 <style>
-    .text-control>li>a{
-        width: 165px;
+    .text-control li>a, .text-control>button{
+        width: 155px;
         overflow: hidden;
+        white-space: nowrap;
         text-overflow: ellipsis;
     }
 </style>
@@ -13,8 +14,8 @@
                 <label>标签</label>
                 <combox evt-prefix='search-tag' readonly='true' existing='criteria.tags' options='app.tags'></combox>
             </div>
-            <button class='btn btn-default' ng-click='filter()'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
-            <div class="btn-group" uib-dropdown>
+            <button class='btn btn-default' ng-click='filter()' ng-if="category==='record'"><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+            <div class="btn-group" uib-dropdown ng-if="category==='record'">
                 <button type="button" class="btn btn-default" uib-dropdown-toggle>更多操作 <i class="caret"></i></button>
                 <ul uib-dropdown-menu>
                     <li><a href ng-click="batchVerify()">选中记录通过审核<span>（{{rows.count}}）</span></a></li>
@@ -46,14 +47,14 @@
                     <li ng-if="app.entryRule.member"><a href ng-click="syncWithMschema()">补填全部记录的通信录数据</a></li>
                 </ul>
             </div>
-            <div class="btn-group text-control" uib-dropdown ng-if="coworkSchemas.length">
+            <div class="btn-group text-control" uib-dropdown ng-if="coworkSchemas.length&&category==='record'">
                 <button type="button" class="btn btn-default" uib-dropdown-toggle>-按多项协作题显示- <i class="caret"></i></button>
                 <ul uib-dropdown-menu>
                     <li ng-repeat="coworkSchema in coworkSchemas" ng-click="listCowork(coworkSchema)"><a href ng-bind="coworkSchema.title" title="coworkSchema.title"></a></li>
                 </ul>
             </div>
-            <div class="btn-group" ng-if="category==='cowork'">
-                <button type="button" class="btn btn-default">取消查看</button>
+            <div class="btn-group text-control" ng-if="category==='cowork'">
+                <button type="button" class="btn btn-default" ng-click="toggleRecord()">取消查看{{currentSchema.title}}</button>
             </div>
             <div class='form-group pull-right' ng-if="category==='record'">
                 <div class='input-group'>
@@ -97,7 +98,7 @@
                         <tbody>
                             <tr ng-repeat='r in records' class='record'>
                                 <td>
-                                    <button class='btn btn-xs btn-default' ng-click='editRecord(r)'>
+                                    <button class='btn btn-xs btn-default' ng-click='editCowork(c)'>
                                         <span class='glyphicon glyphicon-edit'></span>
                                     </button>
                                 </td>
@@ -132,7 +133,7 @@
                                 <td>{{::r.like_num}}</td>
                                 <td>{{r.comment}}</td>
                                 <td>
-                                    <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
+                                    <button class='btn btn-xs btn-danger' ng-click='removeCowork(c)'>
                                         <span class='glyphicon glyphicon-remove'></span>
                                     </button>
                                 </td>
@@ -184,12 +185,8 @@
                     <table class='table table-bordered'>
                         <thead>
                             <tr>
-                                <th style='width:48px'>操作</th>
-                                <th style='width:28px'>
-                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
-                                </th>
                                 <th style='width:40px'></th>
-                                <th>提供给用户的大幅</th>
+                                <th>{{currentSchema.title}}</th>
                                 <th style='width:140px' ng-if="bRequireNickname">用户</th>
                                 <th style='width:140px' ng-if="bRequireGroup">分组</th>
                                 <th style='width:100px'>填写时间</th>
@@ -199,53 +196,41 @@
                                 <th style='width:80px'>获踩数</th>
                                 <th style='width:80px'>获评论数</th>
                                 <th ng-repeat="schema in recordSchemasExt" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
-                                <th style='width:140px'>目录</th>
-                                <th style='width:48px'>操作</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr ng-repeat='c in coworks' class='cowork'>
-                                <td>
-                                    <button class='btn btn-xs btn-default' ng-click='editCowork(c)'>
-                                        <span class='glyphicon glyphicon-edit'></span>
-                                    </button>
-                                </td>
-                                <td>
-                                    <input type='checkbox' ng-model="rows.selected[$index]" ng-change="rows.change($index)">
-                                </td>
                                 <td>{{::(page.at-1)*page.size+$index+1}}</td>
-                                <td>我是答案</td>
+                                <td ng-repeat="schema in recordSchemasExt" ng-if="schema.cowork==='Y'" ng-switch on="schema.type">
+                                    <div ng-switch-when="multitext" >
+                                        <p ng-repeat='item in c.data[schema.id]'><span ng-bind-html="item.value"></span></p>
+                                    </div>
+                                </td>
                                 <td ng-if="bRequireNickname"><span>{{::c.nickname}}</span></td>
-                                <td ng-if="bRequireGroup"><span>{{::c.group.title}}</span> <span ng-if="c.group_id!==c.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span></td>
+                                <td ng-if="bRequireGroup"><span>{{::c.group.title}}</span> <span ng-if="c.group_id!==c.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{c.user.group.title||'无'}}】"></span></td>
                                 <td>{{::(c.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                                 <td>{{::c.round.title}}</td>
-                                <td>未表态</td>
-                                <td>{{::r.like_num}}</td>
-                                <td>{{::r.dislike_num}}</td>
-                                <td>{{r.comment}}</td>
+                                <td>{{::c._agreed}}</td>
+                                <td>{{::c.like_num}}</td>
+                                <td>{{::c.dislike_num}}</td>
+                                <td>{{c.remark_num}}</td>
                                 <td ng-repeat="schema in recordSchemasExt" ng-switch on="schema.type">
                                     <div ng-switch-when="image">
-                                        <span><img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' /></span>
+                                        <span><img ng-repeat="img in c.data[schema.id].split(',')" ng-src='{{img}}' /></span>
                                     </div>
                                     <div ng-switch-when="file">
-                                        <span ng-repeat='file in r._data[schema.id]'><a href ng-click="openFileUrl(file)" target="_blank">{{file.name}}</a></span>
+                                        <span ng-repeat='file in c.data[schema.id]'><a href ng-click="openFileUrl(file)" target="_blank">{{file.name}}</a></span>
                                     </div>
                                     <div ng-switch-when="multitext">
-                                        <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>
+                                        <p ng-repeat='item in c.data[schema.id]'><span ng-bind-html="item.value"></span></p>
                                     </div>
-                                    <span ng-switch-when="date"><span ng-if="r._data[schema.id]">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span></span>
-                                    <span ng-switch-when="url" ng-bind-html="r._data[schema.id]._text"></span>
-                                    <span ng-switch-when="remark">{{r.verbose.data[schema.id].remark_num}}</span>
-                                    <span ng-switch-when="supplement" ng-bind-html="r.supplement[schema.id]"></span>
-                                    <span ng-switch-when="calcScore">{{r.score[schema.id]}}</span>
-                                    <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
-                                    <span ng-if="fromApp.fromApp&&schema.id==='_round_id'&&r.group_id!==r.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span>
-                                </td>
-                                <td>云录音/云资源</td>
-                                <td>
-                                    <button class='btn btn-xs btn-danger' ng-click='removeCowork(c)'>
-                                        <span class='glyphicon glyphicon-remove'></span>
-                                    </button>
+                                    <span ng-switch-when="date"><span ng-if="c.data[schema.id]">{{(c.data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span></span>
+                                    <span ng-switch-when="url" ng-bind-html="c.data[schema.id]._text"></span>
+                                    <span ng-switch-when="remark">{{c.data[schema.id].remark_num}}</span>
+                                    <span ng-switch-when="supplement" ng-bind-html="c.supplement[schema.id]"></span>
+                                    <span ng-switch-when="calcScore">{{c.score[schema.id]}}</span>
+                                    <span ng-switch-default ng-bind-html="c.data[schema.id]"></span>
+                                    <span ng-if="fromApp.fromApp&&schema.id==='_round_id'&&r.group_id!==c.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{c.user.group.title||'无'}}】"></span>
                                 </td>
                             </tr>
                         </tbody>

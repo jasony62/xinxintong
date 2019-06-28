@@ -100,7 +100,7 @@ class record extends main_base {
         !empty($oPosted->keyword) && $oCriteria->keyword = $oPosted->keyword;
 
         $oCriteria->recordData = new \stdClass;
-        $oCriteria->recordData->rid = !empty($oPosted->record->rid) ? $oPosted->record->rid : '';
+        $oCriteria->recordData->rid = !empty($oPosted->record->rid) ? $oPosted->record->rid : 'ALL';
 
         /* 指定了分组过滤条件 */
         if (!empty($oPosted->record->group_id)) {

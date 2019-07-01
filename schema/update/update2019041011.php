@@ -43,7 +43,7 @@ $sqls[] = "ALTER TABLE  account_group add p_create_self_site tinyint not null de
 //
 $sqls[] = "INSERT INTO account_group(group_id,group_name,asdefault,p_mpgroup_create,p_mp_create,p_mp_permission,p_platform_manage,p_create_self_site) VALUES(101,'dev189',0,0,0,0,0,0)";
 //
-$sqls[] = "INSERT INTO account_third(id,creator,creator_name,create_at,appname,app_short_name,pic,appid,appsecret) VALUES('" . uniqid() . "','5771d91dcf713','aly'," . time() . ",'中国电信能力开放平台','dev189','/kcfinder/upload/c1aa4b1cb943c85ef98ca36db3d00620/图片/能力开放图标.jpg','20190403105121FZlTKz','86062df978b648afb903a2774cab443f')";
+// $sqls[] = "INSERT INTO account_third(id,creator,creator_name,create_at,appname,app_short_name,pic,appid,appsecret) VALUES('" . uniqid() . "','5771d91dcf713','aly'," . time() . ",'中国电信能力开放平台','dev189','/kcfinder/upload/c1aa4b1cb943c85ef98ca36db3d00620/图片/能力开放图标.jpg','20190403105121FZlTKz','86062df978b648afb903a2774cab443f')";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

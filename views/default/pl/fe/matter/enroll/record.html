@@ -112,20 +112,23 @@
                                 <td>{{::r.round.title}}</td>
                                 <td ng-repeat="schema in recordSchemasExt" ng-switch on="schema.type">
                                     <div ng-switch-when="image">
-                                        <span><img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' /></span>
+                                        <span><img ng-repeat="img in r.data[schema.id].split(',')" ng-src='{{img}}' /></span>
                                     </div>
                                     <div ng-switch-when="file">
-                                        <span ng-repeat='file in r._data[schema.id]'><a href ng-click="openFileUrl(file)" target="_blank">{{file.name}}</a></span>
+                                        <span ng-repeat='file in r.data[schema.id]'><a href ng-click="openFileUrl(file)" target="_blank">{{file.name}}</a></span>
                                     </div>
                                     <div ng-switch-when="multitext">
-                                        <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>
+                                        <p ng-repeat='item in r.data[schema.id]'><span ng-bind-html="item.value"></span></p>
                                     </div>
-                                    <span ng-switch-when="date"><span ng-if="r._data[schema.id]">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span></span>
-                                    <span ng-switch-when="url" ng-bind-html="r._data[schema.id]._text"></span>
+                                    <span ng-switch-when="date"><span ng-if="r.data[schema.id]">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span></span>
+                                    <span ng-switch-when="url" ng-bind-html="r.data[schema.id]._text"></span>
+                                    <div ng-switch-when="score">
+                                        <p ng-repeat="item in r.data[schema.id]"><span ng-bind-html="item.title"></span>:<span ng-bind-html="item.score"></span></p>
+                                    </div>
                                     <span ng-switch-when="remark">{{r.verbose.data[schema.id].remark_num}}</span>
                                     <span ng-switch-when="supplement" ng-bind-html="r.supplement[schema.id]"></span>
                                     <span ng-switch-when="calcScore">{{r.score[schema.id]}}</span>
-                                    <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
+                                    <span ng-switch-default ng-bind-html="r.data[schema.id]"></span>
                                     <span ng-if="fromApp.fromApp&&schema.id==='_round_id'&&r.group_id!==r.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span>
                                 </td>
                                 <td ng-if="bRequireScore" ng-bind="::r.score.sum"></td>
@@ -226,6 +229,9 @@
                                     </div>
                                     <span ng-switch-when="date"><span ng-if="c.data[schema.id]">{{(c.data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span></span>
                                     <span ng-switch-when="url" ng-bind-html="c.data[schema.id]._text"></span>
+                                    <div ng-switch-when="score">
+                                        <p ng-repeat="item in c.data[schema.id]"><span ng-bind-html="item.title"></span>:<span ng-bind-html="item.score"></span></p>
+                                    </div>
                                     <span ng-switch-when="remark">{{c.data[schema.id].remark_num}}</span>
                                     <span ng-switch-when="supplement" ng-bind-html="c.supplement[schema.id]"></span>
                                     <span ng-switch-when="calcScore">{{c.score[schema.id]}}</span>

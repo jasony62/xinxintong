@@ -78,6 +78,10 @@ class record extends base {
         // 提交数据的用户
         $oUser = $this->getUser($oEnlApp, $oEnlData);
 
+        // 将数据保存在日志中
+        $modelLog = $this->model('log');
+        $logid = $modelLog->log($oUser->uid, 'enroll:' . $oEnlApp->id . '.record.submit', $modelLog->toJson($oEnlData));
+
         /* 检查是否允许提交记录 */
         $aResultCanSubmit = $this->_canSubmit($oEnlApp, $oUser, $oEnlData, $ek, $rid);
         if ($aResultCanSubmit[0] === false) {
@@ -189,6 +193,9 @@ class record extends base {
         if ($this->getDeepValue($oEnlApp, 'notifyConfig.submit.valid') === true) {
             $this->_notifyReceivers($oEnlApp, $oRecord);
         }
+
+        // 清除临时日志
+        $modelLog->remove($logid);
 
         return new \ResponseData($oRecord);
     }

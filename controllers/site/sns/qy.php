@@ -195,8 +195,6 @@ class qy extends \xxt_base {
 				$tr = $this->model('sns\reply\text', $data, $rst, false);
 				$tr->exec();
 			}
-			// log
-			$this->model('log')->writeSubscribe($siteid, $openid);
 		}
 
 		if ($reply = $this->model('sns\qy\event')->otherCall($siteid, 'subscribe')) {

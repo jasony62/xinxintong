@@ -1,23 +1,43 @@
+html,
 body {
-    font-family: Microsoft Yahei, Arial;
-    font-size: 14px;
-    background: #fafafa;
+    width: 100%;
+    height: auto;
 }
 
-body>.container {
-    background: #fafafa;
+body {
+    position: relative;
+    font-size: 16px;
+    padding-top: 60px;
+    padding-bottom: 60px;
+}
+
+img {
+    max-width: 100%;
+}
+
+hr {
+    margin: 12px 0 12px;
+}
+
+p {
+    word-break: break-all;
+}
+
+ul,
+ol,
+li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+a:hover,
+a:focus {
+    text-decoration: none;
 }
 
 .ng-cloak {
     display: none;
-}
-
-.main-navbar .navbar-brand:hover {
-    color: #fff;
-}
-
-.main-navbar .navbar-nav li {
-    font-size: 18px;
 }
 
 .form-inline .form-control {
@@ -30,40 +50,60 @@ nav form label {
     font-weight: normal;
 }
 
-@media screen and (min-width:768px) {
-    .navbar-nav>li>a {
-        padding: 17.5px 30px;
-        font-size: 18px;
-        line-height: 1;
-    }
-
+.site-navbar-default .menus {
+    width: 70%;
+    padding-top: 20px;
+    overflow-y: hidden;
+    overflow-x: auto;
+    white-space: nowrap;
 }
 
-@media screen and (max-width:768px) {
-    .navbar-brand {
-        width: 100%;
-        text-align: center;
-    }
+.menus>.menu {
+    float: left;
+    margin-right: 10%;
+}
 
-    .navbar-brand>.icon-note {
-        display: inline-block;
-        width: 124px;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        white-space: nowrap;
+.menus>.menu>.menu-link {
+    display: block;
+    font-size: 14px;
+    line-height: 1;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+    color: #ffdcb7;
+}
+
+.menus>.menu.active>.menu-link {
+    font-weight: 600;
+    color: #fff;
+}
+
+.menus>.menu>.line {
+    display: none;
+    width: 50%;
+    height: 2px;
+    margin: 0 auto;
+    background-color: #fff;
+}
+
+.menus>.menu.active>.line {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .navbar-right {
+        float: right !important;
+        margin-right: -15px;
     }
 
     .navbar-nav {
-        margin: 8px 0;
-        position: absolute;
-        top: 0;
-        right: 0;
+        float: left;
+        margin: 0;
     }
 
-    .nav>li>a {
-        padding: 10px 10px;
+    .navbar-nav>li>a {
+        padding-top: 15px;
+        padding-bottom: 15px;
     }
-
 }
 
 @keyframes loadingRunning {
@@ -206,14 +246,21 @@ nav form label {
     margin-bottom: 20px;
 }
 
-.nav-pills>li>a, .nav-pills>li>a:focus, .nav-pills>li>a:hover, .nav-pills>li.active>a, .nav-pills>li.active>a:focus, .nav-pills>li.active>a:hover {
+.nav-pills>li>a,
+.nav-pills>li>a:focus,
+.nav-pills>li>a:hover,
+.nav-pills>li.active>a,
+.nav-pills>li.active>a:focus,
+.nav-pills>li.active>a:hover {
     background: #fff;
     border: 1px solid #009900;
     color: darkgreen;
     margin: 0 4px;
 }
 
-.nav-pills>li.active>a, .nav-pills>li.active>a:focus, .nav-pills>li.active>a:hover {
+.nav-pills>li.active>a,
+.nav-pills>li.active>a:focus,
+.nav-pills>li.active>a:hover {
     background: lightgreen;
 }
 
@@ -260,7 +307,8 @@ nav form label {
     position: relative;
 }
 
-#docs:before, #recommends:before {
+#docs:before,
+#recommends:before {
     content: '';
     display: block;
     position: absolute;
@@ -277,7 +325,8 @@ nav form label {
     font-size: 12px;
 }
 
-.timeline .date, .timeline .time {
+.timeline .date,
+.timeline .time {
     white-space: nowrap;
 }
 
@@ -294,17 +343,21 @@ nav form label {
     right: -8px;
 }
 
-.remark_num, .like_num {
+.remark_num,
+.like_num {
     display: table-cell;
     width: 1%;
     text-align: center;
 }
 
-.recommend img, .recommend video, .recommend audio {
+.recommend img,
+.recommend video,
+.recommend audio {
     max-width: 100%;
 }
 
-.doc .summary, .recommend .value {
+.doc .summary,
+.recommend .value {
     color: #999;
 }
 

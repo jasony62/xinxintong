@@ -81,6 +81,11 @@ ngApp.controller('ctrlMain', ['$scope', '$parse', 'tmsLocation', 'http2', functi
     var _oMission, _oCriteria;
     $scope.siteid = LS.s().site;
     $scope.criteria = _oCriteria = {};
+    $scope.subView = "main";
+    $scope.viewTo = function(view) {
+        var url = LS.j('', 'site', 'mission') + '&page=' + view.type;
+        location.href = url;
+    };
     $scope.siteUser = function () {
         var url;
         url = location.protocol + '//' + location.host;
@@ -127,29 +132,13 @@ ngApp.controller('ctrlMain', ['$scope', '$parse', 'tmsLocation', 'http2', functi
                 if (oMisUser) {
                     oCustom = $parse('main.nav')(oMisUser.custom);
                 }
-                if (!oCustom) {
-                    oCustom = {
-                        stopTip: false
-                    };
-                }
-                /* 设置页面导航 */
-                $scope.popNav = {
-                    navs: [{
-                        name: 'board',
-                        title: '项目公告',
-                        url: LS.j('', 'site', 'mission') + '&page=board'
-                    }],
-                    custom: oCustom
-                };
-                $scope.$watch('popNav.custom', function (nv, ov) {
-                    if (nv !== ov) {
-                        http2.post(LS.j('user/updateCustom', 'site', 'mission'), {
-                            main: {
-                                nav: $scope.popNav.custom
-                            }
-                        }).then(function (rsp) {});
-                    }
-                }, true);
+                $scope.views = [{
+                    type: 'main',
+                    title: '项目活动',
+                },{
+                    type: 'board',
+                    title: '项目公告'
+                }];
             });
         }
     });

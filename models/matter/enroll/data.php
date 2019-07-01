@@ -1050,11 +1050,11 @@ class data_model extends entity_model {
     /**
      * 答案清单
      */
-    public function coworkDataByApp($oApp, $oOptions = null, $oCriteria = null, $oUser = null) {
+    public function coworkDataByApp($oApp, $oOptions = null, $oCriteria = null, $oUser = null, $coworkSchemaIds = []) {
         if (is_string($oApp)) {
             $oApp = $this->model('matter\enroll')->byId($oApp, ['cascaded' => 'N']);
         }
-        if (false === $oApp && empty($oApp->dynaDataSchemas)) {
+        if (false === $oApp || $oApp->state != '1') {
             return false;
         }
         if ($oOptions && is_array($oOptions)) {
@@ -1062,18 +1062,21 @@ class data_model extends entity_model {
         }
         // 活动中是否存在协作填写题
         $oSchemasById = new \stdClass; // 方便查找题目
-        $coworkSchemaIds = [];
+        $oCoworkSchemaIds = [];
         foreach ($oApp->dynaDataSchemas as $oSchema) {
             $oSchemasById->{$oSchema->id} = $oSchema;
             if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
-                $coworkSchemaIds[] = $oSchema->id;
+                $oCoworkSchemaIds[] = $oSchema->id;
             }
         }
         if (empty($coworkSchemaIds)) {
-            return false;
+            if (empty($oCoworkSchemaIds)) {
+                return false;
+            }
+            $coworkSchemaIds = $oCoworkSchemaIds;
         }
 
-        // 指定记录活动下的记录记录
+        // 指定记录活动下的记录
         $w = "rd.state=1 and rd.aid='{$oApp->id}' and rd.multitext_seq > 0 and rd.value<>''";
         $coworkSchemaId = implode("','", $coworkSchemaIds);
         $w .= " and rd.schema_id in ('" . $coworkSchemaId . "')";
@@ -1199,7 +1202,7 @@ class data_model extends entity_model {
                             $whereByData .= ')';
                         }
                     } else {
-                        $whereByData .= 'r.data like \'%"' . $k . '":"' . $v . '"%\'';
+                        $whereByData .= 'r.data like \'%"' . $k . '":"%' . $v . '%\'';
                     }
                     $whereByData .= ')';
                 }
@@ -1208,7 +1211,11 @@ class data_model extends entity_model {
         }
 
         // 查询参数
-        $fields = 'r.id record_id,rd.id data_id,rd.enroll_key,rd.rid,rd.purpose,rd.submit_at enroll_at,rd.userid,rd.group_id,rd.nickname,rd.schema_id,rd.value,rd.score,rd.agreed,rd.like_num,rd.like_log,rd.remark_num,rd.dislike_num,rd.dislike_log,r.data';
+        if (!empty($oOptions->fields)) {
+			$fields = $oOptions->fields;
+		} else {
+			$fields = 'r.id record_id,rd.id data_id,rd.enroll_key,rd.rid,rd.purpose,rd.submit_at enroll_at,rd.userid,rd.group_id,rd.nickname,rd.schema_id,rd.value,rd.score,rd.agreed,rd.like_num,rd.like_log,rd.remark_num,rd.dislike_num,rd.dislike_log,r.data';
+		}
         $table = "xxt_enroll_record_data rd,xxt_enroll_record r";
         $w .= " and rd.enroll_key = r.enroll_key and r.state = 1";
 

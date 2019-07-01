@@ -1,17 +1,25 @@
-body{font-family:Microsoft Yahei,Arial;font-size:14px;background:#fafafa;}
-body>.container{background:#fafafa;}
-.ng-cloak{display:none;}
+html,body{width: 100%;height: auto;}
+body{position: relative;font-size: 16px;padding-top: 60px;padding-bottom: 60px;}
+img{max-width: 100%;}
+hr{margin: 12px 0 12px;}
+p{word-break: break-all;}
+ul,ol,li{margin: 0;padding: 0;list-style: none;}
+a:hover,a:focus{text-decoration: none;}
+.ng-cloak{display: none;}
 .form-inline .form-control{display:inline-block;width:auto;vertical-align:middle;}
 nav form label{font-weight:normal;}
-@media screen and (min-width:768px){
-    .navbar-nav>li>a{padding:17.5px 30px;font-size:18px;line-height:1;}
+.site-navbar-default .menus{width:70%;padding-top:20px;overflow-y: hidden;overflow-x: auto;white-space: nowrap;}
+.menus>.menu{float: left;margin-right: 10%;}
+.menus>.menu>.menu-link{display: block;font-size:14px;line-height:1;letter-spacing:2px;margin-bottom:4px;color:#ffdcb7;}
+.menus>.menu.active>.menu-link{font-weight:600;color:#fff;}
+.menus>.menu>.line{display:none;width:50%;height:2px;margin:0 auto;background-color:#fff;}
+.menus>.menu.active>.line{display: block;}    
+@media (max-width: 768px) {
+    .navbar-right {float: right!important;margin-right: -15px;}
+    .navbar-nav {float: left;margin: 0;}
+    .navbar-nav>li>a {padding-top: 15px;padding-bottom: 15px;}
 }
-@media screen and (max-width:768px){
-    .navbar-brand{width:100%;text-align:center;}
-    .navbar-brand>.icon-note{display:inline-block;width:124px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}
-    .navbar-nav{margin:8px 0;position:absolute;top:0;right:0;}
-    .nav>li>a{padding:10px 10px;}
-}
+    
 @keyframes loadingRunning{
     0%{transform:rotate(0deg)}
     12%{transform:rotate(45deg)}

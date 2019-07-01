@@ -429,7 +429,7 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
     };
 
     function addToCache() {
-        sessionStorage.setItem('listStorageY', document.getElementById('repos').scrollTop);
+        sessionStorage.setItem('listStorageY', document.documentElement.scrollTop);
         var cacheData = {
             'schemaCounter': $scope.schemaCounter,
             'singleFilters': $scope.singleFilters,
@@ -509,7 +509,7 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
         $scope.recordList(at).then(function () {
             if (at == _cPage.at) {
                 $timeout(function () {
-                    document.getElementById('repos').scrollTop = parseInt(window.sessionStorage.listStorageY);
+                    document.documentElement.scrollTop = parseInt(window.sessionStorage.listStorageY);
                     window.sessionStorage.clear();
                 });
             }
@@ -671,7 +671,7 @@ ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLo
     };
 
     function addToCache() {
-        sessionStorage.setItem('listStorageY', document.getElementById('repos').scrollTop);
+        sessionStorage.setItem('listStorageY', document.documentElement.scrollTop);
         var cacheData = {
             'schemaCounter': $scope.schemaCounter,
             'singleFilters': $scope.singleFilters,
@@ -730,7 +730,7 @@ ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLo
             $scope.recordList(at).then(function () {
                 if (at == _cPage.at) {
                     $timeout(function () {
-                        document.getElementById('repos').scrollTop = parseInt(window.sessionStorage.listStorageY);
+                        document.documentElement.scrollTop = parseInt(window.sessionStorage.listStorageY);
                         window.sessionStorage.clear();
                     });
                 }
@@ -769,7 +769,7 @@ ngApp.controller('ctrlReposTopic', ['$scope', '$q', 'http2', '$timeout', 'tmsLoc
     };
 
     function addToCache() {
-        sessionStorage.setItem('listStorageY', document.getElementById('topic').scrollTop);
+        sessionStorage.setItem('listStorageY', document.documentElement.scrollTop);
         var cacheData = {
             'schemaCounter': $scope.schemaCounter,
             'singleFilters': $scope.singleFilters,
@@ -869,7 +869,7 @@ ngApp.controller('ctrlReposTopic', ['$scope', '$q', 'http2', '$timeout', 'tmsLoc
         $scope.criteria = _oCriteria = cacheData.currentCriteria;
         $scope.topics = cacheData.topics;
         $timeout(function () {
-            document.getElementById('topic').scrollTop = parseInt(window.sessionStorage.listStorageY);
+            document.documentElement.scrollTop = parseInt(window.sessionStorage.listStorageY);
             window.sessionStorage.clear();
         });
     } else {

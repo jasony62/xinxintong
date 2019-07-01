@@ -160,7 +160,7 @@ class main extends \pl\fe\base {
 	/**
 	 * 用户行为统计数据
 	 */
-	public function userActions_action($site, $orderby, $startAt, $endAt, $page = 1, $size = 30) {
+	public function userActions_action($site, $orderby = 'read', $startAt, $endAt, $page = 1, $size = 30) {
 		$rst = $this->_getUserActions($site, $orderby, $startAt, $endAt, $page, $size);
 
 		return new \ResponseData($rst);
@@ -168,7 +168,7 @@ class main extends \pl\fe\base {
 	/**
 	 *
 	 */
-	private function _getUserActions($site, $orderby, $startAt = '', $endAt = '', $page = '', $size = '') {
+	private function _getUserActions($site, $orderby = 'read', $startAt = '', $endAt = '', $page = '', $size = '') {
 		$model = $this->model();
 		$q = [];
 

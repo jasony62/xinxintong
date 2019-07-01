@@ -76,7 +76,7 @@
                                     <select class='form-control' title='团队列表' ng-model="frameState.sid">
                                         <option value="{{site.id}}" ng-repeat="site in sites">{{site.name}}</option>
                                     </select>
-                                    <div class='input-group-btn' ng-if="frameState.sid">
+                                    <div class='input-group-btn' ng-if="frameState.sid && frameState.sid!=='_coworker'">
                                         <button class='btn btn-default' ng-click="openSite(frameState.sid)"><span class='glyphicon glyphicon-cog'></span> 设置</button>
                                     </div>
                                 </div>
@@ -130,10 +130,10 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/angular-route.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-    <script src="/static/js/ui-tms.js"></script>
-    <script src="/static/js/xxt.ui.js"></script>
+    <script src="<?php echo auto_version('/static/js/ui-tms.js');?>"></script>
+    <script src="<?php echo auto_version('/static/js/xxt.ui.js');?>"></script>
     <script src="/static/js/resumable.js"></script>
-    <script src="/static/js/xxt.ui.tmplshop.js?_=2"></script>
+    <script src="<?php echo auto_version('/static/js/xxt.ui.tmplshop.js');?>"></script>
     <script src="<?php echo auto_version('/asset/js/xxt.ui.http.js');?>"></script>
     <script src="<?php echo auto_version('/asset/js/xxt.ui.notice.js');?>"></script>
     <script src="<?php echo auto_version('/asset/js/xxt.ui.schema.js');?>"></script>

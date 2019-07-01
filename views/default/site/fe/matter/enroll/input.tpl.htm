@@ -17,16 +17,16 @@
     <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
     <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <div id="wxUploadFileTip" uib-popover-template="'wxUploadFileTip.html'" uib-popover popover-placement="bottom" popover-trigger="'show'" popover-append-to-body="true"></div>
-    <nav class='navbar site-navbar-default'>
+    <nav class='navbar site-navbar-default navbar-fixed-top'>
         <div class='container'>
-            <div class="navbar-header">
+            <div class="navbar-header pull-left">
                 <a href class="navbar-brand" ng-click="gotoHome()">
                     <i class="glyphicon glyphicon-home"></i> <span class="visible-lg-inline">首页</span>
                 </a>
             </div>
-            <ul class="nav navbar-nav navbar-right">
+            <ul class="nav navbar-nav pull-right">
                 <li class="pull-left">
-                    <a href ng-click="siteUser(app.siteid)" class="tms-switch-siteuser"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline"> 个人中心</span></a>
+                    <a href ng-click="siteUser(app.siteid)"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline"> 个人中心</span></a>
                 </li>
             </ul>
         </div>
@@ -57,12 +57,11 @@
             <form name='enroll' novalidate dynamic-html="page.html"></form>
         </div>
     </div>
-    <nav class="navbar site-navbar-tab navbar-default navbar-fixed-bottom">
+    <nav class="navbar site-navbar-light navbar-fixed-bottom">
         <div class="container-fluid text-center">
             <button ng-repeat="act in page.actSchemas" class="button-highlight btn navbar-btn" ng-disabled="act.disabled" ng-click="doAction($event,act)"><span>{{::act.label}}</span></button>
         </div>
     </nav>
-    <div ng-if="popAct.acts.length" tms-pop-act acts="popAct.acts" custom="popAct.custom" close-after='5000'></div>
     <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
     <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
     <div class="loading">

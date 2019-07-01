@@ -1,8 +1,8 @@
-define(['require', 'frame/RouteParam', 'frame/const'], function(require, RouteParam, CstApp) {
+define(['require', 'frame/RouteParam', 'frame/const'], function (require, RouteParam, CstApp) {
     'use strict';
     var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'http.ui.xxt', 'notice.ui.xxt', 'tmplshop.ui.xxt', 'pl.const', 'service.matter', 'page.ui.xxt', 'modal.ui.xxt', 'schema.ui.xxt', 'ui.xxt']);
     ngApp.constant('cstApp', CstApp);
-    ngApp.config(['$controllerProvider', '$provide', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', function($controllerProvider, $provide, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {
+    ngApp.config(['$controllerProvider', '$provide', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', function ($controllerProvider, $provide, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {
         ngApp.provider = {
             controller: $controllerProvider.register,
             directive: $compileProvider.directive,
@@ -17,7 +17,7 @@ define(['require', 'frame/RouteParam', 'frame/const'], function(require, RoutePa
             'show': 'hide'
         });
     }]);
-    ngApp.controller('ctrlFrame', ['$scope', '$location', 'http2', 'srvUserNotice', '$uibModal', 'cstApp', function($scope, $location, http2, srvUserNotice, $uibModal, cstApp) {
+    ngApp.controller('ctrlFrame', ['$scope', '$location', 'http2', 'srvUserNotice', '$uibModal', 'cstApp', function ($scope, $location, http2, srvUserNotice, $uibModal, cstApp) {
         var _oFrameState;
         _oFrameState = {
             sid: '',
@@ -26,7 +26,7 @@ define(['require', 'frame/RouteParam', 'frame/const'], function(require, RoutePa
         };
         $scope.opened = '';
         /* 设置页面入口状态 */
-        $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+        $scope.$on('$locationChangeSuccess', function (event, currentRoute) {
             var subView = currentRoute.match(/[^\/]+$/)[0];
             subView.indexOf('?') !== -1 && (subView = subView.substr(0, subView.indexOf('?')));
             subView = subView === 'fe' ? 'main' : subView;
@@ -62,24 +62,24 @@ define(['require', 'frame/RouteParam', 'frame/const'], function(require, RoutePa
             }
         });
         var url = '/rest/pl/fe/user/get?_=' + (new Date * 1);
-        http2.get(url).then(function(rsp) {
+        http2.get(url).then(function (rsp) {
             $scope.loginUser = rsp.data;
         });
-        $scope.getMatterTag = function() {
-            http2.get('/rest/pl/fe/matter/tag/listTags?site=' + _oFrameState.sid).then(function(rsp) {
+        $scope.getMatterTag = function () {
+            http2.get('/rest/pl/fe/matter/tag/listTags?site=' + _oFrameState.sid).then(function (rsp) {
                 $scope.tagsMatter = rsp.data;
             });
         };
-        $scope.closeNotice = function(log) {
-            srvUserNotice.closeNotice(log).then(function(rsp) {
+        $scope.closeNotice = function (log) {
+            srvUserNotice.closeNotice(log).then(function (rsp) {
                 $scope.notice.logs.splice($scope.notice.logs.indexOf(log), 1);
                 $scope.notice.page.total--;
             });
         };
-        srvUserNotice.uncloseList().then(function(result) {
+        srvUserNotice.uncloseList().then(function (result) {
             $scope.notice = result;
         });
-        $scope.changeScope = function(scope) {
+        $scope.changeScope = function (scope) {
             _oFrameState.scope = scope;
             switch (scope) {
                 case 'mission':
@@ -101,49 +101,44 @@ define(['require', 'frame/RouteParam', 'frame/const'], function(require, RoutePa
                     break;
             }
         };
-        $scope.openSite = function(id) {
+        $scope.openSite = function (id) {
             location.href = '/rest/pl/fe/site?site=' + id;
         };
-        $scope.createSite = function() {
+        $scope.createSite = function () {
             location.href = '/rest/pl/fe/site/plan';
         };
         /*新建素材*/
         var _fns = {
-            addLink: function(site) {
-                http2.get('/rest/pl/fe/matter/link/create?site=' + site.id).then(function(rsp) {
+            addLink: function (site) {
+                http2.get('/rest/pl/fe/matter/link/create?site=' + site.id).then(function (rsp) {
                     location.href = '/rest/pl/fe/matter/link?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
-            addArticle: function(site) {
-                http2.get('/rest/pl/fe/matter/article/create?site=' + site.id).then(function(rsp) {
+            addArticle: function (site) {
+                http2.get('/rest/pl/fe/matter/article/create?site=' + site.id).then(function (rsp) {
                     location.href = '/rest/pl/fe/matter/article?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
-            addNews: function(site) {
-                http2.get('/rest/pl/fe/matter/news/create?site=' + site.id).then(function(rsp) {
-                    location.href = '/rest/pl/fe/matter/news?site=' + site.id + '&id=' + rsp.data.id;
-                });
-            },
-            addChannel: function(site) {
-                http2.get('/rest/pl/fe/matter/channel/create?site=' + site.id).then(function(rsp) {
+            addChannel: function (site) {
+                http2.get('/rest/pl/fe/matter/channel/create?site=' + site.id).then(function (rsp) {
                     location.href = '/rest/pl/fe/matter/channel?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
-            addEnroll: function(site) {
+            addEnroll: function (site) {
                 location.href = '/rest/pl/fe/matter/enroll/shop?site=' + site.id;
             },
-            addSignin: function(site) {
+            addSignin: function (site) {
                 location.href = '/rest/pl/fe/matter/signin/plan?site=' + site.id;
             },
-            addGroup: function(site) {
+            addGroup: function (site) {
                 location.href = '/rest/pl/fe/matter/group/plan?site=' + site.id;
             },
-            addCustom: function(site) {
-                http2.get('/rest/pl/fe/matter/custom/create?site=' + site.id).then(function(rsp) {
+            addCustom: function (site) {
+                http2.get('/rest/pl/fe/matter/custom/create?site=' + site.id).then(function (rsp) {
                     location.href = '/rest/pl/fe/matter/custom?site=' + site.id + '&id=' + rsp.data.id;
                 });
             },
-            addText: function(site) {
+            addText: function (site) {
                 location.href = '/rest/pl/fe/matter/text?site=' + site.id;
             }
         };
@@ -152,24 +147,29 @@ define(['require', 'frame/RouteParam', 'frame/const'], function(require, RoutePa
             var fnName = 'add' + matterType[0].toUpperCase() + matterType.substr(1);
             _fns[fnName].call(_fns, site);
         }
-        $scope.addMatter = function(matterType) {
+        $scope.addMatter = function (matterType) {
             if (_oFrameState.sid && matterType) {
-                var site = { id: _oFrameState.sid };
+                var site = {
+                    id: _oFrameState.sid
+                };
                 addMatter(site, matterType);
             }
         };
 
-        $scope.listSite = function() {
+        $scope.listSite = function () {
             var url, oPlSite;
             url = '/rest/pl/fe/site/list';
-            oPlSite = { id: '_coworker', name: '被邀合作项目' };
-            http2.get(url + '?_=' + (new Date * 1)).then(function(rsp) {
+            oPlSite = {
+                id: '_coworker',
+                name: '被邀合作项目'
+            };
+            http2.get(url + '?_=' + (new Date * 1)).then(function (rsp) {
                 var userSites, lsFrameState;
                 $scope.sites = userSites = rsp.data;
                 userSites.splice(0, 0, oPlSite);
                 /* 恢复上一次访问的状态 */
                 if (window.localStorage) {
-                    $scope.$watch('frameState', function(nv) {
+                    $scope.$watch('frameState', function (nv) {
                         if (nv) {
                             window.localStorage.setItem("pl.fe.frameState", JSON.stringify(nv));
                         }
@@ -208,30 +208,32 @@ define(['require', 'frame/RouteParam', 'frame/const'], function(require, RoutePa
                 $scope.frameState = _oFrameState;
             });
         };
-        $scope.matterTagsFram = function(filter, filter2) {
+        $scope.matterTagsFram = function (filter, filter2) {
             var oTags, tagsOfData;
             tagsOfData = filter2.byTags;
             oTags = $scope.tagsMatter;
             $uibModal.open({
                 templateUrl: 'tagMatterData.html',
-                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                controller: ['$scope', '$uibModalInstance', function ($scope2, $mi) {
                     var model;
                     $scope2.apptags = oTags;
                     $scope2.model = model = {
                         selected: []
                     };
                     if (tagsOfData) {
-                        tagsOfData.forEach(function(oTag) {
+                        tagsOfData.forEach(function (oTag) {
                             var index;
                             if (-1 !== (index = $scope2.apptags.indexOf(oTag))) {
                                 model.selected[$scope2.apptags.indexOf(oTag)] = true;
                             }
                         });
                     }
-                    $scope2.cancel = function() { $mi.dismiss(); };
-                    $scope2.ok = function() {
+                    $scope2.cancel = function () {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function () {
                         var addMatterTag = [];
-                        model.selected.forEach(function(selected, index) {
+                        model.selected.forEach(function (selected, index) {
                             if (selected) {
                                 addMatterTag.push($scope2.apptags[index]);
                             }
@@ -252,7 +254,7 @@ define(['require', 'frame/RouteParam', 'frame/const'], function(require, RoutePa
         $scope.isNavCollapsed = isNavCollapsed;
     }]);
     /***/
-    require(['domReady!'], function(document) {
+    require(['domReady!'], function (document) {
         angular.bootstrap(document, ["app"]);
     });
     /***/

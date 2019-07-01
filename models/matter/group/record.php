@@ -278,6 +278,11 @@ class record_model extends \matter\enroll\record_base {
         if (!empty($oOptions->nickname)) {
             $w .= " and nickname like '%{$oOptions->nickname}%'";
         }
+        // 用户角色过滤
+        if (!empty($oOptions->leader) && is_array($oOptions->leader)) {
+            $leader = "('" . implode("','", $oOptions->leader) . "')";
+            $w .= " and is_leader in {$leader}";
+        }
         $q = [
             $fields,
             'xxt_group_record',
@@ -472,6 +477,8 @@ class record_model extends \matter\enroll\record_base {
     }
     /**
      * 检查是否存在匹配的分组记录
+     *
+     * 只读的题目不做检查
      */
     public function matchByData($targetAppId, $oSrcApp, &$oEnlData, $oUser = null) {
         /* 获得要检查的记录项 */
@@ -479,11 +486,13 @@ class record_model extends \matter\enroll\record_base {
         $oRequireCheckedData = new \stdClass;
         $dataSchemas = isset($oSrcApp->dynaDataSchemas) ? $oSrcApp->dynaDataSchemas : $oSrcApp->dataSchemas;
         foreach ($dataSchemas as $oSchema) {
-            if ($this->getDeepValue($oSchema, 'requireCheck') === 'Y' && $this->getDeepValue($oSchema, 'fromApp') === $targetAppId) {
-                $countRequireCheckedData++;
-                $val = $this->getValueBySchema($oSchema, $oEnlData);
-                if (!empty($val)) {
-                    $oRequireCheckedData->{$oSchema->id} = $val;
+            if ($this->getDeepValue($oSchema, 'readonly') !== 'Y') {
+                if ($this->getDeepValue($oSchema, 'requireCheck') === 'Y' && $this->getDeepValue($oSchema, 'fromApp') === $targetAppId) {
+                    $countRequireCheckedData++;
+                    $val = $this->getValueBySchema($oSchema, $oEnlData);
+                    if (!empty($val)) {
+                        $oRequireCheckedData->{$oSchema->id} = $val;
+                    }
                 }
             }
         }

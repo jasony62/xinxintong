@@ -87,16 +87,12 @@ class round extends \pl\fe\matter\base {
         $modelRnd = $this->model('matter\enroll\round');
         $oPosted = $this->getPostJson();
 
-        if (isset($oPosted->start_at) && isset($oPosted->end_at) && $oPosted->start_at > $oPosted->end_at) {
-            return new \ResponseError('添加失败，本轮次的开始时间不能晚于结束时间！');
+        $aResult = $modelRnd->create($oApp, $oPosted, $oUser);
+        if ($aResult[0] === false) {
+            return new \ResponseError($aResult[1]);
         }
 
-        $rst = $modelRnd->create($oApp, $oPosted, $oUser);
-        if ($rst[0] === false) {
-            return new \ResponseError($rst[1]);
-        }
-
-        return new \ResponseData($rst[1]);
+        return new \ResponseData($aResult[1]);
     }
     /**
      * 根据填写时段规则，将指定的时段设置为启用时段
@@ -204,24 +200,6 @@ class round extends \pl\fe\matter\base {
 
         $oPosted = $this->getPostJson();
         $oUpdate = new \stdClass;
-
-        if (!empty($oPosted->start_at) && !empty($oPosted->end_at) && $oPosted->start_at > $oPosted->end_at) {
-            return new \ResponseError('更新失败，本轮次的开始时间不能晚于结束时间！');
-        }
-        /* 指定了开始时间的轮次，自动指定为启用状态 */
-        if ((int)$oRound->start_at > 0 && (int)$this->getDeepValue($oPosted, 'start_at', 0) === 0) {
-            $oPosted->state = 0;
-        } elseif ((int)$oRound->start_at === 0 && (int)$this->getDeepValue($oPosted, 'start_at', 0) > 0) {
-            $oPosted->state = 1;
-        }
-
-        /* 更改轮次的状态 */
-        if (isset($oPosted->state) && (int)$oPosted->state !== (int)$oRound->state && (int)$oPosted->state === 1 && (int)$oPosted->start_at === 0) {
-            if ($lastRound = $modelRnd->getAssignedActive($oApp)) {
-                return new \ResponseError('请先停止轮次【' . $lastRound->title . '】');
-            }
-        }
-
         foreach ($oPosted as $prop => $value) {
             switch ($prop) {
             case 'title':
@@ -231,11 +209,11 @@ class round extends \pl\fe\matter\base {
                 $oUpdate->purpose = in_array($value, ['C', 'B', 'S']) ? $value : 'C';
                 break;
             case 'state':
-                $oUpdate->state = (int)$value;
+                //$oUpdate->state = (int)$value;
                 break;
             case 'start_at':
             case 'end_at':
-                $oUpdate->{$prop} = (int)$value;
+                $oUpdate->{$prop} = (int) $value;
                 break;
             case 'mission_rid':
                 $oUpdate->mission_rid = $value;
@@ -243,8 +221,13 @@ class round extends \pl\fe\matter\base {
             }
         }
 
-        if (count((array)$oUpdate) === 0) {
+        if (count((array) $oUpdate) === 0) {
             return new \ResponseError('没有要更新的数据');
+        }
+
+        $aResult = $modelRnd->checkProperties($oUpdate, true);
+        if (false === $aResult[0]) {
+            return new \ResponseError($aResult[1]);
         }
 
         $modelRnd->update(

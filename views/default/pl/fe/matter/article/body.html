@@ -17,7 +17,12 @@
             <button class='btn pull-right' ng-class="{'btn-success':modified,'btn-default':!modified}" ng-click="submit()" ng-disabled="!modified">保存</button>
         </div>
     </div>
-    <tinymce id='body1' contenteditable='bodyEditable' toolbar="fullscreen code" height='1200'></tinymce>
+    <div ng-if="editing.is_markdown==='N'">
+        <tinymce id='body1' contenteditable='bodyEditable' toolbar="fullscreen code" height='1200'></tinymce>
+    </div>
+    <div id='markdownBody' ng-if="editing.is_markdown==='Y'">
+        <textarea ng-model="editing.body_md" style='height:1200px;width:100%;border:1 solid #ccc'></textarea>
+    </div>
     <div class='help-block'>正文：少于2万字符</div>
     <div class='form-group'>
         <button id='addAttachment' class='btn btn-default btn-sm'>

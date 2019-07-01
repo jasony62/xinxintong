@@ -26,7 +26,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
                 break;
             case 'channelMatter':
                 channelMatterPageAt++;
-                $scope.listChannelsMatters(matter);
+                getChannelMatters(matter);
                 break;
         }
     };
@@ -109,17 +109,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
         });
     };
     var _channelMatters = [];
-    $scope.listChannels1 = function() {
-        $http.get('/rest/home/listChannel?homeGroup=c').success(function(rsp) {
-            $scope.channels1 = rsp.data.matters;
-            if (rsp.data.matters.length) {
-                rsp.data.matters.forEach(function(item) {
-                    $scope.listChannelsMatters(item);
-                });
-            }
-        });
-    };
-    $scope.listChannelsMatters = function(item) {
+    function getChannelMatters(item) {
         var url;
         url = '/rest/site/fe/matter/channel/mattersGet';
         url += '?site=' + item.siteid + '&id=' + item.matter_id;
@@ -144,16 +134,21 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
             }
             $scope.channelMatters = _channelMatters;
         });
+    }
+    $scope.getCenterChannels = function() {
+        $http.get('/rest/home/listChannel?homeGroup=c').success(function(rsp) {
+            $scope.centerChannels = rsp.data.matters;
+            if (rsp.data.matters.length) {
+                rsp.data.matters.forEach(function(item) {
+                    getChannelMatters(item);
+                });
+            }
+        });
     };
-    $scope.listChannels2 = function() {
-        $scope.channelArticles = [], $scope.h_prev_channels = [], $scope.h_next_channels = [];
+    $scope.getRightChannels = function() {
+        $scope.channelArticles = [];
         $http.get('/rest/home/listChannel?homeGroup=r').success(function(rsp) {
-            $scope.channels2 = rsp.data.matters;
             rsp.data.matters.forEach(function(item, index) {
-                index < 3 ? $scope.h_prev_channels.push(item) : $scope.h_next_channels.push(item);
-            });
-            width > 768 ? $scope.h_channels_matters = $scope.channels2 : $scope.h_channels_matters = $scope.h_prev_channels;
-            $scope.h_channels_matters.forEach(function(item, index) {
                 var url;
                 url = '/rest/site/fe/matter/channel/mattersGet';
                 url += '?site=' + item.siteid + '&id=' + item.matter_id;
@@ -207,8 +202,8 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
         listTemplates();
         $scope.listApps();
         $scope.listMatters();
-        $scope.listChannels1();
-        $scope.listChannels2();
+        $scope.getCenterChannels();
+        $scope.getRightChannels();
         $scope.checked(0);
     }
     $scope.$watch('platform', function(platform) {

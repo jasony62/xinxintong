@@ -107,27 +107,30 @@ class signin_model extends enroll_base {
 	 * 返回签到活动列表
 	 */
 	public function &bySite($siteId, $page = null, $size = null, $onlySns = 'N', $aOptions = []) {
-		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : 's.*';
 		$q = [
 			$fields,
 			'xxt_signin s',
 			"state<>0 and siteid='$siteId'",
 		];
 		if (!empty($aOptions['byTitle'])) {
-			$q[2] .= " and title like '%" . $this->escape($aOptions['byTitle']) . "%'";
+			$q[2] .= " and s.title like '%" . $aOptions['byTitle'] . "%'";
+		}
+		if (!empty($aOptions['byCreator'])) {
+			$q[2] .= " and s.creater_name like '%" . $aOptions['byCreator'] . "%'";
 		}
 		if (!empty($aOptions['byTags'])) {
 			foreach ($aOptions['byTags'] as $tag) {
-				$q[2] .= " and matter_mg_tag like '%" . $this->escape($tag->id) . "%'";
+				$q[2] .= " and s.matter_mg_tag like '%" . $tag->id . "%'";
 			}
 		}
 		if ($onlySns === 'Y') {
-			$q[2] .= " and entry_rule like '%\"scope\":\"sns\"%'";
+			$q[2] .= " and s.entry_rule like '%\"scope\":\"sns\"%'";
 		}
 		if (isset($aOptions['byStar'])) {
 			$q[2] .= " and exists(select 1 from xxt_account_topmatter t where t.matter_type='signin' and t.matter_id=s.id and userid='{$aOptions['byStar']}')";
 		}
-		$q2['o'] = 'modify_at desc';
+		$q2['o'] = 's.modify_at desc';
 		if ($page && $size) {
 			$q2['r']['o'] = ($page - 1) * $size;
 			$q2['r']['l'] = $size;
@@ -152,7 +155,7 @@ class signin_model extends enroll_base {
 			}
 		}
 		if ($page && $size) {
-			$q[0] = 'count(*)';
+			$q[0] = 'count(s.id)';
 			$total = (int) $this->query_val_ss($q);
 			$result->total = $total;
 		} else {
@@ -173,7 +176,10 @@ class signin_model extends enroll_base {
 			"state<>0 and mission_id='$mission'",
 		];
 		if (!empty($aOptions['byTitle'])) {
-			$q[2] .= " and title like '%" . $this->escape($aOptions['byTitle']) . "%'";
+			$q[2] .= " and title like '%" . $aOptions['byTitle'] . "%'";
+		}
+		if (!empty($aOptions['byCreator'])) {
+			$q[2] .= " and creater_name like '%" . $aOptions['byCreator'] . "%'";
 		}
 		$q2['o'] = 'modify_at desc';
 		if ($page && $size) {
@@ -511,7 +517,11 @@ class signin_model extends enroll_base {
 		}
 		if (!empty($oCustomConfig->proto->entryRule->scope)) {
 			/* 用户指定的规则 */
-			$this->setEntryRuleByProto($oSite, $oEntryRule, $oCustomConfig->proto->entryRule);
+			$oApp = new \stdClass;
+			$oApp->id = $appId;
+			$oApp->title = $title;
+			$oApp->type = 'signin';
+			$this->setEntryRuleByProto($oSite, $oEntryRule, $oCustomConfig->proto->entryRule, $oApp, $oUser);
 		} else if (isset($oMisEntryRule)) {
 			/* 项目的进入规则 */
 			$this->setEntryRuleByMission($oEntryRule, $oMisEntryRule);

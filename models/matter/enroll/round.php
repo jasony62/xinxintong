@@ -117,21 +117,16 @@ class round_model extends \TMS_MODEL {
         // 结束数据库读写分离带来的问题
         $this->setOnlyWriteDbConn(true);
 
+        $aResult = $this->checkProperties($oProps);
+        if (false === $aResult[0]) {
+            return $aResult;
+        }
+
         if (!isset($oApp->siteid)) {
             $oApp2 = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'siteid']);
             tms_object_merge($oApp, $oApp2);
         }
 
-        /* 只允许有一个指定启动轮次 */
-        if (isset($oProps->state) && (int) $oProps->state === 1 && isset($oProps->start_at) && (int) $oProps->start_at === 0) {
-            if ($oLastRound = $this->getAssignedActive($oApp)) {
-                if ($bForceStopActive) {
-                    $this->update('xxt_enroll_round', ['state' => 2], ['rid' => $oLastRound->rid]);
-                } else {
-                    return [false, '请先停止轮次【' . $oLastRound->title . '】'];
-                }
-            }
-        }
         $roundId = uniqid();
         $aNewRound = [
             'siteid' => $oApp->siteid,
@@ -141,7 +136,7 @@ class round_model extends \TMS_MODEL {
             'creator' => isset($oCreator->id) ? $oCreator->id : '',
             'create_at' => time(),
             'title' => empty($oProps->title) ? '' : $this->escape($oProps->title),
-            'state' => isset($oProps->state) ? $oProps->state : 0,
+            'state' => isset($oProps->state) ? $oProps->state : 1,
             'start_at' => empty($oProps->start_at) ? 0 : $oProps->start_at,
             'end_at' => empty($oProps->end_at) ? 0 : $oProps->end_at,
             'purpose' => empty($oProps->purpose) ? 'C' : (in_array($oProps->purpose, ['C', 'B', 'S']) ? $oProps->purpose : 'C'),

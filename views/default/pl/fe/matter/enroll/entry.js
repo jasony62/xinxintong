@@ -84,12 +84,20 @@ define(['frame', 'groupService'], function (ngApp) {
      * 任务提醒
      */
     ngApp.provider.controller('ctrlTaskRemind', ['$scope', '$parse', '$q', 'srvEnrollApp', 'tkGroupApp', function ($scope, $parse, $q, srvEnlApp, tkGrpApp) {
-        function fnGetEntryRuleMschema() {
+        function fnGetEntryRuleMschema(oApp) {
+            if (oApp === undefined) {
+                oApp = $scope.app;
+            }
+            if (!oApp) {
+                return false;
+            }
             var oAppEntryRule = $scope.app.entryRule;
             if (oAppEntryRule.scope && oAppEntryRule.scope.member === 'Y') {
-                if (oAppEntryRule.member && Object.keys(oAppEntryRule.member).length) {
-                    if ($scope.mschemasById[Object.keys(oAppEntryRule.member)[0]]) {
-                        return $scope.mschemasById[Object.keys(oAppEntryRule.member)[0]];
+                if ($scope.mschemasById) {
+                    if (oAppEntryRule.member && Object.keys(oAppEntryRule.member).length) {
+                        if ($scope.mschemasById[Object.keys(oAppEntryRule.member)[0]]) {
+                            return $scope.mschemasById[Object.keys(oAppEntryRule.member)[0]];
+                        }
                     }
                 }
             }
@@ -144,13 +152,13 @@ define(['frame', 'groupService'], function (ngApp) {
                 }
             });
         };
-        $scope.defaultReceiver = function (oTimer) {
+        $scope.defaultReceiver = function (oTimer, oApp) {
             var oRule = $parse('task.task_arguments.receiver')(oTimer);
             if (oRule && oRule.scope) {
                 switch (oRule.scope) {
                     case 'mschema':
                         var oMschema;
-                        if (oMschema = fnGetEntryRuleMschema()) {
+                        if (oMschema = fnGetEntryRuleMschema(oApp)) {
                             $parse('_temp.mschema').assign(oTimer, {
                                 title: oMschema.title,
                                 auto: true
@@ -173,7 +181,7 @@ define(['frame', 'groupService'], function (ngApp) {
             $scope.srvTimer.list(oApp, 'remind').then(function (timers) {
                 if (timers && timers.length) {
                     timers.forEach(function (oTimer) {
-                        $scope.defaultReceiver(oTimer);
+                        $scope.defaultReceiver(oTimer, oApp);
                     });
                 }
                 $scope.timers = timers;

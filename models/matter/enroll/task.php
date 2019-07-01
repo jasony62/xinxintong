@@ -258,6 +258,9 @@ class task_model extends \TMS_MODEL {
             $oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,baseline_config']);
         }
         if (empty($oRound)) {
+            if (empty($oApp->appRound)) {
+                return [];
+            }
             $oRound = $oApp->appRound;
         }
         $oBaselineRnd = $this->model('matter\enroll\round')->getBaseline($this->_oApp, ['assignedRid' => $oRound->rid]);
@@ -293,6 +296,9 @@ class task_model extends \TMS_MODEL {
             $oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,question_config']);
         }
         if (empty($oRound)) {
+            if (empty($oApp->appRound)) {
+                return [];
+            }
             $oRound = $oApp->appRound;
         }
 
@@ -333,6 +339,9 @@ class task_model extends \TMS_MODEL {
             $oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,answer_config']);
         }
         if (empty($oRound)) {
+            if (empty($oApp->appRound)) {
+                return [];
+            }
             $oRound = $oApp->appRound;
         }
 
@@ -376,6 +385,9 @@ class task_model extends \TMS_MODEL {
             $oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,vote_config']);
         }
         if (empty($oRound)) {
+            if (empty($oApp->appRound)) {
+                return [];
+            }
             $oRound = $oApp->appRound;
         }
 
@@ -419,6 +431,9 @@ class task_model extends \TMS_MODEL {
             $oApp = $this->model('matter\enroll')->byId($oApp->id, ['cascaded' => 'N', 'fields' => 'id,data_schemas,score_config']);
         }
         if (empty($oRound)) {
+            if (empty($oApp->appRound)) {
+                return [];
+            }
             $oRound = $oApp->appRound;
         }
 

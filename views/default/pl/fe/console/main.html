@@ -27,7 +27,7 @@
                         <th style='width:74px'>签到活动</th>
                         <th style='width:74px'>分组活动</th>
                         <th style='width:74px'>全部活动</th>
-                        <th style='width:140px'>创建人</th>
+                        <th style='width:140px' data-filter-by='creator' class='th-action' uib-popover-template="'searchBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter3.show($event)">创建人 <i class='glyphicon glyphicon-filter'></i></th>
                         <th style='width:120px'>创建时间</th>
                         <th style='width:48px'>星标</th>
                         <th style='width:64px'>操作</th>
@@ -104,7 +104,7 @@
                         <th ng-if="criteria.matter.type==='enroll'||criteria.matter.type==='signin'" style='width:64px'>记录数</th>
                         <th ng-if="criteria.matter.type==='enroll'" style='width:64px'>填写人</th>
                         <th ng-if="criteria.matter.type==='enroll'" style='width:64px'>留言数</th>
-                        <th style='width:140px'>创建人</th>
+                        <th style='width:140px' data-filter-by='creator' class='th-action' uib-popover-template="'searchBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter3.show($event)">创建人 <i class='glyphicon glyphicon-filter'></i></th>
                         <th style='width:120px'>创建时间</th>
                         <th style='width:48px'>星标</th>
                         <th style='width:164px'>操作</th>
@@ -192,7 +192,7 @@
                     <tr>
                         <th style='width:48px'>序号</th>
                         <th data-filter-by='title' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)">名称 <i class='glyphicon glyphicon-filter'></i></th>
-                        <th style='width:140px'>创建人</th>
+                        <th style='width:140px' data-filter-by='creator' class='th-action' uib-popover-template="'searchBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter3.show($event)">创建人 <i class='glyphicon glyphicon-filter'></i></th>
                         <th style='width:120px'>创建时间</th>
                         <th style='width:48px'>星标</th>
                         <th style='width:62px'>操作</th>
@@ -262,6 +262,21 @@
         <button class='btn btn-default' ng-click="filter.cancel()">取消筛选</button>
         <button class='btn btn-default' ng-click="filter.exec()">进行筛选</button>
         <button class='btn btn-default' ng-click="filter.close()"><i class='glyphicon glyphicon-remove'></i></button>
+    </div>
+</script>
+<script type="text/ng-template" id="searchBy.html">
+    <div class="form-group">
+        <div class='input-group'>
+            <input type="text" ng-model="filter3.keyword" class="form-control" ng-keypress='filter3.keyUp($event)' autofocus>
+            <div class="input-group-btn">
+                <button class='btn btn-default' ng-disabled="!filter3.keyword" ng-click="filter3.keyword=''"><i class='glyphicon glyphicon-erase'></i></button>
+            </div>
+        </div>
+    </div>
+    <div class='text-right'>
+        <button class='btn btn-default' ng-click="filter3.cancel()">取消筛选</button>
+        <button class='btn btn-default' ng-click="filter3.exec()">进行筛选</button>
+        <button class='btn btn-default' ng-click="filter3.close()"><i class='glyphicon glyphicon-remove'></i></button>
     </div>
 </script>
 <script type="text/ng-template" id="tagMatterData.html">

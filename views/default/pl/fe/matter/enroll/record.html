@@ -70,8 +70,6 @@
                         <th style='width:100px'>填写轮次</th>
                         <th ng-repeat="schema in recordSchemasExt" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
                         <th ng-if="bRequireScore">总得分</th>
-                        <th class='matched enroll' ng-repeat="schema in enrollDataSchemas" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
-                        <th class='matched group' ng-repeat="schema in groupDataSchemas" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
                         <th style='width:80px'>审核通过</th>
                         <th style='width:80px'>获得赞同</th>
                         <th style='width:140px'>备注</th>
@@ -112,35 +110,9 @@
                             <span ng-if="fromApp.fromApp&&schema.id==='_round_id'&&r.group_id!==r.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span>
                         </td>
                         <td ng-if="bRequireScore" ng-bind="::r.score.sum"></td>
-                        <td class='matched enroll' ng-repeat="schema in enrollDataSchemas" ng-switch on="schema.type">
-                            <div ng-switch-when="image">
-                                <span><img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' /></span>
-                            </div>
-                            <div ng-switch-when="file">
-                                <span ng-repeat='file in r._data[schema.id]'><a href ng-click="openFileUrl(file)" target="_blank">{{file.name}}</a></span>
-                            </div>
-                            <div ng-switch-when="multitext">
-                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>
-                            </div>
-                            <span ng-switch-when="date">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
-                            <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
-                        </td>
-                        <td class='matched group' ng-repeat="schema in groupDataSchemas" ng-switch on="schema.type">
-                            <div ng-switch-when="image">
-                                <span><img ng-repeat="img in r._data[schema.id]" ng-src='{{img}}' /></span>
-                            </div>
-                            <span ng-switch-when="file">
-                                <span ng-repeat='file in r._data[schema.id]'><a href ng-click="openFileUrl(file)" target="_blank">{{file.name}}</a></span>
-                            </span>
-                            <div ng-switch-when="multitext">
-                                <p ng-repeat='item in r._data[schema.id]'><span ng-bind-html="item.value"></span></p>
-                            </div>
-                            <span ng-switch-when="date"><span ng-if="r._data[schema.id]">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span></span>
-                            <span ng-switch-default ng-bind-html="r._data[schema.id]"></span>
-                        </td>
-                        <td>{{::r.verified}}</td>
+                        <td>{{r.verified}}</td>
                         <td>{{::r.like_num}}</td>
-                        <td>{{::r.comment}}</td>
+                        <td>{{r.comment}}</td>
                         <td>
                             <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
                                 <span class='glyphicon glyphicon-remove'></span>
@@ -159,19 +131,18 @@
                         <td></td>
                         <td ng-repeat="schema in recordSchemasExt">
                             <div ng-if="schema.format==='number'||schema.type==='score'">
-                                {{::sum4SchemaAtPage[schema.id]}}/{{::sum4Schema[schema.id]}}
+                                {{sum4SchemaAtPage[schema.id]}}/{{sum4Schema[schema.id]}}
                             </div>
                             <div ng-if="schema.type==='calcScore'">
-                                {{::score4SchemaAtPage[schema.id]}}/{{::score4Schema[schema.id]}}
+                                {{score4SchemaAtPage[schema.id]}}/{{score4Schema[schema.id]}}
                             </div>
                         </td>
-                        <td>
-                            <div ng-if="bRequireScore">
-                                {{::score4SchemaAtPage.sum}}/{{::score4Schema.sum}}
+                        <td ng-if="bRequireScore">
+                            <div>
+                                {{score4SchemaAtPage.sum}}/{{score4Schema.sum}}
                             </div>
                         </td>
-                        <td class='matched enroll' ng-repeat="schema in enrollDataSchemas"></td>
-                        <td class='matched group' ng-repeat="schema in groupDataSchemas"></td>
+                        <td></td>
                         <td></td>
                         <td></td>
                         <td></td>

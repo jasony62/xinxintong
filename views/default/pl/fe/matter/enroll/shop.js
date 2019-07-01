@@ -33,6 +33,7 @@ ngApp.controller('ctrlSysTemplate', ['$scope', '$location', '$uibModal', 'http2'
     assignedScenario = $location.search().scenario;
     $scope.result = _oResult = {
         proto: {
+            id: '_pending',
             siteid: _siteId,
             entryRule: {
                 scope: {},

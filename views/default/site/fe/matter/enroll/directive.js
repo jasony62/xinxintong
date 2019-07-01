@@ -166,15 +166,15 @@ ngMod.directive('tmsScrollSpy', function() {
             eleListen.addEventListener('scroll', function(event) {
                 var eleScrolling = eleListen === window ? event.target.documentElement : event.target;
                 if (scope.toggleSpy) {
-                        if (scope.onbottom && angular.isFunction(scope.onbottom)) {
-                            if (eleScrolling.clientHeight + eleScrolling.scrollTop + parseInt(scope.offset) >= eleScrolling.scrollHeight) {
-                                scope.$apply(function() {
-                                    scope.toggleSpy = false;
-                                    scope.onbottom();
-                                });
-                            }
+                    if (scope.onbottom && angular.isFunction(scope.onbottom)) {
+                        if (eleScrolling.clientHeight + eleScrolling.scrollTop + parseInt(scope.offset) >= eleScrolling.scrollHeight) {
+                            scope.$apply(function() {
+                                scope.toggleSpy = false;
+                                scope.onbottom();
+                            });
                         }
                     }
+                }
             });
         }
     }

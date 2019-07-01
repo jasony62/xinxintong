@@ -82,6 +82,9 @@ class main extends \pl\fe\matter\main_base {
 		if (!empty($oPosted->byTitle)) {
 			$oOptions['byTitle'] = $oPosted->byTitle;
 		}
+		if (!empty($oPosted->byCreator)) {
+			$oOptions['byCreator'] = $oPosted->byCreator;
+		}
 		if (empty($mission)) {
 			if (!empty($oPosted->byTags)) {
 				$oOptions['byTags'] = $oPosted->byTags;

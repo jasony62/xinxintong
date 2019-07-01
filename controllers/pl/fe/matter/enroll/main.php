@@ -104,24 +104,27 @@ class main extends main_base {
 		$q[2] .= " and (exists(select 1 from xxt_site_admin sa where sa.siteid=e.siteid and uid='{$oOperatotr->id}') or exists(select 1 from xxt_mission_acl a where a.mission_id=e.mission_id and a.coworker='{$oOperatotr->id}' and a.state=1 and coworker_role='C' and a.last_invite='Y'))";
 
 		if (!empty($mission)) {
-			$q[2] .= " and mission_id=" . $mission;
+			$q[2] .= " and e.mission_id=" . $mission;
 		} else if ($platform === 'Y') {
-			$q[2] .= " and exists(select 1 from xxt_home_matter where as_global='Y' and matter_type='enroll' and matter_id=e.id)";
+			$q[2] .= " and e.exists(select 1 from xxt_home_matter where as_global='Y' and matter_type='enroll' and matter_id=e.id)";
 		} else if (!empty($site)) {
-			$q[2] .= " and siteid='" . $site . "'";
+			$q[2] .= " and e.siteid='" . $site . "'";
 		}
 		if (!empty($scenario)) {
-			$q[2] .= " and scenario='" . $scenario . "'";
+			$q[2] .= " and e.scenario='" . $scenario . "'";
 		}
 		if ($onlySns === 'Y') {
-			$q[2] .= " and entry_rule like '%\"scope.sns\":\"Y\"%'";
+			$q[2] .= " and e.entry_rule like '%\"scope.sns\":\"Y\"%'";
 		}
 		if (!empty($oFilter->byTitle)) {
-			$q[2] .= " and title like '%" . $oFilter->byTitle . "%'";
+			$q[2] .= " and e.title like '%" . $oFilter->byTitle . "%'";
+		}
+		if (!empty($oFilter->byCreator)) {
+			$q[2] .= " and e.creater_name like '%" . $oFilter->byCreator . "%'";
 		}
 		if (!empty($oFilter->byTags)) {
 			foreach ($oFilter->byTags as $tag) {
-				$q[2] .= " and matter_mg_tag like '%" . $tag->id . "%'";
+				$q[2] .= " and e.matter_mg_tag like '%" . $tag->id . "%'";
 			}
 		}
 		if (isset($oFilter->byStar) && $oFilter->byStar === 'Y') {
@@ -259,7 +262,6 @@ class main extends main_base {
 		/**
 		 * 获得的基本信息
 		 */
-		$oNewApp->start_at = 0;
 		$oNewApp->title = $modelApp->escape($oCopied->title) . '（副本）';
 		$oNewApp->pic = $oCopied->pic;
 		$oNewApp->summary = $modelApp->escape($oCopied->summary);

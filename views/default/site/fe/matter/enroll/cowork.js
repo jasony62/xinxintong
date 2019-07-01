@@ -315,7 +315,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
     };
     $scope.listRemark = function(oRecord) {
         $scope.transferParam = { 0: 'record', 1: oRecord };
-        $scope.selectedView.url = '/views/default/site/fe/matter/enroll/template/cowork-remark.html';
+        $scope.selectedView.url = '/views/default/site/fe/matter/enroll/template/remark.html';
     };
     $scope.likeRecord = function() {
         if ($scope.setOperateLimit('like')) {
@@ -458,7 +458,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         } else {
             $scope.fileName = 'remark';
         }
-        templateUrl = '/views/default/site/fe/matter/enroll/template/cowork-record-' + $scope.fileName + '.html'
+        templateUrl = '/views/default/site/fe/matter/enroll/template/record-' + $scope.fileName + '.html'
         $scope.selectedView = { 'url': templateUrl };
         fnLoadRecord(aCoworkSchemas).then(function(oRecord) {
             /* 通过留言完成提问任务 */
@@ -600,7 +600,7 @@ ngApp.controller('ctrlCoworkData', ['$scope', '$timeout', '$anchorScroll', '$uib
     };
     $scope.listItemRemark = function(oItem) {
         $scope.$emit('transfer.param', { 0: 'coworkData', 1: oItem });
-        $scope.selectedView.url = '/views/default/site/fe/matter/enroll/template/cowork-remark.html';
+        $scope.selectedView.url = '/views/default/site/fe/matter/enroll/template/remark.html';
     };
     $scope.shareItem = function(oItem) {
         var url, shareby;
@@ -816,7 +816,7 @@ ngApp.controller('ctrlRemark', ['$scope', '$q', '$location', '$uibModal', '$anch
     }
 
     $scope.goback = function() {
-        var templateUrl = '/views/default/site/fe/matter/enroll/template/cowork-record-' + $scope.fileName + '.html';
+        var templateUrl = '/views/default/site/fe/matter/enroll/template/record-' + $scope.fileName + '.html';
         $scope.selectedView.url = templateUrl;
     };
     $scope.editRemark = function(oRemark) {

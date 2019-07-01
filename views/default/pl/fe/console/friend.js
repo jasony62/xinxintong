@@ -1,11 +1,11 @@
-define(['frame'], function(ngApp) {
+define(['frame'], function (ngApp) {
     'use strict';
-    ngApp.provider.service('tmsCopy', ['$http', '$q', 'tmsModal', function($http, $q, tmsModal) {
+    ngApp.provider.service('tmsCopy', ['$http', '$q', 'tmsModal', function ($http, $q, tmsModal) {
         function bySite(oMatter) {
             var url, defer;
             defer = $q.defer();
             url = '/rest/pl/fe/site/list?_=' + (new Date() * 1);
-            $http.get(url).success(function(rsp) {
+            $http.get(url).success(function (rsp) {
                 if (rsp.err_code != 0) {
                     return;
                 }
@@ -18,12 +18,12 @@ define(['frame'], function(ngApp) {
             var url, defer;
             defer = $q.defer();
             url = '/rest/pl/fe/matter/article/copy?site=' + oMatter.siteid + '&id=' + oMatter.matter_id;
-            $http.post(url, $aTargetSiteIds).success(function(rsp) {
+            $http.post(url, $aTargetSiteIds).success(function (rsp) {
                 defer.resolve(rsp.data);
             });
             return defer.promise;
         }
-        this.open = function(oMatter) {
+        this.open = function (oMatter) {
             var template;
             template = '<div class="modal-header"><span class="modal-title">指定复制位置</span></div>';
             template += '<div class="modal-body">';
@@ -37,34 +37,36 @@ define(['frame'], function(ngApp) {
             template += '<div class="modal-footer"><button ng-click="cancel()">关闭</button><button ng-click="ok()">确定</button></div>';
             tmsModal.open({
                 template: template,
-                controller: ['$scope', '$tmsModalInstance', function($scope2, $mi) {
-                    bySite(oMatter).then(function(sites) {
+                controller: ['$scope', '$tmsModalInstance', function ($scope2, $mi) {
+                    bySite(oMatter).then(function (sites) {
                         var mySites = sites;
-                        mySites.forEach(function(site) {
+                        mySites.forEach(function (site) {
                             site._selected = site._favored;
                         });
                         $scope2.mySites = mySites;
                     });
-                    $scope2.ok = function() {
+                    $scope2.ok = function () {
                         var result;
                         result = {
                             mySites: $scope2.mySites
                         }
                         $mi.close(result);
                     };
-                    $scope2.cancel = function() {
+                    $scope2.cancel = function () {
                         $mi.dismiss();
                     };
                 }]
-            }).result.then(function(result) {
+            }).result.then(function (result) {
                 var url, mySites;
                 mySites = result.mySites;
                 if (mySites) {
                     var favored = [];
-                    mySites.forEach(function(site) {
+                    mySites.forEach(function (site) {
                         if (site._selected !== site._favored) {
                             if (site._selected === 'Y') {
-                                favored.push({ siteid: site.id });
+                                favored.push({
+                                    siteid: site.id
+                                });
                             }
                         }
                     });
@@ -75,16 +77,16 @@ define(['frame'], function(ngApp) {
             });
         };
     }]);
-    ngApp.provider.controller('ctrlFriend', ['$scope', 'tmsCopy', function($scope, tmsCopy) {
-        $scope.openSite = function(id) {
+    ngApp.provider.controller('ctrlFriend', ['$scope', 'tmsCopy', function ($scope, tmsCopy) {
+        $scope.openSite = function (id) {
             location.href = '/rest/site/home?site=' + id;
         };
-        $scope.copy = function(matter) {
+        $scope.copy = function (matter) {
             tmsCopy.open(matter);
         }
-        $scope.openMatter = function(matter) {
+        $scope.openMatter = function (matter) {
             var url;
-            if (/article|custom|news|channel/.test(matter.matter_type)) {
+            if (/article|custom|channel/.test(matter.matter_type)) {
                 url = '/rest/site/fe/matter?type=' + matter.matter_type;
                 url += '&id=' + matter.matter_id + '&site=' + matter.from_siteid;
             } else {
@@ -94,26 +96,26 @@ define(['frame'], function(ngApp) {
             location.href = url;
         };
     }]);
-    ngApp.provider.controller('ctrlSubscribeSite', ['$scope', 'srvSite', function($scope, srvSite) {
-        $scope.moreMatter = function() {
-            srvSite.matterList($scope.frameState.scope, $scope.frameState.sid, $scope.pageOfmatters).then(function(result) {
-                result.matters.forEach(function(matter) {
+    ngApp.provider.controller('ctrlSubscribeSite', ['$scope', 'srvSite', function ($scope, srvSite) {
+        $scope.moreMatter = function () {
+            srvSite.matterList($scope.frameState.scope, $scope.frameState.sid, $scope.pageOfmatters).then(function (result) {
+                result.matters.forEach(function (matter) {
                     $scope.matters.push(matter);
                     $scope.pageOfmatters = result.page;
                 });
             });
         };
-        $scope.$watch('frameState.sid', function(nv) {
-            srvSite.matterList('subscribeSite', nv).then(function(result) {
+        $scope.$watch('frameState.sid', function (nv) {
+            srvSite.matterList('subscribeSite', nv).then(function (result) {
                 $scope.matters = result.matters;
                 $scope.pageOfmatters = result.page;
             });
         }, true);
     }]);
-    ngApp.provider.controller('ctrlContributeSite', ['$scope', 'http2', 'srvSite', function($scope, http2, srvSite) {
-        $scope.close = function(m) {
-            http2.get('rest/pl/fe/site/contribute/update?id=' + m.id).then(function(rsp) {
-                $scope.matters.forEach(function(item) {
+    ngApp.provider.controller('ctrlContributeSite', ['$scope', 'http2', 'srvSite', function ($scope, http2, srvSite) {
+        $scope.close = function (m) {
+            http2.get('rest/pl/fe/site/contribute/update?id=' + m.id).then(function (rsp) {
+                $scope.matters.forEach(function (item) {
                     if (m.id == item.id) {
                         matters.splice(item, 1);
                         $scope.matters = matters;
@@ -122,32 +124,32 @@ define(['frame'], function(ngApp) {
                 });
             });
         }
-        $scope.moreMatter = function() {
-            srvSite.matterList($scope.frameState.scope, $scope.frameState.sid, $scope.pageOfmatters).then(function(result) {
-                result.matters.forEach(function(matter) {
+        $scope.moreMatter = function () {
+            srvSite.matterList($scope.frameState.scope, $scope.frameState.sid, $scope.pageOfmatters).then(function (result) {
+                result.matters.forEach(function (matter) {
                     $scope.matters.push(matter);
                     $scope.pageOfmatters = result.page;
                 });
             });
         };
-        $scope.$watch('frameState.sid', function(nv) {
-            srvSite.matterList('contributeSite', nv).then(function(result) {
+        $scope.$watch('frameState.sid', function (nv) {
+            srvSite.matterList('contributeSite', nv).then(function (result) {
                 $scope.matters = result.matters;
                 $scope.pageOfmatters = result.page;
             });
         }, true);
     }]);
-    ngApp.provider.controller('ctrlFavorSite', ['$scope', 'srvSite', function($scope, srvSite) {
-        $scope.moreMatter = function() {
-            srvSite.matterList($scope.frameState.scope, $scope.frameState.sid, $scope.pageOfmatters).then(function(result) {
-                result.matters.forEach(function(matter) {
+    ngApp.provider.controller('ctrlFavorSite', ['$scope', 'srvSite', function ($scope, srvSite) {
+        $scope.moreMatter = function () {
+            srvSite.matterList($scope.frameState.scope, $scope.frameState.sid, $scope.pageOfmatters).then(function (result) {
+                result.matters.forEach(function (matter) {
                     $scope.matters.push(matter);
                     $scope.pageOfmatters = result.page;
                 });
             });
         };
-        $scope.$watch('frameState.sid', function(nv) {
-            srvSite.matterList('favorSite', nv).then(function(result) {
+        $scope.$watch('frameState.sid', function (nv) {
+            srvSite.matterList('favorSite', nv).then(function (result) {
                 $scope.matters = result.matters;
                 $scope.pageOfmatters = result.page;
             });

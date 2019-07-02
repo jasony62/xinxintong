@@ -777,7 +777,7 @@ class record_model extends record_base {
 							$whereByData .= ')';
 						}
 					} else {
-						$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
+						$whereByData .= 'data like \'%"' . $k . '":"%' . $v . '%\'';
 					}
 					$whereByData .= ')';
 				}

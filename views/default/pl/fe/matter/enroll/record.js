@@ -415,6 +415,16 @@ define(['frame'], function (ngApp) {
                 });
             });
         };
+        $scope.listCowork = function(schema, pageAt) {
+            $scope.currentSchema = schema;
+            srvEnlRec.listCowork(schema, pageAt).then(function(data) {
+                $scope.coworks = data.recordDatas;
+                $scope.category = "cowork";
+            });
+        };
+        $scope.toggleRecord = function() {
+            $scope.category = "record";
+        }
         // 选中的记录
         $scope.rows = new tmsRowPicker();
         $scope.$watch('rows.allSelected', function (checked) {
@@ -423,6 +433,7 @@ define(['frame'], function (ngApp) {
         $scope.page = {}; // 分页条件
         $scope.criteria = {}; // 过滤条件
         $scope.records = []; // 登记记录
+        $scope.category = "record";
         $scope.tmsTableWrapReady = 'N';
         srvEnlApp.get().then(function (oApp) {
             http2.get('/rest/pl/fe/matter/enroll/schema/get?app=' + oApp.id).then(function (rsp) {
@@ -434,6 +445,7 @@ define(['frame'], function (ngApp) {
                 var recordSchemas = [],
                     recordSchemasExt = [],
                     enrollDataSchemas = [],
+                    coworkSchemas = [],
                     bRequireSum = false,
                     bRequireScore = false,
                     groupDataSchemas = [];
@@ -443,6 +455,11 @@ define(['frame'], function (ngApp) {
                         recordSchemas.push(oSchema);
                         recordSchemasExt.push(oSchema);
                     }
+
+                    if (oSchema.type === 'multitext' && oSchema.cowork === 'Y') {
+                        coworkSchemas.push(oSchema);
+                    }
+
                     if (oSchema.supplement && oSchema.supplement === 'Y')
                         recordSchemasExt.push({
                             type: 'supplement',
@@ -473,6 +490,7 @@ define(['frame'], function (ngApp) {
                 }
                 $scope.bRequireSum = bRequireSum;
                 $scope.bRequireScore = bRequireScore;
+                $scope.coworkSchemas = coworkSchemas;
                 $scope.recordSchemas = recordSchemas;
                 $scope.recordSchemasExt = recordSchemasExt;
                 if (oApp._schemasFromEnrollApp) {

@@ -7,110 +7,110 @@
     <base href="/" />
     <title>项目活动</title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-    <link href='/static/css/site.fe.css?_=1' rel="stylesheet">
-    <link href="/views/default/site/fe/matter/mission/main.css?_=2" rel="stylesheet">
+    <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
+    <link href="<?php echo auto_version('/views/default/site/fe/matter/mission/main.css');?>" rel="stylesheet">
 </head>
 
 <body>
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
-    <div ng-controller="ctrlMain" tms-trace send-url='/rest/site/fe/matter/mission/analysis/submit?site={{siteid}}&mission={{mission.id}}&page=main' ready-sign="mission">
-        <nav class="navbar site-navbar-default navbar-fixed-top">
-            <div class="container">
-                <ul class="menus pull-left">
-                    <li class="menu" ng-repeat="view in views" ng-class="{'active': subView===view.type}" ng-click="viewTo(view)">
-                        <a href class="menu-link" ng-bind="view.title"></a><span class="line"></span>
-                    </li>
-                </ul>
-                <ul class="nav navbar-nav navbar-right">
-                    <li>
-                        <a href ng-click="siteUser()"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline"> 个人中心</span></a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-    </div>
-    </nav>
-    <div class='container ng-cloak' ng-cloak>
-        <div id='times' class='row'>
-            <div ng-repeat="time in times">
-                <div class='col-xs-2 timeline' ng-class="{'pending':time>currentTime}">
-                    <div class='date' ng-bind="time*1000|date:'MM-dd'"></div>
-                    <div class='time' ng-bind="time*1000|date:'HH:mm'"></div>
+    <div ng-controller="ctrlMain">
+        <div tms-trace send-url='/rest/site/fe/matter/mission/analysis/submit?site={{siteid}}&mission={{mission.id}}&page=main' ready-sign="mission">
+            <nav class="navbar site-navbar-default navbar-fixed-top">
+                <div class="container">
+                    <ul class="menus pull-left">
+                        <li class="menu" ng-repeat="view in views" ng-class="{'active': subView===view.type}" ng-click="viewTo(view)">
+                            <a href class="menu-link" ng-bind="view.title"></a><span class="line"></span>
+                        </li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href ng-click="siteUser()"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline"> 个人中心</span></a>
+                        </li>
+                    </ul>
                 </div>
-                <div class='col-xs-10'>
-                    <div ng-repeat="matter in matters[time]" ng-switch on="matter.type">
-                        <div class='thumbnail track' ng-class="matter.indicator.state">
-                            <div class='title' ng-bind="matter.title"></div>
-                            <div class='row' ng-switch-when="enroll">
-                                <div class='col-xs-12'>
-                                    <label>记录数量</label>
-                                    <div ng-bind="matter.user.enroll_num||0"></div>
+            </nav>
+        </div>
+        <div class='container ng-cloak' ng-cloak>
+            <div id='times' class='row'>
+                <div ng-repeat="time in times">
+                    <div class='col-xs-2 timeline' ng-class="{'pending':time>currentTime}">
+                        <div class='date' ng-bind="time*1000|date:'MM-dd'"></div>
+                        <div class='time' ng-bind="time*1000|date:'HH:mm'"></div>
+                    </div>
+                    <div class='col-xs-10'>
+                        <div ng-repeat="matter in matters[time]" ng-switch on="matter.type">
+                            <div class='thumbnail track' ng-class="matter.indicator.state">
+                                <div class='title' ng-bind="matter.title"></div>
+                                <div class='row' ng-switch-when="enroll">
+                                    <div class='col-xs-12'>
+                                        <label>记录数量</label>
+                                        <div ng-bind="matter.user.enroll_num||0"></div>
+                                    </div>
+                                    <div class='col-xs-6' ng-if="matter.indicator.score">
+                                        <label>得分</label>
+                                        <div ng-bind="matter.user.score||0"></div>
+                                    </div>
+                                    <div class='col-xs-6' ng-if="matter.indicator.score">
+                                        <label>得分排名</label>
+                                        <div ng-bind="matter.user.rank.score||0"></div>
+                                    </div>
+                                    <div class='col-xs-6' ng-if="matter.indicator.coin">
+                                        <label>积分</label>
+                                        <div ng-bind="matter.user.user_total_coin||0"></div>
+                                    </div>
+                                    <div class='col-xs-6' ng-if="matter.indicator.coin">
+                                        <label>积分排名</label>
+                                        <div ng-bind="matter.user.rank.user_total_coin||0"></div>
+                                    </div>
+                                    <div class='col-xs-6' ng-if="matter.indicator.remark">
+                                        <label>获得留言</label>
+                                        <div ng-bind="matter.user.remark_num||0"></div>
+                                    </div>
+                                    <div class='col-xs-6' ng-if="matter.indicator.remark">
+                                        <label>发表留言</label>
+                                        <div ng-bind="matter.user.do_remark_num||0"></div>
+                                    </div>
+                                    <div class='col-xs-6' ng-if="matter.indicator.like">
+                                        <label>获得赞同</label>
+                                        <div ng-bind="matter.user.like_num||0"></div>
+                                    </div>
+                                    <div class='col-xs-6' ng-if="matter.indicator.like">
+                                        <label>表示赞同</label>
+                                        <div ng-bind="matter.user.do_like_num||0"></div>
+                                    </div>
+                                    <div class='col-xs-12' ng-if="matter.indicator.end" ng-switch on="matter.indicator.end">
+                                        <div ng-switch-when="R">！本活动将于<span style='color:orangered;'>{{matter.end_at*1000|date:'MM-dd HH:mm'}}</span>结束</div>
+                                        <div ng-switch-when="E">！本活动已于<span style='color:orangered;'>{{matter.end_at*1000|date:'MM-dd HH:mm'}}</span>结束</div>
+                                    </div>
                                 </div>
-                                <div class='col-xs-6' ng-if="matter.indicator.score">
-                                    <label>得分</label>
-                                    <div ng-bind="matter.user.score||0"></div>
+                                <div class='row' ng-switch-when="signin" ng-if="matter.record">
+                                    <div class='col-xs-12'>
+                                        <label>签到次数</label>
+                                        <div ng-bind="matter.record.signin_num"></div>
+                                    </div>
+                                    <div class='col-xs-6' ng-repeat="rnd in matter.rounds">
+                                        <label title="{{rnd.title}}">{{rnd.title}}</label>
+                                        <div ng-if="matter.record.signin_log[rnd.rid]" ng-class="{'signin_late':matter.record._signinLate[rnd.rid]}" ng-bind="matter.record.signin_log[rnd.rid]*1000|date:'yy-MM-dd HH:mm'"></div>
+                                    </div>
                                 </div>
-                                <div class='col-xs-6' ng-if="matter.indicator.score">
-                                    <label>得分排名</label>
-                                    <div ng-bind="matter.user.rank.score||0"></div>
-                                </div>
-                                <div class='col-xs-6' ng-if="matter.indicator.coin">
-                                    <label>积分</label>
-                                    <div ng-bind="matter.user.user_total_coin||0"></div>
-                                </div>
-                                <div class='col-xs-6' ng-if="matter.indicator.coin">
-                                    <label>积分排名</label>
-                                    <div ng-bind="matter.user.rank.user_total_coin||0"></div>
-                                </div>
-                                <div class='col-xs-6' ng-if="matter.indicator.remark">
-                                    <label>获得留言</label>
-                                    <div ng-bind="matter.user.remark_num||0"></div>
-                                </div>
-                                <div class='col-xs-6' ng-if="matter.indicator.remark">
-                                    <label>发表留言</label>
-                                    <div ng-bind="matter.user.do_remark_num||0"></div>
-                                </div>
-                                <div class='col-xs-6' ng-if="matter.indicator.like">
-                                    <label>获得赞同</label>
-                                    <div ng-bind="matter.user.like_num||0"></div>
-                                </div>
-                                <div class='col-xs-6' ng-if="matter.indicator.like">
-                                    <label>表示赞同</label>
-                                    <div ng-bind="matter.user.do_like_num||0"></div>
-                                </div>
-                                <div class='col-xs-12' ng-if="matter.indicator.end" ng-switch on="matter.indicator.end">
-                                    <div ng-switch-when="R">！本活动将于<span style='color:orangered;'>{{matter.end_at*1000|date:'MM-dd HH:mm'}}</span>结束</div>
-                                    <div ng-switch-when="E">！本活动已于<span style='color:orangered;'>{{matter.end_at*1000|date:'MM-dd HH:mm'}}</span>结束</div>
-                                </div>
+                                <hr>
+                                <a href ng-click="gotoMatter(matter)">进入查看</a>
                             </div>
-                            <div class='row' ng-switch-when="signin" ng-if="matter.record">
-                                <div class='col-xs-12'>
-                                    <label>签到次数</label>
-                                    <div ng-bind="matter.record.signin_num"></div>
-                                </div>
-                                <div class='col-xs-6' ng-repeat="rnd in matter.rounds">
-                                    <label title="{{rnd.title}}">{{rnd.title}}</label>
-                                    <div ng-if="matter.record.signin_log[rnd.rid]" ng-class="{'signin_late':matter.record._signinLate[rnd.rid]}" ng-bind="matter.record.signin_log[rnd.rid]*1000|date:'yy-MM-dd HH:mm'"></div>
-                                </div>
-                            </div>
-                            <hr>
-                            <a href ng-click="gotoMatter(matter)">进入查看</a>
                         </div>
                     </div>
                 </div>
             </div>
+            <nav style='margin-bottom:20px;' ng-if="groupUsers.length&&mission.groupUser.is_leader==='Y'">
+                <form class='form-inline'>
+                    <div>
+                        <label>查看【{{mission.groupUser.team_title}}】成员</label>
+                        <select class='form-control' ng-model="criteria.groupUser" ng-options="usr.nickname for usr in groupUsers" ng-change="shiftGroupUser(criteria.groupUser)"></select>
+                    </div>
+                </form>
+            </nav>
         </div>
-        <nav style='margin-bottom:20px;' ng-if="groupUsers.length&&mission.groupUser.is_leader==='Y'">
-            <form class='form-inline'>
-                <div>
-                    <label>查看【{{mission.groupUser.team_title}}】成员</label>
-                    <select class='form-control' ng-model="criteria.groupUser" ng-options="usr.nickname for usr in groupUsers" ng-change="shiftGroupUser(criteria.groupUser)"></select>
-                </div>
-            </form>
-        </nav>
-    </div>
     </div>
     <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
     <script src="/static/js/angular.min.js"></script>

@@ -17,7 +17,7 @@ ngApp.controller('ctrlMain', ['$scope', '$parse', 'tmsLocation', 'http2', functi
     var _oMission;
     $scope.siteid = LS.s().site;
     $scope.subView = "board";
-    $scope.viewTo = function(view) {
+    $scope.viewTo = function (view) {
         var url = LS.j('', 'site', 'mission') + '&page=' + view.type;
         location.href = url;
     };
@@ -39,10 +39,10 @@ ngApp.controller('ctrlMain', ['$scope', '$parse', 'tmsLocation', 'http2', functi
             }
             $scope.views = [{
                 type: 'main',
-                title: '项目活动',
-            },{
+                title: '活动',
+            }, {
                 type: 'board',
-                title: '项目公告'
+                title: '公告'
             }];
         });
     });

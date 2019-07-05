@@ -484,7 +484,7 @@ class user_model extends \TMS_MODEL {
         if (empty($aOptions['rid'])) {
             $q[2] .= " and rid = 'ALL'";
         } else if (is_array($aOptions['rid'])) {
-            $q[2] .= " and rid in('" . implode("\',\'", $aOptions['rid']) . "')";
+            $q[2] .= " and rid in('" . implode("','", $aOptions['rid']) . "')";
         } else if (!empty($aOptions['rid'])) {
             $q[2] .= " and rid = '" . $aOptions['rid'] . "'";
         }

@@ -161,7 +161,7 @@ class record extends main_base {
 
                     /* 协作填写题 */
                     if ($this->getDeepValue($oSchema, 'cowork') === 'Y') {
-                        if ($processType === 'coworkDataList') {
+                        if ($processType === 'coworkDataList' && $rawData->schema_id === $oSchema->id) {
                             $item = new \stdClass;
                             $item->id = $rawData->data_id;
                             $item->value = $this->replaceHTMLTags($rawData->value);

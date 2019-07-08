@@ -210,11 +210,11 @@ class record extends main_base {
                     } else if ($this->getDeepValue($oSchema, 'type') === 'multiple') {
                         $newData = [];
                         if (!empty($rawDataVal)){
+                            $ops = new \stdClass;
                             foreach ($oSchema->ops as $val) {
                                 $ops->{$val->v} = $val->l;
                             }
                             $rawDataVal2 = explode(',', $rawDataVal);
-                            $ops = new \stdClass;
                             foreach ($rawDataVal2 as $val) {
                                 $newData[] = $ops->{$val};
                             }

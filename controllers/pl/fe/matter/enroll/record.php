@@ -161,12 +161,23 @@ class record extends main_base {
 
                     /* 协作填写题 */
                     if ($this->getDeepValue($oSchema, 'cowork') === 'Y') {
-                        if ($processType === 'coworkDataList' && $rawData->schema_id === $oSchema->id) {
-                            $item = new \stdClass;
-                            $item->id = $rawData->data_id;
-                            $item->value = $this->replaceHTMLTags($rawData->value);
-                            $this->setDeepValue($processedData, $schemaId, [$item]);
-                            unset($rawData->value);
+                        if ($processType === 'coworkDataList') {
+                            if ($rawData->schema_id === $oSchema->id) {
+                                $item = new \stdClass;
+                                $item->id = $rawData->data_id;
+                                $item->value = $this->replaceHTMLTags($rawData->value);
+                                $this->setDeepValue($processedData, $schemaId, [$item]);
+                                unset($rawData->value);
+                            } else {
+                                $newData = [];
+                                foreach ($rawDataVal as &$val) {
+                                    $val2 = new \stdClass;
+                                    $val2->id = $val->id;
+                                    $val2->value = $this->replaceHTMLTags($val->value);
+                                    $newData[] = $val2;
+                                }
+                                $this->setDeepValue($processedData, $schemaId, $newData);
+                            }
                         } else {
                             $newData = [];
                             foreach ($rawDataVal as &$val) {

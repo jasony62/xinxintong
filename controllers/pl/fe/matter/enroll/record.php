@@ -128,10 +128,24 @@ class record extends main_base {
      * 处理数据
      */
     private function _processDatas($oApp, &$rawDatas, $processType = 'recordList') {
+        // 处理多项填写题
+        $processMultitext = function ($oldVal) {
+            $newVal = [];
+            foreach ($oldVal as &$val) {
+                $val2 = new \stdClass;
+                $val2->id = $val->id;
+                $val2->value = $this->replaceHTMLTags($val->value);
+                $newVal[] = $val2;
+            }
+
+            return $newVal;
+        };
+        //
         $modelData = $this->model('matter\enroll\data');
         if (!empty($oApp->voteConfig)) {
             $modelTask = $this->model('matter\enroll\task', $oApp);
         }
+        //
         foreach ($rawDatas as &$rawData) {
             /* 获取记录的投票信息 */
             if (!empty($oApp->voteConfig)) {
@@ -169,35 +183,23 @@ class record extends main_base {
                                 $this->setDeepValue($processedData, $schemaId, [$item]);
                                 unset($rawData->value);
                             } else {
-                                $newData = [];
-                                foreach ($rawDataVal as &$val) {
-                                    $val2 = new \stdClass;
-                                    $val2->id = $val->id;
-                                    $val2->value = $this->replaceHTMLTags($val->value);
-                                    $newData[] = $val2;
-                                }
-                                $this->setDeepValue($processedData, $schemaId, $newData);
+                                $newVal = $processMultitext($rawDataVal);
+                                $this->setDeepValue($processedData, $schemaId, $newVal);
                             }
                         } else {
-                            $newData = [];
+                            $newVal = [];
                             foreach ($rawDataVal as &$val) {
                                 $val2 = new \stdClass;
                                 $val2->id = $val->id;
                                 $val2->value = $this->replaceHTMLTags($val->value);
-                                $newData[] = $val2;
+                                $newVal[] = $val2;
                             }
-                            $this->setDeepValue($processedData, $schemaId, $newData);
-                            $aCoworkState[$schemaId] = (object) ['length' => count($newData)];
+                            $this->setDeepValue($processedData, $schemaId, $newVal);
+                            $aCoworkState[$schemaId] = (object) ['length' => count($newVal)];
                         }
                     } else if ($this->getDeepValue($oSchema, 'type') === 'multitext') {
-                        $newData = [];
-                        foreach ($rawDataVal as &$val) {
-                            $val2 = new \stdClass;
-                            $val2->id = $val->id;
-                            $val2->value = $this->replaceHTMLTags($val->value);
-                            $newData[] = $val2;
-                        }
-                        $this->setDeepValue($processedData, $schemaId, $newData);
+                        $newVal = $processMultitext($rawDataVal);
+                        $this->setDeepValue($processedData, $schemaId, $newVal);
                     } else if ($this->getDeepValue($oSchema, 'type') === 'single') {
                         foreach ($oSchema->ops as $val) {
                             if ($val->v === $rawDataVal) {
@@ -209,17 +211,17 @@ class record extends main_base {
                         foreach ($oSchema->ops as $val) {
                             $ops->{$val->v} = $val;
                         }
-                        $newData = [];
+                        $newVal = [];
                         foreach ($rawDataVal as $key => $val) {
                             $data2 = new \stdClass;
                             $data2->title = $ops->{$key}->l;
                             $data2->score = $val;
                             $data2->v = $ops->{$key}->v;
-                            $newData[] = $data2;
+                            $newVal[] = $data2;
                         }
-                        $this->setDeepValue($processedData, $schemaId, $newData);
+                        $this->setDeepValue($processedData, $schemaId, $newVal);
                     } else if ($this->getDeepValue($oSchema, 'type') === 'multiple') {
-                        $newData = [];
+                        $newVal = [];
                         if (!empty($rawDataVal)){
                             $ops = new \stdClass;
                             foreach ($oSchema->ops as $val) {
@@ -227,10 +229,10 @@ class record extends main_base {
                             }
                             $rawDataVal2 = explode(',', $rawDataVal);
                             foreach ($rawDataVal2 as $val) {
-                                $newData[] = $ops->{$val};
+                                $newVal[] = $ops->{$val};
                             }
                         }
-                        $this->setDeepValue($processedData, $schemaId, $newData);
+                        $this->setDeepValue($processedData, $schemaId, $newVal);
                     } else {
                         $this->setDeepValue($processedData, $schemaId, $rawDataVal);
                     }

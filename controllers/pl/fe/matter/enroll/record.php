@@ -155,7 +155,7 @@ class record extends main_base {
                     }
                     // 过滤空数据
                     $rawDataVal = $this->getDeepValue($rawData->data, $schemaId, null);
-                    if (null === $rawDataVal) {
+                    if (empty($rawDataVal)) {
                         continue;
                     }
 

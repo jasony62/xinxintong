@@ -6,8 +6,8 @@ define(['frame'], function(ngApp) {
         catelogs.splice(0, catelogs.length, { l: '单图文', v: 'article' }, { l: '用户', v: 'user' });
         $scope.catelog = catelogs[0];
     }]);
-    ngApp.provider.controller('ctrlArticle', ['$scope', 'http2', function($scope, http2) {
-        var current, startAt, endAt;
+    ngApp.provider.controller('ctrlArticle', ['$scope', 'http2', 'facListFilter', function($scope, http2, facListFilter) {
+        var current, startAt, endAt, _oCriteria, _siteid;
         current = new Date();
         startAt = {
             year: current.getFullYear(),
@@ -27,6 +27,7 @@ define(['frame'], function(ngApp) {
                 return d.getTime();
             }
         };
+        _siteid = location.search.match(/[\?&]site=([^&]*)/)[1];
         $scope.startAt = startAt.getTime() / 1000;
         $scope.endAt = endAt.getTime() / 1000;
         $scope.page = {
@@ -37,18 +38,23 @@ define(['frame'], function(ngApp) {
                 return 'page=' + this.at + '&size=' + this.size;
             }
         };
+        $scope.criteria = _oCriteria = {
+            orderby: "",
+            filter: {}
+        }
+        $scope.filter = facListFilter.init(null, _oCriteria.filter);
         $scope.orderby = 'read';
         $scope.fetch = function(page) {
             var url;
             page && ($scope.page.at = page);
             url = '/rest/pl/fe/site/analysis/matterActions';
-            url += '?site=' + $scope.site.id;
+            url += '?site=' + _siteid;
             url += '&type=article';
-            url += '&orderby=' + $scope.orderby;
+            url += '&orderby=' + _oCriteria.orderby;
             url += '&startAt=' + $scope.startAt;
             url += '&endAt=' + $scope.endAt;
             url += '&' + $scope.page.param();
-            http2.get(url).then(function(rsp) {
+            http2.post(url, {byUser: _oCriteria.filter.keyword}).then(function(rsp) {
                 $scope.matters = rsp.data.matters;
                 $scope.page.total = rsp.data.total;
             });
@@ -58,7 +64,7 @@ define(['frame'], function(ngApp) {
             url = '/rest/pl/fe/site/analysis/exportMatterActions';
             url += '?site=' + $scope.site.id;
             url += '&type=article';
-            url += '&orderby=' + $scope.orderby;
+            url += '&orderby=' + _oCriteria.orderby;
             url += '&startAt=' + $scope.startAt;
             url += '&endAt=' + $scope.endAt;
             window.open(url);
@@ -67,13 +73,13 @@ define(['frame'], function(ngApp) {
             $scope[data.state] = data.value;
             $scope.fetch(1);
         });
-        $scope.$watch('site', function(site) {
-            if (site === undefined) return;
+        $scope.$watch('criteria', function(nv) {
+            if (!nv) return;
             $scope.fetch(1);
-        });
+        }, true);
     }]);
-    ngApp.provider.controller('ctrlUserAction', ['$scope', 'http2', function($scope, http2) {
-        var current, startAt, endAt;
+    ngApp.provider.controller('ctrlUserAction', ['$scope', 'http2', 'facListFilter', function($scope, http2, facListFilter) {
+        var current, startAt, endAt, _oCriteria, _siteid;
         current = new Date();
         startAt = {
             year: current.getFullYear(),
@@ -93,6 +99,7 @@ define(['frame'], function(ngApp) {
                 return d.getTime();
             }
         };
+        _siteid = location.search.match(/[\?&]site=([^&]*)/)[1];
         $scope.startAt = startAt.getTime() / 1000;
         $scope.endAt = endAt.getTime() / 1000;
         $scope.page = {
@@ -103,17 +110,22 @@ define(['frame'], function(ngApp) {
                 return 'page=' + this.at + '&size=' + this.size;
             }
         };
-        $scope.orderby = 'read';
+        $scope.criteria = _oCriteria = {
+            orderby: 'read',
+            filter: {}
+        };
+        $scope.userType = { 'Y': "管理员", 'N': "非管理员" };
+        $scope.filter = facListFilter.init(null, _oCriteria.filter);
         $scope.fetch = function(page) {
             var url;
             page && ($scope.page.at = page);
             url = '/rest/pl/fe/site/analysis/userActions';
-            url += '?site=' + $scope.site.id;
-            url += '&orderby=' + $scope.orderby;
+            url += '?site=' + _siteid;
+            url += '&orderby=' + _oCriteria.orderby;
             url += '&startAt=' + $scope.startAt;
             url += '&endAt=' + $scope.endAt;
             url += '&' + $scope.page.param();
-            http2.get(url).then(function(rsp) {
+            http2.post(url, {byType: _oCriteria.filter.keyword}).then(function(rsp) {
                 $scope.users = rsp.data.users;
                 $scope.page.total = rsp.data.total;
             });
@@ -135,9 +147,9 @@ define(['frame'], function(ngApp) {
             $scope[data.state] = data.value;
             $scope.fetch(1);
         });
-        $scope.$watch('site', function(site) {
-            if (site === undefined) return;
+        $scope.$watch('criteria', function(nv) {
+            if (!nv) return;
             $scope.fetch(1);
-        });
+        }, true);
     }]);
 });

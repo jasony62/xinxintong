@@ -42,6 +42,7 @@ class main extends \pl\fe\base {
 		$objActiveSheet = $objPHPExcel->getActiveSheet();
 		$columnNum1 = 0; //列号
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '名称');
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '作者');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '阅读');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '搜藏');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '发送给朋友');
@@ -55,6 +56,7 @@ class main extends \pl\fe\base {
 			$columnNum2 = 0; //列号
 
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $log->matter_title);
+			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $log->matter_creater_name);
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $log->read_num);
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $log->fav_num);
 			$objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, $log->share_friend_num);
@@ -102,7 +104,7 @@ class main extends \pl\fe\base {
 
 		switch ($type) {
 			case 'article':
-				$q[0] .= ",a.title matter_title";
+				$q[0] .= ",a.title matter_title,a.creater_name matter_creater_name";
 				$q[1] .= ",xxt_article a";
 				$w .= " and a.id = l.matter_id";
 				break;
@@ -160,15 +162,15 @@ class main extends \pl\fe\base {
 	/**
 	 * 用户行为统计数据
 	 */
-	public function userActions_action($site, $orderby = 'read', $startAt, $endAt, $page = 1, $size = 30) {
-		$rst = $this->_getUserActions($site, $orderby, $startAt, $endAt, $page, $size);
+	public function userActions_action($site, $orderby = 'read', $startAt, $endAt, $isAdmin = '', $page = 1, $size = 30) {
+		$rst = $this->_getUserActions($site, $orderby, $startAt, $endAt, $isAdmin, $page, $size);
 
 		return new \ResponseData($rst);
 	}
 	/**
 	 *
 	 */
-	private function _getUserActions($site, $orderby = 'read', $startAt = '', $endAt = '', $page = '', $size = '') {
+	private function _getUserActions($site, $orderby = 'read', $startAt = '', $endAt = '', $isAdmin = '', $page = '', $size = '') {
 		$model = $this->model();
 		$q = [];
 
@@ -176,8 +178,10 @@ class main extends \pl\fe\base {
 		$s .= ',sum(l.act_read) read_num';
 		$s .= ',sum(l.act_share_friend) share_friend_num';
 		$s .= ',sum(l.act_share_timeline) share_timeline_num';
+		
 		$q[] = $s;
 		$q[] = 'xxt_log_user_action l';
+
 		$w = "l.siteid='$site'";
 		if (!empty($startAt)) {
 			$w .= " and l.action_at>=$startAt";
@@ -185,9 +189,17 @@ class main extends \pl\fe\base {
 		if (!empty($endAt)) {
 			$w .= "  and l.action_at<=$endAt";
 		}
+		// 过滤团队管理员
+		if (!empty($isAdmin)) {
+			if ($isAdmin === 'Y') {
+				$w .= " and exists(select 1 from xxt_site_account sa,xxt_site_admin sa2 where l.siteid = sa.siteid and l.userid = sa.uid and sa.unionid = sa2.uid and l.siteid = sa2.siteid)";
+			} else {
+				$w .= " and not exists(select 1 from xxt_site_account sa,xxt_site_admin sa2 where l.siteid = sa.siteid and l.userid = sa.uid and sa.unionid = sa2.uid and l.siteid = sa2.siteid)";
+			}
+		}
 		$q[] = $w;
 		$q2 = [
-			'g' => 'userid',
+			'g' => 'l.userid',
 			'o' => $orderby . '_num desc',
 		];
 		if (!empty($page) && !empty($size)) {
@@ -209,8 +221,8 @@ class main extends \pl\fe\base {
 	/**
 	 *  导出用户行为统计数据
 	 */
-	public function exportUserActions_action($site, $orderby, $startAt, $endAt) {
-		$rst = $this->_getUserActions($site, $orderby, $startAt, $endAt);
+	public function exportUserActions_action($site, $orderby, $startAt, $endAt, $isAdmin = '') {
+		$rst = $this->_getUserActions($site, $orderby, $startAt, $endAt, $isAdmin);
 		if ($rst->total == 0) {
 			die('日志为空');
 		}

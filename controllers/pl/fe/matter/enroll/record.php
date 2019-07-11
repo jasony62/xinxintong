@@ -169,7 +169,7 @@ class record extends main_base {
                     }
                     // 过滤空数据
                     $rawDataVal = $this->getDeepValue($rawData->data, $schemaId, null);
-                    if (null === $rawDataVal) {
+                    if (empty($rawDataVal)) {
                         continue;
                     }
 
@@ -3257,7 +3257,7 @@ class record extends main_base {
     /**
      * 导出记录中的图片
      */
-    public function exportImage_action($site, $app) {
+    public function exportImage_action($app) {
         if (false === ($oUser = $this->accountUser())) {
             die('请先登录系统');
         }
@@ -3288,9 +3288,9 @@ class record extends main_base {
         }
 
         // 获得所有有效的填写记录
-        $records = $this->model('matter\enroll\record')->byApp($oApp);
+        $records = $this->model('matter\enroll\record')->byApp($oApp, null, (object) ['record' => (object) ['rid' => 'all']]);
         if ($records->total === 0) {
-            die('record empty');
+            die('填写记录为空');
         }
         $records = $records->records;
 

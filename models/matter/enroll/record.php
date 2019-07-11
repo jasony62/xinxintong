@@ -776,8 +776,10 @@ class record_model extends record_base {
 							}
 							$whereByData .= ')';
 						}
+					} else if ($oSchema->type === 'single'){
+						$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
 					} else {
-						$whereByData .= 'data like \'%"' . $k . '":"%' . $v . '%\'';
+						$whereByData .= 'data like \'%"' . $k . '":"%' . $v . '%"%\'';
 					}
 					$whereByData .= ')';
 				}

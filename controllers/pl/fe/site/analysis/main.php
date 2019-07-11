@@ -19,11 +19,11 @@ class main extends \pl\fe\base {
 	public function matterActions_action($site, $type, $page = 1, $size = 30) {
 		$filter = $this->getPostJson();
 		$options = [];
-		!empty($filter->orderby) && $options['orderby'] = $orderby;
-		!empty($filter->startAt) && $options['startAt'] = $startAt;
-		!empty($filter->endAt) && $options['endAt'] = $endAt;
-		!empty($filter->isAdmin) && $options['isAdmin'] = $isAdmin;
-		!empty($filter->byCreator) && $options['byCreator'] = $byCreator;
+		!empty($filter->orderby) && $options['orderby'] = $filter->orderby;
+		!empty($filter->startAt) && $options['startAt'] = $filter->startAt;
+		!empty($filter->endAt) && $options['endAt'] = $filter->endAt;
+		!empty($filter->isAdmin) && $options['isAdmin'] = $filter->isAdmin;
+		!empty($filter->byCreator) && $options['byCreator'] = $filter->byCreator;
 		$rest = $this->_getMatterActions($site, $type, $options, $page, $size);
 
 		return new \ResponseData($rest);
@@ -189,10 +189,10 @@ class main extends \pl\fe\base {
 	public function userActions_action($site, $page = 1, $size = 30) {
 		$filter = $this->getPostJson();
 		$options = [];
-		!empty($filter->orderby) && $options['orderby'] = $orderby;
-		!empty($filter->startAt) && $options['startAt'] = $startAt;
-		!empty($filter->endAt) && $options['endAt'] = $endAt;
-		!empty($filter->isAdmin) && $options['isAdmin'] = $isAdmin;
+		!empty($filter->orderby) && $options['orderby'] = $filter->orderby;
+		!empty($filter->startAt) && $options['startAt'] = $filter->startAt;
+		!empty($filter->endAt) && $options['endAt'] = $filter->endAt;
+		!empty($filter->isAdmin) && $options['isAdmin'] = $filter->isAdmin;
 		$rst = $this->_getUserActions($site, $options, $page, $size);
 
 		return new \ResponseData($rst);

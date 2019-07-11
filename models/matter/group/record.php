@@ -791,7 +791,11 @@ class record_model extends \matter\enroll\record_base {
         $dataSchemas = $objGrp->dataSchemas;
         $data = new \stdClass;
         foreach ($dataSchemas as $ds) {
-            $data->{$ds->id} = !empty($ds->format) ? $oRecord->{$ds->format} : (!empty($oRecord->{$ds->id}) ? $oRecord->{$ds->id} : '');
+            if (!empty($ds->format) && in_array($ds->format, ['name', 'email', 'mobile'])) {
+                $data->{$ds->id} = $oRecord->{$ds->format};
+            } else {
+                $data->{$ds->id} = !empty($oRecord->{$ds->id}) ? $oRecord->{$ds->id} : '';
+            }
         }
         $oRecord->data = $data;
 

@@ -269,13 +269,7 @@ class TMS_MODEL {
          * 获取密码算子,如未指定，采取系统默认算子
          * 默认算子是论坛授权码和用户浏览器信息的md5散列值
          */
-        if (strpos($string, 'mfW6S') === 0) {
-            die('kkk:' . $key);
-            //die('sss:' . strlen($string));
-            $str_length = strlen($string);
-            $debug = true;
-            //die(str_replace(array('-', '_'), array('+', '/'), $string));
-        }
+        $str_length = strlen($string);
         $key_length = strlen($key);
         /**
          * 如果解密，先对密文解码
@@ -283,9 +277,6 @@ class TMS_MODEL {
          * 并将这8位字符串和待加密字符串连接成新的待加密字符串
          */
         $string = $operation == 'DECODE' ? base64_decode(str_replace(array('-', '_'), array('+', '/'), $string)) : substr(md5($string . $key), 0, 8) . $string;
-        if (isset($debug)) {
-            //die('sss:' . $str_length . '|' . strlen($string));
-        }
 
         $string_length = strlen($string);
         $rndkey = $box = array();
@@ -320,15 +311,11 @@ class TMS_MODEL {
 
         if ($operation == 'DECODE') {
             if (substr($result, 0, 8) == substr(md5(substr($result, 8) . $key), 0, 8)) {
-                if (isset($debug)) {
-                    die('rrr:' . $result);
-                }
                 return substr($result, 8);
             } else {
                 return '';
             }
         } else {
-            //return str_replace('=', '', base64_encode($result));
             return str_replace(array('+', '/', '='), array('-', '_', ''), base64_encode($result));
         }
     }

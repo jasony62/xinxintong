@@ -99,7 +99,7 @@
                         <tbody>
                             <tr ng-repeat='r in records' class='record'>
                                 <td>
-                                    <button class='btn btn-xs btn-default' ng-click='editCowork(c)'>
+                                    <button class='btn btn-xs btn-default' ng-click='editRecord(r)'>
                                         <span class='glyphicon glyphicon-edit'></span>
                                     </button>
                                 </td>
@@ -137,7 +137,7 @@
                                 <td>{{::r.like_num}}</td>
                                 <td>{{r.comment}}</td>
                                 <td>
-                                    <button class='btn btn-xs btn-danger' ng-click='removeCowork(c)'>
+                                    <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
                                         <span class='glyphicon glyphicon-remove'></span>
                                     </button>
                                 </td>

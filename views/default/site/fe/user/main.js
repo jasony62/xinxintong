@@ -51,7 +51,6 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'use
     var cachedStatus, lastCachedStatus;
     $scope.count = {};
     $scope.userSetting = false;
-    $scope.password2 = "";
     $scope.toggleUserSetting = function(event) {
         event.preventDefault();
         event.stopPropagation();
@@ -68,7 +67,7 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'use
     };
     $scope.changePwd = function() {
         var data = {};
-        if($scope.user.newPassword !== $scope.password2) {
+        if($scope.user.newPassword !== $scope.user.password2) {
             alert("两次输入密码不一致");
             return false;
         }

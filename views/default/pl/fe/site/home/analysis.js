@@ -43,11 +43,12 @@ define(['frame'], function(ngApp) {
             startAt: startAt.getTime() / 1000,
             endAt: endAt.getTime() / 1000
         }
+
         function cbFilter(obj, key, value) {
-            switch(key) {
+            switch (key) {
                 case 'creator':
                     _oCriteria.byCreator = value;
-                break;
+                    break;
             }
         };
         $scope.filter = facListFilter.init(cbFilter, _oCriteria.filter);
@@ -67,6 +68,9 @@ define(['frame'], function(ngApp) {
             url += '&isAdmin=' + _oCriteria.isAdmin;
             url += '&startAt=' + _oCriteria.startAt;
             url += '&endAt=' + _oCriteria.endAt;
+            if (filter.keyword) {
+                url += '&byCreator=' + _oCriteria.byCreator;
+            }
             window.open(url);
         };
         $scope.$on('xxt.tms-datepicker.change', function(event, data) {

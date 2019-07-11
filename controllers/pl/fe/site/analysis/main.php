@@ -16,16 +16,16 @@ class main extends \pl\fe\base {
 	/**
 	 * 素材运营统计数据
 	 */
-	public function matterActions_action($site, $type, $orderby, $startAt, $endAt, $page = 1, $size = 30) {
-		$rest = $this->_getMatterActions($site, $type, $orderby, $startAt, $endAt, $page, $size);
+	public function matterActions_action($site, $type, $orderby, $startAt, $endAt, $isAdmin = '', $page = 1, $size = 30) {
+		$rest = $this->_getMatterActions($site, $type, $orderby, $startAt, $endAt, $isAdmin, $page, $size);
 
 		return new \ResponseData($rest);
 	}
 	/**
 	 *  导出素材行为统计数据
 	 */
-	public function exportMatterActions_action($site, $type, $orderby, $startAt, $endAt) {
-		$rst = $this->_getMatterActions($site, $type, $orderby, $startAt, $endAt);
+	public function exportMatterActions_action($site, $type, $orderby, $startAt, $endAt, $isAdmin = '') {
+		$rst = $this->_getMatterActions($site, $type, $orderby, $startAt, $endAt, $isAdmin);
 		if ($rst->total == 0) {
 			die('日志为空');
 		}
@@ -87,19 +87,27 @@ class main extends \pl\fe\base {
 	/**
 	 * 
 	 */
-	private function _getMatterActions($site, $type, $orderby, $startAt = '', $endAt = '', $page = '', $size = '') {
+	private function _getMatterActions($site, $type, $orderby, $startAt = '', $endAt = '', $isAdmin = '', $page = '', $size = '') {
 		$fields = "l.matter_type,l.matter_id,sum(l.act_read) read_num,sum(l.act_share_friend) share_friend_num,sum(l.act_share_timeline) share_timeline_num";
 		$q = [
 			$fields,
 			'xxt_log_matter_action l',
 		];
-		
+
 		$w = "l.siteid = '$site' and l.matter_type = '$type'";
 		if (!empty($startAt)) {
 			$w .= " and l.action_at >= $startAt";
 		}
 		if (!empty($endAt)) {
 			$w .= " and l.action_at <= $endAt";
+		}
+		// 过滤非管理员
+		if (!empty($isAdmin)) {
+			if ($isAdmin === 'Y') {
+				$w .= " and case when l.act_read > 0 then exists (select 1 from xxt_log_matter_read lr,xxt_site_account sa,xxt_site_admin sa2 where lr.id = l.original_logid and lr.siteid = sa.siteid and lr.userid = sa.uid and sa.unionid = sa2.uid and sa2.siteid = lr.siteid) when l.act_share_timeline > 0 or l.act_share_friend > 0 then exists (select 1 from xxt_log_matter_share lr,xxt_site_account sa,xxt_site_admin sa2 where lr.id = l.original_logid and lr.siteid = sa.siteid and lr.userid = sa.uid and sa.unionid = sa2.uid and sa2.siteid = lr.siteid) end";
+			} else {
+				$w .= " and case when l.act_read > 0 then not exists (select 1 from xxt_log_matter_read lr,xxt_site_account sa,xxt_site_admin sa2 where lr.id = l.original_logid and lr.siteid = sa.siteid and lr.userid = sa.uid and sa.unionid = sa2.uid and sa2.siteid = lr.siteid) when l.act_share_timeline > 0 or l.act_share_friend > 0 then not exists (select 1 from xxt_log_matter_share lr,xxt_site_account sa,xxt_site_admin sa2 where lr.id = l.original_logid and lr.siteid = sa.siteid and lr.userid = sa.uid and sa.unionid = sa2.uid and sa2.siteid = lr.siteid) end";
+			}
 		}
 
 		switch ($type) {

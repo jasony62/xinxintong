@@ -415,7 +415,7 @@ define(['frame'], function (ngApp) {
                 });
             });
         };
-        $scope.listCowork = function(schema, pageAt) {
+        $scope.listCowork = function (schema, pageAt) {
             $scope.currentSchema = schema;
             $scope.coworkSchemasExt.forEach(function(item, index) {
                 if(item.id === schema.id) {
@@ -427,7 +427,7 @@ define(['frame'], function (ngApp) {
                 $scope.category = "cowork";
             });
         };
-        $scope.toggleRecord = function() {
+        $scope.toggleRecord = function () {
             $scope.category = "record";
             $scope.coworkSchemasExt.push($scope.currentSchema);
         }

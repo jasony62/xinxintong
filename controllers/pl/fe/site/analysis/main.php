@@ -16,16 +16,16 @@ class main extends \pl\fe\base {
 	/**
 	 * 素材运营统计数据
 	 */
-	public function matterActions_action($site, $type, $orderby, $startAt, $endAt, $isAdmin = '', $page = 1, $size = 30) {
-		$rest = $this->_getMatterActions($site, $type, $orderby, $startAt, $endAt, $isAdmin, $page, $size);
+	public function matterActions_action($site, $type, $orderby, $startAt, $endAt, $isAdmin = '', $byCreator = '', $page = 1, $size = 30) {
+		$rest = $this->_getMatterActions($site, $type, $orderby, $startAt, $endAt, $isAdmin, $byCreator, $page, $size);
 
 		return new \ResponseData($rest);
 	}
 	/**
 	 *  导出素材行为统计数据
 	 */
-	public function exportMatterActions_action($site, $type, $orderby, $startAt, $endAt, $isAdmin = '') {
-		$rst = $this->_getMatterActions($site, $type, $orderby, $startAt, $endAt, $isAdmin);
+	public function exportMatterActions_action($site, $type, $orderby, $startAt, $endAt, $isAdmin = '', $byCreator = '') {
+		$rst = $this->_getMatterActions($site, $type, $orderby, $startAt, $endAt, $isAdmin, $byCreator);
 		if ($rst->total == 0) {
 			die('日志为空');
 		}
@@ -87,7 +87,7 @@ class main extends \pl\fe\base {
 	/**
 	 * 
 	 */
-	private function _getMatterActions($site, $type, $orderby, $startAt = '', $endAt = '', $isAdmin = '', $page = '', $size = '') {
+	private function _getMatterActions($site, $type, $orderby, $startAt = '', $endAt = '', $isAdmin = '', $byCreator = '', $page = '', $size = '') {
 		$fields = "l.matter_type,l.matter_id,sum(l.act_read) read_num,sum(l.act_share_friend) share_friend_num,sum(l.act_share_timeline) share_timeline_num";
 		$q = [
 			$fields,
@@ -115,6 +115,7 @@ class main extends \pl\fe\base {
 				$q[0] .= ",a.title matter_title,a.creater_name matter_creater_name";
 				$q[1] .= ",xxt_article a";
 				$w .= " and a.id = l.matter_id";
+				!empty($byCreator) && $w .= " and a.creater_name like '%" . $byCreator . "%'";
 				break;
 		}
 

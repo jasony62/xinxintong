@@ -196,8 +196,11 @@ class main extends \site\fe\base {
 	 */
 	public function changePwd_action() {
 		$data = $this->getPostJson(false);
-		if (empty($data->password)) {
+		if (empty($data->newPassword)) {
 			return new \ResponseError('新口令不能为空');
+		}
+		if (empty($data->oldPassword)) {
+			return new \ResponseError('原口令不能为空');
 		}
 
 		$user = $this->who;
@@ -207,12 +210,17 @@ class main extends \site\fe\base {
 			$modelReg = $this->model('site\user\registration');
 			if ($registration = $modelReg->byId($oAccount->unionid)) {
 				// 校验密码安全
-				$rst = tms_pwd_check($data->password, ['account' => $registration->uname]);
+				$rst = tms_pwd_check($data->newPassword, ['account' => $registration->uname]);
 				if ($rst[0] === false) {
 					return new \ResponseError($rst[1]);
 				}
+				// 校验原密码
+				$pw_hash = $modelReg->compile_password($registration->uname, $data->oldPassword, $registration->salt);
+				if ($pw_hash != $registration->password) {
+					return new \ResponseError('原口令错误');
+				}
 
-				$rst = $modelReg->changePwd($registration->uname, $data->password, $registration->salt);
+				$rst = $modelReg->changePwd($registration->uname, $data->newPassword, $registration->salt);
 				return new \ResponseData($rst);
 			}
 		}

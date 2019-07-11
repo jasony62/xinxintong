@@ -196,71 +196,84 @@ controller('ComboxController', ['$scope', function ($scope) {
         return;
     }
 
+    function fnModelBind(scope, elems, attrs) {
+        $timeout(function () {
+            var checkboxStack = [],
+                oInnerModel,
+                bInnerModified = false;
+
+            fnFindCheckbox(elems[0], checkboxStack);
+            if (checkboxStack.length) {
+                scope.$watch(attrs.model, function (oOutModel) {
+                    var aBeforeValue;
+                    if (false === bInnerModified) {
+                        if (oOutModel) {
+                            if (angular.isArray(oOutModel)) {
+                                aBeforeValue = oOutModel;
+                            } else if (angular.isString(oOutModel)) {
+                                aBeforeValue = oOutModel.split(',');
+                            } else if (angular.isObject(oOutModel)) {
+                                aBeforeValue = [];
+                                angular.forEach(oOutModel, function (key, val) {
+                                    val && aBeforeValue.push(key);
+                                });
+                            } else {
+                                aBeforeValue = [];
+                            }
+                            oInnerModel = {};
+                            aBeforeValue.forEach(function (val) {
+                                oInnerModel[val] = true
+                            });
+                            checkboxStack.forEach(function (eleCheckbox) {
+                                var val;
+                                val = eleCheckbox.getAttribute('value');
+                                if (oInnerModel[val]) {
+                                    eleCheckbox.checked = true;
+                                } else {
+                                    eleCheckbox.checked = false;
+                                    delete oInnerModel[val];
+                                }
+                            });
+                        } else {
+                            checkboxStack.forEach(function (eleCheckbox) {
+                                eleCheckbox.checked = false;
+                            });
+                            oInnerModel = {};
+                        }
+                    }
+                    bInnerModified = false;
+                }, true);
+                checkboxStack.forEach(function (eleCheckbox) {
+                    eleCheckbox.addEventListener('change', function () {
+                        var val;
+                        val = this.getAttribute('value');
+                        if (this.checked) {
+                            oInnerModel[val] = true;
+                        } else {
+                            delete oInnerModel[val];
+                        }
+                        scope.$apply(function () {
+                            bInnerModified = true;
+                            $parse(attrs.model).assign(scope, Object.keys(oInnerModel));
+                            if (attrs.tmsChange) {
+                                scope.$eval(attrs.tmsChange);
+                            }
+                        });
+                    });
+                });
+            }
+        });
+    }
+
     return {
         restrict: 'A',
         link: function (scope, elems, attrs) {
-            $timeout(function () {
-                var checkboxStack = [],
-                    oInnerModel = {},
-                    bInnerModified = false;
-
-                fnFindCheckbox(elems[0], checkboxStack);
-                if (checkboxStack.length) {
-                    scope.$watch(attrs.model, function (oOutModel) {
-                        var aBeforeValue;
-                        if (false === bInnerModified) {
-                            if (oOutModel) {
-                                if (angular.isArray(oOutModel)) {
-                                    aBeforeValue = oOutModel;
-                                } else if (angular.isString(oOutModel)) {
-                                    aBeforeValue = oOutModel.split(',');
-                                } else if (angular.isObject(oOutModel)) {
-                                    angular.forEach(oOutModel, function (key, val) {
-                                        val && aBeforeValue.push(key);
-                                    });
-                                } else {
-                                    aBeforeValue = [];
-                                }
-                                checkboxStack.forEach(function (eleCheckbox) {
-                                    var val;
-                                    val = eleCheckbox.getAttribute('value');
-                                    if (aBeforeValue && aBeforeValue.length && aBeforeValue.indexOf(val) !== -1) {
-                                        eleCheckbox.checked = true;
-                                        oInnerModel[val] = true;
-                                    } else {
-                                        eleCheckbox.checked = false;
-                                        delete oInnerModel[val];
-                                    }
-                                });
-                            } else {
-                                checkboxStack.forEach(function (eleCheckbox) {
-                                    eleCheckbox.checked = false;
-                                });
-                                oInnerModel = {};
-                            }
-                        }
-                        bInnerModified = false;
-                    });
-                    checkboxStack.forEach(function (eleCheckbox) {
-                        eleCheckbox.addEventListener('change', function () {
-                            var val;
-                            val = this.getAttribute('value');
-                            if (this.checked) {
-                                oInnerModel[val] = true;
-                            } else {
-                                delete oInnerModel[val];
-                            }
-                            scope.$apply(function () {
-                                bInnerModified = true;
-                                $parse(attrs.model).assign(scope, Object.keys(oInnerModel));
-                                if (attrs.tmsChange) {
-                                    scope.$eval(attrs.tmsChange);
-                                }
-                            });
-                        });
-                    });
-                }
-            });
+            if (attrs.items)
+                scope.$watch(attrs.items, function () {
+                    fnModelBind(scope, elems, attrs)
+                });
+            else
+                fnModelBind(scope, elems, attrs)
         }
     };
 }]).filter('tmsDateFilter', ['$filter', function ($filter) {

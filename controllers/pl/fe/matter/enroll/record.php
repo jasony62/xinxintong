@@ -56,7 +56,7 @@ class record extends main_base {
         $aOptions = [
             'page' => $page,
             'size' => $size,
-            'fields' => 'id,state,enroll_key,rid,purpose,enroll_at,userid,group_id,nickname,verified,comment,data,score,supplement,agreed,like_num,remark_num,favor_num,dislike_num,vote_schema_num'
+            'fields' => 'id,state,enroll_key,rid,purpose,enroll_at,userid,group_id,nickname,verified,comment,data,score,supplement,agreed,like_num,remark_num,favor_num,dislike_num,vote_schema_num',
         ];
         if (!empty($oCriteria->keyword)) {
             $aOptions->keyword = $oCriteria->keyword;
@@ -155,7 +155,7 @@ class record extends main_base {
                     }
                     // 过滤空数据
                     $rawDataVal = $this->getDeepValue($rawData->data, $schemaId, null);
-                    if (null === $rawDataVal) {
+                    if (empty($rawDataVal)) {
                         continue;
                     }
 
@@ -208,18 +208,20 @@ class record extends main_base {
                         }
                         $this->setDeepValue($processedData, $schemaId, $newData);
                     } else if ($this->getDeepValue($oSchema, 'type') === 'multiple') {
-                        $rawDataVal2 = explode(',', $rawDataVal);
-                        $ops = new \stdClass;
-                        foreach ($oSchema->ops as $val) {
-                            $ops->{$val->v} = $val->l;
-                        }
                         $newData = [];
-                        foreach ($rawDataVal2 as $val) {
-                            $newData[] = $ops->{$val};
+                        if (!empty($rawDataVal)) {
+                            $ops = new \stdClass;
+                            foreach ($oSchema->ops as $val) {
+                                $ops->{$val->v} = $val->l;
+                            }
+                            $rawDataVal2 = explode(',', $rawDataVal);
+                            foreach ($rawDataVal2 as $val) {
+                                $newData[] = $ops->{$val};
+                            }
                         }
                         $this->setDeepValue($processedData, $schemaId, $newData);
                     } else {
-                        $this->setDeepValue($processedData, $schemaId,  $rawDataVal);
+                        $this->setDeepValue($processedData, $schemaId, $rawDataVal);
                     }
                 }
                 $rawData->data = $processedData;
@@ -2574,7 +2576,7 @@ class record extends main_base {
             $gid = '';
         }
         $aOptions = [
-            'fields' => 'id,state,enroll_key,rid,purpose,enroll_at,userid,group_id,nickname,verified,comment,data,score,supplement,agreed,like_num,remark_num,favor_num,dislike_num,vote_schema_num'
+            'fields' => 'id,state,enroll_key,rid,purpose,enroll_at,userid,group_id,nickname,verified,comment,data,score,supplement,agreed,like_num,remark_num,favor_num,dislike_num,vote_schema_num',
         ];
         $oResult = $modelRec->byApp($oApp, $aOptions, $oCriteria);
         if ($oResult->total === 0) {
@@ -2601,7 +2603,7 @@ class record extends main_base {
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '填写时间');
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '审核通过');
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '填写轮次');
-        if ($isAsdir === true)  {
+        if ($isAsdir === true) {
             $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '目录');
         }
 
@@ -2722,7 +2724,11 @@ class record extends main_base {
                     $objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
                     break;
                 case 'multiple':
-                    $cellValue = implode(',', $v);
+                    if (empty($v) || !is_array($v)) {
+                        $cellValue = '';
+                    } else {
+                        $cellValue = implode(',', $v);
+                    }
                     $cellValue = $this->replaceHTMLTags($cellValue, "\n");
                     $objActiveSheet->setCellValueByColumnAndRow($recColNum++, $rowIndex, $cellValue);
                     $objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
@@ -2834,9 +2840,9 @@ class record extends main_base {
             // 答案数 coworkDataTotal
             if ($isCowork === true) {
                 if (isset($oRecord->coworkDataTotal)) {
-                     $objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $oRecord->coworkDataTotal, \PHPExcel_Cell_DataType::TYPE_STRING);
+                    $objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $oRecord->coworkDataTotal, \PHPExcel_Cell_DataType::TYPE_STRING);
                 } else {
-                        $objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, 0, \PHPExcel_Cell_DataType::TYPE_STRING);
+                    $objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, 0, \PHPExcel_Cell_DataType::TYPE_STRING);
                 }
             }
             // 点赞
@@ -2971,7 +2977,7 @@ class record extends main_base {
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '填写时间');
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '审核通过');
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '填写轮次');
-        if ($isAsdir === true)  {
+        if ($isAsdir === true) {
             $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '目录');
         }
 
@@ -3238,7 +3244,7 @@ class record extends main_base {
     /**
      * 导出记录中的图片
      */
-    public function exportImage_action($site, $app) {
+    public function exportImage_action($app) {
         if (false === ($oUser = $this->accountUser())) {
             die('请先登录系统');
         }
@@ -3269,9 +3275,9 @@ class record extends main_base {
         }
 
         // 获得所有有效的填写记录
-        $records = $this->model('matter\enroll\record')->byApp($oApp);
+        $records = $this->model('matter\enroll\record')->byApp($oApp, null, (object) ['record' => (object) ['rid' => 'all']]);
         if ($records->total === 0) {
-            die('record empty');
+            die('填写记录为空');
         }
         $records = $records->records;
 

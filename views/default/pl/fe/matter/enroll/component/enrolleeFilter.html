@@ -6,9 +6,10 @@
     <form class="form-horizontal">
         <div class="form-group">
             <div class="col-md-9 col-md-offset-3">
-                <div class='checkbox'>
+                <div class="checkbox">
                     <label>
-                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="criteria.onlyEnrolled"> 仅包含有填写记录的用户
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="criteria.onlyEnrolled" />
+                        仅包含有填写记录的用户
                     </label>
                 </div>
             </div>
@@ -16,20 +17,32 @@
         <div class="form-group" ng-if="rounds.length">
             <label class="col-md-3 control-label">填写轮次</label>
             <div class="col-md-9">
-                <select class='form-control' ng-model="criteria.rid" size=5>
-                    <option value=''>全部轮次</option>
-                    <option value="{{rnd.rid}}" ng-repeat="rnd in rounds">{{rnd.title}}</option>
-                </select>
-                <div class='pl-pagination' ng-show="page.total>page.size">
+                <div tms-array-checkbox model="criteria.rids" items="rounds">
+                    <div class="checkbox" ng-repeat="rnd in rounds">
+                        <label class="checkbox-inline">
+                            <input type="checkbox" value="{{::rnd.rid}}" /><span>{{::rnd.title}}</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" ng-if="criteria.rids.length">
+            <div class="col-md-9 col-md-offset-3">
+                <button class='btn btn-default' ng-click="criteria.rids.splice(0,criteria.rids.length)">清空已选(<span>{{criteria.rids.length}}</span>)轮次</button>
+            </div>
+        </div>
+        <div class='form-group' ng-if="page.total>page.size">
+            <div class="col-md-9 col-md-offset-3">
+                <div class="pl-pagination">
                     <span>总数：{{page.total}}</span>
-                    <ul uib-pagination boundary-links="true" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
+                    <ul class='pagination-sm' uib-pagination boundary-links="true" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearchRound()"></ul>
                 </div>
             </div>
         </div>
         <div class="form-group" ng-if="app.groupApp">
             <label class="col-md-3 control-label">分组名称</label>
             <div class="col-md-9">
-                <select class='form-control' ng-model="criteria.byGroup" ng-options="team.team_id as team.title for team in app.groupApp.teams">
+                <select class="form-control" ng-model="criteria.byGroup" ng-options="team.team_id as team.title for team in app.groupApp.teams">
                     <option></option>
                 </select>
             </div>

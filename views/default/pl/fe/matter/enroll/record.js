@@ -415,14 +415,14 @@ define(['frame'], function (ngApp) {
                 });
             });
         };
-        $scope.listCowork = function(schema, pageAt) {
+        $scope.listCowork = function (schema, pageAt) {
             $scope.currentSchema = schema;
-            srvEnlRec.listCowork(schema, pageAt).then(function(data) {
+            srvEnlRec.listCowork(schema, pageAt).then(function (data) {
                 $scope.coworks = data.recordDatas;
                 $scope.category = "cowork";
             });
         };
-        $scope.toggleRecord = function() {
+        $scope.toggleRecord = function () {
             $scope.category = "record";
         }
         // 选中的记录

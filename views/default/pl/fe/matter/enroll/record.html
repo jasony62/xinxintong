@@ -51,7 +51,7 @@
             <div class="btn-group text-control" uib-dropdown ng-if="coworkSchemas.length&&category==='record'">
                 <button type="button" class="btn btn-default" uib-dropdown-toggle>填写记录<i class="caret"></i></button>
                 <ul uib-dropdown-menu>
-                    <li ng-repeat="coworkSchema in coworkSchemas" ng-click="listCowork(coworkSchema)"><a href ng-bind="coworkSchema.title" title="coworkSchema.title"></a></li>
+                    <li ng-repeat="coworkSchema in coworkSchemas" ng-click="listCowork(coworkSchema)"><a href ng-bind="coworkSchema.title" title="{{coworkSchema.title}}"></a></li>
                 </ul>
             </div>
             <div class="btn-group text-control" ng-if="category==='cowork'">
@@ -191,7 +191,7 @@
                             <tr>
                                 <th style='width:40px'></th>
                                 <th>{{currentSchema.title}}</th>
-                                <th style='width:140px' ng-if="bRequireNickname">用户</th>
+                                <th style='width:140px'>填写用户</th>
                                 <th style='width:140px' ng-if="bRequireGroup">分组</th>
                                 <th style='width:100px'>填写时间</th>
                                 <th style='width:100px'>填写轮次</th>
@@ -205,12 +205,12 @@
                         <tbody>
                             <tr ng-repeat='c in coworks' class='cowork'>
                                 <td>{{::(page.at-1)*page.size+$index+1}}</td>
-                                <td ng-repeat="schema in recordSchemasExt" ng-if="schema.cowork==='Y'" ng-switch on="schema.type">
-                                    <div ng-switch-when="multitext">
-                                        <p ng-repeat='item in c.data[schema.id]'><span ng-bind-html="item.value"></span></p>
+                                <td>
+                                    <div>
+                                        <p ng-repeat='item in c.data[currentSchema.id]'><span ng-bind-html="item.value"></span></p>
                                     </div>
                                 </td>
-                                <td ng-if="bRequireNickname"><span>{{::c.nickname}}</span></td>
+                                <td><span>{{::c.nickname}}</span></td>
                                 <td ng-if="bRequireGroup"><span>{{::c.group.title}}</span> <span ng-if="c.group_id!==c.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{c.user.group.title||'无'}}】"></span></td>
                                 <td>{{::(c.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                                 <td>{{::c.round.title}}</td>
@@ -218,7 +218,7 @@
                                 <td>{{::c.like_num}}</td>
                                 <td>{{::c.dislike_num}}</td>
                                 <td>{{c.remark_num}}</td>
-                                <td ng-repeat="schema in recordSchemasExt" ng-switch on="schema.type">
+                                <td ng-repeat="schema in coworkSchemasExt" ng-switch on="schema.type">
                                     <div ng-switch-when="image">
                                         <span><img ng-repeat="img in c.data[schema.id].split(',')" ng-src='{{img}}' /></span>
                                     </div>

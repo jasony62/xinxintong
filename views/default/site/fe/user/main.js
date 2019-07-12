@@ -67,7 +67,12 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'use
     };
     $scope.changePwd = function() {
         var data = {};
-        data.password = $scope.user.password;
+        if($scope.user.newPassword !== $scope.user.password2) {
+            alert("两次输入密码不一致");
+            return false;
+        }
+        data.oldPassword = $scope.user.oldPassword;
+        data.newPassword = $scope.user.newPassword;
         userService.changePwd(data).then(function() {
             alert('修改成功');
         });

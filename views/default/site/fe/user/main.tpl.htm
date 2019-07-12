@@ -58,10 +58,14 @@
                     </div>
                     <hr>
                     <div class='form-group'>
-                        <input type='password' class='form-control input-lg' name='password' ng-model="user.password" placeholder='输入8-16位密码(需包含数字、字母、特殊字符)'>
+                        <input type='password' class='form-control input-lg' name='password' ng-model="user.oldPassword" placeholder='请输入旧密码'>
                     </div>
                     <div class='form-group'>
-                        <input type='password' class='form-control input-lg' ng-pattern="repeatPwd" name='password2' ng-model="password2" placeholder='再次输入登录密码' />
+                        <input type='password' class='form-control input-lg' name='password' ng-model="user.newPassword" placeholder='请输入新密码'>
+                    </div>
+                    <div class='form-group'>
+                        <input type='password' class='form-control input-lg' name='password2' ng-model="user.password2" placeholder='再次输入新密码' />
+                        <p class="help-block">注：密码必须8-16字符，并且同时包含数字、字母和特殊字符，不能包含账号，不能有连续3个以上键盘顺序字符。</p>
                     </div>
                     <div class='form-group'>
                         <button class="btn btn-lg btn-block btn-success" ng-click="changePwd()">修改登录密码</button>

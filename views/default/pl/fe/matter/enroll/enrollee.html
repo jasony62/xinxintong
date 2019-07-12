@@ -37,12 +37,6 @@
             <div class='form-group pull-right' ng-if="category==='enrollee'">
                 <button type='button' class='btn btn-default' ng-click="searchEnrollee()"><i class='glyphicon glyphicon-refresh'></i> 刷新</button>
             </div>
-            <div class='form-group pull-right' ng-if="category==='absent'">
-                <div class='input-group'>
-                    <span class="input-group-addon">当前选中轮次</span>
-                    <input class='form-control' ng-model='criteria.turn_title' readonly="readonly" style='width:100px'>
-                </div>
-            </div>
         </div>
     </div>
     <div ng-switch on='category'>
@@ -150,6 +144,7 @@
                         <th style='width:48px'>序号</th>
                         <th>姓名</th>
                         <th>分组</th>
+                        <th ng-repeat="rnd in absentRounds">{{rnd.title}}</th>
                         <th ng-repeat="schema in absentApp.dataSchemas">{{schema.title}}</th>
                         <th>备注</th>
                         <th style='width:48px'>操作</th>
@@ -163,16 +158,19 @@
                         <td>{{$index+1}}</td>
                         <td>{{user.nickname}}</td>
                         <td>{{user.group.title}}</td>
+                        <td ng-repeat="rnd in absentRounds">
+                            <div><span ng-if="user.rounds.indexOf(rnd.rid)!==-1">是</span></div>
+                        </td>
                         <td ng-repeat="schema in absentApp.dataSchemas" ng-switch on="schema.type">
                             <div ng-switch-when="image">
                                 <img ng-repeat="img in user._data[schema.id]" ng-src='{{img}}' />
                             </div>
-                                <div ng-switch-when="file">
-                                    <span ng-repeat='file in user._data[schema.id]'>{{file.name}}</span>
-                                </div>
-                                <span ng-switch-when="date">{{(user._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
-                                <span ng-switch-when="url" ng-bind-html="user._data[schema.id]._text"></span>
-                                <span ng-switch-default ng-bind-html="user._data[schema.id]"></span>
+                            <div ng-switch-when="file">
+                                <span ng-repeat='file in user._data[schema.id]'>{{file.name}}</span>
+                            </div>
+                            <span ng-switch-when="date">{{(user._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                            <span ng-switch-when="url" ng-bind-html="user._data[schema.id]._text"></span>
+                            <span ng-switch-default ng-bind-html="user._data[schema.id]"></span>
                         </td>
                         <td>{{user.absent_cause.cause}}</td>
                         <td>

@@ -52,6 +52,10 @@ class log extends main_base {
 			if (strcasecmp($target_id, 'all') === 0) {
 				$aOptions['assocMatter'] = $app;
 			}
+			// 过滤团队管理员
+			if (!empty($criteria->isAdmin)) {
+				$aOptions['isAdmin'] = $criteria->isAdmin;
+			}
 			
 			$reads = $modelLog->listMatterAction($oApp->siteid, 'enroll.' . $target_type, $target_id, $aOptions);
 		} else {
@@ -63,7 +67,7 @@ class log extends main_base {
 	/**
 	 * 导出日志
 	 */
-	public function exportLog_action($app, $logType = 'site', $target_type = '', $target_id = '', $startAt = '', $endAt = '', $byOp = '', $byRid = '', $byUser = '') {
+	public function exportLog_action($app, $logType = 'site', $target_type = '', $target_id = '', $startAt = '', $endAt = '', $byOp = '', $byRid = '', $byUser = '', $isAdmin = '') {
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N', 'notDecode' => true]);
 		if (false === $oApp || $oApp->state != 1) {
 			die('指定的活动不存在');
@@ -99,6 +103,10 @@ class log extends main_base {
 			// 查询整个活动
 			if (strcasecmp($target_id, 'all') === 0) {
 				$options['assocMatter'] = $app;
+			}
+			// 过滤团队管理员
+			if (!empty($isAdmin)) {
+				$options['isAdmin'] = $isAdmin;
 			}
 			$reads = $modelLog->listMatterAction($oApp->siteid, 'enroll.' . $target_type, $target_id, $options);
 		} else {

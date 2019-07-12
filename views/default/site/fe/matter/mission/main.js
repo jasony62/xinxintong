@@ -74,6 +74,7 @@ ngApp.controller('ctrlMain', ['$scope', '$parse', 'tmsLocation', 'http2', functi
             });
             $scope.currentTime = parseInt((new Date * 1) / 1000);
             $scope.times = orderedTimes;
+            console.log($scope.times)
             $scope.matters = mattersByTime;
         });
     }
@@ -82,7 +83,7 @@ ngApp.controller('ctrlMain', ['$scope', '$parse', 'tmsLocation', 'http2', functi
     $scope.siteid = LS.s().site;
     $scope.criteria = _oCriteria = {};
     $scope.subView = "main";
-    $scope.viewTo = function(view) {
+    $scope.viewTo = function (view) {
         var url = LS.j('', 'site', 'mission') + '&page=' + view.type;
         location.href = url;
     };
@@ -134,10 +135,10 @@ ngApp.controller('ctrlMain', ['$scope', '$parse', 'tmsLocation', 'http2', functi
                 }
                 $scope.views = [{
                     type: 'main',
-                    title: '项目活动',
-                },{
+                    title: '活动',
+                }, {
                     type: 'board',
-                    title: '项目公告'
+                    title: '公告'
                 }];
             });
         }

@@ -56,7 +56,7 @@ class record extends main_base {
         $aOptions = [
             'page' => $page,
             'size' => $size,
-            'fields' => 'id,state,enroll_key,rid,purpose,enroll_at,userid,group_id,nickname,verified,comment,data,score,supplement,agreed,like_num,remark_num,favor_num,dislike_num,vote_schema_num'
+            'fields' => 'id,state,enroll_key,rid,purpose,enroll_at,userid,group_id,nickname,verified,comment,data,score,supplement,agreed,like_num,remark_num,favor_num,dislike_num,vote_schema_num',
         ];
         if (!empty($oCriteria->keyword)) {
             $aOptions->keyword = $oCriteria->keyword;
@@ -128,10 +128,24 @@ class record extends main_base {
      * 处理数据
      */
     private function _processDatas($oApp, &$rawDatas, $processType = 'recordList') {
+        // 处理多项填写题
+        $processMultitext = function ($oldVal) {
+            $newVal = [];
+            foreach ($oldVal as &$val) {
+                $val2 = new \stdClass;
+                $val2->id = $val->id;
+                $val2->value = $this->replaceHTMLTags($val->value);
+                $newVal[] = $val2;
+            }
+
+            return $newVal;
+        };
+        //
         $modelData = $this->model('matter\enroll\data');
         if (!empty($oApp->voteConfig)) {
             $modelTask = $this->model('matter\enroll\task', $oApp);
         }
+        //
         foreach ($rawDatas as &$rawData) {
             /* 获取记录的投票信息 */
             if (!empty($oApp->voteConfig)) {
@@ -155,38 +169,37 @@ class record extends main_base {
                     }
                     // 过滤空数据
                     $rawDataVal = $this->getDeepValue($rawData->data, $schemaId, null);
-                    if (null === $rawDataVal) {
+                    if (empty($rawDataVal)) {
                         continue;
                     }
 
                     /* 协作填写题 */
                     if ($this->getDeepValue($oSchema, 'cowork') === 'Y') {
                         if ($processType === 'coworkDataList') {
-                            $item = new \stdClass;
-                            $item->id = $rawData->data_id;
-                            $item->value = $this->replaceHTMLTags($rawData->value);
-                            $this->setDeepValue($processedData, $schemaId, [$item]);
-                            unset($rawData->value);
+                            if ($rawData->schema_id === $oSchema->id) {
+                                $item = new \stdClass;
+                                $item->id = $rawData->data_id;
+                                $item->value = $this->replaceHTMLTags($rawData->value);
+                                $this->setDeepValue($processedData, $schemaId, [$item]);
+                                unset($rawData->value);
+                            } else {
+                                $newVal = $processMultitext($rawDataVal);
+                                $this->setDeepValue($processedData, $schemaId, $newVal);
+                            }
                         } else {
-                            $newData = [];
+                            $newVal = [];
                             foreach ($rawDataVal as &$val) {
                                 $val2 = new \stdClass;
                                 $val2->id = $val->id;
                                 $val2->value = $this->replaceHTMLTags($val->value);
-                                $newData[] = $val2;
+                                $newVal[] = $val2;
                             }
-                            $this->setDeepValue($processedData, $schemaId, $newData);
-                            $aCoworkState[$schemaId] = (object) ['length' => count($newData)];
+                            $this->setDeepValue($processedData, $schemaId, $newVal);
+                            $aCoworkState[$schemaId] = (object) ['length' => count($newVal)];
                         }
                     } else if ($this->getDeepValue($oSchema, 'type') === 'multitext') {
-                        $newData = [];
-                        foreach ($rawDataVal as &$val) {
-                            $val2 = new \stdClass;
-                            $val2->id = $val->id;
-                            $val2->value = $this->replaceHTMLTags($val->value);
-                            $newData[] = $val2;
-                        }
-                        $this->setDeepValue($processedData, $schemaId, $newData);
+                        $newVal = $processMultitext($rawDataVal);
+                        $this->setDeepValue($processedData, $schemaId, $newVal);
                     } else if ($this->getDeepValue($oSchema, 'type') === 'single') {
                         foreach ($oSchema->ops as $val) {
                             if ($val->v === $rawDataVal) {
@@ -198,28 +211,30 @@ class record extends main_base {
                         foreach ($oSchema->ops as $val) {
                             $ops->{$val->v} = $val;
                         }
-                        $newData = [];
+                        $newVal = [];
                         foreach ($rawDataVal as $key => $val) {
                             $data2 = new \stdClass;
                             $data2->title = $ops->{$key}->l;
                             $data2->score = $val;
                             $data2->v = $ops->{$key}->v;
-                            $newData[] = $data2;
+                            $newVal[] = $data2;
                         }
-                        $this->setDeepValue($processedData, $schemaId, $newData);
+                        $this->setDeepValue($processedData, $schemaId, $newVal);
                     } else if ($this->getDeepValue($oSchema, 'type') === 'multiple') {
-                        $rawDataVal2 = explode(',', $rawDataVal);
-                        $ops = new \stdClass;
-                        foreach ($oSchema->ops as $val) {
-                            $ops->{$val->v} = $val->l;
+                        $newVal = [];
+                        if (!empty($rawDataVal)){
+                            $ops = new \stdClass;
+                            foreach ($oSchema->ops as $val) {
+                                $ops->{$val->v} = $val->l;
+                            }
+                            $rawDataVal2 = explode(',', $rawDataVal);
+                            foreach ($rawDataVal2 as $val) {
+                                $newVal[] = $ops->{$val};
+                            }
                         }
-                        $newData = [];
-                        foreach ($rawDataVal2 as $val) {
-                            $newData[] = $ops->{$val};
-                        }
-                        $this->setDeepValue($processedData, $schemaId, $newData);
+                        $this->setDeepValue($processedData, $schemaId, $newVal);
                     } else {
-                        $this->setDeepValue($processedData, $schemaId,  $rawDataVal);
+                        $this->setDeepValue($processedData, $schemaId, $rawDataVal);
                     }
                 }
                 $rawData->data = $processedData;
@@ -2574,7 +2589,7 @@ class record extends main_base {
             $gid = '';
         }
         $aOptions = [
-            'fields' => 'id,state,enroll_key,rid,purpose,enroll_at,userid,group_id,nickname,verified,comment,data,score,supplement,agreed,like_num,remark_num,favor_num,dislike_num,vote_schema_num'
+            'fields' => 'id,state,enroll_key,rid,purpose,enroll_at,userid,group_id,nickname,verified,comment,data,score,supplement,agreed,like_num,remark_num,favor_num,dislike_num,vote_schema_num',
         ];
         $oResult = $modelRec->byApp($oApp, $aOptions, $oCriteria);
         if ($oResult->total === 0) {
@@ -2601,7 +2616,7 @@ class record extends main_base {
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '填写时间');
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '审核通过');
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '填写轮次');
-        if ($isAsdir === true)  {
+        if ($isAsdir === true) {
             $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '目录');
         }
 
@@ -2722,7 +2737,11 @@ class record extends main_base {
                     $objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
                     break;
                 case 'multiple':
-                    $cellValue = implode(',', $v);
+                    if (empty($v) || !is_array($v)) {
+                        $cellValue = '';
+                    } else {
+                        $cellValue = implode(',', $v);
+                    }
                     $cellValue = $this->replaceHTMLTags($cellValue, "\n");
                     $objActiveSheet->setCellValueByColumnAndRow($recColNum++, $rowIndex, $cellValue);
                     $objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
@@ -2834,9 +2853,9 @@ class record extends main_base {
             // 答案数 coworkDataTotal
             if ($isCowork === true) {
                 if (isset($oRecord->coworkDataTotal)) {
-                     $objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $oRecord->coworkDataTotal, \PHPExcel_Cell_DataType::TYPE_STRING);
+                    $objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $oRecord->coworkDataTotal, \PHPExcel_Cell_DataType::TYPE_STRING);
                 } else {
-                        $objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, 0, \PHPExcel_Cell_DataType::TYPE_STRING);
+                    $objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, 0, \PHPExcel_Cell_DataType::TYPE_STRING);
                 }
             }
             // 点赞
@@ -2971,7 +2990,7 @@ class record extends main_base {
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '填写时间');
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '审核通过');
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '填写轮次');
-        if ($isAsdir === true)  {
+        if ($isAsdir === true) {
             $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '目录');
         }
 
@@ -3238,7 +3257,7 @@ class record extends main_base {
     /**
      * 导出记录中的图片
      */
-    public function exportImage_action($site, $app) {
+    public function exportImage_action($app) {
         if (false === ($oUser = $this->accountUser())) {
             die('请先登录系统');
         }
@@ -3269,9 +3288,9 @@ class record extends main_base {
         }
 
         // 获得所有有效的填写记录
-        $records = $this->model('matter\enroll\record')->byApp($oApp);
+        $records = $this->model('matter\enroll\record')->byApp($oApp, null, (object) ['record' => (object) ['rid' => 'all']]);
         if ($records->total === 0) {
-            die('record empty');
+            die('填写记录为空');
         }
         $records = $records->records;
 

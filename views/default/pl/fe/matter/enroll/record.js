@@ -415,15 +415,21 @@ define(['frame'], function (ngApp) {
                 });
             });
         };
-        $scope.listCowork = function(schema, pageAt) {
+        $scope.listCowork = function (schema, pageAt) {
             $scope.currentSchema = schema;
+            $scope.coworkSchemasExt.forEach(function(item, index) {
+                if(item.id === schema.id) {
+                    $scope.coworkSchemasExt.splice(index, 1);
+                }
+            });
             srvEnlRec.listCowork(schema, pageAt).then(function(data) {
                 $scope.coworks = data.recordDatas;
                 $scope.category = "cowork";
             });
         };
-        $scope.toggleRecord = function() {
+        $scope.toggleRecord = function () {
             $scope.category = "record";
+            $scope.coworkSchemasExt.push($scope.currentSchema);
         }
         // 选中的记录
         $scope.rows = new tmsRowPicker();
@@ -493,6 +499,7 @@ define(['frame'], function (ngApp) {
                 $scope.coworkSchemas = coworkSchemas;
                 $scope.recordSchemas = recordSchemas;
                 $scope.recordSchemasExt = recordSchemasExt;
+                $scope.coworkSchemasExt = recordSchemasExt;
                 if (oApp._schemasFromEnrollApp) {
                     oApp._schemasFromEnrollApp.forEach(function (schema) {
                         if (schema.type !== 'html') {

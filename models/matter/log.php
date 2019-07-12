@@ -1166,6 +1166,14 @@ class log_model extends \TMS_MODEL {
         if (!empty($options['endAt'])) {
             $q[2] .= " and ma.action_at < {$options['endAt']}";
         }
+        // 筛选是否团队管理员
+        if (!empty($options['isAdmin'])) {
+            if ($options['isAdmin'] === 'Y') {
+                $q[2] .= " and exists(select 1 from xxt_site_account sa,xxt_site_admin sa2 where sa.siteid = x.siteid and x.userid = sa.uid and sa.unionid = sa2.uid and x.siteid = sa2.siteid)";
+            } else {
+                $q[2] .= " and not exists(select 1 from xxt_site_account sa,xxt_site_admin sa2 where sa.siteid = x.siteid and x.userid = sa.uid and sa.unionid = sa2.uid and x.siteid = sa2.siteid)";
+            }
+        }
 
         $p = ['o' => 'ma.action_at desc'];
         if (!empty($options['paging'])) {

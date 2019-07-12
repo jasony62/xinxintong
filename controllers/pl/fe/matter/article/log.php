@@ -36,6 +36,11 @@ class log extends \pl\fe\matter\base {
 		if (!empty($filter->endAt)) {
 			$options['endAt'] = $filter->endAt;
 		}
+		// 过滤团队管理员
+		if (!empty($filter->isAdmin)) {
+			$options['isAdmin'] = $filter->isAdmin;
+		}
+
 		if (!empty($page) && !empty($size)) {
 			$options['paging'] = ['page' => $page, 'size' => $size];
 		}
@@ -77,7 +82,7 @@ class log extends \pl\fe\matter\base {
 	/**
 	 * 导出传播情况
 	 */
-	public function exportMatterActionLog_action($site, $appId, $startAt = '', $endAt = '', $byEvent = '') {
+	public function exportMatterActionLog_action($site, $appId, $startAt = '', $endAt = '', $byEvent = '', $isAdmin = '') {
 		if (empty($startAt)) {
 			die('未找到开始时间');
 		}
@@ -94,6 +99,10 @@ class log extends \pl\fe\matter\base {
 		}
 		if (!empty($byEvent)) {
 			$options['byEvent'] = $byEvent;
+		}
+		// 过滤团队管理员
+		if (!empty($isAdmin)) {
+			$options['isAdmin'] = $isAdmin;
 		}
 
 		$modelLog = $this->model('matter\log');

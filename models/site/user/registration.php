@@ -12,7 +12,7 @@ class registration_model extends \TMS_MODEL {
 	 * @return object
 	 */
 	public function &byId($uid, $aOptions = []) {
-		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : 'uid unionid,email uname,nickname,password,salt,from_siteid';
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : 'uid unionid,email uname,nickname,password,salt,from_siteid,forbidden';
 		$q = [
 			$fields,
 			'account',
@@ -47,7 +47,7 @@ class registration_model extends \TMS_MODEL {
 	/**
 	 * 注册用户帐号
 	 */
-	public function create($siteId, $uname, $password, $aOptions = array()) {
+	public function create($siteId, $uname, $password, $aOptions = []) {
 		$this->setOnlyWriteDbConn(true);
 		if ($this->checkUname($uname)) {
 			return [false, '注册账号已经存在，不能重复注册'];
@@ -68,8 +68,8 @@ class registration_model extends \TMS_MODEL {
 		//$registration->unionid = $unionid;
 		$registration->uid = $unionid;
 		$registration->from_siteid = $siteId;
-		$registration->authed_from = 'xxt_site';
-		$registration->authed_id = $uname;
+		$registration->authed_from = empty($aOptions['authed_from']) ? 'xxt_site' : $aOptions['authed_from'];
+		$registration->authed_id = empty($aOptions['authed_id']) ? $uname : $aOptions['authed_id'];
 		$registration->email = $uname;
 		$registration->nickname = $nickname;
 		$registration->password = $pw_hash;
@@ -86,8 +86,8 @@ class registration_model extends \TMS_MODEL {
 		/* 指定缺省用户组 */
 		$account_group = [
 			'account_uid' => $unionid,
-			'group_id' => 1,
 		];
+		$account_group['group_id'] = empty($aOptions['group_id'])? 1 : $aOptions['group_id'];
 		$this->insert('account_in_group', $account_group, false);
 
 		return [true, $registration];

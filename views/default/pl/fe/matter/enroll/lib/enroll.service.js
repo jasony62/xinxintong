@@ -64,8 +64,8 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
                 var records;
                 if (rsp.data) {
                     records = rsp.data.records ? rsp.data.records : [];
-                    rsp.data.total && (that._oPage.total = rsp.data.total);
-                    that._oPage.setTotal(rsp.data.total);
+                    if (rsp.data.total !== undefined)
+                        that._oPage.setTotal(rsp.data.total);
                 } else {
                     records = [];
                 }
@@ -655,7 +655,11 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
         };
         this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'pushnotify', 'CstApp', 'srvEnrollRound', 'tmsSchema', function ($q, http2, noticebox, $uibModal, pushnotify, CstApp, srvEnlRnd, tmsSchema) {
             var _ins = new BaseSrvEnrollRecord($q, http2, noticebox, $uibModal, tmsSchema);
-            var oAgreedLabel = { 'Y': '推荐', 'N': '屏蔽', 'A': '接受' };
+            var oAgreedLabel = {
+                'Y': '推荐',
+                'N': '屏蔽',
+                'A': '接受'
+            };
             _ins.search = function (pageNumber) {
                 var url;
 
@@ -669,18 +673,31 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
                 return _ins._bSearch(url);
             };
             _ins.listCowork = function (cowork, pageNumber) {
-                var defer = $q.defer(), data = {}, ids = [], url;
+                var that = this,
+                    defer = $q.defer(),
+                    data = {},
+                    ids = [],
+                    url;
 
+                pageNumber && (this._oPage.at = pageNumber);
                 url = '/rest/pl/fe/matter/enroll/record/listByCowork';
                 url += '?site=' + this._oApp.siteid;
                 url += '&app=' + this._oApp.id;
+                url += this._oPage.joinParams();
+
                 ids.push(cowork.id);
                 data.coworkSchemaIds = ids;
 
-                http2.post(url, data).then(function(rsp) {
-                    rsp.data.recordDatas.forEach(function(oCowork) {
-                        oCowork._agreed = oAgreedLabel[oCowork.agreed] || '未表态';
-                    });
+                http2.post(url, data).then(function (rsp) {
+                    if (rsp.data) {
+                        if (rsp.data.recordDatas)
+                            rsp.data.recordDatas.forEach(function (oCowork) {
+                                oCowork._agreed = oAgreedLabel[oCowork.agreed] || '未表态';
+                            });
+                        if (rsp.data.total !== undefined) {
+                            that._oPage.setTotal(rsp.data.total);
+                        }
+                    }
                     defer.resolve(rsp.data);
                 });
 

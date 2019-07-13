@@ -191,10 +191,6 @@ define(['frame'], function (ngApp) {
             window.open(url);
         }
         $scope.syncMissionUser = function () {
-            //var oPosted = {};
-            //if ($scope.criteria.record && $scope.criteria.record.rid) {
-            //    oPosted.rid = $scope.criteria.record.rid;
-            //}
             http2.post('/rest/script/time', {
                 html: {
                     'rounds': '/views/default/pl/fe/matter/enroll/component/roundPicker'
@@ -415,22 +411,17 @@ define(['frame'], function (ngApp) {
                 });
             });
         };
-        $scope.listCowork = function (schema, pageAt) {
-            $scope.currentSchema = schema;
-            $scope.coworkSchemasExt.forEach(function(item, index) {
-                if(item.id === schema.id) {
-                    $scope.coworkSchemasExt.splice(index, 1);
-                }
-            });
-            srvEnlRec.listCowork(schema, pageAt).then(function(data) {
+        $scope.listCowork = function (oSchema, pageNumber) {
+            $scope.currentSchema = oSchema;
+            srvEnlRec.listCowork(oSchema, pageNumber).then(function (data) {
                 $scope.coworks = data.recordDatas;
                 $scope.category = "cowork";
             });
         };
         $scope.toggleRecord = function () {
             $scope.category = "record";
-            $scope.coworkSchemasExt.push($scope.currentSchema);
-        }
+            $scope.doSearch(1);
+        };
         // 选中的记录
         $scope.rows = new tmsRowPicker();
         $scope.$watch('rows.allSelected', function (checked) {
@@ -450,6 +441,7 @@ define(['frame'], function (ngApp) {
                 // schemas
                 var recordSchemas = [],
                     recordSchemasExt = [],
+                    coworkSchemasExt = [],
                     enrollDataSchemas = [],
                     coworkSchemas = [],
                     bRequireSum = false,
@@ -457,13 +449,16 @@ define(['frame'], function (ngApp) {
                     groupDataSchemas = [];
 
                 rsp.data.forEach(function (oSchema) {
-                    if (!/html|image/.test(oSchema.type)) {
-                        recordSchemas.push(oSchema);
-                        recordSchemasExt.push(oSchema);
+                    if (/html|image/.test(oSchema.type)) {
+                        return
                     }
+                    recordSchemas.push(oSchema);
+                    recordSchemasExt.push(oSchema);
 
                     if (oSchema.type === 'multitext' && oSchema.cowork === 'Y') {
                         coworkSchemas.push(oSchema);
+                    } else {
+                        coworkSchemasExt.push(oSchema)
                     }
 
                     if (oSchema.supplement && oSchema.supplement === 'Y')
@@ -499,7 +494,7 @@ define(['frame'], function (ngApp) {
                 $scope.coworkSchemas = coworkSchemas;
                 $scope.recordSchemas = recordSchemas;
                 $scope.recordSchemasExt = recordSchemasExt;
-                $scope.coworkSchemasExt = recordSchemasExt;
+                $scope.coworkSchemasExt = coworkSchemasExt;
                 if (oApp._schemasFromEnrollApp) {
                     oApp._schemasFromEnrollApp.forEach(function (schema) {
                         if (schema.type !== 'html') {
@@ -517,7 +512,7 @@ define(['frame'], function (ngApp) {
                 }
                 $scope.groupDataSchemas = groupDataSchemas;
                 $scope.tmsTableWrapReady = 'Y';
-                $scope.doSearch();
+                $scope.doSearch(1);
             });
         });
     }]);

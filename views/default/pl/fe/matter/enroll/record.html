@@ -51,7 +51,7 @@
             <div class="btn-group text-control" uib-dropdown ng-if="coworkSchemas.length&&category==='record'">
                 <button type="button" class="btn btn-default" uib-dropdown-toggle>填写记录<i class="caret"></i></button>
                 <ul uib-dropdown-menu>
-                    <li ng-repeat="coworkSchema in coworkSchemas" ng-click="listCowork(coworkSchema)"><a href ng-bind="coworkSchema.title" title="{{coworkSchema.title}}"></a></li>
+                    <li ng-repeat="coworkSchema in coworkSchemas" ng-click="listCowork(coworkSchema,1)"><a href ng-bind="coworkSchema.title" title="{{coworkSchema.title}}"></a></li>
                 </ul>
             </div>
             <div class="btn-group text-control" ng-if="category==='cowork'">
@@ -88,7 +88,7 @@
                                 <th style='width:140px' ng-if="bRequireGroup">分组</th>
                                 <th style='width:100px'>填写时间</th>
                                 <th style='width:100px'>填写轮次</th>
-                                <th ng-repeat="schema in recordSchemasExt" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
+                                <th ng-repeat="schema in recordSchemasExt track by $index" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
                                 <th ng-if="bRequireScore">总得分</th>
                                 <th style='width:80px'>审核通过</th>
                                 <th style='width:80px'>获得赞同</th>
@@ -111,7 +111,7 @@
                                 <td ng-if="bRequireGroup"><span>{{::r.group.title}}</span> <span ng-if="r.group_id!==r.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span></td>
                                 <td>{{::(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                                 <td>{{::r.round.title}}</td>
-                                <td ng-repeat="schema in recordSchemasExt" ng-switch on="schema.type">
+                                <td ng-repeat="schema in recordSchemasExt track by $index" ng-switch on=" schema.type">
                                     <div ng-switch-when="image">
                                         <span><img ng-repeat="img in r.data[schema.id].split(',')" ng-src='{{img}}' /></span>
                                     </div>
@@ -152,7 +152,7 @@
                                 <td ng-if="bRequireGroup"></td>
                                 <td></td>
                                 <td></td>
-                                <td ng-repeat="schema in recordSchemasExt">
+                                <td ng-repeat="schema in recordSchemasExt track by $index">
                                     <div ng-if="schema.format==='number'||schema.type==='score'">
                                         {{sum4SchemaAtPage[schema.id]}}/{{sum4Schema[schema.id]}}
                                     </div>
@@ -199,7 +199,7 @@
                                 <th style='width:80px'>获赞数</th>
                                 <th style='width:80px'>获踩数</th>
                                 <th style='width:80px'>获评论数</th>
-                                <th ng-repeat="schema in recordSchemasExt" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
+                                <th ng-repeat="schema in coworkSchemasExt track by $index" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">{{schema.title}}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -218,7 +218,7 @@
                                 <td>{{::c.like_num}}</td>
                                 <td>{{::c.dislike_num}}</td>
                                 <td>{{c.remark_num}}</td>
-                                <td ng-repeat="schema in coworkSchemasExt" ng-switch on="schema.type">
+                                <td ng-repeat="schema in coworkSchemasExt track by $index" ng-switch on="schema.type">
                                     <div ng-switch-when="image">
                                         <span><img ng-repeat="img in c.data[schema.id].split(',')" ng-src='{{img}}' /></span>
                                     </div>
@@ -245,6 +245,12 @@
                 </div>
             </div>
             <!-- end records -->
+            <div class='form-group'>
+                <div class='pl-pagination'>
+                    <span>总数：{{page.total}}</span>
+                    <ul class='pull-right' uib-pagination ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="listCowork(currentSchema)"></ul>
+                </div>
+            </div>
         </div>
     </div>
 

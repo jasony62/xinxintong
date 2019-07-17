@@ -90,15 +90,11 @@ define('TMS_APP_TEMPLATE_DEFAULT', dirname(__FILE__) . '/_template');
  */
 !defined('TMS_APP_AUTH_HTTPS_CHECK') && define('TMS_APP_AUTH_HTTPS_CHECK', 0);
 /**
- * 管理端指定时间内无操作需要再次确认密码;  0 不限制无操作时间
- */
-!defined('TMS_APP_PL_TIMEOUT_AUTHLOCK') && define('TMS_APP_PL_TIMEOUT_AUTHLOCK', 0);
-/**
- * 用户口令输入错误限制登录的错误次数限制； 0 不限制错误次数
+ * 用户口令输入错误超限后限制登录； 0 不限制错误次数
  */
 !defined('TMS_APP_PASSWORD_ERROR_AUTHLOCK') && define('TMS_APP_PASSWORD_ERROR_AUTHLOCK', 0);
 /**
- * 用户口令输入错误限制时间（分钟），默认60分钟
+ * 用户口令输入错误超限后禁止登录的时间（分钟），默认60分钟
  */
 !defined('TMS_APP_PASSWORD_ERROR_AUTHLOCK_EXPIRE') && define('TMS_APP_PASSWORD_ERROR_AUTHLOCK_EXPIRE', 60);
 /**

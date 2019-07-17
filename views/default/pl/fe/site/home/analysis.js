@@ -6,8 +6,8 @@ define(['frame'], function(ngApp) {
         catelogs.splice(0, catelogs.length, { l: '单图文', v: 'article' }, { l: '用户', v: 'user' });
         $scope.catelog = catelogs[0];
     }]);
-    ngApp.provider.controller('ctrlArticle', ['$scope', 'http2', function($scope, http2) {
-        var current, startAt, endAt;
+    ngApp.provider.controller('ctrlArticle', ['$scope', 'http2', 'facListFilter', function($scope, http2, facListFilter) {
+        var current, startAt, endAt, _oCriteria, _siteid;
         current = new Date();
         startAt = {
             year: current.getFullYear(),
@@ -27,8 +27,7 @@ define(['frame'], function(ngApp) {
                 return d.getTime();
             }
         };
-        $scope.startAt = startAt.getTime() / 1000;
-        $scope.endAt = endAt.getTime() / 1000;
+        _siteid = location.search.match(/[\?&]site=([^&]*)/)[1];
         $scope.page = {
             at: 1,
             size: 30,
@@ -37,43 +36,53 @@ define(['frame'], function(ngApp) {
                 return 'page=' + this.at + '&size=' + this.size;
             }
         };
-        $scope.orderby = 'read';
+        $scope.criteria = _oCriteria = {
+            orderby: "read",
+            filter: {},
+            isAdmin: "",
+            startAt: startAt.getTime() / 1000,
+            endAt: endAt.getTime() / 1000
+        }
+
+        function cbFilter(obj, key, value) {
+            switch (key) {
+                case 'creator':
+                    _oCriteria.byCreator = value;
+                    break;
+            }
+        };
+        $scope.filter = facListFilter.init(cbFilter, _oCriteria.filter);
         $scope.fetch = function(page) {
             var url;
             page && ($scope.page.at = page);
-            url = '/rest/pl/fe/site/analysis/matterActions';
-            url += '?site=' + $scope.site.id;
-            url += '&type=article';
-            url += '&orderby=' + $scope.orderby;
-            url += '&startAt=' + $scope.startAt;
-            url += '&endAt=' + $scope.endAt;
-            url += '&' + $scope.page.param();
-            http2.get(url).then(function(rsp) {
+            url = '/rest/pl/fe/site/analysis/matterActions?site=' + _siteid + '&type=article&' + $scope.page.param();
+            http2.post(url, _oCriteria).then(function(rsp) {
                 $scope.matters = rsp.data.matters;
                 $scope.page.total = rsp.data.total;
             });
         };
         $scope.export = function(url) {
             var url;
-            url = '/rest/pl/fe/site/analysis/exportMatterActions';
-            url += '?site=' + $scope.site.id;
-            url += '&type=article';
-            url += '&orderby=' + $scope.orderby;
-            url += '&startAt=' + $scope.startAt;
-            url += '&endAt=' + $scope.endAt;
+            url = '/rest/pl/fe/site/analysis/exportMatterActions?site=' + _siteid + '&type=article';
+            url += '&orderby=' + _oCriteria.orderby;
+            url += '&isAdmin=' + _oCriteria.isAdmin;
+            url += '&startAt=' + _oCriteria.startAt;
+            url += '&endAt=' + _oCriteria.endAt;
+            if (filter.keyword) {
+                url += '&byCreator=' + _oCriteria.byCreator;
+            }
             window.open(url);
         };
         $scope.$on('xxt.tms-datepicker.change', function(event, data) {
-            $scope[data.state] = data.value;
-            $scope.fetch(1);
+            _oCriteria[data.state] = data.value;
         });
-        $scope.$watch('site', function(site) {
-            if (site === undefined) return;
+        $scope.$watch('criteria', function(nv) {
+            if (!nv) return;
             $scope.fetch(1);
-        });
+        }, true);
     }]);
-    ngApp.provider.controller('ctrlUserAction', ['$scope', 'http2', function($scope, http2) {
-        var current, startAt, endAt;
+    ngApp.provider.controller('ctrlUserAction', ['$scope', 'http2', 'facListFilter', function($scope, http2, facListFilter) {
+        var current, startAt, endAt, _oCriteria, _siteid;
         current = new Date();
         startAt = {
             year: current.getFullYear(),
@@ -93,8 +102,7 @@ define(['frame'], function(ngApp) {
                 return d.getTime();
             }
         };
-        $scope.startAt = startAt.getTime() / 1000;
-        $scope.endAt = endAt.getTime() / 1000;
+        _siteid = location.search.match(/[\?&]site=([^&]*)/)[1];
         $scope.page = {
             at: 1,
             size: 30,
@@ -103,41 +111,39 @@ define(['frame'], function(ngApp) {
                 return 'page=' + this.at + '&size=' + this.size;
             }
         };
-        $scope.orderby = 'read';
+        $scope.criteria = _oCriteria = {
+            orderby: 'read',
+            isAdmin: '',
+            startAt: startAt.getTime() / 1000,
+            endAt: endAt.getTime() / 1000
+        };
         $scope.fetch = function(page) {
             var url;
             page && ($scope.page.at = page);
-            url = '/rest/pl/fe/site/analysis/userActions';
-            url += '?site=' + $scope.site.id;
-            url += '&orderby=' + $scope.orderby;
-            url += '&startAt=' + $scope.startAt;
-            url += '&endAt=' + $scope.endAt;
-            url += '&' + $scope.page.param();
-            http2.get(url).then(function(rsp) {
+            url = '/rest/pl/fe/site/analysis/userActions?site=' + _siteid + '&' + $scope.page.param();
+            http2.post(url, _oCriteria).then(function(rsp) {
                 $scope.users = rsp.data.users;
                 $scope.page.total = rsp.data.total;
             });
         };
         $scope.export = function(url) {
             var url;
-            url = '/rest/pl/fe/site/analysis/exportUserActions';
-            url += '?site=' + $scope.site.id;
-            url += '&type=article';
-            url += '&orderby=' + $scope.orderby;
-            url += '&startAt=' + $scope.startAt;
-            url += '&endAt=' + $scope.endAt;
+            url = '/rest/pl/fe/site/analysis/exportUserActions?site=' + _siteid;
+            url += '&orderby=' + _oCriteria.orderby;
+            url += '&isAdmin=' + _oCriteria.isAdmin;
+            url += '&startAt=' + _oCriteria.startAt;
+            url += '&endAt=' + _oCriteria.endAt;
             window.open(url);
         };
         $scope.viewUser = function(openid) {
             location.href = '/rest/mp/user?openid=' + openid;
         };
         $scope.$on('xxt.tms-datepicker.change', function(event, data) {
-            $scope[data.state] = data.value;
-            $scope.fetch(1);
+            _oCriteria[data.state] = data.value;
         });
-        $scope.$watch('site', function(site) {
-            if (site === undefined) return;
+        $scope.$watch('criteria', function(nv) {
+            if (!nv) return;
             $scope.fetch(1);
-        });
+        }, true);
     }]);
 });

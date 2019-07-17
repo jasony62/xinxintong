@@ -206,6 +206,18 @@ class main extends \pl\fe\base {
 		return new \ResponseData($oAccount);
 	}
 	/**
+	 * 获得当前用户信息
+	 */
+	public function getGroup_action() {
+		if (false === ($loginUser = $this->accountUser())) {
+			return new \ResponseData(false);
+		}
+
+		$group = $this->model('account')->getGroupByUser($loginUser->id);
+
+		return new \ResponseData($group);
+	}
+	/**
 	 * 修改当前用户的口令
 	 */
 	public function changePwd_action() {

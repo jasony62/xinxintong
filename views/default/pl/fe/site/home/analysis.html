@@ -6,20 +6,28 @@
     </div>
 </div>
 <div class='row' ng-switch on="catelog.v">
-    <div class='col-md-12' ng-controller="ctrlUserAction" ng-switch-when="user">
+    <div class='col-md-12' ng-controller="ctrlArticle" ng-switch-when="article">
         <div class='form-group form-inline'>
             <div class='form-group'>
-                <select class='form-control' title='排序' ng-model='orderby' ng-change='fetch(1)'>
+                <select class='form-control' title='排序' ng-model='criteria.orderby'>
                     <option value='read'>阅读</option>
+                    <option value='fav'>收藏</option>
                     <option value='share_friend'>发送给朋友</option>
                     <option value='share_timeline'>分享到朋友圈</option>
                 </select>
             </div>
-            <div class='form-group' style='width:200px'>
-                <tms-datepicker tms-title='开始日期' tms-date='startAt' tms-state='startAt'></tms-datepicker>
+            <div class='form-group'>
+                <select class='form-control' title="用户类别" ng-model='criteria.isAdmin'>
+                    <option value=''>全部</option>
+                    <option value='Y'>管理员</option>
+                    <option value='N'>非管理员</option>
+                </select>
             </div>
-            <div class='form-group' style='width:200px'>
-                <tms-datepicker tms-title='结束日期' tms-date='endAt' tms-state='endAt'></tms-datepicker>
+            <div class='form-group'>
+                <tms-datepicker class='tms-datepicker' tms-title='开始日期' tms-date='criteria.startAt' tms-state='startAt'></tms-datepicker>
+            </div>
+            <div class='form-group'>
+                <tms-datepicker class='tms-datepicker' tms-title='结束日期' tms-date='criteria.endAt' tms-state='endAt'></tms-datepicker>
             </div>
             <button class='btn btn-default' ng-click="export()"><i class='glyphicon glyphicon-export'></i> <span>导出记录</span></button>
         </div>
@@ -28,7 +36,62 @@
                 <thead>
                     <tr>
                         <th style="width:40px"></th>
-                        <th>用户</th>
+                        <th>名称</th>
+                        <th data-filter-by='creator' class='th-action' uib-popover-template="'creatorBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)" style="width:120px">创建人 <i class='glyphicon glyphicon-filter'></i></th>
+                        <th style="width:120px">阅读</th>
+                        <th style="width:120px">收藏</th>
+                        <th style="width:120px">发送给朋友</th>
+                        <th style="width:120px">分享到朋友圈</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat='m in matters'>
+                        <td>{{$index+1}}</td>
+                        <td>{{m.matter_title}}</td>
+                        <td>{{m.matter_creater_name}}</td>
+                        <td>{{m.read_num}}</td>
+                        <td>{{m.fav_num}}</td>
+                        <td>{{m.share_friend_num}}</td>
+                        <td>{{m.share_timeline_num}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class='form-group clearfix'>
+                <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+                <ul uib-pagination ng-show='page.total>page.size' class='pull-right' style='cursor:pointer;margin:0;vertical-align:middle' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" class="pagination" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="fetch()"></ul>
+            </div>
+        </div>
+    </div>
+    <div class='col-md-12' ng-controller="ctrlUserAction" ng-switch-when="user">
+        <div class='form-group form-inline'>
+            <div class='form-group'>
+                <select class='form-control' title='排序' ng-model='criteria.orderby' ng-change='fetch(1)'>
+                    <option value='read'>阅读</option>
+                    <option value='share_friend'>发送给朋友</option>
+                    <option value='share_timeline'>分享到朋友圈</option>
+                </select>
+            </div>
+            <div class='form-group'>
+                <select class='form-control' title="用户类别" ng-model='criteria.isAdmin'>
+                    <option value=''>全部</option>
+                    <option value='Y'>管理员</option>
+                    <option value='N'>非管理员</option>
+                </select>
+            </div>
+            <div class='form-group'>
+                <tms-datepicker tms-title='开始日期' tms-date='criteria.startAt' tms-state='startAt'></tms-datepicker>
+            </div>
+            <div class='form-group'>
+                <tms-datepicker tms-title='结束日期' tms-date='criteria.endAt' tms-state='endAt'></tms-datepicker>
+            </div>
+            <button class='btn btn-default' ng-click="export()"><i class='glyphicon glyphicon-export'></i> <span>导出记录</span></button>
+        </div>
+        <div>
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th style="width:40px"></th>
+                        <th>用户</th>                             
                         <th style="width:120px">阅读</th>
                         <th style="width:120px">发送给朋友</th>
                         <th style="width:120px">分享到朋友圈</th>
@@ -53,51 +116,19 @@
             </div>
         </div>
     </div>
-    <div class='col-md-12' ng-controller="ctrlArticle" ng-switch-when="article">
-        <div class='form-group form-inline'>
-            <div class='form-group'>
-                <select class='form-control' title='排序' ng-model='orderby' ng-change='fetch(1)'>
-                    <option value='read'>阅读</option>
-                    <option value='fav'>收藏</option>
-                    <option value='share_friend'>发送给朋友</option>
-                    <option value='share_timeline'>分享到朋友圈</option>
-                </select>
-            </div>
-            <div class='form-group' style='width:200px'>
-                <tms-datepicker class='tms-datepicker' tms-title='开始日期' tms-date='startAt' tms-state='startAt'></tms-datepicker>
-            </div>
-            <div class='form-group' style='width:200px'>
-                <tms-datepicker class='tms-datepicker' tms-title='结束日期' tms-date='endAt' tms-state='endAt'></tms-datepicker>
-            </div>
-            <button class='btn btn-default' ng-click="export()"><i class='glyphicon glyphicon-export'></i> <span>导出记录</span></button>
-        </div>
-        <div>
-            <table class='table table-bordered'>
-                <thead>
-                    <tr>
-                        <th style="width:40px"></th>
-                        <th>名称</th>
-                        <th style="width:120px">阅读</th>
-                        <th style="width:120px">收藏</th>
-                        <th style="width:120px">发送给朋友</th>
-                        <th style="width:120px">分享到朋友圈</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat='m in matters'>
-                        <td>{{$index+1}}</td>
-                        <td>{{m.matter_title}}</td>
-                        <td>{{m.read_num}}</td>
-                        <td>{{m.fav_num}}</td>
-                        <td>{{m.share_friend_num}}</td>
-                        <td>{{m.share_timeline_num}}</td>
-                    </tr>
-                </tbody>
-            </table>
-            <div class='form-group clearfix'>
-                <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
-                <ul uib-pagination ng-show='page.total>page.size' class='pull-right' style='cursor:pointer;margin:0;vertical-align:middle' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" class="pagination" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="fetch()"></ul>
+</div>
+<script type="text/ng-template" id="creatorBy.html">
+    <div class="form-group">
+        <div class='input-group'>
+            <input type="text" ng-model="filter.keyword" class="form-control" ng-keypress='filter.keyUp($event)' autofocus>
+            <div class="input-group-btn">
+                <button class='btn btn-default' ng-disabled="!filter.keyword" ng-click="filter.keyword=''"><i class='glyphicon glyphicon-erase'></i></button>
             </div>
         </div>
     </div>
-</div>
+    <div class='text-right'>
+        <button class='btn btn-default' ng-click="filter.cancel()">取消筛选</button>
+        <button class='btn btn-default' ng-click="filter.exec()">进行筛选</button>
+        <button class='btn btn-default' ng-click="filter.close()"><i class='glyphicon glyphicon-remove'></i></button>
+    </div>
+</script>

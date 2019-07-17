@@ -668,9 +668,10 @@ function tms_pwd_check($pwd, $options = []) {
             return [true];
     }
 
-    // 过滤黑名单密码 $options['blackChars'] = []
-    if (!empty($options['blackChars'])) {
-        if (in_array($pwd, $options['blackChars'])) {
+    // 过滤黑名单密码 "aaa,bbb,ccc"
+    if (defined('TMS_APP_PASSWORD_BLACKLIST') && !empty(TMS_APP_PASSWORD_BLACKLIST) && is_string(TMS_APP_PASSWORD_BLACKLIST)) {
+        $pwdBlackList = explode(',', TMS_APP_PASSWORD_BLACKLIST);
+        if (in_array($pwd, $pwdBlackList)) {
             return [false, '此口令存在风险请用其它口令'];
         }
     }

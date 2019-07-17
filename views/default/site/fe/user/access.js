@@ -112,6 +112,9 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
             }
         });
     };
+    $scope.openThirdAppUrl = function(thirdApp) {
+        location.href = '/rest/site/fe/user/login/byRegAndThird?thirdId=' + thirdApp.id;
+    };
     $scope.gotoSite = function() {
         if ($scope.site.id === 'platform') {
             location.href = '/rest/home';
@@ -139,6 +142,9 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
             $http.post('/rest/log/add', { src: 'site.fe.user.access', msg: JSON.stringify(arguments) });
             alert('操作失败：' + (data === null ? '网络不可用' : data));
         });
+    });
+    $http.get('/rest/site/fe/user/login/thirdList').success(function(rsp) {
+        $scope.thirdApps = rsp.data;
     });
     $http.get('/rest/site/fe/user/getSafetyLevel').success(function(rsp) {
         $scope.isRegister = rsp.data.register;

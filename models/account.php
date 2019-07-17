@@ -5,6 +5,7 @@ class account_model extends TMS_MODEL {
 	const TABLE_A = 'account';
 	const TABLE_G = 'account_group';
 	const TABLE_AG = 'account_in_group';
+	const TABLE_AT = 'account_third';
 	const DEFAULT_GROUP = 1; // 初级用户
 	/**
 	 * 用户账号信息
@@ -37,18 +38,37 @@ class account_model extends TMS_MODEL {
 		return $oAccount;
 	}
 	/**
+	 * 第三方登录app
+	 */
+	public function byThirdId($id, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$q = array(
+			$fields,
+			self::TABLE_AT,
+			['id' => $id]
+		);
+		$third = $this->query_obj_ss($q);
+
+		return $third;
+	}
+	/**
 	 *
 	 * $param string $authed_id
 	 * $param string $authed_from
 	 *
 	 * return account
 	 */
-	public function byAuthedId($authid, $authed_from) {
+	public function byAuthedId($authid, $authed_from, $options = []) {
+		$fields = empty($options['fields']) ? 'a.uid,a.nickname,a.email,a.password,a.salt' : $options['fields'];
 		$q = array(
-			'a.uid,a.nickname,a.email,a.password,a.salt',
+			$fields,
 			'account a,account_in_group ag,account_group g',
-			"a.uid=ag.account_uid and ag.group_id=g.group_id and a.authed_id='$authid' and a.authed_from='$authed_from'",
+			"a.uid=ag.account_uid and ag.group_id=g.group_id and a.authed_id='{$authid}' and a.authed_from='{$authed_from}'",
 		);
+		if (isset($options['forbidden'])) {
+			$q[2] .= " and a.forbidden = " . $options['forbidden'];
+		}
+
 		if ($act = $this->query_obj_ss($q)) {
 			return $act;
 		} else {
@@ -316,6 +336,20 @@ class account_model extends TMS_MODEL {
 		$right = $this->query_obj_ss($q);
 
 		return isset($right->p_platform_manage) && $right->p_platform_manage === '1';
+	}
+	/**
+	 *
+	 */
+	public function getGroupByUser($uid) {
+		$q = [
+			'g.*',
+			'account_group g,account_in_group i',
+			"i.group_id=g.group_id and i.account_uid='{$uid}'",
+		];
+
+		$group = $this->query_obj_ss($q);
+
+		return $group;
 	}
 	/**
 	 * 检查用户所在组的权限

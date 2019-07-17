@@ -152,6 +152,9 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
     $scope.switchSubView = function(name) {
         $scope.subView = name;
     };
+    $scope.openThirdAppUrl = function(thirdApp) {
+        location.href = '/rest/site/fe/user/login/byRegAndThird?thirdId=' + thirdApp.id;
+    };
     $scope.login = function() {
         if($scope.loginUser.password) {
             http2.post('/rest/site/fe/user/login/do?site=' + LS.s().site, $scope.loginUser).then(function(rsp) {
@@ -267,6 +270,9 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
                 });
             });
         });
+    });
+    http2.get('/rest/site/fe/user/login/thirdList').then(function(rsp) {
+        $scope.thirdApps = rsp.data;
     });
     http2.get('/rest/site/fe/user/getSafetyLevel').then(function(rsp) {
         $scope.isRegister = rsp.data.register;

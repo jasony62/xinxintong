@@ -40,7 +40,7 @@ function show_error($message) {
         $msg = $message;
     }
     /* 返回信息 */
-    header("HTTP/1.1 500 Internal Server Error");
+    header("HTTP/1.1 200 Internal Server Error");
     header('Content-Type: text/plain; charset=utf-8');
     echo $msg;
 

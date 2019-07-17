@@ -175,7 +175,11 @@ class account_model extends TMS_MODEL {
 	 */
 	public function change_password($email, $password, $pw_salt) {
 		$pw_hash = $this->compile_password($email, $password, $pw_salt);
+		$update_data = [];
 		$update_data['password'] = $pw_hash;
+		// 重置密码错误次数和禁止登录时间
+		$update_data['pwd_error_num'] = 0;
+		$update_data['login_limit_expire'] = 0;
 		$rst = $this->update(self::TABLE_A, $update_data, ["email" => $email]);
 
 		return $rst;

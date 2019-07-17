@@ -154,14 +154,48 @@ class registration_model extends \TMS_MODEL {
 	 * @return array
 	 */
 	public function validate($uname, $password) {
-		if (!$oRegistration = $this->byUname($uname, ['forbidden' => 0])) {
+		if (!$oRegistration = $this->byUname($uname, ['forbidden' => 0, 'fields' => 'uid unionid,email uname,nickname,password,salt,from_siteid,login_limit_expire,pwd_error_num'])) {
 			return [false, '用户名或密码错误'];
 		}
 
+		$current = time();
+		if ($oRegistration->login_limit_expire > $current) {
+			$residueTime = $oRegistration->login_limit_expire - $current;
+			$residue = ($residueTime > 60) ? round($residueTime / 60) . '分' : $residueTime . '秒';
+
+			return [false, '错误次数超过（' . TMS_APP_PASSWORD_ERROR_AUTHLOCK . '）次，请在 ' . $residue . ' 后再次尝试'];
+		}
+		// 校验密码
 		$pw_hash = $this->compile_password($uname, $password, $oRegistration->salt);
 		if ($pw_hash != $oRegistration->password) {
-			return [false, '用户名或密码错误'];
+			if (TMS_APP_PASSWORD_ERROR_AUTHLOCK > 0) {
+				$errorNum = $oRegistration->pwd_error_num + 1; // 总错误次数
+				if ($errorNum < TMS_APP_PASSWORD_ERROR_AUTHLOCK) {
+					$this->update('account', ['pwd_error_num' => $errorNum], ['uid' => $oRegistration->unionid]);
+
+					return [false, '用户名或密码错误，错误次数超过 ' . TMS_APP_PASSWORD_ERROR_AUTHLOCK . ' 次后，将锁定登录' . TMS_APP_PASSWORD_ERROR_AUTHLOCK_EXPIRE . '分钟, 剩余 ' . (TMS_APP_PASSWORD_ERROR_AUTHLOCK - $errorNum) . ' 次'];
+				} else {
+					// 锁定登录, 错误次数归零。
+					if (TMS_APP_PASSWORD_ERROR_AUTHLOCK_EXPIRE > 0) {
+						$expire = $current + (TMS_APP_PASSWORD_ERROR_AUTHLOCK_EXPIRE * 60);
+					} else { // 默认60分钟
+						$expire = $current + (60 * 60);
+					}
+					$updata = [
+						'pwd_error_num' => 0,
+						'login_limit_expire' => $expire
+					];
+					$this->update('account', $updata, ['uid' => $oRegistration->unionid]);
+
+					return [false, '错误次数超过（' . TMS_APP_PASSWORD_ERROR_AUTHLOCK . '）次，请在 ' . TMS_APP_PASSWORD_ERROR_AUTHLOCK_EXPIRE . '分钟后再次尝试'];
+				}
+			} else {
+				return [false, '用户名或密码错误'];
+			}
 		}
+
+		// 密码正确需要重置密码错误次数
+		$this->update('account', ['pwd_error_num' => 0], ['uid' => $oRegistration->unionid]);
 
 		return [true, $oRegistration];
 	}

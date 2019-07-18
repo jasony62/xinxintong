@@ -24,6 +24,15 @@
 	z-index: 999
 }
 
+.tms-flex-row {
+    display: flex;
+    align-items: center;
+}
+
+.tms-flex-row .tms-flex-grow {
+    flex: 1;
+}
+
 /* score schema */
 li[wrap=score] {
 	padding: 4px 4px 4px 0;

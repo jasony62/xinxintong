@@ -588,6 +588,7 @@ class record extends base {
         if (true === $aResult[0]) {
             return new \ResponseData('ok');
         } else {
+            header("HTTP/1.0 415 Unsupported Media Type");
             return new \ResponseError($aResult[1]);
         }
     }

@@ -74,6 +74,14 @@ define('TMS_APP_DIR', dirname(__FILE__));
 define('TMS_APP_TEMPLATE_DEFAULT', dirname(__FILE__) . '/_template');
 !defined('TMS_APP_TEMPLATE') && define('TMS_APP_TEMPLATE', TMS_APP_TEMPLATE_DEFAULT);
 /**
+ * 限制上传文件最大值 ，单位 M ，0不限制
+ */
+!defined('TMS_UPLOAD_FILE_MAXSIZE') && define('TMS_UPLOAD_FILE_MAXSIZE', 0);
+/**
+ * 限制上传文件Content-type类型, 空为不限制 如："application/msword,application/vnd.ms-excel" 
+ */
+!defined('TMS_UPLOAD_FILE_CONTENTTYPE_WHITE') && define('TMS_UPLOAD_FILE_CONTENTTYPE_WHITE', '');
+/**
  * app's uri.
  */
 !defined('TMS_APP_URI') && define('TMS_APP_URI', '');

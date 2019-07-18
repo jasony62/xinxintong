@@ -360,6 +360,11 @@ class browser extends uploader {
 						continue;
 					}
 				}
+				if (isset($this->config['sizeByType'][$this->get['type']]) && $this->config['sizeByType'][$this->get['type']] > 0) {
+					if ($this->file['size'][$i] > ($this->config['sizeByType'][$this->get['type']] * 1024 * 1024)) {
+						continue;
+					}
+				}
 				$return[] = $this->moveUploadFile(array(
 					'name' => $name,
 					'tmp_name' => $this->file['tmp_name'][$i],
@@ -367,7 +372,7 @@ class browser extends uploader {
 				), $dir);
 			}
 			if (empty($return)) {
-				$this->errorMsg("没有上传图片，或者图片格式非jpg、png、jif格式");
+				$this->errorMsg("没有上传图片，或者图片格式非jpg、png、gif、bmp格式或者文件大小超过" . $this->config['sizeByType'][$this->get['type']] . 'M');
 				return;
 			}
 			return implode("\n", $return);

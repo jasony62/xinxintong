@@ -353,7 +353,10 @@ class data_model extends entity_model {
                                         }
                                     }
                                     if (!file_exists($fileUploaded)) {
-                                        return [false, '上传文件没有被正确保存'];
+                                        $msg = '上传文件没有被正确保存，';
+                                        TMS_UPLOAD_FILE_MAXSIZE > 0 && $msg .= '或者文件大小超过' . TMS_UPLOAD_FILE_MAXSIZE . 'M';
+                                        !empty(TMS_UPLOAD_FILE_CONTENTTYPE_WHITE) && $msg .= '或者 不是doc、docx、ppt、pptx、xls、xlsx、pdf、txt、zip、mov、mp4、wmv、wav、mp3、swf格式的文件';
+                                        return [false, $msg];
                                     }
                                     /* 如果同一次提交中包含相同的文件，文件只会上传一次，并且被改名 */
                                     $fileUploaded2 = $dirUploaded . '/' . $oFile->name;

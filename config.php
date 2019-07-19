@@ -78,7 +78,7 @@ define('TMS_APP_TEMPLATE_DEFAULT', dirname(__FILE__) . '/_template');
  */
 !defined('TMS_UPLOAD_FILE_MAXSIZE') && define('TMS_UPLOAD_FILE_MAXSIZE', 0);
 /**
- * 限制上传文件Content-type类型, 空为不限制 如："application/msword,application/vnd.ms-excel" 
+ * 限制上传文件Content-type类型, 空为不限制 如：'{"typeName" : "doc、xls", "contentType" : "application/msword,application/vnd.ms-excel"}' 
  */
 !defined('TMS_UPLOAD_FILE_CONTENTTYPE_WHITE') && define('TMS_UPLOAD_FILE_CONTENTTYPE_WHITE', '');
 /**

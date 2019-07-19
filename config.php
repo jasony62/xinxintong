@@ -78,7 +78,9 @@ define('TMS_APP_TEMPLATE_DEFAULT', dirname(__FILE__) . '/_template');
  */
 !defined('TMS_UPLOAD_FILE_MAXSIZE') && define('TMS_UPLOAD_FILE_MAXSIZE', 0);
 /**
- * 限制上传文件Content-type类型, 空为不限制 如：'{"typeName" : "doc、xls", "contentType" : "application/msword,application/vnd.ms-excel"}' 
+ * 限制上传文件Content-type类型, 空为不限制 
+ * typeName 是提示给用户的通俗文件类型，contentType 是程序中做限制的文件类型，多个用 “,” 号隔开
+ * 如：'{"typeName" : "doc、xls", "contentType" : "application/msword,application/vnd.ms-excel"}' 
  */
 !defined('TMS_UPLOAD_FILE_CONTENTTYPE_WHITE') && define('TMS_UPLOAD_FILE_CONTENTTYPE_WHITE', '');
 /**

@@ -140,7 +140,8 @@ define(['frame'], function (ngApp) {
         // 按轮次导出图片
         $scope.exportImage = function () {
             tkEnlRnd.pick($scope.app).then(function (oResult) {
-                //srvEnlRec.exportImage();
+                if (oResult && oResult.rid)
+                    srvEnlRec.exportImage(oResult.rid);
             });
         };
         $scope.renewScoreByRound = function () {

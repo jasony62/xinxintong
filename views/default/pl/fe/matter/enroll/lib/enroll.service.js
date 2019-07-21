@@ -1043,13 +1043,15 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
                 url += '&filter=' + JSON.stringify(oCriteria);
                 window.open(url);
             };
-            _ins.exportImage = function () {
+            _ins.exportImage = function (rid) {
+                if (!rid) {
+                    noticebox.warn('没有指定导出轮次');
+                    return;
+                }
                 var url;
                 url = '/rest/pl/fe/matter/enroll/export/image';
                 url += '?site=' + _siteId + '&app=' + _appId;
-                if (_ins._oCriteria.record.rid && _ins._oCriteria.record.rid.length) {
-                    url += '&rid=' + _ins._oCriteria.record.rid.join(',');
-                }
+                url += '&rid=' + rid;
                 window.open(url);
             };
             _ins.chooseImage = function (imgFieldName) {

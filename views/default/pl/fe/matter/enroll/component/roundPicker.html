@@ -3,11 +3,22 @@
     <h5 class="modal-title">选择轮次</h5>
 </div>
 <div class="modal-body">
-    <div class='radio' ng-repeat="rnd in rounds">
-        <label><input name='rnd' type='radio' value='{{::rnd.rid}}' ng-model="result.rid">{{::rnd.title}}</label>
+    <div ng-if="options.single===false">
+        <div tms-array-checkbox model="result.rid" itmes="rounds">
+            <div class='checkbox' ng-repeat="rnd in rounds">
+                <label class='checkbox-inline'>
+                    <input type='checkbox' value='{{::rnd.rid}}'><span>{{::rnd.title}}</span>
+                </label>
+            </div>
+        </div>
+    </div>
+    <div ng-if="options.single===true">
+        <div class='radio' ng-repeat="rnd in rounds">
+            <label><input name='rnd' type='radio' value='{{::rnd.rid}}' ng-model="result.rid">{{::rnd.title}}</label>
+        </div>
     </div>
     <div class='form-group' ng-if='page.total>page.size'>
-        <div class='pl-pagination'>
+        <div class='pl-pagination pagination-sm'>
             <span>总数：{{page.total}}</span>
             <ul uib-pagination boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
         </div>

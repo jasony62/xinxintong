@@ -1047,6 +1047,9 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
                 var url;
                 url = '/rest/pl/fe/matter/enroll/export/image';
                 url += '?site=' + _siteId + '&app=' + _appId;
+                if (_ins._oCriteria.record.rid && _ins._oCriteria.record.rid.length) {
+                    url += '&rid=' + _ins._oCriteria.record.rid.join(',');
+                }
                 window.open(url);
             };
             _ins.chooseImage = function (imgFieldName) {

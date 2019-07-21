@@ -98,7 +98,11 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
             }
         };
         this._bGetAfter = function (oEnrollApp, fnCallback) {
-            oEnrollApp.tags = (!oEnrollApp.tags || oEnrollApp.tags.length === 0) ? [] : oEnrollApp.tags.split(',');
+            if (!oEnrollApp.tags || !angular.isString(oEnrollApp.tags) || oEnrollApp.tags.length === 0) {
+                oEnrollApp.tags = [];
+            } else {
+                oEnrollApp.tags = oEnrollApp.tags.split(',');
+            }
             fnCallback(oEnrollApp);
             if (oEnrollApp.pages) {
                 oEnrollApp.pages.forEach(function (oPage) {
@@ -1008,7 +1012,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
             };
             _ins.exportImage = function () {
                 var url;
-                url = '/rest/pl/fe/matter/enroll/record/exportImage';
+                url = '/rest/pl/fe/matter/enroll/export/image';
                 url += '?site=' + _siteId + '&app=' + _appId;
                 window.open(url);
             };

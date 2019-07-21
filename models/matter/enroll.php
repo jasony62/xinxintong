@@ -472,7 +472,7 @@ class enroll_model extends enroll_base {
                         }
                     }
                 }
-            } else if ($this->getDeepValue($oEntryRule, 'scope.sns') === 'Y') {
+            } else if ($this->getDeepValue($oEntryRule, 'scope.sns') === 'Y' && isset($oEntryRule->sns)) {
                 $modelAcnt = $this->model('site\user\account');
                 if ($siteUser = $modelAcnt->byId($oUser->uid)) {
                     foreach ($oEntryRule->sns as $snsName => $rule) {

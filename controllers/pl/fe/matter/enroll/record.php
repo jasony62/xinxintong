@@ -3261,9 +3261,6 @@ class record extends main_base {
         if (false === ($oUser = $this->accountUser())) {
             die('请先登录系统');
         }
-        if (defined('SAE_TMP_PATH')) {
-            die('部署环境不支持该功能');
-        }
 
         $oNameSchema = null;
         $imageSchemas = [];

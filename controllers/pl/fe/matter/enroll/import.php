@@ -63,10 +63,6 @@ class import extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		if (defined('SAE_TMP_PATH')) {
-			return new \ResponseError('not support');
-		}
-
 		// 记录活动
 		$oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'id,siteid,state', 'cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
@@ -86,10 +82,6 @@ class import extends \pl\fe\matter\base {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		if (defined('SAE_TMP_PATH')) {
-			return new \ResponseError('not support');
-		}
-
 		$oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		if (false === $oApp || $oApp->state !== '1') {
 			return new \ObjectNotFoundError();

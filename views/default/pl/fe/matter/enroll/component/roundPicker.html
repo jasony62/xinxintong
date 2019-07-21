@@ -4,7 +4,7 @@
 </div>
 <div class="modal-body">
     <div ng-if="options.single===false">
-        <div tms-array-checkbox model="result.rid" itmes="rounds">
+        <div tms-array-checkbox model="result.rid" items="rounds">
             <div class='checkbox' ng-repeat="rnd in rounds">
                 <label class='checkbox-inline'>
                     <input type='checkbox' value='{{::rnd.rid}}'><span>{{::rnd.title}}</span>
@@ -26,5 +26,5 @@
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" ng-click="dismiss()">关闭</button>
-    <button class="btn btn-success" ng-click="ok()">确定</button>
+    <button class="btn btn-success" ng-class="result.rid.length?'btn-success':'btn-default'" ng-disabled="!result.rid.length" ng-click="ok()">确定</button>
 </div>

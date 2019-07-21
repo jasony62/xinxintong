@@ -9,7 +9,7 @@ class export extends main_base {
     /**
      * 导出记录中的图片
      */
-    public function image_action($app) {
+    public function image_action($app, $rid = '') {
         if (false === ($oUser = $this->accountUser())) {
             die('请先登录系统');
         }
@@ -41,7 +41,10 @@ class export extends main_base {
         }
 
         // 获得所有有效的填写记录
-        $oResult = $this->model('matter\enroll\record')->byApp($oApp, null, (object) ['record' => (object) ['rid' => 'all']]);
+        $oOptions = new \stdClass;
+        $oOptions->record = new \stdClass;
+        $oOptions->record->rid = empty($rid) ? 'all' : explode(',', $rid);
+        $oResult = $this->model('matter\enroll\record')->byApp($oApp, null, $oOptions);
         if ($oResult->total === 0) {
             die('填写记录为空');
         }
@@ -62,7 +65,7 @@ class export extends main_base {
         });
 
         if (count($aImages) === 0) {
-            die('填写记录中不包含图片');
+            die('填写记录(' . count($records) . '条)中不包含图片');
         }
 
         // 输出
@@ -73,6 +76,7 @@ class export extends main_base {
         if ($zip->open($zipFilename, \ZIPARCHIVE::CREATE) === false) {
             die('无法打开压缩文件，或者文件创建失败');
         }
+        $validImageNumber = 0;
         foreach ($aImages as $image) {
             $imageFilename = TMS_APP_DIR . '/' . $image['url'];
             if (file_exists($imageFilename)) {
@@ -94,6 +98,7 @@ class export extends main_base {
                     }
                 }
                 $zip->addFile($imageFilename, $image['schema']->title . '/' . $imageName);
+                $validImageNumber++;
             }
         }
         $zip->close();
@@ -107,6 +112,7 @@ class export extends main_base {
         header("Content-Type: application/zip");
         header("Content-Transfer-Encoding: binary");
         header('Content-Length: ' . filesize($zipFilename));
+        header("Export-Image-Number: " . $validImageNumber);
         @readfile($zipFilename);
 
         exit;

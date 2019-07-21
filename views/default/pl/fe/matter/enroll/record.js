@@ -139,13 +139,9 @@ define(['frame'], function (ngApp) {
         };
         // 按轮次导出图片
         $scope.exportImage = function () {
-            tkEnlRnd.pick($scope.app, {
-                single: false
-            }).then(function (oResult) {
-                if (oResult && oResult.rid && angular.isArray(oResult.rid) && oResult.rid.length) {
-                    oResult.rid.forEach(function (rid) {
-                        srvEnlRec.exportImage(rid);
-                    });
+            tkEnlRnd.pick($scope.app).then(function (oResult) {
+                if (oResult && oResult.rid && angular.isString(oResult.rid) && oResult.rid.length) {
+                    srvEnlRec.exportImage(oResult.rid);
                 }
             });
         };

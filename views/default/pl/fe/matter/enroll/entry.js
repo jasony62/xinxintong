@@ -253,10 +253,10 @@ define(['frame', 'groupService'], function (ngApp) {
                         id: oResult.app.id,
                         title: oResult.app.title
                     };
-                    if (oResult.round) {
-                        oGrpApp.round = {
-                            id: oResult.round.team_id,
-                            title: oResult.round.title
+                    if (oResult.team) {
+                        oGrpApp.team = {
+                            id: oResult.team.team_id,
+                            title: oResult.team.title
                         };
                     }
                     $parse('group').assign(oRule, oGrpApp);

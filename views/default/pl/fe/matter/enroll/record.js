@@ -137,6 +137,7 @@ define(['frame'], function (ngApp) {
         $scope.export = function () {
             srvEnlRec.export();
         };
+        // 按轮次导出图片
         $scope.exportImage = function () {
             srvEnlRec.exportImage();
         };

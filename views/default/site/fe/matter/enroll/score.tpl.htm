@@ -33,12 +33,12 @@
                 </tr>
             </table>
             <div class="schema" ng-class="{fail:record.score[schema.id]==='0'}" ng-repeat="schema in quizSchemas" ng-switch on="schema.type">
-                <label><span>{{schema.title}}</span>&nbsp;&nbsp;<span>({{schema.score}}分)</span></label>
+                <label><span>{{schema.title}}</span>&nbsp;&nbsp;<span ng-if="schema.scoreMode==='question'">({{schema.score}}分)</span></label>
                 <div ng-switch-when="single">
                     <dl>
                         <dd ng-repeat="op in schema.ops">
-                            <span ng-class="{'answer':op.v===schema.answer}">{{op.l}}</span>
-                            <span ng-if="op.v===record.data[schema.id]" class='glyphicon' ng-class="{'glyphicon-ok':op.v===schema.answer,'glyphicon-remove':op.v!==schema.answer}"></span>
+                            <span ng-class="{'answer':op.v===schema.answer&&schema.scoreMode==='question'}">{{op.l}}</span>
+                            <span ng-if="op.v===record.data[schema.id]&&schema.scoreMode==='question'" class='glyphicon' ng-class="{'glyphicon-ok':op.v===schema.answer,'glyphicon-remove':op.v!==schema.answer}"></span>
                         </dd>
                     </dl>
                     <p class='user-answer'>你的回答：<span>{{value2Label(schema.id)}}</span></p>

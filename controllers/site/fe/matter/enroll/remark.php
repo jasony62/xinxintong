@@ -209,7 +209,7 @@ class remark extends base {
             }
         }
 
-        $oPosted = $this->getPostJson();
+        $oPosted = $this->getPostJson(true, false);
         if (empty($oPosted->content)) {
             return new \ResponseError('留言内容不允许为空');
         }
@@ -240,7 +240,8 @@ class remark extends base {
         $oNewRemark->remark_id = isset($oRemark) ? $oRemark->id : 0;
         $oNewRemark->create_at = $current;
         $oNewRemark->modify_at = $current;
-        $oNewRemark->content = $oPosted->content;
+        $content = $this->replaceHTMLSpecialKeys($oPosted->content);
+        $oNewRemark->content = $content;
         $oNewRemark->as_cowork_id = '0';
         $oNewRemark->like_num = 0;
         $oNewRemark->like_log = '{}';
@@ -366,7 +367,7 @@ class remark extends base {
         if ($oUser->uid !== $oRemark->userid) {
             return new \ResponseError('没有修改指定留言的权限');
         }
-        $oPosted = $this->getPostJson();
+        $oPosted = $this->getPostJson(true, false);
         if (empty($oPosted->content)) {
             return new \ResponseError('留言内容不允许为空');
         }
@@ -379,7 +380,7 @@ class remark extends base {
         $rst = $modelRem->update(
             'xxt_enroll_record_remark',
             [
-                'content' => $oPosted->content,
+                'content' => $this->replaceHTMLSpecialKeys($oPosted->content),
                 'modify_at' => $current,
                 'modify_log' => $modelRem->escape($modelRem->toJson($oRemark->modify_log)),
             ],

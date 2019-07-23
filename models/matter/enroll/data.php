@@ -423,6 +423,14 @@ class data_model extends entity_model {
                     unset($submitVal->_text);
                     $oDbData->{$schemaId} = $submitVal;
                     break;
+                case 'multitext':
+                    if (!empty($submitVal)) {
+                        foreach($submitVal as $key => &$val) {
+                            $val->value = $this->replaceHTMLSpecialKeys($val->value);
+                        }
+                    }
+                    $oDbData->{$schemaId} = $submitVal;
+                    break;
                 default:
                     // string & score
                     if (is_string($submitVal)) {
@@ -1466,7 +1474,7 @@ class data_model extends entity_model {
         $oNewItem->nickname = isset($oUser->nickname) ? $this->escape($oUser->nickname) : '';
         $oNewItem->group_id = isset($oUser->group_id) ? $oUser->group_id : '';
         $oNewItem->schema_id = $oRecData->schema_id;
-        $oNewItem->value = $this->escape($value);
+        $oNewItem->value = $this->escape($this->replaceHTMLSpecialKeys($value));
         $oNewItem->agreed = $agreed;
         $oNewItem->multitext_seq = count($oRecData->value) + 1;
 

@@ -227,6 +227,39 @@ class TMS_MODEL {
         }
     }
     /**
+     * 过滤特殊字符,把预定义的字符转换为 HTML 实体，防止xss攻击
+     * $flagsQuotes 是否编码引号, 默认。仅编码双引号
+     */
+    public static function xssEscape($data, $flagsQuotes = ENT_COMPAT){
+        $_xssEscape = function($str, $flagsQuotes2) {
+            if ($flagsQuotes2 === ENT_QUOTES || $flagsQuotes2 === ENT_NOQUOTES) {
+                $str = htmlspecialchars($str, $flagsQuotes2);
+            } else {
+                $str = htmlspecialchars($str);
+            }
+
+            return $str;
+        };
+
+        if (is_string($data)) {
+            return $_xssEscape($data, $flagsQuotes);
+        } else if (is_object($data)) {
+            foreach ($data as $k => $v) {
+                $data->{$k} = TMS_MODEL::xssEscape($v, $flagsQuotes);
+            }
+            return $data;
+        } else if (is_array($data)) {
+            foreach ($data as $k => $v) {
+                $data[$k] = TMS_MODEL::xssEscape($v, $flagsQuotes);
+            }
+            return $data;
+        } else {
+            return $data;
+        }
+
+        return $str;
+    }
+    /**
      *
      */
     public static function unescape($data) {
@@ -486,6 +519,23 @@ class TMS_MODEL {
         $text = strip_tags($text);
         $text = str_replace(['&nbsp;', '&amp;'], [' ', '&'], $text);
 
+        return $text;
+    }
+    /**
+     * 过滤html中的特殊字段名
+     */
+    public static function replaceHTMLSpecialKeys($text, $keyReplaceStr = '') {
+        $specialKeys = array('onabort','onactivate','onafterprint','onafterupdate','onbeforeactivate','onbeforecopy','onbeforecut','onbeforedeactivate',
+                    'onbeforeeditfocus','onbeforepaste','onbeforeprint','onbeforeunload','onbeforeupdate','onblur','onbounce','oncellchange','onchange',
+                    'onclick','oncontextmenu','oncontrolselect','oncopy','oncut','ondataavailable','ondatasetchanged','ondatasetcomplete','ondblclick',
+                    'ondeactivate','ondrag','ondragend','ondragenter','ondragleave','ondragover','ondragstart','ondrop','onerror','onerrorupdate',
+                    'onfilterchange','onfinish','onfocus','onfocusin','onfocusout','onhelp','onkeydown','onkeypress','onkeyup','onlayoutcomplete',
+                    'onload','onlosecapture','onmousedown','onmouseenter','onmouseleave','onmousemove','onmouseout','onmouseover','onmouseup','onmousewheel',
+                    'onmove','onmoveend','onmovestart','onpaste','onpropertychange','onreadystatechange','onreset','onresize','onresizeend','onresizestart',
+                    'onrowenter','onrowexit','onrowsdelete','onrowsinserted','onscroll','onselect','onselectionchange','onselectstart','onstart','onstop',
+                    'onsubmit','onunload','javascript','script','eval','behaviour','expression','style','class');
+        $text = str_replace($specialKeys, $keyReplaceStr, $text);
+        
         return $text;
     }
     /**

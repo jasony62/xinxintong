@@ -206,11 +206,11 @@ class cowork extends base {
 		$oPosted = $this->getPostJson(false);
 		$modelData->update(
 			'xxt_enroll_record_data',
-			['value' => $modelData->escape($oPosted->value)],
+			['value' => $modelData->escape($this->replaceHTMLSpecialKeys($oPosted->value))],
 			['id' => $oItem->id]
 		);
 
-		$oRecData->value[$oItem->multitext_seq - 1]->value = $oPosted->value;
+		$oRecData->value[$oItem->multitext_seq - 1]->value = $this->replaceHTMLSpecialKeys($oPosted->value);
 		$modelData->update(
 			'xxt_enroll_record_data',
 			['value' => $this->escape($modelData->toJson($oRecData->value))],

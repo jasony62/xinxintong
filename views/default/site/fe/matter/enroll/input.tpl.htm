@@ -19,7 +19,7 @@
     <div id="wxUploadFileTip" uib-popover-template="'wxUploadFileTip.html'" uib-popover popover-placement="bottom" popover-trigger="'show'" popover-append-to-body="true"></div>
     <nav class='navbar site-navbar-default navbar-fixed-top'>
         <div class='container'>
-            <div class="navbar-header pull-left">
+            <div class="navbar-header pull-left" ng-if="app.scenarioConfig.can_repos==='Y'">
                 <a href class="navbar-brand" ng-click="gotoHome()">
                     <i class="glyphicon glyphicon-home"></i> <span class="visible-lg-inline">首页</span>
                 </a>

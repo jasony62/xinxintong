@@ -39,13 +39,13 @@ ngApp.factory('Record', ['http2', '$q', 'tmsLocation', function (http2, $q, LS) 
 }]);
 ngApp.controller('ctrlRecord', ['$scope', '$sce', function ($scope, $sce) {
     $scope.value2Label = function (schemaId) {
-        var val, schema, aVal, aLab = [];
-        if ($scope.app.dataSchemas && (schema = $scope.app._schemasById[schemaId])) {
-            if ($scope.Record && $scope.Record.facRecord && $scope.Record.facRecord.current && $scope.Record.facRecord.current.data) {
+        var val, oSchema, aVal, aLab = [];
+        if ($scope.app._schemasById && (oSchema = $scope.app._schemasById[schemaId])) {
+            if ($scope.Record && $scope.Record.current && $scope.Record.current.data) {
                 if (val = $scope.Record.facRecord.current.data[schemaId]) {
-                    if (schema.ops && schema.ops.length) {
+                    if (oSchema.ops && oSchema.ops.length) {
                         aVal = val.split(',');
-                        schema.ops.forEach(function (op) {
+                        oSchema.ops.forEach(function (op) {
                             aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
                         });
                         val = aLab.join(',');

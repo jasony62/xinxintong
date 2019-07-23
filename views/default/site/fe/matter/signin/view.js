@@ -42,7 +42,7 @@ ngApp.controller('ctrlRecord', ['$scope', '$sce', function ($scope, $sce) {
         var val, oSchema, aVal, aLab = [];
         if ($scope.app._schemasById && (oSchema = $scope.app._schemasById[schemaId])) {
             if ($scope.Record && $scope.Record.current && $scope.Record.current.data) {
-                if (val = $scope.Record.facRecord.current.data[schemaId]) {
+                if (val = $scope.Record.current.data[schemaId]) {
                     if (oSchema.ops && oSchema.ops.length) {
                         aVal = val.split(',');
                         oSchema.ops.forEach(function (op) {

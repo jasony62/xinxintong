@@ -240,7 +240,7 @@ class remark extends base {
         $oNewRemark->remark_id = isset($oRemark) ? $oRemark->id : 0;
         $oNewRemark->create_at = $current;
         $oNewRemark->modify_at = $current;
-        $oNewRemark->content = $oPosted->content;;
+        $oNewRemark->content = $oPosted->content;
         $oNewRemark->as_cowork_id = '0';
         $oNewRemark->like_num = 0;
         $oNewRemark->like_log = '{}';

@@ -89,7 +89,7 @@ $_CONFIG = array(
 		'file' => [],
 		'media' => [],
 		'image' => [],
-		'图片' => ['image/png', 'image/x-png', 'image/jpeg', 'image/pjpeg', 'image/gif', 'image/bmp'],
+		'图片' => ['png', 'jpg', 'jpeg', 'gif', 'bmp'],
 		'音频' => [],
 		'文件' => [],
 	),

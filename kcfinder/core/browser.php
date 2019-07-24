@@ -356,7 +356,8 @@ class browser extends uploader {
 			$return = array();
 			foreach ($this->file['name'] as $i => $name) {
 				if (!empty($this->config['whiteByType'][$this->get['type']])) {
-					if (!in_array($this->file['type'][$i], $this->config['whiteByType'][$this->get['type']])) {
+					$fileType = substr($this->file['name'][$i], strrpos($this->file['name'][$i], '.') + 1);
+					if (!in_array($fileType, $this->config['whiteByType'][$this->get['type']])) {
 						continue;
 					}
 				}
@@ -372,7 +373,9 @@ class browser extends uploader {
 				), $dir);
 			}
 			if (empty($return)) {
-				$this->errorMsg("没有上传图片，或者图片格式非jpg、png、gif、bmp格式或者文件大小超过" . $this->config['sizeByType'][$this->get['type']] . 'M');
+				$msg = "没有上传图片或者图片格式非" . implode(',', $this->config['whiteByType'][$this->get['type']]) . '格式';
+				$this->config['sizeByType'][$this->get['type']] > 0 && $msg .= "，或者文件大小超过" . $this->config['sizeByType'][$this->get['type']] . "M";
+				$this->errorMsg($msg);
 				return;
 			}
 			return implode("\n", $return);

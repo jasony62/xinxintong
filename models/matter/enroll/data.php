@@ -345,10 +345,10 @@ class data_model extends entity_model {
                                 }
                                 // 限制文件类型 白名单
                                 if (defined('TMS_UPLOAD_FILE_CONTENTTYPE_WHITE') && !empty(TMS_UPLOAD_FILE_CONTENTTYPE_WHITE)) {
-                                    $types = \json_decode(TMS_UPLOAD_FILE_CONTENTTYPE_WHITE);
-			                        $contentType = explode(',', $types->contentType);
-                                    if (!in_array($oFile->type, $contentType)) {
-                                        return [false, '文件上传失败，只支持' . $types->typeName . '格式的文件'];
+                                    $contentType = explode(',', TMS_UPLOAD_FILE_CONTENTTYPE_WHITE);
+                                    $oFileType = substr($oFile->name, strrpos($oFile->name, '.') + 1);
+                                    if (!in_array($oFileType, $contentType)) {
+                                        return [false, '文件上传失败，只支持' . TMS_UPLOAD_FILE_CONTENTTYPE_WHITE . '格式的文件'];
                                     }
                                 }
                                 /* 新上传的文件 */

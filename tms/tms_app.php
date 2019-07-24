@@ -186,7 +186,6 @@ class TMS_APP {
 				$pn = $p->getName();
 				if (isset($trans[$pn])) {
 					if (TMS_APP_REQUEST_DATA_ESCAPE === 1) {
-						$value = $model->xssEscape($trans[$pn], ENT_NOQUOTES);
 						$args[] = $model->escape($value);
 					} else {
 						$args[] = $trans[$pn];

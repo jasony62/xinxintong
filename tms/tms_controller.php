@@ -56,7 +56,7 @@ class TMS_CONTROLLER {
 	/**
 	 * 将post数据转换为对象
 	 */
-	protected function &getPostJson($escape = true, $filterHtmlTags = true) {
+	protected function &getPostJson($escape = true) {
 		if ('POST' === $_SERVER['REQUEST_METHOD']) {
 			$json = file_get_contents("php://input");
 			// 过滤掉数据的emoji字符
@@ -66,9 +66,6 @@ class TMS_CONTROLLER {
 				throw new \Exception('请求参数解析错误：' . json_last_error_msg());
 			}
 			if ($escape === true && TMS_APP_REQUEST_DATA_ESCAPE === 1) {
-				if ($filterHtmlTags) {
-					$obj = $this->xssEscape($obj, ENT_NOQUOTES);
-				}
 				$obj = $this->escape($obj);
 			}
 		} else {
@@ -123,12 +120,6 @@ class TMS_CONTROLLER {
 	/**
 	 *
 	 */
-	public function xssEscape($data, $flagsQuotes = '') {
-		return TMS_MODEL::xssEscape($data, $flagsQuotes);
-	}
-	/**
-	 *
-	 */
 	public static function getDeepValue($deepObj, $deepProp, $notSetVal = null) {
 		return TMS_MODEL::getDeepValue($deepObj, $deepProp, $notSetVal);
 	}
@@ -143,12 +134,6 @@ class TMS_CONTROLLER {
 	 */
 	public static function replaceHTMLTags($text, $brValue = '') {
 		return TMS_MODEL::replaceHTMLTags($text, $brValue);
-	}
-	/**
-	 *
-	 */
-	public static function replaceHTMLSpecialKeys($text, $keyReplaceStr = '') {
-		return TMS_MODEL::replaceHTMLSpecialKeys($text, $keyReplaceStr);
 	}
 	/**
 	 * 获得URL对应的view

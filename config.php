@@ -107,6 +107,10 @@ define('TMS_APP_TEMPLATE_DEFAULT', dirname(__FILE__) . '/_template');
  */
 !defined('TMS_APP_PASSWORD_ERROR_AUTHLOCK_EXPIRE') && define('TMS_APP_PASSWORD_ERROR_AUTHLOCK_EXPIRE', 30);
 /**
+ * 用户无操作时间限制。 0 为不限制 单位 分
+ */
+!defined('TMS_APP_NOHOOK_MAXTIME') && define('TMS_APP_NOHOOK_MAXTIME', 0);
+/**
  * 是否对请求数据进行过滤
  */
 !defined('TMS_APP_REQUEST_DATA_ESCAPE') && define('TMS_APP_REQUEST_DATA_ESCAPE', 1);

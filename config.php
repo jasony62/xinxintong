@@ -104,9 +104,9 @@ define('TMS_APP_TEMPLATE_DEFAULT', dirname(__FILE__) . '/_template');
  */
 !defined('TMS_APP_PASSWORD_ERROR_AUTHLOCK') && define('TMS_APP_PASSWORD_ERROR_AUTHLOCK', 0);
 /**
- * 用户口令输入错误超限后禁止登录的时间（分钟），默认60分钟
+ * 用户口令输入错误超限后禁止登录的时间（分钟），如果值 <= 0 以默认30分钟为准
  */
-!defined('TMS_APP_PASSWORD_ERROR_AUTHLOCK_EXPIRE') && define('TMS_APP_PASSWORD_ERROR_AUTHLOCK_EXPIRE', 60);
+!defined('TMS_APP_PASSWORD_ERROR_AUTHLOCK_EXPIRE') && define('TMS_APP_PASSWORD_ERROR_AUTHLOCK_EXPIRE', 30);
 /**
  * 是否对请求数据进行过滤
  */

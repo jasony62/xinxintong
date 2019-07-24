@@ -163,7 +163,7 @@ class registration_model extends \TMS_MODEL {
 			$residueTime = $oRegistration->login_limit_expire - $current;
 			$residue = ($residueTime > 60) ? round($residueTime / 60) . '分' : $residueTime . '秒';
 
-			return [false, '错误次数超过（' . TMS_APP_PASSWORD_ERROR_AUTHLOCK . '）次，请在 ' . $residue . ' 后再次尝试'];
+			return [false, '用户名或密码错误次数超过【' . TMS_APP_PASSWORD_ERROR_AUTHLOCK . '】次，请在【' . $residue . '】后再次尝试'];
 		}
 		// 校验密码
 		$pw_hash = $this->compile_password($uname, $password, $oRegistration->salt);
@@ -173,21 +173,22 @@ class registration_model extends \TMS_MODEL {
 				if ($errorNum < TMS_APP_PASSWORD_ERROR_AUTHLOCK) {
 					$this->update('account', ['pwd_error_num' => $errorNum], ['uid' => $oRegistration->unionid]);
 
-					return [false, '用户名或密码错误，错误次数超过 ' . TMS_APP_PASSWORD_ERROR_AUTHLOCK . ' 次后，将锁定登录' . TMS_APP_PASSWORD_ERROR_AUTHLOCK_EXPIRE . '分钟, 剩余 ' . (TMS_APP_PASSWORD_ERROR_AUTHLOCK - $errorNum) . ' 次'];
+					return [false, '用户名或密码错误，错误次数超过【' . TMS_APP_PASSWORD_ERROR_AUTHLOCK . '】次后，将锁定登录【' . TMS_APP_PASSWORD_ERROR_AUTHLOCK_EXPIRE . '】分钟, 剩余【' . (TMS_APP_PASSWORD_ERROR_AUTHLOCK - $errorNum) . '】次'];
 				} else {
 					// 锁定登录, 错误次数归零。
-					if (TMS_APP_PASSWORD_ERROR_AUTHLOCK_EXPIRE > 0) {
-						$expire = $current + (TMS_APP_PASSWORD_ERROR_AUTHLOCK_EXPIRE * 60);
-					} else { // 默认60分钟
-						$expire = $current + (60 * 60);
-					}
+					$authLock = TMS_APP_PASSWORD_ERROR_AUTHLOCK_EXPIRE;
+					$authLock = round($authLock);
+					// 默认30分钟
+					($authLock <= 0) && $authLock = 30;
+
+					$expire = $current + ($authLock * 60);
 					$updata = [
 						'pwd_error_num' => 0,
 						'login_limit_expire' => $expire
 					];
 					$this->update('account', $updata, ['uid' => $oRegistration->unionid]);
 
-					return [false, '错误次数超过（' . TMS_APP_PASSWORD_ERROR_AUTHLOCK . '）次，请在 ' . TMS_APP_PASSWORD_ERROR_AUTHLOCK_EXPIRE . '分钟后再次尝试'];
+					return [false, '用户名或密码错误次数超过【' . TMS_APP_PASSWORD_ERROR_AUTHLOCK . '】次，请在【' . $authLock . '】分钟后再次尝试'];
 				}
 			} else {
 				return [false, '用户名或密码错误'];

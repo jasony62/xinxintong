@@ -98,7 +98,11 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
             }
         };
         this._bGetAfter = function (oEnrollApp, fnCallback) {
-            oEnrollApp.tags = (!oEnrollApp.tags || oEnrollApp.tags.length === 0) ? [] : oEnrollApp.tags.split(',');
+            if (!oEnrollApp.tags || !angular.isString(oEnrollApp.tags) || oEnrollApp.tags.length === 0) {
+                oEnrollApp.tags = [];
+            } else {
+                oEnrollApp.tags = oEnrollApp.tags.split(',');
+            }
             fnCallback(oEnrollApp);
             if (oEnrollApp.pages) {
                 oEnrollApp.pages.forEach(function (oPage) {
@@ -571,6 +575,50 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
             });
             return defer.promise;
         };
+        this.pick = function (oApp, oOptions) {
+            var _that = this;
+            var defer = $q.defer();
+            http2.post('/rest/script/time', {
+                html: {
+                    'rounds': '/views/default/pl/fe/matter/enroll/component/roundPicker'
+                }
+            }).then(function (rsp) {
+                var _oPage = {};
+                var _rounds;
+                _that.list(oApp, _oPage).then(function (oResult) {
+                    _rounds = oResult.rounds;
+                    $uibModal.open({
+                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundPicker.html?_=' + rsp.data.html.rounds.time,
+                        controller: ['$scope', '$uibModalInstance', function ($scope2, $mi) {
+                            var _oResult;
+                            $scope2.options = oOptions || {
+                                single: true
+                            };
+                            $scope2.page = _oPage;
+                            $scope2.rounds = _rounds;
+                            $scope2.result = _oResult = {};
+                            $scope2.doSearch = function () {
+                                _that.list(oApp, _oPage).then(function (oResult) {
+                                    _rounds.splice(0, _rounds.length);
+                                    oResult.rounds.forEach(function (oRound) {
+                                        _rounds.push(oRound);
+                                    });
+                                });
+                            };
+                            $scope2.dismiss = function () {
+                                $mi.dismiss();
+                            };
+                            $scope2.ok = function () {
+                                $mi.close(_oResult);
+                            };
+                        }]
+                    }).result.then(function (oResult) {
+                        defer.resolve(oResult);
+                    });
+                });
+            });
+            return defer.promise;
+        };
     }]);
     ngModule.provider('srvEnrollRound', function () {
         var _rounds, _oPage;
@@ -1006,10 +1054,15 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
                 url += '&filter=' + JSON.stringify(oCriteria);
                 window.open(url);
             };
-            _ins.exportImage = function () {
+            _ins.exportImage = function (rid) {
+                if (!rid) {
+                    noticebox.warn('没有指定导出轮次');
+                    return;
+                }
                 var url;
-                url = '/rest/pl/fe/matter/enroll/record/exportImage';
+                url = '/rest/pl/fe/matter/enroll/export/image';
                 url += '?site=' + _siteId + '&app=' + _appId;
+                url += '&rid=' + rid;
                 window.open(url);
             };
             _ins.chooseImage = function (imgFieldName) {

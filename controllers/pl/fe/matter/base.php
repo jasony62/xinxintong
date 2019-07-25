@@ -193,8 +193,7 @@ class base extends \pl\fe\base {
 			$path = '' . $att->matter_type . '_' . $att->matter_id . '_' . $att->name;
 			$rsp = $fs->delete($path);
 		} else {
-			$fs = $this->model('fs/saestore', $siteId);
-			$fs->delete($att->url);
+			return [false, '附件地址错误'];
 		}
 		/**
 		 * remove from local

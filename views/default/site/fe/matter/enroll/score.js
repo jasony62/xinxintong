@@ -2,9 +2,9 @@
 require('./score.css');
 
 var ngApp = require('./main.js');
-ngApp.controller('ctrlScore', ['$scope', '$sce', 'tmsLocation', 'http2', function($scope, $sce, LS, http2) {
+ngApp.controller('ctrlScore', ['$scope', '$sce', 'tmsLocation', 'http2', function ($scope, $sce, LS, http2) {
     var oApp, quizSchemas, quizSchemasById;
-    $scope.value2Label = function(schemaId) {
+    $scope.value2Label = function (schemaId) {
         var val, schema, aVal, aLab = [];
 
         if ((schema = oApp._schemasById[schemaId]) && $scope.record.data) {
@@ -15,7 +15,7 @@ ngApp.controller('ctrlScore', ['$scope', '$sce', 'tmsLocation', 'http2', functio
                     } else {
                         aVal = val;
                     }
-                    schema.ops.forEach(function(op) {
+                    schema.ops.forEach(function (op) {
                         aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
                     });
                     val = aLab.join(',');
@@ -26,14 +26,14 @@ ngApp.controller('ctrlScore', ['$scope', '$sce', 'tmsLocation', 'http2', functio
         }
         return $sce.trustAsHtml(val);
     };
-    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+    $scope.$on('xxt.app.enroll.ready', function (event, params) {
         oApp = params.app;
         quizSchemas = [];
         quizSchemasById = {};
-        http2.get(LS.j('record/get', 'site', 'app', 'ek')).then(function(rsp) {
+        http2.get(LS.j('record/get', 'site', 'app', 'ek')).then(function (rsp) {
             var oRecord;
             oRecord = rsp.data;
-            oApp.dynaDataSchemas.forEach(function(oSchema) {
+            oApp.dynaDataSchemas.forEach(function (oSchema) {
                 if (oSchema.requireScore && oSchema.requireScore === 'Y') {
                     quizSchemas.push(oSchema);
                     quizSchemasById[oSchema.id] = oSchema;
@@ -46,10 +46,6 @@ ngApp.controller('ctrlScore', ['$scope', '$sce', 'tmsLocation', 'http2', functio
             $scope.record = oRecord;
             /*设置页面分享信息*/
             $scope.setSnsShare(oRecord);
-            /*设置页面操作*/
-            $scope.setPopAct(['addRecord'], 'score');
-            /*设置页面导航*/
-            $scope.setPopNav(['repos', 'rank', 'kanban', 'event'], 'score');
             /*页面阅读日志*/
             $scope.logAccess();
         });

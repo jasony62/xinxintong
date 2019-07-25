@@ -38,7 +38,9 @@ class main extends main_base {
 			}
 			if (isset($oEntryRule->enroll->id)) {
 				$oApp->enrollApp = $modelEnl->byId($oEntryRule->enroll->id, ['cascaded' => 'N']);
-				$oEntryRule->enroll->title = $oApp->enrollApp->title;
+				if ($oApp->enrollApp){
+					$oEntryRule->enroll->title = $oApp->enrollApp->title;
+				}
 			}
 			/* 指定分组活动用户进入 */
 			if (isset($oEntryRule->group->id)) {
@@ -1265,10 +1267,6 @@ class main extends main_base {
 			return new \ResponseTimeout();
 		}
 
-		if (defined('SAE_TMP_PATH')) {
-			return new \ResponseError('not support');
-		}
-
 		$dest = '/enroll_' . $site . '_' . $_POST['resumableFilename'];
 		$resumable = $this->model('fs/resumable', $site, $dest);
 
@@ -1283,9 +1281,6 @@ class main extends main_base {
 	public function createByExcel_action($site) {
 		if (false === ($oUser = $this->accountUser())) {
 			return new \ResponseTimeout();
-		}
-		if (defined('SAE_TMP_PATH')) {
-			return new \ResponseError('not support');
 		}
 		$oSite = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
 		if (false === $oSite) {

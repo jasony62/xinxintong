@@ -313,25 +313,25 @@ class page_model extends page_base {
 		} else {
 			$seq = $data['seq'];
 		}
-		$newPage = new \stdClass;
-		$newPage->siteid = $siteId;
-		$newPage->aid = $appId;
-		$newPage->creater = $user->id;
-		$newPage->create_at = time();
-		$newPage->type = isset($data['type']) ? $data['type'] : 'V';
-		$newPage->title = isset($data['title']) ? $data['title'] : '新页面';
-		$newPage->name = isset($data['name']) ? $data['name'] : 'z' . time();
-		$newPage->code_id = $code->id;
-		$newPage->code_name = $code->name;
-		$newPage->share_page = 'Y';
-		$newPage->seq = $seq;
+		$oNewPage = new \stdClass;
+		$oNewPage->siteid = $siteId;
+		$oNewPage->aid = $appId;
+		$oNewPage->creater = $user->id;
+		$oNewPage->create_at = time();
+		$oNewPage->type = isset($data['type']) ? $data['type'] : 'V';
+		$oNewPage->title = isset($data['title']) ? $data['title'] : '新页面';
+		$oNewPage->name = isset($data['name']) ? $data['name'] : 'z' . time();
+		$oNewPage->code_id = $code->id;
+		$oNewPage->code_name = $code->name;
+		$oNewPage->share_page = 'Y';
+		$oNewPage->seq = $seq;
+		
+		$oNewPage->id = $this->insert('xxt_enroll_page', $oNewPage, true);
+		$oNewPage->html = '';
+		$oNewPage->css = '';
+		$oNewPage->js = '';
 
-		$newPage->id = $this->insert('xxt_enroll_page', $newPage, true);
-		$newPage->html = '';
-		$newPage->css = '';
-		$newPage->js = '';
-
-		return $newPage;
+		return $oNewPage;
 	}
 	/**
 	 *

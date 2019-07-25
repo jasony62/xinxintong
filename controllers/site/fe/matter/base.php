@@ -617,12 +617,7 @@ class base extends \site\fe\base {
 			header('Content-Length: ' . $att->size);
 			echo $fs->read(str_replace('local://', '', $att->url));
 		} else {
-			$fs = $this->model('fs/saestore', $oApp->siteid);
-			//header("Content-Type: application/force-download");
-			header("Content-Type: $att->type");
-			header("Content-Disposition: attachment; filename=" . $att->name);
-			header('Content-Length: ' . $att->size);
-			echo $fs->read($att->url);
+			die('附件地址错误');
 		}
 
 		exit;

@@ -560,24 +560,8 @@ class record extends base {
         }
         /* 检查此文件片段是否已经成功上传 */
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            if (!defined('SAE_TMP_PATH')) {
-                $rootDir = TMS_UPLOAD_DIR . "$oApp->siteid" . '/' . \TMS_MODEL::toLocalEncoding('_resumable');
-                $chunkNumber = $_GET['resumableChunkNumber'];
-                $filename = str_replace(' ', '_', $_GET['resumableFilename']);
-                $chunkDir = $_GET['resumableIdentifier'] . '_part';
-                $chunkFile = \TMS_MODEL::toLocalEncoding($filename) . '.part' . $chunkNumber;
-                $absPath = $rootDir . '/' . $chunkDir . '/' . $chunkFile;
-                if (file_exists($absPath)) {
-                    header("HTTP/1.0 200 Ok");
-                    return new \ResponseData('已上传');
-                } else {
-                    header("HTTP/1.0 404 Not Found");
-                    return new \ResponseData('未上传');
-                }
-            } else {
-                header("HTTP/1.0 404 Not Found");
-                return new \ResponseData('未上传');
-            }
+            header("HTTP/1.0 404 Not Found");
+            return new \ResponseData('未上传');
         }
         /**
          * 分块上传文件

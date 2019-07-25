@@ -267,10 +267,11 @@ define(['frame'], function (ngApp) {
         });
         $scope.$on('tinymce.content.change', function (event, changed) {
             var content;
-            if (editing.is_markdown !== 'Y') {
+            var oArticle = $scope.editing;
+            if (oArticle.is_markdown !== 'Y') {
                 content = tinymceEditor.getContent();
-                if (content !== $scope.editing.body) {
-                    $scope.editing.body = content;
+                if (content !== oArticle.body) {
+                    oArticle.body = content;
                     modifiedData.body = encodeURIComponent(content);
                     $scope.modified = true;
                 }

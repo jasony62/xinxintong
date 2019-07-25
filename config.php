@@ -101,7 +101,7 @@ define('TMS_APP_TEMPLATE_DEFAULT', dirname(__FILE__) . '/_template');
 /**
  * 用户口令输入错误超限后限制登录； 0 不限制错误次数
  */
-!defined('TMS_APP_PASSWORD_ERROR_AUTHLOCK') && define('TMS_APP_PASSWORD_ERROR_AUTHLOCK', 0);
+!defined('TMS_APP_PASSWORD_ERROR_MAXNUM') && define('TMS_APP_PASSWORD_ERROR_MAXNUM', 0);
 /**
  * 用户口令输入错误超限后禁止登录的时间（分钟），如果值 <= 0 以默认30分钟为准
  */

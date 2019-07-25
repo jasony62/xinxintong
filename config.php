@@ -99,7 +99,7 @@ define('TMS_APP_TEMPLATE_DEFAULT', dirname(__FILE__) . '/_template');
  */
 !defined('TMS_APP_AUTH_HTTPS_CHECK') && define('TMS_APP_AUTH_HTTPS_CHECK', 0);
 /**
- * 用户口令输入错误超限后限制登录； 0 不限制错误次数
+ * 用户口令输入错误最大次数； 0 不限制错误次数
  */
 !defined('TMS_APP_PASSWORD_ERROR_MAXNUM') && define('TMS_APP_PASSWORD_ERROR_MAXNUM', 0);
 /**

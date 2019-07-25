@@ -71,7 +71,7 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
                             oCached = {};
                             oCached.lasttime = new Date() * 1;
                             oCached.intervaltime = oSessionCached.noHookMaxTime * 60 * 1000;
-                            oStorage.setItem('xxt.pl.protect.event.trace', oCached);
+                            oStorage.setItem('xxt.pl.protect.event.trace', JSON.stringify(oCached));
                         }
                     }
                     if (window.parent && window.parent.onClosePlugin) {

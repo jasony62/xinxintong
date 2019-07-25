@@ -23,15 +23,15 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
         if (window.localStorage.getItem('xxt.login.gotoConsole') === 'Y') {
             $scope.loginData.gotoConsole = window.localStorage.getItem('xxt.login.gotoConsole');
         }
-        if(window.localStorage.getItem('xxt.pl.protect.system')) {
-            var oSessionCached = window.localStorage.getItem('xxt.pl.protect.system')  
+        if(window.sessionStorage.getItem('xxt.pl.protect.system')) {
+            var oSessionCached = window.sessionStorage.getItem('xxt.pl.protect.system')  
             if (oSessionCached) {
                 oSessionCached = JSON.parse(oSessionCached);
             } else {
-                http2.get("/tmsappconfig.php").then(function(rsp) {
+                $http.get("/tmsappconfig.php").then(function(rsp) {
                     var data = rsp.data.data;
                     oSessionCached.noHookMaxTime = data.noHookMaxTime;
-                    window.localStorage.setItem('xxt.pl.protect.system', JSON.stringify(oSessionCached));
+                    window.sessionStorage.setItem('xxt.pl.protect.system', JSON.stringify(oSessionCached));
                 });
             }        
         }

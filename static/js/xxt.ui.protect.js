@@ -9,14 +9,23 @@ ngMod.directive('tmsProtect', ['$q', '$timeout', 'http2', '$uibModal', function(
     var StoreKey = 'xxt.pl.protect.event.trace';
     var TraceStack = function() {
         function storeTrace(time) {
-            oCached.time = time;
-            oCached.intervaltime = intervaltime;
-            oStorage.setItem(StoreKey, JSON.stringify(oCached));
+            var oStorage, oCached;
+            if (oStorage = window.localStorage) {
+                oCached = oStorage.getItem(StoreKey);
+                oCached = oCached ? JSON.parse(oCached) : {};
+                oCached.lasttime = time;
+                oCached.intervaltime = intervaltime;
+                oStorage.setItem(StoreKey, JSON.stringify(oCached));
+            }
         };
 
-        function getTrace() {
-            var oExprieTime = oCached.time || new Date() * 1;
-            return oExprieTime;
+        function getLastTime() {
+            var oStorage, oCached;
+            if (oStorage = window.localStorage) {
+                oCached = oStorage.getItem(StoreKey);
+                oCached = oCached ? JSON.parse(oCached) : {};
+                return oCached.lasttime || new Date() * 1;
+            }
         };
 
         function validPwd() {
@@ -36,10 +45,10 @@ ngMod.directive('tmsProtect', ['$q', '$timeout', 'http2', '$uibModal', function(
                     $scope2.msg = "";
                     $scope2.ok = function() {
                         $http.post("/rest/site/fe/user/login/validatePwd", $scope2.user).then(function(rsp) {
-                            if (true) {
+                            if (!rsp.data.err_code) {
                                 $mi.close();
                             } else {
-                                $scope.msg = "不对"
+                                $scope2.msg = rsp.data.err_msg;
                             }
                         });
                     };
@@ -54,12 +63,13 @@ ngMod.directive('tmsProtect', ['$q', '$timeout', 'http2', '$uibModal', function(
 
         this.occurEvent = function() {
             var currentTime = new Date() * 1;
-            var lasttime = getTrace();
+            var lasttime = getLastTime();
             (currentTime - lasttime) > intervaltime ? validPwd() : storeTrace(currentTime);
         };
 
-        var oStorage, oCached, lasttime, intervaltime;
+        var intervaltime;
         this.getStorage = function() {
+            var oStorage, oCached, lasttime;
             if (oStorage = window.localStorage) {
                 oCached = oStorage.getItem(StoreKey);
                 if (oCached) {
@@ -95,7 +105,7 @@ ngMod.directive('tmsProtect', ['$q', '$timeout', 'http2', '$uibModal', function(
     return {
         restrict: 'A',
         link: function(scope, elem, attr) {
-            if (oSessionCached.noHookMaxTime && oSessionCached.noHookMaxTime <= 0) {
+            if (!oSessionCached.noHookMaxTime && oSessionCached.noHookMaxTime <= 0) {
                 return false;
             }
             var oTraceStack = new TraceStack();
@@ -110,7 +120,7 @@ ngMod.directive('tmsProtect', ['$q', '$timeout', 'http2', '$uibModal', function(
                 }
             });
             /* 用户滚动页面 */
-            window.addEventListener('scroll', function(event) {
+            document.addEventListener('scroll', function(event) {
                 oTraceStack.occurEvent();
             });
         }

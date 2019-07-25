@@ -10,7 +10,7 @@
     <title>微信公众号</title>
 </head>
 
-<body ng-controller='ctrlWx'>
+<body ng-controller='ctrlWx' tms-protect>
     <notice-box err='errmsg' info='infomsg' delay='1000'></notice-box>
     <nav class='navbar navbar-default'>
         <ul class='nav navbar-nav'>
@@ -41,6 +41,7 @@
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="/static/js/xxt.ui.js?_=1"></script>
     <script src="/static/js/ui-tms.js?_=1"></script>
+    <script src="<?php echo auto_version('/static/js/xxt.ui.protect.js');?>"></script>
     <script src="<?php echo auto_version('/asset/js/xxt.ui.http.js');?>"></script>
     <script src="<?php echo auto_version('/asset/js/xxt.ui.notice.js');?>"></script>
     <script src="/static/js/require.js" data-main="<?php echo auto_version('/views/default/pl/be/sns/wx/main-loader.js');?>"></script>

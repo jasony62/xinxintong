@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html ng-app='app'>
 
 <head>
     <meta charset="UTF-8">
@@ -10,7 +10,7 @@
     <title>定制页面</title>
 </head>
 
-<body style='padding-top:71px;' ng-app='app' ng-controller='codeCtrl'>
+<body style='padding-top:71px;' ng-controller='codeCtrl' tms-protect>
     <notice-box err='errmsg' info='infomsg' prog='prog' delay='1000'></notice-box>
     <nav class='navbar navbar-inverse navbar-fixed-top'>
         <ul class='nav navbar-nav'>
@@ -111,6 +111,7 @@
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="/static/js/ui-tms.js"></script>
+    <script src="<?php echo auto_version('/static/js/xxt.ui.protect.js');?>"></script>
     <script src="<?php echo auto_version('/asset/js/xxt.ui.http.js');?>"></script>
     <script src="<?php echo auto_version('/asset/js/xxt.ui.notice.js');?>"></script>
     <script src="/views/default/pl/fe/code/page.js?_=1"></script>

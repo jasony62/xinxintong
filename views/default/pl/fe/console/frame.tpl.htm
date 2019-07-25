@@ -14,8 +14,8 @@
     </title>
 </head>
 
-<body ng-controller='ctrlFrame' class="ng-cloak" ng-cloak>
-    <div class='pl-layout'>
+<body ng-controller='ctrlFrame' tms-protect>
+    <div class='pl-layout' class="ng-cloak" ng-cloak>
         <!-- logo + leftSide -->
         <div class='pl-layout-leftnav'>
             <div class='pl-layout-leftnav-header'>
@@ -137,6 +137,7 @@
     <script src="<?php echo auto_version('/asset/js/xxt.ui.http.js');?>"></script>
     <script src="<?php echo auto_version('/asset/js/xxt.ui.notice.js');?>"></script>
     <script src="<?php echo auto_version('/asset/js/xxt.ui.schema.js');?>"></script>
+    <script src="<?php echo auto_version('/static/js/xxt.ui.protect.js');?>"></script>
     <script src="<?php echo custom_version('/pl/fe/_module/const.js');?>"></script>
     <script src="<?php echo auto_version('/views/default/pl/fe/_module/matter.service.js');?>"></script>
     <script src="<?php echo auto_version('/asset/js/xxt.ui.page.js');?>"></script>

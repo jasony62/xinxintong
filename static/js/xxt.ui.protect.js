@@ -60,13 +60,12 @@ ngMod.directive('tmsProtect', ['$q', '$timeout', 'http2', '$uibModal', function(
             });
         };
 
-        this.occurEvent = function() {
+        this.occurEvent = function(timer) {
             var currentTime = new Date() * 1;
             var lasttime = getLastTime();
-            (currentTime - lasttime) > intervaltime ? validPwd() : storeTrace(currentTime);
+            (currentTime - lasttime) > timer ? validPwd() : storeTrace(currentTime);
         };
 
-        var intervaltime;
         this.getStorage = function() {
             var oStorage, oCached, lasttime;
             if (oStorage = window.localStorage) {
@@ -109,16 +108,16 @@ ngMod.directive('tmsProtect', ['$q', '$timeout', 'http2', '$uibModal', function(
             oTraceStack.getStorage();
 
             /* 打开页面 */
-            oTraceStack.occurEvent('load');
+            oTraceStack.occurEvent(intervaltime);
             /* 用户点击页面 */
             elem.on('click', function(event) {
                 if (!document.getElementsByClassName('modal')[0]) {
-                    oTraceStack.occurEvent();
+                    oTraceStack.occurEvent(intervaltime);
                 }
             });
             /* 用户滚动页面 */
             document.addEventListener('scroll', function(event) {
-                oTraceStack.occurEvent();
+                oTraceStack.occurEvent(intervaltime);
             });
         }
     }

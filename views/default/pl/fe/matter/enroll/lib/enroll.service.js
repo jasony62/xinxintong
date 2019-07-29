@@ -1049,7 +1049,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
                         oCriteria.record = oFilterRec;
                     }
                 }
-                url = '/rest/pl/fe/matter/enroll/record/export';
+                url = '/rest/pl/fe/matter/enroll/export/record';
                 url += '?site=' + _siteId + '&app=' + _appId;
                 url += '&filter=' + JSON.stringify(oCriteria);
                 window.open(url);

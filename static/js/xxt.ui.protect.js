@@ -14,7 +14,6 @@ ngMod.directive('tmsProtect', ['$q', '$timeout', 'http2', '$uibModal', function(
                 oCached = oStorage.getItem(StoreKey);
                 oCached = oCached ? JSON.parse(oCached) : {};
                 oCached.lasttime = time;
-                oCached.intervaltime = intervaltime;
                 oStorage.setItem(StoreKey, JSON.stringify(oCached));
             }
         };
@@ -67,7 +66,6 @@ ngMod.directive('tmsProtect', ['$q', '$timeout', 'http2', '$uibModal', function(
             (currentTime - lasttime) > intervaltime ? validPwd() : storeTrace(currentTime);
         };
 
-        var intervaltime;
         this.getStorage = function() {
             var oStorage, oCached, lasttime;
             if (oStorage = window.localStorage) {
@@ -75,20 +73,19 @@ ngMod.directive('tmsProtect', ['$q', '$timeout', 'http2', '$uibModal', function(
                 if (oCached) {
                     oCached = JSON.parse(oCached);
                     lasttime = oCached.lasttime;
-                    intervaltime = oCached.intervaltime;
                 } else {
                     oCached = {};
-                    intervaltime = oSessionCached.noHookMaxTime * 60 * 1000;
                 }
             }
         };
     };
 
-    var oSeesionStorage, oSessionCached;
+    var oSeesionStorage, oSessionCached, intervaltime;
     if (oSeesionStorage = window.sessionStorage) {
         oSessionCached = oSeesionStorage.getItem(ProtectKey);
         if (oSessionCached) {
             oSessionCached = JSON.parse(oSessionCached);
+            intervaltime = oSessionCached.intervaltime;
         } else {
             oSessionCached = {};
             $.ajax({
@@ -96,6 +93,7 @@ ngMod.directive('tmsProtect', ['$q', '$timeout', 'http2', '$uibModal', function(
                 async: false,
                 success: function(result) {
                     oSessionCached.noHookMaxTime = result.noHookMaxTime;
+                    intervaltime = oSessionCached.noHookMaxTime * 60 * 1000;
                     oSeesionStorage.setItem(ProtectKey, JSON.stringify(oSessionCached));
                 }
             });

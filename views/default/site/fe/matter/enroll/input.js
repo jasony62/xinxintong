@@ -224,24 +224,6 @@ ngApp.directive('tmsFileInput', ['$q', 'tmsLocation', 'tmsDynaPage', function($q
                     cnt = evt.target.files.length;
                     for (i = 0; i < cnt; i++) {
                         f = evt.target.files[i];
-                        if (!(f.name.lastIndexOf("."))) {
-                            noticebox.warn('不支持上传未带后缀名格式的文件')
-                            return false;
-                        }
-                        if (seat = f.name.lastIndexOf(".") + 1) {
-                            var extension = f.name.substring(seat).toLowerCase();
-                            if (!uploadcfg.types && uploadcfg.types.indexOf(extension) === -1) {
-                                noticebox.warn("图片数据格式错误:只能上传" + uploadcfg.types + "格式的文件");
-                                return false;
-                            }
-                        }
-                        if(!uploadcfg.maxsize){
-                            var maxsize = uploadcfg.maxsize*1024*1024;
-                            if(maxsize < f.size) {
-                                noticebox.warn("文件上传失败,超出最大"+ uploadcfg.maxsize + "M");
-                                return false;
-                            }
-                        }
                         oResumable.addFile(f);
                         $scope.$apply(function() {
                             $scope.data[schemaId] === undefined && ($scope.data[schemaId] = []);
@@ -259,11 +241,6 @@ ngApp.directive('tmsFileInput', ['$q', 'tmsLocation', 'tmsDynaPage', function($q
                 }, true);
                 ele.click();
             };
-            /* 文件、图片的可用类型 */
-            http2.get("/tmsappconfig.php").then(function(rsp) {
-                uploadcfg.maxsize = rsp.data.tmsUploadFileMaxsize || 0;
-                uploadcfg.types = rsp.data.tmsUploadFileContenttypeWhite || "";
-            });
         }]
     }
 }]);

@@ -156,7 +156,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'e
     $scope.$on('xxt.app.enroll.ready', function (event, params) {
         var tasks, popActs;
         _oApp = params.app;
-        if (window.sessionStorage.length) {
+        if (window.sessionStorage.length && window.sessionStorage.listStorage && window.sessionStorage.listStorage) {
             var cacheData, _cPage;
             cacheData = JSON.parse(window.sessionStorage.listStorage);
             $scope.schemaCounter = cacheData.schemaCounter;
@@ -516,7 +516,7 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
         });
 
     }
-    if (window.sessionStorage.length && $scope.activeView.type === 'record') {
+    if (window.sessionStorage.length && window.sessionStorage.listStorage && $scope.activeView.type === 'record') {
         var cacheData, _cPage;
         cacheData = JSON.parse(window.sessionStorage.listStorage);
         $scope.singleFilters = cacheData.singleFilters;
@@ -717,7 +717,7 @@ ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLo
     $scope.$on('to-child', function (event, data) {
         $scope.dirClicked(data[0], data[1]);
     });
-    if (window.sessionStorage.length && $scope.activeView.type === 'cowork') {
+    if (window.sessionStorage.length && window.sessionStorage.listStorage && $scope.activeView.type === 'cowork') {
         var cacheData, _cPage;
         cacheData = JSON.parse(window.sessionStorage.listStorage);
         $scope.singleFilters = cacheData.singleFilters;
@@ -860,7 +860,7 @@ ngApp.controller('ctrlReposTopic', ['$scope', '$q', 'http2', '$timeout', 'tmsLoc
         addToCache();
         location.href = LS.j('', 'site', 'app') + '&topic=' + oTopic.id + '&page=topic';
     };
-    if (window.sessionStorage.length && $scope.activeView.type === 'topic') {
+    if (window.sessionStorage.length && window.sessionStorage.listStorage && $scope.activeView.type === 'topic') {
         var cacheData;
         cacheData = JSON.parse(window.sessionStorage.listStorage);
         $scope.singleFilters = cacheData.singleFilters;

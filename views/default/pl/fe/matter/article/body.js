@@ -204,6 +204,38 @@ define(['frame'], function (ngApp) {
                 insertAudio(data.url);
             });
         };
+        $scope.chooseAttachment = function() {
+            var ele = document.createElement('input');
+            ele.setAttribute('type', 'file');
+            ele.addEventListener('change', function(evt) {
+                var i, cnt, f, seat;
+                cnt = evt.target.files.length;
+                for (i = 0; i < cnt; i++) {
+                    f = evt.target.files[i];
+                    if (!(f.name.lastIndexOf("."))) {
+                        noticebox.warn('不支持上传未带后缀名格式的文件')
+                        return false;
+                    }
+                    if (seat = f.name.lastIndexOf(".") + 1) {
+                        var extension = f.name.substring(seat).toLowerCase();
+                        if (!$scope.uploadcfg.types && $scope.uploadcfg.types.indexOf(extension) === -1) {
+                            noticebox.warn("图片数据格式错误:只能上传" + $scope.uploadcfg.types + "格式的文件");
+                            return false;
+                        }
+                    }
+                    if(!$scope.uploadcfg.maxsize){
+                        var maxsize = $scope.uploadcfg.maxsize*1024*1024;
+                        if(maxsize < f.size) {
+                            noticebox.warn("文件上传失败,超出最大"+ $scope.uploadcfg.maxsize + "M");
+                            return false;
+                        }
+                    }
+                    $scope.oResumable.addFile(f);
+                }
+                ele = null;
+            }, true);
+            ele.click();
+        }
         $scope.delAttachment = function (index, att) {
             http2.get('/rest/pl/fe/matter/article/attachment/del?site=' + $scope.editing.siteid + '&id=' + att.id).then(function (rsp) {
                 $scope.editing.attachments.splice(index, 1);
@@ -212,6 +244,7 @@ define(['frame'], function (ngApp) {
         $scope.downloadUrl = function (att) {
             return '/rest/site/fe/matter/article/attachmentGet?site=' + $scope.editing.siteid + '&articleid=' + $scope.editing.id + '&attachmentid=' + att.id;
         };
+
         $scope.$watch('editing.body_md', function (content) {
             modifiedData.body_md = content;
             $scope.modified = true;
@@ -221,12 +254,11 @@ define(['frame'], function (ngApp) {
             if (editing.is_markdown !== 'Y')
                 if (tinymceEditor)
                     tinymceEditor.setContent(editing.body);
-
+            
             var r = new Resumable({
                 target: '/rest/pl/fe/matter/article/attachment/upload?site=' + $scope.editing.siteid + '&articleid=' + $scope.editing.id,
                 testChunks: false,
             });
-            r.assignBrowse(document.getElementById('addAttachment'));
             r.on('fileAdded', function (file, event) {
                 $scope.$apply(function () {
                     noticebox.progress('开始上传文件');
@@ -256,6 +288,18 @@ define(['frame'], function (ngApp) {
                     $scope.editing.attachments.push(rsp.data);
                 });
             });
+            $scope.oResumable = r;
+
+            var uploadcfg = {};
+            if(window.sessionStorage.getItem('xxt.pl.protect.system')) {
+                var oSessionCached = window.sessionStorage.getItem('xxt.pl.protect.system')  
+                if (oSessionCached) {
+                    oSessionCached = JSON.parse(oSessionCached);
+                    uploadcfg.maxsize = oSessionCached.tmsUploadFileMaxsize || 0;
+                    uploadcfg.types = oSessionCached.tmsUploadFileContentTypeWhite || "";
+                }      
+            }
+            $scope.uploadcfg = uploadcfg;
         });
         $scope.$on('tinymce.instance.init', function (event, editor) {
             tinymceEditor = editor;

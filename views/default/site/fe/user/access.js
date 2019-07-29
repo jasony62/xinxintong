@@ -30,7 +30,7 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
             } else {
                 $http.get("/tmsappconfig.php").then(function(rsp) {
                     var data = rsp.data.data;
-                    oSessionCached.noHookMaxTime = data.noHookMaxTime;
+                    oSessionCached = data;
                     window.sessionStorage.setItem('xxt.pl.protect.system', JSON.stringify(oSessionCached));
                 });
             }        

@@ -14,6 +14,7 @@ ngMod.directive('tmsProtect', ['$q', '$timeout', 'http2', '$uibModal', function(
                 oCached = oStorage.getItem(StoreKey);
                 oCached = oCached ? JSON.parse(oCached) : {};
                 oCached.lasttime = time;
+                oCached.intervaltime = intervaltime;
                 oStorage.setItem(StoreKey, JSON.stringify(oCached));
             }
         };
@@ -85,16 +86,14 @@ ngMod.directive('tmsProtect', ['$q', '$timeout', 'http2', '$uibModal', function(
         oSessionCached = oSeesionStorage.getItem(ProtectKey);
         if (oSessionCached) {
             oSessionCached = JSON.parse(oSessionCached);
-            intervaltime = oSessionCached.intervaltime;
+            intervaltime = oSessionCached.noHookMaxTime * 60 * 1000;
         } else {
-            oSessionCached = {};
             $.ajax({
                 "url": "/tmsappconfig.php",
                 async: false,
                 success: function(result) {
                     intervaltime = result.noHookMaxTime * 60 * 1000;
-                    oSessionCached = result;
-                    oSeesionStorage.setItem(ProtectKey, JSON.stringify(oSessionCached));
+                    oSeesionStorage.setItem(ProtectKey, JSON.stringify(result));
                 }
             });
         }

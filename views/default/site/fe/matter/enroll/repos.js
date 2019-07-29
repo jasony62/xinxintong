@@ -156,22 +156,20 @@ ngApp.controller('ctrlRepos', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'e
     $scope.$on('xxt.app.enroll.ready', function(event, params) {
         var tasks, popActs;
         _oApp = params.app;
-        if (window.sessionStorage) {
+        if (window.sessionStorage && window.sessionStorage.getItem("listStorage")) {
             var cacheData, _cPage;
-            if (cacheData = window.sessionStorage.getItem("listStorage")) {
-                cacheData = JSON.parse(cacheData);
-                $scope.schemaCounter = cacheData.schemaCounter;
-                $scope.tasks = cacheData.tasks;
-                $scope.navs = cacheData.navs;
-                $scope.activeNav = cacheData.activeNav;
-                $scope.activeView = cacheData.activeView;
-                $scope.rounds = cacheData.rounds;
-                $scope.schemas = cacheData.schemas;
-                $scope.dirSchemas = cacheData.dirSchemas;
-                $scope.activeDirSchemas = cacheData.currentDirs;
-                if ($scope.dirSchemas && $scope.dirSchemas.length) {
-                    $scope.advCriteriaStatus.dirOpen = true;
-                }
+            cacheData = JSON.parse(window.sessionStorage.getItem("listStorage"));
+            $scope.schemaCounter = cacheData.schemaCounter;
+            $scope.tasks = cacheData.tasks;
+            $scope.navs = cacheData.navs;
+            $scope.activeNav = cacheData.activeNav;
+            $scope.activeView = cacheData.activeView;
+            $scope.rounds = cacheData.rounds;
+            $scope.schemas = cacheData.schemas;
+            $scope.dirSchemas = cacheData.dirSchemas;
+            $scope.activeDirSchemas = cacheData.currentDirs;
+            if ($scope.dirSchemas && $scope.dirSchemas.length) {
+                $scope.advCriteriaStatus.dirOpen = true;
             }
         } else {
             new enlTask($scope.app).list(null).then(function(ipTasks) {
@@ -519,19 +517,17 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
         });
 
     }
-    if (window.sessionStorage && $scope.activeView.type === 'record') {
+    if (window.sessionStorage && window.sessionStorage.getItem('listStorage') && $scope.activeView.type === 'record') {
         var cacheData, _cPage;
-        if (cacheData = window.sessionStorage.getItem('listStorage')) {
-            cacheData = JSON.parse(cacheData);
-            $scope.singleFilters = cacheData.singleFilters;
-            $scope.multiFilters = cacheData.multiFilters;
-            $scope.filter = cacheData.currentFilter;
-            $scope.criteria = _oCriteria = cacheData.currentCriteria;
-            _cPage = cacheData.page;
+        cacheData = JSON.parse(window.sessionStorage.getItem('listStorage'));
+        $scope.singleFilters = cacheData.singleFilters;
+        $scope.multiFilters = cacheData.multiFilters;
+        $scope.filter = cacheData.currentFilter;
+        $scope.criteria = _oCriteria = cacheData.currentCriteria;
+        _cPage = cacheData.page;
 
-            for (var i = 1; i <= _cPage.at; i++) {
-                _getNewRepos(i);
-            }
+        for (var i = 1; i <= _cPage.at; i++) {
+            _getNewRepos(i);
         }
     } else {
         $scope.getCriteria();
@@ -722,31 +718,29 @@ ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLo
     $scope.$on('to-child', function(event, data) {
         $scope.dirClicked(data[0], data[1]);
     });
-    if (window.sessionStorage && $scope.activeView.type === 'cowork') {
+    if (window.sessionStorage && window.sessionStorage.getItem("listStorage") && $scope.activeView.type === 'cowork') {
         var cacheData, _cPage;
-        if (cacheData = window.sessionStorage.getItem("listStorage")) {
-            cacheData = JSON.parse(cacheData);
-            $scope.singleFilters = cacheData.singleFilters;
-            $scope.multiFilters = cacheData.multiFilters;
-            $scope.filter = cacheData.currentFilter;
-            $scope.criteria = _oCriteria = cacheData.currentCriteria;
-            _cPage = cacheData.page;
+        cacheData = JSON.parse(window.sessionStorage.getItem("listStorage"));
+        $scope.singleFilters = cacheData.singleFilters;
+        $scope.multiFilters = cacheData.multiFilters;
+        $scope.filter = cacheData.currentFilter;
+        $scope.criteria = _oCriteria = cacheData.currentCriteria;
+        _cPage = cacheData.page;
 
-            function _getNewRepos(at) {
-                $scope.recordList(at).then(function() {
-                    if (at == _cPage.at) {
-                        $timeout(function() {
-                            document.documentElement.scrollTop = parseInt(window.sessionStorage.getItem("listStorageY"));
-                            window.sessionStorage.removeItem("listStorage");
-                            window.sessionStorage.removeItem("listStorageY");
-                        });
-                    }
-                });
+        function _getNewRepos(at) {
+            $scope.recordList(at).then(function() {
+                if (at == _cPage.at) {
+                    $timeout(function() {
+                        document.documentElement.scrollTop = parseInt(window.sessionStorage.getItem("listStorageY"));
+                        window.sessionStorage.removeItem("listStorage");
+                        window.sessionStorage.removeItem("listStorageY");
+                    });
+                }
+            });
 
-            }
-            for (var i = 1; i <= _cPage.at; i++) {
-                _getNewRepos(i);
-            }
+        }
+        for (var i = 1; i <= _cPage.at; i++) {
+            _getNewRepos(i);
         }
     } else {
         $scope.getCriteria();
@@ -868,21 +862,19 @@ ngApp.controller('ctrlReposTopic', ['$scope', '$q', 'http2', '$timeout', 'tmsLoc
         addToCache();
         location.href = LS.j('', 'site', 'app') + '&topic=' + oTopic.id + '&page=topic';
     };
-    if (window.sessionStorage && $scope.activeView.type === 'topic') {
+    if (window.sessionStorage && window.sessionStorage.getItem("listStorage") && $scope.activeView.type === 'topic') {
         var cacheData;
-        if (cacheData = window.sessionStorage.getItem("listStorage")) {
-            cacheData = JSON.parse(cacheData);
-            $scope.singleFilters = cacheData.singleFilters;
-            $scope.multiFilters = cacheData.multiFilters;
-            $scope.filter = cacheData.currentFilter;
-            $scope.criteria = _oCriteria = cacheData.currentCriteria;
-            $scope.topics = cacheData.topics;
-            $timeout(function() {
-                document.documentElement.scrollTop = parseInt(window.sessionStorage.getItem("listStorageY"));
-                window.sessionStorage.removeItem("listStorage");
-                window.sessionStorage.removeItem("listStorageY");
-            });
-        }
+        cacheData = JSON.parse(window.sessionStorage.getItem("listStorage"));
+        $scope.singleFilters = cacheData.singleFilters;
+        $scope.multiFilters = cacheData.multiFilters;
+        $scope.filter = cacheData.currentFilter;
+        $scope.criteria = _oCriteria = cacheData.currentCriteria;
+        $scope.topics = cacheData.topics;
+        $timeout(function() {
+            document.documentElement.scrollTop = parseInt(window.sessionStorage.getItem("listStorageY"));
+            window.sessionStorage.removeItem("listStorage");
+            window.sessionStorage.removeItem("listStorageY");
+        });
     } else {
         $scope.getCriteria();
     }

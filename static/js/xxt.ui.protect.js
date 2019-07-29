@@ -86,6 +86,7 @@ ngMod.directive('tmsProtect', ['$q', '$timeout', 'http2', '$uibModal', function(
             oSessionCached = JSON.parse(oSessionCached);
             intervaltime = oSessionCached.noHookMaxTime * 60 * 1000;
         } else {
+            oSessionCached = {};
             $.ajax({
                 "url": "/tmsappconfig.php",
                 async: false,

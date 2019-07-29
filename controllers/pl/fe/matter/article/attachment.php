@@ -22,6 +22,7 @@ class attachment extends \pl\fe\matter\base {
 
 		$rst = $this->attachmentUpload($oApp, $_POST);
 		if ($rst[0] === false) {
+			header("HTTP/1.0 415 Unsupported Media Type");
 			return new \ResponseError($rst[1]);
 		} else {
 			return new \ResponseData('ok');

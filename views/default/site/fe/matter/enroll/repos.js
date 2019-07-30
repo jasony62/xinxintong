@@ -358,7 +358,7 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
                         loadOneImage(imageUrls, defer2);
                         defer2.promise.then(function () {
                             aImageData[2][aImageData[0]] = aImageData[1];
-                            cachedImages.length ? ins.loadImage() : defer.resolve()
+                            cachedImages.length ? ins.loadImage(defer) : defer.resolve()
                         });
                     }
                 }

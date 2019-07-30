@@ -331,7 +331,7 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
     if ($scope.imageSchemas && $scope.imageSchemas.length) {
         var AsyncImage = (function () {
             var cachedImages = [];
-            return {
+            var ins = {
                 cacheImage: function (oRecord) {
                     $scope.imageSchemas.forEach(function (oSchema) {
                         if (oRecord.data[oSchema.id]) {
@@ -350,12 +350,13 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
                             $scope.$apply(function () {
                                 aImageData[2][aImageData[0]] = aImageData[1];
                             });
-                            cachedImages.length ? this.loadImage() : defer.resolve()
+                            cachedImages.length ? ins.loadImage() : defer.resolve()
                         }
                     }
                     return defer.promise
                 }
             }
+            return ins;
         })()
     }
 

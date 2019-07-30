@@ -232,10 +232,14 @@ ngApp.controller('ctrlRepos', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'e
             _facRound.list().then(function (result) {
                 $scope.rounds = result.rounds;
             });
+            $scope.imageSchemas = [];
             _oApp.dynaDataSchemas.forEach(function (oSchema) {
                 if (oSchema.shareable === 'Y') {
                     $scope.schemaCounter++;
                     _aShareableSchemas.push(oSchema);
+                }
+                if (oSchema.type === 'image') {
+                    $scope.imageSchemas.push(oSchema)
                 }
                 if (Object.keys(oSchema).indexOf('cowork') !== -1 && oSchema.cowork === 'Y') {
                     $scope.schemaCounter--;
@@ -322,6 +326,39 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
             $scope.recordList(1);
         });
     };
+
+    // 处理需要异步加载的图片数据
+    if ($scope.imageSchemas && $scope.imageSchemas.length) {
+        var AsyncImage = (function () {
+            var cachedImages = [];
+            return {
+                cacheImage: function (oRecord) {
+                    $scope.imageSchemas.forEach(function (oSchema) {
+                        if (oRecord.data[oSchema.id]) {
+                            cachedImages.push([oSchema.id, oRecord.data[oSchema.id], oRecord.data])
+                            delete oRecord.data[oSchema.id];
+                        }
+                    })
+                },
+                loadImage: function () {
+                    var defer = $q.defer()
+                    var aImageData = cachedImages.shift();
+                    if (aImageData) {
+                        var image = new Image();
+                        image.src = aImageData[1];
+                        image.onload = function () {
+                            $scope.$apply(function () {
+                                aImageData[2][aImageData[0]] = aImageData[1];
+                            });
+                            cachedImages.length ? this.loadImage() : defer.resolve()
+                        }
+                    }
+                    return defer.promise
+                }
+            }
+        })()
+    }
+
     $scope.recordList = function (pageAt) {
         var url, deferred;
         deferred = $q.defer();
@@ -339,14 +376,20 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
             if (result.data.records) {
                 result.data.records.forEach(function (oRecord) {
                     $scope.repos.push(oRecord);
+                    if (AsyncImage) AsyncImage.cacheImage(oRecord);
                 });
             }
-            $timeout(function () {
-                var imgs;
-                if (imgs = document.querySelectorAll('.data img')) {
-                    picviewer.init(imgs);
-                }
-            });
+            if (AsyncImage)
+                $timeout(function () {
+                    AsyncImage.loadImage().then(function () {
+                        $timeout(function () {
+                            var imgs;
+                            if (imgs = document.querySelectorAll('.data img')) {
+                                picviewer.init(imgs);
+                            }
+                        });
+                    });
+                });
             $scope.reposLoading = false;
             deferred.resolve(result);
         });
@@ -452,6 +495,10 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
     $scope.remarkRecord = function (oRecord, event) {
         event.stopPropagation();
         event.preventDefault();
+        console.log('event-rr', event)
+        var target = event.target;
+        if (target.getAttribute('ng-click') || target.parentNode.getAttribute('ng-click')) return;
+        if (/button/i.test(target.tagName) || /button/i.test(target.parentNode.tagName)) return;
 
         addToCache();
         var url;

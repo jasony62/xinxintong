@@ -49,7 +49,7 @@
         </div>
         <div id='repos'>
             <div class='records'>
-                <div class='record' ng-repeat="rec in repos" ng-cloak ng-click="remarkRecord(rec, $event)">
+                <div class='record' ng-repeat="rec in repos" ng-cloak ng-click="remarkRecord(rec,$event)">
                     <div class='top-bar'>
                         <div class='seq label label-default'>{{$index+1}}</div>
                         <div class='nickname text-muted'>{{rec.nickname||'隐藏'}}</div>

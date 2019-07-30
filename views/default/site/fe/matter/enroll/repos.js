@@ -330,30 +330,37 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
     // 处理需要异步加载的图片数据
     if ($scope.imageSchemas && $scope.imageSchemas.length) {
         var AsyncImage = (function () {
+            function loadOneImage(urls, defer) {
+                var url = urls.shift();
+                if (url) {
+                    var image = new Image();
+                    image.src = url;
+                    image.onload = function () {
+                        urls.length ? loadOneImage(urls) : defer.resolve();
+                    }
+                }
+            }
             var cachedImages = [];
             var ins = {
                 cacheImage: function (oRecord) {
                     $scope.imageSchemas.forEach(function (oSchema) {
                         if (oRecord.data[oSchema.id]) {
                             cachedImages.push([oSchema.id, oRecord.data[oSchema.id], oRecord.data])
-                            delete oRecord.data[oSchema.id];
+                            oRecord.data[oSchema.id] = '_loading';
                         }
                     })
                 },
-                loadImage: function () {
-                    var defer = $q.defer()
+                loadImage: function (defer) {
                     var aImageData = cachedImages.shift();
                     if (aImageData) {
-                        var image = new Image();
-                        image.src = aImageData[1];
-                        image.onload = function () {
-                            $scope.$apply(function () {
-                                aImageData[2][aImageData[0]] = aImageData[1];
-                            });
+                        var imageUrls = aImageData[1].split(',');
+                        var defer2 = $q.defer();
+                        loadOneImage(imageUrls, defer2);
+                        defer2.promise.then(function () {
+                            aImageData[2][aImageData[0]] = aImageData[1];
                             cachedImages.length ? ins.loadImage() : defer.resolve()
-                        }
+                        });
                     }
-                    return defer.promise
                 }
             }
             return ins;
@@ -382,7 +389,9 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
             }
             if (AsyncImage)
                 $timeout(function () {
-                    AsyncImage.loadImage().then(function () {
+                    var defer = $q.defer();
+                    AsyncImage.loadImage(defer)
+                    defer.promise.then(function () {
                         $timeout(function () {
                             var imgs;
                             if (imgs = document.querySelectorAll('.data img')) {

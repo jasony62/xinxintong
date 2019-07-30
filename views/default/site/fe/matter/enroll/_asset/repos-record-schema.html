@@ -28,9 +28,10 @@
             </div>
         </div>
         <div ng-switch-when="image">
-            <ul class='list-unstyled'>
+            <ul class='list-unstyled' ng-if="rec.data[schema.id]!=='_loading'">
                 <li ng-repeat="img in rec.data[schema.id].split(',')"><img ng-src="{{img}}" /></li>
             </ul>
+            <span ng-if="rec.data[schema.id]==='_loading'">等待加载图片...</span>
         </div>
         <div ng-switch-when="score">
             <div ng-repeat="item in rec.data[schema.id]">

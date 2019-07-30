@@ -336,7 +336,7 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
                     var image = new Image();
                     image.src = url;
                     image.onload = function () {
-                        urls.length ? loadOneImage(urls) : defer.resolve();
+                        urls.length ? loadOneImage(urls, defer) : defer.resolve();
                     }
                 }
             }

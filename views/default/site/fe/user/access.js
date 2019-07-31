@@ -23,34 +23,35 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
         if (window.localStorage.getItem('xxt.login.gotoConsole') === 'Y') {
             $scope.loginData.gotoConsole = window.localStorage.getItem('xxt.login.gotoConsole');
         }
-        if(window.sessionStorage.getItem('xxt.pl.protect.system')) {
-            var oSessionCached = window.sessionStorage.getItem('xxt.pl.protect.system')  
-            if (oSessionCached) {
-                oSessionCached = JSON.parse(oSessionCached);
-            } else {
-                $http.get("/tmsappconfig.php").then(function(rsp) {
-                    var data = rsp.data.data;
-                    oSessionCached = data;
-                    window.sessionStorage.setItem('xxt.pl.protect.system', JSON.stringify(oSessionCached));
-                });
-            }        
-        }
     } else {
         $scope.supportLocalStorage = 'N';
         document.querySelector('[ng-model="data.uname"]').focus();
     }
 
+    if (window.sessionStorage) {
+        var oSessionCached;
+        if (window.sessionStorage.getItem('xxt.pl.protect.system')) {
+            oSessionCached = window.sessionStorage.getItem('xxt.pl.protect.system');
+            oSessionCached = JSON.parse(oSessionCached);
+        } else {
+            $http.get("/tmsappconfig.php").then(function(rsp) {
+                oSessionCached = rsp.data;
+                window.sessionStorage.setItem('xxt.pl.protect.system', JSON.stringify(oSessionCached));
+            });
+        }
+    }
+
     $scope.login = function() {
-        if($scope.loginData.password) {  
+        if ($scope.loginData.password) {
             $http.post('/rest/site/fe/user/login/do?site=' + _siteId, $scope.loginData).success(function(rsp) {
                 if (rsp.err_code != 0) {
                     $scope.errmsg = rsp.err_msg;
                     $scope.refreshPin();
                     return;
                 }
-                
-                $http.post('/rest/site/fe/user/login/checkPwdStrength', {'account':$scope.loginData.uname,'password':$scope.loginData.password}).success(function(rsp2) {
-                    if(!rsp2.data.strength) {
+
+                $http.post('/rest/site/fe/user/login/checkPwdStrength', { 'account': $scope.loginData.uname, 'password': $scope.loginData.password }).success(function(rsp2) {
+                    if (!rsp2.data.strength) {
                         alert(rsp2.data.msg);
                     }
                     if ($scope.loginData.rememberMe === 'Y') {
@@ -65,9 +66,9 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
                     } else {
                         window.localStorage.setItem('xxt.login.gotoConsole', 'N');
                     }
-                    if(oSessionCached.noHookMaxTime && oSessionCached.noHookMaxTime > 0) {
+                    if (oSessionCached.noHookMaxTime && oSessionCached.noHookMaxTime > 0) {
                         var oStorage, oCached, intervaltime;
-                        if(oStorage = window.localStorage) {
+                        if (oStorage = window.localStorage) {
                             oCached = {};
                             oCached.lasttime = new Date() * 1;
                             oStorage.setItem('xxt.pl.protect.event.trace', JSON.stringify(oCached));

@@ -91,8 +91,7 @@ ngMod.directive('tmsProtect', ['$q', '$timeout', 'http2', '$uibModal', function(
                 async: false,
                 success: function(result) {
                     intervaltime = result.noHookMaxTime * 60 * 1000;
-                    oSessionCached.noHookMaxTime = result.noHookMaxTime;
-                    oSeesionStorage.setItem(ProtectKey, JSON.stringify(oSessionCached));
+                    oSeesionStorage.setItem(ProtectKey, JSON.stringify(result));
                 }
             });
         }

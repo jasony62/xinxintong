@@ -30,11 +30,12 @@ ngMod.directive('tmsProtect', ['$q', '$timeout', 'http2', '$uibModal', function(
         function validPwd() {
             var template;
             template = '<div class="modal-body">';
-            template += '<div class="form-group">';
+            template += '<div class="form-group" style="position:relative">';
             template += '<label class="control-label">由于您长时间没有操作，请重新输入登录密码</label>';
-            template += '<p><input type=\'password\' class="form-control" ng-model=\'user.password\' ng-focus=\'msg=""\'></p>';
-            template += '<p style="color:red;font-size:12px" ng-bind=\'msg\'></p>';
+            template += '<input type=\'password\' class="form-control" ng-model=\'user.password\' required/>';
+            template += '<span ng-click="toggleVisible($event)" style="display:block;position:absoulte;bottom:10%;right:5px;cursor:pointer;"><i class="glyphicon glyphicon-eye-close"></i></span>';
             template += '</div>';
+            template += '<p style="color:red;font-size:12px" ng-bind=\'msg\'></p>';
             template += '<div class="text-right"><button class="btn btn-success" ng-click="ok()">确定</button></div>';
             template += '</div>';
             $uibModal.open({
@@ -42,12 +43,26 @@ ngMod.directive('tmsProtect', ['$q', '$timeout', 'http2', '$uibModal', function(
                 controller: ['$scope', '$uibModalInstance', '$http', function($scope2, $mi, $http) {
                     $scope2.user = { password: "" };
                     $scope2.msg = "";
+                    $scope.toggleVisible = function(event) {
+                        var target = event.target;
+                        if (target.tagName === 'SPAN' || ((target = target.parentNode) && target.tagName === 'SPAN')) {
+                            var childEle = target.querySelector("i");
+                            if (childEle.getAttribute("class") === "glyphicon glyphicon-eye-close") {
+                                childEle.setAttribute("class", "glyphicon glyphicon-eye-open");
+                                target.previousElementSibling.setAttribute("type", "text");
+                            } else {
+                                childEle.setAttribute("class", "glyphicon glyphicon-eye-close");
+                                target.previousElementSibling.setAttribute("type", "password");
+                            }
+                        }
+                    }
                     $scope2.ok = function() {
                         $http.post("/rest/site/fe/user/login/validatePwd", $scope2.user).then(function(rsp) {
                             if (!rsp.data.err_code) {
                                 $mi.close();
                             } else {
                                 $scope2.msg = rsp.data.err_msg;
+                                $scope2.user.password = "";
                             }
                         });
                     };

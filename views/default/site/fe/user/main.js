@@ -61,6 +61,19 @@ ngApp.controller('ctrlMain', ['$scope', '$timeout', 'http2', 'tmsLocation', 'use
             $scope.userSetting = !$scope.userSetting;
         }
     };
+    $scope.toggleVisible = function(event) {
+        var target = event.target;
+        if (target.tagName === 'SPAN' || ((target = target.parentNode) && target.tagName === 'SPAN')) {
+            var childEle = target.querySelector("i");
+            if (childEle.getAttribute("class") === "glyphicon glyphicon-eye-close") {
+                childEle.setAttribute("class", "glyphicon glyphicon-eye-open");
+                target.previousElementSibling.setAttribute("type", "text");
+            } else {
+                childEle.setAttribute("class", "glyphicon glyphicon-eye-close");
+                target.previousElementSibling.setAttribute("type", "password");
+            }
+        }
+    }
     $scope.changeNickname = function() {
         var data = {};
         data.nickname = $scope.user.nickname;

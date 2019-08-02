@@ -27,20 +27,19 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
         $scope.supportLocalStorage = 'N';
         document.querySelector('[ng-model="data.uname"]').focus();
     }
-
-    if (window.sessionStorage) {
-        var oSessionCached;
-        if (window.sessionStorage.getItem('xxt.pl.protect.system')) {
-            oSessionCached = window.sessionStorage.getItem('xxt.pl.protect.system');
-            oSessionCached = JSON.parse(oSessionCached);
-        } else {
-            $http.get("/tmsappconfig.php").then(function(rsp) {
-                oSessionCached = rsp.data;
-                window.sessionStorage.setItem('xxt.pl.protect.system', JSON.stringify(oSessionCached));
-            });
+    $scope.toggleVisible = function(event) {
+        var target = event.target;
+        if (target.tagName === 'SPAN' || ((target = target.parentNode) && target.tagName === 'SPAN')) {
+            var childEle = target.querySelector("i");
+            if (childEle.getAttribute("class") === "glyphicon glyphicon-eye-close") {
+                childEle.setAttribute("class", "glyphicon glyphicon-eye-open");
+                target.previousElementSibling.setAttribute("type", "text");
+            } else {
+                childEle.setAttribute("class", "glyphicon glyphicon-eye-close");
+                target.previousElementSibling.setAttribute("type", "password");
+            }
         }
     }
-
     $scope.login = function() {
         if ($scope.loginData.password) {
             $http.post('/rest/site/fe/user/login/do?site=' + _siteId, $scope.loginData).success(function(rsp) {
@@ -65,14 +64,6 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
                         window.localStorage.setItem('xxt.login.gotoConsole', 'Y');
                     } else {
                         window.localStorage.setItem('xxt.login.gotoConsole', 'N');
-                    }
-                    if (oSessionCached.noHookMaxTime && oSessionCached.noHookMaxTime > 0) {
-                        var oStorage, oCached, intervaltime;
-                        if (oStorage = window.localStorage) {
-                            oCached = {};
-                            oCached.lasttime = new Date() * 1;
-                            oStorage.setItem('xxt.pl.protect.event.trace', JSON.stringify(oCached));
-                        }
                     }
                     if (window.parent && window.parent.onClosePlugin) {
                         window.parent.onClosePlugin(rsp.data);

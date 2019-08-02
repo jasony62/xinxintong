@@ -33,7 +33,7 @@ ngMod.directive('tmsProtect', ['$q', '$timeout', 'http2', '$uibModal', function(
             template += '<div class="form-group" style="position:relative">';
             template += '<label class="control-label">由于您长时间没有操作，请重新输入登录密码</label>';
             template += '<input type=\'password\' class="form-control" ng-model=\'user.password\' required/>';
-            template += '<span ng-click="toggleVisible($event)" style="display:block;position:absoulte;bottom:10%;right:5px;cursor:pointer;"><i class="glyphicon glyphicon-eye-close"></i></span>';
+            template += '<span ng-click="toggleVisible($event)" style="display:block;position:absolute;bottom:10%;right:10px;cursor:pointer;"><i class="glyphicon glyphicon-eye-close"></i></span>';
             template += '</div>';
             template += '<p style="color:red;font-size:12px" ng-bind=\'msg\'></p>';
             template += '<div class="text-right"><button class="btn btn-success" ng-click="ok()">确定</button></div>';
@@ -43,7 +43,7 @@ ngMod.directive('tmsProtect', ['$q', '$timeout', 'http2', '$uibModal', function(
                 controller: ['$scope', '$uibModalInstance', '$http', function($scope2, $mi, $http) {
                     $scope2.user = { password: "" };
                     $scope2.msg = "";
-                    $scope.toggleVisible = function(event) {
+                    $scope2.toggleVisible = function(event) {
                         var target = event.target;
                         if (target.tagName === 'SPAN' || ((target = target.parentNode) && target.tagName === 'SPAN')) {
                             var childEle = target.querySelector("i");

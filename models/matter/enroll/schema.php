@@ -130,6 +130,7 @@ class schema_model extends \TMS_MODEL {
             /* 关联到其他应用时才需要检查 */
             if (empty($oSchema->fromApp)) {
                 unset($oSchema->requireCheck);
+                unset($oSchema->readonly);
             }
             /* 题目来源 */
             if (isset($oSchema->dsSchema)) {

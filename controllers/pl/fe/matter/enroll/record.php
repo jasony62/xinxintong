@@ -266,7 +266,7 @@ class record extends record_base {
         return new \ResponseData($renewCount);
     }
     /**
-     * 更新指定活动下所有记录的得分
+     * 更新指定活动下指定记录的得分
      */
     public function renewScore_action($app, $ek) {
         if (false === ($oUser = $this->accountUser())) {

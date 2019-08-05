@@ -80,7 +80,7 @@ class record extends base {
 
         // 将数据保存在日志中
         $modelLog = $this->model('log');
-        $logid = $modelLog->log($oUser->uid, 'enroll:' . $oEnlApp->id . '.record.submit', $modelLog->toJson($oEnlData));
+        $logid = $modelLog->log($oUser->uid, 'enroll:' . $oEnlApp->id . '.record.submit', $this->escape($modelLog->toJson($oEnlData)));
 
         /* 检查是否允许提交记录 */
         $aResultCanSubmit = $this->_canSubmit($oEnlApp, $oUser, $oEnlData, $ek, $rid);
@@ -572,6 +572,7 @@ class record extends base {
         if (true === $aResult[0]) {
             return new \ResponseData('ok');
         } else {
+            header("HTTP/1.0 415 Unsupported Media Type");
             return new \ResponseError($aResult[1]);
         }
     }

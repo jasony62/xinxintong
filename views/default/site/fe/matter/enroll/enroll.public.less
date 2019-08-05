@@ -1,5 +1,5 @@
 @import "../../../../../../static/less/site.fe.base.less";
-@top-menu-font-primary: #ffdcb7;
+@top-menu-font-primary: #fff;
 
 blockquote {
     font-size: 16px;
@@ -83,7 +83,7 @@ button.option {
 
 .top-menu-bar {
     height: 44px;
-    padding-top: 16px;
+    padding-top: 8px;
 
     .container {
         position: relative;
@@ -104,7 +104,7 @@ button.option {
 
             .menu-link {
                 display: block;
-                font-size: 14px;
+                font-size: 18px;
                 line-height: 1;
                 letter-spacing: 2px;
                 margin-bottom: 4px;
@@ -264,12 +264,17 @@ button.option {
     justify-content: space-between;
 
     a {
-        font-size: 14px;
-        color: @top-menu-font-primary;
+        font-size: 24px;
+        color: #fff;
 
         &>* {
             vertical-align: top;
         }
+    }
+
+    .dropdown-menu>li>a {
+        color: #333;
+        font-size: 14px;
     }
 
     #advCriteriaSwitch.active>a {

@@ -12,7 +12,7 @@
     <link href="/views/default/pl/fe/site/template/enroll/frame.css?_=11" rel="stylesheet">
 </head>
 
-<body ng-controller='ctrlFrame' ng-cloak class='ng-cloak'>
+<body ng-controller='ctrlFrame' ng-cloak class='ng-cloak' tms-protect>
     <nav class='navbar navbar-default navbar-fixed-top'>
         <div class='container-fluid'>
             <div class="navbar-header">
@@ -70,6 +70,7 @@
     <script src="/static/js/ui-tms.js?_=4"></script>
     <script src="/static/js/xxt.ui.js?_=4"></script>
     <script src="/static/js/xxt.ui.tmplshop.js?_=1"></script>
+    <script src="<?php echo auto_version('/static/js/xxt.ui.protect.js');?>"></script>
     <script src="<?php echo auto_version('/asset/js/xxt.ui.http.js');?>"></script>
     <script src="<?php echo auto_version('/views/default/pl/fe/_module/matter.service.js');?>"></script>
     <script src="<?php echo auto_version('/views/default/pl/fe/matter/enroll/lib/enroll.tinymce.js');?>"></script>

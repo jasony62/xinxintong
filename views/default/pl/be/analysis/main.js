@@ -1,5 +1,5 @@
 'use strict';
-var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'http.ui.xxt', 'notice.ui.xxt']);
+var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'http.ui.xxt', 'notice.ui.xxt', 'protect.ui.xxt']);
 ngApp.filter('filterTime', function() {
     return function(e) {
         var result, h, m, s, time = e * 1;

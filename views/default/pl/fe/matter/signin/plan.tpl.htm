@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="app">
 
 <head>
     <meta charset="UTF-8">
@@ -17,7 +17,7 @@
     </style>
 </head>
 
-<body ng-app="app" ng-controller='ctrlPlan' ng-cloak class='ng-cloak'>
+<body ng-controller='ctrlPlan' ng-cloak class='ng-cloak' tms-protect>
     <div class='pl-layout'>
         <!--logo+侧边栏-->
         <div class='pl-layout-leftnav'>
@@ -97,6 +97,7 @@
     <script src="/static/js/angular-route.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="<?php echo auto_version('/static/js/xxt.ui.protect.js');?>"></script>
     <script src="<?php echo auto_version('/static/js/ui-tms.js');?>"></script>
     <script src="<?php echo auto_version('/asset/js/xxt.ui.http.js');?>"></script>
     <script src="<?php echo auto_version('/asset/js/xxt.ui.notice.js');?>"></script>

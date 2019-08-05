@@ -10,7 +10,7 @@
     <link href="/views/default/pl/fe/site/invite.css?_=1" rel="stylesheet">
 </head>
 
-<body ng-controller='ctrlApp' ng-cloak class='ng-cloak'>
+<body ng-controller='ctrlApp' ng-cloak class='ng-cloak' tms-protect>
     <nav class='navbar navbar-default'>
         <ul class='nav navbar-nav'>
             <li><a href='/rest/pl/fe' target='_self'>首页</a></li>
@@ -34,6 +34,7 @@
     <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-route.min.js"></script>
+    <script src="<?php echo auto_version('/static/js/xxt.ui.protect.js');?>"></script>
     <script src="<?php echo auto_version('/asset/js/xxt.ui.http.js');?>"></script>
     <script src="<?php echo auto_version('/asset/js/xxt.ui.notice.js');?>"></script>
     <script src="/static/js/require.js" data-main="<?php echo auto_version('/views/default/pl/fe/site/invite-loader.js');?>"></script>

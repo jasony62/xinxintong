@@ -361,8 +361,10 @@ class export extends record_base {
     }
     /**
      * 导出记录中的图片
+     *
+     * @param string $rid 轮次id
      */
-    public function image_action($app, $rid = '') {
+    public function image_action($app, $rid = '', $range = '1,30') {
         if (false === ($oUser = $this->accountUser())) {
             die('请先登录系统');
         }
@@ -393,11 +395,20 @@ class export extends record_base {
             die('活动不包含图片数据');
         }
 
+        $aOptions2 = null;
+        if (!empty($range)) {
+            list($page, $size) = explode(',', $range);
+            $aOptions2 = [
+                'page' => $page,
+                'size' => $size,
+            ];
+        }
+
         // 获得所有有效的填写记录
         $oOptions = new \stdClass;
         $oOptions->record = new \stdClass;
         $oOptions->record->rid = empty($rid) ? 'all' : explode(',', $rid);
-        $oResult = $this->model('matter\enroll\record')->byApp($oApp, null, $oOptions);
+        $oResult = $this->model('matter\enroll\record')->byApp($oApp, $aOptions2, $oOptions);
         if ($oResult->total === 0) {
             die('填写记录为空');
         }
@@ -459,9 +470,14 @@ class export extends record_base {
         if (!file_exists($zipFilename)) {
             exit("无法找到压缩文件");
         }
+        $downloadFilename = $oApp->title;
+        if (!empty($aOptions2['page'])) {
+            $downloadFilename .= '-' . $aOptions2['page'];
+        }
+        $downloadFilename .= '.zip';
         header("Cache-Control: public");
         header("Content-Description: File Transfer");
-        header('Content-disposition: attachment; filename=' . $oApp->title . '.zip');
+        header('Content-disposition: attachment; filename=' . $downloadFilename);
         header("Content-Type: application/zip");
         header("Content-Transfer-Encoding: binary");
         header('Content-Length: ' . filesize($zipFilename));

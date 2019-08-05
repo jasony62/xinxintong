@@ -127,13 +127,13 @@ class record extends record_base {
     /**
      * 指定活动轮次的记录的数量
      */
-    public function countByRound_action($round) {
+    public function countByRound_action($rid) {
         if (false === $this->accountUser()) {
             return new \ResponseTimeout();
         }
 
         $modelRnd = $this->model('matter\enroll\round');
-        $oRound = $modelRnd->byId($round, ['fields' => 'rid']);
+        $oRound = $modelRnd->byId($rid, ['fields' => 'rid']);
         if (false === $oRound) {
             return new \ObjectNotFoundError();
         }

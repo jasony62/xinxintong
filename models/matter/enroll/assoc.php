@@ -87,7 +87,7 @@ class assoc_model extends entity_model {
     public function link($oEntityA, $oEntityB, $oUser, $aOptions = []) {
         $assocReason = isset($aOptions['assocReason']) ? $aOptions['assocReason'] : '';
         $assocText = isset($aOptions['assocText']) ? $aOptions['assocText'] : '';
-        $assocMode = isset($aOptions['assocMode']) ? assoc_model::Assoc_Mode[$aOptions['assocMode']] : assoc_model::Assoc_Mode['Free'];
+        $assocMode = isset($aOptions['assocMode']) ? assoc_model::ASSOC_MODE[$aOptions['assocMode']] : assoc_model::ASSOC_MODE['Free'];
         $isPublic = isset($aOptions['public']) ? $aOptions['public'] : 'N';
 
         /* 更新关联关系 */

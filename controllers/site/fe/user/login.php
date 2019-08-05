@@ -18,6 +18,7 @@ class login extends \site\fe\base {
         $rule_action['actions'][] = 'thirdList';
         $rule_action['actions'][] = 'byRegAndThird';
         $rule_action['actions'][] = 'thirdCallback';
+        $rule_action['actions'][] = 'validatePwd';
 
         return $rule_action;
     }
@@ -387,5 +388,28 @@ class login extends \site\fe\base {
 
         $code = $captcha->getCode();
         $_SESSION['_login_auth_code'] = $code;
+    }
+    /**
+     * 登录用户验证密码
+     */
+    public function validatePwd_action() {
+        $post = $this->getPostJson(false);
+        if (empty($post) || empty($post->password)) {
+            return new \ParameterError();
+        }
+        if (($account = \TMS_CLIENT::account()) === false) {
+            return new \ResponseError('未登录');
+        }
+        if (($oUser = $this->model('account')->byId($account->uid)) === false) {
+            return new \ObjectNotFoundError();
+        }
+
+        $uname = $this->escape($oUser->email);
+        $oResult = $this->model('site\user\registration')->validate($uname, $post->password);
+        if ($oResult[0] === false) {
+            return new \ResponseError($oResult[1]);
+        }
+
+        return new \ResponseData('ok');
     }
 }

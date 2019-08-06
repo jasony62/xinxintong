@@ -1,4 +1,4 @@
-ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'notice.ui.xxt', 'service.matter']);
+ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'notice.ui.xxt', 'service.matter', 'protect.ui.xxt']);
 ngApp.config(['$routeProvider', '$locationProvider', 'srvTagProvider', function ($routeProvider, $locationProvider, srvTagProvider) {
     $routeProvider.otherwise({
         templateUrl: '/views/default/pl/fe/matter/text/setting.html?_=2',

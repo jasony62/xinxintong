@@ -21,8 +21,12 @@ class attachment extends \pl\fe\matter\base {
 		}
 
 		$rst = $this->attachmentUpload($oApp, $_POST);
-
-		return new \ResponseData($rst);
+		if ($rst[0] === false) {
+			header("HTTP/1.0 415 Unsupported Media Type");
+			return new \ResponseError($rst[1]);
+		} else {
+			return new \ResponseData('ok');
+		}
 	}
 	/**
 	 * 上传成功后将附件信息保存到数据库中
@@ -41,7 +45,7 @@ class attachment extends \pl\fe\matter\base {
 		$file = $this->getPostJson();
 		$oAtt = $this->attachmentAdd($oApp, $file);
 		if ($oAtt[0] === false) {
-			return new ResponseError($oAtt[1]);
+			return new \ResponseError($oAtt[1]);
 		}
 		
 		/* 更新文章状态 */

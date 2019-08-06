@@ -74,6 +74,15 @@ define('TMS_APP_DIR', dirname(__FILE__));
 define('TMS_APP_TEMPLATE_DEFAULT', dirname(__FILE__) . '/_template');
 !defined('TMS_APP_TEMPLATE') && define('TMS_APP_TEMPLATE', TMS_APP_TEMPLATE_DEFAULT);
 /**
+ * 限制上传文件最大值 ，单位 M ，0不限制
+ */
+!defined('TMS_UPLOAD_FILE_MAXSIZE') && define('TMS_UPLOAD_FILE_MAXSIZE', 0);
+/**
+ * 限制上传文件类型, 空为不限制  多个用 “,” 号隔开
+ * 如：'doc,xls' 
+ */
+!defined('TMS_UPLOAD_FILE_CONTENTTYPE_WHITE') && define('TMS_UPLOAD_FILE_CONTENTTYPE_WHITE', '');
+/**
  * app's uri.
  */
 !defined('TMS_APP_URI') && define('TMS_APP_URI', '');
@@ -89,6 +98,18 @@ define('TMS_APP_TEMPLATE_DEFAULT', dirname(__FILE__) . '/_template');
  * 身份验证检测标准 0 不检查， 1 检查(登录注册页只能由https协议打开，登录注册处理函数只接受来自https的请求)
  */
 !defined('TMS_APP_AUTH_HTTPS_CHECK') && define('TMS_APP_AUTH_HTTPS_CHECK', 0);
+/**
+ * 用户口令输入错误最大次数； 0 不限制错误次数
+ */
+!defined('TMS_APP_PASSWORD_ERROR_MAXNUM') && define('TMS_APP_PASSWORD_ERROR_MAXNUM', 0);
+/**
+ * 用户口令输入错误超限后禁止登录的时间（分钟），如果值 <= 0 以默认30分钟为准
+ */
+!defined('TMS_APP_PASSWORD_ERROR_AUTHLOCK_EXPIRE') && define('TMS_APP_PASSWORD_ERROR_AUTHLOCK_EXPIRE', 30);
+/**
+ * 用户无操作时间限制。 0 为不限制 单位 分
+ */
+!defined('TMS_APP_NOHOOK_MAXTIME') && define('TMS_APP_NOHOOK_MAXTIME', 0);
 /**
  * 是否对请求数据进行过滤
  */

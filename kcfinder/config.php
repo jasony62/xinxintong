@@ -68,6 +68,16 @@ $_CONFIG = array(
 		'音频' => "mp3",
 		'文件' => "",
 	),
+	// 上传的大小  单位 M
+	'sizeByType' => array(
+		// TinyMCE types
+		'file' => 0,
+		'media' => 0,
+		'image' => 0,
+		'图片' => 0,
+		'音频' => 0,
+		'文件' => 0,
+	),
 	// 只能上传的类型
 	'whiteByType' => array(
 		// CKEditor & FCKEditor types
@@ -79,7 +89,7 @@ $_CONFIG = array(
 		'file' => [],
 		'media' => [],
 		'image' => [],
-		'图片' => ['image/png', 'image/jpeg', 'image/gif'],
+		'图片' => ['png', 'jpg', 'jpeg', 'gif', 'bmp'],
 		'音频' => [],
 		'文件' => [],
 	),

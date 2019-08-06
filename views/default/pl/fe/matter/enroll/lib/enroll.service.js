@@ -98,7 +98,11 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
             }
         };
         this._bGetAfter = function (oEnrollApp, fnCallback) {
-            oEnrollApp.tags = (!oEnrollApp.tags || oEnrollApp.tags.length === 0) ? [] : oEnrollApp.tags.split(',');
+            if (!oEnrollApp.tags || !angular.isString(oEnrollApp.tags) || oEnrollApp.tags.length === 0) {
+                oEnrollApp.tags = [];
+            } else {
+                oEnrollApp.tags = oEnrollApp.tags.split(',');
+            }
             fnCallback(oEnrollApp);
             if (oEnrollApp.pages) {
                 oEnrollApp.pages.forEach(function (oPage) {
@@ -571,6 +575,50 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
             });
             return defer.promise;
         };
+        this.pick = function (oApp, oOptions) {
+            var _that = this;
+            var defer = $q.defer();
+            http2.post('/rest/script/time', {
+                html: {
+                    'rounds': '/views/default/pl/fe/matter/enroll/component/roundPicker'
+                }
+            }).then(function (rsp) {
+                var _oPage = {};
+                var _rounds;
+                _that.list(oApp, _oPage).then(function (oResult) {
+                    _rounds = oResult.rounds;
+                    $uibModal.open({
+                        templateUrl: '/views/default/pl/fe/matter/enroll/component/roundPicker.html?_=' + rsp.data.html.rounds.time,
+                        controller: ['$scope', '$uibModalInstance', function ($scope2, $mi) {
+                            var _oResult;
+                            $scope2.options = oOptions || {
+                                single: true
+                            };
+                            $scope2.page = _oPage;
+                            $scope2.rounds = _rounds;
+                            $scope2.result = _oResult = {};
+                            $scope2.doSearch = function () {
+                                _that.list(oApp, _oPage).then(function (oResult) {
+                                    _rounds.splice(0, _rounds.length);
+                                    oResult.rounds.forEach(function (oRound) {
+                                        _rounds.push(oRound);
+                                    });
+                                });
+                            };
+                            $scope2.dismiss = function () {
+                                $mi.dismiss();
+                            };
+                            $scope2.ok = function () {
+                                $mi.close(_oResult);
+                            };
+                        }]
+                    }).result.then(function (oResult) {
+                        defer.resolve(oResult);
+                    });
+                });
+            });
+            return defer.promise;
+        };
     }]);
     ngModule.provider('srvEnrollRound', function () {
         var _rounds, _oPage;
@@ -1001,16 +1049,53 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
                         oCriteria.record = oFilterRec;
                     }
                 }
-                url = '/rest/pl/fe/matter/enroll/record/export';
+                url = '/rest/pl/fe/matter/enroll/export/record';
                 url += '?site=' + _siteId + '&app=' + _appId;
                 url += '&filter=' + JSON.stringify(oCriteria);
                 window.open(url);
             };
-            _ins.exportImage = function () {
-                var url;
-                url = '/rest/pl/fe/matter/enroll/record/exportImage';
-                url += '?site=' + _siteId + '&app=' + _appId;
-                window.open(url);
+            _ins.exportImage = function (rid) {
+                if (!rid) {
+                    noticebox.warn('没有指定导出轮次');
+                    return;
+                }
+                http2.post('/rest/script/time', {
+                    html: {
+                        'export': '/views/default/pl/fe/matter/enroll/component/record/exportBatch'
+                    }
+                }).then(function (rsp) {
+                    $uibModal.open({
+                        templateUrl: '/views/default/pl/fe/matter/enroll/component/record/exportBatch.html?_=' + rsp.data.html.export.time,
+                        controller: ['$scope', '$uibModalInstance', function ($scope2, $mi) {
+                            http2.get('/rest/pl/fe/matter/enroll/record/countByRound?rid=' + rid).then(function (rsp) {
+                                var BaseDownloadUrl = '/rest/pl/fe/matter/enroll/export/image?site=' + _siteId + '&app=' + _appId + '&rid=' + rid;
+
+                                function downloadUrl(step) {
+                                    return BaseDownloadUrl + '&range=' + (step * oBatch.size + 1) + ',' + oBatch.size
+                                }
+                                var oBatch, files;
+                                $scope2.batch = oBatch = {
+                                    total: rsp.data,
+                                    size: 30,
+                                    times: 1
+                                };
+                                $scope2.files = files = [];
+                                $scope2.$watch('batch.size', function (nv) {
+                                    if (nv <= 0)
+                                        oBatch.size = 30
+                                    oBatch.times = Math.ceil(oBatch.total / oBatch.size);
+                                    files.splice(0, files.length - 1)
+                                    for (var i = 0; i < oBatch.times; i++) {
+                                        files.push(downloadUrl(i))
+                                    }
+                                });
+                                $scope2.close = function () {
+                                    $mi.dismiss();
+                                };
+                            });
+                        }]
+                    })
+                });
             };
             _ins.chooseImage = function (imgFieldName) {
                 var defer = $q.defer();
@@ -1139,7 +1224,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
                         });
                         $scope2.$watch('data.fromRnd', function (oFromRnd) {
                             if (oFromRnd) {
-                                http2.get('/rest/pl/fe/matter/enroll/record/countByRound?round=' + oFromRnd.rid).then(function (rsp) {
+                                http2.get('/rest/pl/fe/matter/enroll/record/countByRound?rid=' + oFromRnd.rid).then(function (rsp) {
                                     _oData.countOfRecord = rsp.data;
                                 });
                             }

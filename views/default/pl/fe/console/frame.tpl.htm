@@ -14,8 +14,8 @@
     </title>
 </head>
 
-<body ng-controller='ctrlFrame' class="ng-cloak" ng-cloak>
-    <div class='pl-layout'>
+<body ng-controller='ctrlFrame' tms-protect>
+    <div class='pl-layout' class="ng-cloak" ng-cloak>
         <!-- logo + leftSide -->
         <div class='pl-layout-leftnav'>
             <div class='pl-layout-leftnav-header'>
@@ -132,6 +132,7 @@
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/static/js/ui-tms.js');?>"></script>
     <script src="<?php echo auto_version('/static/js/xxt.ui.js');?>"></script>
+    <script src="<?php echo auto_version('/static/js/xxt.ui.protect.js');?>"></script>
     <script src="/static/js/resumable.js"></script>
     <script src="<?php echo auto_version('/static/js/xxt.ui.tmplshop.js');?>"></script>
     <script src="<?php echo auto_version('/asset/js/xxt.ui.http.js');?>"></script>

@@ -187,13 +187,17 @@ service('tkGroupTeam', ['$q', 'http2', function ($q, http2) {
                 window.open(url);
             },
             dealData: function (oUser) {
-                var role_team_titles = [];
-                oUser.role_teams.forEach(function (teamId) {
-                    if (_oApp._teamsById[teamId]) {
-                        role_team_titles.push(_oApp._teamsById[teamId].title);
+                this.get().then(function (oApp) {
+                    var role_team_titles = [];
+                    if (oUser.role_teams && oUser.role_teams.length && oApp._teamsById) {
+                        oUser.role_teams.forEach(function (teamId) {
+                            if (oApp._teamsById[teamId]) {
+                                role_team_titles.push(oApp._teamsById[teamId].title);
+                            }
+                        });
                     }
+                    oUser.role_team_titles = role_team_titles;
                 });
-                oUser.role_team_titles = role_team_titles;
             }
         };
     }];

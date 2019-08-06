@@ -1,6 +1,6 @@
 define(['frame'], function (ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRecord', ['$scope', '$timeout', '$location', '$uibModal', 'srvEnrollApp', 'srvEnrollRound', 'srvEnrollRecord', '$filter', 'http2', 'noticebox', 'tmsRowPicker', function ($scope, $timeout, $location, $uibModal, srvEnlApp, srvEnlRnd, srvEnlRec, $filter, http2, noticebox, tmsRowPicker) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', '$timeout', '$location', '$uibModal', 'srvEnrollApp', 'srvEnrollRound', 'tkEnrollRound', 'srvEnrollRecord', '$filter', 'http2', 'noticebox', 'tmsRowPicker', function ($scope, $timeout, $location, $uibModal, srvEnlApp, srvEnlRnd, tkEnlRnd, srvEnlRec, $filter, http2, noticebox, tmsRowPicker) {
         function fnSum4Schema() {
             var sum4SchemaAtPage;
             $scope.sum4SchemaAtPage = sum4SchemaAtPage = {};
@@ -137,8 +137,13 @@ define(['frame'], function (ngApp) {
         $scope.export = function () {
             srvEnlRec.export();
         };
+        // 按轮次导出图片
         $scope.exportImage = function () {
-            srvEnlRec.exportImage();
+            tkEnlRnd.pick($scope.app).then(function (oResult) {
+                if (oResult && oResult.rid && angular.isString(oResult.rid) && oResult.rid.length) {
+                    srvEnlRec.exportImage(oResult.rid);
+                }
+            });
         };
         $scope.renewScoreByRound = function () {
             srvEnlRnd.list().then(function (oResult) {

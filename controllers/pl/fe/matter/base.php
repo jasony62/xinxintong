@@ -113,16 +113,31 @@ class base extends \pl\fe\base {
 	protected function attachmentUpload($oApp, $data) {
 		$dest = '/' . $oApp->type . '/' . $oApp->id . '/' . $data['resumableFilename'];
 		$oResumable = $this->model('fs/resumable', $oApp->siteid, $dest, '_attachment');
-		$oResumable->handleRequest($data);
+		$rst = $oResumable->handleRequest($data);
 
-		return 'ok';
+		return $rst;
 	}
 	/**
 	 * 上传成功后将附件信息保存到数据库中
 	 */
 	protected function attachmentAdd($oApp, $oFile) {
 		$model = $this->model();
-		
+		// 文件大小限制
+		if (TMS_UPLOAD_FILE_MAXSIZE > 0) {
+			$maxSize = (int) TMS_UPLOAD_FILE_MAXSIZE * 1024 * 1024;
+			if ($oFile->size > $maxSize) {
+				return [false, '文件上传失败，超出最大值' . TMS_UPLOAD_FILE_MAXSIZE . 'M'];
+			}
+		}
+		// 限制文件类型 白名单
+		if (defined('TMS_UPLOAD_FILE_CONTENTTYPE_WHITE') && !empty(TMS_UPLOAD_FILE_CONTENTTYPE_WHITE)) {
+			$contentType = explode(',', TMS_UPLOAD_FILE_CONTENTTYPE_WHITE);
+			$oFileType = substr($oFile->name, strrpos($oFile->name, '.') + 1);
+			if (!in_array($oFileType, $contentType)) {
+				return [false, '文件上传失败，只支持' . TMS_UPLOAD_FILE_CONTENTTYPE_WHITE . '格式的文件'];
+			}
+		}
+		//
 		if (defined('APP_FS_USER') && APP_FS_USER === 'ali-oss') {
 			/* 文件存储在阿里 */
 			$url = 'alioss://' . $oApp->type . '/' . $oApp->id . '/' . $oFile->name;
@@ -178,8 +193,7 @@ class base extends \pl\fe\base {
 			$path = '' . $att->matter_type . '_' . $att->matter_id . '_' . $att->name;
 			$rsp = $fs->delete($path);
 		} else {
-			$fs = $this->model('fs/saestore', $siteId);
-			$fs->delete($att->url);
+			return [false, '附件地址错误'];
 		}
 		/**
 		 * remove from local

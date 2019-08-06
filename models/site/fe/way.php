@@ -310,13 +310,13 @@ class way_model extends \TMS_MODEL {
      * @param string $domain
      * @param string $secure
      */
-    protected function mySetCookie($name, $value = '', $expire = null, $path = '/', $domain = null, $secure = false) {
+    protected function mySetCookie($name, $value = '', $expire = null, $path = '/', $domain = null, $secure = false, $httponly = true) {
         if (!$domain and G_COOKIE_DOMAIN) {
             $domain = G_COOKIE_DOMAIN;
         }
         $_COOKIE[G_COOKIE_PREFIX . $name] = $value;
 
-        return setcookie(G_COOKIE_PREFIX . $name, $value, $expire, $path, $domain, $secure);
+        return setcookie(G_COOKIE_PREFIX . $name, $value, $expire, $path, $domain, $secure, $httponly);
     }
     /**
      * 获取cookie的值

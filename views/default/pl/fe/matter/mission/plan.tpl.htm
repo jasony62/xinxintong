@@ -16,7 +16,7 @@
     </style>
 </head>
 
-<body ng-app="app" ng-controller='ctrlMain' ng-cloak class='ng-cloak'>
+<body ng-app="app" ng-controller='ctrlMain' ng-cloak class='ng-cloak' tms-protect>
     <div class="pl-layout">
         <!--logo+侧边栏-->
         <div class="pl-layout-leftnav">
@@ -195,6 +195,7 @@
     <script src="/static/js/xxt.ui.js?_=1"></script>
     <script src="<?php echo auto_version('/asset/js/xxt.ui.http.js');?>"></script>
     <script src="<?php echo auto_version('/asset/js/xxt.ui.notice.js');?>"></script>
+    <script src="<?php echo auto_version('/asset/js/xxt.ui.protect.js');?>"></script>
     <script src="<?php echo auto_version('/views/default/pl/fe/_module/matter.service.js');?>"></script>
     <script src="<?php echo auto_version('/views/default/pl/fe/matter/mission/plan.js');?>"></script>
 </body>

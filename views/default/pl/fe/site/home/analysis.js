@@ -68,7 +68,7 @@ define(['frame'], function(ngApp) {
             url += '&isAdmin=' + _oCriteria.isAdmin;
             url += '&startAt=' + _oCriteria.startAt;
             url += '&endAt=' + _oCriteria.endAt;
-            if (filter.keyword) {
+            if ($scope.filter.keyword) {
                 url += '&byCreator=' + _oCriteria.byCreator;
             }
             window.open(url);

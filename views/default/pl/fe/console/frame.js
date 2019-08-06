@@ -1,6 +1,6 @@
 define(['require', 'frame/RouteParam', 'frame/const'], function (require, RouteParam, CstApp) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'http.ui.xxt', 'notice.ui.xxt', 'tmplshop.ui.xxt', 'pl.const', 'service.matter', 'page.ui.xxt', 'modal.ui.xxt', 'schema.ui.xxt', 'ui.xxt']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'http.ui.xxt', 'notice.ui.xxt', 'tmplshop.ui.xxt', 'pl.const', 'service.matter', 'page.ui.xxt', 'modal.ui.xxt', 'schema.ui.xxt', 'ui.xxt', 'protect.ui.xxt']);
     ngApp.constant('cstApp', CstApp);
     ngApp.config(['$controllerProvider', '$provide', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', function ($controllerProvider, $provide, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {
         ngApp.provider = {

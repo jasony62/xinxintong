@@ -621,7 +621,7 @@ class user_model extends \TMS_MODEL {
             } else {
                 $aGrpRecs = $modelGrpRec->byTeam(
                     $oGrpApp->team->id,
-                    ['fields' => 'userid,nickname,team_title']
+                    ['fields' => 'userid,nickname,team_title,data']
                 );
                 foreach ($aGrpRecs as $oGrpRec) {
                     $oGrpRec->group = (object) ['id' => $oGrpApp->team->id, 'title' => $oGrpRec->team_title];

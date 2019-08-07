@@ -162,6 +162,10 @@ ngMod.service('enlAssoc', ['$q', '$uibModal', 'noticebox', 'http2', 'tmsLocation
                     }
                 };
                 $scope.cancel = function() { $mi.dismiss(); };
+                $scope.$watch('result.matter', function(nv) {
+                    if(!nv) return;
+                    $scope.result.retitle = nv.title;
+                });
             }],
             backdrop: 'static',
             windowClass: 'auto-height',

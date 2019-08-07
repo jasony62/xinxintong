@@ -941,26 +941,32 @@ class export extends record_base {
         }
 
         /* 未完成活动任务用户 */
-        $aRounds = [];
-        $aUsers = [];
-        $modelRnd = $this->model('matter\enroll\round');
-        foreach ($rids as $rid) {
-            $oRnd = $modelRnd->byId($rid, ['fields' => 'title,start_at']);
-            if ($oRnd) {
-                $oRnd->rid = $rid;
-                $aRounds[] = $oRnd;
-                $oResult = $modelUsr->undoneByApp($oApp, $rid);
-                if (!empty($oResult->users)) {
-                    foreach ($oResult->users as $oUser) {
-                        if (!isset($aUsers[$oUser->userid])) {
-                            /* 清除不必要的数据 */
-                            unset($oUser->groupid);
-                            unset($oUser->uid);
-                            $aUsers[$oUser->userid] = $oUser;
+
+        if (empty(rids)) {
+            $oResult = $modelUsr->undoneByApp($oApp, 'ALL');
+            $aUsers = $oResult->users;
+        } else {
+            $modelRnd = $this->model('matter\enroll\round');
+            $aRounds = [];
+            $aUsers = [];
+            foreach ($rids as $rid) {
+                $oRnd = $modelRnd->byId($rid, ['fields' => 'title,start_at']);
+                if ($oRnd) {
+                    $oRnd->rid = $rid;
+                    $aRounds[] = $oRnd;
+                    $oResult = $modelUsr->undoneByApp($oApp, $rid);
+                    if (!empty($oResult->users)) {
+                        foreach ($oResult->users as $oUser) {
+                            if (!isset($aUsers[$oUser->userid])) {
+                                /* 清除不必要的数据 */
+                                unset($oUser->groupid);
+                                unset($oUser->uid);
+                                $aUsers[$oUser->userid] = $oUser;
+                            }
+                            $aUsers[$oUser->userid]->rounds[] = $rid;
+                            $aUsers[$oUser->userid]->undones[] = $oUser->undoneTasks;
+                            unset($oUser->undoneTasks);
                         }
-                        $aUsers[$oUser->userid]->rounds[] = $rid;
-                        $aUsers[$oUser->userid]->undones[] = $oUser->undoneTasks;
-                        unset($oUser->undoneTasks);
                     }
                 }
             }
@@ -976,9 +982,12 @@ class export extends record_base {
             $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '序号');
             $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '姓名');
             $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '分组');
-            foreach ($aRounds as $oRnd) {
-                $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, $oRnd->title);
+            if (isset($aRounds)) {
+                foreach ($aRounds as $oRnd) {
+                    $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, $oRnd->title);
+                }
             }
+
             $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '备注');
 
             $rowNumber = 2;
@@ -987,8 +996,10 @@ class export extends record_base {
                 $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $rowNumber - 1);
                 $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $oUndoneUser->nickname);
                 $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($oUndoneUser->group->title) ? $oUndoneUser->group->title : '');
-                foreach ($aRounds as $oRnd) {
-                    $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, in_array($oRnd->rid, $oUndoneUser->rounds) ? '是' : '');
+                if (isset($aRounds)) {
+                    foreach ($aRounds as $oRnd) {
+                        $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, in_array($oRnd->rid, $oUndoneUser->rounds) ? '是' : '');
+                    }
                 }
                 $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($oUndoneUser->absent_cause->cause) ? $oUndoneUser->absent_cause->cause : '');
 

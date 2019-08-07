@@ -941,8 +941,7 @@ class export extends record_base {
         }
 
         /* 未完成活动任务用户 */
-
-        if (empty(rids)) {
+        if (empty($rids)) {
             $oResult = $modelUsr->undoneByApp($oApp, 'ALL');
             $aUsers = $oResult->users;
         } else {

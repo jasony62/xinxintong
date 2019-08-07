@@ -602,7 +602,7 @@ class user_model extends \TMS_MODEL {
             $oGrpApp = $oEntryRule->group;
             $modelGrpRec = $this->model('matter\group\record');
             if (empty($oGrpApp->team->id)) {
-                $aGrpUsrOptions = ['fields' => 'userid,nickname,team_id,team_title,is_leader'];
+                $aGrpUsrOptions = ['fields' => 'userid,nickname,team_id,team_title,is_leader,data'];
                 if (isset($aOptions['inGroupTeam']) && true === $aOptions['inGroupTeam']) {
                     /* 主分组用户 */
                     $aGrpUsrOptions['teamId'] = 'inTeam';

@@ -105,7 +105,7 @@ class assoc_model extends entity_model {
             //
             if ($oAssoc->first_assoc_at === '0') {
                 $oUpdated['first_assoc_at'] = $current;
-                // 如果 就得关联内容已经没有人关联了，再次关联时应当更新关联内容
+                // 如果 旧的关联内容已经没有人关联了，再次关联时应当更新关联内容
                 $oUpdated['assoc_text'] = $assocText;
                 $oUpdated['assoc_reason'] = $assocReason;
                 $oUpdated['assoc_mode'] = $assocMode;
@@ -116,9 +116,18 @@ class assoc_model extends entity_model {
                 $oUpdated,
                 ['id' => $oAssoc->id]
             );
+            // 更新返回信息
             if ($rst) {
                 $oAssoc->last_assoc_at = $current;
                 $oAssoc->assoc_num++;
+                if ($oAssoc->first_assoc_at === '0') {
+                    $oAssoc->first_assoc_at = $current;
+                    // 如果 旧的关联内容已经没有人关联了，再次关联时应当更新关联内容
+                    $oAssoc->assoc_text = $assocText;
+                    $oAssoc->assoc_reason = $assocReason;
+                    $oAssoc->assoc_mode = $assocMode;
+                    $oAssoc->public = $isPublic;
+                }
             }
         } else {
             $oAssoc = new \stdClass;

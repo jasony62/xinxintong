@@ -1,22 +1,22 @@
 'use strict';
 var ngMod = angular.module('schema.ui.xxt', []);
-ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce, $parse) {
+ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function ($filter, $sce, $parse) {
     var _that = this,
         _mapOfSchemas;
-    this.config = function(schemas) {
+    this.config = function (schemas) {
         if (angular.isString(schemas)) {
             schemas = JSON.parse(schemas);
         }
         if (angular.isArray(schemas)) {
             _mapOfSchemas = {};
-            schemas.forEach(function(schema) {
+            schemas.forEach(function (schema) {
                 _mapOfSchemas[schema.id] = schema;
             });
         } else {
             _mapOfSchemas = schemas;
         }
     };
-    this.isEmpty = function(oSchema, value) {
+    this.isEmpty = function (oSchema, value) {
         if (value === undefined) {
             return true;
         }
@@ -33,13 +33,13 @@ ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce,
                 return value.length === 0;
         }
     };
-    this.checkRequire = function(oSchema, value) {
+    this.checkRequire = function (oSchema, value) {
         if (value === undefined || this.isEmpty(oSchema, value)) {
             return '请填写必填题目［' + oSchema.title + '］';
         }
         return true;
     };
-    this.checkFormat = function(oSchema, value) {
+    this.checkFormat = function (oSchema, value) {
         if (oSchema.format === 'number') {
             if (!/^-{0,1}[0-9]+(.[0-9]+){0,1}$/.test(value)) {
                 return '题目［' + oSchema.title + '］请输入数值';
@@ -59,13 +59,13 @@ ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce,
         }
         return true;
     };
-    this.checkCount = function(oSchema, value) {
+    this.checkCount = function (oSchema, value) {
         if (oSchema.count != 0 && oSchema.count !== undefined && value.length > oSchema.count) {
             return '［' + oSchema.title + '］超出上传数量（' + oSchema.count + '）限制';
         }
         return true;
     };
-    this.checkValue = function(oSchema, value) {
+    this.checkValue = function (oSchema, value) {
         var sCheckResult;
         if (oSchema.required && oSchema.required === 'Y') {
             if (true !== (sCheckResult = this.checkRequire(oSchema, value))) {
@@ -97,7 +97,7 @@ ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce,
         }
         return true;
     };
-    this.loadRecord = function(schemasById, dataOfPage, dataOfRecord) {
+    this.loadRecord = function (schemasById, dataOfPage, dataOfRecord) {
         if (!dataOfRecord) return false;
         var p, value;
         for (p in dataOfRecord) {
@@ -131,9 +131,9 @@ ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce,
     /**
      * 给页面中的提交数据填充用户通讯录数据
      */
-    this.autoFillMember = function(schemasById, oUser, oPageDataMember) {
+    this.autoFillMember = function (schemasById, oUser, oPageDataMember) {
         if (oUser.members) {
-            angular.forEach(schemasById, function(oSchema) {
+            angular.forEach(schemasById, function (oSchema) {
                 if (oSchema.mschema_id && oUser.members[oSchema.mschema_id]) {
                     var oMember, attr, val;
                     oMember = oUser.members[oSchema.mschema_id];
@@ -167,14 +167,14 @@ ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce,
     /**
      * 给页面中的提交数据填充题目默认值
      */
-    this.autoFillDefault = function(schemasById, oPageData) {
-        angular.forEach(schemasById, function(oSchema) {
+    this.autoFillDefault = function (schemasById, oPageData) {
+        angular.forEach(schemasById, function (oSchema) {
             if (oSchema.defaultValue && oPageData[oSchema.id] === undefined) {
                 oPageData[oSchema.id] = oSchema.defaultValue;
             }
         });
     };
-    this.value2Text = function(oSchema, value) {
+    this.value2Text = function (oSchema, value) {
         var label, aVal, aLab = [];
 
         if (label = value) {
@@ -193,7 +193,7 @@ ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce,
                             aVal.push(k);
                         }
                     }
-                    oSchema.ops.forEach(function(op) {
+                    oSchema.ops.forEach(function (op) {
                         aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
                     });
                     label = aLab.join(',');
@@ -204,13 +204,13 @@ ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce,
         }
         return label;
     };
-    this.value2Html = function(oSchema, val) {
+    this.value2Html = function (oSchema, val) {
         if (!val || !oSchema) return '';
 
         if (oSchema.ops && oSchema.ops.length) {
             if (oSchema.type === 'score') {
                 var label = '';
-                oSchema.ops.forEach(function(op, index) {
+                oSchema.ops.forEach(function (op, index) {
                     if (val[op.v] !== undefined) {
                         label += '<div>' + op.l + ':' + val[op.v] + '</div>';
                     }
@@ -220,7 +220,7 @@ ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce,
             } else if (angular.isString(val)) {
                 var aVal, aLab = [];
                 aVal = val.split(',');
-                oSchema.ops.forEach(function(op, i) {
+                oSchema.ops.forEach(function (op, i) {
                     aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
                 });
                 if (aLab.length) return aLab.join(',');
@@ -230,10 +230,10 @@ ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce,
         }
         return val;
     };
-    this.txtSubstitute = function(oTxtData) {
+    this.txtSubstitute = function (oTxtData) {
         return oTxtData.replace(/\n/g, '<br>');
     };
-    this.urlSubstitute = function(oUrlData) {
+    this.urlSubstitute = function (oUrlData) {
         var text;
         text = '';
         if (oUrlData) {
@@ -248,14 +248,14 @@ ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce,
 
         return text;
     };
-    this.optionsSubstitute = function(oSchema, value) {
+    this.optionsSubstitute = function (oSchema, value) {
         var val, aVal, aLab = [];
         if (val = value) {
             if (oSchema.ops && oSchema.ops.length) {
                 if (oSchema.type === 'score') {
                     var label = '',
                         flag = false;
-                    oSchema.ops.forEach(function(op, index) {
+                    oSchema.ops.forEach(function (op, index) {
                         if (val[op.v] !== undefined) {
                             label += '<div>' + op.l + ':' + val[op.v] + '</div>';
                             flag = false;
@@ -268,7 +268,7 @@ ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce,
                 } else if (oSchema.type === 'single' || oSchema.type === 'multiple') {
                     if (angular.isString(val)) {
                         aVal = val.split(',');
-                        oSchema.ops.forEach(function(op) {
+                        oSchema.ops.forEach(function (op) {
                             aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
                         });
                         val = aLab.join(',');
@@ -284,7 +284,11 @@ ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce,
         }
         return val;
     };
-    this.forTable = function(record, mapOfSchemas) {
+    this.dateSubstitute = function (value) {
+        if (!value || !parseInt(value)) return ''
+        return '<span>' + $filter('date')(value * 1000, 'yy-MM-dd HH:mm') + '</span>';
+    };
+    this.forTable = function (record, mapOfSchemas) {
         function _memberAttr(oMember, oSchema) {
             var keys, originalValue, afterValue;
             if (oMember) {
@@ -306,7 +310,7 @@ ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce,
                             case 'multiple':
                                 if (oSchema.ops && oSchema.ops.length) {
                                     afterValue = [];
-                                    oSchema.ops.forEach(function(op) {
+                                    oSchema.ops.forEach(function (op) {
                                         originalValue[op.v] && afterValue.push(op.l);
                                     });
                                     afterValue = afterValue.join(',');
@@ -402,19 +406,19 @@ ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce,
         var map;
         if (mapOfSchemas && angular.isArray(mapOfSchemas)) {
             map = {};
-            mapOfSchemas.forEach(function(oSchema) {
+            mapOfSchemas.forEach(function (oSchema) {
                 map[oSchema.id] = oSchema;
             });
             mapOfSchemas = map;
         }
         return _forTable(record, mapOfSchemas ? mapOfSchemas : _mapOfSchemas);
     };
-    this.forEdit = function(schema, data) {
+    this.forEdit = function (schema, data) {
         if (schema.type === 'file') {
             var files;
             if (data[schema.id] && data[schema.id].length) {
                 files = data[schema.id];
-                files.forEach(function(file) {
+                files.forEach(function (file) {
                     if (file.url && angular.isString(file.url)) {
                         file.url && $sce.trustAsUrl(file.url);
                     }
@@ -426,7 +430,7 @@ ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce,
                 value;
             if (data[schema.id] && data[schema.id].length) {
                 value = data[schema.id].split(',')
-                value.forEach(function(p) {
+                value.forEach(function (p) {
                     obj[p] = true;
                 });
             }
@@ -436,7 +440,7 @@ ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce,
                 obj = [];
             if (value && value.length) {
                 value = value.split(',');
-                value.forEach(function(p) {
+                value.forEach(function (p) {
                     obj.push({
                         imgSrc: p
                     });
@@ -448,7 +452,7 @@ ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce,
         return data;
     };
     /* 将1条记录的所有指定题目的数据变成字符串 */
-    this.strRecData = function(oRecData, schemas, oOptions) {
+    this.strRecData = function (oRecData, schemas, oOptions) {
         var str, schemaData, fnSchemaFilter, fnDataFilter;
 
         if (!schemas || schemas.length === 0) {
@@ -463,14 +467,14 @@ ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce,
         }
 
         str = '';
-        schemas.forEach(function(oSchema) {
+        schemas.forEach(function (oSchema) {
             if (!fnSchemaFilter || fnSchemaFilter(oSchema)) {
                 schemaData = $parse(oSchema.id)(oRecData);
                 switch (oSchema.type) {
                     case 'image':
                         if (schemaData && schemaData.length) {
                             str += '<span>';
-                            schemaData.forEach(function(imgSrc) {
+                            schemaData.forEach(function (imgSrc) {
                                 str += '<img src="' + imgSrc + '" />';
                             });
                             str += '</span>';
@@ -478,7 +482,7 @@ ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce,
                         break;
                     case 'file':
                         if (schemaData && schemaData.length) {
-                            schemaData.forEach(function(oFile) {
+                            schemaData.forEach(function (oFile) {
                                 str += '<span><a href="' + oFile.url + '" target="_blank">' + oFile.name + '</a></span>';
                             });
                         }
@@ -511,10 +515,10 @@ ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function($filter, $sce,
      * 通信录记录中的扩展属性转化为用户可读内容
      */
     this.member = {
-        getExtattrsUIValue: function(schemas, oMember) {
+        getExtattrsUIValue: function (schemas, oMember) {
             var oExtattrUIValue = {};
 
-            schemas.forEach(function(oExtAttr) {
+            schemas.forEach(function (oExtAttr) {
                 if (/single|multiple/.test(oExtAttr.type)) {
                     if (oMember.extattr[oExtAttr.id]) {
                         oExtattrUIValue[oExtAttr.id] = _that.value2Text(oExtAttr, oMember.extattr[oExtAttr.id]);

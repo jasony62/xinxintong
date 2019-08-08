@@ -49,7 +49,7 @@ class register extends \site\fe\base {
 		$password = \TMS_MODEL::unescape($data->password);
 		$rst = tms_pwd_check($password, ['account' => $uname]);
 		if ($rst[0] === false) {
-			return new \ResponseError($rst[1]);
+			return new \ResponseError("密码不符合要求或有风险，请重新输入");
 		}
 
 		$modelWay = $this->model('site\fe\way');

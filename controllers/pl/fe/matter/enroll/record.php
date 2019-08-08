@@ -127,13 +127,13 @@ class record extends record_base {
     /**
      * 指定活动轮次的记录的数量
      */
-    public function countByRound_action($round) {
+    public function countByRound_action($rid) {
         if (false === $this->accountUser()) {
             return new \ResponseTimeout();
         }
 
         $modelRnd = $this->model('matter\enroll\round');
-        $oRound = $modelRnd->byId($round, ['fields' => 'rid']);
+        $oRound = $modelRnd->byId($rid, ['fields' => 'rid']);
         if (false === $oRound) {
             return new \ObjectNotFoundError();
         }
@@ -266,7 +266,7 @@ class record extends record_base {
         return new \ResponseData($renewCount);
     }
     /**
-     * 更新指定活动下所有记录的得分
+     * 更新指定活动下指定记录的得分
      */
     public function renewScore_action($app, $ek) {
         if (false === ($oUser = $this->accountUser())) {

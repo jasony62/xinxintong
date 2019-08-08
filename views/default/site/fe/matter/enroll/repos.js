@@ -232,10 +232,14 @@ ngApp.controller('ctrlRepos', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'e
             _facRound.list().then(function(result) {
                 $scope.rounds = result.rounds;
             });
-            _oApp.dynaDataSchemas.forEach(function(oSchema) {
+            $scope.imageSchemas = [];
+            _oApp.dynaDataSchemas.forEach(function (oSchema) {
                 if (oSchema.shareable === 'Y') {
                     $scope.schemaCounter++;
                     _aShareableSchemas.push(oSchema);
+                }
+                if (oSchema.type === 'image') {
+                    $scope.imageSchemas.push(oSchema)
                 }
                 if (Object.keys(oSchema).indexOf('cowork') !== -1 && oSchema.cowork === 'Y') {
                     $scope.schemaCounter--;
@@ -322,7 +326,47 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
             $scope.recordList(1);
         });
     };
-    $scope.recordList = function(pageAt) {
+    // 处理需要异步加载的图片数据
+    if ($scope.imageSchemas && $scope.imageSchemas.length) {
+        var AsyncImage = (function () {
+            function loadOneImage(urls, defer) {
+                var url = urls.shift();
+                if (url) {
+                    var image = new Image();
+                    image.src = url;
+                    image.onload = function () {
+                        urls.length ? loadOneImage(urls, defer) : defer.resolve();
+                    }
+                }
+            }
+            var cachedImages = [];
+            var ins = {
+                cacheImage: function (oRecord) {
+                    $scope.imageSchemas.forEach(function (oSchema) {
+                        if (oRecord.data[oSchema.id]) {
+                            cachedImages.push([oSchema.id, oRecord.data[oSchema.id], oRecord.data])
+                            oRecord.data[oSchema.id] = '_loading';
+                        }
+                    })
+                },
+                loadImage: function (defer) {
+                    var aImageData = cachedImages.shift();
+                    if (aImageData) {
+                        var imageUrls = aImageData[1].split(',');
+                        var defer2 = $q.defer();
+                        loadOneImage(imageUrls, defer2);
+                        defer2.promise.then(function () {
+                            aImageData[2][aImageData[0]] = aImageData[1];
+                            cachedImages.length ? ins.loadImage(defer) : defer.resolve()
+                        });
+                    }
+                }
+            }
+            return ins;
+        })()
+    }
+
+    $scope.recordList = function (pageAt) {
         var url, deferred;
         deferred = $q.defer();
 
@@ -339,14 +383,22 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
             if (result.data.records) {
                 result.data.records.forEach(function(oRecord) {
                     $scope.repos.push(oRecord);
+                    if (AsyncImage) AsyncImage.cacheImage(oRecord);
                 });
             }
-            $timeout(function() {
-                var imgs;
-                if (imgs = document.querySelectorAll('.data img')) {
-                    picviewer.init(imgs);
-                }
-            });
+            if (AsyncImage)
+                $timeout(function () {
+                    var defer = $q.defer();
+                    AsyncImage.loadImage(defer)
+                    defer.promise.then(function () {
+                        $timeout(function () {
+                            var imgs;
+                            if (imgs = document.querySelectorAll('.data img')) {
+                                picviewer.init(imgs);
+                            }
+                        });
+                    });
+                });
             $scope.reposLoading = false;
             deferred.resolve(result);
         });
@@ -452,6 +504,10 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
     $scope.remarkRecord = function(oRecord, event) {
         event.stopPropagation();
         event.preventDefault();
+        console.log('event-rr', event)
+        var target = event.target;
+        if (target.getAttribute('ng-click') || target.parentNode.getAttribute('ng-click')) return;
+        if (/button/i.test(target.tagName) || /button/i.test(target.parentNode.tagName)) return;
 
         addToCache();
         var url;

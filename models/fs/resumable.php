@@ -105,12 +105,28 @@ class resumable_model {
             }
         }
 
-        return [true];
-    }
-    /**
-     * 处理分段上传的请求
-     */
-    public function handleRequest($aResumabled) {
+		return [true];
+	}
+	/**
+	 * 处理分段上传的请求
+	 */
+	public function handleRequest($aResumabled) {
+		// 文件大小限制
+		if (TMS_UPLOAD_FILE_MAXSIZE > 0) {
+			$maxSize = (int) TMS_UPLOAD_FILE_MAXSIZE * 1024 * 1024;
+			if ($aResumabled['resumableTotalSize'] > $maxSize) {
+				return [false, '文件上传失败，超出最大值' . TMS_UPLOAD_FILE_MAXSIZE . 'M'];
+			}
+		}
+		// 限制文件类型 白名单
+		if (defined('TMS_UPLOAD_FILE_CONTENTTYPE_WHITE') && !empty(TMS_UPLOAD_FILE_CONTENTTYPE_WHITE)) {
+			$contentType = explode(',', TMS_UPLOAD_FILE_CONTENTTYPE_WHITE);
+			$oFileType = substr($aResumabled['resumableFilename'], strrpos($aResumabled['resumableFilename'], '.') + 1);
+			if (!in_array($oFileType, $contentType)) {
+				return [false, '文件上传失败，只支持' . TMS_UPLOAD_FILE_CONTENTTYPE_WHITE . '格式的文件'];
+			}
+        }
+        
         $localFs = \TMS_APP::M('fs/local', $this->siteId, '_resumable');
         $chunkNumber = $aResumabled['resumableChunkNumber'];
         $filename = str_replace(' ', '_', $aResumabled['resumableFilename']);
@@ -126,5 +142,5 @@ class resumable_model {
             $rsp = $this->_createFileFromChunks($absChunkDir, $filename, $aResumabled['resumableTotalChunks'], $aResumabled['resumableTotalSize']);
             return $rsp;
         }
-    }
+	}
 }

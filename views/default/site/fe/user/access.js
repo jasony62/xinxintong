@@ -27,6 +27,7 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
         $scope.supportLocalStorage = 'N';
         document.querySelector('[ng-model="data.uname"]').focus();
     }
+<<<<<<< HEAD
     $scope.toggleVisible = function(event) {
         var target = event.target;
         if (target.tagName === 'SPAN' || ((target = target.parentNode) && target.tagName === 'SPAN')) {
@@ -40,6 +41,22 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
             }
         }
     }
+=======
+
+    if (window.sessionStorage) {
+        var oSessionCached;
+        if (window.sessionStorage.getItem('xxt.pl.protect.system')) {
+            oSessionCached = window.sessionStorage.getItem('xxt.pl.protect.system');
+            oSessionCached = JSON.parse(oSessionCached);
+        } else {
+            $http.get("/tmsappconfig.php").then(function(rsp) {
+                oSessionCached = rsp.data;
+                window.sessionStorage.setItem('xxt.pl.protect.system', JSON.stringify(oSessionCached));
+            });
+        }
+    }
+
+>>>>>>> 2e18f39a1a3a7a47fc4f16c893d79e80c210aa54
     $scope.login = function() {
         if ($scope.loginData.password) {
             $http.post('/rest/site/fe/user/login/do?site=' + _siteId, $scope.loginData).success(function(rsp) {
@@ -64,6 +81,14 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
                         window.localStorage.setItem('xxt.login.gotoConsole', 'Y');
                     } else {
                         window.localStorage.setItem('xxt.login.gotoConsole', 'N');
+                    }
+                    if (oSessionCached.noHookMaxTime && oSessionCached.noHookMaxTime > 0) {
+                        var oStorage, oCached, intervaltime;
+                        if (oStorage = window.localStorage) {
+                            oCached = {};
+                            oCached.lasttime = new Date() * 1;
+                            oStorage.setItem('xxt.pl.protect.event.trace', JSON.stringify(oCached));
+                        }
                     }
                     if (window.parent && window.parent.onClosePlugin) {
                         window.parent.onClosePlugin(rsp.data);

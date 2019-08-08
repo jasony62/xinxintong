@@ -45,7 +45,7 @@ class assoc extends base {
 		if (isset($oPosted->assoc->reason)) {
 			$aOptions['assocReason'] = $oPosted->assoc->reason;
 		}
-		if (isset($oPosted->assoc->mode) && $modelAss::Assoc_Mode[$oPosted->assoc->mode]) {
+		if (isset($oPosted->assoc->mode) && $modelAss::ASSOC_MODE[$oPosted->assoc->mode]) {
 			$aOptions['assocMode'] = $oPosted->assoc->mode;
 		}
 		if (isset($oPosted->assoc->public) && in_array($oPosted->assoc->public, ['Y', 'N'])) {
@@ -113,8 +113,8 @@ class assoc extends base {
 				$aUpdatedLog['assoc_reason'] = $oPosted->reason;
 				break;
 			case 'mode':
-				if (isset($modelAss::Assoc_Mode[$val])) {
-					$aUpdated['assoc_mode'] = $modelAss::Assoc_Mode[$val];
+				if (isset($modelAss::ASSOC_MODE[$val])) {
+					$aUpdated['assoc_mode'] = $modelAss::ASSOC_MODE[$val];
 				}
 				break;
 			case 'public':

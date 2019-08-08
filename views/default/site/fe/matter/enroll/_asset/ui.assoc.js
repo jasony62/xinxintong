@@ -151,7 +151,7 @@ ngMod.service('enlAssoc', ['$q', '$uibModal', 'noticebox', 'http2', 'tmsLocation
                 $scope.ok = function() {
                     var oPosted, oMatter;
                     if (oMatter = _oResult.matter) {
-                        _oAssoc.text = oMatter.title;
+                        _oAssoc.text = _oResult.retitle;
                         oPosted = {};
                         oPosted.assoc = _oAssoc;
                         oPosted.entityA = { id: oEntity.id, type: oEntity.type };

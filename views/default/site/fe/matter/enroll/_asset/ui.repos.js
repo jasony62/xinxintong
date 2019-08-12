@@ -115,6 +115,9 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function ($templateCach
                                 case 'longtext':
                                     oRecord.data[oSchema.id] = tmsSchema.txtSubstitute(schemaData);
                                     break;
+                                case 'date':
+                                    oRecord.data[oSchema.id] = tmsSchema.dateSubstitute(schemaData);
+                                    break;
                                 case 'url':
                                     schemaData._text = tmsSchema.urlSubstitute(schemaData);
                                     break;

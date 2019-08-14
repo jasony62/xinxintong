@@ -6,3 +6,7 @@
 .avatar span{width: 100px;height: 21px;line-height: 21px;color: #fff;position: absolute;bottom:0;left: 0;font-size:10px;text-align: center;opacity: .7;background-color:#000;}
 .avatar .nickname{height:4em;line-height:4em;}
 .subscription .badge-new{margin-left:.5em;background:#dd0000;display:inline-block;width:8px;height:8px;border-radius:3px;}
+.form-group.pwd {position:relative;}
+.form-group.pwd > span{display:block;position:absolute;bottom:10%;right:10px;cursor:pointer;}
+.form-group.pwd > span.registerpwd{bottom: 36%;}
+.form-group.pwd > span.repeatpwd{bottom: 50%;}

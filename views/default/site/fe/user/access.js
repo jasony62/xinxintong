@@ -27,7 +27,19 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
         $scope.supportLocalStorage = 'N';
         document.querySelector('[ng-model="data.uname"]').focus();
     }
-
+    $scope.toggleVisible = function(event) {
+        var target = event.target;
+        if (target.tagName === 'SPAN' || ((target = target.parentNode) && target.tagName === 'SPAN')) {
+            var childEle = target.querySelector("i");
+            if (childEle.getAttribute("class") === "glyphicon glyphicon-eye-close") {
+                childEle.setAttribute("class", "glyphicon glyphicon-eye-open");
+                target.previousElementSibling.setAttribute("type", "text");
+            } else {
+                childEle.setAttribute("class", "glyphicon glyphicon-eye-close");
+                target.previousElementSibling.setAttribute("type", "password");
+            }
+        }
+    }
     if (window.sessionStorage) {
         var oSessionCached;
         if (window.sessionStorage.getItem('xxt.pl.protect.system')) {
@@ -40,7 +52,6 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
             });
         }
     }
-
     $scope.login = function() {
         if ($scope.loginData.password) {
             $http.post('/rest/site/fe/user/login/do?site=' + _siteId, $scope.loginData).success(function(rsp) {

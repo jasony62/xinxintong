@@ -326,7 +326,6 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
             $scope.recordList(1);
         });
     };
-
     // 处理需要异步加载的图片数据
     if ($scope.imageSchemas && $scope.imageSchemas.length) {
         var AsyncImage = (function () {

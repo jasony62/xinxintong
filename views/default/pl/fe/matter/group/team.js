@@ -88,7 +88,7 @@ define(['frame'], function(ngApp) {
             return labels.join(',');
         };
         $scope.saveTargets = function(oTeam) {
-            $scope.updateRound(oTeam, 'targets');
+            $scope.updateTeam(oTeam, 'targets');
         };
     }]);
 });

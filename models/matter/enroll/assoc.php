@@ -102,17 +102,32 @@ class assoc_model extends entity_model {
                 'last_assoc_at' => $current,
                 'assoc_num' => (object) ['op' => '+=', 'pat' => 1],
             ];
+            //
             if ($oAssoc->first_assoc_at === '0') {
                 $oUpdated['first_assoc_at'] = $current;
+                // 如果 旧的关联内容已经没有人关联了，再次关联时应当更新关联内容
+                $oUpdated['assoc_text'] = $assocText;
+                $oUpdated['assoc_reason'] = $assocReason;
+                $oUpdated['assoc_mode'] = $assocMode;
+                $oUpdated['public'] = $isPublic;
             }
             $rst = $this->update(
                 'xxt_enroll_assoc',
                 $oUpdated,
                 ['id' => $oAssoc->id]
             );
+            // 更新返回信息
             if ($rst) {
                 $oAssoc->last_assoc_at = $current;
                 $oAssoc->assoc_num++;
+                if ($oAssoc->first_assoc_at === '0') {
+                    $oAssoc->first_assoc_at = $current;
+                    // 如果 旧的关联内容已经没有人关联了，再次关联时应当更新关联内容
+                    $oAssoc->assoc_text = $assocText;
+                    $oAssoc->assoc_reason = $assocReason;
+                    $oAssoc->assoc_mode = $assocMode;
+                    $oAssoc->public = $isPublic;
+                }
             }
         } else {
             $oAssoc = new \stdClass;

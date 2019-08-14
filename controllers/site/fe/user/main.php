@@ -212,7 +212,7 @@ class main extends \site\fe\base {
 				// 校验密码安全
 				$rst = tms_pwd_check($data->newPassword, ['account' => $registration->uname]);
 				if ($rst[0] === false) {
-					return new \ResponseError($rst[1]);
+					return new \ResponseError("密码不符合要求或有风险，请重新输入");
 				}
 				// 校验原密码
 				$pw_hash = $modelReg->compile_password($registration->uname, $data->oldPassword, $registration->salt);

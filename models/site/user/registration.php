@@ -163,7 +163,7 @@ class registration_model extends \TMS_MODEL {
 			$residueTime = $oRegistration->login_limit_expire - $current;
 			$residue = ($residueTime > 60) ? round($residueTime / 60) . '分' : $residueTime . '秒';
 
-			return [false, '用户名或密码错误次数超过【' . TMS_APP_PASSWORD_ERROR_MAXNUM . '】次，请在【' . $residue . '】后再次尝试'];
+			return [false, '密码错误次数超过【' . TMS_APP_PASSWORD_ERROR_MAXNUM . '】次，请在【' . $residue . '】后再次尝试'];
 		}
 		// 校验密码
 		$pw_hash = $this->compile_password($uname, $password, $oRegistration->salt);
@@ -173,7 +173,7 @@ class registration_model extends \TMS_MODEL {
 				if ($errorNum < TMS_APP_PASSWORD_ERROR_MAXNUM) {
 					$this->update('account', ['pwd_error_num' => $errorNum], ['uid' => $oRegistration->unionid]);
 
-					return [false, '用户名或密码错误，错误次数超过【' . TMS_APP_PASSWORD_ERROR_MAXNUM . '】次后，将锁定登录【' . TMS_APP_PASSWORD_ERROR_AUTHLOCK_EXPIRE . '】分钟, 剩余【' . (TMS_APP_PASSWORD_ERROR_MAXNUM - $errorNum) . '】次'];
+					return [false, '密码错误，错误次数超过【' . TMS_APP_PASSWORD_ERROR_MAXNUM . '】次后，将锁定登录【' . TMS_APP_PASSWORD_ERROR_AUTHLOCK_EXPIRE . '】分钟, 剩余【' . (TMS_APP_PASSWORD_ERROR_MAXNUM - $errorNum) . '】次'];
 				} else {
 					// 锁定登录, 错误次数归零。
 					$authLock = TMS_APP_PASSWORD_ERROR_AUTHLOCK_EXPIRE;
@@ -188,7 +188,7 @@ class registration_model extends \TMS_MODEL {
 					];
 					$this->update('account', $updata, ['uid' => $oRegistration->unionid]);
 
-					return [false, '用户名或密码错误次数超过【' . TMS_APP_PASSWORD_ERROR_MAXNUM . '】次，请在【' . $authLock . '】分钟后再次尝试'];
+					return [false, '密码错误次数超过【' . TMS_APP_PASSWORD_ERROR_MAXNUM . '】次，请在【' . $authLock . '】分钟后再次尝试'];
 				}
 			} else {
 				return [false, '用户名或密码错误'];

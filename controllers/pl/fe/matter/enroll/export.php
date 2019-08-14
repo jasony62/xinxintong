@@ -409,7 +409,7 @@ class export extends record_base {
         $oOptions->record = new \stdClass;
         $oOptions->record->rid = empty($rid) ? 'all' : explode(',', $rid);
         $oResult = $this->model('matter\enroll\record')->byApp($oApp, $aOptions2, $oOptions);
-        if ($oResult->total === 0) {
+        if (empty($oResult->records)) {
             die('填写记录为空');
         }
         $records = $oResult->records;

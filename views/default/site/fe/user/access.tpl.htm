@@ -12,11 +12,22 @@
         .nav-tabs {
             border-bottom: 1px solid transparent;
         }
-
         .panel-default {
             border: 0;
         }
-
+        .form-group.pwd {
+            position: relative;
+        }
+        .form-group.pwd > span{
+            display: block;
+            position: absolute;
+            bottom: 10%;
+            right: 5px;
+            cursor: pointer;
+        }
+        .form-group.pwd > span.registerpwd{
+            bottom: 36%;
+        }
         .third-login li {
             cursor: pointer;
         }
@@ -60,9 +71,10 @@
                                     <label>帐号名称</label>
                                     <input type="text" class='form-control' name='uname' placeholder='输入用于登录的帐号名' ng-model='loginData.uname' required />
                                 </div>
-                                <div class='form-group'>
+                                <div class='form-group pwd'>
                                     <label>登录密码</label>
                                     <input type='password' class='form-control' name='password' ng-model='loginData.password' placeholder='输入8-16位登录密码' required />
+                                    <span ng-click="toggleVisible($event)"><i class="glyphicon glyphicon-eye-close"></i></span>
                                 </div>
                                 <div class="form-group">
                                     <label>验证码</label>
@@ -113,14 +125,16 @@
                                     <label>帐号昵称</label>
                                     <input type="text" class='form-control' name='nickname' placeholder='帐号昵称' ng-model="registerData.nickname">
                                 </div>
-                                <div class='form-group'>
+                                <div class='form-group pwd'>
                                     <label>登录密码</label>
                                     <input type='password' class='form-control' name='password' ng-model='registerData.password' placeholder='输入登录密码' required />
+                                    <span class="registerpwd" ng-click="toggleVisible($event)"><i class="glyphicon glyphicon-eye-close"></i></span>
                                     <p class='help-block'>输入8-16位密码(需包含数字、字母、特殊字符)</p>
                                 </div>
-                                <div class='form-group'>
+                                <div class='form-group pwd'>
                                     <label>重复密码</label>
                                     <input type='password' class='form-control' ng-pattern="repeatPwd" name='password2' ng-model='registerData.password2' placeholder='再次输入登录密码' required />
+                                    <span ng-click="toggleVisible($event)"><i class="glyphicon glyphicon-eye-close"></i></span>
                                 </div>
                                 <hr>
                                 <div class='form-group'>

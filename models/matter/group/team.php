@@ -2,7 +2,9 @@
 namespace matter\group;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
-
+/**
+ * 用户分组
+ */
 class team_model extends \matter\base_model {
     /**
      *

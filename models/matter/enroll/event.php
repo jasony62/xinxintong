@@ -355,6 +355,14 @@ class event_model extends \TMS_MODEL {
 
         /* 更新项目用户数据 */
         if (!empty($oApp->mission_id)) {
+            $oMission = $this->model('matter\mission')->byId($oApp->mission_id, ['fields' => 'siteid,id,user_app_type,user_app_id']);
+            if ($oMission) {
+                $modelMisGrp = $this->model('matter\mission\group')->setOnlyWriteDbConn(true);
+                $oMisGrp = $modelMisGrp->byId($oMission, $groupId, ['fields' => '*']);
+                if ($oMisGrp) {
+                    $modelMisGrp->modify($oMisGrp, $oUpdatedEnlGrpData);
+                }
+            }
         }
 
         return true;

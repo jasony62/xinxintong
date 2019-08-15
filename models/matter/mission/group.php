@@ -7,14 +7,13 @@ class group_model extends \TMS_MODEL {
     /**
      * 获得指定活动下的指定用户
      */
-    public function byId($oApp, $groupId, $aOptions = []) {
+    public function byId($oMis, $groupId, $aOptions = []) {
         $fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
         $q = [
             $fields,
             'xxt_mission_group',
-            ['aid' => $oApp->id, 'group_id' => $groupId],
+            ['mission_id' => $oMis->id, 'group_id' => $groupId],
         ];
-        $q[2]['rid'] = isset($aOptions['rid']) ? $aOptions['rid'] : 'ALL';
 
         $oGroup = $this->query_obj_ss($q);
 
@@ -23,17 +22,17 @@ class group_model extends \TMS_MODEL {
     /**
      * 修改用户组汇总数据
      */
-    public function modify($oMisUser, $oUpdatedData) {
-        if (empty($oMisUser->siteid) || empty($oMisUser->mission_id) || empty($oMisUser->group_id)) {
+    public function modify($oMisGrp, $oUpdatedData) {
+        if (empty($oMisGrp->siteid) || empty($oMisGrp->mission_id) || empty($oMisGrp->group_id)) {
             return false;
         }
 
-        $oBeforeGroup = $this->query_obj_ss(['*', 'xxt_mission_group', ['mission_id' => $oMisUser->mission_id, 'group_id' => $oMisUser->group_id]]);
+        $oBeforeGroup = $this->query_obj_ss(['*', 'xxt_mission_group', ['mission_id' => $oMisGrp->mission_id, 'group_id' => $oMisGrp->group_id]]);
         if (false === $oBeforeGroup) {
             $oBeforeGroup = new \stdClass;
-            $oBeforeGroup->siteid = $oMisUser->siteid;
-            $oBeforeGroup->mission_id = $oMisUser->mission_id;
-            $oBeforeGroup->group_id = $oMisUser->group_id;
+            $oBeforeGroup->siteid = $oMisGrp->siteid;
+            $oBeforeGroup->mission_id = $oMisGrp->mission_id;
+            $oBeforeGroup->group_id = $oMisGrp->group_id;
             $oBeforeGroup->id = $this->insert('xxt_mission_group', $oBeforeGroup, true);
         }
 
@@ -64,6 +63,7 @@ class group_model extends \TMS_MODEL {
             case 'agree_cowork_num':
             case 'agree_remark_num':
             case 'user_total_coin':
+            case 'group_total_coin':
             case 'topic_num':
             case 'do_repos_read_num':
             case 'do_topic_read_num':
@@ -85,7 +85,6 @@ class group_model extends \TMS_MODEL {
                 break;
             }
         }
-
         if (!empty($aDbData)) {
             $rst = $this->update('xxt_mission_group', $aDbData, ['id' => $oBeforeGroup->id]);
         }

@@ -219,12 +219,6 @@
                                     <label>分数：</label>
                                     <input type='text' class='form-control' ng-disabled="['single','multiple'].indexOf(schema.type)!==-1" ng-model="quizScore[schema.id]" style='width:64px'>
                                 </div>
-                                <div ng-if="schema.shareable==='Y'">
-                                    <span>赞同（{{record.verbose[schema.id].like_num||0}}）</span>
-                                </div>
-                                <div ng-if="schema.shareable==='Y'">
-                                    <span ng-bind="::CstNaming.enroll.agreed[record.verbose[schema.id].agreed]"></span>
-                                </div>
                             </div>
                         </div>
                     </div>

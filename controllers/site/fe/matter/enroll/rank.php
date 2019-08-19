@@ -257,7 +257,11 @@ class rank extends base {
             $sql .= 'sum(do_like_num)';
             break;
         case 'total_coin':
+        case 'average_total_coin':
             $sql .= 'sum(user_total_coin)';
+            break;
+        case 'group_total_coin':
+            $sql .= 'group_total_coin';
             break;
         case 'score':
         case 'average_score':
@@ -272,8 +276,11 @@ class rank extends base {
         default:
             return new \ParameterError('不支持的排行数据类型【' . $oCriteria->orderby . '】');
         }
-
-        $sql .= ' from xxt_enroll_user where aid=\'' . $oApp->id . "' and state=1";
+        if ($oCriteria->orderby === 'group_total_coin') {
+            $sql .= ' from xxt_enroll_group where aid=\'' . $oApp->id . "' and state=1";
+        } else {
+            $sql .= ' from xxt_enroll_user where aid=\'' . $oApp->id . "' and state=1";
+        }
         if (!empty($oCriteria->round) && is_string($oCriteria->round)) {
             $oCriteria->round = explode(',', $oCriteria->round);
         }
@@ -294,7 +301,7 @@ class rank extends base {
             $oUserGroup->title = $oUserGroup->l;
             unset($oUserGroup->v);
             unset($oUserGroup->l);
-            if (in_array($oCriteria->orderby, ['score', 'average_score'])) {
+            if (in_array($oCriteria->orderby, ['score', 'average_score', 'average_total_coin'])) {
                 if ($oCriteria->orderby === 'score') {
                     $oUserGroup->num = round((float) $modelUsr->query_value($sqlByGroup), 2);
                 } else {
@@ -370,15 +377,17 @@ class rank extends base {
         if ($oApp === false || $oApp->state !== '1') {
             return new \ObjectNotFoundError();
         }
-        $userGroups = $this->_getUserGroups($oApp);
-        if (empty($userGroups)) {
-            return new \ObjectNotFoundError();
-        }
 
         $oCriteria = $this->getPostJson();
         if (empty($oCriteria->orderby)) {
             return new \ParameterError();
         }
+
+        $userGroups = $this->_getUserGroups($oApp);
+        if (empty($userGroups)) {
+            return new \ObjectNotFoundError();
+        }
+
         if (0 === strpos($oCriteria->orderby, 'schema_')) {
             $oResult = $this->_groupByRecord($oApp, $oCriteria, $userGroups);
         } else {

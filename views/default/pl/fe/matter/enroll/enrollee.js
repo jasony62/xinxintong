@@ -73,9 +73,9 @@ define(['frame'], function (ngApp) {
             $scope.searchEnrollee(1);
         };
         $scope.export = function () {
-            var url = '/rest/pl/fe/matter/enroll/user/export';
+            var url = '/rest/pl/fe/matter/enroll/export/user';
             url += '?app=' + $scope.app.id;
-            url += '&rids=' + _oCriteria.rids;
+            if (_oCriteria.rids) url += '&rids=' + _oCriteria.rids;
             window.open(url);
         };
         $scope.notify = function (isBatch) {

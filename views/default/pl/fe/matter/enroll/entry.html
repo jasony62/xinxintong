@@ -73,10 +73,26 @@
                             <label>排行榜提供的排行数据</label>
                             <div>
                                 <label class='checkbox-inline'>
-                                    <input type='checkbox' ng-model="rankConfig.scope.total_coin">积分
+                                    <input type='checkbox' ng-model="rankConfig.scope.total_coin">用户积分
                                 </label>
                                 <label class='radio-inline'>
                                     <input type='radio' name='defaultRankItem' value='total_coin' ng-model="rankConfig.defaultItem">默认
+                                </label>
+                            </div>
+                            <div>
+                                <label class='checkbox-inline'>
+                                    <input type='checkbox' ng-model="rankConfig.scope.average_total_coin">分组用户平均积分
+                                </label>
+                                <label class='radio-inline'>
+                                    <input type='radio' name='defaultRankItem' value='average_total_coin' ng-model="rankConfig.defaultItem">默认
+                                </label>
+                            </div>
+                            <div>
+                                <label class='checkbox-inline'>
+                                    <input type='checkbox' ng-model="rankConfig.scope.group_total_coin">分组积分
+                                </label>
+                                <label class='radio-inline'>
+                                    <input type='radio' name='defaultRankItem' value='group_total_coin' ng-model="rankConfig.defaultItem">默认
                                 </label>
                             </div>
                             <div>

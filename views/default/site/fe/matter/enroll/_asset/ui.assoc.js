@@ -151,7 +151,7 @@ ngMod.service('enlAssoc', ['$q', '$uibModal', 'noticebox', 'http2', 'tmsLocation
                 $scope.ok = function() {
                     var oPosted, oMatter;
                     if (oMatter = _oResult.matter) {
-                        _oAssoc.text = oMatter.title;
+                        _oAssoc.text = _oResult.retitle;
                         oPosted = {};
                         oPosted.assoc = _oAssoc;
                         oPosted.entityA = { id: oEntity.id, type: oEntity.type };
@@ -162,6 +162,10 @@ ngMod.service('enlAssoc', ['$q', '$uibModal', 'noticebox', 'http2', 'tmsLocation
                     }
                 };
                 $scope.cancel = function() { $mi.dismiss(); };
+                $scope.$watch('result.matter', function(nv) {
+                    if(!nv) return;
+                    $scope.result.retitle = nv.title;
+                });
             }],
             backdrop: 'static',
             windowClass: 'auto-height',

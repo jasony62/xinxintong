@@ -1071,7 +1071,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
                                 var BaseDownloadUrl = '/rest/pl/fe/matter/enroll/export/image?site=' + _siteId + '&app=' + _appId + '&rid=' + rid;
 
                                 function downloadUrl(step) {
-                                    return BaseDownloadUrl + '&range=' + (step * oBatch.size + 1) + ',' + oBatch.size
+                                    return BaseDownloadUrl + '&range=' + (step + 1) + ',' + oBatch.size
                                 }
                                 var oBatch, files;
                                 $scope2.batch = oBatch = {

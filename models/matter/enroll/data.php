@@ -352,28 +352,22 @@ class data_model extends entity_model {
                                     }
                                 }
                                 /* 新上传的文件 */
-                                if (defined('APP_FS_USER') && APP_FS_USER === 'ali-oss') {
-                                    $fsAli = $this->model('fs/alioss', $oApp->siteid);
-                                    $dest = '/enroll/' . $oApp->id . '/' . $submitkey . '_' . $oFile->name;
-                                    $fileUploaded2 = $fsAli->getBaseURL() . $dest;
-                                } else {
-                                    $fsResum = $this->model('fs/local', $oApp->siteid, '_resumable');
-                                    $fileUploaded = $fsResum->rootDir . '/enroll/' . $oApp->id . '/' . $submitkey . '_' . $oFile->name;
-                                    $fsUser = $this->model('fs/local', $oApp->siteid, '_user');
-                                    $dirUploaded = $fsUser->rootDir . '/' . $submitkey;
-                                    if (!file_exists($dirUploaded)) {
-                                        if (false === mkdir($dirUploaded, 0777, true)) {
-                                            return [false, '创建文件上传目录失败'];
-                                        }
+                                $fsResum = $this->model('fs/local', $oApp->siteid, '_resumable');
+                                $fileUploaded = $fsResum->rootDir . '/enroll/' . $oApp->id . '/' . $submitkey . '_' . $oFile->name;
+                                $fsUser = $this->model('fs/local', $oApp->siteid, '_user');
+                                $dirUploaded = $fsUser->rootDir . '/' . $submitkey;
+                                if (!file_exists($dirUploaded)) {
+                                    if (false === mkdir($dirUploaded, 0777, true)) {
+                                        return [false, '创建文件上传目录失败'];
                                     }
-                                    if (!file_exists($fileUploaded)) {
-                                        return [false, '上传文件没有被正确保存'];
-                                    }
-                                    /* 如果同一次提交中包含相同的文件，文件只会上传一次，并且被改名 */
-                                    $fileUploaded2 = $dirUploaded . '/' . $oFile->name;
-                                    if (false === @rename($fileUploaded, $fileUploaded2)) {
-                                        return [false, '移动上传文件失败'];
-                                    }
+                                }
+                                if (!file_exists($fileUploaded)) {
+                                    return [false, '上传文件没有被正确保存'];
+                                }
+                                /* 如果同一次提交中包含相同的文件，文件只会上传一次，并且被改名 */
+                                $fileUploaded2 = $dirUploaded . '/' . $oFile->name;
+                                if (false === @rename($fileUploaded, $fileUploaded2)) {
+                                    return [false, '移动上传文件失败'];
                                 }
                                 unset($oFile->uniqueIdentifier);
                                 $oFile->url = $fileUploaded2;

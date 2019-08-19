@@ -476,7 +476,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
                 renewScoreByRound: function (rid) {
                     var url, defer;
 
-                    url = '/rest/pl/fe/matter/enroll/record/renewScoreByRound';
+                    url = '/rest/pl/fe/matter/enroll/repair/recordScoreByRound';
                     url += '?app=' + _appId;
                     if (rid) url += '&rid=' + rid;
                     defer = $q.defer();
@@ -967,7 +967,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
                     return oRec.enroll_key;
                 });
                 if (eks.length) {
-                    url = '/rest/pl/fe/matter/enroll/record/renewScore';
+                    url = '/rest/pl/fe/matter/enroll/repair/recordScore';
                     url += '?app=' + _appId;
                     fnRenewScore(0);
                 } else {

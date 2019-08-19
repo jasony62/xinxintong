@@ -42,17 +42,19 @@ class login extends \site\fe\base {
      */
     public function do_action() {
         $data = $this->getPostJson(false);
-        if (empty($data->uname) || empty($data->password) || empty($data->pin) || empty($_SESSION['_login_auth_code'])) {
+        if (empty($data->uname) || empty($data->password) || empty($data->pin) || empty($_SESSION['_login_verify_code'])) {
             return new \ResponseError("登录信息不完整");
         }
 
-        $codeSession = $_SESSION['_login_auth_code'];
+        $codeSession = $_SESSION['_login_verify_code'];
         if (strcasecmp($codeSession, $data->pin)) {
-            $_SESSION['_login_auth_code'] = '';
-            return new \ResponseError("验证码错误请重新输入");
+            $_SESSION['_login_verify_code'] = '';
+            if (empty(LOGIN_MASTER_VERIFY_CODE) || LOGIN_MASTER_VERIFY_CODE !== $data->pin) {
+                return new \ResponseError("验证码错误! 请重新输入");
+            }
         }
 
-        $_SESSION['_login_auth_code'] = '';
+        $_SESSION['_login_verify_code'] = '';
         $modelWay = $this->model('site\fe\way');
         $modelReg = $this->model('site\user\registration');
 
@@ -387,7 +389,7 @@ class login extends \site\fe\base {
         $captcha->doImg();
 
         $code = $captcha->getCode();
-        $_SESSION['_login_auth_code'] = $code;
+        $_SESSION['_login_verify_code'] = $code;
     }
     /**
      * 登录用户验证密码

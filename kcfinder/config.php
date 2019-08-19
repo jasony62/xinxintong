@@ -56,42 +56,27 @@ $_CONFIG = array(
 	'types' => array(
 
 		// CKEditor & FCKEditor types
-		'files' => "",
+		'files' => ((defined('KCFINDER_FILE_FORMAT_WHITE') && !empty(KCFINDER_FILE_FORMAT_WHITE)) ? KCFINDER_FILE_FORMAT_WHITE : ""),
 		'flash' => "swf",
-		'images' => "*img",
+		'images' => ((defined('KCFINDER_IMG_FORMAT_WHITE') && !empty(KCFINDER_IMG_FORMAT_WHITE)) ? KCFINDER_IMG_FORMAT_WHITE : "*img"),
 
 		// TinyMCE types
-		'file' => "",
+		'file' => ((defined('KCFINDER_FILE_FORMAT_WHITE') && !empty(KCFINDER_FILE_FORMAT_WHITE)) ? KCFINDER_FILE_FORMAT_WHITE : ""),
 		'media' => "swf flv avi mpg mpeg qt mov wmv asf rm",
-		'image' => "*img",
-		'图片' => "*img",
+		'image' => ((defined('KCFINDER_IMG_FORMAT_WHITE') && !empty(KCFINDER_IMG_FORMAT_WHITE)) ? KCFINDER_IMG_FORMAT_WHITE : "*img"),
+		'图片' => ((defined('KCFINDER_IMG_FORMAT_WHITE') && !empty(KCFINDER_IMG_FORMAT_WHITE)) ? KCFINDER_IMG_FORMAT_WHITE : "*img"),
 		'音频' => "mp3",
-		'文件' => "",
+		'文件' => ((defined('KCFINDER_FILE_FORMAT_WHITE') && !empty(KCFINDER_FILE_FORMAT_WHITE)) ? KCFINDER_FILE_FORMAT_WHITE : ""),
 	),
 	// 上传的大小  单位 M
 	'sizeByType' => array(
 		// TinyMCE types
-		'file' => 0,
+		'file' => ((defined('KCFINDER_FILE_MAXSIZE') && !empty(KCFINDER_FILE_MAXSIZE)) ? KCFINDER_FILE_MAXSIZE : 0),
 		'media' => 0,
-		'image' => 0,
-		'图片' => 0,
+		'image' => ((defined('KCFINDER_IMG_MAXSIZE') && !empty(KCFINDER_IMG_MAXSIZE)) ? KCFINDER_IMG_MAXSIZE : 0),
+		'图片' => ((defined('KCFINDER_IMG_MAXSIZE') && !empty(KCFINDER_IMG_MAXSIZE)) ? KCFINDER_IMG_MAXSIZE : 0),
 		'音频' => 0,
-		'文件' => 0,
-	),
-	// 只能上传的类型
-	'whiteByType' => array(
-		// CKEditor & FCKEditor types
-		'files' => [],
-		'flash' => [],
-		'images' => [],
-
-		// TinyMCE types
-		'file' => [],
-		'media' => [],
-		'image' => [],
-		'图片' => ['png', 'jpg', 'jpeg', 'gif', 'bmp'],
-		'音频' => [],
-		'文件' => [],
+		'文件' => ((defined('KCFINDER_FILE_MAXSIZE') && !empty(KCFINDER_FILE_MAXSIZE)) ? KCFINDER_FILE_MAXSIZE : 0),
 	),
 
 	'filenameChangeChars' => array( /*

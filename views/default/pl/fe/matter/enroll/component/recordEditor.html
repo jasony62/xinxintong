@@ -1,65 +1,67 @@
 <style>
     /* img tiles */
 
-#recordEditor ul {
-    padding-left: 0
-}
+    #recordEditor ul {
+        padding-left: 0
+    }
 
-#recordEditor ul.img-tiles li {
-    position: relative;
-    display: inline-block;
-    overflow: hidden;
-    width: 80px;
-    height: 80px;
-    margin: 0px;
-    padding: 0px;
-    float: left
-}
+    #recordEditor ul.img-tiles li {
+        position: relative;
+        display: inline-block;
+        overflow: hidden;
+        width: 80px;
+        height: 80px;
+        margin: 0px;
+        padding: 0px;
+        float: left
+    }
 
-#recordEditor ul.list-group {
-    position: relative;
-}
+    #recordEditor ul.list-group {
+        position: relative;
+    }
 
-#recordEditor ul.img-tiles li.img-thumbnail img {
-    display: inline-block;
-    position: absolute
-}
+    #recordEditor ul.img-tiles li.img-thumbnail img {
+        display: inline-block;
+        position: absolute
+    }
 
-#recordEditor ul.img-tiles li.img-thumbnail button,
-#recordEditor ul.list-group button {
-    position: absolute;
-    top: 0;
-    right: 0
-}
+    #recordEditor ul.img-tiles li.img-thumbnail button,
+    #recordEditor ul.list-group button {
+        position: absolute;
+        top: 0;
+        right: 0
+    }
 
-#recordEditor ul.img-tiles li.img-picker button {
-    position: auto;
-    width: 100%;
-    height: 100%
-}
+    #recordEditor ul.img-tiles li.img-picker button {
+        position: auto;
+        width: 100%;
+        height: 100%
+    }
 
-#recordEditor ul.img-tiles li.img-picker button span {
-    font-size: 36px
-}
+    #recordEditor ul.img-tiles li.img-picker button span {
+        font-size: 36px
+    }
 
-#recordEditor .form-label {
-    text-align: right;
-}
+    #recordEditor .form-label {
+        text-align: right;
+    }
 
-.bottom-bar {
-    display: flex;
-    align-items: center;
-}
+    .bottom-bar {
+        display: flex;
+        align-items: center;
+    }
 
-.bottom-bar>* {
-    margin-right: .5em;
-}
-.cowork >div+div{
-    margin-top: 15px;
-}
-.cowork >div>div{
-    margin-top: 8px;
-}
+    .bottom-bar>* {
+        margin-right: .5em;
+    }
+
+    .cowork>div+div {
+        margin-top: 15px;
+    }
+
+    .cowork>div>div {
+        margin-top: 8px;
+    }
 </style>
 <div id='recordEditor' class='col-md-6 col-md-offset-3'>
     <div class='panel panel-default'>
@@ -206,7 +208,7 @@
                                 <input type='text' class='form-control' ng-if="schema.id.indexOf('member.')===0" ng-model="record.data.member[schema.id.substr(7)]">
                                 <input type='text' class='form-control' ng-if="schema.id.indexOf('member.')!==0" ng-model="record.data[schema.id]">
                             </div>
-                            <span ng-if="record.score[schema.id]"> 得分<font ng-if="schema.weight">(权重{{schema.weight}})</font> <input type='text' class='form-control' ng-model="record.score[schema.id]"> </span>
+                            <span ng-if="record.score[schema.id]"> 数据分<font ng-if="schema.weight">(权重{{schema.weight}})</font> <input type='text' class='form-control' ng-model="record.score[schema.id]"> </span>
                             <textarea ng-if="schema.supplement==='Y'" class='form-control' ng-model="record.supplement[schema.id]" rows="3"></textarea>
                         </div>
                     </div>
@@ -251,12 +253,12 @@
                         </ul>
                         <div ng-switch-when="file">
                             <span ng-repeat="file in record.data[schema.id]">
-                                    <span ng-bind="file.url"></span>
-                            <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
-                                <source src="{{file.url}}" type="{{file.type}}" />
-                            </video>
-                            <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
-                        </span>
+                                <span ng-bind="file.url"></span>
+                                <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
+                                    <source src="{{file.url}}" type="{{file.type}}" />
+                                </video>
+                                <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
+                            </span>
                         </div>
                         <div ng-switch-when='multitext'>
                             <div ng-repeat="item in record.data[schema.id]" style="margin-bottom:10px">
@@ -296,12 +298,12 @@
                         </ul>
                         <div ng-switch-when="file">
                             <span ng-repeat="file in record.data[schema.id]">
-                                    <span ng-bind="file.url"></span>
-                            <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
-                                <source src="{{file.url}}" type="{{file.type}}" />
-                            </video>
-                            <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
-                        </span>
+                                <span ng-bind="file.url"></span>
+                                <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
+                                    <source src="{{file.url}}" type="{{file.type}}" />
+                                </video>
+                                <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%" />
+                            </span>
                         </div>
                         <input type='text' class='form-control' disabled ng-switch-default ng-model="record.data[schema.id]">
                     </div>

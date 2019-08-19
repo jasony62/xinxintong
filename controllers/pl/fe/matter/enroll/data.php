@@ -66,16 +66,16 @@ class data extends \pl\fe\matter\base {
             $jsonRecordData = $modelRecDat->escape($modelRecDat->toJson($oSetResult->dbData));
             $modelRecDat->update('xxt_enroll_record', ['data' => $jsonRecordData], ['enroll_key' => $oRecord->enroll_key]);
             /**
-             * 处理用户按轮次汇总数据，积分数据
+             * 处理用户按轮次汇总数据，行为分数据
              */
             $modelRec->setSummaryRec($oMockUser, $oApp, $rid);
         }
         /**
-         * 更新得分题目排名
+         * 更新数据分题目排名
          */
         $modelRec->setScoreRank($oApp, $rid);
         /**
-         * 更新用户得分排名
+         * 更新用户数据分排名
          */
         $modelEnlUsr = $this->model('matter\enroll\user');
         $modelEnlUsr->setScoreRank($oApp, $rid);
@@ -129,7 +129,7 @@ class data extends \pl\fe\matter\base {
             $modelMisMat->agreed($oApp, 'D', $oRecData, $value);
         }
 
-        /* 处理了用户汇总数据，积分数据 */
+        /* 处理了用户汇总数据，行为分数据 */
         $this->model('matter\enroll\event')->agreeRecData($oApp, $oRecData, $oUser, $value);
 
         /**

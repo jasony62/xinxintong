@@ -13,7 +13,7 @@ class data_model extends entity_model {
     const DEFAULT_FIELDS = 'id,state,value,tag,supplement,rid,enroll_key,schema_id,userid,group_id,nickname,submit_at,score,remark_num,last_remark_at,like_num,like_log,modify_log,agreed,agreed_log,multitext_seq,vote_num';
     /**
      * 按题目记录数据
-     * 不产生日志、积分等记录
+     * 不产生日志、行为分等记录
      *
      * @param object ['dbData', 'score']
      */
@@ -37,7 +37,7 @@ class data_model extends entity_model {
         }
         $dbData = $dbData[1];
 
-        /* 获得题目的得分 */
+        /* 获得题目的数据分 */
         $oRecordScore = $this->socreRecordData($oApp, $oRecord, $aSchemasById, $dbData, $oAssignScore);
         /* 将每条协作填写项保存为1条数据，并返回题目中记录的汇总数据 */
         $fnNewItems = function ($schemaId, $aNewItems) use ($oApp, $oRecord, $oUser, $dbData) {
@@ -458,21 +458,21 @@ class data_model extends entity_model {
      * @param array $aOptimizedFormulas 记录题目权重公式，避免全局重复计算问题
      */
     public function socreRecordData($oApp, $oRecord, $aSchemasById, $dbData, $oAssignScore, &$aOptimizedFormulas = null) {
-        $oRecordScore = new \stdClass; // 记录的得分数据
+        $oRecordScore = new \stdClass; // 记录的数据分数据
         $oRecordScore->sum = 0; // 记录总分
         $oQuizNum = new \stdClass;
         $oQuizNum->schema = 0; // 测验题目的数量
         $oQuizNum->correctSchema = 0; // 答对测验题目的数量
 
         /* 评估 */
-        $oScoreContext = new \stdClass; // 实现在活动范围内计算得分
+        $oScoreContext = new \stdClass; // 实现在活动范围内计算数据分
         $oScoreContext->app = $oApp;
         $oScoreContext->record = $oRecord;
         $oScoreContext->data = $dbData;
         $oScoreContext->optimizedFormulas = &$aOptimizedFormulas;
 
         $fnEvaluation = function (&$oSchema, $treatedValue, &$oRecordScore) use ($oScoreContext) {
-            $schemaScore = null; // 题目的得分
+            $schemaScore = null; // 题目的数据分
             switch ($oSchema->type) {
             case 'shorttext';
                 if (isset($oSchema->format) && in_array($oSchema->format, ['number', 'calculate'])) {
@@ -624,7 +624,7 @@ class data_model extends entity_model {
                 $treatedValue = $this->toJson($treatedValue);
             }
             /**
-             * 计算单个题目的得分
+             * 计算单个题目的数据分
              */
             switch ($oSchema->scoreMode) {
             case 'evaluation':
@@ -636,7 +636,7 @@ class data_model extends entity_model {
             }
         }
 
-        /* 如果测验题目全对，且指定了总分，那么总得分为指定的总分 */
+        /* 如果测验题目全对，且指定了总分，那么总数据分为指定的总分 */
         if ($oApp->scenario === 'quiz' && !empty($oApp->scenarioConfig->quizSum)) {
             if ($oQuizNum->schema === $oQuizNum->correctSchema) {
                 $oRecordScore->sum = $oApp->scenarioConfig->quizSum;
@@ -646,7 +646,7 @@ class data_model extends entity_model {
         return $oRecordScore;
     }
     /**
-     * 更新得分数据排名
+     * 更新数据分数据排名
      * 如果有对应的汇总轮次，更新汇总轮次的排名
      */
     public function setScoreRank($oApp, $oSchema, $rid) {

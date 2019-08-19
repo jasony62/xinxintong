@@ -80,7 +80,7 @@ $sql .= ",last_enroll_at int not null"; // 填写报名信息时间
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal,2:as invite log,100:后台删除,101:用户删除;
 $sql .= ",data longtext null"; // 登记的数据项
 $sql .= ",supplement longtext null"; // 补充说明
-$sql .= ",score text null"; // 打分题的得分记录
+$sql .= ",score text null"; // 打分题的数据分记录
 $sql .= ",comment text null";
 $sql .= ",verified char(1) not null default 'P'"; // 记录是否已通过审核 Yes,No,Pending
 $sql .= ",submit_log text null"; // 数据提交日志
@@ -143,10 +143,10 @@ $sql .= ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
 $sqls[] = $sql;
 //
 foreach ($sqls as $sql) {
-	if (!$mysqli->query($sql)) {
-		header('HTTP/1.0 500 Internal Server Error');
-		echo 'database error: ' . $mysqli->error;
-	}
+    if (!$mysqli->query($sql)) {
+        header('HTTP/1.0 500 Internal Server Error');
+        echo 'database error: ' . $mysqli->error;
+    }
 }
 
 echo "end update " . __FILE__ . PHP_EOL;

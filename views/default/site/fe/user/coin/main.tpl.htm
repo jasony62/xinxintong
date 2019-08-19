@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
     <base href="/" />
-    <title>我的积分</title>
+    <title>我的行为分</title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
     <link href="<?php echo auto_version('/views/default/site/fe/user/coin/main.css');?>" rel="stylesheet">
@@ -69,12 +69,12 @@
                                 <th ng-if="unionType===''" style='width:100px'>类型</th>
                                 <th ng-if="unionType===''" style='width:125px'>时间</th>
                                 <th>名称</th>
-                                <th ng-if="unionType===''">获得积分</th>
-                                <th ng-if="unionType!==''">当前活动所获积分</th>
+                                <th ng-if="unionType===''">获得行为分</th>
+                                <th ng-if="unionType!==''">当前活动所获行为分</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="matter in matters" ng-class="{'active':criteria.type!==''}"ng-click="view(matter)">
+                            <tr ng-repeat="matter in matters" ng-class="{'active':criteria.type!==''}" ng-click="view(matter)">
                                 <td>{{$index+1}}</td>
                                 <td ng-if="unionType===''">{{matterTypes[matter.matter_type]}}</td>
                                 <td ng-if="unionType===''">{{matter.occur_at*1000|date:'yy-MM-dd HH:mm' }}</td>
@@ -97,7 +97,7 @@
     <script type="text/ng-template" id="detaiLog.html">
         <div class="modal-header">
             <button class="close" type="button" ng-click="cancel()">×</button>
-            <h5 class="modal-title">积分日志详情</h5>
+            <h5 class="modal-title">行为分日志详情</h5>
         </div>
         <div class="modal-body">
             <div class='form-group'>
@@ -106,8 +106,8 @@
                         <tr>
                             <th style='width:45px'>序号</th>
                             <th style='width:125px'>时间</th>
-                            <th>获得积分原因</th>
-                            <th>获得积分</th>
+                            <th>获得行为分原因</th>
+                            <th>获得行为分</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -133,4 +133,5 @@
     </script>
     <script src="/static/js/require.js" defer async data-main="/views/default/site/fe/user/coin/main-loader.js?_=1"></script>
 </body>
+
 </html>

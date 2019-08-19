@@ -353,12 +353,12 @@ class schema_model extends \TMS_MODEL {
         return false;
     }
     /**
-     * 根据权重表达式计算得分
+     * 根据权重表达式计算数据分
      *
      * @param array $aOptimizedFormulas
      *
      * 如果权重设置不符合要求返回false
-     * 如果计算后的得分小于0，得分记为0
+     * 如果计算后的数据分小于0，数据分记为0
      *
      * 用分号（;）分割每1条子规则；
      * 子规则可以用?分割条件和计算方法；

@@ -443,7 +443,7 @@ class main extends \pl\fe\base {
 		}
 
 		if ($template->put_at === '0') {
-			/* 首次发布模版获得积分 */
+			/* 首次发布模版获得行为分 */
 			$modelCoin = $this->model('pl\coin\log');
 			$modelCoin->award($loginUser, 'pl.matter.template.put.' . $template->visible_scope, $template);
 		}

@@ -427,7 +427,7 @@ class rank extends base {
                 array_walk($oRankResult, function (&$oData) use ($aSchemaOps) {$oData->l = isset($aSchemaOps[$oData->value]) ? $aSchemaOps[$oData->value] : '!未知';unset($oData->value);});
             }
             break;
-        case 'score': // 总得分
+        case 'score': // 总数据分
         case 'average_score':
             $oRankResult = [];
             $aScoreSchemas = $this->model('matter\enroll\schema')->asAssoc($oApp->dynaDataSchemas, ['filter' => function ($oSchema) {return $this->getDeepValue($oSchema, 'requireScore') === 'Y';}]);

@@ -29,8 +29,8 @@ $sql .= ",matter_mg_tag varchar(255) not null default ''";
 $sql .= ",wxacode_url text null"; // 参与规则
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_mission): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_mission): ' . $mysqli->error;
 }
 /**
  * 项目的轮次
@@ -49,8 +49,8 @@ $sql .= ",summary varchar(240)"; // 分享或生成链接时的摘要
 $sql .= ",state tinyint not null default 0"; // 0:新建|1:启用|2:停用
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 运营任务访问控制列表，记录任务的所有访问关系
@@ -80,8 +80,8 @@ $sql .= ",last_invite char(1) not null default 'N'"; // 是否为最近一次邀
 $sql .= ",state tinyint not null default 1"; //0:stop,1:normal
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_mission): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_mission): ' . $mysqli->error;
 }
 /**
  * 记录活动的参与人及行为汇总，包含：登记人和留言人
@@ -154,15 +154,15 @@ $sql .= ",do_cowork_read_elapse int not null default 0"; // 阅读谈论页的�
 $sql .= ",cowork_read_elapse int not null default 0"; //
 $sql .= ",do_rank_read_num int not null default 0"; // 阅读排行榜的次数
 $sql .= ",do_rank_read_elapse int not null default 0"; // 阅读排行榜的总时长
-$sql .= ",user_total_coin int not null default 0"; // 用户的总积分
-$sql .= ",score float not null default 0"; // 用户总得分
+$sql .= ",user_total_coin int not null default 0"; // 用户的总行为分
+$sql .= ",score float not null default 0"; // 用户总数据分
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,100:后台删除,101:用户删除;
 $sql .= ",modify_log longtext null"; // 数据修改日志
 $sql .= ",custom text null"; // 用户自定义设置
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 记录活动页面记录追踪
@@ -184,8 +184,8 @@ $sql .= ",user_agent text null";
 $sql .= ",client_ip varchar(40) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 组成任务的素材
@@ -207,8 +207,8 @@ $sql .= ",is_public char(1) not null default 'Y'"; // 是否为公开素材
 $sql .= ",seq int not null default 65535"; // 素材在项目中的排列顺序
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_mission_matter): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_mission_matter): ' . $mysqli->error;
 }
 
 echo 'finish xxt_mission.' . PHP_EOL;

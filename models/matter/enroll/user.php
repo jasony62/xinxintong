@@ -374,7 +374,7 @@ class user_model extends \TMS_MODEL {
         return $oNewSumData;
     }
     /**
-     * 更新得分数据排名
+     * 更新数据分数据排名
      */
     public function setScoreRank($oApp, $rid) {
         $fnSetRankByRound = function ($assignedRid) use ($oApp) {
@@ -421,7 +421,7 @@ class user_model extends \TMS_MODEL {
         if (false === $oRecord2) {
             return [false, '记录不存在'];
         }
-        /* 记录得分 */
+        /* 记录数据分 */
         $score = 0;
         if (isset($oRecord2->score->sum)) {
             $score = $oRecord2->score->sum;
@@ -449,7 +449,7 @@ class user_model extends \TMS_MODEL {
         if (false === $oRecord2) {
             return [false, '记录不存在'];
         }
-        /* 记录得分 */
+        /* 记录数据分 */
         $score = 0;
         if (isset($oRecord2->score->sum)) {
             $score = $oRecord2->score->sum;
@@ -985,7 +985,7 @@ class user_model extends \TMS_MODEL {
         return $updatedCount;
     }
     /**
-     * 活动用户获得奖励积分
+     * 活动用户获得奖励行为分
      */
     public function awardCoin($oApp, $userid, $rid, $coinEvent, $coinRules = null) {
         if (empty($coinRules)) {
@@ -996,7 +996,7 @@ class user_model extends \TMS_MODEL {
             return [false];
         }
 
-        $deltaCoin = 0; // 增加的积分
+        $deltaCoin = 0; // 增加的行为分
         foreach ($coinRules as $rule) {
             $deltaCoin += (int) $rule->actor_delta;
         }
@@ -1010,14 +1010,14 @@ class user_model extends \TMS_MODEL {
             return [false, $deltaCoin];
         }
 
-        /* 奖励积分 */
+        /* 奖励行为分 */
         $modelCoinLog = $this->model('site\coin\log')->setOnlyWriteDbConn(true);
         $oResult = $modelCoinLog->award($oApp, $oEnrollUsr, $coinEvent, $coinRules);
 
         return [true, $deltaCoin];
     }
     /**
-     * 活动用户扣除奖励积分
+     * 活动用户扣除奖励行为分
      */
     public function deductCoin($oApp, $userid, $rid, $coinEvent, $deductCoin) {
         /* 参与活动的用户 */
@@ -1026,7 +1026,7 @@ class user_model extends \TMS_MODEL {
             return [false];
         }
 
-        /* 奖励积分 */
+        /* 奖励行为分 */
         $modelCoinLog = $this->model('site\coin\log')->setOnlyWriteDbConn(true);
         $modelCoinLog->deduct($oApp, $oEnrollUsr, $coinEvent, $deductCoin);
 

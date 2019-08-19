@@ -475,7 +475,7 @@ define(['frame'], function (ngApp) {
                     if (oSchema.requireScore && oSchema.requireScore === 'Y') {
                         recordSchemasExt.push({
                             type: 'calcScore',
-                            title: '得分',
+                            title: '数据分',
                             id: oSchema.id
                         });
                         bRequireScore = true;

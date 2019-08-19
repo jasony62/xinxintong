@@ -80,7 +80,7 @@ class group_model extends \TMS_MODEL {
                 $aDbData[$field] = (isset($oBeforeGroup->{$field}) ? (int) $oBeforeGroup->{$field} : 0) + $value;
                 break;
             case 'score':
-                /* 更新时传入的得分可能只是用户在某个活动中的得分，需要重新计算用户在整个项目中的得分 */
+                /* 更新时传入的数据分可能只是用户在某个活动中的数据分，需要重新计算用户在整个项目中的数据分 */
                 $aDbData['score'] = $this->_scoreByGroup($oBeforeGroup);
                 break;
             }
@@ -92,7 +92,7 @@ class group_model extends \TMS_MODEL {
         return true;
     }
     /**
-     * 用户在整个项目中的得分
+     * 用户在整个项目中的数据分
      */
     private function _scoreByGroup($oMisGrp) {
         $q = [

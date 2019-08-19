@@ -113,7 +113,7 @@
                                                 </div>
                                                 <div class='checkbox' ng-if="scenarioConfig.can_rank!=='D'">
                                                     <label>
-                                                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="proto.can_rank">开放排行页 <span class='glyphicon glyphicon-question-sign' uib-tooltip='设置后参与活动的用户可以查看提交记录数、发表留言数、得分和积分等数据的个人或分组排行情况'></span></label>
+                                                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="proto.can_rank">开放排行页 <span class='glyphicon glyphicon-question-sign' uib-tooltip='设置后参与活动的用户可以查看提交记录数、发表留言数、数据分和行为分等数据的个人或分组排行情况'></span></label>
                                                 </div>
                                                 <div class='checkbox' ng-if="scenarioConfig.can_rounds!=='D'">
                                                     <label>
@@ -169,7 +169,7 @@
                                         <label class='radio-inline'>
                                             <input type='radio' name='template' value='{{$index}}' ng-model='data.choose' ng-change='choose(t)'><span ng-bind='t.title'></span></label>
                                         <div ng-bind='t.summary'></div>
-                                        <div>需要支出积分：<span ng-bind='t.coin'></span></div>
+                                        <div>需要支出行为分：<span ng-bind='t.coin'></span></div>
                                     </div>
                                 </div>
                             </div>

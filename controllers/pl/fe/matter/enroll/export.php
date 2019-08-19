@@ -128,11 +128,11 @@ class export extends record_base {
             if ($this->getDeepValue($oSchema, 'supplement') === 'Y') {
                 $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '补充说明');
             }
-            /* 需要计算得分 */
+            /* 需要计算数据分 */
             if ($this->getDeepValue($oSchema, 'requireScore') === 'Y') {
                 $aScoreSum[$columnNum4] = $oSchema->id;
                 $bRequireScore = true;
-                $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '得分');
+                $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '数据分');
             }
         }
         if ($bRequireNickname) {
@@ -629,11 +629,11 @@ class export extends record_base {
             if ($this->getDeepValue($oSchema, 'supplement') === 'Y') {
                 $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '补充说明');
             }
-            /* 需要计算得分 */
+            /* 需要计算数据分 */
             if ($this->getDeepValue($oSchema, 'requireScore') === 'Y') {
                 $aScoreSum[$columnNum4] = $oSchema->id;
                 $bRequireScore = true;
-                $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '得分');
+                $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '数据分');
             }
         }
         if ($bRequireNickname) {
@@ -904,8 +904,8 @@ class export extends record_base {
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '留言');
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '点赞');
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '获得推荐');
-        $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '积分');
-        $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '得分');
+        $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '行为分');
+        $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '数据分');
         if (isset($sns->wx->joined) && $sns->wx->joined === 'Y') {
             $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '已关联微信');
         }

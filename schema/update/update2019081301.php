@@ -50,10 +50,10 @@ $sql .= ",do_rank_read_num int not null default 0"; // 阅读排行榜的次数
 $sql .= ",do_rank_read_elapse int not null default 0"; // 阅读排行榜的总时长
 $sql .= ",vote_schema_num int not null default 0"; // 题目获得投票的次数
 $sql .= ",vote_cowork_num int not null default 0"; // 协作填写获得投票的次数
-$sql .= ",user_total_coin int not null default 0"; // 用户在活动中的轮次上的总积分
-$sql .= ",group_total_coin int not null default 0"; // 用户组在活动中的轮次上的总积分
-$sql .= ",score float default 0 COMMENT '得分'"; //
-$sql .= ",score_rank int not null default 0"; // 得分在轮次中的排名
+$sql .= ",user_total_coin int not null default 0"; // 用户在活动中的轮次上的总行为分
+$sql .= ",group_total_coin int not null default 0"; // 用户组在活动中的轮次上的总行为分
+$sql .= ",score float default 0 COMMENT '数据分'"; //
+$sql .= ",score_rank int not null default 0"; // 数据分在轮次中的排名
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
@@ -106,9 +106,9 @@ $sql .= ",do_cowork_read_elapse int not null default 0"; // 阅读谈论页的�
 $sql .= ",cowork_read_elapse int not null default 0"; //
 $sql .= ",do_rank_read_num int not null default 0"; // 阅读排行榜的次数
 $sql .= ",do_rank_read_elapse int not null default 0"; // 阅读排行榜的总时长
-$sql .= ",user_total_coin int not null default 0"; // 用户的总积分
-$sql .= ",group_total_coin int not null default 0"; // 用户组的总积分
-$sql .= ",score float not null default 0"; // 用户总得分
+$sql .= ",user_total_coin int not null default 0"; // 用户的总行为分
+$sql .= ",group_total_coin int not null default 0"; // 用户组的总行为分
+$sql .= ",score float not null default 0"; // 用户总数据分
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,100:后台删除
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 $sqls[] = $sql;

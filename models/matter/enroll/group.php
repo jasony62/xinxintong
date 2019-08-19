@@ -97,14 +97,14 @@ class group_model extends \TMS_MODEL {
             return false;
         }
 
-        /* 更新分组积分 */
+        /* 更新分组行为分 */
 
         $rst = $this->update('xxt_enroll_group', $aDbData, ['aid' => $oAppUser->aid, 'group_id' => $oAppUser->group_id, 'rid' => $oAppUser->rid]);
 
         return $rst;
     }
     /**
-     * 活动用户获得奖励积分
+     * 活动用户获得奖励行为分
      */
     public function awardCoin($oApp, $groupId, $rid, $coinEvent, $coinRules = null) {
         if (empty($coinRules)) {
@@ -115,7 +115,7 @@ class group_model extends \TMS_MODEL {
             return [false];
         }
 
-        $deltaCoin = 0; // 增加的积分
+        $deltaCoin = 0; // 增加的行为分
         foreach ($coinRules as $rule) {
             $deltaCoin += (int) $rule->actor_delta;
         }
@@ -129,7 +129,7 @@ class group_model extends \TMS_MODEL {
         //    return [false, $deltaCoin];
         //}
 
-        /* 奖励积分 */
+        /* 奖励行为分 */
         //$modelCoinLog = $this->model('site\coin\log')->setOnlyWriteDbConn(true);
         //$oResult = $modelCoinLog->award($oApp, $oEnlGrpUsr, $coinEvent, $coinRules);
 

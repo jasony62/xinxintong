@@ -332,7 +332,6 @@ class event_model extends \TMS_MODEL {
         /* 记录活动中需要额外更新的数据 */
         $oUpdatedEnlGrpData = clone $oGrpEventData;
 
-        /* 更新发起留言的活动用户轮次数据 */
         $modelGrp = $this->model('matter\enroll\group')->setOnlyWriteDbConn(true);
         $oEnlGrpRnd = $modelGrp->byId($oApp, $groupId, ['fields' => '*', 'rid' => $rid]);
         if (false === $oEnlGrpRnd) {
@@ -425,7 +424,7 @@ class event_model extends \TMS_MODEL {
         $oUpdatedUsrData->last_enroll_at = $eventAt;
         $oUpdatedUsrData->modify_log = $oNewModifyLog;
 
-        /* 只有常规轮次才将记录得分计入用户总分 */
+        /* 只有常规轮次才将记录数据分计入用户总分 */
         if (in_array($oRecRnd->purpose, ['C', 'S'])) {
             if (isset($oRecord->score->sum)) {
                 $oUpdatedUsrData->score = $oRecord->score->sum;

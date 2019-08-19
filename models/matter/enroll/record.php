@@ -192,7 +192,7 @@ class record_model extends record_base {
 		return [true];
 	}
 	/**
-	 * 更新得分数据排名
+	 * 更新数据分数据排名
 	 */
 	public function setScoreRank($oApp, $rid) {
 		$aScoreSchemas = $this->model('matter\enroll\schema')->asAssoc($oApp->dynaDataSchemas, ['filter' => function ($oSchema) {return $this->getDeepValue($oSchema, 'requireScore') === 'Y';}]);
@@ -935,7 +935,7 @@ class record_model extends record_base {
 
 		$aFnHandlers = []; // 记录处理函数
 		if (isset($oApp->scenario)) {
-			/* 记录得分 */
+			/* 记录数据分 */
 			$aFnHandlers[] = function ($oRec) use ($oApp, $bRequireScore) {
 				if ($bRequireScore && !empty($oRec->score)) {
 					$score = str_replace("\n", ' ', $oRec->score);
@@ -1326,7 +1326,7 @@ class record_model extends record_base {
 				$rid = $oActiveRnd->rid;
 			}
 		}
-		/* 每道题目的得分 */
+		/* 每道题目的数据分 */
 		foreach ($dataSchemas as $oSchema) {
 			if ((isset($oSchema->requireScore) && $oSchema->requireScore === 'Y')) {
 				$q = [
@@ -1353,7 +1353,7 @@ class record_model extends record_base {
 			}
 		}
 
-		/*所有题的得分合计*/
+		/*所有题的数据分合计*/
 		$q = [
 			'sum(score)',
 			'xxt_enroll_record_data',

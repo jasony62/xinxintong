@@ -154,20 +154,20 @@ class record extends base {
         }
         $oRecord = $modelRec->byId($ek);
         /**
-         * 处理用户按轮次汇总数据，积分数据
+         * 处理用户按轮次汇总数据，行为分数据
          */
         $modelRec->setSummaryRec($oUser, $oEnlApp, $oRecord->rid);
         /**
-         * 更新得分题目排名
+         * 更新数据分题目排名
          */
         $modelRec->setScoreRank($oEnlApp, $oRecord->rid);
         /**
-         * 处理用户汇总数据，积分数据
+         * 处理用户汇总数据，行为分数据
          */
 
         $this->model('matter\enroll\event')->submitRecord($oEnlApp, $oRecord, $oUser, $bSubmitSavedRecord || $bSubmitNewRecord);
         /**
-         * 更新用户得分排名
+         * 更新用户数据分排名
          */
         $modelEnlUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
         $modelEnlUsr->setScoreRank($oEnlApp, $oRecord->rid);
@@ -1026,7 +1026,7 @@ class record extends base {
             $modelMisMat->agreed($oApp, 'R', $oRecord, $value);
         }
 
-        /* 处理用户汇总数据，积分数据 */
+        /* 处理用户汇总数据，行为分数据 */
         $this->model('matter\enroll\event')->agreeRecord($oApp, $oRecord, $oUser, $value);
 
         return new \ResponseData('ok');
@@ -1062,11 +1062,11 @@ class record extends base {
         if (empty($oActiveRnd) || (!empty($oActiveRnd) && ($oActiveRnd->end_at != 0) && $oActiveRnd->end_at < $now) || ($oActiveRnd->rid !== $oRecord->rid)) {
             return new \ResponseError('记录所在活动轮次已结束，不能提交、修改、保存或删除！');
         }
-        // 如果已经获得积分不允许删除
+        // 如果已经获得行为分不允许删除
         $modelEnlUsr = $this->model('matter\enroll\user');
         $oEnlUsrRnd = $modelEnlUsr->byId($oApp, $oUser->uid, ['fields' => 'id,enroll_num,user_total_coin', 'rid' => $oRecord->rid]);
         if ($oEnlUsrRnd && $oEnlUsrRnd->user_total_coin > 0) {
-            return new \ResponseError('提交的记录已经获得活动积分，不能删除');
+            return new \ResponseError('提交的记录已经获得活动行为分，不能删除');
         }
 
         // 删除数据

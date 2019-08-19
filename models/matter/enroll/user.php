@@ -251,8 +251,9 @@ class user_model extends \TMS_MODEL {
                 break;
             }
         }
-
-        $rst = $this->update('xxt_enroll_user', $aDbData, ['id' => $oBeforeData->id]);
+        if (!empty($aDbData)) {
+            $rst = $this->update('xxt_enroll_user', $aDbData, ['id' => $oBeforeData->id]);
+        }
 
         return $rst;
     }

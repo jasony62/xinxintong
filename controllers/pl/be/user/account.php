@@ -68,7 +68,8 @@ class account extends \pl\be\base {
 	public function resetPwd_action() {
 		$data = $this->getPostJson(false);
 		$modelAcnt = $this->model('account');
-		$account = $modelAcnt->byId($data->uid);
+		$uid = $modelAcnt->escape($data->uid);
+		$account = $modelAcnt->byId($uid);
 		/**
 		 * set new password
 		 */

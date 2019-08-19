@@ -208,7 +208,7 @@
                                 <input type='text' class='form-control' ng-if="schema.id.indexOf('member.')===0" ng-model="record.data.member[schema.id.substr(7)]">
                                 <input type='text' class='form-control' ng-if="schema.id.indexOf('member.')!==0" ng-model="record.data[schema.id]">
                             </div>
-                            <span ng-if="record.score[schema.id]"> 数据分<span ng-if="schema.weight">(权重{{schema.weight}})：</span><span ng-bind="record.score[schema.id]"></span></span>
+                            <p class="form-control-static" ng-if="record.score[schema.id]"> 数据分<span ng-if="schema.weight">(权重{{schema.weight}})：</span><span ng-bind="record.score[schema.id]"></span></p>
                             <textarea ng-if="schema.supplement==='Y'" class='form-control' ng-model="record.supplement[schema.id]" rows="3"></textarea>
                         </div>
                     </div>

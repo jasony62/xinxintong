@@ -151,9 +151,9 @@ class group_model extends \TMS_MODEL {
 
         $oEntryRule = $oApp->entryRule;
 
-        $modelGrpTeam = $this->model('matter\group\record');
+        $modelGrpRec = $this->model('matter\group\record');
 
-        $users = $modelGrpTeam->byTeam($groupId, ['cascade' => 'userid']);
+        $users = $modelGrpRec->byTeam($groupId, ['fields' => 'userid,is_leader', 'is_leader' => ['N', 'Y']]);
         if (empty($users)) {
             return [false];
         }
@@ -166,6 +166,10 @@ class group_model extends \TMS_MODEL {
             }
         });
 
-        return [true];
+        if (count($users) === count($submiters)) {
+            return [true];
+        }
+
+        return [false];
     }
 }

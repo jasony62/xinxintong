@@ -146,8 +146,6 @@
                         <th>分组</th>
                         <th ng-repeat="rnd in absentRounds">{{rnd.title}}</th>
                         <th ng-repeat="schema in absentApp.dataSchemas">{{schema.title}}</th>
-                        <th>备注</th>
-                        <th style='width:48px'>操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -172,34 +170,9 @@
                             <span ng-switch-when="url" ng-bind-html="user._data[schema.id]._text"></span>
                             <span ng-switch-default ng-bind-html="user._data[schema.id]"></span>
                         </td>
-                        <td>{{user.absent_cause.cause}}</td>
-                        <td>
-                            <button class="btn btn-xs btn-default" ng-click="editCause(user)">
-                                <span class="glyphicon glyphicon-edit"></span>
-                            </button>
-                        </td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
-<script type='text/ng-template' id='editCause.html'>
-    <div class="modal-header">
-        <h5 class="modal-title">修改备注</h5>
-    </div>
-    <div class="modal-body">
-        <form class="form-horizontal">
-            <div class="form-group">
-                <label class="col-md-3 control-label">备注</label>
-                <div class="col-md-9">
-                    <textarea name="cause" ng-model="cause" style="width:100%;height:100px;resize:none;"></textarea>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="modal-footer">
-        <button class="btn btn-default" ng-click="cancel()">关闭</button>
-        <button class="btn btn-primary" ng-click="ok()">确定</button>
-    </div>
-</script>

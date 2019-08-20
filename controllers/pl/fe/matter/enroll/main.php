@@ -388,7 +388,7 @@ class main extends main_base {
 		}
 
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, 'id,siteid,title,summary,pic,scenario,start_at,end_at,mission_id,absent_cause');
+		$oApp = $modelApp->byId($app, 'id,siteid,title,summary,pic,scenario,start_at,end_at,mission_id');
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
@@ -456,14 +456,6 @@ class main extends main_base {
 				break;
 			case 'rankConfig':
 				$oUpdated->rank_config = $modelApp->escape($modelApp->toJson($val));
-				break;
-			case 'absent_cause':
-				$absentCause = !empty($oApp->absentCause) ? $oApp->absentCause : new \stdClass;
-				foreach ($val as $uid => $val2) {
-					!isset($absentCause->{$uid}) && $absentCause->{$uid} = new \stdClass;
-					$absentCause->{$uid}->{$val2->rid} = $val2->cause;
-				}
-				$oUpdated->absent_cause = $modelApp->escape($modelApp->toJson($absentCause));
 				break;
 			default:
 				$oUpdated->{$prop} = $val;

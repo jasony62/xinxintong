@@ -42,7 +42,15 @@ requirejs(['/static/js/tms.bootstrap.js'], function (tms) {
                 l: '签到'
             }
         ],
-        naming: {}
+        naming: {
+            is_leader: {
+                N: '组员',
+                Y: '组长',
+                S: '超级用户',
+                O: '旁观者',
+                A: '缺席'
+            }
+        }
     });
     var _oRawPathes;
     _oRawPathes = {

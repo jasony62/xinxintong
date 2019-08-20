@@ -44,7 +44,7 @@ class user extends main_base {
         }
 
         $modelEnl = $this->model('matter\enroll');
-        $oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,state,mission_id,entry_rule,action_rule,absent_cause']);
+        $oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,state,mission_id,entry_rule,action_rule']);
         if (false === $oApp || $oApp->state !== '1') {
             return new \ObjectNotFoundError();
         }

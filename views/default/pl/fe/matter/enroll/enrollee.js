@@ -40,34 +40,6 @@ define(['frame'], function (ngApp) {
                 _oRows.setAllSelected(nv, $scope.enrollees.length);
             }
         });
-        $scope.editCause = function (user) {
-            $uibModal.open({
-                templateUrl: 'editCause.html',
-                controller: ['$scope', '$uibModalInstance', 'http2', function ($scope2, $mi, http2) {
-                    $scope2.cause = '';
-                    $scope2.app = $scope.app;
-                    $scope2.cancel = function () {
-                        $mi.dismiss();
-                    };
-                    $scope2.ok = function () {
-                        var url, params = {};
-                        params[user.userid] = {
-                            rid: user.absent_cause.rid,
-                            cause: $scope2.cause
-                        }
-                        url = '/rest/pl/fe/matter/enroll/update?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
-                        http2.post(url, {
-                            'absent_cause': params
-                        }).then(function (rsp) {
-                            $mi.close($scope2.cause);
-                        });
-                    };
-                }],
-                backdrop: 'static'
-            }).result.then(function (result) {
-                user.absent_cause.cause = result;
-            });
-        };
         $scope.chooseOrderby = function (orderby) {
             _oCriteria.orderby = orderby;
             $scope.searchEnrollee(1);

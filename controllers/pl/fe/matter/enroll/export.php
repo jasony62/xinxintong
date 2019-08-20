@@ -854,7 +854,7 @@ class export extends record_base {
         }
 
         // 记录活动
-        if (false === ($oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,title,entry_rule,data_schemas,absent_cause', 'cascaded' => 'N']))) {
+        if (false === ($oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,title,entry_rule,data_schemas', 'cascaded' => 'N']))) {
             return new \ParameterError();
         }
 
@@ -987,8 +987,6 @@ class export extends record_base {
                 }
             }
 
-            $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '备注');
-
             $rowNumber = 2;
             foreach ($aUsers as $oUndoneUser) {
                 $colNumber = 0;
@@ -1000,7 +998,6 @@ class export extends record_base {
                         $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, in_array($oRnd->rid, $oUndoneUser->rounds) ? '是' : '');
                     }
                 }
-                $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($oUndoneUser->absent_cause->cause) ? $oUndoneUser->absent_cause->cause : '');
 
                 $rowNumber++;
             }

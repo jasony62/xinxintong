@@ -781,13 +781,6 @@ class user_model extends \TMS_MODEL {
             }
 
             // 用户未完成原因
-            if (count($undoneTasks) > 0) {
-                if (!empty($oApp->absentCause->{$oAssignedUser->userid}->{$rid})) {
-                    $oAssignedUser->absent_cause = new \stdClass;
-                    $oAssignedUser->absent_cause->cause = $oApp->absentCause->{$oAssignedUser->userid}->{$rid};
-                    $oAssignedUser->absent_cause->rid = $rid;
-                }
-            }
             $oAssignedUser->undoneTasks = $undoneTasks;
 
             return $oAssignedUser;

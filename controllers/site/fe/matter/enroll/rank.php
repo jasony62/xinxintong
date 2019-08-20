@@ -14,7 +14,7 @@ class rank extends base {
             return false;
         }
         $modelGrpTeam = $this->model('matter\group\team');
-        $teams = $modelGrpTeam->byApp($oApp->entryRule->group->id, ['cascade' => 'playerCount,onlookerCount']);
+        $teams = $modelGrpTeam->byApp($oApp->entryRule->group->id, ['cascade' => 'playerCount,onlookerCount,absentCount']);
         if (empty($teams)) {
             return $teams;
         }
@@ -26,6 +26,7 @@ class rank extends base {
             $oNewGroup->l = $oTeam->title;
             $oNewGroup->playerCount = $oTeam->playerCount;
             $oNewGroup->onlookerCount = $oTeam->onlookerCount;
+            $oNewGroup->absentCount = $oTeam->absentCount;
             $userGroups[$oTeam->team_id] = $oNewGroup;
         }
 
@@ -42,11 +43,11 @@ class rank extends base {
             'xxt_enroll_user u left join xxt_site_account a on u.userid = a.uid and u.siteid = a.siteid',
             "u.aid='{$oApp->id}' and u.state=1",
         ];
-        // 用户分组信息，必须是分组活动中的用户，排除旁观者
+        // 用户分组信息，必须是分组活动中的用户，排除旁观者和缺席者
         if (!empty($oApp->entryRule->group->id)) {
             $q[0] .= ',u.group_id,g.team_title';
             $q[1] .= ",xxt_group_record g";
-            $q[2] .= " and g.aid='{$oApp->entryRule->group->id}' and u.userid=g.userid and g.team_id=u.group_id and g.is_leader<>'O'";
+            $q[2] .= " and g.aid='{$oApp->entryRule->group->id}' and u.userid=g.userid and g.team_id=u.group_id and g.is_leader not in('O','A')";
         }
 
         // 轮次
@@ -151,13 +152,13 @@ class rank extends base {
             'xxt_enroll_record_data r',
             ['r.aid' => $oApp->id, 'r.state' => 1, 'r.schema_id' => $schemaId, 'r.userid' => (object) ['op' => '<>', 'pat' => '']],
         ];
-        // 用户分组信息，必须是分组活动中的用户，排除旁观者
+        // 用户分组信息，必须是分组活动中的用户，排除旁观者和缺席者
         if (!empty($oApp->entryRule->group->id)) {
             $q[0] .= ',r.group_id,g.team_title';
             $q[1] .= ",xxt_group_record g";
             $q[2]['g.aid'] = $oApp->entryRule->group->id;
             $q[2]['userid'] = (object) ['op' => 'and', 'pat' => ['g.userid=r.userid']];
-            $q[2]['g.is_leader'] = (object) ['op' => '<>', 'pat' => 'O'];
+            $q[2]['g.is_leader'] = (object) ['op' => 'not in', 'pat' => ['O', 'A']];
             $q[2]['group_id'] = (object) ['op' => 'and', 'pat' => ['g.team_id=r.group_id']];
         }
         // 轮次条件
@@ -306,8 +307,8 @@ class rank extends base {
                     $oUserGroup->num = round((float) $modelUsr->query_value($sqlByGroup), 2);
                 } else {
                     if (!empty($oUserGroup->playerCount)) {
-                        // 不包含旁观者
-                        $oUserGroup->num = round((float) ($modelUsr->query_value($sqlByGroup) / ($oUserGroup->playerCount - $oUserGroup->onlookerCount)), 2);
+                        // 不包含旁观者和缺席者
+                        $oUserGroup->num = round((float) ($modelUsr->query_value($sqlByGroup) / ($oUserGroup->playerCount - $oUserGroup->onlookerCount - $oUserGroup->absentCount)), 2);
                     } else {
                         $oUserGroup->num = 0;
                     }

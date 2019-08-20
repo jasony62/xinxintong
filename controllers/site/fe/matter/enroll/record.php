@@ -87,7 +87,7 @@ class record extends base {
         if ($aResultCanSubmit[0] === false) {
             return new \ResponseError($aResultCanSubmit[1]);
         }
-        /* 检查是否存在匹配的记录记录 */
+        /* 检查是否存在匹配的记录活动记录 */
         if (!empty($oEnlApp->entryRule->enroll->id)) {
             $aMatchResult = $this->_matchEnlRec($oUser, $oEnlApp, $oEnlApp->entryRule->enroll->id, $oEnlData);
             if (false === $aMatchResult[0]) {
@@ -95,7 +95,7 @@ class record extends base {
             }
             $oMatchedEnlRec = $aMatchResult[1];
         }
-        /* 检查是否存在匹配的分组记录 */
+        /* 检查是否存在匹配的分组活动记录 */
         if (isset($oEnlApp->entryRule->group->id)) {
             $modelGrpUsr = $this->model('matter\group\record');
             $aMatchResult = $modelGrpUsr->matchByData($oEnlApp->entryRule->group->id, $oEnlApp, $oEnlData, $oUser);
@@ -164,7 +164,6 @@ class record extends base {
         /**
          * 处理用户汇总数据，行为分数据
          */
-
         $this->model('matter\enroll\event')->submitRecord($oEnlApp, $oRecord, $oUser, $bSubmitSavedRecord || $bSubmitNewRecord);
         /**
          * 更新用户数据分排名

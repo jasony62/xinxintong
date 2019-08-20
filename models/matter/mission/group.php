@@ -105,7 +105,7 @@ class group_model extends \TMS_MODEL {
             $q = [
                 'sum(score)',
                 'xxt_enroll_group',
-                ['group_id' => $oMisGrp->userid, 'aid' => $appIds, 'rid' => 'ALL'],
+                ['group_id' => $oMisGrp->group_id, 'aid' => $appIds, 'rid' => 'ALL'],
             ];
             $sum = (float) $this->query_val_ss($q);
         } else {

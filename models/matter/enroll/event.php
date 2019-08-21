@@ -520,7 +520,7 @@ class event_model extends \TMS_MODEL {
                 $oEvent->name = self::GROUP_SUBMIT_EVENT_NAME;
                 $oEvent->op = '';
                 $oEvent->at = $eventAt;
-                $oEvent->user = $oUser;
+                $oEvent->user = (object) ['group_id' => $groupId];
                 $oEvent->coin = $coin;
 
                 $this->_logEvent($oApp, $rid, $oRecord->enroll_key, $oTarget, $oEvent);

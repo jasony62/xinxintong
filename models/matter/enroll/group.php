@@ -104,7 +104,7 @@ class group_model extends \TMS_MODEL {
         return $rst;
     }
     /**
-     * 活动用户获得奖励行为分
+     * 活动用户分组获得奖励行为分
      */
     public function awardCoin($oApp, $groupId, $rid, $coinEvent, $coinRules = null) {
         if (empty($coinRules)) {

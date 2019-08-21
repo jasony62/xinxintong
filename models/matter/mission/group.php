@@ -114,4 +114,32 @@ class group_model extends \TMS_MODEL {
 
         return $sum;
     }
+    /**
+     * 更新用户分组累积行为分
+     */
+    public function resetCoin($oMission, $groupId) {
+        $oMisGrp = $this->byId($oMission, $groupId, ['fields' => 'id,user_total_coin']);
+        if (false === $oMisGrp) {
+            return false;
+        }
+        $aUpdateGrp = [];
+
+        $q = [
+            'sum(user_total_coin)',
+            'xxt_mission_user',
+            ['mission_id' => $oMission->id, 'group_id' => $groupId, 'state' => 1],
+        ];
+        $aUpdateGrp['user_total_coin'] = $this->query_val_ss($q);
+
+        $q = [
+            'sum(group_total_coin)',
+            'xxt_enroll_group eg',
+            ['aid' => (object) ['op' => 'exists', 'pat' => "select 1 from xxt_enroll e where e.mission_id='{$oMission->id}' and eg.aid=e.id"], 'group_id' => $groupId, 'state' => 1, 'rid' => 'ALL'],
+        ];
+        $aUpdateGrp['group_total_coin'] = $this->query_val_ss($q);
+
+        $this->update('xxt_mission_group', $aUpdateGrp, ['id' => $oMisGrp->id]);
+
+        return true;
+    }
 }

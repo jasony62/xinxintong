@@ -1198,4 +1198,44 @@ class user_model extends \TMS_MODEL {
 
         return isset($receivers) ? $receivers : false;
     }
+    /**
+     * 更新用户累积行为分
+     */
+    public function resetCoin($oApp, $rid, $userid) {
+        $oEnlUserRnd = $this->byId($oApp, $userid, ['rid' => $rid, 'fields' => 'id,user_total_coin']);
+        if (false === $oEnlUserRnd) {
+            return false;
+        }
+        $q = [
+            'sum(earn_coin)',
+            'xxt_enroll_log',
+            ['aid' => $oApp->id, 'rid' => $rid, 'userid' => $userid, 'state' => 1, 'coin_event' => 1],
+        ];
+        $coin = $this->query_val_ss($q);
+
+        $q = [
+            'sum(owner_earn_coin)',
+            'xxt_enroll_log',
+            ['aid' => $oApp->id, 'rid' => $rid, 'owner_userid' => $userid, 'state' => 1, 'owner_coin_event' => 1],
+        ];
+        $ownerCoin = $this->query_val_ss($q);
+
+        $totalCoin = $coin + $ownerCoin;
+        if ((float) $oEnlUserRnd->user_total_coin === (float) $totalCoin) {
+            return false;
+        }
+        $this->update('xxt_enroll_user', ['user_total_coin' => $totalCoin], ['id' => $oEnlUserRnd->id]);
+        /**
+         * 更新整个活动中的累积行为分
+         */
+        $oEnlUserAll = $this->byId($oApp, $userid, ['rid' => 'ALL', 'fields' => 'id,user_total_coin']);
+        if (false === $oEnlUserAll) {
+            return false;
+        }
+
+        $delta = $totalCoin - $oEnlUserRnd->user_total_coin;
+        $this->update('xxt_enroll_user', ['user_total_coin' => $oEnlUserAll->user_total_coin + $delta], ['id' => $oEnlUserAll->id]);
+
+        return true;
+    }
 }

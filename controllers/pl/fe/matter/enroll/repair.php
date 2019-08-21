@@ -7,6 +7,14 @@ require_once dirname(__FILE__) . '/record_base.php';
  */
 class repair extends record_base {
     /**
+     * 指定需要作为事物管理的方法
+     */
+    public function tmsRequireTransaction() {
+        return [
+            'userCoin',
+        ];
+    }
+    /**
      * 更新记录数据分
      */
     private function _scoreRecord(&$oApp, &$oRecord, &$modelRec, &$modelRecDat) {
@@ -38,10 +46,6 @@ class repair extends record_base {
      * 根据reocrd_data中的数据，修复record中的data字段
      */
     public function record_action($ek) {
-        if (false === ($user = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-
         $modelRec = $this->model('matter\enroll\record');
         $oRecord = $modelRec->byId($ek);
         if (false === $oRecord) {
@@ -81,25 +85,20 @@ class repair extends record_base {
         }
 
         // 记录活动
-        $modelApp = $this->model('matter\enroll');
-        $oApp = $modelApp->byId($app, ['cascaded' => 'N']);
-        if (false === $oApp) {
-            return new \ObjectNotFoundError();
-        }
+        $modelRec = $this->model('matter\enroll\record');
 
         $renewCount = 0;
-        $q = ['id,state,enroll_key,enroll_at,rid,purpose,userid,nickname,group_id,data,score', 'xxt_enroll_record', ['aid' => $oApp->id]];
+        $q = ['id,state,enroll_key,enroll_at,rid,purpose,userid,nickname,group_id,data,score', 'xxt_enroll_record', ['aid' => $this->app->id]];
         if (!empty($rid)) {
             $q[2]['rid'] = $rid;
         }
-        $records = $modelApp->query_objs_ss($q);
+        $records = $modelRec->query_objs_ss($q);
         if (count($records)) {
-            $modelRec = $this->model('matter\enroll\record');
             $modelRecData = $this->model('matter\enroll\data');
             $aOptimizedFormulas = []; // 保存优化后的数据分计算公式
             foreach ($records as $oRecord) {
                 if (!empty($oRecord->data)) {
-                    $aResult = $this->_scoreRecord($oApp, $oRecord, $modelRec, $modelRecData);
+                    $aResult = $this->_scoreRecord($this->app, $oRecord, $modelRec, $modelRecData);
                     if ($aResult[0] === true) {
                         $renewCount++;
                     }
@@ -108,19 +107,19 @@ class repair extends record_base {
             /**
              * 更新数据分题目排名
              */
-            $modelRec->setScoreRank($oApp, $oRecord->rid);
+            $modelRec->setScoreRank($this->app, $oRecord->rid);
             /**
              * 更新用户数据分排名
              */
             $modelEnlUsr = $this->model('matter\enroll\user');
-            $modelEnlUsr->setScoreRank($oApp, $oRecord->rid);
+            $modelEnlUsr->setScoreRank($this->app, $oRecord->rid);
 
             $modelUsr = $this->model('matter\enroll\user');
-            $aUpdatedResult = $modelUsr->renew($oApp);
+            $aUpdatedResult = $modelUsr->renew($this->app);
         }
 
         // 记录操作日志
-        $this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'renewScore');
+        $this->model('matter\log')->matterOp($this->app->siteid, $this->user, $this->app, 'renewScore');
 
         return new \ResponseData($renewCount);
     }
@@ -128,41 +127,141 @@ class repair extends record_base {
      * 更新指定活动下指定记录的数据分
      */
     public function recordScore_action($app, $ek) {
-        if (false === ($oUser = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-
         // 记录活动
-        $modelApp = $this->model('matter\enroll');
-        $oApp = $modelApp->byId($app, ['cascaded' => 'N']);
-        if (false === $oApp) {
-            return new \ObjectNotFoundError();
-        }
-
+        $modelRec = $this->model('matter\enroll\record');
         $q = [
             'id,state,enroll_key,enroll_at,rid,purpose,userid,nickname,group_id,data,score',
             'xxt_enroll_record',
-            ['aid' => $oApp->id, 'enroll_key' => $ek],
+            ['aid' => $this->app->id, 'enroll_key' => $ek],
         ];
-        $oRecord = $modelApp->query_obj_ss($q);
+        $oRecord = $modelRec->query_obj_ss($q);
         if ($oRecord) {
-            $modelRec = $this->model('matter\enroll\record');
             if (!empty($oRecord->data)) {
                 $modelRecDat = $this->model('matter\enroll\data');
-                $aResult = $this->_scoreRecord($oApp, $oRecord, $modelRec, $modelRecDat);
+                $aResult = $this->_scoreRecord($this->app, $oRecord, $modelRec, $modelRecDat);
             }
             /**
              * 更新数据分题目排名
              */
-            $modelRec->setScoreRank($oApp, $oRecord->rid);
+            $modelRec->setScoreRank($this->app, $oRecord->rid);
 
             $modelUsr = $this->model('matter\enroll\user');
-            $aUpdatedResult = $modelUsr->renew($oApp, '', $oRecord->userid);
+            $aUpdatedResult = $modelUsr->renew($this->app, '', $oRecord->userid);
         }
 
         // 记录操作日志
-        $this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'renewScore');
+        $this->model('matter\log')->matterOp($this->app->siteid, $this->user, $this->app, 'renewScore');
 
         return new \ResponseData('ok');
+    }
+    /**
+     * 重置活动行为分
+     */
+    private function _resetEnlLog($log, $coin, &$modelEnlLog) {
+        // 没有发生变化
+        if ($log->earn_coin == $coin) {
+            return false;
+        }
+        $transId = $this->tmsTransaction->id;
+        /**
+         * 生成新记录
+         */
+        $now = $this->getRequestTime();
+        $newLog = clone $log;
+        unset($newLog->id);
+        $newLog->g_transid = $transId;
+        $newLog->reset_at = $now;
+        $newLog->reset_event_id = $log->id;
+        $newLog->earn_coin = $coin;
+        $newLog->id = $modelEnlLog->insert($modelEnlLog->table(), $newLog, true);
+        /**
+         * 更新老记录
+         */
+        $modelEnlLog->update($modelEnlLog->table(), ['state' => 0], ['id' => $log->id]);
+
+        return $newLog;
+    }
+    /**
+     * 基于用户在活动中的行为日志，重置用户行为分
+     * 更新xxt_enroll_user,xxt_enroll_group,xxt_mission_user,xxt_mission_group,xxt_enroll_log数据
+     */
+    public function userCoin_action($rid) {
+        if (empty($rid)) {
+            return new \ResponseError('请指定要重置的活动轮次');
+        }
+        $transId = $this->tmsTransaction->id;
+        $resetCount = 0; // 重置的记录数
+        $oApp = $this->app;
+
+        $modelCoinRule = $this->model('matter\enroll\coin');
+        $modelEnlLog = $this->model('matter\enroll\log');
+        /**
+         * 更新用户活动行为日志
+         */
+        $aResetUsers = [];
+        $aResetGroups = [];
+        $aCacheCoinRules = []; // 缓存行为分规则
+        $q = ['*', $modelEnlLog->table(), ['aid' => $oApp->id, 'rid' => $rid, 'state' => 1, 'coin_event' => 1]];
+        $logs = $modelEnlLog->query_objs_ss($q);
+        foreach ($logs as $log) {
+            if (!isset($aCacheCoinRules[$log->event_name])) {
+                $aCoinResult = $modelCoinRule->coinByMatter($log->event_name, $oApp);
+                $coin = $aCoinResult[0] === true ? $aCoinResult[1] : 0;
+                $aCacheCoinRules[$log->event_name] = $coin;
+            }
+            $done = $this->_resetEnlLog($log, $aCacheCoinRules[$log->event_name], $modelEnlLog);
+            if ($done) {
+                $resetCount++;
+                if (!empty($log->userid)) {
+                    $aResetUsers[$log->userid] = true;
+                }
+                if (!empty($log->group_id)) {
+                    $aResetGroups[$log->group_id] = true;
+                }
+            }
+        }
+        /**
+         * 更新用户汇总数据
+         */
+        if (count($aResetUsers)) {
+            $modelEnlUsr = $this->model('matter\enroll\user');
+            foreach ($aResetUsers as $userid => $foo) {
+                $modelEnlUsr->resetCoin($oApp, $rid, $userid);
+            }
+        }
+        /**
+         * 更新分组汇总数据
+         */
+        if (count($aResetGroups)) {
+            $modelEnlGrp = $this->model('matter\enroll\group');
+            foreach ($aResetGroups as $groupId => $foo) {
+                $modelEnlGrp->resetCoin($oApp, $rid, $groupId);
+            }
+        }
+        /**
+         * 更新项目用户累积行为分
+         */
+        if ($oApp->mission_id && (count($aResetUsers) || count($aResetGroups))) {
+            $oMission = $this->model('matter\mission')->byId($oApp->mission_id, ['fields' => 'siteid,id,user_app_type,user_app_id']);
+            if ($oMission) {
+                $modelMisUsr = $this->model('matter\mission\user');
+                foreach ($aResetUsers as $userid => $foo) {
+                    $modelMisUsr->resetCoin($oMission, $userid);
+                }
+                if ($oMission->user_app_type === 'group') {
+                    if ($this->getDeepValue($oApp, 'entryRule.group.id') === $oMission->user_app_id) {
+                        $modelMisGrp = $this->model('matter\mission\group');
+                        foreach ($aResetGroups as $groupId => $foo) {
+                            $modelMisGrp->resetCoin($oMission, $groupId);
+                        }
+                    }
+                }
+            }
+        }
+
+        // 记录操作日志
+        $this->model('matter\log')->matterOp($oApp->siteid, $this->user, $oApp, 'resetCoin', $resetCount, $transId);
+
+        return new \ResponseData($resetCount);
     }
 }

@@ -20,9 +20,6 @@ class user_model extends \TMS_MODEL {
             if (property_exists($oUser, 'modify_log')) {
                 $oUser->modify_log = empty($oUser->modify_log) ? [] : json_decode($oUser->modify_log);
             }
-            if (property_exists($oUser, 'custom')) {
-                $oUser->custom = empty($oUser->custom) ? new \stdClass : json_decode($oUser->custom);
-            }
         }
 
         return $oUser;
@@ -321,6 +318,25 @@ class user_model extends \TMS_MODEL {
             ['user_total_coin' => (int) $oMisUsr->user_total_coin - $deductCoin],
             ['id' => $oMisUsr->id]
         );
+
+        return true;
+    }
+    /**
+     * 更新用户累积行为分
+     */
+    public function resetCoin($oMission, $userid) {
+        $oMisUser = $this->byId($oMission, $userid, ['fields' => 'id,user_total_coin']);
+        if (false === $oMisUser) {
+            return false;
+        }
+        $q = [
+            'sum(user_total_coin)',
+            'xxt_enroll_user eu',
+            ['aid' => (object) ['op' => 'exists', 'pat' => "select 1 from xxt_enroll e where e.mission_id='{$oMission->id}' and eu.aid=e.id"], 'userid' => $userid, 'state' => 1, 'rid' => 'ALL'],
+        ];
+        $coin = $this->query_val_ss($q);
+
+        $this->update('xxt_mission_user', ['user_total_coin' => $coin], ['id' => $oMisUser->id]);
 
         return true;
     }

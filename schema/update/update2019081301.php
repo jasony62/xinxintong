@@ -56,10 +56,6 @@ $sql .= ",score float default 0 COMMENT '数据分'"; //
 $sql .= ",score_rank int not null default 0"; // 数据分在轮次中的排名
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
-}
 $sqls[] = $sql;
 /**
  * 项目分组用户数据汇总
@@ -112,6 +108,7 @@ $sql .= ",score float not null default 0"; // 用户总数据分
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,100:后台删除
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 $sqls[] = $sql;
+
 foreach ($sqls as $sql) {
     if (!$mysqli->query($sql)) {
         header('HTTP/1.0 500 Internal Server Error');

@@ -262,8 +262,7 @@ class login extends \site\fe\base {
      *  跳转到第三方登陆页面
      */
     private function _requirLoginOauth($thirdApp) {
-        // $ruri = APP_PROTOCOL . APP_HTTP_HOST . '/rest/site/fe/user/login/thirdCallback';
-        $ruri = 'http://' . APP_HTTP_HOST . '/rest/site/fe/user/login/thirdCallback';
+        $ruri = APP_PROTOCOL . APP_HTTP_HOST . '/rest/site/fe/user/login/thirdCallback';
 
         $snsProxy = $this->model('sns\\' . $thirdApp->app_short_name . '\proxy', $thirdApp);
         $oauthUrl = $snsProxy->oauthUrl($ruri, 'snsOAuth-third-login');

@@ -123,16 +123,6 @@ class group_model extends \TMS_MODEL {
             return [false];
         }
 
-        /* 参与活动的用户 */
-        //$oEnlGrpUsr = $this->byId($oApp, $groupId, ['fields' => 'id,group_id,group_total_coin', 'rid' => $rid]);
-        //if (false === $oEnlGrpUsr) {
-        //    return [false, $deltaCoin];
-        //}
-
-        /* 奖励行为分 */
-        //$modelCoinLog = $this->model('site\coin\log')->setOnlyWriteDbConn(true);
-        //$oResult = $modelCoinLog->award($oApp, $oEnlGrpUsr, $coinEvent, $coinRules);
-
         return [true, $deltaCoin];
     }
     /**

@@ -1,6 +1,6 @@
 define(['frame'], function (ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlEnrollee', ['$scope', 'http2', 'srvEnrollRecord', '$q', '$uibModal', 'tmsSchema', 'facListFilter', 'tmsRowPicker', function ($scope, http2, srvEnrollRecord, $q, $uibModal, tmsSchema, facListFilter, tmsRowPicker) {
+    ngApp.provider.controller('ctrlEnrollee', ['$scope', 'http2', 'noticebox', 'tkEnrollRound', 'srvEnrollRecord', '$uibModal', 'tmsSchema', 'facListFilter', 'tmsRowPicker', function ($scope, http2, noticebox, tkEnlRnd, srvEnrollRecord, $uibModal, tmsSchema, facListFilter, tmsRowPicker) {
         function _fnAbsent() {
             http2.post('/rest/pl/fe/matter/enroll/user/undone?app=' + $scope.app.id, {
                 rids: _oCriteria.rids
@@ -111,6 +111,27 @@ define(['frame'], function (ngApp) {
             url += '&app=' + $scope.app.id;
             http2.get(url).then(function (rsp) {
                 $scope.searchEnrollee(1);
+            });
+        };
+        $scope.repairCoin = function () {
+            tkEnlRnd.pick($scope.app, {
+                single: false
+            }).then(function (oResult) {
+                function resetCoinByRound(i) {
+                    if (i < rids.length) {
+                        var url = '/rest/pl/fe/matter/enroll/repair/userCoin?site=' + $scope.app.siteid;
+                        url += '&app=' + $scope.app.id;
+                        url += '&rid=' + rids[i];
+                        http2.get(url).then(function (rsp) {
+                            resetCoinByRound(++i);
+                        });
+                    } else {
+                        noticebox.success('完成【' + i + '】个轮次数据的更新');
+                        $scope.searchEnrollee(1);
+                    }
+                }
+                var rids = oResult.rid;
+                rids.length && resetCoinByRound(0);
             });
         };
         $scope.repairGroup = function () {

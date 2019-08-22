@@ -175,7 +175,7 @@ ngMod.service('http2', ['$rootScope', '$http', '$timeout', '$q', '$sce', '$compi
                     } else {
                         _defer.reject(rsp);
                     }
-                } else if (rsp.err_code != 0) {
+                } else if (rsp.err_code && rsp.err_code != 0) {
                     if (oOptions.autoNotice) {
                         var errmsg;
                         if (angular.isString(rsp.err_msg)) {

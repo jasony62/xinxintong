@@ -2,6 +2,20 @@
 window.xxt === undefined && (window.xxt = {});
 window.xxt.image = {
     options: {},
+    canupload: function(file) {
+        var seat, extendsion, allowtype = "png,jpg,jpeg,gif";
+        if (!(file.name.lastIndexOf("."))) {
+            noticebox.error("图片数据格式错误:只能上传" + allowtype + "格式的文件");
+            return false;
+        }
+        seat = file.name.lastIndexOf(".") + 1;
+        extendsion = file.name.substring(seat).toLowerCase();
+        if (allowtype.indexOf(extendsion) === -1) {
+            noticebox.error("图片数据格式错误:只能上传" + allowtype + "格式的文件");
+            return false;
+        }
+        return true;
+    },
     choose: function(deferred, from) {
         var promise, imgs = [];
         promise = deferred.promise;
@@ -12,23 +26,25 @@ window.xxt.image = {
             cnt = evt.target.files.length;
             for (i = 0; i < cnt; i++) {
                 f = evt.target.files[i];
-                type = {
-                    ".jp": "image/jpeg",
-                    ".pn": "image/png",
-                    ".gi": "image/gif"
-                } [f.name.match(/\.(\w){2}/g)[0] || ".jp"];
-                f.type2 = f.type || type;
-                var oReader = new FileReader();
-                oReader.onload = (function(theFile) {
-                    return function(e) {
-                        var img = {};
-                        img.imgSrc = e.target.result.replace(/^.+(,)/, "data:" + theFile.type2 + ";base64,");
-                        imgs.push(img);
-                        document.body.removeChild(ele);
-                        deferred.resolve(imgs);
-                    };
-                })(f);
-                oReader.readAsDataURL(f);
+                if (window.xxt.image.canupload(f)) {
+                    type = {
+                        ".jp": "image/jpeg",
+                        ".pn": "image/png",
+                        ".gi": "image/gif"
+                    } [f.name.match(/\.(\w){2}/g)[0] || ".jp"];
+                    f.type2 = f.type || type;
+                    var oReader = new FileReader();
+                    oReader.onload = (function(theFile) {
+                        return function(e) {
+                            var img = {};
+                            img.imgSrc = e.target.result.replace(/^.+(,)/, "data:" + theFile.type2 + ";base64,");
+                            imgs.push(img);
+                            document.body.removeChild(ele);
+                            deferred.resolve(imgs);
+                        };
+                    })(f);
+                    oReader.readAsDataURL(f);
+                }
             }
         }, false);
         ele.style.opacity = 0;

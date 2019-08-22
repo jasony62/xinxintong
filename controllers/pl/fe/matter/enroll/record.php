@@ -10,15 +10,14 @@ class record extends record_base {
      * 获得指定记录
      */
     public function get_action($ek) {
-        if (false === $this->accountUser()) {
-            return new \ResponseTimeout();
-        }
-
         $mdoelRec = $this->model('matter\enroll\record');
         $oRecord = $mdoelRec->byId($ek, ['verbose' => 'Y']);
         if ($oRecord) {
-            $modelApp = $this->model('matter\enroll');
-            $oApp = $modelApp->byId($oRecord->aid);
+            $modelEnl = $this->model('matter\enroll');
+            $oApp = $modelEnl->byId($oRecord->aid, ['cascaded' => 'N']);
+            if (false === $oApp) {
+                return new \ObjectNotFoundError();
+            }
             $dataSchemas = new \stdClass;
             foreach ($oApp->dataSchemas as $schema) {
                 $dataSchemas->{$schema->id} = $schema;
@@ -41,13 +40,8 @@ class record extends record_base {
     /**
      * 活动的记录
      */
-    public function list_action($app, $page = 1, $size = 30) {
-        if (false === $this->accountUser()) {
-            return new \ResponseTimeout();
-        }
-        // 记录活动
-        $modelApp = $this->model('matter\enroll');
-        $oEnrollApp = $modelApp->byId($app, ['cascaded' => 'N']);
+    public function list_action($page = 1, $size = 30) {
+        $oEnrollApp = $this->app;
 
         // 登记数据过滤条件
         $oCriteria = $this->getPostJson();
@@ -75,16 +69,8 @@ class record extends record_base {
     /**
      * 活动的记录 答案视图
      */
-    public function listByCowork_action($app, $page = 1, $size = 30) {
-        if (false === $this->accountUser()) {
-            return new \ResponseTimeout();
-        }
-        // 记录活动
-        $modelApp = $this->model('matter\enroll');
-        $oApp = $modelApp->byId($app, ['cascaded' => 'N']);
-        if (false === $oApp || $oApp->state !== '1') {
-            return new \ObjectNotFoundError();
-        }
+    public function listByCowork_action($page = 1, $size = 30) {
+        $oApp = $this->app;
 
         // 填写记录过滤条件
         $oOptions = new \stdClass;
@@ -128,10 +114,6 @@ class record extends record_base {
      * 指定活动轮次的记录的数量
      */
     public function countByRound_action($rid) {
-        if (false === $this->accountUser()) {
-            return new \ResponseTimeout();
-        }
-
         $modelRnd = $this->model('matter\enroll\round');
         $oRound = $modelRnd->byId($rid, ['fields' => 'rid']);
         if (false === $oRound) {
@@ -148,17 +130,8 @@ class record extends record_base {
      * 若不指定登记项，则返回活动中所有数值型登记项的合集
      * 若指定的登记项不是数值型，返回0
      */
-    public function sum4Schema_action($app, $rid = '', $gid = '') {
-        if (false === ($user = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-
-        // 记录活动
-        $modelApp = $this->model('matter\enroll');
-        $enrollApp = $modelApp->byId($app, ['cascaded' => 'N']);
-        if (false === $enrollApp) {
-            return new \ObjectNotFoundError();
-        }
+    public function sum4Schema_action($rid = '', $gid = '') {
+        $enrollApp = $this->app;
 
         $rid = empty($rid) ? [] : explode(',', $rid);
 
@@ -174,17 +147,8 @@ class record extends record_base {
      * @param string $gid 分组id
      *
      */
-    public function score4Schema_action($app, $rid = '', $gid = '') {
-        if (false === ($user = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-
-        // 记录活动
-        $modelApp = $this->model('matter\enroll');
-        $enrollApp = $modelApp->byId($app, ['cascaded' => 'N']);
-        if (false === $enrollApp || $enrollApp->state !== '1') {
-            return new \ObjectNotFoundError();
-        }
+    public function score4Schema_action($rid = '', $gid = '') {
+        $enrollApp = $this->app;
 
         $rid = empty($rid) ? [] : explode(',', $rid);
 
@@ -197,36 +161,23 @@ class record extends record_base {
     /**
      * 已删除的活动登记名单
      */
-    public function recycle_action($app, $page = 1, $size = 30, $rid = null) {
-        if (false === ($user = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-
+    public function recycle_action($page = 1, $size = 30, $rid = null) {
         // 填写记录过滤条件
         $aOptions = [
             'page' => $page,
             'size' => $size,
             'rid' => $rid,
         ];
-
-        // 记录活动
-        $modelApp = $this->model('matter\enroll');
-        $enrollApp = $modelApp->byId($app);
-
         // 查询结果
         $modelRec = $this->model('matter\enroll\record');
-        $result = $modelRec->recycle($enrollApp, $aOptions);
+        $result = $modelRec->recycle($this->app, $aOptions);
 
         return new \ResponseData($result);
     }
     /**
      * 返回指定登记项的活动登记名单
      */
-    public function list4Schema_action($app, $rid = null, $schema, $page = 1, $size = 10) {
-        if (false === ($user = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-
+    public function list4Schema_action($rid = null, $schema, $page = 1, $size = 10) {
         // 填写记录过滤条件
         $aOptions = [
             'page' => $page,
@@ -236,13 +187,9 @@ class record extends record_base {
             $aOptions['rid'] = $rid;
         }
 
-        // 记录活动
-        $modelApp = $this->model('matter\enroll');
-        $enrollApp = $modelApp->byId($app);
-
         // 查询结果
         $modelRec = $this->model('matter\enroll\record');
-        $result = $modelRec->list4Schema($enrollApp, $schema, $aOptions);
+        $result = $modelRec->list4Schema($this->app, $schema, $aOptions);
 
         return new \ResponseData($result);
     }
@@ -254,10 +201,6 @@ class record extends record_base {
      *
      */
     public function copy_action($ek, $owner) {
-        if (false === $this->accountUser()) {
-            return new \ResponseTimeout();
-        }
-
         $modelRec = $this->model('matter\enroll\record');
         $oCopiedRecord = $modelRec->byId($ek, ['verbose' => 'N']);
         if (false === $oCopiedRecord) {
@@ -303,15 +246,13 @@ class record extends record_base {
      *
      * @param string $app
      */
-    public function add_action($app) {
-        if (false === ($oOperator = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
+    public function add_action() {
+        $oOperator = $this->user;
+        $oApp = $this->app;
+
         $posted = $this->getPostJson();
         $modelEnl = $this->model('matter\enroll');
         $modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
-
-        $oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
 
         /* 创建填写记录 */
         $aOptions = [];
@@ -347,10 +288,6 @@ class record extends record_base {
      * @param string $targetApp
      */
     public function exportToOther_action($app, $targetApp) {
-        if (false === $this->accountUser()) {
-            return new \ResponseTimeout();
-        }
-
         $oPosted = $this->getPostJson();
         if (empty($oPosted->eks)) {
             return new \ParameterError('没有指定要导出的记录');
@@ -359,12 +296,9 @@ class record extends record_base {
             return new \ParameterError('没有指定题目映射关系');
         }
 
-        $modelEnl = $this->model('matter\enroll');
+        $oApp = $this->app;
 
-        $oApp = $modelEnl->byId($app, ['fields' => 'siteid,state,mission_id,sync_mission_round,data_schemas']);
-        if (false === $oApp || $oApp->state !== '1') {
-            return new \ObjectNotFoundError();
-        }
+        $modelEnl = $this->model('matter\enroll');
         $oTargetApp = $modelEnl->byId($targetApp, ['fields' => '*']);
         if (false === $oTargetApp || $oTargetApp->state !== '1') {
             return new \ObjectNotFoundError();
@@ -381,10 +315,6 @@ class record extends record_base {
      * 投票结果导出到其他活动作为记录
      */
     public function transferVotes_action($app, $targetApp, $round = '') {
-        if (false === $this->accountUser()) {
-            return new \ResponseTimeout();
-        }
-
         $oPosted = $this->getPostJson();
 
         if (empty($oPosted->targetSchema)) {
@@ -398,10 +328,7 @@ class record extends record_base {
         $modelRec = $this->model('matter\enroll\record');
         $modelUsr = $this->model('matter\enroll\user');
 
-        $oApp = $modelEnl->byId($app, ['fields' => 'siteid,state,mission_id,sync_mission_round,round_cron,data_schemas', 'appRid' => $round]);
-        if (false === $oApp || $oApp->state !== '1') {
-            return new \ObjectNotFoundError();
-        }
+        $oApp = $this->app;
         /* 指定的投票题目 */
         $aVotingSchemas = [];
         foreach ($oApp->dataSchemas as $oSchema) {
@@ -493,10 +420,6 @@ class record extends record_base {
      * 投票题目和结果导出到其他活动作为记录
      */
     public function transferSchemaAndVotes_action($app, $targetApp, $round = '') {
-        if (false === $this->accountUser()) {
-            return new \ResponseTimeout();
-        }
-
         $oPosted = $this->getPostJson();
         if (empty($oPosted->questionSchema)) {
             return new \ParameterError('目标活动中没有指定作为问题的题目');
@@ -510,10 +433,7 @@ class record extends record_base {
         $modelData = $this->model('matter\enroll\data');
         $modelUsr = $this->model('matter\enroll\user');
 
-        $oApp = $modelEnl->byId($app, ['fields' => 'siteid,state,mission_id,sync_mission_round,round_cron,data_schemas', 'appRid' => $round]);
-        if (false === $oApp || $oApp->state !== '1') {
-            return new \ObjectNotFoundError();
-        }
+        $oApp = $this->app;
         /* 指定的投票题目 */
         $aVotingSchemas = [];
         foreach ($oApp->dynaDataSchemas as $oSchema) {
@@ -654,10 +574,6 @@ class record extends record_base {
      * 投票题目和结果导出到其他活动作为记录
      */
     public function transferGroupAndMarks_action($app, $targetApp, $round = '') {
-        if (false === $this->accountUser()) {
-            return new \ResponseTimeout();
-        }
-
         $oPosted = $this->getPostJson();
         if (empty($oPosted->questionSchema)) {
             return new \ParameterError('目标活动中没有指定作为问题的题目');
@@ -671,10 +587,7 @@ class record extends record_base {
         $modelData = $this->model('matter\enroll\data');
         $modelUsr = $this->model('matter\enroll\user');
 
-        $oApp = $modelEnl->byId($app, ['fields' => 'siteid,state,mission_id,sync_mission_round,round_cron,data_schemas', 'appRid' => $round]);
-        if (false === $oApp || $oApp->state !== '1') {
-            return new \ObjectNotFoundError();
-        }
+        $oApp = $this->app;
         /* 所有打分题 */
         $aAllScoreSchemas = [];
         $aSchemaMapGroupIds = [];
@@ -824,9 +737,6 @@ class record extends record_base {
      *
      */
     public function fillByOther_action($app, $targetApp, $preview = 'Y') {
-        if (false === $this->accountUser()) {
-            return new \ResponseTimeout();
-        }
         list($targetType, $targetId) = explode(',', $targetApp);
         if (empty($targetType) || empty($targetId)) {
             return new \ParameterError('目标活动参数不完整');
@@ -845,10 +755,7 @@ class record extends record_base {
         $modelEnl = $this->model('matter\enroll');
         $modelRec = $this->model('matter\enroll\record');
 
-        $oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
-        if (false === $oApp || $oApp->state !== '1') {
-            return new \ObjectNotFoundError();
-        }
+        $oApp = $this->app;
         /* 允许填写活动定义的题目和部分字段 */
         $filledAppAttrs = [];
         $filledAppSchemas = [];
@@ -986,15 +893,8 @@ class record extends record_base {
      * @param $ek record's key
      */
     public function update_action($app, $ek) {
-        if (false === ($oUser = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-
-        $modelEnl = $this->model('matter\enroll');
-        $oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
-        if (false === $oApp || $oApp->state !== '1') {
-            return new \ObjectNotFoundError();
-        }
+        $oUser = $this->user;
+        $oApp = $this->app;
 
         $modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
         $oBeforeRecord = $modelRec->byId($ek, ['verbose' => 'N']);
@@ -1002,6 +902,7 @@ class record extends record_base {
             return new \ObjectNotFoundError();
         }
 
+        $modelEnl = $this->model('matter\enroll');
         $oPosted = $this->getPostJson();
         /* 更新记录数据 */
         $oUpdated = new \stdClass;
@@ -1199,59 +1100,17 @@ class record extends record_base {
         return new \ResponseData($oNewRecord);
     }
     /**
-     * 根据reocrd_data中的数据，修复record中的data字段
-     */
-    public function repair_action($ek) {
-        if (false === ($user = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-
-        $modelRec = $this->model('matter\enroll\record');
-        $oRecord = $modelRec->byId($ek);
-        if (false === $oRecord) {
-            return new \ParameterError();
-        }
-
-        $q = [
-            'schema_id,value',
-            'xxt_enroll_record_data',
-            ['enroll_key' => $ek, 'state' => 1],
-        ];
-        $schemaValues = $modelRec->query_objs_ss($q);
-
-        $oRecordData = new \stdClass;
-        foreach ($schemaValues as $schemaValue) {
-            if (strlen($schemaValue->value)) {
-                if ($jsonVal = json_decode($schemaValue->value)) {
-                    $oRecordData->{$schemaValue->schema_id} = $jsonVal;
-                } else {
-                    $oRecordData->{$schemaValue->schema_id} = $schemaValue->value;
-                }
-            }
-        }
-
-        $sRecordData = $modelRec->escape($modelRec->toJson($oRecordData));
-
-        $rst = $modelRec->update('xxt_enroll_record', ['data' => $sRecordData], ['enroll_key' => $ek]);
-
-        return new \ResponseData($rst);
-    }
-    /**
      * 删除一条记录
      */
-    public function remove_action($app, $ek) {
-        if (false === ($oUser = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-        $oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-        if (false === $oApp || $oApp->state !== '1') {
-            return new \ObjectNotFoundError();
-        }
+    public function remove_action($ek) {
         $modelEnlRec = $this->model('matter\enroll\record');
         $oRecord = $modelEnlRec->byId($ek, ['fields' => 'userid,state,enroll_key,data,rid']);
         if (false === $oRecord || $oRecord->state !== '1') {
             return new \ObjectNotFoundError();
         }
+
+        $oApp = $this->app;
+
         // 如果已经获得行为分不允许删除
         if (!empty($oRecord->userid)) {
             $modelEnlUsr = $this->model('matter\enroll\user');
@@ -1266,6 +1125,7 @@ class record extends record_base {
         // 记录操作日志
         unset($oRecord->userid);
         unset($oRecord->state);
+        $oUser = $this->user;
         $this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'removeData', $oRecord);
 
         return new \ResponseData($rst);
@@ -1273,14 +1133,9 @@ class record extends record_base {
     /**
      * 恢复一条记录
      */
-    public function recover_action($app, $ek) {
-        if (false === ($oUser = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-        $oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-        if (false === $oApp || $oApp->state !== '1') {
-            return new \ObjectNotFoundError();
-        }
+    public function recover_action($ek) {
+        $oUser = $this->user;
+        $oApp = $this->app;
         $modelEnlRec = $this->model('matter\enroll\record');
         $oRecord = $modelEnlRec->byId($ek, ['fields' => 'userid,enroll_key,data,rid']);
         if (false === $oRecord) {
@@ -1297,21 +1152,14 @@ class record extends record_base {
     /**
      * 清空活动中的所有记录
      */
-    public function empty_action($app) {
-        if (false === ($oUser = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-        $app = $this->escape($app);
-        $oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-        if (false === $oApp || $oApp->state !== '1') {
-            return new \ObjectNotFoundError();
-        }
-
+    public function empty_action() {
         $modelRec = $this->model('matter\enroll\record');
         /* 清除填写记录 */
         $rst = $modelRec->clean($oApp);
 
         // 记录操作日志
+        $oUser = $this->user;
+        $oApp = $this->app;
         $this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'empty');
 
         return new \ResponseData($rst);
@@ -1319,13 +1167,8 @@ class record extends record_base {
     /**
      * 所有记录通过审核
      */
-    public function verifyAll_action($app) {
-        if (false === ($oUser = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-
-        $oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-
+    public function verifyAll_action() {
+        $oApp = $this->app;
         $rst = $this->model()->update(
             'xxt_enroll_record',
             ['verified' => 'Y'],
@@ -1333,6 +1176,7 @@ class record extends record_base {
         );
 
         // 记录操作日志
+        $oUser = $this->user;
         $this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'verify.all');
 
         return new \ResponseData($rst);
@@ -1340,23 +1184,16 @@ class record extends record_base {
     /**
      * 指定记录通过审核
      */
-    public function batchVerify_action($app, $all = 'N') {
-        if (false === ($oUser = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-
-        $modelApp = $this->model('matter\enroll');
-        $oApp = $modelApp->byId($app, ['cascaded' => 'N']);
-        if (false === $oApp) {
-            return new \ObjectNotFoundError();
-        }
+    public function batchVerify_action($all = 'N') {
+        $oUser = $this->user;
+        $oApp = $this->app;
         $modelRun = $this->model('matter\enroll\round');
         if ($activeRound = $modelRun->getActive($oApp)) {
             $rid = $activeRound->rid;
         }
 
         if ($all === 'Y') {
-            $modelApp->update(
+            $modelRun->update(
                 'xxt_enroll_record',
                 ['verified' => 'Y'],
                 ['aid' => $oApp->id]
@@ -1372,9 +1209,8 @@ class record extends record_base {
             $posted = $this->getPostJson();
             $eks = $posted->eks;
 
-            $model = $this->model();
             foreach ($eks as $ek) {
-                $modelApp->update(
+                $modelRun->update(
                     'xxt_enroll_record',
                     ['verified' => 'Y'],
                     ['enroll_key' => $ek]
@@ -1461,15 +1297,10 @@ class record extends record_base {
     /**
      * 给记录批量添加标签
      */
-    public function batchTag_action($site, $app) {
-        if (false === ($oUser = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-
+    public function batchTag_action() {
         $posted = $this->getPostJson();
         $eks = $posted->eks;
         $tags = $posted->tags;
-
         /**
          * 给记录打标签
          */
@@ -1491,24 +1322,18 @@ class record extends record_base {
         /**
          * 给应用打标签
          */
-        $this->model('matter\enroll')->updateTags($app, $posted->appTags);
+        $this->model('matter\enroll')->updateTags($this->app->id, $posted->appTags);
 
         return new \ResponseData('ok');
     }
     /**
      * 从关联的记录活动中查找匹配的记录
      */
-    public function matchEnroll_action($site, $app) {
-        if (false === $this->accountUser()) {
-            return new \ResponseTimeout();
-        }
-
-        $modelApp = $this->model('matter\enroll');
-        $oEnlApp = $modelApp->byId($app, ['cascaded' => 'N']);
-        if (false === $oEnlApp || empty($oEnlApp->dynaDataSchemas)) {
+    public function matchEnroll_action() {
+        $oEnlApp = $this->app;
+        if (empty($oEnlApp->dynaDataSchemas)) {
             return new \ObjectNotFoundError();
         }
-
         if (empty($oEnlApp->entryRule->enroll->id)) {
             return new \ParameterError();
         }
@@ -1528,6 +1353,7 @@ class record extends record_base {
             }
         }
 
+        $modelApp = $this->model('matter\enroll');
         $aResult = [];
         if (!$bEmpty) {
             // 查找匹配的数据
@@ -1544,14 +1370,10 @@ class record extends record_base {
     /**
      * 从关联的分组活动中查找匹配的记录
      */
-    public function matchGroup_action($app) {
-        if (false === $this->accountUser()) {
-            return new \ResponseTimeout();
-        }
-
+    public function matchGroup_action() {
         $modelApp = $this->model('matter\enroll');
-        $oEnlApp = $modelApp->byId($app, ['cascaded' => 'N']);
-        if (false === $oEnlApp || empty($oEnlApp->dataSchemas)) {
+        $oEnlApp = $this->app;
+        if (empty($oEnlApp->dataSchemas)) {
             return new \ObjectNotFoundError();
         }
         if (empty($oEnlApp->entryRule->group->id)) {
@@ -1630,16 +1452,8 @@ class record extends record_base {
     /**
      * 根据记录的userid更新关联分组活动题目的数据
      */
-    public function syncGroup_action($app, $rid, $overwrite = 'N') {
-        if (false === $this->accountUser()) {
-            return new \ResponseTimeout();
-        }
-
-        $modelApp = $this->model('matter\enroll');
-        $oEnlApp = $modelApp->byId($app, ['cascaded' => 'N']);
-        if (false === $oEnlApp || $oEnlApp->state !== '1') {
-            return new \ObjectNotFoundError();
-        }
+    public function syncGroup_action($rid, $overwrite = 'N') {
+        $oEnlApp = $this->app;
 
         $aSyncResult = $this->_syncGroup($oEnlApp, $rid, $overwrite);
         if (false === $aSyncResult[0]) {
@@ -1708,16 +1522,8 @@ class record extends record_base {
     /**
      * 根据记录的userid更新关联通信录题目的数据
      */
-    public function syncMschema_action($app, $rid, $overwrite = 'N') {
-        if (false === $this->accountUser()) {
-            return new \ResponseTimeout();
-        }
-
-        $modelApp = $this->model('matter\enroll');
-        $oEnlApp = $modelApp->byId($app, ['cascaded' => 'N']);
-        if (false === $oEnlApp || $oEnlApp->state !== '1') {
-            return new \ObjectNotFoundError();
-        }
+    public function syncMschema_action($rid, $overwrite = 'N') {
+        $oEnlApp = $this->app;
 
         $aSyncResult = $this->_syncMschema($oEnlApp, $rid, $overwrite);
         if (false === $aSyncResult[0]) {
@@ -1741,21 +1547,15 @@ class record extends record_base {
      * @param string $append 追加记录，否则清空现有记录
      *
      */
-    public function importByOther_action($app, $fromApp, $toRnd, $fromRnd = '', $append = 'Y') {
-        if (false === ($oUser = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-
+    public function importByOther_action($fromApp, $toRnd, $fromRnd = '', $append = 'Y') {
         $modelApp = $this->model('matter\enroll');
-        $modelSch = $this->model('matter\enroll\schema');
-        $modelRec = $this->model('matter\enroll\record');
-
-        if (false === ($oApp = $modelApp->byId($app))) {
-            return new \ResponseError('指定的活动不存在（1）');
-        }
         if (false === ($oFromApp = $modelApp->byId($fromApp))) {
             return new \ResponseError('指定的活动不存在（2）');
         }
+
+        $oApp = $this->app;
+        $modelSch = $this->model('matter\enroll\schema');
+        $modelRec = $this->model('matter\enroll\record');
 
         /* 获得兼容的登记项 */
         $compatibleSchemas = $modelSch->compatibleSchemas($oApp->dynaDataSchemas, $oFromApp->dynaDataSchemas);
@@ -1826,15 +1626,8 @@ class record extends record_base {
     /**
      * 从指定的数据源同步数据
      */
-    public function syncWithDataSource_action($app, $round, $step = 1) {
-        if (false === ($oOperator = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-
-        $modelApp = $this->model('matter\enroll');
-        if (false === ($oApp = $modelApp->byId($app, ['fields' => 'id,siteid,data_schemas,scenario,mission_id,sync_mission_round,round_cron', 'appRid' => $round, 'cascaded' => 'N']))) {
-            return new \ObjectNotFoundError();
-        }
+    public function syncWithDataSource_action($round, $step = 1) {
+        $oApp = $this->app;
         if (empty($oApp->dataSchemas)) {
             return new \ObjectNotFoundError();
         }
@@ -1877,6 +1670,7 @@ class record extends record_base {
             return array_map(function ($oRnd) {return $oRnd->rid;}, $rounds);
         };
 
+        $modelApp = $this->model('matter\enroll');
         $modelRecDat = $this->model('matter\enroll\data');
 
         /*需要同步的题目*/
@@ -2187,16 +1981,8 @@ class record extends record_base {
     /**
      * 从活动所属项目同步用户记录
      */
-    public function syncMissionUser_action($app, $round) {
-        if (false === ($oUser = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-
-        $modelApp = $this->model('matter\enroll');
-        $oApp = $modelApp->byId($app, ['fields' => 'id,siteid,entry_rule,data_schemas,scenario,mission_id,sync_mission_round,round_cron', 'cascaded' => 'N']);
-        if (false === $oApp) {
-            return new \ObjectNotFoundError();
-        }
+    public function syncMissionUser_action($round) {
+        $oApp = $this->app;
         if ('mis_user_score' !== $oApp->scenario) {
             return new \ParameterError('活动类型不正确，无法执行次操作');
         }

@@ -218,7 +218,7 @@ class data extends base {
     /**
      * 提交一道题目的数据
      * 1、需要记录修改日志
-     * 2、需要支持积分
+     * 2、需要支持行为分
      * 3、需要重新计算计算题（还没做）
      *
      * @param int $data 填写记录数据id
@@ -434,7 +434,7 @@ class data extends base {
             $modelMisMat = $this->model('matter\mission\matter');
             $modelMisMat->agreed($oApp, 'D', $oRecData, $value);
         }
-        /* 处理了用户汇总数据，积分数据 */
+        /* 处理了用户汇总数据，行为分数据 */
         if (isset($oDataSchema->cowork) && $oDataSchema->cowork === 'Y') {
             $this->model('matter\enroll\event')->agreeCowork($oApp, $oRecData, $oUser, $value);
         } else {

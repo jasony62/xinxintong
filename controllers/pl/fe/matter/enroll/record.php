@@ -169,7 +169,7 @@ class record extends record_base {
         return new \ResponseData($result);
     }
     /**
-     * 计算指定登记项的得分
+     * 计算指定登记项的数据分
      *
      * @param string $gid 分组id
      *
@@ -193,136 +193,6 @@ class record extends record_base {
         $oResult = $modelRec->score4Schema($enrollApp, $rid, $gid);
 
         return new \ResponseData($oResult);
-    }
-    /**
-     * 更新指定活动下所有记录的得分
-     */
-    public function renewScoreByRound_action($app, $rid = null) {
-        if (false === ($oUser = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-
-        // 记录活动
-        $modelApp = $this->model('matter\enroll');
-        $oApp = $modelApp->byId($app, ['cascaded' => 'N']);
-        if (false === $oApp) {
-            return new \ObjectNotFoundError();
-        }
-
-        $schemasById = $this->model('matter\enroll\schema')->asAssoc($oApp->dynaDataSchemas);
-
-        $renewCount = 0;
-        $q = ['id,enroll_key,rid,userid,group_id,data,score', 'xxt_enroll_record', ['aid' => $oApp->id]];
-        if (!empty($rid)) {
-            $q[2]['rid'] = $rid;
-        }
-        $records = $modelApp->query_objs_ss($q);
-        if (count($records)) {
-            $modelRec = $this->model('matter\enroll\record');
-            $modelRecData = $this->model('matter\enroll\data');
-            $aOptimizedFormulas = []; // 保存优化后的得分计算公式
-            foreach ($records as $oRecord) {
-                if (!empty($oRecord->data)) {
-                    $dbData = json_decode($oRecord->data);
-                    /* 题目的得分 */
-                    $oRecordScore = $modelRecData->socreRecordData($oApp, $oRecord, $schemasById, $dbData, null, $aOptimizedFormulas);
-                    if ($modelApp->update('xxt_enroll_record', ['score' => json_encode($oRecordScore)], ['id' => $oRecord->id])) {
-                        unset($oRecordScore->sum);
-                        foreach ($oRecordScore as $schemaId => $dataScore) {
-                            $modelApp->update(
-                                'xxt_enroll_record_data',
-                                ['score' => $dataScore],
-                                ['enroll_key' => $oRecord->enroll_key, 'schema_id' => $schemaId]
-                            );
-                        }
-                        $renewCount++;
-                    }
-                }
-                /**
-                 * 处理用户按轮次汇总数据，积分数据
-                 */
-                $oMockUser = new \stdClass;
-                $oMockUser->uid = $oRecord->userid;
-                $oMockUser->group_id = $oRecord->group_id;
-                $modelRec->setSummaryRec($oMockUser, $oApp, $oRecord->rid);
-            }
-            /**
-             * 更新得分题目排名
-             */
-            $modelRec->setScoreRank($oApp, $oRecord->rid);
-            /**
-             * 更新用户得分排名
-             */
-            $modelEnlUsr = $this->model('matter\enroll\user');
-            $modelEnlUsr->setScoreRank($oApp, $oRecord->rid);
-
-            $modelUsr = $this->model('matter\enroll\user');
-            $aUpdatedResult = $modelUsr->renew($oApp);
-        }
-
-        // 记录操作日志
-        $this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'renewScore');
-
-        return new \ResponseData($renewCount);
-    }
-    /**
-     * 更新指定活动下指定记录的得分
-     */
-    public function renewScore_action($app, $ek) {
-        if (false === ($oUser = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-
-        // 记录活动
-        $modelApp = $this->model('matter\enroll');
-        $oApp = $modelApp->byId($app, ['cascaded' => 'N']);
-        if (false === $oApp) {
-            return new \ObjectNotFoundError();
-        }
-
-        $schemasById = $this->model('matter\enroll\schema')->asAssoc($oApp->dynaDataSchemas);
-
-        $modelRec = $this->model('matter\enroll\record');
-        $modelRecDat = $this->model('matter\enroll\data');
-        $q = ['id,enroll_key,rid,userid,group_id,data,score', 'xxt_enroll_record', ['aid' => $oApp->id, 'enroll_key' => $ek]];
-        $oRecord = $modelApp->query_obj_ss($q);
-        if ($oRecord) {
-            if (!empty($oRecord->data)) {
-                $dbData = json_decode($oRecord->data);
-                /* 题目的得分 */
-                $aOptimizedFormulas = [];
-                $oRecordScore = $modelRecDat->socreRecordData($oApp, $oRecord, $schemasById, $dbData, null, $aOptimizedFormulas);
-                if ($modelApp->update('xxt_enroll_record', ['score' => json_encode($oRecordScore)], ['id' => $oRecord->id])) {
-                    unset($oRecordScore->sum);
-                    foreach ($oRecordScore as $schemaId => $dataScore) {
-                        $modelApp->update(
-                            'xxt_enroll_record_data',
-                            ['score' => $dataScore],
-                            ['enroll_key' => $oRecord->enroll_key, 'schema_id' => $schemaId]
-                        );
-                    }
-                }
-            }
-            /**
-             * 处理用户按轮次汇总数据，积分数据
-             */
-            $oMockUser = new \stdClass;
-            $oMockUser->uid = $oRecord->userid;
-            $oMockUser->group_id = $oRecord->group_id;
-            $modelRec->setSummaryRec($oMockUser, $oApp, $oRecord->rid);
-            /**
-             * 更新得分题目排名
-             */
-            $modelRec->setScoreRank($oApp, $oRecord->rid);
-
-            $modelUsr = $this->model('matter\enroll\user');
-            $aUpdatedResult = $modelUsr->renew($oApp, '', $oRecord->userid);
-        }
-
-        // 记录操作日志
-        //$this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'renewScore');
-
-        return new \ResponseData('ok');
     }
     /**
      * 已删除的活动登记名单
@@ -423,7 +293,7 @@ class record extends record_base {
         /* 返回完整的记录 */
         $oNewRecord = $modelRec->byId($oNewRec->enroll_key, ['verbose' => 'Y']);
 
-        /* 处理用户汇总数据，积分数据 */
+        /* 处理用户汇总数据，行为分数据 */
         $this->model('matter\enroll\event')->submitRecord($oApp, $oNewRecord, $oMocker, true);
 
         return new \ResponseData($oNewRecord);
@@ -838,7 +708,7 @@ class record extends record_base {
         uasort($aResult, function ($a, $b) {
             return $a < $b ? 1 : -1;
         });
-        $aGroupSchemasByScore = []; // 每个分组符合得分排序的题目
+        $aGroupSchemasByScore = []; // 每个分组符合数据分排序的题目
         foreach ($aResult as $schemaId => $score) {
             $groupSchemaId = $aSchemaMapGroupIds[$schemaId];
             if (!isset($aGroupSchemasByScore[$groupSchemaId])) {
@@ -1155,7 +1025,7 @@ class record extends record_base {
                 $modelMisMat = $this->model('matter\mission\matter');
                 $modelMisMat->agreed($oApp, 'R', $oBeforeRecord, $oUpdated->agreed);
             }
-            /* 处理了用户汇总数据，积分数据 */
+            /* 处理了用户汇总数据，行为分数据 */
             $this->model('matter\enroll\event')->agreeRecord($oApp, $oBeforeRecord, $oUser, $oUpdated->agreed);
         }
         if (isset($oPosted->tags)) {
@@ -1172,10 +1042,10 @@ class record extends record_base {
             if ($userOldRid !== $userNewRid) {
                 $modelUser = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 
-                /* 获取enroll_user中用户现在的轮次,如果有积分则不能移动 */
+                /* 获取enroll_user中用户现在的轮次,如果有行为分则不能移动 */
                 $resOld = $modelUser->byId($oApp, $oBeforeRecord->userid, ['rid' => $userOldRid]);
                 if ($resOld->user_total_coin > 0) {
-                    return new \ResponseError('用户在当前轮次上以获得积分，不能更换轮次！！');
+                    return new \ResponseError('用户在当前轮次上以获得行为分，不能更换轮次！！');
                 }
                 /* 查询此用户的记录是否被点赞或者被留言，如果有就不能更改 */
                 $qd = [
@@ -1382,12 +1252,12 @@ class record extends record_base {
         if (false === $oRecord || $oRecord->state !== '1') {
             return new \ObjectNotFoundError();
         }
-        // 如果已经获得积分不允许删除
+        // 如果已经获得行为分不允许删除
         if (!empty($oRecord->userid)) {
             $modelEnlUsr = $this->model('matter\enroll\user');
             $oEnlUsrRnd = $modelEnlUsr->byId($oApp, $oRecord->userid, ['fields' => 'user_total_coin', 'rid' => $oRecord->rid]);
             if ($oEnlUsrRnd && $oEnlUsrRnd->user_total_coin > 0) {
-                return new \ResponseError('提交的记录已经获得活动积分，不能删除');
+                return new \ResponseError('提交的记录已经获得活动行为分，不能删除');
             }
         }
         // 删除数据
@@ -2088,7 +1958,7 @@ class record extends record_base {
             /* 更新结果记录 */
             $oSyncResult->{$oSchema->id} = $syncRecordNum;
             $oSyncResult->total += $syncRecordNum;
-            /* 计算得分的排名 */
+            /* 计算数据分的排名 */
             if ($this->getDeepValue($oSchema, 'requireScore') === 'Y') {
                 $modelRecDat->setScoreRank($oApp, $oSchema, $oAssignedRnd->rid);
             }

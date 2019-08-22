@@ -45,7 +45,7 @@
                             <label>版本号</label>
                             <span ng-if="app.pub_status=='N'" class='text-danger'>(※ 未发布)</span>
                             <span ng-if="app.pub_status=='Y'" class='text-success'>(※ 已发布)</span>
-                            <input type='text' class='form-control' ng-model="app.version" disabled/>
+                            <input type='text' class='form-control' ng-model="app.version" disabled />
                         </div>
                     </div>
                     <div class='form-group'>
@@ -114,7 +114,7 @@
                         </table>
                     </div>
                     <div class='form-group'>
-                        <label>下载该模板所需的积分</label>
+                        <label>下载该模板所需的行为分</label>
                         <input type='text' class='form-control' size='40' ng-model='app.coin' tms-auto-update tms-wait=1000 tms-update="update('coin')">
                     </div>
                     <div class="form-group">

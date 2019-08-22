@@ -542,16 +542,26 @@ service('tkGroupTeam', ['$q', 'http2', function ($q, http2) {
                 return defer.promise;
             },
             edit: function (oRecord) {
-                return $uibModal.open({
-                    templateUrl: '/views/default/pl/fe/matter/group/component/recordEditor.html',
-                    controller: 'ctrlGrpRecEditor',
-                    windowClass: 'auto-height',
-                    resolve: {
-                        record: function () {
-                            return angular.copy(oRecord);
-                        }
+                var defer = $q.defer();
+                http2.post('/rest/script/time', {
+                    html: {
+                        'editor': '/views/default/pl/fe/matter/group/component/recordEditor'
                     }
-                }).result;
+                }).then(function (rsp) {
+                    $uibModal.open({
+                        templateUrl: '/views/default/pl/fe/matter/group/component/recordEditor.html?_=' + rsp.data.html.editor.time,
+                        controller: 'ctrlGrpRecEditor',
+                        windowClass: 'auto-height',
+                        resolve: {
+                            record: function () {
+                                return angular.copy(oRecord);
+                            }
+                        }
+                    }).result.then(function (data) {
+                        defer.resolve(data)
+                    });
+                });
+                return defer.promise;
             },
             notify: function (rows) {
                 var options = {
@@ -606,7 +616,7 @@ service('tkGroupTeam', ['$q', 'http2', function ($q, http2) {
             }
         }
     }]
-}).controller('ctrlGrpRecEditor', ['$scope', '$uibModalInstance', '$sce', 'record', 'tmsSchema', 'srvGroupApp', 'tkGroupTeam', function ($scope, $mi, $sce, oRecord, tmsSchema, srvGroupApp, tkGroupTeam) {
+}).controller('ctrlGrpRecEditor', ['$scope', '$uibModalInstance', 'cstApp', 'record', 'tmsSchema', 'srvGroupApp', 'tkGroupTeam', function ($scope, $mi, cstApp, oRecord, tmsSchema, srvGroupApp, tkGroupTeam) {
     srvGroupApp.get().then(function (oApp) {
         $scope.app = oApp;
         tkGroupTeam.list(oApp).then(function (teams) {
@@ -637,6 +647,7 @@ service('tkGroupTeam', ['$q', 'http2', function ($q, http2) {
                 }
             });
         }
+        $scope.cstApp = cstApp;
         $scope.aTags = oApp.tags;
         oRecord.aTags = (!oRecord.tags || oRecord.tags.length === 0) ? [] : oRecord.tags.split(',');
         $scope.record = oRecord;

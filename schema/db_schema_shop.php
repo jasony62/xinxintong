@@ -25,8 +25,8 @@ require_once '../db.php';
 // $sql .= ",copied_num int not null default 0";
 // $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 // if (!$mysqli->query($sql)) {
-// 	header('HTTP/1.0 500 Internal Server Error');
-// 	echo 'database error(xxt_shop_matter): ' . $mysqli->error;
+//     header('HTTP/1.0 500 Internal Server Error');
+//     echo 'database error(xxt_shop_matter): ' . $mysqli->error;
 // }
 /**
  * 素材分享访问控制列表（removed）
@@ -43,8 +43,8 @@ require_once '../db.php';
 // $sql .= ",receiver_label varchar(255) not null default ''";
 // $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 // if (!$mysqli->query($sql)) {
-// 	header('HTTP/1.0 500 Internal Server Error');
-// 	echo 'database error(xxt_mission): ' . $mysqli->error;
+//     header('HTTP/1.0 500 Internal Server Error');
+//     echo 'database error(xxt_mission): ' . $mysqli->error;
 // }
 /**
  * 素材模板
@@ -71,12 +71,12 @@ $sql .= ",weight int not null default 0"; // 权重
 $sql .= ",score int not null default 0";
 $sql .= ",copied_num int not null default 0";
 $sql .= ",favor_num int not null default 0"; //收藏数
-$sql .= ",coin int not null default 0"; // 使用时需要的积分
+$sql .= ",coin int not null default 0"; // 使用时需要的行为分
 $sql .= ",state tinyint not null default 1";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_template): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_template): ' . $mysqli->error;
 }
 /**
  * 模板（记录活动）
@@ -98,8 +98,8 @@ $sql .= ",pub_status char(1) not null default 'N'"; //发布状态
 $sql .= ",state tinyint not null default 1";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_template): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_template): ' . $mysqli->error;
 }
 /**
  * 指定模版的分享人
@@ -117,8 +117,8 @@ $sql .= ",receiver varchar(40) not null default ''"; // 合作者
 $sql .= ",receiver_label varchar(255) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_template): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_template): ' . $mysqli->error;
 }
 /**
  * 素材模板订单
@@ -146,8 +146,8 @@ $sql .= ",purchase char(1) not null default 'N'"; // 购买
 $sql .= ',purchase_at int not null default 0'; // 购买模板的时间
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_template_order): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_template_order): ' . $mysqli->error;
 }
 /**
  * platform's home
@@ -170,8 +170,8 @@ $sql .= ",is_show_site char(1) not null default 'Y'"; // 是否显示团队库
 $sql .= ",is_show_template char(1) not null default 'Y'"; // 是否显示模板库
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_platform): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_platform): ' . $mysqli->error;
 }
 /**
  * 申请发布到主页的站点
@@ -189,8 +189,8 @@ $sql .= ",score int not null default 0";
 $sql .= ",approved char(1) not null default 'N'"; // 是否批准推送到主页
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_home_site): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_home_site): ' . $mysqli->error;
 }
 /**
  * 申请发布到主页的素材
@@ -215,7 +215,7 @@ $sql .= ",weight int not null default 0";
 $sql .= ",home_group char(1) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_home_matter): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_home_matter): ' . $mysqli->error;
 }
 echo 'finish shop.' . PHP_EOL;

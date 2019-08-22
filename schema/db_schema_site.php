@@ -26,8 +26,8 @@ $sql .= ",can_contribute char(1) not null default 'N'"; // 开放投稿
 $sql .= ",can_subscribe char(1) not null default 'N'"; // 开放关注
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_site): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_site): ' . $mysqli->error;
 }
 /*
  * 团队配置的通知消息
@@ -43,8 +43,8 @@ $sql .= ",tmplmsg_config_id int not null default 0"; // 对应的模版消息ID�
 $sql .= ",active char(1) not null default 'N'"; //是否已激活
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 团队授权管理员
@@ -59,8 +59,8 @@ $sql .= ",creater_name varchar(255) not null default ''";
 $sql .= ",create_at int not null";
 $sql .= ",primary key(siteid,uid)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_site_admin): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_site_admin): ' . $mysqli->error;
 }
 /**
  * 团队主页频道
@@ -80,8 +80,8 @@ $sql .= ",seq int not null default 0";
 $sql .= ",home_group char(1) not null default 'C'";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_site_home_channel): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_site_home_channel): ' . $mysqli->error;
 }
 /**
  * 关注了团队的站点用户
@@ -96,8 +96,8 @@ $sql .= ',subscribe_at int not null'; // 关注时间
 $sql .= ',unsubscribe_at int not null default 0'; // 关注时间
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_site_subscriber): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_site_subscriber): ' . $mysqli->error;
 }
 /**
  * 站点用户通过关注团队获得的素材
@@ -116,8 +116,8 @@ $sql .= ",matter_pic text null";
 $sql .= ",matter_summary varchar(240) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_site_subscription): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_site_subscription): ' . $mysqli->error;
 }
 /**
  * 关注了团队的团队
@@ -134,8 +134,8 @@ $sql .= ',subscribe_at int not null'; // 关注时间
 $sql .= ',unsubscribe_at int not null default 0'; // 关注时间
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_site_friend): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_site_friend): ' . $mysqli->error;
 }
 /**
  * 关注了团队的团队获得的订阅内容
@@ -154,8 +154,8 @@ $sql .= ",matter_pic text null";
 $sql .= ",matter_summary varchar(240) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_site_friend_subscription): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_site_friend_subscription): ' . $mysqli->error;
 }
 /**
  * 团队访客用户
@@ -174,8 +174,8 @@ $sql .= ",last_active int default null comment '最后活跃时间'"; //
 $sql .= ",forbidden tinyint(3) default '0' comment '是否禁止用户'"; //
 $sql .= ",level_id int default null comment '用户级别'";
 $sql .= ",read_num int not null default 0"; // 累积阅读数
-$sql .= ",share_friend_num int not null default 0"; // 累积分享给好友数
-$sql .= ",share_timeline_num int not null default 0"; // 累积分享朋友圈数
+$sql .= ",share_friend_num int not null default 0"; // 累行为分享给好友数
+$sql .= ",share_timeline_num int not null default 0"; // 累行为分享朋友圈数
 $sql .= ",favor_num int not null default 0"; //收藏的数量
 $sql .= ",coin int not null default 0"; // 虚拟货币
 $sql .= ",coin_last_at int not null default 0"; // 最近一次增加虚拟货币
@@ -195,8 +195,8 @@ $sql .= ",user_agent text null";
 $sql .= ",PRIMARY KEY (siteid,uid)";
 $sql .= ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_site_account): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_site_account): ' . $mysqli->error;
 }
 /**
  * 团队用户收藏记录
@@ -213,8 +213,8 @@ $sql .= ",matter_type varchar(20) not null";
 $sql .= ",matter_title varchar(70) not null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_site_favor): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_site_favor): ' . $mysqli->error;
 }
 /**
  * 团队收藏记录
@@ -232,8 +232,8 @@ $sql .= ",matter_type varchar(20) not null";
 $sql .= ",matter_title varchar(70) not null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_site_friend_favor): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_site_friend_favor): ' . $mysqli->error;
 }
 /**
  * 团队投稿记录
@@ -255,8 +255,8 @@ $sql .= ",browse_at int not null default 0"; // 浏览时间
 $sql .= ",close_at int not null default 0"; // 关闭时间
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_site_friend_favor): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_site_friend_favor): ' . $mysqli->error;
 }
 /**************************/
 /**
@@ -298,8 +298,8 @@ $sql .= ",is_yx_fan char(1) not null default 'N'"; // 是否为易信公众号�
 $sql .= ",is_qy_fan char(1) not null default 'N'"; // 是否为微信企业号关注用户
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 验证邀请码
@@ -318,8 +318,8 @@ $sql .= ",stop char(1) not null default 'N'"; // 停止使用
 $sql .= ",state int not null default 1";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /*
  * 团队通讯录联系人
@@ -350,8 +350,8 @@ $sql .= ",forbidden char(1) not null default 'N'";
 $sql .= ",invite_code varchar(6) not null default ''"; // 邀请码
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_site_member): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_site_member): ' . $mysqli->error;
 }
 /**
  * departments
@@ -368,8 +368,8 @@ $sql .= ",fullpath text null";
 $sql .= ",extattr text null"; //扩展属性
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * tags
@@ -384,8 +384,8 @@ $sql .= ",type tinyint not null default 0"; // 0:自定义,1:岗位
 $sql .= ",extattr text null"; //扩展属性
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 站点活跃数表
@@ -412,8 +412,8 @@ $sql .= ",active_one_num int not null default 0"; //单次增加的活跃数
 $sql .= ",active_sum int not null default 0"; //活跃数总数
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 站点素材的列表信息
@@ -435,8 +435,8 @@ $sql .= ",start_at int not null default 0";
 $sql .= ",end_at int not null default 0";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 外部系统api调用配置表
@@ -456,8 +456,8 @@ $sql .= ",secret_modify_log text";
 $sql .= ",state int not null default 1";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 外部系统api调用令牌
@@ -474,8 +474,8 @@ $sql .= ",user_agent text";
 $sql .= ",state int not null default 1";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 外部系统api日志
@@ -490,8 +490,8 @@ $sql .= ",access_status text";
 $sql .= ",state int not null default 1";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**********************/
 echo 'finish site.' . PHP_EOL;

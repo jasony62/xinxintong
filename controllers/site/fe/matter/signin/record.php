@@ -160,7 +160,7 @@ class record extends base {
 		 */
 		if (false === $oSignState->signed) {
 			/**
-			 * 发放签到积分
+			 * 发放签到行为分
 			 */
 			$modelCoin = $this->model('matter\signin\coin')->setOnlyWriteDbConn(true);
 			$modelClog = $this->model('site\coin\log')->setOnlyWriteDbConn(true);

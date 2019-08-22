@@ -63,25 +63,6 @@ class record_model extends record_base {
 				$aNewRec['agreed'] = $agreed;
 			}
 		}
-		/* 移除用户未签到的原因 */
-		if (!empty($oUser->uid)) {
-			$rid = !empty($aNewRec['rid']) ? $aNewRec['rid'] : 'ALL';
-			if (isset($oApp->absentCause->{$oUser->uid}) && isset($oApp->absentCause->{$oUser->uid}->{$rid})) {
-				$aNewRec['comment'] = $this->escape($oApp->absentCause->{$oUser->uid}->{$rid});
-				unset($oApp->absentCause->{$oUser->uid}->{$rid});
-				if (count(get_object_vars($oApp->absentCause->{$oUser->uid})) == 0) {
-					unset($oApp->absentCause->{$oUser->uid});
-				}
-				/* 更新原未签到记录 */
-				$newAbsentCause = $this->escape($this->toJson($oApp->absentCause));
-				$this->update(
-					'xxt_enroll',
-					['absent_cause' => $newAbsentCause],
-					['id' => $oApp->id]
-				);
-			}
-		}
-
 		$aNewRec['id'] = $this->insert('xxt_enroll_record', $aNewRec, true);
 
 		/* 记录和轮次的关系 */
@@ -192,7 +173,7 @@ class record_model extends record_base {
 		return [true];
 	}
 	/**
-	 * 更新得分数据排名
+	 * 更新数据分数据排名
 	 */
 	public function setScoreRank($oApp, $rid) {
 		$aScoreSchemas = $this->model('matter\enroll\schema')->asAssoc($oApp->dynaDataSchemas, ['filter' => function ($oSchema) {return $this->getDeepValue($oSchema, 'requireScore') === 'Y';}]);
@@ -935,7 +916,7 @@ class record_model extends record_base {
 
 		$aFnHandlers = []; // 记录处理函数
 		if (isset($oApp->scenario)) {
-			/* 记录得分 */
+			/* 记录数据分 */
 			$aFnHandlers[] = function ($oRec) use ($oApp, $bRequireScore) {
 				if ($bRequireScore && !empty($oRec->score)) {
 					$score = str_replace("\n", ' ', $oRec->score);
@@ -1326,7 +1307,7 @@ class record_model extends record_base {
 				$rid = $oActiveRnd->rid;
 			}
 		}
-		/* 每道题目的得分 */
+		/* 每道题目的数据分 */
 		foreach ($dataSchemas as $oSchema) {
 			if ((isset($oSchema->requireScore) && $oSchema->requireScore === 'Y')) {
 				$q = [
@@ -1353,7 +1334,7 @@ class record_model extends record_base {
 			}
 		}
 
-		/*所有题的得分合计*/
+		/*所有题的数据分合计*/
 		$q = [
 			'sum(score)',
 			'xxt_enroll_record_data',

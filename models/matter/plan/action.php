@@ -353,7 +353,7 @@ class action_model extends \TMS_MODEL {
 		$result = new \stdClass;
 		$checkSchemas = $oApp->checkSchemas;
 
-		/* 每道题目的得分 */
+		/* 每道题目的数据分 */
 		foreach ($checkSchemas as $oSchema) {
 			if ((isset($oSchema->requireScore) && $oSchema->requireScore === 'Y') || (isset($oSchema->format) && $oSchema->format === 'number')) {
 				$q = [
@@ -369,7 +369,7 @@ class action_model extends \TMS_MODEL {
 			}
 		}
 
-		/*所有题的得分合计*/
+		/*所有题的数据分合计*/
 		$q = [
 			'sum(score)',
 			'xxt_plan_task_action',

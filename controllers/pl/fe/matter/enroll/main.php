@@ -388,7 +388,7 @@ class main extends main_base {
 		}
 
 		$modelApp = $this->model('matter\enroll');
-		$oApp = $modelApp->byId($app, 'id,siteid,title,summary,pic,scenario,start_at,end_at,mission_id,absent_cause');
+		$oApp = $modelApp->byId($app, 'id,siteid,title,summary,pic,scenario,start_at,end_at,mission_id');
 		if (false === $oApp) {
 			return new \ObjectNotFoundError();
 		}
@@ -456,14 +456,6 @@ class main extends main_base {
 				break;
 			case 'rankConfig':
 				$oUpdated->rank_config = $modelApp->escape($modelApp->toJson($val));
-				break;
-			case 'absent_cause':
-				$absentCause = !empty($oApp->absentCause) ? $oApp->absentCause : new \stdClass;
-				foreach ($val as $uid => $val2) {
-					!isset($absentCause->{$uid}) && $absentCause->{$uid} = new \stdClass;
-					$absentCause->{$uid}->{$val2->rid} = $val2->cause;
-				}
-				$oUpdated->absent_cause = $modelApp->escape($modelApp->toJson($absentCause));
 				break;
 			default:
 				$oUpdated->{$prop} = $val;
@@ -961,11 +953,11 @@ class main extends main_base {
 			return new \ResponseError('当前版本未发布，无法使用');
 		}
 
-		/* 检查用户积分 */
+		/* 检查用户行为分 */
 		if ($template->coin) {
 			$account = $this->model('account')->byId($oUser->id, ['fields' => 'uid,nickname,coin']);
 			if ((int) $account->coin < (int) $template->coin) {
-				return new \ResponseError('使用模板【' . $template->title . '】需要积分（' . $template->coin . '），你的积分（' . $account->coin . '）不足');
+				return new \ResponseError('使用模板【' . $template->title . '】需要行为分（' . $template->coin . '），你的行为分（' . $account->coin . '）不足');
 			}
 		}
 
@@ -1026,7 +1018,7 @@ class main extends main_base {
 		/* 记录操作日志 */
 		$this->model('matter\log')->matterOp($site, $oUser, $oNewApp, 'C');
 
-		/* 支付积分 */
+		/* 支付行为分 */
 		if ($template->coin) {
 			$modelCoin = $this->model('pl\coin\log');
 			$creator = $this->model('account')->byId($template->creater, ['fields' => 'uid id,nickname name']);

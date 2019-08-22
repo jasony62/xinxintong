@@ -1,14 +1,14 @@
 <div class="col-md-12">
     <uib-tabset active="tabActive" classes="ng-cloak">
         <uib-tab index="0">
-            <uib-tab-heading>积分规则</uib-tab-heading>
+            <uib-tab-heading>行为分规则</uib-tab-heading>
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>说明</th>
-                        <th>活动积分</th>
-                        <th ng-if="app.mission">项目积分</th>
+                        <th>活动行为分</th>
+                        <th ng-if="app.mission">项目行为分</th>
                         <th>计算方式</th>
                     </tr>
                 </thead>
@@ -36,16 +36,16 @@
             <button class='btn' ng-class="{'btn-success':rulesModified,'btn-default':!rulesModified}" ng-disabled="!rulesModified" ng-click="save()">保存</button>
         </uib-tab>
         <uib-tab index="1">
-            <uib-tab-heading>积分日志</uib-tab-heading>
+            <uib-tab-heading>行为分日志</uib-tab-heading>
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
                         <th style='width:48px'>序号</th>
                         <th style='width:120px'>时间</th>
                         <th>用户</th>
-                        <th>获得积分原因</th>
-                        <th>获得积分</th>
-                        <th>获得总积分</th>
+                        <th>获得行为分原因</th>
+                        <th>获得行为分</th>
+                        <th>获得总行为分</th>
                     </tr>
                 </thead>
                 <tbody>

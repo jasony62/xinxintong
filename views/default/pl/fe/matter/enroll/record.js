@@ -1,6 +1,6 @@
 define(['frame'], function (ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRecord', ['$scope', '$timeout', '$location', '$uibModal', 'srvEnrollApp', 'srvEnrollRound', 'tkEnrollRound', 'srvEnrollRecord', '$filter', 'http2', 'noticebox', 'tmsRowPicker', function ($scope, $timeout, $location, $uibModal, srvEnlApp, srvEnlRnd, tkEnlRnd, srvEnlRec, $filter, http2, noticebox, tmsRowPicker) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', '$timeout', '$uibModal', 'srvEnrollApp', 'srvEnrollRound', 'tkEnrollRound', 'srvEnrollRecord', '$filter', 'http2', 'noticebox', 'tmsRowPicker', function ($scope, $timeout, $uibModal, srvEnlApp, srvEnlRnd, tkEnlRnd, srvEnlRec, $filter, http2, noticebox, tmsRowPicker) {
         function fnSum4Schema() {
             var sum4SchemaAtPage;
             $scope.sum4SchemaAtPage = sum4SchemaAtPage = {};
@@ -475,7 +475,7 @@ define(['frame'], function (ngApp) {
                     if (oSchema.requireScore && oSchema.requireScore === 'Y') {
                         recordSchemasExt.push({
                             type: 'calcScore',
-                            title: '得分',
+                            title: '数据分',
                             id: oSchema.id
                         });
                         bRequireScore = true;

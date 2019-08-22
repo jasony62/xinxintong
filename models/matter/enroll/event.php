@@ -136,6 +136,7 @@ class event_model extends \TMS_MODEL {
         $oNewLog->event_op = $oEvent->op;
         $oNewLog->event_at = $oEvent->at;
         $oNewLog->earn_coin = isset($oEvent->coin) ? $oEvent->coin : 0;
+        $oNewLog->coin_event = isset($oEvent->coin_event) ? $oEvent->coin_event : 0;
 
         /* 活动 */
         $oNewLog->aid = $oApp->id;
@@ -332,7 +333,6 @@ class event_model extends \TMS_MODEL {
         /* 记录活动中需要额外更新的数据 */
         $oUpdatedEnlGrpData = clone $oGrpEventData;
 
-        /* 更新发起留言的活动用户轮次数据 */
         $modelGrp = $this->model('matter\enroll\group')->setOnlyWriteDbConn(true);
         $oEnlGrpRnd = $modelGrp->byId($oApp, $groupId, ['fields' => '*', 'rid' => $rid]);
         if (false === $oEnlGrpRnd) {
@@ -425,7 +425,7 @@ class event_model extends \TMS_MODEL {
         $oUpdatedUsrData->last_enroll_at = $eventAt;
         $oUpdatedUsrData->modify_log = $oNewModifyLog;
 
-        /* 只有常规轮次才将记录得分计入用户总分 */
+        /* 只有常规轮次才将记录数据分计入用户总分 */
         if (in_array($oRecRnd->purpose, ['C', 'S'])) {
             if (isset($oRecord->score->sum)) {
                 $oUpdatedUsrData->score = $oRecord->score->sum;
@@ -474,18 +474,6 @@ class event_model extends \TMS_MODEL {
         if (isset($aCoinResult) && $aCoinResult[0] === false && !empty($aCoinResult[1])) {
             $modelUsr->awardCoin($oApp, $oUser->uid, $oRecord->rid, self::SUBMIT_EVENT_NAME);
         }
-        // 如果分组内用户全都提交，用户分组获得的全员提交积分
-        if (!empty($oUser->group_id)) {
-            $modelGrp = $this->model('matter\enroll\group');
-            $aCoinResult = $modelGrp->awardCoin($oApp, $oUser->group_id, $oRecord->rid, self::GROUP_SUBMIT_EVENT_NAME);
-            if (!empty($aCoinResult[1])) {
-                // 检查是否组内所有人都提交了记录
-                $aResult = $modelGrp->isAllSubmit($oApp, $oRecord->rid, $oUser->group_id);
-                if (true === $aResult[0]) {
-                    $this->_updateGrpData($oApp, $oRecord->rid, $oUser->group_id, (object) ['group_total_coin' => $aCoinResult[1]]);
-                }
-            }
-        }
 
         /* 记录事件日志 */
         $oTarget = new \stdClass;
@@ -493,12 +481,58 @@ class event_model extends \TMS_MODEL {
         $oTarget->type = 'record';
         $oEvent = new \stdClass;
         $oEvent->name = self::SUBMIT_EVENT_NAME;
-        $oEvent->op = $bSubmitNewRecord ? 'New' : 'Update';
+        if ($bSubmitNewRecord) {
+            $oEvent->op = 'New';
+            $oEvent->coin_event = 1;
+            $oEvent->coin = isset($oUpdatedUsrData->user_total_coin) ? $oUpdatedUsrData->user_total_coin : 0;
+        } else {
+            $oEvent->op = 'Update';
+        }
         $oEvent->at = $eventAt;
         $oEvent->user = $oUser;
-        $oEvent->coin = isset($oUpdatedUsrData->user_total_coin) ? $oUpdatedUsrData->user_total_coin : 0;
 
         $this->_logEvent($oApp, $oRecord->rid, $oRecord->enroll_key, $oTarget, $oEvent);
+
+        // 如果分组内用户全都提交，用户分组获得的全员提交积分
+        if (!empty($oUser->group_id)) {
+            $this->_groupSubmitRecord($oApp, $oUser, $oRecord, $eventAt);
+        }
+
+        return true;
+    }
+    /**
+     * 用户分组全体提交记录
+     */
+    public function _groupSubmitRecord($oApp, $oUser, $oRecord, $eventAt) {
+        $groupId = $oUser->group_id;
+        $rid = $oRecord->rid;
+        $logs = $this->query_objs_ss(['1', 'xxt_enroll_log', ['state' => 1, 'aid' => $oApp->id, 'rid' => $rid, 'group_id' => $groupId, 'event_name' => self::GROUP_SUBMIT_EVENT_NAME]]);
+        if (count($logs)) {
+            return true;
+        }
+        $modelGrp = $this->model('matter\enroll\group');
+        $aCoinResult = $modelGrp->awardCoin($oApp, $groupId, $rid, self::GROUP_SUBMIT_EVENT_NAME);
+        if (!empty($aCoinResult[1])) {
+            // 检查是否组内所有人都提交了记录
+            $aResult = $modelGrp->isAllSubmit($oApp, $rid, $groupId);
+            if (true === $aResult[0]) {
+                $coin = $aCoinResult[1];
+                $this->_updateGrpData($oApp, $rid, $groupId, (object) ['group_total_coin' => $coin]);
+                /* 记录事件日志 */
+                $oTarget = new \stdClass;
+                $oTarget->id = $oRecord->id;
+                $oTarget->type = 'record';
+                $oEvent = new \stdClass;
+                $oEvent->name = self::GROUP_SUBMIT_EVENT_NAME;
+                $oEvent->op = '';
+                $oEvent->at = $eventAt;
+                $oEvent->user = (object) ['group_id' => $groupId];
+                $oEvent->coin_event = 1;
+                $oEvent->coin = $coin;
+
+                $this->_logEvent($oApp, $rid, $oRecord->enroll_key, $oTarget, $oEvent);
+            }
+        }
 
         return true;
     }
@@ -687,7 +721,7 @@ class event_model extends \TMS_MODEL {
         $this->update(
             'xxt_enroll_log',
             ['undo_event_id' => $oLog->id],
-            ['target_id' => $oItem->id, 'target_type' => 'cowork', 'event_name' => self::DO_SUBMIT_COWORK_EVENT_NAME, 'event_op' => 'New', 'undo_event_id' => 0]
+            ['target_id' => $oItem->id, 'target_type' => 'cowork', 'event_name' => self::DO_SUBMIT_COWORK_EVENT_NAME, 'event_op' => 'New', 'undo_event_id' => 0, 'state' => 1]
         );
     }
     /**
@@ -1461,7 +1495,7 @@ class event_model extends \TMS_MODEL {
         $this->update(
             'xxt_enroll_log',
             ['undo_event_id' => $oLog->id],
-            ['target_id' => $oRecord->id, 'target_type' => 'record', 'event_name' => self::DO_LIKE_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0]
+            ['target_id' => $oRecord->id, 'target_type' => 'record', 'event_name' => self::DO_LIKE_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0, 'state' => 1]
         );
     }
     /**
@@ -1492,7 +1526,7 @@ class event_model extends \TMS_MODEL {
         $this->update(
             'xxt_enroll_log',
             ['undo_event_id' => $oLog->id],
-            ['target_id' => $oRecord->id, 'target_type' => 'record', 'event_name' => self::DO_DISLIKE_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0]
+            ['target_id' => $oRecord->id, 'target_type' => 'record', 'event_name' => self::DO_DISLIKE_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0, 'state' => 1]
         );
     }
     /**
@@ -1523,7 +1557,7 @@ class event_model extends \TMS_MODEL {
         $this->update(
             'xxt_enroll_log',
             ['undo_event_id' => $oLog->id],
-            ['target_id' => $oRecData->id, 'target_type' => 'record.data', 'event_name' => self::DO_LIKE_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0]
+            ['target_id' => $oRecData->id, 'target_type' => 'record.data', 'event_name' => self::DO_LIKE_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0, 'state' => 1]
         );
     }
     /**
@@ -1554,7 +1588,7 @@ class event_model extends \TMS_MODEL {
         $this->update(
             'xxt_enroll_log',
             ['undo_event_id' => $oLog->id],
-            ['target_id' => $oRecData->id, 'target_type' => 'record.data', 'event_name' => self::DO_DISLIKE_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0]
+            ['target_id' => $oRecData->id, 'target_type' => 'record.data', 'event_name' => self::DO_DISLIKE_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0, 'state' => 1]
         );
     }
     /**
@@ -1585,7 +1619,7 @@ class event_model extends \TMS_MODEL {
         $this->update(
             'xxt_enroll_log',
             ['undo_event_id' => $oLog->id],
-            ['target_id' => $oCowork->id, 'target_type' => 'cowork', 'event_name' => self::DO_LIKE_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0]
+            ['target_id' => $oCowork->id, 'target_type' => 'cowork', 'event_name' => self::DO_LIKE_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0, 'state' => 1]
         );
     }
     /**
@@ -1616,7 +1650,7 @@ class event_model extends \TMS_MODEL {
         $this->update(
             'xxt_enroll_log',
             ['undo_event_id' => $oLog->id],
-            ['target_id' => $oCowork->id, 'target_type' => 'cowork', 'event_name' => self::DO_DISLIKE_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0]
+            ['target_id' => $oCowork->id, 'target_type' => 'cowork', 'event_name' => self::DO_DISLIKE_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0, 'state' => 1]
         );
     }
     /**
@@ -2428,7 +2462,7 @@ class event_model extends \TMS_MODEL {
         $this->update(
             'xxt_enroll_log',
             ['undo_event_id' => $oLog->id],
-            ['target_id' => $oRemark->id, 'target_type' => 'remark', 'event_name' => self::DO_LIKE_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0]
+            ['target_id' => $oRemark->id, 'target_type' => 'remark', 'event_name' => self::DO_LIKE_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0, 'state' => 1]
         );
     }
     /**
@@ -2459,7 +2493,7 @@ class event_model extends \TMS_MODEL {
         $this->update(
             'xxt_enroll_log',
             ['undo_event_id' => $oLog->id],
-            ['target_id' => $oRemark->id, 'target_type' => 'remark', 'event_name' => self::DO_DISLIKE_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0]
+            ['target_id' => $oRemark->id, 'target_type' => 'remark', 'event_name' => self::DO_DISLIKE_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0, 'state' => 1]
         );
     }
     /**
@@ -2642,7 +2676,7 @@ class event_model extends \TMS_MODEL {
             $this->update(
                 'xxt_enroll_log',
                 ['undo_event_id' => $oLog->id],
-                ['target_id' => $oRecord->id, 'target_type' => 'record', 'event_name' => self::GET_AGREE_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0]
+                ['target_id' => $oRecord->id, 'target_type' => 'record', 'event_name' => self::GET_AGREE_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0, 'state' => 1]
             );
         }
     }
@@ -2692,7 +2726,7 @@ class event_model extends \TMS_MODEL {
             $this->update(
                 'xxt_enroll_log',
                 ['undo_event_id' => $oLog->id],
-                ['target_id' => $oRecData->id, 'target_type' => 'record.data', 'event_name' => self::GET_AGREE_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0]
+                ['target_id' => $oRecData->id, 'target_type' => 'record.data', 'event_name' => self::GET_AGREE_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0, 'state' => 1]
             );
         }
     }
@@ -2858,7 +2892,7 @@ class event_model extends \TMS_MODEL {
             $this->update(
                 'xxt_enroll_log',
                 ['undo_event_id' => $oLog->id],
-                ['target_id' => $oRecData->id, 'target_type' => 'cowork', 'event_name' => self::GET_AGREE_COWORK_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0]
+                ['target_id' => $oRecData->id, 'target_type' => 'cowork', 'event_name' => self::GET_AGREE_COWORK_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0, 'state' => 1]
             );
         }
     }
@@ -3024,7 +3058,7 @@ class event_model extends \TMS_MODEL {
             $this->update(
                 'xxt_enroll_log',
                 ['undo_event_id' => $oLog->id],
-                ['target_id' => $oRemark->id, 'target_type' => 'remark', 'event_name' => self::GET_AGREE_REMARK_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0]
+                ['target_id' => $oRemark->id, 'target_type' => 'remark', 'event_name' => self::GET_AGREE_REMARK_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0, 'state' => 1]
             );
         }
     }
@@ -3224,7 +3258,7 @@ class event_model extends \TMS_MODEL {
         $this->update(
             'xxt_enroll_log',
             ['undo_event_id' => $oLog->id],
-            ['target_id' => $oRecData->id, 'target_type' => 'remark', 'event_name' => self::GET_VOTE_COWORK_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0]
+            ['target_id' => $oRecData->id, 'target_type' => 'remark', 'event_name' => self::GET_VOTE_COWORK_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0, 'state' => 1]
         );
     }
     /**
@@ -3255,7 +3289,7 @@ class event_model extends \TMS_MODEL {
         $this->update(
             'xxt_enroll_log',
             ['undo_event_id' => $oLog->id],
-            ['target_id' => $oRecData->id, 'target_type' => 'remark', 'event_name' => self::GET_VOTE_SCHEMA_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0]
+            ['target_id' => $oRecData->id, 'target_type' => 'remark', 'event_name' => self::GET_VOTE_SCHEMA_EVENT_NAME, 'event_op' => 'Y', 'undo_event_id' => 0, 'state' => 1]
         );
     }
     /**
@@ -3476,7 +3510,7 @@ class event_model extends \TMS_MODEL {
         $q = [
             $fields,
             'xxt_enroll_log',
-            "aid='{$oApp->id}'",
+            "aid='{$oApp->id}' and state=1",
         ];
 
         /* 按用户筛选 */

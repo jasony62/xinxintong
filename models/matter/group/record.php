@@ -383,6 +383,9 @@ class record_model extends \matter\enroll\record_base {
             'xxt_group_record',
             ['aid' => $oTeam->aid, 'state' => 1],
         ];
+        if (isset($aOptions['is_leader']) && is_array($aOptions['is_leader'])) {
+            $q[2]['is_leader'] = $aOptions['is_leader'];
+        }
         switch ($oTeam->team_type) {
         case 'T':
             $q[2]['team_id'] = $oTeam->team_id;
@@ -617,7 +620,7 @@ class record_model extends \matter\enroll\record_base {
             return false;
         }
 
-        if (isset($aOptions['is_leader']) && in_array($aOptions['is_leader'], ['N', 'Y', 'S', 'O'])) {
+        if (isset($aOptions['is_leader']) && in_array($aOptions['is_leader'], ['N', 'Y', 'S', 'O', 'A'])) {
             $q[2]['is_leader'] = $aOptions['is_leader'];
         }
 

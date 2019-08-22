@@ -214,7 +214,7 @@ class record extends \pl\fe\matter\base {
         /* 更新记录数据 */
         $oNewRec = new \stdClass;
         if (isset($oPosted->is_leader)) {
-            $oNewRec->is_leader = in_array($oPosted->is_leader, ['Y', 'N', 'S', 'O']) ? $oPosted->is_leader : 'N';
+            $oNewRec->is_leader = in_array($oPosted->is_leader, ['Y', 'N', 'S', 'O', 'A']) ? $oPosted->is_leader : 'N';
         }
         if (isset($oPosted->comment)) {
             $oNewRec->comment = $oPosted->comment;

@@ -223,7 +223,7 @@ class TMS_APP {
                 $oReq = new \stdClass;
                 $oReq->begin_at = $_SERVER['REQUEST_TIME_FLOAT'];
                 $oReq->request_uri = $_SERVER['REQUEST_URI'];
-                $oReq->referer = isset($_SERVER['HTTP_REFERER']) ? isset($_SERVER['HTTP_REFERER']) : '';
+                $oReq->referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
                 $oReq->user_agent = $_SERVER['HTTP_USER_AGENT'];
                 $oReq->remote_addr = $_SERVER['REMOTE_ADDR'];
                 $oTrans = $modelTrans->begin($oReq);

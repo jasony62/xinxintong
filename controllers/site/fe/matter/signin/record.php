@@ -7,16 +7,6 @@ include_once dirname(__FILE__) . '/base.php';
  */
 class record extends base {
 	/**
-	 * 解决跨域异步提交问题
-	 */
-	public function submitkeyGet_action() {
-		/* support CORS */
-		header('Access-Control-Allow-Origin:*');
-		$key = md5(uniqid() . mt_rand());
-
-		return new \ResponseData($key);
-	}
-	/**
 	 * 提交登记数据并签到
 	 *
 	 * 执行签到，在每个轮次上只能进行一次签到，第一次签到后再提交也不会更改签到时间等信息

@@ -162,7 +162,7 @@ class repair extends record_base {
         if ($log->earn_coin == $coin) {
             return false;
         }
-        $transId = $this->tmsTransaction->id;
+        $transId = $this->tmsTransactionId();
         /**
          * 生成新记录
          */
@@ -189,7 +189,7 @@ class repair extends record_base {
         if (empty($rid)) {
             return new \ResponseError('请指定要重置的活动轮次');
         }
-        $transId = $this->tmsTransaction->id;
+        $transId = $this->tmsTransactionId();
         $resetCount = 0; // 重置的记录数
         $oApp = $this->app;
 

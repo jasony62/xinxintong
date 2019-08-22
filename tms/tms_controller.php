@@ -111,11 +111,21 @@ class TMS_CONTROLLER {
         return false;
     }
     /**
+     * 返回事物ID，如果存在
+     */
+    public function tmsTransactionId() {
+        return isset($this->tmsTransaction->id) ? $this->tmsTransaction->id : 0;
+    }
+    /**
      *
      */
     public function model() {
         $args = func_get_args();
-        return call_user_func_array(array('TMS_APP', "model"), $args);
+        $model = call_user_func_array(array('TMS_APP', "model"), $args);
+        if (isset($this->tmsTransaction)) {
+            $model->tmsTransaction = $this->tmsTransaction;
+        }
+        return $model;
     }
     /**
      *

@@ -7,6 +7,14 @@ include_once dirname(__FILE__) . '/base.php';
  */
 class cowork extends base {
     /**
+     * 指定需要作为事物管理的方法
+     */
+    public function tmsRequireTransaction() {
+        return [
+            'add',
+        ];
+    }
+    /**
      * 添加题目数据的项
      * 1、需要记录修改日志
      * 2、需要支持行为分
@@ -14,13 +22,13 @@ class cowork extends base {
      * @param int $data 填写记录数据id
      */
     public function add_action($ek, $schema = '', $task = null) {
-        $modelData = $this->model('matter\enroll\data')->setOnlyWriteDbConn(true);
         $modelRec = $this->model('matter\enroll\record');
         /* 要更新的记录 */
         $oRecord = $modelRec->byId($ek, ['fields' => 'id,state,data,aid,rid,enroll_key,userid,nickname,group_id,like_num,agreed']);
         if (false === $oRecord || $oRecord->state !== '1') {
             return new \ObjectNotFoundError();
         }
+        $modelData = $this->model('matter\enroll\data')->setOnlyWriteDbConn(true);
         $oRecData = $modelData->byRecord($oRecord->enroll_key, ['schema' => $schema, 'fields' => '*']);
         if ($oRecData) {
             if (empty($oRecData->value)) {

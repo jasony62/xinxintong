@@ -362,9 +362,8 @@ class log_model extends \TMS_MODEL {
      * @param object $oMatter(type,id,title,summary,pic,scenario)
      * @param string $op
      * @param object|string $data
-     * @param int 事物id
      */
-    public function matterOp($siteId, $oUser, $oMatter, $op, $data = null, $transId = 0) {
+    public function matterOp($siteId, $oUser, $oMatter, $op, $data = null) {
         // 避免数据库双机同步延迟问题
         $this->setOnlyWriteDbConn(true);
 
@@ -414,7 +413,7 @@ class log_model extends \TMS_MODEL {
         if ($oUserLastLog === false || in_array($oUserLastLog->operation, $filterOp) || $current > $oUserLastLog->operate_at + 600) {
             /* 两次更新操作的间隔超过10分钟，产生新日志 */
             $d = [];
-            $d['g_transid'] = $transId;
+            $d['g_transid'] = $this->tmsTransactionId();
             $d['siteid'] = $siteId;
             $d['operator'] = $userid;
             $d['operator_name'] = $this->escape($oUser->name);

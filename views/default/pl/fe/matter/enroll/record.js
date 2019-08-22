@@ -357,45 +357,32 @@ define(['frame'], function (ngApp) {
             }
             http2.post('/rest/script/time', {
                 html: {
-                    'enrollee': '/views/default/pl/fe/matter/enroll/component/enrolleePicker'
+                    'enrollee': '/views/default/pl/fe/matter/enroll/component/assignedPicker'
                 }
             }).then(function (rsp) {
                 $uibModal.open({
-                    templateUrl: '/views/default/pl/fe/matter/enroll/component/enrolleePicker.html?_=' + rsp.data.html.enrollee.time,
+                    templateUrl: '/views/default/pl/fe/matter/enroll/component/assignedPicker.html?_=' + rsp.data.html.enrollee.time,
                     controller: ['$scope', '$uibModalInstance', 'tmsRowPicker', 'facListFilter', function ($scope2, $mi, tmsRowPicker, facListFilter) {
-                        var _oPage, _oCriteria, _oRows;
+                        var _oRows;
                         $scope2.tmsTableWrapReady = 'Y';
-                        $scope2.page = _oPage = {};
-                        $scope2.criteria = _oCriteria = {
-                            filter: {}
-                        };
                         $scope2.rows = _oRows = new tmsRowPicker();
-                        $scope2.filter = facListFilter.init(function () {
-                            $scope2.doSearch(1);
-                        }, _oCriteria.filter);
                         $scope2.doSearch = function (pageAt) {
                             var url;
-
                             _oRows.reset();
-                            pageAt && (_oPage.at = pageAt);
-                            url = '/rest/pl/fe/matter/enroll/user/enrollee?app=' + $scope.app.id;
-                            http2.post(url, _oCriteria, {
-                                page: _oPage
-                            }).then(function (rsp) {
-                                $scope2.enrollees = rsp.data.users;
+                            url = '/rest/pl/fe/matter/enroll/user/assigned?app=' + $scope.app.id;
+                            http2.get(url).then(function (rsp) {
+                                $scope2.users = rsp.data.users;
                             });
                         };
                         $scope2.execute = function (bClose) {
-                            var pickedEnrollees;
+                            var picked;
                             if (_oRows.count) {
-                                pickedEnrollees = [];
+                                picked = [];
                                 for (var i in _oRows.selected) {
-                                    pickedEnrollees.push($scope2.enrollees[i]);
+                                    picked.push($scope2.users[i]);
                                 }
                                 if (bClose) {
-                                    $mi.close(pickedEnrollees);
-                                } else {
-
+                                    $mi.close(picked);
                                 }
                             }
                         };
@@ -407,9 +394,9 @@ define(['frame'], function (ngApp) {
                     windowClass: 'auto-height',
                     backdrop: 'static',
                     size: 'lg'
-                }).result.then(function (enrollees) {
-                    if (enrollees && enrollees.length === 1) {
-                        http2.get('/rest/pl/fe/matter/enroll/record/copy?ek=' + oCopiedRecord.enroll_key + '&owner=' + enrollees[0].userid).then(function () {
+                }).result.then(function (users) {
+                    if (users && users.length === 1) {
+                        http2.get('/rest/pl/fe/matter/enroll/record/copy?ek=' + oCopiedRecord.enroll_key + '&owner=' + users[0].userid).then(function () {
                             $scope.doSearch();
                         });
                     }

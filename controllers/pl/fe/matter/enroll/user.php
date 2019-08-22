@@ -9,16 +9,8 @@ class user extends main_base {
     /**
      * 返回提交过填写记录的用户列表
      */
-    public function enrollee_action($app, $page = 1, $size = 30) {
-        if (false === $this->accountUser()) {
-            return new \ResponseTimeout();
-        }
-
-        $modelEnl = $this->model('matter\enroll');
-        $oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
-        if (false === $oApp) {
-            return new \ObjectNotFoundError();
-        }
+    public function enrollee_action($page = 1, $size = 30) {
+        $oApp = $this->app;
         $modelUsr = $this->model('matter\enroll\user');
         $oPost = $this->getPostJson();
 
@@ -36,18 +28,19 @@ class user extends main_base {
         return new \ResponseData($oResult);
     }
     /**
+     * 活动指定的所有完成人
+     */
+    public function assigned_action() {
+        $modelUsr = $this->model('matter\enroll\user');
+        $oResult = $modelUsr->assignedByApp($this->app, ['inGroupTeam' => true, 'leader' => ['Y', 'S', 'N']]);
+
+        return new \ResponseData($oResult);
+    }
+    /**
      * 未完成任务用户列表
      */
     public function undone_action($app, $rid = '') {
-        if (false === $this->accountUser()) {
-            return new \ResponseTimeout();
-        }
-
-        $modelEnl = $this->model('matter\enroll');
-        $oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,state,mission_id,entry_rule,action_rule']);
-        if (false === $oApp || $oApp->state !== '1') {
-            return new \ObjectNotFoundError();
-        }
+        $oApp = $this->app;
 
         $modelUsr = $this->model('matter\enroll\user');
 
@@ -90,109 +83,12 @@ class user extends main_base {
         return new \ResponseData($oResult);
     }
     /**
-     * 根据通讯录返回用户完成情况
-     */
-    public function byMschema_action($app, $mschema, $rid = '', $page = 1, $size = 30) {
-        if (false === ($oUser = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-
-        $modelEnl = $this->model('matter\enroll');
-        $oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
-        if (false === $oApp) {
-            return new \ObjectNotFoundError();
-        }
-
-        $modelMs = $this->model('site\user\memberschema');
-        $oMschema = $modelMs->byId($mschema, ['cascaded' => 'N']);
-        if (false === $oMschema) {
-            return new \ObjectNotFoundError();
-        }
-
-        $modelUsr = $this->model('matter\enroll\user');
-        $options = [];
-        !empty($rid) && $options['rid'] = $rid;
-        $oResult = $modelUsr->enrolleeByMschema($oApp, $oMschema, $page, $size, $options);
-        /*查询有openid的用户发送消息的情况*/
-        if (count($oResult->members)) {
-            foreach ($oResult->members as $member) {
-                $q = [
-                    'd.tmplmsg_id,d.status,b.create_at',
-                    'xxt_log_tmplmsg_detail d,xxt_log_tmplmsg_batch b',
-                    "d.userid = '{$member->userid}' and d.batch_id = b.id and b.send_from = 'enroll:" . $oApp->id . "'",
-                ];
-                $q2 = [
-                    'r' => ['o' => 0, 'l' => 1],
-                    'o' => 'b.create_at desc',
-                ];
-                if ($tmplmsg = $modelUsr->query_objs_ss($q, $q2)) {
-                    $member->tmplmsg = $tmplmsg[0];
-                } else {
-                    $member->tmplmsg = new \stdClass;
-                }
-            }
-        }
-
-        return new \ResponseData($oResult);
-    }
-    /**
      * 发表过留言的用户
      */
-    public function remarker_action($app, $page = 1, $size = 30) {
-        if (false === $this->accountUser()) {
-            return new \ResponseTimeout();
-        }
-
-        $modelEnl = $this->model('matter\enroll');
-        $oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
-        if (false === $oApp) {
-            return new \ObjectNotFoundError();
-        }
-
+    public function remarker_action($page = 1, $size = 30) {
         $modelUsr = $this->model('matter\enroll\user');
-        $oResult = $modelUsr->remarkerByApp($oApp, $page, $size);
+        $oResult = $modelUsr->remarkerByApp($this->app, $page, $size);
 
         return new \ResponseData($oResult);
-    }
-    /**
-     * 根据用户的填写记录更新用户数据
-     */
-    public function repair_action($app, $rid = '', $onlyCheck = 'Y') {
-        if (false === ($oUser = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-
-        $modelEnl = $this->model('matter\enroll');
-        $oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
-        if (false === $oApp) {
-            return new \ObjectNotFoundError();
-        }
-
-        $modelUsr = $this->model('matter\enroll\user');
-        $aUpdatedResult = $modelUsr->renew($oApp, $rid, $onlyCheck);
-
-        return new \ResponseData($aUpdatedResult);
-    }
-    /**
-     * 更新用户对应的分组信息
-     */
-    public function repairGroup_action($app) {
-        if (false === ($oUser = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-
-        $modelEnl = $this->model('matter\enroll');
-        $oApp = $modelEnl->byId($app, ['cascaded' => 'N']);
-        if (false === $oApp) {
-            return new \ObjectNotFoundError();
-        }
-
-        if (!isset($oApp->entryRule->group->id)) {
-            return new \ResponseError('没有指定关联的分组活动');
-        }
-
-        $updatedCount = $this->model('matter\enroll\user')->repairGroup($oApp);
-
-        return new \ResponseData($updatedCount);
     }
 }

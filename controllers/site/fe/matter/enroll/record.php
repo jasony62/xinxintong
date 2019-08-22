@@ -7,15 +7,29 @@ include_once dirname(__FILE__) . '/base.php';
  */
 class record extends base {
     /**
-     * 解决跨域异步提交问题
+     * 在调用每个控制器的方法前调用
      */
-    public function submitkeyGet_action() {
-        /* support CORS */
-        //header('Access-Control-Allow-Origin:*');
+    public function tmsBeforeEach($app = null) {
+        // 记录活动基本信息
+        if (!empty($app)) {
+            // 记录活动
+            $modelApp = $this->model('matter\enroll');
+            $oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+            if (false === $oApp || $oApp->state !== '1') {
+                return [false, new \ObjectNotFoundError('指定的记录活动不存在')];
+            }
+            $this->app = $oApp;
+        }
 
-        $key = md5(uniqid() . mt_rand());
-
-        return new \ResponseData($key);
+        return [true];
+    }
+    /**
+     * 指定需要作为事物管理的方法
+     */
+    public function tmsRequireTransaction() {
+        return [
+            'submit',
+        ];
     }
     /**
      * 记录记录信息
@@ -28,11 +42,7 @@ class record extends base {
      *
      */
     public function submit_action($app, $rid = '', $ek = null, $submitkey = '', $task = null) {
-        $modelEnl = $this->model('matter\enroll');
-        $oEnlApp = $modelEnl->byId($app, ['cascaded' => 'N']);
-        if (false === $oEnlApp || $oEnlApp->state !== '1') {
-            return new \ObjectNotFoundError('（1）指定的活动不存在');
-        }
+        $oEnlApp = $this->app;
 
         if (!empty($task)) {
             $modelTsk = $this->model('matter\enroll\task', $oEnlApp);
@@ -164,6 +174,7 @@ class record extends base {
         /**
          * 处理用户汇总数据，行为分数据
          */
+        $modelEvt = $this->model('matter\enroll\event');
         $this->model('matter\enroll\event')->submitRecord($oEnlApp, $oRecord, $oUser, $bSubmitSavedRecord || $bSubmitNewRecord);
         /**
          * 更新用户数据分排名
@@ -752,7 +763,6 @@ class record extends base {
     /**
      * 列出所有的记录记录
      *
-     * $site
      * $app
      * $orderby time|remark|score|follower
      * $page
@@ -764,7 +774,7 @@ class record extends base {
      * [2] 数据项的定义
      *
      */
-    public function list_action($site, $app, $owner = 'U', $orderby = 'time', $page = 1, $size = 30, $sketch = 'N') {
+    public function list_action($app, $owner = 'U', $orderby = 'time', $page = 1, $size = 30, $sketch = 'N') {
         $oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
         if (false === $oApp || $oApp->state !== '1') {
             return new \ObjectNotFoundError();
@@ -823,10 +833,7 @@ class record extends base {
             return new \ObjectNotFoundError();
         }
 
-        $oApp = $this->model('matter\enroll')->byId($oRecord->aid, ['cascaded' => 'N']);
-        if (false === $oApp || $oApp->state !== '1') {
-            return new \ObjectNotFoundError();
-        }
+        $oApp = $this->app;
 
         $oUser = $this->getUser($oApp);
 
@@ -1087,7 +1094,7 @@ class record extends base {
     /**
      * 返回指定记录项的活动记录
      */
-    public function list4Schema_action($site, $app, $rid = null, $schema, $page = 1, $size = 10) {
+    public function list4Schema_action($app, $rid = null, $schema, $page = 1, $size = 10) {
         // 记录数据过滤条件
         $oCriteria = $this->getPostJson();
 

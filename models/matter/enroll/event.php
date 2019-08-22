@@ -1108,10 +1108,12 @@ class event_model extends \TMS_MODEL {
         $oEvent->op = 'Y';
         $oEvent->at = $eventAt;
         $oEvent->user = $oOperator;
+        $oEvent->coin_event = 0;
         $oEvent->coin = isset($oOperatorData->user_total_coin) ? $oOperatorData->user_total_coin : 0;
         //
         $oOwnerEvent = new \stdClass;
         $oOwnerEvent->user = (object) ['uid' => $oRecord->userid];
+        $oOwnerEvent->coin_event = 1;
         $oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
         $this->_logEvent($oApp, $oRecord->rid, $oRecord->enroll_key, $oTarget, $oEvent, $oOwnerEvent);

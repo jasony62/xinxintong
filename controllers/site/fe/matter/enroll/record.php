@@ -174,7 +174,7 @@ class record extends base {
         /**
          * 处理用户汇总数据，行为分数据
          */
-        $modelEvt=$this->model('matter\enroll\event');
+        $modelEvt = $this->model('matter\enroll\event');
         $this->model('matter\enroll\event')->submitRecord($oEnlApp, $oRecord, $oUser, $bSubmitSavedRecord || $bSubmitNewRecord);
         /**
          * 更新用户数据分排名
@@ -833,10 +833,7 @@ class record extends base {
             return new \ObjectNotFoundError();
         }
 
-        $oApp = $this->model('matter\enroll')->byId($oRecord->aid, ['cascaded' => 'N']);
-        if (false === $oApp || $oApp->state !== '1') {
-            return new \ObjectNotFoundError();
-        }
+        $oApp = $this->app;
 
         $oUser = $this->getUser($oApp);
 

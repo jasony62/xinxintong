@@ -9,12 +9,25 @@ class record extends base {
     /**
      * 在调用每个控制器的方法前调用
      */
-    public function tmsBeforeEach($app = null) {
+    public function tmsBeforeEach($app = null, $task = null) {
+        // 活动任务
+        if (!empty($task)) {
+            $modelTsk = $this->model('matter\enroll\task', null);
+            $oTask = $modelTsk->byId($task);
+            if (false === $oTask) {
+                return [false, new \ObjectNotFoundError('指定的活动任务不存在')];
+            }
+            $this->task = $oTask;
+        }
         // 记录活动基本信息
         if (!empty($app)) {
             // 记录活动
+            $aOptions = ['cascaded' => 'N'];
+            if (isset($oTask)) {
+                $aOptions['task'] = $oTask;
+            }
             $modelApp = $this->model('matter\enroll');
-            $oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+            $oApp = $modelApp->byId($app, $aOptions);
             if (false === $oApp || $oApp->state !== '1') {
                 return [false, new \ObjectNotFoundError('指定的记录活动不存在')];
             }
@@ -42,15 +55,8 @@ class record extends base {
      *
      */
     public function submit_action($app, $rid = '', $ek = null, $submitkey = '', $task = null) {
+        $oTask = $this->task;
         $oEnlApp = $this->app;
-
-        if (!empty($task)) {
-            $modelTsk = $this->model('matter\enroll\task', $oEnlApp);
-            $oTask = $modelTsk->byId($task);
-            if (false === $oTask) {
-                return new \ObjectNotFoundError('（2）指定的活动任务不存在');
-            }
-        }
 
         $modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
 
@@ -620,7 +626,7 @@ class record extends base {
             if ($loadLast === 'Y') {
                 if (isset($oTask)) {
                     $oTaskRnd = $this->model('matter\enroll\round')->byTask($oApp, $oTask);
-                    if (false === $oTaskRnd) {
+                    if (empty($oTaskRnd)) {
                         return new \ObjectNotFoundError('指定的活动任务轮次不存在');
                     }
                     $rid = $oTaskRnd->rid;

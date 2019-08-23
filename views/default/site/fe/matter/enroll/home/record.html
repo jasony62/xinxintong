@@ -48,7 +48,12 @@
             </div>
         </div>
         <div id='repos'>
-            <div class='records'>
+            <div class='summary' ng-if="repos.length===0&&app.summary">
+                <div class='alert alert-info'>
+                    <p class='text-center'>{{::app.summary}}</p>
+                </div>
+            </div>
+            <div class='records' ng-if="repos.length">
                 <div class='record' ng-repeat="rec in repos" ng-cloak ng-click="remarkRecord(rec,$event)">
                     <div class='top-bar'>
                         <div class='seq label label-default'>{{$index+1}}</div>

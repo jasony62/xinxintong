@@ -36,7 +36,7 @@ class data_model extends entity_model {
             return $dbData;
         }
         $dbData = $dbData[1];
-
+        
         /* 获得题目的数据分 */
         $oRecordScore = $this->socreRecordData($oApp, $oRecord, $aSchemasById, $dbData, $oAssignScore);
         /* 将每条协作填写项保存为1条数据，并返回题目中记录的汇总数据 */

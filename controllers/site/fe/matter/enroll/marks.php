@@ -51,9 +51,16 @@ class marks extends base {
     /**
      * 更新引用记录的数据分
      */
-    public function renewReferScore_action($app) {
+    public function renewReferScore_action($app, $task = null) {
+        $aOptions = ['cascaded' => 'N'];
+        if (!empty($task)) {
+            if ($oTask = $this->model('matter\enroll\task')->byId($task)) {
+                $aOptions['task'] = $oTask;
+            }
+        }
+
         $modelApp = $this->model('matter\enroll');
-        $oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+        $oApp = $modelApp->byId($app, $aOptions);
         if (false === $oApp || $oApp->state !== '1' || empty($oApp->dynaDataSchemas)) {
             return new \ObjectNotFoundError();
         }
@@ -75,7 +82,6 @@ class marks extends base {
      */
     private function _getMarks($oApp, $rid = '', $gid = '') {
         $modelRec = $this->model('matter\enroll\record');
-        $oResult = new \stdClass;
         $dataSchemas = $oApp->dynaDataSchemas;
         if (empty($rid)) {
             $rid = $oApp->appRound->rid;
@@ -88,8 +94,8 @@ class marks extends base {
                 }
             }
         }
-
         /* 每道题目的数据分 */
+        $oResult = new \stdClass;
         foreach ($dataSchemas as $oSchema) {
             if ($oSchema->type === 'score' && $this->getDeepValue($oSchema, 'requireScore') === 'Y') {
                 $q = [
@@ -100,11 +106,9 @@ class marks extends base {
                 if (!empty($rid)) {
                     $q[2]['rid'] = $rid;
                 }
-
                 if (!empty($gid)) {
                     $q[2]['group_id'] = $gid;
                 }
-
                 $datas = $modelRec->query_objs_ss($q);
                 $oStat = new \stdClass;
                 $oStat->count = count($datas);

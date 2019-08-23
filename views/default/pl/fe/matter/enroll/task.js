@@ -361,7 +361,7 @@ define(['frame', 'schema'], function (ngApp, schemaLib) {
                         $scope2.disabled = false;
                         $scope2.result = _oResult = {};
                         $scope2.$on('xxt.editable.remove', function (e, oOp) {
-                            _oResult.schema.ops.splice(_oResult.schema.ops.indexOf(oOp), 1);
+                            _oResult.schemas[0].ops.splice(_oResult.schemas[0].ops.indexOf(oOp), 1);
                         });
                         $scope2.cancel = function () {
                             $mi.dismiss();

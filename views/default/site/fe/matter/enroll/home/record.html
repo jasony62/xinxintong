@@ -48,10 +48,8 @@
             </div>
         </div>
         <div id='repos'>
-            <div class='summary' ng-if="repos.length===0&&app.summary">
-                <div class='alert alert-info'>
-                    <p class='text-center'>{{::app.summary}}</p>
-                </div>
+            <div class='summary alert alert-info' ng-if="repos.length===0&&app.summary">
+                <p class='text-center'>{{::app.summary}}</p>
             </div>
             <div class='records' ng-if="repos.length">
                 <div class='record' ng-repeat="rec in repos" ng-cloak ng-click="remarkRecord(rec,$event)">

@@ -1153,13 +1153,13 @@ class record extends record_base {
      * 清空活动中的所有记录
      */
     public function empty_action() {
+        $oApp = $this->app;
         $modelRec = $this->model('matter\enroll\record');
         /* 清除填写记录 */
         $rst = $modelRec->clean($oApp);
 
         // 记录操作日志
         $oUser = $this->user;
-        $oApp = $this->app;
         $this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'empty');
 
         return new \ResponseData($rst);

@@ -54,8 +54,11 @@ class record extends base {
      * @param int $task 对应的任务
      *
      */
-    public function submit_action($app, $rid = '', $ek = null, $submitkey = '', $task = null) {
-        $oTask = $this->task;
+    public function submit_action($rid = '', $ek = null, $submitkey = '', $task = null) {
+        if (!empty($this->task)) {
+            $oTask = $this->task;
+        }
+
         $oEnlApp = $this->app;
 
         $modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);

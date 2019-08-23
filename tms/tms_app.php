@@ -225,7 +225,7 @@ class TMS_APP {
                 $oReq->request_uri = $_SERVER['REQUEST_URI'];
                 $oReq->referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
                 $oReq->user_agent = $_SERVER['HTTP_USER_AGENT'];
-                $oReq->remote_addr = $_SERVER['REMOTE_ADDR'];
+                $oReq->remote_addr = $obj_controller->client_ip();
                 $oTrans = $modelTrans->begin($oReq);
                 $obj_controller->tmsTransaction = $oTrans;
             }

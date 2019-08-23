@@ -265,9 +265,9 @@ class TMS_CONTROLLER {
         return array(--$index, $test);
     }
     /**
-     *
+     * 获得访问用户的ip地址
      */
-    protected function client_ip() {
+    public function client_ip() {
         if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) &&
             $this->valid_ip($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             $ip_address = $_SERVER['HTTP_X_FORWARDED_FOR'];

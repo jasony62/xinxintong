@@ -55,12 +55,6 @@ class record extends base {
      *
      */
     public function submit_action($rid = '', $ek = null, $submitkey = '', $task = null) {
-        if (!empty($this->task)) {
-            $oTask = $this->task;
-        }
-
-        $oEnlApp = $this->app;
-
         $modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
 
         $bSubmitNewRecord = empty($ek); // 是否为新记录
@@ -80,8 +74,9 @@ class record extends base {
             $rid = $oBeforeRecord->rid;
         }
 
+        $oEnlApp = $this->app;
         // 检查或获得提交轮次
-        $aResultSubmitRid = $this->_getSubmitRecordRid($oEnlApp, $rid, isset($oTask) ? $oTask : null);
+        $aResultSubmitRid = $this->_getSubmitRecordRid($oEnlApp, $rid);
         if (false === $aResultSubmitRid[0]) {
             return new \ResponseError($aResultSubmitRid[1]);
         }
@@ -193,7 +188,8 @@ class record extends base {
         /**
          * 如果存在提问任务，将记录放到任务专题中
          */
-        if (isset($oTask)) {
+        if (isset($this->task)) {
+            $oTask = $this->task;
             switch ($oTask->config_type) {
             case 'question': // 提问任务
                 $modelTop = $this->model('matter\enroll\topic', $oEnlApp);
@@ -361,10 +357,10 @@ class record extends base {
     /**
      * 返回当前轮次或者检查指定轮次是否有效
      */
-    private function _getSubmitRecordRid($oApp, $rid = '', $oTask = null) {
+    private function _getSubmitRecordRid($oApp, $rid = '') {
         $modelRnd = $this->model('matter\enroll\round');
-        if (isset($oTask)) {
-            $oRecordRnd = $modelRnd->byTask($oApp, $oTask);
+        if (isset($this->task)) {
+            $oRecordRnd = $modelRnd->byTask($oApp, $this->task);
         } else if (empty($rid)) {
             $oRecordRnd = $modelRnd->getActive($oApp);
         } else {

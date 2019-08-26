@@ -5,16 +5,16 @@ window.xxt.image = {
     canupload: function(file) {
         var seat, extendsion, allowtype = "png,jpg,jpeg,gif";
         if (!(file.name.lastIndexOf("."))) {
-            noticebox.error("图片数据格式错误:只能上传" + allowtype + "格式的文件");
-            return false;
+            var message = "图片数据格式错误:只能上传" + allowtype + "格式的文件";
+            return { err_code: -1, err_msg: message };
         }
         seat = file.name.lastIndexOf(".") + 1;
         extendsion = file.name.substring(seat).toLowerCase();
         if (allowtype.indexOf(extendsion) === -1) {
-            noticebox.error("图片数据格式错误:只能上传" + allowtype + "格式的文件");
-            return false;
+            var message = "图片数据格式错误:只能上传" + allowtype + "格式的文件";
+            return { err_code: -1, err_msg: message };
         }
-        return true;
+        return { err_code: 0};
     },
     choose: function(deferred, from) {
         var promise, imgs = [];
@@ -26,7 +26,8 @@ window.xxt.image = {
             cnt = evt.target.files.length;
             for (i = 0; i < cnt; i++) {
                 f = evt.target.files[i];
-                if (window.xxt.image.canupload(f)) {
+                var result = window.xxt.image.canupload(f);
+                if (result.err_code === 0) {
                     type = {
                         ".jp": "image/jpeg",
                         ".pn": "image/png",
@@ -44,6 +45,8 @@ window.xxt.image = {
                         };
                     })(f);
                     oReader.readAsDataURL(f);
+                } else {
+                    deferred.resolve(result.err_msg);
                 }
             }
         }, false);

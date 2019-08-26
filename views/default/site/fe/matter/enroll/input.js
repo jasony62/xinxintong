@@ -140,8 +140,12 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
             }
             $scope.chooseImage = function(schemaId, count, from) {
                 imgCount(schemaId, count, from);
-                window.xxt.image.choose($q.defer(), from).then(function(imgs) {
-                    imgBind(schemaId, imgs);
+                window.xxt.image.choose($q.defer(), from).then(function(result) {
+                    if(result instanceof Object) {
+                        imgBind(schemaId, result);
+                    }else{
+                        noticebox.error(result);
+                    }
                 });
             };
             $scope.removeImage = function(imgField, index) {
@@ -237,7 +241,7 @@ ngApp.directive('tmsFileInput', ['$q', 'tmsLocation', 'tmsDynaPage', function($q
                                 return false;
                             }
                         }
-                        if ($scope.fileConfig.maxsize * 1024 * 1024 > f.size) {
+                        if ($scope.fileConfig.maxsize * 1024 * 1024 <= f.size) {
                             noticebox.error("文件上传失败，大小不能超过" + $scope.fileConfig.maxsize + "M");
                             return false;
                         }

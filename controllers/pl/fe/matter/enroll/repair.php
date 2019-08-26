@@ -231,9 +231,9 @@ class repair extends record_base {
                 if (!empty($log->userid)) {
                     $aResetUsers[$log->userid] = true;
                 }
-                if (!empty($log->group_id)) {
-                    $aResetGroups[$log->group_id] = true;
-                }
+            }
+            if (!empty($log->group_id)) {
+                $aResetGroups[$log->group_id] = true;
             }
         }
         /**

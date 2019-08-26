@@ -237,7 +237,7 @@ class repair extends record_base {
             }
         }
         /**
-         * 更新用户汇总数据
+         * 更新用户汇总行为分
          */
         if (count($aResetUsers)) {
             $modelEnlUsr = $this->model('matter\enroll\user');
@@ -246,11 +246,17 @@ class repair extends record_base {
             }
         }
         /**
-         * 更新分组汇总数据
+         * 更新分组汇总行为分
          */
         if (count($aResetGroups)) {
             $modelEnlGrp = $this->model('matter\enroll\group');
+            $modelEnlRec = $this->model('matter\enroll\record');
             foreach ($aResetGroups as $groupId => $foo) {
+                // 分组提交行为分
+                $oLastGrpRecord = $modelEnlRec->lastByGroup($oApp, $groupId);
+                if ($oLastGrpRecord) {
+                    $this->groupSubmitRecord($oApp, $oUser, $oLastGrpRecord, $oLastGrpRecord->enroll_at);
+                }
                 $modelEnlGrp->resetCoin($oApp, $rid, $groupId);
             }
         }

@@ -499,7 +499,7 @@ class event_model extends \TMS_MODEL {
 
         // 如果分组内用户全都提交，用户分组获得的全员提交积分
         if (!empty($oUser->group_id)) {
-            $this->_groupSubmitRecord($oApp, $oUser, $oRecord, $eventAt);
+            $this->groupSubmitRecord($oApp, $oUser, $oRecord, $eventAt);
         }
 
         return true;
@@ -507,7 +507,7 @@ class event_model extends \TMS_MODEL {
     /**
      * 用户分组全体提交记录
      */
-    public function _groupSubmitRecord($oApp, $oUser, $oRecord, $eventAt) {
+    public function groupSubmitRecord($oApp, $oUser, $oRecord, $eventAt) {
         $groupId = $oUser->group_id;
         $rid = $oRecord->rid;
         $logs = $this->query_objs_ss(['1', 'xxt_enroll_log', ['state' => 1, 'aid' => $oApp->id, 'rid' => $rid, 'group_id' => $groupId, 'event_name' => self::GROUP_SUBMIT_EVENT_NAME]]);

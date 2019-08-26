@@ -269,7 +269,7 @@ class TMS_CONTROLLER {
      */
     public function client_ip() {
         if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) &&
-            $this->valid_ip($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $this->_valid_ipv4($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             $ip_address = $_SERVER['HTTP_X_FORWARDED_FOR'];
         } else if (isset($_SERVER['REMOTE_ADDR']) && isset($_SERVER['HTTP_CLIENT_IP'])) {
             $ip_address = $_SERVER['HTTP_CLIENT_IP'];
@@ -286,19 +286,20 @@ class TMS_CONTROLLER {
             $x = explode(',', $ip_address);
             $ip_address = end($x);
         }
+
         return $ip_address;
     }
     /**
      *
      */
-    private function valid_ip($ip) {
+    private function _valid_ipv4($ip) {
         $ip_segments = explode('.', $ip);
         // Always 4 segments needed
-        if (count($ip_segments) != 4) {
+        if (count($ip_segments) !== 4) {
             return false;
         }
         // IP can not start with 0
-        if (substr($ip_segments[0], 0, 1) == '0') {
+        if (substr($ip_segments[0], 0, 1) === '0') {
             return false;
         }
         // Check each segment

@@ -337,9 +337,8 @@ class data_model extends entity_model {
                         $treatedValue = [];
                         foreach ($submitVal as $oFile) {
                             if (isset($oFile->uniqueIdentifier)) {
-                                if (TMS_UPLOAD_FILE_MAXSIZE > 0) {
-                                    $maxSize = (int) TMS_UPLOAD_FILE_MAXSIZE * 1024 * 1024;
-                                    if ($oFile->size > $maxSize) {
+                                if (is_numeric(TMS_UPLOAD_FILE_MAXSIZE) && TMS_UPLOAD_FILE_MAXSIZE > 0) {
+                                    if ($oFile->size > TMS_UPLOAD_FILE_MAXSIZE * 1024 * 1024) {
                                         return [false, '文件上传失败，超出最大值' . TMS_UPLOAD_FILE_MAXSIZE . 'M'];
                                     }
                                 }

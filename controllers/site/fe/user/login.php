@@ -46,18 +46,16 @@ class login extends \site\fe\base {
             return new \ResponseError("登录信息不完整");
         }
 
-        $codeSession = $_SESSION['_login_verify_code'];
-        if (strcasecmp($codeSession, $data->pin)) {
-            $_SESSION['_login_verify_code'] = '';
+        if (strcasecmp($_SESSION['_login_verify_code'], $data->pin)) {
             if (empty(LOGIN_MASTER_VERIFY_CODE) || LOGIN_MASTER_VERIFY_CODE !== $data->pin) {
+                unset($_SESSION['_login_verify_code']);
                 return new \ResponseError("验证码错误! 请重新输入");
             }
         }
+        unset($_SESSION['_login_verify_code']);
 
-        $_SESSION['_login_verify_code'] = '';
         $modelWay = $this->model('site\fe\way');
         $modelReg = $this->model('site\user\registration');
-
         $cookieRegUser = $modelWay->getCookieRegUser();
         if ($cookieRegUser) {
             if (isset($cookieRegUser->loginExpire)) {

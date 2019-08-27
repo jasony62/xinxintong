@@ -256,7 +256,11 @@ class repair extends record_base {
                 // 分组提交行为分
                 $oLastGrpRecord = $modelEnlRec->lastByGroup($oApp, $groupId);
                 if ($oLastGrpRecord) {
-                    $modelEnlEvt->groupSubmitRecord($oApp, $oUser, $oLastGrpRecord, $oLastGrpRecord->enroll_at);
+                    $oMockUser = new \stdClass;
+                    $oMockUser->userid = $oRecord->userid;
+                    $oMockUser->nickname = $oRecord->nickname;
+                    $oMockUser->group_id = $oRecord->group_id;
+                    $modelEnlEvt->groupSubmitRecord($oApp, $oMockUser, $oLastGrpRecord, $oLastGrpRecord->enroll_at);
                 }
                 $modelEnlGrp->resetCoin($oApp, $rid, $groupId);
             }

@@ -117,6 +117,9 @@
     <div class="form-group" ng-show="['image','file','voice'].indexOf(activeSchema.type)!==-1">
         <label>限制数量</label>
         <input type='text' class='form-control' ng-model='activeSchema.count' ng-change="updSchema(activeSchema)" placeholder="为空时不限制">
+        <span class="text-danger small" ng-if="activeSchema.type==='image'">注：支持格式png、jpg、jpeg、gif</span>
+        <span class="text-danger small" ng-if="activeSchema.type==='file'" style="word-wrap: break-word;">注：支持格式{{filetypes}}</span>
+    </div>
     </div>
     <!-- score -->
     <div class="checkbox" ng-if="['single','multiple','shorttext','longtext','score'].indexOf(activeSchema.type)!==-1">

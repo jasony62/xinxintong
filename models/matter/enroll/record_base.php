@@ -7,29 +7,40 @@ require_once dirname(__FILE__) . '/entity.php';
  * 记录活动记录
  */
 abstract class record_base extends entity_model {
-	/**
-	 * 生成活动记录的key
-	 */
-	public function genKey($siteId, $aid) {
-		return md5(uniqid() . $siteId . $aid);
-	}
-	/**
-	 * 根据题目获得在记录中的值
-	 */
-	public function getValueBySchema($oSchema, $oData) {
-		$schemaId = $oSchema->id;
-		if (strpos($schemaId, 'member.') === 0) {
-			$schemaId = explode('.', $schemaId);
-			if (count($schemaId) === 2) {
-				$schemaId = $schemaId[1];
-				if (isset($oData->member->{$schemaId})) {
-					$value = $oData->member->{$schemaId};
-				}
-			}
-		} else {
-			$value = empty($oData->{$schemaId}) ? '' : $oData->{$schemaId};
-		}
+    /**
+     * 生成活动记录的key
+     */
+    public function genKey($siteId, $aid) {
+        return md5(uniqid() . $siteId . $aid);
+    }
+    /**
+     * 根据题目获得在记录中的值
+     */
+    public function getValueBySchema($oSchema, $oData) {
+        $schemaId = $oSchema->id;
+        if (strpos($schemaId, 'member.') === 0) {
+            $schemaId = explode('.', $schemaId);
+            if (count($schemaId) === 2) {
+                $schemaId = $schemaId[1];
+                if (isset($oData->member->{$schemaId})) {
+                    $value = $oData->member->{$schemaId};
+                }
+            }
+        } else {
+            $value = empty($oData->{$schemaId}) ? '' : $oData->{$schemaId};
+        }
 
-		return isset($value) ? $value : '';
-	}
+        return isset($value) ? $value : '';
+    }
+    /**
+     * 记录提交用户
+     */
+    public function getRecordUser($oRecord) {
+        $oUser = new \stdClass;
+        $oUser->userid = isset($oRecord->userid) ? $oRecord->userid : '';
+        $oUser->nickname = isset($oRecord->nickname) ? $oRecord->nickname : '';
+        $oUser->group_id = isset($oRecord->group_id) ? $oRecord->group_id : '';
+
+        return $oUser;
+    }
 }

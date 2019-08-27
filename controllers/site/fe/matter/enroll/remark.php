@@ -7,6 +7,14 @@ include_once dirname(__FILE__) . '/base.php';
  */
 class remark extends base {
     /**
+     * 指定需要作为事物管理的方法
+     */
+    public function tmsRequireTransaction() {
+        return [
+            'add',
+        ];
+    }
+    /**
      *
      */
     private function _setNickname(&$oTarget, $oUser, $oEditor = null) {
@@ -226,6 +234,7 @@ class remark extends base {
 
         $current = time();
         $oNewRemark = new \stdClass;
+        $oNewRemark->g_transid = $this->tmsTransactionId();
         $oNewRemark->siteid = $oRecord->siteid;
         $oNewRemark->aid = $oRecord->aid;
         $oNewRemark->rid = $oApp->appRound->rid; // 记录在当前活动的激活轮次上

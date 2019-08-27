@@ -77,14 +77,31 @@ class repair extends record_base {
         return new \ResponseData($rst);
     }
     /**
+     * 根据用户的填写记录更新用户数据
+     */
+    public function user_action($rid = '', $onlyCheck = 'Y') {
+        $modelUsr = $this->model('matter\enroll\user');
+        $aUpdatedResult = $modelUsr->renew($this->app, $rid, $onlyCheck);
+
+        return new \ResponseData($aUpdatedResult);
+    }
+    /**
+     * 更新活动用户对应的分组信息
+     */
+    public function userGroup_action() {
+        $oApp = $this->app;
+        if (!isset($oApp->entryRule->group->id)) {
+            return new \ResponseError('没有指定关联的分组活动');
+        }
+
+        $updatedCount = $this->model('matter\enroll\user')->repairGroup($oApp);
+
+        return new \ResponseData($updatedCount);
+    }
+    /**
      * 更新指定活动下所有记录的数据分
      */
     public function recordScoreByRound_action($app, $rid = null) {
-        if (false === ($oUser = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-
-        // 记录活动
         $modelRec = $this->model('matter\enroll\record');
 
         $renewCount = 0;
@@ -162,7 +179,7 @@ class repair extends record_base {
         if ($log->earn_coin == $coin) {
             return false;
         }
-        $transId = $this->tmsTransaction->id;
+        $transId = $this->tmsTransactionId();
         /**
          * 生成新记录
          */
@@ -189,7 +206,6 @@ class repair extends record_base {
         if (empty($rid)) {
             return new \ResponseError('请指定要重置的活动轮次');
         }
-        $transId = $this->tmsTransaction->id;
         $resetCount = 0; // 重置的记录数
         $oApp = $this->app;
 
@@ -215,13 +231,13 @@ class repair extends record_base {
                 if (!empty($log->userid)) {
                     $aResetUsers[$log->userid] = true;
                 }
-                if (!empty($log->group_id)) {
-                    $aResetGroups[$log->group_id] = true;
-                }
+            }
+            if (!empty($log->group_id)) {
+                $aResetGroups[$log->group_id] = true;
             }
         }
         /**
-         * 更新用户汇总数据
+         * 更新用户汇总行为分
          */
         if (count($aResetUsers)) {
             $modelEnlUsr = $this->model('matter\enroll\user');
@@ -230,11 +246,19 @@ class repair extends record_base {
             }
         }
         /**
-         * 更新分组汇总数据
+         * 更新分组汇总行为分
          */
         if (count($aResetGroups)) {
+            $modelEnlEvt = $this->model('matter\enroll\event');
             $modelEnlGrp = $this->model('matter\enroll\group');
+            $modelEnlRec = $this->model('matter\enroll\record');
             foreach ($aResetGroups as $groupId => $foo) {
+                // 分组提交行为分
+                $oLastGrpRecord = $modelEnlRec->lastByGroup($oApp, $groupId);
+                if ($oLastGrpRecord) {
+                    $oMockUser = $modelEnlRec->getRecordUser($oLastGrpRecord);
+                    $modelEnlEvt->groupSubmitRecord($oApp, $oMockUser, $oLastGrpRecord, $oLastGrpRecord->enroll_at);
+                }
                 $modelEnlGrp->resetCoin($oApp, $rid, $groupId);
             }
         }
@@ -260,7 +284,7 @@ class repair extends record_base {
         }
 
         // 记录操作日志
-        $this->model('matter\log')->matterOp($oApp->siteid, $this->user, $oApp, 'resetCoin', $resetCount, $transId);
+        $this->model('matter\log')->matterOp($oApp->siteid, $this->user, $oApp, 'resetCoin', $resetCount);
 
         return new \ResponseData($resetCount);
     }

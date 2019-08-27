@@ -111,11 +111,21 @@ class TMS_CONTROLLER {
         return false;
     }
     /**
+     * 返回事物ID，如果存在
+     */
+    public function tmsTransactionId() {
+        return isset($this->tmsTransaction->id) ? $this->tmsTransaction->id : 0;
+    }
+    /**
      *
      */
     public function model() {
         $args = func_get_args();
-        return call_user_func_array(array('TMS_APP', "model"), $args);
+        $model = call_user_func_array(array('TMS_APP', "model"), $args);
+        if (isset($this->tmsTransaction)) {
+            $model->tmsTransaction = $this->tmsTransaction;
+        }
+        return $model;
     }
     /**
      *
@@ -255,11 +265,11 @@ class TMS_CONTROLLER {
         return array(--$index, $test);
     }
     /**
-     *
+     * 获得访问用户的ip地址
      */
-    protected function client_ip() {
+    public function client_ip() {
         if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) &&
-            $this->valid_ip($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $this->_valid_ipv4($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             $ip_address = $_SERVER['HTTP_X_FORWARDED_FOR'];
         } else if (isset($_SERVER['REMOTE_ADDR']) && isset($_SERVER['HTTP_CLIENT_IP'])) {
             $ip_address = $_SERVER['HTTP_CLIENT_IP'];
@@ -276,19 +286,20 @@ class TMS_CONTROLLER {
             $x = explode(',', $ip_address);
             $ip_address = end($x);
         }
+
         return $ip_address;
     }
     /**
      *
      */
-    private function valid_ip($ip) {
+    private function _valid_ipv4($ip) {
         $ip_segments = explode('.', $ip);
         // Always 4 segments needed
-        if (count($ip_segments) != 4) {
+        if (count($ip_segments) !== 4) {
             return false;
         }
         // IP can not start with 0
-        if (substr($ip_segments[0], 0, 1) == '0') {
+        if (substr($ip_segments[0], 0, 1) === '0') {
             return false;
         }
         // Check each segment

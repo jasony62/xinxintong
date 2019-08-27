@@ -131,6 +131,7 @@ class event_model extends \TMS_MODEL {
      */
     public function _logEvent($oApp, $rid, $ek, $oTarget, $oEvent, $oOwnerEvent = null) {
         $oNewLog = new \stdClass;
+        $oNewLog->g_transid = $this->tmsTransactionId();
         /* 事件 */
         $oNewLog->event_name = $oEvent->name;
         $oNewLog->event_op = $oEvent->op;
@@ -159,15 +160,18 @@ class event_model extends \TMS_MODEL {
         if (isset($oOwnerEvent)) {
             $oOwner = $oOwnerEvent->user;
             $oNewLog->owner_userid = $oOwner->uid;
-            if (!isset($oOwner->nickname)) {
+            if (!isset($oOwner->group_id) || !isset($oOwner->nickname)) {
                 $modelUsr = $this->model('matter\enroll\user');
-                $oOwnerUsr = $modelUsr->byId($oApp, $oOwner->uid, ['fields' => 'nickname']);
+                $oOwnerUsr = $modelUsr->byId($oApp, $oOwner->uid, ['fields' => 'group_id,nickname']);
                 if ($oOwnerUsr) {
+                    $oNewLog->owner_group_id = $oOwnerUsr->group_id;
                     $oNewLog->owner_nickname = $this->escape($oOwnerUsr->nickname);
                 }
             } else {
+                $oNewLog->owner_group_id = $oOwner->group_id;
                 $oNewLog->owner_nickname = $this->escape($oOwner->nickname);
             }
+            $oNewLog->owner_coin_event = isset($oOwnerEvent->coin_event) ? $oOwnerEvent->coin_event : 0;
             $oNewLog->owner_earn_coin = isset($oOwnerEvent->coin) ? $oOwnerEvent->coin : 0;
         }
 
@@ -495,7 +499,7 @@ class event_model extends \TMS_MODEL {
 
         // 如果分组内用户全都提交，用户分组获得的全员提交积分
         if (!empty($oUser->group_id)) {
-            $this->_groupSubmitRecord($oApp, $oUser, $oRecord, $eventAt);
+            $this->groupSubmitRecord($oApp, $oUser, $oRecord, $eventAt);
         }
 
         return true;
@@ -503,7 +507,7 @@ class event_model extends \TMS_MODEL {
     /**
      * 用户分组全体提交记录
      */
-    public function _groupSubmitRecord($oApp, $oUser, $oRecord, $eventAt) {
+    public function groupSubmitRecord($oApp, $oUser, $oRecord, $eventAt) {
         $groupId = $oUser->group_id;
         $rid = $oRecord->rid;
         $logs = $this->query_objs_ss(['1', 'xxt_enroll_log', ['state' => 1, 'aid' => $oApp->id, 'rid' => $rid, 'group_id' => $groupId, 'event_name' => self::GROUP_SUBMIT_EVENT_NAME]]);
@@ -577,10 +581,12 @@ class event_model extends \TMS_MODEL {
         $oEvent->op = 'New';
         $oEvent->at = $eventAt;
         $oEvent->user = $oOperator;
+        $oEvent->coin_event = 1;
         $oEvent->coin = isset($oOperatorData->user_total_coin) ? $oOperatorData->user_total_coin : 0;
         //
         $oOwnerEvent = new \stdClass;
         $oOwnerEvent->user = (object) ['uid' => $oRecData->userid];
+        $oOwnerEvent->coin_event = 1;
         $oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
         $this->_logEvent($oApp, $oRecData->rid, $oRecData->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
@@ -859,10 +865,20 @@ class event_model extends \TMS_MODEL {
         $oEvent->op = 'New';
         $oEvent->at = $eventAt;
         $oEvent->user = $oOperator;
+        $oEvent->coin_event = 1;
         $oEvent->coin = isset($oOperatorData->user_total_coin) ? $oOperatorData->user_total_coin : 0;
         //
         $oOwnerEvent = new \stdClass;
-        $oOwnerEvent->user = (object) ['uid' => $oRecord->userid];
+        $oOwner = new \stdClass;
+        $oOwner->uid = $oRecord->userid;
+        if (isset($oRecord->group_id)) {
+            $oOwner->group_id = $oRecord->group_id;
+        }
+        if (isset($oRecord->nickname)) {
+            $oOwner->nickname = $oRecord->nickname;
+        }
+        $oOwnerEvent->user = $oOwner;
+        $oOwnerEvent->coin_event = 1;
         $oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
         $this->_logEvent($oApp, $oRecord->rid, $oRecord->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
@@ -887,10 +903,12 @@ class event_model extends \TMS_MODEL {
         $oEvent->op = 'New';
         $oEvent->at = $eventAt;
         $oEvent->user = $oOperator;
+        $oEvent->coin_event = 1;
         $oEvent->coin = isset($oOperatorData->user_total_coin) ? $oOperatorData->user_total_coin : 0;
         //
         $oOwnerEvent = new \stdClass;
         $oOwnerEvent->user = (object) ['uid' => $oRecOrData->userid];
+        $oOwnerEvent->coin_event = 1;
         $oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
         $this->_logEvent($oApp, $oRecOrData->rid, $oRecOrData->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
@@ -915,10 +933,12 @@ class event_model extends \TMS_MODEL {
         $oEvent->op = 'New';
         $oEvent->at = $eventAt;
         $oEvent->user = $oOperator;
+        $oEvent->coin_event = 1;
         $oEvent->coin = isset($oOperatorData->user_total_coin) ? $oOperatorData->user_total_coin : 0;
         //
         $oOwnerEvent = new \stdClass;
         $oOwnerEvent->user = (object) ['uid' => $oCowork->userid];
+        $oOwnerEvent->coin_event = 1;
         $oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
         $this->_logEvent($oApp, $oCowork->rid, $oCowork->enroll_key, $oTarget, $oEvent, $oOwnerEvent);
@@ -1088,10 +1108,12 @@ class event_model extends \TMS_MODEL {
         $oEvent->op = 'Y';
         $oEvent->at = $eventAt;
         $oEvent->user = $oOperator;
+        $oEvent->coin_event = 0;
         $oEvent->coin = isset($oOperatorData->user_total_coin) ? $oOperatorData->user_total_coin : 0;
         //
         $oOwnerEvent = new \stdClass;
         $oOwnerEvent->user = (object) ['uid' => $oRecord->userid];
+        $oOwnerEvent->coin_event = 1;
         $oOwnerEvent->coin = isset($oOwnerData->user_total_coin) ? $oOwnerData->user_total_coin : 0;
 
         $this->_logEvent($oApp, $oRecord->rid, $oRecord->enroll_key, $oTarget, $oEvent, $oOwnerEvent);

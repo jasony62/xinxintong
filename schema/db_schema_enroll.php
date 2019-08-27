@@ -299,6 +299,7 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_enroll_record_remark(";
 $sql .= "id int not null auto_increment";
+$sql .= ",g_transid bigint not null default 0";
 $sql .= ",seq_in_record int not null default 0"; // 留言在记录中的序号
 $sql .= ",seq_in_data int not null default 0"; // 留言在数据中的序号
 $sql .= ",siteid varchar(32) not null";
@@ -667,6 +668,7 @@ $sql .= ",target_id int not null"; // 事件操作的对象
 $sql .= ",target_type varchar(20) not null"; // 事件操作的对象的类型
 $sql .= ",coin_event tinyint not null default 0"; // 1:是,0:不是
 $sql .= ",earn_coin int not null default 0"; // 获得的行为分奖励
+$sql .= ",owner_group_id varchar(32) not null default ''";
 $sql .= ",owner_userid varchar(40) not null default ''"; // 受到操作影响的用户
 $sql .= ",owner_nickname varchar(255) not null default ''"; // 受到操作影响的用户昵称
 $sql .= ",owner_coin_event tinyint not null default 0"; // 1:是,0:不是

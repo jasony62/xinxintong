@@ -73,7 +73,7 @@ class topic_model extends entity_model {
 	public function records($oTopic, $aOptions = []) {
 		if (!empty($oTopic->task_id)) {
 			$oTask = $this->model('matter\enroll\task', $this->_oApp)->byId($oTopic->task_id);
-			if ($oTask && $oTask->state === 'IP') {
+			if ($oTask && $this->getDeepValue($oTask,'state') === 'IP') {
 				/* 任务执行过程中，需要更新任务的专题 */
 				$this->_renewByTask($oTopic, $oTask);
 			}

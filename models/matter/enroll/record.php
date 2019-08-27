@@ -340,6 +340,50 @@ class record_model extends record_base {
 		return $oRecord;
 	}
 	/**
+	 * 获得指定用户分组最后提交的记录
+	 */
+	public function lastByGroup($oApp, $groupId, $aOptions = []){
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$verbose = isset($aOptions['verbose']) ? $aOptions['verbose'] : 'N';
+		$assignedRid = isset($aOptions['rid']) ? $aOptions['rid'] : '';
+
+		$q = [
+			$fields,
+			'xxt_enroll_record',
+			['aid' => $oApp->id, 'group_id' => $groupId],
+		];
+		/* 指定记录状态 */
+		if (!empty($aOptions['state'])) {
+			$q[2]['state'] = $aOptions['state'];
+		}
+		/* 指定填写轮次 */
+		if (empty($assignedRid)) {
+			if (isset($oApp->appRound->rid)) {
+				$q[2]['rid'] = $oApp->appRound->rid;
+			} else {
+				if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
+					$q[2]['rid'] = $oActiveRnd->rid;
+				}
+			}
+		} else {
+			$q[2]['rid'] = $assignedRid;
+		}
+		/* 记录的时间 */
+		$q2 = [
+			'o' => 'enroll_at desc',
+			'r' => ['o' => 0, 'l' => 1],
+		];
+
+		$records = $this->query_objs_ss($q, $q2);
+
+		$oRecord = count($records) === 1 ? $records[0] : false;
+		if ($oRecord) {
+			$this->_processRecord($oRecord, $fields, $verbose);
+		}
+
+		return $oRecord;
+	}
+	/**
 	 * 获得用户的记录清单
 	 *
 	 * @param object $oApp

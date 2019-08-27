@@ -13,7 +13,7 @@ ngMod.directive('tmsReposRecord', ['$templateCache', function ($templateCache) {
             rec: '=record',
             schemaCounter: '='
         },
-        controller: ['$scope', '$sce', '$location', 'tmsLocation', 'http2', 'tmsSchema', 'enlHistory', function ($scope, $sce, $location, LS, http2, tmsSchema, enlHistory) {
+        controller: ['$scope', '$sce', '$location', 'tmsSchema', 'enlHistory', function ($scope, $sce, $location, tmsSchema, enlHistory) {
             $scope.open = function (file) {
                 var url, appID, data;
                 appID = $location.search().app;

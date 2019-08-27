@@ -59,7 +59,7 @@ define(['frame'], function (ngApp) {
         $scope.advFilter = function () {
             http2.post('/rest/script/time', {
                 html: {
-                    'enrollee': '/views/default/pl/fe/matter/enroll/component/enrolleePicker'
+                    'enrollee': '/views/default/pl/fe/matter/enroll/component/enrolleeFilter'
                 }
             }).then(function (rsp) {
                 $uibModal.open({
@@ -107,8 +107,8 @@ define(['frame'], function (ngApp) {
             });
         };
         $scope.repairEnrollee = function () {
-            var url = '/rest/pl/fe/matter/enroll/user/repair?site=' + $scope.app.siteid;
-            url += '&app=' + $scope.app.id;
+            var url = '/rest/pl/fe/matter/enroll/repair/user';
+            url += '?app=' + $scope.app.id;
             http2.get(url).then(function (rsp) {
                 $scope.searchEnrollee(1);
             });
@@ -135,8 +135,8 @@ define(['frame'], function (ngApp) {
             });
         };
         $scope.repairGroup = function () {
-            var url = '/rest/pl/fe/matter/enroll/user/repairGroup?site=' + $scope.app.siteid;
-            url += '&app=' + $scope.app.id;
+            var url = '/rest/pl/fe/matter/enroll/repair/userGroup';
+            url += '?app=' + $scope.app.id;
             http2.get(url).then(function (rsp) {
                 $scope.searchEnrollee(1);
             });

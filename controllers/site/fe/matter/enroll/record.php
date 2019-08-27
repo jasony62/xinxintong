@@ -7,15 +7,42 @@ include_once dirname(__FILE__) . '/base.php';
  */
 class record extends base {
     /**
-     * 解决跨域异步提交问题
+     * 在调用每个控制器的方法前调用
      */
-    public function submitkeyGet_action() {
-        /* support CORS */
-        //header('Access-Control-Allow-Origin:*');
+    public function tmsBeforeEach($app = null, $task = null) {
+        // 活动任务
+        if (!empty($task)) {
+            $modelTsk = $this->model('matter\enroll\task', null);
+            $oTask = $modelTsk->byId($task);
+            if (false === $oTask) {
+                return [false, new \ObjectNotFoundError('指定的活动任务不存在')];
+            }
+            $this->task = $oTask;
+        }
+        // 记录活动基本信息
+        if (!empty($app)) {
+            // 记录活动
+            $aOptions = ['cascaded' => 'N'];
+            if (isset($oTask)) {
+                $aOptions['task'] = $oTask;
+            }
+            $modelApp = $this->model('matter\enroll');
+            $oApp = $modelApp->byId($app, $aOptions);
+            if (false === $oApp || $oApp->state !== '1') {
+                return [false, new \ObjectNotFoundError('指定的记录活动不存在')];
+            }
+            $this->app = $oApp;
+        }
 
-        $key = md5(uniqid() . mt_rand());
-
-        return new \ResponseData($key);
+        return [true];
+    }
+    /**
+     * 指定需要作为事物管理的方法
+     */
+    public function tmsRequireTransaction() {
+        return [
+            'submit',
+        ];
     }
     /**
      * 记录记录信息
@@ -27,21 +54,7 @@ class record extends base {
      * @param int $task 对应的任务
      *
      */
-    public function submit_action($app, $rid = '', $ek = null, $submitkey = '', $task = null) {
-        $modelEnl = $this->model('matter\enroll');
-        $oEnlApp = $modelEnl->byId($app, ['cascaded' => 'N']);
-        if (false === $oEnlApp || $oEnlApp->state !== '1') {
-            return new \ObjectNotFoundError('（1）指定的活动不存在');
-        }
-
-        if (!empty($task)) {
-            $modelTsk = $this->model('matter\enroll\task', $oEnlApp);
-            $oTask = $modelTsk->byId($task);
-            if (false === $oTask) {
-                return new \ObjectNotFoundError('（2）指定的活动任务不存在');
-            }
-        }
-
+    public function submit_action($rid = '', $ek = null, $submitkey = '', $task = null) {
         $modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
 
         $bSubmitNewRecord = empty($ek); // 是否为新记录
@@ -61,8 +74,9 @@ class record extends base {
             $rid = $oBeforeRecord->rid;
         }
 
+        $oEnlApp = $this->app;
         // 检查或获得提交轮次
-        $aResultSubmitRid = $this->_getSubmitRecordRid($oEnlApp, $rid, isset($oTask) ? $oTask : null);
+        $aResultSubmitRid = $this->_getSubmitRecordRid($oEnlApp, $rid);
         if (false === $aResultSubmitRid[0]) {
             return new \ResponseError($aResultSubmitRid[1]);
         }
@@ -164,6 +178,7 @@ class record extends base {
         /**
          * 处理用户汇总数据，行为分数据
          */
+        $modelEvt = $this->model('matter\enroll\event');
         $this->model('matter\enroll\event')->submitRecord($oEnlApp, $oRecord, $oUser, $bSubmitSavedRecord || $bSubmitNewRecord);
         /**
          * 更新用户数据分排名
@@ -173,7 +188,8 @@ class record extends base {
         /**
          * 如果存在提问任务，将记录放到任务专题中
          */
-        if (isset($oTask)) {
+        if (isset($this->task)) {
+            $oTask = $this->task;
             switch ($oTask->config_type) {
             case 'question': // 提问任务
                 $modelTop = $this->model('matter\enroll\topic', $oEnlApp);
@@ -341,10 +357,10 @@ class record extends base {
     /**
      * 返回当前轮次或者检查指定轮次是否有效
      */
-    private function _getSubmitRecordRid($oApp, $rid = '', $oTask = null) {
+    private function _getSubmitRecordRid($oApp, $rid = '') {
         $modelRnd = $this->model('matter\enroll\round');
-        if (isset($oTask)) {
-            $oRecordRnd = $modelRnd->byTask($oApp, $oTask);
+        if (isset($this->task)) {
+            $oRecordRnd = $modelRnd->byTask($oApp, $this->task);
         } else if (empty($rid)) {
             $oRecordRnd = $modelRnd->getActive($oApp);
         } else {
@@ -609,7 +625,7 @@ class record extends base {
             if ($loadLast === 'Y') {
                 if (isset($oTask)) {
                     $oTaskRnd = $this->model('matter\enroll\round')->byTask($oApp, $oTask);
-                    if (false === $oTaskRnd) {
+                    if (empty($oTaskRnd)) {
                         return new \ObjectNotFoundError('指定的活动任务轮次不存在');
                     }
                     $rid = $oTaskRnd->rid;
@@ -752,7 +768,6 @@ class record extends base {
     /**
      * 列出所有的记录记录
      *
-     * $site
      * $app
      * $orderby time|remark|score|follower
      * $page
@@ -764,7 +779,7 @@ class record extends base {
      * [2] 数据项的定义
      *
      */
-    public function list_action($site, $app, $owner = 'U', $orderby = 'time', $page = 1, $size = 30, $sketch = 'N') {
+    public function list_action($app, $owner = 'U', $orderby = 'time', $page = 1, $size = 30, $sketch = 'N') {
         $oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
         if (false === $oApp || $oApp->state !== '1') {
             return new \ObjectNotFoundError();
@@ -1087,7 +1102,7 @@ class record extends base {
     /**
      * 返回指定记录项的活动记录
      */
-    public function list4Schema_action($site, $app, $rid = null, $schema, $page = 1, $size = 10) {
+    public function list4Schema_action($app, $rid = null, $schema, $page = 1, $size = 10) {
         // 记录数据过滤条件
         $oCriteria = $this->getPostJson();
 

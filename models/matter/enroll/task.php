@@ -576,7 +576,6 @@ class task_model extends \TMS_MODEL {
                 return [false, '指定记录不存在'];
             }
         }
-
         $tasks = [];
         foreach ($aTaskTypes as $taskType) {
             $rules = $this->getRule($taskType, $oUser);

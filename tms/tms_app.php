@@ -19,7 +19,8 @@ class TMS_APP {
     //
     private static $app_dir = TMS_APP_DIR;
     private static $default_controller = 'main';
-    private static $default_action = 'index';
+    private static $index_action = 'index';
+    private static $default_action = 'default';
     private static $default_view = 'main';
     private static $model_prefix = '_model';
     /**
@@ -152,7 +153,7 @@ class TMS_APP {
      */
     private static function _request_api($path) {
         global $__controller, $__action;
-        self::apiuri_to_controller($path);
+        self::_apiuri_to_controller($path);
         /**
          * create controller.
          */
@@ -162,20 +163,24 @@ class TMS_APP {
         /**
          * check controller's action.
          */
-        $action_method = $__action . '_action';
-        if (!method_exists($obj_controller, $action_method)) {
-            if (isset($_SERVER['HTTP_ACCEPT']) && strpos('text/html', $_SERVER['HTTP_ACCEPT']) !== -1) {
-                /**
-                 * 如果访问的是页面，返回控制器的缺省页面
-                 */
-                $default_method = self::$default_action . '_action';
-                if (!method_exists($obj_controller, $default_method)) {
+        if (false === $__action || !method_exists($obj_controller, $__action . '_action')) {
+            $default_method = self::$default_action . '_action';
+            if (!method_exists($obj_controller, $default_method)) {
+                if (isset($_SERVER['HTTP_ACCEPT']) && strpos('text/html', $_SERVER['HTTP_ACCEPT']) !== -1) {
+                    /**
+                     * 如果访问的是页面，返回控制器的缺省页面
+                     */
+                    $default_method = self::$index_action . '_action';
+                    if (!method_exists($obj_controller, $default_method)) {
+                        throw new UrlNotMatchException("操作($__controller->$action_method)不存在！");
+                    }
+                } else {
                     throw new UrlNotMatchException("操作($__controller->$action_method)不存在！");
                 }
-                $action_method = $default_method;
-            } else {
-                throw new UrlNotMatchException("操作($__controller->$action_method)不存在！");
             }
+            $action_method = $default_method;
+        } else {
+            $action_method = $__action . '_action';
         }
         /**
          * access control
@@ -300,9 +305,10 @@ class TMS_APP {
         $obj_controller->$action_method($path);
     }
     /**
+     * 根据url设置controller信息
      * controller:/moudle/name/action
      */
-    private static function apiuri_to_controller($path = '') {
+    private static function _apiuri_to_controller($path = '') {
         global $__controller, $__action;
         $cd = '/controllers/';
         if (empty($path) || is_dir(self::$app_dir . $cd . $path)) {
@@ -310,12 +316,12 @@ class TMS_APP {
             // assign default controller and action.
             $path = rtrim($path, '/');
             $__controller = trim($path . '/' . self::$default_controller, '/');
-            $__action = self::$default_action;
+            $__action = false;
         } else {
             if (file_exists(self::$app_dir . $cd . trim($path, '/') . '.php')) {
                 // the path is a controller.
                 $__controller = trim($path, '/');
-                $__action = self::$default_action;
+                $__action = false;
             } else {
                 // the path is action.
                 $segments = $path ? explode('/', trim($path, '/')) : null;

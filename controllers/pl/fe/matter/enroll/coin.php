@@ -9,18 +9,10 @@ class coin extends main_base {
     /**
      *
      */
-    public function rules_action($app) {
-        if (false === $this->accountUser()) {
-            return new \ResponseTimeout();
-        }
-        $modelEnl = $this->model('matter\enroll');
-        if (false === ($oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'id,siteid']))) {
-            return new \ResponseError();
-        }
-
-        $modelRule = $this->model('site\coin\rule');
-
+    public function rules_action() {
+        $oApp = $this->app;
         $filter = 'ID:' . $oApp->id;
+        $modelRule = $this->model('site\coin\rule');
         $rules = $modelRule->byMatterFilter($filter, ['fields' => 'id,act,actor_delta,actor_overlap,matter_type']);
 
         return new \ResponseData($rules);
@@ -28,18 +20,13 @@ class coin extends main_base {
     /**
      *
      */
-    public function saveRules_action($app) {
-        if (false === $this->accountUser()) {
-            return new \ResponseTimeout();
-        }
-        $modelEnl = $this->model('matter\enroll');
-        if (false === ($oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'id,siteid']))) {
-            return new \ResponseError();
-        }
+    public function saveRules_action() {
+        $oApp = $this->app;
 
         $newRules = [];
         $rules = $this->getPostJson();
 
+        $modelEnl = $this->model('matter\enroll');
         foreach ($rules as $rule) {
             if (empty($rule->id)) {
                 if ($rule->actor_delta != 0) {
@@ -66,18 +53,11 @@ class coin extends main_base {
     /**
      *
      */
-    public function logs_action($site, $app, $page = 1, $size = 30) {
-        if (false === ($user = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-
-        $result = new \stdClass;
-        $model = $this->model();
-        $app = $model->escape($app);
+    public function logs_action($page = 1, $size = 30) {
         $q = [
             'cl.act,cl.occur_at,cl.userid,cl.nickname,cl.delta,cl.total,e.user_total_coin',
             'xxt_coin_log cl,xxt_enroll_user e',
-            "cl.matter_type='enroll' and cl.matter_id='{$app}' and e.aid = cl.matter_id and e.userid = cl.userid and e.rid = 'ALL'",
+            "cl.matter_type='enroll' and cl.matter_id='{$this->app->id}' and e.aid = cl.matter_id and e.userid = cl.userid and e.rid = 'ALL'",
         ];
         /**
          * 分页数据
@@ -90,11 +70,13 @@ class coin extends main_base {
             ],
         ];
 
-        $result->logs = $model->query_objs_ss($q, $q2);
+        $model = $this->model();
+        $oResult = new \stdClass;
+        $oResult->logs = $model->query_objs_ss($q, $q2);
 
         $q[0] = 'count(*)';
-        $result->total = $model->query_val_ss($q);
+        $oResult->total = $model->query_val_ss($q);
 
-        return new \ResponseData($result);
+        return new \ResponseData($oResult);
     }
 }

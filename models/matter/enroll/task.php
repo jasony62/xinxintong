@@ -359,6 +359,9 @@ class task_model extends \TMS_MODEL {
             if (false === $aValid[0]) {
                 continue;
             }
+            if (empty($oAnswerConfig->schemas)) {
+                continue;
+            }
             foreach ($oApp->dynaDataSchemas as $oSchema) {
                 if (in_array($oSchema->id, $oAnswerConfig->schemas)) {
                     $oAnswerRule = new \stdClass;

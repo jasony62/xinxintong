@@ -93,7 +93,7 @@ define(["xxt-page"], function (codeAssembler) {
                         url += '&template=' + template.id;
                         url += '&vid=' + template.vid;
                         http2.get(url).then(function (rsp) {
-                            http2.get('/rest/pl/fe/matter/enroll/createByOther?site=' + site.id + '&template=' + template.id + '&vid=' + template.vid).then(function (rsp) {
+                            http2.get('/rest/pl/fe/matter/enroll/create/byOther?site=' + site.id + '&template=' + template.id + '&vid=' + template.vid).then(function (rsp) {
                                 location.href = '/rest/pl/fe/matter/enroll?site=' + site.id + '&id=' + rsp.data.id;
                             });
                         });

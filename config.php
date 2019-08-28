@@ -87,6 +87,10 @@ define('TMS_APP_TEMPLATE_DEFAULT', dirname(__FILE__) . '/_template');
  */
 !defined('TMS_APP_URI') && define('TMS_APP_URI', '');
 /**
+ * 万能登录验证码
+ */
+!defined('LOGIN_MASTER_VERIFY_CODE') && define('LOGIN_MASTER_VERIFY_CODE', '');
+/**
  * 校验密码强度，0 不校验，1 校验
  */
 !defined('TMS_APP_PASSWORD_STRENGTH_CHECK') && define('TMS_APP_PASSWORD_STRENGTH_CHECK', 1);

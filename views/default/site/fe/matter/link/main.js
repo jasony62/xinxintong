@@ -108,11 +108,10 @@ angular.module('app', ['ui.bootstrap', 'page.ui.xxt', 'favor.ui.xxt', 'snsshare.
                 $scope.user = rsp.data.user;
                 $scope.qrcode = '/rest/site/fe/matter/link/qrcode?site=' + siteId + '&url=' + encodeURIComponent(location.href);
                 if (Object.keys($scope.link).indexOf('invite') !== -1) {
-                    var len = $scope.link.fullUrl.length;
-                    if ($scope.link.fullUrl.charAt(len - 1) !== '?') {
+                    if ($scope.link.fullUrl.indexOf("?") !== -1) {
                         $scope.link.fullUrl = $scope.link.fullUrl + '&inviteToken=' + invite_token;
                     } else {
-                        $scope.link.fullUrl = $scope.link.fullUrl + 'inviteToken=' + invite_token;
+                        $scope.link.fullUrl = $scope.link.fullUrl + '?inviteToken=' + invite_token;
                     }
                 }
                 if (/MicroMessenge/i.test(navigator.userAgent)) {

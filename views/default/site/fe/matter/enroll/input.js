@@ -140,8 +140,12 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function($compile, $q) {
             }
             $scope.chooseImage = function(schemaId, count, from) {
                 imgCount(schemaId, count, from);
-                window.xxt.image.choose($q.defer(), from).then(function(imgs) {
-                    imgBind(schemaId, imgs);
+                window.xxt.image.choose($q.defer(), from).then(function(result) {
+                    if(result instanceof Object) {
+                        imgBind(schemaId, result);
+                    }else{
+                        noticebox.error(result);
+                    }
                 });
             };
             $scope.removeImage = function(imgField, index) {
@@ -220,10 +224,28 @@ ngApp.directive('tmsFileInput', ['$q', 'tmsLocation', 'tmsDynaPage', function($q
                 ele.setAttribute('type', 'file');
                 accept !== undefined && ele.setAttribute('accept', accept);
                 ele.addEventListener('change', function(evt) {
-                    var i, cnt, f, seat;
+                    var i, cnt, f;
                     cnt = evt.target.files.length;
                     for (i = 0; i < cnt; i++) {
                         f = evt.target.files[i];
+                        if ($scope.fileConfig.allowtype) {
+                            var allowtype = $scope.fileConfig.allowtype;
+                            if (!(f.name.lastIndexOf("."))) {
+                                noticebox.error("文件数据格式错误:只能上传" + allowtype + "格式的文件");
+                                return false;
+                            }
+                            var seat = f.name.lastIndexOf(".") + 1,
+                                extendsion = f.name.substring(seat).toLowerCase();
+                            if (allowtype.indexOf(extendsion) === -1) {
+                                noticebox.error("文件数据格式错误:只能上传" + allowtype + "格式的文件");
+                                return false;
+                            }
+                        }
+                        if ($scope.fileConfig.maxsize * 1024 * 1024 <= f.size) {
+                            noticebox.error("文件上传失败，大小不能超过" + $scope.fileConfig.maxsize + "M");
+                            return false;
+                        }
+
                         oResumable.addFile(f);
                         $scope.$apply(function() {
                             $scope.data[schemaId] === undefined && ($scope.data[schemaId] = []);
@@ -1204,7 +1226,14 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
         _tkRound.list().then(function(oResult) {
             $scope.rounds = oResult.rounds;
         });
-        /*页面阅读日志*/
+        /* 允许上传的文件类型 */
+        http2.get("/tmsappconfig.php").then(function(rsp) {
+            $scope.fileConfig = {
+                "allowtype": rsp.fileContentTypeWhite,
+                "maxsize": rsp.fileMaxSize
+            }
+        });
+        /* 页面阅读日志 */
         $scope.logAccess();
         /* 微信不支持上传文件，指导用户进行处理 */
         if (/MicroMessenger|iphone|ipad/i.test(navigator.userAgent)) {

@@ -1,6 +1,23 @@
 define(['frame'], function (ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlEnrollee', ['$scope', 'http2', 'noticebox', 'tkEnrollRound', 'srvEnrollRecord', '$uibModal', 'tmsSchema', 'facListFilter', 'tmsRowPicker', function ($scope, http2, noticebox, tkEnlRnd, srvEnrollRecord, $uibModal, tmsSchema, facListFilter, tmsRowPicker) {
+    ngApp.provider.controller('ctrlEnrollee', ['$scope', 'http2', 'noticebox', 'tkEnrollRound', 'srvEnrollRecord', '$uibModal', 'tmsSchema', 'facListFilter', 'tmsRowPicker', function ($scope, http2, noticebox, tkEnlRnd, srvEnlRec, $uibModal, tmsSchema, facListFilter, tmsRowPicker) {
+        function _fnGroup(rid) {
+            var url;
+            _oRows.reset();
+            url = '/rest/pl/fe/matter/enroll/user/group?app=' + $scope.app.id;
+            rid !== undefined && (url += '&rid=' + rid)
+            http2.post(url, {}).then(function (rsp) {
+                var groups = rsp.data.groups;
+                var oRound = rsp.data.round || {
+                    title: '全部轮次'
+                };
+                groups.forEach(function (oGroup) {
+                    oGroup.round = oRound;
+                });
+                $scope.groups = groups;
+            });
+        }
+
         function _fnAbsent() {
             http2.post('/rest/pl/fe/matter/enroll/user/undone?app=' + $scope.app.id, {
                 rids: _oCriteria.rids
@@ -25,6 +42,10 @@ define(['frame'], function (ngApp) {
 
         var _oCriteria, _oRows, _oPage;
         $scope.category = 'enrollee';
+        $scope.categories = {
+            enrollee: '用户',
+            absent: '缺席',
+        };
         $scope.page = _oPage = {
             size: 20
         };
@@ -44,6 +65,13 @@ define(['frame'], function (ngApp) {
             _oCriteria.orderby = orderby;
             $scope.searchEnrollee(1);
         };
+        $scope.chooseGroupRound = function () {
+            tkEnlRnd.pick($scope.app, {
+                single: true
+            }).then(function (oResult) {
+                _fnGroup(oResult.rid);
+            })
+        };
         $scope.export = function () {
             var url = '/rest/pl/fe/matter/enroll/export/user';
             url += '?app=' + $scope.app.id;
@@ -51,7 +79,7 @@ define(['frame'], function (ngApp) {
             window.open(url);
         };
         $scope.notify = function (isBatch) {
-            srvEnrollRecord.notify(isBatch ? _oRows : null);
+            srvEnlRec.notify(isBatch ? _oRows : null);
         };
         $scope.filter = facListFilter.init(function () {
             $scope.searchEnrollee(1);
@@ -102,7 +130,7 @@ define(['frame'], function (ngApp) {
             http2.post(url, _oCriteria, {
                 page: _oPage
             }).then(function (rsp) {
-                srvEnrollRecord.init($scope.app, _oPage, _oCriteria, rsp.data.users);
+                srvEnlRec.init($scope.app, _oPage, _oCriteria, rsp.data.users);
                 $scope.enrollees = rsp.data.users;
             });
         };
@@ -141,14 +169,18 @@ define(['frame'], function (ngApp) {
                 $scope.searchEnrollee(1);
             });
         };
-        $scope.toggleAbsent = function () {
-            $scope.category = $scope.category === 'absent' ? 'enrollee' : 'absent';
+        $scope.shiftCategory = function (category) {
+            $scope.category = category;
         };
         $scope.$watch('app.entryRule', function (oRule) {
             if (!oRule) return;
             $scope.rule = oRule;
             $scope.tmsTableWrapReady = 'Y';
             $scope.searchEnrollee(1);
+            if (oRule.group && oRule.group.id) {
+                $scope.categories.group = '用户组';
+                _fnGroup('');
+            }
             _fnAbsent();
         });
     }]);

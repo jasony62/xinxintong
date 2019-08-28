@@ -28,6 +28,63 @@ class user extends main_base {
         return new \ResponseData($oResult);
     }
     /**
+     * 返回用户分组列表
+     *
+     * @param string $rid
+     */
+    public function group_action($rid) {
+        if (!isset($this->app->entryRule->group->id)) {
+            return new \ResponseError('指定活动没有关联分组活动');
+        }
+        $modelGrp = $this->model('matter\group');
+        $oGroupApp = $modelGrp->byId($this->app->entryRule->group->id, ['fields' => 'id,title', 'cascaded' => 'Y', 'team' => ['fields' => 'team_id,title']]);
+        if (false === $oGroupApp) {
+            return new \ResponseError('指定活动关联的分组活动不存在');
+        }
+        if (empty($oGroupApp->teams)) {
+            return new \ResponseError('指定活动关联的分组活动没有主分组');
+        }
+
+        if (empty($rid)) {
+            $oEnlRnd = $this->app->appRound;
+        } else {
+            if (0 === preg_match('/^all$/i', $rid)) {
+                $oEnlRnd = $this->model('matter\enroll\round')->byId($rid);
+                if (false === $oEnlRnd) {
+                    return new \ResponseError('没有获得活动轮次数据');
+                }
+            }
+        }
+
+        $aEnlGrpOptions = [];
+        if (isset($oEnlRnd)) {
+            $aEnlGrpOptions['rid'] = $oEnlRnd->rid;
+        }
+        $modelEnlGrp = $this->model('matter\enroll\group');
+        $groups = $modelEnlGrp->byApp($this->app, $aEnlGrpOptions);
+
+        $aGroups = [];
+        array_walk($groups, function ($oGroup) use (&$aGroups) {
+            $aGroups[$oGroup->group_id] = $oGroup;
+        });
+
+        if (count($aGroups)) {
+            array_walk($oGroupApp->teams, function (&$oTeam) use (&$aGroups) {
+                if (isset($aGroups[$oTeam->team_id])) {
+                    $oTeam->data = $aGroups[$oTeam->team_id];
+                };
+            });
+        }
+
+        $oResult = new \stdClass;
+        $oResult->groups = $oGroupApp->teams;
+        if (isset($oEnlRnd)) {
+            $oResult->round = $oEnlRnd;
+        }
+
+        return new \ResponseData($oResult);
+    }
+    /**
      * 活动指定的所有完成人
      */
     public function assigned_action() {

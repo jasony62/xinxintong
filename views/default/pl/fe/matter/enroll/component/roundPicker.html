@@ -13,6 +13,9 @@
         </div>
     </div>
     <div ng-if="options.single===true">
+        <div class='radio'>
+            <label><input name='rnd' type='radio' value='all' ng-model="result.rid">全部</label>
+        </div>
         <div class='radio' ng-repeat="rnd in rounds">
             <label><input name='rnd' type='radio' value='{{::rnd.rid}}' ng-model="result.rid">{{::rnd.title}}</label>
         </div>

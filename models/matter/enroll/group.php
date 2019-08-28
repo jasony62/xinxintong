@@ -21,6 +21,23 @@ class group_model extends \TMS_MODEL {
         return $oGroup;
     }
     /**
+     * 参与活动的用户
+     */
+    public function byApp($oApp, $aOptions = []) {
+        $fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+        $q = [
+            $fields,
+            'xxt_enroll_group',
+            ['aid' => $oApp->id],
+        ];
+        $q[2]['rid'] = isset($aOptions['rid']) ? $aOptions['rid'] : 'ALL';
+
+        $groups = $this->query_objs_ss($q);
+
+        return $groups;
+    }
+
+    /**
      * 修改用户数据
      */
     public function modify($oAppUser, $oUpdatedData) {

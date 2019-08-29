@@ -129,7 +129,7 @@
                                     <span ng-switch-when="remark">{{r.verbose.data[schema.id].remark_num}}</span>
                                     <span ng-switch-when="supplement" ng-bind-html="r.supplement[schema.id]"></span>
                                     <span ng-switch-when="calcScore">{{r.score[schema.id]}}</span>
-                                    <span ng-switch-default ng-bind-html="r.data[schema.id]"></span>
+                                    <span ng-switch-default ng-bind-html="parseRecordData(r.data,schema)"></span>
                                     <span ng-if="fromApp.fromApp&&schema.id==='_round_id'&&r.group_id!==r.user.group.id" class='glyphicon glyphicon-exclamation-sign text-danger' uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span>
                                 </td>
                                 <td ng-if="bRequireScore" ng-bind="::r.score.sum"></td>

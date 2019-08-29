@@ -1,6 +1,6 @@
 define(['frame'], function (ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRecord', ['$scope', '$timeout', '$uibModal', 'srvEnrollApp', 'srvEnrollRound', 'tkEnrollRound', 'srvEnrollRecord', '$filter', 'http2', 'noticebox', 'tmsRowPicker', function ($scope, $timeout, $uibModal, srvEnlApp, srvEnlRnd, tkEnlRnd, srvEnlRec, $filter, http2, noticebox, tmsRowPicker) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', '$parse', '$timeout', '$uibModal', 'srvEnrollApp', 'srvEnrollRound', 'tkEnrollRound', 'srvEnrollRecord', '$filter', 'http2', 'noticebox', 'tmsRowPicker', function ($scope, $parse, $timeout, $uibModal, srvEnlApp, srvEnlRnd, tkEnlRnd, srvEnlRec, $filter, http2, noticebox, tmsRowPicker) {
         function fnSum4Schema() {
             var sum4SchemaAtPage;
             $scope.sum4SchemaAtPage = sum4SchemaAtPage = {};
@@ -102,6 +102,10 @@ define(['frame'], function (ngApp) {
                     fnScore4Schema();
                 });
             });
+        };
+        // 解决member.xxx的问题
+        $scope.parseRecordData = function (oRecData, oSchema) {
+            return $parse(oSchema.id)(oRecData);
         };
         $scope.editRecord = function (record) {
             var newUrl = '/rest/pl/fe/matter/enroll/editor?site=' + $scope.app.siteid + '&id=' + $scope.app.id + '&ek=';

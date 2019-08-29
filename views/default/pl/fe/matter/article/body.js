@@ -222,13 +222,38 @@ define(['frame'], function(ngApp) {
             if (editing.is_markdown !== 'Y')
                 if (tinymceEditor)
                     tinymceEditor.setContent(editing.body);
-
+            if (window.sessionStorage) {
+                var oSessionCached, filetypes;
+                if (window.sessionStorage.getItem('xxt.pl.protect.system')) {
+                    oSessionCached = window.sessionStorage.getItem('xxt.pl.protect.system');
+                    oSessionCached = JSON.parse(oSessionCached);
+                    filetypes = oSessionCached.fileContentTypeWhite;
+                    filemaxsize = oSessionCached.fileMaxSize;
+                }
+            }
             var r = new Resumable({
                 target: '/rest/pl/fe/matter/article/attachment/upload?site=' + $scope.editing.siteid + '&articleid=' + $scope.editing.id,
                 testChunks: false,
             });
             r.assignBrowse(document.getElementById('addAttachment'));
-            r.on('fileAdded', function(file, event) {
+            r.on('fileAdded', function(oFile, event) {
+                var f = oFile.file;
+                if (filetypes) {
+                    if (!(f.name.lastIndexOf("."))) {
+                        noticebox.error("文件数据格式错误:只能上传" + filetypes + "格式的文件");
+                        return false;
+                    }
+                    var seat = f.name.lastIndexOf(".") + 1,
+                        extendsion = f.name.substring(seat).toLowerCase();
+                    if (filetypes.indexOf(extendsion) === -1) {
+                        noticebox.error("文件数据格式错误:只能上传" + filetypes + "格式的文件");
+                        return false;
+                    }
+                }
+                if (filemaxsize * 1024 * 1024 <= f.size) {
+                    noticebox.error("文件上传失败，大小不能超过" + filemaxsize+ "M");
+                    return false;
+                }
                 $scope.$apply(function() {
                     noticebox.progress('开始上传文件');
                 });
@@ -242,6 +267,10 @@ define(['frame'], function(ngApp) {
                     }
                 });
             });
+            /*r.on('error', function (message, file) {
+                noticebox.error('上传发生错误，请稍后再试!');
+               
+            });*/
             r.on('complete', function() {
                 var f, lastModified, posted;
                 f = r.files.pop().file;
@@ -253,6 +282,7 @@ define(['frame'], function(ngApp) {
                     lastModified: lastModified,
                     uniqueIdentifier: f.uniqueIdentifier,
                 };
+
                 http2.post('/rest/pl/fe/matter/article/attachment/add?site=' + $scope.editing.siteid + '&id=' + $scope.editing.id, posted).then(function(rsp) {
                     $scope.editing.attachments.push(rsp.data);
                 });

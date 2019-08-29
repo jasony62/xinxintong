@@ -1,13 +1,13 @@
 angular.module('tmplshop.ui.xxt', ['ui.bootstrap']).
-service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, $q) {
-    this.choose = function(siteId, type, assignedScenario) {
+service('templateShop', ['$uibModal', 'http2', '$q', function ($uibModal, http2, $q) {
+    this.choose = function (siteId, type, assignedScenario) {
         var deferred;
         deferred = $q.defer();
         $uibModal.open({
             templateUrl: '/static/template/templateShop.html?_=10',
             backdrop: 'static',
             //size: 'lg',
-            controller: ['$scope', '$uibModalInstance', '$timeout', function($scope, $mi, $timeout) {
+            controller: ['$scope', '$uibModalInstance', '$timeout', function ($scope, $mi, $timeout) {
                 function _excelLoader() {
                     if (Resumable) {
                         var ele, r;
@@ -17,10 +17,10 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                             testChunks: false,
                         });
                         r.assignBrowse(ele);
-                        r.on('fileAdded', function(file, event) {
+                        r.on('fileAdded', function (file, event) {
                             r.upload();
                         });
-                        r.on('complete', function() {
+                        r.on('complete', function () {
                             var f, lastModified, posted;
                             f = r.files.pop().file;
                             lastModified = f.lastModified ? f.lastModified : (f.lastModifiedDate ? f.lastModifiedDate.getTime() : 0);
@@ -31,8 +31,11 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                                 lastModified: lastModified,
                                 uniqueIdentifier: f.uniqueIdentifier,
                             };
-                            http2.post('/rest/pl/fe/matter/enroll/createByExcel?site=' + siteId, posted, function(rsp) {
-                                $mi.close({ source: 'file', app: rsp.data });
+                            http2.post('/rest/pl/fe/matter/enroll/create/byExcel?site=' + siteId, posted, function (rsp) {
+                                $mi.close({
+                                    source: 'file',
+                                    app: rsp.data
+                                });
                             });
                         });
                     }
@@ -49,13 +52,13 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                 $scope.data = {
                     choose: -1
                 };
-                $scope.switchSource = function(source) {
+                $scope.switchSource = function (source) {
                     $scope.source = source;
                     if (source === 'platform') {
                         $scope.chooseTemplate();
                     }
                 };
-                $scope.ok = function() {
+                $scope.ok = function () {
                     var choice;
                     choice = {
                         source: $scope.source
@@ -75,14 +78,14 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                         $mi.close(choice);
                     }
                 };
-                $scope.blank = function() {
+                $scope.blank = function () {
                     $mi.close();
                 };
-                $scope.cancel = function() {
+                $scope.cancel = function () {
                     $mi.dismiss();
                 };
                 $scope.result = {}; // 用户选择结果
-                $scope.chooseScenario = function() {
+                $scope.chooseScenario = function () {
                     var oTemplates, keys;
 
                     oTemplates = $scope.result.scenario.templates;
@@ -90,13 +93,13 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                     $scope.result.template = oTemplates[keys[0]];
                     $scope.chooseTemplate();
                 };
-                $scope.chooseTemplate = function() {
+                $scope.chooseTemplate = function () {
                     if (!$scope.result.template) return;
                     var url;
                     url = '/rest/pl/fe/matter/enroll/template/config';
                     url += '?scenario=' + $scope.result.scenario.name;
                     url += '&template=' + $scope.result.template.name;
-                    http2.get(url, function(rsp) {
+                    http2.get(url, function (rsp) {
                         var elSimulator, url;
                         $scope.pages = rsp.data.pages;
                         $scope.result.selectedPage = $scope.pages[0];
@@ -110,7 +113,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                         elSimulator.src = url;
                     });
                 };
-                $scope.choosePage = function() {
+                $scope.choosePage = function () {
                     var elSimulator, page;
                     elSimulator = document.querySelector('#simulator');
                     config = {};
@@ -119,47 +122,50 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                         elSimulator.contentWindow.renew(page, config);
                     }
                 };
-                $scope.searchTemplate = function() {
+                $scope.searchTemplate = function () {
                     var url = '/rest/pl/fe/template/site/list?matterType=' + type + '&scope=P' + '&site=' + siteId;
 
-                    http2.get(url, function(rsp) {
+                    http2.get(url, function (rsp) {
                         $scope.templates = rsp.data.templates;
                         $scope.page.total = rsp.data.total;
                     });
                 };
-                $scope.searchShare2Me = function() {
+                $scope.searchShare2Me = function () {
                     var url = '/rest/pl/fe/template/platform/share2Me?matterType=' + type;
 
-                    http2.get(url, function(rsp) {
+                    http2.get(url, function (rsp) {
                         $scope.templates = rsp.data.templates;
                         $scope.page.total = rsp.data.total;
                     });
                 };
-                $scope.searchBySite = function() {
+                $scope.searchBySite = function () {
                     var url = '/rest/pl/fe/template/site/list?site=' + siteId + '&matterType=' + type + '&scope=S';
 
-                    http2.get(url, function(rsp) {
+                    http2.get(url, function (rsp) {
                         $scope.templates = rsp.data.templates;
                         $scope.page.total = rsp.data.total;
                     });
                 };
-                window.chooseFile = function(file) {
+                window.chooseFile = function (file) {
                     var fReader;
                     fReader = new FileReader();
-                    fReader.onload = function(evt) {
+                    fReader.onload = function (evt) {
                         var template, url;
                         template = evt.target.result;
                         template = JSON.parse(template);
-                        url = '/rest/pl/fe/matter/enroll/createByConfig?site=' + siteId;
-                        http2.post(url, template, function(rsp) {
-                            $mi.close({ source: 'file', app: rsp.data });
+                        url = '/rest/pl/fe/matter/enroll/create/byConfig?site=' + siteId;
+                        http2.post(url, template, function (rsp) {
+                            $mi.close({
+                                source: 'file',
+                                app: rsp.data
+                            });
                         });
                     };
                     fReader.readAsText(file);
                 };
-                $scope.$watch('source', function(source) {
+                $scope.$watch('source', function (source) {
                     if (source === 'file') {
-                        $timeout(function() {
+                        $timeout(function () {
                             _excelLoader();
                         });
                     }
@@ -167,7 +173,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                 /*系统模版*/
                 switch (type) {
                     case 'enroll':
-                        http2.get('/rest/pl/fe/matter/enroll/template/list', function(rsp) {
+                        http2.get('/rest/pl/fe/matter/enroll/template/list', function (rsp) {
                             var oScenarioes = rsp.data,
                                 oTemplates;
 
@@ -186,26 +192,26 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                 }
                 $scope.searchTemplate();
             }],
-        }).result.then(function(data) {
+        }).result.then(function (data) {
             deferred.resolve(data);
         });
         return deferred.promise;
     };
-    this.share = function(siteId, matter) {
+    this.share = function (siteId, matter) {
         var deferred;
         deferred = $q.defer();
         $uibModal.open({
             templateUrl: '/static/template/templateShare.html?_=11',
-            controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
+            controller: ['$scope', '$uibModalInstance', function ($scope, $mi) {
                 $scope.data = {};
                 $scope.params = {};
-                $scope.cancel = function() {
+                $scope.cancel = function () {
                     $mi.dismiss();
                 };
-                $scope.ok = function() {
+                $scope.ok = function () {
                     $mi.close($scope.data);
                 };
-                http2.get('/rest/pl/fe/template/byMatter?type=' + matter.type + '&id=' + matter.id, function(rsp) {
+                http2.get('/rest/pl/fe/template/byMatter?type=' + matter.type + '&id=' + matter.id, function (rsp) {
                     if (rsp.data) {
                         $scope.data = rsp.data;
                     } else {
@@ -219,8 +225,8 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                 });
             }],
             backdrop: 'static'
-        }).result.then(function(data) {
-            http2.post('/rest/pl/fe/template/put?site=' + siteId, data, function(rsp) {
+        }).result.then(function (data) {
+            http2.post('/rest/pl/fe/template/put?site=' + siteId, data, function (rsp) {
                 deferred.resolve(rsp.data);
             });
         });

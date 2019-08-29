@@ -359,6 +359,9 @@ class task_model extends \TMS_MODEL {
             if (false === $aValid[0]) {
                 continue;
             }
+            if (empty($oAnswerConfig->schemas)) {
+                continue;
+            }
             foreach ($oApp->dynaDataSchemas as $oSchema) {
                 if (in_array($oSchema->id, $oAnswerConfig->schemas)) {
                     $oAnswerRule = new \stdClass;
@@ -576,7 +579,6 @@ class task_model extends \TMS_MODEL {
                 return [false, '指定记录不存在'];
             }
         }
-
         $tasks = [];
         foreach ($aTaskTypes as $taskType) {
             $rules = $this->getRule($taskType, $oUser);

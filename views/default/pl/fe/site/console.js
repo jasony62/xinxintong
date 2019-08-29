@@ -240,7 +240,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                     var url, data = choice.data;
                     url = '/rest/pl/fe/template/purchase?template=' + data.id + '&site=' + $scope.siteId;
                     http2.get(url).then(function (rsp) {
-                        http2.get('/rest/pl/fe/matter/enroll/createByOther?site=' + $scope.siteId + '&template=' + data.id).then(function (rsp) {
+                        http2.get('/rest/pl/fe/matter/enroll/create/byOther?site=' + $scope.siteId + '&template=' + data.id).then(function (rsp) {
                             location.href = '/rest/pl/fe/matter/enroll?id=' + rsp.data.id + '&site=' + $scope.siteId;
                         });
                     });

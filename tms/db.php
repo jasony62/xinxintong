@@ -446,9 +446,9 @@ class TMS_DB {
                             break;
                         case 'not in':
                             if (is_array($v->pat) && count($v->pat)) {
-                                $clause = $k . " not in(";
-                                $clause .= implode(",", $v->pat);
-                                $clause .= ")";
+                                $clause = $k . " not in('";
+                                $clause .= implode("','", $v->pat);
+                                $clause .= "')";
                                 $clauses[] = $clause;
                             }
                             break;

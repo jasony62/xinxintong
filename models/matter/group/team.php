@@ -68,6 +68,9 @@ class team_model extends \matter\base_model {
                 if (in_array('onlookerCount', $cascade)) {
                     $oTeam->onlookerCount = $modelGrpRec->countByTeam($oTeam->team_id, ['is_leader' => 'O']);
                 }
+                if (in_array('absentCount', $cascade)) {
+                    $oTeam->absentCount = $modelGrpRec->countByTeam($oTeam->team_id, ['is_leader' => 'A']);
+                }
             }
         }
 

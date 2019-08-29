@@ -9,15 +9,8 @@ class export extends record_base {
     /**
      * 填写记录导出
      */
-    public function record_action($app, $filter = '') {
-        if (false === ($oUser = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-
-        $oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,state,title,data_schemas,entry_rule,assigned_nickname,scenario,mission_id,sync_mission_round,round_cron', 'cascaded' => 'N']);
-        if (false === $oApp || $oApp->state !== '1') {
-            die('访问的对象不存在或不可用');
-        }
+    public function record_action($filter = '') {
+        $oApp = $this->app;
         //是否有协作题
         $isCowork = false;
         //是否有目录
@@ -128,11 +121,11 @@ class export extends record_base {
             if ($this->getDeepValue($oSchema, 'supplement') === 'Y') {
                 $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '补充说明');
             }
-            /* 需要计算得分 */
+            /* 需要计算数据分 */
             if ($this->getDeepValue($oSchema, 'requireScore') === 'Y') {
                 $aScoreSum[$columnNum4] = $oSchema->id;
                 $bRequireScore = true;
-                $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '得分');
+                $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '数据分');
             }
         }
         if ($bRequireNickname) {
@@ -365,18 +358,11 @@ class export extends record_base {
      * @param string $rid 轮次id
      */
     public function image_action($app, $rid = '', $range = '1,30') {
-        if (false === ($oUser = $this->accountUser())) {
-            die('请先登录系统');
-        }
-
         $oNameSchema = null;
         $aImageSchemas = [];
 
         // 记录活动
-        $oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'id,state,title,data_schemas,scenario,sync_mission_round', 'cascaded' => 'N']);
-        if ($oApp === false || $oApp->state !== '1') {
-            die('指定的活动不存在');
-        }
+        $oApp = $this->app;
 
         $schemas = $oApp->dynaDataSchemas;
         $modelSch = $this->model('matter\enroll\schema');
@@ -490,14 +476,7 @@ class export extends record_base {
      * 填写记录导出
      */
     public function cowork_action($app, $filter = '') {
-        if (false === ($oUser = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-
-        $oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,state,title,data_schemas,entry_rule,assigned_nickname,scenario,mission_id,sync_mission_round,round_cron,vote_config', 'cascaded' => 'N']);
-        if (false === $oApp || $oApp->state !== '1') {
-            die('访问的对象不存在或不可用');
-        }
+        $oApp = $this->app;
         //是否有协作题
         $isCowork = false;
         //是否有目录
@@ -629,11 +608,11 @@ class export extends record_base {
             if ($this->getDeepValue($oSchema, 'supplement') === 'Y') {
                 $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '补充说明');
             }
-            /* 需要计算得分 */
+            /* 需要计算数据分 */
             if ($this->getDeepValue($oSchema, 'requireScore') === 'Y') {
                 $aScoreSum[$columnNum4] = $oSchema->id;
                 $bRequireScore = true;
-                $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '得分');
+                $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '数据分');
             }
         }
         if ($bRequireNickname) {
@@ -848,15 +827,8 @@ class export extends record_base {
     /**
      * 导出用户完成情况
      */
-    public function user_action($app, $rids = '') {
-        if (false === $this->accountUser()) {
-            return new \ResponseTimeout();
-        }
-
-        // 记录活动
-        if (false === ($oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,title,entry_rule,data_schemas,absent_cause', 'cascaded' => 'N']))) {
-            return new \ParameterError();
-        }
+    public function user_action($rids = '') {
+        $oApp = $this->app;
 
         $modelUsr = $this->model('matter\enroll\user');
 
@@ -904,8 +876,8 @@ class export extends record_base {
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '留言');
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '点赞');
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '获得推荐');
-        $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '积分');
-        $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '得分');
+        $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '行为分');
+        $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '数据分');
         if (isset($sns->wx->joined) && $sns->wx->joined === 'Y') {
             $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '已关联微信');
         }
@@ -987,8 +959,6 @@ class export extends record_base {
                 }
             }
 
-            $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '备注');
-
             $rowNumber = 2;
             foreach ($aUsers as $oUndoneUser) {
                 $colNumber = 0;
@@ -1000,7 +970,6 @@ class export extends record_base {
                         $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, in_array($oRnd->rid, $oUndoneUser->rounds) ? '是' : '');
                     }
                 }
-                $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($oUndoneUser->absent_cause->cause) ? $oUndoneUser->absent_cause->cause : '');
 
                 $rowNumber++;
             }
@@ -1026,5 +995,56 @@ class export extends record_base {
         $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
         $objWriter->save('php://output');
         exit;
+    }
+    /**
+     * 将应用定义导出为模板
+     */
+    public function appTemplate_action() {
+        $modelApp = $this->model('matter\enroll');
+        $oApp = $this->app;
+
+        $template = new \stdClass;
+        /* setting */
+        !empty($oApp->scenario) && $template->scenario = $oApp->scenario;
+        $template->count_limit = $oApp->count_limit;
+
+        /* schema */
+        $template->schema = json_decode($oApp->data_schemas);
+
+        /* pages */
+        $pages = $oApp->pages;
+        foreach ($pages as &$rec) {
+            $rec->data_schemas = json_decode($rec->data_schemas);
+            $rec->act_schemas = json_decode($rec->act_schemas);
+            $code = new \stdClass;
+            $code->css = $rec->css;
+            $code->js = $rec->js;
+            $code->html = $rec->html;
+            $rec->code = $code;
+        }
+        $template->pages = $pages;
+
+        /* entry_rule */
+        $template->entryRule = $oApp->entryRule;
+
+        /* records */
+        $records = $modelApp->query_objs_ss([
+            'id,userid,nickname,data',
+            'xxt_enroll_record',
+            ['siteid' => $oApp->siteid, 'aid' => $oApp->id],
+        ]);
+
+        foreach ($records as &$rec) {
+            $rec->data = json_decode($rec->data);
+        }
+        $template->records = $records;
+
+        $template = $modelApp->toJson($template);
+        header("Cache-Control: public");
+        header("Content-Description: File Transfer");
+        header('Content-disposition: attachment; filename=' . $oApp->title . '.json');
+        header("Content-Type: text/plain");
+        header('Content-Length: ' . strlen($template));
+        die($template);
     }
 }

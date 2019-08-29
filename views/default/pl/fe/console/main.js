@@ -1,26 +1,26 @@
-define(['frame'], function(ngApp) {
+define(['frame'], function (ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'noticebox', 'cstApp', function($scope, $uibModal, http2, noticebox, cstApp) {
+    ngApp.provider.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'noticebox', 'cstApp', function ($scope, $uibModal, http2, noticebox, cstApp) {
         $scope.matterNames = cstApp.matterNames;
-        $scope.toggleStar = function(oMatter) {
+        $scope.toggleStar = function (oMatter) {
             var url;
             if (oMatter.star) {
                 if (oMatter.id && oMatter.type) {
                     url = '/rest/pl/fe/delTop?site=' + oMatter.siteid + '&id=' + oMatter.id + '&type=' + oMatter.type;
-                    http2.get(url).then(function(rsp) {
+                    http2.get(url).then(function (rsp) {
                         delete oMatter.star;
                     });
                 }
             } else {
                 if (oMatter.id && oMatter.type) {
                     url = '/rest/pl/fe/top?site=' + oMatter.siteid + '&matterId=' + oMatter.id + '&matterType=' + oMatter.type + '&matterTitle=' + oMatter.title;
-                    http2.get(url).then(function(rsp) {
+                    http2.get(url).then(function (rsp) {
                         oMatter.star = rsp.data;
                     });
                 }
             }
         };
-        $scope.openMatter = function(matter, subView) {
+        $scope.openMatter = function (matter, subView) {
             var type, id, url;
             type = matter.type || matter.matter_type;
             id = matter.matter_id || matter.id;
@@ -31,7 +31,7 @@ define(['frame'], function(ngApp) {
             url += '?id=' + id + '&site=' + matter.siteid;
             location.href = url;
         };
-        $scope.copyMatter = function(evt, matter) {
+        $scope.copyMatter = function (evt, matter) {
             var type = (matter.matter_type || matter.type || $scope.matterType),
                 id = (matter.matter_id || matter.id),
                 siteid = matter.siteid,
@@ -44,49 +44,59 @@ define(['frame'], function(ngApp) {
                     break;
                 case 'enroll':
                     $uibModal.open({
-                        templateUrl: '/views/default/pl/fe/_module/copyMatter.html?_=3',
-                        controller: ['$scope', '$uibModalInstance', 'http2', function($scope2, $mi, http2) {
+                        templateUrl: '/views/default/pl/fe/_module/copyMatter.html?_=4',
+                        controller: ['$scope', '$uibModalInstance', 'http2', function ($scope2, $mi, http2) {
                             var criteria;
                             $scope2.pageOfMission = {};
                             $scope2.criteria = criteria = {
                                 'mission_id': '',
                                 'byTitle': '',
+                                'isMatterTimer': 'Y',
+                                'isMatterCoinRule': 'Y',
                                 'isMatterData': 'N',
                                 'isMatterAction': 'N'
                             };
-                            $scope2.$watch('criteria.isMatterData', function(nv) {
-                                if (nv === 'Y') { criteria.isMatterAction = 'Y' };
+                            $scope2.$watch('criteria.isMatterData', function (nv) {
+                                if (nv === 'Y') {
+                                    criteria.isMatterAction = 'Y'
+                                };
                             });
-                            $scope2.doMission = function() {
+                            $scope2.doMission = function () {
                                 var url = '/rest/pl/fe/matter/mission/list?site=' + siteid + '&field=id,title',
-                                    params = { byTitle: criteria.byTitle };
-                                http2.post(url, params, { page: $scope2.pageOfMission }).then(function(rsp) {
+                                    params = {
+                                        byTitle: criteria.byTitle
+                                    };
+                                http2.post(url, params, {
+                                    page: $scope2.pageOfMission
+                                }).then(function (rsp) {
                                     if (rsp.data) {
                                         $scope2.missions = rsp.data.missions;
                                         $scope2.pageOfMission.total = rsp.data.total;
                                     }
                                 });
                             };
-                            $scope2.cleanCriteria = function() {
+                            $scope2.cleanCriteria = function () {
                                 $scope2.criteria.byTitle = '';
                                 $scope2.doMission();
                             }
-                            $scope2.ok = function() {
+                            $scope2.ok = function () {
                                 $mi.close({
+                                    cpTimer: criteria.isMatterTimer,
+                                    cpCoinRule: criteria.isMatterCoinRule,
                                     cpRecord: criteria.isMatterData,
                                     cpEnrollee: criteria.isMatterAction,
                                     mission: criteria.mission_id
                                 });
                             };
-                            $scope2.cancel = function() {
+                            $scope2.cancel = function () {
                                 $mi.dismiss();
                             }
                             $scope2.doMission();
                         }],
                         backdrop: 'static'
-                    }).result.then(function(result) {
-                        url += type + '/copy?site=' + siteid + '&app=' + id + '&mission=' + result.mission + '&cpRecord=' + result.cpRecord + '&cpEnrollee=' + result.cpEnrollee;
-                        http2.get(url).then(function(rsp) {
+                    }).result.then(function (result) {
+                        url += type + '/copy?site=' + siteid + '&app=' + id + '&mission=' + result.mission + '&cpTimer=' + result.cpTimer + '&cpCoinRule=' + result.cpCoinRule + '&cpRecord=' + result.cpRecord + '&cpEnrollee=' + result.cpEnrollee;
+                        http2.get(url).then(function (rsp) {
                             location.href = '/rest/pl/fe/matter/enroll/preview?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
                         });
                     });
@@ -100,22 +110,22 @@ define(['frame'], function(ngApp) {
                     return;
             }
             if (type !== 'enroll') {
-                http2.get(url).then(function(rsp) {
+                http2.get(url).then(function (rsp) {
                     location.href = '/rest/pl/fe/matter/' + type + '?site=' + rsp.data.siteid + '&id=' + rsp.data.id;
                 });
             }
         };
-        $scope.$watch('frameState.sid', function(nv) {
+        $scope.$watch('frameState.sid', function (nv) {
             if (nv === '_coworker') {
                 $scope.changeScope('mission');
             }
         });
     }]);
-    ngApp.provider.controller('ctrlMission', ['$scope', 'http2', 'facListFilter', 'facListSearch', function($scope, http2, facListFilter, facListSearch) {
+    ngApp.provider.controller('ctrlMission', ['$scope', 'http2', 'facListFilter', 'facListSearch', function ($scope, http2, facListFilter, facListSearch) {
         var _oPage, filter2, t = (new Date() * 1);
         $scope.page = _oPage = {};
         $scope.filter2 = filter2 = {};
-        $scope.openMission = function(mission, subView, matterType, scenario) {
+        $scope.openMission = function (mission, subView, matterType, scenario) {
             var url;
             url = '/rest/pl/fe/matter/mission/' + subView + '?site=' + mission.siteid + '&id=' + mission.id;
             if (subView === 'matter') {
@@ -127,24 +137,26 @@ define(['frame'], function(ngApp) {
             }
             location.href = url;
         };
-        $scope.createMission = function() {
+        $scope.createMission = function () {
             if ($scope.frameState.sid) {
                 location.href = '/rest/pl/fe/matter/mission/plan?site=' + $scope.frameState.sid;
             }
         };
-        $scope.list = function(pageAt) {
+        $scope.list = function (pageAt) {
             var url;
             pageAt && (_oPage.at = pageAt);
             url = '/rest/pl/fe/matter/mission/listByUser?_=' + t;
-            http2.post(url, _oCriteria, { page: _oPage }).then(function(rsp) {
+            http2.post(url, _oCriteria, {
+                page: _oPage
+            }).then(function (rsp) {
                 $scope.missions = rsp.data.missions;
                 _oPage.total = rsp.data.total;
             });
         };
-        $scope.cleanFilterTag = function() {
+        $scope.cleanFilterTag = function () {
             _oCriteria.byTags = filter2.byTags = '';
         };
-        $scope.matterTags = function() {
+        $scope.matterTags = function () {
             $scope.matterTagsFram(_oCriteria, filter2);
         };
         var _oCriteria;
@@ -155,29 +167,30 @@ define(['frame'], function(ngApp) {
             bySite: '',
             byStar: 'N'
         };
+
         function cbFilter(obj, key, value) {
-            switch(key) {
+            switch (key) {
                 case 'title':
                     _oCriteria.byTitle = value;
-                break;
+                    break;
                 case 'creator':
                     _oCriteria.byCreator = value;
-                break;
+                    break;
             }
         };
         $scope.filter = facListFilter.init(cbFilter, _oCriteria.filter);
         $scope.filter3 = facListSearch.init(cbFilter, _oCriteria.filter3);
-        $scope.$watch('frameState.sid', function(nv) {
+        $scope.$watch('frameState.sid', function (nv) {
             if (!nv) return;
             _oCriteria.bySite = nv;
             //$scope.getMatterTag();
         });
-        $scope.$watch('criteria', function(nv) {
+        $scope.$watch('criteria', function (nv) {
             if (!nv) return;
             $scope.list(1);
         }, true);
     }]);
-    ngApp.provider.controller('ctrlActivity', ['$scope', '$location', 'http2', 'CstNaming', 'cstApp', '$uibModal', 'facListFilter', 'facListSearch', function($scope, $location, http2, CstNaming, cstApp, $uibModal, facListFilter, facListSearch) {
+    ngApp.provider.controller('ctrlActivity', ['$scope', '$location', 'http2', 'CstNaming', 'cstApp', '$uibModal', 'facListFilter', 'facListSearch', function ($scope, $location, http2, CstNaming, cstApp, $uibModal, facListFilter, facListSearch) {
         var lsearch, filter2, _oPage;
         // if (window.localStorage) {
         //     $scope.$watch('filter', function(nv) {
@@ -204,7 +217,7 @@ define(['frame'], function(ngApp) {
         // }
         $scope.scenarioNames = CstNaming.scenario.enroll;
         $scope.page = _oPage = {};
-        $scope.openMatter = function(matter, subView) {
+        $scope.openMatter = function (matter, subView) {
             var type, id, url;
             type = matter.type || matter.matter_type;
             id = matter.matter_id || matter.id;
@@ -218,7 +231,7 @@ define(['frame'], function(ngApp) {
             url += '?id=' + id + '&site=' + matter.siteid;
             location.href = url;
         };
-        $scope.list = function(pageAt) {
+        $scope.list = function (pageAt) {
             var url, oMatter,
                 t = (new Date * 1);
 
@@ -231,13 +244,25 @@ define(['frame'], function(ngApp) {
                         url += '&cascaded=opData';
                     }
                     url += '&_=' + t;
-                    http2.post(url, { byTitle: _oCriteria.byTitle, byStar: _oCriteria.byStar, byCreator: _oCriteria.byCreator }, { page: _oPage }).then(function(rsp) {
+                    http2.post(url, {
+                        byTitle: _oCriteria.byTitle,
+                        byStar: _oCriteria.byStar,
+                        byCreator: _oCriteria.byCreator
+                    }, {
+                        page: _oPage
+                    }).then(function (rsp) {
                         $scope.matters = rsp.data.apps;
                     });
                 } else {
                     url = 'rest/pl/fe/matter/bySite?site=' + _oCriteria.bySite + '&category=app';
                     url += '&_=' + t;
-                    http2.post(url, { byTitle: _oCriteria.byTitle, byStar: _oCriteria.byStar, byCreator: _oCriteria.byCreator }, { page: _oPage }).then(function(rsp) {
+                    http2.post(url, {
+                        byTitle: _oCriteria.byTitle,
+                        byStar: _oCriteria.byStar,
+                        byCreator: _oCriteria.byCreator
+                    }, {
+                        page: _oPage
+                    }).then(function (rsp) {
                         $scope.matters = rsp.data.matters;
                     });
                 }
@@ -245,21 +270,24 @@ define(['frame'], function(ngApp) {
         };
         var _oCriteria;
         $scope.criteria = _oCriteria = {
-            matter: { type: '' },
+            matter: {
+                type: ''
+            },
             orderBy: '',
             filter: {},
             filter3: {},
             bySite: '',
             byStar: 'N'
         };
+
         function cbFilter(obj, key, value) {
-            switch(key) {
+            switch (key) {
                 case 'title':
                     _oCriteria.byTitle = value;
-                break;
+                    break;
                 case 'creator':
                     _oCriteria.byCreator = value;
-                break;
+                    break;
             }
         };
         $scope.filter = facListFilter.init(cbFilter, _oCriteria.filter);
@@ -270,12 +298,12 @@ define(['frame'], function(ngApp) {
         //$scope.matterTags = function() {
         //    $scope.matterTagsFram(filter, filter2);
         //};
-        $scope.$watch('frameState.sid', function(nv) {
+        $scope.$watch('frameState.sid', function (nv) {
             if (!nv) return;
             _oCriteria.bySite = nv;
             //$scope.getMatterTag();
         });
-        $scope.$watch('criteria', function(nv, ov) {
+        $scope.$watch('criteria', function (nv, ov) {
             if (!nv) return;
             $scope.list(1);
         }, true);
@@ -287,7 +315,7 @@ define(['frame'], function(ngApp) {
             }
         }
     }]);
-    ngApp.provider.controller('ctrlDoc', ['$scope', '$uibModal', 'http2', 'facListFilter', 'facListSearch', function($scope, $uibModal, http2, facListFilter, facListSearch) {
+    ngApp.provider.controller('ctrlDoc', ['$scope', '$uibModal', 'http2', 'facListFilter', 'facListSearch', function ($scope, $uibModal, http2, facListFilter, facListSearch) {
         var _oPage, filter2;
         // if (window.localStorage) {
         //     $scope.$watch('filter', function(nv) {
@@ -309,7 +337,7 @@ define(['frame'], function(ngApp) {
         //     filter2.byTags = filter.byTags
         // }
         $scope.page = _oPage = {};
-        $scope.openMatter = function(matter, subView) {
+        $scope.openMatter = function (matter, subView) {
             var type, id, url;
             type = matter.type || matter.matter_type;
             id = matter.matter_id || matter.id;
@@ -323,7 +351,7 @@ define(['frame'], function(ngApp) {
             url += '?id=' + id + '&site=' + matter.siteid;
             location.href = url;
         };
-        $scope.list = function() {
+        $scope.list = function () {
             var url,
                 t = (new Date * 1);
 
@@ -331,51 +359,66 @@ define(['frame'], function(ngApp) {
                 if (_oCriteria.matter.type) {
                     url = '/rest/pl/fe/matter/' + _oCriteria.matter.type + '/list?site=' + _oCriteria.bySite + '&_=' + t;
                     _oCriteria.matter.type == 'channel' && (url += '&cascade=N');
-                    http2.post(url, { byTitle: _oCriteria.byTitle, byStar: _oCriteria.byStar, byCreator: _oCriteria.byCreator }, { page: _oPage }).then(function(rsp) {
+                    http2.post(url, {
+                        byTitle: _oCriteria.byTitle,
+                        byStar: _oCriteria.byStar,
+                        byCreator: _oCriteria.byCreator
+                    }, {
+                        page: _oPage
+                    }).then(function (rsp) {
                         $scope.matters = rsp.data.docs || rsp.data.apps;
                     });
                 } else {
                     url = '/rest/pl/fe/matter/bySite?site=' + _oCriteria.bySite + '&category=doc&_=' + t;
                     _oCriteria.matter.type == 'channel' && (url += '&cascade=N');
-                    http2.post(url, { byTitle: _oCriteria.byTitle, byStar: _oCriteria.byStar, byCreator: _oCriteria.byCreator }, { page: _oPage }).then(function(rsp) {
+                    http2.post(url, {
+                        byTitle: _oCriteria.byTitle,
+                        byStar: _oCriteria.byStar,
+                        byCreator: _oCriteria.byCreator
+                    }, {
+                        page: _oPage
+                    }).then(function (rsp) {
                         $scope.matters = rsp.data.matters;
                     });
                 }
             }
         };
-        $scope.matterTags = function() {
+        $scope.matterTags = function () {
             $scope.matterTagsFram(filter, filter2);
         };
-        $scope.cleanFilterTag = function() {
+        $scope.cleanFilterTag = function () {
             filter.byTags = filter2.byTags = '';
         };
         var _oCriteria;
         $scope.criteria = _oCriteria = {
-            matter: { type: '' },
+            matter: {
+                type: ''
+            },
             orderBy: '',
             filter: {},
             filter3: {},
             bySite: '',
             byStar: 'N'
         };
+
         function cbFilter(obj, key, value) {
-            switch(key) {
+            switch (key) {
                 case 'title':
                     _oCriteria.byTitle = value;
-                break;
+                    break;
                 case 'creator':
                     _oCriteria.byCreator = value;
-                break;
+                    break;
             }
         };
         $scope.filter = facListFilter.init(cbFilter, _oCriteria.filter);
         $scope.filter3 = facListSearch.init(cbFilter, _oCriteria.filter3);
-        $scope.$watch('frameState.sid', function(nv) {
+        $scope.$watch('frameState.sid', function (nv) {
             if (!nv) return;
             _oCriteria.bySite = nv;
             //$scope.getMatterTag();
         });
-        $scope.$watch('criteria', function(nv) {
+        $scope.$watch('criteria', function (nv) {
             if (!nv) return;
             $scope.list(1);
         }, true);
@@ -387,17 +430,17 @@ define(['frame'], function(ngApp) {
             }
         }
     }]);
-    ngApp.provider.controller('ctrlSiteSubscribe', ['$scope', '$uibModal', 'http2', 'facListFilter', function($scope, $uibModal, http2, facListFilter) {
+    ngApp.provider.controller('ctrlSiteSubscribe', ['$scope', '$uibModal', 'http2', 'facListFilter', function ($scope, $uibModal, http2, facListFilter) {
         var _oFilter, _oPage;
         _oFilter = {};
         $scope.page = _oPage = {
             at: 1,
             size: 30,
         };
-        $scope.filter = facListFilter.init(function() {
+        $scope.filter = facListFilter.init(function () {
             $scope.doSearch(1);
         }, _oFilter);
-        $scope.doSearch = function(pageAt) {
+        $scope.doSearch = function (pageAt) {
             var url, data;
             pageAt && ($scope.page.at = pageAt);
             url = '/rest/pl/fe/site/subscriberList';
@@ -407,27 +450,29 @@ define(['frame'], function(ngApp) {
             if (_oFilter.by === 'nickname' && _oFilter.keyword) {
                 data.nickname = _oFilter.keyword;
             }
-            http2.post(url, data, { page: _oPage }).then(function(rsp) {
+            http2.post(url, data, {
+                page: _oPage
+            }).then(function (rsp) {
                 $scope.users = rsp.data.subscribers;
                 _oPage.total = rsp.data.total;
             });
         };
-        $scope.$watch('frameState.sid', function(sid) {
+        $scope.$watch('frameState.sid', function (sid) {
             if (sid) {
                 $scope.doSearch(1);
             }
         });
-        $scope.$on('site.user.refresh', function() {
+        $scope.$on('site.user.refresh', function () {
             $scope.doSearch();
         });
     }]);
-    ngApp.provider.controller('ctrlRecycle', ['$scope', 'http2', 'facListFilter', function($scope, http2, facListFilter) {
+    ngApp.provider.controller('ctrlRecycle', ['$scope', 'http2', 'facListFilter', function ($scope, http2, facListFilter) {
         var _oFilter, t = (new Date * 1);
         _oFilter = {};
-        $scope.filter = facListFilter.init(function() {
+        $scope.filter = facListFilter.init(function () {
             $scope.list();
         }, _oFilter);
-        $scope.list = function() {
+        $scope.list = function () {
             if ($scope.frameState.sid) {
                 var url, data;
                 url = '/rest/pl/fe/site/console/recycle?site=' + $scope.frameState.sid + '&_=' + t;
@@ -435,28 +480,28 @@ define(['frame'], function(ngApp) {
                 if (_oFilter.by === 'title' && _oFilter.keyword) {
                     data.byTitle = _oFilter.keyword;
                 }
-                http2.post(url, data).then(function(rsp) {
+                http2.post(url, data).then(function (rsp) {
                     $scope.matters = rsp.data.matters;
                 });
             }
         };
-        $scope.restoreSite = function(site) {
+        $scope.restoreSite = function (site) {
             //恢复删除的站点
             var url = '/rest/pl/fe/site/recover?site=' + site.id;
-            http2.get(url).then(function(rsp) {
+            http2.get(url).then(function (rsp) {
                 location.href = '/rest/pl/fe/site?site=' + site.id;
             })
         };
-        $scope.restoreMatter = function(oMatter) {
+        $scope.restoreMatter = function (oMatter) {
             var url;
             if (oMatter.matter_type === 'memberschema') {
                 url = '/rest/pl/fe/site/member/schema/restore' + '?site=' + oMatter.siteid + '&id=' + oMatter.matter_id;
-                http2.get(url).then(function(rsp) {
+                http2.get(url).then(function (rsp) {
                     location.href = '/rest/pl/fe/site/mschema?site=' + oMatter.siteid + '#' + oMatter.matter_id;
                 });
             } else {
                 url = '/rest/pl/fe/matter/' + oMatter.matter_type + '/restore' + '?site=' + oMatter.siteid + '&id=' + oMatter.matter_id;
-                http2.get(url).then(function(rsp) {
+                http2.get(url).then(function (rsp) {
                     location.href = '/rest/pl/fe/matter/' + oMatter.matter_type + '?site=' + oMatter.siteid + '&id=' + oMatter.matter_id;
                 });
             }

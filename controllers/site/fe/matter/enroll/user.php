@@ -201,7 +201,7 @@ class user extends base {
      */
     public function kanban_action($app, $rid = '', $gid = '', $page = 1, $size = 999) {
         $modelEnl = $this->model('matter\enroll');
-        $oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,state,mission_id,entry_rule,action_rule,absent_cause,data_schemas']);
+        $oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,state,mission_id,entry_rule,action_rule,data_schemas']);
         if (false === $oApp || $oApp->state !== '1') {
             return new \ObjectNotFoundError();
         }

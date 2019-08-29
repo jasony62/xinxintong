@@ -2,6 +2,20 @@
 window.xxt === undefined && (window.xxt = {});
 window.xxt.image = {
     options: {},
+    canupload: function(file) {
+        var seat, extendsion, allowtype = "png,jpg,jpeg,gif";
+        if (!(file.name.lastIndexOf("."))) {
+            var message = "图片数据格式错误:只能上传" + allowtype + "格式的文件";
+            return { err_code: -1, err_msg: message };
+        }
+        seat = file.name.lastIndexOf(".") + 1;
+        extendsion = file.name.substring(seat).toLowerCase();
+        if (allowtype.indexOf(extendsion) === -1) {
+            var message = "图片数据格式错误:只能上传" + allowtype + "格式的文件";
+            return { err_code: -1, err_msg: message };
+        }
+        return { err_code: 0};
+    },
     choose: function(deferred, from) {
         var promise, imgs = [];
         promise = deferred.promise;
@@ -12,23 +26,28 @@ window.xxt.image = {
             cnt = evt.target.files.length;
             for (i = 0; i < cnt; i++) {
                 f = evt.target.files[i];
-                type = {
-                    ".jp": "image/jpeg",
-                    ".pn": "image/png",
-                    ".gi": "image/gif"
-                } [f.name.match(/\.(\w){2}/g)[0] || ".jp"];
-                f.type2 = f.type || type;
-                var oReader = new FileReader();
-                oReader.onload = (function(theFile) {
-                    return function(e) {
-                        var img = {};
-                        img.imgSrc = e.target.result.replace(/^.+(,)/, "data:" + theFile.type2 + ";base64,");
-                        imgs.push(img);
-                        document.body.removeChild(ele);
-                        deferred.resolve(imgs);
-                    };
-                })(f);
-                oReader.readAsDataURL(f);
+                var result = window.xxt.image.canupload(f);
+                if (result.err_code === 0) {
+                    type = {
+                        ".jp": "image/jpeg",
+                        ".pn": "image/png",
+                        ".gi": "image/gif"
+                    } [f.name.match(/\.(\w){2}/g)[0] || ".jp"];
+                    f.type2 = f.type || type;
+                    var oReader = new FileReader();
+                    oReader.onload = (function(theFile) {
+                        return function(e) {
+                            var img = {};
+                            img.imgSrc = e.target.result.replace(/^.+(,)/, "data:" + theFile.type2 + ";base64,");
+                            imgs.push(img);
+                            document.body.removeChild(ele);
+                            deferred.resolve(imgs);
+                        };
+                    })(f);
+                    oReader.readAsDataURL(f);
+                } else {
+                    deferred.resolve(result.err_msg);
+                }
             }
         }, false);
         ele.style.opacity = 0;

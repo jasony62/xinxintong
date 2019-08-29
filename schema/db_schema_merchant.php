@@ -22,11 +22,11 @@ $sql .= ",buyer_api text"; // 记录客户信息的用户认证接口
 $sql .= ",order_status text"; // 订单状态定义
 $sql .= ",access_control char(1) not null default 'N'";
 $sql .= ",authapis text";
-$sql .= ",payby varchar(255) not null default ''"; // 商店支持的支付方式，包括：coin（积分），wx（微信支付）
+$sql .= ",payby varchar(255) not null default ''"; // 商店支持的支付方式，包括：coin（行为分），wx（微信支付）
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 商店的页面
@@ -49,8 +49,8 @@ $sql .= ",code_name varchar(13) not null default ''"; // from xxt_code_page
 $sql .= ",seq int not null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 客服人员
@@ -66,8 +66,8 @@ $sql .= ",idsrc char(2) not null default ''";
 $sql .= ",label varchar(255) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /*
  * 产品分类
@@ -97,8 +97,8 @@ $sql .= ",active char(1) not null default 'N'"; //是否已激活
 $sql .= ",pages text"; //定制页配置状态
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /*
  * 产品分类属性定义。定义商品的属性
@@ -119,8 +119,8 @@ $sql .= ",used char(1) not null default 'N'"; //是否已经使用过
 $sql .= ",disabled char(1) not null default 'N'"; //被禁用
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /*
  * 产品分类属性-值定义
@@ -140,8 +140,8 @@ $sql .= ",name varchar(255) not null";
 $sql .= ",weight int not null default 0";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /*
  * 产品分类sku定义。定义sku的属性
@@ -166,8 +166,8 @@ $sql .= ",used char(1) not null default 'N'"; //是否已经使用过
 $sql .= ",disabled char(1) not null default 'N'"; //被禁用
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /*
  * 产品分类属性-值定义
@@ -187,8 +187,8 @@ $sql .= ",name varchar(255) not null";
 $sql .= ",weight int not null default 0";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /*
  * 产品
@@ -217,8 +217,8 @@ $sql .= ",disabled char(1) not null default 'N'"; //被禁用
 $sql .= ",active char(1) not null default 'N'"; //是否已激活
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /*
  * 产品sku
@@ -252,8 +252,8 @@ $sql .= ",disabled char(1) not null default 'N'"; //被禁用
 $sql .= ",active char(1) not null default 'N'"; //是否已激活
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /*
  * 自动生成商品sku日志
@@ -271,8 +271,8 @@ $sql .= ",begin_at int not null default 0";
 $sql .= ",end_at int not null default 0";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /*
  * 产品分组
@@ -289,8 +289,8 @@ $sql .= ",modify_at int not null";
 $sql .= ",name varchar(70) not null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /*
  * 产品分组——产品
@@ -306,8 +306,8 @@ $sql .= ",seq int not null";
 $sql .= ",modify_at int not null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /*
  * 产品订单属性定义
@@ -328,8 +328,8 @@ $sql .= ",used char(1) not null default 'N'"; //是否已经使用过
 $sql .= ",disabled char(1) not null default 'N'"; //被禁用
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /*
  * 产品订单反馈属性定义
@@ -350,8 +350,8 @@ $sql .= ",used char(1) not null default 'N'"; //是否已经使用过
 $sql .= ",disabled char(1) not null default 'N'"; //被禁用
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /*
  * 产品订单
@@ -386,8 +386,8 @@ $sql .= ",feedback text"; //反馈信息
 $sql .= ",payby varchar(255) not null default ''"; // 订单的支付方式，商店支持的支付方式中的一种
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 订单包含的库存
@@ -406,8 +406,8 @@ $sql .= ",sku_price int not null default 0";
 $sql .= ",sku_count int not null default 1";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 
 echo 'finish merchant.' . PHP_EOL;

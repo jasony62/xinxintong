@@ -501,7 +501,7 @@ class schema extends main_base {
 		return new \ResponseData($aCompatibleSchemas);
 	}
 	/**
-	 * 测试题目得分
+	 * 测试题目数据分
 	 */
 	public function score_action($app, $schema, $value) {
 		if (false === $this->accountUser()) {

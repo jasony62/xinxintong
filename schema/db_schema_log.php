@@ -1,6 +1,23 @@
 <?php
 require_once '../db.php';
 /**
+ * 全局事物表
+ */
+$sql = "create table if not exists tms_transaction(";
+$sql .= "id bigint not null auto_increment";
+$sql .= ",begin_at double(13,3) not null";
+$sql .= ",end_at double(13,3) not null";
+$sql .= ",request_uri text null";
+$sql .= ",user_agent text null";
+$sql .= ",referer text null";
+$sql .= ",remote_addr text null";
+$sql .= ",userid varchar(40) not null default ''";
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_log): ' . $mysqli->error;
+}
+/**
  * log raw message.
  */
 $sql = "create table if not exists xxt_log(";
@@ -13,8 +30,8 @@ $sql .= ",user_agent text null";
 $sql .= ",referer text null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_log): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_log): ' . $mysqli->error;
 }
 /**
  * 集中记录用户对指定的素材做了哪些动作，以便于进行统计分析
@@ -41,8 +58,8 @@ $sql .= ",client_ip varchar(40) not null default ''";
 $sql .= ",referer text null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 公众号汇总日志
@@ -67,8 +84,8 @@ $sql .= ",member_sum int not null default 0";
 $sql .= ",islast char(1) not null default 'N'";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_log): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_log): ' . $mysqli->error;
 }
 /**
  * log received parsed msessages.
@@ -86,8 +103,8 @@ $sql .= ",type varchar(10) not null"; // text,image,location,event
 $sql .= ",data varchar(255) not null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_log_mpreceive): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_log_mpreceive): ' . $mysqli->error;
 }
 /**
  * log send parsed msessages.
@@ -105,8 +122,8 @@ $sql .= ",matter_type varchar(20)";
 $sql .= ",matter_id varchar(40)";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_log_mpsend): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_log_mpsend): ' . $mysqli->error;
 }
 /**
  * 记录图文信息打开的情况
@@ -130,8 +147,8 @@ $sql .= ",search text";
 $sql .= ",referer text";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_log_matter_read): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_log_matter_read): ' . $mysqli->error;
 }
 /**
  * 分享动作日志
@@ -157,8 +174,8 @@ $sql .= ",share_url text NULL";
 $sql .= ",client_ip varchar(40) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_log_matter_share): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_log_matter_share): ' . $mysqli->error;
 }
 /**
  * 记录群发消息发送情况
@@ -181,8 +198,8 @@ $sql .= ",sent_count int not null default 0";
 $sql .= ",error_count int not null default 0";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_log_tmplmsg): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_log_tmplmsg): ' . $mysqli->error;
 }
 /**
  * 记录模板消息发送批次
@@ -203,8 +220,8 @@ $sql .= ",creater_name varchar(255) not null";
 $sql .= ",create_at int not null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_log_tmplmsg): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_log_tmplmsg): ' . $mysqli->error;
 }
 /**
  * 记录模板消息接收人
@@ -223,8 +240,8 @@ $sql .= ",status varchar(255) not null default ''"; // success|failed:user block
 $sql .= ",close_at int not null default 0"; // 关闭消息事件
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_log_tmplmsg): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_log_tmplmsg): ' . $mysqli->error;
 }
 /**
  * 记录模板消息发送批次
@@ -243,8 +260,8 @@ $sql .= ",remark text"; // 发送内容说明
 $sql .= ",create_at int not null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_log_tmplmsg): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_log_tmplmsg): ' . $mysqli->error;
 }
 /**
  * 记录模板消息接收人
@@ -263,8 +280,8 @@ $sql .= ",status varchar(255) not null default ''"; // success|failed:user block
 $sql .= ",close_at int not null default 0"; // 关闭消息事件
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_log_tmplmsg): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_log_tmplmsg): ' . $mysqli->error;
 }
 /**
  * 记录模板消息发送情况
@@ -282,8 +299,8 @@ $sql .= ",create_at int not null";
 $sql .= ",status varchar(255)"; // success|failed:user block|failed:system failed
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_log_tmplmsg): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_log_tmplmsg): ' . $mysqli->error;
 }
 /**
  * 集中记录用户做了哪些动作，以便于进行统计分析
@@ -306,8 +323,8 @@ $sql .= ",act_share_timeline tinyint not null default 0";
 $sql .= ",original_logid int not null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 
 /**
@@ -328,8 +345,8 @@ $sql .= ",act_share_timeline tinyint not null default 0";
 $sql .= ",original_logid int not null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 定时任务执行日志
@@ -343,14 +360,15 @@ $sql .= ",occur_at int not null";
 $sql .= ",result text";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 后台素材操作日志
  */
 $sql = "create table if not exists xxt_log_matter_op(";
 $sql .= "id int not null auto_increment";
+$sql .= ",g_transid bigint not null default 0"; // 事物id
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",operator varchar(40) not null"; //accountid/fid
 $sql .= ",operator_name varchar(255) not null"; //from account or fans
@@ -368,8 +386,8 @@ $sql .= ",user_last_op char(1) not null default 'N'"; // 用户的最后一个�
 $sql .= ",data text"; // 操作相关数据
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_log_matter_op): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_log_matter_op): ' . $mysqli->error;
 }
 
 echo 'finish log.' . PHP_EOL;

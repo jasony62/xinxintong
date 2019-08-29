@@ -63,25 +63,6 @@ class record_model extends record_base {
 				$aNewRec['agreed'] = $agreed;
 			}
 		}
-		/* 移除用户未签到的原因 */
-		if (!empty($oUser->uid)) {
-			$rid = !empty($aNewRec['rid']) ? $aNewRec['rid'] : 'ALL';
-			if (isset($oApp->absentCause->{$oUser->uid}) && isset($oApp->absentCause->{$oUser->uid}->{$rid})) {
-				$aNewRec['comment'] = $this->escape($oApp->absentCause->{$oUser->uid}->{$rid});
-				unset($oApp->absentCause->{$oUser->uid}->{$rid});
-				if (count(get_object_vars($oApp->absentCause->{$oUser->uid})) == 0) {
-					unset($oApp->absentCause->{$oUser->uid});
-				}
-				/* 更新原未签到记录 */
-				$newAbsentCause = $this->escape($this->toJson($oApp->absentCause));
-				$this->update(
-					'xxt_enroll',
-					['absent_cause' => $newAbsentCause],
-					['id' => $oApp->id]
-				);
-			}
-		}
-
 		$aNewRec['id'] = $this->insert('xxt_enroll_record', $aNewRec, true);
 
 		/* 记录和轮次的关系 */
@@ -192,7 +173,7 @@ class record_model extends record_base {
 		return [true];
 	}
 	/**
-	 * 更新得分数据排名
+	 * 更新数据分数据排名
 	 */
 	public function setScoreRank($oApp, $rid) {
 		$aScoreSchemas = $this->model('matter\enroll\schema')->asAssoc($oApp->dynaDataSchemas, ['filter' => function ($oSchema) {return $this->getDeepValue($oSchema, 'requireScore') === 'Y';}]);
@@ -326,6 +307,50 @@ class record_model extends record_base {
 			$fields,
 			'xxt_enroll_record',
 			['aid' => $oApp->id, 'userid' => $oUser->uid],
+		];
+		/* 指定记录状态 */
+		if (!empty($aOptions['state'])) {
+			$q[2]['state'] = $aOptions['state'];
+		}
+		/* 指定填写轮次 */
+		if (empty($assignedRid)) {
+			if (isset($oApp->appRound->rid)) {
+				$q[2]['rid'] = $oApp->appRound->rid;
+			} else {
+				if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
+					$q[2]['rid'] = $oActiveRnd->rid;
+				}
+			}
+		} else {
+			$q[2]['rid'] = $assignedRid;
+		}
+		/* 记录的时间 */
+		$q2 = [
+			'o' => 'enroll_at desc',
+			'r' => ['o' => 0, 'l' => 1],
+		];
+
+		$records = $this->query_objs_ss($q, $q2);
+
+		$oRecord = count($records) === 1 ? $records[0] : false;
+		if ($oRecord) {
+			$this->_processRecord($oRecord, $fields, $verbose);
+		}
+
+		return $oRecord;
+	}
+	/**
+	 * 获得指定用户分组最后提交的记录
+	 */
+	public function lastByGroup($oApp, $groupId, $aOptions = []){
+		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+		$verbose = isset($aOptions['verbose']) ? $aOptions['verbose'] : 'N';
+		$assignedRid = isset($aOptions['rid']) ? $aOptions['rid'] : '';
+
+		$q = [
+			$fields,
+			'xxt_enroll_record',
+			['aid' => $oApp->id, 'group_id' => $groupId],
 		];
 		/* 指定记录状态 */
 		if (!empty($aOptions['state'])) {
@@ -935,7 +960,7 @@ class record_model extends record_base {
 
 		$aFnHandlers = []; // 记录处理函数
 		if (isset($oApp->scenario)) {
-			/* 记录得分 */
+			/* 记录数据分 */
 			$aFnHandlers[] = function ($oRec) use ($oApp, $bRequireScore) {
 				if ($bRequireScore && !empty($oRec->score)) {
 					$score = str_replace("\n", ' ', $oRec->score);
@@ -1326,7 +1351,7 @@ class record_model extends record_base {
 				$rid = $oActiveRnd->rid;
 			}
 		}
-		/* 每道题目的得分 */
+		/* 每道题目的数据分 */
 		foreach ($dataSchemas as $oSchema) {
 			if ((isset($oSchema->requireScore) && $oSchema->requireScore === 'Y')) {
 				$q = [
@@ -1353,7 +1378,7 @@ class record_model extends record_base {
 			}
 		}
 
-		/*所有题的得分合计*/
+		/*所有题的数据分合计*/
 		$q = [
 			'sum(score)',
 			'xxt_enroll_record_data',

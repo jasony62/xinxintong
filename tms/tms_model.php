@@ -74,6 +74,12 @@ class TMS_MODEL {
         return self::$models[$model_class];
     }
     /**
+     * 返回事物ID，如果存在
+     */
+    public function tmsTransactionId() {
+        return isset($this->tmsTransaction->id) ? $this->tmsTransaction->id : 0;
+    }
+    /**
      *
      */
     public static function insert($table, $data = null, $autoid = DEFAULT_DB_AUTOID) {

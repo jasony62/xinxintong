@@ -1,13 +1,13 @@
 <style>
-#simulator {
-    width: 100%;
-    height: 480px;
-    border: 1px solid #efefef;
-}
+    #simulator {
+        width: 100%;
+        height: 480px;
+        border: 1px solid #efefef;
+    }
 
-#shareBoard .thumbnail {
-    height: 128px;
-}
+    #shareBoard .thumbnail {
+        height: 128px;
+    }
 </style>
 <div class="modal-body">
     <ul class="nav nav-tabs" style="margin-bottom:15px;">
@@ -63,7 +63,7 @@
                         <label class='radio-inline'>
                             <input type='radio' name='template' value='{{$index}}' ng-model='data.choose' ng-change='choose(t)'><span ng-bind='t.title'></span></label>
                         <div ng-bind='t.summary'></div>
-                        <div>需要支出积分：<span ng-bind='t.coin'></span></div>
+                        <div>需要支出行为分：<span ng-bind='t.coin'></span></div>
                     </div>
                 </div>
             </div>

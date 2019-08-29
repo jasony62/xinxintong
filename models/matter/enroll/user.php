@@ -374,7 +374,7 @@ class user_model extends \TMS_MODEL {
         return $oNewSumData;
     }
     /**
-     * 更新得分数据排名
+     * 更新数据分数据排名
      */
     public function setScoreRank($oApp, $rid) {
         $fnSetRankByRound = function ($assignedRid) use ($oApp) {
@@ -421,7 +421,7 @@ class user_model extends \TMS_MODEL {
         if (false === $oRecord2) {
             return [false, '记录不存在'];
         }
-        /* 记录得分 */
+        /* 记录数据分 */
         $score = 0;
         if (isset($oRecord2->score->sum)) {
             $score = $oRecord2->score->sum;
@@ -449,7 +449,7 @@ class user_model extends \TMS_MODEL {
         if (false === $oRecord2) {
             return [false, '记录不存在'];
         }
-        /* 记录得分 */
+        /* 记录数据分 */
         $score = 0;
         if (isset($oRecord2->score->sum)) {
             $score = $oRecord2->score->sum;
@@ -781,13 +781,6 @@ class user_model extends \TMS_MODEL {
             }
 
             // 用户未完成原因
-            if (count($undoneTasks) > 0) {
-                if (!empty($oApp->absentCause->{$oAssignedUser->userid}->{$rid})) {
-                    $oAssignedUser->absent_cause = new \stdClass;
-                    $oAssignedUser->absent_cause->cause = $oApp->absentCause->{$oAssignedUser->userid}->{$rid};
-                    $oAssignedUser->absent_cause->rid = $rid;
-                }
-            }
             $oAssignedUser->undoneTasks = $undoneTasks;
 
             return $oAssignedUser;
@@ -985,7 +978,7 @@ class user_model extends \TMS_MODEL {
         return $updatedCount;
     }
     /**
-     * 活动用户获得奖励积分
+     * 活动用户获得奖励行为分
      */
     public function awardCoin($oApp, $userid, $rid, $coinEvent, $coinRules = null) {
         if (empty($coinRules)) {
@@ -996,7 +989,7 @@ class user_model extends \TMS_MODEL {
             return [false];
         }
 
-        $deltaCoin = 0; // 增加的积分
+        $deltaCoin = 0; // 增加的行为分
         foreach ($coinRules as $rule) {
             $deltaCoin += (int) $rule->actor_delta;
         }
@@ -1010,14 +1003,14 @@ class user_model extends \TMS_MODEL {
             return [false, $deltaCoin];
         }
 
-        /* 奖励积分 */
+        /* 奖励行为分 */
         $modelCoinLog = $this->model('site\coin\log')->setOnlyWriteDbConn(true);
         $oResult = $modelCoinLog->award($oApp, $oEnrollUsr, $coinEvent, $coinRules);
 
         return [true, $deltaCoin];
     }
     /**
-     * 活动用户扣除奖励积分
+     * 活动用户扣除奖励行为分
      */
     public function deductCoin($oApp, $userid, $rid, $coinEvent, $deductCoin) {
         /* 参与活动的用户 */
@@ -1026,7 +1019,7 @@ class user_model extends \TMS_MODEL {
             return [false];
         }
 
-        /* 奖励积分 */
+        /* 奖励行为分 */
         $modelCoinLog = $this->model('site\coin\log')->setOnlyWriteDbConn(true);
         $modelCoinLog->deduct($oApp, $oEnrollUsr, $coinEvent, $deductCoin);
 
@@ -1204,5 +1197,45 @@ class user_model extends \TMS_MODEL {
         }
 
         return isset($receivers) ? $receivers : false;
+    }
+    /**
+     * 更新用户累积行为分
+     */
+    public function resetCoin($oApp, $rid, $userid) {
+        $oEnlUserRnd = $this->byId($oApp, $userid, ['rid' => $rid, 'fields' => 'id,user_total_coin']);
+        if (false === $oEnlUserRnd) {
+            return false;
+        }
+        $q = [
+            'sum(earn_coin)',
+            'xxt_enroll_log',
+            ['aid' => $oApp->id, 'rid' => $rid, 'userid' => $userid, 'state' => 1, 'coin_event' => 1],
+        ];
+        $coin = $this->query_val_ss($q);
+
+        $q = [
+            'sum(owner_earn_coin)',
+            'xxt_enroll_log',
+            ['aid' => $oApp->id, 'rid' => $rid, 'owner_userid' => $userid, 'state' => 1, 'owner_coin_event' => 1],
+        ];
+        $ownerCoin = $this->query_val_ss($q);
+
+        $totalCoin = $coin + $ownerCoin;
+        if ((float) $oEnlUserRnd->user_total_coin === (float) $totalCoin) {
+            return false;
+        }
+        $this->update('xxt_enroll_user', ['user_total_coin' => $totalCoin], ['id' => $oEnlUserRnd->id]);
+        /**
+         * 更新整个活动中的累积行为分
+         */
+        $oEnlUserAll = $this->byId($oApp, $userid, ['rid' => 'ALL', 'fields' => 'id,user_total_coin']);
+        if (false === $oEnlUserAll) {
+            return false;
+        }
+
+        $delta = $totalCoin - $oEnlUserRnd->user_total_coin;
+        $this->update('xxt_enroll_user', ['user_total_coin' => $oEnlUserAll->user_total_coin + $delta], ['id' => $oEnlUserAll->id]);
+
+        return true;
     }
 }

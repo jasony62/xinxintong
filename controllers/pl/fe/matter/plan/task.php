@@ -178,7 +178,7 @@ class task extends \pl\fe\matter\base {
 		$userSite = $this->model('site\fe\way')->who($oApp->siteid);
 		$oCheckData = new \stdClass;
 		$oScoreData = new \stdClass;
-		$fScoreSum = 0; // 所有任务的累积得分
+		$fScoreSum = 0; // 所有任务的累积数据分
 		foreach ($data as $actionId => $oActionData) {
 			$oAction = $oActionsById->{$actionId};
 			$oAction->siteid = $oTaskSchema->siteid;

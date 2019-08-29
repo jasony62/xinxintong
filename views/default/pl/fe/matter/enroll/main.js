@@ -1,22 +1,22 @@
-define(['frame'], function(ngApp) {
+define(['frame'], function (ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlMain', ['$scope', '$anchorScroll', 'http2', 'noticebox', 'srvEnrollApp', 'srvTag', function($scope, $anchorScroll, http2, noticebox, srvEnrollApp, srvTag) {
-        $scope.assignMission = function() {
-            srvEnrollApp.assignMission().then(function(mission) {});
+    ngApp.provider.controller('ctrlMain', ['$scope', '$anchorScroll', 'http2', 'noticebox', 'srvEnrollApp', 'srvTag', function ($scope, $anchorScroll, http2, noticebox, srvEnrollApp, srvTag) {
+        $scope.assignMission = function () {
+            srvEnrollApp.assignMission().then(function (mission) {});
         };
-        $scope.quitMission = function() {
+        $scope.quitMission = function () {
             if (window.confirm('确定将[' + $scope.app.title + ']从项目中移除？')) {
-                srvEnrollApp.quitMission().then(function() {});
+                srvEnrollApp.quitMission().then(function () {});
             }
         };
-        $scope.tagMatter = function(subType) {
+        $scope.tagMatter = function (subType) {
             var oTags;
             oTags = $scope.oTag;
             srvTag._tagMatter($scope.app, oTags, subType);
         };
-        $scope.remove = function() {
+        $scope.remove = function () {
             if (window.confirm('确定删除[' + $scope.app.title + ']？')) {
-                srvEnrollApp.remove().then(function() {
+                srvEnrollApp.remove().then(function () {
                     if ($scope.app.mission) {
                         location = "/rest/pl/fe/matter/mission?site=" + $scope.app.siteid + "&id=" + $scope.app.mission.id;
                     } else {
@@ -25,24 +25,24 @@ define(['frame'], function(ngApp) {
                 });
             }
         };
-        $scope.exportAsTemplate = function() {
+        $scope.exportAsTemplate = function () {
             var url;
-            url = '/rest/pl/fe/matter/enroll/exportAsTemplate?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
+            url = '/rest/pl/fe/matter/enroll/export/appTemplate?site=' + $scope.app.siteid + '&app=' + $scope.app.id;
             window.open(url);
         };
-        $scope.applyToHome = function() {
+        $scope.applyToHome = function () {
             var url = '/rest/pl/fe/matter/home/apply?site=' + $scope.app.siteid + '&type=enroll&id=' + $scope.app.id;
-            http2.get(url).then(function(rsp) {
+            http2.get(url).then(function (rsp) {
                 noticebox.success('完成申请！');
             });
         };
-        $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+        $scope.$on('xxt.tms-datepicker.change', function (event, data) {
             $scope.app[data.state] = data.value;
             srvEnrollApp.update(data.state);
         });
-        srvEnrollApp.get().then(function(oApp) {
+        srvEnrollApp.get().then(function (oApp) {
             $scope.defaultTime = {
-                start_at: oApp.start_at > 0 ? oApp.start_at : (function() {
+                start_at: oApp.start_at > 0 ? oApp.start_at : (function () {
                     var t;
                     t = new Date;
                     t.setHours(8);
@@ -55,7 +55,9 @@ define(['frame'], function(ngApp) {
             };
             $scope.bCountLimited = oApp.count_limit !== '0';
             $('#main-view').height($('#pl-layout-main').height());
-            $('#main-view').scrollspy({ target: '#mainScrollspy' });
+            $('#main-view').scrollspy({
+                target: '#mainScrollspy'
+            });
             $('#mainScrollspy>ul').affix({
                 offset: {
                     top: 0
@@ -63,9 +65,9 @@ define(['frame'], function(ngApp) {
             });
         });
     }]);
-    ngApp.provider.controller('ctrlAccess', ['$scope', 'srvEnrollApp', 'tkEntryRule', function($scope, srvEnlApp, tkEntryRule) {
+    ngApp.provider.controller('ctrlAccess', ['$scope', 'srvEnrollApp', 'tkEntryRule', function ($scope, srvEnlApp, tkEntryRule) {
         var _oApp, _oRule;
-        $scope.isInputPage = function(pageName) {
+        $scope.isInputPage = function (pageName) {
             if (!$scope.app) {
                 return false;
             }
@@ -76,26 +78,26 @@ define(['frame'], function(ngApp) {
             }
             return false;
         };
-        $scope.addExclude = function() {
+        $scope.addExclude = function () {
             if (!_oRule.exclude) {
                 _oRule.exclude = [];
             }
             _oRule.exclude.push('');
         };
-        $scope.removeExclude = function(index) {
+        $scope.removeExclude = function (index) {
             _oRule.exclude.splice(index, 1);
             $scope.updateRule();
         };
-        $scope.updateRule = function() {
+        $scope.updateRule = function () {
             $scope.update('entryRule');
         };
-        srvEnlApp.get().then(function(oApp) {
+        srvEnlApp.get().then(function (oApp) {
             $scope.jumpPages = srvEnlApp.jumpPages();
             _oApp = oApp;
             $scope.tkEntryRule = new tkEntryRule(oApp, $scope.sns);
             $scope.rule = _oRule = oApp.entryRule;
         });
-        $scope.$watch('app.entryRule', function(nv, ov) {
+        $scope.$watch('app.entryRule', function (nv, ov) {
             if (nv && nv !== ov) {
                 srvEnlApp.renew(['enrollApp', 'groupApp']);
             }

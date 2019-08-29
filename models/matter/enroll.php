@@ -137,7 +137,7 @@ class enroll_model extends enroll_base {
                 }
             }
             /* 对象类型 */
-            foreach (['entry_rule', 'action_rule', 'scenario_config', 'notify_config', 'rp_config', 'repos_config', 'rank_config', 'absent_cause', 'assigned_nickname'] as $uscProp) {
+            foreach (['entry_rule', 'action_rule', 'scenario_config', 'notify_config', 'rp_config', 'repos_config', 'rank_config', 'assigned_nickname'] as $uscProp) {
                 if (property_exists($oApp, $uscProp)) {
                     $ccProp = preg_replace_callback('/(_(\w))/', function ($matches) {return strtoupper($matches[2]);}, $uscProp);
                     $oApp->{$ccProp} = empty($oApp->{$uscProp}) ? new \stdClass : json_decode($oApp->{$uscProp});

@@ -2008,6 +2008,14 @@ define(['schema', 'wrap'], function (schemaLib, wrapLib) {
                     }
                 }
             }
+            if (window.sessionStorage) {
+                var oSessionCached;
+                if (window.sessionStorage.getItem('xxt.pl.protect.system')) {
+                    oSessionCached = window.sessionStorage.getItem('xxt.pl.protect.system');
+                    oSessionCached = JSON.parse(oSessionCached);
+                    $scope.filetypes = oSessionCached.fileContentTypeWhite;
+                }
+            }
         });
     }]);
     /**

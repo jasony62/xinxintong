@@ -30,8 +30,7 @@ class group_model extends \TMS_MODEL {
             'xxt_enroll_group',
             ['aid' => $oApp->id],
         ];
-        $q[2]['rid'] = isset($aOptions['rid']) ? $aOptions['rid'] : 'ALL';
-
+        $q[2]['rid'] = empty($aOptions['rid']) ? 'ALL' : $aOptions['rid'];
         $groups = $this->query_objs_ss($q);
 
         return $groups;

@@ -8,11 +8,13 @@ define(['frame'], function (ngApp) {
             rid !== undefined && (url += '&rid=' + rid)
             http2.post(url, {}).then(function (rsp) {
                 var groups = rsp.data.groups;
-                var oRound = rsp.data.round || {
-                    title: '全部轮次'
+                var oRounds = rsp.data.rounds || {
+                    'ALL': {
+                        title: '全部轮次'
+                    }
                 };
                 groups.forEach(function (oGroup) {
-                    oGroup.round = oRound;
+                    oGroup.round = oRounds[oGroup.data.rid];
                 });
                 $scope.groups = groups;
             });
@@ -67,7 +69,7 @@ define(['frame'], function (ngApp) {
         };
         $scope.chooseGroupRound = function () {
             tkEnlRnd.pick($scope.app, {
-                single: true
+                single: false
             }).then(function (oResult) {
                 _fnGroup(oResult.rid);
             })
@@ -99,7 +101,7 @@ define(['frame'], function (ngApp) {
                             size: 7
                         };
                         $scope2.doSearchRound = function () {
-                            http2.get('/rest/pl/fe/matter/enroll/round/list?site=' + $scope.app.siteid + '&app=' + $scope.app.id, {
+                            http2.get('/rest/pl/fe/matter/enroll/round/list?app=' + $scope.app.id, {
                                 page: $scope2.page
                             }).then(function (rsp) {
                                 $scope2.rounds = rsp.data.rounds;
@@ -130,8 +132,17 @@ define(['frame'], function (ngApp) {
             http2.post(url, _oCriteria, {
                 page: _oPage
             }).then(function (rsp) {
-                srvEnlRec.init($scope.app, _oPage, _oCriteria, rsp.data.users);
-                $scope.enrollees = rsp.data.users;
+                var users = rsp.data.users;
+                var oRounds = rsp.data.rounds || {
+                    'ALL': {
+                        title: '全部'
+                    }
+                };
+                srvEnlRec.init($scope.app, _oPage, _oCriteria, users);
+                users.forEach(function (oUser) {
+                    oUser.round = oRounds[oUser.rid] || {};
+                });
+                $scope.enrollees = users;
             });
         };
         $scope.repairEnrollee = function () {
@@ -147,8 +158,8 @@ define(['frame'], function (ngApp) {
             }).then(function (oResult) {
                 function resetCoinByRound(i) {
                     if (i < rids.length) {
-                        var url = '/rest/pl/fe/matter/enroll/repair/userCoin?site=' + $scope.app.siteid;
-                        url += '&app=' + $scope.app.id;
+                        var url = '/rest/pl/fe/matter/enroll/repair/userCoin';
+                        url += '?app=' + $scope.app.id;
                         url += '&rid=' + rids[i];
                         http2.get(url).then(function (rsp) {
                             resetCoinByRound(++i);
@@ -179,7 +190,7 @@ define(['frame'], function (ngApp) {
             $scope.searchEnrollee(1);
             if (oRule.group && oRule.group.id) {
                 $scope.categories.group = '用户组';
-                _fnGroup('');
+                _fnGroup();
             }
             _fnAbsent();
         });

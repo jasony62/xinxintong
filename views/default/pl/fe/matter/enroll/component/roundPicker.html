@@ -5,6 +5,11 @@
 <div class="modal-body">
     <div ng-if="options.single===false">
         <div tms-array-checkbox model="result.rid" items="rounds">
+            <div class='checkbox'>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' value='all'><span>全部</span>
+                </label>
+            </div>
             <div class='checkbox' ng-repeat="rnd in rounds">
                 <label class='checkbox-inline'>
                     <input type='checkbox' value='{{::rnd.rid}}'><span>{{::rnd.title}}</span>

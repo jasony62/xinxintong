@@ -65,6 +65,7 @@
                                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
                                 </th>
                                 <th style='width:48px'>序号</th>
+                                <th style='width:120px'>轮次</th>
                                 <th data-filter-by='nickname' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)" style='width:75px'>姓名 <i class='glyphicon glyphicon-filter'></i></th>
                                 <th style='width:120px'>分组</th>
                                 <th>数据分</th>
@@ -95,6 +96,9 @@
                                     <input type='checkbox' ng-model="rows.selected[$index]" ng-change="rows.change($index)">
                                 </td>
                                 <td>{{$index+1}}</td>
+                                <td>
+                                    <div ng-if='e.round.title'>{{e.round.title}}</div>
+                                </td>
                                 <td>{{e.nickname}}</td>
                                 <td>
                                     <div ng-if='e.group'>{{e.group.title}}</div>

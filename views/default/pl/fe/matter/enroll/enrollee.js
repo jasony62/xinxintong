@@ -8,15 +8,17 @@ define(['frame'], function (ngApp) {
             rid !== undefined && (url += '&rid=' + rid)
             http2.post(url, {}).then(function (rsp) {
                 var groups = rsp.data.groups;
-                var oRounds = rsp.data.rounds || {
-                    'ALL': {
-                        title: '全部轮次'
-                    }
-                };
-                groups.forEach(function (oGroup) {
-                    oGroup.round = oRounds[oGroup.data.rid];
-                });
-                $scope.groups = groups;
+                if (groups) {
+                    var oRounds = rsp.data.rounds || {
+                        'ALL': {
+                            title: '全部轮次'
+                        }
+                    };
+                    groups.forEach(function (oGroup) {
+                        oGroup.round = oRounds[oGroup.data.rid];
+                    });
+                    $scope.groups = groups;
+                }
             });
         }
 

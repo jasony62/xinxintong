@@ -7,10 +7,10 @@ class log_model extends TMS_MODEL {
      *
      */
     public function log($siteid, $method, $data, $agent = '', $referer = '') {
-        if (empty($agent) && isset(tms_get_server('HTTP_USER_AGENT'))) {
+        if (empty($agent) && !empty(tms_get_server('HTTP_USER_AGENT'))) {
             $agent = tms_get_server('HTTP_USER_AGENT');
         }
-        if (empty($referer) && isset(tms_get_server('HTTP_REFERER'))) {
+        if (empty($referer) && !empty(tms_get_server('HTTP_REFERER'))) {
             $referer = tms_get_server('HTTP_REFERER');
         }
 

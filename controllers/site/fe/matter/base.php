@@ -279,18 +279,16 @@ class base extends \site\fe\base {
             $oUser = $this->who;
 
             /* 检查用户是否已经关注公众号 */
-            $fnCheckSnsFollow = function ($snsName, $matterSiteId, $openid, $snsSiteId = '') {
-                if (empty($snsSiteId)) {
-                    if ($snsName === 'wx') {
-                        $modelWx = $this->model('sns\wx');
-                        if (($wxConfig = $modelWx->bySite($matterSiteId)) && $wxConfig->joined === 'Y') {
-                            $snsSiteId = $matterSiteId;
-                        } else {
-                            $snsSiteId = 'platform';
-                        }
-                    } else {
+            $fnCheckSnsFollow = function ($snsName, $matterSiteId, $openid) {
+                if ($snsName === 'wx') {
+                    $modelWx = $this->model('sns\wx');
+                    if (($wxConfig = $modelWx->bySite($matterSiteId)) && $wxConfig->joined === 'Y') {
                         $snsSiteId = $matterSiteId;
+                    } else {
+                        $snsSiteId = 'platform';
                     }
+                } else {
+                    $snsSiteId = $matterSiteId;
                 }
                 // 检查用户是否已经关注
                 $modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
@@ -328,22 +326,15 @@ class base extends \site\fe\base {
                         }
                     } else {
                         /* 当前注册用户绑定的信息 */
-                        if ($snsName === 'wx') {
-                            if (!isset($modelWx)) {
-                                $modelWx = $this->model('sns\wx');
-                            }
-                            if (($wxConfig = $modelWx->bySite($oMatter->siteid)) && $wxConfig->joined === 'Y') {
-                                $snsSiteId = $matterSiteId;
-                            } else {
-                                $snsSiteId = 'platform';
-                            }
-                        } else {
-                            $snsSiteId = $matterSiteId;
-                        }
+                        $q = [
+                            'distinct ' . $propSnsOpenid,
+                            'xxt_site_account',
+                            ["unionid" => $oUser->unionid, $propSnsOpenid => (object) ['op' => '<>', 'pat' => '']]
+                        ];
+                        $aSiteUsers = $modelAcnt->query_objs_ss($q);
 
-                        $aSiteUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $snsSiteId, 'fields' => $propSnsOpenid]);
                         foreach ($aSiteUsers as $oSiteUser) {
-                            if ($oSiteUser && $fnCheckSnsFollow($snsName, $oMatter->siteid, $oSiteUser->{$propSnsOpenid}, $snsSiteId)) {
+                            if ($fnCheckSnsFollow($snsName, $oMatter->siteid, $oSiteUser->{$propSnsOpenid})) {
                                 $bFollowed = true;
                                 $oFollowedRule = $rule;
                                 break;

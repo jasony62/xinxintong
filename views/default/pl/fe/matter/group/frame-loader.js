@@ -60,13 +60,17 @@ requirejs(['/static/js/tms.bootstrap.js'], function (tms) {
             "noticeCtrl": '/views/default/pl/fe/matter/group/notice',
             "teamCtrl": '/views/default/pl/fe/matter/group/team',
             "recordCtrl": '/views/default/pl/fe/matter/group/record',
+            "leaveCtrl": '/views/default/pl/fe/matter/group/leave',
         },
         html: {
             "main": '/views/default/pl/fe/matter/group/main',
             "notice": '/views/default/pl/fe/matter/group/notice',
             "team": '/views/default/pl/fe/matter/group/team',
             "record": '/views/default/pl/fe/matter/group/record',
+            "leave": '/views/default/pl/fe/matter/group/leave',
             "compRecords": '/views/default/pl/fe/matter/group/component/records',
+            "compRecordPicker": '/views/default/pl/fe/matter/group/component/recordPicker',
+            "compLeaveEditor": '/views/default/pl/fe/matter/group/component/leaveEditor',
         }
     }
     tms.bootstrap(_oRawPathes);

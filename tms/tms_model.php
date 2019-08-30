@@ -446,7 +446,7 @@ class TMS_MODEL {
      */
     public static function getDeepValue($deepObj, $deepProp, $notSetVal = null) {
         $props = explode('.', $deepProp);
-        $val = $deepObj;
+        $val = is_object($deepObj) ? $deepObj : (object) $deepObj;
         foreach ($props as $prop) {
             if (!isset($val->{$prop})) {
                 return $notSetVal;
@@ -454,6 +454,9 @@ class TMS_MODEL {
                 return $val->{$prop};
             } else {
                 $val = $val->{$prop};
+                if (is_array($val)) {
+                    $val = (object) $val;
+                }
             }
         }
         return $val;

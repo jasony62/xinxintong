@@ -28,10 +28,10 @@
                 <tr ng-repeat='l in leaves'>
                     <td>{{$index+1}}</td>
                     <td>
-                        <input type='checkbox' ng-model="rows.selected[$index]" ng-change="selectRec(r)">
+                        <input type='checkbox' ng-model="rows.selected[$index]" ng-change="select(l)">
                     </td>
                     <td>
-                        <button class='btn btn-xs btn-default' ng-click='editRec(r)'>
+                        <button class='btn btn-xs btn-default' ng-click='edit(l)'>
                             <span class='glyphicon glyphicon-edit'></span>
                         </button>
                     </td>

@@ -10,6 +10,9 @@ class main_base extends \pl\fe\matter\main_base {
      * 返回视图
      */
     public function index_action() {
+        if (false === strpos(\TMS_MODEL::getDeepValue($_SERVER, 'HTTP_ACCEPT', ''), 'text/html')) {
+            return new \ResponseError('不支持的方法');
+        }
         \TPL::output('/pl/fe/matter/group/frame');
         exit;
     }

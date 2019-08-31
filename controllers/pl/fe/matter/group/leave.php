@@ -12,6 +12,7 @@ class leave extends main_base {
     public function tmsRequireTransaction() {
         return [
             'create',
+            'update',
             'close',
         ];
     }
@@ -35,6 +36,27 @@ class leave extends main_base {
         $this->model('matter\log')->matterOp($this->app->siteid, $this->user, $this->app, 'leave.create', (object) ['id' => $oNewLeave->id]);
 
         return new \ResponseData($oNewLeave);
+    }
+    /**
+     *
+     */
+    public function update_action($id) {
+        $modelGrpLev = $this->model('matter\group\leave');
+        $oLeave = $modelGrpLev->byId($id);
+        if (false === $oLeave) {
+            return new \ObjectNotFoundError();
+        }
+
+        $oPosted = $this->getPostJson();
+        $modelGrpLev = $this->model('matter\group\leave');
+        if ($modelGrpLev->modify2($oLeave->id, $oPosted)) {
+            $oLeave = $modelGrpLev->byId($id);
+        }
+
+        /* 记录操作日志 */
+        $this->model('matter\log')->matterOp($this->app->siteid, $this->user, $this->app, 'leave.update', (object) ['id' => $oLeave->id]);
+
+        return new \ResponseData($oLeave);
     }
     /**
      *

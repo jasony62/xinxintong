@@ -84,6 +84,27 @@ class leave_model extends \matter\base_model {
     /**
      *
      */
+    public function modify2($id, $oProto) {
+        $aUpdated = [];
+
+        foreach ($oProto as $k => $v) {
+            switch ($k) {
+            case 'begin_at':
+            case 'end_at':
+                $aUpdated[$k] = (int) $v;
+                break;
+            }
+        }
+        if (empty($aUpdated)) {
+            return false;
+        }
+        $ret = $this->update($this->table(), $aUpdated, ['id' => $id]);
+
+        return $ret;
+    }
+    /**
+     *
+     */
     public function close($id) {
         $oRemoved = new \stdClass;
         $oRemoved->state = 0;

@@ -68,6 +68,30 @@ define(['frame'], function (ngApp) {
                 }
             });
         };
+        $scope.edit = function (oLeave) {
+            $uibModal.open({
+                templateUrl: '/views/default/pl/fe/matter/group/component/leaveEditor.html?_=' + $scope.frameTemplates.compLeaveEditor.time,
+                controller: ['$uibModalInstance', '$scope', function ($mi, $scope2) {
+                    var data = {};
+                    data.begin_at = oLeave.begin_at;
+                    data.end_at = oLeave.end_at;
+                    $scope2.data = data;
+                    $scope2.cancel = function () {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function () {
+                        $mi.close($scope2.data);
+                    };
+                }],
+                backdrop: 'static',
+            }).result.then(function (oProto) {
+                var url = '/rest/pl/fe/matter/group/leave/update?app=' + $scope.app.id;
+                url += '&id=' + oLeave.id;
+                http2.post(url, oProto).then(function (rsp) {
+                    http2.merge(oLeave, rsp.data, ['id']);
+                });
+            });
+        };
         $scope.close = function (oLeave) {
             noticebox.confirm('删除选中的请假记录，确定？').then(function () {
                 http2.get('/rest/pl/fe/matter/group/leave/close?app=' + $scope.app.id + '&id=' + oLeave.id).then(function (rsp) {

@@ -788,8 +788,8 @@ class user_model extends \TMS_MODEL {
 
         // 没有完成任务的用户
         $aUndoneUsrs = [];
-        $oAssignedUsrs = $oAssignedUsrsResult->users;
-        array_walk($oAssignedUsrs, function (&$oAssignedUser) use (&$aUndoneUsrs, $getUndoneTasks) {
+        $aAssignedUsrs = $oAssignedUsrsResult->users;
+        array_walk($aAssignedUsrs, function (&$oAssignedUser) use (&$aUndoneUsrs, $getUndoneTasks) {
             $oAssignedUser->uid = $oAssignedUser->userid;
             !empty($oAssignedUser->group->id) && $oAssignedUser->group_id = $oAssignedUser->group->id;
             $oAssignedUser = $getUndoneTasks($oAssignedUser);

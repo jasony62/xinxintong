@@ -111,4 +111,19 @@ class leave_model extends \matter\base_model {
 
         return $leaves;
     }
+    /**
+     *
+     */
+    public function byUser($appId, $userid, $aOptions = []) {
+        $fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+
+        $q = [
+            $fields,
+            $this->table(),
+            ['aid' => $appId, 'state' => 1, 'userid' => $userid],
+        ];
+        $leaves = $this->query_objs_ss($q);
+
+        return $leaves;
+    }
 }

@@ -122,7 +122,7 @@ class user extends main_base {
     /**
      * 未完成任务用户列表
      */
-    public function undone_action($app, $rid = '') {
+    public function undone_action($app) {
         $oApp = $this->app;
 
         $modelUsr = $this->model('matter\enroll\user');

@@ -190,7 +190,7 @@ class record_model extends \matter\enroll\record_base {
     /**
      * 处理从数据库中获得的数据
      */
-    private function _callableDbRecordHandler($appId = null, $handlerName = 'handler') {
+    private function _callableDbRecordHandler($appId = null, $handlerName = 'handle') {
         return [new DbRecordHandler($this, $appId), $handlerName];
     }
     /**
@@ -361,7 +361,7 @@ class record_model extends \matter\enroll\record_base {
 
         $q2 = ['o' => 'team_id,draw_at'];
 
-        $records = $this->query_objs_ss($q, $q2, $this->_callableDbRecordHandler($oTeam->aid));
+        $records = $this->query_objs_ss($q, $q2, $this->_callableDbRecordHandler($oTeam->aid, 'handleWithLeave'));
 
         return $records;
     }

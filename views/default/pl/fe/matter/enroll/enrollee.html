@@ -49,6 +49,9 @@
             <section style='display:inline-block' ng-if="category==='group'">
                 <button class='btn btn-default' ng-click='chooseGroupRound()'><i class='glyphicon glyphicon-filter'></i> <span>轮次</span></button>
             </section>
+            <section style='display:inline-block' ng-if="category==='absent'">
+                <button class='btn btn-default' ng-click='chooseAbsentRound()'><i class='glyphicon glyphicon-filter'></i> <span>轮次</span></button>
+            </section>
             <div class='form-group pull-right' ng-if="category==='enrollee'">
                 <button type='button' class='btn btn-default' ng-click="searchEnrollee()"><i class='glyphicon glyphicon-refresh'></i> 刷新</button>
             </div>
@@ -230,11 +233,21 @@
                                 <td>{{g.data.topic_read_num}}</td>
                                 <td>{{g.data.do_cowork_read_num}}</td>
                                 <td>{{g.data.cowork_read_num}}</td>
-                                <td>{{g.data.do_repos_read_elapse | filterTime}}</td>
-                                <td>{{g.data.do_topic_read_elapse | filterTime}}</td>
-                                <td>{{g.data.topic_read_elapse | filterTime}}</td>
-                                <td>{{g.data.do_cowork_read_elapse | filterTime}}</td>
-                                <td>{{g.data.cowork_read_elapse | filterTime}}</td>
+                                <td>
+                                    <div ng-if="g.data.do_repos_read_elapse>0">{{g.data.do_repos_read_elapse | filterTime}}</div>
+                                </td>
+                                <td>
+                                    <div ng-if="g.data.do_topic_read_elapse>0">{{g.data.do_topic_read_elapse | filterTime}}</div>
+                                </td>
+                                <td>
+                                    <div ng-if="g.data.topic_read_elapse>0">{{g.data.topic_read_elapse | filterTime}}</div>
+                                </td>
+                                <td>
+                                    <div ng-if="g.data.do_cowork_read_elapse>0">{{g.data.do_cowork_read_elapse | filterTime}}</div>
+                                </td>
+                                <td>
+                                    <div ng-if="g.data.cowork_read_elapse>0">{{g.data.cowork_read_elapse | filterTime}}</div>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -249,9 +262,11 @@
                             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
                         </th>
                         <th style='width:48px'>序号</th>
-                        <th>姓名</th>
-                        <th>分组</th>
-                        <th ng-repeat="rnd in absentRounds">{{rnd.title}}</th>
+                        <th style='width:120px'>轮次</th>
+                        <th style='width:75px'>姓名</th>
+                        <th style='width:120px'>分组</th>
+                        <th style='width:120px'>请假（开始）</th>
+                        <th style='width:120px'>请假（结束）</th>
                         <th ng-repeat="schema in absentApp.dataSchemas">{{schema.title}}</th>
                     </tr>
                 </thead>
@@ -261,10 +276,14 @@
                             <input type='checkbox' ng-model="rows.selected[$index]" ng-change="rows.change($index)">
                         </td>
                         <td>{{$index+1}}</td>
+                        <td>{{user.round.title}}</td>
                         <td>{{user.nickname}}</td>
                         <td>{{user.group.title}}</td>
-                        <td ng-repeat="rnd in absentRounds">
-                            <div><span ng-if="user.rounds.indexOf(rnd.rid)!==-1">是</span></div>
+                        <td>
+                            <div ng-if="user.validLeave">{{user.validLeave.begin_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+                        </td>
+                        <td>
+                            <div ng-if="user.validLeave">{{user.validLeave.end_at*1000|date:'yy-MM-dd HH:mm'}}</div>
                         </td>
                         <td ng-repeat="schema in absentApp.dataSchemas" ng-switch on="schema.type">
                             <div ng-switch-when="image">

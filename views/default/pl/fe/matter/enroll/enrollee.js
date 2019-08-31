@@ -14,19 +14,36 @@ define(['frame'], function (ngApp) {
                     }
                 };
                 groups.forEach(function (oGroup) {
-                    oGroup.round = oRounds[oGroup.data.rid];
+                    if (oGroup.data && oGroup.data.rid)
+                        oGroup.round = oRounds[oGroup.data.rid];
                 });
                 $scope.groups = groups;
             });
         }
 
-        function _fnAbsent() {
-            http2.post('/rest/pl/fe/matter/enroll/user/undone?app=' + $scope.app.id, {
-                rids: _oCriteria.rids
-            }).then(function (rsp) {
+        function _fnAbsent(rid) {
+            var url = '/rest/pl/fe/matter/enroll/user/undone?app=' + $scope.app.id;
+            rid !== undefined && (url += '&rid=' + rid)
+            http2.post(url, {}).then(function (rsp) {
                 var schemasById;
-                $scope.absentUsers = rsp.data.users;
-                $scope.absentRounds = rsp.data.rounds;
+                var absentUsers = [];
+                var oRunds = rsp.data.rounds;
+                if (oRunds && rsp.data.users) {
+                    var rids, users;
+                    rids = Object.keys(oRunds);
+                    if (rids && rids.length) {
+                        rids.forEach(function (rid) {
+                            if (users = rsp.data.users[rid]) {
+                                users.forEach(function (oUser) {
+                                    oUser.round = oRunds[rid];
+                                    absentUsers.push(oUser);
+                                });
+                            }
+                        });
+                    }
+                }
+                $scope.absentUsers = absentUsers;
+                $scope.absentRounds = oRunds;
                 if (rsp.data.app) {
                     $scope.absentApp = rsp.data.app;
                     if ($scope.absentApp.dataSchemas) {
@@ -72,6 +89,13 @@ define(['frame'], function (ngApp) {
                 single: false
             }).then(function (oResult) {
                 _fnGroup(oResult.rid);
+            })
+        };
+        $scope.chooseAbsentRound = function () {
+            tkEnlRnd.pick($scope.app, {
+                single: false
+            }).then(function (oResult) {
+                _fnAbsent(oResult.rid);
             })
         };
         $scope.export = function () {

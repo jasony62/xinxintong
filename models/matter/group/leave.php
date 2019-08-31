@@ -126,4 +126,18 @@ class leave_model extends \matter\base_model {
 
         return $leaves;
     }
+    /**
+     * 是否正在请假中
+     */
+    public function isOnLeave($leaves, $startAt, $endAt) {
+        if (empty($leaves)) {
+            return false;
+        }
+        foreach ($leaves as $oLeave) {
+            if ($oLeave->begin_at < $startAt && $oLeave->end_at > $endAt) {
+                return $oLeave;
+            }
+        }
+        return false;
+    }
 }

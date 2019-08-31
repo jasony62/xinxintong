@@ -29,6 +29,7 @@ class leave extends main_base {
 
         $modelGrpLev = $this->model('matter\group\leave');
         $oNewLeave = $modelGrpLev->add($this->app, $oGrpRec, $oPosted);
+        $oNewLeave->team = (object) ['team_id' => $oGrpRec->team_id, 'title' => $oGrpRec->team_title];
 
         /* 记录操作日志 */
         $this->model('matter\log')->matterOp($this->app->siteid, $this->user, $this->app, 'leave.create', (object) ['id' => $oNewLeave->id]);

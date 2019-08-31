@@ -47,10 +47,16 @@ class leave_model extends \matter\base_model {
             switch ($fname) {
             case 'begin_at':
             case 'end_at':
-            case 'apply_at':
             case 'approve_at':
             case 'confirm_at':
                 $oNewLeave->{$fname} = isset($oProto->{$fname}) ? (int) $oProto->{$fname} : 0;
+                break;
+            case 'apply_at':
+                if (isset($oProto->apply_at)) {
+                    $oNewLeave->apply_at = (int) $oProto->apply_at;
+                } else {
+                    $oNewLeave->apply_at = (int) $this->tmsTransactionBeginAt();
+                }
                 break;
             case 'aid':
                 $oNewLeave->aid = $oApp->id;

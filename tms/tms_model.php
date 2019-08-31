@@ -76,6 +76,12 @@ class TMS_MODEL {
     /**
      * 返回事物ID，如果存在
      */
+    public function tmsTransactionBeginAt() {
+        return isset($this->tmsTransaction->begin_at) ? $this->tmsTransaction->begin_at : 0;
+    }
+    /**
+     * 返回事物ID，如果存在
+     */
     public function tmsTransactionId() {
         return isset($this->tmsTransaction->id) ? $this->tmsTransaction->id : 0;
     }

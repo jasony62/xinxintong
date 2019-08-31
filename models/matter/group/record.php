@@ -530,7 +530,7 @@ class record_model extends \matter\enroll\record_base {
             return false;
         }
 
-        if (isset($aOptions['is_leader']) && in_array($aOptions['is_leader'], ['N', 'Y', 'S', 'O', 'A'])) {
+        if (isset($aOptions['is_leader']) && in_array($aOptions['is_leader'], ['N', 'Y', 'S', 'O'])) {
             $q[2]['is_leader'] = $aOptions['is_leader'];
         }
 

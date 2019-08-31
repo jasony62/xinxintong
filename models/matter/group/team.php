@@ -58,18 +58,43 @@ class team_model extends \matter\base_model {
             $q[2]['team_type'] = $teamType;
         }
         $teams = $this->query_objs_ss($q);
+
         /* 获得指定的级联数据 */
         if (count($teams) && count($cascade)) {
             $modelGrpRec = $this->model('matter\group\record');
-            foreach ($teams as $oTeam) {
-                if (in_array('playerCount', $cascade)) {
+            if (in_array('playerCount', $cascade)) {
+                $handlers[] = function ($oTeam) use ($modelGrpRec) {
                     $oTeam->playerCount = $modelGrpRec->countByTeam($oTeam->team_id);
-                }
-                if (in_array('onlookerCount', $cascade)) {
+                };
+            }
+            if (in_array('onlookerCount', $cascade)) {
+                $handlers[] = function ($oTeam) use ($modelGrpRec) {
                     $oTeam->onlookerCount = $modelGrpRec->countByTeam($oTeam->team_id, ['is_leader' => 'O']);
+                };
+            }
+            if (in_array('leaveCount', $cascade)) {
+                // 因为存在请假的情况，所以需要指定查找的开始和结束时间
+                $startAt = $this->getDeepValue($aOptions, 'start_at', 0);
+                $endAt = $this->getDeepValue($aOptions, 'end_at', 0);
+                if ($startAt > 0 && $endAt > 0) {
+                    $modelGrpLev = $this->model('matter\group\leave');
+                    $handlers[] = function ($oTeam) use ($modelGrpRec, $modelGrpLev, $startAt, $endAt) {
+                        $records = $modelGrpRec->byTeam($oTeam->team_id, ['fields' => 'userid']);
+                        $leaveCount = 0;
+                        foreach ($records as $oRec) {
+                            if (!empty($oRec->leaves) && $modelGrpLev->isOnLeave($oRec->leaves, $startAt, $endAt)) {
+                                $leaveCount++;
+                            }
+                        }
+                        $oTeam->leaveCount = $leaveCount;
+                    };
                 }
-                if (in_array('absentCount', $cascade)) {
-                    $oTeam->absentCount = $modelGrpRec->countByTeam($oTeam->team_id, ['is_leader' => 'A']);
+            }
+            if (!empty($handlers)) {
+                foreach ($teams as $oTeam) {
+                    foreach ($handlers as $handler) {
+                        $handler($oTeam);
+                    }
                 }
             }
         }

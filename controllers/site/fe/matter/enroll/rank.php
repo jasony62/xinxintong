@@ -9,12 +9,17 @@ class rank extends base {
     /**
      * 根据活动进入规则，获得用户分组信息
      */
-    private function _getUserGroups($oApp) {
+    private function _getUserGroups($oApp, $startAt = 0, $endAt = 0) {
         if (empty($oApp->entryRule->group->id)) {
             return false;
         }
+
         $modelGrpTeam = $this->model('matter\group\team');
-        $teams = $modelGrpTeam->byApp($oApp->entryRule->group->id, ['cascade' => 'playerCount,onlookerCount,absentCount']);
+        $aByAppOptions = [
+            'cascade' => 'playerCount,onlookerCount,leaveCount',
+            'start_at' => $startAt, 'end_at' => $endAt,
+        ];
+        $teams = $modelGrpTeam->byApp($oApp->entryRule->group->id, $aByAppOptions);
         if (empty($teams)) {
             return $teams;
         }
@@ -26,7 +31,7 @@ class rank extends base {
             $oNewGroup->l = $oTeam->title;
             $oNewGroup->playerCount = $oTeam->playerCount;
             $oNewGroup->onlookerCount = $oTeam->onlookerCount;
-            $oNewGroup->absentCount = $oTeam->absentCount;
+            $oNewGroup->leaveCount = $oTeam->leaveCount;
             $userGroups[$oTeam->team_id] = $oNewGroup;
         }
 
@@ -34,6 +39,7 @@ class rank extends base {
     }
     /**
      * 根据用户的行为数据进行排行
+     * 不包含旁观用户
      */
     private function _userByBehavior($oApp, $oCriteria, $page = 1, $size = 100) {
         $modelUsr = $this->model('matter\enroll\user');
@@ -43,11 +49,11 @@ class rank extends base {
             'xxt_enroll_user u left join xxt_site_account a on u.userid = a.uid and u.siteid = a.siteid',
             "u.aid='{$oApp->id}' and u.state=1",
         ];
-        // 用户分组信息，必须是分组活动中的用户，排除旁观者和缺席者
+        // 用户分组信息，必须是分组活动中的用户，排除旁观者
         if (!empty($oApp->entryRule->group->id)) {
             $q[0] .= ',u.group_id,g.team_title';
             $q[1] .= ",xxt_group_record g";
-            $q[2] .= " and g.aid='{$oApp->entryRule->group->id}' and u.userid=g.userid and g.team_id=u.group_id and g.is_leader not in('O','A')";
+            $q[2] .= " and g.aid='{$oApp->entryRule->group->id}' and u.userid=g.userid and g.team_id=u.group_id and g.is_leader not in('O')";
         }
 
         // 轮次
@@ -158,7 +164,7 @@ class rank extends base {
             $q[1] .= ",xxt_group_record g";
             $q[2]['g.aid'] = $oApp->entryRule->group->id;
             $q[2]['userid'] = (object) ['op' => 'and', 'pat' => ['g.userid=r.userid']];
-            $q[2]['g.is_leader'] = (object) ['op' => 'not in', 'pat' => ['O', 'A']];
+            $q[2]['g.is_leader'] = (object) ['op' => 'not in', 'pat' => ['O']];
             $q[2]['group_id'] = (object) ['op' => 'and', 'pat' => ['g.team_id=r.group_id']];
         }
         // 轮次条件
@@ -308,7 +314,12 @@ class rank extends base {
                 } else {
                     if (!empty($oUserGroup->playerCount)) {
                         // 不包含旁观者和缺席者
-                        $oUserGroup->num = round((float) ($modelUsr->query_value($sqlByGroup) / ($oUserGroup->playerCount - $oUserGroup->onlookerCount - $oUserGroup->absentCount)), 2);
+                        $validCount = $oUserGroup->playerCount - $oUserGroup->onlookerCount - $oUserGroup->leaveCount;
+                        if ($validCount > 0) {
+                            $oUserGroup->num = round((float) ($modelUsr->query_value($sqlByGroup) / $validCount), 2);
+                        } else {
+                            $oUserGroup->num = 0;
+                        }
                     } else {
                         $oUserGroup->num = 0;
                     }
@@ -384,7 +395,24 @@ class rank extends base {
             return new \ParameterError();
         }
 
-        $userGroups = $this->_getUserGroups($oApp);
+        $startAt = $endAt = 0;
+        if (!empty($oCriteria->round)) {
+            $modelEnlRnd = $this->model('matter\enroll\round');
+            $rids = is_string($oCriteria->round) ? explode(',', $oCriteria->round) : $oCriteria->round;
+            $rounds = $modelEnlRnd->byIds($rids, ['fields' => 'start_at,end_at']);
+            if (!empty($rounds)) {
+                foreach ($rounds as $oRnd) {
+                    if ($startAt === 0 || $oRnd->start_at < $startAt) {
+                        $startAt = $oRnd->start_at;
+                    }
+                    if ($oRnd->end_at > $endAt) {
+                        $endAt = $oRnd->end_at;
+                    }
+                }
+            }
+        }
+
+        $userGroups = $this->_getUserGroups($oApp, $startAt, $endAt);
         if (empty($userGroups)) {
             return new \ObjectNotFoundError();
         }

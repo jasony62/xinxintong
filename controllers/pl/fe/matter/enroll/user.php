@@ -45,9 +45,9 @@ class user extends main_base {
     /**
      * 返回用户分组列表
      *
-     * @param string $rid
+     * @param string $rids
      */
-    public function group_action($rid = null) {
+    public function group_action($rids = null) {
         if (!isset($this->app->entryRule->group->id)) {
             return new \ResponseError('指定活动没有关联分组活动');
         }
@@ -61,11 +61,11 @@ class user extends main_base {
         }
 
         $aEnlGrpOptions = [];
-        if (empty($rid)) {
+        if (empty($rids)) {
             $aRounds = [$this->app->appRound->rid => $this->app->appRound];
         } else {
             $modelEnlRnd = $this->model('matter\enroll\round');
-            $aRounds = $modelEnlRnd->byIds($rid, ['fields' => 'rid,title,purpose']);
+            $aRounds = $modelEnlRnd->byIds($rids, ['fields' => 'rid,title,purpose']);
         }
         if (!empty($aRounds)) {
             $aEnlGrpOptions['rid'] = array_keys($aRounds);
@@ -122,14 +122,14 @@ class user extends main_base {
     /**
      * 未完成任务用户列表
      */
-    public function undone_action($rid = null) {
+    public function undone_action($rids = null) {
         $oApp = $this->app;
 
         $modelUsr = $this->model('matter\enroll\user');
         $modelRnd = $this->model('matter\enroll\round');
-        if (empty($rid)) {
+        if (empty($rids)) {
             $aRounds = [$this->app->appRound->rid => $this->app->appRound];
-        } else if (1 === preg_match('/^all$/i', $rid)) {
+        } else if (1 === preg_match('/^all$/i', $rids)) {
             $oResultRounds = $modelRnd->byApp($oApp, ['fields' => 'rid,title,start_at,purpose']);
             $aRounds = [];
             if (count($oResultRounds->rounds)) {
@@ -138,7 +138,7 @@ class user extends main_base {
                 });
             }
         } else {
-            $aRounds = $modelRnd->byIds($rid, ['fields' => 'rid,title,start_at,purpose']);
+            $aRounds = $modelRnd->byIds($rids, ['fields' => 'rid,title,start_at,purpose']);
         }
         if (empty($aRounds)) {
             return new \ObjectNotFoundError('指定的轮次不存在');

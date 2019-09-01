@@ -155,7 +155,7 @@ class user extends main_base {
                     $oUsers[$rid][] = $oUser;
                     $userCount++;
                 }
-                if (!isset($oResult->app)) {
+                if (isset($oUndoneResult->app) && !isset($oResult->app)) {
                     $oResult->app = $oUndoneResult->app;
                 }
             }

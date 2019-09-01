@@ -45,9 +45,9 @@ class user extends main_base {
     /**
      * 返回用户分组列表
      *
-     * @param string $rid
+     * @param string $rids
      */
-    public function group_action($rid = null) {
+    public function group_action($rids = null) {
         if (!isset($this->app->entryRule->group->id)) {
             return new \ResponseError('指定活动没有关联分组活动');
         }
@@ -61,11 +61,11 @@ class user extends main_base {
         }
 
         $aEnlGrpOptions = [];
-        if (empty($rid)) {
+        if (empty($rids)) {
             $aRounds = [$this->app->appRound->rid => $this->app->appRound];
         } else {
             $modelEnlRnd = $this->model('matter\enroll\round');
-            $aRounds = $modelEnlRnd->byIds($rid, ['fields' => 'rid,title,purpose']);
+            $aRounds = $modelEnlRnd->byIds($rids, ['fields' => 'rid,title,purpose']);
         }
         if (!empty($aRounds)) {
             $aEnlGrpOptions['rid'] = array_keys($aRounds);
@@ -113,55 +113,57 @@ class user extends main_base {
     /**
      * 活动指定的所有完成人
      */
-    public function assigned_action() {
+    public function assigned_action($rid = null) {
         $modelUsr = $this->model('matter\enroll\user');
-        $oResult = $modelUsr->assignedByApp($this->app, ['inGroupTeam' => true, 'leader' => ['Y', 'S', 'N']]);
+        $oResult = $modelUsr->assignedByApp($this->app, $rid, ['inGroupTeam' => true, 'leader' => ['Y', 'S', 'N']]);
 
         return new \ResponseData($oResult);
     }
     /**
      * 未完成任务用户列表
      */
-    public function undone_action($app, $rid = '') {
+    public function undone_action($rids = null) {
         $oApp = $this->app;
 
         $modelUsr = $this->model('matter\enroll\user');
-
-        $oPosted = $this->getPostJson();
-        if (empty($oPosted->rids)) {
-            $oResult = $modelUsr->undoneByApp($oApp, 'ALL');
-        } else {
+        $modelRnd = $this->model('matter\enroll\round');
+        if (empty($rids)) {
+            $aRounds = [$this->app->appRound->rid => $this->app->appRound];
+        } else if (1 === preg_match('/^all$/i', $rids)) {
+            $oResultRounds = $modelRnd->byApp($oApp, ['fields' => 'rid,title,start_at,purpose']);
             $aRounds = [];
-            $aUsers = [];
-            $modelRnd = $this->model('matter\enroll\round');
-            foreach ($oPosted->rids as $rid) {
-                $oRnd = $modelRnd->byId($rid, ['fields' => 'title,start_at']);
-                if ($oRnd) {
-                    $oRnd->rid = $rid;
-                    $aRounds[] = $oRnd;
-                    $oResult = $modelUsr->undoneByApp($oApp, $rid);
-                    if (!empty($oResult->users)) {
-                        foreach ($oResult->users as $oUser) {
-                            if (!isset($aUsers[$oUser->userid])) {
-                                /* 清除不必要的数据 */
-                                unset($oUser->groupid);
-                                unset($oUser->uid);
-                                $aUsers[$oUser->userid] = $oUser;
-                            }
-                            $aUsers[$oUser->userid]->rounds[] = $rid;
-                            $aUsers[$oUser->userid]->undones[] = $oUser->undoneTasks;
-                            unset($oUser->undoneTasks);
-                        }
-                    }
+            if (count($oResultRounds->rounds)) {
+                array_walk($oResultRounds->rounds, function ($oRnd) use (&$aRounds) {
+                    $aRounds[$oRnd->rid] = $oRnd;
+                });
+            }
+        } else {
+            $aRounds = $modelRnd->byIds($rids, ['fields' => 'rid,title,start_at,purpose']);
+        }
+        if (empty($aRounds)) {
+            return new \ObjectNotFoundError('指定的轮次不存在');
+        }
+
+        $oResult = new \stdClass;
+        $userCount = 0;
+        $oUsers = [];
+        foreach ($aRounds as $rid => $oRnd) {
+            $oUndoneResult = $modelUsr->undoneByApp($oApp, $rid);
+            if (!empty($oUndoneResult->users)) {
+                foreach ($oUndoneResult->users as $oUser) {
+                    unset($oUser->group_id, $oUser->uid);
+                    $oUsers[$rid][] = $oUser;
+                    $userCount++;
+                }
+                if (!isset($oResult->app)) {
+                    $oResult->app = $oUndoneResult->app;
                 }
             }
-            $oResult = new \stdClass;
-            $oResult->users = array_values($aUsers);
-            usort($aRounds, function ($a, $b) {
-                return $a->start_at > $b->start_at ? 1 : -1;
-            });
-            $oResult->rounds = $aRounds;
         }
+
+        $oResult->userCount = $userCount;
+        $oResult->users = $oUsers;
+        $oResult->rounds = $aRounds;
 
         return new \ResponseData($oResult);
     }

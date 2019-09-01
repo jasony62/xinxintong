@@ -76,6 +76,12 @@ class TMS_MODEL {
     /**
      * 返回事物ID，如果存在
      */
+    public function tmsTransactionBeginAt() {
+        return isset($this->tmsTransaction->begin_at) ? $this->tmsTransaction->begin_at : 0;
+    }
+    /**
+     * 返回事物ID，如果存在
+     */
     public function tmsTransactionId() {
         return isset($this->tmsTransaction->id) ? $this->tmsTransaction->id : 0;
     }
@@ -128,8 +134,8 @@ class TMS_MODEL {
     /**
      * 返回单个对象
      */
-    public function query_obj($select, $from = null, $where = null) {
-        return TMS_DB::db()->query_obj($select, $from, $where, $this->onlyWriteDbConn);
+    public function query_obj($select, $from = null, $where = null, $fnRowHandler = null) {
+        return TMS_DB::db()->query_obj($select, $from, $where, $this->onlyWriteDbConn, $fnRowHandler);
     }
     /**
      * 获得要执行的SQL语句
@@ -142,18 +148,18 @@ class TMS_MODEL {
     /**
      *  返回单个对象
      */
-    public function query_obj_ss($q) {
+    public function query_obj_ss($q, $fnRowHandler = null) {
         $select = $q[0];
         $from = $q[1];
         $where = isset($q[2]) ? $q[2] : null;
 
-        return $this->query_obj($select, $from, $where);
+        return $this->query_obj($select, $from, $where, $fnRowHandler);
     }
     /**
      *
      */
-    public function query_objs($select, $from = null, $where = null, $group = null, $order = null, $limit = null, $offset = null) {
-        return TMS_DB::db()->query_objs($select, $from, $where, $group, $order, $limit, $offset, $this->onlyWriteDbConn);
+    public function query_objs($select, $from = null, $where = null, $group = null, $order = null, $limit = null, $offset = null, $fnRowHandler = null) {
+        return TMS_DB::db()->query_objs($select, $from, $where, $group, $order, $limit, $offset, $this->onlyWriteDbConn, $fnRowHandler);
     }
     /**
      * 处理传入的参数
@@ -178,7 +184,7 @@ class TMS_MODEL {
     /**
      *
      */
-    public function query_objs_ss($q, $q2 = null) {
+    public function query_objs_ss($q, $q2 = null, $fnRowHandler = null) {
         // select,from,where
         $select = $q[0];
         $from = $q[1] ? $q['1'] : null;
@@ -194,7 +200,7 @@ class TMS_MODEL {
             }
         }
 
-        return $this->query_objs($select, $from, $where, $group, $order, $offset, $limit);
+        return $this->query_objs($select, $from, $where, $group, $order, $offset, $limit, $fnRowHandler);
     }
     /**
      * 获得要执行的SQL语句
@@ -446,7 +452,7 @@ class TMS_MODEL {
      */
     public static function getDeepValue($deepObj, $deepProp, $notSetVal = null) {
         $props = explode('.', $deepProp);
-        $val = $deepObj;
+        $val = is_object($deepObj) ? $deepObj : (object) $deepObj;
         foreach ($props as $prop) {
             if (!isset($val->{$prop})) {
                 return $notSetVal;
@@ -454,6 +460,9 @@ class TMS_MODEL {
                 return $val->{$prop};
             } else {
                 $val = $val->{$prop};
+                if (is_array($val)) {
+                    $val = (object) $val;
+                }
             }
         }
         return $val;

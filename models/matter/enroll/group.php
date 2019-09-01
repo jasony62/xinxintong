@@ -195,20 +195,27 @@ class group_model extends \TMS_MODEL {
     /**
      * 是否都完成了提交任务
      */
-    public function isAllSubmit($oApp, $rid, $groupId) {
-        if (!isset($oApp->entryRule)) {
-            $oApp2 = $this->model('matter\enroll')->byId($oApp->id, ['fields' => 'entry_rule']);
-            if ($oApp2) {
-                $oApp->entryRule = $oApp2->entryRule;
+    public function isAllSubmit($oEnlApp, $rid, $groupId) {
+        if (!isset($oEnlApp->entryRule)) {
+            $oEnlApp2 = $this->model('matter\enroll')->byId($oEnlApp->id, ['fields' => 'entry_rule']);
+            if ($oEnlApp2) {
+                $oEnlApp->entryRule = $oEnlApp2->entryRule;
             }
         }
-        if (empty($oApp->entryRule->group->id)) {
+        if (empty($oEnlApp->entryRule->group->id)) {
             return [false];
         }
 
-        $oEntryRule = $oApp->entryRule;
+        $modelEnlRnd = $this->model('matter\enroll\round');
+        $oEnlRnd = $modelEnlRnd->byId($rid, ['fields' => 'start_at,end_at']);
+        if (false === $oEnlRnd) {
+            return [false];
+        }
+
+        $oEntryRule = $oEnlApp->entryRule;
 
         $modelGrpRec = $this->model('matter\group\record');
+        $modelGrpLev = $this->model('matter\group\leave');
 
         $users = $modelGrpRec->byTeam($groupId, ['fields' => 'userid,is_leader', 'is_leader' => ['N', 'Y']]);
         if (empty($users)) {
@@ -216,8 +223,15 @@ class group_model extends \TMS_MODEL {
         }
         $modelUsr = $this->model('matter\enroll\user');
         $submiters = [];
-        array_walk($users, function ($user, $index) use ($oApp, $modelUsr, &$submiters) {
-            $oEnlUsr = $modelUsr->byId($oApp, $user->userid, ['fields' => 'enroll_num']);
+        array_walk($users, function ($user) use ($oEnlApp, $oEnlRnd, $modelUsr, $modelGrpLev, &$submiters) {
+            $isOnLeave = false;
+            if (!empty($user->leaves)) {
+                $oValidLeave = $modelGrpLev->isOnLeave($user->leaves, $oEnlRnd->start_at, $oEnlRnd->end_at);
+                if (false !== $oValidLeave) {
+                    return;
+                }
+            }
+            $oEnlUsr = $modelUsr->byId($oEnlApp, $user->userid, ['fields' => 'enroll_num']);
             if ($oEnlUsr && $oEnlUsr->enroll_num > 0) {
                 $submiters[] = $user->userid;
             }

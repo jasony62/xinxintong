@@ -172,10 +172,10 @@ class TMS_APP {
                      */
                     $default_method = self::$index_action . '_action';
                     if (!method_exists($obj_controller, $default_method)) {
-                        throw new UrlNotMatchException("操作($__controller->$action_method)不存在！");
+                        throw new UrlNotMatchException("操作($__controller->$__action)不存在！");
                     }
                 } else {
-                    throw new UrlNotMatchException("操作($__controller->$action_method)不存在！");
+                    throw new UrlNotMatchException("操作($__controller->$__action)不存在！");
                 }
             }
             $action_method = $default_method;

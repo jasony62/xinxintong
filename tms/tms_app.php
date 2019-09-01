@@ -166,7 +166,7 @@ class TMS_APP {
         if (false === $__action || !method_exists($obj_controller, $__action . '_action')) {
             $default_method = self::$default_action . '_action';
             if (!method_exists($obj_controller, $default_method)) {
-                if (isset($_SERVER['HTTP_ACCEPT']) && strpos('text/html', $_SERVER['HTTP_ACCEPT']) !== -1) {
+                if (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'text/html') !== false) {
                     /**
                      * 如果访问的是页面，返回控制器的缺省页面
                      */

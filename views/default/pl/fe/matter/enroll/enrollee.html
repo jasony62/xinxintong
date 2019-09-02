@@ -152,7 +152,7 @@
             </div>
             <div class='form-group'>
                 <div class='pl-pagination'>
-                    <span>总数：{{page.total}}</span>
+                    <span>总数：{{srvEnrollee.page.total}}</span>
                     <ul uib-pagination class='pull-right' ng-if='srvEnrollee.page.total>srvEnrollee.page.size' boundary-links="true" total-items="srvEnrollee.page.total" max-size="7" items-per-page="srvEnrollee.page.size" rotate="false" ng-model="srvEnrollee.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="srvEnrollee.list()"></ul>
                 </div>
             </div>

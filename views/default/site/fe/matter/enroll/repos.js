@@ -166,6 +166,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'e
             $scope.activeView = cacheData.activeView;
             $scope.rounds = cacheData.rounds;
             $scope.schemas = cacheData.schemas;
+            $scope.imageSchemas = cacheData.imageSchemas;
             $scope.dirSchemas = cacheData.dirSchemas;
             $scope.activeDirSchemas = cacheData.currentDirs;
             if ($scope.dirSchemas && $scope.dirSchemas.length) {
@@ -493,6 +494,7 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
             'activeNav': $scope.activeNav,
             'activeView': $scope.activeView,
             'schemas': $scope.schemas,
+            'imageSchemas': $scope.imageSchemas,
             'rounds': $scope.rounds,
             'tasks': $scope.tasks,
             'topics': $scope.topics,

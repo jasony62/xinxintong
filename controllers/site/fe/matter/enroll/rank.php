@@ -31,7 +31,7 @@ class rank extends base {
             $oNewGroup->l = $oTeam->title;
             $oNewGroup->playerCount = $oTeam->playerCount;
             $oNewGroup->onlookerCount = $oTeam->onlookerCount;
-            $oNewGroup->leaveCount = $oTeam->leaveCount;
+            $oNewGroup->leaveCount = $modelGrpTeam->getDeepValue($oTeam, 'leaveCount', 0);
             $userGroups[$oTeam->team_id] = $oNewGroup;
         }
 

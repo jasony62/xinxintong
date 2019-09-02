@@ -237,9 +237,9 @@ ngApp.controller('ctrlRepos', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'e
                 if (oSchema.shareable === 'Y') {
                     $scope.schemaCounter++;
                     _aShareableSchemas.push(oSchema);
-                }
-                if (oSchema.type === 'image') {
-                    $scope.imageSchemas.push(oSchema)
+                    if (oSchema.type === 'image') {
+                        $scope.imageSchemas.push(oSchema)
+                    }
                 }
                 if (Object.keys(oSchema).indexOf('cowork') !== -1 && oSchema.cowork === 'Y') {
                     $scope.schemaCounter--;

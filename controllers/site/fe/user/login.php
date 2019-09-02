@@ -42,12 +42,15 @@ class login extends \site\fe\base {
      */
     public function do_action() {
         $data = $this->getPostJson(false);
-        if (empty($data->uname) || empty($data->password) || empty($data->pin) || empty($_SESSION['_login_verify_code'])) {
+        if (empty($data->uname) || empty($data->password) || empty($data->pin)) {
             return new \ResponseError("登录信息不完整");
         }
 
-        if (strcasecmp($_SESSION['_login_verify_code'], $data->pin)) {
-            if (empty(LOGIN_MASTER_VERIFY_CODE) || LOGIN_MASTER_VERIFY_CODE !== $data->pin) {
+        if (empty(LOGIN_MASTER_VERIFY_CODE) || LOGIN_MASTER_VERIFY_CODE !== $data->pin) {
+            if (empty($_SESSION['_login_verify_code'])) {
+                return new \ResponseError("登录信息不完整");
+            }
+            if (strcasecmp($_SESSION['_login_verify_code'], $data->pin)) {
                 unset($_SESSION['_login_verify_code']);
                 return new \ResponseError("验证码错误! 请重新输入");
             }

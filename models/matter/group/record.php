@@ -3,15 +3,64 @@ namespace matter\group;
 
 require_once dirname(dirname(__FILE__)) . '/enroll/record_base.php';
 /**
+ * 处理从数据库中获得的数据
+ */
+class DbRecordHandler {
+    public function __construct($host, $appId = null) {
+        $this->host = $host;
+        $this->appId = $appId;
+    }
+    /**
+     * 处理从数据库中获得的记录
+     */
+    public function handle($oRecord) {
+        if (property_exists($oRecord, 'data')) {
+            if (empty($oRecord->data)) {
+                $oRecord->data = new \stdClass;
+            } else if (is_string($oRecord->data)) {
+                $oRecord->data = json_decode($oRecord->data);
+            }
+        }
+        if (property_exists($oRecord, 'role_teams')) {
+            if (empty($oRecord->role_teams)) {
+                $oRecord->role_teams = [];
+            } else if (is_string($oRecord->role_teams)) {
+                $oRecord->role_teams = json_decode($oRecord->role_teams);
+            }
+        }
+
+        return $oRecord;
+    }
+    /**
+     * 给记录添加请假信息
+     */
+    public function handleWithLeave($oRecord) {
+        $this->handle($oRecord);
+        if (property_exists($oRecord, 'aid')) {
+            $appId = $oRecord->aid;
+        } else if (!empty($this->appId)) {
+            $appId = $this->appId;
+        }
+        if (!empty($appId) && property_exists($oRecord, 'userid')) {
+            if (!isset($this->_modelGrpLev)) {
+                $this->_modelGrpLev = $this->host->model('matter\group\leave');
+            }
+            $leaves = $this->_modelGrpLev->byUser($appId, $oRecord->userid, ['fields' => 'id,begin_at,end_at']);
+            $oRecord->leaves = $leaves;
+        }
+        return $oRecord;
+    }
+}
+/**
  * 分组活动记录
  */
 class record_model extends \matter\enroll\record_base {
     /**
      * 用户登记（不包括登记数据）
      *
-     * @param object $app
-     * @param object $user
-     * @param array $options
+     * @param object $oApp
+     * @param object $oUser
+     * @param array $aOptions
      *
      */
     public function enroll($oApp, $oUser, $aOptions = []) {
@@ -139,63 +188,25 @@ class record_model extends \matter\enroll\record_base {
         return [true, $dbData];
     }
     /**
+     * 处理从数据库中获得的数据
+     */
+    private function _callableDbRecordHandler($appId = null, $handlerName = 'handle') {
+        return [new DbRecordHandler($this, $appId), $handlerName];
+    }
+    /**
      * 根据ID返回登记记录
      */
-    public function byId($aid, $ek, $aOptions = array()) {
+    public function byId($aid, $ek, $aOptions = []) {
         $fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
-        $cascaded = isset($aOptions['cascaded']) ? $aOptions['cascaded'] : 'Y';
 
         $q = [
             $fields,
             'xxt_group_record',
             ['aid' => $aid, 'enroll_key' => $ek, 'state' => 1],
         ];
-        if (($oRecord = $this->query_obj_ss($q)) && $cascaded === 'Y') {
-            if (!empty($oRecord->data)) {
-                $oRecord->data = json_decode($oRecord->data);
-            }
-            $oRecord->role_teams = empty($oRecord->role_teams) ? [] : json_decode($oRecord->role_teams);
-        }
+        $oRecord = $this->query_obj_ss($q, $this->_callableDbRecordHandler($aid));
 
         return $oRecord;
-    }
-    /**
-     * 根据ID返回登记记录
-     *
-     * @param string $ek 因为分组活动的用户有可能是从其他活动导入的，使用的是导入记录的ek，因为有可能一个ek导入到多个分组活动中
-     * @param string $aid 分组活动的id。如果指定只返回单条记录，如果不指定返回数据
-     *
-     */
-    public function byEnrollKey($ek, $aid = null, $aOptions = []) {
-        $fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
-        $cascaded = isset($aOptions['cascaded']) ? $aOptions['cascaded'] : 'Y';
-
-        if ($fields === '*' || false !== strpos($fields, 'data') || false !== strpos($fields, 'role_teams')) {
-            $fnHandleRecord = function (&$oRecord) {
-                if (!empty($oRecord->data)) {
-                    $oRecord->data = json_decode($oRecord->data);
-                }
-                $oRecord->role_teams = empty($oRecord->role_teams) ? [] : json_decode($oRecord->role_teams);
-            };
-        }
-        $q = [
-            $fields,
-            'xxt_group_record',
-            ["enroll_key" => $ek, "state" => 1],
-        ];
-        if (empty($aid)) {
-            $records = $this->query_objs_ss($q);
-            if (count($records) && $cascaded === 'Y' && isset($fnHandleRecord)) {
-                array_walk($records, $fnHandleRecord);
-            }
-            return $records;
-        } else {
-            $q[2]['aid'] = $aid;
-            if (($oRecord = $this->query_obj_ss($q)) && $cascaded === 'Y' && isset($fnHandleRecord)) {
-                $fnHandleRecord($oRecord);
-            }
-            return $oRecord;
-        }
     }
     /**
      * 获得指定项目下的登记记录
@@ -208,7 +219,6 @@ class record_model extends \matter\enroll\record_base {
             $fields,
             'xxt_group_record r',
         ];
-        $missionId = $this->escape($missionId);
         $where = "state=1 and exists(select 1 from xxt_group g where r.aid=g.id and g.mission_id={$missionId})";
 
         if (isset($aOptions['userid'])) {
@@ -216,21 +226,7 @@ class record_model extends \matter\enroll\record_base {
         }
         $q[2] = $where;
 
-        $list = $this->query_objs_ss($q);
-        if (count($list)) {
-            if ($fields === '*' || strpos($fields, 'data') !== false || strpos($fields, 'role_teams') !== false) {
-                foreach ($list as &$oRecord) {
-                    if (!empty($oRecord->data)) {
-                        $oRecord->data = json_decode($oRecord->data);
-                    }
-                    if (!empty($oRecord->role_teams)) {
-                        $oRecord->role_teams = json_decode($oRecord->role_teams);
-                    } else {
-                        $oRecord->role_teams = [];
-                    }
-                }
-            }
-        }
+        $list = $this->query_objs_ss($q, null, $this->_callableDbRecordHandler());
 
         return $list;
     }
@@ -298,24 +294,7 @@ class record_model extends \matter\enroll\record_base {
         $q2['o'] = 'team_id asc,enroll_at desc';
 
         $oResult = new \stdClass; // 返回的结果
-        $records = $this->query_objs_ss($q, $q2);
-        if (count($records)) {
-            /* record data */
-            if ($fields === '*' || false !== strpos($fields, 'data') || false !== strpos($fields, 'role_teams')) {
-                foreach ($records as $oRecord) {
-                    if (!empty($oRecord->data)) {
-                        $oRecord->data = json_decode($oRecord->data);
-                    }
-                    if (!empty($oRecord->role_teams)) {
-                        $oRecord->role_teams = json_decode($oRecord->role_teams);
-                    } else {
-                        $oRecord->role_teams = [];
-                    }
-                }
-            }
-
-        }
-        $oResult->records = $records;
+        $oResult->records = $this->query_objs_ss($q, $q2, $this->_callableDbRecordHandler($oApp->id, 'handleWithLeave'));
 
         /* total */
         $q[0] = 'count(*)';
@@ -343,25 +322,8 @@ class record_model extends \matter\enroll\record_base {
             $q2['r'] = ['o' => 0, 'l' => 1];
         }
 
-        $list = $this->query_objs_ss($q, $q2);
-        if (count($list)) {
-            $aRecHandler = [];
-            if ($fields === '*' || false !== strpos($fields, 'data')) {
-                $aRecHandler[] = function (&$oRecord) {
-                    $oRecord->data = empty($oRecord->data) ? new \stdClass : json_decode($oRecord->data);
-                };
-            }
-            if ($fields === '*' || false !== strpos($fields, 'role_teams')) {
-                $aRecHandler[] = function (&$oRecord) {
-                    $oRecord->role_teams = empty($oRecord->role_teams) ? [] : json_decode($oRecord->role_teams);
-                };
-            }
-            foreach ($list as $oRecord) {
-                foreach ($aRecHandler as $fnHandler) {
-                    $fnHandler($oRecord);
-                }
-            }
-        }
+        $list = $this->query_objs_ss($q, $q2, $this->_callableDbRecordHandler($oApp->id));
+
         if (isset($aOptions['onlyOne']) && $aOptions['onlyOne'] === true) {
             return count($list) ? $list[0] : false;
         }
@@ -399,20 +361,7 @@ class record_model extends \matter\enroll\record_base {
 
         $q2 = ['o' => 'team_id,draw_at'];
 
-        if ($records = $this->query_objs_ss($q, $q2)) {
-            if ($fields === '*' || false !== strpos($fields, 'data') || false !== strpos($fields, 'role_teams')) {
-                foreach ($records as $oRecord) {
-                    if (!empty($oRecord->data)) {
-                        $oRecord->data = json_decode($oRecord->data);
-                    }
-                    if (!empty($oRecord->role_teams)) {
-                        $oRecord->role_teams = json_decode($oRecord->role_teams);
-                    } else {
-                        $oRecord->role_teams = [];
-                    }
-                }
-            }
-        }
+        $records = $this->query_objs_ss($q, $q2, $this->_callableDbRecordHandler($oTeam->aid, 'handleWithLeave'));
 
         return $records;
     }
@@ -457,24 +406,7 @@ class record_model extends \matter\enroll\record_base {
             'xxt_group_record',
             "state=1 and aid='{$oApp->id}' $whereByData",
         ];
-        $records = $this->query_objs_ss($q);
-        foreach ($records as &$record) {
-            if (empty($record->data)) {
-                $record->data = new \stdClass;
-            } else {
-                $data = json_decode($record->data);
-                if ($data === null) {
-                    $record->data = 'json error(' . json_last_error() . '):' . $r->data;
-                } else {
-                    $record->data = $data;
-                }
-            }
-            if (empty($record->role_teams)) {
-                $record->role_teams = [];
-            } else {
-                $record->role_teams = json_decode($record->role_teams);
-            }
-        }
+        $records = $this->query_objs_ss($q, null, $this->_callableDbRecordHandler($oApp->id));
 
         return $records;
     }
@@ -552,18 +484,7 @@ class record_model extends \matter\enroll\record_base {
         ];
         $q2['o'] = 'enroll_at desc';
         /* 获得用户的登记数据 */
-        if (($records = $this->query_objs_ss($q, $q2)) && !empty($records)) {
-            foreach ($records as $oRecord) {
-                if (!empty($oRecord->data)) {
-                    $oRecord->data = json_decode($oRecord->data);
-                }
-                if (!empty($oRecord->role_teams)) {
-                    $oRecord->role_teams = json_decode($oRecord->role_teams);
-                } else {
-                    $oRecord->role_teams = [];
-                }
-            }
-        }
+        $records = $this->query_objs_ss($q, $q2, $this->_callableDbRecordHandler($appId));
 
         return $records;
     }
@@ -579,18 +500,7 @@ class record_model extends \matter\enroll\record_base {
         ];
         $q2['o'] = 'enroll_at desc';
         /* 获得用户的登记数据 */
-        if (($records = $this->query_objs_ss($q, $q2)) && !empty($records)) {
-            foreach ($records as $oRecord) {
-                if (!empty($oRecord->data)) {
-                    $oRecord->data = json_decode($oRecord->data);
-                }
-                if (!empty($oRecord->role_teams)) {
-                    $oRecord->role_teams = json_decode($oRecord->role_teams);
-                } else {
-                    $oRecord->role_teams = [];
-                }
-            }
-        }
+        $records = $this->query_objs_ss($q, $q2, $this->_callableDbRecordHandler($appId));
 
         return $records;
     }
@@ -620,7 +530,7 @@ class record_model extends \matter\enroll\record_base {
             return false;
         }
 
-        if (isset($aOptions['is_leader']) && in_array($aOptions['is_leader'], ['N', 'Y', 'S', 'O', 'A'])) {
+        if (isset($aOptions['is_leader']) && in_array($aOptions['is_leader'], ['N', 'Y', 'S', 'O'])) {
             $q[2]['is_leader'] = $aOptions['is_leader'];
         }
 
@@ -653,6 +563,30 @@ class record_model extends \matter\enroll\record_base {
         return false;
     }
     /**
+     * 根据ID返回登记记录
+     *
+     * @param string $ek 因为分组活动的用户有可能是从其他活动导入的，使用的是导入记录的ek，因为有可能一个ek导入到多个分组活动中
+     * @param string $aid 分组活动的id。如果指定只返回单条记录，如果不指定返回数据
+     *
+     */
+    private function _byEnrollKey($ek, $aid = null, $aOptions = []) {
+        $fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+
+        $q = [
+            $fields,
+            'xxt_group_record',
+            ["enroll_key" => $ek, "state" => 1],
+        ];
+        if (empty($aid)) {
+            $records = $this->query_objs_ss($q, null, $this->_callableDbRecordHandler());
+            return $records;
+        } else {
+            $q[2]['aid'] = $aid;
+            $oRecord = $this->query_obj_ss($q, $this->_callableDbRecordHandler($aid));
+            return $oRecord;
+        }
+    }
+    /**
      * 移入分组 （团队分组）
      */
     public function joinGroup($appId, $oTeam, $ek) {
@@ -669,7 +603,7 @@ class record_model extends \matter\enroll\record_base {
             );
             break;
         case 'R':
-            $oUser = $this->byEnrollKey($ek, $appId, ['fields' => 'role_teams']);
+            $oUser = $this->_byEnrollKey($ek, $appId, ['fields' => 'role_teams']);
             if ($oUser && !in_array($oTeam->team_id, $oUser->role_teams)) {
                 $oUser->role_teams[] = $oTeam->team_id;
                 $rst = $this->update(

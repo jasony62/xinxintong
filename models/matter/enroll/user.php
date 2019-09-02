@@ -596,7 +596,7 @@ class user_model extends \TMS_MODEL {
     /**
      * 获得活动指定的参与人
      */
-    public function assignedByApp($oApp, $aOptions = []) {
+    public function assignedByApp($oApp, $rid = null, $aOptions = []) {
         $aAssignedUsrs = [];
         $oEntryRule = $oApp->entryRule;
         if (!empty($oEntryRule->group->id)) {
@@ -630,7 +630,24 @@ class user_model extends \TMS_MODEL {
                     $aAssignedUsrs[] = $oGrpRec;
                 }
             }
-            $oReferenceApp = $this->model('matter\group')->byId($oGrpApp->id, ['fields' => 'id,title,data_schemas']);
+            // 检查是否用户是否请假
+            if (count($aAssignedUsrs) && !empty($rid)) {
+                $oEnlRnd = $this->model('matter\enroll\round')->byId($rid, ['fields' => 'start_at,end_at']);
+                $modelGrpLev = $this->model('matter\group\leave');
+                if ($oEnlRnd && ($oEnlRnd->start_at > 0 || $oEnlRnd->end_at > 0)) {
+                    foreach ($aAssignedUsrs as $oAssignedUsr) {
+                        if (empty($oAssignedUsr->leaves)) {
+                            continue;
+                        }
+                        $oValidLeave = $modelGrpLev->isOnLeave($oAssignedUsr->leaves, $oEnlRnd->start_at, $oEnlRnd->end_at);
+                        if ($oValidLeave) {
+                            $oAssignedUsr->validLeave = $oValidLeave;
+                        }
+                        unset($oAssignedUsr->leaves);
+                    }
+                }
+            }
+            $oReferenceApp = $this->model('matter\group')->byId($oGrpApp->id, ['fields' => 'id,title,data_schemas', 'team' => ['fields' => 'team_id,title']]);
         } else if (isset($oEntryRule->scope->member) && $oEntryRule->scope->member === 'Y') {
             $modelMem = $this->model('site\user\member');
             foreach ($oEntryRule->member as $mschemaId => $rule) {
@@ -733,7 +750,7 @@ class user_model extends \TMS_MODEL {
      * 获得指定活动指定轮次没有完成任务的用户
      */
     public function undoneByApp($oApp, $rid) {
-        $oAssignedUsrsResult = $this->assignedByApp($oApp, ['inGroupTeam' => true, 'leader' => ['Y', 'S', 'N']]);
+        $oAssignedUsrsResult = $this->assignedByApp($oApp, $rid, ['inGroupTeam' => true, 'leader' => ['Y', 'S', 'N']]);
         if (empty($oAssignedUsrsResult->users)) {
             return (object) ['users' => []];
         }
@@ -788,8 +805,8 @@ class user_model extends \TMS_MODEL {
 
         // 没有完成任务的用户
         $aUndoneUsrs = [];
-        $oAssignedUsrs = $oAssignedUsrsResult->users;
-        array_walk($oAssignedUsrs, function (&$oAssignedUser) use (&$aUndoneUsrs, $getUndoneTasks) {
+        $aAssignedUsrs = $oAssignedUsrsResult->users;
+        array_walk($aAssignedUsrs, function (&$oAssignedUser) use (&$aUndoneUsrs, $getUndoneTasks) {
             $oAssignedUser->uid = $oAssignedUser->userid;
             !empty($oAssignedUser->group->id) && $oAssignedUser->group_id = $oAssignedUser->group->id;
             $oAssignedUser = $getUndoneTasks($oAssignedUser);

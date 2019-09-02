@@ -11,6 +11,7 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates'], function (RoutePa
             .when('/rest/pl/fe/matter/group/main', new RouteParam('main'))
             .when('/rest/pl/fe/matter/group/team', new RouteParam('team'))
             .when('/rest/pl/fe/matter/group/record', new RouteParam('record'))
+            .when('/rest/pl/fe/matter/group/leave', new RouteParam('leave'))
             .when('/rest/pl/fe/matter/group/notice', new RouteParam('notice'))
             .otherwise(new RouteParam('record'));
 
@@ -51,6 +52,7 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates'], function (RoutePa
                     $scope.opened = 'edit';
                     break;
                 case 'record':
+                case 'leave':
                     $scope.opened = 'data';
                     break;
                 case 'notice':

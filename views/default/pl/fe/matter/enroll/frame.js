@@ -11,10 +11,11 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', '
             return result = h + ":" + m + ":" + s;
         }
     });
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvEnrollAppProvider', 'srvEnrollPageProvider', 'srvEnrollRecordProvider', 'srvTagProvider', 'srvEnrollSchemaProvider', 'srvEnrollLogProvider', function ($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvEnrollAppProvider, srvEnrollPageProvider, srvEnrollRecordProvider, srvTagProvider, srvEnrollSchemaProvider, srvEnrollLogProvider) {
+    ngApp.config(['$provide', '$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvSiteProvider', 'srvQuickEntryProvider', 'srvEnrollAppProvider', 'srvEnrollPageProvider', 'srvEnrollRecordProvider', 'srvTagProvider', 'srvEnrollSchemaProvider', 'srvEnrollLogProvider', function ($provide, $controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvSiteProvider, srvQuickEntryProvider, srvEnrollAppProvider, srvEnrollPageProvider, srvEnrollRecordProvider, srvTagProvider, srvEnrollSchemaProvider, srvEnrollLogProvider) {
         ngApp.provider = {
             controller: $controllerProvider.register,
-            directive: $compileProvider.directive
+            directive: $compileProvider.directive,
+            service: $provide.service
         };
         $routeProvider
             .when('/rest/pl/fe/matter/enroll/main', new RouteParam('main'))

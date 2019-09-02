@@ -1,0 +1,53 @@
+<div class='col-md-12'>
+    <div class='form-group'>
+        <div class='form-inline'>
+            <div class='form-group'>
+                <button class='btn btn-default' ng-click="add()"><i class='glyphicon glyphicon-plus'></i> 添加</button>
+            </div>
+        </div>
+    </div>
+    <!-- result -->
+    <div tms-flex-height top='72' bottom='72' class='form-group'>
+        <table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th style='width:48px'>序号</th>
+                    <th style='width:28px'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected" ng-change="selectAllRows(rows.allSelected)">
+                    </th>
+                    <th style='width:72px'>操作</th>
+                    <th style='width:72px'>用户</th>
+                    <th style='width:120px'>主分组</th>
+                    <th style='width:100px'>开始时间</th>
+                    <th style='width:100px'>结束时间</th>
+                    <th style='width:48px'>操作</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat='l in leaves'>
+                    <td>{{$index+1}}</td>
+                    <td>
+                        <input type='checkbox' ng-model="rows.selected[$index]" ng-change="select(l)">
+                    </td>
+                    <td>
+                        <button class='btn btn-xs btn-default' ng-click='edit(l)'>
+                            <span class='glyphicon glyphicon-edit'></span>
+                        </button>
+                    </td>
+                    <td>{{::l.nickname}}</td>
+                    <td>{{::l.team.title}}</td>
+                    <td>{{l.begin_at*1000|date:'MM-dd HH:mm'}}</td>
+                    <td>{{l.end_at*1000|date:'MM-dd HH:mm'}}</td>
+                    <td>
+                        <button class='btn btn-xs btn-danger' ng-click='close(l)'>
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                    </td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- end result -->
+</div>

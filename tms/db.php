@@ -192,7 +192,7 @@ class TMS_DB {
     /**
      * 查询一行, 返回对象
      */
-    public function query_obj($select, $from = null, $where = null, $onlyWriteDbConn = false) {
+    public function query_obj($select, $from = null, $where = null, $onlyWriteDbConn = false, $fnRowHandler = null) {
         $sql = $this->assemble_query($select, $from, $where);
 
         if ($onlyWriteDbConn === true) {
@@ -203,9 +203,12 @@ class TMS_DB {
         ($db_result = $mysqli->query($sql)) || $this->_throwError("database error:" . $sql . ';' . $mysqli->error);
 
         if ($db_result->num_rows > 1) {
-            $this->_throwError("database error:数据不唯一，无法返回唯一的记录");
+            $this->_throwError("database error: 数据不唯一，无法返回唯一的记录");
         } else if ($db_result->num_rows === 1) {
             $row = $db_result->fetch_object();
+            if ($fnRowHandler) {
+                $row = call_user_func($fnRowHandler, $row);
+            }
         } else {
             $row = false;
         }
@@ -217,7 +220,7 @@ class TMS_DB {
     /**
      * 获取查询全部
      */
-    public function query_objs($select, $from = null, $where = null, $group = null, $order = null, $offset = null, $limit = null, $onlyWriteDbConn = false) {
+    public function query_objs($select, $from = null, $where = null, $group = null, $order = null, $offset = null, $limit = null, $onlyWriteDbConn = false, $fnRowHandler = null) {
         $sql = $this->assemble_query($select, $from, $where, $group, $order, $offset, $limit);
 
         if ($onlyWriteDbConn === true) {
@@ -227,9 +230,15 @@ class TMS_DB {
         }
         ($db_result = $mysqli->query($sql)) || $this->_throwError("database error:$sql;" . $mysqli->error);
 
-        $objects = array();
-        while ($obj = $db_result->fetch_object()) {
-            $objects[] = $obj;
+        $objects = [];
+        if (isset($fnRowHandler)) {
+            while ($obj = $db_result->fetch_object()) {
+                $objects[] = call_user_func($fnRowHandler, $obj);
+            }
+        } else {
+            while ($obj = $db_result->fetch_object()) {
+                $objects[] = $obj;
+            }
         }
 
         $db_result->free();

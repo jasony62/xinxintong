@@ -9,48 +9,52 @@
                 <ul class="dropdown-menu" uib-dropdown-menu>
                     <li><a href ng-click="shiftCategory('enrollee')">用户</a></li>
                     <li ng-if="categories.group"><a href ng-click="shiftCategory('group')">用户组</a></li>
-                    <li><a href ng-click="shiftCategory('absent')">缺席<span ng-bind="absentUsers.length"></span>人</a></li>
+                    <li><a href ng-click="shiftCategory('absent')">缺席<span ng-bind="srvUndone.absentUsers.length"></span>人</a></li>
                 </ul>
             </div>
             <section style='display:inline-block' ng-if="category==='enrollee'">
-                <button class='btn btn-default' ng-click='advFilter()'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
+                <button class='btn btn-default' ng-click='srvEnrollee.advFilter()'><i class='glyphicon glyphicon-filter'></i> <span>筛选</span></button>
                 <div class="btn-group" uib-dropdown>
                     <button type="button" class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
                         排序
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" uib-dropdown-menu>
-                        <li><a href ng-click="chooseOrderby('entry_num')"><span class='glyphicon' ng-class="criteria.orderby==='entry_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 总访问次数</a></li>
-                        <li><a href ng-click="chooseOrderby('last_entry_at')"><span class='glyphicon' ng-class="criteria.orderby==='last_entry_at'?'glyphicon-check':'glyphicon-unchecked'"></span> 最近访问</a></li>
-                        <li><a href ng-click="chooseOrderby('enroll_num')"><span class='glyphicon' ng-class="criteria.orderby==='enroll_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 记录数</a></li>
-                        <li><a href ng-click="chooseOrderby('do_remark_num')"><span class='glyphicon' ng-class="criteria.orderby==='do_remark_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 留言数</a></li>
-                        <li><a href ng-click="chooseOrderby('do_like_num')"><span class='glyphicon' ng-class="criteria.orderby==='do_like_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 赞同数</a></li>
-                        <li><a href ng-click="chooseOrderby('agree_num')"><span class='glyphicon' ng-class="criteria.orderby==='agree_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 获得推荐数</a></li>
-                        <li><a href ng-click="chooseOrderby('user_total_coin')"><span class='glyphicon' ng-class="criteria.orderby==='user_total_coin'?'glyphicon-check':'glyphicon-unchecked'"></span> 行为分</a></li>
-                        <li><a href ng-click="chooseOrderby('score')"><span class='glyphicon' ng-class="criteria.orderby==='score'?'glyphicon-check':'glyphicon-unchecked'"></span> 数据分</a></li>
-                        <li ng-if="app.entryRule.group.id"><a href ng-click="chooseOrderby('group_id')"><span class='glyphicon' ng-class="criteria.orderby==='group_id'?'glyphicon-check':'glyphicon-unchecked'"></span> 分组名称</a></li>
+                        <li><a href ng-click="srvEnrollee.chooseOrderby('entry_num')"><span class='glyphicon' ng-class="srvEnrollee.criteria.orderby==='entry_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 总访问次数</a></li>
+                        <li><a href ng-click="srvEnrollee.chooseOrderby('last_entry_at')"><span class='glyphicon' ng-class="srvEnrollee.criteria.orderby==='last_entry_at'?'glyphicon-check':'glyphicon-unchecked'"></span> 最近访问</a></li>
+                        <li><a href ng-click="srvEnrollee.chooseOrderby('enroll_num')"><span class='glyphicon' ng-class="srvEnrollee.criteria.orderby==='enroll_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 记录数</a></li>
+                        <li><a href ng-click="srvEnrollee.chooseOrderby('do_remark_num')"><span class='glyphicon' ng-class="srvEnrollee.criteria.orderby==='do_remark_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 留言数</a></li>
+                        <li><a href ng-click="srvEnrollee.chooseOrderby('do_like_num')"><span class='glyphicon' ng-class="srvEnrollee.criteria.orderby==='do_like_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 赞同数</a></li>
+                        <li><a href ng-click="srvEnrollee.chooseOrderby('agree_num')"><span class='glyphicon' ng-class="srvEnrollee.criteria.orderby==='agree_num'?'glyphicon-check':'glyphicon-unchecked'"></span> 获得推荐数</a></li>
+                        <li><a href ng-click="srvEnrollee.chooseOrderby('user_total_coin')"><span class='glyphicon' ng-class="srvEnrollee.criteria.orderby==='user_total_coin'?'glyphicon-check':'glyphicon-unchecked'"></span> 行为分</a></li>
+                        <li><a href ng-click="srvEnrollee.chooseOrderby('score')"><span class='glyphicon' ng-class="srvEnrollee.criteria.orderby==='score'?'glyphicon-check':'glyphicon-unchecked'"></span> 数据分</a></li>
+                        <li ng-if="app.entryRule.group.id"><a href ng-click="srvEnrollee.chooseOrderby('group_id')"><span class='glyphicon' ng-class="srvEnrollee.criteria.orderby==='group_id'?'glyphicon-check':'glyphicon-unchecked'"></span> 分组名称</a></li>
                     </ul>
                 </div>
                 <div class="btn-group">
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">更多操作 <i class="caret"></i></button>
                     <ul class="dropdown-menu">
-                        <li><a href ng-click="notify(true)">给选中用户发消息<span>（{{rows.count}}）</span></a></li>
-                        <li><a href ng-click="notify()">给全部用户发消息<span>（{{page.total}}）</span></a></li>
+                        <li><a href ng-click="srvEnrollee.notify(true)">给选中用户发消息<span>（{{srvEnrollee.rows.count}}）</span></a></li>
+                        <li><a href ng-click="srvEnrollee.notify()">给全部用户发消息<span>（{{srvEnrollee.page.total}}）</span></a></li>
                         <li class="divider"></li>
-                        <li><a href ng-click="export()">导出全部数据</a></li>
+                        <li><a href ng-click="srvEnrollee.export()">导出全部数据</a></li>
                         <li class="divider"></li>
-                        <li><a href ng-click="repairGroup()">重置用户所属分组</a></li>
+                        <li><a href ng-click="srvEnrollee.repairGroup()">重置用户所属分组</a></li>
                         <li class="divider"></li>
-                        <li><a href ng-click="repairCoin()">重置用户行为分</a></li>
-                        <li><a href ng-click="repairEnrollee()">重置用户汇总数据</a></li>
+                        <li><a href ng-click="srvEnrollee.repairCoin()">重置用户行为分</a></li>
+                        <li><a href ng-click="srvEnrollee.repairEnrollee()">重置用户汇总数据</a></li>
                     </ul>
                 </div>
             </section>
             <section style='display:inline-block' ng-if="category==='group'">
-                <button class='btn btn-default' ng-click='chooseGroupRound()'><i class='glyphicon glyphicon-filter'></i> <span>轮次</span></button>
+                <button class='btn btn-default' ng-click='srvGroup.chooseRound()'><i class='glyphicon glyphicon-filter'></i> <span>轮次</span></button>
+            </section>
+            <section style='display:inline-block' ng-if="category==='absent'">
+                <button class='btn btn-default' ng-click='srvUndone.chooseRound()'><i class='glyphicon glyphicon-filter'></i> <span>轮次</span></button>
+                <button class='btn btn-default' ng-click='srvUndone.export()'><span>导出</span></button>
             </section>
             <div class='form-group pull-right' ng-if="category==='enrollee'">
-                <button type='button' class='btn btn-default' ng-click="searchEnrollee()"><i class='glyphicon glyphicon-refresh'></i> 刷新</button>
+                <button type='button' class='btn btn-default' ng-click="srvEnrollee.list()"><i class='glyphicon glyphicon-refresh'></i> 刷新</button>
             </div>
         </div>
     </div>
@@ -62,7 +66,7 @@
                         <thead>
                             <tr>
                                 <th style='width:28px'>
-                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
+                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="srvEnrollee.rows.allSelected">
                                 </th>
                                 <th style='width:48px'>序号</th>
                                 <th style='width:120px'>轮次</th>
@@ -91,9 +95,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat='e in enrollees'>
+                            <tr ng-repeat='e in srvEnrollee.enrollees'>
                                 <td>
-                                    <input type='checkbox' ng-model="rows.selected[$index]" ng-change="rows.change($index)">
+                                    <input type='checkbox' ng-model="srvEnrollee.rows.selected[$index]" ng-change="srvEnrollee.rows.change($index)">
                                 </td>
                                 <td>{{$index+1}}</td>
                                 <td>
@@ -149,7 +153,7 @@
             <div class='form-group'>
                 <div class='pl-pagination'>
                     <span>总数：{{page.total}}</span>
-                    <ul uib-pagination class='pull-right' ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="searchEnrollee()"></ul>
+                    <ul uib-pagination class='pull-right' ng-if='srvEnrollee.page.total>srvEnrollee.page.size' boundary-links="true" total-items="srvEnrollee.page.total" max-size="7" items-per-page="srvEnrollee.page.size" rotate="false" ng-model="srvEnrollee.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="srvEnrollee.list()"></ul>
                 </div>
             </div>
         </div>
@@ -159,9 +163,6 @@
                     <table class='table table-bordered'>
                         <thead>
                             <tr>
-                                <th style='width:28px'>
-                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
-                                </th>
                                 <th style='width:48px'>序号</th>
                                 <th style='width:120px'>轮次</th>
                                 <th style='width:120px'>分组</th>
@@ -187,10 +188,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat='g in groups'>
-                                <td>
-                                    <input type='checkbox' ng-model="rows.selected[$index]" ng-change="rows.change($index)">
-                                </td>
+                            <tr ng-repeat='g in srvGroup.groups'>
                                 <td>{{$index+1}}</td>
                                 <td>
                                     <div ng-if='g.round.title'>{{g.round.title}}</div>
@@ -230,11 +228,21 @@
                                 <td>{{g.data.topic_read_num}}</td>
                                 <td>{{g.data.do_cowork_read_num}}</td>
                                 <td>{{g.data.cowork_read_num}}</td>
-                                <td>{{g.data.do_repos_read_elapse | filterTime}}</td>
-                                <td>{{g.data.do_topic_read_elapse | filterTime}}</td>
-                                <td>{{g.data.topic_read_elapse | filterTime}}</td>
-                                <td>{{g.data.do_cowork_read_elapse | filterTime}}</td>
-                                <td>{{g.data.cowork_read_elapse | filterTime}}</td>
+                                <td>
+                                    <div ng-if="g.data.do_repos_read_elapse>0">{{g.data.do_repos_read_elapse | filterTime}}</div>
+                                </td>
+                                <td>
+                                    <div ng-if="g.data.do_topic_read_elapse>0">{{g.data.do_topic_read_elapse | filterTime}}</div>
+                                </td>
+                                <td>
+                                    <div ng-if="g.data.topic_read_elapse>0">{{g.data.topic_read_elapse | filterTime}}</div>
+                                </td>
+                                <td>
+                                    <div ng-if="g.data.do_cowork_read_elapse>0">{{g.data.do_cowork_read_elapse | filterTime}}</div>
+                                </td>
+                                <td>
+                                    <div ng-if="g.data.cowork_read_elapse>0">{{g.data.cowork_read_elapse | filterTime}}</div>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -245,26 +253,26 @@
             <table class='table table-bordered'>
                 <thead>
                     <tr>
-                        <th style='width:28px'>
-                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
-                        </th>
                         <th style='width:48px'>序号</th>
-                        <th>姓名</th>
-                        <th>分组</th>
-                        <th ng-repeat="rnd in absentRounds">{{rnd.title}}</th>
+                        <th style='width:120px'>轮次</th>
+                        <th style='width:75px'>姓名</th>
+                        <th style='width:120px'>分组</th>
+                        <th style='width:120px'>请假（开始）</th>
+                        <th style='width:120px'>请假（结束）</th>
                         <th ng-repeat="schema in absentApp.dataSchemas">{{schema.title}}</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat='user in absentUsers'>
-                        <td>
-                            <input type='checkbox' ng-model="rows.selected[$index]" ng-change="rows.change($index)">
-                        </td>
+                    <tr ng-repeat='user in srvUndone.absentUsers'>
                         <td>{{$index+1}}</td>
+                        <td>{{user.round.title}}</td>
                         <td>{{user.nickname}}</td>
                         <td>{{user.group.title}}</td>
-                        <td ng-repeat="rnd in absentRounds">
-                            <div><span ng-if="user.rounds.indexOf(rnd.rid)!==-1">是</span></div>
+                        <td>
+                            <div ng-if="user.validLeave">{{user.validLeave.begin_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+                        </td>
+                        <td>
+                            <div ng-if="user.validLeave">{{user.validLeave.end_at*1000|date:'yy-MM-dd HH:mm'}}</div>
                         </td>
                         <td ng-repeat="schema in absentApp.dataSchemas" ng-switch on="schema.type">
                             <div ng-switch-when="image">

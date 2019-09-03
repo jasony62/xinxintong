@@ -190,56 +190,6 @@ ngApp.controller('ctrlSysTemplate', ['$scope', '$location', '$uibModal', 'http2'
         });
     }
 }]);
-ngApp.controller('ctrlUserTemplate', ['$scope', 'http2', function ($scope, http2) {
-    $scope.criteria = {
-        scope: 'P'
-    };
-    $scope.page = {
-        size: 10,
-        at: 1,
-        total: 0
-    };
-    $scope.data = {
-        choose: -1
-    };
-    $scope.doCreate = function () {
-        var url, data;
-        var data;
-        data = $scope.templates[$scope.data.choose];
-        url = '/rest/pl/fe/matter/enroll/create/byOther?site=' + _siteId + '&template=' + data.id;
-        if (_missionId) {
-            url += '&mission=' + _missionId;
-        }
-        http2.get(url).then(function (rsp) {
-            location.href = '/rest/pl/fe/matter/enroll/schema?site=' + _siteId + '&id=' + rsp.data.id;
-        });
-    };
-    $scope.searchTemplate = function () {
-        var url = '/rest/pl/fe/template/site/list?matterType=enroll&scope=P' + '&site=' + _siteId;
-
-        http2.get(url).then(function (rsp) {
-            $scope.templates = rsp.data.templates;
-            $scope.page.total = rsp.data.total;
-        });
-    };
-    $scope.searchShare2Me = function () {
-        var url = '/rest/pl/fe/template/platform/share2Me?matterType=enroll';
-
-        http2.get(url).then(function (rsp) {
-            $scope.templates = rsp.data.templates;
-            $scope.page.total = rsp.data.total;
-        });
-    };
-    $scope.searchBySite = function () {
-        var url = '/rest/pl/fe/template/site/list?site=' + _siteId + '&matterType=enroll&scope=S';
-
-        http2.get(url).then(function (rsp) {
-            $scope.templates = rsp.data.templates;
-            $scope.page.total = rsp.data.total;
-        });
-    };
-    $scope.searchTemplate();
-}]);
 ngApp.controller('ctrlFile', ['$scope', 'http2', function ($scope, http2) {
     function _excelLoader() {
         if (Resumable) {

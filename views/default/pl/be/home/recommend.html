@@ -1,10 +1,11 @@
 <style>
-body{
-    margin-bottom: 64px;
-}
-th {
-    text-align: center;
-}
+    body {
+        margin-bottom: 64px;
+    }
+
+    th {
+        text-align: center;
+    }
 </style>
 <div class='container'>
     <nav class='navbar navbar-default'>
@@ -216,53 +217,6 @@ th {
             <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="searchApplication()"></ul>
         </div>
     </div>
-    <div class='row' ng-if="criteria.category==='template'">
-        <div class='col-md-12' ng-controller="ctrlTemplate">
-            <table class='table table-bordered'>
-                <thead>
-                    <tr>
-                        <th style='width:48px'></th>
-                        <th>团队</th>
-                        <th>标题</th>
-                        <th>说明</th>
-                        <th style='width:80px'>提交人</th>
-                        <th style='width:112px'>提交时间</th>
-                        <th style='width:90px'>出现在主页</th>
-                        <th style='width:56px'></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="t in templates">
-                        <td>{{$index+1}}</td>
-                        <td>{{t.site_name}}</td>
-                        <td>{{t.title}}</td>
-                        <td>{{t.summary}}</td>
-                        <td>{{t.creater_name}}</td>
-                        <td>{{t.put_at*1000|date:'yy-MM-dd HH:mm'}}</td>
-                        <td>
-                            <span>{{t.push_home}}</span>
-                            <button class='btn btn-xs btn-default pull-right' ng-if="t.push_home==='Y'" ng-click="cancelHome(t)">撤销</button>
-                        </td>
-                        <td>
-                            <button class='btn btn-xs btn-default' ng-click="preview(t)">查看</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="searchTemplate()"></ul>
-        </div>
-    </div>
-    <script type="text/ng-template" id='previewTemplate.html'>
-        <div class="modal-header">
-            <button class="close" type="button" ng-click="cancel()">×</button>
-            <h5 class="modal-title">模板预览</h5>
-        </div>
-        <div class="modal-body">
-            <div class='form-group'>
-                <button class="btn btn-default" ng-click="carryHome()">发布到主页</button>
-            </div>
-        </div>
-    </script>
     <script type="text/ng-template" id='previewMatter.html'>
         <div class="modal-header">
             <button class="close" type="button" ng-click="cancel()">×</button>

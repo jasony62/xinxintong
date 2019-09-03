@@ -50,20 +50,6 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
         }
         return item;
     }
-    var _templates = [];
-
-    function listTemplates() {
-        $http.get('/rest/home/listTemplate?page=' + templatePageAt + '&size=10').success(function (rsp) {
-            if (rsp.data.length) {
-                rsp.data.forEach(function (data) {
-                    dealImgSrc(data);
-                    _templates.push(data);
-                });
-            }
-            $scope.templates = _templates;
-            $scope.templates.total = rsp.data.total;
-        });
-    };
     var _sites = [];
 
     function listSites() {
@@ -206,7 +192,6 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
 
     function _loadAll() {
         listSites();
-        listTemplates();
         $scope.listApps();
         $scope.listMatters();
         $scope.getCenterChannels();
@@ -239,8 +224,7 @@ ngApp.provider.controller('ctrlSlider', function ($scope) {
     var meuns = angular.element('#arrow').find('a'),
         lis = document.querySelector('#slider_extends > ul').children,
         as = [meuns[0], meuns[1]];
-    var stop = true,
-        flag = true;
+    var stop = true;
     var json = [{
         width: 169,
         top: 40,

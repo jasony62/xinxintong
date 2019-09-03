@@ -69,58 +69,13 @@
             <div class="row"></div>
         </div>
     </nav>
-    <script type="text/ng-template" id="favorTempateAsAdmin.html">
-        <div id='favorTempateAsAdmin'>
-            <div>请切换到团队账号后收藏本模板，<a href='' ng-click="favorTemplate(t,true)">继续</a></div>
-        </div>
-    </script>
-    <script type="text/ng-template" id="useTempateAsAdmin.html">
-        <div id='useTempateAsAdmin'>
-            <div>请切换到团队账号后使用本模板，<a href='' ng-click="useTemplate(t,true)">继续</a></div>
-        </div>
-    </script>
-    <script type="text/ng-template" id="favorTemplateSite.html">
-        <div class="modal-header">
-            <button class="close" type="button" ng-click="cancel()">×</button>
-            <h5 class="modal-title ">指定收藏模版的团队</h5>
-        </div>
-        <div class="modal-body ">
-            <div class="checkbox" ng-repeat="site in mySites">
-                <label ng-if="site._favored!=='Y'">
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='site._selected'>{{site.name}}</label>
-                <label ng-if="site._favored==='Y'">
-                    <input type='checkbox' checked disabled><span>{{site.name}}</span>（已收藏）</label>
-                </label>
-            </div>
-            <div class='alert alert-danger' ng-if="mySites.length===0">请创建用于收藏本模版的团队</div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-success" ng-click="ok() ">确定</button>
-        </div>
-    </script>
-    <script type="text/ng-template" id="useTemplateSite.html">
-        <div class="modal-header">
-            <button class="close" type="button" ng-click="cancel()">×</button>
-            <h5 class="modal-title ">指定使用模版的团队</h5>
-        </div>
-        <div class="modal-body ">
-            <div class="radio" ng-repeat="site in mySites">
-                <label ng-if="site._favored!=='Y'">
-                    <input type='radio' name='site' value="{{$index}}" ng-model='data.index'>{{site.name}}</label>
-            </div>
-            <div class='alert alert-danger' ng-if="mySites.length===0">请创建使用模版的团队</div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-success" ng-click="ok() ">确定</button>
-        </div>
-    </script>
     <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-    <script src="/static/js/ui-tms.js"></script>
+    <script src="<?php echo auto_version('/static/js/ui-tms.js');?>"></script>
     <script src="<?php echo auto_version('/bundles/default/site/home.js');?>"></script>
 </body>
 

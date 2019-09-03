@@ -110,24 +110,19 @@ $sql[] = "drop table if exists xxt_mission_phase";
 /**
  * reply
  */
-$sql[] = "drop table if exists xxt_call_text_yx";
 $sql[] = "drop table if exists xxt_call_text_wx";
 $sql[] = "drop table if exists xxt_call_text_qy";
 //
-$sql[] = "drop table if exists xxt_call_menu_yx";
 $sql[] = "drop table if exists xxt_call_menu_wx";
 $sql[] = "drop table if exists xxt_call_menu_qy";
 //
-$sql[] = "drop table if exists xxt_call_qrcode_yx";
 $sql[] = "drop table if exists xxt_call_qrcode_wx";
 //
-$sql[] = "drop table if exists xxt_call_other_yx";
 $sql[] = "drop table if exists xxt_call_other_wx";
 $sql[] = "drop table if exists xxt_call_other_qy";
 //
 $sql[] = "drop table if exists xxt_timer_task";
 //
-$sql[] = "drop table if exists xxt_call_relay_yx";
 $sql[] = "drop table if exists xxt_call_relay_wx";
 $sql[] = "drop table if exists xxt_call_relay_qy";
 /**
@@ -152,10 +147,6 @@ $sql[] = "drop table if exists xxt_site_wx";
 $sql[] = "drop table if exists xxt_site_wxfan";
 $sql[] = "drop table if exists xxt_site_wxfangroup";
 //
-$sql[] = "drop table if exists xxt_site_yx";
-$sql[] = "drop table if exists xxt_site_yxfan";
-$sql[] = "drop table if exists xxt_site_yxfangroup";
-//
 $sql[] = "drop table if exists xxt_site_qy";
 /**
  * tag
@@ -177,10 +168,10 @@ $sql[] = 'drop table if exists xxt_wall_log';
  * 执行操作
  */
 // foreach ($sql as $s) {
-// 	if (!$mysqli->query($s)) {
-// 		header('HTTP/1.0 500 Internal Server Error');
-// 		echo 'database error: ' . $mysqli->error;
-// 	}
+//     if (!$mysqli->query($s)) {
+//         header('HTTP/1.0 500 Internal Server Error');
+//         echo 'database error: ' . $mysqli->error;
+//     }
 // }
 
 echo 'drop all finished.';

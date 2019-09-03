@@ -144,7 +144,6 @@ class repair extends record_base {
      * 更新指定活动下指定记录的数据分
      */
     public function recordScore_action($app, $ek) {
-        // 记录活动
         $modelRec = $this->model('matter\enroll\record');
         $q = [
             'id,state,enroll_key,enroll_at,rid,purpose,userid,nickname,group_id,data,score',

@@ -31,7 +31,8 @@ class repair extends record_base {
          * 更新记录上的数据
          */
         $jsonRecordData = $modelRecDat->escape($modelRecDat->toJson($oSetResult->dbData));
-        $modelRecDat->update('xxt_enroll_record', ['data' => $jsonRecordData], ['enroll_key' => $oRecord->enroll_key]);
+        $jsonRecordScore = $modelRecDat->escape($modelRecDat->toJson($oSetResult->score));
+        $modelRecDat->update('xxt_enroll_record', ['data' => $jsonRecordData, 'score' => $jsonRecordScore], ['enroll_key' => $oRecord->enroll_key]);
         /**
          * 处理用户按轮次汇总数据，行为分数据
          */

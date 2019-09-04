@@ -222,6 +222,22 @@ define(['frame'], function(ngApp) {
             absent: '缺席',
         };
         $scope.tmsTableWrapReady = 'N';
+        $scope.tasks = [{
+            title:'目标',
+            value:'mubiao'
+        },{
+            title:'提问',
+            value:'question'
+        },{
+            title:'回答',
+            value:'answer'
+        },{
+            title:'投票',
+            value:'vote'
+        },{
+            title:'打分',
+            value:'score'
+        }]
         $scope.$watch('srvEnrollee.rows.allSelected', function(nv) {
             if ($scope.enrollees) {
                 srvEnrollee.rows.setAllSelected(nv, $scope.enrollees.length);

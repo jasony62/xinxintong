@@ -259,6 +259,7 @@
                         <th style='width:120px'>分组</th>
                         <th style='width:120px'>请假（开始）</th>
                         <th style='width:120px'>请假（结束）</th>
+                        <th ng-repeat="task in tasks">{{task.title}}</th>
                         <th ng-repeat="schema in absentApp.dataSchemas">{{schema.title}}</th>
                     </tr>
                 </thead>
@@ -273,6 +274,11 @@
                         </td>
                         <td>
                             <div ng-if="user.validLeave">{{user.validLeave.end_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+                        </td>
+                        <td ng-repeat="task in tasks">
+                            <div ng-if="user.undoneTasks[task.value]">
+                                <i class="glyphicon glyphicon-remove"></i>
+                            </div>
                         </td>
                         <td ng-repeat="schema in absentApp.dataSchemas" ng-switch on="schema.type">
                             <div ng-switch-when="image">

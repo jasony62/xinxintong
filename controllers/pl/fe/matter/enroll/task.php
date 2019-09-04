@@ -7,7 +7,7 @@ require_once dirname(__FILE__) . '/main_base.php';
  */
 class task extends main_base {
     /**
-     * 当前用户需要完成的任务
+     * 当前活动的所有任务
      */
     public function list_action($app, $type = null, $state = null, $rid = null) {
         $oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N', 'appRid' => $rid]);
@@ -31,7 +31,7 @@ class task extends main_base {
             }
             $aTaskStates = [$state];
         }
-        // 获取用户所有任务
+        // 获取所有任务
         $modelTsk = $this->model('matter\enroll\task', $oApp);
         $tasks = $modelTsk->byApp($aTaskTypes, $aTaskStates);
         if ($tasks[0] === false) {

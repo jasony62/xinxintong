@@ -119,6 +119,12 @@ define(['frame'], function(ngApp) {
             if (_oCriteria.rids) url += '&rids=' + _oCriteria.rids;
             window.open(url);
         };
+        this.taskList = function() {
+            http2.get('rest/pl/fe/matter/enroll/task/list?site=' + this.app.siteid + '&app=' + this.app.id).then(function(rsp) {
+                console.log(rsp.data);
+                this.tasks = rsp.data;
+            }.bind(this));
+        }
     }]);
     ngApp.provider.service('srvGroup', ['http2', 'tkEnrollRound', function(http2, tkEnlRnd) {
         this.init = function(oApp, rids) {
@@ -222,22 +228,14 @@ define(['frame'], function(ngApp) {
             absent: '缺席',
         };
         $scope.tmsTableWrapReady = 'N';
-        $scope.tasks = [{
-            title:'目标',
-            value:'mubiao'
-        },{
-            title:'提问',
-            value:'question'
-        },{
-            title:'回答',
-            value:'answer'
-        },{
-            title:'投票',
-            value:'vote'
-        },{
-            title:'打分',
-            value:'score'
-        }]
+        $scope.tmsTasks = {
+            "enroll_num": "默认任务",
+            "baseline": "目标",
+            "question": "提问",
+            "answer": "回答",
+            "vote": "投票",
+            "score": "打分"
+        }
         $scope.$watch('srvEnrollee.rows.allSelected', function(nv) {
             if ($scope.enrollees) {
                 srvEnrollee.rows.setAllSelected(nv, $scope.enrollees.length);
@@ -251,6 +249,7 @@ define(['frame'], function(ngApp) {
             $scope.tmsTableWrapReady = 'Y';
             srvEnrollee.init($scope.app);
             srvEnrollee.list(1);
+            srvEnrollee.taskList();
             $scope.srvEnrollee = srvEnrollee;
             $scope.filter = facListFilter.init(function() {
                 srvEnrollee.list(1);

@@ -43,7 +43,8 @@
                             <div class="panel-body">
                                 <div class='form-group' ng-if="invite.matter_pic">
                                     <div class='matter-pic'>
-                                        <div class='img-thumbnail' ng-style="{'background-image':'url('+invite.matter_pic+')'}"></div>
+                                        <div ng-if="invite.matter_pic" class='img-thumbnail' ng-style="{'background-image':'url('+invite.matter_pic+')'}"></div>
+                                        <div ng-if="!invite.matter_pic" class='img-thumbnail'></div>
                                     </div>
                                 </div>
                                 <div class='text-muted' ng-if="invite.matter_summary">

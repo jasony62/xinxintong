@@ -2,8 +2,8 @@
     <div class='row team'>
         <div class='col-md-12 col-xs-12'>
             <div class="team-info">
-                <div class="team-img" ng-style="{'background-image':'url('+(site.home_heading_pic||site.heading_pic)+')'}">
-                </div>
+                <div ng-if="site.home_heading_pic||site.heading_pic" class="team-img" ng-style="{'background-image':'url('+(site.home_heading_pic||site.heading_pic)+')'}"></div>
+                <div ng-if="!site.home_heading_pic&&!site.heading_pic" class="team-img"></div>
                 <div class="team-title">
                     <div>{{site.name}}</div>
                     <div uib-dropdown dropdown-append-to="elSiteCard" on-toggle="siteCardToggled(open)" ng-if="site.can_contribute==='Y'||site.can_subscribe==='Y'">
@@ -35,7 +35,8 @@
                     <uib-tab-heading>{{c.display_name}}</uib-tab-heading>
                     <div class="media-item clearfix" ng-repeat="m in cTotal[c.channel_id]['data']" ng-click="openMatter(m)">
                         <div class="media-item-left">
-                            <div class="media-item-img" ng-style="{'background-image':'url('+m.src+')'}"></div>
+                            <div ng-if="m.src" class="media-item-img" ng-style="{'background-image':'url('+m.src+')'}"></div>
+                            <div ng-if="!m.src" class="media-item-img"></div>
                         </div>
                         <div class="media-item-body">
                             <div class='media-item-body-flexbox'>

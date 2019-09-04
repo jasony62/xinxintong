@@ -3,7 +3,6 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
         sitePageAt = 1,
         appPageAt = 1,
         matterPageAt = 1,
-        templatePageAt = 1,
         channelMatterPageAt = 1;
     $scope.width = width;
     $scope.moreMatters = function (type, matter) {
@@ -41,9 +40,9 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
     };
 
     function dealImgSrc(item) {
-        if (Object.keys(item).indexOf('pic') !== -1 && item.pic == null) {
+        if (item.pic !== undefined && item.pic == null) {
             item.src = item.pic = '';
-        } else if (Object.keys(item).indexOf('thumbnail') !== -1 && item.thumbnail == null) {
+        } else if (item.thumbnail !== undefined && item.thumbnail == null) {
             item.src = item.thumnail = '';
         } else {
             item.src = item.pic ? item.pic : item.thumbnail;
@@ -80,7 +79,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
     $scope.listMatters = function () {
         $http.get('/rest/home/listMatter?page=' + matterPageAt + '&size=10').success(function (rsp) {
             if (rsp.data.matters.length) {
-                rsp.data.matters.forEach(function (item) {
+                rsp.data.matters.forEach(function (item, index) {
                     dealImgSrc(item);
                     item.id = item.matter_id;
                     _matters.push(item);
@@ -186,7 +185,12 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
     };
     $scope.slideOnload = function (index) {
         if (index === 0) {
-            _loadAll();
+            //listSites();
+            //$scope.listApps();
+            $scope.listMatters();
+            //$scope.getCenterChannels();
+            // $scope.getRightChannels();
+            // $scope.checked(0);
         }
     };
 
@@ -211,12 +215,17 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$q', '$http', '$location', '$a
 ngApp.provider.controller('ctrlCarousel', function ($scope) {
     $scope.myInterval = 5000;
     $scope.noWrapSlides = false;
-    $scope.active = 0;
+    //$scope.active = 0;
+    $scope.slides = [];
 
     $scope.$watch('platform', function (platform) {
         if (platform === undefined) return;
         if (platform.home_carousel.length) {
-            $scope.slides = platform.home_carousel;
+            platform.home_carousel.forEach(function (c) {
+                $scope.slides.push({
+                    picUrl: c.picUrl
+                });
+            });
         }
     });
 });

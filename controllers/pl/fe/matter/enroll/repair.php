@@ -31,7 +31,8 @@ class repair extends record_base {
          * 更新记录上的数据
          */
         $jsonRecordData = $modelRecDat->escape($modelRecDat->toJson($oSetResult->dbData));
-        $modelRecDat->update('xxt_enroll_record', ['data' => $jsonRecordData], ['enroll_key' => $oRecord->enroll_key]);
+        $jsonRecordScore = $modelRecDat->escape($modelRecDat->toJson($oSetResult->score));
+        $modelRecDat->update('xxt_enroll_record', ['data' => $jsonRecordData, 'score' => $jsonRecordScore], ['enroll_key' => $oRecord->enroll_key]);
         /**
          * 处理用户按轮次汇总数据，行为分数据
          */
@@ -144,7 +145,6 @@ class repair extends record_base {
      * 更新指定活动下指定记录的数据分
      */
     public function recordScore_action($app, $ek) {
-        // 记录活动
         $modelRec = $this->model('matter\enroll\record');
         $q = [
             'id,state,enroll_key,enroll_at,rid,purpose,userid,nickname,group_id,data,score',

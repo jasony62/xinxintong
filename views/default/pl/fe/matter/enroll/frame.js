@@ -1,6 +1,6 @@
 define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', 'enrollSchema', 'enrollPage', 'groupService'], function (RouteParam, CstApp, frameTemplates) {
     'use strict';
-    var ngApp = angular.module('app', ['protect.ui.xxt', 'ngRoute', 'ui.tms', 'http.ui.xxt', 'notice.ui.xxt', 'schema.ui.xxt', 'tmplshop.ui.xxt', 'pl.const', 'service.matter', 'service.enroll', 'schema.enroll', 'page.enroll', 'tinymce.enroll', 'service.group', 'ui.xxt', 'sys.chart']);
+    var ngApp = angular.module('app', ['protect.ui.xxt', 'ngRoute', 'ui.tms', 'http.ui.xxt', 'notice.ui.xxt', 'schema.ui.xxt', 'pl.const', 'service.matter', 'service.enroll', 'schema.enroll', 'page.enroll', 'tinymce.enroll', 'service.group', 'ui.xxt', 'sys.chart']);
     ngApp.constant('CstApp', CstApp);
     ngApp.filter('filterTime', function () {
         return function (e) {
@@ -65,7 +65,7 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', '
             throw exception;
         };
     });
-    ngApp.controller('ctrlFrame', ['$scope', 'CstNaming', 'CstApp', 'srvSite', 'srvEnrollApp', 'templateShop', '$location', function ($scope, CstNaming, CstApp, srvSite, srvEnlApp, templateShop, $location) {
+    ngApp.controller('ctrlFrame', ['$scope', 'CstNaming', 'CstApp', 'srvSite', 'srvEnrollApp', '$location', function ($scope, CstNaming, CstApp, srvSite, srvEnlApp, $location) {
         $scope.isSmallLayout = false;
         if (window.screen && window.screen.width < 768) {
             $scope.isSmallLayout = true;
@@ -115,11 +115,6 @@ define(['frame/RouteParam', 'frame/const', 'frame/templates', 'enrollService', '
         };
         $scope.update = function (name) {
             return srvEnlApp.update(name);
-        };
-        $scope.shareAsTemplate = function () {
-            templateShop.share($scope.app.siteid, $scope.app).then(function (template) {
-                location.href = '/rest/pl/fe/template/enroll?site=' + template.siteid + '&id=' + template.id;
-            });
         };
         $scope.editMschema = function (oMschema) {
             if (oMschema.matter_id) {

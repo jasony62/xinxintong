@@ -35,7 +35,8 @@
                             </div>
                             <div class='form-group' ng-if="matter.pic">
                                 <div class='matter-pic'>
-                                    <div class='img-thumbnail' ng-style="{'background-image':'url('+matter.pic+')'}"></div>
+                                    <div ng-if="matter.pic" class='img-thumbnail' ng-style="{'background-image':'url('+matter.pic+')'}"></div>
+                                    <div ng-if="!matter.pic" class='img-thumbnail'></div>
                                 </div>
                             </div>
                             <div ng-if="matter.summary">

@@ -251,14 +251,6 @@ class main extends \site\fe\matter\base {
 		}
 
 		$logid = $this->model('matter\log')->addMatterRead($siteId, $logUser, $logMatter, $logClient, $shareby, $search, $referer, $options);
-		/**
-		 * coin log
-		 */
-		if ($type === 'plan') {
-			$oApp = $this->model('matter\plan')->byId($id);
-			$modelPUser = $this->model('matter\plan\user')->setOnlyWriteDbConn(true);
-			$modelPUser->createOrUpdate($oApp, $user);
-		}
 
 		return $logid;
 	}

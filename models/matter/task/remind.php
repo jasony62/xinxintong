@@ -21,9 +21,6 @@ class remind_model extends \TMS_MODEL {
             $arguments = empty($arguments) ? new \stdClass : (is_object($arguments) ? $arguments : json_decode($arguments));
             $aResult = $this->_enroll($oMatter, $arguments);
             break;
-        case 'plan':
-            $aResult = $this->_plan($oMatter, $arguments);
-            break;
         default:
             return [false, '不支持的活动类型【' . $oMatter->type . '】'];
         }
@@ -270,32 +267,5 @@ class remind_model extends \TMS_MODEL {
         }
 
         return [true, $oMatter, $noticeURL, $receivers, $oTmplTimerTaskParams];
-    }
-    /**
-     * 计划活动通知提醒
-     */
-    private function _plan($oMatter, $arguments) {
-        $modelPlan = $this->model('matter\plan');
-        $oMatter = $modelPlan->byId($oMatter->id, ['fields' => 'id,state,siteid,title,summary']);
-        if (false === $oMatter || $oMatter->state !== '1') {
-            return [false, '指定的活动不存在'];
-        }
-        /* 获得活动的进入链接 */
-        if ($inviteUrl = $modelPlan->getInviteUrl($oMatter->id, $oMatter->siteid)) {
-            $noticeURL = $inviteUrl;
-        } else {
-            $noticeURL = $oMatter->entryUrl;
-        }
-        $noticeURL .= '&origin=timer';
-
-        /* 处理要发送的填写人 */
-        $modelUsr = $this->model('matter\plan\user');
-        $planUsers = $modelUsr->byApp($oMatter);
-        $receivers = $planUsers->users;
-        if (count($receivers) === 0) {
-            return [false, '没有填写人'];
-        }
-
-        return [true, $oMatter, $noticeURL, $receivers, null];
     }
 }

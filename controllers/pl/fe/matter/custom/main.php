@@ -6,331 +6,304 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  * 文章控制器
  */
 class main extends \pl\fe\matter\base {
-	/**
-	 * 返回单图文视图
-	 */
-	public function index_action($id) {
-		$access = $this->accessControlUser('custom', $id);
-		if ($access[0] === false) {
-			die($access[1]);
-		}
+    /**
+     * 返回单图文视图
+     */
+    public function index_action($id) {
+        $access = $this->accessControlUser('custom', $id);
+        if ($access[0] === false) {
+            die($access[1]);
+        }
 
-		\TPL::output('/pl/fe/matter/custom/frame');
-		exit;
-	}
-	/**
-	 * 返回单图文视图
-	 */
-	public function edit_action() {
-		\TPL::output('/pl/fe/matter/custom/frame');
-		exit;
-	}
-	/**
-	 *
-	 */
-	public function read_action() {
-		\TPL::output('/pl/fe/matter/custom/frame');
-		exit;
-	}
-	/**
-	 *
-	 */
-	public function stat_action() {
-		\TPL::output('/pl/fe/matter/custom/frame');
-		exit;
-	}
-	/**
-	 * 获得可见的图文列表
-	 *
-	 * $page
-	 * $size
-	 * post options
-	 * --$src p:从父账号检索图文
-	 * --$tag
-	 * --$channel
-	 * --$order
-	 *
-	 */
-	public function list_action($site, $page = 1, $size = 30) {
-		if (false === ($oUser = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
+        \TPL::output('/pl/fe/matter/custom/frame');
+        exit;
+    }
+    /**
+     * 返回单图文视图
+     */
+    public function edit_action() {
+        \TPL::output('/pl/fe/matter/custom/frame');
+        exit;
+    }
+    /**
+     *
+     */
+    public function read_action() {
+        \TPL::output('/pl/fe/matter/custom/frame');
+        exit;
+    }
+    /**
+     *
+     */
+    public function stat_action() {
+        \TPL::output('/pl/fe/matter/custom/frame');
+        exit;
+    }
+    /**
+     * 获得可见的图文列表
+     *
+     * $page
+     * $size
+     * post options
+     * --$src p:从父账号检索图文
+     * --$tag
+     * --$channel
+     * --$order
+     *
+     */
+    public function list_action($site, $page = 1, $size = 30) {
+        if (false === ($oUser = $this->accountUser())) {
+            return new \ResponseTimeout();
+        }
 
-		if (!($oOptions = $this->getPostJson())) {
-			$oOptions = new \stdClass;
-		}
+        if (!($oOptions = $this->getPostJson())) {
+            $oOptions = new \stdClass;
+        }
 
-		$model = $this->model();
-		/**
-		 * select fields
-		 */
-		$s = "a.id,a.siteid,a.title,a.summary,a.create_at,a.modify_at,a.approved,a.creater,a.creater_name,'$oUser->id' uid";
-		$s .= ",a.read_num,a.score,a.remark_num,a.share_friend_num,a.share_timeline_num,a.download_num";
-		/**
-		 * where
-		 */
-		$w = "a.custom_body='Y' and a.siteid='$site' and a.state=1 and finished='Y'";
-		/*按名称过滤*/
-		if (!empty($oOptions->byTitle)) {
-			$w .= " and a.title like '%" . $oOptions->byTitle . "%'";
-		}
-		if (!empty($oOptions->byCreator)) {
-			$w .= " and a.creater_name like '%" . $oOptions->byCreator . "%'";
-		}
-		if (!empty($oOptions->byTags)) {
-			foreach ($oOptions->byTags as $tag) {
-				$w .= " and a.matter_mg_tag like '%" . $tag->id . "%'";
-			}
-		}
+        $model = $this->model();
+        /**
+         * select fields
+         */
+        $s = "a.id,a.siteid,a.title,a.summary,a.create_at,a.modify_at,a.approved,a.creater,a.creater_name,'$oUser->id' uid";
+        $s .= ",a.read_num,a.score,a.remark_num,a.share_friend_num,a.share_timeline_num,a.download_num";
+        /**
+         * where
+         */
+        $w = "a.custom_body='Y' and a.siteid='$site' and a.state=1 and finished='Y'";
+        /*按名称过滤*/
+        if (!empty($oOptions->byTitle)) {
+            $w .= " and a.title like '%" . $oOptions->byTitle . "%'";
+        }
+        if (!empty($oOptions->byCreator)) {
+            $w .= " and a.creater_name like '%" . $oOptions->byCreator . "%'";
+        }
+        if (!empty($oOptions->byTags)) {
+            foreach ($oOptions->byTags as $tag) {
+                $w .= " and a.matter_mg_tag like '%" . $tag->id . "%'";
+            }
+        }
 
-		/**
-		 * 按频道过滤
-		 */
-		if (!empty($oOptions->channel)) {
-			is_array($oOptions->channel) && $oOptions->channel = implode(',', $oOptions->channel);
-			$whichChannel = "exists (select 1 from xxt_channel_matter c where a.id = c.matter_id and c.matter_type='article' and c.channel_id in ($oOptions->channel))";
-			$w .= " and $whichChannel";
-		}
-		if (isset($oOptions->byStar) && $oOptions->byStar === 'Y') {
-			$w .= " and exists(select 1 from xxt_account_topmatter t where t.matter_type='custom' and t.matter_id=a.id and userid='{$oUser->id}')";
-		}
-		/**
-		 * 按标签过滤
-		 */
-		$q = [
-			$s,
-			'xxt_article a',
-			$w,
-		];
-		/* order */
-		!isset($oOptions->order) && $oOptions->order = '';
-		switch ($oOptions->order) {
-		case 'title':
-			$q2['o'] = 'CONVERT(a.title USING gbk ) COLLATE gbk_chinese_ci';
-			break;
-		case 'read':
-			$q2['o'] = 'a.read_num desc';
-			break;
-		case 'share_friend':
-			$q2['o'] = 'a.share_friend_num desc';
-			break;
-		case 'share_timeline':
-			$q2['o'] = 'a.share_timeline_num desc';
-			break;
-		default:
-			$q2['o'] = 'a.modify_at desc';
-		}
-		/* limit */
-		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+        /**
+         * 按频道过滤
+         */
+        if (!empty($oOptions->channel)) {
+            is_array($oOptions->channel) && $oOptions->channel = implode(',', $oOptions->channel);
+            $whichChannel = "exists (select 1 from xxt_channel_matter c where a.id = c.matter_id and c.matter_type='article' and c.channel_id in ($oOptions->channel))";
+            $w .= " and $whichChannel";
+        }
+        if (isset($oOptions->byStar) && $oOptions->byStar === 'Y') {
+            $w .= " and exists(select 1 from xxt_account_topmatter t where t.matter_type='custom' and t.matter_id=a.id and userid='{$oUser->id}')";
+        }
+        /**
+         * 按标签过滤
+         */
+        $q = [
+            $s,
+            'xxt_article a',
+            $w,
+        ];
+        /* order */
+        !isset($oOptions->order) && $oOptions->order = '';
+        switch ($oOptions->order) {
+        case 'title':
+            $q2['o'] = 'CONVERT(a.title USING gbk ) COLLATE gbk_chinese_ci';
+            break;
+        case 'read':
+            $q2['o'] = 'a.read_num desc';
+            break;
+        case 'share_friend':
+            $q2['o'] = 'a.share_friend_num desc';
+            break;
+        case 'share_timeline':
+            $q2['o'] = 'a.share_timeline_num desc';
+            break;
+        default:
+            $q2['o'] = 'a.modify_at desc';
+        }
+        /* limit */
+        $q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 
-		if ($articles = $model->query_objs_ss($q, $q2)) {
-			$q[0] = 'count(*)';
-			$total = (int) $model->query_val_ss($q);
-			foreach ($articles as &$a) {
-				$a->type = 'custom';
-			}
+        if ($articles = $model->query_objs_ss($q, $q2)) {
+            $q[0] = 'count(*)';
+            $total = (int) $model->query_val_ss($q);
+            foreach ($articles as &$a) {
+                $a->type = 'custom';
+            }
 
-			return new \ResponseData(array('customs' => $articles, 'docs' => $articles, 'total' => $total));
-		}
+            return new \ResponseData(array('customs' => $articles, 'docs' => $articles, 'total' => $total));
+        }
 
-		return new \ResponseData(array('customs' => [], 'docs' => [], 'total' => 0));
-	}
-	/**
-	 * 获得指定的图文
-	 *
-	 * @param int $id article's id
-	 */
-	public function get_action($site, $id, $cascade = 'Y') {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
+        return new \ResponseData(array('customs' => [], 'docs' => [], 'total' => 0));
+    }
+    /**
+     * 获得指定的图文
+     *
+     * @param int $id article's id
+     */
+    public function get_action($site, $id, $cascade = 'Y') {
+        if (false === ($user = $this->accountUser())) {
+            return new \ResponseTimeout();
+        }
 
-		$q = array(
-			"a.*,'{$user->id}' uid",
-			'xxt_article a',
-			"a.siteid='$site' and a.state=1 and a.id=$id",
-		);
-		if (($article = $this->model()->query_obj_ss($q)) && $cascade === 'Y') {
-			$article->type = 'custom';
-			/**
-			 * channels
-			 */
-			$article->channels = $this->model('matter\channel')->byMatter($id, 'article');
-			/**
-			 * tags
-			 */
-			!empty($article->matter_cont_tag) && $article->matter_cont_tag = json_decode($article->matter_cont_tag);
-			!empty($article->matter_mg_tag) && $article->matter_mg_tag = json_decode($article->matter_mg_tag);
-			$article->tags = $article->matter_cont_tag;
-			$article->tags2 = $article->matter_mg_tag;
-			/*所属项目*/
-			if ($article->mission_id) {
-				$article->mission = $this->model('matter\mission')->byMatter($site, $app->id, 'custom');
-			}
-		}
+        $q = array(
+            "a.*,'{$user->id}' uid",
+            'xxt_article a',
+            "a.siteid='$site' and a.state=1 and a.id=$id",
+        );
+        if (($article = $this->model()->query_obj_ss($q)) && $cascade === 'Y') {
+            $article->type = 'custom';
+            /**
+             * channels
+             */
+            $article->channels = $this->model('matter\channel')->byMatter($id, 'article');
+            /**
+             * tags
+             */
+            !empty($article->matter_cont_tag) && $article->matter_cont_tag = json_decode($article->matter_cont_tag);
+            !empty($article->matter_mg_tag) && $article->matter_mg_tag = json_decode($article->matter_mg_tag);
+            $article->tags = $article->matter_cont_tag;
+            $article->tags2 = $article->matter_mg_tag;
+            /*所属项目*/
+            if ($article->mission_id) {
+                $article->mission = $this->model('matter\mission')->byMatter($site, $app->id, 'custom');
+            }
+        }
 
-		return new \ResponseData($article);
-	}
-	/**
-	 * 新建定制图文
-	 */
-	public function create_action($site, $mission = '') {
-		if (false === ($oUser = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-		$oSite = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
-		if (false === $oSite) {
-			return new \ObjectNotFoundError();
-		}
+        return new \ResponseData($article);
+    }
+    /**
+     * 新建定制图文
+     */
+    public function create_action($site, $mission = '') {
+        if (false === ($oUser = $this->accountUser())) {
+            return new \ResponseTimeout();
+        }
+        $oSite = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
+        if (false === $oSite) {
+            return new \ObjectNotFoundError();
+        }
 
-		$oCustomConfig = $this->getPostJson();
-		$modelCus = $this->model('matter\custom');
-		$oCustom = new \stdClass;
+        $oCustomConfig = $this->getPostJson();
+        $modelCus = $this->model('matter\custom');
+        $oCustom = new \stdClass;
 
-		/*从站点或项目获取的定义*/
-		if (empty($mission)) {
-			$oCustom->pic = $oSite->heading_pic; //使用账号缺省头图
-			$oCustom->summary = '';
-		} else {
-			$modelMis = $this->model('matter\mission');
-			$mission = $modelMis->byId($mission);
-			$oCustom->summary = $modelCus->escape($mission->summary);
-			$oCustom->pic = $oMission->pic;
-			$oCustom->mission_id = $oMission->id;
-		}
+        /*从站点或项目获取的定义*/
+        if (empty($mission)) {
+            $oCustom->pic = $oSite->heading_pic; //使用账号缺省头图
+            $oCustom->summary = '';
+        } else {
+            $modelMis = $this->model('matter\mission');
+            $mission = $modelMis->byId($mission);
+            $oCustom->summary = $modelCus->escape($mission->summary);
+            $oCustom->pic = $oMission->pic;
+            $oCustom->mission_id = $oMission->id;
+        }
 
-		/* 前端指定的信息 */
-		$oCustom->title = empty($oCustomConfig->proto->title) ? '新定制页' : $oCustomConfig->proto->title;
+        /* 前端指定的信息 */
+        $oCustom->title = empty($oCustomConfig->proto->title) ? '新定制页' : $oCustomConfig->proto->title;
 
-		$oCustom->siteid = $oSite->id;
-		$oCustom->hide_pic = 'N';
-		$oCustom->url = '';
-		$oCustom->body = '';
-		$oCustom->custom_body = 'Y';
-		$oCustom = $modelCus->create($oUser, $oCustom);
+        $oCustom->siteid = $oSite->id;
+        $oCustom->hide_pic = 'N';
+        $oCustom->url = '';
+        $oCustom->body = '';
+        $oCustom->custom_body = 'Y';
+        $oCustom = $modelCus->create($oUser, $oCustom);
 
-		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($oSite->id, $oUser, $oCustom, 'C');
+        /* 记录操作日志 */
+        $this->model('matter\log')->matterOp($oSite->id, $oUser, $oCustom, 'C');
 
-		return new \ResponseData($oCustom);
-	}
-	/**
-	 * 更新单图文的字段
-	 *
-	 * $id article's id
-	 * $nv pair of name and value
-	 */
-	public function update_action($site, $id) {
-		if (false === ($oUser = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
+        return new \ResponseData($oCustom);
+    }
+    /**
+     * 更新单图文的字段
+     *
+     * $id article's id
+     * $nv pair of name and value
+     */
+    public function update_action($site, $id) {
+        if (false === ($oUser = $this->accountUser())) {
+            return new \ResponseTimeout();
+        }
 
-		$modelCus = $this->model('matter\custom');
-		$oCustom = $modelCus->byId($id, ['fields' => 'siteid,id,title,summary']);
-		if (false === $oCustom) {
-			return new \ObjectNotFoundError();
-		}
+        $modelCus = $this->model('matter\custom');
+        $oCustom = $modelCus->byId($id, ['fields' => 'siteid,id,title,summary']);
+        if (false === $oCustom) {
+            return new \ObjectNotFoundError();
+        }
 
-		$oPosted = $this->getPostJson(false);
-		isset($oPosted->title) && $oPosted->title = $modelCus->escape($oPosted->title);
-		isset($oPosted->summary) && $oPosted->summary = $modelCus->escape($oPosted->summary);
-		isset($oPosted->author) && $oPosted->author = $modelCus->escape($oPosted->author);
-		isset($oPosted->body) && $oPosted->body = $modelCus->escape(urldecode($oPosted->body));
+        $oPosted = $this->getPostJson(false);
+        isset($oPosted->title) && $oPosted->title = $modelCus->escape($oPosted->title);
+        isset($oPosted->summary) && $oPosted->summary = $modelCus->escape($oPosted->summary);
+        isset($oPosted->author) && $oPosted->author = $modelCus->escape($oPosted->author);
+        isset($oPosted->body) && $oPosted->body = $modelCus->escape(urldecode($oPosted->body));
 
-		if ($oCustom = $modelCus->modify($oUser, $oCustom, $oPosted)) {
-			$this->model('matter\log')->matterOp($site, $oUser, $oCustom, 'U');
-		}
+        if ($oCustom = $modelCus->modify($oUser, $oCustom, $oPosted)) {
+            $this->model('matter\log')->matterOp($site, $oUser, $oCustom, 'U');
+        }
 
-		return new \ResponseData($oCustom);
-	}
-	/**
-	 * 复制定制图文
-	 */
-	public function copy_action($site, $id) {
-		if (false === ($oUser = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
+        return new \ResponseData($oCustom);
+    }
+    /**
+     * 复制定制图文
+     */
+    public function copy_action($site, $id) {
+        if (false === ($oUser = $this->accountUser())) {
+            return new \ResponseTimeout();
+        }
 
-		$modelArt = $this->model('matter\custom')->setOnlyWriteDbConn(true);
-		$oCopied = $modelArt->byId($id);
-		if (false === $oCopied) {
-			return new \ObjectNotFoundError();
-		}
+        $modelArt = $this->model('matter\custom')->setOnlyWriteDbConn(true);
+        $oCopied = $modelArt->byId($id);
+        if (false === $oCopied) {
+            return new \ObjectNotFoundError();
+        }
 
-		$modelPage = $this->model('code\page')->setOnlyWriteDbConn(true);
-		$page = $modelPage->copy($oUser->id, $oCopied->page_id, 0, $site);
+        $modelPage = $this->model('code\page')->setOnlyWriteDbConn(true);
+        $page = $modelPage->copy($oUser->id, $oCopied->page_id, 0, $site);
 
-		$oCustom = new \stdClass;
-		$oCustom->siteid = $site;
-		$oCustom->title = $oCopied->title . '-副本';
-		$oCustom->pic = $oCopied->pic;
-		$oCustom->hide_pic = 'Y';
-		$oCustom->summary = $oCopied->summary;
-		$oCustom->url = '';
-		$oCustom->body = '';
-		$oCustom->custom_body = 'Y';
-		$oCustom->page_id = $page->id;
-		$oCustom->body_page_name = $page->name;
+        $oCustom = new \stdClass;
+        $oCustom->siteid = $site;
+        $oCustom->title = $oCopied->title . '-副本';
+        $oCustom->pic = $oCopied->pic;
+        $oCustom->hide_pic = 'Y';
+        $oCustom->summary = $oCopied->summary;
+        $oCustom->url = '';
+        $oCustom->body = '';
+        $oCustom->custom_body = 'Y';
+        $oCustom->page_id = $page->id;
+        $oCustom->body_page_name = $page->name;
 
-		$oCustom = $modelArt->create($oUser, $oCustom);
+        $oCustom = $modelArt->create($oUser, $oCustom);
 
-		/* 记录操作日志 */
-		$this->model('matter\log')->matterOp($site, $oUser, $oCustom, 'C');
+        /* 记录操作日志 */
+        $this->model('matter\log')->matterOp($site, $oUser, $oCustom, 'C');
 
-		return new \ResponseData($oCustom);
-	}
-	/**
-	 * 删除定制页
-	 * 只是打标记，不真正删除数据
-	 */
-	public function remove_action($site, $id) {
-		if (false === ($oUser = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-		$modelMat = $this->model('matter\custom');
-		$oMatter = $modelMat->byId($id, 'id,title,summary,pic');
-		if (false === $oMatter) {
-			return new \ObjectNotFoundError();
-		}
+        return new \ResponseData($oCustom);
+    }
+    /**
+     * 删除定制页
+     * 只是打标记，不真正删除数据
+     */
+    public function remove_action($site, $id) {
+        if (false === ($oUser = $this->accountUser())) {
+            return new \ResponseTimeout();
+        }
+        $modelMat = $this->model('matter\custom');
+        $oMatter = $modelMat->byId($id, 'id,title,summary,pic');
+        if (false === $oMatter) {
+            return new \ObjectNotFoundError();
+        }
 
-		/* 将图文从所属的多图文和频道中删除 */
-		$modelMat->delete('xxt_channel_matter', ['matter_id' => $id, 'matter_type' => 'custom']);
-		$modelNews = $this->model('matter\news');
-		if ($news = $modelNews->byMatter($id, 'custom')) {
-			foreach ($news as $n) {
-				$modelNews->removeMatter($n->id, $id, 'custom');
-			}
-		}
-		/*记录操作日志*/
-		$rst = $modelMat->remove($oUser, $oMatter, 'Recycle');
+        /* 将图文从所属的多图文和频道中删除 */
+        $modelMat->delete('xxt_channel_matter', ['matter_id' => $id, 'matter_type' => 'custom']);
+        $modelNews = $this->model('matter\news');
+        if ($news = $modelNews->byMatter($id, 'custom')) {
+            foreach ($news as $n) {
+                $modelNews->removeMatter($n->id, $id, 'custom');
+            }
+        }
+        /*记录操作日志*/
+        $rst = $modelMat->remove($oUser, $oMatter, 'Recycle');
 
-		return new \ResponseData($rst);
-	}
-	/**
-	 * 用指定的模板替换定制页面内容
-	 *
-	 * @param int $id article'id
-	 *
-	 */
-	public function pageByTemplate_action($id, $template) {
-		if (false === ($oUser = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$modelTemplate = $this->model('matter\template');
-		$template = $modelTemplate->byId($template);
-
-		$modelArt = $this->model('matter\custom');
-		$copied = $modelArt->byId($template->matter_id);
-		$target = $modelArt->byId($id);
-
-		$modelPage = $this->model('code\page');
-		$page = $modelPage->copy($oUser->id, $copied->page_id, $target->page_id);
-
-		if ($target->page_id === 0) {
-			$this->_update($id, ['page_id' => $page->id, 'body_page_name' => $page->name]);
-		}
-
-		return new \ResponseData($page);
-	}
+        return new \ResponseData($rst);
+    }
 }

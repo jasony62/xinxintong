@@ -191,7 +191,7 @@ define(['frame'], function (ngApp) {
         }, true);
     }]);
     ngApp.provider.controller('ctrlActivity', ['$scope', '$location', 'http2', 'CstNaming', 'cstApp', '$uibModal', 'facListFilter', 'facListSearch', function ($scope, $location, http2, CstNaming, cstApp, $uibModal, facListFilter, facListSearch) {
-        var _oPage;
+        var _oPage, filter2;
         $scope.filter2 = filter2 = {};
         $scope.scenarioNames = CstNaming.scenario.enroll;
         $scope.page = _oPage = {};

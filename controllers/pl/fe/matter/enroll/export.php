@@ -226,10 +226,13 @@ class export extends record_base {
                     $objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
                     break;
                 case 'multiple':
-                    if (empty($v) || !is_array($v)) {
+                    if (empty($v)) {
                         $cellValue = '';
                     } else {
-                        $cellValue = implode(',', $v);
+                        if (is_object($v)) {
+                            $v = (array) $v;
+                        }
+                        $cellValue = empty($v) ? '' : implode(',', array_values($v));
                     }
                     $cellValue = $this->replaceHTMLTags($cellValue, "\n");
                     $objActiveSheet->setCellValueByColumnAndRow($recColNum++, $rowIndex, $cellValue);

@@ -54,7 +54,7 @@ class repair extends record_base {
         }
 
         $q = [
-            'schema_id,value',
+            'schema_id,value,multitext_seq',
             'xxt_enroll_record_data',
             ['enroll_key' => $ek, 'state' => 1],
         ];
@@ -62,6 +62,9 @@ class repair extends record_base {
 
         $oRecordData = new \stdClass;
         foreach ($schemaValues as $schemaValue) {
+            if ($schemaValue->multitext_seq > 0) {
+                continue;
+            }
             if (strlen($schemaValue->value)) {
                 if ($jsonVal = json_decode($schemaValue->value)) {
                     $oRecordData->{$schemaValue->schema_id} = $jsonVal;

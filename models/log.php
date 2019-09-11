@@ -14,7 +14,7 @@ class log_model extends TMS_MODEL {
             $referer = tms_get_server($_SERVER['HTTP_REFERER']);
         }
         if (empty($requestMethod) && isset($_SERVER['REQUEST_METHOD'])) {
-            $requestMethod = tms_get_server($_SERVER['REQUEST_METHOD']);
+            $requestMethod = tms_get_server('REQUEST_METHOD');
         }
 
         $current = time();
@@ -26,6 +26,7 @@ class log_model extends TMS_MODEL {
         $log['user_agent'] = $agent;
         $log['referer'] = $referer;
         $log['request_method'] = $requestMethod;
+        $log['http_accept'] = tms_get_server('HTTP_ACCEPT');
 
         $logid = $this->insert('xxt_log', $log, true);
 

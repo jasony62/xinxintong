@@ -39,11 +39,9 @@ class access extends \TMS_MODEL {
         case 'channel':
             $model->update("update xxt_channel set read_num=read_num+1 where id='$id'");
             break;
-        case 'news':
-            $model->update("update xxt_news set read_num=read_num+1 where id='$id'");
-            break;
         case 'enroll':
             $model->update("update xxt_enroll set read_num=read_num+1 where id='$id'");
+            break;
         }
 
         $logUser = new \stdClass;

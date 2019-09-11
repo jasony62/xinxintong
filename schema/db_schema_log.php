@@ -28,6 +28,7 @@ $sql .= ",method varchar(255) not null";
 $sql .= ",data longtext null";
 $sql .= ",user_agent text null";
 $sql .= ",referer text null";
+$sql .= ",request_method varchar(10) null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');

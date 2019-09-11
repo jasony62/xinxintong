@@ -31,6 +31,7 @@
                 <th>数据</th>
                 <th>agent</th>
                 <th>referrer</th>
+                <th>method</th>
                 <th style='width:4em'>操作</th>
             </tr>
         </thead>
@@ -46,6 +47,7 @@
                 </td>
                 <td ng-bind="l.user_agent"></td>
                 <td ng-bind="l.referer"></td>
+                <td ng-bind="l.request_method"></td>
                 <td><button class='btn btn-danger btn-xs' ng-click='remove(l,$index)'><span class='glyphicon glyphicon-remove'></span></button></td>
             </tr>
         </tbody>

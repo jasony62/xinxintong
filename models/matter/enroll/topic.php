@@ -43,6 +43,7 @@ class topic_model extends entity_model {
 	 * 和活动任务关联的专题
 	 */
 	public function byTask($oTask, $aOptons = []) {
+		$this->setOnlyWriteDbConn(true);
 		$fields = empty($aOptons['fields']) ? '*' : $aOptons['fields'];
 		$bCreateIfNone = isset($aOptons['createIfNone']) ? $aOptons['createIfNone'] : true;
 		$q = [$fields, 'xxt_enroll_topic', ['task_id' => $oTask->id]];

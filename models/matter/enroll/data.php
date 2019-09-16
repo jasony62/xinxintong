@@ -1211,8 +1211,10 @@ class data_model extends entity_model {
                             }
                             $whereByData .= ')';
                         }
+                    } else if ($oSchema->type === 'single'){
+                        $whereByData .= 'r.data like \'%"' . $k . '":"' . $v . '"%\'';
                     } else {
-                        $whereByData .= 'r.data like \'%"' . $k . '":"%' . $v . '%\'';
+                        $whereByData .= 'r.data like \'%"' . $k . '":"%' . $v . '%"%\'';
                     }
                     $whereByData .= ')';
                 }

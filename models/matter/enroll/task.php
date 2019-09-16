@@ -307,11 +307,9 @@ class task_model extends \TMS_MODEL {
             if ($this->getDeepValue($oQuestionConfig, 'enabled') !== 'Y') {
                 continue;
             }
-            if ($oUser !== false) {
-                if (!empty($oQuestionConfig->role->groups)) {
-                    if (empty($oUser->group_id) || !in_array($oUser->group_id, $oQuestionConfig->role->groups)) {
-                        continue;
-                    }
+            if ($oUser !== false && !empty($oQuestionConfig->role->groups)) {
+                if (empty($oUser->group_id) || !in_array($oUser->group_id, $oQuestionConfig->role->groups)) {
+                    continue;
                 }
             }
             $aValid = $this->getRuleStateByRound($oQuestionConfig, $oRound);
@@ -350,7 +348,7 @@ class task_model extends \TMS_MODEL {
             if ($this->getDeepValue($oAnswerConfig, 'enabled') !== 'Y') {
                 continue;
             }
-            if (!empty($oAnswerConfig->role->groups)) {
+            if ($oUser !== false && !empty($oAnswerConfig->role->groups)) {
                 if (empty($oUser->group_id) || !in_array($oUser->group_id, $oAnswerConfig->role->groups)) {
                     continue;
                 }
@@ -399,7 +397,7 @@ class task_model extends \TMS_MODEL {
             if ($this->getDeepValue($oVoteConfig, 'enabled') !== 'Y') {
                 continue;
             }
-            if (!empty($oVoteConfig->role->groups)) {
+            if ($oUser !== false && !empty($oVoteConfig->role->groups)) {
                 if (empty($oUser->group_id) || !in_array($oUser->group_id, $oVoteConfig->role->groups)) {
                     continue;
                 }
@@ -445,7 +443,7 @@ class task_model extends \TMS_MODEL {
             if ($this->getDeepValue($oScoreConfig, 'enabled') !== 'Y') {
                 continue;
             }
-            if (!empty($oScoreConfig->role->groups)) {
+            if ($oUser !== false && !empty($oScoreConfig->role->groups)) {
                 if (empty($oUser->group_id) || !in_array($oUser->group_id, $oScoreConfig->role->groups)) {
                     continue;
                 }
@@ -477,6 +475,7 @@ class task_model extends \TMS_MODEL {
      * @param object $oRule[type,id,rid,start_at,end_at] 如果不自动创建任务，不需要指定start_at和end_at
      */
     public function byRule($oRule, $aOptions = []) {
+        $this->setOnlyWriteDbConn(true);
         $fields = empty($aOptions['fields']) ? 'id,rid,start_at,end_at' : $aOptions['fields'];
         $bCreateIfNone = isset($aOptions['createIfNone']) ? $aOptions['createIfNone'] : false;
         $q = [
@@ -632,7 +631,29 @@ class task_model extends \TMS_MODEL {
 
         return [true, $tasks];
     }
+    /**
+     * 返回当前用活动所有任务
+     */
+    public function byApp($aTaskTypes, $aTaskStates) {
+        $tasks = [];
+        foreach ($aTaskTypes as $taskType) {
+            $rules = $this->getRule($taskType, false);
+            if (!empty($rules)) {
+                foreach ($rules as $oRule) {
+                    if (!in_array($oRule->state, $aTaskStates)) {
+                        continue;
+                    }
+                    $oTask = $this->byRule($oRule, ['createIfNone' => true]);
+                    if ($oTask) {
+                        tms_object_merge($oTask, $oRule, ['type', 'state', 'limit', 'groups', 'schemas']);
+                        $tasks[] = $oTask;
+                    }
+                }
+            }
+        }
 
+        return [true, $tasks];
+    }
     /**
      * 指定的用户是否没有完成活动要求的任务
      */
@@ -647,9 +668,12 @@ class task_model extends \TMS_MODEL {
             return [true, $limitMin, 0];
         }
         // 用户组限制
-        if (!empty($oTask->groups)) {
-            if (empty($oAssignedUser->group_id) || !in_array($oAssignedUser->group_id, $oTask->groups)) {
-                return [false];
+        if (isset($oTask->groups)) {
+            is_object($oTask->groups) && $oTask->groups = (array) $oTask->groups;
+            if (is_array($oTask->groups) && count($oTask->groups) > 0) {
+                if (empty($oAssignedUser->group_id) || !in_array($oAssignedUser->group_id, $oTask->groups)) {
+                    return [false];
+                }
             }
         }
 

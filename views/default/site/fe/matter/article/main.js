@@ -9,8 +9,9 @@ require('../../../../../../asset/js/xxt.ui.forward.js');
 require('../../../../../../asset/js/xxt.ui.coinpay.js');
 require('../../../../../../asset/js/xxt.ui.share.js');
 require('../../../../../../asset/js/xxt.ui.picviewer.js');
+require('../../../../../../asset/js/xxt.ui.trace.js');
 
-var ngApp = angular.module('app', ['ui.bootstrap', 'http.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'subscribe.ui.xxt', 'favor.ui.xxt', 'forward.ui.xxt', 'coinpay.ui.xxt', 'picviewer.ui.xxt', 'ngSanitize']);
+var ngApp = angular.module('app', ['ui.bootstrap', 'http.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'subscribe.ui.xxt', 'favor.ui.xxt', 'forward.ui.xxt', 'coinpay.ui.xxt', 'picviewer.ui.xxt', 'ngSanitize', 'trace.ui.xxt']);
 ngApp.config(['$controllerProvider', function ($cp) {
     ngApp.provider = {
         controller: $cp.register

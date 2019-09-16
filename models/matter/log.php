@@ -212,11 +212,20 @@ class log_model extends \TMS_MODEL {
             'xxt_log_user_matter',
             ['userid' => $oUser->userid, 'matter_id' => $oMatter->id, 'matter_type' => $oMatter->type, 'operation' => $oOperation->name, 'user_last_op' => 'Y'],
         ];
-        if ($userOpNum = $this->query_obj_ss($q)) {
-            $this->update('xxt_log_user_matter', ['user_last_op' => 'N'], ['id' => $userOpNum->id]);
-            $userOpNum = (int) $userOpNum->user_op_num + 1;
-        } else {
+        $userOpNum = $this->query_objs_ss($q);
+        if (count($userOpNum) === 0) {
             $userOpNum = 1;
+        } else {
+            $ids = [];
+            $max = 0;
+            foreach ($userOpNum as $num) {
+                $ids[] = $num->id;
+                if ($num->user_op_num > $max) {
+                    $max = $num->user_op_num;
+                }
+            }
+            $this->update('xxt_log_user_matter', ['user_last_op' => 'N'], ['id' => $ids]);
+            $userOpNum = (int) $max + 1;
         }
         // 新建日志
         $aNewLog = [];

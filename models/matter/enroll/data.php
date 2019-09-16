@@ -36,7 +36,7 @@ class data_model extends entity_model {
             return $dbData;
         }
         $dbData = $dbData[1];
-        
+
         /* 获得题目的数据分 */
         $oRecordScore = $this->socreRecordData($oApp, $oRecord, $aSchemasById, $dbData, $oAssignScore);
         /* 将每条协作填写项保存为1条数据，并返回题目中记录的汇总数据 */
@@ -290,7 +290,10 @@ class data_model extends entity_model {
      * 处理提交的数据
      * 包括：图片和文件的上传；计算题求值
      */
-    public function disposRecrdData($oApp, $aSchemasById, $submitData, $submitkey) {
+    public function disposRecrdData($oApp, $aSchemasById, $submitData, $submitkey, $oRecord) {
+        if (empty($submitData) || (!is_object($submitData) && !is_array($submitData))) {
+            return [false, '填写记录【' . $oRecord->id . '】数据格式错误'];
+        }
         $aCalculateSchemas = []; // 计算题，忽略计算题指定数据，通过公式计算
         array_walk($aSchemasById, function ($oSchema, $schemaId) use (&$aCalculateSchemas) {
             if ($oSchema->type === 'shorttext' && $this->getDeepValue($oSchema, 'format', null) === 'calculate') {

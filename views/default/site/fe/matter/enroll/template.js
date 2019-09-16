@@ -9,33 +9,33 @@ require('../../../../../../asset/js/xxt.ui.page.js');
 require('./directive.js');
 
 var ngApp = angular.module('app', ['ngSanitize', 'ui.bootstrap', 'http.ui.xxt', 'page.ui.xxt', 'directive.enroll']);
-ngApp.config(['$controllerProvider', '$locationProvider', function($cp, $locationProvider) {
+ngApp.config(['$controllerProvider', '$locationProvider', function ($cp, $locationProvider) {
     ngApp.provider = {
         controller: $cp.register
     };
     $locationProvider.html5Mode(true);
 }]);
-ngApp.factory('Round', ['tmsLocation', 'http2', function(LS, http2) {
-    var Round = function() {};
-    Round.prototype.list = function() {
+ngApp.factory('Round', ['tmsLocation', 'http2', function (LS, http2) {
+    var Round = function () {};
+    Round.prototype.list = function () {
         return http2.get(LS.s('round/list', 'scenario', 'template'));
     };
     return Round;
 }]);
-ngApp.controller('ctrlRounds', ['$scope', 'Round', function($scope, Round) {
+ngApp.controller('ctrlRounds', ['$scope', 'Round', function ($scope, Round) {
     var facRound, onDataReadyCallbacks;
     facRound = new Round();
-    facRound.list().then(function(rounds) {
+    facRound.list().then(function (rounds) {
         $scope.rounds = rounds;
-        angular.forEach(onDataReadyCallbacks, function(cb) {
+        angular.forEach(onDataReadyCallbacks, function (cb) {
             cb(rounds);
         });
     });
     onDataReadyCallbacks = [];
-    $scope.onDataReady = function(callback) {
+    $scope.onDataReady = function (callback) {
         onDataReadyCallbacks.push(callback);
     };
-    $scope.match = function(matched) {
+    $scope.match = function (matched) {
         var i, l, round;
         for (i = 0, l = $scope.rounds.length; i < l; i++) {
             round = $scope.rounds[i];
@@ -46,23 +46,23 @@ ngApp.controller('ctrlRounds', ['$scope', 'Round', function($scope, Round) {
         return false;
     };
 }]);
-ngApp.factory('Record', ['tmsLocation', 'http2', '$q', function(LS, http2, $q) {
+ngApp.factory('Record', ['tmsLocation', 'http2', '$q', function (LS, http2, $q) {
     var _ins, _running, Record;
-    Record = function() {
+    Record = function () {
         this.current = {
             data: {},
             enroll_at: 0
         };
     };
     _running = false;
-    Record.prototype.get = function(config) {
+    Record.prototype.get = function (config) {
         if (_running) return false;
         _running = true;
         var _this, url, deferred;
         _this = this;
         deferred = $q.defer();
         url = LS.j('record/get', 'scenario', 'template');
-        http2.post(url, config).then(function(rsp) {
+        http2.post(url, config).then(function (rsp) {
             var record;
             record = rsp.data;
             _this.current = record;
@@ -71,14 +71,14 @@ ngApp.factory('Record', ['tmsLocation', 'http2', '$q', function(LS, http2, $q) {
         });
         return deferred.promise;
     };
-    Record.prototype.list = function(owner, rid) {
+    Record.prototype.list = function (owner, rid) {
         var _this, url, deferred;
         _this = this;
         deferred = $q.defer();
         url = LS.j('record/list', 'scenario', 'template');
         rid !== undefined && rid.length && (url += '&rid=' + rid);
         owner !== undefined && owner.length && (url += '&owner=' + owner);
-        http2.get(url).then(function(rsp) {
+        http2.get(url).then(function (rsp) {
             var records, record;
             records = rsp.data.records;
             if (records && records.length) {
@@ -92,7 +92,7 @@ ngApp.factory('Record', ['tmsLocation', 'http2', '$q', function(LS, http2, $q) {
         return deferred.promise;
     };
     return {
-        ins: function() {
+        ins: function () {
             if (_ins) {
                 return _ins;
             }
@@ -101,15 +101,17 @@ ngApp.factory('Record', ['tmsLocation', 'http2', '$q', function(LS, http2, $q) {
         }
     };
 }]);
-ngApp.controller('ctrlRecord', ['$scope', 'tmsLocation', 'Record', function($scope, LS, Record) {
+ngApp.controller('ctrlRecord', ['$scope', 'Record', function ($scope, Record) {
     var facRecord = Record.ins(),
         schemas = [];
     facRecord.get($scope.CustomConfig);
     $scope.Record = facRecord;
-    $scope.page.dataSchemas.forEach(function(oSchemaWrap) {
-        schemas.push(oSchemaWrap.schema);
-    });
-    $scope.value2Label = function(key) {
+    if ($scope.page.dataSchemas) {
+        $scope.page.dataSchemas.forEach(function (oSchemaWrap) {
+            schemas.push(oSchemaWrap.schema);
+        });
+    }
+    $scope.value2Label = function (key) {
         var val, i, j, s, aVal, aLab = [];
         if (schemas && facRecord.current.data) {
             val = facRecord.current.data[key];
@@ -134,7 +136,7 @@ ngApp.controller('ctrlRecord', ['$scope', 'tmsLocation', 'Record', function($sco
         }
     };
 }]);
-ngApp.controller('ctrlRecords', ['$scope', 'tmsLocation', 'Record', function($scope, LS, Record) {
+ngApp.controller('ctrlRecords', ['$scope', 'tmsLocation', 'Record', function ($scope, LS, Record) {
     var facRecord, options, fnFetch, rid;
     rid = LS.s().rid;
     facRecord = Record.ins(LS.s().scenario, LS.s().template);
@@ -142,23 +144,23 @@ ngApp.controller('ctrlRecords', ['$scope', 'tmsLocation', 'Record', function($sc
         owner: 'A',
         rid: rid
     };
-    fnFetch = function() {
-        facRecord.list(options.owner, options.rid).then(function(records) {
+    fnFetch = function () {
+        facRecord.list(options.owner, options.rid).then(function (records) {
             $scope.records = records;
         });
     };
-    $scope.$on('xxt.app.enroll.filter.rounds', function(event, data) {
+    $scope.$on('xxt.app.enroll.filter.rounds', function (event, data) {
         options.rid = data[0].rid;
         fnFetch();
     });
-    $scope.$on('xxt.app.enroll.filter.owner', function(event, data) {
+    $scope.$on('xxt.app.enroll.filter.owner', function (event, data) {
         options.owner = data[0].id;
         fnFetch();
     });
     $scope.fetch = fnFetch;
     $scope.options = options;
 }]);
-ngApp.controller('ctrlOwnerOptions', ['$scope', function($scope) {
+ngApp.controller('ctrlOwnerOptions', ['$scope', function ($scope) {
     $scope.owners = {
         'A': {
             id: 'A',
@@ -169,11 +171,11 @@ ngApp.controller('ctrlOwnerOptions', ['$scope', function($scope) {
             label: '我的'
         }
     };
-    $scope.match = function(owner) {
+    $scope.match = function (owner) {
         return $scope.owners[owner.id];
     }
 }]);
-ngApp.controller('ctrlOrderbyOptions', ['$scope', function($scope) {
+ngApp.controller('ctrlOrderbyOptions', ['$scope', function ($scope) {
     $scope.orderbys = {
         time: {
             id: 'time',
@@ -189,10 +191,10 @@ ngApp.controller('ctrlOrderbyOptions', ['$scope', function($scope) {
         }
     };
 }]);
-ngApp.controller('ctrlMain', ['$scope', 'tmsLocation', 'http2', '$timeout', '$q', function($scope, LS, http2, $timeout, $q) {
+ngApp.controller('ctrlMain', ['$scope', 'tmsLocation', 'http2', '$timeout', '$q', function ($scope, LS, http2, $timeout, $q) {
     function renew(page, config) {
         $scope.CustomConfig = config;
-        http2.post(LS.j('pageGet', 'scenario', 'template') + '&page=' + page, config).then(function(rsp) {
+        http2.post(LS.j('pageGet', 'scenario', 'template') + '&page=' + page, config).then(function (rsp) {
             var params;
             params = rsp.data;
             $scope.params = params;
@@ -200,7 +202,7 @@ ngApp.controller('ctrlMain', ['$scope', 'tmsLocation', 'http2', '$timeout', '$q'
             $scope.User = params.user;
             (function setPage(page) {
                 if (page.ext_css && page.ext_css.length) {
-                    angular.forEach(page.ext_css, function(css) {
+                    angular.forEach(page.ext_css, function (css) {
                         var link, head;
                         link = document.createElement('link');
                         link.href = css.url;
@@ -210,7 +212,7 @@ ngApp.controller('ctrlMain', ['$scope', 'tmsLocation', 'http2', '$timeout', '$q'
                     });
                 }
                 if (page.ext_js && page.ext_js.length) {
-                    angular.forEach(page.ext_js, function(js) {
+                    angular.forEach(page.ext_js, function (js) {
                         $.getScript(js.url);
                     });
                 }
@@ -222,13 +224,13 @@ ngApp.controller('ctrlMain', ['$scope', 'tmsLocation', 'http2', '$timeout', '$q'
             })(params.page);
         });
     };
-    window.renew = function(page, config) {
+    window.renew = function (page, config) {
         var phase;
         phase = $scope.$root.$$phase;
         if (phase === '$digest' || phase === '$apply') {
             renew(page, config);
         } else {
-            $scope.$apply(function() {
+            $scope.$apply(function () {
                 renew(page, config);
             });
         }
@@ -237,18 +239,18 @@ ngApp.controller('ctrlMain', ['$scope', 'tmsLocation', 'http2', '$timeout', '$q'
         member: {}
     };
     $scope.CustomConfig = {};
-    $scope.gotoPage = function(event, page, ek, rid, newRecord) {};
-    $scope.addRecord = function(event) {};
-    $scope.editRecord = function(event, page) {};
-    $scope.likeRecord = function(event) {};
-    $scope.remarkRecord = function(event) {};
-    $scope.openMatter = function(id, type) {};
-    $scope.$on('xxt.app.enroll.filter.rounds', function(event, data) {
+    $scope.gotoPage = function (event, page, ek, rid, newRecord) {};
+    $scope.addRecord = function (event) {};
+    $scope.editRecord = function (event, page) {};
+    $scope.likeRecord = function (event) {};
+    $scope.remarkRecord = function (event) {};
+    $scope.openMatter = function (id, type) {};
+    $scope.$on('xxt.app.enroll.filter.rounds', function (event, data) {
         if (event.targetScope !== $scope) {
             $scope.$broadcast('xxt.app.enroll.filter.rounds', data);
         }
     });
-    $scope.$on('xxt.app.enroll.filter.owner', function(event, data) {
+    $scope.$on('xxt.app.enroll.filter.owner', function (event, data) {
         if (event.targetScope !== $scope) {
             $scope.$broadcast('xxt.app.enroll.filter.owner', data);
         }

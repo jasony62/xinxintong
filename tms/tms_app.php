@@ -210,10 +210,10 @@ class TMS_APP {
             $args = self::_prepareControllerMethodArguments($obj_controller, 'tmsBeforeEach', $aRequestParameters);
             $aResultBeforeEach = call_user_func_array(array($obj_controller, 'tmsBeforeEach'), $args);
             if ($aResultBeforeEach[0] !== true) {
-                if ($response instanceof $aResultBeforeEach[1]) {
+                if ($aResultBeforeEach[1] instanceof ResponseData) {
                     header('Content-type: application/json');
                     header('Cache-Control: no-cache');
-                    die($response->toJsonString());
+                    die($aResultBeforeEach[1]->toJsonString());
                 }
             }
         }

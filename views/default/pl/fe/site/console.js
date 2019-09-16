@@ -1,4 +1,4 @@
-var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'notice.ui.xxt', 'tmplshop.ui.xxt', 'protect.ui.xxt']);
+var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'notice.ui.xxt', 'protect.ui.xxt']);
 ngApp.config(['$locationProvider', '$uibTooltipProvider', function ($lp, $uibTooltipProvider) {
     $lp.html5Mode(true);
     $uibTooltipProvider.setTriggers({
@@ -11,7 +11,7 @@ ngApp.controller('ctrlSite', ['$scope', '$location', 'http2', function ($scope, 
         $scope.site = rsp.data;
     });
 }]);
-ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop', function ($scope, $uibModal, http2, templateShop) {
+ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function ($scope, $uibModal, http2) {
     function searchMatters(append) {
         var url;
         url = '/rest/pl/fe/matter/' + $scope.matterType + '/list?site=' + $scope.siteId + page.j();
@@ -233,46 +233,8 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
         });
     };
     //研究项目-记录活动
-    $scope.addEnrollByTemplate = function (scenario) {
-        templateShop.choose($scope.siteId, 'enroll', scenario).then(function (choice) {
-            if (choice) {
-                if (choice.source === 'share') {
-                    var url, data = choice.data;
-                    url = '/rest/pl/fe/template/purchase?template=' + data.id + '&site=' + $scope.siteId;
-                    http2.get(url).then(function (rsp) {
-                        http2.get('/rest/pl/fe/matter/enroll/create/byOther?site=' + $scope.siteId + '&template=' + data.id).then(function (rsp) {
-                            location.href = '/rest/pl/fe/matter/enroll?id=' + rsp.data.id + '&site=' + $scope.siteId;
-                        });
-                    });
-                } else if (choice.source === 'platform') {
-                    var url, config, data = choice.data;
-                    url = '/rest/pl/fe/matter/enroll/create/bySysTemplate?site=' + $scope.siteId;
-                    config = {};
-                    if (data) {
-                        url += '&scenario=' + data.scenario.name;
-                        url += '&template=' + data.template.name;
-                        if (data.simpleSchema && data.simpleSchema.length) {
-                            config.simpleSchema = data.simpleSchema;
-                        }
-                    }
-                    http2.post(url, config).then(function (rsp) {
-                        location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
-                    });
-                } else if (choice.source === 'file') {
-                    var url, data = choice.data;
-                    url = '/rest/pl/fe/matter/enroll/createByFile?site=' + $scope.siteId;
-                    http2.post(url, data).then(function (rsp) {
-                        location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
-                    });
-                }
-            } else {
-                var url;
-                url = '/rest/pl/fe/matter/enroll/create/bySysTemplate?site=' + $scope.siteId;
-                http2.post(url, {}).then(function (rsp) {
-                    location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
-                });
-            }
-        });
+    $scope.addEnroll = function (scenario) {
+        location.href = '/rest/pl/fe/matter/enroll/shop?site=' + $scope.siteId;
     };
     $scope.addSignin = function () {
         http2.get('/rest/pl/fe/matter/signin/create?site=' + $scope.siteId).then(function (rsp) {

@@ -134,7 +134,6 @@ class channel_model extends article_base {
 				'enroll' => 'xxt_enroll',
 				'signin' => 'xxt_signin',
 				//'channel' => 'xxt_channel',
-				//'news' => 'xxt_news',
 				'link' => 'xxt_link',
 				'mission' => 'xxt_mission',
 			];

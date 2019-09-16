@@ -132,15 +132,17 @@ define(['frame'], function (ngApp) {
             this.rids !== undefined && (url += '&rids=' + this.rids)
             http2.post(url, {}).then(function (rsp) {
                 var groups = rsp.data.groups;
-                var oRounds = rsp.data.rounds || {
-                    'ALL': {
-                        title: '全部轮次'
-                    }
-                };
-                groups.forEach(function (oGroup) {
-                    if (oGroup.data && oGroup.data.rid)
-                        oGroup.round = oRounds[oGroup.data.rid];
-                });
+                if (groups) {
+                    var oRounds = rsp.data.rounds || {
+                        'ALL': {
+                            title: '全部轮次'
+                        }
+                    };
+                    groups.forEach(function (oGroup) {
+                        if (oGroup.data && oGroup.data.rid)
+                            oGroup.round = oRounds[oGroup.data.rid];
+                    });
+                }
                 that.groups = groups;
             });
         };

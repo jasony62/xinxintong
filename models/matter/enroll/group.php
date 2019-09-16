@@ -21,6 +21,22 @@ class group_model extends \TMS_MODEL {
         return $oGroup;
     }
     /**
+     * 参与活动的用户
+     */
+    public function byApp($oApp, $aOptions = []) {
+        $fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
+        $q = [
+            $fields,
+            'xxt_enroll_group',
+            ['aid' => $oApp->id],
+        ];
+        $q[2]['rid'] = empty($aOptions['rid']) ? 'ALL' : $aOptions['rid'];
+        $groups = $this->query_objs_ss($q);
+
+        return $groups;
+    }
+
+    /**
      * 修改用户数据
      */
     public function modify($oAppUser, $oUpdatedData) {
@@ -97,14 +113,13 @@ class group_model extends \TMS_MODEL {
             return false;
         }
 
-        /* 更新分组积分 */
-
+        /* 更新分组行为分 */
         $rst = $this->update('xxt_enroll_group', $aDbData, ['aid' => $oAppUser->aid, 'group_id' => $oAppUser->group_id, 'rid' => $oAppUser->rid]);
 
         return $rst;
     }
     /**
-     * 活动用户获得奖励积分
+     * 活动用户分组获得奖励行为分
      */
     public function awardCoin($oApp, $groupId, $rid, $coinEvent, $coinRules = null) {
         if (empty($coinRules)) {
@@ -115,7 +130,7 @@ class group_model extends \TMS_MODEL {
             return [false];
         }
 
-        $deltaCoin = 0; // 增加的积分
+        $deltaCoin = 0; // 增加的行为分
         foreach ($coinRules as $rule) {
             $deltaCoin += (int) $rule->actor_delta;
         }
@@ -123,49 +138,109 @@ class group_model extends \TMS_MODEL {
             return [false];
         }
 
-        /* 参与活动的用户 */
-        //$oEnlGrpUsr = $this->byId($oApp, $groupId, ['fields' => 'id,group_id,group_total_coin', 'rid' => $rid]);
-        //if (false === $oEnlGrpUsr) {
-        //    return [false, $deltaCoin];
-        //}
-
-        /* 奖励积分 */
-        //$modelCoinLog = $this->model('site\coin\log')->setOnlyWriteDbConn(true);
-        //$oResult = $modelCoinLog->award($oApp, $oEnlGrpUsr, $coinEvent, $coinRules);
-
         return [true, $deltaCoin];
+    }
+    /**
+     * 更新用户分组累积行为分
+     */
+    public function resetCoin($oApp, $rid, $groupId) {
+        $oEnlGrpRnd = $this->byId($oApp, $groupId, ['rid' => $rid, 'fields' => 'id,user_total_coin,group_total_coin']);
+        if (false === $oEnlGrpRnd) {
+            return false;
+        }
+        // 分组中用户行为分
+        $q = [
+            'sum(earn_coin)',
+            'xxt_enroll_log',
+            ['aid' => $oApp->id, 'rid' => $rid, 'group_id' => $groupId, 'state' => 1, 'coin_event' => 1, 'userid' => (object) ['op' => '<>', 'pat' => '']],
+        ];
+        $userCoin = $this->query_val_ss($q);
+
+        // 分组行为分
+        $q[2]['userid'] = '';
+        $groupCoin = $this->query_val_ss($q);
+
+        $aUpdatedRnd = [];
+        if ((float) $oEnlGrpRnd->user_total_coin !== (float) $userCoin) {
+            $aUpdatedRnd['user_total_coin'] = $userCoin;
+        }
+        if ((float) $oEnlGrpRnd->group_total_coin !== (float) $groupCoin) {
+            $aUpdatedRnd['group_total_coin'] = $groupCoin;
+        }
+        if (empty($aUpdatedRnd)) {
+            return false;
+        }
+        $this->update('xxt_enroll_group', $aUpdatedRnd, ['id' => $oEnlGrpRnd->id]);
+
+        /**
+         * 更新整个活动中的累积行为分
+         */
+        $oEnlGrpAll = $this->byId($oApp, $groupId, ['rid' => 'ALL', 'fields' => 'id,user_total_coin,group_total_coin']);
+        if (false === $oEnlGrpAll) {
+            return false;
+        }
+        $aUpdateAll = [];
+        if (isset($aUpdatedRnd['user_total_coin'])) {
+            $aUpdateAll['user_total_coin'] = $oEnlGrpAll->user_total_coin + $aUpdatedRnd['user_total_coin'] - $oEnlGrpRnd->user_total_coin;
+        }
+        if (isset($aUpdatedRnd['group_total_coin'])) {
+            $aUpdateAll['group_total_coin'] = $oEnlGrpAll->group_total_coin + $aUpdatedRnd['group_total_coin'] - $oEnlGrpRnd->group_total_coin;
+        }
+        if (!empty($aUpdateAll)) {
+            $this->update('xxt_enroll_group', $aUpdateAll, ['id' => $oEnlGrpAll->id]);
+        }
+
+        return true;
     }
     /**
      * 是否都完成了提交任务
      */
-    public function isAllSubmit($oApp, $rid, $groupId) {
-        if (!isset($oApp->entryRule)) {
-            $oApp2 = $this->model('matter\enroll')->byId($oApp->id, ['fields' => 'entry_rule']);
-            if ($oApp2) {
-                $oApp->entryRule = $oApp2->entryRule;
+    public function isAllSubmit($oEnlApp, $rid, $groupId) {
+        if (!isset($oEnlApp->entryRule)) {
+            $oEnlApp2 = $this->model('matter\enroll')->byId($oEnlApp->id, ['fields' => 'entry_rule']);
+            if ($oEnlApp2) {
+                $oEnlApp->entryRule = $oEnlApp2->entryRule;
             }
         }
-        if (empty($oApp->entryRule->group->id)) {
+        if (empty($oEnlApp->entryRule->group->id)) {
             return [false];
         }
 
-        $oEntryRule = $oApp->entryRule;
+        $modelEnlRnd = $this->model('matter\enroll\round');
+        $oEnlRnd = $modelEnlRnd->byId($rid, ['fields' => 'start_at,end_at']);
+        if (false === $oEnlRnd) {
+            return [false];
+        }
 
-        $modelGrpTeam = $this->model('matter\group\record');
+        $oEntryRule = $oEnlApp->entryRule;
 
-        $users = $modelGrpTeam->byTeam($groupId, ['cascade' => 'userid']);
+        $modelGrpRec = $this->model('matter\group\record');
+        $modelGrpLev = $this->model('matter\group\leave');
+
+        $users = $modelGrpRec->byTeam($groupId, ['fields' => 'userid,is_leader', 'is_leader' => ['N', 'Y']]);
         if (empty($users)) {
             return [false];
         }
         $modelUsr = $this->model('matter\enroll\user');
         $submiters = [];
-        array_walk($users, function ($user, $index) use ($oApp, $modelUsr, &$submiters) {
-            $oEnlUsr = $modelUsr->byId($oApp, $user->userid, ['fields' => 'enroll_num']);
+        array_walk($users, function ($user) use ($oEnlApp, $oEnlRnd, $modelUsr, $modelGrpLev, &$submiters) {
+            $isOnLeave = false;
+            if (!empty($user->leaves)) {
+                $oValidLeave = $modelGrpLev->isOnLeave($user->leaves, $oEnlRnd->start_at, $oEnlRnd->end_at);
+                if (false !== $oValidLeave) {
+                    return;
+                }
+            }
+            $oEnlUsr = $modelUsr->byId($oEnlApp, $user->userid, ['fields' => 'enroll_num']);
             if ($oEnlUsr && $oEnlUsr->enroll_num > 0) {
                 $submiters[] = $user->userid;
             }
         });
 
-        return [true];
+        if (count($users) === count($submiters)) {
+            return [true];
+        }
+
+        return [false];
     }
 }

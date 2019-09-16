@@ -2,7 +2,7 @@
     <div ng-if="tasks.length">
         <div uib-alert ng-repeat="task in tasks" class='alert-info' close="closeTask($index)" ng-switch="task.id">
             <span>{{task.msg}}</span>
-            <span ng-switch-when="record.submit.end"><span ng-if="task.coin">每条记录可获得【{{task.coin}}个】积分，</span><a href class="alert-link" ng-click="addRecord($event)">去添加</a></span>
+            <span ng-switch-when="record.submit.end"><span ng-if="task.coin">每条记录可获得【{{task.coin}}个】行为分，</span><a href class="alert-link" ng-click="addRecord($event)">去添加</a></span>
             <span ng-switch-when="record.like.pre"></span>
             <span ng-switch-when="record.like.end"></span>
         </div>
@@ -222,10 +222,10 @@
                         <div ng-if="log.event_op">{{log.event_op}}</div>
                     </div>
                     <div class='coin' ng-if="log.earn_coin>0">
-                        <span>{{log.nickname}}</span> 得到 <span>{{log.earn_coin}}</span> 个积分
+                        <span>{{log.nickname}}</span> 得到 <span>{{log.earn_coin}}</span> 行为分
                     </div>
                     <div class='coin' ng-if="log.owner_earn_coin>0">
-                        <span>{{log.owner_nickname}}</span> 得到 <span>{{log.owner_earn_coin}}</span> 个积分
+                        <span>{{log.owner_nickname}}</span> 得到 <span>{{log.owner_earn_coin}}</span> 行为分
                     </div>
                 </div>
                 <div class='footer'>

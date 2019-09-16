@@ -1,28 +1,19 @@
 <?php
 namespace pl\fe\matter\enroll;
 
-require_once dirname(dirname(__FILE__)) . '/base.php';
+require_once dirname(__FILE__) . '/main_base.php';
 /*
  * 记录活动主控制器
  */
-class round extends \pl\fe\matter\base {
+class round extends main_base {
     /**
      * 返回指定记录活动下的轮次
      *
-     * @param string $app app's id
      * @param string $checked round's id 指定的轮次
      *
      */
-    public function list_action($app, $checked = null, $page = 1, $size = 10) {
-        if (false === $this->accountUser()) {
-            return new \ResponseTimeout();
-        }
-
-        $oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-        if (false === $oApp || $oApp->state !== '1') {
-            return new \ObjectNotFoundError();
-        }
-
+    public function list_action($checked = null, $page = 1, $size = 10) {
+        $oApp = $this->app;
         $modelRnd = $this->model('matter\enroll\round');
 
         /* 自动生成汇总轮次和目标轮次 */

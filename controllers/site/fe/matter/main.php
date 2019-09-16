@@ -204,9 +204,6 @@ class main extends \site\fe\matter\base {
 			case 'channel':
 				$model->update("update xxt_channel set read_num=read_num+1 where id='$id'");
 				break;
-			case 'news':
-				$model->update("update xxt_news set read_num=read_num+1 where id='$id'");
-				break;
 			case 'enroll':
 				$model->update("update xxt_enroll set read_num=read_num+1 where id='$id'");
 			}
@@ -251,14 +248,6 @@ class main extends \site\fe\matter\base {
 		}
 
 		$logid = $this->model('matter\log')->addMatterRead($siteId, $logUser, $logMatter, $logClient, $shareby, $search, $referer, $options);
-		/**
-		 * coin log
-		 */
-		if ($type === 'plan') {
-			$oApp = $this->model('matter\plan')->byId($id);
-			$modelPUser = $this->model('matter\plan\user')->setOnlyWriteDbConn(true);
-			$modelPUser->createOrUpdate($oApp, $user);
-		}
 
 		return $logid;
 	}
@@ -278,9 +267,6 @@ class main extends \site\fe\matter\base {
 		switch ($type) {
 		case 'article':
 			$table = 'xxt_article';
-			break;
-		case 'news':
-			$table = 'xxt_news';
 			break;
 		case 'channel':
 			$table = 'xxt_channel';

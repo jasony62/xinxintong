@@ -46,17 +46,15 @@ function show_error($message) {
 
     /* 记录日志 */
     $method = isset($_SERVER['REQUEST_URI']) ? tms_get_server('REQUEST_URI') : 'unknown request';
-    $agent = isset($_SERVER['HTTP_USER_AGENT']) ? tms_get_server('HTTP_USER_AGENT') : '';
-    $referer = isset($_SERVER['HTTP_REFERER']) ? tms_get_server('HTTP_REFERER') : '';
     if (isset($excep)) {
         $msg = str_replace('<br>', "\n", $excep);
     }
 
     $msg = $modelLog->escape($msg);
     if ($message instanceof SiteUserException) {
-        $modelLog->log($message->getUserid(), $method, $msg, $agent, $referer);
+        $modelLog->log($message->getUserid(), $method, $msg);
     } else {
-        $modelLog->log('error', $method, $msg, $agent, $referer);
+        $modelLog->log('error', $method, $msg);
     }
 
     exit;

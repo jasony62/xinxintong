@@ -11,7 +11,7 @@ define(['schema', 'wrap'], function (schemaLib, wrapLib) {
                 makePagelet: function (content) {
                     var deferred = $q.defer();
                     $uibModal.open({
-                        templateUrl: '/views/default/pl/fe/matter/enroll/component/pagelet.html',
+                        templateUrl: '/views/default/pl/fe/matter/enroll/component/pagelet.html?_=1',
                         controller: ['$scope', '$uibModalInstance', 'mediagallery', function ($scope2, $mi, mediagallery) {
                             var tinymceEditor;
                             $scope2.reset = function () {
@@ -2006,6 +2006,14 @@ define(['schema', 'wrap'], function (schemaLib, wrapLib) {
                         }
                         break;
                     }
+                }
+            }
+            if (window.sessionStorage) {
+                var oSessionCached;
+                if (window.sessionStorage.getItem('xxt.pl.protect.system')) {
+                    oSessionCached = window.sessionStorage.getItem('xxt.pl.protect.system');
+                    oSessionCached = JSON.parse(oSessionCached);
+                    $scope.filetypes = oSessionCached.fileContentTypeWhite;
                 }
             }
         });

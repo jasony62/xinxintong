@@ -1,5 +1,5 @@
-var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'notice.ui.xxt', 'tmplshop.ui.xxt', 'channel.fe.pl', 'service.matter', 'protect.ui.xxt']);
-ngApp.config(['$routeProvider', '$locationProvider', 'srvSiteProvider', 'srvTagProvider', function($routeProvider, $locationProvider, srvSiteProvider, srvTagProvider) {
+var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'notice.ui.xxt', 'channel.fe.pl', 'service.matter', 'protect.ui.xxt']);
+ngApp.config(['$routeProvider', '$locationProvider', 'srvSiteProvider', 'srvTagProvider', function ($routeProvider, $locationProvider, srvSiteProvider, srvTagProvider) {
     $routeProvider.when('/rest/pl/fe/matter/custom', {
         templateUrl: '/views/default/pl/fe/matter/custom/setting.html?_=2',
         controller: 'ctrlSetting',
@@ -9,7 +9,7 @@ ngApp.config(['$routeProvider', '$locationProvider', 'srvSiteProvider', 'srvTagP
     });
     $locationProvider.html5Mode(true);
     //设置服务参数
-    (function() {
+    (function () {
         var siteId;
         ls = location.search;
         siteId = ls.match(/[\?&]site=([^&]*)/)[1];
@@ -18,22 +18,22 @@ ngApp.config(['$routeProvider', '$locationProvider', 'srvSiteProvider', 'srvTagP
         srvTagProvider.config(siteId);
     })();
 }]);
-ngApp.controller('ctrlCustom', ['$scope', '$location', 'http2', 'srvSite', function($scope, $location, http2, srvSite) {
+ngApp.controller('ctrlCustom', ['$scope', '$location', 'http2', 'srvSite', function ($scope, $location, http2, srvSite) {
     var ls = $location.search();
     $scope.id = ls.id;
     $scope.siteId = ls.site;
-    srvSite.tagList().then(function(oTag) {
+    srvSite.tagList().then(function (oTag) {
         $scope.oTag = oTag;
     });
-    srvSite.tagList('C').then(function(oTag) {
+    srvSite.tagList('C').then(function (oTag) {
         $scope.oTagC = oTag;
     });
-    http2.get('/rest/pl/fe/matter/custom/get?site=' + $scope.siteId + '&id=' + $scope.id).then(function(rsp) {
+    http2.get('/rest/pl/fe/matter/custom/get?site=' + $scope.siteId + '&id=' + $scope.id).then(function (rsp) {
         var url;
         $scope.editing = rsp.data;
         if ($scope.editing.matter_cont_tag !== '') {
-            $scope.editing.matter_cont_tag.forEach(function(cTag, index) {
-                $scope.oTagC.forEach(function(oTag) {
+            $scope.editing.matter_cont_tag.forEach(function (cTag, index) {
+                $scope.oTagC.forEach(function (oTag) {
                     if (oTag.id === cTag) {
                         $scope.editing.matter_cont_tag[index] = oTag;
                     }
@@ -41,8 +41,8 @@ ngApp.controller('ctrlCustom', ['$scope', '$location', 'http2', 'srvSite', funct
             });
         }
         if ($scope.editing.matter_mg_tag !== '') {
-            $scope.editing.matter_mg_tag.forEach(function(cTag, index) {
-                $scope.oTag.forEach(function(oTag) {
+            $scope.editing.matter_mg_tag.forEach(function (cTag, index) {
+                $scope.oTag.forEach(function (oTag) {
                     if (oTag.id === cTag) {
                         $scope.editing.matter_mg_tag[index] = oTag;
                     }
@@ -56,13 +56,13 @@ ngApp.controller('ctrlCustom', ['$scope', '$location', 'http2', 'srvSite', funct
         };
     });
 }]);
-ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', 'templateShop', '$uibModal', 'srvTag', function($scope, http2, mediagallery, templateShop, $uibModal, srvTag) {
+ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', 'srvTag', function ($scope, http2, mediagallery, srvTag) {
     var modifiedData = {};
     $scope.modified = false;
-    $scope.back = function() {
+    $scope.back = function () {
         history.back();
     };
-    window.onbeforeunload = function(e) {
+    window.onbeforeunload = function (e) {
         var message;
         if ($scope.modified) {
             message = '修改还没有保存，是否要离开当前页面？',
@@ -73,50 +73,50 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', 'templateSho
             return message;
         }
     };
-    $scope.submit = function() {
-        http2.post('/rest/pl/fe/matter/custom/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData).then(function() {
+    $scope.submit = function () {
+        http2.post('/rest/pl/fe/matter/custom/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData).then(function () {
             modifiedData = {};
             $scope.modified = false;
         });
     };
-    $scope.update = function(name) {
+    $scope.update = function (name) {
         $scope.modified = true;
         modifiedData[name] = name === 'body' ? encodeURIComponent($scope.editing[name]) : $scope.editing[name];
     };
-    $scope.copy = function() {
-        http2.get('/rest/pl/fe/matter/custom/copy?site=' + $scope.siteId + '&id=' + $scope.id).then(function(rsp) {
+    $scope.copy = function () {
+        http2.get('/rest/pl/fe/matter/custom/copy?site=' + $scope.siteId + '&id=' + $scope.id).then(function (rsp) {
             location.href = '/rest/pl/fe/matter/custom?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
-    $scope.remove = function() {
-        http2.get('/rest/pl/fe/matter/custom/remove?site=' + $scope.siteId + '&id=' + $scope.id).then(function(rsp) {
+    $scope.remove = function () {
+        http2.get('/rest/pl/fe/matter/custom/remove?site=' + $scope.siteId + '&id=' + $scope.id).then(function (rsp) {
             location.href = '/rest/pl/fe/site/console?site=' + $scope.siteId;
         });
     };
-    $scope.setPic = function() {
+    $scope.setPic = function () {
         var options = {
-            callback: function(url) {
+            callback: function (url) {
                 $scope.editing.pic = url + '?_=' + (new Date()) * 1;
                 $scope.update('pic');
             }
         };
         mediagallery.open($scope.siteId, options);
     };
-    $scope.removePic = function() {
+    $scope.removePic = function () {
         $scope.editing.pic = '';
         $scope.update('pic');
     };
-    $scope.gotoCode = function() {
+    $scope.gotoCode = function () {
         var name = $scope.editing.body_page_name;
         if (name && name.length) {
             window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + name);
         } else {
-            http2.get('/rest/pl/fe/code/create?site=' + $scope.siteId).then(function(rsp) {
+            http2.get('/rest/pl/fe/code/create?site=' + $scope.siteId).then(function (rsp) {
                 var nv = {
                     'page_id': rsp.data.id,
                     'body_page_name': rsp.data.name
                 };
-                http2.post('/rest/pl/fe/matter/custom/update?site=' + $scope.siteId + '&id=' + $scope.id, nv).then(function() {
+                http2.post('/rest/pl/fe/matter/custom/update?site=' + $scope.siteId + '&id=' + $scope.id, nv).then(function () {
                     $scope.editing.page_id = rsp.data.id;
                     $scope.editing.body_page_name = rsp.data.name;
                     window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + rsp.data.name);
@@ -124,30 +124,7 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', 'templateSho
             });
         }
     };
-    $scope.selectTemplate = function() {
-        templateShop.choose('custom').then(function(data) {
-            http2.get('/rest/pl/fe/matter/custom/pageByTemplate?id=' + $scope.editing.id + '&template=' + data.id).then(function(rsp) {
-                $scope.editing.page_id = rsp.data.id;
-                $scope.editing.body_page_name = rsp.data.name;
-                location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + $scope.editing.body_page_name;
-            });
-        });
-    };
-    $scope.saveAsTemplate = function() {
-        var matter, editing;
-        editing = $scope.editing;
-        matter = {
-            id: editing.id,
-            type: 'custom',
-            title: editing.title,
-            pic: editing.pic,
-            summary: editing.summary
-        };
-        templateShop.share($scope.siteId, matter).then(function() {
-            $scope.$root.infomsg = '成功';
-        });
-    };
-    $scope.tagMatter = function(subType) {
+    $scope.tagMatter = function (subType) {
         var oTags;
         if (subType === 'C') {
             oTags = $scope.oTagC;
@@ -156,7 +133,7 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', 'templateSho
         }
         srvTag._tagMatter($scope.editing, oTags, subType);
     };
-    $scope.downloadQrcode = function(url) {
+    $scope.downloadQrcode = function (url) {
         $('<a href="' + url + '" download="登记二维码.png"></a>')[0].click();
     };
 }]);

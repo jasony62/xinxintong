@@ -13,16 +13,16 @@
             </div>
             <div class="btn-group" uib-dropdown dropdown-append-to-body='true'>
                 <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
-                    <span ng-if="criteria.orderby==='score'">得分</span>
-                    <span ng-if="criteria.orderby==='user_total_coin'">积分</span>
+                    <span ng-if="criteria.orderby==='score'">数据分</span>
+                    <span ng-if="criteria.orderby==='user_total_coin'">行为分</span>
                     <span ng-if="criteria.orderby==='entry_num'">访问次数</span>
                     <span ng-if="criteria.orderby==='total_elapse'">投入时间</span>
                     <span ng-if="criteria.orderby==='devote'">贡献次数</span>
                     <span class="glyphicon glyphicon-sort"></span>
                 </button>
                 <ul class="dropdown-menu" uib-dropdown-menu>
-                    <li><a href ng-click="shiftOrderby('score')">得分</a></li>
-                    <li ng-if="app.scenarioConfig.can_coin==='Y'"><a href ng-click="shiftOrderby('user_total_coin')">积分</a></li>
+                    <li><a href ng-click="shiftOrderby('score')">数据分</a></li>
+                    <li ng-if="app.scenarioConfig.can_coin==='Y'"><a href ng-click="shiftOrderby('user_total_coin')">行为分</a></li>
                     <li><a href ng-click="shiftOrderby('entry_num')">访问次数</a></li>
                     <li><a href ng-click="shiftOrderby('total_elapse')">投入时间</a></li>
                     <li><a href ng-click="shiftOrderby('devote')">贡献次数</a></li>
@@ -73,7 +73,7 @@
                 </div>
                 <div class='data'>
                     <div ng-class="{'ordered':criteria.orderby==='score'}">
-                        <div>得分</div>
+                        <div>数据分</div>
                         <div>
                             <div><span class='pos'>{{u.score.pos}}</span></div>
                             <div><span>{{u.score.val}}</span></div>
@@ -82,7 +82,7 @@
                         </div>
                     </div>
                     <div ng-if="app.scenarioConfig.can_coin==='Y'" ng-class="{'ordered':criteria.orderby==='user_total_coin'}">
-                        <div>积分</div>
+                        <div>行为分</div>
                         <div>
                             <div><span class='pos'>{{u.user_total_coin.pos}}</span></div>
                             <div><span>{{u.user_total_coin.val}}</span></div>
@@ -159,11 +159,11 @@
         </div>
         <hr>
         <div>
-            <div>得分</div>
+            <div>数据分</div>
             <div><span>{{user.score.val}}</span></div>
         </div>
         <div ng-if="app.scenarioConfig.can_coin==='Y'">
-            <div>积分</div>
+            <div>行为分</div>
             <div><span>{{user.user_total_coin.val}}</span></div>
         </div>
         <div>

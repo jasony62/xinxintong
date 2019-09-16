@@ -48,6 +48,18 @@
                 </div>
             </div>
             <div class='form-group'>
+                <label>项目用户</label>
+                <div class="input-group">
+                    <input class='form-control' title="{{mission.userApp.title}}" value="{{mission.userApp.title}}" readonly="">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" ng-click="cancelUserApp()" ng-if="mission.userApp">
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                        <button class='btn btn-success' ng-click="assignUserApp()" ng-if="!mission.userApp">指定</button>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group'>
                 <label>扩展属性1</label>
                 <input type="text" class="form-control" ng-model="mission.extattrs.attr1" tms-auto-update tms-wait=1000 tms-update="update('extattrs')">
             </div>

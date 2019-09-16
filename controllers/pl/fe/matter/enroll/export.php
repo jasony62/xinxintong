@@ -2,6 +2,48 @@
 namespace pl\fe\matter\enroll;
 
 require_once dirname(__FILE__) . '/record_base.php';
+
+class TmsExcel {
+    /**
+     *
+     */
+    public function __construct($title) {
+        require_once TMS_APP_DIR . '/lib/PHPExcel.php';
+        // Create new PHPExcel object
+        $this->objPHPExcel = new \PHPExcel();
+        // Set properties
+        $this->objPHPExcel->getProperties()->setCreator(APP_TITLE)
+            ->setLastModifiedBy(APP_TITLE)
+            ->setTitle($title)
+            ->setSubject($title)
+            ->setDescription($title);
+
+        $this->objPHPExcel->setActiveSheetIndex(0);
+        $this->objActiveSheet = $this->objPHPExcel->getActiveSheet();
+    }
+    /**
+     * 输出
+     */
+    public function output($filename) {
+        header('Content-Type: application/vnd.ms-excel');
+        header('Cache-Control: max-age=0');
+
+        $ua = $_SERVER["HTTP_USER_AGENT"];
+        if (preg_match("/MSIE/", $ua) || preg_match("/Trident\/7.0/", $ua)) {
+            $encoded_filename = urlencode($filename);
+            $encoded_filename = str_replace("+", "%20", $encoded_filename);
+            header('Content-Disposition: attachment; filename="' . $encoded_filename . '"');
+        } else if (preg_match("/Firefox/", $ua)) {
+            header('Content-Disposition: attachment; filename*="utf8\'\'' . $filename . '"');
+        } else {
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+        }
+
+        $objWriter = \PHPExcel_IOFactory::createWriter($this->objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output');
+        exit;
+    }
+}
 /*
  * 导出记录活动数据
  */
@@ -9,15 +51,8 @@ class export extends record_base {
     /**
      * 填写记录导出
      */
-    public function record_action($app, $filter = '') {
-        if (false === ($oUser = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-
-        $oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,state,title,data_schemas,entry_rule,assigned_nickname,scenario,mission_id,sync_mission_round,round_cron', 'cascaded' => 'N']);
-        if (false === $oApp || $oApp->state !== '1') {
-            die('访问的对象不存在或不可用');
-        }
+    public function record_action($filter = '') {
+        $oApp = $this->app;
         //是否有协作题
         $isCowork = false;
         //是否有目录
@@ -64,18 +99,8 @@ class export extends record_base {
         // 处理数据
         $this->_processDatas($oApp, $records);
 
-        require_once TMS_APP_DIR . '/lib/PHPExcel.php';
-
-        // Create new PHPExcel object
-        $objPHPExcel = new \PHPExcel();
-        // Set properties
-        $objPHPExcel->getProperties()->setCreator(APP_TITLE)
-            ->setLastModifiedBy(APP_TITLE)
-            ->setTitle($oApp->title)
-            ->setSubject($oApp->title)
-            ->setDescription($oApp->title);
-
-        $objActiveSheet = $objPHPExcel->getActiveSheet();
+        $oTmsExcel = new TmsExcel($oApp->title);
+        $objActiveSheet = $oTmsExcel->objActiveSheet;
         $columnNum1 = 0; //列号
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '填写时间');
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '审核通过');
@@ -128,11 +153,11 @@ class export extends record_base {
             if ($this->getDeepValue($oSchema, 'supplement') === 'Y') {
                 $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '补充说明');
             }
-            /* 需要计算得分 */
+            /* 需要计算数据分 */
             if ($this->getDeepValue($oSchema, 'requireScore') === 'Y') {
                 $aScoreSum[$columnNum4] = $oSchema->id;
                 $bRequireScore = true;
-                $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '得分');
+                $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '数据分');
             }
         }
         if ($bRequireNickname) {
@@ -201,10 +226,13 @@ class export extends record_base {
                     $objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
                     break;
                 case 'multiple':
-                    if (empty($v) || !is_array($v)) {
+                    if (empty($v)) {
                         $cellValue = '';
                     } else {
-                        $cellValue = implode(',', $v);
+                        if (is_object($v)) {
+                            $v = (array) $v;
+                        }
+                        $cellValue = empty($v) ? '' : implode(',', array_values($v));
                     }
                     $cellValue = $this->replaceHTMLTags($cellValue, "\n");
                     $objActiveSheet->setCellValueByColumnAndRow($recColNum++, $rowIndex, $cellValue);
@@ -349,15 +377,8 @@ class export extends record_base {
                 $objActiveSheet->setCellValueByColumnAndRow($key, $rowIndex, isset($oScore4Schema->$val) ? $oScore4Schema->$val : '');
             }
         }
-        // 输出
-        header('Content-Type: application/vnd.ms-excel');
-        header('Cache-Control: max-age=0');
-        $filename = $oApp->title . '.xlsx';
-        \TMS_App::setContentDisposition($filename);
 
-        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-        $objWriter->save('php://output');
-        exit;
+        $oTmsExcel->output($oApp->title . '.xlsx');
     }
     /**
      * 导出记录中的图片
@@ -365,18 +386,11 @@ class export extends record_base {
      * @param string $rid 轮次id
      */
     public function image_action($app, $rid = '', $range = '1,30') {
-        if (false === ($oUser = $this->accountUser())) {
-            die('请先登录系统');
-        }
-
         $oNameSchema = null;
         $aImageSchemas = [];
 
         // 记录活动
-        $oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'id,state,title,data_schemas,scenario,sync_mission_round', 'cascaded' => 'N']);
-        if ($oApp === false || $oApp->state !== '1') {
-            die('指定的活动不存在');
-        }
+        $oApp = $this->app;
 
         $schemas = $oApp->dynaDataSchemas;
         $modelSch = $this->model('matter\enroll\schema');
@@ -490,14 +504,7 @@ class export extends record_base {
      * 填写记录导出
      */
     public function cowork_action($app, $filter = '') {
-        if (false === ($oUser = $this->accountUser())) {
-            return new \ResponseTimeout();
-        }
-
-        $oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,state,title,data_schemas,entry_rule,assigned_nickname,scenario,mission_id,sync_mission_round,round_cron,vote_config', 'cascaded' => 'N']);
-        if (false === $oApp || $oApp->state !== '1') {
-            die('访问的对象不存在或不可用');
-        }
+        $oApp = $this->app;
         //是否有协作题
         $isCowork = false;
         //是否有目录
@@ -565,18 +572,8 @@ class export extends record_base {
         // 处理数据
         $this->_processDatas($oApp, $records, 'coworkDataList');
 
-        require_once TMS_APP_DIR . '/lib/PHPExcel.php';
-
-        // Create new PHPExcel object
-        $objPHPExcel = new \PHPExcel();
-        // Set properties
-        $objPHPExcel->getProperties()->setCreator(APP_TITLE)
-            ->setLastModifiedBy(APP_TITLE)
-            ->setTitle($oApp->title)
-            ->setSubject($oApp->title)
-            ->setDescription($oApp->title);
-
-        $objActiveSheet = $objPHPExcel->getActiveSheet();
+        $oTmsExcel = new TmsExcel($oApp->title);
+        $objActiveSheet = $oTmsExcel->objActiveSheet;
         $columnNum1 = 0; //列号
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '填写时间');
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '审核通过');
@@ -629,11 +626,11 @@ class export extends record_base {
             if ($this->getDeepValue($oSchema, 'supplement') === 'Y') {
                 $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '补充说明');
             }
-            /* 需要计算得分 */
+            /* 需要计算数据分 */
             if ($this->getDeepValue($oSchema, 'requireScore') === 'Y') {
                 $aScoreSum[$columnNum4] = $oSchema->id;
                 $bRequireScore = true;
-                $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '得分');
+                $objActiveSheet->setCellValueByColumnAndRow($columnNum4++, 1, '数据分');
             }
         }
         if ($bRequireNickname) {
@@ -835,28 +832,13 @@ class export extends record_base {
                 $objActiveSheet->setCellValueByColumnAndRow($key, $rowIndex, isset($oScore4Schema->$val) ? $oScore4Schema->$val : '');
             }
         }
-        // 输出
-        header('Content-Type: application/vnd.ms-excel');
-        header('Cache-Control: max-age=0');
-        $filename = $oApp->title . '.xlsx';
-        \TMS_App::setContentDisposition($filename);
-
-        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-        $objWriter->save('php://output');
-        exit;
+        $oTmsExcel->output($oApp->title . '.xlsx');
     }
     /**
      * 导出用户完成情况
      */
-    public function user_action($app, $rids = '') {
-        if (false === $this->accountUser()) {
-            return new \ResponseTimeout();
-        }
-
-        // 记录活动
-        if (false === ($oApp = $this->model('matter\enroll')->byId($app, ['fields' => 'siteid,id,title,entry_rule,data_schemas,absent_cause', 'cascaded' => 'N']))) {
-            return new \ParameterError();
-        }
+    public function enrollee_action($rids = '') {
+        $oApp = $this->app;
 
         $modelUsr = $this->model('matter\enroll\user');
 
@@ -878,19 +860,10 @@ class export extends record_base {
             }
         }
 
-        require_once TMS_APP_DIR . '/lib/PHPExcel.php';
-        // Create new PHPExcel object
-        $objPHPExcel = new \PHPExcel();
-        // Set properties
-        $objPHPExcel->getProperties()->setCreator(APP_TITLE)
-            ->setLastModifiedBy(APP_TITLE)
-            ->setTitle($oApp->title)
-            ->setSubject($oApp->title)
-            ->setDescription($oApp->title);
-
-        $objPHPExcel->setActiveSheetIndex(0);
-        $objActiveSheet = $objPHPExcel->getActiveSheet();
+        $oTmsExcel = new TmsExcel($oApp->title);
+        $objActiveSheet = $oTmsExcel->objActiveSheet;
         $objActiveSheet->setTitle('已参与');
+
         $columnNum1 = 0; //列号
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '序号');
         // 转换标题
@@ -904,8 +877,8 @@ class export extends record_base {
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '留言');
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '点赞');
         $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '获得推荐');
-        $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '积分');
-        $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '得分');
+        $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '行为分');
+        $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '数据分');
         if (isset($sns->wx->joined) && $sns->wx->joined === 'Y') {
             $objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '已关联微信');
         }
@@ -939,92 +912,127 @@ class export extends record_base {
                 $objActiveSheet->setCellValueByColumnAndRow($columnNum2++, $rowIndex, !empty($oUser->qy_openid) ? "是" : '');
             }
         }
+        $oTmsExcel->output($oApp->title . '.xlsx');
+    }
+    /**
+     * 未完成
+     */
+    public function undone_action($rids = null) {
+        $oApp = $this->app;
 
-        /* 未完成活动任务用户 */
+        $modelUsr = $this->model('matter\enroll\user');
+        $modelRnd = $this->model('matter\enroll\round');
         if (empty($rids)) {
-            $oResult = $modelUsr->undoneByApp($oApp, 'ALL');
-            $aUsers = $oResult->users;
-        } else {
-            $modelRnd = $this->model('matter\enroll\round');
+            $aRounds = [$this->app->appRound->rid => $this->app->appRound];
+        } else if (1 === preg_match('/^all$/i', $rids)) {
+            $oResultRounds = $modelRnd->byApp($oApp, ['fields' => 'rid,title,start_at,purpose']);
             $aRounds = [];
-            $aUsers = [];
-            foreach ($rids as $rid) {
-                $oRnd = $modelRnd->byId($rid, ['fields' => 'title,start_at']);
-                if ($oRnd) {
-                    $oRnd->rid = $rid;
-                    $aRounds[] = $oRnd;
-                    $oResult = $modelUsr->undoneByApp($oApp, $rid);
-                    if (!empty($oResult->users)) {
-                        foreach ($oResult->users as $oUser) {
-                            if (!isset($aUsers[$oUser->userid])) {
-                                /* 清除不必要的数据 */
-                                unset($oUser->groupid);
-                                unset($oUser->uid);
-                                $aUsers[$oUser->userid] = $oUser;
-                            }
-                            $aUsers[$oUser->userid]->rounds[] = $rid;
-                            $aUsers[$oUser->userid]->undones[] = $oUser->undoneTasks;
-                            unset($oUser->undoneTasks);
-                        }
-                    }
-                }
+            if (count($oResultRounds->rounds)) {
+                array_walk($oResultRounds->rounds, function ($oRnd) use (&$aRounds) {
+                    $aRounds[$oRnd->rid] = $oRnd;
+                });
             }
-        }
-
-        if (count($aUsers)) {
-            $objPHPExcel->createSheet();
-            $objPHPExcel->setActiveSheetIndex(1);
-            $objActiveSheet2 = $objPHPExcel->getActiveSheet();
-            $objActiveSheet2->setTitle('缺席');
-
-            $colNumber = 0;
-            $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '序号');
-            $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '姓名');
-            $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '分组');
-            if (isset($aRounds)) {
-                foreach ($aRounds as $oRnd) {
-                    $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, $oRnd->title);
-                }
-            }
-
-            $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, 1, '备注');
-
-            $rowNumber = 2;
-            foreach ($aUsers as $oUndoneUser) {
-                $colNumber = 0;
-                $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $rowNumber - 1);
-                $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, $oUndoneUser->nickname);
-                $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($oUndoneUser->group->title) ? $oUndoneUser->group->title : '');
-                if (isset($aRounds)) {
-                    foreach ($aRounds as $oRnd) {
-                        $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, in_array($oRnd->rid, $oUndoneUser->rounds) ? '是' : '');
-                    }
-                }
-                $objActiveSheet2->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($oUndoneUser->absent_cause->cause) ? $oUndoneUser->absent_cause->cause : '');
-
-                $rowNumber++;
-            }
-            $objPHPExcel->setActiveSheetIndex(0);
-        }
-
-        // 输出
-        header('Content-Type: application/vnd.ms-excel');
-        header('Cache-Control: max-age=0');
-
-        $filename = $oApp->title . '.xlsx';
-        $ua = $_SERVER["HTTP_USER_AGENT"];
-        if (preg_match("/MSIE/", $ua) || preg_match("/Trident\/7.0/", $ua)) {
-            $encoded_filename = urlencode($filename);
-            $encoded_filename = str_replace("+", "%20", $encoded_filename);
-            header('Content-Disposition: attachment; filename="' . $encoded_filename . '"');
-        } else if (preg_match("/Firefox/", $ua)) {
-            header('Content-Disposition: attachment; filename*="utf8\'\'' . $filename . '"');
         } else {
-            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            $aRounds = $modelRnd->byIds($rids, ['fields' => 'rid,title,start_at,purpose']);
+        }
+        if (empty($aRounds)) {
+            die('指定的轮次不存在');
         }
 
-        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-        $objWriter->save('php://output');
-        exit;
+        foreach ($aRounds as $rid => $oRnd) {
+            $oUndoneResult = $modelUsr->undoneByApp($oApp, $rid);
+            if (!empty($oUndoneResult->users)) {
+                foreach ($oUndoneResult->users as $oUser) {
+                    $oUser->round = $oRnd;
+                    $aUsers[] = $oUser;
+                }
+            }
+        }
+
+        if (empty($aUsers)) {
+            die('没有数据');
+        }
+
+        $oTmsExcel = new TmsExcel($oApp->title);
+        $oTmsExcel->objActiveSheet->setTitle('缺席');
+        $objActiveSheet = $oTmsExcel->objActiveSheet;
+
+        $colNumber = 0;
+        $objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '序号');
+        $objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '轮次');
+        $objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '姓名');
+        $objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '分组');
+        $objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '请假（开始）');
+        $objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '请假（结束）');
+
+        $rowNumber = 2;
+        foreach ($aUsers as $oUndoneUser) {
+            $colNumber = 0;
+            $objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $rowNumber - 1);
+            $objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $oUndoneUser->round->title);
+            $objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $oUndoneUser->nickname);
+            $objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $modelUsr->getDeepValue($oUndoneUser, 'group.title', ''));
+            if ($oValidLeave = $modelUsr->getDeepValue($oUndoneUser, 'validLeave')) {
+                $objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, date('y-m-j H:i', $oValidLeave->begin_at));
+                $objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, date('y-m-j H:i', $oValidLeave->end_at));
+            } else {
+                $objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
+                $objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
+            }
+            $rowNumber++;
+        }
+
+        $oTmsExcel->output($oApp->title . '（缺席）.xlsx');
+    }
+    /**
+     * 将应用定义导出为模板
+     */
+    public function appTemplate_action() {
+        $modelApp = $this->model('matter\enroll');
+        $oApp = $this->app;
+
+        $template = new \stdClass;
+        /* setting */
+        !empty($oApp->scenario) && $template->scenario = $oApp->scenario;
+        $template->count_limit = $oApp->count_limit;
+
+        /* schema */
+        $template->schema = json_decode($oApp->data_schemas);
+
+        /* pages */
+        $pages = $oApp->pages;
+        foreach ($pages as &$rec) {
+            $rec->data_schemas = json_decode($rec->data_schemas);
+            $rec->act_schemas = json_decode($rec->act_schemas);
+            $code = new \stdClass;
+            $code->css = $rec->css;
+            $code->js = $rec->js;
+            $code->html = $rec->html;
+            $rec->code = $code;
+        }
+        $template->pages = $pages;
+
+        /* entry_rule */
+        $template->entryRule = $oApp->entryRule;
+
+        /* records */
+        $records = $modelApp->query_objs_ss([
+            'id,userid,nickname,data',
+            'xxt_enroll_record',
+            ['siteid' => $oApp->siteid, 'aid' => $oApp->id],
+        ]);
+
+        foreach ($records as &$rec) {
+            $rec->data = json_decode($rec->data);
+        }
+        $template->records = $records;
+
+        $template = $modelApp->toJson($template);
+        header("Cache-Control: public");
+        header("Content-Description: File Transfer");
+        header('Content-disposition: attachment; filename=' . $oApp->title . '.json');
+        header("Content-Type: text/plain");
+        header('Content-Length: ' . strlen($template));
+        die($template);
     }
 }

@@ -20,6 +20,26 @@ class round_model extends \TMS_MODEL {
         return $oRound;
     }
     /**
+     * 获得多个轮次
+     */
+    public function byIds($rids, $aOptions = []) {
+        if (is_string($rids) && 0 === preg_match('/^all$/i', $rids)) {
+            $rids = explode(',', $rids);
+        }
+        if (!is_array($rids) || empty($rids)) {
+            return false;
+        }
+        $rounds = [];
+        foreach ($rids as $rid) {
+            $oRnd = $this->byId($rid, $aOptions);
+            if ($oRnd) {
+                $rounds[$rid] = $oRnd;
+            }
+        }
+
+        return $rounds;
+    }
+    /**
      * 和指定项目轮次绑定的轮次
      */
     public function byMissionRid($oApp, $missionRid, $aOptions = []) {

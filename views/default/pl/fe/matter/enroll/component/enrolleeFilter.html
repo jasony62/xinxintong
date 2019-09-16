@@ -18,6 +18,11 @@
             <label class="col-md-3 control-label">填写轮次</label>
             <div class="col-md-9">
                 <div tms-array-checkbox model="criteria.rids" items="rounds">
+                    <div class="checkbox">
+                        <label class="checkbox-inline">
+                            <input type="checkbox" value="all" /><span>全部</span>
+                        </label>
+                    </div>
                     <div class="checkbox" ng-repeat="rnd in rounds">
                         <label class="checkbox-inline">
                             <input type="checkbox" value="{{::rnd.rid}}" /><span>{{::rnd.title}}</span>

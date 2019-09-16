@@ -1,6 +1,6 @@
 define(['require', 'frame/RouteParam', 'frame/const'], function (require, RouteParam, CstApp) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'http.ui.xxt', 'notice.ui.xxt', 'tmplshop.ui.xxt', 'pl.const', 'service.matter', 'page.ui.xxt', 'modal.ui.xxt', 'schema.ui.xxt', 'ui.xxt', 'protect.ui.xxt']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'http.ui.xxt', 'notice.ui.xxt', 'pl.const', 'service.matter', 'page.ui.xxt', 'modal.ui.xxt', 'schema.ui.xxt', 'ui.xxt', 'protect.ui.xxt']);
     ngApp.constant('cstApp', CstApp);
     ngApp.config(['$controllerProvider', '$provide', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', function ($controllerProvider, $provide, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {
         ngApp.provider = {
@@ -17,7 +17,7 @@ define(['require', 'frame/RouteParam', 'frame/const'], function (require, RouteP
             'show': 'hide'
         });
     }]);
-    ngApp.controller('ctrlFrame', ['$scope', '$location', 'http2', 'srvUserNotice', '$uibModal', 'cstApp', function ($scope, $location, http2, srvUserNotice, $uibModal, cstApp) {
+    ngApp.controller('ctrlFrame', ['$scope', '$location', 'http2', 'srvUserNotice', '$uibModal', 'cstApp', function ($scope, $location, http2, srvUserNotice, $uibModal) {
         var _oFrameState;
         _oFrameState = {
             sid: '',

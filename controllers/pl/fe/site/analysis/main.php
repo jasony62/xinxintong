@@ -57,7 +57,7 @@ class main extends \pl\fe\base {
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '名称');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '作者');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '阅读');
-		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '搜藏');
+		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '收藏');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '发送给朋友');
 		$objActiveSheet->setCellValueByColumnAndRow($columnNum1++, 1, '分享到朋友圈');
 

@@ -1071,9 +1071,9 @@ class record extends base {
         }
         // 判断活动是否添加了轮次
         $modelRnd = $this->model('matter\enroll\round');
-        $oActiveRnd = $modelRnd->getActive($oApp);
+        $oRecordRnd = $modelRnd->byId($oRecord->rid);
         $now = time();
-        if (empty($oActiveRnd) || (!empty($oActiveRnd) && ($oActiveRnd->end_at != 0) && $oActiveRnd->end_at < $now) || ($oActiveRnd->rid !== $oRecord->rid)) {
+        if (empty($oRecordRnd) || (!empty($oRecordRnd) && ($oRecordRnd->end_at != 0) && $oRecordRnd->end_at < $now) || ($oRecordRnd->rid !== $oRecord->rid)) {
             return new \ResponseError('记录所在活动轮次已结束，不能提交、修改、保存或删除！');
         }
         // 如果已经获得行为分不允许删除

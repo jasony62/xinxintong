@@ -129,6 +129,7 @@
                     <th style='width:48px'>序号</th>
                     <th>姓名</th>
                     <th ng-if="app.entryRule.group.id">分组</th>
+                    <th ng-repeat="task in kanban.tasks">{{tmsTasks[task.type]}}</th>
                 </tr>
             </thead>
             <tbody>
@@ -137,6 +138,11 @@
                     <td>{{u.nickname}}</td>
                     <td ng-if='app.entryRule.group.id'>
                         <div ng-if='u.group'>{{u.group.title}}</div>
+                    </td>
+                    <td ng-repeat="task in kanban.tasks">
+                        <div ng-if="u.undoneTasks[task.type]">
+                            <i class="glyphicon glyphicon-remove"></i>
+                        </div>
                     </td>
                 </tr>
             </tbody>

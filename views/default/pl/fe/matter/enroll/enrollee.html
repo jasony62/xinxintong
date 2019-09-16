@@ -152,7 +152,7 @@
             </div>
             <div class='form-group'>
                 <div class='pl-pagination'>
-                    <span>总数：{{page.total}}</span>
+                    <span>总数：{{srvEnrollee.page.total}}</span>
                     <ul uib-pagination class='pull-right' ng-if='srvEnrollee.page.total>srvEnrollee.page.size' boundary-links="true" total-items="srvEnrollee.page.total" max-size="7" items-per-page="srvEnrollee.page.size" rotate="false" ng-model="srvEnrollee.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="srvEnrollee.list()"></ul>
                 </div>
             </div>
@@ -259,6 +259,7 @@
                         <th style='width:120px'>分组</th>
                         <th style='width:120px'>请假（开始）</th>
                         <th style='width:120px'>请假（结束）</th>
+                        <th ng-repeat="task in srvEnrollee.tasks">{{tmsTasks[task.type]}}</th>
                         <th ng-repeat="schema in absentApp.dataSchemas">{{schema.title}}</th>
                     </tr>
                 </thead>
@@ -273,6 +274,11 @@
                         </td>
                         <td>
                             <div ng-if="user.validLeave">{{user.validLeave.end_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+                        </td>
+                        <td ng-repeat="task in srvEnrollee.tasks">
+                            <div ng-if="user.undoneTasks[task.type]">
+                                <i class="glyphicon glyphicon-remove"></i>
+                            </div>
                         </td>
                         <td ng-repeat="schema in absentApp.dataSchemas" ng-switch on="schema.type">
                             <div ng-switch-when="image">

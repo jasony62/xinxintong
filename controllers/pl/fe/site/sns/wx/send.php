@@ -12,12 +12,12 @@ class send extends \pl\fe\base {
      * 需要开通高级接口
      */
     public function custom_action($openid) {
-        $mpa = $this->model('mp\mpaccount')->byId($this->mpid);
+        $mpa = $this->model('mp\mpaccount')->byId($this->siteid);
         /**
          * 检查是否开通了群发接口
          */
         if ($mpa->mpsrc === 'wx') {
-            $setting = $this->model('mp\mpaccount')->getFeature($this->mpid, $mpa->mpsrc . '_custom_push');
+            $setting = $this->model('mp\mpaccount')->getFeature($this->siteid, $mpa->mpsrc . '_custom_push');
             if ($setting->{$mpa->mpsrc . '_custom_push'} === 'N') {
                 return new \ResponseError('未开通群发高级接口，请检查！');
             }
@@ -39,7 +39,7 @@ class send extends \pl\fe\base {
         /**
          * 发送消息
          */
-        $rst = $this->sendByOpenid($this->mpid, $openid, $message);
+        $rst = $this->sendByOpenid($this->siteid, $openid, $message);
         if (false === $rst[0]) {
             return new \ResponseError($rst[1]);
         }
@@ -47,9 +47,9 @@ class send extends \pl\fe\base {
          * 记录日志
          */
         if (isset($matter->id)) {
-            $this->model('log')->send($this->mpid, $openid, null, $matter->title, $matter);
+            $this->model('log')->send($this->siteid, $openid, null, $matter->title, $matter);
         } else {
-            $this->model('log')->send($this->mpid, $openid, null, $matter->text, null);
+            $this->model('log')->send($this->siteid, $openid, null, $matter->text, null);
         }
 
         return new \ResponseData('success');
@@ -148,14 +148,14 @@ class send extends \pl\fe\base {
         if ($mpaccount->mpsrc === 'wx') {
             $model = $this->model('matter\\' . $matterType);
             if ($matterType === 'text') {
-                $message = $model->forCustomPush($this->mpid, $matterId);
+                $message = $model->forCustomPush($this->siteid, $matterId);
             } else if (in_array($matterType, array('article', 'news', 'channel'))) {
                 /**
                  * 微信的图文群发消息需要上传到公众号平台，所以链接素材无法处理
                  */
-                $message = $model->forWxGroupPush($this->mpid, $matterId);
+                $message = $model->forWxGroupPush($this->siteid, $matterId);
             }
-            $rst = $this->send2WxuserByPreview($this->mpid, $message, $openids);
+            $rst = $this->send2WxuserByPreview($this->siteid, $message, $openids);
         } else if ($mpaccount->mpsrc === 'qy') {
         }
         if (empty($message)) {
@@ -172,7 +172,7 @@ class send extends \pl\fe\base {
      */
     private function assemble_custom_message($matter) {
         $model = $this->model('matter\\' . $matter->type);
-        $message = $model->forCustomPush($this->mpid, $matter->id);
+        $message = $model->forCustomPush($this->siteid, $matter->id);
 
         return $message;
     }
@@ -185,7 +185,7 @@ class send extends \pl\fe\base {
         $posted = $this->getPostJson();
 
         if (isset($posted->matter)) {
-            $url = $this->model('matter\\' . $posted->matter->type)->getEntryUrl($this->mpid, $posted->matter->id);
+            $url = $this->model('matter\\' . $posted->matter->type)->getEntryUrl($this->siteid, $posted->matter->id);
         } else if (isset($posted->url)) {
             $url = $posted->url;
         } else {
@@ -207,7 +207,7 @@ class send extends \pl\fe\base {
         $openids = $rst[1];
 
         foreach ($openids as $openid) {
-            $rst = $this->tmplmsgSendByOpenid($this->mpid, $tid, $openid, $data, $url);
+            $rst = $this->tmplmsgSendByOpenid($this->siteid, $tid, $openid, $data, $url);
             if ($rst[0] === false) {
                 return new \ResponseError($rst[1]);
             }
@@ -224,7 +224,7 @@ class send extends \pl\fe\base {
         $q = array(
             'id,template_id,msgid,openid,data,create_at,status',
             'xxt_log_tmplmsg',
-            "mpid='$this->mpid' and tmplmsg_id=$tid",
+            ['siteid' => $this->siteid, 'tmplmsg_id' => $tid],
         );
         $q2 = array(
             'r' => array(
@@ -246,7 +246,7 @@ class send extends \pl\fe\base {
      */
     public function uploadPic_action($url) {
         $mpa = $this->getMpaccount();
-        $mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $mpa->mpid);
+        $mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $mpa->siteid);
 
         $media = $mpproxy->mediaUpload($url);
         if ($media[0] === false) {

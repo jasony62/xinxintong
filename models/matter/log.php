@@ -615,7 +615,7 @@ class log_model extends \TMS_MODEL {
         $q = array(
             'creater,create_at,content,matter_id,matter_type',
             'xxt_log_mpsend',
-            "mpid='$site' and openid='$openid'",
+            "siteid='$site' and openid='$openid'",
         );
         $q2 = array(
             'r' => array('o' => ($page - 1) * $size, 'l' => $size),
@@ -630,7 +630,7 @@ class log_model extends \TMS_MODEL {
         $q = array(
             'create_at,data content',
             'xxt_log_mpreceive',
-            "mpid='$site' and openid='$openid' and type='text'",
+            "siteid='$site' and openid='$openid' and type='text'",
         );
         $q2 = array(
             'r' => array('o' => ($page - 1) * $size, 'l' => $size),
@@ -664,7 +664,6 @@ class log_model extends \TMS_MODEL {
      * 记录所有发送给用户的消息
      */
     public function send($site, $openid, $groupid, $content, $oMatter) {
-        $i['mpid'] = $site;
         $i['siteid'] = $site;
         $i['creater'] = \TMS_CLIENT::get_client_uid();
         $i['create_at'] = time();
@@ -684,7 +683,7 @@ class log_model extends \TMS_MODEL {
      */
     public function mass($sender, $site, $matterId, $matterType, $message, $msgid, $result) {
         $log = array(
-            'mpid' => $site,
+            'siteid' => $site,
             'matter_type' => $matterType,
             'matter_id' => $matterId,
             'sender' => $sender,

@@ -15,7 +15,7 @@ ngApp.controller('ctrlFile', ['$scope', '$location', 'http2', function ($scope, 
     });
 }]);
 ngApp.controller('ctrlImage', ['$scope', function ($scope) {
-    $scope.url = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid=' + $scope.siteId;
+    $scope.url = '/kcfinder/browse.php?lang=zh-cn&type=图片&site=' + $scope.siteId;
     window.kcactSelectFile = function (url) {
         $scope.$apply(function () {
             $scope.mediaUrl = url;

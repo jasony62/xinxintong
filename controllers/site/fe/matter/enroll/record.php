@@ -168,7 +168,7 @@ class record extends base {
         }
         $oRecord = $modelRec->byId($ek);
         /**
-         * 处理用户按轮次汇总数据，行为分数据
+         * 生成或更新用户轮次汇总数据
          */
         $modelRec->setSummaryRec($oUser, $oEnlApp, $oRecord->rid);
         /**

@@ -36,29 +36,29 @@ class data_model extends entity_model {
             return $dbData;
         }
         $dbData = $dbData[1];
-
+        $aProtoData = [
+            'aid' => $oApp->id,
+            'rid' => $oRecord->rid,
+            'purpose' => $oRecord->purpose,
+            'record_id' => $oRecord->id,
+            'enroll_key' => $oRecord->enroll_key,
+            'state' => $oRecord->state,
+            'submit_at' => $oRecord->enroll_at,
+            'userid' => isset($oUser->uid) ? $oUser->uid : '',
+            'nickname' => $this->escape($oRecord->nickname),
+            'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
+        ];
         /* 获得题目的数据分 */
         $oRecordScore = $this->socreRecordData($oApp, $oRecord, $aSchemasById, $dbData, $oAssignScore);
         /* 将每条协作填写项保存为1条数据，并返回题目中记录的汇总数据 */
         $fnNewItems = function ($schemaId, $aNewItems) use ($oApp, $oRecord, $oUser, $dbData) {
             $aSchemaVal = []; // 记录的题目数据中记录的整体内容
             foreach ($aNewItems as $index => $oNewItem) {
-                $aNewItemData = [
-                    'aid' => $oApp->id,
-                    'rid' => $oRecord->rid,
-                    'purpose' => $oRecord->purpose,
-                    'record_id' => $oRecord->id,
-                    'enroll_key' => $oRecord->enroll_key,
-                    'state' => $oRecord->state,
-                    'submit_at' => $oRecord->enroll_at,
-                    'userid' => isset($oUser->uid) ? $oUser->uid : '',
-                    'nickname' => $this->escape($oRecord->nickname),
-                    'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
-                    'schema_id' => $schemaId,
-                    'is_multitext_root' => 'N',
-                    'multitext_seq' => (int) $index + 1,
-                    'value' => $this->escape($oNewItem->value),
-                ];
+                $aNewItemData = array_merge($aProtoData);
+                $aNewItemData['schema_id'] = $schemaId;
+                $aNewItemData['value'] = $this->escape($oNewItem->value);
+                $aNewItemData['is_multitext_root'] = 'N';
+                $aNewItemData['multitext_seq'] = (int) $index + 1;
                 $dataId = $this->insert('xxt_enroll_record_data', $aNewItemData, true);
                 $aNewItems[$index]->id = $dataId;
                 $aSchemaVal[] = (object) ['id' => $dataId, 'value' => $oNewItem->value];
@@ -84,22 +84,11 @@ class data_model extends entity_model {
             foreach ($newSchemaValues as $index => $oUpdatedItem) {
                 if ($oUpdatedItem->id == 0) {
                     /* 新增加的填写项 */
-                    $aSchemaData = [
-                        'aid' => $oApp->id,
-                        'rid' => $oRecord->rid,
-                        'purpose' => $oRecord->purpose,
-                        'record_id' => $oRecord->id,
-                        'enroll_key' => $oRecord->enroll_key,
-                        'state' => $oRecord->state,
-                        'submit_at' => $oRecord->enroll_at,
-                        'userid' => isset($oUser->uid) ? $oUser->uid : '',
-                        'nickname' => $this->escape($oRecord->nickname),
-                        'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
-                        'schema_id' => $schemaId,
-                        'is_multitext_root' => 'N',
-                        'multitext_seq' => (int) $index + 1,
-                        'value' => $this->escape($oUpdatedItem->value),
-                    ];
+                    $aSchemaData = array_merge($aProtoData);
+                    $aSchemaData['schema_id'] = $schemaId;
+                    $aSchemaData['value'] = $this->escape($oUpdatedItem->value);
+                    $aSchemaData['is_multitext_root'] = 'N';
+                    $aSchemaData['multitext_seq'] = (int) $index + 1;
                     $dataId = $this->insert('xxt_enroll_record_data', $aSchemaData, true);
                     $newSchemaValues[$index]->id = $dataId;
                     $aSchemaVal[] = (object) ['id' => $dataId, 'value' => $oUpdatedItem->value];
@@ -212,20 +201,9 @@ class data_model extends entity_model {
                         $treatedValue = $this->toJson($treatedValue);
                     }
                 }
-                $aSchemaData = [
-                    'aid' => $oApp->id,
-                    'rid' => $oRecord->rid,
-                    'purpose' => $oRecord->purpose,
-                    'record_id' => $oRecord->id,
-                    'enroll_key' => $oRecord->enroll_key,
-                    'state' => $oRecord->state,
-                    'submit_at' => $oRecord->enroll_at,
-                    'userid' => isset($oUser->uid) ? $oUser->uid : '',
-                    'nickname' => $this->escape($oRecord->nickname),
-                    'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
-                    'schema_id' => $schemaId,
-                    'value' => $this->escape($treatedValue),
-                ];
+                $aSchemaData = array_merge($aProtoData);
+                $aSchemaData['schema_id'] = $schemaId;
+                $aSchemaData['value'] = $this->escape($treatedValue);
                 if ($oSchema->type == 'multitext') {
                     /* 多项填写题根数据 */
                     $aSchemaData['is_multitext_root'] = 'Y';
@@ -1211,7 +1189,7 @@ class data_model extends entity_model {
                             }
                             $whereByData .= ')';
                         }
-                    } else if ($oSchema->type === 'single'){
+                    } else if ($oSchema->type === 'single') {
                         $whereByData .= 'r.data like \'%"' . $k . '":"' . $v . '"%\'';
                     } else {
                         $whereByData .= 'r.data like \'%"' . $k . '":"%' . $v . '%"%\'';

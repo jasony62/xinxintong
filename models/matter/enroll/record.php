@@ -17,7 +17,6 @@ class record_model extends record_base {
 	 * @param object $oUser [uid,nickname]
 	 */
 	public function enroll($oApp, $oUser = null, $aOptions = []) {
-		$referrer = isset($aOptions['referrer']) ? $aOptions['referrer'] : '';
 		$enrollAt = isset($aOptions['enrollAt']) ? $aOptions['enrollAt'] : time();
 		isset($aOptions['assignedRid']) && $assignedRid = $aOptions['assignedRid'];
 

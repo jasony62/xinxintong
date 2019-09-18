@@ -30,7 +30,6 @@ class record_model extends record_base {
 			'enroll_key' => $ek,
 			'userid' => empty($oUser->uid) ? '' : $oUser->uid,
 			'group_id' => empty($oUser->group_id) ? '' : $oUser->group_id,
-			'referrer' => $referrer,
 		];
 		/* 记录的状态 */
 		if (isset($aOptions['state']) && in_array($aOptions['state'], ['1', '99'])) {

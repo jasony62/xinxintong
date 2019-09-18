@@ -62,7 +62,7 @@ class main extends \site\fe\matter\base {
 				$oInvite = $this->model('invite')->byMatter($oLink, $oInvitee, ['fields' => 'id,code,expire_at,state']);
 				if ($oInvite && $oInvite->state === '1') {
 					$oCreator = new \stdClass;
-					$oCreator->id = $site;
+					$oCreator->id = $matter->siteid;
 					$oCreator->name = '';
 					$oCreator->type = 'S';
 					if (!isset($modelInv)) {
@@ -72,14 +72,14 @@ class main extends \site\fe\matter\base {
 					if ($oInvite) {
 						$matter->url = $modelInv->getEntryUrl($oInvite);
 					} else {
-						$matter->url = $this->model('matter\\' . $matter->type)->getEntryUrl($site, $matter->id);
+						$matter->url = $this->model('matter\\' . $matter->type)->getEntryUrl($matter->siteid, $matter->id);
 					}
 				} else {
-					$matter->url = $this->model('matter\\' . $matter->type)->getEntryUrl($site, $matter->id);
+					$matter->url = $this->model('matter\\' . $matter->type)->getEntryUrl($matter->siteid, $matter->id);
 				}
 			} else {
 				$matterModel = \TMS_APP::M('matter\\' . $matter->type);
-				$matter->url = $matterModel->getEntryUrl($site, $matter->id);
+				$matter->url = $matterModel->getEntryUrl($matter->siteid, $matter->id);
 			}
 		}
 

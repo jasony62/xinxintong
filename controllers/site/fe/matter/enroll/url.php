@@ -10,7 +10,7 @@ class url extends base {
 	/**
 	 * 获得指定url的摘要
 	 */
-	public function index_action() {
+	public function getUrl_action() {
 		$oSummary = new \stdClass;
 
 		$oPosted = $this->getPostJson();

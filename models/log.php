@@ -40,20 +40,14 @@ class log_model extends TMS_MODEL {
      */
     public function receive($msg) {
         $openid = $msg['from_user'];
-        if (isset($msg['siteid'])) {
-            // should remove
-            $mpid = $msg['siteid'];
-            $src = $msg['src'];
-            $fan = TMS_APP::model("sns\\" . $src . "\\fan")->byOpenid($mpid, $openid, 'nickname');
-        } else {
-            $mpid = $msg['mpid'];
-            $fan = TMS_APP::model('user/fans')->byOpenid($mpid, $openid, 'nickname');
-        }
+        $siteId = $msg['siteid'];
+        $src = $msg['src'];
+        $fan = TMS_APP::model("sns\\" . $src . "\\fan")->byOpenid($siteId, $openid, 'nickname');
 
         $createAt = $msg['create_at'];
 
         $r = array();
-        $r['mpid'] = $mpid;
+        $r['siteid'] = $siteId;
         !empty($msg['msgid']) && $r['msgid'] = $msg['msgid'];
         $r['to_user'] = $msg['to_user'];
         $r['openid'] = $openid;
@@ -81,7 +75,7 @@ class log_model extends TMS_MODEL {
      * @param int $interval 两条消息的时间间隔
      */
     public function hasReceived($msg, $interval = 60) {
-        $mpid = isset($msg['mpid']) ? $msg['mpid'] : $msg['siteid'];
+        $siteId = isset($msg['siteid']) ? $msg['siteid'] : $msg['siteid'];
         $msgid = $msg['msgid'];
         /**
          * 没有消息ID就认为没收到过
@@ -101,14 +95,14 @@ class log_model extends TMS_MODEL {
             $q = [
                 'count(*)',
                 'xxt_log_mpreceive',
-                "mpid='$mpid' and openid='$openid' and data='$logData' and create_at>$current",
+                "siteid='$siteId' and openid='$openid' and data='$logData' and create_at>$current",
             ];
             $cnt = (int) $this->query_val_ss($q);
         } else {
             $q = [
                 'count(*)',
                 'xxt_log_mpreceive',
-                "mpid='$mpid' and msgid='$msgid'",
+                "siteid='$siteId' and msgid='$msgid'",
             ];
             $cnt = (int) $this->query_val_ss($q);
         }
@@ -118,8 +112,8 @@ class log_model extends TMS_MODEL {
     /**
      * 记录所有发送给用户的消息
      */
-    public function send($mpid, $openid, $groupid, $content, $matter) {
-        $i['mpid'] = $mpid;
+    public function send($siteid, $openid, $groupid, $content, $matter) {
+        $i['siteid'] = $siteid;
         $i['creater'] = TMS_CLIENT::get_client_uid();
         $i['create_at'] = time();
         !empty($openid) && $i['openid'] = $openid;
@@ -141,17 +135,17 @@ class log_model extends TMS_MODEL {
     /**
      * 用户是否可以接收t推送消息
      */
-    public function canReceivePush($mpid, $openid) {
+    public function canReceivePush($siteid, $openid) {
         return true;
     }
     /**
      * 汇总各类日志，形成用户完整的踪迹
      */
-    public function track($mpid, $openid, $page = 1, $size = 30) {
+    public function track($siteid, $openid, $page = 1, $size = 30) {
         $q = array(
             'creater,create_at,content,matter_id,matter_type',
             'xxt_log_mpsend',
-            "mpid='$mpid' and openid='$openid'",
+            "siteid='$siteid' and openid='$openid'",
         );
         $q2 = array(
             'r' => array('o' => ($page - 1) * $size, 'l' => $size),
@@ -163,7 +157,7 @@ class log_model extends TMS_MODEL {
         $q = array(
             'create_at,data content',
             'xxt_log_mpreceive',
-            "mpid='$mpid' and openid='$openid' and type='text'",
+            "siteid='$siteid' and openid='$openid' and type='text'",
         );
         $q2 = array(
             'r' => array('o' => ($page - 1) * $size, 'l' => $size),
@@ -211,9 +205,9 @@ class log_model extends TMS_MODEL {
     /**
      * 群发消息发送日志
      */
-    public function mass($sender, $mpid, $matterId, $matterType, $message, $msgid, $result) {
+    public function mass($sender, $siteid, $matterId, $matterType, $message, $msgid, $result) {
         $log = array(
-            'mpid' => $mpid,
+            'siteid' => $siteid,
             'matter_type' => $matterType,
             'matter_id' => $matterId,
             'sender' => $sender,

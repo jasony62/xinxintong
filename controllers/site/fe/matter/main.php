@@ -173,52 +173,6 @@ class main extends \site\fe\matter\base {
 			}
 		}
 
-		if (defined('TMS_PHP_RESQUE') && TMS_PHP_RESQUE === 'Y' && defined('TMS_PHP_RESQUE_REDIS') && strlen(TMS_PHP_RESQUE_REDIS)) {
-			require_once TMS_APP_DIR . '/vendor/chrisboulton/php-resque/lib/Resque.php';
-
-			\Resque::setBackend(TMS_PHP_RESQUE_REDIS);
-
-			$args = [
-				'site' => $site,
-				'id' => $id,
-				'title' => $title,
-				'type' => $type,
-				'user_uid' => $user->uid,
-				'user_nickname' => (!empty($assignedNickname)) ? $assignedNickname : $user->nickname,
-				'clientIp' => $this->client_ip(),
-				'HTTP_USER_AGENT' => tms_get_server('HTTP_USER_AGENT'),
-				'QUERY_STRING' => $search,
-				'HTTP_REFERER' => $referer,
-			];
-			if (!empty($post->target_type) && !empty($post->target_id)) {
-				$args['target_type'] = $post->target_type;
-				$args['target_id'] = $post->target_id;
-			}
-			isset($userRid) && $args['rid'] = $userRid;
-			\Resque::enqueue('default', 'job\log\site\fe\matter\access', $args);
-		} else {
-			switch ($type) {
-			case 'article':
-				$model->update("update xxt_article set read_num=read_num+1 where id='$id'");
-				break;
-			case 'channel':
-				$model->update("update xxt_channel set read_num=read_num+1 where id='$id'");
-				break;
-			case 'enroll':
-				$model->update("update xxt_enroll set read_num=read_num+1 where id='$id'");
-			}
-
-			!empty($assignedNickname) && $user->nickname = $assignedNickname;
-			$options = [];
-			isset($userRid) && $options['rid'] = $userRid;
-			if (!empty($post->target_type) && !empty($post->target_id)) {
-				$options['target_type'] = $post->target_type;
-				$options['target_id'] = $post->target_id;
-			}
-
-			$logid = $this->logRead($site, $user, $id, $type, $title, $shareby, $search, $referer, $options);
-		}
-
 		return new \ResponseData('ok');
 	}
 	/**

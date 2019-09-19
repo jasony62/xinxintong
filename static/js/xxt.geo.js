@@ -1,18 +1,18 @@
-(function() {
+(function () {
     window.xxt === undefined && (window.xxt = {});
     window.xxt.geo = {
         options: {},
-        getAddress: function($http, deferred, mpid) {
+        getAddress: function ($http, deferred, siteid) {
             var promise;
             promise = deferred.promise;
             if (window.wx) {
                 window.wx.getLocation({
-                    success: function(res) {
+                    success: function (res) {
                         var url = '/rest/app/enroll/locationGet';
-                        url += '?mpid=' + mpid;
+                        url += '?site=' + siteid;
                         url += '&lat=' + res.latitude;
                         url += '&lng=' + res.longitude;
-                        $http.get(url).success(function(rsp) {
+                        $http.get(url).success(function (rsp) {
                             if (rsp.err_code === 0) {
                                 deferred.resolve({
                                     errmsg: 'ok',
@@ -34,12 +34,12 @@
                     if (nav !== null) {
                         var geoloc = nav.geolocation;
                         if (geoloc !== null) {
-                            geoloc.getCurrentPosition(function(position) {
+                            geoloc.getCurrentPosition(function (position) {
                                 var url = '/rest/app/enroll/locationGet';
-                                url += '?mpid=' + mpid;
+                                url += '?site=' + siteid;
                                 url += '&lat=' + position.coords.latitude;
                                 url += '&lng=' + position.coords.longitude;
-                                $http.get(url).success(function(rsp) {
+                                $http.get(url).success(function (rsp) {
                                     if (rsp.err_code === 0) {
                                         deferred.resolve({
                                             errmsg: 'ok',
@@ -53,7 +53,7 @@
                                         });
                                     }
                                 });
-                            }, function() {
+                            }, function () {
                                 deferred.resolve({
                                     errmsg: '获取地理位置失败'
                                 })

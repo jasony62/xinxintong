@@ -53,7 +53,7 @@ class user extends \pl\fe\base {
 	 * 用户的交互足迹
 	 */
 	public function track_action($openid, $page = 1, $size = 30) {
-		$track = $this->model('log')->track($this->mpid, $openid, $page, $size);
+		$track = $this->model('log')->track($this->siteid, $openid, $page, $size);
 
 		return new \ResponseData($track);
 	}

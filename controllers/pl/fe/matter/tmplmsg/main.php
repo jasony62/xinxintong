@@ -56,7 +56,6 @@ class main extends \pl\fe\matter\base {
 		$model = $this->model();
 
 		$d['siteid'] = $site;
-		$d['mpid'] = $site;
 		$d['creater'] = $user->id;
 		$d['create_at'] = time();
 		$d['title'] = $title;
@@ -186,7 +185,6 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$d['siteid'] = $site;
-		$d['mpid'] = $site;
 		$d['creater'] = $user->id;
 		$d['create_at'] = time();
 		$p['siteid'] = $site;
@@ -326,10 +324,6 @@ class main extends \pl\fe\matter\base {
 	}
 	/**
 	 * 发送模板消息
-	 *
-	 * $mpid
-	 * $tmplmsgId
-	 * $openid
 	 */
 	protected function tmplSendByOpenid($site, $tmplmsgId, $openid, $data, $url = null, $snsConfig = null) {
 		/*模板定义*/

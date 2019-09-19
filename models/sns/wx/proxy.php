@@ -148,8 +148,6 @@ class proxy_model extends \sns\proxybase {
 	}
 	/**
 	 * 获得微信JSSDK签名包
-	 *
-	 * $mpid
 	 */
 	public function getJssdkSignPackage($url) {
 		$rst = $this->getJsApiTicket();

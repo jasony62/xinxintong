@@ -239,14 +239,14 @@ class channel_model extends article_base {
 		 * load channel.
 		 */
 		if (empty($channel)) {
-			$channel = $this->byId($channel_id, ['fields' => 'id,mpid,orderby,volume,top_type,top_id,bottom_type,bottom_id']);
+			$channel = $this->byId($channel_id, ['fields' => 'id,siteid,orderby,volume,top_type,top_id,bottom_type,bottom_id']);
 		}
 
 		/**
 		 * top matter
 		 */
 		if (!empty($channel->top_type) && $channel->top_type === 'article') {
-			$qt[] = "a.id,a.mpid,a.title,a.summary,a.pic,a.body,a.create_at";
+			$qt[] = "a.id,a.siteid,a.title,a.summary,a.pic,a.body,a.create_at";
 			$qt[] = 'xxt_article a';
 			$qt[] = "a.id='$channel->top_id' and a.state=1 and a.approved='Y'";
 			$top = $this->query_obj_ss($qt);
@@ -255,7 +255,7 @@ class channel_model extends article_base {
 		 * bottom matter
 		 */
 		if (!empty($channel->bottom_type) && $channel->bottom_type === 'article') {
-			$qb[] = 'a.id,a.mpid,a.title,a.summary,a.pic,a.body,a.create_at';
+			$qb[] = 'a.id,a.siteid,a.title,a.summary,a.pic,a.body,a.create_at';
 			$qb[] = 'xxt_article a';
 			$qb[] = "a.id='$channel->bottom_id' and a.state=1 and a.approved='Y'";
 			$bottom = $this->query_obj_ss($qb);
@@ -263,7 +263,7 @@ class channel_model extends article_base {
 		/**
 		 * load articles.
 		 */
-		$qa1[] = 'a.id,a.mpid,a.title,a.summary,a.pic,a.body,a.create_at,ca.create_at';
+		$qa1[] = 'a.id,a.siteid,a.title,a.summary,a.pic,a.body,a.create_at,ca.create_at';
 		$qa1[] = 'xxt_article a,xxt_channel_matter ca';
 		$qaw = "ca.channel_id=$channel_id and a.id=ca.matter_id and ca.matter_type='article' and a.state=1 and a.approved='Y'";
 		if (!empty($top)) {

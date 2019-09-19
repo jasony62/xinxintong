@@ -326,10 +326,15 @@ class base extends \site\fe\base {
                         }
                     } else {
                         /* 当前注册用户绑定的信息 */
-                        $aSiteUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oMatter->siteid, 'fields' => $propSnsOpenid]);
+                        $q = [
+                            'distinct ' . $propSnsOpenid,
+                            'xxt_site_account',
+                            ["unionid" => $oUser->unionid, $propSnsOpenid => (object) ['op' => '<>', 'pat' => '']]
+                        ];
+                        $aSiteUsers = $modelAcnt->query_objs_ss($q);
+
                         foreach ($aSiteUsers as $oSiteUser) {
-                            $oSiteUser = $modelAcnt->byId($oUser->uid, ['fields' => $propSnsOpenid]);
-                            if ($oSiteUser && $fnCheckSnsFollow($snsName, $oMatter->siteid, $oSiteUser->{$propSnsOpenid})) {
+                            if ($fnCheckSnsFollow($snsName, $oMatter->siteid, $oSiteUser->{$propSnsOpenid})) {
                                 $bFollowed = true;
                                 $oFollowedRule = $rule;
                                 break;

@@ -1,8 +1,8 @@
 'use strict';
-define(['frame'], function (ngApp) {
-    ngApp.provider.service('srvEnrollee', ['$uibModal', 'http2', 'tmsRowPicker', 'noticebox', 'tkEnrollRound', 'srvEnrollRecord', function ($uibModal, http2, tmsRowPicker, noticebox, tkEnlRnd, srvEnlRec) {
+define(['frame'], function(ngApp) {
+    ngApp.provider.service('srvEnrollee', ['$uibModal', 'http2', 'tmsRowPicker', 'noticebox', 'tkEnrollRound', 'srvEnrollRecord', function($uibModal, http2, tmsRowPicker, noticebox, tkEnlRnd, srvEnlRec) {
         var _oCriteria, _oRows, _oPage;
-        this.init = function (oApp, rids) {
+        this.init = function(oApp, rids) {
             this.app = oApp;
             this.rids = rids;
             this.page = _oPage = {
@@ -15,13 +15,13 @@ define(['frame'], function (ngApp) {
             };
             this.rows = _oRows = new tmsRowPicker();
         };
-        this.list = function (pageAt) {
+        this.list = function(pageAt) {
             var url = '/rest/pl/fe/matter/enroll/user/enrollee?app=' + this.app.id;
             _oRows.reset();
             pageAt && (_oPage.at = pageAt);
             http2.post(url, _oCriteria, {
                 page: _oPage
-            }).then(function (rsp) {
+            }).then(function(rsp) {
                 var users = rsp.data.users;
                 var oRounds = rsp.data.rounds || {
                     'ALL': {
@@ -29,72 +29,72 @@ define(['frame'], function (ngApp) {
                     }
                 };
                 srvEnlRec.init(this.app, _oPage, _oCriteria, users);
-                users.forEach(function (oUser) {
+                users.forEach(function(oUser) {
                     oUser.round = oRounds[oUser.rid] || {};
                 });
                 this.enrollees = users;
             }.bind(this));
         };
-        this.chooseOrderby = function (orderby) {
+        this.chooseOrderby = function(orderby) {
             _oCriteria.orderby = orderby;
             this.list(1);
         };
-        this.advFilter = function () {
+        this.advFilter = function() {
             http2.post('/rest/script/time', {
                 html: {
                     'enrollee': '/views/default/pl/fe/matter/enroll/component/enrolleeFilter'
                 }
-            }).then(function (rsp) {
+            }).then(function(rsp) {
                 $uibModal.open({
                     templateUrl: '/views/default/pl/fe/matter/enroll/component/enrolleeFilter.html?_=' + rsp.data.html.enrollee.time,
-                    controller: ['$scope', '$uibModalInstance', function ($scope2, $mi) {
+                    controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                         $scope2.app = this.app;
                         $scope2.criteria = _oCriteria;
                         $scope2.page = {
                             size: 7
                         };
-                        $scope2.doSearchRound = function () {
+                        $scope2.doSearchRound = function() {
                             http2.get('/rest/pl/fe/matter/enroll/round/list?app=' + this.app.id, {
                                 page: $scope2.page
-                            }).then(function (rsp) {
+                            }).then(function(rsp) {
                                 $scope2.rounds = rsp.data.rounds;
                             });
                         };
-                        $scope2.ok = function () {
+                        $scope2.ok = function() {
                             $mi.close($scope2.criteria);
                         };
-                        $scope2.cancel = function () {
+                        $scope2.cancel = function() {
                             $mi.dismiss();
                         };
                         $scope2.doSearchRound();
                     }.bind(this)],
                     windowClass: 'auto-height',
                     backdrop: 'static',
-                }).result.then(function () {
+                }).result.then(function() {
                     this.list(1);
                 }.bind(this));
             }.bind(this));
         };
-        this.notify = function (isBatch) {
+        this.notify = function(isBatch) {
             srvEnlRec.notify(isBatch ? _oRows : null);
         };
-        this.repairEnrollee = function () {
+        this.repairEnrollee = function() {
             var url = '/rest/pl/fe/matter/enroll/repair/user';
             url += '?app=' + this.app.id;
-            http2.get(url).then(function () {
+            http2.get(url).then(function() {
                 this.list(1);
             }.bind(this));
         };
-        this.repairCoin = function () {
+        this.repairCoin = function() {
             tkEnlRnd.pick(this.app, {
                 single: false
-            }).then(function (oResult) {
+            }).then(function(oResult) {
                 function fnResetCoinByRound(i) {
                     if (i < rids.length) {
                         var url = '/rest/pl/fe/matter/enroll/repair/userCoin';
                         url += '?app=' + this.app.id;
                         url += '&rid=' + rids[i];
-                        http2.get(url).then(function () {
+                        http2.get(url).then(function() {
                             fnResetCoinByRound.call(this, ++i);
                         }.bind(this));
                     } else {
@@ -106,66 +106,72 @@ define(['frame'], function (ngApp) {
                 rids.length && fnResetCoinByRound.call(this, 0);
             }.bind(this));
         };
-        this.repairGroup = function () {
+        this.repairGroup = function() {
             var url = '/rest/pl/fe/matter/enroll/repair/userGroup';
             url += '?app=' + this.app.id;
-            http2.get(url).then(function () {
+            http2.get(url).then(function() {
                 this.list(1);
             }.bind(this));
         };
-        this.export = function () {
+        this.export = function() {
             var url = '/rest/pl/fe/matter/enroll/export/enrollee';
             url += '?app=' + this.app.id;
             if (_oCriteria.rids) url += '&rids=' + _oCriteria.rids;
             window.open(url);
         };
+        this.taskList = function() {
+            http2.get('rest/pl/fe/matter/enroll/task/list?site=' + this.app.siteid + '&app=' + this.app.id).then(function(rsp) {
+                console.log(rsp.data);
+                this.tasks = rsp.data;
+            }.bind(this));
+        }
     }]);
-    ngApp.provider.service('srvGroup', ['http2', 'tkEnrollRound', function (http2, tkEnlRnd) {
-        this.init = function (oApp, rids) {
+    ngApp.provider.service('srvGroup', ['http2', 'tkEnrollRound', function(http2, tkEnlRnd) {
+        this.init = function(oApp, rids) {
             this.app = oApp;
             this.rids = rids;
         };
-        this.list = function (rid) {
+        this.list = function(rid) {
             var that = this;
             var url;
             url = '/rest/pl/fe/matter/enroll/user/group?app=' + this.app.id;
             this.rids !== undefined && (url += '&rids=' + this.rids)
-            http2.post(url, {}).then(function (rsp) {
-                var groups = rsp.data.groups;
-                if (groups) {
+            http2.post(url, {}).then(function(rsp) {
+                if (rsp.data.groups && rsp.data.groups.length) {
+                    var groups = rsp.data.groups;
                     var oRounds = rsp.data.rounds || {
                         'ALL': {
                             title: '全部轮次'
                         }
                     };
-                    groups.forEach(function (oGroup) {
+                    groups.forEach(function(oGroup) {
                         if (oGroup.data && oGroup.data.rid)
                             oGroup.round = oRounds[oGroup.data.rid];
                     });
+                    that.groups = groups;
                 }
-                that.groups = groups;
             });
         };
-        this.chooseRound = function () {
+        this.chooseRound = function() {
             var that = this;
             tkEnlRnd.pick(this.app, {
                 single: false
-            }).then(function (oResult) {
+            }).then(function(oResult) {
                 that.rids = oResult.rid;
                 that.list();
             })
         };
     }]);
-    ngApp.provider.service('srvUndone', ['http2', 'tmsSchema', 'tkEnrollRound', function (http2, tmsSchema, tkEnlRnd) {
-        this.init = function (oApp, rids) {
+    ngApp.provider.service('srvUndone', ['http2', 'tmsSchema', 'tkEnrollRound', function(http2, tmsSchema, tkEnlRnd) {
+        this.init = function(oApp, rids) {
             this.app = oApp;
             this.rids = rids;
         };
-        this.list = function () {
+        this.list = function() {
             var that = this;
             var url = '/rest/pl/fe/matter/enroll/user/undone?app=' + this.app.id;
             this.rids !== undefined && (url += '&rids=' + this.rids)
-            http2.post(url, {}).then(function (rsp) {
+            http2.post(url, {}).then(function(rsp) {
                 var schemasById;
                 var absentUsers = [];
                 var oRunds = rsp.data.rounds;
@@ -173,9 +179,9 @@ define(['frame'], function (ngApp) {
                     var rids, users;
                     rids = Object.keys(oRunds);
                     if (rids && rids.length) {
-                        rids.forEach(function (rid) {
+                        rids.forEach(function(rid) {
                             if (users = rsp.data.users[rid]) {
-                                users.forEach(function (oUser) {
+                                users.forEach(function(oUser) {
                                     oUser.round = oRunds[rid];
                                     absentUsers.push(oUser);
                                 });
@@ -189,54 +195,63 @@ define(['frame'], function (ngApp) {
                     that.absentApp = rsp.data.app;
                     if (that.absentApp.dataSchemas) {
                         schemasById = {};
-                        that.absentApp.dataSchemas.forEach(function (oSchema) {
+                        that.absentApp.dataSchemas.forEach(function(oSchema) {
                             schemasById[oSchema.id] = oSchema;
                         });
-                        that.absentUsers.forEach(function (oUser) {
+                        that.absentUsers.forEach(function(oUser) {
                             tmsSchema.forTable(oUser, schemasById);
                         });
                     }
                 }
             });
         };
-        this.chooseRound = function () {
+        this.chooseRound = function() {
             var that = this;
             tkEnlRnd.pick(this.app, {
                 single: false
-            }).then(function (oResult) {
+            }).then(function(oResult) {
                 that.rids = oResult.rid;
                 that.list();
             })
         };
-        this.export = function () {
+        this.export = function() {
             var url = '/rest/pl/fe/matter/enroll/export/undone';
             url += '?app=' + this.app.id;
             if (this.rids) url += '&rids=' + this.rids;
             window.open(url);
         };
     }]);
-    ngApp.provider.controller('ctrlEnrollee', ['$scope', 'facListFilter', 'srvEnrollee', 'srvGroup', 'srvUndone', function ($scope, facListFilter, srvEnrollee, srvGroup, srvUndone) {
+    ngApp.provider.controller('ctrlEnrollee', ['$scope', 'facListFilter', 'srvEnrollee', 'srvGroup', 'srvUndone', function($scope, facListFilter, srvEnrollee, srvGroup, srvUndone) {
         $scope.category = 'enrollee';
         $scope.categories = {
             enrollee: '用户',
             absent: '缺席',
         };
         $scope.tmsTableWrapReady = 'N';
-        $scope.$watch('srvEnrollee.rows.allSelected', function (nv) {
+        $scope.tmsTasks = {
+            "enroll_num": "默认任务",
+            "baseline": "目标",
+            "question": "提问",
+            "answer": "回答",
+            "vote": "投票",
+            "score": "打分"
+        }
+        $scope.$watch('srvEnrollee.rows.allSelected', function(nv) {
             if ($scope.enrollees) {
                 srvEnrollee.rows.setAllSelected(nv, $scope.enrollees.length);
             }
         });
-        $scope.shiftCategory = function (category) {
+        $scope.shiftCategory = function(category) {
             $scope.category = category;
         };
-        $scope.$watch('app.entryRule', function (oRule) {
+        $scope.$watch('app.entryRule', function(oRule) {
             if (!oRule) return;
             $scope.tmsTableWrapReady = 'Y';
             srvEnrollee.init($scope.app);
             srvEnrollee.list(1);
+            srvEnrollee.taskList();
             $scope.srvEnrollee = srvEnrollee;
-            $scope.filter = facListFilter.init(function () {
+            $scope.filter = facListFilter.init(function() {
                 srvEnrollee.list(1);
             }, srvEnrollee.criteria.filter);
             // 用户组

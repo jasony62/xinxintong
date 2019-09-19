@@ -56,8 +56,8 @@ class main extends \pl\fe\matter\main_base {
             $w .= " and a.title like '%" . $oOptions->byTitle . "%'";
         }
         if (!empty($oOptions->byCreator)) {
-			$w .= " and a.creater_name like '%" . $oOptions->byCreator . "%'";
-		}
+            $w .= " and a.creater_name like '%" . $oOptions->byCreator . "%'";
+        }
         if (!empty($oOptions->byTags)) {
             foreach ($oOptions->byTags as $tag) {
                 $w .= " and a.matter_mg_tag like '%" . $tag->id . "%'";
@@ -205,14 +205,12 @@ class main extends \pl\fe\matter\main_base {
         if (empty($mission)) {
             $oSite = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
             $oArticle->siteid = $oSite->id;
-            $oArticle->mpid = $oSite->id;
             $oArticle->pic = $oSite->heading_pic; //使用站点的缺省头图
             $oArticle->summary = '';
         } else {
             $modelMis = $this->model('matter\mission');
             $oMission = $modelMis->byId($mission);
             $oArticle->siteid = $oMission->siteid;
-            $oArticle->mpid = $oMission->siteid;
             $oArticle->summary = $modelArt->escape($oMission->summary);
             $oArticle->pic = $oMission->pic;
             $oArticle->mission_id = $oMission->id;
@@ -427,11 +425,10 @@ class main extends \pl\fe\matter\main_base {
             );
         }
 
-        $pmpid = $this->getParentMpid();
         $rst = $this->model()->update(
             'xxt_article',
             $data,
-            "(mpid='$site' or mpid='$pmpid') and id='$id'"
+            ['siteid' => $site, 'id' => $id]
         );
 
         return new \ResponseData($data);

@@ -12,8 +12,8 @@ $sql .= ',matter_type varchar(20) not null';
 $sql .= ",matter_id varchar(40) not null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 文本事件响应映射关系
@@ -27,8 +27,8 @@ $sql .= ',matter_type varchar(20) not null';
 $sql .= ",matter_id varchar(40) not null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 菜单回复设置
@@ -49,8 +49,8 @@ $sql .= ",matter_id varchar(40) not null default ''";
 $sql .= ",asview char(1) not null default 'N'";
 $sql .= ",primary key(siteid,version,menu_key)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 菜单回复设置
@@ -71,8 +71,8 @@ $sql .= ",matter_id varchar(40) not null default ''";
 $sql .= ",asview char(1) not null default 'N'";
 $sql .= ",primary key(siteid,version,menu_key)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 菜单回复设置
@@ -93,8 +93,8 @@ $sql .= ",matter_id varchar(40) not null default ''";
 $sql .= ",asview char(1) not null default 'N'";
 $sql .= ",primary key(siteid,version,menu_key)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 二维码信息
@@ -112,8 +112,8 @@ $sql .= ',matter_id varchar(40)';
 $sql .= ',params text';
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 二维码信息
@@ -131,24 +131,8 @@ $sql .= ',matter_id varchar(40)';
 $sql .= ',params text';
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
-}
-/**
- * 固定回复信息
- */
-$sql = "create table if not exists xxt_call_other(";
-$sql .= 'id int not null auto_increment';
-$sql .= ',siteid varchar(32) not null';
-$sql .= ",mpid varchar(32) not null";
-$sql .= ',name varchar(50) not null'; // subscribe/universal
-$sql .= ',title varchar(50) not null'; // 关注/缺省
-$sql .= ',matter_type varchar(20)'; // Text,Article,News
-$sql .= ",matter_id varchar(40) default ''";
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 固定回复信息
@@ -162,8 +146,8 @@ $sql .= ',matter_type varchar(20)'; // Text,Article,News
 $sql .= ",matter_id varchar(40) default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 固定回复信息
@@ -177,8 +161,8 @@ $sql .= ',matter_type varchar(20)'; // Text,Article,News
 $sql .= ",matter_id varchar(40) default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 固定回复信息
@@ -192,8 +176,8 @@ $sql .= ',matter_type varchar(20)'; // Text,Article,News
 $sql .= ",matter_id varchar(40) default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 设置转发接口
@@ -207,8 +191,8 @@ $sql .= ",url text null";
 $sql .= ',state tinyint not null default 1'; // 1:正常, 0:停用
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_mprelay): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_mprelay): ' . $mysqli->error;
 }
 /**
  * 设置转发接口
@@ -222,8 +206,8 @@ $sql .= ",url text null";
 $sql .= ',state tinyint not null default 1'; // 1:正常, 0:停用
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_mprelay): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_mprelay): ' . $mysqli->error;
 }
 /**
  * 设置转发接口
@@ -237,8 +221,8 @@ $sql .= ",url text null";
 $sql .= ',state tinyint not null default 1'; // 1:正常, 0:停用
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_mprelay): ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_mprelay): ' . $mysqli->error;
 }
 /**
  * 定时消息推送
@@ -268,6 +252,6 @@ $sql .= ",task_expire_at int not null default 0"; // 任务过期时间
 $sql .= ",invalid_cause text null"; // 任务失效的原因
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
 }

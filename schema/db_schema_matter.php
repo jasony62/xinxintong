@@ -6,7 +6,6 @@ require_once '../db.php';
 $sql = "create table if not exists xxt_article(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
-$sql .= ",mpid varchar(32) not null default ''"; // should be removed
 $sql .= ",entry text"; // 创建图文的入口，管理端，投稿活动等
 $sql .= ",target_mps text"; // 发布到哪个子账号 // should be removed
 $sql .= ",creater varchar(40) not null default ''"; //accountid/fid
@@ -71,33 +70,11 @@ if (!$mysqli->query($sql)) {
     echo 'database error: ' . $mysqli->error;
 }
 /**
- * 文章发布过程日志
- */
-$sql = "create table if not exists xxt_article_download_log(";
-$sql .= "id int not null auto_increment";
-$sql .= ",siteid varchar(32) not null";
-$sql .= ",userid varchar(40) not null";
-$sql .= ",vid varchar(32) not null default ''";
-$sql .= ",openid varchar(255) not null default ''";
-$sql .= ",nickname varchar(255) not null default ''";
-$sql .= ",download_at int not null";
-$sql .= ",mpid varchar(32) not null default ''";
-$sql .= ",article_id int not null";
-$sql .= ",attachment_id int not null";
-$sql .= ",user_agent text";
-$sql .= ",client_ip varchar(40) not null default ''";
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
-}
-/**
  * 外部链接
  */
 $sql = "create table if not exists xxt_link(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
-$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",creater varchar(40) not null";
 $sql .= ",creater_name varchar(255) not null default ''"; //from account or fans
 $sql .= ",create_at int not null";
@@ -125,10 +102,7 @@ if (!$mysqli->query($sql)) {
     echo 'database error: ' . $mysqli->error;
 }
 /**
- * {{mpid}}
- * {{src}}
- * {{openid}}
- * {{authed_identity}}
+ * 链接参数
  */
 $sql = "create table if not exists xxt_link_param(";
 $sql .= "id int not null auto_increment";
@@ -147,7 +121,6 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_text(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
-$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",creater varchar(40) not null";
 $sql .= ",creater_name varchar(255) not null default ''"; //from account or fans
 $sql .= ",create_at int not null";
@@ -165,54 +138,10 @@ if (!$mysqli->query($sql)) {
     echo 'database error: ' . $mysqli->error;
 }
 /**
- * 多图文
- */
-$sql = "create table if not exists xxt_news(";
-$sql .= "id int not null auto_increment";
-$sql .= ",mpid varchar(32) not null default ''";
-$sql .= ",siteid varchar(32) not null default ''";
-$sql .= ",creater varchar(40) not null";
-$sql .= ",create_at int not null";
-$sql .= ",creater_name varchar(255) not null default ''"; //from account or fans
-$sql .= ",modifier varchar(40) not null default ''"; //accountid/fid
-$sql .= ",modifier_name varchar(255) not null default ''"; //from account or fans
-$sql .= ",modify_at int not null";
-$sql .= ",public_visible char(1) not null default 'N'";
-$sql .= ",state tinyint not null default 1"; //0:stop,1:normal
-$sql .= ",title varchar(70) not null";
-$sql .= ",pic text"; // head image.
-$sql .= ",summary varchar(240) not null default ''";
-$sql .= ",filter_by_matter_acl char(1) not null default 'Y'"; // 根据素材的访问控制进行过滤
-$sql .= ",empty_reply_type varchar(20) not null default ''";
-$sql .= ",empty_reply_id varchar(40) not null default ''";
-$sql .= ",read_num int not null default 0"; // 阅读数
-$sql .= ",share_friend_num int not null default 0"; // 分享给好友数
-$sql .= ",share_timeline_num int not null default 0"; // 分享朋友圈数
-$sql .= ",matter_mg_tag varchar(255) not null default ''";
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
-}
-/**
- * 组成新闻的素材
- */
-$sql = "create table if not exists xxt_news_matter(";
-$sql .= "news_id int not null";
-$sql .= ",matter_id varchar(40) not null";
-$sql .= ",matter_type varchar(20)"; //
-$sql .= ",seq int not null";
-$sql .= ",primary key(news_id,matter_id,matter_type)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
-}
-/**
  * 频道
  */
 $sql = "create table if not exists xxt_channel(";
 $sql .= "id int not null auto_increment";
-$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",creater varchar(40) not null";
 $sql .= ",create_at int not null";
@@ -295,7 +224,6 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_tmplmsg(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
-$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",templateid varchar(128) not null default ''";
 $sql .= ",creater varchar(40) not null";
 $sql .= ",create_at int not null";
@@ -340,7 +268,6 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_matter_acl(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
-$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",matter_type char(20) not null";
 $sql .= ",matter_id varchar(40) not null";
 $sql .= ",identity varchar(100) not null";

@@ -155,7 +155,7 @@ class leave_model extends \matter\base_model {
             return false;
         }
         foreach ($leaves as $oLeave) {
-            if ($oLeave->begin_at < $startAt && $oLeave->end_at > $endAt) {
+            if ($oLeave->begin_at <= $startAt && $oLeave->end_at >= $endAt) {
                 return $oLeave;
             }
         }

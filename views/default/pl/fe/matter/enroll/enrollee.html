@@ -41,7 +41,7 @@
                         <li class="divider"></li>
                         <li><a href ng-click="srvEnrollee.repairGroup()">重置用户所属分组</a></li>
                         <li class="divider"></li>
-                        <li><a href ng-click="srvEnrollee.repairCoin()">重置用户行为分</a></li>
+                        <li><a href ng-click="repairCoin()">重置用户行为分</a></li>
                         <li><a href ng-click="srvEnrollee.repairEnrollee()">重置用户汇总数据</a></li>
                     </ul>
                 </div>
@@ -56,244 +56,248 @@
             <div class='form-group pull-right' ng-if="category==='enrollee'">
                 <button type='button' class='btn btn-default' ng-click="srvEnrollee.list()"><i class='glyphicon glyphicon-refresh'></i> 刷新</button>
             </div>
+            <div class='form-group pull-right' ng-if="category==='group'">
+                <button type='button' class='btn btn-default' ng-click="srvGroup.list()"><i class='glyphicon glyphicon-refresh'></i> 刷新</button>
+            </div>
         </div>
     </div>
-    <div ng-switch on='category'>
-        <div ng-switch-when="enrollee">
-            <div tms-flex-height top='117' bottom='66' class='form-group' style='width:100%;'>
-                <div id='enrollRecords' tms-table-wrap ready='tmsTableWrapReady'>
-                    <table class='table table-bordered'>
-                        <thead>
-                            <tr>
-                                <th style='width:28px'>
-                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="srvEnrollee.rows.allSelected">
-                                </th>
-                                <th style='width:48px'>序号</th>
-                                <th style='width:120px'>轮次</th>
-                                <th data-filter-by='nickname' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)" style='width:75px'>姓名 <i class='glyphicon glyphicon-filter'></i></th>
-                                <th style='width:120px'>分组</th>
-                                <th>数据分</th>
-                                <th>行为分</th>
-                                <th style='width:100px'>最近访问</th>
-                                <th style='width:100px'>总访问次数</th>
-                                <th style='width:100px'>总访问时长</th>
-                                <th style='width:75px'>填写记录</th>
-                                <th style='width:75px'>发表留言</th>
-                                <th style='width:75px'>发表点赞</th>
-                                <th style='width:75px'>获得推荐</th>
-                                <th style='width:120px'>浏览共享页次数</th>
-                                <th style='width:120px'>浏览专题页次数</th>
-                                <th style='width:130px'>专题页被浏览次数</th>
-                                <th style='width:120px'>浏览讨论页次数</th>
-                                <th style='width:130px'>讨论页被浏览次数</th>
-                                <th style='width:150px'>共享页浏览累计时间</th>
-                                <th style='width:150px'>专题页浏览累计时间</th>
-                                <th style='width:160px'>专题页被浏览累计时间</th>
-                                <th style='width:150px'>讨论页浏览累计时间</th>
-                                <th style='width:160px'>讨论页被浏览累计时间</th>
-                                <th ng-if="sns.wx.joined=='Y'">微信昵称</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat='e in srvEnrollee.enrollees'>
-                                <td>
-                                    <input type='checkbox' ng-model="srvEnrollee.rows.selected[$index]" ng-change="srvEnrollee.rows.change($index)">
-                                </td>
-                                <td>{{$index+1}}</td>
-                                <td>
-                                    <div ng-if='e.round.title'>{{e.round.title}}</div>
-                                </td>
-                                <td>{{e.nickname}}</td>
-                                <td>
-                                    <div ng-if='e.group'>{{e.group.title}}</div>
-                                </td>
-                                <td>
-                                    <div ng-if='e.score'>{{e.score}}</div>
-                                </td>
-                                <td>
-                                    <div ng-if='e.user_total_coin'>{{e.user_total_coin}}</div>
-                                </td>
-                                <td>
-                                    <div ng-if='e.last_entry_at>0'>{{::e.last_entry_at*1000|date:'MM-dd HH:mm'}}</div>
-                                </td>
-                                <td>
-                                    <div ng-if='e.entry_num'>{{e.entry_num}}</div>
-                                </td>
-                                <td>{{e.total_elapse | filterTime}}</td>
-                                <td>
-                                    <div ng-if='e.enroll_num'>{{e.enroll_num}}</div>
-                                </td>
-                                <td>
-                                    <div ng-if='e.do_remark_num'>{{e.do_remark_num}}</div>
-                                </td>
-                                <td>
-                                    <div ng-if='e.do_like_num'>{{e.do_like_num}}</div>
-                                </td>
-                                <td>
-                                    <div ng-if='e.agree_num'>{{e.agree_num}}</div>
-                                </td>
-                                <td>{{e.do_repos_read_num}}</td>
-                                <td>{{e.do_topic_read_num}}</td>
-                                <td>{{e.topic_read_num}}</td>
-                                <td>{{e.do_cowork_read_num}}</td>
-                                <td>{{e.cowork_read_num}}</td>
-                                <td>{{e.do_repos_read_elapse | filterTime}}</td>
-                                <td>{{e.do_topic_read_elapse | filterTime}}</td>
-                                <td>{{e.topic_read_elapse | filterTime}}</td>
-                                <td>{{e.do_cowork_read_elapse | filterTime}}</td>
-                                <td>{{e.cowork_read_elapse | filterTime}}</td>
-                                <td ng-if="sns.wx.joined=='Y'">
-                                    <div ng-show="e.wx_openid">{{e.wxfan.nickname}}</div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class='form-group'>
-                <div class='pl-pagination'>
-                    <span>总数：{{srvEnrollee.page.total}}</span>
-                    <ul uib-pagination class='pull-right' ng-if='srvEnrollee.page.total>srvEnrollee.page.size' boundary-links="true" total-items="srvEnrollee.page.total" max-size="7" items-per-page="srvEnrollee.page.size" rotate="false" ng-model="srvEnrollee.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="srvEnrollee.list()"></ul>
-                </div>
+</div>
+<div ng-switch on='category'>
+    <div ng-switch-when="enrollee">
+        <div tms-flex-height top='117' bottom='66' class='form-group' style='width:100%;'>
+            <div id='enrollRecords' tms-table-wrap ready='tmsTableWrapReady'>
+                <table class='table table-bordered'>
+                    <thead>
+                        <tr>
+                            <th style='width:28px'>
+                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="srvEnrollee.rows.allSelected">
+                            </th>
+                            <th style='width:48px'>序号</th>
+                            <th style='width:120px'>轮次</th>
+                            <th data-filter-by='nickname' class='th-action' uib-popover-template="'filterBy.html'" popover-placement="bottom" popover-append-to-body="true" popover-trigger="'show'" ng-click="filter.show($event)" style='width:75px'>姓名 <i class='glyphicon glyphicon-filter'></i></th>
+                            <th style='width:120px'>分组</th>
+                            <th>数据分</th>
+                            <th>行为分</th>
+                            <th style='width:100px'>最近访问</th>
+                            <th style='width:100px'>总访问次数</th>
+                            <th style='width:100px'>总访问时长</th>
+                            <th style='width:75px'>填写记录</th>
+                            <th style='width:75px'>发表留言</th>
+                            <th style='width:75px'>发表点赞</th>
+                            <th style='width:75px'>获得推荐</th>
+                            <th style='width:120px'>浏览共享页次数</th>
+                            <th style='width:120px'>浏览专题页次数</th>
+                            <th style='width:130px'>专题页被浏览次数</th>
+                            <th style='width:120px'>浏览讨论页次数</th>
+                            <th style='width:130px'>讨论页被浏览次数</th>
+                            <th style='width:150px'>共享页浏览累计时间</th>
+                            <th style='width:150px'>专题页浏览累计时间</th>
+                            <th style='width:160px'>专题页被浏览累计时间</th>
+                            <th style='width:150px'>讨论页浏览累计时间</th>
+                            <th style='width:160px'>讨论页被浏览累计时间</th>
+                            <th ng-if="sns.wx.joined=='Y'">微信昵称</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat='e in srvEnrollee.enrollees'>
+                            <td>
+                                <input type='checkbox' ng-model="srvEnrollee.rows.selected[$index]" ng-change="srvEnrollee.rows.change($index)">
+                            </td>
+                            <td>{{$index+1}}</td>
+                            <td>
+                                <div ng-if='e.round.title'>{{e.round.title}}</div>
+                            </td>
+                            <td>{{e.nickname}}</td>
+                            <td>
+                                <div ng-if='e.group'>{{e.group.title}}</div>
+                            </td>
+                            <td>
+                                <div ng-if='e.score'>{{e.score}}</div>
+                            </td>
+                            <td>
+                                <div ng-if='e.user_total_coin'>{{e.user_total_coin}}</div>
+                            </td>
+                            <td>
+                                <div ng-if='e.last_entry_at>0'>{{::e.last_entry_at*1000|date:'MM-dd HH:mm'}}</div>
+                            </td>
+                            <td>
+                                <div ng-if='e.entry_num'>{{e.entry_num}}</div>
+                            </td>
+                            <td>{{e.total_elapse | filterTime}}</td>
+                            <td>
+                                <div ng-if='e.enroll_num'>{{e.enroll_num}}</div>
+                            </td>
+                            <td>
+                                <div ng-if='e.do_remark_num'>{{e.do_remark_num}}</div>
+                            </td>
+                            <td>
+                                <div ng-if='e.do_like_num'>{{e.do_like_num}}</div>
+                            </td>
+                            <td>
+                                <div ng-if='e.agree_num'>{{e.agree_num}}</div>
+                            </td>
+                            <td>{{e.do_repos_read_num}}</td>
+                            <td>{{e.do_topic_read_num}}</td>
+                            <td>{{e.topic_read_num}}</td>
+                            <td>{{e.do_cowork_read_num}}</td>
+                            <td>{{e.cowork_read_num}}</td>
+                            <td>{{e.do_repos_read_elapse | filterTime}}</td>
+                            <td>{{e.do_topic_read_elapse | filterTime}}</td>
+                            <td>{{e.topic_read_elapse | filterTime}}</td>
+                            <td>{{e.do_cowork_read_elapse | filterTime}}</td>
+                            <td>{{e.cowork_read_elapse | filterTime}}</td>
+                            <td ng-if="sns.wx.joined=='Y'">
+                                <div ng-show="e.wx_openid">{{e.wxfan.nickname}}</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-        <div ng-switch-when="group">
-            <div tms-flex-height top='117' bottom='66' class='form-group' style='width:100%;'>
-                <div id='enrollRecords' tms-table-wrap ready='tmsTableWrapReady'>
-                    <table class='table table-bordered'>
-                        <thead>
-                            <tr>
-                                <th style='width:48px'>序号</th>
-                                <th style='width:120px'>轮次</th>
-                                <th style='width:120px'>分组</th>
-                                <th>数据分</th>
-                                <th>用户行为分</th>
-                                <th>分组行为分</th>
-                                <th style='width:100px'>总访问次数</th>
-                                <th style='width:100px'>总访问时长</th>
-                                <th style='width:75px'>填写记录</th>
-                                <th style='width:75px'>发表留言</th>
-                                <th style='width:75px'>发表点赞</th>
-                                <th style='width:75px'>获得推荐</th>
-                                <th style='width:120px'>浏览共享页次数</th>
-                                <th style='width:120px'>浏览专题页次数</th>
-                                <th style='width:130px'>专题页被浏览次数</th>
-                                <th style='width:120px'>浏览讨论页次数</th>
-                                <th style='width:130px'>讨论页被浏览次数</th>
-                                <th style='width:150px'>共享页浏览累计时间</th>
-                                <th style='width:150px'>专题页浏览累计时间</th>
-                                <th style='width:160px'>专题页被浏览累计时间</th>
-                                <th style='width:150px'>讨论页浏览累计时间</th>
-                                <th style='width:160px'>讨论页被浏览累计时间</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat='g in srvGroup.groups'>
-                                <td>{{$index+1}}</td>
-                                <td>
-                                    <div ng-if='g.round.title'>{{g.round.title}}</div>
-                                </td>
-                                <td>
-                                    <div ng-if='g.title'>{{g.title}}</div>
-                                </td>
-                                <td>
-                                    <div ng-if='g.data.score'>{{g.data.score}}</div>
-                                </td>
-                                <td>
-                                    <div ng-if='g.data.user_total_coin'>{{g.data.user_total_coin}}</div>
-                                </td>
-                                <td>
-                                    <div ng-if='g.data.group_total_coin'>{{g.data.group_total_coin}}</div>
-                                </td>
-                                <td>
-                                    <div ng-if='g.data.entry_num'>{{g.data.entry_num}}</div>
-                                </td>
-                                <td>
-                                    <div ng-if='g.data.total_elapse>0'>{{g.data.total_elapse | filterTime}}</div>
-                                </td>
-                                <td>
-                                    <div ng-if='g.data.enroll_num'>{{g.data.enroll_num}}</div>
-                                </td>
-                                <td>
-                                    <div ng-if='g.data.do_remark_num'>{{g.data.do_remark_num}}</div>
-                                </td>
-                                <td>
-                                    <div ng-if='g.data.do_like_num'>{{g.data.do_like_num}}</div>
-                                </td>
-                                <td>
-                                    <div ng-if='g.data.agree_num'>{{g.data.agree_num}}</div>
-                                </td>
-                                <td>{{g.data.do_repos_read_num}}</td>
-                                <td>{{g.data.do_topic_read_num}}</td>
-                                <td>{{g.data.topic_read_num}}</td>
-                                <td>{{g.data.do_cowork_read_num}}</td>
-                                <td>{{g.data.cowork_read_num}}</td>
-                                <td>
-                                    <div ng-if="g.data.do_repos_read_elapse>0">{{g.data.do_repos_read_elapse | filterTime}}</div>
-                                </td>
-                                <td>
-                                    <div ng-if="g.data.do_topic_read_elapse>0">{{g.data.do_topic_read_elapse | filterTime}}</div>
-                                </td>
-                                <td>
-                                    <div ng-if="g.data.topic_read_elapse>0">{{g.data.topic_read_elapse | filterTime}}</div>
-                                </td>
-                                <td>
-                                    <div ng-if="g.data.do_cowork_read_elapse>0">{{g.data.do_cowork_read_elapse | filterTime}}</div>
-                                </td>
-                                <td>
-                                    <div ng-if="g.data.cowork_read_elapse>0">{{g.data.cowork_read_elapse | filterTime}}</div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+        <div class='form-group'>
+            <div class='pl-pagination'>
+                <span>总数：{{srvEnrollee.page.total}}</span>
+                <ul uib-pagination class='pull-right' ng-if='srvEnrollee.page.total>srvEnrollee.page.size' boundary-links="true" total-items="srvEnrollee.page.total" max-size="7" items-per-page="srvEnrollee.page.size" rotate="false" ng-model="srvEnrollee.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="srvEnrollee.list()"></ul>
             </div>
-        </div>
-        <div ng-switch-when="absent">
-            <table class='table table-bordered'>
-                <thead>
-                    <tr>
-                        <th style='width:48px'>序号</th>
-                        <th style='width:120px'>轮次</th>
-                        <th style='width:75px'>姓名</th>
-                        <th style='width:120px'>分组</th>
-                        <th style='width:120px'>请假（开始）</th>
-                        <th style='width:120px'>请假（结束）</th>
-                        <th ng-repeat="task in srvEnrollee.tasks">{{tmsTasks[task.type]}}</th>
-                        <th ng-repeat="schema in absentApp.dataSchemas">{{schema.title}}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat='user in srvUndone.absentUsers'>
-                        <td>{{$index+1}}</td>
-                        <td>{{user.round.title}}</td>
-                        <td>{{user.nickname}}</td>
-                        <td>{{user.group.title}}</td>
-                        <td>
-                            <div ng-if="user.validLeave">{{user.validLeave.begin_at*1000|date:'yy-MM-dd HH:mm'}}</div>
-                        </td>
-                        <td>
-                            <div ng-if="user.validLeave">{{user.validLeave.end_at*1000|date:'yy-MM-dd HH:mm'}}</div>
-                        </td>
-                        <td ng-repeat="task in srvEnrollee.tasks">
-                            <div ng-if="user.undoneTasks[task.type]">
-                                <i class="glyphicon glyphicon-remove"></i>
-                            </div>
-                        </td>
-                        <td ng-repeat="schema in absentApp.dataSchemas" ng-switch on="schema.type">
-                            <div ng-switch-when="image">
-                                <img ng-repeat="img in user._data[schema.id]" ng-src='{{img}}' />
-                            </div>
-                            <div ng-switch-when="file">
-                                <span ng-repeat='file in user._data[schema.id]'>{{file.name}}</span>
-                            </div>
-                            <span ng-switch-when="date">{{(user._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
-                            <span ng-switch-when="url" ng-bind-html="user._data[schema.id]._text"></span>
-                            <span ng-switch-default ng-bind-html="user._data[schema.id]"></span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
     </div>
+    <div ng-switch-when="group">
+        <div tms-flex-height top='117' bottom='66' class='form-group' style='width:100%;'>
+            <div id='enrollRecords' tms-table-wrap ready='tmsTableWrapReady'>
+                <table class='table table-bordered'>
+                    <thead>
+                        <tr>
+                            <th style='width:48px'>序号</th>
+                            <th style='width:120px'>轮次</th>
+                            <th style='width:120px'>分组</th>
+                            <th>数据分</th>
+                            <th>用户行为分</th>
+                            <th>分组行为分</th>
+                            <th style='width:100px'>总访问次数</th>
+                            <th style='width:100px'>总访问时长</th>
+                            <th style='width:75px'>填写记录</th>
+                            <th style='width:75px'>发表留言</th>
+                            <th style='width:75px'>发表点赞</th>
+                            <th style='width:75px'>获得推荐</th>
+                            <th style='width:120px'>浏览共享页次数</th>
+                            <th style='width:120px'>浏览专题页次数</th>
+                            <th style='width:130px'>专题页被浏览次数</th>
+                            <th style='width:120px'>浏览讨论页次数</th>
+                            <th style='width:130px'>讨论页被浏览次数</th>
+                            <th style='width:150px'>共享页浏览累计时间</th>
+                            <th style='width:150px'>专题页浏览累计时间</th>
+                            <th style='width:160px'>专题页被浏览累计时间</th>
+                            <th style='width:150px'>讨论页浏览累计时间</th>
+                            <th style='width:160px'>讨论页被浏览累计时间</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat='g in srvGroup.groups'>
+                            <td>{{$index+1}}</td>
+                            <td>
+                                <div ng-if='g.round.title'>{{g.round.title}}</div>
+                            </td>
+                            <td>
+                                <div ng-if='g.title'>{{g.title}}</div>
+                            </td>
+                            <td>
+                                <div ng-if='g.data.score'>{{g.data.score}}</div>
+                            </td>
+                            <td>
+                                <div ng-if='g.data.user_total_coin'>{{g.data.user_total_coin}}</div>
+                            </td>
+                            <td>
+                                <div ng-if='g.data.group_total_coin'>{{g.data.group_total_coin}}</div>
+                            </td>
+                            <td>
+                                <div ng-if='g.data.entry_num'>{{g.data.entry_num}}</div>
+                            </td>
+                            <td>
+                                <div ng-if='g.data.total_elapse>0'>{{g.data.total_elapse | filterTime}}</div>
+                            </td>
+                            <td>
+                                <div ng-if='g.data.enroll_num'>{{g.data.enroll_num}}</div>
+                            </td>
+                            <td>
+                                <div ng-if='g.data.do_remark_num'>{{g.data.do_remark_num}}</div>
+                            </td>
+                            <td>
+                                <div ng-if='g.data.do_like_num'>{{g.data.do_like_num}}</div>
+                            </td>
+                            <td>
+                                <div ng-if='g.data.agree_num'>{{g.data.agree_num}}</div>
+                            </td>
+                            <td>{{g.data.do_repos_read_num}}</td>
+                            <td>{{g.data.do_topic_read_num}}</td>
+                            <td>{{g.data.topic_read_num}}</td>
+                            <td>{{g.data.do_cowork_read_num}}</td>
+                            <td>{{g.data.cowork_read_num}}</td>
+                            <td>
+                                <div ng-if="g.data.do_repos_read_elapse>0">{{g.data.do_repos_read_elapse | filterTime}}</div>
+                            </td>
+                            <td>
+                                <div ng-if="g.data.do_topic_read_elapse>0">{{g.data.do_topic_read_elapse | filterTime}}</div>
+                            </td>
+                            <td>
+                                <div ng-if="g.data.topic_read_elapse>0">{{g.data.topic_read_elapse | filterTime}}</div>
+                            </td>
+                            <td>
+                                <div ng-if="g.data.do_cowork_read_elapse>0">{{g.data.do_cowork_read_elapse | filterTime}}</div>
+                            </td>
+                            <td>
+                                <div ng-if="g.data.cowork_read_elapse>0">{{g.data.cowork_read_elapse | filterTime}}</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div ng-switch-when="absent">
+        <table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th style='width:48px'>序号</th>
+                    <th style='width:120px'>轮次</th>
+                    <th style='width:75px'>姓名</th>
+                    <th style='width:120px'>分组</th>
+                    <th style='width:120px'>请假（开始）</th>
+                    <th style='width:120px'>请假（结束）</th>
+                    <th ng-repeat="task in srvEnrollee.tasks">{{tmsTasks[task.type]}}</th>
+                    <th ng-repeat="schema in absentApp.dataSchemas">{{schema.title}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat='user in srvUndone.absentUsers'>
+                    <td>{{$index+1}}</td>
+                    <td>{{user.round.title}}</td>
+                    <td>{{user.nickname}}</td>
+                    <td>{{user.group.title}}</td>
+                    <td>
+                        <div ng-if="user.validLeave">{{user.validLeave.begin_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+                    </td>
+                    <td>
+                        <div ng-if="user.validLeave">{{user.validLeave.end_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+                    </td>
+                    <td ng-repeat="task in srvEnrollee.tasks">
+                        <div ng-if="user.undoneTasks[task.type]">
+                            <i class="glyphicon glyphicon-remove"></i>
+                        </div>
+                    </td>
+                    <td ng-repeat="schema in absentApp.dataSchemas" ng-switch on="schema.type">
+                        <div ng-switch-when="image">
+                            <img ng-repeat="img in user._data[schema.id]" ng-src='{{img}}' />
+                        </div>
+                        <div ng-switch-when="file">
+                            <span ng-repeat='file in user._data[schema.id]'>{{file.name}}</span>
+                        </div>
+                        <span ng-switch-when="date">{{(user._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span>
+                        <span ng-switch-when="url" ng-bind-html="user._data[schema.id]._text"></span>
+                        <span ng-switch-default ng-bind-html="user._data[schema.id]"></span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 </div>

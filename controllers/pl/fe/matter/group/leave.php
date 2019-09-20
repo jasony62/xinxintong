@@ -21,7 +21,7 @@ class leave extends main_base {
      */
     public function create_action($ek) {
         $modelGrpRec = $this->model('matter\group\record');
-        $oGrpRec = $modelGrpRec->byId($this->app, $ek);
+        $oGrpRec = $modelGrpRec->byId($this->app->id, $ek);
         if (false === $oGrpRec || $oGrpRec->state !== '1') {
             return new \ObjectNotFoundError();
         }

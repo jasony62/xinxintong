@@ -312,7 +312,7 @@ class channel_model extends article_base {
 			$q1 = array();
 			$q1[] = "m.id,m.title,m.summary,m.pic,m.create_at,m.creater_name,cm.create_at add_at,'article' type,m.remark_num,st.name site_name,st.id siteid,st.heading_pic,m.matter_cont_tag,m.matter_mg_tag,cm.seq";
 			$q1[] = "xxt_article m,xxt_channel_matter cm,xxt_site st";
-			$q1[] = "m.state=1 and m.approved='Y' and cm.channel_id='{$channel_id}' and m.id=cm.matter_id and cm.matter_type='article' and m.siteid=st.id";
+			$q1[] = "m.state=1 and m.approved='Y' and cm.channel_id=$channel_id and m.id=cm.matter_id and cm.matter_type='article' and m.siteid=st.id";
 			if (!empty($params->weight)) {
 				switch ($params->weight) {
 					case 'top':
@@ -395,7 +395,7 @@ class channel_model extends article_base {
 					$q = [
 						"a.id,a.title,a.creater_name,a.create_at,a.summary,a.pic,a.state,'article' type,a.matter_cont_tag,a.matter_mg_tag,s.name site_name,s.id siteid,s.heading_pic",
 						'xxt_article a, xxt_site s',
-						"a.id = '{$sm->matter_id}' and a.state = 1 and a.approved = 'Y' and a.siteid=s.id and s.state = 1",
+						"a.id = $sm->matter_id and a.state = 1 and a.approved = 'Y' and a.siteid=s.id and s.state = 1",
 					];
 					$fullMatter = $this->query_obj_ss($q);
 				}

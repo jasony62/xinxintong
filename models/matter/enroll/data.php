@@ -69,7 +69,7 @@ class data_model extends entity_model {
             return $treatedValue;
         };
         /* 更新多项填写题中的协作填写项 */
-        $fnUpdItems = function ($schemaId, $newSchemaValues, $oLastSchemaValues) use ($oApp, $oRecord, $oUser, $dbData) {
+        $fnUpdItems = function ($schemaId, $newSchemaValues, $oLastSchemaValues) use ($oApp, $oRecord, $oUser, $dbData, $aProtoData) {
             $aSchemaVal = []; // 记录的题目数据中记录的整体内容
             $oBeforeSchemaVal = null; //旧的总数据
             $aBeforeSchemaItems = []; //旧的项

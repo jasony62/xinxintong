@@ -124,11 +124,9 @@ class channel_model extends article_base {
 		if (empty($channel)) {
 			$channel = $this->byId($channel_id, ['fields' => 'id,state,siteid,matter_type,orderby,volume,top_type,top_id,bottom_type,bottom_id']);
 		}
-		if ($channel === false) {
+		if ($channel === false || $channel->state != 1) {
 			return $matters;
 		}
-		//
-		!isset($channel->id) && $channel->id = $channel_id;
 
 		if (empty($channel->matter_type)) {
 			$matterTypes = [
@@ -243,11 +241,6 @@ class channel_model extends article_base {
 		if (empty($channel)) {
 			$channel = $this->byId($channel_id, ['fields' => 'id,siteid,orderby,volume,top_type,top_id,bottom_type,bottom_id']);
 		}
-		if ($channel === false) {
-			return $articles;
-		}
-		//
-		!isset($channel->id) && $channel->id = $channel_id;
 
 		/**
 		 * top matter
@@ -314,11 +307,9 @@ class channel_model extends article_base {
 		if (empty($channel)) {
 			$channel = $this->byId($channel_id, ['fields' => 'id,state,matter_type,orderby,volume']);
 		}
-		if ($channel === false || !isset($channel->state) || $channel->state != 1) {
+		if ($channel === false || $channel->state != 1) {
 			return $data;
 		}
-		//
-		!isset($channel->id) && $channel->id = $channel_id;
 
 		/**
 		 * in channel
@@ -366,7 +357,6 @@ class channel_model extends article_base {
 			$q1[0] = 'count(*)';
 			$total = (int) $this->query_val_ss($q1);
 
-			$data = new \stdClass;
 			$data->matters = $matters;
 			$data->total = $total;
 			return $data;

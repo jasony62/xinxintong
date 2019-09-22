@@ -53,7 +53,7 @@ $sql[] = 'drop table if exists xxt_group_record_data';
  * log
  */
 $sql[] = "drop table if exists xxt_log";
-$sql[] = "drop table if exists xxt_log_mpa";
+//$sql[] = "drop table if exists xxt_log_mpa";
 $sql[] = "drop table if exists xxt_log_mpreceive";
 $sql[] = "drop table if exists xxt_log_mpsend";
 $sql[] = "drop table if exists xxt_log_matter_read";
@@ -68,18 +68,18 @@ $sql[] = "drop table if exists xxt_log_matter_op";
 /**
  * lottery
  */
-$sql[] = "drop table if exists xxt_lottery";
-$sql[] = "drop table if exists xxt_lottery_task";
-$sql[] = "drop table if exists xxt_lottery_task_log";
-$sql[] = "drop table if exists xxt_lottery_award";
-$sql[] = "drop table if exists xxt_lottery_plate";
-$sql[] = "drop table if exists xxt_lottery_log";
+// $sql[] = "drop table if exists xxt_lottery";
+// $sql[] = "drop table if exists xxt_lottery_task";
+// $sql[] = "drop table if exists xxt_lottery_task_log";
+// $sql[] = "drop table if exists xxt_lottery_award";
+// $sql[] = "drop table if exists xxt_lottery_plate";
+// $sql[] = "drop table if exists xxt_lottery_log";
 /**
  * matter
  */
 $sql[] = "drop table if exists xxt_article";
 $sql[] = "drop table if exists xxt_article_attachment";
-$sql[] = "drop table if exists xxt_article_download_log";
+//$sql[] = "drop table if exists xxt_article_download_log";
 //$sql[] = "drop table if exists xxt_article_review_log";
 //
 $sql[] = "drop table if exists xxt_link";
@@ -87,9 +87,9 @@ $sql[] = "drop table if exists xxt_link_param";
 //
 $sql[] = "drop table if exists xxt_text";
 //
-$sql[] = "drop table if exists xxt_news";
-$sql[] = "drop table if exists xxt_news_review_log";
-$sql[] = "drop table if exists xxt_news_matter";
+// $sql[] = "drop table if exists xxt_news";
+// $sql[] = "drop table if exists xxt_news_review_log";
+// $sql[] = "drop table if exists xxt_news_matter";
 //
 $sql[] = "drop table if exists xxt_channel";
 $sql[] = "drop table if exists xxt_channel_matter";
@@ -160,10 +160,10 @@ $sql[] = 'drop table if exists xxt_task';
 /*
  * wall
  */
-$sql[] = 'drop table if exists xxt_wall';
-$sql[] = 'drop table if exists xxt_wall_page';
-$sql[] = 'drop table if exists xxt_wall_enroll';
-$sql[] = 'drop table if exists xxt_wall_log';
+// $sql[] = 'drop table if exists xxt_wall';
+// $sql[] = 'drop table if exists xxt_wall_page';
+// $sql[] = 'drop table if exists xxt_wall_enroll';
+// $sql[] = 'drop table if exists xxt_wall_log';
 /**
  * 执行操作
  */

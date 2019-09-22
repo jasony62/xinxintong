@@ -19,8 +19,8 @@ class WxPayDataBase {
 	 * 设置签名，详见签名生成算法
 	 * @param string $value
 	 **/
-	public function SetSign($mpid) {
-		$sign = $this->MakeSign($mpid);
+	public function SetSign($site) {
+		$sign = $this->MakeSign($site);
 		$this->values['sign'] = $sign;
 		return $sign;
 	}
@@ -98,8 +98,8 @@ class WxPayDataBase {
 	 * 生成签名
 	 * @return 签名，本函数不覆盖sign成员变量，如要设置签名需要调用SetSign方法赋值
 	 */
-	public function MakeSign($mpid) {
-		$wxPayConfig = new WxPayConfig($mpid);
+	public function MakeSign($site) {
+		$wxPayConfig = new WxPayConfig($site);
 		//签名步骤一：按字典序排序参数
 		ksort($this->values);
 		$string = $this->ToUrlParams();
@@ -131,13 +131,13 @@ class WxPayResults extends WxPayDataBase {
 	 *
 	 * 检测签名
 	 */
-	public function CheckSign($mpid) {
+	public function CheckSign($site) {
 		//fix异常
 		if (!$this->IsSignSet()) {
 			throw new WxPayException("签名错误！");
 		}
 
-		$sign = $this->MakeSign($mpid);
+		$sign = $this->MakeSign($site);
 		if ($this->GetSign() == $sign) {
 			return true;
 		}
@@ -183,17 +183,17 @@ class WxPayResults extends WxPayDataBase {
 	 * @param string $xml
 	 * @throws WxPayException
 	 */
-	public static function Init($mpid, $xml, $fnGetMpid = false) {
+	public static function Init($site, $xml, $fnGetSiteId = false) {
 		$obj = new self();
 		$obj->FromXml($xml);
 		//fix bug 2015-06-29
 		if ($obj->values['return_code'] != 'SUCCESS') {
 			return $obj->GetValues();
 		}
-		if ($mpid === false) {
-			$mpid = call_user_func($fnGetMpid, $obj->values);
+		if ($site === false) {
+			$site = call_user_func($fnGetSiteId, $obj->values);
 		}
-		$obj->CheckSign($mpid);
+		$obj->CheckSign($site);
 		return $obj->GetValues();
 	}
 }

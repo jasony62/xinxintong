@@ -132,8 +132,8 @@ class browser extends uploader {
 	}
 
 	protected function act_browser() {
-		if (empty($this->get['mpid'])) {
-			unset($this->session['mpid']);
+		if (empty($this->get['site'])) {
+			unset($this->session['siteid']);
 			$this->errorMsg("参数错误，请检查参数设置");
 		}
 
@@ -143,16 +143,16 @@ class browser extends uploader {
 		require_once dirname(dirname(dirname(__FILE__))) . '/tms/utilities.cls.php';
 		$model = TMS_MODEL::model();
 		$modelWay = TMS_MODEL::model('site\fe\way');
-		$who = $modelWay->who($this->get['mpid']);
+		$who = $modelWay->who($this->get['site']);
 		if (empty($who->unionid)) {
-			unset($this->session['mpid']);
+			unset($this->session['siteid']);
 			$this->errorMsg("未登录");
 		}
 		// 检查用户是否是站点管理员
 		$modelAdmin = TMS_MODEL::model('site\admin');
-		$rst = $modelAdmin->byUid($this->get['mpid'], $who->unionid);
+		$rst = $modelAdmin->byUid($this->get['site'], $who->unionid);
 		if ($rst === false) {
-			unset($this->session['mpid']);
+			unset($this->session['siteid']);
 			$this->errorMsg("无权访问");
 		}
 

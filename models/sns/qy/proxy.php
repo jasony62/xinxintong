@@ -150,8 +150,6 @@ class proxy_model extends \sns\proxybase {
 	}
 	/**
 	 * 获得微信JSSDK签名包
-	 *
-	 * $mpid
 	 */
 	public function getJssdkSignPackage($url) {
 		$rst = $this->getJsApiTicket();
@@ -571,9 +569,6 @@ class proxy_model extends \sns\proxybase {
 	}
 	/**
 	 * 向企业号用户发送消息
-	 *
-	 * $mpid
-	 * $message
 	 */
 	public function messageSend($message, $encoded = false) {
 

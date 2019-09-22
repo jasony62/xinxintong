@@ -182,7 +182,7 @@ class main extends main_base {
             $q = array(
                 'max(id)',
                 'xxt_log_mpreceive',
-                "mpid='$siteid' and openid='$user->openid' and type='event' and data like '%LOCATION%'",
+                "siteid='$siteid' and openid='$user->openid' and type='event' and data like '%LOCATION%'",
             );
             if ($lastid = $this->model()->query_val_ss($q)) {
                 $q = array(

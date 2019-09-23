@@ -55,8 +55,8 @@ class upgrade extends \TMS_CONTROLLER {
                             }
                         }
                     } else {
-                        $recData->onlyMedium = true;
                         $originalImageUrl = str_replace('.compact', '', $imageUrl);
+                        $recData->originalImageUrl = $originalImageUrl;
                         if (file_exists($originalImageUrl)) {
                             // 生成中等压缩文件
                             $fsUser = $this->model('fs/local', $siteId, '_user');

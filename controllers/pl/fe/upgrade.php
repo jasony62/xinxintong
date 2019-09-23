@@ -49,6 +49,7 @@ class upgrade extends \TMS_CONTROLLER {
                                     $aCompactResult = $fsUser->compactImage($originalImageUrl, 'medium', 1200);
                                     if (true === $aCompactResult[0]) {
                                         // do nothing
+                                        $recData->medium[] = $aCompactResult[1];
                                     }
                                 }
                             }
@@ -61,6 +62,7 @@ class upgrade extends \TMS_CONTROLLER {
                             $aCompactResult = $fsUser->compactImage($originalImageUrl, 'medium', 1200);
                             if (true === $aCompactResult[0]) {
                                 // do nothing
+                                $recData->medium[] = $aCompactResult[1];
                             }
                         }
                     }

@@ -90,7 +90,7 @@ class user_model {
         if (method_exists($this->service, 'compactImage')) {
             $originalUrl = $newUrl;
             // 中压缩数据
-            $aCompactResult = $this->service->compactImage($originalUrl, 'medium', 1000);
+            $aCompactResult = $this->service->compactImage($originalUrl, 'medium', 1200);
             if (true === $aCompactResult[0]) {
                 $newUrl = $aCompactResult[1];
                 // 高压缩数据

@@ -46,7 +46,7 @@ class upgrade extends \TMS_CONTROLLER {
                                 if (file_exists($originalImageUrl)) {
                                     // 生成中等压缩文件
                                     $fsUser = $this->model('fs/local', $siteId, '_user');
-                                    $aCompactResult = $fsUser->compactImage($originalImageUrl, 'medium', 1000);
+                                    $aCompactResult = $fsUser->compactImage($originalImageUrl, 'medium', 1200);
                                     if (true === $aCompactResult[0]) {
                                         // do nothing
                                     }

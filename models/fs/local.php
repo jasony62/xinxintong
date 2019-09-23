@@ -166,7 +166,7 @@ class local_model {
      *
      * @param array<boolean,string> 是否完成压缩，若是返回新地址
      */
-    public function compactImage($imageUrl, $prefix = 'compact', $maxWidthOrHeight = 500) {
+    public function compactImage($imageUrl, $prefix = 'compact', $maxWidthOrHeight = 480) {
         $source_info = getimagesize($imageUrl);
         if (false === $source_info) {
             return [false];
@@ -174,7 +174,8 @@ class local_model {
 
         list($source_width, $source_height) = $source_info;
 
-        if ($source_width > $maxWidthOrHeight || $source_height > $maxWidthOrHeight) {
+        $max_source = max($source_width, $source_height);
+        if ($max_source > $maxWidthOrHeight) {
             $source_mime = $source_info['mime'];
             switch ($source_mime) {
             case 'image/gif':
@@ -191,14 +192,8 @@ class local_model {
             }
             if (isset($source_image)) {
                 // 压缩后的图片
-                $max_source = max($source_width, $source_height);
-                if ($max_source > $maxWidthOrHeight) {
-                    $target_width = (int) ($source_width / $max_source * $maxWidthOrHeight);
-                    $target_height = (int) ($source_height / $max_source * $maxWidthOrHeight);
-                } else {
-                    $target_width = $source_width;
-                    $target_height = $source_height;
-                }
+                $target_width = (int) ($source_width / $max_source * $maxWidthOrHeight);
+                $target_height = (int) ($source_height / $max_source * $maxWidthOrHeight);
 
                 $target_image = imagecreatetruecolor($target_width, $target_height);
                 imagecopyresampled($target_image, $source_image, 0, 0, 0, 0, $target_width, $target_height, $source_width, $source_height);

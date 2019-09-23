@@ -741,17 +741,20 @@ ngMod.factory('picviewer', ['$q', function ($q) {
         var urls = [],
             _this = this;
         angular.forEach(selectorAll, function (selector) {
-            urls.push(selector.src);
-            selector.addEventListener('click', function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-                var obj = {
-                    elems: selectorAll,
-                    urls: urls,
-                    current: this.src
-                }
-                _this.start(obj);
-            });
+            if (selector.src) {
+                // 如果是紧凑尺寸换成中等尺寸
+                urls.push(selector.src.replace('.compact.', '.medium.'));
+                selector.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    var obj = {
+                        elems: selectorAll,
+                        urls: urls,
+                        current: this.src
+                    }
+                    _this.start(obj);
+                });
+            }
         });
     }
     var picviewer = new _picviewer();

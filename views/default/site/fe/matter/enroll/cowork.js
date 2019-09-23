@@ -17,7 +17,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
     /**
      * 加载整条记录
      */
-    function fnLoadRecord(aCoworkSchemas, oUser) {
+    function fnLoadRecord(aCoworkSchemas) {
         var oDeferred;
         oDeferred = $q.defer();
         http2.get(LS.j('repos/recordGet', 'site', 'app', 'ek')).then(function (rsp) {
@@ -25,6 +25,15 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             oRecord = rsp.data;
             oRecord._canAgree = fnCanAgreeRecord(oRecord, _oUser);
             $scope.record = oRecord;
+            /* 如果有图片，且图片是紧凑的，改为中等尺寸的 */
+            if ($scope.imageSchemas && $scope.imageSchemas.length) {
+                $scope.imageSchemas.forEach(function (oSchema) {
+                    var imageUrls = oRecord.data[oSchema.id]
+                    if (imageUrls) {
+                        oRecord.data[oSchema.id] = imageUrls.replace('.compact.', '.medium.')
+                    }
+                })
+            }
             /* 设置页面分享信息 */
             $scope.setSnsShare(oRecord, null, {
                 target_type: 'cowork',
@@ -464,10 +473,11 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         $scope.transferParam = data;
     });
     $scope.$on('xxt.app.enroll.ready', function (event, params) {
-        var oSchemasById, aCoworkSchemas, aVisibleSchemas, templateUrl;
+        var oSchemasById, aImageSchemas, aCoworkSchemas, aVisibleSchemas, templateUrl;
         _oApp = params.app;
         _oUser = params.user;
         aVisibleSchemas = [];
+        aImageSchemas = [];
         aCoworkSchemas = [];
         oSchemasById = {};
         _oApp.dynaDataSchemas.forEach(function (oSchema) {
@@ -476,10 +486,14 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
             } else if (oSchema.shareable && oSchema.shareable === 'Y') {
                 aVisibleSchemas.push(oSchema);
             }
+            if (oSchema.type === 'image') {
+                aImageSchemas.push(oSchema)
+            }
             oSchemasById[oSchema.id] = oSchema;
         });
         $scope.schemasById = oSchemasById;
         $scope.visibleSchemas = aVisibleSchemas;
+        $scope.imageSchemas = aImageSchemas;
         $scope.coworkSchemas = aCoworkSchemas;
         if (aCoworkSchemas.length) {
             $scope.fileName = 'coworkData';

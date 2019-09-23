@@ -37,7 +37,7 @@ class upgrade extends \TMS_CONTROLLER {
                     $recData->siteid = $siteId;
                     $baseURL = 'kcfinder/upload/' . $siteId . '/_user/';
                     if (substr_count($imageUrl, $baseURL) > 1) {
-                        if (file_exists($recData->value)) {
+                        if (file_exists($imageUrl)) {
                             $imageRelativeUrl = str_replace($baseURL, '', $imageUrl);
                             $newValue = $baseURL . str_replace('medium.compact', 'compact', $imageRelativeUrl);
                             if (copy($imageUrl, $newValue)) {

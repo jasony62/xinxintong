@@ -329,7 +329,7 @@ class base extends \site\fe\base {
                         $q = [
                             'distinct ' . $propSnsOpenid,
                             'xxt_site_account',
-                            ["unionid" => $oUser->unionid, $propSnsOpenid => (object) ['op' => '<>', 'pat' => '']]
+                            ["unionid" => $oUser->unionid, $propSnsOpenid => (object) ['op' => '<>', 'pat' => '']],
                         ];
                         $aSiteUsers = $modelAcnt->query_objs_ss($q);
 
@@ -612,11 +612,7 @@ class base extends \site\fe\base {
         ];
         $model->insert('xxt_matter_download_log', $log, false);
 
-        if (strpos($att->url, 'alioss') === 0) {
-            $fsAlioss = \TMS_APP::M('fs/alioss', $oApp->siteid, '_attachment');
-            $downloadUrl = $fsAlioss->getHostUrl() . '/' . $oApp->siteid . '/_attachment/' . $oApp->type . '/' . $oApp->id . '/' . urlencode($att->name);
-            $this->redirect($downloadUrl);
-        } else if (strpos($att->url, 'local') === 0) {
+        if (strpos($att->url, 'local') === 0) {
             $fs = $this->model('fs/local', $oApp->siteid, '附件');
             //header("Content-Type: application/force-download");
             header("Content-Type: $att->type");

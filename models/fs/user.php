@@ -94,7 +94,7 @@ class user_model {
             if (true === $aCompactResult[0]) {
                 $newUrl = $aCompactResult[1];
                 // 高压缩数据
-                $aCompactResult = $this->service->compactImage($originalUrl, 'compact', 500);
+                $aCompactResult = $this->service->compactImage($originalUrl, 'compact', 480);
                 if (true === $aCompactResult[0]) {
                     $newUrl = $aCompactResult[1];
                 }

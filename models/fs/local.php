@@ -191,12 +191,15 @@ class local_model {
             }
             if (isset($source_image)) {
                 // 压缩后的图片
-                $target_width = $source_width;
-                $target_height = $source_height;
-                while ($target_width > $maxWidthOrHeight || $target_height > $maxWidthOrHeight) {
-                    $target_width = (int) ($target_width / 2);
-                    $target_height = (int) ($target_height / 2);
+                $max_source = max($source_width, $source_height);
+                if ($max_source > $maxWidthOrHeight) {
+                    $target_width = (int) ($source_width / $max_source * $maxWidthOrHeight);
+                    $target_height = (int) ($source_height / $max_source * $maxWidthOrHeight);
+                } else {
+                    $target_width = $source_width;
+                    $target_height = $source_height;
                 }
+
                 $target_image = imagecreatetruecolor($target_width, $target_height);
                 imagecopyresampled($target_image, $source_image, 0, 0, 0, 0, $target_width, $target_height, $source_width, $source_height);
 

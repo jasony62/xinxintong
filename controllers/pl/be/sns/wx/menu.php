@@ -32,9 +32,9 @@ class menu extends \pl\be\base {
 	/**
 	 * 获得当前账号菜单的可编辑版本号
 	 */
-	private function &_getVersion($mpid) {
+	private function &_getVersion($siteId) {
 		$modelMenu = $this->model('sns\wx\call\menu');
-		$version = $modelMenu->getVersion($mpid);
+		$version = $modelMenu->getVersion($siteId);
 		if ($version === false) {
 			$version = new \stdClass;
 			$version->v = 0;
@@ -43,7 +43,7 @@ class menu extends \pl\be\base {
 			/**
 			 * 版本已经发布，需要生成新版本
 			 */
-			$version = $modelMenu->newVersion($mpid);
+			$version = $modelMenu->newVersion($siteId);
 		}
 		return $version;
 	}

@@ -1,6 +1,5 @@
 <?php
 require_once dirname(__FILE__) . '/local.php';
-require_once dirname(__FILE__) . '/alioss.php';
 /**
  * 用户存储
  */
@@ -14,11 +13,7 @@ class user_model {
 
     public function __construct($siteId, $dirName = '_user') {
         $this->siteId = $siteId;
-        if (defined('APP_FS_USER') && APP_FS_USER === 'ali-oss') {
-            $this->service = new alioss_model($siteId);
-        } else {
-            $this->service = new local_model($siteId, $dirName);
-        }
+        $this->service = new local_model($siteId, $dirName);
     }
     /**
      * 保存文件
@@ -69,6 +64,7 @@ class user_model {
     }
     /**
      * 存储base64的文件数据
+     * 最多可能保存3份文件：原始尺寸，中等尺寸（小于1000px），紧凑尺寸（小于500px）
      */
     private function storeBase64Image($data) {
         $matches = [];
@@ -85,16 +81,23 @@ class user_model {
         $dir = date("ymdH"); // 每个小时分一个目录
         $storename = date("is") . rand(10000, 99999) . "." . $ext; // 原始图片
         /**
-         * 保存数据
+         * 保存原始数据
          */
         $newUrl = $this->writeFile($dir, $storename, $pic);
         /**
-         * 压缩图片
+         * 保存压缩数据
          */
         if (method_exists($this->service, 'compactImage')) {
-            $aCompactResult = $this->service->compactImage($newUrl);
+            $originalUrl = $newUrl;
+            // 中压缩数据
+            $aCompactResult = $this->service->compactImage($originalUrl, 'medium', 1000);
             if (true === $aCompactResult[0]) {
                 $newUrl = $aCompactResult[1];
+                // 高压缩数据
+                $aCompactResult = $this->service->compactImage($originalUrl, 'compact', 500);
+                if (true === $aCompactResult[0]) {
+                    $newUrl = $aCompactResult[1];
+                }
             }
         }
 

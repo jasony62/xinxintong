@@ -74,7 +74,6 @@ ngApp.controller('ctrlMain', ['$scope', '$parse', 'tmsLocation', 'http2', functi
             });
             $scope.currentTime = parseInt((new Date * 1) / 1000);
             $scope.times = orderedTimes;
-            console.log($scope.times)
             $scope.matters = mattersByTime;
         });
     }

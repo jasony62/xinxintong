@@ -191,30 +191,8 @@ define(['frame'], function (ngApp) {
         }, true);
     }]);
     ngApp.provider.controller('ctrlActivity', ['$scope', '$location', 'http2', 'CstNaming', 'cstApp', '$uibModal', 'facListFilter', 'facListSearch', function ($scope, $location, http2, CstNaming, cstApp, $uibModal, facListFilter, facListSearch) {
-        var lsearch, filter2, _oPage;
-        // if (window.localStorage) {
-        //     $scope.$watch('filter', function(nv) {
-        //         if (nv) {
-        //             window.localStorage.setItem("pl.fe.activity.filter", JSON.stringify(nv));
-        //         }
-        //     }, true);
-        //     if (filter = window.localStorage.getItem("pl.fe.activity.filter")) {
-        //         filter = JSON.parse(filter);
-        //     } else {
-        //         filter = { byType: 'enroll' };
-        //     }
-        // } else {
-        //     filter = { byType: 'enroll' };
-        // }
-        //lsearch = $location.search();
-        //if (lsearch.type) {
-        //    filter.byType = lsearch.type;
-        //}
+        var _oPage, filter2;
         $scope.filter2 = filter2 = {};
-        // if (filter.byType) {
-        //     filter2.byTitle = filter.byTitle;
-        //     filter2.byTags = filter.byTags
-        // }
         $scope.scenarioNames = CstNaming.scenario.enroll;
         $scope.page = _oPage = {};
         $scope.openMatter = function (matter, subView) {
@@ -292,12 +270,6 @@ define(['frame'], function (ngApp) {
         };
         $scope.filter = facListFilter.init(cbFilter, _oCriteria.filter);
         $scope.filter3 = facListSearch.init(cbFilter, _oCriteria.filter3);
-        //$scope.cleanFilterTag = function() {
-        //    filter.byTags = filter2.byTags = '';
-        //};
-        //$scope.matterTags = function() {
-        //    $scope.matterTagsFram(filter, filter2);
-        //};
         $scope.$watch('frameState.sid', function (nv) {
             if (!nv) return;
             _oCriteria.bySite = nv;
@@ -315,27 +287,9 @@ define(['frame'], function (ngApp) {
             }
         }
     }]);
-    ngApp.provider.controller('ctrlDoc', ['$scope', '$uibModal', 'http2', 'facListFilter', 'facListSearch', function ($scope, $uibModal, http2, facListFilter, facListSearch) {
+    ngApp.provider.controller('ctrlDoc', ['$scope', 'http2', 'facListFilter', 'facListSearch', function ($scope, http2, facListFilter, facListSearch) {
         var _oPage, filter2;
-        // if (window.localStorage) {
-        //     $scope.$watch('filter', function(nv) {
-        //         if (nv) {
-        //             window.localStorage.setItem("pl.fe.info.filter", JSON.stringify(nv));
-        //         }
-        //     }, true);
-        //     if (filter = window.localStorage.getItem("pl.fe.info.filter")) {
-        //         filter = JSON.parse(filter);
-        //     } else {
-        //         filter = { byType: 'article' };
-        //     }
-        // } else {
-        //     filter = { byType: 'article' };
-        // }
         $scope.filter2 = filter2 = {};
-        // if (filter.byType) {
-        //     filter2.byTitle = filter.byTitle;
-        //     filter2.byTags = filter.byTags
-        // }
         $scope.page = _oPage = {};
         $scope.openMatter = function (matter, subView) {
             var type, id, url;

@@ -137,7 +137,7 @@ factory('mediagallery', function ($uibModal) {
             windowClass: 'auto-height media-gallery',
             resolve: {
                 url: function () {
-                    return "/kcfinder/browse.php?lang=zh-cn&type=" + options.mediaType + "&mpid=" + galleryId;
+                    return "/kcfinder/browse.php?lang=zh-cn&type=" + options.mediaType + "&site=" + galleryId;
                 },
             }
         });
@@ -219,7 +219,7 @@ controller('SendmeController', ['$scope', 'http2', function ($scope, http2) {
             var url = '/rest/mp/call/qrcode/createOneOff';
             url += '?matter_type=' + matter.type;
             url += '&matter_id=' + matter.id;
-            if (matter.mpid !== undefined) url += '&mpid=' + matter.mpid;
+            if (matter.siteid !== undefined) url += '&site=' + matter.siteid;
             http2.get(url, function (rsp) {
                 $popover = $(event.target);
                 $popover.popover({

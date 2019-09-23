@@ -20,8 +20,8 @@ class WxPayApi {
 	 * @throws WxPayException
 	 * @return 成功时返回，其他抛异常
 	 */
-	public static function unifiedOrder($mpid, $inputObj, $timeOut = 6) {
-		$wxPayConfig = new \WxPayConfig($mpid);
+	public static function unifiedOrder($site, $inputObj, $timeOut = 6) {
+		$wxPayConfig = new \WxPayConfig($site);
 
 		$url = "https://api.mch.weixin.qq.com/pay/unifiedorder";
 		//检测必填参数
@@ -55,12 +55,12 @@ class WxPayApi {
 		$inputObj->SetNonce_str(self::getNonceStr()); //随机字符串
 
 		//签名
-		$inputObj->SetSign($mpid);
+		$inputObj->SetSign($site);
 		$xml = $inputObj->ToXml();
 
 		$startTimeStamp = self::getMillisecond(); //请求开始时间
 		$response = self::postXmlCurl($xml, $url, false, $timeOut);
-		$result = WxPayResults::Init($mpid, $response);
+		$result = WxPayResults::Init($site, $response);
 		self::reportCostTime($url, $startTimeStamp, $result); //上报请求花费时间
 
 		return $result;
@@ -75,8 +75,8 @@ class WxPayApi {
 	 * @throws WxPayException
 	 * @return 成功时返回，其他抛异常
 	 */
-	public static function orderQuery($mpid, $inputObj, $timeOut = 6) {
-		$wxPayConfig = new \WxPayConfig($mpid);
+	public static function orderQuery($site, $inputObj, $timeOut = 6) {
+		$wxPayConfig = new \WxPayConfig($site);
 		$url = "https://api.mch.weixin.qq.com/pay/orderquery";
 		//检测必填参数
 		if (!$inputObj->IsOut_trade_noSet() && !$inputObj->IsTransaction_idSet()) {
@@ -86,12 +86,12 @@ class WxPayApi {
 		$inputObj->SetMch_id($wxPayConfig->MCHID); //商户号
 		$inputObj->SetNonce_str(self::getNonceStr()); //随机字符串
 
-		$inputObj->SetSign($mpid); //签名
+		$inputObj->SetSign($site); //签名
 		$xml = $inputObj->ToXml();
 
 		$startTimeStamp = self::getMillisecond(); //请求开始时间
 		$response = self::postXmlCurl($xml, $url, false, $timeOut);
-		$result = WxPayResults::Init($mpid, $response);
+		$result = WxPayResults::Init($site, $response);
 		self::reportCostTime($url, $startTimeStamp, $result); //上报请求花费时间
 
 		return $result;
@@ -399,12 +399,12 @@ class WxPayApi {
 	 * 回调类成员函数方法:notify(array($this, you_function));
 	 * $callback  原型为：function function_name($data){}
 	 */
-	public static function notify($fnGetMpid, $callback, &$msg) {
+	public static function notify($fnGetSiteId, $callback, &$msg) {
 		//获取通知的数据
 		$xml = $GLOBALS['HTTP_RAW_POST_DATA'];
 		//如果返回成功则验证签名
 		try {
-			$result = WxPayResults::Init(false, $xml, $fnGetMpid);
+			$result = WxPayResults::Init(false, $xml, $fnGetSiteId);
 		} catch (WxPayException $e) {
 			$msg = $e->errorMessage();
 			return false;

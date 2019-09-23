@@ -326,10 +326,15 @@ class base extends \site\fe\base {
                         }
                     } else {
                         /* 当前注册用户绑定的信息 */
-                        $aSiteUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oMatter->siteid, 'fields' => $propSnsOpenid]);
+                        $q = [
+                            'distinct ' . $propSnsOpenid,
+                            'xxt_site_account',
+                            ["unionid" => $oUser->unionid, $propSnsOpenid => (object) ['op' => '<>', 'pat' => '']],
+                        ];
+                        $aSiteUsers = $modelAcnt->query_objs_ss($q);
+
                         foreach ($aSiteUsers as $oSiteUser) {
-                            $oSiteUser = $modelAcnt->byId($oUser->uid, ['fields' => $propSnsOpenid]);
-                            if ($oSiteUser && $fnCheckSnsFollow($snsName, $oMatter->siteid, $oSiteUser->{$propSnsOpenid})) {
+                            if ($fnCheckSnsFollow($snsName, $oMatter->siteid, $oSiteUser->{$propSnsOpenid})) {
                                 $bFollowed = true;
                                 $oFollowedRule = $rule;
                                 break;
@@ -607,11 +612,7 @@ class base extends \site\fe\base {
         ];
         $model->insert('xxt_matter_download_log', $log, false);
 
-        if (strpos($att->url, 'alioss') === 0) {
-            $fsAlioss = \TMS_APP::M('fs/alioss', $oApp->siteid, '_attachment');
-            $downloadUrl = $fsAlioss->getHostUrl() . '/' . $oApp->siteid . '/_attachment/' . $oApp->type . '/' . $oApp->id . '/' . urlencode($att->name);
-            $this->redirect($downloadUrl);
-        } else if (strpos($att->url, 'local') === 0) {
+        if (strpos($att->url, 'local') === 0) {
             $fs = $this->model('fs/local', $oApp->siteid, '附件');
             //header("Content-Type: application/force-download");
             header("Content-Type: $att->type");

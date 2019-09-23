@@ -11,13 +11,9 @@
  *      @link http://kcfinder.sunhater.com
  */
 
-file_exists(dirname(__FILE__).'/cus/config.php') && include_once dirname(__FILE__).'/cus/config.php';
+file_exists(dirname(__FILE__) . '/cus/config.php') && include_once dirname(__FILE__) . '/cus/config.php';
 
-require dirname(__FILE__)."/core/autoload.php";
+require dirname(__FILE__) . "/core/autoload.php";
 
-if (defined('KCFINDER_STORE_AT') && KCFINDER_STORE_AT === 'local') {
-    $browser = new browser();
-} else {
-    $browser = new browser_alioss();
-}
+$browser = new browser();
 $browser->action();

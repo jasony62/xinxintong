@@ -223,7 +223,7 @@ class group_model extends \TMS_MODEL {
         }
         $modelUsr = $this->model('matter\enroll\user');
         $submiters = [];
-        array_walk($users, function ($user) use ($oEnlApp, $oEnlRnd, $modelUsr, $modelGrpLev, &$submiters) {
+        array_walk($users, function ($user) use ($oEnlApp, $oEnlRnd, $modelUsr, $modelGrpLev, &$submiters, $rid) {
             $isOnLeave = false;
             if (!empty($user->leaves)) {
                 $oValidLeave = $modelGrpLev->isOnLeave($user->leaves, $oEnlRnd->start_at, $oEnlRnd->end_at);
@@ -231,7 +231,7 @@ class group_model extends \TMS_MODEL {
                     return;
                 }
             }
-            $oEnlUsr = $modelUsr->byId($oEnlApp, $user->userid, ['fields' => 'enroll_num']);
+            $oEnlUsr = $modelUsr->byId($oEnlApp, $user->userid, ['fields' => 'enroll_num', 'rid' => $rid]);
             if ($oEnlUsr && $oEnlUsr->enroll_num > 0) {
                 $submiters[] = $user->userid;
             }

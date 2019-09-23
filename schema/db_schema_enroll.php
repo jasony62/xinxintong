@@ -152,7 +152,6 @@ $sql .= ",comment text null";
 $sql .= ",remark_num int not null default 0"; // 留言数
 $sql .= ",rec_remark_num int not null default 0"; // 留言数
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,99:save,100:后台删除,101:用户删除;
-$sql .= ",referrer text null"; // should be removed
 $sql .= ",data longtext null"; // 登记的数据项
 $sql .= ",supplement longtext null"; // 补充说明
 $sql .= ",score text null"; // 测试活动，填写记录的数据分

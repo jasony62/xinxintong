@@ -203,6 +203,14 @@ ngApp.controller('ctrlActivitiesKanban', ['$scope', '$parse', '$q', '$uibModal',
     $scope.filter = _oFilter = {};
     $scope.subView = location.hash === '#undone' ? 'undone' : 'users';
     $scope.kanban = {};
+    $scope.tmsTasks = {
+        "enroll_num": "默认任务",
+        "baseline": "目标",
+        "question": "提问",
+        "answer": "回答",
+        "vote": "投票",
+        "score": "打分"
+    }
     $scope.shiftRound = function(oRound) {
         _oFilter.round = oRound;
         fnGetKanban().then(function() {
@@ -252,6 +260,9 @@ ngApp.controller('ctrlActivitiesKanban', ['$scope', '$parse', '$q', '$uibModal',
             $parse('custom.profile.public').assign(oEnlUser, bPublic);
         });
     };
+    $scope.getTaskList = function() {
+
+    }
     $scope.$watch('app', function(oApp) {
         if (!oApp) { return; }
         _oApp = oApp;
@@ -259,6 +270,9 @@ ngApp.controller('ctrlActivitiesKanban', ['$scope', '$parse', '$q', '$uibModal',
         (new enlRound(_oApp)).list().then(function(result) {
             $scope.rounds = result.rounds;
         });
+        http2.get('/rest/site/fe/matter/enroll/task/listByApp?site=' + oApp.siteid + '&app=' + oApp.id).then(function(rsp) {
+            $scope.kanban.tasks = rsp.data;
+        })
         fnGetKanban().then(function() {
             $scope.shiftOrderby('score');
         });

@@ -1,6 +1,6 @@
 'use strict';
 define(['frame'], function (ngApp) {
-    ngApp.provider.service('srvEnrollee', ['$uibModal', 'http2', 'tmsRowPicker', 'noticebox', 'tkEnrollRound', 'srvEnrollRecord', function ($uibModal, http2, tmsRowPicker, noticebox, tkEnlRnd, srvEnlRec) {
+    ngApp.provider.service('srvEnrollee', ['$q', '$uibModal', 'http2', 'tmsRowPicker', 'tkEnrollRound', 'srvEnrollRecord', function ($q, $uibModal, http2, tmsRowPicker, tkEnlRnd, srvEnlRec) {
         var _oCriteria, _oRows, _oPage;
         this.init = function (oApp, rids) {
             this.app = oApp;
@@ -86,6 +86,7 @@ define(['frame'], function (ngApp) {
             }.bind(this));
         };
         this.repairCoin = function () {
+            var defer = $q.defer();
             tkEnlRnd.pick(this.app, {
                 single: false
             }).then(function (oResult) {
@@ -98,13 +99,13 @@ define(['frame'], function (ngApp) {
                             fnResetCoinByRound.call(this, ++i);
                         }.bind(this));
                     } else {
-                        noticebox.success('完成【' + i + '】个轮次数据的更新');
-                        this.list(1);
+                        defer.resolve(i)
                     }
                 }
                 var rids = oResult.rid;
                 rids.length && fnResetCoinByRound.call(this, 0);
             }.bind(this));
+            return defer.promise;
         };
         this.repairGroup = function () {
             var url = '/rest/pl/fe/matter/enroll/repair/userGroup';
@@ -119,6 +120,11 @@ define(['frame'], function (ngApp) {
             if (_oCriteria.rids) url += '&rids=' + _oCriteria.rids;
             window.open(url);
         };
+        this.taskList = function () {
+            http2.get('rest/pl/fe/matter/enroll/task/list?site=' + this.app.siteid + '&app=' + this.app.id).then(function (rsp) {
+                this.tasks = rsp.data;
+            }.bind(this));
+        }
     }]);
     ngApp.provider.service('srvGroup', ['http2', 'tkEnrollRound', function (http2, tkEnlRnd) {
         this.init = function (oApp, rids) {
@@ -131,8 +137,8 @@ define(['frame'], function (ngApp) {
             url = '/rest/pl/fe/matter/enroll/user/group?app=' + this.app.id;
             this.rids !== undefined && (url += '&rids=' + this.rids)
             http2.post(url, {}).then(function (rsp) {
-                var groups = rsp.data.groups;
-                if (groups) {
+                if (rsp.data.groups && rsp.data.groups.length) {
+                    var groups = rsp.data.groups;
                     var oRounds = rsp.data.rounds || {
                         'ALL': {
                             title: '全部轮次'
@@ -142,8 +148,8 @@ define(['frame'], function (ngApp) {
                         if (oGroup.data && oGroup.data.rid)
                             oGroup.round = oRounds[oGroup.data.rid];
                     });
+                    that.groups = groups;
                 }
-                that.groups = groups;
             });
         };
         this.chooseRound = function () {
@@ -215,26 +221,42 @@ define(['frame'], function (ngApp) {
             window.open(url);
         };
     }]);
-    ngApp.provider.controller('ctrlEnrollee', ['$scope', 'facListFilter', 'srvEnrollee', 'srvGroup', 'srvUndone', function ($scope, facListFilter, srvEnrollee, srvGroup, srvUndone) {
+    ngApp.provider.controller('ctrlEnrollee', ['$scope', 'noticebox', 'facListFilter', 'srvEnrollee', 'srvGroup', 'srvUndone', function ($scope, noticebox, facListFilter, srvEnrollee, srvGroup, srvUndone) {
         $scope.category = 'enrollee';
         $scope.categories = {
             enrollee: '用户',
             absent: '缺席',
         };
         $scope.tmsTableWrapReady = 'N';
+        $scope.tmsTasks = {
+            "enroll_num": "默认任务",
+            "baseline": "目标",
+            "question": "提问",
+            "answer": "回答",
+            "vote": "投票",
+            "score": "打分"
+        }
         $scope.$watch('srvEnrollee.rows.allSelected', function (nv) {
             if ($scope.enrollees) {
-                srvEnrollee.rows.setAllSelected(nv, $scope.enrollees.length);
+                srvEnrollee.rows.setAllSelected(nv, $scope.enrollees.length)
             }
-        });
+        })
         $scope.shiftCategory = function (category) {
-            $scope.category = category;
-        };
+            $scope.category = category
+        }
+        $scope.repairCoin = function () {
+            srvEnrollee.repairCoin().then(function (count) {
+                noticebox.success('完成指定轮次数据的更新')
+                srvEnrollee.list(1)
+                srvGroup.list(1)
+            })
+        }
         $scope.$watch('app.entryRule', function (oRule) {
             if (!oRule) return;
             $scope.tmsTableWrapReady = 'Y';
             srvEnrollee.init($scope.app);
             srvEnrollee.list(1);
+            srvEnrollee.taskList();
             $scope.srvEnrollee = srvEnrollee;
             $scope.filter = facListFilter.init(function () {
                 srvEnrollee.list(1);
@@ -250,6 +272,6 @@ define(['frame'], function (ngApp) {
             srvUndone.init($scope.app);
             srvUndone.list();
             $scope.srvUndone = srvUndone;
-        });
-    }]);
-});
+        })
+    }])
+})

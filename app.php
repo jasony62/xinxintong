@@ -37,7 +37,26 @@ function show_error($message) {
             $msg = '应用程序内部错误';
         }
     } else {
-        $msg = $message;
+        if (is_object($message)) {
+            $excep = $message->getMessage();
+            $trace = $message->getTrace();
+            foreach ($trace as $t) {
+                $excep .= '<br>';
+                foreach ($t as $k => $v) {
+                    if (!in_array($k, ['file', 'line'])) {
+                        continue;
+                    }
+                    $excep .= $modelLog->toJson($v) . ' ';
+                }
+            }
+            if (defined('TMS_APP_EXCEPTION_TRACE') && TMS_APP_EXCEPTION_TRACE === 'Y') {
+                $msg = $excep;
+            } else {
+                $msg = '应用程序内部错误';
+            }
+        } else {
+            $msg = $message;
+        }
     }
     /* 返回信息 */
     header("HTTP/1.1 500 Internal Server Error");
@@ -46,17 +65,15 @@ function show_error($message) {
 
     /* 记录日志 */
     $method = isset($_SERVER['REQUEST_URI']) ? tms_get_server('REQUEST_URI') : 'unknown request';
-    $agent = isset($_SERVER['HTTP_USER_AGENT']) ? tms_get_server('HTTP_USER_AGENT') : '';
-    $referer = isset($_SERVER['HTTP_REFERER']) ? tms_get_server('HTTP_REFERER') : '';
     if (isset($excep)) {
         $msg = str_replace('<br>', "\n", $excep);
     }
 
     $msg = $modelLog->escape($msg);
     if ($message instanceof SiteUserException) {
-        $modelLog->log($message->getUserid(), $method, $msg, $agent, $referer);
+        $modelLog->log($message->getUserid(), $method, $msg);
     } else {
-        $modelLog->log('error', $method, $msg, $agent, $referer);
+        $modelLog->log('error', $method, $msg);
     }
 
     exit;

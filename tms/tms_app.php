@@ -81,6 +81,13 @@ class TMS_APP {
     public static function run($config) {
         global $__controller, $__action;
 
+        // 丢弃不正常的访问请求
+        // if ('GET' === $_SERVER['REQUEST_METHOD'] && '*/*' === $_SERVER['HTTP_ACCEPT']) {
+        //     header("HTTP/1.1 500 Internal Server Error");
+        //     header('Content-Type: text/plain; charset=utf-8');
+        //     die('TMS unknown request');
+        // }
+
         /* 如果不是登录状态，尝试自动登录 */
         $uid = TMS_CLIENT::get_client_uid();
         if (empty($uid)) {
@@ -210,10 +217,10 @@ class TMS_APP {
             $args = self::_prepareControllerMethodArguments($obj_controller, 'tmsBeforeEach', $aRequestParameters);
             $aResultBeforeEach = call_user_func_array(array($obj_controller, 'tmsBeforeEach'), $args);
             if ($aResultBeforeEach[0] !== true) {
-                if ($response instanceof $aResultBeforeEach[1]) {
+                if ($aResultBeforeEach[1] instanceof ResponseData) {
                     header('Content-type: application/json');
                     header('Cache-Control: no-cache');
-                    die($response->toJsonString());
+                    die($aResultBeforeEach[1]->toJsonString());
                 }
             }
         }

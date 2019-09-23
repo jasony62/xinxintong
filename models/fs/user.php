@@ -79,7 +79,7 @@ class user_model {
         $pic = base64_decode(str_replace($header, "", $data));
 
         $dir = date("ymdH"); // 每个小时分一个目录
-        $storename = date("is") . rand(10000, 99999) . "." . $ext; // 原始图片
+        $storename = date("is") . rand(10000, 99999) . "." . $ext; // 2位分，2位秒，5位随机数，扩展名
         /**
          * 保存原始数据
          */

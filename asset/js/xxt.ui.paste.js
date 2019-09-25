@@ -11,11 +11,14 @@ ngMod.service('tmsPaste', ['$timeout', '$q', 'noticebox', function($timeout, $q,
             defer.resolve(text);
         }
 
-        var defer, actions, cleanEmptyText, cleanHtmlText, newText;
+        var defer, actions, regx, cleanEmptyText, cleanHtmlText, newText;
         defer = $q.defer();
-        actions = [
-            { label: '跳过', value: 'cancel', execWait: 5000 }
-        ];
+        actions = [];
+        regx = /<[^>]+>/g;
+        /* 是否存在html标签 */
+        if(!(regx.test(originalText))) {
+            actions.push({ label: '跳过', value: 'cancel', execWait: 5000 })
+        }
         /* 是否存在空字符 */
         if (oOptions.filter && oOptions.filter.whiteSpace) {
             cleanEmptyText = originalText.replace(/\s/gm, '');

@@ -11,7 +11,8 @@ ngMod.controller('tmsEditorController', ['$scope', 'tmsUrl', function($scope, tm
         tmsUrl.fetch().then(function(oResult) {
             var oUrl;
             if (oUrl = oResult.summary) {
-                $scope.iframeDoc.execCommand('insertHTML', false, '<a href="' + oUrl.url + '" target="_blank">' + (oUrl.title || '链接') + '</a>');
+                var text = '<a href="' + oUrl.url + '" target="_blank">' + (oUrl.title || '链接') + '</a>';
+                $scope.iframeDoc.querySelector('.tms-editor-content').innerHTML += text;
             }
         });
     };

@@ -170,6 +170,7 @@ $sql .= ",dislike_data_num int not null default 0"; // 记录的数据反对数
 $sql .= ",favor_num int not null default 0"; // 收藏数
 $sql .= ",vote_schema_num int not null default 0"; // 所有题目获得的投票数（不含协作填写）
 $sql .= ",vote_cowork_num int not null default 0"; // 协作填写数据获得投票数
+$sql .= ",upgrade_flag int not null default 0"; // 用于记录数据维护状态
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
@@ -208,6 +209,7 @@ $sql .= ",dislike_num int not null default 0"; // 点踩数
 $sql .= ",agreed char(1) not null default ''"; // 是否赞同（Y：推荐，N：屏蔽，A(ccept)：接受）
 $sql .= ",agreed_log text null"; // 推荐日志
 $sql .= ",vote_num int not null default 0"; // 获得投票数
+$sql .= ",upgrade_flag int not null default 0"; // 用于记录数据维护状态
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');

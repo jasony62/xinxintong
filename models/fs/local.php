@@ -86,13 +86,19 @@ class local_model {
         return $fp;
     }
     /**
+     * 将文件保存在本地
      *
      * @param string $filename
      * @param string $content
+     * @param boolean $requireRootDir
      */
-    public function write($filename, $content) {
+    public function write($filename, $content, $requireRootDir = true) {
         /* 文件的完整路径 */
-        $absPath = $this->rootDir . '/' . $filename;
+        if ($requireRootDir) {
+            $absPath = $this->rootDir . '/' . $filename;
+        } else {
+            $absPath = $filename;
+        }
 
         /* 文件目录是否存在，不存在则创建 */
         $dirname = dirname($absPath);
@@ -132,7 +138,7 @@ class local_model {
         }
     }
     /**
-     * 和alioss兼容
+     *
      */
     public function writeFile($dir, $filename, $content) {
         $filename = $dir . '/' . $filename;
@@ -140,7 +146,7 @@ class local_model {
         return $this->write($filename, $content);
     }
     /**
-     * 和alioss兼容
+     *
      */
     public function remove($url) {
         die('not support.');
@@ -153,8 +159,14 @@ class local_model {
     }
     /**
      * 压缩图片
+     *
+     * @param string $imageUrl 图片地址
+     * @param string $prefix 文件命名后缀
+     * @param int $maxWidthOrHeight 压缩后最大的宽或高
+     *
+     * @param array<boolean,string> 是否完成压缩，若是返回新地址
      */
-    public function compactImage($imageUrl) {
+    public function compactImage($imageUrl, $prefix = 'compact', $maxWidthOrHeight = 480) {
         $source_info = getimagesize($imageUrl);
         if (false === $source_info) {
             return [false];
@@ -162,7 +174,8 @@ class local_model {
 
         list($source_width, $source_height) = $source_info;
 
-        if ($source_width > 500 || $source_height > 500) {
+        $max_source = max($source_width, $source_height);
+        if ($max_source > $maxWidthOrHeight) {
             $source_mime = $source_info['mime'];
             switch ($source_mime) {
             case 'image/gif':
@@ -179,20 +192,18 @@ class local_model {
             }
             if (isset($source_image)) {
                 // 压缩后的图片
-                $target_width = $source_width;
-                $target_height = $source_height;
-                while ($target_width > 500 || $target_height > 550) {
-                    $target_width = (int) ($target_width / 2);
-                    $target_height = (int) ($target_height / 2);
-                }
+                $target_width = (int) ($source_width / $max_source * $maxWidthOrHeight);
+                $target_height = (int) ($source_height / $max_source * $maxWidthOrHeight);
+
                 $target_image = imagecreatetruecolor($target_width, $target_height);
                 imagecopyresampled($target_image, $source_image, 0, 0, 0, 0, $target_width, $target_height, $source_width, $source_height);
 
                 // 压缩后的文件名
                 $segs = explode('.', $imageUrl);
                 $ext = end($segs);
-                $compactImageUrl = str_replace($ext, 'compact.' . $ext, $imageUrl);
-                $newUrl = $this->write($compactImageUrl, $target_image);
+                // 替换名称
+                $compactImageUrl = str_replace($ext, $prefix . '.' . $ext, $imageUrl);
+                $newUrl = $this->write($compactImageUrl, $target_image, false);
 
                 imagedestroy($target_image);
 

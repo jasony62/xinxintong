@@ -40,7 +40,7 @@ class team_model extends \matter\base_model {
     /**
      * 获得分组列表
      *
-     * @param string $appId
+     * @param string $appId 活动id
      * @param array $aOptions
      */
     public function &byApp($appId, $aOptions = []) {

@@ -130,7 +130,8 @@ ngApp.controller('ctrlAccess', ['$scope', '$http', function($scope, $http) {
         $http.post('/rest/site/fe/user/register/do?site=' + _siteId, {
             uname: $scope.registerData.uname,
             nickname: $scope.registerData.nickname,
-            password: $scope.registerData.password
+            password: $scope.registerData.password,
+            pin: $scope.registerData.pin
         }).success(function(rsp) {
             if (rsp.err_code != 0) {
                 $scope.errmsg = rsp.err_msg;

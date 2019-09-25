@@ -65,6 +65,17 @@
                             <div class='form-group'>
                                 <input type='password' class='form-control' ng-pattern="repeatPwd" name='password2' ng-model="password2" placeholder='再次输入登录密码'>
                             </div>
+                            <div class="form-group">
+                                <div class='input-group'>
+                                    <input id="pinInput" type="text" class="form-control" name="pin" ng-model="loginUser.pin" placeholder='输入验证码(不区分大小写)' required />
+                                    <div class='input-group-addon' style='width:120px;padding:0;margin-left:-1px;'>
+                                        <span><img ng-src="{{pinImg}}" style='height:32px' /></span>
+                                    </div>
+                                    <div class='input-group-btn'>
+                                        <button class='btn btn-default' ng-click="refreshPin()"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </div>
+                                </div>
+                            </div>
                             <div class='form-group'>
                                 <button class="btn btn-block btn-success" ng-click='register()'>提交注册信息</button>
                             </div>

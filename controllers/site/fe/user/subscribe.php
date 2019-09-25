@@ -41,7 +41,11 @@ class subscribe extends \site\fe\base {
 
 		$modelSub = $this->model('site\user\subscription');
 
-		$result = $modelSub->countByUser($user->unionid, ['afterAt' => $after]);
+		$options = [];
+		if (!empty($after)) {
+			$options['afterAt'] = (int) $after;
+		}
+		$result = $modelSub->countByUser($user->unionid, $options);
 
 		return new \ResponseData($result);
 	}

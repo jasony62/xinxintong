@@ -44,7 +44,7 @@ class subscription_model extends \TMS_MODEL {
 			"unionid='{$unionid}'",
 		];
 		if (!empty($options['afterAt'])) {
-			$q[2] .= " and put_at>={$options['afterAt']}";
+			$q[2] .= " and put_at>='{$options['afterAt']}'";
 		}
 
 		$count = $this->query_val_ss($q);

@@ -122,9 +122,9 @@ class channel_model extends article_base {
 		 * load channel.
 		 */
 		if (empty($channel)) {
-			$channel = $this->byId($channel_id, ['fields' => 'id,siteid,matter_type,orderby,volume,top_type,top_id,bottom_type,bottom_id']);
+			$channel = $this->byId($channel_id, ['fields' => 'id,state,siteid,matter_type,orderby,volume,top_type,top_id,bottom_type,bottom_id']);
 		}
-		if ($channel === false) {
+		if ($channel === false || $channel->state != 1) {
 			return $matters;
 		}
 
@@ -142,13 +142,13 @@ class channel_model extends article_base {
 		}
 
 		// 获取素材
-		$getTypeMatters = function ($seq, $num, $orderby = '', $sort = true) use ($channel, $matterTypes, $channel_id) {
+		$getTypeMatters = function ($seq, $num, $orderby = '', $sort = true) use ($channel, $matterTypes) {
 			$typeMatters = [];
 			foreach ($matterTypes as $type => $table) {
 				$q1 = [];
 				$q1[] = $this->matterColumns($type) . ",cm.create_at add_at,cm.seq";
 				$q1[] = "$table m,xxt_channel_matter cm";
-				$qaw = "cm.channel_id=$channel_id and m.id=cm.matter_id and cm.matter_type='$type'";
+				$qaw = "cm.channel_id='{$channel->id}' and m.id=cm.matter_id and cm.matter_type='$type'";
 				$qaw .= " and " . $seq;
 				switch ($type) {
 				case 'article':
@@ -234,7 +234,7 @@ class channel_model extends article_base {
 	 * return 频道包含的文章，小于等于频道的容量
 	 */
 	public function &getArticles($channel_id, $channel = null) {
-		$articles = array();
+		$articles = [];
 		/**
 		 * load channel.
 		 */
@@ -265,12 +265,12 @@ class channel_model extends article_base {
 		 */
 		$qa1[] = 'a.id,a.siteid,a.title,a.summary,a.pic,a.body,a.create_at,ca.create_at';
 		$qa1[] = 'xxt_article a,xxt_channel_matter ca';
-		$qaw = "ca.channel_id=$channel_id and a.id=ca.matter_id and ca.matter_type='article' and a.state=1 and a.approved='Y'";
+		$qaw = "ca.channel_id='{$channel->id}' and a.id=ca.matter_id and ca.matter_type='article' and a.state=1 and a.approved='Y'";
 		if (!empty($top)) {
-			$qaw .= " and a.id<>$top->id";
+			$qaw .= " and a.id<>'{$top->id}'";
 		}
 		if (!empty($bottom)) {
-			$qaw .= " and a.id<>$bottom->id";
+			$qaw .= " and a.id<>'{$bottom->id}'";
 		}
 		$qa1[] = $qaw;
 		$qa2['o'] = $this->matterOrderby('article', $channel->orderby, 'ca.create_at desc');
@@ -297,22 +297,29 @@ class channel_model extends article_base {
 	 * @return 频道包含的所有条目
 	 */
 	public function &getMattersNoLimit($channel_id, $userid, $params, $channel = '') {
+		// 返回数据
+		$data = new \stdClass;
+		$data->matters = [];
+		$data->total = 0;
 		/**
 		 * load channel.
 		 */
 		if (empty($channel)) {
-			$channel = $this->byId($channel_id, ['fields' => 'matter_type,orderby,volume']);
+			$channel = $this->byId($channel_id, ['fields' => 'id,state,matter_type,orderby,volume']);
 		}
+		if ($channel === false || $channel->state != 1) {
+			return $data;
+		}
+
 		/**
 		 * in channel
 		 */
 		if ($channel->matter_type === 'article') {
 			$orderby = $channel->orderby;
-			$channel_id = $this->escape($channel_id);
 			$q1 = array();
 			$q1[] = "m.id,m.title,m.summary,m.pic,m.create_at,m.creater_name,cm.create_at add_at,'article' type,m.remark_num,st.name site_name,st.id siteid,st.heading_pic,m.matter_cont_tag,m.matter_mg_tag,cm.seq";
 			$q1[] = "xxt_article m,xxt_channel_matter cm,xxt_site st";
-			$q1[] = "m.state=1 and m.approved='Y' and cm.channel_id=$channel_id and m.id=cm.matter_id and cm.matter_type='article' and m.siteid=st.id";
+			$q1[] = "m.state=1 and m.approved='Y' and cm.channel_id='{$channel->id}' and m.id=cm.matter_id and cm.matter_type='article' and m.siteid=st.id";
 			if (!empty($params->weight)) {
 				switch ($params->weight) {
 					case 'top':
@@ -350,7 +357,6 @@ class channel_model extends article_base {
 			$q1[0] = 'count(*)';
 			$total = (int) $this->query_val_ss($q1);
 
-			$data = new \stdClass;
 			$data->matters = $matters;
 			$data->total = $total;
 			return $data;
@@ -358,7 +364,7 @@ class channel_model extends article_base {
 			$q1 = [
 				'cm.create_at,cm.matter_type,cm.matter_id,cm.seq',
 				'xxt_channel_matter cm',
-				["cm.channel_id" => $channel_id],
+				["cm.channel_id" => $channel->id],
 			];
 			if (!empty($params->weight)) {
 				switch ($params->weight) {
@@ -395,7 +401,7 @@ class channel_model extends article_base {
 					$q = [
 						"a.id,a.title,a.creater_name,a.create_at,a.summary,a.pic,a.state,'article' type,a.matter_cont_tag,a.matter_mg_tag,s.name site_name,s.id siteid,s.heading_pic",
 						'xxt_article a, xxt_site s',
-						"a.id = $sm->matter_id and a.state = 1 and a.approved = 'Y' and a.siteid=s.id and s.state = 1",
+						"a.id = '{$sm->matter_id}' and a.state = 1 and a.approved = 'Y' and a.siteid=s.id and s.state = 1",
 					];
 					$fullMatter = $this->query_obj_ss($q);
 				}
@@ -432,7 +438,6 @@ class channel_model extends article_base {
 				$matters[] = $fullMatter;
 			}
 
-			$data = new \stdClass;
 			$data->matters = $matters;
 			$data->total = $total;
 			return $data;

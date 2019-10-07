@@ -1,8 +1,7 @@
 <nav class="navbar site-navbar-light navbar-fixed-bottom">
     <div class="container">
         <ul class="tab-views">
-            <li class="tab-view" ng-repeat="nav in navs" ng-class="{'active': activeNav.type===nav.type}" ng-switch on="nav.type"
-                ng-click="switchNav($event, nav)">
+            <li class="tab-view" ng-repeat="nav in navs" ng-class="{'active': activeNav.type===nav.type}" ng-switch on="nav.type" ng-click="switchNav($event, nav)">
                 <a href class="tab-view-link text-center" ng-switch-when="mission">
                     <i class="glyphicon glyphicon-th-list"></i><span ng-bind="nav.title"></span>
                 </a>
@@ -21,5 +20,4 @@
             </li>
         </ul>
     </div>
-    
 </nav>

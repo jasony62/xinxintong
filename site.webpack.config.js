@@ -1,5 +1,6 @@
 var path = require("path");
 module.exports = {
+    mode: "production",
     entry: {
         '/default/home': ['./views/default/home.js'],
         '/default/site/home': ['./views/default/site/home.js'],
@@ -32,22 +33,39 @@ module.exports = {
         filename: '[name].js'
     },
     module: {
-        loaders: [{
+        rules: [{
             test: /\.html$/,
-            loader: 'raw-loader'
+            use: 'html-loader'
         }, {
             test: /\.css$/,
-            loader: 'style-loader!css-loader'
+            use: [{
+                    loader: "style-loader"
+                },
+                {
+                    loader: "css-loader"
+                }
+            ]
         }, {
             test: /\.less$/,
-            loader: 'style-loader!css-loader!less-loader'
+            use: [{
+                    loader: "style-loader"
+                },
+                {
+                    loader: "css-loader"
+                },
+                {
+                    loader: "less-loader"
+                }
+            ]
         }, {
             test: /\.(jpg|png|jpeg|gif|svg)$/,
-            loader: 'url-loader',
-            options: {
-                limit: 100000,
-                name: './static/img/[name].[hash:7].[ext]'
-            }
+            use: [{
+                loader: 'url-loader',
+                options: {
+                    limit: 100000,
+                    name: './static/img/[name].[hash:7].[ext]'
+                }
+            }],
         }]
     }
 }

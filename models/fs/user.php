@@ -68,7 +68,7 @@ class user_model {
      */
     private function storeBase64Image($data) {
         $matches = [];
-        $rst = preg_match('/data:image\/(.+?);base64\,/', $data, $matches);
+        $rst = preg_match('/data:image\/(.+?);base64,/', $data, $matches);
         if (1 !== $rst) {
             return [false, '图片数据格式错误, 只能上传png、jpg、gif、bmp格式图片'];
         }
@@ -79,7 +79,7 @@ class user_model {
         $pic = base64_decode(str_replace($header, "", $data));
 
         $dir = date("ymdH"); // 每个小时分一个目录
-        $storename = date("is") . rand(10000, 99999) . "." . $ext; // 原始图片
+        $storename = date("is") . rand(10000, 99999) . "." . $ext; // 2位分，2位秒，5位随机数，扩展名
         /**
          * 保存原始数据
          */
@@ -90,11 +90,11 @@ class user_model {
         if (method_exists($this->service, 'compactImage')) {
             $originalUrl = $newUrl;
             // 中压缩数据
-            $aCompactResult = $this->service->compactImage($originalUrl, 'medium', 1000);
+            $aCompactResult = $this->service->compactImage($originalUrl, 'medium', 1200);
             if (true === $aCompactResult[0]) {
                 $newUrl = $aCompactResult[1];
                 // 高压缩数据
-                $aCompactResult = $this->service->compactImage($originalUrl, 'compact', 500);
+                $aCompactResult = $this->service->compactImage($originalUrl, 'compact', 480);
                 if (true === $aCompactResult[0]) {
                     $newUrl = $aCompactResult[1];
                 }

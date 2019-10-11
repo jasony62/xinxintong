@@ -51,7 +51,7 @@ class data_model extends entity_model {
         /* 获得题目的数据分 */
         $oRecordScore = $this->socreRecordData($oApp, $oRecord, $aSchemasById, $dbData, $oAssignScore);
         /* 将每条协作填写项保存为1条数据，并返回题目中记录的汇总数据 */
-        $fnNewItems = function ($schemaId, $aNewItems) use ($oApp, $oRecord, $oUser, $dbData) {
+        $fnNewItems = function ($schemaId, $aNewItems) use ($oApp, $oRecord, $oUser, $dbData, $aProtoData) {
             $aSchemaVal = []; // 记录的题目数据中记录的整体内容
             foreach ($aNewItems as $index => $oNewItem) {
                 $aNewItemData = array_merge($aProtoData);
@@ -69,7 +69,7 @@ class data_model extends entity_model {
             return $treatedValue;
         };
         /* 更新多项填写题中的协作填写项 */
-        $fnUpdItems = function ($schemaId, $newSchemaValues, $oLastSchemaValues) use ($oApp, $oRecord, $oUser, $dbData) {
+        $fnUpdItems = function ($schemaId, $newSchemaValues, $oLastSchemaValues) use ($oApp, $oRecord, $oUser, $dbData, $aProtoData) {
             $aSchemaVal = []; // 记录的题目数据中记录的整体内容
             $oBeforeSchemaVal = null; //旧的总数据
             $aBeforeSchemaItems = []; //旧的项

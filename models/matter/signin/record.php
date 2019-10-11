@@ -217,7 +217,6 @@ class record_model extends \matter\enroll\record_base {
                 /* 上传文件 */
                 $fsUser = \TMS_APP::M('fs/local', $siteId, '_user');
                 $fsResum = \TMS_APP::M('fs/local', $siteId, '_resumable');
-                $fsAli = \TMS_APP::M('fs/alioss', $siteId);
                 $treatedValue = [];
                 foreach ($v as $file) {
                     $fileUploaded = $fsResum->rootDir . '/' . $submitkey . '_' . $file->uniqueIdentifier;

@@ -136,26 +136,20 @@ class base extends \pl\fe\base {
                 return [false, '文件上传失败，只支持' . TMS_UPLOAD_FILE_CONTENTTYPE_WHITE . '格式的文件'];
             }
         }
-        //
-        if (defined('APP_FS_USER') && APP_FS_USER === 'ali-oss') {
-            /* 文件存储在阿里 */
-            $url = 'alioss://' . $oApp->type . '/' . $oApp->id . '/' . $oFile->name;
-        } else {
-            /* 文件存储在本地 */
-            $modelRes = $this->model('fs/local', $oApp->siteid, '_resumable');
-            $modelAtt = $this->model('fs/local', $oApp->siteid, '附件');
-            $fileUploaded = $modelRes->rootDir . '/' . $oApp->type . '/' . $oApp->id . '/' . $oFile->name;
+        /* 文件存储在本地 */
+        $modelRes = $this->model('fs/local', $oApp->siteid, '_resumable');
+        $modelAtt = $this->model('fs/local', $oApp->siteid, '附件');
+        $fileUploaded = $modelRes->rootDir . '/' . $oApp->type . '/' . $oApp->id . '/' . $oFile->name;
 
-            $targetDir = $modelAtt->rootDir . '/' . $oApp->type . '/' . date('Ym');
-            if (!file_exists($targetDir)) {
-                mkdir($targetDir, 0777, true);
-            }
-            $fileUploaded2 = $targetDir . '/' . $oApp->id . '_' . $model->toLocalEncoding($oFile->name);
-            if (false === rename($fileUploaded, $fileUploaded2)) {
-                return [false, '移动上传文件失败'];
-            }
-            $url = 'local://' . $oApp->type . '/' . date('Ym') . '/' . $oApp->id . '_' . $oFile->name;
+        $targetDir = $modelAtt->rootDir . '/' . $oApp->type . '/' . date('Ym');
+        if (!file_exists($targetDir)) {
+            mkdir($targetDir, 0777, true);
         }
+        $fileUploaded2 = $targetDir . '/' . $oApp->id . '_' . $model->toLocalEncoding($oFile->name);
+        if (false === rename($fileUploaded, $fileUploaded2)) {
+            return [false, '移动上传文件失败'];
+        }
+        $url = 'local://' . $oApp->type . '/' . date('Ym') . '/' . $oApp->id . '_' . $oFile->name;
 
         $oAtt = new \stdClass;
         $oAtt->matter_id = $oApp->id;
@@ -183,11 +177,7 @@ class base extends \pl\fe\base {
         /**
          * remove from fs
          */
-        if (strpos($att->url, 'alioss') === 0) {
-            $fs = $this->model('fs/alioss', $site, 'attachment');
-            $object = $siteId . '/' . $att->matter_type . '/' . $att->matter_id . '/' . $att->name;
-            $rsp = $fs->delete_object($object);
-        } else if (strpos($att->url, 'local') === 0) {
+        if (strpos($att->url, 'local') === 0) {
             $fs = $this->model('fs/local', $siteId, '附件');
             $path = '' . $att->matter_type . '_' . $att->matter_id . '_' . $att->name;
             $rsp = $fs->delete($path);

@@ -1,7 +1,7 @@
 'use strict';
 
 var ngMod = angular.module('nav.bottom.ui', []);
-ngMod.directive('tmsBottomNav', ['$templateCache', function($templateCache) {
+ngMod.directive('tmsBottomNav', ['$templateCache', function ($templateCache) {
     return {
         restrict: 'E',
         replace: true,
@@ -11,13 +11,15 @@ ngMod.directive('tmsBottomNav', ['$templateCache', function($templateCache) {
             activeNav: '=',
             type: '@'
         },
-        link: function(scope, elems, attrs) {
-            scope.switchNav = function($event, nav) {
+        link: function (scope, elems, attrs) {
+            scope.switchNav = function ($event, nav) {
                 location.href = nav.url;
             };
-            scope.$watch('navs', function(navs) {
-                if (!navs) { return false; }
-                navs.forEach(function(nav) {
+            scope.$watch('navs', function (navs) {
+                if (!navs) {
+                    return false;
+                }
+                navs.forEach(function (nav) {
                     if (nav.type === scope.type) {
                         scope.activeNav = nav;
                     }

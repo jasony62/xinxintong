@@ -68,7 +68,7 @@ class user_model {
      */
     private function storeBase64Image($data) {
         $matches = [];
-        $rst = preg_match('/data:image\/(.+?);base64\,/', $data, $matches);
+        $rst = preg_match('/data:image\/(.+?);base64,/', $data, $matches);
         if (1 !== $rst) {
             return [false, '图片数据格式错误, 只能上传png、jpg、gif、bmp格式图片'];
         }

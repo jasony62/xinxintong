@@ -35,8 +35,8 @@
                             <span class='glyphicon glyphicon-remove'></span>
                         </button>
                         <a class="btn btn-default" href='/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}' target='_self' title='查看项目'>
-                    <span class='glyphicon glyphicon-new-window'></span>
-                </a>
+                            <span class='glyphicon glyphicon-new-window'></span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -70,7 +70,7 @@
                         <label>默认同步到</label>
                         <select class="form-control" ng-model="app.sync_round" ng-change="update('sync_round')">
                             <option value="">无</option>
-                            <option value="{{round.team_id}}" ng-repeat="team in app.teams">{{team.title}}</option>
+                            <option value="{{team.team_id}}" ng-repeat="team in app.teams">{{team.title}}</option>
                         </select>
                     </div>
                 </div>

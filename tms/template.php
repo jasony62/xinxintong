@@ -185,7 +185,7 @@ class TPL {
 
 	public static function val($name, $htmlEncode = true) {
 		self::init();
-		$val = isset(self::$view->$name) ? ($htmlEncode ? htmlentities(self::$view->$name) : self::$view->$name) : false;
+		$val = isset(self::$view->$name) ? ((is_string(self::$view->$name) && $htmlEncode) ? htmlentities(self::$view->$name) : self::$view->$name) : false;
 		return $val;
 	}
 

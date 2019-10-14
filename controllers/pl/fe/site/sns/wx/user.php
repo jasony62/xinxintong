@@ -164,6 +164,8 @@ class user extends \pl\fe\base {
 							'city' => $rfan->city,
 							'groupid' => $rfan->groupid,
 							'sync_at' => $current,
+							'subscribe_at' => $rfan->subscribe_time,
+							'unsubscribe_at' => 0,
 						);
 						isset($rfan->icon) && $upd['headimgurl'] = $rfan->icon;
 						isset($rfan->headimgurl) && $upd['headimgurl'] = $rfan->headimgurl;
@@ -237,6 +239,8 @@ class user extends \pl\fe\base {
 			'sex' => $info[1]->sex,
 			'city' => $info[1]->city,
 			'groupid' => $info[1]->groupid,
+			'subscribe_at' => $info[1]->subscribe_time,
+			'unsubscribe_at' => 0,
 		];
 		isset($info[1]->headimgurl) && $u['headimgurl'] = $info[1]->headimgurl;
 		isset($info[1]->icon) && $u['headimgurl'] = $info[1]->icon;

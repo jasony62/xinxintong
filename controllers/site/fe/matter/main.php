@@ -172,6 +172,27 @@ class main extends \site\fe\matter\base {
 				$assignedNickname = $post->assignedNickname;
 			}
 		}
+		
+		switch ($type) {
+			case 'article':
+				$model->update("update xxt_article set read_num=read_num+1 where id='$id'");
+				break;
+			case 'channel':
+				$model->update("update xxt_channel set read_num=read_num+1 where id='$id'");
+				break;
+			case 'enroll':
+				$model->update("update xxt_enroll set read_num=read_num+1 where id='$id'");
+		}
+
+		!empty($assignedNickname) && $user->nickname = $assignedNickname;
+		$options = [];
+		isset($userRid) && $options['rid'] = $userRid;
+		if (!empty($post->target_type) && !empty($post->target_id)) {
+			$options['target_type'] = $post->target_type;
+			$options['target_id'] = $post->target_id;
+		}
+
+		$logid = $this->logRead($site, $user, $id, $type, $title, $shareby, $search, $referer, $options);
 
 		return new \ResponseData('ok');
 	}

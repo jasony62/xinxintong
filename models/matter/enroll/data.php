@@ -546,7 +546,13 @@ class data_model extends entity_model {
                         break;
                     }
                 }
-                $quizScore = (empty($oSchema->score) ? 0 : $oSchema->score) / count($oSchema->answer) * $correct;
+                // 只有全对才给分
+                if ($correct === count($oSchema->answer)) {
+                    $quizScore = empty($oSchema->score) ? 0 : $oSchema->score;
+                } else {
+                    $quizScore = 0;
+                }
+                //$quizScore = (empty($oSchema->score) ? 0 : $oSchema->score) / count($oSchema->answer) * $correct;
                 if (count($oSchema->answer) === $correct) {
                     $oQuizNum->correctSchema++;
                 }

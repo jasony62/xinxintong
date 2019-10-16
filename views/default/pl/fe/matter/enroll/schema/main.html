@@ -160,12 +160,11 @@
         </li>
     </ul>
     <!--多选设置答案-->
-
     <ul class="form-group list-unstyled" ng-if="activeSchema.type==='multiple'">
         <li>
             <label>设置答案</label>
         </li>
-        <div tms-array-checkbox model="activeSchema.answer" tms-change="updSchema(activeSchema)">
+        <div tms-array-checkbox model="activeSchema.answer" items="activeSchema.ops" tms-change="updSchema(activeSchema)">
             <div class="checkbox" wrap="checkbox" ng-repeat="op in activeSchema.ops">
                 <label><input type="checkbox" value="{{op.v}}" /><span>{{op.l}}</span></label>
             </div>

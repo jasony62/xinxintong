@@ -434,9 +434,9 @@ class TMS_MODEL {
      */
     public function cleanEmoji($str, $bKeepEmoji = false) {
         $str = json_encode($str);
-        $str = preg_replace_callback("/(\\\u[ed][0-9a-f]{3})/i", function ($matches) use ($bKeepEmoji) {
+        $str = preg_replace_callback("/(\\\u[de][0-9a-f]{3})/i", function ($matches) use ($bKeepEmoji) {
             if (true === $bKeepEmoji) {
-                return str_replace('%5C', '\\\\', urlencode($matches[0]));
+                return str_replace('%5C', '', urlencode($matches[0]));
             } else {
                 return '';
             }

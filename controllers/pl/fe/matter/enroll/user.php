@@ -94,7 +94,11 @@ class user extends main_base {
                     array_walk($oGroupApp->teams, function (&$oTeam) use (&$aGroups, $oRnd, &$teams) {
                         if (isset($aGroups[$oTeam->team_id])) {
                             $oTeamByRnd = clone $oTeam;
-                            $oTeamByRnd->data = $aGroups[$oTeamByRnd->team_id][$oRnd->rid];
+                            if (isset($aGroups[$oTeamByRnd->team_id][$oRnd->rid])) {
+                                $oTeamByRnd->data = $aGroups[$oTeamByRnd->team_id][$oRnd->rid];
+                            } else {
+                                $oTeamByRnd->data = new \stdClass;
+                            }
                             $teams[] = $oTeamByRnd;
                         };
                     });

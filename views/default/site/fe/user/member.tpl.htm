@@ -146,10 +146,13 @@
                             <input type='text' class='form-control' ng-model="member.extattr[ea.id]" ng-switch-when="shorttext">
                             <textarea class="form-control" ng-model="member.extattr[ea.id]" rows="3" ng-switch-when="longtext"></textarea>
                             <ul class='list-unstyled' ng-switch-when="single">
-                                <li class="radio" ng-repeat="op in ea.ops">
+                                <li class="radio" ng-repeat="op in ea.ops" ng-if="ea.pageConfig.component!=='S'">
                                     <label>
                                         <input type="radio" name="{{action.id+'_'+ea.id}}" value="{{op.v}}" ng-model="member.extattr[ea.id]"><span>{{op.l}}</span></label>
                                 </li>
+                                <select class='form-control' ng-model="member.extattr[ea.id]" ng-if="ea.pageConfig.component==='S'">
+                                    <option value="{{op.v}}" ng-repeat="op in ea.ops">{{op.l}}</option>
+                                </select>
                             </ul>
                             <ul class='list-unstyled' ng-switch-when="multiple">
                                 <li class="checkbox" ng-repeat="op in ea.ops">

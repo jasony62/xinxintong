@@ -38,7 +38,7 @@ ngMod.service('tmsUrl', ['$q', '$uibModal', function($q, $uibModal) {
                         url = _oData.url;
                     }
                     if (validateUrl(url)) {
-                        http2.post('/rest/site/fe/matter/enroll/url', { url: url }).then(function(rsp) {
+                        http2.post('/rest/site/fe/matter/enroll/url/getUrl', { url: url }).then(function(rsp) {
                             if(Object.keys(rsp.data).indexOf('url')===-1||!rsp.data.url) {
                                 noticebox.error('请点击“刷新”按钮，重新获取解析值');
                                 return false;

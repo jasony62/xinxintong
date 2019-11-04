@@ -219,7 +219,8 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
         http2.post('/rest/site/fe/user/register/do?site=' + LS.s().site, {
             uname: $scope.loginUser.uname,
             nickname: $scope.loginUser.nickname,
-            password: $scope.loginUser.password
+            password: $scope.loginUser.password,
+            pin: $scope.loginUser.pin
         }).then(function (rsp) {
             $scope.user = rsp.data;
             setMember($scope.user);

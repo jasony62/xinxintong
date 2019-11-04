@@ -10,7 +10,7 @@ class url extends base {
 	/**
 	 * 获得指定url的摘要
 	 */
-	public function index_action() {
+	public function getUrl_action() {
 		$oSummary = new \stdClass;
 
 		$oPosted = $this->getPostJson();
@@ -24,7 +24,13 @@ class url extends base {
 		if (empty($aTargetUrl['host'])) {
 			return new \ParameterError('指定的URL不合规无法解析');
 		}
-		$html = $this->_iconvConvert(file_get_contents($oPosted->url));
+		$hdrs = [
+			'http' => ['header' => 
+				"Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+			],
+		];
+		$context = stream_context_create($hdrs);
+		$html = $this->_iconvConvert(file_get_contents($oPosted->url, 0, $context));
 
 		/* 获得页面的标题 */
 		if (preg_match('/<title.*?>(.*?)<\/title>/is', $html, $aTitle)) {

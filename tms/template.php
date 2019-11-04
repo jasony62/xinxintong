@@ -183,9 +183,10 @@ class TPL {
 		self::$view->$name = $value;
 	}
 
-	public static function val($name) {
+	public static function val($name, $htmlEncode = true) {
 		self::init();
-		return isset(self::$view->$name) ? self::$view->$name : false;
+		$val = isset(self::$view->$name) ? ((is_string(self::$view->$name) && $htmlEncode) ? htmlentities(self::$view->$name) : self::$view->$name) : false;
+		return $val;
 	}
 
 	public static function pt($name) {

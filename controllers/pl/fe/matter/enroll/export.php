@@ -282,7 +282,10 @@ class export extends record_base {
                     }
                     break;
                 case 'multitext':
-                    if (is_array($v)) {
+                    if (is_array($v) || is_object($v)) {
+                        if (is_object($v)) {
+                            $v = (array) $v;
+                        }
                         $values = [];
                         foreach ($v as $val) {
                             $values[] = strip_tags($val->value);

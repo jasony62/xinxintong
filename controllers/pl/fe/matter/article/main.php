@@ -580,12 +580,6 @@ class main extends \pl\fe\matter\main_base {
          * 将图文从所属的多图文和频道中删除
          */
         $modelArt->delete('xxt_channel_matter', ['matter_id' => $id, 'matter_type' => 'article']);
-        $modelNews = $this->model('matter\news');
-        if ($news = $modelNews->byMatter($id, 'article')) {
-            foreach ($news as $n) {
-                $modelNews->removeMatter($n->id, $id, 'article');
-            }
-        }
 
         $rst = $modelArt->remove($oUser, $oArticle);
 

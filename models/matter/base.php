@@ -29,7 +29,6 @@ class base_model extends \TMS_MODEL {
         $matterType = $this->getTypeName();
         $map = [
             'article' => 'doc',
-            'news' => 'doc',
             'channel' => 'doc',
             'link' => 'doc',
             'custom' => 'doc',

@@ -533,14 +533,7 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
             noticebox.warn('不允许编辑其他用户提交的记录');
             return;
         }
-        var page;
-        for (var i in $scope.app.pages) {
-            var oPage = $scope.app.pages[i];
-            if (oPage.type === 'I') {
-                page = oPage.name;
-                break;
-            }
-        }
+        var page = $scope.app.pages.find(p => p.type === 'I')
         $scope.gotoPage(event, page, oRecord.enroll_key);
     };
     $scope.copyRecord = function (event, oRecord) {

@@ -519,6 +519,31 @@ class repos extends base {
         return new \ResponseData($oResult);
     }
     /**
+     *
+     */
+    public function countCoworkData_action($app) {
+        $modelApp = $this->model('matter\enroll');
+        $oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+        if (false === $oApp || $oApp->state !== '1') {
+            return new \ObjectNotFoundError();
+        }
+
+        $coworkSchemaIds = [];
+        foreach ($oApp->dynaDataSchemas as $oSchema) {
+            if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
+                $coworkSchemaIds[] = $oSchema->id;
+            }
+        }
+        if (empty($coworkSchemaIds)) {
+            return new \ObjectNotFoundError('活动中没有协作题');
+        }
+
+        $modelRecDat = $this->model('matter\enroll\data');
+        $total = $modelRecDat->countCoworkDataByApp($oApp);
+
+        return new \ResponseData($total);
+    }
+    /**
      * 返回指定活动的填写记录的共享内容
      * 答案视图
      */

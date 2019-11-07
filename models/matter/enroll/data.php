@@ -1042,6 +1042,37 @@ class data_model extends entity_model {
         return $oResult;
     }
     /**
+     * 活动已有协作填写记录的数量
+     */
+    public function countCoworkDataByApp($oApp) {
+        if (is_string($oApp)) {
+            $oApp = $this->model('matter\enroll')->byId($oApp, ['cascaded' => 'N']);
+        }
+        if (false === $oApp || $oApp->state != '1') {
+            return false;
+        }
+        $aCoworkSchemaIds = [];
+        array_walk($oApp->dynaDataSchemas, function ($oSchema) use (&$aCoworkSchemaIds) {
+            if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
+                $aCoworkSchemaIds[] = $oSchema->id;
+            }
+        });
+        if (empty($aCoworkSchemaIds)) {
+            return false;
+        }
+
+        $w = "state=1 and aid='{$oApp->id}' and multitext_seq > 0 and value<>''";
+        $coworkSchemaIds = implode("','", $aCoworkSchemaIds);
+        $w .= " and schema_id in ('" . $coworkSchemaIds . "')";
+
+        $table = "xxt_enroll_record_data";
+
+        $q = ['count(*)', $table, $w];
+        $count = (int) $this->query_val_ss($q);
+
+        return $count;
+    }
+    /**
      * 答案清单
      */
     public function coworkDataByApp($oApp, $oOptions = null, $oCriteria = null, $oUser = null, $coworkSchemaIds = []) {
@@ -1056,18 +1087,18 @@ class data_model extends entity_model {
         }
         // 活动中是否存在协作填写题
         $oSchemasById = new \stdClass; // 方便查找题目
-        $oCoworkSchemaIds = [];
+        $aCoworkSchemaIds = [];
         foreach ($oApp->dynaDataSchemas as $oSchema) {
             $oSchemasById->{$oSchema->id} = $oSchema;
             if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
-                $oCoworkSchemaIds[] = $oSchema->id;
+                $aCoworkSchemaIds[] = $oSchema->id;
             }
         }
         if (empty($coworkSchemaIds)) {
-            if (empty($oCoworkSchemaIds)) {
+            if (empty($aCoworkSchemaIds)) {
                 return false;
             }
-            $coworkSchemaIds = $oCoworkSchemaIds;
+            $coworkSchemaIds = $aCoworkSchemaIds;
         }
 
         // 指定记录活动下的记录

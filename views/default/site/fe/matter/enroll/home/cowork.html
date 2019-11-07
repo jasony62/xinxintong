@@ -29,7 +29,7 @@
                                 <div tms-dropdown basic-data="singleFilter" criteria="criteria" shift-menu="shiftMenu(criteria)"></div>
                             </div>
                             <div tms-filter append-to-ele="appendToEle" basic-data="multiFilters" filter="filter" criteria="criteria" confirm="confirm(filterOpt)" class='tmsFilter' ng-if="multiFilters.length"></div>
-                            <div id='advCriteriaSwitch' ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened" class='visible-xs-block' ng-class="{'active':advCriteriaStatus.opened}">
+                            <div id='advCriteriaSwitch' ng-if="dirSchemas.length" ng-click="advCriteriaStatus.opened=!advCriteriaStatus.opened" class='visible-xs-block' ng-class="{'active':advCriteriaStatus.opened}">
                                 <a href><i class='glyphicon glyphicon-menu-hamburger'></i></a>
                             </div>
                         </div>

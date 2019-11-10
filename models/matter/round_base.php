@@ -412,7 +412,7 @@ trait Round {
                 break;
             }
         } else if ($oRule->pattern === 'interval') {
-
+            $name = '按间隔轮次';
         }
 
         return $name;

@@ -529,12 +529,12 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
     };
 
     $scope.editRecord = function (event, oRecord) {
-        if (oRecord.userid !== $scope.user.uid) {
-            noticebox.warn('不允许编辑其他用户提交的记录');
-            return;
-        }
+        if ($scope.app.scenarioConfig.can_cowork !== 'Y' && oRecord.userid !== $scope.user.uid && $scope.user.is_editor !== 'Y')
+            return noticebox.warn('不允许编辑其他用户提交的记录');
+
         var page = $scope.app.pages.find(p => p.type === 'I')
-        $scope.gotoPage(event, page, oRecord.enroll_key);
+        if (page)
+            $scope.gotoPage(event, page, oRecord.enroll_key);
     };
     $scope.copyRecord = function (event, oRecord) {
         enlAssoc.copy($scope.app, {

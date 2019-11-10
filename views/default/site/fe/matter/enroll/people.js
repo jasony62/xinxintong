@@ -9,16 +9,19 @@ require('./_asset/ui.assoc.js');
 window.moduleAngularModules = ['nav.bottom.ui', 'repos.ui.enroll', 'tag.ui.enroll', 'topic.ui.enroll', 'assoc.ui.enroll', 'ngRoute'];
 
 var ngApp = require('./main.js');
-ngApp.config(['$routeProvider', function($routeProvider) {
+ngApp.config(['$routeProvider', function ($routeProvider) {
     $routeProvider
-        .when('/rest/site/fe/matter/enroll/people/favor', { template: require('./people/favor.html'), controller: 'ctrlPeopleFavor' })
+        .when('/rest/site/fe/matter/enroll/people/favor', {
+            template: require('./people/favor.html'),
+            controller: 'ctrlPeopleFavor'
+        })
 }]);
-ngApp.factory('TopicRepos', ['http2', '$q', '$sce', 'tmsLocation', function(http2, $q, $sce, LS) {
+ngApp.factory('TopicRepos', ['http2', '$q', '$sce', 'tmsLocation', function (http2, $q, $sce, LS) {
     var TopicRepos, _ins;
-    TopicRepos = function(oApp, oTopic) {
+    TopicRepos = function (oApp, oTopic) {
         var oShareableSchemas;
         oShareableSchemas = {};
-        oApp.dynaDataSchemas.forEach(function(oSchema) {
+        oApp.dynaDataSchemas.forEach(function (oSchema) {
             if (oSchema.shareable && oSchema.shareable === 'Y') {
                 oShareableSchemas[oSchema.id] = oSchema;
             }
@@ -29,7 +32,7 @@ ngApp.factory('TopicRepos', ['http2', '$q', '$sce', 'tmsLocation', function(http
         this.oPage = {};
         this.repos = [];
     };
-    TopicRepos.prototype.list = function(pageAt) {
+    TopicRepos.prototype.list = function (pageAt) {
         var url, oDeferred, _this;
         oDeferred = $q.defer();
         _this = this;
@@ -44,9 +47,11 @@ ngApp.factory('TopicRepos', ['http2', '$q', '$sce', 'tmsLocation', function(http
         }
         url = LS.j('repos/recordByTopic', 'site', 'app') + '&topic=' + this.oTopic.id;
 
-        http2.get(url, { page: this.oPage }).then(function(oResult) {
+        http2.get(url, {
+            page: this.oPage
+        }).then(function (oResult) {
             if (oResult.data.records) {
-                oResult.data.records.forEach(function(oRecord) {
+                oResult.data.records.forEach(function (oRecord) {
                     _this.repos.push(oRecord);
                 });
             }
@@ -56,60 +61,64 @@ ngApp.factory('TopicRepos', ['http2', '$q', '$sce', 'tmsLocation', function(http
         return oDeferred.promise;
     };
     return {
-        ins: function(oApp, oTopic) {
+        ins: function (oApp, oTopic) {
             return new TopicRepos(oApp, oTopic);
         }
     };
 }]);
-ngApp.controller('ctrlPeople', ['$scope', '$location', 'tmsLocation', 'http2', function($scope, $location, LS, http2) {
+ngApp.controller('ctrlPeople', ['$scope', '$location', 'tmsLocation', 'http2', function ($scope, $location, LS, http2) {
     $scope.activeNav = '';
-    $scope.viewTo = function(event, subView) {
+    $scope.viewTo = function (event, subView) {
         if (subView.type === 'user') {
             location.href = '/rest/site/fe/user?site=' + $scope.oApp.siteid;
         } else {
             $scope.activeView = subView;
         }
     };
-    $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+    $scope.$on('$locationChangeSuccess', function (event, currentRoute) {
         var subView = currentRoute.match(/([^\/]+?)\?/);
         $scope.subView = subView[1] === 'favor' ? 'favor' : subView[1];
     });
-    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+    $scope.$on('xxt.app.enroll.ready', function (event, params) {
         $scope.oApp = params.app;
         /* 请求导航 */
-        http2.get(LS.j('navs', 'site', 'app')).then(function(rsp) {
+        http2.get(LS.j('navs', 'site', 'app')).then(function (rsp) {
             $scope.navs = rsp.data;
         });
     });
 }]);
-ngApp.controller('ctrlPeopleFavor', ['$scope', '$uibModal', 'http2', 'tmsLocation', function($scope, $uibModal, http2, LS) {
+ngApp.controller('ctrlPeopleFavor', ['$scope', '$uibModal', 'http2', 'tmsLocation', function ($scope, $uibModal, http2, LS) {
     var _oApp;
     if (location.hash && /repos|tag|topic/.test(location.hash)) {
         $scope.subView = location.hash.substr(1) + '.html';
     } else {
         $scope.subView = 'repos.html';
     }
-    $scope.addTopic = function() {
+    $scope.addTopic = function () {
         $uibModal.open({
             templateUrl: 'editTopic.html',
-            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+            controller: ['$scope', '$uibModalInstance', function ($scope2, $mi) {
                 var _oCreated;
                 $scope2.topic = _oCreated = {};
-                $scope2.cancel = function() { $mi.dismiss(); };
-                $scope2.ok = function() { $mi.close(_oCreated); };
+                $scope2.cancel = function () {
+                    $mi.dismiss();
+                };
+                $scope2.ok = function () {
+                    $mi.close(_oCreated);
+                };
             }],
             backdrop: 'static',
             windowClass: 'auto-height',
-        }).result.then(function(oCreated) {
-            http2.post(LS.j('topic/add', 'site', 'app'), oCreated).then(function(rsp) {
+        }).result.then(function (oCreated) {
+            http2.post(LS.j('topic/add', 'site', 'app'), oCreated).then(function (rsp) {
                 $scope.$broadcast('xxt.matter.enroll.favor.topic.add', rsp.data);
             });
         });
     };
-    $scope.addTag = function() {
+    $scope.addTag = function () {
         $scope.$broadcast('xxt.matter.enroll.favor.tag.add');
     };
-    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+    $scope.$on('xxt.app.enroll.ready', function (event, params) {
         _oApp = params.app;
         /* 设置页面分享信息 */
         $scope.setSnsShare(); // 应该禁止分享
@@ -117,11 +126,11 @@ ngApp.controller('ctrlPeopleFavor', ['$scope', '$uibModal', 'http2', 'tmsLocatio
         $scope.logAccess();
     });
 }]);
-ngApp.controller('ctrlPeopleUser', ['$scope', 'http2', 'tmsLocation', function($scope, http2, LS) {}]);
+ngApp.controller('ctrlPeopleUser', ['$scope', 'http2', 'tmsLocation', function ($scope, http2, LS) {}]);
 /**
  * 记录
  */
-ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', function($scope, $sce, $q, $uibModal, http2, LS, $timeout, picviewer, noticebox, enlTag, enlTopic) {
+ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tmsLocation', '$timeout', 'picviewer', 'noticebox', 'enlTag', 'enlTopic', function ($scope, $sce, $q, $uibModal, http2, LS, $timeout, picviewer, noticebox, enlTag, enlTopic) {
     /* 是否可以对记录进行表态 */
     function fnCanAgreeRecord(oRecord, oUser) {
         if (oUser.is_leader) {
@@ -143,11 +152,17 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
     _coworkRequireLikeNum = 0; // 记录获得多少个赞，才能开启协作填写
     $scope.page = _oPage = {};
     $scope.filter = _oFilter = {}; // 过滤条件
-    $scope.criteria = _oCriteria = { rid: 'all', creator: false, favored: true, agreed: 'all', orderby: 'lastest' }; // 数据查询条件
+    $scope.criteria = _oCriteria = {
+        rid: 'all',
+        creator: false,
+        favored: true,
+        agreed: 'all',
+        orderby: 'lastest'
+    }; // 数据查询条件
     $scope.schemas = _oShareableSchemas = {}; // 支持分享的题目
     $scope.repos = []; // 分享的记录
     $scope.reposLoading = false;
-    $scope.recordList = function(pageAt) {
+    $scope.recordList = function (pageAt) {
         var url, deferred;
         deferred = $q.defer();
         if (pageAt) {
@@ -161,9 +176,11 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
         url = LS.j('favor/list', 'site', 'app');
         $scope.reposLoading = true;
-        http2.post(url, _oCriteria, { page: _oPage }).then(function(result) {
+        http2.post(url, _oCriteria, {
+            page: _oPage
+        }).then(function (result) {
             if (result.data.records) {
-                result.data.records.forEach(function(oRecord) {
+                result.data.records.forEach(function (oRecord) {
                     if (_coworkRequireLikeNum > oRecord.like_num) {
                         oRecord._coworkRequireLikeNum = (_coworkRequireLikeNum > oRecord.like_num ? _coworkRequireLikeNum - oRecord.like_num : 0);
                     }
@@ -171,7 +188,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
                     $scope.repos.push(oRecord);
                 });
             }
-            $timeout(function() {
+            $timeout(function () {
                 var imgs;
                 if (imgs = document.querySelectorAll('.data img')) {
                     picviewer.init(imgs);
@@ -183,55 +200,55 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
 
         return deferred.promise;
     }
-    $scope.likeRecord = function(oRecord) {
+    $scope.likeRecord = function (oRecord) {
         var url;
         url = LS.j('record/like', 'site');
         url += '&ek=' + oRecord.enroll_key;
-        http2.get(url).then(function(rsp) {
+        http2.get(url).then(function (rsp) {
             oRecord.like_log = rsp.data.like_log;
             oRecord.like_num = rsp.data.like_num;
         });
     };
-    $scope.dislikeRecord = function(oRecord) {
+    $scope.dislikeRecord = function (oRecord) {
         var url;
         url = LS.j('record/dislike', 'site');
         url += '&ek=' + oRecord.enroll_key;
-        http2.get(url).then(function(rsp) {
+        http2.get(url).then(function (rsp) {
             oRecord.dislike_log = rsp.data.dislike_log;
             oRecord.dislike_num = rsp.data.dislike_num;
         });
     };
-    $scope.remarkRecord = function(oRecord) {
+    $scope.remarkRecord = function (oRecord) {
         var url;
         url = LS.j('', 'site', 'app');
         url += '&ek=' + oRecord.enroll_key;
         url += '&page=cowork#remarks';
         location.href = url;
     };
-    $scope.setAgreed = function(oRecord, value) {
+    $scope.setAgreed = function (oRecord, value) {
         var url;
         if (oRecord.agreed !== value) {
             url = LS.j('record/agree', 'site');
             url += '&ek=' + oRecord.enroll_key;
             url += '&value=' + value;
-            http2.get(url).then(function(rsp) {
+            http2.get(url).then(function (rsp) {
                 oRecord.agreed = value;
             });
         }
     };
-    $scope.favorRecord = function(oRecord) {
+    $scope.favorRecord = function (oRecord) {
         var url;
         if (!oRecord.favored) {
             url = LS.j('favor/add', 'site');
             url += '&ek=' + oRecord.enroll_key;
-            http2.get(url).then(function(rsp) {
+            http2.get(url).then(function (rsp) {
                 oRecord.favored = true;
             });
         } else {
-            noticebox.confirm('取消收藏，确定？').then(function() {
+            noticebox.confirm('取消收藏，确定？').then(function () {
                 url = LS.j('favor/remove', 'site');
                 url += '&ek=' + oRecord.enroll_key;
-                http2.get(url).then(function(rsp) {
+                http2.get(url).then(function (rsp) {
                     delete oRecord.favored;
                     $scope.repos.splice($scope.repos.indexOf(oRecord), 1);
                     _oPage.total--;
@@ -239,7 +256,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             });
         }
     };
-    $scope.shareRecord = function(oRecord) {
+    $scope.shareRecord = function (oRecord) {
         var url;
         url = LS.j('', 'site', 'app') + '&ek=' + oRecord.enroll_key + '&page=share';
         if (shareby) {
@@ -247,36 +264,29 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         }
         location.href = url;
     };
-    $scope.editRecord = function(event, oRecord) {
-        if (oRecord.userid !== $scope.user.uid) {
-            noticebox.warn('不允许编辑其他用户提交的记录');
-            return;
-        }
-        var page;
-        for (var i in $scope.app.pages) {
-            var oPage = $scope.app.pages[i];
-            if (oPage.type === 'I') {
-                page = oPage.name;
-                break;
-            }
-        }
-        $scope.gotoPage(event, page, oRecord.enroll_key);
+    $scope.editRecord = function (event, oRecord) {
+        if ($scope.app.scenarioConfig.can_cowork !== 'Y' && oRecord.userid !== $scope.user.uid && $scope.user.is_editor !== 'Y')
+            return noticebox.warn('不允许编辑其他用户提交的记录');
+
+        var page = $scope.app.pages.find(p => p.type === 'I')
+        if (page)
+            $scope.gotoPage(event, page, oRecord.enroll_key);
     };
-    $scope.shiftAgreed = function(agreed) {
+    $scope.shiftAgreed = function (agreed) {
         _oCriteria.agreed = agreed;
         $scope.recordList(1);
     };
     /**
      * 选取专题
      */
-    $scope.assignTopic = function(oRecord) {
+    $scope.assignTopic = function (oRecord) {
         enlTopic.assignTopic(oRecord);
     };
     /**
      * 选取标签
      */
-    $scope.assignTag = function(oRecord) {
-        enlTag.assignTag(oRecord).then(function(rsp) {
+    $scope.assignTag = function (oRecord) {
+        enlTag.assignTag(oRecord).then(function (rsp) {
             if (rsp.data.user && rsp.data.user.length) {
                 oRecord.userTags = rsp.data.user;
             } else {
@@ -285,10 +295,10 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
         });
     };
     $scope.spyRecordsScroll = true; // 监控滚动事件
-    $scope.recordsScrollToBottom = function() {
+    $scope.recordsScrollToBottom = function () {
         if ($scope.repos.length < $scope.page.total) {
-            $scope.recordList().then(function() {
-                $timeout(function() {
+            $scope.recordList().then(function () {
+                $timeout(function () {
                     if ($scope.repos.length < $scope.page.total) {
                         $scope.spyRecordsScroll = true;
                     }
@@ -296,10 +306,10 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
             });
         }
     };
-    $scope.$watch('app', function(oApp) {
+    $scope.$watch('app', function (oApp) {
         if (!oApp) return;
         _oApp = oApp;
-        _oApp.dynaDataSchemas.forEach(function(schema) {
+        _oApp.dynaDataSchemas.forEach(function (schema) {
             if (schema.shareable && schema.shareable === 'Y') {
                 _oShareableSchemas[schema.id] = schema;
             }
@@ -311,12 +321,12 @@ ngApp.controller('ctrlRepos', ['$scope', '$sce', '$q', '$uibModal', 'http2', 'tm
 /**
  * 专题
  */
-ngApp.controller('ctrlTopic', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'noticebox', 'enlAssoc', function($scope, $uibModal, http2, LS, noticebox, enlAssoc) {
+ngApp.controller('ctrlTopic', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'noticebox', 'enlAssoc', function ($scope, $uibModal, http2, LS, noticebox, enlAssoc) {
     var _topics;
-    $scope.editTopic = function(oTopic) {
+    $scope.editTopic = function (oTopic) {
         $uibModal.open({
             templateUrl: 'editTopic.html',
-            controller: ['$scope', '$uibModalInstance', 'TopicRepos', function($scope2, $mi, TopicRepos) {
+            controller: ['$scope', '$uibModalInstance', 'TopicRepos', function ($scope2, $mi, TopicRepos) {
                 var _oCached, _oTopicRepos, _oUpdated;
                 _oCached = angular.copy(oTopic);
                 _oUpdated = {};
@@ -326,43 +336,52 @@ ngApp.controller('ctrlTopic', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'n
                 $scope2.page = _oTopicRepos.oPage;
                 $scope2.repos = _oTopicRepos.repos;
                 $scope2.schemas = _oTopicRepos.shareableSchemas;
-                _oTopicRepos.list(1).then(function() {});
-                $scope2.quitRec = function(oRecord, index) {
-                    http2.post(LS.j('topic/removeRec', 'site') + '&topic=' + oTopic.id, { id_in_topic: oRecord.id_in_topic }).then(function(rsp) {
+                _oTopicRepos.list(1).then(function () {});
+                $scope2.quitRec = function (oRecord, index) {
+                    http2.post(LS.j('topic/removeRec', 'site') + '&topic=' + oTopic.id, {
+                        id_in_topic: oRecord.id_in_topic
+                    }).then(function (rsp) {
                         $scope2.repos.splice(index, 1);
                     });
                 };
-                $scope2.moveRec = function(oRecord, step, index) {
-                    http2.post(LS.j('topic/updateSeq', 'site') + '&topic=' + oTopic.id, { record: oRecord.id, step: step }).then(function(rsp) {
+                $scope2.moveRec = function (oRecord, step, index) {
+                    http2.post(LS.j('topic/updateSeq', 'site') + '&topic=' + oTopic.id, {
+                        record: oRecord.id,
+                        step: step
+                    }).then(function (rsp) {
                         $scope2.repos.splice(index, 1);
                         $scope2.repos.splice(index + step, 0, oRecord);
                     });
                 };
-                $scope2.update = function(prop) {
+                $scope2.update = function (prop) {
                     if (!_oUpdated[prop]) $scope2.countUpdated++;
                     _oUpdated[prop] = _oCached[prop];
                 };
-                $scope2.cancel = function() { $mi.dismiss(); };
-                $scope2.ok = function() { $mi.close(_oUpdated); };
+                $scope2.cancel = function () {
+                    $mi.dismiss();
+                };
+                $scope2.ok = function () {
+                    $mi.close(_oUpdated);
+                };
             }],
             backdrop: 'static',
             windowClass: 'modal-edit-topic auto-height',
-        }).result.then(function(oUpdated) {
+        }).result.then(function (oUpdated) {
             if (oUpdated && Object.keys(oUpdated).length) {
-                http2.post(LS.j('topic/update', 'site') + '&topic=' + oTopic.id, oUpdated).then(function(rsp) {
+                http2.post(LS.j('topic/update', 'site') + '&topic=' + oTopic.id, oUpdated).then(function (rsp) {
                     angular.extend(oTopic, oUpdated);
                 });
             }
         });
     };
-    $scope.removeTopic = function(oTopic, index) {
-        noticebox.confirm('删除专题【' + oTopic.title + '】，确定？').then(function() {
-            http2.get(LS.j('topic/remove', 'site') + '&topic=' + oTopic.id).then(function(rsp) {
+    $scope.removeTopic = function (oTopic, index) {
+        noticebox.confirm('删除专题【' + oTopic.title + '】，确定？').then(function () {
+            http2.get(LS.j('topic/remove', 'site') + '&topic=' + oTopic.id).then(function (rsp) {
                 _topics.splice(index, 1);
             });
         });
     };
-    $scope.shareTopic = function(oTopic) {
+    $scope.shareTopic = function (oTopic) {
         var url, shareby;
         url = LS.j('', 'site', 'app') + '&topic=' + oTopic.id + '&page=share';
         shareby = location.search.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
@@ -371,43 +390,46 @@ ngApp.controller('ctrlTopic', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'n
         }
         location.href = url;
     };
-    $scope.copyTopic = function(oTopic) {
-        enlAssoc.copy($scope.app, { id: oTopic.id, type: 'topic' });
+    $scope.copyTopic = function (oTopic) {
+        enlAssoc.copy($scope.app, {
+            id: oTopic.id,
+            type: 'topic'
+        });
     };
-    $scope.gotoTopic = function(oTopic) {
+    $scope.gotoTopic = function (oTopic) {
         location.href = LS.j('', 'site', 'app') + '&topic=' + oTopic.id + '&page=topic';
     };
-    $scope.$on('xxt.matter.enroll.favor.topic.add', function(event, oNewTopic) {
+    $scope.$on('xxt.matter.enroll.favor.topic.add', function (event, oNewTopic) {
         _topics.splice(0, 0, oNewTopic);
     });
-    http2.get(LS.j('topic/list', 'site', 'app')).then(function(rsp) {
+    http2.get(LS.j('topic/list', 'site', 'app')).then(function (rsp) {
         $scope.topics = _topics = rsp.data.topics;
     });
 }]);
 /**
  * 标签
  */
-ngApp.controller('ctrlTag', ['$scope', 'http2', 'tmsLocation', function($scope, http2, LS) {
+ngApp.controller('ctrlTag', ['$scope', 'http2', 'tmsLocation', function ($scope, http2, LS) {
     var _tags;
-    $scope.$on('xxt.matter.enroll.favor.tag.add', function(event) {
+    $scope.$on('xxt.matter.enroll.favor.tag.add', function (event) {
         $scope.addTag();
     });
-    $scope.addTag = function() {
+    $scope.addTag = function () {
         $scope.newTag = {};
     };
-    $scope.update = function(oTag, prop) {
+    $scope.update = function (oTag, prop) {
         var oUpdated;
         oUpdated = {};
         oUpdated[prop] = oTag[prop];
-        http2.post(LS.j('tag/update', 'site', 'app') + '&tag=' + oTag.tag_id, oUpdated).then(function(rsp) {});
+        http2.post(LS.j('tag/update', 'site', 'app') + '&tag=' + oTag.tag_id, oUpdated).then(function (rsp) {});
     };
-    $scope.submitNewTag = function() {
-        http2.post(LS.j('tag/submit', 'site', 'app'), $scope.newTag).then(function(rsp) {
+    $scope.submitNewTag = function () {
+        http2.post(LS.j('tag/submit', 'site', 'app'), $scope.newTag).then(function (rsp) {
             delete $scope.newTag;
             _tags.splice(0, 0, rsp.data);
         });
     };
-    $scope.cancelNewTag = function() {
+    $scope.cancelNewTag = function () {
         delete $scope.newTag;
     };
     if ($scope.app && $scope.user) {
@@ -425,7 +447,7 @@ ngApp.controller('ctrlTag', ['$scope', 'http2', 'tmsLocation', function($scope, 
             }
         }
     }
-    http2.get(LS.j('tag/list', 'site', 'app')).then(function(rsp) {
+    http2.get(LS.j('tag/list', 'site', 'app')).then(function (rsp) {
         $scope.tags = _tags = rsp.data;
     });
 }]);

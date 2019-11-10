@@ -375,17 +375,12 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         }
     };
     $scope.editRecord = function (event) {
-        if ($scope.record.userid !== $scope.user.uid && $scope.user.is_editor !== 'Y') {
-            noticebox.warn('不允许编辑其他用户提交的记录');
-            return;
-        }
-        for (var i in $scope.app.pages) {
-            var oPage = $scope.app.pages[i];
-            if (oPage.type === 'I') {
-                $scope.gotoPage(event, oPage.name, $scope.record.enroll_key);
-                break;
-            }
-        }
+        if ($scope.app.scenarioConfig.can_cowork !== 'Y' && $scope.record.userid !== $scope.user.uid && $scope.user.is_editor !== 'Y')
+            return noticebox.warn('不允许编辑其他用户提交的记录');
+
+        var page = $scope.app.pages.find(p => p.type === 'I')
+        if (page)
+            $scope.gotoPage(event, page, $scope.record.enroll_key);
     };
     $scope.shareRecord = function (oRecord) {
         var url;
@@ -500,7 +495,7 @@ ngApp.controller('ctrlCowork', ['$scope', '$q', '$timeout', '$location', '$ancho
         } else {
             $scope.fileName = 'remark';
         }
-        templateUrl = '/views/default/site/fe/matter/enroll/template/record-' + $scope.fileName + '.html'
+        templateUrl = '/views/default/site/fe/matter/enroll/template/record-' + $scope.fileName + '.html?_=1'
         $scope.selectedView = {
             'url': templateUrl
         };

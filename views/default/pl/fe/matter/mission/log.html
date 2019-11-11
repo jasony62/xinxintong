@@ -1,0 +1,19 @@
+<div class="col-md-12">
+    <table class='table table-bordered table-striped pl-workspace'>
+        <thead>
+            <tr>
+                <th style='width:120px;'>打开时间</th>
+                <th>用户</th>
+                <th style='width:80px;'>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat='log in logs'>
+                <td>{{log.operate_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+                <td>{{log.nickname||'未知'}}</td>
+                <td>{{log.operation}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <ul uib-pagination ng-show="page.total>page.size" class="pull-right" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list()"></ul>
+</div>

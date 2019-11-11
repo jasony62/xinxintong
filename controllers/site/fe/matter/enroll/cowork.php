@@ -204,9 +204,9 @@ class cowork extends base {
                 return new \ResponseError('不允许修改其他用户提交的数据');
             }
         } else {
-            if ($oUser->uid !== $oItem->userid && $this->getDeepValue($oUser, 'is_editor') !== 'Y') {
-                return new \ResponseError('不允许修改其他用户提交的数据');
-            }
+            //if ($oUser->uid !== $oItem->userid && $this->getDeepValue($oUser, 'is_editor') !== 'Y') {
+            //    return new \ResponseError('不允许修改其他用户提交的数据');
+            //}
         }
         /**
          * 更新数据

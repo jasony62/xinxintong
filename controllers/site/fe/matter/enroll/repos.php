@@ -301,10 +301,12 @@ class repos extends base {
                         }
                         $newData = [];
                         foreach ($rawDataVal as $key => $val) {
-                            $data2 = new \stdClass;
-                            $data2->title = $ops->{$key};
-                            $data2->score = $val;
-                            $newData[] = $data2;
+                            if (isset($ops->{$key})) {
+                                $data2 = new \stdClass;
+                                $data2->title = $ops->{$key};
+                                $data2->score = $val;
+                                $newData[] = $data2;
+                            }
                         }
                         $this->setDeepValue($processedData, $schemaId, $newData);
                     } else if ($this->getDeepValue($oSchema, 'type') === 'multiple') {
@@ -315,7 +317,9 @@ class repos extends base {
                         }
                         $newData = [];
                         foreach ($rawDataVal2 as $val) {
-                            $newData[] = $ops->{$val};
+                            if (isset($ops->{$val})) {
+                                $newData[] = $ops->{$val};
+                            }
                         }
                         $this->setDeepValue($processedData, $schemaId, $newData);
                     } else {

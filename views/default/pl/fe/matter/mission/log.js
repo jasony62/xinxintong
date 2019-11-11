@@ -15,6 +15,9 @@ define(['frame'], function (ngApp) {
                 });
             }
         }
+        $scope.detail = function (log) {
+            window.alert(log.data);
+        }
         $scope.$watch('mission', function (oMission) {
             if (oMission) {
                 $scope.list();

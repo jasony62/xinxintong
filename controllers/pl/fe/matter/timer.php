@@ -73,6 +73,9 @@ class timer extends \pl\fe\base {
 
         $oNewTimer = $oCreateResult[1];
 
+        /*记录操作日志*/
+        $this->model('matter\log')->matterOp($oNewTimer->siteid, $this->user, $oConfig->matter, 'C-timer', $oNewTimer);
+
         return new \ResponseData($oNewTimer);
     }
     /**
@@ -168,6 +171,12 @@ class timer extends \pl\fe\base {
 
         $oNewUpdate->name = $modelTim->readableTaskName($oNewUpdate);
 
+        /*记录操作日志*/
+        $oMatter = new \stdClass;
+        $oMatter->id = $oBeforeTimer->matter_id;
+        $oMatter->type = $oBeforeTimer->matter_type;
+        $this->model('matter\log')->matterOp($oBeforeTimer->siteid, $this->user, $oMatter, 'U-timer', $oNewUpdate);
+
         return new \ResponseData($oNewUpdate);
     }
     /**
@@ -176,7 +185,19 @@ class timer extends \pl\fe\base {
      * @param int $id 任务ID
      */
     public function remove_action($id) {
-        $rsp = $this->model()->delete('xxt_timer_task', ['id' => $id]);
+        $modelTim = $this->model('matter\timer');
+        $oBeforeTimer = $modelTim->byId($id);
+        if (false === $oBeforeTimer) {
+            return new \ObjectNotFoundError();
+        }
+
+        $rsp = $this->model()->delete('xxt_timer_task', ['id' => $oBeforeTimer->id]);
+
+        /*记录操作日志*/
+        $oMatter = new \stdClass;
+        $oMatter->id = $oBeforeTimer->matter_id;
+        $oMatter->type = $oBeforeTimer->matter_type;
+        $this->model('matter\log')->matterOp($oBeforeTimer->siteid, $this->user, $oMatter, 'D-timer');
 
         return new \ResponseData($rsp);
     }

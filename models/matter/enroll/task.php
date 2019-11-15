@@ -810,7 +810,7 @@ class task_model extends \TMS_MODEL {
                 $g[2] .= " and team_id in ('{$temIds}')";
             } else if (isset($oEntryRule->group->team)) {
                 $temId = $oEntryRule->group->team->id;
-                $g[2] .= " and team_id = '{$temId}')";
+                $g[2] .= " and team_id = '{$temId}'";
             }
 
             $usersSum = (int) $this->query_val_ss($g);

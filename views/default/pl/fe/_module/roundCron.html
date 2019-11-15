@@ -141,6 +141,11 @@
         <div class='form-group'>
             <strong>按规则生成的当前轮次：</strong><span ng-bind="rule.case.title"></span>
         </div>
+        <div class='form-group' ng-if="rule.case.end_at">
+            <div class='form-group'>
+                <p>停止提交：<span ng-if="rule.case.end_at">{{rule.case.end_at*1000|date:'yy-MM-dd HH:mm'}}</span></p>
+            </div>
+        </div>
     </div>
     <div ng-switch-when="interval">
         <div class='form-group'>
@@ -162,7 +167,7 @@
         </div>
         <div class='form-group'>
             <div class='form-inline'>
-                <label>轮次结束间隔时间：</label>
+                <label>停止提交间隔时间：</label>
                 <select class='form-control' ng-model="rule.end.unit" ng-blur="example(rule)">
                     <option value='week'>周</option>
                     <option value='day'>天</option>
@@ -183,12 +188,15 @@
             </div>
         </div>
         <div class='form-group'>
+            <strong>按规则生成的当前轮次：</strong><span ng-bind="rule.case.title"></span>
+        </div>
+        <div class='form-group'>
             <div class='form-inline'>
                 <div class='form-group'>
-                    <p>开始时间：<span ng-if="rule.case.start_at">{{rule.case.start_at*1000|date:'yy-MM-dd HH:mm'}}</span></p>
+                    <p>停止提交：<span ng-if="rule.case.end_at">{{rule.case.end_at*1000|date:'yy-MM-dd HH:mm'}}</span></p>
                 </div>
-                <div class='form-group'>
-                    <p>结束时间：<span ng-if="rule.case.end_at">{{rule.case.end_at*1000|date:'yy-MM-dd HH:mm'}}</span></p>
+                <div class='form-group' ng-if="rule.case.interval">
+                    <p>下一轮次：<span>{{(rule.case.start_at+rule.case.interval)*1000|date:'yy-MM-dd HH:mm'}}</span></p>
                 </div>
             </div>
         </div>
@@ -206,7 +214,12 @@
         <div class='form-inline'>
             <tms-toggle-switch on-label="启用" off-label="停用" ng-true-value="'Y'" ng-false-value="'N'" ng-model="rule.enabled"></tms-toggle-switch>
             <button class='btn btn-danger' ng-click="tkRndCron.removeRule(rule)">删除</button>
-            <button class='btn' ng-disabled="!tkRndCron.editing.modified" ng-class="tkRndCron.editing.modified?'btn-success':'btn-default'" ng-click="save()">保存</button>
         </div>
+    </div>
+</div>
+<hr>
+<div>
+    <div class='form-inline'>
+        <button class='btn' ng-disabled="!tkRndCron.editing.modified" ng-class="tkRndCron.editing.modified?'btn-success':'btn-default'" ng-click="save()">保存</button>
     </div>
 </div>

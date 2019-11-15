@@ -102,6 +102,7 @@ define(['frame'], function (ngApp) {
                 roundCron: tkRndCron.editing.rules
             }).then(function (oNewApp) {
                 http2.merge(_oApp.roundCron, oNewApp.roundCron);
+                http2.merge(tkRndCron.editing.rules, oNewApp.roundCron);
                 tkRndCron.editing.modified = false;
                 $scope.updateCron();
             });

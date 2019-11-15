@@ -295,7 +295,8 @@ class schema extends \pl\fe\base {
 		foreach ($oPosted as $prop => $val) {
 			switch ($prop) {
 			case 'extAttrs':
-				$oUpdated->ext_attrs = $modelMs->escape($modelMs->toJson($val));
+				$extAttrs = $modelMs->purifyExtAttrs($val);
+				$oUpdated->ext_attrs = $modelMs->escape($modelMs->toJson($extAttrs));
 				break;
 			case 'extattr':
 				foreach ($val as &$attr) {

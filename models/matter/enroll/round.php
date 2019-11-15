@@ -74,7 +74,7 @@ class round_model extends \TMS_MODEL {
         $oResult = new \stdClass; // 返回的结果
 
         /* 当前激活轮次 */
-        if (!isset($aOptions['withoutActive']) || $aOptions['withoutActive'] !== 'Y') {
+        if ($this->getDeepValue($aOptions, 'withoutActive') !== 'Y') {
             $oResult->active = $this->getActive($oApp, ['fields' => $fields]);
         }
         /* 活动下已有的所有轮次 */

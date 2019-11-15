@@ -122,17 +122,28 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
     };
 
     function sendRequest(url) {
-        var oPosted;
         $scope.posting = true;
         http2.post(url, $scope.member, {
             autoBreak: false
         }).then(function (rsp) {
+            var actions = [{
+                label: '取消',
+                value: 'cancel'
+            }, {
+                label: '离开',
+                value: 'continue',
+                execWait: 5000
+            }];
             $scope.posting = false;
-            http2.get(LS.j('passed', 'site', 'schema') + '&redirect=N').then(function (rsp) {
-                if (window.parent && window.parent.onClosePlugin) {
-                    window.parent.onClosePlugin(rsp.data);
-                } else {
-                    location.href = rsp.data;
+            noticebox.confirm('已经提交成功，离开页面！', actions).then(function (action) {
+                if (action === 'continue') {
+                    http2.get(LS.j('passed', 'site', 'schema') + '&redirect=N').then(function (rsp) {
+                        if (window.parent && window.parent.onClosePlugin) {
+                            window.parent.onClosePlugin(rsp.data);
+                        } else {
+                            location.href = rsp.data;
+                        }
+                    });
                 }
             });
         }, function () {
@@ -208,7 +219,8 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
         http2.post('/rest/site/fe/user/register/do?site=' + LS.s().site, {
             uname: $scope.loginUser.uname,
             nickname: $scope.loginUser.nickname,
-            password: $scope.loginUser.password
+            password: $scope.loginUser.password,
+            pin: $scope.loginUser.pin
         }).then(function (rsp) {
             $scope.user = rsp.data;
             setMember($scope.user);

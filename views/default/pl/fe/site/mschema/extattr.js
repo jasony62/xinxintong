@@ -68,6 +68,7 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
     }]);
     ngApp.provider.controller('ctrlSchemaList', ['$scope', '$timeout', '$sce', 'CstApp', function ($scope, $timeout, $sce, CstApp) {
         $scope.activeSchema = null;
+        $scope.activeConfig = null;
         $scope.CstApp = CstApp;
 
         $scope.newSchema = function (type) {
@@ -153,6 +154,9 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
                 timerOfUpdate = null;
             });
         };
+        $scope.updConfig = function () {
+            $scope.updSchema()
+        };
         $scope.removeSchema = function (removedSchema) {
             if (window.confirm('确定从所有页面上删除登记项［' + removedSchema.title + '］？')) {
                 $scope._removeSchema(removedSchema);
@@ -168,6 +172,8 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
                     $scope.data[answer] = true;
                 })
             }
+            if (!activeSchema.pageConfig) activeSchema.pageConfig = wrapLib.input.newWrap(activeSchema).config;
+            $scope.activeConfig = activeSchema.pageConfig
         };
         $scope.updSchemaMultiple = function (oUpdatedSchema) {
             !oUpdatedSchema.answer && (oUpdatedSchema.answer = []);
@@ -345,7 +351,6 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
                     }
                     break;
             }
-            $scope.activeConfig = false;
         });
     }])
 });

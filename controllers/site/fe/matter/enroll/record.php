@@ -452,15 +452,11 @@ class record extends base {
                     return [false, '不允许修改其他用户提交的数据'];
                 }
             } else {
-                if ($oRecord) {
-                    if ($oRecord->userid !== $oUser->uid && $this->getDeepValue($oUser, 'is_editor') !== 'Y') {
-                        return [false, '不允许修改其他用户提交的数据'];
-                    }
-                } else {
-                    if ($this->getDeepValue($oUser, 'is_editor') !== 'Y') {
-                        return [false, '不允许修改其他用户提交的数据'];
-                    }
-                }
+                //if ($oRecord) {
+                //if ($oRecord->userid !== $oUser->uid && $this->getDeepValue($oUser, 'is_editor') !== 'Y') {
+                //    return [false, '不允许修改其他用户提交的数据'];
+                //}
+                //}
             }
         }
         /**

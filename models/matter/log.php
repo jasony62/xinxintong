@@ -322,7 +322,7 @@ class log_model extends \TMS_MODEL {
     public function &listMatterOp($matterId, $matterType, $options = [], $page, $size) {
         $result = new \stdClass;
         $q = [
-            'id,l.operator userid,l.operator_name nickname,l.operation,l.operate_at',
+            'id,l.operator userid,l.operator_name nickname,l.operation,l.operate_at,l.data',
             'xxt_log_matter_op l',
             "l.matter_type='" . $matterType . "' and l.matter_id='" . $matterId . "'",
         ];
@@ -365,6 +365,7 @@ class log_model extends \TMS_MODEL {
     }
     /**
      * 记录操作日志
+     * 有效日志间隔10分钟
      *
      * @param string $siteId
      * @param object $oUser
@@ -431,7 +432,7 @@ class log_model extends \TMS_MODEL {
             $d['operation'] = $op;
             $d['matter_id'] = $matterId;
             $d['matter_type'] = $matterType;
-            $d['matter_title'] = $this->escape($oMatter->title);
+            $d['matter_title'] = isset($oMatter->title) ? $this->escape($oMatter->title) : '';
             !empty($oMatter->summary) && $d['matter_summary'] = $this->escape($oMatter->summary);
             !empty($oMatter->pic) && $d['matter_pic'] = $this->escape($oMatter->pic);
             !empty($oMatter->scenario) && $d['matter_scenario'] = $oMatter->scenario;
@@ -451,7 +452,7 @@ class log_model extends \TMS_MODEL {
             $d['operator_name'] = $this->escape($oUser->name);
             $d['operate_at'] = $current;
             $d['operation'] = $op;
-            $d['matter_title'] = $this->escape($oMatter->title);
+            $d['matter_title'] = isset($oMatter->title) ? $this->escape($oMatter->title) : '';
             !empty($oMatter->summary) && $d['matter_summary'] = $this->escape($oMatter->summary);
             !empty($oMatter->pic) && $d['matter_pic'] = $this->escape($oMatter->pic);
             !empty($oMatter->scenario) && $d['matter_scenario'] = $oMatter->scenario;

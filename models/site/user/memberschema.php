@@ -308,4 +308,26 @@ class memberschema_model extends \TMS_MODEL {
 
         return $schemas;
     }
+    // 扩展属性支持的字段
+    const EXT_ATTR_FIELDS = ['id', 'type', 'title', 'unique', 'required', 'ops', 'format', 'pageConfig'];
+    /**
+     *
+     */
+    public function purifyExtAttrs($extAttrs) {
+        $purified = [];
+
+        if (!is_array($extAttrs)) {return $purified;}
+
+        foreach ($extAttrs as $extAttr) {
+            $purifiedAttr = new \stdClass;
+            foreach ($extAttr as $f => $v) {
+                if (in_array($f, self::EXT_ATTR_FIELDS)) {
+                    $purifiedAttr->{$f} = $v;
+                }
+            }
+            $purified[] = $purifiedAttr;
+        }
+
+        return $purified;
+    }
 }

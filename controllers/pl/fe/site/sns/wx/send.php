@@ -149,7 +149,7 @@ class send extends \pl\fe\base {
             $model = $this->model('matter\\' . $matterType);
             if ($matterType === 'text') {
                 $message = $model->forCustomPush($this->siteid, $matterId);
-            } else if (in_array($matterType, array('article', 'news', 'channel'))) {
+            } else if (in_array($matterType, array('article', 'channel'))) {
                 /**
                  * 微信的图文群发消息需要上传到公众号平台，所以链接素材无法处理
                  */

@@ -11,7 +11,7 @@ require('../../../../../../asset/js/xxt.ui.share.js');
 require('../../../../../../asset/js/xxt.ui.picviewer.js');
 
 var ngApp = angular.module('app', ['ui.bootstrap', 'http.ui.xxt', 'page.ui.xxt', 'snsshare.ui.xxt', 'siteuser.ui.xxt', 'subscribe.ui.xxt', 'favor.ui.xxt', 'forward.ui.xxt', 'coinpay.ui.xxt', 'picviewer.ui.xxt', 'ngSanitize']);
-ngApp.config(['$controllerProvider', function ($cp) {
+ngApp.config(['$controllerProvider', $cp => {
     ngApp.provider = {
         controller: $cp.register
     };

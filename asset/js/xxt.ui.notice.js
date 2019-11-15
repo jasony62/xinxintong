@@ -105,7 +105,7 @@ ngMod.service('noticebox', ['$timeout', '$interval', '$q', function($timeout, $i
         _getBox('progress', msg);
     };
     this.confirm = function(msg, buttons) {
-        var defer, box, btn;
+        var defer, box, btn, intervalTimer;
         defer = $q.defer();
         /*取消自动关闭*/
         if (_last.timer) {
@@ -131,8 +131,13 @@ ngMod.service('noticebox', ['$timeout', '$interval', '$q', function($timeout, $i
                     countdown.classList.add('countdown');
                     countdown.innerHTML = counter;
                     btn.appendChild(countdown);
-                    $interval(function() {
-                        countdown.innerHTML = --counter;
+                    intervalTimer = $interval(function() {
+                        if (counter <= 0) {
+                           $interval.cancel(intervalTimer);
+                           intervalTimer = null;
+                        }else{
+                            countdown.innerHTML = --counter;
+                        }
                     }, 500);
                     /* 自动关闭 */
                     _last.timer = $timeout(function() {

@@ -151,6 +151,7 @@ class enroll_model extends enroll_base {
                     if ($oApp->dataSchemas === null) {
                         /* 解析失败 */
                         $oApp->dataSchemas = [];
+                        $oApp->dynaDataSchemas = [];
                     } else {
                         /* 应用的动态题目 */
                         $oApp2 = (object) ['id' => $oApp->id, 'appRound' => $oApp->appRound, 'dataSchemas' => json_decode($oApp->data_schemas), 'mission_id' => $oApp->mission_id];

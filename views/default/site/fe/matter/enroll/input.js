@@ -625,6 +625,11 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                                         filter: {
                                             whiteSpace: oSchema.filterWhiteSpace === 'Y'
                                         }
+                                    }).then(function(value) {
+                                        if(!document.execCommand("insertHTML", false)) {
+                                            domRequireAssist.value = value;
+                                        }
+                                        
                                     });
                                 });
                             }

@@ -385,6 +385,7 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
                 result.data.records.forEach(function (oRecord) {
                     $scope.repos.push(oRecord);
                     if (AsyncImage) AsyncImage.cacheImage(oRecord);
+
                 });
             }
             if (AsyncImage)
@@ -571,9 +572,11 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
                     window.sessionStorage.removeItem("listStorage");
                     window.sessionStorage.removeItem("listStorageY");
                 });
+            } else {
+                at++
+                _getNewRepos(at)
             }
         });
-
     }
     if (window.sessionStorage && window.sessionStorage.getItem('listStorage') && $scope.activeView.type === 'record') {
         var cacheData, _cPage;
@@ -584,9 +587,7 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
         $scope.criteria = _oCriteria = cacheData.currentCriteria;
         _cPage = cacheData.page;
 
-        for (var i = 1; i <= _cPage.at; i++) {
-            _getNewRepos(i);
-        }
+        _getNewRepos(1)
     } else {
         $scope.getCriteria();
     }
@@ -793,13 +794,14 @@ ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLo
                         window.sessionStorage.removeItem("listStorage");
                         window.sessionStorage.removeItem("listStorageY");
                     });
+                } else {
+                    at++
+                    _getNewRepos(at)
                 }
             });
 
         }
-        for (var i = 1; i <= _cPage.at; i++) {
-            _getNewRepos(i);
-        }
+        _getNewRepos(1);
     } else {
         $scope.getCriteria();
     }

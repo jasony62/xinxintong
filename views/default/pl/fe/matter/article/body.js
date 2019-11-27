@@ -250,7 +250,7 @@ define(['frame'], function(ngApp) {
                         return false;
                     }
                 }
-                if (filemaxsize * 1024 * 1024 <= f.size) {
+                if (filemaxsize!==0 && filemaxsize * 1024 * 1024 <= f.size) {
                     noticebox.error("文件上传失败，大小不能超过" + filemaxsize+ "M");
                     return false;
                 }

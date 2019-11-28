@@ -238,6 +238,13 @@ class main extends main_base {
             /* 更新关联的定时任务 */
             if (isset($oUpdated->round_cron)) {
                 $this->model('matter\timer')->updateByRoundCron($oApp);
+                if (!empty($oApp->roundCron)) {
+                    $modelRnd = $this->model('matter\enroll\round');
+                    foreach ($oApp->roundCron as $rc) {
+                        $rules[0] = $rc;
+                        $rc->case = $modelRnd->sampleByCron($rules);
+                    }
+                }
             }
         }
 

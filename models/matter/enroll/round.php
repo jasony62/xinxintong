@@ -248,32 +248,42 @@ class round_model extends \TMS_MODEL {
         /* 有效的定时规则 */
         if (!empty($oApp->roundCron)) {
             $enabledRules = $this->getEnabledRules($oApp->roundCron);
+            if (!empty($enabledRules)) {
+                /* 根据定时规则获得轮次 */
+                $rst = $this->_getRoundByCron($oApp, $enabledRules, $aOptions);
+                if (false === $rst[0]) {
+                    return false;
+                }
+                $oAppRound = $rst[1];
+                if (!isset($oAppRound->start_at) || $oAppRound->start_at <= time()) {
+                    return $oAppRound;
+                }
+            }
         }
 
-        if (empty($enabledRules)) {
-            /* 根据轮次开始时间获得轮次，但是必须是常规轮次 */
-            $current = time();
-            $q = [
-                $fields,
-                'xxt_enroll_round',
-                ['aid' => $oApp->id, 'state' => 1, 'purpose' => 'C', 'start_at' => (object) ['op' => '<=', 'pat' => $current]],
-            ];
-            $q2 = [
-                'o' => 'start_at desc',
-                'r' => ['o' => 0, 'l' => 1],
-            ];
-            $rounds = $this->query_objs_ss($q, $q2);
-            $oAppRound = count($rounds) === 1 ? $rounds[0] : false;
-        } else {
-            /* 根据定时规则获得轮次 */
-            $rst = $this->_getRoundByCron($oApp, $enabledRules, $aOptions);
-            if (false === $rst[0]) {
-                return false;
-            }
-            $oAppRound = $rst[1];
-        }
+        /* 根据轮次开始时间获得轮次，但是必须是常规轮次 */
+        $oAppRound = $this->_getActiveExist($oApp, $fields);
 
         return $oAppRound;
+    }
+    /**
+     * 已经存在的
+     */
+    private function _getActiveExist($oApp, $fields = '*') {
+        $current = time();
+        $q = [
+            $fields,
+            'xxt_enroll_round',
+            ['aid' => $oApp->id, 'state' => 1, 'purpose' => 'C', 'start_at' => (object) ['op' => '<=', 'pat' => $current]],
+        ];
+        $q2 = [
+            'o' => 'start_at desc',
+            'r' => ['o' => 0, 'l' => 1],
+        ];
+        $rounds = $this->query_objs_ss($q, $q2);
+        $oRound = count($rounds) === 1 ? $rounds[0] : false;
+
+        return $oRound;
     }
     /**
      * 根据活动的定时规则生成轮次

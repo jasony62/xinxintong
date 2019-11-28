@@ -625,11 +625,11 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                                         filter: {
                                             whiteSpace: oSchema.filterWhiteSpace === 'Y'
                                         }
-                                    }).then(function(value) {
-                                        if(!document.execCommand("insertHTML", false)) {
+                                    }).then(function (value) {
+                                        if (!document.execCommand("insertHTML", false)) {
                                             domRequireAssist.value = value;
                                         }
-                                        
+
                                     });
                                 });
                             }
@@ -794,12 +794,22 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                 }
             })
         }
-        if (oRecord.round && oRecord.round.end_at > 0) {
-            if (oRecord.round.end_at * 1000 < (new Date * 1)) {
-                noticebox.warn('活动轮次【' + oRecord.round.title + '】已结束，不能提交、修改、保存或删除填写记录！');
-                submitActs.forEach(function (a) {
-                    a.disabled = true;
-                })
+        if (oRecord.round) {
+            if (oRecord.round.start_at > 0) {
+                if (oRecord.round.start_at * 1000 > (new Date * 1)) {
+                    noticebox.warn('活动轮次【' + oRecord.round.title + '】还没开始，不能提交、修改、保存或删除填写记录！');
+                    submitActs.forEach(function (a) {
+                        a.disabled = true;
+                    })
+                }
+            }
+            if (oRecord.round.end_at > 0) {
+                if (oRecord.round.end_at * 1000 < (new Date * 1)) {
+                    noticebox.warn('活动轮次【' + oRecord.round.title + '】已结束，不能提交、修改、保存或删除填写记录！');
+                    submitActs.forEach(function (a) {
+                        a.disabled = true;
+                    })
+                }
             }
         }
         /* 判断多项类型 */

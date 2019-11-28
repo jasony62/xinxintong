@@ -10,10 +10,10 @@ trait Round {
      * 计算每个规则对应的最近一个轮次的生成时间，用最近的时间作为整个活动的最近生成时间
      *
      * @param array rules 定时生成轮次规则
-     *
+     * @param int after 指定时间后最近生成
      */
-    public function sampleByCron($rules) {
-        return $this->_lastRoundByCron($rules);
+    public function sampleByCron($rules, $after = null) {
+        return $this->_lastRoundByCron($rules, $after);
     }
     /**
      * 根据定时规则生成轮次
@@ -40,7 +40,7 @@ trait Round {
                 if (empty($oRule->start_at) || empty($oRule->next->unit) || empty($oRule->next->interval)) {
                     continue;
                 }
-                list($startAt, $endAt) = $this->_timeByIntervalRule($oRule, $timestamp);
+                list($startAt, $endAt, $interval) = $this->_timeByIntervalRule($oRule, $timestamp);
             }
             // 记录活动的轮次生成时间
             if ($startAt > $latest) {
@@ -80,6 +80,9 @@ trait Round {
         $oNewRound->title = $latestLabel;
         $oNewRound->start_at = $latest;
         $oNewRound->end_at = $latestEnd;
+        if (isset($interval)) {
+            $oNewRound->interval = $interval;
+        }
         $oNewRound->state = 1;
         $oNewRound->purpose = empty($oLatestRule->purpose) ? 'C' : (in_array($oLatestRule->purpose, ['C', 'B', 'S']) ? $oLatestRule->purpose : 'C');
 
@@ -96,7 +99,6 @@ trait Round {
         $year = (int) (empty($timestamp) ? date("Y") : date("Y", $timestamp)); // yyyy
         $wday = (int) (empty($timestamp) ? date("w") : date("w", $timestamp)); //0 (for Sunday) through 6 (for Saturday)
         $week = (int) (empty($timestamp) ? date("W") : date("W", $timestamp)); //0-51, ISO-8601 week number of year, weeks starting on Monday
-
         if ($oRule->period === 'M' && !empty($oRule->mday)) {
             /* 某个月的某一天 */
             if ($mday === (int) $oRule->mday) {
@@ -254,8 +256,8 @@ trait Round {
     /**
      * 根据指定规则计算轮次的开始结束时间
      */
-    private function _timeByIntervalRule($oRule) {
-        $current = time();
+    private function _timeByIntervalRule($oRule, $timestamp = null) {
+        $current = empty($timestamp) ? time() : $timestamp;
         /* 计算匹配的轮次开始时间 */
         $roundInterval = 0; // 两个轮次之间间隔多少秒
         switch ($oRule->next->unit) {
@@ -297,7 +299,7 @@ trait Round {
             $endAt = $startAt + $roundInterval - 1;
         }
 
-        return [$startAt, $endAt];
+        return [$startAt, $endAt, $roundInterval];
     }
     /**
      * 有效的定时规则

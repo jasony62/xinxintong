@@ -1,6 +1,6 @@
-define(['frame'], function(ngApp) {
+define(['frame'], function (ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlLog', ['$scope', 'srvEnrollLog', function($scope, srvEnrollLog) {
+    ngApp.provider.controller('ctrlLog', ['$scope', 'srvEnrollLog', function ($scope, srvEnrollLog) {
         var _oApp;
         $scope.operations = {
             'read': '阅读',
@@ -27,43 +27,43 @@ define(['frame'], function(ngApp) {
             'shareF': '转发',
             'site.matter.enroll.schema.get.vote': '投票'
         };
-        $scope.filter = function(type, criteria) {
-            srvEnrollLog.filter(type, criteria).then(function(data) {
-                switch(type) {
+        $scope.filter = function (type, criteria) {
+            srvEnrollLog.filter(type, criteria).then(function (data) {
+                switch (type) {
                     case 'pl':
                         $scope.plLog.criteria = data;
                         $scope.plLog.list();
-                    break;
+                        break;
                     case 'site':
                         $scope.siteLog.criteria = data;
                         $scope.siteLog.list();
-                    break;
+                        break;
                     case 'page':
                         $scope.pageLog.criteria = data;
                         $scope.pageLog.list();
-                    break;
+                        break;
                     case 'behavior':
                         $scope.behaviorLog.criteria = data;
                         $scope.behaviorLog.list();
-                    break;
+                        break;
                 }
             });
         };
-        $scope.export = function(type, criteria) {
+        $scope.export = function (type, criteria) {
             var url;
             url = '/rest/pl/fe/matter/enroll/log/exportLog?app=' + _oApp.id;
             url += '&startAt=' + criteria.startAt + '&endAt=' + criteria.endAt + '&byOp=' + criteria.byOp;
-            if (type==='page') {
+            if (type === 'page') {
                 url += '&target_type=' + criteria.target_type + '&target_id=' + criteria.target_id + '&logType=' + type;
-            } else if(type==='behavior'){
+            } else if (type === 'behavior') {
                 url += '&target_type=' + criteria.target_type + '&target_id=ALL&logType=page';
             } else {
                 url += '&byUser=' + criteria.byUser + '&byRid=' + criteria.byRid + '&logType=' + type;
             }
             window.open(url);
         }
-        $scope.clean = function() {
-            switch($scope.active) {
+        $scope.clean = function () {
+            switch ($scope.active) {
                 case 1:
                     $scope.plLog.criteria = {
                         byOp: 'ALL',
@@ -73,7 +73,7 @@ define(['frame'], function(ngApp) {
                         endAt: ''
                     };
                     $scope.plLog.list();
-                break;
+                    break;
                 case 2:
                     $scope.siteLog.criteria = {
                         byOp: 'ALL',
@@ -83,7 +83,7 @@ define(['frame'], function(ngApp) {
                         endAt: ''
                     };
                     $scope.siteLog.list();
-                break;
+                    break;
                 case 3:
                     $scope.pageLog.criteria = {
                         byOp: 'ALL',
@@ -93,7 +93,7 @@ define(['frame'], function(ngApp) {
                         endAt: ''
                     };
                     $scope.pageLog.list();
-                break;
+                    break;
                 case 4:
                     $scope.behaviorLog.criteria = {
                         byOp: 'read',
@@ -103,7 +103,7 @@ define(['frame'], function(ngApp) {
                         endAt: ''
                     };
                     $scope.behaviorLog.list();
-                break;
+                    break;
             }
         };
         $scope.plLog = {
@@ -115,9 +115,9 @@ define(['frame'], function(ngApp) {
                 startAt: '',
                 endAt: ''
             },
-            list: function() {
+            list: function () {
                 var _this = this;
-                srvEnrollLog.list(this.page, 'pl', this.criteria).then(function(logs) {
+                srvEnrollLog.list(this.page, 'pl', this.criteria).then(function (logs) {
                     _this.logs = logs;
                 });
             }
@@ -131,9 +131,9 @@ define(['frame'], function(ngApp) {
                 startAt: '',
                 endAt: ''
             },
-            list: function() {
+            list: function () {
                 var _this = this;
-                srvEnrollLog.list(this.page, 'site', this.criteria).then(function(logs) {
+                srvEnrollLog.list(this.page, 'site', this.criteria).then(function (logs) {
                     _this.logs = logs;
                 });
             }
@@ -147,10 +147,12 @@ define(['frame'], function(ngApp) {
                 startAt: '',
                 endAt: ''
             },
-            list: function() {
+            list: function () {
                 var _this = this;
-                if(this.criteria.target_type=='repos') { this.criteria.target_id = _oApp.id; };
-                srvEnrollLog.list(this.page, 'page', this.criteria).then(function(logs) {
+                if (this.criteria.target_type == 'repos') {
+                    this.criteria.target_id = _oApp.id;
+                };
+                srvEnrollLog.list(this.page, 'page', this.criteria).then(function (logs) {
                     _this.logs = logs;
                 });
             }
@@ -164,32 +166,35 @@ define(['frame'], function(ngApp) {
                 startAt: '',
                 endAt: ''
             },
-            list: function() {
+            list: function () {
                 var _this = this;
-                srvEnrollLog.list(this.page, 'page', this.criteria).then(function(logs) {
+                srvEnrollLog.list(this.page, 'page', this.criteria).then(function (logs) {
                     _this.logs = logs;
                 });
             }
         };
-        $scope.$watch('app', function(oApp) {
+        $scope.detail = function (log) {
+            window.alert(log.data);
+        }
+        $scope.$watch('app', function (oApp) {
             if (!oApp) return;
             _oApp = oApp;
             $scope.active = 1;
-            $scope.$watch('active', function(nv) {
-                if(!nv) return;
-                switch(nv) {
+            $scope.$watch('active', function (nv) {
+                if (!nv) return;
+                switch (nv) {
                     case 1:
                         $scope.plLog.list();
-                    break;
+                        break;
                     case 2:
                         $scope.siteLog.list();
-                    break;
+                        break;
                     case 3:
                         $scope.pageLog.list();
-                    break;
+                        break;
                     case 4:
                         $scope.behaviorLog.list();
-                    break;
+                        break;
                 }
             });
         });

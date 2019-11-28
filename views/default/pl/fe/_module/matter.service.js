@@ -1200,9 +1200,12 @@ service('tkRoundCron', ['$rootScope', '$q', '$uibModal', 'http2', function ($roo
     };
     this.addInterval = function () {
         var oNewRule;
+        var now = new Date;
+        now.setMinutes(0, 0)
         oNewRule = {
+            purpose: 'C',
             pattern: 'interval',
-            start_at: parseInt(new Date * 1 / 1000),
+            start_at: parseInt(now * 1 / 1000),
             enabled: 'N',
         };
         _aCronRules.push(oNewRule);

@@ -280,7 +280,7 @@ class main extends main_base {
     /**
      * 页面导航栏
      */
-    public function navs_action($site, $app) {
+    public function navs_action($app) {
         $oApp = $this->modelApp->byId($app, ['cascaded' => 'N']);
         if ($oApp === false || $oApp->state !== '1') {
             return new \ObjectNotFoundError();
@@ -296,19 +296,20 @@ class main extends main_base {
             foreach ($oApp->dynaDataSchemas as $oSchema) {
                 if ($this->getDeepValue($oSchema, 'cowork') === 'Y') {
                     $can_cowork = 'Y';
+                    break;
                 }
             }
             if ($can_cowork === 'Y') {
                 $vieAns = new \stdClass;
                 $vieAns->title = '答案';
                 $vieAns->type = 'cowork';
-                $views[] = $vieAns;
+                $views['cowork'] = $vieAns;
             }
             // 记录视图
             $vieRec = new \stdClass;
             $vieRec->title = ($can_cowork === 'Y') ? '问题' : '记录';
             $vieRec->type = 'record';
-            $views[] = $vieRec;
+            $views['record'] = $vieRec;
             // 专题视图
             $q = [
                 'count(id)',
@@ -323,7 +324,7 @@ class main extends main_base {
                 $vieTopic = new \stdClass;
                 $vieTopic->title = '专题';
                 $vieTopic->type = 'topic';
-                $views[] = $vieTopic;
+                $views['topic'] = $vieTopic;
             }
 
             return $views;
@@ -431,7 +432,7 @@ class main extends main_base {
         $url = [];
         $url[] = APP_PROTOCOL . APP_HTTP_HOST;
         $url[] = "/rest/site/fe/matter/enroll";
-        $url[] = "?site={$site}&app=" . $oApp->id;
+        $url[] = "?site={$oApp->siteid}&app=" . $oApp->id;
         // 项目
         if ($oApp->mission_id) {
             $misApp = $this->model('matter\mission')->byId($oApp->mission_id, ['fields' => 'siteid,id']);
@@ -451,8 +452,18 @@ class main extends main_base {
             // 视图
             $repos->views = $getReposViews();
             if (!empty($repos->views)) {
-                $repos->defaultView = $repos->views[0];
+                if (isset($repos->views['cowork'])) {
+                    $modelRecDat = $this->model('matter\enroll\data');
+                    if ($modelRecDat->countCoworkDataByApp($oApp) > 0) {
+                        $repos->defaultView = $repos->views['cowork'];
+                    }
+                }
+                if (empty($repos->defaultView)) {
+                    $repos->defaultView = $repos->views['record'];
+                }
+                $views = array_values($repos->views);
                 $navs[] = $repos;
+                $repos->views = $views;
             }
         }
 

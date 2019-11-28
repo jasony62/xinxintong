@@ -1,4 +1,4 @@
-requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
+requirejs(['/static/js/tms.bootstrap.js'], function (tms) {
     var _oRawPathes;
     _oRawPathes = {
         js: {
@@ -17,6 +17,7 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
             "entryCtrl": '/views/default/pl/fe/matter/mission/entry',
             "mainCtrl": '/views/default/pl/fe/matter/mission/main',
             "mschemaCtrl": '/views/default/pl/fe/matter/mission/mschema',
+            "logCtrl": '/views/default/pl/fe/matter/mission/log',
             "noticeCtrl": '/views/default/pl/fe/matter/mission/notice',
             "recycleCtrl": '/views/default/pl/fe/matter/mission/recycle',
             "overviewCtrl": '/views/default/pl/fe/matter/mission/overview',
@@ -31,6 +32,7 @@ requirejs(['/static/js/tms.bootstrap.js'], function(tms) {
             "entry": '/views/default/pl/fe/matter/mission/entry',
             "main": '/views/default/pl/fe/matter/mission/main',
             "mschema": '/views/default/pl/fe/matter/mission/mschema',
+            "log": '/views/default/pl/fe/matter/mission/log',
             "notice": '/views/default/pl/fe/matter/mission/notice',
             "recycle": '/views/default/pl/fe/matter/mission/recycle',
             "overview": '/views/default/pl/fe/matter/mission/overview',

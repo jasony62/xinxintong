@@ -370,6 +370,9 @@ class record extends base {
             return [false, '没有获得有效的活动轮次，请检查是否已经设置轮次，或者轮次是否已经启用'];
         }
         $now = time();
+        if ($oRecordRnd->start_at > 0 && $oRecordRnd->start_at > $now) {
+            return [false, '活动轮次【' . $oRecordRnd->title . '】还未开始，不能提交、修改、保存或删除填写记录！'];
+        }
         if ($oRecordRnd->end_at > 0 && $oRecordRnd->end_at < $now) {
             return [false, '活动轮次【' . $oRecordRnd->title . '】已结束，不能提交、修改、保存或删除填写记录！'];
         }
@@ -452,15 +455,11 @@ class record extends base {
                     return [false, '不允许修改其他用户提交的数据'];
                 }
             } else {
-                if ($oRecord) {
-                    if ($oRecord->userid !== $oUser->uid && $this->getDeepValue($oUser, 'is_editor') !== 'Y') {
-                        return [false, '不允许修改其他用户提交的数据'];
-                    }
-                } else {
-                    if ($this->getDeepValue($oUser, 'is_editor') !== 'Y') {
-                        return [false, '不允许修改其他用户提交的数据'];
-                    }
-                }
+                //if ($oRecord) {
+                //if ($oRecord->userid !== $oUser->uid && $this->getDeepValue($oUser, 'is_editor') !== 'Y') {
+                //    return [false, '不允许修改其他用户提交的数据'];
+                //}
+                //}
             }
         }
         /**

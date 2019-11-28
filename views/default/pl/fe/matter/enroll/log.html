@@ -21,6 +21,7 @@
                         <th style='width:120px;'>打开时间</th>
                         <th>用户</th>
                         <th style='width:80px;'>操作</th>
+                        <th style='width:60px;'></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -28,6 +29,11 @@
                         <td>{{log.operate_at*1000|date:'yy-MM-dd HH:mm'}}</td>
                         <td>{{log.nickname||'未知'}}</td>
                         <td>{{operations[log.operation]}}</td>
+                        <td>
+                            <button class='btn btn-xs btn-default' ng-click='detail(log)'>
+                                <span>详情</span>
+                            </button>
+                        </td>
                     </tr>
                 </tbody>
             </table>

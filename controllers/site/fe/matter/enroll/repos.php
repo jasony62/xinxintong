@@ -301,10 +301,12 @@ class repos extends base {
                         }
                         $newData = [];
                         foreach ($rawDataVal as $key => $val) {
-                            $data2 = new \stdClass;
-                            $data2->title = $ops->{$key};
-                            $data2->score = $val;
-                            $newData[] = $data2;
+                            if (isset($ops->{$key})) {
+                                $data2 = new \stdClass;
+                                $data2->title = $ops->{$key};
+                                $data2->score = $val;
+                                $newData[] = $data2;
+                            }
                         }
                         $this->setDeepValue($processedData, $schemaId, $newData);
                     } else if ($this->getDeepValue($oSchema, 'type') === 'multiple') {
@@ -315,7 +317,9 @@ class repos extends base {
                         }
                         $newData = [];
                         foreach ($rawDataVal2 as $val) {
-                            $newData[] = $ops->{$val};
+                            if (isset($ops->{$val})) {
+                                $newData[] = $ops->{$val};
+                            }
                         }
                         $this->setDeepValue($processedData, $schemaId, $newData);
                     } else {
@@ -517,6 +521,31 @@ class repos extends base {
         }
 
         return new \ResponseData($oResult);
+    }
+    /**
+     *
+     */
+    public function countCoworkData_action($app) {
+        $modelApp = $this->model('matter\enroll');
+        $oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+        if (false === $oApp || $oApp->state !== '1') {
+            return new \ObjectNotFoundError();
+        }
+
+        $coworkSchemaIds = [];
+        foreach ($oApp->dynaDataSchemas as $oSchema) {
+            if (isset($oSchema->cowork) && $oSchema->cowork === 'Y') {
+                $coworkSchemaIds[] = $oSchema->id;
+            }
+        }
+        if (empty($coworkSchemaIds)) {
+            return new \ObjectNotFoundError('活动中没有协作题');
+        }
+
+        $modelRecDat = $this->model('matter\enroll\data');
+        $total = $modelRecDat->countCoworkDataByApp($oApp);
+
+        return new \ResponseData($total);
     }
     /**
      * 返回指定活动的填写记录的共享内容

@@ -163,7 +163,7 @@ class repos extends base {
      * @param string $onlyMine 只返回当前用户自己的
      *
      */
-    public function dataBySchema_action($app, $schema, $rid = '', $onlyMine = 'N', $page = 1, $size = 10) {
+    public function dataBySchema_action($app, $schema, $rid = '', $onlyMine = 'N', $keyword = '', $page = 1, $size = 10) {
         $schemaIds = explode(',', $schema);
         if (empty($schemaIds)) {
             return new \ParameterError('没有指定有效参数');
@@ -193,6 +193,9 @@ class repos extends base {
         $oOptions->size = $size;
         if (count((array) $oRecData)) {
             $oOptions->assocData = $oRecData;
+        }
+        if (!empty($keyword) && is_string($keyword)) {
+            $oOptions->keyword = $keyword;
         }
 
         foreach ($aSchemas as $oSchema) {

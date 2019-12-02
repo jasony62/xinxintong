@@ -781,8 +781,13 @@ class data_model extends entity_model {
         $q = [
             'distinct value',
             "xxt_enroll_record_data d",
-            "state=1 and aid='{$oApp->id}' and schema_id='{$oSchema->id}' and value<>''",
+            "state=1 and aid='{$oApp->id}' and schema_id='{$oSchema->id}'",
         ];
+        if (!empty($oOptions->keyword) && is_string($oOptions->keyword)) {
+            $q[2] .= ' and value like "%' . $oOptions->keyword . '%"';
+        } else {
+            $q[2] .= " and value<>''";
+        }
         /* 限制关联数据 */
         if (isset($oOptions->assocData) && is_object($oOptions->assocData)) {
             $oAssocData = $oOptions->assocData;

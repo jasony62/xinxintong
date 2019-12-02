@@ -88,8 +88,15 @@
             <h5 class="modal-title">已填写过的内容</h5>
         </div>
         <div class="modal-body">
+            <div class="form-group">
+                <div class="input-group">
+                    <input class="form-control" ng-model="data.keyword"/>
+                    <div class="input-group-btn"><button class="btn btn-default" ng-click="search()">&nbsp;<span class="glyphicon glyphicon-search"></span>&nbsp;</button></div>
+                    <div class="input-group-btn"><button class="btn btn-default" ng-click="search('')">&nbsp;<span class="glyphicon glyphicon-remove"></span>&nbsp;</button></div>
+                </div>
+            </div>
             <div class='form-group'>
-                <select class="form-control" ng-model="data.selected" ng-options="rec.value for rec in records" size='5'></select>
+                <select class="form-control" ng-model="data.selected" ng-options="rec.value for rec in records" size='7'></select>
             </div>
             <div class='text-center' ng-if="page.total>page.size">
                 <div class='site-pagination'>

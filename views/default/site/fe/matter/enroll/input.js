@@ -1113,25 +1113,32 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
             $uibModal.open({
                 templateUrl: 'dataBySchema.html',
                 controller: ['$scope', '$uibModalInstance', function ($scope2, $mi) {
-                    var oAssocData = {};
-                    var oPage;
+                    let oAssocData = {};
+                    let oPage;
+                    let data;
                     $scope2.page = oPage = {};
-                    $scope2.data = {};
+                    $scope2.data = data = {
+                        keyword: ''
+                    };
                     $scope2.cancel = function () {
                         $mi.dismiss();
                     };
                     $scope2.ok = function () {
                         $mi.close($scope2.data);
                     };
-                    $scope2.search = function () {
-                        http2.post(url + '&schema=' + oHandleSchema.id, oAssocData, {
+                    $scope2.search = function (keyword) {
+                        if (undefined !== keyword) {
+                            data.keyword = keyword
+                        }
+                        http2.post(`${url}&schema=${oHandleSchema.id}&keyword=${data.keyword}`, oAssocData, {
                             page: oPage
-                        }).then(function (oResult) {
-                            var oData = oResult.data[oHandleSchema.id];
+                        }).then(oResult => {
+                            let oData = oResult.data[oHandleSchema.id];
                             if (oHandleSchema.type == 'multitext') {
                                 oData.records.pop();
                             }
                             $scope2.records = oData.records;
+                            oPage.total = oData.total
                         });
                     };
                     if (oHandleSchema.history === 'Y' && oHandleSchema.historyAssoc && oHandleSchema.historyAssoc.length) {

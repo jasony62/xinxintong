@@ -4,6 +4,18 @@
 
 版本：1.0
 
+# 部署
+
+## 本地化配置
+
+在项目目录下新建 cus 目录
+
+config.php 文件
+
+db.php 文件
+
+## kcfinder/upload 目录
+
 # License
 
 [MIT](http://opensource.org/licenses/MIT)

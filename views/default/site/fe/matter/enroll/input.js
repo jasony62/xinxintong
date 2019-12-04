@@ -1116,7 +1116,9 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                     let oAssocData = {};
                     let oPage;
                     let data;
-                    $scope2.page = oPage = {};
+                    $scope2.page = oPage = {
+                        size: 7
+                    };
                     $scope2.data = data = {
                         keyword: ''
                     };
@@ -1153,10 +1155,10 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                 backdrop: 'static',
             }).result.then(function (oResult) {
                 var assocSchemaIds = [];
-                if (oResult.selected.value) {
-                    $scope.data[oHandleSchema.id] = oResult.selected.value;
+                if (oResult.selected) {
+                    $scope.data[oHandleSchema.id] = oResult.selected;
                     /* 检查是否存在关联题目，自动完成数据填写 */
-                    _oApp.dynaDataSchemas.forEach(function (oOther) {
+                    _oApp.dynaDataSchemas.forEach(oOther => {
                         if (oOther.id !== oHandleSchema.id && oOther.history === 'Y' && oOther.historyAssoc && oOther.historyAssoc.indexOf(oHandleSchema.id) !== -1) {
                             assocSchemaIds.push(oOther.id);
                         }
@@ -1164,7 +1166,7 @@ ngApp.controller('ctrlInput', ['$scope', '$parse', '$q', '$uibModal', '$timeout'
                     if (assocSchemaIds.length) {
                         var oPosted = {};
                         oPosted[oHandleSchema.id] = $scope.data[oHandleSchema.id];
-                        http2.post(url + '&schema=' + assocSchemaIds.join(','), oPosted).then(function (rsp) {
+                        http2.post(url + '&schema=' + assocSchemaIds.join(','), oPosted).then(rsp => {
                             for (var schemaId in rsp.data) {
                                 if (rsp.data[schemaId].records && rsp.data[schemaId].records.length) {
                                     $scope.data[schemaId] = rsp.data[schemaId].records[0].value;

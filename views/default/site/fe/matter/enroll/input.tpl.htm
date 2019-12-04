@@ -96,7 +96,11 @@
                 </div>
             </div>
             <div class='form-group'>
-                <select class="form-control" ng-model="data.selected" ng-options="rec.value for rec in records" size='7'></select>
+                <div class='list-group'>
+                    <div class='list-group-item' ng-repeat="rec in records">
+                        <label class='radio-inline'><input type='radio' ng-model="data.selected" value="{{rec.value}}"><span ng-bind="rec.value"></span></label>
+                    </div>
+                </div>
             </div>
             <div class='text-center' ng-if="page.total>page.size">
                 <div class='site-pagination'>

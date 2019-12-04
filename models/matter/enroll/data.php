@@ -823,13 +823,15 @@ class data_model extends entity_model {
         if (!empty($page) && !empty($size)) {
             $q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
         }
+        // 排序
+        $q2['o']= 'CONVERT(value using gbk)';
 
         // 处理获得的数据
         $oResult->records = $this->query_objs_ss($q, $q2);
 
         // 符合条件的数据总数
         $q[0] = 'count(distinct value)';
-        $total = (int) $this->query_val_ss($q, $q2);
+        $total = (int) $this->query_val_ss($q);
         $oResult->total = $total;
 
         return $oResult;

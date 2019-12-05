@@ -126,7 +126,7 @@ class data extends base {
                             $coworkRemarkLikeNum = (int) $oRule->cowork->likeNum;
                         }
                         if ($coworkRemarkLikeNum) {
-                            $q[2] .= " and (group_id='" . (empty($oUser->group_id) ? '' : $oUser->group_id) . "' or like_num>={$coworkRemarkLikeNum})";
+                            $q[2] .= " and (group_id='" . (empty($oUser->group_id) ? '' : $oUser->group_id) . "' or like_num>='{$coworkRemarkLikeNum}')";
                         }
                     }
                     /* 根据状态和用户角色过滤答案 */

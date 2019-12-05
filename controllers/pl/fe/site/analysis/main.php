@@ -109,10 +109,10 @@ class main extends \pl\fe\base {
 
 		$w = "l.siteid = '$site' and l.matter_type = '$type'";
 		if (!empty($options['startAt'])) {
-			$w .= " and l.action_at >= " . $options['startAt'];
+			$w .= " and l.action_at >= '" . $options['startAt'] . "'";
 		}
 		if (!empty($options['endAt'])) {
-			$w .= " and l.action_at <= " . $options['endAt'];
+			$w .= " and l.action_at <= '" . $options['endAt'] . "'";
 		}
 		// 过滤非管理员
 		if (!empty($options['isAdmin'])) {
@@ -214,10 +214,10 @@ class main extends \pl\fe\base {
 
 		$w = "l.siteid='$site'";
 		if (!empty($options['startAt'])) {
-			$w .= " and l.action_at >= " . $options['startAt'];
+			$w .= " and l.action_at >= '" . $options['startAt'] . "'";
 		}
 		if (!empty($options['endAt'])) {
-			$w .= "  and l.action_at <= " . $options['endAt'];
+			$w .= "  and l.action_at <= '" . $options['endAt'] . "'";
 		}
 		// 过滤团队管理员
 		if (!empty($options['isAdmin'])) {

@@ -1645,7 +1645,7 @@ class record_model extends record_base {
 				$q = [
 					'count(*)',
 					'xxt_enroll_record',
-					"aid='$oApp->id' and state=1 and enroll_at>={$last->create_at}",
+					"aid='$oApp->id' and state=1 and enroll_at>='{$last->create_at}'",
 				];
 				if (!empty($rid) && $rid !== 'ALL') {
 					$q[2] .= " and rid = '$rid'";

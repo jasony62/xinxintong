@@ -402,8 +402,12 @@ class login extends \site\fe\base {
         if (($account = \TMS_CLIENT::account()) === false) {
             return new \ResponseError('未登录');
         }
-        if (($oUser = $this->model('account')->byId($account->uid)) === false) {
+        if (($oUser = $this->model('account')->byId($account->uid, ["cascaded" => ["group"]])) === false) {
             return new \ObjectNotFoundError();
+        }
+
+        if (!empty($oUser->group) && !empty($oUser->group->group_name) && $oUser->group->group_name === "dev189") {
+            return new \ResponseData('ok');
         }
 
         $uname = $this->escape($oUser->email);

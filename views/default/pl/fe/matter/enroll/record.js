@@ -4,7 +4,7 @@ define(['frame'], function (ngApp) {
         function fnSum4Schema() {
             var sum4SchemaAtPage;
             $scope.sum4SchemaAtPage = sum4SchemaAtPage = {};
-            if ($scope.bRequireScore) {
+            if ($scope.bRequireSum) {
                 srvEnlRec.sum4Schema().then(function (oResult) {
                     $scope.sum4Schema = oResult;
                     for (var schemaId in oResult) {

@@ -442,7 +442,7 @@ class rank extends base {
                 ['aid' => $oApp->id, 'state' => 1],
             ];
             if (count($aSchemaIdSegs) === 3) {
-                return [false, '该数据暂时无法提供'];
+                return [false, '系统暂时无法提供通讯录数据进行排行'];
             } else {
                 $q[2]['schema_id'] = $oRankSchema->id;
                 $q[2]['value'] = (object) ['op' => '<>', 'pat' => ''];

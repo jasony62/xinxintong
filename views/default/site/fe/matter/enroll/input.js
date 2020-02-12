@@ -241,7 +241,7 @@ ngApp.directive('tmsFileInput', ['$q', 'tmsLocation', 'tmsDynaPage', function ($
                                 return false;
                             }
                         }
-                        if ($scope.fileConfig.maxsize * 1024 * 1024 <= f.size) {
+                        if (filemaxsize !== 0 && $scope.fileConfig.maxsize * 1024 * 1024 <= f.size) {
                             noticebox.error("文件上传失败，大小不能超过" + $scope.fileConfig.maxsize + "M");
                             return false;
                         }

@@ -19,78 +19,95 @@ class repos extends base {
         $dirSchemas = []; // 作为分类的题目
         $oSchemasById = new \stdClass;
         foreach ($oApp->dataSchemas as $oSchema) {
-            if (isset($oSchema->asdir) && $oSchema->asdir === 'Y') {
-                $oSchemasById->{$oSchema->id} = $oSchema;
-                switch ($oSchema->type) {
-                case 'single':
-                    if (empty($oSchema->optGroups)) {
-                        /* 根分类 */
-                        foreach ($oSchema->ops as $oOp) {
-                            $oRootDir = new \stdClass;
-                            $oRootDir->schema_id = $oSchema->id;
-                            $oRootDir->schema_type = 'single';
-                            $oRootDir->op = $oOp;
-                            $dirSchemas[] = $oRootDir;
-                        }
-                    } else {
-                        foreach ($oSchema->optGroups as $oOptGroup) {
-                            if (isset($oOptGroup->assocOp) && isset($oOptGroup->assocOp->v) && isset($oSchemasById->{$oOptGroup->assocOp->schemaId})) {
-                                $oParentSchema = $oSchemasById->{$oOptGroup->assocOp->schemaId};
-                                foreach ($oParentSchema->ops as $oAssocOp) {
-                                    if ($oAssocOp->v === $oOptGroup->assocOp->v) {
-                                        if (!isset($oAssocOp->childrenDir)) {
-                                            $oAssocOp->childrenDir = [];
-                                        }
-                                        foreach ($oSchema->ops as $oOp) {
-                                            if (isset($oOp->g) && $oOp->g === $oOptGroup->i) {
-                                                $oAssocOp->childrenDir[] = (object) ['schema_id' => $oSchema->id, 'op' => $oOp];
-                                            }
-                                        }
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    break;
-                case 'shorttext':
-                    $modelData = $this->model('matter\enroll\data');
-                    if (empty($oSchema->historyAssoc)) {
-                        $oOptions = new \stdClass;
-                        $oOptions->rid = empty($oApp->appRound) ? '' : $oApp->appRound->rid;
-                        $oOptions->page = 1;
-                        $oOptions->size = 99;
-                        $oResult = $modelData->bySchema($oApp, $oSchema, $oOptions);
-                        foreach ($oResult->records as $oRecData) {
-                            $oRootDir = new \stdClass;
-                            $oRootDir->schema_id = $oSchema->id;
-                            $oRootDir->schema_type = 'shorttext';
-                            $oRootDir->op = (object) ['v' => $oRecData->value, 'l' => $oRecData->value];
-                            $dirSchemas[] = $oRootDir;
-                        }
-                    } else {
-                        foreach ($dirSchemas as $oParentDirSchema) {
-                            if (in_array($oParentDirSchema->schema_id, $oSchema->historyAssoc)) {
-                                $aChildrenDir = [];
-                                $oOptions = new \stdClass;
-                                $oOptions->rid = empty($oApp->appRound) ? '' : $oApp->appRound->rid;
-                                $oOptions->page = 1;
-                                $oOptions->size = 99;
-                                $oOptions->assocData = (object) [$oParentDirSchema->schema_id => $oParentDirSchema->op->v];
-                                $oResult = $modelData->bySchema($oApp, $oSchema, $oOptions);
-                                foreach ($oResult->records as $oRecData) {
-                                    $oChildOption = new \stdClass;
-                                    $oChildOption = (object) ['schema_id' => $oSchema->id, 'op' => (object) ['v' => $oRecData->value, 'l' => $oRecData->value]];
-                                    $aChildrenDir[] = $oChildOption;
-                                }
-                                $oParentDirSchema->op->childrenDir = $aChildrenDir;
-                            }
-                        }
-
-                    }
-                    break;
-                }
+            if (!isset($oSchema->asdir) || $oSchema->asdir !== 'Y') {
+                continue;
             }
+
+            $oSchemasById->{$oSchema->id} = $oSchema;
+            switch ($oSchema->type) {
+            case 'single':
+                if (empty($oSchema->optGroups)) {
+                    $oSchemaDir = new \stdClass;
+                    $oSchemaDir->schema_id = $oSchema->id;
+                    $oSchemaDir->schema_type = 'single';
+                    $oSchemaDir->op = (object) ['l' => $oSchema->title, 'childrenDir' => []];
+                    /* 根分类 */
+                    foreach ($oSchema->ops as $oOp) {
+                        $oRootDir = new \stdClass;
+                        $oRootDir->schema_id = $oSchema->id;
+                        $oRootDir->schema_type = 'single';
+                        $oRootDir->op = $oOp;
+                        $oSchemaDir->op->childrenDir[] = $oRootDir;
+                    }
+                    $dirSchemas[] = $oSchemaDir;
+                } else {
+                    foreach ($oSchema->optGroups as $oOptGroup) {
+                        if (isset($oOptGroup->assocOp) && isset($oOptGroup->assocOp->v) && isset($oSchemasById->{$oOptGroup->assocOp->schemaId})) {
+                            $oParentSchema = $oSchemasById->{$oOptGroup->assocOp->schemaId};
+                            foreach ($oParentSchema->ops as $oAssocOp) {
+                                if ($oAssocOp->v === $oOptGroup->assocOp->v) {
+                                    if (!isset($oAssocOp->childrenDir)) {
+                                        $oAssocOp->childrenDir = [];
+                                    }
+                                    foreach ($oSchema->ops as $oOp) {
+                                        if (isset($oOp->g) && $oOp->g === $oOptGroup->i) {
+                                            $oAssocOp->childrenDir[] = (object) ['schema_id' => $oSchema->id, 'op' => $oOp];
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+            case 'shorttext':
+                $modelData = $this->model('matter\enroll\data');
+                if (empty($oSchema->historyAssoc)) {
+                    $oSchemaDir = new \stdClass;
+                    $oSchemaDir->schema_id = $oSchema->id;
+                    $oSchemaDir->schema_type = 'shorttext';
+                    $oSchemaDir->op = (object) ['l' => $oSchema->title, 'childrenDir' => []];
+
+                    $oOptions = new \stdClass;
+                    $oOptions->rid = empty($oApp->appRound) ? '' : $oApp->appRound->rid;
+                    $oOptions->page = 1;
+                    $oOptions->size = 99;
+                    $oResult = $modelData->bySchema($oApp, $oSchema, $oOptions);
+                    foreach ($oResult->records as $oRecData) {
+                        $oRootDir = new \stdClass;
+                        $oRootDir->schema_id = $oSchema->id;
+                        $oRootDir->schema_type = 'shorttext';
+                        $oRootDir->op = (object) ['v' => $oRecData->value, 'l' => $oRecData->value];
+                        $oSchemaDir->op->childrenDir[] = $oRootDir;
+                    }
+                    $dirSchemas[] = $oSchemaDir;
+                } else {
+                    foreach ($dirSchemas as $oParentDirSchema) {
+                        if (in_array($oParentDirSchema->schema_id, $oSchema->historyAssoc)) {
+                            $aChildrenDir = [];
+                            $oOptions = new \stdClass;
+                            $oOptions->rid = empty($oApp->appRound) ? '' : $oApp->appRound->rid;
+                            $oOptions->page = 1;
+                            $oOptions->size = 99;
+                            $oOptions->assocData = (object) [$oParentDirSchema->schema_id => $oParentDirSchema->op->v];
+                            $oResult = $modelData->bySchema($oApp, $oSchema, $oOptions);
+                            foreach ($oResult->records as $oRecData) {
+                                $oChildOption = new \stdClass;
+                                $oChildOption = (object) ['schema_id' => $oSchema->id, 'op' => (object) ['v' => $oRecData->value, 'l' => $oRecData->value]];
+                                $aChildrenDir[] = $oChildOption;
+                            }
+                            $oParentDirSchema->op->childrenDir = $aChildrenDir;
+                        }
+                    }
+
+                }
+                break;
+            }
+        }
+
+        if (count($dirSchemas) === 1) {
+            $dirSchemas = $dirSchemas[0]->op->childrenDir;
         }
 
         return new \ResponseData($dirSchemas);

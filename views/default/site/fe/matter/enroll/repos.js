@@ -407,6 +407,7 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
         return deferred.promise;
     };
     $scope.dirClicked = function (oDir, active) {
+        if (!oDir.op.v) return
         _oCriteria.data = {};
         if (oDir) {
             _oCriteria.data[oDir.schema_id] = oDir.op.v;
@@ -652,6 +653,7 @@ ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLo
         return deferred.promise;
     };
     $scope.dirClicked = function (oDir, active) {
+        if (!oDir.op.v) return
         _oCriteria.data = {};
         if (oDir) {
             _oCriteria.data[oDir.schema_id] = oDir.op.v;

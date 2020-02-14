@@ -106,9 +106,9 @@ class repos extends base {
             }
         }
 
-        if (count($dirSchemas) === 1) {
-            $dirSchemas = $dirSchemas[0]->op->childrenDir;
-        }
+        // if (count($dirSchemas) === 1) {
+        //     $dirSchemas = $dirSchemas[0]->op->childrenDir;
+        // }
 
         return new \ResponseData($dirSchemas);
     }

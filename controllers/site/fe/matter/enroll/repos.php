@@ -26,16 +26,17 @@ class repos extends base {
             $oSchemasById->{$oSchema->id} = $oSchema;
             switch ($oSchema->type) {
             case 'single':
+            case 'multiple':
                 if (empty($oSchema->optGroups)) {
                     $oSchemaDir = new \stdClass;
                     $oSchemaDir->schema_id = $oSchema->id;
-                    $oSchemaDir->schema_type = 'single';
+                    $oSchemaDir->schema_type = $oSchema->type;
                     $oSchemaDir->op = (object) ['l' => $oSchema->title, 'childrenDir' => []];
                     /* 根分类 */
                     foreach ($oSchema->ops as $oOp) {
                         $oRootDir = new \stdClass;
                         $oRootDir->schema_id = $oSchema->id;
-                        $oRootDir->schema_type = 'single';
+                        $oRootDir->schema_type = $oSchema->type;
                         $oRootDir->op = $oOp;
                         $oSchemaDir->op->childrenDir[] = $oRootDir;
                     }
@@ -106,9 +107,9 @@ class repos extends base {
             }
         }
 
-        // if (count($dirSchemas) === 1) {
-        //     $dirSchemas = $dirSchemas[0]->op->childrenDir;
-        // }
+        if (count($dirSchemas) === 1) {
+            $dirSchemas = $dirSchemas[0]->op->childrenDir;
+        }
 
         return new \ResponseData($dirSchemas);
     }
@@ -232,7 +233,7 @@ class repos extends base {
         /* 是否设置了编辑组 */
         $oEditorGrp = $this->getEditorGroup($oApp);
 
-        foreach ($rawDatas as &$rawData) {
+        foreach ($rawDatas as $rawData) {
             /* 获取记录的投票信息 */
             if (!empty($oApp->voteConfig)) {
                 if (empty($voteRules)) {
@@ -242,46 +243,13 @@ class repos extends base {
                 }
             }
             $aCoworkState = [];
-            $recordDirs = [];
             if (isset($rawData->data)) {
                 $processedData = new \stdClass;
                 foreach ($oApp->dynaDataSchemas as $oSchema) {
+                    if (!$this->isVisibleInRepos($rawData, $oSchema)) {
+                        continue;
+                    }
                     $schemaId = $oSchema->id;
-                    // 分类目录
-                    if ($this->getDeepValue($oSchema, 'asdir') === 'Y' && !empty($oSchema->ops) && !empty($rawData->data->{$schemaId})) {
-                        foreach ($oSchema->ops as $op) {
-                            if ($op->v === $rawData->data->{$schemaId}) {
-                                $recordDirs[] = $op->l;
-                            }
-                        }
-                    }
-                    /* 清除非共享数据 */
-                    if (!isset($oSchema->shareable) || $oSchema->shareable !== 'Y') {
-                        continue;
-                    }
-                    // 过滤空数据
-                    $rawDataVal = $this->getDeepValue($rawData->data, $schemaId, null);
-                    if (null === $rawDataVal) {
-                        continue;
-                    }
-                    // 选择题题目可见性规则
-                    if (!empty($oSchema->visibility->rules)) {
-                        $checkSchemaVisibility = true;
-                        foreach ($oSchema->visibility->rules as $oRule) {
-                            if (strpos($schemaId, 'member.extattr') === 0) {
-                                $memberSchemaId = str_replace('member.extattr.', '', $schemaId);
-                                if (!isset($rawData->data->member->extattr->{$memberSchemaId}) || ($rawData->data->member->extattr->{$memberSchemaId} !== $oRule->op && empty($rawData->data->member->extattr->{$memberSchemaId}))) {
-                                    $checkSchemaVisibility = false;
-                                }
-                            } else if (!isset($rawData->data->{$oRule->schema}) || ($rawData->data->{$oRule->schema} !== $oRule->op && empty($rawData->data->{$oRule->schema}->{$oRule->op}))) {
-                                $checkSchemaVisibility = false;
-                            }
-                        }
-                        if ($checkSchemaVisibility === false) {
-                            continue;
-                        }
-                    }
-
                     /* 协作填写题 */
                     if ($this->getDeepValue($oSchema, 'cowork') === 'Y') {
                         if ($processType === 'recordByTopic') {
@@ -299,51 +267,12 @@ class repos extends base {
                             $countItems = $modelData->getCowork($rawData->enroll_key, $schemaId, $aOptions);
                             $aCoworkState[$schemaId] = (object) ['length' => count($countItems)];
                         }
-                    } else if ($this->getDeepValue($oSchema, 'type') === 'multitext') {
-                        $newData = [];
-                        foreach ($rawDataVal as &$val) {
-                            $val2 = new \stdClass;
-                            $val2->id = $val->id;
-                            $val2->value = $this->replaceHTMLTags($val->value);
-                            $newData[] = $val2;
-                        }
-                        $this->setDeepValue($processedData, $schemaId, $newData);
-                    } else if ($this->getDeepValue($oSchema, 'type') === 'single') {
-                        foreach ($oSchema->ops as $val) {
-                            if ($val->v === $rawDataVal) {
-                                $this->setDeepValue($processedData, $schemaId, $val->l);
-                            }
-                        }
-                    } else if ($this->getDeepValue($oSchema, 'type') === 'score') {
-                        $ops = new \stdClass;
-                        foreach ($oSchema->ops as $val) {
-                            $ops->{$val->v} = $val->l;
-                        }
-                        $newData = [];
-                        foreach ($rawDataVal as $key => $val) {
-                            if (isset($ops->{$key})) {
-                                $data2 = new \stdClass;
-                                $data2->title = $ops->{$key};
-                                $data2->score = $val;
-                                $newData[] = $data2;
-                            }
-                        }
-                        $this->setDeepValue($processedData, $schemaId, $newData);
-                    } else if ($this->getDeepValue($oSchema, 'type') === 'multiple') {
-                        $rawDataVal2 = explode(',', $rawDataVal);
-                        $ops = new \stdClass;
-                        foreach ($oSchema->ops as $val) {
-                            $ops->{$val->v} = $val->l;
-                        }
-                        $newData = [];
-                        foreach ($rawDataVal2 as $val) {
-                            if (isset($ops->{$val})) {
-                                $newData[] = $ops->{$val};
-                            }
-                        }
-                        $this->setDeepValue($processedData, $schemaId, $newData);
                     } else {
-                        $this->setDeepValue($processedData, $schemaId, $rawDataVal);
+                        // 分类目录
+                        $this->setRecordDir($rawData, $oSchema);
+                        // id转换成文字
+                        $newData = $this->translate($rawData, $oSchema);
+                        $processedData->{$schemaId} = $newData;
                     }
                 }
                 $rawData->data = $processedData;
@@ -356,10 +285,6 @@ class repos extends base {
                     }
                     $rawData->coworkDataTotal = $sum;
                 }
-                if (!empty($recordDirs)) {
-                    $rawData->recordDir = $recordDirs;
-                }
-
                 /* 获取记录的投票信息 */
                 if (!empty($aVoteRules)) {
                     $oVoteResult = new \stdClass;

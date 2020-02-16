@@ -2,10 +2,12 @@
 namespace pl\fe\matter\enroll;
 
 require_once dirname(__FILE__) . '/main_base.php';
+include_once TMS_APP_DIR . '/controllers/_trait/matter/enroll/record.php';
 /*
  * 记录活动主控制器
  */
 abstract class record_base extends main_base {
+    use \matter\enroll\RecordTrait;
     /**
      * 处理数据
      */
@@ -41,20 +43,11 @@ abstract class record_base extends main_base {
                 $processedData = new \stdClass;
                 foreach ($oApp->dynaDataSchemas as $oSchema) {
                     $schemaId = $oSchema->id;
-                    // 分类目录
-                    if ($this->getDeepValue($oSchema, 'asdir') === 'Y' && !empty($oSchema->ops) && !empty($rawData->data->{$schemaId})) {
-                        foreach ($oSchema->ops as $op) {
-                            if ($op->v === $rawData->data->{$schemaId}) {
-                                $recordDirs[] = $op->l;
-                            }
-                        }
-                    }
                     // 过滤空数据
                     $rawDataVal = $this->getDeepValue($rawData->data, $schemaId, null);
                     if (empty($rawDataVal)) {
                         continue;
                     }
-
                     /* 协作填写题 */
                     if ($this->getDeepValue($oSchema, 'cowork') === 'Y') {
                         if ($processType === 'coworkDataList') {
@@ -79,53 +72,15 @@ abstract class record_base extends main_base {
                             $this->setDeepValue($processedData, $schemaId, $newVal);
                             $aCoworkState[$schemaId] = (object) ['length' => count($newVal)];
                         }
-                    } else if ($this->getDeepValue($oSchema, 'type') === 'multitext') {
-                        $newVal = $processMultitext($rawDataVal);
-                        $this->setDeepValue($processedData, $schemaId, $newVal);
-                    } else if ($this->getDeepValue($oSchema, 'type') === 'single') {
-                        foreach ($oSchema->ops as $val) {
-                            if ($val->v === $rawDataVal) {
-                                $this->setDeepValue($processedData, $schemaId, $val->l);
-                            }
-                        }
-                    } else if ($this->getDeepValue($oSchema, 'type') === 'score') {
-                        $ops = new \stdClass;
-                        foreach ($oSchema->ops as $val) {
-                            $ops->{$val->v} = $val;
-                        }
-                        $newVal = [];
-                        foreach ($rawDataVal as $key => $val) {
-                            if (empty($ops->{$key}) || !is_object($ops->{$key})) {
-                                continue;
-                            }
-                            $data2 = new \stdClass;
-                            $data2->title = $ops->{$key}->l;
-                            $data2->score = $val;
-                            $data2->v = $ops->{$key}->v;
-                            $newVal[] = $data2;
-                        }
-                        $this->setDeepValue($processedData, $schemaId, $newVal);
-                    } else if ($this->getDeepValue($oSchema, 'type') === 'multiple') {
-                        $newVal = [];
-                        if (!empty($rawDataVal)) {
-                            $ops = new \stdClass;
-                            foreach ($oSchema->ops as $val) {
-                                $ops->{$val->v} = $val->l;
-                            }
-                            $rawDataVal2 = explode(',', $rawDataVal);
-                            foreach ($rawDataVal2 as $val) {
-                                $newVal[] = $ops->{$val};
-                            }
-                        }
-                        $this->setDeepValue($processedData, $schemaId, $newVal);
                     } else {
-                        $this->setDeepValue($processedData, $schemaId, $rawDataVal);
+                        // 分类目录
+                        $this->setRecordDir($rawData, $oSchema);
+                        // id转换成文字
+                        $newData = $this->translate($rawData, $oSchema);
+                        $processedData->{$schemaId} = $newData;
                     }
                 }
                 $rawData->data = $processedData;
-                if (!empty($recordDirs)) {
-                    $rawData->recordDir = $recordDirs;
-                }
                 if (!empty($aCoworkState)) {
                     $rawData->coworkState = (object) $aCoworkState;
                     // 协作填写题数据总数量

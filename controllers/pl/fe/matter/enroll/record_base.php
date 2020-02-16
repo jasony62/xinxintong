@@ -30,7 +30,7 @@ abstract class record_base extends main_base {
             $modelTask = $this->model('matter\enroll\task', $oApp);
         }
         //
-        foreach ($rawDatas as &$rawData) {
+        foreach ($rawDatas as $rawData) {
             /* 获取记录的投票信息 */
             if (!empty($oApp->voteConfig)) {
                 if (empty($voteRules)) {
@@ -77,11 +77,12 @@ abstract class record_base extends main_base {
                         $this->setRecordDir($rawData, $oSchema);
                         // id转换成文字
                         $newData = $this->translate($rawData, $oSchema);
-                        if (!isset($newData)) {
+                        if (isset($newData)) {
                             $processedData->{$schemaId} = $newData;
                         }
                     }
                 }
+
                 $rawData->data = $processedData;
                 if (!empty($aCoworkState)) {
                     $rawData->coworkState = (object) $aCoworkState;

@@ -218,7 +218,9 @@ class favor extends base {
                         $this->setRecordDir($rawData, $oSchema);
                         // id转换成文字
                         $newData = $this->translate($rawData, $oSchema);
-                        $processedData->{$schemaId} = $newData;
+                        if (!isset($newData)) {
+                            $processedData->{$schemaId} = $newData;
+                        }
                     }
                 }
                 $rawData->data = $processedData;

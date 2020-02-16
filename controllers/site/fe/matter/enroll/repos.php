@@ -250,13 +250,14 @@ class repos extends base {
                         continue;
                     }
                     $schemaId = $oSchema->id;
-                    /* 协作填写题 */
+                    /* 多人问答题 */
                     if ($this->getDeepValue($oSchema, 'cowork') === 'Y') {
-                        if ($processType === 'recordByTopic') {
+                        if (in_array($processType, ['recordByTopic'])) {
                             $items = $modelData->getCowork($rawData->enroll_key, $schemaId, ['excludeRoot' => true, 'agreed' => ['Y', 'A'], 'fields' => 'id,agreed,like_num,nickname,value']);
                             $aCoworkState[$schemaId] = (object) ['length' => count($items)];
                             $processedData->{$schemaId} = $items;
                         } else if ($processType === 'coworkDataList') {
+                            // 答案视图
                             $item = new \stdClass;
                             $item->id = $rawData->data_id;
                             $item->value = $this->replaceHTMLTags($rawData->value);
@@ -272,7 +273,9 @@ class repos extends base {
                         $this->setRecordDir($rawData, $oSchema);
                         // id转换成文字
                         $newData = $this->translate($rawData, $oSchema);
-                        $processedData->{$schemaId} = $newData;
+                        if (isset($newData)) {
+                            $processedData->{$schemaId} = $newData;
+                        }
                     }
                 }
                 $rawData->data = $processedData;

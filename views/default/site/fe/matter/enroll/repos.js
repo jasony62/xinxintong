@@ -234,7 +234,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'e
                 $scope.rounds = result.rounds;
             });
             $scope.imageSchemas = [];
-            _oApp.dynaDataSchemas.forEach(function (oSchema) {
+            _oApp.dynaDataSchemas.forEach(oSchema => {
                 if (oSchema.shareable === 'Y') {
                     $scope.schemaCounter++;
                     _aShareableSchemas.push(oSchema);
@@ -242,7 +242,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'e
                         $scope.imageSchemas.push(oSchema)
                     }
                 }
-                if (Object.keys(oSchema).indexOf('cowork') !== -1 && oSchema.cowork === 'Y') {
+                if (oSchema.hasOwnProperty('cowork') && oSchema.cowork === 'Y') {
                     $scope.schemaCounter--;
                 }
             });
@@ -382,7 +382,7 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
             page: _oPage
         }).then(function (result) {
             if (result.data.records) {
-                result.data.records.forEach(function (oRecord) {
+                result.data.records.forEach(oRecord => {
                     $scope.repos.push(oRecord);
                     if (AsyncImage) AsyncImage.cacheImage(oRecord);
                 });
@@ -391,8 +391,8 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
                 $timeout(function () {
                     var defer = $q.defer();
                     AsyncImage.loadImage(defer)
-                    defer.promise.then(function () {
-                        $timeout(function () {
+                    defer.promise.then(() => {
+                        $timeout(() => {
                             var imgs;
                             if (imgs = document.querySelectorAll('.data img')) {
                                 picviewer.init(imgs);
@@ -407,13 +407,20 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
         return deferred.promise;
     };
     $scope.dirClicked = function (oDir, active) {
-        if (!oDir.op.v) return
-        _oCriteria.data = {};
-        if (oDir) {
-            _oCriteria.data[oDir.schema_id] = oDir.op.v;
+        let beforeData = _oCriteria.data || {};
+
+        let newData = _oCriteria.data = {};
+        if (oDir && oDir.op.v) {
+            newData[oDir.schema_id] = oDir.op.v;
         }
         $scope.activeDirSchemas = active;
-        $scope.recordList(1);
+
+        // 条件发生了变化才重新获取数据
+        if ((Object.keys(beforeData).length !== Object.keys(newData).length)) {
+            $scope.recordList(1);
+        } else if (Object.keys(beforeData).length > 0 && newData[oDir.schema_id] !== beforeData[oDir.schema_id]) {
+            $scope.recordList(1);
+        }
     };
     $scope.shiftMenu = function (criteria) {
         _oCriteria[criteria.type] = criteria.id;
@@ -653,13 +660,20 @@ ngApp.controller('ctrlReposCowork', ['$scope', '$timeout', '$q', 'http2', 'tmsLo
         return deferred.promise;
     };
     $scope.dirClicked = function (oDir, active) {
-        if (!oDir.op.v) return
-        _oCriteria.data = {};
-        if (oDir) {
-            _oCriteria.data[oDir.schema_id] = oDir.op.v;
+        let beforeData = _oCriteria.data || {};
+
+        let newData = _oCriteria.data = {};
+        if (oDir && oDir.op.v) {
+            newData[oDir.schema_id] = oDir.op.v;
         }
         $scope.activeDirSchemas = active;
-        $scope.recordList(1);
+
+        // 条件发生了变化才重新获取数据
+        if ((Object.keys(beforeData).length !== Object.keys(newData).length)) {
+            $scope.recordList(1);
+        } else if (Object.keys(beforeData).length > 0 && newData[oDir.schema_id] !== beforeData[oDir.schema_id]) {
+            $scope.recordList(1);
+        }
     };
     $scope.shiftMenu = function (criteria) {
         _oCriteria[criteria.type] = criteria.id;

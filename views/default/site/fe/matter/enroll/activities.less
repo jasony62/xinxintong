@@ -23,7 +23,7 @@
         padding-top: 8px;
         padding-bottom: 8px;
 
-        >i {
+        > i {
             display: block;
             height: 18px;
             margin-bottom: 4px;
@@ -32,7 +32,7 @@
             left: -1px;
         }
 
-        >span {
+        > span {
             display: block;
             font-size: 12px;
             line-height: 1;
@@ -73,7 +73,7 @@
 
             .line {
                 display: none;
-                width: 50%;
+                width: 80%;
                 height: 2px;
                 margin: 0 auto;
                 background-color: #fff;
@@ -81,7 +81,6 @@
 
             &.active {
                 .menu-link {
-                    font-weight: 600;
                     color: #fff;
                 }
 
@@ -97,9 +96,8 @@
 #tasks {
     .tasks {
         .state-IP {
-            background-color: #FFDF25;
+            background-color: #ffdf25;
         }
-
     }
 }
 
@@ -114,20 +112,20 @@
             left: -0.5em;
 
             &.label {
-                padding-bottom: .2em;
+                padding-bottom: 0.2em;
                 font-weight: 400;
-                border-radius: .5em;
+                border-radius: 0.5em;
             }
         }
 
         .event {
-            &>*+* {
-                margin-top: .5em;
+            & > * + * {
+                margin-top: 0.5em;
             }
 
             .event-user,
             .event-action {
-                font-size: .9em;
+                font-size: 0.9em;
             }
 
             .event-action {
@@ -136,7 +134,7 @@
                     color: #777;
                 }
 
-                &>*+* {
+                & > * + * {
                     margin-left: 1em;
                 }
             }
@@ -152,22 +150,22 @@
             left: -0.5em;
 
             &.label {
-                padding-bottom: .2em;
+                padding-bottom: 0.2em;
                 font-weight: 400;
-                border-radius: .5em;
+                border-radius: 0.5em;
             }
         }
 
         .event {
-            &>*+* {
-                margin-top: .5em;
+            & > * + * {
+                margin-top: 0.5em;
             }
         }
 
         .footer {
             display: flex;
-            margin-top: .5em;
-            font-size: .9em;
+            margin-top: 0.5em;
+            font-size: 0.9em;
 
             .datetime {
                 flex: 1;
@@ -188,17 +186,15 @@
         .user {
             display: flex;
 
-            &>div:first-child {
+            & > div:first-child {
                 width: 6em;
             }
-
         }
 
         .who {
-            &>div {
-                margin-bottom: .5em;
+            & > div {
+                margin-bottom: 0.5em;
             }
-
         }
 
         .data {
@@ -206,34 +202,32 @@
             display: flex;
             flex-direction: column;
 
-            &>div {
+            & > div {
                 display: flex;
                 order: 5;
 
-                &>div:first-child {
+                & > div:first-child {
                     width: 6em;
                 }
 
-                &>div:last-child {
+                & > div:last-child {
                     flex: 1;
                     display: flex;
 
-                    &>div {
+                    & > div {
                         flex: 1;
                     }
-
                 }
-
             }
 
-            &>div {
-                margin-bottom: .5em;
+            & > div {
+                margin-bottom: 0.5em;
             }
 
             .pos {
                 display: inline-block;
-                padding: 0 .25em;
-                border-radius: .5em;
+                padding: 0 0.25em;
+                border-radius: 0.5em;
                 border: 1px solid #ddd;
             }
 
@@ -241,14 +235,11 @@
                 color: red;
                 order: 1;
 
-                &>div:nth-child(2)>div:first-child>span {
+                & > div:nth-child(2) > div:first-child > span {
                     border-color: red;
                 }
-
             }
-
         }
-
     }
 
     .table-responsive {
@@ -261,56 +252,47 @@
         border: 1px solid #ddd;
         background-color: #fff;
 
-        >.table {
+        > .table {
             margin-bottom: 0;
 
-            >thead,
-            >tbody,
-            >tfoot {
-                >tr {
-
-                    >th,
-                    >td {
+            > thead,
+            > tbody,
+            > tfoot {
+                > tr {
+                    > th,
+                    > td {
                         white-space: nowrap;
                     }
-
                 }
-
             }
-
         }
 
-        >.table-bordered {
+        > .table-bordered {
             border: 0;
 
-            >thead,
-            >tbody,
-            >tfoot {
-                >tr {
-
-                    >th:first-child,
-                    >td:first-child {
+            > thead,
+            > tbody,
+            > tfoot {
+                > tr {
+                    > th:first-child,
+                    > td:first-child {
                         border-left: 0;
                     }
 
-                    >th:last-child,
-                    >td:last-child {
+                    > th:last-child,
+                    > td:last-child {
                         border-right: 0;
                     }
-
                 }
-
             }
 
-            >tbody,
-            >tfoot {
-                >tr:last-child {
-
-                    >th,
-                    >td {
+            > tbody,
+            > tfoot {
+                > tr:last-child {
+                    > th,
+                    > td {
                         border-bottom: 0;
                     }
-
                 }
             }
         }
@@ -325,22 +307,20 @@
     }
 
     #user-detail {
-        &>div {
+        & > div {
             display: flex;
 
-            &>div {
-                padding: .25em 0;
+            & > div {
+                padding: 0.25em 0;
             }
 
-            &>div:first-child {
+            & > div:first-child {
                 width: 12em;
             }
 
-            &>div:nth-child(2) {
+            & > div:nth-child(2) {
                 flex: 1;
             }
-
         }
-
     }
 }

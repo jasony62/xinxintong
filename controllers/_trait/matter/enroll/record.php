@@ -65,6 +65,9 @@ trait RecordTrait {
      */
     protected function translate($rawData, $oSchema) {
         $schemaId = $oSchema->id;
+        if (empty($rawData->data->{$schemaId})) {
+            return null;
+        }
         $rawDataVal = $rawData->data->{$schemaId};
         if ($this->getDeepValue($oSchema, 'type') === 'multitext') {
             $newData = [];
@@ -88,10 +91,12 @@ trait RecordTrait {
             }
             $newData = [];
             foreach ($rawDataVal as $key => $val) {
-                $data2 = new \stdClass;
-                $data2->title = $ops->{$key};
-                $data2->score = $val;
-                $newData[] = $data2;
+                if (!empty($ops->{$key})) {
+                    $data2 = new \stdClass;
+                    $data2->title = $ops->{$key};
+                    $data2->score = $val;
+                    $newData[] = $data2;
+                }
             }
             return $newData;
         } else if ($this->getDeepValue($oSchema, 'type') === 'multiple') {
@@ -102,7 +107,9 @@ trait RecordTrait {
             }
             $newData = [];
             foreach ($rawDataVal2 as $val) {
-                $newData[] = $ops->{$val};
+                if (!empty($ops->{$val})) {
+                    $newData[] = $ops->{$val};
+                }
             }
             return $newData;
         }

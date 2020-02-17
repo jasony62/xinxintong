@@ -241,6 +241,9 @@ class record extends base {
         }
         $modelDaemon->finish($daemonId, 'notice');
 
+        // 结束所有任务
+        $modelDaemon->finish($daemonId);
+
         return [true];
     }
     /**

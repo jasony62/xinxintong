@@ -497,48 +497,6 @@ class record extends base {
         return [true];
     }
     /**
-     * 通知记录活动事件接收人
-     *
-     * @param object $app
-     * @param string $ek
-     *
-     */
-    private function _notifyReceivers($oApp, $oRecord) {
-        /* 通知接收人 */
-        $receivers = $this->model('matter\enroll\user')->getSubmitReceivers($oApp, $oRecord, $oApp->notifyConfig->submit);
-        if (empty($receivers)) {
-            return false;
-        }
-
-        // 指定的提醒页名称，默认为讨论页
-        $page = empty($oApp->notifyConfig->submit->page) ? 'cowork' : $oApp->notifyConfig->submit->page;
-        switch ($page) {
-        case 'repos':
-            $noticeURL = $oApp->entryUrl . '&page=repos';
-            break;
-        default:
-            $noticeURL = $oApp->entryUrl . '&ek=' . $oRecord->enroll_key . '&page=cowork';
-        }
-
-        $noticeName = 'site.enroll.submit';
-
-        /*获取模板消息id*/
-        $oTmpConfig = $this->model('matter\tmplmsg\config')->getTmplConfig($oApp, $noticeName, ['onlySite' => false, 'noticeURL' => $noticeURL]);
-        if ($oTmpConfig[0] === false) {
-            return false;
-        }
-        $oTmpConfig = $oTmpConfig[1];
-
-        $modelTmplBat = $this->model('matter\tmplmsg\batch');
-        $oCreator = new \stdClass;
-        $oCreator->uid = $noticeName;
-        $oCreator->name = 'system';
-        $oCreator->src = 'pl';
-        $modelTmplBat->send($oApp->siteid, $oTmpConfig->tmplmsgId, $oCreator, $receivers, $oTmpConfig->oParams, ['send_from' => $oApp->type . ':' . $oApp->id]);
-
-        return true;
-    }
-    /**
      * 分段上传文件
      *
      * @param string $app

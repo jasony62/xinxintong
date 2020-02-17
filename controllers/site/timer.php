@@ -33,6 +33,8 @@ class timer extends base {
             }
         }
         /* 执行后台任务（临时） */
+        $modelDaemon = $this->model('matter\enroll\daemon\record');
+        $modelDaemon->exec();
 
         return new \ResponseData(count($tasks));
     }

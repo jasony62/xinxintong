@@ -324,6 +324,15 @@ class schema_model extends \TMS_MODEL {
             if (isset($oSchema->rankScoreAbove) && !is_numeric($oSchema->rankScoreAbove)) {
                 unset($oSchema->rankScoreAbove);
             }
+            /* 只有单选题、多选题和单行填写题可以作为目录 */
+            if (isset($oSchema->asdir) &&
+                (
+                    !in_array($oSchema->type, ['single', 'multiple']) ||
+                    ('shorttext' === $oSchema->type && 'Y' !== $this->getDeepValue($oSchema, 'history'))
+                )
+            ) {
+                unset($oSchema->asdir);
+            }
 
             $purified[] = $oSchema;
         }

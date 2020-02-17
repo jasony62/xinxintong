@@ -14,6 +14,7 @@ trait RecordTrait {
         // 过滤空数据
         $rawDataVal = $this->getDeepValue($rawData->data, $schemaId, null);
         if (null === $rawDataVal) {
+
             return false;
         }
         // 选择题题目可见性规则
@@ -65,10 +66,10 @@ trait RecordTrait {
      */
     protected function translate($rawData, $oSchema) {
         $schemaId = $oSchema->id;
-        if (empty($rawData->data->{$schemaId})) {
+        $rawDataVal = $this->getDeepValue($rawData->data, $schemaId, null);
+        if (empty($rawDataVal)) {
             return null;
         }
-        $rawDataVal = $rawData->data->{$schemaId};
         if ($this->getDeepValue($oSchema, 'type') === 'multitext') {
             $newData = [];
             foreach ($rawDataVal as $val) {

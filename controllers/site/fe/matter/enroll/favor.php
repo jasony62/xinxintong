@@ -219,7 +219,8 @@ class favor extends base {
                         // id转换成文字
                         $newData = $this->translate($rawData, $oSchema);
                         if (isset($newData)) {
-                            $processedData->{$schemaId} = $newData;
+                            // 通讯录的题目（member.name）会变成'member:{}'的形式
+                            $this->setDeepValue($processedData, $schemaId, $newData);
                         }
                     }
                 }

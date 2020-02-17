@@ -13,10 +13,12 @@ class page_model extends \TMS_MODEL {
     /**
      *
      */
-    public function byId($appId, $apid, $published = 'N') {
+    public function byId($apid, $aOptions = []) {
+        $published = isset($aOptions['published']) ? ($aOptions['published'] === 'Y' ? 'Y' : 'N') : 'N';
+
         $select = 'ap.*,cp.html,cp.css,cp.js';
         $from = 'xxt_signin_page ap,xxt_code_page cp';
-        $where = "ap.aid='$appId' and ap.id=$apid and ap.code_id=cp.id";
+        $where = "ap.id=$apid and ap.code_id=cp.id";
 
         $q = [$select, $from, $where];
 

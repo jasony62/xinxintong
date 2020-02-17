@@ -14,25 +14,45 @@ trait RecordTrait {
         // 过滤空数据
         $rawDataVal = $this->getDeepValue($rawData->data, $schemaId, null);
         if (null === $rawDataVal) {
-
             return false;
         }
         // 选择题题目可见性规则
         if (!empty($oSchema->visibility->rules)) {
-            $checkSchemaVisibility = true;
-            foreach ($oSchema->visibility->rules as $oRule) {
-                if (strpos($schemaId, 'member.extattr') === 0) {
-                    $memberSchemaId = str_replace('member.extattr.', '', $schemaId);
-                    if (!isset($rawData->data->member->extattr->{$memberSchemaId}) || ($rawData->data->member->extattr->{$memberSchemaId} !== $oRule->op && empty($rawData->data->member->extattr->{$memberSchemaId}))) {
+            if (isset($oSchema->visibility->logicOR) && $oSchema->visibility->logicOR === true) {
+                $checkSchemaVisibility = false;
+                $recData = $rawData->data;
+                foreach ($oSchema->visibility->rules as $oRule) {
+                    if (strpos($schemaId, 'member.extattr') === 0) {
+                        $memberSchemaId = str_replace('member.extattr.', '', $schemaId);
+                        if (isset($recData->member->extattr->{$memberSchemaId})) {
+                            $ruleVal = $recData->member->extattr->{$memberSchemaId};
+                            if ($ruleVal === $oRule->op || (isset($ruleVal->{$oRule->op}) && $ruleVal->{$oRule->op} === true)) {
+                                $checkSchemaVisibility = true;
+                                break;
+                            }
+                        }
+                    } else if (isset($recData->{$oRule->schema})) {
+                        $ruleVal = $recData->{$oRule->schema};
+                        if ($ruleVal === $oRule->op || (isset($ruleVal->{$oRule->op}) && $ruleVal->{$oRule->op} === true)) {
+                            $checkSchemaVisibility = true;
+                            break;
+                        }
+                    }
+                }
+            } else {
+                $checkSchemaVisibility = true;
+                foreach ($oSchema->visibility->rules as $oRule) {
+                    if (strpos($schemaId, 'member.extattr') === 0) {
+                        $memberSchemaId = str_replace('member.extattr.', '', $schemaId);
+                        if (!isset($rawData->data->member->extattr->{$memberSchemaId}) || ($rawData->data->member->extattr->{$memberSchemaId} !== $oRule->op && empty($rawData->data->member->extattr->{$memberSchemaId}))) {
+                            $checkSchemaVisibility = false;
+                        }
+                    } else if (!isset($rawData->data->{$oRule->schema}) || ($rawData->data->{$oRule->schema} !== $oRule->op && empty($rawData->data->{$oRule->schema}->{$oRule->op}))) {
                         $checkSchemaVisibility = false;
                     }
-                } else if (!isset($rawData->data->{$oRule->schema}) || ($rawData->data->{$oRule->schema} !== $oRule->op && empty($rawData->data->{$oRule->schema}->{$oRule->op}))) {
-                    $checkSchemaVisibility = false;
                 }
             }
-            if ($checkSchemaVisibility === false) {
-                return false;
-            }
+            return $checkSchemaVisibility;
         }
 
         return true;

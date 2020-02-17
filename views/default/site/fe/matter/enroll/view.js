@@ -9,7 +9,7 @@ window.moduleAngularModules = ['round.ui.enroll', 'schema.ui.xxt'];
 
 var ngApp = require('./main.js');
 ngApp.factory('Record', ['http2', 'tmsLocation', function (http2, LS) {
-    var Record, _ins, _deferredRecord;
+    var Record, _ins;
     Record = function (oApp) {
         var data = {}; // 初始化空数据，优化加载体验
         oApp.dynaDataSchemas.forEach(function (schema) {
@@ -68,7 +68,7 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', 'tmsLocation', '$parse', '$s
         return '';
     };
 }]);
-ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2', 'noticebox', 'Record', 'picviewer', '$timeout', 'tmsSchema', 'enlRound', function ($scope, $sce, $parse, LS, http2, noticebox, Record, picviewer, $timeout, tmsSchema, enlRound) {
+ngApp.controller('ctrlView', ['$scope', '$parse', 'tmsLocation', 'http2', 'noticebox', 'Record', 'picviewer', '$timeout', 'tmsSchema', 'enlRound', function ($scope, $parse, LS, http2, noticebox, Record, picviewer, $timeout, tmsSchema, enlRound) {
     function fnHidePageActions() {
         var domActs, domAct;
         if (domActs = document.querySelectorAll('[wrap=button]')) {
@@ -168,25 +168,11 @@ ngApp.controller('ctrlView', ['$scope', '$sce', '$parse', 'tmsLocation', 'http2'
      * 控制关联题目的可见性
      */
     function fnToggleAssocSchemas(dataSchemas, oRecordData) {
-        dataSchemas.forEach(function (oSchema) {
-            var domSchema;
+        dataSchemas.forEach(oSchema => {
+            let domSchema;
             domSchema = document.querySelector('[wrap=value][schema="' + oSchema.id + '"]');
             if (domSchema && oSchema.visibility && oSchema.visibility.rules && oSchema.visibility.rules.length) {
-                var bVisible, oRule;
-                bVisible = true;
-                for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
-                    oRule = oSchema.visibility.rules[i];
-                    if (oRule.schema.indexOf('member.extattr') === 0) {
-                        var memberSchemaId = oRule.schema.substr(15);
-                        if (!oRecordData.member.extattr[memberSchemaId] || (oRecordData.member.extattr[memberSchemaId] !== oRule.op && !oRecordData.member.extattr[memberSchemaId][oRule.op])) {
-                            bVisible = false;
-                            break;
-                        }
-                    } else if (!oRecordData[oRule.schema] || (oRecordData[oRule.schema] !== oRule.op && !oRecordData[oRule.schema][oRule.op])) {
-                        bVisible = false;
-                        break;
-                    }
-                }
+                let bVisible = tmsSchema.getSchemaVisible(oSchema, oRecordData);
                 domSchema.classList.toggle('hide', !bVisible);
                 oSchema.visibility.visible = bVisible;
             }

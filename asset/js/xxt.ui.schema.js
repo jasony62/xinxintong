@@ -531,4 +531,31 @@ ngMod.service('tmsSchema', ['$filter', '$sce', '$parse', function ($filter, $sce
             return oExtattrUIValue;
         }
     };
+    this.getSchemaVisible = function (oSchema, oRecordData) {
+        var bVisible, oRule, oRuleVal;
+        if (oSchema.visibility.logicOR) {
+            bVisible = false;
+            for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
+                oRule = oSchema.visibility.rules[i];
+                oRuleVal = $parse(oRule.schema)(oRecordData);
+                if (oRuleVal) {
+                    if (oRuleVal === oRule.op || oRuleVal[oRule.op]) {
+                        bVisible = true;
+                        break;
+                    }
+                }
+            }
+        } else {
+            bVisible = true;
+            for (var i = 0, ii = oSchema.visibility.rules.length; i < ii; i++) {
+                oRule = oSchema.visibility.rules[i];
+                oRuleVal = $parse(oRule.schema)(oRecordData);
+                if (!oRuleVal || (oRuleVal !== oRule.op && !oRuleVal[oRule.op])) {
+                    bVisible = false;
+                    break;
+                }
+            }
+        }
+        return bVisible;
+    }
 }]);

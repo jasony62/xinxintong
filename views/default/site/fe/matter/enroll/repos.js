@@ -514,7 +514,6 @@ ngApp.controller('ctrlReposRecord', ['$scope', '$timeout', '$q', 'http2', 'notic
     $scope.remarkRecord = function (oRecord, event) {
         event.stopPropagation();
         event.preventDefault();
-        console.log('event-rr', event)
         var target = event.target;
         if (target.getAttribute('ng-click') || target.parentNode.getAttribute('ng-click')) return;
         if (/button/i.test(target.tagName) || /button/i.test(target.parentNode.tagName)) return;

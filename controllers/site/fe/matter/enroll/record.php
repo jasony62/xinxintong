@@ -214,6 +214,11 @@ class record extends base {
         $oUser = $modelUsr->byIdInApp($oEnlApp, $daemon->userid, ['fields' => 'nickname,group_id']);
         $oUser->uid = $daemon->userid;
         /**
+         * 生成或更新用户轮次汇总数据
+         */
+        $modelRec->setSummaryRec($oUser, $oEnlApp, $oRecord->rid);
+        $modelDaemon->finish($daemonId, 'summary_rec');
+        /**
          * 更新数据分题目排名
          */
         $modelRec->setSchemaScoreRank($oEnlApp, $oRecord->rid);

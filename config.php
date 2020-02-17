@@ -51,6 +51,10 @@ file_exists(dirname(__FILE__) . '/cus/config.php') && include_once dirname(__FIL
  */
 define('DEFAULT_DB_AUTOID', true);
 /**
+ * 异步执行后台任务
+ */
+!defined('ASYNC_DAEMON_TASKS') && define('ASYNC_DAEMON_TASKS', true);
+/**
  * cookie
  */
 /* 定义 Cookies 作用域 */
@@ -79,7 +83,7 @@ define('TMS_APP_TEMPLATE_DEFAULT', dirname(__FILE__) . '/_template');
 !defined('TMS_UPLOAD_FILE_MAXSIZE') && define('TMS_UPLOAD_FILE_MAXSIZE', 0);
 /**
  * 限制上传文件类型, 空为不限制  多个用 “,” 号隔开
- * 如：'doc,xls' 
+ * 如：'doc,xls'
  */
 !defined('TMS_UPLOAD_FILE_CONTENTTYPE_WHITE') && define('TMS_UPLOAD_FILE_CONTENTTYPE_WHITE', '');
 /**

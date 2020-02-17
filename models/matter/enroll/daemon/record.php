@@ -37,6 +37,7 @@ class record_model extends \TMS_MODEL {
         $daemon->record_id = $record_id;
         $daemon->params = $this->escape($this->toJson($params));
         $daemon->userid = $userid;
+        $daemon->state = 1;
         if (empty($current)) {
             $current = time();
         }
@@ -49,9 +50,13 @@ class record_model extends \TMS_MODEL {
     /**
      * 更新任务状态
      */
-    public function finish($daemonId, $taskName) {
+    public function finish($daemonId, $taskName = null) {
         $task = new \stdClass;
-        $task->{$taskName . '_at'} = time();
+        if (!empty($taskName)) {
+            $task->{$taskName . '_at'} = time();
+        } else {
+            $task->state = 0;
+        }
 
         $ret = $this->update($this->table(), $task, ['id' => $daemonId]);
 

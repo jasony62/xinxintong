@@ -18,7 +18,7 @@ $sql .= ",schema_score_rank_at int not null default 0"; // 题目数据分排行
 $sql .= ",summary_behavior_at int not null default 0"; // 行为数据汇总
 $sql .= ",user_score_rank_at int not null default 0"; // 用户数据分排行
 $sql .= ",notice_at int not null default 0"; // 发送通知（内部，微信）
-$sql .= ",state tinyint not null default 0"; //1:normal,0:fail
+$sql .= ",state tinyint not null default 1"; //1:waiting,0:finished
 $sql .= ",reason varchar(255) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 $sqls[] = $sql;

@@ -57,7 +57,7 @@ class copy_model extends \TMS_MODEL {
                 }
             }
             /* 模拟用户 */
-            $oMockUser = $modelUsr->byId($oTargetApp, $oRecord->userid, ['fields' => 'id,userid,group_id,nickname']);
+            $oMockUser = $modelUsr->byIdInApp($oTargetApp, $oRecord->userid, ['fields' => 'id,userid,group_id,nickname']);
             if (false === $oMockUser) {
                 $oMockUser = $modelUsr->detail($oTargetApp, (object) ['uid' => $oRecord->userid], $oNewRecData);
             } else {

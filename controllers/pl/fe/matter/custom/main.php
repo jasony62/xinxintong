@@ -288,7 +288,7 @@ class main extends \pl\fe\matter\base {
             return new \ResponseTimeout();
         }
         $modelMat = $this->model('matter\custom');
-        $oMatter = $modelMat->byId($id, 'id,title,summary,pic');
+        $oMatter = $modelMat->byId($id, ['fields' => 'id,title,summary,pic']);
         if (false === $oMatter) {
             return new \ObjectNotFoundError();
         }

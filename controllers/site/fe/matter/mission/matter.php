@@ -127,7 +127,7 @@ class matter extends \site\fe\matter\base {
         if (!isset($this->_modelEnlUsr)) {
             $this->_modelEnlUsr = $this->model('matter\enroll\user');
         }
-        $oEnlUser = $this->_modelEnlUsr->byId($oMatter, $oRecData->userid, ['fields' => 'nickname,group_id']);
+        $oEnlUser = $this->_modelEnlUsr->byIdInApp($oMatter, $oRecData->userid, ['fields' => 'nickname,group_id']);
         if ($oEnlUser) {
             $oMisAgreed->obj->nickname = $oEnlUser->nickname;
         }
@@ -229,7 +229,7 @@ class matter extends \site\fe\matter\base {
                     }
                 }
                 /* user */
-                $oEnlUser = $modelEnlUsr->byId($oEnlApp, $oRecData->userid, ['fields' => 'nickname,group_id']);
+                $oEnlUser = $modelEnlUsr->byIdInApp($oEnlApp, $oRecData->userid, ['fields' => 'nickname,group_id']);
                 if ($oEnlUser) {
                     $oRecData->nickname = $oEnlUser->nickname;
                     $oSiteUsr = $modelSiteAct->byId($oRecData->userid, ['fields' => 'headimgurl']);

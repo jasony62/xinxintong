@@ -33,7 +33,7 @@ class mission_model extends app_base {
 	/**
 	 * 获得项目定义
 	 */
-	public function &byId($id, $aOptions = []) {
+	public function byId($id, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$cascaded = isset($aOptions['cascaded']) ? $aOptions['cascaded'] : '';
 		$q = [

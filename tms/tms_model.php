@@ -74,6 +74,20 @@ class TMS_MODEL {
         return self::$models[$model_class];
     }
     /**
+     * 根据id，返回1条记录
+     */
+    public function byId($id, $options = []) {
+        $fields = isset($options['fields']) ? $options['fields'] : '*';
+        $q = [
+            $fields,
+            $this->table(),
+            [$this->id() => $id],
+        ];
+        $rec = $this->query_obj_ss($q);
+
+        return $rec;
+    }
+    /**
      * 返回事物ID，如果存在
      */
     public function tmsTransactionBeginAt() {

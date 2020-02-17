@@ -30,11 +30,11 @@ class WxPayConfig {
 
     public function __construct($site) {
         if (empty(self::$data)) {
-            $mpa = \TMS_APP::M('mp\mpaccount')->byId($site, 'wx_appid,wx_appsecret,wx_mchid');
-            self::$data['APPID'] = $mpa->wx_appid;
-            self::$data['MCHID'] = $mpa->wx_mchid;
+            $wxConfig = \TMS_APP::M('sns\wx')->bySite($site, ['fields' => 'wx_appid,wx_appsecret,wx_mchid']);
+            self::$data['APPID'] = $wxConfig->wx_appid;
+            self::$data['MCHID'] = $wxConfig->wx_mchid;
             self::$data['KEY'] = $site;
-            self::$data['APPSECRET'] = $mpa->wx_appsecret;
+            self::$data['APPSECRET'] = $wxConfig->wx_appsecret;
         }
     }
 

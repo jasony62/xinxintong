@@ -7,7 +7,7 @@ class department_model extends \TMS_MODEL {
     /**
      *
      */
-    public function &byId($id, $fields = '*') {
+    public function byId($id, $fields = '*') {
         $q = array(
             $fields,
             'xxt_site_member_department',

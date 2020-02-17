@@ -214,7 +214,7 @@ class record extends record_base {
         }
 
         $modelEnlUsr = $this->model('matter\enroll\user');
-        $oOwner = $modelEnlUsr->byId($oApp, $owner, ['fields' => 'userid,group_id,nickname']);
+        $oOwner = $modelEnlUsr->byInInApp($oApp, $owner, ['fields' => 'userid,group_id,nickname']);
         if (false === $oOwner) {
             return new \ObjectNotFoundError();
         }
@@ -398,7 +398,7 @@ class record extends record_base {
                     }
                 }
                 if (isset($oVotingOpDs)) {
-                    $oMockUser = $modelUsr->byId($oTargetApp, $oVotingOpDs->user, ['fields' => 'id,userid,group_id,nickname']);
+                    $oMockUser = $modelUsr->byIdInApp($oTargetApp, $oVotingOpDs->user, ['fields' => 'id,userid,group_id,nickname']);
                     if (false === $oMockUser) {
                         $oMockUser = $modelUsr->detail($oTargetApp, (object) ['uid' => $oVotingOpDs->user], $oNewRecData);
                     } else {
@@ -532,7 +532,7 @@ class record extends record_base {
                     }
                 }
                 if (isset($oVotingOpDs)) {
-                    $oMockAnswerUser = $modelUsr->byId($oTargetApp, $oVotingOpDs->user, ['fields' => 'id,userid,group_id,nickname']);
+                    $oMockAnswerUser = $modelUsr->byIdInApp($oTargetApp, $oVotingOpDs->user, ['fields' => 'id,userid,group_id,nickname']);
                     if (false === $oMockAnswerUser) {
                         $oMockAnswerUser = $modelUsr->detail($oTargetApp, (object) ['uid' => $oVotingOpDs->user], $oNewRecData);
                     } else {
@@ -944,7 +944,7 @@ class record extends record_base {
                 $modelUser = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
 
                 /* 获取enroll_user中用户现在的轮次,如果有行为分则不能移动 */
-                $resOld = $modelUser->byId($oApp, $oBeforeRecord->userid, ['rid' => $userOldRid]);
+                $resOld = $modelUser->byIdInApp($oApp, $oBeforeRecord->userid, ['rid' => $userOldRid]);
                 if ($resOld->user_total_coin > 0) {
                     return new \ResponseError('用户在当前轮次上以获得行为分，不能更换轮次！！');
                 }
@@ -960,7 +960,7 @@ class record extends record_base {
                 }
 
                 /* 在新的轮次中用户是否以有记录 */
-                $resNew = $modelUser->byId($oApp, $oBeforeRecord->userid, ['rid' => $userNewRid]);
+                $resNew = $modelUser->byIdInApp($oApp, $oBeforeRecord->userid, ['rid' => $userNewRid]);
                 if ($resNew === false) {
                     if ($resOld->enroll_num > 1) {
                         $modelRec->update("update xxt_enroll_user set enroll_num = enroll_num - 1 where id = $resOld->id");
@@ -1114,7 +1114,7 @@ class record extends record_base {
         // 如果已经获得行为分不允许删除
         if (!empty($oRecord->userid)) {
             $modelEnlUsr = $this->model('matter\enroll\user');
-            $oEnlUsrRnd = $modelEnlUsr->byId($oApp, $oRecord->userid, ['fields' => 'user_total_coin', 'rid' => $oRecord->rid]);
+            $oEnlUsrRnd = $modelEnlUsr->byIdInApp($oApp, $oRecord->userid, ['fields' => 'user_total_coin', 'rid' => $oRecord->rid]);
             if ($oEnlUsrRnd && $oEnlUsrRnd->user_total_coin > 0) {
                 return new \ResponseError('提交的记录已经获得活动行为分，不能删除');
             }
@@ -1754,7 +1754,7 @@ class record extends record_base {
             $oSyncResult->total += $syncRecordNum;
             /* 计算数据分的排名 */
             if ($this->getDeepValue($oSchema, 'requireScore') === 'Y') {
-                $modelRecDat->setScoreRank($oApp, $oSchema, $oAssignedRnd->rid);
+                $modelRecDat->setSchemaScoreRank($oApp, $oSchema, $oAssignedRnd->rid);
             }
 
             return new \ResponseData($oSyncResult);

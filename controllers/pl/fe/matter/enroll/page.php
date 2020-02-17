@@ -26,7 +26,7 @@ class page extends main_base {
 
         $modelPage = $this->model('matter\enroll\page');
         $oNewPage = $modelPage->add($oUser, $oApp->siteid, $oApp->id, $oOptions);
-        $oNewPage = $modelPage->byId($oApp, $oNewPage->id);
+        $oNewPage = $modelPage->byId($oNewPage->id);
 
         return new \ResponseData($oNewPage);
     }
@@ -50,7 +50,7 @@ class page extends main_base {
         }
 
         $modelPage = $this->model('matter\enroll\page');
-        $oPage = $modelPage->byId($oApp, $page);
+        $oPage = $modelPage->byId($page);
         if ($oPage === false) {
             return new \ObjectNotFoundError();
         }
@@ -113,7 +113,7 @@ class page extends main_base {
         }
 
         $modelPage = $this->model('matter\enroll\page');
-        $oPage = $modelPage->byId($oApp, $pid);
+        $oPage = $modelPage->byId($pid);
         if ($oPage === false) {
             return new \ObjectNotFoundError();
         }

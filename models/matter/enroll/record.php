@@ -173,12 +173,12 @@ class record_model extends record_base {
 	/**
 	 * 更新数据分数据排名
 	 */
-	public function setScoreRank($oApp, $rid) {
+	public function setSchemaScoreRank($oApp, $rid) {
 		$aScoreSchemas = $this->model('matter\enroll\schema')->asAssoc($oApp->dynaDataSchemas, ['filter' => function ($oSchema) {return $this->getDeepValue($oSchema, 'requireScore') === 'Y';}]);
 		if (count($aScoreSchemas)) {
 			$modelRecDat = $this->model('matter\enroll\data')->setOnlyWriteDbConn(true);
 			foreach ($aScoreSchemas as $oSchema) {
-				$modelRecDat->setScoreRank($oApp, $oSchema, $rid);
+				$modelRecDat->setSchemaScoreRank($oApp, $oSchema, $rid);
 			}
 		}
 
@@ -271,7 +271,7 @@ class record_model extends record_base {
 	/**
 	 * 根据ek返回记录记录
 	 */
-	public function &byId($ek, $aOptions = []) {
+	public function byId($ek, $aOptions = []) {
 		$fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 		$verbose = isset($aOptions['verbose']) ? $aOptions['verbose'] : 'N';
 

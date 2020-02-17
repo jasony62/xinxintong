@@ -128,12 +128,12 @@ class repair extends record_base {
             /**
              * 更新数据分题目排名
              */
-            $modelRec->setScoreRank($this->app, $oRecord->rid);
+            $modelRec->setSchemaScoreRank($this->app, $oRecord->rid);
             /**
              * 更新用户数据分排名
              */
             $modelEnlUsr = $this->model('matter\enroll\user');
-            $modelEnlUsr->setScoreRank($this->app, $oRecord->rid);
+            $modelEnlUsr->setUserScoreRank($this->app, $oRecord->rid);
 
             $modelUsr = $this->model('matter\enroll\user');
             $aUpdatedResult = $modelUsr->renew($this->app);
@@ -163,7 +163,7 @@ class repair extends record_base {
             /**
              * 更新数据分题目排名
              */
-            $modelRec->setScoreRank($this->app, $oRecord->rid);
+            $modelRec->setSchemaScoreRank($this->app, $oRecord->rid);
 
             $modelUsr = $this->model('matter\enroll\user');
             $aUpdatedResult = $modelUsr->renew($this->app, '', $oRecord->userid);

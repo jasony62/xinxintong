@@ -184,7 +184,7 @@ class main extends \pl\fe\matter\main_base {
      */
     public function update_action($id) {
         $modelCh = $this->model('matter\channel');
-        $oChannel = $modelCh->byId($id, 'id,title');
+        $oChannel = $modelCh->byId($id, ['fields' => 'id,title']);
         if (false === $oChannel) {
             return new \ObjectNotFoundError();
         }
@@ -381,7 +381,7 @@ class main extends \pl\fe\matter\main_base {
      */
     public function remove_action($id) {
         $modelCh = $this->model('matter\channel');
-        $oChannel = $modelCh->byId($id, 'id,title');
+        $oChannel = $modelCh->byId($id, ['fields' => 'id,title']);
         if (false === $oChannel) {
             return new \ObjectNotFoundError();
         }

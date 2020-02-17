@@ -7,7 +7,7 @@ class user_model extends \TMS_MODEL {
     /**
      * 获得指定活动下的指定用户
      */
-    public function byId($oApp, $userid, $aOptions = []) {
+    public function byIdInApp($oApp, $userid, $aOptions = []) {
         $fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
         $q = [
             $fields,
@@ -88,7 +88,7 @@ class user_model extends \TMS_MODEL {
         } else {
             /* 曾经用过的昵称 */
             $modelEnlUsr = $this->model('matter\enroll\user');
-            $oEnlUser = $modelEnlUsr->byId($oApp, $oUser->uid, ['fields' => 'nickname']);
+            $oEnlUser = $modelEnlUsr->byIdInApp($oApp, $oUser->uid, ['fields' => 'nickname']);
             if ($oEnlUser) {
                 $oUser->nickname = $oEnlUser->nickname;
             }
@@ -374,9 +374,9 @@ class user_model extends \TMS_MODEL {
         return $oNewSumData;
     }
     /**
-     * 更新数据分数据排名
+     * 更新用户数据分数据排名
      */
-    public function setScoreRank($oApp, $rid) {
+    public function setUserScoreRank($oApp, $rid) {
         $fnSetRankByRound = function ($assignedRid) use ($oApp) {
             $q = [
                 'id,score',
@@ -582,7 +582,7 @@ class user_model extends \TMS_MODEL {
                 //$oEnrollee = new \stdClass;
                 //$oEnrollee->userid = $oMember->userid;
                 //$oMember->report = $this->reportByUser($oApp, $oEnrollee);
-                $oMember->user = $this->byId($oApp, $oMember->userid, $sel);
+                $oMember->user = $this->byIdInApp($oApp, $oMember->userid, $sel);
             }
         }
         $oResult->members = $members;
@@ -733,7 +733,7 @@ class user_model extends \TMS_MODEL {
      * 1. 如果没有指定任务规则，检查用户是否进行过登记
      */
     private function _undoneTaskByActionRule($oApp, $rid, $oAssignedUser) {
-        $oAppUser = $this->byId($oApp, $oAssignedUser->userid, ['rid' => $rid, 'fields' => 'state,enroll_num']);
+        $oAppUser = $this->byIdInApp($oApp, $oAssignedUser->userid, ['rid' => $rid, 'fields' => 'state,enroll_num']);
         if (false === $oAppUser || $oAppUser->state !== '1') {
             $oAppUser = false;
         }
@@ -1015,7 +1015,7 @@ class user_model extends \TMS_MODEL {
         }
 
         /* 参与活动的用户 */
-        $oEnrollUsr = $this->byId($oApp, $userid, ['fields' => 'id,userid,nickname,user_total_coin', 'rid' => $rid]);
+        $oEnrollUsr = $this->byIdInApp($oApp, $userid, ['fields' => 'id,userid,nickname,user_total_coin', 'rid' => $rid]);
         if (false === $oEnrollUsr) {
             return [false, $deltaCoin];
         }
@@ -1031,7 +1031,7 @@ class user_model extends \TMS_MODEL {
      */
     public function deductCoin($oApp, $userid, $rid, $coinEvent, $deductCoin) {
         /* 参与活动的用户 */
-        $oEnrollUsr = $this->byId($oApp, $userid, ['fields' => 'id,userid,nickname,user_total_coin', 'rid' => $rid]);
+        $oEnrollUsr = $this->byIdInApp($oApp, $userid, ['fields' => 'id,userid,nickname,user_total_coin', 'rid' => $rid]);
         if (false === $oEnrollUsr) {
             return [false];
         }
@@ -1046,7 +1046,7 @@ class user_model extends \TMS_MODEL {
             ['id' => $oEnrollUsr->id]
         );
 
-        $oEnrollUsrALL = $this->byId($oApp, $userid, ['fields' => 'id,userid,nickname,user_total_coin', 'rid' => 'ALL']);
+        $oEnrollUsrALL = $this->byUerid($oApp, $userid, ['fields' => 'id,userid,nickname,user_total_coin', 'rid' => 'ALL']);
         if ($oEnrollUsrALL) {
             $this->update(
                 'xxt_enroll_user',
@@ -1219,7 +1219,7 @@ class user_model extends \TMS_MODEL {
      * 更新用户累积行为分
      */
     public function resetCoin($oApp, $rid, $userid) {
-        $oEnlUserRnd = $this->byId($oApp, $userid, ['rid' => $rid, 'fields' => 'id,user_total_coin']);
+        $oEnlUserRnd = $this->byIdInApp($oApp, $userid, ['rid' => $rid, 'fields' => 'id,user_total_coin']);
         if (false === $oEnlUserRnd) {
             return false;
         }
@@ -1245,7 +1245,7 @@ class user_model extends \TMS_MODEL {
         /**
          * 更新整个活动中的累积行为分
          */
-        $oEnlUserAll = $this->byId($oApp, $userid, ['rid' => 'ALL', 'fields' => 'id,user_total_coin']);
+        $oEnlUserAll = $this->byIdInApp($oApp, $userid, ['rid' => 'ALL', 'fields' => 'id,user_total_coin']);
         if (false === $oEnlUserAll) {
             return false;
         }

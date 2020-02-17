@@ -12,7 +12,7 @@ class config_model extends \TMS_MODEL {
      * @param array $options
      *
      */
-    public function &byId($id, $options = []) {
+    public function byId($id, $options = []) {
         $fields = isset($options['fields']) ? $options['fields'] : 'id,msgid,mapping';
         $cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'N';
 

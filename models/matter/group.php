@@ -39,7 +39,7 @@ class group_model extends app_base {
      * @param $aid string
      * @param $aOptions array
      */
-    public function &byId($aid, $aOptions = []) {
+    public function byId($aid, $aOptions = []) {
         $fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
         $cascaded = isset($aOptions['cascaded']) ? $aOptions['cascaded'] : 'Y';
         $q = [

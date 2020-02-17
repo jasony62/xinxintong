@@ -162,7 +162,7 @@ class event_model extends \TMS_MODEL {
             $oNewLog->owner_userid = $oOwner->uid;
             if (!isset($oOwner->group_id) || !isset($oOwner->nickname)) {
                 $modelUsr = $this->model('matter\enroll\user');
-                $oOwnerUsr = $modelUsr->byId($oApp, $oOwner->uid, ['fields' => 'group_id,nickname']);
+                $oOwnerUsr = $modelUsr->byIdInApp($oApp, $oOwner->uid, ['fields' => 'group_id,nickname']);
                 if ($oOwnerUsr) {
                     $oNewLog->owner_group_id = $oOwnerUsr->group_id;
                     $oNewLog->owner_nickname = $this->escape($oOwnerUsr->nickname);
@@ -193,7 +193,7 @@ class event_model extends \TMS_MODEL {
 
         /* 更新发起留言的活动用户轮次数据 */
         $modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
-        $oEnlUsrRnd = $modelUsr->byId($oApp, $userid, ['fields' => '*', 'rid' => $rid]);
+        $oEnlUsrRnd = $modelUsr->byIdInApp($oApp, $userid, ['fields' => '*', 'rid' => $rid]);
         if (false === $oEnlUsrRnd) {
             if (!$bJumpCreate) {
                 $oUpdatedEnlUsrData->rid = $rid;
@@ -238,7 +238,7 @@ class event_model extends \TMS_MODEL {
                     $oUpdatedEnlUsrSumData = $modelUsr->sumByRound($oApp, $oUser, $oSumRnd, $oUpdatedEnlUsrData);
                     if ($oUpdatedEnlUsrSumData) {
                         /* 用户在汇总轮次中的数据汇总 */
-                        $oEnlUsrSum = $modelUsr->byId($oApp, $userid, ['fields' => '*', 'rid' => $oSumRnd->rid]);
+                        $oEnlUsrSum = $modelUsr->byIdInApp($oApp, $userid, ['fields' => '*', 'rid' => $oSumRnd->rid]);
                         if (false === $oEnlUsrSum) {
                             if (!$bJumpCreate) {
                                 $oUpdatedEnlUsrSumData->rid = $oSumRnd->rid;
@@ -259,7 +259,7 @@ class event_model extends \TMS_MODEL {
             }
         }
         /* 用户在活动中的数据汇总 */
-        $oEnlUsrApp = $modelUsr->byId($oApp, $userid, ['fields' => '*', 'rid' => 'ALL']);
+        $oEnlUsrApp = $modelUsr->byIdInApp($oApp, $userid, ['fields' => '*', 'rid' => 'ALL']);
         if (false === $oEnlUsrApp) {
             if (!$bJumpCreate) {
                 $oUpdatedEnlUsrData->rid = 'ALL';
@@ -298,7 +298,7 @@ class event_model extends \TMS_MODEL {
             $oUpdatedMisUsrData = clone $oUsrEventData;
 
             $oMission = $this->model('matter\mission')->byId($oApp->mission_id, ['fields' => 'siteid,id,user_app_type,user_app_id']);
-            $oMisUser = $modelMisUsr->byId($oMission, $userid, ['fields' => '*']);
+            $oMisUser = $modelMisUsr->byIdInApp($oMission, $userid, ['fields' => '*']);
             /* 用户在项目中的所属分组 */
             if ($oMission->user_app_type === 'group') {
                 $oMisUsrGrpApp = (object) ['id' => $oMission->user_app_id];
@@ -338,7 +338,7 @@ class event_model extends \TMS_MODEL {
         $oUpdatedEnlGrpData = clone $oGrpEventData;
 
         $modelGrp = $this->model('matter\enroll\group')->setOnlyWriteDbConn(true);
-        $oEnlGrpRnd = $modelGrp->byId($oApp, $groupId, ['fields' => '*', 'rid' => $rid]);
+        $oEnlGrpRnd = $modelGrp->byIdInApp($oApp, $groupId, ['fields' => '*', 'rid' => $rid]);
         if (false === $oEnlGrpRnd) {
             return false;
         }
@@ -348,7 +348,7 @@ class event_model extends \TMS_MODEL {
         $modelGrp->modify($oEnlGrpRnd, $oUpdatedEnlGrpData);
 
         /* 用户在活动中的数据汇总 */
-        $oEnlGrpApp = $modelGrp->byId($oApp, $groupId, ['fields' => '*', 'rid' => 'ALL']);
+        $oEnlGrpApp = $modelGrp->byIdInApp($oApp, $groupId, ['fields' => '*', 'rid' => 'ALL']);
         if (false === $oEnlGrpApp) {
             return false;
         }
@@ -380,7 +380,7 @@ class event_model extends \TMS_MODEL {
         $oUpdatedMisUsrData = clone $oUsrEventData;
         // unset($oUpdatedMisUsrData->modify_log);
 
-        $oMisUser = $modelMisUsr->byId($oMission, $oUser->uid, ['fields' => '*']);
+        $oMisUser = $modelMisUsr->byIdInApp($oMission, $oUser->uid, ['fields' => '*']);
         /* 用户在项目中的所属分组 */
         if ($oMission->user_app_type === 'group') {
             $oMisUsrGrpApp = (object) ['id' => $oMission->user_app_id];
@@ -409,6 +409,11 @@ class event_model extends \TMS_MODEL {
     }
     /**
      * 用户提交记录
+     *
+     * @param Object $oUser
+     * @param String $oUser->uid
+     * @param String $oUser->nickname
+     * @param String $oUser->group_id
      */
     public function submitRecord($oApp, $oRecord, $oUser, $bSubmitNewRecord, $bReviseRecordBeyondRound = false) {
         $eventAt = isset($oRecord->enroll_at) ? $oRecord->enroll_at : time();
@@ -2584,7 +2589,7 @@ class event_model extends \TMS_MODEL {
         $oUpdatedUsrData->like_remark_num = -1;
         $oUpdatedUsrData->modify_log = $oNewModifyLog;
 
-        $oEnlUsrRnd = $modelUsr->byId($oApp, $oRemark->userid, ['fields' => 'id,modify_log', 'rid' => $oRemark->rid]);
+        $oEnlUsrRnd = $modelUsr->byIdInApp($oApp, $oRemark->userid, ['fields' => 'id,modify_log', 'rid' => $oRemark->rid]);
         /* 撤销获得的积分 */
         if ($oEnlUsrRnd && count($oEnlUsrRnd->modify_log)) {
             for ($i = 0; $i < count($oEnlUsrRnd->modify_log); $i++) {
@@ -2628,7 +2633,7 @@ class event_model extends \TMS_MODEL {
         $oUpdatedUsrData->dislike_remark_num = -1;
         $oUpdatedUsrData->modify_log = $oNewModifyLog;
 
-        $oEnlUsrRnd = $modelUsr->byId($oApp, $oRemark->userid, ['fields' => 'id,modify_log', 'rid' => $oRemark->rid]);
+        $oEnlUsrRnd = $modelUsr->byIdInApp($oApp, $oRemark->userid, ['fields' => 'id,modify_log', 'rid' => $oRemark->rid]);
         /* 撤销获得的积分 */
         if ($oEnlUsrRnd && count($oEnlUsrRnd->modify_log)) {
             for ($i = 0; $i < count($oEnlUsrRnd->modify_log); $i++) {
@@ -3428,7 +3433,7 @@ class event_model extends \TMS_MODEL {
         $oUpdatedUsrData->vote_cowork_num = -1;
         $oUpdatedUsrData->modify_log = $oNewModifyLog;
 
-        $oEnlUsrRnd = $modelUsr->byId($oApp, $oRecData->userid, ['fields' => 'id,modify_log', 'rid' => $oRecData->rid]);
+        $oEnlUsrRnd = $modelUsr->byIdInApp($oApp, $oRecData->userid, ['fields' => 'id,modify_log', 'rid' => $oRecData->rid]);
         /* 撤销获得的积分 */
         if ($oEnlUsrRnd && count($oEnlUsrRnd->modify_log)) {
             for ($i = 0; $i < count($oEnlUsrRnd->modify_log); $i++) {
@@ -3481,7 +3486,7 @@ class event_model extends \TMS_MODEL {
         $oUpdatedUsrData->vote_schema_num = -1;
         $oUpdatedUsrData->modify_log = $oNewModifyLog;
 
-        $oEnlUsrRnd = $modelUsr->byId($oApp, $oRecData->userid, ['fields' => 'id,modify_log', 'rid' => $oRecData->rid]);
+        $oEnlUsrRnd = $modelUsr->byIdInApp($oApp, $oRecData->userid, ['fields' => 'id,modify_log', 'rid' => $oRecData->rid]);
         /* 撤销获得的积分 */
         if ($oEnlUsrRnd && count($oEnlUsrRnd->modify_log)) {
             for ($i = 0; $i < count($oEnlUsrRnd->modify_log); $i++) {

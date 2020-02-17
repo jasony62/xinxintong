@@ -196,7 +196,7 @@ class record_model extends \matter\enroll\record_base {
     /**
      * 根据ID返回登记记录
      */
-    public function byId($aid, $ek, $aOptions = []) {
+    public function byIdInApp($aid, $ek, $aOptions = []) {
         $fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
 
         $q = [
@@ -655,7 +655,7 @@ class record_model extends \matter\enroll\record_base {
                     $oGrpUser = new \stdClass;
                     $oGrpUser->uid = $oRecord->userid;
                     $oGrpUser->nickname = $oRecord->nickname;
-                    if ($oBeforeGrpUser = $this->byId($objGrp->id, $oRecord->enroll_key, ['cascaded' => 'N'])) {
+                    if ($oBeforeGrpUser = $this->byIdInApp($objGrp->id, $oRecord->enroll_key, ['cascaded' => 'N'])) {
                         $updata = [];
                         if (!empty($assignRound) && is_object($assignRound)) {
                             $updata['team_id'] = $assignRound->team_id;

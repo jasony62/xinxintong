@@ -7,7 +7,7 @@ class group_model extends \TMS_MODEL {
     /**
      * 获得指定活动下的指定用户
      */
-    public function byId($oMis, $groupId, $aOptions = []) {
+    public function byIdInMis($oMis, $groupId, $aOptions = []) {
         $fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
         $q = [
             $fields,

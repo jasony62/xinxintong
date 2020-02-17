@@ -626,10 +626,10 @@ class data_model extends entity_model {
         return $oRecordScore;
     }
     /**
-     * 更新数据分数据排名
+     * 更新打分题数据分数据排名
      * 如果有对应的汇总轮次，更新汇总轮次的排名
      */
-    public function setScoreRank($oApp, $oSchema, $rid) {
+    public function setSchemaScoreRank($oApp, $oSchema, $rid) {
         /* 更新指定轮次的数据 */
         $fnRankByRound = function ($oRnd) use ($oApp, $oSchema) {
             $q = [
@@ -824,7 +824,7 @@ class data_model extends entity_model {
             $q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
         }
         // 排序
-        $q2['o']= 'CONVERT(value using gbk)';
+        $q2['o'] = 'CONVERT(value using gbk)';
 
         // 处理获得的数据
         $oResult->records = $this->query_objs_ss($q, $q2);

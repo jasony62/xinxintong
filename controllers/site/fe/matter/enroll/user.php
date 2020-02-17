@@ -16,9 +16,9 @@ class user extends base {
         }
 
         $modelEnlUsr = $this->model('matter\enroll\user');
-        $oEnlRndUser = $modelEnlUsr->byId($oApp, $this->who->uid, ['rid' => empty($rid) ? $oApp->appRound->rid : $rid]);
+        $oEnlRndUser = $modelEnlUsr->byIdInApp($oApp, $this->who->uid, ['rid' => empty($rid) ? $oApp->appRound->rid : $rid]);
         if ($oEnlRndUser) {
-            $oEnlAppUser = $modelEnlUsr->byId($oApp, $this->who->uid, ['rid' => 'ALL', 'fields' => 'custom']);
+            $oEnlAppUser = $modelEnlUsr->byIdInApp($oApp, $this->who->uid, ['rid' => 'ALL', 'fields' => 'custom']);
             $oEnlRndUser->custom = $oEnlAppUser->custom;
         }
 
@@ -39,9 +39,9 @@ class user extends base {
          */
         if (!empty($rid) || isset($oApp->appRound->rid)) {
             $modelEnlUsr = $this->model('matter\enroll\user');
-            $oEnlRndUser = $modelEnlUsr->byId($oApp, $oUser->uid, ['rid' => empty($rid) ? $oApp->appRound->rid : $rid]);
+            $oEnlRndUser = $modelEnlUsr->byIdInApp($oApp, $oUser->uid, ['rid' => empty($rid) ? $oApp->appRound->rid : $rid]);
             if ($oEnlRndUser) {
-                $oEnlAppUser = $modelEnlUsr->byId($oApp, $oUser->uid, ['rid' => 'ALL', 'fields' => 'custom']);
+                $oEnlAppUser = $modelEnlUsr->byIdInApp($oApp, $oUser->uid, ['rid' => 'ALL', 'fields' => 'custom']);
                 $oEnlRndUser->custom = $oEnlAppUser->custom;
             }
             $oUser->enrollUser = $oEnlRndUser;
@@ -95,7 +95,7 @@ class user extends base {
         }
 
         $modelEnlUsr = $this->model('matter\enroll\user');
-        $oEnlUser = $modelEnlUsr->byId($oApp, $this->who->uid, ['fields' => 'aid,userid,custom']);
+        $oEnlUser = $modelEnlUsr->byIdInApp($oApp, $this->who->uid, ['fields' => 'aid,userid,custom']);
         if (false === $oEnlUser) {
             $oEnlUser = $modelEnlUsr->add($oApp, $this->who);
             $oEnlUser->custom = new \stdClass;
@@ -189,7 +189,7 @@ class user extends base {
         if ($oActiveRound = $this->model('matter\enroll\round')->getActive($oApp)) {
             $options['rid'] = $oActiveRound->rid;
         }
-        $oEnrollee = $this->model('matter\enroll\user')->byId($oApp, $oUser->uid, $options);
+        $oEnrollee = $this->model('matter\enroll\user')->byIdInApp($oApp, $oUser->uid, $options);
 
         return new \ResponseData($oEnrollee);
     }

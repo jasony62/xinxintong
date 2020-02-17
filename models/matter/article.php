@@ -35,7 +35,7 @@ class article_model extends article_base {
     /**
      *
      */
-    public function &byId($id, $options = []) {
+    public function byId($id, $options = []) {
         $fields = isset($options['fields']) ? $options['fields'] : '*';
         $q = [
             $fields,
@@ -136,7 +136,7 @@ class article_model extends article_base {
      * todo 应该用抽象类的机制处理
      */
     public function &getMatters($id) {
-        $article = $this->byId($id, "id,siteid,title,author,summary,pic,body,url");
+        $article = $this->byId($id, ['fields' => "id,siteid,title,author,summary,pic,body,url"]);
         $articles = array($article);
 
         return $articles;
@@ -145,7 +145,7 @@ class article_model extends article_base {
      * 返回进行推送的消息格式
      */
     public function &getArticles($id) {
-        $article = $this->byId($id, 'id,siteid,title,author,summary,pic,body,url');
+        $article = $this->byId($id, ['fields' => 'id,siteid,title,author,summary,pic,body,url']);
         $articles = array($article);
 
         return $articles;

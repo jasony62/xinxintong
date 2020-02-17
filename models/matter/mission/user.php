@@ -7,7 +7,7 @@ class user_model extends \TMS_MODEL {
     /**
      * 获得指定项目下指定用户的行为数据
      */
-    public function byId($oMission, $userid, $options = []) {
+    public function byIdInApp($oMission, $userid, $options = []) {
         $fields = isset($options['fields']) ? $options['fields'] : '*';
         $q = [
             $fields,
@@ -293,7 +293,7 @@ class user_model extends \TMS_MODEL {
      * 项目用户获得奖励行为分
      */
     public function awardCoin($oMission, $userid, $deltaCoin) {
-        $oMisUsr = $this->byId($oMission, $userid, ['fields' => 'id,userid,nickname,user_total_coin']);
+        $oMisUsr = $this->byIdInApp($oMission, $userid, ['fields' => 'id,userid,nickname,user_total_coin']);
         if (false === $oMisUsr) {
             return false;
         }
@@ -309,7 +309,7 @@ class user_model extends \TMS_MODEL {
      * 项目用户扣除奖励行为分
      */
     public function deductCoin($oMission, $userid, $deductCoin) {
-        $oMisUsr = $this->byId($oMission, $userid, ['fields' => 'id,userid,nickname,user_total_coin']);
+        $oMisUsr = $this->byIdInApp($oMission, $userid, ['fields' => 'id,userid,nickname,user_total_coin']);
         if (false === $oMisUsr) {
             return false;
         }
@@ -325,7 +325,7 @@ class user_model extends \TMS_MODEL {
      * 更新用户累积行为分
      */
     public function resetCoin($oMission, $userid) {
-        $oMisUser = $this->byId($oMission, $userid, ['fields' => 'id,user_total_coin']);
+        $oMisUser = $this->byUerid($oMission, $userid, ['fields' => 'id,user_total_coin']);
         if (false === $oMisUser) {
             return false;
         }

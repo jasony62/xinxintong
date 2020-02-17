@@ -5,9 +5,9 @@ namespace matter\enroll;
  */
 class group_model extends \TMS_MODEL {
     /**
-     * 获得指定活动下的指定用户
+     * 获得指定活动下的指定用户用户
      */
-    public function byId($oApp, $groupId, $aOptions = []) {
+    public function byIdInApp($oApp, $groupId, $aOptions = []) {
         $fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
         $q = [
             $fields,
@@ -144,7 +144,7 @@ class group_model extends \TMS_MODEL {
      * 更新用户分组累积行为分
      */
     public function resetCoin($oApp, $rid, $groupId) {
-        $oEnlGrpRnd = $this->byId($oApp, $groupId, ['rid' => $rid, 'fields' => 'id,user_total_coin,group_total_coin']);
+        $oEnlGrpRnd = $this->byIdInApp($oApp, $groupId, ['rid' => $rid, 'fields' => 'id,user_total_coin,group_total_coin']);
         if (false === $oEnlGrpRnd) {
             return false;
         }
@@ -175,7 +175,7 @@ class group_model extends \TMS_MODEL {
         /**
          * 更新整个活动中的累积行为分
          */
-        $oEnlGrpAll = $this->byId($oApp, $groupId, ['rid' => 'ALL', 'fields' => 'id,user_total_coin,group_total_coin']);
+        $oEnlGrpAll = $this->byIdInApp($oApp, $groupId, ['rid' => 'ALL', 'fields' => 'id,user_total_coin,group_total_coin']);
         if (false === $oEnlGrpAll) {
             return false;
         }
@@ -231,7 +231,7 @@ class group_model extends \TMS_MODEL {
                     return;
                 }
             }
-            $oEnlUsr = $modelUsr->byId($oEnlApp, $user->userid, ['fields' => 'enroll_num', 'rid' => $rid]);
+            $oEnlUsr = $modelUsr->bybyIdInAppUserid($oEnlApp, $user->userid, ['fields' => 'enroll_num', 'rid' => $rid]);
             if ($oEnlUsr && $oEnlUsr->enroll_num > 0) {
                 $submiters[] = $user->userid;
             }

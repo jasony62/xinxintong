@@ -168,24 +168,6 @@ class record extends base {
         }
         $oRecord = $modelRec->byId($ek);
         /**
-         * 生成或更新用户轮次汇总数据
-         */
-        $modelRec->setSummaryRec($oUser, $oEnlApp, $oRecord->rid);
-        /**
-         * 更新数据分题目排名
-         */
-        $modelRec->setScoreRank($oEnlApp, $oRecord->rid);
-        /**
-         * 处理用户汇总数据，行为分数据
-         */
-        $modelEvt = $this->model('matter\enroll\event');
-        $this->model('matter\enroll\event')->submitRecord($oEnlApp, $oRecord, $oUser, $bSubmitSavedRecord || $bSubmitNewRecord);
-        /**
-         * 更新用户数据分排名
-         */
-        $modelEnlUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
-        $modelEnlUsr->setScoreRank($oEnlApp, $oRecord->rid);
-        /**
          * 如果存在提问任务，将记录放到任务专题中
          */
         if (isset($this->task)) {
@@ -199,20 +181,67 @@ class record extends base {
                 break;
             }
         }
+        // 完成提交，清除临时日志
+        $modelLog->remove($logid);
+        /**
+         * 创建后台任务
+         */
+        $modelDaemon = $this->model('matter\enroll\daemon\record');
+        $params = new \stdClass;
+        $params->isNewRecord = $bSubmitSavedRecord || $bSubmitNewRecord; // 是否提交新记录
+        $daemonId = $modelDaemon->create($oEnlApp->id, $oRecord->rid, $oRecord->id, $params, $oUser->uid);
+        /**
+         * 执行后台任务
+         */
+        $this->_execDaemonTasks($daemonId);
+
+        return new \ResponseData($oRecord);
+    }
+    /**
+     * 执行后台任务
+     */
+    private function _execDaemonTasks($daemonId) {
+        $modelDaemon = $this->model('matter\enroll\daemon\record');
+        $daemon = $modelDaemon->byId($daemonId);
+        if (empty($daemon)) {
+            return [false, '指定的后台任务不存在'];
+        }
+        $modelApp = $this->model('matter\enroll');
+        $oEnlApp = $modelApp->byId($daemon->aid);
+        $modelRec = $this->model('matter\enroll\record');
+        $oRecord = $modelRec->byPlainId($daemon->record_id);
+        $modelUsr = $this->model('matter\enroll\user');
+        $oUser = $modelUsr->byIdInApp($oEnlApp, $daemon->userid, ['fields' => 'nickname,group_id']);
+        $oUser->uid = $daemon->userid;
+        /**
+         * 更新数据分题目排名
+         */
+        $modelRec->setSchemaScoreRank($oEnlApp, $oRecord->rid);
+        $modelDaemon->finish($daemonId, 'schema_score_rank');
+        /**
+         * 处理用户汇总数据，行为分数据
+         */
+        $modelEvt = $this->model('matter\enroll\event');
+        $this->model('matter\enroll\event')->submitRecord($oEnlApp, $oRecord, $oUser, $daemon->params->isNewRecord);
+        $modelDaemon->finish($daemonId, 'summary_behavior');
+        /**
+         * 更新用户数据分排名
+         */
+        $modelEnlUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
+        $modelEnlUsr->setUserScoreRank($oEnlApp, $oRecord->rid);
+        $modelDaemon->finish($daemonId, 'user_score_rank');
 
         /* 生成提醒 */
-        if ($bSubmitSavedRecord || $bSubmitNewRecord) {
+        if ($daemon->params->isNewRecord) {
             $this->model('matter\enroll\notice')->addRecord($oEnlApp, $oRecord, $oUser);
         }
         /* 通知记录活动事件接收人 */
         if ($this->getDeepValue($oEnlApp, 'notifyConfig.submit.valid') === true) {
             $this->_notifyReceivers($oEnlApp, $oRecord);
         }
+        $modelDaemon->finish($daemonId, 'notice');
 
-        // 清除临时日志
-        $modelLog->remove($logid);
-
-        return new \ResponseData($oRecord);
+        return [true];
     }
     /**
      * 检查是否存在匹配的记录
@@ -798,7 +827,7 @@ class record extends base {
         case 'G':
             $modelUsr = $this->model('matter\enroll\user');
             $options = ['fields' => 'group_id'];
-            $oEnrollee = $modelUsr->byId($oApp, $oUser->uid, $options);
+            $oEnrollee = $modelUsr->byIdInApp($oApp, $oUser->uid, $options);
             if ($oEnrollee) {
                 !isset($oCriteria->record) && $oCriteria->record = new \stdClass;
                 $oCriteria->record->group_id = isset($oEnrollee->group_id) ? $oEnrollee->group_id : '';
@@ -1077,7 +1106,7 @@ class record extends base {
         }
         // 如果已经获得行为分不允许删除
         $modelEnlUsr = $this->model('matter\enroll\user');
-        $oEnlUsrRnd = $modelEnlUsr->byId($oApp, $oUser->uid, ['fields' => 'id,enroll_num,user_total_coin', 'rid' => $oRecord->rid]);
+        $oEnlUsrRnd = $modelEnlUsr->byIdInApp($oApp, $oUser->uid, ['fields' => 'id,enroll_num,user_total_coin', 'rid' => $oRecord->rid]);
         if ($oEnlUsrRnd && $oEnlUsrRnd->user_total_coin > 0) {
             return new \ResponseError('提交的记录已经获得活动行为分，不能删除');
         }

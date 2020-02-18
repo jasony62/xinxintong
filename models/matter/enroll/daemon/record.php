@@ -28,9 +28,29 @@ class record_model extends \TMS_MODEL {
         return $daemon;
     }
     /**
+     * 根据记录id获得任务
+     */
+    public function byRecordId($id, $options = []) {
+        $fields = isset($options['fields']) ? $options['fields'] : '*';
+        $q = [$fields, $this->table(), ['state' => 1, 'record_id' => $id]];
+        $daemons = $this->query_objs_ss($q);
+
+        return $daemons;
+    }
+    /**
      * 添加提交后台任务
+     *
+     * 如果有正在等待执行的后台任务，返回该任务的id
      */
     public function create($aid, $rid, $record_id, $params, $userid, $current = null) {
+        $daemons = $this->byRecordId($record_id, ['fields' => 'id']);
+        if (count($daemons) === 1) {
+            return $daemons[0]->id;
+        } else if (count($daemons) > 1) {
+            $ids = array_map(function ($daemon) {return $daemon->id;}, $daemons);
+            return max($ids);
+        }
+
         $daemon = new \stdClass;
         $daemon->aid = $aid;
         $daemon->rid = $rid;

@@ -26,6 +26,9 @@
             </div>
             <ul class="nav navbar-nav pull-right">
                 <li class="pull-left">
+                    <a href ng-click="showAppInfo()"><i class="glyphicon glyphicon-info-sign"></i></a>
+                </li>
+                <li class="pull-left">
                     <a href ng-click="siteUser(app.siteid)"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline"> 个人中心</span></a>
                 </li>
             </ul>
@@ -67,6 +70,17 @@
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
+    <script type="text/ng-template" id="info.html">
+        <div class="modal-body">
+            <h4 ng-bind="app.title"></h4>
+            <p ng-if="app.summary" ng-bind="app.summary"></p>
+        </div>
+        <div class="modal-footer">
+            <div class='text-center'>
+                <button class="btn btn-default" ng-click="cancel()">关闭</button>
+            </div>
+        </div>
+    </script>
     <script type="text/ng-template" id="wxUploadFileTip.html">
         <div ng-controller="ctrlWxUploadFileTip" ng-init="domId='#wxUploadFileTip'">
             <div ng-if="isIos">

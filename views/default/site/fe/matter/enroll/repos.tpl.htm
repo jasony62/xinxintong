@@ -30,6 +30,17 @@
     <div class="loading">
         <div class='loading-indicator'><i></i></div>
     </div>
+    <script type="text/ng-template" id="info.html">
+        <div class="modal-body">
+            <h4 ng-bind="app.title"></h4>
+            <p ng-if="app.summary" ng-bind="app.summary"></p>
+        </div>
+        <div class="modal-footer">
+            <div class='text-center'>
+                <button class="btn btn-default" ng-click="cancel()">关闭</button>
+            </div>
+        </div>
+    </script>
     <script type="text/ng-template" id="task.html">
         <div class="modal-body">
             <div class="row">

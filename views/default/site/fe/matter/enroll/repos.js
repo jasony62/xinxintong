@@ -24,7 +24,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'e
     $scope.activeNav = '';
     $scope.addRecord = function (event) {
         $scope.$parent.addRecord(event);
-    };
+    }
     $scope.favorStack = {
         guiding: false,
         start: function (record, timer) {
@@ -37,7 +37,7 @@ ngApp.controller('ctrlRepos', ['$scope', '$uibModal', 'http2', 'tmsLocation', 'e
             delete this.record;
             delete this.timer;
         }
-    };
+    }
     $scope.favorRecord = function (oRecord) {
         var url;
         if (!oRecord.favored) {

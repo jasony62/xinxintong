@@ -46,7 +46,7 @@ ngApp.config(['$controllerProvider', '$uibTooltipProvider', '$locationProvider',
         tmsLocationProvider.config(baseUrl);
     })();
 }]);
-ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tmsLocation', 'tmsDynaPage', 'tmsSnsShare', 'tmsSiteUser', 'enlService', function ($scope, $q, $parse, http2, $timeout, LS, tmsDynaPage, tmsSnsShare, tmsSiteUser, enlService) {
+ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', '$uibModal', 'http2', '$timeout', 'tmsLocation', 'tmsDynaPage', 'tmsSnsShare', 'enlService', function ($scope, $q, $parse, $uibModal, http2, $timeout, LS, tmsDynaPage, tmsSnsShare, enlService) {
     function refreshEntryRuleResult() {
         var url, defer;
         defer = $q.defer();
@@ -55,7 +55,6 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
             $scope.params.entryRuleResult = rsp.data;
             defer.resolve(rsp.data);
         });
-        return defer.promise;
     }
 
     function openPlugin(url, fnCallback) {
@@ -104,6 +103,25 @@ ngApp.controller('ctrlMain', ['$scope', '$q', '$parse', 'http2', '$timeout', 'tm
         }
     }
     var tasksOfOnReady = [];
+    $scope.showAppInfo = function () {
+        $uibModal.open({
+            templateUrl: 'info.html',
+            controller: ['$scope', '$uibModalInstance', function ($scope2, $mi) {
+                const {
+                    title,
+                    summary
+                } = $scope.app
+                $scope2.app = {
+                    title,
+                    summary
+                }
+                $scope2.cancel = function () {
+                    $mi.dismiss();
+                }
+            }],
+            backdrop: 'static',
+        })
+    }
     $scope.closeWindow = function () {
         if (/MicroMessenger/i.test(navigator.userAgent)) {
             window.wx.closeWindow();

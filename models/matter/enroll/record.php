@@ -649,7 +649,7 @@ class record_model extends record_base {
      * @param object/array $oOptions
      * --page
      * --size
-     * --kw 检索关键词
+     * --keyword 检索关键词
      * --by 检索字段
      * @param object $oCriteria 记录数据过滤条件
      * @param object $oUser ['uid','group_id']
@@ -812,7 +812,10 @@ class record_model extends record_base {
 
         // 指定了按关键字过滤
         if (!empty($oOptions->keyword)) {
-            $w .= ' and (data like \'%' . $oOptions->keyword . '%\')';
+            $keywords = preg_split("/[\s,]+/", $oOptions->keyword);
+            $keywords = array_map(function ($kw) {return 'data like \'%' . $kw . '%\'';}, $keywords);
+            $keywords = implode(' or ', $keywords);
+            $w .= ' and (' . $keywords . ')';
         }
         // 筛选答案
         if (isset($oCriteria->cowork)) {

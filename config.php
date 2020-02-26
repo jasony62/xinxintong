@@ -23,6 +23,10 @@ file_exists(dirname(__FILE__) . '/cus/config.php') && include_once dirname(__FIL
  * 常量定义不允许被覆盖，需要检查常量是否已经被定义
  *********************************************/
 /**
+ * ICP备案
+ */
+!defined('APP_ICP_BEIAN') && define('APP_ICP_BEIAN', '我的备案号');
+/**
  * 定义应用的主机名
  */
 !defined('APP_HTTP_HOST') && define('APP_HTTP_HOST', $_SERVER['HTTP_HOST']);

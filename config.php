@@ -25,7 +25,7 @@ file_exists(dirname(__FILE__) . '/cus/config.php') && include_once dirname(__FIL
 /**
  * ICP备案
  */
-!defined('APP_ICP_BEIAN') && define('APP_ICP_BEIAN', '我的备案号');
+!defined('APP_ICP_BEIAN') && define('APP_ICP_BEIAN', '');
 /**
  * 定义应用的主机名
  */

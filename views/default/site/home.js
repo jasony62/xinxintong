@@ -106,6 +106,12 @@ ngApp.controller('ctrlMain', ['$scope', 'http2', 'srvUser', 'tmsDynaPage', 'tmsS
             $scope.site = rsp.data;
             $scope.page = rsp.data.home_page;
         });
+        if (rsp.data.icp_beian) {
+            let elemIcpbeian = document.querySelector('#icpbeian')
+            if (elemIcpbeian) {
+                elemIcpbeian.innerHTML = rsp.data.icp_beian
+            }
+        }
     });
 }]);
 

@@ -24,6 +24,7 @@ $sql .= ",footer_page_id int not null default 0"; // 通用页尾
 $sql .= ",footer_page_name varchar(13) not null default ''"; // 通用页尾
 $sql .= ",can_contribute char(1) not null default 'N'"; // 开放投稿
 $sql .= ",can_subscribe char(1) not null default 'N'"; // 开放关注
+$sql .= ",icp_beian varchar(50) not null default ''"; // icp备案
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');

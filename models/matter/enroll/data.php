@@ -559,7 +559,7 @@ class data_model extends entity_model {
                 break;
             default: // 主观题
                 if (!empty($oAssignScore) && isset($oAssignScore->{$oSchema->id})) {
-                    //有指定的优先使用指定的评分
+                    //有指定的分数，优先使用指定的评分
                     $quizScore = $oAssignScore->{$oSchema->id};
                 } else {
                     $oLastSchemaValues = $this->query_objs_ss(
@@ -573,9 +573,18 @@ class data_model extends entity_model {
                         //有提交记录且没修改且已经评分
                         $quizScore = $oLastSchemaValues[0]->score;
                     } elseif ($treatedValue === $oSchema->answer) {
+                        // 如果提交的内容和答案完全一样
                         $quizScore = $oSchema->score;
                     } else {
-                        $quizScore = 0;
+                        $answerKws = preg_split('/[\s,;]+/', $oSchema->answer);
+                        $notmatched = array_filter($answerKws, function ($kw) use ($oSchema) {
+                            return strpos($oSchema->answer, $kw) === false;
+                        });
+                        if (count($notmatched) === 0) {
+                            $quizScore = $oSchema->score;
+                        } else {
+                            $quizScore = 0;
+                        }
                     }
                 }
                 if ($quizScore == $oSchema->score) {

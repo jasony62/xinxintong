@@ -246,7 +246,7 @@ class export extends record_base {
                             $op = $oSchema->ops[$opi];
                             $vSr = '';
                             foreach ($v as $vv) {
-                                if (isset($op->v) && $vv->v == $op->v) {
+                                if (isset($op->v) && isset($vv->v) && $vv->v == $op->v) {
                                     $labelsSum += $vv->score;
                                     $vSr = $vv->score;
                                 }

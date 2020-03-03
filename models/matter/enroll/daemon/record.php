@@ -109,6 +109,9 @@ class record_model extends \TMS_MODEL {
         $oRecord = $modelRec->byPlainId($daemon->record_id);
         $modelUsr = $this->model('matter\enroll\user');
         $oUser = $modelUsr->byIdInApp($oEnlApp, $daemon->userid, ['fields' => 'nickname,group_id']);
+        if (empty($oUser)) {
+            return [false, '记录对应的用户不存在'];
+        }
         $oUser->uid = $daemon->userid;
         /**
          * 生成或更新用户轮次汇总数据

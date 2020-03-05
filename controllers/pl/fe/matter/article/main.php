@@ -568,7 +568,7 @@ class main extends \pl\fe\matter\main_base {
         }
 
         $modelArt = $this->model('matter\article');
-        $oArticle = $modelArt->byId($id, ['fields' => 'id,title,summary,pic,mission_id,creater']);
+        $oArticle = $modelArt->byId($id, ['fields' => 'id,siteid,title,summary,pic,mission_id,creater']);
         if (false === $oArticle) {
             return new \ObjectNotFoundError();
         }

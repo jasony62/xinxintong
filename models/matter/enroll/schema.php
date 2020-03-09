@@ -328,7 +328,7 @@ class schema_model extends \TMS_MODEL {
             if (isset($oSchema->asdir) &&
                 (
                     !in_array($oSchema->type, ['single', 'multiple']) ||
-                    ('shorttext' === $oSchema->type && 'Y' !== $this->getDeepValue($oSchema, 'history'))
+                    !('shorttext' === $oSchema->type && 'Y' === $this->getDeepValue($oSchema, 'history'))
                 )
             ) {
                 unset($oSchema->asdir);

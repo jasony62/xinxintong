@@ -116,28 +116,41 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function ($compile, $q) {
                 }
                 return true;
             }
+            /**
+             * 微信设置图片有问题
+             * 
+             * @param {*} schemaId 
+             * @param {*} newImgs 
+             */
+            function asyncSetImgSrc(schemaId, newImgs) {
+                // newImgs.forEach(img => {
+                //     let eleImg = document.querySelector('ul[name="' + schemaId + '"] li:nth-last-child(3) img');
+                //     if (eleImg) {
+                //         eleImg.setAttribute('src', img.imgSrc);
+                //     }
+                // })
+                $scope.$broadcast('xxt.enroll.image.choose.done', schemaId);
+            }
+
+            function appendImg(schemaId, newImgs) {
+                newImgs.forEach(img => $scope.data[schemaId].push(img))
+                if (window.wx) {
+                    $timeout(() => {
+                        asyncSetImgSrc(schemaId, newImgs)
+                    });
+                }
+            }
 
             function imgBind(schemaId, imgs) {
                 var phase;
                 phase = $scope.$root.$$phase;
                 if (phase === '$digest' || phase === '$apply') {
-                    imgs.forEach(img => $scope.data[schemaId].push(img))
+                    appendImg(schemaId, imgs)
                 } else {
                     $scope.$apply(() => {
-                        imgs.forEach(img => $scope.data[schemaId].push(img))
+                        appendImg(schemaId, imgs)
                     });
                 }
-                $timeout(function () {
-                    var i, j, img, eleImg;
-                    for (i = 0, j = imgs.length; i < j; i++) {
-                        img = imgs[i];
-                        eleImg = document.querySelector('ul[name="' + schemaId + '"] li:nth-last-child(3) img');
-                        if (eleImg) {
-                            eleImg.setAttribute('src', img.imgSrc);
-                        }
-                    }
-                    $scope.$broadcast('xxt.enroll.image.choose.done', schemaId);
-                });
             }
             $scope.chooseImage = function (schemaId, count, from) {
                 if (imgCount(schemaId, count, from)) {

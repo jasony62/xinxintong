@@ -121,10 +121,10 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function ($compile, $q) {
                 var phase;
                 phase = $scope.$root.$$phase;
                 if (phase === '$digest' || phase === '$apply') {
-                    $scope.data[schemaId] = $scope.data[schemaId].concat(imgs);
+                    imgs.forEach(img => $scope.data[schemaId].push(img))
                 } else {
-                    $scope.$apply(function () {
-                        $scope.data[schemaId] = $scope.data[schemaId].concat(imgs);
+                    $scope.$apply(() => {
+                        imgs.forEach(img => $scope.data[schemaId].push(img))
                     });
                 }
                 $timeout(function () {

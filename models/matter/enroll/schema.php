@@ -327,7 +327,7 @@ class schema_model extends \TMS_MODEL {
             /* 只有单选题、多选题和单行填写题可以作为目录 */
             if (isset($oSchema->asdir) &&
                 (
-                    !in_array($oSchema->type, ['single', 'multiple']) ||
+                    !in_array($oSchema->type, ['single', 'multiple']) && 
                     !('shorttext' === $oSchema->type && 'Y' === $this->getDeepValue($oSchema, 'history'))
                 )
             ) {

@@ -110,10 +110,11 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function ($compile, $q) {
                         count = parseInt(count);
                         if (count > 0 && $scope.data[schemaId].length >= count) {
                             noticebox.warn('最多允许上传（' + count + '）张图片');
-                            return;
+                            return false;
                         }
                     }
                 }
+                return true;
             }
 
             function imgBind(schemaId, imgs) {
@@ -139,25 +140,27 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function ($compile, $q) {
                 });
             }
             $scope.chooseImage = function (schemaId, count, from) {
-                imgCount(schemaId, count, from);
-                window.xxt.image.choose($q.defer(), from).then(function (result) {
-                    if (result instanceof Object) {
-                        imgBind(schemaId, result);
-                    } else {
-                        noticebox.error(result);
-                    }
-                });
+                if (imgCount(schemaId, count, from)) {
+                    window.xxt.image.choose($q.defer(), from).then(function (result) {
+                        if (result instanceof Object) {
+                            imgBind(schemaId, result);
+                        } else {
+                            noticebox.error(result);
+                        }
+                    });
+                }
             };
             $scope.removeImage = function (imgField, index) {
                 imgField.splice(index, 1);
             };
             $scope.pasteImage = function (schemaId, event, count, from) {
-                imgCount(schemaId, count, from);
-                var targetDiv;
-                targetDiv = event.currentTarget.children[event.currentTarget.children.length - 1];
-                window.xxt.image.paste(angular.element(targetDiv)[0], $q.defer(), from).then(function (imgs) {
-                    imgBind(schemaId, imgs);
-                });
+                if (imgCount(schemaId, count, from)) {
+                    var targetDiv;
+                    targetDiv = event.currentTarget.children[event.currentTarget.children.length - 1];
+                    window.xxt.image.paste(angular.element(targetDiv)[0], $q.defer(), from).then(function (imgs) {
+                        imgBind(schemaId, imgs);
+                    });
+                }
             };
         }]
     }

@@ -2,7 +2,7 @@
 window.xxt === undefined && (window.xxt = {});
 window.xxt.image = {
     options: {},
-    choose: function (deferred, from) {
+    choose: function (deferred) {
         var promise, imgs = [];
         promise = deferred.promise;
 

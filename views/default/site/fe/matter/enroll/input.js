@@ -23,7 +23,7 @@ ngApp.factory('Input', ['$parse', 'tmsLocation', 'http2', 'tmsSchema', function 
     var Input, _ins;
     Input = function () {};
     Input.prototype.check = function (oRecData, oApp, oPage) {
-        var dataSchemas, oSchemaWrap, oSchema, value, sCheckResult;
+        var oSchemaWrap, oSchema, value, sCheckResult;
         if (oPage.dataSchemas && oPage.dataSchemas.length) {
             for (var i = 0; i < oPage.dataSchemas.length; i++) {
                 oSchemaWrap = oPage.dataSchemas[i];
@@ -96,7 +96,7 @@ ngApp.factory('Input', ['$parse', 'tmsLocation', 'http2', 'tmsSchema', function 
         }
     }
 }]);
-ngApp.directive('tmsImageInput', ['$compile', '$q', function ($compile, $q) {
+ngApp.directive('tmsImageInput', ['$q', function ($q) {
     var aModifiedImgFields;
     aModifiedImgFields = [];
     return {
@@ -142,6 +142,21 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function ($compile, $q) {
                     });
                 }
             }
+
+            function onWxSubmit(defer, imgs, index) {
+                window.xxt.image.wxUpload($q.defer(), imgs[index]).then(() => {
+                    if (index = imgs.length - 1) {
+                        defer.resolve('ok')
+                    } else {
+                        onWxSubmit(defer, imgs, ++index)
+                    }
+                })
+            };
+            $scope.beforeSubmit(function () {
+                let defer = $q.defer()
+                onWxSubmit(defer, imgs, 0)
+                return defer.promise
+            });
             $scope.chooseImage = function (schemaId, count, from) {
                 if (imgCount(schemaId, count, from)) {
                     window.xxt.image.choose($q.defer(), from).then(function (result) {
@@ -213,7 +228,6 @@ ngApp.directive('tmsFileInput', ['$q', 'tmsLocation', 'tmsDynaPage', function ($
     return {
         restrict: 'A',
         controller: ['$scope', 'noticebox', 'http2', function ($scope, noticebox, http2) {
-            var uploadcfg = {};
             $scope.progressOfUploadFile = 0;
             $scope.beforeSubmit(function () {
                 return onSubmit($scope);

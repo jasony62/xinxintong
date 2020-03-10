@@ -121,6 +121,7 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function ($compile, $q) {
                 newImgs.forEach(img => $scope.data[schemaId].push(img))
                 if (window.wx) {
                     $timeout(function () {
+                        let i, j, img
                         for (i = 0, j = newImgs.length; i < j; i++) {
                             img = newImgs[i];
                             document.querySelector('ul[name="' + schemaId + '"] li:nth-last-child(2) img').setAttribute('src', img.imgSrc);

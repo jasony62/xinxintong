@@ -153,9 +153,19 @@ ngApp.directive('tmsImageInput', ['$q', function ($q) {
                 })
             };
             $scope.beforeSubmit(function () {
-                let imgs = $scope.data[schemaId]
                 let defer = $q.defer()
-                onWxSubmit(defer, imgs, 0)
+                if (window.wx) {
+                    let imgs = []
+                    let imgSchemas = $scope.app.dynaDataSchemas.filter(s => s.type = 'image')
+                    imgSchemas.forEach(s => {
+                        if ($scope.data[s.id] && $scope.data[s.id].length) {
+                            $scope.data[s.id].forEach(img => imgs.push(img))
+                        }
+                    })
+                    onWxSubmit(defer, imgs, 0)
+                } else {
+                    defer.resolve('ok')
+                }
                 return defer.promise
             });
             $scope.chooseImage = function (schemaId, count, from) {

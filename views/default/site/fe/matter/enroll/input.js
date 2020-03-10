@@ -153,6 +153,7 @@ ngApp.directive('tmsImageInput', ['$q', function ($q) {
                 })
             };
             $scope.beforeSubmit(function () {
+                let imgs = $scope.data[schemaId]
                 let defer = $q.defer()
                 onWxSubmit(defer, imgs, 0)
                 return defer.promise

@@ -121,11 +121,12 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function ($compile, $q) {
                 newImgs.forEach(img => $scope.data[schemaId].push(img))
                 if (window.wx) {
                     $timeout(function () {
-                        let i, j, img
-                        for (i = 0, j = newImgs.length; i < j; i++) {
-                            img = newImgs[i];
-                            document.querySelector('ul[name="' + schemaId + '"] li:nth-last-child(2) img').setAttribute('src', img.imgSrc);
-                        }
+                        let elImgs = document.querySelectorAll('ul[name="' + schemaId + '"] li')
+                        let startOffset = elImgs.length - newImgs.length - 2
+                        newImgs.forEach((img, index) => {
+                            let pos = startOffset + index
+                            document.querySelector('ul[name="' + schemaId + '"] li:nth-child(' + pos + ') img').setAttribute('src', img.imgSrc);
+                        })
                     });
                 }
             }

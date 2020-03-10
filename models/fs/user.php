@@ -182,7 +182,7 @@ class user_model {
         if (isset($rst)) {
             return $rst;
         } else {
-            return [false, '图片数据格式错误：只能上传png、jpg、gif、bmp格式图片'];
+            return [false, '图片上传失败：只能上传png、jpg、gif、bmp格式图片'];
         }
     }
     /**

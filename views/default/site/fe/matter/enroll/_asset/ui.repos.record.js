@@ -57,14 +57,14 @@ ngMod.directive('tmsReposRecord', ['$templateCache', function ($templateCache) {
                                     schemaData._text = tmsSchema.urlSubstitute(schemaData);
                                     break;
                                 case 'file':
-                                case 'voice':
-                                    schemaData.forEach(function (oFile) {
-                                        if (oFile.url && !angular.isObject(oFile.url)) {
-                                            oFile.oUrl = oFile.url;
-                                            oFile.url = $sce.trustAsResourceUrl(oFile.url);
-                                        }
-                                    });
-                                    break;
+                                    // case 'voice':
+                                    //     schemaData.forEach(function (oFile) {
+                                    //         if (oFile.url && !angular.isObject(oFile.url)) {
+                                    //             oFile.oUrl = oFile.url;
+                                    //             oFile.url = $sce.trustAsResourceUrl(oFile.url);
+                                    //         }
+                                    //     });
+                                    //     break;
                             }
                         }
 

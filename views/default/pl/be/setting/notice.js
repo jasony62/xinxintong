@@ -110,6 +110,9 @@ define(['main'], function (ngApp) {
                         id: 'title',
                         name: '标题'
                     }, {
+                        id: 'title-mis',
+                        name: '标题（含项目）'
+                    }, {
                         id: 'summary',
                         name: '摘要'
                     }, {

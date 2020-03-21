@@ -64,6 +64,17 @@ class config_model extends \TMS_MODEL {
                         $value = date('Y-m-d H:i:s');
                     } else if ($oMapping->id === 'initiator') {
                         $value = isset($aOptions['initiator']) ? $aOptions['initiator'] : '';
+                    } else if ($oMapping->id === 'title-mis') {
+                        // 标题含项目名称
+                        $value = [];
+                        if (!empty($oMatter->mission_id)) {
+                            $oMission = $this->model('matter\mission')->byId($oMatter->mission_id, ['fields' => 'title']);
+                            if ($oMission && isset($oMission->title)) {
+                                $value[] = $oMission->title;
+                            }
+                        }
+                        $value[] = isset($oMatter->title) ? $oMatter->title : '';
+                        $value = implode('|', $value);
                     } else {
                         $value = '';
                     }

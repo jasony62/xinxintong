@@ -219,7 +219,7 @@ class export extends record_base {
                 switch ($oSchema->type) {
                 case 'single':
                     if ($this->getDeepValue($oSchema, 'asdir') === 'Y') {
-                        continue 2;
+                        continue;
                     }
                     $cellValue = $this->replaceHTMLTags($v, "\n");
                     $objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $cellValue, \PHPExcel_Cell_DataType::TYPE_STRING);
@@ -245,10 +245,12 @@ class export extends record_base {
                         for ($opi = 0; $opi < count($oSchema->ops); $opi++) {
                             $op = $oSchema->ops[$opi];
                             $vSr = '';
-                            foreach ($v as $vv) {
-                                if (isset($op->v) && isset($vv->v) && $vv->v == $op->v) {
-                                    $labelsSum += $vv->score;
-                                    $vSr = $vv->score;
+                            if (is_array($v)) {
+                                foreach ($v as $vv) {
+                                    if (isset($op->v) && isset($vv->v) && $vv->v == $op->v) {
+                                        $labelsSum += $vv->score;
+                                        $vSr = $vv->score;
+                                    }
                                 }
                             }
                             $objActiveSheet->setCellValueByColumnAndRow($recColNum2 + $opi + 1, $rowIndex, $vSr);

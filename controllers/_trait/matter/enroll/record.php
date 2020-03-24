@@ -64,19 +64,28 @@ trait RecordTrait {
         //$dirs = [];
         $oRecData = $rawData->data;
         $schemaId = $oSchema->id;
-        if ($this->getDeepValue($oSchema, 'asdir') === 'Y' && !empty($oSchema->ops) && !empty($oRecData->{$schemaId})) {
-            $val = $oRecData->{$schemaId};
-            if (is_string($val)) {
-                $val = explode(',', $oRecData->{$schemaId});
+        if ($this->getDeepValue($oSchema, 'asdir') === 'Y' && !empty($oRecData->{$schemaId})) {
+            if (in_array($oSchema->type, ['single', 'multiple'])) {
+                if (!empty($oSchema->ops)) {
+                    $val = $oRecData->{$schemaId};
+                    if (is_string($val)) {
+                        $val = explode(',', $oRecData->{$schemaId});
+                    }
+                    if (!is_array($val)) {
+                        return false;
+                    }
+                    $dirs = array_map(function ($op) {return $op->l;}, array_filter($oSchema->ops, function ($op) use ($val) {return in_array($op->v, $val);}));
+                    if (empty($dirs)) {
+                        return false;
+                    }
+                    $rawData->recordDir = empty($rawData->recordDir) ? $dirs : array_merge($rawData->recordDir, $dirs);
+                }
+            } else if ($oSchema->type === 'shorttext') {
+                if (empty($rawData->recordDir)) {
+                    $rawData->recordDir = [];
+                }
+                $rawData->recordDir[] = $oRecData->{$schemaId};
             }
-            if (!is_array($val)) {
-                return false;
-            }
-            $dirs = array_map(function ($op) {return $op->l;}, array_filter($oSchema->ops, function ($op) use ($val) {return in_array($op->v, $val);}));
-            if (empty($dirs)) {
-                return false;
-            }
-            $rawData->recordDir = empty($rawData->recordDir) ? $dirs : array_merge($rawData->recordDir, $dirs);
         }
 
         return false;

@@ -215,12 +215,12 @@ class export extends record_base {
                 if (in_array($oSchema->type, ['html'])) {
                     continue;
                 }
+                if ($this->getDeepValue($oSchema, 'asdir') === 'Y') {
+                    continue;
+                }
                 $v = $modelRec->getDeepValue($oRecData, $oSchema->id, '');
                 switch ($oSchema->type) {
                 case 'single':
-                    if ($this->getDeepValue($oSchema, 'asdir') === 'Y') {
-                        continue;
-                    }
                     $cellValue = $this->replaceHTMLTags($v, "\n");
                     $objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $cellValue, \PHPExcel_Cell_DataType::TYPE_STRING);
                     $objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);

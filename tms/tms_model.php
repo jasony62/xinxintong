@@ -468,15 +468,15 @@ class TMS_MODEL {
         $props = explode('.', $deepProp);
         $val = is_object($deepObj) ? $deepObj : (object) $deepObj;
         foreach ($props as $prop) {
+            if (is_array($val)) {
+                $val = (object) $val;
+            }
             if (!isset($val->{$prop})) {
                 return $notSetVal;
             } else if (empty($val->{$prop})) {
                 return $val->{$prop};
             } else {
                 $val = $val->{$prop};
-                if (is_array($val)) {
-                    $val = (object) $val;
-                }
             }
         }
         return $val;

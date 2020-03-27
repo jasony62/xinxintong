@@ -100,7 +100,6 @@ class export extends record_base {
         $records = $oResult->records;
         // 处理数据
         $this->_processDatas($oApp, $records);
-
         $oTmsExcel = new TmsExcel($oApp->title);
         $objActiveSheet = $oTmsExcel->objActiveSheet;
         $columnNum1 = 0; //列号
@@ -212,6 +211,7 @@ class export extends record_base {
             }
             // 处理登记项
             $oRecData = $oRecord->data;
+
             $oRecScore = empty($oRecord->score) ? new \stdClass : $oRecord->score;
             $oRecSupplement = $oRecord->supplement;
             $oVerbose = isset($oRecord->verbose) ? $oRecord->verbose->data : false;
@@ -227,6 +227,7 @@ class export extends record_base {
                 }
 
                 $v = $modelRec->getDeepValue($oRecData, $oSchema->id, '');
+
                 switch ($oSchema->type) {
                 case 'single':
                     $cellValue = $this->replaceHTMLTags($v, "\n");
@@ -255,7 +256,7 @@ class export extends record_base {
                             $vSr = '';
                             if (is_array($v)) {
                                 foreach ($v as $vv) {
-                                    if (isset($op->v) && isset($vv->v) && $vv->v == $op->v) {
+                                    if (isset($op->v) && isset($vv->v) && $vv->v === $op->v) {
                                         $labelsSum += $vv->score;
                                         $vSr = $vv->score;
                                     }

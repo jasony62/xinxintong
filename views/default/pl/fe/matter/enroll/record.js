@@ -145,7 +145,7 @@ define(['frame'], function (ngApp) {
                     $scope2.config = {
                         joinDirs: 'N'
                     };
-                    $scope2.dismiss = function () {
+                    $scope2.cancel = function () {
                         $mi.dismiss();
                     };
                     $scope2.ok = function () {

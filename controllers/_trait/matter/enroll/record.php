@@ -125,6 +125,7 @@ trait RecordTrait {
                     $data2 = new \stdClass;
                     $data2->title = $ops->{$key};
                     $data2->score = $val;
+                    $data2->v = $key;
                     $newData[] = $data2;
                 }
             }

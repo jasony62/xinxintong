@@ -139,7 +139,22 @@ define(['frame'], function (ngApp) {
             }
         };
         $scope.export = function () {
-            srvEnlRec.export();
+            $uibModal.open({
+                templateUrl: 'exportXlsx.html',
+                controller: ['$scope', '$uibModalInstance', function ($scope2, $mi) {
+                    $scope2.config = {
+                        joinDirs: 'N'
+                    };
+                    $scope2.dismiss = function () {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function () {
+                        $mi.close($scope2.config)
+                    };
+                }]
+            }).result.then(function (result) {
+                srvEnlRec.export(result.joinDirs);
+            });
         };
         // 按轮次导出图片
         $scope.exportImage = function () {

@@ -177,7 +177,7 @@ class browser extends uploader {
             unset($tree['dirs']);
         }
 
-        $tree['name'] = '团队图库'; // 固定根目录的名称
+        //$tree['name'] = '团队图库'; // 固定根目录的名称
         $files = $this->getFiles($this->session['dir']);
         $dirWritable = true;
         $data = array(

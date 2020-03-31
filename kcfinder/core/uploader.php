@@ -253,6 +253,7 @@ class uploader {
             ? path::normalize($this->config['uploadURL'])
             : path::rel2abs_url($this->config['uploadURL']);
 
+            // 添加了siteid
             $this->config['uploadDir'] = strlen($this->config['uploadDir'])
             ? path::normalize($this->config['uploadDir'])
             : path::url2fullPath($this->config['uploadURL']);

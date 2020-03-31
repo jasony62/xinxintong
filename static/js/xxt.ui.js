@@ -115,7 +115,7 @@ filter('typetitle', ['matterTypes', function (matterTypes) {
 factory('mediagallery', function ($uibModal) {
     var gallery = {},
         open;
-    open = function (galleryId, options) {
+    open = function (siteid, options) {
         modalInstance = $uibModal.open({
             templateUrl: '/static/template/mediagallery2.html',
             controller: ['$scope', '$uibModalInstance', 'url', function ($scope2, $mi, url) {
@@ -137,8 +137,8 @@ factory('mediagallery', function ($uibModal) {
             windowClass: 'auto-height media-gallery',
             resolve: {
                 url: function () {
-                    return "/kcfinder/browse.php?lang=zh-cn&type=" + options.mediaType + "&site=" + galleryId;
-                },
+                    return "/kcfinder/browse.php?lang=zh-cn&type=" + options.mediaType + "&site=" + siteid;
+                }
             }
         });
     };

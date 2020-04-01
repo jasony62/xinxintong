@@ -223,7 +223,7 @@ class uploader {
         }
 
         // upload url
-        $this->config['uploadURL'] .= "/$siteid";
+        //$this->config['uploadURL'] .= "/$siteid";
 
         // FULL URL
         if (preg_match('/^([a-z]+)\:\/\/([^\/^\:]+)(\:(\d+))?\/(.+)\/?$/',
@@ -248,30 +248,26 @@ class uploader {
 
             // ABSOLUTE & RELATIVE
         } else {
-            $myUploadURL = $this->config['uploadURL'];
             $this->config['uploadURL'] = (substr($this->config['uploadURL'], 0, 1) === "/")
             ? path::normalize($this->config['uploadURL'])
             : path::rel2abs_url($this->config['uploadURL']);
 
-            // 添加了siteid
             $this->config['uploadDir'] = strlen($this->config['uploadDir'])
             ? path::normalize($this->config['uploadDir'])
             : path::url2fullPath($this->config['uploadURL']);
 
-            $this->typeDir = "{$this->config['uploadDir']}/{$this->type}";
+            $this->config['uploadDir'] .= "/{$this->type}";
 
-            $this->typeURL = "{$this->config['uploadURL']}/{$this->type}";
+            $this->typeDir = "{$this->config['uploadDir']}/{$siteid}";
 
-            /*???*/
-            if (defined('KCFINDER_STORE_AT') && KCFINDER_STORE_AT === 'local') {
-                $this->config['uploadURL'] = '/kcfinder/' . $myUploadURL;
-            }
+            $this->typeURL = "{$this->config['uploadURL']}/{$this->type}/{$siteid}";
+
+            // 前端代码中对应的起始地址
+            $this->config['uploadURL'] = "{$this->config['uploadURL']}/{$this->type}";
         }
-        if (defined('KCFINDER_STORE_AT') && KCFINDER_STORE_AT === 'local') {
-            if (!is_dir($this->config['uploadDir'])) {
-                if (!$this->mklocaldir($this->config['uploadDir'])) {
-                    $this->backMsg("Cannot create {dir} folder.", array('dir' => $this->type));
-                }
+        if (!is_dir($this->config['uploadDir'])) {
+            if (!$this->mklocaldir($this->config['uploadDir'])) {
+                $this->backMsg("Cannot create {dir} folder.", array('dir' => $this->type));
             }
         }
 
@@ -626,14 +622,17 @@ class uploader {
         if ($inclType) {
             $first = explode("/", $dir);
             $first = $first[0];
-            if ($first != $this->type) {
+            //if ($first != $this->type) {
+            if ($first != $this->session['siteid']) {
                 return false;
             }
 
-            $return = $this->removeTypeFromPath($dir);
+            //$return = $this->removeTypeFromPath($dir);
+            $return = preg_match('/^[^\/]*\/(.*)$/', $dir, $patt) ? $patt[1] : "";
         } else {
             $return = $dir;
-            $dir = "{$this->type}/$dir";
+            //$dir = "{$this->type}/$dir";
+            $dir = "{$this->session['siteid']}/$dir";
         }
 
         if (!$existing) {

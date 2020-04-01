@@ -103,17 +103,20 @@ class browser extends uploader {
         }
 
         if (!isset($this->session['dir'])) {
-            $this->session['dir'] = $this->type;
+            $this->session['dir'] = "{$this->session['siteid']}";
         } else {
-            $type = $this->getTypeFromPath($this->session['dir']);
+            //$type = $this->getTypeFromPath($this->session['dir']);
+            // $dir = $this->config['uploadDir'] . "/" . $this->session['dir'];
+            // if (($type != $this->type) || !is_dir($this->toLocalEncoding($dir)) || !is_readable($this->toLocalEncoding($dir))) {
+            //     $this->session['dir'] = $this->type;
+            // }
+            $prefix = preg_match('/^([^\/]*)\/.*$/', $this->session['dir'], $patt) ? $patt[1] : $this->session['dir'];
             $dir = $this->config['uploadDir'] . "/" . $this->session['dir'];
-            if (($type != $this->type) || !is_dir($this->toLocalEncoding($dir)) || !is_readable($this->toLocalEncoding($dir))) {
-                $this->session['dir'] = $this->type;
+            if (($prefix != $this->session['siteid']) || !is_dir($this->toLocalEncoding($dir)) || !is_readable($this->toLocalEncoding($dir))) {
+                $this->session['dir'] = $this->session['siteid'];
             }
-
         }
         $this->session['dir'] = path::normalize($this->session['dir']);
-
         if ($act == "browser") {
             // open browser
             header("X-UA-Compatible: chrome=1");
@@ -170,7 +173,6 @@ class browser extends uploader {
         if (isset($this->get['dir'])) {
             $this->session['dir'] = path::normalize("{$this->type}/{$this->get['dir']}");
         }
-
         $tree = $this->getDirInfo($this->typeDir);
         $tree['dirs'] = $this->getTree($this->session['dir']);
         if (!is_array($tree['dirs']) || !count($tree['dirs'])) {
@@ -198,8 +200,8 @@ class browser extends uploader {
         if ($this->my_basename($file) != $file) {
             $this->sendDefaultThumb();
         }
-
-        $file = $this->toLocalEncoding("{$this->thumbsDir}/{$this->type}/{$this->get['dir']}") . "/$file";
+        //$file = $this->toLocalEncoding("{$this->thumbsDir}/{$this->type}/{$this->get['dir']}") . "/$file";
+        $file = $this->toLocalEncoding("{$this->thumbsDir}/{$this->session['siteid']}/{$this->get['dir']}") . "/$file";
         if (!is_file($file) || !is_readable($file)) {
             $file = $this->toLocalEncoding("{$this->config['uploadDir']}/{$this->type}/{$this->get['dir']}/") . $this->my_basename($file);
             if (!is_file($file) || !is_readable($file)) {
@@ -234,8 +236,9 @@ class browser extends uploader {
     }
 
     protected function act_chDir() {
-        $this->postDir(); // Just for existing check
-        $this->session['dir'] = $this->type . "/" . $this->post['dir'];
+        //$this->postDir(); // Just for existing check
+        //$this->session['dir'] = $this->type . "/" . $this->post['dir'];
+        $this->session['dir'] = $this->session['siteid'] . "/" . $this->post['dir'];
         $dirWritable = dir::isWritable($this->toLocalEncoding("{$this->config['uploadDir']}/{$this->session['dir']}"));
         return json_encode(array(
             'files' => $this->getFiles($this->session['dir']),
@@ -992,7 +995,6 @@ class browser extends uploader {
         if (isset($this->post['dir'])) {
             $dir .= "/" . $this->post['dir'];
         }
-
         if ($existent && (!is_dir($this->toLocalEncoding($dir)) || !is_readable($this->toLocalEncoding($dir)))) {
             $this->errorMsg("Inexistant or inaccessible folder.");
         }
@@ -1015,7 +1017,6 @@ class browser extends uploader {
 
     protected function getDirs($dir) {
         $dir = $this->toLocalEncoding($dir);
-
         $dirs = dir::content($dir, array('types' => "dir"));
         $return = array();
         if (is_array($dirs)) {

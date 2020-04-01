@@ -64,10 +64,10 @@ browser.setTreeData = function (data, path) {
         $(selector + ' span.brace').addClass('closed');
 };
 
-browser.buildTree = function (root, path) {
+browser.buildTree = function (root, path, firstNode) {
     if (!path) path = "";
     path += root.name;
-    var html = '<div class="folder"><a href="kcdir:/' + _.escapeDirs(path) + '"><span class="brace">&nbsp;</span><span class="folder">' + _.htmlData(root.name) + '</span></a>';
+    var html = '<div class="folder"><a href="kcdir:/' + _.escapeDirs(path) + '"><span class="brace">&nbsp;</span><span class="folder">' + (path === root.name ? '图库' : _.htmlData(root.name)) + '</span></a>';
     if (root.dirs) {
         html += '<div class="folders">';
         for (var i = 0; i < root.dirs.length; i++) {

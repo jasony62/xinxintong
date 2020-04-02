@@ -446,7 +446,7 @@ class schema extends \pl\fe\base {
         $rootDepts = array(); // 根部门
         $rdepts = $result[1]->department;
         foreach ($rdepts as $rdept) {
-            $pid = $rdept->parentid == 0 ? 0 : isset($mapDeptR2L[$rdept->parentid]['id']) ? $mapDeptR2L[$rdept->parentid]['id'] : 0;
+            $pid = $rdept->parentid == 0 ? 0 : (isset($mapDeptR2L[$rdept->parentid]['id']) ? $mapDeptR2L[$rdept->parentid]['id'] : 0);
             if ($pid === 0) {
                 $rootDepts[] = $rdept;
             }

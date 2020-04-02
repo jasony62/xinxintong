@@ -1,0 +1,10 @@
+.vscode
+docker/
+node_modules/
+Dockerfile*
+docker-compose*
+.dockerignore
+.git
+.gitignore
+package-lock.json
+package.json

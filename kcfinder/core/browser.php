@@ -72,8 +72,8 @@ class browser extends uploader {
             !is_readable($this->toLocalEncoding($thumbsDir)) ||
             !dir::isWritable($this->toLocalEncoding($thumbsDir)) ||
             (
-                !is_dir("$thumbsDir/{$this->type}") &&
-                !$this->mklocaldir("$thumbsDir/{$this->type}")
+                !is_dir("$thumbsDir/{$this->session['siteid']}") &&
+                !$this->mklocaldir("$thumbsDir/{$this->session['siteid']}")
             )
         ) {
             $this->errorMsg("Cannot access or create thumbnails folder.");

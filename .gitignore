@@ -2,3 +2,4 @@
 node_modules/
 cus/
 docker/mariadb/data
+docker-compose.override.yml

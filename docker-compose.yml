@@ -3,12 +3,12 @@ services:
     db:
         image: mariadb
         restart: always
-        volumes:
-            - ./docker/mariadb/data:/var/lib/mysql
         ports:
             - 3306:3306
-        environment:
-            MYSQL_ROOT_PASSWORD: 123456
+        # volumes:
+        #     - ./docker/mariadb/data:/var/lib/mysql
+        # environment:
+        #     MYSQL_ROOT_PASSWORD: 123456
 
     php-fpm:
         build: ./docker/php-fpm
@@ -24,11 +24,11 @@ services:
             - .:/usr/share/nginx/html
         links:
             - php-fpm
-        ports:
-            - 8000:80
+        # ports:
+        #     - 8080:80
 
     adminer:
         image: adminer
         restart: always
-        ports:
-            - 9090:8080
+        # ports:
+        #     - 9090:8080

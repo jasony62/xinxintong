@@ -34,6 +34,7 @@ requirejs(['/static/js/tms.bootstrap.js'], function (tms) {
     var _oRawPathes;
     _oRawPathes = {
         js: {
+            "matterSchema": '/views/default/pl/fe/_module/matter.schema',
             "enrollSchema": '/views/default/pl/fe/matter/enroll/lib/enroll.schema',
             "enrollPage": '/views/default/pl/fe/matter/enroll/lib/enroll.page',
             "signinService": '/views/default/pl/fe/matter/signin/lib/signin.service',

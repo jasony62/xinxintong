@@ -309,7 +309,7 @@ class memberschema_model extends \TMS_MODEL {
         return $schemas;
     }
     // 扩展属性支持的字段
-    const EXT_ATTR_FIELDS = ['id', 'type', 'title', 'unique', 'required', 'ops', 'format', 'pageConfig'];
+    const EXT_ATTR_FIELDS = ['id', 'type', 'title', 'unique', 'required', 'ops', 'format', 'pageConfig', 'optGroups', 'visibility'];
     /**
      *
      */

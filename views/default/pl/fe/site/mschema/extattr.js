@@ -213,14 +213,14 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
                 $scope._changeSchemaOrder(schema);
             }
         };
-        $scope.downSchema = function (schema) {
+        $scope.downSchema = function (oSchema) {
             var schemas = $scope.action.extAttrs,
-                index = schemas.indexOf(schema);
+                index = schemas.indexOf(oSchema);
 
             if (index < schemas.length - 1) {
                 schemas.splice(index, 1);
-                schemas.splice(index + 1, 0, schema);
-                $scope._changeSchemaOrder(schema);
+                schemas.splice(index + 1, 0, oSchema);
+                $scope._changeSchemaOrder(oSchema);
             }
         };
         $scope.$on('schemas.orderChanged', function (e, moved) {
@@ -323,7 +323,7 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
     /**
      * 单个题目
      */
-    ngApp.provider.controller('ctrlSchemaEdit', ['$scope', function ($scope) {
+    ngApp.provider.controller('ctrlSchemaEdit', ['$scope', 'srvMatterSchema', function ($scope, srvMatterSchema) {
         var _oEditing;
         $scope.editing = _oEditing = {};
         $scope.changeSchemaType = function () {
@@ -335,6 +335,22 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
             }
             $scope.activeConfig = wrapLib.input.newWrap($scope.activeSchema).config;
             $scope.updSchema($scope.activeSchema, oBeforeState);
+        };
+        $scope.setOptGroup = function (oSchema) {
+            var oMockApp = {
+                dataSchemas: $scope.mschema.extAttrs
+            };
+            srvMatterSchema.setOptGroup(oMockApp, oSchema).then(function () {
+                $scope.updSchema(oSchema);
+            })
+        };
+        $scope.setVisibility = function (oSchema) {
+            var oMockApp = {
+                dataSchemas: $scope.mschema.extAttrs
+            };
+            srvMatterSchema.setVisibility(oMockApp, oSchema).then(function () {
+                $scope.updSchema(oSchema);
+            })
         };
         $scope.$watch('activeSchema', function () {
             var oActiveSchema;

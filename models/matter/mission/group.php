@@ -5,6 +5,12 @@ namespace matter\mission;
  */
 class group_model extends \TMS_MODEL {
     /**
+     *
+     */
+    protected function table() {
+        return 'xxt_mission_group';
+    }
+    /**
      * 获得指定活动下的指定用户
      */
     public function byIdInMis($oMis, $groupId, $aOptions = []) {

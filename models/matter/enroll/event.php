@@ -362,7 +362,7 @@ class event_model extends \TMS_MODEL {
             $oMission = $this->model('matter\mission')->byId($oApp->mission_id, ['fields' => 'siteid,id,user_app_type,user_app_id']);
             if ($oMission) {
                 $modelMisGrp = $this->model('matter\mission\group')->setOnlyWriteDbConn(true);
-                $oMisGrp = $modelMisGrp->byId($oMission, $groupId, ['fields' => '*']);
+                $oMisGrp = $modelMisGrp->byIdInMis($oMission, $groupId, ['fields' => '*']);
                 if ($oMisGrp) {
                     $modelMisGrp->modify($oMisGrp, $oUpdatedEnlGrpData);
                 }

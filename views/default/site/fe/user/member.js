@@ -256,7 +256,8 @@ ngApp.controller('ctrlMember', ['$parse', '$scope', '$timeout', 'noticebox', 'tm
         var oMember, oAttrs;
         user.members && (oMember = user.members[LS.s().schema]);
         $scope.member = {
-            schema_id: LS.s().schema
+            schema_id: LS.s().schema,
+            extattr: {}
         };
         oAttrs = $scope.schema.attrs;
         if (oMember) {
@@ -396,6 +397,10 @@ ngApp.controller('ctrlMember', ['$parse', '$scope', '$timeout', 'noticebox', 'tm
                     if (preEle) {
                         $scope.refreshPin(preEle);
                     }
+                    // 控制关联题目的可见性
+                    fnToggleAssocSchemas($scope.schema.extAttrs, $scope.member.extattr)
+                    // 控制题目关联选项的可见性
+                    fnToggleAssocOptions($scope.schema.extAttrs, $scope.member.extattr)
                 });
                 /* 解决多个注册账号的问题 */
                 http2.get('/rest/site/fe/user/get?site=' + LS.s().site).then(function (rsp) {

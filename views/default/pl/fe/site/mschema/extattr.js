@@ -129,7 +129,7 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
         $scope._changeSchemaOrder = function (moved) {
             var extAttrs, i, prevSchema, changedPages;
 
-            extAttrs = $scope.action.extAttrs;
+            extAttrs = $scope.mschema.extAttrs;
             i = extAttrs.indexOf(moved);
             if (i > 0) prevSchema = extAttrs[i - 1];
             $scope.submitChange();
@@ -204,7 +204,7 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
             }
         };
         $scope.upSchema = function (schema) {
-            var schemas = $scope.action.extAttrs,
+            var schemas = $scope.mschema.extAttrs,
                 index = schemas.indexOf(schema);
 
             if (index > 0) {
@@ -214,7 +214,7 @@ define(['frame', 'schema', 'wrap'], function (ngApp, schemaLib, wrapLib) {
             }
         };
         $scope.downSchema = function (oSchema) {
-            var schemas = $scope.action.extAttrs,
+            var schemas = $scope.mschema.extAttrs,
                 index = schemas.indexOf(oSchema);
 
             if (index < schemas.length - 1) {

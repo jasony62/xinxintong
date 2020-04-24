@@ -152,17 +152,17 @@
                                 <input type='text' ng-required="schema.attrs.email.required" ng-model="member.email" class='form-control'>
                             </div>
                         </div>
-                        <div class='form-group' ng-repeat="ea in schema.extAttrs" ng-switch on="ea.type">
+                        <div class='form-group' schema="{{ea.id}}" ng-repeat="ea in schema.extAttrs" ng-switch on="ea.type">
                             <label ng-bind="ea.title" ng-if="ea.type!=='html'"></label>
                             <input type='text' class='form-control' ng-model="member.extattr[ea.id]" ng-switch-when="shorttext">
                             <textarea class="form-control" ng-model="member.extattr[ea.id]" rows="3" ng-switch-when="longtext"></textarea>
                             <ul class='list-unstyled' ng-switch-when="single">
                                 <li class="radio" ng-repeat="op in ea.ops" ng-if="ea.pageConfig.component!=='S'">
                                     <label>
-                                        <input type="radio" name="{{action.id+'_'+ea.id}}" value="{{op.v}}" ng-model="member.extattr[ea.id]"><span>{{op.l}}</span></label>
+                                        <input type="radio" name="{{ea.id}}" value="{{op.v}}" ng-model="member.extattr[ea.id]"><span>{{op.l}}</span></label>
                                 </li>
                                 <select class='form-control' ng-model="member.extattr[ea.id]" ng-if="ea.pageConfig.component==='S'">
-                                    <option value="{{op.v}}" ng-repeat="op in ea.ops">{{op.l}}</option>
+                                    <option value="{{op.v}}" name="{{ea.id}}" ng-repeat="op in ea.ops">{{op.l}}</option>
                                 </select>
                             </ul>
                             <ul class='list-unstyled' ng-switch-when="multiple">

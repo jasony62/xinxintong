@@ -207,11 +207,14 @@ ngApp.controller('ctrlMember', ['$parse', '$scope', '$timeout', 'noticebox', 'tm
             oExtValue = member.extattr || {};
             for (var i = 0, ii = oSchema.extAttrs.length; i < ii; i++) {
                 oExtAttr = oSchema.extAttrs[i];
-                if (oExtAttr.required && (oExtAttr.required === 'Y')) {
-                    sCheckResult = tmsSchema.checkValue(oExtAttr, oExtValue[oExtAttr.id]);
-                    if (true !== sCheckResult) {
-                        noticebox.warn(sCheckResult);
-                        return false;
+                /* 隐藏题和协作题不做检查 */
+                if ((!oExtAttr.visibility || !oExtAttr.visibility.rules || oExtAttr.visibility.rules.length === 0 || oExtAttr.visibility.visible)) {
+                    if (oExtAttr.required && (oExtAttr.required === 'Y')) {
+                        sCheckResult = tmsSchema.checkValue(oExtAttr, oExtValue[oExtAttr.id]);
+                        if (true !== sCheckResult) {
+                            noticebox.warn(sCheckResult);
+                            return false;
+                        }
                     }
                 }
             }

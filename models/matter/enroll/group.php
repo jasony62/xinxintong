@@ -231,7 +231,7 @@ class group_model extends \TMS_MODEL {
                     return;
                 }
             }
-            $oEnlUsr = $modelUsr->bybyIdInAppUserid($oEnlApp, $user->userid, ['fields' => 'enroll_num', 'rid' => $rid]);
+            $oEnlUsr = $modelUsr->byIdInApp($oEnlApp, $user->userid, ['fields' => 'enroll_num', 'rid' => $rid]);
             if ($oEnlUsr && $oEnlUsr->enroll_num > 0) {
                 $submiters[] = $user->userid;
             }

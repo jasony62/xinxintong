@@ -585,7 +585,7 @@ class record extends base {
                 $oRecord = new \stdClass;
             } else {
                 // 是否允许其他用户查看
-                if ($oApp->can_result_all !== 'Y') {
+                if ($this->getDeepValue($oApp, 'scenarioConfig.can_result_all') !== 'Y') {
                     $oViewer = $this->getUser($oApp);
                     if ($oRecord->userid !== $oViewer->uid) {
                         return new \ResponseError('不允许查看其他用户的填写记录');

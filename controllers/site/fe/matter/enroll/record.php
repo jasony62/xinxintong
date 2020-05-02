@@ -584,6 +584,13 @@ class record extends base {
             if (false === $oRecord || !in_array($oRecord->state, $ValidRecStates)) {
                 $oRecord = new \stdClass;
             } else {
+                // 是否允许其他用户查看
+                if ($oApp->can_result_all !== 'Y') {
+                    $oViewer = $this->getUser($oApp);
+                    if ($oRecord->userid !== $oViewer->uid) {
+                        return new \ResponseError('不允许查看其他用户的填写记录');
+                    }
+                }
                 if (!empty($oRecord->userid)) {
                     $oRecUser->uid = $oRecord->userid;
                 }

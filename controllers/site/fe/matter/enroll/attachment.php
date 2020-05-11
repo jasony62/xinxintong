@@ -47,13 +47,13 @@ class attachment extends base {
         if (empty($file)) {
             die('没有指定参数');
         }
+        $modelApp = $this->model('matter\enroll');
         $file = $modelApp->unescape($file);
         $file = json_decode($file);
         if (empty($file) || empty($file->url)) {
             die('参数错误');
         }
 
-        $modelApp = $this->model('matter\enroll');
         $oApp = $modelApp->byId($app, ['cascaded' => 'N']);
         if ($oApp === false || $oApp->state !== '1') {
             die('指定的记录活动不存在，请检查参数是否正确');

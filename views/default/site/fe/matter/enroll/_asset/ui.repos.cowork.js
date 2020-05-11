@@ -3,7 +3,7 @@
 require('../../../../../../../asset/js/xxt.ui.schema.js');
 
 var ngMod = angular.module('cowork.repos.ui.enroll', ['schema.ui.xxt']);
-ngMod.directive('tmsReposCowork', ['$templateCache', function ($templateCache) {
+ngMod.directive('tmsReposCowork', [function () {
     return {
         restrict: 'A',
         template: require('./repos-cowork-schema.html'),
@@ -45,15 +45,15 @@ ngMod.directive('tmsReposCowork', ['$templateCache', function ($templateCache) {
                                 case 'url':
                                     schemaData._text = tmsSchema.urlSubstitute(schemaData);
                                     break;
-                                    // case 'file':
-                                    // case 'voice':
-                                    //     schemaData.forEach(function(oFile) {
-                                    //         if (oFile.url && !angular.isObject(oFile.url)) {
-                                    //             oFile.oUrl = oFile.url;
-                                    //             oFile.url = $sce.trustAsResourceUrl(oFile.url);
-                                    //         }
-                                    //     });
-                                    //     break;
+                                case 'file':
+                                case 'voice':
+                                    schemaData.forEach(function (oFile) {
+                                        if (oFile.url && !angular.isObject(oFile.url)) {
+                                            oFile.oUrl = oFile.url;
+                                            oFile.url = $sce.trustAsResourceUrl(oFile.url);
+                                        }
+                                    });
+                                    break;
                             }
                         }
 

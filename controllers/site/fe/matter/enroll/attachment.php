@@ -44,17 +44,20 @@ class attachment extends base {
      * 下载题目中的文件
      */
     public function download_action($app, $file) {
+        if (empty($file)) {
+            die('没有指定参数');
+        }
+        $file = $modelApp->unescape($file);
+        $file = json_decode($file);
+        if (empty($file) || empty($file->url)) {
+            die('参数错误');
+        }
+
         $modelApp = $this->model('matter\enroll');
         $oApp = $modelApp->byId($app, ['cascaded' => 'N']);
         if ($oApp === false || $oApp->state !== '1') {
             die('指定的记录活动不存在，请检查参数是否正确');
         }
-        if (empty($file)) {
-            die('参数错误');
-        }
-
-        $file = $modelApp->unescape($file);
-        $file = json_decode($file);
 
         // 附件是否存在;
         $file->url = TMS_APP_DIR . '/' . $file->url;

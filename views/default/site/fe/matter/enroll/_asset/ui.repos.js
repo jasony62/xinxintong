@@ -3,7 +3,7 @@
 require('../../../../../../../asset/js/xxt.ui.schema.js');
 
 var ngMod = angular.module('repos.ui.enroll', ['schema.ui.xxt']);
-ngMod.directive('tmsReposRecordData', ['$templateCache', function ($templateCache) {
+ngMod.directive('tmsReposRecordData', [function () {
     return {
         restrict: 'A',
         template: require('./repos-record-data.html'),
@@ -121,15 +121,15 @@ ngMod.directive('tmsReposRecordData', ['$templateCache', function ($templateCach
                                 case 'url':
                                     schemaData._text = tmsSchema.urlSubstitute(schemaData);
                                     break;
-                                    // case 'file':
-                                    // case 'voice':
-                                    //     schemaData.forEach(function (oFile) {
-                                    //         if (oFile.url && !angular.isObject(oFile.url)) {
-                                    //             oFile.oUrl = oFile.url;
-                                    //             oFile.url = $sce.trustAsResourceUrl(oFile.url);
-                                    //         }
-                                    //     });
-                                    //     break;
+                                case 'file':
+                                case 'voice':
+                                    schemaData.forEach(function (oFile) {
+                                        if (oFile.url && !angular.isObject(oFile.url)) {
+                                            oFile.oUrl = oFile.url;
+                                            oFile.url = $sce.trustAsResourceUrl(oFile.url);
+                                        }
+                                    });
+                                    break;
                             }
                         }
                     }

@@ -1,5 +1,6 @@
 .vscode/
 node_modules/
 cus/
+kcfinder/upload
 docker/mariadb/data
 docker-compose.override.yml

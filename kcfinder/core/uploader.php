@@ -12,7 +12,8 @@
  *      @link http://kcfinder.sunhater.com
  */
 
-class uploader {
+class uploader
+{
 
     /** Release version */
     const VERSION = "2.51";
@@ -99,11 +100,13 @@ class uploader {
     /** Magic method which allows read-only access to protected or private class properties
      * @param string $property
      * @return mixed */
-    public function __get($property) {
+    public function __get($property)
+    {
         return property_exists($this, $property) ? $this->$property : null;
     }
 
-    public function __construct() {
+    public function __construct()
+    {
 
         // DISABLE MAGIC QUOTES
         if (function_exists('set_magic_quotes_runtime')) {
@@ -117,7 +120,8 @@ class uploader {
         $this->cookie = &$input->cookie;
 
         // SET CMS INTEGRATION ATTRIBUTE
-        if (isset($this->get['cms']) &&
+        if (
+            isset($this->get['cms']) &&
             in_array($this->get['cms'], array("drupal"))
         ) {
             $this->cms = $this->get['cms'];
@@ -145,9 +149,11 @@ class uploader {
         }
 
         switch ($this->cms) {
-        case "drupal":break;
-        default:session_start();
-            break;
+            case "drupal":
+                break;
+            default:
+                session_start();
+                break;
         }
 
         // RELOAD DEFAULT CONFIGURATION
@@ -155,7 +161,8 @@ class uploader {
         $this->config = $_CONFIG;
 
         // LOAD SESSION CONFIGURATION IF EXISTS
-        if (isset($_CONFIG['_sessionVar']) &&
+        if (
+            isset($_CONFIG['_sessionVar']) &&
             is_array($_CONFIG['_sessionVar'])
         ) {
             foreach ($_CONFIG['_sessionVar'] as $key => $val) {
@@ -177,11 +184,9 @@ class uploader {
         $this->types = &$this->config['types'];
         $firstType = array_keys($this->types);
         $firstType = $firstType[0];
-        $this->type = (
-            isset($this->get['type']) &&
-            isset($this->types[$this->get['type']])
-        )
-        ? $this->get['type'] : $firstType;
+        $this->type = (isset($this->get['type']) &&
+            isset($this->types[$this->get['type']]))
+            ? $this->get['type'] : $firstType;
 
         // LOAD TYPE DIRECTORY SPECIFIC CONFIGURATION IF EXISTS
         if (is_array($this->types[$this->type])) {
@@ -192,13 +197,14 @@ class uploader {
             }
 
             $this->types[$this->type] = isset($this->types[$this->type]['type'])
-            ? $this->types[$this->type]['type'] : "";
+                ? $this->types[$this->type]['type'] : "";
         }
 
         // COOKIES INIT
         $ip = '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)';
         $ip = '/^' . implode('\.', array($ip, $ip, $ip, $ip)) . '$/';
-        if (preg_match($ip, $_SERVER['HTTP_HOST']) ||
+        if (
+            preg_match($ip, $_SERVER['HTTP_HOST']) ||
             preg_match('/^[^\.]+$/', $_SERVER['HTTP_HOST'])
         ) {
             $this->config['cookieDomain'] = "";
@@ -226,35 +232,37 @@ class uploader {
         //$this->config['uploadURL'] .= "/$siteid";
 
         // FULL URL
-        if (preg_match('/^([a-z]+)\:\/\/([^\/^\:]+)(\:(\d+))?\/(.+)\/?$/',
-            $this->config['uploadURL'], $patt)
-        ) {
+        if (preg_match(
+            '/^([a-z]+)\:\/\/([^\/^\:]+)(\:(\d+))?\/(.+)\/?$/',
+            $this->config['uploadURL'],
+            $patt
+        )) {
             list($unused, $protocol, $domain, $unused, $port, $path) = $patt;
             $path = path::normalize($path);
             $this->config['uploadURL'] = "$protocol://$domain" . (strlen($port) ? ":$port" : "") . "/$path";
             $this->config['uploadDir'] = strlen($this->config['uploadDir'])
-            ? path::normalize($this->config['uploadDir'])
-            : path::url2fullPath("/$path");
+                ? path::normalize($this->config['uploadDir'])
+                : path::url2fullPath("/$path");
             $this->typeDir = "{$this->config['uploadDir']}/{$this->type}";
             $this->typeURL = "{$this->config['uploadURL']}/{$this->type}";
 
             // SITE ROOT
         } elseif ($this->config['uploadURL'] == "/") {
             $this->config['uploadDir'] = strlen($this->config['uploadDir'])
-            ? path::normalize($this->config['uploadDir'])
-            : path::normalize($_SERVER['DOCUMENT_ROOT']);
+                ? path::normalize($this->config['uploadDir'])
+                : path::normalize($_SERVER['DOCUMENT_ROOT']);
             $this->typeDir = "{$this->config['uploadDir']}/{$this->type}";
             $this->typeURL = "/{$this->type}";
 
             // ABSOLUTE & RELATIVE
         } else {
             $this->config['uploadURL'] = (substr($this->config['uploadURL'], 0, 1) === "/")
-            ? path::normalize($this->config['uploadURL'])
-            : path::rel2abs_url($this->config['uploadURL']);
+                ? path::normalize($this->config['uploadURL'])
+                : path::rel2abs_url($this->config['uploadURL']);
 
             $this->config['uploadDir'] = strlen($this->config['uploadDir'])
-            ? path::normalize($this->config['uploadDir'])
-            : path::url2fullPath($this->config['uploadURL']);
+                ? path::normalize($this->config['uploadDir'])
+                : path::url2fullPath($this->config['uploadURL']);
 
             $this->config['uploadDir'] .= "/{$this->type}";
 
@@ -276,7 +284,8 @@ class uploader {
             $this->opener['CKEditor']['funcNum'] = $this->get['CKEditorFuncNum'];
         }
 
-        if (isset($this->get['opener']) &&
+        if (
+            isset($this->get['opener']) &&
             (strtolower($this->get['opener']) == "tinymce") &&
             isset($this->config['_tinyMCEPath']) &&
             strlen($this->config['_tinyMCEPath'])
@@ -286,7 +295,8 @@ class uploader {
 
         // LOCALIZATION
         foreach ($this->langInputNames as $key) {
-            if (isset($this->get[$key]) &&
+            if (
+                isset($this->get[$key]) &&
                 preg_match('/^[a-z][a-z\._\-]*$/i', $this->get[$key]) &&
                 file_exists("lang/" . strtolower($this->get[$key]) . ".php")
             ) {
@@ -315,22 +325,19 @@ class uploader {
          */
 
         // CHECK & CREATE UPLOAD FOLDER
-        if (defined('KCFINDER_STORE_AT') && KCFINDER_STORE_AT === 'local') {
-            if (!is_dir($this->typeDir)) {
-                if (!$this->mklocaldir($this->typeDir)) {
-                    $this->backMsg("Cannot create {dir} folder.", array('dir' => $this->type));
-                }
-
-            } elseif (!is_readable($this->typeDir)) {
-                $this->backMsg("Cannot read upload folder.");
+        if (!is_dir($this->typeDir)) {
+            if (!$this->mklocaldir($this->typeDir)) {
+                $this->backMsg("Cannot create {dir} folder.", array('dir' => $this->type));
             }
+        } elseif (!is_readable($this->typeDir)) {
+            $this->backMsg("Cannot read upload folder.");
         }
-
     }
     /**
      *
      */
-    protected function toLocalEncoding($str) {
+    protected function toLocalEncoding($str)
+    {
         if (defined('KCFINDER_LOCAL_ENCODING') && KCFINDER_LOCAL_ENCODING !== 'UTF-8') {
             $str = iconv('UTF-8', KCFINDER_LOCAL_ENCODING, $str);
         }
@@ -340,7 +347,8 @@ class uploader {
     /**
      *
      */
-    protected function toUTF8($str) {
+    protected function toUTF8($str)
+    {
         if (defined('KCFINDER_LOCAL_ENCODING') && KCFINDER_LOCAL_ENCODING !== 'UTF-8') {
             $str = iconv(KCFINDER_LOCAL_ENCODING, 'UTF-8', $str);
         }
@@ -350,7 +358,8 @@ class uploader {
     /**
      * 根据本地字符的编码创建目录
      */
-    protected function mklocaldir($path) {
+    protected function mklocaldir($path)
+    {
         if (defined('KCFINDER_LOCAL_ENCODING') && KCFINDER_LOCAL_ENCODING !== 'UTF-8') {
             $path = iconv('UTF-8', KCFINDER_LOCAL_ENCODING, $path);
         }
@@ -362,7 +371,8 @@ class uploader {
         return @mkdir($path, $this->config['dirPerms'], true);
     }
 
-    public function upload() {
+    public function upload()
+    {
         $config = &$this->config;
         $file = &$this->file;
         $url = $message = "";
@@ -373,12 +383,12 @@ class uploader {
             }
 
             $message = $this->label("You don't have permissions to upload files.");
-
         } elseif (true === ($message = $this->checkUploadedFile())) {
             $message = "";
 
             $dir = "{$this->typeDir}/";
-            if (isset($this->get['dir']) &&
+            if (
+                isset($this->get['dir']) &&
                 (false !== ($gdir = $this->checkInputDir($this->get['dir'])))
             ) {
                 $udir = path::normalize("$dir$gdir");
@@ -419,12 +429,12 @@ class uploader {
                     } else {
                         $url = path::urlPathEncode($url);
                     }
-
                 }
             }
         }
 
-        if (strlen($message) &&
+        if (
+            strlen($message) &&
             isset($this->file['tmp_name']) &&
             file_exists($this->file['tmp_name'])
         ) {
@@ -438,7 +448,8 @@ class uploader {
         $this->callBack($url, $message);
     }
 
-    private function store($file, $filename, $target) {
+    private function store($file, $filename, $target)
+    {
         require_once dirname(dirname(__FILE__)) . '/lib/bcs/bcs.class.php';
 
         $host = 'bcs.duapp.com';
@@ -456,14 +467,15 @@ class uploader {
         $this->set_object_acl_by_json_array($bcs);
 
         return !@move_uploaded_file($file['tmp_name'], $target) &&
-        !@rename($file['tmp_name'], $target) &&
-        !@copy($file['tmp_name'], $target);
+            !@rename($file['tmp_name'], $target) &&
+            !@copy($file['tmp_name'], $target);
     }
 
     /**
      *
      */
-    private function create_object($baidu_bcs, $bucket, $object, $fileUpload) {
+    private function create_object($baidu_bcs, $bucket, $object, $fileUpload)
+    {
         $opt[BaiduBCS::ACL] = BaiduBCS::BCS_SDK_ACL_TYPE_PUBLIC_WRITE;
         $opt[BaiduBCS::IMPORT_BCS_LOG_METHOD] = '';
         $opt['curlopts'] = array(
@@ -479,20 +491,27 @@ class uploader {
     /**
      *
      */
-    private function set_object_acl_by_json_array($baidu_bcs, $bucket, $object) {
+    private function set_object_acl_by_json_array($baidu_bcs, $bucket, $object)
+    {
         $opt[BaiduBCS::IMPORT_BCS_LOG_METHOD] = '';
         $acl = array(
             'statements' => array(
                 '0' => array(
                     'user' => array(
-                        "*"),
+                        "*"
+                    ),
                     'resource' => array(
-                        $bucket . $object),
+                        $bucket . $object
+                    ),
                     'action' => array(
                         BaiduBCS::BCS_SDK_ACL_ACTION_GET_OBJECT,
                         BaiduBCS::BCS_SDK_ACL_ACTION_PUT_OBJECT,
-                        BaiduBCS::BCS_SDK_ACL_ACTION_DELETE_OBJECT),
-                    'effect' => 'allow')));
+                        BaiduBCS::BCS_SDK_ACL_ACTION_DELETE_OBJECT
+                    ),
+                    'effect' => 'allow'
+                )
+            )
+        );
 
         $response = $baidu_bcs->set_object_acl($bucket, $object, $acl, $opt);
         if (!$response->isOK()) {
@@ -500,8 +519,10 @@ class uploader {
         }
     }
 
-    protected function normalizeFilename($filename) {
-        if (isset($this->config['filenameChangeChars']) &&
+    protected function normalizeFilename($filename)
+    {
+        if (
+            isset($this->config['filenameChangeChars']) &&
             is_array($this->config['filenameChangeChars'])
         ) {
             $filename = strtr($filename, $this->config['filenameChangeChars']);
@@ -510,8 +531,10 @@ class uploader {
         return $filename;
     }
 
-    protected function normalizeDirname($dirname) {
-        if (isset($this->config['dirnameChangeChars']) &&
+    protected function normalizeDirname($dirname)
+    {
+        if (
+            isset($this->config['dirnameChangeChars']) &&
             is_array($this->config['dirnameChangeChars'])
         ) {
             $dirname = strtr($dirname, $this->config['dirnameChangeChars']);
@@ -520,7 +543,8 @@ class uploader {
         return $dirname;
     }
 
-    protected function checkUploadedFile(array $aFile = null) {
+    protected function checkUploadedFile(array $aFile = null)
+    {
         $config = &$this->config;
         $file = ($aFile === null) ? $this->file : $aFile;
 
@@ -538,7 +562,6 @@ class uploader {
                 if ($return !== true) {
                     return "$name: $return";
                 }
-
             }
             return true;
         }
@@ -548,23 +571,25 @@ class uploader {
 
         // CHECK FOR UPLOAD ERRORS
         if ($file['error']) {
-            return
-            ($file['error'] == UPLOAD_ERR_INI_SIZE) ?
-            $this->label("The uploaded file exceeds {size} bytes.",
-                array('size' => ini_get('upload_max_filesize'))) : (
-                ($file['error'] == UPLOAD_ERR_FORM_SIZE) ?
-                $this->label("The uploaded file exceeds {size} bytes.",
-                    array('size' => $this->get['MAX_FILE_SIZE'])) : (
-                    ($file['error'] == UPLOAD_ERR_PARTIAL) ?
-                    $this->label("The uploaded file was only partially uploaded.") : (
-                        ($file['error'] == UPLOAD_ERR_NO_FILE) ?
-                        $this->label("No file was uploaded.") : (
-                            ($file['error'] == UPLOAD_ERR_NO_TMP_DIR) ?
-                            $this->label("Missing a temporary folder.") : (
-                                ($file['error'] == UPLOAD_ERR_CANT_WRITE) ?
-                                $this->label("Failed to write file.") :
-                                $this->label("Unknown error.")
-                            )))));
+            return ($file['error'] == UPLOAD_ERR_INI_SIZE) ?
+                $this->label(
+                    "The uploaded file exceeds {size} bytes.",
+                    array('size' => ini_get('upload_max_filesize'))
+                ) : (
+                    ($file['error'] == UPLOAD_ERR_FORM_SIZE) ?
+                    $this->label(
+                        "The uploaded file exceeds {size} bytes.",
+                        array('size' => $this->get['MAX_FILE_SIZE'])
+                    ) : (
+                        ($file['error'] == UPLOAD_ERR_PARTIAL) ?
+                        $this->label("The uploaded file was only partially uploaded.") : (
+                            ($file['error'] == UPLOAD_ERR_NO_FILE) ?
+                            $this->label("No file was uploaded.") : (
+                                ($file['error'] == UPLOAD_ERR_NO_TMP_DIR) ?
+                                $this->label("Missing a temporary folder.") : (
+                                    ($file['error'] == UPLOAD_ERR_CANT_WRITE) ?
+                                    $this->label("Failed to write file.") :
+                                    $this->label("Unknown error."))))));
         }
 
         // HIDDEN FILENAMES CHECK
@@ -593,11 +618,9 @@ class uploader {
                 if ($response !== true) {
                     return $this->label($response);
                 }
-
             } else {
                 return $this->label("Non-existing directory type.");
             }
-
         }
 
         // IMAGE RESIZE
@@ -609,7 +632,8 @@ class uploader {
         return true;
     }
 
-    protected function checkInputDir($dir, $inclType = true, $existing = true) {
+    protected function checkInputDir($dir, $inclType = true, $existing = true)
+    {
         $dir = path::normalize($dir);
         if (substr($dir, 0, 1) == "/") {
             $dir = substr($dir, 1);
@@ -643,7 +667,8 @@ class uploader {
         return (is_dir($path) && is_readable($path)) ? $return : false;
     }
 
-    protected function validateExtension($ext, $type) {
+    protected function validateExtension($ext, $type)
+    {
         $ext = trim(strtolower($ext));
         if (!isset($this->types[$type])) {
             return false;
@@ -655,7 +680,6 @@ class uploader {
             if (in_array($ext, $exts)) {
                 return false;
             }
-
         }
 
         $exts = trim($this->types[$type]);
@@ -672,17 +696,20 @@ class uploader {
         return in_array($ext, $exts);
     }
 
-    protected function getTypeFromPath($path) {
+    protected function getTypeFromPath($path)
+    {
         return preg_match('/^([^\/]*)\/.*$/', $path, $patt)
-        ? $patt[1] : $path;
+            ? $patt[1] : $path;
     }
 
-    protected function removeTypeFromPath($path) {
+    protected function removeTypeFromPath($path)
+    {
         return preg_match('/^[^\/]*\/(.*)$/', $path, $patt)
-        ? $patt[1] : "";
+            ? $patt[1] : "";
     }
 
-    protected function imageResize($image, $file = null) {
+    protected function imageResize($image, $file = null)
+    {
         if (!($image instanceof gd)) {
             $gd = new gd($image);
             if ($gd->init_error) {
@@ -699,8 +726,7 @@ class uploader {
         if ((!$this->config['maxImageWidth'] && !$this->config['maxImageHeight']) ||
             (
                 ($gd->get_width() <= $this->config['maxImageWidth']) &&
-                ($gd->get_height() <= $this->config['maxImageHeight'])
-            )
+                ($gd->get_height() <= $this->config['maxImageHeight']))
         ) {
             return true;
         }
@@ -724,9 +750,9 @@ class uploader {
             if (!$gd->resize($width, $height)) {
                 return false;
             }
-
         } elseif (!$gd->resize_fit(
-            $this->config['maxImageWidth'], $this->config['maxImageHeight']
+            $this->config['maxImageWidth'],
+            $this->config['maxImageHeight']
         )) {
             return false;
         }
@@ -734,7 +760,8 @@ class uploader {
         return $gd->imagejpeg($file, $this->config['jpegQuality']);
     }
 
-    protected function makeThumb($file, $overwrite = true) {
+    protected function makeThumb($file, $overwrite = true)
+    {
         $file = $this->toLocalEncoding($file);
 
         $gd = new gd($file);
@@ -775,7 +802,8 @@ class uploader {
         return $gd->imagejpeg($thumb, $this->config['jpegQuality']);
     }
 
-    protected function localize($langCode) {
+    protected function localize($langCode)
+    {
         require "lang/{$langCode}.php";
         setlocale(LC_ALL, $lang['_locale']);
         $this->charset = $lang['_charset'];
@@ -790,7 +818,8 @@ class uploader {
         $this->labels = $lang;
     }
 
-    protected function label($string, array $data = null) {
+    protected function label($string, array $data = null)
+    {
         $return = isset($this->labels[$string]) ? $this->labels[$string] : $string;
         if (is_array($data)) {
             foreach ($data as $key => $val) {
@@ -801,7 +830,8 @@ class uploader {
         return $return;
     }
 
-    protected function backMsg($message, array $data = null) {
+    protected function backMsg($message, array $data = null)
+    {
         $message = $this->label($message, $data);
         if (isset($this->file['tmp_name']) && file_exists($this->file['tmp_name'])) {
             @unlink($this->file['tmp_name']);
@@ -811,65 +841,70 @@ class uploader {
         die;
     }
 
-    protected function callBack($url, $message = "") {
+    protected function callBack($url, $message = "")
+    {
         $message = text::jsValue($message);
         $CKfuncNum = isset($this->opener['CKEditor']['funcNum'])
-        ? $this->opener['CKEditor']['funcNum'] : 0;
+            ? $this->opener['CKEditor']['funcNum'] : 0;
         if (!$CKfuncNum) {
             $CKfuncNum = 0;
         }
 
         header("Content-Type: text/html; charset={$this->charset}");
 
-        ?><html>
-<body>
-        <script type='text/javascript'>
-        var kc_CKEditor = (window.parent && window.parent.CKEDITOR)
-            ? window.parent.CKEDITOR.tools.callFunction
-            : ((window.opener && window.opener.CKEDITOR)
-            ? window.opener.CKEDITOR.tools.callFunction
-            : false);
-        var kc_FCKeditor = (window.opener && window.opener.OnUploadCompleted)
-            ? window.opener.OnUploadCompleted
-            : ((window.parent && window.parent.OnUploadCompleted)
-            ? window.parent.OnUploadCompleted
-            : false);
-        var kc_Custom = (window.parent && window.parent.KCFinder)
-            ? window.parent.KCFinder.callBack
-            : ((window.opener && window.opener.KCFinder)
-            ? window.opener.KCFinder.callBack
-            : false);
-        if (kc_CKEditor)
-            kc_CKEditor(<?php echo $CKfuncNum; ?>, '<?php echo $url; ?>', '<?php echo $message; ?>');
-        if (kc_FCKeditor)
-            kc_FCKeditor(<?php echo strlen($message) ? 1 : 0; ?>, '<?php echo $url; ?>', '', '<?php echo $message; ?>');
-        if (kc_Custom) {
-            if (<?php echo strlen($message); ?>) alert('<?php echo $message; ?>');
-            kc_Custom('<?php echo $url; ?>');
-        }
-        if (!kc_CKEditor && !kc_FCKeditor && !kc_Custom)
-            alert("<?php echo $message; ?>");
-        </script>
-</body>
-</html><?php
+?><html>
 
-    }
+        <body>
+            <script type='text/javascript'>
+                var kc_CKEditor = (window.parent && window.parent.CKEDITOR) ?
+                    window.parent.CKEDITOR.tools.callFunction :
+                    ((window.opener && window.opener.CKEDITOR) ?
+                        window.opener.CKEDITOR.tools.callFunction :
+                        false);
+                var kc_FCKeditor = (window.opener && window.opener.OnUploadCompleted) ?
+                    window.opener.OnUploadCompleted :
+                    ((window.parent && window.parent.OnUploadCompleted) ?
+                        window.parent.OnUploadCompleted :
+                        false);
+                var kc_Custom = (window.parent && window.parent.KCFinder) ?
+                    window.parent.KCFinder.callBack :
+                    ((window.opener && window.opener.KCFinder) ?
+                        window.opener.KCFinder.callBack :
+                        false);
+                if (kc_CKEditor)
+                    kc_CKEditor(<?php echo $CKfuncNum; ?>, '<?php echo $url; ?>', '<?php echo $message; ?>');
+                if (kc_FCKeditor)
+                    kc_FCKeditor(<?php echo strlen($message) ? 1 : 0; ?>, '<?php echo $url; ?>', '', '<?php echo $message; ?>');
+                if (kc_Custom) {
+                    if (<?php echo strlen($message); ?>) alert('<?php echo $message; ?>');
+                    kc_Custom('<?php echo $url; ?>');
+                }
+                if (!kc_CKEditor && !kc_FCKeditor && !kc_Custom)
+                    alert("<?php echo $message; ?>");
+            </script>
+        </body>
 
-    protected function get_htaccess() {
-        return "<IfModule mod_php4.c>
+        </html><?php
+
+            }
+
+            protected function get_htaccess()
+            {
+                return "<IfModule mod_php4.c>
             php_value engine off
             </IfModule>
             <IfModule mod_php5.c>
             php_value engine off
             </IfModule>
             ";
-    }
-    /**
-     * 解决basename不支持中文的问题
-     */
-    protected function my_basename($filename) {
-        return preg_replace('/^.+[\\\\\\/]/', '', $filename);
-    }
-}
+            }
+            /**
+             * 解决basename不支持中文的问题
+             */
+            protected function my_basename($filename)
+            {
+                return preg_replace('/^.+[\\\\\\/]/', '', $filename);
+            }
+        }
 
-?>
+                ?>

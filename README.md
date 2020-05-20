@@ -6,15 +6,17 @@
 
 # 部署
 
+## 在容器中运行
+
+> docker-compose up
+
 ## 本地化配置
 
-在项目目录下新建 cus 目录
+新建`docker-compose.override.yml`文件。
 
-config.php 文件
+新建`cus`目录，新建`config.php`文件和`db.php`文件，设置系统参数。
 
-db.php 文件
-
-## kcfinder/upload 目录
+在`kcfinder`目录下，新建`upload`目录，保存上传文件。
 
 # License
 

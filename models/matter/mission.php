@@ -11,7 +11,7 @@ class mission_model extends app_base
 {
 
     // 其他活动引用是包含的列	
-    const FIELDS_REF = 'id,title,summary,pic,start_at,end_at,entry_rule,footer_page_name,header_page_name';
+    const FIELDS_REF = 'siteid,id,title,summary,pic,start_at,end_at,entry_rule,footer_page_name,header_page_name';
 
     /**
      *
@@ -45,6 +45,7 @@ class mission_model extends app_base
     public function byIdAsRef($id, $aOptions = [])
     {
         if (!isset($aOptions['fields'])) $aOptions['fields'] = mission_model::FIELDS_REF;
+
         return $this->byId($id, $aOptions);
     }
     /**

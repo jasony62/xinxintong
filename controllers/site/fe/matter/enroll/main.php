@@ -79,7 +79,76 @@ class main extends main_base
 
         /* 当前访问用户的基本信息 */
         $oUser = $this->getUser($oApp);
+        /**
+         * 获取当前用户在记录活动中的数据
+         */
+        if (!empty($rid) || isset($oApp->appRound->rid)) {
+            $modelEnlUsr = $this->model('matter\enroll\user');
+            $oEnlRndUser = $modelEnlUsr->byIdInApp($oApp, $oUser->uid, ['rid' => empty($rid) ? $oApp->appRound->rid : $rid]);
+            if ($oEnlRndUser) {
+                $oEnlAppUser = $modelEnlUsr->byIdInApp($oApp, $oUser->uid, ['rid' => 'ALL', 'fields' => 'custom']);
+                $oEnlRndUser->custom = $oEnlAppUser->custom;
+            }
+            $oUser->enrollUser = $oEnlRndUser;
+        }
+        /**
+         * 获得当前活动的分组和当前用户所属的分组，是否为组长，及同组成员
+         */
+        if (!empty($oApp->entryRule->group->id)) {
+            $assocGroupAppId = $oApp->entryRule->group->id;
+            $modelGrpRec = $this->model('matter\group\record');
+            $modelGrpTeam = $this->model('matter\group\team');
+            /* 用户所属分组信息 */
+            if (!empty($oUser->group_id)) {
+                $GrpRoundTitle = $modelGrpTeam->byId($oUser->group_id, ['fields' => 'title']);
+                $oUser->group_title = $GrpRoundTitle->title;
+                // 同组成员
+                $others = $modelGrpRec->byTeam($oUser->group_id, ['fields' => 'is_leader,userid,nickname']);
+                $oUser->groupOthers = [];
+                foreach ($others as $other) {
+                    if ($other->userid !== $oUser->uid) {
+                        $oUser->groupOthers[] = $other;
+                    }
+                }
+            }
+            /* 获得角色分组信息 */
+            if (!empty($oUser->role_teams)) {
+                $roleTeams = $modelGrpTeam->byApp($assocGroupAppId, ['fields' => "team_id,title", 'team_type' => 'R']);
+                foreach ($roleTeams as $oRoleTeam) {
+                    $roleTeams[$oRoleTeam->team_id] = $oRoleTeam;
+                }
+                foreach ($oUser->role_teams as $k => $oUsrRoleTeam) {
+                    if (isset($roleTeams[$oUsrRoleTeam])) {
+                        $oUser->role_teams[$k] = $roleTeams[$oUsrRoleTeam];
+                    } else {
+                        unset($oUser->role_teams[$k]);
+                    }
+                }
+            }
+            /**
+             * 获得当前活动的分组和当前用户所属的分组，是否为组长，及同组成员
+             */
+            /* 获得的分组信息 */
+            $groups = $modelGrpTeam->byApp($assocGroupAppId, ['fields' => "team_id,title,team_type"]);
+            $params['groups'] = $groups;
+            /* 用户所属分组 */
+            $oGrpApp = (object) ['id' => $assocGroupAppId];
+            $oGrpUsr = $modelGrpRec->byUser($oGrpApp, $oUser->uid, ['fields' => 'is_leader,team_id,team_title,userid,nickname', 'onlyOne' => true]);
+            if ($oGrpUsr) {
+                $params['groupUser'] = $oGrpUsr;
+                $params['groupOthers'] = [];
+                if (!empty($oGrpUsr->team_id)) {
+                    $others = $modelGrpRec->byTeam($oGrpUsr->team_id, ['fields' => 'is_leader,userid,nickname']);
+                    foreach ($others as $other) {
+                        if ($other->userid !== $oGrpUsr->userid) {
+                            $params['groupOthers'][] = $other;
+                        }
+                    }
+                }
+            }
+        }
         $params['user'] = $oUser;
+
 
         /* 进入规则 */
         $oEntryRuleResult = $this->checkEntryRule2($oApp);
@@ -125,33 +194,6 @@ class main extends main_base
                 $modelPage->setDynaOptions($oApp, $oOpenPage);
 
                 $params['page'] = $oOpenPage;
-            }
-        }
-
-        /**
-         * 获得当前活动的分组和当前用户所属的分组，是否为组长，及同组成员
-         */
-        if (!empty($oApp->entryRule->group->id)) {
-            $assocGroupAppId = $oApp->entryRule->group->id;
-            /* 获得的分组信息 */
-            $modelGrpTeam = $this->model('matter\group\team');
-            $groups = $modelGrpTeam->byApp($assocGroupAppId, ['fields' => "team_id,title,team_type"]);
-            $params['groups'] = $groups;
-            /* 用户所属分组 */
-            $modelGrpRec = $this->model('matter\group\record');
-            $oGrpApp = (object) ['id' => $assocGroupAppId];
-            $oGrpUsr = $modelGrpRec->byUser($oGrpApp, $oUser->uid, ['fields' => 'is_leader,team_id,team_title,userid,nickname', 'onlyOne' => true]);
-            if ($oGrpUsr) {
-                $params['groupUser'] = $oGrpUsr;
-                $params['groupOthers'] = [];
-                if (!empty($oGrpUsr->team_id)) {
-                    $others = $modelGrpRec->byTeam($oGrpUsr->team_id, ['fields' => 'is_leader,userid,nickname']);
-                    foreach ($others as $other) {
-                        if ($other->userid !== $oGrpUsr->userid) {
-                            $params['groupOthers'][] = $other;
-                        }
-                    }
-                }
             }
         }
 

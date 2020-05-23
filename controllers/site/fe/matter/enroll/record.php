@@ -1,15 +1,18 @@
 <?php
+
 namespace site\fe\matter\enroll;
 
 include_once dirname(__FILE__) . '/base.php';
 /**
  * 记录活动记录
  */
-class record extends base {
+class record extends base
+{
     /**
      * 在调用每个控制器的方法前调用
      */
-    public function tmsBeforeEach($app = null, $task = null) {
+    public function tmsBeforeEach($app = null, $task = null)
+    {
         // 活动任务
         if (!empty($task)) {
             $modelTsk = $this->model('matter\enroll\task', null);
@@ -39,7 +42,8 @@ class record extends base {
     /**
      * 指定需要作为事物管理的方法
      */
-    public function tmsRequireTransaction() {
+    public function tmsRequireTransaction()
+    {
         return [
             'submit',
         ];
@@ -54,7 +58,8 @@ class record extends base {
      * @param int $task 对应的任务
      *
      */
-    public function submit_action($rid = '', $ek = null, $submitkey = '', $task = null) {
+    public function submit_action($rid = '', $ek = null, $submitkey = '', $task = null)
+    {
         $modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
 
         $bSubmitNewRecord = empty($ek); // 是否为新记录
@@ -173,12 +178,12 @@ class record extends base {
         if (isset($this->task)) {
             $oTask = $this->task;
             switch ($oTask->config_type) {
-            case 'question': // 提问任务
-                $modelTop = $this->model('matter\enroll\topic', $oEnlApp);
-                if ($oTopic = $modelTop->byTask($oTask)) {
-                    $modelTop->assign($oTopic, $oRecord);
-                }
-                break;
+                case 'question': // 提问任务
+                    $modelTop = $this->model('matter\enroll\topic', $oEnlApp);
+                    if ($oTopic = $modelTop->byTask($oTask)) {
+                        $modelTop->assign($oTopic, $oRecord);
+                    }
+                    break;
             }
         }
         // 完成提交，清除临时日志
@@ -201,7 +206,8 @@ class record extends base {
      *
      * 只读项不检查
      */
-    private function _matchEnlRec($oUser, $oSrcApp, $targetAppId, &$oEnlData) {
+    private function _matchEnlRec($oUser, $oSrcApp, $targetAppId, &$oEnlData)
+    {
         $oMatchApp = $this->model('matter\enroll')->byId($targetAppId, ['cascaded' => 'N']);
         if (empty($oMatchApp)) {
             return [false, '指定的记录匹配记录活动不存在'];
@@ -263,7 +269,8 @@ class record extends base {
      * @param string $ek enrollKey 如果要更新之前已经提交的数据，需要指定
      * @param string $submitkey 支持文件分段上传
      */
-    public function save_action($app, $rid = '', $ek = null, $submitkey = '') {
+    public function save_action($app, $rid = '', $ek = null, $submitkey = '')
+    {
         $modelEnl = $this->model('matter\enroll');
         $oEnlApp = $modelEnl->byId($app, ['cascaded' => 'N']);
         if (false === $oEnlApp || $oEnlApp->state !== '1') {
@@ -339,7 +346,8 @@ class record extends base {
     /**
      * 返回当前轮次或者检查指定轮次是否有效
      */
-    private function _getSubmitRecordRid($oApp, $rid = '') {
+    private function _getSubmitRecordRid($oApp, $rid = '')
+    {
         $modelRnd = $this->model('matter\enroll\round');
         if (isset($this->task)) {
             $oRecordRnd = $modelRnd->byTask($oApp, $this->task);
@@ -362,29 +370,6 @@ class record extends base {
         return [true, $oRecordRnd->rid];
     }
     /**
-     * 记录用户提交日志
-     *
-     * @param object $oApp
-     *
-     */
-    private function _logUserOp($oApp, $oOperation, $oUser) {
-        $modelLog = $this->model('matter\log');
-
-        $oLogUser = new \stdClass;
-        $oLogUser->userid = $oUser->uid;
-        $oLogUser->nickname = $oUser->nickname;
-
-        $oClient = new \stdClass;
-        $oClient->agent = tms_get_server('HTTP_USER_AGENT');
-        $oClient->ip = $this->client_ip();
-
-        $referer = tms_get_server('HTTP_REFERER') ? tms_get_server('HTTP_REFERER') : '';
-
-        $logid = $modelLog->addUserMatterOp($oApp->siteid, $oLogUser, $oApp, $oOperation, $oClient, $referer);
-
-        return $logid;
-    }
-    /**
      * 检查是否允许用户进行记录
      *
      * 检查内容：
@@ -393,7 +378,8 @@ class record extends base {
      * 3、多选题选项的数量（schema.limitChoice, schema.range）
      *
      */
-    private function _canSubmit($oApp, $oUser, $oRecData, $ek, $rid = '', $bCheckSchema = true) {
+    private function _canSubmit($oApp, $oUser, $oRecData, $ek, $rid = '', $bCheckSchema = true)
+    {
         /**
          * 检查活动是否在进行过程中
          */
@@ -466,29 +452,31 @@ class record extends base {
                 }
                 if (isset($oSchema->type)) {
                     switch ($oSchema->type) {
-                    case 'multiple':
-                        if (isset($oSchema->limitChoice) && $oSchema->limitChoice === 'Y' && isset($oSchema->range) && is_array($oSchema->range)) {
-                            if (isset($oRecData->{$oSchema->id})) {
-                                $submitVal = $oRecData->{$oSchema->id};
-                                if (is_object($submitVal)) {
-                                    // 多选题，将选项合并为逗号分隔的字符串
-                                    $opCount = count(array_filter((array) $submitVal, function ($i) {return $i;}));
+                        case 'multiple':
+                            if (isset($oSchema->limitChoice) && $oSchema->limitChoice === 'Y' && isset($oSchema->range) && is_array($oSchema->range)) {
+                                if (isset($oRecData->{$oSchema->id})) {
+                                    $submitVal = $oRecData->{$oSchema->id};
+                                    if (is_object($submitVal)) {
+                                        // 多选题，将选项合并为逗号分隔的字符串
+                                        $opCount = count(array_filter((array) $submitVal, function ($i) {
+                                            return $i;
+                                        }));
+                                    } else {
+                                        $opCount = 0;
+                                    }
                                 } else {
                                     $opCount = 0;
                                 }
-                            } else {
-                                $opCount = 0;
+                                if ($opCount < $oSchema->range[0] || $opCount > $oSchema->range[1]) {
+                                    return [false, '【' . $oSchema->title . '】中最多只能选择(' . $oSchema->range[1] . ')项，最少需要选择(' . $oSchema->range[0] . ')项'];
+                                }
                             }
-                            if ($opCount < $oSchema->range[0] || $opCount > $oSchema->range[1]) {
-                                return [false, '【' . $oSchema->title . '】中最多只能选择(' . $oSchema->range[1] . ')项，最少需要选择(' . $oSchema->range[0] . ')项'];
+                            break;
+                        case 'voice':
+                            if (!defined('WX_VOICE_AMR_2_MP3') || WX_VOICE_AMR_2_MP3 !== 'Y') {
+                                return [false, '运行环境不支持处理微信录音文件，题目【' . $oSchema->title . '】无效'];
                             }
-                        }
-                        break;
-                    case 'voice':
-                        if (!defined('WX_VOICE_AMR_2_MP3') || WX_VOICE_AMR_2_MP3 !== 'Y') {
-                            return [false, '运行环境不支持处理微信录音文件，题目【' . $oSchema->title . '】无效'];
-                        }
-                        break;
+                            break;
                     }
                 }
             }
@@ -503,7 +491,8 @@ class record extends base {
      * @param string $submitKey
      *
      */
-    public function uploadFile_action($app, $submitkey = '') {
+    public function uploadFile_action($app, $submitkey = '')
+    {
         $modelApp = $this->model('matter\enroll');
         $oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,siteid,state']);
         if (false === $oApp || $oApp->state !== '1') {
@@ -539,7 +528,8 @@ class record extends base {
      * @param string $withSaved 是否获取保存数据
      *
      */
-    public function get_action($app, $ek = '', $rid = '', $loadLast = 'Y', $loadAssoc = 'Y', $withSaved = 'N', $task = null) {
+    public function get_action($app, $ek = '', $rid = '', $loadLast = 'Y', $loadAssoc = 'Y', $withSaved = 'N', $task = null)
+    {
         $modelApp = $this->model('matter\enroll');
         $modelRec = $this->model('matter\enroll\record');
 
@@ -648,6 +638,7 @@ class record extends base {
             $oRecord->round = $oRecRound;
         }
 
+        /* 如果是个空对象，代表没有获得任何有效信息 */
         if (count((array) $oRecord) === 0) {
             return new \ObjectNotFoundError('不存在符合指定条件的填写记录');
         }
@@ -661,7 +652,8 @@ class record extends base {
      * @param string $app app'id
      * @param string $rid 指定的轮次
      */
-    public function baseline_action($app, $rid = '') {
+    public function baseline_action($app, $rid = '')
+    {
         $modelApp = $this->model('matter\enroll');
         $oApp = $modelApp->byId($app, ['cascaded' => 'N']);
         if (false === $oApp || $oApp->state !== '1') {
@@ -697,7 +689,8 @@ class record extends base {
     /**
      * 记录的概要信息
      */
-    public function sketch_action($record) {
+    public function sketch_action($record)
+    {
         $modelRec = $this->model('matter\enroll\record');
 
         $oSketch = new \stdClass;
@@ -725,7 +718,8 @@ class record extends base {
      * [2] 数据项的定义
      *
      */
-    public function list_action($app, $owner = 'U', $orderby = 'time', $page = 1, $size = 30, $sketch = 'N') {
+    public function list_action($app, $owner = 'U', $orderby = 'time', $page = 1, $size = 30, $sketch = 'N')
+    {
         $oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
         if (false === $oApp || $oApp->state !== '1') {
             return new \ObjectNotFoundError();
@@ -740,21 +734,21 @@ class record extends base {
         }
 
         switch ($owner) {
-        case 'A':
-            break;
-        case 'G':
-            $modelUsr = $this->model('matter\enroll\user');
-            $options = ['fields' => 'group_id'];
-            $oEnrollee = $modelUsr->byIdInApp($oApp, $oUser->uid, $options);
-            if ($oEnrollee) {
+            case 'A':
+                break;
+            case 'G':
+                $modelUsr = $this->model('matter\enroll\user');
+                $options = ['fields' => 'group_id'];
+                $oEnrollee = $modelUsr->byIdInApp($oApp, $oUser->uid, $options);
+                if ($oEnrollee) {
+                    !isset($oCriteria->record) && $oCriteria->record = new \stdClass;
+                    $oCriteria->record->group_id = isset($oEnrollee->group_id) ? $oEnrollee->group_id : '';
+                }
+                break;
+            default:
                 !isset($oCriteria->record) && $oCriteria->record = new \stdClass;
-                $oCriteria->record->group_id = isset($oEnrollee->group_id) ? $oEnrollee->group_id : '';
-            }
-            break;
-        default:
-            !isset($oCriteria->record) && $oCriteria->record = new \stdClass;
-            $oCriteria->record->userid = $oUser->uid;
-            break;
+                $oCriteria->record->userid = $oUser->uid;
+                break;
         }
 
         $aOptions = [];
@@ -777,7 +771,8 @@ class record extends base {
      * @param string $ek
      *
      */
-    public function like_action($ek) {
+    public function like_action($ek)
+    {
         $modelRec = $this->model('matter\enroll\record');
         $oRecord = $modelRec->byId($ek, ['fields' => 'id,enroll_key,state,aid,rid,userid,group_id,like_log,like_num']);
         if (false === $oRecord || $oRecord->state !== '1') {
@@ -835,7 +830,8 @@ class record extends base {
      *
      *
      */
-    public function dislike_action($ek) {
+    public function dislike_action($ek)
+    {
         $modelRec = $this->model('matter\enroll\record');
         $oRecord = $modelRec->byId($ek, ['fields' => 'id,enroll_key,state,aid,rid,userid,group_id,dislike_log,dislike_num']);
         if (false === $oRecord || $oRecord->state !== '1') {
@@ -896,7 +892,8 @@ class record extends base {
      * @param string $value
      *
      */
-    public function agree_action($ek, $value = '') {
+    public function agree_action($ek, $value = '')
+    {
         $modelRec = $this->model('matter\enroll\record');
         $oRecord = $modelRec->byId($ek, ['fields' => 'id,state,aid,rid,enroll_key,userid,group_id,agreed,agreed_log']);
         if (false === $oRecord || $oRecord->state !== '1') {
@@ -998,7 +995,8 @@ class record extends base {
      * @param string $ek
      *
      */
-    public function remove_action($app, $ek) {
+    public function remove_action($app, $ek)
+    {
         $modelApp = $this->model('matter\enroll');
         $oApp = $modelApp->byId($app, ['cascaded' => 'N']);
         if ($oApp === false || $oApp->state !== '1') {
@@ -1048,7 +1046,8 @@ class record extends base {
     /**
      * 返回指定记录项的活动记录
      */
-    public function list4Schema_action($app, $rid = null, $schema, $page = 1, $size = 10) {
+    public function list4Schema_action($app, $rid = null, $schema, $page = 1, $size = 10)
+    {
         // 记录数据过滤条件
         $oCriteria = $this->getPostJson();
 
@@ -1074,7 +1073,8 @@ class record extends base {
     /**
      * 将填写记录转发到其他活动
      */
-    public function transmit_action($ek, $transmit) {
+    public function transmit_action($ek, $transmit)
+    {
         $modelApp = $this->model('matter\enroll');
         $modelRec = $this->model('matter\enroll\record');
 
@@ -1089,7 +1089,9 @@ class record extends base {
             return new \ObjectNotFoundError();
         }
 
-        $oConfig = tms_array_search($oApp->transmitConfig, function ($oConfig) use ($transmit) {return $oConfig->id === $transmit;});
+        $oConfig = tms_array_search($oApp->transmitConfig, function ($oConfig) use ($transmit) {
+            return $oConfig->id === $transmit;
+        });
         if (empty($oConfig->app->id) || !isset($oConfig->mappings)) {
             return new \ResponseError('没有设置记录转发规则');
         }

@@ -1,116 +1,160 @@
 <!DOCTYPE html>
-<html ng-app='app' ng-controller='ctrlMain'>
-
-<head>
-    <meta charset="utf-8">
-    <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+<html ng-app="app" ng-controller="ctrlMain">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      content="width=device-width,user-scalable=no,initial-scale=1.0"
+      name="viewport"
+    />
     <base href="/" />
     <title>
-        <?php TPL::pt('title');?>
+      <?php TPL::pt('title');?>
     </title>
-    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-    <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet">
-</head>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet" />
+    <link
+      href="<?php echo auto_version('/static/css/site.fe.css');?>"
+      rel="stylesheet"
+    />
+  </head>
 
-<body ng-controller="ctrlCowork" tms-trace send-url='/rest/site/fe/matter/enroll/analysis/submit?site={{app.siteid}}&app={{app.id}}&page=cowork&record={{record.id}}' ready-sign="record">
-    <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
-    <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
-    <nav class='navbar site-navbar-default navbar-fixed-top'>
-        <div class='container'>
-            <div class="navbar-header pull-left" ng-if="app.scenarioConfig.can_repos==='Y'">
-                <a href class="navbar-brand" ng-click="gotoHome()">
-                    <i class="glyphicon glyphicon-home"></i> <span class="visible-lg-inline">首页</span>
-                </a>
-            </div>
-            <ul class="nav navbar-nav pull-right">
-                <li class="pull-left">
-                    <a href ng-click="showAppInfo()"><i class="glyphicon glyphicon-info-sign"></i></a>
-                </li>
-                <li class="pull-left">
-                    <a href ng-click="siteUser(app.siteid)"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline">个人中心</span></a>
-                </li>
-            </ul>
+  <body
+    ng-controller="ctrlCowork"
+    tms-trace
+    send-url="/rest/site/fe/matter/enroll/analysis/submit?site={{app.siteid}}&app={{app.id}}&page=cowork&record={{record.id}}"
+    ready-sign="record"
+  >
+    <header
+      ng-if="app.use_site_header==='Y'"
+      dynamic-html="site.header_page.html"
+    ></header>
+    <header
+      ng-if="app.use_mission_header==='Y'"
+      dynamic-html="mission.header_page.html"
+    ></header>
+    <nav class="navbar site-navbar-default navbar-fixed-top">
+      <div class="container">
+        <div
+          class="navbar-header pull-left"
+          ng-if="app.scenarioConfig.can_repos==='Y'"
+        >
+          <a href class="navbar-brand" ng-click="gotoHome()">
+            <i class="glyphicon glyphicon-home"></i>
+            <span class="visible-lg-inline">首页</span>
+          </a>
         </div>
+        <ul class="nav navbar-nav pull-right">
+          <li class="pull-left">
+            <a href ng-click="showAppInfo()"
+              ><i class="glyphicon glyphicon-info-sign"></i
+            ></a>
+          </li>
+          <li class="pull-left">
+            <a href ng-click="siteUser(app.siteid)"
+              ><i class="glyphicon glyphicon-user"></i
+              ><span class="visible-lg-inline">个人中心</span></a
+            >
+          </li>
+        </ul>
+      </div>
     </nav>
-    <div ng-cloak class='ng-cloak app'>
-        <div class="container">
-            <div class='row'>
-                <div ng-if="questionTasks.length" ng-cloak>
-                    <div uib-alert ng-repeat="task in questionTasks" class='alert-info'>
-                        <div ng-if="task.rid!==record.rid"><label><input type='checkbox' name='forQuestionTask' ng-true-value="{{task.id}}" ng-model="options.forQuestionTask"> 通过对问题留言，完成提问任务</label></div>
-                        <div ng-bind="task"></div>
-                    </div>
-                </div>
-                <div ng-include="selectedView.url"></div>
+    <div ng-cloak class="ng-cloak app">
+      <div class="container">
+        <div class="row">
+          <div ng-if="questionTasks.length" ng-cloak>
+            <div uib-alert ng-repeat="task in questionTasks" class="alert-info">
+              <div ng-if="task.rid!==record.rid">
+                <label
+                  ><input
+                    type="checkbox"
+                    name="forQuestionTask"
+                    ng-true-value="{{task.id}}"
+                    ng-model="options.forQuestionTask"
+                  />
+                  通过对问题留言，完成提问任务</label
+                >
+              </div>
+              <div ng-bind="task"></div>
             </div>
-            <div id='favorGuide' ng-if="favorStack.guiding">
-                <span>已收藏</span>
-                <button class='btn btn-default' ng-click="assignTopic()">选择专题</button>
-                <button class='btn btn-default' ng-click="assignTag()">添加标签</button>
-            </div>
+          </div>
+          <div ng-include="selectedView.url"></div>
         </div>
+        <div id="favorGuide" ng-if="favorStack.guiding">
+          <span>已收藏</span>
+          <button class="btn btn-default" ng-click="assignTopic()">
+            选择专题
+          </button>
+          <button class="btn btn-default" ng-click="assignTag()">
+            添加标签
+          </button>
+        </div>
+      </div>
     </div>
-    <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
-    <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
+    <footer
+      ng-if="app.use_mission_footer==='Y'"
+      dynamic-html="mission.footer_page.html"
+    ></footer>
+    <footer
+      ng-if="app.use_site_footer==='Y'"
+      dynamic-html="site.footer_page.html"
+    ></footer>
     <div class="loading">
-        <div class='loading-indicator'><i></i></div>
+      <div class="loading-indicator"><i></i></div>
     </div>
     <script type="text/ng-template" id="info.html">
-        <div class="modal-body">
-            <h4 ng-bind="app.title"></h4>
-            <p ng-if="app.summary" ng-bind="app.summary"></p>
-        </div>
-        <div class="modal-footer">
-            <div class='text-center'>
-                <button class="btn btn-default" ng-click="cancel()">关闭</button>
-            </div>
-        </div>
+      <div class="modal-body">
+          <h4 ng-bind="app.title"></h4>
+          <p ng-if="app.summary" ng-bind="app.summary"></p>
+      </div>
+      <div class="modal-footer">
+          <div class='text-center'>
+              <button class="btn btn-default" ng-click="cancel()">关闭</button>
+          </div>
+      </div>
     </script>
     <script type="text/ng-template" id="transmitRecord.html">
-        <div class="modal-body">
-            <div class='list-group'>
-                <div class='list-group-item' ng-class="{'active':result.config===config}" ng-click="result.config=config" ng-repeat="config in transmitConfig">
-                    <div>{{::config.app.title}}</div>
-                </div>
-            </div>
-            <div class='checkbox'>
-                <label><input type='checkbox' ng-model="result.gotoNewRecord"> 转发后跳转到新记录</label>
-            </div>
-        </div>
-        <div class="modal-footer" tms-hide-parent-height='400'>
-            <div class='text-center'>
-                <button class="btn btn-default" ng-click="cancel()">取消</button>
-                <button class="btn btn-default" ng-click="ok()" ng-disabled="!result.config">转发记录到指定的活动</button>
-            </div>
-        </div>
+      <div class="modal-body">
+          <div class='list-group'>
+              <div class='list-group-item' ng-class="{'active':result.config===config}" ng-click="result.config=config" ng-repeat="config in transmitConfig">
+                  <div>{{::config.app.title}}</div>
+              </div>
+          </div>
+          <div class='checkbox'>
+              <label><input type='checkbox' ng-model="result.gotoNewRecord"> 转发后跳转到新记录</label>
+          </div>
+      </div>
+      <div class="modal-footer" tms-hide-parent-height='400'>
+          <div class='text-center'>
+              <button class="btn btn-default" ng-click="cancel()">取消</button>
+              <button class="btn btn-default" ng-click="ok()" ng-disabled="!result.config">转发记录到指定的活动</button>
+          </div>
+      </div>
     </script>
     <script type="text/ng-template" id="writeItem.html">
-        <div class="modal-body">
-            <div id='itemEditor' content='data.content' tms-editor></div>
-        </div>
-        <div class="modal-footer" tms-hide-parent-height='400'>
-            <div class='text-center'>
-                <button class="btn btn-default" ng-click="cancel()">取消</button>
-                <button class="btn btn-primary" ng-click="ok()">提交</button>
-            </div>
-        </div>
+      <div class="modal-body">
+          <div id='itemEditor' content='data.content' tms-editor></div>
+      </div>
+      <div class="modal-footer" tms-hide-parent-height='400'>
+          <div class='text-center'>
+              <button class="btn btn-default" ng-click="cancel()">取消</button>
+              <button class="btn btn-primary" ng-click="ok()">提交</button>
+          </div>
+      </div>
     </script>
     <script type="text/ng-template" id="writeRemark.html">
-        <div class="modal-body">
-            <div id='remarkEditor' content='data.content' tms-editor></div>
-        </div>
-        <div class="modal-footer" tms-hide-parent-height='400'>
-            <div class='text-center'>
-                <button class="btn btn-default" ng-click="cancel()">关闭</button>
-                <button class="btn btn-primary" ng-click="ok()">提交留言</button>
-            </div>
-        </div>
+      <div class="modal-body">
+          <div id='remarkEditor' content='data.content' tms-editor></div>
+      </div>
+      <div class="modal-footer" tms-hide-parent-height='400'>
+          <div class='text-center'>
+              <button class="btn btn-default" ng-click="cancel()">关闭</button>
+              <button class="btn btn-primary" ng-click="ok()">提交留言</button>
+          </div>
+      </div>
     </script>
     <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/angular-sanitize.min.js"></script>
     <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
     <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/cowork.js');?>"></script>
-</body>
-
+  </body>
 </html>

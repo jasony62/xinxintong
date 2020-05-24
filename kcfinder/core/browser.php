@@ -207,7 +207,8 @@ class browser extends uploader
         //$file = $this->toLocalEncoding("{$this->thumbsDir}/{$this->type}/{$this->get['dir']}") . "/$file";
         $file = $this->toLocalEncoding("{$this->thumbsDir}/{$this->session['siteid']}/{$this->get['dir']}") . "/$file";
         if (!is_file($file) || !is_readable($file)) {
-            $file = $this->toLocalEncoding("{$this->config['uploadDir']}/{$this->type}/{$this->get['dir']}/") . $this->my_basename($file);
+            //$file = $this->toLocalEncoding("{$this->config['uploadDir']}/{$this->type}/{$this->get['dir']}/") . $this->my_basename($file);
+            $file = $this->toLocalEncoding("{$this->config['uploadDir']}/{$this->session['siteid']}/{$this->get['dir']}/") . $this->my_basename($file);
             if (!is_file($file) || !is_readable($file)) {
                 $this->sendDefaultThumb($file);
             }

@@ -1,4 +1,5 @@
 <?php
+
 namespace site\fe\matter\enroll;
 
 include_once dirname(__FILE__) . '/base.php';
@@ -6,11 +7,13 @@ include_once dirname(__FILE__) . '/base.php';
 /**
  * 记录活动附件
  */
-class attachment extends base {
+class attachment extends base
+{
     /**
      * 下载附件
      */
-    public function get_action($app, $attachment) {
+    public function get_action($app, $attachment)
+    {
         $modelApp = $this->model('matter\enroll');
         $oApp = $modelApp->byId($app, ['cascaded' => 'N']);
         if ($oApp === false || $oApp->state !== '1') {
@@ -43,7 +46,8 @@ class attachment extends base {
     /**
      * 下载题目中的文件
      */
-    public function download_action($app, $file) {
+    public function download_action($app, $file)
+    {
         if (empty($file)) {
             die('没有指定参数');
         }

@@ -1,15 +1,18 @@
 <?php
+
 namespace pl\fe\matter\enroll;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /*
  * 记录活动附件
  */
-class attachment extends \pl\fe\matter\base {
+class attachment extends \pl\fe\matter\base
+{
     /**
      * 分段上传附件
      */
-    public function upload_action($app) {
+    public function upload_action($app)
+    {
         if (false === ($oUser = $this->accountUser())) {
             return new \ResponseTimeout();
         }
@@ -29,7 +32,8 @@ class attachment extends \pl\fe\matter\base {
     /**
      * 上传成功后将附件信息保存到数据库中
      */
-    public function add_action($app) {
+    public function add_action($app)
+    {
         if (false === ($oUser = $this->accountUser())) {
             return new \ResponseTimeout();
         }
@@ -53,7 +57,7 @@ class attachment extends \pl\fe\matter\base {
         }
         $fileUploaded2 = $targetDir . '/' . $oApp->id . '_' . $modelApp->toLocalEncoding($oFile->name);
         if (false === rename($fileUploaded, $fileUploaded2)) {
-            return new ResponseError('移动上传文件失败');
+            return new \ResponseError('移动上传文件失败');
         }
         $url = 'local://enroll/' . date('Ym') . '/' . $oApp->id . '_' . $oFile->name;
 
@@ -73,7 +77,8 @@ class attachment extends \pl\fe\matter\base {
     /**
      * 删除附件???
      */
-    public function del_action($id) {
+    public function del_action($id)
+    {
         return new \ResponseData('not support');
     }
 }

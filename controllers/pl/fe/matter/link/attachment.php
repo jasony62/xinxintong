@@ -1,15 +1,18 @@
 <?php
+
 namespace pl\fe\matter\link;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /*
  * 文章控制器
  */
-class attachment extends \pl\fe\matter\base {
+class attachment extends \pl\fe\matter\base
+{
     /**
      * 分段上传附件
      */
-    public function upload_action($site, $linkid) {
+    public function upload_action($site, $linkid)
+    {
         if (false === ($oUser = $this->accountUser())) {
             return new \ResponseTimeout();
         }
@@ -27,7 +30,8 @@ class attachment extends \pl\fe\matter\base {
     /**
      * 上传成功后将附件信息保存到数据库中
      */
-    public function add_action($site, $id) {
+    public function add_action($site, $id)
+    {
         if (false === ($oUser = $this->accountUser())) {
             return new \ResponseTimeout();
         }
@@ -41,7 +45,7 @@ class attachment extends \pl\fe\matter\base {
         $file = $this->getPostJson();
         $oAtt = $this->attachmentAdd($oApp, $file);
         if ($oAtt[0] === false) {
-            return new ResponseError($oAtt[1]);
+            return new \ResponseError($oAtt[1]);
         }
 
         return new \ResponseData($oAtt[1]);
@@ -49,7 +53,8 @@ class attachment extends \pl\fe\matter\base {
     /**
      * 删除附件
      */
-    public function del_action($site, $id) {
+    public function del_action($site, $id)
+    {
         if (false === ($oUser = $this->accountUser())) {
             return new \ResponseTimeout();
         }

@@ -1,15 +1,18 @@
 <?php
+
 namespace pl\fe\matter\article;
 
 require_once dirname(dirname(__FILE__)) . '/main_base.php';
 /*
  * 文章控制器
  */
-class main extends \pl\fe\matter\main_base {
+class main extends \pl\fe\matter\main_base
+{
     /**
      * 返回单图文视图
      */
-    public function index_action($id) {
+    public function index_action($id)
+    {
         $access = $this->accessControlUser('article', $id);
         if ($access[0] === false) {
             die($access[1]);
@@ -32,7 +35,8 @@ class main extends \pl\fe\matter\main_base {
      * --$order
      *
      */
-    public function list_action($site = null, $mission = null, $platform = 'N', $page = 1, $size = 30) {
+    public function list_action($site = null, $mission = null, $platform = 'N', $page = 1, $size = 30)
+    {
         if (false === ($oUser = $this->accountUser())) {
             return new \ResponseTimeout();
         }
@@ -91,29 +95,29 @@ class main extends \pl\fe\matter\main_base {
          */
         !isset($oOptions->order) && $oOptions->order = '';
         switch ($oOptions->order) {
-        case 'title':
-            $q2['o'] = 'CONVERT(a.title USING gbk ) COLLATE gbk_chinese_ci';
-            break;
-        case 'read':
-            $q2['o'] = 'a.read_num desc';
-            break;
-        case 'share_friend':
-            $q2['o'] = 'a.share_friend_num desc';
-            break;
-        case 'share_timeline':
-            $q2['o'] = 'a.share_timeline_num desƒc';
-            break;
-        case 'like':
-            $q2['o'] = 'a.score desc';
-            break;
-        case 'remark':
-            $q2['o'] = 'a.remark_num desc';
-            break;
-        case 'download':
-            $q2['o'] = 'a.download_num desc';
-            break;
-        default:
-            $q2['o'] = 'a.modify_at desc';
+            case 'title':
+                $q2['o'] = 'CONVERT(a.title USING gbk ) COLLATE gbk_chinese_ci';
+                break;
+            case 'read':
+                $q2['o'] = 'a.read_num desc';
+                break;
+            case 'share_friend':
+                $q2['o'] = 'a.share_friend_num desc';
+                break;
+            case 'share_timeline':
+                $q2['o'] = 'a.share_timeline_num desƒc';
+                break;
+            case 'like':
+                $q2['o'] = 'a.score desc';
+                break;
+            case 'remark':
+                $q2['o'] = 'a.remark_num desc';
+                break;
+            case 'download':
+                $q2['o'] = 'a.download_num desc';
+                break;
+            default:
+                $q2['o'] = 'a.modify_at desc';
         }
         /**
          * limit
@@ -147,7 +151,8 @@ class main extends \pl\fe\matter\main_base {
      * @param int $id article's id
      *
      */
-    public function get_action($id, $cascade = 'Y') {
+    public function get_action($id, $cascade = 'Y')
+    {
         if (false === ($user = $this->accountUser())) {
             return new \ResponseTimeout();
         }
@@ -189,7 +194,8 @@ class main extends \pl\fe\matter\main_base {
      * @param int $mission
      *
      */
-    public function create_action($site = null, $mission = null) {
+    public function create_action($site = null, $mission = null)
+    {
         if (false === ($oUser = $this->accountUser())) {
             return new \ResponseTimeout();
         }
@@ -245,7 +251,8 @@ class main extends \pl\fe\matter\main_base {
      * @param char $mode 复制模式O:origin C:cite  D:duplicate
      *
      */
-    public function copy_action($site, $id, $mission = null, $mode = 'D') {
+    public function copy_action($site, $id, $mission = null, $mode = 'D')
+    {
         if (false === ($oUser = $this->accountUser())) {
             return new \ResponseTimeout();
         }
@@ -324,7 +331,8 @@ class main extends \pl\fe\matter\main_base {
      *
      * @param int $id article's id
      */
-    public function update_action($id) {
+    public function update_action($id)
+    {
         if (false === ($oUser = $this->accountUser())) {
             return new \ResponseTimeout();
         }
@@ -347,23 +355,23 @@ class main extends \pl\fe\matter\main_base {
                 continue;
             }
             switch ($k) {
-            case 'body':
-                $oUpdated->{$k} = $modelArt->escape(urldecode($v));
-                break;
-            case 'body_md':
-                $oUpdated->{$k} = $modelArt->escape($v);
-                break;
-            case 'entryRule':
-                $oUpdated->entry_rule = $modelArt->escape($modelArt->toJson($v));
-                break;
-            case 'config':
-                $oUpdated->{$k} = $modelArt->escape($modelArt->toJson($v));
-                break;
-            case 'downloadRule':
-                $oUpdated->download_rule = $modelArt->escape($modelArt->toJson($v));
-                break;
-            default:
-                $oUpdated->{$k} = $modelArt->escape($v);
+                case 'body':
+                    $oUpdated->{$k} = $modelArt->escape(urldecode($v));
+                    break;
+                case 'body_md':
+                    $oUpdated->{$k} = $modelArt->escape($v);
+                    break;
+                case 'entryRule':
+                    $oUpdated->entry_rule = $modelArt->escape($modelArt->toJson($v));
+                    break;
+                case 'config':
+                    $oUpdated->{$k} = $modelArt->escape($modelArt->toJson($v));
+                    break;
+                case 'downloadRule':
+                    $oUpdated->download_rule = $modelArt->escape($modelArt->toJson($v));
+                    break;
+                default:
+                    $oUpdated->{$k} = $modelArt->escape($v);
             }
         }
 
@@ -400,7 +408,8 @@ class main extends \pl\fe\matter\main_base {
     /**
      * 上传单图文到公众号后台
      */
-    public function upload2Mp_action($site, $id, $mediaId = null) {
+    public function upload2Mp_action($site, $id, $mediaId = null)
+    {
         $article = $this->model('matter\article')->forWxGroupPush($site, $id);
 
         if (empty($mediaId)) {
@@ -436,7 +445,8 @@ class main extends \pl\fe\matter\main_base {
     /**
      * 将文件生成的图片转为正文
      */
-    private function setBodyByAtt($articleid, $dir) {
+    private function setBodyByAtt($articleid, $dir)
+    {
         $body = '';
         $files = scandir($dir);
         $dir = \TMS_MODEL::toUTF8($dir);
@@ -457,7 +467,8 @@ class main extends \pl\fe\matter\main_base {
     /**
      * 将文件生成的图片的第一张设置为头图
      */
-    private function setCoverByAtt($articleid, $dir) {
+    private function setCoverByAtt($articleid, $dir)
+    {
         $dir = \TMS_MODEL::toUTF8($dir);
         $url = '/' . $dir . '/0.jpg';
         $rst = $this->model()->update(
@@ -471,7 +482,8 @@ class main extends \pl\fe\matter\main_base {
     /**
      * 上传文件并创建图文
      */
-    public function uploadAndCreate_action($site, $state = null) {
+    public function uploadAndCreate_action($site, $state = null)
+    {
         if ($state === 'done') {
             $oUser = $this->accountUser();
             $posted = $this->getPostJson();
@@ -512,7 +524,7 @@ class main extends \pl\fe\matter\main_base {
             $fileUploaded = $modelRes->rootDir . '/article_' . $file->uniqueIdentifier;
             $attachment = $modelAtt->rootDir . '/article_' . $oArticle->id . '_' . \TMS_MODEL::toLocalEncoding($filename);
             if (false === rename($fileUploaded, $attachment)) {
-                return new ResponseError('移动上传文件失败');
+                return new \ResponseError('移动上传文件失败');
             }
             /**获取附件的内容*/
             $appRoot = $_SERVER['DOCUMENT_ROOT'];
@@ -562,7 +574,8 @@ class main extends \pl\fe\matter\main_base {
     /**
      * 删除单图文
      */
-    public function remove_action($site, $id) {
+    public function remove_action($site, $id)
+    {
         if (false === ($oUser = $this->accountUser())) {
             return new \ResponseTimeout();
         }

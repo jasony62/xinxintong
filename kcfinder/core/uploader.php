@@ -112,7 +112,6 @@ class uploader
         if (function_exists('set_magic_quotes_runtime')) {
             @set_magic_quotes_runtime(false);
         }
-
         // INPUT INIT
         $input = new input();
         $this->get = &$input->get;

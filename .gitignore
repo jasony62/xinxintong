@@ -4,3 +4,4 @@ cus/
 kcfinder/upload
 docker/mariadb/data
 docker-compose.override.yml
+vendor

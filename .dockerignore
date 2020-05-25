@@ -8,3 +8,4 @@ docker-compose*
 .gitignore
 package-lock.json
 package.json
+vendor

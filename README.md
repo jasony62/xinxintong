@@ -16,7 +16,7 @@
 
 新建`cus`目录，新建`config.php`文件和`db.php`文件，设置系统参数。
 
-在`kcfinder`目录下，新建`upload`目录，保存上传文件。
+在`kcfinder`目录下，新建`upload`目录，保存上传文件。需要执行`chmod -R 777 upload`命令解决权限问题。
 
 # License
 

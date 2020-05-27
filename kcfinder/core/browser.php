@@ -110,6 +110,7 @@ class browser extends uploader
             // if (($type != $this->type) || !is_dir($this->toLocalEncoding($dir)) || !is_readable($this->toLocalEncoding($dir))) {
             //     $this->session['dir'] = $this->type;
             // }
+            $patt = [];
             $prefix = preg_match('/^([^\/]*)\/.*$/', $this->session['dir'], $patt) ? $patt[1] : $this->session['dir'];
             $dir = $this->config['uploadDir'] . "/" . $this->session['dir'];
             if (($prefix != $this->session['siteid']) || !is_dir($this->toLocalEncoding($dir)) || !is_readable($this->toLocalEncoding($dir))) {
@@ -152,12 +153,20 @@ class browser extends uploader
             unset($this->session['siteid']);
             $this->errorMsg("未登录");
         }
-        // 检查用户是否是站点管理员
-        $modelAdmin = TMS_MODEL::model('site\admin');
-        $rst = $modelAdmin->byUid($this->get['site'], $who->unionid);
-        if ($rst === false) {
-            unset($this->session['siteid']);
-            $this->errorMsg("无权访问");
+        // 检查用户是否是平台或站点管理员
+        if ($this->get['site'] === 'platform') {
+            $modelAcnt = TMS_MODEL::model('account');
+            if (!$modelAcnt->canManagePlatform($who->unionid)) {
+                unset($this->session['siteid']);
+                $this->errorMsg("无权访问");
+            }
+        } else {
+            $modelAdmin = TMS_MODEL::model('site\admin');
+            $rst = $modelAdmin->byUid($this->get['site'], $who->unionid);
+            if ($rst === false) {
+                unset($this->session['siteid']);
+                $this->errorMsg("无权访问");
+            }
         }
 
         if (

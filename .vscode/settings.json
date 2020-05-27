@@ -1,10 +1,12 @@
 {
   "editor.detectIndentation": false,
+  "editor.formatOnSave": true,
   "less.compile": {
     "compress": true,
     "sourceMap": false
   },
   "prettier.tabWidth": 2,
   "prettier.useTabs": false,
-  "editor.formatOnSave": true
+  "prettier.semi": false,
+  "prettier.singleQuote": true
 }
